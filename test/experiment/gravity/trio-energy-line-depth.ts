@@ -83,13 +83,50 @@ import { d4BoxCell } from '@/code/substrate/d4-box-integer'
 import { divergence } from '@/code/rule/step-depth'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { huskDistances } from '@/code/measure/plaquette-readings'
-import { addHuskFlux, bulkLinks, huskCast, lineRunner, routeUnits, staticDepth } from '@/code/measure/energy-lines'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, fitRing, levelPlacement, ringCenter, ringColumns } from '@/code/measure/held-cluster'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { lineGauge, placeCutFramed } from '@/code/measure/permutation-meeting'
+import {
+  addHuskFlux,
+  bulkLinks,
+  huskCast,
+  lineRunner,
+  routeUnits,
+  staticDepth,
+} from '@/code/measure/energy-lines'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  ringCenter,
+  ringColumns,
+} from '@/code/measure/held-cluster'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  lineGauge,
+  placeCutFramed,
+} from '@/code/measure/permutation-meeting'
 import type { BoundOptions } from '@/code/rule/bound-line-pieces'
-import { depthReading, exactLines, readSectors, ringHuskFlux, ringLinks, sectorBeat, sectorDensity, type DepthReading, type Sectors } from '@/code/measure/trio-energy-lines'
+import {
+  depthReading,
+  exactLines,
+  readSectors,
+  ringHuskFlux,
+  ringLinks,
+  sectorBeat,
+  sectorDensity,
+  type DepthReading,
+  type Sectors,
+} from '@/code/measure/trio-energy-lines'
 
 const BOX = 12
 const P = 40
@@ -119,7 +156,13 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
     const placed = levelPlacement(basis, level.cre, level.cim)
@@ -138,24 +181,36 @@ export default experiment({
     const fit = fitRing(placed, L)
     const links = ringLinks(f.tables, ring)
     const cast = huskCast(bulkLinks(f.tables), husk)
-    const c0 = Math.round(ringCenter(blochPacket(basis, L, level.cre, level.cim, true).density())) % L
-    const col = husk.column[ring.docks[c0] as number] as number
+    const c0 =
+      Math.round(
+        ringCenter(
+          blochPacket(basis, L, level.cre, level.cim, true).density(),
+        ),
+      ) % L
+    const col = husk.column[ring.docks[c0]!]!
     const sink = (c0 + L / 2) % L
-    const sinkCol = husk.column[ring.docks[sink] as number] as number
+    const sinkCol = husk.column[ring.docks[sink]!]!
     const dist = huskDistances(SIDE, col)
     const options: PieceOptions = { ...OPTIONS, unit: 0, flat: false }
+
     let plain: CutState = placeCutFramed(gauge, fit.kept, P, 'parallel')
-    let sectors: Sectors = new Map([[0, placeCutFramed(gauge, fit.kept, P, 'parallel')]])
+    let sectors: Sectors = new Map([
+      [0, placeCutFramed(gauge, fit.kept, P, 'parallel')],
+    ])
+
     const r0 = readSectors(L, sink, sectors, false)
     const lines = Float64Array.from(r0.gauss)
     const winding: number[] = [r0.circulation]
-    const spread: number[] = [Math.sqrt(Math.max(0, r0.circulation2 - r0.circulation ** 2))]
+    const spread: number[] = [
+      Math.sqrt(Math.max(0, r0.circulation2 - r0.circulation ** 2)),
+    ]
     const z3 = new Set<number>(r0.z3)
     const sumFlux64 = new Float64Array(husk.columns * 9)
     const sumFlux128 = new Float64Array(husk.columns * 9)
     const sumDensity64 = new Float64Array(L)
     const hf = new Float64Array(husk.columns * 9)
     const hd = new Float64Array(husk.columns)
+
     let sectorGap = 0
     let gaussGap = 0
     let offSector = 0
@@ -165,6 +220,7 @@ export default experiment({
     let g1Abs = 0
     let g1Off = 0
     let g1Radii = 0
+
     const sectorsSeen = new Set<number>([0])
 
     for (let t = 1; t <= BEATS; t++) {
@@ -174,22 +230,35 @@ export default experiment({
       const dens = sectorDensity(L, sectors)
       const densPlain = cutDensity(L, plain)
 
-      for (let x = 0; x < L; x++) sectorGap = Math.max(sectorGap, Math.abs((dens[x] as number) - (densPlain[x] as number)))
-      for (const N of sectors.keys()) sectorsSeen.add(N)
+      for (let x = 0; x < L; x++) {
+        sectorGap = Math.max(
+          sectorGap,
+          Math.abs(dens[x]! - densPlain[x]!),
+        )
+      }
+
+      for (const N of sectors.keys()) {
+        sectorsSeen.add(N)
+      }
 
       const r = readSectors(L, sink, sectors, true)
 
       for (let k = 0; k < L; k++) {
-        lines[k]! += r.drag[k] as number
-        gaussGap = Math.max(gaussGap, Math.abs((lines[k] as number) - (r.gauss[k] as number)))
-        largestExpected = Math.max(largestExpected, Math.abs(lines[k] as number))
+        lines[k]! += r.drag[k]!
+        gaussGap = Math.max(gaussGap, Math.abs(lines[k]! - r.gauss[k]!))
+        largestExpected = Math.max(largestExpected, Math.abs(lines[k]!))
       }
 
-      for (const q of r.z3) z3.add(q)
+      for (const q of r.z3) {
+        z3.add(q)
+      }
+
       offSector = Math.max(offSector, r.offSector)
       largest = Math.max(largest, r.largest)
       winding.push(r.circulation)
-      spread.push(Math.sqrt(Math.max(0, r.circulation2 - r.circulation ** 2)))
+      spread.push(
+        Math.sqrt(Math.max(0, r.circulation2 - r.circulation ** 2)),
+      )
 
       // G1: net outflow of each ball against the energy inside
       hf.fill(0)
@@ -201,32 +270,56 @@ export default experiment({
       content[sinkCol]! -= 3
 
       for (let rad = 0; rad <= 7; rad++) {
-        if ((dist[sinkCol] as number) <= rad) continue
+        if (dist[sinkCol]! <= rad) {
+          continue
+        }
 
         let out = 0
         let inside = 0
 
         for (let c = 0; c < husk.columns; c++) {
-          if ((dist[c] as number) > rad) continue
-          out += hd[c] as number
-          inside += content[c] as number
+          if (dist[c]! > rad) {
+            continue
+          }
+
+          out += hd[c]!
+          inside += content[c]!
         }
 
         // run 1's reading bug: the loves sit on alternate docks each beat, so a ball can enclose exactly 0, and a
         // relative error then divides by 0 (Infinity for a 1e-16 flux). "Within 1 percent of 0" is read as exact up to
         // float roundoff, 1e-12
-        g1Worst = Math.max(g1Worst, Math.abs(out - inside) / Math.max(Math.abs(inside), 1e-10))
+        g1Worst = Math.max(
+          g1Worst,
+          Math.abs(out - inside) / Math.max(Math.abs(inside), 1e-10),
+        )
         g1Abs = Math.max(g1Abs, Math.abs(out - inside))
-        if (Math.abs(out - inside) > Math.max(G1_TOLERANCE * Math.abs(inside), 1e-12)) g1Off++
-        if (t === 1) g1Radii++
+
+        if (
+          Math.abs(out - inside) >
+          Math.max(G1_TOLERANCE * Math.abs(inside), 1e-12)
+        ) {
+          g1Off++
+        }
+
+        if (t === 1) {
+          g1Radii++
+        }
       }
 
       for (let l = 0; l < hf.length; l++) {
-        if (t <= WINDOW) sumFlux64[l]! += hf[l] as number
-        sumFlux128[l]! += hf[l] as number
+        if (t <= WINDOW) {
+          sumFlux64[l]! += hf[l]!
+        }
+
+        sumFlux128[l]! += hf[l]!
       }
 
-      if (t <= WINDOW) for (let x = 0; x < L; x++) sumDensity64[x]! += dens[x] as number
+      if (t <= WINDOW) {
+        for (let x = 0; x < L; x++) {
+          sumDensity64[x]! += dens[x]!
+        }
+      }
     }
 
     const avg64 = Float64Array.from(sumFlux64, v => v / WINDOW)
@@ -236,10 +329,14 @@ export default experiment({
     const target = (TARGET_K * energy) / 3
     const read64 = depthReading(SIDE, col, avg64, REF, FIT_R)
     const read128 = depthReading(SIDE, col, avg128, REF, FIT_R)
-    const within = (d: DepthReading, k: number): boolean => Math.abs(d.k / k - 1) <= G2_TOLERANCE
+    const within = (d: DepthReading, k: number): boolean =>
+      Math.abs(d.k / k - 1) <= G2_TOLERANCE
 
     // ---- CONTROL+: the same density's static field through G2's summing ----
-    const coulomb = staticDepth(SIDE, ringColumns(husk, ring, density64))
+    const coulomb = staticDepth(
+      SIDE,
+      ringColumns(husk, ring, density64),
+    )
     const readPlus = depthReading(SIDE, col, coulomb.flux, REF, FIT_R)
     const controlPlus = within(readPlus, target)
 
@@ -259,7 +356,12 @@ export default experiment({
     routeUnits(blinks, placedLines, center, anti, PAIR_ENERGY)
 
     const key = fullPathKey(pathOffset(0))
-    const va = lineRunner(f.tables, vacuum, new Int32Array(f.cells * 12), key)
+    const va = lineRunner(
+      f.tables,
+      vacuum,
+      new Int32Array(f.cells * 12),
+      key,
+    )
     const sb = lineRunner(f.tables, seeded, placedLines, key)
     const pairFlux = new Float64Array(husk.columns * 9)
 
@@ -270,15 +372,33 @@ export default experiment({
       addHuskFlux(cast, va.line, pairFlux, -1 / WINDOW)
     }
 
-    const readMinus = depthReading(SIDE, husk.column[center] as number, pairFlux, REF, FIT_R)
-    const controlMinus = !within(readMinus, (TARGET_K * PAIR_ENERGY) / 3)
+    const readMinus = depthReading(
+      SIDE,
+      husk.column[center]!,
+      pairFlux,
+      REF,
+      FIT_R,
+    )
+    const controlMinus = !within(
+      readMinus,
+      (TARGET_K * PAIR_ENERGY) / 3,
+    )
 
     // ---- the gates ----
-    const g0 = exact.continuityOff === 0 && exact.offRing === 0 && exact.disturbed === 0 && exact.leak <= EXACT && exact.dragGap <= EXACT && exact.reversed && sectorGap <= SAME && gaussGap <= SAME
+    const g0 =
+      exact.continuityOff === 0 &&
+      exact.offRing === 0 &&
+      exact.disturbed === 0 &&
+      exact.leak <= EXACT &&
+      exact.dragGap <= EXACT &&
+      exact.reversed &&
+      sectorGap <= SAME &&
+      gaussGap <= SAME
     const g1 = g1Off === 0 && g1Radii > 0
     const g2 = within(read64, target)
-    const half = (xs: number[], from: number, to: number): number => Math.max(...xs.slice(from, to + 1))
-    const dW = winding.map(w => Math.abs(w - (winding[0] as number)))
+    const half = (xs: number[], from: number, to: number): number =>
+      Math.max(...xs.slice(from, to + 1))
+    const dW = winding.map(w => Math.abs(w - winding[0]!))
     const g3aFirst = half(dW, 0, WINDOW)
     const g3aSecond = half(dW, WINDOW + 1, BEATS)
     const g3bFirst = half(spread, 0, WINDOW)
@@ -286,7 +406,11 @@ export default experiment({
     const g3a = g3aSecond <= Math.max(G3_RATIO * g3aFirst, G3_FLOOR)
     const g3b = g3bSecond <= Math.max(G3_RATIO * g3bFirst, G3_FLOOR)
     const g3 = g3a && g3b
-    const status = !(controlPlus && controlMinus && g0) ? 'partial' : g1 && g2 && g3 ? 'pass' : 'fail'
+    const status = !(controlPlus && controlMinus && g0)
+      ? 'partial'
+      : g1 && g2 && g3
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const metrics: Record<string, number> = {
       gate_G0: g0 ? 1 : 0,
@@ -329,23 +453,26 @@ export default experiment({
       exactReversed: exact.reversed ? 1 : 0,
       c0,
       sink,
-      sinkDistance: dist[sinkCol] as number,
+      sinkDistance: dist[sinkCol]!,
       seconds: (Date.now() - started) / 1000,
     }
 
     for (let q = 0; q <= REF; q++) {
-      metrics[`lines64_r${q}`] = read64.profile[q] as number
-      metrics[`plus_r${q}`] = readPlus.profile[q] as number
-      metrics[`helm64_r${q}`] = read64.helmProfile[q] as number
+      metrics[`lines64_r${q}`] = read64.profile[q]!
+      metrics[`plus_r${q}`] = readPlus.profile[q]!
+      metrics[`helm64_r${q}`] = read64.helmProfile[q]!
     }
 
     const at = [1, 16, 32, 64, 96, 128]
 
     return verdict({
       status,
-      claim: `E-SPN-0104's held trio (energy ${energy.toFixed(5)} over ${WINDOW} beats) dragging E-GRV-0106's energy lines for ${BEATS} beats, the integer register carried exactly as ${sectorsSeen.size} cut sectors (weight off N = 0 at most ${offSector.toExponential(2)}; sectored against plain ${sectorGap.toExponential(1)}; lines against the Gauss register ${gaussGap.toExponential(1)}; residues L - c - Q mod 3 {${[...z3].join(', ')}}): G1 Gauss through ${g1Radii} husk balls on ${BEATS} beats off ${g1Off}, largest gap ${g1Abs.toExponential(2)} (relative ${g1Worst.toExponential(2)}); G2 the depth summed from the lines' averaged flux x(r) - x(8) ${read64.profile.slice(0, REF).map(f4).join(', ')}, k ${read64.k.toExponential(4)} against ${target.toExponential(4)} (curl on ${read64.curl} husk links; its divergence-fixed part k ${read64.helmK.toExponential(4)}, ${(100 * read64.freeShare).toFixed(1)} percent of the flux divergence free; 128 beats k ${read128.k.toExponential(4)}); G3 winding |W - W0| largest ${g3aFirst.toExponential(2)} then ${g3aSecond.toExponential(2)}, register spread ${g3bFirst.toFixed(4)} then ${g3bSecond.toFixed(4)} (at beats ${at.join(', ')}: ${at.map(t => (spread[t] as number).toFixed(3)).join(', ')}); largest line on an entry ${largest}, expected ${largestExpected.toFixed(3)}; control+ (the same density's static field summed) k ${readPlus.k.toExponential(4)}; control- (E-GRV-0107's pair) k ${readMinus.k.toExponential(4)} against ${((TARGET_K * PAIR_ENERGY) / 3).toExponential(4)}`,
+      claim: `E-SPN-0104's held trio (energy ${energy.toFixed(5)} over ${WINDOW} beats) dragging E-GRV-0106's energy lines for ${BEATS} beats, the integer register carried exactly as ${sectorsSeen.size} cut sectors (weight off N = 0 at most ${offSector.toExponential(2)}; sectored against plain ${sectorGap.toExponential(1)}; lines against the Gauss register ${gaussGap.toExponential(1)}; residues L - c - Q mod 3 {${[...z3].join(', ')}}): G1 Gauss through ${g1Radii} husk balls on ${BEATS} beats off ${g1Off}, largest gap ${g1Abs.toExponential(2)} (relative ${g1Worst.toExponential(2)}); G2 the depth summed from the lines' averaged flux x(r) - x(8) ${read64.profile.slice(0, REF).map(f4).join(', ')}, k ${read64.k.toExponential(4)} against ${target.toExponential(4)} (curl on ${read64.curl} husk links; its divergence-fixed part k ${read64.helmK.toExponential(4)}, ${(100 * read64.freeShare).toFixed(1)} percent of the flux divergence free; 128 beats k ${read128.k.toExponential(4)}); G3 winding |W - W0| largest ${g3aFirst.toExponential(2)} then ${g3aSecond.toExponential(2)}, register spread ${g3bFirst.toFixed(4)} then ${g3bSecond.toFixed(4)} (at beats ${at.join(', ')}: ${at.map(t => spread[t]!.toFixed(3)).join(', ')}); largest line on an entry ${largest}, expected ${largestExpected.toFixed(3)}; control+ (the same density's static field summed) k ${readPlus.k.toExponential(4)}; control- (E-GRV-0107's pair) k ${readMinus.k.toExponential(4)} against ${((TARGET_K * PAIR_ENERGY) / 3).toExponential(4)}`,
       metrics,
-      control: { plus: controlPlus ? 1 : 0, minus: controlMinus ? 1 : 0 },
+      control: {
+        plus: controlPlus ? 1 : 0,
+        minus: controlMinus ? 1 : 0,
+      },
       notes: `L2 (G0, G1 L1). Gates G0 ${g0}, G1 ${g1}, G2 ${g2}, G3 ${g3} (a ${g3a}, b ${g3b}); control+ ${controlPlus}, control- ${controlMinus}. Exact window (side 8, 2 beats): branches ${exact.branches.join(', ')}, continuity off ${exact.continuityOff}, off the ring ${exact.offRing}, disturbed ${exact.disturbed}, leak ${exact.leak.toExponential(1)}, expected drag against the ring form ${exact.dragGap.toExponential(1)}, reversed ${exact.reversed}. Start center ${c0}, sink ${sink} at husk distance ${dist[sinkCol]}. Control- divergence-fixed k ${readMinus.helmK.toExponential(4)}, divergence-free share ${(100 * readMinus.freeShare).toFixed(1)} percent, curl on ${readMinus.curl} links. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

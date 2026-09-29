@@ -52,21 +52,44 @@
 //   rim     heavy unless both links carry flux (the mirror: light inside the string, heavy at its ends and beyond)
 export type Bag = 'touch' | 'inside' | 'rim'
 
-export function bagHeavy(bag: Bag, left: boolean, right: boolean): boolean {
-  if (bag === 'touch') return left || right
-  if (bag === 'inside') return left && right
+export function bagHeavy(
+  bag: Bag,
+  left: boolean,
+  right: boolean,
+): boolean {
+  if (bag === 'touch') {
+    return left || right
+  }
+
+  if (bag === 'inside') {
+    return left && right
+  }
 
   return !(left && right)
 }
 
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { LINE_SECONDS } from '@/code/rule/coined-locked-knit'
-import { cloneConfiguration, times, type Branch } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  times,
+  type Branch,
+} from '@/code/rule/doublet-locked-knit'
 
-const copyBranch = (b: Branch): Branch => ({ ...cloneConfiguration(b), a: b.a, b: b.b, k: b.k })
+const copyBranch = (b: Branch): Branch => ({
+  ...cloneConfiguration(b),
+  a: b.a,
+  b: b.b,
+  k: b.k,
+})
 
 // the count u + step taken into [0, n), the amplitude taking w for every wrap up and w^2 for every wrap down
-export function carry(b: Branch, u: number, step: number, n: number): number {
+export function carry(
+  b: Branch,
+  u: number,
+  step: number,
+  n: number,
+): number {
   let v = u + step
 
   while (v >= n) {
@@ -85,11 +108,22 @@ export function carry(b: Branch, u: number, step: number, n: number): number {
 // the fine coin (or its adjoint) on one branch at count u: the branches it becomes, each with its count; with
 // `fullDock` the full-dock correction D is taken with it (a full line steps u by n, one wrap, in place of 1); every
 // line on a dock in `heavy` (E-SPN-0109) takes the heavy coin w, n steps in place of 1
-export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, adjoint: boolean, fullDock = false, heavy?: ReadonlySet<number>): { b: Branch; u: number }[] {
-  if (!Number.isInteger(n) || n < 1) throw new Error(`fine-coin: n must be a positive integer, got ${n}`)
+export function fineCoinBranch(
+  cells: number,
+  br: Branch,
+  u: number,
+  n: number,
+  adjoint: boolean,
+  fullDock = false,
+  heavy?: ReadonlySet<number>,
+): { b: Branch; u: number }[] {
+  if (!Number.isInteger(n) || n < 1) {
+    throw new Error(`fine-coin: n must be a positive integer, got ${n}`)
+  }
 
   const dir = adjoint ? -1 : 1
   const halves: { from: number; to: number; step: number }[] = []
+
   let fullSteps = 0
 
   for (let x = 0; x < cells; x++) {
@@ -97,28 +131,39 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
     const step = heavy !== undefined && heavy.has(x) ? n : 1
 
     for (let l = 0; l < 12; l++) {
-      const i = base + (LINE_FIRSTS[l] as number)
-      const j = base + (LINE_SECONDS[l] as number)
+      const i = base + LINE_FIRSTS[l]!
+      const j = base + LINE_SECONDS[l]!
       const hi = br.vibe[i] !== 0
       const hj = br.vibe[j] !== 0
 
       if (hi && hj) {
-        if (br.open[i] && br.open[j]) fullSteps += fullDock ? n : step
+        if (br.open[i] && br.open[j]) {
+          fullSteps += fullDock ? n : step
+        }
+
         continue
       }
 
-      if (hi && br.open[i]) halves.push({ from: i, to: j, step })
-      else if (hj && br.open[j]) halves.push({ from: j, to: i, step })
+      if (hi && br.open[i]) {
+        halves.push({ from: i, to: j, step })
+      } else if (hj && br.open[j]) {
+        halves.push({ from: j, to: i, step })
+      }
     }
   }
 
-  if (halves.length > 10) throw new Error(`fine-coin: ${halves.length} half-full open lines in one branch, over the guard 10`)
+  if (halves.length > 10) {
+    throw new Error(
+      `fine-coin: ${halves.length} half-full open lines in one branch, over the guard 10`,
+    )
+  }
 
   const out: { b: Branch; u: number }[] = []
 
   // per half-full line two bits: crossed, and stepped (the zeta term, or w on a heavy dock)
   for (let mask = 0; mask < 1 << (2 * halves.length); mask++) {
     const b = copyBranch(br)
+
     let steps = fullSteps
     let negative = false
 
@@ -127,9 +172,9 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
       const stepped = (mask >> (2 * m + 1)) & 1
 
       if (crossed) {
-        b.vibe[h.to] = b.vibe[h.from] as number
-        b.point[h.to] = b.point[h.from] as number
-        b.open[h.to] = b.open[h.from] as number
+        b.vibe[h.to] = b.vibe[h.from]!
+        b.point[h.to] = b.point[h.from]!
+        b.open[h.to] = b.open[h.from]!
         b.vibe[h.from] = 0
         b.point[h.from] = 0
         b.open[h.from] = 0
@@ -137,7 +182,10 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
 
       if (stepped) {
         steps += h.step
-        if (crossed) negative = !negative
+
+        if (crossed) {
+          negative = !negative
+        }
       }
     })
 

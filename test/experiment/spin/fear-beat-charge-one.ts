@@ -37,10 +37,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
-import { applyToCluster, binaryTetrahedralCharacters, heisenbergGroup, spinTurns } from '@/code/algebra/role-cluster'
+import {
+  applyToCluster,
+  binaryTetrahedralCharacters,
+  heisenbergGroup,
+  spinTurns,
+} from '@/code/algebra/role-cluster'
 import { channelShares } from '@/code/measure/cluster-pairs'
 import { irrepsOf, partitionName } from '@/code/measure/pauli-cluster'
-import { symmetrizedStart, tripleRun, type Complex, type TripleStart } from '@/code/measure/token-triple-run'
+import {
+  symmetrizedStart,
+  tripleRun,
+  type Complex,
+  type TripleStart,
+} from '@/code/measure/token-triple-run'
 import { type M3 } from '@/code/measure/token-pair-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
 import { eisValue } from '@/code/measure/eisenstein-words'
@@ -65,19 +75,33 @@ const EPSILON: { j: [number, number, number]; amp: number }[] = [
   [1, 0, 2, -1],
   [0, 2, 1, -1],
   [2, 1, 0, -1],
-].map(([a, b, c, s]) => ({ j: [a, b, c] as [number, number, number], amp: (s as number) / Math.sqrt(6) }))
-const DOUBLET: { j: [number, number, number]; amp: number }[] = [0, 1, 2].map(k => ({ j: [k, k, k] as [number, number, number], amp: 1 / Math.sqrt(3) }))
+].map(([a, b, c, s]) => ({
+  j: [a, b, c] as [number, number, number],
+  amp: s! / Math.sqrt(6),
+}))
+const DOUBLET: { j: [number, number, number]; amp: number }[] = [
+  0, 1, 2,
+].map(k => ({
+  j: [k, k, k] as [number, number, number],
+  amp: 1 / Math.sqrt(3),
+}))
 
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
 export default experiment({
@@ -91,17 +115,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- H1: channel shares ----
     const three = channelShares({ roles: 3, antiroles: 0 })
     const five = channelShares({ roles: 4, antiroles: 1 })
     const s4 = irrepsOf(4)
+
     const expectedAnti = (partition: string): number => {
       const mu = s4.find(i => partitionName(i.partition) === partition)!
 
       return (1 - (mu.values['2,1,1'] ?? 0) / mu.dimension) / 2
     }
+
     const det30 = three.shares.find(s => s.partition === '[1,1,1]')
     const doublet30 = three.shares.find(s => s.partition === '[3]')
     const natural41 = five.shares.find(s => s.spin === 'natural')
@@ -113,7 +142,11 @@ export default experiment({
       det30?.twoPiSign === 1 &&
       Math.abs(doublet30?.antisymmetricShare ?? 1) < 1e-9 &&
       doublet30?.twoPiSign === -1 &&
-      five.shares.every(s => Math.abs(s.antisymmetricShare - expectedAnti(s.partition)) < 1e-9) &&
+      five.shares.every(
+        s =>
+          Math.abs(s.antisymmetricShare - expectedAnti(s.partition)) <
+          1e-9,
+      ) &&
       Math.abs(natural41?.singletShare ?? 1) < 1e-9 &&
       (lambda41?.singletShare ?? 0) > 1e-3
 
@@ -121,42 +154,68 @@ export default experiment({
 
     // ---- H2: the singlet projector annihilates the natural channel of (4, 1) ----
     const { turns, lambda } = spinTurns()
-    const natural = binaryTetrahedralCharacters({ turns, lambda }).find(c => c.name === 'natural')!
+    const natural = binaryTetrahedralCharacters({ turns, lambda }).find(
+      c => c.name === 'natural',
+    )!
     const group = heisenbergGroup()
     const size = 3 ** 5
-    const project = (v: { re: Float64Array; im: Float64Array }): { re: Float64Array; im: Float64Array } => {
+
+    const project = (v: {
+      re: Float64Array
+      im: Float64Array
+    }): { re: Float64Array; im: Float64Array } => {
       // the color projector, then the natural 2T isotypic projector (2 / 24) sum conj(chi(e)) R(e)
-      const colored = { re: new Float64Array(size), im: new Float64Array(size) }
+      const colored = {
+        re: new Float64Array(size),
+        im: new Float64Array(size),
+      }
 
       for (const h of group) {
-        const hv = applyToCluster({ vector: v, unitary: h, roles: 4, antiroles: 1 })
+        const hv = applyToCluster({
+          vector: v,
+          unitary: h,
+          roles: 4,
+          antiroles: 1,
+        })
 
         for (let k = 0; k < size; k++) {
-          colored.re[k] = (colored.re[k] as number) + (hv.re[k] as number) / group.length
-          colored.im[k] = (colored.im[k] as number) + (hv.im[k] as number) / group.length
+          colored.re[k] = colored.re[k]! + hv.re[k]! / group.length
+          colored.im[k] = colored.im[k]! + hv.im[k]! / group.length
         }
       }
 
-      const out = { re: new Float64Array(size), im: new Float64Array(size) }
+      const out = {
+        re: new Float64Array(size),
+        im: new Float64Array(size),
+      }
 
       turns.forEach((t, i) => {
-        const rv = applyToCluster({ vector: colored, unitary: t.unitary as ComplexMatrix, roles: 4, antiroles: 1 })
+        const rv = applyToCluster({
+          vector: colored,
+          unitary: t.unitary,
+          roles: 4,
+          antiroles: 1,
+        })
         const chi = natural.values[i] ?? [0, 0]
         const cr = (2 / turns.length) * chi[0]
         const ci = (-2 / turns.length) * chi[1]
 
         for (let k = 0; k < size; k++) {
-          out.re[k] = (out.re[k] as number) + cr * (rv.re[k] as number) - ci * (rv.im[k] as number)
-          out.im[k] = (out.im[k] as number) + cr * (rv.im[k] as number) + ci * (rv.re[k] as number)
+          out.re[k] = out.re[k]! + cr * rv.re[k]! - ci * rv.im[k]!
+          out.im[k] = out.im[k]! + cr * rv.im[k]! + ci * rv.re[k]!
         }
       })
 
       return out
     }
+
     const naturalVectors: { re: Float64Array; im: Float64Array }[] = []
 
     for (let i = 0; i < size && naturalVectors.length < 4; i++) {
-      const e = { re: new Float64Array(size), im: new Float64Array(size) }
+      const e = {
+        re: new Float64Array(size),
+        im: new Float64Array(size),
+      }
 
       e.re[i] = 1
 
@@ -167,47 +226,61 @@ export default experiment({
         let ci = 0
 
         for (let k = 0; k < size; k++) {
-          cr += (b.re[k] as number) * (p.re[k] as number) + (b.im[k] as number) * (p.im[k] as number)
-          ci += (b.re[k] as number) * (p.im[k] as number) - (b.im[k] as number) * (p.re[k] as number)
+          cr += b.re[k]! * p.re[k]! + b.im[k]! * p.im[k]!
+          ci += b.re[k]! * p.im[k]! - b.im[k]! * p.re[k]!
         }
 
         for (let k = 0; k < size; k++) {
-          const br = b.re[k] as number
-          const bi = b.im[k] as number
+          const br = b.re[k]!
+          const bi = b.im[k]!
 
-          p.re[k] = (p.re[k] as number) - (cr * br - ci * bi)
-          p.im[k] = (p.im[k] as number) - (cr * bi + ci * br)
+          p.re[k] = p.re[k]! - (cr * br - ci * bi)
+          p.im[k] = p.im[k]! - (cr * bi + ci * br)
         }
       }
 
       let n = 0
 
-      for (let k = 0; k < size; k++) n += (p.re[k] as number) ** 2 + (p.im[k] as number) ** 2
+      for (let k = 0; k < size; k++) {
+        n += p.re[k]! ** 2 + p.im[k]! ** 2
+      }
 
       n = Math.sqrt(n)
 
-      if (n > 1e-6) naturalVectors.push({ re: p.re.map(x => x / n), im: p.im.map(x => x / n) })
+      if (n > 1e-6) {
+        naturalVectors.push({
+          re: p.re.map(x => x / n),
+          im: p.im.map(x => x / n),
+        })
+      }
     }
 
     // the singlet projector on (love i, the fear): (P v)_(jj) = (1/3) sum_k v_(kk)
-    const singletNorm = (v: { re: Float64Array; im: Float64Array }, love: number): number => {
+    const singletNorm = (
+      v: { re: Float64Array; im: Float64Array },
+      love: number,
+    ): number => {
       const s0 = 3 ** (4 - love)
       const sa = 1
+
       let total = 0
 
       for (let i = 0; i < size; i++) {
         const d0 = Math.floor(i / s0) % 3
         const da = i % 3
 
-        if (d0 !== da) continue
+        if (d0 !== da) {
+          continue
+        }
 
         const base = i - d0 * s0 - da * sa
+
         let sr = 0
         let si = 0
 
         for (let k = 0; k < 3; k++) {
-          sr += v.re[base + k * s0 + k * sa] as number
-          si += v.im[base + k * s0 + k * sa] as number
+          sr += v.re[base + k * s0 + k * sa]!
+          si += v.im[base + k * s0 + k * sa]!
         }
 
         total += (sr / 3) ** 2 + (si / 3) ** 2
@@ -215,18 +288,43 @@ export default experiment({
 
       return Math.sqrt(total)
     }
-    const naturalSinglet = Math.max(...naturalVectors.flatMap(v => [0, 1, 2, 3].map(love => singletNorm(v, love))))
+
+    const naturalSinglet = Math.max(
+      ...naturalVectors.flatMap(v =>
+        [0, 1, 2, 3].map(love => singletNorm(v, love)),
+      ),
+    )
     // control: a lambda-channel vector does have a singlet part (the same projector, lambda's character)
     const h2 = naturalVectors.length === 4 && naturalSinglet < 1e-12
 
     log('h2')
 
     // ---- H3: the reduction of three loves ----
-    const reductionStart = (role: typeof EPSILON, sign: 1 | -1): TripleStart[] => symmetrizedStart({ x: [2, 2, 3], c: [0, 1, 1], sign, role })
-    const scalarStart = (sign: 1 | -1): TripleStart[] => symmetrizedStart({ x: [2, 2, 3], c: [0, 1, 1], sign })
-    const reductionGap = (role: typeof EPSILON, sign: 1 | -1, phase: Complex): number => {
-      const full = tripleRun({ ring: REDUCTION_RING, roles: 27, start: reductionStart(role, sign) })
-      const scalar = tripleRun({ ring: REDUCTION_RING, roles: 1, phase, start: scalarStart(sign) })
+    const reductionStart = (
+      role: typeof EPSILON,
+      sign: 1 | -1,
+    ): TripleStart[] =>
+      symmetrizedStart({ x: [2, 2, 3], c: [0, 1, 1], sign, role })
+    const scalarStart = (sign: 1 | -1): TripleStart[] =>
+      symmetrizedStart({ x: [2, 2, 3], c: [0, 1, 1], sign })
+
+    const reductionGap = (
+      role: typeof EPSILON,
+      sign: 1 | -1,
+      phase: Complex,
+    ): number => {
+      const full = tripleRun({
+        ring: REDUCTION_RING,
+        roles: 27,
+        start: reductionStart(role, sign),
+      })
+      const scalar = tripleRun({
+        ring: REDUCTION_RING,
+        roles: 1,
+        phase,
+        start: scalarStart(sign),
+      })
+
       let gap = 0
 
       for (let t = 0; t < REDUCTION_BEATS; t++) {
@@ -236,24 +334,36 @@ export default experiment({
         const a = full.positionWeights()
         const b = scalar.positionWeights()
 
-        gap = Math.max(gap, ...a.map((x, i) => Math.abs(x - (b[i] as number))))
+        gap = Math.max(gap, ...a.map((x, i) => Math.abs(x - b[i]!)))
       }
 
       return gap
     }
+
     // fermions: the determinant pairs with symmetric slots and docks; the doublet with antisymmetric ones
     const epsilonGap = reductionGap(EPSILON, 1, OMEGA)
     const doubletGap = reductionGap(DOUBLET, -1, ONE)
     // control: the determinant with phase 1 is NOT its run (the reduction can fail)
     const epsilonAsFree = reductionGap(EPSILON, 1, ONE)
-    const h3 = epsilonGap < 1e-12 && doubletGap < 1e-12 && epsilonAsFree > 1e-6
+    const h3 =
+      epsilonGap < 1e-12 && doubletGap < 1e-12 && epsilonAsFree > 1e-6
 
     log('h3')
 
     // ---- H4: the determinant triple binds ----
     const trimer = (phase: Complex): { mean: number; late: number } => {
-      const run = tripleRun({ ring: TRIMER_RING, roles: 1, phase, start: symmetrizedStart({ x: [0, 0, 1], c: [0, 1, 1], sign: 1 }) })
+      const run = tripleRun({
+        ring: TRIMER_RING,
+        roles: 1,
+        phase,
+        start: symmetrizedStart({
+          x: [0, 0, 1],
+          c: [0, 1, 1],
+          sign: 1,
+        }),
+      })
       const T = 4 * TRIMER_RING
+
       let sum = 0
       let n = 0
       let late = 0
@@ -272,6 +382,7 @@ export default experiment({
 
       return { mean: sum / n, late }
     }
+
     const bound = trimer(OMEGA)
     const free = trimer(ONE)
     const h4 = bound.mean >= 0.3 && bound.mean >= 2 * free.mean
@@ -280,10 +391,20 @@ export default experiment({
     // fitted to a + b / L (a three-love bound state gives a > 0; a bound pair with a free third love gives a near 0,
     // since the third love is then within reach with chance about (2 near + 1) / L)
     const sizes = [16, 24, 32]
-    const scaling = (x: readonly [number, number, number], c: readonly [number, number, number]): { values: number[]; a: number; b: number; check: number } => {
+
+    const scaling = (
+      x: readonly [number, number, number],
+      c: readonly [number, number, number],
+    ): { values: number[]; a: number; b: number; check: number } => {
       const values = sizes.map(L => {
-        const run = tripleRun({ ring: L, roles: 1, phase: OMEGA, start: symmetrizedStart({ x, c, sign: 1 }) })
+        const run = tripleRun({
+          ring: L,
+          roles: 1,
+          phase: OMEGA,
+          start: symmetrizedStart({ x, c, sign: 1 }),
+        })
         const T = 4 * L
+
         let sum = 0
         let n = 0
 
@@ -305,6 +426,7 @@ export default experiment({
 
       return { values, a, b, check: a + b / 16 - v16 }
     }
+
     const distinctSlots = scaling([0, 0, 1], [0, 1, 1])
     const oneDock = scaling([0, 0, 0], [0, 1, 1])
 
@@ -313,12 +435,35 @@ export default experiment({
     // ---- H5: the start ensemble ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
     const ensemble = startFamily(16).map(member => {
-      const links = Array.from({ length: ENSEMBLE_RING }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
-      const start = symmetrizedStart({ x: [4, 4, 5], c: [0, 1, 1], sign: 1, role: EPSILON })
-      const field = tripleRun({ ring: ENSEMBLE_RING, roles: 27, links, start })
+      const links = Array.from(
+        { length: ENSEMBLE_RING },
+        (_, x) =>
+          unitaries[
+            table.indexOf(
+              phaseMove(
+                moves.act[member.start(x, moves.act.length)] ?? [],
+              ),
+            )
+          ]!,
+      )
+      const start = symmetrizedStart({
+        x: [4, 4, 5],
+        c: [0, 1, 1],
+        sign: 1,
+        role: EPSILON,
+      })
+      const field = tripleRun({
+        ring: ENSEMBLE_RING,
+        roles: 27,
+        links,
+        start,
+      })
       const plain = tripleRun({ ring: ENSEMBLE_RING, roles: 27, start })
+
       let gap = 0
 
       for (let t = 0; t < ENSEMBLE_BEATS; t++) {
@@ -328,7 +473,7 @@ export default experiment({
         const a = field.positionWeights()
         const b = plain.positionWeights()
 
-        gap = Math.max(gap, ...a.map((x, i) => Math.abs(x - (b[i] as number))))
+        gap = Math.max(gap, ...a.map((x, i) => Math.abs(x - b[i]!)))
       }
 
       return { member: member.name, gap }
@@ -338,7 +483,8 @@ export default experiment({
     log('h5')
 
     const ok = h1 && h2 && h3 && h4 && h5
-    const shareText = (s: (typeof five.shares)[number]): string => `${s.spin} (2 pi ${s.twoPiSign > 0 ? '+' : '-'}) ${s.partition} dim ${s.dimension.toFixed(0)}: love pair antisymmetric ${s.antisymmetricShare.toFixed(4)}, love-fear singlet ${s.singletShare.toFixed(4)}`
+    const shareText = (s: (typeof five.shares)[number]): string =>
+      `${s.spin} (2 pi ${s.twoPiSign > 0 ? '+' : '-'}) ${s.partition} dim ${s.dimension.toFixed(0)}: love pair antisymmetric ${s.antisymmetricShare.toFixed(4)}, love-fear singlet ${s.singletShare.toFixed(4)}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -349,19 +495,44 @@ export default experiment({
         gate_H3: h3 ? 1 : 0,
         gate_H4: h4 ? 1 : 0,
         gate_H5: h5 ? 1 : 0,
-        ...Object.fromEntries(three.shares.flatMap(s => [[`s30_${s.spin}_${s.partition}_antisym`, s.antisymmetricShare]])),
-        ...Object.fromEntries(five.shares.flatMap(s => [[`s41_${s.spin}_${s.partition}_antisym`, s.antisymmetricShare], [`s41_${s.spin}_${s.partition}_singlet`, s.singletShare]])),
+        ...Object.fromEntries(
+          three.shares.flatMap(s => [
+            [
+              `s30_${s.spin}_${s.partition}_antisym`,
+              s.antisymmetricShare,
+            ],
+          ]),
+        ),
+        ...Object.fromEntries(
+          five.shares.flatMap(s => [
+            [
+              `s41_${s.spin}_${s.partition}_antisym`,
+              s.antisymmetricShare,
+            ],
+            [`s41_${s.spin}_${s.partition}_singlet`, s.singletShare],
+          ]),
+        ),
         naturalChannelDimension: naturalVectors.length,
         naturalSingletNorm: naturalSinglet,
         reductionGapDeterminant: epsilonGap,
         reductionGapDoublet: doubletGap,
         trimerCompact: bound.mean,
         trimerCompactLast: bound.late,
-        ...Object.fromEntries(distinctSlots.values.map((v, i) => [`distinctSlotsCompactRing${sizes[i]}`, v])),
+        ...Object.fromEntries(
+          distinctSlots.values.map((v, i) => [
+            `distinctSlotsCompactRing${sizes[i]}`,
+            v,
+          ]),
+        ),
         distinctSlotsFitA: distinctSlots.a,
         distinctSlotsFitB: distinctSlots.b,
         distinctSlotsFitCheck16: distinctSlots.check,
-        ...Object.fromEntries(oneDock.values.map((v, i) => [`oneDockCompactRing${sizes[i]}`, v])),
+        ...Object.fromEntries(
+          oneDock.values.map((v, i) => [
+            `oneDockCompactRing${sizes[i]}`,
+            v,
+          ]),
+        ),
         oneDockFitA: oneDock.a,
         oneDockFitB: oneDock.b,
         oneDockFitCheck16: oneDock.check,

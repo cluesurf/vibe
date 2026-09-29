@@ -75,10 +75,28 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { conjugateSecond, fearKernels, meetingKernel, singletPhase, swapPhase, wholeKernel, type Whole } from '@/code/rule/fear-weave'
+import {
+  conjugateSecond,
+  fearKernels,
+  meetingKernel,
+  singletPhase,
+  swapPhase,
+  wholeKernel,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
-import { gridLines, hermitianValues, pureChshBound, reducedFirst } from '@/code/measure/bell-gates'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
+import {
+  gridLines,
+  hermitianValues,
+  pureChshBound,
+  reducedFirst,
+} from '@/code/measure/bell-gates'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 import { twoRolePoints } from '@/code/rule/fear-weave'
 import { gridWeights, type Operator } from '@/code/measure/grid-weights'
@@ -89,20 +107,34 @@ const TSIRELSON = 2 * Math.SQRT2
 const DEPTH = 5
 const FRONTIER = 4000
 
-type Reading = { minEig: number; seesaw: number; closed: number; schmidt: number[] }
+type Reading = {
+  minEig: number
+  seesaw: number
+  closed: number
+  schmidt: number[]
+}
 
 function readState(p: Whole): Reading {
   const rho = roleDensity(p)
   const values = hermitianValues(rho)
   const schmidt = hermitianValues(reducedFirst(rho)).reverse()
 
-  return { minEig: values[0] ?? 0, seesaw: roleChsh(rho), closed: pureChshBound(schmidt), schmidt }
+  return {
+    minEig: values[0] ?? 0,
+    seesaw: roleChsh(rho),
+    closed: pureChshBound(schmidt),
+    schmidt,
+  }
 }
 
 // the density of a float weight array on two roles
 function densityOfFloat(weight: readonly number[]): Operator {
   const points = twoRolePoints()
-  const rho: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+  const rho: Operator = {
+    n: 9,
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   weight.forEach((w, x) => {
     if (w === 0) {
@@ -124,7 +156,7 @@ export default experiment({
   id: 'quantum/bell-tsirelson-gate',
   code: 'E-QTM-0112',
   title:
-    'the Tsirelson bound as a gate on every Bell experiment of the fear beat: every knot the six histories reach is positive and under 2 sqrt 2, the readings are sqrt 7 from Schmidt weights (3/4, 1/4, 0) and (2 + 4 sqrt 2)/3 from (1/3, 1/3, 1/3), both Z[omega] norms, and a weight array with the knot\'s own purity count but one negative eigenvalue breaks the bound',
+    "the Tsirelson bound as a gate on every Bell experiment of the fear beat: every knot the six histories reach is positive and under 2 sqrt 2, the readings are sqrt 7 from Schmidt weights (3/4, 1/4, 0) and (2 + 4 sqrt 2)/3 from (1/3, 1/3, 1/3), both Z[omega] norms, and a weight array with the knot's own purity count but one negative eigenvalue breaks the bound",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -132,19 +164,26 @@ export default experiment({
   run() {
     const histories = bellHistories(BEATS)
     const { lines } = gridLines()
+
     let states = 0
     let minEig = Number.POSITIVE_INFINITY
     let maxSeesaw = Number.NEGATIVE_INFINITY
     let maxClosed = Number.NEGATIVE_INFINITY
     let worstAgreement = 0
+
     const readings: Record<string, number> = {}
+
     const take = (r: Reading): void => {
       states++
       minEig = Math.min(minEig, r.minEig)
       maxSeesaw = Math.max(maxSeesaw, r.seesaw)
       maxClosed = Math.max(maxClosed, r.closed)
-      worstAgreement = Math.max(worstAgreement, Math.abs(r.closed - r.seesaw))
+      worstAgreement = Math.max(
+        worstAgreement,
+        Math.abs(r.closed - r.seesaw),
+      )
     }
+
     let readingsOk = true
 
     for (const h of histories) {
@@ -155,6 +194,7 @@ export default experiment({
         [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
         [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k),
       )
+
       let w = own
       let historyMax = Number.NEGATIVE_INFINITY
 
@@ -179,9 +219,16 @@ export default experiment({
           readings[`${h.name}_schmidt3`] = s[2] ?? -1
 
           if (h.name === 'qtm0100-swap') {
-            readingsOk = readingsOk && Math.abs((s[0] ?? 0) - 3 / 4) < 1e-9 && Math.abs((s[1] ?? 0) - 1 / 4) < 1e-9 && Math.abs(r.seesaw - Math.sqrt(7)) < 1e-9
+            readingsOk =
+              readingsOk &&
+              Math.abs((s[0] ?? 0) - 3 / 4) < 1e-9 &&
+              Math.abs((s[1] ?? 0) - 1 / 4) < 1e-9 &&
+              Math.abs(r.seesaw - Math.sqrt(7)) < 1e-9
           } else if (h.name !== 'frc0159-HF') {
-            readingsOk = readingsOk && s.every(x => Math.abs(x - 1 / 3) < 1e-9) && Math.abs(r.seesaw - (2 + 4 * Math.SQRT2) / 3) < 1e-9
+            readingsOk =
+              readingsOk &&
+              s.every(x => Math.abs(x - 1 / 3) < 1e-9) &&
+              Math.abs(r.seesaw - (2 + 4 * Math.SQRT2) / 3) < 1e-9
           }
         }
       }
@@ -203,7 +250,9 @@ export default experiment({
     }
 
     // G5, the control: rho = 2/3 Phi+ + 2/3 |22><22| - 1/3 Psi-, as grid weights in whole units
-    const amplitude = (pairs: [number, number, number][]): { re: number[]; im: number[] } => {
+    const amplitude = (
+      pairs: [number, number, number][],
+    ): { re: number[]; im: number[] } => {
       const re = new Array<number>(9).fill(0)
 
       for (const [i, j, a] of pairs) {
@@ -212,11 +261,24 @@ export default experiment({
 
       return { re, im: new Array<number>(9).fill(0) }
     }
+
     const s2 = Math.SQRT1_2
     const parts: [number, { re: number[]; im: number[] }][] = [
-      [2 / 3, amplitude([[0, 0, s2], [1, 1, s2]])],
+      [
+        2 / 3,
+        amplitude([
+          [0, 0, s2],
+          [1, 1, s2],
+        ]),
+      ],
       [2 / 3, amplitude([[2, 2, 1]])],
-      [-1 / 3, amplitude([[0, 1, s2], [1, 0, -s2]])],
+      [
+        -1 / 3,
+        amplitude([
+          [0, 1, s2],
+          [1, 0, -s2],
+        ]),
+      ],
     ]
     const points = twoRolePoints()
     const fake = new Array<number>(81).fill(0)
@@ -237,25 +299,61 @@ export default experiment({
 
     const fakeInts = fake.map(x => BigInt(Math.round(fakeUnits * x)))
     const fakeSum = fakeInts.reduce((s, x) => s + x, 0n)
-    const fakePurityCount = 9n * fakeInts.reduce((s, x) => s + x * x, 0n) === fakeSum * fakeSum && fakeSum === BigInt(fakeUnits)
-    const fakeRho = densityOfFloat(fakeInts.map(x => Number(x) / fakeUnits))
+    const fakePurityCount =
+      9n * fakeInts.reduce((s, x) => s + x * x, 0n) ===
+        fakeSum * fakeSum && fakeSum === BigInt(fakeUnits)
+    const fakeRho = densityOfFloat(
+      fakeInts.map(x => Number(x) / fakeUnits),
+    )
     const fakeValues = hermitianValues(fakeRho)
     const fakeChsh = roleChsh(fakeRho)
 
     // G6, the reach search
     const moves = gridMoves()
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
-    const kept = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
+    const kept = fearKernels({
+      like: OMEGA,
+      unlike: OMEGA,
+      likeExchanged: false,
+    })!
     // A pair's tokens keep their signs for life (E-QTM-0109), so a like pair only ever meets by the like
     // kernel and a love-fear pair only by the love-first singlet phase, with the fear stored conjugated.
     // 'swap' is E-QTM-0100's SWAP U, which is also the color mode's like kernel with the tokens exchanged.
-    const sets: { name: string; conjugated: boolean; kernels: { k: number[][]; d: number }[] }[] = [
-      { name: 'swap', conjugated: false, kernels: [{ k: kThird, d: 4 }] },
-      { name: 'likeKept', conjugated: false, kernels: [{ k: kept.like.map(r => [...r]), d: kept.likeDivisor }] },
-      { name: 'loveFear', conjugated: true, kernels: [{ k: kept.unlike.map(r => [...r]), d: kept.unlikeDivisor }] },
+    const sets: {
+      name: string
+      conjugated: boolean
+      kernels: { k: number[][]; d: number }[]
+    }[] = [
+      {
+        name: 'swap',
+        conjugated: false,
+        kernels: [{ k: kThird, d: 4 }],
+      },
+      {
+        name: 'likeKept',
+        conjugated: false,
+        kernels: [
+          { k: kept.like.map(r => [...r]), d: kept.likeDivisor },
+        ],
+      },
+      {
+        name: 'loveFear',
+        conjugated: true,
+        kernels: [
+          { k: kept.unlike.map(r => [...r]), d: kept.unlikeDivisor },
+        ],
+      },
     ]
-    const conj = (w: readonly number[]): number[] => w.map((_, i) => w[Math.floor(i / 9) * 9 + (3 * Math.floor((i % 9) / 3) + ((3 - (i % 3)) % 3))] ?? 0)
+    const conj = (w: readonly number[]): number[] =>
+      w.map(
+        (_, i) =>
+          w[
+            Math.floor(i / 9) * 9 +
+              (3 * Math.floor((i % 9) / 3) + ((3 - (i % 3)) % 3))
+          ] ?? 0,
+      )
     const reach: Record<string, number> = {}
+
     let reachAbove = 0
     let reachStates = 0
     let reachedHalfHalf = 0
@@ -263,19 +361,33 @@ export default experiment({
     let reachMinEig = Number.POSITIVE_INFINITY
 
     for (const set of sets) {
-      const startOf = (a: number, b: number): number[] => Array.from({ length: 81 }, (_, i) => (Math.floor(Math.floor(i / 9) / 3) === a && Math.floor((i % 9) / 3) === b ? 1 / 9 : 0))
+      const startOf = (a: number, b: number): number[] =>
+        Array.from({ length: 81 }, (_, i) =>
+          Math.floor(Math.floor(i / 9) / 3) === a &&
+          Math.floor((i % 9) / 3) === b
+            ? 1 / 9
+            : 0,
+        )
       const keyOf = (w: readonly number[]): string =>
         [...w]
           .map(x => Math.round(x * 1e9))
           .sort((a, b) => a - b)
           .join(',')
       const seen = new Set<string>()
+
       let frontier: number[][] = [startOf(0, 1), startOf(0, 0)]
 
       frontier.forEach(w => seen.add(keyOf(w)))
 
-      for (let depth = 1; depth <= DEPTH && frontier.length > 0 && frontier.length <= FRONTIER; depth++) {
+      for (
+        let depth = 1;
+        depth <= DEPTH &&
+        frontier.length > 0 &&
+        frontier.length <= FRONTIER;
+        depth++
+      ) {
         const next: number[][] = []
+
         let best = 0
         let closest = Number.POSITIVE_INFINITY
 
@@ -285,7 +397,8 @@ export default experiment({
             const moved = new Array<number>(81).fill(0)
 
             for (let i = 0; i < 81; i++) {
-              moved[Math.floor(i / 9) * 9 + (act[i % 9] ?? 0)] = s[i] ?? 0
+              moved[Math.floor(i / 9) * 9 + (act[i % 9] ?? 0)] =
+                s[i] ?? 0
             }
 
             for (const { k, d } of set.kernels) {
@@ -293,6 +406,7 @@ export default experiment({
 
               for (let r = 0; r < 81; r++) {
                 const row = k[r]!
+
                 let sum = 0
 
                 for (let c = 0; c < 81; c++) {
@@ -315,17 +429,27 @@ export default experiment({
               seen.add(key)
               next.push(child)
 
-              const rho = densityOfFloat(set.conjugated ? conj(child) : child)
-              const schmidt = hermitianValues(reducedFirst(rho)).reverse()
+              const rho = densityOfFloat(
+                set.conjugated ? conj(child) : child,
+              )
+              const schmidt = hermitianValues(
+                reducedFirst(rho),
+              ).reverse()
               const closed = pureChshBound(schmidt)
 
               reachStates++
-              reachMinEig = Math.min(reachMinEig, hermitianValues(rho)[0] ?? 0)
+              reachMinEig = Math.min(
+                reachMinEig,
+                hermitianValues(rho)[0] ?? 0,
+              )
               best = Math.max(best, closed)
               reachBest = Math.max(reachBest, closed)
               reachAbove += closed > TSIRELSON + 1e-9 ? 1 : 0
 
-              const distance = Math.abs((schmidt[0] ?? 0) - 0.5) + Math.abs((schmidt[1] ?? 0) - 0.5) + Math.abs(schmidt[2] ?? 0)
+              const distance =
+                Math.abs((schmidt[0] ?? 0) - 0.5) +
+                Math.abs((schmidt[1] ?? 0) - 0.5) +
+                Math.abs(schmidt[2] ?? 0)
 
               closest = Math.min(closest, distance)
               reachedHalfHalf += distance < 1e-9 ? 1 : 0
@@ -342,10 +466,14 @@ export default experiment({
 
     const gates = {
       G1: states > 0 && minEig >= -1e-9,
-      G2: maxSeesaw <= TSIRELSON + 1e-9 && maxClosed <= TSIRELSON + 1e-9,
+      G2:
+        maxSeesaw <= TSIRELSON + 1e-9 && maxClosed <= TSIRELSON + 1e-9,
       G3: worstAgreement <= 1e-6,
       G4: readingsOk,
-      G5: fakePurityCount && (fakeValues[0] ?? 0) < -0.3 && fakeChsh > TSIRELSON + 1e-6,
+      G5:
+        fakePurityCount &&
+        (fakeValues[0] ?? 0) < -0.3 &&
+        fakeChsh > TSIRELSON + 1e-6,
       G6: reachStates > 0 && reachAbove === 0,
     }
     const ok = Object.values(gates).every(Boolean)
@@ -353,7 +481,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'every knot the six Bell histories reach, from the experiments\' own starts at every meeting and from all 144 line products at the reading beat, is positive and reads CHSH at most 2 sqrt 2 (the pairing form over Schmidt weights is only a lower bound, beaten by the see-saw by up to 0.09 away from the readings); sqrt 7 and (2 + 4 sqrt 2)/3 are the Schmidt weights (3/4, 1/4, 0) and (1/3, 1/3, 1/3) that one swap phase and one singlet phase make; a weight array that passes the knot\'s own purity count with one negative eigenvalue breaks the bound, so positivity, not the count, is what holds it',
+        "every knot the six Bell histories reach, from the experiments' own starts at every meeting and from all 144 line products at the reading beat, is positive and reads CHSH at most 2 sqrt 2 (the pairing form over Schmidt weights is only a lower bound, beaten by the see-saw by up to 0.09 away from the readings); sqrt 7 and (2 + 4 sqrt 2)/3 are the Schmidt weights (3/4, 1/4, 0) and (1/3, 1/3, 1/3) that one swap phase and one singlet phase make; a weight array that passes the knot's own purity count with one negative eigenvalue breaks the bound, so positivity, not the count, is what holds it",
       metrics: {
         states,
         minEigenvalue: minEig,
@@ -368,7 +496,12 @@ export default experiment({
         reachMinEigenvalue: reachMinEig,
         reachStatesAtHalfHalf: reachedHalfHalf,
         ...reach,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         fakeUnits,
@@ -377,7 +510,8 @@ export default experiment({
         fakeChsh,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the largest CHSH over the histories 2.7487 -> 2.8271 (see-saw and closed form, rlt0055), within 0.0014 of Tsirelson's 2 sqrt 2, the worst closed-form agreement 1.5e-4 -> 4.0e-4. " + ('Exact BigInt knots on the histories; the see-saw and eigenvalues in floating point. The reach search merges states by their sorted weights, which a grid move on either token keeps, so it explores local classes of the kernel group; it can merge two classes that share a weight multiset and so under-explore, never over-report.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the largest CHSH over the histories 2.7487 -> 2.8271 (see-saw and closed form, rlt0055), within 0.0014 of Tsirelson's 2 sqrt 2, the worst closed-form agreement 1.5e-4 -> 4.0e-4. " +
+        'Exact BigInt knots on the histories; the see-saw and eigenvalues in floating point. The reach search merges states by their sorted weights, which a grid move on either token keeps, so it explores local classes of the kernel group; it can merge two classes that share a weight multiset and so under-explore, never over-report.',
     })
   },
 })

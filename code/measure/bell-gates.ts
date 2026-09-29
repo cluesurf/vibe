@@ -64,11 +64,15 @@ export function gridLines(): GridLines {
     }
   }
 
-  const lines = [...seen.values()].sort((a, b) => (a.join(',') < b.join(',') ? -1 : 1))
+  const lines = [...seen.values()].sort((a, b) =>
+    a.join(',') < b.join(',') ? -1 : 1,
+  )
   const families: number[][][] = []
 
   for (const line of lines) {
-    const family = families.find(f => f.every(other => other.every(p => !line.includes(p))))
+    const family = families.find(f =>
+      f.every(other => other.every(p => !line.includes(p))),
+    )
 
     if (family) {
       family.push(line)
@@ -85,7 +89,10 @@ export function gridLines(): GridLines {
 // the 26 two-outcome observables at the model's settings, each a +-1 value on the 9 points
 export function lineObservables(): readonly Int8Array[] {
   const { families } = gridLines()
-  const out: Int8Array[] = [new Int8Array(9).fill(1), new Int8Array(9).fill(-1)]
+  const out: Int8Array[] = [
+    new Int8Array(9).fill(1),
+    new Int8Array(9).fill(-1),
+  ]
 
   for (const family of families) {
     for (const line of family) {
@@ -95,7 +102,10 @@ export function lineObservables(): readonly Int8Array[] {
         a[p] = 1
       }
 
-      out.push(a, Int8Array.from(a, x => -x))
+      out.push(
+        a,
+        Int8Array.from(a, x => -x),
+      )
     }
   }
 
@@ -128,10 +138,16 @@ export function correlatorTable(weight: readonly bigint[]): bigint[][] {
 // the largest CHSH value over the 26 x 26 x 26 x 26 settings, as an exact numerator over the units, found by
 // maximizing b0 and b1 separately for each (a0, a1), which is exact since CHSH is a sum of a b0 term and a b1
 // term
-export function enumeratedChsh(weight: readonly bigint[]): { numerator: bigint; units: bigint; value: number; settings: readonly number[] } {
+export function enumeratedChsh(weight: readonly bigint[]): {
+  numerator: bigint
+  units: bigint
+  value: number
+  settings: readonly number[]
+} {
   const table = correlatorTable(weight)
   const units = weight.reduce((s, w) => s + w, 0n)
   const n = table.length
+
   let best = -1n << 400n
   let settings: number[] = []
 
@@ -164,13 +180,21 @@ export function enumeratedChsh(weight: readonly bigint[]): { numerator: bigint; 
     }
   }
 
-  return { numerator: best, units, value: Number(best) / Number(units), settings }
+  return {
+    numerator: best,
+    units,
+    value: Number(best) / Number(units),
+    settings,
+  }
 }
 
 // the counts a party reads for each outcome of each of its settings, summed over the other party's outcomes
 // of each of the other's settings: counts[mySetting][otherSetting][outcome]. No signaling at the model's
 // settings is that the last two indices do not depend on otherSetting
-export function marginalCounts(weight: readonly bigint[], side: 0 | 1): bigint[][][] {
+export function marginalCounts(
+  weight: readonly bigint[],
+  side: 0 | 1,
+): bigint[][][] {
   const { families } = gridLines()
 
   return families.map(mine =>
@@ -193,7 +217,10 @@ export function marginalCounts(weight: readonly bigint[], side: 0 | 1): bigint[]
 }
 
 // a party's marginal weight on its own 9 points
-export function marginal(weight: readonly bigint[], side: 0 | 1): bigint[] {
+export function marginal(
+  weight: readonly bigint[],
+  side: 0 | 1,
+): bigint[] {
   const out = new Array<bigint>(9).fill(0n)
 
   for (let x = 0; x < 9; x++) {
@@ -225,14 +252,20 @@ export function hermitianValues(rho: Operator): number[] {
     }
   }
 
-  const values = Array.from(eigSymmetric({ matrix: m }).values).sort((x, y) => x - y)
+  const values = Array.from(eigSymmetric({ matrix: m }).values).sort(
+    (x, y) => x - y,
+  )
 
   return values.filter((_, i) => i % 2 === 0)
 }
 
 // the first role's reduced operator of a two-role density, 3 x 3
 export function reducedFirst(rho: Operator): Operator {
-  const out: Operator = { n: 3, re: new Float64Array(9), im: new Float64Array(9) }
+  const out: Operator = {
+    n: 3,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
@@ -262,7 +295,12 @@ export function reducedFirst(rho: Operator): Operator {
 //   a~(x) = sum over z of W_anc(z) sum over (x', z') of K(x', z'; x, z) a(x' or z'),
 //
 // a real function that can leave [-1, 1] where the kernel is negative. Returned with the 26 plain ones.
-export function meetingObservables(kernels: readonly { kernel: readonly (readonly number[])[]; divisor: number }[]): Float64Array[] {
+export function meetingObservables(
+  kernels: readonly {
+    kernel: readonly (readonly number[])[]
+    divisor: number
+  }[],
+): Float64Array[] {
   const plain = lineObservables()
   const { lines } = gridLines()
   const out: Float64Array[] = plain.map(a => Float64Array.from(a))
@@ -328,9 +366,11 @@ export function alternatingChsh(input: {
 
     return row
   })
+
   const e = (a: number, b: number): number => {
     const row = folded[a]!
     const ob = bob[b]!
+
     let s = 0
 
     for (let y = 0; y < 9; y++) {
@@ -339,10 +379,13 @@ export function alternatingChsh(input: {
 
     return s
   }
+
   const table = alice.map((_, a) => bob.map((__, b) => e(a, b)))
   const at = (a: number, b: number): number => table[a]?.[b] ?? 0
+
   let best = Number.NEGATIVE_INFINITY
   let settings: number[] = []
+
   const starts = Math.min(26, bob.length)
 
   for (let s0 = 0; s0 < starts; s0++) {
@@ -412,6 +455,7 @@ export function alternatingChsh(input: {
 // the closed-form largest CHSH value of a pure two-qutrit state from its Schmidt weights (see the header)
 export function pureChshBound(schmidt: readonly number[]): number {
   const p = [...schmidt].map(x => Math.max(0, x))
+
   let best = 0
 
   for (const [i, j, k] of [
@@ -422,7 +466,10 @@ export function pureChshBound(schmidt: readonly number[]): number {
     const a = p[i] ?? 0
     const b = p[j] ?? 0
 
-    best = Math.max(best, 2 * Math.sqrt((a + b) ** 2 + 4 * a * b) + 2 * (p[k] ?? 0))
+    best = Math.max(
+      best,
+      2 * Math.sqrt((a + b) ** 2 + 4 * a * b) + 2 * (p[k] ?? 0),
+    )
   }
 
   return best

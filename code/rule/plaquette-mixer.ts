@@ -38,7 +38,12 @@
 // It does NOT commute with the stream's recorded copy (the copy changes a face's differences), so a vibe dragging a
 // string decoheres over the string's shapes: that is the price of keeping the vacuum, derived in the experiment.
 
-import { applyExact, reduce, type Exact, type Step } from '@/code/rule/lattice-qed'
+import {
+  applyExact,
+  reduce,
+  type Exact,
+  type Step,
+} from '@/code/rule/lattice-qed'
 
 export type PlaneKind = 'square' | 'triangle'
 
@@ -71,19 +76,34 @@ const STEPS = [
   [-1, 1],
 ] as const
 
-export function planePatch(L: number, kind: PlaneKind, window = Infinity): PlanePatch {
-  if (kind === 'square' && L % 2 !== 0) throw new Error('planePatch: a square patch needs L even (two classes)')
+export function planePatch(
+  L: number,
+  kind: PlaneKind,
+  window = Infinity,
+): PlanePatch {
+  if (kind === 'square' && L % 2 !== 0) {
+    throw new Error(
+      'planePatch: a square patch needs L even (two classes)',
+    )
+  }
 
-  const dock = (a: number, b: number): number => mod(a, L) + L * mod(b, L)
-  const link = (dir: number, a: number, b: number): number => dir * L * L + dock(a, b)
+  const dock = (a: number, b: number): number =>
+    mod(a, L) + L * mod(b, L)
+  const link = (dir: number, a: number, b: number): number =>
+    dir * L * L + dock(a, b)
   const dirs = kind === 'square' ? 2 : 3
   const size = kind === 'square' ? 4 : 3
   const faces = kind === 'square' ? L * L : 2 * L * L
   const faceLink = new Int32Array(faces * size)
   const faceSign = new Int8Array(faces * size)
   const faceClass = new Uint8Array(faces)
+
   let f = 0
-  const put = (ls: readonly (readonly [number, number])[], c: number): void => {
+
+  const put = (
+    ls: readonly (readonly [number, number])[],
+    c: number,
+  ): void => {
     ls.forEach(([l, s], k) => {
       faceLink[f * size + k] = l
       faceSign[f * size + k] = s
@@ -114,6 +134,7 @@ export function planePatch(L: number, kind: PlaneKind, window = Infinity): Plane
           ],
           0,
         )
+
         // down: (a + 1, b) -> (a + 1, b + 1) -> (a, b + 1) -> (a + 1, b)
         put(
           [
@@ -132,11 +153,15 @@ export function planePatch(L: number, kind: PlaneKind, window = Infinity): Plane
 
   for (let g = 0; g < faces; g++) {
     for (let k = 0; k < size; k++) {
-      const l = faceLink[g * size + k] as number
+      const l = faceLink[g * size + k]!
 
-      if (linkFaces[l * 2] === -1) linkFaces[l * 2] = g
-      else if (linkFaces[l * 2 + 1] === -1) linkFaces[l * 2 + 1] = g
-      else throw new Error('planePatch: a link bounds more than two faces')
+      if (linkFaces[l * 2] === -1) {
+        linkFaces[l * 2] = g
+      } else if (linkFaces[l * 2 + 1] === -1) {
+        linkFaces[l * 2 + 1] = g
+      } else {
+        throw new Error('planePatch: a link bounds more than two faces')
+      }
     }
   }
 
@@ -147,9 +172,12 @@ export function planePatch(L: number, kind: PlaneKind, window = Infinity): Plane
     let far = 0
 
     for (let k = 0; k < size; k++) {
-      const l = faceLink[g * size + k] as number
+      const l = faceLink[g * size + k]!
       const d = l % (L * L)
-      const [da, db] = STEPS[Math.floor(l / (L * L))] as readonly [number, number]
+      const [da, db] = STEPS[Math.floor(l / (L * L))] as readonly [
+        number,
+        number,
+      ]
 
       for (const [a, b] of [
         [d % L, Math.floor(d / L)],
@@ -162,18 +190,34 @@ export function planePatch(L: number, kind: PlaneKind, window = Infinity): Plane
     faceLive[g] = far <= window ? 1 : 0
   }
 
-  return { L, kind, dirs, links, size, faces, faceLink, faceSign, faceClass, linkFaces, window, faceLive }
+  return {
+    L,
+    kind,
+    dirs,
+    links,
+    size,
+    faces,
+    faceLink,
+    faceSign,
+    faceClass,
+    linkFaces,
+    window,
+    faceLive,
+  }
 }
 
-export const liveFaces = (p: PlanePatch): number => p.faceLive.reduce((a, x) => a + x, 0)
+export const liveFaces = (p: PlanePatch): number =>
+  p.faceLive.reduce((a, x) => a + x, 0)
 
 // no two faces of one class share a link (checked, not assumed)
 export function classesDisjoint(p: PlanePatch): boolean {
   for (let l = 0; l < p.links; l++) {
-    const g = p.linkFaces[l * 2] as number
-    const h = p.linkFaces[l * 2 + 1] as number
+    const g = p.linkFaces[l * 2]!
+    const h = p.linkFaces[l * 2 + 1]!
 
-    if (g < 0 || h < 0 || p.faceClass[g] === p.faceClass[h]) return false
+    if (g < 0 || h < 0 || p.faceClass[g] === p.faceClass[h]) {
+      return false
+    }
   }
 
   return true
@@ -191,7 +235,10 @@ export const fluxKey = (f: Flux): string =>
 export function fluxFromKey(key: string): Flux {
   const f: Flux = new Map()
 
-  if (key === '') return f
+  if (key === '') {
+    return f
+  }
+
   for (const t of key.split(',')) {
     const [l, v] = t.split(':').map(Number) as [number, number]
 
@@ -204,8 +251,11 @@ export function fluxFromKey(key: string): Flux {
 export function addTrit(f: Flux, l: number, v: number): void {
   const x = mod((f.get(l) ?? 0) + v, 3)
 
-  if (x === 0) f.delete(l)
-  else f.set(l, x)
+  if (x === 0) {
+    f.delete(l)
+  } else {
+    f.set(l, x)
+  }
 }
 
 // is face g ON: its oriented values not all equal
@@ -213,31 +263,60 @@ export function faceOn(p: PlanePatch, f: Flux, g: number): boolean {
   let first = -1
 
   for (let k = 0; k < p.size; k++) {
-    const o = mod((p.faceSign[g * p.size + k] as number) * (f.get(p.faceLink[g * p.size + k] as number) ?? 0), 3)
+    const o = mod(
+      p.faceSign[g * p.size + k]! *
+        (f.get(p.faceLink[g * p.size + k]!) ?? 0),
+      3,
+    )
 
-    if (k === 0) first = o
-    else if (o !== first) return true
+    if (k === 0) {
+      first = o
+    } else if (o !== first) {
+      return true
+    }
   }
 
   return false
 }
 
 // U_p^m on a copy of f
-export function faceShift(p: PlanePatch, f: Flux, g: number, m: number): Flux {
+export function faceShift(
+  p: PlanePatch,
+  f: Flux,
+  g: number,
+  m: number,
+): Flux {
   const out: Flux = new Map(f)
 
-  for (let k = 0; k < p.size; k++) addTrit(out, p.faceLink[g * p.size + k] as number, m * (p.faceSign[g * p.size + k] as number))
+  for (let k = 0; k < p.size; k++) {
+    addTrit(
+      out,
+      p.faceLink[g * p.size + k]!,
+      m * p.faceSign[g * p.size + k]!,
+    )
+  }
 
   return out
 }
 
 // the ON faces of class c touching f (a face with no flux on its boundary is OFF, so only faces of nonzero links count)
-export function activeFaces(p: PlanePatch, f: Flux, c: number): number[] {
+export function activeFaces(
+  p: PlanePatch,
+  f: Flux,
+  c: number,
+): number[] {
   const seen = new Set<number>()
 
   for (const l of f.keys()) {
-    for (const g of [p.linkFaces[l * 2] as number, p.linkFaces[l * 2 + 1] as number]) {
-      if (p.faceClass[g] === c && p.faceLive[g] === 1 && !seen.has(g) && faceOn(p, f, g)) seen.add(g)
+    for (const g of [p.linkFaces[l * 2]!, p.linkFaces[l * 2 + 1]!]) {
+      if (
+        p.faceClass[g] === c &&
+        p.faceLive[g] === 1 &&
+        !seen.has(g) &&
+        faceOn(p, f, g)
+      ) {
+        seen.add(g)
+      }
     }
   }
 
@@ -283,26 +362,47 @@ export function mixerAmplitudes(mix: Mixer): [Amp, Amp, Amp] {
   return [stay, move, [move[0], move[1]]]
 }
 
-const cmul = (a: Amp, b: Amp): Amp => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: Amp, b: Amp): Amp => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 
 // one class of the mixer on one basis register: the branches (register, amplitude), every branch whose weight is at
 // least `floor`; the product over the class's ON faces, which act on disjoint links and commute
-export function mixClass(p: PlanePatch, mix: Mixer, f: Flux, c: number, floor: number): { flux: Flux; amp: Amp }[] {
+export function mixClass(
+  p: PlanePatch,
+  mix: Mixer,
+  f: Flux,
+  c: number,
+  floor: number,
+): { flux: Flux; amp: Amp }[] {
   const faces = activeFaces(p, f, c)
 
-  if (faces.length === 0) return [{ flux: f, amp: [1, 0] }]
+  if (faces.length === 0) {
+    return [{ flux: f, amp: [1, 0] }]
+  }
 
   const amps = mixerAmplitudes(mix)
   const out: { flux: Flux; amp: Amp }[] = []
+
   const go = (i: number, g: Flux, amp: Amp): void => {
-    if (amp[0] * amp[0] + amp[1] * amp[1] < floor) return
+    if (amp[0] * amp[0] + amp[1] * amp[1] < floor) {
+      return
+    }
+
     if (i === faces.length) {
       out.push({ flux: g, amp })
 
       return
     }
 
-    for (let m = 0; m < 3; m++) go(i + 1, m === 0 ? g : faceShift(p, g, faces[i] as number, m), cmul(amp, amps[m] as Amp))
+    for (let m = 0; m < 3; m++) {
+      go(
+        i + 1,
+        m === 0 ? g : faceShift(p, g, faces[i]!, m),
+        cmul(amp, amps[m]!),
+      )
+    }
   }
 
   go(0, f, [1, 0])
@@ -313,15 +413,24 @@ export function mixClass(p: PlanePatch, mix: Mixer, f: Flux, c: number, floor: n
 // ---------------------------------------------------------------------------------------------------------
 // the exact mixer, through code/rule/lattice-qed's 'loop' step over Z[zeta_M] (every face a step, a register an index)
 
-export type ExactRegistry = { keys: string[]; index: Map<string, number> }
+export type ExactRegistry = {
+  keys: string[]
+  index: Map<string, number>
+}
 
-export const exactRegistry = (): ExactRegistry => ({ keys: [], index: new Map() })
+export const exactRegistry = (): ExactRegistry => ({
+  keys: [],
+  index: new Map(),
+})
 
 export function registerFlux(reg: ExactRegistry, f: Flux): number {
   const k = fluxKey(f)
   const found = reg.index.get(k)
 
-  if (found !== undefined) return found
+  if (found !== undefined) {
+    return found
+  }
+
   reg.index.set(k, reg.keys.length)
   reg.keys.push(k)
 
@@ -329,32 +438,58 @@ export function registerFlux(reg: ExactRegistry, f: Flux): number {
 }
 
 // the controlled face step: U_p on ON registers, the identity on OFF ones (orbits of size 3 or 1)
-export function faceStep(p: PlanePatch, reg: ExactRegistry, g: number, exponents: readonly number[]): Step {
+export function faceStep(
+  p: PlanePatch,
+  reg: ExactRegistry,
+  g: number,
+  exponents: readonly number[],
+): Step {
   return {
     kind: 'loop',
     n: 3,
     exponents,
     shift: (i: number) => {
-      const f = fluxFromKey(reg.keys[i] as string)
+      const f = fluxFromKey(reg.keys[i]!)
 
-      return faceOn(p, f, g) ? registerFlux(reg, faceShift(p, f, g, 1)) : i
+      return faceOn(p, f, g)
+        ? registerFlux(reg, faceShift(p, f, g, 1))
+        : i
     },
   }
 }
 
 // the magnetic exponents -r bal(B)^2, B = 0, 1, 2 (bal 0, 1, -1)
-export const mixerExponents = (mix: Mixer): number[] => [0, -mix.r, -mix.r]
+export const mixerExponents = (mix: Mixer): number[] => [
+  0,
+  -mix.r,
+  -mix.r,
+]
 
 // the whole mixer (class 0 then class 1) on an exact vector, or its inverse (class 1 then class 0, exponents negated)
-export function exactMixer(p: PlanePatch, mix: Mixer, reg: ExactRegistry, v: Exact, inverse = false): Exact {
+export function exactMixer(
+  p: PlanePatch,
+  mix: Mixer,
+  reg: ExactRegistry,
+  v: Exact,
+  inverse = false,
+): Exact {
   const exps = mixerExponents(mix).map(e => (inverse ? -e : e))
+
   let w = v
 
   for (const c of inverse ? [1, 0] : [0, 1]) {
     const faces = new Set<number>()
 
-    for (const i of w.entries.keys()) for (const g of activeFaces(p, fluxFromKey(reg.keys[i] as string), c)) faces.add(g)
-    for (const g of [...faces].sort((x, y) => x - y)) w = applyExact(faceStep(p, reg, g, exps), w)
+    for (const i of w.entries.keys()) {
+      for (const g of activeFaces(p, fluxFromKey(reg.keys[i]!), c)) {
+        faces.add(g)
+      }
+    }
+
+    for (const g of [...faces].sort((x, y) => x - y)) {
+      w = applyExact(faceStep(p, reg, g, exps), w)
+    }
+
     w = reduce(w)
   }
 

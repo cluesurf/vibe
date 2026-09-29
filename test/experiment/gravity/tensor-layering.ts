@@ -113,8 +113,21 @@ import { openMesh } from '@/code/rule/open-husk'
 import { stackLayers, type StackMode } from '@/code/measure/open-husk'
 import { fierzPauli, quadraticKernel } from '@/code/measure/cubic-slide'
 import { norm } from '@/code/algebra/jet-polynomial'
-import { inverseMod, mod, mulMod, primeBelow } from '@/code/algebra/linear/modular-linear'
-import { braneKernel, correctionFit, fixedBulkLayering, layeringModes, logCoefficient, modeProfile, zeroModeWeight } from '@/code/measure/rs-layering'
+import {
+  inverseMod,
+  mod,
+  mulMod,
+  primeBelow,
+} from '@/code/algebra/linear/modular-linear'
+import {
+  braneKernel,
+  correctionFit,
+  fixedBulkLayering,
+  layeringModes,
+  logCoefficient,
+  modeProfile,
+  zeroModeWeight,
+} from '@/code/measure/rs-layering'
 import {
   exactTensorFactor,
   fierzPauliKernelKeys,
@@ -133,8 +146,14 @@ const PER_DOUBLING: readonly number[] = [1, 2, 4, 8, 16]
 const DEEP_FLOOR = 1e-10
 const KERNEL_FLOOR = 1e-30
 const KERNEL_P = 2e-3
-const KERNEL_GRID: readonly number[] = Array.from({ length: 9 }, (_, i) => KERNEL_P * 16 ** (-i / 4))
-const FAR_R: readonly number[] = Array.from({ length: 13 }, (_, i) => 32 * 2 ** (i / 4))
+const KERNEL_GRID: readonly number[] = Array.from(
+  { length: 9 },
+  (_, i) => KERNEL_P * 16 ** (-i / 4),
+)
+const FAR_R: readonly number[] = Array.from(
+  { length: 13 },
+  (_, i) => 32 * 2 ** (i / 4),
+)
 const LOCAL_R: readonly number[] = [4, 8, 16, 32, 64, 128]
 const PRIMES = [primeBelow(2 ** 25), primeBelow(2 ** 24)]
 // the exact identities are checked at m / p = b and 1 / b for b = 1 .. 30: more points than the degree (at most 24) of
@@ -178,16 +197,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
 
     // THE CURVATURE, from E-GRV-0105's own stack (the rule's shrinking mesh, E-GRV-0137's reading)
-    const stack = stackLayers(openMesh(SIDE, LAYERS, 'shrink').sides, 'lapse_upper')
+    const stack = stackLayers(
+      openMesh(SIDE, LAYERS, 'shrink').sides,
+      'lapse_upper',
+    )
     const spacing1 = Math.sqrt(stack.stiff[0]! / stack.conduct[0]!)
-    const k = Math.log(stack.stiff[0]! / stack.stiff[1]!) / (2 * spacing1)
+    const k =
+      Math.log(stack.stiff[0]! / stack.stiff[1]!) / (2 * spacing1)
     const rs = 2 / (3 * k * k)
 
     // T0a: the real form against E-GRV-0141's exact kernel
     const real = fierzPauliKernelKeys()
+
     let t0Off = 0
     let t0Fraction = 0
 
@@ -198,16 +223,30 @@ export default experiment({
         const v = real.get(key) ?? 0
         const r = Math.round(4 * v)
 
-        if (Math.abs(4 * v - r) > 1e-9) t0Fraction++
-        if (norm(r, p) !== norm(4 * (exact.get(key) ?? 0), p)) t0Off++
+        if (Math.abs(4 * v - r) > 1e-9) {
+          t0Fraction++
+        }
+
+        if (norm(r, p) !== norm(4 * (exact.get(key) ?? 0), p)) {
+          t0Off++
+        }
       }
     }
 
     // T0b and the first half of T1: the TT block at a timelike and a spacelike momentum
     const rest = ttBlock(TIMELIKE)
     const space = ttBlock(SPACELIKE)
-    const t0 = t0Off === 0 && t0Fraction === 0 && rest.polarizations === 5 && space.polarizations === 5
-    const blockOff = Math.max(rest.lateralOff, rest.verticalOff, space.lateralOff, space.verticalOff)
+    const t0 =
+      t0Off === 0 &&
+      t0Fraction === 0 &&
+      rest.polarizations === 5 &&
+      space.polarizations === 5
+    const blockOff = Math.max(
+      rest.lateralOff,
+      rest.verticalOff,
+      space.lateralOff,
+      space.verticalOff,
+    )
 
     log('forms')
 
@@ -217,8 +256,18 @@ export default experiment({
       const kernelLayering = fixedBulkLayering(k, L, KERNEL_FLOOR)
       const modes = layeringModes(deep)
       const w0 = zeroModeWeight(deep)
-      const kernelOffWorst = Math.max(...KERNEL_GRID.map(p => kernelOff(tensorBraneKernel(kernelLayering, space, p), space.gram, braneKernel(kernelLayering, p))))
-      const massive = modes.filter(m => m !== zeroModeOnly(modes)[0]).map(m => m.mass)
+      const kernelOffWorst = Math.max(
+        ...KERNEL_GRID.map(p =>
+          kernelOff(
+            tensorBraneKernel(kernelLayering, space, p),
+            space.gram,
+            braneKernel(kernelLayering, p),
+          ),
+        ),
+      )
+      const massive = modes
+        .filter(m => m !== zeroModeOnly(modes)[0])
+        .map(m => m.mass)
 
       log(`L ${L} (${deep.stiff.length} slabs)`)
 
@@ -238,22 +287,39 @@ export default experiment({
     })
 
     // TF: the coupling. The float factors at m = p (well conditioned), then every claim exactly over both primes
-    const pool = [...perL[perL.length - 1]!.masses].sort((a, b) => a - b)
+    const pool = [...perL[perL.length - 1]!.masses].sort(
+      (a, b) => a - b,
+    )
     const zero = tensorFactor(4, SPACELIKE, { gauge: 1 })
     const massive = tensorFactor(4, SPACELIKE, { mass2: 1 })
     const fm = massive.factor
-    const leak = Math.max(zero.leak, massive.leak, tensorFactor(5, [...SPACELIKE, 1], { gauge: 1 }).leak)
+    const leak = Math.max(
+      zero.leak,
+      massive.leak,
+      tensorFactor(5, [...SPACELIKE, 1], { gauge: 1 }).leak,
+    )
     const zeroRational = smallRational(zero.factor)
     const massiveRational = smallRational(fm)
+
     let exactOff = 0
 
     for (const p of PRIMES) {
-      const residue = (r: [number, number] | undefined): number => (r ? mulMod(mod(r[0], p), inverseMod(r[1], p), p) : -1)
+      const residue = (r: [number, number] | undefined): number =>
+        r ? mulMod(mod(r[0], p), inverseMod(r[1], p), p) : -1
       const f0 = exactTensorFactor(4, SPACELIKE, { gauge: 1 }, p)
 
       // the float factors are the exact ones; f_0 is the same in two gauges
-      if (f0.factor !== residue(zeroRational)) exactOff++
-      if (exactTensorFactor(4, SPACELIKE, { gauge: 2 }, p).factor !== f0.factor) exactOff++
+      if (f0.factor !== residue(zeroRational)) {
+        exactOff++
+      }
+
+      if (
+        exactTensorFactor(4, SPACELIKE, { gauge: 2 }, p).factor !==
+        f0.factor
+      ) {
+        exactOff++
+      }
+
       for (let b = 1; b <= EXACT_POINTS; b++) {
         // m / p = b and 1 / b: the massive factor is f_m, and the 5d massless form at k_5 = m is the massive 4d form
         for (const [k4, m2] of [
@@ -261,16 +327,37 @@ export default experiment({
           [[0, b, 0, 0], 1],
         ] as [number[], number][]) {
           const four = exactTensorFactor(4, k4, { mass2: m2 }, p)
-          const five = exactTensorFactor(5, [...k4, Math.sqrt(m2)], { gauge: 1 }, p)
+          const five = exactTensorFactor(
+            5,
+            [...k4, Math.sqrt(m2)],
+            { gauge: 1 },
+            p,
+          )
 
-          if (four.factor !== residue(massiveRational)) exactOff++
-          if (five.staticW !== four.staticW || five.referenceW !== four.referenceW) exactOff++
+          if (four.factor !== residue(massiveRational)) {
+            exactOff++
+          }
+
+          if (
+            five.staticW !== four.staticW ||
+            five.referenceW !== four.referenceW
+          ) {
+            exactOff++
+          }
         }
       }
     }
 
-    const tf = leak === 0 && exactOff === 0 && zeroRational !== undefined && massiveRational !== undefined
-    const ratio = zeroRational && massiveRational ? (massiveRational[0] * zeroRational[1]) / (massiveRational[1] * zeroRational[0]) : Number.NaN
+    const tf =
+      leak === 0 &&
+      exactOff === 0 &&
+      zeroRational !== undefined &&
+      massiveRational !== undefined
+    const ratio =
+      zeroRational && massiveRational
+        ? (massiveRational[0] * zeroRational[1]) /
+          (massiveRational[1] * zeroRational[0])
+        : Number.NaN
 
     // the tensor tower's readings
     for (const p of perL) {
@@ -278,36 +365,73 @@ export default experiment({
 
       p.tensorFit = correctionFit(tower, FAR_R)
       p.tensorKernel = ratio * p.scalarKernel
-      p.local = LOCAL_R.map(r => (r * r * (modeProfile(tower, r) / p.w0 - 1)) / rs)
+      p.local = LOCAL_R.map(
+        r => (r * r * (modeProfile(tower, r) / p.w0 - 1)) / rs,
+      )
     }
 
     // THE GATES
     const kernelWorst = Math.max(...perL.map(p => p.kernelOffWorst))
-    const t1 = blockOff <= IDENTITY_TOLERANCE && kernelWorst <= IDENTITY_TOLERANCE
+    const t1 =
+      blockOff <= IDENTITY_TOLERANCE &&
+      kernelWorst <= IDENTITY_TOLERANCE
     const at = (L: number): PerL => perL.find(p => p.L === L)!
-    const extrapolate = (pick: (p: PerL) => number): number => (8 * pick(at(16)) - 6 * pick(at(8)) + pick(at(4))) / 3
+    const extrapolate = (pick: (p: PerL) => number): number =>
+      (8 * pick(at(16)) - 6 * pick(at(8)) + pick(at(4))) / 3
     const tensorOverRS = extrapolate(p => p.tensorFit.c2) / rs
     const tensorKernelOverRS = extrapolate(p => p.tensorKernel) / rs
     const scalarOverRS = extrapolate(p => p.scalarFit.c2) / rs
     const t2 = Math.abs(tensorOverRS - 1) <= RS_TOLERANCE
-    const gOff = Math.max(...perL.map(p => Math.max(Math.abs(p.tensorFit.G / p.scalarFit.G - 1), Math.abs(p.tensorFit.G / p.w0 - 1))))
+    const gOff = Math.max(
+      ...perL.map(p =>
+        Math.max(
+          Math.abs(p.tensorFit.G / p.scalarFit.G - 1),
+          Math.abs(p.tensorFit.G / p.w0 - 1),
+        ),
+      ),
+    )
     const t3 = gOff <= G_READ_TOLERANCE
-    const cs = Math.abs(scalarOverRS - E_GRV_0137_OVER_RS) <= REPRODUCE_TOLERANCE
-    const masslessWorst = Math.max(...perL.map(p => Math.abs(p.masslessC2)))
+    const cs =
+      Math.abs(scalarOverRS - E_GRV_0137_OVER_RS) <= REPRODUCE_TOLERANCE
+    const masslessWorst = Math.max(
+      ...perL.map(p => Math.abs(p.masslessC2)),
+    )
     const cm = masslessWorst <= MASSLESS_TOLERANCE
-    const detuned = [0, 0.5].map(a => tensorFactor(4, SPACELIKE, { mass2: 1, traceWeight: a }).factor)
+    const detuned = [0, 0.5].map(
+      a =>
+        tensorFactor(4, SPACELIKE, { mass2: 1, traceWeight: a }).factor,
+    )
     const cf = detuned.every(f => Math.abs(f - fm) >= TUNING_GAP)
-    const status = t0 && t1 && tf && t2 && t3 && cs && cm && cf ? 'pass' : 'fail'
+    const status =
+      t0 && t1 && tf && t2 && t3 && cs && cm && cf ? 'pass' : 'fail'
 
     // REPORTED: the float pseudo-inverse's failure at small m / p (the first run's defect), the exact vDVZ residue at
     // m / p = 1e-3, and the naive five-dimensional zero mode (k_5 = 0)
-    const vdvzExact = exactTensorFactor(4, [0, VDVZ_MOMENTUM, 0, 0], { mass2: 1 }, PRIMES[0]!).factor
-    const vdvz = vdvzExact === mulMod(mod(massiveRational?.[0] ?? 0, PRIMES[0]!), inverseMod(massiveRational?.[1] ?? 1, PRIMES[0]!), PRIMES[0]!) ? fm : Number.NaN
-    const naiveZero = tensorFactor(5, [...SPACELIKE, 0], { gauge: 1 }).factor
-    const vdvzFloat = tensorFactor(4, [0, VDVZ_MOMENTUM, 0, 0], { mass2: 1 }).factor
+    const vdvzExact = exactTensorFactor(
+      4,
+      [0, VDVZ_MOMENTUM, 0, 0],
+      { mass2: 1 },
+      PRIMES[0]!,
+    ).factor
+    const vdvz =
+      vdvzExact ===
+      mulMod(
+        mod(massiveRational?.[0] ?? 0, PRIMES[0]!),
+        inverseMod(massiveRational?.[1] ?? 1, PRIMES[0]!),
+        PRIMES[0]!,
+      )
+        ? fm
+        : Number.NaN
+    const naiveZero = tensorFactor(5, [...SPACELIKE, 0], {
+      gauge: 1,
+    }).factor
+    const vdvzFloat = tensorFactor(4, [0, VDVZ_MOMENTUM, 0, 0], {
+      mass2: 1,
+    }).factor
     const f = (v: number): string => v.toPrecision(4)
     const e = (v: number): string => v.toExponential(2)
-    const row = (pick: (p: PerL) => number): string => perL.map(p => f(pick(p))).join(', ')
+    const row = (pick: (p: PerL) => number): string =>
+      perL.map(p => f(pick(p))).join(', ')
     const metrics: Record<string, number> = {
       gate_T0: t0 ? 1 : 0,
       gate_T1: t1 ? 1 : 0,
@@ -356,14 +480,22 @@ export default experiment({
       metrics[`${key}_w0`] = p.w0
       metrics[`${key}_kernelOff`] = p.kernelOffWorst
       metrics[`${key}_masslessC2`] = p.masslessC2
-      LOCAL_R.forEach((r, j) => (metrics[`${key}_local_r${r}`] = p.local[j]!))
+      LOCAL_R.forEach(
+        (r, j) => (metrics[`${key}_local_r${r}`] = p.local[j]!),
+      )
     })
 
     return verdict({
       status,
       claim: `E-GRV-0137's stack (k = ${f(k)}, RS's 2 / (3 k^2) = ${f(rs)}) with the spin-2 field in the bulk: the TT block is the scalar's operator times G to ${e(blockOff)} (5 polarizations), and the block-admittance tensor kernel equals the scalar's times G^-1 to ${e(kernelWorst)} at every L (gate 1e-10); the Fierz-Pauli exchange of a static T_00 gives ${f(zero.factor)} for the massless 4d graviton and ${f(fm)} for every massive one (exact over two primes at m / p = 1/${EXACT_POINTS} .. ${EXACT_POINTS}, equal to the 5d massless form at k_5 = m, ${exactOff} residues off; gauge leak ${leak}), ratio ${zeroRational && massiveRational ? `${massiveRational[0] * zeroRational[1]}/${massiveRational[1] * zeroRational[0]}` : 'none'}; the tensor tower's fitted c_2 over RS at L = ${PER_DOUBLING.join(', ')} is ${row(p => p.tensorFit.c2 / rs)} (kernel ${row(p => p.tensorKernel / rs)}), extrapolated ${f(tensorOverRS)} (gate 1 within 0.05; kernel ${f(tensorKernelOverRS)}); G equals the scalar's and w_0 to ${e(gOff)}; the scalar reproduces E-GRV-0137's ${f(scalarOverRS)}, the zero mode alone gives |c_2| ${e(masslessWorst)}, and a detuned mass term (a = 0, 1/2) gives ${detuned.map(f).join(', ')}`,
       metrics,
-      control: { cs: cs ? 1 : 0, cm: cm ? 1 : 0, cf: cf ? 1 : 0, scalarOverRS, masslessWorst },
+      control: {
+        cs: cs ? 1 : 0,
+        cm: cm ? 1 : 0,
+        cf: cf ? 1 : 0,
+        scalarOverRS,
+        masslessWorst,
+      },
       notes: `L1. T0 ${t0} (kernel off ${t0Off}, non-quarter ${t0Fraction}, polarizations ${rest.polarizations} and ${space.polarizations}), T1 ${t1}, TF ${tf}, T2 ${t2}, T3 ${t3}, CS ${cs}, CM ${cm}, CF ${cf}. The L = 16 tower's massive range ${e(pool[0]!)} .. ${e(pool[pool.length - 1]!)} a dock. vDVZ: at m / p = 1/${VDVZ_MOMENTUM} the exact residue is f_m's (${f(vdvz)}), not f_0's, and the pivoted float solve reads ${f(vdvzFloat)} (the first run's eigen pseudo-inverse read 1/2 at m / p = 1e-5, where the helicity-0 eigenvalue is O(m^4)). The naive 5d zero mode (k_5 = 0) gives ${f(naiveZero)}: the brane's bending, not computed here, is what makes the zero mode's 1/2. Local r^2 (U_T / w_0 - 1) over 2 / (3 k^2) at r = ${LOCAL_R.join(', ')}: ${perL.map(p => `L ${p.L}: ${p.local.map(f).join(' ')}`).join('; ')}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

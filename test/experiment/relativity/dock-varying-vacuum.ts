@@ -88,8 +88,16 @@ import { makeColorWeave } from '@/code/rule/color-weave'
 import { isometricTable, LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { makeLivingKernel } from '@/code/measure/living-pair-kernel'
-import { sparseConditions, vacuumCycle, wakeSeries } from '@/code/measure/sparse-living-vacuum'
-import { d4BoxCell, d4BoxMesh, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  sparseConditions,
+  vacuumCycle,
+  wakeSeries,
+} from '@/code/measure/sparse-living-vacuum'
+import {
+  d4BoxCell,
+  d4BoxMesh,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 import {
   binaryTetrahedralIndices,
   boxMaps,
@@ -112,7 +120,11 @@ import {
   tileStore,
   uniformStore,
 } from '@/code/measure/varying-vacuum'
-import { averagedMatrices, equivarianceDefect, readTransport } from '@/code/measure/varying-transport'
+import {
+  averagedMatrices,
+  equivarianceDefect,
+  readTransport,
+} from '@/code/measure/varying-transport'
 
 const ROOTS = rootsD4()
 const WAKE_SIDE = 8
@@ -121,7 +133,12 @@ const WAKE_BEATS = 96
 type Wake = { perPeriod: number[]; byDirection: number[] }
 
 // the largest wake per period (trits off the vacuum run) over the 24 directions of a lone vibe at the center
-function wakeOf(side: number, store: Int8Array, center: number, tone: number): Wake {
+function wakeOf(
+  side: number,
+  store: Int8Array,
+  center: number,
+  tone: number,
+): Wake {
   const weave = makeColorWeave({ side, table: 'bind' })
   const kernel = makeLivingKernel(weave)
   const layout = separatedLayout(weave)
@@ -129,10 +146,20 @@ function wakeOf(side: number, store: Int8Array, center: number, tone: number): W
   const byDirection: number[] = []
 
   for (let d = 0; d < 24; d++) {
-    const series = wakeSeries(kernel, store, layout, center * 24 + d, tone, WAKE_BEATS)
+    const series = wakeSeries(
+      kernel,
+      store,
+      layout,
+      center * 24 + d,
+      tone,
+      WAKE_BEATS,
+    )
 
     series.forEach((v, t) => {
-      perPeriod[Math.floor(t / 24)] = Math.max(perPeriod[Math.floor(t / 24)] as number, v)
+      perPeriod[Math.floor(t / 24)] = Math.max(
+        perPeriod[Math.floor(t / 24)]!,
+        v,
+      )
     })
     byDirection.push(Math.max(...series))
   }
@@ -140,7 +167,14 @@ function wakeOf(side: number, store: Int8Array, center: number, tone: number): W
   return { perPeriod, byDirection }
 }
 
-type Run = { units: number; momentumDocks: number; period: number; tallies: string; expected: string; ok: boolean }
+type Run = {
+  units: number
+  momentumDocks: number
+  period: number
+  tallies: string
+  expected: string
+  ok: boolean
+}
 
 function runOf(side: number, store: Int8Array): Run {
   const weave = makeColorWeave({ side, table: 'bind' })
@@ -149,23 +183,43 @@ function runOf(side: number, store: Int8Array): Run {
   const cond = sparseConditions(weave, store, layout)
   const cycle = vacuumCycle(kernel, store, layout, cond.bothLines)
   const u = cond.units
-  const expected = [`${u}/0/0`, '0/0/0', `0/${u}/0`, `${u}/0/0`, '0/0/0', `0/${u}/0`].join(' ')
+  const expected = [
+    `${u}/0/0`,
+    '0/0/0',
+    `0/${u}/0`,
+    `${u}/0/0`,
+    '0/0/0',
+    `0/${u}/0`,
+  ].join(' ')
 
-  return { units: u, momentumDocks: cond.momentumDocks, period: cycle.period, tallies: cycle.tallies, expected, ok: cond.momentumDocks === 0 && cycle.period === 6 && cycle.tallies === expected }
+  return {
+    units: u,
+    momentumDocks: cond.momentumDocks,
+    period: cycle.period,
+    tallies: cycle.tallies,
+    expected,
+    ok:
+      cond.momentumDocks === 0 &&
+      cycle.period === 6 &&
+      cycle.tallies === expected,
+  }
 }
 
 export default experiment({
   id: 'relativity/dock-varying-vacuum',
   code: 'E-RLT-0080',
   title:
-    'a living vacuum that breaks W(F4) dock by dock and forces isotropic husk transport exists, fail on its wake: only the full 12 lines are a 4-design, so isotropy needs every line equally; no forcing group lets every dock store a line (every one of the 48 found holds -1 and a vector-free order-3 element, whose image fixes a dock of every periodic cell); the least cell is 16 docks and carries the HUB pattern (a line on every midpoint of the doubled lattice, (Z) by pairs, line pattern kept by all 1,152); no translation-invariant orientation keeps Q8 and no lift of W(F4) orients it, but an orientation of period 4 D4 keeps 576 elements (the short reflections, no long one), which force the husk scalars through k^4 and the shear at leading order; it runs with period 6 and no veto, its cell-averaged transport is 4.00, 4.09, 4.02 and 2.02, but a lone love wakes 8,896 trits per period on side 8 against the one-line vacuum\'s 210, since every hub holds 24 vacuum vibes at beat 1; no such vacuum fits the battery\'s odd boxes except the full one, which melts',
+    "a living vacuum that breaks W(F4) dock by dock and forces isotropic husk transport exists, fail on its wake: only the full 12 lines are a 4-design, so isotropy needs every line equally; no forcing group lets every dock store a line (every one of the 48 found holds -1 and a vector-free order-3 element, whose image fixes a dock of every periodic cell); the least cell is 16 docks and carries the HUB pattern (a line on every midpoint of the doubled lattice, (Z) by pairs, line pattern kept by all 1,152); no translation-invariant orientation keeps Q8 and no lift of W(F4) orients it, but an orientation of period 4 D4 keeps 576 elements (the short reflections, no long one), which force the husk scalars through k^4 and the shear at leading order; it runs with period 6 and no veto, its cell-averaged transport is 4.00, 4.09, 4.02 and 2.02, but a lone love wakes 8,896 trits per period on side 8 against the one-line vacuum's 210, since every hub holds 24 vacuum vibes at beat 1; no such vacuum fits the battery's odd boxes except the full one, which melts",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
     const n = table.permutations.length
@@ -174,10 +228,15 @@ export default experiment({
 
     // D1
     const designs = designCensus()
-    const d1 = designs.fourDesigns === 1 && designs.fourDesignSizes[0] === 12 && designs.twoDesignSizes.join(',') === '4,8,12' && designs.frames.length === 3
+    const d1 =
+      designs.fourDesigns === 1 &&
+      designs.fourDesignSizes[0] === 12 &&
+      designs.twoDesignSizes.join(',') === '4,8,12' &&
+      designs.frames.length === 3
 
     // D2
     const groups = twoGeneratedSubgroups(table, n)
+
     let forcing = 0
     let forcing2 = 0
     let exceptions = 0
@@ -185,17 +244,26 @@ export default experiment({
     for (const g of groups) {
       const f = characterForcing(coins, g)
 
-      if (f.bulk2) forcing2++
-      if (!(f.bulk2 && f.bulk4)) continue
+      if (f.bulk2) {
+        forcing2++
+      }
+
+      if (!(f.bulk2 && f.bulk4)) {
+        continue
+      }
 
       forcing++
 
-      const holds = g.includes(table.minus) && g.some(x => coins.order[x] === 3 && coins.vectorFree[x])
+      const holds =
+        g.includes(table.minus) &&
+        g.some(x => coins.order[x] === 3 && coins.vectorFree[x])
 
       exceptions += holds ? 0 : 1
     }
 
-    const free3 = everything.filter(g => coins.order[g] === 3 && coins.vectorFree[g])
+    const free3 = everything.filter(
+      g => coins.order[g] === 3 && coins.vectorFree[g],
+    )
     const fixedDock = [2, 3, 4, 5, 6, 7, 8].map(side => {
       let free = 0
       let commuting = 0
@@ -209,7 +277,13 @@ export default experiment({
 
       return { side, free, commuting }
     })
-    const d2 = forcing > 0 && exceptions === 0 && free3.length === 16 && fixedDock.every(f => f.commuting === 0 && (f.free > 0) === (f.side % 3 === 0))
+    const d2 =
+      forcing > 0 &&
+      exceptions === 0 &&
+      free3.length === 16 &&
+      fixedDock.every(
+        f => f.commuting === 0 && f.free > 0 === (f.side % 3 === 0),
+      )
 
     log('d2')
 
@@ -218,28 +292,48 @@ export default experiment({
       const box = boxMaps(coins, side)
 
       return invariantIndices(
-        twoT.map(g => Array.from(box.linear[g] as Int32Array)),
+        twoT.map(g => Array.from(box.linear[g]!)),
         side,
         side <= 4,
       )
     })
-    const allIndices = [...new Set(indices.flat())].sort((a, b) => a - b)
-    const d3 = allIndices.every(i => Number.isInteger(Math.sqrt(i))) && allIndices.find(i => i >= 13) === 16
+    const allIndices = [...new Set(indices.flat())].sort(
+      (a, b) => a - b,
+    )
+    const d3 =
+      allIndices.every(i => Number.isInteger(Math.sqrt(i))) &&
+      allIndices.find(i => i >= 13) === 16
 
     log('d3')
 
     // D4
     const hub4 = boxMaps(coins, 4)
     const lines4 = hubLines(4, [0, 0, 0, 0])
-    const unoriented = patternSymmetry(coins, hub4, storeOf(lines4, new Int8Array(lines4.length).fill(1)), true)
+    const unoriented = patternSymmetry(
+      coins,
+      hub4,
+      storeOf(lines4, new Int8Array(lines4.length).fill(1)),
+      true,
+    )
     const zFailures = [4, 8].map(side => {
       const mesh = d4BoxMesh({ side })
       const lines = hubLines(side, [0, 0, 0, 0])
 
-      return momentumFailures(storeOf(lines, new Int8Array(lines.length).fill(1)), side, (x, d) => mesh.neighbour(x, d))
+      return momentumFailures(
+        storeOf(lines, new Int8Array(lines.length).fill(1)),
+        side,
+        (x, d) => mesh.neighbour(x, d),
+      )
     })
-    const unorientedForcing = { ...characterForcing(coins, unoriented.pointGroup), ...huskForcing(coins, unoriented.pointGroup) }
-    const d4 = zFailures.every(z => z === 0) && unoriented.pointGroup.length === 1152 && unoriented.translations === 16 && unoriented.elements === 18432
+    const unorientedForcing = {
+      ...characterForcing(coins, unoriented.pointGroup),
+      ...huskForcing(coins, unoriented.pointGroup),
+    }
+    const d4 =
+      zFailures.every(z => z === 0) &&
+      unoriented.pointGroup.length === 1152 &&
+      unoriented.translations === 16 &&
+      unoriented.elements === 18432
 
     log('d4')
 
@@ -252,10 +346,25 @@ export default experiment({
     const box8 = boxMaps(coins, 8)
     const store8 = orientedHubStore(coins, 8, [0, 0, 0, 0])
     const symmetry = patternSymmetry(coins, box8, store8)
-    const reflections = symmetry.pointGroup.filter(g => coins.order[g] === 2 && determinantOf(coins, g) === -1 && (coins.doubled[g] ?? []).reduce((s, row, i) => s + (row[i] as number), 0) === 4)
-    const orientedForcing = { ...characterForcing(coins, symmetry.pointGroup), ...huskForcing(coins, symmetry.pointGroup) }
+    const reflections = symmetry.pointGroup.filter(
+      g =>
+        coins.order[g] === 2 &&
+        determinantOf(coins, g) === -1 &&
+        (coins.doubled[g] ?? []).reduce(
+          (s, row, i) => s + row[i]!,
+          0,
+        ) === 4,
+    )
+    const orientedForcing = {
+      ...characterForcing(coins, symmetry.pointGroup),
+      ...huskForcing(coins, symmetry.pointGroup),
+    }
     // a long-root reflection fixes the line of its root and sends it to its reverse; a short-root one reverses no line
-    const longReflections = reflections.filter(g => (coins.lineImage[g] as Int8Array).some((m, l) => m === l && (coins.lineSign[g] as Int8Array)[l] === -1)).length
+    const longReflections = reflections.filter(g =>
+      coins.lineImage[g]!.some(
+        (m, l) => m === l && coins.lineSign[g]![l] === -1,
+      ),
+    ).length
     const shortReflections = reflections.length - longReflections
     const d5 =
       keptQ8 === 0 &&
@@ -275,15 +384,25 @@ export default experiment({
     log('d5')
 
     // D6
-    const runs = [4, 8].map(side => runOf(side, orientedHubStore(coins, side, [0, 0, 0, 0])))
+    const runs = [4, 8].map(side =>
+      runOf(side, orientedHubStore(coins, side, [0, 0, 0, 0])),
+    )
     const d6 = runs.every(r => r.ok)
 
     log('d6')
 
     // D7
     const table4 = isometricTable()
-    const averaged = averagedMatrices({ table: table4, store: orientedHubStore(coins, 4, [0, 0, 0, 0]), cells: 256, permutations: table.permutations })
-    const defect = Math.max(equivarianceDefect(averaged.even, table.permutations), equivarianceDefect(averaged.odd, table.permutations))
+    const averaged = averagedMatrices({
+      table: table4,
+      store: orientedHubStore(coins, 4, [0, 0, 0, 0]),
+      cells: 256,
+      permutations: table.permutations,
+    })
+    const defect = Math.max(
+      equivarianceDefect(averaged.even, table.permutations),
+      equivarianceDefect(averaged.odd, table.permutations),
+    )
     const transport = readTransport([averaged.even, averaged.odd])
     const t3 = transport.three
     const d7 =
@@ -298,18 +417,24 @@ export default experiment({
     log('d7')
 
     // W
-    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0] as number] as number[])
+    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0]!]!)
     const mid = WAKE_SIDE / 2
-    const center = d4BoxCell({ coordinates: [mid, mid, mid, mid], side: WAKE_SIDE })
-    const hubAt = [mid, mid, mid, mid].map((v, k) => v - (r0[k] as number))
+    const center = d4BoxCell({
+      coordinates: [mid, mid, mid, mid],
+      side: WAKE_SIDE,
+    })
+    const hubAt = [mid, mid, mid, mid].map((v, k) => v - r0[k]!)
     const hubStore = orientedHubStore(coins, WAKE_SIDE, hubAt)
     const oneLine = uniformStore(WAKE_SIDE ** 4, [0])
     const hubLove = wakeOf(WAKE_SIDE, hubStore, center, 1)
     const hubFear = wakeOf(WAKE_SIDE, hubStore, center, -1)
     const lineLove = wakeOf(WAKE_SIDE, oneLine, center, 1)
     const lineFear = wakeOf(WAKE_SIDE, oneLine, center, -1)
-    const noMore = (a: number[], b: number[]): boolean => a.every((x, p) => x <= (b[p] ?? 0))
-    const w = noMore(hubLove.perPeriod, lineLove.perPeriod) && noMore(hubFear.perPeriod, lineFear.perPeriod)
+    const noMore = (a: number[], b: number[]): boolean =>
+      a.every((x, p) => x <= (b[p] ?? 0))
+    const w =
+      noMore(hubLove.perPeriod, lineLove.perPeriod) &&
+      noMore(hubFear.perPeriod, lineFear.perPeriod)
 
     log('w')
 
@@ -317,9 +442,13 @@ export default experiment({
     const chain = chainPattern(coins, 4)
     const chainStore4 = storeOf(chain.lines, chain.orientation.signs)
     const chainSymmetry = patternSymmetry(coins, hub4, chainStore4)
-    const chainForcing = { ...characterForcing(coins, chainSymmetry.pointGroup), ...huskForcing(coins, chainSymmetry.pointGroup) }
+    const chainForcing = {
+      ...characterForcing(coins, chainSymmetry.pointGroup),
+      ...huskForcing(coins, chainSymmetry.pointGroup),
+    }
     const chainStore8 = tileStore(chainStore4, 4, WAKE_SIDE)
     const chainRun = runOf(WAKE_SIDE, chainStore8)
+
     let chainCenter = center
 
     for (let x = center; x < WAKE_SIDE ** 4; x++) {
@@ -348,10 +477,12 @@ export default experiment({
         forcingRank2And4: forcing,
         fact2Exceptions: exceptions,
         vectorFreeOrder3: free3.length,
-        ...Object.fromEntries(fixedDock.flatMap(f => [
-          [`side${f.side}FreeTranslations`, f.free],
-          [`side${f.side}FreeCommuting`, f.commuting],
-        ])),
+        ...Object.fromEntries(
+          fixedDock.flatMap(f => [
+            [`side${f.side}FreeTranslations`, f.free],
+            [`side${f.side}FreeCommuting`, f.commuting],
+          ]),
+        ),
         invariantIndexCount: allIndices.length,
         leastIndexAtLeast13: allIndices.find(i => i >= 13) ?? -1,
         hubZFailuresSide4: zFailures[0] ?? -1,
@@ -387,16 +518,39 @@ export default experiment({
         averagedCarriers: averaged.carriers,
         averagedInvariants: transport.invariants,
         averagedKc: transport.kc,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].flatMap(q => [
-          [`averaged_${q}_exponent3`, t3[q] ?? Number.NaN],
-          [`averaged_${q}_exponent5`, transport.five[q] ?? Number.NaN],
-          [`averaged_${q}_anisotropyLongest`, transport.anisotropy[q]?.at(-1) ?? Number.NaN],
-        ])),
-        ...Object.fromEntries(hubLove.perPeriod.map((x, p) => [`hubLovePeriod${p + 1}`, x])),
-        ...Object.fromEntries(hubFear.perPeriod.map((x, p) => [`hubFearPeriod${p + 1}`, x])),
-        ...Object.fromEntries(lineLove.perPeriod.map((x, p) => [`oneLineLovePeriod${p + 1}`, x])),
-        ...Object.fromEntries(lineFear.perPeriod.map((x, p) => [`oneLineFearPeriod${p + 1}`, x])),
-        hubBareDirections: hubLove.byDirection.filter(x => x === 1).length,
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].flatMap(q => [
+            [`averaged_${q}_exponent3`, t3[q] ?? Number.NaN],
+            [
+              `averaged_${q}_exponent5`,
+              transport.five[q] ?? Number.NaN,
+            ],
+            [
+              `averaged_${q}_anisotropyLongest`,
+              transport.anisotropy[q]?.at(-1) ?? Number.NaN,
+            ],
+          ]),
+        ),
+        ...Object.fromEntries(
+          hubLove.perPeriod.map((x, p) => [`hubLovePeriod${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          hubFear.perPeriod.map((x, p) => [`hubFearPeriod${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          lineLove.perPeriod.map((x, p) => [
+            `oneLineLovePeriod${p + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          lineFear.perPeriod.map((x, p) => [
+            `oneLineFearPeriod${p + 1}`,
+            x,
+          ]),
+        ),
+        hubBareDirections: hubLove.byDirection.filter(x => x === 1)
+          .length,
         chainUnits4: chain.units,
         chainOrbitsChosen: chain.chosen,
         chainSearchExact: chain.exact ? 1 : 0,
@@ -406,7 +560,12 @@ export default experiment({
         chainHuskShear: chainForcing.huskShear2 ? 1 : 0,
         chainRunPeriod: chainRun.period,
         chainZDocks: chainRun.momentumDocks,
-        ...Object.fromEntries(chainLove.perPeriod.map((x, p) => [`chainLovePeriod${p + 1}`, x])),
+        ...Object.fromEntries(
+          chainLove.perPeriod.map((x, p) => [
+            `chainLovePeriod${p + 1}`,
+            x,
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

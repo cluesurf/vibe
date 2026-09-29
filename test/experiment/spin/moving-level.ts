@@ -88,10 +88,31 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { blochPacket, fitRing, levelPlacement, ringCenter, trackRun } from '@/code/measure/held-cluster'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { cutRelativeFramed, placeCutFramed, runWindow, windowContext } from '@/code/measure/permutation-meeting'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  ringCenter,
+  trackRun,
+} from '@/code/measure/held-cluster'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  cutRelativeFramed,
+  placeCutFramed,
+  runWindow,
+  windowContext,
+} from '@/code/measure/permutation-meeting'
 import {
   bandCurvature,
   bandSlope,
@@ -128,14 +149,33 @@ const SPEED_TOL = 0.05
 const MASS_TOL = 0.05
 const SLOPE_D = 1e-3
 const CURVE_D = 1e-2
-const RECORDED = { energy: 0.33001851839229945, fidelity: 0.9990692989873735, trackEnergy: 0.33002027282349655 }
+const RECORDED = {
+  energy: 0.33001851839229945,
+  fidelity: 0.9990692989873735,
+  trackEnergy: 0.33002027282349655,
+}
 const EXACT = 1e-12
 const LONE_KS: readonly number[] = [Math.PI / 8, Math.PI / 2]
 const LONE_BEATS = 32
 const WINDOW = { side: 8, beats: 2, n: 8 }
-const RULE: PieceOptions = { cost: true, sign: true, unit: 0, flat: false }
-const UNBOUND: PieceOptions = { cost: true, sign: true, unit: 3, flat: false }
-const BARE: PieceOptions = { cost: false, sign: false, unit: 0, flat: false }
+const RULE: PieceOptions = {
+  cost: true,
+  sign: true,
+  unit: 0,
+  flat: false,
+}
+const UNBOUND: PieceOptions = {
+  cost: true,
+  sign: true,
+  unit: 3,
+  flat: false,
+}
+const BARE: PieceOptions = {
+  cost: false,
+  sign: false,
+  unit: 0,
+  flat: false,
+}
 
 type Run = BoostedRun
 
@@ -150,17 +190,26 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the level and its band (the stand-in) ----
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const sub = wholeBasis(basis)
     const level = lineLightest(basis, sub).lightest
     const ks = NS.map(n => (2 * Math.PI * n) / 32)
     const band = followLevel(basis, sub, level, ks, STEP)
     const slopes = band.map(b => bandSlope(basis, sub, b, SLOPE_D))
-    const curvature = bandCurvature(basis, sub, band[0] as BandPoint, CURVE_D)
+    const curvature = bandCurvature(basis, sub, band[0]!, CURVE_D)
     const mPredicted = 1 / curvature
     const eRest = level.unwrapped
 
@@ -172,11 +221,20 @@ export default experiment({
     const orbit = pointOrbit(gauge)
     const cover = orbit.length * L
 
-    if (cover !== 32) throw new Error(`moving-level: the cover is ${cover}, the momenta were fixed for 32`)
+    if (cover !== 32) {
+      throw new Error(
+        `moving-level: the cover is ${cover}, the momenta were fixed for 32`,
+      )
+    }
 
     // one run: the fidelity with the start at every beat, the energy (minus the slope of the start overlap's unwrapped
     // phase, fitted linear over beats 0 .. beats), the transported centroid per beat, the density's circular angle
-    const runOf = (options: PieceOptions, s0: CutState, K: number, beats = BEATS): Run =>
+    const runOf = (
+      options: PieceOptions,
+      s0: CutState,
+      K: number,
+      beats = BEATS,
+    ): Run =>
       boostedRun(
         s => pointBeatWith(options, f.tables, ring, s),
         s0,
@@ -184,12 +242,14 @@ export default experiment({
         beats,
         s => cutDensity(L, s),
       )
-    const placements = band.map(b => blochEntries(gauge, basis, b.vector, b.K, P))
+    const placements = band.map(b =>
+      blochEntries(gauge, basis, b.vector, b.K, P),
+    )
     const starts = placements.map(p => cutStart(p.entries, P))
 
     // ---- the runs ----
     const runs = band.map((b, i) => {
-      const r = runOf(RULE, starts[i] as CutState, b.K)
+      const r = runOf(RULE, starts[i]!, b.K)
 
       log(`K ${b.K.toFixed(4)}`)
 
@@ -198,46 +258,76 @@ export default experiment({
 
     // ---- the packets: (|K_a> + |K_b>) / sqrt 2, run as a start of its own ----
     const packets = PACKETS.map(([na, nb]) => {
-      const r = runOf(RULE, sumStates(starts[NS.indexOf(na)] as CutState, starts[NS.indexOf(nb)] as CutState, Math.SQRT1_2), Number.NaN)
+      const r = runOf(
+        RULE,
+        sumStates(
+          starts[NS.indexOf(na)]!,
+          starts[NS.indexOf(nb)]!,
+          Math.SQRT1_2,
+        ),
+        Number.NaN,
+      )
       const fit = lineFit(
         r.angles.map((_, t) => t),
         r.angles,
       )
-      const ea = (band[NS.indexOf(na)] as BandPoint).energy
-      const eb = (band[NS.indexOf(nb)] as BandPoint).energy
+      const ea = band[NS.indexOf(na)]!.energy
+      const eb = band[NS.indexOf(nb)]!.energy
       const dk = (2 * Math.PI * (nb - na)) / 32
 
       log(`packet ${na}, ${nb}`)
 
-      return { na, nb, speed: (fit.b * L) / (2 * Math.PI), chord: (eb - ea) / dk, transported: r.velocity, first: r.angles[0] as number, last: r.angles[BEATS] as number }
+      return {
+        na,
+        nb,
+        speed: (fit.b * L) / (2 * Math.PI),
+        chord: (eb - ea) / dk,
+        transported: r.velocity,
+        first: r.angles[0]!,
+        last: r.angles[BEATS]!,
+      }
     })
 
     // ---- M1, M2, M3 ----
     const vMax = Math.max(...slopes.map(Math.abs))
     const m1 = runs.every(r => r.least >= HOLD)
-    const speedOff = runs.map((r, i) => (r.K === 0 ? Math.abs(r.velocity) / vMax : Math.abs(r.velocity / (slopes[i] as number) - 1)))
+    const speedOff = runs.map((r, i) =>
+      r.K === 0
+        ? Math.abs(r.velocity) / vMax
+        : Math.abs(r.velocity / slopes[i]! - 1),
+    )
     const packetOff = packets.map(p => Math.abs(p.speed / p.chord - 1))
-    const m2 = speedOff.every(x => x <= SPEED_TOL) && packetOff.every(x => x <= SPEED_TOL)
-    const fitRuns = FIT_NS.map(n => runs[NS.indexOf(n)] as Run)
-    const e0 = (fitRuns[0] as Run).energy
+    const m2 =
+      speedOff.every(x => x <= SPEED_TOL) &&
+      packetOff.every(x => x <= SPEED_TOL)
+    const fitRuns = FIT_NS.map(n => runs[NS.indexOf(n)]!)
+    const e0 = fitRuns[0]!.energy
     // E(K) - E(0) = alpha K^2 + beta K^4, least squares over the nonzero K
     const { mass: mMeasured, beta } = quarticMass(fitRuns)
     const m3 = Math.abs(mMeasured / eRest - 1) <= MASS_TOL
     const cNeeded = Math.sqrt(eRest / mMeasured)
     const halfGapLattice = Math.atan(mMeasured)
     // the hyperbola through E_rest with that c, against the measured band
-    const hyperbola = runs.map(r => Math.sqrt(eRest ** 2 + (cNeeded * r.K) ** 2) - eRest)
+    const hyperbola = runs.map(
+      r => Math.sqrt(eRest ** 2 + (cNeeded * r.K) ** 2) - eRest,
+    )
     const measuredRise = runs.map(r => r.energy - e0)
 
     log('gates')
 
     // ---- controls (a), (b) ----
     const controlRuns = [0, NS.indexOf(8)].flatMap(i => {
-      const b = band[i] as BandPoint
+      const b = band[i]!
 
       return [
-        { name: `unbound K ${b.K.toFixed(4)}`, r: runOf(UNBOUND, starts[i] as CutState, b.K) },
-        { name: `bare K ${b.K.toFixed(4)}`, r: runOf(BARE, starts[i] as CutState, b.K) },
+        {
+          name: `unbound K ${b.K.toFixed(4)}`,
+          r: runOf(UNBOUND, starts[i]!, b.K),
+        },
+        {
+          name: `bare K ${b.K.toFixed(4)}`,
+          r: runOf(BARE, starts[i]!, b.K),
+        },
       ]
     })
     const controlUnbound = controlRuns.every(c => c.r.least < HOLD)
@@ -250,7 +340,9 @@ export default experiment({
     const a = blochPacket(basis, L, level.cre, level.cim, true)
     const startDensity = a.density()
     const c0 = Math.round(ringCenter(startDensity)) % L
+
     let wab = placeCutFramed(gauge, kept, P, 'parallel')
+
     const wabTrack = trackRun({
       L,
       beats: BEATS,
@@ -268,35 +360,87 @@ export default experiment({
       shareEvery: 16,
     })
     const wabFidelity = Math.min(...wabTrack.fidelity)
-    const restOff = Math.abs((runs[0] as Run).energy - eRest)
-    const controlRest = Math.abs(wabFidelity - RECORDED.fidelity) <= EXACT && Math.abs(wabTrack.energy - RECORDED.trackEnergy) <= EXACT && Math.abs(eRest - RECORDED.energy) <= EXACT && restOff <= 1e-4
+    const restOff = Math.abs(runs[0]!.energy - eRest)
+    const controlRest =
+      Math.abs(wabFidelity - RECORDED.fidelity) <= EXACT &&
+      Math.abs(wabTrack.energy - RECORDED.trackEnergy) <= EXACT &&
+      Math.abs(eRest - RECORDED.energy) <= EXACT &&
+      restOff <= 1e-4
 
     log('control c')
 
     // ---- control (d): the lone love ----
     const lone = LONE_KS.map(K => {
-      const r = runOf(BARE, cutStart(loneEntries(gauge, K, P), P), K, LONE_BEATS)
+      const r = runOf(
+        BARE,
+        cutStart(loneEntries(gauge, K, P), P),
+        K,
+        LONE_BEATS,
+      )
       const closed = loneBand(K)
 
-      return { K, r, closed, energyOff: Math.abs(r.energy - closed.energy), speedOff: Math.abs(r.velocity - closed.slope) }
+      return {
+        K,
+        r,
+        closed,
+        energyOff: Math.abs(r.energy - closed.energy),
+        speedOff: Math.abs(r.velocity - closed.slope),
+      }
     })
-    const controlLone = lone.every(x => x.energyOff <= 1e-9 && x.speedOff <= 1e-9 && x.r.least >= 1 - EXACT)
+    const controlLone = lone.every(
+      x =>
+        x.energyOff <= 1e-9 &&
+        x.speedOff <= 1e-9 &&
+        x.r.least >= 1 - EXACT,
+    )
     const loneMass = 1 / (1 / Math.sqrt(3))
 
     log('control d')
 
     // ---- control (e): the exact window ----
     const wctx = windowContext(WINDOW.side)
-    const wBand = band[NS.indexOf(WINDOW.n)] as BandPoint
-    const wAnchors = pointOrbit(wctx.gauge).map((_, s) => s * wctx.L + wctx.L - 1)
-    const wPlaced = blochEntries(wctx.gauge, basis, wBand.vector, wBand.K, P, wAnchors)
-    const window = runWindow({ cost: true, sign: true }, wctx, exactStart(wctx.vac, wctx.ring, wPlaced.entries, P), cutStart(wPlaced.entries, P), WINDOW.beats)
-    const controlWindow = window.reversed && window.beats.every(b => b.normKept && b.physicalNormOff <= EXACT && b.leak === 0 && b.disturbed === 0 && b.pointGap <= EXACT && b.energyGap <= EXACT && b.toneBroken === 0 && b.outsideCone === 0)
+    const wBand = band[NS.indexOf(WINDOW.n)]!
+    const wAnchors = pointOrbit(wctx.gauge).map(
+      (_, s) => s * wctx.L + wctx.L - 1,
+    )
+    const wPlaced = blochEntries(
+      wctx.gauge,
+      basis,
+      wBand.vector,
+      wBand.K,
+      P,
+      wAnchors,
+    )
+    const window = runWindow(
+      { cost: true, sign: true },
+      wctx,
+      exactStart(wctx.vac, wctx.ring, wPlaced.entries, P),
+      cutStart(wPlaced.entries, P),
+      WINDOW.beats,
+    )
+    const controlWindow =
+      window.reversed &&
+      window.beats.every(
+        b =>
+          b.normKept &&
+          b.physicalNormOff <= EXACT &&
+          b.leak === 0 &&
+          b.disturbed === 0 &&
+          b.pointGap <= EXACT &&
+          b.energyGap <= EXACT &&
+          b.toneBroken === 0 &&
+          b.outsideCone === 0,
+      )
 
     log('control e')
 
-    const control = controlUnbound && controlRest && controlLone && controlWindow
-    const status = !control ? 'partial' : m1 && m2 && m3 ? 'pass' : 'fail'
+    const control =
+      controlUnbound && controlRest && controlLone && controlWindow
+    const status = !control
+      ? 'partial'
+      : m1 && m2 && m3
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const f6 = (x: number): string => x.toFixed(6)
     const e3 = (x: number): string => x.toExponential(3)
@@ -324,45 +468,59 @@ export default experiment({
       wabEnergy: wabTrack.energy,
       restOff,
       windowReversed: window.reversed ? 1 : 0,
-      windowWorstPointGap: Math.max(...window.beats.map(b => b.pointGap)),
-      windowWorstEnergyGap: Math.max(...window.beats.map(b => b.energyGap)),
+      windowWorstPointGap: Math.max(
+        ...window.beats.map(b => b.pointGap),
+      ),
+      windowWorstEnergyGap: Math.max(
+        ...window.beats.map(b => b.energyGap),
+      ),
       windowStartBranches: window.startBranches,
       seconds: (Date.now() - started) / 1000,
     }
 
     runs.forEach((r, i) => {
-      const n = NS[i] as number
+      const n = NS[i]!
 
       metrics[`n${n}_K`] = r.K
       metrics[`n${n}_leastFidelity`] = r.least
       metrics[`n${n}_energy`] = r.energy
-      metrics[`n${n}_energyPredicted`] = (band[i] as BandPoint).energy
+      metrics[`n${n}_energyPredicted`] = band[i]!.energy
       metrics[`n${n}_velocity`] = r.velocity
-      metrics[`n${n}_velocityPredicted`] = slopes[i] as number
-      metrics[`n${n}_speedOff`] = speedOff[i] as number
-      metrics[`n${n}_hyperbolaRise`] = hyperbola[i] as number
-      metrics[`n${n}_measuredRise`] = measuredRise[i] as number
+      metrics[`n${n}_velocityPredicted`] = slopes[i]!
+      metrics[`n${n}_speedOff`] = speedOff[i]!
+      metrics[`n${n}_hyperbolaRise`] = hyperbola[i]!
+      metrics[`n${n}_measuredRise`] = measuredRise[i]!
     })
+
     packets.forEach(p => {
       metrics[`packet${p.na}_${p.nb}_speed`] = p.speed
       metrics[`packet${p.na}_${p.nb}_chord`] = p.chord
       metrics[`packet${p.na}_${p.nb}_transported`] = p.transported
     })
-    controlRuns.forEach((c, i) => (metrics[`control${i}_leastFidelity`] = c.r.least))
+
+    controlRuns.forEach(
+      (c, i) => (metrics[`control${i}_leastFidelity`] = c.r.least),
+    )
+
     lone.forEach((x, i) => {
       metrics[`lone${i}_energyOff`] = x.energyOff
       metrics[`lone${i}_speedOff`] = x.speedOff
     })
 
     const runRow = (r: Run, i: number): string =>
-      `K ${f4(r.K)}: least fidelity ${f6(r.least)}, E ${f6(r.energy)} (predicted ${f6((band[i] as BandPoint).energy)}), v ${e3(r.velocity)} (predicted ${e3(slopes[i] as number)}, off ${f4(speedOff[i] as number)})`
+      `K ${f4(r.K)}: least fidelity ${f6(r.least)}, E ${f6(r.energy)} (predicted ${f6(band[i]!.energy)}), v ${e3(r.velocity)} (predicted ${e3(slopes[i]!)}, off ${f4(speedOff[i]!)})`
 
     return verdict({
       status,
       claim: `E-SPN-0104's level (E_rest ${eRest.toFixed(5)}) boosted on the side-16 axis line's ${cover}-position cover, the working rule with both pieces, ${BEATS} beats: ${runs.map(runRow).join('; ')}; two-momentum packets move at ${packets.map(p => `${e3(p.speed)} against the chord ${e3(p.chord)}`).join(', ')}; m* ${mMeasured.toFixed(3)} measured (${mPredicted.toFixed(3)} predicted) against E_rest ${eRest.toFixed(5)}, ratio ${(mMeasured / eRest).toFixed(1)}; a hyperbola through E_rest needs c = ${cNeeded.toFixed(4)}, and as a Dirac walk m* is tan(${halfGapLattice.toFixed(4)}) where the lone love's is tan(pi/3); M1 ${m1}, M2 ${m2}, M3 ${m3}; controls: ${controlRuns.map(c => `${c.name} least ${f4(c.r.least)}`).join(', ')}; E-SPN-0104's WabP least fidelity ${wabFidelity} energy ${wabTrack.energy}; lone love ${lone.map(x => `K ${f4(x.K)} E off ${x.energyOff.toExponential(1)} v off ${x.speedOff.toExponential(1)}`).join(', ')}; exact window ${controlWindow}`,
       metrics,
-      control: { unbound: controlUnbound ? 1 : 0, rest: controlRest ? 1 : 0, lone: controlLone ? 1 : 0, window: controlWindow ? 1 : 0 },
-      notes: `L2. M1 ${m1}, M2 ${m2}, M3 ${m3}; controls unbound ${controlUnbound}, rest ${controlRest}, lone ${controlLone}, window ${controlWindow}. Band (stand-in, steps of pi/64): ${band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} dE/dK ${e3(slopes[i] as number)} residual ${b.residual.toExponential(1)} least overlap ${f4(b.overlap)}`).join('; ')}; E''(0) ${curvature.toExponential(5)}. Fit E(K) - E(0) = K^2/(2 m*) + b K^4 over K ${FIT_NS.map(n => f4((2 * Math.PI * n) / 32)).join(', ')}: m* ${mMeasured.toFixed(4)}, b ${beta.toExponential(3)}. Rise E(K) - E(0) measured ${measuredRise.map(e3).join(', ')}, hyperbola with c = ${cNeeded.toFixed(4)} ${hyperbola.map(e3).join(', ')}. Fidelity at beats 1, 16, 64, 128: ${runs.map(r => `K ${f4(r.K)} ${[1, 16, 64, 128].map(t => f6(r.fidelity[t - 1] as number)).join(' ')}`).join('; ')}. Largest ring-form states: ${runs.map(r => r.size).join(', ')}. Packets (angle from ${packets.map(p => `${f4(p.first)} to ${f4(p.last)}, transported ${e3(p.transported)}`).join('; ')}). Placements: dropped ${placements.map(p => p.dropped.toExponential(1)).join(', ')}, kept weight ${placements.map(p => p.weight.toFixed(12)).join(', ')}. Controls: ${controlRuns.map(c => `${c.name} fidelity at 1, 16, 128 ${[1, 16, 128].map(t => f4(c.r.fidelity[t - 1] as number)).join(' ')}`).join('; ')}. E-SPN-0104 WabP reproduced: least fidelity off ${Math.abs(wabFidelity - RECORDED.fidelity).toExponential(1)}, energy off ${Math.abs(wabTrack.energy - RECORDED.trackEnergy).toExponential(1)}; Bloch K = 0 energy off E_rest ${restOff.toExponential(1)}. Lone love: ${lone.map(x => `K ${f4(x.K)} E ${x.r.energy.toFixed(10)} (closed ${x.closed.energy.toFixed(10)}), v ${x.r.velocity.toFixed(10)} (closed ${x.closed.slope.toFixed(10)}), least fidelity ${x.r.least}`).join('; ')}; lone m* sqrt 3 against half-gap pi/3. Exact window (side ${window.side}, ring ${window.L}, orbit ${pointOrbit(wctx.gauge).join(',')}, ${window.startBranches} branches, slices ${[...new Set(wPlaced.entries.map(e => e.c))].join(',')}): ${window.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${b.physicalNormOff.toExponential(1)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, tone ${b.toneBroken}, cone ${b.outsideCone}`).join('; ')}; reversed ${window.reversed} (${window.seconds.toFixed(0)} s). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        unbound: controlUnbound ? 1 : 0,
+        rest: controlRest ? 1 : 0,
+        lone: controlLone ? 1 : 0,
+        window: controlWindow ? 1 : 0,
+      },
+      notes: `L2. M1 ${m1}, M2 ${m2}, M3 ${m3}; controls unbound ${controlUnbound}, rest ${controlRest}, lone ${controlLone}, window ${controlWindow}. Band (stand-in, steps of pi/64): ${band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} dE/dK ${e3(slopes[i]!)} residual ${b.residual.toExponential(1)} least overlap ${f4(b.overlap)}`).join('; ')}; E''(0) ${curvature.toExponential(5)}. Fit E(K) - E(0) = K^2/(2 m*) + b K^4 over K ${FIT_NS.map(n => f4((2 * Math.PI * n) / 32)).join(', ')}: m* ${mMeasured.toFixed(4)}, b ${beta.toExponential(3)}. Rise E(K) - E(0) measured ${measuredRise.map(e3).join(', ')}, hyperbola with c = ${cNeeded.toFixed(4)} ${hyperbola.map(e3).join(', ')}. Fidelity at beats 1, 16, 64, 128: ${runs.map(r => `K ${f4(r.K)} ${[1, 16, 64, 128].map(t => f6(r.fidelity[t - 1]!)).join(' ')}`).join('; ')}. Largest ring-form states: ${runs.map(r => r.size).join(', ')}. Packets (angle from ${packets.map(p => `${f4(p.first)} to ${f4(p.last)}, transported ${e3(p.transported)}`).join('; ')}). Placements: dropped ${placements.map(p => p.dropped.toExponential(1)).join(', ')}, kept weight ${placements.map(p => p.weight.toFixed(12)).join(', ')}. Controls: ${controlRuns.map(c => `${c.name} fidelity at 1, 16, 128 ${[1, 16, 128].map(t => f4(c.r.fidelity[t - 1]!)).join(' ')}`).join('; ')}. E-SPN-0104 WabP reproduced: least fidelity off ${Math.abs(wabFidelity - RECORDED.fidelity).toExponential(1)}, energy off ${Math.abs(wabTrack.energy - RECORDED.trackEnergy).toExponential(1)}; Bloch K = 0 energy off E_rest ${restOff.toExponential(1)}. Lone love: ${lone.map(x => `K ${f4(x.K)} E ${x.r.energy.toFixed(10)} (closed ${x.closed.energy.toFixed(10)}), v ${x.r.velocity.toFixed(10)} (closed ${x.closed.slope.toFixed(10)}), least fidelity ${x.r.least}`).join('; ')}; lone m* sqrt 3 against half-gap pi/3. Exact window (side ${window.side}, ring ${window.L}, orbit ${pointOrbit(wctx.gauge).join(',')}, ${window.startBranches} branches, slices ${[...new Set(wPlaced.entries.map(e => e.c))].join(',')}): ${window.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${b.physicalNormOff.toExponential(1)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, tone ${b.toneBroken}, cone ${b.outsideCone}`).join('; ')}; reversed ${window.reversed} (${window.seconds.toFixed(0)} s). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

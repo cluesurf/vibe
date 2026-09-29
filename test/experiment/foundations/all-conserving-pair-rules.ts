@@ -61,7 +61,9 @@ export default experiment({
   run() {
     const classes: [Tone, Tone][][] = [-2, -1, 0, 1, 2].map(sum =>
       TONES.flatMap(a =>
-        TONES.filter(b => a + b === sum).map(b => [a, b] as [Tone, Tone]),
+        TONES.filter(b => a + b === sum).map(
+          b => [a, b] as [Tone, Tone],
+        ),
       ),
     )
 
@@ -91,7 +93,8 @@ export default experiment({
 
               classes.forEach((states, index) => {
                 states.forEach((state, i) => {
-                  table[pairKey(state[0], state[1])] = images[index]![i]!
+                  table[pairKey(state[0], state[1])] =
+                    images[index]![i]!
                 })
               })
 

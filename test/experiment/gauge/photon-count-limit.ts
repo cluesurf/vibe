@@ -40,7 +40,14 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
-import { applyFactors, boxSpectrum, exactLeapfrog, slope, startVectors, testVector } from '@/code/measure/photon-count-limit'
+import {
+  applyFactors,
+  boxSpectrum,
+  exactLeapfrog,
+  slope,
+  startVectors,
+  testVector,
+} from '@/code/measure/photon-count-limit'
 import { sectionS } from '@/code/measure/photon-count-battery'
 import { hotStart, start164 } from '@/code/measure/photon-battery'
 
@@ -70,80 +77,132 @@ export default experiment({
       inBand = inBand && s.min > -1e-9 && s.max < 16 + 1e-9
     }
 
-    const topped = Math.abs((metrics['g1Side2Max'] ?? 0) - 16) < 1e-9 && Math.abs((metrics['g1Side4Max'] ?? 0) - 16) < 1e-9
+    const topped =
+      Math.abs((metrics.g1Side2Max ?? 0) - 16) < 1e-9 &&
+      Math.abs((metrics.g1Side4Max ?? 0) - 16) < 1e-9
     const lattice = photonLatticeD4({ side: 2 })
-    const tests = [1, 2, 3, 4].map(salt => testVector(lattice.links, salt))
-    const annihilated = tests.every(w => applyFactors(lattice, EIGENVALUES, w).every(x => x === 0n))
-    const needed = EIGENVALUES.map(mu => tests.some(w => applyFactors(lattice, EIGENVALUES.filter(x => x !== mu), w).some(x => x !== 0n)))
+    const tests = [1, 2, 3, 4].map(salt =>
+      testVector(lattice.links, salt),
+    )
+    const annihilated = tests.every(w =>
+      applyFactors(lattice, EIGENVALUES, w).every(x => x === 0n),
+    )
+    const needed = EIGENVALUES.map(mu =>
+      tests.some(w =>
+        applyFactors(
+          lattice,
+          EIGENVALUES.filter(x => x !== mu),
+          w,
+        ).some(x => x !== 0n),
+      ),
+    )
 
-    metrics['g1Annihilated'] = annihilated ? 1 : 0
-    metrics['g1FactorsNeeded'] = needed.filter(Boolean).length
+    metrics.g1Annihilated = annihilated ? 1 : 0
+    metrics.g1FactorsNeeded = needed.filter(Boolean).length
 
-    const okG1 = inBand && topped && annihilated && needed.every(Boolean)
+    const okG1 =
+      inBand && topped && annihilated && needed.every(Boolean)
 
     // G2
     const beats = 64
     const general = startVectors(lattice, start164)
-    const projected = (lambda: number): bigint[] => applyFactors(lattice, EIGENVALUES.filter(x => x !== lambda), tests[0]!)
-    const zeros = (): bigint[] => Array.from({ length: lattice.links }, () => 0n)
-    const runGeneral = exactLeapfrog(lattice, 4, general.angle, general.flux, beats)
+    const projected = (lambda: number): bigint[] =>
+      applyFactors(
+        lattice,
+        EIGENVALUES.filter(x => x !== lambda),
+        tests[0]!,
+      )
+    const zeros = (): bigint[] =>
+      Array.from({ length: lattice.links }, () => 0n)
+    const runGeneral = exactLeapfrog(
+      lattice,
+      4,
+      general.angle,
+      general.flux,
+      beats,
+    )
     const run8 = exactLeapfrog(lattice, 4, projected(8), zeros(), beats)
-    const run16 = exactLeapfrog(lattice, 4, projected(16), zeros(), beats)
+    const run16 = exactLeapfrog(
+      lattice,
+      4,
+      projected(16),
+      zeros(),
+      beats,
+    )
     const run0 = exactLeapfrog(lattice, 4, projected(0), zeros(), beats)
     const slopeGeneral = slope(runGeneral.exponents, 32, 64)
     const slope8 = slope(run8.exponents, 32, 64)
 
-    metrics['g2GeneralExponentAt64'] = runGeneral.exponents[63] ?? -1
-    metrics['g2GeneralSlope'] = slopeGeneral
-    metrics['g2Lambda8ExponentAt64'] = run8.exponents[63] ?? -1
-    metrics['g2Lambda8Slope'] = slope8
-    metrics['g2Lambda16MaxExponent'] = Math.max(...run16.exponents)
-    metrics['g2Lambda16PeriodSix'] = run16.periodSix ? 1 : 0
-    metrics['g2Lambda16Nonzero'] = projected(16).some(x => x !== 0n) ? 1 : 0
-    metrics['g2Lambda0MaxExponent'] = Math.max(...run0.exponents)
-    metrics['g2Lambda0Static'] = run0.static ? 1 : 0
-    metrics['g2Lambda0Nonzero'] = projected(0).some(x => x !== 0n) ? 1 : 0
-    metrics['g2Lambda8Nonzero'] = projected(8).some(x => x !== 0n) ? 1 : 0
+    metrics.g2GeneralExponentAt64 = runGeneral.exponents[63] ?? -1
+    metrics.g2GeneralSlope = slopeGeneral
+    metrics.g2Lambda8ExponentAt64 = run8.exponents[63] ?? -1
+    metrics.g2Lambda8Slope = slope8
+    metrics.g2Lambda16MaxExponent = Math.max(...run16.exponents)
+    metrics.g2Lambda16PeriodSix = run16.periodSix ? 1 : 0
+    metrics.g2Lambda16Nonzero = projected(16).some(x => x !== 0n)
+      ? 1
+      : 0
+    metrics.g2Lambda0MaxExponent = Math.max(...run0.exponents)
+    metrics.g2Lambda0Static = run0.static ? 1 : 0
+    metrics.g2Lambda0Nonzero = projected(0).some(x => x !== 0n) ? 1 : 0
+    metrics.g2Lambda8Nonzero = projected(8).some(x => x !== 0n) ? 1 : 0
 
     const okG2 =
       Math.abs(slopeGeneral - 2) < 0.1 &&
       Math.abs(slope8 - 1) < 0.1 &&
-      metrics['g2Lambda16MaxExponent'] === 0 &&
+      metrics.g2Lambda16MaxExponent === 0 &&
       run16.periodSix &&
-      metrics['g2Lambda0MaxExponent'] === 0 &&
+      metrics.g2Lambda0MaxExponent === 0 &&
       run0.static &&
-      metrics['g2Lambda16Nonzero'] === 1 &&
-      metrics['g2Lambda0Nonzero'] === 1 &&
-      metrics['g2Lambda8Nonzero'] === 1
+      metrics.g2Lambda16Nonzero === 1 &&
+      metrics.g2Lambda0Nonzero === 1 &&
+      metrics.g2Lambda8Nonzero === 1
 
     // G3
     const s = sectionS(
       'wave',
       'zero',
-      [2, 3, 4, 5].map(digits => [`Digits${digits}`, 4, hotStart, 1000, 13, digits] as const),
+      [2, 3, 4, 5].map(
+        digits =>
+          [`Digits${digits}`, 4, hotStart, 1000, 13, digits] as const,
+      ),
     )
-    const worst = [2, 3, 4, 5].map(digits => s[`sDigits${digits}FromLinearWorst`] ?? 1)
+    const worst = [2, 3, 4, 5].map(
+      digits => s[`sDigits${digits}FromLinearWorst`] ?? 1,
+    )
     const ratios = worst.slice(1).map((w, i) => (worst[i] ?? 0) / w)
 
     worst.forEach((w, i) => (metrics[`g3Digits${i + 2}Worst`] = w))
     ratios.forEach((r, i) => (metrics[`g3Ratio${i + 2}To${i + 3}`] = r))
-    metrics['g3SeamCrossings'] = [2, 3, 4, 5].reduce((a, digits) => a + (s[`sDigits${digits}SeamCrossings`] ?? 0), 0)
+    metrics.g3SeamCrossings = [2, 3, 4, 5].reduce(
+      (a, digits) => a + (s[`sDigits${digits}SeamCrossings`] ?? 0),
+      0,
+    )
 
     const okG3 = ratios.every(r => r >= 8) && (worst[2] ?? 1) < 0.01
-    const gates = { G1: okG1 ? 1 : 0, G2: okG2 ? 1 : 0, G3: okG3 ? 1 : 0 }
+    const gates = {
+      G1: okG1 ? 1 : 0,
+      G2: okG2 ? 1 : 0,
+      G3: okG3 ? 1 : 0,
+    }
 
     for (const [gate, ok] of Object.entries(gates)) {
       metrics[`gate${gate}`] = ok
     }
 
     return verdict({
-      status: okG1 && okG2 && okG3 ? 'pass' : okG1 && okG2 ? 'partial' : 'fail',
+      status:
+        okG1 && okG2 && okG3
+          ? 'pass'
+          : okG1 && okG2
+            ? 'partial'
+            : 'fail',
       claim:
         'the curl-curl spectrum lies in [0, 16] with lambda_max = 16, so at kappa = 1/16 no bounded integer state carries any photon exactly: the exact rational orbit gains 2 bits of denominator a beat through lambda = 4 and 12 and 1 through lambda = 8, while the gauge (lambda = 0) and the top of the band (lambda = 16, period 6) stay integer; the carried remainder of the wave form falls by 16 per digit',
       metrics,
       control: {
-        lambda16PeriodSix: metrics['g2Lambda16PeriodSix'] ?? 0,
-        lambda0Static: metrics['g2Lambda0Static'] ?? 0,
+        lambda16PeriodSix: metrics.g2Lambda16PeriodSix ?? 0,
+        lambda0Static: metrics.g2Lambda0Static ?? 0,
       },
       notes:
         'L3 for G1 and G2 (a theorem, with exact BigInt arithmetic confirming it), L2 for G3; deterministic. First run 2026-09-26 (tmp/frc0204.log, 3.8 s), PASS. G1: every eigenvalue of M over the 192, 972 and 3,072 wave-vector eigenvalues of the side 2, 3 and 4 boxes lies in [0, 16] (least -2.6e-15), lambda_max = 16 on sides 2 and 4 (15 on side 3); on side 2 M (M - 4)(M - 8)(M - 12)(M - 16) annihilates all 4 integer test vectors exactly and all 5 factors are needed. G2: in exact rationals from the E-FRC-0164 integer start the denominator reaches 2^132 after 64 beats, slope 1.997 bits per beat over beats 32 to 64 (predicted 2); from a start projected onto lambda = 8 it reaches 2^59, slope 1.000 (predicted 1); onto lambda = 16 the orbit stays integer and returns exactly after 6 beats; onto lambda = 0 it stays integer and never changes. G3: the wave form\'s shadow departs from the floating linear leapfrog by 0.28, 0.017, 0.0011 and 7.1e-5 flux units at 2, 3, 4 and 5 base-16 digits (1,000 beats, hot start, side 4, 0 seam crossings), ratios 16.4, 15.2 and 15.9 per digit (predicted 16). MEANING: "the shadow exactly linear with no rounding anywhere" is impossible for any rule with bounded integer state at a stable kappa = 1/Q; what a counter can do is make the departure 16^-digits and carry it, which E-FRC-0205 does. The spectra were read in a probe before the gates were written (disclosed in the header).',

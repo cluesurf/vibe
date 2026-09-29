@@ -23,23 +23,44 @@ export type Band = (K: readonly number[]) => number
 export function structureG(K: readonly number[]): number {
   let s = 0
 
-  for (const r of DOCK_ROOTS) s += Math.cos((r[0] as number) * (K[0] as number) + (r[1] as number) * (K[1] as number) + (r[2] as number) * (K[2] as number) + (r[3] as number) * (K[3] as number))
+  for (const r of DOCK_ROOTS) {
+    s += Math.cos(
+      r[0]! * K[0]! + r[1]! * K[1]! + r[2]! * K[2]! + r[3]! * K[3]!,
+    )
+  }
 
   return s / 24
 }
 
 /** The closed-form swap-coin singlet band: E = arccos(cos(m) g(K)). */
-export const closedBand = (m: number): Band => K => Math.acos(Math.cos(m) * structureG(K))
+export const closedBand =
+  (m: number): Band =>
+  K =>
+    Math.acos(Math.cos(m) * structureG(K))
 
 /** A husk momentum: a 3d husk vector lifted to K4 = 0. */
-export const husk = (k: readonly number[]): Vec => [k[0] as number, k[1] as number, k[2] as number, 0]
+export const husk = (k: readonly number[]): Vec => [
+  k[0]!,
+  k[1]!,
+  k[2]!,
+  0,
+]
 
-const add = (a: readonly number[], b: readonly number[], s: number): Vec => a.map((x, i) => x + s * (b[i] as number))
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, i) => s + x * (b[i] as number), 0)
+const add = (
+  a: readonly number[],
+  b: readonly number[],
+  s: number,
+): Vec => a.map((x, i) => x + s * b[i]!)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, i) => s + x * b[i]!, 0)
 const norm = (a: readonly number[]): number => Math.sqrt(dot(a, a))
 
 /** The husk gradient of E at K (central differences along the three husk axes, step h). */
-export function huskGradient(E: Band, K: readonly number[], h: number): Vec {
+export function huskGradient(
+  E: Band,
+  K: readonly number[],
+  h: number,
+): Vec {
   return [0, 1, 2].map(i => {
     const e = [0, 0, 0, 0]
 
@@ -50,7 +71,12 @@ export function huskGradient(E: Band, K: readonly number[], h: number): Vec {
 }
 
 /** The curvature of E along the unit husk direction u at K: u . Hess . u (central second difference, step h). */
-export function curvatureAlong(E: Band, K: readonly number[], u: readonly number[], h: number): number {
+export function curvatureAlong(
+  E: Band,
+  K: readonly number[],
+  u: readonly number[],
+  h: number,
+): number {
   const w = husk(u)
 
   return (E(add(K, w, h)) - 2 * E(K) + E(add(K, w, -h))) / (h * h)
@@ -58,10 +84,14 @@ export function curvatureAlong(E: Band, K: readonly number[], u: readonly number
 
 /** Two unit husk vectors orthogonal to u and to each other. */
 export function transverse(u: readonly number[]): [Vec, Vec] {
-  const a = Math.abs(u[0] as number) < 0.9 ? [1, 0, 0] : [0, 1, 0]
+  const a = Math.abs(u[0]!) < 0.9 ? [1, 0, 0] : [0, 1, 0]
   const w1 = add(a, u, -dot(a, u))
   const n1 = w1.map(x => x / norm(w1))
-  const w2 = [(u[1] as number) * (n1[2] as number) - (u[2] as number) * (n1[1] as number), (u[2] as number) * (n1[0] as number) - (u[0] as number) * (n1[2] as number), (u[0] as number) * (n1[1] as number) - (u[1] as number) * (n1[0] as number)]
+  const w2 = [
+    u[1]! * n1[2]! - u[2]! * n1[1]!,
+    u[2]! * n1[0]! - u[0]! * n1[2]!,
+    u[0]! * n1[1]! - u[1]! * n1[0]!,
+  ]
 
   return [n1, w2.map(x => x / norm(w2))]
 }
@@ -70,8 +100,16 @@ export function transverse(u: readonly number[]): [Vec, Vec] {
  * The band's top group speed along u and the momentum where it peaks: the lattice speed rises from 0, peaks, then falls
  * (the zone edge), so a speed is reached on the rising side only. Scanned at `steps` points of [0, kMax], then refined.
  */
-export function speedPeak(E: Band, u: readonly number[], kMax: number, h: number, steps = 600): { k: number; v: number } {
-  const speed = (k: number): number => dot(huskGradient(E, husk(u.map(x => x * k)), h), u)
+export function speedPeak(
+  E: Band,
+  u: readonly number[],
+  kMax: number,
+  h: number,
+  steps = 600,
+): { k: number; v: number } {
+  const speed = (k: number): number =>
+    dot(huskGradient(E, husk(u.map(x => x * k)), h), u)
+
   let best = 0
   let at = 0
 
@@ -92,8 +130,11 @@ export function speedPeak(E: Band, u: readonly number[], kMax: number, h: number
     const a = lo + (hi - lo) / 3
     const b = hi - (hi - lo) / 3
 
-    if (speed(a) < speed(b)) lo = a
-    else hi = b
+    if (speed(a) < speed(b)) {
+      lo = a
+    } else {
+      hi = b
+    }
   }
 
   const k = (lo + hi) / 2
@@ -102,7 +143,13 @@ export function speedPeak(E: Band, u: readonly number[], kMax: number, h: number
 }
 
 /** The husk momentum magnitude along u at which the group speed u . grad E equals the target, on the rising side [0, kMax]. */
-export function momentumForSpeed(E: Band, u: readonly number[], target: number, kMax: number, h: number): number {
+export function momentumForSpeed(
+  E: Band,
+  u: readonly number[],
+  target: number,
+  kMax: number,
+  h: number,
+): number {
   let lo = 0
   let hi = kMax
 
@@ -111,8 +158,11 @@ export function momentumForSpeed(E: Band, u: readonly number[], target: number, 
     const K = husk(u.map(x => x * mid))
     const v = dot(huskGradient(E, K, h), u)
 
-    if (v < target) lo = mid
-    else hi = mid
+    if (v < target) {
+      lo = mid
+    } else {
+      hi = mid
+    }
   }
 
   return (lo + hi) / 2
@@ -141,7 +191,15 @@ export type LorentzReading = {
 }
 
 /** The three Lorentz identities at the husk momentum along u where the group speed is beta c*, with kMax the rising side's end (speedPeak). */
-export function lorentzReading(E: Band, m: number, cStar: number, u: readonly number[], beta: number, kMax: number, h: number): LorentzReading {
+export function lorentzReading(
+  E: Band,
+  m: number,
+  cStar: number,
+  u: readonly number[],
+  beta: number,
+  kMax: number,
+  h: number,
+): LorentzReading {
   const k = momentumForSpeed(E, u, beta * cStar, kMax, h)
   const K = husk(u.map(x => x * k))
   const e = E(K)
@@ -172,7 +230,12 @@ export function lorentzReading(E: Band, m: number, cStar: number, u: readonly nu
 }
 
 /** The long-wave speed c* of a band from its own dispersion: c*^2 = lim (E^2 - m^2) / K^2 (Richardson on two scales). */
-export function longWaveSpeed(E: Band, m: number, u: readonly number[], kappa: number): number {
+export function longWaveSpeed(
+  E: Band,
+  m: number,
+  u: readonly number[],
+  kappa: number,
+): number {
   const at = (k: number): number => {
     const e = E(husk(u.map(x => x * k)))
 
@@ -196,18 +259,30 @@ export type ShellReading = {
 }
 
 /** The largest |K . r| over the 24 roots, for a husk momentum. */
-export const rootReach = (k: readonly number[]): number => Math.max(...DOCK_ROOTS.map(r => Math.abs((r[0] as number) * (k[0] as number) + (r[1] as number) * (k[1] as number) + (r[2] as number) * (k[2] as number))))
+export const rootReach = (k: readonly number[]): number =>
+  Math.max(
+    ...DOCK_ROOTS.map(r =>
+      Math.abs(r[0]! * k[0]! + r[1]! * k[1]! + r[2]! * k[2]!),
+    ),
+  )
 
 /**
  * Relativistic two-body kinematics on the band: for incoming husk momenta p1 and p2 (equal masses m, the band's rest
  * energy), boost the CM sphere of outgoing momenta, radius k*, by the CM velocity, and read how far each predicted
  * outgoing pair (p3, P - p3) is from conserving the band's own energy. A relativistic band reads 0.
  */
-export function collisionShell(E: Band, m: number, cStar: number, p1: readonly number[], p2: readonly number[], directions: readonly (readonly number[])[]): ShellReading {
+export function collisionShell(
+  E: Band,
+  m: number,
+  cStar: number,
+  p1: readonly number[],
+  p2: readonly number[],
+  directions: readonly (readonly number[])[],
+): ShellReading {
   const K1 = husk(p1)
   const K2 = husk(p2)
   const eTot = E(K1) + E(K2)
-  const P = [0, 1, 2].map(i => (p1[i] as number) + (p2[i] as number))
+  const P = [0, 1, 2].map(i => p1[i]! + p2[i]!)
   const cp = P.map(x => x * cStar)
   const s = eTot * eTot - dot(cp, cp)
   const sqrtS = Math.sqrt(s)
@@ -217,17 +292,24 @@ export function collisionShell(E: Band, m: number, cStar: number, p1: readonly n
   const b = norm(beta)
   const gamma = 1 / Math.sqrt(1 - b * b)
   const bHat = b > 0 ? beta.map(x => x / b) : [1, 0, 0]
+
   let residual = 0
   let reach = Math.max(rootReach(p1), rootReach(p2))
 
   for (const n of directions) {
     const cpStar = n.map(x => x * kStar * cStar)
     const along = dot(cpStar, bHat)
-    const cp3 = cpStar.map((x, i) => x + ((gamma - 1) * along + gamma * b * eStar) * (bHat[i] as number))
+    const cp3 = cpStar.map(
+      (x, i) =>
+        x + ((gamma - 1) * along + gamma * b * eStar) * bHat[i]!,
+    )
     const p3 = cp3.map(x => x / cStar)
-    const p4 = P.map((x, i) => x - (p3[i] as number))
+    const p4 = P.map((x, i) => x - p3[i]!)
 
-    residual = Math.max(residual, Math.abs(E(husk(p3)) + E(husk(p4)) - eTot) / eTot)
+    residual = Math.max(
+      residual,
+      Math.abs(E(husk(p3)) + E(husk(p4)) - eTot) / eTot,
+    )
     reach = Math.max(reach, rootReach(p3), rootReach(p4))
   }
 
@@ -241,7 +323,9 @@ export function huskDirections(): Vec[] {
   for (let a = -1; a <= 1; a++) {
     for (let b = -1; b <= 1; b++) {
       for (let c = -1; c <= 1; c++) {
-        if (a === 0 && b === 0 && c === 0) continue
+        if (a === 0 && b === 0 && c === 0) {
+          continue
+        }
 
         const n = Math.hypot(a, b, c)
 

@@ -74,7 +74,11 @@ const MADELUNG = 2.837297479
 // the particle band
 
 // R(phi) and dR/dphi for the slots at wave vector angles theta
-function secular(phi: number, theta: Float64Array, s2: Float64Array): [number, number] {
+function secular(
+  phi: number,
+  theta: Float64Array,
+  s2: Float64Array,
+): [number, number] {
   let r = COT_BETA_HALF
   let dr = 0
 
@@ -94,7 +98,11 @@ const TWO_PI = 2 * Math.PI
 const wrap = (x: number): number => x - TWO_PI * Math.floor(x / TWO_PI)
 
 // the root of R between the two poles that bracket `guess`
-function rootNear(guess: number, theta: Float64Array, s2: Float64Array): number {
+function rootNear(
+  guess: number,
+  theta: Float64Array,
+  s2: Float64Array,
+): number {
   let up = TWO_PI
   let down = TWO_PI
 
@@ -115,13 +123,17 @@ function rootNear(guess: number, theta: Float64Array, s2: Float64Array): number 
 
   let lo = guess - down
   let hi = guess + up
+
   // shrink off the poles
   const pad = 1e-14 * (hi - lo)
 
   lo += pad
   hi -= pad
 
-  let x = Math.min(Math.max(guess, lo + 1e-3 * (hi - lo)), hi - 1e-3 * (hi - lo))
+  let x = Math.min(
+    Math.max(guess, lo + 1e-3 * (hi - lo)),
+    hi - 1e-3 * (hi - lo),
+  )
 
   for (let it = 0; it < 200; it++) {
     const [r, dr] = secular(x, theta, s2)
@@ -138,7 +150,10 @@ function rootNear(guess: number, theta: Float64Array, s2: Float64Array): number 
       next = (lo + hi) / 2
     }
 
-    if (Math.abs(next - x) < 1e-15 * (1 + Math.abs(x)) || hi - lo < 1e-15) {
+    if (
+      Math.abs(next - x) < 1e-15 * (1 + Math.abs(x)) ||
+      hi - lo < 1e-15
+    ) {
       return next
     }
 
@@ -149,12 +164,17 @@ function rootNear(guess: number, theta: Float64Array, s2: Float64Array): number 
 }
 
 // E(k) of the particle band: the root carried from phi = 0 at k = 0 along the ray, in `steps` steps
-export function particleBand(slots: SlotSet, k: readonly number[], steps?: number): number {
+export function particleBand(
+  slots: SlotSet,
+  k: readonly number[],
+  steps?: number,
+): number {
   const n = slots.directions.length
   const s2 = Float64Array.from(slots.s, x => x * x)
   const theta = new Float64Array(n)
   const size = Math.hypot(...k)
   const count = steps ?? Math.max(8, Math.ceil(size / 0.02))
+
   let phi = 0
 
   for (let step = 1; step <= count; step++) {
@@ -162,6 +182,7 @@ export function particleBand(slots: SlotSet, k: readonly number[], steps?: numbe
 
     for (let d = 0; d < n; d++) {
       const r = slots.directions[d] ?? []
+
       let v = 0
 
       for (let a = 0; a < r.length; a++) {
@@ -188,8 +209,13 @@ export function bandGrid(slots: SlotSet, side: number): Float64Array {
   for (let z = 0; z < side; z++) {
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
-        const c = [Math.abs(signed(x)), Math.abs(signed(y)), Math.abs(signed(z))].sort((p, q) => q - p)
+        const c = [
+          Math.abs(signed(x)),
+          Math.abs(signed(y)),
+          Math.abs(signed(z)),
+        ].sort((p, q) => q - p)
         const key = c[0]! + (side + 1) * (c[1]! + (side + 1) * c[2]!)
+
         let e = memo.get(key)
 
         if (e === undefined) {
@@ -235,7 +261,11 @@ export function huskBand(k: readonly number[]): number {
   for (let h = 0; h < HUSK_VECTORS.length; h++) {
     const u = HUSK_VECTORS[h]!
 
-    sum += HUSK_WEIGHTS[h]! * fearBand(u[0]! * (k[0] ?? 0) + u[1]! * (k[1] ?? 0) + u[2]! * (k[2] ?? 0))
+    sum +=
+      HUSK_WEIGHTS[h]! *
+      fearBand(
+        u[0]! * (k[0] ?? 0) + u[1]! * (k[1] ?? 0) + u[2]! * (k[2] ?? 0),
+      )
   }
 
   return sum / 6
@@ -247,7 +277,9 @@ export function bulkBand(k: readonly number[]): number {
 
   for (let i = 0; i < 4; i++) {
     for (let j = i + 1; j < 4; j++) {
-      sum += fearBand((k[i] ?? 0) + (k[j] ?? 0)) + fearBand((k[i] ?? 0) - (k[j] ?? 0))
+      sum +=
+        fearBand((k[i] ?? 0) + (k[j] ?? 0)) +
+        fearBand((k[i] ?? 0) - (k[j] ?? 0))
     }
   }
 
@@ -261,7 +293,11 @@ export function cubicBand(k: readonly number[]): number {
 }
 
 // the kinetic mass read from a band's curvature at k = 0 along a direction, by a symmetric difference
-export function bandMass(band: (k: readonly number[]) => number, direction: readonly number[], step = 1e-3): number {
+export function bandMass(
+  band: (k: readonly number[]) => number,
+  direction: readonly number[],
+  step = 1e-3,
+): number {
   const n = Math.hypot(...direction)
   const e = band(direction.map(x => (x / n) * step))
 
@@ -270,9 +306,14 @@ export function bandMass(band: (k: readonly number[]) => number, direction: read
 
 // the kinetic mass sqrt 3 / kappa2 with sum_d s_d^2 r_d r_d^T = kappa2 I, and the tensor's largest departure
 // from isotropy
-export function massOf(slots: SlotSet): { mass: number; anisotropy: number } {
+export function massOf(slots: SlotSet): {
+  mass: number
+  anisotropy: number
+} {
   const n = slots.dimension
-  const m = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const m = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
   slots.directions.forEach((r, d) => {
     const s2 = (slots.s[d] ?? 0) ** 2
@@ -285,11 +326,15 @@ export function massOf(slots: SlotSet): { mass: number; anisotropy: number } {
   })
 
   const kappa2 = m.reduce((s, row, i) => s + row[i]!, 0) / n
+
   let anisotropy = 0
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      anisotropy = Math.max(anisotropy, Math.abs(m[i]![j]! - (i === j ? kappa2 : 0)) / kappa2)
+      anisotropy = Math.max(
+        anisotropy,
+        Math.abs(m[i]![j]! - (i === j ? kappa2 : 0)) / kappa2,
+      )
     }
   }
 
@@ -299,18 +344,35 @@ export function massOf(slots: SlotSet): { mass: number; anisotropy: number } {
 // the fear walk's own mass: the line's slot set, s = (1, 1) / sqrt 2, directions +-1, gives sqrt 3
 export const STAND_IN_MASS = massOf(line2()).mass
 
-export const HUSK_ATOM: AtomKind = { lattice: 'husk', band: huskBand, mass: STAND_IN_MASS, norm: 24 * Math.PI }
-export const CUBIC_ATOM: AtomKind = { lattice: 'cubic', band: cubicBand, mass: STAND_IN_MASS, norm: 4 * Math.PI }
+export const HUSK_ATOM: AtomKind = {
+  lattice: 'husk',
+  band: huskBand,
+  mass: STAND_IN_MASS,
+  norm: 24 * Math.PI,
+}
+export const CUBIC_ATOM: AtomKind = {
+  lattice: 'cubic',
+  band: cubicBand,
+  mass: STAND_IN_MASS,
+  norm: 4 * Math.PI,
+}
 
 // the band of a kind on the FFT grid of a side^3 torus (index mx + side (my + side mz), k = 2 pi m / side)
-export function kindBandGrid(kind: AtomKind, side: number): Float64Array {
+export function kindBandGrid(
+  kind: AtomKind,
+  side: number,
+): Float64Array {
   const out = new Float64Array(side ** 3)
   const step = (2 * Math.PI) / side
 
   for (let z = 0; z < side; z++) {
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
-        out[x + side * (y + side * z)] = kind.band([x * step, y * step, z * step])
+        out[x + side * (y + side * z)] = kind.band([
+          x * step,
+          y * step,
+          z * step,
+        ])
       }
     }
   }
@@ -319,9 +381,17 @@ export function kindBandGrid(kind: AtomKind, side: number): Float64Array {
 }
 
 // the lattice Laplacian symbol
-export function laplacianSymbol(lattice: Lattice, k: readonly number[]): number {
+export function laplacianSymbol(
+  lattice: Lattice,
+  k: readonly number[],
+): number {
   if (lattice === 'cubic') {
-    return 6 - 2 * Math.cos(k[0] ?? 0) - 2 * Math.cos(k[1] ?? 0) - 2 * Math.cos(k[2] ?? 0)
+    return (
+      6 -
+      2 * Math.cos(k[0] ?? 0) -
+      2 * Math.cos(k[1] ?? 0) -
+      2 * Math.cos(k[2] ?? 0)
+    )
   }
 
   let sum = 0
@@ -329,7 +399,15 @@ export function laplacianSymbol(lattice: Lattice, k: readonly number[]): number 
   for (let h = 0; h < HUSK_VECTORS.length; h++) {
     const u = HUSK_VECTORS[h] ?? [0, 0, 0]
 
-    sum += (HUSK_WEIGHTS[h] ?? 0) * (2 - 2 * Math.cos((u[0] ?? 0) * (k[0] ?? 0) + (u[1] ?? 0) * (k[1] ?? 0) + (u[2] ?? 0) * (k[2] ?? 0)))
+    sum +=
+      (HUSK_WEIGHTS[h] ?? 0) *
+      (2 -
+        2 *
+          Math.cos(
+            (u[0] ?? 0) * (k[0] ?? 0) +
+              (u[1] ?? 0) * (k[1] ?? 0) +
+              (u[2] ?? 0) * (k[2] ?? 0),
+          ))
   }
 
   return sum
@@ -342,7 +420,13 @@ const GREENS = new Map<Lattice, Float64Array>()
 // the cubic lattice's own Green's function (the husk one is read from code/measure/standin-chemistry's
 // 128 torus, and this one is checked against it at M = 64): G_M on the M^3 torus with the image terms removed,
 // G = G_M + MADELUNG / (norm M) - r^2 / (6 c M^3), c = norm / (4 pi); the continuum 1 / (norm r) past GREEN_BLEND
-export function greenOf(lattice: Lattice, dx: number, dy: number, dz: number, torus = GREEN_TORUS): number {
+export function greenOf(
+  lattice: Lattice,
+  dx: number,
+  dy: number,
+  dz: number,
+  torus = GREEN_TORUS,
+): number {
   const norm = lattice === 'husk' ? 24 * Math.PI : 4 * Math.PI
   const c = norm / (4 * Math.PI)
   const r = Math.hypot(dx, dy, dz)
@@ -351,7 +435,8 @@ export function greenOf(lattice: Lattice, dx: number, dy: number, dz: number, to
     return 1 / (norm * r)
   }
 
-  const key = `${lattice}` as Lattice
+  const key = lattice
+
   let table = torus === GREEN_TORUS ? GREENS.get(key) : undefined
 
   if (!table) {
@@ -363,7 +448,9 @@ export function greenOf(lattice: Lattice, dx: number, dy: number, dz: number, to
       for (let y = 0; y < torus; y++) {
         for (let x = 0; x < torus; x++) {
           if (x + y + z > 0) {
-            re[x + torus * (y + torus * z)] = 1 / laplacianSymbol(lattice, [x * step, y * step, z * step])
+            re[x + torus * (y + torus * z)] =
+              1 /
+              laplacianSymbol(lattice, [x * step, y * step, z * step])
           }
         }
       }
@@ -380,12 +467,20 @@ export function greenOf(lattice: Lattice, dx: number, dy: number, dz: number, to
   const m = torus
   const w = (x: number): number => ((x % m) + m) % m
 
-  return (table[w(dx) + m * (w(dy) + m * w(dz))] ?? 0) + MADELUNG / (norm * m) - (r * r) / (6 * c * m ** 3)
+  return (
+    (table[w(dx) + m * (w(dy) + m * w(dz))] ?? 0) +
+    MADELUNG / (norm * m) -
+    (r * r) / (6 * c * m ** 3)
+  )
 }
 
 // the potential energy of the stand-in (charge -1) at every dock of a side^3 torus centered on a unit source,
 // V = -alpha norm G, minimum image; the husk uses the 128-torus greenInfinite of standin-chemistry
-export function coulombBox(kind: AtomKind, side: number, alpha: number): Float64Array {
+export function coulombBox(
+  kind: AtomKind,
+  side: number,
+  alpha: number,
+): Float64Array {
   const v = new Float64Array(side ** 3)
   const h = side / 2
   const memo = new Map<number, number>()
@@ -393,12 +488,20 @@ export function coulombBox(kind: AtomKind, side: number, alpha: number): Float64
   for (let z = 0; z < side; z++) {
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
-        const c = [Math.abs(x - h), Math.abs(y - h), Math.abs(z - h)].sort((p, q) => q - p)
+        const c = [
+          Math.abs(x - h),
+          Math.abs(y - h),
+          Math.abs(z - h),
+        ].sort((p, q) => q - p)
         const key = c[0]! + (side + 1) * (c[1]! + (side + 1) * c[2]!)
+
         let g = memo.get(key)
 
         if (g === undefined) {
-          g = kind.lattice === 'husk' ? greenInfinite(c[0]!, c[1]!, c[2]!) : greenOf('cubic', c[0]!, c[1]!, c[2]!)
+          g =
+            kind.lattice === 'husk'
+              ? greenInfinite(c[0]!, c[1]!, c[2]!)
+              : greenOf('cubic', c[0]!, c[1]!, c[2]!)
           memo.set(key, g)
         }
 
@@ -414,7 +517,10 @@ export function coulombBox(kind: AtomKind, side: number, alpha: number): Float64
 // the cubic group O_h on the torus, and its sectors
 
 // the 48 signed permutations: image axis perm[i] with sign sign[i], x'_(perm[i]) = sign[i] x_i
-export type Signed = { readonly perm: readonly number[]; readonly sign: readonly number[] }
+export type Signed = {
+  readonly perm: readonly number[]
+  readonly sign: readonly number[]
+}
 
 export const OH: readonly Signed[] = (() => {
   const perms = [
@@ -429,7 +535,10 @@ export const OH: readonly Signed[] = (() => {
 
   for (const perm of perms) {
     for (let s = 0; s < 8; s++) {
-      out.push({ perm, sign: [s & 1 ? -1 : 1, s & 2 ? -1 : 1, s & 4 ? -1 : 1] })
+      out.push({
+        perm,
+        sign: [s & 1 ? -1 : 1, s & 2 ? -1 : 1, s & 4 ? -1 : 1],
+      })
     }
   }
 
@@ -454,12 +563,37 @@ function matrixOf(g: Signed): number[][] {
 function det3(m: number[][]): number {
   const [a, b, c] = m as [number[], number[], number[]]
 
-  return a[0]! * (b[1]! * c[2]! - b[2]! * c[1]!) - a[1]! * (b[0]! * c[2]! - b[2]! * c[0]!) + a[2]! * (b[0]! * c[1]! - b[1]! * c[0]!)
+  return (
+    a[0]! * (b[1]! * c[2]! - b[2]! * c[1]!) -
+    a[1]! * (b[0]! * c[2]! - b[2]! * c[0]!) +
+    a[2]! * (b[0]! * c[1]! - b[1]! * c[0]!)
+  )
 }
 
-export type Irrep = 'A1g' | 'A2g' | 'Eg' | 'T1g' | 'T2g' | 'A1u' | 'A2u' | 'Eu' | 'T1u' | 'T2u'
+export type Irrep =
+  | 'A1g'
+  | 'A2g'
+  | 'Eg'
+  | 'T1g'
+  | 'T2g'
+  | 'A1u'
+  | 'A2u'
+  | 'Eu'
+  | 'T1u'
+  | 'T2u'
 
-export const IRREP_DIMENSION: Record<Irrep, number> = { A1g: 1, A2g: 1, Eg: 2, T1g: 3, T2g: 3, A1u: 1, A2u: 1, Eu: 2, T1u: 3, T2u: 3 }
+export const IRREP_DIMENSION: Record<Irrep, number> = {
+  A1g: 1,
+  A2g: 1,
+  Eg: 2,
+  T1g: 3,
+  T2g: 3,
+  A1u: 1,
+  A2u: 1,
+  Eu: 2,
+  T1u: 3,
+  T2u: 3,
+}
 
 // characters of O on its classes [E, 8 C3, 3 C2 = C4^2, 6 C4, 6 C2']
 const O_CHARACTERS: Record<string, number[]> = {
@@ -476,8 +610,23 @@ export function character(irrep: Irrep, g: Signed): number {
   const det = det3(m)
   const r = det > 0 ? m : m.map(row => row.map(x => -x))
   const trace = r[0]![0]! + r[1]![1]! + r[2]![2]!
-  const diagonal = r[0]![1] === 0 && r[0]![2] === 0 && r[1]![0] === 0 && r[1]![2] === 0 && r[2]![0] === 0 && r[2]![1] === 0
-  const cls = trace === 3 ? 0 : trace === 0 ? 1 : trace === 1 ? 3 : diagonal ? 2 : 4
+  const diagonal =
+    r[0]![1] === 0 &&
+    r[0]![2] === 0 &&
+    r[1]![0] === 0 &&
+    r[1]![2] === 0 &&
+    r[2]![0] === 0 &&
+    r[2]![1] === 0
+  const cls =
+    trace === 3
+      ? 0
+      : trace === 0
+        ? 1
+        : trace === 1
+          ? 3
+          : diagonal
+            ? 2
+            : 4
   const base = irrep.slice(0, -1)
   const odd = irrep.endsWith('u')
 
@@ -485,7 +634,12 @@ export function character(irrep: Irrep, g: Signed): number {
 }
 
 // g acting on a field: (g v)(x) = v(g^-1 x), on the side^3 torus about its center dock
-export function actOn(g: Signed, v: Float64Array, side: number, out: Float64Array): void {
+export function actOn(
+  g: Signed,
+  v: Float64Array,
+  side: number,
+  out: Float64Array,
+): void {
   const h = side / 2
   const c = [0, 0, 0]
   const img = [0, 0, 0]
@@ -503,12 +657,13 @@ export function actOn(g: Signed, v: Float64Array, side: number, out: Float64Arra
           img[g.perm[i]!] = g.sign[i]! * c[i]!
         }
 
-        const wx = ((img[0]! + h) % side + side) % side
-        const wy = ((img[1]! + h) % side + side) % side
-        const wz = ((img[2]! + h) % side + side) % side
+        const wx = (((img[0]! + h) % side) + side) % side
+        const wy = (((img[1]! + h) % side) + side) % side
+        const wz = (((img[2]! + h) % side) + side) % side
 
         // out at the image dock gets v at x, so out(g x) = v(x)
-        out[wx + side * (wy + side * wz)] = v[x + side * (y + side * z)]!
+        out[wx + side * (wy + side * wz)] =
+          v[x + side * (y + side * z)]!
       }
     }
   }
@@ -525,7 +680,11 @@ export type PermutationRule =
   | { readonly kind: 'trivial' }
   | { readonly kind: 'sign' }
   | { readonly kind: 'standard' }
-  | { readonly kind: 'swap'; readonly axes: readonly [number, number]; readonly sign: number }
+  | {
+      readonly kind: 'swap'
+      readonly axes: readonly [number, number]
+      readonly sign: number
+    }
 
 export type Row = {
   readonly irrep: Irrep
@@ -537,16 +696,68 @@ export type Row = {
 }
 
 export const ROWS: Record<string, Row> = {
-  A1g: { irrep: 'A1g', parity: [1, 1, 1], permutation: { kind: 'trivial' }, angular: () => 1 },
-  A2g: { irrep: 'A2g', parity: [1, 1, 1], permutation: { kind: 'sign' }, angular: (x, y, z) => (x * x - y * y) * (y * y - z * z) * (z * z - x * x) },
-  Eg: { irrep: 'Eg', parity: [1, 1, 1], permutation: { kind: 'standard' }, angular: (x, y, z) => 2 * z * z - x * x - y * y },
-  T1g: { irrep: 'T1g', parity: [1, -1, -1], permutation: { kind: 'swap', axes: [1, 2], sign: -1 }, angular: (x, y, z) => y * z * (y * y - z * z) },
-  T2g: { irrep: 'T2g', parity: [1, -1, -1], permutation: { kind: 'swap', axes: [1, 2], sign: 1 }, angular: (x, y, z) => y * z },
-  A1u: { irrep: 'A1u', parity: [-1, -1, -1], permutation: { kind: 'sign' }, angular: (x, y, z) => x * y * z * (x * x - y * y) * (y * y - z * z) * (z * z - x * x) },
-  A2u: { irrep: 'A2u', parity: [-1, -1, -1], permutation: { kind: 'trivial' }, angular: (x, y, z) => x * y * z },
-  Eu: { irrep: 'Eu', parity: [-1, -1, -1], permutation: { kind: 'standard' }, angular: (x, y, z) => x * y * z * (2 * z * z - x * x - y * y) },
-  T1u: { irrep: 'T1u', parity: [-1, 1, 1], permutation: { kind: 'swap', axes: [1, 2], sign: 1 }, angular: x => x },
-  T2u: { irrep: 'T2u', parity: [-1, 1, 1], permutation: { kind: 'swap', axes: [1, 2], sign: -1 }, angular: (x, y, z) => x * (y * y - z * z) },
+  A1g: {
+    irrep: 'A1g',
+    parity: [1, 1, 1],
+    permutation: { kind: 'trivial' },
+    angular: () => 1,
+  },
+  A2g: {
+    irrep: 'A2g',
+    parity: [1, 1, 1],
+    permutation: { kind: 'sign' },
+    angular: (x, y, z) =>
+      (x * x - y * y) * (y * y - z * z) * (z * z - x * x),
+  },
+  Eg: {
+    irrep: 'Eg',
+    parity: [1, 1, 1],
+    permutation: { kind: 'standard' },
+    angular: (x, y, z) => 2 * z * z - x * x - y * y,
+  },
+  T1g: {
+    irrep: 'T1g',
+    parity: [1, -1, -1],
+    permutation: { kind: 'swap', axes: [1, 2], sign: -1 },
+    angular: (x, y, z) => y * z * (y * y - z * z),
+  },
+  T2g: {
+    irrep: 'T2g',
+    parity: [1, -1, -1],
+    permutation: { kind: 'swap', axes: [1, 2], sign: 1 },
+    angular: (x, y, z) => y * z,
+  },
+  A1u: {
+    irrep: 'A1u',
+    parity: [-1, -1, -1],
+    permutation: { kind: 'sign' },
+    angular: (x, y, z) =>
+      x * y * z * (x * x - y * y) * (y * y - z * z) * (z * z - x * x),
+  },
+  A2u: {
+    irrep: 'A2u',
+    parity: [-1, -1, -1],
+    permutation: { kind: 'trivial' },
+    angular: (x, y, z) => x * y * z,
+  },
+  Eu: {
+    irrep: 'Eu',
+    parity: [-1, -1, -1],
+    permutation: { kind: 'standard' },
+    angular: (x, y, z) => x * y * z * (2 * z * z - x * x - y * y),
+  },
+  T1u: {
+    irrep: 'T1u',
+    parity: [-1, 1, 1],
+    permutation: { kind: 'swap', axes: [1, 2], sign: 1 },
+    angular: x => x,
+  },
+  T2u: {
+    irrep: 'T2u',
+    parity: [-1, 1, 1],
+    permutation: { kind: 'swap', axes: [1, 2], sign: -1 },
+    angular: (x, y, z) => x * (y * y - z * z),
+  },
 }
 
 const PERMUTATIONS: readonly (readonly number[])[] = [
@@ -559,10 +770,23 @@ const PERMUTATIONS: readonly (readonly number[])[] = [
 ]
 
 // project v into the row, in place (scratch arrays of the same size are passed in)
-export function projectRow(row: Row, v: Float64Array, side: number, scratch: Float64Array, sum: Float64Array): void {
+export function projectRow(
+  row: Row,
+  v: Float64Array,
+  side: number,
+  scratch: Float64Array,
+  sum: Float64Array,
+): void {
   // the parities: v <- (v + p_i sigma_i v) / 2 for each axis
   for (let axis = 0; axis < 3; axis++) {
-    const g: Signed = { perm: [0, 1, 2], sign: [axis === 0 ? -1 : 1, axis === 1 ? -1 : 1, axis === 2 ? -1 : 1] }
+    const g: Signed = {
+      perm: [0, 1, 2],
+      sign: [
+        axis === 0 ? -1 : 1,
+        axis === 1 ? -1 : 1,
+        axis === 2 ? -1 : 1,
+      ],
+    }
     const p = row.parity[axis]!
 
     // 0: the row keeps no parity on this axis (a field that breaks the reflection)
@@ -578,7 +802,11 @@ export function projectRow(row: Row, v: Float64Array, side: number, scratch: Flo
   }
 
   const rule = row.permutation
-  const swapInto = (axes: readonly [number, number], sign: number): void => {
+
+  const swapInto = (
+    axes: readonly [number, number],
+    sign: number,
+  ): void => {
     const perm = [0, 1, 2]
 
     perm[axes[0]] = axes[1]
@@ -638,7 +866,11 @@ export function projectRow(row: Row, v: Float64Array, side: number, scratch: Flo
 
 // how much of v lies in the irrep by the full character projector (1 for a vector in the row), the check
 // that a row's rule holds exactly one irrep
-export function irrepWeight(irrep: Irrep, v: Float64Array, side: number): number {
+export function irrepWeight(
+  irrep: Irrep,
+  v: Float64Array,
+  side: number,
+): number {
   const scratch = new Float64Array(v.length)
   const sum = new Float64Array(v.length)
   const d = IRREP_DIMENSION[irrep]
@@ -653,7 +885,7 @@ export function irrepWeight(irrep: Irrep, v: Float64Array, side: number): number
     actOn(g, v, side, scratch)
 
     for (let i = 0; i < v.length; i++) {
-      sum[i] = sum[i]! + ((d / 48) * chi) * scratch[i]!
+      sum[i] = sum[i]! + (d / 48) * chi * scratch[i]!
     }
   }
 
@@ -685,10 +917,17 @@ export const WALL_HEIGHT = 40
 // an atom on a side^3 torus; with `wall`, every dock farther than `wall` from the source is raised to
 // WALL_HEIGHT, a spherical cavity whose only anisotropy is the lattice sphere's own, so that a confinement
 // shift is the same for every row of one l, where the torus's cube is not
-export function makeAtom(input: { kind: AtomKind; side: number; a: number; potential?: Float64Array; wall?: number }): Atom {
+export function makeAtom(input: {
+  kind: AtomKind
+  side: number
+  a: number
+  potential?: Float64Array
+  wall?: number
+}): Atom {
   const { kind, side, a } = input
   const alpha = 1 / (kind.mass * a)
   const key = `${kind.lattice}:${side}`
+
   let band = BANDS.get(key)
 
   if (!band) {
@@ -726,7 +965,14 @@ export function makeAtom(input: { kind: AtomKind; side: number; a: number; poten
 }
 
 // out = f(p) x and out2 = f(p) y for a real even multiplier f on the FFT grid, two real vectors at once
-function applyMultiplier(atom: Atom, f: (i: number) => number, x: Float64Array, y: Float64Array | undefined, out: Float64Array, out2: Float64Array | undefined): void {
+function applyMultiplier(
+  atom: Atom,
+  f: (i: number) => number,
+  x: Float64Array,
+  y: Float64Array | undefined,
+  out: Float64Array,
+  out2: Float64Array | undefined,
+): void {
   const { re, im, side } = atom
 
   re.set(x)
@@ -755,7 +1001,13 @@ function applyMultiplier(atom: Atom, f: (i: number) => number, x: Float64Array, 
 }
 
 // H v for one or two vectors
-export function applyH(atom: Atom, x: Float64Array, out: Float64Array, y?: Float64Array, out2?: Float64Array): void {
+export function applyH(
+  atom: Atom,
+  x: Float64Array,
+  out: Float64Array,
+  y?: Float64Array,
+  out2?: Float64Array,
+): void {
   const band = atom.band
 
   applyMultiplier(atom, i => band[i]!, x, y, out, out2)
@@ -800,7 +1052,11 @@ export function lowestLevels(input: {
   tolerance?: number
   maxIterations?: number
   scale?: number
-  onIteration?: (iteration: number, values: number[], residuals: number[]) => void
+  onIteration?: (
+    iteration: number,
+    values: number[],
+    residuals: number[],
+  ) => void
 }): Levels {
   const { atom, row, count } = input
   const extra = input.extra ?? 2
@@ -813,7 +1069,8 @@ export function lowestLevels(input: {
   const scratch = new Float64Array(size)
   const sum = new Float64Array(size)
   const shift = Math.max(atom.rydberg, 1e-4)
-  const precondition = (i: number): number => 1 / (atom.band[i]! + shift)
+  const precondition = (i: number): number =>
+    1 / (atom.band[i]! + shift)
 
   let X: Float64Array[] = []
 
@@ -826,7 +1083,10 @@ export function lowestLevels(input: {
         for (let x = 0; x < side; x++) {
           const r = Math.hypot(x - h, y - h, z - h)
 
-          v[x + side * (y + side * z)] = row.angular(x - h, y - h, z - h) * r ** j * Math.exp(-r / scale)
+          v[x + side * (y + side * z)] =
+            row.angular(x - h, y - h, z - h) *
+            r ** j *
+            Math.exp(-r / scale)
         }
       }
     }
@@ -886,7 +1146,14 @@ export function lowestLevels(input: {
       const w1 = new Float64Array(size)
       const w2 = new Float64Array(size)
 
-      applyMultiplier(atom, precondition, R[j]!, R[j + 1], w1, j + 1 < b ? w2 : undefined)
+      applyMultiplier(
+        atom,
+        precondition,
+        R[j]!,
+        R[j + 1],
+        w1,
+        j + 1 < b ? w2 : undefined,
+      )
       projectRow(row, w1, side, scratch, sum)
       W.push(w1)
 
@@ -993,7 +1260,11 @@ export function lowestLevels(input: {
       }
     }
 
-    const combine = (vs: Float64Array[], from: number, col: number): Float64Array => {
+    const combine = (
+      vs: Float64Array[],
+      from: number,
+      col: number,
+    ): Float64Array => {
       const out = new Float64Array(size)
 
       for (let i = from; i < m; i++) {
@@ -1041,7 +1312,9 @@ export function lowestLevels(input: {
     }
   }
 
-  const order = values.map((v, j) => j).sort((p, q) => values[p]! - values[q]!)
+  const order = values
+    .map((v, j) => j)
+    .sort((p, q) => values[p]! - values[q]!)
 
   return {
     values: order.slice(0, count).map(j => values[j]!),
@@ -1053,7 +1326,10 @@ export function lowestLevels(input: {
 
 // an orthonormal basis of the multiplet a level's vector spans under O_h: the 48 images, Gram-Schmidt with
 // the images already in the span dropped (its size is the irrep's dimension)
-export function multipletBasis(v: Float64Array, side: number): Float64Array[] {
+export function multipletBasis(
+  v: Float64Array,
+  side: number,
+): Float64Array[] {
   const out: Float64Array[] = []
   const image = new Float64Array(v.length)
 
@@ -1119,8 +1395,13 @@ export function orthonormal(vs: Float64Array[]): Float64Array[] {
 // observables
 
 // <r> and <r^2> of a state about the source, and the chance beyond radius `edge`
-export function radial(side: number, v: Float64Array, edge = side / 2 - 2): { meanR: number; meanR2: number; beyond: number } {
+export function radial(
+  side: number,
+  v: Float64Array,
+  edge = side / 2 - 2,
+): { meanR: number; meanR2: number; beyond: number } {
   const h = side / 2
+
   let total = 0
   let r1 = 0
   let r2 = 0
@@ -1143,12 +1424,22 @@ export function radial(side: number, v: Float64Array, edge = side / 2 - 2): { me
     }
   }
 
-  return { meanR: r1 / total, meanR2: r2 / total, beyond: beyond / total }
+  return {
+    meanR: r1 / total,
+    meanR2: r2 / total,
+    beyond: beyond / total,
+  }
 }
 
 // <u | x_axis | v> about the source
-export function positionElement(side: number, u: Float64Array, v: Float64Array, axis: number): number {
+export function positionElement(
+  side: number,
+  u: Float64Array,
+  v: Float64Array,
+  axis: number,
+): number {
   const h = side / 2
+
   let s = 0
 
   for (let z = 0; z < side; z++) {
@@ -1177,7 +1468,11 @@ export type BandWalk = {
   readonly potentialSin: Float64Array
 }
 
-export function makeBandWalk(input: { kind: AtomKind; side: number; potential: Float64Array }): BandWalk {
+export function makeBandWalk(input: {
+  kind: AtomKind
+  side: number
+  potential: Float64Array
+}): BandWalk {
   const band = kindBandGrid(input.kind, input.side)
 
   return {
@@ -1190,8 +1485,17 @@ export function makeBandWalk(input: { kind: AtomKind; side: number; potential: F
 }
 
 // one beat in place on (re, im)
-export function bandBeat(walk: BandWalk, re: Float64Array, im: Float64Array): void {
-  const { potentialCos: pc, potentialSin: ps, kineticCos: kc, kineticSin: ks } = walk
+export function bandBeat(
+  walk: BandWalk,
+  re: Float64Array,
+  im: Float64Array,
+): void {
+  const {
+    potentialCos: pc,
+    potentialSin: ps,
+    kineticCos: kc,
+    kineticSin: ks,
+  } = walk
 
   for (let i = 0; i < re.length; i++) {
     const r = re[i]!
@@ -1215,9 +1519,14 @@ export function bandBeat(walk: BandWalk, re: Float64Array, im: Float64Array): vo
 }
 
 // the chance-weighted mean offset from the torus center of a complex field
-export function centerOf(side: number, re: Float64Array, im: Float64Array): number[] {
+export function centerOf(
+  side: number,
+  re: Float64Array,
+  im: Float64Array,
+): number[] {
   const h = side / 2
   const out = [0, 0, 0]
+
   let total = 0
 
   for (let z = 0; z < side; z++) {
@@ -1238,7 +1547,11 @@ export function centerOf(side: number, re: Float64Array, im: Float64Array): numb
 }
 
 // the gradient of a band at any k, by a symmetric difference
-export function bandGradientAt(band: (k: readonly number[]) => number, k: readonly number[], step = 1e-5): number[] {
+export function bandGradientAt(
+  band: (k: readonly number[]) => number,
+  k: readonly number[],
+  step = 1e-5,
+): number[] {
   return k.map((_, a) => {
     const up = k.map((x, b) => (a === b ? x + step : x))
     const down = k.map((x, b) => (a === b ? x - step : x))
@@ -1249,11 +1562,21 @@ export function bandGradientAt(band: (k: readonly number[]) => number, k: readon
 
 // One tone in a series: the least-squares fit of y(t) = c + d t + A cos(W t) + B sin(W t), W by golden-section
 // search in [low, high] on the residual. Returns W, the amplitude sqrt(A^2 + B^2) and the rms residual
-export function refineTone(series: ArrayLike<number>, low: number, high: number): { omega: number; amplitude: number; residual: number } {
+export function refineTone(
+  series: ArrayLike<number>,
+  low: number,
+  high: number,
+): { omega: number; amplitude: number; residual: number } {
   const n = series.length
+
   const fit = (w: number): { amplitude: number; residual: number } => {
     // normal equations for [1, t, cos, sin]
-    const basis = (t: number): number[] => [1, t / n, Math.cos(w * t), Math.sin(w * t)]
+    const basis = (t: number): number[] => [
+      1,
+      t / n,
+      Math.cos(w * t),
+      Math.sin(w * t),
+    ]
     const m = [0, 1, 2, 3].map(() => [0, 0, 0, 0])
     const r = [0, 0, 0, 0]
 
@@ -1309,16 +1632,21 @@ export function refineTone(series: ArrayLike<number>, low: number, high: number)
 
     for (let t = 0; t < n; t++) {
       const b = basis(t)
-      const e = (series[t] ?? 0) - b.reduce((s, v, i) => s + v * x[i]!, 0)
+      const e =
+        (series[t] ?? 0) - b.reduce((s, v, i) => s + v * x[i]!, 0)
 
       residual += e * e
     }
 
-    return { amplitude: Math.hypot(x[2]!, x[3]!), residual: Math.sqrt(residual / n) }
+    return {
+      amplitude: Math.hypot(x[2]!, x[3]!),
+      residual: Math.sqrt(residual / n),
+    }
   }
 
   let a = low
   let b = high
+
   const g = (Math.sqrt(5) - 1) / 2
 
   for (let it = 0; it < 80; it++) {
@@ -1355,11 +1683,18 @@ export function kineticShift(n: number, l: number, a: number): number {
 }
 
 // the continuum mean radius <r>_nl = (a / 2)(3 n^2 - l (l + 1))
-export function hydrogenRadius(n: number, l: number, a: number): number {
+export function hydrogenRadius(
+  n: number,
+  l: number,
+  a: number,
+): number {
   return (a / 2) * (3 * n * n - l * (l + 1))
 }
 
 // the quantum defect of a level: E = -Ry / (n - delta)^2
-export function quantumDefect(n: number, energyOverRydberg: number): number {
+export function quantumDefect(
+  n: number,
+  energyOverRydberg: number,
+): number {
   return n - 1 / Math.sqrt(-energyOverRydberg)
 }

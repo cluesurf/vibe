@@ -95,10 +95,28 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import type { LadderSpec } from '@/code/rule/plaquette-ladder'
 import type { Split } from '@/code/rule/loop-ring'
-import { oneQuantumBand, planck, thermalEnergy, unwrapped } from '@/code/measure/quantum-ladder'
-import { loopSplits, nearestRatio } from '@/code/measure/one-light-split'
-import { alphaOfBalance, nearestDepth } from '@/code/measure/light-split-origin'
-import { averageFills, balances, boxFills, bulkLight, huskLight, ladderLight } from '@/code/measure/husk-balance'
+import {
+  oneQuantumBand,
+  planck,
+  thermalEnergy,
+  unwrapped,
+} from '@/code/measure/quantum-ladder'
+import {
+  loopSplits,
+  nearestRatio,
+} from '@/code/measure/one-light-split'
+import {
+  alphaOfBalance,
+  nearestDepth,
+} from '@/code/measure/light-split-origin'
+import {
+  averageFills,
+  balances,
+  boxFills,
+  bulkLight,
+  huskLight,
+  ladderLight,
+} from '@/code/measure/husk-balance'
 import { lightSplitOriginRun } from '@/test/experiment/gauge/light-split-origin'
 
 /** The candidate balances, as [a, b] for a / b. */
@@ -118,7 +136,8 @@ const MAX_DEPTH = 10000
 
 const PLANCK_BOXES = [17, 21, 25]
 
-const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+const mean = (xs: number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / xs.length
 const sum = (xs: number[]): number => xs.reduce((a, b) => a + b, 0)
 
 /** E-FRC-0261's Planck ratio at T = x * omega_min, rebuilt from the same measure functions. */
@@ -128,18 +147,33 @@ function planckRatio(spec: LadderSpec, x: number): number {
   const omegas = band.map(b => b.omega)
   const T = x * Math.min(...omegas)
 
-  return thermalEnergy(energies, T) / omegas.reduce((acc, w) => acc + planck(w, T), 0)
+  return (
+    thermalEnergy(energies, T) /
+    omegas.reduce((acc, w) => acc + planck(w, T), 0)
+  )
 }
 
-const specOf = (n: number, split: Split): LadderSpec => ({ n, plaquettes: 2, root: split.root, drift: split.drift, force: split.force })
+const specOf = (n: number, split: Split): LadderSpec => ({
+  n,
+  plaquettes: 2,
+  root: split.root,
+  drift: split.drift,
+  force: split.force,
+})
 
 export function huskBalanceRun(): Verdict {
   const started = Date.now()
   const metrics: Record<string, number> = {}
+
   let i2 = true
 
-  const virial = (f: { pi: number[]; Pi: number[]; rank: number }): boolean =>
-    Math.abs(sum(f.pi) - f.rank) <= 1e-9 && Math.abs(sum(f.Pi) - f.rank) <= 1e-9
+  const virial = (f: {
+    pi: number[]
+    Pi: number[]
+    rank: number
+  }): boolean =>
+    Math.abs(sum(f.pi) - f.rank) <= 1e-9 &&
+    Math.abs(sum(f.Pi) - f.rank) <= 1e-9
 
   // C1, and the ladder's classes
   const ladder = ladderLight()
@@ -165,8 +199,11 @@ export function huskBalanceRun(): Verdict {
   i2 &&= virial(hu) && virial(bf)
   metrics.huskUnweightedAverage = hub.average
   metrics.bulkAverage = bb.average
-  metrics.bulkLinkSpread = Math.max(...bb.linkFill) - Math.min(...bb.linkFill)
-  metrics.bulkTriangleSpread = Math.max(...bb.plaquetteFill) - Math.min(...bb.plaquetteFill)
+  metrics.bulkLinkSpread =
+    Math.max(...bb.linkFill) - Math.min(...bb.linkFill)
+
+  metrics.bulkTriangleSpread =
+    Math.max(...bb.plaquetteFill) - Math.min(...bb.plaquetteFill)
   metrics.bulkTypes = bulk.light.plaquettes.length
   metrics.huskTypes = husk.light.plaquettes.length
 
@@ -178,6 +215,7 @@ export function huskBalanceRun(): Verdict {
 
   // M1: the husk's weighted balance on growing grids
   const averages: number[] = []
+
   let last: ReturnType<typeof balances> | undefined
 
   for (const g of GRIDS) {
@@ -191,12 +229,18 @@ export function huskBalanceRun(): Verdict {
   }
 
   const rho = averages[averages.length - 1]!
-  const m1 = Math.abs(averages[averages.length - 1]! - averages[averages.length - 2]!) <= 1e-6
+  const m1 =
+    Math.abs(
+      averages[averages.length - 1]! - averages[averages.length - 2]!,
+    ) <= 1e-6
 
   metrics.huskBalance = rho
 
   // the classes: links axis (w = 1) and diagonal (w = 2), triangles n = 1 and n = 2
-  const linkClass = { axis: mean(last!.linkFill.slice(0, 3)), diagonal: mean(last!.linkFill.slice(3)) }
+  const linkClass = {
+    axis: mean(last!.linkFill.slice(0, 3)),
+    diagonal: mean(last!.linkFill.slice(3)),
+  }
   const triClass = {
     one: mean(last!.plaquetteFill.filter((_, t) => husk.n[t] === 1)),
     two: mean(last!.plaquetteFill.filter((_, t) => husk.n[t] === 2)),
@@ -234,21 +278,46 @@ export function huskBalanceRun(): Verdict {
   // I1, the witness
   const box = boxFills(4)
   const symbol = balances(averageFills(husk.light, 4, husk, 0), husk)
-  const boxClass = (keep: (l: number) => boolean, fills: number[]): number[] => fills.filter((_, l) => keep(l))
+  const boxClass = (
+    keep: (l: number) => boolean,
+    fills: number[],
+  ): number[] => fills.filter((_, l) => keep(l))
   const axisBox = boxClass(l => box.linkDirection[l]! < 3, box.linkFill)
-  const diagBox = boxClass(l => box.linkDirection[l]! >= 3, box.linkFill)
-  const oneBox = boxClass(p => box.plaquetteN[p] === 1, box.plaquetteFill)
-  const twoBox = boxClass(p => box.plaquetteN[p] === 2, box.plaquetteFill)
-  const spread = (xs: number[]): number => Math.max(...xs) - Math.min(...xs)
+  const diagBox = boxClass(
+    l => box.linkDirection[l]! >= 3,
+    box.linkFill,
+  )
+  const oneBox = boxClass(
+    p => box.plaquetteN[p] === 1,
+    box.plaquetteFill,
+  )
+  const twoBox = boxClass(
+    p => box.plaquetteN[p] === 2,
+    box.plaquetteFill,
+  )
+  const spread = (xs: number[]): number =>
+    Math.max(...xs) - Math.min(...xs)
   const symbolClass = [
     mean(symbol.linkFill.slice(0, 3)),
     mean(symbol.linkFill.slice(3)),
     mean(symbol.plaquetteFill.filter((_, t) => husk.n[t] === 1)),
     mean(symbol.plaquetteFill.filter((_, t) => husk.n[t] === 2)),
   ]
-  const boxMeans = [mean(axisBox), mean(diagBox), mean(oneBox), mean(twoBox)]
-  const witnessGap = Math.max(...boxMeans.map((x, k) => Math.abs(x - symbolClass[k]!)))
-  const witnessSpread = Math.max(spread(axisBox), spread(diagBox), spread(oneBox), spread(twoBox))
+  const boxMeans = [
+    mean(axisBox),
+    mean(diagBox),
+    mean(oneBox),
+    mean(twoBox),
+  ]
+  const witnessGap = Math.max(
+    ...boxMeans.map((x, k) => Math.abs(x - symbolClass[k]!)),
+  )
+  const witnessSpread = Math.max(
+    spread(axisBox),
+    spread(diagBox),
+    spread(oneBox),
+    spread(twoBox),
+  )
   const i1 = witnessGap <= 1e-9 && witnessSpread <= 1e-9
 
   metrics.witnessGap = witnessGap
@@ -256,21 +325,30 @@ export function huskBalanceRun(): Verdict {
 
   // C2: E-FRC-0261's W3 numbers, bit for bit
   const e0261 = lightSplitOriginRun().metrics
+
   let c2 = true
 
   for (const n of PLANCK_BOXES) {
-    const three = loopSplits(n, 3, 16, 64).find(s => s.w === 4 && s.force === 3 * s.drift)!
+    const three = loopSplits(n, 3, 16, 64).find(
+      s => s.w === 4 && s.force === 3 * s.drift,
+    )!
     const near = nearestRatio(loopSplits(n, 3, 16, 64), [3, 8])
     const r3 = planckRatio(specOf(n, three), 1)
     const rn = planckRatio(specOf(n, near), 1)
 
     metrics[`e0261Rho3_N${n}`] = r3
     metrics[`e0261Near_N${n}`] = rn
-    c2 &&= r3 === e0261[`planckRho3_N${n}`] && rn === e0261[`planckNear3over8_N${n}`]
+    c2 &&=
+      r3 === e0261[`planckRho3_N${n}`] &&
+      rn === e0261[`planckNear3over8_N${n}`]
   }
 
   // READ: alpha at the measured balance, E-FRC-0261's frozen test unchanged
-  const best = nearestDepth(n => alphaOfBalance(n, rho), TARGET, MAX_DEPTH)
+  const best = nearestDepth(
+    n => alphaOfBalance(n, rho),
+    TARGET,
+    MAX_DEPTH,
+  )
   const slope = 1 / alphaOfBalance(1, rho)
 
   metrics.alphaNearestD = best.d
@@ -281,13 +359,25 @@ export function huskBalanceRun(): Verdict {
   metrics.alphaSlope = slope
   metrics.dirichletRegisterFor1e18 = 1e12
 
-  const gates = { I1: i1, I2: i2, C1: c1, C2: c2, C3: c3, M1: m1, M2: m2, M3: m3 }
+  const gates = {
+    I1: i1,
+    I2: i2,
+    C1: c1,
+    C2: c2,
+    C3: c3,
+    M1: m1,
+    M2: m2,
+    M3: m3,
+  }
 
-  for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+  for (const [k, v] of Object.entries(gates)) {
+    metrics[`gate${k}`] = v ? 1 : 0
+  }
 
   metrics.seconds = (Date.now() - started) / 1000
 
-  const f6 = (x: number | undefined): string => (x ?? Number.NaN).toFixed(6)
+  const f6 = (x: number | undefined): string =>
+    (x ?? Number.NaN).toFixed(6)
 
   return verdict({
     status: Object.values(gates).every(Boolean) ? 'partial' : 'fail',

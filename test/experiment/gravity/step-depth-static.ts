@@ -66,7 +66,16 @@ import { fitPowers } from '@/code/measure/husk-coulomb'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { gaussOff, stepRule } from '@/code/rule/step-depth'
-import { compressLump, CROSSING_DENSITY, distinctRadii, horizonRun, newRecord, pairStep, shells, torusDistance } from '@/code/measure/step-depth'
+import {
+  compressLump,
+  CROSSING_DENSITY,
+  distinctRadii,
+  horizonRun,
+  newRecord,
+  pairStep,
+  shells,
+  torusDistance,
+} from '@/code/measure/step-depth'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -75,7 +84,9 @@ const BEATS = 1024
 const CONTENT = 4
 const LIKE_R: readonly number[] = [1, 2, 3, 4, 5, 6, 7]
 const FIT_R: readonly number[] = [2, 3, 4, 5, 6]
-const RECORDED_0079_W: readonly number[] = [0.126582, 0.145074, 0.151892, 0.155185, 0.157028, 0.158093, 0.158656]
+const RECORDED_0079_W: readonly number[] = [
+  0.126582, 0.145074, 0.151892, 0.155185, 0.157028, 0.158093, 0.158656,
+]
 const RECORDED_0079_K = 0.0418217
 const CORE_SIDE = 24
 const CORE_M: readonly number[] = [100, 400, 1600]
@@ -84,7 +95,19 @@ const HORIZON_SIDE = 16
 const HORIZON_M = 400
 const HORIZON_BEATS = 512
 
-type Core = { m: number; capacity: number; placed: boolean; gauss: number; bounded: boolean; rLump: number; rPred: number; rSat: number; continuum: number; profile: string; seconds: number }
+type Core = {
+  m: number
+  capacity: number
+  placed: boolean
+  gauss: number
+  bounded: boolean
+  rLump: number
+  rPred: number
+  rSat: number
+  continuum: number
+  profile: string
+  seconds: number
+}
 
 function core(m: number, capacity: number): Core {
   const mesh = radionMesh([CORE_SIDE, CORE_SIDE, CORE_SIDE])
@@ -94,13 +117,25 @@ function core(m: number, capacity: number): Core {
   try {
     const lump = compressLump(mesh, center, m, capacity)
     const sh = shells(mesh, lump.line, lump.content, center, radii)
+
     let rLump = 0
 
-    for (let y = 0; y < mesh.docks; y++) if (lump.content[y]! > 0) rLump = Math.max(rLump, torusDistance(mesh, y, center))
+    for (let y = 0; y < mesh.docks; y++) {
+      if (lump.content[y]! > 0) {
+        rLump = Math.max(rLump, torusDistance(mesh, y, center))
+      }
+    }
 
-    const rPred = sh.find(s => capacity * s.crossing >= m)?.r ?? Infinity
-    const saturated = sh.filter(s => s.r >= 1 && s.crossing > 0 && s.outward === capacity * s.crossing)
-    const rSat = saturated.length > 0 ? Math.max(...saturated.map(s => s.r)) : 0
+    const rPred =
+      sh.find(s => capacity * s.crossing >= m)?.r ?? Infinity
+    const saturated = sh.filter(
+      s =>
+        s.r >= 1 &&
+        s.crossing > 0 &&
+        s.outward === capacity * s.crossing,
+    )
+    const rSat =
+      saturated.length > 0 ? Math.max(...saturated.map(s => s.r)) : 0
 
     return {
       m,
@@ -111,15 +146,32 @@ function core(m: number, capacity: number): Core {
       rLump,
       rPred,
       rSat,
-      continuum: Math.sqrt(m / (4 * Math.PI * CROSSING_DENSITY * capacity)),
+      continuum: Math.sqrt(
+        m / (4 * Math.PI * CROSSING_DENSITY * capacity),
+      ),
       profile: sh
         .filter(s => s.r <= rLump + 1.5)
-        .map(s => `${s.r.toFixed(2)}:${s.inside}/${s.outward}/${capacity * s.crossing}`)
+        .map(
+          s =>
+            `${s.r.toFixed(2)}:${s.inside}/${s.outward}/${capacity * s.crossing}`,
+        )
         .join(' '),
       seconds: lump.seconds,
     }
   } catch {
-    return { m, capacity, placed: false, gauss: -1, bounded: false, rLump: Infinity, rPred: Infinity, rSat: 0, continuum: 0, profile: '', seconds: 0 }
+    return {
+      m,
+      capacity,
+      placed: false,
+      gauss: -1,
+      bounded: false,
+      rLump: Infinity,
+      rPred: Infinity,
+      rSat: 0,
+      continuum: 0,
+      profile: '',
+      seconds: 0,
+    }
   }
 }
 
@@ -146,24 +198,52 @@ export default experiment({
     })
     const like = pairs.map(p => p.w)
     const tensionW = pairs.map(p => p.tensionW)
-    const predicted = LIKE_R.map(r => CONTENT * CONTENT * (Math.PI / DEPTH) * huskGreenDifference(SIDE, [r, 0, 0]))
-    const [c0, c1, c2] = fitPowers(FIT_R, FIT_R.map(r => like[LIKE_R.indexOf(r)]!), [1, -2]) as [number, number, number]
+    const predicted = LIKE_R.map(
+      r =>
+        CONTENT *
+        CONTENT *
+        (Math.PI / DEPTH) *
+        huskGreenDifference(SIDE, [r, 0, 0]),
+    )
+    const [c0, c1, c2] = fitPowers(
+      FIT_R,
+      FIT_R.map(r => like[LIKE_R.indexOf(r)]!),
+      [1, -2],
+    ) as [number, number, number]
     const fitK = -c1
     const kWant = (CONTENT * CONTENT) / (24 * DEPTH)
 
     // S1, S2
     const s1 = record.gaussOff === 0 && record.curl === 0
     const wraps = record.wraps.fWraps + record.wraps.vWraps
-    const s2 = wraps === 0 && record.maxStep < 1.5 && record.maxRate < 1.5 && record.maxRest <= rule.h && record.reversed
+    const s2 =
+      wraps === 0 &&
+      record.maxStep < 1.5 &&
+      record.maxRate < 1.5 &&
+      record.maxRest <= rule.h &&
+      record.reversed
 
     // S3
     const rising = like.every((w, i) => i === 0 || w > like[i - 1]!)
     const below = like.every(w => w - c0 < 0)
-    const agree = Math.max(...like.map((w, i) => Math.abs(w / predicted[i]! - 1)))
-    const recorded = Math.max(...like.map((w, i) => Math.abs(w / RECORDED_0079_W[i]! - 1)))
+    const agree = Math.max(
+      ...like.map((w, i) => Math.abs(w / predicted[i]! - 1)),
+    )
+    const recorded = Math.max(
+      ...like.map((w, i) => Math.abs(w / RECORDED_0079_W[i]! - 1)),
+    )
     const kRecorded = Math.abs(fitK / RECORDED_0079_K - 1)
-    const s3 = rising && below && agree <= 1e-3 && recorded <= 1e-5 && fitK > 0 && Math.abs(fitK / kWant - 1) <= 0.02 && kRecorded <= 1e-4
-    const tensionMiss = Math.max(...tensionW.map((w, i) => Math.abs(w / predicted[i]! - 1)))
+    const s3 =
+      rising &&
+      below &&
+      agree <= 1e-3 &&
+      recorded <= 1e-5 &&
+      fitK > 0 &&
+      Math.abs(fitK / kWant - 1) <= 0.02 &&
+      kRecorded <= 1e-4
+    const tensionMiss = Math.max(
+      ...tensionW.map((w, i) => Math.abs(w / predicted[i]! - 1)),
+    )
     const controlS3 = tensionMiss > 0.1
 
     // S4
@@ -175,27 +255,63 @@ export default experiment({
       return c
     })
     const two = CORE_M.map(m => core(m, 2))
-    const s4 = trit.every(c => c.placed && c.gauss === 0 && c.bounded && Math.abs(c.rLump - c.rPred) <= 1 && c.rSat >= 1)
+    const s4 = trit.every(
+      c =>
+        c.placed &&
+        c.gauss === 0 &&
+        c.bounded &&
+        Math.abs(c.rLump - c.rPred) <= 1 &&
+        c.rSat >= 1,
+    )
     const lastTrit = trit[trit.length - 1]!
     const lastTwo = two[two.length - 1]!
-    const controlS4 = two.every(c => c.placed && c.gauss === 0 && c.bounded && Math.abs(c.rLump - c.rPred) <= 1) && lastTwo.rLump < lastTrit.rLump
+    const controlS4 =
+      two.every(
+        c =>
+          c.placed &&
+          c.gauss === 0 &&
+          c.bounded &&
+          Math.abs(c.rLump - c.rPred) <= 1,
+      ) && lastTwo.rLump < lastTrit.rLump
 
     // the dynamical horizon (reported)
-    const hz = horizonRun(HORIZON_SIDE, DEPTH, LEVELS, HORIZON_M, HORIZON_BEATS)
+    const hz = horizonRun(
+      HORIZON_SIDE,
+      DEPTH,
+      LEVELS,
+      HORIZON_M,
+      HORIZON_BEATS,
+    )
 
     console.error(`horizon ${(Date.now() - started) / 1000}s`)
 
     const hzCore = (() => {
       const m2 = radionMesh([HORIZON_SIDE, HORIZON_SIDE, HORIZON_SIDE])
-      const center = [HORIZON_SIDE / 2, HORIZON_SIDE / 2, HORIZON_SIDE / 2]
+      const center = [
+        HORIZON_SIDE / 2,
+        HORIZON_SIDE / 2,
+        HORIZON_SIDE / 2,
+      ]
       const lump = compressLump(m2, center, HORIZON_M, 1)
-      const sh = shells(m2, lump.line, lump.content, center, distinctRadii(m2, center, 6))
-      const sat = sh.filter(s => s.r >= 1 && s.crossing > 0 && s.outward === s.crossing)
+      const sh = shells(
+        m2,
+        lump.line,
+        lump.content,
+        center,
+        distinctRadii(m2, center, 6),
+      )
+      const sat = sh.filter(
+        s => s.r >= 1 && s.crossing > 0 && s.outward === s.crossing,
+      )
 
       return sat.length > 0 ? Math.max(...sat.map(s => s.r)) : 0
     })()
 
-    const status = !(controlS3 && controlS4) ? 'partial' : s1 && s2 && s3 && s4 ? 'pass' : 'fail'
+    const status = !(controlS3 && controlS4)
+      ? 'partial'
+      : s1 && s2 && s3 && s4
+        ? 'pass'
+        : 'fail'
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(2)
     const metrics: Record<string, number> = {
@@ -246,12 +362,14 @@ export default experiment({
       metrics[`Wpredicted_r${r}`] = predicted[i]!
       metrics[`Wtension_r${r}`] = tensionW[i]!
     })
+
     trit.forEach(c => {
       metrics[`core_M${c.m}_rLump`] = c.rLump
       metrics[`core_M${c.m}_rPred`] = c.rPred
       metrics[`core_M${c.m}_rSat`] = c.rSat
       metrics[`core_M${c.m}_continuum`] = c.continuum
     })
+
     two.forEach(c => {
       metrics[`core2_M${c.m}_rLump`] = c.rLump
       metrics[`core2_M${c.m}_rPred`] = c.rPred
@@ -261,7 +379,11 @@ export default experiment({
       status,
       claim: `the radion on bounded registers (a line trit and a step of a trit and ${LEVELS} base-${rule.q} digits per link, a rate and a remainder per dock, no depth stored, D ${DEPTH}): Gauss off on ${record.gaussOff} of ${record.gaussChecks} beat checks, curl ${record.curl} on ${record.curlChecks}, ${wraps} wraps, largest step ${f(record.maxStep)}; two content-4 sources have W(r) = ${like.map(f).join(', ')} at r = ${LIKE_R.join(', ')} (${rising ? 'rising' : 'NOT rising'}), the torus Green's to ${e(agree)}, E-GRV-0079's record to ${e(recorded)}, fit k = ${f(fitK)} (E-GRV-0079 ${RECORDED_0079_K}, sa sb / 24D ${f(kWant)}); tension alone gives ${tensionW.map(f).join(', ')} (misses by ${f(tensionMiss)}); the densest lump one line a link allows has radius ${trit.map(c => f(c.rLump)).join(', ')} for M = ${CORE_M.join(', ')} against the crossing count's ${trit.map(c => f(c.rPred)).join(', ')} (continuum ${trit.map(c => f(c.continuum)).join(', ')}), saturated spheres to ${trit.map(c => f(c.rSat)).join(', ')}; two lines a link: ${two.map(c => f(c.rLump)).join(', ')} against ${two.map(c => f(c.rPred)).join(', ')}; the M = ${HORIZON_M} lump run on the trit window wraps ${hz.fWraps} steps and ${hz.vWraps} rates (first at beat ${hz.firstWrap}, at link distances ${hz.firstWrapDistances.join(', ')}; farthest ${f(hz.farthestWrap)}), the linear field's steps pass 3/2 out to ${f(hz.wideFarthestOver)} (largest ${f(hz.wideMax)}; static largest ${f(hz.staticMax)}, past 3/4 out to ${f(hz.staticFarthestHalf)}), the lines saturate to ${f(hzCore)}, reversal ${hz.reversed}`,
       metrics,
-      control: { tensionMiss, controlS3: controlS3 ? 1 : 0, controlS4: controlS4 ? 1 : 0 },
+      control: {
+        tensionMiss,
+        controlS3: controlS3 ? 1 : 0,
+        controlS4: controlS4 ? 1 : 0,
+      },
       notes: `L2. Gates S1 ${s1}, S2 ${s2}, S3 ${s3} (rising ${rising}, below c0 ${below}), S4 ${s4}; controls S3 ${controlS3}, S4 ${controlS4}. Fit on r = ${FIT_R.join(', ')}: c0 ${f(c0)}, k ${f(fitK)}, b ${e(-c2)}. Core profiles (r:inside/outward/capacity x crossing): ${trit.map(c => `M ${c.m} [${c.profile}] ${c.seconds.toFixed(1)} s`).join('; ')}. Capacity 2: ${two.map(c => `M ${c.m} rSat ${f(c.rSat)} [${c.profile}]`).join('; ')}. Horizon run: energy ${e(hz.energyStart)} to ${e(hz.energyEnd)}, found against local source ${e(hz.sourceGap)}, ${hz.seconds.toFixed(1)} s. Every run reverses: ${record.reversed}.`,
     })
   },

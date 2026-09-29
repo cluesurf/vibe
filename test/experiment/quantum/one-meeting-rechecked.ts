@@ -77,10 +77,25 @@ import {
   type BeatRecord,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { gridWeights, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  gridWeights,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { chshNumber, exactReduced } from '@/code/measure/exact-schmidt'
-import { applySwapPhase, eisValue, productState, schmidtInvariants, stabilizerStates, type State9 } from '@/code/measure/eisenstein-words'
-import { applyOn, cliffordTable, phaseNegate } from '@/code/measure/clifford-words'
+import {
+  applySwapPhase,
+  eisValue,
+  productState,
+  schmidtInvariants,
+  stabilizerStates,
+  type State9,
+} from '@/code/measure/eisenstein-words'
+import {
+  applyOn,
+  cliffordTable,
+  phaseNegate,
+} from '@/code/measure/clifford-words'
 import { makeWeyl } from '@/code/tool/weyl'
 
 const OMEGA = (2 * Math.PI) / 3
@@ -95,7 +110,10 @@ function isHalfHalf(s: State9): boolean {
   return inv.e3Num === 0n && 4n * inv.e2Num === inv.scale ** 4n
 }
 
-function vectorOf(s: { num: [number, number][]; scale: number }): { re: number[]; im: number[] } {
+function vectorOf(s: { num: [number, number][]; scale: number }): {
+  re: number[]
+  im: number[]
+} {
   const re: number[] = []
   const im: number[] = []
 
@@ -111,15 +129,25 @@ function vectorOf(s: { num: [number, number][]; scale: number }): { re: number[]
 
 // the whole of a state, weights times 9 rounded (exact for stabilizer products and the witness's start)
 function wholeOf(s: State9): Whole {
-  const w = gridWeights({ ...vectorOf({ num: s.num, scale: 2 ** s.k2 * 3 ** s.m3 }), points: twoRolePoints() })
+  const w = gridWeights({
+    ...vectorOf({ num: s.num, scale: 2 ** s.k2 * 3 ** s.m3 }),
+    points: twoRolePoints(),
+  })
 
-  return { tokens: TOKENS, weight: w.map(x => BigInt(Math.round(9 * x))) }
+  return {
+    tokens: TOKENS,
+    weight: w.map(x => BigInt(Math.round(9 * x))),
+  }
 }
 
 // complex 3-vector helpers for the floating check
 type C3 = { re: number[]; im: number[] }
 
-function applyTwo(u: Operator, a: C3, b: C3): { re: number[]; im: number[] } {
+function applyTwo(
+  u: Operator,
+  a: C3,
+  b: C3,
+): { re: number[]; im: number[] } {
   const inRe: number[] = []
   const inIm: number[] = []
 
@@ -147,7 +175,10 @@ function applyTwo(u: Operator, a: C3, b: C3): { re: number[]; im: number[] } {
 }
 
 // e2 and e3 of the first role's reduced density rho = C C^dagger
-function invariants(psi: { re: number[]; im: number[] }): { e2: number; e3: number } {
+function invariants(psi: { re: number[]; im: number[] }): {
+  e2: number
+  e3: number
+} {
   const rr: number[] = []
   const ri: number[] = []
 
@@ -171,8 +202,18 @@ function invariants(psi: { re: number[]; im: number[] }): { e2: number; e3: numb
     }
   }
 
-  const at = (i: number, j: number): [number, number] => [rr[3 * i + j]!, ri[3 * i + j]!]
-  const mul = (x: [number, number], y: [number, number]): [number, number] => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+  const at = (i: number, j: number): [number, number] => [
+    rr[3 * i + j]!,
+    ri[3 * i + j]!,
+  ]
+  const mul = (
+    x: [number, number],
+    y: [number, number],
+  ): [number, number] => [
+    x[0] * y[0] - x[1] * y[1],
+    x[0] * y[1] + x[1] * y[0],
+  ]
+
   let e2 = 0
 
   for (const [i, j] of [
@@ -203,17 +244,24 @@ function chshOf(e2: number, e3: number): number {
   const p = e2 - 1 / 3
   const q = -2 / 27 + e2 / 3 - e3
   const m = 2 * Math.sqrt(Math.max(0, -p / 3))
-  const theta = m === 0 ? 0 : Math.acos(Math.max(-1, Math.min(1, (3 * q) / (p * m)))) / 3
-  const w = [0, 1, 2].map(k => m * Math.cos(theta - (2 * Math.PI * k) / 3) + 1 / 3).sort((x, y) => y - x)
+  const theta =
+    m === 0
+      ? 0
+      : Math.acos(Math.max(-1, Math.min(1, (3 * q) / (p * m)))) / 3
+  const w = [0, 1, 2]
+    .map(k => m * Math.cos(theta - (2 * Math.PI * k) / 3) + 1 / 3)
+    .sort((x, y) => y - x)
 
-  return 2 * Math.sqrt((w[0]! + w[1]!) ** 2 + 4 * w[0]! * w[1]!) + 2 * w[2]!
+  return (
+    2 * Math.sqrt((w[0]! + w[1]!) ** 2 + 4 * w[0]! * w[1]!) + 2 * w[2]!
+  )
 }
 
 export default experiment({
   id: 'quantum/one-meeting-rechecked',
   code: 'E-QTM-0141',
   title:
-    'one meeting rechecked under the corrected links, fail on one clause: one like meeting on any product gives e2 = (3/16)(1 - |c|^2)^2, e3 = 0, at most sqrt 7 (E-QTM-0131 stands), and one love-fear meeting gives e2 = g, e3 = g^3 in its Phi-overlap g, both exact on every stabilizer start and own-point pair through fear-weave\'s kernels with three values each; but the love-fear maximum over all products is 2.6429 at g = 0.2940, not (2 + 4 sqrt 2) / 3 at the maximally entangled g = 1/3 as gated (still below sqrt 7); Tsirelson is still reached exactly, 108 words on the fixed-frame beat with the witness\'s link now at grid index 207 (126 in the transposed convention, which now gives CHSH 2), and 2,916 = 81 x 36 on the comoving beat, which reads the translation part of every link away',
+    "one meeting rechecked under the corrected links, fail on one clause: one like meeting on any product gives e2 = (3/16)(1 - |c|^2)^2, e3 = 0, at most sqrt 7 (E-QTM-0131 stands), and one love-fear meeting gives e2 = g, e3 = g^3 in its Phi-overlap g, both exact on every stabilizer start and own-point pair through fear-weave's kernels with three values each; but the love-fear maximum over all products is 2.6429 at g = 0.2940, not (2 + 4 sqrt 2) / 3 at the maximally entangled g = 1/3 as gated (still below sqrt 7); Tsirelson is still reached exactly, 108 words on the fixed-frame beat with the witness's link now at grid index 207 (126 in the transposed convention, which now gives CHSH 2), and 2,916 = 81 x 36 on the comoving beat, which reads the translation part of every link away",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',
@@ -225,19 +273,25 @@ export default experiment({
     const single = phasePointOperators(1)
     // the twelve stabilizer roles' single weights times 3 (0 or 1 on a line)
     const roleWeights = stab.map(st => {
-      const w = gridWeights({ ...vectorOf({ num: st.num, scale: 3 ** st.den3 }), points: single })
+      const w = gridWeights({
+        ...vectorOf({ num: st.num, scale: 3 ** st.den3 }),
+        points: single,
+      })
 
       return w.map(x => Math.round(3 * x))
     })
     const kGrain = meetingKernel(swapPhase(OMEGA)) ?? []
     const color = fearKernels({ like: OMEGA, unlike: OMEGA })!
-    const plus = (p: number, v: number): number => 3 * ((Math.floor(p / 3) + Math.floor(v / 3)) % 3) + (((p % 3) + (v % 3)) % 3)
+    const plus = (p: number, v: number): number =>
+      3 * ((Math.floor(p / 3) + Math.floor(v / 3)) % 3) +
+      (((p % 3) + (v % 3)) % 3)
 
     // G1 and G2
     let likeChecks = 0
     let likeLaw = true
     let unlikeChecks = 0
     let unlikeLaw = true
+
     const likeValues = new Map<string, number>()
     const unlikeValues = new Map<string, number>()
 
@@ -245,7 +299,12 @@ export default experiment({
       for (let b = 0; b < 12; b++) {
         const wa = roleWeights[a]!
         const wb = roleWeights[b]!
-        const start: Whole = { tokens: TOKENS, weight: Array.from({ length: 81 }, (_, i) => BigInt(wa[Math.floor(i / 9)]! * wb[i % 9]!)) }
+        const start: Whole = {
+          tokens: TOKENS,
+          weight: Array.from({ length: 81 }, (_, i) =>
+            BigInt(wa[Math.floor(i / 9)]! * wb[i % 9]!),
+          ),
+        }
 
         for (let pa = 0; pa < 9; pa++) {
           for (let pb = 0; pb < 9; pb++) {
@@ -258,27 +317,58 @@ export default experiment({
             const S = BigInt(s)
 
             for (const kernel of [kGrain, color.like]) {
-              const met = meetWhole({ whole: start, a: 0, b: 1, kernel4: translatedOf(kernel, pa, pb), fixed: false })!
-              const r = exactReduced({ weight: met.weight, coordinate: 0, coordinates: 2 })
+              const met = meetWhole({
+                whole: start,
+                a: 0,
+                b: 1,
+                kernel4: translatedOf(kernel, pa, pb),
+                fixed: false,
+              })!
+              const r = exactReduced({
+                weight: met.weight,
+                coordinate: 0,
+                coordinates: 2,
+              })
               const U = r.units
 
               likeChecks++
-              likeLaw = likeLaw && r.pure && r.e3 === 0n && 48n * r.e2 === U * U * (3n - S) ** 2n
+              likeLaw =
+                likeLaw &&
+                r.pure &&
+                r.e3 === 0n &&
+                48n * r.e2 === U * U * (3n - S) ** 2n
 
               const n = chshNumber(r)
 
               likeValues.set(n.minimalPolynomial.join(','), n.value)
             }
 
-            const met = meetWhole({ whole: start, a: 0, b: 1, kernel4: translatedOf(color.unlike, pa, pb), fixed: false })!
-            const r = exactReduced({ weight: met.weight, coordinate: 0, coordinates: 2 })
+            const met = meetWhole({
+              whole: start,
+              a: 0,
+              b: 1,
+              kernel4: translatedOf(color.unlike, pa, pb),
+              fixed: false,
+            })!
+            const r = exactReduced({
+              weight: met.weight,
+              coordinate: 0,
+              coordinates: 2,
+            })
             const U = r.units
 
             unlikeChecks++
-            unlikeLaw = unlikeLaw && r.pure && 9n * r.e2 === S * U * U && 729n * r.e3 === S ** 3n * U ** 3n
+            unlikeLaw =
+              unlikeLaw &&
+              r.pure &&
+              9n * r.e2 === S * U * U &&
+              729n * r.e3 === S ** 3n * U ** 3n
 
             const n = chshNumber(r)
-            const key = n.minimalPolynomial.length > 0 ? n.minimalPolynomial.join(',') : `e2 ${r.e2 * 729n / (U * U)}/729`
+            const key =
+              n.minimalPolynomial.length > 0
+                ? n.minimalPolynomial.join(',')
+                : `e2 ${(r.e2 * 729n) / (U * U)}/729`
 
             unlikeValues.set(key, n.value)
           }
@@ -289,20 +379,45 @@ export default experiment({
     const likeMax = Math.max(...likeValues.values())
     const unlikeMax = Math.max(...unlikeValues.values())
     const likeSet = [...likeValues.keys()].sort().join(' | ')
-    const g1 = likeLaw && likeValues.size === 3 && likeValues.has('1,0,-7') && likeValues.has('3,0,-16') && likeValues.has('1,-2') && Math.abs(likeMax - SQRT7) < 1e-12
-    const g2 = unlikeLaw && unlikeValues.size === 3 && unlikeValues.has('9,-12,-28') && unlikeValues.has('1,-2') && Math.abs(unlikeMax - SINGLET_MAX) < 1e-12
+    const g1 =
+      likeLaw &&
+      likeValues.size === 3 &&
+      likeValues.has('1,0,-7') &&
+      likeValues.has('3,0,-16') &&
+      likeValues.has('1,-2') &&
+      Math.abs(likeMax - SQRT7) < 1e-12
+    const g2 =
+      unlikeLaw &&
+      unlikeValues.size === 3 &&
+      unlikeValues.has('9,-12,-28') &&
+      unlikeValues.has('1,-2') &&
+      Math.abs(unlikeMax - SINGLET_MAX) < 1e-12
 
     // G3, general products from a Kronecker stream
     const weyl = makeWeyl({ start: 140 })
+
     const vec = (): C3 => {
-      const re = [weyl.nextGaussian(), weyl.nextGaussian(), weyl.nextGaussian()]
-      const im = [weyl.nextGaussian(), weyl.nextGaussian(), weyl.nextGaussian()]
-      const n = Math.sqrt(re.reduce((s, x) => s + x * x, 0) + im.reduce((s, x) => s + x * x, 0))
+      const re = [
+        weyl.nextGaussian(),
+        weyl.nextGaussian(),
+        weyl.nextGaussian(),
+      ]
+      const im = [
+        weyl.nextGaussian(),
+        weyl.nextGaussian(),
+        weyl.nextGaussian(),
+      ]
+      const n = Math.sqrt(
+        re.reduce((s, x) => s + x * x, 0) +
+          im.reduce((s, x) => s + x * x, 0),
+      )
 
       return { re: re.map(x => x / n), im: im.map(x => x / n) }
     }
+
     const uLike = swapPhase(OMEGA)
     const vSinglet = singletPhase(OMEGA)
+
     let likeGap = 0
     let unlikeGap = 0
     let likeFloatMax = 0
@@ -311,6 +426,7 @@ export default experiment({
     for (let k = 0; k < SAMPLES; k++) {
       const a = vec()
       const b = vec()
+
       // c = <a|b>, t = b^T a
       let cr = 0
       let ci = 0
@@ -329,10 +445,22 @@ export default experiment({
       const like = invariants(applyTwo(uLike, a, b))
       const unlike = invariants(applyTwo(vSinglet, a, b))
 
-      likeGap = Math.max(likeGap, Math.abs(like.e2 - (3 / 16) * (1 - c2) ** 2), Math.abs(like.e3))
-      unlikeGap = Math.max(unlikeGap, Math.abs(unlike.e2 - g), Math.abs(unlike.e3 - g ** 3))
+      likeGap = Math.max(
+        likeGap,
+        Math.abs(like.e2 - (3 / 16) * (1 - c2) ** 2),
+        Math.abs(like.e3),
+      )
+
+      unlikeGap = Math.max(
+        unlikeGap,
+        Math.abs(unlike.e2 - g),
+        Math.abs(unlike.e3 - g ** 3),
+      )
       likeFloatMax = Math.max(likeFloatMax, chshOf(like.e2, like.e3))
-      unlikeFloatMax = Math.max(unlikeFloatMax, chshOf(unlike.e2, unlike.e3))
+      unlikeFloatMax = Math.max(
+        unlikeFloatMax,
+        chshOf(unlike.e2, unlike.e3),
+      )
     }
 
     let argmax = 0
@@ -352,6 +480,7 @@ export default experiment({
     // section on [0.2, 1/3], a unimodal stretch by the 3,001-point scan
     let lo = 0.2
     let hi = 1 / 3
+
     const phi = (Math.sqrt(5) - 1) / 2
 
     for (let i = 0; i < 200; i++) {
@@ -368,26 +497,43 @@ export default experiment({
     const singletBestG = (lo + hi) / 2
     const singletBest = chshOf(singletBestG, singletBestG ** 3)
     const g3 =
-      likeGap <= 1e-12 && unlikeGap <= 1e-12 && likeFloatMax <= SQRT7 + 1e-12 && unlikeFloatMax <= SINGLET_MAX + 1e-12 && Math.abs(argmax - 1 / 3) < 1e-12
+      likeGap <= 1e-12 &&
+      unlikeGap <= 1e-12 &&
+      likeFloatMax <= SQRT7 + 1e-12 &&
+      unlikeFloatMax <= SINGLET_MAX + 1e-12 &&
+      Math.abs(argmax - 1 / 3) < 1e-12
 
     // G4
     const weave = makeColorWeave({ side: 3, table: 'pair' })
     const moves = weave.moves
     const linkPerm = moves.act.map(t => phaseMove(t))
     const linkIndex = linkPerm.map(p => table.indexOf(p))
-    const g4 = linkIndex.length === 216 && linkIndex.every(i => i >= 0) && new Set(linkIndex).size === 216
+    const g4 =
+      linkIndex.length === 216 &&
+      linkIndex.every(i => i >= 0) &&
+      new Set(linkIndex).size === 216
 
     // the census, fixed frame and comoving
-    const zero = stab.find(st => roleWeights[stab.indexOf(st)]!.join('') === '111000000') ?? stab[0]!
+    const zero =
+      stab.find(
+        st => roleWeights[stab.indexOf(st)]!.join('') === '111000000',
+      ) ?? stab[0]!
     const starts = stab.map(t => productState(zero, t))
     const T = Array.from({ length: 9 }, (_, v) => translation(v))
-    const meetAbout = (s: State9, p: number): State9 => applyOn(0, T[p]!, applySwapPhase(applyOn(0, T[phaseNegate(p)]!, s)))
+    const meetAbout = (s: State9, p: number): State9 =>
+      applyOn(
+        0,
+        T[p]!,
+        applySwapPhase(applyOn(0, T[phaseNegate(p)]!, s)),
+      )
+
     let fixed1 = 0
     let fixed2 = 0
     let fixed3 = 0
     let moving3 = 0
     let witness: { t: number; d1: number; d2: number } | undefined
     let movingWitness: { t: number; d1: number; d2: number } | undefined
+
     const identity = perms.findIndex(p => p.every((x, k) => x === k))
 
     for (let t = 0; t < 12; t++) {
@@ -409,7 +555,9 @@ export default experiment({
 
           if (isHalfHalf(applySwapPhase(applyOn(0, d2, f2)))) {
             fixed3++
-            witness = witness ?? (i === identity ? { t, d1: i, d2: j } : undefined)
+            witness =
+              witness ??
+              (i === identity ? { t, d1: i, d2: j } : undefined)
           }
 
           if (isHalfHalf(meetAbout(applyOn(0, d2, m2), p2))) {
@@ -421,7 +569,10 @@ export default experiment({
     }
 
     // the origin-fixing census
-    const originFixing = perms.map((p, i) => (p[0] === 0 ? i : -1)).filter(i => i >= 0)
+    const originFixing = perms
+      .map((p, i) => (p[0] === 0 ? i : -1))
+      .filter(i => i >= 0)
+
     let fixedOrigin3 = 0
 
     for (let t = 0; t < 12; t++) {
@@ -431,7 +582,11 @@ export default experiment({
         const f2 = applySwapPhase(applyOn(0, group[i]!, s1))
 
         for (const j of originFixing) {
-          fixedOrigin3 += isHalfHalf(applySwapPhase(applyOn(0, group[j]!, f2))) ? 1 : 0
+          fixedOrigin3 += isHalfHalf(
+            applySwapPhase(applyOn(0, group[j]!, f2)),
+          )
+            ? 1
+            : 0
         }
       }
     }
@@ -439,38 +594,81 @@ export default experiment({
     const g6 = moving3 === 81 * fixedOrigin3
 
     // the witness through advanceWhole
-    const kernels = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
+    const kernels = fearKernels({
+      like: OMEGA,
+      unlike: OMEGA,
+      likeExchanged: false,
+    })!
     const meeting: BeatRecord = { meetings: [[4, 7]], crossings: [] }
-    const runWord = (w: { t: number; d1: number; d2: number }, comoving: boolean): { half: boolean; pure: boolean; chsh: number } => {
+
+    const runWord = (
+      w: { t: number; d1: number; d2: number },
+      comoving: boolean,
+    ): { half: boolean; pure: boolean; chsh: number } => {
       const g1Index = linkIndex.indexOf(w.d1)
       const g2Index = linkIndex.indexOf(w.d2)
       const records: BeatRecord[] = [
         meeting,
-        ...(w.d1 === identity ? [] : [{ meetings: [], crossings: [[4, g1Index]] } as BeatRecord]),
+        ...(w.d1 === identity
+          ? []
+          : [
+              { meetings: [], crossings: [[4, g1Index]] } as BeatRecord,
+            ]),
         meeting,
         { meetings: [], crossings: [[4, g2Index]] },
         meeting,
       ]
+
       let whole = wholeOf(starts[w.t]!)
 
       for (const record of records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: kernels.like, fixed: false, forward: true, comoving })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kernels.like,
+          fixed: false,
+          forward: true,
+          comoving,
+        })!
       }
 
-      const r = exactReduced({ weight: whole.weight, coordinate: 0, coordinates: 2 })
+      const r = exactReduced({
+        weight: whole.weight,
+        coordinate: 0,
+        coordinates: 2,
+      })
 
-      return { half: r.e3 === 0n && 4n * r.e2 === r.units * r.units, pure: r.pure, chsh: chshNumber(r).value }
+      return {
+        half: r.e3 === 0n && 4n * r.e2 === r.units * r.units,
+        pure: r.pure,
+        chsh: chshNumber(r).value,
+      }
     }
+
     const w = witness ?? { t: 0, d1: identity, d2: identity }
     const fixedRun = runWord(w, false)
-    const g5 = fixed1 === 0 && fixed2 === 0 && fixed3 === 108 && witness !== undefined && fixedRun.half && fixedRun.pure
+    const g5 =
+      fixed1 === 0 &&
+      fixed2 === 0 &&
+      fixed3 === 108 &&
+      witness !== undefined &&
+      fixedRun.half &&
+      fixedRun.pure
     // the witness's link in the model's index now, and in the transposed convention (the grid table equal to the
     // permutation read on the phase index directly)
     const witnessPerm = perms[w.d2]!
     const indexNow = linkIndex.indexOf(w.d2)
-    const indexTransposed = moves.act.findIndex(t => Array.from(t).every((x, k) => x === witnessPerm[k]))
-    const oldIndexNow = runWord({ ...w, d2: linkIndex[indexTransposed] ?? w.d2 }, false)
-    const movingRun = movingWitness ? runWord(movingWitness, true) : undefined
+    const indexTransposed = moves.act.findIndex(t =>
+      Array.from(t).every((x, k) => x === witnessPerm[k]),
+    )
+    const oldIndexNow = runWord(
+      { ...w, d2: linkIndex[indexTransposed] ?? w.d2 },
+      false,
+    )
+    const movingRun = movingWitness
+      ? runWord(movingWitness, true)
+      : undefined
     // the fixed-frame witness read on the comoving beat
     const witnessComoving = runWord(w, true)
 
@@ -480,7 +678,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the one-meeting laws hold exactly through fear-weave\'s kernels on every stabilizer start and own-point pair (23,328 like, 11,664 love-fear meetings): a like meeting gives e2 = (3/16)(1 - |c|^2)^2, e3 = 0, three values {2, 4 / sqrt 3, sqrt 7}, at most sqrt 7; a love-fear meeting gives e2 = g, e3 = g^3, three values {2, (8 + 2 sqrt 21 + 2 sqrt 35 - 2 sqrt 15) / 9, (2 + 4 sqrt 2) / 3}; both laws hold on 4,096 general products to 3e-16, where the love-fear value peaks at 2.6429 (g = 0.2940), above (2 + 4 sqrt 2) / 3 and below sqrt 7; the link fix is a relabeling of the 216 moves, so the fixed-frame census is unchanged (108 Tsirelson words at three meetings, none before) and the witness reaches (1/2, 1/2, 0) through advanceWhole with its link at grid index 207; on the comoving beat the census is 2,916 = 81 x 36, the 36 origin-fixing words, and the E-QTM-0133 witness survives it because its link fixes the origin',
+        "the one-meeting laws hold exactly through fear-weave's kernels on every stabilizer start and own-point pair (23,328 like, 11,664 love-fear meetings): a like meeting gives e2 = (3/16)(1 - |c|^2)^2, e3 = 0, three values {2, 4 / sqrt 3, sqrt 7}, at most sqrt 7; a love-fear meeting gives e2 = g, e3 = g^3, three values {2, (8 + 2 sqrt 21 + 2 sqrt 35 - 2 sqrt 15) / 9, (2 + 4 sqrt 2) / 3}; both laws hold on 4,096 general products to 3e-16, where the love-fear value peaks at 2.6429 (g = 0.2940), above (2 + 4 sqrt 2) / 3 and below sqrt 7; the link fix is a relabeling of the 216 moves, so the fixed-frame census is unchanged (108 Tsirelson words at three meetings, none before) and the witness reaches (1/2, 1/2, 0) through advanceWhole with its link at grid index 207; on the comoving beat the census is 2,916 = 81 x 36, the 36 origin-fixing words, and the E-QTM-0133 witness survives it because its link fixes the origin",
       metrics: {
         likeChecks,
         likeLawExact: likeLaw ? 1 : 0,
@@ -498,7 +696,8 @@ export default experiment({
         singletChshBestG: singletBestG,
         singletChshBest: singletBest,
         singletChshBestBelowSqrt7: SQRT7 - singletBest,
-        linkPermutationsMatched: new Set(linkIndex.filter(i => i >= 0)).size,
+        linkPermutationsMatched: new Set(linkIndex.filter(i => i >= 0))
+          .size,
         halfHalfOneMeeting: fixed1,
         halfHalfTwoMeetings: fixed2,
         halfHalfThreeMeetingsFixedFrame: fixed3,
@@ -519,9 +718,18 @@ export default experiment({
         comovingWitnessHalfHalf: movingRun?.half ? 1 : 0,
         comovingWitnessChsh: movingRun?.chsh ?? -1,
         comovingWitnessStart: movingWitness?.t ?? -1,
-        comovingWitnessFirstLink: movingWitness ? linkIndex.indexOf(movingWitness.d1) : -1,
-        comovingWitnessSecondLink: movingWitness ? linkIndex.indexOf(movingWitness.d2) : -1,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        comovingWitnessFirstLink: movingWitness
+          ? linkIndex.indexOf(movingWitness.d1)
+          : -1,
+        comovingWitnessSecondLink: movingWitness
+          ? linkIndex.indexOf(movingWitness.d2)
+          : -1,
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes: `L1, exact apart from G3. FIRST RUN (2026-09-26, 12 s): status fail on G3 alone. G3's law clauses hold (both laws to 3e-16 on 4,096 Kronecker products) and so does the like bound, but its love-fear clauses were written on a wrong step in the header's derivation: a maximally entangled qutrit knot is NOT the CHSH maximum (E-QTM-0132's form favors two strong Schmidt weights), so the love-fear value peaks inside, 2.642898459 at g = 0.294007 (golden section, reported after the first run), with Schmidt weights 0.5484, 0.2940, 0.1576, above (2 + 4 sqrt 2) / 3 = 2.5523 and 0.00285 below sqrt 7. No gate was moved. So one meeting of either kind is at most sqrt 7 on any product (the like bound a theorem, the love-fear bound a one-variable maximization of an exact law, read numerically), and on the model's stabilizer starts each kind has exactly three values, the largest sqrt 7 and (2 + 4 sqrt 2) / 3. THE LINK FIX: phaseMove takes the 216 grid tables one to one onto the 216 Clifford point permutations, so the fix relabels which element each link is and cannot change what words of links can reach: the E-QTM-0133 census is the same, 0, 0 and 108 half-half states at one, two and three meetings. The witness |+> start (stabilizer 2), U U, one link on the first token, U, runs through fear-weave's own advanceWhole to Schmidt (1/2, 1/2, 0) exactly with its link at grid index 207; grid index 126, the one whose raw table equals the witness's permutation (E-QTM-0133's convention A, now retired), is a different element under the corrected code and gives CHSH 2. E-QTM-0133's own gates still pass (its G2 applies the permutation directly and its G5's table set is closed under the transpose), but its notes and G5's wording name the retired convention. THE COMOVING BEAT: each meeting conjugates by the displacements to the own points, and the word becomes T(p2) U L2 U L1 U |0>|t> with L1 and L2 fixing the origin, so the census is 81 times the census over the 24 origin-fixing links: 2,916 = 81 x 36 (G6). Tsirelson is still reached exactly on the adopted beat, by 36 origin-fixing words; the E-QTM-0133 witness is one of them (its link fixes the origin) and reaches (1/2, 1/2, 0) through advanceWhole with comoving on; the first word found in census order (links 54 then 214) does too. More words reach it on the comoving beat than on the fixed-frame one (2,916 against 108 of 559,872), because each origin-fixing word is reached from 81 link pairs, while every word that needed a link's translation part is lost. Like values by minimal polynomial: ${likeSet}. Love-fear values: ${[...unlikeValues.entries()].map(([k, v]) => `${k} (${v.toFixed(10)})`).join(' | ')}.`,
     })

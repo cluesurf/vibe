@@ -79,10 +79,24 @@ import {
   type Background,
 } from '@/code/measure/token-store-linearization'
 import { storeKnit, storeWeave } from '@/code/measure/token-store-gates'
-import { familiesOf, invariantsOf, type Named } from '@/code/measure/store-transport'
-import { huskDirections, logSlope } from '@/code/measure/husk-transport-order'
+import {
+  familiesOf,
+  invariantsOf,
+  type Named,
+} from '@/code/measure/store-transport'
+import {
+  huskDirections,
+  logSlope,
+} from '@/code/measure/husk-transport-order'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { fullState, goldenFill, kernelAgreement, makeKernel, makeRunner, type Reduced } from '@/code/measure/candidate-kernel'
+import {
+  fullState,
+  goldenFill,
+  kernelAgreement,
+  makeKernel,
+  makeRunner,
+  type Reduced,
+} from '@/code/measure/candidate-kernel'
 import { weyl } from '@/code/tool/weyl'
 
 const N = STORE_N
@@ -95,10 +109,19 @@ const SAMPLES = 200_000
 const MELT_SIDE = 5
 const MELT_BEATS = 96
 const NAMED: Named = {
-  charge: Float64Array.from({ length: N }, (_, i) => (i < 48 ? (i % 2 === 0 ? 1 : -1) : 0)),
-  momentumAlong: u => Float64Array.from({ length: N }, (_, i) => (i < 48 ? (ROOTS[i >> 1] as number[]).reduce((s, x, k) => s + x * (u[k] ?? 0), 0) : 0)),
+  charge: Float64Array.from({ length: N }, (_, i) =>
+    i < 48 ? (i % 2 === 0 ? 1 : -1) : 0,
+  ),
+  momentumAlong: u =>
+    Float64Array.from({ length: N }, (_, i) =>
+      i < 48
+        ? ROOTS[i >> 1]!.reduce((s, x, k) => s + x * (u[k] ?? 0), 0)
+        : 0,
+    ),
 }
-const ENERGY = Float64Array.from({ length: N }, (_, i) => (i < 48 ? 1 : 2))
+const ENERGY = Float64Array.from({ length: N }, (_, i) =>
+  i < 48 ? 1 : 2,
+)
 
 const gibbs = (rho: number): Background => {
   const s = rho / (2 * (1 - rho))
@@ -107,16 +130,23 @@ const gibbs = (rho: number): Background => {
   return { rho, store: [(s * s) / z, (s * s) / z, 1 / z], equal: EQUAL }
 }
 
-function inside(v: Float64Array, basis: readonly Float64Array[]): number {
+function inside(
+  v: Float64Array,
+  basis: readonly Float64Array[],
+): number {
   let norm = 0
   let projected = 0
 
-  for (let i = 0; i < v.length; i++) norm += (v[i] as number) ** 2
+  for (let i = 0; i < v.length; i++) {
+    norm += v[i]! ** 2
+  }
 
   for (const b of basis) {
     let s = 0
 
-    for (let i = 0; i < v.length; i++) s += (b[i] as number) * (v[i] as number)
+    for (let i = 0; i < v.length; i++) {
+      s += b[i]! * v[i]!
+    }
 
     projected += s * s
   }
@@ -132,40 +162,82 @@ function chargeAnisotropy(
   k: number,
   directions: number[][],
   all = false,
-): { anisotropy: number; mean: number; found: number; others: Record<string, number> } {
+): {
+  anisotropy: number
+  mean: number
+  found: number
+  others: Record<string, number>
+} {
   const values: number[] = []
-  const per: Record<string, number[]> = { trace: [], sound: [], shear: [] }
+  const per: Record<string, number[]> = {
+    trace: [],
+    sound: [],
+    shear: [],
+  }
 
   for (const u of directions) {
     const families = familiesOf(STORE_SPACE, NAMED, u, invariants)
-    const modes = hydroModes({ matrices, wave: u.map(x => x * k), invariants, families, count: invariants.length })
-    const charge = modes.reduce((best, m) => (m.family === 'charge' && m.share > (best?.share ?? -1) ? m : best), undefined as (typeof modes)[number] | undefined)
+    const modes = hydroModes({
+      matrices,
+      wave: u.map(x => x * k),
+      invariants,
+      families,
+      count: invariants.length,
+    })
+    const charge = modes.reduce(
+      (best, m) =>
+        m.family === 'charge' && m.share > (best?.share ?? -1)
+          ? m
+          : best,
+      undefined as (typeof modes)[number] | undefined,
+    )
 
-    if (charge) values.push(charge.gamma / (k * k))
+    if (charge) {
+      values.push(charge.gamma / (k * k))
+    }
 
     if (all) {
-      const decaying = modes.filter(m => m !== charge && m.gamma / (k * k) > 1e-4)
+      const decaying = modes.filter(
+        m => m !== charge && m.gamma / (k * k) > 1e-4,
+      )
 
       if (decaying.length > 0) {
-        per.trace!.push(decaying.reduce((s, m) => s + m.gamma / (k * k), 0))
+        per.trace!.push(
+          decaying.reduce((s, m) => s + m.gamma / (k * k), 0),
+        )
 
         const speed = Math.max(...decaying.map(m => m.omega / k))
 
-        if (speed > 1e-3) per.sound!.push(speed)
+        if (speed > 1e-3) {
+          per.sound!.push(speed)
+        }
       }
 
-      for (const m of decaying) if (m.family === 'shear') per.shear!.push(m.gamma / (k * k))
+      for (const m of decaying) {
+        if (m.family === 'shear') {
+          per.shear!.push(m.gamma / (k * k))
+        }
+      }
     }
   }
 
-  const spreadOf = (v: number[]): number => (v.length > 1 ? (Math.max(...v) - Math.min(...v)) / (v.reduce((s, x) => s + x, 0) / v.length) : Number.NaN)
-  const mean = values.reduce((s, x) => s + x, 0) / Math.max(1, values.length)
+  const spreadOf = (v: number[]): number =>
+    v.length > 1
+      ? (Math.max(...v) - Math.min(...v)) /
+        (v.reduce((s, x) => s + x, 0) / v.length)
+      : Number.NaN
+  const mean =
+    values.reduce((s, x) => s + x, 0) / Math.max(1, values.length)
 
   return {
     anisotropy: spreadOf(values),
     mean,
     found: values.length,
-    others: all ? Object.fromEntries(Object.entries(per).map(([q, v]) => [q, spreadOf(v)])) : {},
+    others: all
+      ? Object.fromEntries(
+          Object.entries(per).map(([q, v]) => [q, spreadOf(v)]),
+        )
+      : {},
   }
 }
 
@@ -173,12 +245,15 @@ function chargeAnisotropy(
 // over docks (1 on any hot vacuum at any beat, whatever docks negate; about 0.19 for independent symmetric stores)
 function dockOrder(store: Int8Array): number {
   let total = 0
+
   const cells = store.length / 12
 
   for (let x = 0; x < cells; x++) {
     let s = 0
 
-    for (let l = 0; l < 12; l++) s += store[x * 12 + l] as number
+    for (let l = 0; l < 12; l++) {
+      s += store[x * 12 + l]!
+    }
 
     total += Math.abs(s) / 12
   }
@@ -187,7 +262,15 @@ function dockOrder(store: Int8Array): number {
 }
 
 // the orientation order and the store filling over the melting run
-function melt(rho: number, symmetric = false): { order: number[]; filling: number[]; meltBeat: number; dock: number[] } {
+function melt(
+  rho: number,
+  symmetric = false,
+): {
+  order: number[]
+  filling: number[]
+  meltBeat: number
+  dock: number[]
+} {
   const weave = makeColorWeave({ side: MELT_SIDE, table: 'bind' })
   const kernel = makeKernel(weave)
   const cells = weave.mesh.cellCount
@@ -197,7 +280,8 @@ function melt(rho: number, symmetric = false): { order: number[]; filling: numbe
     store: new Int8Array(cells * 12).fill(1),
     spoint: new Int8Array(cells * 12),
   }
-  const rate = (q: number): number => Math.sqrt(q) - Math.floor(Math.sqrt(q))
+  const rate = (q: number): number =>
+    Math.sqrt(q) - Math.floor(Math.sqrt(q))
 
   for (let i = 0; i < cells * 24; i++) {
     const u = weyl(i + 1, rate(2))
@@ -206,67 +290,124 @@ function melt(rho: number, symmetric = false): { order: number[]; filling: numbe
     start.point[i] = Math.floor(weyl(i + 1, rate(3)) * 9) % 9
   }
 
-  for (let i = 0; i < cells * 12; i++) start.spoint[i] = Math.floor(weyl(i + 1, rate(5)) * 9) % 9
+  for (let i = 0; i < cells * 12; i++) {
+    start.spoint[i] = Math.floor(weyl(i + 1, rate(5)) * 9) % 9
+  }
 
   // the control (a reading added after the first run): stores symmetric, each a third to each value
-  if (symmetric) for (let i = 0; i < cells * 12; i++) start.store[i] = Math.floor(weyl(i + 1, rate(7)) * 3) - 1
+  if (symmetric) {
+    for (let i = 0; i < cells * 12; i++) {
+      start.store[i] = Math.floor(weyl(i + 1, rate(7)) * 3) - 1
+    }
+  }
 
   const run = makeRunner(kernel, start)
   const order: number[] = []
   const filling: number[] = []
   const dock: number[] = []
+
   let meltBeat = -1
 
   for (let t = 0; t <= MELT_BEATS; t++) {
     const s = run.state()
+
     let m = 0
     let f = 0
 
     dock.push(dockOrder(s.store))
 
     for (let i = 0; i < s.store.length; i++) {
-      m += (s.store[i] as number) * (t % 2 === 0 ? 1 : -1)
+      m += s.store[i]! * (t % 2 === 0 ? 1 : -1)
       f += s.store[i] !== 0 ? 1 : 0
     }
 
     order.push(m / s.store.length)
     filling.push(f / s.store.length)
 
-    if (meltBeat < 0 && m / s.store.length < 1 / Math.E) meltBeat = t
+    if (meltBeat < 0 && m / s.store.length < 1 / Math.E) {
+      meltBeat = t
+    }
 
-    if (t < MELT_BEATS) run.beat()
+    if (t < MELT_BEATS) {
+      run.beat()
+    }
   }
 
   return { order, filling, meltBeat, dock }
 }
 
-let cached: { status: string; metrics: Record<string, number> } | undefined
+let cached:
+  | { status: string; metrics: Record<string, number> }
+  | undefined
 
-export function threeBodyLeak(): { status: string; claim: string; metrics: Record<string, number>; control: Record<string, number>; notes: string } {
+export function threeBodyLeak(): {
+  status: string
+  claim: string
+  metrics: Record<string, number>
+  control: Record<string, number>
+  notes: string
+} {
   const started = Date.now()
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
   const table = isometricTable()
   const minus = pairIndexPermutation(OPPOSITE)
   const directions = huskDirections(24)
   const metrics: Record<string, number> = {}
   const control: Record<string, number> = {}
-  const rows: { rho: number; vv: number; vs: number; sv: number; ss: number; oriented: number; gibbs: number; invariants: number; lawsInside: boolean; meltBeat: number; order24: number; filling24: number }[] = []
+  const rows: {
+    rho: number
+    vv: number
+    vs: number
+    sv: number
+    ss: number
+    oriented: number
+    gibbs: number
+    invariants: number
+    lawsInside: boolean
+    meltBeat: number
+    order24: number
+    filling24: number
+  }[] = []
+
   let symmetricWorst = 0
   let minusWorst = 0
 
   for (const rho of RHOS) {
-    const hot = storeLinearization({ table, background: { rho, store: [1, 0, 0], equal: EQUAL } })
-    const cold = storeLinearization({ table, background: { rho, store: [0, 0, 1], equal: EQUAL } })
-    const odd = storeLinearization({ table, background: { rho, store: [0, 1, 0], equal: EQUAL } })
+    const hot = storeLinearization({
+      table,
+      background: { rho, store: [1, 0, 0], equal: EQUAL },
+    })
+    const cold = storeLinearization({
+      table,
+      background: { rho, store: [0, 0, 1], equal: EQUAL },
+    })
+    const odd = storeLinearization({
+      table,
+      background: { rho, store: [0, 1, 0], equal: EQUAL },
+    })
     const iso = storeLinearization({ table, background: gibbs(rho) })
     const part = anisotropicPart(hot, permutations)
 
-    symmetricWorst = Math.max(symmetricWorst, anisotropicPart(cold, permutations).vibeRows, anisotropicPart(cold, permutations).storeRows)
-    symmetricWorst = Math.max(symmetricWorst, anisotropicPart(iso, permutations).vibeRows, anisotropicPart(iso, permutations).storeRows)
+    symmetricWorst = Math.max(
+      symmetricWorst,
+      anisotropicPart(cold, permutations).vibeRows,
+      anisotropicPart(cold, permutations).storeRows,
+    )
+
+    symmetricWorst = Math.max(
+      symmetricWorst,
+      anisotropicPart(iso, permutations).vibeRows,
+      anisotropicPart(iso, permutations).storeRows,
+    )
 
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
-        minusWorst = Math.max(minusWorst, Math.abs((odd[(minus[r] as number) * N + (minus[c] as number)] as number) - (hot[r * N + c] as number)))
+        minusWorst = Math.max(
+          minusWorst,
+          Math.abs(odd[minus[r]! * N + minus[c]!]! - hot[r * N + c]!),
+        )
       }
     }
 
@@ -274,17 +415,34 @@ export function threeBodyLeak(): { status: string; claim: string; metrics: Recor
     const control2 = [iso, iso]
     const invariants = invariantsOf(STORE_SPACE, oriented)
     const controlInvariants = invariantsOf(STORE_SPACE, control2)
-    const laws = [NAMED.charge, ENERGY, ...[0, 1, 2, 3].map(k => NAMED.momentumAlong([0, 1, 2, 3].map(j => (j === k ? 1 : 0))))]
-    const lawsInside = laws.every(v => Math.abs(inside(v, invariants) - 1) < 1e-9)
-    const k = rho * (K_FRACTIONS[K_FRACTIONS.length - 1] as number)
-    const onOriented = K_FRACTIONS.map(f => chargeAnisotropy(oriented, invariants, rho * f, directions, true))
-    const onGibbs = chargeAnisotropy(control2, controlInvariants, k, directions, true)
+    const laws = [
+      NAMED.charge,
+      ENERGY,
+      ...[0, 1, 2, 3].map(k =>
+        NAMED.momentumAlong([0, 1, 2, 3].map(j => (j === k ? 1 : 0))),
+      ),
+    ]
+    const lawsInside = laws.every(
+      v => Math.abs(inside(v, invariants) - 1) < 1e-9,
+    )
+    const k = rho * K_FRACTIONS[K_FRACTIONS.length - 1]!
+    const onOriented = K_FRACTIONS.map(f =>
+      chargeAnisotropy(oriented, invariants, rho * f, directions, true),
+    )
+    const onGibbs = chargeAnisotropy(
+      control2,
+      controlInvariants,
+      k,
+      directions,
+      true,
+    )
     const melted = melt(rho)
     const meltedControl = melt(rho, true)
     const row = {
       rho,
       ...part.blocks,
-      oriented: onOriented[onOriented.length - 1]?.anisotropy ?? Number.NaN,
+      oriented:
+        onOriented[onOriented.length - 1]?.anisotropy ?? Number.NaN,
       gibbs: onGibbs.anisotropy,
       invariants: invariants.length,
       lawsInside,
@@ -305,20 +463,31 @@ export function threeBodyLeak(): { status: string; claim: string; metrics: Recor
     metrics[`${tag}_gibbsInvariants`] = controlInvariants.length
     metrics[`${tag}_lawsInsideInvariants`] = lawsInside ? 1 : 0
     onOriented.forEach((r, i) => {
-      metrics[`${tag}_orientedChargeAnisotropy_k${Math.round(1 / (K_FRACTIONS[i] as number))}`] = r.anisotropy
+      metrics[
+        `${tag}_orientedChargeAnisotropy_k${Math.round(1 / K_FRACTIONS[i]!)}`
+      ] = r.anisotropy
     })
-    metrics[`${tag}_orientedChargeD`] = onOriented[onOriented.length - 1]?.mean ?? Number.NaN
-    metrics[`${tag}_orientedDirectionsRead`] = onOriented[onOriented.length - 1]?.found ?? 0
+
+    metrics[`${tag}_orientedChargeD`] =
+      onOriented[onOriented.length - 1]?.mean ?? Number.NaN
+
+    metrics[`${tag}_orientedDirectionsRead`] =
+      onOriented[onOriented.length - 1]?.found ?? 0
     control[`${tag}_gibbsChargeAnisotropy`] = onGibbs.anisotropy
     control[`${tag}_gibbsChargeD`] = onGibbs.mean
     metrics[`${tag}_meltBeat`] = melted.meltBeat
     metrics[`${tag}_orderAt24`] = melted.order[24] ?? Number.NaN
     metrics[`${tag}_orderAt96`] = melted.order[MELT_BEATS] ?? Number.NaN
     metrics[`${tag}_fillingAt24`] = melted.filling[24] ?? Number.NaN
-    metrics[`${tag}_fillingAt96`] = melted.filling[MELT_BEATS] ?? Number.NaN
+    metrics[`${tag}_fillingAt96`] =
+      melted.filling[MELT_BEATS] ?? Number.NaN
 
     // readings added after the first run (no gate): the other husk quantities, and the per-dock order
-    for (const [q, v] of Object.entries(onOriented[onOriented.length - 1]?.others ?? {})) metrics[`${tag}_oriented_${q}Anisotropy`] = v
+    for (const [q, v] of Object.entries(
+      onOriented[onOriented.length - 1]?.others ?? {},
+    )) {
+      metrics[`${tag}_oriented_${q}Anisotropy`] = v
+    }
 
     // and each quantity's anisotropy at the three k, with its slope against k (0 for a leading-order leak, 2 or 4
     // for one the symmetry forces away at leading order)
@@ -326,67 +495,150 @@ export function threeBodyLeak(): { status: string; claim: string; metrics: Recor
       const ys = onOriented.map(r => r.others[q] ?? Number.NaN)
 
       ys.forEach((y, i) => {
-        metrics[`${tag}_oriented_${q}Anisotropy_k${Math.round(1 / (K_FRACTIONS[i] as number))}`] = y
+        metrics[
+          `${tag}_oriented_${q}Anisotropy_k${Math.round(1 / K_FRACTIONS[i]!)}`
+        ] = y
       })
-      metrics[`${tag}_oriented_${q}SlopeInK`] = ys.every(y => Number.isFinite(y) && y > 0) ? logSlope(K_FRACTIONS.map(f => rho * f), ys).slope : Number.NaN
+
+      metrics[`${tag}_oriented_${q}SlopeInK`] = ys.every(
+        y => Number.isFinite(y) && y > 0,
+      )
+        ? logSlope(
+            K_FRACTIONS.map(f => rho * f),
+            ys,
+          ).slope
+        : Number.NaN
     }
 
     metrics[`${tag}_oriented_chargeSlopeInK`] = logSlope(
       K_FRACTIONS.map(f => rho * f),
       onOriented.map(r => r.anisotropy),
     ).slope
-    for (const [q, v] of Object.entries(onGibbs.others)) control[`${tag}_gibbs_${q}Anisotropy`] = v
-    for (const t of [0, 1, 2, 4, 8, 24, 96]) metrics[`${tag}_dockOrderAt${t}`] = melted.dock[t] ?? Number.NaN
-    control[`${tag}_symmetricStoreDockOrderAt24`] = meltedControl.dock[24] ?? Number.NaN
-    control[`${tag}_symmetricStoreDockOrderAt96`] = meltedControl.dock[MELT_BEATS] ?? Number.NaN
+
+    for (const [q, v] of Object.entries(onGibbs.others)) {
+      control[`${tag}_gibbs_${q}Anisotropy`] = v
+    }
+
+    for (const t of [0, 1, 2, 4, 8, 24, 96]) {
+      metrics[`${tag}_dockOrderAt${t}`] = melted.dock[t] ?? Number.NaN
+    }
+
+    control[`${tag}_symmetricStoreDockOrderAt24`] =
+      meltedControl.dock[24] ?? Number.NaN
+
+    control[`${tag}_symmetricStoreDockOrderAt96`] =
+      meltedControl.dock[MELT_BEATS] ?? Number.NaN
   }
 
   // a reading added after the first run: the vibe rows' anisotropic part at lower density, where the expansion
   // parameter (the other 23 slots' expected vibes, 23 rho) is small
   for (const rho of [1 / 256, 1 / 1024]) {
-    const part = anisotropicPart(storeLinearization({ table, background: { rho, store: [1, 0, 0], equal: EQUAL } }), permutations)
+    const part = anisotropicPart(
+      storeLinearization({
+        table,
+        background: { rho, store: [1, 0, 0], equal: EQUAL },
+      }),
+      permutations,
+    )
 
-    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromVibe`] = part.blocks.vv
-    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromStore`] = part.blocks.vs
-    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_storeFromVibe`] = part.blocks.sv
+    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromVibe`] =
+      part.blocks.vv
+
+    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromStore`] =
+      part.blocks.vs
+
+    metrics[`rho1_${Math.round(1 / rho)}_anisotropic_storeFromVibe`] =
+      part.blocks.sv
   }
 
-  const lowVibe = [1 / 1024, 1 / 256, 1 / 64].map(rho => metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromVibe`] as number)
+  const lowVibe = [1 / 1024, 1 / 256, 1 / 64].map(
+    rho =>
+      metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromVibe`]!,
+  )
 
-  metrics.vibeFromVibeSlope_1024_to_64 = logSlope([1 / 1024, 1 / 256, 1 / 64], lowVibe).slope
+  metrics.vibeFromVibeSlope_1024_to_64 = logSlope(
+    [1 / 1024, 1 / 256, 1 / 64],
+    lowVibe,
+  ).slope
+
   metrics.vibeFromStoreSlope_1024_to_64 = logSlope(
     [1 / 1024, 1 / 256, 1 / 64],
-    [1 / 1024, 1 / 256, 1 / 64].map(rho => metrics[`rho1_${Math.round(1 / rho)}_anisotropic_vibeFromStore`] as number),
+    [1 / 1024, 1 / 256, 1 / 64].map(
+      rho =>
+        metrics[
+          `rho1_${Math.round(1 / rho)}_anisotropic_vibeFromStore`
+        ]!,
+    ),
   ).slope
 
   // the general-background check against the full collision
-  const checkBackground: Background = { rho: 0.3, store: [0.6, 0.2, 0.2], equal: EQUAL }
-  const exact = storeLinearization({ table, background: checkBackground })
-  const sampled = sampledStoreLinearization({ knit: storeKnit(storeWeave(), 'returned-neutral'), background: checkBackground, samples: SAMPLES })
+  const checkBackground: Background = {
+    rho: 0.3,
+    store: [0.6, 0.2, 0.2],
+    equal: EQUAL,
+  }
+  const exact = storeLinearization({
+    table,
+    background: checkBackground,
+  })
+  const sampled = sampledStoreLinearization({
+    knit: storeKnit(storeWeave(), 'returned-neutral'),
+    background: checkBackground,
+    samples: SAMPLES,
+  })
+
   let sampledWorst = 0
 
-  for (let i = 0; i < exact.length; i++) sampledWorst = Math.max(sampledWorst, Math.abs((exact[i] as number) - (sampled[i] as number)))
+  for (let i = 0; i < exact.length; i++) {
+    sampledWorst = Math.max(
+      sampledWorst,
+      Math.abs(exact[i]! - sampled[i]!),
+    )
+  }
 
   // the melting kernel against the full rule, on the side-3 box with the golden fill on the hot store
   const checkWeave = makeColorWeave({ side: 3, table: 'bind' })
-  const agreement = kernelAgreement({ weave: checkWeave, start: fullState({ ...goldenFill(checkWeave.mesh.cellCount * 24, 1.37), tau: 1 }), beats: 48 })
+  const agreement = kernelAgreement({
+    weave: checkWeave,
+    start: fullState({
+      ...goldenFill(checkWeave.mesh.cellCount * 24, 1.37),
+      tau: 1,
+    }),
+    beats: 48,
+  })
 
   metrics.kernelMismatchBeats = agreement.mismatches
   metrics.kernelCheckVetoed = agreement.vetoed
   metrics.kernelCheckMade = agreement.made
 
-  const x1 = symmetricWorst < 1e-10 && minusWorst < 1e-10 && sampledWorst < 0.02 && agreement.mismatches === 0 && agreement.vetoed > 0
-  const x2 = rows.every(r => r.lawsInside) && rows.every(r => r.gibbs < 1e-4)
+  const x1 =
+    symmetricWorst < 1e-10 &&
+    minusWorst < 1e-10 &&
+    sampledWorst < 0.02 &&
+    agreement.mismatches === 0 &&
+    agreement.vetoed > 0
+  const x2 =
+    rows.every(r => r.lawsInside) && rows.every(r => r.gibbs < 1e-4)
   const low = LOW.map(i => rows[i]!)
-  const slope = (ys: number[]): number => logSlope(low.map(r => r.rho), ys).slope
+  const slope = (ys: number[]): number =>
+    logSlope(
+      low.map(r => r.rho),
+      ys,
+    ).slope
   const vibeSlope = slope(low.map(r => Math.max(r.vv, r.vs)))
   const storeSlope = slope(low.map(r => Math.max(r.sv, r.ss)))
   const leakSlope = slope(low.map(r => r.oriented))
-  const h1 = rows.every(r => Math.max(r.vv, r.vs) >= 1e-8) && vibeSlope >= 1.7
+  const h1 =
+    rows.every(r => Math.max(r.vv, r.vs) >= 1e-8) && vibeSlope >= 1.7
   const h2 = storeSlope < 0.3
-  const h3 = rows.filter(r => r.rho >= 1 / 16).every(r => r.oriented >= 100 * r.gibbs) && leakSlope >= 0.7
+  const h3 =
+    rows
+      .filter(r => r.rho >= 1 / 16)
+      .every(r => r.oriented >= 100 * r.gibbs) && leakSlope >= 0.7
   const battery = rows.filter(r => r.rho === 0.4 || r.rho === 0.7)
-  const h4 = battery.length === 2 && battery.every(r => r.meltBeat >= 0 && r.meltBeat <= 24)
+  const h4 =
+    battery.length === 2 &&
+    battery.every(r => r.meltBeat >= 0 && r.meltBeat <= 24)
 
   metrics.symmetricAnisotropicWorst = symmetricWorst
   metrics.minusConjugationWorst = minusWorst
@@ -396,7 +648,8 @@ export function threeBodyLeak(): { status: string; claim: string; metrics: Recor
   metrics.leakSlopeLowRho = leakSlope
   metrics.seconds = (Date.now() - started) / 1000
 
-  const status = x1 && x2 ? (h1 && h2 && h3 && h4 ? 'pass' : 'fail') : 'partial'
+  const status =
+    x1 && x2 ? (h1 && h2 && h3 && h4 ? 'pass' : 'fail') : 'partial'
   const at = (rho: number) => rows.find(r => r.rho === rho)!
   const fmt = (x: number): string => x.toExponential(2)
 
@@ -404,14 +657,17 @@ export function threeBodyLeak(): { status: string; claim: string; metrics: Recor
 
   return {
     status,
-    claim: `the hot vacuum's orientation reaches the gas's collisions but not its husk transport at leading order, fail on two hypotheses: the part of the exact linearized collision that sees the orientation is, in the vibe rows, ${fmt(at(1 / 64).vv)} at rho 1/64 and ${fmt(at(0.7).vv)} at 0.7 with slope ${vibeSlope.toFixed(2)} over 1/64 to 1/16 (registered at least 1.7; ${(metrics.vibeFromVibeSlope_1024_to_64 ?? Number.NaN).toFixed(2)} over 1/1024 to 1/64, the three-body rho^2, and ${(metrics.vibeFromStoreSlope_1024_to_64 ?? Number.NaN).toFixed(2)} for a store's effect on the vibes), and in the store rows ${fmt(at(1 / 64).sv)} at every density (the one-body wake); yet on the period-2 map every husk charge anisotropy tracks the isotropic Gibbs control (${fmt(at(0.7).oriented)} against ${fmt(at(0.7).gibbs)} at rho 0.7, k = rho / 32) and falls as k^4 (slope ${(metrics['rho0p7_oriented_chargeSlopeInK'] ?? Number.NaN).toFixed(2)} at 0.7, ${(metrics['rho0p4_oriented_chargeSlopeInK'] ?? Number.NaN).toFixed(2)} at 0.4), the trace and sound as k^2.6 to k^4.6 and the shear as k^2, so no leading-order leak was found at any density from 1/64 to 0.7; the orientation melts in the collisions over tens of beats at the battery's densities (per-dock order ${(metrics['rho0p4_dockOrderAt24'] ?? Number.NaN).toFixed(2)} at beat 24 at rho 0.4 and ${(metrics['rho0p7_dockOrderAt24'] ?? Number.NaN).toFixed(2)} at 0.7, symmetric stores ${(control['rho0p7_symmetricStoreDockOrderAt24'] ?? Number.NaN).toFixed(2)})`,
+    claim: `the hot vacuum's orientation reaches the gas's collisions but not its husk transport at leading order, fail on two hypotheses: the part of the exact linearized collision that sees the orientation is, in the vibe rows, ${fmt(at(1 / 64).vv)} at rho 1/64 and ${fmt(at(0.7).vv)} at 0.7 with slope ${vibeSlope.toFixed(2)} over 1/64 to 1/16 (registered at least 1.7; ${(metrics.vibeFromVibeSlope_1024_to_64 ?? Number.NaN).toFixed(2)} over 1/1024 to 1/64, the three-body rho^2, and ${(metrics.vibeFromStoreSlope_1024_to_64 ?? Number.NaN).toFixed(2)} for a store's effect on the vibes), and in the store rows ${fmt(at(1 / 64).sv)} at every density (the one-body wake); yet on the period-2 map every husk charge anisotropy tracks the isotropic Gibbs control (${fmt(at(0.7).oriented)} against ${fmt(at(0.7).gibbs)} at rho 0.7, k = rho / 32) and falls as k^4 (slope ${(metrics.rho0p7_oriented_chargeSlopeInK ?? Number.NaN).toFixed(2)} at 0.7, ${(metrics.rho0p4_oriented_chargeSlopeInK ?? Number.NaN).toFixed(2)} at 0.4), the trace and sound as k^2.6 to k^4.6 and the shear as k^2, so no leading-order leak was found at any density from 1/64 to 0.7; the orientation melts in the collisions over tens of beats at the battery's densities (per-dock order ${(metrics.rho0p4_dockOrderAt24 ?? Number.NaN).toFixed(2)} at beat 24 at rho 0.4 and ${(metrics.rho0p7_dockOrderAt24 ?? Number.NaN).toFixed(2)} at 0.7, symmetric stores ${(control.rho0p7_symmetricStoreDockOrderAt24 ?? Number.NaN).toFixed(2)})`,
     metrics,
     control,
-    notes: `L2. Gates: X1 ${x1}, X2 ${x2}, H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}. Per rho (vibe-from-vibe, vibe-from-store, store-from-vibe, store-from-store anisotropic parts; oriented and Gibbs charge anisotropy at k = rho / 32; invariants; melt beat; order and filling at beat 24): ${rows.map(r => `${r.rho.toFixed(4)}: ${fmt(r.vv)}, ${fmt(r.vs)}, ${fmt(r.sv)}, ${fmt(r.ss)}; ${fmt(r.oriented)} vs ${fmt(r.gibbs)}; ${r.invariants}; ${r.meltBeat}; ${r.order24.toFixed(3)}, ${r.filling24.toFixed(3)}`).join(' | ')}. The oriented background is not an equilibrium: this is the linear response of a gas laid on the vacuum, read before the vacuum melts (the melting run says how long that is). FIRST RUN (82.5 s, log kept as tmp/cand-three-body-leak-first.log): fail on H1 (slope 1.43) and H3 (the oriented charge anisotropy equals the Gibbs control's, 2.8e-7 against 2.9e-7 at rho 0.7); X1, X2, H2 and H4 passed. READINGS ADDED AFTER THE FIRST RUN, no gate moved, every gated number reproduced: (1) the vibe rows' anisotropic part at rho 1/256 and 1/1024 (${fmt(metrics['rho1_256_anisotropic_vibeFromVibe'] ?? Number.NaN)}, ${fmt(metrics['rho1_1024_anisotropic_vibeFromVibe'] ?? Number.NaN)}): the slope reaches ${(metrics.vibeFromVibeSlope_1024_to_64 ?? Number.NaN).toFixed(2)}, so the registered range 1/64 to 1/16 was not yet asymptotic (the expansion parameter is the other 23 slots' expected vibes, 23 rho, which is 0.36 at 1/64); the three-body rho^2 holds below it, and a store's effect on the vibes goes as rho^3 (four bodies). (2) the trace, sound and shear anisotropies at the three k (metrics *_oriented_*_k8/16/32 and *SlopeInK): every one falls with k, none is constant, so the orientation does not reach the husk transport at leading order; one reading is not trusted: the sound at rho 0.25 rises as k falls (0.0049, 0.0061, 0.167), where the overlap selection can take a store mode for the sound pair, and at rho 1/64 to 1/8 no propagating mode is read at all. (3) H4's registered order parameter, mean of tau (-1)^t, is DEFECTIVE: it assumes every dock's store negates each beat, which only a calm dock does, so it read a melt at beat 1 that is an artifact of the sign (and 0.52 at beat 24 at rho 0.7). The corrected order, per dock |sum of its 12 stores| / 12 averaged, is 1 on every hot vacuum and about 0.13 to 0.17 for symmetric stores at these densities (the control): from the hot start it reads ${[1, 2, 4, 8, 24, 96].map(t => (metrics[`rho0p7_dockOrderAt${t}`] ?? Number.NaN).toFixed(2)).join(', ')} at beats 1, 2, 4, 8, 24, 96 at rho 0.7 and ${[1, 2, 4, 8, 24, 96].map(t => (metrics[`rho0p4_dockOrderAt${t}`] ?? Number.NaN).toFixed(2)).join(', ')} at 0.4. So H4 passed as registered only through the defect: at rho 0.7 the orientation keeps about half its excess over the symmetric level at beat 24 (it melts over about 40 to 100 beats), at 0.4 it falls to that level by beat 8 to 24, and at rho 1/64 a part (0.46 to 0.48) survives 96 beats, since most docks are never visited twice.`,
+    notes: `L2. Gates: X1 ${x1}, X2 ${x2}, H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}. Per rho (vibe-from-vibe, vibe-from-store, store-from-vibe, store-from-store anisotropic parts; oriented and Gibbs charge anisotropy at k = rho / 32; invariants; melt beat; order and filling at beat 24): ${rows.map(r => `${r.rho.toFixed(4)}: ${fmt(r.vv)}, ${fmt(r.vs)}, ${fmt(r.sv)}, ${fmt(r.ss)}; ${fmt(r.oriented)} vs ${fmt(r.gibbs)}; ${r.invariants}; ${r.meltBeat}; ${r.order24.toFixed(3)}, ${r.filling24.toFixed(3)}`).join(' | ')}. The oriented background is not an equilibrium: this is the linear response of a gas laid on the vacuum, read before the vacuum melts (the melting run says how long that is). FIRST RUN (82.5 s, log kept as tmp/cand-three-body-leak-first.log): fail on H1 (slope 1.43) and H3 (the oriented charge anisotropy equals the Gibbs control's, 2.8e-7 against 2.9e-7 at rho 0.7); X1, X2, H2 and H4 passed. READINGS ADDED AFTER THE FIRST RUN, no gate moved, every gated number reproduced: (1) the vibe rows' anisotropic part at rho 1/256 and 1/1024 (${fmt(metrics.rho1_256_anisotropic_vibeFromVibe ?? Number.NaN)}, ${fmt(metrics.rho1_1024_anisotropic_vibeFromVibe ?? Number.NaN)}): the slope reaches ${(metrics.vibeFromVibeSlope_1024_to_64 ?? Number.NaN).toFixed(2)}, so the registered range 1/64 to 1/16 was not yet asymptotic (the expansion parameter is the other 23 slots' expected vibes, 23 rho, which is 0.36 at 1/64); the three-body rho^2 holds below it, and a store's effect on the vibes goes as rho^3 (four bodies). (2) the trace, sound and shear anisotropies at the three k (metrics *_oriented_*_k8/16/32 and *SlopeInK): every one falls with k, none is constant, so the orientation does not reach the husk transport at leading order; one reading is not trusted: the sound at rho 0.25 rises as k falls (0.0049, 0.0061, 0.167), where the overlap selection can take a store mode for the sound pair, and at rho 1/64 to 1/8 no propagating mode is read at all. (3) H4's registered order parameter, mean of tau (-1)^t, is DEFECTIVE: it assumes every dock's store negates each beat, which only a calm dock does, so it read a melt at beat 1 that is an artifact of the sign (and 0.52 at beat 24 at rho 0.7). The corrected order, per dock |sum of its 12 stores| / 12 averaged, is 1 on every hot vacuum and about 0.13 to 0.17 for symmetric stores at these densities (the control): from the hot start it reads ${[1, 2, 4, 8, 24, 96].map(t => (metrics[`rho0p7_dockOrderAt${t}`] ?? Number.NaN).toFixed(2)).join(', ')} at beats 1, 2, 4, 8, 24, 96 at rho 0.7 and ${[1, 2, 4, 8, 24, 96].map(t => (metrics[`rho0p4_dockOrderAt${t}`] ?? Number.NaN).toFixed(2)).join(', ')} at 0.4. So H4 passed as registered only through the defect: at rho 0.7 the orientation keeps about half its excess over the symmetric level at beat 24 (it melts over about 40 to 100 beats), at 0.4 it falls to that level by beat 8 to 24, and at rho 1/64 a part (0.46 to 0.48) survives 96 beats, since most docks are never visited twice.`,
   }
 }
 
-export function threeBodyLeakCached(): { status: string; metrics: Record<string, number> } {
+export function threeBodyLeakCached(): {
+  status: string
+  metrics: Record<string, number>
+} {
   return cached ?? threeBodyLeak()
 }
 
@@ -427,6 +683,12 @@ export default experiment({
   run() {
     const r = threeBodyLeak()
 
-    return verdict({ status: r.status as 'pass' | 'fail' | 'partial', claim: r.claim, metrics: r.metrics, control: r.control, notes: r.notes })
+    return verdict({
+      status: r.status as 'pass' | 'fail' | 'partial',
+      claim: r.claim,
+      metrics: r.metrics,
+      control: r.control,
+      notes: r.notes,
+    })
   },
 })

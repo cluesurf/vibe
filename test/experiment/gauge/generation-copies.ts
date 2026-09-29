@@ -123,7 +123,9 @@ export default experiment({
     const aligned = alignedLayout({ layout: built, copies })
 
     // 1. geometry, for every color triality
-    const selectors = weylF4DirectionPermutations({ directions: roots }).filter(
+    const selectors = weylF4DirectionPermutations({
+      directions: roots,
+    }).filter(
       p =>
         permutationOrder({ permutation: p }) === 3 &&
         p.filter((image, d) => image === d).length === 6,
@@ -132,15 +134,20 @@ export default experiment({
       p => copyLayout({ roots, opposite, triality: p }).regular,
     ).length
     // how the as-built orbits sit against the copies: the copy of each orbit's first line
-    const builtOffsets = built.orbits.map(o => copies.copy[o[0] ?? 0] ?? -1)
-    const alignedOffsets = aligned.orbits.map(o => copies.copy[o[0] ?? 0] ?? -1)
+    const builtOffsets = built.orbits.map(
+      o => copies.copy[o[0] ?? 0] ?? -1,
+    )
+    const alignedOffsets = aligned.orbits.map(
+      o => copies.copy[o[0] ?? 0] ?? -1,
+    )
 
     // 2. the aligned weave's structure gates, on a small box
     const small = d4BoxMesh({ side: GATE_SIDE })
     const forward = trialityWeave({ layout: aligned })
     const backward = trialityWeave({ layout: aligned, forward: false })
     const start = patterned(small)
-    const charge = (w: Will): number => w.data.reduce((a, b) => a + b, 0)
+    const charge = (w: Will): number =>
+      w.data.reduce((a, b) => a + b, 0)
 
     let w: Will = { mesh: small, data: Int8Array.from(start.data) }
     let chargeKept = true
@@ -157,7 +164,9 @@ export default experiment({
     const reverses = w.data.every((x, k) => x === start.data[k])
     const matrix = linearMapOf(sigma)
     const cellMap =
-      matrix === undefined ? undefined : boxCellMap({ matrix, side: GATE_SIDE })
+      matrix === undefined
+        ? undefined
+        : boxCellMap({ matrix, side: GATE_SIDE })
 
     let commutes = cellMap !== undefined
 
@@ -165,7 +174,12 @@ export default experiment({
       let a: Will = { mesh: small, data: Int8Array.from(start.data) }
       let b: Will = {
         mesh: small,
-        data: transformState({ data: start.data, cellMap, permutation: sigma, degree: 24 }),
+        data: transformState({
+          data: start.data,
+          cellMap,
+          permutation: sigma,
+          degree: 24,
+        }),
       }
 
       for (let t = 0; t < 12; t++) {
@@ -173,31 +187,38 @@ export default experiment({
         b = beat(b, forward(t))
         commutes =
           commutes &&
-          transformState({ data: a.data, cellMap, permutation: sigma, degree: 24 }).every(
-            (x, k) => x === b.data[k],
-          )
+          transformState({
+            data: a.data,
+            cellMap,
+            permutation: sigma,
+            degree: 24,
+          }).every((x, k) => x === b.data[k])
       }
     }
 
     // 3. every direction, both signs, under each rule
     const mid = Math.floor(SIDE / 2)
-    const cell = d4BoxCell({ coordinates: [mid, mid, mid, mid], side: SIDE })
+    const cell = d4BoxCell({
+      coordinates: [mid, mid, mid, mid],
+      side: SIDE,
+    })
     // the lookup form of each rule gives the same states as the rule itself: checked on the dense start
-    const lookupAgrees = [trialityWeave({ layout: built }), turningWeave({ opposite: meshOpposites(small) })].every(
-      plain => {
-        const fast = memoizedRule(plain)
+    const lookupAgrees = [
+      trialityWeave({ layout: built }),
+      turningWeave({ opposite: meshOpposites(small) }),
+    ].every(plain => {
+      const fast = memoizedRule(plain)
 
-        let a: Will = { mesh: small, data: Int8Array.from(start.data) }
-        let b: Will = { mesh: small, data: Int8Array.from(start.data) }
+      let a: Will = { mesh: small, data: Int8Array.from(start.data) }
+      let b: Will = { mesh: small, data: Int8Array.from(start.data) }
 
-        for (let t = 0; t < 12; t++) {
-          a = beat(a, plain(t))
-          b = beat(b, fast(t))
-        }
+      for (let t = 0; t < 12; t++) {
+        a = beat(a, plain(t))
+        b = beat(b, fast(t))
+      }
 
-        return a.data.every((x, k) => x === b.data[k])
-      },
-    )
+      return a.data.every((x, k) => x === b.data[k])
+    })
 
     const record = (plain: (t: number) => Collision): LoneRun[][] => {
       const rule = memoizedRule(plain)
@@ -223,13 +244,35 @@ export default experiment({
     const builtRuns = record(trialityWeave({ layout: built }))
     const alignedRuns = record(trialityWeave({ layout: aligned }))
     const committedRuns = record(turningWeave({ opposite }))
-    const builtStats = copyStatistics({ layout: copies, runs: builtRuns })
-    const alignedStats = copyStatistics({ layout: copies, runs: alignedRuns })
-    const committedStats = copyStatistics({ layout: copies, runs: committedRuns })
-    const builtExceptions = degeneracyExceptions({ copies, sigma, runs: builtRuns })
-    const alignedExceptions = degeneracyExceptions({ copies, sigma, runs: alignedRuns })
-    const committedExceptions = degeneracyExceptions({ copies, sigma, runs: committedRuns })
-    const split = (xs: readonly number[]): number => Math.max(...xs) - Math.min(...xs)
+    const builtStats = copyStatistics({
+      layout: copies,
+      runs: builtRuns,
+    })
+    const alignedStats = copyStatistics({
+      layout: copies,
+      runs: alignedRuns,
+    })
+    const committedStats = copyStatistics({
+      layout: copies,
+      runs: committedRuns,
+    })
+    const builtExceptions = degeneracyExceptions({
+      copies,
+      sigma,
+      runs: builtRuns,
+    })
+    const alignedExceptions = degeneracyExceptions({
+      copies,
+      sigma,
+      runs: alignedRuns,
+    })
+    const committedExceptions = degeneracyExceptions({
+      copies,
+      sigma,
+      runs: committedRuns,
+    })
+    const split = (xs: readonly number[]): number =>
+      Math.max(...xs) - Math.min(...xs)
 
     // a gluon-line tone: where its charge goes, by copy
     const gluonShare = (runs: LoneRun[][]): number[] => {
@@ -252,7 +295,9 @@ export default experiment({
                 const g = copies.copy[line] ?? -1
                 const k = g < 0 ? 3 : g
 
-                share[k] = (share[k] ?? 0) + (sign * value) / (run?.lineCharge.length ?? 1)
+                share[k] =
+                  (share[k] ?? 0) +
+                  (sign * value) / (run?.lineCharge.length ?? 1)
               }),
             )
             count += 1
@@ -265,7 +310,9 @@ export default experiment({
 
     const builtGluon = gluonShare(builtRuns)
     const alignedGluon = gluonShare(alignedRuns)
-    const circulant = (m: readonly (readonly number[])[]): {
+    const circulant = (
+      m: readonly (readonly number[])[],
+    ): {
       kept: number
       ahead: number
       behind: number
@@ -348,7 +395,9 @@ export default experiment({
         committedFinalSupportCopy0: committedStats.finalSupport[0] ?? 0,
         committedFinalSupportCopy1: committedStats.finalSupport[1] ?? 0,
         committedFinalSupportCopy2: committedStats.finalSupport[2] ?? 0,
-        committedCirculantDefect: circulantDefect(committedStats.mixing),
+        committedCirculantDefect: circulantDefect(
+          committedStats.mixing,
+        ),
         committedLeak: committedStats.leak,
         committedKeptCopy0: committedStats.mixing[0]?.[0] ?? 0,
         committedKeptCopy1: committedStats.mixing[1]?.[1] ?? 0,

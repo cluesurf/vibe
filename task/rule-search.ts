@@ -14,8 +14,16 @@ import { d4Mesh, meshOpposites, shellDistances } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
 import { Collision, PAIR_FORWARD } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { clockAmplitude, phaseDegrees } from '@/code/measure/clock-amplitude'
-import { pairAbs2, pairAdd, pairSub, ComplexPair } from '@/code/algebra/linear/complex-pair'
+import {
+  clockAmplitude,
+  phaseDegrees,
+} from '@/code/measure/clock-amplitude'
+import {
+  pairAbs2,
+  pairAdd,
+  pairSub,
+  ComplexPair,
+} from '@/code/algebra/linear/complex-pair'
 
 type Tone = -1 | 0 | 1
 
@@ -27,81 +35,133 @@ const pairKey = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 // every conserving bijection on one pair (the 24 of E-FND-0088), plus each composed with the swap
 function conservingTables(): [number, number][][] {
   const classes: [Tone, Tone][][] = [-2, -1, 0, 1, 2].map(sum =>
-    TONES.flatMap(a => TONES.filter(b => a + b === sum).map(b => [a, b] as [Tone, Tone])),
+    TONES.flatMap(a =>
+      TONES.filter(b => a + b === sum).map(b => [a, b] as [Tone, Tone]),
+    ),
   )
   const permute = <T>(xs: T[]): T[][] =>
-    xs.length <= 1 ? [xs] : xs.flatMap((x, i) => permute([...xs.slice(0, i), ...xs.slice(i + 1)]).map(rest => [x, ...rest]))
+    xs.length <= 1
+      ? [xs]
+      : xs.flatMap((x, i) =>
+          permute([...xs.slice(0, i), ...xs.slice(i + 1)]).map(rest => [
+            x,
+            ...rest,
+          ]),
+        )
   const out: [number, number][][] = []
   const parts = classes.map(c => permute(c))
 
-  for (const p0 of parts[0]!) {for (const p1 of parts[1]!) {for (const p2 of parts[2]!) {for (const p3 of parts[3]!) {for (const p4 of parts[4]!) {
-    const table = new Array<[number, number]>(9)
+  for (const p0 of parts[0]!) {
+    for (const p1 of parts[1]!) {
+      for (const p2 of parts[2]!) {
+        for (const p3 of parts[3]!) {
+          for (const p4 of parts[4]!) {
+            const table = new Array<[number, number]>(9)
 
-    classes.forEach((states, ci) => {
-      const image = [p0, p1, p2, p3, p4][ci]!
+            classes.forEach((states, ci) => {
+              const image = [p0, p1, p2, p3, p4][ci]!
 
-      states.forEach((st, i) => { table[pairKey(st[0], st[1])] = [image[i]![0], image[i]![1]] })
-    })
-    out.push(table)
-    out.push(table.map(([x, y]) => [y, x] as [number, number])) // swap-composed
-  }}}}}
+              states.forEach((st, i) => {
+                table[pairKey(st[0], st[1])] = [
+                  image[i]![0],
+                  image[i]![1],
+                ]
+              })
+            })
+            out.push(table)
+            out.push(table.map(([x, y]) => [y, x] as [number, number])) // swap-composed
+          }
+        }
+      }
+    }
+  }
 
   // dedupe
   const seen = new Set<string>()
 
-  return out.filter(t => { const k = t.map(p => p.join(':')).join(',');
+  return out.filter(t => {
+    const k = t.map(p => p.join(':')).join(',')
 
- if (seen.has(k)) {return false;}
+    if (seen.has(k)) {
+      return false
+    }
 
- seen.add(k);
+    seen.add(k)
 
- return true })
+    return true
+  })
 }
 
 export const ATOMS = conservingTables()
-export const CHARGE = ATOMS.findIndex(t => TONES.every(a => TONES.every(b => {
-  const o = PAIR_FORWARD[pairKey(a, b)]!
-  const u = t[pairKey(a, b)]!
+export const CHARGE = ATOMS.findIndex(t =>
+  TONES.every(a =>
+    TONES.every(b => {
+      const o = PAIR_FORWARD[pairKey(a, b)]!
+      const u = t[pairKey(a, b)]!
 
-  return o[0] === u[0] && o[1] === u[1]
-})))
+      return o[0] === u[0] && o[1] === u[1]
+    }),
+  ),
+)
 
 // wire state classes: empty, marked, anti, other
 function wireClass(a: number, b: number): number {
-  if (a === 0 && b === 0) {return 0}
+  if (a === 0 && b === 0) {
+    return 0
+  }
 
-  if (a === 1 && b === -1) {return 1}
+  if (a === 1 && b === -1) {
+    return 1
+  }
 
-  if (a === -1 && b === 1) {return 2}
+  if (a === -1 && b === 1) {
+    return 2
+  }
 
   return 3
 }
 
-export type Candidate = { name: string; choice: [number, number, number, number] }
+export type Candidate = {
+  name: string
+  choice: [number, number, number, number]
+}
 
-export function candidateCollision(mesh: ReturnType<typeof d4Mesh>, choice: number[]): Collision {
+export function candidateCollision(
+  mesh: ReturnType<typeof d4Mesh>,
+  choice: number[],
+): Collision {
   const opposite = meshOpposites(mesh)
   const lines: [number, number][] = []
 
-  for (let d = 0; d < mesh.degree; d++) { const o = opposite[d]!;
+  for (let d = 0; d < mesh.degree; d++) {
+    const o = opposite[d]!
 
- if (d < o) {lines.push([d, o])} }
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
 
   const couples: [[number, number], [number, number]][] = []
 
-  for (let k = 0; k + 1 < lines.length; k += 2) {couples.push([lines[k]!, lines[k + 1]!])}
+  for (let k = 0; k + 1 < lines.length; k += 2) {
+    couples.push([lines[k]!, lines[k + 1]!])
+  }
 
   return (slots, base) => {
     for (const [lineA, wire] of couples) {
-      const wa = slots[base + wire[0]]!, wb = slots[base + wire[1]]!
+      const wa = slots[base + wire[0]]!,
+        wb = slots[base + wire[1]]!
       const atom = ATOMS[choice[wireClass(wa, wb)]!]!
-      const image = atom[pairKey(slots[base + lineA[0]]!, slots[base + lineA[1]]!)]!
+      const image =
+        atom[pairKey(slots[base + lineA[0]]!, slots[base + lineA[1]]!)]!
 
-      slots[base + lineA[0]] = image[0]; slots[base + lineA[1]] = image[1]
+      slots[base + lineA[0]] = image[0]
+      slots[base + lineA[1]] = image[1]
 
       const wireImage = ATOMS[CHARGE]![pairKey(wa, wb)]!
 
-      slots[base + wire[0]] = wireImage[0]; slots[base + wire[1]] = wireImage[1]
+      slots[base + wire[0]] = wireImage[0]
+      slots[base + wire[1]] = wireImage[1]
     }
   }
 }
@@ -111,7 +171,8 @@ export function candidateCollision(mesh: ReturnType<typeof d4Mesh>, choice: numb
 export function stage1(choice: number[]): boolean {
   let matter: [number, number] = [0, 0]
   let wire: [number, number] = [0, 0]
-  let re = 0, im = 0
+  let re = 0,
+    im = 0
 
   const THIRD = (2 * Math.PI) / 3
   const CAP = 36
@@ -121,11 +182,20 @@ export function stage1(choice: number[]): boolean {
     const m = atom[pairKey(matter[0], matter[1])]!
     const w = ATOMS[CHARGE]![pairKey(wire[0], wire[1])]!
 
-    matter = [m[0], m[1]]; wire = [w[0], w[1]]
+    matter = [m[0], m[1]]
+    wire = [w[0], w[1]]
 
-    for (const v of [...matter, ...wire]) { re += Math.cos(THIRD * v); im += Math.sin(THIRD * v) }
+    for (const v of [...matter, ...wire]) {
+      re += Math.cos(THIRD * v)
+      im += Math.sin(THIRD * v)
+    }
 
-    if (matter[0] === 0 && matter[1] === 0 && wire[0] === 0 && wire[1] === 0) {
+    if (
+      matter[0] === 0 &&
+      matter[1] === 0 &&
+      wire[0] === 0 &&
+      wire[1] === 0
+    ) {
       return Math.hypot(re, im) < 1e-9
     }
   }
@@ -134,28 +204,48 @@ export function stage1(choice: number[]): boolean {
 }
 
 // stage 2 and 3: lone matter defect on a periodic mesh
-export function defectRun(side: number, beats: number, choice: number[]): {
-  bounded: boolean; moves: boolean; rotates: boolean; unionExact?: boolean
+export function defectRun(
+  side: number,
+  beats: number,
+  choice: number[],
+): {
+  bounded: boolean
+  moves: boolean
+  rotates: boolean
+  unionExact?: boolean
 } {
   const mesh = d4Mesh({ side })
   const rule = candidateCollision(mesh, choice)
   const centre = Math.floor(mesh.cellCount / 2)
 
-  const run = (seeds: number[]): { d: ComplexPair; cells: Set<number> }[] => {
-    let vac: Will = makeWill(mesh), s: Will = makeWill(mesh)
+  const run = (
+    seeds: number[],
+  ): { d: ComplexPair; cells: Set<number> }[] => {
+    let vac: Will = makeWill(mesh),
+      s: Will = makeWill(mesh)
 
-    for (const cell of seeds) {s.data[cell * mesh.degree] = 1}
+    for (const cell of seeds) {
+      s.data[cell * mesh.degree] = 1
+    }
 
     const out: { d: ComplexPair; cells: Set<number> }[] = []
 
     for (let t = 0; t < beats; t++) {
-      vac = beat(vac, rule); s = beat(s, rule)
+      vac = beat(vac, rule)
+      s = beat(s, rule)
 
       const cells = new Set<number>()
 
-      for (let i = 0; i < s.data.length; i++) {if (s.data[i] !== vac.data[i]) {cells.add(Math.floor(i / mesh.degree))}}
+      for (let i = 0; i < s.data.length; i++) {
+        if (s.data[i] !== vac.data[i]) {
+          cells.add(Math.floor(i / mesh.degree))
+        }
+      }
 
-      out.push({ d: pairSub(clockAmplitude(s), clockAmplitude(vac)), cells })
+      out.push({
+        d: pairSub(clockAmplitude(s), clockAmplitude(vac)),
+        cells,
+      })
     }
 
     return out
@@ -163,26 +253,49 @@ export function defectRun(side: number, beats: number, choice: number[]): {
 
   const one = run([centre])
   const mags = one.map(x => Math.sqrt(pairAbs2(x.d)))
-  const bounded = mags.every(m => m > 0.5 && m < 2.5 * ROOT3) && one.every(x => x.cells.size <= 4)
+  const bounded =
+    mags.every(m => m > 0.5 && m < 2.5 * ROOT3) &&
+    one.every(x => x.cells.size <= 4)
   const first = one[0]!.cells
   const area = new Set<number>()
 
-  for (const c of first) { area.add(c);
+  for (const c of first) {
+    area.add(c)
 
- for (let d = 0; d < mesh.degree; d++) {area.add(mesh.neighbour(c, d))} }
+    for (let d = 0; d < mesh.degree; d++) {
+      area.add(mesh.neighbour(c, d))
+    }
+  }
 
   const moves = [...one[beats - 1]!.cells].some(c => !area.has(c))
-  const phases = one.map(x => (Math.sqrt(pairAbs2(x.d)) > 1e-9 ? phaseDegrees(x.d) : null)).filter(p => p !== null)
+  const phases = one
+    .map(x =>
+      Math.sqrt(pairAbs2(x.d)) > 1e-9 ? phaseDegrees(x.d) : null,
+    )
+    .filter(p => p !== null)
   const rotates = new Set(phases).size >= 3
-  const result: { bounded: boolean; moves: boolean; rotates: boolean; unionExact?: boolean } = { bounded, moves, rotates }
+  const result: {
+    bounded: boolean
+    moves: boolean
+    rotates: boolean
+    unionExact?: boolean
+  } = { bounded, moves, rotates }
 
   if (bounded && moves) {
     const far = [0, 1, 2].reduce(c => mesh.neighbour(c, 4), centre)
-    const two = run([far]); const both = run([centre, far])
+    const two = run([far])
+    const both = run([centre, far])
 
     let worst = 0
 
-    for (let t = 0; t < beats; t++) {worst = Math.max(worst, Math.sqrt(pairAbs2(pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d)))))}
+    for (let t = 0; t < beats; t++) {
+      worst = Math.max(
+        worst,
+        Math.sqrt(
+          pairAbs2(pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d))),
+        ),
+      )
+    }
 
     result.unionExact = worst < 1e-9
   }
@@ -192,7 +305,11 @@ export function defectRun(side: number, beats: number, choice: number[]): {
 
 // score one stage-1 survivor: exact magnitude preservation, how far the defect travels, how many
 // phases it visits, and whether the travel is ballistic (monotone distance growth to at least 4)
-export function scoreRule(side: number, beats: number, choice: number[]): {
+export function scoreRule(
+  side: number,
+  beats: number,
+  choice: number[],
+): {
   exactMagnitude: boolean
   maxDistance: number
   distinctPhases: number
@@ -233,7 +350,10 @@ export function scoreRule(side: number, beats: number, choice: number[]): {
       compact = false
     }
 
-    const difference = pairSub(clockAmplitude(seeded), clockAmplitude(vac))
+    const difference = pairSub(
+      clockAmplitude(seeded),
+      clockAmplitude(vac),
+    )
     const magnitude = Math.sqrt(pairAbs2(difference))
 
     if (Math.abs(magnitude - ROOT3) > 1e-9) {
@@ -263,14 +383,20 @@ export function scoreRule(side: number, beats: number, choice: number[]): {
   }
 }
 
-export function searchWireConditionedFamily(report: (line: string) => void, maxReport = 25): {
+export function searchWireConditionedFamily(
+  report: (line: string) => void,
+  maxReport = 25,
+): {
   total: number
   pass1: number
   scored: number
   top: { choice: number[]; score: ReturnType<typeof scoreRule> }[]
 } {
   const n = ATOMS.length
-  const top: { choice: number[]; score: ReturnType<typeof scoreRule> }[] = []
+  const top: {
+    choice: number[]
+    score: ReturnType<typeof scoreRule>
+  }[] = []
 
   let total = 0
   let pass1 = 0

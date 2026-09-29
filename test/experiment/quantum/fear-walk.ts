@@ -85,11 +85,19 @@ function phasePoints(d: number): Complex[] {
 
   for (let a = 0; a < d; a++) {
     for (let b = 0; b < d; b++) {
-      const m: Complex = { re: new Float64Array(d * d), im: new Float64Array(d * d), n: d }
+      const m: Complex = {
+        re: new Float64Array(d * d),
+        im: new Float64Array(d * d),
+        n: d,
+      }
 
       // D P D^dagger |j> : D^dagger |j> = conj(tau^(ab) omega^(b (j - a))) |j - a>, P -> |a - j>, D -> tau^(ab) omega^(b (a - j)) |2a - j>
       for (let j = 0; j < d; j++) {
-        const phase = (2 * Math.PI * (b * ((a - j + d) % d) - b * ((j - a + d) % d))) / d
+        const phase =
+          (2 *
+            Math.PI *
+            (b * ((a - j + d) % d) - b * ((j - a + d) % d))) /
+          d
         const row = (((2 * a - j) % d) + d) % d
 
         m.re[row * d + j] = Math.cos(phase)
@@ -105,7 +113,11 @@ function phasePoints(d: number): Complex[] {
 
 function kron(p: Complex, q: Complex): Complex {
   const n = p.n * q.n
-  const out: Complex = { re: new Float64Array(n * n), im: new Float64Array(n * n), n }
+  const out: Complex = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+    n,
+  }
 
   for (let i = 0; i < p.n; i++) {
     for (let j = 0; j < p.n; j++) {
@@ -120,8 +132,13 @@ function kron(p: Complex, q: Complex): Complex {
         for (let l = 0; l < q.n; l++) {
           const at = (i * q.n + k) * n + (j * q.n + l)
 
-          out.re[at] = pr * (q.re[k * q.n + l] ?? 0) - pi * (q.im[k * q.n + l] ?? 0)
-          out.im[at] = pr * (q.im[k * q.n + l] ?? 0) + pi * (q.re[k * q.n + l] ?? 0)
+          out.re[at] =
+            pr * (q.re[k * q.n + l] ?? 0) -
+            pi * (q.im[k * q.n + l] ?? 0)
+
+          out.im[at] =
+            pr * (q.im[k * q.n + l] ?? 0) +
+            pi * (q.re[k * q.n + l] ?? 0)
         }
       }
     }
@@ -131,20 +148,31 @@ function kron(p: Complex, q: Complex): Complex {
 }
 
 // is the Wigner kernel of a permutation of basis states (sigma: index -> index) a permutation of points?
-function kernelIsPermutation(points: Complex[], sigma: number[]): { permutation: boolean; negative: number } {
+function kernelIsPermutation(
+  points: Complex[],
+  sigma: number[],
+): { permutation: boolean; negative: number } {
   const n = points[0]?.n ?? 1
   const moved = points.map(a => {
-    const m: Complex = { re: new Float64Array(n * n), im: new Float64Array(n * n), n }
+    const m: Complex = {
+      re: new Float64Array(n * n),
+      im: new Float64Array(n * n),
+      n,
+    }
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        m.re[(sigma[i] ?? 0) * n + (sigma[j] ?? 0)] = a.re[i * n + j] ?? 0
-        m.im[(sigma[i] ?? 0) * n + (sigma[j] ?? 0)] = a.im[i * n + j] ?? 0
+        m.re[(sigma[i] ?? 0) * n + (sigma[j] ?? 0)] =
+          a.re[i * n + j] ?? 0
+
+        m.im[(sigma[i] ?? 0) * n + (sigma[j] ?? 0)] =
+          a.im[i * n + j] ?? 0
       }
     }
 
     return m
   })
+
   let permutation = true
   let negative = 0
 
@@ -157,7 +185,9 @@ function kernelIsPermutation(points: Complex[], sigma: number[]): { permutation:
 
       for (let i = 0; i < n; i++) {
         for (let k = 0; k < n; k++) {
-          re += (a.re[i * n + k] ?? 0) * (m.re[k * n + i] ?? 0) - (a.im[i * n + k] ?? 0) * (m.im[k * n + i] ?? 0)
+          re +=
+            (a.re[i * n + k] ?? 0) * (m.re[k * n + i] ?? 0) -
+            (a.im[i * n + k] ?? 0) * (m.im[k * n + i] ?? 0)
         }
       }
 
@@ -177,7 +207,11 @@ function kernelIsPermutation(points: Complex[], sigma: number[]): { permutation:
   return { permutation, negative }
 }
 
-const moments = (chances: bigint[], scale: bigint, origin: number): { mean: number; second: number } => {
+const moments = (
+  chances: bigint[],
+  scale: bigint,
+  origin: number,
+): { mean: number; second: number } => {
   let first = 0n
   let second = 0n
 
@@ -188,7 +222,10 @@ const moments = (chances: bigint[], scale: bigint, origin: number): { mean: numb
     second += d * d * p
   })
 
-  return { mean: Number(first * 1000000n / scale) / 1e6, second: Number(second * 1000000n / scale) / 1e6 }
+  return {
+    mean: Number((first * 1000000n) / scale) / 1e6,
+    second: Number((second * 1000000n) / scale) / 1e6,
+  }
 }
 
 export default experiment({
@@ -206,7 +243,9 @@ export default experiment({
     // 1 and 2: spreading, exactness, the float check
     let state = walkStart(SPREAD_CELLS, SPREAD_BEATS, true)
     let chances: ChanceState = {
-      right: Array.from({ length: SPREAD_CELLS }, (_, x) => (x === SPREAD_BEATS ? 1n : 0n)),
+      right: Array.from({ length: SPREAD_CELLS }, (_, x) =>
+        x === SPREAD_BEATS ? 1n : 0n,
+      ),
       left: new Array<bigint>(SPREAD_CELLS).fill(0n),
     }
     let hop = walkStart(SPREAD_CELLS, SPREAD_BEATS, true)
@@ -214,12 +253,25 @@ export default experiment({
     let hopSecondMax = 0
     let floatError = 0
     let destructive = 0
-    let re: number[] = Array.from({ length: 2 * SPREAD_CELLS }, (_, i) => (i === SPREAD_BEATS ? 1 : 0))
+    let re: number[] = Array.from(
+      { length: 2 * SPREAD_CELLS },
+      (_, i) => (i === SPREAD_BEATS ? 1 : 0),
+    )
     let im = new Array<number>(2 * SPREAD_CELLS).fill(0)
+
     const a = { re: (1 + Math.cos(OMEGA)) / 2, im: Math.sin(OMEGA) / 2 }
-    const b = { re: (1 - Math.cos(OMEGA)) / 2, im: -Math.sin(OMEGA) / 2 }
-    const quantumAt: Record<number, { second: number; spread: number }> = {}
-    const classicalAt: Record<number, { second: number; spread: number }> = {}
+    const b = {
+      re: (1 - Math.cos(OMEGA)) / 2,
+      im: -Math.sin(OMEGA) / 2,
+    }
+    const quantumAt: Record<
+      number,
+      { second: number; spread: number }
+    > = {}
+    const classicalAt: Record<
+      number,
+      { second: number; spread: number }
+    > = {}
 
     for (let t = 1; t <= SPREAD_BEATS; t++) {
       // interference: slots where the two contributions cancel in part (their cross term is negative)
@@ -227,8 +279,14 @@ export default experiment({
         const r = state.right[x] ?? ZERO
         const l = state.left[x] ?? ZERO
 
-        for (const [keep, reverse] of [[times(FEAR_COIN[0], r), times(FEAR_COIN[1], l)], [times(FEAR_COIN[1], r), times(FEAR_COIN[0], l)]] as const) {
-          const sum: Eisenstein = [keep[0] + reverse[0], keep[1] + reverse[1]]
+        for (const [keep, reverse] of [
+          [times(FEAR_COIN[0], r), times(FEAR_COIN[1], l)],
+          [times(FEAR_COIN[1], r), times(FEAR_COIN[0], l)],
+        ] as const) {
+          const sum: Eisenstein = [
+            keep[0] + reverse[0],
+            keep[1] + reverse[1],
+          ]
 
           destructive += norm(sum) < norm(keep) + norm(reverse) ? 1 : 0
         }
@@ -261,8 +319,11 @@ export default experiment({
 
           nextRe[up] = a.re * rr - a.im * ri + b.re * lr - b.im * li
           nextIm[up] = a.re * ri + a.im * rr + b.re * li + b.im * lr
-          nextRe[SPREAD_CELLS + down] = b.re * rr - b.im * ri + a.re * lr - a.im * li
-          nextIm[SPREAD_CELLS + down] = b.re * ri + b.im * rr + a.re * li + a.im * lr
+          nextRe[SPREAD_CELLS + down] =
+            b.re * rr - b.im * ri + a.re * lr - a.im * li
+
+          nextIm[SPREAD_CELLS + down] =
+            b.re * ri + b.im * rr + a.re * li + a.im * lr
         }
 
         re = nextRe
@@ -273,12 +334,20 @@ export default experiment({
         for (let x = 0; x < SPREAD_CELLS; x++) {
           for (const [w, fr, fi] of [
             [state.right[x] ?? ZERO, re[x] ?? 0, im[x] ?? 0],
-            [state.left[x] ?? ZERO, re[SPREAD_CELLS + x] ?? 0, im[SPREAD_CELLS + x] ?? 0],
+            [
+              state.left[x] ?? ZERO,
+              re[SPREAD_CELLS + x] ?? 0,
+              im[SPREAD_CELLS + x] ?? 0,
+            ],
           ] as const) {
             const er = (Number(w[0]) - Number(w[1]) / 2) / scaleT
-            const ei = ((Number(w[1]) * Math.sqrt(3)) / 2) / scaleT
+            const ei = (Number(w[1]) * Math.sqrt(3)) / 2 / scaleT
 
-            floatError = Math.max(floatError, Math.abs(er - fr), Math.abs(ei - fi))
+            floatError = Math.max(
+              floatError,
+              Math.abs(er - fr),
+              Math.abs(ei - fi),
+            )
           }
         }
       }
@@ -291,20 +360,34 @@ export default experiment({
           SPREAD_BEATS,
         )
 
-        quantumAt[t] = { second: q.second, spread: Math.sqrt(q.second - q.mean * q.mean) }
-        classicalAt[t] = { second: c.second, spread: Math.sqrt(c.second - c.mean * c.mean) }
+        quantumAt[t] = {
+          second: q.second,
+          spread: Math.sqrt(q.second - q.mean * q.mean),
+        }
+
+        classicalAt[t] = {
+          second: c.second,
+          spread: Math.sqrt(c.second - c.mean * c.mean),
+        }
       }
     }
 
     const predicted = 1 - Math.sqrt(3) / 2
-    const quantumRatio = (quantumAt[SPREAD_BEATS]?.second ?? 0) / SPREAD_BEATS ** 2
+    const quantumRatio =
+      (quantumAt[SPREAD_BEATS]?.second ?? 0) / SPREAD_BEATS ** 2
     const exponent = (at: typeof quantumAt): number =>
-      Math.log((at[SPREAD_BEATS]?.spread ?? 1) / (at[100]?.spread ?? 1)) / Math.log(SPREAD_BEATS / 100)
+      Math.log(
+        (at[SPREAD_BEATS]?.spread ?? 1) / (at[100]?.spread ?? 1),
+      ) / Math.log(SPREAD_BEATS / 100)
     const quantumExponent = exponent(quantumAt)
     const classicalExponent = exponent(classicalAt)
     const c = -0.5
-    const persistent = SPREAD_BEATS * ((1 + c) / (1 - c)) - (2 * c * (1 - c ** SPREAD_BEATS)) / (1 - c) ** 2
-    const classicalFormulaError = Math.abs((classicalAt[SPREAD_BEATS]?.second ?? 0) - persistent) / persistent
+    const persistent =
+      SPREAD_BEATS * ((1 + c) / (1 - c)) -
+      (2 * c * (1 - c ** SPREAD_BEATS)) / (1 - c) ** 2
+    const classicalFormulaError =
+      Math.abs((classicalAt[SPREAD_BEATS]?.second ?? 0) - persistent) /
+      persistent
     // the same, exactly: with c = -1/2 the formula is t / 3 + 4 / 9 - 4 / (9 2^t), so 9 S = 3 t 4^t + 4 4^t - 4 2^t
     // for S the whole-number second moment over 4^t
     const exactSecond = chances.right.reduce((s, v, x) => {
@@ -313,12 +396,18 @@ export default experiment({
       return s + d * d * (v + (chances.left[x] ?? 0n))
     }, 0n)
     const big = BigInt(SPREAD_BEATS)
-    const classicalFormulaExact = 9n * exactSecond === 3n * big * 4n ** big + 4n * 4n ** big - 4n * 2n ** big
+    const classicalFormulaExact =
+      9n * exactSecond ===
+      3n * big * 4n ** big + 4n * 4n ** big - 4n * 2n ** big
 
     // reversal on a ring with wrap
     let ring: WalkState = walkStart(RING, 0, true)
 
-    ring = { ...ring, right: ring.right.map((w, x) => (x === 7 ? [3n, 1n] : w)), left: ring.left.map((w, x) => (x === 20 ? [-2n, 5n] : w)) }
+    ring = {
+      ...ring,
+      right: ring.right.map((w, x) => (x === 7 ? [3n, 1n] : w)),
+      left: ring.left.map((w, x) => (x === 20 ? [-2n, 5n] : w)),
+    }
 
     const ring0 = ring
 
@@ -331,29 +420,47 @@ export default experiment({
     }
 
     const factor = 4n ** BigInt(REVERSAL_BEATS)
-    const reverses = ring.right.every((w, x) => w[0] === (ring0.right[x]?.[0] ?? 0n) * factor && w[1] === (ring0.right[x]?.[1] ?? 0n) * factor) &&
-      ring.left.every((w, x) => w[0] === (ring0.left[x]?.[0] ?? 0n) * factor && w[1] === (ring0.left[x]?.[1] ?? 0n) * factor)
+    const reverses =
+      ring.right.every(
+        (w, x) =>
+          w[0] === (ring0.right[x]?.[0] ?? 0n) * factor &&
+          w[1] === (ring0.right[x]?.[1] ?? 0n) * factor,
+      ) &&
+      ring.left.every(
+        (w, x) =>
+          w[0] === (ring0.left[x]?.[0] ?? 0n) * factor &&
+          w[1] === (ring0.left[x]?.[1] ?? 0n) * factor,
+      )
 
     // 3. two paths
     const plateCell = INTERFEROMETER - 5
+
     const interferometer = (coin: Coin, k: number): number => {
       let s = walkStart(INTERFEROMETER, 0, true)
 
       for (let t = 0; t <= INTERFEROMETER; t++) {
         s = walkBeat(s, x => (x === 0 ? coin : STAY_COIN))
-        s = { ...s, left: s.left.map((w, x) => (x === plateCell ? turn(w, k) : w)) }
+        s = {
+          ...s,
+          left: s.left.map((w, x) =>
+            x === plateCell ? turn(w, k) : w,
+          ),
+        }
       }
 
       // after the second action at cell 0 and one stream: right-moving at cell 1, left-moving at cell N - 1
       const total = walkChances(s).reduce((sum, v) => sum + v, 0n)
 
-      return Number(norm(s.right[1] ?? ZERO) * 1000000n / total) / 1e6
+      return Number((norm(s.right[1] ?? ZERO) * 1000000n) / total) / 1e6
     }
+
     const fringe = [0, 1, 2].map(k => interferometer(FEAR_COIN, k))
     const hopFringe = [0, 1, 2].map(k => interferometer(HOP_COIN, k))
     // the stand-in: chances only, a split at cell 0 twice, the phase plate does nothing to a chance
     const standIn = (1 / 4) * (1 / 4) + (3 / 4) * (3 / 4)
-    const visibility = (Math.max(...fringe) - Math.min(...fringe)) / (Math.max(...fringe) + Math.min(...fringe))
+    const visibility =
+      (Math.max(...fringe) - Math.min(...fringe)) /
+      (Math.max(...fringe) + Math.min(...fringe))
 
     // 4. revivals
     const revivals = [3, 5, 7, 9, 11].map(cells => {
@@ -377,7 +484,9 @@ export default experiment({
     // 5. real signed weight: the shift by a qutrit direction on the Wigner grid of N cells x 3 directions
     const three = phasePoints(3)
     const obstruction = [3, 5, 7].map(cells => {
-      const points = phasePoints(cells).flatMap(p => three.map(q => kron(p, q)))
+      const points = phasePoints(cells).flatMap(p =>
+        three.map(q => kron(p, q)),
+      )
       const velocity = [0, 1, cells - 1]
       const shift = Array.from({ length: 3 * cells }, (_, i) => {
         const x = Math.floor(i / 3)
@@ -385,12 +494,20 @@ export default experiment({
 
         return ((x + (velocity[d] ?? 0)) % cells) * 3 + d
       })
-      const reverse = Array.from({ length: 3 * cells }, (_, i) => Math.floor(i / 3) * 3 + ((3 - (i % 3)) % 3))
+      const reverse = Array.from(
+        { length: 3 * cells },
+        (_, i) => Math.floor(i / 3) * 3 + ((3 - (i % 3)) % 3),
+      )
 
-      return { cells, shift: kernelIsPermutation(points, shift), reverse: kernelIsPermutation(points, reverse) }
+      return {
+        cells,
+        shift: kernelIsPermutation(points, shift),
+        reverse: kernelIsPermutation(points, reverse),
+      }
     })
 
-    const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-6
+    const exact = (x: number, y: number): boolean =>
+      Math.abs(x - y) < 1e-6
     const ok =
       normExact &&
       reverses &&
@@ -431,11 +548,25 @@ export default experiment({
         fringeK1: fringe[1] ?? -1,
         fringeK2: fringe[2] ?? -1,
         fringeVisibility: visibility,
-        ...Object.fromEntries(revivals.flatMap(r => [[`revivalBeatRing${r.cells}`, r.first], [`bestReturnRing${r.cells}`, r.best]])),
-        ...Object.fromEntries(obstruction.flatMap(o => [[`shiftIsPermutationRing${o.cells}`, o.shift.permutation ? 1 : 0], [`shiftNegativeEntriesRing${o.cells}`, o.shift.negative]])),
+        ...Object.fromEntries(
+          revivals.flatMap(r => [
+            [`revivalBeatRing${r.cells}`, r.first],
+            [`bestReturnRing${r.cells}`, r.best],
+          ]),
+        ),
+        ...Object.fromEntries(
+          obstruction.flatMap(o => [
+            [
+              `shiftIsPermutationRing${o.cells}`,
+              o.shift.permutation ? 1 : 0,
+            ],
+            [`shiftNegativeEntriesRing${o.cells}`, o.shift.negative],
+          ]),
+        ),
       },
       control: {
-        standInSecondMomentOverTAt400: (classicalAt[SPREAD_BEATS]?.second ?? 0) / SPREAD_BEATS,
+        standInSecondMomentOverTAt400:
+          (classicalAt[SPREAD_BEATS]?.second ?? 0) / SPREAD_BEATS,
         standInFormulaRelativeError: classicalFormulaError,
         standInFormulaExact: classicalFormulaExact ? 1 : 0,
         standInSpreadAt400: classicalAt[SPREAD_BEATS]?.spread ?? -1,
@@ -444,7 +575,12 @@ export default experiment({
         hopSecondMomentMax: hopSecondMax,
         hopFringeK0: hopFringe[0] ?? -1,
         hopFringeK1: hopFringe[1] ?? -1,
-        ...Object.fromEntries(obstruction.map(o => [`reverseIsPermutationRing${o.cells}`, o.reverse.permutation ? 1 : 0])),
+        ...Object.fromEntries(
+          obstruction.map(o => [
+            `reverseIsPermutationRing${o.cells}`,
+            o.reverse.permutation ? 1 : 0,
+          ]),
+        ),
       },
       notes:
         'L2. Weights are Eisenstein integers m + n omega (BigInt pairs) over 2^t; chances are m^2 - m n + n^2 over 4^t; moments are read to 1e-6 from exact ratios. The spread exponent is log(sigma(400) / sigma(100)) / log 4. Destructive meetings: slot contributions whose sum has a smaller chance than the two apart, which a sum of chances never has. The interferometer is built by hand: the swap phase at one cell, free streaming elsewhere, a phase omega^k on the left-moving slot of cell 26. This is the one-vibe sector of one line with no vacuum: in the committed rule calm makes pairs everywhere, so a lone vibe is never alone (E-FND-0080), and joining this walk to the pair clock is not done. The Wigner grid of N cells x 3 directions uses the product of the odd-dimension phase-point operators; the gate asks only whether the shift permutes its points.',

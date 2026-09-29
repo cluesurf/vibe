@@ -25,7 +25,11 @@
 // then the matter beat backward. Links do not read the matter: there is no back-reaction, so this carries
 // roles on moving links but does not make matter pull on them.
 
-import { colorBeat, colorBeatBack, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  colorBeat,
+  colorBeatBack,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { type VibeState } from '@/code/rule/vibe-weave'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
@@ -42,7 +46,10 @@ export type LinkState = VibeState & { readonly links: Int16Array }
 
 export function makeMovingLinks(weave: ColorWeave): MovingLinks {
   const roots = rootsD4()
-  const staples: [number, number][][] = Array.from({ length: 24 }, () => [])
+  const staples: [number, number][][] = Array.from(
+    { length: 24 },
+    () => [],
+  )
 
   // every ordered way round each zero-sum triangle: a first, then b, then c
   for (const [p, q, r] of zeroSumTriangles({ directions: roots })) {
@@ -60,13 +67,29 @@ export function makeMovingLinks(weave: ColorWeave): MovingLinks {
     }
   }
 
-  const level = Int8Array.from(weave.moves.act, table => 9 - table.reduce((n, image, point) => n + (image === point ? 1 : 0), 0))
+  const level = Int8Array.from(
+    weave.moves.act,
+    table =>
+      9 -
+      table.reduce(
+        (n, image, point) => n + (image === point ? 1 : 0),
+        0,
+      ),
+  )
 
   return { weave, staples, level }
 }
 
 // the transport round the triangle x -a-> x+a -b-> x+a+b -c-> x, with link u in place of (x, a)
-function triangle(input: { moving: MovingLinks; links: Int16Array; x: number; a: number; b: number; c: number; u: number }): number {
+function triangle(input: {
+  moving: MovingLinks
+  links: Int16Array
+  x: number
+  a: number
+  b: number
+  c: number
+  u: number
+}): number {
   const { moving, links, x, a, b, c, u } = input
   const { mesh, moves } = moving.weave
   const y = mesh.neighbour(x, a)
@@ -78,20 +101,32 @@ function triangle(input: { moving: MovingLinks; links: Int16Array; x: number; a:
 }
 
 // the summed energy of every triangle through link (x, a) with u in its place, both ways round each
-function localEnergy(input: { moving: MovingLinks; links: Int16Array; x: number; a: number; u: number }): number {
+function localEnergy(input: {
+  moving: MovingLinks
+  links: Int16Array
+  x: number
+  a: number
+  u: number
+}): number {
   const { moving, links, x, a, u } = input
 
   let total = 0
 
   for (const [b, c] of moving.staples[a] ?? []) {
-    total += moving.level[triangle({ moving, links, x, a, b, c, u })] ?? 0
+    total +=
+      moving.level[triangle({ moving, links, x, a, b, c, u })] ?? 0
   }
 
   return total
 }
 
 // one reflection sub-step on every link of direction a, through the triangle type `type`: an involution
-function reflect(input: { moving: MovingLinks; links: Int16Array; a: number; type: number }): number {
+function reflect(input: {
+  moving: MovingLinks
+  links: Int16Array
+  a: number
+  type: number
+}): number {
   const { moving, links, a, type } = input
   const { mesh, moves, opposite } = moving.weave
   const pairs = moving.staples[a] ?? []
@@ -103,18 +138,29 @@ function reflect(input: { moving: MovingLinks; links: Int16Array; a: number; typ
     const y = mesh.neighbour(x, a)
     const z = mesh.neighbour(y, b)
     // the staple from x+a back to x
-    const staple = moves.compose(links[z * 24 + c] ?? moves.identity, links[y * 24 + b] ?? moves.identity)
+    const staple = moves.compose(
+      links[z * 24 + c] ?? moves.identity,
+      links[y * 24 + b] ?? moves.identity,
+    )
     const inverse = moves.inverse[staple] ?? moves.identity
-    const next = moves.compose(inverse, moves.compose(moves.inverse[u] ?? moves.identity, inverse))
+    const next = moves.compose(
+      inverse,
+      moves.compose(moves.inverse[u] ?? moves.identity, inverse),
+    )
 
-    if (next !== u && localEnergy({ moving, links, x, a, u: next }) === localEnergy({ moving, links, x, a, u })) {
+    if (
+      next !== u &&
+      localEnergy({ moving, links, x, a, u: next }) ===
+        localEnergy({ moving, links, x, a, u })
+    ) {
       updates.push([x, next])
     }
   }
 
   for (const [x, next] of updates) {
     links[x * 24 + a] = next
-    links[mesh.neighbour(x, a) * 24 + (opposite[a] ?? a)] = moves.inverse[next] ?? moves.identity
+    links[mesh.neighbour(x, a) * 24 + (opposite[a] ?? a)] =
+      moves.inverse[next] ?? moves.identity
   }
 
   return updates.length
@@ -125,8 +171,16 @@ function schedule(moving: MovingLinks, t: number): [number, number][] {
   return moving.weave.lines.map(([a], k) => [a, t + k])
 }
 
-export function movingBeat(moving: MovingLinks, state: LinkState, t: number): { state: LinkState; moved: number } {
-  const matter = colorBeat({ ...moving.weave, links: state.links }, state, t)
+export function movingBeat(
+  moving: MovingLinks,
+  state: LinkState,
+  t: number,
+): { state: LinkState; moved: number } {
+  const matter = colorBeat(
+    { ...moving.weave, links: state.links },
+    state,
+    t,
+  )
   const links = Int16Array.from(state.links)
 
   let moved = 0
@@ -138,24 +192,45 @@ export function movingBeat(moving: MovingLinks, state: LinkState, t: number): { 
   return { state: { ...matter, links }, moved }
 }
 
-export function movingBeatBack(moving: MovingLinks, state: LinkState, t: number): LinkState {
+export function movingBeatBack(
+  moving: MovingLinks,
+  state: LinkState,
+  t: number,
+): LinkState {
   const links = Int16Array.from(state.links)
 
   for (const [a, type] of [...schedule(moving, t)].reverse()) {
     reflect({ moving, links, a, type })
   }
 
-  return { ...colorBeatBack({ ...moving.weave, links }, state, t), links }
+  return {
+    ...colorBeatBack({ ...moving.weave, links }, state, t),
+    links,
+  }
 }
 
 // the total energy of every triangle on the lattice, each counted once per ordered traversal
-export function linkEnergy(moving: MovingLinks, links: Int16Array): number {
+export function linkEnergy(
+  moving: MovingLinks,
+  links: Int16Array,
+): number {
   let total = 0
 
   for (let x = 0; x < moving.weave.mesh.cellCount; x++) {
     for (let a = 0; a < 24; a++) {
       for (const [b, c] of moving.staples[a] ?? []) {
-        total += moving.level[triangle({ moving, links, x, a, b, c, u: links[x * 24 + a] ?? moving.weave.moves.identity })] ?? 0
+        total +=
+          moving.level[
+            triangle({
+              moving,
+              links,
+              x,
+              a,
+              b,
+              c,
+              u: links[x * 24 + a] ?? moving.weave.moves.identity,
+            })
+          ] ?? 0
       }
     }
   }

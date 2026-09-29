@@ -52,7 +52,11 @@ export function weylRates(start: number): Uint32Array {
 }
 
 // makeWeyl({ start }) at draw 64 index + slot, 0 <= slot < 64, index >= 0
-export function weylPoint(input: { start: number; index: number; slot: number }): number {
+export function weylPoint(input: {
+  start: number
+  index: number
+  slot: number
+}): number {
   const rate = weylRates(input.start)[input.slot] ?? 0
 
   return (Math.imul((input.index + 1) | 0, rate) >>> 0) / TWO_32

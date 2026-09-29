@@ -17,7 +17,12 @@
 //
 // Integers only: no float, no trig, no rounding.
 
-import { buildTritBulk, TRIT_HUSK_VECTORS, type HuskLightState, type TritBulk } from '@/code/rule/trit-column'
+import {
+  buildTritBulk,
+  TRIT_HUSK_VECTORS,
+  type HuskLightState,
+  type TritBulk,
+} from '@/code/rule/trit-column'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -34,16 +39,28 @@ export type HuskGeometry = {
   readonly weight: Int32Array
 }
 
-type Template = { parity: number; offsets: number[]; directions: number[]; signs: number[]; n: number }
+type Template = {
+  parity: number
+  offsets: number[]
+  directions: number[]
+  signs: number[]
+  n: number
+}
 
 let templates: Template[] | undefined
 
 function readTemplates(): Template[] {
-  if (templates) return templates
+  if (templates) {
+    return templates
+  }
 
   const bulk: TritBulk = buildTritBulk({ side: 8, depth: 4 })
   const side = 8
-  const coord = (y: number): number[] => [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
+  const coord = (y: number): number[] => [
+    y % side,
+    Math.floor(y / side) % side,
+    Math.floor(y / (side * side)),
+  ]
   const out: Template[] = []
 
   // a shape is canonical: of the three choices of anchor link, and the two orientations, the one whose
@@ -52,6 +69,7 @@ function readTemplates(): Template[] {
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const links = [0, 1, 2].map(j => bulk.huskTriLinks[p * 3 + j] ?? 0)
     const signs = [0, 1, 2].map(j => bulk.huskTriSigns[p * 3 + j] ?? 0)
+
     let best: { text: string; t: Template } | undefined
 
     for (let a = 0; a < 3; a++) {
@@ -61,7 +79,13 @@ function readTemplates(): Template[] {
         const rows = links.map((l, j) => {
           const c = coord(Math.floor(l / 9))
 
-          return [0, 1, 2].map(i => mod((c[i] ?? 0) - (anchor[i] ?? 0) + side / 2, side) - side / 2).concat([l % 9, o * (signs[j] ?? 0)])
+          return [0, 1, 2]
+            .map(
+              i =>
+                mod((c[i] ?? 0) - (anchor[i] ?? 0) + side / 2, side) -
+                side / 2,
+            )
+            .concat([l % 9, o * (signs[j] ?? 0)])
         })
 
         rows.sort((x, y) => x.join(',').localeCompare(y.join(',')))
@@ -72,7 +96,10 @@ function readTemplates(): Template[] {
           best = {
             text,
             t: {
-              parity: (anchor[0] ?? 0) % 2 + 2 * ((anchor[1] ?? 0) % 2) + 4 * ((anchor[2] ?? 0) % 2),
+              parity:
+                ((anchor[0] ?? 0) % 2) +
+                2 * ((anchor[1] ?? 0) % 2) +
+                4 * ((anchor[2] ?? 0) % 2),
               offsets: rows.flatMap(r => r.slice(0, 3)),
               directions: rows.map(r => r[3] ?? 0),
               signs: rows.map(r => r[4] ?? 0),
@@ -99,8 +126,14 @@ export function huskGeometry(side: number): HuskGeometry {
 // the same tiling on a box of sides (sx, sy, sz), each even (E-GRV-0070): the rule is translation invariant, so a
 // box with a short side runs the states that are periodic along it exactly as a larger box would. `side` is sx.
 // The cube (sx = sy = sz) is huskGeometry, triangle for triangle in the same order
-export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometry {
-  if (sx % 2 !== 0 || sy % 2 !== 0 || sz % 2 !== 0) throw new Error('every husk side must be even')
+export function huskGeometryBox(
+  sx: number,
+  sy: number,
+  sz: number,
+): HuskGeometry {
+  if (sx % 2 !== 0 || sy % 2 !== 0 || sz % 2 !== 0) {
+    throw new Error('every husk side must be even')
+  }
 
   const side = sx
   const all = readTemplates()
@@ -111,7 +144,9 @@ export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometr
   for (const t of all) {
     const key = `${t.parity}|${t.offsets.join(',')}|${t.directions.join(',')}|${t.signs.join(',')}`
 
-    if (seen.has(key)) continue
+    if (seen.has(key)) {
+      continue
+    }
 
     seen.add(key)
     byParity[t.parity]!.push(t)
@@ -120,7 +155,8 @@ export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometr
   const huskDocks = sx * sy * sz
   const huskLinks = huskDocks * 9
   const huskNeighbour = new Int32Array(huskLinks)
-  const at = (a: number, b: number, c: number): number => mod(a, sx) + sx * mod(b, sy) + sx * sy * mod(c, sz)
+  const at = (a: number, b: number, c: number): number =>
+    mod(a, sx) + sx * mod(b, sy) + sx * sy * mod(c, sz)
 
   for (let y = 0; y < huskDocks; y++) {
     const a = y % sx
@@ -130,14 +166,21 @@ export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometr
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h] ?? []
 
-      huskNeighbour[y * 9 + h] = at(a + (u[0] ?? 0), b + (u[1] ?? 0), c + (u[2] ?? 0))
+      huskNeighbour[y * 9 + h] = at(
+        a + (u[0] ?? 0),
+        b + (u[1] ?? 0),
+        c + (u[2] ?? 0),
+      )
     }
   }
 
   let count = 0
 
   for (let y = 0; y < huskDocks; y++) {
-    const par = (y % sx) % 2 + 2 * ((Math.floor(y / sx) % sy) % 2) + 4 * (Math.floor(y / (sx * sy)) % 2)
+    const par =
+      ((y % sx) % 2) +
+      2 * ((Math.floor(y / sx) % sy) % 2) +
+      4 * (Math.floor(y / (sx * sy)) % 2)
 
     count += byParity[par]!.length
   }
@@ -156,7 +199,11 @@ export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometr
 
     for (const t of byParity[par]!) {
       for (let j = 0; j < 3; j++) {
-        const z = at(a + (t.offsets[j * 3] ?? 0), b + (t.offsets[j * 3 + 1] ?? 0), c + (t.offsets[j * 3 + 2] ?? 0))
+        const z = at(
+          a + (t.offsets[j * 3] ?? 0),
+          b + (t.offsets[j * 3 + 1] ?? 0),
+          c + (t.offsets[j * 3 + 2] ?? 0),
+        )
 
         triLinks[p * 3 + j] = z * 9 + (t.directions[j] ?? 0)
         triSigns[p * 3 + j] = t.signs[j] ?? 0
@@ -207,7 +254,11 @@ export type HuskEngine = {
   readonly curl: Int32Array
 }
 
-export function makeHuskEngine(geometry: HuskGeometry, depth: number, p = 1): HuskEngine {
+export function makeHuskEngine(
+  geometry: HuskGeometry,
+  depth: number,
+  p = 1,
+): HuskEngine {
   return {
     geometry,
     depth,
@@ -234,7 +285,11 @@ export function emptyHusk(engine: HuskEngine): HuskLightState {
 }
 
 // out = S - C^T U
-export function fastFlux(engine: HuskEngine, state: HuskLightState, out: Int32Array): void {
+export function fastFlux(
+  engine: HuskEngine,
+  state: HuskLightState,
+  out: Int32Array,
+): void {
   const g = engine.geometry
 
   out.set(state.string)
@@ -242,7 +297,9 @@ export function fastFlux(engine: HuskEngine, state: HuskLightState, out: Int32Ar
   for (let p = 0; p < g.triangles; p++) {
     const u = state.potential[p]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     const b = p * 3
 
@@ -255,17 +312,28 @@ export function fastFlux(engine: HuskEngine, state: HuskLightState, out: Int32Ar
 }
 
 // the raw plaquette sum (C W x)_P
-function curlWeighted(g: HuskGeometry, x: Int32Array, p: number): number {
+function curlWeighted(
+  g: HuskGeometry,
+  x: Int32Array,
+  p: number,
+): number {
   const b = p * 3
   const l0 = g.triLinks[b]!
   const l1 = g.triLinks[b + 1]!
   const l2 = g.triLinks[b + 2]!
 
-  return g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! + g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! + g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  return (
+    g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! +
+    g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! +
+    g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  )
 }
 
 // one beat of the wave form, in place: equal to huskLightBeat bit for bit
-export function fastBeat(engine: HuskEngine, state: HuskLightState): void {
+export function fastBeat(
+  engine: HuskEngine,
+  state: HuskLightState,
+): void {
   const g = engine.geometry
   const { depth: h, p: pp, q, nb, flux, field, curl } = engine
   const half = nb / 2
@@ -289,7 +357,9 @@ export function fastBeat(engine: HuskEngine, state: HuskLightState): void {
   for (let p = 0; p < g.triangles; p++) {
     const v = state.counter[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const b = p * 3
 
@@ -308,7 +378,8 @@ export function fastBeat(engine: HuskEngine, state: HuskLightState): void {
 
     state.spatial[p] = s + state.spatial[p]! - q * v
 
-    const rest = n * pp * field[p]! - 2 * state.counter[p]! + state.lag[p]! + v
+    const rest =
+      n * pp * field[p]! - 2 * state.counter[p]! + state.lag[p]! + v
     const y = rest + h
     const k = (y - mod(y, q)) / q
 
@@ -323,6 +394,10 @@ export function fastBeat(engine: HuskEngine, state: HuskLightState): void {
 }
 
 // a husk current: S_l <- S_l - J on the husk link the crossing lies over
-export function addCurrent(state: HuskLightState, huskLink: number, j: number): void {
+export function addCurrent(
+  state: HuskLightState,
+  huskLink: number,
+  j: number,
+): void {
   state.string[huskLink] = (state.string[huskLink] ?? 0) - j
 }

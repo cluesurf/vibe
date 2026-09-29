@@ -36,23 +36,52 @@
 // weight's spread, in the long run, is the group velocity's distribution: <x^2> / t^2 tends to the average
 // of W'(k)^2 over k, which is 1 - sqrt 3 / 2.
 
-import { type Coin, type Eisenstein, walkBeat, walkStart, times, plus, norm, ZERO } from '@/code/rule/fear-walk'
+import {
+  type Coin,
+  type Eisenstein,
+  walkBeat,
+  walkStart,
+  times,
+  plus,
+  norm,
+  ZERO,
+} from '@/code/rule/fear-walk'
 
 export type Complex = { readonly re: number; readonly im: number }
 
 const SQRT3 = Math.sqrt(3)
 const cx = (re: number, im = 0): Complex => ({ re, im })
-const add = (a: Complex, b: Complex): Complex => ({ re: a.re + b.re, im: a.im + b.im })
-const sub = (a: Complex, b: Complex): Complex => ({ re: a.re - b.re, im: a.im - b.im })
-const mul = (a: Complex, b: Complex): Complex => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re })
+const add = (a: Complex, b: Complex): Complex => ({
+  re: a.re + b.re,
+  im: a.im + b.im,
+})
+const sub = (a: Complex, b: Complex): Complex => ({
+  re: a.re - b.re,
+  im: a.im - b.im,
+})
+const mul = (a: Complex, b: Complex): Complex => ({
+  re: a.re * b.re - a.im * b.im,
+  im: a.re * b.im + a.im * b.re,
+})
+
 const div = (a: Complex, b: Complex): Complex => {
   const d = b.re * b.re + b.im * b.im
 
-  return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d }
+  return {
+    re: (a.re * b.re + a.im * b.im) / d,
+    im: (a.im * b.re - a.re * b.im) / d,
+  }
 }
-const expi = (theta: number): Complex => ({ re: Math.cos(theta), im: Math.sin(theta) })
 
-export const complexOf = (z: Eisenstein): Complex => ({ re: Number(z[0]) - Number(z[1]) / 2, im: (Number(z[1]) * SQRT3) / 2 })
+const expi = (theta: number): Complex => ({
+  re: Math.cos(theta),
+  im: Math.sin(theta),
+})
+
+export const complexOf = (z: Eisenstein): Complex => ({
+  re: Number(z[0]) - Number(z[1]) / 2,
+  im: (Number(z[1]) * SQRT3) / 2,
+})
 
 // the one-beat transfer, read off walkBeat: entry [to][from][shift + 1] is the whole-number weight landing
 // on slot `to` (0 right, 1 left) of dock x + shift from a unit on slot `from` of dock x
@@ -64,9 +93,15 @@ export function transferOf(coin: Coin): Transfer {
 
   return [0, 1].map(to =>
     [0, 1].map(from => {
-      const moved = walkBeat(walkStart(cells, middle, from === 0), () => coin)
+      const moved = walkBeat(
+        walkStart(cells, middle, from === 0),
+        () => coin,
+      )
 
-      return [-1, 0, 1].map(shift => (to === 0 ? moved.right : moved.left)[middle + shift] ?? ZERO)
+      return [-1, 0, 1].map(
+        shift =>
+          (to === 0 ? moved.right : moved.left)[middle + shift] ?? ZERO,
+      )
     }),
   )
 }
@@ -74,17 +109,43 @@ export function transferOf(coin: Coin): Transfer {
 // the symbol at momentum k (G(z) convention, z = e^(i k)), U = sum_shift T_shift z^shift / 2
 export function symbolAt(transfer: Transfer, k: number): Complex[][] {
   return [0, 1].map(to =>
-    [0, 1].map(from =>
-      [-1, 0, 1].reduce((sum, shift) => add(sum, mul(complexOf(transfer[to]?.[from]?.[shift + 1] ?? ZERO), expi(k * shift))), cx(0)),
-    ).map(z => ({ re: z.re / 2, im: z.im / 2 })),
+    [0, 1]
+      .map(from =>
+        [-1, 0, 1].reduce(
+          (sum, shift) =>
+            add(
+              sum,
+              mul(
+                complexOf(transfer[to]?.[from]?.[shift + 1] ?? ZERO),
+                expi(k * shift),
+              ),
+            ),
+          cx(0),
+        ),
+      )
+      .map(z => ({ re: z.re / 2, im: z.im / 2 })),
   )
 }
 
 // exact Laurent polynomials in z, coefficients Eisenstein, keyed by the power
 type Laurent = Map<number, Eisenstein>
 
-const laurentOfEntry = (transfer: Transfer, to: number, from: number): Laurent =>
-  new Map([-1, 0, 1].map(shift => [shift, transfer[to]?.[from]?.[shift + 1] ?? ZERO] as [number, Eisenstein]).filter(([, w]) => w[0] !== 0n || w[1] !== 0n))
+const laurentOfEntry = (
+  transfer: Transfer,
+  to: number,
+  from: number,
+): Laurent =>
+  new Map(
+    [-1, 0, 1]
+      .map(
+        shift =>
+          [shift, transfer[to]?.[from]?.[shift + 1] ?? ZERO] as [
+            number,
+            Eisenstein,
+          ],
+      )
+      .filter(([, w]) => w[0] !== 0n || w[1] !== 0n),
+  )
 
 const laurentTimes = (p: Laurent, q: Laurent): Laurent => {
   const out: Laurent = new Map()
@@ -111,13 +172,27 @@ const laurentPlus = (p: Laurent, q: Laurent, sign: bigint): Laurent => {
 }
 
 const laurentText = (p: Laurent): string =>
-  [...p].sort((a, b) => a[0] - b[0]).map(([a, w]) => `${w[0]}${w[1] >= 0n ? '+' : ''}${w[1]}w z^${a}`).join(' ')
+  [...p]
+    .sort((a, b) => a[0] - b[0])
+    .map(([a, w]) => `${w[0]}${w[1] >= 0n ? '+' : ''}${w[1]}w z^${a}`)
+    .join(' ')
 
 // the exact trace and determinant of the doubled symbol 2U, as Laurent polynomials
-export function exactInvariants(transfer: Transfer): { trace: string; determinant: string; keep: Eisenstein; reverse: Eisenstein; det: Eisenstein } {
-  const e = (to: number, from: number): Laurent => laurentOfEntry(transfer, to, from)
+export function exactInvariants(transfer: Transfer): {
+  trace: string
+  determinant: string
+  keep: Eisenstein
+  reverse: Eisenstein
+  det: Eisenstein
+} {
+  const e = (to: number, from: number): Laurent =>
+    laurentOfEntry(transfer, to, from)
   const trace = laurentPlus(e(0, 0), e(1, 1), 1n)
-  const determinant = laurentPlus(laurentTimes(e(0, 0), e(1, 1)), laurentTimes(e(0, 1), e(1, 0)), -1n)
+  const determinant = laurentPlus(
+    laurentTimes(e(0, 0), e(1, 1)),
+    laurentTimes(e(0, 1), e(1, 0)),
+    -1n,
+  )
 
   return {
     trace: laurentText(trace),
@@ -129,12 +204,18 @@ export function exactInvariants(transfer: Transfer): { trace: string; determinan
 }
 
 // the dispersion of the fear coin: W(k) with the eigenvalues e^(i pi/3) e^(+-i W(k))
-export const frequency = (k: number): number => Math.acos(Math.cos(k) / 2)
-export const groupVelocity = (k: number): number => Math.sin(k) / Math.sqrt(4 - Math.cos(k) ** 2)
-export const curvature = (k: number): number => (3 * Math.cos(k)) / (4 - Math.cos(k) ** 2) ** 1.5
+export const frequency = (k: number): number =>
+  Math.acos(Math.cos(k) / 2)
+export const groupVelocity = (k: number): number =>
+  Math.sin(k) / Math.sqrt(4 - Math.cos(k) ** 2)
+export const curvature = (k: number): number =>
+  (3 * Math.cos(k)) / (4 - Math.cos(k) ** 2) ** 1.5
 
 // the eigenvalues and projectors of the symbol at k, branch s = +1, -1 with lambda_s = e^(i pi/3) e^(i s W)
-export function spectrum(transfer: Transfer, k: number): { lambda: Complex[]; projector: Complex[][][] } {
+export function spectrum(
+  transfer: Transfer,
+  k: number,
+): { lambda: Complex[]; projector: Complex[][][] } {
   const u = symbolAt(transfer, k)
   const w = frequency(k)
   const lambda = [1, -1].map(s => expi(Math.PI / 3 + s * w))
@@ -142,7 +223,11 @@ export function spectrum(transfer: Transfer, k: number): { lambda: Complex[]; pr
     const other = lambda[1 - b] ?? cx(0)
     const gap = sub(lambda[b] ?? cx(0), other)
 
-    return [0, 1].map(i => [0, 1].map(j => div(sub(u[i]?.[j] ?? cx(0), i === j ? other : cx(0)), gap)))
+    return [0, 1].map(i =>
+      [0, 1].map(j =>
+        div(sub(u[i]?.[j] ?? cx(0), i === j ? other : cx(0)), gap),
+      ),
+    )
   })
 
   return { lambda, projector }
@@ -155,6 +240,7 @@ function binomial(n: number, i: number): bigint {
   }
 
   const r = Math.min(i, n - i)
+
   let out = 1n
 
   for (let q = 1; q <= r; q++) {
@@ -175,11 +261,15 @@ const powerTable = (z: Eisenstein, n: number): Eisenstein[] => {
 }
 
 // [P_t]_x, exactly: sum_j C(t-1-j, j) (-D)^j K^m C(m, (m - x) / 2), m = t - 1 - 2 j
-function chebyshevCoefficient(t: number, x: number, powers: { k: (m: number) => Eisenstein; d: Eisenstein }): Eisenstein {
+function chebyshevCoefficient(
+  t: number,
+  x: number,
+  powers: { k: (m: number) => Eisenstein; d: Eisenstein },
+): Eisenstein {
   const n = t - 1
   const ax = Math.abs(x)
 
-  if (n < 0 || ((n - ax) % 2 + 2) % 2 !== 0 || ax > n) {
+  if (n < 0 || (((n - ax) % 2) + 2) % 2 !== 0 || ax > n) {
     return ZERO
   }
 
@@ -187,11 +277,13 @@ function chebyshevCoefficient(t: number, x: number, powers: { k: (m: number) => 
   // j = 0 first: m = n, i = (n - x) / 2
   let m = n
   let i = (n - x) / 2
+
   // the running term E_j = C(n - j, j) C(m, i) (-D)^j, updated by small factors only: from j to j + 1,
   // C(n - j - 1, j + 1) = C(n - j, j) (n - 2j) (n - 2j - 1) / ((j + 1) (n - j)) and
   // C(m - 2, i - 1) = C(m, i) i (m - i) / (m (m - 1)); the division is exact in each component, since the
   // product is the denominator times an Eisenstein integer
   const first = binomial(m, i)
+
   let term: Eisenstein = [first, 0n]
 
   for (let j = 0; m >= ax; j++) {
@@ -201,11 +293,19 @@ function chebyshevCoefficient(t: number, x: number, powers: { k: (m: number) => 
       break
     }
 
-    const numerator = BigInt(n - 2 * j) * BigInt(n - 2 * j - 1) * BigInt(i) * BigInt(m - i)
-    const denominator = BigInt(j + 1) * BigInt(n - j) * BigInt(m) * BigInt(m - 1)
+    const numerator =
+      BigInt(n - 2 * j) *
+      BigInt(n - 2 * j - 1) *
+      BigInt(i) *
+      BigInt(m - i)
+    const denominator =
+      BigInt(j + 1) * BigInt(n - j) * BigInt(m) * BigInt(m - 1)
     const moved = times(term, powers.d)
 
-    term = [(moved[0] * numerator) / denominator, (moved[1] * numerator) / denominator]
+    term = [
+      (moved[0] * numerator) / denominator,
+      (moved[1] * numerator) / denominator,
+    ]
     m -= 2
     i -= 1
   }
@@ -219,21 +319,37 @@ export type Propagator = {
   readonly det: Eisenstein
   // the whole-number weight (over 2^t) on the right and left slot of dock x after t beats, from a unit on the
   // right (or left) slot of dock 0
-  readonly weight: (t: number, x: number, start: 'right' | 'left') => { right: Eisenstein; left: Eisenstein }
+  readonly weight: (
+    t: number,
+    x: number,
+    start: 'right' | 'left',
+  ) => { right: Eisenstein; left: Eisenstein }
 }
 
-export function exactPropagator(transfer: Transfer, maxBeat: number): Propagator {
+export function exactPropagator(
+  transfer: Transfer,
+  maxBeat: number,
+): Propagator {
   const keep = transfer[0]?.[0]?.[2] ?? ZERO
   const reverse = transfer[0]?.[1]?.[2] ?? ZERO
-  const same = (w: Eisenstein | undefined, z: Eisenstein): boolean => w !== undefined && w[0] === z[0] && w[1] === z[1]
+  const same = (w: Eisenstein | undefined, z: Eisenstein): boolean =>
+    w?.[0] === z[0] && w[1] === z[1]
   // the closed form holds for the walk's shape: right' = z (K right + R left), left' = (R right + K left) / z
   const shaped =
-    [0, 1].every(to => [0, 1].every(from => (transfer[to]?.[from] ?? []).every((w, q) => (q === (to === 0 ? 2 : 0) ? true : same(w, ZERO))))) &&
+    [0, 1].every(to =>
+      [0, 1].every(from =>
+        (transfer[to]?.[from] ?? []).every((w, q) =>
+          q === (to === 0 ? 2 : 0) ? true : same(w, ZERO),
+        ),
+      ),
+    ) &&
     same(transfer[1]?.[1]?.[0], keep) &&
     same(transfer[1]?.[0]?.[0], reverse)
 
   if (!shaped) {
-    throw new Error('exactPropagator: the transfer is not a two-slot walk with one coin')
+    throw new Error(
+      'exactPropagator: the transfer is not a two-slot walk with one coin',
+    )
   }
 
   const det = exactInvariants(transfer).det
@@ -241,8 +357,12 @@ export function exactPropagator(transfer: Transfer, maxBeat: number): Propagator
   // K^m: a unit of Z[omega] has order dividing 6, so six powers serve every m; otherwise a table
   const unit = norm(keep) === 1n
   const table = powerTable(keep, unit ? 6 : maxBeat)
-  const powers = { k: (m: number): Eisenstein => table[unit ? m % 6 : m] ?? ZERO, d: minusDet }
-  const p = (t: number, x: number): Eisenstein => chebyshevCoefficient(t, x, powers)
+  const powers = {
+    k: (m: number): Eisenstein => table[unit ? m % 6 : m] ?? ZERO,
+    d: minusDet,
+  }
+  const p = (t: number, x: number): Eisenstein =>
+    chebyshevCoefficient(t, x, powers)
 
   return {
     keep,
@@ -252,17 +372,28 @@ export function exactPropagator(transfer: Transfer, maxBeat: number): Propagator
       if (t === 0) {
         const one: Eisenstein = [x === 0 ? 1n : 0n, 0n]
 
-        return start === 'right' ? { right: one, left: ZERO } : { right: ZERO, left: one }
+        return start === 'right'
+          ? { right: one, left: ZERO }
+          : { right: ZERO, left: one }
       }
 
       // (2U)^t e = P_t (2U) e - D P_(t-1) e
       if (start === 'right') {
-        const right = plus(times(keep, p(t, x - 1)), times(minusDet, p(t - 1, x)))
+        const right = plus(
+          times(keep, p(t, x - 1)),
+          times(minusDet, p(t - 1, x)),
+        )
 
         return { right, left: times(reverse, p(t, x + 1)) }
       }
 
-      return { right: times(reverse, p(t, x - 1)), left: plus(times(keep, p(t, x + 1)), times(minusDet, p(t - 1, x))) }
+      return {
+        right: times(reverse, p(t, x - 1)),
+        left: plus(
+          times(keep, p(t, x + 1)),
+          times(minusDet, p(t - 1, x)),
+        ),
+      }
     },
   }
 }
@@ -273,21 +404,33 @@ export function bigRatio(num: bigint, den: bigint): number {
     return 0
   }
 
-  const shift = BigInt(Math.max(0, den.toString(2).length - num.toString(2).length + 60))
+  const shift = BigInt(
+    Math.max(0, den.toString(2).length - num.toString(2).length + 60),
+  )
   const scaled = (num << shift) / den
 
   return Number(scaled) * 2 ** -Number(shift)
 }
 
 // the chance on dock x after t beats from a start slot, exactly, as a float
-export function exactChance(prop: Propagator, t: number, x: number, start: 'right' | 'left'): number {
+export function exactChance(
+  prop: Propagator,
+  t: number,
+  x: number,
+  start: 'right' | 'left',
+): number {
   const w = prop.weight(t, x, start)
 
   return bigRatio(norm(w.right) + norm(w.left), 4n ** BigInt(t))
 }
 
 // the stationary-phase weight on dock x after t beats (complex, not scaled), from a start slot
-export function stationaryWeight(transfer: Transfer, t: number, x: number, start: 'right' | 'left'): { right: Complex; left: Complex } {
+export function stationaryWeight(
+  transfer: Transfer,
+  t: number,
+  x: number,
+  start: 'right' | 'left',
+): { right: Complex; left: Complex } {
   const v = x / t
 
   if (Math.abs(v) >= 0.5) {
@@ -296,6 +439,7 @@ export function stationaryWeight(transfer: Transfer, t: number, x: number, start
 
   const base = Math.asin((SQRT3 * Math.abs(v)) / Math.sqrt(1 - v * v))
   const e = start === 'right' ? 0 : 1
+
   let right = cx(0)
   let left = cx(0)
 
@@ -307,8 +451,12 @@ export function stationaryWeight(transfer: Transfer, t: number, x: number, start
       const { projector } = spectrum(transfer, k)
       const b = s === 1 ? 0 : 1
       const second = s * t * curvature(k)
-      const phase = t * (Math.PI / 3 + s * frequency(k)) - k * x + (Math.sign(second) * Math.PI) / 4
-      const size = Math.sqrt((2 * Math.PI) / Math.abs(second)) / (2 * Math.PI)
+      const phase =
+        t * (Math.PI / 3 + s * frequency(k)) -
+        k * x +
+        (Math.sign(second) * Math.PI) / 4
+      const size =
+        Math.sqrt((2 * Math.PI) / Math.abs(second)) / (2 * Math.PI)
       const factor = mul(expi(phase), cx(size))
 
       right = add(right, mul(projector[b]?.[0]?.[e] ?? cx(0), factor))
@@ -321,18 +469,28 @@ export function stationaryWeight(transfer: Transfer, t: number, x: number, start
 
 // the long-run limit of <x^n> / t^n from the symbol: the group velocity's n-th moment weighted by the start's
 // projection on each branch, averaged over k (midpoint rule on `samples` points)
-export function limitMoment(transfer: Transfer, n: number, start: 'right' | 'left', samples = 200000): number {
+export function limitMoment(
+  transfer: Transfer,
+  n: number,
+  start: 'right' | 'left',
+  samples = 200000,
+): number {
   const e = start === 'right' ? 0 : 1
+
   let sum = 0
 
   for (let q = 0; q < samples; q++) {
     const k = -Math.PI + ((q + 0.5) * 2 * Math.PI) / samples
     const { projector } = spectrum(transfer, k)
 
-    for (const [b, s] of [[0, 1], [1, -1]] as const) {
+    for (const [b, s] of [
+      [0, 1],
+      [1, -1],
+    ] as const) {
       const r = projector[b]?.[0]?.[e] ?? cx(0)
       const l = projector[b]?.[1]?.[e] ?? cx(0)
-      const weight = r.re * r.re + r.im * r.im + l.re * l.re + l.im * l.im
+      const weight =
+        r.re * r.re + r.im * r.im + l.re * l.re + l.im * l.im
 
       sum += weight * (s * groupVelocity(k)) ** n
     }

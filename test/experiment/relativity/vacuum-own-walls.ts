@@ -100,10 +100,27 @@ import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { bounceRunner, collideBounce, makeBounceKernel, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, type Reduced } from '@/code/measure/living-pair-kernel'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { coinData, orientedHubStore, uniformStore, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  bounceRunner,
+  collideBounce,
+  makeBounceKernel,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  cloneReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  coinData,
+  orientedHubStore,
+  uniformStore,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import {
@@ -135,20 +152,32 @@ const SMALL = 8
 const W = 6
 const FROM = 72
 const TO = 192
-const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
+const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
 const CASES = ['time', 'C', 'g', 'gC', 'r0', '2r0'] as const
 
 type CaseName = (typeof CASES)[number]
-type Machine = { kernel: BounceKernel; layout: Int8Array; box: BoxGeometry; links: Int16Array }
+type Machine = {
+  kernel: BounceKernel
+  layout: Int8Array
+  box: BoxGeometry
+  links: Int16Array
+}
 
-const hubOf = (side: number): number[] => d4BoxCoordinates({ cell: 0, side }).map((v, k) => v - (R0[k] as number))
-const cellOfVector = (v: readonly number[]): number => d4BoxCell({ coordinates: v.map(x => ((x % 4) + 4) % 4), side: 4 })
+const hubOf = (side: number): number[] =>
+  d4BoxCoordinates({ cell: 0, side }).map((v, k) => v - R0[k]!)
+const cellOfVector = (v: readonly number[]): number =>
+  d4BoxCell({ coordinates: v.map(x => ((x % 4) + 4) % 4), side: 4 })
 
 function machine(side: number, kind: CollisionKind): Machine {
   const weave = makeColorWeave({ side, table: 'bind' })
   const kernel = makeBounceKernel(weave, kind)
 
-  return { kernel, layout: separatedLayout(weave), box: boxGeometry(side, kernel.target), links: Int16Array.from(weave.links) }
+  return {
+    kernel,
+    layout: separatedLayout(weave),
+    box: boxGeometry(side, kernel.target),
+    links: Int16Array.from(weave.links),
+  }
 }
 
 const emptyState = (mc: Machine, store: Int8Array): Reduced => ({
@@ -171,12 +200,18 @@ function frames(mc: Machine, store: Int8Array, beats: number): Frame[] {
 }
 
 // the frames of beats from .. from + W - 1 only (a side-12 run keeps no more than one window)
-function windowFrames(mc: Machine, store: Int8Array, from: number): Frame[] {
+function windowFrames(
+  mc: Machine,
+  store: Int8Array,
+  from: number,
+): Frame[] {
   const run = bounceRunner(mc.kernel, emptyState(mc, store))
   const out: Frame[] = []
 
   while (run.time() < from + W) {
-    if (run.time() >= from) out.push(frameOf(run.state()))
+    if (run.time() >= from) {
+      out.push(frameOf(run.state()))
+    }
 
     run.beat()
   }
@@ -186,43 +221,63 @@ function windowFrames(mc: Machine, store: Int8Array, from: number): Frame[] {
 
 // the least period of a frame list from beat `from` (0 if none up to 24)
 function periodOf(h: readonly Frame[], from: number): number {
-  const same = (a: Frame, b: Frame): boolean => a.vibe.every((v, i) => v === b.vibe[i]) && a.store.every((v, i) => v === b.store[i])
+  const same = (a: Frame, b: Frame): boolean =>
+    a.vibe.every((v, i) => v === b.vibe[i]) &&
+    a.store.every((v, i) => v === b.store[i])
 
   for (let p = 1; p <= 24; p++) {
     let ok = true
 
-    for (let t = from; t + p < h.length && ok; t++) ok = same(h[t] as Frame, h[t + p] as Frame)
+    for (let t = from; t + p < h.length && ok; t++) {
+      ok = same(h[t]!, h[t + p]!)
+    }
 
-    if (ok) return p
+    if (ok) {
+      return p
+    }
   }
 
   return 0
 }
 
 // the half-late start: beat 0's collision on the early docks only, streamed; run from phase 1 (E-RLT-0082's walls)
-function halfLate(mc: Machine, store: Int8Array, late: (x: number) => boolean): ReturnType<typeof bounceRunner> {
+function halfLate(
+  mc: Machine,
+  store: Int8Array,
+  late: (x: number) => boolean,
+): ReturnType<typeof bounceRunner> {
   const a = emptyState(mc, store)
 
-  for (let x = 0; x < mc.box.cells; x++) if (!late(x)) collideBounce(mc.kernel, a, x, 0)
+  for (let x = 0; x < mc.box.cells; x++) {
+    if (!late(x)) {
+      collideBounce(mc.kernel, a, x, 0)
+    }
+  }
 
   const b = cloneReduced(a)
 
   b.vibe.fill(0)
 
   for (let slot = 0; slot < a.vibe.length; slot++) {
-    const v = a.vibe[slot] as number
+    const v = a.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    b.vibe[mc.kernel.target[slot] as number] = v
-    b.point[mc.kernel.target[slot] as number] = (mc.kernel.move[slot] as Int8Array)[a.point[slot] as number] as number
+    b.vibe[mc.kernel.target[slot]!] = v
+    b.point[mc.kernel.target[slot]!] =
+      mc.kernel.move[slot]![a.point[slot]!]!
   }
 
   return bounceRunner(mc.kernel, b, 1)
 }
 
 // the uniformly born vacuum brought to beat 1 (the old gate's reference)
-function uniformFromOne(mc: Machine, store: Int8Array): ReturnType<typeof bounceRunner> {
+function uniformFromOne(
+  mc: Machine,
+  store: Int8Array,
+): ReturnType<typeof bounceRunner> {
   const run = bounceRunner(mc.kernel, emptyState(mc, store))
 
   run.beat()
@@ -230,86 +285,190 @@ function uniformFromOne(mc: Machine, store: Int8Array): ReturnType<typeof bounce
   return run
 }
 
-type Manifold = { m: GroundManifold; periodV: number; lateIsAhead2: boolean; timeRep: { rep: number; tau: number }; emptyCellDocks: number }
+type Manifold = {
+  m: GroundManifold
+  periodV: number
+  lateIsAhead2: boolean
+  timeRep: { rep: number; tau: number }
+  emptyCellDocks: number
+}
 
 // M from the side-8 vacuum restricted to the cell; the late-born vacuum (V two beats ahead) is the second base
-function manifoldOf(coins: CoinData, cell: Cell4, store8: Int8Array, mc8: Machine): Manifold {
+function manifoldOf(
+  coins: CoinData,
+  cell: Cell4,
+  store8: Int8Array,
+  mc8: Machine,
+): Manifold {
   const h = frames(mc8, store8, 72)
   const periodV = periodOf(h, 24)
   const book = new TypeBook(W)
   const early = restrictToCell(h.slice(48, 48 + W), SMALL)
   const late = restrictToCell(h.slice(50, 50 + W), SMALL)
 
-  if (!early.periodic || !late.periodic) throw new Error('the vacuum is not 4 D4 periodic')
+  if (!early.periodic || !late.periodic) {
+    throw new Error('the vacuum is not 4 D4 periodic')
+  }
 
   const tV = dockTypes(book, early.frames, 256, true)
   const tU = dockTypes(book, late.frames, 256, true)
   const m = groundManifold(coins, cell, book, [tV, tU], [0, 2, 4])
   // is the late-born vacuum V two beats ahead (checked on the side-8 run itself)
   const U = halfLate(mc8, store8, () => true)
+
   let lateIsAhead2 = true
 
   while (U.time() < 60) {
     const t = U.time()
-    const v = h[t + 2] as Frame
+    const v = h[t + 2]!
     const u = U.state()
 
-    lateIsAhead2 = lateIsAhead2 && v.vibe.every((x, i) => x === u.vibe[i]) && v.store.every((x, i) => x === u.store[i])
+    lateIsAhead2 =
+      lateIsAhead2 &&
+      v.vibe.every((x, i) => x === u.vibe[i]) &&
+      v.store.every((x, i) => x === u.store[i])
     U.beat()
   }
 
   // the cell docks the vacuum never touches (no vibe and no store in the window): they carry no coset information
   const zero = book.lookup(new Int8Array(W * 36))
-  const emptyCellDocks = tV.reduce((n, k) => n + (k === zero ? 1 : 0), 0)
+  const emptyCellDocks = tV.reduce(
+    (n, k) => n + (k === zero ? 1 : 0),
+    0,
+  )
 
-  return { m, periodV, lateIsAhead2, timeRep: m.baseRep[1] as { rep: number; tau: number }, emptyCellDocks }
+  return {
+    m,
+    periodV,
+    lateIsAhead2,
+    timeRep: m.baseRep[1] as { rep: number; tau: number },
+    emptyCellDocks,
+  }
 }
 
-type Planted = { name: CaseName; rep: number; tau: number; store?: Int8Array }
+type Planted = {
+  name: CaseName
+  rep: number
+  tau: number
+  store?: Int8Array
+}
 
 // the six cases' inside ground states and (for the spatial ones) the planted store on the side-12 box
-function plantedCases(coins: CoinData, man: Manifold, store12: Int8Array, inside: (x: number) => boolean): Planted[] {
+function plantedCases(
+  coins: CoinData,
+  man: Manifold,
+  store12: Int8Array,
+  inside: (x: number) => boolean,
+): Planted[] {
   const { m } = man
   const identity = coins.table.identity
-  const spatial = m.reps.map((r, j) => ({ r, j })).filter(({ r, j }) => j > 0 && r.base === 0 && r.element.s === 0)
-  const find = (pred: (g: number, c: number) => boolean): number => spatial.find(({ r }) => pred(r.element.g, r.element.c))?.j ?? -1
+  const spatial = m.reps
+    .map((r, j) => ({ r, j }))
+    .filter(({ r, j }) => j > 0 && r.base === 0 && r.element.s === 0)
+  const find = (pred: (g: number, c: number) => boolean): number =>
+    spatial.find(({ r }) => pred(r.element.g, r.element.c))?.j ?? -1
   const jC = find((g, c) => g === identity && c === -1)
   const jg = find((g, c) => g !== identity && c === 1)
   const jgC = find((g, c) => g !== identity && c === -1)
+
   const patch = (image: Int8Array): Int8Array => {
     const out = Int8Array.from(store12)
 
-    for (let x = 0; x < store12.length / 12; x++) if (inside(x)) out.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+    for (let x = 0; x < store12.length / 12; x++) {
+      if (inside(x)) {
+        out.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+      }
+    }
 
     return out
   }
-  const spatialCase = (name: CaseName, j: number): Planted => {
-    const e = (m.reps[j] as { element: { g: number; c: number } }).element
 
-    return { name, rep: j, tau: 0, store: patch(storeImage(coins, SIDE, store12, e.g, e.c, [0, 0, 0, 0])) }
+  const spatialCase = (name: CaseName, j: number): Planted => {
+    const e = (m.reps[j] as { element: { g: number; c: number } })
+      .element
+
+    return {
+      name,
+      rep: j,
+      tau: 0,
+      store: patch(
+        storeImage(coins, SIDE, store12, e.g, e.c, [0, 0, 0, 0]),
+      ),
+    }
   }
 
-  if (jC < 0 || jg < 0 || jgC < 0 || spatial.length !== 3) throw new Error(`expected 3 spatial point cosets, found ${spatial.length}`)
+  if (jC < 0 || jg < 0 || jgC < 0 || spatial.length !== 3) {
+    throw new Error(
+      `expected 3 spatial point cosets, found ${spatial.length}`,
+    )
+  }
 
   return [
     { name: 'time', rep: man.timeRep.rep, tau: man.timeRep.tau },
     spatialCase('C', jC),
     spatialCase('g', jg),
     spatialCase('gC', jgC),
-    { name: 'r0', rep: 0, tau: cellOfVector(R0), store: patch(storeImage(coins, SIDE, store12, identity, 1, R0)) },
-    { name: '2r0', rep: 0, tau: cellOfVector(R0.map(v => 2 * v)), store: patch(storeImage(coins, SIDE, store12, identity, 1, R0.map(v => 2 * v))) },
+    {
+      name: 'r0',
+      rep: 0,
+      tau: cellOfVector(R0),
+      store: patch(storeImage(coins, SIDE, store12, identity, 1, R0)),
+    },
+    {
+      name: '2r0',
+      rep: 0,
+      tau: cellOfVector(R0.map(v => 2 * v)),
+      store: patch(
+        storeImage(
+          coins,
+          SIDE,
+          store12,
+          identity,
+          1,
+          R0.map(v => 2 * v),
+        ),
+      ),
+    },
   ]
 }
 
-function runCase(man: Manifold, mc: Machine, store12: Int8Array, c: Planted, inside: (x: number) => boolean, withOld: boolean): CaseReading {
-  const rep = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? c.rep : 0))
-  const tau = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? c.tau : 0))
+function runCase(
+  man: Manifold,
+  mc: Machine,
+  store12: Int8Array,
+  c: Planted,
+  inside: (x: number) => boolean,
+  withOld: boolean,
+): CaseReading {
+  const rep = Int32Array.from({ length: mc.box.cells }, (_, x) =>
+    inside(x) ? c.rep : 0,
+  )
+  const tau = Int32Array.from({ length: mc.box.cells }, (_, x) =>
+    inside(x) ? c.tau : 0,
+  )
 
   if (c.name === 'time') {
-    return readCase({ m: man.m, box: mc.box, run: halfLate(mc, store12, inside), rep, tau, from: FROM, to: TO, reference: withOld ? uniformFromOne(mc, store12) : undefined })
+    return readCase({
+      m: man.m,
+      box: mc.box,
+      run: halfLate(mc, store12, inside),
+      rep,
+      tau,
+      from: FROM,
+      to: TO,
+      reference: withOld ? uniformFromOne(mc, store12) : undefined,
+    })
   }
 
-  return readCase({ m: man.m, box: mc.box, run: bounceRunner(mc.kernel, emptyState(mc, c.store as Int8Array)), rep, tau, from: FROM, to: TO })
+  return readCase({
+    m: man.m,
+    box: mc.box,
+    run: bounceRunner(mc.kernel, emptyState(mc, c.store!)),
+    rep,
+    tau,
+    from: FROM,
+    to: TO,
+  })
 }
 
 type MemberResult = {
@@ -343,17 +502,23 @@ export default experiment({
     const cell = cell4(coins)
     const members = startFamily(16)
     const results: MemberResult[] = []
-    const late = (box: BoxGeometry): ((x: number) => boolean) => {
-      const layer = Int32Array.from({ length: box.cells }, (_, x) => d4BoxCoordinates({ cell: x, side: box.side })[0] ?? 0)
 
-      return x => (layer[x] as number) >= Math.ceil(box.side / 2)
+    const late = (box: BoxGeometry): ((x: number) => boolean) => {
+      const layer = Int32Array.from(
+        { length: box.cells },
+        (_, x) => d4BoxCoordinates({ cell: x, side: box.side })[0] ?? 0,
+      )
+
+      return x => layer[x]! >= Math.ceil(box.side / 2)
     }
+
     let p1 = false
     let p2 = false
     // E-RLT-0089's warning: a cached weave reads one start 17 times. Each member builds its own weave here; these
     // count, per member, the side-12 link slots and layout points that differ from the committed start's
     let defaultLinks: Int16Array | undefined
     let defaultLayout: Int8Array | undefined
+
     const extra: Record<string, number> = {}
     const text: string[] = []
 
@@ -361,24 +526,44 @@ export default experiment({
       withStart(member, () => {
         const mc8 = machine(SMALL, 'lone')
         const mc = machine(SIDE, 'lone')
-        const man = manifoldOf(coins, cell, orientedHubStore(coins, SMALL, hubOf(SMALL)), mc8)
+        const man = manifoldOf(
+          coins,
+          cell,
+          orientedHubStore(coins, SMALL, hubOf(SMALL)),
+          mc8,
+        )
         const store12 = orientedHubStore(coins, SIDE, hubOf(SIDE))
         const inside = late(mc.box)
         // A: the vacuum alone, every settled window (one domain, the vacuum itself)
         const zeros = new Int32Array(mc.box.cells)
-        const alone = readCase({ m: man.m, box: mc.box, run: bounceRunner(mc.kernel, emptyState(mc, store12)), rep: zeros, tau: zeros, from: FROM, to: TO })
+        const alone = readCase({
+          m: man.m,
+          box: mc.box,
+          run: bounceRunner(mc.kernel, emptyState(mc, store12)),
+          rep: zeros,
+          tau: zeros,
+          from: FROM,
+          to: TO,
+        })
         const aDefects = alone.defects.reduce((s, x) => s + x, 0)
-        const aWalls = alone.actualWalls.reduce((s, x) => s + x, 0) + alone.departureDocks.reduce((s, x) => s + x, 0)
+        const aWalls =
+          alone.actualWalls.reduce((s, x) => s + x, 0) +
+          alone.departureDocks.reduce((s, x) => s + x, 0)
         const aUniform = Math.min(...alone.uniformWalls)
 
         const planted = plantedCases(coins, man, store12, inside)
-        const cases = Object.fromEntries(planted.map(c => [c.name, runCase(man, mc, store12, c, inside, true)])) as Record<CaseName, CaseReading>
+        const cases = Object.fromEntries(
+          planted.map(c => [
+            c.name,
+            runCase(man, mc, store12, c, inside, true),
+          ]),
+        ) as Record<CaseName, CaseReading>
 
         results.push({
           name: member.name,
           states: man.m.states,
           reps: man.m.reps.length,
-          pointStabilizer: man.m.pointStabilizer[0] as number,
+          pointStabilizer: man.m.pointStabilizer[0]!,
           periodV: man.periodV,
           lateIsAhead2: man.lateIsAhead2,
           aDefects,
@@ -386,29 +571,57 @@ export default experiment({
           aUniform,
           cases,
           emptyCellDocks: man.emptyCellDocks,
-          linksDiffer: defaultLinks ? mc.links.reduce((n, v, i) => n + (v !== defaultLinks![i] ? 1 : 0), 0) : 0,
-          layoutDiffers: defaultLayout ? mc.layout.reduce((n, v, i) => n + (v !== defaultLayout![i] ? 1 : 0), 0) : 0,
+          linksDiffer: defaultLinks
+            ? mc.links.reduce(
+                (n, v, i) => n + (v !== defaultLinks![i] ? 1 : 0),
+                0,
+              )
+            : 0,
+          layoutDiffers: defaultLayout
+            ? mc.layout.reduce(
+                (n, v, i) => n + (v !== defaultLayout![i] ? 1 : 0),
+                0,
+              )
+            : 0,
         })
 
         defaultLinks ??= mc.links
         defaultLayout ??= mc.layout
 
-        if (member.name !== 'integer+0') return
+        if (member.name !== 'integer+0') {
+          return
+        }
 
         // P1: the reader against the brute force on each ideal patchwork, a stabilizer element, one flipped trit
         const p1Parts: string[] = []
+
         let p1ok = true
 
         for (const c of planted) {
-          const rep = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? c.rep : 0))
-          const tau = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? c.tau : 0))
+          const rep = Int32Array.from(
+            { length: mc.box.cells },
+            (_, x) => (inside(x) ? c.rep : 0),
+          )
+          const tau = Int32Array.from(
+            { length: mc.box.cells },
+            (_, x) => (inside(x) ? c.tau : 0),
+          )
           const types = idealTypes(man.m, mc.box, rep, tau)
           const r = readWindow(man.m, mc.box, types)
           const b = bruteForceWalls(man.m, mc.box, types)
           const differ = edgeDifference(r.wallEdges, b.edges)
 
-          p1ok = p1ok && r.walls === b.walls && differ === 0 && r.defects === 0 && b.defects === 0 && r.walls > 0
-          p1Parts.push(`${c.name} ${r.walls} (brute ${b.walls}, edge sets differ ${differ}, uniform ${r.uniformWalls})`)
+          p1ok =
+            p1ok &&
+            r.walls === b.walls &&
+            differ === 0 &&
+            r.defects === 0 &&
+            b.defects === 0 &&
+            r.walls > 0
+
+          p1Parts.push(
+            `${c.name} ${r.walls} (brute ${b.walls}, edge sets differ ${differ}, uniform ${r.uniformWalls})`,
+          )
           extra[`P1_${c.name}_walls`] = r.walls
           extra[`P1_${c.name}_bruteWalls`] = b.walls
           extra[`P1_${c.name}_uniformWalls`] = r.uniformWalls
@@ -417,68 +630,155 @@ export default experiment({
         // a non-identity point element that keeps V (up to a translation): its image of the side-12 store
         const base = man.m.reps[0]!.types
         const cache = new Map<string, number>()
+
         let stabilizerDiffer = -1
         let stabilizerElement = ''
 
-        for (let g = 0; g < coins.table.permutations.length && stabilizerDiffer < 0; g++) {
-          if (g === coins.table.identity) continue
+        for (
+          let g = 0;
+          g < coins.table.permutations.length && stabilizerDiffer < 0;
+          g++
+        ) {
+          if (g === coins.table.identity) {
+            continue
+          }
 
-          const img = imageTypes(coins, cell, man.m.book, base, { g, c: 1, s: 0 }, cache)
+          const img = imageTypes(
+            coins,
+            cell,
+            man.m.book,
+            base,
+            { g, c: 1, s: 0 },
+            cache,
+          )
           const t = translationsBetween(cell, img, base)
 
-          if (t.length === 0) continue
+          if (t.length === 0) {
+            continue
+          }
 
-          const image = storeImage(coins, SIDE, store12, g, 1, cell.coords[t[0] as number] as number[])
+          const image = storeImage(
+            coins,
+            SIDE,
+            store12,
+            g,
+            1,
+            cell.coords[t[0]!] as number[],
+          )
 
-          stabilizerDiffer = image.reduce((n, v, i) => n + (v !== store12[i] ? 1 : 0), 0)
-          stabilizerElement = `g ${g}, translation ${cell.coords[t[0] as number]!.join(' ')}`
+          stabilizerDiffer = image.reduce(
+            (n, v, i) => n + (v !== store12[i] ? 1 : 0),
+            0,
+          )
+          stabilizerElement = `g ${g}, translation ${cell.coords[t[0]!]!.join(' ')}`
         }
 
         // one flipped trit: the vacuum's window with one vibe of the center dock negated at one beat
         const flipped = windowFrames(mc, store12, FROM)
-        const center = d4BoxCell({ coordinates: [6, 6, 6, 6], side: SIDE })
+        const center = d4BoxCell({
+          coordinates: [6, 6, 6, 6],
+          side: SIDE,
+        })
+
         let flipAt = -1
 
-        for (let d = 0; d < 24 && flipAt < 0; d++) if (flipped[1]!.vibe[center * 24 + d] !== 0) flipAt = d
+        for (let d = 0; d < 24 && flipAt < 0; d++) {
+          if (flipped[1]!.vibe[center * 24 + d] !== 0) {
+            flipAt = d
+          }
+        }
 
-        if (flipAt < 0) flipAt = 0
+        if (flipAt < 0) {
+          flipAt = 0
+        }
 
-        flipped[1]!.vibe[center * 24 + flipAt] = flipped[1]!.vibe[center * 24 + flipAt] === 0 ? 1 : -(flipped[1]!.vibe[center * 24 + flipAt] as number)
+        flipped[1]!.vibe[center * 24 + flipAt] =
+          flipped[1]!.vibe[center * 24 + flipAt] === 0
+            ? 1
+            : -flipped[1]!.vibe[center * 24 + flipAt]!
 
-        const flip = readWindow(man.m, mc.box, dockTypes(man.m.book, flipped, mc.box.cells, false))
+        const flip = readWindow(
+          man.m,
+          mc.box,
+          dockTypes(man.m.book, flipped, mc.box.cells, false),
+        )
 
-        p1 = p1ok && stabilizerDiffer === 0 && flip.defects + flip.walls > 0
+        p1 =
+          p1ok &&
+          stabilizerDiffer === 0 &&
+          flip.defects + flip.walls > 0
         extra.P1_stabilizerUnitsDiffer = stabilizerDiffer
         extra.P1_flipDefects = flip.defects
         extra.P1_flipWalls = flip.walls
-        text.push(`P1 (default start): ${p1Parts.join('; ')}; stabilizer element (${stabilizerElement}) store units differing ${stabilizerDiffer}; one flipped trit reads ${flip.defects} defects and ${flip.walls} walls.`)
+        text.push(
+          `P1 (default start): ${p1Parts.join('; ')}; stabilizer element (${stabilizerElement}) store units differing ${stabilizerDiffer}; one flipped trit reads ${flip.defects} defects and ${flip.walls} walls.`,
+        )
 
         // P2: the uniform one-line vacuum
         const line8 = uniformStore(SMALL ** 4, [0])
         const line12 = uniformStore(mc.box.cells, [0])
         const lineMan = manifoldOf(coins, cell, line8, mc8)
-        const lineAlone = readWindow(lineMan.m, mc.box, dockTypes(lineMan.m.book, windowFrames(mc, line12, FROM), mc.box.cells, false))
-        const repL = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? lineMan.timeRep.rep : 0))
-        const tauL = Int32Array.from({ length: mc.box.cells }, (_, x) => (inside(x) ? lineMan.timeRep.tau : 0))
+        const lineAlone = readWindow(
+          lineMan.m,
+          mc.box,
+          dockTypes(
+            lineMan.m.book,
+            windowFrames(mc, line12, FROM),
+            mc.box.cells,
+            false,
+          ),
+        )
+        const repL = Int32Array.from(
+          { length: mc.box.cells },
+          (_, x) => (inside(x) ? lineMan.timeRep.rep : 0),
+        )
+        const tauL = Int32Array.from(
+          { length: mc.box.cells },
+          (_, x) => (inside(x) ? lineMan.timeRep.tau : 0),
+        )
         const lineTypes = idealTypes(lineMan.m, mc.box, repL, tauL)
-        const reference = Int32Array.from({ length: mc.box.cells }, () => stateId(lineMan.m, 0, 0))
-        const lineIdeal = readWindow(lineMan.m, mc.box, lineTypes, reference)
-        const vTypes = idealTypes(lineMan.m, mc.box, new Int32Array(mc.box.cells), new Int32Array(mc.box.cells))
+        const reference = Int32Array.from(
+          { length: mc.box.cells },
+          () => stateId(lineMan.m, 0, 0),
+        )
+        const lineIdeal = readWindow(
+          lineMan.m,
+          mc.box,
+          lineTypes,
+          reference,
+        )
+        const vTypes = idealTypes(
+          lineMan.m,
+          mc.box,
+          new Int32Array(mc.box.cells),
+          new Int32Array(mc.box.cells),
+        )
+
         let outside = 0
         let setsDiffer = 0
 
         for (let x = 0; x < mc.box.cells; x++) {
-          const out = (lineIdeal.holds as Uint8Array)[x] === 0
+          const out = lineIdeal.holds![x] === 0
           const oldTouches = lineTypes[x] !== vTypes[x]
 
           outside += out ? 1 : 0
           setsDiffer += out !== oldTouches ? 1 : 0
         }
 
-        const newVsUniform = edgeDifference(lineIdeal.wallEdges, lineIdeal.uniformEdges)
+        const newVsUniform = edgeDifference(
+          lineIdeal.wallEdges,
+          lineIdeal.uniformEdges,
+        )
         const sheet = SIDE ** 3
 
-        p2 = lineAlone.walls === 0 && lineAlone.uniformWalls === 0 && lineAlone.defects === 0 && newVsUniform === 0 && setsDiffer === 0 && outside % sheet === 0 && outside > 0
+        p2 =
+          lineAlone.walls === 0 &&
+          lineAlone.uniformWalls === 0 &&
+          lineAlone.defects === 0 &&
+          newVsUniform === 0 &&
+          setsDiffer === 0 &&
+          outside % sheet === 0 &&
+          outside > 0
         extra.P2_lineStates = lineMan.m.states
         extra.P2_lineAloneWalls = lineAlone.walls
         extra.P2_lineAloneUniformWalls = lineAlone.uniformWalls
@@ -489,11 +789,29 @@ export default experiment({
         extra.P2_outsideSetsDiffer = setsDiffer
 
         // the one-line vacuum's own half-late run, read both ways (reported)
-        const lineRun = readCase({ m: lineMan.m, box: mc.box, run: halfLate(mc, line12, inside), rep: repL, tau: tauL, from: FROM, to: TO, reference: uniformFromOne(mc, line12) })
+        const lineRun = readCase({
+          m: lineMan.m,
+          box: mc.box,
+          run: halfLate(mc, line12, inside),
+          rep: repL,
+          tau: tauL,
+          from: FROM,
+          to: TO,
+          reference: uniformFromOne(mc, line12),
+        })
 
-        extra.line_departureMax = Math.max(...lineRun.departureDocks.map((d, i) => d + (lineRun.edgeDifference[i] as number)))
+        extra.line_departureMax = Math.max(
+          ...lineRun.departureDocks.map(
+            (d, i) => d + lineRun.edgeDifference[i]!,
+          ),
+        )
         extra.line_oldTritsMax = Math.max(...lineRun.oldTrits)
-        extra.line_oldWholeSheets = lineRun.oldTrits.every(n => n % sheet === 0) ? 1 : 0
+        extra.line_oldWholeSheets = lineRun.oldTrits.every(
+          n => n % sheet === 0,
+        )
+          ? 1
+          : 0
+
         text.push(
           `P2 (default start, one-line vacuum, ${lineMan.m.states} ground states): alone ${lineAlone.walls} walls, ${lineAlone.uniformWalls} uniform; half-late ideal ${lineIdeal.walls} walls against ${lineIdeal.uniformWalls} uniform (edge sets differ ${newVsUniform}), ${outside} docks outside the reference ground state (${outside / sheet} sheets; differ from the old difference's docks on ${setsDiffer}). Its half-late RUN: departure ${range(lineRun.departureDocks)} docks and ${range(lineRun.edgeDifference)} edges, old trits ${range(lineRun.oldTrits)} (whole sheets ${extra.line_oldWholeSheets === 1}).`,
         )
@@ -501,32 +819,79 @@ export default experiment({
         // the other two collisions on the time case (reported)
         for (const kind of ['isometric', 'bounce'] as CollisionKind[]) {
           const other = machine(SIDE, kind)
-          const time = planted[0] as Planted
-          const rep = Int32Array.from({ length: other.box.cells }, (_, x) => (inside(x) ? time.rep : 0))
-          const tau = Int32Array.from({ length: other.box.cells }, (_, x) => (inside(x) ? time.tau : 0))
-          const r = readCase({ m: man.m, box: other.box, run: halfLate(other, store12, inside), rep, tau, from: FROM, to: TO })
+          const time = planted[0]!
+          const rep = Int32Array.from(
+            { length: other.box.cells },
+            (_, x) => (inside(x) ? time.rep : 0),
+          )
+          const tau = Int32Array.from(
+            { length: other.box.cells },
+            (_, x) => (inside(x) ? time.tau : 0),
+          )
+          const r = readCase({
+            m: man.m,
+            box: other.box,
+            run: halfLate(other, store12, inside),
+            rep,
+            tau,
+            from: FROM,
+            to: TO,
+          })
 
-          extra[`${kind}_time_departureDocksMax`] = Math.max(...r.departureDocks)
-          extra[`${kind}_time_bulkDepartureMax`] = Math.max(...r.bulkDeparture)
-          text.push(`${kind === 'isometric' ? 'K' : 'B'} on the time case (default start): departure ${range(r.departureDocks)} docks, ${range(r.edgeDifference)} edges, bulk ${range(r.bulkDeparture)} of ${r.bulkDocks}.`)
+          extra[`${kind}_time_departureDocksMax`] = Math.max(
+            ...r.departureDocks,
+          )
+
+          extra[`${kind}_time_bulkDepartureMax`] = Math.max(
+            ...r.bulkDeparture,
+          )
+
+          text.push(
+            `${kind === 'isometric' ? 'K' : 'B'} on the time case (default start): departure ${range(r.departureDocks)} docks, ${range(r.edgeDifference)} edges, bulk ${range(r.bulkDeparture)} of ${r.bulkDocks}.`,
+          )
         }
 
         // the still, empty vacuum: one ground state
         const coldBook = new TypeBook(W)
-        const cold = groundManifold(coins, cell, coldBook, [new Int32Array(256).fill(coldBook.intern(new Int8Array(W * 36)))], [0, 2, 4])
+        const cold = groundManifold(
+          coins,
+          cell,
+          coldBook,
+          [
+            new Int32Array(256).fill(
+              coldBook.intern(new Int8Array(W * 36)),
+            ),
+          ],
+          [0, 2, 4],
+        )
 
         extra.coldGroundStates = cold.states
       })
     }
 
-    const gateA = results.every(r => r.aDefects === 0 && r.aWalls === 0 && r.aUniform > 0)
-    const departs = (c: CaseReading): number => Math.max(...c.departureDocks.map((d, i) => d + (c.edgeDifference[i] as number)))
-    const bOn = results.map(r => CASES.every(n => departs(r.cases[n]) === 0))
-    const cOn = results.map(r => CASES.every(n => Math.max(...r.cases[n].bulkDeparture) === 0))
+    const gateA = results.every(
+      r => r.aDefects === 0 && r.aWalls === 0 && r.aUniform > 0,
+    )
+    const departs = (c: CaseReading): number =>
+      Math.max(
+        ...c.departureDocks.map((d, i) => d + c.edgeDifference[i]!),
+      )
+    const bOn = results.map(r =>
+      CASES.every(n => departs(r.cases[n]) === 0),
+    )
+    const cOn = results.map(r =>
+      CASES.every(n => Math.max(...r.cases[n].bulkDeparture) === 0),
+    )
     const gateB = bOn.every(Boolean)
     const gateC = cOn.every(Boolean)
-    const status = !(gateA && p1 && p2) ? 'partial' : gateB && gateC ? 'pass' : bOn.every(b => !b) ? 'fail' : 'partial'
-    const def = results[0] as MemberResult
+    const status = !(gateA && p1 && p2)
+      ? 'partial'
+      : gateB && gateC
+        ? 'pass'
+        : bOn.every(b => !b)
+          ? 'fail'
+          : 'partial'
+    const def = results[0]!
     const metrics: Record<string, number> = {
       gateA: gateA ? 1 : 0,
       gateP1: p1 ? 1 : 0,
@@ -543,10 +908,16 @@ export default experiment({
       lateIsTwoAhead: results.every(r => r.lateIsAhead2) ? 1 : 0,
       aloneUniformWallsMin: Math.min(...results.map(r => r.aUniform)),
       emptyCellDocks: def.emptyCellDocks,
-      startsWithOtherLinks: results.filter(r => r.linksDiffer > 0).length,
-      linksDifferMin: Math.min(...results.slice(1).map(r => r.linksDiffer)),
-      startsWithOtherLayout: results.filter(r => r.layoutDiffers > 0).length,
-      distinctTimeDepartures: new Set(results.map(r => r.cases.time.departureDocks.join(','))).size,
+      startsWithOtherLinks: results.filter(r => r.linksDiffer > 0)
+        .length,
+      linksDifferMin: Math.min(
+        ...results.slice(1).map(r => r.linksDiffer),
+      ),
+      startsWithOtherLayout: results.filter(r => r.layoutDiffers > 0)
+        .length,
+      distinctTimeDepartures: new Set(
+        results.map(r => r.cases.time.departureDocks.join(',')),
+      ).size,
       edges: SIDE ** 4 * 12,
       docks: SIDE ** 4,
       ...extra,
@@ -557,7 +928,8 @@ export default experiment({
 
       metrics[`${n}_idealWalls`] = c.idealWalls
       metrics[`${n}_departureDocksMax`] = Math.max(...c.departureDocks)
-      metrics[`${n}_departureDocksLast`] = c.departureDocks[c.departureDocks.length - 1] as number
+      metrics[`${n}_departureDocksLast`] =
+        c.departureDocks[c.departureDocks.length - 1]!
       metrics[`${n}_edgeDifferenceMax`] = Math.max(...c.edgeDifference)
       metrics[`${n}_actualWallsMax`] = Math.max(...c.actualWalls)
       metrics[`${n}_defectsMax`] = Math.max(...c.defects)
@@ -565,13 +937,22 @@ export default experiment({
       metrics[`${n}_bulkDocks`] = c.bulkDocks
       metrics[`${n}_farthest`] = c.farthest
       metrics[`${n}_uniformWallsMax`] = Math.max(...c.uniformWalls)
-      metrics[`${n}_departureDocksMaxOverStarts`] = Math.max(...results.map(r => Math.max(...r.cases[n].departureDocks)))
-      metrics[`${n}_departureDocksMinOverStarts`] = Math.min(...results.map(r => Math.min(...r.cases[n].departureDocks)))
+      metrics[`${n}_departureDocksMaxOverStarts`] = Math.max(
+        ...results.map(r => Math.max(...r.cases[n].departureDocks)),
+      )
+
+      metrics[`${n}_departureDocksMinOverStarts`] = Math.min(
+        ...results.map(r => Math.min(...r.cases[n].departureDocks)),
+      )
     }
 
     metrics.time_oldTritsMin = Math.min(...def.cases.time.oldTrits)
     metrics.time_oldTritsMax = Math.max(...def.cases.time.oldTrits)
-    metrics.time_oldWholeSheets = def.cases.time.oldTrits.every(n => n % SIDE ** 3 === 0) ? 1 : 0
+    metrics.time_oldWholeSheets = def.cases.time.oldTrits.every(
+      n => n % SIDE ** 3 === 0,
+    )
+      ? 1
+      : 0
     metrics.seconds = (Date.now() - started) / 1000
 
     const caseText = (r: MemberResult): string =>
@@ -591,5 +972,7 @@ export default experiment({
 })
 
 function range(xs: readonly number[]): string {
-  return xs.length === 0 ? 'none' : `${Math.min(...xs)}..${Math.max(...xs)}`
+  return xs.length === 0
+    ? 'none'
+    : `${Math.min(...xs)}..${Math.max(...xs)}`
 }

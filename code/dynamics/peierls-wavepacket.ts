@@ -5,7 +5,13 @@
 // amplitudes are kept as [re, im] tuples so the floating-point evolution is bit-for-bit
 // the same as the inline magnetism probe. Returns the transverse drift <y - y0>.
 
-import { ComplexPair as C, pairAdd as cadd, pairMul as cmul, pairScale as cscale, pairAbs2 as cabs2 } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as C,
+  pairAdd as cadd,
+  pairMul as cmul,
+  pairScale as cscale,
+  pairAbs2 as cabs2,
+} from '@/code/algebra/linear/complex-pair'
 
 const phase = (t: number): C => [Math.cos(t), Math.sin(t)]
 

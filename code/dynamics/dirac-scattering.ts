@@ -59,7 +59,11 @@ export function diracScatter(input: {
     to: size,
   })
 
-  const reflected = coinedWalkRangeProbability({ walk, from: 0, to: barrier })
+  const reflected = coinedWalkRangeProbability({
+    walk,
+    from: 0,
+    to: barrier,
+  })
 
   return { transmitted, reflected, total: transmitted + reflected }
 }
@@ -120,7 +124,9 @@ export function diracTunnel(input: {
   const { cosMass, sinMass } = massProfile({
     size,
     massAt: x =>
-      x >= barrierStart && x < barrierStart + barrierWidth ? barrierMass : 0,
+      x >= barrierStart && x < barrierStart + barrierWidth
+        ? barrierMass
+        : 0,
   })
 
   for (let t = 0; t < steps; t++) {

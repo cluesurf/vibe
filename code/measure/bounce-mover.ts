@@ -26,12 +26,32 @@
 // Floats, as measurement: a stand-in, not the exact rule. DETERMINISM: no random numbers; starts are placed.
 // NOTHING MOVES: the cost is a phase, the contact a slot permutation, the stream takes each value one dock along.
 
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { decode as crossDecode, signedPosition, walkedFlux, type Amp, type CrossSpec, type CrossState } from '@/code/measure/crossing-lines'
-import { type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { keyedRunner, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  decode as crossDecode,
+  signedPosition,
+  walkedFlux,
+  type Amp,
+  type CrossSpec,
+  type CrossState,
+} from '@/code/measure/crossing-lines'
+import {
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  keyedRunner,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 
 const ROOTS = rootsD4()
 const W: Amp = [-0.5, Math.sqrt(3) / 2]
@@ -41,19 +61,29 @@ const CLOCK_HALF = 7
 
 // positions -REACH .. REACH are held; a branch past them is counted and dropped
 export const HUB_REACH = 40
+
 const SPAN = 2 * HUB_REACH + 1
 const BITS = 4096
 
 export type HubBody = { l: number; s: number; j: number; q: number }
-export type HubSpec = { readonly n: number; readonly cost: boolean; readonly contact: 'rule' | 'keep' }
+export type HubSpec = {
+  readonly n: number
+  readonly cost: boolean
+  readonly contact: 'rule' | 'keep'
+}
 export type HubState = Map<number, Amp>
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
-const cmul = (a: Amp, b: Amp): Amp => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: Amp, b: Amp): Amp => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 
-export const slotOfBody = (b: HubBody): number => (b.j === 0 ? (LINE_FIRSTS[b.l] as number) : (OPPOSITE[LINE_FIRSTS[b.l] as number] as number))
+export const slotOfBody = (b: HubBody): number =>
+  b.j === 0 ? LINE_FIRSTS[b.l]! : OPPOSITE[LINE_FIRSTS[b.l]!]!
 
-const codeOf = (b: HubBody): number => ((b.l * SPAN + (b.s + HUB_REACH)) * 2 + b.j) * 2 + (b.q > 0 ? 0 : 1)
+const codeOf = (b: HubBody): number =>
+  ((b.l * SPAN + (b.s + HUB_REACH)) * 2 + b.j) * 2 + (b.q > 0 ? 0 : 1)
 
 function bodyOf(c: number): HubBody {
   const q = c % 2 === 0 ? 1 : -1
@@ -72,6 +102,7 @@ export function hubKey(bodies: readonly HubBody[]): number {
 
 export function hubDecode(key: number, n: number): HubBody[] {
   const out: HubBody[] = []
+
   let k = key
 
   for (let i = 0; i < n; i++) {
@@ -86,13 +117,15 @@ export function hubDecode(key: number, n: number): HubBody[] {
 export function stringOf(bodies: readonly HubBody[]): number {
   const byLine = new Map<number, HubBody[]>()
 
-  for (const b of bodies) byLine.set(b.l, [...(byLine.get(b.l) ?? []), b])
+  for (const b of bodies) {
+    byLine.set(b.l, [...(byLine.get(b.l) ?? []), b])
+  }
 
   let n = 0
 
   for (const on of byLine.values()) {
     if (on.length === 1) {
-      n += Math.abs((on[0] as HubBody).s)
+      n += Math.abs(on[0]!.s)
       continue
     }
 
@@ -100,9 +133,15 @@ export function stringOf(bodies: readonly HubBody[]): number {
     const hi = Math.max(0, ...on.map(b => b.s))
 
     for (let k = lo; k < hi; k++) {
-      const f = on.reduce((a, b) => a + (k >= 0 && k < b.s ? -b.q : k < 0 && k >= b.s ? b.q : 0), 0)
+      const f = on.reduce(
+        (a, b) =>
+          a + (k >= 0 && k < b.s ? -b.q : k < 0 && k >= b.s ? b.q : 0),
+        0,
+      )
 
-      if (mod(f, 3) !== 0) n++
+      if (mod(f, 3) !== 0) {
+        n++
+      }
     }
   }
 
@@ -110,7 +149,8 @@ export function stringOf(bodies: readonly HubBody[]): number {
 }
 
 // the 4d dock of a vibe (in dock steps along the unit line direction r / sqrt 2, root frame)
-export const lineDirection = (l: number): number[] => (ROOTS[LINE_FIRSTS[l] as number] as number[]).map(x => x / Math.SQRT2)
+export const lineDirection = (l: number): number[] =>
+  ROOTS[LINE_FIRSTS[l]!]!.map(x => x / Math.SQRT2)
 
 export type HubRun = {
   overlap: Amp[]
@@ -133,18 +173,30 @@ const PERM = new Int32Array(24)
 const VIBE = new Int8Array(24)
 
 // one beat: cost, coin, contact at X, stream
-function hubBeat(spec: HubSpec, s: HubState, tally: { lineChange: number; offHub: number; clash: number; escaped: number }): HubState {
+function hubBeat(
+  spec: HubSpec,
+  s: HubState,
+  tally: {
+    lineChange: number
+    offHub: number
+    clash: number
+    escaped: number
+  },
+): HubState {
   const out: HubState = new Map()
   const n = spec.n
 
   for (const [key, a0] of s) {
     const bodies = hubDecode(key, n)
-    const phase = spec.cost ? (-Math.PI * stringOf(bodies)) / CLOCK_HALF : 0
+    const phase = spec.cost
+      ? (-Math.PI * stringOf(bodies)) / CLOCK_HALF
+      : 0
     const a = cmul(a0, [Math.cos(phase), Math.sin(phase)])
     const w0 = a[0] * a[0] + a[1] * a[1]
 
     for (let mask = 0; mask < 1 << n; mask++) {
       let amp: Amp = a
+
       const coined = bodies.map((b, i) => {
         const flip = ((mask >> i) & 1) === 1
 
@@ -159,40 +211,65 @@ function hubBeat(spec: HubSpec, s: HubState, tally: { lineChange: number; offHub
           const bu = coined[u] as HubBody
           const bv = coined[v] as HubBody
 
-          if (bu.l === bv.l && bu.s === bv.s) tally.clash += w0
-          else if (bu.s !== 0 && bv.s !== 0 && bu.l !== bv.l) {
+          if (bu.l === bv.l && bu.s === bv.s) {
+            tally.clash += w0
+          } else if (bu.s !== 0 && bv.s !== 0 && bu.l !== bv.l) {
             const du = lineDirection(bu.l).map(x => x * bu.s)
             const dv = lineDirection(bv.l).map(x => x * bv.s)
 
-            if (du.every((x, c) => Math.abs(x - (dv[c] as number)) < 1e-9)) tally.offHub += w0
+            if (du.every((x, c) => Math.abs(x - dv[c]!) < 1e-9)) {
+              tally.offHub += w0
+            }
           }
         }
       }
 
       let hit = coined
-      const at = coined.map((b, i) => ({ b, i })).filter(t => t.b.s === 0)
+
+      const at = coined
+        .map((b, i) => ({ b, i }))
+        .filter(t => t.b.s === 0)
 
       if (spec.contact === 'rule' && at.length > 0) {
         VIBE.fill(0)
-        for (const t of at) VIBE[slotOfBody(t.b)] = t.b.q
 
-        if (bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) !== 0) {
+        for (const t of at) {
+          VIBE[slotOfBody(t.b)] = t.b.q
+        }
+
+        if (
+          bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) !== 0
+        ) {
           hit = coined.map(b => ({ ...b }))
-          for (const t of at) {
-            const d = PERM[slotOfBody(t.b)] as number
-            const l = LINE_OF[d] as number
 
-            hit[t.i] = { l, s: 0, j: d === LINE_FIRSTS[l] ? 0 : 1, q: t.b.q }
+          for (const t of at) {
+            const d = PERM[slotOfBody(t.b)]!
+            const l = LINE_OF[d]!
+
+            hit[t.i] = {
+              l,
+              s: 0,
+              j: d === LINE_FIRSTS[l] ? 0 : 1,
+              q: t.b.q,
+            }
           }
 
           const before = new Set(coined.map(b => b.l))
           const after = new Set(hit.map(b => b.l))
 
-          if (before.size !== after.size || [...after].some(l => !before.has(l))) tally.lineChange += amp[0] * amp[0] + amp[1] * amp[1]
+          if (
+            before.size !== after.size ||
+            [...after].some(l => !before.has(l))
+          ) {
+            tally.lineChange += amp[0] * amp[0] + amp[1] * amp[1]
+          }
         }
       }
 
-      const moved = hit.map(b => ({ ...b, s: b.s + (b.j === 0 ? 1 : -1) }))
+      const moved = hit.map(b => ({
+        ...b,
+        s: b.s + (b.j === 0 ? 1 : -1),
+      }))
 
       if (moved.some(b => Math.abs(b.s) > HUB_REACH)) {
         tally.escaped += amp[0] * amp[0] + amp[1] * amp[1]
@@ -205,7 +282,9 @@ function hubBeat(spec: HubSpec, s: HubState, tally: { lineChange: number; offHub
       if (o) {
         o[0] += amp[0]
         o[1] += amp[1]
-      } else out.set(k, [amp[0], amp[1]])
+      } else {
+        out.set(k, [amp[0], amp[1]])
+      }
     }
   }
 
@@ -215,21 +294,33 @@ function hubBeat(spec: HubSpec, s: HubState, tally: { lineChange: number; offHub
 const weightOf = (s: HubState): number => {
   let w = 0
 
-  for (const a of s.values()) w += a[0] * a[0] + a[1] * a[1]
+  for (const a of s.values()) {
+    w += a[0] * a[0] + a[1] * a[1]
+  }
 
   return w
 }
 
 // `beats` beats from `start`: overlap and fidelity with the start, the weight with any vibe more than `reach` docks
 // from X, entries under `floor` dropped every beat
-export function runHub(spec: HubSpec, start: HubState, beats: number, reach: number, floor: number): HubRun {
-  let s: HubState = new Map([...start].map(([k, a]) => [k, [a[0], a[1]] as Amp]))
+export function runHub(
+  spec: HubSpec,
+  start: HubState,
+  beats: number,
+  reach: number,
+  floor: number,
+): HubRun {
+  let s: HubState = new Map(
+    [...start].map(([k, a]) => [k, [a[0], a[1]] as Amp]),
+  )
+
   const w0 = weightOf(start)
   const tally = { lineChange: 0, offHub: 0, clash: 0, escaped: 0 }
   const overlap: Amp[] = [[1, 0]]
   const fidelity: number[] = []
   const tail: number[] = []
   const lines = new Set<number>()
+
   let dropped = 0
   let size = s.size
 
@@ -251,8 +342,13 @@ export function runHub(spec: HubSpec, start: HubState, beats: number, reach: num
 
       const bodies = hubDecode(k, spec.n)
 
-      for (const b of bodies) lines.add(b.l)
-      if (bodies.some(b => Math.abs(b.s) > reach)) far += w
+      for (const b of bodies) {
+        lines.add(b.l)
+      }
+
+      if (bodies.some(b => Math.abs(b.s) > reach)) {
+        far += w
+      }
 
       const x = start.get(k)
 
@@ -268,14 +364,30 @@ export function runHub(spec: HubSpec, start: HubState, beats: number, reach: num
     tail.push(far / w0)
   }
 
-  return { overlap, fidelity, tail, dropped, escaped: tally.escaped, size, norm: weightOf(s) / w0, lineChange: tally.lineChange / w0, offHub: tally.offHub, clash: tally.clash, lines }
+  return {
+    overlap,
+    fidelity,
+    tail,
+    dropped,
+    escaped: tally.escaped,
+    size,
+    norm: weightOf(s) / w0,
+    lineChange: tally.lineChange / w0,
+    offHub: tally.offHub,
+    clash: tally.clash,
+    lines,
+  }
 }
 
 // the one-vibe level of code/measure/crossing-lines (a ring of L, the string's other end at X) as amplitudes on
 // (signed position, slot); `mismatch` is the level's weight whose flux is not the string walked out from X (a
 // winding on the ring), which this stand-in cannot hold
-export function oneVibeProfile(spec: CrossSpec, level: CrossState): { profile: Map<string, Amp>; mismatch: number } {
+export function oneVibeProfile(
+  spec: CrossSpec,
+  level: CrossState,
+): { profile: Map<string, Amp>; mismatch: number } {
   const profile = new Map<string, Amp>()
+
   let mismatch = 0
 
   for (const [k, a] of level) {
@@ -296,13 +408,18 @@ export function oneVibeProfile(spec: CrossSpec, level: CrossState): { profile: M
 
 // the product of one one-vibe profile on each of `lines` (charges `charges`), normalized: an exact level of the beat
 // with the contact off, since the cost is then a sum of one term per line
-export function hubProduct(profile: Map<string, Amp>, lines: readonly number[], charges: readonly number[]): HubState {
+export function hubProduct(
+  profile: Map<string, Amp>,
+  lines: readonly number[],
+  charges: readonly number[],
+): HubState {
   const entries = [...profile.entries()].map(([k, a]) => {
     const [s, j] = k.split('.').map(Number) as [number, number]
 
     return { s, j, a }
   })
   const out: HubState = new Map()
+
   const choose = (v: number, acc: HubBody[], amp: Amp): void => {
     if (v === lines.length) {
       const k = hubKey(acc)
@@ -311,12 +428,20 @@ export function hubProduct(profile: Map<string, Amp>, lines: readonly number[], 
       if (o) {
         o[0] += amp[0]
         o[1] += amp[1]
-      } else out.set(k, [amp[0], amp[1]])
+      } else {
+        out.set(k, [amp[0], amp[1]])
+      }
 
       return
     }
 
-    for (const e of entries) choose(v + 1, [...acc, { l: lines[v] as number, s: e.s, j: e.j, q: charges[v] as number }], cmul(amp, e.a))
+    for (const e of entries) {
+      choose(
+        v + 1,
+        [...acc, { l: lines[v]!, s: e.s, j: e.j, q: charges[v]! }],
+        cmul(amp, e.a),
+      )
+    }
   }
 
   choose(0, [], [1, 0])
@@ -332,7 +457,11 @@ export function hubProduct(profile: Map<string, Amp>, lines: readonly number[], 
 }
 
 // the equal sum of the products on every line set of `sets` (a K orbit), normalized
-export function hubOrbit(profile: Map<string, Amp>, sets: readonly (readonly number[])[], charges: readonly number[]): HubState {
+export function hubOrbit(
+  profile: Map<string, Amp>,
+  sets: readonly (readonly number[])[],
+  charges: readonly number[],
+): HubState {
   const out: HubState = new Map()
 
   for (const set of sets) {
@@ -342,7 +471,9 @@ export function hubOrbit(profile: Map<string, Amp>, sets: readonly (readonly num
       if (o) {
         o[0] += a[0]
         o[1] += a[1]
-      } else out.set(k, [a[0], a[1]])
+      } else {
+        out.set(k, [a[0], a[1]])
+      }
     }
   }
 
@@ -357,11 +488,22 @@ export function hubOrbit(profile: Map<string, Amp>, sets: readonly (readonly num
 }
 
 // e^(i K . centroid) on every configuration, the centroid the mean of the vibes' 4d docks
-export function hubBoost(s: HubState, n: number, K: readonly number[]): HubState {
+export function hubBoost(
+  s: HubState,
+  n: number,
+  K: readonly number[],
+): HubState {
   const out: HubState = new Map()
 
   for (const [key, a] of s) {
-    const phase = hubDecode(key, n).reduce((acc, b) => acc + (lineDirection(b.l).reduce((x, u, c) => x + u * (K[c] as number), 0) * b.s) / n, 0)
+    const phase = hubDecode(key, n).reduce(
+      (acc, b) =>
+        acc +
+        (lineDirection(b.l).reduce((x, u, c) => x + u * K[c]!, 0) *
+          b.s) /
+          n,
+      0,
+    )
 
     out.set(key, cmul(a, [Math.cos(phase), Math.sin(phase)]))
   }
@@ -371,28 +513,54 @@ export function hubBoost(s: HubState, n: number, K: readonly number[]): HubState
 
 // the line classes whose slots K sends three singles on distinct lines to, and the line sets reached from `start`
 // by K at X over every choice of slot on each line (a breadth-first walk on line sets)
-export function lineSetGraph(start: readonly number[]): { sets: number[][]; edges: number } {
-  const key = (ls: readonly number[]): string => ls.slice().sort((x, y) => x - y).join(',')
-  const seen = new Map<string, number[]>([[key(start), start.slice().sort((x, y) => x - y)]])
+export function lineSetGraph(start: readonly number[]): {
+  sets: number[][]
+  edges: number
+} {
+  const key = (ls: readonly number[]): string =>
+    ls
+      .slice()
+      .sort((x, y) => x - y)
+      .join(',')
+  const seen = new Map<string, number[]>([
+    [key(start), start.slice().sort((x, y) => x - y)],
+  ])
   const queue = [start.slice()]
+
   let edges = 0
 
   while (queue.length > 0) {
-    const ls = queue.shift() as number[]
+    const ls = queue.shift()!
 
     for (let mask = 0; mask < 1 << ls.length; mask++) {
-      const slots = ls.map((l, i) => ((mask >> i) & 1 ? (OPPOSITE[LINE_FIRSTS[l] as number] as number) : (LINE_FIRSTS[l] as number)))
+      const slots = ls.map((l, i) =>
+        (mask >> i) & 1 ? OPPOSITE[LINE_FIRSTS[l]!]! : LINE_FIRSTS[l]!,
+      )
 
       VIBE.fill(0)
-      for (const d of slots) VIBE[d] = 1
-      if (bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0) continue
 
-      const next = slots.map(d => LINE_OF[PERM[d] as number] as number)
+      for (const d of slots) {
+        VIBE[d] = 1
+      }
+
+      if (
+        bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0
+      ) {
+        continue
+      }
+
+      const next = slots.map(d => LINE_OF[PERM[d]!]!)
       const k = key(next)
 
-      if (k !== key(ls)) edges++
+      if (k !== key(ls)) {
+        edges++
+      }
+
       if (!seen.has(k)) {
-        seen.set(k, next.slice().sort((x, y) => x - y))
+        seen.set(
+          k,
+          next.slice().sort((x, y) => x - y),
+        )
         queue.push(next)
       }
     }
@@ -405,14 +573,22 @@ export function lineSetGraph(start: readonly number[]): { sets: number[][]; edge
 // many docks carry a single off its own two lines (w_P fixes P = r_1 + r_2, and the census of E-SPN-0110 says it keeps
 // or swaps the two), and how many carry a full line onto a line that was not full (a vacuum pair recruited onto a new
 // line: the only line change a two-single meeting makes)
-export function twoSinglesCensus(): { docks: number; singlesLeft: number; fullMoved: number } {
+export function twoSinglesCensus(): {
+  docks: number
+  singlesLeft: number
+  fullMoved: number
+} {
   const out = { docks: 0, singlesLeft: 0, fullMoved: 0 }
 
   for (let a = 0; a < 24; a++) {
     for (let b = a + 1; b < 24; b++) {
-      if (LINE_OF[a] === LINE_OF[b]) continue
+      if (LINE_OF[a] === LINE_OF[b]) {
+        continue
+      }
 
-      const others = Array.from({ length: 12 }, (_, l) => l).filter(l => l !== LINE_OF[a] && l !== LINE_OF[b])
+      const others = Array.from({ length: 12 }, (_, l) => l).filter(
+        l => l !== LINE_OF[a] && l !== LINE_OF[b],
+      )
 
       for (let mask = 0; mask < 1 << others.length; mask++) {
         const full = others.filter((_, i) => ((mask >> i) & 1) === 1)
@@ -420,17 +596,36 @@ export function twoSinglesCensus(): { docks: number; singlesLeft: number; fullMo
         VIBE.fill(0)
         VIBE[a] = 1
         VIBE[b] = 1
+
         for (const l of full) {
-          VIBE[LINE_FIRSTS[l] as number] = 1
-          VIBE[OPPOSITE[LINE_FIRSTS[l] as number] as number] = 1
+          VIBE[LINE_FIRSTS[l]!] = 1
+          VIBE[OPPOSITE[LINE_FIRSTS[l]!]!] = 1
         }
+
         out.docks++
-        if (bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0) continue
+
+        if (
+          bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0
+        ) {
+          continue
+        }
 
         const own = new Set([LINE_OF[a], LINE_OF[b]])
 
-        if (!own.has(LINE_OF[PERM[a] as number]) || !own.has(LINE_OF[PERM[b] as number])) out.singlesLeft++
-        if (full.some(l => !full.includes(LINE_OF[PERM[LINE_FIRSTS[l] as number] as number] as number))) out.fullMoved++
+        if (
+          !own.has(LINE_OF[PERM[a]!]) ||
+          !own.has(LINE_OF[PERM[b]!])
+        ) {
+          out.singlesLeft++
+        }
+
+        if (
+          full.some(
+            l => !full.includes(LINE_OF[PERM[LINE_FIRSTS[l]!]!]!),
+          )
+        ) {
+          out.fullMoved++
+        }
       }
     }
   }
@@ -440,9 +635,17 @@ export function twoSinglesCensus(): { docks: number; singlesLeft: number; fullMo
 
 // the slot and store readings where two runs of one start on two tables (two contacts) differ, summed over beats,
 // and the first beat they differ (-1 if never); points and open bits are read only where a vibe is
-export function contactAgreement(a: LockedTables, b: LockedTables, start: Configuration, key: PathKey, threshold: number, beats: number): { differ: number; first: number } {
+export function contactAgreement(
+  a: LockedTables,
+  b: LockedTables,
+  start: Configuration,
+  key: PathKey,
+  threshold: number,
+  beats: number,
+): { differ: number; first: number } {
   const p = keyedRunner(a, start, { key, threshold })
   const q = keyedRunner(b, start, { key, threshold })
+
   let differ = 0
   let first = -1
 
@@ -452,13 +655,34 @@ export function contactAgreement(a: LockedTables, b: LockedTables, start: Config
 
     const x = p.state()
     const y = q.state()
+
     let n = 0
 
-    for (let i = 0; i < x.vibe.length; i++) if (x.vibe[i] !== y.vibe[i] || (x.vibe[i] !== 0 && (x.point[i] !== y.point[i] || x.open[i] !== y.open[i]))) n++
-    for (let s = 0; s < x.store.length; s++) if (x.store[s] !== y.store[s] || (x.store[s] !== 0 && (x.spoint[s] !== y.spoint[s] || x.sopen[s] !== y.sopen[s]))) n++
+    for (let i = 0; i < x.vibe.length; i++) {
+      if (
+        x.vibe[i] !== y.vibe[i] ||
+        (x.vibe[i] !== 0 &&
+          (x.point[i] !== y.point[i] || x.open[i] !== y.open[i]))
+      ) {
+        n++
+      }
+    }
+
+    for (let s = 0; s < x.store.length; s++) {
+      if (
+        x.store[s] !== y.store[s] ||
+        (x.store[s] !== 0 &&
+          (x.spoint[s] !== y.spoint[s] || x.sopen[s] !== y.sopen[s]))
+      ) {
+        n++
+      }
+    }
 
     differ += n
-    if (n > 0 && first < 0) first = t
+
+    if (n > 0 && first < 0) {
+      first = t
+    }
   }
 
   return { differ, first }
@@ -466,32 +690,56 @@ export function contactAgreement(a: LockedTables, b: LockedTables, start: Config
 
 // K on every unordered set of `m` slots on m distinct lines of one dock (all loves): how many keep the line set, change
 // it, or are left alone, and how many images put two vibes on one line
-export function singlesCensus(m: number): { keep: number; change: number; identity: number; clash: number; total: number } {
+export function singlesCensus(m: number): {
+  keep: number
+  change: number
+  identity: number
+  clash: number
+  total: number
+} {
   const out = { keep: 0, change: 0, identity: 0, clash: 0, total: 0 }
+
   const pick = (from: number, acc: number[]): void => {
     if (acc.length === m) {
       const lines = new Set(acc.map(d => LINE_OF[d]))
 
-      if (lines.size < m) return
+      if (lines.size < m) {
+        return
+      }
+
       out.total++
       VIBE.fill(0)
-      for (const d of acc) VIBE[d] = 1
-      if (bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0) {
+
+      for (const d of acc) {
+        VIBE[d] = 1
+      }
+
+      if (
+        bouncePermutation(BOUNCE_TABLE, 'pass', VIBE, 0, PERM) === 0
+      ) {
         out.identity++
 
         return
       }
 
-      const after = new Set(acc.map(d => LINE_OF[PERM[d] as number]))
+      const after = new Set(acc.map(d => LINE_OF[PERM[d]!]))
 
-      if (after.size < m) out.clash++
-      if ([...after].every(l => lines.has(l))) out.keep++
-      else out.change++
+      if (after.size < m) {
+        out.clash++
+      }
+
+      if ([...after].every(l => lines.has(l))) {
+        out.keep++
+      } else {
+        out.change++
+      }
 
       return
     }
 
-    for (let d = from; d < 24; d++) pick(d + 1, [...acc, d])
+    for (let d = from; d < 24; d++) {
+      pick(d + 1, [...acc, d])
+    }
   }
 
   pick(0, [])

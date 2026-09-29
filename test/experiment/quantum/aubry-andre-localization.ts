@@ -49,7 +49,7 @@ export default experiment({
   id: 'quantum/aubry-andre-localization',
   code: 'E-QTM-0075',
   title:
-    "Aubry-Andre localization from the coined Dirac walk model: a deterministic quasiperiodic (golden-ratio) mass modulation traps the walk so its spread saturates with time (spread at 500 steps within about 1.8 times the spread at 100 steps and tens of times smaller than the delocalized case), while a zero modulation spreads ballistically (spread grows about five-fold, linearly in time)",
+    'Aubry-Andre localization from the coined Dirac walk model: a deterministic quasiperiodic (golden-ratio) mass modulation traps the walk so its spread saturates with time (spread at 500 steps within about 1.8 times the spread at 100 steps and tens of times smaller than the delocalized case), while a zero modulation spreads ballistically (spread grows about five-fold, linearly in time)',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
@@ -91,7 +91,7 @@ export default experiment({
       },
       notes:
         'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. ' +
-        "Aubry-Andre localization measured on the coined Dirac walk model (code/dynamics/quasiperiodic-walk): a deterministic golden-ratio quasiperiodic mass modulation traps the walk (spread saturates, >10x suppression vs ballistic), the unmodulated control spreads linearly. Deterministic (quasiperiodic, never random). L3, on the coined walk model, not the rule.",
+        'Aubry-Andre localization measured on the coined Dirac walk model (code/dynamics/quasiperiodic-walk): a deterministic golden-ratio quasiperiodic mass modulation traps the walk (spread saturates, >10x suppression vs ballistic), the unmodulated control spreads linearly. Deterministic (quasiperiodic, never random). L3, on the coined walk model, not the rule.',
     })
   },
 })

@@ -19,14 +19,23 @@ import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 
 export const ROOTS: readonly (readonly number[])[] = rootsD4()
-export const OPPOSITE: readonly number[] = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+export const OPPOSITE: readonly number[] = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 // +1 on the first slot of a line, -1 on the second: the sign a calm slot's role point carries (code/rule/color-weave)
-export const SIDE: readonly number[] = ROOTS.map((_, d) => (d < (OPPOSITE[d] ?? d) ? 1 : -1))
+export const SIDE: readonly number[] = ROOTS.map((_, d) =>
+  d < (OPPOSITE[d] ?? d) ? 1 : -1,
+)
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 export type A2Plane = {
   // the zero-sum triangle, in increasing direction order, and its antitriangle (each direction's opposite)
@@ -39,13 +48,23 @@ export type A2Plane = {
 }
 
 export function a2Planes(): A2Plane[] {
-  const triangles = zeroSumTriangles({ directions: ROOTS.map(r => [...r]) })
+  const triangles = zeroSumTriangles({
+    directions: ROOTS.map(r => [...r]),
+  })
   const planes: A2Plane[] = []
   const done = new Set<string>()
 
   for (const t of triangles) {
-    const triangle = [...t].sort((a, b) => a - b) as [number, number, number]
-    const anti = triangle.map(d => OPPOSITE[d] ?? d) as [number, number, number]
+    const triangle = [...t].sort((a, b) => a - b) as [
+      number,
+      number,
+      number,
+    ]
+    const anti = triangle.map(d => OPPOSITE[d] ?? d) as [
+      number,
+      number,
+      number,
+    ]
     const key = [...triangle, ...anti].sort((a, b) => a - b).join(',')
 
     if (done.has(key)) {
@@ -73,7 +92,9 @@ export function a2Planes(): A2Plane[] {
       const det = gaa * gbb - gab * gab
       const x = (gbb * dot(r, a) - gab * dot(r, b)) / det
       const y = (gaa * dot(r, b) - gab * dot(r, a)) / det
-      const rest = r.map((v, k) => v - x * (a[k] ?? 0) - y * (b[k] ?? 0))
+      const rest = r.map(
+        (v, k) => v - x * (a[k] ?? 0) - y * (b[k] ?? 0),
+      )
       const shadow = rest.map(v => v.toFixed(6)).join(',')
 
       groups.set(shadow, [...(groups.get(shadow) ?? []), d])
@@ -97,11 +118,19 @@ export function a2Planes(): A2Plane[] {
 
       const chirality = [...chiralities][0] ?? 0
 
-      if (ordered.some(d => d < 0) || group.length !== 3 || chiralities.size !== 1) {
-        throw new Error('a copy is not three directions leaning toward three distinct triangle directions')
+      if (
+        ordered.some(d => d < 0) ||
+        group.length !== 3 ||
+        chiralities.size !== 1
+      ) {
+        throw new Error(
+          'a copy is not three directions leaning toward three distinct triangle directions',
+        )
       }
 
-      ;(chirality === 1 ? triplets : antitriplets).push(ordered as [number, number, number])
+      ;(chirality === 1 ? triplets : antitriplets).push(
+        ordered as [number, number, number],
+      )
     }
 
     planes.push({ triangle, anti, triplets, antitriplets })
@@ -129,7 +158,11 @@ export type Triple = {
   readonly harari: string
 }
 
-const NAME: Record<number, string> = { 1: 'love', 0: 'calm', [-1]: 'fear' }
+const NAME: Record<number, string> = {
+  1: 'love',
+  0: 'calm',
+  [-1]: 'fear',
+}
 
 const HARARI: Record<string, string> = {
   'love-love-love': 'positron',
@@ -161,7 +194,10 @@ export function kindOf(vibes: readonly number[]): string {
     .join('-')
 }
 
-function orbit(vibes: readonly number[], moves: readonly (readonly number[])[]): Set<string> {
+function orbit(
+  vibes: readonly number[],
+  moves: readonly (readonly number[])[],
+): Set<string> {
   return new Set(moves.map(p => p.map(i => vibes[i] ?? 0).join(',')))
 }
 
@@ -179,7 +215,9 @@ export const TRIPLES: readonly Triple[] = (() => {
   const out: Triple[] = []
 
   for (let n = 0; n < 27; n++) {
-    const vibes = [0, 1, 2].map(k => (Math.floor(n / 3 ** k) % 3) - 1) as [number, number, number]
+    const vibes = [0, 1, 2].map(
+      k => (Math.floor(n / 3 ** k) % 3) - 1,
+    ) as [number, number, number]
     const loves = vibes.filter(v => v === 1).length
     const fears = vibes.filter(v => v === -1).length
     const kind = kindOf(vibes)
@@ -187,7 +225,9 @@ export const TRIPLES: readonly Triple[] = (() => {
 
     vibes.forEach(v => counts.set(v, (counts.get(v) ?? 0) + 1))
 
-    const oddValue = [...counts.entries()].find(([, c]) => c === 1 && counts.size === 2)?.[0]
+    const oddValue = [...counts.entries()].find(
+      ([, c]) => c === 1 && counts.size === 2,
+    )?.[0]
 
     out.push({
       vibes,
@@ -208,15 +248,31 @@ export const TRIPLES: readonly Triple[] = (() => {
 // the cold weave's spec, built as E-FLD-0032 builds it (the head-on turn base, its measured CPT mirror
 // phase, two partitions of three matched scatterings a beat)
 export function coldSpec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 // every W(F4) element that maps a zero-sum triangle onto itself as a 3-cycle of its directions, with the
 // index of that triangle in a2Planes' order (triangle, antitriangle, plane by plane)
-export function cyclingElements(): { permutation: number[]; triangle: number }[] {
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS.map(r => [...r]) })
+export function cyclingElements(): {
+  permutation: number[]
+  triangle: number
+}[] {
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS.map(r => [...r]),
+  })
   const triangles = a2Planes().flatMap(p => [p.triangle, p.anti])
   const out: { permutation: number[]; triangle: number }[] = []
 
@@ -224,7 +280,10 @@ export function cyclingElements(): { permutation: number[]; triangle: number }[]
     const [a = 0, b = 0, c = 0] = t
 
     for (const p of permutations) {
-      if ((p[a] === b && p[b] === c && p[c] === a) || (p[a] === c && p[c] === b && p[b] === a)) {
+      if (
+        (p[a] === b && p[b] === c && p[c] === a) ||
+        (p[a] === c && p[c] === b && p[b] === a)
+      ) {
         out.push({ permutation: p, triangle: ti })
       }
     }
@@ -234,7 +293,10 @@ export function cyclingElements(): { permutation: number[]; triangle: number }[]
 }
 
 // a dock with the given vibes on the given directions and calm elsewhere
-export function tripleDock(directions: readonly number[], vibes: readonly number[]): Int8Array {
+export function tripleDock(
+  directions: readonly number[],
+  vibes: readonly number[],
+): Int8Array {
   const state = new Int8Array(24)
 
   directions.forEach((d, k) => {

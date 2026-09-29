@@ -27,8 +27,20 @@
 //
 // DETERMINISM: nothing is drawn. NOTHING MOVES: values only.
 
-import { dyadicMod, inverseMatrixMod, multiplyMod } from '@/code/algebra/linear/modular-linear'
-import { centralSymbolKernel, einsteinHilbertForm, extraBasis, slideGauge, type ClassGeometry, type Offset, type Symmetry } from '@/code/measure/slide-invariant-operators'
+import {
+  dyadicMod,
+  inverseMatrixMod,
+  multiplyMod,
+} from '@/code/algebra/linear/modular-linear'
+import {
+  centralSymbolKernel,
+  einsteinHilbertForm,
+  extraBasis,
+  slideGauge,
+  type ClassGeometry,
+  type Offset,
+  type Symmetry,
+} from '@/code/measure/slide-invariant-operators'
 
 const key3 = (r: readonly number[]): string => `${r[0]},${r[1]},${r[2]}`
 
@@ -51,7 +63,10 @@ export function extraVectors(geometry: ClassGeometry): ExtraVectors {
   return {
     tilts: [e[0]!, e[1]!, e[2]!],
     lapse: m0.map((x, a) => x + m1[a]! + m2[a]!),
-    doublet: [m0.map((x, a) => x - m1[a]!), m0.map((x, a) => x - m2[a]!)],
+    doublet: [
+      m0.map((x, a) => x - m1[a]!),
+      m0.map((x, a) => x - m2[a]!),
+    ],
   }
 }
 
@@ -61,48 +76,74 @@ export function extraVectors(geometry: ClassGeometry): ExtraVectors {
 // orbit members as [a, b, r index, sign]: the kernel entry of the triple is sign times the orbit's parameter
 export type SignedSpace = {
   readonly offsets: readonly Offset[]
-  readonly members: readonly (readonly (readonly [number, number, number, number])[])[]
+  readonly members: readonly (readonly (readonly [
+    number,
+    number,
+    number,
+    number,
+  ])[])[]
   // orbits dropped because the group and the transpose sign force them to zero
   readonly forcedZero: number
 }
 
 // the orbits of (a, b, r) under the symmetries (sign +1) and the transpose (a, b, r) -> (b, a, -r) with sign
 // `transpose` (+1 a symmetric kernel, -1 an antisymmetric one)
-export function signedSpace(offsets: readonly Offset[], symmetries: readonly Symmetry[], transpose: 1 | -1): SignedSpace {
+export function signedSpace(
+  offsets: readonly Offset[],
+  symmetries: readonly Symmetry[],
+  transpose: 1 | -1,
+): SignedSpace {
   const R = offsets.length
   const index = new Map(offsets.map((r, i) => [key3(r), i]))
-  const triple = (a: number, b: number, r: number): number => (a * 12 + b) * R + r
+  const triple = (a: number, b: number, r: number): number =>
+    (a * 12 + b) * R + r
   const seen = new Uint8Array(144 * R)
   const signOf = new Int8Array(144 * R)
   const members: [number, number, number, number][][] = []
+
   let forcedZero = 0
 
   for (let a = 0; a < 12; a++) {
     for (let b = 0; b < 12; b++) {
       for (let r = 0; r < R; r++) {
-        if (seen[triple(a, b, r)]) continue
+        if (seen[triple(a, b, r)]) {
+          continue
+        }
 
         const list: [number, number, number, number][] = []
         const stack: [number, number, number, number][] = [[a, b, r, 1]]
+
         let conflict = false
 
         seen[triple(a, b, r)] = 1
         signOf[triple(a, b, r)] = 1
+
         while (stack.length > 0) {
           const [x, y, s, sign] = stack.pop()!
           const o = offsets[s]!
 
           list.push([x, y, s, sign])
 
-          const images: [number, number, number, number][] = symmetries.map(g => {
-            const moved = index.get(key3(g.offset(o)))
+          const images: [number, number, number, number][] =
+            symmetries.map(g => {
+              const moved = index.get(key3(g.offset(o)))
 
-            if (moved === undefined) throw new Error('spacetime-slide: the offset set is not closed under the group')
+              if (moved === undefined) {
+                throw new Error(
+                  'spacetime-slide: the offset set is not closed under the group',
+                )
+              }
 
-            return [g.classes[x]!, g.classes[y]!, moved, sign]
-          })
+              return [g.classes[x]!, g.classes[y]!, moved, sign]
+            })
 
-          images.push([y, x, index.get(key3([-o[0], -o[1], -o[2]]))!, sign * transpose])
+          images.push([
+            y,
+            x,
+            index.get(key3([-o[0], -o[1], -o[2]]))!,
+            sign * transpose,
+          ])
+
           for (const [u, v, t, sg] of images) {
             const k = triple(u, v, t)
 
@@ -110,11 +151,17 @@ export function signedSpace(offsets: readonly Offset[], symmetries: readonly Sym
               seen[k] = 1
               signOf[k] = sg
               stack.push([u, v, t, sg])
-            } else if (signOf[k] !== sg) conflict = true
+            } else if (signOf[k] !== sg) {
+              conflict = true
+            }
           }
         }
-        if (conflict) forcedZero++
-        else members.push(list)
+
+        if (conflict) {
+          forcedZero++
+        } else {
+          members.push(list)
+        }
       }
     }
   }
@@ -126,12 +173,21 @@ export function signedSpace(offsets: readonly Offset[], symmetries: readonly Sym
 // the slide
 
 // a 12 x 4 kernel entry: (G xi)_class(x) gets value * xi_component(x + offset); component 3 is xi_0
-export type SlideEntry = { readonly class: number; readonly offset: Offset; readonly component: number; readonly value: number }
+export type SlideEntry = {
+  readonly class: number
+  readonly offset: Offset
+  readonly component: number
+  readonly value: number
+}
 
 // static: E-GRV-0138's slide, time independent. foliation: xi_i may depend on time, with the tilts as the shift; no
 // xi_0. no-lapse: xi_0 too, acting on the tilts, with no depth to carry h_00. spacetime: the full linearized
 // diffeomorphism, the lapse on L.
-export type SlideKind = 'static' | 'foliation' | 'no-lapse' | 'spacetime'
+export type SlideKind =
+  | 'static'
+  | 'foliation'
+  | 'no-lapse'
+  | 'spacetime'
 
 export type Slide = {
   readonly kind: SlideKind
@@ -142,26 +198,79 @@ export type Slide = {
   readonly lapseScale: number
 }
 
-export type SlideKernels = { readonly space: SlideEntry[]; readonly time: SlideEntry[]; readonly components: number }
+export type SlideKernels = {
+  readonly space: SlideEntry[]
+  readonly time: SlideEntry[]
+  readonly components: number
+}
 
-export function spacetimeSlide(geometry: ClassGeometry, slide: Slide): SlideKernels {
+export function spacetimeSlide(
+  geometry: ClassGeometry,
+  slide: Slide,
+): SlideKernels {
   const { tilts, lapse } = extraVectors(geometry)
-  const space: SlideEntry[] = slideGauge(geometry, 'central').map(g => ({ class: g.class, offset: g.offset, component: g.component, value: g.value }))
+  const space: SlideEntry[] = slideGauge(geometry, 'central').map(
+    g => ({
+      class: g.class,
+      offset: g.offset,
+      component: g.component,
+      value: g.value,
+    }),
+  )
   const time: SlideEntry[] = []
-  const withTime = slide.kind === 'no-lapse' || slide.kind === 'spacetime'
-  const unit = (i: number, s: number): Offset => [i === 0 ? s : 0, i === 1 ? s : 0, i === 2 ? s : 0]
+  const withTime =
+    slide.kind === 'no-lapse' || slide.kind === 'spacetime'
+  const unit = (i: number, s: number): Offset => [
+    i === 0 ? s : 0,
+    i === 1 ? s : 0,
+    i === 2 ? s : 0,
+  ]
 
   tilts.forEach((t, i) =>
     t.forEach((x, a) => {
-      if (x === 0) return
-      if (withTime) {
-        space.push({ class: a, offset: unit(i, 1), component: 3, value: (slide.shiftScale * x) / 2 })
-        space.push({ class: a, offset: unit(i, -1), component: 3, value: -(slide.shiftScale * x) / 2 })
+      if (x === 0) {
+        return
       }
-      if (slide.kind !== 'static') time.push({ class: a, offset: [0, 0, 0], component: i, value: (slide.shiftScale * x) / slide.c })
+
+      if (withTime) {
+        space.push({
+          class: a,
+          offset: unit(i, 1),
+          component: 3,
+          value: (slide.shiftScale * x) / 2,
+        })
+
+        space.push({
+          class: a,
+          offset: unit(i, -1),
+          component: 3,
+          value: -(slide.shiftScale * x) / 2,
+        })
+      }
+
+      if (slide.kind !== 'static') {
+        time.push({
+          class: a,
+          offset: [0, 0, 0],
+          component: i,
+          value: (slide.shiftScale * x) / slide.c,
+        })
+      }
     }),
   )
-  if (slide.kind === 'spacetime') lapse.forEach((x, a) => x !== 0 && time.push({ class: a, offset: [0, 0, 0], component: 3, value: (2 * slide.lapseScale * x) / slide.c }))
+
+  if (slide.kind === 'spacetime') {
+    lapse.forEach(
+      (x, a) =>
+        x !== 0 &&
+        time.push({
+          class: a,
+          offset: [0, 0, 0],
+          component: 3,
+          value: (2 * slide.lapseScale * x) / slide.c,
+        }),
+    )
+  }
 
   return { space, time, components: withTime ? 4 : 3 }
 }
@@ -169,20 +278,43 @@ export function spacetimeSlide(geometry: ClassGeometry, slide: Slide): SlideKern
 // ---------------------------------------------------------------------------------------------------------
 // the invariance system
 
-export type ActionSpaces = { readonly kinetic: SignedSpace; readonly first: SignedSpace; readonly potential: SignedSpace }
+export type ActionSpaces = {
+  readonly kinetic: SignedSpace
+  readonly first: SignedSpace
+  readonly potential: SignedSpace
+}
 
-export type ActionColumns = { readonly kinetic: number; readonly first: number; readonly potential: number; readonly width: number }
+export type ActionColumns = {
+  readonly kinetic: number
+  readonly first: number
+  readonly potential: number
+  readonly width: number
+}
 
 export function actionColumns(spaces: ActionSpaces): ActionColumns {
   const m = spaces.kinetic.members.length
   const n = spaces.first.members.length
 
-  return { kinetic: 0, first: m, potential: m + n, width: m + n + spaces.potential.members.length }
+  return {
+    kinetic: 0,
+    first: m,
+    potential: m + n,
+    width: m + n + spaces.potential.members.length,
+  }
 }
 
 // the rows of (X * Y)(s) = sum_r X(r) Y(s - r) = 0, keyed by `tag` and (a, component, s), added into `rows`
-function addConvolution(rows: Map<string, number[]>, width: number, tag: string, space: SignedSpace, column: number, entries: readonly SlideEntry[]): void {
-  const byClass = Array.from({ length: 12 }, (_, b) => entries.filter(e => e.class === b))
+function addConvolution(
+  rows: Map<string, number[]>,
+  width: number,
+  tag: string,
+  space: SignedSpace,
+  column: number,
+  entries: readonly SlideEntry[],
+): void {
+  const byClass = Array.from({ length: 12 }, (_, b) =>
+    entries.filter(e => e.class === b),
+  )
 
   space.members.forEach((list, t) => {
     for (const [a, b, ri, sign] of list) {
@@ -190,12 +322,14 @@ function addConvolution(rows: Map<string, number[]>, width: number, tag: string,
 
       for (const e of byClass[b]!) {
         const k = `${tag}|${a},${e.component},${key3([r[0] + e.offset[0], r[1] + e.offset[1], r[2] + e.offset[2]])}`
+
         let row = rows.get(k)
 
         if (!row) {
           row = new Array<number>(width).fill(0)
           rows.set(k, row)
         }
+
         row[column + t]! += sign * e.value
       }
     }
@@ -203,17 +337,68 @@ function addConvolution(rows: Map<string, number[]>, width: number, tag: string,
 }
 
 // every invariance row, over the columns [kinetic | first | potential] (dyadic)
-export function slideRows(spaces: ActionSpaces, kernels: SlideKernels, kind: SlideKind): number[][] {
+export function slideRows(
+  spaces: ActionSpaces,
+  kernels: SlideKernels,
+  kind: SlideKind,
+): number[][] {
   const col = actionColumns(spaces)
   const rows = new Map<string, number[]>()
 
-  addConvolution(rows, col.width, '0', spaces.potential, col.potential, kernels.space)
+  addConvolution(
+    rows,
+    col.width,
+    '0',
+    spaces.potential,
+    col.potential,
+    kernels.space,
+  )
+
   if (kind !== 'static') {
-    addConvolution(rows, col.width, '3', spaces.kinetic, col.kinetic, kernels.time)
-    addConvolution(rows, col.width, '2', spaces.kinetic, col.kinetic, kernels.space)
-    addConvolution(rows, col.width, '2', spaces.first, col.first, kernels.time)
-    addConvolution(rows, col.width, '1', spaces.first, col.first, kernels.space)
-    addConvolution(rows, col.width, '1', spaces.potential, col.potential, kernels.time)
+    addConvolution(
+      rows,
+      col.width,
+      '3',
+      spaces.kinetic,
+      col.kinetic,
+      kernels.time,
+    )
+
+    addConvolution(
+      rows,
+      col.width,
+      '2',
+      spaces.kinetic,
+      col.kinetic,
+      kernels.space,
+    )
+
+    addConvolution(
+      rows,
+      col.width,
+      '2',
+      spaces.first,
+      col.first,
+      kernels.time,
+    )
+
+    addConvolution(
+      rows,
+      col.width,
+      '1',
+      spaces.first,
+      col.first,
+      kernels.space,
+    )
+
+    addConvolution(
+      rows,
+      col.width,
+      '1',
+      spaces.potential,
+      col.potential,
+      kernels.time,
+    )
   }
 
   return [...rows.values()].filter(row => row.some(x => x !== 0))
@@ -236,18 +421,31 @@ export function sandwichRows(
   skip: (r: Offset) => boolean = () => false,
 ): number[][] {
   const blocks = left.length * right.length
-  const out = Array.from({ length: (perOffset ? space.offsets.length : 1) * blocks }, () => new Array<number>(width).fill(0))
+  const out = Array.from(
+    { length: (perOffset ? space.offsets.length : 1) * blocks },
+    () => new Array<number>(width).fill(0),
+  )
 
   space.members.forEach((list, t) => {
     for (const [a, b, ri, sign] of list) {
       const r = space.offsets[ri]!
       const w = weight(r)
 
-      if (w === 0 || skip(r)) continue
+      if (w === 0 || skip(r)) {
+        continue
+      }
+
       left.forEach((l, i) => {
-        if (l[a] === 0) return
+        if (l[a] === 0) {
+          return
+        }
+
         right.forEach((m, j) => {
-          if (m[b] !== 0) out[(perOffset ? ri : 0) * blocks + i * right.length + j]![column + t]! += sign * w * l[a]! * m[b]!
+          if (m[b] !== 0) {
+            out[(perOffset ? ri : 0) * blocks + i * right.length + j]![
+              column + t
+            ]! += sign * w * l[a]! * m[b]!
+          }
         })
       })
     }
@@ -260,14 +458,23 @@ export function sandwichRows(
 // ---------------------------------------------------------------------------------------------------------
 // E-GRV-0125's potential on the 12 depths, K = A^+T Q(sin p) A^+, per offset, mod p
 
-export function einsteinHilbertDepthKernel(geometry: ClassGeometry, p: number): Map<string, number[][]> {
+export function einsteinHilbertDepthKernel(
+  geometry: ClassGeometry,
+  p: number,
+): Map<string, number[][]> {
   const a = geometry.span.map(row => row.map(x => dyadicMod(x, p)))
   const at = a[0]!.map((_, j) => a.map(row => row[j]!))
-  const plus = multiplyMod(inverseMatrixMod(multiplyMod(at, a, p), p), at, p)
+  const plus = multiplyMod(
+    inverseMatrixMod(multiplyMod(at, a, p), p),
+    at,
+    p,
+  )
   const plusT = plus[0]!.map((_, j) => plus.map(row => row[j]!))
   const out = new Map<string, number[][]>()
 
-  for (const [k, { value }] of centralSymbolKernel(q => einsteinHilbertForm(q))) {
+  for (const [k, { value }] of centralSymbolKernel(q =>
+    einsteinHilbertForm(q),
+  )) {
     out.set(
       k,
       multiplyMod(
@@ -292,8 +499,15 @@ export function plainSpan4(geometry: ClassGeometry): number[][] {
     const n2 = r.reduce((t, x) => t + x * x, 0)
     const row: number[] = []
 
-    for (let i = 0; i < 4; i++) row.push((r[i]! * r[i]!) / (2 * n2))
-    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) row.push((r[i]! * r[j]!) / n2)
+    for (let i = 0; i < 4; i++) {
+      row.push((r[i]! * r[i]!) / (2 * n2))
+    }
+
+    for (let i = 0; i < 4; i++) {
+      for (let j = i + 1; j < 4; j++) {
+        row.push((r[i]! * r[j]!) / n2)
+      }
+    }
 
     return row
   })

@@ -24,25 +24,51 @@
 // MEASUREMENT: frames and centers are floats (the honeycomb's coordinates lie in Z[sqrt 2]); every verdict drawn from
 // them is a permutation or a count, matched at 1e-9. The rule runs in exact integers. No random numbers.
 
-import { type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinPiece, pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { type Mat, type Vec, identity, innerJ, matMul, matVec, nullVector } from '@/code/substrate/coxeter/minkowski'
-import { cuspLayer, type HyperbolicBall, type LabelledCoin } from '@/code/substrate/coxeter/label-transport'
+import {
+  type Mat,
+  type Vec,
+  identity,
+  innerJ,
+  matMul,
+  matVec,
+  nullVector,
+} from '@/code/substrate/coxeter/minkowski'
+import {
+  cuspLayer,
+  type HyperbolicBall,
+  type LabelledCoin,
+} from '@/code/substrate/coxeter/label-transport'
 
 const ROOTS = rootsD4()
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
-const dot4 = (a: readonly number[], b: readonly number[]): number => a.reduce((s, v, i) => s + v * (b[i] ?? 0), 0)
-const rootIndex = (r: readonly number[]): number => ROOTS.findIndex(o => o.every((v, i) => v === r[i]))
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f]!,
+)
+const dot4 = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, v, i) => s + v * (b[i] ?? 0), 0)
+const rootIndex = (r: readonly number[]): number =>
+  ROOTS.findIndex(o => o.every((v, i) => v === r[i]))
 
 // ---- exact W(F4) on the slots ----
 
 // the reflection of the roots in root k: r -> r - (r . k) k (every root has norm 2), as a slot permutation
 export function rootReflection(k: number): Int32Array {
-  const root = ROOTS[k] as number[]
+  const root = ROOTS[k]!
 
   return Int32Array.from(ROOTS, r => {
     const c = dot4(r, root)
@@ -55,21 +81,28 @@ export function rootReflection(k: number): Int32Array {
 export function minusRootReflection(k: number): Int32Array {
   const r = rootReflection(k)
 
-  return Int32Array.from(r, d => OPPOSITE[d] as number)
+  return Int32Array.from(r, d => OPPOSITE[d]!)
 }
 
 // (p q)(d) = p(q(d)): q first
-export function composePermutations(p: Int32Array, q: Int32Array): Int32Array {
-  return Int32Array.from(q, d => p[d] as number)
+export function composePermutations(
+  p: Int32Array,
+  q: Int32Array,
+): Int32Array {
+  return Int32Array.from(q, d => p[d]!)
 }
 
-export const isIdentityPermutation = (p: Int32Array): boolean => p.every((v, d) => v === d)
+export const isIdentityPermutation = (p: Int32Array): boolean =>
+  p.every((v, d) => v === d)
 
 export function permutationOrder(p: Int32Array): number {
   let q = Int32Array.from(p)
 
   for (let n = 1; n <= 1152; n++) {
-    if (isIdentityPermutation(q)) return n
+    if (isIdentityPermutation(q)) {
+      return n
+    }
+
     q = composePermutations(p, q)
   }
 
@@ -86,22 +119,37 @@ export function inversePermutation(p: Int32Array): Int32Array {
   return out
 }
 
-export const samePermutation = (p: Int32Array, q: Int32Array): boolean => p.every((v, d) => v === q[d])
+export const samePermutation = (
+  p: Int32Array,
+  q: Int32Array,
+): boolean => p.every((v, d) => v === q[d])
 
 // the 96 slot pairs (a < b) at 60 degrees, one per triangle of the base cell
 export function faceLoopPairs(): [number, number][] {
   const out: [number, number][] = []
 
-  for (let a = 0; a < 24; a++) for (let b = a + 1; b < 24; b++) if (dot4(ROOTS[a]!, ROOTS[b]!) === 1) out.push([a, b])
+  for (let a = 0; a < 24; a++) {
+    for (let b = a + 1; b < 24; b++) {
+      if (dot4(ROOTS[a]!, ROOTS[b]!) === 1) {
+        out.push([a, b])
+      }
+    }
+  }
 
   return out
 }
 
 // the dock reached from `start` by stepping across the listed labels, on a labelled mesh
-export function walkLabels(ball: HyperbolicBall, start: number, labels: readonly number[]): number {
+export function walkLabels(
+  ball: HyperbolicBall,
+  start: number,
+  labels: readonly number[],
+): number {
   let x = start
 
-  for (const k of labels) x = ball.mesh.neighbour(x, k)
+  for (const k of labels) {
+    x = ball.mesh.neighbour(x, k)
+  }
 
   return x
 }
@@ -118,7 +166,13 @@ const unitTime = (p: Vec, metric: number[]): Vec => {
 function pointSymmetry(p: Vec, metric: number[]): Mat {
   const pp = innerJ(p, p, metric)
 
-  return p.map((_, a) => p.map((__, b) => (a === b ? -1 : 0) + (2 * (p[a] ?? 0) * (metric[b] ?? 1) * (p[b] ?? 0)) / pp))
+  return p.map((_, a) =>
+    p.map(
+      (__, b) =>
+        (a === b ? -1 : 0) +
+        (2 * (p[a] ?? 0) * (metric[b] ?? 1) * (p[b] ?? 0)) / pp,
+    ),
+  )
 }
 
 // the transvection carrying p to q along their geodesic: the point symmetry about the midpoint after the one about p
@@ -131,25 +185,47 @@ export function transvection(p: Vec, q: Vec, metric: number[]): Mat {
 }
 
 // parallel transport around a closed loop of centers (first repeated implicitly at the end), as one matrix
-export function leviCivitaHolonomy(centers: readonly Vec[], metric: number[]): Mat {
+export function leviCivitaHolonomy(
+  centers: readonly Vec[],
+  metric: number[],
+): Mat {
   let h = identity(centers[0]!.length)
 
-  for (let i = 0; i < centers.length; i++) h = matMul(transvection(centers[i]!, centers[(i + 1) % centers.length]!, metric), h)
+  for (let i = 0; i < centers.length; i++) {
+    h = matMul(
+      transvection(
+        centers[i]!,
+        centers[(i + 1) % centers.length]!,
+        metric,
+      ),
+      h,
+    )
+  }
 
   return h
 }
 
 // the slot permutation a matrix fixing the base center induces on the base cell's 24 facet directions
-export function slotPermutation(coin: LabelledCoin, h: Mat): Int32Array | undefined {
+export function slotPermutation(
+  coin: LabelledCoin,
+  h: Mat,
+): Int32Array | undefined {
   const { metric } = coin.frame
-  const scale = Math.sqrt(innerJ(coin.directions[0]!, coin.directions[0]!, metric))
+  const scale = Math.sqrt(
+    innerJ(coin.directions[0]!, coin.directions[0]!, metric),
+  )
   const out = new Int32Array(24)
 
   for (let k = 0; k < 24; k++) {
     const image = matVec(h, coin.directions[k]!)
-    const j = coin.directions.findIndex(d => d.every((v, a) => Math.abs(v - (image[a] ?? 0)) < 1e-9 * scale))
+    const j = coin.directions.findIndex(d =>
+      d.every((v, a) => Math.abs(v - (image[a] ?? 0)) < 1e-9 * scale),
+    )
 
-    if (j < 0) return undefined
+    if (j < 0) {
+      return undefined
+    }
+
     out[k] = j
   }
 
@@ -162,7 +238,10 @@ export function largestEntryGap(a: Mat, b: Mat): number {
 
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < a.length; j++) {
-      worst = Math.max(worst, Math.abs((a[i]?.[j] ?? 0) - (b[i]?.[j] ?? 0)))
+      worst = Math.max(
+        worst,
+        Math.abs((a[i]?.[j] ?? 0) - (b[i]?.[j] ?? 0)),
+      )
       size = Math.max(size, Math.abs(a[i]?.[j] ?? 0))
     }
   }
@@ -172,12 +251,19 @@ export function largestEntryGap(a: Mat, b: Mat): number {
 
 // Walk a closed loop of docks given by their centers from the base frame, each step across the label whose transport
 // lands on the next center. Returns the labels, the frame that comes back, and whether every step found its label.
-export function loopFrames(input: { coin: LabelledCoin; transports: readonly Mat[]; centers: readonly Vec[] }): { labels: number[]; frame: Mat; found: boolean } {
+export function loopFrames(input: {
+  coin: LabelledCoin
+  transports: readonly Mat[]
+  centers: readonly Vec[]
+}): { labels: number[]; frame: Mat; found: boolean } {
   const { coin, transports, centers } = input
   const { center, metric } = coin.frame
   const cc = -innerJ(center, center, metric)
+
   let g = identity(center.length)
+
   const labels: number[] = []
+
   let found = true
 
   for (let i = 0; i < centers.length; i++) {
@@ -212,35 +298,61 @@ export type HorosphericalChart = {
   readonly axesError: number
 }
 
-export function horosphericalChart(coin: LabelledCoin): HorosphericalChart {
+export function horosphericalChart(
+  coin: LabelledCoin,
+): HorosphericalChart {
   const { normals, metric, center: c0 } = coin.frame
   const dot = (a: Vec, b: Vec): number => innerJ(a, b, metric)
+
   let v = nullVector(normals.slice(1), metric)
 
-  if (dot(c0, v) > 0) v = v.map(x => -x)
+  if (dot(c0, v) > 0) {
+    v = v.map(x => -x)
+  }
 
   const alpha = -1 / dot(c0, v)
   const beta = (-alpha * dot(c0, c0)) / (2 * dot(c0, v))
   const w = c0.map((x, a) => alpha * x + beta * (v[a] ?? 0))
+
   const horizontal = (p: Vec): Vec => {
     const q = p.map(x => x / -dot(p, v))
     const along = -dot(q, w)
 
     return q.map((x, a) => x - along * (v[a] ?? 0) - (w[a] ?? 0))
   }
+
   const origin = horizontal(c0)
   const layer = cuspLayer({ coin, skinRadius: 1 })
   const axes: Vec[] = []
 
   for (const m of layer.members.filter(x => x.skin === 1)) {
-    const s = horizontal(matVec(m.frame, c0)).map((x, a) => x - (origin[a] ?? 0))
+    const s = horizontal(matVec(m.frame, c0)).map(
+      (x, a) => x - (origin[a] ?? 0),
+    )
 
-    if (!axes.some(u => Math.abs(Math.abs(dot(s, u)) - dot(u, u)) < 1e-6 * dot(u, u))) axes.push(s)
+    if (
+      !axes.some(
+        u =>
+          Math.abs(Math.abs(dot(s, u)) - dot(u, u)) < 1e-6 * dot(u, u),
+      )
+    ) {
+      axes.push(s)
+    }
   }
 
   let axesError = axes.length === 3 ? 0 : Number.POSITIVE_INFINITY
 
-  for (let i = 0; i < axes.length; i++) for (let j = 0; j < axes.length; j++) axesError = Math.max(axesError, Math.abs(dot(axes[i]!, axes[j]!) - (i === j ? dot(axes[0]!, axes[0]!) : 0)) / dot(axes[0]!, axes[0]!))
+  for (let i = 0; i < axes.length; i++) {
+    for (let j = 0; j < axes.length; j++) {
+      axesError = Math.max(
+        axesError,
+        Math.abs(
+          dot(axes[i]!, axes[j]!) -
+            (i === j ? dot(axes[0]!, axes[0]!) : 0),
+        ) / dot(axes[0]!, axes[0]!),
+      )
+    }
+  }
 
   return {
     level: p => -dot(p, v),
@@ -257,7 +369,10 @@ export function horosphericalChart(coin: LabelledCoin): HorosphericalChart {
 // ---- the rule on a ball ----
 
 // the locked rule's tables on a ball, reflecting frontier, identity links (every point table the identity)
-export function ballTables(ball: HyperbolicBall, collision: LockedTables['collision']): LockedTables {
+export function ballTables(
+  ball: HyperbolicBall,
+  collision: LockedTables['collision'],
+): LockedTables {
   const cells = ball.cells
   const slots = cells * 24
   const target = new Int32Array(slots)
@@ -269,7 +384,7 @@ export function ballTables(ball: HyperbolicBall, collision: LockedTables['collis
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
       const n = ball.mesh.neighbour(x, d)
-      const to = n < cells ? n * 24 + d : x * 24 + (OPPOSITE[d] as number)
+      const to = n < cells ? n * 24 + d : x * 24 + OPPOSITE[d]!
 
       target[slot] = to
       source[to] = slot
@@ -281,21 +396,35 @@ export function ballTables(ball: HyperbolicBall, collision: LockedTables['collis
     }
   }
 
-  if (source.some(s => s < 0)) throw new Error('ballTables: the reflecting stream is not a bijection')
+  if (source.some(s => s < 0)) {
+    throw new Error(
+      'ballTables: the reflecting stream is not a bijection',
+    )
+  }
 
   return { cells, collision, veto: true, target, source, move, back }
 }
 
 // ---- the collision, counted ----
 
-export type CollideTally = { kDocks: number; crossK: number; crossB: number }
+export type CollideTally = {
+  kDocks: number
+  crossK: number
+  crossB: number
+}
 
-export const newCollideTally = (): CollideTally => ({ kDocks: 0, crossK: 0, crossB: 0 })
+export const newCollideTally = (): CollideTally => ({
+  kDocks: 0,
+  crossK: 0,
+  crossB: 0,
+})
 
 const PERM = new Int32Array(24)
 
 // the rule's collision (collideVeto with veto 'none'), counting K docks and cross-line moves before each bounce piece
-export function countingCollide(tally: CollideTally): (t: LockedTables, c: Configuration, beat: number) => void {
+export function countingCollide(
+  tally: CollideTally,
+): (t: LockedTables, c: Configuration, beat: number) => void {
   return (t, c, beat) => {
     const order = collisionOrder('alternate', beat)
 
@@ -307,24 +436,44 @@ export function countingCollide(tally: CollideTally): (t: LockedTables, c: Confi
         }
 
         const base = x * 24
+
         let singles = 0
 
         for (let l = 0; l < 12; l++) {
-          const a = c.vibe[base + (LINE_FIRSTS[l] as number)] !== 0
-          const b = c.vibe[base + (LINE_SECONDS[l] as number)] !== 0
+          const a = c.vibe[base + LINE_FIRSTS[l]!] !== 0
+          const b = c.vibe[base + LINE_SECONDS[l]!] !== 0
 
-          if (a !== b) singles++
+          if (a !== b) {
+            singles++
+          }
         }
 
-        if (bouncePermutation(BOUNCE_TABLE, t.collision, c.vibe, base, PERM) !== 0) {
+        if (
+          bouncePermutation(
+            BOUNCE_TABLE,
+            t.collision,
+            c.vibe,
+            base,
+            PERM,
+          ) !== 0
+        ) {
           let cross = 0
 
-          for (let d = 0; d < 24; d++) if (c.vibe[base + d] !== 0 && LINE_OF[PERM[d] as number] !== LINE_OF[d]) cross++
+          for (let d = 0; d < 24; d++) {
+            if (
+              c.vibe[base + d] !== 0 &&
+              LINE_OF[PERM[d]!] !== LINE_OF[d]
+            ) {
+              cross++
+            }
+          }
 
           if (singles > 1) {
             tally.kDocks++
             tally.crossK += cross
-          } else tally.crossB += cross
+          } else {
+            tally.crossB += cross
+          }
         }
 
         coinPiece(t, c, x)
@@ -340,13 +489,20 @@ export type StoreFill = 'empty' | 'saturated' | 'sparse'
 // a vacuum: 'empty' holds nothing; 'saturated' stores a pair on every dock line, its sign the key's top bit;
 // 'sparse' stores one on the dock lines whose key falls in the lowest quarter. Every stored pair is open (the
 // physical rule) with both points 0. `key` is an integer in [0, 65536) of (dock, line, use).
-export function vacuumFill(cells: number, fill: StoreFill, key: (x: number, l: number, use: number) => number): Configuration {
+export function vacuumFill(
+  cells: number,
+  fill: StoreFill,
+  key: (x: number, l: number, use: number) => number,
+): Configuration {
   const store = new Int8Array(cells * 12)
 
   if (fill !== 'empty') {
     for (let x = 0; x < cells; x++) {
       for (let l = 0; l < 12; l++) {
-        if (fill === 'sparse' && key(x, l, 1) >= 16384) continue
+        if (fill === 'sparse' && key(x, l, 1) >= 16384) {
+          continue
+        }
+
         store[x * 12 + l] = key(x, l, 0) < 32768 ? 1 : -1
       }
     }
@@ -363,10 +519,14 @@ export function vacuumFill(cells: number, fill: StoreFill, key: (x: number, l: n
 }
 
 // add one open love at (dock, slot), clearing the store of its dock line
-export function addLove(c: Configuration, dock: number, slot: number): void {
+export function addLove(
+  c: Configuration,
+  dock: number,
+  slot: number,
+): void {
   c.vibe[dock * 24 + slot] = 1
   c.open[dock * 24 + slot] = 1
   c.point[dock * 24 + slot] = 0
-  c.store[dock * 12 + (LINE_OF[slot] as number)] = 0
-  c.sopen[dock * 12 + (LINE_OF[slot] as number)] = 0
+  c.store[dock * 12 + LINE_OF[slot]!] = 0
+  c.sopen[dock * 12 + LINE_OF[slot]!] = 0
 }

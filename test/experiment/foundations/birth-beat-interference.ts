@@ -29,9 +29,17 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
-import { Collision, headOnRotate, pairCollision } from '@/code/rule/collision'
+import {
+  Collision,
+  headOnRotate,
+  pairCollision,
+} from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { ComplexPair, pairAbs2, pairSub } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair,
+  pairAbs2,
+  pairSub,
+} from '@/code/algebra/linear/complex-pair'
 
 const SIDE = 5 // odd, one connected lattice
 const BEATS = 12
@@ -130,12 +138,20 @@ function pair(input: {
       Math.sqrt(pairAbs2(a[t]!) * pairAbs2(b[t]!)) *
       Math.cos((relative * Math.PI) / 180)
 
-    worstCrossTermLaw = Math.max(worstCrossTermLaw, Math.abs(cross - law))
+    worstCrossTermLaw = Math.max(
+      worstCrossTermLaw,
+      Math.abs(cross - law),
+    )
     relativePhases.push(relative)
     crossTerms.push(Number(cross.toFixed(6)))
   }
 
-  return { worstAdditivity, worstCrossTermLaw, relativePhases, crossTerms }
+  return {
+    worstAdditivity,
+    worstCrossTermLaw,
+    relativePhases,
+    crossTerms,
+  }
 }
 
 export default experiment({
@@ -166,41 +182,88 @@ export default experiment({
     const toneBeat3: Edit = { beat: 3, cell: far, value: 1 }
 
     // the single defects' phase sequences
-    const toneTrace = trace({ mesh, collision: chargeRule, edits: [tone] })
-    const holeTrace = trace({ mesh, collision: chargeRule, edits: [holeBeat1] })
+    const toneTrace = trace({
+      mesh,
+      collision: chargeRule,
+      edits: [tone],
+    })
+    const holeTrace = trace({
+      mesh,
+      collision: chargeRule,
+      edits: [holeBeat1],
+    })
     const tonePhases = toneTrace.slice(0, 3).map(phaseDegrees)
     const holePhases = holeTrace.slice(1, 4).map(phaseDegrees)
     // the hole runs the tone's cycle negated and one beat offset: the same three phases with their signs
     // flipped, as a multiset
-    const sorted = (xs: number[]): string => [...xs].sort((a, b) => a - b).join(',')
+    const sorted = (xs: number[]): string =>
+      [...xs].sort((a, b) => a - b).join(',')
     const mirrored =
       sorted(holePhases) === sorted(tonePhases.map(p => -p)) &&
       !holePhases.every((p, i) => p === -tonePhases[i]!)
 
-    const hole = pair({ mesh, collision: chargeRule, first: tone, second: holeBeat1 })
-    const flip = pair({ mesh, collision: chargeRule, first: tone, second: flipBeat1 })
-    const late = pair({ mesh, collision: chargeRule, first: tone, second: holeBeat2 })
-    const next = pair({ mesh, collision: chargeRule, first: tone, second: toneBeat3 })
+    const hole = pair({
+      mesh,
+      collision: chargeRule,
+      first: tone,
+      second: holeBeat1,
+    })
+    const flip = pair({
+      mesh,
+      collision: chargeRule,
+      first: tone,
+      second: flipBeat1,
+    })
+    const late = pair({
+      mesh,
+      collision: chargeRule,
+      first: tone,
+      second: holeBeat2,
+    })
+    const next = pair({
+      mesh,
+      collision: chargeRule,
+      first: tone,
+      second: toneBeat3,
+    })
 
     const holeMagnitude = Math.sqrt(pairAbs2(holeTrace[1]!))
     const toneMagnitude = Math.sqrt(pairAbs2(toneTrace[0]!))
 
     const holeHalfCross =
       hole.relativePhases.every(r => r === 60 || r === 300) &&
-      hole.crossTerms.every(c => Math.abs(c - toneMagnitude * holeMagnitude) < EXACT)
+      hole.crossTerms.every(
+        c => Math.abs(c - toneMagnitude * holeMagnitude) < EXACT,
+      )
     const flipDestructive =
-      flip.relativePhases.includes(120) && flip.crossTerms.some(c => c < -EXACT)
+      flip.relativePhases.includes(120) &&
+      flip.crossTerms.some(c => c < -EXACT)
     const lateInPhase =
-      late.relativePhases.every(r => r === 0) && next.relativePhases.every(r => r === 0)
-    const additive = [hole, flip, late, next].every(p => p.worstAdditivity < EXACT)
-    const lawHolds = [hole, flip, late, next].every(p => p.worstCrossTermLaw < EXACT)
+      late.relativePhases.every(r => r === 0) &&
+      next.relativePhases.every(r => r === 0)
+    const additive = [hole, flip, late, next].every(
+      p => p.worstAdditivity < EXACT,
+    )
+    const lawHolds = [hole, flip, late, next].every(
+      p => p.worstCrossTermLaw < EXACT,
+    )
 
     // the clock shows in the pair: the tone-hole relative phase takes two values over the beats
     const relativePhaseVaries = new Set(hole.relativePhases).size === 2
 
     // CONTROL: the momentum rule has no clock, so every relative phase is one constant for all time
-    const controlHole = pair({ mesh, collision: momentumRule, first: tone, second: holeBeat1 })
-    const controlFlip = pair({ mesh, collision: momentumRule, first: tone, second: flipBeat1 })
+    const controlHole = pair({
+      mesh,
+      collision: momentumRule,
+      first: tone,
+      second: holeBeat1,
+    })
+    const controlFlip = pair({
+      mesh,
+      collision: momentumRule,
+      first: tone,
+      second: flipBeat1,
+    })
     const controlConstant =
       new Set(controlHole.relativePhases).size === 1 &&
       new Set(controlFlip.relativePhases).size === 1
@@ -238,16 +301,25 @@ export default experiment({
         flipMinCrossTerm: Math.min(...flip.crossTerms),
         flipMaxCrossTerm: Math.max(...flip.crossTerms),
         worstAdditivity: Number(
-          Math.max(...[hole, flip, late, next].map(p => p.worstAdditivity)).toExponential(2),
+          Math.max(
+            ...[hole, flip, late, next].map(p => p.worstAdditivity),
+          ).toExponential(2),
         ),
         worstCrossTermLaw: Number(
-          Math.max(...[hole, flip, late, next].map(p => p.worstCrossTermLaw)).toExponential(2),
+          Math.max(
+            ...[hole, flip, late, next].map(p => p.worstCrossTermLaw),
+          ).toExponential(2),
         ),
       },
       control: {
-        chargeHoleDistinctRelativePhases: new Set(hole.relativePhases).size,
-        momentumHoleDistinctRelativePhases: new Set(controlHole.relativePhases).size,
-        momentumFlipDistinctRelativePhases: new Set(controlFlip.relativePhases).size,
+        chargeHoleDistinctRelativePhases: new Set(hole.relativePhases)
+          .size,
+        momentumHoleDistinctRelativePhases: new Set(
+          controlHole.relativePhases,
+        ).size,
+        momentumFlipDistinctRelativePhases: new Set(
+          controlFlip.relativePhases,
+        ).size,
         momentumFlipRelativePhase: controlFlip.relativePhases[0]!,
         lateHoleRelativeMax: Math.max(...late.relativePhases),
       },

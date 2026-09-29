@@ -200,7 +200,10 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { centerOf } from '@/code/measure/wall-reading'
 import { dockMatrix, DOCK_ROOTS, wrap } from '@/code/measure/dock-mixer'
-import { singletLevel, singletKinematics } from '@/code/measure/singlet-kinematics'
+import {
+  singletLevel,
+  singletKinematics,
+} from '@/code/measure/singlet-kinematics'
 import { cyclePhases } from '@/code/measure/swap-cone'
 import { d4Ball, flatBoxTables } from '@/code/measure/swap-sector'
 import { ringScale } from '@/code/rule/swap-mixer'
@@ -268,9 +271,33 @@ const CAP = 10
 const STRING: readonly [number, number] = [3, 4]
 const EQUAL: readonly [number, number] = [12, 4]
 
-export type MassStringPlan = { ball: number; window: number; sCoarse: number; sFirst: number; sSecond: number; sMove: number; sFollow: number; holdBeats: number; threads: number; vacuumBeats: number; vacuumSides: readonly number[] }
+export type MassStringPlan = {
+  ball: number
+  window: number
+  sCoarse: number
+  sFirst: number
+  sSecond: number
+  sMove: number
+  sFollow: number
+  holdBeats: number
+  threads: number
+  vacuumBeats: number
+  vacuumSides: readonly number[]
+}
 
-export const GATE_PLAN: MassStringPlan = { ball: 15, window: 14, sCoarse: 64, sFirst: 256, sSecond: 128, sMove: 64, sFollow: 128, holdBeats: 256, threads: 12, vacuumBeats: 128, vacuumSides: [4, 8] }
+export const GATE_PLAN: MassStringPlan = {
+  ball: 15,
+  window: 14,
+  sCoarse: 64,
+  sFirst: 256,
+  sSecond: 128,
+  sMove: 64,
+  sFollow: 128,
+  holdBeats: 256,
+  threads: 12,
+  vacuumBeats: 128,
+  vacuumSides: [4, 8],
+}
 
 const ELL = 2
 const ELL_PHASE = 2.5
@@ -314,7 +341,8 @@ const THREAD_BEATS = 4
 const flag = (b: boolean): number => (b ? 1 : 0)
 const norm4 = (v: readonly number[]): number => Math.hypot(...v)
 // the top of the singlet branch above its rest level at mass m: g = -1/3 at K* = (0, pi, 0, pi)
-const kmaxOf = (m: number): number => Math.PI / 2 - m + Math.asin(Math.cos(m) / 3)
+const kmaxOf = (m: number): number =>
+  Math.PI / 2 - m + Math.asin(Math.cos(m) / 3)
 
 export default experiment({
   id: 'spin/swap-mass-string',
@@ -332,18 +360,21 @@ export default experiment({
 
 export function swapMassStringRun(plan: MassStringPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
   // ---------------- the schedule and I1: every angle's dock matrix, the pinned partner, the bands ----------------
   const units = massUnits(MIXER, STEP, CAP, Math.max(plan.ball, CAP))
   const anti = massUnits(MIXER, ANTI, CAP, Math.max(plan.ball, CAP))
-  const u0 = units[0] as (typeof units)[number]
+  const u0 = units[0]!
   const sigma = Math.abs(unitAngle(ringUnit(STRING[0], STRING[1])))
   const sigmaEqual = Math.abs(unitAngle(ringUnit(EQUAL[0], EQUAL[1])))
   const tau = unitAngle(ringUnit(STEP[0], STEP[1]))
   const shapes = massShapes(units)
   const antiShapes = massShapes(anti)
-  const shape0 = shapes[0] as VibeShape
+  const shape0 = shapes[0]!
   const A0 = overEmpty(vibeDockExact(1, 0, u0), u0)
   const level1 = singletLevel({ re: A0.re, im: A0.im }, DOCK_ROOTS, 12)
   const m0 = level1.m
@@ -356,36 +387,86 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   const flatHigh = Math.PI - m0
   const grid: number[][] = []
 
-  for (let a = 0; a < GRID; a++) for (let b = 0; b < GRID; b++) for (let c = 0; c < GRID; c++) for (let d = 0; d < GRID; d++) grid.push([a, b, c, d].map(i => -Math.PI + (2 * Math.PI * (i + 0.5)) / GRID))
+  for (let a = 0; a < GRID; a++) {
+    for (let b = 0; b < GRID; b++) {
+      for (let c = 0; c < GRID; c++) {
+        for (let d = 0; d < GRID; d++) {
+          grid.push(
+            [a, b, c, d].map(
+              i => -Math.PI + (2 * Math.PI * (i + 0.5)) / GRID,
+            ),
+          )
+        }
+      }
+    }
+  }
 
   const KSTAR = [0, Math.PI, 0, Math.PI]
   const perAngle = units.slice(0, CAP + 1).map((u, V) => {
-    const same = (x: ReturnType<typeof vibeDockExact>, y: ReturnType<typeof vibeDockExact>): boolean => x.k === y.k && x.entries.every((row, i) => row.every((e, j) => e[0] === (y.entries[i] as [bigint, bigint][])[j]![0] && e[1] === (y.entries[i] as [bigint, bigint][])[j]![1]))
+    const same = (
+      x: ReturnType<typeof vibeDockExact>,
+      y: ReturnType<typeof vibeDockExact>,
+    ): boolean =>
+      x.k === y.k &&
+      x.entries.every((row, i) =>
+        row.every(
+          (e, j) =>
+            e[0] === (y.entries[i] as [bigint, bigint][])[j]![0] &&
+            e[1] === (y.entries[i] as [bigint, bigint][])[j]![1],
+        ),
+      )
     const L0 = vibeDockExact(1, 0, u)
-    const alike = same(L0, vibeDockExact(1, 1, u)) && same(L0, vibeDockExact(-1, 0, u)) && same(L0, vibeDockExact(-1, 1, u))
+    const alike =
+      same(L0, vibeDockExact(1, 1, u)) &&
+      same(L0, vibeDockExact(-1, 0, u)) &&
+      same(L0, vibeDockExact(-1, 1, u))
     const A = overEmpty(L0, u)
     const theta = unitAngle(u)
-    const P = dockMatrix(theta < 0 ? theta + 2 * Math.PI : theta, 2 / 3, false)
+    const P = dockMatrix(
+      theta < 0 ? theta + 2 * Math.PI : theta,
+      2 / 3,
+      false,
+    )
+
     let matrixGap = 0
 
-    for (let i = 0; i < 576; i++) matrixGap = Math.max(matrixGap, Math.hypot((A.re[i] as number) - (P.re[i] as number), (A.im[i] as number) - (P.im[i] as number)))
+    for (let i = 0; i < 576; i++) {
+      matrixGap = Math.max(
+        matrixGap,
+        Math.hypot(A.re[i]! - P.re[i]!, A.im[i]! - P.im[i]!),
+      )
+    }
 
-    const h = shapes[V] as VibeShape
+    const h = shapes[V]!
     const empty = emptyFactor(u)
-    const emptyOk = empty.alone && empty.a === ringScale(u) && empty.b === 0n && empty.k === 0
+    const emptyOk =
+      empty.alone &&
+      empty.a === ringScale(u) &&
+      empty.b === 0n &&
+      empty.k === 0
     const lv = singletLevel({ re: A.re, im: A.im }, DOCK_ROOTS, 12)
     const m = lv.m
     const schedule = m0 + (tau / 2) * V
     const delta = m - m0
-    const at = (K: readonly number[]): number[] => cyclePhases([{ re: A.re, im: A.im }], DOCK_ROOTS, K).map(memberEps)
+    const at = (K: readonly number[]): number[] =>
+      cyclePhases([{ re: A.re, im: A.im }], DOCK_ROOTS, K).map(
+        memberEps,
+      )
     const rest = at([0, 0, 0, 0])
-    const nearLow = rest.filter(e => Math.abs(e - flatLow) <= READ_TOLERANCE).length
-    const nearHigh = rest.filter(e => Math.abs(wrap(e - flatHigh)) <= READ_TOLERANCE).length
-    const sRest = rest.filter(e => Math.abs(e - (m0 + 2 * delta)) <= READ_TOLERANCE).length
+    const nearLow = rest.filter(
+      e => Math.abs(e - flatLow) <= READ_TOLERANCE,
+    ).length
+    const nearHigh = rest.filter(
+      e => Math.abs(wrap(e - flatHigh)) <= READ_TOLERANCE,
+    ).length
+    const sRest = rest.filter(
+      e => Math.abs(e - (m0 + 2 * delta)) <= READ_TOLERANCE,
+    ).length
     const restOk = nearLow === 12 && nearHigh === 11 && sRest === 1
     const sLo = m0 + 2 * delta
     const sHi = sLo + kmaxOf(m)
     const dLo = -m0 - kmaxOf(m)
+
     let flatMiss = 0
     let bandOut = 0
     let sTop = NaN
@@ -393,7 +474,11 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
 
     for (const K of [...grid, KSTAR]) {
       const e = at(K)
-      const moving = e.filter(x => Math.abs(x - flatLow) > READ_TOLERANCE && Math.abs(wrap(x - flatHigh)) > READ_TOLERANCE)
+      const moving = e.filter(
+        x =>
+          Math.abs(x - flatLow) > READ_TOLERANCE &&
+          Math.abs(wrap(x - flatHigh)) > READ_TOLERANCE,
+      )
 
       if (e.length - moving.length !== 22 || moving.length !== 2) {
         flatMiss++
@@ -404,20 +489,67 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       const S = wrap(x1 - delta) > 0 ? x1 : x2
       const D = S === x1 ? x2 : x1
 
-      if (S < sLo - READ_TOLERANCE || S > sHi + READ_TOLERANCE || D < dLo - READ_TOLERANCE || D > -m0 + READ_TOLERANCE) bandOut++
+      if (
+        S < sLo - READ_TOLERANCE ||
+        S > sHi + READ_TOLERANCE ||
+        D < dLo - READ_TOLERANCE ||
+        D > -m0 + READ_TOLERANCE
+      ) {
+        bandOut++
+      }
+
       if (K === KSTAR) {
         sTop = S
         dBottom = D
       }
     }
 
-    const endsOk = Math.abs(sTop - sHi) <= READ_TOLERANCE && Math.abs(dBottom - dLo) <= READ_TOLERANCE
-    const ok = unitNormExact(u) && matrixGap <= MATRIX_TOLERANCE && alike && h.gap <= MATRIX_TOLERANCE && emptyOk && Math.abs(m - schedule) <= READ_TOLERANCE && restOk && flatMiss === 0 && bandOut === 0 && endsOk
+    const endsOk =
+      Math.abs(sTop - sHi) <= READ_TOLERANCE &&
+      Math.abs(dBottom - dLo) <= READ_TOLERANCE
+    const ok =
+      unitNormExact(u) &&
+      matrixGap <= MATRIX_TOLERANCE &&
+      alike &&
+      h.gap <= MATRIX_TOLERANCE &&
+      emptyOk &&
+      Math.abs(m - schedule) <= READ_TOLERANCE &&
+      restOk &&
+      flatMiss === 0 &&
+      bandOut === 0 &&
+      endsOk
 
-    return { V, theta, m, schedule, matrixGap, alike, shapeGap: h.gap, emptyOk, restOk, flatMiss, bandOut, sTop, sHi, dBottom, dLo, ok }
+    return {
+      V,
+      theta,
+      m,
+      schedule,
+      matrixGap,
+      alike,
+      shapeGap: h.gap,
+      emptyOk,
+      restOk,
+      flatMiss,
+      bandOut,
+      sTop,
+      sHi,
+      dBottom,
+      dLo,
+      ok,
+    }
   })
   const I1 = perAngle.every(x => x.ok)
-  const Rwalk = DIRECTIONS.map(d => (C_STAR * C_STAR) / singletKinematics({ re: A0.re, im: A0.im }, DOCK_ROOTS, level1, d.u, [0.1, 0.2, 0.3, 0.4, 0.5]).c2)
+  const Rwalk = DIRECTIONS.map(
+    d =>
+      (C_STAR * C_STAR) /
+      singletKinematics(
+        { re: A0.re, im: A0.im },
+        DOCK_ROOTS,
+        level1,
+        d.u,
+        [0.1, 0.2, 0.3, 0.4, 0.5],
+      ).c2,
+  )
 
   log('I1')
 
@@ -425,9 +557,14 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   const contact0 = contactDockExact(0, u0)
   const contact1 = contactDockExact(1, u0)
   const Cf = [overEmpty(contact0, u0), overEmpty(contact1, u0)]
-  const live = [...Array(CONTACT_STATES).keys()].filter(i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24)
+  const live = [...Array(CONTACT_STATES).keys()].filter(
+    i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24,
+  )
   const unitarity = Math.max(...Cf.map(M => contactUnitarity(M, live)))
-  const contact: [ReturnType<typeof sparseOf>, ReturnType<typeof sparseOf>] = [sparseOf(Cf[0] as (typeof Cf)[number]), sparseOf(Cf[1] as (typeof Cf)[number])]
+  const contact: [
+    ReturnType<typeof sparseOf>,
+    ReturnType<typeof sparseOf>,
+  ] = [sparseOf(Cf[0]!), sparseOf(Cf[1]!)]
   const I2 = unitarity <= MATRIX_TOLERANCE
 
   log('I2')
@@ -435,16 +572,42 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   // ---------------- I3: one beat of the rule at u(V) on the side-4 empty box against the meson beat ----------------
   const box = flatBoxTables(BOX_SIDE)
   const X = centerOf(BOX_SIDE)
-  const Xf1 = Math.floor((box.target[X * 24 + rootIndex([1, 1, 0, 0])] as number) / 24)
-  const Xf2 = Math.floor((box.target[Xf1 * 24 + rootIndex([1, -1, 0, 0])] as number) / 24)
-  const checkSpace = mesonSpace(d4Ball(CHECK_BALL), shape0, contact, 0, [0, 0, 0, 0])
+  const Xf1 = Math.floor(
+    box.target[X * 24 + rootIndex([1, 1, 0, 0])]! / 24,
+  )
+  const Xf2 = Math.floor(
+    box.target[Xf1 * 24 + rootIndex([1, -1, 0, 0])]! / 24,
+  )
+  const checkSpace = mesonSpace(
+    d4Ball(CHECK_BALL),
+    shape0,
+    contact,
+    0,
+    [0, 0, 0, 0],
+  )
 
   setMassString(checkSpace, shapes)
 
-  const unitOf = (V: number): (typeof units)[number] => units[Math.min(V, units.length - 1)] as (typeof units)[number]
-  const box1 = boxCheck(box, boxStarts(live, X, Xf1, [-1, -1, 0, 0]), checkSpace, unitOf, ENTRY_TOLERANCE)
-  const box2 = boxCheck(box, boxStarts([], X, Xf2, [-2, 0, 0, 0]), checkSpace, unitOf, ENTRY_TOLERANCE)
-  const I3 = box1.differ + box2.differ === 0 && box1.inexact + box2.inexact === 0 && box1.stray + box2.stray === 0
+  const unitOf = (V: number): (typeof units)[number] =>
+    units[Math.min(V, units.length - 1)]!
+  const box1 = boxCheck(
+    box,
+    boxStarts(live, X, Xf1, [-1, -1, 0, 0]),
+    checkSpace,
+    unitOf,
+    ENTRY_TOLERANCE,
+  )
+  const box2 = boxCheck(
+    box,
+    boxStarts([], X, Xf2, [-2, 0, 0, 0]),
+    checkSpace,
+    unitOf,
+    ENTRY_TOLERANCE,
+  )
+  const I3 =
+    box1.differ + box2.differ === 0 &&
+    box1.inexact + box2.inexact === 0 &&
+    box1.stray + box2.stray === 0
 
   log('I3')
 
@@ -454,18 +617,43 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   const airy = linearWell(WELL_L, WELL_N, 0)
   const Fphase = sigma * kap.mean
   const lPhase = (1 / (2 * Math.tan(m0) * Fphase)) ** (1 / 3)
-  const wellCheck = radialWell(x => Fphase * x, () => Math.tan(m0), WELL_L, WELL_N)
-  const I5 = Math.abs(wellCheck.E / (eps4 * Fphase * lPhase) - 1) <= WELL_TOLERANCE && Math.abs(airy - AIRY_ZERO) <= AIRY_TOLERANCE && units.every(unitNormExact)
-  const massAt = (x: number): number => m0 + (tau / 2) * Math.min(kap.mean * x, CAP)
-  const predictMass = (mu: (x: number) => number): { Eb: number; Erest: number; T: number; meanV: number; R: number } => {
-    const r = radialWell(x => 4 * (massAt(x) - m0), mu, RADIAL_L, RADIAL_N)
+  const wellCheck = radialWell(
+    x => Fphase * x,
+    () => Math.tan(m0),
+    WELL_L,
+    WELL_N,
+  )
+  const I5 =
+    Math.abs(wellCheck.E / (eps4 * Fphase * lPhase) - 1) <=
+      WELL_TOLERANCE &&
+    Math.abs(airy - AIRY_ZERO) <= AIRY_TOLERANCE &&
+    units.every(unitNormExact)
+  const massAt = (x: number): number =>
+    m0 + (tau / 2) * Math.min(kap.mean * x, CAP)
+
+  const predictMass = (
+    mu: (x: number) => number,
+  ): {
+    Eb: number
+    Erest: number
+    T: number
+    meanV: number
+    R: number
+  } => {
+    const r = radialWell(
+      x => 4 * (massAt(x) - m0),
+      mu,
+      RADIAL_L,
+      RADIAL_N,
+    )
+
     let W = 0
     let V = 0
     let inv = 0
 
     for (let i = 0; i < r.u.length; i++) {
       const x = (i + 1) * r.h
-      const p = (r.u[i] as number) ** 2
+      const p = r.u[i]! ** 2
 
       W += p * 4 * (massAt(x) - m0)
       V += p * kap.mean * x
@@ -475,23 +663,39 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
     const T = r.E - W
     const Erest = 2 * m0 + r.E
 
-    return { Eb: r.E, Erest, T, meanV: V, R: (1 / inv + 1.5 * T) / Erest }
+    return {
+      Eb: r.E,
+      Erest,
+      T,
+      meanV: V,
+      R: (1 / inv + 1.5 * T) / Erest,
+    }
   }
+
   const pred = predictMass(x => Math.tan(massAt(x)))
   const predConst = predictMass(() => Math.tan(m0))
   const gapLow = Math.PI - 2 * m0
   const gapHigh = 2 * Math.PI - 2 * m0 - 2 * kmaxOf(m0)
   const predPhaseString = 2 * m0 + eps4 * Fphase * lPhase
   const Fequal = sigmaEqual * kap.mean
-  const predEqual = 2 * m0 + eps4 * Fequal * (1 / (2 * Math.tan(m0) * Fequal)) ** (1 / 3)
+  const predEqual =
+    2 * m0 +
+    eps4 * Fequal * (1 / (2 * Math.tan(m0) * Fequal)) ** (1 / 3)
 
   log('I5 prediction')
 
   // ---------------- I4: the threaded beat against the one-thread beat, mass string on ----------------
   let threadGap = 0
   let threadSums = 0
+
   {
-    const raw = mesonSpace(d4Ball(THREAD_BALL), shape0, contact, 0, K_THREAD)
+    const raw = mesonSpace(
+      d4Ball(THREAD_BALL),
+      shape0,
+      contact,
+      0,
+      K_THREAD,
+    )
 
     setMassString(raw, shapes)
 
@@ -508,6 +712,7 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       a.re[k] = ((k * g) % 1) - 0.5
       a.im[k] = ((k * g * g) % 1) - 0.5
     }
+
     c.re.set(a.re)
     c.im.set(a.im)
 
@@ -517,8 +722,22 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       const l1 = ser.beat(a, b, t, f1)
       const l2 = thr.beat(c, d, t, f2)
 
-      for (let k = 0; k < b.re.length; k++) threadGap = Math.max(threadGap, Math.abs((b.re[k] as number) - (d.re[k] as number)), Math.abs((b.im[k] as number) - (d.im[k] as number)))
-      threadSums = Math.max(threadSums, Math.abs(l1 - l2) / Math.max(1, l1), Math.abs(f1.weight - f2.weight) / f1.weight, ...[0, 1, 2, 3].map(k => Math.abs((f1.v[k] as number) - (f2.v[k] as number)) / f1.weight))
+      for (let k = 0; k < b.re.length; k++) {
+        threadGap = Math.max(
+          threadGap,
+          Math.abs(b.re[k]! - d.re[k]!),
+          Math.abs(b.im[k]! - d.im[k]!),
+        )
+      }
+
+      threadSums = Math.max(
+        threadSums,
+        Math.abs(l1 - l2) / Math.max(1, l1),
+        Math.abs(f1.weight - f2.weight) / f1.weight,
+        ...[0, 1, 2, 3].map(
+          k => Math.abs(f1.v[k]! - f2.v[k]!) / f1.weight,
+        ),
+      )
       a.re.set(b.re)
       a.im.set(b.im)
       c.re.set(d.re)
@@ -527,33 +746,72 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
 
     thr.close()
   }
-  const I4 = threadGap <= THREAD_TOLERANCE && threadSums <= SUM_TOLERANCE
+
+  const I4 =
+    threadGap <= THREAD_TOLERANCE && threadSums <= SUM_TOLERANCE
 
   log('I4')
 
   // ---------------- the engine on the gate ball, the mass string on ----------------
   const ball = d4Ball(plan.ball)
-  const space = shareSpace(mesonSpace(ball, shape0, contact, 0, [0, 0, 0, 0]))
+  const space = shareSpace(
+    mesonSpace(ball, shape0, contact, 0, [0, 0, 0, 0]),
+  )
 
   setMassString(space, shapes)
 
   const engine: MesonEngine = threadEngine(space, plan.threads, POOL)
   const start = mesonStart(ball, ELL)
+
   // the witness: the hold, the fidelity, the tail
-  const witness = (v: MesonState): { hold: ReturnType<typeof watchLevel>; profile: number[]; tail: ReturnType<typeof profileTail>; holds: boolean } => {
+  const witness = (
+    v: MesonState,
+  ): {
+    hold: ReturnType<typeof watchLevel>
+    profile: number[]
+    tail: ReturnType<typeof profileTail>
+    holds: boolean
+  } => {
     const hold = watchLevel(engine, v, plan.holdBeats, plan.window)
     const profile = stringProfile(ball, v)
     const tail = profileTail(profile, TAIL_FROM, TAIL_FLOOR, TAIL_SLACK)
 
-    return { hold, profile, tail, holds: hold.leastWindow >= 1 - HOLD && hold.leastFidelity >= 1 - HOLD && tail.rises === 0 && tail.edge <= EDGE }
+    return {
+      hold,
+      profile,
+      tail,
+      holds:
+        hold.leastWindow >= 1 - HOLD &&
+        hold.leastFidelity >= 1 - HOLD &&
+        tail.rises === 0 &&
+        tail.edge <= EDGE,
+    }
   }
 
   log(`ball ${plan.ball}: ${ball.points.length} sites`)
 
   // ---------------- Z1: the level holds ----------------
-  const coarse = buildLevel(engine, start, phaseOf(pred.Erest), plan.sCoarse, 1)
-  const first = buildLevel(engine, coarse.v, coarse.read.phase, plan.sFirst, 1)
-  const second = buildLevel(engine, first.v, first.read.phase, plan.sSecond, 1)
+  const coarse = buildLevel(
+    engine,
+    start,
+    phaseOf(pred.Erest),
+    plan.sCoarse,
+    1,
+  )
+  const first = buildLevel(
+    engine,
+    coarse.v,
+    coarse.read.phase,
+    plan.sFirst,
+    1,
+  )
+  const second = buildLevel(
+    engine,
+    first.v,
+    first.read.phase,
+    plan.sSecond,
+    1,
+  )
   const v0 = second.v
   const read0 = second.read
   const Erest = epsOf(read0.phase)
@@ -568,39 +826,71 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
 
   // ---------------- C2: the witness sees a beat ----------------
   let c2Fidelity = 1
+
   {
     const w = cloneMeson(start)
     const o = mesonInner(v0, w)
 
     for (let k = 0; k < w.re.length; k++) {
-      const vr = v0.re[k] as number
-      const vi = v0.im[k] as number
+      const vr = v0.re[k]!
+      const vi = v0.im[k]!
 
-      w.re[k] = (w.re[k] as number) - (o[0] * vr - o[1] * vi)
-      w.im[k] = (w.im[k] as number) - (o[0] * vi + o[1] * vr)
+      w.re[k] = w.re[k]! - (o[0] * vr - o[1] * vi)
+      w.im[k] = w.im[k]! - (o[0] * vi + o[1] * vr)
     }
+
     normalizeMeson(w)
 
     for (let k = 0; k < w.re.length; k++) {
-      w.re[k] = Math.sqrt(1 - MIX) * (v0.re[k] as number) + Math.sqrt(MIX) * (w.re[k] as number)
-      w.im[k] = Math.sqrt(1 - MIX) * (v0.im[k] as number) + Math.sqrt(MIX) * (w.im[k] as number)
+      w.re[k] =
+        Math.sqrt(1 - MIX) * v0.re[k]! + Math.sqrt(MIX) * w.re[k]!
+
+      w.im[k] =
+        Math.sqrt(1 - MIX) * v0.im[k]! + Math.sqrt(MIX) * w.im[k]!
     }
 
-    c2Fidelity = watchLevel(engine, w, plan.holdBeats, plan.window).leastFidelity
+    c2Fidelity = watchLevel(
+      engine,
+      w,
+      plan.holdBeats,
+      plan.window,
+    ).leastFidelity
   }
+
   const C2 = c2Fidelity < 1 - HOLD
 
   log('C2')
 
   // ---------------- Z2: the dispersion at small K ----------------
-  const energyAt = (K: readonly number[], from: MesonState, phase: number, S: number): { eps: number; v: MesonState; lambda: number; residual: number } => {
+  const energyAt = (
+    K: readonly number[],
+    from: MesonState,
+    phase: number,
+    S: number,
+  ): {
+    eps: number
+    v: MesonState
+    lambda: number
+    residual: number
+  } => {
     setMomentum(space, K)
 
     const lv = buildLevel(engine, from, phase, S, 1)
 
-    return { eps: epsOf(lv.read.phase), v: lv.v, lambda: Math.hypot(...lv.read.lambda2), residual: lv.read.residual }
+    return {
+      eps: epsOf(lv.read.phase),
+      v: lv.v,
+      lambda: Math.hypot(...lv.read.lambda2),
+      residual: lv.read.residual,
+    }
   }
-  const zeroMove = energyAt([0, 0, 0, 0], v0, read0.phase, plan.sMove).eps
+
+  const zeroMove = energyAt(
+    [0, 0, 0, 0],
+    v0,
+    read0.phase,
+    plan.sMove,
+  ).eps
   const dispersion = DIRECTIONS.map(d => {
     const e1 = energyAt(
       d.u.map(x => x * KAPPA),
@@ -619,17 +909,34 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
 
     log(`Z2 ${d.name}`)
 
-    return { name: d.name, d1, d2, a: (16 * d2 - d1) / (3 * KAPPA * KAPPA), lambda: Math.min(e1.lambda, e2.lambda), residual: Math.max(e1.residual, e2.residual) }
+    return {
+      name: d.name,
+      d1,
+      d2,
+      a: (16 * d2 - d1) / (3 * KAPPA * KAPPA),
+      lambda: Math.min(e1.lambda, e2.lambda),
+      residual: Math.max(e1.residual, e2.residual),
+    }
   })
-  const a0 = (dispersion[0] as (typeof dispersion)[number]).a
-  const isotropy = Math.max(...dispersion.map(x => Math.abs(x.a / a0 - 1)))
+  const a0 = dispersion[0]!.a
+  const isotropy = Math.max(
+    ...dispersion.map(x => Math.abs(x.a / a0 - 1)),
+  )
   const R = (C_STAR * C_STAR) / (2 * a0 * Erest)
   const Z2 = isotropy <= ISOTROPY && Math.abs(R - 1) <= R_TOLERANCE
 
   // ---------------- Z3: the band followed to larger K ----------------
   const follow = DIRECTIONS.slice(0, 2).map(d => {
     let from = v0
-    const points: { K: number; eps: number; speed: number; followed: boolean; lambda: number; residual: number }[] = []
+
+    const points: {
+      K: number
+      eps: number
+      speed: number
+      followed: boolean
+      lambda: number
+      residual: number
+    }[] = []
 
     for (const k of FOLLOW_K) {
       // from the previous point's level, at the phase the small-K band extrapolates to
@@ -640,31 +947,62 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
         plan.sFollow,
       )
       const vel = levelVelocity(engine, e.v)
-      const followed = e.lambda >= FOLLOW_LAMBDA && e.residual <= FOLLOW_RESIDUAL
+      const followed =
+        e.lambda >= FOLLOW_LAMBDA && e.residual <= FOLLOW_RESIDUAL
 
-      points.push({ K: k, eps: e.eps, speed: norm4(vel), followed, lambda: e.lambda, residual: e.residual })
+      points.push({
+        K: k,
+        eps: e.eps,
+        speed: norm4(vel),
+        followed,
+        lambda: e.lambda,
+        residual: e.residual,
+      })
       from = e.v
       log(`Z3 ${d.name} ${k}`)
     }
 
     return { name: d.name, points }
   })
-  const speeds = follow.flatMap(f => f.points.filter(p => p.followed).map(p => p.speed))
+  const speeds = follow.flatMap(f =>
+    f.points.filter(p => p.followed).map(p => p.speed),
+  )
   const topSpeed = speeds.length ? Math.max(...speeds) : NaN
-  const Z3 = follow.every(f => (f.points[0] as { followed: boolean }).followed) && speeds.every(s => s <= C_STAR * (1 + SPEED_TOLERANCE))
+  const Z3 =
+    follow.every(
+      f => (f.points[0] as { followed: boolean }).followed,
+    ) && speeds.every(s => s <= C_STAR * (1 + SPEED_TOLERANCE))
 
   // I6: Hellmann-Feynman against the central difference at K 0.4 along the axis
   let hfGap = NaN
+
   {
-    const k = FOLLOW_K[0] as number
-    const at = energyAt([k, 0, 0, 0], v0, phaseOf(Erest + a0 * k * k), plan.sFollow)
+    const k = FOLLOW_K[0]!
+    const at = energyAt(
+      [k, 0, 0, 0],
+      v0,
+      phaseOf(Erest + a0 * k * k),
+      plan.sFollow,
+    )
     const vel = levelVelocity(engine, at.v)
-    const up = energyAt([k + FD_H, 0, 0, 0], at.v, phaseOf(at.eps), plan.sFollow)
-    const down = energyAt([k - FD_H, 0, 0, 0], at.v, phaseOf(at.eps), plan.sFollow)
+    const up = energyAt(
+      [k + FD_H, 0, 0, 0],
+      at.v,
+      phaseOf(at.eps),
+      plan.sFollow,
+    )
+    const down = energyAt(
+      [k - FD_H, 0, 0, 0],
+      at.v,
+      phaseOf(at.eps),
+      plan.sFollow,
+    )
     const slope = (up.eps - down.eps) / (2 * FD_H)
 
-    hfGap = Math.abs(Math.abs(slope) - Math.abs(vel[0] as number)) / Math.abs(slope)
+    hfGap =
+      Math.abs(Math.abs(slope) - Math.abs(vel[0]!)) / Math.abs(slope)
   }
+
   const I6 = hfGap <= FD_TOLERANCE
 
   setMomentum(space, [0, 0, 0, 0])
@@ -672,12 +1010,26 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
 
   // ---------------- Z5: E-SPN-0146's phase string, no mass string ----------------
   // E-SPN-0146's procedure with the phase string the space holds (no mass string)
-  const phaseRun = (predicted: number): { eps: number; lambda: number; residual: number; share: number; w: ReturnType<typeof witness> } => {
+  const phaseRun = (
+    predicted: number,
+  ): {
+    eps: number
+    lambda: number
+    residual: number
+    share: number
+    w: ReturnType<typeof witness>
+  } => {
     const s0 = mesonStart(ball, ELL_PHASE)
     const f = buildLevel(engine, s0, phaseOf(predicted), plan.sFirst, 1)
     const g = buildLevel(engine, f.v, f.read.phase, plan.sSecond, 1)
 
-    return { eps: epsOf(g.read.phase), lambda: Math.hypot(...g.read.lambda2), residual: g.read.residual, share: singletShare(ball, g.v), w: witness(g.v) }
+    return {
+      eps: epsOf(g.read.phase),
+      lambda: Math.hypot(...g.read.lambda2),
+      residual: g.read.residual,
+      share: singletShare(ball, g.v),
+      w: witness(g.v),
+    }
   }
 
   setMassString(space, [shape0])
@@ -699,7 +1051,13 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   setString(space, 0)
   setMassString(space, antiShapes)
 
-  const antiLevel = buildLevel(engine, start, phaseOf(pred.Erest), plan.sSecond, 1)
+  const antiLevel = buildLevel(
+    engine,
+    start,
+    phaseOf(pred.Erest),
+    plan.sSecond,
+    1,
+  )
   const antiWitness = witness(antiLevel.v)
   const C1 = !antiWitness.holds
 
@@ -707,19 +1065,51 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
   log('C1')
 
   // ---------------- Z4: the vacuum at the schedule's angles ----------------
-  const vacuum = [0, 1, CAP].flatMap(V => [...plan.vacuumSides.map(side => ({ side, sea: 0 })), { side: BOX_SIDE, sea: 1 }].map(({ side, sea }) => ({ V, ...vacuumRun(units[V] as (typeof units)[number], side, sea, plan.vacuumBeats) })))
-  const Z4 = vacuum.every(v => v.exact && v.permutes === 0 && v.charged === 0)
+  const vacuum = [0, 1, CAP].flatMap(V =>
+    [
+      ...plan.vacuumSides.map(side => ({ side, sea: 0 })),
+      { side: BOX_SIDE, sea: 1 },
+    ].map(({ side, sea }) => ({
+      V,
+      ...vacuumRun(units[V]!, side, sea, plan.vacuumBeats),
+    })),
+  )
+  const Z4 = vacuum.every(
+    v => v.exact && v.permutes === 0 && v.charged === 0,
+  )
 
   log('Z4')
 
   const instrument = I1 && I2 && I3 && I4 && I5 && I6
   const controls = C1 && C2
-  const status = !instrument || !controls ? 'partial' : Z1 && Z2 && Z3 && Z4 && Z5 ? 'pass' : 'fail'
-  const tailLine = (t: ReturnType<typeof profileTail>): string => `ratios ${t.ratios.map(x => x.toFixed(3)).join(' ')}, rises ${t.rises}, edge ${t.edge.toExponential(2)}`
-  const witnessLine = (w: ReturnType<typeof witness>): string => `window ${w.hold.leastWindow.toFixed(6)}, fidelity ${w.hold.leastFidelity.toFixed(6)}, absorbed ${w.hold.absorbed.toExponential(2)}, ${tailLine(w.tail)}; profile ${w.profile.map(x => x.toExponential(2)).join(' ')}`
-  const dispLine = dispersion.map(x => `${x.name} a ${x.a.toExponential(9)} (d ${x.d1.toExponential(4)}, ${x.d2.toExponential(4)}; |lambda2| >= ${x.lambda.toFixed(6)}, residual <= ${x.residual.toExponential(1)})`).join('; ')
-  const followLine = follow.map(f => `${f.name}: ${f.points.map(p => `K ${p.K} eps ${p.eps.toFixed(6)} speed ${(p.speed / C_STAR).toFixed(6)} c*${p.followed ? '' : ' (not followed)'} (|lambda2| ${p.lambda.toFixed(5)}, residual ${p.residual.toExponential(1)})`).join(', ')}`).join('; ')
-  const angleLine = perAngle.map(x => `V ${x.V} m ${x.m.toFixed(6)} (sched ${x.schedule.toFixed(6)}) matrix ${x.matrixGap.toExponential(1)} rest ${x.restOk} flat miss ${x.flatMiss} band out ${x.bandOut} S top ${x.sTop.toFixed(6)}/${x.sHi.toFixed(6)} D bottom ${x.dBottom.toFixed(6)}/${x.dLo.toFixed(6)}`).join('; ')
+  const status =
+    !instrument || !controls
+      ? 'partial'
+      : Z1 && Z2 && Z3 && Z4 && Z5
+        ? 'pass'
+        : 'fail'
+  const tailLine = (t: ReturnType<typeof profileTail>): string =>
+    `ratios ${t.ratios.map(x => x.toFixed(3)).join(' ')}, rises ${t.rises}, edge ${t.edge.toExponential(2)}`
+  const witnessLine = (w: ReturnType<typeof witness>): string =>
+    `window ${w.hold.leastWindow.toFixed(6)}, fidelity ${w.hold.leastFidelity.toFixed(6)}, absorbed ${w.hold.absorbed.toExponential(2)}, ${tailLine(w.tail)}; profile ${w.profile.map(x => x.toExponential(2)).join(' ')}`
+  const dispLine = dispersion
+    .map(
+      x =>
+        `${x.name} a ${x.a.toExponential(9)} (d ${x.d1.toExponential(4)}, ${x.d2.toExponential(4)}; |lambda2| >= ${x.lambda.toFixed(6)}, residual <= ${x.residual.toExponential(1)})`,
+    )
+    .join('; ')
+  const followLine = follow
+    .map(
+      f =>
+        `${f.name}: ${f.points.map(p => `K ${p.K} eps ${p.eps.toFixed(6)} speed ${(p.speed / C_STAR).toFixed(6)} c*${p.followed ? '' : ' (not followed)'} (|lambda2| ${p.lambda.toFixed(5)}, residual ${p.residual.toExponential(1)})`).join(', ')}`,
+    )
+    .join('; ')
+  const angleLine = perAngle
+    .map(
+      x =>
+        `V ${x.V} m ${x.m.toFixed(6)} (sched ${x.schedule.toFixed(6)}) matrix ${x.matrixGap.toExponential(1)} rest ${x.restOk} flat miss ${x.flatMiss} band out ${x.bandOut} S top ${x.sTop.toFixed(6)}/${x.sHi.toFixed(6)} D bottom ${x.dBottom.toFixed(6)}/${x.dLo.toFixed(6)}`,
+    )
+    .join('; ')
 
   return verdict({
     status,
@@ -741,7 +1131,7 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       C2: flag(C2),
       m0,
       tau,
-      mCap: (perAngle[CAP] as (typeof perAngle)[number]).m,
+      mCap: perAngle[CAP]!.m,
       Erest,
       ErestPredicted: pred.Erest,
       gapLow,
@@ -761,7 +1151,7 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       isotropy,
       R,
       RPredicted: pred.R,
-      RWalk: Rwalk[0] as number,
+      RWalk: Rwalk[0]!,
       topSpeedOverCStar: topSpeed / C_STAR,
       hfGap,
       controlEps: control.eps,
@@ -779,7 +1169,11 @@ export function swapMassStringRun(plan: MassStringPlan): Verdict {
       kappa: kap.mean,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      instrument: flag(instrument),
+    },
     notes: `L2. The schedule: sigma ${sigma.toFixed(6)}, tau ${tau.toFixed(6)}, cap ${CAP}; the members at V = 0: m ${m0.toFixed(6)}, R_walk ${Rwalk.map(x => x.toFixed(6)).join(' ')}, midpoint ${mid.toFixed(5)}, sign ${sign}. I1 per angle: ${angleLine}. I2: unitarity ${unitarity.toExponential(2)}, stored ${contact0.stored} and ${contact1.stored}, released ${contact0.released} and ${contact1.released}. I3: V 0 and 1: ${box1.checked} starts, worst ${box1.worst.toExponential(2)}, ${box1.differ} differ, ${box1.inexact} inexact, ${box1.stray} stray; V 2: ${box2.checked} starts, worst ${box2.worst.toExponential(2)}, ${box2.differ} differ, ${box2.inexact} inexact, ${box2.stray} stray. I4: entries ${threadGap.toExponential(2)}, sums ${threadSums.toExponential(2)} (${plan.threads} threads). I5: radialWell ${wellCheck.E.toFixed(6)} against eps4 F l ${(eps4 * Fphase * lPhase).toFixed(6)}, Airy ${airy.toFixed(6)}, eps4 ${eps4.toFixed(6)}. I6: ${hfGap.toExponential(2)}. Prediction: E_b ${pred.Eb.toFixed(4)} (constant mass ${predConst.Eb.toFixed(4)}), T ${pred.T.toFixed(4)}, mean V ${pred.meanV.toFixed(3)}, R ${pred.R.toFixed(4)} (constant mass ${predConst.R.toFixed(4)}); the phase string at sigma ${predPhaseString.toFixed(4)}, at the equal tension ${predEqual.toFixed(4)}. The level: coarse read eps ${epsOf(coarse.read.phase).toFixed(5)}, first ${epsOf(first.read.phase).toFixed(5)}; singlet share ${share.toFixed(4)}, stores ${stored.toExponential(2)}, mean string length ${meanV.toFixed(3)}. Z2: ${dispLine}. Z3: ${followLine}. Z5 level: |lambda2| ${control.lambda.toFixed(8)}, residual ${control.residual.toExponential(2)}, singlet share ${control.share.toFixed(4)}. Equal tension level: |lambda2| ${equal.lambda.toFixed(8)}, residual ${equal.residual.toExponential(2)}. C1 profile: ${antiWitness.profile.map(x => x.toExponential(2)).join(' ')}. Z4: ${vacuum.map(v => `u(${v.V}) side ${v.side} ${v.sea ? 'love sea' : 'empty'} exact ${v.exact}, permutes ${v.permutes}, charged ${v.charged}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

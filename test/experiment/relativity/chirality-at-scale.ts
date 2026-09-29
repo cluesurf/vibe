@@ -31,7 +31,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { conjugateCollision } from '@/code/measure/rule-symmetry-ledger'
 import {
   loneChargeCurrent,
@@ -62,7 +66,9 @@ type Split = {
   firstHalfAntiSelfDual: number
 }
 
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
 
 function longWaveSplit(input: {
   side: number
@@ -104,7 +110,7 @@ export default experiment({
   id: 'relativity/chirality-at-scale',
   code: 'E-RLT-0046',
   title:
-    'the committed rule\'s handedness does not survive coarse-graining: the lone-love response at the lattice scale is 4.1 times more self-dual than anti-self-dual, but the long-wave current response at k = 2 pi / L for L = 9, 13, 17 splits within a factor of 1.5 on the dense background and on the vacuum, with no stable sign, while its antisymmetric part shrinks from 0.45 to 0.19 of the isotropic part; partial, because the mirror control swaps the halves to 2 percent at side 9 but reproduces their size only to about 25 percent at side 13, so the long-wave split is bounded well below the lattice-scale 4.1, not resolved to 10 percent',
+    "the committed rule's handedness does not survive coarse-graining: the lone-love response at the lattice scale is 4.1 times more self-dual than anti-self-dual, but the long-wave current response at k = 2 pi / L for L = 9, 13, 17 splits within a factor of 1.5 on the dense background and on the vacuum, with no stable sign, while its antisymmetric part shrinks from 0.45 to 0.19 of the isotropic part; partial, because the mirror control swaps the halves to 2 percent at side 9 but reproduces their size only to about 25 percent at side 13, so the long-wave split is bounded well below the lattice-scale 4.1, not resolved to 10 percent",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -115,11 +121,16 @@ export default experiment({
     const committed = turningWeave({ opposite })
     const mirror = roots.map(root =>
       roots.findIndex(other =>
-        other.every((x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k])),
+        other.every(
+          (x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k]),
+        ),
       ),
     )
     const mirrored = (t: number): Collision =>
-      conjugateCollision({ collision: committed(t), permutation: mirror })
+      conjugateCollision({
+        collision: committed(t),
+        permutation: mirror,
+      })
 
     // the lattice-scale reference
     const loneMesh = d4Mesh({ side: LONE_SIDE })
@@ -130,7 +141,10 @@ export default experiment({
     })
     const mid = Math.floor(LONE_SIDE / 2)
     const cell =
-      mid + mid * LONE_SIDE + mid * LONE_SIDE ** 2 + mid * LONE_SIDE ** 3
+      mid +
+      mid * LONE_SIDE +
+      mid * LONE_SIDE ** 2 +
+      mid * LONE_SIDE ** 3
     const currents = roots.map((_, direction) =>
       loneChargeCurrent({
         mesh: loneMesh,
@@ -143,7 +157,9 @@ export default experiment({
         beats: PERIOD,
       }),
     )
-    const lone = selfDualSplit(responseMatrix({ currents, directions: roots }))
+    const lone = selfDualSplit(
+      responseMatrix({ currents, directions: roots }),
+    )
     const loneSelfDual = Math.hypot(...lone.selfDual)
     const loneAntiSelfDual = Math.hypot(...lone.antiSelfDual)
     const loneRatio = loneSelfDual / loneAntiSelfDual
@@ -202,7 +218,10 @@ export default experiment({
         loneRatio: Number(loneRatio.toFixed(4)),
         ...Object.fromEntries(
           dense.flatMap((s, k) => [
-            [`denseSelfDualSide${SIDES[k]}`, Number(s.selfDual.toFixed(4))],
+            [
+              `denseSelfDualSide${SIDES[k]}`,
+              Number(s.selfDual.toFixed(4)),
+            ],
             [
               `denseAntiSelfDualSide${SIDES[k]}`,
               Number(s.antiSelfDual.toFixed(4)),
@@ -226,7 +245,9 @@ export default experiment({
             [
               `vacuumWaveFirstHalfRatioSide${VACUUM_SIDES[k]}`,
               Number(
-                (s.firstHalfSelfDual / s.firstHalfAntiSelfDual).toFixed(4),
+                (s.firstHalfSelfDual / s.firstHalfAntiSelfDual).toFixed(
+                  4,
+                ),
               ),
             ],
             [
@@ -257,7 +278,7 @@ export default experiment({
         ),
       },
       notes:
-        'L2, partial. The mirror control: at side 9 the mirrored rule on the same background gives self-dual 0.2082 and anti-self-dual 0.1982 against the committed 0.1942 and 0.2122, a swap to 2 percent; at side 13 it gives 0.1054 and 0.1018 against 0.1466 and 0.1401, balanced like the committed rule (ratio 1.035 against 1.047, where an exact swap predicts 0.955) but about 25 percent smaller. The background is not mirrored, so the two histories differ, and the antisymmetric part\'s size is reproducible to about 25 percent and its ratio to about 8 percent at side 13. That still bounds the long-wave split far below the lattice-scale 4.1, which is the survival question, but it does not resolve a split of 10 percent. A mirrored background, or several backgrounds, would make the control exact. The two responses differ only in the wavelength they probe: the lone tone is a point source, all wavevectors at once and dominated by the lattice scale, and the long wave is one wavevector well below it. The 4-to-1 self-dual excess is a lattice-scale property; at long wavelength the halves are balanced within the stated bound and the sign moves with side, background and window, so no handedness is carried into a coarse theory. The antisymmetric response itself is real at long wavelength (well above the streaming floor), a current driven across a gradient, and on the dense background it shrinks with the wavelength. This is a statement about the charge current response; a chirality could hide in an observable not measured here (a spin-carrying current, a rank-3 tensor), and E-RLT-0045 shows the symmetric part stays anisotropic, so what is balanced is the handedness, not the isotropy.',
+        "L2, partial. The mirror control: at side 9 the mirrored rule on the same background gives self-dual 0.2082 and anti-self-dual 0.1982 against the committed 0.1942 and 0.2122, a swap to 2 percent; at side 13 it gives 0.1054 and 0.1018 against 0.1466 and 0.1401, balanced like the committed rule (ratio 1.035 against 1.047, where an exact swap predicts 0.955) but about 25 percent smaller. The background is not mirrored, so the two histories differ, and the antisymmetric part's size is reproducible to about 25 percent and its ratio to about 8 percent at side 13. That still bounds the long-wave split far below the lattice-scale 4.1, which is the survival question, but it does not resolve a split of 10 percent. A mirrored background, or several backgrounds, would make the control exact. The two responses differ only in the wavelength they probe: the lone tone is a point source, all wavevectors at once and dominated by the lattice scale, and the long wave is one wavevector well below it. The 4-to-1 self-dual excess is a lattice-scale property; at long wavelength the halves are balanced within the stated bound and the sign moves with side, background and window, so no handedness is carried into a coarse theory. The antisymmetric response itself is real at long wavelength (well above the streaming floor), a current driven across a gradient, and on the dense background it shrinks with the wavelength. This is a statement about the charge current response; a chirality could hide in an observable not measured here (a spin-carrying current, a rank-3 tensor), and E-RLT-0045 shows the symmetric part stays anisotropic, so what is balanced is the handedness, not the isotropy.",
     })
   },
 })

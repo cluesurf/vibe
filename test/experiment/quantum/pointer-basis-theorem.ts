@@ -66,7 +66,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
-import { marginalOne, readerPermutation, LINE_CLASSES } from '@/code/measure/sum-record'
+import {
+  marginalOne,
+  readerPermutation,
+  LINE_CLASSES,
+} from '@/code/measure/sum-record'
 import {
   applyMap,
   classOrbits,
@@ -96,7 +100,9 @@ function gcd(a: bigint, b: bigint): bigint {
   let x = a < 0n ? -a : a
   let y = b < 0n ? -b : b
 
-  while (y > 0n) [x, y] = [y, x % y]
+  while (y > 0n) {
+    ;[x, y] = [y, x % y]
+  }
 
   return x
 }
@@ -104,24 +110,43 @@ function gcd(a: bigint, b: bigint): bigint {
 export default experiment({
   id: 'quantum/pointer-basis-theorem',
   code: 'E-QTM-0154',
-  title: 'a pointer basis is the environment\'s, never the rule\'s: the frame changes are a unitary 2-design, so a frame-invariant environment depolarizes (like 1/4, love-fear 2/3 per meeting), no meeting of the model premeasures any basis, and only a line environment can single out a class',
+  title:
+    "a pointer basis is the environment's, never the rule's: the frame changes are a unitary 2-design, so a frame-invariant environment depolarizes (like 1/4, love-fear 2/3 per meeting), no meeting of the model premeasures any basis, and only a line environment can single out a class",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const kernels = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+    const kernels = exactFearKernels({
+      like: 1,
+      unlike: 1,
+      likeExchanged: false,
+    })
     const kinds = [
-      { name: 'like', kernel: kernels.like, divisor: kernels.likeDivisor, lambda: [1n, 4n] as const },
-      { name: 'loveFear', kernel: kernels.unlike, divisor: kernels.unlikeDivisor, lambda: [2n, 3n] as const },
+      {
+        name: 'like',
+        kernel: kernels.like,
+        divisor: kernels.likeDivisor,
+        lambda: [1n, 4n] as const,
+      },
+      {
+        name: 'loveFear',
+        kernel: kernels.unlike,
+        divisor: kernels.unlikeDivisor,
+        lambda: [2n, 3n] as const,
+      },
     ]
 
     // G1
     const fp = framePotential()
-    const g1 = fp.elements === 648 && fp.worstRounding < 1e-9 && fp.potential === 2 * 648
+    const g1 =
+      fp.elements === 648 &&
+      fp.worstRounding < 1e-9 &&
+      fp.potential === 2 * 648
 
     // G2
     let g2Pass = 0
+
     const lambdas: Record<string, string[]> = {}
 
     for (const k of kinds) {
@@ -129,9 +154,16 @@ export default experiment({
 
       for (let q = 0; q < 9; q++) {
         for (let p = 0; p < 9; p++) {
-          const map = meetingMap({ kernel: k.kernel, divisor: k.divisor, env: UNIFORM, own: [q, p] })
+          const map = meetingMap({
+            kernel: k.kernel,
+            divisor: k.divisor,
+            env: UNIFORM,
+            own: [q, p],
+          })
           const f = depolarizingFactor(map)
-          const exact = f.depolarizing && f.num * k.lambda[1] === f.den * k.lambda[0]
+          const exact =
+            f.depolarizing &&
+            f.num * k.lambda[1] === f.den * k.lambda[0]
 
           g2Pass += exact ? 1 : 0
           seen.add(f.depolarizing ? ratio(f.num, f.den) : 'not')
@@ -168,10 +200,12 @@ export default experiment({
 
     let readerRecords = 0
     let readerWrong = 0
+
     const readerReady: number[] = []
 
     LINE_CLASSES.forEach((c, own) => {
       const step = permutationStep(readerPermutation(c.direction).perm)
+
       let n = 0
 
       for (const ready of GRID_LINES) {
@@ -180,8 +214,12 @@ export default experiment({
 
           if (r.record) {
             readerRecords++
-            if (cls === own) n++
-            else readerWrong++
+
+            if (cls === own) {
+              n++
+            } else {
+              readerWrong++
+            }
           }
         }
       }
@@ -189,53 +227,89 @@ export default experiment({
       readerReady.push(n)
     })
 
-    const g3 = cases === 7776 && modelRecords === 0 && readerRecords === 36 && readerWrong === 0 && readerReady.every(n => n === 9)
+    const g3 =
+      cases === 7776 &&
+      modelRecords === 0 &&
+      readerRecords === 36 &&
+      readerWrong === 0 &&
+      readerReady.every(n => n === 9)
 
     // G4
     const moves = phaseMoves()
+
     let lineOk = 0
 
     for (const line of GRID_LINES) {
       const orbits = classOrbits(stabilizerOf(moves, line.points))
       const fixed = orbits.find(o => o.length === 1)
 
-      lineOk += orbits.length === 2 && fixed?.[0] === line.cls && orbits.some(o => o.length === 3) ? 1 : 0
+      lineOk +=
+        orbits.length === 2 &&
+        fixed?.[0] === line.cls &&
+        orbits.some(o => o.length === 3)
+          ? 1
+          : 0
     }
 
     let pointOk = 0
 
-    for (let p = 0; p < 9; p++) pointOk += classOrbits(stabilizerOf(moves, [p])).length === 1 ? 1 : 0
+    for (let p = 0; p < 9; p++) {
+      pointOk +=
+        classOrbits(stabilizerOf(moves, [p])).length === 1 ? 1 : 0
+    }
 
     let pointEnvOk = 0
+
     const coincident: Record<string, string> = {}
     const apart: Record<string, Set<string>> = {}
 
     for (const k of kinds) {
       for (let p = 0; p < 9; p++) {
         for (let q = 0; q < 9; q++) {
-          const map = meetingMap({ kernel: k.kernel, divisor: k.divisor, env: onPoints([p]), own: [q, p] })
+          const map = meetingMap({
+            kernel: k.kernel,
+            divisor: k.divisor,
+            env: onPoints([p]),
+            own: [q, p],
+          })
           const retained = GRID_LINES.map(l => {
             const after = applyMap(map, onPoints(l.points))
-            const on = l.points.reduce((s, x) => s + (after[x] as bigint), 0n)
+            const on = l.points.reduce((s, x) => s + after[x]!, 0n)
 
             return ratio(on, unitsOf(after))
           })
 
           if (q === p) {
-            const through = new Set(GRID_LINES.filter(l => l.points.includes(p)).map(l => retained[GRID_LINES.indexOf(l)]))
-            const off = new Set(GRID_LINES.filter(l => !l.points.includes(p)).map(l => retained[GRID_LINES.indexOf(l)]))
+            const through = new Set(
+              GRID_LINES.filter(l => l.points.includes(p)).map(
+                l => retained[GRID_LINES.indexOf(l)],
+              ),
+            )
+            const off = new Set(
+              GRID_LINES.filter(l => !l.points.includes(p)).map(
+                l => retained[GRID_LINES.indexOf(l)],
+              ),
+            )
 
             pointEnvOk += through.size === 1 && off.size === 1 ? 1 : 0
-            coincident[`${k.name}_p${p}`] = `${[...through][0]} through, ${[...off][0]} off`
+            coincident[`${k.name}_p${p}`] =
+              `${[...through][0]} through, ${[...off][0]} off`
           } else {
             GRID_LINES.forEach((l, i) => {
               const hasP = l.points.includes(p)
               const hasQ = l.points.includes(q)
-              const group = hasP && hasQ ? 'axis' : hasP ? 'p' : hasQ ? 'q' : 'neither'
+              const group =
+                hasP && hasQ
+                  ? 'axis'
+                  : hasP
+                    ? 'p'
+                    : hasQ
+                      ? 'q'
+                      : 'neither'
               const key = `${k.name}_${group}`
 
               apart[key] = apart[key] ?? new Set<string>()
-              ;(apart[key] as Set<string>).add(retained[i] as string)
+              apart[key].add(retained[i]!)
             })
           }
         }
@@ -248,13 +322,24 @@ export default experiment({
     const lineEnv: Record<string, string> = {}
 
     for (const k of kinds) {
-      const knot = GRID_LINES[3] as (typeof GRID_LINES)[number]
-      const env = GRID_LINES[0] as (typeof GRID_LINES)[number]
-      const met = meetOnce(productOf(onPoints(knot.points), onPoints(env.points)), k.kernel, k.divisor)
+      const knot = GRID_LINES[3]!
+      const env = GRID_LINES[0]!
+      const met = meetOnce(
+        productOf(onPoints(knot.points), onPoints(env.points)),
+        k.kernel,
+        k.divisor,
+      )
       const s = marginalOne(met, 0)
       const u = unitsOf(s)
 
-      lineEnv[k.name] = `knot on ${JSON.stringify(knot.points)} (class ${knot.cls}) meets env on ${JSON.stringify(env.points)} (class ${env.cls}): weight on the env line ${ratio(env.points.reduce((a, x) => a + (s[x] as bigint), 0n), u)}, on its own line ${ratio(knot.points.reduce((a, x) => a + (s[x] as bigint), 0n), u)}`
+      lineEnv[k.name] =
+        `knot on ${JSON.stringify(knot.points)} (class ${knot.cls}) meets env on ${JSON.stringify(env.points)} (class ${env.cls}): weight on the env line ${ratio(
+          env.points.reduce((a, x) => a + s[x]!, 0n),
+          u,
+        )}, on its own line ${ratio(
+          knot.points.reduce((a, x) => a + s[x]!, 0n),
+          u,
+        )}`
     }
 
     const gates = { G1: g1, G2: g2, G3: g3, G4: g4 }
@@ -276,9 +361,19 @@ export default experiment({
         lineStabilizersFixingOnlyOwnClass: lineOk,
         pointStabilizersTransitive: pointOk,
         pointEnvironmentsClassBlind: pointEnvOk,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
-      notes: `|Tr g|^2 value:count ${[...fp.squares.entries()].sort((a, b) => a[0] - b[0]).map(([v, n]) => `${v}:${n}`).join(' ')}. lambda by kernel ${JSON.stringify(lambdas)}. Point member environment, own points coincide (retained weight of a start line): ${JSON.stringify(coincident)}. Own points apart (q != p), retained weights by the start line's relation to the line through q and p: ${JSON.stringify(Object.fromEntries(Object.entries(apart).map(([k, v]) => [k, [...v]])))}. One meeting with a line environment: ${JSON.stringify(lineEnv)}. L1 for the group theory, L2 for the model's kernels; role grid only, exact integers except the 648 traces (floats, rounded under 1e-9).`,
+      notes: `|Tr g|^2 value:count ${[...fp.squares.entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([v, n]) => `${v}:${n}`)
+        .join(
+          ' ',
+        )}. lambda by kernel ${JSON.stringify(lambdas)}. Point member environment, own points coincide (retained weight of a start line): ${JSON.stringify(coincident)}. Own points apart (q != p), retained weights by the start line's relation to the line through q and p: ${JSON.stringify(Object.fromEntries(Object.entries(apart).map(([k, v]) => [k, [...v]])))}. One meeting with a line environment: ${JSON.stringify(lineEnv)}. L1 for the group theory, L2 for the model's kernels; role grid only, exact integers except the 648 traces (floats, rounded under 1e-9).`,
     })
   },
 })

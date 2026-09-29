@@ -61,11 +61,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { EVEN_BEATS, EVEN_DEPTH, evenSurvey } from '@/code/measure/even-field'
+import {
+  EVEN_BEATS,
+  EVEN_DEPTH,
+  evenSurvey,
+} from '@/code/measure/even-field'
 
-const decreasing = (xs: readonly number[]): boolean => xs.every((x, i) => i === 0 || x < xs[i - 1]!)
-const increasing = (xs: readonly number[]): boolean => xs.every((x, i) => i === 0 || x > xs[i - 1]!)
-const worst = (a: readonly number[], b: readonly number[], f: (x: number, y: number) => number): number => Math.max(...a.map((x, i) => Math.abs(f(x, b[i]!))))
+const decreasing = (xs: readonly number[]): boolean =>
+  xs.every((x, i) => i === 0 || x < xs[i - 1]!)
+const increasing = (xs: readonly number[]): boolean =>
+  xs.every((x, i) => i === 0 || x > xs[i - 1]!)
+const worst = (
+  a: readonly number[],
+  b: readonly number[],
+  f: (x: number, y: number) => number,
+): number => Math.max(...a.map((x, i) => Math.abs(f(x, b[i]!))))
 
 export default experiment({
   id: 'gravity/even-field',
@@ -80,17 +90,45 @@ export default experiment({
     const s = evenSurvey(what => console.error(what))
     const runs = [s.evenLump, s.evenFlip, s.oddLump, s.oddFlip]
 
-    const g1 = runs.every(r => r.gauss === 0 && r.reversed) && s.pairGauss === 0 && s.pairReversed
+    const g1 =
+      runs.every(r => r.gauss === 0 && r.reversed) &&
+      s.pairGauss === 0 &&
+      s.pairReversed
     const g2 = s.gaugePlaquette === 0 && s.gaugeCovariant
     const g3 = s.evenFlipIdentical && s.oddFlipDiffers
     const dipoleVsGreen = worst(s.dipole, s.green, (x, y) => x - y)
-    const g4 = dipoleVsGreen < 1e-9 && s.energyDrift < 1e-9 && s.evenLump.energyDrift < 1e-9 && s.evenFlip.energyDrift < 1e-9
+    const g4 =
+      dipoleVsGreen < 1e-9 &&
+      s.energyDrift < 1e-9 &&
+      s.evenLump.energyDrift < 1e-9 &&
+      s.evenFlip.energyDrift < 1e-9
     const likePlusDipole = worst(s.evenLike, s.dipole, (x, y) => x + y)
-    const loveFearVsLike = worst(s.evenLoveFear, s.evenLike, (x, y) => x - y)
-    const oddPlusEven = worst(s.oddLoveFear, s.evenLike, (x, y) => x + y)
-    const g5 = decreasing(s.evenLike) && likePlusDipole < 1e-9 && loveFearVsLike < 1e-12 && oddPlusEven < 1e-9 && increasing(s.oddLoveFear)
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const wrapsOf = (w: { angle: number; field: number; potential: number }): number => w.angle + w.field + w.potential
+    const loveFearVsLike = worst(
+      s.evenLoveFear,
+      s.evenLike,
+      (x, y) => x - y,
+    )
+    const oddPlusEven = worst(
+      s.oddLoveFear,
+      s.evenLike,
+      (x, y) => x + y,
+    )
+    const g5 =
+      decreasing(s.evenLike) &&
+      likePlusDipole < 1e-9 &&
+      loveFearVsLike < 1e-12 &&
+      oddPlusEven < 1e-9 &&
+      increasing(s.oddLoveFear)
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const wrapsOf = (w: {
+      angle: number
+      field: number
+      potential: number
+    }): number => w.angle + w.field + w.potential
     const f = (x: number): string => x.toPrecision(6)
 
     const metrics: Record<string, number> = {
@@ -111,7 +149,11 @@ export default experiment({
       evenLumpEnergy: s.evenLump.energyStart,
       evenFlipEnergy: s.evenFlip.energyStart,
       dipoleVsGreen,
-      energyDrift: Math.max(s.energyDrift, s.evenLump.energyDrift, s.evenFlip.energyDrift),
+      energyDrift: Math.max(
+        s.energyDrift,
+        s.evenLump.energyDrift,
+        s.evenFlip.energyDrift,
+      ),
       likePlusDipole,
       loveFearVsLike,
       oddPlusEven,

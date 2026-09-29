@@ -55,8 +55,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { dockShells, ornsteinZernikeRate, type LengthHistogram } from '@/code/measure/nucleon-gas'
-import { correlationShells, leadingProfile, pairVacuumPair, PAIR_VACUUM, type PairVacuum, type Shell } from '@/code/measure/pair-string'
+import {
+  dockShells,
+  ornsteinZernikeRate,
+  type LengthHistogram,
+} from '@/code/measure/nucleon-gas'
+import {
+  correlationShells,
+  leadingProfile,
+  pairVacuumPair,
+  PAIR_VACUUM,
+  type PairVacuum,
+  type Shell,
+} from '@/code/measure/pair-string'
 
 const R_LOW = 2
 const R_HIGH = 4.5
@@ -66,20 +77,39 @@ const TOLERANCE = 0.25
 const PROFILE_MIN_COUNT = 50
 const REACH = 7
 
-type Reading = { pooled: number; pooledError: number; shells: number; rate: number; nearest: Shell | undefined }
+type Reading = {
+  pooled: number
+  pooledError: number
+  shells: number
+  rate: number
+  nearest: Shell | undefined
+}
 
 function residual(run: PairVacuum, which: 'bulk' | 'husk'): Reading {
   const shells = correlationShells(run.mesonPairs, which)
-  const window = shells.filter(s => s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9)
+  const window = shells.filter(
+    s => s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9,
+  )
   const weight = window.reduce((a, s) => a + 1 / s.sigma ** 2, 0)
-  const pooled = window.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) / Math.max(1e-300, weight)
-  const above = window.filter(s => s.g - 1 > SIGMAS * s.sigma).map(s => ({ r: s.r, value: s.g - 1, count: ((s.g - 1) / s.sigma) ** 2 }))
+  const pooled =
+    window.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) /
+    Math.max(1e-300, weight)
+  const above = window
+    .filter(s => s.g - 1 > SIGMAS * s.sigma)
+    .map(s => ({
+      r: s.r,
+      value: s.g - 1,
+      count: ((s.g - 1) / s.sigma) ** 2,
+    }))
 
   return {
     pooled,
     pooledError: 1 / Math.sqrt(Math.max(1e-300, weight)),
     shells: above.length,
-    rate: ornsteinZernikeRate({ points: above, power: which === 'bulk' ? 1.5 : 1 }),
+    rate: ornsteinZernikeRate({
+      points: above,
+      power: which === 'bulk' ? 1.5 : 1,
+    }),
     nearest: window[0],
   }
 }
@@ -88,17 +118,29 @@ function mesonRate(run: PairVacuum, which: 'bulk' | 'husk'): number {
   const shells = dockShells(run.geometry)[which]
   const histogram: LengthHistogram = run.profile[which]
   const points = [...histogram.entries()]
-    .map(([key, count]) => ({ r: Math.sqrt(key / 4), count, value: count / (shells.get(key) ?? 1) }))
-    .filter(p => p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 && p.r <= R_HIGH + 1e-9 && p.count >= PROFILE_MIN_COUNT)
+    .map(([key, count]) => ({
+      r: Math.sqrt(key / 4),
+      count,
+      value: count / (shells.get(key) ?? 1),
+    }))
+    .filter(
+      p =>
+        p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 &&
+        p.r <= R_HIGH + 1e-9 &&
+        p.count >= PROFILE_MIN_COUNT,
+    )
 
-  return ornsteinZernikeRate({ points, power: which === 'bulk' ? 1.5 : 1 })
+  return ornsteinZernikeRate({
+    points,
+    power: which === 'bulk' ? 1.5 : 1,
+  })
 }
 
 export default experiment({
   id: 'gauge/pair-string-yukawa',
   code: 'E-FRC-0200',
   title:
-    'the Yukawa test with a pair-making vacuum: the residual between compact color singlets (stand-ins for nucleons) of the paid Z3 string on the D4 box, whose demons pay for pairs, against mixed events, on the husk and in the bulk, against the meson rate and E-FRC-0188\'s one-meson prediction',
+    "the Yukawa test with a pair-making vacuum: the residual between compact color singlets (stand-ins for nucleons) of the paid Z3 string on the D4 box, whose demons pay for pairs, against mixed events, on the husk and in the bulk, against the meson rate and E-FRC-0188's one-meson prediction",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -113,18 +155,44 @@ export default experiment({
     const m1Bulk = mesonRate(paired, 'bulk')
     const m1Husk = mesonRate(paired, 'husk')
     const profile = leadingProfile({ x: paired.x, reach: REACH })
-    const inWindow = (s: { r: number }): boolean => s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9
-    const mPredBulk = ornsteinZernikeRate({ points: profile.bulk.filter(inWindow), power: 1.5 })
-    const mPredHusk = ornsteinZernikeRate({ points: profile.husk.filter(inWindow), power: 1 })
-    const within = (a: number, b: number): boolean => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a / b - 1) < TOLERANCE
+    const inWindow = (s: { r: number }): boolean =>
+      s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9
+    const mPredBulk = ornsteinZernikeRate({
+      points: profile.bulk.filter(inWindow),
+      power: 1.5,
+    })
+    const mPredHusk = ornsteinZernikeRate({
+      points: profile.husk.filter(inWindow),
+      power: 1,
+    })
+    const within = (a: number, b: number): boolean =>
+      Number.isFinite(a) &&
+      Number.isFinite(b) &&
+      Math.abs(a / b - 1) < TOLERANCE
     const g0 =
-      paired.exact && paired.agrees && control.exact && control.agrees && paired.fewestCharges !== paired.mostCharges && control.fewestCharges === seeded && control.mostCharges === seeded
-    const yukawa = (r: Reading, m1: number): boolean => r.pooled > POOLED_SIGMAS * r.pooledError && r.shells >= 3 && within(r.rate, m1)
+      paired.exact &&
+      paired.agrees &&
+      control.exact &&
+      control.agrees &&
+      paired.fewestCharges !== paired.mostCharges &&
+      control.fewestCharges === seeded &&
+      control.mostCharges === seeded
+    const yukawa = (r: Reading, m1: number): boolean =>
+      r.pooled > POOLED_SIGMAS * r.pooledError &&
+      r.shells >= 3 &&
+      within(r.rate, m1)
     const g1 = yukawa(bulk, m1Bulk)
     const g2 = yukawa(husk, m1Husk)
-    const g3 = Math.abs(controlBulk.pooled) < POOLED_SIGMAS * controlBulk.pooledError
+    const g3 =
+      Math.abs(controlBulk.pooled) <
+      POOLED_SIGMAS * controlBulk.pooledError
     const g4 = within(m1Bulk, mPredBulk) && within(m1Husk, mPredHusk)
-    const status = g0 && g1 && g2 && g3 && g4 ? 'pass' : g0 && g1 && g3 ? 'partial' : 'fail'
+    const status =
+      g0 && g1 && g2 && g3 && g4
+        ? 'pass'
+        : g0 && g1 && g3
+          ? 'partial'
+          : 'fail'
     const metrics: Record<string, number> = {
       beta: paired.beta,
       x: paired.x,
@@ -171,8 +239,13 @@ export default experiment({
         correlationShells(run.mesonPairs, which)
           .filter(s => s.r <= R_HIGH + 1e-9)
           .forEach(s => {
-            metrics[`${name}${which === 'bulk' ? 'Bulk' : 'Husk'}GMinusOneR${s.r.toFixed(3)}`] = s.g - 1
-            metrics[`${name}${which === 'bulk' ? 'Bulk' : 'Husk'}ErrorR${s.r.toFixed(3)}`] = s.sigma
+            metrics[
+              `${name}${which === 'bulk' ? 'Bulk' : 'Husk'}GMinusOneR${s.r.toFixed(3)}`
+            ] = s.g - 1
+
+            metrics[
+              `${name}${which === 'bulk' ? 'Bulk' : 'Husk'}ErrorR${s.r.toFixed(3)}`
+            ] = s.sigma
           })
       }
     }
@@ -187,7 +260,7 @@ export default experiment({
         seededCharges: seeded,
       },
       notes:
-        'L2, exact integers, no random numbers: the starts are golden and silver Weyl sequences. The nucleons are stand-ins (color singlets without three quarks or spin). A singlet is read afresh from each read: nothing moves, a meson has no identity from one read to the next. The reference is mixed events 250 reads (1,000 beats) back, the only estimator here that divides out the box geometry, the minimal image near half a period and the husk projection at once, which E-FRC-0196\'s far-shell normalization could not. The control differs from the pair run in its demon capacity only, so its temperature and density are its own; it is the no-pair null, not a matched sample.',
+        "L2, exact integers, no random numbers: the starts are golden and silver Weyl sequences. The nucleons are stand-ins (color singlets without three quarks or spin). A singlet is read afresh from each read: nothing moves, a meson has no identity from one read to the next. The reference is mixed events 250 reads (1,000 beats) back, the only estimator here that divides out the box geometry, the minimal image near half a period and the husk projection at once, which E-FRC-0196's far-shell normalization could not. The control differs from the pair run in its demon capacity only, so its temperature and density are its own; it is the no-pair null, not a matched sample.",
     })
   },
 })

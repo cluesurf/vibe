@@ -118,10 +118,33 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { d4Steps, frameMatrix, frameRoots } from '@/code/measure/frame-cone'
+import {
+  d4Steps,
+  frameMatrix,
+  frameRoots,
+} from '@/code/measure/frame-cone'
 import { lineFrame } from '@/code/measure/frame-meson'
-import { dockMatrix, DOCK_ROOTS, exactDockWalk, exactGap, meanTensors, ruleDockMatrix, tensorDefect, velocityGap, type CMatrix } from '@/code/measure/dock-mixer'
-import { fastestBand, masslessPair, singletAnisotropy, singletKinematics, singletLevel, weylMomenta, type Roots, type SingletLevel } from '@/code/measure/singlet-kinematics'
+import {
+  dockMatrix,
+  DOCK_ROOTS,
+  exactDockWalk,
+  exactGap,
+  meanTensors,
+  ruleDockMatrix,
+  tensorDefect,
+  velocityGap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
+import {
+  fastestBand,
+  masslessPair,
+  singletAnisotropy,
+  singletKinematics,
+  singletLevel,
+  weylMomenta,
+  type Roots,
+  type SingletLevel,
+} from '@/code/measure/singlet-kinematics'
 
 const PHI = (2 * Math.PI) / 3
 const M_STAR = Math.PI / 48
@@ -139,7 +162,10 @@ const R_TOLERANCE = 0.01
 const ETA_CEILING = 0.05
 const R_SLOPE: readonly [number, number] = [1.8, 2.2]
 const ETA_SLOPE: readonly [number, number] = [0.8, 1.2]
-const LIGHT_MASSES: readonly [number, number] = [Math.PI / 48, Math.PI / 96]
+const LIGHT_MASSES: readonly [number, number] = [
+  Math.PI / 48,
+  Math.PI / 96,
+]
 const PAIR_KAPPA = 0.01
 const GAMMA_CEILING = 1e-3
 const SWAP_GAMMA_CEILING = 1e-6
@@ -179,20 +205,40 @@ const SCAN: readonly { name: string; theta: number; n: number }[] = [
 ]
 
 const C = Math.SQRT2
-const relative = (x: number, y: number): number => Math.abs(x - y) / Math.abs(y)
+const relative = (x: number, y: number): number =>
+  Math.abs(x - y) / Math.abs(y)
 
-type Reading = { level: SingletLevel; c2: number[]; d: number[]; eta: number[]; R: number }
+type Reading = {
+  level: SingletLevel
+  c2: number[]
+  d: number[]
+  eta: number[]
+  R: number
+}
 
 // the relativistic reading of the singlet of P along the four directions, R against the massless c0
-function readSinglet(P: CMatrix, roots: Roots, c0: number, scales: readonly number[] = SCALES): Reading {
+function readSinglet(
+  P: CMatrix,
+  roots: Roots,
+  c0: number,
+  scales: readonly number[] = SCALES,
+): Reading {
   const level = singletLevel(P, roots, 12)
 
-  if (level.single < 0 || level.partner < 0) return { level, c2: [], d: [], eta: [], R: NaN }
+  if (level.single < 0 || level.partner < 0) {
+    return { level, c2: [], d: [], eta: [], R: NaN }
+  }
 
   const k = DIRS.map(u => singletKinematics(P, roots, level, u, scales))
   const c2 = k.map(x => x.c2)
 
-  return { level, c2, d: k.map(x => x.d), eta: k.map(x => x.eta), R: (c0 * c0) / (c2[0] as number) }
+  return {
+    level,
+    c2,
+    d: k.map(x => x.d),
+    eta: k.map(x => x.eta),
+    R: (c0 * c0) / c2[0]!,
+  }
 }
 
 export default experiment({
@@ -206,77 +252,148 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
 
     // ---------------- instrument ----------------
-    const gapRule = exactGap(ruleDockMatrix(true), dockMatrix(PHI, 1, true), 48)
+    const gapRule = exactGap(
+      ruleDockMatrix(true),
+      dockMatrix(PHI, 1, true),
+      48,
+    )
     const PS = dockMatrix(THETA_STAR, 1, true)
     const velGap = Math.max(
       ...[
         [0.31, -1.07, 0.73, 2.03],
         [0.02, 0.01, -0.03, 0.015],
-      ].flatMap(K => FOUR.map(d => velocityGap(PS, DOCK_ROOTS, K, d.u))),
+      ].flatMap(K =>
+        FOUR.map(d => velocityGap(PS, DOCK_ROOTS, K, d.u)),
+      ),
     )
     const reach: number[] = []
-    const rB = DOCK_ROOTS[B] as readonly number[]
+    const rB = DOCK_ROOTS[B]!
     const along: number[] = []
 
-    exactDockWalk(ruleDockMatrix(true), DOCK_ROOTS, B, WALK_BEATS, (t, sites) => {
-      let r = 0
-      let a = -Infinity
+    exactDockWalk(
+      ruleDockMatrix(true),
+      DOCK_ROOTS,
+      B,
+      WALK_BEATS,
+      (t, sites) => {
+        let r = 0
+        let a = -Infinity
 
-      for (const site of sites.values()) {
-        r = Math.max(r, d4Steps(site.v))
-        a = Math.max(a, site.v.reduce((s, x, k) => s + x * (rB[k] as number), 0) / 2)
-      }
+        for (const site of sites.values()) {
+          r = Math.max(r, d4Steps(site.v))
+          a = Math.max(
+            a,
+            site.v.reduce((s, x, k) => s + x * rB[k]!, 0) / 2,
+          )
+        }
 
-      reach.push(r)
-      along.push(a)
-    })
+        reach.push(r)
+        along.push(a)
+      },
+    )
 
-    const straight = Math.hypot(PS.re[B * 24 + B] as number, PS.im[B * 24 + B] as number)
-    const coneOk = reach.every((r, i) => r === i + 1) && along.every((a, i) => a === i + 1) && straight > 1e-3
+    const straight = Math.hypot(PS.re[B * 24 + B]!, PS.im[B * 24 + B]!)
+    const coneOk =
+      reach.every((r, i) => r === i + 1) &&
+      along.every((a, i) => a === i + 1) &&
+      straight > 1e-3
     // the cone speed: the walk's reach along the root per beat, times the root's length
-    const cCone = ((along[WALK_BEATS - 1] as number) / WALK_BEATS) * C
+    const cCone = (along[WALK_BEATS - 1]! / WALK_BEATS) * C
 
     log('instrument')
 
     // ---------------- the massless pair (c0, gamma) ----------------
     const pairs = [1, 4, 2 / 3].map(n => {
       const P = dockMatrix((2 * Math.PI) / (3 * n), n, true)
-      const r = FOUR.map(d => masslessPair(P, DOCK_ROOTS, 13, d.u, PAIR_KAPPA))
+      const r = FOUR.map(d =>
+        masslessPair(P, DOCK_ROOTS, 13, d.u, PAIR_KAPPA),
+      )
 
-      return { n, c0: r.map(x => x.c0), gamma: r.map(x => x.gamma), size: (r[0] as { size: number }).size }
+      return {
+        n,
+        c0: r.map(x => x.c0),
+        gamma: r.map(x => x.gamma),
+        size: (r[0] as { size: number }).size,
+      }
     })
-    const pair1 = pairs[0] as (typeof pairs)[number]
-    const c0 = pair1.c0[0] as number
-    const gammaOverC = Math.max(...pair1.gamma.map(g => Math.abs(g) / c0))
-    const swap = pairs[2] as (typeof pairs)[number]
-    const swapGamma = Math.max(...swap.gamma.map((g, j) => Math.abs(g) / (swap.c0[j] as number)))
+    const pair1 = pairs[0]!
+    const c0 = pair1.c0[0]!
+    const gammaOverC = Math.max(
+      ...pair1.gamma.map(g => Math.abs(g) / c0),
+    )
+    const swap = pairs[2]!
+    const swapGamma = Math.max(
+      ...swap.gamma.map((g, j) => Math.abs(g) / swap.c0[j]!),
+    )
 
     log('pair')
 
     // ---------------- S1, S2, S3 at theta* ----------------
     const star = readSinglet(PS, DOCK_ROOTS, c0)
     const half = readSinglet(PS, DOCK_ROOTS, c0, SCALES_HALF)
-    const fitC = Math.max(...star.c2.map((x, j) => relative(half.c2[j] as number, x)))
-    const fitD = Math.max(...star.d.map((x, j) => relative(half.d[j] as number, x)))
+    const fitC = Math.max(
+      ...star.c2.map((x, j) => relative(half.c2[j]!, x)),
+    )
+    const fitD = Math.max(
+      ...star.d.map((x, j) => relative(half.d[j]!, x)),
+    )
     const L = star.level
     const sizes = L.multiplets.map(x => x.size).sort((a, b) => a - b)
-    const S1 = sizes.join(',') === '1,11,12' && L.gap >= 2 * M_STAR * (1 - GAP_SLACK) && L.edge
-    const tensor = tensorDefect((meanTensors(PS, DOCK_ROOTS, L.multiplets, M_STAR / TENSOR_DIVISOR)[L.single] as number[][]))
-    const anisA = singletAnisotropy(PS, DOCK_ROOTS, L, DIRS, SIX[0] * M_STAR)
-    const anisB = singletAnisotropy(PS, DOCK_ROOTS, L, DIRS, SIX[1] * M_STAR)
-    const slopes = anisA.map((x, j) => Math.log2(x / (anisB[j] as number)))
-    const faceBody = (anisB[0] as number) / (anisB[1] as number)
-    const S2 = tensor.defect <= ISOTROPY_TOLERANCE && slopes.every(x => x >= SLOPE_RANGE[0] && x <= SLOPE_RANGE[1]) && Math.abs(faceBody / 2.25 - 1) <= PATTERN_TOLERANCE
+    const S1 =
+      sizes.join(',') === '1,11,12' &&
+      L.gap >= 2 * M_STAR * (1 - GAP_SLACK) &&
+      L.edge
+    const tensor = tensorDefect(
+      meanTensors(
+        PS,
+        DOCK_ROOTS,
+        L.multiplets,
+        M_STAR / TENSOR_DIVISOR,
+      )[L.single]!,
+    )
+    const anisA = singletAnisotropy(
+      PS,
+      DOCK_ROOTS,
+      L,
+      DIRS,
+      SIX[0] * M_STAR,
+    )
+    const anisB = singletAnisotropy(
+      PS,
+      DOCK_ROOTS,
+      L,
+      DIRS,
+      SIX[1] * M_STAR,
+    )
+    const slopes = anisA.map((x, j) => Math.log2(x / anisB[j]!))
+    const faceBody = anisB[0]! / anisB[1]!
+    const S2 =
+      tensor.defect <= ISOTROPY_TOLERANCE &&
+      slopes.every(x => x >= SLOPE_RANGE[0] && x <= SLOPE_RANGE[1]) &&
+      Math.abs(faceBody / 2.25 - 1) <= PATTERN_TOLERANCE
     const S3a = Math.abs(star.R - 1) <= R_TOLERANCE
     const S3b = star.eta.every(x => Math.abs(x) <= ETA_CEILING)
-    const light = LIGHT_MASSES.map(m => readSinglet(dockMatrix(PHI + 2 * m, 1, true), DOCK_ROOTS, c0))
-    const rSlope = Math.log2(Math.abs((light[0] as Reading).R - 1) / Math.abs((light[1] as Reading).R - 1))
-    const etaSlope = Math.log2(Math.abs((light[0] as Reading).eta[0] as number) / Math.abs((light[1] as Reading).eta[0] as number))
-    const S3c = rSlope >= R_SLOPE[0] && rSlope <= R_SLOPE[1] && etaSlope >= ETA_SLOPE[0] && etaSlope <= ETA_SLOPE[1]
+    const light = LIGHT_MASSES.map(m =>
+      readSinglet(dockMatrix(PHI + 2 * m, 1, true), DOCK_ROOTS, c0),
+    )
+    const rSlope = Math.log2(
+      Math.abs(light[0]!.R - 1) / Math.abs(light[1]!.R - 1),
+    )
+    const etaSlope = Math.log2(
+      Math.abs(light[0]!.eta[0]!) / Math.abs(light[1]!.eta[0]!),
+    )
+    const S3c =
+      rSlope >= R_SLOPE[0] &&
+      rSlope <= R_SLOPE[1] &&
+      etaSlope >= ETA_SLOPE[0] &&
+      etaSlope <= ETA_SLOPE[1]
     const S3d = gammaOverC <= GAMMA_CEILING
     const S3 = S3a && S3b && S3c && S3d
 
@@ -286,8 +403,13 @@ export default experiment({
     const PL = dockMatrix(THETA_STAR, 1, false)
     const love = readSinglet(PL, DOCK_ROOTS, c0)
     const loveM = Math.abs(love.level.m - L.m)
-    const loveC = Math.max(...love.c2.map((x, j) => relative(x, star.c2[j] as number)))
-    const S4a = love.level.single >= 0 && loveM <= LOVE_M_TOLERANCE && loveC <= LOVE_C_TOLERANCE
+    const loveC = Math.max(
+      ...love.c2.map((x, j) => relative(x, star.c2[j]!)),
+    )
+    const S4a =
+      love.level.single >= 0 &&
+      loveM <= LOVE_M_TOLERANCE &&
+      loveC <= LOVE_C_TOLERANCE
     const cRatio = c0 / cCone
     const S4b = Math.abs(cRatio - 1) <= SPEED_TOLERANCE
     const S4 = S4a && S4b
@@ -303,12 +425,24 @@ export default experiment({
     const LF = singletLevel(PF, fRoots, 4)
     const fA = singletAnisotropy(PF, fRoots, LF, DIRS, SIX[0] * M_STAR)
     const fB = singletAnisotropy(PF, fRoots, LF, DIRS, SIX[1] * M_STAR)
-    const frameSlope = Math.log2((fA[0] as number) / (fB[0] as number))
-    const C1 = LF.single >= 0 && frameSlope >= FOUR_RANGE[0] && frameSlope <= FOUR_RANGE[1]
-    const heavy = readSinglet(dockMatrix((4 * Math.PI) / 3, 1, true), DOCK_ROOTS, c0)
+    const frameSlope = Math.log2(fA[0]! / fB[0]!)
+    const C1 =
+      LF.single >= 0 &&
+      frameSlope >= FOUR_RANGE[0] &&
+      frameSlope <= FOUR_RANGE[1]
+    const heavy = readSinglet(
+      dockMatrix((4 * Math.PI) / 3, 1, true),
+      DOCK_ROOTS,
+      c0,
+    )
     const C2 = Math.abs(heavy.R - 1) > HEAVY_R_FLOOR
     const atPhi = singletLevel(dockMatrix(PHI, 1, true), DOCK_ROOTS, 12)
-    const C3 = atPhi.single < 0 && atPhi.multiplets.map(x => x.size).sort((a, b) => a - b).join(',') === '11,13'
+    const C3 =
+      atPhi.single < 0 &&
+      atPhi.multiplets
+        .map(x => x.size)
+        .sort((a, b) => a - b)
+        .join(',') === '11,13'
     const C4 = swapGamma <= SWAP_GAMMA_CEILING
 
     log('controls')
@@ -318,24 +452,42 @@ export default experiment({
       const P = dockMatrix(row.theta, row.n, true)
       const r = readSinglet(P, DOCK_ROOTS, c0)
       const phi = (2 * Math.PI) / (3 * row.n)
-      const mPred = Math.abs(Math.atan2(Math.sin(row.theta - phi), Math.cos(row.theta - phi))) / 2
+      const mPred =
+        Math.abs(
+          Math.atan2(
+            Math.sin(row.theta - phi),
+            Math.cos(row.theta - phi),
+          ),
+        ) / 2
 
-      if (r.level.single < 0 || r.level.m < 1e-9) return `${row.name}: multiplets ${r.level.multiplets.map(x => x.size).join('+')}, no singlet`
+      if (r.level.single < 0 || r.level.m < 1e-9) {
+        return `${row.name}: multiplets ${r.level.multiplets.map(x => x.size).join('+')}, no singlet`
+      }
 
-      const cEff = Math.sqrt(Math.max(r.c2[0] as number, 0)) / C
-      const cPred = Math.sqrt((mPred / Math.tan(mPred)) / 2) / C
+      const cEff = Math.sqrt(Math.max(r.c2[0]!, 0)) / C
+      const cPred = Math.sqrt(mPred / Math.tan(mPred) / 2) / C
       const etaSpread = Math.max(...r.eta) - Math.min(...r.eta)
 
-      return `${row.name}: m ${r.level.m.toFixed(6)} (${mPred.toFixed(6)}), edge ${r.level.edge}, gap ${r.level.gap.toFixed(4)}, c_eff/c ${cEff.toFixed(6)} (${cPred.toFixed(6)}), R ${r.R.toPrecision(7)} (${(Math.tan(mPred) / mPred).toPrecision(7)}), eta ${(r.eta[0] as number).toExponential(3)} (spread over directions ${etaSpread.toExponential(1)})`
+      return `${row.name}: m ${r.level.m.toFixed(6)} (${mPred.toFixed(6)}), edge ${r.level.edge}, gap ${r.level.gap.toFixed(4)}, c_eff/c ${cEff.toFixed(6)} (${cPred.toFixed(6)}), R ${r.R.toPrecision(7)} (${(Math.tan(mPred) / mPred).toPrecision(7)}), eta ${r.eta[0]!.toExponential(3)} (spread over directions ${etaSpread.toExponential(1)})`
     })
 
     log('scan')
 
     // ---------------- verdict ----------------
-    const instrument = gapRule <= MATRIX_TOLERANCE && velGap <= VELOCITY_TOLERANCE && fitC <= FIT_C_TOLERANCE && fitD <= FIT_D_TOLERANCE && coneOk
+    const instrument =
+      gapRule <= MATRIX_TOLERANCE &&
+      velGap <= VELOCITY_TOLERANCE &&
+      fitC <= FIT_C_TOLERANCE &&
+      fitD <= FIT_D_TOLERANCE &&
+      coneOk
     const controls = C1 && C2 && C3 && C4
-    const status = !instrument || !controls ? 'partial' : S1 && S2 && S3 && S4 ? 'pass' : 'fail'
-    const cStar = Math.sqrt(star.c2[0] as number) / C
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : S1 && S2 && S3 && S4
+          ? 'pass'
+          : 'fail'
+    const cStar = Math.sqrt(star.c2[0]!) / C
     const metrics: Record<string, number> = {
       S1: S1 ? 1 : 0,
       S2: S2 ? 1 : 0,
@@ -356,19 +508,19 @@ export default experiment({
       gap: L.gap,
       cEffOverC: cStar,
       R: star.R,
-      eta: star.eta[0] as number,
+      eta: star.eta[0]!,
       rSlope,
       etaSlope,
       tensorA: tensor.a,
       tensorDefect: tensor.defect,
-      slopeFace: slopes[0] as number,
-      slopeBody: slopes[1] as number,
-      slopeGeneric: slopes[2] as number,
+      slopeFace: slopes[0]!,
+      slopeBody: slopes[1]!,
+      slopeGeneric: slopes[2]!,
       faceBody,
       c0OverC: c0 / C,
       gammaOverC0: gammaOverC,
-      gamma: pair1.gamma[0] as number,
-      gammaN4: (pairs[1] as (typeof pairs)[number]).gamma[0] as number,
+      gamma: pair1.gamma[0]!,
+      gammaN4: pairs[1]!.gamma[0]!,
       swapGamma,
       loveM,
       loveC,
@@ -387,10 +539,16 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `S1 ${S1} (multiplets ${sizes.join('+')}, m ${L.m.toFixed(6)}, gap ${L.gap.toFixed(6)} against ${(2 * M_STAR).toFixed(6)}, band edge ${L.edge}); S2 ${S2} (tensor ${tensor.a.toFixed(6)} I to ${tensor.defect.toExponential(1)}, K^6 slopes ${slopes.map(x => x.toFixed(3)).join('/')}, face/body ${faceBody.toFixed(4)}); S3 ${S3} (S3a ${S3a}: R ${star.R.toFixed(6)}, c_eff ${cStar.toFixed(6)} c; S3b ${S3b}: eta ${star.eta.map(x => x.toExponential(3)).join(' ')}; S3c ${S3c}: slopes R ${rSlope.toFixed(3)}, eta ${etaSlope.toFixed(3)}; S3d ${S3d}: massless c0 ${(c0 / C).toFixed(8)} c, gamma ${(pair1.gamma[0] as number).toFixed(7)}, gamma/c0 ${gammaOverC.toFixed(5)}); S4 ${S4} (S4a ${S4a}: love m off ${loveM.toExponential(1)}, c^2 off ${loveC.toExponential(1)}; S4b ${S4b}: c0 / c ${cRatio.toFixed(6)}, the cone ${(cCone / C).toFixed(6)} c); controls C1 ${C1} (frame slope ${frameSlope.toFixed(3)}), C2 ${C2} (R at 4pi/3 ${heavy.R.toFixed(4)}), C3 ${C3} (theta phi ${atPhi.multiplets.map(x => x.size).join('+')}), C4 ${C4} (swap-coin gamma/c0 ${swapGamma.toExponential(1)})`,
+      claim: `S1 ${S1} (multiplets ${sizes.join('+')}, m ${L.m.toFixed(6)}, gap ${L.gap.toFixed(6)} against ${(2 * M_STAR).toFixed(6)}, band edge ${L.edge}); S2 ${S2} (tensor ${tensor.a.toFixed(6)} I to ${tensor.defect.toExponential(1)}, K^6 slopes ${slopes.map(x => x.toFixed(3)).join('/')}, face/body ${faceBody.toFixed(4)}); S3 ${S3} (S3a ${S3a}: R ${star.R.toFixed(6)}, c_eff ${cStar.toFixed(6)} c; S3b ${S3b}: eta ${star.eta.map(x => x.toExponential(3)).join(' ')}; S3c ${S3c}: slopes R ${rSlope.toFixed(3)}, eta ${etaSlope.toFixed(3)}; S3d ${S3d}: massless c0 ${(c0 / C).toFixed(8)} c, gamma ${pair1.gamma[0]!.toFixed(7)}, gamma/c0 ${gammaOverC.toFixed(5)}); S4 ${S4} (S4a ${S4a}: love m off ${loveM.toExponential(1)}, c^2 off ${loveC.toExponential(1)}; S4b ${S4b}: c0 / c ${cRatio.toFixed(6)}, the cone ${(cCone / C).toFixed(6)} c); controls C1 ${C1} (frame slope ${frameSlope.toFixed(3)}), C2 ${C2} (R at 4pi/3 ${heavy.R.toFixed(4)}), C3 ${C3} (theta phi ${atPhi.multiplets.map(x => x.size).join('+')}), C4 ${C4} (swap-coin gamma/c0 ${swapGamma.toExponential(1)})`,
       metrics,
-      control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, C3: C3 ? 1 : 0, C4: C4 ? 1 : 0, instrument: instrument ? 1 : 0 },
-      notes: `L1/L2. Scan (measured (derived)): ${scan.join('; ')}. Massless pairs: ${pairs.map(p => `n ${p.n.toFixed(3)} multiplet ${p.size}, c0 ${p.c0.map(x => (x / C).toFixed(8)).join(' ')} c, gamma ${p.gamma.map(x => x.toExponential(4)).join(' ')}`).join('; ')}. theta* along axis/face/body/generic: c^2 ${star.c2.map(x => x.toFixed(10)).join(' ')}, d ${star.d.map(x => x.toFixed(5)).join(' ')}. Love at theta*: multiplets ${love.level.multiplets.map(x => x.size).join('+')}, edge ${love.level.edge}, c^2 ${love.c2.map(x => x.toFixed(10)).join(' ')}, eta ${love.eta.map(x => x.toExponential(3)).join(' ')}. Fastest band over ${MOMENTA} momenta: hole ${(fastHole.speed / C).toFixed(5)} c at ${fastHole.at.map(x => x.toFixed(3)).join(',')}, love ${(fastLove.speed / C).toFixed(5)} c, against c_eff ${cStar.toFixed(5)} c. Instrument: rule matrix ${gapRule.toExponential(2)}, velocity ${velGap.toExponential(2)}, fit c^2 ${fitC.toExponential(2)} d ${fitD.toExponential(2)}, walk reach ${reach.join(' ')} along ${along.join(' ')}, straight amplitude ${straight.toFixed(6)}. Frame control multiplets ${LF.multiplets.map(x => x.size).join('+')}, anisotropy face/body/generic slopes ${fA.map((x, j) => Math.log2(x / (fB[j] as number)).toFixed(3)).join(' ')}. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+      control: {
+        C1: C1 ? 1 : 0,
+        C2: C2 ? 1 : 0,
+        C3: C3 ? 1 : 0,
+        C4: C4 ? 1 : 0,
+        instrument: instrument ? 1 : 0,
+      },
+      notes: `L1/L2. Scan (measured (derived)): ${scan.join('; ')}. Massless pairs: ${pairs.map(p => `n ${p.n.toFixed(3)} multiplet ${p.size}, c0 ${p.c0.map(x => (x / C).toFixed(8)).join(' ')} c, gamma ${p.gamma.map(x => x.toExponential(4)).join(' ')}`).join('; ')}. theta* along axis/face/body/generic: c^2 ${star.c2.map(x => x.toFixed(10)).join(' ')}, d ${star.d.map(x => x.toFixed(5)).join(' ')}. Love at theta*: multiplets ${love.level.multiplets.map(x => x.size).join('+')}, edge ${love.level.edge}, c^2 ${love.c2.map(x => x.toFixed(10)).join(' ')}, eta ${love.eta.map(x => x.toExponential(3)).join(' ')}. Fastest band over ${MOMENTA} momenta: hole ${(fastHole.speed / C).toFixed(5)} c at ${fastHole.at.map(x => x.toFixed(3)).join(',')}, love ${(fastLove.speed / C).toFixed(5)} c, against c_eff ${cStar.toFixed(5)} c. Instrument: rule matrix ${gapRule.toExponential(2)}, velocity ${velGap.toExponential(2)}, fit c^2 ${fitC.toExponential(2)} d ${fitD.toExponential(2)}, walk reach ${reach.join(' ')} along ${along.join(' ')}, straight amplitude ${straight.toFixed(6)}. Frame control multiplets ${LF.multiplets.map(x => x.size).join('+')}, anisotropy face/body/generic slopes ${fA.map((x, j) => Math.log2(x / fB[j]!).toFixed(3)).join(' ')}. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

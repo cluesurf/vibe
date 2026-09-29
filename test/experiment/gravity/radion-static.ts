@@ -58,12 +58,31 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { newTally as vectorTally, pairLongitudinal, SIGN_BEATS } from '@/code/measure/even-sign'
+import {
+  newTally as vectorTally,
+  pairLongitudinal,
+  SIGN_BEATS,
+} from '@/code/measure/even-sign'
 import { makeMedium } from '@/code/measure/varying-depth-light'
-import { BLIND_BEATS, FIT_R, kappaOf, LIKE_CONTENT, LIKE_R, radionStaticSurvey, RADION_DEPTH, STATIC_SIDE, type LongRadion } from '@/code/measure/radion'
+import {
+  BLIND_BEATS,
+  FIT_R,
+  kappaOf,
+  LIKE_CONTENT,
+  LIKE_R,
+  radionStaticSurvey,
+  RADION_DEPTH,
+  STATIC_SIDE,
+  type LongRadion,
+} from '@/code/measure/radion'
 import { radionRule } from '@/code/rule/trit-radion'
 
-const drift = (run: LongRadion): number => Math.max(...run.samples.map(s => Math.abs(s.energy - run.samples[0]!.energy)))
+const drift = (run: LongRadion): number =>
+  Math.max(
+    ...run.samples.map(s =>
+      Math.abs(s.energy - run.samples[0]!.energy),
+    ),
+  )
 
 export default experiment({
   id: 'gravity/radion-static',
@@ -81,20 +100,41 @@ export default experiment({
 
     // S1
     const rising = s.like.every((w, i) => i === 0 || w > s.like[i - 1]!)
-    const agree = Math.max(...s.like.map((w, i) => Math.abs(w / s.predicted[i]! - 1)))
+    const agree = Math.max(
+      ...s.like.map((w, i) => Math.abs(w / s.predicted[i]! - 1)),
+    )
     const kWant = (LIKE_CONTENT * LIKE_CONTENT) / (24 * RADION_DEPTH)
-    const s1 = rising && agree <= 1e-3 && s.fitK > 0 && Math.abs(s.fitK / kWant - 1) <= 0.02
+    const s1 =
+      rising &&
+      agree <= 1e-3 &&
+      s.fitK > 0 &&
+      Math.abs(s.fitK / kWant - 1) <= 0.02
 
     // S1 control: the vector even field on the light
-    const m16 = makeMedium([STATIC_SIDE, STATIC_SIDE, STATIC_SIDE], () => RADION_DEPTH)
+    const m16 = makeMedium(
+      [STATIC_SIDE, STATIC_SIDE, STATIC_SIDE],
+      () => RADION_DEPTH,
+    )
     const vt = vectorTally()
-    const vector = LIKE_R.map(r => pairLongitudinal(m16, r, LIKE_CONTENT, LIKE_CONTENT, SIGN_BEATS, vt))
+    const vector = LIKE_R.map(r =>
+      pairLongitudinal(
+        m16,
+        r,
+        LIKE_CONTENT,
+        LIKE_CONTENT,
+        SIGN_BEATS,
+        vt,
+      ),
+    )
 
     console.error(`vector control done`)
 
-    const mirror = Math.max(...vector.map((v, i) => Math.abs(v / -s.like[i]! - 1)))
+    const mirror = Math.max(
+      ...vector.map((v, i) => Math.abs(v / -s.like[i]! - 1)),
+    )
     const repels = vector.every((v, i) => i === 0 || v < vector[i - 1]!)
-    const controlS1 = mirror <= 1e-3 && repels && vt.gauss === 0 && vt.reversed
+    const controlS1 =
+      mirror <= 1e-3 && repels && vt.gauss === 0 && vt.reversed
 
     // S2
     const s2 = s.blindIdentical === BLIND_BEATS
@@ -104,17 +144,34 @@ export default experiment({
     const stable = kappa * s.laplacianTop < 4
     const packetE0 = s.packet.samples[0]!.energy
     const packetDrift = drift(s.packet) / packetE0
-    const packetPositive = s.packet.samples.every(x => x.energy > 0 && x.free > 0)
+    const packetPositive = s.packet.samples.every(
+      x => x.energy > 0 && x.free > 0,
+    )
     const lumpDrift = drift(s.lump) / Math.abs(s.lumpStatic)
     const lumpFree = Math.min(...s.lump.samples.map(x => x.free))
-    const s3 = stable && packetPositive && packetDrift <= 1e-6 && lumpDrift <= 1e-6 && lumpFree >= 0
-    const packetOneDrift = drift(s.packetOne) / s.packetOne.samples[0]!.energy
+    const s3 =
+      stable &&
+      packetPositive &&
+      packetDrift <= 1e-6 &&
+      lumpDrift <= 1e-6 &&
+      lumpFree >= 0
+    const packetOneDrift =
+      drift(s.packetOne) / s.packetOne.samples[0]!.energy
     const lumpOneDrift = drift(s.lumpOne) / Math.abs(s.lumpStatic)
 
     // S4
-    const s4 = s.tally.reversed && s.packet.reversed && s.packetOne.reversed && s.lump.reversed && s.lumpOne.reversed
+    const s4 =
+      s.tally.reversed &&
+      s.packet.reversed &&
+      s.packetOne.reversed &&
+      s.lump.reversed &&
+      s.lumpOne.reversed
 
-    const status = !(controlS1 && controlS2) ? 'partial' : s1 && s2 && s3 && s4 ? 'pass' : 'fail'
+    const status = !(controlS1 && controlS2)
+      ? 'partial'
+      : s1 && s2 && s3 && s4
+        ? 'pass'
+        : 'fail'
     const e = (x: number): string => x.toExponential(2)
     const f = (x: number): string => x.toPrecision(6)
     const metrics: Record<string, number> = {
@@ -165,7 +222,19 @@ export default experiment({
         packetOneDrift,
         lumpOneDrift,
       },
-      notes: `L2. Gates S1 ${s1}, S2 ${s2}, S3 ${s3}, S4 ${s4}; controls S1 ${controlS1}, S2 ${controlS2}. Fit on r = ${FIT_R.join(', ')}: c0 ${f(s.fitC0)}, k ${f(s.fitK)}, b ${e(s.fitB)}. Bump E by sample (3 levels): ${s.packet.samples.filter((_, i) => i % 8 === 0).map(x => x.energy.toPrecision(12)).join(' ')}; one level: ${s.packetOne.samples.filter((_, i) => i % 8 === 0).map(x => x.energy.toPrecision(8)).join(' ')}. Lump E (3 levels): ${s.lump.samples.filter((_, i) => i % 8 === 0).map(x => x.energy.toExponential(3)).join(' ')}; one level: ${s.lumpOne.samples.filter((_, i) => i % 8 === 0).map(x => x.energy.toExponential(3)).join(' ')}. Survey ${s.seconds.toFixed(1)} s.`,
+      notes: `L2. Gates S1 ${s1}, S2 ${s2}, S3 ${s3}, S4 ${s4}; controls S1 ${controlS1}, S2 ${controlS2}. Fit on r = ${FIT_R.join(', ')}: c0 ${f(s.fitC0)}, k ${f(s.fitK)}, b ${e(s.fitB)}. Bump E by sample (3 levels): ${s.packet.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.energy.toPrecision(12))
+        .join(' ')}; one level: ${s.packetOne.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.energy.toPrecision(8))
+        .join(' ')}. Lump E (3 levels): ${s.lump.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.energy.toExponential(3))
+        .join(' ')}; one level: ${s.lumpOne.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.energy.toExponential(3))
+        .join(' ')}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },
 })

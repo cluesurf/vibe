@@ -49,30 +49,54 @@ export type LockedPairOptions = {
   readonly phaseString?: boolean
 }
 
-export type LockedPairState = LockedPairOptions & { a: bigint[]; b: bigint[]; denominator: bigint }
+export type LockedPairState = LockedPairOptions & {
+  a: bigint[]
+  b: bigint[]
+  denominator: bigint
+}
 
 // the step of each label for a vibe under a convention
-export function stepTable(kind: Vibe, convention: Convention): readonly [number, number, number] {
-  if (kind === 'fear' && convention === 'Cprime') return [-1, 1, 0]
+export function stepTable(
+  kind: Vibe,
+  convention: Convention,
+): readonly [number, number, number] {
+  if (kind === 'fear' && convention === 'Cprime') {
+    return [-1, 1, 0]
+  }
 
   return [1, -1, 0]
 }
 
-export const lockedIndex = (ring: number, x1: number, x2: number, j1: number, j2: number): number => (x1 * ring + x2) * 9 + 3 * j1 + j2
+export const lockedIndex = (
+  ring: number,
+  x1: number,
+  x2: number,
+  j1: number,
+  j2: number,
+): number => (x1 * ring + x2) * 9 + 3 * j1 + j2
 
 // (a + b w)(c + d w) = ac - bd + (ad + bc - bd) w
-const mulA = (a: bigint, b: bigint, c: bigint, d: bigint): bigint => a * c - b * d
-const mulB = (a: bigint, b: bigint, c: bigint, d: bigint): bigint => a * d + b * c - b * d
+const mulA = (a: bigint, b: bigint, c: bigint, d: bigint): bigint =>
+  a * c - b * d
+const mulB = (a: bigint, b: bigint, c: bigint, d: bigint): bigint =>
+  a * d + b * c - b * d
 const conjA = (a: bigint, b: bigint): bigint => a - b
 const conjB = (b: bigint): bigint => -b
 
-export const ringDistance = (L: number, x1: number, x2: number): number => {
+export const ringDistance = (
+  L: number,
+  x1: number,
+  x2: number,
+): number => {
   const d = Math.abs(x1 - x2) % L
 
   return Math.min(d, L - d)
 }
 
-export function lockedPairState(options: LockedPairOptions, start: readonly { index: number; a: bigint; b: bigint }[]): LockedPairState {
+export function lockedPairState(
+  options: LockedPairOptions,
+  start: readonly { index: number; a: bigint; b: bigint }[],
+): LockedPairState {
   const size = options.ring * options.ring * 9
   const a = new Array<bigint>(size).fill(0n)
   const b = new Array<bigint>(size).fill(0n)
@@ -82,14 +106,27 @@ export function lockedPairState(options: LockedPairOptions, start: readonly { in
     b[s.index] = s.b
   }
 
-  if (options.kinds[0] !== options.kinds[1] && options.unlike === 'knit' && options.convention === 'Cprime') throw new Error('the knit meeting is not closed under V with the Cprime convention')
+  if (
+    options.kinds[0] !== options.kinds[1] &&
+    options.unlike === 'knit' &&
+    options.convention === 'Cprime'
+  ) {
+    throw new Error(
+      'the knit meeting is not closed under V with the Cprime convention',
+    )
+  }
 
   return { ...options, a, b, denominator: 1n }
 }
 
 const meetingScale = (s: LockedPairState): bigint => {
-  if (s.meet === false) return 1n
-  if (s.kinds[0] === s.kinds[1]) return 2n
+  if (s.meet === false) {
+    return 1n
+  }
+
+  if (s.kinds[0] === s.kinds[1]) {
+    return 2n
+  }
 
   return s.unlike === 'knit' ? 1n : 3n
 }
@@ -111,7 +148,9 @@ function rotate(a: bigint, b: bigint, k: number): [bigint, bigint] {
 }
 
 function phasePiece(s: LockedPairState, adjoint: boolean): void {
-  if (!s.phaseString) return
+  if (!s.phaseString) {
+    return
+  }
 
   const L = s.ring
 
@@ -121,7 +160,7 @@ function phasePiece(s: LockedPairState, adjoint: boolean): void {
 
       for (let r = 0; r < 9; r++) {
         const i = lockedIndex(L, x1, x2, 0, 0) + r
-        const [x, y] = rotate(s.a[i] as bigint, s.b[i] as bigint, k)
+        const [x, y] = rotate(s.a[i]!, s.b[i]!, k)
 
         s.a[i] = x
         s.b[i] = y
@@ -143,8 +182,8 @@ function meetingPiece(s: LockedPairState, adjoint: boolean): void {
       if (x1 !== x2 || identity) {
         if (scale !== 1n) {
           for (let p = 0; p < 9; p++) {
-            s.a[base + p] = scale * (s.a[base + p] as bigint)
-            s.b[base + p] = scale * (s.b[base + p] as bigint)
+            s.a[base + p] = scale * s.a[base + p]!
+            s.b[base + p] = scale * s.b[base + p]!
           }
         }
 
@@ -156,16 +195,25 @@ function meetingPiece(s: LockedPairState, adjoint: boolean): void {
 
       if (like) {
         // 2U |ij> = (1 + w)|ij> + (1 - w)|ji>
-        const d: [bigint, bigint] = adjoint ? [conjA(1n, 1n), conjB(1n)] : [1n, 1n]
-        const o: [bigint, bigint] = adjoint ? [conjA(1n, -1n), conjB(-1n)] : [1n, -1n]
+        const d: [bigint, bigint] = adjoint
+          ? [conjA(1n, 1n), conjB(1n)]
+          : [1n, 1n]
+        const o: [bigint, bigint] = adjoint
+          ? [conjA(1n, -1n), conjB(-1n)]
+          : [1n, -1n]
 
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
             const p = 3 * i + j
             const q = 3 * j + i
 
-            s.a[base + p] = mulA(d[0], d[1], ra[p] as bigint, rb[p] as bigint) + mulA(o[0], o[1], ra[q] as bigint, rb[q] as bigint)
-            s.b[base + p] = mulB(d[0], d[1], ra[p] as bigint, rb[p] as bigint) + mulB(o[0], o[1], ra[q] as bigint, rb[q] as bigint)
+            s.a[base + p] =
+              mulA(d[0], d[1], ra[p]!, rb[p]!) +
+              mulA(o[0], o[1], ra[q]!, rb[q]!)
+
+            s.b[base + p] =
+              mulB(d[0], d[1], ra[p]!, rb[p]!) +
+              mulB(o[0], o[1], ra[q]!, rb[q]!)
           }
         }
 
@@ -174,22 +222,26 @@ function meetingPiece(s: LockedPairState, adjoint: boolean): void {
 
       // 3V = 3 + (w - 1) J on the three |jj>
       const f: [bigint, bigint] = adjoint ? [-2n, -1n] : [-1n, 1n]
+
       let sa = 0n
       let sb = 0n
 
       for (let j = 0; j < 3; j++) {
-        sa += ra[4 * j] as bigint
-        sb += rb[4 * j] as bigint
+        sa += ra[4 * j]!
+        sb += rb[4 * j]!
       }
 
       for (let p = 0; p < 9; p++) {
-        s.a[base + p] = 3n * (ra[p] as bigint)
-        s.b[base + p] = 3n * (rb[p] as bigint)
+        s.a[base + p] = 3n * ra[p]!
+        s.b[base + p] = 3n * rb[p]!
       }
 
       for (let j = 0; j < 3; j++) {
-        s.a[base + 4 * j] = (s.a[base + 4 * j] as bigint) + mulA(f[0], f[1], sa, sb)
-        s.b[base + 4 * j] = (s.b[base + 4 * j] as bigint) + mulB(f[0], f[1], sa, sb)
+        s.a[base + 4 * j] =
+          s.a[base + 4 * j]! + mulA(f[0], f[1], sa, sb)
+
+        s.b[base + 4 * j] =
+          s.b[base + 4 * j]! + mulB(f[0], f[1], sa, sb)
       }
     }
   }
@@ -198,11 +250,18 @@ function meetingPiece(s: LockedPairState, adjoint: boolean): void {
 // 2C on labels 0, 1 of each token, 2 on label 2 (2C is symmetric, so its adjoint is the entrywise conjugate)
 function coinPiece(s: LockedPairState, adjoint: boolean): void {
   const L = s.ring
-  const diag: [bigint, bigint] = adjoint ? [conjA(1n, 1n), conjB(1n)] : [1n, 1n]
-  const off: [bigint, bigint] = adjoint ? [conjA(1n, -1n), conjB(-1n)] : [1n, -1n]
+  const diag: [bigint, bigint] = adjoint
+    ? [conjA(1n, 1n), conjB(1n)]
+    : [1n, 1n]
+  const off: [bigint, bigint] = adjoint
+    ? [conjA(1n, -1n), conjB(-1n)]
+    : [1n, -1n]
+
   // the 3 x 3 scaled coin: entry (row, col)
   const entry = (row: number, col: number): [bigint, bigint] => {
-    if (row === 2 || col === 2) return row === col ? [2n, 0n] : [0n, 0n]
+    if (row === 2 || col === 2) {
+      return row === col ? [2n, 0n] : [0n, 0n]
+    }
 
     return row === col ? diag : off
   }
@@ -220,18 +279,22 @@ function coinPiece(s: LockedPairState, adjoint: boolean): void {
         for (let k1 = 0; k1 < 3; k1++) {
           const [p, q] = entry(j1, k1)
 
-          if (p === 0n && q === 0n) continue
+          if (p === 0n && q === 0n) {
+            continue
+          }
 
           for (let k2 = 0; k2 < 3; k2++) {
             const [u, v] = entry(j2, k2)
 
-            if (u === 0n && v === 0n) continue
+            if (u === 0n && v === 0n) {
+              continue
+            }
 
             const ea = mulA(p, q, u, v)
             const eb = mulB(p, q, u, v)
 
-            ta += mulA(ea, eb, va[3 * k1 + k2] as bigint, vb[3 * k1 + k2] as bigint)
-            tb += mulB(ea, eb, va[3 * k1 + k2] as bigint, vb[3 * k1 + k2] as bigint)
+            ta += mulA(ea, eb, va[3 * k1 + k2]!, vb[3 * k1 + k2]!)
+            tb += mulB(ea, eb, va[3 * k1 + k2]!, vb[3 * k1 + k2]!)
           }
         }
 
@@ -245,7 +308,9 @@ function coinPiece(s: LockedPairState, adjoint: boolean): void {
 const FLIP = [1, 0, 2] as const
 
 // the stream as a permutation of (x1, x2, j1, j2), with the wall's bounce; its inverse is the inverse permutation
-export function streamPermutation(options: LockedPairOptions): Int32Array {
+export function streamPermutation(
+  options: LockedPairOptions,
+): Int32Array {
   const L = options.ring
   const s1 = stepTable(options.kinds[0], options.convention)
   const s2 = stepTable(options.kinds[1], options.convention)
@@ -255,17 +320,32 @@ export function streamPermutation(options: LockedPairOptions): Int32Array {
     for (let x2 = 0; x2 < L; x2++) {
       for (let j1 = 0; j1 < 3; j1++) {
         for (let j2 = 0; j2 < 3; j2++) {
-          const y1 = (((x1 + (s1[j1] as number)) % L) + L) % L
-          const y2 = (((x2 + (s2[j2] as number)) % L) + L) % L
+          const y1 = (((x1 + s1[j1]!) % L) + L) % L
+          const y2 = (((x2 + s2[j2]!) % L) + L) % L
           const from = lockedIndex(L, x1, x2, j1, j2)
 
           // with a wall, a configuration beyond it is not a state of the rule: it maps nowhere (its image would
           // collide with a bounce, and the rule is a permutation of the allowed configurations only)
-          if (options.wall !== undefined && ringDistance(L, x1, x2) > options.wall) continue
+          if (
+            options.wall !== undefined &&
+            ringDistance(L, x1, x2) > options.wall
+          ) {
+            continue
+          }
 
-          const blocked = options.wall !== undefined && ringDistance(L, y1, y2) > options.wall
+          const blocked =
+            options.wall !== undefined &&
+            ringDistance(L, y1, y2) > options.wall
 
-          to[from] = blocked ? lockedIndex(L, x1, x2, FLIP[j1] as number, FLIP[j2] as number) : lockedIndex(L, y1, y2, j1, j2)
+          to[from] = blocked
+            ? lockedIndex(
+                L,
+                x1,
+                x2,
+                FLIP[j1] as number,
+                FLIP[j2] as number,
+              )
+            : lockedIndex(L, y1, y2, j1, j2)
         }
       }
     }
@@ -274,21 +354,27 @@ export function streamPermutation(options: LockedPairOptions): Int32Array {
   return to
 }
 
-function streamPiece(s: LockedPairState, map: Int32Array, inverse: boolean): void {
+function streamPiece(
+  s: LockedPairState,
+  map: Int32Array,
+  inverse: boolean,
+): void {
   const na = new Array<bigint>(s.a.length).fill(0n)
   const nb = new Array<bigint>(s.a.length).fill(0n)
 
   for (let i = 0; i < map.length; i++) {
-    const j = map[i] as number
+    const j = map[i]!
 
-    if (j < 0) continue
+    if (j < 0) {
+      continue
+    }
 
     if (inverse) {
-      na[i] = s.a[j] as bigint
-      nb[i] = s.b[j] as bigint
+      na[i] = s.a[j]!
+      nb[i] = s.b[j]!
     } else {
-      na[j] = s.a[i] as bigint
-      nb[j] = s.b[i] as bigint
+      na[j] = s.a[i]!
+      nb[j] = s.b[i]!
     }
   }
 
@@ -301,7 +387,10 @@ export function lockedMeetingOnly(s: LockedPairState): void {
   meetingPiece(s, false)
 }
 
-export function lockedPairBeat(s: LockedPairState, map: Int32Array): void {
+export function lockedPairBeat(
+  s: LockedPairState,
+  map: Int32Array,
+): void {
   phasePiece(s, false)
   meetingPiece(s, false)
   coinPiece(s, false)
@@ -309,7 +398,10 @@ export function lockedPairBeat(s: LockedPairState, map: Int32Array): void {
   s.denominator *= 4n * meetingScale(s)
 }
 
-export function lockedPairBeatBack(s: LockedPairState, map: Int32Array): void {
+export function lockedPairBeatBack(
+  s: LockedPairState,
+  map: Int32Array,
+): void {
   streamPiece(s, map, true)
   coinPiece(s, true)
   meetingPiece(s, true)
@@ -322,8 +414,8 @@ export function lockedNormSum(s: LockedPairState): bigint {
   let total = 0n
 
   for (let i = 0; i < s.a.length; i++) {
-    const x = s.a[i] as bigint
-    const y = s.b[i] as bigint
+    const x = s.a[i]!
+    const y = s.b[i]!
 
     total += x * x - x * y + y * y
   }

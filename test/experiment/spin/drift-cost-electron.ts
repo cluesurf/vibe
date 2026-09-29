@@ -67,8 +67,19 @@ import {
   tailWeight,
   type Lightest,
 } from '@/code/measure/drift-cost-bloch'
-import { blochColumn, blochSpace, quartetShare, stringMoments, type Bloch } from '@/code/measure/flux-store-bloch'
-import { antisymmetrized, lockedRun, spanOf, type LockedStart } from '@/code/measure/locked-run'
+import {
+  blochColumn,
+  blochSpace,
+  quartetShare,
+  stringMoments,
+  type Bloch,
+} from '@/code/measure/flux-store-bloch'
+import {
+  antisymmetrized,
+  lockedRun,
+  spanOf,
+  type LockedStart,
+} from '@/code/measure/locked-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
 import { eisValue } from '@/code/measure/eisenstein-words'
 import { phaseMove } from '@/code/rule/fear-weave'
@@ -81,25 +92,36 @@ import { type Vibe } from '@/code/rule/locked-token-line'
 const THREE = ['love', 'love', 'love'] as const
 
 // T1: the weight the beat moves from the doublet-only states onto the line
-function lineLeak(D: number, K: number): { leak: number; columns: number } {
+function lineLeak(
+  D: number,
+  K: number,
+): { leak: number; columns: number } {
   const b = blochSpace(boxSpec(THREE, D, 2 * lightN(D) + 2, 3))
+
   let leak = 0
   let columns = 0
 
   for (let col = 0; col < b.size; col++) {
     const r = col % b.labelCount
 
-    if ([Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3].includes(2)) continue
+    if ([Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3].includes(2)) {
+      continue
+    }
 
     columns++
 
     const img = blochColumn(b, K, col)
+
     let w = 0
 
     img.idx.forEach((i, m) => {
       const s = i % b.labelCount
 
-      if ([Math.floor(s / 9), Math.floor(s / 3) % 3, s % 3].includes(2)) w += img.re[m]! ** 2 + img.im[m]! ** 2
+      if (
+        [Math.floor(s / 9), Math.floor(s / 3) % 3, s % 3].includes(2)
+      ) {
+        w += img.re[m]! ** 2 + img.im[m]! ** 2
+      }
     })
 
     leak = Math.max(leak, w)
@@ -112,20 +134,39 @@ function lineLeak(D: number, K: number): { leak: number; columns: number } {
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
 // a costed run with NO wall (the drift's cost as a phase on the smallest arc; rings chosen so no string passes half)
-function costedFreeRun(input: { ring: number; kinds: Vibe[]; D: number; links?: M3[]; start: LockedStart[] }): { beat: () => void; positions: () => Float64Array } {
+function costedFreeRun(input: {
+  ring: number
+  kinds: Vibe[]
+  D: number
+  links?: M3[]
+  start: LockedStart[]
+}): { beat: () => void; positions: () => Float64Array } {
   const N = lightN(input.D)
   const M = 2 * N * N
-  const run = lockedRun({ ring: input.ring, kinds: input.kinds, convention: 'C', unlike: 'knit', links: input.links, start: input.start })
+  const run = lockedRun({
+    ring: input.ring,
+    kinds: input.kinds,
+    convention: 'C',
+    unlike: 'knit',
+    links: input.links,
+    start: input.start,
+  })
   const n = input.kinds.length
   const R = 3 ** n
   const P = input.ring ** n
@@ -165,7 +206,16 @@ function costedFreeRun(input: { ring: number; kinds: Vibe[]; D: number; links?: 
   }
 }
 
-type Row = { D: number; S: number; bloch: Bloch; lp: Lightest; mean: number; spinHalf: number; tailN: number; tailWrap: number }
+type Row = {
+  D: number
+  S: number
+  bloch: Bloch
+  lp: Lightest
+  mean: number
+  spinHalf: number
+  tailN: number
+  tailWrap: number
+}
 
 function threeLightest(D: number, S: number): Row {
   const bu = build(boxSpec(THREE, D, S), 0)
@@ -187,17 +237,23 @@ function threeLightest(D: number, S: number): Row {
 export default experiment({
   id: 'spin/drift-cost-electron',
   code: 'E-SPN-0087',
-  title: "the lightest charge-one state under the drift's cost alone, with no store, a STAND-IN on locked tokens: three loves bound by the string's phase ramp of pi / N per link, the line sector closed (N = 3, 2 pi sign -1), the lightest level the natural spin one half, compact on boxes past the wrap l = 2N, and travelling",
+  title:
+    "the lightest charge-one state under the drift's cost alone, with no store, a STAND-IN on locked tokens: three loves bound by the string's phase ramp of pi / N per link, the line sector closed (N = 3, 2 pi sign -1), the lightest level the natural spin one half, compact on boxes past the wrap l = 2N, and travelling",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- T1 ----
-    const leaks = [1, 2].flatMap(D => [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })))
+    const leaks = [1, 2].flatMap(D =>
+      [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })),
+    )
     const t1 = leaks.every(l => l.leak < 1e-14 && l.columns > 0)
 
     log('t1')
@@ -216,8 +272,16 @@ export default experiment({
     const wider = threeLightest(2, 14)
     const r2 = rows.find(r => r.D === 2)!
     const boxGap = Math.abs(wider.lp.unwrapped - r2.lp.unwrapped)
-    const boxOverlap = crossBoxOverlap(r2.bloch, r2.lp.level.vector, wider.bloch, wider.lp.level.vector)
-    const t3 = boxGap <= 1e-6 && boxOverlap >= 1 - 1e-6 && rows.filter(r => r.D >= 2).every(r => r.tailN <= 1e-3)
+    const boxOverlap = crossBoxOverlap(
+      r2.bloch,
+      r2.lp.level.vector,
+      wider.bloch,
+      wider.lp.level.vector,
+    )
+    const t3 =
+      boxGap <= 1e-6 &&
+      boxOverlap >= 1 - 1e-6 &&
+      rows.filter(r => r.D >= 2).every(r => r.tailN <= 1e-3)
 
     log('t3')
 
@@ -225,7 +289,12 @@ export default experiment({
     const widerOne = threeLightest(1, 10)
     const r1 = rows.find(r => r.D === 1)!
     const boxGapOne = Math.abs(widerOne.lp.unwrapped - r1.lp.unwrapped)
-    const boxOverlapOne = crossBoxOverlap(r1.bloch, r1.lp.level.vector, widerOne.bloch, widerOne.lp.level.vector)
+    const boxOverlapOne = crossBoxOverlap(
+      r1.bloch,
+      r1.lp.level.vector,
+      widerOne.bloch,
+      widerOne.lp.level.vector,
+    )
 
     // ---- T4 ----
     const bands = [2, 3].map(D => {
@@ -236,35 +305,112 @@ export default experiment({
 
       return { D, ...b }
     })
-    const calibration = followBandFull(boxSpec(THREE, 2, r2.S), r2.lp.level, 12)
-    const trackerGap = Math.max(...bands[0]!.energies.map((e, k) => Math.abs(e - calibration.energies[k]!)))
-    const t4 = bands.every(b => b.bandwidth >= 0.01 && b.velocity >= 0.02 && b.minOverlap >= 0.5) && trackerGap <= 1e-8
+    const calibration = followBandFull(
+      boxSpec(THREE, 2, r2.S),
+      r2.lp.level,
+      12,
+    )
+    const trackerGap = Math.max(
+      ...bands[0]!.energies.map((e, k) =>
+        Math.abs(e - calibration.energies[k]!),
+      ),
+    )
+    const t4 =
+      bands.every(
+        b =>
+          b.bandwidth >= 0.01 &&
+          b.velocity >= 0.02 &&
+          b.minOverlap >= 0.5,
+      ) && trackerGap <= 1e-8
 
     log('t4')
 
     // ---- T5 ----
-    const fill = (i: number): [number, number] => [weyl(i + 1, GOLDEN) - 0.5, weyl(i + 1, SILVER) - 0.5]
-    const agreeThree = ringAgreementFree(boxSpec(THREE, 2, 12), 28, 5, 10, fill)
-    const agreePair = ringAgreementFree(boxSpec(['love', 'fear'], 3, 21), 48, 7, 19, fill)
-    const t5 = agreeThree.gap < 1e-12 && agreePair.gap < 1e-12 && agreeThree.outside < 1e-24 && agreePair.outside < 1e-24
+    const fill = (i: number): [number, number] => [
+      weyl(i + 1, GOLDEN) - 0.5,
+      weyl(i + 1, SILVER) - 0.5,
+    ]
+    const agreeThree = ringAgreementFree(
+      boxSpec(THREE, 2, 12),
+      28,
+      5,
+      10,
+      fill,
+    )
+    const agreePair = ringAgreementFree(
+      boxSpec(['love', 'fear'], 3, 21),
+      48,
+      7,
+      19,
+      fill,
+    )
+    const t5 =
+      agreeThree.gap < 1e-12 &&
+      agreePair.gap < 1e-12 &&
+      agreeThree.outside < 1e-24 &&
+      agreePair.outside < 1e-24
 
     log('t5')
 
     // ---- T6 ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
     const ensemble = startFamily(16).map(member => {
-      const linksOf = (L: number): M3[] => Array.from({ length: L }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
+      const linksOf = (L: number): M3[] =>
+        Array.from(
+          { length: L },
+          (_, x) =>
+            unitaries[
+              table.indexOf(
+                phaseMove(
+                  moves.act[member.start(x, moves.act.length)] ?? [],
+                ),
+              )
+            ]!,
+        )
+
       let gap = 0
-      const cases: { L: number; kinds: Vibe[]; D: number; beats: number; start: LockedStart[] }[] = [
-        { L: 24, kinds: [...THREE], D: 1, beats: 5, start: antisymmetrized({ x: [11, 11, 12], j: [0, 1, 0] }) },
-        { L: 48, kinds: ['love', 'fear'], D: 2, beats: 10, start: [{ x: [24, 24], j: [0, 1], amp: [1, 0] }] },
+
+      const cases: {
+        L: number
+        kinds: Vibe[]
+        D: number
+        beats: number
+        start: LockedStart[]
+      }[] = [
+        {
+          L: 24,
+          kinds: [...THREE],
+          D: 1,
+          beats: 5,
+          start: antisymmetrized({ x: [11, 11, 12], j: [0, 1, 0] }),
+        },
+        {
+          L: 48,
+          kinds: ['love', 'fear'],
+          D: 2,
+          beats: 10,
+          start: [{ x: [24, 24], j: [0, 1], amp: [1, 0] }],
+        },
       ]
 
       for (const c of cases) {
-        const field = costedFreeRun({ ring: c.L, kinds: c.kinds, D: c.D, links: linksOf(c.L), start: c.start })
-        const plain = costedFreeRun({ ring: c.L, kinds: c.kinds, D: c.D, start: c.start })
+        const field = costedFreeRun({
+          ring: c.L,
+          kinds: c.kinds,
+          D: c.D,
+          links: linksOf(c.L),
+          start: c.start,
+        })
+        const plain = costedFreeRun({
+          ring: c.L,
+          kinds: c.kinds,
+          D: c.D,
+          start: c.start,
+        })
 
         for (let t = 0; t < c.beats; t++) {
           field.beat()
@@ -273,13 +419,16 @@ export default experiment({
           const a = field.positions()
           const b = plain.positions()
 
-          for (let i = 0; i < a.length; i++) gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          for (let i = 0; i < a.length; i++) {
+            gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          }
         }
       }
 
       return { member: member.name, gap }
     })
-    const t6 = ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
+    const t6 =
+      ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
 
     log('t6')
 
@@ -308,14 +457,23 @@ export default experiment({
             [`three_D${r.D}_tailAtN`, r.tailN],
             [`three_D${r.D}_tailAtWrap`, r.tailWrap],
             [`three_D${r.D}_evenShare`, r.lp.reading.even],
-            [`three_D${r.D}_gapNext`, r.lp.nextUnwrapped - r.lp.unwrapped],
+            [
+              `three_D${r.D}_gapNext`,
+              r.lp.nextUnwrapped - r.lp.unwrapped,
+            ],
             [`three_D${r.D}_dim`, r.lp.dim],
             [`three_D${r.D}_eigenResidual`, r.lp.residual],
           ]),
         ),
         boxGapD2: boxGap,
         boxOverlapD2: boxOverlap,
-        ...Object.fromEntries(bands.flatMap(b => [[`band_D${b.D}_width`, b.bandwidth], [`band_D${b.D}_velocity`, b.velocity], [`band_D${b.D}_minOverlap`, b.minOverlap]])),
+        ...Object.fromEntries(
+          bands.flatMap(b => [
+            [`band_D${b.D}_width`, b.bandwidth],
+            [`band_D${b.D}_velocity`, b.velocity],
+            [`band_D${b.D}_minOverlap`, b.minOverlap],
+          ]),
+        ),
         trackerGap,
         ringGapThree: agreeThree.gap,
         ringGapPair: agreePair.gap,
@@ -328,7 +486,14 @@ export default experiment({
       control: {
         boxGapD1: boxGapOne,
         boxOverlapD1: boxOverlapOne,
-        ...Object.fromEntries(store.flatMap(r => [[`store_D${r.D}_energy`, r.lp.unwrapped], [`store_D${r.D}_meanString`, r.mean], [`store_D${r.D}_spinHalfShare`, r.spinHalf], [`store_D${r.D}_evenShare`, r.lp.reading.even]])),
+        ...Object.fromEntries(
+          store.flatMap(r => [
+            [`store_D${r.D}_energy`, r.lp.unwrapped],
+            [`store_D${r.D}_meanString`, r.mean],
+            [`store_D${r.D}_spinHalfShare`, r.spinHalf],
+            [`store_D${r.D}_evenShare`, r.lp.reading.even],
+          ]),
+        ),
       },
       notes: `L2, a STAND-IN. Gates T1 ${t1}, T2 ${t2}, T3 ${t3}, T4 ${t4}, T5 ${t5}, T6 ${t6}. Cost alone, lightest by depth (box 2N + 2): ${rows.map(r => `D ${r.D} (box ${r.S}, dim ${r.lp.dim}): E ${r.lp.unwrapped.toFixed(5)} (raw ${r.lp.level.energy.toFixed(5)}), <l> ${r.mean.toFixed(3)}, spin one half ${r.spinHalf.toFixed(4)}, particle ${r.lp.reading.even.toFixed(3)}, tail at N ${r.tailN.toExponential(1)}, near the wrap ${r.tailWrap.toExponential(1)}, next +${(r.lp.nextUnwrapped - r.lp.unwrapped).toFixed(4)}, residual ${r.lp.residual.toExponential(1)}`).join('; ')}. E-SPN-0077's store (box 2D, the same instrument): ${store.map(r => `D ${r.D}: E ${r.lp.unwrapped.toFixed(5)}, <l> ${r.mean.toFixed(3)}, spin one half ${r.spinHalf.toFixed(4)}`).join('; ')}. D = 1 on boxes 8 and 10: dE ${boxGapOne.toExponential(1)}, overlap ${boxOverlapOne.toFixed(6)}. Bands (K = 0 to pi, 12 steps): ${bands.map(b => `D ${b.D}: ${b.energies.map(e => e.toFixed(3)).join(' ')} (min overlap ${b.minOverlap.toFixed(3)}, worst residual ${b.worstResidual.toExponential(1)})`).join('; ')}; full-spectrum tracker at D = 2: ${calibration.energies.map(e => e.toFixed(3)).join(' ')} (gap ${trackerGap.toExponential(1)}). Line leak by (D, K): ${leaks.map(l => `(${l.D}, ${l.K}) ${l.leak.toExponential(1)} over ${l.columns} columns`).join(', ')}. Start members: ${ensemble.map(e => `${e.member} ${e.gap.toExponential(1)}`).join(', ')}. THE BOX is measurement, not rule. What this is not: an electron of the knit (locked stand-in tokens on one line, three loves as the charge-one cluster by the model's Q = (love - fear) / 3).`,
     })

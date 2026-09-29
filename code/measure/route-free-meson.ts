@@ -23,23 +23,37 @@
 // the stream takes each value one dock along. The price, derived in test/experiment/spin/route-free-string: the phase
 // is read from BOTH positions at once, with no register between them.
 
-import { frameAxes, frameBeat, innerOf, type BeatTally, type FrameSpace, type FrameSpec, type FrameState } from '@/code/measure/frame-meson'
+import {
+  frameAxes,
+  frameBeat,
+  innerOf,
+  type BeatTally,
+  type FrameSpace,
+  type FrameSpec,
+  type FrameState,
+} from '@/code/measure/frame-meson'
 
 export type RouteCost = 'frame' | 'd4' | 'none'
 
 type Klass = FrameSpace['classes'][number]
 
-export type RouteSpace = FrameSpace & { cost: RouteCost; roots: number[][] }
+export type RouteSpace = FrameSpace & {
+  cost: RouteCost
+  roots: number[][]
+}
 
 const BLOCK = 128
 
 // the frame's roots in integer coordinates (length sqrt 2), in FRAME_LINES order
-export const frameRoots = (frame: number): number[][] => frameAxes(frame).map(u => u.map(x => Math.round(x * Math.SQRT2)))
+export const frameRoots = (frame: number): number[][] =>
+  frameAxes(frame).map(u => u.map(x => Math.round(x * Math.SQRT2)))
 
 export const frameLength = (n: ArrayLike<number>): number => {
   let s = 0
 
-  for (let i = 0; i < n.length; i++) s += Math.abs(n[i] as number)
+  for (let i = 0; i < n.length; i++) {
+    s += Math.abs(n[i]!)
+  }
 
   return s
 }
@@ -52,21 +66,48 @@ export function d4Distance(v: readonly number[]): number {
   return Math.max(inf, one / 2)
 }
 
-export function routeLength(cost: RouteCost, roots: readonly number[][], n: readonly number[]): number {
-  if (cost === 'none') return 0
-  if (cost === 'frame') return frameLength(n)
+export function routeLength(
+  cost: RouteCost,
+  roots: readonly number[][],
+  n: readonly number[],
+): number {
+  if (cost === 'none') {
+    return 0
+  }
 
-  return d4Distance([0, 1, 2, 3].map(k => n.reduce((s, x, a) => s + x * ((roots[a] as number[])[k] as number), 0)))
+  if (cost === 'frame') {
+    return frameLength(n)
+  }
+
+  return d4Distance(
+    [0, 1, 2, 3].map(k =>
+      n.reduce((s, x, a) => s + x * roots[a]![k]!, 0),
+    ),
+  )
 }
 
-export const routeSpace = (spec: FrameSpec, cost: RouteCost): RouteSpace => ({ spec, classes: [], index: new Map(), cost, roots: frameRoots(spec.frame) })
+export const routeSpace = (
+  spec: FrameSpec,
+  cost: RouteCost,
+): RouteSpace => ({
+  spec,
+  classes: [],
+  index: new Map(),
+  cost,
+  roots: frameRoots(spec.frame),
+})
 
 // the class of an offset, registered on first sight
-export function routeClass(space: RouteSpace, offset: readonly number[]): number {
+export function routeClass(
+  space: RouteSpace,
+  offset: readonly number[],
+): number {
   const key = offset.join(',')
   const found = space.index.get(key)
 
-  if (found !== undefined) return found
+  if (found !== undefined) {
+    return found
+  }
 
   const apart = offset.some(x => x !== 0)
   const klass: Klass = {
@@ -87,9 +128,11 @@ export function routeClass(space: RouteSpace, offset: readonly number[]): number
 
 // fill class c's successor table: love slot sl, fear slot sf (slot 2 a + j, j 0 streaming along +u_a)
 function ensure(space: RouteSpace, c: number): void {
-  const k = space.classes[c] as Klass
+  const k = space.classes[c]!
 
-  if (k.next) return
+  if (k.next) {
+    return
+  }
 
   const next = new Int32Array(64)
 
@@ -100,24 +143,41 @@ function ensure(space: RouteSpace, c: number): void {
     const af = sf >> 1
     const sgl = (sl & 1) === 0 ? 1 : -1
     const sgf = (sf & 1) === 0 ? 1 : -1
-    const to = Array.from(k.offset, (x, i) => x + (i === af ? sgf : 0) - (i === al ? sgl : 0))
+    const to = Array.from(
+      k.offset,
+      (x, i) => x + (i === af ? sgf : 0) - (i === al ? sgl : 0),
+    )
 
-    next[idx] = frameLength(to) > space.spec.cut ? -1 : routeClass(space, to)
+    next[idx] =
+      frameLength(to) > space.spec.cut ? -1 : routeClass(space, to)
   }
 
-  ;(space.classes[c] as Klass).next = next
+  space.classes[c]!.next = next
 }
 
 // one beat at momentum K (Cartesian): frame-meson's beat on the route-free classes
-export function routeBeat(space: RouteSpace, K: readonly number[], s: FrameState, tally: BeatTally): FrameState {
-  for (const c of s.keys()) ensure(space, c)
+export function routeBeat(
+  space: RouteSpace,
+  K: readonly number[],
+  s: FrameState,
+  tally: BeatTally,
+): FrameState {
+  for (const c of s.keys()) {
+    ensure(space, c)
+  }
 
   return frameBeat(space, K, s, tally)
 }
 
-export function routeAutocorrelation(space: RouteSpace, K: readonly number[], start: FrameState, T: number): { c: [number, number][]; tally: BeatTally } {
+export function routeAutocorrelation(
+  space: RouteSpace,
+  K: readonly number[],
+  start: FrameState,
+  T: number,
+): { c: [number, number][]; tally: BeatTally } {
   const tally: BeatTally = { escaped: 0, dropped: 0 }
   const c: [number, number][] = [innerOf(start, start)]
+
   let s = start
 
   for (let t = 1; t <= T; t++) {
@@ -129,13 +189,22 @@ export function routeAutocorrelation(space: RouteSpace, K: readonly number[], st
 }
 
 // v = sum_t x_t U^t start, normalized
-export function routeLevelVector(space: RouteSpace, K: readonly number[], start: FrameState, coefficients: readonly [number, number][]): FrameState {
+export function routeLevelVector(
+  space: RouteSpace,
+  K: readonly number[],
+  start: FrameState,
+  coefficients: readonly [number, number][],
+): FrameState {
   const tally: BeatTally = { escaped: 0, dropped: 0 }
   const out: FrameState = new Map()
+
   let s = start
 
   coefficients.forEach((x, t) => {
-    if (t > 0) s = routeBeat(space, K, s, tally)
+    if (t > 0) {
+      s = routeBeat(space, K, s, tally)
+    }
+
     for (const [c, b] of s) {
       let o = out.get(c)
 
@@ -145,28 +214,51 @@ export function routeLevelVector(space: RouteSpace, K: readonly number[], start:
       }
 
       for (let i = 0; i < BLOCK; i += 2) {
-        o[i] = (o[i] as number) + x[0] * (b[i] as number) - x[1] * (b[i + 1] as number)
-        o[i + 1] = (o[i + 1] as number) + x[0] * (b[i + 1] as number) + x[1] * (b[i] as number)
+        o[i] = o[i]! + x[0] * b[i]! - x[1] * b[i + 1]!
+        o[i + 1] = o[i + 1]! + x[0] * b[i + 1]! + x[1] * b[i]!
       }
     }
   })
 
   let w = 0
 
-  for (const b of out.values()) for (let i = 0; i < BLOCK; i++) w += (b[i] as number) ** 2
+  for (const b of out.values()) {
+    for (let i = 0; i < BLOCK; i++) {
+      w += b[i]! ** 2
+    }
+  }
+
   w = Math.sqrt(w)
-  for (const b of out.values()) for (let i = 0; i < BLOCK; i++) b[i] = (b[i] as number) / w
+
+  for (const b of out.values()) {
+    for (let i = 0; i < BLOCK; i++) {
+      b[i] = b[i]! / w
+    }
+  }
 
   return out
 }
 
 // a state from amplitudes on (fear offset d along frame axis `axis`, love slot, fear slot), as frame-meson lineState
 // places them, with no register
-export function routeLineState(space: RouteSpace, axis: number, entries: readonly { d: number; jl: number; jf: number; amp: [number, number] }[]): FrameState {
+export function routeLineState(
+  space: RouteSpace,
+  axis: number,
+  entries: readonly {
+    d: number
+    jl: number
+    jf: number
+    amp: [number, number]
+  }[],
+): FrameState {
   const out: FrameState = new Map()
 
   for (const e of entries) {
-    const c = routeClass(space, [0, 1, 2, 3].map(k => (k === axis ? e.d : 0)))
+    const c = routeClass(
+      space,
+      [0, 1, 2, 3].map(k => (k === axis ? e.d : 0)),
+    )
+
     let o = out.get(c)
 
     if (!o) {
@@ -176,42 +268,60 @@ export function routeLineState(space: RouteSpace, axis: number, entries: readonl
 
     const idx = (2 * axis + e.jl) * 8 + 2 * axis + e.jf
 
-    o[2 * idx] = (o[2 * idx] as number) + e.amp[0]
-    o[2 * idx + 1] = (o[2 * idx + 1] as number) + e.amp[1]
+    o[2 * idx] = o[2 * idx]! + e.amp[0]
+    o[2 * idx + 1] = o[2 * idx + 1]! + e.amp[1]
   }
 
   return out
 }
 
 // the weight at each frame string length 0 .. cut (and past it, for a placed start the window has not cut yet)
-export function shellWeights(space: RouteSpace, s: FrameState): number[] {
+export function shellWeights(
+  space: RouteSpace,
+  s: FrameState,
+): number[] {
   const out = new Array<number>(space.spec.cut + 1).fill(0)
 
   for (const [c, b] of s) {
-    const L = frameLength((space.classes[c] as Klass).offset)
+    const L = frameLength(space.classes[c]!.offset)
+
     let w = 0
 
-    for (let i = 0; i < BLOCK; i++) w += (b[i] as number) ** 2
-    while (out.length <= L) out.push(0)
-    out[L] = (out[L] as number) + w
+    for (let i = 0; i < BLOCK; i++) {
+      w += b[i]! ** 2
+    }
+
+    while (out.length <= L) {
+      out.push(0)
+    }
+
+    out[L] = out[L]! + w
   }
 
   return out
 }
 
 // the weight with the two on different frame axes (the pair turned off one line)
-export function offLineWeight(space: RouteSpace, s: FrameState): number {
+export function offLineWeight(
+  space: RouteSpace,
+  s: FrameState,
+): number {
   let w = 0
 
   for (const [c, b] of s) {
-    const n = (space.classes[c] as Klass).offset
+    const n = space.classes[c]!.offset
     const axes = [0, 1, 2, 3].filter(a => n[a] !== 0).length
 
     for (let idx = 0; idx < 64; idx++) {
-      const x = (b[2 * idx] as number) ** 2 + (b[2 * idx + 1] as number) ** 2
+      const x = b[2 * idx]! ** 2 + b[2 * idx + 1]! ** 2
 
-      if (x === 0) continue
-      if (axes > 1 || idx >> 4 !== (idx & 7) >> 1) w += x
+      if (x === 0) {
+        continue
+      }
+
+      if (axes > 1 || idx >> 4 !== (idx & 7) >> 1) {
+        w += x
+      }
     }
   }
 

@@ -66,10 +66,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { lockedState, lockedTables, norm, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedState,
+  lockedTables,
+  norm,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { coinedBeat } from '@/code/rule/coined-locked-knit'
 import {
   flavorSector,
@@ -94,9 +104,18 @@ const FERMION = { fermion: true }
 
 // E-SPN-0091's recorded metrics (tmp/spn91-exp1.log)
 const RECORDED = {
-  bounceOneLine: { energy: 1.5883099883254366, share: 0.29065134521132563 },
-  flavoredSym: { energy: 0.7741343940689038, share: 0.24058245798859879 },
-  tokenOneLine: { energy: 0.33001851839229945, share: 0.9823600683345252 },
+  bounceOneLine: {
+    energy: 1.5883099883254366,
+    share: 0.29065134521132563,
+  },
+  flavoredSym: {
+    energy: 0.7741343940689038,
+    share: 0.24058245798859879,
+  },
+  tokenOneLine: {
+    energy: 0.33001851839229945,
+    share: 0.9823600683345252,
+  },
 }
 
 const emptyConfiguration = (cells: number): Configuration => ({
@@ -108,26 +127,49 @@ const emptyConfiguration = (cells: number): Configuration => ({
   sopen: new Uint8Array(cells * 12),
 })
 
-const sector = (flavors: readonly [number, number, number], statistics: Statistics, box: number, unit?: number): LineSector => (unit === undefined ? { flavors, statistics, D, box } : { flavors, statistics, D, box, unit })
+const sector = (
+  flavors: readonly [number, number, number],
+  statistics: Statistics,
+  box: number,
+  unit?: number,
+): LineSector =>
+  unit === undefined
+    ? { flavors, statistics, D, box }
+    : { flavors, statistics, D, box, unit }
 
 // ---- C2: the exact knit on one axis line against the ring form ----
-type LineMap = { tables: ReturnType<typeof lockedTables>; first: number; second: number; ring: number[]; position: Map<number, number> }
+type LineMap = {
+  tables: ReturnType<typeof lockedTables>
+  first: number
+  second: number
+  ring: number[]
+  position: Map<number, number>
+}
 
 function axisLine(side: number, collision: CollisionKind): LineMap {
   const weave = makeColorWeave({ side, table: 'bind' })
-  const flat = new Int16Array(weave.mesh.cellCount * 24).fill(weave.moves.identity)
+  const flat = new Int16Array(weave.mesh.cellCount * 24).fill(
+    weave.moves.identity,
+  )
   const tables = lockedTables(weave, collision, flat)
-  const r = ROOTS.findIndex(v => v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 1)
-  const l = LINE_OF[r] as number
-  const first = LINE_FIRSTS[l] as number
-  const second = OPPOSITE[first] as number
+  const r = ROOTS.findIndex(
+    v => v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 1,
+  )
+  const l = LINE_OF[r]!
+  const first = LINE_FIRSTS[l]!
+  const second = OPPOSITE[first]!
   const ring: number[] = [0]
   const position = new Map<number, number>([[0, 0]])
 
   for (;;) {
-    const next = Math.floor((tables.target[ring[ring.length - 1]! * 24 + first] as number) / 24)
+    const next = Math.floor(
+      tables.target[ring[ring.length - 1]! * 24 + first]! / 24,
+    )
 
-    if (next === 0) break
+    if (next === 0) {
+      break
+    }
+
     position.set(next, ring.length)
     ring.push(next)
   }
@@ -135,20 +177,39 @@ function axisLine(side: number, collision: CollisionKind): LineMap {
   return { tables, first, second, ring, position }
 }
 
-function lineAgreement(side: number, collision: CollisionKind, ringSector: (L: number) => LineSector, starts: readonly (readonly [number, number][])[], beats: number): { worst: number; leaks: number; compared: number; L: number } {
+function lineAgreement(
+  side: number,
+  collision: CollisionKind,
+  ringSector: (L: number) => LineSector,
+  starts: readonly (readonly [number, number][])[],
+  beats: number,
+): { worst: number; leaks: number; compared: number; L: number } {
   const m = axisLine(side, collision)
   const L = m.ring.length
   const sec = ringSector(L)
+
   let worst = 0
   let leaks = 0
   let compared = 0
 
   for (const st of starts) {
     const c = emptyConfiguration(m.tables.cells)
+
     let ringState: RingState = new Map()
+
     const ts = st.map(([x, j]) => ({ x, j, f: 0 }))
 
-    ringState.set(ringKey(ts), { ts: ts.map(t => ({ ...t })).sort((p, q) => 2 * p.x + (p.j === 0 ? 1 : 0) - (2 * q.x + (q.j === 0 ? 1 : 0))), amp: [1, 0] })
+    ringState.set(ringKey(ts), {
+      ts: ts
+        .map(t => ({ ...t }))
+        .sort(
+          (p, q) =>
+            2 * p.x +
+            (p.j === 0 ? 1 : 0) -
+            (2 * q.x + (q.j === 0 ? 1 : 0)),
+        ),
+      amp: [1, 0],
+    })
 
     for (const [x, j] of st) {
       const slot = m.ring[x]! * 24 + (j === 0 ? m.first : m.second)
@@ -169,7 +230,9 @@ function lineAgreement(side: number, collision: CollisionKind, ringSector: (L: n
         const toks: { x: number; j: number; f: number }[] = []
 
         for (let i = 0; i < b.vibe.length; i++) {
-          if (b.vibe[i] === 0) continue
+          if (b.vibe[i] === 0) {
+            continue
+          }
 
           const cell = Math.floor(i / 24)
           const d = i % 24
@@ -183,7 +246,9 @@ function lineAgreement(side: number, collision: CollisionKind, ringSector: (L: n
           toks.push({ x, j: d === m.first ? 0 : 1, f: 0 })
         }
 
-        if (toks.length !== 3) continue
+        if (toks.length !== 3) {
+          continue
+        }
 
         const key = ringKey(toks)
         const p = Number(norm(b.a, b.b)) / 4 ** b.k
@@ -212,28 +277,45 @@ function operatorGap(a: LineBasis, b: LineBasis, K: number): number {
   const ra = lineReduced(a, wholeBasis(a), K)
   const rb = lineReduced(b, wholeBasis(b), K)
 
-  if (ra.dim !== rb.dim) return Number.POSITIVE_INFINITY
+  if (ra.dim !== rb.dim) {
+    return Number.POSITIVE_INFINITY
+  }
 
   let worst = 0
 
-  for (let i = 0; i < ra.re.length; i++) worst = Math.max(worst, Math.abs(ra.re[i]! - rb.re[i]!), Math.abs(ra.im[i]! - rb.im[i]!))
+  for (let i = 0; i < ra.re.length; i++) {
+    worst = Math.max(
+      worst,
+      Math.abs(ra.re[i]! - rb.re[i]!),
+      Math.abs(ra.im[i]! - rb.im[i]!),
+    )
+  }
 
   return worst
 }
 
-type Row = { name: string; basis: LineBasis; sub: SubBasis; lp: LineLightest }
+type Row = {
+  name: string
+  basis: LineBasis
+  sub: SubBasis
+  lp: LineLightest
+}
 
 export default experiment({
   id: 'spin/passing-contact-cluster',
   code: 'E-SPN-0093',
-  title: "the one-line three-love cluster of the coined doublet-locked knit under PASSING like contact (E-SPN-0092's u = +1): whether the binding the bounce removed returns, whether it is the natural spin one half, whether it is the lightest husk-line charge-one level (a reason for three loves to share one bulk line), and whether it travels",
+  title:
+    "the one-line three-love cluster of the coined doublet-locked knit under PASSING like contact (E-SPN-0092's u = +1): whether the binding the bounce removed returns, whether it is the natural spin one half, whether it is the lightest husk-line charge-one level (a reason for three loves to share one bulk line), and whether it travels",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const box = 12
 
     // ---- C2 ----
@@ -259,20 +341,32 @@ export default experiment({
         [5, 0],
       ],
     ]
-    const passRing = (L: number): LineSector => sector([0, 0, 0], 'fermion', L, 0)
+    const passRing = (L: number): LineSector =>
+      sector([0, 0, 0], 'fermion', L, 0)
     const c2Pass = lineAgreement(6, 'pass', passRing, starts, 16)
     const c2Lone = lineAgreement(6, 'lone', passRing, starts, 16)
-    const gC2 = c2Pass.worst < 1e-12 && c2Pass.leaks === 0 && c2Pass.compared === 64 && c2Pass.L === 6 && c2Lone.worst > 1e-3
+    const gC2 =
+      c2Pass.worst < 1e-12 &&
+      c2Pass.leaks === 0 &&
+      c2Pass.compared === 64 &&
+      c2Pass.L === 6 &&
+      c2Lone.worst > 1e-3
 
     log('C2')
 
     // ---- C3 ----
     const passSmall = lineBasis(sector([0, 0, 0], 'fermion', 8, 0))
     const tokenSmall = lineBasis(sector([0, 0, 0], 'token', 8))
-    const c3Token = Math.max(operatorGap(passSmall, tokenSmall, 0), operatorGap(passSmall, tokenSmall, 0.7))
+    const c3Token = Math.max(
+      operatorGap(passSmall, tokenSmall, 0),
+      operatorGap(passSmall, tokenSmall, 0.7),
+    )
     const flavPass = lineBasis(sector([0, 1, 2], 'fermion', 8, 0))
     const flavBounce = lineBasis(sector([0, 1, 2], 'fermion', 8, 3))
-    const c3Flavored = Math.max(operatorGap(flavPass, flavBounce, 0), operatorGap(flavPass, flavBounce, 0.7))
+    const c3Flavored = Math.max(
+      operatorGap(flavPass, flavBounce, 0),
+      operatorGap(flavPass, flavBounce, 0.7),
+    )
     const gC3 = c3Token < 1e-15 && c3Flavored < 1e-15
 
     log('C3')
@@ -283,7 +377,11 @@ export default experiment({
 
       log(`unit ${u}`)
 
-      return { unit: u, basis, lp: lineLightest(basis, wholeBasis(basis)) }
+      return {
+        unit: u,
+        basis,
+        lp: lineLightest(basis, wholeBasis(basis)),
+      }
     })
     const pass = units[0]!
     const bounce = units[3]!
@@ -293,18 +391,41 @@ export default experiment({
     const tokenBasis = lineBasis(sector([0, 0, 0], 'token', box))
     const token = lineLightest(tokenBasis, wholeBasis(tokenBasis))
     const three = lineBasis(sector([0, 1, 2], 'fermion', box, 0))
-    const flavored: Row[] = (['sym', 'anti', 'mixed'] as const).map(kind => {
-      const sub = flavorSector(three, kind)
+    const flavored: Row[] = (['sym', 'anti', 'mixed'] as const).map(
+      kind => {
+        const sub = flavorSector(three, kind)
 
-      log(`(ii) ${kind}`)
+        log(`(ii) ${kind}`)
 
-      return { name: `(ii) one per line, ${kind}`, basis: three, sub, lp: lineLightest(three, sub) }
-    })
+        return {
+          name: `(ii) one per line, ${kind}`,
+          basis: three,
+          sub,
+          lp: lineLightest(three, sub),
+        }
+      },
+    )
     const c1 = [
-      { name: 'bounce one line', got: bounce.lp.lightest, want: RECORDED.bounceOneLine },
-      { name: '(ii) sym', got: flavored[0]!.lp.lightest, want: RECORDED.flavoredSym },
-      { name: 'token one line', got: token.lightest, want: RECORDED.tokenOneLine },
-    ].map(r => ({ name: r.name, dE: Math.abs(r.got.unwrapped - r.want.energy), dS: Math.abs(r.got.spinHalf - r.want.share) }))
+      {
+        name: 'bounce one line',
+        got: bounce.lp.lightest,
+        want: RECORDED.bounceOneLine,
+      },
+      {
+        name: '(ii) sym',
+        got: flavored[0]!.lp.lightest,
+        want: RECORDED.flavoredSym,
+      },
+      {
+        name: 'token one line',
+        got: token.lightest,
+        want: RECORDED.tokenOneLine,
+      },
+    ].map(r => ({
+      name: r.name,
+      dE: Math.abs(r.got.unwrapped - r.want.energy),
+      dS: Math.abs(r.got.spinHalf - r.want.share),
+    }))
     const gC1 = c1.every(r => r.dE < 1e-9 && r.dS < 1e-9)
 
     log('C1')
@@ -312,36 +433,62 @@ export default experiment({
     // ---- (iii) under pass ----
     const twoPlusOne = lineBasis(sector([0, 0, 1], 'fermion', box, 0))
     const rows: Row[] = [
-      { name: '(i) one line', basis: pass.basis, sub: wholeBasis(pass.basis), lp: pass.lp },
-      { name: '(iii) two plus one', basis: twoPlusOne, sub: wholeBasis(twoPlusOne), lp: lineLightest(twoPlusOne, wholeBasis(twoPlusOne)) },
+      {
+        name: '(i) one line',
+        basis: pass.basis,
+        sub: wholeBasis(pass.basis),
+        lp: pass.lp,
+      },
+      {
+        name: '(iii) two plus one',
+        basis: twoPlusOne,
+        sub: wholeBasis(twoPlusOne),
+        lp: lineLightest(twoPlusOne, wholeBasis(twoPlusOne)),
+      },
       ...flavored,
     ]
 
     log('(iii)')
 
     // ---- G1, G5 ----
-    const sorted = rows.slice().sort((a, b) => a.lp.lightest.unwrapped - b.lp.lightest.unwrapped)
+    const sorted = rows
+      .slice()
+      .sort((a, b) => a.lp.lightest.unwrapped - b.lp.lightest.unwrapped)
     const lightest = sorted[0]!
     const runnerUp = sorted[1]!
-    const margin = runnerUp.lp.lightest.unwrapped - lightest.lp.lightest.unwrapped
-    const g1 = lightest.name === '(i) one line' && lightest.lp.lightest.spinHalf >= 0.95
+    const margin =
+      runnerUp.lp.lightest.unwrapped - lightest.lp.lightest.unwrapped
+    const g1 =
+      lightest.name === '(i) one line' &&
+      lightest.lp.lightest.spinHalf >= 0.95
     const g5 = lightest.name === '(i) one line' && margin >= 0.1
 
     // ---- G2 ----
-    const binding = free.lp.lightest.unwrapped - pass.lp.lightest.unwrapped
+    const binding =
+      free.lp.lightest.unwrapped - pass.lp.lightest.unwrapped
     const g2 = binding >= 0.1 && pass.lp.lightest.contact >= 0.5
 
     // ---- G3 ----
     const small = lineBasis(sector([0, 0, 0], 'fermion', 10, 0))
     const smallLp = lineLightest(small, wholeBasis(small))
-    const boxShift = Math.abs(smallLp.lightest.unwrapped - pass.lp.lightest.unwrapped)
+    const boxShift = Math.abs(
+      smallLp.lightest.unwrapped - pass.lp.lightest.unwrapped,
+    )
     const g3 = pass.lp.lightest.tailN <= 1e-3 && boxShift <= 1e-4
 
     log('G3')
 
     // ---- G4 ----
-    const follow = followLine(pass.basis, wholeBasis(pass.basis), pass.lp.lightest, 12)
-    const g4 = follow.bandwidth >= 0.01 && follow.velocity >= 0.02 && follow.minOverlap >= 0.5
+    const follow = followLine(
+      pass.basis,
+      wholeBasis(pass.basis),
+      pass.lp.lightest,
+      12,
+    )
+    const g4 =
+      follow.bandwidth >= 0.01 &&
+      follow.velocity >= 0.02 &&
+      follow.minOverlap >= 0.5
 
     log('G4')
 
@@ -381,8 +528,20 @@ export default experiment({
         c3TokenGap: c3Token,
         c3FlavoredGap: c3Flavored,
         c1Worst: Math.max(...c1.map(r => Math.max(r.dE, r.dS))),
-        ...Object.fromEntries(units.flatMap(u => [[`unit${u.unit}_energy`, u.lp.lightest.unwrapped], [`unit${u.unit}_spinHalf`, u.lp.lightest.spinHalf], [`unit${u.unit}_contact`, u.lp.lightest.contact]])),
-        ...Object.fromEntries(rows.flatMap((r, k) => [[`sector${k}_energy`, r.lp.lightest.unwrapped], [`sector${k}_spinHalf`, r.lp.lightest.spinHalf], [`sector${k}_dim`, r.lp.dim]])),
+        ...Object.fromEntries(
+          units.flatMap(u => [
+            [`unit${u.unit}_energy`, u.lp.lightest.unwrapped],
+            [`unit${u.unit}_spinHalf`, u.lp.lightest.spinHalf],
+            [`unit${u.unit}_contact`, u.lp.lightest.contact],
+          ]),
+        ),
+        ...Object.fromEntries(
+          rows.flatMap((r, k) => [
+            [`sector${k}_energy`, r.lp.lightest.unwrapped],
+            [`sector${k}_spinHalf`, r.lp.lightest.spinHalf],
+            [`sector${k}_dim`, r.lp.dim],
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

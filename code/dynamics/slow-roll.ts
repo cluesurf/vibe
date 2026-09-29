@@ -12,7 +12,10 @@ export type SlowRollPotential = (phi: number) => {
 }
 
 // The field value where slow roll ends (epsilon >= 1), walking down from `guess` in steps of 1e-4.
-export function slowRollEnd(pot: SlowRollPotential, guess: number): number {
+export function slowRollEnd(
+  pot: SlowRollPotential,
+  guess: number,
+): number {
   let phi = guess
 
   for (let i = 0; i < 2000000; i++) {

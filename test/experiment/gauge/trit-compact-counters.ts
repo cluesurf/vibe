@@ -49,11 +49,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { budget, carryCensus, exactRun, weylStart } from '@/code/measure/trit-compact-light'
+import {
+  budget,
+  carryCensus,
+  exactRun,
+  weylStart,
+} from '@/code/measure/trit-compact-light'
 import { makeTritLight } from '@/code/rule/trit-column'
 import { geometryOfBulk } from '@/code/rule/trit-husk'
 import { emptyShaped } from '@/code/rule/trit-husk-shaped'
-import { columnSumIdentityMismatches, emptyCompact, makeCompactLight } from '@/code/rule/trit-compact'
+import {
+  columnSumIdentityMismatches,
+  emptyCompact,
+  makeCompactLight,
+} from '@/code/rule/trit-compact'
 
 const LEVELS = 3
 
@@ -69,48 +78,78 @@ function positionalControl(): { unit: number; positional: number } {
   const c = makeCompactLight(light, LEVELS, 'ternary')
   const s = emptyCompact(c)
 
-  weylStart(c, s, emptyShaped(geometryOfBulk(light.bulk), LEVELS), 12, 5)
+  weylStart(
+    c,
+    s,
+    emptyShaped(geometryOfBulk(light.bulk), LEVELS),
+    12,
+    5,
+  )
 
   const b = light.bulk
-  const read = (positional: boolean) => (p: number): number => {
-    let v = 0
-    let w = 1
 
-    for (let k = b.triColumnStart[p]!; k < b.triColumnStart[p + 1]!; k++) {
-      v += (positional ? w : 1) * b.triColumnSign[k]! * s.potential[b.triColumn[k]!]!
-      if (positional) w *= 3
+  const read =
+    (positional: boolean) =>
+    (p: number): number => {
+      let v = 0
+      let w = 1
+
+      for (
+        let k = b.triColumnStart[p]!;
+        k < b.triColumnStart[p + 1]!;
+        k++
+      ) {
+        v +=
+          (positional ? w : 1) *
+          b.triColumnSign[k]! *
+          s.potential[b.triColumn[k]!]!
+
+        if (positional) {
+          w *= 3
+        }
+      }
+
+      return v
     }
 
-    return v
+  return {
+    unit: columnSumIdentityMismatches(c, s, read(false)),
+    positional: columnSumIdentityMismatches(c, s, read(true)),
   }
-
-  return { unit: columnSumIdentityMismatches(c, s, read(false)), positional: columnSumIdentityMismatches(c, s, read(true)) }
 }
 
 export default experiment({
   id: 'gauge/trit-compact-counters',
   code: 'E-FRC-0219',
   title:
-    'compact counters: the shaped light\'s counters held in balanced ternary run bit for bit with the thermometer rule and the husk rule, reversibly and with Gauss exact, and three levels then fit the trits the bulk already holds (7 counters of k = ceil(log3(2D + 1)) trits in each husk triangle\'s 3D counter trits); the angle, string and potential columns stay thermometers because the bulk reads them trit by trit',
+    "compact counters: the shaped light's counters held in balanced ternary run bit for bit with the thermometer rule and the husk rule, reversibly and with Gauss exact, and three levels then fit the trits the bulk already holds (7 counters of k = ceil(log3(2D + 1)) trits in each husk triangle's 3D counter trits); the angle, string and potential columns stay thermometers because the bulk reads them trit by trit",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let okA = true
     let okR = true
     let okG = true
 
     for (const r of RUNS) {
       const light = makeTritLight({ side: r.side, depth: r.depth })
-      const x = exactRun({ light, levels: LEVELS, beats: r.beats, pairs: 16, salt: 1 })
+      const x = exactRun({
+        light,
+        levels: LEVELS,
+        beats: r.beats,
+        pairs: 16,
+        salt: 1,
+      })
       const key = `a_side${r.side}_D${r.depth}`
 
       metrics[`${key}_tritMismatches`] = x.tritMismatches
       metrics[`${key}_counterMismatches`] = x.counterMismatches
       metrics[`${key}_ternaryHuskMismatches`] = x.ternaryHuskMismatches
-      metrics[`${key}_thermometerHuskMismatches`] = x.thermometerHuskMismatches
+      metrics[`${key}_thermometerHuskMismatches`] =
+        x.thermometerHuskMismatches
       metrics[`${key}_ternaryReversal`] = x.ternaryReversal
       metrics[`${key}_thermometerReversal`] = x.thermometerReversal
       metrics[`${key}_bulkGauss`] = x.bulkGauss
@@ -118,13 +157,27 @@ export default experiment({
       metrics[`${key}_crossings`] = x.hops.crossings
       metrics[`${key}_refused`] = x.hops.refused
       metrics[`${key}_potentialWraps`] = x.ternaryTally.potentialWraps
-      metrics[`${key}_ternaryCounterFlipsPerBeat`] = x.ternaryTally.counterFlips / r.beats
-      metrics[`${key}_thermometerCounterFlipsPerBeat`] = x.thermometerTally.counterFlips / r.beats
-      metrics[`${key}_ternaryCounterReach`] = x.ternaryTally.counterReach
-      metrics[`${key}_thermometerCounterReach`] = x.thermometerTally.counterReach
+      metrics[`${key}_ternaryCounterFlipsPerBeat`] =
+        x.ternaryTally.counterFlips / r.beats
 
-      okA = okA && x.tritMismatches === 0 && x.counterMismatches === 0 && x.ternaryHuskMismatches === 0 && x.thermometerHuskMismatches === 0
-      okR = okR && x.ternaryReversal === 0 && x.thermometerReversal === 0
+      metrics[`${key}_thermometerCounterFlipsPerBeat`] =
+        x.thermometerTally.counterFlips / r.beats
+
+      metrics[`${key}_ternaryCounterReach`] =
+        x.ternaryTally.counterReach
+
+      metrics[`${key}_thermometerCounterReach`] =
+        x.thermometerTally.counterReach
+
+      okA =
+        okA &&
+        x.tritMismatches === 0 &&
+        x.counterMismatches === 0 &&
+        x.ternaryHuskMismatches === 0 &&
+        x.thermometerHuskMismatches === 0
+
+      okR =
+        okR && x.ternaryReversal === 0 && x.thermometerReversal === 0
       okG = okG && x.bulkGauss === 0 && x.huskGauss === 0
     }
 
@@ -135,14 +188,16 @@ export default experiment({
       const census = carryCensus(d)
 
       chainCases += census.cases
-      okC = okC && census.encodeFailures === 0 && census.chainFailures === 0
+      okC =
+        okC && census.encodeFailures === 0 && census.chainFailures === 0
 
       if ([7, 13, 16, 40, 64].includes(d)) {
         metrics[`c_D${d}_digits`] = census.digits
         metrics[`c_D${d}_unusedPatterns`] = census.unused
         metrics[`c_D${d}_meanReach`] = census.meanReach
         metrics[`c_D${d}_meanFlips`] = census.meanFlips
-        metrics[`c_D${d}_thermometerMeanFlips`] = census.thermometerMeanFlips
+        metrics[`c_D${d}_thermometerMeanFlips`] =
+          census.thermometerMeanFlips
       }
     }
 
@@ -171,19 +226,36 @@ export default experiment({
     metrics.k_unitMismatches = k.unit
     metrics.k_positionalMismatches = k.positional
 
-    const gates = { A: okA, R: okR, G: okG, C: okC, B: okB, K: k.unit === 0 && k.positional > 0 }
+    const gates = {
+      A: okA,
+      R: okR,
+      G: okG,
+      C: okC,
+      B: okB,
+      K: k.unit === 0 && k.positional > 0,
+    }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.A && gates.R ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.A && gates.R
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,
-      claim: `with the three-level light's 7 counters per husk triangle in balanced ternary (k = 3 trits at D = 7 and 13, 4 at D = 16), the rule agrees with the thermometer rule and the husk shaped rule on every trit and counter (mismatches ${RUNS.map(r => metrics[`a_side${r.side}_D${r.depth}_ternaryHuskMismatches`]).join(', ')} at side ${RUNS.map(r => `${r.side} D ${r.depth}`).join(', ')}, with ${RUNS.map(r => metrics[`a_side${r.side}_D${r.depth}_crossings`]).join(', ')} gas crossings), reverses to ${metrics[`a_side8_D16_ternaryReversal`]} mismatches, keeps Gauss exact, and fits the counter trits each husk triangle already holds: ${metrics.b_D16_counterTritsNeed} of ${metrics.b_D16_counterTritsHave} at D = 16, the whole light ${(metrics.b_D16_ternaryNeedOverHave ?? 0).toFixed(3)} of the bulk's trits against ${(metrics.b_D16_thermometerNeedOverHave ?? 0).toFixed(3)} as thermometers; a positional potential column breaks the column-sum identity on ${k.positional} husk links`,
+      claim: `with the three-level light's 7 counters per husk triangle in balanced ternary (k = 3 trits at D = 7 and 13, 4 at D = 16), the rule agrees with the thermometer rule and the husk shaped rule on every trit and counter (mismatches ${RUNS.map(r => metrics[`a_side${r.side}_D${r.depth}_ternaryHuskMismatches`]).join(', ')} at side ${RUNS.map(r => `${r.side} D ${r.depth}`).join(', ')}, with ${RUNS.map(r => metrics[`a_side${r.side}_D${r.depth}_crossings`]).join(', ')} gas crossings), reverses to ${metrics.a_side8_D16_ternaryReversal} mismatches, keeps Gauss exact, and fits the counter trits each husk triangle already holds: ${metrics.b_D16_counterTritsNeed} of ${metrics.b_D16_counterTritsHave} at D = 16, the whole light ${(metrics.b_D16_ternaryNeedOverHave ?? 0).toFixed(3)} of the bulk's trits against ${(metrics.b_D16_thermometerNeedOverHave ?? 0).toFixed(3)} as thermometers; a positional potential column breaks the column-sum identity on ${k.positional} husk links`,
       metrics,
-      control: { thermometerNeedOverHaveD16: metrics.b_D16_thermometerNeedOverHave ?? 0, positionalPotentialMismatches: k.positional },
+      control: {
+        thermometerNeedOverHaveD16:
+          metrics.b_D16_thermometerNeedOverHave ?? 0,
+        positionalPotentialMismatches: k.positional,
+      },
       notes:
-        'L2, exact integers in the rule, deterministic (integer Weyl starts). FIRST RUN 2026-09-26 (tmp/frc0219.log, 13.5 s), PASS on every gate, no gate moved. A: the ternary rule, the thermometer rule and the husk shaped rule agree on every trit and every counter at every beat, 0 mismatches at side 4 D 7 (200 beats, 5,403 gas crossings), side 4 D 13 (200 beats, 5,584) and side 8 D 16 (120 beats, 3,689), from hot starts that wrap potentials thousands of times (8,388, 3,496, 10,822). R: both codes return to every trit (0). G: Gauss exact in bulk and husk at every beat (0). C: the balanced code is a bijection and the carry chain equals re-encoding on all 365,690 pairs over D = 7 .. 64; a change reaches 2.95 digits on average at D = 16 (4 at most), flipping 3.07 trits against 10.99 for a thermometer front. B: 7 counters take 21 of 21 counter trits per husk triangle at D = 7, 28 of 48 at D = 16, 42 of 384 at D = 128; the whole light takes 0.719, 0.523, 0.387, 0.301 of the bulk\'s trits at D = 7, 16, 32, 128, against 1.344 as thermometers at every D. K: read positionally, the potential columns break the column-sum identity on 573 husk links (unit weights: 0). On the rule the ternary code flips half to a quarter of the thermometer\'s counter trits (22,292 against 44,652 per beat at D = 7, 220,324 against 789,250 at D = 16, hot starts). STRUCTURAL: at D = 13 and 40 (q = 3^3, 3^4) every trit pattern of a counter is a counter.',
+        "L2, exact integers in the rule, deterministic (integer Weyl starts). FIRST RUN 2026-09-26 (tmp/frc0219.log, 13.5 s), PASS on every gate, no gate moved. A: the ternary rule, the thermometer rule and the husk shaped rule agree on every trit and every counter at every beat, 0 mismatches at side 4 D 7 (200 beats, 5,403 gas crossings), side 4 D 13 (200 beats, 5,584) and side 8 D 16 (120 beats, 3,689), from hot starts that wrap potentials thousands of times (8,388, 3,496, 10,822). R: both codes return to every trit (0). G: Gauss exact in bulk and husk at every beat (0). C: the balanced code is a bijection and the carry chain equals re-encoding on all 365,690 pairs over D = 7 .. 64; a change reaches 2.95 digits on average at D = 16 (4 at most), flipping 3.07 trits against 10.99 for a thermometer front. B: 7 counters take 21 of 21 counter trits per husk triangle at D = 7, 28 of 48 at D = 16, 42 of 384 at D = 128; the whole light takes 0.719, 0.523, 0.387, 0.301 of the bulk's trits at D = 7, 16, 32, 128, against 1.344 as thermometers at every D. K: read positionally, the potential columns break the column-sum identity on 573 husk links (unit weights: 0). On the rule the ternary code flips half to a quarter of the thermometer's counter trits (22,292 against 44,652 per beat at D = 7, 220,324 against 789,250 at D = 16, hot starts). STRUCTURAL: at D = 13 and 40 (q = 3^3, 3^4) every trit pattern of a counter is a counter.",
     })
   },
 })

@@ -182,8 +182,7 @@ export default experiment({
 
     const amplifies =
       at48.final / at48.initial > 3 && at36.final / at36.initial > 3
-    const universalInstability =
-      seedless.final / seedless.initial > 2
+    const universalInstability = seedless.final / seedless.initial > 2
     const flatFrozen = flatMoved === 0
 
     const ok = amplifies && universalInstability && flatFrozen

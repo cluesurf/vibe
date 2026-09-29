@@ -39,8 +39,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { inverseDepthSpec, splitOf, type LadderSpec } from '@/code/rule/plaquette-ladder'
-import { oneQuantumBand, planck, thermalEnergy, unwrapped } from '@/code/measure/quantum-ladder'
+import {
+  inverseDepthSpec,
+  splitOf,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
+import {
+  oneQuantumBand,
+  planck,
+  thermalEnergy,
+  unwrapped,
+} from '@/code/measure/quantum-ladder'
 
 const BOXES: readonly [number, number][] = [
   [17, 2],
@@ -55,14 +64,24 @@ const MATCH = 1e-2
 
 type Occupation = { energy: number; q: number }
 
-function occupations(L: number, omegas: readonly number[], cut: number): Occupation[] {
+function occupations(
+  L: number,
+  omegas: readonly number[],
+  cut: number,
+): Occupation[] {
   const out: Occupation[] = []
   const n = new Array<number>(L).fill(0)
+
   const walk = (j: number, e: number): void => {
-    if (e > cut) return
+    if (e > cut) {
+      return
+    }
 
     if (j === L) {
-      out.push({ energy: e, q: n.reduce((s, x, i) => s + x * i, 0) % L })
+      out.push({
+        energy: e,
+        q: n.reduce((s, x, i) => s + x * i, 0) % L,
+      })
 
       return
     }
@@ -99,16 +118,22 @@ function ladderOf(spec: LadderSpec): {
   const margin = 0.05
   const predicted = occupations(L, omegas, cut + margin)
   const used = new Set<number>()
+
   let unmatched = 0
   let worst = 0
-  const below = levels.map((l, i) => ({ e: energies[i]!, q: l.q })).filter(x => x.e < cut)
+
+  const below = levels
+    .map((l, i) => ({ e: energies[i]!, q: l.q }))
+    .filter(x => x.e < cut)
 
   for (const lv of below) {
     let best = -1
     let bestD = Infinity
 
     predicted.forEach((p, j) => {
-      if (p.q !== lv.q || used.has(j)) return
+      if (p.q !== lv.q || used.has(j)) {
+        return
+      }
 
       const d = Math.abs(p.energy - lv.e)
 
@@ -118,8 +143,9 @@ function ladderOf(spec: LadderSpec): {
       }
     })
 
-    if (best < 0 || bestD > MATCH) unmatched++
-    else {
+    if (best < 0 || bestD > MATCH) {
+      unmatched++
+    } else {
       used.add(best)
       worst = Math.max(worst, bestD)
     }
@@ -132,7 +158,9 @@ function ladderOf(spec: LadderSpec): {
     expected: predicted.filter(p => p.energy < cut).length,
     unmatched,
     worst,
-    bandError: Math.max(...band.map(b => Math.abs(b.omega - b.classical) / b.classical)),
+    bandError: Math.max(
+      ...band.map(b => Math.abs(b.omega - b.classical) / b.classical),
+    ),
   }
 }
 
@@ -147,6 +175,7 @@ function classicalEnergyOverLT(spec: LadderSpec, T: number): number {
 
     return { K, weight: omega / Math.sin(omega) }
   })
+
   let z = 0
   let e = 0
 
@@ -163,7 +192,9 @@ function classicalEnergyOverLT(spec: LadderSpec, T: number): number {
           ].forEach(([B, m], j) => {
             const { K, weight } = modes[j]!
 
-            energy += weight * (f * B! * B! + f * s * K * B! * m! + s * K * m! * m!)
+            energy +=
+              weight *
+              (f * B! * B! + f * s * K * B! * m! + s * K * m! * m!)
           })
 
           energy *= Math.PI / n
@@ -191,6 +222,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let p1 = true
     let p2 = true
     let p3 = true
@@ -223,7 +255,9 @@ export default experiment({
       for (const x of HOT) {
         const T = x * wmin
 
-        metrics[`hotPlanckRatio${tag}T${x}`] = thermalEnergy(box.energies, T) / box.omegas.reduce((acc, w) => acc + planck(w, T), 0)
+        metrics[`hotPlanckRatio${tag}T${x}`] =
+          thermalEnergy(box.energies, T) /
+          box.omegas.reduce((acc, w) => acc + planck(w, T), 0)
       }
 
       if (L === 2) {
@@ -236,7 +270,9 @@ export default experiment({
       }
     }
 
-    const control = ladderOf(inverseDepthSpec(CONTROL[0], CONTROL[1], 'force'))
+    const control = ladderOf(
+      inverseDepthSpec(CONTROL[0], CONTROL[1], 'force'),
+    )
 
     metrics.controlUnmatched = control.unmatched
     metrics.controlLevels = control.found
@@ -245,7 +281,9 @@ export default experiment({
     const p4 = control.unmatched > 0
     const gates = { P1: p1, P2: p2, P3: p3, P4: p4 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
     const status = Object.values(gates).every(v => v) ? 'pass' : 'fail'
 

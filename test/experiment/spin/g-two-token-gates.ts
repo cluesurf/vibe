@@ -40,11 +40,37 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { tokenG, type TokenStep } from '@/code/measure/token-g-analytic'
 import { type Step } from '@/code/rule/spinor-token'
-import { bandHessian, bandTurnMismatch, beatCovariance, exactRun, fastestPerBeat, hessianSpread, restGap, twoPiSign } from '@/code/measure/token-gates'
+import {
+  bandHessian,
+  bandTurnMismatch,
+  beatCovariance,
+  exactRun,
+  fastestPerBeat,
+  hessianSpread,
+  restGap,
+  twoPiSign,
+} from '@/code/measure/token-gates'
 
 const TOKEN: readonly Step[] = ['x', 'y', 'z', 'up', 'down']
 const STRANG: readonly Step[] = ['x', 'y', 'z', 'x']
-const NESTED: readonly Step[] = ['z', 'up', 'down', 'x', 'up', 'down', 'y', 'up', 'down', 'y', 'up', 'down', 'x', 'up', 'down', 'z']
+const NESTED: readonly Step[] = [
+  'z',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'z',
+]
 const MODEL_COIN = Math.PI / 3
 const EXACT = 1e-12
 const SIDE = 6
@@ -55,8 +81,14 @@ const PHOTON_SPEED = 0.2023
 
 // the plane (a, b) relabeled as the chain's (x, y), the field along the third, then read as TokenSteps (a z beat or
 // a depth beat is the coin alone at k_z = 0)
-function planeSteps(schedule: readonly Step[], a: 'x' | 'y' | 'z', b: 'x' | 'y' | 'z'): TokenStep[] {
-  return schedule.map(s => ({ axis: s === a ? 'x' : s === b ? 'y' : 'none' }))
+function planeSteps(
+  schedule: readonly Step[],
+  a: 'x' | 'y' | 'z',
+  b: 'x' | 'y' | 'z',
+): TokenStep[] {
+  return schedule.map(s => ({
+    axis: s === a ? 'x' : s === b ? 'y' : 'none',
+  }))
 }
 
 type Reading = {
@@ -88,7 +120,10 @@ function read(name: string, schedule: readonly Step[]): Reading {
         ['zx', 'z', 'x'],
       ] as const
     ).map(([plane, a, b]) => {
-      const r = tokenG({ schedule: planeSteps(schedule, a, b), mu: MODEL_COIN })
+      const r = tokenG({
+        schedule: planeSteps(schedule, a, b),
+        mu: MODEL_COIN,
+      })
 
       return { plane, g: r.g, bowl: r.bowl, restGap: r.restGap }
     }),
@@ -99,7 +134,7 @@ export default experiment({
   id: 'spin/g-two-token-gates',
   code: 'E-SPN-0064',
   title:
-    'the two g = 2 schedules of E-MTR-0017 through E-SPN-0053\'s token gates, a STAND-IN: the 16-beat nested palindrome and x, y, z, x against rest mass, per-beat covariance under the 12 husk turns, the 2 pi sign, mass isotropy, exact continuity and Gauss\'s law, the speed of the E-FRC-0179 photon and g = 2 in every plane',
+    "the two g = 2 schedules of E-MTR-0017 through E-SPN-0053's token gates, a STAND-IN: the 16-beat nested palindrome and x, y, z, x against rest mass, per-beat covariance under the 12 husk turns, the 2 pi sign, mass isotropy, exact continuity and Gauss's law, the speed of the E-FRC-0179 photon and g = 2 in every plane",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -109,23 +144,54 @@ export default experiment({
     const spectator = beatCovariance(SIDE, 'spectator')
     const sign = twoPiSign(SIDE)
     const third = (2 * Math.PI) / 3
-    const readings = [read('strang', STRANG), read('nested', NESTED), read('token', TOKEN)]
-    const shared = locked.worst < EXACT && locked.depthPairGap < EXACT && spectator.failures > 0 && sign.orderSix === 8 && sign.gap < EXACT
+    const readings = [
+      read('strang', STRANG),
+      read('nested', NESTED),
+      read('token', TOKEN),
+    ]
+    const shared =
+      locked.worst < EXACT &&
+      locked.depthPairGap < EXACT &&
+      spectator.failures > 0 &&
+      sign.orderSix === 8 &&
+      sign.gap < EXACT
     const gates = readings.map(r => {
       const t = {
         T1: Math.abs(r.restGap - third) < EXACT,
-        T2: locked.worst < EXACT && locked.depthPairGap < EXACT && spectator.failures > 0,
+        T2:
+          locked.worst < EXACT &&
+          locked.depthPairGap < EXACT &&
+          spectator.failures > 0,
         T3: sign.orderSix === 8 && sign.gap < EXACT,
         T4: r.spread < 1e-6,
-        T5: r.run.normDrift < 1e-10 && r.run.reversalGap < 1e-9 && r.run.continuity < EXACT && r.run.gaussGap < 1e-10,
+        T5:
+          r.run.normDrift < 1e-10 &&
+          r.run.reversalGap < 1e-9 &&
+          r.run.continuity < EXACT &&
+          r.run.gaussGap < 1e-10,
         T6: r.fastest < PHOTON_SPEED,
-        T7: r.planes.every(p => p.bowl && Math.abs(p.restGap) > 1e-9 && Math.abs(p.g - 2) < EXACT),
+        T7: r.planes.every(
+          p =>
+            p.bowl &&
+            Math.abs(p.restGap) > 1e-9 &&
+            Math.abs(p.g - 2) < EXACT,
+        ),
       }
 
       return { name: r.name, t, all: Object.values(t).every(Boolean) }
     })
-    const chosen = gates.filter(g => g.name !== 'token' && g.all).map(g => g.name)
-    const failing = gates.map(g => `${g.name}: ${Object.entries(g.t).filter(([, v]) => !v).map(([k]) => k).join(' ') || 'none'}`)
+    const chosen = gates
+      .filter(g => g.name !== 'token' && g.all)
+      .map(g => g.name)
+    const failing = gates.map(
+      g =>
+        `${g.name}: ${
+          Object.entries(g.t)
+            .filter(([, v]) => !v)
+            .map(([k]) => k)
+            .join(' ') || 'none'
+        }`,
+    )
     const ok = shared && chosen.length > 0
 
     return verdict({
@@ -138,8 +204,12 @@ export default experiment({
         .join('; ')}`,
       metrics: {
         chosenCount: chosen.length,
-        nestedPassesAll: gates.find(g => g.name === 'nested')?.all ? 1 : 0,
-        strangPassesAll: gates.find(g => g.name === 'strang')?.all ? 1 : 0,
+        nestedPassesAll: gates.find(g => g.name === 'nested')?.all
+          ? 1
+          : 0,
+        strangPassesAll: gates.find(g => g.name === 'strang')?.all
+          ? 1
+          : 0,
         lockedCovarianceWorst: locked.worst,
         depthPairGap: locked.depthPairGap,
         twoPiSignGap: sign.gap,
@@ -165,7 +235,14 @@ export default experiment({
             ]),
           ]),
         ),
-        ...Object.fromEntries(gates.flatMap(g => Object.entries(g.t).map(([k, v]) => [`${g.name}_${k}`, v ? 1 : 0]))),
+        ...Object.fromEntries(
+          gates.flatMap(g =>
+            Object.entries(g.t).map(([k, v]) => [
+              `${g.name}_${k}`,
+              v ? 1 : 0,
+            ]),
+          ),
+        ),
       },
       control: {
         spectatorCovarianceFailures: spectator.failures,

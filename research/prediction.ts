@@ -24,7 +24,7 @@ export const CANDIDATES: Candidate[] = [
     id: 'PC-02',
     candidate: 'a smallest stable remnant halts black-hole evaporation',
     stands:
-      'E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001). A lone vibe\'s motion under the one-third turn, apart from the committed knit, is measured (E-QTM-0103) and could replace the walk\'s cutoff',
+      "E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001). A lone vibe's motion under the one-third turn, apart from the committed knit, is measured (E-QTM-0103) and could replace the walk's cutoff",
     needs:
       'a remnant mass derived from the committed knit, and an observable that bounds it',
     problem: null,
@@ -63,13 +63,13 @@ export const CANDIDATES: Candidate[] = [
     stands:
       'measured on the bounded clock register: read $48/\\kappa$ after a lump settles, the emission is 1.9e-8 to 1.8e-7 of the prompt burst in every case, where a Hawking part would keep it near 1, because the capped redshift makes the settled horizon a static reflecting wall (E-GRV-0136), and growing the register from 13 to 49 does not move the spectrum toward Planck (E-GRV-0134). The depth register the horizon lives in is added, not derived from the rule, and physical register sizes are far beyond the runs',
     needs:
-      'the register size of a physical black hole (whether $\\ln C$ exceeds $4\\pi$, which Bekenstein\'s coefficient in E-GRV-0131 also asks for), then an observable that separates a formation burst from steady evaporation, such as the late emission of a primordial black hole',
+      "the register size of a physical black hole (whether $\\ln C$ exceeds $4\\pi$, which Bekenstein's coefficient in E-GRV-0131 also asks for), then an observable that separates a formation burst from steady evaporation, such as the late emission of a primordial black hole",
     problem: null,
   },
   {
     id: 'PC-07',
     candidate:
-      'light\'s speed depends on direction first at relative order $k^4$, in one fixed angular shape, never at $k^2$',
+      "light's speed depends on direction first at relative order $k^4$, in one fixed angular shape, never at $k^2$",
     stands:
       'derived and measured on the husk light: $W(F_4)$ has invariant degrees 2, 6, 8 and 12, so its one quartic invariant is $|k|^4$, and the exact linear symbol is anisotropic at relative order $k^4$ (slope 4.000 in every branch) where a cubic lattice is at $k^2$, with the leading anisotropy in the shape $q - 3r$ (E-MTH-0008). E-MTH-0014 corrects an earlier isotropy figure. The coefficient is in lattice units, and the lattice scale is not fixed',
     needs:
@@ -83,7 +83,7 @@ export const CANDIDATES: Candidate[] = [
     stands:
       'structural, on the candidate rule with the Clifford register (not the adopted rule): the register splits exactly into two chiral halves that a reflection swaps (E-FRC-0258), and every one-body piece commutes with that split while the only covariant one-body coupling between the halves breaks CPT (E-FRC-0259), so the mirror half meets ours only through depth and the many-body collision. No abundance is computed',
     needs:
-      'the mirror half\'s abundance from the rule, and a cross section with ordinary matter, set against the measured dark-matter density and direct-detection limits',
+      "the mirror half's abundance from the rule, and a cross section with ordinary matter, set against the measured dark-matter density and direct-detection limits",
     problem: null,
   },
   {

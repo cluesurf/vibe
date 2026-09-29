@@ -198,7 +198,11 @@ function analyze(rule: Rule): {
   const conserved = DIM - realMatrixRank(identity(K), TOLERANCE)
   const fixedByCube = DIM - realMatrixRank(identity(cubed), TOLERANCE)
 
-  return { conserved, clockModes: fixedByCube - conserved, worstResidual }
+  return {
+    conserved,
+    clockModes: fixedByCube - conserved,
+    worstResidual,
+  }
 }
 
 export default experiment({

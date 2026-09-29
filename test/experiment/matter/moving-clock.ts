@@ -31,8 +31,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { portCount } from '@/code/rule/lazy-root-token'
-import { huskLightSpeed, lazyEnergyFromSpectrum, evenFit } from '@/code/measure/one-light-speed'
-import { BOUND_KS, rankedParticleLevels, threeLoves, trackLevels } from '@/code/measure/bound-dispersion'
+import {
+  huskLightSpeed,
+  lazyEnergyFromSpectrum,
+  evenFit,
+} from '@/code/measure/one-light-speed'
+import {
+  BOUND_KS,
+  rankedParticleLevels,
+  threeLoves,
+  trackLevels,
+} from '@/code/measure/bound-dispersion'
 
 const DIRS: readonly (readonly number[])[] = [
   [1, 0, 0],
@@ -57,7 +66,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const metrics: Record<string, number> = {}
 
     // ---- T1: the lazy clock ----
@@ -72,7 +84,10 @@ export default experiment({
       const c = huskLightSpeed(D)
       const mu1 = Math.PI / M
       const mu2 = (2 * Math.PI) / M
-      const d0 = lazyEnergyFromSpectrum(Q, 2 * mu2, [0, 0, 0]) - lazyEnergyFromSpectrum(Q, 2 * mu1, [0, 0, 0])
+      const d0 =
+        lazyEnergyFromSpectrum(Q, 2 * mu2, [0, 0, 0]) -
+        lazyEnergyFromSpectrum(Q, 2 * mu1, [0, 0, 0])
+
       let worst = 0
 
       for (const d of DIRS) {
@@ -81,14 +96,22 @@ export default experiment({
           const E1 = lazyEnergyFromSpectrum(Q, 2 * mu1, unit(d, K))
           const E2 = lazyEnergyFromSpectrum(Q, 2 * mu2, unit(d, K))
           const r = (E2 - E1) / d0
-          const rSR = (Math.sqrt(mu2 * mu2 + c * c * K * K) - Math.sqrt(mu1 * mu1 + c * c * K * K)) / (mu2 - mu1)
+          const rSR =
+            (Math.sqrt(mu2 * mu2 + c * c * K * K) -
+              Math.sqrt(mu1 * mu1 + c * c * K * K)) /
+            (mu2 - mu1)
 
           worst = Math.max(worst, Math.abs(r / rSR - 1))
 
-          if (x === 0.6) informative = Math.min(informative, 1 - rSR)
+          if (x === 0.6) {
+            informative = Math.min(informative, 1 - rSR)
+          }
 
           // the lighter level's group velocity
-          const g = (lazyEnergyFromSpectrum(Q, 2 * mu1, unit(d, K + 1e-5)) - lazyEnergyFromSpectrum(Q, 2 * mu1, unit(d, K - 1e-5))) / 2e-5
+          const g =
+            (lazyEnergyFromSpectrum(Q, 2 * mu1, unit(d, K + 1e-5)) -
+              lazyEnergyFromSpectrum(Q, 2 * mu1, unit(d, K - 1e-5))) /
+            2e-5
 
           topVelocity = Math.max(topVelocity, g / c)
         }
@@ -109,10 +132,16 @@ export default experiment({
     // ---- T2: the bound state's clock ----
     const rows = [1, 2, 3, 4].map(D => {
       const ranked = rankedParticleLevels(threeLoves(D), 4 * D + 6)
-      const track = trackLevels(threeLoves(D), BOUND_KS, ranked.slice(0, 2))
+      const track = trackLevels(
+        threeLoves(D),
+        BOUND_KS,
+        ranked.slice(0, 2),
+      )
       const e1 = track.energies[0]!
       const e2 = track.energies[1]!
-      const ratio = BOUND_KS.map((_, i) => (e2[i]! - e1[i]!) / (e2[0]! - e1[0]!))
+      const ratio = BOUND_KS.map(
+        (_, i) => (e2[i]! - e1[i]!) / (e2[0]! - e1[0]!),
+      )
       const [, b] = evenFit(BOUND_KS, ratio)
       const alpha = -b
       const E1 = Math.PI + e1[0]!
@@ -125,7 +154,18 @@ export default experiment({
 
       log(`t2 D ${D}`)
 
-      return { D, alpha, alphaSR, alphaSelf, E1, E2, split: e2[0]! - e1[0]!, ratioEnd: ratio[ratio.length - 1]!, minOverlap: Math.min(...track.minOverlap), distinct: track.distinct }
+      return {
+        D,
+        alpha,
+        alphaSR,
+        alphaSelf,
+        E1,
+        E2,
+        split: e2[0]! - e1[0]!,
+        ratioEnd: ratio[ratio.length - 1]!,
+        minOverlap: Math.min(...track.minOverlap),
+        distinct: track.distinct,
+      }
     })
     const t2 = rows.every(r => Math.abs(r.alpha / r.alphaSR - 1) <= 0.1)
 
@@ -139,7 +179,9 @@ export default experiment({
       metrics[`bound_D${r.D}_minOverlap`] = r.minOverlap
     }
 
-    for (const [g, ok] of Object.entries({ T1: t1, T2: t2 })) metrics[`gate${g}`] = ok ? 1 : 0
+    for (const [g, ok] of Object.entries({ T1: t1, T2: t2 })) {
+      metrics[`gate${g}`] = ok ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -149,7 +191,9 @@ export default experiment({
       status,
       claim: `a clock of the lazy root token's two light mass levels (a STAND-IN, husk) ticks at ${(1 - informative).toFixed(3)} of its rest rate or slower at the fastest point tried (v up to ${topVelocity.toFixed(2)} c) and follows the Lorentz factor with the photon's c to ${(100 * t1Gap).toFixed(3)} percent at D = 2 to 6; the beat between the flux-string bound state's two lowest levels (three locked loves, a STAND-IN) changes with momentum at ${rows.map(r => r.alpha.toExponential(2)).join(', ')} per K^2 against relativity's ${rows.map(r => r.alphaSR.toExponential(2)).join(', ')} at D = 1 to 4 (ratio ${rows.map(r => (r.alpha / r.alphaSR).toFixed(2)).join(', ')}): its clock ${t2 ? 'dilates' : 'does not dilate'} as relativity says`,
       metrics,
-      control: Object.fromEntries(rows.map(r => [`bound_D${r.D}_alphaSelf`, r.alphaSelf])),
+      control: Object.fromEntries(
+        rows.map(r => [`bound_D${r.D}_alphaSelf`, r.alphaSelf]),
+      ),
       notes: `L2. Gates T1 ${t1}, T2 ${t2}. FIRST RUN 2026-09-26 (tmp/sr-mtr25-run1.log, 6.1 s): PARTIAL, as predicted, no gate moved; the record run differs only in this sentence. T2 fails more strongly than predicted: at D = 2, 3, 4 the bound state's beat RISES with momentum (alpha negative, the moving clock ticks faster), and at D = 1 it falls four times faster than relativity says. Over the band the bound state reaches (group velocity at most 0.039 docks per beat, under a tenth of c) relativity asks a change of at most half a percent, and the lattice's own relative motion moves the beat by more than that, in either direction. HUSK FIRST: every c here is the photon's husk c, sqrt(4 / (3 (2D + 1))). The lazy clock: the SR drop at x = 0.6 is at least ${(100 * informative).toFixed(1)} percent (informative), and the measured ticks follow it to ${t1Gap.toExponential(1)} (by D: ${[2, 3, 4, 5, 6].map(D => (metrics[`lazyClockGap_D${D}`] ?? 0).toExponential(1)).join(', ')}; mu cot mu predicts a residue of order mu1 mu2 / 3). The bound state's clock by D: ${rows.map(r => `D ${r.D}: E1 ${r.E1.toFixed(4)}, E2 ${r.E2.toFixed(4)}, splitting ${r.split.toFixed(4)}, alpha ${r.alpha.toExponential(3)}, relativity with the photon's c ${r.alphaSR.toExponential(3)}, with its own c ${r.alphaSelf.toExponential(3)}, tick ratio at K = 0.24 ${r.ratioEnd.toFixed(5)}, min overlap ${r.minOverlap.toFixed(3)}, tracks distinct ${r.distinct}`).join('; ')}. MEANING: time dilation is not a separate law here: a clock dilates by the Lorentz factor exactly when both its levels share the photon's c and are light against the beat (E-MTR-0023, 0024). The lazy token's two levels do; the bound state's levels, built from whole-copy tokens of mass pi / 3, do not.`,
     })
   },

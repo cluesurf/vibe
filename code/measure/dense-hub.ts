@@ -34,12 +34,30 @@ import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { makeBounceKernel, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  makeBounceKernel,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { bounceLawMatrices } from '@/code/measure/bounce-transport'
 import { conjugated } from '@/code/measure/varying-transport'
-import { binaryTetrahedralIndices, boxMaps, coinData, orientedHubStore, pointGenerator, type AffineGenerator, type CoinData } from '@/code/measure/varying-vacuum'
-import { closure, groupTable } from '@/code/measure/color-isotropy-bound'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  binaryTetrahedralIndices,
+  boxMaps,
+  coinData,
+  orientedHubStore,
+  pointGenerator,
+  type AffineGenerator,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
+import {
+  closure,
+  groupTable,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 import { type Mesh } from '@/code/tool/mesh'
 
 // the three norm-4 class representatives, standard coordinates (each in D4: even coordinate sum)
@@ -50,35 +68,51 @@ export const NORM4: readonly (readonly number[])[] = [
 ]
 
 // L' / 2 D4 in basis coordinates: the hub class and the three norm-4 classes
-export const HUB_SHIFTS: readonly (readonly number[])[] = [[0, 0, 0, 0], ...NORM4.map(v => d4Coordinates([...v]))]
+export const HUB_SHIFTS: readonly (readonly number[])[] = [
+  [0, 0, 0, 0],
+  ...NORM4.map(v => d4Coordinates([...v])),
+]
 
 let COINS: CoinData | undefined
 
-export const coinsOnce = (): CoinData => (COINS ??= coinData(groupTable()))
+export const coinsOnce = (): CoinData =>
+  (COINS ??= coinData(groupTable()))
 
 // the hub of E-RLT-0082 to 0092 for the anchor dock 0: the dock at basis coordinates (anchor) - r0
 export function baseHub(side: number, anchor = 0): number[] {
-  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
+  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
 
-  return d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number))
+  return d4BoxCoordinates({ cell: anchor, side }).map(
+    (v, k) => v - r0[k]!,
+  )
 }
 
 // the union of the hub store translated by the given shifts (basis coordinates); throws on a doubly stored unit
-export function unionHubStore(coins: CoinData, side: number, hub: readonly number[], shifts: readonly (readonly number[])[] = HUB_SHIFTS): Int8Array {
+export function unionHubStore(
+  coins: CoinData,
+  side: number,
+  hub: readonly number[],
+  shifts: readonly (readonly number[])[] = HUB_SHIFTS,
+): Int8Array {
   const out = new Int8Array(side ** 4 * 12)
 
   for (const c of shifts) {
     const s = orientedHubStore(
       coins,
       side,
-      hub.map((v, k) => v + (c[k] as number)),
+      hub.map((v, k) => v + c[k]!),
     )
 
     for (let i = 0; i < s.length; i++) {
-      if (s[i] === 0) continue
-      if (out[i] !== 0) throw new Error(`unit ${i} stored by two translates`)
+      if (s[i] === 0) {
+        continue
+      }
 
-      out[i] = s[i] as number
+      if (out[i] !== 0) {
+        throw new Error(`unit ${i} stored by two translates`)
+      }
+
+      out[i] = s[i]!
     }
   }
 
@@ -86,35 +120,62 @@ export function unionHubStore(coins: CoinData, side: number, hub: readonly numbe
 }
 
 // the class of a dock mod 2 D4 relative to the hub, as an index 0..15 (the four basis coordinates mod 2)
-export function classOf(x: number, side: number, hub: readonly number[]): number {
+export function classOf(
+  x: number,
+  side: number,
+  hub: readonly number[],
+): number {
   const c = d4BoxCoordinates({ cell: x, side })
 
-  return c.reduce((s, v, k) => s + (((((v - (hub[k] as number)) % 2) + 2) % 2) << k), 0)
+  return c.reduce(
+    (s, v, k) => s + (((((v - hub[k]!) % 2) + 2) % 2) << k),
+    0,
+  )
 }
 
 const FIRST_ROOT = rootsD4().map(r => d4Coordinates(r))
 
 // the class (relative to the hub) of the two docks a unit (dock x, line l) streams its pair to: x -+ r_l
-export function unitHubClass(x: number, l: number, side: number, hub: readonly number[]): number {
+export function unitHubClass(
+  x: number,
+  l: number,
+  side: number,
+  hub: readonly number[],
+): number {
   const c = d4BoxCoordinates({ cell: x, side })
-  const r = FIRST_ROOT[LINE_FIRSTS[l] as number] as number[]
+  const r = FIRST_ROOT[LINE_FIRSTS[l]!]!
 
-  return c.reduce((s, v, k) => s + (((((v - (hub[k] as number) - (r[k] as number)) % 2) + 2) % 2) << k), 0)
+  return c.reduce(
+    (s, v, k) => s + (((((v - hub[k]! - r[k]!) % 2) + 2) % 2) << k),
+    0,
+  )
 }
 
 // a store split into its parts by the hub class each unit streams to, in the order of HUB_SHIFTS
-export function splitByHubClass(store: Int8Array, side: number, hub: readonly number[]): Int8Array[] {
-  const keys = HUB_SHIFTS.map(c => c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0))
+export function splitByHubClass(
+  store: Int8Array,
+  side: number,
+  hub: readonly number[],
+): Int8Array[] {
+  const keys = HUB_SHIFTS.map(c =>
+    c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0),
+  )
   const parts = keys.map(() => new Int8Array(store.length))
 
   for (let i = 0; i < store.length; i++) {
-    if (store[i] === 0) continue
+    if (store[i] === 0) {
+      continue
+    }
 
-    const k = keys.indexOf(unitHubClass(Math.floor(i / 12), i % 12, side, hub))
+    const k = keys.indexOf(
+      unitHubClass(Math.floor(i / 12), i % 12, side, hub),
+    )
 
-    if (k < 0) throw new Error('a unit streams to a root class')
+    if (k < 0) {
+      throw new Error('a unit streams to a root class')
+    }
 
-    ;(parts[k] as Int8Array)[i] = store[i] as number
+    ;(parts[k] as Int8Array)[i] = store[i]!
   }
 
   return parts
@@ -123,11 +184,18 @@ export function splitByHubClass(store: Int8Array, side: number, hub: readonly nu
 // the kind of a class: 'hub' (0), 'root' (a root class), 'norm4'
 export function classKinds(): ('hub' | 'root' | 'norm4')[] {
   const roots = rootsD4()
-  const key = (c: readonly number[]): number => c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0)
-  const out: ('hub' | 'root' | 'norm4')[] = Array.from({ length: 16 }, () => 'norm4')
+  const key = (c: readonly number[]): number =>
+    c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0)
+  const out: ('hub' | 'root' | 'norm4')[] = Array.from(
+    { length: 16 },
+    () => 'norm4',
+  )
 
   out[0] = 'hub'
-  for (const r of roots) out[key(d4Coordinates(r))] = 'root'
+
+  for (const r of roots) {
+    out[key(d4Coordinates(r))] = 'root'
+  }
 
   return out
 }
@@ -135,19 +203,31 @@ export function classKinds(): ('hub' | 'root' | 'norm4')[] {
 // ---- orienting a pattern with several lines per dock ----
 
 // the units (dock, line) of a store on the side-4 cell, 1 where held
-export const heldOf = (store: Int8Array): Uint8Array => Uint8Array.from(store, v => (v !== 0 ? 1 : 0))
+export const heldOf = (store: Int8Array): Uint8Array =>
+  Uint8Array.from(store, v => (v !== 0 ? 1 : 0))
 
 // Orient the held units so every generator carries the orientation to itself: each orbit of units gets +1 on its
 // least unit and the generators carry the sign (the arriving side sign times the generator's charge sign c); a unit
 // reached with both signs, or sent to a unit not held, is a conflict. The multi-line form of varying-vacuum's
 // orientPattern.
-export function orientUnits(held: Uint8Array, generators: readonly AffineGenerator[]): { ok: boolean; conflicts: number; orbits: number; signs: Int8Array } {
+export function orientUnits(
+  held: Uint8Array,
+  generators: readonly AffineGenerator[],
+): {
+  ok: boolean
+  conflicts: number
+  orbits: number
+  signs: Int8Array
+} {
   const signs = new Int8Array(held.length)
+
   let conflicts = 0
   let orbits = 0
 
   for (let u0 = 0; u0 < held.length; u0++) {
-    if (!held[u0] || signs[u0] !== 0) continue
+    if (!held[u0] || signs[u0] !== 0) {
+      continue
+    }
 
     orbits++
     signs[u0] = 1
@@ -155,25 +235,27 @@ export function orientUnits(held: Uint8Array, generators: readonly AffineGenerat
     const queue = [u0]
 
     while (queue.length > 0) {
-      const u = queue.pop() as number
+      const u = queue.pop()!
       const x = Math.floor(u / 12)
       const l = u % 12
-      const s = signs[u] as number
+      const s = signs[u]!
 
       for (const gen of generators) {
-        const v = (gen.map[x] as number) * 12 + (gen.lineImage[l] as number)
+        const v = gen.map[x]! * 12 + gen.lineImage[l]!
 
         if (!held[v]) {
           conflicts++
           continue
         }
 
-        const image = gen.c * (gen.lineSign[l] as number) * s
+        const image = gen.c * gen.lineSign[l]! * s
 
         if (signs[v] === 0) {
           signs[v] = image
           queue.push(v)
-        } else if (signs[v] !== image) conflicts++
+        } else if (signs[v] !== image) {
+          conflicts++
+        }
       }
     }
   }
@@ -185,12 +267,19 @@ export function orientUnits(held: Uint8Array, generators: readonly AffineGenerat
 // hub 0 oriented so that 2T (left multiplication by the Hurwitz units, about hub 0) and ONE more element g carry the
 // orientation to itself with no charge conjugation; g is the least element (in the group table's order, outside 2T)
 // for which this has no conflict. Every orbit of units gets +1 on its least unit.
-export type OrientedUnion = { readonly extra: number; readonly group: number[]; readonly signs: Int8Array; readonly orbits: number }
+export type OrientedUnion = {
+  readonly extra: number
+  readonly group: number[]
+  readonly signs: Int8Array
+  readonly orbits: number
+}
 
 let ORIENTED_UNION: OrientedUnion | undefined
 
 export function orientedUnion(coins: CoinData): OrientedUnion {
-  if (ORIENTED_UNION) return ORIENTED_UNION
+  if (ORIENTED_UNION) {
+    return ORIENTED_UNION
+  }
 
   const table = coins.table
   const twoT = binaryTetrahedralIndices(table)
@@ -200,13 +289,25 @@ export function orientedUnion(coins: CoinData): OrientedUnion {
   const base = twoT.map(g => pointGenerator(coins, box, g, hub, 1))
 
   for (let g = 0; g < table.permutations.length; g++) {
-    if (twoT.includes(g)) continue
+    if (twoT.includes(g)) {
+      continue
+    }
 
-    const o = orientUnits(held, [...base, pointGenerator(coins, box, g, hub, 1)])
+    const o = orientUnits(held, [
+      ...base,
+      pointGenerator(coins, box, g, hub, 1),
+    ])
 
-    if (!o.ok) continue
+    if (!o.ok) {
+      continue
+    }
 
-    ORIENTED_UNION = { extra: g, group: closure(table, [...twoT, g]), signs: o.signs, orbits: o.orbits }
+    ORIENTED_UNION = {
+      extra: g,
+      group: closure(table, [...twoT, g]),
+      signs: o.signs,
+      orbits: o.orbits,
+    }
 
     return ORIENTED_UNION
   }
@@ -215,17 +316,30 @@ export function orientedUnion(coins: CoinData): OrientedUnion {
 }
 
 // the oriented union store on a box whose side is divisible by 4, hub at the given basis coordinates
-export function orientedUnionStore(coins: CoinData, side: number, hub: readonly number[]): Int8Array {
-  if (side % 4 !== 0) throw new Error('the oriented union has period 4 D4: the side must be divisible by 4')
+export function orientedUnionStore(
+  coins: CoinData,
+  side: number,
+  hub: readonly number[],
+): Int8Array {
+  if (side % 4 !== 0) {
+    throw new Error(
+      'the oriented union has period 4 D4: the side must be divisible by 4',
+    )
+  }
 
   const o = orientedUnion(coins)
   const store = new Int8Array(side ** 4 * 12)
 
   for (let x = 0; x < side ** 4; x++) {
     const c = d4BoxCoordinates({ cell: x, side })
-    const y = d4BoxCell({ coordinates: c.map((v, k) => v - (hub[k] as number)), side: 4 })
+    const y = d4BoxCell({
+      coordinates: c.map((v, k) => v - hub[k]!),
+      side: 4,
+    })
 
-    for (let l = 0; l < 12; l++) store[x * 12 + l] = o.signs[y * 12 + l] as number
+    for (let l = 0; l < 12; l++) {
+      store[x * 12 + l] = o.signs[y * 12 + l]!
+    }
   }
 
   return store
@@ -236,9 +350,20 @@ export function orientedUnionStore(coins: CoinData, side: number, hub: readonly 
 // to every other row of the orbit by the covariance C_(g rho) = P_g C_rho P_g^T (code/measure/varying-transport
 // conjugated), as bounce-transport's dockMatrices does for one line. A row's image under g stores line lineImage[l]
 // with sign lineSign[l] times its own. MEASUREMENT (floats).
-export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cells: number, coins: CoinData = coinsOnce()): { even: Float64Array[]; odd: Float64Array[]; distinct: number; orbits: number } {
+export function multiLineDockMatrices(
+  kind: CollisionKind,
+  store: Int8Array,
+  cells: number,
+  coins: CoinData = coinsOnce(),
+): {
+  even: Float64Array[]
+  odd: Float64Array[]
+  distinct: number
+  orbits: number
+} {
   const cache = new Map<string, [Float64Array, Float64Array]>()
-  const reps: { row: number[]; pair: [Float64Array, Float64Array] }[] = []
+  const reps: { row: number[]; pair: [Float64Array, Float64Array] }[] =
+    []
   const even: Float64Array[] = []
   const odd: Float64Array[] = []
   const n = coins.table.permutations.length
@@ -246,25 +371,35 @@ export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cel
   for (let x = 0; x < cells; x++) {
     const row = Array.from(store.subarray(x * 12, x * 12 + 12))
     const key = row.join(',')
+
     let pair = cache.get(key)
 
     if (!pair) {
       for (const rep of reps) {
         for (let g = 0; g < n && !pair; g++) {
-          const li = coins.lineImage[g] as Int8Array
-          const ls = coins.lineSign[g] as Int8Array
+          const li = coins.lineImage[g]!
+          const ls = coins.lineSign[g]!
           const image = new Array<number>(12).fill(0)
 
-          for (let l = 0; l < 12; l++) if (rep.row[l] !== 0) image[li[l] as number] = (ls[l] as number) * (rep.row[l] as number)
+          for (let l = 0; l < 12; l++) {
+            if (rep.row[l] !== 0) {
+              image[li[l]!] = ls[l]! * rep.row[l]!
+            }
+          }
 
           if (image.join(',') === key) {
-            const perm = coins.table.permutations[g] as readonly number[]
+            const perm = coins.table.permutations[g]!
 
-            pair = [conjugated(rep.pair[0], perm), conjugated(rep.pair[1], perm)]
+            pair = [
+              conjugated(rep.pair[0], perm),
+              conjugated(rep.pair[1], perm),
+            ]
           }
         }
 
-        if (pair) break
+        if (pair) {
+          break
+        }
       }
 
       if (!pair) {
@@ -296,20 +431,42 @@ export type DenseFresh = {
 // keeps only 24 elements), 'hub' the hub store of E-RLT-0082 to 0092 (the control)
 export type StoreKind = 'union' | 'translates' | 'hub'
 
-export function storeOfKind(which: StoreKind, side: number, hub: readonly number[]): Int8Array {
+export function storeOfKind(
+  which: StoreKind,
+  side: number,
+  hub: readonly number[],
+): Int8Array {
   const coins = coinsOnce()
 
-  if (which === 'union') return orientedUnionStore(coins, side, hub)
-  if (which === 'translates') return unionHubStore(coins, side, hub)
+  if (which === 'union') {
+    return orientedUnionStore(coins, side, hub)
+  }
+
+  if (which === 'translates') {
+    return unionHubStore(coins, side, hub)
+  }
 
   return orientedHubStore(coins, side, hub)
 }
 
 // a fresh weave under whatever link start is current (never weaveOf, which caches per side); the anchor dock stores
 // line 0 (the hub is the anchor minus r0)
-export function denseFresh(side: number, kind: CollisionKind, which: StoreKind = 'union', anchor = 0): DenseFresh {
+export function denseFresh(
+  side: number,
+  kind: CollisionKind,
+  which: StoreKind = 'union',
+  anchor = 0,
+): DenseFresh {
   const hub = baseHub(side, anchor)
   const weave = makeColorWeave({ side, table: 'bind' })
 
-  return { kernel: makeBounceKernel(weave, kind), store: storeOfKind(which, side, hub), layout: separatedLayout(weave), cells: weave.mesh.cellCount, side, mesh: weave.mesh, hub }
+  return {
+    kernel: makeBounceKernel(weave, kind),
+    store: storeOfKind(which, side, hub),
+    layout: separatedLayout(weave),
+    cells: weave.mesh.cellCount,
+    side,
+    mesh: weave.mesh,
+    hub,
+  }
 }

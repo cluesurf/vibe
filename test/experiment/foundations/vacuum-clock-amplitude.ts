@@ -28,9 +28,17 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill } from '@/code/tone/will'
-import { Collision, headOnRotate, pairCollision } from '@/code/rule/collision'
+import {
+  Collision,
+  headOnRotate,
+  pairCollision,
+} from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { ComplexPair, pairAbs2, pairSub } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair,
+  pairAbs2,
+  pairSub,
+} from '@/code/algebra/linear/complex-pair'
 import {
   clockAmplitude,
   phaseDegrees,
@@ -93,8 +101,16 @@ export default experiment({
     const chargeRule = pairCollision({ opposite })
     const momentumRule = headOnRotate({ opposite })
 
-    const one = trace({ mesh, collision: chargeRule, seeds: [[centre, DIRECTION]] })
-    const second = trace({ mesh, collision: chargeRule, seeds: [[other, DIRECTION]] })
+    const one = trace({
+      mesh,
+      collision: chargeRule,
+      seeds: [[centre, DIRECTION]],
+    })
+    const second = trace({
+      mesh,
+      collision: chargeRule,
+      seeds: [[other, DIRECTION]],
+    })
     const both = trace({
       mesh,
       collision: chargeRule,
@@ -116,7 +132,10 @@ export default experiment({
         im += one.vacuum[k]![1]
       }
 
-      worstVacuumWindow = Math.max(worstVacuumWindow, Math.hypot(re, im))
+      worstVacuumWindow = Math.max(
+        worstVacuumWindow,
+        Math.hypot(re, im),
+      )
     }
 
     // the defect: constant magnitude sqrt 3, phase sequence with period three
@@ -126,7 +145,9 @@ export default experiment({
       m => Math.abs(m - Math.sqrt(3)) < EXACT,
     )
 
-    const phasePeriodThree = phases.every((p, t) => t < 3 || p === phases[t - 3])
+    const phasePeriodThree = phases.every(
+      (p, t) => t < 3 || p === phases[t - 3],
+    )
     const distinctPhases = new Set(phases).size
 
     // two defects: relative phase zero at every beat, amplitudes add exactly
@@ -136,7 +157,10 @@ export default experiment({
     for (let t = 0; t < BEATS; t++) {
       worstRelativePhase = Math.max(
         worstRelativePhase,
-        Math.abs(phaseDegrees(one.defect[t]!) - phaseDegrees(second.defect[t]!)),
+        Math.abs(
+          phaseDegrees(one.defect[t]!) -
+            phaseDegrees(second.defect[t]!),
+        ),
       )
 
       const sum: ComplexPair = [
@@ -155,15 +179,25 @@ export default experiment({
     const crossTerm = intensityBoth - 2 * intensityOne
 
     // CONTROL: the momentum rule, no cancellation and no clock
-    const control = trace({ mesh, collision: momentumRule, seeds: [[centre, DIRECTION]] })
-    const controlVacuumMagnitude = Math.sqrt(pairAbs2(control.vacuum[0]!))
-    const controlDistinctPhases = new Set(control.defect.map(phaseDegrees)).size
+    const control = trace({
+      mesh,
+      collision: momentumRule,
+      seeds: [[centre, DIRECTION]],
+    })
+    const controlVacuumMagnitude = Math.sqrt(
+      pairAbs2(control.vacuum[0]!),
+    )
+    const controlDistinctPhases = new Set(
+      control.defect.map(phaseDegrees),
+    ).size
 
     const vacuumCancels = worstVacuumWindow < EXACT
     const defectCarriesTheClock =
       magnitudeConstant && phasePeriodThree && distinctPhases === 2
-    const noRelativePhase = worstRelativePhase === 0 && worstAdditivity < EXACT
-    const maximalCrossTerm = Math.abs(crossTerm - 2 * intensityOne) < EXACT
+    const noRelativePhase =
+      worstRelativePhase === 0 && worstAdditivity < EXACT
+    const maximalCrossTerm =
+      Math.abs(crossTerm - 2 * intensityOne) < EXACT
     const controlHasNoClock =
       controlVacuumMagnitude > 1 && controlDistinctPhases === 1
 

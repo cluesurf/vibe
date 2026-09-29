@@ -17,11 +17,24 @@
 //   direction of travel and q the walker's charge. Exact in Eisenstein integers only when every such A is a
 //   multiple of N / 3, so N must be divisible by 3.
 
-import { type Eisenstein, type Coin, turn, walkStart, walkBeat, STAY_COIN, type WalkState } from '@/code/rule/fear-walk'
-import { photonLink, type PhotonLattice, type PhotonRule } from '@/code/rule/photon-links'
+import {
+  type Eisenstein,
+  type Coin,
+  turn,
+  walkStart,
+  walkBeat,
+  STAY_COIN,
+  type WalkState,
+} from '@/code/rule/fear-walk'
+import {
+  photonLink,
+  type PhotonLattice,
+  type PhotonRule,
+} from '@/code/rule/photon-links'
 import { HUSK_VECTORS, type Husk } from '@/code/measure/photon-husk'
 
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
+
 const centered = (x: number, n: number): number => {
   const v = modulo(x, n)
 
@@ -29,7 +42,11 @@ const centered = (x: number, n: number): number => {
 }
 
 // curl^T curl of a bulk link field (real), by the lattice's plaquettes
-export function curlCurl(lattice: PhotonLattice, a: Float64Array, out: Float64Array): void {
+export function curlCurl(
+  lattice: PhotonLattice,
+  a: Float64Array,
+  out: Float64Array,
+): void {
   const size = lattice.plaquetteSize
 
   out.fill(0)
@@ -38,19 +55,25 @@ export function curlCurl(lattice: PhotonLattice, a: Float64Array, out: Float64Ar
     let b = 0
 
     for (let j = 0; j < size; j++) {
-      b += (lattice.plaquetteSigns[p * size + j] ?? 0) * (a[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+      b +=
+        (lattice.plaquetteSigns[p * size + j] ?? 0) *
+        (a[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
     }
 
     for (let j = 0; j < size; j++) {
       const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-      out[l] = (out[l] ?? 0) + (lattice.plaquetteSigns[p * size + j] ?? 0) * b
+      out[l] =
+        (out[l] ?? 0) + (lattice.plaquetteSigns[p * size + j] ?? 0) * b
     }
   }
 }
 
 // the linear static angles of a steady current: kappa curl^T curl A = -J, J per beat in flux units
-export function magnetostaticAngles(rule: PhotonRule, current: Float64Array): Float64Array {
+export function magnetostaticAngles(
+  rule: PhotonRule,
+  current: Float64Array,
+): Float64Array {
   const lattice = rule.lattice
   const kappa = (2 * Math.PI * rule.k) / rule.n
   const b = Float64Array.from(current, j => -j / kappa)
@@ -58,7 +81,8 @@ export function magnetostaticAngles(rule: PhotonRule, current: Float64Array): Fl
   const r = Float64Array.from(b)
   const p = Float64Array.from(b)
   const ap = new Float64Array(lattice.links)
-  const dot = (u: Float64Array, v: Float64Array): number => u.reduce((s, y, i) => s + y * (v[i] ?? 0), 0)
+  const dot = (u: Float64Array, v: Float64Array): number =>
+    u.reduce((s, y, i) => s + y * (v[i] ?? 0), 0)
   const bb = dot(b, b)
 
   let rr = bb
@@ -87,20 +111,37 @@ export function magnetostaticAngles(rule: PhotonRule, current: Float64Array): Fl
 
 // the circulation of projected angles round the husk square at dock y on axes u and v (0, 1, 2), in the order
 // y -> y + u -> y + u + v -> y + v -> y; centered mod n when n is given, raw otherwise
-export function huskSquare(husk: Husk, angle: ArrayLike<number>, y: number, u: number, v: number, n?: number): number {
+export function huskSquare(
+  husk: Husk,
+  angle: ArrayLike<number>,
+  y: number,
+  u: number,
+  v: number,
+  n?: number,
+): number {
   const h = HUSK_VECTORS.length
-  const step = (z: number, axis: number): number => husk.lattice.neighbour[z * husk.lattice.degree + 2 * axis] ?? 0
+  const step = (z: number, axis: number): number =>
+    husk.lattice.neighbour[z * husk.lattice.degree + 2 * axis] ?? 0
   const yu = step(y, u)
   const yv = step(y, v)
-  const raw = (angle[y * h + u] ?? 0) + (angle[yu * h + v] ?? 0) - (angle[yv * h + u] ?? 0) - (angle[y * h + v] ?? 0)
+  const raw =
+    (angle[y * h + u] ?? 0) +
+    (angle[yu * h + v] ?? 0) -
+    (angle[yv * h + u] ?? 0) -
+    (angle[y * h + v] ?? 0)
 
   return n === undefined ? raw : centered(raw, n)
 }
 
 // monopoles in every husk cube: sum over its 6 faces (outward) of the centered square flux, divided by N
-export function huskMonopoles(husk: Husk, angle: ArrayLike<number>, n: number): { total: number; cubes: number } {
+export function huskMonopoles(
+  husk: Husk,
+  angle: ArrayLike<number>,
+  n: number,
+): { total: number; cubes: number } {
   const cells = husk.lattice.cells
-  const step = (z: number, axis: number): number => husk.lattice.neighbour[z * husk.lattice.degree + 2 * axis] ?? 0
+  const step = (z: number, axis: number): number =>
+    husk.lattice.neighbour[z * husk.lattice.degree + 2 * axis] ?? 0
 
   let total = 0
 
@@ -113,7 +154,9 @@ export function huskMonopoles(husk: Husk, angle: ArrayLike<number>, n: number): 
       [1, 2, 0],
       [2, 0, 1],
     ] as const) {
-      flux += huskSquare(husk, angle, step(y, w), u, v, n) - huskSquare(husk, angle, y, u, v, n)
+      flux +=
+        huskSquare(husk, angle, step(y, w), u, v, n) -
+        huskSquare(husk, angle, y, u, v, n)
     }
 
     total += Math.abs(Math.round(flux / n))
@@ -122,15 +165,21 @@ export function huskMonopoles(husk: Husk, angle: ArrayLike<number>, n: number): 
   return { total, cubes: cells }
 }
 
-export type Tetrahedra = { readonly count: number; readonly faces: Int32Array; readonly signs: Int8Array }
+export type Tetrahedra = {
+  readonly count: number
+  readonly faces: Int32Array
+  readonly signs: Int8Array
+}
 
 // the tetrahedra of the D4 box: docks x, x + a, x + b, x + c with every difference a root, each kept once;
 // each face is a triangle of three link steps, stored as (link, orientation) x 3, the four faces oriented
 // as the boundary [123] - [023] + [013] - [012]
 export function d4Tetrahedra(lattice: PhotonLattice): Tetrahedra {
   const roots = lattice.vectors
-  const find = (v: readonly number[]): number => roots.findIndex(r => r.every((x, i) => x === v[i]))
-  const sub = (p: readonly number[], q: readonly number[]): number[] => p.map((x, i) => x - (q[i] ?? 0))
+  const find = (v: readonly number[]): number =>
+    roots.findIndex(r => r.every((x, i) => x === v[i]))
+  const sub = (p: readonly number[], q: readonly number[]): number[] =>
+    p.map((x, i) => x - (q[i] ?? 0))
   const shapes: number[][][] = []
   const seen = new Set<string>()
 
@@ -139,12 +188,19 @@ export function d4Tetrahedra(lattice: PhotonLattice): Tetrahedra {
   for (let a = 0; a < roots.length; a++) {
     for (let b = a + 1; b < roots.length; b++) {
       for (let c = b + 1; c < roots.length; c++) {
-        const vs = [[0, 0, 0, 0], roots[a] ?? [], roots[b] ?? [], roots[c] ?? []]
+        const vs = [
+          [0, 0, 0, 0],
+          roots[a] ?? [],
+          roots[b] ?? [],
+          roots[c] ?? [],
+        ]
         const ok = [
           [1, 2],
           [1, 3],
           [2, 3],
-        ].every(([i = 0, j = 0]) => find(sub(vs[j] ?? [], vs[i] ?? [])) >= 0)
+        ].every(
+          ([i = 0, j = 0]) => find(sub(vs[j] ?? [], vs[i] ?? [])) >= 0,
+        )
 
         if (!ok) {
           continue
@@ -209,11 +265,19 @@ export function d4Tetrahedra(lattice: PhotonLattice): Tetrahedra {
     }
   }
 
-  return { count: faces.length / 12, faces: Int32Array.from(faces), signs: Int8Array.from(signs) }
+  return {
+    count: faces.length / 12,
+    faces: Int32Array.from(faces),
+    signs: Int8Array.from(signs),
+  }
 }
 
 // monopoles in every tetrahedron: sum of the 4 faces' centered B (oriented), divided by N
-export function bulkMonopoles(tetrahedra: Tetrahedra, angle: ArrayLike<number>, n: number): number {
+export function bulkMonopoles(
+  tetrahedra: Tetrahedra,
+  angle: ArrayLike<number>,
+  n: number,
+): number {
   let total = 0
 
   for (let t = 0; t < tetrahedra.count; t++) {
@@ -226,7 +290,9 @@ export function bulkMonopoles(tetrahedra: Tetrahedra, angle: ArrayLike<number>, 
       for (let e = 0; e < 3; e++) {
         const idx = t * 12 + face * 3 + e
 
-        b += (tetrahedra.signs[idx] ?? 0) * (angle[tetrahedra.faces[idx] ?? 0] ?? 0)
+        b +=
+          (tetrahedra.signs[idx] ?? 0) *
+          (angle[tetrahedra.faces[idx] ?? 0] ?? 0)
       }
 
       flux += centered(b, n)
@@ -270,8 +336,12 @@ export function loopWalk(input: {
     // crossed step x backward
     state = {
       ...state,
-      right: state.right.map((w: Eisenstein, x) => turn(w, turns[modulo(x - 1, cells)] ?? 0)),
-      left: state.left.map((w: Eisenstein, x) => turn(w, -(turns[x] ?? 0))),
+      right: state.right.map((w: Eisenstein, x) =>
+        turn(w, turns[modulo(x - 1, cells)] ?? 0),
+      ),
+      left: state.left.map((w: Eisenstein, x) =>
+        turn(w, -(turns[x] ?? 0)),
+      ),
     }
   }
 

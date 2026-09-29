@@ -57,11 +57,29 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { livingBeat, makeLivingKnit, separatedLayout } from '@/code/rule/living-pair-knit'
-import { sameStoreState, type TokenStoreState } from '@/code/rule/token-store-knit'
-import { advanceWhole, reduceWhole, wholeLovesAndFears, wholeUnits, type Whole } from '@/code/rule/fear-weave'
+import {
+  livingBeat,
+  makeLivingKnit,
+  separatedLayout,
+} from '@/code/rule/living-pair-knit'
+import {
+  sameStoreState,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
+import {
+  advanceWhole,
+  reduceWhole,
+  wholeLovesAndFears,
+  wholeUnits,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
-import { angleClass, boxStore, ONE_LINE, sparseLivingState } from '@/code/measure/sparse-living-vacuum'
+import {
+  angleClass,
+  boxStore,
+  ONE_LINE,
+  sparseLivingState,
+} from '@/code/measure/sparse-living-vacuum'
 
 const SIDE_LENGTH = 3
 const BEATS = 480
@@ -74,9 +92,15 @@ const tokens = slots * 2
 const layout = separatedLayout(weave)
 const store = boxStore(cells, ONE_LINE)
 const knit = makeLivingKnit(weave)
-const F0 = LINE_FIRSTS[0] as number
+const F0 = LINE_FIRSTS[0]!
 
-const vacuum = (): TokenStoreState => sparseLivingState({ vibe: new Int8Array(slots), point: new Int8Array(slots), store, layout })
+const vacuum = (): TokenStoreState =>
+  sparseLivingState({
+    vibe: new Int8Array(slots),
+    point: new Int8Array(slots),
+    store,
+    layout,
+  })
 // a unit's love token and fear token: its line-0 place tokens (a made pair takes the love from the first place)
 const loveOf = (x: number): number => slots + x * 24
 const fearOf = (x: number): number => slots + x * 24 + 1
@@ -88,7 +112,11 @@ function basisWhole(list: readonly number[]): Whole {
   for (let i = 0; i < weight.length; i++) {
     let zero = true
 
-    for (let c = 0; c < n; c++) zero = zero && Math.floor((Math.floor(i / 9 ** (n - 1 - c)) % 9) / 3) === 0
+    for (let c = 0; c < n; c++) {
+      zero =
+        zero &&
+        Math.floor((Math.floor(i / 9 ** (n - 1 - c)) % 9) / 3) === 0
+    }
 
     weight[i] = zero ? 1n : 0n
   }
@@ -96,15 +124,34 @@ function basisWhole(list: readonly number[]): Whole {
   return { tokens: list, weight }
 }
 
-type Study = { meetings: number; fearsMax: number; shareMax: number; distinct: number; pure: boolean; windows: number[]; shareLast: number }
+type Study = {
+  meetings: number
+  fearsMax: number
+  shareMax: number
+  distinct: number
+  pure: boolean
+  windows: number[]
+  shareLast: number
+}
 
-function study(list: readonly number[], mode: 'on' | 'off', start: TokenStoreState = vacuum()): Study {
-  const kernels = exactFearKernels({ like: mode === 'on' ? 1 : 0, unlike: mode === 'on' ? 1 : 0, likeExchanged: false })
+function study(
+  list: readonly number[],
+  mode: 'on' | 'off',
+  start: TokenStoreState = vacuum(),
+): Study {
+  const kernels = exactFearKernels({
+    like: mode === 'on' ? 1 : 0,
+    unlike: mode === 'on' ? 1 : 0,
+    likeExchanged: false,
+  })
   const open = new Uint8Array(tokens)
 
-  for (const t of list) open[t] = 1
+  for (const t of list) {
+    open[t] = 1
+  }
 
   const n = list.length
+
   let whole = basisWhole(list)
   let s = start
   let meetings = 0
@@ -112,13 +159,22 @@ function study(list: readonly number[], mode: 'on' | 'off', start: TokenStoreSta
   let shareMax = 0
   let shareLast = 0
   let pure = true
+
   const seen = new Set<string>()
   const windows = new Array<number>(BEATS / WINDOW).fill(0)
 
   for (let t = 0; t < BEATS; t++) {
     const r = livingBeat(knit, s, open, t)
 
-    whole = advanceWhole({ weave, whole, record: r.record, kernel4: [], color: kernels, fixed: false, forward: true }) as Whole
+    whole = advanceWhole({
+      weave,
+      whole,
+      record: r.record,
+      kernel4: [],
+      color: kernels,
+      fixed: false,
+      forward: true,
+    })!
 
     if (r.record.meetings.length > 0) {
       whole = reduceWhole(whole)
@@ -131,26 +187,49 @@ function study(list: readonly number[], mode: 'on' | 'off', start: TokenStoreSta
       fearsMax = fears > fearsMax ? fears : fearsMax
       shareMax = Math.max(shareMax, share)
       shareLast = share
-      windows[Math.floor(t / WINDOW)] = Math.max(windows[Math.floor(t / WINDOW)] ?? 0, share)
-      pure = pure && 9n ** BigInt(n) * whole.weight.reduce((a, w) => a + w * w, 0n) === 3n ** BigInt(n) * units * units
+      windows[Math.floor(t / WINDOW)] = Math.max(
+        windows[Math.floor(t / WINDOW)] ?? 0,
+        share,
+      )
+
+      pure =
+        pure &&
+        9n ** BigInt(n) *
+          whole.weight.reduce((a, w) => a + w * w, 0n) ===
+          3n ** BigInt(n) * units * units
       seen.add(whole.weight.join(','))
     }
 
     s = r.state
   }
 
-  return { meetings, fearsMax: fearsMax > 0n ? 1 : 0, shareMax, distinct: seen.size, pure, windows, shareLast }
+  return {
+    meetings,
+    fearsMax: fearsMax > 0n ? 1 : 0,
+    shareMax,
+    distinct: seen.size,
+    pure,
+    windows,
+    shareLast,
+  }
 }
 
 // F1
-function structure(): { returns: boolean; meetings: number; offLine: number } {
+function structure(): {
+  returns: boolean
+  meetings: number
+  offLine: number
+} {
   const all = new Uint8Array(tokens).fill(1)
   const start = vacuum()
+
   let s = start
   let returns = false
   let meetings = 0
   let offLine = 0
-  const lineZero = (tk: number): boolean => tk >= slots && (tk - slots) % 24 < 2
+
+  const lineZero = (tk: number): boolean =>
+    tk >= slots && (tk - slots) % 24 < 2
 
   for (let t = 0; t < 24; t++) {
     const r = livingBeat(knit, s, all, t)
@@ -162,7 +241,9 @@ function structure(): { returns: boolean; meetings: number; offLine: number } {
 
     s = r.state
 
-    if (t === 5) returns = sameStoreState(s, start)
+    if (t === 5) {
+      returns = sameStoreState(s, start)
+    }
   }
 
   return { returns, meetings, offLine }
@@ -190,9 +271,11 @@ export default experiment({
     const ringOn = study(ring, 'on')
     const ringOff = study(ring, 'off')
     // (d): a lone love at 60 degrees to line 0 placed one dock back along its direction, so it reaches dock 0 on beat 1
-    const d = Array.from({ length: 24 }, (_, e) => e).find(e => angleClass(e, 0) === 1) as number
+    const d = Array.from({ length: 24 }, (_, e) => e).find(
+      e => angleClass(e, 0) === 1,
+    )!
     const passing = vacuum()
-    const back = weave.mesh.neighbour(x, OPPOSITE[d] as number)
+    const back = weave.mesh.neighbour(x, OPPOSITE[d]!)
 
     passing.vibe[back * 24 + d] = 1
 
@@ -200,12 +283,16 @@ export default experiment({
     const hitOff = study(own, 'off', passing)
 
     const g1 = f1.returns && f1.offLine === 0 && f1.meetings > 0
-    const g2 = ownOn.meetings === 160 && ownOn.distinct <= 3 && ownOn.fearsMax === 0
+    const g2 =
+      ownOn.meetings === 160 &&
+      ownOn.distinct <= 3 &&
+      ownOn.fearsMax === 0
     const g3 = crossOn.meetings === 80 && crossOn.distinct <= 3
     const g4 = ringOn.fearsMax > 0 && ringOff.fearsMax === 0
     const status = g1 && g2 && g3 ? (g4 ? 'pass' : 'fail') : 'partial'
     const seconds = (Date.now() - started) / 1000
-    const w = (xs: readonly number[]): string => xs.map(v => v.toFixed(4)).join(', ')
+    const w = (xs: readonly number[]): string =>
+      xs.map(v => v.toFixed(4)).join(', ')
     const metrics: Record<string, number> = {
       vacuumReturnsAfter6: f1.returns ? 1 : 0,
       allOpenMeetings24: f1.meetings,
@@ -225,14 +312,18 @@ export default experiment({
       ringShareLast: ringOn.shareLast,
       ringPure: ringOn.pure ? 1 : 0,
       ringFearsOff: ringOff.fearsMax,
-      ...Object.fromEntries(ringOn.windows.map((v, i) => [`ringShareWindow${i + 1}`, v])),
+      ...Object.fromEntries(
+        ringOn.windows.map((v, i) => [`ringShareWindow${i + 1}`, v]),
+      ),
       passingDirection: d,
       passingMeetings: hitOn.meetings,
       passingDistinct: hitOn.distinct,
       passingFears: hitOn.fearsMax,
       passingShareMax: hitOn.shareMax,
       passingFearsOff: hitOff.fearsMax,
-      ...Object.fromEntries(hitOn.windows.map((v, i) => [`passingShareWindow${i + 1}`, v])),
+      ...Object.fromEntries(
+        hitOn.windows.map((v, i) => [`passingShareWindow${i + 1}`, v]),
+      ),
       seconds,
     }
 

@@ -101,14 +101,15 @@ export default experiment({
   id: 'gauge/pair-string-derivation',
   code: 'E-FRC-0188',
   title:
-    'binding needs pair creation, derived: the paid Z3 string whose vacuum makes pairs is the 3-state Potts model in a magnetic field (exact on a D4 patch), so without pairs two static color singlets (stand-ins for nucleons) are exactly unjoined on the line and with pairs they attract at the dressed meson\'s own mass, the line\'s static baryon is inert, and the leading-order D4 profile gives the predicted meson mass',
+    "binding needs pair creation, derived: the paid Z3 string whose vacuum makes pairs is the 3-state Potts model in a magnetic field (exact on a D4 patch), so without pairs two static color singlets (stand-ins for nucleons) are exactly unjoined on the line and with pairs they attract at the dressed meson's own mass, the line's static baryon is inert, and the leading-order D4 profile gives the predicted meson mass",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
   paper: false,
   run() {
     const roots = rootsD4()
-    const isRoot = (v: number[]): boolean => roots.some(r => r.every((x, i) => x === v[i]))
+    const isRoot = (v: number[]): boolean =>
+      roots.some(r => r.every((x, i) => x === v[i]))
     const links: [number, number][] = []
 
     PATCH.forEach((a, i) =>
@@ -129,6 +130,7 @@ export default experiment({
 
     for (let code = 0; code < 4 ** PATCH.length; code++) {
       const pattern: number[] = []
+
       let rest = code
 
       for (let i = 0; i < PATCH.length; i++) {
@@ -148,40 +150,76 @@ export default experiment({
     }
 
     // 2. the center theorem on the line
-    const series = (y: Rational, first: readonly number[], second: readonly number[]): Rational[] =>
-      Array.from({ length: GAPS + 1 }, (_, gap) => exactConnected({ x: X, y, first, second, gap, ring: RING }))
-    const quiet = [...series(NO_PAIRS, MESON, MESON), ...series(NO_PAIRS, MESON, FLIPPED)]
+    const series = (
+      y: Rational,
+      first: readonly number[],
+      second: readonly number[],
+    ): Rational[] =>
+      Array.from({ length: GAPS + 1 }, (_, gap) =>
+        exactConnected({ x: X, y, first, second, gap, ring: RING }),
+      )
+    const quiet = [
+      ...series(NO_PAIRS, MESON, MESON),
+      ...series(NO_PAIRS, MESON, FLIPPED),
+    ]
     const paired = series(Y, MESON, MESON)
     const pairedFlipped = series(Y, MESON, FLIPPED)
     const [l0, l1, l2] = transferEigenvalues(1 / 30, 1 / 10)
     const predictedRate = Math.log(l0 / Math.abs(l1))
-    const rateAt = (s: Rational[], gap: number): number => rationalLog(s[gap] as Rational) - rationalLog(s[gap + 1] as Rational)
+    const rateAt = (s: Rational[], gap: number): number =>
+      rationalLog(s[gap]!) - rationalLog(s[gap + 1]!)
     const measuredRate = rateAt(paired, GAPS - 1)
 
     // 3. the inert baryon
     const b = lineBaryon(X)
-    const scale = (b[0] as bigint)
-    const baryonIsIdentity = b.every((v, i) => (i % 4 === 0 ? v === scale : v === 0n)) && scale * 900n === 27000n * 1n
+    const scale = b[0]!
+    const baryonIsIdentity =
+      b.every((v, i) => (i % 4 === 0 ? v === scale : v === 0n)) &&
+      scale * 900n === 27000n * 1n
     const baryonQuiet = series(NO_PAIRS, BARYON, MESON)
     // with pairs the infinite line is read in floats through its Perron vectors (the ring's winding would add
     // (lambda1 / lambda0)^90); the exact statement is the matrix identity above
     const baryonPaired = Array.from({ length: GAPS + 1 }, (_, gap) => [
-      staticPotential({ x: 1 / 30, y: 1 / 10, first: BARYON, second: MESON, gap }),
-      staticPotential({ x: 1 / 30, y: 1 / 10, first: BARYON, second: FLIPPED, gap }),
+      staticPotential({
+        x: 1 / 30,
+        y: 1 / 10,
+        first: BARYON,
+        second: MESON,
+        gap,
+      }),
+      staticPotential({
+        x: 1 / 30,
+        y: 1 / 10,
+        first: BARYON,
+        second: FLIPPED,
+        gap,
+      }),
     ]).flat()
     const baryonPairedWorst = Math.max(...baryonPaired.map(Math.abs))
 
     // 4. the predicted m
     const profile = leadingProfile({ x: 1 / 30, reach: REACH })
-    const inWindow = (s: { r: number }): boolean => s.r >= WINDOW.low - 1e-9 && s.r <= WINDOW.high + 1e-9
-    const mBulk = ornsteinZernikeRate({ points: profile.bulk.filter(inWindow), power: 1.5 })
-    const mHusk = ornsteinZernikeRate({ points: profile.husk.filter(inWindow), power: 1 })
+    const inWindow = (s: { r: number }): boolean =>
+      s.r >= WINDOW.low - 1e-9 && s.r <= WINDOW.high + 1e-9
+    const mBulk = ornsteinZernikeRate({
+      points: profile.bulk.filter(inWindow),
+      power: 1.5,
+    })
+    const mHusk = ornsteinZernikeRate({
+      points: profile.husk.filter(inWindow),
+      power: 1,
+    })
     const nStar = (2 * Math.log(10)) / Math.log(30)
 
     const g1 = patterns === 4096 && mismatches === 0 && omegaParts === 0
     const g2 = quiet.every(c => c.num === 0n)
-    const g3 = paired.every(c => c.num > 0n && c.den > 0n) && Math.abs(measuredRate / predictedRate - 1) < RATE_TOLERANCE
-    const g4 = baryonIsIdentity && baryonQuiet.every(c => c.num === 0n) && baryonPairedWorst < FLOAT_ZERO
+    const g3 =
+      paired.every(c => c.num > 0n && c.den > 0n) &&
+      Math.abs(measuredRate / predictedRate - 1) < RATE_TOLERANCE
+    const g4 =
+      baryonIsIdentity &&
+      baryonQuiet.every(c => c.num === 0n) &&
+      baryonPairedWorst < FLOAT_ZERO
     const metrics: Record<string, number> = {
       dualityPatterns: patterns,
       dualityCoefficientMismatches: mismatches,
@@ -197,7 +235,8 @@ export default experiment({
       rateRelativeError: measuredRate / predictedRate - 1,
       bareStringRate: Math.log(l0 * 30),
       baryonMatrixIsXSquaredIdentity: baryonIsIdentity ? 1 : 0,
-      baryonConnectedNonzero: baryonQuiet.filter(c => c.num !== 0n).length,
+      baryonConnectedNonzero: baryonQuiet.filter(c => c.num !== 0n)
+        .length,
       baryonPairedWorstPotential: baryonPairedWorst,
       mPredBulk: mBulk,
       mPredHusk: mHusk,
@@ -209,26 +248,37 @@ export default experiment({
     }
 
     for (const gap of [0, 1, 2, 5, 10, 15, 20, 25]) {
-      metrics[`pairedConnectedGap${gap}`] = rationalValue(paired[gap] as Rational)
-      metrics[`pairedFlippedConnectedGap${gap}`] = rationalValue(pairedFlipped[gap] as Rational)
+      metrics[`pairedConnectedGap${gap}`] = rationalValue(paired[gap]!)
+      metrics[`pairedFlippedConnectedGap${gap}`] = rationalValue(
+        pairedFlipped[gap]!,
+      )
       metrics[`pairedRateGap${gap}`] = rateAt(paired, gap)
     }
 
-    profile.bulk.filter(inWindow).forEach(s => (metrics[`leadingBulkR${s.r.toFixed(3)}`] = s.value))
-    profile.husk.filter(inWindow).forEach(s => (metrics[`leadingHuskR${s.r.toFixed(3)}`] = s.value))
+    profile.bulk
+      .filter(inWindow)
+      .forEach(
+        s => (metrics[`leadingBulkR${s.r.toFixed(3)}`] = s.value),
+      )
+
+    profile.husk
+      .filter(inWindow)
+      .forEach(
+        s => (metrics[`leadingHuskR${s.r.toFixed(3)}`] = s.value),
+      )
 
     const ok = g1 && g2 && g3 && g4
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `pair making is a magnetic field on the dual Potts model (exact on ${patterns} patterns of a D4 patch, ${mismatches} mismatched coefficients, ${omegaParts} omega parts); on the line two static mesons are exactly unjoined without pairs (${quiet.filter(c => c.num !== 0n).length} of ${quiet.length} gaps nonzero) and with pairs (x = 1/30, y = 1/10) attract at every gap, the connected ratio ${rationalValue(paired[0] as Rational).toExponential(3)} at contact falling at ${measuredRate.toFixed(6)} per cell against ln(lambda0 / lambda1) = ${predictedRate.toFixed(6)}; the line's static baryon is x^2 times the identity and couples to nothing; the leading-order D4 string gives m_pred = ${mBulk.toFixed(3)} (bulk) and ${mHusk.toFixed(3)} (husk) at x = 1/30, and one string overtakes two from ${nStar.toFixed(2)} links`,
+      claim: `pair making is a magnetic field on the dual Potts model (exact on ${patterns} patterns of a D4 patch, ${mismatches} mismatched coefficients, ${omegaParts} omega parts); on the line two static mesons are exactly unjoined without pairs (${quiet.filter(c => c.num !== 0n).length} of ${quiet.length} gaps nonzero) and with pairs (x = 1/30, y = 1/10) attract at every gap, the connected ratio ${rationalValue(paired[0]!).toExponential(3)} at contact falling at ${measuredRate.toFixed(6)} per cell against ln(lambda0 / lambda1) = ${predictedRate.toFixed(6)}; the line's static baryon is x^2 times the identity and couples to nothing; the leading-order D4 string gives m_pred = ${mBulk.toFixed(3)} (bulk) and ${mHusk.toFixed(3)} (husk) at x = 1/30, and one string overtakes two from ${nStar.toFixed(2)} links`,
       metrics,
       control: {
-        noPairsConnectedAtContact: rationalValue(quiet[0] as Rational),
-        pairedConnectedAtContact: rationalValue(paired[0] as Rational),
+        noPairsConnectedAtContact: rationalValue(quiet[0]!),
+        pairedConnectedAtContact: rationalValue(paired[0]!),
       },
       notes:
-        'L1. Stand-ins: color singlets of the paid-string measure for nucleons. The duality is checked as exact integer and Eisenstein polynomials (no tolerance). The line is solved by exact BigInt transfer matrices on a ring of 120 cells (x = 1/30, y = 1/10, the whole numbers of each scaled matrix cancel in the double ratio), and its correction to the infinite line is (lambda1 / lambda0)^90, below 1e-130. The rate is read from the exact fractions at gaps 29 and 30, where the second flux eigenvalue lambda2 still contributes (lambda2 / lambda1)^30. The D4 prediction is leading order in x: shortest paths only, no loops, no dressing, no excluded volume, so it predicts the SHAPE (one string, the meson\'s own rate) and a number to test, not a precise mass. A static source cannot be run in the rule itself: the links at an occupied dock change only when a charge crosses them, so a pinned charge freezes its own flux (E-FRC-0196); the static potentials here are those of the measure the demons impose, and E-FRC-0189 checks that the line\'s dynamics samples that measure.',
+        "L1. Stand-ins: color singlets of the paid-string measure for nucleons. The duality is checked as exact integer and Eisenstein polynomials (no tolerance). The line is solved by exact BigInt transfer matrices on a ring of 120 cells (x = 1/30, y = 1/10, the whole numbers of each scaled matrix cancel in the double ratio), and its correction to the infinite line is (lambda1 / lambda0)^90, below 1e-130. The rate is read from the exact fractions at gaps 29 and 30, where the second flux eigenvalue lambda2 still contributes (lambda2 / lambda1)^30. The D4 prediction is leading order in x: shortest paths only, no loops, no dressing, no excluded volume, so it predicts the SHAPE (one string, the meson's own rate) and a number to test, not a precise mass. A static source cannot be run in the rule itself: the links at an occupied dock change only when a charge crosses them, so a pinned charge freezes its own flux (E-FRC-0196); the static potentials here are those of the measure the demons impose, and E-FRC-0189 checks that the line's dynamics samples that measure.",
     })
   },
 })

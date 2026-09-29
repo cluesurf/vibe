@@ -48,11 +48,9 @@ export default experiment({
       v[0]! + v[1]! * SIDE + v[2]! * SIDE * SIDE + v[3]! * SIDE ** 3
     const mid = 6
 
-    const spectrum = (
-      dir: number,
-      spacing: number,
-    ): number[] => {
+    const spectrum = (dir: number, spacing: number): number[] => {
       const mFund = SIDE / spacing
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
@@ -93,6 +91,7 @@ export default experiment({
       }
 
       const shares: number[] = []
+
       let total = 0
 
       for (let w = -BEATS / 2; w <= BEATS / 2; w++) {

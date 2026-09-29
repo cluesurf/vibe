@@ -49,8 +49,7 @@ function pairKeyOf(a: Tone, b: Tone): number {
 function rootsOf(side: number): number[][] {
   const mesh = d4Mesh({ side })
   const mid = Math.floor(side / 2)
-  const center =
-    mid + mid * side + mid * side * side + mid * side ** 3
+  const center = mid + mid * side + mid * side * side + mid * side ** 3
   const coordinate = (c: number, a: number): number =>
     Math.floor(c / side ** a) % side
   const wrap = (d: number): number =>
@@ -70,10 +69,10 @@ function rootsOf(side: number): number[][] {
   return roots
 }
 
-function scheduleOf(input: {
-  side: number
-  palindromic: boolean
-}): { beats: Beat[]; lines: [number, number][] } {
+function scheduleOf(input: { side: number; palindromic: boolean }): {
+  beats: Beat[]
+  lines: [number, number][]
+} {
   const mesh = d4Mesh({ side: input.side })
   const opposite = meshOpposites(mesh)
   const lines = linesOf(opposite)
@@ -90,6 +89,7 @@ function scheduleOf(input: {
   const norm = (a: number, b: number): [number, number] =>
     a < b ? [a, b] : [b, a]
   const positions: [number, number][][] = []
+
   let current = M0.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 4; i++) {
@@ -131,8 +131,9 @@ function collisionOf(
 
   return (slots, base) => {
     for (let k = 0; k < 6; k++) {
-      const line = lines[b.couples[k]![0]!]!
-      const wire = lines[b.couples[k]![1]!]!
+      const line = lines[b.couples[k]![0]]!
+      const wire = lines[b.couples[k]![1]]!
+
       const swap = (): void => {
         const a0 = (slots[base + line[0]] ?? 0) as Tone
         const a1 = (slots[base + line[1]] ?? 0) as Tone
@@ -149,6 +150,7 @@ function collisionOf(
           slots[base + wire[1]] = a1
         }
       }
+
       const clock = (): void => {
         const a = (slots[base + wire[0]] ?? 0) as Tone
         const x = (slots[base + wire[1]] ?? 0) as Tone
@@ -195,6 +197,7 @@ export default experiment({
     const rootIndex = new Map(roots5.map((r, i) => [r.join(','), i]))
     const dirPerms: number[][] = []
     const perms4: number[][] = []
+
     const build = (acc: number[], rest: number[]): void => {
       if (rest.length === 0) {
         perms4.push(acc)
@@ -270,7 +273,12 @@ export default experiment({
               w[d] = -v[p[d]!]!
             }
 
-            const m2 = applyBeat(small.lines, small.beats[sigma]!, false, w)
+            const m2 = applyBeat(
+              small.lines,
+              small.beats[sigma]!,
+              false,
+              w,
+            )
 
             for (let d = 0; d < 24; d++) {
               if (-m2[pInv[d]!]! !== rhs[d]!) {
@@ -289,6 +297,7 @@ export default experiment({
 
     // 2. the winner's CPT, dense, identity parity, mirror phase twenty-three
     const winner = scheduleOf({ side: 5, palindromic: true })
+
     let cptBad = 0
 
     for (let t = 0; t < 24; t++) {
@@ -378,6 +387,7 @@ export default experiment({
     }
 
     let vacuum: Will = makeWill(mesh)
+
     const snaps: string[] = []
 
     for (let t = 0; t < 96; t++) {
@@ -404,6 +414,7 @@ export default experiment({
     const mid = 4
     const center =
       mid + mid * side + mid * side * side + mid * side ** 3
+
     let interacting = 0
 
     for (let dir = 0; dir < 24; dir++) {
@@ -479,6 +490,7 @@ export default experiment({
       [center, 8],
       [other, 16],
     ])
+
     let superpositionWorst = 0
 
     for (let t = 0; t < 16; t++) {

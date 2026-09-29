@@ -11,11 +11,16 @@
 // path imports this file and not that one.
 
 // the exact integer quotient of two integers, refusing a remainder
-export function exactQuotient(numerator: number, denominator: number): number {
+export function exactQuotient(
+  numerator: number,
+  denominator: number,
+): number {
   const quotient = Math.trunc(numerator / denominator)
 
   if (quotient * denominator !== numerator) {
-    throw new Error(`exactQuotient: ${numerator} is not a multiple of ${denominator}`)
+    throw new Error(
+      `exactQuotient: ${numerator} is not a multiple of ${denominator}`,
+    )
   }
 
   return quotient
@@ -99,7 +104,10 @@ export function rootsB4(): number[][] {
 }
 
 // Integer dot product.
-export function dotInteger(a: readonly number[], b: readonly number[]): number {
+export function dotInteger(
+  a: readonly number[],
+  b: readonly number[],
+): number {
   let sum = 0
 
   for (let i = 0; i < a.length; i++) {
@@ -132,7 +140,9 @@ export function doubledHalfIntegerWeights(n: number): number[][] {
 
 // The positive-chirality spinor weights of D_n doubled: (+-1)^n with an even number of minus signs.
 export function doubledSpinorWeightsDn(n: number): number[][] {
-  return doubledHalfIntegerWeights(n).filter(w => w.filter(x => x < 0).length % 2 === 0)
+  return doubledHalfIntegerWeights(n).filter(
+    w => w.filter(x => x < 0).length % 2 === 0,
+  )
 }
 
 // F4, the 48 roots doubled: the 24 long D4 roots (+-2, +-2, 0, 0), the 8 short axis roots (+-2, 0, 0, 0),
@@ -164,8 +174,10 @@ export function doubledE8SimpleRoots(): number[][] {
     return v
   }
 
-  const minus = (a: number[], b: number[]): number[] => a.map((x, i) => x - (b[i] ?? 0))
-  const plus = (a: number[], b: number[]): number[] => a.map((x, i) => x + (b[i] ?? 0))
+  const minus = (a: number[], b: number[]): number[] =>
+    a.map((x, i) => x - (b[i] ?? 0))
+  const plus = (a: number[], b: number[]): number[] =>
+    a.map((x, i) => x + (b[i] ?? 0))
 
   return [
     [1, -1, -1, -1, -1, -1, -1, 1],
@@ -181,7 +193,10 @@ export function doubledE8SimpleRoots(): number[][] {
 
 // The reflection of v in the hyperplane perpendicular to root a, in integer (or doubled) coordinates:
 // v - f a with f = 2 (v.a) / (a.a), an exact integer for a crystallographic pair (it refuses otherwise).
-export function reflectInteger(v: readonly number[], a: readonly number[]): number[] {
+export function reflectInteger(
+  v: readonly number[],
+  a: readonly number[],
+): number[] {
   const f = exactQuotient(2 * dotInteger(v, a), dotInteger(a, a))
 
   return v.map((x, i) => x - f * (a[i] ?? 0))
@@ -189,7 +204,9 @@ export function reflectInteger(v: readonly number[], a: readonly number[]): numb
 
 // The closure of a set of integer (or doubled) roots under reflection in its own members, in the order
 // root-system's reflectionClosure finds them, keyed by the exact coordinates.
-export function reflectionClosureInteger(seed: readonly (readonly number[])[]): number[][] {
+export function reflectionClosureInteger(
+  seed: readonly (readonly number[])[],
+): number[][] {
   const found = new Map<string, number[]>()
 
   const add = (vector: number[]): void => {
@@ -233,6 +250,12 @@ export function doubledRootsE8(): number[][] {
 
 // The Cartan matrix of integer (or doubled) simple roots, A[i][j] = 2 (s_i . s_j) / (s_j . s_j), an exact
 // integer (doubling scales both products by 4 and cancels).
-export function cartanMatrixInteger(simpleRoots: readonly (readonly number[])[]): number[][] {
-  return simpleRoots.map(si => simpleRoots.map(sj => exactQuotient(2 * dotInteger(si, sj), dotInteger(sj, sj))))
+export function cartanMatrixInteger(
+  simpleRoots: readonly (readonly number[])[],
+): number[][] {
+  return simpleRoots.map(si =>
+    simpleRoots.map(sj =>
+      exactQuotient(2 * dotInteger(si, sj), dotInteger(sj, sj)),
+    ),
+  )
 }

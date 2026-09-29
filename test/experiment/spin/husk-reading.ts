@@ -131,12 +131,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { cycleBand, cyclePhases } from '@/code/measure/swap-cone'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 import { type RingUnit } from '@/code/rule/swap-mixer'
-import { radialPaths, restFrame, type Census } from '@/code/measure/two-beat'
+import {
+  radialPaths,
+  restFrame,
+  type Census,
+} from '@/code/measure/two-beat'
 import {
   commutesExactly,
   cycleMasslessPairN,
@@ -154,10 +162,30 @@ import {
   structureVector,
   weylDirections,
 } from '@/code/measure/spinor-register'
-import { chiralPiece, chirality2, det4, intertwinesExactly, phaseMismatch, SECTOR_ROOTS, sectorBasis, sectorBlock, volumeRight } from '@/code/measure/chiral-register'
+import {
+  chiralPiece,
+  chirality2,
+  det4,
+  intertwinesExactly,
+  phaseMismatch,
+  SECTOR_ROOTS,
+  sectorBasis,
+  sectorBlock,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import { huskPoint, huskSymbol } from '@/code/measure/husk-meson'
 import { symbolAt } from '@/code/measure/husk-coulomb'
-import { depthSlope, HUSK_DIRS, huskGrid, huskSymbolFromRoots, largestE, looseCensus, onSlice, sliceMomenta, streamFront } from '@/code/measure/husk-reading'
+import {
+  depthSlope,
+  HUSK_DIRS,
+  huskGrid,
+  huskSymbolFromRoots,
+  largestE,
+  looseCensus,
+  onSlice,
+  sliceMomenta,
+  streamFront,
+} from '@/code/measure/husk-reading'
 
 const C = Math.SQRT2
 const C_QUARTER = C / 4
@@ -195,9 +223,31 @@ const REC = {
   Prot: 1.3322676295501878e-15,
 }
 
-export type HuskPlan = { sliceMomenta: number; bandCheck: number; hfMomenta: number; censusSteps: number; columnSteps: number; weylExtra: number; symmetryMomenta: number; looseGrid: number; bulkMomenta: number; bulkCensusSteps: number }
+export type HuskPlan = {
+  sliceMomenta: number
+  bandCheck: number
+  hfMomenta: number
+  censusSteps: number
+  columnSteps: number
+  weylExtra: number
+  symmetryMomenta: number
+  looseGrid: number
+  bulkMomenta: number
+  bulkCensusSteps: number
+}
 
-export const GATE_PLAN: HuskPlan = { sliceMomenta: 4096, bandCheck: 64, hfMomenta: 8, censusSteps: 600, columnSteps: 300, weylExtra: 256, symmetryMomenta: 64, looseGrid: 16, bulkMomenta: 4096, bulkCensusSteps: 600 }
+export const GATE_PLAN: HuskPlan = {
+  sliceMomenta: 4096,
+  bandCheck: 64,
+  hfMomenta: 8,
+  censusSteps: 600,
+  columnSteps: 300,
+  weylExtra: 256,
+  symmetryMomenta: 64,
+  looseGrid: 16,
+  bulkMomenta: 4096,
+  bulkCensusSteps: 600,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -205,7 +255,7 @@ export default experiment({
   id: 'spin/husk-reading',
   code: 'E-SPN-0167',
   title:
-    'the register results read on the husk, not in the bulk, partial (P violation does not survive on the quotient): on the flat mesh the physical husk reading is the shadow along the cusp, and on the thinnest column it is exactly the bulk band on the slice K = (q, 0), where the depth slope of the band vanishes, so the member band, c* = sqrt 2 / 4 husk docks a beat (c/4 is a bulk label: the stream\'s own husk front runs 1 to sqrt 2), R = tan m/m, isotropy, the census B* = 2M (also on a column with conserved depth momentum) and the graviton\'s speed all survive exactly, and C_b and CP at rest survive; but two W(F4) elements invert the husk, -I (keeping the chiral halves) and the depth-keeping reflection (swapping them), and on the quotient the rule keeps -I, so the husk sees an exact parity and E-FRC-0258\'s P violation needs an oriented depth (the cusp or a slab face); read: with depth momentum not conserved the census still closes but B* falls to 3M - Smax',
+    "the register results read on the husk, not in the bulk, partial (P violation does not survive on the quotient): on the flat mesh the physical husk reading is the shadow along the cusp, and on the thinnest column it is exactly the bulk band on the slice K = (q, 0), where the depth slope of the band vanishes, so the member band, c* = sqrt 2 / 4 husk docks a beat (c/4 is a bulk label: the stream's own husk front runs 1 to sqrt 2), R = tan m/m, isotropy, the census B* = 2M (also on a column with conserved depth momentum) and the graviton's speed all survive exactly, and C_b and CP at rest survive; but two W(F4) elements invert the husk, -I (keeping the chiral halves) and the depth-keeping reflection (swapping them), and on the quotient the rule keeps -I, so the husk sees an exact parity and E-FRC-0258's P violation needs an oriented depth (the cusp or a slab face); read: with depth momentum not conserved the census still closes but B* falls to 3M - Smax",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -220,13 +270,24 @@ const unitValue = (u: RingUnit): [number, number] => {
 
   return [Math.cos(t), Math.sin(t)]
 }
-const conj = (u: readonly [number, number]): [number, number] => [u[0], -u[1]]
+
+const conj = (u: readonly [number, number]): [number, number] => [
+  u[0],
+  -u[1],
+]
 const mOf = (u: RingUnit): number => wrap(unitAngle(u) - Math.PI) / 2
-const eqM = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): boolean => a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
+const eqM = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): boolean =>
+  a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
 
 export function huskReadingRun(plan: HuskPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const uL = ringUnit(LIGHT[0], LIGHT[1])
   const uM = ringUnit(MINUS[0], MINUS[1])
   const uZ = ringUnit(MASSLESS[0], MASSLESS[1])
@@ -236,13 +297,18 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
   const qS = scaled(singletProjector24(), 24)
   const D48 = partnerProjector48()
   const qD = scaled(D48, 48)
-  const schedule = (u: [number, number]): CMatrix[] => [registerPiece(qS, u), registerPiece(qD, conj(u))]
+  const schedule = (u: [number, number]): CMatrix[] => [
+    registerPiece(qS, u),
+    registerPiece(qD, conj(u)),
+  ]
   const PL = schedule(unitValue(uL))
   const PZ = schedule(unitValue(uZ))
   const frameL = restFrame(thetaL, -thetaL, ML)
   const tanL = Math.tan(mL) / mL
   const slice = sliceMomenta(plan.sliceMomenta)
-  const huskRadial = HUSK_DIRS.flatMap(u => RADII.map(r => u.map(x => x * r)))
+  const huskRadial = HUSK_DIRS.flatMap(u =>
+    RADII.map(r => u.map(x => x * r)),
+  )
 
   // ---------------- H1 (a): the band on the slice ----------------
   let bandGap = 0
@@ -251,20 +317,42 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
   for (const K of slice.slice(0, plan.bandCheck)) {
     const ph = cyclePhases(PL, REGISTER_ROOTS, K)
     const E = diracPhase(K, ML)
-    const up = ph.filter(x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE).length
-    const down = ph.filter(x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE).length
-    const flat = ph.filter(x => Math.abs(wrap(x)) <= FLAT_TOLERANCE).length
+    const up = ph.filter(
+      x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE,
+    ).length
+    const down = ph.filter(
+      x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE,
+    ).length
+    const flat = ph.filter(
+      x => Math.abs(wrap(x)) <= FLAT_TOLERANCE,
+    ).length
 
-    if (up !== 8 || down !== 8 || flat !== 176) bandCounts = false
-    bandGap = Math.max(bandGap, ...ph.map(x => Math.min(Math.abs(wrap(x)), Math.abs(wrap(x - Math.PI - E)), Math.abs(wrap(x - Math.PI + E)))))
+    if (up !== 8 || down !== 8 || flat !== 176) {
+      bandCounts = false
+    }
+
+    bandGap = Math.max(
+      bandGap,
+      ...ph.map(x =>
+        Math.min(
+          Math.abs(wrap(x)),
+          Math.abs(wrap(x - Math.PI - E)),
+          Math.abs(wrap(x - Math.PI + E)),
+        ),
+      ),
+    )
   }
 
   const H1a = bandCounts
+
   log('H1 a')
 
   // ---------------- H1 (b), H3, I1: the depth slope and the full cycle's velocities ----------------
   const slopes = slice.map(depthSlope)
-  const slopeMax = Math.max(...slopes.map(s => Math.max(Math.abs(s.s4), Math.abs(s.slope))))
+  const slopeMax = Math.max(
+    ...slopes.map(s => Math.max(Math.abs(s.s4), Math.abs(s.slope))),
+  )
+
   let v4Max = 0
   let flatSpeed = 0
   let hfGap = 0
@@ -273,68 +361,151 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
     const band = cycleBand(PL, REGISTER_ROOTS, K)
 
     band.velocity.forEach((v, i) => {
-      v4Max = Math.max(v4Max, Math.abs(v[3] as number))
-      if (Math.abs(wrap(band.phase[i] as number)) <= FLAT_TOLERANCE) flatSpeed = Math.max(flatSpeed, Math.hypot(...v))
+      v4Max = Math.max(v4Max, Math.abs(v[3]!))
+
+      if (Math.abs(wrap(band.phase[i]!)) <= FLAT_TOLERANCE) {
+        flatSpeed = Math.max(flatSpeed, Math.hypot(...v))
+      }
     })
-    hfGap = Math.max(hfGap, Math.abs(Math.max(...band.velocity.map(v => Math.hypot(...v))) - diracSpeed(K, ML)))
+
+    hfGap = Math.max(
+      hfGap,
+      Math.abs(
+        Math.max(...band.velocity.map(v => Math.hypot(...v))) -
+          diracSpeed(K, ML),
+      ),
+    )
   }
 
   const H1b = slopeMax === 0 && v4Max <= DEPTH_TOLERANCE
   const I1 = hfGap <= HF_TOLERANCE
+
   log('H1 b, I1')
 
   // ---------------- H1 (c), (d): the massless twin and the singlet along husk directions ----------------
-  const pairs = HUSK_DIRS.map(u => cycleMasslessPairN(PZ, Math.PI, u, PAIR_KAPPA, REGISTER_ROOTS))
-  const H1c = pairs.every(x => x.size === 16 && Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE && Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE)
-  const fits = HUSK_DIRS.map(u => frameRN(PL, frameL, thetaL, u, C_QUARTER, SCALES, REGISTER_ROOTS))
-  const huskIsotropy = Math.max(...fits.map(x => Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1)))
+  const pairs = HUSK_DIRS.map(u =>
+    cycleMasslessPairN(PZ, Math.PI, u, PAIR_KAPPA, REGISTER_ROOTS),
+  )
+  const H1c = pairs.every(
+    x =>
+      x.size === 16 &&
+      Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE &&
+      Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE,
+  )
+  const fits = HUSK_DIRS.map(u =>
+    frameRN(PL, frameL, thetaL, u, C_QUARTER, SCALES, REGISTER_ROOTS),
+  )
+  const huskIsotropy = Math.max(
+    ...fits.map(x =>
+      Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1),
+    ),
+  )
   const huskRdefect = Math.max(...fits.map(x => Math.abs(x.R - tanL)))
   const H1d = huskRdefect <= R_EXACT && huskIsotropy <= ISOTROPY
+
   log('H1 c d')
 
   // ---------------- H1 (e): the husk top speed ----------------
   const speedSet = [...slice, ...huskRadial]
-  const topHusk = Math.max(...speedSet.map(K => diracSpeed(K, ML))) / C_QUARTER
-  const topHuskZ = Math.max(...speedSet.map(K => diracSpeed(K, 0))) / C_QUARTER
-  const H1e = topHusk <= 1 + SPEED_TOLERANCE && topHuskZ <= 1 + SPEED_TOLERANCE && topHuskZ >= 1 - MASSLESS_REACH
+  const topHusk =
+    Math.max(...speedSet.map(K => diracSpeed(K, ML))) / C_QUARTER
+  const topHuskZ =
+    Math.max(...speedSet.map(K => diracSpeed(K, 0))) / C_QUARTER
+  const H1e =
+    topHusk <= 1 + SPEED_TOLERANCE &&
+    topHuskZ <= 1 + SPEED_TOLERANCE &&
+    topHuskZ >= 1 - MASSLESS_REACH
   const H1 = H1a && H1b && H1c && H1d && H1e
   const H3 = H1b && H1e && flatSpeed <= DEPTH_TOLERANCE
 
   // ---------------- H2: the census on the husk ----------------
-  const huskPaths = radialPaths(HUSK_DIRS, 3 * Math.PI, plan.censusSteps)
-  const censusThin = pairCensusN(PL, frameL, huskPaths, slice.slice(0, plan.weylExtra), REGISTER_ROOTS)
-  const H2a = censusThin.crossings === 0 && Math.abs(censusThin.Bstar - 2 * ML) <= BSTAR_TOLERANCE
+  const huskPaths = radialPaths(
+    HUSK_DIRS,
+    3 * Math.PI,
+    plan.censusSteps,
+  )
+  const censusThin = pairCensusN(
+    PL,
+    frameL,
+    huskPaths,
+    slice.slice(0, plan.weylExtra),
+    REGISTER_ROOTS,
+  )
+  const H2a =
+    censusThin.crossings === 0 &&
+    Math.abs(censusThin.Bstar - 2 * ML) <= BSTAR_TOLERANCE
+
   log('H2 a')
 
-  const columnPaths = HUSK_DIRS.map(u => Array.from({ length: plan.columnSteps }, (_, j) => [...onSlice(u.map(x => (x * 3 * Math.PI * (j + 1)) / plan.columnSteps)).slice(0, 3), COLUMN_DEPTH]))
-  const columnExtra = slice.slice(0, plan.weylExtra).map(K => [K[0] as number, K[1] as number, K[2] as number, COLUMN_DEPTH])
-  const censusColumn = pairCensusN(PL, frameL, columnPaths, columnExtra, REGISTER_ROOTS)
-  const H2b = censusColumn.crossings === 0 && Math.abs(censusColumn.Bstar - 2 * ML) <= BSTAR_TOLERANCE
+  const columnPaths = HUSK_DIRS.map(u =>
+    Array.from({ length: plan.columnSteps }, (_, j) => [
+      ...onSlice(
+        u.map(x => (x * 3 * Math.PI * (j + 1)) / plan.columnSteps),
+      ).slice(0, 3),
+      COLUMN_DEPTH,
+    ]),
+  )
+  const columnExtra = slice
+    .slice(0, plan.weylExtra)
+    .map(K => [K[0]!, K[1]!, K[2]!, COLUMN_DEPTH])
+  const censusColumn = pairCensusN(
+    PL,
+    frameL,
+    columnPaths,
+    columnExtra,
+    REGISTER_ROOTS,
+  )
+  const H2b =
+    censusColumn.crossings === 0 &&
+    Math.abs(censusColumn.Bstar - 2 * ML) <= BSTAR_TOLERANCE
   const H2 = H2a && H2b
+
   log('H2 b')
 
   // ---------------- H4, H5: parity on the husk ----------------
   const group = f4Group()
-  const find = (d: readonly number[]) => group.find(e => e.matrix.every((r, i) => r.every((x, j) => Math.abs(x - (i === j ? (d[i] as number) : 0)) < 1e-12)))
+  const find = (d: readonly number[]) =>
+    group.find(e =>
+      e.matrix.every((r, i) =>
+        r.every((x, j) => Math.abs(x - (i === j ? d[i]! : 0)) < 1e-12),
+      ),
+    )
   const minusI = find([-1, -1, -1, -1])
   const pImp = find([-1, -1, -1, 1])
   const r4 = find([1, 1, 1, -1])
-  const act = (m: readonly (readonly number[])[], r: readonly number[]): number[] => m.map(row => row.reduce((s, x, k) => s + x * (r[k] as number), 0))
-  const husk = (v: readonly number[]): number[] => [v[0] as number, v[1] as number, v[2] as number]
-  const sendsHusk = (m: readonly (readonly number[])[], sign: number): boolean => DOCK_ROOTS.every(r => husk(act(m, r)).every((x, k) => x === sign * (husk(r)[k] as number)))
+  const act = (
+    m: readonly (readonly number[])[],
+    r: readonly number[],
+  ): number[] => m.map(row => row.reduce((s, x, k) => s + x * r[k]!, 0))
+  const husk = (v: readonly number[]): number[] => [v[0]!, v[1]!, v[2]!]
+  const sendsHusk = (
+    m: readonly (readonly number[])[],
+    sign: number,
+  ): boolean =>
+    DOCK_ROOTS.every(r =>
+      husk(act(m, r)).every((x, k) => x === sign * husk(r)[k]!),
+    )
   const J = volumeRight()
   const I8 = J.map((_, i) => J.map((_, j) => (i === j ? 1 : 0)))
+
   let ballParity = true
 
   for (let a = -BALL; a <= BALL; a++) {
     for (let b = -BALL; b <= BALL; b++) {
       for (let c = -BALL; c <= BALL; c++) {
-        if (a * a + b * b + c * c > BALL * BALL) continue
+        if (a * a + b * b + c * c > BALL * BALL) {
+          continue
+        }
 
         const p = huskPoint(a, b, c)
         const image = r4 ? act(r4.matrix, p) : p
 
-        if (((((image[3] as number) % 2) + 2) % 2) !== (p[3] as number) || husk(image).some((x, k) => x !== (husk(p)[k] as number))) ballParity = false
+        if (
+          ((image[3]! % 2) + 2) % 2 !== p[3]! ||
+          husk(image).some((x, k) => x !== husk(p)[k]!)
+        ) {
+          ballParity = false
+        }
       }
     }
   }
@@ -362,18 +533,26 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
     intertwinesExactly(pImp, S48p, S48m) &&
     intertwinesExactly(pImp, D96p, D96m)
   const H5 = !!minusI && eqM(minusI.register, I8)
+
   log('H4 exact')
 
   const qSp = scaled(S48p, 48)
   const qSm = scaled(S48m, 48)
   const qDp = scaled(D96p, 96)
   const qDm = scaled(D96m, 96)
-  const chiral = [chiralPiece(qSp, qSm, unitValue(uL), unitValue(uM)), chiralPiece(qDp, qDm, conj(unitValue(uL)), conj(unitValue(uM)))]
+  const chiral = [
+    chiralPiece(qSp, qSm, unitValue(uL), unitValue(uM)),
+    chiralPiece(qDp, qDm, conj(unitValue(uL)), conj(unitValue(uM))),
+  ]
   const basis = sectorBasis(J)
   const plus = chiral.map(P => sectorBlock(P, basis, 0).block)
   const minus = chiral.map(P => sectorBlock(P, basis, 1).block)
   const roots = SECTOR_ROOTS(DOCK_ROOTS)
-  const parityReadings = (momenta: readonly (readonly number[])[], g: (K: readonly number[]) => number[]): { Pimp: number; Prot: number } => {
+
+  const parityReadings = (
+    momenta: readonly (readonly number[])[],
+    g: (K: readonly number[]) => number[],
+  ): { Pimp: number; Prot: number } => {
     const r = { Pimp: 0, Prot: 0 }
 
     for (const K of momenta) {
@@ -385,31 +564,86 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
       const mN = cyclePhases(minus, roots, neg)
 
       r.Pimp = Math.max(r.Pimp, phaseMismatch(pK, mG, true))
-      r.Prot = Math.max(r.Prot, phaseMismatch(pK, pN, false), phaseMismatch(mK, mN, false))
+      r.Prot = Math.max(
+        r.Prot,
+        phaseMismatch(pK, pN, false),
+        phaseMismatch(mK, mN, false),
+      )
     }
 
     return r
   }
-  const gK = (K: readonly number[]): number[] => [-(K[0] as number), -(K[1] as number), -(K[2] as number), K[3] as number]
-  const huskParity = parityReadings(slice.slice(0, plan.symmetryMomenta), gK)
-  const H4 = H4exact && huskParity.Prot <= SYMMETRY_HOLDS && huskParity.Pimp > SYMMETRY_BREAKS
+
+  const gK = (K: readonly number[]): number[] => [
+    -K[0]!,
+    -K[1]!,
+    -K[2]!,
+    K[3]!,
+  ]
+  const huskParity = parityReadings(
+    slice.slice(0, plan.symmetryMomenta),
+    gK,
+  )
+  const H4 =
+    H4exact &&
+    huskParity.Prot <= SYMMETRY_HOLDS &&
+    huskParity.Pimp > SYMMETRY_BREAKS
+
   log('H4 spectral')
 
   // ---------------- K1: the bulk reading reproduces E-SPN-0160 ----------------
   const bulk = weylMomenta(plan.bulkMomenta)
-  const bulkRadial = BULK_DIRS.flatMap(u => RADII.map(r => u.map(x => x * r)))
-  const bulkPairs = BULK_DIRS.map(u => cycleMasslessPairN(PZ, Math.PI, u, PAIR_KAPPA, REGISTER_ROOTS))
-  const bulkFits = BULK_DIRS.map(u => frameRN(PL, frameL, thetaL, u, C_QUARTER, SCALES, REGISTER_ROOTS))
-  const bulkRdefect = Math.max(...bulkFits.map(x => Math.abs(x.R - tanL)))
-  const bulkIsotropy = Math.max(...bulkFits.map(x => Math.abs(x.c2 / (bulkFits[0] as { c2: number }).c2 - 1)))
-  const bulkTop = Math.max(...[...bulk, ...bulkRadial].map(K => diracSpeed(K, ML))) / C_QUARTER
-  const bulkTopZ = Math.max(...[...bulk, ...bulkRadial].map(K => diracSpeed(K, 0))) / C_QUARTER
+  const bulkRadial = BULK_DIRS.flatMap(u =>
+    RADII.map(r => u.map(x => x * r)),
+  )
+  const bulkPairs = BULK_DIRS.map(u =>
+    cycleMasslessPairN(PZ, Math.PI, u, PAIR_KAPPA, REGISTER_ROOTS),
+  )
+  const bulkFits = BULK_DIRS.map(u =>
+    frameRN(PL, frameL, thetaL, u, C_QUARTER, SCALES, REGISTER_ROOTS),
+  )
+  const bulkRdefect = Math.max(
+    ...bulkFits.map(x => Math.abs(x.R - tanL)),
+  )
+  const bulkIsotropy = Math.max(
+    ...bulkFits.map(x =>
+      Math.abs(x.c2 / (bulkFits[0] as { c2: number }).c2 - 1),
+    ),
+  )
+  const bulkTop =
+    Math.max(...[...bulk, ...bulkRadial].map(K => diracSpeed(K, ML))) /
+    C_QUARTER
+  const bulkTopZ =
+    Math.max(...[...bulk, ...bulkRadial].map(K => diracSpeed(K, 0))) /
+    C_QUARTER
+
   let gMax = 0
 
-  for (const u of weylDirections(2000)) for (let k = 0.05; k < 3.2; k += 0.05) gMax = Math.max(gMax, Math.hypot(...structureVector(u.map(x => x * k))) / 2)
+  for (const u of weylDirections(2000)) {
+    for (let k = 0.05; k < 3.2; k += 0.05) {
+      gMax = Math.max(
+        gMax,
+        Math.hypot(...structureVector(u.map(x => x * k))) / 2,
+      )
+    }
+  }
 
-  const bulkCensus: Census = pairCensusN(PL, frameL, radialPaths(BULK_DIRS, 3 * Math.PI, plan.bulkCensusSteps), bulk.slice(0, plan.weylExtra), REGISTER_ROOTS)
-  const k1 = { c0OverC: (bulkPairs[0] as { c0: number }).c0 / C, Rdefect: bulkRdefect, isotropy: bulkIsotropy, top: bulkTop, topMassless: bulkTopZ, gMax, censusBstar: bulkCensus.Bstar }
+  const bulkCensus: Census = pairCensusN(
+    PL,
+    frameL,
+    radialPaths(BULK_DIRS, 3 * Math.PI, plan.bulkCensusSteps),
+    bulk.slice(0, plan.weylExtra),
+    REGISTER_ROOTS,
+  )
+  const k1 = {
+    c0OverC: (bulkPairs[0] as { c0: number }).c0 / C,
+    Rdefect: bulkRdefect,
+    isotropy: bulkIsotropy,
+    top: bulkTop,
+    topMassless: bulkTopZ,
+    gMax,
+    censusBstar: bulkCensus.Bstar,
+  }
   const K1 =
     k1.c0OverC === REC.c0OverC &&
     k1.Rdefect === REC.Rdefect &&
@@ -419,21 +653,37 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
     k1.gMax === REC.gMax &&
     k1.censusBstar === REC.censusBstar &&
     bulkCensus.crossings === 0
+
   log('K1')
 
   // ---------------- K2: the quotient Laplacian ----------------
-  const huskSample = slice.slice(0, 256).map(K => [K[0] as number, K[1] as number, K[2] as number])
-  const K2 = huskSample.every(q => Math.abs(huskSymbolFromRoots(q) - huskSymbol(q)) <= SYMBOL_TOLERANCE && Math.abs(huskSymbol(q) - symbolAt('husk', q)) <= SYMBOL_TOLERANCE)
+  const huskSample = slice.slice(0, 256).map(K => [K[0]!, K[1]!, K[2]!])
+  const K2 = huskSample.every(
+    q =>
+      Math.abs(huskSymbolFromRoots(q) - huskSymbol(q)) <=
+        SYMBOL_TOLERANCE &&
+      Math.abs(huskSymbol(q) - symbolAt('husk', q)) <= SYMBOL_TOLERANCE,
+  )
 
   // ---------------- K3: the bulk parity reproduces E-FRC-0258 ----------------
-  const bulkParity = parityReadings(weylMomenta(plan.symmetryMomenta), gK)
-  const K3 = bulkParity.Pimp === REC.Pimp && bulkParity.Prot === REC.Prot
+  const bulkParity = parityReadings(
+    weylMomenta(plan.symmetryMomenta),
+    gK,
+  )
+  const K3 =
+    bulkParity.Pimp === REC.Pimp && bulkParity.Prot === REC.Prot
+
   log('K2 K3')
 
   // ---------------- reads ----------------
   const grid = huskGrid(plan.looseGrid)
   const looseThin = looseCensus(ML, grid, [0])
-  const looseColumn = looseCensus(ML, grid, [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
+  const looseColumn = looseCensus(ML, grid, [
+    0,
+    Math.PI / 2,
+    Math.PI,
+    (3 * Math.PI) / 2,
+  ])
   const smaxSlice = largestE(slice, ML)
   const smaxBulk = largestE(bulk, ML)
   const fronts = HUSK_DIRS.map(streamFront)
@@ -442,7 +692,11 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
   const controls = K1 && K2 && K3
   const derived = H1 && H2 && H3 && H4 && H5
   const changes = H4 // H4 holding is the derived change: P is exact on the quotient
-  const status = !derived ? 'fail' : !instrument || !controls || changes ? 'partial' : 'pass'
+  const status = !derived
+    ? 'fail'
+    : !instrument || !controls || changes
+      ? 'partial'
+      : 'pass'
   const f = (x: number, d = 9): string => x.toFixed(d)
 
   return verdict({
@@ -488,7 +742,12 @@ export function huskReadingRun(plan: HuskPlan): Verdict {
       smaxBulk,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { K1: flag(K1), K2: flag(K2), K3: flag(K3), instrument: flag(instrument) },
+    control: {
+      K1: flag(K1),
+      K2: flag(K2),
+      K3: flag(K3),
+      instrument: flag(instrument),
+    },
     notes: `L1 and L2. Light m ${f(mL, 6)}, 2M ${f(2 * ML)}, 3M ${f(3 * ML)}. c* = sqrt 2 / 4 = ${f(C_QUARTER, 6)} husk docks a beat; the stream's husk front along the 6 husk directions ${fronts.map(x => f(x, 6)).join(' ')}. H1: 64 slice momenta 176 + 8 + 8 (gap ${bandGap.toExponential(2)}); massless pairs ${pairs.map(x => `size ${x.size} c0/(c/4) ${f(x.c0 / C_QUARTER, 12)} gamma ${(x.gamma / C_QUARTER).toExponential(2)}`).join(', ')}; R - tan m/m ${fits.map(x => (x.R - tanL).toExponential(2)).join(' ')} (tan m/m ${f(tanL)}); husk top ${f(topHusk, 9)} (bulk sample ${f(bulkTop, 9)}), massless ${f(topHuskZ, 9)}. H2: thin B* ${f(censusThin.Bstar)} x${censusThin.crossings}, nearest at |q| ${Math.hypot(...censusThin.at).toFixed(4)} (pair ${censusThin.pair.map(x => x.toFixed(4)).join(', ')}); column K4 = pi/2 B* ${f(censusColumn.Bstar)} x${censusColumn.crossings}. H4: -I det ${minusI ? det4(minusI.matrix) : 'none'}, P_imp det ${pImp ? det4(pImp.matrix) : 'none'}, R4 det ${r4 ? det4(r4.matrix) : 'none'}; ball parity ${ballParity}; husk P_rot ${huskParity.Prot.toExponential(2)}, P_imp ${f(huskParity.Pimp, 9)}. K1: c0/c ${k1.c0OverC}, R defect ${k1.Rdefect}, isotropy ${k1.isotropy}, top ${k1.top}, massless ${k1.topMassless}, g max ${k1.gMax}, census B* ${k1.censusBstar} x${bulkCensus.crossings}. K3: bulk P_imp ${bulkParity.Pimp}, P_rot ${bulkParity.Prot}. Read: loose census (depth momentum not conserved) over a ${plan.looseGrid}^3 grid and 4 depths B* ${f(looseColumn.Bstar, 6)} (pair ${looseColumn.pair.map(x => x.toFixed(4)).join(', ')}), one depth ${f(looseThin.Bstar, 6)}; Smax slice ${f(smaxSlice, 6)}, bulk ${f(smaxBulk, 6)}, 3M - Smax ${f(3 * ML - smaxBulk, 6)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

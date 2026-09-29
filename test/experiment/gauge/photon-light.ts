@@ -118,10 +118,14 @@ const LOOP_ROOTS = [
   [4, 5],
 ] as const
 
-const kappaOf = (rule: PhotonRule): number => (2 * Math.PI * rule.k) / rule.n
-const betaOf = (rule: PhotonRule, t: number): number => (rule.k * rule.n) / (2 * Math.PI * t)
-const cutOf = (rule: PhotonRule): number => leapfrogOmega(kappaOf(rule), 12) / 2
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const kappaOf = (rule: PhotonRule): number =>
+  (2 * Math.PI * rule.k) / rule.n
+const betaOf = (rule: PhotonRule, t: number): number =>
+  (rule.k * rule.n) / (2 * Math.PI * t)
+const cutOf = (rule: PhotonRule): number =>
+  leapfrogOmega(kappaOf(rule), 12) / 2
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
 function temperature(rule: PhotonRule, s: PhotonState): number {
   let sum = 0
@@ -134,11 +138,20 @@ function temperature(rule: PhotonRule, s: PhotonState): number {
 }
 
 // a thermal start at a target beta: angles 0, the flux the curl of plaquette integers within sqrt(3 T / 4)
-function thermalStart(rule: PhotonRule, beta: number, mode: 'leapfrog' | 'demon' = 'leapfrog'): PhotonState {
+function thermalStart(
+  rule: PhotonRule,
+  beta: number,
+  mode: 'leapfrog' | 'demon' = 'leapfrog',
+): PhotonState {
   const s = emptyPhotonState(rule)
   const target = (rule.k * rule.n) / (2 * Math.PI * beta)
 
-  addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), 5.3)
+  addHashedCurl(
+    rule,
+    s,
+    Math.max(1, Math.round(Math.sqrt((3 * target) / 4))),
+    5.3,
+  )
 
   if (mode === 'demon') {
     setHashedAngles(rule, s, 512, 3.7)
@@ -148,7 +161,13 @@ function thermalStart(rule: PhotonRule, beta: number, mode: 'leapfrog' | 'demon'
   return s
 }
 
-type Probe = { n: number[]; c0: Correlator; c1: Correlator; last: ModeVector | undefined; read: (f: ArrayLike<number>) => ModeVector }
+type Probe = {
+  n: number[]
+  c0: Correlator
+  c1: Correlator
+  last: ModeVector | undefined
+  read: (f: ArrayLike<number>) => ModeVector
+}
 
 type Thermal = {
   modes: ModeFrequencies[]
@@ -163,18 +182,33 @@ type Thermal = {
 function thermal(
   rule: PhotonRule,
   s: PhotonState,
-  input: { settle: number; measure: number; modes: number[][]; every?: number; loops?: [string, number[]][]; track?: { mode: number; weights: number[] } },
+  input: {
+    settle: number
+    measure: number
+    modes: number[][]
+    every?: number
+    loops?: [string, number[]][]
+    track?: { mode: number; weights: number[] }
+  },
 ): Thermal {
   const every = input.every ?? 10
   const probes: Probe[] = input.modes.map(n => {
     const reader = modeReader(rule.lattice, n)
 
-    return { n, c0: makeCorrelator(rule.lattice.firsts.length), c1: makeCorrelator(rule.lattice.firsts.length), last: undefined, read: f => reader.read(f) }
+    return {
+      n,
+      c0: makeCorrelator(rule.lattice.firsts.length),
+      c1: makeCorrelator(rule.lattice.firsts.length),
+      last: undefined,
+      read: f => reader.read(f),
+    }
   })
   const temperatures: number[] = []
   const cosines: number[] = []
   const series: ModeVector[] = []
-  const loops = new Map<string, number[]>((input.loops ?? []).map(([key]) => [key, []]))
+  const loops = new Map<string, number[]>(
+    (input.loops ?? []).map(([key]) => [key, []]),
+  )
 
   for (let t = 0; t < input.settle + input.measure; t++) {
     photonBeatInPlace(rule, s, t)
@@ -195,12 +229,16 @@ function thermal(
 
       p.last = v
 
-      if (input.track && input.track.mode === i) {
+      if (input.track?.mode === i) {
         const w = input.track.weights
 
         series.push({
-          re: Float64Array.of(v.re.reduce((a, x, j) => a + x * (w[j] ?? 0), 0)),
-          im: Float64Array.of(v.im.reduce((a, x, j) => a + x * (w[j] ?? 0), 0)),
+          re: Float64Array.of(
+            v.re.reduce((a, x, j) => a + x * (w[j] ?? 0), 0),
+          ),
+          im: Float64Array.of(
+            v.im.reduce((a, x, j) => a + x * (w[j] ?? 0), 0),
+          ),
         })
       }
     })
@@ -212,7 +250,9 @@ function thermal(
         let sum = 0
 
         for (let x = 0; x < rule.lattice.cells; x++) {
-          sum += Math.cos((2 * Math.PI * pathAngle(rule, s.angle, x, dirs)) / rule.n)
+          sum += Math.cos(
+            (2 * Math.PI * pathAngle(rule, s.angle, x, dirs)) / rule.n,
+          )
         }
 
         loops.get(key)?.push(sum / rule.lattice.cells)
@@ -221,7 +261,13 @@ function thermal(
   }
 
   return {
-    modes: probes.map(p => modeFrequencies({ c0: p.c0, c1: p.c1, tolerance: GAUSS_TOLERANCE })),
+    modes: probes.map(p =>
+      modeFrequencies({
+        c0: p.c0,
+        c1: p.c1,
+        tolerance: GAUSS_TOLERANCE,
+      }),
+    ),
     temperatures,
     meanCos: mean(cosines),
     series,
@@ -230,18 +276,27 @@ function thermal(
 }
 
 // light branches: sorted frequencies below the cut at n1 whose partner at n2 is 1.6 to 2.1 times higher
-function lightBranches(rule: PhotonRule, at1: ModeFrequencies, at2: ModeFrequencies): number[] {
+function lightBranches(
+  rule: PhotonRule,
+  at1: ModeFrequencies,
+  at2: ModeFrequencies,
+): number[] {
   const cut = cutOf(rule)
 
   return at1.omega.flatMap((w, i) => {
     const ratio = (at2.omega[i] ?? 0) / w
 
-    return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1] ? [i] : []
+    return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1]
+      ? [i]
+      : []
   })
 }
 
 // the first zero of Re <P(t + tau) P(t)*>, linearly interpolated
-function firstZero(series: readonly ModeVector[], maxLag: number): number {
+function firstZero(
+  series: readonly ModeVector[],
+  maxLag: number,
+): number {
   const r = (tau: number): number => {
     let sum = 0
 
@@ -249,7 +304,9 @@ function firstZero(series: readonly ModeVector[], maxLag: number): number {
       const a = series[t + tau]
       const b = series[t]
 
-      sum += (a?.re[0] ?? 0) * (b?.re[0] ?? 0) + (a?.im[0] ?? 0) * (b?.im[0] ?? 0)
+      sum +=
+        (a?.re[0] ?? 0) * (b?.re[0] ?? 0) +
+        (a?.im[0] ?? 0) * (b?.im[0] ?? 0)
     }
 
     return sum / Math.max(1, series.length - tau)
@@ -272,7 +329,13 @@ function firstZero(series: readonly ModeVector[], maxLag: number): number {
 
 function sectionA(): Record<string, number> & { ok: number } {
   const d4 = photonLatticeD4({ side: 8 })
-  const rule = makePhotonRule({ lattice: d4, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice: d4,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const modes = [
     [1, 0, 0, 0],
     [2, 0, 0, 0],
@@ -291,11 +354,26 @@ function sectionA(): Record<string, number> & { ok: number } {
     }
   }
 
-  const run = thermal(rule, thermalStart(rule, WORKING_BETA), { settle: 500, measure: 3000, modes, loops: shapes, every: 5, track: { mode: 0, weights } })
+  const run = thermal(rule, thermalStart(rule, WORKING_BETA), {
+    settle: 500,
+    measure: 3000,
+    modes,
+    loops: shapes,
+    every: 5,
+    track: { mode: 0, weights },
+  })
   const temperature = mean(run.temperatures)
   const beta = betaOf(rule, temperature)
-  const drift = Math.abs((run.temperatures[run.temperatures.length - 1] ?? 0) - (run.temperatures[0] ?? 0)) / temperature
-  const [m1, m2, mr] = run.modes as [ModeFrequencies, ModeFrequencies, ModeFrequencies]
+  const drift =
+    Math.abs(
+      (run.temperatures[run.temperatures.length - 1] ?? 0) -
+        (run.temperatures[0] ?? 0),
+    ) / temperature
+  const [m1, m2, mr] = run.modes as [
+    ModeFrequencies,
+    ModeFrequencies,
+    ModeFrequencies,
+  ]
   const light = lightBranches(rule, m1, m2)
   const photon1 = mean(light.map(i => m1.omega[i] ?? 0))
   const photon2 = mean(light.map(i => m2.omega[i] ?? 0))
@@ -314,15 +392,25 @@ function sectionA(): Record<string, number> & { ok: number } {
 
   // the cubic torus at the same kappa and beta
   const cube = photonLatticeCubic({ side: 12 })
-  const cubeRule = makePhotonRule({ lattice: cube, n: N, k: K, capacity: 0, hop: false })
-  const cubeRun = thermal(cubeRule, thermalStart(cubeRule, WORKING_BETA), {
-    settle: 500,
-    measure: 3000,
-    modes: [
-      [1, 0, 0],
-      [2, 0, 0],
-    ],
+  const cubeRule = makePhotonRule({
+    lattice: cube,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
   })
+  const cubeRun = thermal(
+    cubeRule,
+    thermalStart(cubeRule, WORKING_BETA),
+    {
+      settle: 500,
+      measure: 3000,
+      modes: [
+        [1, 0, 0],
+        [2, 0, 0],
+      ],
+    },
+  )
   const [c1, c2] = cubeRun.modes as [ModeFrequencies, ModeFrequencies]
   const cubeLight = lightBranches(cubeRule, c1, c2)
 
@@ -337,7 +425,10 @@ function sectionA(): Record<string, number> & { ok: number } {
 
   for (let r = 1; r <= 3; r++) {
     for (let t = r; t <= 3; t++) {
-      const s = loopAction(d4, pathLinks(d4, 0, rectangle(d4, 0, r, 1, t)))
+      const s = loopAction(
+        d4,
+        pathLinks(d4, 0, rectangle(d4, 0, r, 1, t)),
+      )
 
       action.set(`${r}:${t}`, s)
       action.set(`${t}:${r}`, s)
@@ -349,15 +440,24 @@ function sectionA(): Record<string, number> & { ok: number } {
   for (const [a, b] of LOOP_ROOTS) {
     for (let r = 1; r <= 3; r++) {
       for (let t = 1; t <= 3; t++) {
-        points.push({ s: action.get(`${r}:${t}`) ?? 0, lnw: lnW.get(`${a}:${b}:${r}:${t}`) ?? 0, area: r * t })
+        points.push({
+          s: action.get(`${r}:${t}`) ?? 0,
+          lnw: lnW.get(`${a}:${b}:${r}:${t}`) ?? 0,
+          area: r * t,
+        })
       }
     }
   }
 
   // one parameter: ln W = -c S, c = 1 / (2 beta')
-  const c = -points.reduce((sum, p) => sum + p.lnw * p.s, 0) / points.reduce((sum, p) => sum + p.s * p.s, 0)
+  const c =
+    -points.reduce((sum, p) => sum + p.lnw * p.s, 0) /
+    points.reduce((sum, p) => sum + p.s * p.s, 0)
   const meanLn = mean(points.map(p => p.lnw))
-  const r2 = 1 - points.reduce((sum, p) => sum + (p.lnw + c * p.s) ** 2, 0) / points.reduce((sum, p) => sum + (p.lnw - meanLn) ** 2, 0)
+  const r2 =
+    1 -
+    points.reduce((sum, p) => sum + (p.lnw + c * p.s) ** 2, 0) /
+      points.reduce((sum, p) => sum + (p.lnw - meanLn) ** 2, 0)
   const betaPrime = 1 / (2 * c)
   // two parameters: ln W = -coulomb S - sigma area
   const sss = points.reduce((sum, p) => sum + p.s * p.s, 0)
@@ -369,14 +469,26 @@ function sectionA(): Record<string, number> & { ok: number } {
   const coulomb = (sls * saa - sla * ssa) / det
   const sigma = (sss * sla - ssa * sls) / det
   const s33 = action.get('3:3') ?? 0
-  const areaShare = Math.abs(sigma * 9) / Math.abs(coulomb * s33 + sigma * 9)
-  const lnw = (r: number, t: number): number => mean(LOOP_ROOTS.map(([a, b]) => lnW.get(`${a}:${b}:${r}:${t}`) ?? 0))
+  const areaShare =
+    Math.abs(sigma * 9) / Math.abs(coulomb * s33 + sigma * 9)
+  const lnw = (r: number, t: number): number =>
+    mean(
+      LOOP_ROOTS.map(([a, b]) => lnW.get(`${a}:${b}:${r}:${t}`) ?? 0),
+    )
   const potential = [1, 2, 3].map(r => lnw(r, 2) - lnw(r, 3))
-  const potentialPhoton = [1, 2, 3].map(r => c * ((action.get(`${r}:3`) ?? 0) - (action.get(`${r}:2`) ?? 0)))
+  const potentialPhoton = [1, 2, 3].map(
+    r =>
+      c * ((action.get(`${r}:3`) ?? 0) - (action.get(`${r}:2`) ?? 0)),
+  )
   // equipartition: 11 transverse flux directions per dock over 32 triangles, so <theta^2> beta = 11 / 32
   const triangleAction = 11 / 32
-  const rootIndex = (v: number[]): number => d4.vectors.findIndex(r => r.every((x, i) => x === v[i]))
-  const triangle = [rootIndex([1, 1, 0, 0]), rootIndex([-1, 0, 1, 0]), rootIndex([0, -1, -1, 0])]
+  const rootIndex = (v: number[]): number =>
+    d4.vectors.findIndex(r => r.every((x, i) => x === v[i]))
+  const triangle = [
+    rootIndex([1, 1, 0, 0]),
+    rootIndex([-1, 0, 1, 0]),
+    rootIndex([0, -1, -1, 0]),
+  ]
 
   const okA =
     [m1, m2, mr].every(m => m.nullDirections === 1) &&
@@ -387,7 +499,10 @@ function sectionA(): Record<string, number> & { ok: number } {
     [c1, c2].every(m => m.nullDirections === 1) &&
     cubeLight.length === 2 &&
     drift < 0.1
-  const okD1 = r2 >= 0.99 && Math.abs(betaPrime / (beta * run.meanCos) - 1) < 0.15 && areaShare < 0.1
+  const okD1 =
+    r2 >= 0.99 &&
+    Math.abs(betaPrime / (beta * run.meanCos) - 1) < 0.15 &&
+    areaShare < 0.1
 
   return {
     ok: okA && okD1 ? 1 : 0,
@@ -403,7 +518,9 @@ function sectionA(): Record<string, number> & { ok: number } {
     aPhotonOmegaN2: photon2,
     aPhotonOmegaRoot: photonRoot,
     aPhotonDoubling: photon2 / photon1,
-    aPhotonSplitN1: Math.max(...light.map(i => m1.omega[i] ?? 0)) - Math.min(...light.map(i => m1.omega[i] ?? 0)),
+    aPhotonSplitN1:
+      Math.max(...light.map(i => m1.omega[i] ?? 0)) -
+      Math.min(...light.map(i => m1.omega[i] ?? 0)),
     aMassiveLowestN1: m1.omega[3] ?? 0,
     aCut: cutOf(rule),
     aMassSquaredOverN1: mass2 / q(photon1),
@@ -412,8 +529,12 @@ function sectionA(): Record<string, number> & { ok: number } {
     aOmegaOverPredicted: photon1 / predicted,
     aSpeed: photon1 / kNorm,
     aPredictedSpeed: predicted / kNorm,
-    aRootSpeed: photonRoot / Math.hypot(...waveVector(d4, modes[2] ?? [])),
-    aRootPredicted: leapfrogOmega(kappaOf(rule) * run.meanCos, lambdaRoot),
+    aRootSpeed:
+      photonRoot / Math.hypot(...waveVector(d4, modes[2] ?? [])),
+    aRootPredicted: leapfrogOmega(
+      kappaOf(rule) * run.meanCos,
+      lambdaRoot,
+    ),
     aDirectTau0: tau0,
     aDirectOmega: direct,
     aDirectOverPhoton: direct / photon1,
@@ -426,7 +547,8 @@ function sectionA(): Record<string, number> & { ok: number } {
     d1BetaPrimeOverBetaCos: betaPrime / (beta * run.meanCos),
     d1AreaShareAt3x3: areaShare,
     d1Sigma: sigma,
-    d1TriangleActionOverExpected: loopAction(d4, pathLinks(d4, 0, triangle)) / triangleAction,
+    d1TriangleActionOverExpected:
+      loopAction(d4, pathLinks(d4, 0, triangle)) / triangleAction,
     d1LnW11: lnw(1, 1),
     d1LnW33: lnw(3, 3),
     d1PotentialR1: potential[0] ?? 0,
@@ -438,9 +560,27 @@ function sectionA(): Record<string, number> & { ok: number } {
   }
 }
 
-function orbitOmega(lattice: PhotonLattice, beta: number, orbits: number[][][], branches: number, settle: number, measure: number): number[] {
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false })
-  const run = thermal(rule, thermalStart(rule, beta), { settle, measure, modes: orbits.flat() })
+function orbitOmega(
+  lattice: PhotonLattice,
+  beta: number,
+  orbits: number[][][],
+  branches: number,
+  settle: number,
+  measure: number,
+): number[] {
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
+  const run = thermal(rule, thermalStart(rule, beta), {
+    settle,
+    measure,
+    modes: orbits.flat(),
+  })
+
   let at = 0
 
   return orbits.map(orbit =>
@@ -467,7 +607,14 @@ function sectionB(): Record<string, number> & { ok: number } {
     [1, 1, 0, 1],
     [1, -2, 0, 4],
   ]
-  const [wA = 0, wB = 0] = orbitOmega(d4, WORKING_BETA, [orbitA, orbitB], 3, 300, 1500)
+  const [wA = 0, wB = 0] = orbitOmega(
+    d4,
+    WORKING_BETA,
+    [orbitA, orbitB],
+    3,
+    300,
+    1500,
+  )
   const cube = photonLatticeCubic({ side: 12 })
   const [cA = 0, cB = 0] = orbitOmega(
     cube,
@@ -488,26 +635,43 @@ function sectionB(): Record<string, number> & { ok: number } {
     300,
     1500,
   )
-  const norms = [...orbitA, ...orbitB].map(n => Math.hypot(...waveVector(d4, n)))
-  const linear = (lattice: PhotonLattice, n: number[], branches: number): number => mean(linearWaveEigenvalues(lattice, n).slice(1, 1 + branches))
+  const norms = [...orbitA, ...orbitB].map(n =>
+    Math.hypot(...waveVector(d4, n)),
+  )
+  const linear = (
+    lattice: PhotonLattice,
+    n: number[],
+    branches: number,
+  ): number =>
+    mean(linearWaveEigenvalues(lattice, n).slice(1, 1 + branches))
   const d4Anisotropy = wB / wA - 1
   const cubicAnisotropy = cB / cA - 1
 
   return {
-    ok: Math.abs(d4Anisotropy) < 0.01 && Math.abs(cubicAnisotropy) > 0.03 ? 1 : 0,
+    ok:
+      Math.abs(d4Anisotropy) < 0.01 && Math.abs(cubicAnisotropy) > 0.03
+        ? 1
+        : 0,
     bD4OmegaAxisOrbit: wA,
     bD4OmegaOtherOrbit: wB,
     bD4Anisotropy: d4Anisotropy,
-    bD4LinearLambdaRatio: linear(d4, orbitB[0] ?? [], 3) / linear(d4, orbitA[0] ?? [], 3),
+    bD4LinearLambdaRatio:
+      linear(d4, orbitB[0] ?? [], 3) / linear(d4, orbitA[0] ?? [], 3),
     bCubicOmegaAxis: cA,
     bCubicOmegaOther: cB,
     bCubicAnisotropy: cubicAnisotropy,
-    bCubicLinearLambdaRatio: linear(cube, [2, 2, 1], 2) / linear(cube, [3, 0, 0], 2),
+    bCubicLinearLambdaRatio:
+      linear(cube, [2, 2, 1], 2) / linear(cube, [3, 0, 0], 2),
     bKNormSpread: Math.max(...norms) - Math.min(...norms),
   }
 }
 
-type ScanPoint = { beta: number; light: number; meanCos: number; drift: number }
+type ScanPoint = {
+  beta: number
+  light: number
+  meanCos: number
+  drift: number
+}
 
 function sectionC(): Record<string, number> & { ok: number } {
   const d4 = photonLatticeD4({ side: 6 })
@@ -517,7 +681,13 @@ function sectionC(): Record<string, number> & { ok: number } {
   let ok = true
 
   SCAN_SETS.forEach(([n, k], set) => {
-    const rule = makePhotonRule({ lattice: d4, n, k, capacity: 0, hop: false })
+    const rule = makePhotonRule({
+      lattice: d4,
+      n,
+      k,
+      capacity: 0,
+      hop: false,
+    })
     const points: ScanPoint[] = SCAN_BETAS.map(target => {
       const run = thermal(rule, thermalStart(rule, target), {
         settle: 800,
@@ -534,7 +704,11 @@ function sectionC(): Record<string, number> & { ok: number } {
         beta: betaOf(rule, temperature),
         light: lightBranches(rule, m1, m2).length,
         meanCos: run.meanCos,
-        drift: Math.abs((run.temperatures[run.temperatures.length - 1] ?? 0) - (run.temperatures[0] ?? 0)) / temperature,
+        drift:
+          Math.abs(
+            (run.temperatures[run.temperatures.length - 1] ?? 0) -
+              (run.temperatures[0] ?? 0),
+          ) / temperature,
       }
     })
 
@@ -547,8 +721,10 @@ function sectionC(): Record<string, number> & { ok: number } {
 
     const sorted = [...points].sort((a, b) => b.beta - a.beta)
     const lost = sorted.findIndex(p => p.light < 3)
-    const high = lost > 0 ? (sorted[lost - 1]?.beta ?? Number.NaN) : Number.NaN
-    const low = lost > 0 ? (sorted[lost]?.beta ?? Number.NaN) : Number.NaN
+    const high =
+      lost > 0 ? (sorted[lost - 1]?.beta ?? Number.NaN) : Number.NaN
+    const low =
+      lost > 0 ? (sorted[lost]?.beta ?? Number.NaN) : Number.NaN
 
     intervals.push([low, high])
     metrics[`c${n}k${k}TransitionLow`] = low
@@ -561,18 +737,41 @@ function sectionC(): Record<string, number> & { ok: number } {
       points.filter(p => p.light === 3).every(p => p.drift < 0.1)
   })
 
-  const overlap = Math.max(...intervals.map(([low]) => low)) <= Math.min(...intervals.map(([, high]) => high))
+  const overlap =
+    Math.max(...intervals.map(([low]) => low)) <=
+    Math.min(...intervals.map(([, high]) => high))
 
-  metrics['cIntervalsOverlap'] = overlap ? 1 : 0
+  metrics.cIntervalsOverlap = overlap ? 1 : 0
 
   return { ...metrics, ok: ok && overlap ? 1 : 0 }
 }
 
-type Charges = { residual: number[]; energy: number[]; coulomb: number[]; string: number[] }
+type Charges = {
+  residual: number[]
+  energy: number[]
+  coulomb: number[]
+  string: number[]
+}
 
-function charges(lattice: PhotonLattice, direction: number, separations: number[]): Charges {
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false, charge: CHARGE })
-  const out: Charges = { residual: [], energy: [], coulomb: [], string: [] }
+function charges(
+  lattice: PhotonLattice,
+  direction: number,
+  separations: number[],
+): Charges {
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge: CHARGE,
+  })
+  const out: Charges = {
+    residual: [],
+    energy: [],
+    coulomb: [],
+    string: [],
+  }
 
   for (const r of separations) {
     const s = emptyPhotonState(rule)
@@ -590,7 +789,8 @@ function charges(lattice: PhotonLattice, direction: number, separations: number[
 
       if (t >= settle) {
         for (let l = 0; l < lattice.links; l++) {
-          average[l] = (average[l] ?? 0) + (s.flux[l] ?? 0) / (beats - settle)
+          average[l] =
+            (average[l] ?? 0) + (s.flux[l] ?? 0) / (beats - settle)
         }
       }
     }
@@ -605,7 +805,12 @@ function charges(lattice: PhotonLattice, direction: number, separations: number[
       return sum
     }
 
-    out.residual.push(Math.sqrt(norm(l => (average[l] ?? 0) - (coulomb[l] ?? 0)) / norm(l => (initial[l] ?? 0) - (coulomb[l] ?? 0))))
+    out.residual.push(
+      Math.sqrt(
+        norm(l => (average[l] ?? 0) - (coulomb[l] ?? 0)) /
+          norm(l => (initial[l] ?? 0) - (coulomb[l] ?? 0)),
+      ),
+    )
     out.energy.push(norm(l => average[l] ?? 0) / 2)
     out.coulomb.push(norm(l => coulomb[l] ?? 0) / 2)
     out.string.push(norm(l => initial[l] ?? 0) / 2)
@@ -619,7 +824,8 @@ function falloff(v: readonly number[], r: readonly number[]): number {
   const [r1 = 2, r2 = 3, r3 = 4] = r
   const [v1 = 0, v2 = 0, v3 = 0] = v
   const target = (v3 - v2) / (v2 - v1)
-  const shape = (p: number): number => (r2 ** -p - r3 ** -p) / (r1 ** -p - r2 ** -p)
+  const shape = (p: number): number =>
+    (r2 ** -p - r3 ** -p) / (r1 ** -p - r2 ** -p)
 
   let lo = 0.05
   let hi = 8
@@ -639,11 +845,19 @@ function falloff(v: readonly number[], r: readonly number[]): number {
 
 function sectionD2(): Record<string, number> & { ok: number } {
   const d4 = charges(photonLatticeD4({ side: 8 }), 0, [1, 2, 3, 4])
-  const cube = charges(photonLatticeCubic({ side: 12 }), 0, [1, 2, 3, 4, 5, 6])
+  const cube = charges(
+    photonLatticeCubic({ side: 12 }),
+    0,
+    [1, 2, 3, 4, 5, 6],
+  )
   const pD4 = falloff(d4.coulomb.slice(1, 4), [2, 3, 4])
   const pCube = falloff(cube.coulomb.slice(1, 4), [2, 3, 4])
   const good = (c: Charges): boolean =>
-    c.residual.every(x => x < 0.1) && c.energy.every((e, i) => Math.abs(e / (c.coulomb[i] ?? 1) - 1) < 0.05) && (c.energy[3] ?? 0) / (c.energy[0] ?? 1) < 2
+    c.residual.every(x => x < 0.1) &&
+    c.energy.every(
+      (e, i) => Math.abs(e / (c.coulomb[i] ?? 1) - 1) < 0.05,
+    ) &&
+    (c.energy[3] ?? 0) / (c.energy[0] ?? 1) < 2
   const metrics: Record<string, number> = {}
 
   for (const [name, c] of [
@@ -658,12 +872,24 @@ function sectionD2(): Record<string, number> & { ok: number } {
     })
   }
 
-  return { ...metrics, d2D4Falloff: pD4, d2CubicFalloff: pCube, ok: good(d4) && good(cube) && pD4 - pCube >= 0.5 ? 1 : 0 }
+  return {
+    ...metrics,
+    d2D4Falloff: pD4,
+    d2CubicFalloff: pCube,
+    ok: good(d4) && good(cube) && pD4 - pCube >= 0.5 ? 1 : 0,
+  }
 }
 
 function sectionE(): Record<string, number> & { ok: number } {
   const d4 = photonLatticeD4({ side: 6 })
-  const rule = makePhotonRule({ lattice: d4, mode: 'demon', n: N, k: K, capacity: DEMON_CAPACITY, hop: false })
+  const rule = makePhotonRule({
+    lattice: d4,
+    mode: 'demon',
+    n: N,
+    k: K,
+    capacity: DEMON_CAPACITY,
+    hop: false,
+  })
   const run = thermal(rule, thermalStart(rule, WORKING_BETA, 'demon'), {
     settle: 300,
     measure: 1000,
@@ -702,17 +928,35 @@ export default experiment({
     const e = sectionE()
     const sections = { a: a.ok, b: b.ok, c: c.ok, d2: d2.ok, e: e.ok }
     const all = Object.values(sections).every(x => x === 1)
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => key !== 'ok'))
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => key !== 'ok'),
+      )
 
     return verdict({
-      status: all ? 'pass' : Object.values(sections).some(x => x === 1) ? 'partial' : 'fail',
+      status: all
+        ? 'pass'
+        : Object.values(sections).some(x => x === 1)
+          ? 'partial'
+          : 'fail',
       claim:
         "on the D4 box the leapfrog carries light: 3 transverse branches whose frequency doubles with k, massless, at the speed of the plaquette-renormalized coupling, the longitudinal direction pinned by Gauss's law and 8 massive lattice branches above, with 2 branches on the cubic torus; light isotropic between two symmetry orbits at |k| = pi / 2 where the cubic torus is not; a Coulomb phase whose Wilson loops follow the free photon, lost at a beta shared by three (N, K); and a static love and fear whose averaged flux is the Coulomb field, falling faster on the 4D bulk box than on the 3D control, while the exact-energy demon form carries no light",
-      metrics: { ...strip(a), ...strip(b), ...strip(c), ...strip(d2), ...strip(e), sectionA: a.ok, sectionB: b.ok, sectionC: c.ok, sectionD2: d2.ok, sectionE: e.ok },
+      metrics: {
+        ...strip(a),
+        ...strip(b),
+        ...strip(c),
+        ...strip(d2),
+        ...strip(e),
+        sectionA: a.ok,
+        sectionB: b.ok,
+        sectionC: c.ok,
+        sectionD2: d2.ok,
+        sectionE: e.ok,
+      },
       control: {
-        cubicLightBranches: a['aCubicLightBranches'] ?? -1,
-        cubicAnisotropy: b['bCubicAnisotropy'] ?? -1,
-        demonLightBranches: e['eDemonLightBranches'] ?? -1,
+        cubicLightBranches: a.aCubicLightBranches ?? -1,
+        cubicAnisotropy: b.bCubicAnisotropy ?? -1,
+        demonLightBranches: e.eDemonLightBranches ?? -1,
       },
       notes:
         'L2, exact integers, deterministic, no random numbers: every average is over the beats of one run. The gates were fixed before the run. The model is classical: its thermal field is the classical ensemble of compact U(1), so its Wilson loops read like those of Euclidean 4D compact U(1) and its real charges feel the Coulomb field of the 4D bulk substrate. The D4 box is the substrate, not physical space: physical light is read on the husk, the 3D horosphere surface, for which the cubic torus is the stand-in here. Real charges cannot confine classically here, since the kicks add only curls and leave the Coulomb field of the charges as it is. First run, 2026-09-25, status partial, and the failures stand: (A) the frequency estimator 4 sin^2(omega / 2) = <|dE|^2> / <|E|^2> reads the photon 13 percent above the renormalized prediction (0.171 against 0.151) and counts 2 light branches, not 3, because the beat-to-beat difference also picks up the broadband anharmonic part of the force, while the time-domain zero crossing of one transverse polarization reads 0.155, within 2.3 percent of the prediction; (C) that counter found light at every scan point, down to <cos B> = 0.27, so it cannot locate the transition, and no scan point lost light; (D1) the Wilson loops fit the free photon with r^2 0.93 at a beta 1.6 times the electric one, since a nearly linear leapfrog does not share energy across k within 3,500 beats, though the loop potential stays flat (no area term: sigma -0.014); (D2) on the D4 box the averaged energy sits 7 to 10 percent above the Coulomb energy, the residual oscillation of 2,000 beats, against the 5 percent gate, while the flux residual is under 0.082 at every separation and V(4) / V(1) is 1.12.',

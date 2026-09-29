@@ -26,7 +26,10 @@
 // DETERMINISM: no random numbers. EXACT: the projectors are integer or dyadic matrices and u, u^2, conj u^2 are ring
 // units of Z[omega][1/42]; the spectra are floats, as measurement.
 
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { makeComplexMatrix } from '@/code/algebra/linear/dense'
 import { wrap, type CMatrix } from '@/code/measure/dock-mixer'
@@ -38,7 +41,10 @@ const REG = 8
 export type Unit = readonly [number, number]
 export type Mixer = { q: Float64Array; unit: Unit }
 
-export const cmulUnit = (a: Unit, b: Unit): [number, number] => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+export const cmulUnit = (a: Unit, b: Unit): [number, number] => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 export const conjUnit = (a: Unit): [number, number] => [a[0], -a[1]]
 
 // P = X (1 + sum_k (u_k - 1) q_k), row-major [to][from]; the q_k are the caller's (orthogonal projectors, checked in the
@@ -49,17 +55,21 @@ export function mixerPiece(mixers: readonly Mixer[]): CMatrix {
   const im = new Float64Array(n * n)
 
   for (let i = 0; i < n; i++) {
-    const from = (OPPOSITE[Math.floor(i / REG)] as number) * REG + (i % REG)
+    const from = OPPOSITE[Math.floor(i / REG)]! * REG + (i % REG)
 
     re[i * n + from] = 1
+
     for (const m of mixers) {
       const a = m.unit[0] - 1
       const b = m.unit[1]
 
       for (let j = 0; j < n; j++) {
-        const x = m.q[from * n + j] as number
+        const x = m.q[from * n + j]!
 
-        if (x === 0) continue
+        if (x === 0) {
+          continue
+        }
+
         re[i * n + j]! += a * x
         im[i * n + j]! += b * x
       }
@@ -83,12 +93,24 @@ export type WilsonOptions = {
 }
 
 // the two pieces of the schedule; u the member's ring unit (as a complex number)
-export function wilsonSchedule(qS: Float64Array, qD: Float64Array, u: Unit, options: WilsonOptions): CMatrix[] {
+export function wilsonSchedule(
+  qS: Float64Array,
+  qD: Float64Array,
+  u: Unit,
+  options: WilsonOptions,
+): CMatrix[] {
   const ubar = conjUnit(u)
 
-  if (!options.wilson) return [mixerPiece([{ q: qS, unit: u }]), mixerPiece([{ q: qD, unit: ubar }])]
+  if (!options.wilson) {
+    return [
+      mixerPiece([{ q: qS, unit: u }]),
+      mixerPiece([{ q: qD, unit: ubar }]),
+    ]
+  }
 
-  const v = options.v ? ([options.v[0], options.v[1]] as [number, number]) : cmulUnit(ubar, ubar)
+  const v = options.v
+    ? ([options.v[0], options.v[1]] as [number, number])
+    : cmulUnit(ubar, ubar)
   const y = conjUnit(v)
   const wS = options.half ? matMul(qS, options.half) : qS
   const wD = options.half ? matMul(qD, options.half) : qD
@@ -131,13 +153,16 @@ export function denseMul(a: Dense, b: Dense, n: number): Dense {
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const ar = a.re[i * n + k] as number
-      const ai = a.im[i * n + k] as number
+      const ar = a.re[i * n + k]!
+      const ai = a.im[i * n + k]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
+
       for (let j = 0; j < n; j++) {
-        const br = b.re[k * n + j] as number
-        const bi = b.im[k * n + j] as number
+        const br = b.re[k * n + j]!
+        const bi = b.im[k * n + j]!
 
         re[i * n + j]! += ar * br - ai * bi
         im[i * n + j]! += ar * bi + ai * br
@@ -156,47 +181,59 @@ export function denseSolve(A: Dense, B: Dense, n: number): Dense {
 
   for (let r = 0; r < n; r++) {
     for (let c = 0; c < n; c++) {
-      mr[r * w + c] = A.re[r * n + c] as number
-      mi[r * w + c] = A.im[r * n + c] as number
-      mr[r * w + n + c] = B.re[r * n + c] as number
-      mi[r * w + n + c] = B.im[r * n + c] as number
+      mr[r * w + c] = A.re[r * n + c]!
+      mi[r * w + c] = A.im[r * n + c]!
+      mr[r * w + n + c] = B.re[r * n + c]!
+      mi[r * w + n + c] = B.im[r * n + c]!
     }
   }
 
   for (let c = 0; c < n; c++) {
     let p = c
 
-    for (let r = c + 1; r < n; r++) if (Math.hypot(mr[r * w + c] as number, mi[r * w + c] as number) > Math.hypot(mr[p * w + c] as number, mi[p * w + c] as number)) p = r
+    for (let r = c + 1; r < n; r++) {
+      if (
+        Math.hypot(mr[r * w + c]!, mi[r * w + c]!) >
+        Math.hypot(mr[p * w + c]!, mi[p * w + c]!)
+      ) {
+        p = r
+      }
+    }
+
     if (p !== c) {
       for (let k = 0; k < w; k++) {
-        const tr = mr[c * w + k] as number
-        const ti = mi[c * w + k] as number
+        const tr = mr[c * w + k]!
+        const ti = mi[c * w + k]!
 
-        mr[c * w + k] = mr[p * w + k] as number
-        mi[c * w + k] = mi[p * w + k] as number
+        mr[c * w + k] = mr[p * w + k]!
+        mi[c * w + k] = mi[p * w + k]!
         mr[p * w + k] = tr
         mi[p * w + k] = ti
       }
     }
 
-    const pr = mr[c * w + c] as number
-    const pi = mi[c * w + c] as number
+    const pr = mr[c * w + c]!
+    const pi = mi[c * w + c]!
     const den = pr * pr + pi * pi
 
     for (let r = 0; r < n; r++) {
-      if (r === c) continue
+      if (r === c) {
+        continue
+      }
 
-      const ar = mr[r * w + c] as number
-      const ai = mi[r * w + c] as number
+      const ar = mr[r * w + c]!
+      const ai = mi[r * w + c]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
 
       const fr = (ar * pr + ai * pi) / den
       const fi = (ai * pr - ar * pi) / den
 
       for (let k = c; k < w; k++) {
-        const xr = mr[c * w + k] as number
-        const xi = mi[c * w + k] as number
+        const xr = mr[c * w + k]!
+        const xi = mi[c * w + k]!
 
         mr[r * w + k]! -= fr * xr - fi * xi
         mi[r * w + k]! -= fr * xi + fi * xr
@@ -208,13 +245,13 @@ export function denseSolve(A: Dense, B: Dense, n: number): Dense {
   const im = new Float64Array(n * n)
 
   for (let r = 0; r < n; r++) {
-    const pr = mr[r * w + r] as number
-    const pi = mi[r * w + r] as number
+    const pr = mr[r * w + r]!
+    const pi = mi[r * w + r]!
     const den = pr * pr + pi * pi
 
     for (let c = 0; c < n; c++) {
-      const xr = mr[r * w + n + c] as number
-      const xi = mi[r * w + n + c] as number
+      const xr = mr[r * w + n + c]!
+      const xi = mi[r * w + n + c]!
 
       re[r * n + c] = (xr * pr + xi * pi) / den
       im[r * n + c] = (xi * pr - xr * pi) / den
@@ -226,17 +263,24 @@ export function denseSolve(A: Dense, B: Dense, n: number): Dense {
 
 // ---- the eigenvectors of a unitary ----
 
-export type UnitaryEigen = { phases: number[]; vre: Float64Array; vim: Float64Array; n: number; cut: number }
+export type UnitaryEigen = {
+  phases: number[]
+  vre: Float64Array
+  vim: Float64Array
+  n: number
+  cut: number
+}
 
 // the midpoint of the largest gap between the sorted eigenphases
 export function largestGapMidpoint(phases: readonly number[]): number {
   const s = [...phases].sort((a, b) => a - b)
+
   let best = -1
   let mid = 0
 
   for (let i = 0; i < s.length; i++) {
-    const a = s[i] as number
-    const b = i + 1 < s.length ? (s[i + 1] as number) : (s[0] as number) + 2 * Math.PI
+    const a = s[i]!
+    const b = i + 1 < s.length ? s[i + 1]! : s[0]! + 2 * Math.PI
     const g = b - a
 
     if (g > best) {
@@ -253,7 +297,9 @@ export function largestGapMidpoint(phases: readonly number[]): number {
 // commutes with U; its eigenvalue lambda gives the phase cut - pi + 2 atan(lambda)
 export function unitaryEigen(U: Dense, n: number): UnitaryEigen {
   const e = complexEigenvalues({ re: U.re, im: U.im, n })
-  const cut = largestGapMidpoint(e.re.map((x, i) => Math.atan2(e.im[i] as number, x)))
+  const cut = largestGapMidpoint(
+    e.re.map((x, i) => Math.atan2(e.im[i]!, x)),
+  )
   const phi0 = cut - Math.PI
   const c = Math.cos(phi0)
   const s = Math.sin(phi0)
@@ -262,26 +308,32 @@ export function unitaryEigen(U: Dense, n: number): UnitaryEigen {
   const Vim = new Float64Array(n * n)
 
   for (let i = 0; i < n * n; i++) {
-    const ur = U.re[i] as number
-    const ui = U.im[i] as number
+    const ur = U.re[i]!
+    const ui = U.im[i]!
 
     Vre[i] = c * ur + s * ui
     Vim[i] = c * ui - s * ur
   }
 
   // H = i (1 - V) (1 + V)^-1: solve (1 + V)^T-free form: H = i (1 + V)^-1 (1 - V) (they commute)
-  const onePlus: Dense = { re: Vre.map((x, i) => x + (i % (n + 1) === 0 ? 1 : 0)), im: Vim.slice() }
-  const oneMinus: Dense = { re: Vre.map((x, i) => -x + (i % (n + 1) === 0 ? 1 : 0)), im: Vim.map(x => -x) }
+  const onePlus: Dense = {
+    re: Vre.map((x, i) => x + (i % (n + 1) === 0 ? 1 : 0)),
+    im: Vim.slice(),
+  }
+  const oneMinus: Dense = {
+    re: Vre.map((x, i) => -x + (i % (n + 1) === 0 ? 1 : 0)),
+    im: Vim.map(x => -x),
+  }
   const X = denseSolve(onePlus, oneMinus, n)
   const M = makeComplexMatrix({ rows: n, cols: n })
 
   // H = i X, symmetrized
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      const hr = -(X.im[i * n + j] as number)
-      const hi = X.re[i * n + j] as number
-      const hrT = -(X.im[j * n + i] as number)
-      const hiT = X.re[j * n + i] as number
+      const hr = -X.im[i * n + j]!
+      const hi = X.re[i * n + j]!
+      const hrT = -X.im[j * n + i]!
+      const hiT = X.re[j * n + i]!
 
       M.re[i * n + j] = (hr + hrT) / 2
       M.im[i * n + j] = (hi - hiT) / 2
@@ -289,53 +341,88 @@ export function unitaryEigen(U: Dense, n: number): UnitaryEigen {
   }
 
   const eig = eigHermitian({ matrix: M })
-  const phases = Array.from(eig.values, lam => wrap(phi0 + 2 * Math.atan(lam)))
+  const phases = Array.from(eig.values, lam =>
+    wrap(phi0 + 2 * Math.atan(lam)),
+  )
 
   return { phases, vre: eig.vectorsRe, vim: eig.vectorsIm, n, cut }
 }
 
 // the weight <v| Q |v> of eigenvector k on a real symmetric projector Q
-export function weightOn(e: UnitaryEigen, k: number, Q: Float64Array): number {
+export function weightOn(
+  e: UnitaryEigen,
+  k: number,
+  Q: Float64Array,
+): number {
   const n = e.n
+
   let s = 0
 
   for (let i = 0; i < n; i++) {
-    const xr = e.vre[i * n + k] as number
-    const xi = e.vim[i * n + k] as number
+    const xr = e.vre[i * n + k]!
+    const xi = e.vim[i * n + k]!
 
     for (let j = 0; j < n; j++) {
-      const q = Q[i * n + j] as number
+      const q = Q[i * n + j]!
 
-      if (q === 0) continue
-      s += q * (xr * (e.vre[j * n + k] as number) + xi * (e.vim[j * n + k] as number))
+      if (q === 0) {
+        continue
+      }
+
+      s += q * (xr * e.vre[j * n + k]! + xi * e.vim[j * n + k]!)
     }
   }
 
   return s
 }
 
-export type PhaseCluster = { phase: number; size: number; weight: number }
+export type PhaseCluster = {
+  phase: number
+  size: number
+  weight: number
+}
 
 // the eigenphases grouped into clusters (neighbors within tol, on the circle), each with the total weight of a projector
 // Q summed over the cluster's eigenvectors: a basis-free reading, since inside a degenerate eigenspace any orthonormal
 // basis gives the same sum
-export function clusterWeights(e: UnitaryEigen, Q: Float64Array, tol = 1e-8): PhaseCluster[] {
-  const order = e.phases.map((p, k) => ({ p, k })).sort((a, b) => a.p - b.p)
-  const out: { phase: number; size: number; weight: number; ks: number[] }[] = []
+export function clusterWeights(
+  e: UnitaryEigen,
+  Q: Float64Array,
+  tol = 1e-8,
+): PhaseCluster[] {
+  const order = e.phases
+    .map((p, k) => ({ p, k }))
+    .sort((a, b) => a.p - b.p)
+  const out: {
+    phase: number
+    size: number
+    weight: number
+    ks: number[]
+  }[] = []
 
   for (const { p, k } of order) {
     const last = out[out.length - 1]
 
-    if (last && Math.abs(wrap(p - (last.phase as number))) <= tol) {
+    if (last && Math.abs(wrap(p - last.phase)) <= tol) {
       last.ks.push(k)
       last.size++
-    } else out.push({ phase: p, size: 1, weight: 0, ks: [k] })
+    } else {
+      out.push({ phase: p, size: 1, weight: 0, ks: [k] })
+    }
   }
 
   // join the last cluster to the first across the cut at +-pi
   if (out.length > 1) {
-    const first = out[0] as { phase: number; size: number; ks: number[] }
-    const last = out[out.length - 1] as { phase: number; size: number; ks: number[] }
+    const first = out[0] as {
+      phase: number
+      size: number
+      ks: number[]
+    }
+    const last = out[out.length - 1] as {
+      phase: number
+      size: number
+      ks: number[]
+    }
 
     if (Math.abs(wrap(first.phase - last.phase)) <= tol) {
       first.ks.push(...last.ks)
@@ -344,7 +431,11 @@ export function clusterWeights(e: UnitaryEigen, Q: Float64Array, tol = 1e-8): Ph
     }
   }
 
-  return out.map(c => ({ phase: c.phase, size: c.size, weight: c.ks.reduce((s, k) => s + weightOn(e, k, Q), 0) }))
+  return out.map(c => ({
+    phase: c.phase,
+    size: c.size,
+    weight: c.ks.reduce((s, k) => s + weightOn(e, k, Q), 0),
+  }))
 }
 
 // ---- the slab: a supercell along the depth x3, with an optional magnetic supercell along x0 ----
@@ -384,10 +475,15 @@ type Roots = readonly (readonly number[])[]
 export const slabClasses = (s: Slab): number => s.qa * s.L
 
 const rep = (a: number, c: number): number[] => [a, (a + c) % 2, 0, c]
-const dot4 = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot4 = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // the stream on the slab: every mode's target and phase (a permutation with phases)
-export function slabStream(s: Slab, K: readonly number[], roots: Roots): { to: Int32Array; re: Float64Array; im: Float64Array } {
+export function slabStream(
+  s: Slab,
+  K: readonly number[],
+  roots: Roots,
+): { to: Int32Array; re: Float64Array; im: Float64Array } {
   const nc = slabClasses(s)
   const N = nc * HALF_MODES
   const B = (2 * Math.PI * s.p) / s.qa
@@ -401,14 +497,15 @@ export function slabStream(s: Slab, K: readonly number[], roots: Roots): { to: I
       const p0 = rep(a, c)
 
       for (let d = 0; d < SLOTS; d++) {
-        const r = roots[d] as readonly number[]
-        const a2 = ((((a + (r[0] as number)) % s.qa) + s.qa) % s.qa) as number
-        const c2 = ((((c + (r[3] as number)) % s.L) + s.L) % s.L) as number
+        const r = roots[d]!
+        const a2 = (((a + r[0]!) % s.qa) + s.qa) % s.qa
+        const c2 = (((c + r[3]!) % s.L) + s.L) % s.L
         const p1 = rep(a2, c2)
-        const disp = [0, 1, 2, 3].map(k => (p0[k] as number) + (r[k] as number) - (p1[k] as number))
+        const disp = [0, 1, 2, 3].map(k => p0[k]! + r[k]! - p1[k]!)
         const cls2 = a2 * s.L + c2
-        const gauge = s.chi ? (s.chi[cls2] as number) - (s.chi[cls] as number) : 0
-        const phase = B * (r[1] as number) * (a + (r[0] as number) / 2) - dot4(K, disp) + gauge
+        const gauge = s.chi ? s.chi[cls2]! - s.chi[cls]! : 0
+        const phase =
+          B * r[1]! * (a + r[0]! / 2) - dot4(K, disp) + gauge
 
         for (let x = 0; x < HALF_REG; x++) {
           const from = cls * HALF_MODES + d * HALF_REG + x
@@ -426,17 +523,23 @@ export function slabStream(s: Slab, K: readonly number[], roots: Roots): { to: I
 
 export type CVec = { re: Float64Array; im: Float64Array }
 
-const newVec = (N: number): CVec => ({ re: new Float64Array(N), im: new Float64Array(N) })
+const newVec = (N: number): CVec => ({
+  re: new Float64Array(N),
+  im: new Float64Array(N),
+})
 
-function applyStreamTo(st: { to: Int32Array; re: Float64Array; im: Float64Array }, v: CVec): CVec {
+function applyStreamTo(
+  st: { to: Int32Array; re: Float64Array; im: Float64Array },
+  v: CVec,
+): CVec {
   const out = newVec(v.re.length)
 
   for (let i = 0; i < v.re.length; i++) {
-    const j = st.to[i] as number
-    const cr = st.re[i] as number
-    const ci = st.im[i] as number
-    const xr = v.re[i] as number
-    const xi = v.im[i] as number
+    const j = st.to[i]!
+    const cr = st.re[i]!
+    const ci = st.im[i]!
+    const xr = v.re[i]!
+    const xi = v.im[i]!
 
     out.re[j] = cr * xr - ci * xi
     out.im[j] = cr * xi + ci * xr
@@ -446,13 +549,18 @@ function applyStreamTo(st: { to: Int32Array; re: Float64Array; im: Float64Array 
 }
 
 // the piece of each class (the class's depth c picks the set), applied block by block
-function applyPiecesTo(s: Slab, sets: readonly HalfSet[], beat: number, v: CVec): CVec {
+function applyPiecesTo(
+  s: Slab,
+  sets: readonly HalfSet[],
+  beat: number,
+  v: CVec,
+): CVec {
   const out = newVec(v.re.length)
   const m = HALF_MODES
 
   for (let a = 0; a < s.qa; a++) {
     for (let c = 0; c < s.L; c++) {
-      const P = (sets[s.profile[c] as number] as HalfSet).pieces[beat] as CMatrix
+      const P = sets[s.profile[c]!]!.pieces[beat]!
       const off = (a * s.L + c) * m
 
       for (let i = 0; i < m; i++) {
@@ -460,13 +568,15 @@ function applyPiecesTo(s: Slab, sets: readonly HalfSet[], beat: number, v: CVec)
         let yi = 0
 
         for (let j = 0; j < m; j++) {
-          const pr = P.re[i * m + j] as number
-          const pi = P.im[i * m + j] as number
+          const pr = P.re[i * m + j]!
+          const pi = P.im[i * m + j]!
 
-          if (pr === 0 && pi === 0) continue
+          if (pr === 0 && pi === 0) {
+            continue
+          }
 
-          const xr = v.re[off + j] as number
-          const xi = v.im[off + j] as number
+          const xr = v.re[off + j]!
+          const xi = v.im[off + j]!
 
           yr += pr * xr - pi * xi
           yi += pr * xi + pi * xr
@@ -482,18 +592,38 @@ function applyPiecesTo(s: Slab, sets: readonly HalfSet[], beat: number, v: CVec)
 }
 
 // U v = S P2 S P1 v, the class's own pieces
-export function slabApply(s: Slab, sets: readonly HalfSet[], st: { to: Int32Array; re: Float64Array; im: Float64Array }, v: CVec): CVec {
+export function slabApply(
+  s: Slab,
+  sets: readonly HalfSet[],
+  st: { to: Int32Array; re: Float64Array; im: Float64Array },
+  v: CVec,
+): CVec {
   let x = v
 
-  for (let beat = 0; beat < 2; beat++) x = applyStreamTo(st, applyPiecesTo(s, sets, beat, x))
+  for (let beat = 0; beat < 2; beat++) {
+    x = applyStreamTo(st, applyPiecesTo(s, sets, beat, x))
+  }
 
   return x
 }
 
-export type SlabReduced = { U: Dense; d: number; basis: CVec[]; leak: number; N: number }
+export type SlabReduced = {
+  U: Dense
+  d: number
+  basis: CVec[]
+  leak: number
+  N: number
+}
 
 // the orthonormal basis of W (modified Gram-Schmidt, twice, dropping residuals below 1e-9) and U restricted to it
-export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly number[], roots: Roots, sRange: readonly (readonly number[])[], dRange: readonly (readonly number[])[]): SlabReduced {
+export function slabReduced(
+  s: Slab,
+  sets: readonly HalfSet[],
+  K: readonly number[],
+  roots: Roots,
+  sRange: readonly (readonly number[])[],
+  dRange: readonly (readonly number[])[],
+): SlabReduced {
   const nc = slabClasses(s)
   const N = nc * HALF_MODES
   const st = slabStream(s, K, roots)
@@ -514,7 +644,10 @@ export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly numbe
   const basis: CVec[] = []
 
   for (const g of gens) {
-    const v = { re: Float64Array.from(g.re), im: Float64Array.from(g.im) }
+    const v = {
+      re: Float64Array.from(g.re),
+      im: Float64Array.from(g.im),
+    }
 
     for (let pass = 0; pass < 2; pass++) {
       for (const b of basis) {
@@ -522,19 +655,22 @@ export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly numbe
         let ci = 0
 
         for (let i = 0; i < N; i++) {
-          const br = b.re[i] as number
-          const bi = b.im[i] as number
-          const xr = v.re[i] as number
-          const xi = v.im[i] as number
+          const br = b.re[i]!
+          const bi = b.im[i]!
+          const xr = v.re[i]!
+          const xi = v.im[i]!
 
           cr += br * xr + bi * xi
           ci += br * xi - bi * xr
         }
 
-        if (cr === 0 && ci === 0) continue
+        if (cr === 0 && ci === 0) {
+          continue
+        }
+
         for (let i = 0; i < N; i++) {
-          const br = b.re[i] as number
-          const bi = b.im[i] as number
+          const br = b.re[i]!
+          const bi = b.im[i]!
 
           v.re[i]! -= cr * br - ci * bi
           v.im[i]! -= cr * bi + ci * br
@@ -544,35 +680,51 @@ export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly numbe
 
     let norm = 0
 
-    for (let i = 0; i < N; i++) norm += (v.re[i] as number) ** 2 + (v.im[i] as number) ** 2
+    for (let i = 0; i < N; i++) {
+      norm += v.re[i]! ** 2 + v.im[i]! ** 2
+    }
+
     norm = Math.sqrt(norm)
-    if (norm < 1e-9) continue
+
+    if (norm < 1e-9) {
+      continue
+    }
+
     for (let i = 0; i < N; i++) {
       v.re[i]! /= norm
       v.im[i]! /= norm
     }
+
     basis.push(v)
   }
 
   const d = basis.length
   const UB = basis.map(b => slabApply(s, sets, st, b))
-  const U: Dense = { re: new Float64Array(d * d), im: new Float64Array(d * d) }
+  const U: Dense = {
+    re: new Float64Array(d * d),
+    im: new Float64Array(d * d),
+  }
+
   let leak = 0
 
   for (let j = 0; j < d; j++) {
-    const y = UB[j] as CVec
-    const res = { re: Float64Array.from(y.re), im: Float64Array.from(y.im) }
+    const y = UB[j]!
+    const res = {
+      re: Float64Array.from(y.re),
+      im: Float64Array.from(y.im),
+    }
 
     for (let i = 0; i < d; i++) {
-      const b = basis[i] as CVec
+      const b = basis[i]!
+
       let cr = 0
       let ci = 0
 
       for (let k = 0; k < N; k++) {
-        const br = b.re[k] as number
-        const bi = b.im[k] as number
-        const xr = y.re[k] as number
-        const xi = y.im[k] as number
+        const br = b.re[k]!
+        const bi = b.im[k]!
+        const xr = y.re[k]!
+        const xi = y.im[k]!
 
         cr += br * xr + bi * xi
         ci += br * xi - bi * xr
@@ -580,15 +732,19 @@ export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly numbe
 
       U.re[i * d + j] = cr
       U.im[i * d + j] = ci
+
       for (let k = 0; k < N; k++) {
-        res.re[k]! -= cr * (b.re[k] as number) - ci * (b.im[k] as number)
-        res.im[k]! -= cr * (b.im[k] as number) + ci * (b.re[k] as number)
+        res.re[k]! -= cr * b.re[k]! - ci * b.im[k]!
+        res.im[k]! -= cr * b.im[k]! + ci * b.re[k]!
       }
     }
 
     let r2 = 0
 
-    for (let k = 0; k < N; k++) r2 += (res.re[k] as number) ** 2 + (res.im[k] as number) ** 2
+    for (let k = 0; k < N; k++) {
+      r2 += res.re[k]! ** 2 + res.im[k]! ** 2
+    }
+
     leak = Math.max(leak, Math.sqrt(r2))
   }
 
@@ -596,8 +752,15 @@ export function slabReduced(s: Slab, sets: readonly HalfSet[], K: readonly numbe
 }
 
 // the weight of the full vector B y on the depth classes in `depths`, for coefficient columns k of an eigen solution
-export function depthWeight(s: Slab, red: SlabReduced, e: UnitaryEigen, k: number, depths: ReadonlySet<number>): number {
+export function depthWeight(
+  s: Slab,
+  red: SlabReduced,
+  e: UnitaryEigen,
+  k: number,
+  depths: ReadonlySet<number>,
+): number {
   const d = red.d
+
   let total = 0
 
   for (let a = 0; a < s.qa; a++) {
@@ -609,11 +772,11 @@ export function depthWeight(s: Slab, red: SlabReduced, e: UnitaryEigen, k: numbe
         let xi = 0
 
         for (let j = 0; j < d; j++) {
-          const yr = e.vre[j * d + k] as number
-          const yi = e.vim[j * d + k] as number
-          const b = red.basis[j] as CVec
-          const br = b.re[off + i] as number
-          const bi = b.im[off + i] as number
+          const yr = e.vre[j * d + k]!
+          const yi = e.vim[j * d + k]!
+          const b = red.basis[j]!
+          const br = b.re[off + i]!
+          const bi = b.im[off + i]!
 
           xr += br * yr - bi * yi
           xi += br * yi + bi * yr
@@ -629,7 +792,12 @@ export function depthWeight(s: Slab, red: SlabReduced, e: UnitaryEigen, k: numbe
 
 // ---- the walls' Weyl content ----
 
-export type WallReading = { states: number; chirality: number; speeds: number[]; split: number[] }
+export type WallReading = {
+  states: number
+  chirality: number
+  speeds: number[]
+  split: number[]
+}
 
 type Small = { re: number[]; im: number[] }
 
@@ -638,8 +806,8 @@ const innerFull = (a: CVec, b: CVec): [number, number] => {
   let i = 0
 
   for (let k = 0; k < a.re.length; k++) {
-    r += (a.re[k] as number) * (b.re[k] as number) + (a.im[k] as number) * (b.im[k] as number)
-    i += (a.re[k] as number) * (b.im[k] as number) - (a.im[k] as number) * (b.re[k] as number)
+    r += a.re[k]! * b.re[k]! + a.im[k]! * b.im[k]!
+    i += a.re[k]! * b.im[k]! - a.im[k]! * b.re[k]!
   }
 
   return [r, i]
@@ -649,9 +817,18 @@ function smallMul(a: Small, b: Small, n: number): Small {
   const re = Array<number>(n * n).fill(0)
   const im = Array<number>(n * n).fill(0)
 
-  for (let i = 0; i < n; i++) for (let k = 0; k < n; k++) for (let j = 0; j < n; j++) {
-    re[i * n + j]! += (a.re[i * n + k] as number) * (b.re[k * n + j] as number) - (a.im[i * n + k] as number) * (b.im[k * n + j] as number)
-    im[i * n + j]! += (a.re[i * n + k] as number) * (b.im[k * n + j] as number) + (a.im[i * n + k] as number) * (b.re[k * n + j] as number)
+  for (let i = 0; i < n; i++) {
+    for (let k = 0; k < n; k++) {
+      for (let j = 0; j < n; j++) {
+        re[i * n + j]! +=
+          a.re[i * n + k]! * b.re[k * n + j]! -
+          a.im[i * n + k]! * b.im[k * n + j]!
+
+        im[i * n + j]! +=
+          a.re[i * n + k]! * b.im[k * n + j]! +
+          a.im[i * n + k]! * b.re[k * n + j]!
+      }
+    }
   }
 
   return { re, im }
@@ -662,30 +839,44 @@ function smallMul(a: Small, b: Small, n: number): Small {
 // For each wall, H_j = dH/dk_j along x0, x1, x2 by symmetric differences of H(k) = (M' - M'^dag) / 2i, M' = -<z| U(k) |z>
 // (the phase measured from pi), U(k) the full slab cycle. The net chirality is Im tr(H0 H1 H2) / (2 v0 v1 v2), v_j the
 // largest |eigenvalue| of H_j: for n copies of sigma . V k with V isotropic it is n sign det V, and it is basis-free
-export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, sRange: readonly (readonly number[])[], dRange: readonly (readonly number[])[], aDepths: ReadonlySet<number>, kStep: number, window: number): { inGap: number; weights: number[]; walls: WallReading[] } {
+export function wallChirality(
+  s: Slab,
+  sets: readonly HalfSet[],
+  roots: Roots,
+  sRange: readonly (readonly number[])[],
+  dRange: readonly (readonly number[])[],
+  aDepths: ReadonlySet<number>,
+  kStep: number,
+  window: number,
+): { inGap: number; weights: number[]; walls: WallReading[] } {
   const red = slabReduced(s, sets, [0, 0, 0, 0], roots, sRange, dRange)
   const e = unitaryEigen(red.U, red.d)
-  const gapIdx = e.phases.map((p, k) => ({ p, k })).filter(x => Math.abs(wrap(x.p - Math.PI)) < window)
+  const gapIdx = e.phases
+    .map((p, k) => ({ p, k }))
+    .filter(x => Math.abs(wrap(x.p - Math.PI)) < window)
   const N = red.N
+
   const lift = (k: number): CVec => {
     const x: CVec = { re: new Float64Array(N), im: new Float64Array(N) }
 
     for (let j = 0; j < red.d; j++) {
-      const yr = e.vre[j * red.d + k] as number
-      const yi = e.vim[j * red.d + k] as number
-      const b = red.basis[j] as CVec
+      const yr = e.vre[j * red.d + k]!
+      const yi = e.vim[j * red.d + k]!
+      const b = red.basis[j]!
 
       for (let i = 0; i < N; i++) {
-        x.re[i]! += (b.re[i] as number) * yr - (b.im[i] as number) * yi
-        x.im[i]! += (b.re[i] as number) * yi + (b.im[i] as number) * yr
+        x.re[i]! += b.re[i]! * yr - b.im[i]! * yi
+        x.im[i]! += b.re[i]! * yi + b.im[i]! * yr
       }
     }
 
     return x
   }
+
   const vecs = gapIdx.map(g => lift(g.k))
   const m = vecs.length
   const G = makeComplexMatrix({ rows: m, cols: m })
+
   const onA = (x: CVec): CVec => {
     const y: CVec = { re: new Float64Array(N), im: new Float64Array(N) }
 
@@ -694,8 +885,8 @@ export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, s
         const off = (a * s.L + c) * HALF_MODES
 
         for (let i = 0; i < HALF_MODES; i++) {
-          y.re[off + i] = x.re[off + i] as number
-          y.im[off + i] = x.im[off + i] as number
+          y.re[off + i] = x.re[off + i]!
+          y.im[off + i] = x.im[off + i]!
         }
       }
     }
@@ -705,46 +896,59 @@ export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, s
 
   for (let a = 0; a < m; a++) {
     for (let b = 0; b < m; b++) {
-      const [r, i] = innerFull(vecs[a] as CVec, onA(vecs[b] as CVec))
+      const [r, i] = innerFull(vecs[a]!, onA(vecs[b]!))
 
       G.re[a * m + b] = r
       G.im[a * m + b] = i
     }
   }
 
-  const g = m > 0 ? eigHermitian({ matrix: G }) : { values: new Float64Array(0), vectorsRe: new Float64Array(0), vectorsIm: new Float64Array(0) }
+  const g =
+    m > 0
+      ? eigHermitian({ matrix: G })
+      : {
+          values: new Float64Array(0),
+          vectorsRe: new Float64Array(0),
+          vectorsIm: new Float64Array(0),
+        }
   const groups: CVec[][] = [[], []]
 
   for (let c = 0; c < m; c++) {
     const z: CVec = { re: new Float64Array(N), im: new Float64Array(N) }
 
     for (let a = 0; a < m; a++) {
-      const cr = g.vectorsRe[a * m + c] as number
-      const ci = g.vectorsIm[a * m + c] as number
-      const x = vecs[a] as CVec
+      const cr = g.vectorsRe[a * m + c]!
+      const ci = g.vectorsIm[a * m + c]!
+      const x = vecs[a]!
 
       for (let i = 0; i < N; i++) {
-        z.re[i]! += (x.re[i] as number) * cr - (x.im[i] as number) * ci
-        z.im[i]! += (x.re[i] as number) * ci + (x.im[i] as number) * cr
+        z.re[i]! += x.re[i]! * cr - x.im[i]! * ci
+        z.im[i]! += x.re[i]! * ci + x.im[i]! * cr
       }
     }
-    ;(groups[(g.values[c] as number) > 0.5 ? 0 : 1] as CVec[]).push(z)
+
+    groups[g.values[c]! > 0.5 ? 0 : 1]!.push(z)
   }
 
   const walls = groups.map(zs => {
     const n = zs.length
 
-    if (n === 0) return { states: 0, chirality: 0, speeds: [0, 0, 0], split: [] }
+    if (n === 0) {
+      return { states: 0, chirality: 0, speeds: [0, 0, 0], split: [] }
+    }
 
     const H = (K: number[]): Small => {
       const st = slabStream(s, K, roots)
       const Uz = zs.map(z => slabApply(s, sets, st, z))
-      const out: Small = { re: Array<number>(n * n).fill(0), im: Array<number>(n * n).fill(0) }
+      const out: Small = {
+        re: Array<number>(n * n).fill(0),
+        im: Array<number>(n * n).fill(0),
+      }
 
       for (let a = 0; a < n; a++) {
         for (let b = 0; b < n; b++) {
-          const [r1, i1] = innerFull(zs[a] as CVec, Uz[b] as CVec)
-          const [r2, i2] = innerFull(zs[b] as CVec, Uz[a] as CVec)
+          const [r1, i1] = innerFull(zs[a]!, Uz[b]!)
+          const [r2, i2] = innerFull(zs[b]!, Uz[a]!)
 
           // M' = -M; H = (M' - M'^dag) / 2i: M'_ab = -(r1 + i i1), conj(M'_ba) = -(r2 - i i2)
           const dr = -r1 + r2
@@ -757,6 +961,7 @@ export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, s
 
       return out
     }
+
     const Hd = [0, 1, 2].map(j => {
       const Kp = [0, 0, 0, 0]
       const Km = [0, 0, 0, 0]
@@ -767,12 +972,22 @@ export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, s
       const a = H(Kp)
       const b = H(Km)
 
-      return { re: a.re.map((x, i) => (x - (b.re[i] as number)) / (2 * kStep)), im: a.im.map((x, i) => (x - (b.im[i] as number)) / (2 * kStep)) }
+      return {
+        re: a.re.map((x, i) => (x - b.re[i]!) / (2 * kStep)),
+        im: a.im.map((x, i) => (x - b.im[i]!) / (2 * kStep)),
+      }
     })
-    const P = smallMul(smallMul(Hd[0] as Small, Hd[1] as Small, n), Hd[2] as Small, n)
+    const P = smallMul(
+      smallMul(Hd[0] as Small, Hd[1] as Small, n),
+      Hd[2] as Small,
+      n,
+    )
+
     let trIm = 0
 
-    for (let a = 0; a < n; a++) trIm += P.im[a * n + a] as number
+    for (let a = 0; a < n; a++) {
+      trIm += P.im[a * n + a]!
+    }
 
     const speeds = Hd.map(h => {
       const Hm = makeComplexMatrix({ rows: n, cols: n })
@@ -780,14 +995,22 @@ export function wallChirality(s: Slab, sets: readonly HalfSet[], roots: Roots, s
       h.re.forEach((x, i) => {
         Hm.re[i] = x
       })
+
       h.im.forEach((x, i) => {
         Hm.im[i] = x
       })
 
-      return Math.max(...[...eigHermitian({ matrix: Hm }).values].map(Math.abs))
+      return Math.max(
+        ...[...eigHermitian({ matrix: Hm }).values].map(Math.abs),
+      )
     })
 
-    return { states: n, chirality: trIm / (2 * (speeds[0] as number) * (speeds[1] as number) * (speeds[2] as number)), speeds, split: [] }
+    return {
+      states: n,
+      chirality: trIm / (2 * speeds[0]! * speeds[1]! * speeds[2]!),
+      speeds,
+      split: [],
+    }
   })
 
   return { inGap: m, weights: [...g.values], walls }
@@ -800,66 +1023,117 @@ export type WindowLevel = { phase: number; wallA: number }
 // the levels of the reduced cycle within `window` of `ref`, each with its weight on the depth classes `depths` (from its
 // eigenvector by inverse iteration; a degenerate pair gives a vector in its span, and both members of the register's
 // right-SU(2) doublet sit on the same wall, so the span's weight is each member's)
-export function windowLevels(s: Slab, red: SlabReduced, phases: readonly number[], ref: number, window: number, depths: ReadonlySet<number>): WindowLevel[] {
+export function windowLevels(
+  s: Slab,
+  red: SlabReduced,
+  phases: readonly number[],
+  ref: number,
+  window: number,
+  depths: ReadonlySet<number>,
+): WindowLevel[] {
   const d = red.d
   const out: WindowLevel[] = []
 
   for (const ph of phases) {
-    if (Math.abs(wrap(ph - ref)) >= window) continue
+    if (Math.abs(wrap(ph - ref)) >= window) {
+      continue
+    }
 
-    const vec = complexEigenvector({ re: red.U.re, im: red.U.im, n: d, value: [Math.cos(ph), Math.sin(ph)] })
-    const e: UnitaryEigen = { phases: [ph], vre: new Float64Array(d * d), vim: new Float64Array(d * d), n: d, cut: 0 }
+    const vec = complexEigenvector({
+      re: red.U.re,
+      im: red.U.im,
+      n: d,
+      value: [Math.cos(ph), Math.sin(ph)],
+    })
+    const e: UnitaryEigen = {
+      phases: [ph],
+      vre: new Float64Array(d * d),
+      vim: new Float64Array(d * d),
+      n: d,
+      cut: 0,
+    }
 
     // a one-column eigen solution: column 0 of a d x 1 layout read by depthWeight as [j * d + 0]
     for (let j = 0; j < d; j++) {
-      e.vre[j * d] = vec.re[j] as number
-      e.vim[j * d] = vec.im[j] as number
+      e.vre[j * d] = vec.re[j]!
+      e.vim[j * d] = vec.im[j]!
     }
+
     out.push({ phase: ph, wallA: depthWeight(s, red, e, 0, depths) })
   }
 
   return out
 }
 
-export type FlowCount = { up: number; down: number; entries: number; exits: number; unmatched: number }
+export type FlowCount = {
+  up: number
+  down: number
+  entries: number
+  exits: number
+  unmatched: number
+}
 
 // crossings of `ref` between two steps by the levels of one wall: each level at step s + 1 is matched to the nearest
 // unused level of step s within `reach` (greedy, nearest first); a matched pair whose offset from ref changes sign is a
 // crossing, up or down. Unmatched levels are entries or exits at the window's edges (never crossings)
-export function wallCrossings(before: readonly number[], after: readonly number[], ref: number, reach: number): FlowCount {
+export function wallCrossings(
+  before: readonly number[],
+  after: readonly number[],
+  ref: number,
+  reach: number,
+): FlowCount {
   const pairs: { i: number; j: number; dist: number }[] = []
 
-  before.forEach((a, i) => after.forEach((b, j) => pairs.push({ i, j, dist: Math.abs(wrap(b - a)) })))
+  before.forEach((a, i) =>
+    after.forEach((b, j) =>
+      pairs.push({ i, j, dist: Math.abs(wrap(b - a)) }),
+    ),
+  )
   pairs.sort((x, y) => x.dist - y.dist)
 
   const usedA = new Set<number>()
   const usedB = new Set<number>()
+
   let up = 0
   let down = 0
 
   for (const p of pairs) {
-    if (p.dist > reach || usedA.has(p.i) || usedB.has(p.j)) continue
+    if (p.dist > reach || usedA.has(p.i) || usedB.has(p.j)) {
+      continue
+    }
+
     usedA.add(p.i)
     usedB.add(p.j)
 
-    const x = wrap((before[p.i] as number) - ref)
-    const y = wrap((after[p.j] as number) - ref)
+    const x = wrap(before[p.i]! - ref)
+    const y = wrap(after[p.j]! - ref)
 
-    if (x < 0 && y >= 0) up++
-    else if (x >= 0 && y < 0) down++
+    if (x < 0 && y >= 0) {
+      up++
+    } else if (x >= 0 && y < 0) {
+      down++
+    }
   }
 
-  return { up, down, entries: after.length - usedB.size, exits: before.length - usedA.size, unmatched: 0 }
+  return {
+    up,
+    down,
+    entries: after.length - usedB.size,
+    exits: before.length - usedA.size,
+    unmatched: 0,
+  }
 }
 
 // the largest |U v - e^(i phi) v| over the eigenpairs: the decomposition's residual
 export function eigenResidual(U: Dense, e: UnitaryEigen): number {
   const n = e.n
+
   let worst = 0
 
   for (let k = 0; k < n; k++) {
-    const c = Math.cos(e.phases[k] as number)
-    const s = Math.sin(e.phases[k] as number)
+    const c = Math.cos(e.phases[k]!)
+    const s = Math.sin(e.phases[k]!)
+
     let r2 = 0
 
     for (let i = 0; i < n; i++) {
@@ -867,19 +1141,20 @@ export function eigenResidual(U: Dense, e: UnitaryEigen): number {
       let yi = 0
 
       for (let j = 0; j < n; j++) {
-        const ur = U.re[i * n + j] as number
-        const ui = U.im[i * n + j] as number
-        const xr = e.vre[j * n + k] as number
-        const xi = e.vim[j * n + k] as number
+        const ur = U.re[i * n + j]!
+        const ui = U.im[i * n + j]!
+        const xr = e.vre[j * n + k]!
+        const xi = e.vim[j * n + k]!
 
         yr += ur * xr - ui * xi
         yi += ur * xi + ui * xr
       }
 
-      const vr = e.vre[i * n + k] as number
-      const vi = e.vim[i * n + k] as number
+      const vr = e.vre[i * n + k]!
+      const vi = e.vim[i * n + k]!
 
-      r2 += (yr - (c * vr - s * vi)) ** 2 + (yi - (c * vi + s * vr)) ** 2
+      r2 +=
+        (yr - (c * vr - s * vi)) ** 2 + (yi - (c * vi + s * vr)) ** 2
     }
 
     worst = Math.max(worst, Math.sqrt(r2))

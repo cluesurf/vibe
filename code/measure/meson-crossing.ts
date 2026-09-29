@@ -28,9 +28,21 @@
 // measurement.
 
 import { lightN } from '@/code/measure/drift-cost-bloch'
-import { inner, unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
-import { parityIndices, type Meson } from '@/code/measure/string-binding'
-import { bandApply, overlapOf, pairBand, type PairBand } from '@/code/measure/meson-band'
+import {
+  inner,
+  unitaryEigen,
+  type Vec,
+} from '@/code/measure/quantum-ladder'
+import {
+  parityIndices,
+  type Meson,
+} from '@/code/measure/string-binding'
+import {
+  bandApply,
+  overlapOf,
+  pairBand,
+  type PairBand,
+} from '@/code/measure/meson-band'
 
 export type Exchange = { partner: Int32Array; d: Int32Array }
 
@@ -46,14 +58,21 @@ export function exchangeMap(m: Meson): Exchange {
     const dd = m.b.configs[c]![1]!
 
     d[a] = dd
-    partner[a] = at.get(m.b.index(m.b.configOf([0, -dd]), (r & 1) * 2 + (r >> 1)))!
+    partner[a] = at.get(
+      m.b.index(m.b.configOf([0, -dd]), (r & 1) * 2 + (r >> 1)),
+    )!
   })
 
   return { partner, d }
 }
 
 // (X phi)(d, j0, j1) = e^(i sign K d) phi(-d, j1, j0); sign -1 is the wrong phase, for the control
-export function exchange(x: Exchange, K: number, v: Vec, sign = 1): Vec {
+export function exchange(
+  x: Exchange,
+  K: number,
+  v: Vec,
+  sign = 1,
+): Vec {
   const n = v.re.length
   const out = { re: new Float64Array(n), im: new Float64Array(n) }
 
@@ -76,7 +95,12 @@ export function exchangeValue(x: Exchange, K: number, v: Vec): number {
 }
 
 // (1 + sector X)/2 v, in place
-export function projectSector(x: Exchange, K: number, v: Vec, sector: 1 | -1): void {
+export function projectSector(
+  x: Exchange,
+  K: number,
+  v: Vec,
+  sector: 1 | -1,
+): void {
   const w = exchange(x, K, v)
 
   for (let a = 0; a < v.re.length; a++) {
@@ -102,15 +126,20 @@ export function weylVector(n: number, a: number): Vec {
 
 // fractional parts of sqrt 2, sqrt 3, golden ratio, sqrt 5, sqrt 10, sqrt 11, e, pi, ln 2, Euler's gamma, sqrt 7
 export const WEYL: readonly number[] = [
-  0.4142135623730951, 0.7320508075688772, 0.6180339887498949, 0.2360679774997898, 0.1622776601683795, 0.3166247903554, 0.718281828459045, 0.14159265358979312,
-  0.6931471805599453, 0.5772156649015329, 0.6457513110645907,
+  0.4142135623730951, 0.7320508075688772, 0.6180339887498949,
+  0.2360679774997898, 0.1622776601683795, 0.3166247903554,
+  0.718281828459045, 0.14159265358979312, 0.6931471805599453,
+  0.5772156649015329, 0.6457513110645907,
 ]
 
 export function orthonormal(vs: readonly Vec[]): Vec[] {
   const out: Vec[] = []
 
   for (const v0 of vs) {
-    const w = { re: Float64Array.from(v0.re), im: Float64Array.from(v0.im) }
+    const w = {
+      re: Float64Array.from(v0.re),
+      im: Float64Array.from(v0.im),
+    }
 
     for (let pass = 0; pass < 2; pass++) {
       for (const q of out) {
@@ -140,9 +169,21 @@ export function orthonormal(vs: readonly Vec[]): Vec[] {
 // many rounds at one K and one shift, so `bandFactor` keeps the same banded elimination with partial pivoting (the same
 // window of 2 kl + ku + 1 per row) and `factorSolve` applies it to one right-hand side. The experiment checks one solve
 // against bandSolve.
-export type BandLU = { n: number; kl: number; ku: number; W: number; ar: Float64Array; ai: Float64Array; pivot: Int32Array }
+export type BandLU = {
+  n: number
+  kl: number
+  ku: number
+  W: number
+  ar: Float64Array
+  ai: Float64Array
+  pivot: Int32Array
+}
 
-export function bandFactor(op: PairBand, sr: number, si: number): BandLU {
+export function bandFactor(
+  op: PairBand,
+  sr: number,
+  si: number,
+): BandLU {
   const { dim: n, kl, ku } = op
   const W = 2 * kl + ku + 1
   const ar = new Float64Array(n * W)
@@ -165,6 +206,7 @@ export function bandFactor(op: PairBand, sr: number, si: number): BandLU {
   for (let k = 0; k < n; k++) {
     const last = Math.min(n - 1, k + kl)
     const right = Math.min(n - 1, k + kl + ku)
+
     let p = k
     let best = ar[slot(k, k)]! ** 2 + ai[slot(k, k)]! ** 2
 
@@ -206,7 +248,9 @@ export function bandFactor(op: PairBand, sr: number, si: number): BandLU {
       ar[s] = fr
       ai[s] = fi
 
-      if (fr === 0 && fi === 0) continue
+      if (fr === 0 && fi === 0) {
+        continue
+      }
 
       for (let j = k + 1; j <= right; j++) {
         const a = slot(k, j)
@@ -222,7 +266,11 @@ export function bandFactor(op: PairBand, sr: number, si: number): BandLU {
 }
 
 // x = (U - s)^(-1) b with a factor from bandFactor; b is overwritten by x
-export function factorSolve(lu: BandLU, bre: Float64Array, bim: Float64Array): void {
+export function factorSolve(
+  lu: BandLU,
+  bre: Float64Array,
+  bim: Float64Array,
+): void {
   const { n, kl, ku, W, ar, ai, pivot } = lu
   const slot = (i: number, j: number): number => i * W + (j - i + kl)
 
@@ -246,7 +294,9 @@ export function factorSolve(lu: BandLU, bre: Float64Array, bim: Float64Array): v
       const fr = ar[s]!
       const fi = ai[s]!
 
-      if (fr === 0 && fi === 0) continue
+      if (fr === 0 && fi === 0) {
+        continue
+      }
 
       bre[i] = bre[i]! - (fr * bre[k]! - fi * bim[k]!)
       bim[i] = bim[i]! - (fr * bim[k]! + fi * bre[k]!)
@@ -256,6 +306,7 @@ export function factorSolve(lu: BandLU, bre: Float64Array, bim: Float64Array): v
   for (let k = n - 1; k >= 0; k--) {
     let sr2 = bre[k]!
     let si2 = bim[k]!
+
     const right = Math.min(n - 1, k + kl + ku)
 
     for (let j = k + 1; j <= right; j++) {
@@ -274,26 +325,51 @@ export function factorSolve(lu: BandLU, bre: Float64Array, bim: Float64Array): v
   }
 }
 
-export type Ritz = { energy: number; residual: number; exchange: number; vector: Vec }
+export type Ritz = {
+  energy: number
+  residual: number
+  exchange: number
+  vector: Vec
+}
 
 // the Ritz levels of one exchange sector nearest `energy` (see the header), energies unwrapped to the representative
 // nearest `energy`, sorted by distance from it
-export const shiftOf = (energy: number): [number, number] => [Math.cos(-energy) * (1 + 1e-9), Math.sin(-energy) * (1 + 1e-9)]
+export const shiftOf = (energy: number): [number, number] => [
+  Math.cos(-energy) * (1 + 1e-9),
+  Math.sin(-energy) * (1 + 1e-9),
+]
 
-export function nearSpectrum(m: Meson, x: Exchange, K: number, energy: number, starts: readonly Vec[], sector: 1 | -1, rounds = 8, op: PairBand = pairBand(m, K, 0), lu: BandLU = bandFactor(op, ...shiftOf(energy))): Ritz[] {
+export function nearSpectrum(
+  m: Meson,
+  x: Exchange,
+  K: number,
+  energy: number,
+  starts: readonly Vec[],
+  sector: 1 | -1,
+  rounds = 8,
+  op: PairBand = pairBand(m, K, 0),
+  lu: BandLU = bandFactor(op, ...shiftOf(energy)),
+): Ritz[] {
   const project = (v: Vec): Vec => {
-    const w = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
+    const w = {
+      re: Float64Array.from(v.re),
+      im: Float64Array.from(v.im),
+    }
 
     projectSector(x, K, w, sector)
 
     return w
   }
+
   let Q = orthonormal(starts.map(project))
 
   for (let r = 0; r < rounds; r++) {
     Q = orthonormal(
       Q.map(q => {
-        const w = { re: Float64Array.from(q.re), im: Float64Array.from(q.im) }
+        const w = {
+          re: Float64Array.from(q.re),
+          im: Float64Array.from(q.im),
+        }
 
         factorSolve(lu, w.re, w.im)
         projectSector(x, K, w, sector)
@@ -326,22 +402,39 @@ export function nearSpectrum(m: Meson, x: Exchange, K: number, energy: number, s
 
       for (let a = 0; a < k; a++) {
         for (let i = 0; i < n; i++) {
-          v.re[i] = v.re[i]! + c.re[a]! * Q[a]!.re[i]! - c.im[a]! * Q[a]!.im[i]!
-          v.im[i] = v.im[i]! + c.re[a]! * Q[a]!.im[i]! + c.im[a]! * Q[a]!.re[i]!
+          v.re[i] =
+            v.re[i]! + c.re[a]! * Q[a]!.re[i]! - c.im[a]! * Q[a]!.im[i]!
+
+          v.im[i] =
+            v.im[i]! + c.re[a]! * Q[a]!.im[i]! + c.im[a]! * Q[a]!.re[i]!
         }
       }
 
       const uv = bandApply(op, v)
       const [lr, li] = inner(v, uv)
+
       let r2 = 0
 
-      for (let i = 0; i < n; i++) r2 += (uv.re[i]! - (lr * v.re[i]! - li * v.im[i]!)) ** 2 + (uv.im[i]! - (lr * v.im[i]! + li * v.re[i]!)) ** 2
+      for (let i = 0; i < n; i++) {
+        r2 +=
+          (uv.re[i]! - (lr * v.re[i]! - li * v.im[i]!)) ** 2 +
+          (uv.im[i]! - (lr * v.im[i]! + li * v.re[i]!)) ** 2
+      }
 
       const e = -Math.atan2(li, lr)
 
-      return { energy: e + 2 * Math.PI * Math.round((energy - e) / (2 * Math.PI)), residual: Math.sqrt(r2), exchange: exchangeValue(x, K, v), vector: v }
+      return {
+        energy:
+          e + 2 * Math.PI * Math.round((energy - e) / (2 * Math.PI)),
+        residual: Math.sqrt(r2),
+        exchange: exchangeValue(x, K, v),
+        vector: v,
+      }
     })
-    .sort((a, b) => Math.abs(a.energy - energy) - Math.abs(b.energy - energy))
+    .sort(
+      (a, b) =>
+        Math.abs(a.energy - energy) - Math.abs(b.energy - energy),
+    )
 }
 
 export type Moments = { mean: number; tail: number; contact: number }
@@ -350,6 +443,7 @@ export type Moments = { mean: number; tail: number; contact: number }
 export function blockMoments(m: Meson, v: Vec): Moments {
   const idx = parityIndices(m, 0)
   const N = lightN(m.D)
+
   let t = 0
   let mean = 0
   let tail = 0
@@ -361,8 +455,14 @@ export function blockMoments(m: Meson, v: Vec): Moments {
 
     t += p
     mean += p * d
-    if (d >= N) tail += p
-    if (d === 0) contact += p
+
+    if (d >= N) {
+      tail += p
+    }
+
+    if (d === 0) {
+      contact += p
+    }
   })
 
   return { mean: mean / t, tail: tail / t, contact: contact / t }
@@ -370,7 +470,9 @@ export function blockMoments(m: Meson, v: Vec): Moments {
 
 // |d| at which one token in each branch at rest has energy E under the string (see the header)
 export function kleinDistance(m: Meson, energy: number): number {
-  return (energy + (2 * Math.PI) / (3 * m.fine)) / (Math.PI / lightN(m.D))
+  return (
+    (energy + (2 * Math.PI) / (3 * m.fine)) / (Math.PI / lightN(m.D))
+  )
 }
 
 export type DiabaticStep = {
@@ -415,11 +517,28 @@ export const JOIN_RESIDUAL = 1e-8
 // out, which loses at most (count - 1) JOIN_WEIGHT of the previous point per step, far under the 1e-2 a hold allows
 export const JOIN_WEIGHT = 1e-6
 
-export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: number, ks: readonly number[], sector: 1 | -1, window: number, stop: (s: DiabaticStep) => boolean = () => false, count = 10, rounds = 4, chunks = 12): DiabaticStep[] {
+export function followDiabatic(
+  m: Meson,
+  x: Exchange,
+  start: Vec,
+  energy0: number,
+  ks: readonly number[],
+  sector: 1 | -1,
+  window: number,
+  stop: (s: DiabaticStep) => boolean = () => false,
+  count = 10,
+  rounds = 4,
+  chunks = 12,
+): DiabaticStep[] {
   const dim = start.re.length
+
   let rest = WEYL.slice(0, count - 1).map(a => weylVector(dim, a))
-  let prev: Vec = { re: Float64Array.from(start.re), im: Float64Array.from(start.im) }
+  let prev: Vec = {
+    re: Float64Array.from(start.re),
+    im: Float64Array.from(start.im),
+  }
   let energy = energy0
+
   const out: DiabaticStep[] = []
 
   for (const K of ks) {
@@ -427,8 +546,15 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
     // the shift at the band's energy extrapolated linearly from its last two points, so the followed level is the one
     // nearest the shift (the previous energy lags by v dK, which on a light meson is several level spacings)
     const n = out.length
-    const guess = n >= 2 ? energy + ((out[n - 1]!.energy - out[n - 2]!.energy) * (K - out[n - 1]!.K)) / (out[n - 1]!.K - out[n - 2]!.K) : energy
+    const guess =
+      n >= 2
+        ? energy +
+          ((out[n - 1]!.energy - out[n - 2]!.energy) *
+            (K - out[n - 1]!.K)) /
+            (out[n - 1]!.K - out[n - 2]!.K)
+        : energy
     const lu = bandFactor(op, ...shiftOf(guess))
+
     // the previous point, then the previous K's other Ritz vectors (the Weyl vectors at the first K): the subspace
     // iteration continued in K
     let starts: Vec[] = [prev, ...rest]
@@ -449,9 +575,20 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
           best = i
         }
       })
-      joined = rz.filter(r => r === rz[best] || (Math.abs(r.energy - rz[best]!.energy) <= window && overlapOf(prev, r.vector) ** 2 >= JOIN_WEIGHT))
 
-      if (rz[best]!.residual <= PICK_RESIDUAL && joined.every(r => r.residual <= JOIN_RESIDUAL)) break
+      joined = rz.filter(
+        r =>
+          r === rz[best] ||
+          (Math.abs(r.energy - rz[best]!.energy) <= window &&
+            overlapOf(prev, r.vector) ** 2 >= JOIN_WEIGHT),
+      )
+
+      if (
+        rz[best]!.residual <= PICK_RESIDUAL &&
+        joined.every(r => r.residual <= JOIN_RESIDUAL)
+      ) {
+        break
+      }
 
       starts = rz.map(r => r.vector)
     }
@@ -465,8 +602,11 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
       const [cr, ci] = inner(r.vector, prev)
 
       for (let i = 0; i < dim; i++) {
-        phi.re[i] = phi.re[i]! + cr * r.vector.re[i]! - ci * r.vector.im[i]!
-        phi.im[i] = phi.im[i]! + cr * r.vector.im[i]! + ci * r.vector.re[i]!
+        phi.re[i] =
+          phi.re[i]! + cr * r.vector.re[i]! - ci * r.vector.im[i]!
+
+        phi.im[i] =
+          phi.im[i]! + cr * r.vector.im[i]! + ci * r.vector.re[i]!
       }
     }
 
@@ -480,18 +620,26 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
     const uphi = bandApply(op, phi)
     const [lr, li] = inner(phi, uphi)
     const e = -Math.atan2(li, lr)
+
     let r2 = 0
 
-    for (let i = 0; i < dim; i++) r2 += (uphi.re[i]! - (lr * phi.re[i]! - li * phi.im[i]!)) ** 2 + (uphi.im[i]! - (lr * phi.im[i]! + li * phi.re[i]!)) ** 2
+    for (let i = 0; i < dim; i++) {
+      r2 +=
+        (uphi.re[i]! - (lr * phi.re[i]! - li * phi.im[i]!)) ** 2 +
+        (uphi.im[i]! - (lr * phi.im[i]! + li * phi.re[i]!)) ** 2
+    }
 
     let coupling = 0
     let partner = Number.NaN
     let partnerMean = Number.NaN
 
     for (const r of rz) {
-      if (r === pick) continue
+      if (r === pick) {
+        continue
+      }
 
-      const v = overlapOf(r.vector, phi) * Math.abs(r.energy - pick.energy)
+      const v =
+        overlapOf(r.vector, phi) * Math.abs(r.energy - pick.energy)
 
       if (v > coupling || Number.isNaN(partner)) {
         coupling = v
@@ -505,7 +653,8 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
 
     out.push({
       K,
-      energy: e + 2 * Math.PI * Math.round((energy - e) / (2 * Math.PI)),
+      energy:
+        e + 2 * Math.PI * Math.round((energy - e) / (2 * Math.PI)),
       overlap,
       eigenOverlap,
       joined: joined.length,
@@ -524,20 +673,40 @@ export function followDiabatic(m: Meson, x: Exchange, start: Vec, energy0: numbe
     prev = phi
     energy = out[out.length - 1]!.energy
 
-    if (stop(out[out.length - 1]!)) break
+    if (stop(out[out.length - 1]!)) {
+      break
+    }
   }
 
   return out
 }
 
-export type Closest = { K: number; gap: number; lower: Ritz; upper: Ritz }
+export type Closest = {
+  K: number
+  gap: number
+  lower: Ritz
+  upper: Ritz
+}
 
 // the least splitting of the two sector levels that carry the most of `reference` (the diabatic point near the
 // crossing: the band and its partner) over [a, b], by golden section (a two-level avoided crossing's splitting
 // sqrt((dv (K - K*))^2 + gap^2) is unimodal); `seed` starts each near spectrum
-export function closestApproach(m: Meson, x: Exchange, a: number, b: number, energy: number, reference: Vec, seed: readonly Vec[], sector: 1 | -1, iterations = 36, rounds = 10): Closest {
+export function closestApproach(
+  m: Meson,
+  x: Exchange,
+  a: number,
+  b: number,
+  energy: number,
+  reference: Vec,
+  seed: readonly Vec[],
+  sector: 1 | -1,
+  iterations = 36,
+  rounds = 10,
+): Closest {
   const r = (Math.sqrt(5) - 1) / 2
+
   let e = energy
+
   const at = (K: number): Closest => {
     const rz = nearSpectrum(m, x, K, e, seed, sector, rounds)
       .map(v => ({ v, o: overlapOf(reference, v.vector) }))
@@ -546,8 +715,14 @@ export function closestApproach(m: Meson, x: Exchange, a: number, b: number, ene
       .map(p => p.v)
       .sort((p, q) => p.energy - q.energy)
 
-    return { K, gap: rz[1]!.energy - rz[0]!.energy, lower: rz[0]!, upper: rz[1]! }
+    return {
+      K,
+      gap: rz[1]!.energy - rz[0]!.energy,
+      lower: rz[0]!,
+      upper: rz[1]!,
+    }
   }
+
   let lo = a
   let hi = b
   let c = hi - r * (hi - lo)

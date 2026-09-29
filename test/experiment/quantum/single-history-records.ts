@@ -57,7 +57,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
 import { gridLines } from '@/code/measure/bell-gates'
 import {
   cellLovesAndFears,
@@ -73,7 +78,12 @@ import {
 } from '@/code/measure/net-records'
 
 const BEATS = 480
-const CLASSES: readonly NetClass[] = ['clean', 'netted', 'spread', 'negative']
+const CLASSES: readonly NetClass[] = [
+  'clean',
+  'netted',
+  'spread',
+  'negative',
+]
 
 const gcd = (a: bigint, b: bigint): bigint => {
   let x = a < 0n ? -a : a
@@ -86,12 +96,15 @@ const gcd = (a: bigint, b: bigint): bigint => {
   return x
 }
 
-const marginals = (w: readonly bigint[]): { alice: bigint[]; bob: bigint[] } => {
+const marginals = (
+  w: readonly bigint[],
+): { alice: bigint[]; bob: bigint[] } => {
   const alice = new Array<bigint>(9).fill(0n)
   const bob = new Array<bigint>(9).fill(0n)
 
   for (let i = 0; i < 81; i++) {
-    alice[Math.floor(i / 9)] = (alice[Math.floor(i / 9)] ?? 0n) + (w[i] ?? 0n)
+    alice[Math.floor(i / 9)] =
+      (alice[Math.floor(i / 9)] ?? 0n) + (w[i] ?? 0n)
     bob[i % 9] = (bob[i % 9] ?? 0n) + (w[i] ?? 0n)
   }
 
@@ -111,8 +124,14 @@ const oneParty = (m: readonly bigint[], l: number): bigint[] => {
   return out
 }
 
-type Tally =Record<NetClass, number>
-const tally = (): Tally => ({ clean: 0, netted: 0, spread: 0, negative: 0 })
+type Tally = Record<NetClass, number>
+
+const tally = (): Tally => ({
+  clean: 0,
+  netted: 0,
+  spread: 0,
+  negative: 0,
+})
 
 export default experiment({
   id: 'quantum/single-history-records',
@@ -144,14 +163,28 @@ export default experiment({
       positiveCells: 0,
       positiveCellsWithoutFear: 0,
     }
-    let best = { numerator: 0n, units: 1n, history: '', beat: -1, survive: 0, members: 0, membersDefinite: 0 }
+
+    let best = {
+      numerator: 0n,
+      units: 1n,
+      history: '',
+      beat: -1,
+      survive: 0,
+      members: 0,
+      membersDefinite: 0,
+    }
 
     for (const h of bellHistories(BEATS)) {
       const off = fearOff(h)
       const first = nextMeeting(h, 0)
       const reading = first + 1
-      const ownA = lines.find(a => a.every(p => Math.floor(p / 3) === h.start[0]))!
-      const ownB = lines.find(b => b.every(p => Math.floor(p / 3) === h.start[1]))!
+      const ownA = lines.find(a =>
+        a.every(p => Math.floor(p / 3) === h.start[0]),
+      )!
+      const ownB = lines.find(b =>
+        b.every(p => Math.floor(p / 3) === h.start[1]),
+      )!
+
       const one = (i: number): Whole => {
         const weight = new Array<bigint>(81).fill(0n)
 
@@ -159,13 +192,23 @@ export default experiment({
 
         return { tokens: h.tokens, weight }
       }
+
       let members = Array.from({ length: 81 }, (_, i) => one(i))
       let offMembers = members
-      const starts = lines.flatMap(a => lines.map(b => ({ a, b, own: a === ownA && b === ownB, w: lineKnot(h.tokens, a, b) })))
+
+      const starts = lines.flatMap(a =>
+        lines.map(b => ({
+          a,
+          b,
+          own: a === ownA && b === ownB,
+          w: lineKnot(h.tokens, a, b),
+        })),
+      )
 
       for (let t = 0; t < BEATS; t++) {
         const record = h.records[t]!
-        const readHere = t === reading || (record.meetings.length ?? 0) > 0
+        const readHere =
+          t === reading || (record.meetings.length ?? 0) > 0
 
         members = members.map(w => advanceKnot(h, w, record))
         offMembers = offMembers.map(w => advanceKnot(off, w, record))
@@ -179,7 +222,8 @@ export default experiment({
         if (t === first - 1) {
           for (const m of members) {
             counts.beforeFirstChecked++
-            counts.beforeFirstBad += m.weight.filter(x => x !== 0n).length === 1 ? 0 : 1
+            counts.beforeFirstBad +=
+              m.weight.filter(x => x !== 0n).length === 1 ? 0 : 1
           }
         }
 
@@ -188,7 +232,9 @@ export default experiment({
         }
 
         const physical = members.map(m => physicalKnot(h, m).weight)
-        const offPhysical = offMembers.map(m => physicalKnot(off, m).weight)
+        const offPhysical = offMembers.map(
+          m => physicalKnot(off, m).weight,
+        )
         const S = settingsAt(settings, t)
 
         for (const s of starts) {
@@ -203,8 +249,13 @@ export default experiment({
           const ids = s.a.flatMap(x => s.b.map(y => 9 * x + y))
 
           // I1: linearity, each member in its own units
-          const unitsOf = ids.map(i => (physical[i] ?? []).reduce((x, y) => x + y, 0n))
-          const L = unitsOf.reduce((acc, u) => (acc * u) / gcd(acc, u), 1n)
+          const unitsOf = ids.map(i =>
+            (physical[i] ?? []).reduce((x, y) => x + y, 0n),
+          )
+          const L = unitsOf.reduce(
+            (acc, u) => (acc * u) / gcd(acc, u),
+            1n,
+          )
           const V = new Array<bigint>(81).fill(0n)
 
           ids.forEach((i, k) => {
@@ -214,13 +265,21 @@ export default experiment({
               V[j] = (V[j] ?? 0n) + x * scale
             })
           })
-          counts.linearityBad += whole.every((x, j) => x * BigInt(ids.length) * L === (V[j] ?? 0n) * U) ? 0 : 1
+
+          counts.linearityBad += whole.every(
+            (x, j) => x * BigInt(ids.length) * L === (V[j] ?? 0n) * U,
+          )
+            ? 0
+            : 1
 
           // the state's CHSH, to know whether Bell binds it
           const chsh = netChsh(whole, S)
           const above2 = chsh.numerator > 2n * chsh.units
+
           let anyIndefinite = false
+
           const stateJoint = tally()
+
           let definiteMembers = 0
 
           counts.statesAbove2 += above2 ? 1 : 0
@@ -231,6 +290,7 @@ export default experiment({
             const hasFear = c.some(x => x < 0n)
             const { alice, bob } = marginals(c)
             const offMarg = marginals(oc)
+
             let definiteEverywhere = true
             let negativeSomewhere = false
 
@@ -239,14 +299,23 @@ export default experiment({
             for (const la of S) {
               for (const lb of S) {
                 const k = classifyNet(netTable(c, la, lb), hasFear)
-                const ko = classifyNet(netTable(oc, la, lb), oc.some(x => x < 0n))
+                const ko = classifyNet(
+                  netTable(oc, la, lb),
+                  oc.some(x => x < 0n),
+                )
 
                 joint[k]++
                 stateJoint[k]++
                 offJoint[ko]++
-                definiteEverywhere = definiteEverywhere && (k === 'clean' || k === 'netted')
-                negativeSomewhere = negativeSomewhere || k === 'negative'
-                anyIndefinite = anyIndefinite || k === 'spread' || k === 'negative'
+                definiteEverywhere =
+                  definiteEverywhere &&
+                  (k === 'clean' || k === 'netted')
+
+                negativeSomewhere =
+                  negativeSomewhere || k === 'negative'
+
+                anyIndefinite =
+                  anyIndefinite || k === 'spread' || k === 'negative'
               }
 
               // one party alone at setting la: Alice's marginal, then Bob's
@@ -254,17 +323,31 @@ export default experiment({
                 [alice, offMarg.alice],
                 [bob, offMarg.bob],
               ] as const) {
-                single[classifyNet(oneParty(m, la), m.some(x => x < 0n))]++
-                offSingle[classifyNet(oneParty(mo, la), mo.some(x => x < 0n))]++
+                single[
+                  classifyNet(
+                    oneParty(m, la),
+                    m.some(x => x < 0n),
+                  )
+                ]++
+
+                offSingle[
+                  classifyNet(
+                    oneParty(mo, la),
+                    mo.some(x => x < 0n),
+                  )
+                ]++
               }
             }
 
-            counts.membersDefiniteEverywhere += definiteEverywhere ? 1 : 0
+            counts.membersDefiniteEverywhere += definiteEverywhere
+              ? 1
+              : 0
             counts.membersNegativeSomewhere += negativeSomewhere ? 1 : 0
             definiteMembers += definiteEverywhere ? 1 : 0
           }
 
-          counts.statesAbove2WithoutIndefinite += above2 && !anyIndefinite ? 1 : 0
+          counts.statesAbove2WithoutIndefinite +=
+            above2 && !anyIndefinite ? 1 : 0
 
           // the unit view: positive cells with no fear in them
           for (const la of S) {
@@ -275,14 +358,21 @@ export default experiment({
               for (let k = 0; k < 9; k++) {
                 if ((n[k] ?? 0n) > 0n) {
                   counts.positiveCells++
-                  counts.positiveCellsWithoutFear += (fears[k] ?? 0n) === 0n ? 1 : 0
+                  counts.positiveCellsWithoutFear +=
+                    (fears[k] ?? 0n) === 0n ? 1 : 0
                 }
               }
             }
           }
 
-          if (chsh.numerator * best.units > best.numerator * chsh.units) {
-            const { loves, fears } = wholeLovesAndFears({ tokens: h.tokens, weight: whole })
+          if (
+            chsh.numerator * best.units >
+            best.numerator * chsh.units
+          ) {
+            const { loves, fears } = wholeLovesAndFears({
+              tokens: h.tokens,
+              weight: whole,
+            })
 
             best = {
               ...chsh,
@@ -292,6 +382,7 @@ export default experiment({
               members: ids.length,
               membersDefinite: definiteMembers,
             }
+
             CLASSES.forEach(k => {
               jointBest[k] = stateJoint[k]
             })
@@ -304,30 +395,50 @@ export default experiment({
     const singleTotal = CLASSES.reduce((s, k) => s + single[k], 0)
     const gates = {
       I1: counts.linearityBad === 0 && counts.states > 0,
-      I2: offJoint.netted + offJoint.spread + offJoint.negative === 0 && offSingle.netted + offSingle.spread + offSingle.negative === 0,
+      I2:
+        offJoint.netted + offJoint.spread + offJoint.negative === 0 &&
+        offSingle.netted + offSingle.spread + offSingle.negative === 0,
       I3: counts.beforeFirstBad === 0 && counts.beforeFirstChecked > 0,
       H1: joint.spread + joint.negative === 0,
-      P2: counts.statesAbove2WithoutIndefinite === 0 && counts.statesAbove2 > 0,
+      P2:
+        counts.statesAbove2WithoutIndefinite === 0 &&
+        counts.statesAbove2 > 0,
       P3: joint.negative > 0,
     }
     const ok = Object.values(gates).every(Boolean)
-    const share = (x: number, n: number): string => `${x.toLocaleString()} of ${n.toLocaleString()}`
+    const share = (x: number, n: number): string =>
+      `${x.toLocaleString()} of ${n.toLocaleString()}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim: `over ${counts.states.toLocaleString()} states, ${counts.membersRead.toLocaleString()} member readings and ${jointTotal.toLocaleString()} member-setting pairs, one history records a clean definite outcome at ${share(joint.clean, jointTotal)}, a definite outcome after its own cancellation at ${share(joint.netted, jointTotal)}, a spread at ${share(joint.spread, jointTotal)} and a negative count at ${share(joint.negative, jointTotal)} (one party alone: ${single.clean}, ${single.netted}, ${single.spread}, ${single.negative} of ${singleTotal.toLocaleString()}); ${share(counts.membersDefiniteEverywhere, counts.membersRead)} member readings are definite at every setting pair; on the ${counts.statesAbove2} states past CHSH 2 some member is always indefinite (${counts.statesAbove2WithoutIndefinite} exceptions); at the best state (${best.history}, beat ${best.beat}, ${best.numerator}/${best.units}) ${best.membersDefinite} of ${best.members} members are definite everywhere; the fear-off members are clean on every reading`,
       metrics: {
         ...counts,
-        ...Object.fromEntries(CLASSES.map(k => [`joint_${k}`, joint[k]])),
-        ...Object.fromEntries(CLASSES.map(k => [`single_${k}`, single[k]])),
-        ...Object.fromEntries(CLASSES.map(k => [`best_${k}`, jointBest[k]])),
-        ...Object.fromEntries(CLASSES.map(k => [`offJoint_${k}`, offJoint[k]])),
-        ...Object.fromEntries(CLASSES.map(k => [`offSingle_${k}`, offSingle[k]])),
+        ...Object.fromEntries(
+          CLASSES.map(k => [`joint_${k}`, joint[k]]),
+        ),
+        ...Object.fromEntries(
+          CLASSES.map(k => [`single_${k}`, single[k]]),
+        ),
+        ...Object.fromEntries(
+          CLASSES.map(k => [`best_${k}`, jointBest[k]]),
+        ),
+        ...Object.fromEntries(
+          CLASSES.map(k => [`offJoint_${k}`, offJoint[k]]),
+        ),
+        ...Object.fromEntries(
+          CLASSES.map(k => [`offSingle_${k}`, offSingle[k]]),
+        ),
         bestChsh: Number(best.numerator) / Number(best.units),
         bestBeat: best.beat,
         bestMembersDefinite: best.membersDefinite,
         bestSurvivingUnitShare: best.survive,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes: `L2, exact BigInt, no random numbers: members, starts and settings are enumerated. A member is one joint point of the start with weight 1; its later weight is the history's propagator column, each member reduced to its own grain and compared in its own units. The best state is ${best.history} at beat ${best.beat}.`,
     })

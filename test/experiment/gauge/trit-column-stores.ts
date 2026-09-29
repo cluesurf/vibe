@@ -41,8 +41,17 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { coldBeat, coldEnergy, makeColdWeave, type ColdState } from '@/code/rule/cold-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  coldBeat,
+  coldEnergy,
+  makeColdWeave,
+  type ColdState,
+} from '@/code/rule/cold-weave'
 import { momentumWaveStart } from '@/code/measure/momentum-transport'
 import { makeHusk } from '@/code/measure/photon-husk'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
@@ -51,27 +60,65 @@ import { weyl } from '@/code/tool/weyl'
 const ROOTS = rootsD4()
 
 function spec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 // the husk column-slot of slot i: its dock's husk column and its root's husk shadow (18 signed directions)
 function columnSlots(side: number): Int32Array {
   const husk = makeHusk(photonLatticeD4({ side }))
-  const shadowKey = ROOTS.map(r => (r[0] ?? 0) + 1 + 3 * ((r[1] ?? 0) + 1) + 9 * ((r[2] ?? 0) + 1))
+  const shadowKey = ROOTS.map(
+    r =>
+      (r[0] ?? 0) + 1 + 3 * ((r[1] ?? 0) + 1) + 9 * ((r[2] ?? 0) + 1),
+  )
   const cells = husk.column.length
 
-  return Int32Array.from({ length: cells * 24 }, (_, i) => (husk.column[Math.floor(i / 24)] ?? 0) * 27 + (shadowKey[i % 24] ?? 0))
+  return Int32Array.from(
+    { length: cells * 24 },
+    (_, i) =>
+      (husk.column[Math.floor(i / 24)] ?? 0) * 27 +
+      (shadowKey[i % 24] ?? 0),
+  )
 }
 
-type Census = { maxStore: number; maxDemon: number; energy: number; sharedBeats: number; beats: number; sharedSlots: number; occupiedSlots: number }
+type Census = {
+  maxStore: number
+  maxDemon: number
+  energy: number
+  sharedBeats: number
+  beats: number
+  sharedSlots: number
+  occupiedSlots: number
+}
 
 function census(side: number, start: ColdState, beats: number): Census {
-  const weave = makeColdWeave({ mesh: d4BoxMesh({ side }), spec: spec() })
+  const weave = makeColdWeave({
+    mesh: d4BoxMesh({ side }),
+    spec: spec(),
+  })
   const slot = columnSlots(side)
   const count = new Int32Array(Math.max(...slot) + 1)
-  const out: Census = { maxStore: 0, maxDemon: 0, energy: coldEnergy(start), sharedBeats: 0, beats: 0, sharedSlots: 0, occupiedSlots: 0 }
+  const out: Census = {
+    maxStore: 0,
+    maxDemon: 0,
+    energy: coldEnergy(start),
+    sharedBeats: 0,
+    beats: 0,
+    sharedSlots: 0,
+    occupiedSlots: 0,
+  }
 
   let s = start
 
@@ -116,16 +163,30 @@ function weylStart(side: number): ColdState {
 
   return {
     vibe,
-    store: Int32Array.from({ length: n }, (_, i) => (vibe[i] === 0 ? 0 : Math.floor(weyl(i + 7, Math.SQRT2 - 1) * 3))),
+    store: Int32Array.from({ length: n }, (_, i) =>
+      vibe[i] === 0 ? 0 : Math.floor(weyl(i + 7, Math.SQRT2 - 1) * 3),
+    ),
     demon: new Int32Array(mesh.cellCount * 12),
   }
 }
 
 function waveStart(side: number): ColdState {
   const mesh = d4BoxMesh({ side })
-  const will = momentumWaveStart({ mesh, side, geometry: { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }, mode: 1, fill: 0.2, bias: 0.4, salt: 7 })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry: { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] },
+    mode: 1,
+    fill: 0.2,
+    bias: 0.4,
+    salt: 7,
+  })
 
-  return { vibe: will.data, store: new Int32Array(will.data.length), demon: new Int32Array(mesh.cellCount * 12) }
+  return {
+    vibe: will.data,
+    store: new Int32Array(will.data.length),
+    demon: new Int32Array(mesh.cellCount * 12),
+  }
 }
 
 // the role run: flows grow as the running sum of each slot's vibe
@@ -142,7 +203,9 @@ function flowRun(): { maxFlow: number; beats: number } {
     vibe,
     store: new Int32Array(n),
     demon: new Int32Array(weave.mesh.cellCount * 12),
-    role: Int8Array.from({ length: n }, (_, i) => Math.floor(weyl(i + 3) * 9)),
+    role: Int8Array.from({ length: n }, (_, i) =>
+      Math.floor(weyl(i + 3) * 9),
+    ),
     flow: new Int32Array(n),
   }
   let maxFlow = 0
@@ -160,7 +223,11 @@ function flowRun(): { maxFlow: number; beats: number } {
 
 // the threshold move read through the two stack readings: two head-on tones of sign s with stores a, b >= 1
 // and a calm wire become the same tones with stores a - 1, b - 1 and the pair (s, -s) on the wire
-function readings(): { cases: number; stackChargeBroken: number; pairCountBroken: number } {
+function readings(): {
+  cases: number
+  stackChargeBroken: number
+  pairCountBroken: number
+} {
   let cases = 0
   let stackChargeBroken = 0
   let pairCountBroken = 0
@@ -175,9 +242,17 @@ function readings(): { cases: number; stackChargeBroken: number; pairCountBroken
         // stack: a tone with store x is x + 1 bulk tones of its sign
         const stack = [s * (a + 1) + s * (b + 1), s * a + s * b + s - s]
         // pair stack: one tone plus x neutral pairs, 1 + 2x bulk tones
-        const count = [1 + 2 * a + (1 + 2 * b), 1 + 2 * (a - 1) + (1 + 2 * (b - 1)) + 2]
+        const count = [
+          1 + 2 * a + (1 + 2 * b),
+          1 + 2 * (a - 1) + (1 + 2 * (b - 1)) + 2,
+        ]
 
-        stackChargeBroken += stack[0] === stack[1] && stack[0] === charge[0] && stack[1] === charge[1] ? 0 : 1
+        stackChargeBroken +=
+          stack[0] === stack[1] &&
+          stack[0] === charge[0] &&
+          stack[1] === charge[1]
+            ? 0
+            : 1
         pairCountBroken += count[0] === count[1] ? 0 : 1
       }
     }
@@ -200,7 +275,16 @@ export default experiment({
     const b = census(6, waveStart(6), 96)
     const f = flowRun()
     const r = readings()
-    const okQ1 = Math.max(a.maxStore, a.maxDemon, b.maxStore, b.maxDemon, f.maxFlow) <= 16 && a.maxStore <= a.energy - 1 && b.maxStore <= b.energy - 1
+    const okQ1 =
+      Math.max(
+        a.maxStore,
+        a.maxDemon,
+        b.maxStore,
+        b.maxDemon,
+        f.maxFlow,
+      ) <= 16 &&
+      a.maxStore <= a.energy - 1 &&
+      b.maxStore <= b.energy - 1
     const okQ2 = a.sharedSlots === 0 && b.sharedSlots === 0
     const okQ3 = r.stackChargeBroken === 0 && r.pairCountBroken === 0
     const metrics: Record<string, number> = {

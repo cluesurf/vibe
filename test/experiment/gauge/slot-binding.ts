@@ -73,7 +73,11 @@ const WAIT_FILLS = [0.02, 0.05, 0.1, 0.2]
 const REFLECT_FILLS = [0.02, 0.05, 0.1, 0.2, 0.35, 0.5, 1]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const MESON = { signs: [1, -1], fluxes: [1], slots: [5, 14] }
-const BARYONS = { signs: [1, 1, 1, -1, -1, -1], fluxes: [1, 2, 3, 2, 1], slots: [5, 9, 14, 18, 7, 20] }
+const BARYONS = {
+  signs: [1, 1, 1, -1, -1, -1],
+  fluxes: [1, 2, 3, 2, 1],
+  slots: [5, 9, 14, 18, 7, 20],
+}
 
 type Seed = { signs: number[]; fluxes: number[]; slots: number[] }
 
@@ -90,12 +94,24 @@ type Run = {
   created: number
 }
 
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
-const mean = (ps: number[][]): number[] => [0, 1, 2, 3].map(i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length)
-const demonFill = (links: number, fill: number): Int32Array => Int32Array.from({ length: links }, (_, l) => (((l + 1) * GOLDEN) % 1 < fill ? 1 : 0))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const mean = (ps: number[][]): number[] =>
+  [0, 1, 2, 3].map(
+    i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length,
+  )
+const demonFill = (links: number, fill: number): Int32Array =>
+  Int32Array.from({ length: links }, (_, l) =>
+    ((l + 1) * GOLDEN) % 1 < fill ? 1 : 0,
+  )
 
 // follows tagged charges hop by hop and gathers the gap, spread and travel
-function tracker(input: { signs: number[]; cells: number[]; neighbour: Int32Array; slots: number }): {
+function tracker(input: {
+  signs: number[]
+  cells: number[]
+  neighbour: Int32Array
+  slots: number
+}): {
   step: (tag: Int32Array) => void
   result: () => { meanGap: number; meanSpread: number; travel: number }
 } {
@@ -111,13 +127,20 @@ function tracker(input: { signs: number[]; cells: number[]; neighbour: Int32Arra
   let beats = 0
 
   const step = (tag: Int32Array): void => {
-    const now = signs.map((_, k) => Math.floor(tag.indexOf(k + 1) / slots))
+    const now = signs.map((_, k) =>
+      Math.floor(tag.indexOf(k + 1) / slots),
+    )
 
     now.forEach((cell, k) => {
       if (cell !== cells[k]) {
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => neighbour[(cells[k] ?? 0) * 24 + i] === cell) ?? -1
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => neighbour[(cells[k] ?? 0) * 24 + i] === cell,
+          ) ?? -1
 
-        at[k] = (at[k] ?? []).map((x, i) => x + (roots[d]?.[i] ?? Number.NaN))
+        at[k] = (at[k] ?? []).map(
+          (x, i) => x + (roots[d]?.[i] ?? Number.NaN),
+        )
       }
     })
     cells = now
@@ -126,15 +149,28 @@ function tracker(input: { signs: number[]; cells: number[]; neighbour: Int32Arra
     const fears = at.filter((_, k) => (signs[k] ?? 0) < 0)
 
     gapSum += dist(mean(loves), mean(fears))
-    spreadSum += Math.max(...loves.map(p => Math.max(...loves.map(q => dist(p, q)))))
+    spreadSum += Math.max(
+      ...loves.map(p => Math.max(...loves.map(q => dist(p, q)))),
+    )
     travel = Math.max(travel, dist(mean(at), origin))
     beats += 1
   }
 
-  return { step, result: () => ({ meanGap: gapSum / beats, meanSpread: spreadSum / beats, travel }) }
+  return {
+    step,
+    result: () => ({
+      meanGap: gapSum / beats,
+      meanSpread: spreadSum / beats,
+      travel,
+    }),
+  }
 }
 
-function row(neighbour: Int32Array, count: number, center: number): number[] {
+function row(
+  neighbour: Int32Array,
+  count: number,
+  center: number,
+): number[] {
   const cells = [center]
 
   for (let k = 1; k < count; k++) {
@@ -144,24 +180,53 @@ function row(neighbour: Int32Array, count: number, center: number): number[] {
   return cells
 }
 
-function waitRun(input: { tension: number; fill: number; order: PassOrder; seed: Seed }): Run {
+function waitRun(input: {
+  tension: number
+  fill: number
+  order: PassOrder
+  seed: Seed
+}): Run {
   const { tension, fill, order, seed } = input
-  const rule = makeWaitingSlots({ side: SIDE, orientation: nearestReturningOrientation(), mass: 4, tension, order })
-  const cells = row(rule.neighbour, seed.signs.length, Math.floor(rule.mesh.cellCount / 2))
+  const rule = makeWaitingSlots({
+    side: SIDE,
+    orientation: nearestReturningOrientation(),
+    mass: 4,
+    tension,
+    order,
+  })
+  const cells = row(
+    rule.neighbour,
+    seed.signs.length,
+    Math.floor(rule.mesh.cellCount / 2),
+  )
   const start = emptyWaitingState(rule)
 
   cells.forEach((c, k) => {
-    const slot = c * SLOTS + ((seed.signs[k] ?? 0) > 0 ? WAIT_PLUS : WAIT_MINUS)
+    const slot =
+      c * SLOTS + ((seed.signs[k] ?? 0) > 0 ? WAIT_PLUS : WAIT_MINUS)
 
     start.vibe[slot] = seed.signs[k] ?? 0
     start.tag[slot] = k + 1
   })
-  seed.fluxes.forEach((e, k) => (start.flux[rule.edgeOf[(cells[k] ?? 0) * 24] ?? 0] = e))
+
+  seed.fluxes.forEach(
+    (e, k) => (start.flux[rule.edgeOf[(cells[k] ?? 0) * 24] ?? 0] = e),
+  )
   start.demon.set(demonFill(rule.edges.length, fill))
 
   const e0 = waitingEnergy(rule, start)
-  const follow = tracker({ signs: seed.signs, cells, neighbour: rule.neighbour, slots: SLOTS })
-  const log: BeatLog = { paid: 0, unpaid: 0, created: 0, annihilated: 0 }
+  const follow = tracker({
+    signs: seed.signs,
+    cells,
+    neighbour: rule.neighbour,
+    slots: SLOTS,
+  })
+  const log: BeatLog = {
+    paid: 0,
+    unpaid: 0,
+    created: 0,
+    annihilated: 0,
+  }
 
   let s = copyWaitingState(start)
   let exact = waitingGaussHolds(rule, start, start)
@@ -169,7 +234,10 @@ function waitRun(input: { tension: number; fill: number; order: PassOrder; seed:
 
   for (let t = 0; t < BEATS; t++) {
     s = waitingBeat(rule, s, t, log)
-    exact = exact && waitingGaussHolds(rule, start, s) && waitingEnergy(rule, s) === e0
+    exact =
+      exact &&
+      waitingGaussHolds(rule, start, s) &&
+      waitingEnergy(rule, s) === e0
     lowestDemon = Math.min(lowestDemon, ...s.demon)
     follow.step(s.tag)
   }
@@ -184,13 +252,34 @@ function waitRun(input: { tension: number; fill: number; order: PassOrder; seed:
     s.flux.every((v, i) => v === start.flux[i]) &&
     s.demon.every((v, i) => v === start.demon[i])
 
-  return { exact, reverses, ...follow.result(), paid: log.paid, unpaid: log.unpaid, lowestDemon, created: log.created }
+  return {
+    exact,
+    reverses,
+    ...follow.result(),
+    paid: log.paid,
+    unpaid: log.unpaid,
+    lowestDemon,
+    created: log.created,
+  }
 }
 
-function reflectRun(input: { tension: number; fill: number; seed: Seed }): Run {
+function reflectRun(input: {
+  tension: number
+  fill: number
+  seed: Seed
+}): Run {
   const { tension, fill, seed } = input
-  const rule = makeReflectingSlots({ side: SIDE, mass: 4, tension, turn: true })
-  const cells = row(rule.neighbour, seed.signs.length, Math.floor(rule.mesh.cellCount / 2))
+  const rule = makeReflectingSlots({
+    side: SIDE,
+    mass: 4,
+    tension,
+    turn: true,
+  })
+  const cells = row(
+    rule.neighbour,
+    seed.signs.length,
+    Math.floor(rule.mesh.cellCount / 2),
+  )
   const start = emptyReflectingState(rule, 0)
 
   cells.forEach((c, k) => {
@@ -200,11 +289,19 @@ function reflectRun(input: { tension: number; fill: number; seed: Seed }): Run {
     start.sign[slot] = seed.signs[k] ?? 0
     start.tag[slot] = k + 1
   })
-  seed.fluxes.forEach((e, k) => (start.flux[rule.edgeAt[(cells[k] ?? 0) * 24] ?? 0] = e))
+
+  seed.fluxes.forEach(
+    (e, k) => (start.flux[rule.edgeAt[(cells[k] ?? 0) * 24] ?? 0] = e),
+  )
   start.demon.set(demonFill(rule.edges.length, fill))
 
   const e0 = reflectEnergy(rule, start)
-  const follow = tracker({ signs: seed.signs, cells, neighbour: rule.neighbour, slots: 24 })
+  const follow = tracker({
+    signs: seed.signs,
+    cells,
+    neighbour: rule.neighbour,
+    slots: 24,
+  })
   const log: ReflectLog = { crossed: 0, bounced: 0 }
 
   let s = copyReflectingState(start)
@@ -213,7 +310,10 @@ function reflectRun(input: { tension: number; fill: number; seed: Seed }): Run {
 
   for (let t = 0; t < BEATS; t++) {
     s = reflectBeat(rule, s, t, log)
-    exact = exact && reflectGaussHolds(rule, start, s) && reflectEnergy(rule, s) === e0
+    exact =
+      exact &&
+      reflectGaussHolds(rule, start, s) &&
+      reflectEnergy(rule, s) === e0
     lowestDemon = Math.min(lowestDemon, ...s.demon)
     follow.step(s.tag)
   }
@@ -229,13 +329,32 @@ function reflectRun(input: { tension: number; fill: number; seed: Seed }): Run {
     s.flux.every((v, i) => v === start.flux[i]) &&
     s.demon.every((v, i) => v === start.demon[i])
 
-  return { exact, reverses, ...follow.result(), paid: log.crossed, unpaid: 0, lowestDemon, created: 0 }
+  return {
+    exact,
+    reverses,
+    ...follow.result(),
+    paid: log.crossed,
+    unpaid: 0,
+    lowestDemon,
+    created: 0,
+  }
 }
 
 // the reflecting rule's local laws on a dense side-3 start: color with the sign carried and fixed, and a
 // change of role frame in every cell
-function reflectLocal(): { leaks: number; fixedLeaks: number; cellSteps: number; frameFree: boolean } {
-  const rule = makeReflectingSlots({ side: 3, mass: 4, tension: 1, turn: true })
+function reflectLocal(): {
+  leaks: number
+  fixedLeaks: number
+  cellSteps: number
+  frameFree: boolean
+} {
+  const rule = makeReflectingSlots({
+    side: 3,
+    mass: 4,
+    tension: 1,
+    turn: true,
+  })
+
   const dense = (scale: number): ReflectingState => {
     const s = emptyReflectingState(rule, 0)
 
@@ -246,11 +365,18 @@ function reflectLocal(): { leaks: number; fixedLeaks: number; cellSteps: number;
       s.role[i] = Math.floor(((i + 3) * GOLDEN * 9 * scale) % 9)
     }
 
-    s.demon.set(Int32Array.from({ length: s.demon.length }, (_, l) => Math.floor(((l + 1) * GOLDEN * 3.1) % 3)))
+    s.demon.set(
+      Int32Array.from({ length: s.demon.length }, (_, l) =>
+        Math.floor(((l + 1) * GOLDEN * 3.1) % 3),
+      ),
+    )
 
     return s
   }
-  const sides = Int8Array.from({ length: 24 }, (_, d) => (d < (rule.opposite[d] ?? d) ? 1 : -1))
+
+  const sides = Int8Array.from({ length: 24 }, (_, d) =>
+    d < (rule.opposite[d] ?? d) ? 1 : -1,
+  )
 
   let s = dense(1.37)
   let leaks = 0
@@ -263,13 +389,18 @@ function reflectLocal(): { leaks: number; fixedLeaks: number; cellSteps: number;
   }
 
   const { moves, mesh, neighbour } = rule
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const links = new Int16Array(rule.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       links[x * 24 + d] = moves.compose(
-        moves.compose(frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity, rule.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity,
+          rule.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -278,7 +409,12 @@ function reflectLocal(): { leaks: number; fixedLeaks: number; cellSteps: number;
   const gauged: ReflectingSlots = { ...rule, links }
   const gauge = (state: ReflectingState): ReflectingState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    ),
   })
 
   let a = dense(2.11)
@@ -291,10 +427,18 @@ function reflectLocal(): { leaks: number; fixedLeaks: number; cellSteps: number;
 
     const g = gauge(a)
 
-    frameFree = frameFree && g.role.every((p, i) => p === b.role[i]) && a.vibe.every((v, i) => v === b.vibe[i])
+    frameFree =
+      frameFree &&
+      g.role.every((p, i) => p === b.role[i]) &&
+      a.vibe.every((v, i) => v === b.vibe[i])
   }
 
-  return { leaks, fixedLeaks, cellSteps: 48 * 2 * mesh.cellCount, frameFree }
+  return {
+    leaks,
+    fixedLeaks,
+    cellSteps: 48 * 2 * mesh.cellCount,
+    frameFree,
+  }
 }
 
 export default experiment({
@@ -309,13 +453,38 @@ export default experiment({
   run() {
     const waitScan = WAIT_FILLS.map(fill => ({
       fill,
-      meson: waitRun({ tension: 1, fill, order: 'leave-first', seed: MESON }),
-      baryon: waitRun({ tension: 1, fill, order: 'leave-first', seed: BARYONS }),
+      meson: waitRun({
+        tension: 1,
+        fill,
+        order: 'leave-first',
+        seed: MESON,
+      }),
+      baryon: waitRun({
+        tension: 1,
+        fill,
+        order: 'leave-first',
+        seed: BARYONS,
+      }),
     }))
     const waitCold = waitScan[0]!
-    const waitMesonControl = waitRun({ tension: 0, fill: waitCold.fill, order: 'leave-first', seed: MESON })
-    const waitBaryonControl = waitRun({ tension: 0, fill: waitCold.fill, order: 'leave-first', seed: BARYONS })
-    const waitFirst = waitRun({ tension: 1, fill: waitCold.fill, order: 'wait-first', seed: MESON })
+    const waitMesonControl = waitRun({
+      tension: 0,
+      fill: waitCold.fill,
+      order: 'leave-first',
+      seed: MESON,
+    })
+    const waitBaryonControl = waitRun({
+      tension: 0,
+      fill: waitCold.fill,
+      order: 'leave-first',
+      seed: BARYONS,
+    })
+    const waitFirst = waitRun({
+      tension: 1,
+      fill: waitCold.fill,
+      order: 'wait-first',
+      seed: MESON,
+    })
 
     const reflectScan = REFLECT_FILLS.map(fill => ({
       fill,
@@ -324,8 +493,16 @@ export default experiment({
     }))
     const reflectCold = reflectScan[0]!
     const reflectHot = reflectScan[reflectScan.length - 1]!
-    const reflectMesonControl = reflectRun({ tension: 0, fill: reflectCold.fill, seed: MESON })
-    const reflectBaryonControl = reflectRun({ tension: 0, fill: reflectCold.fill, seed: BARYONS })
+    const reflectMesonControl = reflectRun({
+      tension: 0,
+      fill: reflectCold.fill,
+      seed: MESON,
+    })
+    const reflectBaryonControl = reflectRun({
+      tension: 0,
+      fill: reflectCold.fill,
+      seed: BARYONS,
+    })
     const local = reflectLocal()
 
     const all = [
@@ -338,7 +515,11 @@ export default experiment({
       reflectBaryonControl,
     ]
     const exact = all.every(r => r.exact && r.reverses)
-    const reflectNeverInDebt = [...reflectScan.flatMap(s => [s.meson, s.baryon]), reflectMesonControl, reflectBaryonControl].every(r => r.lowestDemon >= 0)
+    const reflectNeverInDebt = [
+      ...reflectScan.flatMap(s => [s.meson, s.baryon]),
+      reflectMesonControl,
+      reflectBaryonControl,
+    ].every(r => r.lowestDemon >= 0)
 
     const ok =
       exact &&
@@ -347,7 +528,8 @@ export default experiment({
       waitCold.meson.unpaid > waitCold.meson.paid &&
       reflectCold.meson.meanGap < 4 &&
       reflectCold.meson.meanGap < reflectMesonControl.meanGap / 10 &&
-      reflectCold.baryon.meanSpread < reflectBaryonControl.meanSpread / 10 &&
+      reflectCold.baryon.meanSpread <
+        reflectBaryonControl.meanSpread / 10 &&
       reflectHot.meson.meanGap > 10 * reflectCold.meson.meanGap &&
       local.leaks === 0 &&
       local.fixedLeaks > 0 &&
@@ -369,7 +551,10 @@ export default experiment({
             [`waitMesonTravelFill${key(s.fill)}`, s.meson.travel],
             [`waitMesonUnpaidFill${key(s.fill)}`, s.meson.unpaid],
             [`waitMesonPaidFill${key(s.fill)}`, s.meson.paid],
-            [`waitMesonLowestDemonFill${key(s.fill)}`, s.meson.lowestDemon],
+            [
+              `waitMesonLowestDemonFill${key(s.fill)}`,
+              s.meson.lowestDemon,
+            ],
             [`waitBaryonSpreadFill${key(s.fill)}`, s.baryon.meanSpread],
             [`waitBaryonTravelFill${key(s.fill)}`, s.baryon.travel],
           ]),
@@ -381,9 +566,15 @@ export default experiment({
           reflectScan.flatMap(s => [
             [`reflectMesonMeanGapFill${key(s.fill)}`, s.meson.meanGap],
             [`reflectMesonTravelFill${key(s.fill)}`, s.meson.travel],
-            [`reflectBaryonSpreadFill${key(s.fill)}`, s.baryon.meanSpread],
+            [
+              `reflectBaryonSpreadFill${key(s.fill)}`,
+              s.baryon.meanSpread,
+            ],
             [`reflectBaryonTravelFill${key(s.fill)}`, s.baryon.travel],
-            [`reflectBaryonAntibaryonGapFill${key(s.fill)}`, s.baryon.meanGap],
+            [
+              `reflectBaryonAntibaryonGapFill${key(s.fill)}`,
+              s.baryon.meanGap,
+            ],
           ]),
         ),
         reflectColorLeaks: local.leaks,

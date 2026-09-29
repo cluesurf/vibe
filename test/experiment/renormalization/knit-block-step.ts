@@ -60,8 +60,21 @@ import { makeWill } from '@/code/tone/will'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { HEAD_TURN_SPEC, scatterCollision, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { CHARGE_VECTOR, COUNT_VECTOR, LINE_SUM_VECTOR, linearizedSchedule, momentumVector, productState, uniformBackground } from '@/code/coarse/knit-boltzmann'
+import {
+  HEAD_TURN_SPEC,
+  scatterCollision,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  CHARGE_VECTOR,
+  COUNT_VECTOR,
+  LINE_SUM_VECTOR,
+  linearizedSchedule,
+  momentumVector,
+  productState,
+  uniformBackground,
+} from '@/code/coarse/knit-boltzmann'
 import { hydrodynamicGenerator } from '@/code/coarse/knit-hydrodynamics'
 import {
   accumulateKernel,
@@ -86,24 +99,38 @@ const K0 = 0.005
 const OCCUPATION = 2 / 3
 const START_SALT = 3
 const REPLICATE_SALT = 5
-const OPPOSITE = rootsD4().map((r, _, all) => all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const OPPOSITE = rootsD4().map((r, _, all) =>
+  all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 
-const MOMENTA = [0, 1, 2, 3].map(a => momentumVector([0, 1, 2, 3].map(i => (i === a ? 1 : 0))))
+const MOMENTA = [0, 1, 2, 3].map(a =>
+  momentumVector([0, 1, 2, 3].map(i => (i === a ? 1 : 0))),
+)
 // the kernel fields: the four momenta and the count
 const KERNEL_FIELDS: readonly (readonly [string, Float64Array])[] = [
-  ['p0', MOMENTA[0] as Float64Array],
-  ['p1', MOMENTA[1] as Float64Array],
-  ['p2', MOMENTA[2] as Float64Array],
-  ['p3', MOMENTA[3] as Float64Array],
+  ['p0', MOMENTA[0]!],
+  ['p1', MOMENTA[1]!],
+  ['p2', MOMENTA[2]!],
+  ['p3', MOMENTA[3]!],
   ['count', COUNT_VECTOR],
 ]
-const SUMMED: readonly (readonly [string, Float64Array])[] = [['charge', CHARGE_VECTOR], ...KERNEL_FIELDS.slice(0, 4), ['line', LINE_SUM_VECTOR], ['count', COUNT_VECTOR]]
+const SUMMED: readonly (readonly [string, Float64Array])[] = [
+  ['charge', CHARGE_VECTOR],
+  ...KERNEL_FIELDS.slice(0, 4),
+  ['line', LINE_SUM_VECTOR],
+  ['count', COUNT_VECTOR],
+]
 const CONSERVED = ['charge', 'p0', 'p1', 'p2', 'p3', 'line']
 
 type Run = { kernels: BlockKernel[][]; drifts: number[] }
 
 // run a scheduled collision from the start and fit the kernels, with the whole-mesh drift of every sum
-function runKernels(collision: (t: number) => (slots: Int8Array, base: number, degree: number) => void, startSalt = START_SALT): Run {
+function runKernels(
+  collision: (
+    t: number,
+  ) => (slots: Int8Array, base: number, degree: number) => void,
+  startSalt = START_SALT,
+): Run {
   const mesh = d4Mesh({ side: SIDE })
   const table = streamSourceTable(mesh)
   const lefts = KERNEL_FIELDS.map(([, v]) => v)
@@ -112,22 +139,39 @@ function runKernels(collision: (t: number) => (slots: Int8Array, base: number, d
   for (const t0 of STARTS) {
     for (const b of BLOCKS) {
       wanted.set(t0, new Set([...(wanted.get(t0) ?? []), b]))
-      wanted.set(t0 + b * b, new Set([...(wanted.get(t0 + b * b) ?? []), b]))
+      wanted.set(
+        t0 + b * b,
+        new Set([...(wanted.get(t0 + b * b) ?? []), b]),
+      )
     }
   }
 
   const stored = new Map<string, Float64Array[]>()
-  const sums: KernelSums[][] = KERNEL_FIELDS.map(() => BLOCKS.map(() => emptyKernel()))
+  const sums: KernelSums[][] = KERNEL_FIELDS.map(() =>
+    BLOCKS.map(() => emptyKernel()),
+  )
   const first = new Float64Array(SUMMED.length)
   const drifts = new Array<number>(SUMMED.length).fill(0)
   const lastBeat = Math.max(...STARTS) + Math.max(...BLOCKS) ** 2
 
-  let current = { mesh, data: productState({ docks: mesh.cellCount, background: uniformBackground(OCCUPATION), salt: startSalt }) }
+  let current = {
+    mesh,
+    data: productState({
+      docks: mesh.cellCount,
+      background: uniformBackground(OCCUPATION),
+      salt: startSalt,
+    }),
+  }
   let scratch = makeWill(mesh)
 
   for (let t = 0; t <= lastBeat; t++) {
     if (t > 0) {
-      beatInto({ src: current, dst: scratch, table, collision: collision(t - 1) })
+      beatInto({
+        src: current,
+        dst: scratch,
+        table,
+        collision: collision(t - 1),
+      })
       ;[current, scratch] = [scratch, current]
     }
 
@@ -145,17 +189,31 @@ function runKernels(collision: (t: number) => (slots: Int8Array, base: number, d
     }
 
     SUMMED.forEach(([, left], q) => {
-      const v = totals.reduce((acc, c, i) => acc + c * (left[i] ?? 0), 0)
+      const v = totals.reduce(
+        (acc, c, i) => acc + c * (left[i] ?? 0),
+        0,
+      )
 
       if (t === 0) {
         first[q] = v
       }
 
-      drifts[q] = Math.max(drifts[q] ?? 0, Math.abs(v - (first[q] ?? 0)))
+      drifts[q] = Math.max(
+        drifts[q] ?? 0,
+        Math.abs(v - (first[q] ?? 0)),
+      )
     })
 
     for (const b of wanted.get(t) ?? []) {
-      stored.set(`${t}:${b}`, blockFields({ data: current.data, side: SIDE, block: b, lefts }))
+      stored.set(
+        `${t}:${b}`,
+        blockFields({
+          data: current.data,
+          side: SIDE,
+          block: b,
+          lefts,
+        }),
+      )
     }
 
     // close every pair that ends at this beat; no end beat is also a start (tau = 4, 9, 16 against starts
@@ -170,7 +228,14 @@ function runKernels(collision: (t: number) => (slots: Int8Array, base: number, d
         const after = stored.get(`${t}:${b}`)
 
         if (before && after) {
-          lefts.forEach((_, q) => accumulateKernel(sums[q]?.[BLOCKS.indexOf(b)] as KernelSums, before[q] as Float64Array, after[q] as Float64Array, SIDE / b))
+          lefts.forEach((_, q) =>
+            accumulateKernel(
+              sums[q]?.[BLOCKS.indexOf(b)]!,
+              before[q]!,
+              after[q]!,
+              SIDE / b,
+            ),
+          )
         }
 
         stored.delete(`${t0}:${b}`)
@@ -192,24 +257,73 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-    const spec: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+    const mirror = cptMirrorPhase((o, f) =>
+      colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite: o,
+        forward: f,
+      }),
+    )
+    const spec: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+      condition: 'matched',
+    }
     const background = uniformBackground(OCCUPATION)
     const rule = scatterCollision({ spec, opposite: OPPOSITE })
-    const [ma, mb] = SALTS.map(salt => linearizedSchedule({ rule, period: 24, background, samples: SAMPLES, salt }))
-    const matrices = (ma ?? []).map((m, t) => m.map((v, i) => (v + (mb?.[t]?.[i] ?? 0)) / 2))
+    const [ma, mb] = SALTS.map(salt =>
+      linearizedSchedule({
+        rule,
+        period: 24,
+        background,
+        samples: SAMPLES,
+        salt,
+      }),
+    )
+    const matrices = (ma ?? []).map((m, t) =>
+      m.map((v, i) => (v + (mb?.[t]?.[i] ?? 0)) / 2),
+    )
 
-    const knitRule = scatterCollision({ spec, opposite: meshOpposites(d4Mesh({ side: SIDE })) })
+    const knitRule = scatterCollision({
+      spec,
+      opposite: meshOpposites(d4Mesh({ side: SIDE })),
+    })
     const knit = runKernels(knitRule)
     const replicate = runKernels(knitRule, REPLICATE_SALT)
     const streaming = runKernels(() => passThrough)
-    const predicted = predictedKernels({ matrices, background, lefts: KERNEL_FIELDS.map(([, v]) => v), side: SIDE, steps: BLOCKS.map(b => ({ block: b, tau: b * b })), phases: PHASES })
+    const predicted = predictedKernels({
+      matrices,
+      background,
+      lefts: KERNEL_FIELDS.map(([, v]) => v),
+      side: SIDE,
+      steps: BLOCKS.map(b => ({ block: b, tau: b * b })),
+      phases: PHASES,
+    })
 
     // the fine couplings: D_eff per axis for each momentum component, and each component's fixed point
-    const densities: Record<string, Float64Array> = { charge: CHARGE_VECTOR, p0: MOMENTA[0] as Float64Array, p1: MOMENTA[1] as Float64Array, p2: MOMENTA[2] as Float64Array, p3: MOMENTA[3] as Float64Array, line: LINE_SUM_VECTOR }
+    const densities: Record<string, Float64Array> = {
+      charge: CHARGE_VECTOR,
+      p0: MOMENTA[0]!,
+      p1: MOMENTA[1]!,
+      p2: MOMENTA[2]!,
+      p3: MOMENTA[3]!,
+      line: LINE_SUM_VECTOR,
+    }
     const names = Object.keys(densities)
-    const sigma = names.map(p => names.map(q => densityCovariance(background, densities[p] as Float64Array, densities[q] as Float64Array)))
-    const generators = [0, 1, 2, 3].map(j => hydrodynamicGenerator({ matrices, direction: [0, 1, 2, 3].map(i => (i === j ? 1 : 0)), k0: K0, densities }))
+    const sigma = names.map(p =>
+      names.map(q =>
+        densityCovariance(background, densities[p]!, densities[q]!),
+      ),
+    )
+    const generators = [0, 1, 2, 3].map(j =>
+      hydrodynamicGenerator({
+        matrices,
+        direction: [0, 1, 2, 3].map(i => (i === j ? 1 : 0)),
+        k0: K0,
+        densities,
+      }),
+    )
     const deff = [0, 1, 2, 3].map(a => {
       const q = names.indexOf(`p${a}`)
 
@@ -217,7 +331,9 @@ export default experiment({
         let s = 0
 
         for (let p = 0; p < names.length; p++) {
-          s += (h.transport.re[q * names.length + p] ?? 0) * (sigma[p]?.[q] ?? 0)
+          s +=
+            (h.transport.re[q * names.length + p] ?? 0) *
+            (sigma[p]?.[q] ?? 0)
         }
 
         return s / (sigma[q]?.[q] ?? 1)
@@ -226,8 +342,14 @@ export default experiment({
     const fixedPoints = deff.map(d => diffusiveFixedPoint(d))
 
     const metrics: Record<string, number> = {}
-    const coefficientsOf = (k: BlockKernel): number[] => [k.self, ...Array.from(k.neighbours)]
-    const errorsOf = (k: BlockKernel): number[] => [k.selfError, ...Array.from(k.neighbourErrors)]
+    const coefficientsOf = (k: BlockKernel): number[] => [
+      k.self,
+      ...Array.from(k.neighbours),
+    ]
+    const errorsOf = (k: BlockKernel): number[] => [
+      k.selfError,
+      ...Array.from(k.neighbourErrors),
+    ]
     const labels = ['a', 'c0', 'c1', 'c2', 'c3']
 
     let c2 = true
@@ -235,8 +357,8 @@ export default experiment({
 
     KERNEL_FIELDS.forEach(([name], q) => {
       BLOCKS.forEach((b, s) => {
-        const m = knit.kernels[q]?.[s] as BlockKernel
-        const p = predicted[q]?.[s] as BlockKernel
+        const m = knit.kernels[q]?.[s]!
+        const p = predicted[q]?.[s]!
         const mc = coefficientsOf(m)
         const pc = coefficientsOf(p)
         const me = errorsOf(m)
@@ -249,7 +371,10 @@ export default experiment({
           const gap = Math.abs((mc[i] ?? 0) - (pc[i] ?? 0))
 
           c2 = c2 && gap <= Math.max(0.005, 4 * (me[i] ?? 0))
-          worstStandardized = Math.max(worstStandardized, gap / Math.max(1e-12, me[i] ?? 0))
+          worstStandardized = Math.max(
+            worstStandardized,
+            gap / Math.max(1e-12, me[i] ?? 0),
+          )
         })
         metrics[`${name}_b${b}_cross_knit`] = m.cross
         metrics[`${name}_b${b}_cross_predicted`] = p.cross
@@ -258,20 +383,28 @@ export default experiment({
 
         if (q < 4) {
           for (let j = 0; j < 4; j++) {
-            metrics[`${name}_b${b}_axis${j}_diffusivityKnit`] = effectiveDiffusivity((m.neighbours[j] ?? 0) / m.self)
-            metrics[`${name}_b${b}_axis${j}_diffusivityPredicted`] = effectiveDiffusivity((p.neighbours[j] ?? 0) / p.self)
+            metrics[`${name}_b${b}_axis${j}_diffusivityKnit`] =
+              effectiveDiffusivity((m.neighbours[j] ?? 0) / m.self)
+
+            metrics[`${name}_b${b}_axis${j}_diffusivityPredicted`] =
+              effectiveDiffusivity((p.neighbours[j] ?? 0) / p.self)
           }
         }
 
-        metrics[`streaming_${name}_b${b}_cross`] = streaming.kernels[q]?.[s]?.cross ?? 0
+        metrics[`streaming_${name}_b${b}_cross`] =
+          streaming.kernels[q]?.[s]?.cross ?? 0
       })
 
       if (q < 4) {
-        const fp = fixedPoints[q] as BlockKernel
+        const fp = fixedPoints[q]!
 
-        coefficientsOf(fp).forEach((v, i) => (metrics[`${name}_fixedPoint_${labels[i]}`] = v))
+        coefficientsOf(fp).forEach(
+          (v, i) => (metrics[`${name}_fixedPoint_${labels[i]}`] = v),
+        )
         metrics[`${name}_fixedPoint_cross`] = fp.cross
-        deff[q]?.forEach((v, j) => (metrics[`${name}_axis${j}_deff`] = v))
+        deff[q]?.forEach(
+          (v, j) => (metrics[`${name}_axis${j}_deff`] = v),
+        )
       }
     })
 
@@ -290,9 +423,9 @@ export default experiment({
       let selfB = 0
 
       KERNEL_FIELDS.forEach((_, q) => {
-        const ka = coefficientsOf(knit.kernels[q]?.[s] as BlockKernel)
-        const kb = coefficientsOf(replicate.kernels[q]?.[s] as BlockKernel)
-        const kp = coefficientsOf(predicted[q]?.[s] as BlockKernel)
+        const ka = coefficientsOf(knit.kernels[q]?.[s]!)
+        const kb = coefficientsOf(replicate.kernels[q]?.[s]!)
+        const kp = coefficientsOf(predicted[q]?.[s]!)
 
         ka.forEach((v, i) => {
           spread += (v - (kb[i] ?? 0)) ** 2 / 2
@@ -306,29 +439,47 @@ export default experiment({
         }
       })
 
-      metrics[`replicate_b${b}_singleRunSpread`] = Math.sqrt(spread / count)
+      metrics[`replicate_b${b}_singleRunSpread`] = Math.sqrt(
+        spread / count,
+      )
       metrics[`replicate_b${b}_meanGapRms`] = Math.sqrt(gap / count)
-      metrics[`replicate_b${b}_expectedGapFromSpread`] = Math.sqrt(spread / count / 2)
+      metrics[`replicate_b${b}_expectedGapFromSpread`] = Math.sqrt(
+        spread / count / 2,
+      )
       metrics[`replicate_b${b}_selfShareGapRunA`] = selfA
       metrics[`replicate_b${b}_selfShareGapRunB`] = selfB
     })
 
-    const c1 = SUMMED.every(([name], q) => (CONSERVED.includes(name) ? (knit.drifts[q] ?? 1) === 0 : (knit.drifts[q] ?? 0) > 0))
+    const c1 = SUMMED.every(([name], q) =>
+      CONSERVED.includes(name)
+        ? (knit.drifts[q] ?? 1) === 0
+        : (knit.drifts[q] ?? 0) > 0,
+    )
+
     const distance = (s: number): number => {
-      const pc = coefficientsOf(predicted[0]?.[s] as BlockKernel)
-      const fc = coefficientsOf(fixedPoints[0] as BlockKernel)
+      const pc = coefficientsOf(predicted[0]?.[s]!)
+      const fc = coefficientsOf(fixedPoints[0]!)
 
       return Math.max(...pc.map((v, i) => Math.abs(v - (fc[i] ?? 0))))
     }
+
     const streamingZero = KERNEL_FIELDS.every((_, q) =>
       BLOCKS.every((_, s) => {
-        const k = streaming.kernels[q]?.[s] as BlockKernel
-        const crossError = Math.sqrt(k.selfError ** 2 + 4 * Array.from(k.neighbourErrors).reduce((acc, e) => acc + e * e, 0))
+        const k = streaming.kernels[q]?.[s]!
+        const crossError = Math.sqrt(
+          k.selfError ** 2 +
+            4 *
+              Array.from(k.neighbourErrors).reduce(
+                (acc, e) => acc + e * e,
+                0,
+              ),
+        )
 
         return Math.abs(k.cross) <= 4 * crossError
       }),
     )
-    const c3 = distance(BLOCKS.length - 1) < distance(0) && streamingZero
+    const c3 =
+      distance(BLOCKS.length - 1) < distance(0) && streamingZero
 
     metrics.p0DistanceToFixedPointB2 = distance(0)
     metrics.p0DistanceToFixedPointB4 = distance(BLOCKS.length - 1)

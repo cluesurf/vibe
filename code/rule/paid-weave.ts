@@ -22,29 +22,74 @@
 import { type Mesh } from '@/code/tool/mesh'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
 import { makeVibeWeave, type VibeWeave } from '@/code/rule/vibe-weave'
-import { buildScatterWeave, dockCollide, type ScatterBuilt, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  buildScatterWeave,
+  dockCollide,
+  type ScatterBuilt,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 
 export const PAIR_MASS = 2
 
-export type PaidState = { readonly vibe: Int8Array; readonly demon: Int32Array }
-export type PaidRoleState = PaidState & { readonly role: Int8Array; readonly flow: Int32Array }
-
-export type PaidWeave = { readonly mesh: Mesh; readonly spec: ScatterWeaveSpec; readonly built: ScatterBuilt }
-
-export function makePaidWeave(input: { mesh: Mesh; spec: ScatterWeaveSpec }): PaidWeave {
-  const opposite = Array.from({ length: 24 }, (_, d) => input.mesh.opposite(d))
-
-  return { mesh: input.mesh, spec: input.spec, built: buildScatterWeave(input.spec, opposite) }
+export type PaidState = {
+  readonly vibe: Int8Array
+  readonly demon: Int32Array
+}
+export type PaidRoleState = PaidState & {
+  readonly role: Int8Array
+  readonly flow: Int32Array
 }
 
-// the collision of beat t on every dock, in place, forward or inverse
-export function paidCollide(weave: PaidWeave, vibe: Int8Array, role: Int8Array | undefined, demon: Int32Array, t: number, forward: boolean): void {
-  for (let x = 0; x < weave.mesh.cellCount; x++) {
-    dockCollide(weave.spec, weave.built, vibe, role, x * 24, t, forward, undefined, demon)
+export type PaidWeave = {
+  readonly mesh: Mesh
+  readonly spec: ScatterWeaveSpec
+  readonly built: ScatterBuilt
+}
+
+export function makePaidWeave(input: {
+  mesh: Mesh
+  spec: ScatterWeaveSpec
+}): PaidWeave {
+  const opposite = Array.from({ length: 24 }, (_, d) =>
+    input.mesh.opposite(d),
+  )
+
+  return {
+    mesh: input.mesh,
+    spec: input.spec,
+    built: buildScatterWeave(input.spec, opposite),
   }
 }
 
-export function paidBeat(weave: PaidWeave, state: PaidState, t: number): PaidState {
+// the collision of beat t on every dock, in place, forward or inverse
+export function paidCollide(
+  weave: PaidWeave,
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  demon: Int32Array,
+  t: number,
+  forward: boolean,
+): void {
+  for (let x = 0; x < weave.mesh.cellCount; x++) {
+    dockCollide(
+      weave.spec,
+      weave.built,
+      vibe,
+      role,
+      x * 24,
+      t,
+      forward,
+      undefined,
+      demon,
+    )
+  }
+}
+
+export function paidBeat(
+  weave: PaidWeave,
+  state: PaidState,
+  t: number,
+): PaidState {
   const vibe = Int8Array.from(state.vibe)
   const demon = Int32Array.from(state.demon)
 
@@ -53,8 +98,15 @@ export function paidBeat(weave: PaidWeave, state: PaidState, t: number): PaidSta
   return { vibe: stream({ mesh: weave.mesh, data: vibe }).data, demon }
 }
 
-export function paidBeatBack(weave: PaidWeave, state: PaidState, t: number): PaidState {
-  const vibe = streamInverse({ mesh: weave.mesh, data: Int8Array.from(state.vibe) }).data
+export function paidBeatBack(
+  weave: PaidWeave,
+  state: PaidState,
+  t: number,
+): PaidState {
+  const vibe = streamInverse({
+    mesh: weave.mesh,
+    data: Int8Array.from(state.vibe),
+  }).data
   const demon = Int32Array.from(state.demon)
 
   paidCollide(weave, vibe, undefined, demon, t, false)
@@ -62,16 +114,28 @@ export function paidBeatBack(weave: PaidWeave, state: PaidState, t: number): Pai
   return { vibe, demon }
 }
 
-export type PaidRoleWeave = PaidWeave & { readonly vibeWeave: VibeWeave }
+export type PaidRoleWeave = PaidWeave & {
+  readonly vibeWeave: VibeWeave
+}
 
-export function makePaidRoleWeave(input: { side: number; spec: ScatterWeaveSpec }): PaidRoleWeave {
+export function makePaidRoleWeave(input: {
+  side: number
+  spec: ScatterWeaveSpec
+}): PaidRoleWeave {
   const vibeWeave = makeVibeWeave({ side: input.side })
 
-  return { ...makePaidWeave({ mesh: vibeWeave.mesh, spec: input.spec }), vibeWeave }
+  return {
+    ...makePaidWeave({ mesh: vibeWeave.mesh, spec: input.spec }),
+    vibeWeave,
+  }
 }
 
 // one beat with role points and flows, as code/rule/scatter-weave scatterBeat, with the counters
-export function paidRoleBeat(weave: PaidRoleWeave, state: PaidRoleState, t: number): PaidRoleState {
+export function paidRoleBeat(
+  weave: PaidRoleWeave,
+  state: PaidRoleState,
+  t: number,
+): PaidRoleState {
   const { mesh, moves, links } = weave.vibeWeave
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
@@ -86,17 +150,30 @@ export function paidRoleBeat(weave: PaidRoleWeave, state: PaidRoleState, t: numb
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
 
-      moved[mesh.neighbour(x, d) * 24 + d] = moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
+      moved[mesh.neighbour(x, d) * 24 + d] =
+        moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) + (vibe[slot] ?? 0)
     }
   }
 
-  return { vibe: stream({ mesh, data: vibe }).data, role: moved, flow, demon }
+  return {
+    vibe: stream({ mesh, data: vibe }).data,
+    role: moved,
+    flow,
+    demon,
+  }
 }
 
-export function paidRoleBeatBack(weave: PaidRoleWeave, state: PaidRoleState, t: number): PaidRoleState {
+export function paidRoleBeatBack(
+  weave: PaidRoleWeave,
+  state: PaidRoleState,
+  t: number,
+): PaidRoleState {
   const { mesh, moves, links, opposite } = weave.vibeWeave
-  const vibe = streamInverse({ mesh, data: Int8Array.from(state.vibe) }).data
+  const vibe = streamInverse({
+    mesh,
+    data: Int8Array.from(state.vibe),
+  }).data
   const role = new Int8Array(state.role.length)
   const flow = Int32Array.from(state.flow)
   const demon = Int32Array.from(state.demon)
@@ -106,7 +183,10 @@ export function paidRoleBeatBack(weave: PaidRoleWeave, state: PaidRoleState, t: 
       const x = mesh.neighbour(y, opposite[d] ?? d)
       const slot = x * 24 + d
 
-      role[slot] = moves.act[moves.inverse[links[slot] ?? moves.identity] ?? moves.identity]?.[state.role[y * 24 + d] ?? 0] ?? 0
+      role[slot] =
+        moves.act[
+          moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+        ]?.[state.role[y * 24 + d] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) - (vibe[slot] ?? 0)
     }
   }
@@ -132,7 +212,12 @@ export function paidEnergy(state: PaidState): number {
 }
 
 // counters for every line of every dock: a uniform value, or a deterministic hash fill of units
-export function demonFill(input: { docks: number; uniform?: number; fraction?: number; salt?: number }): Int32Array {
+export function demonFill(input: {
+  docks: number
+  uniform?: number
+  fraction?: number
+  salt?: number
+}): Int32Array {
   const golden = (Math.sqrt(5) - 1) / 2
   const salt = input.salt ?? 1
 
@@ -141,6 +226,9 @@ export function demonFill(input: { docks: number; uniform?: number; fraction?: n
       return input.uniform
     }
 
-    return ((i + 1) * golden * (1 + salt * 0.37)) % 1 < (input.fraction ?? 0) ? PAIR_MASS : 0
+    return ((i + 1) * golden * (1 + salt * 0.37)) % 1 <
+      (input.fraction ?? 0)
+      ? PAIR_MASS
+      : 0
   })
 }

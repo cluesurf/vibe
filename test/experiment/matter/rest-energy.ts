@@ -39,8 +39,18 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { portCount } from '@/code/rule/lazy-root-token'
-import { huskLightSpeed, lazyEnergyFromSpectrum, evenFit } from '@/code/measure/one-light-speed'
-import { BOUND_KS, loveFear, rankedParticleLevels, threeLoves, trackLevels } from '@/code/measure/bound-dispersion'
+import {
+  huskLightSpeed,
+  lazyEnergyFromSpectrum,
+  evenFit,
+} from '@/code/measure/one-light-speed'
+import {
+  BOUND_KS,
+  loveFear,
+  rankedParticleLevels,
+  threeLoves,
+  trackLevels,
+} from '@/code/measure/bound-dispersion'
 import { type BlochSpec } from '@/code/measure/flux-store-bloch'
 
 const DIRECTIONS: readonly (readonly number[])[] = [
@@ -66,18 +76,36 @@ const unit = (d: readonly number[], s: number): number[] => {
   return d.map(x => (x * s) / n)
 }
 
-function boundCurvature(spec: BlochSpec, restPerToken: number): { E0: number; unwrapped: number; curvature: number; minOverlap: number; fitResidual: number; next: number; nextCurvature: number; distinct: boolean } {
+function boundCurvature(
+  spec: BlochSpec,
+  restPerToken: number,
+): {
+  E0: number
+  unwrapped: number
+  curvature: number
+  minOverlap: number
+  fitResidual: number
+  next: number
+  nextCurvature: number
+  distinct: boolean
+} {
   const D = spec.depth
   const ranked = rankedParticleLevels(spec, 4 * D + 6)
   const track = trackLevels(spec, BOUND_KS, ranked.slice(0, 2))
   const [a, b, c] = evenFit(BOUND_KS, track.energies[0]!)
+
   let fitResidual = 0
 
   BOUND_KS.forEach((k, i) => {
-    fitResidual = Math.max(fitResidual, Math.abs(a + b * k * k + c * k ** 4 - track.energies[0]![i]!))
+    fitResidual = Math.max(
+      fitResidual,
+      Math.abs(a + b * k * k + c * k ** 4 - track.energies[0]![i]!),
+    )
   })
 
-  const second = track.energies[1] ? evenFit(BOUND_KS, track.energies[1]) : [Number.NaN, Number.NaN, Number.NaN]
+  const second = track.energies[1]
+    ? evenFit(BOUND_KS, track.energies[1])
+    : [Number.NaN, Number.NaN, Number.NaN]
   const n = spec.kinds.length
 
   return {
@@ -103,7 +131,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const metrics: Record<string, number> = {}
     const h = 1e-3
 
@@ -132,9 +163,15 @@ export default experiment({
         let mean = 0
 
         for (const di of CURVATURE_DIRECTIONS) {
-          const Eh = lazyEnergyFromSpectrum(Q, phi, unit(DIRECTIONS[di]!, h))
+          const Eh = lazyEnergyFromSpectrum(
+            Q,
+            phi,
+            unit(DIRECTIONS[di]!, h),
+          )
           const curvature = (2 * (Eh - E0)) / (h * h)
-          const ratio = (E0 * curvature) / (c * c * mu * (Math.cos(mu) / Math.sin(mu)))
+          const ratio =
+            (E0 * curvature) /
+            (c * c * mu * (Math.cos(mu) / Math.sin(mu)))
 
           worst = Math.max(worst, Math.abs(ratio - 1))
           mean += (E0 * curvature) / 3
@@ -152,7 +189,10 @@ export default experiment({
               const K = (x * mu) / c
               const E = lazyEnergyFromSpectrum(Q, phi, unit(d, K))
 
-              shape = Math.max(shape, Math.abs(E / Math.sqrt(mu * mu + c * c * K * K) - 1))
+              shape = Math.max(
+                shape,
+                Math.abs(E / Math.sqrt(mu * mu + c * c * K * K) - 1),
+              )
             }
           }
         }
@@ -174,9 +214,20 @@ export default experiment({
       const E0 = lazyEnergyFromSpectrum(Q, phi, [0, 0, 0])
 
       for (const di of CURVATURE_DIRECTIONS) {
-        const curvature = (2 * (lazyEnergyFromSpectrum(Q, phi, unit(DIRECTIONS[di]!, hs)) - E0)) / (hs * hs)
+        const curvature =
+          (2 *
+            (lazyEnergyFromSpectrum(Q, phi, unit(DIRECTIONS[di]!, hs)) -
+              E0)) /
+          (hs * hs)
 
-        scaledGap = Math.max(scaledGap, Math.abs((E0 * curvature) / (c * c * mu * (Math.cos(mu) / Math.sin(mu))) - 1))
+        scaledGap = Math.max(
+          scaledGap,
+          Math.abs(
+            (E0 * curvature) /
+              (c * c * mu * (Math.cos(mu) / Math.sin(mu))) -
+              1,
+          ),
+        )
       }
     }
 
@@ -185,7 +236,11 @@ export default experiment({
     metrics.lazyEmc2GapLight = emc2
     metrics.lazyLorentzShapeGap = shape
 
-    const e1 = restGap <= 1e-12 && closedGap <= 1e-5 && emc2 <= 0.01 && shape <= 0.01
+    const e1 =
+      restGap <= 1e-12 &&
+      closedGap <= 1e-5 &&
+      emc2 <= 0.01 &&
+      shape <= 0.01
 
     log('e1')
 
@@ -196,14 +251,25 @@ export default experiment({
 
       log(`e2 three D ${D}`)
 
-      return { D, ...r, c: Math.sqrt(r.E0 * r.curvature), cAlt: Math.sqrt(Math.abs(r.unwrapped * r.curvature)), photon: huskLightSpeed(D) }
+      return {
+        D,
+        ...r,
+        c: Math.sqrt(r.E0 * r.curvature),
+        cAlt: Math.sqrt(Math.abs(r.unwrapped * r.curvature)),
+        photon: huskLightSpeed(D),
+      }
     })
     const pairs = [1, 2, 3, 4].map(D => {
       const r = boundCurvature(loveFear(D), rest)
 
       log(`e2 pair D ${D}`)
 
-      return { D, ...r, c: Math.sqrt(r.E0 * r.curvature), photon: huskLightSpeed(D) }
+      return {
+        D,
+        ...r,
+        c: Math.sqrt(r.E0 * r.curvature),
+        photon: huskLightSpeed(D),
+      }
     })
     const e2 = rows.every(r => Math.abs(r.c / r.photon - 1) <= 0.05)
 
@@ -212,7 +278,8 @@ export default experiment({
       metrics[`three_D${r.D}_curvature`] = r.curvature
       metrics[`three_D${r.D}_cBound`] = r.c
       metrics[`three_D${r.D}_cBoundOverPhoton`] = r.c / r.photon
-      metrics[`three_D${r.D}_cBoundOverLockedToken`] = r.c / Math.sqrt(Math.PI / 3 / Math.sqrt(3))
+      metrics[`three_D${r.D}_cBoundOverLockedToken`] =
+        r.c / Math.sqrt(Math.PI / 3 / Math.sqrt(3))
       metrics[`three_D${r.D}_minOverlap`] = r.minOverlap
       metrics[`three_D${r.D}_fitResidual`] = r.fitResidual
     }
@@ -224,7 +291,9 @@ export default experiment({
       metrics[`pair_D${r.D}_minOverlap`] = r.minOverlap
     }
 
-    for (const [g, ok] of Object.entries({ E1: e1, E2: e2 })) metrics[`gate${g}`] = ok ? 1 : 0
+    for (const [g, ok] of Object.entries({ E1: e1, E2: e2 })) {
+      metrics[`gate${g}`] = ok ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -237,8 +306,12 @@ export default experiment({
       control: {
         lazyClosedFormGapScaledStepDiagnostic: scaledGap,
         lockedTokenC: Math.sqrt(Math.PI / 3 / Math.sqrt(3)),
-        ...Object.fromEntries(rows.map(r => [`three_D${r.D}_cBoundUnwrappedOnly`, r.cAlt])),
-        ...Object.fromEntries(pairs.map(r => [`pair_D${r.D}_cBound`, r.c])),
+        ...Object.fromEntries(
+          rows.map(r => [`three_D${r.D}_cBoundUnwrappedOnly`, r.cAlt]),
+        ),
+        ...Object.fromEntries(
+          pairs.map(r => [`pair_D${r.D}_cBound`, r.c]),
+        ),
       },
       notes: `L2 (the closed form is L1). Gates E1 ${e1}, E2 ${e2}. FIRST RUN 2026-09-26 (tmp/sr-mtr24-run1.log, 6.1 s): FAIL. E1 (a), (c), (d) hold (rest energy to 1.8e-15, E = m c^2 with the photon's c to 0.13 percent at D = 2 to 6, the Lorentz band to 0.056 percent), but E1 (b) fails at 3.0e-4 against its 1e-5 tolerance through a FLAW IN THE GATE: its fixed 1e-3 difference step is not small against the light mass's Compton wavenumber mu / c (0.029 at D = 6), and the difference reads the curvature low by (c h / mu)^2 / 4 = 3.0e-4 there, exactly the gap. Diagnosed after the run; NO GATE MOVED and the status stands. A diagnostic added after the run (not a gate) reads the same closed form with the step scaled to the mass, h = 0.002 mu / c: gap ${scaledGap.toExponential(1)}. E2 fails as predicted, but the prediction's reason was half wrong: the love-fear pair's c_bound is nearly flat in D and near the locked token's own c (0.70 to 0.73 against 0.7776), while the three loves' c_bound falls with D (0.49 to 0.31), 0.70 to 0.86 of the photon's, tracking neither. The record run differs from the first only in the diagnostic and this sentence. HUSK FIRST: the photon's c is its husk c, sqrt(4 / (3 (2D + 1))); the lazy token lives on the husk; the bound state lives on one husk line and is compared with the same c (the husk photon is isotropic). Lazy token c_rest^2 / c^2 by D (light mass): ${[1, 2, 3, 4, 5, 6].map(D => (metrics[`lazy_light_D${D}_cRest2OverPhoton2`] ?? 0).toFixed(6)).join(', ')} (mu cot mu predicts 1 - mu^2 / 3); at mu = pi / 3: ${[1, 2, 3, 4, 5, 6].map(D => (metrics[`lazy_third_D${D}_cRest2OverPhoton2`] ?? 0).toFixed(6)).join(', ')} ((pi / 3) / sqrt 3 = 0.604600). Three loves by D: ${rows.map(r => `D ${r.D}: E0 ${r.E0.toFixed(4)} (unwrapped ${r.unwrapped.toFixed(4)}), E'' ${r.curvature.toFixed(5)}, c_bound ${r.c.toFixed(4)}, photon ${r.photon.toFixed(4)}, locked token 0.7776, next level ${r.next.toFixed(4)} with E'' ${r.nextCurvature.toFixed(5)}, min overlap ${r.minOverlap.toFixed(3)}, fit residual ${r.fitResidual.toExponential(1)}, tracks distinct ${r.distinct}`).join('; ')}. Love-fear pair by D: ${pairs.map(r => `D ${r.D}: E0 ${r.E0.toFixed(4)}, E'' ${r.curvature.toFixed(5)}, c_bound ${r.c.toFixed(4)} (${(r.c / r.photon).toFixed(3)} of the photon's), min overlap ${r.minOverlap.toFixed(3)}`).join('; ')}. MEANING: E = m c^2 with one c needs two things the locked tokens lack, a massless speed equal to the photon's (E-MTR-0023) and a mass light against the beat; the model's natural mass, the coin's third of a turn, costs 40 percent of c^2 on ANY band (mu cot mu at pi / 3), so a lattice-light electron needs a mass phase from a finer ring, such as the light's own drift unit 2 pi / (2 (2D + 1)^2) used here.`,
     })

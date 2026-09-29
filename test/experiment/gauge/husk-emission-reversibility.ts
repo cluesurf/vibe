@@ -34,7 +34,13 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { H, readHuskStencil } from '@/code/measure/husk-emission'
-import { dimerBeat, dimerBeatBack, linkDivergence, makeRealSpace, type DimerState } from '@/code/measure/stand-in-light'
+import {
+  dimerBeat,
+  dimerBeatBack,
+  linkDivergence,
+  makeRealSpace,
+  type DimerState,
+} from '@/code/measure/stand-in-light'
 
 const SIDE = 32
 const OMEGA0 = 0.3
@@ -64,10 +70,19 @@ function excitation(s: DimerState): number {
 
 // the largest departure of s from the start
 function miss(s: DimerState, s0: DimerState): number {
-  let worst = Math.max(Math.abs(s.c0r - s0.c0r), Math.abs(s.c0i - s0.c0i), Math.abs(s.c1r - s0.c1r), Math.abs(s.c1i - s0.c1i))
+  let worst = Math.max(
+    Math.abs(s.c0r - s0.c0r),
+    Math.abs(s.c0i - s0.c0i),
+    Math.abs(s.c1r - s0.c1r),
+    Math.abs(s.c1i - s0.c1i),
+  )
 
   for (let i = 0; i < s.a.length; i++) {
-    worst = Math.max(worst, Math.abs(s.a[i]! - s0.a[i]!), Math.abs(s.e[i]! - s0.e[i]!))
+    worst = Math.max(
+      worst,
+      Math.abs(s.a[i]! - s0.a[i]!),
+      Math.abs(s.e[i]! - s0.e[i]!),
+    )
   }
 
   return worst
@@ -87,17 +102,29 @@ export default experiment({
     const stencil = readHuskStencil(8)
     const space = makeRealSpace(stencil, SIDE)
     const links = SIDE ** 3 * H
-    const dimer = { space, dock: 0, h: 0, omega0: OMEGA0, charge: CHARGE, scratch: new Float64Array(links) }
+    const dimer = {
+      space,
+      dock: 0,
+      h: 0,
+      omega0: OMEGA0,
+      charge: CHARGE,
+      scratch: new Float64Array(links),
+    }
     const s0 = start(links)
     const s = start(links)
+
     let gauss = 0
+
     const check = (): void => {
       const div = linkDivergence(SIDE, s.e)
       const rho0 = CHARGE * (s.c0r ** 2 + s.c0i ** 2 - 0.5)
       const rho1 = CHARGE * (s.c1r ** 2 + s.c1i ** 2 - 0.5)
 
       for (let i = 0; i < div.length; i++) {
-        gauss = Math.max(gauss, Math.abs(div[i]! - (i === 0 ? rho0 : i === 1 ? rho1 : 0)))
+        gauss = Math.max(
+          gauss,
+          Math.abs(div[i]! - (i === 0 ? rho0 : i === 1 ? rho1 : 0)),
+        )
       }
     }
 
@@ -110,13 +137,21 @@ export default experiment({
     }
 
     const turned = excitation(s) / excitation(s0)
+
     let fieldEnergy = 0
 
     for (let i = 0; i < links; i++) {
       fieldEnergy += s.e[i]! ** 2
     }
 
-    const snapshot: DimerState = { a: Float64Array.from(s.a), e: Float64Array.from(s.e), c0r: s.c0r, c0i: s.c0i, c1r: s.c1r, c1i: s.c1i }
+    const snapshot: DimerState = {
+      a: Float64Array.from(s.a),
+      e: Float64Array.from(s.e),
+      c0r: s.c0r,
+      c0i: s.c0i,
+      c1r: s.c1r,
+      c1i: s.c1i,
+    }
 
     for (let t = 1; t <= BEATS; t++) {
       dimerBeatBack(dimer, s)
@@ -130,7 +165,14 @@ export default experiment({
     const excitationBack = Math.abs(excitation(s) / excitation(s0) - 1)
 
     // the control: the same turn with one angle changed
-    const c: DimerState = { a: Float64Array.from(snapshot.a), e: Float64Array.from(snapshot.e), c0r: snapshot.c0r, c0i: snapshot.c0i, c1r: snapshot.c1r, c1i: snapshot.c1i }
+    const c: DimerState = {
+      a: Float64Array.from(snapshot.a),
+      e: Float64Array.from(snapshot.e),
+      c0r: snapshot.c0r,
+      c0i: snapshot.c0i,
+      c1r: snapshot.c1r,
+      c1i: snapshot.c1i,
+    }
     const probe = (SIDE / 2 + SIDE * (SIDE / 2 + SIDE * (SIDE / 2))) * H
 
     c.a[probe] = c.a[probe]! + 1e-6
@@ -153,7 +195,12 @@ export default experiment({
     const gate2 = back <= 1e-10 && excitationBack <= 1e-10
     const gate3 = gauss <= 1e-12
     const gate4 = perturbed >= 1e-9 && perturbed <= 1e-3
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate2 && gate3 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate2 && gate3
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

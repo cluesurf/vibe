@@ -19,25 +19,44 @@
 // DETERMINISM: no random numbers; the key is integer arithmetic on (beat, dock, line). NOTHING MOVES: every piece
 // hands a value to a slot, the stream takes it one dock along, and the register is written by the stream's copies.
 
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { type PathKey } from '@/code/measure/full-key-paths'
-import { singlesAt, starBeat, type KEvent } from '@/code/measure/hub-star'
-import { d4BoxCoordinates, d4Vector } from '@/code/substrate/d4-box-integer'
+import {
+  singlesAt,
+  starBeat,
+  type KEvent,
+} from '@/code/measure/hub-star'
+import {
+  d4BoxCoordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box-integer'
 
 // vibes placed on the vacuum: each on its slot at its dock (1 a love, -1 a fear), open, point 0, the slot's dock line
 // cleared first (both slots and its store), as hub-star's placeLoves does for loves
-export function placeVibes(vacuum: Configuration, vibes: readonly { dock: number; slot: number; vibe: number }[]): Configuration {
+export function placeVibes(
+  vacuum: Configuration,
+  vibes: readonly { dock: number; slot: number; vibe: number }[],
+): Configuration {
   const s = cloneConfiguration(vacuum)
 
   for (const { dock, slot } of vibes) {
-    const l = LINE_OF[slot] as number
+    const l = LINE_OF[slot]!
 
-    for (const d of [LINE_FIRSTS[l] as number, OPPOSITE[LINE_FIRSTS[l] as number] as number]) {
+    for (const d of [LINE_FIRSTS[l]!, OPPOSITE[LINE_FIRSTS[l]!]!]) {
       s.vibe[dock * 24 + d] = 0
       s.point[dock * 24 + d] = 0
       s.open[dock * 24 + d] = 0
     }
+
     s.store[dock * 12 + l] = 0
     s.spoint[dock * 12 + l] = 0
     s.sopen[dock * 12 + l] = 0
@@ -54,13 +73,17 @@ export function placeVibes(vacuum: Configuration, vibes: readonly { dock: number
 // ---- geometry ----
 
 // minimal-image box offset of dock x from dock o, in box coordinates, then as a Cartesian 4-vector
-export function cartesianOffset(side: number, o: number, x: number): number[] {
+export function cartesianOffset(
+  side: number,
+  o: number,
+  x: number,
+): number[] {
   const a = d4BoxCoordinates({ cell: o, side })
   const b = d4BoxCoordinates({ cell: x, side })
 
   return d4Vector(
     b.map((v, k) => {
-      const d = (((v - (a[k] as number)) % side) + side) % side
+      const d = (((v - a[k]!) % side) + side) % side
 
       return d > side / 2 ? d - side : d
     }),
@@ -68,18 +91,34 @@ export function cartesianOffset(side: number, o: number, x: number): number[] {
 }
 
 // the twelve line classes as Cartesian 4-vectors, read from the stream: the offset of each line's first slot's target
-export function lineDirections(tables: LockedTables, side: number, x: number): number[][] {
-  return LINE_FIRSTS.map(f => cartesianOffset(side, x, Math.floor((tables.target[x * 24 + f] as number) / 24)))
+export function lineDirections(
+  tables: LockedTables,
+  side: number,
+  x: number,
+): number[][] {
+  return LINE_FIRSTS.map(f =>
+    cartesianOffset(
+      side,
+      x,
+      Math.floor(tables.target[x * 24 + f]! / 24),
+    ),
+  )
 }
 
 // the distance of v from the nearest line class through the origin (the part of v off every single line)
-export function offLine(v: readonly number[], lines: readonly number[][]): number {
+export function offLine(
+  v: readonly number[],
+  lines: readonly number[][],
+): number {
   let best = Infinity
 
   for (const r of lines) {
     const rr = r.reduce((s, x) => s + x * x, 0)
-    const vr = r.reduce((s, x, k) => s + x * (v[k] as number), 0)
-    const perp = v.reduce((s, x, k) => s + (x - (vr / rr) * (r[k] as number)) ** 2, 0)
+    const vr = r.reduce((s, x, k) => s + x * v[k]!, 0)
+    const perp = v.reduce(
+      (s, x, k) => s + (x - (vr / rr) * r[k]!) ** 2,
+      0,
+    )
 
     best = Math.min(best, Math.sqrt(Math.max(0, perp)))
   }
@@ -88,59 +127,85 @@ export function offLine(v: readonly number[], lines: readonly number[][]): numbe
 }
 
 // the docks other than `own` lying on two or more of the mesh lines `lines` (where two of them cross)
-export function lineCrossings(cells: number, lineOf: Int32Array, lines: readonly number[], own: readonly number[]): number[] {
+export function lineCrossings(
+  cells: number,
+  lineOf: Int32Array,
+  lines: readonly number[],
+  own: readonly number[],
+): number[] {
   const set = new Set(lines)
   const skip = new Set(own)
   const out: number[] = []
 
   for (let y = 0; y < cells; y++) {
-    if (skip.has(y)) continue
+    if (skip.has(y)) {
+      continue
+    }
 
     let n = 0
 
-    for (let l = 0; l < 12; l++) if (set.has(lineOf[y * 24 + (LINE_FIRSTS[l] as number)] as number)) n++
-    if (n >= 2) out.push(y)
+    for (let l = 0; l < 12; l++) {
+      if (set.has(lineOf[y * 24 + LINE_FIRSTS[l]!]!)) {
+        n++
+      }
+    }
+
+    if (n >= 2) {
+      out.push(y)
+    }
   }
 
   return out
 }
 
 // the numerical rank of a set of vectors (Gram matrix eigenvalues above `tolerance` of the largest), by Jacobi sweeps
-export function numericalRank(vectors: readonly number[][], tolerance = 1e-6): number {
+export function numericalRank(
+  vectors: readonly number[][],
+  tolerance = 1e-6,
+): number {
   const n = vectors[0]?.length ?? 0
-  const g = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => vectors.reduce((s, v) => s + (v[i] as number) * (v[j] as number), 0)))
+  const g = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) =>
+      vectors.reduce((s, v) => s + v[i]! * v[j]!, 0),
+    ),
+  )
 
   for (let sweep = 0; sweep < 50; sweep++) {
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
-        const gpq = (g[p] as number[])[q] as number
+        const gpq = g[p]![q]!
 
-        if (Math.abs(gpq) < 1e-300) continue
+        if (Math.abs(gpq) < 1e-300) {
+          continue
+        }
 
-        const theta = ((g[q] as number[])[q]! - (g[p] as number[])[p]!) / (2 * gpq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const theta = (g[q]![q]! - g[p]![p]!) / (2 * gpq)
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
         for (let k = 0; k < n; k++) {
-          const gkp = (g[k] as number[])[p] as number
-          const gkq = (g[k] as number[])[q] as number
+          const gkp = g[k]![p]!
+          const gkq = g[k]![q]!
 
-          ;(g[k] as number[])[p] = c * gkp - s * gkq
-          ;(g[k] as number[])[q] = s * gkp + c * gkq
+          g[k]![p] = c * gkp - s * gkq
+          g[k]![q] = s * gkp + c * gkq
         }
-        for (let k = 0; k < n; k++) {
-          const gpk = (g[p] as number[])[k] as number
-          const gqk = (g[q] as number[])[k] as number
 
-          ;(g[p] as number[])[k] = c * gpk - s * gqk
-          ;(g[q] as number[])[k] = s * gpk + c * gqk
+        for (let k = 0; k < n; k++) {
+          const gpk = g[p]![k]!
+          const gqk = g[q]![k]!
+
+          g[p]![k] = c * gpk - s * gqk
+          g[q]![k] = s * gpk + c * gqk
         }
       }
     }
   }
 
-  const eig = g.map((row, i) => row[i] as number)
+  const eig = g.map((row, i) => row[i]!)
   const top = Math.max(0, ...eig)
 
   return top === 0 ? 0 : eig.filter(e => e > tolerance * top).length
@@ -153,23 +218,29 @@ const mod3 = (v: number): number => ((v % 3) + 3) % 3
 // the register written by the stream's copies of the OPEN vibes, read on the configuration AFTER the stream (every
 // vibe on a first slot came forward across the link from its source dock, every vibe on a second slot came back
 // across the link from its own dock): link (x, l) joins x to the dock its line's first slot streams into
-export function writeFluxAfterStream(tables: LockedTables, c: Configuration, flux: Int8Array): void {
+export function writeFluxAfterStream(
+  tables: LockedTables,
+  c: Configuration,
+  flux: Int8Array,
+): void {
   for (let i = 0; i < c.vibe.length; i++) {
-    const q = c.vibe[i] as number
+    const q = c.vibe[i]!
 
-    if (q === 0 || !c.open[i]) continue
+    if (q === 0 || !c.open[i]) {
+      continue
+    }
 
     const d = i % 24
-    const l = LINE_OF[d] as number
+    const l = LINE_OF[d]!
 
     if (d === LINE_FIRSTS[l]) {
-      const link = Math.floor((tables.source[i] as number) / 24) * 12 + l
+      const link = Math.floor(tables.source[i]! / 24) * 12 + l
 
-      flux[link] = mod3((flux[link] as number) - q)
+      flux[link] = mod3(flux[link]! - q)
     } else {
       const link = Math.floor(i / 24) * 12 + l
 
-      flux[link] = mod3((flux[link] as number) + q)
+      flux[link] = mod3(flux[link]! + q)
     }
   }
 }
@@ -180,10 +251,18 @@ export function unequalLikeMeetings(c: Configuration): number {
 
   for (let x = 0; x * 24 < c.vibe.length; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (OPPOSITE[LINE_FIRSTS[l] as number] as number)
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + OPPOSITE[LINE_FIRSTS[l]!]!
 
-      if (c.vibe[i] !== 0 && c.vibe[i] === c.vibe[j] && c.open[i] && c.open[j] && c.point[i] !== c.point[j]) n++
+      if (
+        c.vibe[i] !== 0 &&
+        c.vibe[i] === c.vibe[j] &&
+        c.open[i] &&
+        c.open[j] &&
+        c.point[i] !== c.point[j]
+      ) {
+        n++
+      }
     }
   }
 
@@ -214,25 +293,68 @@ export type TwoHubTrack = {
   last: Configuration
 }
 
-const sameSlot = (p: Configuration, q: Configuration, i: number): boolean => p.vibe[i] === q.vibe[i] && (p.vibe[i] === 0 || (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
-const sameStore = (p: Configuration, q: Configuration, s: number): boolean => p.store[s] === q.store[s] && (p.store[s] === 0 || (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
+const sameSlot = (
+  p: Configuration,
+  q: Configuration,
+  i: number,
+): boolean =>
+  p.vibe[i] === q.vibe[i] &&
+  (p.vibe[i] === 0 ||
+    (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
+const sameStore = (
+  p: Configuration,
+  q: Configuration,
+  s: number,
+): boolean =>
+  p.store[s] === q.store[s] &&
+  (p.store[s] === 0 ||
+    (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
 
-export function twoHubTrack(input: { tables: LockedTables; vacuum: Configuration; start: Configuration; hub: number; key: PathKey; threshold: number; beats: number; side: number }): TwoHubTrack {
-  const { tables, vacuum, start, hub, key, threshold, beats, side } = input
-  const offsets = Array.from({ length: tables.cells }, (_, x) => cartesianOffset(side, hub, x))
+export function twoHubTrack(input: {
+  tables: LockedTables
+  vacuum: Configuration
+  start: Configuration
+  hub: number
+  key: PathKey
+  threshold: number
+  beats: number
+  side: number
+}): TwoHubTrack {
+  const { tables, vacuum, start, hub, key, threshold, beats, side } =
+    input
+  const offsets = Array.from({ length: tables.cells }, (_, x) =>
+    cartesianOffset(side, hub, x),
+  )
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let p = cloneConfiguration(vacuum)
   let q = cloneConfiguration(vacuum)
+
   const events: KEvent[] = []
   const vacuumEvents: KEvent[] = []
   const fired = new Uint8Array(tables.cells)
   const flux = new Int8Array(tables.cells * 12)
   const vacuumFlux = new Int8Array(tables.cells * 12)
+
   let firedCount = 0
   let seen = 0
   let cost = 0
-  const out: TwoHubTrack = { wake: [], footprint: [], kDocks: [], centroid: [], kCentroid: [], costly: [], cost: [], events, vacuumEvents: 0, vacuumSingles: 0, vacuumSplits: unequalLikeMeetings(vacuum), last: a }
+
+  const out: TwoHubTrack = {
+    wake: [],
+    footprint: [],
+    kDocks: [],
+    centroid: [],
+    kCentroid: [],
+    costly: [],
+    cost: [],
+    events,
+    vacuumEvents: 0,
+    vacuumSingles: 0,
+    vacuumSplits: unequalLikeMeetings(vacuum),
+    last: a,
+  }
 
   for (let t = 0; t < beats; t++) {
     starBeat(tables, a, b, key, threshold, t, events)
@@ -241,16 +363,21 @@ export function twoHubTrack(input: { tables: LockedTables; vacuum: Configuration
     ;[p, q] = [q, p]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)
-    out.vacuumSplits = Math.max(out.vacuumSplits, unequalLikeMeetings(p))
+    out.vacuumSplits = Math.max(
+      out.vacuumSplits,
+      unequalLikeMeetings(p),
+    )
 
     const kSum = [0, 0, 0, 0]
+
     let kCount = 0
 
     for (; seen < events.length; seen++) {
-      const d = (events[seen] as KEvent).dock
+      const d = events[seen]!.dock
 
-      ;(offsets[d] as number[]).forEach((v, k) => (kSum[k]! += v))
+      offsets[d]!.forEach((v, k) => (kSum[k]! += v))
       kCount++
+
       if (!fired[d]) {
         fired[d] = 1
         firedCount++
@@ -259,30 +386,52 @@ export function twoHubTrack(input: { tables: LockedTables; vacuum: Configuration
 
     let wake = 0
     let docks = 0
+
     const sum = [0, 0, 0, 0]
 
     for (let x = 0; x < tables.cells; x++) {
       let here = 0
 
-      for (let d = 0; d < 24; d++) if (!sameSlot(a, p, x * 24 + d)) here++
-      for (let l = 0; l < 12; l++) if (!sameStore(a, p, x * 12 + l)) here++
+      for (let d = 0; d < 24; d++) {
+        if (!sameSlot(a, p, x * 24 + d)) {
+          here++
+        }
+      }
+
+      for (let l = 0; l < 12; l++) {
+        if (!sameStore(a, p, x * 12 + l)) {
+          here++
+        }
+      }
+
       out.vacuumSingles += singlesAt(p, x)
-      if (here === 0) continue
+
+      if (here === 0) {
+        continue
+      }
+
       wake += here
       docks++
-      ;(offsets[x] as number[]).forEach((v, k) => (sum[k]! += here * v))
+      offsets[x]!.forEach((v, k) => (sum[k]! += here * v))
     }
 
     let costly = 0
 
-    for (let i = 0; i < flux.length; i++) if (flux[i] !== vacuumFlux[i]) costly++
+    for (let i = 0; i < flux.length; i++) {
+      if (flux[i] !== vacuumFlux[i]) {
+        costly++
+      }
+    }
+
     cost += costly
 
     out.wake.push(wake)
     out.footprint.push(docks)
     out.kDocks.push(firedCount)
     out.centroid.push(sum.map(v => (wake === 0 ? 0 : v / wake)))
-    out.kCentroid.push(kCount === 0 ? undefined : kSum.map(v => v / kCount))
+    out.kCentroid.push(
+      kCount === 0 ? undefined : kSum.map(v => v / kCount),
+    )
     out.costly.push(costly)
     out.cost.push(cost)
   }

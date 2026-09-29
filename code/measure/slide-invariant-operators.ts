@@ -35,7 +35,9 @@ const key3 = (r: readonly number[]): string => `${r[0]},${r[1]},${r[2]}`
 // ones), sorted
 export function huskBall(steps: number): Offset[] {
   const links = TRIT_HUSK_VECTORS.flatMap(u => [u, u.map(x => -x)])
+
   let front = new Map<string, Offset>([['0,0,0', [0, 0, 0]]])
+
   const all = new Map(front)
 
   for (let s = 0; s < steps; s++) {
@@ -51,17 +53,31 @@ export function huskBall(steps: number): Offset[] {
         }
       }
     }
+
     front = next
   }
 
-  return [...all.values()].sort((a, b) => a[0] * a[0] + a[1] * a[1] + a[2] * a[2] - (b[0] * b[0] + b[1] * b[1] + b[2] * b[2]) || key3(a).localeCompare(key3(b)))
+  return [...all.values()].sort(
+    (a, b) =>
+      a[0] * a[0] +
+        a[1] * a[1] +
+        a[2] * a[2] -
+        (b[0] * b[0] + b[1] * b[1] + b[2] * b[2]) ||
+      key3(a).localeCompare(key3(b)),
+  )
 }
 
 // the cube |r_i| <= radius
 export function chebyshevBall(radius: number): Offset[] {
   const out: Offset[] = []
 
-  for (let x = -radius; x <= radius; x++) for (let y = -radius; y <= radius; y++) for (let z = -radius; z <= radius; z++) out.push([x, y, z])
+  for (let x = -radius; x <= radius; x++) {
+    for (let y = -radius; y <= radius; y++) {
+      for (let z = -radius; z <= radius; z++) {
+        out.push([x, y, z])
+      }
+    }
+  }
 
   return out
 }
@@ -119,30 +135,56 @@ export function classGeometry(): ClassGeometry {
 
     return [0, 1, 2].map(i => [0, 1, 2].map(j => (u[i]! * u[j]!) / n2))
   })
-  const span = nn.map(m => PLAIN_SLOTS.map(([i, j]) => (i === j ? m[i]![i]! / 2 : m[i]![j]!)))
+  const span = nn.map(m =>
+    PLAIN_SLOTS.map(([i, j]) => (i === j ? m[i]![i]! / 2 : m[i]![j]!)),
+  )
 
   return { roots, husk, nn, span }
 }
 
 // a symmetry of the operators: a cube map on the offsets and the class permutation it induces
-export type Symmetry = { readonly offset: (r: Offset) => Offset; readonly classes: readonly number[] }
+export type Symmetry = {
+  readonly offset: (r: Offset) => Offset
+  readonly classes: readonly number[]
+}
 
 // the cube group acting on the classes through their roots; `depthFlip` adds w -> -w (which fixes every offset and
 // swaps e_i + e4 with e_i - e4), for the larger group O_h x Z2
-export function classSymmetries(geometry: ClassGeometry, depthFlip: boolean): Symmetry[] {
+export function classSymmetries(
+  geometry: ClassGeometry,
+  depthFlip: boolean,
+): Symmetry[] {
   const indexOf = (root: readonly number[]): number => {
-    const found = geometry.roots.findIndex(r => r.every((x, k) => x === root[k]) || r.every((x, k) => x === -root[k]!))
+    const found = geometry.roots.findIndex(
+      r =>
+        r.every((x, k) => x === root[k]) ||
+        r.every((x, k) => x === -root[k]!),
+    )
 
-    if (found < 0) throw new Error('slide-invariant-operators: a root outside the classes')
+    if (found < 0) {
+      throw new Error(
+        'slide-invariant-operators: a root outside the classes',
+      )
+    }
 
     return found
   }
+
   const out: Symmetry[] = cubicGroup().map(g => ({
     offset: (r: Offset): Offset => g(r) as unknown as Offset,
-    classes: geometry.roots.map(root => indexOf([...g(root.slice(0, 3)), root[3]!])),
+    classes: geometry.roots.map(root =>
+      indexOf([...g(root.slice(0, 3)), root[3]!]),
+    ),
   }))
 
-  if (depthFlip) out.push({ offset: r => r, classes: geometry.roots.map(root => indexOf([root[0]!, root[1]!, root[2]!, -root[3]!])) })
+  if (depthFlip) {
+    out.push({
+      offset: r => r,
+      classes: geometry.roots.map(root =>
+        indexOf([root[0]!, root[1]!, root[2]!, -root[3]!]),
+      ),
+    })
+  }
 
   return out
 }
@@ -153,41 +195,59 @@ export type OperatorSpace = {
   // orbit of triple (a * 12 + b) * offsets + r
   readonly orbitOf: Int32Array
   // the triples of each orbit, as [a, b, r index]
-  readonly members: readonly (readonly (readonly [number, number, number])[])[]
+  readonly members: readonly (readonly (readonly [
+    number,
+    number,
+    number,
+  ])[])[]
 }
 
-export function operatorSpace(offsets: readonly Offset[], symmetries: readonly Symmetry[]): OperatorSpace {
+export function operatorSpace(
+  offsets: readonly Offset[],
+  symmetries: readonly Symmetry[],
+): OperatorSpace {
   const R = offsets.length
   const index = new Map(offsets.map((r, i) => [key3(r), i]))
-  const triple = (a: number, b: number, r: number): number => (a * 12 + b) * R + r
+  const triple = (a: number, b: number, r: number): number =>
+    (a * 12 + b) * R + r
   const orbitOf = new Int32Array(144 * R).fill(-1)
   const members: [number, number, number][][] = []
 
   for (let a = 0; a < 12; a++) {
     for (let b = 0; b < 12; b++) {
       for (let r = 0; r < R; r++) {
-        if (orbitOf[triple(a, b, r)]! >= 0) continue
+        if (orbitOf[triple(a, b, r)]! >= 0) {
+          continue
+        }
 
         const orbit = members.length
         const list: [number, number, number][] = []
         const stack: [number, number, number][] = [[a, b, r]]
 
         orbitOf[triple(a, b, r)] = orbit
+
         while (stack.length > 0) {
           const [x, y, s] = stack.pop()!
           const o = offsets[s]!
 
           list.push([x, y, s])
 
-          const images: [number, number, number][] = symmetries.map(g => {
-            const moved = index.get(key3(g.offset(o)))
+          const images: [number, number, number][] = symmetries.map(
+            g => {
+              const moved = index.get(key3(g.offset(o)))
 
-            if (moved === undefined) throw new Error('slide-invariant-operators: the offset set is not closed under the group')
+              if (moved === undefined) {
+                throw new Error(
+                  'slide-invariant-operators: the offset set is not closed under the group',
+                )
+              }
 
-            return [g.classes[x]!, g.classes[y]!, moved]
-          })
+              return [g.classes[x]!, g.classes[y]!, moved]
+            },
+          )
 
           images.push([y, x, index.get(key3([-o[0], -o[1], -o[2]]))!])
+
           for (const [u, v, t] of images) {
             if (orbitOf[triple(u, v, t)]! < 0) {
               orbitOf[triple(u, v, t)] = orbit
@@ -195,6 +255,7 @@ export function operatorSpace(offsets: readonly Offset[], symmetries: readonly S
             }
           }
         }
+
         members.push(list)
       }
     }
@@ -204,11 +265,19 @@ export function operatorSpace(offsets: readonly Offset[], symmetries: readonly S
 }
 
 // a 12 x 3 kernel: (G xi)_a(x) = sum over entries of value * xi_component(x + offset), for entries of class a
-export type GaugeEntry = { readonly class: number; readonly offset: Offset; readonly component: number; readonly value: number }
+export type GaugeEntry = {
+  readonly class: number
+  readonly offset: Offset
+  readonly component: number
+  readonly value: number
+}
 
 export type GaugeKind = 'central' | 'own'
 
-export function slideGauge(geometry: ClassGeometry, kind: GaugeKind): GaugeEntry[] {
+export function slideGauge(
+  geometry: ClassGeometry,
+  kind: GaugeKind,
+): GaugeEntry[] {
   const out: GaugeEntry[] = []
 
   geometry.husk.forEach((u, a) => {
@@ -217,13 +286,26 @@ export function slideGauge(geometry: ClassGeometry, kind: GaugeKind): GaugeEntry
         for (let m = 0; m < 3; m++) {
           const v = geometry.nn[a]![i]![m]! / 2
 
-          if (v === 0) continue
+          if (v === 0) {
+            continue
+          }
 
           const e: number[] = [0, 0, 0]
 
           e[i] = 1
-          out.push({ class: a, offset: [e[0]!, e[1]!, e[2]!], component: m, value: v })
-          out.push({ class: a, offset: [-e[0]!, -e[1]!, -e[2]!], component: m, value: -v })
+          out.push({
+            class: a,
+            offset: [e[0]!, e[1]!, e[2]!],
+            component: m,
+            value: v,
+          })
+
+          out.push({
+            class: a,
+            offset: [-e[0]!, -e[1]!, -e[2]!],
+            component: m,
+            value: -v,
+          })
         }
       }
     } else {
@@ -232,9 +314,23 @@ export function slideGauge(geometry: ClassGeometry, kind: GaugeKind): GaugeEntry
       for (let m = 0; m < 3; m++) {
         const v = u[m]! / (2 * n2)
 
-        if (v === 0) continue
-        out.push({ class: a, offset: [u[0]!, u[1]!, u[2]!], component: m, value: v })
-        out.push({ class: a, offset: [-u[0]!, -u[1]!, -u[2]!], component: m, value: -v })
+        if (v === 0) {
+          continue
+        }
+
+        out.push({
+          class: a,
+          offset: [u[0]!, u[1]!, u[2]!],
+          component: m,
+          value: v,
+        })
+
+        out.push({
+          class: a,
+          offset: [-u[0]!, -u[1]!, -u[2]!],
+          component: m,
+          value: -v,
+        })
       }
     }
   })
@@ -243,10 +339,15 @@ export function slideGauge(geometry: ClassGeometry, kind: GaugeKind): GaugeEntry
 }
 
 // the invariance conditions sum_r K(r) G(s - r) = 0, one row per (a, component, s), columns the orbits (dyadic)
-export function invarianceRows(space: OperatorSpace, gauge: readonly GaugeEntry[]): number[][] {
+export function invarianceRows(
+  space: OperatorSpace,
+  gauge: readonly GaugeEntry[],
+): number[][] {
   const P = space.members.length
   const rows = new Map<string, number[]>()
-  const byClass = Array.from({ length: 12 }, (_, b) => gauge.filter(g => g.class === b))
+  const byClass = Array.from({ length: 12 }, (_, b) =>
+    gauge.filter(g => g.class === b),
+  )
 
   space.members.forEach((list, t) => {
     for (const [a, b, ri] of list) {
@@ -254,12 +355,14 @@ export function invarianceRows(space: OperatorSpace, gauge: readonly GaugeEntry[
 
       for (const g of byClass[b]!) {
         const k = `${a},${g.component},${key3([r[0] + g.offset[0], r[1] + g.offset[1], r[2] + g.offset[2]])}`
+
         let row = rows.get(k)
 
         if (!row) {
           row = new Array<number>(P).fill(0)
           rows.set(k, row)
         }
+
         row[t]! += g.value
       }
     }
@@ -278,17 +381,27 @@ export function sandwichedMoment(
   weight: (r: Offset) => number,
 ): number[][] {
   const P = space.members.length
-  const out = Array.from({ length: left.length * right.length }, () => new Array<number>(P).fill(0))
+  const out = Array.from({ length: left.length * right.length }, () =>
+    new Array<number>(P).fill(0),
+  )
 
   space.members.forEach((list, t) => {
     for (const [a, b, ri] of list) {
       const w = weight(space.offsets[ri]!)
 
-      if (w === 0) continue
+      if (w === 0) {
+        continue
+      }
+
       left.forEach((l, i) => {
-        if (l[a] === 0) return
+        if (l[a] === 0) {
+          return
+        }
+
         right.forEach((m, j) => {
-          if (m[b] !== 0) out[i * right.length + j]![t]! += w * l[a]! * m[b]!
+          if (m[b] !== 0) {
+            out[i * right.length + j]![t]! += w * l[a]! * m[b]!
+          }
         })
       })
     }
@@ -306,15 +419,27 @@ export function sandwichedKernel(
 ): number[][] {
   const P = space.members.length
   const R = space.offsets.length
-  const out = Array.from({ length: R * left.length * right.length }, () => new Array<number>(P).fill(0))
+  const out = Array.from(
+    { length: R * left.length * right.length },
+    () => new Array<number>(P).fill(0),
+  )
 
   space.members.forEach((list, t) => {
     for (const [a, b, ri] of list) {
-      if (skip(space.offsets[ri]!)) continue
+      if (skip(space.offsets[ri]!)) {
+        continue
+      }
+
       left.forEach((l, i) => {
-        if (l[a] === 0) return
+        if (l[a] === 0) {
+          return
+        }
+
         right.forEach((m, j) => {
-          if (m[b] !== 0) out[(ri * left.length + i) * right.length + j]![t]! += l[a]! * m[b]!
+          if (m[b] !== 0) {
+            out[(ri * left.length + i) * right.length + j]![t]! +=
+              l[a]! * m[b]!
+          }
         })
       })
     }
@@ -326,19 +451,43 @@ export function sandwichedKernel(
 // the extras: 3 depth tilts (e_i + e4 against e_i - e4) and 3 axis-diagonal mismatches (the two diagonals of the
 // (i, j) face against half the four axis classes of i and j), each a 12-vector with A^T v = 0 (dyadic)
 export function extraBasis(geometry: ClassGeometry): number[][] {
-  const indexOf = (root: readonly number[]): number => geometry.roots.findIndex(r => r.every((x, k) => x === root[k]) || r.every((x, k) => x === -root[k]!))
-  const unit = (i: number): number[] => [0, 1, 2].map(k => (k === i ? 1 : 0))
-  const axis = (i: number, s: number): number => indexOf([...unit(i), s])
-  const diag = (i: number, j: number, s: number): number => indexOf([0, 1, 2].map(m => (m === i ? 1 : m === j ? s : 0)).concat([0]))
-  const tilts = [0, 1, 2].map(i => Array.from({ length: 12 }, (_, a) => (a === axis(i, 1) ? 1 : a === axis(i, -1) ? -1 : 0)))
+  const indexOf = (root: readonly number[]): number =>
+    geometry.roots.findIndex(
+      r =>
+        r.every((x, k) => x === root[k]) ||
+        r.every((x, k) => x === -root[k]!),
+    )
+  const unit = (i: number): number[] =>
+    [0, 1, 2].map(k => (k === i ? 1 : 0))
+  const axis = (i: number, s: number): number =>
+    indexOf([...unit(i), s])
+  const diag = (i: number, j: number, s: number): number =>
+    indexOf(
+      [0, 1, 2].map(m => (m === i ? 1 : m === j ? s : 0)).concat([0]),
+    )
+  const tilts = [0, 1, 2].map(i =>
+    Array.from({ length: 12 }, (_, a) =>
+      a === axis(i, 1) ? 1 : a === axis(i, -1) ? -1 : 0,
+    ),
+  )
   const mismatches = [
     [0, 1],
     [0, 2],
     [1, 2],
   ].map(([i, j]) =>
     Array.from({ length: 12 }, (_, a) => {
-      if (a === diag(i!, j!, 1) || a === diag(i!, j!, -1)) return 1
-      if (a === axis(i!, 1) || a === axis(i!, -1) || a === axis(j!, 1) || a === axis(j!, -1)) return -0.5
+      if (a === diag(i!, j!, 1) || a === diag(i!, j!, -1)) {
+        return 1
+      }
+
+      if (
+        a === axis(i!, 1) ||
+        a === axis(i!, -1) ||
+        a === axis(j!, 1) ||
+        a === axis(j!, -1)
+      ) {
+        return -0.5
+      }
 
       return 0
     }),
@@ -365,10 +514,12 @@ export function einsteinHilbertForm(q: readonly number[]): number[][] {
 
     return h
   }
+
   const Q = (v: readonly number[]): number => {
     const h = matrixOf(v)
     const q2 = q.reduce((t, x) => t + x * x, 0)
     const tr = h[0]![0]! + h[1]![1]! + h[2]![2]!
+
     let frob = 0
     let qh2 = 0
     let qhq = 0
@@ -381,30 +532,47 @@ export function einsteinHilbertForm(q: readonly number[]): number[][] {
         row += q[j]! * h[j]![i]!
         qhq += q[i]! * h[i]![j]! * q[j]!
       }
+
       qh2 += row * row
     }
 
     return q2 * frob - 2 * qh2 + 2 * qhq * tr - q2 * tr * tr
   }
-  const e = (s: number): number[] => PLAIN_SLOTS.map((_, k) => (k === s ? 1 : 0))
+
+  const e = (s: number): number[] =>
+    PLAIN_SLOTS.map((_, k) => (k === s ? 1 : 0))
 
   return PLAIN_SLOTS.map((_, s) =>
-    PLAIN_SLOTS.map((__, t) => (s === t ? Q(e(s)) : (Q(e(s).map((x, k) => x + e(t)[k]!)) - Q(e(s)) - Q(e(t))) / 2)),
+    PLAIN_SLOTS.map((__, t) =>
+      s === t
+        ? Q(e(s))
+        : (Q(e(s).map((x, k) => x + e(t)[k]!)) - Q(e(s)) - Q(e(t))) / 2,
+    ),
   )
 }
 
 // the real-space kernel of a symbol that is a quadratic form in q_i = sin p_i: form(q) = sum c_ij q_i q_j, with
 // sin p_i sin p_j (i != j) at offsets +-(e_i - e_j) with 1/4 and +-(e_i + e_j) with -1/4, and sin^2 p_i at 0 with 1/2
 // and at +-2 e_i with -1/4; returned as a map from offset to the 6 x 6 matrix
-export function centralSymbolKernel(form: (q: readonly number[]) => number[][]): Map<string, { offset: Offset; value: number[][] }> {
-  const e = (i: number): number[] => [0, 1, 2].map(k => (k === i ? 1 : 0))
+export function centralSymbolKernel(
+  form: (q: readonly number[]) => number[][],
+): Map<string, { offset: Offset; value: number[][] }> {
+  const e = (i: number): number[] =>
+    [0, 1, 2].map(k => (k === i ? 1 : 0))
   const at = form([0, 0, 0])
   const zero = (): number[][] => at.map(row => row.map(() => 0))
   const out = new Map<string, { offset: Offset; value: number[][] }>()
-  const add = (r: readonly number[], m: number[][], w: number): void => {
+
+  const add = (
+    r: readonly number[],
+    m: number[][],
+    w: number,
+  ): void => {
     const k = key3(r)
 
-    if (!out.has(k)) out.set(k, { offset: [r[0]!, r[1]!, r[2]!], value: zero() })
+    if (!out.has(k)) {
+      out.set(k, { offset: [r[0]!, r[1]!, r[2]!], value: zero() })
+    }
 
     const v = out.get(k)!.value
 
@@ -416,20 +584,40 @@ export function centralSymbolKernel(form: (q: readonly number[]) => number[][]):
     const ci = form(e(i))
 
     add([0, 0, 0], ci, 1 / 2)
-    add(e(i).map(x => 2 * x), ci, -1 / 4)
-    add(e(i).map(x => -2 * x), ci, -1 / 4)
+    add(
+      e(i).map(x => 2 * x),
+      ci,
+      -1 / 4,
+    )
+
+    add(
+      e(i).map(x => -2 * x),
+      ci,
+      -1 / 4,
+    )
+
     for (let j = i + 1; j < 3; j++) {
       const cj = form(e(j))
       const both = form(e(i).map((x, k) => x + e(j)[k]!))
       // the coefficient of q_i q_j (both orders together)
-      const cij = both.map((row, a) => row.map((x, b) => x - ci[a]![b]! - cj[a]![b]!))
+      const cij = both.map((row, a) =>
+        row.map((x, b) => x - ci[a]![b]! - cj[a]![b]!),
+      )
       const minus = e(i).map((x, k) => x - e(j)[k]!)
       const plus = e(i).map((x, k) => x + e(j)[k]!)
 
       add(minus, cij, 1 / 4)
-      add(minus.map(x => -x), cij, 1 / 4)
+      add(
+        minus.map(x => -x),
+        cij,
+        1 / 4,
+      )
       add(plus, cij, -1 / 4)
-      add(plus.map(x => -x), cij, -1 / 4)
+      add(
+        plus.map(x => -x),
+        cij,
+        -1 / 4,
+      )
     }
   }
 

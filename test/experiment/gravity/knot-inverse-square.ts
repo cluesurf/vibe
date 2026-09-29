@@ -31,7 +31,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { SURVEY, heldKnotSurvey, readSurvey, slope } from '@/code/measure/held-knot'
+import {
+  SURVEY,
+  heldKnotSurvey,
+  readSurvey,
+  slope,
+} from '@/code/measure/held-knot'
 
 export default experiment({
   id: 'gravity/knot-inverse-square',
@@ -44,12 +49,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = heldKnotSurvey(log)
     const read = readSurvey(members)
     const r0s = [...SURVEY.distances]
     const drift = read.drift.forward
-    const instrument = members.every(m => m.exact && m.returns && m.knotHeld && m.lumpBlind && m.lumpBlindBeats === SURVEY.settle)
+    const instrument = members.every(
+      m =>
+        m.exact &&
+        m.returns &&
+        m.knotHeld &&
+        m.lumpBlind &&
+        m.lumpBlindBeats === SURVEY.settle,
+    )
     const pull = drift.every(x => x.mean > 0 && x.mean >= 3 * x.error)
     const h1 = instrument && pull
     const logR = r0s.map(r => Math.log(r))
@@ -57,14 +72,27 @@ export default experiment({
       logR,
       drift.map(x => Math.log(Math.abs(x.mean) + 1e-300)),
     )
-    const exponent = h1 ? slope(logR, drift.map(x => Math.log(x.mean))) : Number.NaN
+    const exponent = h1
+      ? slope(
+          logR,
+          drift.map(x => Math.log(x.mean)),
+        )
+      : Number.NaN
     const h2 = h1 && exponent >= -2.5 && exponent <= -1.5
-    const gradientDown = read.gradient.every(g => g.mean < 0 && -g.mean >= 3 * g.error)
-    const ratios = drift.map((x, i) => x.mean / -(read.gradient[i]!.mean))
+    const gradientDown = read.gradient.every(
+      g => g.mean < 0 && -g.mean >= 3 * g.error,
+    )
+    const ratios = drift.map((x, i) => x.mean / -read.gradient[i]!.mean)
     const spread = Math.max(...ratios) / Math.min(...ratios)
-    const h3 = h1 && gradientDown && ratios.every(r => r > 0) && spread <= 1.5
-    const status = !instrument ? 'partial' : h1 && h2 && h3 ? 'pass' : 'fail'
-    const f = (x: { mean: number; error: number }): string => `${x.mean.toExponential(2)} +- ${x.error.toExponential(1)}`
+    const h3 =
+      h1 && gradientDown && ratios.every(r => r > 0) && spread <= 1.5
+    const status = !instrument
+      ? 'partial'
+      : h1 && h2 && h3
+        ? 'pass'
+        : 'fail'
+    const f = (x: { mean: number; error: number }): string =>
+      `${x.mean.toExponential(2)} +- ${x.error.toExponential(1)}`
 
     return verdict({
       status,
@@ -77,14 +105,38 @@ export default experiment({
         exponent: h1 ? exponent : -999,
         absSlope,
         ratioSpread: Number.isFinite(spread) ? spread : -1,
-        ...Object.fromEntries(r0s.map((r0, i) => [`r2DriftR${r0}`, r0 * r0 * drift[i]!.mean])),
-        ...Object.fromEntries(r0s.map((r0, i) => [`gradientR${r0}`, read.gradient[i]!.mean])),
-        ...Object.fromEntries(r0s.map((r0, i) => [`gradientErrorR${r0}`, read.gradient[i]!.error])),
-        ...Object.fromEntries(r0s.map((r0, i) => [`arrivalR${r0}`, read.arrival.forward[i]!])),
+        ...Object.fromEntries(
+          r0s.map((r0, i) => [
+            `r2DriftR${r0}`,
+            r0 * r0 * drift[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          r0s.map((r0, i) => [
+            `gradientR${r0}`,
+            read.gradient[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          r0s.map((r0, i) => [
+            `gradientErrorR${r0}`,
+            read.gradient[i]!.error,
+          ]),
+        ),
+        ...Object.fromEntries(
+          r0s.map((r0, i) => [
+            `arrivalR${r0}`,
+            read.arrival.forward[i]!,
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        noKnotDisplacementZero: read.plain.forward.every(x => Math.abs(x.mean) <= 3 * x.error) ? 1 : 0,
+        noKnotDisplacementZero: read.plain.forward.every(
+          x => Math.abs(x.mean) <= 3 * x.error,
+        )
+          ? 1
+          : 0,
       },
       notes: `L2. Gates H1 ${h1} (instrument ${instrument}, pull ${pull}), H2 ${h2}, H3 ${h3}. Drift D(r0) forward ${drift.map(f).join(', ')}; r0^2 D ${r0s.map((r0, i) => (r0 * r0 * drift[i]!.mean).toExponential(2)).join(', ')}; slope of ln |D| on ln r0 ${absSlope.toFixed(3)}${h1 ? `, exponent ${exponent.toFixed(3)}` : ' (H2 not evaluable: no positive drift at every r0)'}. Gradient dS/dr of the settled slot-entropy contrast ${read.gradient.map(f).join(', ')}; D / (-dS/dr) ${ratios.map(r => r.toExponential(2)).join(', ')} (spread ${Number.isFinite(spread) ? spread.toFixed(2) : 'undefined'}). First beat the knot touches the blob: forward ${read.arrival.forward.join(', ')}, backward ${read.arrival.backward.join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

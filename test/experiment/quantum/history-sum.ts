@@ -74,12 +74,32 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
-import { coherenceL1, compareWithRule, enumerateHistories, historyShares, type Vibe } from '@/code/measure/history-sum'
+import {
+  coherenceL1,
+  compareWithRule,
+  enumerateHistories,
+  historyShares,
+  type Vibe,
+} from '@/code/measure/history-sum'
 import { toWords } from '@/code/rule/occupation-veto-knit'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
-import { lockedState, lockedTables, newTally, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { chanceBeat, FEAR_COIN, norm as walkNorm, walkBeat, walkChances, walkStart, type ChanceState } from '@/code/rule/fear-walk'
+import {
+  lockedState,
+  lockedTables,
+  newTally,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  chanceBeat,
+  FEAR_COIN,
+  norm as walkNorm,
+  walkBeat,
+  walkChances,
+  walkStart,
+  type ChanceState,
+} from '@/code/rule/fear-walk'
 
 const SIDE = 8
 const LONE_BEATS = 12
@@ -88,11 +108,21 @@ const WALK_SIDE = 16
 const WALK_BEATS = 7
 const LONG = [64, 128, 256, 512, 1024]
 const SLOT = 0
-const BACK = OPPOSITE[SLOT] as number
+const BACK = OPPOSITE[SLOT]!
 
 type Fresh = ReturnType<typeof contactFresh>
 
-const emptyOf = (f: Fresh): Configuration => toWords(vacuumConfiguration({ cells: f.cells, store: new Int8Array(f.store.length), layout: f.layout }, 'none'))
+const emptyOf = (f: Fresh): Configuration =>
+  toWords(
+    vacuumConfiguration(
+      {
+        cells: f.cells,
+        store: new Int8Array(f.store.length),
+        layout: f.layout,
+      },
+      'none',
+    ),
+  )
 
 function place(f: Fresh, vibes: readonly Vibe[]): Configuration {
   const c = emptyOf(f)
@@ -108,7 +138,11 @@ function place(f: Fresh, vibes: readonly Vibe[]): Configuration {
 
 // ---- the stationary-phase integral from the coin's own numbers ----
 type Cx = { re: number; im: number }
-const cm = (a: Cx, b: Cx): Cx => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re })
+
+const cm = (a: Cx, b: Cx): Cx => ({
+  re: a.re * b.re - a.im * b.im,
+  im: a.re * b.im + a.im * b.re,
+})
 const ca = (a: Cx, b: Cx): Cx => ({ re: a.re + b.re, im: a.im + b.im })
 const OMEGA: Cx = { re: -0.5, im: Math.sqrt(3) / 2 }
 const KEEP: Cx = { re: (1 + OMEGA.re) / 2, im: OMEGA.im / 2 }
@@ -129,20 +163,32 @@ function eigenphases(q: number): [number, number] {
   const th = Math.atan2(disc.im, disc.re) / 2
   const s: Cx = { re: r * Math.cos(th), im: r * Math.sin(th) }
 
-  return [Math.atan2((tr.im + s.im) / 2, (tr.re + s.re) / 2), Math.atan2((tr.im - s.im) / 2, (tr.re - s.re) / 2)]
+  return [
+    Math.atan2((tr.im + s.im) / 2, (tr.re + s.re) / 2),
+    Math.atan2((tr.im - s.im) / 2, (tr.re - s.re) / 2),
+  ]
 }
 
-function stationaryPhase(points: number): { integral: number; top: number } {
+function stationaryPhase(points: number): {
+  integral: number
+  top: number
+} {
   let integral = 0
   let top = 0
 
   for (let j = 0; j < points; j++) {
     const q = ((j + 0.5) * 2 * Math.PI) / points
     const h = 1e-6
-    let d = (eigenphases(q + h)[0] as number) - (eigenphases(q - h)[0] as number)
 
-    if (d > Math.PI) d -= 2 * Math.PI
-    if (d < -Math.PI) d += 2 * Math.PI
+    let d = eigenphases(q + h)[0] - eigenphases(q - h)[0]
+
+    if (d > Math.PI) {
+      d -= 2 * Math.PI
+    }
+
+    if (d < -Math.PI) {
+      d += 2 * Math.PI
+    }
 
     const v = d / (2 * h)
 
@@ -154,10 +200,20 @@ function stationaryPhase(points: number): { integral: number; top: number } {
 }
 
 // the walk to T on a ring that never wraps: E[v^2], the dephased E[v^2], the argmax |v|, the weight beyond |v| > 1/2
-function longWalk(T: number): { ev2: number; dephased: number; argmax: number; beyond: number; normExact: boolean } {
+function longWalk(T: number): {
+  ev2: number
+  dephased: number
+  argmax: number
+  beyond: number
+  normExact: boolean
+} {
   const n = 2 * T + 3
+
   let s = walkStart(n, 0, true)
-  let c: ChanceState = { right: s.right.map((_, i) => (i === 0 ? 1n : 0n)), left: s.left.map(() => 0n) }
+  let c: ChanceState = {
+    right: s.right.map((_, i) => (i === 0 ? 1n : 0n)),
+    left: s.left.map(() => 0n),
+  }
 
   for (let t = 0; t < T; t++) {
     s = walkBeat(s, () => FEAR_COIN)
@@ -165,6 +221,7 @@ function longWalk(T: number): { ev2: number; dephased: number; argmax: number; b
   }
 
   const pos = (i: number): number => (i > n / 2 ? i - n : i)
+
   let m2 = 0n
   let m2c = 0n
   let total = 0n
@@ -180,7 +237,11 @@ function longWalk(T: number): { ev2: number; dephased: number; argmax: number; b
     total += p
     m2 += p * xx * xx
     m2c += pc * xx * xx
-    if (2 * Math.abs(pos(i)) > T) beyond += p
+
+    if (2 * Math.abs(pos(i)) > T) {
+      beyond += p
+    }
+
     if (p > best) {
       best = p
       arg = pos(i)
@@ -189,17 +250,29 @@ function longWalk(T: number): { ev2: number; dephased: number; argmax: number; b
 
   const unit = 4n ** BigInt(T)
   const shift = BigInt(Math.max(0, unit.toString(2).length - 60))
-  const read = (v: bigint): number => Number(v >> shift) / Number(unit >> shift)
+  const read = (v: bigint): number =>
+    Number(v >> shift) / Number(unit >> shift)
 
-  return { ev2: read(m2) / (T * T), dephased: read(m2c) / (T * T), argmax: Math.abs(arg) / T, beyond: read(beyond), normExact: total === unit }
+  return {
+    ev2: read(m2) / (T * T),
+    dephased: read(m2c) / (T * T),
+    argmax: Math.abs(arg) / T,
+    beyond: read(beyond),
+    normExact: total === unit,
+  }
 }
 
 // H3a: the rule's lone love on its line against the walk's chances, trivial links, side 16, beats 1..7
 function walkCalibration(): boolean {
   const f = contactFresh(WALK_SIDE, 'pass')
-  const tables = lockedTables(f.weave, 'pass', new Int16Array(f.cells * 24).fill(f.weave.moves.identity))
+  const tables = lockedTables(
+    f.weave,
+    'pass',
+    new Int16Array(f.cells * 24).fill(f.weave.moves.identity),
+  )
   const center = centerOf(WALK_SIDE)
   const cell = new Map<number, number>()
+
   let x = center
   let n = 0
 
@@ -209,7 +282,9 @@ function walkCalibration(): boolean {
     n++
   } while (x !== center && n < 1024)
 
-  let s: LockedState = lockedState(place(f, [{ slot: center * 24 + SLOT, point: 0 }]))
+  let s: LockedState = lockedState(
+    place(f, [{ slot: center * 24 + SLOT, point: 0 }]),
+  )
   let walk = walkStart(n, 0, true)
   let ok = true
 
@@ -224,12 +299,25 @@ function walkCalibration(): boolean {
       const slot = b.vibe.findIndex(v => v !== 0)
       const at = cell.get(Math.floor(slot / 24))
 
-      if (at === undefined || (slot % 24 !== SLOT && slot % 24 !== BACK)) ok = false
-      else rule.set(at, (rule.get(at) ?? 0n) + (b.a * b.a - b.a * b.b + b.b * b.b) * (1n << BigInt(2 * (t - b.k))))
+      if (
+        at === undefined ||
+        (slot % 24 !== SLOT && slot % 24 !== BACK)
+      ) {
+        ok = false
+      } else {
+        rule.set(
+          at,
+          (rule.get(at) ?? 0n) +
+            (b.a * b.a - b.a * b.b + b.b * b.b) *
+              (1n << BigInt(2 * (t - b.k))),
+        )
+      }
     }
 
     chances.forEach((p, i) => {
-      if ((rule.get(i) ?? 0n) !== p) ok = false
+      if ((rule.get(i) ?? 0n) !== p) {
+        ok = false
+      }
     })
   }
 
@@ -240,14 +328,17 @@ export default experiment({
   id: 'quantum/history-sum',
   code: 'E-QTM-0158',
   title:
-    'the path integral on the working rule, pass: the rule\'s state IS the sum over take histories, enumerated one history at a time without the rule\'s beat, term for term (one love to beat 12, two loves with their meetings and link point moves to beat 8, 0 mismatches on 17 of 17 starts; the sum with the meeting left out fails on every start whose run has an unequal-point meeting, 15 of 17); the sum is coherent from beat 3 (L1 0.5625 against the incoherent sum); its long-time limit is stationary phase, E[v^2] 0.134112 to 0.133975 at T = 64 to 1024 against (1/2 pi) int W\'^2 = 1 - sqrt 3/2, peaked at the caustic |v| = 0.494 below the top speed 1/2, where the dephased sum diffuses (T E[v^2] 0.334); one dimension, along a line',
+    "the path integral on the working rule, pass: the rule's state IS the sum over take histories, enumerated one history at a time without the rule's beat, term for term (one love to beat 12, two loves with their meetings and link point moves to beat 8, 0 mismatches on 17 of 17 starts; the sum with the meeting left out fails on every start whose run has an unequal-point meeting, 15 of 17); the sum is coherent from beat 3 (L1 0.5625 against the incoherent sum); its long-time limit is stationary phase, E[v^2] 0.134112 to 0.133975 at T = 64 to 1024 against (1/2 pi) int W'^2 = 1 - sqrt 3/2, peaked at the caustic |v| = 0.494 below the top speed 1/2, where the dephased sum diffuses (T E[v^2] 0.334); one dimension, along a line",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
 
     const perStart = family.map(member =>
@@ -255,7 +346,9 @@ export default experiment({
         const f = contactFresh(SIDE, 'pass')
         const center = centerOf(SIDE)
         const lone: Vibe[] = [{ slot: center * 24 + SLOT, point: 3 }]
+
         let s = lockedState(place(f, lone))
+
         const loneMismatch: number[] = []
         const loneL1: number[] = []
         const loneCounts: string[] = []
@@ -274,21 +367,34 @@ export default experiment({
 
         let b = center
 
-        for (let k = 0; k < 2; k++) b = f.weave.mesh.neighbour(b, SLOT)
+        for (let k = 0; k < 2; k++) {
+          b = f.weave.mesh.neighbour(b, SLOT)
+        }
 
         const two: Vibe[] = [
           { slot: center * 24 + SLOT, point: 0 },
           { slot: b * 24 + BACK, point: 1 },
         ]
+
         let s2 = lockedState(place(f, two))
+
         const twoMismatch: number[] = []
         const noMeetMismatch: number[] = []
         const tally = newTally()
 
         for (let T = 1; T <= TWO_BEATS; T++) {
           s2 = coinedVetoBeat('none', f.tables, s2, T - 1, tally)
-          twoMismatch.push(compareWithRule(s2, enumerateHistories(f.tables, two, T)).mismatches)
-          noMeetMismatch.push(compareWithRule(s2, enumerateHistories(f.tables, two, T, false)).mismatches)
+          twoMismatch.push(
+            compareWithRule(s2, enumerateHistories(f.tables, two, T))
+              .mismatches,
+          )
+
+          noMeetMismatch.push(
+            compareWithRule(
+              s2,
+              enumerateHistories(f.tables, two, T, false),
+            ).mismatches,
+          )
         }
 
         const twoL1 = coherenceL1(f.tables, two, TWO_BEATS)
@@ -296,7 +402,18 @@ export default experiment({
 
         log(`start ${member.name}`)
 
-        return { name: member.name, loneMismatch, loneL1, loneCounts, twoMismatch, noMeetMismatch, splits: tally.splitMeetings, phases: tally.phaseMeetings, twoL1: Number(twoL1.l1) / Number(twoL1.unit), shares }
+        return {
+          name: member.name,
+          loneMismatch,
+          loneL1,
+          loneCounts,
+          twoMismatch,
+          noMeetMismatch,
+          splits: tally.splitMeetings,
+          phases: tally.phaseMeetings,
+          twoL1: Number(twoL1.l1) / Number(twoL1.unit),
+          shares,
+        }
       }),
     )
 
@@ -310,19 +427,33 @@ export default experiment({
     log('long walk')
 
     type P = (typeof perStart)[number]
-    const count = (test: (p: P) => boolean): number => perStart.filter(test).length
-    const all = (test: (p: P) => boolean): boolean => count(test) === family.length
-    const last = long[long.length - 1] as (typeof long)[number]
+
+    const count = (test: (p: P) => boolean): number =>
+      perStart.filter(test).length
+    const all = (test: (p: P) => boolean): boolean =>
+      count(test) === family.length
+    const last = long[long.length - 1]!
     const gaps = long.map(r => Math.abs(r.ev2 - sp.integral))
     const g = {
       H0: all(p => p.loneMismatch.every(m => m === 0)),
       H1: all(p => p.twoMismatch.every(m => m === 0)),
-      C1: all(p => p.splits === 0 || p.noMeetMismatch.some(m => m > 0)) && count(p => p.splits > 0) > 0,
+      C1:
+        all(p => p.splits === 0 || p.noMeetMismatch.some(m => m > 0)) &&
+        count(p => p.splits > 0) > 0,
       H3a: calibrated,
     }
     const q = {
-      H2: all(p => p.loneL1[0] === 0 && p.loneL1[1] === 0 && p.loneL1.slice(2).every(x => x > 0)),
-      H3b: gaps.every((d, i) => i === 0 || d < (gaps[i - 1] as number)) && (gaps[gaps.length - 1] as number) < 1e-5 && Math.abs(sp.integral - (1 - Math.sqrt(3) / 2)) < 1e-9 && long.every(r => r.normExact),
+      H2: all(
+        p =>
+          p.loneL1[0] === 0 &&
+          p.loneL1[1] === 0 &&
+          p.loneL1.slice(2).every(x => x > 0),
+      ),
+      H3b:
+        gaps.every((d, i) => i === 0 || d < gaps[i - 1]!) &&
+        gaps[gaps.length - 1]! < 1e-5 &&
+        Math.abs(sp.integral - (1 - Math.sqrt(3) / 2)) < 1e-9 &&
+        long.every(r => r.normExact),
       H3c: Math.abs(last.dephased * last.T - 1 / 3) < (0.02 * 1) / 3,
       H3d: last.argmax >= 0.49 && last.argmax <= 0.5,
     }
@@ -332,8 +463,13 @@ export default experiment({
     const r6 = (x: number): string => x.toFixed(6)
     const metrics: Record<string, number> = { starts: family.length }
 
-    for (const [k, v] of Object.entries(g)) metrics[`gate_${k}`] = v ? 1 : 0
-    for (const [k, v] of Object.entries(q)) metrics[`gate_${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(g)) {
+      metrics[`gate_${k}`] = v ? 1 : 0
+    }
+
+    for (const [k, v] of Object.entries(q)) {
+      metrics[`gate_${k}`] = v ? 1 : 0
+    }
 
     metrics.stationaryIntegral = sp.integral
     metrics.topGroupSpeed = sp.top
@@ -343,26 +479,47 @@ export default experiment({
       metrics[`argmax_T${r.T}`] = r.argmax
       metrics[`beyondHalf_T${r.T}`] = r.beyond
     })
-    metrics.loneL1AtT12Min = Math.min(...perStart.map(p => p.loneL1[LONE_BEATS - 1] as number))
+
+    metrics.loneL1AtT12Min = Math.min(
+      ...perStart.map(p => p.loneL1[LONE_BEATS - 1]!),
+    )
     metrics.twoL1Min = Math.min(...perStart.map(p => p.twoL1))
     metrics.seconds = (Date.now() - started) / 1000
 
-    const share = perStart[0]!.shares.map(s => `${s.key}: ${s.words.map(w => `${w.word} ${w.amp.join(',')}`).join(' + ')} = ${s.total.join(',')}`).join('; ')
+    const share = perStart[0]!.shares
+      .map(
+        s =>
+          `${s.key}: ${s.words.map(w => `${w.word} ${w.amp.join(',')}`).join(' + ')} = ${s.total.join(',')}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `on the working rule the state is the sum over take histories term for term: one love to beat ${LONE_BEATS} on ${count(p => p.loneMismatch.every(m => m === 0))} of ${family.length} starts, two loves with their meetings to beat ${TWO_BEATS} on ${count(p => p.twoMismatch.every(m => m === 0))} of ${family.length} (the sum without the meeting fails on ${count(p => p.noMeetMismatch.some(m => m > 0))}); the sum is coherent from beat 3 (L1 against the incoherent sum ${p0(perStart, 2)}); in the long-time limit it concentrates on the stationary-phase rays: E[v^2] ${long.map(r => r6(r.ev2)).join(', ')} at T = ${LONG.join(', ')} against (1/2 pi) int W'^2 = ${r6(sp.integral)} (1 - sqrt 3/2), peak at |v| = ${last.argmax.toFixed(4)} (top group speed ${sp.top.toFixed(6)}), where the dephased sum diffuses (T E[v^2] = ${(last.dephased * last.T).toFixed(4)})`,
       metrics,
-      control: { noMeetingMismatchStarts: count(p => p.noMeetMismatch.some(m => m > 0)), startsWithUnequalMeetings: count(p => p.splits > 0), dephasedTEv2: last.dephased * last.T },
-      notes: `L2 with an exact identity. Gates ${Object.entries({ ...g, ...q })
+      control: {
+        noMeetingMismatchStarts: count(p =>
+          p.noMeetMismatch.some(m => m > 0),
+        ),
+        startsWithUnequalMeetings: count(p => p.splits > 0),
+        dephasedTEv2: last.dephased * last.T,
+      },
+      notes: `L2 with an exact identity. Gates ${Object.entries({
+        ...g,
+        ...q,
+      })
         .map(([k, v]) => `${k} ${v}`)
-        .join(', ')}. Per start: one-love mismatches ${perStart.map(p => `${p.name} [${p.loneMismatch.join('')}]`).join(' ')}; histories/ends by beat on ${perStart[0]!.name}: ${perStart[0]!.loneCounts.join(' ')}; coherence L1 by beat on ${perStart[0]!.name}: ${perStart[0]!.loneL1.map(x => x.toFixed(4)).join(' ')}; two-love mismatches all zero on ${count(p => p.twoMismatch.every(m => m === 0))}, without the meeting first mismatch at beat ${perStart.map(p => p.noMeetMismatch.findIndex(m => m > 0) + 1).join(',')} (0 = never); unequal-point (split) and equal-point (phase) meetings over the ${TWO_BEATS} beats ${perStart.map(p => `${p.name} ${p.splits}/${p.phases}`).join(' ')}; two-love coherence L1 at beat ${TWO_BEATS} ${perStart.map(p => p.twoL1.toFixed(4)).join(' ')}. T = 3 history shares on ${perStart[0]!.name} (numerators over 8): ${share}. Weight beyond |v| > 1/2: ${long.map(r => `T ${r.T} ${r.beyond.toFixed(4)}`).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .join(
+          ', ',
+        )}. Per start: one-love mismatches ${perStart.map(p => `${p.name} [${p.loneMismatch.join('')}]`).join(' ')}; histories/ends by beat on ${perStart[0]!.name}: ${perStart[0]!.loneCounts.join(' ')}; coherence L1 by beat on ${perStart[0]!.name}: ${perStart[0]!.loneL1.map(x => x.toFixed(4)).join(' ')}; two-love mismatches all zero on ${count(p => p.twoMismatch.every(m => m === 0))}, without the meeting first mismatch at beat ${perStart.map(p => p.noMeetMismatch.findIndex(m => m > 0) + 1).join(',')} (0 = never); unequal-point (split) and equal-point (phase) meetings over the ${TWO_BEATS} beats ${perStart.map(p => `${p.name} ${p.splits}/${p.phases}`).join(' ')}; two-love coherence L1 at beat ${TWO_BEATS} ${perStart.map(p => p.twoL1.toFixed(4)).join(' ')}. T = 3 history shares on ${perStart[0]!.name} (numerators over 8): ${share}. Weight beyond |v| > 1/2: ${long.map(r => `T ${r.T} ${r.beyond.toFixed(4)}`).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })
 
 function p0(perStart: { loneL1: number[] }[], at: number): string {
-  const xs = perStart.map(p => p.loneL1[at] as number)
+  const xs = perStart.map(p => p.loneL1[at]!)
 
-  return Math.min(...xs) === Math.max(...xs) ? `${xs[0]}` : `${Math.min(...xs)} to ${Math.max(...xs)}`
+  return Math.min(...xs) === Math.max(...xs)
+    ? `${xs[0]}`
+    : `${Math.min(...xs)} to ${Math.max(...xs)}`
 }

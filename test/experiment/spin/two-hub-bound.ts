@@ -106,10 +106,29 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { fullPathKey, keyedRunner, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { placeLoves, starCrossings, starLines, starRun } from '@/code/measure/hub-star'
-import { lineCrossings, lineDirections, numericalRank, offLine, placeVibes, twoHubTrack, unequalLikeMeetings, type TwoHubTrack } from '@/code/measure/two-hub-bound'
+import {
+  placeLoves,
+  starCrossings,
+  starLines,
+  starRun,
+} from '@/code/measure/hub-star'
+import {
+  lineCrossings,
+  lineDirections,
+  numericalRank,
+  offLine,
+  placeVibes,
+  twoHubTrack,
+  unequalLikeMeetings,
+  type TwoHubTrack,
+} from '@/code/measure/two-hub-bound'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 
 const [B, A, C] = [
@@ -133,7 +152,8 @@ const REPORT_AT = [16, 32, 64, 128]
 const CU_WAKE = 39184
 const CU_DOCKS = 4096
 
-const sub = (u: readonly number[], v: readonly number[]): number[] => u.map((x, k) => x - (v[k] as number))
+const sub = (u: readonly number[], v: readonly number[]): number[] =>
+  u.map((x, k) => x - v[k]!)
 
 export default experiment({
   id: 'spin/two-hub-bound',
@@ -146,13 +166,16 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     const setup = (side: number) => {
       const X = centerOf(side)
       const f = contactFresh(side, 'pass', X)
       const vacuum = wordVacuum(f, f.store)
-      const Y = Math.floor((f.tables.target[X * 24 + B] as number) / 24)
+      const Y = Math.floor(f.tables.target[X * 24 + B]! / 24)
       const neutral = placeVibes(vacuum, [
         { dock: X, slot: A, vibe: 1 },
         { dock: X, slot: B, vibe: 1 },
@@ -162,41 +185,81 @@ export default experiment({
 
       return { X, Y, f, vacuum, neutral, lines: meshLines(f.tables) }
     }
+
     const s = setup(SIDE)
-    const track = (start: Configuration, path: number, threshold = THRESHOLD_BORN, g = s, side = SIDE): TwoHubTrack =>
-      twoHubTrack({ tables: g.f.tables, vacuum: g.vacuum, start, hub: g.X, key: fullPathKey(pathOffset(path)), threshold, beats: BEATS, side })
+    const track = (
+      start: Configuration,
+      path: number,
+      threshold = THRESHOLD_BORN,
+      g = s,
+      side = SIDE,
+    ): TwoHubTrack =>
+      twoHubTrack({
+        tables: g.f.tables,
+        vacuum: g.vacuum,
+        start,
+        hub: g.X,
+        key: fullPathKey(pathOffset(path)),
+        threshold,
+        beats: BEATS,
+        side,
+      })
 
     // ---- the terms ----
-    const terms = Array.from({ length: PATHS }, (_, k) => track(s.neutral, k))
+    const terms = Array.from({ length: PATHS }, (_, k) =>
+      track(s.neutral, k),
+    )
 
     log('terms')
 
-    const trio = placeLoves(s.vacuum, [B, A, C].map(slot => ({ dock: s.X, slot })))
-    const trioTerms = Array.from({ length: PATHS }, (_, k) => track(trio, k))
+    const trio = placeLoves(
+      s.vacuum,
+      [B, A, C].map(slot => ({ dock: s.X, slot })),
+    )
+    const trioTerms = Array.from({ length: PATHS }, (_, k) =>
+      track(trio, k),
+    )
 
     log('trio')
 
     // ---- Q1 ----
-    const growthOf = (r: TwoHubTrack): number => ((r.wake[BEATS - 1] as number) - (r.wake[GROWTH_FROM - 1] as number)) / Math.max(1, r.wake[GROWTH_FROM - 1] as number)
-    const bounded = (r: TwoHubTrack): boolean => growthOf(r) < GROWTH_LIMIT && (r.footprint[BEATS - 1] as number) < BOX_SHARE * s.f.cells
+    const growthOf = (r: TwoHubTrack): number =>
+      (r.wake[BEATS - 1]! - r.wake[GROWTH_FROM - 1]!) /
+      Math.max(1, r.wake[GROWTH_FROM - 1]!)
+    const bounded = (r: TwoHubTrack): boolean =>
+      growthOf(r) < GROWTH_LIMIT &&
+      r.footprint[BEATS - 1]! < BOX_SHARE * s.f.cells
     const Q1 = terms.every(bounded)
 
     // ---- Q2 ----
     const lines = lineDirections(s.f.tables, SIDE, s.X)
-    const wakeDrift = (r: TwoHubTrack): number => Math.max(...r.centroid.map(c => offLine(sub(c, r.centroid[0] as number[]), lines)))
-    const hubDrift = (r: TwoHubTrack): number => {
-      const fired = r.kCentroid.filter((c): c is number[] => c !== undefined)
+    const wakeDrift = (r: TwoHubTrack): number =>
+      Math.max(
+        ...r.centroid.map(c => offLine(sub(c, r.centroid[0]!), lines)),
+      )
 
-      return fired.length === 0 ? 0 : Math.max(...fired.map(c => offLine(sub(c, fired[0] as number[]), lines)))
+    const hubDrift = (r: TwoHubTrack): number => {
+      const fired = r.kCentroid.filter(
+        (c): c is number[] => c !== undefined,
+      )
+
+      return fired.length === 0
+        ? 0
+        : Math.max(...fired.map(c => offLine(sub(c, fired[0]!), lines)))
     }
+
     const controlWake = Math.max(...trioTerms.map(wakeDrift))
     const controlHub = Math.max(...trioTerms.map(hubDrift))
     const wakeThreshold = FACTOR * Math.max(controlWake, CONTROL_FLOOR)
     const hubThreshold = FACTOR * Math.max(controlHub, CONTROL_FLOOR)
-    const Q2 = terms.every(r => wakeDrift(r) > wakeThreshold || hubDrift(r) > hubThreshold)
+    const Q2 = terms.every(
+      r => wakeDrift(r) > wakeThreshold || hubDrift(r) > hubThreshold,
+    )
 
     // ---- Q3 ----
-    const ranks = terms.map(r => numericalRank(r.centroid.map(c => sub(c, r.centroid[0] as number[]))))
+    const ranks = terms.map(r =>
+      numericalRank(r.centroid.map(c => sub(c, r.centroid[0]!))),
+    )
     const Q3 = Q1 && Q2 && ranks.every(k => k >= RANK)
 
     // ---- controls ----
@@ -207,49 +270,118 @@ export default experiment({
       { dock: s.Y, slot: B },
     ])
     const cu = track(unbound, 0)
-    const CU = cu.wake[BEATS - 1] === CU_WAKE && cu.kDocks[BEATS - 1] === CU_DOCKS
-    const pinned = starRun({ tables: s.f.tables, vacuum: s.vacuum, start: trio, lines: s.lines, hub: [s.X], key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE })
-    const trioOffX = trioTerms.reduce((n, r) => n + r.events.filter(e => e.dock !== s.X).length, 0)
-    const C1 = pinned.offStar === 0 && pinned.offHub === 0 && trioOffX === 0
+    const CU =
+      cu.wake[BEATS - 1] === CU_WAKE &&
+      cu.kDocks[BEATS - 1] === CU_DOCKS
+    const pinned = starRun({
+      tables: s.f.tables,
+      vacuum: s.vacuum,
+      start: trio,
+      lines: s.lines,
+      hub: [s.X],
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: BEATS,
+      side: SIDE,
+    })
+    const trioOffX = trioTerms.reduce(
+      (n, r) => n + r.events.filter(e => e.dock !== s.X).length,
+      0,
+    )
+    const C1 =
+      pinned.offStar === 0 && pinned.offHub === 0 && trioOffX === 0
     const everyRun = [...terms, ...trioTerms, cu]
-    const vacuumEvents = everyRun.reduce((n, r) => n + r.vacuumEvents, 0)
-    const vacuumSingles = everyRun.reduce((n, r) => n + r.vacuumSingles, 0)
+    const vacuumEvents = everyRun.reduce(
+      (n, r) => n + r.vacuumEvents,
+      0,
+    )
+    const vacuumSingles = everyRun.reduce(
+      (n, r) => n + r.vacuumSingles,
+      0,
+    )
     const CV = vacuumEvents === 0 && vacuumSingles === 0
 
     log('controls')
 
     // ---- checks ----
-    const runner = keyedRunner(s.f.tables, s.neutral, { key: fullPathKey(0), threshold: THRESHOLD_BORN })
+    const runner = keyedRunner(s.f.tables, s.neutral, {
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+    })
 
-    for (let t = 0; t < BEATS; t++) runner.beat()
+    for (let t = 0; t < BEATS; t++) {
+      runner.beat()
+    }
 
     const ref = runner.state()
-    const last = (terms[0] as TwoHubTrack).last
+    const last = terms[0]!.last
+
     let stepperDiffer = 0
 
-    for (let i = 0; i < ref.vibe.length; i++) if (ref.vibe[i] !== last.vibe[i] || (ref.vibe[i] !== 0 && (ref.point[i] !== last.point[i] || ref.open[i] !== last.open[i]))) stepperDiffer++
-    for (let i = 0; i < ref.store.length; i++) if (ref.store[i] !== last.store[i] || (ref.store[i] !== 0 && (ref.spoint[i] !== last.spoint[i] || ref.sopen[i] !== last.sopen[i]))) stepperDiffer++
+    for (let i = 0; i < ref.vibe.length; i++) {
+      if (
+        ref.vibe[i] !== last.vibe[i] ||
+        (ref.vibe[i] !== 0 &&
+          (ref.point[i] !== last.point[i] ||
+            ref.open[i] !== last.open[i]))
+      ) {
+        stepperDiffer++
+      }
+    }
 
-    const lineA = s.lines.lineOf[s.X * 24 + A] as number
-    const lineB = s.lines.lineOf[s.X * 24 + B] as number
-    const lineC = s.lines.lineOf[s.Y * 24 + C] as number
+    for (let i = 0; i < ref.store.length; i++) {
+      if (
+        ref.store[i] !== last.store[i] ||
+        (ref.store[i] !== 0 &&
+          (ref.spoint[i] !== last.spoint[i] ||
+            ref.sopen[i] !== last.sopen[i]))
+      ) {
+        stepperDiffer++
+      }
+    }
+
+    const lineA = s.lines.lineOf[s.X * 24 + A]!
+    const lineB = s.lines.lineOf[s.X * 24 + B]!
+    const lineC = s.lines.lineOf[s.Y * 24 + C]!
     const sharedB = s.lines.lineOf[s.Y * 24 + B] === lineB
-    const compositeCrossings = lineCrossings(s.f.cells, s.lines.lineOf, [lineA, lineB, lineC], [s.X, s.Y]).length
-    const checks = { stepper: stepperDiffer === 0, sharedB, compositeCrossings: compositeCrossings === 0 }
+    const compositeCrossings = lineCrossings(
+      s.f.cells,
+      s.lines.lineOf,
+      [lineA, lineB, lineC],
+      [s.X, s.Y],
+    ).length
+    const checks = {
+      stepper: stepperDiffer === 0,
+      sharedB,
+      compositeCrossings: compositeCrossings === 0,
+    }
     const checked = Object.values(checks).every(Boolean)
     const controlled = CU && C1 && CV
-    const status = !checked || !controlled ? 'partial' : Q1 && Q2 && Q3 ? 'pass' : 'fail'
+    const status =
+      !checked || !controlled
+        ? 'partial'
+        : Q1 && Q2 && Q3
+          ? 'pass'
+          : 'fail'
 
     // ---- read, not gated ----
-    const starCross = starCrossings(s.f.cells, s.lines, starLines(s.lines, [s.X, s.Y]), [s.X, s.Y]).length
-    const triggers = terms.map(r => r.kDocks.findIndex(n => n > TRIGGER_DOCKS) + 1)
+    const starCross = starCrossings(
+      s.f.cells,
+      s.lines,
+      starLines(s.lines, [s.X, s.Y]),
+      [s.X, s.Y],
+    ).length
+    const triggers = terms.map(
+      r => r.kDocks.findIndex(n => n > TRIGGER_DOCKS) + 1,
+    )
     const always = track(s.neutral, 0, 65536)
     const never = track(s.neutral, 0, 0)
     const g12 = setup(OTHER_SIDE)
     const wide = track(g12.neutral, 0, THRESHOLD_BORN, g12, OTHER_SIDE)
     const vacuumSplitsStart = unequalLikeMeetings(s.vacuum)
     const vacuumSplits = Math.max(...everyRun.map(r => r.vacuumSplits))
-    const mean = (xs: number[]): number => xs.reduce((u, v) => u + v, 0) / xs.length
+    const mean = (xs: number[]): number =>
+      xs.reduce((u, v) => u + v, 0) / xs.length
 
     log('reads')
 
@@ -264,7 +396,9 @@ export default experiment({
       boundedTerms: terms.filter(bounded).length,
       maxGrowth: Math.max(...terms.map(growthOf)),
       minGrowth: Math.min(...terms.map(growthOf)),
-      minFootprint128: Math.min(...terms.map(r => r.footprint[BEATS - 1] as number)),
+      minFootprint128: Math.min(
+        ...terms.map(r => r.footprint[BEATS - 1]!),
+      ),
       cells: s.f.cells,
       minTrigger: Math.min(...triggers),
       maxTrigger: Math.max(...triggers),
@@ -276,8 +410,8 @@ export default experiment({
       wakeThreshold,
       hubThreshold,
       minRank: Math.min(...ranks),
-      cuWake128: cu.wake[BEATS - 1] as number,
-      cuDocks128: cu.kDocks[BEATS - 1] as number,
+      cuWake128: cu.wake[BEATS - 1]!,
+      cuDocks128: cu.kDocks[BEATS - 1]!,
       trioOffStar: pinned.offStar,
       trioOffX: pinned.offHub + trioOffX,
       vacuumEvents,
@@ -287,30 +421,44 @@ export default experiment({
       starCrossings: starCross,
       vacuumSplitsStart,
       vacuumSplits,
-      alwaysWake128: always.wake[BEATS - 1] as number,
-      alwaysKDocks: always.kDocks[BEATS - 1] as number,
-      neverWake128: never.wake[BEATS - 1] as number,
-      neverKDocks: never.kDocks[BEATS - 1] as number,
-      side12Wake128: wide.wake[BEATS - 1] as number,
-      side12Footprint128: wide.footprint[BEATS - 1] as number,
+      alwaysWake128: always.wake[BEATS - 1]!,
+      alwaysKDocks: always.kDocks[BEATS - 1]!,
+      neverWake128: never.wake[BEATS - 1]!,
+      neverKDocks: never.kDocks[BEATS - 1]!,
+      side12Wake128: wide.wake[BEATS - 1]!,
+      side12Footprint128: wide.footprint[BEATS - 1]!,
       side12Cells: g12.f.cells,
       side12Trigger: wide.kDocks.findIndex(n => n > TRIGGER_DOCKS) + 1,
-      meanCostly32: mean(terms.map(r => r.costly[31] as number)),
-      meanCostly128: mean(terms.map(r => r.costly[BEATS - 1] as number)),
-      meanCost128: mean(terms.map(r => r.cost[BEATS - 1] as number)),
-      alwaysCostly128: always.costly[BEATS - 1] as number,
+      meanCostly32: mean(terms.map(r => r.costly[31]!)),
+      meanCostly128: mean(terms.map(r => r.costly[BEATS - 1]!)),
+      meanCost128: mean(terms.map(r => r.cost[BEATS - 1]!)),
+      alwaysCostly128: always.costly[BEATS - 1]!,
       seconds: (Date.now() - started) / 1000,
     }
 
-    REPORT_AT.forEach(t => (metrics[`meanWake_${t}`] = mean(terms.map(r => r.wake[t - 1] as number))))
+    REPORT_AT.forEach(
+      t =>
+        (metrics[`meanWake_${t}`] = mean(
+          terms.map(r => r.wake[t - 1]!),
+        )),
+    )
 
-    const perTerm = terms.map((r, k) => `p${k}: trigger ${triggers[k]}, wake ${REPORT_AT.map(t => r.wake[t - 1]).join('/')}, footprint ${r.footprint[BEATS - 1]}, K docks ${r.kDocks[BEATS - 1]}, costly ${r.costly[31]}/${r.costly[BEATS - 1]}, drift ${wakeDrift(r).toFixed(3)}/${hubDrift(r).toFixed(3)}`).join('; ')
+    const perTerm = terms
+      .map(
+        (r, k) =>
+          `p${k}: trigger ${triggers[k]}, wake ${REPORT_AT.map(t => r.wake[t - 1]).join('/')}, footprint ${r.footprint[BEATS - 1]}, K docks ${r.kDocks[BEATS - 1]}, costly ${r.costly[31]}/${r.costly[BEATS - 1]}, drift ${wakeDrift(r).toFixed(3)}/${hubDrift(r).toFixed(3)}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
-      claim: `a love on (1,0,1,0) and a love on (1,1,0,0) at X, a fear on (1,1,0,0) and a fear on (0,1,1,0) at Y = X + (1,1,0,0), charge 0, in the working knit with its vacuum: over ${PATHS} terms (side 8, 128 beats) ${terms.filter(bounded).length} keep a bounded wake; the cascade triggers at beats ${Math.min(...triggers)} to ${Math.max(...triggers)} (${triggers.filter(t => t === 0).length} untriggered) and the footprint at beat 128 is at least ${Math.min(...terms.map(r => r.footprint[BEATS - 1] as number))} of ${s.f.cells} docks; the drift cost is diagonal, so every term is the same at every tension (Q1 ${Q1}, Q2 ${Q2}, Q3 ${Q3})`,
+      claim: `a love on (1,0,1,0) and a love on (1,1,0,0) at X, a fear on (1,1,0,0) and a fear on (0,1,1,0) at Y = X + (1,1,0,0), charge 0, in the working knit with its vacuum: over ${PATHS} terms (side 8, 128 beats) ${terms.filter(bounded).length} keep a bounded wake; the cascade triggers at beats ${Math.min(...triggers)} to ${Math.max(...triggers)} (${triggers.filter(t => t === 0).length} untriggered) and the footprint at beat 128 is at least ${Math.min(...terms.map(r => r.footprint[BEATS - 1]!))} of ${s.f.cells} docks; the drift cost is diagonal, so every term is the same at every tension (Q1 ${Q1}, Q2 ${Q2}, Q3 ${Q3})`,
       metrics,
-      control: { cuWake128: cu.wake[BEATS - 1] as number, trioOffStar: pinned.offStar, vacuumEvents },
+      control: {
+        cuWake128: cu.wake[BEATS - 1]!,
+        trioOffStar: pinned.offStar,
+        vacuumEvents,
+      },
       notes: `L1. Q1 ${Q1} (growth ${Math.min(...terms.map(growthOf)).toFixed(4)} to ${Math.max(...terms.map(growthOf)).toFixed(4)}), Q2 ${Q2} (wake drift min ${Math.min(...terms.map(wakeDrift)).toFixed(3)} vs ${wakeThreshold.toFixed(3)}, hub drift min ${Math.min(...terms.map(hubDrift)).toFixed(3)} vs ${hubThreshold.toFixed(3)}), Q3 ${Q3} (ranks ${ranks.join(',')}); CU ${CU} (wake ${cu.wake[BEATS - 1]}, K docks ${cu.kDocks[BEATS - 1]}), C1 ${C1}, CV ${CV}; checks ${JSON.stringify(checks)}. Star crossings of X and Y on the box: ${starCross}. Vacuum unequal-point open like meetings: ${vacuumSplitsStart} at the start, at most ${vacuumSplits} at the start of any beat. Terms: ${perTerm}. Always exchange: wake ${REPORT_AT.map(t => always.wake[t - 1]).join('/')}, K docks ${always.kDocks[BEATS - 1]}, costly ${always.costly[BEATS - 1]}. Never exchange: wake ${REPORT_AT.map(t => never.wake[t - 1]).join('/')}, K docks ${never.kDocks[BEATS - 1]}. Side 12 path 0: wake ${REPORT_AT.map(t => wide.wake[t - 1]).join('/')}, footprint ${wide.footprint[BEATS - 1]} of ${g12.f.cells}, trigger ${metrics.side12Trigger}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

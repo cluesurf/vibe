@@ -62,16 +62,36 @@ const SCAN_SIDE = 5
 const SCAN_BEATS = 300
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const MESON = { signs: [1, -1], fluxes: [1], slots: [5, 14] }
-const BARYONS = { signs: [1, 1, 1, -1, -1, -1], fluxes: [1, 2, 3, 2, 1], slots: [5, 9, 14, 18, 7, 20] }
+const BARYONS = {
+  signs: [1, 1, 1, -1, -1, -1],
+  fluxes: [1, 2, 3, 2, 1],
+  slots: [5, 9, 14, 18, 7, 20],
+}
 
 type Seed = { signs: number[]; fluxes: number[]; slots: number[] }
 
-type Run = { exact: boolean; reverses: boolean; meanGap: number; meanSpread: number; travel: number }
+type Run = {
+  exact: boolean
+  reverses: boolean
+  meanGap: number
+  meanSpread: number
+  travel: number
+}
 
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
-const mean = (ps: number[][]): number[] => [0, 1, 2, 3].map(i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length)
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const mean = (ps: number[][]): number[] =>
+  [0, 1, 2, 3].map(
+    i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length,
+  )
 
-function run(input: { rule: ReflectingSlots; fill: number; seed: Seed; beats: number; reverse: boolean }): Run {
+function run(input: {
+  rule: ReflectingSlots
+  fill: number
+  seed: Seed
+  beats: number
+  reverse: boolean
+}): Run {
   const { rule, fill, seed, beats } = input
   const roots = rootsD4()
   const cells = [Math.floor(rule.mesh.cellCount / 2)]
@@ -89,8 +109,16 @@ function run(input: { rule: ReflectingSlots; fill: number; seed: Seed; beats: nu
     start.sign[slot] = seed.signs[k] ?? 0
     start.tag[slot] = k + 1
   })
-  seed.fluxes.forEach((e, k) => (start.flux[rule.edgeAt[(cells[k] ?? 0) * 24] ?? 0] = e))
-  start.demon.set(Int32Array.from({ length: start.demon.length }, (_, l) => (((l + 1) * GOLDEN) % 1 < fill ? 1 : 0)))
+
+  seed.fluxes.forEach(
+    (e, k) => (start.flux[rule.edgeAt[(cells[k] ?? 0) * 24] ?? 0] = e),
+  )
+
+  start.demon.set(
+    Int32Array.from({ length: start.demon.length }, (_, l) =>
+      ((l + 1) * GOLDEN) % 1 < fill ? 1 : 0,
+    ),
+  )
 
   const at = cells.map((_, k) => (roots[0] ?? []).map(x => x * k))
   const origin = mean(at)
@@ -105,15 +133,27 @@ function run(input: { rule: ReflectingSlots; fill: number; seed: Seed; beats: nu
 
   for (let t = 0; t < beats; t++) {
     s = reflectBeat(rule, s, t)
-    exact = exact && reflectEnergy(rule, s) === e0 && reflectGaussHolds(rule, start, s) && s.demon.every(x => x >= 0) && s.store.every(x => x >= 0)
+    exact =
+      exact &&
+      reflectEnergy(rule, s) === e0 &&
+      reflectGaussHolds(rule, start, s) &&
+      s.demon.every(x => x >= 0) &&
+      s.store.every(x => x >= 0)
 
-    const next = seed.signs.map((_, k) => Math.floor(s.tag.indexOf(k + 1) / 24))
+    const next = seed.signs.map((_, k) =>
+      Math.floor(s.tag.indexOf(k + 1) / 24),
+    )
 
     next.forEach((cell, k) => {
       if (cell !== now[k]) {
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => rule.neighbour[(now[k] ?? 0) * 24 + i] === cell) ?? -1
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => rule.neighbour[(now[k] ?? 0) * 24 + i] === cell,
+          ) ?? -1
 
-        at[k] = (at[k] ?? []).map((x, i) => x + (roots[d]?.[i] ?? Number.NaN))
+        at[k] = (at[k] ?? []).map(
+          (x, i) => x + (roots[d]?.[i] ?? Number.NaN),
+        )
       }
     })
     now = next
@@ -122,7 +162,9 @@ function run(input: { rule: ReflectingSlots; fill: number; seed: Seed; beats: nu
     const fears = at.filter((_, k) => (seed.signs[k] ?? 0) < 0)
 
     gapSum += dist(mean(loves), mean(fears))
-    spreadSum += Math.max(...loves.map(p => Math.max(...loves.map(q => dist(p, q)))))
+    spreadSum += Math.max(
+      ...loves.map(p => Math.max(...loves.map(q => dist(p, q)))),
+    )
     travel = Math.max(travel, dist(mean(at), origin))
   }
 
@@ -142,19 +184,41 @@ function run(input: { rule: ReflectingSlots; fill: number; seed: Seed; beats: nu
       s.store.every((v, i) => v === start.store[i])
   }
 
-  return { exact, reverses, meanGap: gapSum / beats, meanSpread: spreadSum / beats, travel }
+  return {
+    exact,
+    reverses,
+    meanGap: gapSum / beats,
+    meanSpread: spreadSum / beats,
+    travel,
+  }
 }
 
 // every pair of starting headings for a meson, cold: how many are bound and travel
-function scan(steer: Steer): { walking: number; bound: number; starts: number } {
-  const rule = makeReflectingSlots({ side: SCAN_SIDE, mass: 4, tension: 1, turn: false, steer })
+function scan(steer: Steer): {
+  walking: number
+  bound: number
+  starts: number
+} {
+  const rule = makeReflectingSlots({
+    side: SCAN_SIDE,
+    mass: 4,
+    tension: 1,
+    turn: false,
+    steer,
+  })
 
   let walking = 0
   let bound = 0
 
   for (let a = 0; a < 24; a++) {
     for (let b = 0; b < 24; b++) {
-      const r = run({ rule, fill: FILLS[0] ?? 0.02, seed: { signs: [1, -1], fluxes: [1], slots: [a, b] }, beats: SCAN_BEATS, reverse: false })
+      const r = run({
+        rule,
+        fill: FILLS[0] ?? 0.02,
+        seed: { signs: [1, -1], fluxes: [1], slots: [a, b] },
+        beats: SCAN_BEATS,
+        reverse: false,
+      })
 
       bound += r.meanGap < 4 ? 1 : 0
       walking += r.meanGap < 4 && r.travel > 10 ? 1 : 0
@@ -182,27 +246,73 @@ export default experiment({
 
     const fills = FILLS.map(fill => ({
       fill,
-      meson: run({ rule: bound, fill, seed: MESON, beats: BEATS, reverse: true }),
-      baryon: run({ rule: bound, fill, seed: BARYONS, beats: BEATS, reverse: true }),
+      meson: run({
+        rule: bound,
+        fill,
+        seed: MESON,
+        beats: BEATS,
+        reverse: true,
+      }),
+      baryon: run({
+        rule: bound,
+        fill,
+        seed: BARYONS,
+        beats: BEATS,
+        reverse: true,
+      }),
     }))
     const coldest = fills[0]!
     const hottest = fills[fills.length - 1]!
-    const mesonControl = run({ rule: free, fill: cold, seed: MESON, beats: BEATS, reverse: true })
-    const baryonControl = run({ rule: free, fill: cold, seed: BARYONS, beats: BEATS, reverse: true })
+    const mesonControl = run({
+      rule: free,
+      fill: cold,
+      seed: MESON,
+      beats: BEATS,
+      reverse: true,
+    })
+    const baryonControl = run({
+      rule: free,
+      fill: cold,
+      seed: BARYONS,
+      beats: BEATS,
+      reverse: true,
+    })
 
     const carried = [1, 0].map(contact => {
-      const rule = makeReflectingSlots({ ...shape, tension: 1, carry: true, contact })
+      const rule = makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        carry: true,
+        contact,
+      })
 
       return {
         contact,
-        cold: run({ rule, fill: cold, seed: MESON, beats: BEATS, reverse: true }),
-        hot: run({ rule, fill: hot, seed: MESON, beats: BEATS, reverse: true }),
+        cold: run({
+          rule,
+          fill: cold,
+          seed: MESON,
+          beats: BEATS,
+          reverse: true,
+        }),
+        hot: run({
+          rule,
+          fill: hot,
+          seed: MESON,
+          beats: BEATS,
+          reverse: true,
+        }),
       }
     })
 
     const starts = scan(STEER)
 
-    const all = [...fills.flatMap(f => [f.meson, f.baryon]), mesonControl, baryonControl, ...carried.flatMap(c => [c.cold, c.hot])]
+    const all = [
+      ...fills.flatMap(f => [f.meson, f.baryon]),
+      mesonControl,
+      baryonControl,
+      ...carried.flatMap(c => [c.cold, c.hot]),
+    ]
     const exact = all.every(r => r.exact && r.reverses)
 
     const ok =
@@ -243,9 +353,18 @@ export default experiment({
         tensionlessBaryonTravel: baryonControl.travel,
         ...Object.fromEntries(
           carried.flatMap(c => [
-            [`carriedContact${c.contact}ColdMesonMeanGap`, c.cold.meanGap],
-            [`carriedContact${c.contact}ColdMesonTravel`, c.cold.travel],
-            [`carriedContact${c.contact}HotMesonMeanGap`, c.hot.meanGap],
+            [
+              `carriedContact${c.contact}ColdMesonMeanGap`,
+              c.cold.meanGap,
+            ],
+            [
+              `carriedContact${c.contact}ColdMesonTravel`,
+              c.cold.travel,
+            ],
+            [
+              `carriedContact${c.contact}HotMesonMeanGap`,
+              c.hot.meanGap,
+            ],
             [`carriedContact${c.contact}HotMesonTravel`, c.hot.travel],
           ]),
         ),

@@ -132,14 +132,46 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { fullPathKey, keyedRunner, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { lineFrame } from '@/code/measure/frame-meson'
 import { placeVibes } from '@/code/measure/two-hub-bound'
 import { symmetricEigen } from '@/code/measure/line-class-metric'
-import { composeDefects, edgeCurvatures, edgeForm, fermionMixBranch, fermionTrack, fillingRun, fockColumns, liftAgreement, neutralSea, placeInSea, pointFieldDefects, productDefects, seaConfiguration, type FermionTrack } from '@/code/measure/pauli-mixer'
-import { lockedNorm, lockedState, mergeBranches, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { coinedVetoBeat, coinedVetoBeatBack } from '@/code/rule/coined-locked-knit'
+import {
+  composeDefects,
+  edgeCurvatures,
+  edgeForm,
+  fermionMixBranch,
+  fermionTrack,
+  fillingRun,
+  fockColumns,
+  liftAgreement,
+  neutralSea,
+  placeInSea,
+  pointFieldDefects,
+  productDefects,
+  seaConfiguration,
+  type FermionTrack,
+} from '@/code/measure/pauli-mixer'
+import {
+  lockedNorm,
+  lockedState,
+  mergeBranches,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  coinedVetoBeat,
+  coinedVetoBeatBack,
+} from '@/code/rule/coined-locked-knit'
 
 const SIDE = 8
 const SMALL = 4
@@ -168,14 +200,21 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
     const X = centerOf(SIDE)
     const fr = contactFresh(SIDE, 'pass', X)
     const cells = fr.cells
-    const flat = { ...fr.tables, move: new Int8Array(fr.tables.move.length).map((_, i) => i % 9), back: new Int8Array(fr.tables.back.length).map((_, i) => i % 9) }
+    const flat = {
+      ...fr.tables,
+      move: new Int8Array(fr.tables.move.length).map((_, i) => i % 9),
+      back: new Int8Array(fr.tables.back.length).map((_, i) => i % 9),
+    }
     const lines = meshLines(fr.tables)
-    const Y = Math.floor((fr.tables.target[X * 24 + B] as number) / 24)
+    const Y = Math.floor(fr.tables.target[X * 24 + B]! / 24)
     const key0 = fullPathKey(0)
     const vacuum = wordVacuum(fr, fr.store)
     const love = seaConfiguration(cells, 1)
@@ -185,11 +224,29 @@ export default experiment({
 
     // ---- (a), (b): the census ----
     const census = {
-      working: fillingRun(fr.tables, vacuum, key0, THRESHOLD_BORN, BEATS),
+      working: fillingRun(
+        fr.tables,
+        vacuum,
+        key0,
+        THRESHOLD_BORN,
+        BEATS,
+      ),
       empty: fillingRun(fr.tables, empty, key0, THRESHOLD_BORN, BEATS),
-      stored: fillingRun(fr.tables, stored, key0, THRESHOLD_BORN, BEATS),
+      stored: fillingRun(
+        fr.tables,
+        stored,
+        key0,
+        THRESHOLD_BORN,
+        BEATS,
+      ),
       bare: fillingRun(fr.tables, bare, key0, THRESHOLD_BORN, BEATS),
-      loveWorking: fillingRun(fr.tables, love, key0, THRESHOLD_BORN, BEATS),
+      loveWorking: fillingRun(
+        fr.tables,
+        love,
+        key0,
+        THRESHOLD_BORN,
+        BEATS,
+      ),
       loveFlat: fillingRun(flat, love, key0, THRESHOLD_BORN, BEATS),
     }
     const fieldWorking = pointFieldDefects(fr.tables).flat()
@@ -198,26 +255,90 @@ export default experiment({
     log('census')
 
     // ---- (c): the Fock checks ----
-    const signed = fockColumns({ contents: 1, signed: true, adjoint: false })
-    const signedBack = fockColumns({ contents: 1, signed: true, adjoint: true })
-    const unsigned = fockColumns({ contents: 1, signed: false, adjoint: false })
-    const two = fockColumns({ contents: 2, signed: true, adjoint: false })
-    const unitary = productDefects(signed.columns, signed.columns, signed.n)
-    const reversal = composeDefects(signedBack.columns, signed.columns, signed.n)
-    const unsignedDefects = productDefects(unsigned.columns, unsigned.columns, unsigned.n)
+    const signed = fockColumns({
+      contents: 1,
+      signed: true,
+      adjoint: false,
+    })
+    const signedBack = fockColumns({
+      contents: 1,
+      signed: true,
+      adjoint: true,
+    })
+    const unsigned = fockColumns({
+      contents: 1,
+      signed: false,
+      adjoint: false,
+    })
+    const two = fockColumns({
+      contents: 2,
+      signed: true,
+      adjoint: false,
+    })
+    const unitary = productDefects(
+      signed.columns,
+      signed.columns,
+      signed.n,
+    )
+    const reversal = composeDefects(
+      signedBack.columns,
+      signed.columns,
+      signed.n,
+    )
+    const unsignedDefects = productDefects(
+      unsigned.columns,
+      unsigned.columns,
+      unsigned.n,
+    )
     const twoDefects = productDefects(two.columns, two.columns, two.n)
     const lift = liftAgreement()
-    const columnIs = (col: [number, [number, number]][], s: number, a: number, b: number): boolean => col.length === 1 && col[0]![0] === s && col[0]![1][0] === a && col[0]![1][1] === b
+    const columnIs = (
+      col: [number, [number, number]][],
+      s: number,
+      a: number,
+      b: number,
+    ): boolean =>
+      col.length === 1 &&
+      col[0]![0] === s &&
+      col[0]![1][0] === a &&
+      col[0]![1][1] === b
     const fullPhase = columnIs(signed.columns[255]!, 255, 0, 8)
     const emptyOne = columnIs(signed.columns[0]!, 0, 8, 0)
-    const unsignedFullBlocked = columnIs(unsigned.columns[255]!, 255, 0, 8)
-    const exactPiece = unitary.entries === 0 && reversal.entries === 0 && fullPhase && emptyOne && lift.differ === 0
+    const unsignedFullBlocked = columnIs(
+      unsigned.columns[255]!,
+      255,
+      0,
+      8,
+    )
+    const exactPiece =
+      unitary.entries === 0 &&
+      reversal.entries === 0 &&
+      fullPhase &&
+      emptyOne &&
+      lift.differ === 0
 
     log('fock')
 
     // ---- tracks ----
-    const track = (tables: LockedTables, reference: Configuration, start: Configuration, path: number, on: boolean, referenceOn?: boolean): FermionTrack =>
-      fermionTrack({ tables, reference, start, key: fullPathKey(pathOffset(path)), threshold: THRESHOLD_BORN, beats: BEATS, on, referenceOn, lines })
+    const track = (
+      tables: LockedTables,
+      reference: Configuration,
+      start: Configuration,
+      path: number,
+      on: boolean,
+      referenceOn?: boolean,
+    ): FermionTrack =>
+      fermionTrack({
+        tables,
+        reference,
+        start,
+        key: fullPathKey(pathOffset(path)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        on,
+        referenceOn,
+        lines,
+      })
     const hole = placeInSea(love, [{ dock: X, slot: B, vibe: 0 }])
     const holeFear = placeInSea(love, [
       { dock: X, slot: B, vibe: 0 },
@@ -233,41 +354,94 @@ export default experiment({
 
     // Q1
     const seaTracks = few.map(k => track(flat, love, love, k, true))
-    const blockedWorking = [track(fr.tables, love, love, 0, true, false), track(fr.tables, stored, stored, 0, true, false)]
+    const blockedWorking = [
+      track(fr.tables, love, love, 0, true, false),
+      track(fr.tables, stored, stored, 0, true, false),
+    ]
+
     let exact: LockedState = lockedState(love)
     let exactOk = true
 
     for (let t = 0; t < EXACT_BEATS; t++) {
-      exact = { branches: mergeBranches(exact.branches.flatMap(b => fermionMixBranch(cells, b, false))) }
+      exact = {
+        branches: mergeBranches(
+          exact.branches.flatMap(b =>
+            fermionMixBranch(cells, b, false),
+          ),
+        ),
+      }
       exact = coinedVetoBeat('none', flat, exact, t)
 
       const b0 = exact.branches[0]
 
-      exactOk = exactOk && exact.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && sameConfiguration(b0, love)
+      exactOk =
+        exactOk &&
+        exact.branches.length === 1 &&
+        !!b0 &&
+        b0.a === 1n &&
+        b0.b === 0n &&
+        b0.k === 0 &&
+        sameConfiguration(b0, love)
     }
 
-    const Q1 = seaTracks.every(r => r.wake.every(w => w === 0) && r.referenceDrift === 0 && r.tally.moved === 0) && exactOk && blockedWorking.every(r => r.wake.every(w => w === 0))
+    const Q1 =
+      seaTracks.every(
+        r =>
+          r.wake.every(w => w === 0) &&
+          r.referenceDrift === 0 &&
+          r.tally.moved === 0,
+      ) &&
+      exactOk &&
+      blockedWorking.every(r => r.wake.every(w => w === 0))
 
     log('Q1')
 
     // Q2 and Q3a's hold
     const holes = paths.map(k => track(flat, love, hole, k, true))
-    const holeFears = paths.map(k => track(flat, love, holeFear, k, true))
+    const holeFears = paths.map(k =>
+      track(flat, love, holeFear, k, true),
+    )
     const loves = paths.map(k => track(fr.tables, empty, lone, k, true))
-    const mesons = paths.map(k => track(fr.tables, empty, meson, k, true))
-    const twoHoles = [track(flat, love, placeInSea(love, [{ dock: X, slot: B, vibe: 0 }, { dock: Y, slot: B, vibe: 0 }]), 0, true)]
-    const growthOf = (r: FermionTrack): number => ((r.wake[BEATS - 1] as number) - (r.wake[GROWTH_FROM - 1] as number)) / Math.max(1, r.wake[GROWTH_FROM - 1] as number)
-    const bounded = (r: FermionTrack): boolean => growthOf(r) < GROWTH_LIMIT && (r.footprint[BEATS - 1] as number) < BOX_SHARE * cells
-    const Q2 = [...holes, ...holeFears, ...loves, ...mesons].every(bounded)
+    const mesons = paths.map(k =>
+      track(fr.tables, empty, meson, k, true),
+    )
+    const twoHoles = [
+      track(
+        flat,
+        love,
+        placeInSea(love, [
+          { dock: X, slot: B, vibe: 0 },
+          { dock: Y, slot: B, vibe: 0 },
+        ]),
+        0,
+        true,
+      ),
+    ]
+    const growthOf = (r: FermionTrack): number =>
+      (r.wake[BEATS - 1]! - r.wake[GROWTH_FROM - 1]!) /
+      Math.max(1, r.wake[GROWTH_FROM - 1]!)
+    const bounded = (r: FermionTrack): boolean =>
+      growthOf(r) < GROWTH_LIMIT &&
+      r.footprint[BEATS - 1]! < BOX_SHARE * cells
+    const Q2 = [...holes, ...holeFears, ...loves, ...mesons].every(
+      bounded,
+    )
 
     log('Q2')
 
     // SW: the working weave's full seas
     const swLove = few.map(k => track(fr.tables, love, hole, k, true))
-    const storedHole = placeInSea(stored, [{ dock: X, slot: B, vibe: 0 }])
-    const swStored = few.map(k => track(fr.tables, stored, storedHole, k, true))
-    const gatedShare = (r: FermionTrack): number => r.tally.gated / BEATS
-    const SW = [swLove, swStored].some(rs => rs.every(r => gatedShare(r) >= GATED_SHARE))
+    const storedHole = placeInSea(stored, [
+      { dock: X, slot: B, vibe: 0 },
+    ])
+    const swStored = few.map(k =>
+      track(fr.tables, stored, storedHole, k, true),
+    )
+    const gatedShare = (r: FermionTrack): number =>
+      r.tally.gated / BEATS
+    const SW = [swLove, swStored].some(rs =>
+      rs.every(r => gatedShare(r) >= GATED_SHARE),
+    )
 
     log('SW')
 
@@ -275,7 +449,10 @@ export default experiment({
     const F = lineFrame(B)
     const rB = [1, 1, 0, 0].map(x => x / Math.SQRT2)
     const own = edgeCurvatures(F, rB, 0, 4)
-    const lineCurv = own.reduce((m, x) => (Math.abs(x) > Math.abs(m) ? x : m), 0)
+    const lineCurv = own.reduce(
+      (m, x) => (Math.abs(x) > Math.abs(m) ? x : m),
+      0,
+    )
     const c = lineCurv / 4
     const s2 = Math.SQRT1_2
     const husk: [string, number[]][] = [
@@ -286,7 +463,9 @@ export default experiment({
       ['e13', [s2, 0, s2, 0]],
       ['e23', [0, s2, s2, 0]],
     ]
+
     let formGap = 0
+
     const spreadDirs: number[][] = []
     const spreadDirs0: number[][] = []
     const bandRows = husk.map(([name, d]) => {
@@ -295,71 +474,170 @@ export default experiment({
       const form = edgeForm(F, d, c, true)
       const form0 = edgeForm(F, d, c, false)
 
-      exactMixed.forEach((x, i) => (formGap = Math.max(formGap, Math.abs(x - (form.curvatures[i] as number)))))
-      exact0.forEach((x, i) => (formGap = Math.max(formGap, Math.abs(x - (form0.curvatures[i] as number)))))
+      exactMixed.forEach(
+        (x, i) =>
+          (formGap = Math.max(
+            formGap,
+            Math.abs(x - form.curvatures[i]!),
+          )),
+      )
 
-      const spreadHere = (f: { curvatures: number[]; lineWeight: number[] }): boolean =>
-        f.curvatures.some((x, i) => Math.abs(x) >= CURVE_FRAC * Math.abs(c) && (f.lineWeight[i] as number) <= SPREAD && f.curvatures.every((y, j) => j === i || Math.abs(y - x) > FORM_SAME))
+      exact0.forEach(
+        (x, i) =>
+          (formGap = Math.max(
+            formGap,
+            Math.abs(x - form0.curvatures[i]!),
+          )),
+      )
 
-      if (spreadHere(form)) spreadDirs.push(d)
-      if (spreadHere(form0)) spreadDirs0.push(d)
+      const spreadHere = (f: {
+        curvatures: number[]
+        lineWeight: number[]
+      }): boolean =>
+        f.curvatures.some(
+          (x, i) =>
+            Math.abs(x) >= CURVE_FRAC * Math.abs(c) &&
+            f.lineWeight[i]! <= SPREAD &&
+            f.curvatures.every(
+              (y, j) => j === i || Math.abs(y - x) > FORM_SAME,
+            ),
+        )
+
+      if (spreadHere(form)) {
+        spreadDirs.push(d)
+      }
+
+      if (spreadHere(form0)) {
+        spreadDirs0.push(d)
+      }
 
       return { name, exactMixed, exact0, lineWeight: form.lineWeight }
     })
-    const rankOf = (vs: number[][]): number => {
-      if (vs.length === 0) return 0
 
-      const g = vs.map(u => vs.map(v => u.reduce((s, x, k) => s + x * (v[k] as number), 0)))
+    const rankOf = (vs: number[][]): number => {
+      if (vs.length === 0) {
+        return 0
+      }
+
+      const g = vs.map(u =>
+        vs.map(v => u.reduce((s, x, k) => s + x * v[k]!, 0)),
+      )
 
       return symmetricEigen(g).values.filter(x => x > 1e-9).length
     }
+
     const spreadRank = rankOf(spreadDirs)
     const spreadRank0 = rankOf(spreadDirs0)
+
     // the edge's mean inverse mass tensor, 4 x 4, from the exact band: A_ii along e_i, A_ij from (e_i + e_j)/sqrt 2
     const mean = (d: number[]): number => {
       const x = edgeCurvatures(F, d, THETA, 3)
 
       return x.reduce((s, v) => s + v, 0) / x.length
     }
-    const unit = (i: number): number[] => [0, 1, 2, 3].map(k => (k === i ? 1 : 0))
+
+    const unit = (i: number): number[] =>
+      [0, 1, 2, 3].map(k => (k === i ? 1 : 0))
     const diag = [0, 1, 2, 3].map(i => mean(unit(i)))
-    const A = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? (diag[i] as number) : mean([0, 1, 2, 3].map(k => (k === i || k === j ? s2 : 0))) - ((diag[i] as number) + (diag[j] as number)) / 2)))
+    const A = [0, 1, 2, 3].map(i =>
+      [0, 1, 2, 3].map(j =>
+        i === j
+          ? diag[i]!
+          : mean([0, 1, 2, 3].map(k => (k === i || k === j ? s2 : 0))) -
+            (diag[i]! + diag[j]!) / 2,
+      ),
+    )
     const aValues = symmetricEigen(A).values
-    const isotropy = Math.min(...aValues.map(Math.abs)) / Math.max(...aValues.map(Math.abs))
-    const loneHeld = [...holes, ...loves].every(r => r.wake.every(w => w === 1))
+    const isotropy =
+      Math.min(...aValues.map(Math.abs)) /
+      Math.max(...aValues.map(Math.abs))
+    const loneHeld = [...holes, ...loves].every(r =>
+      r.wake.every(w => w === 1),
+    )
     const Q3a = loneHeld && spreadRank >= 2 && formGap <= FORM_SAME
 
     log('band')
 
     // ---- controls ----
     const vacuumMixed = track(fr.tables, vacuum, vacuum, 0, true, false)
-    const cascades = few.map(k => track(fr.tables, vacuum, placeVibes(vacuum, [{ dock: X, slot: B, vibe: 1 }, { dock: Y, slot: B, vibe: -1 }]), k, true))
-    const C1 = (vacuumMixed.footprint[BEATS - 1] as number) > 0 && cascades.every(r => (r.footprint[BEATS - 1] as number) >= BOX_SHARE * cells)
+    const cascades = few.map(k =>
+      track(
+        fr.tables,
+        vacuum,
+        placeVibes(vacuum, [
+          { dock: X, slot: B, vibe: 1 },
+          { dock: Y, slot: B, vibe: -1 },
+        ]),
+        k,
+        true,
+      ),
+    )
+    const C1 =
+      vacuumMixed.footprint[BEATS - 1]! > 0 &&
+      cascades.every(r => r.footprint[BEATS - 1]! >= BOX_SHARE * cells)
     const holesOff = few.map(k => track(flat, love, hole, k, false))
-    const lovesOff = few.map(k => track(fr.tables, empty, lone, k, false))
-    const runner = keyedRunner(flat, hole, { key: fullPathKey(pathOffset(0)), threshold: THRESHOLD_BORN })
+    const lovesOff = few.map(k =>
+      track(fr.tables, empty, lone, k, false),
+    )
+    const runner = keyedRunner(flat, hole, {
+      key: fullPathKey(pathOffset(0)),
+      threshold: THRESHOLD_BORN,
+    })
 
-    for (let t = 0; t < BEATS; t++) runner.beat()
+    for (let t = 0; t < BEATS; t++) {
+      runner.beat()
+    }
 
-    const runnerSame = sameConfiguration(runner.state(), (holesOff[0] as FermionTrack).last)
-    const C2 = [...holesOff, ...lovesOff].every(r => r.linesTouched === 1) && runnerSame
-    const C3 = unsignedFullBlocked && unsignedDefects.sectors.includes(7) && unsignedDefects.entries > 0
+    const runnerSame = sameConfiguration(
+      runner.state(),
+      holesOff[0]!.last,
+    )
+    const C2 =
+      [...holesOff, ...lovesOff].every(r => r.linesTouched === 1) &&
+      runnerSame
+    const C3 =
+      unsignedFullBlocked &&
+      unsignedDefects.sectors.includes(7) &&
+      unsignedDefects.entries > 0
 
     log('controls')
 
     // ---- checks ----
     const loneTracks = [...holes, ...loves, ...holesOff, ...lovesOff]
-    const reversalDiffer = loneTracks.reduce((n, r) => n + r.reversalDiffer, 0)
-    const nonInvolutive = loneTracks.reduce((n, r) => n + r.tally.nonInvolutive, 0)
+    const reversalDiffer = loneTracks.reduce(
+      (n, r) => n + r.reversalDiffer,
+      0,
+    )
+    const nonInvolutive = loneTracks.reduce(
+      (n, r) => n + r.tally.nonInvolutive,
+      0,
+    )
     const small = contactFresh(SMALL, 'pass', centerOf(SMALL))
-    const smallFlat = { ...small.tables, move: new Int8Array(small.tables.move.length).map((_, i) => i % 9), back: new Int8Array(small.tables.back.length).map((_, i) => i % 9) }
-    const smallHole = placeInSea(seaConfiguration(small.cells, 1), [{ dock: centerOf(SMALL), slot: B, vibe: 0 }])
+    const smallFlat = {
+      ...small.tables,
+      move: new Int8Array(small.tables.move.length).map(
+        (_, i) => i % 9,
+      ),
+      back: new Int8Array(small.tables.back.length).map(
+        (_, i) => i % 9,
+      ),
+    }
+    const smallHole = placeInSea(seaConfiguration(small.cells, 1), [
+      { dock: centerOf(SMALL), slot: B, vibe: 0 },
+    ])
+
     let s: LockedState = lockedState(smallHole)
     let normExact = true
     let maxBranches = 0
 
     for (let t = 0; t < HOLE_BEATS; t++) {
-      s = { branches: mergeBranches(s.branches.flatMap(b => fermionMixBranch(small.cells, b, false))) }
+      s = {
+        branches: mergeBranches(
+          s.branches.flatMap(b =>
+            fermionMixBranch(small.cells, b, false),
+          ),
+        ),
+      }
       s = coinedVetoBeat('none', smallFlat, s, t)
 
       const n = lockedNorm(s)
@@ -370,21 +648,46 @@ export default experiment({
 
     for (let t = HOLE_BEATS - 1; t >= 0; t--) {
       s = coinedVetoBeatBack('none', smallFlat, s, t)
-      s = { branches: mergeBranches(s.branches.flatMap(b => fermionMixBranch(small.cells, b, true))) }
+      s = {
+        branches: mergeBranches(
+          s.branches.flatMap(b =>
+            fermionMixBranch(small.cells, b, true),
+          ),
+        ),
+      }
     }
 
     const back = s.branches[0] as Branch | undefined
-    const backExact = s.branches.length === 1 && !!back && back.a === 1n && back.b === 0n && back.k === 0 && sameConfiguration(back, smallHole)
-    const checked = reversalDiffer === 0 && nonInvolutive === 0 && normExact && backExact && exactPiece
+    const backExact =
+      s.branches.length === 1 &&
+      !!back &&
+      back.a === 1n &&
+      back.b === 0n &&
+      back.k === 0 &&
+      sameConfiguration(back, smallHole)
+    const checked =
+      reversalDiffer === 0 &&
+      nonInvolutive === 0 &&
+      normExact &&
+      backExact &&
+      exactPiece
 
     log('checks')
 
     // ---- verdict ----
     const controls = C1 && C2 && C3
-    const status = !controls || !checked ? 'partial' : !(SW && Q1 && Q2 && Q3a) ? 'fail' : 'open'
-    const meanOf = (xs: number[]): number => xs.reduce((u, v) => u + v, 0) / xs.length
-    const at = (r: FermionTrack, key: 'wake' | 'footprint'): string => [8, 16, 32, 64, 128].map(t => r[key][t - 1]).join('/')
-    const sumHeld = (h: number[]): number => h.slice(1, 8).reduce((u, v) => u + v, 0)
+    const status =
+      !controls || !checked
+        ? 'partial'
+        : !(SW && Q1 && Q2 && Q3a)
+          ? 'fail'
+          : 'open'
+    const meanOf = (xs: number[]): number =>
+      xs.reduce((u, v) => u + v, 0) / xs.length
+    const at = (r: FermionTrack, key: 'wake' | 'footprint'): string =>
+      [8, 16, 32, 64, 128].map(t => r[key][t - 1]).join('/')
+    const sumHeld = (h: number[]): number =>
+      h.slice(1, 8).reduce((u, v) => u + v, 0)
 
     const metrics: Record<string, number> = {
       SW: SW ? 1 : 0,
@@ -397,13 +700,20 @@ export default experiment({
       control_C3: C3 ? 1 : 0,
       checked: checked ? 1 : 0,
       cells,
-      workingFrameBeats: census.working.byHeld.reduce((u, v) => u + v, 0),
-      workingEmpty: census.working.byHeld[0] as number,
-      workingHeld2: census.working.byHeld[2] as number,
-      workingHeld4: census.working.byHeld[4] as number,
-      workingHeld6: census.working.byHeld[6] as number,
-      workingFull: census.working.byHeld[8] as number,
-      workingOdd: (census.working.byHeld[1] as number) + (census.working.byHeld[3] as number) + (census.working.byHeld[5] as number) + (census.working.byHeld[7] as number),
+      workingFrameBeats: census.working.byHeld.reduce(
+        (u, v) => u + v,
+        0,
+      ),
+      workingEmpty: census.working.byHeld[0]!,
+      workingHeld2: census.working.byHeld[2]!,
+      workingHeld4: census.working.byHeld[4]!,
+      workingHeld6: census.working.byHeld[6]!,
+      workingFull: census.working.byHeld[8]!,
+      workingOdd:
+        census.working.byHeld[1]! +
+        census.working.byHeld[3]! +
+        census.working.byHeld[5]! +
+        census.working.byHeld[7]!,
       workingPartial: sumHeld(census.working.byHeld),
       workingOneContentPartial: census.working.oneContentPartial,
       workingOneContentFull: census.working.oneContentFull,
@@ -411,20 +721,24 @@ export default experiment({
       emptyPartial: census.empty.partial,
       emptyReturn: census.empty.returnBeat,
       storedPartial: census.stored.partial,
-      storedFull: census.stored.byHeld[8] as number,
+      storedFull: census.stored.byHeld[8]!,
       storedOneContentFull: census.stored.oneContentFull,
       storedReturn: census.stored.returnBeat,
       storedStoreChanges: census.stored.storeChanges,
       barePartial: census.bare.partial,
-      bareFull: census.bare.byHeld[8] as number,
-      bareEmpty: census.bare.byHeld[0] as number,
+      bareFull: census.bare.byHeld[8]!,
+      bareEmpty: census.bare.byHeld[0]!,
       loveWorkingPartial: census.loveWorking.partial,
       loveWorkingOneContentFull: census.loveWorking.oneContentFull,
       loveWorkingReturn: census.loveWorking.returnBeat,
       loveFlatPartial: census.loveFlat.partial,
       loveFlatOneContentFull: census.loveFlat.oneContentFull,
       loveFlatReturn: census.loveFlat.returnBeat,
-      seasKEvents: census.stored.kEvents + census.loveWorking.kEvents + census.loveFlat.kEvents + census.empty.kEvents,
+      seasKEvents:
+        census.stored.kEvents +
+        census.loveWorking.kEvents +
+        census.loveFlat.kEvents +
+        census.empty.kEvents,
       pointFieldMinWorking: Math.min(...fieldWorking),
       pointFieldMaxWorking: Math.max(...fieldWorking),
       pointFieldFlat: Math.max(...fieldFlat),
@@ -438,12 +752,22 @@ export default experiment({
       seaBlockedFrames: meanOf(seaTracks.map(r => r.tally.blockedFull)),
       seaMoved: seaTracks.reduce((u, r) => u + r.tally.moved, 0),
       exactSea: exactOk ? 1 : 0,
-      holeMaxFootprint: Math.max(...holes.map(r => Math.max(...r.footprint))),
-      holeFearMaxFootprint: Math.max(...holeFears.map(r => Math.max(...r.footprint))),
-      holeFearMaxWake: Math.max(...holeFears.map(r => Math.max(...r.wake))),
-      loveMaxFootprint: Math.max(...loves.map(r => Math.max(...r.footprint))),
-      mesonMaxFootprint: Math.max(...mesons.map(r => Math.max(...r.footprint))),
-      twoHolesMaxWake: Math.max(...(twoHoles[0] as FermionTrack).wake),
+      holeMaxFootprint: Math.max(
+        ...holes.map(r => Math.max(...r.footprint)),
+      ),
+      holeFearMaxFootprint: Math.max(
+        ...holeFears.map(r => Math.max(...r.footprint)),
+      ),
+      holeFearMaxWake: Math.max(
+        ...holeFears.map(r => Math.max(...r.wake)),
+      ),
+      loveMaxFootprint: Math.max(
+        ...loves.map(r => Math.max(...r.footprint)),
+      ),
+      mesonMaxFootprint: Math.max(
+        ...mesons.map(r => Math.max(...r.footprint)),
+      ),
+      twoHolesMaxWake: Math.max(...twoHoles[0]!.wake),
       holeLines: meanOf(holes.map(r => r.linesTouched)),
       holeDocks: meanOf(holes.map(r => r.docksTouched)),
       loveLines: meanOf(loves.map(r => r.linesTouched)),
@@ -465,10 +789,12 @@ export default experiment({
       tensorMin: Math.min(...aValues),
       tensorMax: Math.max(...aValues),
       isotropy,
-      vacuumMixedFootprint128: vacuumMixed.footprint[BEATS - 1] as number,
+      vacuumMixedFootprint128: vacuumMixed.footprint[BEATS - 1]!,
       vacuumMixedK: vacuumMixed.kEvents,
       vacuumMixedMoves: vacuumMixed.tally.moved,
-      cascadeMinFootprint128: Math.min(...cascades.map(r => r.footprint[BEATS - 1] as number)),
+      cascadeMinFootprint128: Math.min(
+        ...cascades.map(r => r.footprint[BEATS - 1]!),
+      ),
       runnerSame: runnerSame ? 1 : 0,
       reversalDiffer,
       nonInvolutive,
@@ -476,14 +802,25 @@ export default experiment({
       holeExactBack: backExact ? 1 : 0,
       seconds: (Date.now() - started) / 1000,
     }
-    const bandText = bandRows.map(r => `${r.name}: mixed ${r.exactMixed.map(x => x.toFixed(6)).join(' ')} (line weights ${r.lineWeight.map(x => x.toFixed(3)).join(' ')}), unmixed ${r.exact0.map(x => x.toFixed(6)).join(' ')}`).join('; ')
+    const bandText = bandRows
+      .map(
+        r =>
+          `${r.name}: mixed ${r.exactMixed.map(x => x.toFixed(6)).join(' ')} (line weights ${r.lineWeight.map(x => x.toFixed(3)).join(' ')}), unmixed ${r.exact0.map(x => x.toFixed(6)).join(' ')}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
-      claim: `a fermionic frame mixer (exp(i theta N_u), theta 2 pi/3) is exact and unitary on one-content frames and a phase on full ones, so every full-at-every-beat sea of the working beat stays bit for bit (SW ${SW}: a hole there sits in a frame of several contents, one content on at most ${(Math.max(metrics.swLoveGatedShare as number, metrics.swStoredGatedShare as number) * 100).toFixed(1)}% of beats, and stays a lineon); with flat links the love sea is stationary bit for bit (Q1 ${Q1}), a hole and a hole-fear pair stay bounded (Q2 ${Q2}, footprint at most ${metrics.holeFearMaxFootprint}), and the hole turns (${metrics.holeLines} mesh lines against 1 at theta 0), with an edge whose mean inverse mass tensor has isotropy ${isotropy.toFixed(6)} (Q3a ${Q3a}); a bound composite is not decided; the partly filled working vacuum cascades under the same piece`,
+      claim: `a fermionic frame mixer (exp(i theta N_u), theta 2 pi/3) is exact and unitary on one-content frames and a phase on full ones, so every full-at-every-beat sea of the working beat stays bit for bit (SW ${SW}: a hole there sits in a frame of several contents, one content on at most ${(Math.max(metrics.swLoveGatedShare!, metrics.swStoredGatedShare!) * 100).toFixed(1)}% of beats, and stays a lineon); with flat links the love sea is stationary bit for bit (Q1 ${Q1}), a hole and a hole-fear pair stay bounded (Q2 ${Q2}, footprint at most ${metrics.holeFearMaxFootprint}), and the hole turns (${metrics.holeLines} mesh lines against 1 at theta 0), with an edge whose mean inverse mass tensor has isotropy ${isotropy.toFixed(6)} (Q3a ${Q3a}); a bound composite is not decided; the partly filled working vacuum cascades under the same piece`,
       metrics,
-      control: { vacuumMixedFootprint128: metrics.vacuumMixedFootprint128 as number, cascadeMinFootprint128: metrics.cascadeMinFootprint128 as number, holeLinesOff: metrics.holeLinesOff as number, runnerSame: metrics.runnerSame as number, fockUnsignedOff: unsignedDefects.entries },
-      notes: `L1 (paths, Fock) and L2 (band). Census over ${BEATS} beats of side ${SIDE}: working by held ${census.working.byHeld.join(' ')}, one-content partial ${census.working.oneContentPartial}, store changes ${census.working.storeChanges}; empty partial ${census.empty.partial} return ${census.empty.returnBeat}; stored sea partial ${census.stored.partial} return ${census.stored.returnBeat} store changes ${census.stored.storeChanges}; bare sea by held ${census.bare.byHeld.join(' ')}; love sea working partial ${census.loveWorking.partial} one-content full ${census.loveWorking.oneContentFull} return ${census.loveWorking.returnBeat}; love sea flat one-content full ${census.loveFlat.oneContentFull} return ${census.loveFlat.returnBeat}; K on the seas ${metrics.seasKEvents}. Point field defects per frame component: working ${fieldWorking.join(' ')}, flat ${fieldFlat.join(' ')}. Fock: unitary off ${unitary.entries}, reversal off ${reversal.entries}, unsigned off ${unsignedDefects.entries} (n ${unsignedDefects.sectors.join(',')}), two contents off ${twoDefects.entries} (n ${twoDefects.sectors.join(',')}), lift ${lift.differ} of ${lift.checked}. Q1: sea blocked frames ${metrics.seaBlockedFrames}, moves ${metrics.seaMoved}, exact ${exactOk}, working-weave seas with vs without the piece ${blockedWorking.map(r => Math.max(...r.wake)).join(', ')}. Q2 per path (wake, footprint at 8/16/32/64/128): holes ${holes.map(r => at(r, 'footprint')).join('; ')}; hole+fear ${holeFears.map(r => `${at(r, 'wake')} fp ${at(r, 'footprint')}`).join('; ')}; loves ${loves.map(r => at(r, 'footprint')).join('; ')}; mesons ${mesons.map(r => at(r, 'footprint')).join('; ')}; two holes wake ${at(twoHoles[0] as FermionTrack, 'wake')}. Lines touched: holes ${holes.map(r => r.linesTouched).join(' ')}, loves ${loves.map(r => r.linesTouched).join(' ')}, mesons ${mesons.map(r => r.linesTouched).join(' ')}, off ${holesOff.map(r => r.linesTouched).join(' ')}. SW: love-sea hole gated ${swLove.map(r => r.tally.gated).join(' ')} of ${BEATS}, lines ${swLove.map(r => r.linesTouched).join(' ')}; stored-sea hole gated ${swStored.map(r => r.tally.gated).join(' ')}, lines ${swStored.map(r => r.linesTouched).join(' ')}. Band (curvatures 2 lambda, epsilon = lambda kappa^2; the lineon's own ${lineCurv.toFixed(6)}, c ${c.toFixed(6)}): ${bandText}; spread directions rank ${spreadRank} (theta 0: ${spreadRank0}); form gap ${formGap.toExponential(2)}; mean tensor eigenvalues ${aValues.map(x => x.toFixed(6)).join(' ')}. C1: vacuum with the piece off the mixerless vacuum at ${vacuumMixed.footprint[BEATS - 1]} docks (K ${vacuumMixed.kEvents}, moves ${vacuumMixed.tally.moved}); meson ${cascades.map(r => at(r, 'footprint')).join('; ')}. Checks: reversal ${reversalDiffer}, non-involutive gated frames ${nonInvolutive}, exact hole norm ${normExact} (${maxBranches} branches), back ${backExact}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        vacuumMixedFootprint128: metrics.vacuumMixedFootprint128!,
+        cascadeMinFootprint128: metrics.cascadeMinFootprint128!,
+        holeLinesOff: metrics.holeLinesOff!,
+        runnerSame: metrics.runnerSame!,
+        fockUnsignedOff: unsignedDefects.entries,
+      },
+      notes: `L1 (paths, Fock) and L2 (band). Census over ${BEATS} beats of side ${SIDE}: working by held ${census.working.byHeld.join(' ')}, one-content partial ${census.working.oneContentPartial}, store changes ${census.working.storeChanges}; empty partial ${census.empty.partial} return ${census.empty.returnBeat}; stored sea partial ${census.stored.partial} return ${census.stored.returnBeat} store changes ${census.stored.storeChanges}; bare sea by held ${census.bare.byHeld.join(' ')}; love sea working partial ${census.loveWorking.partial} one-content full ${census.loveWorking.oneContentFull} return ${census.loveWorking.returnBeat}; love sea flat one-content full ${census.loveFlat.oneContentFull} return ${census.loveFlat.returnBeat}; K on the seas ${metrics.seasKEvents}. Point field defects per frame component: working ${fieldWorking.join(' ')}, flat ${fieldFlat.join(' ')}. Fock: unitary off ${unitary.entries}, reversal off ${reversal.entries}, unsigned off ${unsignedDefects.entries} (n ${unsignedDefects.sectors.join(',')}), two contents off ${twoDefects.entries} (n ${twoDefects.sectors.join(',')}), lift ${lift.differ} of ${lift.checked}. Q1: sea blocked frames ${metrics.seaBlockedFrames}, moves ${metrics.seaMoved}, exact ${exactOk}, working-weave seas with vs without the piece ${blockedWorking.map(r => Math.max(...r.wake)).join(', ')}. Q2 per path (wake, footprint at 8/16/32/64/128): holes ${holes.map(r => at(r, 'footprint')).join('; ')}; hole+fear ${holeFears.map(r => `${at(r, 'wake')} fp ${at(r, 'footprint')}`).join('; ')}; loves ${loves.map(r => at(r, 'footprint')).join('; ')}; mesons ${mesons.map(r => at(r, 'footprint')).join('; ')}; two holes wake ${at(twoHoles[0]!, 'wake')}. Lines touched: holes ${holes.map(r => r.linesTouched).join(' ')}, loves ${loves.map(r => r.linesTouched).join(' ')}, mesons ${mesons.map(r => r.linesTouched).join(' ')}, off ${holesOff.map(r => r.linesTouched).join(' ')}. SW: love-sea hole gated ${swLove.map(r => r.tally.gated).join(' ')} of ${BEATS}, lines ${swLove.map(r => r.linesTouched).join(' ')}; stored-sea hole gated ${swStored.map(r => r.tally.gated).join(' ')}, lines ${swStored.map(r => r.linesTouched).join(' ')}. Band (curvatures 2 lambda, epsilon = lambda kappa^2; the lineon's own ${lineCurv.toFixed(6)}, c ${c.toFixed(6)}): ${bandText}; spread directions rank ${spreadRank} (theta 0: ${spreadRank0}); form gap ${formGap.toExponential(2)}; mean tensor eigenvalues ${aValues.map(x => x.toFixed(6)).join(' ')}. C1: vacuum with the piece off the mixerless vacuum at ${vacuumMixed.footprint[BEATS - 1]} docks (K ${vacuumMixed.kEvents}, moves ${vacuumMixed.tally.moved}); meson ${cascades.map(r => at(r, 'footprint')).join('; ')}. Checks: reversal ${reversalDiffer}, non-involutive gated frames ${nonInvolutive}, exact hole norm ${normExact} (${maxBranches} branches), back ${backExact}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

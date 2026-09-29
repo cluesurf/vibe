@@ -37,7 +37,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { chainPhases } from '@/code/measure/token-landau'
-import { sectorPhases, type ZeemanInput } from '@/code/measure/token-zeeman'
+import {
+  sectorPhases,
+  type ZeemanInput,
+} from '@/code/measure/token-zeeman'
 import { type Mode, type Step } from '@/code/rule/spinor-token'
 
 const TOKEN: readonly Step[] = ['x', 'y', 'z', 'up', 'down']
@@ -47,12 +50,32 @@ const MODEL_COIN = Math.PI / 3
 const LIGHT_COIN = Math.PI / 60
 const CLUSTER = 1e-7
 
-type Walk = { name: string; schedule: readonly Step[]; mode: Mode; coinAngle: number }
+type Walk = {
+  name: string
+  schedule: readonly Step[]
+  mode: Mode
+  coinAngle: number
+}
 
 const WALKS: Walk[] = [
-  { name: 'token', schedule: TOKEN, mode: 'locked', coinAngle: MODEL_COIN },
-  { name: 'calibration', schedule: TOKEN, mode: 'locked', coinAngle: LIGHT_COIN },
-  { name: 'spectator', schedule: PALINDROME, mode: 'spectator', coinAngle: MODEL_COIN },
+  {
+    name: 'token',
+    schedule: TOKEN,
+    mode: 'locked',
+    coinAngle: MODEL_COIN,
+  },
+  {
+    name: 'calibration',
+    schedule: TOKEN,
+    mode: 'locked',
+    coinAngle: LIGHT_COIN,
+  },
+  {
+    name: 'spectator',
+    schedule: PALINDROME,
+    mode: 'spectator',
+    coinAngle: MODEL_COIN,
+  },
 ]
 
 // the rest gap of a walk per period: the slot-antisymmetric coin eigenvalue e^(i 2 mu) per coin
@@ -64,8 +87,22 @@ const restGap = (w: Walk): number => {
 
 // the side the particle band curves to: the sign of the phase nearest 0 in the free walk at a small k_y
 function bandSign(w: Walk): number {
-  const { phases } = sectorPhases({ side: 8, schedule: w.schedule, mode: w.mode, field: 0, charge: 1, ky: 0.02, coinAngle: w.coinAngle }, 1)
-  const nearest = phases.reduce((best, p) => (Math.abs(p) < Math.abs(best) ? p : best), Infinity)
+  const { phases } = sectorPhases(
+    {
+      side: 8,
+      schedule: w.schedule,
+      mode: w.mode,
+      field: 0,
+      charge: 1,
+      ky: 0.02,
+      coinAngle: w.coinAngle,
+    },
+    1,
+  )
+  const nearest = phases.reduce(
+    (best, p) => (Math.abs(p) < Math.abs(best) ? p : best),
+    Infinity,
+  )
 
   return Math.sign(nearest)
 }
@@ -103,29 +140,66 @@ type Reading = {
 
 function read(w: Walk, side: number, sign: number): Reading {
   const field = (2 * Math.PI) / side
-  const input: ZeemanInput = { side, schedule: w.schedule, mode: w.mode, field, charge: 1, ky: 0, coinAngle: w.coinAngle }
+  const input: ZeemanInput = {
+    side,
+    schedule: w.schedule,
+    mode: w.mode,
+    field,
+    charge: 1,
+    ky: 0,
+    coinAngle: w.coinAngle,
+  }
   // particle levels only: the antiparticle band starts a rest gap away
   const window = restGap(w) / 2
+
   const sector = (s: 1 | -1): { levels: Cluster[]; leak: number } => {
     const { phases, leak } = sectorPhases(input, s)
 
-    return { levels: clusters(phases.map(p => sign * p).filter(e => Math.abs(e) < window)), leak }
+    return {
+      levels: clusters(
+        phases.map(p => sign * p).filter(e => Math.abs(e) < window),
+      ),
+      leak,
+    }
   }
+
   const plus = sector(1)
   const minus = sector(-1)
-  const e0 = [plus.levels[0]?.level ?? NaN, minus.levels[0]?.level ?? NaN]
-  const spacing = [(plus.levels[1]?.level ?? NaN) - (plus.levels[0]?.level ?? NaN), (minus.levels[1]?.level ?? NaN) - (minus.levels[0]?.level ?? NaN)]
+  const e0 = [
+    plus.levels[0]?.level ?? NaN,
+    minus.levels[0]?.level ?? NaN,
+  ]
+  const spacing = [
+    (plus.levels[1]?.level ?? NaN) - (plus.levels[0]?.level ?? NaN),
+    (minus.levels[1]?.level ?? NaN) - (minus.levels[0]?.level ?? NaN),
+  ]
   const omega = ((spacing[0] ?? 0) + (spacing[1] ?? 0)) / 2
   const lo = Math.min(e0[0] ?? 0, e0[1] ?? 0)
   const hi = Math.max(e0[0] ?? 0, e0[1] ?? 0)
   const count = Math.min(plus.levels.length, minus.levels.length, 6)
+
   let ladderGap = 0
 
   for (let k = 0; k < count; k++) {
-    ladderGap = Math.max(ladderGap, Math.abs((plus.levels[k]?.level ?? 0) - (minus.levels[k]?.level ?? 0)))
+    ladderGap = Math.max(
+      ladderGap,
+      Math.abs(
+        (plus.levels[k]?.level ?? 0) - (minus.levels[k]?.level ?? 0),
+      ),
+    )
   }
 
-  return { side, field, up: plus.levels.slice(0, 6), down: minus.levels.slice(0, 6), leak: Math.max(plus.leak, minus.leak), omega, gLo: 2 - (4 * lo) / omega, gHi: (4 * hi) / omega - 2, ladderGap }
+  return {
+    side,
+    field,
+    up: plus.levels.slice(0, 6),
+    down: minus.levels.slice(0, 6),
+    leak: Math.max(plus.leak, minus.leak),
+    omega,
+    gLo: 2 - (4 * lo) / omega,
+    gHi: (4 * hi) / omega - 2,
+    ladderGap,
+  }
 }
 
 export default experiment({
@@ -139,44 +213,90 @@ export default experiment({
   paper: false,
   run() {
     // I1 at L = 48 for the token
-    const token = WALKS[0] as Walk
+    const token = WALKS[0]!
     const side0 = SIDES[0] ?? 48
-    const input0: ZeemanInput = { side: side0, schedule: token.schedule, mode: token.mode, field: (2 * Math.PI) / side0, charge: 1, ky: 0, coinAngle: MODEL_COIN }
-    const union = [...sectorPhases(input0, 1).phases, ...sectorPhases(input0, -1).phases].sort((a, b) => a - b)
-    const full = chainPhases({ side: side0, schedule: token.schedule, mode: token.mode, field: (2 * Math.PI) / side0, charge: 1, ky: 0 }).sort((a, b) => a - b)
-    const unionGap = Math.max(...union.map((p, i) => Math.abs(p - (full[i] ?? 0))))
+    const input0: ZeemanInput = {
+      side: side0,
+      schedule: token.schedule,
+      mode: token.mode,
+      field: (2 * Math.PI) / side0,
+      charge: 1,
+      ky: 0,
+      coinAngle: MODEL_COIN,
+    }
+    const union = [
+      ...sectorPhases(input0, 1).phases,
+      ...sectorPhases(input0, -1).phases,
+    ].sort((a, b) => a - b)
+    const full = chainPhases({
+      side: side0,
+      schedule: token.schedule,
+      mode: token.mode,
+      field: (2 * Math.PI) / side0,
+      charge: 1,
+      ky: 0,
+    }).sort((a, b) => a - b)
+    const unionGap = Math.max(
+      ...union.map((p, i) => Math.abs(p - (full[i] ?? 0))),
+    )
 
     const readings = WALKS.map(w => {
       const sign = bandSign(w)
 
       return { walk: w, sign, rows: SIDES.map(s => read(w, s, sign)) }
     })
-    const byName = (name: string) => readings.find(r => r.walk.name === name)?.rows ?? []
+    const byName = (name: string) =>
+      readings.find(r => r.walk.name === name)?.rows ?? []
     const tokenRows = byName('token')
     const calibration = byName('calibration')
     const spectator = byName('spectator')
-    const last = (rows: Reading[]): Reading | undefined => rows[rows.length - 1]
-    const maxLeak = Math.max(...readings.flatMap(r => r.rows.map(x => x.leak)))
+    const last = (rows: Reading[]): Reading | undefined =>
+      rows[rows.length - 1]
+    const maxLeak = Math.max(
+      ...readings.flatMap(r => r.rows.map(x => x.leak)),
+    )
     const i1 = maxLeak < 1e-12 && unionGap < 1e-10
     const i2 = spectator.every(r => r.ladderGap < 1e-9)
     const c1 = Math.abs((last(calibration)?.gLo ?? 0) - 2) < 0.1
     const h1 = Math.abs((last(tokenRows)?.gLo ?? 0) - 2) < 0.1
-    const h2 = Math.abs((last(tokenRows)?.gLo ?? 0) - (last(tokenRows)?.gHi ?? 99)) < 0.1
-    const h3 = tokenRows.every((r, i) => i === 0 || Math.abs(r.gLo - 2) < Math.abs((tokenRows[i - 1]?.gLo ?? 0) - 2))
+    const h2 =
+      Math.abs(
+        (last(tokenRows)?.gLo ?? 0) - (last(tokenRows)?.gHi ?? 99),
+      ) < 0.1
+    const h3 = tokenRows.every(
+      (r, i) =>
+        i === 0 ||
+        Math.abs(r.gLo - 2) <
+          Math.abs((tokenRows[i - 1]?.gLo ?? 0) - 2),
+    )
     const ok = i1 && i2 && c1 && h1 && h2 && h3
-    const metricRows = (name: string, rows: Reading[]): [string, number][] =>
+    const metricRows = (
+      name: string,
+      rows: Reading[],
+    ): [string, number][] =>
       rows.flatMap(r => [
         [`${name}L${r.side}_gLo`, Number(r.gLo.toFixed(6))],
         [`${name}L${r.side}_gHi`, Number(r.gHi.toFixed(6))],
         [`${name}L${r.side}_omega`, Number(r.omega.toFixed(6))],
-        [`${name}L${r.side}_omegaOverB`, Number((r.omega / r.field).toFixed(6))],
-        [`${name}L${r.side}_upE0OverOmega`, Number(((r.up[0]?.level ?? 0) / r.omega).toFixed(6))],
-        [`${name}L${r.side}_downE0OverOmega`, Number(((r.down[0]?.level ?? 0) / r.omega).toFixed(6))],
+        [
+          `${name}L${r.side}_omegaOverB`,
+          Number((r.omega / r.field).toFixed(6)),
+        ],
+        [
+          `${name}L${r.side}_upE0OverOmega`,
+          Number(((r.up[0]?.level ?? 0) / r.omega).toFixed(6)),
+        ],
+        [
+          `${name}L${r.side}_downE0OverOmega`,
+          Number(((r.down[0]?.level ?? 0) / r.omega).toFixed(6)),
+        ],
         [`${name}L${r.side}_upE0Multiplicity`, r.up[0]?.count ?? 0],
         [`${name}L${r.side}_downE0Multiplicity`, r.down[0]?.count ?? 0],
       ])
     const ladder = (r: Reading | undefined): string =>
-      r ? `S=+1 ${r.up.map(c => `${(c.level / r.omega).toFixed(3)}x${c.count}`).join(' ')} | S=-1 ${r.down.map(c => `${(c.level / r.omega).toFixed(3)}x${c.count}`).join(' ')}` : 'none'
+      r
+        ? `S=+1 ${r.up.map(c => `${(c.level / r.omega).toFixed(3)}x${c.count}`).join(' ')} | S=-1 ${r.down.map(c => `${(c.level / r.omega).toFixed(3)}x${c.count}`).join(' ')}`
+        : 'none'
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -188,13 +308,20 @@ export default experiment({
         calibrationBandSign: readings[1]?.sign ?? 0,
         // REPORTED, added after the first run: g_lo is linear in B over the last two fields, so its zero-field
         // value is 2 g(192) - g(96)
-        tokenZeroFieldG: Number((2 * (tokenRows[2]?.gLo ?? 0) - (tokenRows[1]?.gLo ?? 0)).toFixed(6)),
+        tokenZeroFieldG: Number(
+          (
+            2 * (tokenRows[2]?.gLo ?? 0) -
+            (tokenRows[1]?.gLo ?? 0)
+          ).toFixed(6),
+        ),
         ...Object.fromEntries(metricRows('token', tokenRows)),
         ...Object.fromEntries(metricRows('calibration', calibration)),
       },
       control: {
         ...Object.fromEntries(metricRows('spectator', spectator)),
-        spectatorLadderGapMax: Math.max(...spectator.map(r => r.ladderGap)),
+        spectatorLadderGapMax: Math.max(
+          ...spectator.map(r => r.ladderGap),
+        ),
       },
       notes: `L2, STAND-IN. Ladders at L = 192 in units of omega_c, level x multiplicity: token ${ladder(last(tokenRows))}; calibration ${ladder(last(calibration))}; spectator ${ladder(last(spectator))}. FIRST RUN, DISCLOSED: I1, I2, C1, H2 and H3 held and H1 failed; the zero-field extrapolation was added after it as a reported metric, and gates were not moved. H3 held for the wrong reason: |g - 2| falls because g falls toward 4, not toward 2. READING: the witness is calibrated (the light coin puts its spin-favored ladder at -0.025 omega_c, the Dirac zero mode, g_lo = 2.10), and the token is not Dirac. Its two ladders are (n - 1/2) omega_c and (n + 3/2) omega_c to 3 percent, a Zeeman shift of one whole omega_c each way, so g = 4.000 in the zero-field limit (4.2389, 4.1195, 4.0598 are linear in B). The spin-favored level sits HALF A SPACING BELOW the rest energy, which no Dirac particle does. The multiplicity 2 inside every sector is the second species at k = (pi, pi), which E-MTR-0014 mistook for a spin pair. A probe over the coin angle (tmp/probe-zeeman-mu.ts, not gated) reads 2.10 at pi/60 and 2.36 at pi/30, so the light walks approach 2 slowly (they are relativistic at these fields), while at the model's pi/3 the value is 4. Between those the rest point is no longer the band bottom, other bands enter the window, and the estimator does not apply, so no law in mu is claimed. The cause is not identified. The likeliest is that the model coin is not small: over one period it winds 5 x 2 pi / 3 = 2 pi + 4 pi / 3, so the rest gap of 2 pi / 3 is reached the long way round, the Compton length is 0.74 docks (E-MTR-0013), and the token lives deep in the lattice regime, where nothing ties the spin's field coupling to its orbital mass. The spin-averaged cyclotron is also low, omega_c / B = 0.562 against 1/sqrt 3 (E-FRC-0176 found the same shortfall for the spinless walk). So the locked stream gives the token a real magnetic moment, spin resolved and exactly conserved, but at twice the Dirac value. An electron built this way would need a light coin, which the model's fixed fear coin is not.`,
     })

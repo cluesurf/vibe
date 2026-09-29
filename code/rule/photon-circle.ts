@@ -31,17 +31,34 @@
 //
 // Integer arithmetic only. Every quantity is an integer below 2^53.
 
-import { curlTranspose, makeShapedRule, payBack, payForward, type ShapedRule, type ShapedState } from '@/code/rule/photon-shaped'
+import {
+  curlTranspose,
+  makeShapedRule,
+  payBack,
+  payForward,
+  type ShapedRule,
+  type ShapedState,
+} from '@/code/rule/photon-shaped'
 import { type PhotonLattice } from '@/code/rule/photon-links'
 
 export type CircleRule = ShapedRule
 
 // the rule: E-FRC-0185's wave form, same N, K, q, kappa
-export function makeCircleRule(input: { lattice: PhotonLattice; n: number; k: number; q: number; charge?: number }): CircleRule {
+export function makeCircleRule(input: {
+  lattice: PhotonLattice
+  n: number
+  k: number
+  q: number
+  charge?: number
+}): CircleRule {
   return makeShapedRule({ ...input, form: 'wave' })
 }
 
-type Scratch = { spreadLinks: Float64Array; next: Int32Array; paid: Int32Array }
+type Scratch = {
+  spreadLinks: Float64Array
+  next: Int32Array
+  paid: Int32Array
+}
 
 const scratches = new Map<PhotonLattice, Scratch>()
 
@@ -49,7 +66,11 @@ function scratchOf(lattice: PhotonLattice): Scratch {
   let s = scratches.get(lattice)
 
   if (!s) {
-    s = { spreadLinks: new Float64Array(lattice.links), next: new Int32Array(lattice.plaquetteCount), paid: new Int32Array(lattice.plaquetteCount) }
+    s = {
+      spreadLinks: new Float64Array(lattice.links),
+      next: new Int32Array(lattice.plaquetteCount),
+      paid: new Int32Array(lattice.plaquetteCount),
+    }
     scratches.set(lattice, s)
   }
 
@@ -61,7 +82,7 @@ function drift(rule: CircleRule, s: ShapedState, sign: number): void {
   const n = rule.n
 
   for (let l = 0; l < angle.length; l++) {
-    let a = (angle[l] as number) + sign * (flux[l] as number)
+    let a = angle[l]! + sign * flux[l]!
 
     a %= n
     angle[l] = a < 0 ? a + n : a
@@ -69,7 +90,12 @@ function drift(rule: CircleRule, s: ShapedState, sign: number): void {
 }
 
 // the branch of the shadow's flux: the integer n with q (b - N n) + spread in (-q N / 2, q N / 2]
-export function shadowBranch(b: number, spread: number, n: number, q: number): number {
+export function shadowBranch(
+  b: number,
+  spread: number,
+  n: number,
+  q: number,
+): number {
   const span = q * n
 
   return Math.ceil((q * b + spread - span / 2) / span)
@@ -92,24 +118,31 @@ function kick(rule: CircleRule, s: ShapedState, sign: number): void {
 
   curlTranspose(lattice, previous, w)
 
-  for (let pl = 0, o = 0; pl < lattice.plaquetteCount; pl++, o += size) {
+  for (
+    let pl = 0, o = 0;
+    pl < lattice.plaquetteCount;
+    pl++, o += size
+  ) {
     let b = 0
     let spread = 0
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
-      const g = signs[o + j] as number
+      const l = links[o + j]!
+      const g = signs[o + j]!
 
-      b += g * (angle[l] as number)
-      spread += g * (w[l] as number)
+      b += g * angle[l]!
+      spread += g * w[l]!
     }
 
     const branch = shadowBranch(b, spread, n, q)
-    let x = numerator * (b - n * branch) + Math.round((numerator * spread) / q)
+
+    let x =
+      numerator * (b - n * branch) +
+      Math.round((numerator * spread) / q)
 
     if (sign > 0) {
       for (let j = 0; j < depth; j++) {
-        x += (taps[j] as number) * ((carried[j] as Int32Array)[pl] as number)
+        x += taps[j]! * carried[j]![pl]!
       }
 
       const f = payForward(x, q)
@@ -118,10 +151,10 @@ function kick(rule: CircleRule, s: ShapedState, sign: number): void {
       paid[pl] = f
     } else {
       for (let j = 0; j < depth - 1; j++) {
-        x += (taps[j] as number) * ((carried[j + 1] as Int32Array)[pl] as number)
+        x += taps[j]! * carried[j + 1]![pl]!
       }
 
-      const [f, dropped] = payBack(x + ((carried[0] as Int32Array)[pl] as number), q, 1)
+      const [f, dropped] = payBack(x + carried[0]![pl]!, q, 1)
 
       out[pl] = dropped
       paid[pl] = f
@@ -130,20 +163,24 @@ function kick(rule: CircleRule, s: ShapedState, sign: number): void {
 
   if (sign > 0) {
     for (let j = depth - 1; j > 0; j--) {
-      ;(carried[j] as Int32Array).set(carried[j - 1] as Int32Array)
+      carried[j]!.set(carried[j - 1]!)
     }
 
-    ;(carried[0] as Int32Array).set(out)
+    carried[0]!.set(out)
   } else {
     for (let j = 0; j < depth - 1; j++) {
-      ;(carried[j] as Int32Array).set(carried[j + 1] as Int32Array)
+      carried[j]!.set(carried[j + 1]!)
     }
 
-    ;(carried[depth - 1] as Int32Array).set(out)
+    carried[depth - 1]!.set(out)
   }
 
-  for (let pl = 0, o = 0; pl < lattice.plaquetteCount; pl++, o += size) {
-    const f = paid[pl] as number
+  for (
+    let pl = 0, o = 0;
+    pl < lattice.plaquetteCount;
+    pl++, o += size
+  ) {
+    const f = paid[pl]!
 
     if (f === 0) {
       continue
@@ -152,19 +189,25 @@ function kick(rule: CircleRule, s: ShapedState, sign: number): void {
     const g = sign * f
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
+      const l = links[o + j]!
 
-      flux[l] = (flux[l] as number) - (signs[o + j] as number) * g
+      flux[l] = flux[l]! - signs[o + j]! * g
     }
   }
 }
 
-export function circleBeatInPlace(rule: CircleRule, s: ShapedState): void {
+export function circleBeatInPlace(
+  rule: CircleRule,
+  s: ShapedState,
+): void {
   drift(rule, s, 1)
   kick(rule, s, 1)
 }
 
-export function circleBeatBackInPlace(rule: CircleRule, s: ShapedState): void {
+export function circleBeatBackInPlace(
+  rule: CircleRule,
+  s: ShapedState,
+): void {
   kick(rule, s, -1)
   drift(rule, s, -1)
 }

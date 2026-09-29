@@ -92,14 +92,43 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
-import { f4Group, partnerProjector48, rangeBasis, scaled, singletProjector24 } from '@/code/measure/spinor-register'
-import { sectorBasis, sectorBlock, volumeRight } from '@/code/measure/chiral-register'
+import {
+  f4Group,
+  partnerProjector48,
+  rangeBasis,
+  scaled,
+  singletProjector24,
+} from '@/code/measure/spinor-register'
+import {
+  sectorBasis,
+  sectorBlock,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import { halfPieces, halfPhases } from '@/code/measure/chiral-flow'
-import { cmulUnit, conjUnit, wallChirality, wilsonSchedule, type HalfSet, type Slab } from '@/code/measure/wilson-register'
+import {
+  cmulUnit,
+  conjUnit,
+  wallChirality,
+  wilsonSchedule,
+  type HalfSet,
+  type Slab,
+} from '@/code/measure/wilson-register'
 import { wallFlow } from '@/code/measure/wall-face'
-import { centeredSchedule, covarianceGap, farCensus, farProjector, flatPhase, slabEpsAt, unitarityGap } from '@/code/measure/far-side'
+import {
+  centeredSchedule,
+  covarianceGap,
+  farCensus,
+  farProjector,
+  flatPhase,
+  slabEpsAt,
+  unitarityGap,
+} from '@/code/measure/far-side'
 
 type C = [number, number]
 
@@ -107,12 +136,25 @@ const LIGHT: readonly [number, number] = [-1, 4]
 const HEAVY: readonly [number, number] = [-2, 5]
 const W_UNIT: readonly [number, number] = [1, 0]
 const RECORDED_CHI_A0 = 1.9999999999856668
-const RECORDED_0168_L6 = { crossings: 3212, MM: 1812, MF: 220, FF: 1180 }
+const RECORDED_0168_L6 = {
+  crossings: 3212,
+  MM: 1812,
+  MF: 220,
+  FF: 1180,
+}
 const FAR_CUT = 0.85
 
-export type FarSidePlan = { censusL: readonly number[]; censusSteps: number; momenta: number }
+export type FarSidePlan = {
+  censusL: readonly number[]
+  censusSteps: number
+  momenta: number
+}
 
-export const GATE_PLAN: FarSidePlan = { censusL: [6, 8], censusSteps: 48, momenta: 256 }
+export const GATE_PLAN: FarSidePlan = {
+  censusL: [6, 8],
+  censusSteps: 48,
+  momenta: 256,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -132,31 +174,59 @@ export default experiment({
 
 export function farSideRun(plan: FarSidePlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
+
   const val = (kj: readonly [number, number]): C => {
     const t = unitAngle(ringUnit(kj[0], kj[1]))
 
     return [Math.cos(t), Math.sin(t)]
   }
+
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
   const qF = farProjector(qS, qD)
   const basis = sectorBasis(volumeRight())
-  const range = (q: Float64Array): number[][] => rangeBasis(sectorBlock({ re: q, im: new Float64Array(q.length) }, basis, 0).block.re, 96)
+  const range = (q: Float64Array): number[][] =>
+    rangeBasis(
+      sectorBlock({ re: q, im: new Float64Array(q.length) }, basis, 0)
+        .block.re,
+      96,
+    )
   const sR = range(qS)
   const dR = range(qD)
   const u = val(LIGHT)
-  const M = Math.abs(wrap(unitAngle(ringUnit(LIGHT[0], LIGHT[1])) - Math.PI))
+  const M = Math.abs(
+    wrap(unitAngle(ringUnit(LIGHT[0], LIGHT[1])) - Math.PI),
+  )
   const vDef = cmulUnit(conjUnit(u), conjUnit(u))
   const w = val(W_UNIT)
   const psi = flatPhase(w)
-  const full = (ww: C | null): { wil: CMatrix[]; plain: CMatrix[] } => ({ wil: centeredSchedule(qS, qD, qF, u, { v: vDef, w: ww }), plain: centeredSchedule(qS, qD, qF, u, { v: null, w: ww }) })
-  const setsFrom = (p: { wil: CMatrix[]; plain: CMatrix[] }): HalfSet[] => [{ pieces: halfPieces(p.plain, basis, 0).pieces }, { pieces: halfPieces(p.wil, basis, 0).pieces }]
+  const full = (
+    ww: C | null,
+  ): { wil: CMatrix[]; plain: CMatrix[] } => ({
+    wil: centeredSchedule(qS, qD, qF, u, { v: vDef, w: ww }),
+    plain: centeredSchedule(qS, qD, qF, u, { v: null, w: ww }),
+  })
+  const setsFrom = (p: {
+    wil: CMatrix[]
+    plain: CMatrix[]
+  }): HalfSet[] => [
+    { pieces: halfPieces(p.plain, basis, 0).pieces },
+    { pieces: halfPieces(p.wil, basis, 0).pieces },
+  ]
   const withW = full(w)
   const without = full(null)
   const setsW = setsFrom(withW)
   const sets0 = setsFrom(without)
-  const wallSlab = (L: number): Slab => ({ L, qa: 1, p: 0, profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)) })
+  const wallSlab = (L: number): Slab => ({
+    L,
+    qa: 1,
+    p: 0,
+    profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)),
+  })
   const DIRS3 = [
     [1, 0, 0],
     [Math.SQRT1_2, Math.SQRT1_2, 0],
@@ -167,18 +237,22 @@ export function farSideRun(plan: FarSidePlan): Verdict {
     Array.from({ length: plan.censusSteps + 1 }, (_, i) => {
       const k = (Math.PI * i) / plan.censusSteps
 
-      return [(d[0] as number) * k, (d[1] as number) * k, (d[2] as number) * k, 0]
+      return [d[0]! * k, d[1]! * k, d[2]! * k, 0]
     }),
   )
 
   // ---------------- W1: exact, unitary, covariant ----------------
   const group = f4Group()
+
   let unitGap = 0
   let covGap = 0
 
   for (const P of [...withW.wil, ...withW.plain]) {
     unitGap = Math.max(unitGap, unitarityGap(P))
-    for (const g of group) covGap = Math.max(covGap, covarianceGap(P, g))
+
+    for (const g of group) {
+      covGap = Math.max(covGap, covarianceGap(P, g))
+    }
   }
 
   const W1 = unitGap <= 1e-13 && covGap <= 1e-12
@@ -187,39 +261,72 @@ export function farSideRun(plan: FarSidePlan): Verdict {
 
   // ---------------- B1, B2: the bulk far set ----------------
   const Ks = [[0, 0, 0, 0], ...weylMomenta(plan.momenta)]
-  const bulk = (P: CMatrix[], center: number): { far: number[]; rest: number[] } => {
+
+  const bulk = (
+    P: CMatrix[],
+    center: number,
+  ): { far: number[]; rest: number[] } => {
     const pieces = halfPieces(P, basis, 0).pieces
     const far: number[] = []
+
     let rest: number[] = []
 
     for (const K of Ks) {
       const ph = halfPhases(pieces, { q: 1, p: 0 }, K)
 
-      if (K.every(x => x === 0)) rest = ph.map(p => wrap(p - Math.PI)).filter(x => Math.abs(x) < 1).sort((a, b) => a - b)
+      if (K.every(x => x === 0)) {
+        rest = ph
+          .map(p => wrap(p - Math.PI))
+          .filter(x => Math.abs(x) < 1)
+          .sort((a, b) => a - b)
+      }
+
       // the far side: every level nearer the flats' phase than pi (the flats themselves included)
-      for (const p of ph) if (Math.abs(wrap(p - center)) < Math.abs(wrap(p - Math.PI))) far.push(wrap(p - center))
+      for (const p of ph) {
+        if (Math.abs(wrap(p - center)) < Math.abs(wrap(p - Math.PI))) {
+          far.push(wrap(p - center))
+        }
+      }
     }
 
     return { far, rest }
   }
+
   const b0 = bulk(without.wil, 0)
   const bW = bulk(withW.wil, psi)
   const lo0 = Math.min(...b0.far)
   const hi0 = Math.max(...b0.far)
   const loW = Math.min(...bW.far)
   const hiW = Math.max(...bW.far)
-  const restGap = Math.max(...[...b0.rest, ...bW.rest].map(x => Math.abs(Math.abs(x) - M)))
-  const B1 = Math.abs(loW - lo0) <= 1e-9 && Math.abs(hiW - hi0) <= 1e-9 && restGap <= 1e-12
+  const restGap = Math.max(
+    ...[...b0.rest, ...bW.rest].map(x => Math.abs(Math.abs(x) - M)),
+  )
+  const B1 =
+    Math.abs(loW - lo0) <= 1e-9 &&
+    Math.abs(hiW - hi0) <= 1e-9 &&
+    restGap <= 1e-12
+
   // the pair sums' distance from 0 modulo 2 pi, over the far set's extremes (the sums fill [2 lo, 2 hi] about 2 center)
-  const clearance = (center: number, lo: number, hi: number): number => {
+  const clearance = (
+    center: number,
+    lo: number,
+    hi: number,
+  ): number => {
     const a = 2 * center + 2 * lo
     const b = 2 * center + 2 * hi
 
     // the interval [a, b] against the multiples of 2 pi
-    for (let k = Math.ceil(a / (2 * Math.PI)); k * 2 * Math.PI <= b; k++) return 0
+    for (
+      let k = Math.ceil(a / (2 * Math.PI));
+      k * 2 * Math.PI <= b;
+      k++
+    ) {
+      return 0
+    }
 
     return Math.min(...[a, b].map(x => Math.abs(wrap(x))))
   }
+
   const clearW = clearance(psi, loW, hiW)
   const clear0 = clearance(0, lo0, hi0)
   const B2 = clearW >= 1.0 && clear0 <= 1e-3
@@ -227,35 +334,126 @@ export function farSideRun(plan: FarSidePlan): Verdict {
   log('B1 B2')
 
   // ---------------- S1: the slab census ----------------
-  const censusOf = (sets: HalfSet[], L: number, flat: number, cut: number): { M: number; inGap: number[]; c: ReturnType<typeof farCensus> } => {
-    const inGap = slabEpsAt(wallSlab(L), sets, [0, 0, 0, 0], DOCK_ROOTS, sR, dR, null).eps.filter(x => Math.abs(x) < 0.3)
+  const censusOf = (
+    sets: HalfSet[],
+    L: number,
+    flat: number,
+    cut: number,
+  ): {
+    M: number
+    inGap: number[]
+    c: ReturnType<typeof farCensus>
+  } => {
+    const inGap = slabEpsAt(
+      wallSlab(L),
+      sets,
+      [0, 0, 0, 0],
+      DOCK_ROOTS,
+      sR,
+      dR,
+      null,
+    ).eps.filter(x => Math.abs(x) < 0.3)
     const m = Math.max(...inGap)
 
-    return { M: m, inGap, c: farCensus(wallSlab(L), sets, m, paths, DOCK_ROOTS, sR, dR, flat, cut) }
+    return {
+      M: m,
+      inGap,
+      c: farCensus(
+        wallSlab(L),
+        sets,
+        m,
+        paths,
+        DOCK_ROOTS,
+        sR,
+        dR,
+        flat,
+        cut,
+      ),
+    }
   }
-  const censusW = plan.censusL.map(L => ({ L, ...censusOf(setsW, L, psi, FAR_CUT) }))
+
+  const censusW = plan.censusL.map(L => ({
+    L,
+    ...censusOf(setsW, L, psi, FAR_CUT),
+  }))
 
   log('S1 with w')
 
-  const census0 = plan.censusL.map(L => ({ L, ...censusOf(sets0, L, 0, Math.PI / 2) }))
-  const S1 = censusW.every(x => x.c.channels.FF === 0) && census0.every(x => x.c.channels.FF > 0)
+  const census0 = plan.censusL.map(L => ({
+    L,
+    ...censusOf(sets0, L, 0, Math.PI / 2),
+  }))
+  const S1 =
+    censusW.every(x => x.c.channels.FF === 0) &&
+    census0.every(x => x.c.channels.FF > 0)
 
   log('S1 without w')
 
   // ---------------- K1, N: the wall ----------------
   const aDepths = new Set([3, 4, 5, 6, 7, 8])
-  const chi = wallChirality(wallSlab(12), setsW, DOCK_ROOTS, sR, dR, aDepths, 0.01, 0.1)
-  const K1 = chi.inGap === 8 && chi.walls.length === 2 && Math.abs((chi.walls[0] as { chirality: number }).chirality - 2) <= 1e-3 && Math.abs((chi.walls[1] as { chirality: number }).chirality + 2) <= 1e-3
-  const pair12 = [...new Set(slabEpsAt(wallSlab(12), setsW, [0, 0, 0, 0], DOCK_ROOTS, sR, dR, null).eps.filter(x => Math.abs(x) < 0.1).map(x => Number(x.toFixed(12))))]
-  const center12 = pair12.length ? (Math.min(...pair12) + Math.max(...pair12)) / 2 : NaN
+  const chi = wallChirality(
+    wallSlab(12),
+    setsW,
+    DOCK_ROOTS,
+    sR,
+    dR,
+    aDepths,
+    0.01,
+    0.1,
+  )
+  const K1 =
+    chi.inGap === 8 &&
+    chi.walls.length === 2 &&
+    Math.abs((chi.walls[0] as { chirality: number }).chirality - 2) <=
+      1e-3 &&
+    Math.abs((chi.walls[1] as { chirality: number }).chirality + 2) <=
+      1e-3
+  const pair12 = [
+    ...new Set(
+      slabEpsAt(
+        wallSlab(12),
+        setsW,
+        [0, 0, 0, 0],
+        DOCK_ROOTS,
+        sR,
+        dR,
+        null,
+      )
+        .eps.filter(x => Math.abs(x) < 0.1)
+        .map(x => Number(x.toFixed(12))),
+    ),
+  ]
+  const center12 = pair12.length
+    ? (Math.min(...pair12) + Math.max(...pair12)) / 2
+    : NaN
   const N = Math.abs(center12) <= 1e-6
 
   log('K1 N')
 
   // ---------------- E1: the flow kept ----------------
-  const flowSlab: Slab = { L: 12, qa: 15, p: 1, profile: Array.from({ length: 12 }, (_, c) => (c < 6 ? 1 : 0)) }
-  const flowW = wallFlow(flowSlab, setsW, 0.02, 0.05, 0.013, 32, DOCK_ROOTS, new Set([3, 4, 5, 6, 7, 8]), 0.15, 120, 0.15)
-  const E1 = flowW.netA === 4 && flowW.netB === -4 && flowW.steps.every(st => st.complete && st.eigenResidual <= 1e-8)
+  const flowSlab: Slab = {
+    L: 12,
+    qa: 15,
+    p: 1,
+    profile: Array.from({ length: 12 }, (_, c) => (c < 6 ? 1 : 0)),
+  }
+  const flowW = wallFlow(
+    flowSlab,
+    setsW,
+    0.02,
+    0.05,
+    0.013,
+    32,
+    DOCK_ROOTS,
+    new Set([3, 4, 5, 6, 7, 8]),
+    0.15,
+    120,
+    0.15,
+  )
+  const E1 =
+    flowW.netA === 4 &&
+    flowW.netB === -4 &&
+    flowW.steps.every(st => st.complete && st.eigenResidual <= 1e-8)
 
   log('E1')
 
@@ -263,16 +461,49 @@ export function farSideRun(plan: FarSidePlan): Verdict {
   const uH = val(HEAVY)
   const heavy = wilsonSchedule(qS, qD, uH, { wilson: true })
   const trivial = wilsonSchedule(qS, qD, uH, { wilson: false })
-  const setsH: HalfSet[] = [{ pieces: halfPieces(trivial, basis, 0).pieces }, { pieces: halfPieces(heavy, basis, 0).pieces }]
-  const mH = Math.min(...slabEpsAt(wallSlab(6), setsH, [0, 0, 0, 0], DOCK_ROOTS, sR, dR, null).eps.filter(x => x > 0))
-  const heavyCensus = farCensus(wallSlab(6), setsH, mH, paths, DOCK_ROOTS, sR, dR, 0, Math.PI / 2)
-  const heavyChi = wallChirality(wallSlab(12), setsH, DOCK_ROOTS, sR, dR, aDepths, 0.01, 0.1)
+  const setsH: HalfSet[] = [
+    { pieces: halfPieces(trivial, basis, 0).pieces },
+    { pieces: halfPieces(heavy, basis, 0).pieces },
+  ]
+  const mH = Math.min(
+    ...slabEpsAt(
+      wallSlab(6),
+      setsH,
+      [0, 0, 0, 0],
+      DOCK_ROOTS,
+      sR,
+      dR,
+      null,
+    ).eps.filter(x => x > 0),
+  )
+  const heavyCensus = farCensus(
+    wallSlab(6),
+    setsH,
+    mH,
+    paths,
+    DOCK_ROOTS,
+    sR,
+    dR,
+    0,
+    Math.PI / 2,
+  )
+  const heavyChi = wallChirality(
+    wallSlab(12),
+    setsH,
+    DOCK_ROOTS,
+    sR,
+    dR,
+    aDepths,
+    0.01,
+    0.1,
+  )
   const C1 =
     heavyCensus.crossings === RECORDED_0168_L6.crossings &&
     heavyCensus.channels.MM === RECORDED_0168_L6.MM &&
     heavyCensus.channels.MF === RECORDED_0168_L6.MF &&
     heavyCensus.channels.FF === RECORDED_0168_L6.FF &&
-    (heavyChi.walls[0] as { chirality: number }).chirality === RECORDED_CHI_A0
+    (heavyChi.walls[0] as { chirality: number }).chirality ===
+      RECORDED_CHI_A0
 
   log('C1')
 
@@ -288,19 +519,28 @@ export function farSideRun(plan: FarSidePlan): Verdict {
   )
   const lightEmax = Math.max(
     ...Ks.flatMap(K =>
-      halfPhases(halfPieces(without.wil, basis, 0).pieces, { q: 1, p: 0 }, K)
+      halfPhases(
+        halfPieces(without.wil, basis, 0).pieces,
+        { q: 1, p: 0 },
+        K,
+      )
         .map(p => Math.abs(wrap(p - Math.PI)))
         .filter(e => e < Math.PI / 2),
     ),
   )
   const hard = W1 && B1 && B2 && S1 && K1 && E1 && C1
   const status = !hard ? 'fail' : N ? 'pass' : 'partial'
-  const cLine = (x: { L: number; M: number; inGap: number[]; c: ReturnType<typeof farCensus> }): string =>
+  const cLine = (x: {
+    L: number
+    M: number
+    inGap: number[]
+    c: ReturnType<typeof farCensus>
+  }): string =>
     `L ${x.L} (M ${x.M.toFixed(5)}, in-gap ${[...new Set(x.inGap.map(y => y.toFixed(5)))].join(' ')}): ${x.c.crossings} crossings, MM ${x.c.channels.MM} MF ${x.c.channels.MF} FF ${x.c.channels.FF}`
 
   return verdict({
     status,
-    claim: `W1 ${W1} (unitary ${unitGap.toExponential(1)}, covariant under ${group.length} ${covGap.toExponential(1)}); B1 ${B1} (far range without w [${lo0.toFixed(6)}, ${hi0.toFixed(6)}], with w psi ${psi.toFixed(6)} + [${loW.toFixed(6)}, ${hiW.toFixed(6)}]; rest levels +-M to ${restGap.toExponential(1)}); B2 ${B2} (far pair sums from 0 mod 2 pi: with w ${clearW.toFixed(4)}, without ${clear0.toExponential(1)}); S1 ${S1} (with w, cut ${FAR_CUT}: ${censusW.map(cLine).join('; ')}; without w: ${census0.map(cLine).join('; ')}); K1 ${K1} (in-gap ${chi.inGap}, chirality ${chi.walls.map(x => x.chirality.toFixed(6)).join(', ')}); E1 ${E1} (with w, qa 15: A ${flowW.netA} (up ${flowW.A.up} down ${flowW.A.down}) B ${flowW.netB}, complete ${flowW.steps.filter(st => st.complete).length}/${flowW.steps.length}, eigen ${flowW.worstEigen.toExponential(1)}); N ${N} (wall pair at L 12 ${pair12.map(x => x.toFixed(5)).join(' ')}, center ${center12.toFixed(5)}); C1 ${C1} (heavy L 6: ${heavyCensus.crossings} crossings, MM ${heavyCensus.channels.MM} MF ${heavyCensus.channels.MF} FF ${heavyCensus.channels.FF}; chirality ${(heavyChi.walls[0] as { chirality: number }).chirality}); read: closure condition 2 a + e_max against pi, heavy ${(2 * heavyA + heavyEmax).toFixed(4)}, light ${(2 * (hi0 - lo0) / 2 + lightEmax).toFixed(4)}`,
+    claim: `W1 ${W1} (unitary ${unitGap.toExponential(1)}, covariant under ${group.length} ${covGap.toExponential(1)}); B1 ${B1} (far range without w [${lo0.toFixed(6)}, ${hi0.toFixed(6)}], with w psi ${psi.toFixed(6)} + [${loW.toFixed(6)}, ${hiW.toFixed(6)}]; rest levels +-M to ${restGap.toExponential(1)}); B2 ${B2} (far pair sums from 0 mod 2 pi: with w ${clearW.toFixed(4)}, without ${clear0.toExponential(1)}); S1 ${S1} (with w, cut ${FAR_CUT}: ${censusW.map(cLine).join('; ')}; without w: ${census0.map(cLine).join('; ')}); K1 ${K1} (in-gap ${chi.inGap}, chirality ${chi.walls.map(x => x.chirality.toFixed(6)).join(', ')}); E1 ${E1} (with w, qa 15: A ${flowW.netA} (up ${flowW.A.up} down ${flowW.A.down}) B ${flowW.netB}, complete ${flowW.steps.filter(st => st.complete).length}/${flowW.steps.length}, eigen ${flowW.worstEigen.toExponential(1)}); N ${N} (wall pair at L 12 ${pair12.map(x => x.toFixed(5)).join(' ')}, center ${center12.toFixed(5)}); C1 ${C1} (heavy L 6: ${heavyCensus.crossings} crossings, MM ${heavyCensus.channels.MM} MF ${heavyCensus.channels.MF} FF ${heavyCensus.channels.FF}; chirality ${(heavyChi.walls[0] as { chirality: number }).chirality}); read: closure condition 2 a + e_max against pi, heavy ${(2 * heavyA + heavyEmax).toFixed(4)}, light ${((2 * (hi0 - lo0)) / 2 + lightEmax).toFixed(4)}`,
     metrics: {
       W1: flag(W1),
       B1: flag(B1),
@@ -316,9 +556,12 @@ export function farSideRun(plan: FarSidePlan): Verdict {
       halfWidth: (hi0 - lo0) / 2,
       clearance: clearW,
       nodeCenter12: center12,
-      FF6: (censusW[0] as { c: { channels: { FF: number } } }).c.channels.FF,
-      MM6: (censusW[0] as { c: { channels: { MM: number } } }).c.channels.MM,
-      MF6: (censusW[0] as { c: { channels: { MF: number } } }).c.channels.MF,
+      FF6: (censusW[0] as { c: { channels: { FF: number } } }).c
+        .channels.FF,
+      MM6: (censusW[0] as { c: { channels: { MM: number } } }).c
+        .channels.MM,
+      MF6: (censusW[0] as { c: { channels: { MF: number } } }).c
+        .channels.MF,
       seconds: (Date.now() - started) / 1000,
     },
     control: { C1: flag(C1) },

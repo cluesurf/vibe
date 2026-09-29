@@ -79,9 +79,8 @@ function crossCheck3d(mass: number): number[] {
 
   for (let y = 0; y < L; y++) {
     for (let z = 0; z < L; z++) {
-      source[
-        maxwellLinkIndex({ side: L, x: 0, y, z, direction: 1 })
-      ] = 1
+      source[maxwellLinkIndex({ side: L, x: 0, y, z, direction: 1 })] =
+        1
     }
   }
 

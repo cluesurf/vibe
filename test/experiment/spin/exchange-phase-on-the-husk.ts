@@ -43,7 +43,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { fearKernels, meetWhole, type Whole } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  meetWhole,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import {
   fractionValue,
   huskWalkColumns,
@@ -54,9 +58,19 @@ import {
 } from '@/code/measure/identical-particles'
 
 const UNITS = [1, 2, 3, -1, -2, -3]
-const UNIT_NAMES: Record<number, string> = { 1: 'plusOne', 2: 'omega', 3: 'omegaSquared', [-1]: 'minusOne', [-2]: 'minusOmega', [-3]: 'minusOmegaSquared' }
+const UNIT_NAMES: Record<number, string> = {
+  1: 'plusOne',
+  2: 'omega',
+  3: 'omegaSquared',
+  [-1]: 'minusOne',
+  [-2]: 'minusOmega',
+  [-3]: 'minusOmegaSquared',
+}
 const SIDES = [3, 4]
 // E-SPN-0044: the net lift of the committed knit's turn over its palindromic schedule
+// Typed `number`, not the literal 1: the gates compare it with a measured
+// sign that can be −1, and a literal type makes that comparison an error.
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const TURN_SIGN_E_SPN_0044: number = 1
 const PREDICTED_RETURNS: readonly (readonly [bigint, bigint])[] = [
   [3n, 4n],
@@ -72,6 +86,7 @@ function huskScan(side: number) {
   const slots = 2 * side ** 3
   const full = 16 ** 6
   const exact = new Map<number, number>(UNITS.map(chi => [chi, 0]))
+
   let starts = 0
   let meetingStarts = 0
 
@@ -94,7 +109,10 @@ function huskScan(side: number) {
 }
 
 function meetings() {
-  const kernels = fearKernels({ like: (2 * Math.PI) / 3, unlike: (2 * Math.PI) / 3 })
+  const kernels = fearKernels({
+    like: (2 * Math.PI) / 3,
+    unlike: (2 * Math.PI) / 3,
+  })
 
   if (!kernels) {
     throw new Error('no fear kernels')
@@ -110,24 +128,44 @@ function meetings() {
 
   const { whole: start } = twoRoleWhole([product])
   const { whole: swapped } = twoRoleWhole([swappedProduct])
+
   const proportional = (x: Whole, y: Whole): boolean => {
     const tx = x.weight.reduce((a, b) => a + b, 0n)
     const ty = y.weight.reduce((a, b) => a + b, 0n)
 
     return x.weight.every((w, i) => w * ty === (y.weight[i] ?? 0n) * tx)
   }
+
   let current: Whole = start
-  const rows: { m: number; chance: { num: bigint; den: bigint }; isStart: boolean; isSwapped: boolean }[] = []
+
+  const rows: {
+    m: number
+    chance: { num: bigint; den: bigint }
+    isStart: boolean
+    isSwapped: boolean
+  }[] = []
 
   for (let m = 1; m <= 6; m++) {
-    const next = meetWhole({ whole: current, a: 0, b: 1, kernel4: kernels.like, divisor: kernels.likeDivisor, fixed: false })
+    const next = meetWhole({
+      whole: current,
+      a: 0,
+      b: 1,
+      kernel4: kernels.like,
+      divisor: kernels.likeDivisor,
+      fixed: false,
+    })
 
     if (!next) {
       throw new Error('a meeting was refused')
     }
 
     current = next
-    rows.push({ m, chance: roleChance(current, 0, 1), isStart: proportional(current, start), isSwapped: proportional(current, swapped) })
+    rows.push({
+      m,
+      chance: roleChance(current, 0, 1),
+      isStart: proportional(current, start),
+      isSwapped: proportional(current, swapped),
+    })
   }
 
   const fears = start.weight.filter(w => w < 0n).length
@@ -148,10 +186,17 @@ export default experiment({
     const scans = SIDES.map(huskScan)
     const meet = meetings()
 
-    const g1 = scans.every(s => s.exact.get(-1) === s.starts && UNITS.filter(chi => chi !== -1).every(chi => (s.exact.get(chi) ?? s.starts) < s.starts))
+    const g1 = scans.every(
+      s =>
+        s.exact.get(-1) === s.starts &&
+        UNITS.filter(chi => chi !== -1).every(
+          chi => (s.exact.get(chi) ?? s.starts) < s.starts,
+        ),
+    )
     const exchangeSign = g1 ? -1 : 0
     const second = meet.rows.find(r => r.m === 2)
-    const g2 = second !== undefined && second.chance.num === second.chance.den
+    const g2 =
+      second !== undefined && second.chance.num === second.chance.den
     const g3 =
       meet.rows.every((r, k) => {
         const [num, den] = PREDICTED_RETURNS[k] ?? [-1n, 1n]
@@ -164,19 +209,26 @@ export default experiment({
     const g4 = exchangeSign === TURN_SIGN_E_SPN_0044
 
     const status = g1 && g3 ? (g2 && g4 ? 'pass' : 'partial') : 'fail'
-    const metrics: Record<string, number> = { exchangeSign, turnSignCited: TURN_SIGN_E_SPN_0044, productStateFearPoints: meet.startFears }
+    const metrics: Record<string, number> = {
+      exchangeSign,
+      turnSignCited: TURN_SIGN_E_SPN_0044,
+      productStateFearPoints: meet.startFears,
+    }
 
     for (const s of scans) {
       metrics[`side${s.side}Starts`] = s.starts
       metrics[`side${s.side}StartsWithAMeeting`] = s.meetingStarts
 
       for (const chi of UNITS) {
-        metrics[`side${s.side}${UNIT_NAMES[chi]}ExactStarts`] = s.exact.get(chi) ?? -1
+        metrics[`side${s.side}${UNIT_NAMES[chi]}ExactStarts`] =
+          s.exact.get(chi) ?? -1
       }
     }
 
     for (const r of meet.rows) {
-      metrics[`returnChanceAfter${r.m}Meetings`] = fractionValue(r.chance)
+      metrics[`returnChanceAfter${r.m}Meetings`] = fractionValue(
+        r.chance,
+      )
       metrics[`wholeIsSwappedStartAfter${r.m}`] = r.isSwapped ? 1 : 0
       metrics[`wholeIsStartAfter${r.m}`] = r.isStart ? 1 : 0
     }

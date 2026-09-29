@@ -66,34 +66,62 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { SURVEY, heldKnotSurvey, readSurvey } from '@/code/measure/held-knot'
+import {
+  SURVEY,
+  heldKnotSurvey,
+  readSurvey,
+} from '@/code/measure/held-knot'
 
 export default experiment({
   id: 'gravity/knot-entropic-drift',
   code: 'E-GRV-0056',
   title:
-    'no entropic pull toward a held knot on the adopted knit, fail on G2, G3 and G5: a husk ball of radius 2 held by a reflecting surface (side 24, gas 8 per dock, 17 starts) leaves the settled slot-entropy profile flat, knot minus none within 3 standard errors of zero on all 8 shells r = 3 to 10 (largest -2.1e-4 +- 1.3e-4 at r = 3), and pushes a test blob AWAY: after 8 beats its displacement toward the knot is -0.68, -0.27, -0.21, -0.11, -0.089 columns at r0 = 4 to 8 (each at least 3.8 standard errors), the same sign under the rule\'s exact inverse (-0.77 to -0.070; forward minus backward within 3 errors except r0 = 5, 3.1), while the blob with no knot stays put (every r0 within 1.4 errors); the knot first touches the blob at beat 1, 2, 3, 3, 4, a causal arrival; the lump inside is invisible from outside bit for bit at every beat, so no held knot on this rule has a mass the outside can feel; energy, charge, the held knot and the return exact',
+    "no entropic pull toward a held knot on the adopted knit, fail on G2, G3 and G5: a husk ball of radius 2 held by a reflecting surface (side 24, gas 8 per dock, 17 starts) leaves the settled slot-entropy profile flat, knot minus none within 3 standard errors of zero on all 8 shells r = 3 to 10 (largest -2.1e-4 +- 1.3e-4 at r = 3), and pushes a test blob AWAY: after 8 beats its displacement toward the knot is -0.68, -0.27, -0.21, -0.11, -0.089 columns at r0 = 4 to 8 (each at least 3.8 standard errors), the same sign under the rule's exact inverse (-0.77 to -0.070; forward minus backward within 3 errors except r0 = 5, 3.1), while the blob with no knot stays put (every r0 within 1.4 errors); the knot first touches the blob at beat 1, 2, 3, 3, 4, a causal arrival; the lump inside is invisible from outside bit for bit at every beat, so no held knot on this rule has a mass the outside can feel; energy, charge, the held knot and the return exact",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = heldKnotSurvey(log)
     const read = readSurvey(members)
-    const sig = (x: { mean: number; error: number }): boolean => Math.abs(x.mean) >= 3 * x.error && x.mean !== 0
-    const zero = (x: { mean: number; error: number }): boolean => Math.abs(x.mean) <= 3 * x.error
+    const sig = (x: { mean: number; error: number }): boolean =>
+      Math.abs(x.mean) >= 3 * x.error && x.mean !== 0
+    const zero = (x: { mean: number; error: number }): boolean =>
+      Math.abs(x.mean) <= 3 * x.error
 
-    const g1 = members.every(m => m.exact && m.returns && m.knotHeld && m.lumpBlind && m.lumpBlindBeats === SURVEY.settle)
+    const g1 = members.every(
+      m =>
+        m.exact &&
+        m.returns &&
+        m.knotHeld &&
+        m.lumpBlind &&
+        m.lumpBlindBeats === SURVEY.settle,
+    )
     const significant = read.entropyContrast.forward.filter(sig)
-    const g2 = significant.length >= 4 && (significant.every(x => x.mean > 0) || significant.every(x => x.mean < 0))
-    const g3 = read.drift.forward.every(x => x.mean > 0 && x.mean >= 3 * x.error)
-    const g4 = read.plain.forward.every(zero) && read.plain.backward.every(zero)
+    const g2 =
+      significant.length >= 4 &&
+      (significant.every(x => x.mean > 0) ||
+        significant.every(x => x.mean < 0))
+    const g3 = read.drift.forward.every(
+      x => x.mean > 0 && x.mean >= 3 * x.error,
+    )
+    const g4 =
+      read.plain.forward.every(zero) && read.plain.backward.every(zero)
     const g5 = read.evenness.every(zero)
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const f = (x: { mean: number; error: number }): string => `${x.mean.toExponential(2)} +- ${x.error.toExponential(1)}`
-    const list = <T>(xs: readonly T[], g: (x: T) => string): string => xs.map(g).join(', ')
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const f = (x: { mean: number; error: number }): string =>
+      `${x.mean.toExponential(2)} +- ${x.error.toExponential(1)}`
+    const list = <T>(xs: readonly T[], g: (x: T) => string): string =>
+      xs.map(g).join(', ')
 
     return verdict({
       status,
@@ -105,14 +133,54 @@ export default experiment({
         gate_G4: g4 ? 1 : 0,
         gate_G5: g5 ? 1 : 0,
         entropyShellsSignificant: significant.length,
-        ...Object.fromEntries(SURVEY.shells.map((sh, i) => [`entropyContrastR${sh}`, read.entropyContrast.forward[i]!.mean])),
-        ...Object.fromEntries(SURVEY.shells.map((sh, i) => [`entropyContrastErrorR${sh}`, read.entropyContrast.forward[i]!.error])),
-        ...Object.fromEntries(SURVEY.shells.map((sh, i) => [`energyContrastR${sh}`, read.energyContrast.forward[i]!.mean])),
-        ...Object.fromEntries(SURVEY.distances.map((r0, i) => [`driftR${r0}`, read.drift.forward[i]!.mean])),
-        ...Object.fromEntries(SURVEY.distances.map((r0, i) => [`driftErrorR${r0}`, read.drift.forward[i]!.error])),
-        ...Object.fromEntries(SURVEY.distances.map((r0, i) => [`driftBackR${r0}`, read.drift.backward[i]!.mean])),
-        ...Object.fromEntries(SURVEY.distances.map((r0, i) => [`plainR${r0}`, read.plain.forward[i]!.mean])),
-        ...Object.fromEntries(SURVEY.distances.map((r0, i) => [`arrivalR${r0}`, read.arrival.forward[i]!])),
+        ...Object.fromEntries(
+          SURVEY.shells.map((sh, i) => [
+            `entropyContrastR${sh}`,
+            read.entropyContrast.forward[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.shells.map((sh, i) => [
+            `entropyContrastErrorR${sh}`,
+            read.entropyContrast.forward[i]!.error,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.shells.map((sh, i) => [
+            `energyContrastR${sh}`,
+            read.energyContrast.forward[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.distances.map((r0, i) => [
+            `driftR${r0}`,
+            read.drift.forward[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.distances.map((r0, i) => [
+            `driftErrorR${r0}`,
+            read.drift.forward[i]!.error,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.distances.map((r0, i) => [
+            `driftBackR${r0}`,
+            read.drift.backward[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.distances.map((r0, i) => [
+            `plainR${r0}`,
+            read.plain.forward[i]!.mean,
+          ]),
+        ),
+        ...Object.fromEntries(
+          SURVEY.distances.map((r0, i) => [
+            `arrivalR${r0}`,
+            read.arrival.forward[i]!,
+          ]),
+        ),
         betaMin: read.beta.min,
         betaMax: read.beta.max,
         reflectedSlots: members[0]!.reflected,

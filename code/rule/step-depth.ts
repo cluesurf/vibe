@@ -80,12 +80,26 @@ export type StepRule = {
 }
 
 // the bounded rule (whole = 3: a trit and its digits), or a wider window for a control (whole odd)
-export function stepRule(depth: number, levels: number, whole = 3): StepRule {
+export function stepRule(
+  depth: number,
+  levels: number,
+  whole = 3,
+): StepRule {
   const q = 9 * (2 * depth + 1)
   const unit = q ** levels
   const span = whole * unit
 
-  return { depth, a: 2, q, h: (q - 1) / 2, levels, unit, whole, span, top: (span - 1) / 2 }
+  return {
+    depth,
+    a: 2,
+    q,
+    h: (q - 1) / 2,
+    levels,
+    unit,
+    whole,
+    span,
+    top: (span - 1) / 2,
+  }
 }
 
 export type StepState = {
@@ -109,21 +123,34 @@ export function emptyStep(mesh: RadionMesh): StepState {
 }
 
 export function duplicateStep(s: StepState): StepState {
-  return { line: Int8Array.from(s.line), step: Float64Array.from(s.step), rate: Float64Array.from(s.rate), rest: Float64Array.from(s.rest) }
+  return {
+    line: Int8Array.from(s.line),
+    step: Float64Array.from(s.step),
+    rate: Float64Array.from(s.rate),
+    rest: Float64Array.from(s.rest),
+  }
 }
 
 export const sameStep = (a: StepState, b: StepState): boolean =>
-  a.line.every((v, i) => v === b.line[i]) && a.step.every((v, i) => v === b.step[i]) && a.rate.every((v, i) => v === b.rate[i]) && a.rest.every((v, i) => v === b.rest[i])
+  a.line.every((v, i) => v === b.line[i]) &&
+  a.step.every((v, i) => v === b.step[i]) &&
+  a.rate.every((v, i) => v === b.rate[i]) &&
+  a.rest.every((v, i) => v === b.rest[i])
 
 // the value v wrapped into the window, and whether it had to wrap
-const wrapInto = (rule: StepRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
+const wrapInto = (rule: StepRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
 
 export type StepTally = { vWraps: number; fWraps: number }
 
 export const newStepTally = (): StepTally => ({ vWraps: 0, fWraps: 0 })
 
 // out = the divergence (out minus in) of a link field, per dock
-export function divergence(mesh: RadionMesh, field: ArrayLike<number>, out: Float64Array): void {
+export function divergence(
+  mesh: RadionMesh,
+  field: ArrayLike<number>,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let y = 0; y < mesh.docks; y++) {
@@ -131,19 +158,34 @@ export function divergence(mesh: RadionMesh, field: ArrayLike<number>, out: Floa
       const l = y * 9 + h
       const v = field[l]!
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
+
       out[y] = out[y]! + v
       out[mesh.neighbour[l]!] = out[mesh.neighbour[l]!]! - v
     }
   }
 }
 
-export type StepScratch = { divLine: Float64Array; divStep: Float64Array }
+export type StepScratch = {
+  divLine: Float64Array
+  divStep: Float64Array
+}
 
-export const stepScratch = (mesh: RadionMesh): StepScratch => ({ divLine: new Float64Array(mesh.docks), divStep: new Float64Array(mesh.docks) })
+export const stepScratch = (mesh: RadionMesh): StepScratch => ({
+  divLine: new Float64Array(mesh.docks),
+  divStep: new Float64Array(mesh.docks),
+})
 
 // one beat, in place
-export function stepBeat(mesh: RadionMesh, rule: StepRule, s: StepState, scratch: StepScratch, tally?: StepTally): void {
+export function stepBeat(
+  mesh: RadionMesh,
+  rule: StepRule,
+  s: StepState,
+  scratch: StepScratch,
+  tally?: StepTally,
+): void {
   const { a, q, h, unit } = rule
 
   divergence(mesh, s.line, scratch.divLine)
@@ -156,7 +198,10 @@ export function stepBeat(mesh: RadionMesh, rule: StepRule, s: StepState, scratch
 
     s.rest[y] = x + s.rest[y]! - q * w
     s.rate[y] = wrapInto(rule, raw)
-    if (tally && s.rate[y] !== raw) tally.vWraps++
+
+    if (tally && s.rate[y] !== raw) {
+      tally.vWraps++
+    }
   }
 
   for (let y = 0; y < mesh.docks; y++) {
@@ -164,16 +209,26 @@ export function stepBeat(mesh: RadionMesh, rule: StepRule, s: StepState, scratch
 
     for (let k = 0; k < 9; k++) {
       const l = y * 9 + k
-      const raw = s.step[l]! + radionWeight(k) * (vy - s.rate[mesh.neighbour[l]!]!)
+      const raw =
+        s.step[l]! +
+        radionWeight(k) * (vy - s.rate[mesh.neighbour[l]!]!)
 
       s.step[l] = wrapInto(rule, raw)
-      if (tally && s.step[l] !== raw) tally.fWraps++
+
+      if (tally && s.step[l] !== raw) {
+        tally.fWraps++
+      }
     }
   }
 }
 
 // the inverse of stepBeat
-export function stepBeatBack(mesh: RadionMesh, rule: StepRule, s: StepState, scratch: StepScratch): void {
+export function stepBeatBack(
+  mesh: RadionMesh,
+  rule: StepRule,
+  s: StepState,
+  scratch: StepScratch,
+): void {
   const { a, q, h, unit } = rule
 
   for (let y = 0; y < mesh.docks; y++) {
@@ -182,7 +237,11 @@ export function stepBeatBack(mesh: RadionMesh, rule: StepRule, s: StepState, scr
     for (let k = 0; k < 9; k++) {
       const l = y * 9 + k
 
-      s.step[l] = wrapInto(rule, s.step[l]! - radionWeight(k) * (vy - s.rate[mesh.neighbour[l]!]!))
+      s.step[l] = wrapInto(
+        rule,
+        s.step[l]! -
+          radionWeight(k) * (vy - s.rate[mesh.neighbour[l]!]!),
+      )
     }
   }
 
@@ -208,11 +267,15 @@ export type FoundDepth = {
   curl: number
 }
 
-export function stepDepth(mesh: RadionMesh, step: ArrayLike<number>): FoundDepth {
+export function stepDepth(
+  mesh: RadionMesh,
+  step: ArrayLike<number>,
+): FoundDepth {
   const [sx, sy, sz] = mesh.sides
   const twice = new Float64Array(mesh.docks)
   // 2 / g times F: 1 on an axis, 2 on a face diagonal
-  const along = (y: number, h: number): number => (h < 3 ? 1 : 2) * step[y * 9 + h]!
+  const along = (y: number, h: number): number =>
+    (h < 3 ? 1 : 2) * step[y * 9 + h]!
 
   // the path: along x from the origin, then along y, then along z (the axis out-links h = 0, 1, 2)
   for (let c = 0; c < sz; c++) {
@@ -220,9 +283,13 @@ export function stepDepth(mesh: RadionMesh, step: ArrayLike<number>): FoundDepth
       for (let a = 0; a < sx; a++) {
         const y = a + sx * (b + sy * c)
 
-        if (a > 0) twice[y] = twice[y - 1]! - along(y - 1, 0)
-        else if (b > 0) twice[y] = twice[y - sx]! - along(y - sx, 1)
-        else if (c > 0) twice[y] = twice[y - sx * sy]! - along(y - sx * sy, 2)
+        if (a > 0) {
+          twice[y] = twice[y - 1]! - along(y - 1, 0)
+        } else if (b > 0) {
+          twice[y] = twice[y - sx]! - along(y - sx, 1)
+        } else if (c > 0) {
+          twice[y] = twice[y - sx * sy]! - along(y - sx * sy, 2)
+        }
       }
     }
   }
@@ -230,7 +297,14 @@ export function stepDepth(mesh: RadionMesh, step: ArrayLike<number>): FoundDepth
   let curl = 0
 
   for (let y = 0; y < mesh.docks; y++) {
-    for (let h = 0; h < 9; h++) if (twice[y]! - twice[mesh.neighbour[y * 9 + h]!]! !== along(y, h)) curl++
+    for (let h = 0; h < 9; h++) {
+      if (
+        twice[y]! - twice[mesh.neighbour[y * 9 + h]!]! !==
+        along(y, h)
+      ) {
+        curl++
+      }
+    }
   }
 
   return { twice, curl }
@@ -240,20 +314,31 @@ export function stepDepth(mesh: RadionMesh, step: ArrayLike<number>): FoundDepth
 // lines: placement and hops
 
 // the docks where lines out minus lines in differ from the content
-export function gaussOff(mesh: RadionMesh, line: Int8Array, content: Int32Array): number {
+export function gaussOff(
+  mesh: RadionMesh,
+  line: Int8Array,
+  content: Int32Array,
+): number {
   const div = new Float64Array(mesh.docks)
 
   divergence(mesh, line, div)
 
   let off = 0
 
-  for (let y = 0; y < mesh.docks; y++) if (div[y] !== content[y]) off++
+  for (let y = 0; y < mesh.docks; y++) {
+    if (div[y] !== content[y]) {
+      off++
+    }
+  }
 
   return off
 }
 
 // the incident links of each dock: [link, +1 if the dock is its tail, -1 if its head]
-export function incidence(mesh: RadionMesh): { link: Int32Array; sign: Int8Array } {
+export function incidence(mesh: RadionMesh): {
+  link: Int32Array
+  sign: Int8Array
+} {
   const link = new Int32Array(mesh.docks * 18)
   const sign = new Int8Array(mesh.docks * 18)
   const fill = new Int32Array(mesh.docks)
@@ -277,12 +362,21 @@ export function incidence(mesh: RadionMesh): { link: Int32Array; sign: Int8Array
 
 // room for one more unit of line leaving a dock along an incident link (sign +1: the dock is the tail), with at most
 // `capacity` units on a link (1 for the trit)
-const room = (line: Int8Array, l: number, sign: number, capacity: number): boolean => sign * line[l]! < capacity
+const room = (
+  line: Int8Array,
+  l: number,
+  sign: number,
+  capacity: number,
+): boolean => sign * line[l]! < capacity
 
 // lines for a content map: successive augmenting paths, each unit from the nearest dock with content left to the nearest
 // with a sink left (breadth first over the links with room, a used link reversible), as tmp/step-field-probe. Gauss's
 // law holds exactly when every unit is routed. Not proven the fewest steps. Throws if a unit cannot be routed.
-export function placeLines(mesh: RadionMesh, content: Int32Array, capacity = 1): Int8Array {
+export function placeLines(
+  mesh: RadionMesh,
+  content: Int32Array,
+  capacity = 1,
+): Int8Array {
   const line = new Int8Array(mesh.docks * 9)
   const inc = incidence(mesh)
   const supply = Int32Array.from(content)
@@ -295,7 +389,11 @@ export function placeLines(mesh: RadionMesh, content: Int32Array, capacity = 1):
 
     let tail = 0
 
-    for (let y = 0; y < mesh.docks; y++) if (supply[y]! > 0) (prev[y] = -1), (queue[tail++] = y)
+    for (let y = 0; y < mesh.docks; y++) {
+      if (supply[y]! > 0) {
+        ;((prev[y] = -1), (queue[tail++] = y))
+      }
+    }
 
     let found = -1
 
@@ -306,21 +404,32 @@ export function placeLines(mesh: RadionMesh, content: Int32Array, capacity = 1):
         const l = inc.link[y * 18 + k]!
         const sg = inc.sign[y * 18 + k]!
 
-        if (!room(line, l, sg, capacity)) continue
+        if (!room(line, l, sg, capacity)) {
+          continue
+        }
 
         const z = sg > 0 ? mesh.neighbour[l]! : Math.floor(l / 9)
 
-        if (prev[z] !== -2) continue
+        if (prev[z] !== -2) {
+          continue
+        }
+
         prev[z] = y * 18 + k
+
         if (supply[z]! < 0) {
           found = z
           break
         }
+
         queue[tail++] = z
       }
     }
 
-    if (found < 0) throw new Error(`placeLines: unit ${unit} of ${total} cannot be routed`)
+    if (found < 0) {
+      throw new Error(
+        `placeLines: unit ${unit} of ${total} cannot be routed`,
+      )
+    }
 
     let z = found
 
@@ -328,7 +437,8 @@ export function placeLines(mesh: RadionMesh, content: Int32Array, capacity = 1):
       const y = Math.floor(prev[z]! / 18)
       const k = prev[z]! % 18
 
-      line[inc.link[y * 18 + k]!] = line[inc.link[y * 18 + k]!]! + inc.sign[y * 18 + k]!
+      line[inc.link[y * 18 + k]!] =
+        line[inc.link[y * 18 + k]!]! + inc.sign[y * 18 + k]!
       z = y
     }
 
@@ -344,8 +454,13 @@ export type LinePath = readonly (readonly [number, number])[]
 
 // the candidate paths for a unit line from z to y (a unit of content hopping from dock y to its neighbor z): the direct
 // link first, then the two-link detours through each common neighbor in dock order
-export function hopPaths(mesh: RadionMesh, y: number, z: number): LinePath[] {
+export function hopPaths(
+  mesh: RadionMesh,
+  y: number,
+  z: number,
+): LinePath[] {
   const inc = incidence(mesh)
+
   const links = (p: number, r: number): [number, number][] => {
     const out: [number, number][] = []
 
@@ -354,38 +469,61 @@ export function hopPaths(mesh: RadionMesh, y: number, z: number): LinePath[] {
       const sg = inc.sign[p * 18 + k]!
       const other = sg > 0 ? mesh.neighbour[l]! : Math.floor(l / 9)
 
-      if (other === r) out.push([l, sg])
+      if (other === r) {
+        out.push([l, sg])
+      }
     }
 
     return out
   }
+
   const paths: LinePath[] = links(z, y).map(e => [e])
   const neighbors = new Set<number>()
 
   for (let k = 0; k < 18; k++) {
     const l = inc.link[z * 18 + k]!
 
-    neighbors.add(inc.sign[z * 18 + k]! > 0 ? mesh.neighbour[l]! : Math.floor(l / 9))
+    neighbors.add(
+      inc.sign[z * 18 + k]! > 0
+        ? mesh.neighbour[l]!
+        : Math.floor(l / 9),
+    )
   }
 
   for (const w of [...neighbors].sort((p, r) => p - r)) {
-    if (w === y) continue
+    if (w === y) {
+      continue
+    }
 
     const first = links(z, w)
     const second = links(w, y)
 
-    if (first.length > 0 && second.length > 0) paths.push([first[0]!, second[0]!])
+    if (first.length > 0 && second.length > 0) {
+      paths.push([first[0]!, second[0]!])
+    }
   }
 
   return paths
 }
 
 // the first path whose line change keeps every link within capacity, or -1
-export function fittingPath(line: Int8Array, paths: readonly LinePath[], capacity = 1): number {
-  return paths.findIndex(p => p.every(([l, sg]) => Math.abs(line[l]! + sg) <= capacity))
+export function fittingPath(
+  line: Int8Array,
+  paths: readonly LinePath[],
+  capacity = 1,
+): number {
+  return paths.findIndex(p =>
+    p.every(([l, sg]) => Math.abs(line[l]! + sg) <= capacity),
+  )
 }
 
 // apply a path's line change (sense +1) or undo it (sense -1): the scheduled event of a unit's hop
-export function applyPath(line: Int8Array, path: LinePath, sense: 1 | -1): void {
-  for (const [l, sg] of path) line[l] = line[l]! + sense * sg
+export function applyPath(
+  line: Int8Array,
+  path: LinePath,
+  sense: 1 | -1,
+): void {
+  for (const [l, sg] of path) {
+    line[l] = line[l]! + sense * sg
+  }
 }

@@ -201,11 +201,21 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { centerOf } from '@/code/measure/wall-reading'
-import { dockMatrix, DOCK_ROOTS, type CMatrix } from '@/code/measure/dock-mixer'
-import { singletKinematics, singletLevel } from '@/code/measure/singlet-kinematics'
+import {
+  dockMatrix,
+  DOCK_ROOTS,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
+import {
+  singletKinematics,
+  singletLevel,
+} from '@/code/measure/singlet-kinematics'
 import { d4Ball, flatBoxTables } from '@/code/measure/swap-sector'
 import { ringScale } from '@/code/rule/swap-mixer'
-import { BOUNCE_TABLE, bouncePermutation } from '@/code/rule/bounce-pair-knit'
+import {
+  BOUNCE_TABLE,
+  bouncePermutation,
+} from '@/code/rule/bounce-pair-knit'
 import { LINE_OF } from '@/code/rule/isometric-knit'
 import { shareSpace, threadEngine } from '@/code/measure/meson-pool'
 import {
@@ -262,10 +272,29 @@ const DIRECTIONS: readonly { name: string; u: number[] }[] = [
 const MIXER: readonly [number, number] = [0, 4]
 const STRING: readonly [number, number] = [3, 4]
 const STRING_READ: readonly [number, number] = [6, 2]
-// the sizes of the run: the gate plan below, and a smaller one a smoke test may pass (disclosed, gates nothing)
-export type SwapStringPlan = { ball: number; window: number; sFirst: number; sSecond: number; sMove: number; holdBeats: number; threads: number; vacuumBeats: number }
 
-export const GATE_PLAN: SwapStringPlan = { ball: 15, window: 14, sFirst: 256, sSecond: 128, sMove: 64, holdBeats: 256, threads: 12, vacuumBeats: 128 }
+// the sizes of the run: the gate plan below, and a smaller one a smoke test may pass (disclosed, gates nothing)
+export type SwapStringPlan = {
+  ball: number
+  window: number
+  sFirst: number
+  sSecond: number
+  sMove: number
+  holdBeats: number
+  threads: number
+  vacuumBeats: number
+}
+
+export const GATE_PLAN: SwapStringPlan = {
+  ball: 15,
+  window: 14,
+  sFirst: 256,
+  sSecond: 128,
+  sMove: 64,
+  holdBeats: 256,
+  threads: 12,
+  vacuumBeats: 128,
+}
 
 const ELL = 2.5
 const HOLD = 1e-3
@@ -319,35 +348,74 @@ export default experiment({
 export function swapStringRun(plan: SwapStringPlan): Verdict {
   {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---------------- I1: the one-vibe matrix on the empty dock ----------------
     const u = ringUnit(MIXER[0], MIXER[1])
     const theta = unitAngle(u)
     const sUnit = ringUnit(STRING[0], STRING[1])
     const sigma = Math.abs(unitAngle(sUnit))
-    const sigmaRead = Math.abs(unitAngle(ringUnit(STRING_READ[0], STRING_READ[1])))
+    const sigmaRead = Math.abs(
+      unitAngle(ringUnit(STRING_READ[0], STRING_READ[1])),
+    )
     const L0 = vibeDockExact(1, 0, u)
     const L1 = vibeDockExact(1, 1, u)
     const F0 = vibeDockExact(-1, 0, u)
     const F1 = vibeDockExact(-1, 1, u)
-    const same = (x: typeof L0, y: typeof L0): boolean => x.k === y.k && x.entries.every((row, i) => row.every((e, j) => e[0] === (y.entries[i] as [bigint, bigint][])[j]![0] && e[1] === (y.entries[i] as [bigint, bigint][])[j]![1]))
+    const same = (x: typeof L0, y: typeof L0): boolean =>
+      x.k === y.k &&
+      x.entries.every((row, i) =>
+        row.every(
+          (e, j) =>
+            e[0] === (y.entries[i] as [bigint, bigint][])[j]![0] &&
+            e[1] === (y.entries[i] as [bigint, bigint][])[j]![1],
+        ),
+      )
     const alike = same(L0, L1) && same(L0, F0) && same(L0, F1)
     const A = overEmpty(L0, u)
     const shape = vibeShape(A)
-    const P = dockMatrix(theta < 0 ? theta + 2 * Math.PI : theta, 2 / 3, false)
+    const P = dockMatrix(
+      theta < 0 ? theta + 2 * Math.PI : theta,
+      2 / 3,
+      false,
+    )
+
     let matrixGap = 0
 
-    for (let i = 0; i < 576; i++) matrixGap = Math.max(matrixGap, Math.hypot((A.re[i] as number) - (P.re[i] as number), (A.im[i] as number) - (P.im[i] as number)))
+    for (let i = 0; i < 576; i++) {
+      matrixGap = Math.max(
+        matrixGap,
+        Math.hypot(A.re[i]! - P.re[i]!, A.im[i]! - P.im[i]!),
+      )
+    }
 
     const empty = emptyFactor(u)
-    const emptyOk = empty.alone && empty.a === ringScale(u) && empty.b === 0n && empty.k === 0
+    const emptyOk =
+      empty.alone &&
+      empty.a === ringScale(u) &&
+      empty.b === 0n &&
+      empty.k === 0
     const PA: CMatrix = { re: A.re, im: A.im }
     const level1 = singletLevel(PA, DOCK_ROOTS, 12)
-    const kin = DIRECTIONS.map(d => singletKinematics(PA, DOCK_ROOTS, level1, d.u, SCALES))
+    const kin = DIRECTIONS.map(d =>
+      singletKinematics(PA, DOCK_ROOTS, level1, d.u, SCALES),
+    )
     const Rwalk = kin.map(k => (C_STAR * C_STAR) / k.c2)
     const m = level1.m
-    const I1 = matrixGap <= MATRIX_TOLERANCE && alike && shape.gap <= MATRIX_TOLERANCE && emptyOk && Math.abs(m - Math.PI / 6) <= READ_TOLERANCE && Rwalk.every(r => Math.abs(r - Math.tan(Math.PI / 6) / (Math.PI / 6)) <= READ_TOLERANCE)
+    const I1 =
+      matrixGap <= MATRIX_TOLERANCE &&
+      alike &&
+      shape.gap <= MATRIX_TOLERANCE &&
+      emptyOk &&
+      Math.abs(m - Math.PI / 6) <= READ_TOLERANCE &&
+      Rwalk.every(
+        r =>
+          Math.abs(r - Math.tan(Math.PI / 6) / (Math.PI / 6)) <=
+          READ_TOLERANCE,
+      )
 
     log('I1')
 
@@ -355,16 +423,21 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     const contact0 = contactDockExact(0, u)
     const contact1 = contactDockExact(1, u)
     const Cf = [overEmpty(contact0, u), overEmpty(contact1, u)]
-    const live = [...Array(CONTACT_STATES).keys()].filter(i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24)
-    const contactUnitarity = Math.max(...Cf.map(M => unitarityOf(M, live)))
+    const live = [...Array(CONTACT_STATES).keys()].filter(
+      i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24,
+    )
+    const contactUnitarity = Math.max(
+      ...Cf.map(M => unitarityOf(M, live)),
+    )
+
     let parityDiffer = 0
 
     for (const a of live) {
       for (let t = 0; t < CONTACT_STATES; t++) {
-        const x = (Cf[0] as typeof A).re[t * CONTACT_STATES + a] as number
-        const y = (Cf[1] as typeof A).re[t * CONTACT_STATES + a] as number
-        const xi = (Cf[0] as typeof A).im[t * CONTACT_STATES + a] as number
-        const yi = (Cf[1] as typeof A).im[t * CONTACT_STATES + a] as number
+        const x = Cf[0]!.re[t * CONTACT_STATES + a]!
+        const y = Cf[1]!.re[t * CONTACT_STATES + a]!
+        const xi = Cf[0]!.im[t * CONTACT_STATES + a]!
+        const yi = Cf[1]!.im[t * CONTACT_STATES + a]!
 
         if (Math.hypot(x - y, xi - yi) > 1e-15) {
           parityDiffer++
@@ -375,21 +448,33 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
 
     // how often the collision's K permutes a love and a fear on two single lines of one dock (read)
     const perm = new Int32Array(24)
+
     let kFires = 0
 
     for (let l = 0; l < 24; l++) {
       for (let f = 0; f < 24; f++) {
-        if (l === f || LINE_OF[l] === LINE_OF[f]) continue
+        if (l === f || LINE_OF[l] === LINE_OF[f]) {
+          continue
+        }
 
         const v = new Int8Array(24)
 
         v[l] = 1
         v[f] = -1
-        if (bouncePermutation(BOUNCE_TABLE, 'pass', v, 0, perm) !== 0 && [...perm].some((x, d) => x !== d)) kFires++
+
+        if (
+          bouncePermutation(BOUNCE_TABLE, 'pass', v, 0, perm) !== 0 &&
+          [...perm].some((x, d) => x !== d)
+        ) {
+          kFires++
+        }
       }
     }
 
-    const contact: [ReturnType<typeof sparseOf>, ReturnType<typeof sparseOf>] = [sparseOf(Cf[0] as typeof A), sparseOf(Cf[1] as typeof A)]
+    const contact: [
+      ReturnType<typeof sparseOf>,
+      ReturnType<typeof sparseOf>,
+    ] = [sparseOf(Cf[0]!), sparseOf(Cf[1]!)]
     const I2 = contactUnitarity <= MATRIX_TOLERANCE
 
     log('I2')
@@ -398,9 +483,21 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     const box = flatBoxTables(BOX_SIDE)
     const X = centerOf(BOX_SIDE)
     const B = rootIndex([1, 1, 0, 0])
-    const Xf = Math.floor((box.target[X * 24 + B] as number) / 24)
-    const checkSpace = mesonSpace(d4Ball(CHECK_BALL), shape, contact, 0, [0, 0, 0, 0])
-    const boxed = boxCheck(box, boxStarts(live, X, Xf, [-1, -1, 0, 0]), checkSpace, () => u, ENTRY_TOLERANCE)
+    const Xf = Math.floor(box.target[X * 24 + B]! / 24)
+    const checkSpace = mesonSpace(
+      d4Ball(CHECK_BALL),
+      shape,
+      contact,
+      0,
+      [0, 0, 0, 0],
+    )
+    const boxed = boxCheck(
+      box,
+      boxStarts(live, X, Xf, [-1, -1, 0, 0]),
+      checkSpace,
+      () => u,
+      ENTRY_TOLERANCE,
+    )
     const boxWorst = boxed.worst
     const boxDiffer = boxed.differ
     const boxChecked = boxed.checked
@@ -418,29 +515,55 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
 
     // ---------------- the prediction (computed here from the derivation's formulas; it gates nothing) ----------------
     const kap = stringKappa(KAPPA_GRID)
-    const predict = (sg: number): { l: number; Eb: number; Erest: number; schwinger: number; R: number } => {
+
+    const predict = (
+      sg: number,
+    ): {
+      l: number
+      Eb: number
+      Erest: number
+      schwinger: number
+      R: number
+    } => {
       const mu = Math.tan(m)
       const F = sg * kap.mean
       const l = (1 / (2 * mu * F)) ** (1 / 3)
       const Eb = eps4 * F * l
       const T = Eb / 3
 
-      return { l, Eb, Erest: 2 * m + Eb, schwinger: (Math.PI * m * m) / (C_STAR * sg), R: (2 * mu + 1.5 * T) / (2 * m + 3 * T) }
+      return {
+        l,
+        Eb,
+        Erest: 2 * m + Eb,
+        schwinger: (Math.PI * m * m) / (C_STAR * sg),
+        R: (2 * mu + 1.5 * T) / (2 * m + 3 * T),
+      }
     }
+
     const pred = predict(sigma)
     const predRead = predict(sigmaRead)
     const sign = level1.sign
     const mid = level1.midPhase
     const phaseOf = (eps: number): number => wrap(2 * mid - sign * eps)
-    const epsOf = (phase: number): number => sign * -wrap(phase - 2 * mid)
+    const epsOf = (phase: number): number =>
+      sign * -wrap(phase - 2 * mid)
 
     log('prediction')
 
     // ---------------- I4: the threaded beat against the one-thread beat ----------------
     let threadGap = 0
     let threadSums = 0
+
     {
-      const sp = shareSpace(mesonSpace(d4Ball(THREAD_BALL), shape, contact, sign * sigma, K_THREAD))
+      const sp = shareSpace(
+        mesonSpace(
+          d4Ball(THREAD_BALL),
+          shape,
+          contact,
+          sign * sigma,
+          K_THREAD,
+        ),
+      )
       const ser = serialEngine(sp)
       const thr = threadEngine(sp, plan.threads, POOL)
       const a = ser.borrow()
@@ -453,6 +576,7 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
         a.re[k] = ((k * g) % 1) - 0.5
         a.im[k] = ((k * g * g) % 1) - 0.5
       }
+
       c.re.set(a.re)
       c.im.set(a.im)
 
@@ -462,8 +586,22 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
         const l1 = ser.beat(a, b, t, f1)
         const l2 = thr.beat(c, d, t, f2)
 
-        for (let k = 0; k < b.re.length; k++) threadGap = Math.max(threadGap, Math.abs((b.re[k] as number) - (d.re[k] as number)), Math.abs((b.im[k] as number) - (d.im[k] as number)))
-        threadSums = Math.max(threadSums, Math.abs(l1 - l2) / Math.max(1, l1), Math.abs(f1.weight - f2.weight) / f1.weight, ...[0, 1, 2, 3].map(k => Math.abs((f1.v[k] as number) - (f2.v[k] as number)) / f1.weight))
+        for (let k = 0; k < b.re.length; k++) {
+          threadGap = Math.max(
+            threadGap,
+            Math.abs(b.re[k]! - d.re[k]!),
+            Math.abs(b.im[k]! - d.im[k]!),
+          )
+        }
+
+        threadSums = Math.max(
+          threadSums,
+          Math.abs(l1 - l2) / Math.max(1, l1),
+          Math.abs(f1.weight - f2.weight) / f1.weight,
+          ...[0, 1, 2, 3].map(
+            k => Math.abs(f1.v[k]! - f2.v[k]!) / f1.weight,
+          ),
+        )
         a.re.set(b.re)
         a.im.set(b.im)
         c.re.set(d.re)
@@ -472,25 +610,42 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
 
       thr.close()
     }
-    const I4 = threadGap <= THREAD_TOLERANCE && threadSums <= SUM_TOLERANCE
+
+    const I4 =
+      threadGap <= THREAD_TOLERANCE && threadSums <= SUM_TOLERANCE
 
     log('I4')
 
     // ---------------- the engine on the gate ball ----------------
     const ball = d4Ball(plan.ball)
-    const space = shareSpace(mesonSpace(ball, shape, contact, sign * sigma, [0, 0, 0, 0]))
+    const space = shareSpace(
+      mesonSpace(ball, shape, contact, sign * sigma, [0, 0, 0, 0]),
+    )
     const engine: MesonEngine = threadEngine(space, plan.threads, POOL)
     const start = mesonStart(ball, ELL)
 
     log(`ball ${plan.ball}: ${ball.points.length} sites`)
 
     // ---------------- Y1: the level holds ----------------
-    const first = buildLevel(engine, start, phaseOf(pred.Erest), plan.sFirst, 1)
-    const second = buildLevel(engine, first.v, first.read.phase, plan.sSecond, 1)
+    const first = buildLevel(
+      engine,
+      start,
+      phaseOf(pred.Erest),
+      plan.sFirst,
+      1,
+    )
+    const second = buildLevel(
+      engine,
+      first.v,
+      first.read.phase,
+      plan.sSecond,
+      1,
+    )
     const v0 = second.v
     const read0 = second.read
     const hold = watchLevel(engine, v0, plan.holdBeats, plan.window)
-    const Y1 = hold.leastWindow >= 1 - HOLD && hold.leastFidelity >= 1 - HOLD
+    const Y1 =
+      hold.leastWindow >= 1 - HOLD && hold.leastFidelity >= 1 - HOLD
     const Erest = epsOf(read0.phase)
     const profile = stringProfile(ball, v0)
     const share = singletShare(ball, v0)
@@ -502,24 +657,29 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     // ---------------- C2: the witness sees a beat ----------------
     let C2 = false
     let c2Fidelity = 1
+
     {
       const w = cloneMeson(start)
       const o = mesonInner(v0, w)
 
       for (let k = 0; k < w.re.length; k++) {
-        const vr = v0.re[k] as number
-        const vi = v0.im[k] as number
+        const vr = v0.re[k]!
+        const vi = v0.im[k]!
 
-        w.re[k] = (w.re[k] as number) - (o[0] * vr - o[1] * vi)
-        w.im[k] = (w.im[k] as number) - (o[0] * vi + o[1] * vr)
+        w.re[k] = w.re[k]! - (o[0] * vr - o[1] * vi)
+        w.im[k] = w.im[k]! - (o[0] * vi + o[1] * vr)
       }
+
       normalizeMeson(w)
 
       const mix = cloneMeson(v0)
 
       for (let k = 0; k < mix.re.length; k++) {
-        mix.re[k] = Math.sqrt(1 - MIX) * (v0.re[k] as number) + Math.sqrt(MIX) * (w.re[k] as number)
-        mix.im[k] = Math.sqrt(1 - MIX) * (v0.im[k] as number) + Math.sqrt(MIX) * (w.im[k] as number)
+        mix.re[k] =
+          Math.sqrt(1 - MIX) * v0.re[k]! + Math.sqrt(MIX) * w.re[k]!
+
+        mix.im[k] =
+          Math.sqrt(1 - MIX) * v0.im[k]! + Math.sqrt(MIX) * w.im[k]!
       }
 
       const h = watchLevel(engine, mix, plan.holdBeats, plan.window)
@@ -531,16 +691,37 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     log('C2')
 
     // ---------------- Y2: the dispersion at small K ----------------
-    const energyAt = (K: readonly number[], from: MesonState, phase: number, S: number): { eps: number; v: MesonState; lambda: number; residual: number } => {
+    const energyAt = (
+      K: readonly number[],
+      from: MesonState,
+      phase: number,
+      S: number,
+    ): {
+      eps: number
+      v: MesonState
+      lambda: number
+      residual: number
+    } => {
       setMomentum(space, K)
 
       const lv = buildLevel(engine, from, phase, S, 1)
 
-      return { eps: epsOf(lv.read.phase), v: lv.v, lambda: Math.hypot(...lv.read.lambda2), residual: lv.read.residual }
+      return {
+        eps: epsOf(lv.read.phase),
+        v: lv.v,
+        lambda: Math.hypot(...lv.read.lambda2),
+        residual: lv.read.residual,
+      }
     }
+
     // the K = 0 energy read by the SAME procedure as every K point (one filter of S_move from v0), so a filter's own
     // bias cancels in the differences
-    const zeroMove = energyAt([0, 0, 0, 0], v0, read0.phase, plan.sMove).eps
+    const zeroMove = energyAt(
+      [0, 0, 0, 0],
+      v0,
+      read0.phase,
+      plan.sMove,
+    ).eps
     const dispersion = DIRECTIONS.map(d => {
       const e1 = energyAt(
         d.u.map(x => x * KAPPA),
@@ -560,10 +741,19 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
 
       log(`Y2 ${d.name}`)
 
-      return { name: d.name, d1, d2, a, lambda: Math.min(e1.lambda, e2.lambda), residual: Math.max(e1.residual, e2.residual) }
+      return {
+        name: d.name,
+        d1,
+        d2,
+        a,
+        lambda: Math.min(e1.lambda, e2.lambda),
+        residual: Math.max(e1.residual, e2.residual),
+      }
     })
-    const a0 = (dispersion[0] as (typeof dispersion)[number]).a
-    const isotropy = Math.max(...dispersion.map(x => Math.abs(x.a / a0 - 1)))
+    const a0 = dispersion[0]!.a
+    const isotropy = Math.max(
+      ...dispersion.map(x => Math.abs(x.a / a0 - 1)),
+    )
     const R = (C_STAR * C_STAR) / (2 * a0 * Erest)
     const Y2 = isotropy <= ISOTROPY && Math.abs(R - 1) <= R_TOLERANCE
 
@@ -571,7 +761,15 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     const follow = DIRECTIONS.slice(0, 2).map(d => {
       let from = v0
       let phase = read0.phase
-      const points: { K: number; eps: number; speed: number; followed: boolean; lambda: number; residual: number }[] = []
+
+      const points: {
+        K: number
+        eps: number
+        speed: number
+        followed: boolean
+        lambda: number
+        residual: number
+      }[] = []
 
       for (const k of FOLLOW_K) {
         const guess = phaseOf(Erest + a0 * k * k)
@@ -582,9 +780,17 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
           plan.sMove,
         )
         const vel = levelVelocity(engine, e.v)
-        const followed = e.lambda >= FOLLOW_LAMBDA && e.residual <= FOLLOW_RESIDUAL
+        const followed =
+          e.lambda >= FOLLOW_LAMBDA && e.residual <= FOLLOW_RESIDUAL
 
-        points.push({ K: k, eps: e.eps, speed: norm4(vel), followed, lambda: e.lambda, residual: e.residual })
+        points.push({
+          K: k,
+          eps: e.eps,
+          speed: norm4(vel),
+          followed,
+          lambda: e.lambda,
+          residual: e.residual,
+        })
         from = e.v
         phase = phaseOf(e.eps)
         log(`Y3 ${d.name} ${k}`)
@@ -592,22 +798,45 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
 
       return { name: d.name, points }
     })
-    const speeds = follow.flatMap(f => f.points.filter(p => p.followed).map(p => p.speed))
+    const speeds = follow.flatMap(f =>
+      f.points.filter(p => p.followed).map(p => p.speed),
+    )
     const topSpeed = speeds.length ? Math.max(...speeds) : NaN
-    const Y3 = follow.every(f => (f.points[0] as { followed: boolean }).followed) && speeds.every(s => s <= C_STAR * (1 + SPEED_TOLERANCE))
+    const Y3 =
+      follow.every(
+        f => (f.points[0] as { followed: boolean }).followed,
+      ) && speeds.every(s => s <= C_STAR * (1 + SPEED_TOLERANCE))
 
     // I6: Hellmann-Feynman against the central difference at K 0.4 along the axis
     let hfGap = NaN
+
     {
-      const k = FOLLOW_K[0] as number
-      const at = energyAt([k, 0, 0, 0], v0, phaseOf(Erest + a0 * k * k), plan.sMove)
+      const k = FOLLOW_K[0]!
+      const at = energyAt(
+        [k, 0, 0, 0],
+        v0,
+        phaseOf(Erest + a0 * k * k),
+        plan.sMove,
+      )
       const vel = levelVelocity(engine, at.v)
-      const up = energyAt([k + FD_H, 0, 0, 0], at.v, phaseOf(at.eps), plan.sMove)
-      const down = energyAt([k - FD_H, 0, 0, 0], at.v, phaseOf(at.eps), plan.sMove)
+      const up = energyAt(
+        [k + FD_H, 0, 0, 0],
+        at.v,
+        phaseOf(at.eps),
+        plan.sMove,
+      )
+      const down = energyAt(
+        [k - FD_H, 0, 0, 0],
+        at.v,
+        phaseOf(at.eps),
+        plan.sMove,
+      )
       const slope = (up.eps - down.eps) / (2 * FD_H)
 
-      hfGap = Math.abs(Math.abs(slope) - Math.abs(vel[0] as number)) / Math.abs(slope)
+      hfGap =
+        Math.abs(Math.abs(slope) - Math.abs(vel[0]!)) / Math.abs(slope)
     }
+
     const I6 = hfGap <= FD_TOLERANCE
 
     setMomentum(space, [0, 0, 0, 0])
@@ -616,17 +845,46 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     // ---------------- READ: R at the stronger string (k = 6) ----------------
     setString(space, sign * sigmaRead)
 
-    const readLv = buildLevel(engine, start, phaseOf(predRead.Erest), plan.sFirst, 1)
-    const readLv2 = buildLevel(engine, readLv.v, readLv.read.phase, plan.sSecond, 1)
+    const readLv = buildLevel(
+      engine,
+      start,
+      phaseOf(predRead.Erest),
+      plan.sFirst,
+      1,
+    )
+    const readLv2 = buildLevel(
+      engine,
+      readLv.v,
+      readLv.read.phase,
+      plan.sSecond,
+      1,
+    )
     const ErestRead = epsOf(readLv2.read.phase)
     const readA = (() => {
-      const zero = energyAt([0, 0, 0, 0], readLv2.v, readLv2.read.phase, plan.sMove).eps
-      const e1 = energyAt([KAPPA, 0, 0, 0], readLv2.v, readLv2.read.phase, plan.sMove)
-      const e2 = energyAt([KAPPA / 2, 0, 0, 0], readLv2.v, readLv2.read.phase, plan.sMove)
+      const zero = energyAt(
+        [0, 0, 0, 0],
+        readLv2.v,
+        readLv2.read.phase,
+        plan.sMove,
+      ).eps
+      const e1 = energyAt(
+        [KAPPA, 0, 0, 0],
+        readLv2.v,
+        readLv2.read.phase,
+        plan.sMove,
+      )
+      const e2 = energyAt(
+        [KAPPA / 2, 0, 0, 0],
+        readLv2.v,
+        readLv2.read.phase,
+        plan.sMove,
+      )
 
       setMomentum(space, [0, 0, 0, 0])
 
-      return (16 * (e2.eps - zero) - (e1.eps - zero)) / (3 * KAPPA * KAPPA)
+      return (
+        (16 * (e2.eps - zero) - (e1.eps - zero)) / (3 * KAPPA * KAPPA)
+      )
     })()
     const Rread = (C_STAR * C_STAR) / (2 * readA * ErestRead)
 
@@ -636,10 +894,22 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     setString(space, 0)
 
     const noString = [pred.Erest, 2 * m].map(eps => {
-      const lv = buildLevel(engine, start, phaseOf(eps), plan.sSecond, 1)
+      const lv = buildLevel(
+        engine,
+        start,
+        phaseOf(eps),
+        plan.sSecond,
+        1,
+      )
       const h = watchLevel(engine, lv.v, plan.holdBeats, plan.window)
 
-      return { eps, landed: epsOf(lv.read.phase), holds: h.leastWindow >= 1 - HOLD && h.leastFidelity >= 1 - HOLD, window: h.leastWindow, fidelity: h.leastFidelity }
+      return {
+        eps,
+        landed: epsOf(lv.read.phase),
+        holds: h.leastWindow >= 1 - HOLD && h.leastFidelity >= 1 - HOLD,
+        window: h.leastWindow,
+        fidelity: h.leastFidelity,
+      }
     })
     const Y5 = noString.every(x => !x.holds)
 
@@ -649,10 +919,21 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
     setString(space, -sign * sigma)
 
     const hill = (() => {
-      const lv = buildLevel(engine, start, phaseOf(pred.Erest), plan.sSecond, 1)
+      const lv = buildLevel(
+        engine,
+        start,
+        phaseOf(pred.Erest),
+        plan.sSecond,
+        1,
+      )
       const h = watchLevel(engine, lv.v, plan.holdBeats, plan.window)
 
-      return { landed: epsOf(lv.read.phase), holds: h.leastWindow >= 1 - HOLD && h.leastFidelity >= 1 - HOLD, window: h.leastWindow, fidelity: h.leastFidelity }
+      return {
+        landed: epsOf(lv.read.phase),
+        holds: h.leastWindow >= 1 - HOLD && h.leastFidelity >= 1 - HOLD,
+        window: h.leastWindow,
+        fidelity: h.leastFidelity,
+      }
     })()
     const C1 = !hill.holds
 
@@ -664,15 +945,32 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
       ...VACUUM_SIDES.map(side => ({ side, sea: 0 })),
       { side: BOX_SIDE, sea: 1 },
     ].map(({ side, sea }) => vacuumRun(u, side, sea, plan.vacuumBeats))
-    const Y4 = vacuum.every(v => v.exact && v.permutes === 0 && v.charged === 0)
+    const Y4 = vacuum.every(
+      v => v.exact && v.permutes === 0 && v.charged === 0,
+    )
 
     log('Y4')
 
     const instrument = I1 && I2 && I3 && I4 && I5 && I6
     const controls = C1 && C2
-    const status = !instrument || !controls ? 'partial' : Y1 && Y2 && Y3 && Y4 && Y5 ? 'pass' : 'fail'
-    const dispLine = dispersion.map(x => `${x.name} a ${x.a.toExponential(9)} (d ${x.d1.toExponential(4)}, ${x.d2.toExponential(4)}; |lambda2| >= ${x.lambda.toFixed(6)}, residual <= ${x.residual.toExponential(1)})`).join('; ')
-    const followLine = follow.map(f => `${f.name}: ${f.points.map(p => `K ${p.K} eps ${p.eps.toFixed(6)} speed ${(p.speed / C_STAR).toFixed(6)} c*${p.followed ? '' : ' (not followed)'} (|lambda2| ${p.lambda.toFixed(5)}, residual ${p.residual.toExponential(1)})`).join(', ')}`).join('; ')
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : Y1 && Y2 && Y3 && Y4 && Y5
+          ? 'pass'
+          : 'fail'
+    const dispLine = dispersion
+      .map(
+        x =>
+          `${x.name} a ${x.a.toExponential(9)} (d ${x.d1.toExponential(4)}, ${x.d2.toExponential(4)}; |lambda2| >= ${x.lambda.toFixed(6)}, residual <= ${x.residual.toExponential(1)})`,
+      )
+      .join('; ')
+    const followLine = follow
+      .map(
+        f =>
+          `${f.name}: ${f.points.map(p => `K ${p.K} eps ${p.eps.toFixed(6)} speed ${(p.speed / C_STAR).toFixed(6)} c*${p.followed ? '' : ' (not followed)'} (|lambda2| ${p.lambda.toFixed(5)}, residual ${p.residual.toExponential(1)})`).join(', ')}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
@@ -708,7 +1006,7 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
         isotropy,
         R,
         RPredicted: pred.R,
-        RWalk: Rwalk[0] as number,
+        RWalk: Rwalk[0]!,
         topSpeedOverCStar: topSpeed / C_STAR,
         hfGap,
         ErestRead,
@@ -723,7 +1021,11 @@ export function swapStringRun(plan: SwapStringPlan): Verdict {
         schwingerExponent: pred.schwinger,
         seconds: (Date.now() - started) / 1000,
       },
-      control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        instrument: flag(instrument),
+      },
       notes: `L2. The members: m ${m.toFixed(6)}, R_walk ${Rwalk.map(x => x.toFixed(6)).join(' ')} along the four directions, the singlet's midpoint ${mid.toFixed(5)}, sign ${sign}. I1: matrix ${matrixGap.toExponential(2)}, love = fear, parities alike ${alike}, shape c ${shape.c.map(x => x.toFixed(9)).join(',')} beta ${shape.beta.map(x => x.toFixed(9)).join(',')} gap ${shape.gap.toExponential(2)}, empty factor ${empty.a} alone ${empty.alone}. I2: contact unitarity ${contactUnitarity.toExponential(2)}, stored ${contact0.stored} and ${contact1.stored}, released ${contact0.released} and ${contact1.released}, parity differs on ${parityDiffer} of ${live.length} states; the collision's K permutes a love and a fear on two single lines on ${kFires} of 528 ordered pairs. I3: ${boxChecked} one-beat starts, worst ${boxWorst.toExponential(2)}, ${boxDiffer} differ, ${boxInexact} inexact, ${boxStray} stray. I4: entries ${threadGap.toExponential(2)}, sums ${threadSums.toExponential(2)} (${plan.threads} threads). I5: norm exact ${I5ring}, Airy ${airy.toFixed(6)}, eps4 ${eps4.toFixed(6)}. I6: Hellmann-Feynman against the central difference ${hfGap.toExponential(2)}. Prediction: kappa ${kap.mean.toFixed(5)} (${kap.least.toFixed(5)} .. ${kap.most.toFixed(5)}), l ${pred.l.toFixed(3)}, E_b ${pred.Eb.toFixed(4)}, Schwinger exponent ${pred.schwinger.toFixed(2)}; at the read string l ${predRead.l.toFixed(3)}, E_b ${predRead.Eb.toFixed(4)}, exponent ${predRead.schwinger.toFixed(2)}. The level: singlet share ${share.toFixed(4)}, stores ${stored.toExponential(2)}, mean string length ${meanV.toFixed(3)}, profile ${profile.map(x => x.toExponential(2)).join(' ')}; absorbed over the hold ${hold.absorbed.toExponential(2)}. Y2: ${dispLine}. Y3: ${followLine}. Y4: ${vacuum.map(v => `side ${v.side} ${v.sea ? 'love sea' : 'empty'} (${v.cells} docks) exact ${v.exact}, permutes ${v.permutes}, charged ${v.charged}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   }

@@ -44,10 +44,7 @@ const SEED_BEAT = 3
 
 function seedCellOf(side: number, x: number, rest: number): number {
   const target =
-    x +
-    rest * side +
-    rest * side * side +
-    rest * side * side * side
+    x + rest * side + rest * side * side + rest * side * side * side
 
   return target
 }
@@ -139,7 +136,7 @@ export default experiment({
     const start = makeWill(mesh)
 
     for (let i = 0; i < start.data.length; i++) {
-      start.data[i] = ((((i * 5 + (i % 11)) % 3) - 1) as -1 | 0 | 1)
+      start.data[i] = (((i * 5 + (i % 11)) % 3) - 1) as -1 | 0 | 1
     }
 
     let initialCharge = 0
@@ -205,8 +202,10 @@ export default experiment({
       const difference = makeWill(mesh13)
 
       for (let i = 0; i < seeded.data.length; i++) {
-        difference.data[i] = (seeded.data[i]! -
-          vacuum.data[i]!) as -1 | 0 | 1
+        difference.data[i] = (seeded.data[i]! - vacuum.data[i]!) as
+          | -1
+          | 0
+          | 1
       }
 
       return difference

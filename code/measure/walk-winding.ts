@@ -8,7 +8,11 @@
 // phases binds 2|delta nu0| edge modes at the 0 gap and 2|delta nuPi| at the pi gap (the factor 2 is
 // the two interfaces of a periodic ring), and the two gaps are INDEPENDENT.
 
-import { ComplexPair as Complex, pairAdd as cadd, pairMul as cmul } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as Complex,
+  pairAdd as cadd,
+  pairMul as cmul,
+} from '@/code/algebra/linear/complex-pair'
 
 type Mat2 = readonly [Complex, Complex, Complex, Complex] // [m00, m01, m10, m11]
 

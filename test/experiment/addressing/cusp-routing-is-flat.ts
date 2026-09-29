@@ -433,7 +433,9 @@ export default experiment({
       for (const h of maps) {
         for (const m of memberCenters) {
           const cell = ball.index.get(
-            pointKey(toPoincare(matVec(g, matVec(h, m.point)), timeAxis)),
+            pointKey(
+              toPoincare(matVec(g, matVec(h, m.point)), timeAxis),
+            ),
           )
 
           if (cell !== undefined) {
@@ -525,7 +527,10 @@ export default experiment({
       translated.keys.every((key, i) => {
         const j = small.index.get(key)
 
-        return j !== undefined && small.distance[j] === translated.distance[i]
+        return (
+          j !== undefined &&
+          small.distance[j] === translated.distance[i]
+        )
       })
     const roots = rootsD4()
     const basisRoots = [
@@ -534,10 +539,11 @@ export default experiment({
       [0, 0, 1, 1],
       [0, 0, 1, -1],
     ].map(b => roots.findIndex(r => r.every((v, i) => v === b[i])))
-    const basisDeterminant = determinant(
-      basisRoots.map(k => roots[k]!),
-    )
-    const permutations = weylF4DirectionPermutations({ directions: roots })
+    const basisDeterminant = determinant(basisRoots.map(k => roots[k]!))
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
+
     const handed = (sign: number): number[][] => {
       const members = permutations.filter(
         p =>
@@ -553,8 +559,10 @@ export default experiment({
         (_, i) => members[i * stride]!,
       )
     }
+
     const flatDistance = shellDistances(flat, source)
     const flatPerturbed = perturbCell(flatStart, source)
+
     const reachOf = (permutation: number[]): number => {
       const arrival = tableArrival({
         mesh: relabelMesh({ mesh: flat, permutation }),
@@ -578,15 +586,18 @@ export default experiment({
 
       return reached
     }
+
     const keepingReach = handed(1).map(reachOf)
     const mirroringReach = handed(-1).map(reachOf)
     const meanOf = (xs: number[]): number =>
       xs.reduce((s, x) => s + x, 0) / Math.max(1, xs.length)
+
     const spreadOf = (xs: number[]): number => {
       const m = meanOf(xs)
 
       return Math.sqrt(meanOf(xs.map(x => (x - m) ** 2)))
     }
+
     const handednessGap = Math.abs(
       meanOf(keepingReach) - meanOf(mirroringReach),
     )
@@ -651,7 +662,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'a label-consistent lattice gas on {3,4,3,4} exists and closes exactly (the translation-like labelling does not), the committed rule on it never delivers a perturbation earlier than the cell-graph distance, and on the flat horosphere of a cusp the cell-graph distance is the skin distance itself at every sampled cell out to skin 8 while the continuum distance between the same centers grows by a factor under three and ever more slowly, so no signal of the engine can beat the skin between cells of one cusp. It holds at every one of the 832 layer cells to skin 8, at every separation by a step certificate on the horospherical lattice, from three sources to all 24 of their cusps over two backgrounds and two perturbations, with an absorbing frontier as well as a reflecting one, and the orientation flips are forced (the point inversion is the only transport of its kind) and do not change the rule\'s routing beyond what any relabelling does',
+        "a label-consistent lattice gas on {3,4,3,4} exists and closes exactly (the translation-like labelling does not), the committed rule on it never delivers a perturbation earlier than the cell-graph distance, and on the flat horosphere of a cusp the cell-graph distance is the skin distance itself at every sampled cell out to skin 8 while the continuum distance between the same centers grows by a factor under three and ever more slowly, so no signal of the engine can beat the skin between cells of one cusp. It holds at every one of the 832 layer cells to skin 8, at every separation by a step certificate on the horospherical lattice, from three sources to all 24 of their cusps over two backgrounds and two perturbations, with an absorbing frontier as well as a reflecting one, and the orientation flips are forced (the point inversion is the only transport of its kind) and do not change the rule's routing beyond what any relabelling does",
       metrics: {
         ballCells: ball.cells,
         frameMismatch: ball.frameMismatch,
@@ -678,14 +689,17 @@ export default experiment({
         layerBulkEqualsSkin,
         certificateSteps: certificate.steps,
         certificateLargestStep: certificate.largestStep,
-        certificateLargestStepBand0: certificate.largestStepByBand[0] ?? 0,
+        certificateLargestStepBand0:
+          certificate.largestStepByBand[0] ?? 0,
         certificateLargestStepDeeper: Math.max(
           0,
           ...certificate.largestStepByBand.slice(1),
         ),
         certificateStepsBand0: certificate.stepsByBand[0] ?? 0,
         certificateSkinIsL1: certificate.skinIsL1 ? 1 : 0,
-        certificateNothingAboveLayer: certificate.nothingAboveLayer ? 1 : 0,
+        certificateNothingAboveLayer: certificate.nothingAboveLayer
+          ? 1
+          : 0,
         robustSources: sources.length,
         robustRunsPerFrontier: tallies.reflect.runs,
         reflectCuspTargets: tallies.reflect.targets,
@@ -726,7 +740,7 @@ export default experiment({
         flatEarlyArrivals: flatShells.reduce((s, x) => s + x.early, 0),
       },
       notes:
-        'L2, an honest negative with a construction. The construction is new here: the antipodal transport is the only label-preserving one on {3,4,3,4} of the two tried, and it is not a translation (relative to parallel transport it reverses the frame orientation at each step, so neighbouring cells see the coin with opposite handedness, stated rather than hidden). The negative is geometric and holds for any rule that moves one cell per beat across facets: the cells of a cusp are ideal chimneys, one cell each all the way up to the ideal vertex, so a path through the horoball crosses as many cells as the skin path does, and the cell graph embeds the cusp horosphere isometrically at every pair sampled here, the neutered-space picture. The shortcut exists in the continuum metric (1.76 at skin 1 to 5.18 at skin 8: two points of one horosphere a horospherical length sigma apart are 2 asinh(sigma / 2) apart, which heads for twice the logarithm of sigma) and not in the graph the engine streams on. What the committed rule adds: it moves a perturbation along rays, reaching about twenty cells per shell rather than filling the light cone, on the hyperbolic ball and the flat mesh alike, so its routing is ray tracing on the cell graph, and a cusp cell two skin steps away is not reached in eight beats at all. Where the bulk does win is volume: the ball of radius 4 holds 162,049 cells against the cusp layer holding 129 within skin 4, so the shortcut belongs to reaching many cells, not to crossing one cusp. Robustness (header, 2026-09-25): 832 of 832 layer cells, a certificate over 201,600 facet steps (largest l1 step exactly 1 at the layer, 0.40 below it), 12 runs per frontier from sources at distance 0, 1 and 2 to all 24 cusps with zero arrivals beating the skin under either frontier (834 cusp targets reached exactly at skin distance under both), and a handedness gap of 2.8 cells inside a relabelling spread of 6.6. Cusp targets are counted per cusp, so a cell touching several of the source cell\'s ideal vertices counts once for each.',
+        "L2, an honest negative with a construction. The construction is new here: the antipodal transport is the only label-preserving one on {3,4,3,4} of the two tried, and it is not a translation (relative to parallel transport it reverses the frame orientation at each step, so neighbouring cells see the coin with opposite handedness, stated rather than hidden). The negative is geometric and holds for any rule that moves one cell per beat across facets: the cells of a cusp are ideal chimneys, one cell each all the way up to the ideal vertex, so a path through the horoball crosses as many cells as the skin path does, and the cell graph embeds the cusp horosphere isometrically at every pair sampled here, the neutered-space picture. The shortcut exists in the continuum metric (1.76 at skin 1 to 5.18 at skin 8: two points of one horosphere a horospherical length sigma apart are 2 asinh(sigma / 2) apart, which heads for twice the logarithm of sigma) and not in the graph the engine streams on. What the committed rule adds: it moves a perturbation along rays, reaching about twenty cells per shell rather than filling the light cone, on the hyperbolic ball and the flat mesh alike, so its routing is ray tracing on the cell graph, and a cusp cell two skin steps away is not reached in eight beats at all. Where the bulk does win is volume: the ball of radius 4 holds 162,049 cells against the cusp layer holding 129 within skin 4, so the shortcut belongs to reaching many cells, not to crossing one cusp. Robustness (header, 2026-09-25): 832 of 832 layer cells, a certificate over 201,600 facet steps (largest l1 step exactly 1 at the layer, 0.40 below it), 12 runs per frontier from sources at distance 0, 1 and 2 to all 24 cusps with zero arrivals beating the skin under either frontier (834 cusp targets reached exactly at skin distance under both), and a handedness gap of 2.8 cells inside a relabelling spread of 6.6. Cusp targets are counted per cusp, so a cell touching several of the source cell's ideal vertices counts once for each.",
     })
   },
 })

@@ -30,15 +30,55 @@
 // DETERMINISM: every start is placed; nothing is drawn.
 
 import { makeHuskEngine } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack, type ShapedState } from '@/code/rule/trit-husk-shaped'
-import { fieldNumerators, makeFieldScratch, makeMatter } from '@/code/rule/trit-kinetic'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedBeat,
+  shapedBeatBack,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
+import {
+  fieldNumerators,
+  makeFieldScratch,
+  makeMatter,
+} from '@/code/rule/trit-kinetic'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
-import { addStringPath, huskGaussFailures, relaxStart } from '@/code/measure/trit-kinetic-light'
+import {
+  addStringPath,
+  huskGaussFailures,
+  relaxStart,
+} from '@/code/measure/trit-kinetic-light'
 import { noWraps } from '@/code/measure/varying-depth-light'
-import { harmonicPart, makeSpanShadowScratch, spanGaussFailures, spanRelaxStart, spanShadow, stringCharge } from '@/code/measure/span-coulomb'
-import { copySpan, emptySpan, makeMetricSpanMedium, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack } from '@/code/rule/depth-span-light'
+import {
+  harmonicPart,
+  makeSpanShadowScratch,
+  spanGaussFailures,
+  spanRelaxStart,
+  spanShadow,
+  stringCharge,
+} from '@/code/measure/span-coulomb'
+import {
+  copySpan,
+  emptySpan,
+  makeMetricSpanMedium,
+  makeSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+} from '@/code/rule/depth-span-light'
 import { restRate } from '@/code/measure/depth-arena'
-import { clockWaveBeat, clockWaveBeatBack, clockWaveFrom, clockWaveRule, emptyClockWave, sameClockWave, type WaveForm } from '@/code/rule/depth-clock-wave'
+import {
+  clockWaveBeat,
+  clockWaveBeatBack,
+  clockWaveFrom,
+  clockWaveRule,
+  emptyClockWave,
+  sameClockWave,
+  type WaveForm,
+} from '@/code/rule/depth-clock-wave'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { RADION_DEPTH } from '@/code/measure/radion'
 
@@ -67,24 +107,34 @@ export const EXPONENT_TOLERANCE = 0.02
 export const CONTROL_FROM = 8
 
 // the Peierls coupling: radians of matter phase per unit of angle, per unit charge
-export const peierlsPhase = (depth: number): number => (2 * Math.PI) / (4 * depth)
+export const peierlsPhase = (depth: number): number =>
+  (2 * Math.PI) / (4 * depth)
 
 // the light's long-wave speed (the linear symbol's; E-GRV-0092 measured the spanned one at 1.00037 of it)
 export const lightSpeed = (light: LightKind, depth: number): number => {
   const q = 2 * depth + 1
 
-  return light === 'span' ? 2 / (q * Math.sqrt(3)) : 2 / Math.sqrt(3 * q)
+  return light === 'span'
+    ? 2 / (q * Math.sqrt(3))
+    : 2 / Math.sqrt(3 * q)
 }
 
 // the closed forms the header of E-FRC-0256 derives: alpha = kappa K / (24 pi c) with K = 2 / Q the growth potential
 // per unit of G(0) - G(r) (the axis flux is 2 grad phi, and a pair doubles it)
 // `resolution` is the depth that sets the angle's window and so the Peierls root (code/rule/depth-span-light,
 // fixed resolution); it is `depth` on both lights of E-FRC-0256
-export const alphaClosed = (light: LightKind, depth: number, resolution = depth): number => {
+export const alphaClosed = (
+  light: LightKind,
+  depth: number,
+  resolution = depth,
+): number => {
   const q = 2 * depth + 1
   const k = light === 'span' ? 2 / q : 2
 
-  return (peierlsPhase(resolution) * k) / (24 * Math.PI * lightSpeed(light, depth))
+  return (
+    (peierlsPhase(resolution) * k) /
+    (24 * Math.PI * lightSpeed(light, depth))
+  )
 }
 
 export type PairReading = {
@@ -112,19 +162,39 @@ export type PairReading = {
 // the pair +1 at the origin, -1 at (r, 0, 0), relaxed to its static field, run LOCAL_BEATS forward and back. On the
 // spanned light a given `resolution` runs the fixed-resolution medium (makeMetricSpanMedium: windows of D0 =
 // resolution, the divisors of the metric depth), even where the two are equal; the unchanged light has one depth only
-export function pairReading(light: LightKind, depth: number, r: number, levels = LOCAL_LEVELS, fixedResolution?: number): PairReading {
+export function pairReading(
+  light: LightKind,
+  depth: number,
+  r: number,
+  levels = LOCAL_LEVELS,
+  fixedResolution?: number,
+): PairReading {
   const resolution = fixedResolution ?? depth
 
   const side = LOCAL_SIDE
   const beats = LOCAL_BEATS
   const green = huskGreenDifference(side, [r, 0, 0])
   const line = Array.from({ length: r }, (_, x) => x * 9)
-  const place = (s: ShapedState, g: Parameters<typeof addStringPath>[1]): void => addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
+  const place = (
+    s: ShapedState,
+    g: Parameters<typeof addStringPath>[1],
+  ): void => addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
 
-  if (light === 'clock' && fixedResolution !== undefined) throw new Error('the unchanged light has one depth: its windows and its divisor are one count')
+  if (light === 'clock' && fixedResolution !== undefined) {
+    throw new Error(
+      'the unchanged light has one depth: its windows and its divisor are one count',
+    )
+  }
 
   if (light === 'span') {
-    const m = fixedResolution === undefined ? makeSpanMedium([side, side, side], () => depth) : makeMetricSpanMedium([side, side, side], fixedResolution, () => depth)
+    const m =
+      fixedResolution === undefined
+        ? makeSpanMedium([side, side, side], () => depth)
+        : makeMetricSpanMedium(
+            [side, side, side],
+            fixedResolution,
+            () => depth,
+          )
     const g = m.geometry
     const s = emptySpan(m, levels)
 
@@ -139,6 +209,7 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
     const flux = new Float64Array(g.huskLinks)
     const wraps = noWraps()
     const unwrapped = new Unwrap(m.linkWindow, line, s.angle)
+
     let gauss = spanGaussFailures(m, s, rho, w.flux)
 
     for (let t = 1; t <= beats; t++) {
@@ -154,15 +225,36 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
     let energy = 0
 
     line.forEach((l, i) => {
-      phi += (unwrapped.total[i]! + angle[l]! - s.angle[l]!) / beats - relaxed.harmonic[l]! / m.span[l]!
+      phi +=
+        (unwrapped.total[i]! + angle[l]! - s.angle[l]!) / beats -
+        relaxed.harmonic[l]! / m.span[l]!
       phiStatic += relaxed.long[l]! / m.span[l]!
     })
 
-    for (let t = 0; t < beats; t++) spanBeatBack(m, s, scratch, levels)
+    for (let t = 0; t < beats; t++) {
+      spanBeatBack(m, s, scratch, levels)
+    }
 
-    for (let l = 0; l < g.huskLinks; l++) energy += ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
+    for (let l = 0; l < g.huskLinks; l++) {
+      energy +=
+        ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
+    }
 
-    return { light, depth, resolution, r, phi, phiStatic, energy, gauss, wraps: wraps.angle + wraps.field + wraps.potential, turns: unwrapped.turns, reversed: sameSpan(s, start), residual: relaxed.residual, green }
+    return {
+      light,
+      depth,
+      resolution,
+      r,
+      phi,
+      phiStatic,
+      energy,
+      gauss,
+      wraps: wraps.angle + wraps.field + wraps.potential,
+      turns: unwrapped.turns,
+      reversed: sameSpan(s, start),
+      residual: relaxed.residual,
+      green,
+    }
   }
 
   const m = makeSpanMedium([side, side, side], () => depth)
@@ -188,6 +280,7 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
   const f = makeFieldScratch(e)
   const flux = new Int32Array(g.huskLinks)
   const unwrapped = new Unwrap(m.linkWindow, line, o.angle)
+
   let gauss = huskGaussFailures(e, o, matter, false, flux)
 
   for (let t = 1; t <= beats; t++) {
@@ -203,18 +296,41 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
   let energy = 0
 
   line.forEach((l, i) => {
-    phi += (unwrapped.total[i]! + f.aShift[l]! / q ** levels) / beats - harmonic[l]!
+    phi +=
+      (unwrapped.total[i]! + f.aShift[l]! / q ** levels) / beats -
+      harmonic[l]!
     phiStatic += relaxed.field[l]! - harmonic[l]!
   })
 
-  for (let t = 0; t < beats; t++) shapedBeatBack(e, o, scratch, options)
+  for (let t = 0; t < beats; t++) {
+    shapedBeatBack(e, o, scratch, options)
+  }
 
   const end = shapedArrays(o)
-  const reversed = end.every((x, k) => x.every((v, i) => v === start[k]![i]))
+  const reversed = end.every((x, k) =>
+    x.every((v, i) => v === start[k]![i]),
+  )
 
-  for (let l = 0; l < g.huskLinks; l++) energy += (g.weight[l % 9]! / 4) * (relaxed.field[l]! - harmonic[l]!) ** 2
+  for (let l = 0; l < g.huskLinks; l++) {
+    energy +=
+      (g.weight[l % 9]! / 4) * (relaxed.field[l]! - harmonic[l]!) ** 2
+  }
 
-  return { light, depth, resolution, r, phi, phiStatic, energy, gauss, wraps: 0, turns: unwrapped.turns, reversed, residual: relaxed.residual, green }
+  return {
+    light,
+    depth,
+    resolution,
+    r,
+    phi,
+    phiStatic,
+    energy,
+    gauss,
+    wraps: 0,
+    turns: unwrapped.turns,
+    reversed,
+    residual: relaxed.residual,
+    green,
+  }
 }
 
 // the integer angle on a set of links followed through its compact window: each beat's change is read centered in
@@ -238,9 +354,12 @@ class Unwrap {
     this.links.forEach((l, i) => {
       const n = this.window[l]!
       const raw = angle[l]! - this.last[i]!
-      const step = (((raw + n / 2) % n) + n) % n - n / 2
+      const step = ((((raw + n / 2) % n) + n) % n) - n / 2
 
-      if (step !== raw) this.turns++
+      if (step !== raw) {
+        this.turns++
+      }
+
       this.total[i] = this.total[i]! + step
       this.last[i] = angle[l]!
     })
@@ -249,13 +368,23 @@ class Unwrap {
 
 // the frequency of a standing mode X = amp cos(2 pi n x / box), uniform in y and z, at rest: upward zero crossings
 // of X at x = 0 (placed linearly between beats) over `beats`, 2 pi over their mean spacing; and the reversal
-export function modeRate(depth: number, m: number, amp: number, beats: number, form: WaveForm, box: number, n: number): { rate: number; reversed: boolean } {
+export function modeRate(
+  depth: number,
+  m: number,
+  amp: number,
+  beats: number,
+  form: WaveForm,
+  box: number,
+  n: number,
+): { rate: number; reversed: boolean } {
   const mesh = radionMesh([box, 2, 2])
   const rule = clockWaveRule(mesh, () => depth, m, form, RADION_DEPTH)
   const s = emptyClockWave(mesh)
 
   for (let y = 0; y < mesh.docks; y++) {
-    const v = Math.floor(amp * Math.cos((2 * Math.PI * n * (y % box)) / box))
+    const v = Math.floor(
+      amp * Math.cos((2 * Math.PI * n * (y % box)) / box),
+    )
 
     s.now[y] = v
     s.lag[y] = v
@@ -264,6 +393,7 @@ export function modeRate(depth: number, m: number, amp: number, beats: number, f
   const start = clockWaveFrom(s)
   const lap = new Int32Array(mesh.docks)
   const ups: number[] = []
+
   let before = s.now[0]!
 
   for (let t = 1; t <= beats; t++) {
@@ -271,13 +401,23 @@ export function modeRate(depth: number, m: number, amp: number, beats: number, f
 
     const now = s.now[0]!
 
-    if (before < 0 && now >= 0) ups.push(t - 1 + -before / (now - before))
+    if (before < 0 && now >= 0) {
+      ups.push(t - 1 + -before / (now - before))
+    }
+
     before = now
   }
 
-  for (let t = 0; t < beats; t++) clockWaveBeatBack(mesh, rule, s, lap)
+  for (let t = 0; t < beats; t++) {
+    clockWaveBeatBack(mesh, rule, s, lap)
+  }
 
-  return { rate: (2 * Math.PI * (ups.length - 1)) / (ups[ups.length - 1]! - ups[0]!), reversed: sameClockWave(s, start) }
+  return {
+    rate:
+      (2 * Math.PI * (ups.length - 1)) /
+      (ups[ups.length - 1]! - ups[0]!),
+    reversed: sameClockWave(s, start),
+  }
 }
 
 export type LocalUnits = {
@@ -294,10 +434,27 @@ export type LocalUnits = {
   reversed: boolean
 }
 
-export function localUnits(light: LightKind, depth: number): LocalUnits {
+export function localUnits(
+  light: LightKind,
+  depth: number,
+): LocalUnits {
   const form: WaveForm = light === 'span' ? 'span' : 'clock'
-  const r0 = restRate(depth, LOCAL_REST_TERM, LOCAL_AMP, LOCAL_REST_BEATS, form)
-  const mode = modeRate(depth, LOCAL_REST_TERM, LOCAL_AMP, LOCAL_REST_BEATS, form, LOCAL_MODE_BOX, 1)
+  const r0 = restRate(
+    depth,
+    LOCAL_REST_TERM,
+    LOCAL_AMP,
+    LOCAL_REST_BEATS,
+    form,
+  )
+  const mode = modeRate(
+    depth,
+    LOCAL_REST_TERM,
+    LOCAL_AMP,
+    LOCAL_REST_BEATS,
+    form,
+    LOCAL_MODE_BOX,
+    1,
+  )
   const k = (2 * Math.PI) / LOCAL_MODE_BOX
   const matterSpeed = Math.sqrt(mode.rate ** 2 - r0.rate ** 2) / k
   const compton = matterSpeed / r0.rate
@@ -334,11 +491,15 @@ export type LocalAlpha = {
   hbarInvariant: number
 }
 
-export function localAlpha(pair: PairReading, units: LocalUnits): LocalAlpha {
+export function localAlpha(
+  pair: PairReading,
+  units: LocalUnits,
+): LocalAlpha {
   const omega = (peierlsPhase(pair.resolution) * pair.phi) / 2
   const energyLocal = omega / units.rest
   const greenLocal = pair.green * units.compton
-  const alphaLocal = energyLocal / (units.cLocal * 24 * Math.PI * greenLocal)
+  const alphaLocal =
+    energyLocal / (units.cLocal * 24 * Math.PI * greenLocal)
 
   return {
     pair,
@@ -347,33 +508,51 @@ export function localAlpha(pair: PairReading, units: LocalUnits): LocalAlpha {
     energyLocal,
     greenLocal,
     alphaLocal,
-    alphaCoordinate: omega / (24 * Math.PI * lightSpeed(pair.light, pair.depth) * pair.green),
+    alphaCoordinate:
+      omega /
+      (24 * Math.PI * lightSpeed(pair.light, pair.depth) * pair.green),
     alphaClosed: alphaClosed(pair.light, pair.depth, pair.resolution),
     noteProduct: pair.energy / units.rest / (24 * Math.PI * greenLocal),
     hbarInvariant: pair.energy / omega,
   }
 }
 
-export type LocalAlphaSurvey = { readings: LocalAlpha[]; units: LocalUnits[]; seconds: number }
+export type LocalAlphaSurvey = {
+  readings: LocalAlpha[]
+  units: LocalUnits[]
+  seconds: number
+}
 
 let surveyCache: LocalAlphaSurvey | undefined
 
-export function localAlphaSurvey(log?: (what: string) => void): LocalAlphaSurvey {
-  if (surveyCache) return surveyCache
+export function localAlphaSurvey(
+  log?: (what: string) => void,
+): LocalAlphaSurvey {
+  if (surveyCache) {
+    return surveyCache
+  }
 
   const started = Date.now()
   const lights: LightKind[] = ['span', 'clock']
-  const units = lights.flatMap(light => LOCAL_DEPTHS.map(depth => localUnits(light, depth)))
+  const units = lights.flatMap(light =>
+    LOCAL_DEPTHS.map(depth => localUnits(light, depth)),
+  )
   const readings: LocalAlpha[] = []
 
   for (const u of units) {
     for (const r of LOCAL_SEPARATIONS) {
       readings.push(localAlpha(pairReading(u.light, u.depth, r), u))
-      log?.(`${u.light} D ${u.depth} r ${r} ${(Date.now() - started) / 1000}s`)
+      log?.(
+        `${u.light} D ${u.depth} r ${r} ${(Date.now() - started) / 1000}s`,
+      )
     }
   }
 
-  surveyCache = { readings, units, seconds: (Date.now() - started) / 1000 }
+  surveyCache = {
+    readings,
+    units,
+    seconds: (Date.now() - started) / 1000,
+  }
 
   return surveyCache
 }

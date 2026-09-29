@@ -51,9 +51,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { energyDrift, SPAN_LENS_WINDOW } from '@/code/measure/depth-span'
-import { headroomSlabSurvey, SLAB_BASE, SLAB_EVERY, type HeadroomRun } from '@/code/measure/headroom-slab'
-import { headroomSlabWindow, SLAB_WINDOW_MARGIN } from '@/code/measure/headroom-slab-window'
+import {
+  energyDrift,
+  SPAN_LENS_WINDOW,
+} from '@/code/measure/depth-span'
+import {
+  headroomSlabSurvey,
+  SLAB_BASE,
+  SLAB_EVERY,
+  type HeadroomRun,
+} from '@/code/measure/headroom-slab'
+import {
+  headroomSlabWindow,
+  SLAB_WINDOW_MARGIN,
+} from '@/code/measure/headroom-slab-window'
 import { LENS_DETECTORS } from '@/code/measure/radion'
 
 const ENERGY_GATE = 1e-8
@@ -61,8 +72,11 @@ const BEND_TOLERANCE = 0.01
 const CONTROL_LOW = 0.0375
 const CONTROL_HIGH = 0.0385
 
-const wrapsOf = (r: { wraps: { angle: number; field: number; potential: number } }): number => r.wraps.angle + r.wraps.field + r.wraps.potential
-const exact = (r: HeadroomRun): boolean => r.reversed && r.gauss === 0 && wrapsOf(r) === 0
+const wrapsOf = (r: {
+  wraps: { angle: number; field: number; potential: number }
+}): number => r.wraps.angle + r.wraps.field + r.wraps.potential
+const exact = (r: HeadroomRun): boolean =>
+  r.reversed && r.gauss === 0 && wrapsOf(r) === 0
 
 export default experiment({
   id: 'gravity/headroom-slab-window',
@@ -137,7 +151,10 @@ export default experiment({
       status,
       claim: `on E-GRV-0093's slab placed as rooms (C = ${SLAB_BASE}, rooms ${Math.min(...s.room)} .. ${Math.max(...s.room)}, reference ${s.reference} at D0, ${s.pathSteps} room steps between the detectors), over the window fixed in advance by the light's own speed, ceil(${SPAN_LENS_WINDOW} C / k0) + ${SLAB_WINDOW_MARGIN} = ${w.window} beats (the -x half's eikonal wrap to x = ${LENS_DETECTORS[n]} at ${f(w.wrapSlab)} beats on the slab, ${f(w.wrapReference)} on the reference), the headroom light's kept energy drifts ${e(kept)} (gate ${ENERGY_GATE}), against the control's ${e(controlDrift)} on E-GRV-0093's own medium; the unweighted formula drifts ${e(unweighted)}; the slab and reference runs reverse ${w.lens.reversed && w.uniform.reversed} with ${wrapsOf(w.lens) + wrapsOf(w.uniform)} wraps and ${w.lens.gauss + w.uniform.gauss} Gauss violations; the far detector sees the slab's packet at ${f(w.lens.arrival[n]!)} of ${w.window}; the light is delayed ${f(w.measuredDelay)} beats against its eikonal ${f(s.eikonalDelay)}, a factor ${f(factor)} of the Newtonian count with matter's measured clock (${f(s.clockCount)} beats; closed ${f(s.closedCount)}, closed factor ${f(closedFactor)}), bending ${f(bending)} (gate 2 within ${BEND_TOLERANCE * 100} percent)`,
       metrics,
-      control: { controlDrift, controlReversed: s.control.reversed ? 1 : 0 },
+      control: {
+        controlDrift,
+        controlReversed: s.control.reversed ? 1 : 0,
+      },
       notes: `L2. D1 ${d1}, D2 ${d2}, D3 ${d3}, K ${k}. Window ${w.window} = ceil(${SPAN_LENS_WINDOW} x ${SLAB_BASE} / ${s.reference}) + ${SLAB_WINDOW_MARGIN}, fixed before the run. Arrivals reference ${w.uniform.arrival.map(x => x.toFixed(2)).join(' ')}, slab ${w.lens.arrival.map(x => x.toFixed(2)).join(' ')}, control (3,600 beats) ${s.control.arrival.map(x => x.toFixed(2)).join(' ')} at x = ${LENS_DETECTORS.join(', ')} (${n} gaps). Kept energy I_0 ${w.lens.energy[0]!.toExponential(9)}, reference run's drift ${e(keptFlat)}. Control wraps ${wrapsOf(s.control)}, reversed ${s.control.reversed}, gauss ${s.control.gauss}. Interval rooms ${s.intervals.map(iv => iv.k).join(' ')}. Rest rates (room: measured / closed) ${s.rest.map(r => `${r.k}: ${r.rate.toExponential(6)} / ${r.closed.toExponential(6)}`).join('; ')}, reversed ${restExact}. Runs ${w.uniform.seconds.toFixed(1)} s, ${w.lens.seconds.toFixed(1)} s; survey ${s.seconds.toFixed(1)} s (its 3,600-beat runs feed only the control).`,
     })
   },

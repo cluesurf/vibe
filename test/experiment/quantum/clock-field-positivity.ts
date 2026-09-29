@@ -24,11 +24,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import {
-  squareMesh,
-  d4Mesh,
-  meshOpposites,
-} from '@/code/tool/mesh'
+import { squareMesh, d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
 import {
   headOnRotate,
@@ -85,11 +81,7 @@ function fieldMinEig(input: { snapshots: number[][] }): number {
     let sum = 0
     let n = 0
 
-    for (
-      let t = 0;
-      t < PAIRS && t + tau < snapshots.length;
-      t++
-    ) {
+    for (let t = 0; t < PAIRS && t + tau < snapshots.length; t++) {
       const a = snapshots[t]!
       const b = snapshots[t + tau]!
 
@@ -239,8 +231,7 @@ export default experiment({
     const gasPositive = gasMin > 0.3
     const wakeViolates = wakeMin < -100
 
-    const ok =
-      vacuumPositive && gasPositive && wakeViolates && wakeGrew
+    const ok = vacuumPositive && gasPositive && wakeViolates && wakeGrew
 
     return verdict({
       status: ok ? 'pass' : 'fail',

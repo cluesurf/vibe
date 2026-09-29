@@ -63,11 +63,29 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { generateGroup, matrix3, multiply3, toSpecial, type Matrix3 } from '@/code/dynamics/finite-gauge'
-import { CLOCK, FOURIER, QUTRIT_T, SHIFT, SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
-import { affineOf, phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
+import {
+  generateGroup,
+  matrix3,
+  multiply3,
+  toSpecial,
+  type Matrix3,
+} from '@/code/dynamics/finite-gauge'
+import {
+  CLOCK,
+  FOURIER,
+  QUTRIT_T,
+  SHIFT,
+  SU3_SUBGROUPS,
+} from '@/code/algebra/group/su3-subgroups'
+import {
+  affineOf,
+  phaseSpaceAction,
+} from '@/code/measure/qutrit-phase-space'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { closure, type GroupOps } from '@/code/algebra/group/finite-group'
+import {
+  closure,
+  type GroupOps,
+} from '@/code/algebra/group/finite-group'
 import {
   elementOrders,
   intertwiningRelabelings,
@@ -75,8 +93,16 @@ import {
   PERMUTATION_OPS,
   tableGroup,
 } from '@/code/algebra/group/isomorphism'
-import { specialLinear, multiplyModP } from '@/code/algebra/group/special-linear'
-import { cliffordAction, cliffordLevel, displacementOperators, operatorFrom3 } from '@/code/measure/qutrit-clifford'
+import {
+  specialLinear,
+  multiplyModP,
+} from '@/code/algebra/group/special-linear'
+import {
+  cliffordAction,
+  cliffordLevel,
+  displacementOperators,
+  operatorFrom3,
+} from '@/code/measure/qutrit-clifford'
 
 const EXPECTED_AUTOMORPHISMS = 432
 const KEY_SCALE = 1e6
@@ -104,9 +130,19 @@ function scale3(m: Matrix3, re: number, im: number): Matrix3 {
 function phaseFreeKey(m: Matrix3): string {
   const s = toSpecial(m)
 
-  return [0, 1, 2]
-    .map(k => keyOf(scale3(s, Math.cos((2 * Math.PI * k) / 3), Math.sin((2 * Math.PI * k) / 3))))
-    .sort()[0] ?? ''
+  return (
+    [0, 1, 2]
+      .map(k =>
+        keyOf(
+          scale3(
+            s,
+            Math.cos((2 * Math.PI * k) / 3),
+            Math.sin((2 * Math.PI * k) / 3),
+          ),
+        ),
+      )
+      .sort()[0] ?? ''
+  )
 }
 
 function dagger(m: Matrix3): Matrix3 {
@@ -129,28 +165,39 @@ const MATRIX_OPS: GroupOps<Matrix3> = {
 }
 
 // the symplectic product [x, y] = x1 y2 - x2 y1 on Z3^2, v = 3 a + b as (a, b)
-const symplectic = (x: number, y: number): number => (((Math.floor(x / 3) * (y % 3) - (x % 3) * Math.floor(y / 3)) % 3) + 3) % 3
+const symplectic = (x: number, y: number): number =>
+  (((Math.floor(x / 3) * (y % 3) - (x % 3) * Math.floor(y / 3)) % 3) +
+    3) %
+  3
 
 export default experiment({
   id: 'quantum/links-are-the-clifford-group',
   code: 'E-QTM-0117',
   title:
-    'the links are the qutrit Clifford group: Sigma(648) is the determinant-1 lift of the single-qutrit Clifford group, every element maps each Weyl-Heisenberg displacement to a phase times a displacement, its quotient by the 3 central scalars is the model\'s 216 grid moves exactly, and those are ASL(2, 3) acting on the role grid as qutrit phase space, with 432 isomorphisms, every one a relabeling of the nine points',
+    "the links are the qutrit Clifford group: Sigma(648) is the determinant-1 lift of the single-qutrit Clifford group, every element maps each Weyl-Heisenberg displacement to a phase times a displacement, its quotient by the 3 central scalars is the model's 216 grid moves exactly, and those are ASL(2, 3) acting on the role grid as qutrit phase space, with 432 isomorphisms, every one a relabeling of the nine points",
   category: 'quantum',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
     // 1. Sigma(648), classical and Clifford
-    const group = generateGroup({ generators: SU3_SUBGROUPS.sigma648.generators, limit: 4000 })
+    const group = generateGroup({
+      generators: SU3_SUBGROUPS.sigma648.generators,
+      limit: 4000,
+    })
     const d1 = displacementOperators(1)
-    const maps = group.matrices.map(m => phaseSpaceAction({ unitary: m }))
+    const maps = group.matrices.map(m =>
+      phaseSpaceAction({ unitary: m }),
+    )
     const classical = maps.filter(m => m !== undefined).length
-    const actions = group.matrices.map(m => cliffordAction(operatorFrom3(m), d1))
+    const actions = group.matrices.map(m =>
+      cliffordAction(operatorFrom3(m), d1),
+    )
     const clifford = actions.filter(a => a !== undefined).length
 
     // 2. homomorphism, kernel, image
     const perm = maps.map(m => m ?? [0, 1, 2, 3, 4, 5, 6, 7, 8])
+
     let homomorphismFailures = 0
 
     for (let a = 0; a < group.order; a++) {
@@ -158,17 +205,37 @@ export default experiment({
         const ab = group.product[a * group.order + b] ?? 0
         const composed = (perm[b] ?? []).map(p => perm[a]?.[p] ?? p)
 
-        homomorphismFailures += composed.every((x, i) => x === perm[ab]?.[i]) ? 0 : 1
+        homomorphismFailures += composed.every(
+          (x, i) => x === perm[ab]?.[i],
+        )
+          ? 0
+          : 1
       }
     }
 
     const identityPerm = '0,1,2,3,4,5,6,7,8'
-    const kernel = perm.map((p, g) => [p.join(','), g] as const).filter(([k]) => k === identityPerm).map(([, g]) => g)
+    const kernel = perm
+      .map((p, g) => [p.join(','), g] as const)
+      .filter(([k]) => k === identityPerm)
+      .map(([, g]) => g)
     const kernelScalar = kernel.every(g => {
       const m = group.matrices[g] ?? new Float64Array(18)
 
-      return [1, 2, 3, 5, 6, 7].every(k => Math.hypot(m[2 * k] ?? 0, m[2 * k + 1] ?? 0) < 1e-9) && Math.hypot((m[0] ?? 0) - (m[8] ?? 0), (m[1] ?? 0) - (m[9] ?? 0)) < 1e-9 && Math.hypot((m[0] ?? 0) - (m[16] ?? 0), (m[1] ?? 0) - (m[17] ?? 0)) < 1e-9
+      return (
+        [1, 2, 3, 5, 6, 7].every(
+          k => Math.hypot(m[2 * k] ?? 0, m[2 * k + 1] ?? 0) < 1e-9,
+        ) &&
+        Math.hypot(
+          (m[0] ?? 0) - (m[8] ?? 0),
+          (m[1] ?? 0) - (m[9] ?? 0),
+        ) < 1e-9 &&
+        Math.hypot(
+          (m[0] ?? 0) - (m[16] ?? 0),
+          (m[1] ?? 0) - (m[17] ?? 0),
+        ) < 1e-9
+      )
     })
+
     const toGridTable = (p: readonly number[]): string => {
       const table = new Array<number>(9)
 
@@ -176,23 +243,33 @@ export default experiment({
 
       return table.join(',')
     }
+
     const imageInGrid = new Set(perm.map(toGridTable))
     const grid = gridMoves()
     const gridSet = new Set(grid.act.map(t => Array.from(t).join(',')))
-    const imageEqualsGrid = imageInGrid.size === gridSet.size && [...imageInGrid].every(k => gridSet.has(k))
+    const imageEqualsGrid =
+      imageInGrid.size === gridSet.size &&
+      [...imageInGrid].every(k => gridSet.has(k))
 
     // 3. linear parts and phases
     const omegaPowerOf = ([re, im]: [number, number]): number => {
       for (let k = 0; k < 3; k++) {
-        if (Math.hypot(re - Math.cos((2 * Math.PI * k) / 3), im - Math.sin((2 * Math.PI * k) / 3)) < 1e-8) {
+        if (
+          Math.hypot(
+            re - Math.cos((2 * Math.PI * k) / 3),
+            im - Math.sin((2 * Math.PI * k) / 3),
+          ) < 1e-8
+        ) {
           return k
         }
       }
 
       return -1
     }
+
     let linearAgree = 0
     let cubeRootPhases = 0
+
     const conventionHolds = [0, 0, 0]
 
     group.matrices.forEach((_, g) => {
@@ -206,9 +283,18 @@ export default experiment({
       // M e1 and M e2 from the displacements D(1, 0) (index 3) and D(0, 1) (index 1)
       const e1 = act.images[3] ?? 0
       const e2 = act.images[1] ?? 0
-      const fromDisplacement = [Math.floor(e1 / 3), Math.floor(e2 / 3), e1 % 3, e2 % 3]
+      const fromDisplacement = [
+        Math.floor(e1 / 3),
+        Math.floor(e2 / 3),
+        e1 % 3,
+        e2 % 3,
+      ]
 
-      linearAgree += fromDisplacement.every((x, i) => x === affine.matrix[i]) ? 1 : 0
+      linearAgree += fromDisplacement.every(
+        (x, i) => x === affine.matrix[i],
+      )
+        ? 1
+        : 0
 
       const t = 3 * affine.shift[0] + affine.shift[1]
       const powers = act.phases.map(omegaPowerOf)
@@ -216,7 +302,13 @@ export default experiment({
       cubeRootPhases += powers.every(k => k >= 0) ? 1 : 0
 
       for (const c of [1, 2]) {
-        conventionHolds[c] = (conventionHolds[c] ?? 0) + (powers.every((k, v) => k === (c * symplectic(t, act.images[v] ?? 0)) % 3) ? 1 : 0)
+        conventionHolds[c] =
+          (conventionHolds[c] ?? 0) +
+          (powers.every(
+            (k, v) => k === (c * symplectic(t, act.images[v] ?? 0)) % 3,
+          )
+            ? 1
+            : 0)
       }
     })
 
@@ -242,21 +334,37 @@ export default experiment({
     ])
     const independent = closure([X, Z, FOURIER, PHASE], MATRIX_OPS)
     const sigmaKeys = new Set(group.matrices.map(phaseFreeKey))
-    const independentInSigma = independent.filter(m => sigmaKeys.has(phaseFreeKey(m))).length
-    const independentClifford = independent.filter(m => cliffordAction(operatorFrom3(m), d1) !== undefined).length
+    const independentInSigma = independent.filter(m =>
+      sigmaKeys.has(phaseFreeKey(m)),
+    ).length
+    const independentClifford = independent.filter(
+      m => cliffordAction(operatorFrom3(m), d1) !== undefined,
+    ).length
 
     // 5. isomorphisms: the model's 216 (grid coordinates) and the Clifford action (phase coordinates)
     const modelPerms = grid.act.map(t => Array.from(t))
-    const cliffordPerms = [...new Map(perm.map(p => [p.join(','), p])).values()]
+    const cliffordPerms = [
+      ...new Map(perm.map(p => [p.join(','), p])).values(),
+    ]
     const modelGroup = tableGroup(modelPerms, PERMUTATION_OPS)
     const cliffordGroup = tableGroup(cliffordPerms, PERMUTATION_OPS)
     const abstract = isomorphisms(modelGroup, cliffordGroup).length
     const modelGenerators = (() => {
       const orders = elementOrders(modelGroup)
+
       // the generating pair the isomorphism count used is inside isomorphisms; take one here for relabelings
       for (let a = 0; a < modelGroup.order; a++) {
         for (let b = a + 1; b < modelGroup.order; b++) {
-          if ((orders[a] ?? 0) >= 3 && (orders[b] ?? 0) >= 3 && new Set(closure([modelPerms[a] ?? [], modelPerms[b] ?? []], PERMUTATION_OPS).map(p => p.join(','))).size === 216) {
+          if (
+            (orders[a] ?? 0) >= 3 &&
+            (orders[b] ?? 0) >= 3 &&
+            new Set(
+              closure(
+                [modelPerms[a] ?? [], modelPerms[b] ?? []],
+                PERMUTATION_OPS,
+              ).map(p => p.join(',')),
+            ).size === 216
+          ) {
             return [modelPerms[a] ?? [], modelPerms[b] ?? []]
           }
         }
@@ -264,13 +372,23 @@ export default experiment({
 
       return []
     })()
-    const relabelings = intertwiningRelabelings({ source: modelPerms, sourceGenerators: modelGenerators, target: cliffordPerms })
+    const relabelings = intertwiningRelabelings({
+      source: modelPerms,
+      sourceGenerators: modelGenerators,
+      target: cliffordPerms,
+    })
     // toGrid read backwards: grid index p -> phase index q
-    const gridToPhase = Array.from({ length: 9 }, (_, p) => 3 * (p % 3) + Math.floor(p / 3))
+    const gridToPhase = Array.from(
+      { length: 9 },
+      (_, p) => 3 * (p % 3) + Math.floor(p / 3),
+    )
     const cliffordSet = new Set(cliffordPerms.map(p => p.join(',')))
     const toGridIntertwines = modelPerms.every(g => {
       const phaseToGrid = Array.from({ length: 9 }, (_, q) => toGrid(q))
-      const conjugated = Array.from({ length: 9 }, (_, q) => gridToPhase[g[phaseToGrid[q] ?? 0] ?? 0] ?? 0)
+      const conjugated = Array.from(
+        { length: 9 },
+        (_, q) => gridToPhase[g[phaseToGrid[q] ?? 0] ?? 0] ?? 0,
+      )
 
       return cliffordSet.has(conjugated.join(','))
     })
@@ -282,24 +400,47 @@ export default experiment({
 
       return [1, 3].every(p => {
         const dx = (((t[p] ?? 0) % 3) - (s % 3) + 3) % 3
-        const dy = (Math.floor((t[p] ?? 0) / 3) - Math.floor(s / 3) + 3) % 3
+        const dy =
+          (Math.floor((t[p] ?? 0) / 3) - Math.floor(s / 3) + 3) % 3
 
         return dx + 3 * dy === p
       })
     }).length
-    const heisenberg = generateGroup({ generators: [CLOCK, SHIFT], limit: 100 })
-    const heisenbergImages = new Set(heisenberg.matrices.map(m => toGridTable(phaseSpaceAction({ unitary: m }) ?? []))).size
+    const heisenberg = generateGroup({
+      generators: [CLOCK, SHIFT],
+      limit: 100,
+    })
+    const heisenbergImages = new Set(
+      heisenberg.matrices.map(m =>
+        toGridTable(phaseSpaceAction({ unitary: m }) ?? []),
+      ),
+    ).size
 
     // controls
-    const tClassical = phaseSpaceAction({ unitary: QUTRIT_T }) !== undefined
-    const tClifford = cliffordAction(operatorFrom3(QUTRIT_T), d1) !== undefined
+    const tClassical =
+      phaseSpaceAction({ unitary: QUTRIT_T }) !== undefined
+    const tClifford =
+      cliffordAction(operatorFrom3(QUTRIT_T), d1) !== undefined
     const tLevel = cliffordLevel(operatorFrom3(QUTRIT_T), d1, 4)
-    const sigma1080 = generateGroup({ generators: SU3_SUBGROUPS.sigma1080.generators, limit: 4000 })
-    const sigma1080Classical = sigma1080.matrices.filter(m => phaseSpaceAction({ unitary: m }) !== undefined).length
+    const sigma1080 = generateGroup({
+      generators: SU3_SUBGROUPS.sigma1080.generators,
+      limit: 4000,
+    })
+    const sigma1080Classical = sigma1080.matrices.filter(
+      m => phaseSpaceAction({ unitary: m }) !== undefined,
+    ).length
     const sl = specialLinear(3)
-    type Pair = { t: [number, number]; m: readonly [number, number, number, number] }
+
+    type Pair = {
+      t: [number, number]
+      m: readonly [number, number, number, number]
+    }
+
     const directOps: GroupOps<Pair> = {
-      multiply: (x, y) => ({ t: [(x.t[0] + y.t[0]) % 3, (x.t[1] + y.t[1]) % 3], m: multiplyModP(x.m, y.m, 3) }),
+      multiply: (x, y) => ({
+        t: [(x.t[0] + y.t[0]) % 3, (x.t[1] + y.t[1]) % 3],
+        m: multiplyModP(x.m, y.m, 3),
+      }),
       // not used: tableGroup reads only multiply and key
       inverse: x => x,
       key: x => `${x.t.join(',')}|${x.m.join(',')}`,
@@ -314,15 +455,25 @@ export default experiment({
       }
     }
 
-    const directIsomorphisms = isomorphisms(tableGroup(directElements, directOps), cliffordGroup).length
+    const directIsomorphisms = isomorphisms(
+      tableGroup(directElements, directOps),
+      cliffordGroup,
+    ).length
 
     // the fear weave's convention: moves.act applied to phase-indexed coordinates is the transposed move
     // the move a grid move g is on phase indices: swap g swap, swap the index change a + 3 b <-> 3 a + b.
     // The fear weave applies g itself to phase indices, so it applies this move's transpose
     const swap = (i: number): number => 3 * (i % 3) + Math.floor(i / 3)
-    const transpose = (t: Int8Array): string => Array.from({ length: 9 }, (_, q) => swap(t[swap(q)] ?? 0)).join(',')
-    const transposedDiffer = grid.act.filter(t => transpose(t) !== Array.from(t).join(',')).length
-    const transposedInSet = grid.act.filter(t => gridSet.has(transpose(t))).length
+    const transpose = (t: Int8Array): string =>
+      Array.from({ length: 9 }, (_, q) => swap(t[swap(q)] ?? 0)).join(
+        ',',
+      )
+    const transposedDiffer = grid.act.filter(
+      t => transpose(t) !== Array.from(t).join(','),
+    ).length
+    const transposedInSet = grid.act.filter(t =>
+      gridSet.has(transpose(t)),
+    ).length
 
     const ok =
       group.order === 648 &&
@@ -335,7 +486,7 @@ export default experiment({
       imageInGrid.size === 216 &&
       linearAgree === 648 &&
       cubeRootPhases === 648 &&
-      ((conventionHolds[1] === 648) !== (conventionHolds[2] === 648)) &&
+      (conventionHolds[1] === 648) !== (conventionHolds[2] === 648) &&
       independent.length === 216 &&
       independentInSigma === 216 &&
       independentClifford === 216 &&
@@ -352,7 +503,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'all 648 elements of Sigma(648) are Clifford (each maps every displacement to a cube-root phase times a displacement, by one symplectic rule) and classical on the grid; conjugation is a homomorphism with kernel the 3 central scalars and image exactly the model\'s 216 grid moves; X, Z, Fourier and the phase gate close on 216 elements up to phase, all in Sigma(648); the model\'s 216 and the Clifford action admit 432 isomorphisms and 432 point relabelings, AGL(2, 3), so the links are the qutrit Clifford group mod phases, ASL(2, 3), and Sigma(648) its determinant-1 lift',
+        "all 648 elements of Sigma(648) are Clifford (each maps every displacement to a cube-root phase times a displacement, by one symplectic rule) and classical on the grid; conjugation is a homomorphism with kernel the 3 central scalars and image exactly the model's 216 grid moves; X, Z, Fourier and the phase gate close on 216 elements up to phase, all in Sigma(648); the model's 216 and the Clifford action admit 432 isomorphisms and 432 point relabelings, AGL(2, 3), so the links are the qutrit Clifford group mod phases, ASL(2, 3), and Sigma(648) its determinant-1 lift",
       metrics: {
         sigma648Order: group.order,
         classicalElements: classical,
@@ -387,7 +538,7 @@ export default experiment({
         predictedAutomorphisms: EXPECTED_AUTOMORPHISMS,
       },
       notes:
-        'L1, exact up to 1e-8 on 3 x 3 matrices. Which is which: Sigma(648) = Sigma(216 x 3), the Hessian group in SU(3), is the determinant-1 qutrit Clifford group; its center {1, omega, omega^2} is invisible to the Clifford action; Sigma(648)/Z3 = the Hessian group of order 216 in PGL(3) = Clifford mod phases = ASL(2, 3) = the model\'s grid moves; the 9 translations are the displacements (the clock and shift, Delta(27) mod its center, the free subgroup of E-FRC-0174); the linear part SL(2, 3) is the role grid\'s turn group (E-MTH-0009). The ninth root in Sigma(648)\'s generator D = diag(e, e, e omega), e = e^(4 pi i / 9), is a global phase that brings the Clifford phase gate diag(1, 1, omega) to determinant 1; it is not the ninth-root T gate, which the controls show is non-Clifford. The fear weave applies moves.act (grid index a + 3 b) to whole coordinates its kernels read as 3 a + b: every link there is still a Clifford move, the transpose of its own, a convention mismatch with sigma-links, not a physics error.',
+        "L1, exact up to 1e-8 on 3 x 3 matrices. Which is which: Sigma(648) = Sigma(216 x 3), the Hessian group in SU(3), is the determinant-1 qutrit Clifford group; its center {1, omega, omega^2} is invisible to the Clifford action; Sigma(648)/Z3 = the Hessian group of order 216 in PGL(3) = Clifford mod phases = ASL(2, 3) = the model's grid moves; the 9 translations are the displacements (the clock and shift, Delta(27) mod its center, the free subgroup of E-FRC-0174); the linear part SL(2, 3) is the role grid's turn group (E-MTH-0009). The ninth root in Sigma(648)'s generator D = diag(e, e, e omega), e = e^(4 pi i / 9), is a global phase that brings the Clifford phase gate diag(1, 1, omega) to determinant 1; it is not the ninth-root T gate, which the controls show is non-Clifford. The fear weave applies moves.act (grid index a + 3 b) to whole coordinates its kernels read as 3 a + b: every link there is still a Clifford move, the transpose of its own, a convention mismatch with sigma-links, not a physics error.",
     })
   },
 })

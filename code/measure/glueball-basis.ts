@@ -257,7 +257,8 @@ export function groundStateVector(input: {
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const mean =
-        ((reduced.data[i * n + j] ?? 0) + (reduced.data[j * n + i] ?? 0)) /
+        ((reduced.data[i * n + j] ?? 0) +
+          (reduced.data[j * n + i] ?? 0)) /
         2
 
       reduced.data[i * n + j] = mean
@@ -310,7 +311,8 @@ export function projectedCorrelator(input: {
       (sum, row, i) =>
         sum +
         row.reduce(
-          (inner, value, j) => inner + (v[i] ?? 0) * value * (v[j] ?? 0),
+          (inner, value, j) =>
+            inner + (v[i] ?? 0) * value * (v[j] ?? 0),
           0,
         ),
       0,

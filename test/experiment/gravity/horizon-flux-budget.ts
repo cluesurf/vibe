@@ -103,15 +103,37 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, warpClock, type OpenState } from '@/code/rule/open-husk'
+import {
+  openMesh,
+  warpClock,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { horizonRule, tornLink } from '@/code/rule/horizon-husk'
 import { clockHorizonRule, clockJoin } from '@/code/rule/clock-horizon'
 import { compressLump } from '@/code/measure/step-depth'
 import { greenSolve } from '@/code/measure/open-husk'
-import { growthRun, newHorizonRecord, realHorizonDepth, tornMesh, type Addition } from '@/code/measure/horizon-husk'
-import { accretionOrder, axisForce, clockStatics, routeUnits, spreadSinks } from '@/code/measure/clock-horizon'
+import {
+  growthRun,
+  newHorizonRecord,
+  realHorizonDepth,
+  tornMesh,
+  type Addition,
+} from '@/code/measure/horizon-husk'
+import {
+  accretionOrder,
+  axisForce,
+  clockStatics,
+  routeUnits,
+  spreadSinks,
+} from '@/code/measure/clock-horizon'
 import { outsideInOrder } from '@/code/measure/wave-horizon'
-import { fluxBudget, horizonShape, stackDistance, staticFlux, type FluxBudget } from '@/code/measure/horizon-flux'
+import {
+  fluxBudget,
+  horizonShape,
+  stackDistance,
+  staticFlux,
+  type FluxBudget,
+} from '@/code/measure/horizon-flux'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -130,7 +152,11 @@ const SPHERES: readonly number[] = [6, 7, 8, 9, 10, 11, 12, 13, 14]
 const CENTER = [12, 12, 12]
 const QUARTERS = 4
 
-type Plan = { name: string; m: number; order: 'accretion' | 'outside_in' }
+type Plan = {
+  name: string
+  m: number
+  order: 'accretion' | 'outside_in'
+}
 
 const PLANS: readonly Plan[] = [
   { name: 'A', m: 1600, order: 'accretion' },
@@ -149,15 +175,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
-    const rule = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+    const rule = clockHorizonRule(
+      horizonRule(stepRule(DEPTH, LEVELS), BULK),
+      CAP,
+    )
     const distance = stackDistance(mesh, CENTER)
-    const forceAt = (x: ArrayLike<number>): number[] => RADII.map(r => axisForce(mesh, x, CENTER, r))
-    const off = (p: readonly number[], q: readonly number[]): number => Math.max(...p.map((v, i) => Math.abs(v / q[i]! - 1)))
+    const forceAt = (x: ArrayLike<number>): number[] =>
+      RADII.map(r => axisForce(mesh, x, CENTER, r))
+    const off = (p: readonly number[], q: readonly number[]): number =>
+      Math.max(...p.map((v, i) => Math.abs(v / q[i]! - 1)))
     const metrics: Record<string, number> = {}
     const lines: string[] = []
     const f = (v: number): string => v.toPrecision(4)
+
     let g1 = true
     let g2 = true
     let g3 = true
@@ -166,15 +199,36 @@ export default experiment({
 
     for (const plan of PLANS) {
       const sinks = spreadSinks(mesh, CENTER, plan.m, SINKS_FROM)
-      const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, plan.m, 1, sinks)
-      const order = plan.order === 'accretion' ? accretionOrder(mesh, lump.content, CENTER) : outsideInOrder(mesh, lump.content, CENTER)
-      const additions: Addition[] = routeUnits(mesh, order, sinks).map((u, i) => ({ beat: EVERY * i, at: u.at, sink: u.sink, path: u.path }))
+      const lump = compressLump(
+        radionMesh([SIDE, SIDE, SIDE]),
+        CENTER,
+        plan.m,
+        1,
+        sinks,
+      )
+      const order =
+        plan.order === 'accretion'
+          ? accretionOrder(mesh, lump.content, CENTER)
+          : outsideInOrder(mesh, lump.content, CENTER)
+      const additions: Addition[] = routeUnits(mesh, order, sinks).map(
+        (u, i) => ({
+          beat: EVERY * i,
+          at: u.at,
+          sink: u.sink,
+          path: u.path,
+        }),
+      )
       const growEnd = EVERY * (plan.m - 1) + 1
       const beats = growEnd + SETTLE
       const quarter = SETTLE / QUARTERS
       const mean = new Float64Array(mesh.links)
-      const quarterMean = Array.from({ length: QUARTERS }, () => new Float64Array(mesh.links))
+      const quarterMean = Array.from(
+        { length: QUARTERS },
+        () => new Float64Array(mesh.links),
+      )
+
       let weight = 0
+
       const record = newHorizonRecord()
       const run = growthRun(
         mesh,
@@ -185,10 +239,15 @@ export default experiment({
         CENTER,
         SAMPLE,
         (t: number, s: OpenState) => {
-          if (t <= growEnd) return
+          if (t <= growEnd) {
+            return
+          }
 
           const w = Math.sin((Math.PI * (t - growEnd)) / SETTLE) ** 2
-          const k = Math.min(QUARTERS - 1, Math.floor((t - growEnd - 1) / quarter))
+          const k = Math.min(
+            QUARTERS - 1,
+            Math.floor((t - growEnd - 1) / quarter),
+          )
 
           for (let m = 0; m < mesh.links; m++) {
             const F = s.step[m]! / rule.unit
@@ -196,13 +255,17 @@ export default experiment({
             mean[m] = mean[m]! + w * F
             quarterMean[k]![m] = quarterMean[k]![m]! + F / quarter
           }
+
           weight += w
         },
         false,
         (s, h) => clockJoin(mesh, rule, s, h),
       )
 
-      for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! / weight
+      for (let m = 0; m < mesh.links; m++) {
+        mean[m] = mean[m]! / weight
+      }
+
       log(`run ${plan.name}`)
 
       const rho = run.rho
@@ -213,7 +276,9 @@ export default experiment({
       const source = Float64Array.from(rho)
 
       for (let m = 0; m < mesh.links; m++) {
-        if (!tornLink(mesh, horizon, m)) continue
+        if (!tornLink(mesh, horizon, m)) {
+          continue
+        }
 
         const v = run.final.step[m]! / rule.unit
 
@@ -228,13 +293,51 @@ export default experiment({
       const own = clockStatics(mesh, rule, rho)
       const xFree = greenSolve(mesh, rho, 1e-12).x
       const none = new Uint8Array(mesh.huskDocks)
-      const bGrown = fluxBudget(mesh, mean, rho, horizon, distance, SPHERES)
-      const bHeld = fluxBudget(mesh, staticFlux(mesh, xHeld, horizon, held), rho, horizon, distance, SPHERES)
-      const bPlaced = fluxBudget(mesh, staticFlux(mesh, xPlaced, horizon), rho, horizon, distance, SPHERES)
-      const bOwn = fluxBudget(mesh, staticFlux(mesh, own.torn, own.horizon), rho, own.horizon, distance, SPHERES)
-      const bFree = fluxBudget(mesh, staticFlux(mesh, xFree, none), rho, horizon, distance, SPHERES)
+      const bGrown = fluxBudget(
+        mesh,
+        mean,
+        rho,
+        horizon,
+        distance,
+        SPHERES,
+      )
+      const bHeld = fluxBudget(
+        mesh,
+        staticFlux(mesh, xHeld, horizon, held),
+        rho,
+        horizon,
+        distance,
+        SPHERES,
+      )
+      const bPlaced = fluxBudget(
+        mesh,
+        staticFlux(mesh, xPlaced, horizon),
+        rho,
+        horizon,
+        distance,
+        SPHERES,
+      )
+      const bOwn = fluxBudget(
+        mesh,
+        staticFlux(mesh, own.torn, own.horizon),
+        rho,
+        own.horizon,
+        distance,
+        SPHERES,
+      )
+      const bFree = fluxBudget(
+        mesh,
+        staticFlux(mesh, xFree, none),
+        rho,
+        horizon,
+        distance,
+        SPHERES,
+      )
       const beta = bGrown.out / bFree.out
-      const xLaw = Float64Array.from(xPlaced, (v, y) => v + beta * (xFree[y]! - v))
+      const xLaw = Float64Array.from(
+        xPlaced,
+        (v, y) => v + beta * (xFree[y]! - v),
+      )
       const fGrown = forceAt(xGrown)
       const fLaw = forceAt(xLaw)
       const fOwn = forceAt(own.torn)
@@ -246,7 +349,10 @@ export default experiment({
       const ownOff = off(fGrown, fOwn)
       const freeOff = off(fGrown, fFree)
       const all: FluxBudget[] = [bGrown, bHeld, bPlaced, bOwn, bFree]
-      const gaussOff = Math.max(...all.map(b => b.gaussOff), ...all.map(b => Math.abs(b.horizonContent - b.down - b.out)))
+      const gaussOff = Math.max(
+        ...all.map(b => b.gaussOff),
+        ...all.map(b => Math.abs(b.horizonContent - b.down - b.out)),
+      )
       const ok1 = wraps === 0 && run.reversed && record.reversed
       const ok2 = lawOff <= LAW_TOLERANCE
       const ok3 = gaussOff <= GAUSS_TOLERANCE * plan.m
@@ -291,6 +397,7 @@ export default experiment({
         [`${p}_placedHorizonDipole`]: ownShape.dipole,
         [`${p}_placedHorizonQuadrupole`]: ownShape.quadrupole,
       })
+
       RADII.forEach((r, i) => {
         metrics[`${p}_force_r${r}`] = fGrown[i]!
         metrics[`${p}_law_r${r}`] = fLaw[i]!
@@ -301,6 +408,7 @@ export default experiment({
         metrics[`${p}_partition_r${r}`] = fHeld[i]! / fPlaced[i]!
         metrics[`${p}_horizon_r${r}`] = fPlaced[i]! / fOwn[i]!
       })
+
       SPHERES.forEach((r, i) => {
         metrics[`${p}_inside_r${r}`] = bGrown.inside[i]!
         metrics[`${p}_huskGrown_r${r}`] = bGrown.husk[i]!
@@ -310,11 +418,19 @@ export default experiment({
         metrics[`${p}_huskFree_r${r}`] = bFree.husk[i]!
       })
 
-      const quarters = quarterMean.map(q => forceAt(realHorizonDepth(mesh, q, horizon)))
+      const quarters = quarterMean.map(q =>
+        forceAt(realHorizonDepth(mesh, q, horizon)),
+      )
 
-      quarters.forEach((q, k) => q.forEach((v, i) => (metrics[`${p}_q${k + 1}_force_r${RADII[i]}`] = v)))
+      quarters.forEach((q, k) =>
+        q.forEach(
+          (v, i) => (metrics[`${p}_q${k + 1}_force_r${RADII[i]}`] = v),
+        ),
+      )
 
-      const drift = Math.max(...quarters.slice(1).map(q => off(q, quarters[0]!)))
+      const drift = Math.max(
+        ...quarters.slice(1).map(q => off(q, quarters[0]!)),
+      )
 
       metrics[`${p}_quarterDrift`] = drift
       lines.push(
@@ -322,9 +438,17 @@ export default experiment({
       )
     }
 
-    const status = !k1 || !k2 ? 'partial' : g1 && g2 && g3 ? 'pass' : 'fail'
+    const status =
+      !k1 || !k2 ? 'partial' : g1 && g2 && g3 ? 'pass' : 'fail'
 
-    Object.assign(metrics, { gate_G1: g1 ? 1 : 0, gate_G2: g2 ? 1 : 0, gate_G3: g3 ? 1 : 0, control_K1: k1 ? 1 : 0, control_K2: k2 ? 1 : 0, seconds: (Date.now() - started) / 1000 })
+    Object.assign(metrics, {
+      gate_G1: g1 ? 1 : 0,
+      gate_G2: g2 ? 1 : 0,
+      gate_G3: g3 ? 1 : 0,
+      control_K1: k1 ? 1 : 0,
+      control_K2: k2 ? 1 : 0,
+      seconds: (Date.now() - started) / 1000,
+    })
 
     return verdict({
       status,

@@ -18,9 +18,16 @@
 //
 // Measurement code: it may use reals. The starts it hands the rule are integers.
 
-import { linkStart, useLinkStart, type LinkStartOf } from '@/code/rule/vibe-weave'
+import {
+  linkStart,
+  useLinkStart,
+  type LinkStartOf,
+} from '@/code/rule/vibe-weave'
 
-export type StartMember = { readonly name: string; readonly start: LinkStartOf }
+export type StartMember = {
+  readonly name: string
+  readonly start: LinkStartOf
+}
 
 // the integer square root of a non-negative bigint
 function isqrt(n: bigint): bigint {
@@ -58,7 +65,10 @@ export function goldenLinkStart(slot: number, count: number): number {
 }
 
 // the float formula it replaced, kept only to check the exact one against (code/rule/vibe-weave before E-MTH-0027)
-export function goldenLinkStartFloat(slot: number, count: number): number {
+export function goldenLinkStartFloat(
+  slot: number,
+  count: number,
+): number {
   const golden = (Math.sqrt(5) - 1) / 2
 
   return Math.floor((((slot + 1) * golden * 7.31) % 1) * count)
@@ -67,7 +77,13 @@ export function goldenLinkStartFloat(slot: number, count: number): number {
 // the family: integer+0 .. integer+(offsets - 1), then golden
 export function startFamily(offsets: number): StartMember[] {
   return [
-    ...Array.from({ length: offsets }, (_, k): StartMember => ({ name: `integer+${k}`, start: (slot, count) => linkStart(slot, count, k) })),
+    ...Array.from(
+      { length: offsets },
+      (_, k): StartMember => ({
+        name: `integer+${k}`,
+        start: (slot, count) => linkStart(slot, count, k),
+      }),
+    ),
     { name: 'golden', start: goldenLinkStart },
   ]
 }
@@ -110,38 +126,68 @@ export function gateKeys(runs: readonly MemberRun[]): string[] {
   const keys = new Set<string>()
 
   for (const run of runs) {
-    for (const key of [...Object.keys(run.metrics), ...Object.keys(run.control)]) {
+    for (const key of [
+      ...Object.keys(run.metrics),
+      ...Object.keys(run.control),
+    ]) {
       if (/(^|_)gate([A-Z0-9_]|$)/.test(key)) {
         keys.add(key)
       }
     }
   }
 
-  const valueOf = (run: MemberRun, key: string): number | undefined => run.metrics[key] ?? run.control[key]
+  const valueOf = (run: MemberRun, key: string): number | undefined =>
+    run.metrics[key] ?? run.control[key]
 
-  return [...keys].filter(key => runs.every(run => valueOf(run, key) === 0 || valueOf(run, key) === 1)).sort()
+  return [...keys]
+    .filter(key =>
+      runs.every(
+        run => valueOf(run, key) === 0 || valueOf(run, key) === 1,
+      ),
+    )
+    .sort()
 }
 
-export function readKey(run: MemberRun, key: string): number | undefined {
+export function readKey(
+  run: MemberRun,
+  key: string,
+): number | undefined {
   return run.metrics[key] ?? run.control[key]
 }
 
 // per gate: members passing over members run
-export function passFractions(runs: readonly MemberRun[]): { gate: string; pass: number; of: number }[] {
+export function passFractions(
+  runs: readonly MemberRun[],
+): { gate: string; pass: number; of: number }[] {
   const statusPass = runs.filter(r => r.status === 'pass').length
 
   return [
     { gate: 'status=pass', pass: statusPass, of: runs.length },
-    ...gateKeys(runs).map(gate => ({ gate, pass: runs.filter(r => readKey(r, gate) === 1).length, of: runs.length })),
+    ...gateKeys(runs).map(gate => ({
+      gate,
+      pass: runs.filter(r => readKey(r, gate) === 1).length,
+      of: runs.length,
+    })),
   ]
 }
 
-export type Distribution = { min: number; median: number; max: number; distinct: number; values: number[] }
+export type Distribution = {
+  min: number
+  median: number
+  max: number
+  distinct: number
+  values: number[]
+}
 
 export function distribution(values: readonly number[]): Distribution {
   const sorted = [...values].sort((a, b) => a - b)
   const middle = sorted.length >> 1
-  const median = sorted.length === 0 ? Number.NaN : sorted.length % 2 === 1 ? (sorted[middle] ?? 0) : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
+  const median =
+    sorted.length === 0
+      ? Number.NaN
+      : sorted.length % 2 === 1
+        ? (sorted[middle] ?? 0)
+        : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
 
   return {
     min: sorted[0] ?? Number.NaN,
@@ -154,13 +200,26 @@ export function distribution(values: readonly number[]): Distribution {
 
 // the paired comparison on one member: the gates the adopted column fails and the base column passes. The
 // gate names are read from two key prefixes of the same run (for example "H_comoving_gate_" and "H_off_gate_").
-export function addedFailures(run: MemberRun, adoptedPrefix: string, basePrefix: string): { added: string[]; gained: string[]; bothFail: string[]; compared: number } {
+export function addedFailures(
+  run: MemberRun,
+  adoptedPrefix: string,
+  basePrefix: string,
+): {
+  added: string[]
+  gained: string[]
+  bothFail: string[]
+  compared: number
+} {
   const added: string[] = []
   const gained: string[] = []
   const bothFail: string[] = []
+
   let compared = 0
 
-  for (const key of [...Object.keys(run.metrics), ...Object.keys(run.control)]) {
+  for (const key of [
+    ...Object.keys(run.metrics),
+    ...Object.keys(run.control),
+  ]) {
     if (!key.startsWith(adoptedPrefix)) {
       continue
     }
@@ -184,5 +243,10 @@ export function addedFailures(run: MemberRun, adoptedPrefix: string, basePrefix:
     }
   }
 
-  return { added: [...new Set(added)], gained: [...new Set(gained)], bothFail: [...new Set(bothFail)], compared }
+  return {
+    added: [...new Set(added)],
+    gained: [...new Set(gained)],
+    bothFail: [...new Set(bothFail)],
+    compared,
+  }
 }

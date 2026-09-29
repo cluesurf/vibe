@@ -236,14 +236,57 @@ const K_PROJECT = [0.3, -0.1, 0.2, 0.05]
 const BOX_SIDE = 4
 const CHECK_BALL = 3
 
-export type LinkFluxPlan = { box: number; small: number; spectrumT: number; grid: number; S: number; sMove: number; holdBeats: number; vacuumBeats: number; vacuumSides: readonly number[]; radialBeats: number; radialGrid: number; liveStride: number; pairStride: number; reproduce: boolean; heavy: boolean; moves: boolean; ball: number; threads: number; sFirst: number; sSecond: number }
+export type LinkFluxPlan = {
+  box: number
+  small: number
+  spectrumT: number
+  grid: number
+  S: number
+  sMove: number
+  holdBeats: number
+  vacuumBeats: number
+  vacuumSides: readonly number[]
+  radialBeats: number
+  radialGrid: number
+  liveStride: number
+  pairStride: number
+  reproduce: boolean
+  heavy: boolean
+  moves: boolean
+  ball: number
+  threads: number
+  sFirst: number
+  sSecond: number
+}
 
-export const GATE_PLAN: LinkFluxPlan = { box: 4, small: 2, spectrumT: 128, grid: 720, S: 64, sMove: 64, holdBeats: 256, vacuumBeats: 128, vacuumSides: [4, 8], radialBeats: 4096, radialGrid: 2048, liveStride: 50, pairStride: 24, reproduce: true, heavy: true, moves: true, ball: 15, threads: 12, sFirst: 256, sSecond: 128 }
+export const GATE_PLAN: LinkFluxPlan = {
+  box: 4,
+  small: 2,
+  spectrumT: 128,
+  grid: 720,
+  S: 64,
+  sMove: 64,
+  holdBeats: 256,
+  vacuumBeats: 128,
+  vacuumSides: [4, 8],
+  radialBeats: 4096,
+  radialGrid: 2048,
+  liveStride: 50,
+  pairStride: 24,
+  reproduce: true,
+  heavy: true,
+  moves: true,
+  ball: 15,
+  threads: 12,
+  sFirst: 256,
+  sSecond: 128,
+}
 
 export default experiment({
   id: 'spin/swap-link-flux',
   code: 'E-SPN-0150',
-  title: 'a local Z3 link-flux string on the swap-coin rule cannot close the flipped-member leak (Gauss sees charge, not the member band) and binds no light composite, fail (L3, L4): the register records the path, so the pair walks on the 24-regular tree, where a tied member sits above the Kesten floor pi/2 - arcsin(rho cos m0) (measured 1.2170, 1.1688, 1.1636, 1.1604 at m0 0.524, 0.190, 0.143, 0.047); on the word box of length 4 the light level loses 0.499 in 256 beats (0.255 with no string) and its K^2 coefficient is negative (R -150), isotropic to 5e-7; the vacuum is exact with no flux, Gauss exact on every word, and the nonlocal E-SPN-0146 level reproduces bit for bit',
+  title:
+    'a local Z3 link-flux string on the swap-coin rule cannot close the flipped-member leak (Gauss sees charge, not the member band) and binds no light composite, fail (L3, L4): the register records the path, so the pair walks on the 24-regular tree, where a tied member sits above the Kesten floor pi/2 - arcsin(rho cos m0) (measured 1.2170, 1.1688, 1.1636, 1.1604 at m0 0.524, 0.190, 0.143, 0.047); on the word box of length 4 the light level loses 0.499 in 256 beats (0.255 with no string) and its K^2 coefficient is negative (R -150), isotropic to 5e-7; the vacuum is exact with no flux, Gauss exact on every word, and the nonlocal E-SPN-0146 level reproduces bit for bit',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -253,40 +296,107 @@ export default experiment({
   },
 })
 
-type Point = { name: string; u: ReturnType<typeof ringUnit>; shape: VibeShape; contact: [Sparse, Sparse]; m0: number; mid: number; sign: number; sigma: number }
+type Point = {
+  name: string
+  u: ReturnType<typeof ringUnit>
+  shape: VibeShape
+  contact: [Sparse, Sparse]
+  m0: number
+  mid: number
+  sign: number
+  sigma: number
+}
 
-function pointOf(name: string, unit: readonly [number, number], string: readonly [number, number] | null): Point {
+function pointOf(
+  name: string,
+  unit: readonly [number, number],
+  string: readonly [number, number] | null,
+): Point {
   const u = ringUnit(unit[0], unit[1])
   const A = overEmpty(vibeDockExact(1, 0, u), u)
   const lv = singletLevel(A, DOCK_ROOTS, 12)
-  const sigma = string ? lv.sign * Math.abs(unitAngle(ringUnit(string[0], string[1]))) : 0
-  const contact: [Sparse, Sparse] = [sparseOf(overEmpty(contactDockExact(0, u), u)), sparseOf(overEmpty(contactDockExact(1, u), u))]
+  const sigma = string
+    ? lv.sign * Math.abs(unitAngle(ringUnit(string[0], string[1])))
+    : 0
+  const contact: [Sparse, Sparse] = [
+    sparseOf(overEmpty(contactDockExact(0, u), u)),
+    sparseOf(overEmpty(contactDockExact(1, u), u)),
+  ]
 
-  return { name, u, shape: vibeShape(A), contact, m0: lv.m, mid: lv.midPhase, sign: lv.sign, sigma }
+  return {
+    name,
+    u,
+    shape: vibeShape(A),
+    contact,
+    m0: lv.m,
+    mid: lv.midPhase,
+    sign: lv.sign,
+    sigma,
+  }
 }
 
-type PairRead = { name: string; L: number; eps: number; lambda: number; residual: number; share: number; profile: number[]; fidelity: number; absorbed: number; edge: number; spectrumAbsorbed: number; peaks: string; holds: boolean; a: number[]; isotropy: number; R: number; seconds: number }
+type PairRead = {
+  name: string
+  L: number
+  eps: number
+  lambda: number
+  residual: number
+  share: number
+  profile: number[]
+  fidelity: number
+  absorbed: number
+  edge: number
+  spectrumAbsorbed: number
+  peaks: string
+  holds: boolean
+  a: number[]
+  isotropy: number
+  R: number
+  seconds: number
+}
 
-function pairLevel(space: WordSpace, p: Point, plan: LinkFluxPlan, moves: boolean, log: (s: string) => void): PairRead {
+function pairLevel(
+  space: WordSpace,
+  p: Point,
+  plan: LinkFluxPlan,
+  moves: boolean,
+  log: (s: string) => void,
+): PairRead {
   const started = Date.now()
-  const epsOf = (phase: number): number => p.sign * -wrap(phase - 2 * p.mid)
-  const fm: FluxMeson = fluxMeson(space, p.shape, p.contact, p.sigma, [0, 0, 0, 0])
+  const epsOf = (phase: number): number =>
+    p.sign * -wrap(phase - 2 * p.mid)
+  const fm: FluxMeson = fluxMeson(
+    space,
+    p.shape,
+    p.contact,
+    p.sigma,
+    [0, 0, 0, 0],
+  )
   const start = fluxStart(space, ELL)
   const spec = fluxSpectrum(fm, start, plan.spectrumT, plan.grid)
   const n = spec.density.length
   const peaks = spec.density
     .map((d, g) => ({ d, g }))
-    .filter(({ d, g }) => d > (spec.density[(g + n - 1) % n] as number) && d >= (spec.density[(g + 1) % n] as number))
+    .filter(
+      ({ d, g }) =>
+        d > spec.density[(g + n - 1) % n]! &&
+        d >= spec.density[(g + 1) % n]!,
+    )
     .sort((a, b) => b.d - a.d)
   const top = peaks[0] as { d: number; g: number }
-  const level = fluxBuild(fm, start, (spec.phase2[top.g] as number) / 2, plan.S, 2)
+  const level = fluxBuild(fm, start, spec.phase2[top.g]! / 2, plan.S, 2)
   const profile = fluxProfile(fm, level.v)
   const watch = fluxWatch(fm, level.v, plan.holdBeats, space.maxLength)
-  const edge = profile[space.maxLength] as number
-  const holds = watch.leastFidelity >= 1 - HOLD && watch.absorbed <= ABSORB && edge <= EDGE
+  const edge = profile[space.maxLength]!
+  const holds =
+    watch.leastFidelity >= 1 - HOLD &&
+    watch.absorbed <= ABSORB &&
+    edge <= EDGE
   const eps0 = epsOf(level.read.phase)
 
-  log(`${p.name} L ${space.maxLength}: level eps ${eps0.toFixed(6)} |lambda2| ${Math.hypot(...level.read.lambda2).toFixed(10)} absorbed ${watch.absorbed.toExponential(2)}`)
+  log(
+    `${p.name} L ${space.maxLength}: level eps ${eps0.toFixed(6)} |lambda2| ${Math.hypot(...level.read.lambda2).toFixed(10)} absorbed ${watch.absorbed.toExponential(2)}`,
+  )
 
   let a: number[] = []
   let isotropy = NaN
@@ -296,8 +406,12 @@ function pairLevel(space: WordSpace, p: Point, plan: LinkFluxPlan, moves: boolea
     const energyAt = (K: readonly number[]): number => {
       setFluxMomentum(fm, K)
 
-      return epsOf(fluxBuild(fm, level.v, level.read.phase, plan.sMove, 1).read.phase)
+      return epsOf(
+        fluxBuild(fm, level.v, level.read.phase, plan.sMove, 1).read
+          .phase,
+      )
     }
+
     const zero = energyAt([0, 0, 0, 0])
 
     a = DIRECTIONS.map(d => {
@@ -310,7 +424,7 @@ function pairLevel(space: WordSpace, p: Point, plan: LinkFluxPlan, moves: boolea
     })
     setFluxMomentum(fm, [0, 0, 0, 0])
 
-    const a0 = a[0] as number
+    const a0 = a[0]!
 
     isotropy = Math.max(...a.map(x => Math.abs(x / a0 - 1)))
     R = (C_STAR * C_STAR) / (2 * a0 * zero)
@@ -330,7 +444,10 @@ function pairLevel(space: WordSpace, p: Point, plan: LinkFluxPlan, moves: boolea
     spectrumAbsorbed: spec.absorbed,
     peaks: peaks
       .slice(0, 5)
-      .map(x => `eps ${epsOf((spec.phase2[x.g] as number) / 2).toFixed(4)} (density ${x.d.toExponential(2)})`)
+      .map(
+        x =>
+          `eps ${epsOf(spec.phase2[x.g]! / 2).toFixed(4)} (density ${x.d.toExponential(2)})`,
+      )
       .join(', '),
     holds,
     a,
@@ -341,12 +458,17 @@ function pairLevel(space: WordSpace, p: Point, plan: LinkFluxPlan, moves: boolea
 }
 
 // the tied member's spectrum at sigma 0 on the radial chain, from the root's 24 edges alike: its |eps| support
-function kestenFloor(unit: readonly [number, number], beats: number, grid: number): { m0: number; floor: number; lowest: number; below: number } {
+function kestenFloor(
+  unit: readonly [number, number],
+  beats: number,
+  grid: number,
+): { m0: number; floor: number; lowest: number; below: number } {
   const u = ringUnit(unit[0], unit[1])
   const A = overEmpty(vibeDockExact(1, 0, u), u)
   const sh = vibeShape(A)
   const lv = singletLevel(A, DOCK_ROOTS, 12)
   const depth = beats + 2
+
   let pr = new Float64Array(depth + 1)
   let pi = new Float64Array(depth + 1)
   let cr = new Float64Array(depth + 1)
@@ -357,7 +479,7 @@ function kestenFloor(unit: readonly [number, number], beats: number, grid: numbe
   const auto: [number, number][] = []
 
   for (let t = 0; t < beats; t++) {
-    auto.push([cr[0] as number, ci[0] as number])
+    auto.push([cr[0]!, ci[0]!])
 
     const r = radialBeat(sh.c, sh.beta, 0, depth, pr, pi, cr, ci)
 
@@ -371,47 +493,76 @@ function kestenFloor(unit: readonly [number, number], beats: number, grid: numbe
 
   for (let g = 0; g < grid; g++) {
     const ph = -Math.PI + (2 * Math.PI * g) / grid
+
     let re = 0
 
     for (let t = 0; t < beats; t++) {
       const w = 0.5 + 0.5 * Math.cos((Math.PI * t) / beats)
-      const [a, b] = auto[t] as [number, number]
+      const [a, b] = auto[t]!
 
-      re += (t === 0 ? 1 : 2) * w * (a * Math.cos(ph * t) + b * Math.sin(ph * t))
+      re +=
+        (t === 0 ? 1 : 2) *
+        w *
+        (a * Math.cos(ph * t) + b * Math.sin(ph * t))
     }
 
-    dens.push({ e: Math.abs(lv.sign * -wrap(ph - lv.midPhase)), d: re / (2 * Math.PI) })
+    dens.push({
+      e: Math.abs(lv.sign * -wrap(ph - lv.midPhase)),
+      d: re / (2 * Math.PI),
+    })
   }
 
   const peak = Math.max(...dens.map(x => x.d))
   const floor = Math.PI / 2 - Math.asin(KESTEN * Math.cos(lv.m))
   const support = dens.filter(x => x.d > FLOOR_DENSITY * peak)
 
-  return { m0: lv.m, floor, lowest: Math.min(...support.map(x => x.e)), below: support.filter(x => x.e < floor - FLOOR_TOLERANCE).length }
+  return {
+    m0: lv.m,
+    floor,
+    lowest: Math.min(...support.map(x => x.e)),
+    below: support.filter(x => x.e < floor - FLOOR_TOLERANCE).length,
+  }
 }
 
 export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const e2 = (x: number): string => x.toExponential(2)
   const light = pointOf('light', LIGHT, ALPHA)
   const heavy = pointOf('heavy', HEAVY, PHASE_STRING)
   const free = { ...light, name: 'light, no string', sigma: 0 }
 
   // ---------------- C2: E-SPN-0146's level under the nonlocal string, E-SPN-0148's C1 procedure ----------------
-  let c2 = { absorbed: NaN, eps: NaN, fidelity: NaN, window: NaN, lambda: NaN }
+  let c2 = {
+    absorbed: NaN,
+    eps: NaN,
+    fidelity: NaN,
+    window: NaN,
+    lambda: NaN,
+  }
 
   if (plan.reproduce) {
     const ball = d4Ball(plan.ball)
-    const space = shareSpace(mesonSpace(ball, heavy.shape, heavy.contact, 0, [0, 0, 0, 0]))
+    const space = shareSpace(
+      mesonSpace(ball, heavy.shape, heavy.contact, 0, [0, 0, 0, 0]),
+    )
     const engine = threadEngine(space, plan.threads, 3)
-    const phaseOf = (eps: number): number => wrap(2 * heavy.mid - heavy.sign * eps)
-    const epsOf = (phase: number): number => heavy.sign * -wrap(phase - 2 * heavy.mid)
-    const sigma = Math.abs(unitAngle(ringUnit(PHASE_STRING[0], PHASE_STRING[1])))
+    const phaseOf = (eps: number): number =>
+      wrap(2 * heavy.mid - heavy.sign * eps)
+    const epsOf = (phase: number): number =>
+      heavy.sign * -wrap(phase - 2 * heavy.mid)
+    const sigma = Math.abs(
+      unitAngle(ringUnit(PHASE_STRING[0], PHASE_STRING[1])),
+    )
     const kap = stringKappa(24)
     const eps4 = linearWell(24, 24000)
     const F = sigma * kap.mean
-    const predicted = 2 * heavy.m0 + eps4 * F * (1 / (2 * Math.tan(heavy.m0) * F)) ** (1 / 3)
+    const predicted =
+      2 * heavy.m0 +
+      eps4 * F * (1 / (2 * Math.tan(heavy.m0) * F)) ** (1 / 3)
 
     setString(space, heavy.sign * sigma)
 
@@ -420,7 +571,13 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
     const lv = buildLevel(engine, f.v, f.read.phase, plan.sSecond, 1)
     const h = watchLevel(engine, lv.v, plan.holdBeats, 14)
 
-    c2 = { absorbed: h.absorbed, eps: epsOf(lv.read.phase), fidelity: h.leastFidelity, window: h.leastWindow, lambda: Math.hypot(...lv.read.lambda2) }
+    c2 = {
+      absorbed: h.absorbed,
+      eps: epsOf(lv.read.phase),
+      fidelity: h.leastFidelity,
+      window: h.leastWindow,
+      lambda: Math.hypot(...lv.read.lambda2),
+    }
     engine.close()
     log(`C2 ${JSON.stringify(c2)}`)
   }
@@ -428,15 +585,33 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
   const C2 = !plan.reproduce || c2.absorbed === RECORDED_C1_ABSORBED
 
   // ---------------- L5: the register on the rule's vacuum ----------------
-  const vacuum = [light, heavy].flatMap(p => [...plan.vacuumSides.map(side => ({ side, sea: 0 })), { side: BOX_SIDE, sea: 1 }].map(({ side, sea }) => ({ point: p.name, side, sea, ...ruleVacuumFlux(p.u, side, sea, plan.vacuumBeats) })))
-  const seaCrossings = vacuum.filter(v => v.sea === 1).every(v => v.crossings === 24 * v.cells * plan.vacuumBeats)
+  const vacuum = [light, heavy].flatMap(p =>
+    [
+      ...plan.vacuumSides.map(side => ({ side, sea: 0 })),
+      { side: BOX_SIDE, sea: 1 },
+    ].map(({ side, sea }) => ({
+      point: p.name,
+      side,
+      sea,
+      ...ruleVacuumFlux(p.u, side, sea, plan.vacuumBeats),
+    })),
+  )
+  const seaCrossings = vacuum
+    .filter(v => v.sea === 1)
+    .every(v => v.crossings === 24 * v.cells * plan.vacuumBeats)
 
   log(`L5 vacuum ${JSON.stringify(vacuum)}`)
 
   // ---------------- I1, I2: the word spaces ----------------
   const small = wordSpace(plan.small)
   const big = wordSpace(plan.box)
-  const I1 = big.gauss && big.distinct && big.costBelowLength === GAUSS_WORDS && small.gauss && small.distinct
+  const I1 =
+    big.gauss &&
+    big.distinct &&
+    big.costBelowLength === GAUSS_WORDS &&
+    small.gauss &&
+    small.distinct
+
   let agree = 0
   let disagree = 0
 
@@ -448,42 +623,68 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
 
     for (let e = 0; e < s.size; e += stride) {
       for (let k = 0; k < 576; k++) {
-        const t = s.next[e * 576 + k] as number
+        const t = s.next[e * 576 + k]!
 
-        if (t < 0) continue
-        if (patternNext(s, index, e, Math.floor(k / 24), k % 24) === t) agree++
-        else disagree++
+        if (t < 0) {
+          continue
+        }
+
+        if (
+          patternNext(s, index, e, Math.floor(k / 24), k % 24) === t
+        ) {
+          agree++
+        } else {
+          disagree++
+        }
       }
     }
   }
 
   const I2 = disagree === 0 && agree > 0
 
-  log(`I1 ${I1} (${big.words} words, ${big.size} even, ${big.contacts} contact, cost below length ${big.costBelowLength}); I2 agree ${agree} disagree ${disagree}`)
+  log(
+    `I1 ${I1} (${big.words} words, ${big.size} even, ${big.contacts} contact, cost below length ${big.costBelowLength}); I2 agree ${agree} disagree ${disagree}`,
+  )
 
   // ---------------- I3: the projected flux beat against the meson beat ----------------
   let projectGap = 0
+
   {
     const ball = d4Ball(plan.box + 2)
     const fm = fluxMeson(big, light.shape, light.contact, 0, K_PROJECT)
-    const ms = mesonSpace(ball, light.shape, light.contact, 0, K_PROJECT)
+    const ms = mesonSpace(
+      ball,
+      light.shape,
+      light.contact,
+      0,
+      K_PROJECT,
+    )
     const psi = newFluxState(big)
     const g = 0.6180339887498949
 
     for (let e = 0; e < big.size; e++) {
-      if ((big.length[big.even[e] as number] as number) > plan.box - 2) continue
+      if (big.length[big.even[e]!]! > plan.box - 2) {
+        continue
+      }
 
-      const contactWord = (big.contactIndex[e] as number) >= 0
+      const contactWord = big.contactIndex[e]! >= 0
 
       for (let k = 0; k < 576; k++) {
-        if (contactWord && Math.floor(k / 24) === k % 24) continue
+        if (contactWord && Math.floor(k / 24) === k % 24) {
+          continue
+        }
+
         psi.re[e * 576 + k] = (((e * 576 + k) * g) % 1) - 0.5
         psi.im[e * 576 + k] = (((e * 576 + k) * g * g) % 1) - 0.5
       }
 
-      const ci = big.contactIndex[e] as number
+      const ci = big.contactIndex[e]!
 
-      if (ci >= 0) for (let j = 0; j < 24; j++) psi.re[big.size * 576 + ci * 24 + j] = ((j * g) % 1) - 0.5
+      if (ci >= 0) {
+        for (let j = 0; j < 24; j++) {
+          psi.re[big.size * 576 + ci * 24 + j] = ((j * g) % 1) - 0.5
+        }
+      }
     }
 
     const project = (x: FluxState): MesonState => {
@@ -491,21 +692,24 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
       const nb = ball.points.length
 
       for (let e = 0; e < big.size; e++) {
-        const i = big.even[e] as number
-        const y = [0, 1, 2, 3].map(a => -(big.vector[i * 4 + a] as number))
-        const p = ball.index.get(y.join(',')) as number
+        const i = big.even[e]!
+        const y = [0, 1, 2, 3].map(a => -big.vector[i * 4 + a]!)
+        const p = ball.index.get(y.join(','))!
 
         for (let k = 0; k < 576; k++) {
-          m.re[p * 576 + k] = (m.re[p * 576 + k] as number) + (x.re[e * 576 + k] as number)
-          m.im[p * 576 + k] = (m.im[p * 576 + k] as number) + (x.im[e * 576 + k] as number)
+          m.re[p * 576 + k] = m.re[p * 576 + k]! + x.re[e * 576 + k]!
+          m.im[p * 576 + k] = m.im[p * 576 + k]! + x.im[e * 576 + k]!
         }
 
-        const ci = big.contactIndex[e] as number
+        const ci = big.contactIndex[e]!
 
         if (ci >= 0) {
           for (let j = 0; j < 24; j++) {
-            m.re[nb * 576 + j] = (m.re[nb * 576 + j] as number) + (x.re[big.size * 576 + ci * 24 + j] as number)
-            m.im[nb * 576 + j] = (m.im[nb * 576 + j] as number) + (x.im[big.size * 576 + ci * 24 + j] as number)
+            m.re[nb * 576 + j] =
+              m.re[nb * 576 + j]! + x.re[big.size * 576 + ci * 24 + j]!
+
+            m.im[nb * 576 + j] =
+              m.im[nb * 576 + j]! + x.im[big.size * 576 + ci * 24 + j]!
           }
         }
       }
@@ -522,9 +726,17 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
       const b = newMeson(ball)
 
       mesonBeat(ms, project(psi), b, beat)
-      for (let k = 0; k < a.re.length; k++) projectGap = Math.max(projectGap, Math.abs((a.re[k] as number) - (b.re[k] as number)), Math.abs((a.im[k] as number) - (b.im[k] as number)))
+
+      for (let k = 0; k < a.re.length; k++) {
+        projectGap = Math.max(
+          projectGap,
+          Math.abs(a.re[k]! - b.re[k]!),
+          Math.abs(a.im[k]! - b.im[k]!),
+        )
+      }
     }
   }
+
   const I3 = projectGap <= PROJECT_TOLERANCE
 
   log(`I3 ${projectGap}`)
@@ -532,21 +744,57 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
   // ---------------- I4: the meson beat against the exact rule at the light unit ----------------
   const box = flatBoxTables(BOX_SIDE)
   const X = centerOf(BOX_SIDE)
-  const Xf1 = Math.floor((box.target[X * 24 + rootIndex([1, 1, 0, 0])] as number) / 24)
-  const checkSpace = mesonSpace(d4Ball(CHECK_BALL), light.shape, light.contact, 0, [0, 0, 0, 0])
-  const live = [...Array(CONTACT_STATES).keys()].filter(i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24)
+  const Xf1 = Math.floor(
+    box.target[X * 24 + rootIndex([1, 1, 0, 0])]! / 24,
+  )
+  const checkSpace = mesonSpace(
+    d4Ball(CHECK_BALL),
+    light.shape,
+    light.contact,
+    0,
+    [0, 0, 0, 0],
+  )
+  const live = [...Array(CONTACT_STATES).keys()].filter(
+    i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24,
+  )
   const liveSubset = live.filter((_, i) => i % plan.liveStride === 0)
-  const pairSubset = boxStarts([], X, Xf1, [-1, -1, 0, 0]).filter((_, i) => i % plan.pairStride === 0)
-  const box0 = boxCheck(box, boxStarts(liveSubset, X, X, [0, 0, 0, 0]).slice(0, liveSubset.length), checkSpace, () => light.u, BOX_TOLERANCE)
-  const box1 = boxCheck(box, pairSubset, checkSpace, () => light.u, BOX_TOLERANCE)
-  const I4 = box0.differ + box1.differ === 0 && box0.inexact + box1.inexact === 0 && box0.stray + box1.stray === 0
+  const pairSubset = boxStarts([], X, Xf1, [-1, -1, 0, 0]).filter(
+    (_, i) => i % plan.pairStride === 0,
+  )
+  const box0 = boxCheck(
+    box,
+    boxStarts(liveSubset, X, X, [0, 0, 0, 0]).slice(
+      0,
+      liveSubset.length,
+    ),
+    checkSpace,
+    () => light.u,
+    BOX_TOLERANCE,
+  )
+  const box1 = boxCheck(
+    box,
+    pairSubset,
+    checkSpace,
+    () => light.u,
+    BOX_TOLERANCE,
+  )
+  const I4 =
+    box0.differ + box1.differ === 0 &&
+    box0.inexact + box1.inexact === 0 &&
+    box0.stray + box1.stray === 0
 
   log(`I4 ${JSON.stringify(box0)} ${JSON.stringify(box1)}`)
 
   // ---------------- I5: the radial chain against the one-member word engine ----------------
   const radial = [0, light.sigma].map(sigma => {
     const beats = sigma === 0 ? plan.box : plan.box - 1
-    const table = Float64Array.from([light.shape.c[0], light.shape.c[1], light.shape.beta[0], light.shape.beta[1]])
+    const table = Float64Array.from([
+      light.shape.c[0],
+      light.shape.c[1],
+      light.shape.beta[0],
+      light.shape.beta[1],
+    ])
+
     let re = new Float64Array(big.words * 24)
     let im = new Float64Array(big.words * 24)
     let pr = new Float64Array(plan.box + 1)
@@ -556,7 +804,10 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
     let gap = 0
     let spread = 0
 
-    for (let d = 0; d < 24; d++) re[d] = 1 / Math.sqrt(24)
+    for (let d = 0; d < 24; d++) {
+      re[d] = 1 / Math.sqrt(24)
+    }
+
     cr[0] = 1
 
     for (let t = 1; t <= beats; t++) {
@@ -567,7 +818,16 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
       re = ore
       im = oim
 
-      const r = radialBeat(light.shape.c, light.shape.beta, sigma, plan.box, pr, pi, cr, ci)
+      const r = radialBeat(
+        light.shape.c,
+        light.shape.beta,
+        sigma,
+        plan.box,
+        pr,
+        pi,
+        cr,
+        ci,
+      )
 
       pr = r.pr
       pi = r.pi
@@ -577,34 +837,61 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
       const got = radialOf(big, re, im)
 
       spread = Math.max(spread, got.spread)
-      for (let l = 0; l <= plan.box; l++) gap = Math.max(gap, Math.abs((got.pr[l] as number) - (pr[l] as number)), Math.abs((got.pi[l] as number) - (pi[l] as number)), Math.abs((got.cr[l] as number) - (cr[l] as number)), Math.abs((got.ci[l] as number) - (ci[l] as number)))
+
+      for (let l = 0; l <= plan.box; l++) {
+        gap = Math.max(
+          gap,
+          Math.abs(got.pr[l]! - pr[l]!),
+          Math.abs(got.pi[l]! - pi[l]!),
+          Math.abs(got.cr[l]! - cr[l]!),
+          Math.abs(got.ci[l]! - ci[l]!),
+        )
+      }
     }
 
     return { sigma, beats, gap, spread }
   })
-  const I5 = radial.every(r => r.gap <= RADIAL_TOLERANCE && r.spread <= RADIAL_TOLERANCE)
+  const I5 = radial.every(
+    r => r.gap <= RADIAL_TOLERANCE && r.spread <= RADIAL_TOLERANCE,
+  )
 
   log(`I5 ${JSON.stringify(radial)}`)
 
   // ---------------- T1: the Kesten floor ----------------
-  const floors = KESTEN_POINTS.map(u => ({ unit: u, ...kestenFloor(u, plan.radialBeats, plan.radialGrid) }))
-  const T1 = floors.every(f => f.below === 0 && Math.abs(f.lowest - f.floor) <= FLOOR_TOLERANCE)
+  const floors = KESTEN_POINTS.map(u => ({
+    unit: u,
+    ...kestenFloor(u, plan.radialBeats, plan.radialGrid),
+  }))
+  const T1 = floors.every(
+    f =>
+      f.below === 0 && Math.abs(f.lowest - f.floor) <= FLOOR_TOLERANCE,
+  )
 
   log(`T1 ${JSON.stringify(floors)}`)
 
-  const L5 = I1 && vacuum.every(v => v.exact && v.worstLinks === 0) && seaCrossings
+  const L5 =
+    I1 &&
+    vacuum.every(v => v.exact && v.worstLinks === 0) &&
+    seaCrossings
 
   // ---------------- the pair: L3, L4, the window trend, C1, the heavy point ----------------
   const smallRead = pairLevel(small, light, plan, false, log)
   const bigRead = pairLevel(big, light, plan, plan.moves, log)
   const freeRead = pairLevel(big, free, plan, false, log)
-  const heavyRead = plan.heavy ? pairLevel(big, heavy, plan, false, log) : null
+  const heavyRead = plan.heavy
+    ? pairLevel(big, heavy, plan, false, log)
+    : null
   const L3 = bigRead.holds && bigRead.isotropy <= ISOTROPY
   const L4 = Math.abs(bigRead.R - 1) <= R_TOLERANCE
   const C1 = freeRead.absorbed > FREE_ABSORB
   const instrument = I1 && I2 && I3 && I4 && I5
   const controls = C1 && C2
-  const status = !instrument || !controls ? 'partial' : T1 && L3 && L4 && L5 ? 'pass' : 'fail'
+  const status =
+    !instrument || !controls
+      ? 'partial'
+      : T1 && L3 && L4 && L5
+        ? 'pass'
+        : 'fail'
   const pairLine = (r: PairRead | null): string =>
     r
       ? `${r.name} L ${r.L}: eps ${r.eps.toFixed(6)}, |lambda2| ${r.lambda.toFixed(10)}, residual ${e2(r.residual)}, singlet share ${r.share.toFixed(4)}, profile ${r.profile.map(e2).join(' ')}, fidelity ${r.fidelity.toFixed(6)}, absorbed ${e2(r.absorbed)}, edge ${e2(r.edge)}, holds ${r.holds}; spectrum absorbed ${e2(r.spectrumAbsorbed)}, peaks ${r.peaks}${r.a.length ? `; K^2 coefficients ${r.a.map(x => x.toExponential(6)).join(' ')}, isotropy ${e2(r.isotropy)}, R ${r.R.toFixed(5)}` : ''} (${r.seconds.toFixed(0)} s)`
@@ -642,7 +929,11 @@ export function swapLinkFluxRun(plan: LinkFluxPlan): Verdict {
       c2Absorbed: c2.absorbed,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, instrument: instrument ? 1 : 0 },
+    control: {
+      C1: C1 ? 1 : 0,
+      C2: C2 ? 1 : 0,
+      instrument: instrument ? 1 : 0,
+    },
     notes: `L1 and L2. Light point m0 ${light.m0.toFixed(6)}, sigma ${light.sigma.toFixed(6)}; heavy (E-SPN-0146) m0 ${heavy.m0.toFixed(6)}, sigma ${heavy.sigma.toFixed(6)}. Pair: ${pairLine(bigRead)} | ${pairLine(smallRead)} | ${pairLine(freeRead)} | ${pairLine(heavyRead)}. T1 ${JSON.stringify(floors)}. I1 ${big.words} words (${big.size} even, ${big.contacts} contact), cost below length ${big.costBelowLength}; I2 agree ${agree}, disagree ${disagree}; I3 ${e2(projectGap)}; I4 ${JSON.stringify(box0)} ${JSON.stringify(box1)}; I5 ${JSON.stringify(radial)}. L5 ${JSON.stringify(vacuum)}. C2 ${JSON.stringify(c2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

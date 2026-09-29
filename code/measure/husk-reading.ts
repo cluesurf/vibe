@@ -23,18 +23,29 @@
 
 import { DOCK_ROOTS, wrap } from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
-import { diracPhase, structureVector } from '@/code/measure/spinor-register'
+import {
+  diracPhase,
+  structureVector,
+} from '@/code/measure/spinor-register'
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
+
 const unit = (v: readonly number[]): number[] => {
   const n = Math.hypot(...v)
 
   return v.map(x => x / n)
 }
 
-export const onSlice = (q: readonly number[]): number[] => [q[0] as number, q[1] as number, q[2] as number, 0]
+export const onSlice = (q: readonly number[]): number[] => [
+  q[0]!,
+  q[1]!,
+  q[2]!,
+  0,
+]
 
-export const sliceMomenta = (n: number): number[][] => weylMomenta(n).map(K => onSlice(K))
+export const sliceMomenta = (n: number): number[][] =>
+  weylMomenta(n).map(K => onSlice(K))
 
 const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
@@ -49,34 +60,51 @@ export const HUSK_DIRS: readonly number[][] = [
 ]
 
 // the stream's husk front along the husk direction u (u4 = 0): max over roots of pi(r) . u
-export const streamFront = (u: readonly number[]): number => Math.max(...DOCK_ROOTS.map(r => (r[0] as number) * (u[0] as number) + (r[1] as number) * (u[1] as number) + (r[2] as number) * (u[2] as number)))
+export const streamFront = (u: readonly number[]): number =>
+  Math.max(
+    ...DOCK_ROOTS.map(
+      r => r[0]! * u[0]! + r[1]! * u[1]! + r[2]! * u[2]!,
+    ),
+  )
 
 // s4 and d|s|^2 / dK4 at K, in closed form: ds/dK4 = sum_r r r4 cos(K . r) / sqrt 288
-export function depthSlope(K: readonly number[]): { s4: number; slope: number } {
+export function depthSlope(K: readonly number[]): {
+  s4: number
+  slope: number
+} {
   const s = structureVector(K)
   const ds = [0, 0, 0, 0]
 
   for (const r of DOCK_ROOTS) {
-    const c = ((r[3] as number) * Math.cos(dot(K, r))) / Math.sqrt(288)
+    const c = (r[3]! * Math.cos(dot(K, r))) / Math.sqrt(288)
 
-    for (let k = 0; k < 4; k++) ds[k]! += (r[k] as number) * c
+    for (let k = 0; k < 4; k++) {
+      ds[k]! += r[k]! * c
+    }
   }
 
-  return { s4: s[3] as number, slope: 2 * dot(s, ds) }
+  return { s4: s[3]!, slope: 2 * dot(s, ds) }
 }
 
-export const largestE = (momenta: readonly (readonly number[])[], M: number): number => Math.max(...momenta.map(K => diracPhase(K, M)))
+export const largestE = (
+  momenta: readonly (readonly number[])[],
+  M: number,
+): number => Math.max(...momenta.map(K => diracPhase(K, M)))
 
 // the pair census with depth momentum NOT conserved: members at (q, k1) and (q, k2) (the second member's husk momentum -q
 // has the same E, the band being even in K), over a husk grid and a column's depth momenta
-export function looseCensus(M: number, qs: readonly (readonly number[])[], depths: readonly number[]): { Bstar: number; reaches: boolean; pair: [number, number] } {
+export function looseCensus(
+  M: number,
+  qs: readonly (readonly number[])[],
+  depths: readonly number[],
+): { Bstar: number; reaches: boolean; pair: [number, number] } {
   let Bstar = Math.PI
   let reaches = false
   let pair: [number, number] = [NaN, NaN]
 
   for (const q of qs) {
     const bands = depths.map(k => {
-      const E = diracPhase([q[0] as number, q[1] as number, q[2] as number, k], M)
+      const E = diracPhase([q[0]!, q[1]!, q[2]!, k], M)
 
       return [E, -E, Math.PI]
     })
@@ -87,7 +115,10 @@ export function looseCensus(M: number, qs: readonly (readonly number[])[], depth
           for (const y of b) {
             const d = wrap(2 * M - x - y)
 
-            if (Math.abs(d) < 1e-12) reaches = true
+            if (Math.abs(d) < 1e-12) {
+              reaches = true
+            }
+
             if (d > 1e-12 && d < Bstar) {
               Bstar = d
               pair = [x, y]
@@ -102,13 +133,20 @@ export function looseCensus(M: number, qs: readonly (readonly number[])[], depth
 }
 
 // the 4d root Laplacian at K = (q, 0)
-export const huskSymbolFromRoots = (q: readonly number[]): number => DOCK_ROOTS.reduce((s, r) => s + 1 - Math.cos(dot(onSlice(q), r)), 0)
+export const huskSymbolFromRoots = (q: readonly number[]): number =>
+  DOCK_ROOTS.reduce((s, r) => s + 1 - Math.cos(dot(onSlice(q), r)), 0)
 
 // a husk grid of side n over [-pi, pi)^3
 export function huskGrid(n: number): number[][] {
   const out: number[][] = []
 
-  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) for (let c = 0; c < n; c++) out.push([a, b, c].map(i => -Math.PI + (2 * Math.PI * i) / n))
+  for (let a = 0; a < n; a++) {
+    for (let b = 0; b < n; b++) {
+      for (let c = 0; c < n; c++) {
+        out.push([a, b, c].map(i => -Math.PI + (2 * Math.PI * i) / n))
+      }
+    }
+  }
 
   return out
 }

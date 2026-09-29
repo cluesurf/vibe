@@ -42,8 +42,28 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { CUBIC_ATOM, HUSK_ATOM, ROWS, bandBeat, bandGradientAt, centerOf, fearBand, lowestLevels, makeAtom, makeBandWalk, type AtomKind } from '@/code/measure/stand-in-atom'
-import { beat, emptyWalkOn, line2, makeTorus, meanPosition, phaseOf, scalarState } from '@/code/measure/stand-in-hydrogen'
+import {
+  CUBIC_ATOM,
+  HUSK_ATOM,
+  ROWS,
+  bandBeat,
+  bandGradientAt,
+  centerOf,
+  fearBand,
+  lowestLevels,
+  makeAtom,
+  makeBandWalk,
+  type AtomKind,
+} from '@/code/measure/stand-in-atom'
+import {
+  beat,
+  emptyWalkOn,
+  line2,
+  makeTorus,
+  meanPosition,
+  phaseOf,
+  scalarState,
+} from '@/code/measure/stand-in-hydrogen'
 
 const LINE_FORCE = 0.01
 const LINE_BEATS = 640
@@ -52,10 +72,14 @@ const HUSK_BEATS = 50
 const DIRECTION = [1 / Math.sqrt(5), 2 / Math.sqrt(5), 0]
 
 // the fear band's slope
-const slopeOf = (q: number): number => Math.sin(q) / Math.sqrt(4 - Math.cos(q) ** 2)
+const slopeOf = (q: number): number =>
+  Math.sin(q) / Math.sqrt(4 - Math.cos(q) ** 2)
 
 // the husk (or control) center path and its classical prediction
-function huskPath(kind: AtomKind): { measured: number[]; classical: number[] } {
+function huskPath(kind: AtomKind): {
+  measured: number[]
+  classical: number[]
+} {
   const side = 32
   const h = side / 2
   const potential = new Float64Array(side ** 3)
@@ -67,8 +91,15 @@ function huskPath(kind: AtomKind): { measured: number[]; classical: number[] } {
       for (let x = 0; x < side; x++) {
         const i = x + side * (y + side * z)
 
-        potential[i] = -HUSK_FORCE * (DIRECTION[0]! * (x - h) + DIRECTION[1]! * (y - h) + DIRECTION[2]! * (z - h))
-        re[i] = Math.exp(-((x - h) ** 2 + (y - h) ** 2 + (z - h) ** 2) / (2 * 9))
+        potential[i] =
+          -HUSK_FORCE *
+          (DIRECTION[0]! * (x - h) +
+            DIRECTION[1]! * (y - h) +
+            DIRECTION[2]! * (z - h))
+
+        re[i] = Math.exp(
+          -((x - h) ** 2 + (y - h) ** 2 + (z - h) ** 2) / (2 * 9),
+        )
       }
     }
   }
@@ -118,13 +149,21 @@ export default experiment({
     }
 
     const phase = phaseOf(potential)
-    let w = scalarState(line, x => [Math.exp(-((x[0]! / 32) ** 2) / 2), 0])
+
+    let w = scalarState(line, x => [
+      Math.exp(-((x[0]! / 32) ** 2) / 2),
+      0,
+    ])
     let spare = emptyWalkOn(line)
+
     const x0 = meanPosition(line, w)[0]!
     const amplitude = fearBand(Math.PI) / LINE_FORCE
+
     let classical = 0
     let worst = 0
+
     const early: [number, number][] = []
+
     let returned = 0
 
     for (let t = 1; t <= LINE_BEATS; t++) {
@@ -146,8 +185,14 @@ export default experiment({
     }
 
     // x = F t (t - 1) / (2 m): least squares for 1 / m through the origin
-    const num = early.reduce((s, [t, x]) => s + x * ((LINE_FORCE * t * (t - 1)) / 2), 0)
-    const den = early.reduce((s, [t]) => s + ((LINE_FORCE * t * (t - 1)) / 2) ** 2, 0)
+    const num = early.reduce(
+      (s, [t, x]) => s + x * ((LINE_FORCE * t * (t - 1)) / 2),
+      0,
+    )
+    const den = early.reduce(
+      (s, [t]) => s + ((LINE_FORCE * t * (t - 1)) / 2) ** 2,
+      0,
+    )
     const newtonMass = den / num
 
     metrics.blochAmplitude = amplitude
@@ -157,52 +202,98 @@ export default experiment({
     metrics.newtonMassMiss = Math.abs(newtonMass / Math.sqrt(3) - 1)
 
     // the husk and the control
-    const paths = { husk: huskPath(HUSK_ATOM), cubic: huskPath(CUBIC_ATOM) }
+    const paths = {
+      husk: huskPath(HUSK_ATOM),
+      cubic: huskPath(CUBIC_ATOM),
+    }
+
     let gate3 = true
 
     for (const [name, p] of Object.entries(paths)) {
       const length = Math.hypot(...p.classical)
-      const miss = Math.hypot(...p.measured.map((v, a) => v - p.classical[a]!)) / length
-      const along = p.measured.reduce((s, v, a) => s + v * DIRECTION[a]!, 0)
-      const across = Math.hypot(...p.measured.map((v, a) => v - along * DIRECTION[a]!)) / Math.abs(along)
+      const miss =
+        Math.hypot(...p.measured.map((v, a) => v - p.classical[a]!)) /
+        length
+      const along = p.measured.reduce(
+        (s, v, a) => s + v * DIRECTION[a]!,
+        0,
+      )
+      const across =
+        Math.hypot(
+          ...p.measured.map((v, a) => v - along * DIRECTION[a]!),
+        ) / Math.abs(along)
 
       metrics[`${name}_pathLength`] = length
       metrics[`${name}_pathMiss`] = miss
       metrics[`${name}_acrossOverAlong`] = across
       metrics[`${name}_classicalAcrossOverAlong`] =
-        Math.hypot(...p.classical.map((v, a) => v - p.classical.reduce((s, c, b) => s + c * DIRECTION[b]!, 0) * DIRECTION[a]!)) /
-        Math.abs(p.classical.reduce((s, c, b) => s + c * DIRECTION[b]!, 0))
+        Math.hypot(
+          ...p.classical.map(
+            (v, a) =>
+              v -
+              p.classical.reduce(
+                (s, c, b) => s + c * DIRECTION[b]!,
+                0,
+              ) *
+                DIRECTION[a]!,
+          ),
+        ) /
+        Math.abs(
+          p.classical.reduce((s, c, b) => s + c * DIRECTION[b]!, 0),
+        )
       gate3 = gate3 && miss <= 0.01
     }
 
-    gate3 = gate3 && metrics.husk_acrossOverAlong! < 1e-3 && metrics.cubic_acrossOverAlong! > 1e-3
+    gate3 =
+      gate3 &&
+      metrics.husk_acrossOverAlong! < 1e-3 &&
+      metrics.cubic_acrossOverAlong! > 1e-3
 
     // correspondence
     const atom = makeAtom({ kind: HUSK_ATOM, side: 64, a: 0.5 })
-    const levels = lowestLevels({ atom, row: ROWS.T1u!, count: 5 }).values.map(v => v / atom.rydberg)
-    const rydbergRatio = (nu: number): number => (1 / nu ** 2 - 1 / (nu + 1) ** 2) / (2 * ((1 / nu ** 2 + 1 / (nu + 1) ** 2) / 2) ** 1.5)
+    const levels = lowestLevels({
+      atom,
+      row: ROWS.T1u!,
+      count: 5,
+    }).values.map(v => v / atom.rydberg)
+    const rydbergRatio = (nu: number): number =>
+      (1 / nu ** 2 - 1 / (nu + 1) ** 2) /
+      (2 * ((1 / nu ** 2 + 1 / (nu + 1) ** 2) / 2) ** 1.5)
     const ratios: number[] = []
     const expected: number[] = []
 
     for (let i = 0; i + 1 < levels.length; i++) {
       const mid = (levels[i]! + levels[i + 1]!) / 2
-      const ratio = (levels[i + 1]! - levels[i]!) / (2 * Math.abs(mid) ** 1.5)
+      const ratio =
+        (levels[i + 1]! - levels[i]!) / (2 * Math.abs(mid) ** 1.5)
       const nu = 1 / Math.sqrt(-levels[i]!)
 
       ratios.push(ratio)
       expected.push(rydbergRatio(nu))
       metrics[`p${i + 2}_EOverRy`] = levels[i]!
       metrics[`pair${i + 2}${i + 3}_ratio`] = ratio
-      metrics[`pair${i + 2}${i + 3}_rydbergSeriesRatio`] = rydbergRatio(nu)
+      metrics[`pair${i + 2}${i + 3}_rydbergSeriesRatio`] =
+        rydbergRatio(nu)
       metrics[`pair${i + 2}${i + 3}_nu`] = nu
     }
 
-    metrics[`p${levels.length + 1}_EOverRy`] = levels[levels.length - 1]!
+    metrics[`p${levels.length + 1}_EOverRy`] =
+      levels[levels.length - 1]!
 
-    const gate1 = worst / amplitude <= 0.02 && Math.abs(returned) / amplitude <= 0.02
+    const gate1 =
+      worst / amplitude <= 0.02 &&
+      Math.abs(returned) / amplitude <= 0.02
     const gate2 = metrics.newtonMassMiss <= 0.01
-    const gate4 = Math.abs(ratios[1]! - expected[1]!) <= 0.02 && Math.abs(ratios[2]! - expected[2]!) <= 0.02 && Math.abs(1 - ratios[2]!) < Math.abs(1 - ratios[1]!)
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate2 && (gate3 || gate4) ? 'partial' : 'fail'
+    const gate4 =
+      Math.abs(ratios[1]! - expected[1]!) <= 0.02 &&
+      Math.abs(ratios[2]! - expected[2]!) <= 0.02 &&
+      Math.abs(1 - ratios[2]!) < Math.abs(1 - ratios[1]!)
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate2 && (gate3 || gate4)
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

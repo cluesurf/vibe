@@ -74,7 +74,8 @@ import {
   mixConfigurations,
 } from '@/code/geometry/packing'
 
-const cosToDeg = (c: number) => (Math.acos(Math.min(1, c)) * 180) / Math.PI
+const cosToDeg = (c: number) =>
+  (Math.acos(Math.min(1, c)) * 180) / Math.PI
 
 const DESCENT = {
   steps: 6000,
@@ -131,8 +132,14 @@ export default experiment({
     const enlarged = [...shell1, ...half, ...shell2, ...shell3]
 
     const runs = [
-      { name: 'nearestFirstInteger', order: [...shell1, ...shell2, ...shell3] },
-      { name: 'rootsFirstInteger', order: [...shell2, ...shell1, ...shell3] },
+      {
+        name: 'nearestFirstInteger',
+        order: [...shell1, ...shell2, ...shell3],
+      },
+      {
+        name: 'rootsFirstInteger',
+        order: [...shell2, ...shell1, ...shell3],
+      },
       { name: 'lexicographicInteger', order: lexicographic(integer) },
       {
         name: 'nearestFirstEnlarged',
@@ -184,7 +191,11 @@ export default experiment({
     // the finding is that BOTH outcomes occur: greedy sometimes reaches the dock and sometimes jams below it
     const bothOutcomesOccur = jammed.length > 0 && reached.length > 0
 
-    const ok = bothOutcomesOccur && jamIsTerminal && halfIntegerUnjams && dockStillMaximal
+    const ok =
+      bothOutcomesOccur &&
+      jamIsTerminal &&
+      halfIntegerUnjams &&
+      dockStillMaximal
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -231,15 +242,30 @@ experiment({
 
     // every target here is universally optimal, so each is the global minimiser of the exact energy descended
     const targets = [
-      { name: 'tetrahedron', target: tetrahedron, dimension: 3, degree: 3 },
-      { name: 'octahedron', target: hypercubicAxes(3), dimension: 3, degree: 4 },
+      {
+        name: 'tetrahedron',
+        target: tetrahedron,
+        dimension: 3,
+        degree: 3,
+      },
+      {
+        name: 'octahedron',
+        target: hypercubicAxes(3),
+        dimension: 3,
+        degree: 4,
+      },
       {
         name: 'icosahedron',
         target: icosahedronVertexDirections(),
         dimension: 3,
         degree: 5,
       },
-      { name: 'crossPolytope', target: hypercubicAxes(4), dimension: 4, degree: 6 },
+      {
+        name: 'crossPolytope',
+        target: hypercubicAxes(4),
+        dimension: 4,
+        degree: 6,
+      },
       { name: 'dock', target: rootsD4(), dimension: 4, degree: 8 },
     ].map(entry => {
       const relaxed = relax(
@@ -269,7 +295,9 @@ experiment({
     const instrumentAlive = others.every(t => t.reached)
 
     // including one on the SAME sphere in the SAME dimension, so the failure is not about dimension four
-    const sameSphereReached = targets.find(t => t.name === 'crossPolytope')!.reached
+    const sameSphereReached = targets.find(
+      t => t.name === 'crossPolytope',
+    )!.reached
 
     // and the dock specifically is missed
     const dockMissed = !dockResult.reached
@@ -278,9 +306,7 @@ experiment({
     const spiral = deterministicSpiral(24, 4)
     const angles = [6000, 24000, 96000].map(steps =>
       cosToDeg(
-        maxPairwiseCosine(
-          relaxRiesz(spiral, { ...DESCENT, steps }),
-        ),
+        maxPairwiseCosine(relaxRiesz(spiral, { ...DESCENT, steps })),
       ),
     )
 
@@ -288,7 +314,8 @@ experiment({
       Math.max(...angles) - Math.min(...angles) < 0.01 &&
       angles.every(a => a < 59.5)
 
-    const ok = instrumentAlive && sameSphereReached && dockMissed && trapStable
+    const ok =
+      instrumentAlive && sameSphereReached && dockMissed && trapStable
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -297,8 +324,10 @@ experiment({
       metrics: {
         targets: targets.length,
         reachedCount: targets.filter(t => t.reached).length,
-        dockTargetAngle: Math.round(dockResult.targetAngle * 1000) / 1000,
-        dockReachedAngle: Math.round(dockResult.reachedAngle * 1000) / 1000,
+        dockTargetAngle:
+          Math.round(dockResult.targetAngle * 1000) / 1000,
+        dockReachedAngle:
+          Math.round(dockResult.reachedAngle * 1000) / 1000,
         trapAngleAt6000: Math.round(angles[0]! * 1000) / 1000,
         trapAngleAt96000: Math.round(angles[2]! * 1000) / 1000,
       },

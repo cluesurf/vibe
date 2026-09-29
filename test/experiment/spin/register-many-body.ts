@@ -155,9 +155,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { dockMixBranch, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  dockMixBranch,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
-import { cycleMultiplets, cyclePhases, eisConj, eisMul, eisPow, type Eis } from '@/code/measure/swap-cone'
+import {
+  cycleMultiplets,
+  cyclePhases,
+  eisConj,
+  eisMul,
+  eisPow,
+  type Eis,
+} from '@/code/measure/swap-cone'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 import { type RingUnit } from '@/code/rule/swap-mixer'
 import { restFrame } from '@/code/measure/two-beat'
@@ -166,7 +177,14 @@ import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { seaConfiguration } from '@/code/measure/pauli-mixer'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
-import { lockedState, mergeBranches, norm, sameConfiguration, type Branch, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedState,
+  mergeBranches,
+  norm,
+  sameConfiguration,
+  type Branch,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import {
   cycleMasslessPairN,
@@ -182,7 +200,11 @@ import {
   singletProjector24,
   trace,
 } from '@/code/measure/spinor-register'
-import { det4, trimaximal, volumeRight } from '@/code/measure/chiral-register'
+import {
+  det4,
+  trimaximal,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import {
   HOUSEHOLDER,
   qw,
@@ -232,7 +254,11 @@ import {
 const C_QUARTER = Math.SQRT2 / 4
 const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0]]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 const LIGHT: readonly [number, number] = [-1, 4]
 const SIXTH: readonly [number, number] = [0, 4]
@@ -258,24 +284,37 @@ const GAMMA_TOLERANCE = 1e-9
 const R_EXACT = 1e-9
 const FLAT_TOLERANCE = 1e-8
 
-export type ManyBodyPlan = { momenta: number; beats: number; seaBeats: number }
+export type ManyBodyPlan = {
+  momenta: number
+  beats: number
+  seaBeats: number
+}
 
-export const GATE_PLAN: ManyBodyPlan = { momenta: 64, beats: 12, seaBeats: 16 }
+export const GATE_PLAN: ManyBodyPlan = {
+  momenta: 64,
+  beats: 12,
+  seaBeats: 16,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
+
 const unitValue = (u: RingUnit): [number, number] => {
   const t = unitAngle(u)
 
   return [Math.cos(t), Math.sin(t)]
 }
-const conjPiece = (P: CMatrix): CMatrix => ({ re: P.re, im: P.im.map(x => -x) })
+
+const conjPiece = (P: CMatrix): CMatrix => ({
+  re: P.re,
+  im: P.im.map(x => -x),
+})
 const asNumber = (x: QW): number => Number(x.a) / Number(x.d)
 
 export default experiment({
   id: 'spin/register-many-body',
   code: 'E-SPN-0163',
   title:
-    'the many-body rule with registers is Gaussian, keeps the full sea exactly and makes one hole a member, and a covariant two-body vertex makes the trimaximal phase physical and lets number move between the halves, partial (C and CP still do not break together): every piece of the register rule is one-body, so the fermionic rule is its second quantization (minors, Cauchy-Binet, exact on the register Fock space), the full sea stays one branch with a unit amplitude every beat and exactly 1 per cycle (det X = +1, u^8 conj(u)^8 = 1), and by Jacobi one hole moves with the member\'s own band (c/4, gamma = 0, R = tan m/m); no Dirac-class piece of any order changes a member\'s chirality (the commutant R (x) R commutes with J), but a contact vertex, the register exchange (covariant under all 1,152, exact, integer-valued, T-even and P-even), turns a (+, -) pair into (-, +) flavor-diagonally and makes the trimaximal phase physical (an exact T-odd asymmetry, odd in V, zero for real mixing, rephasing invariant); it is C-even (particle-hole maps it to itself up to 12 - 4N), so C is kept; and a covariant pair table can make one + member and one - member (the rotations keep exactly one pair state in H+ (x) H-), moving number between the halves with no net direction while C holds',
+    "the many-body rule with registers is Gaussian, keeps the full sea exactly and makes one hole a member, and a covariant two-body vertex makes the trimaximal phase physical and lets number move between the halves, partial (C and CP still do not break together): every piece of the register rule is one-body, so the fermionic rule is its second quantization (minors, Cauchy-Binet, exact on the register Fock space), the full sea stays one branch with a unit amplitude every beat and exactly 1 per cycle (det X = +1, u^8 conj(u)^8 = 1), and by Jacobi one hole moves with the member's own band (c/4, gamma = 0, R = tan m/m); no Dirac-class piece of any order changes a member's chirality (the commutant R (x) R commutes with J), but a contact vertex, the register exchange (covariant under all 1,152, exact, integer-valued, T-even and P-even), turns a (+, -) pair into (-, +) flavor-diagonally and makes the trimaximal phase physical (an exact T-odd asymmetry, odd in V, zero for real mixing, rephasing invariant); it is C-even (particle-hole maps it to itself up to 12 - 4N), so C is kept; and a covariant pair table can make one + member and one - member (the rotations keep exactly one pair state in H+ (x) H-), moving number between the halves with no net direction while C holds",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -287,20 +326,34 @@ export default experiment({
 
 export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const group = f4Group()
   const rotations = group.filter(g => det4(g.matrix) === 1)
   const J = volumeRight()
-  const Pplus = J.map((r, i) => r.map((x, j) => (x + (i === j ? 1 : 0)) / 2))
-  const Pminus = J.map((r, i) => r.map((x, j) => (-x + (i === j ? 1 : 0)) / 2))
+  const Pplus = J.map((r, i) =>
+    r.map((x, j) => (x + (i === j ? 1 : 0)) / 2),
+  )
+  const Pminus = J.map((r, i) =>
+    r.map((x, j) => (-x + (i === j ? 1 : 0)) / 2),
+  )
   const uL = ringUnit(LIGHT[0], LIGHT[1])
   const qL = qwFromUnit(uL)
 
   // ---------------- R: the rule is Gaussian ----------------
-  const A = qwFromNumbers(Pplus).map((r, i) => r.map((x, j) => qwAdd(i === j ? QW_ONE : QW_ZERO, qwMul(qwSub(qL, QW_ONE), x))))
-  const halfRotation = rotations.find(g => g.register.some(r => r.some(x => Math.abs(x) === 0.5))) as (typeof rotations)[number]
+  const A = qwFromNumbers(Pplus).map((r, i) =>
+    r.map((x, j) =>
+      qwAdd(i === j ? QW_ONE : QW_ZERO, qwMul(qwSub(qL, QW_ONE), x)),
+    ),
+  )
+  const halfRotation = rotations.find(g =>
+    g.register.some(r => r.some(x => Math.abs(x) === 0.5)),
+  )!
   const B = qwFromNumbers(halfRotation.register)
   const AB = qwMatMulSq(A, B)
+
   let cauchyBinet = true
   let unitary = true
 
@@ -308,31 +361,50 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
     const GA = fockGammaBlock(A, k)
     const GB = fockGammaBlock(B, k)
 
-    if (!qwMatEqual(qwMatMulSq(GA, GB), fockGammaBlock(AB, k))) cauchyBinet = false
-    if (!qwMatEqual(qwMatMulSq(GA, qwDaggerSq(GA)), qwIdentityOf(GA.length))) unitary = false
+    if (!qwMatEqual(qwMatMulSq(GA, GB), fockGammaBlock(AB, k))) {
+      cauchyBinet = false
+    }
+
+    if (
+      !qwMatEqual(
+        qwMatMulSq(GA, qwDaggerSq(GA)),
+        qwIdentityOf(GA.length),
+      )
+    ) {
+      unitary = false
+    }
   }
 
   const detAB = qwDet(AB)
   const fullIsDet = qwMatEqual(fockGammaBlock(AB, 8), [[detAB]])
   const holes7 = fockStates(8, 7)
   const G7 = fockGammaBlock(AB, 7)
+
   let jacobi = true
 
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       const from = holes7.indexOf(255 ^ (1 << i))
       const to = holes7.indexOf(255 ^ (1 << j))
-      const want = qwMul(detAB, qwConj((AB[j] as QW[])[i] as QW))
+      const want = qwMul(detAB, qwConj((AB[j] as QW[])[i]!))
       const signed = (i + j) % 2 === 0 ? want : qwNeg(want)
 
-      if (!qwIsZero(qwSub((G7[to] as QW[])[from] as QW, signed))) jacobi = false
+      if (!qwIsZero(qwSub((G7[to] as QW[])[from]!, signed))) {
+        jacobi = false
+      }
     }
   }
 
   // the rank-one case on 6 modes: Gamma(1 + (l - 1) P) = 1 + (l - 1) N_P, P = |z><z| / 6
   const sixth = qw(1n, 0n, 6n)
-  const P1: QWMatrix = Array.from({ length: 6 }, () => Array.from({ length: 6 }, () => sixth))
-  const rankOne = P1.map((r, i) => r.map((x, j) => qwAdd(i === j ? QW_ONE : QW_ZERO, qwMul(qwSub(qL, QW_ONE), x))))
+  const P1: QWMatrix = Array.from({ length: 6 }, () =>
+    Array.from({ length: 6 }, () => sixth),
+  )
+  const rankOne = P1.map((r, i) =>
+    r.map((x, j) =>
+      qwAdd(i === j ? QW_ONE : QW_ZERO, qwMul(qwSub(qL, QW_ONE), x)),
+    ),
+  )
   const NP = fockOperator(
     6,
     Array.from({ length: 36 }, (_, k) => ({
@@ -343,14 +415,25 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
       ],
     })),
   )
-  const rankOneOk = qwMatEqual(fockGamma(rankOne), qwIdentityOf(64).map((r, i) => r.map((x, j) => qwAdd(x, qwMul(qwSub(qL, QW_ONE), (NP[i] as QW[])[j] as QW)))))
+  const rankOneOk = qwMatEqual(
+    fockGamma(rankOne),
+    qwIdentityOf(64).map((r, i) =>
+      r.map((x, j) =>
+        qwAdd(x, qwMul(qwSub(qL, QW_ONE), (NP[i] as QW[])[j]!)),
+      ),
+    ),
+  )
   const R = cauchyBinet && unitary && fullIsDet && jacobi && rankOneOk
 
   log('R')
 
   // ---------------- V: the vacuum ----------------
-  const perm = Array.from({ length: 192 }, (_, i) => (OPPOSITE[Math.floor(i / 8)] as number) * 8 + (i % 8))
+  const perm = Array.from(
+    { length: 192 },
+    (_, i) => OPPOSITE[Math.floor(i / 8)]! * 8 + (i % 8),
+  )
   const seen = new Uint8Array(192)
+
   let transpositions = 0
 
   for (let i = 0; i < 192; i++) {
@@ -359,23 +442,41 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
 
     while (!seen[j]) {
       seen[j] = 1
-      j = perm[j] as number
+      j = perm[j]!
       len++
     }
 
-    if (len > 0) transpositions += len - 1
+    if (len > 0) {
+      transpositions += len - 1
+    }
   }
 
   const S24 = singletProjector24()
   const D48 = partnerProjector48()
-  const projectorsOk = sameMatrix(matMul(S24, S24), S24.map(x => 24 * x)) && sameMatrix(matMul(D48, D48), D48.map(x => 48 * x)) && trace(S24) / 24 === 8 && trace(D48) / 48 === 8
+  const projectorsOk =
+    sameMatrix(
+      matMul(S24, S24),
+      S24.map(x => 24 * x),
+    ) &&
+    sameMatrix(
+      matMul(D48, D48),
+      D48.map(x => 48 * x),
+    ) &&
+    trace(S24) / 24 === 8 &&
+    trace(D48) / 48 === 8
+
   const cycleUnit = (u: RingUnit): boolean => {
     const num: Eis = [u.num[0], u.num[1]]
     const p = eisMul(eisPow(num, 8), eisPow(eisConj(num), 8))
 
     return p[0] === u.den ** 16n && p[1] === 0n
   }
-  const unitsOk = [uL, ringUnit(SIXTH[0], SIXTH[1]), ringUnit(MASSLESS[0], MASSLESS[1])].every(cycleUnit)
+
+  const unitsOk = [
+    uL,
+    ringUnit(SIXTH[0], SIXTH[1]),
+    ringUnit(MASSLESS[0], MASSLESS[1]),
+  ].every(cycleUnit)
   const V = transpositions % 2 === 0 && projectorsOk && unitsOk
 
   log('V')
@@ -383,37 +484,84 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   // ---------------- H: one hole is the member ----------------
   const qS = scaled(S24, 24)
   const qD = scaled(D48, 48)
-  const schedule = (u: [number, number]): CMatrix[] => [registerPiece(qS, u), registerPiece(qD, [u[0], -u[1]])]
+  const schedule = (u: [number, number]): CMatrix[] => [
+    registerPiece(qS, u),
+    registerPiece(qD, [u[0], -u[1]]),
+  ]
   const PL = schedule(unitValue(uL))
   const HL = PL.map(conjPiece)
+
   let holeGap = 0
 
   for (const K of weylMomenta(plan.momenta)) {
-    const a = cyclePhases(PL, REGISTER_ROOTS, K).map(wrap).sort((x, y) => x - y)
-    const b = cyclePhases(HL, REGISTER_ROOTS, K).map(wrap).sort((x, y) => x - y)
+    const a = cyclePhases(PL, REGISTER_ROOTS, K)
+      .map(wrap)
+      .sort((x, y) => x - y)
+    const b = cyclePhases(HL, REGISTER_ROOTS, K)
+      .map(wrap)
+      .sort((x, y) => x - y)
 
-    a.forEach((x, i) => (holeGap = Math.max(holeGap, Math.abs(wrap(x - (b[i] as number))))))
+    a.forEach(
+      (x, i) =>
+        (holeGap = Math.max(holeGap, Math.abs(wrap(x - b[i]!)))),
+    )
   }
 
   const PZ = schedule(unitValue(ringUnit(MASSLESS[0], MASSLESS[1])))
-  const holePairs = DIRS.map(u => cycleMasslessPairN(PZ.map(conjPiece), Math.PI, u, 0.01, REGISTER_ROOTS))
+  const holePairs = DIRS.map(u =>
+    cycleMasslessPairN(
+      PZ.map(conjPiece),
+      Math.PI,
+      u,
+      0.01,
+      REGISTER_ROOTS,
+    ),
+  )
   const thetaL = unitAngle(uL)
   const mL = wrap(thetaL - Math.PI) / 2
-  const holeFits = DIRS.map(u => frameRN(HL, restFrame(thetaL, -thetaL, 2 * mL), thetaL, u, C_QUARTER, SCALES, REGISTER_ROOTS))
+  const holeFits = DIRS.map(u =>
+    frameRN(
+      HL,
+      restFrame(thetaL, -thetaL, 2 * mL),
+      thetaL,
+      u,
+      C_QUARTER,
+      SCALES,
+      REGISTER_ROOTS,
+    ),
+  )
   const tanL = Math.tan(mL) / mL
   const H =
     holeGap <= BAND_TOLERANCE &&
-    holePairs.every(p => p.size === 16 && Math.abs(p.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE && Math.abs(p.gamma) / C_QUARTER <= GAMMA_TOLERANCE) &&
+    holePairs.every(
+      p =>
+        p.size === 16 &&
+        Math.abs(p.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE &&
+        Math.abs(p.gamma) / C_QUARTER <= GAMMA_TOLERANCE,
+    ) &&
     holeFits.every(f => Math.abs(f.R - tanL) <= R_EXACT)
 
   log('H')
 
   // ---------------- W (a): the vertex on the register pair space ----------------
-  const kron = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number[][] =>
-    Array.from({ length: 64 }, (_, i) => Array.from({ length: 64 }, (_, j) => ((a[Math.floor(i / 8)] as number[])[Math.floor(j / 8)] as number) * ((b[i % 8] as number[])[j % 8] as number)))
-  const swapThen = (M: number[][]): number[][] => M.map((_, i) => M[(i % 8) * 8 + Math.floor(i / 8)] as number[])
-  const thenSwap = (M: number[][]): number[][] => M.map(r => r.map((_, j) => r[(j % 8) * 8 + Math.floor(j / 8)] as number))
-  const eq = (a: number[][], b: number[][]): boolean => a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
+  const kron = (
+    a: readonly (readonly number[])[],
+    b: readonly (readonly number[])[],
+  ): number[][] =>
+    Array.from({ length: 64 }, (_, i) =>
+      Array.from(
+        { length: 64 },
+        (_, j) =>
+          (a[Math.floor(i / 8)] as number[])[Math.floor(j / 8)]! *
+          (b[i % 8] as number[])[j % 8]!,
+      ),
+    )
+  const swapThen = (M: number[][]): number[][] =>
+    M.map((_, i) => M[(i % 8) * 8 + Math.floor(i / 8)]!)
+  const thenSwap = (M: number[][]): number[][] =>
+    M.map(r => r.map((_, j) => r[(j % 8) * 8 + Math.floor(j / 8)]!))
+  const eq = (a: number[][], b: number[][]): boolean =>
+    a.every((r, i) => r.every((x, j) => x === b[i]![j]))
   const I8 = J.map((r, i) => r.map((_, j) => (i === j ? 1 : 0)))
   const swapCovariant = group.every(g => {
     const gg = kron(g.register, g.register)
@@ -424,8 +572,18 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   const J1 = kron(J, I8)
   const swapKeepsJJ = eq(swapThen(JJ), thenSwap(JJ))
   const swapMovesJ1 = !eq(swapThen(J1), thenSwap(J1))
-  const mm8 = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number[][] => a.map(r => (b[0] as number[]).map((_, j) => r.reduce((s, x, k) => s + x * ((b[k] as number[])[j] as number), 0)))
-  const rightsKeepJ = EVEN.map(rightMultiplication).every(Rx => eq(mm8(Rx, J), mm8(J, Rx)))
+  const mm8 = (
+    a: readonly (readonly number[])[],
+    b: readonly (readonly number[])[],
+  ): number[][] =>
+    a.map(r =>
+      (b[0] as number[]).map((_, j) =>
+        r.reduce((s, x, k) => s + x * (b[k] as number[])[j]!, 0),
+      ),
+    )
+  const rightsKeepJ = EVEN.map(rightMultiplication).every(Rx =>
+    eq(mm8(Rx, J), mm8(J, Rx)),
+  )
   const Wa = swapCovariant && swapKeepsJJ && swapMovesJ1 && rightsKeepJ
 
   log('W a')
@@ -434,59 +592,103 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   const Hx = exchangeCount(2, 3)
   const vUnit = ringUnit(VERTEX[0], VERTEX[1])
   const vertex = unitPower(Hx, H_VALUES, qwFromUnit(vUnit))
-  const vertexUnitary = vertex !== null && qwMatEqual(qwMatMulSq(vertex.U, qwDaggerSq(vertex.U)), qwIdentityOf(64))
+  const vertexUnitary =
+    vertex !== null &&
+    qwMatEqual(
+      qwMatMulSq(vertex.U, qwDaggerSq(vertex.U)),
+      qwIdentityOf(64),
+    )
   const units = FLAVOR_UNITS.map(([k, j]) => ringUnit(k, j))
   const Dm = qwDiag(units.map(qwFromUnit))
   const Vt = qwFromEisQMatrix(trimaximal())
-  const aPlus = (W: QWMatrix): QWMatrix => qwMatMul(qwMatMul(W, Dm), qwDagger(W))
+  const aPlus = (W: QWMatrix): QWMatrix =>
+    qwMatMul(qwMatMul(W, Dm), qwDagger(W))
   const two = fockStates(6, 2)
-  const stepOf = (W: QWMatrix, v: QW, palindrome: boolean): QWMatrix => {
+
+  const stepOf = (
+    W: QWMatrix,
+    v: QW,
+    palindrome: boolean,
+  ): QWMatrix => {
     const G = fockGamma(restToy(aPlus(W), Dm, QW_ONE))
     const Uv = (unitPower(Hx, H_VALUES, v) as { U: QWMatrix }).U
 
-    return palindrome ? qwMatMulSq(qwMatMulSq(Uv, G), Uv) : qwMatMulSq(Uv, G)
+    return palindrome
+      ? qwMatMulSq(qwMatMulSq(Uv, G), Uv)
+      : qwMatMulSq(Uv, G)
   }
+
   // |amplitude|^2 / 16 (two unnormalized two-member states, norm^2 4 each), averaged over the 3 spectator flavors
   const perState = qw(1n, 0n, 48n)
-  const Q = (U: QWMatrix, alpha: number, beta: number, beats: number): QW[] => {
+
+  const Q = (
+    U: QWMatrix,
+    alpha: number,
+    beta: number,
+    beats: number,
+  ): QW[] => {
     const out: QW[] = Array.from({ length: beats }, () => QW_ZERO)
 
     for (let g = 0; g < 3; g++) {
       let x = new Map<number, QW>()
 
-      for (const [k, c] of chiralPair(-1, alpha, 1, g)) x.set(k, qw(c, 0n))
+      for (const [k, c] of chiralPair(-1, alpha, 1, g)) {
+        x.set(k, qw(c, 0n))
+      }
+
       for (let t = 0; t < beats; t++) {
         x = applyBlock(U, two, x)
-        for (let g2 = 0; g2 < 3; g2++) out[t] = qwAdd(out[t] as QW, qwMul(perState,qwAbs2(overlap(chiralPair(-1, beta, 1, g2), x))))
+
+        for (let g2 = 0; g2 < 3; g2++) {
+          out[t] = qwAdd(
+            out[t]!,
+            qwMul(
+              perState,
+              qwAbs2(overlap(chiralPair(-1, beta, 1, g2), x)),
+            ),
+          )
+        }
       }
     }
 
     return out
   }
+
   const asym = (U: QWMatrix, beats: number): QW[] => {
     const f = Q(U, 0, 1, beats)
     const b = Q(U, 1, 0, beats)
 
-    return f.map((x, t) => qwSub(x, b[t] as QW))
+    return f.map((x, t) => qwSub(x, b[t]!))
   }
+
   const qv = qwFromUnit(vUnit)
   const AT = asym(stepOf(Vt, qv, true), plan.beats)
-  const ATbar = asym(stepOf(Vt.map(r => r.map(qwConj)), qv, true), plan.beats)
+  const ATbar = asym(
+    stepOf(
+      Vt.map(r => r.map(qwConj)),
+      qv,
+      true,
+    ),
+    plan.beats,
+  )
   const ATH = asym(stepOf(HOUSEHOLDER, qv, true), plan.beats)
   const AT1 = asym(stepOf(qwIdentityOf(3), qv, true), plan.beats)
   const ATv1 = asym(stepOf(Vt, QW_ONE, true), plan.beats)
   const ATone = asym(stepOf(Vt, qv, false), plan.beats)
   const real = AT.every(x => x.b === 0n)
   const nonzero = AT.some(x => !qwIsZero(x))
-  const odd = AT.every((x, t) => qwIsZero(qwAdd(x, ATbar[t] as QW)))
+  const odd = AT.every((x, t) => qwIsZero(qwAdd(x, ATbar[t]!)))
   const zeros = [ATH, AT1, ATv1].every(a => a.every(qwIsZero))
+
   let rephased = true
 
   for (const a of SIXTH_ROOTS) {
     for (const b of SIXTH_ROOTS) {
       const A2 = asym(stepOf(rephase(Vt, a, b), qv, true), plan.beats)
 
-      if (!A2.every((x, t) => qwIsZero(qwSub(x, AT[t] as QW)))) rephased = false
+      if (!A2.every((x, t) => qwIsZero(qwSub(x, AT[t]!)))) {
+        rephased = false
+      }
     }
   }
 
@@ -494,14 +696,16 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   const Wrest: QWMatrix = Array.from({ length: 6 }, (_, i) =>
     Array.from({ length: 6 }, (_, j) => {
       const same = Math.floor(i / 3) === Math.floor(j / 3)
-      const v = qwMul(half, (Vt[i % 3] as QW[])[j % 3] as QW)
+      const v = qwMul(half, (Vt[i % 3] as QW[])[j % 3]!)
       const one = i % 3 === j % 3 ? half : QW_ZERO
 
       return same ? qwAdd(v, one) : qwSub(v, one)
     }),
   )
   const GW = fockGamma(Wrest)
-  const wMovesVertex = vertex !== null && !qwMatEqual(qwMatMulSq(GW, vertex.U), qwMatMulSq(vertex.U, GW))
+  const wMovesVertex =
+    vertex !== null &&
+    !qwMatEqual(qwMatMulSq(GW, vertex.U), qwMatMulSq(vertex.U, GW))
   const Wb = vertex !== null && vertexUnitary
   const Wc = real && nonzero && odd && zeros && rephased && wMovesVertex
   const W = Wa && Wb && Wc
@@ -512,19 +716,30 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
   const Nop = numberOperator(6)
   const XiH = qwMatMulSq(qwMatMulSq(Xi, Hx), qwDaggerSq(Xi))
   const shift = qwMatSub(XiH, Hx)
-  const cEven = qwMatEqual(shift, Nop.map((r, i) => r.map((x, j) => (i === j ? qw(12n - 4n * x.a, 0n) : QW_ZERO))))
+  const cEven = qwMatEqual(
+    shift,
+    Nop.map((r, i) =>
+      r.map((x, j) => (i === j ? qw(12n - 4n * x.a, 0n) : QW_ZERO)),
+    ),
+  )
   const shiftConstantPerSector = [0, 1, 2, 3, 4, 5, 6].every(k => {
     const st = fockStates(6, k)
-    const d0 = (shift[st[0] as number] as QW[])[st[0] as number] as QW
+    const d0 = (shift[st[0]!] as QW[])[st[0]!]!
 
-    return st.every(a => st.every(b => qwIsZero(qwSub((shift[a] as QW[])[b] as QW, a === b ? d0 : QW_ZERO))))
+    return st.every(a =>
+      st.every(b =>
+        qwIsZero(qwSub((shift[a] as QW[])[b]!, a === b ? d0 : QW_ZERO)),
+      ),
+    )
   })
   const G = !shiftConstantPerSector
 
   log('G')
 
   // ---------------- N: number between the halves ----------------
-  const tr = (m: readonly (readonly number[])[]): number => m.reduce((s, r, i) => s + (r[i] as number), 0)
+  const tr = (m: readonly (readonly number[])[]): number =>
+    m.reduce((s, r, i) => s + r[i]!, 0)
+
   let pp = 0
   let mmv = 0
   let pm = 0
@@ -538,68 +753,146 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
     mmv += cm * cm
     pm += cp * cm
   }
-  for (const g of group) all += tr(g.register) ** 2
 
-  const invariants = { pp: pp / rotations.length, mm: mmv / rotations.length, pm: pm / rotations.length, all: all / group.length }
-  const psi = Array.from({ length: 64 }, (_, k) => (k === 0 ? 1 : k === 63 ? -1 : 0))
-  const apply64 = (M: number[][], x: readonly number[]): number[] => M.map(r => r.reduce((s, y, k) => s + y * (x[k] as number), 0))
-  const psiInvariant = group.every(g => apply64(kron(g.register, g.register), psi).every((x, k) => x === psi[k]))
+  for (const g of group) {
+    all += tr(g.register) ** 2
+  }
+
+  const invariants = {
+    pp: pp / rotations.length,
+    mm: mmv / rotations.length,
+    pm: pm / rotations.length,
+    all: all / group.length,
+  }
+  const psi = Array.from({ length: 64 }, (_, k) =>
+    k === 0 ? 1 : k === 63 ? -1 : 0,
+  )
+  const apply64 = (M: number[][], x: readonly number[]): number[] =>
+    M.map(r => r.reduce((s, y, k) => s + y * x[k]!, 0))
+  const psiInvariant = group.every(g =>
+    apply64(kron(g.register, g.register), psi).every(
+      (x, k) => x === psi[k],
+    ),
+  )
   const onPP = apply64(kron(Pplus, Pplus), psi)
   const onMM = apply64(kron(Pminus, Pminus), psi)
   const onPM = apply64(kron(Pplus, Pminus), psi)
   const onMP = apply64(kron(Pminus, Pplus), psi)
-  const norm2 = (x: readonly number[]): number => x.reduce((s, y) => s + y * y, 0)
-  const weights = { pp: norm2(onPP) / norm2(psi), mm: norm2(onMM) / norm2(psi), pm: norm2(onPM) / norm2(psi), mp: norm2(onMP) / norm2(psi) }
-  const N = invariants.pp === 2 && invariants.mm === 2 && invariants.pm === 1 && invariants.all === 3 && psiInvariant && weights.pp === 0 && weights.mm === 0 && weights.pm === 0.5 && weights.mp === 0.5
+  const norm2 = (x: readonly number[]): number =>
+    x.reduce((s, y) => s + y * y, 0)
+  const weights = {
+    pp: norm2(onPP) / norm2(psi),
+    mm: norm2(onMM) / norm2(psi),
+    pm: norm2(onPM) / norm2(psi),
+    mp: norm2(onMP) / norm2(psi),
+  }
+  const N =
+    invariants.pp === 2 &&
+    invariants.mm === 2 &&
+    invariants.pm === 1 &&
+    invariants.all === 3 &&
+    psiInvariant &&
+    weights.pp === 0 &&
+    weights.mm === 0 &&
+    weights.pm === 0.5 &&
+    weights.mp === 0.5
 
   log('N')
 
   // ---------------- instrument ----------------
   const b = restToy(aPlus(Vt), Dm, QW_ONE)
   const Gb = fockGamma(b)
-  const I1 = qwMatEqual(qwMatMulSq(qwMatMulSq(Xi, Gb), qwDaggerSq(Xi)), qwScalar(fockGamma(b.map(r => r.map(qwConj))), qwDet(b)))
+  const I1 = qwMatEqual(
+    qwMatMulSq(qwMatMulSq(Xi, Gb), qwDaggerSq(Xi)),
+    qwScalar(fockGamma(b.map(r => r.map(qwConj))), qwDet(b)),
+  )
   const one = fockStates(6, 1)
-  const I2 = one.every((to, i) => one.every((from, j) => qwIsZero(qwSub((Gb[to] as QW[])[from] as QW, (b[i] as QW[])[j] as QW))))
+  const I2 = one.every((to, i) =>
+    one.every((from, j) =>
+      qwIsZero(qwSub((Gb[to] as QW[])[from]!, (b[i] as QW[])[j]!)),
+    ),
+  )
   const XiN = qwMatMulSq(qwMatMulSq(Xi, Nop), qwDaggerSq(Xi))
-  const I3 = qwMatEqual(qwMatMulSq(Xi, Xi).map(r => r.map(x => qwMul(x, x))), qwIdentityOf(64)) && qwMatEqual(XiN, Nop.map((r, i) => r.map((x, j) => (i === j ? qw(6n - x.a, 0n) : QW_ZERO))))
+  const I3 =
+    qwMatEqual(
+      qwMatMulSq(Xi, Xi).map(r => r.map(x => qwMul(x, x))),
+      qwIdentityOf(64),
+    ) &&
+    qwMatEqual(
+      XiN,
+      Nop.map((r, i) =>
+        r.map((x, j) => (i === j ? qw(6n - x.a, 0n) : QW_ZERO)),
+      ),
+    )
   const instrument = I1 && I2 && I3
 
   log('instrument')
 
   // ---------------- controls ----------------
   const multiplets = cycleMultiplets(PL, REGISTER_ROOTS)
-  const at0 = (phase: number): number => multiplets.filter(x => Math.abs(wrap(x.center - phase)) <= FLAT_TOLERANCE).reduce((s, x) => s + x.size, 0)
-  const C1 = multiplets.length === 3 && at0(thetaL) === 8 && at0(-thetaL) === 8 && at0(0) === 176
+  const at0 = (phase: number): number =>
+    multiplets
+      .filter(x => Math.abs(wrap(x.center - phase)) <= FLAT_TOLERANCE)
+      .reduce((s, x) => s + x.size, 0)
+  const C1 =
+    multiplets.length === 3 &&
+    at0(thetaL) === 8 &&
+    at0(-thetaL) === 8 &&
+    at0(0) === 176
   const X4 = centerOf(4)
   const fr = contactFresh(4, 'pass', X4)
   const flat = tablesOn(fr.weave, 'pass', flatLinks(fr.weave))
   const sea = seaConfiguration(fr.cells, 1)
+
   let st: LockedState = lockedState(sea)
   let seaExact = true
 
   for (let t = 0; t < plan.seaBeats; t++) {
-    st = { branches: mergeBranches(st.branches.flatMap(br => dockMixBranch(fr.cells, br, false, false))) }
+    st = {
+      branches: mergeBranches(
+        st.branches.flatMap(br =>
+          dockMixBranch(fr.cells, br, false, false),
+        ),
+      ),
+    }
     st = coinedVetoBeat('none', flat, st, t)
 
-    const br = st.branches[0] as Branch
+    const br = st.branches[0]!
 
-    if (st.branches.length !== 1 || !sameConfiguration(br, sea) || br.k !== 0 || norm(br.a, br.b) !== 1n) seaExact = false
+    if (
+      st.branches.length !== 1 ||
+      !sameConfiguration(br, sea) ||
+      br.k !== 0 ||
+      norm(br.a, br.b) !== 1n
+    ) {
+      seaExact = false
+    }
   }
 
   const C2 = seaExact
-  const herm = (M: QWMatrix): QWMatrix => M.map((r, i) => r.map((x, j) => {
-    const s = qwAdd(x, qwConj((M[j] as QW[])[i] as QW))
+  const herm = (M: QWMatrix): QWMatrix =>
+    M.map((r, i) =>
+      r.map((x, j) => {
+        const s = qwAdd(x, qwConj((M[j] as QW[])[i]!))
 
-    return qw(s.a, s.b, s.d * 2n)
-  }))
+        return qw(s.a, s.b, s.d * 2n)
+      }),
+    )
+
   const comm = (X: QWMatrix, Y: QWMatrix): QWMatrix => {
     const p = qwMatMul(X, Y)
     const q = qwMatMul(Y, X)
 
-    return p.map((r, i) => r.map((x, j) => qwSub(x, (q[i] as QW[])[j] as QW)))
+    return p.map((r, i) =>
+      r.map((x, j) => qwSub(x, (q[i] as QW[])[j]!)),
+    )
   }
+
   const cpInvariant = qwDet3(comm(herm(aPlus(Vt)), herm(Dm)))
-  const removable = qwMatEqual(restToy(aPlus(Vt), Dm, QW_ONE), qwMatMul(qwMatMul(Wrest, restToy(Dm, Dm, QW_ONE)), qwDagger(Wrest)))
+  const removable = qwMatEqual(
+    restToy(aPlus(Vt), Dm, QW_ONE),
+    qwMatMul(qwMatMul(Wrest, restToy(Dm, Dm, QW_ONE)), qwDagger(Wrest)),
+  )
   const C3 = qwIsZero(qwSub(cpInvariant, RECORDED_CP)) && removable
   const controls = C1 && C2 && C3
 
@@ -607,8 +900,15 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
 
   // ---------------- verdict ----------------
   const hard = R && V && H && W && N
-  const status = !hard ? 'fail' : !instrument || !controls ? 'partial' : G ? 'pass' : 'partial'
-  const line = (xs: readonly QW[]): string => xs.map(x => asNumber(x).toExponential(4)).join(' ')
+  const status = !hard
+    ? 'fail'
+    : !instrument || !controls
+      ? 'partial'
+      : G
+        ? 'pass'
+        : 'partial'
+  const line = (xs: readonly QW[]): string =>
+    xs.map(x => asNumber(x).toExponential(4)).join(' ')
   const metrics: Record<string, number> = {
     R: flag(R),
     V: flag(V),
@@ -626,8 +926,12 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
     transpositions,
     holeGap,
     holeRgap: Math.max(...holeFits.map(f => Math.abs(f.R - tanL))),
-    holeC0gap: Math.max(...holePairs.map(p => Math.abs(p.c0 / C_QUARTER - 1))),
-    holeGamma: Math.max(...holePairs.map(p => Math.abs(p.gamma) / C_QUARTER)),
+    holeC0gap: Math.max(
+      ...holePairs.map(p => Math.abs(p.c0 / C_QUARTER - 1)),
+    ),
+    holeGamma: Math.max(
+      ...holePairs.map(p => Math.abs(p.gamma) / C_QUARTER),
+    ),
     invariantsPP: invariants.pp,
     invariantsMM: invariants.mm,
     invariantsPM: invariants.pm,
@@ -642,7 +946,12 @@ export function registerManyBodyRun(plan: ManyBodyPlan): Verdict {
     status,
     claim: `R ${R} (Cauchy-Binet ${cauchyBinet}, unitary ${unitary}, full = det ${fullIsDet}, one-hole Jacobi ${jacobi}, rank one = E-SPN-0140's mixer ${rankOneOk}); V ${V} (X ${transpositions} transpositions, projectors exact ${projectorsOk}, u^8 conj(u)^8 = 1 ${unitsOk}); H ${H} (hole phases against the member's ${holeGap.toExponential(2)} at ${plan.momenta} momenta, hole pairs ${holePairs.map(p => `${p.size} c0/(c/4) ${(p.c0 / C_QUARTER).toFixed(12)}`).join(', ')}, R - tan m/m ${holeFits.map(f => (f.R - tanL).toExponential(2)).join(' ')}); W ${W} (a ${Wa}: swap covariant under 1,152 ${swapCovariant}, keeps J (x) J ${swapKeepsJJ}, moves J (x) 1 ${swapMovesJ1}, R(x) keep J ${rightsKeepJ}; b ${Wb}: H' in {${H_VALUES.join(', ')}}, vertex unitary ${vertexUnitary}; c ${Wc}: A_T ${line(AT)}, odd in V ${odd}, zero for Householder, V = 1 and v = 1 ${zeros}, 36 rephasings ${rephased}, Gamma(W) moves the vertex ${wMovesVertex}); G ${G} (Xi H' Xi^-1 = H' + 12 - 4N ${cEven}, constant per sector ${shiftConstantPerSector}: C-even); N ${N} (invariants ${invariants.pp}, ${invariants.mm}, ${invariants.pm}, all ${invariants.all}; psi invariant under 1,152 ${psiInvariant}; weights (+,+) ${weights.pp} (-,-) ${weights.mm} (+,-) ${weights.pm} (-,+) ${weights.mp}); instrument I1 ${I1} I2 ${I2} I3 ${I3}; controls C1 ${C1} C2 ${C2} C3 ${C3}`,
     metrics,
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      instrument: flag(instrument),
+    },
     notes: `L1 and L2. Vertex v = ringUnit(${VERTEX.join(', ')}), angle ${unitAngle(vUnit).toFixed(6)}; masses ${units.map(u => (wrap(unitAngle(u) - Math.PI) / 2).toFixed(6)).join(', ')}. A_T(t), t = 1 .. ${plan.beats}, palindrome: ${line(AT)}; conj V ${line(ATbar)}; one-sided (read) ${line(ATone)}. Exact A_T(1) = (${AT[0]!.a}) / ${AT[0]!.d}. Hole: phase gap ${holeGap.toExponential(2)}, pairs ${holePairs.map(p => `${p.size} gamma/c0 ${(p.gamma / C_QUARTER).toExponential(2)}`).join('; ')}, R - tan m/m ${holeFits.map(f => (f.R - tanL).toExponential(2)).join(' ')}. Characters: rotations (+,+) ${invariants.pp}, (-,-) ${invariants.mm}, (+,-) ${invariants.pm}; W(F4) ${invariants.all}. E-SPN-0140 sea ${plan.seaBeats} beats one branch ${seaExact}. E-FRC-0259 CP invariant (${cpInvariant.a} + ${cpInvariant.b} w) / ${cpInvariant.d}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

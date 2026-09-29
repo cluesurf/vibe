@@ -34,13 +34,28 @@
 // the stream takes each slot's value one dock along.
 
 import { hopSign, LINE_SECONDS } from '@/code/rule/coined-locked-knit'
-import { cloneConfiguration, times, type Branch, type Configuration, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  times,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+  type LockedTally,
+} from '@/code/rule/doublet-locked-knit'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  vetoBeat,
+  vetoBeatBack,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 import { mergeBranches } from '@/code/rule/doublet-locked-knit'
 
 // a norm-one Eisenstein number num / den, num = a + b w
-export type RingUnit = { readonly num: readonly [bigint, bigint]; readonly den: bigint }
+export type RingUnit = {
+  readonly num: readonly [bigint, bigint]
+  readonly den: bigint
+}
 
 // E-SPN-0143's chosen angle: e^(i theta*) = -(360 + 37 w) / 343
 export const SWAP_ANGLE: RingUnit = { num: [-360n, -37n], den: 343n }
@@ -48,9 +63,17 @@ export const SWAP_ANGLE: RingUnit = { num: [-360n, -37n], den: 343n }
 // the per-dock scale of the ring mixer: every entry times 24 den is an Eisenstein integer
 export const ringScale = (u: RingUnit): bigint => 24n * u.den
 
-const conj = (x: readonly [bigint, bigint]): [bigint, bigint] => [x[0] - x[1], -x[1]]
+const conj = (x: readonly [bigint, bigint]): [bigint, bigint] => [
+  x[0] - x[1],
+  -x[1],
+]
 
-const cloneBranch = (b: Branch): Branch => ({ ...cloneConfiguration(b), a: b.a, b: b.b, k: b.k })
+const cloneBranch = (b: Branch): Branch => ({
+  ...cloneConfiguration(b),
+  a: b.a,
+  b: b.b,
+  k: b.k,
+})
 
 // the swap coin on one branch, in place (one branch in, one branch out)
 export function swapCoinBranch(cells: number, br: Branch): Branch[] {
@@ -58,23 +81,29 @@ export function swapCoinBranch(cells: number, br: Branch): Branch[] {
     const base = x * 24
 
     for (let l = 0; l < 12; l++) {
-      const i = base + (LINE_FIRSTS[l] as number)
-      const j = base + (LINE_SECONDS[l] as number)
+      const i = base + LINE_FIRSTS[l]!
+      const j = base + LINE_SECONDS[l]!
       const hi = br.vibe[i] !== 0
       const hj = br.vibe[j] !== 0
 
       if (hi && hj) {
-        if (br.open[i] && br.open[j]) times(br, -1n, 0n)
+        if (br.open[i] && br.open[j]) {
+          times(br, -1n, 0n)
+        }
+
         continue
       }
 
-      const [from, to] = hi && br.open[i] ? [i, j] : hj && br.open[j] ? [j, i] : [-1, -1]
+      const [from, to] =
+        hi && br.open[i] ? [i, j] : hj && br.open[j] ? [j, i] : [-1, -1]
 
-      if (from < 0) continue
+      if (from < 0) {
+        continue
+      }
 
-      br.vibe[to] = br.vibe[from] as number
-      br.point[to] = br.point[from] as number
-      br.open[to] = br.open[from] as number
+      br.vibe[to] = br.vibe[from]!
+      br.point[to] = br.point[from]!
+      br.open[to] = br.open[from]!
       br.vibe[from] = 0
       br.point[from] = 0
       br.open[from] = 0
@@ -85,7 +114,10 @@ export function swapCoinBranch(cells: number, br: Branch): Branch[] {
 }
 
 // the slots of dock x holding a vibe (a mask), their count, and whether they are all open and of one value and point
-export function dockHold(c: Configuration, x: number): { held: number; mask: number; oneContent: boolean } {
+export function dockHold(
+  c: Configuration,
+  x: number,
+): { held: number; mask: number; oneContent: boolean } {
   let held = 0
   let mask = 0
   let oneContent = true
@@ -94,32 +126,54 @@ export function dockHold(c: Configuration, x: number): { held: number; mask: num
   for (let d = 0; d < 24; d++) {
     const i = x * 24 + d
 
-    if (c.vibe[i] === 0) continue
+    if (c.vibe[i] === 0) {
+      continue
+    }
+
     held++
     mask |= 1 << d
-    if (!c.open[i]) oneContent = false
-    if (first < 0) first = i
-    else if (c.vibe[i] !== c.vibe[first] || c.point[i] !== c.point[first]) oneContent = false
+
+    if (!c.open[i]) {
+      oneContent = false
+    }
+
+    if (first < 0) {
+      first = i
+    } else if (
+      c.vibe[i] !== c.vibe[first] ||
+      c.point[i] !== c.point[first]
+    ) {
+      oneContent = false
+    }
   }
 
   return { held, mask, oneContent }
 }
 
 function hop(b: Configuration, from: number, to: number): void {
-  b.vibe[to] = b.vibe[from] as number
-  b.point[to] = b.point[from] as number
-  b.open[to] = b.open[from] as number
+  b.vibe[to] = b.vibe[from]!
+  b.point[to] = b.point[from]!
+  b.open[to] = b.open[from]!
   b.vibe[from] = 0
   b.point[from] = 0
   b.open[from] = 0
 }
 
 // the ring mixer on one branch, every dock, each dock's piece times ringScale(u) (a global ringScale(u)^cells per call)
-export function ringDockMixBranch(cells: number, br: Branch, u: RingUnit, adjoint: boolean, guard = 1 << 16): Branch[] {
-  const num = adjoint ? conj(u.num) : ([u.num[0], u.num[1]] as [bigint, bigint])
+export function ringDockMixBranch(
+  cells: number,
+  br: Branch,
+  u: RingUnit,
+  adjoint: boolean,
+  guard = 1 << 16,
+): Branch[] {
+  const num = adjoint
+    ? conj(u.num)
+    : ([u.num[0], u.num[1]] as [bigint, bigint])
   const S = ringScale(u)
   const hopU = num[0] - u.den
   const hopV = num[1]
+
   let branches: Branch[] = [br]
 
   for (let x = 0; x < cells; x++) {
@@ -148,13 +202,19 @@ export function ringDockMixBranch(cells: number, br: Branch, u: RingUnit, adjoin
       next.push(keep)
 
       for (let from = 0; from < 24; from++) {
-        if (!((h.mask >> from) & 1)) continue
+        if (!((h.mask >> from) & 1)) {
+          continue
+        }
 
         for (let to = 0; to < 24; to++) {
-          if ((h.mask >> to) & 1) continue
+          if ((h.mask >> to) & 1) {
+            continue
+          }
 
           const k = cloneBranch(b)
-          const sign = BigInt(hopSign(k, x * 24, x * 24 + from, x * 24 + to))
+          const sign = BigInt(
+            hopSign(k, x * 24, x * 24 + from, x * 24 + to),
+          )
 
           hop(k, x * 24 + from, x * 24 + to)
           times(k, sign * hopU, sign * hopV)
@@ -164,7 +224,12 @@ export function ringDockMixBranch(cells: number, br: Branch, u: RingUnit, adjoin
     }
 
     branches = next
-    if (branches.length > guard) throw new Error(`swap-mixer: ${branches.length} branches, over the guard ${guard}`)
+
+    if (branches.length > guard) {
+      throw new Error(
+        `swap-mixer: ${branches.length} branches, over the guard ${guard}`,
+      )
+    }
   }
 
   return branches
@@ -172,16 +237,45 @@ export function ringDockMixBranch(cells: number, br: Branch, u: RingUnit, adjoin
 
 // one beat: the ring mixer, the swap coin, the working beat (kind the pair move's veto; 'none' for the love sea). The
 // amplitudes carry the global factor ringScale(u)^cells of this beat
-export function swapMixedBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, u: RingUnit = SWAP_ANGLE, tally?: LockedTally): LockedState {
-  const mixed = mergeBranches(s.branches.flatMap(b => ringDockMixBranch(t.cells, cloneBranch(b), u, false)))
+export function swapMixedBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  u: RingUnit = SWAP_ANGLE,
+  tally?: LockedTally,
+): LockedState {
+  const mixed = mergeBranches(
+    s.branches.flatMap(b =>
+      ringDockMixBranch(t.cells, cloneBranch(b), u, false),
+    ),
+  )
   const coined = mixed.flatMap(b => swapCoinBranch(t.cells, b))
 
-  return vetoBeat(kind, t, { branches: mergeBranches(coined) }, beat, tally)
+  return vetoBeat(
+    kind,
+    t,
+    { branches: mergeBranches(coined) },
+    beat,
+    tally,
+  )
 }
 
 // its exact inverse: the working beat back, the coin, the adjoint mixer (the same global factor ringScale(u)^cells)
-export function swapMixedBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, u: RingUnit = SWAP_ANGLE): LockedState {
-  const back = vetoBeatBack(kind, t, s, beat).branches.flatMap(b => swapCoinBranch(t.cells, cloneBranch(b)))
+export function swapMixedBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  u: RingUnit = SWAP_ANGLE,
+): LockedState {
+  const back = vetoBeatBack(kind, t, s, beat).branches.flatMap(b =>
+    swapCoinBranch(t.cells, cloneBranch(b)),
+  )
 
-  return { branches: mergeBranches(back.flatMap(b => ringDockMixBranch(t.cells, b, u, true))) }
+  return {
+    branches: mergeBranches(
+      back.flatMap(b => ringDockMixBranch(t.cells, b, u, true)),
+    ),
+  }
 }

@@ -71,8 +71,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { energyDrift, SPAN_LENS_WINDOW } from '@/code/measure/depth-span'
-import { headroomSlabPost, headroomSlabSurvey, SLAB_BASE, SLAB_EVERY, type HeadroomRun } from '@/code/measure/headroom-slab'
+import {
+  energyDrift,
+  SPAN_LENS_WINDOW,
+} from '@/code/measure/depth-span'
+import {
+  headroomSlabPost,
+  headroomSlabSurvey,
+  SLAB_BASE,
+  SLAB_EVERY,
+  type HeadroomRun,
+} from '@/code/measure/headroom-slab'
 import { LENS_DETECTORS } from '@/code/measure/radion'
 
 const ENERGY_GATE = 1e-8
@@ -80,8 +89,11 @@ const BEND_TOLERANCE = 0.01
 const CONTROL_LOW = 0.0375
 const CONTROL_HIGH = 0.0385
 
-const wrapsOf = (r: { wraps: { angle: number; field: number; potential: number } }): number => r.wraps.angle + r.wraps.field + r.wraps.potential
-const exact = (r: HeadroomRun): boolean => r.reversed && r.gauss === 0 && wrapsOf(r) === 0
+const wrapsOf = (r: {
+  wraps: { angle: number; field: number; potential: number }
+}): number => r.wraps.angle + r.wraps.field + r.wraps.potential
+const exact = (r: HeadroomRun): boolean =>
+  r.reversed && r.gauss === 0 && wrapsOf(r) === 0
 
 export default experiment({
   id: 'gravity/headroom-slab',
@@ -161,7 +173,10 @@ export default experiment({
       status,
       claim: `on E-GRV-0093's slab placed as rooms (C = ${SLAB_BASE}, rooms ${Math.min(...s.room)} .. ${Math.max(...s.room)}, reference ${s.reference} at D0, ${s.steps} room steps on the ring, ${s.pathSteps} between the detectors), the headroom light's kept energy drifts ${e(kept)} over ${SPAN_LENS_WINDOW} beats (gate ${ENERGY_GATE}), against the control's ${e(controlDrift)} on E-GRV-0093's own medium; spanEnergy's unweighted formula on the same states drifts ${e(unweighted)}; the slab and reference runs reverse ${s.lens.reversed && s.uniform.reversed} with ${wrapsOf(s.lens) + wrapsOf(s.uniform)} wraps and ${s.lens.gauss + s.uniform.gauss} Gauss violations; the light is delayed ${f(s.measuredDelay)} beats against its eikonal ${f(s.eikonalDelay)}, a factor ${f(factor)} of the Newtonian count with matter's measured clock (${f(s.clockCount)} beats; closed ${f(s.closedCount)}, closed factor ${f(closedFactor)}), bending ${f(bending)} (gate 2 within ${BEND_TOLERANCE * 100} percent), read on a window that cut the far detector's passage short; POST reading over ${post.window} beats (gating nothing): delayed ${f(post.measuredDelay)}, factor ${f(postFactor)}, bending ${f(postBending)}, kept energy drift ${e(postKept)}`,
       metrics,
-      control: { controlDrift, controlReversed: s.control.reversed ? 1 : 0 },
+      control: {
+        controlDrift,
+        controlReversed: s.control.reversed ? 1 : 0,
+      },
       notes: `L2. D1 ${d1}, D2 ${d2}, D3 ${d3}, K ${k}. Arrivals reference ${s.uniform.arrival.map(x => x.toFixed(2)).join(' ')}, slab ${s.lens.arrival.map(x => x.toFixed(2)).join(' ')}, control ${s.control.arrival.map(x => x.toFixed(2)).join(' ')} at x = ${LENS_DETECTORS.join(', ')} (${n} gaps). Kept energy I_0 ${s.lens.energy[0]!.toExponential(9)}, reference run's drift ${e(keptFlat)}. Control wraps ${wrapsOf(s.control)}, reversed ${s.control.reversed}, gauss ${s.control.gauss}. Interval rooms ${s.intervals.map(iv => iv.k).join(' ')}. Rest rates (room: measured / closed) ${s.rest.map(r => `${r.k}: ${r.rate.toExponential(6)} / ${r.closed.toExponential(6)}`).join('; ')}, reversed ${restExact}. Post arrivals reference ${post.uniform.arrival.map(x => x.toFixed(2)).join(' ')}, slab ${post.lens.arrival.map(x => x.toFixed(2)).join(' ')}; post exact ${exact(post.lens) && exact(post.uniform)}, post ${post.seconds.toFixed(1)} s. Runs ${s.uniform.seconds.toFixed(1)} s, ${s.lens.seconds.toFixed(1)} s, control ${s.control.seconds.toFixed(1)} s; survey ${s.seconds.toFixed(1)} s.`,
     })
   },

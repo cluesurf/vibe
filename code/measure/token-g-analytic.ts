@@ -35,11 +35,17 @@
 //
 // Floating point on 4 x 4 matrices, deterministic.
 
-export type TokenStep = { readonly axis: 'x' | 'y' | 'none'; readonly lock?: number }
+export type TokenStep = {
+  readonly axis: 'x' | 'y' | 'none'
+  readonly lock?: number
+}
 
 type Mat = { re: Float64Array; im: Float64Array }
 
-const zero = (): Mat => ({ re: new Float64Array(16), im: new Float64Array(16) })
+const zero = (): Mat => ({
+  re: new Float64Array(16),
+  im: new Float64Array(16),
+})
 
 function identity(): Mat {
   const m = zero()
@@ -77,16 +83,25 @@ function mul(a: Mat, b: Mat): Mat {
 }
 
 function add(a: Mat, b: Mat): Mat {
-  return { re: a.re.map((x, i) => x + (b.re[i] ?? 0)), im: a.im.map((x, i) => x + (b.im[i] ?? 0)) }
+  return {
+    re: a.re.map((x, i) => x + (b.re[i] ?? 0)),
+    im: a.im.map((x, i) => x + (b.im[i] ?? 0)),
+  }
 }
 
 // s a, s = sr + i si
 function scale(a: Mat, sr: number, si: number): Mat {
-  return { re: a.re.map((x, i) => x * sr - (a.im[i] ?? 0) * si), im: a.im.map((x, i) => (a.re[i] ?? 0) * si + x * sr) }
+  return {
+    re: a.re.map((x, i) => x * sr - (a.im[i] ?? 0) * si),
+    im: a.im.map((x, i) => (a.re[i] ?? 0) * si + x * sr),
+  }
 }
 
 // a 4 x 4 matrix from a slot (tau) 2 x 2 and a spin (sigma) 2 x 2, both complex [re, im] row-major
-function kron(tau: readonly (readonly [number, number])[], sigma: readonly (readonly [number, number])[]): Mat {
+function kron(
+  tau: readonly (readonly [number, number])[],
+  sigma: readonly (readonly [number, number])[],
+): Mat {
   const m = zero()
 
   for (let t1 = 0; t1 < 2; t1++) {
@@ -107,15 +122,41 @@ function kron(tau: readonly (readonly [number, number])[], sigma: readonly (read
   return m
 }
 
-const ONE2: [number, number][] = [[1, 0], [0, 0], [0, 0], [1, 0]]
-const PX: [number, number][] = [[0, 0], [1, 0], [1, 0], [0, 0]]
-const PY: [number, number][] = [[0, 0], [0, -1], [0, 1], [0, 0]]
-const PZ: [number, number][] = [[1, 0], [0, 0], [0, 0], [-1, 0]]
+const ONE2: [number, number][] = [
+  [1, 0],
+  [0, 0],
+  [0, 0],
+  [1, 0],
+]
+const PX: [number, number][] = [
+  [0, 0],
+  [1, 0],
+  [1, 0],
+  [0, 0],
+]
+const PY: [number, number][] = [
+  [0, 0],
+  [0, -1],
+  [0, 1],
+  [0, 0],
+]
+const PZ: [number, number][] = [
+  [1, 0],
+  [0, 0],
+  [0, 0],
+  [-1, 0],
+]
 
 // the coin e^(i mu) e^(-i mu tau_x) on the slots
 export function coinOf(mu: number): Mat {
-  const a: [number, number] = [(1 + Math.cos(2 * mu)) / 2, Math.sin(2 * mu) / 2]
-  const b: [number, number] = [(1 - Math.cos(2 * mu)) / 2, -Math.sin(2 * mu) / 2]
+  const a: [number, number] = [
+    (1 + Math.cos(2 * mu)) / 2,
+    Math.sin(2 * mu) / 2,
+  ]
+  const b: [number, number] = [
+    (1 - Math.cos(2 * mu)) / 2,
+    -Math.sin(2 * mu) / 2,
+  ]
 
   return kron([a, b, b, a], ONE2)
 }
@@ -138,17 +179,27 @@ export function streamGenerator(axis: 'x' | 'y', lock: number): Mat {
 type Poly = { c0: Mat; c1: [Mat, Mat]; c2: [[Mat, Mat], [Mat, Mat]] }
 
 function polyOf(c0: Mat): Poly {
-  return { c0, c1: [zero(), zero()], c2: [[zero(), zero()], [zero(), zero()]] }
+  return {
+    c0,
+    c1: [zero(), zero()],
+    c2: [
+      [zero(), zero()],
+      [zero(), zero()],
+    ],
+  }
 }
 
 function polyMul(a: Poly, b: Poly): Poly {
   const out = polyOf(mul(a.c0, b.c0))
 
   for (let i = 0; i < 2; i++) {
-    out.c1[i] = add(mul(a.c1[i] as Mat, b.c0), mul(a.c0, b.c1[i] as Mat))
+    out.c1[i] = add(mul(a.c1[i]!, b.c0), mul(a.c0, b.c1[i]!))
 
     for (let j = 0; j < 2; j++) {
-      out.c2[i]![j] = add(add(mul((a.c2[i] as [Mat, Mat])[j] as Mat, b.c0), mul(a.c1[i] as Mat, b.c1[j] as Mat)), mul(a.c0, (b.c2[i] as [Mat, Mat])[j] as Mat))
+      out.c2[i]![j] = add(
+        add(mul(a.c2[i]![j]!, b.c0), mul(a.c1[i]!, b.c1[j]!)),
+        mul(a.c0, b.c2[i]![j]!),
+      )
     }
   }
 
@@ -166,8 +217,12 @@ function beatPoly(step: TokenStep, coin: Mat): Poly {
   const a = step.axis === 'x' ? 0 : 1
   const stream = polyOf(identity())
 
-  stream.c1[a] = scale(streamGenerator(step.axis, step.lock ?? 0), 0, -1)
-  stream.c2[a]![a] = scale(identity(), -0.5, 0)
+  stream.c1[a] = scale(
+    streamGenerator(step.axis, step.lock ?? 0),
+    0,
+    -1,
+  )
+  stream.c2[a][a] = scale(identity(), -0.5, 0)
 
   return polyMul(stream, coinPoly)
 }
@@ -176,7 +231,13 @@ export type TokenG = {
   // the rest phase of the antiparticle band per period, in (-pi, pi]
   restGap: number
   // per sector s = +1, -1 (sigma_z on the particle band): A, B, C and Z / beta
-  sectors: { s: number; a: number; b: number; c: number; zeeman: number }[]
+  sectors: {
+    s: number
+    a: number
+    b: number
+    c: number
+    zeeman: number
+  }[]
   // 2 sqrt(AB - C^2) per sector (the cyclotron frequency over |beta|), NaN where AB <= C^2
   cyclotron: number[]
   // |K_xy - K_yx| / sqrt(AB - C^2), from sector +1; NaN when not a bowl
@@ -189,8 +250,12 @@ export type TokenG = {
 }
 
 // The slow-limit g of a schedule (first step applied first) at coin angle mu.
-export function tokenG(input: { schedule: readonly TokenStep[]; mu: number }): TokenG {
+export function tokenG(input: {
+  schedule: readonly TokenStep[]
+  mu: number
+}): TokenG {
   const coin = coinOf(input.mu)
+
   let period = polyOf(identity())
 
   for (const step of input.schedule) {
@@ -202,6 +267,7 @@ export function tokenG(input: { schedule: readonly TokenStep[]; mu: number }): T
   const p = scale(add(identity(), tauX), 0.5, 0)
   const q = add(identity(), scale(p, -1, 0))
   const u0 = period.c0
+
   const trace = (m: Mat): [number, number] => {
     let re = 0
     let im = 0
@@ -213,9 +279,13 @@ export function tokenG(input: { schedule: readonly TokenStep[]; mu: number }): T
 
     return [re, im]
   }
+
   const lp = trace(mul(p, u0)).map(x => x / 2) as [number, number]
   const lq = trace(mul(q, u0)).map(x => x / 2) as [number, number]
-  const restGap = Math.atan2(lq[1] * lp[0] - lq[0] * lp[1], lq[0] * lp[0] + lq[1] * lp[1])
+  const restGap = Math.atan2(
+    lq[1] * lp[0] - lq[0] * lp[1],
+    lq[0] * lp[0] + lq[1] * lp[1],
+  )
   // 1 / (lambda_P - lambda_Q) and i / lambda_P
   const dr = lp[0] - lq[0]
   const di = lp[1] - lq[1]
@@ -225,24 +295,36 @@ export function tokenG(input: { schedule: readonly TokenStep[]; mu: number }): T
   const iOverLp: [number, number] = [lp[1] / lpNorm, lp[0] / lpNorm]
   const kernel: Mat[][] = [0, 1].map(a =>
     [0, 1].map(b => {
-      const direct = mul(mul(p, (period.c2[a] as [Mat, Mat])[b] as Mat), p)
-      const through = scale(mul(mul(mul(mul(p, period.c1[a] as Mat), q), period.c1[b] as Mat), p), inv[0], inv[1])
+      const direct = mul(mul(p, period.c2[a]![b]!), p)
+      const through = scale(
+        mul(mul(mul(mul(p, period.c1[a]!), q), period.c1[b]!), p),
+        inv[0],
+        inv[1],
+      )
 
       return scale(add(direct, through), iOverLp[0], iOverLp[1])
     }),
   )
+
   let firstOrder = 0
 
   for (let a = 0; a < 2; a++) {
-    const m = mul(mul(p, period.c1[a] as Mat), p)
+    const m = mul(mul(p, period.c1[a]!), p)
 
     for (let i = 0; i < 16; i++) {
-      firstOrder = Math.max(firstOrder, Math.hypot(m.re[i] ?? 0, m.im[i] ?? 0))
+      firstOrder = Math.max(
+        firstOrder,
+        Math.hypot(m.re[i] ?? 0, m.im[i] ?? 0),
+      )
     }
   }
 
   // the particle band's basis: |+, s> = (|0 s> + |1 s>) / sqrt 2, index 2 slot + spin
-  const element = (m: Mat, s1: number, s2: number): [number, number] => {
+  const element = (
+    m: Mat,
+    s1: number,
+    s2: number,
+  ): [number, number] => {
     let re = 0
     let im = 0
 
@@ -255,33 +337,80 @@ export function tokenG(input: { schedule: readonly TokenStep[]; mu: number }): T
 
     return [re, im]
   }
+
   let offDiagonal = 0
   let antiHermitian = 0
+
   const sectors = [0, 1].map(spin => {
-    const k = (a: number, b: number): [number, number] => element(kernel[a]?.[b] as Mat, spin, spin)
+    const k = (a: number, b: number): [number, number] =>
+      element(kernel[a]?.[b]!, spin, spin)
     const kxx = k(0, 0)
     const kyy = k(1, 1)
     const kxy = k(0, 1)
     const kyx = k(1, 0)
 
-    offDiagonal = Math.max(offDiagonal, ...[0, 1].flatMap(a => [0, 1].map(b => Math.hypot(...element(kernel[a]?.[b] as Mat, spin, 1 - spin)))))
+    offDiagonal = Math.max(
+      offDiagonal,
+      ...[0, 1].flatMap(a =>
+        [0, 1].map(b =>
+          Math.hypot(...element(kernel[a]?.[b]!, spin, 1 - spin)),
+        ),
+      ),
+    )
+
     // A, B and C must be real, Z = i (K_xy - K_yx) / 2 real
-    antiHermitian = Math.max(antiHermitian, Math.abs(kxx[1]), Math.abs(kyy[1]), Math.abs(kxy[1] + kyx[1]), Math.abs(kxy[0] - kyx[0]))
+    antiHermitian = Math.max(
+      antiHermitian,
+      Math.abs(kxx[1]),
+      Math.abs(kyy[1]),
+      Math.abs(kxy[1] + kyx[1]),
+      Math.abs(kxy[0] - kyx[0]),
+    )
 
-    return { s: spin === 0 ? 1 : -1, a: kxx[0], b: kyy[0], c: (kxy[0] + kyx[0]) / 2, zeeman: -(kxy[1] - kyx[1]) / 2 }
+    return {
+      s: spin === 0 ? 1 : -1,
+      a: kxx[0],
+      b: kyy[0],
+      c: (kxy[0] + kyx[0]) / 2,
+      zeeman: -(kxy[1] - kyx[1]) / 2,
+    }
   })
-  const cyclotron = sectors.map(x => (x.a * x.b > x.c * x.c ? 2 * Math.sqrt(x.a * x.b - x.c * x.c) : NaN))
-  const bowl = sectors.every(x => x.a * x.b > x.c * x.c && Math.sign(x.a) === Math.sign(sectors[0]?.a ?? 0))
+  const cyclotron = sectors.map(x =>
+    x.a * x.b > x.c * x.c ? 2 * Math.sqrt(x.a * x.b - x.c * x.c) : NaN,
+  )
+  const bowl = sectors.every(
+    x =>
+      x.a * x.b > x.c * x.c &&
+      Math.sign(x.a) === Math.sign(sectors[0]?.a ?? 0),
+  )
   const first = sectors[0] ?? { a: 0, b: 0, c: 0, zeeman: 0 }
-  const g = bowl ? (4 * Math.abs(first.zeeman)) / (cyclotron[0] ?? NaN) : NaN
+  const g = bowl
+    ? (4 * Math.abs(first.zeeman)) / (cyclotron[0] ?? NaN)
+    : NaN
 
-  return { restGap, sectors, cyclotron, g, bowl, firstOrder, antiHermitian, offDiagonal }
+  return {
+    restGap,
+    sectors,
+    cyclotron,
+    g,
+    bowl,
+    firstOrder,
+    antiHermitian,
+    offDiagonal,
+  }
 }
 
 // the closed form for one x stream and one y stream: X = cos(delta - phi / 2) / sin(phi / 2), g = 2 |X| /
 // sqrt(X^2 - 1), NaN when X^2 <= 1 (a saddle)
-export function twoStreamG(input: { delta: number; phi: number }): { x: number; g: number } {
-  const x = Math.cos(input.delta - input.phi / 2) / Math.sin(input.phi / 2)
+export function twoStreamG(input: { delta: number; phi: number }): {
+  x: number
+  g: number
+} {
+  const x =
+    Math.cos(input.delta - input.phi / 2) / Math.sin(input.phi / 2)
 
-  return { x, g: x * x > 1 ? (2 * Math.abs(x)) / Math.sqrt(x * x - 1) : NaN }
+  return {
+    x,
+    g: x * x > 1 ? (2 * Math.abs(x)) / Math.sqrt(x * x - 1) : NaN,
+  }
 }

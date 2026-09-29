@@ -46,14 +46,28 @@
 // DETERMINISM: no random numbers; starts are placed. NOTHING MOVES: the coin and the mixer hand a value between slots of
 // one dock, the collision permutes a dock's slots and stores, and the stream takes each value one dock along.
 
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinPiece, pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { FRAME_SLOTS } from '@/code/rule/coined-locked-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { streamInto } from '@/code/measure/doublet-locked-readings'
 import { gatedFrame } from '@/code/measure/string-gated-mixer'
-import { d4BoxCell, d4BoxCoordinates, d4Vector, linearMapOfDoubled, boxCellMapDoubled } from '@/code/substrate/d4-box-integer'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Vector,
+  linearMapOfDoubled,
+  boxCellMapDoubled,
+} from '@/code/substrate/d4-box-integer'
 import { type PathKey } from '@/code/measure/full-key-paths'
 
 export const VACUUM_PERIOD = 12
@@ -65,26 +79,37 @@ export const MODULUS = 256
 const W: [number, number] = [-0.5, Math.sqrt(3) / 2]
 const KEEP: [number, number] = [(1 + W[0]) / 2, W[1] / 2]
 const CROSS: [number, number] = [(1 - W[0]) / 2, -W[1] / 2]
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f]!,
+)
 
 // ---- occupation ----
 
-export const occupationKey = (c: Configuration): string => `${c.vibe.join(',')}|${c.store.join(',')}`
+export const occupationKey = (c: Configuration): string =>
+  `${c.vibe.join(',')}|${c.store.join(',')}`
 
 // the single lines and the full lines of one dock's 24 slots
-export function lineCounts(vibe: Int8Array, base: number): { singles: number; full: number; like: number } {
+export function lineCounts(
+  vibe: Int8Array,
+  base: number,
+): { singles: number; full: number; like: number } {
   let singles = 0
   let full = 0
   let like = 0
 
   for (let l = 0; l < 12; l++) {
-    const a = vibe[base + (LINE_FIRSTS[l] as number)] as number
-    const b = vibe[base + (LINE_SECONDS[l] as number)] as number
+    const a = vibe[base + LINE_FIRSTS[l]!]!
+    const b = vibe[base + LINE_SECONDS[l]!]!
 
     if (a !== 0 && b !== 0) {
       full++
-      if (a === b) like++
-    } else if (a !== 0 || b !== 0) singles++
+
+      if (a === b) {
+        like++
+      }
+    } else if (a !== 0 || b !== 0) {
+      singles++
+    }
   }
 
   return { singles, full, like }
@@ -94,24 +119,44 @@ export function lineCounts(vibe: Int8Array, base: number): { singles: number; fu
 
 // the rule's occupation beat on a whole box with no single anywhere (condition Z): no coin or mixer acts, the meeting
 // keeps the occupation, so the beat is the collision and the stream
-export function vacuumBeat(tables: LockedTables, a: Configuration, b: Configuration, t: number): void {
+export function vacuumBeat(
+  tables: LockedTables,
+  a: Configuration,
+  b: Configuration,
+  t: number,
+): void {
   const order = collisionOrder('alternate', t)
 
-  for (let x = 0; x < tables.cells; x++) for (const p of order) p === 'P' ? pairPiece('none', a, x) : coinPiece(tables, a, x)
+  for (let x = 0; x < tables.cells; x++) {
+    for (const p of order) {
+      p === 'P' ? pairPiece('none', a, x) : coinPiece(tables, a, x)
+    }
+  }
+
   streamInto(tables, a, b)
 }
 
 // the vacuum's occupation at beats 0 .. period, and the single lines it ever holds
-export function vacuumOrbit(tables: LockedTables, vacuum: Configuration, beats: number): { states: Configuration[]; singles: number } {
+export function vacuumOrbit(
+  tables: LockedTables,
+  vacuum: Configuration,
+  beats: number,
+): { states: Configuration[]; singles: number } {
   let a = cloneConfiguration(vacuum)
   let b = cloneConfiguration(vacuum)
+
   const states = [cloneConfiguration(a)]
+
   let singles = 0
 
   for (let t = 0; t < beats; t++) {
     vacuumBeat(tables, a, b, t)
     ;[a, b] = [b, a]
-    for (let x = 0; x < tables.cells; x++) singles += lineCounts(a.vibe, x * 24).singles
+
+    for (let x = 0; x < tables.cells; x++) {
+      singles += lineCounts(a.vibe, x * 24).singles
+    }
+
     states.push(cloneConfiguration(a))
   }
 
@@ -119,10 +164,15 @@ export function vacuumOrbit(tables: LockedTables, vacuum: Configuration, beats: 
 }
 
 // a W(F4) element (a slot permutation) carried to the box: its dock map about dock 0, or undefined off the box
-export function boxSymmetry(g: readonly number[], side: number): { slots: readonly number[]; docks: number[] } | undefined {
+export function boxSymmetry(
+  g: readonly number[],
+  side: number,
+): { slots: readonly number[]; docks: number[] } | undefined {
   const doubled = linearMapOfDoubled(g)
 
-  if (!doubled) return undefined
+  if (!doubled) {
+    return undefined
+  }
 
   const docks = boxCellMapDoubled({ doubled, side })
 
@@ -130,28 +180,43 @@ export function boxSymmetry(g: readonly number[], side: number): { slots: readon
 }
 
 // the image of a configuration's occupation under a box symmetry (points, words and open bits reset: occupation only)
-export function vacuumImage(c: Configuration, s: { slots: readonly number[]; docks: readonly number[] }): Configuration {
+export function vacuumImage(
+  c: Configuration,
+  s: { slots: readonly number[]; docks: readonly number[] },
+): Configuration {
   const cells = s.docks.length
-  const out: Configuration = { vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), open: new Uint8Array(cells * 24), store: new Int8Array(cells * 12), spoint: new Int8Array(cells * 12), sopen: new Uint8Array(cells * 12) }
+  const out: Configuration = {
+    vibe: new Int8Array(cells * 24),
+    point: new Int8Array(cells * 24),
+    open: new Uint8Array(cells * 24),
+    store: new Int8Array(cells * 12),
+    spoint: new Int8Array(cells * 12),
+    sopen: new Uint8Array(cells * 12),
+  }
 
   for (let x = 0; x < cells; x++) {
-    const y = s.docks[x] as number
+    const y = s.docks[x]!
 
     for (let d = 0; d < 24; d++) {
-      const v = c.vibe[x * 24 + d] as number
+      const v = c.vibe[x * 24 + d]!
 
-      if (v === 0) continue
-      out.vibe[y * 24 + (s.slots[d] as number)] = v
-      out.open[y * 24 + (s.slots[d] as number)] = 1
+      if (v === 0) {
+        continue
+      }
+
+      out.vibe[y * 24 + s.slots[d]!] = v
+      out.open[y * 24 + s.slots[d]!] = 1
     }
 
     for (let l = 0; l < 12; l++) {
-      const tau = c.store[x * 12 + l] as number
+      const tau = c.store[x * 12 + l]!
 
-      if (tau === 0) continue
+      if (tau === 0) {
+        continue
+      }
 
-      const image = s.slots[LINE_FIRSTS[l] as number] as number
-      const m = LINE_OF[image] as number
+      const image = s.slots[LINE_FIRSTS[l]!]!
+      const m = LINE_OF[image]!
 
       out.store[y * 12 + m] = LINE_FIRSTS[m] === image ? tau : -tau
       out.sopen[y * 12 + m] = 3
@@ -189,9 +254,12 @@ export type LiquidVacuum = {
 }
 
 // the size of the group a set of slot permutations generates (breadth first over products)
-export function closureSize(gens: readonly (readonly number[])[]): number {
+export function closureSize(
+  gens: readonly (readonly number[])[],
+): number {
   const seen = new Set<string>()
   const identity = Array.from({ length: 24 }, (_, d) => d)
+
   let frontier: number[][] = [identity]
 
   seen.add(identity.join(','))
@@ -201,10 +269,13 @@ export function closureSize(gens: readonly (readonly number[])[]): number {
 
     for (const p of frontier) {
       for (const g of gens) {
-        const q = p.map(v => g[v] as number)
+        const q = p.map(v => g[v]!)
         const k = q.join(',')
 
-        if (seen.has(k)) continue
+        if (seen.has(k)) {
+          continue
+        }
+
         seen.add(k)
         next.push(q)
       }
@@ -217,12 +288,17 @@ export function closureSize(gens: readonly (readonly number[])[]): number {
 }
 
 // generators taken in order, each kept only when it enlarges the generated group, until it is the whole group
-export function generatingSet(group: readonly (readonly number[])[]): (readonly number[])[] {
+export function generatingSet(
+  group: readonly (readonly number[])[],
+): (readonly number[])[] {
   const gens: (readonly number[])[] = []
+
   let size = 1
 
   for (const g of group) {
-    if (size === group.length) break
+    if (size === group.length) {
+      break
+    }
 
     const bigger = closureSize([...gens, g])
 
@@ -247,27 +323,49 @@ const beatPhase = (c: Configuration, cells: number): number => {
   return n % 3
 }
 
-export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: number, group: readonly (readonly number[])[], beats = 64): LiquidVacuum {
+export function liquidVacuum(
+  tables: LockedTables,
+  vacuum: Configuration,
+  side: number,
+  group: readonly (readonly number[])[],
+  beats = 64,
+): LiquidVacuum {
   const cells = tables.cells
   const seen = new Map<string, Configuration>()
 
   for (const g of group) {
     const s = boxSymmetry(g, side)
 
-    if (!s) throw new Error('line-liquid: a W(F4) element leaves the box')
+    if (!s) {
+      throw new Error('line-liquid: a W(F4) element leaves the box')
+    }
 
     const im = vacuumImage(vacuum, s)
     const k = occupationKey(im)
 
-    if (!seen.has(k)) seen.set(k, im)
+    if (!seen.has(k)) {
+      seen.set(k, im)
+    }
   }
 
   const images = [...seen.values()]
-  const out: LiquidVacuum = { images: images.length, singles: 0, gated: 0, periodic: 0, overlap64: 0, reflections: 0, generated: 0, reflectionChange: 0, minApart: cells, cells }
+  const out: LiquidVacuum = {
+    images: images.length,
+    singles: 0,
+    gated: 0,
+    periodic: 0,
+    overlap64: 0,
+    reflections: 0,
+    generated: 0,
+    reflectionChange: 0,
+    minApart: cells,
+    cells,
+  }
   // phi: occupation key -> amplitude [re, im]; and U^beats phi
   const phi = new Map<string, [number, number]>()
   const moved = new Map<string, [number, number]>()
   const total = beats + VACUUM_PERIOD
+
   let mu: [number, number] | undefined
   let q0: number[] | undefined
 
@@ -276,6 +374,7 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
   for (const start of images) {
     let a = cloneConfiguration(start)
     let b = cloneConfiguration(start)
+
     const keys = [occupationKey(a)]
     const phase = [beatPhase(a, cells)]
     const states = [cloneConfiguration(a)]
@@ -287,7 +386,10 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
         const k = lineCounts(a.vibe, x * 24)
 
         out.singles += k.singles
-        if (gatedFrame(a, x).f >= 0) out.gated++
+
+        if (gatedFrame(a, x).f >= 0) {
+          out.gated++
+        }
       }
 
       vacuumBeat(tables, a, b, t)
@@ -296,35 +398,54 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
       phase.push(beatPhase(a, cells))
     }
 
-    if (keys[VACUUM_PERIOD] === keys[0]) out.periodic++
+    if (keys[VACUUM_PERIOD] === keys[0]) {
+      out.periodic++
+    }
 
     // the pair phases q_j (in thirds of a turn), the same for every image by covariance (checked: a mismatch throws)
-    const q = Array.from({ length: VACUUM_PERIOD / 2 }, (_, j) => ((phase[2 * j] as number) + (phase[2 * j + 1] as number)) % 3)
+    const q = Array.from(
+      { length: VACUUM_PERIOD / 2 },
+      (_, j) => (phase[2 * j]! + phase[2 * j + 1]!) % 3,
+    )
 
     if (!q0) {
       q0 = q
-      const turns = q.reduce((s, v) => s + v, 0) / 3 / (VACUUM_PERIOD / 2)
 
-      mu = [Math.cos(2 * Math.PI * turns), Math.sin(2 * Math.PI * turns)]
-    } else if (q.some((v, j) => v !== q0![j])) throw new Error('line-liquid: two images carry different pair phases')
+      const turns =
+        q.reduce((s, v) => s + v, 0) / 3 / (VACUUM_PERIOD / 2)
+
+      mu = [
+        Math.cos(2 * Math.PI * turns),
+        Math.sin(2 * Math.PI * turns),
+      ]
+    } else if (q.some((v, j) => v !== q0![j])) {
+      throw new Error(
+        'line-liquid: two images carry different pair phases',
+      )
+    }
 
     // phi_j and the phase U^beats carries from beat 2 j (the product of the beat phases over 2 j .. 2 j + beats - 1)
     let amp: [number, number] = [1, 0]
 
     for (let j = 0; j < VACUUM_PERIOD / 2; j++) {
-      phi.set(keys[2 * j] as string, amp)
+      phi.set(keys[2 * j]!, amp)
 
       let turns = 0
 
-      for (let t = 2 * j; t < 2 * j + beats; t++) turns += phase[t] as number
+      for (let t = 2 * j; t < 2 * j + beats; t++) {
+        turns += phase[t]!
+      }
 
       const ang = (2 * Math.PI * turns) / 3
-      const after = keys[2 * j + beats] as string
+      const after = keys[2 * j + beats]!
       const prev = moved.get(after) ?? [0, 0]
 
-      moved.set(after, [prev[0] + amp[0] * Math.cos(ang) - amp[1] * Math.sin(ang), prev[1] + amp[0] * Math.sin(ang) + amp[1] * Math.cos(ang)])
+      moved.set(after, [
+        prev[0] + amp[0] * Math.cos(ang) - amp[1] * Math.sin(ang),
+        prev[1] + amp[0] * Math.sin(ang) + amp[1] * Math.cos(ang),
+      ])
 
-      const qa = (2 * Math.PI * (q[j] as number)) / 3
+      const qa = (2 * Math.PI * q[j]!) / 3
       const nr = amp[0] * Math.cos(qa) - amp[1] * Math.sin(qa)
       const ni = amp[0] * Math.sin(qa) + amp[1] * Math.cos(qa)
 
@@ -342,7 +463,10 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
 
     const b = moved.get(k)
 
-    if (!b) continue
+    if (!b) {
+      continue
+    }
+
     nr += a[0] * b[0] + a[1] * b[1]
     ni += a[0] * b[1] - a[1] * b[0]
   }
@@ -363,10 +487,15 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
     const s = boxSymmetry(g, side)!
 
     for (const states of orbitStates) {
-      const here = phi.get(occupationKey(states[0] as Configuration)) as [number, number]
-      const there = phi.get(occupationKey(vacuumImage(states[0] as Configuration, s)))
+      const here = phi.get(occupationKey(states[0]!))!
+      const there = phi.get(occupationKey(vacuumImage(states[0]!, s)))
 
-      out.reflectionChange = Math.max(out.reflectionChange, there ? Math.hypot(here[0] - there[0], here[1] - there[1]) : Math.hypot(here[0], here[1]))
+      out.reflectionChange = Math.max(
+        out.reflectionChange,
+        there
+          ? Math.hypot(here[0] - there[0], here[1] - there[1])
+          : Math.hypot(here[0], here[1]),
+      )
     }
   }
 
@@ -374,8 +503,9 @@ export function liquidVacuum(tables: LockedTables, vacuum: Configuration, side: 
   for (let i = 0; i < images.length; i++) {
     for (let j = i + 1; j < images.length; j++) {
       let apart = 0
-      const p = images[i] as Configuration
-      const r = images[j] as Configuration
+
+      const p = images[i]!
+      const r = images[j]!
 
       for (let x = 0; x < cells; x++) {
         for (let l = 0; l < 12; l++) {
@@ -409,52 +539,93 @@ export type LiquidLattice = {
 
 const mod = (v: number, m: number): number => ((v % m) + m) % m
 
-export function liquidLattice(tables: LockedTables, vacuum: Configuration, side: number, modulus = MODULUS): LiquidLattice {
+export function liquidLattice(
+  tables: LockedTables,
+  vacuum: Configuration,
+  side: number,
+  modulus = MODULUS,
+): LiquidLattice {
   const orbit = vacuumOrbit(tables, vacuum, VACUUM_PERIOD).states
   const x0 = 0
   const c0 = d4BoxCoordinates({ cell: x0, side })
   const step = Array.from({ length: 24 }, (_, d) => {
-    const c1 = d4BoxCoordinates({ cell: Math.floor((tables.target[x0 * 24 + d] as number) / 24), side })
+    const c1 = d4BoxCoordinates({
+      cell: Math.floor(tables.target[x0 * 24 + d]! / 24),
+      side,
+    })
 
     return c1.map((v, k) => {
-      const u = mod(v - (c0[k] as number), side)
+      const u = mod(v - c0[k]!, side)
 
       return u > side / 2 ? u - side : u
     })
   })
 
-  return { tables, vibe: orbit.slice(0, VACUUM_PERIOD).map(c => c.vibe), store: orbit.slice(0, VACUUM_PERIOD).map(c => c.store), step, side, modulus }
+  return {
+    tables,
+    vibe: orbit.slice(0, VACUUM_PERIOD).map(c => c.vibe),
+    store: orbit.slice(0, VACUUM_PERIOD).map(c => c.store),
+    step,
+    side,
+    modulus,
+  }
 }
 
-export const packDock = (c: readonly number[], m: number): number => mod(c[0] as number, m) + m * (mod(c[1] as number, m) + m * (mod(c[2] as number, m) + m * mod(c[3] as number, m)))
-export const unpackDock = (k: number, m: number): number[] => [k % m, Math.floor(k / m) % m, Math.floor(k / m ** 2) % m, Math.floor(k / m ** 3) % m]
-const boxCell = (L: LiquidLattice, k: number): number => d4BoxCell({ coordinates: unpackDock(k, L.modulus), side: L.side })
+export const packDock = (c: readonly number[], m: number): number =>
+  mod(c[0]!, m) +
+  m * (mod(c[1]!, m) + m * (mod(c[2]!, m) + m * mod(c[3]!, m)))
+export const unpackDock = (k: number, m: number): number[] => [
+  k % m,
+  Math.floor(k / m) % m,
+  Math.floor(k / m ** 2) % m,
+  Math.floor(k / m ** 3) % m,
+]
+
+const boxCell = (L: LiquidLattice, k: number): number =>
+  d4BoxCell({ coordinates: unpackDock(k, L.modulus), side: L.side })
 
 // ---- terms ----
 
 // a term: the docks where it differs from the vacuum at its beat (sorted dock keys) and their 36 values (24 slot trits,
 // 12 store trits), with an amplitude
-export type LiquidTerm = { docks: number[]; values: Int8Array; re: number; im: number }
+export type LiquidTerm = {
+  docks: number[]
+  values: Int8Array
+  re: number
+  im: number
+}
 export type LiquidState = Map<string, LiquidTerm>
 
-const termKey = (docks: readonly number[], values: Int8Array): string => `${docks.join(',')}|${values.join('')}`
+const termKey = (docks: readonly number[], values: Int8Array): string =>
+  `${docks.join(',')}|${values.join('')}`
 
-export function liquidWeight(s: LiquidState, classical = false): number {
+export function liquidWeight(
+  s: LiquidState,
+  classical = false,
+): number {
   let w = 0
 
-  for (const t of s.values()) w += classical ? t.re : t.re * t.re + t.im * t.im
+  for (const t of s.values()) {
+    w += classical ? t.re : t.re * t.re + t.im * t.im
+  }
 
   return w
 }
 
-export function liquidOverlap(u: LiquidState, v: LiquidState): [number, number] {
+export function liquidOverlap(
+  u: LiquidState,
+  v: LiquidState,
+): [number, number] {
   let r = 0
   let i = 0
 
   for (const [k, a] of u) {
     const b = v.get(k)
 
-    if (!b) continue
+    if (!b) {
+      continue
+    }
+
     r += a.re * b.re + a.im * b.im
     i += a.re * b.im - a.im * b.re
   }
@@ -466,7 +637,9 @@ export function liquidOverlap(u: LiquidState, v: LiquidState): [number, number] 
 export function termSingles(t: LiquidTerm): number {
   let n = 0
 
-  for (let k = 0; k < t.docks.length; k++) n += lineCounts(t.values, k * 36).singles
+  for (let k = 0; k < t.docks.length; k++) {
+    n += lineCounts(t.values, k * 36).singles
+  }
 
   return n
 }
@@ -488,16 +661,39 @@ export type LiquidSpec = {
 }
 
 // a term's weight: |amplitude|^2, or its probability in the decoherent limit
-export const termWeight = (t: LiquidTerm, classical = false): number => (classical ? t.re : t.re * t.re + t.im * t.im)
+export const termWeight = (t: LiquidTerm, classical = false): number =>
+  classical ? t.re : t.re * t.re + t.im * t.im
 
-export type LiquidTally = { escaped: number; terms: number; splits: number; gated: number }
+export type LiquidTally = {
+  escaped: number
+  terms: number
+  splits: number
+  gated: number
+}
 
-export const newLiquidTally = (): LiquidTally => ({ escaped: 0, terms: 0, splits: 0, gated: 0 })
+export const newLiquidTally = (): LiquidTally => ({
+  escaped: 0,
+  terms: 0,
+  splits: 0,
+  gated: 0,
+})
 
 // canonical translate of a term modulo CELL Z^4: the candidate shifts carry one of its docks into the fundamental cell;
 // the least key wins. Returns the term's docks and values translated, and the Cartesian shift removed
-function canonical(docks: number[], values: Int8Array, m: number): { docks: number[]; values: Int8Array; shift: number[] } {
-  let best: { docks: number[]; values: Int8Array; shift: number[]; key: string } | undefined
+function canonical(
+  docks: number[],
+  values: Int8Array,
+  m: number,
+): { docks: number[]; values: Int8Array; shift: number[] } {
+  let best:
+    | {
+        docks: number[]
+        values: Int8Array
+        shift: number[]
+        key: string
+      }
+    | undefined
+
   const seen = new Set<string>()
 
   for (const k of docks) {
@@ -505,31 +701,55 @@ function canonical(docks: number[], values: Int8Array, m: number): { docks: numb
     const lambda = c.map(v => v - mod(v, CELL))
     const id = lambda.join(',')
 
-    if (seen.has(id)) continue
+    if (seen.has(id)) {
+      continue
+    }
+
     seen.add(id)
 
-    const moved = docks.map((q, i) => ({ q: packDock(unpackDock(q, m).map((v, j) => v - (lambda[j] as number)), m), i }))
+    const moved = docks.map((q, i) => ({
+      q: packDock(
+        unpackDock(q, m).map((v, j) => v - lambda[j]!),
+        m,
+      ),
+      i,
+    }))
 
     moved.sort((a, b) => a.q - b.q)
 
     const vs = new Int8Array(values.length)
 
-    moved.forEach((e, j) => vs.set(values.subarray(e.i * 36, e.i * 36 + 36), j * 36))
+    moved.forEach((e, j) =>
+      vs.set(values.subarray(e.i * 36, e.i * 36 + 36), j * 36),
+    )
 
     const ds = moved.map(e => e.q)
     const key = termKey(ds, vs)
 
-    if (!best || key < best.key) best = { docks: ds, values: vs, shift: lambda.map(v => (v > m / 2 ? v - m : v)), key }
+    if (!best || key < best.key) {
+      best = {
+        docks: ds,
+        values: vs,
+        shift: lambda.map(v => (v > m / 2 ? v - m : v)),
+        key,
+      }
+    }
   }
 
-  if (!best) return { docks, values, shift: [0, 0, 0, 0] }
+  if (!best) {
+    return { docks, values, shift: [0, 0, 0, 0] }
+  }
 
   return best
 }
 
 // a state from classical starts: each a configuration on the side-8 box at beat 0 differing from the vacuum near its
 // docks, placed on the unbounded mesh at the same coordinates, with amplitude
-export function liquidStart(L: LiquidLattice, spec: LiquidSpec, starts: readonly { config: Configuration; amp: [number, number] }[]): LiquidState {
+export function liquidStart(
+  L: LiquidLattice,
+  spec: LiquidSpec,
+  starts: readonly { config: Configuration; amp: [number, number] }[],
+): LiquidState {
   const out: LiquidState = new Map()
 
   for (const { config, amp } of starts) {
@@ -539,24 +759,67 @@ export function liquidStart(L: LiquidLattice, spec: LiquidSpec, starts: readonly
     for (let x = 0; x < L.tables.cells; x++) {
       let differs = false
 
-      for (let d = 0; d < 24 && !differs; d++) if (config.vibe[x * 24 + d] !== L.vibe[0]![x * 24 + d]) differs = true
-      for (let l = 0; l < 12 && !differs; l++) if (config.store[x * 12 + l] !== L.store[0]![x * 12 + l]) differs = true
-      if (!differs) continue
-      docks.push(packDock(d4BoxCoordinates({ cell: x, side: L.side }), L.modulus))
-      vals.push(...config.vibe.subarray(x * 24, x * 24 + 24), ...config.store.subarray(x * 12, x * 12 + 12))
+      for (let d = 0; d < 24 && !differs; d++) {
+        if (config.vibe[x * 24 + d] !== L.vibe[0]![x * 24 + d]) {
+          differs = true
+        }
+      }
+
+      for (let l = 0; l < 12 && !differs; l++) {
+        if (config.store[x * 12 + l] !== L.store[0]![x * 12 + l]) {
+          differs = true
+        }
+      }
+
+      if (!differs) {
+        continue
+      }
+
+      docks.push(
+        packDock(
+          d4BoxCoordinates({ cell: x, side: L.side }),
+          L.modulus,
+        ),
+      )
+
+      vals.push(
+        ...config.vibe.subarray(x * 24, x * 24 + 24),
+        ...config.store.subarray(x * 12, x * 12 + 12),
+      )
     }
 
-    const order = docks.map((k, i) => ({ k, i })).sort((a, b) => a.k - b.k)
+    const order = docks
+      .map((k, i) => ({ k, i }))
+      .sort((a, b) => a.k - b.k)
     const values = new Int8Array(docks.length * 36)
 
-    order.forEach((o, j) => values.set(vals.slice(o.i * 36, o.i * 36 + 36), j * 36))
-    add(out, spec, L.modulus, order.map(o => o.k), values, amp[0], amp[1])
+    order.forEach((o, j) =>
+      values.set(vals.slice(o.i * 36, o.i * 36 + 36), j * 36),
+    )
+
+    add(
+      out,
+      spec,
+      L.modulus,
+      order.map(o => o.k),
+      values,
+      amp[0],
+      amp[1],
+    )
   }
 
   return out
 }
 
-function add(out: LiquidState, spec: LiquidSpec, m: number, docks: number[], values: Int8Array, re: number, im: number): void {
+function add(
+  out: LiquidState,
+  spec: LiquidSpec,
+  m: number,
+  docks: number[],
+  values: Int8Array,
+  re: number,
+  im: number,
+): void {
   let ds = docks
   let vs = values
   let r = re
@@ -565,7 +828,9 @@ function add(out: LiquidState, spec: LiquidSpec, m: number, docks: number[], val
   if (spec.bloch) {
     const c = canonical(docks, values, m)
     const cart = d4Vector(c.shift)
-    const ph = spec.classical ? 0 : -cart.reduce((s, v, k) => s + v * (spec.K[k] as number), 0)
+    const ph = spec.classical
+      ? 0
+      : -cart.reduce((s, v, k) => s + v * spec.K[k]!, 0)
     const cr = Math.cos(ph)
     const ci = Math.sin(ph)
 
@@ -581,15 +846,24 @@ function add(out: LiquidState, spec: LiquidSpec, m: number, docks: number[], val
   if (found) {
     found.re += r
     found.im += i
-  } else out.set(key, { docks: ds, values: vs, re: r, im: i })
+  } else {
+    out.set(key, { docks: ds, values: vs, re: r, im: i })
+  }
 }
 
 // one dock's local configuration (24 slots, 12 stores; every vibe open on one point)
-const LOCAL: Configuration = { vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12) }
+const LOCAL: Configuration = {
+  vibe: new Int8Array(24),
+  point: new Int8Array(24),
+  open: new Uint8Array(24),
+  store: new Int8Array(12),
+  spoint: new Int8Array(12),
+  sopen: new Uint8Array(12),
+}
 
 function loadLocal(values: Int8Array, offset: number): void {
   for (let d = 0; d < 24; d++) {
-    const v = values[offset + d] as number
+    const v = values[offset + d]!
 
     LOCAL.vibe[d] = v
     LOCAL.point[d] = 0
@@ -597,7 +871,7 @@ function loadLocal(values: Int8Array, offset: number): void {
   }
 
   for (let l = 0; l < 12; l++) {
-    const s = values[offset + 24 + l] as number
+    const s = values[offset + 24 + l]!
 
     LOCAL.store[l] = s
     LOCAL.spoint[l] = 0
@@ -605,13 +879,32 @@ function loadLocal(values: Int8Array, offset: number): void {
   }
 }
 
-type Local = { vibe: Int8Array; store: Int8Array; re: number; im: number }
+type Local = {
+  vibe: Int8Array
+  store: Int8Array
+  re: number
+  im: number
+}
 
 // the mixer and the coin on one dock: its outcomes with amplitudes (keyed: the rule's one choice)
-function splitDock(values: Int8Array, offset: number, t: number, cell: number, spec: LiquidSpec, tally: LiquidTally): Local[] {
+function splitDock(
+  values: Int8Array,
+  offset: number,
+  t: number,
+  cell: number,
+  spec: LiquidSpec,
+  tally: LiquidTally,
+): Local[] {
   loadLocal(values, offset)
 
-  let outs: Local[] = [{ vibe: Int8Array.from(LOCAL.vibe), store: Int8Array.from(LOCAL.store), re: 1, im: 0 }]
+  let outs: Local[] = [
+    {
+      vibe: Int8Array.from(LOCAL.vibe),
+      store: Int8Array.from(LOCAL.store),
+      re: 1,
+      im: 0,
+    },
+  ]
 
   if (spec.n > 0) {
     const { f, q } = gatedFrame(LOCAL, 0)
@@ -619,12 +912,13 @@ function splitDock(values: Int8Array, offset: number, t: number, cell: number, s
     if (f >= 0) {
       tally.gated++
 
-      const ss = FRAME_SLOTS[f] as readonly number[]
+      const ss = FRAME_SLOTS[f]!
       const theta = Math.acos(1 - spec.n / 2)
       const mr = (Math.cos(theta) - 1) / 8
       const mi = Math.sin(theta) / 8
-      const base = outs[0] as Local
+      const base = outs[0]!
       const next: Local[] = []
+
       let only = -1
 
       if (spec.key) {
@@ -635,23 +929,34 @@ function splitDock(values: Int8Array, offset: number, t: number, cell: number, s
       }
 
       for (let o = 0; o < 8; o++) {
-        if (only >= 0 && o !== only) continue
+        if (only >= 0 && o !== only) {
+          continue
+        }
 
         const v = Int8Array.from(base.vibe)
-        const from = ss[q] as number
-        const to = ss[q ^ o] as number
-        const value = v[from] as number
+        const from = ss[q]!
+        const to = ss[q ^ o]!
+        const value = v[from]!
 
         v[from] = 0
         v[to] = value
+
         const ar = spec.key ? 1 : (o === 0 ? 1 : 0) + mr
         const ai = spec.key ? 0 : mi
 
-        next.push({ vibe: v, store: base.store, re: spec.classical ? ar * ar + ai * ai : ar, im: spec.classical ? 0 : ai })
+        next.push({
+          vibe: v,
+          store: base.store,
+          re: spec.classical ? ar * ar + ai * ai : ar,
+          im: spec.classical ? 0 : ai,
+        })
       }
 
       outs = next
-      if (!spec.key) tally.splits++
+
+      if (!spec.key) {
+        tally.splits++
+      }
     }
   }
 
@@ -662,20 +967,22 @@ function splitDock(values: Int8Array, offset: number, t: number, cell: number, s
     let list: Local[] = [o]
 
     for (let l = 0; l < 12; l++) {
-      const i = LINE_FIRSTS[l] as number
-      const j = LINE_SECONDS[l] as number
+      const i = LINE_FIRSTS[l]!
+      const j = LINE_SECONDS[l]!
       const hi = o.vibe[i] !== 0
       const hj = o.vibe[j] !== 0
 
-      if (hi === hj) continue
+      if (hi === hj) {
+        continue
+      }
 
       const from = hi ? i : j
       const to = hi ? j : i
 
       if (spec.key) {
-        if (spec.key.line(t, cell, l) < (spec.threshold as number)) {
+        if (spec.key.line(t, cell, l) < spec.threshold!) {
           for (const e of list) {
-            e.vibe[to] = e.vibe[from] as number
+            e.vibe[to] = e.vibe[from]!
             e.vibe[from] = 0
           }
         }
@@ -684,17 +991,31 @@ function splitDock(values: Int8Array, offset: number, t: number, cell: number, s
       }
 
       const next: Local[] = []
-      const keep = spec.classical ? [KEEP[0] ** 2 + KEEP[1] ** 2, 0] : KEEP
-      const cross = spec.classical ? [CROSS[0] ** 2 + CROSS[1] ** 2, 0] : CROSS
+      const keep = spec.classical
+        ? [KEEP[0] ** 2 + KEEP[1] ** 2, 0]
+        : KEEP
+      const cross = spec.classical
+        ? [CROSS[0] ** 2 + CROSS[1] ** 2, 0]
+        : CROSS
 
       for (const e of list) {
-        next.push({ vibe: Int8Array.from(e.vibe), store: e.store, re: e.re * (keep[0] as number) - e.im * (keep[1] as number), im: e.re * (keep[1] as number) + e.im * (keep[0] as number) })
+        next.push({
+          vibe: Int8Array.from(e.vibe),
+          store: e.store,
+          re: e.re * keep[0]! - e.im * keep[1]!,
+          im: e.re * keep[1]! + e.im * keep[0]!,
+        })
 
         const v = Int8Array.from(e.vibe)
 
-        v[to] = v[from] as number
+        v[to] = v[from]!
         v[from] = 0
-        next.push({ vibe: v, store: e.store, re: e.re * (cross[0] as number) - e.im * (cross[1] as number), im: e.re * (cross[1] as number) + e.im * (cross[0] as number) })
+        next.push({
+          vibe: v,
+          store: e.store,
+          re: e.re * cross[0]! - e.im * cross[1]!,
+          im: e.re * cross[1]! + e.im * cross[0]!,
+        })
       }
 
       list = next
@@ -715,24 +1036,37 @@ function phaseCount(vibe: Int8Array, base: number): number {
 }
 
 // one beat t of the stand-in
-export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: LiquidSpec, tally: LiquidTally): LiquidState {
+export function liquidBeat(
+  L: LiquidLattice,
+  s: LiquidState,
+  t: number,
+  spec: LiquidSpec,
+  tally: LiquidTally,
+): LiquidState {
   const out: LiquidState = new Map()
   const now = t % VACUUM_PERIOD
   const next = (t + 1) % VACUUM_PERIOD
-  const vNow = L.vibe[now] as Int8Array
-  const vNext = L.vibe[next] as Int8Array
-  const sNext = L.store[next] as Int8Array
+  const vNow = L.vibe[now]!
+  const vNext = L.vibe[next]!
+  const sNext = L.store[next]!
   const order = collisionOrder('alternate', t)
 
   for (const term of s.values()) {
     const n = term.docks.length
     const cells = term.docks.map(k => boxCell(L, k))
+
     // the phase relative to the vacuum's at the same docks
     let phase = 0
 
-    for (let k = 0; k < n; k++) phase += phaseCount(term.values, k * 36) - phaseCount(vNow, (cells[k] as number) * 24)
+    for (let k = 0; k < n; k++) {
+      phase +=
+        phaseCount(term.values, k * 36) -
+        phaseCount(vNow, cells[k]! * 24)
+    }
 
-    const splits = term.docks.map((_, k) => splitDock(term.values, k * 36, t, cells[k] as number, spec, tally))
+    const splits = term.docks.map((_, k) =>
+      splitDock(term.values, k * 36, t, cells[k]!, spec, tally),
+    )
     const count = splits.reduce((p, x) => p * x.length, 1)
     const ang = spec.classical ? 0 : (2 * Math.PI * phase) / 3
     const pr = Math.cos(ang)
@@ -742,12 +1076,13 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
       let rest = code
       let re = term.re * pr - term.im * pi
       let im = term.re * pi + term.im * pr
+
       // post-collision values per term dock
       const post = new Int8Array(n * 36)
 
       for (let k = 0; k < n; k++) {
-        const opts = splits[k] as Local[]
-        const pick = opts[rest % opts.length] as Local
+        const opts = splits[k]!
+        const pick = opts[rest % opts.length]!
 
         rest = Math.floor(rest / opts.length)
 
@@ -757,15 +1092,23 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
         re = r
         LOCAL.vibe.set(pick.vibe)
         LOCAL.store.set(pick.store)
+
         for (let d = 0; d < 24; d++) {
           LOCAL.point[d] = 0
           LOCAL.open[d] = LOCAL.vibe[d] !== 0 ? 1 : 0
         }
+
         for (let l = 0; l < 12; l++) {
           LOCAL.spoint[l] = 0
           LOCAL.sopen[l] = LOCAL.store[l] !== 0 ? 3 : 0
         }
-        for (const p of order) p === 'P' ? pairPiece('none', LOCAL, 0) : coinPiece(L.tables, LOCAL, 0)
+
+        for (const p of order) {
+          p === 'P'
+            ? pairPiece('none', LOCAL, 0)
+            : coinPiece(L.tables, LOCAL, 0)
+        }
+
         post.set(LOCAL.vibe, k * 36)
         post.set(LOCAL.store, k * 36 + 24)
       }
@@ -780,7 +1123,14 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
       term.docks.forEach(q => {
         const c = unpackDock(q, L.modulus)
 
-        for (let d = 0; d < 24; d++) candidates.add(packDock(c.map((v, j) => v + (L.step[d]![j] as number)), L.modulus))
+        for (let d = 0; d < 24; d++) {
+          candidates.add(
+            packDock(
+              c.map((v, j) => v + L.step[d]![j]!),
+              L.modulus,
+            ),
+          )
+        }
       })
 
       const docks: number[] = []
@@ -790,27 +1140,44 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
         const cy = unpackDock(y, L.modulus)
         const cell = boxCell(L, y)
         const row = new Int8Array(36)
+
         let differs = false
 
         for (let d = 0; d < 24; d++) {
-          const from = packDock(cy.map((v, j) => v - (L.step[d]![j] as number)), L.modulus)
+          const from = packDock(
+            cy.map((v, j) => v - L.step[d]![j]!),
+            L.modulus,
+          )
           const k = index.get(from)
-          const v = k === undefined ? (vNext[cell * 24 + d] as number) : (post[k * 36 + d] as number)
+          const v =
+            k === undefined ? vNext[cell * 24 + d]! : post[k * 36 + d]!
 
           row[d] = v
-          if (v !== vNext[cell * 24 + d]) differs = true
+
+          if (v !== vNext[cell * 24 + d]) {
+            differs = true
+          }
         }
 
         const ky = index.get(y)
 
         for (let l = 0; l < 12; l++) {
-          const v = ky === undefined ? (sNext[cell * 12 + l] as number) : (post[ky * 36 + 24 + l] as number)
+          const v =
+            ky === undefined
+              ? sNext[cell * 12 + l]!
+              : post[ky * 36 + 24 + l]!
 
           row[24 + l] = v
-          if (v !== sNext[cell * 12 + l]) differs = true
+
+          if (v !== sNext[cell * 12 + l]) {
+            differs = true
+          }
         }
 
-        if (!differs) continue
+        if (!differs) {
+          continue
+        }
+
         docks.push(y)
         vals.push(...row)
       }
@@ -820,7 +1187,10 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
       if (Number.isFinite(spec.cut)) {
         let singles = 0
 
-        for (let k = 0; k < docks.length; k++) singles += lineCounts(values, k * 36).singles
+        for (let k = 0; k < docks.length; k++) {
+          singles += lineCounts(values, k * 36).singles
+        }
+
         if (singles > spec.cut) {
           tally.escaped += spec.classical ? re : re * re + im * im
           continue
@@ -831,7 +1201,12 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
     }
   }
 
-  for (const [k, v] of out) if (v.re === 0 && v.im === 0) out.delete(k)
+  for (const [k, v] of out) {
+    if (v.re === 0 && v.im === 0) {
+      out.delete(k)
+    }
+  }
+
   tally.terms = Math.max(tally.terms, out.size)
 
   return out
@@ -841,16 +1216,25 @@ export function liquidBeat(L: LiquidLattice, s: LiquidState, t: number, spec: Li
 
 // the mesh line of line class l through dock k: the dock moved along the line's step until the step's first unit axis
 // reads 0, with the class
-export function meshLineId(L: LiquidLattice, k: number, l: number): string {
-  const s = L.step[LINE_FIRSTS[l] as number] as number[]
+export function meshLineId(
+  L: LiquidLattice,
+  k: number,
+  l: number,
+): string {
+  const s = L.step[LINE_FIRSTS[l]!]!
   const a = s.findIndex(v => Math.abs(v) === 1)
 
-  if (a < 0) throw new Error('line-liquid: a line step with no unit axis')
+  if (a < 0) {
+    throw new Error('line-liquid: a line step with no unit axis')
+  }
 
   const y = unpackDock(k, L.modulus)
-  const q = (y[a] as number) * (s[a] as number)
+  const q = y[a]! * s[a]!
 
-  return `${l}:${packDock(y.map((v, j) => v - q * (s[j] as number)), L.modulus)}`
+  return `${l}:${packDock(
+    y.map((v, j) => v - q * s[j]!),
+    L.modulus,
+  )}`
 }
 
 export type LiquidReading = {
@@ -866,10 +1250,22 @@ export type LiquidReading = {
 
 // the readings of a state after `t` beats (onLine: every difference of the term on one mesh line, whichever, since a
 // Bloch representative is a translate)
-export function liquidReading(L: LiquidLattice, s: LiquidState, t: number, classical = false): LiquidReading {
-  const vv = L.vibe[t % VACUUM_PERIOD] as Int8Array
-  const vs = L.store[t % VACUUM_PERIOD] as Int8Array
-  const out: LiquidReading = { weight: 0, e1: 0, meanOff: 0, maxOff: 0, onLine: 0, terms: s.size }
+export function liquidReading(
+  L: LiquidLattice,
+  s: LiquidState,
+  t: number,
+  classical = false,
+): LiquidReading {
+  const vv = L.vibe[t % VACUUM_PERIOD]!
+  const vs = L.store[t % VACUUM_PERIOD]!
+  const out: LiquidReading = {
+    weight: 0,
+    e1: 0,
+    meanOff: 0,
+    maxOff: 0,
+    onLine: 0,
+    terms: s.size,
+  }
 
   for (const term of s.values()) {
     const w = termWeight(term, classical)
@@ -880,33 +1276,53 @@ export function liquidReading(L: LiquidLattice, s: LiquidState, t: number, class
       const cell = boxCell(L, k)
 
       for (let d = 0; d < 24; d++) {
-        const v = term.values[j * 36 + d] as number
-        const u = vv[cell * 24 + d] as number
+        const v = term.values[j * 36 + d]!
+        const u = vv[cell * 24 + d]!
 
-        if (v === u) continue
+        if (v === u) {
+          continue
+        }
 
-        const id = meshLineId(L, k, LINE_OF[d] as number)
+        const id = meshLineId(L, k, LINE_OF[d]!)
 
         touched.add(id)
         tone.set(id, (tone.get(id) ?? 0) + v - u)
       }
 
-      for (let l = 0; l < 12; l++) if (term.values[j * 36 + 24 + l] !== vs[cell * 12 + l]) touched.add(meshLineId(L, k, l))
+      for (let l = 0; l < 12; l++) {
+        if (term.values[j * 36 + 24 + l] !== vs[cell * 12 + l]) {
+          touched.add(meshLineId(L, k, l))
+        }
+      }
     })
 
     const only = touched.size <= 1
 
     let off = 0
 
-    for (const v of tone.values()) if (v !== 0) off++
+    for (const v of tone.values()) {
+      if (v !== 0) {
+        off++
+      }
+    }
+
     out.weight += w
-    if (off === 1) out.e1 += w
+
+    if (off === 1) {
+      out.e1 += w
+    }
+
     out.meanOff += w * off
     out.maxOff = Math.max(out.maxOff, off)
-    if (only) out.onLine += w
+
+    if (only) {
+      out.onLine += w
+    }
   }
 
-  if (out.weight > 0) out.meanOff /= out.weight
+  if (out.weight > 0) {
+    out.meanOff /= out.weight
+  }
 
   return out
 }
@@ -921,19 +1337,32 @@ export function liquidDistance(u: LiquidState, v: LiquidState): number {
   for (const [k, a] of u) {
     const b = v.get(k)
 
-    d = Math.max(d, Math.abs(Math.hypot(a.re, a.im) - Math.hypot(b?.re ?? 0, b?.im ?? 0)))
+    d = Math.max(
+      d,
+      Math.abs(
+        Math.hypot(a.re, a.im) - Math.hypot(b?.re ?? 0, b?.im ?? 0),
+      ),
+    )
   }
 
-  for (const [k, b] of v) if (!u.has(k)) d = Math.max(d, Math.hypot(b.re, b.im))
+  for (const [k, b] of v) {
+    if (!u.has(k)) {
+      d = Math.max(d, Math.hypot(b.re, b.im))
+    }
+  }
 
   return d
 }
 
 // the configuration of a one-term state on the side-8 box (a keyed path's check against the rule): the vacuum at beat
 // t with the term's docks overwritten
-export function termOnBox(L: LiquidLattice, term: LiquidTerm, t: number): { vibe: Int8Array; store: Int8Array } {
-  const vibe = Int8Array.from(L.vibe[t % VACUUM_PERIOD] as Int8Array)
-  const store = Int8Array.from(L.store[t % VACUUM_PERIOD] as Int8Array)
+export function termOnBox(
+  L: LiquidLattice,
+  term: LiquidTerm,
+  t: number,
+): { vibe: Int8Array; store: Int8Array } {
+  const vibe = Int8Array.from(L.vibe[t % VACUUM_PERIOD]!)
+  const store = Int8Array.from(L.store[t % VACUUM_PERIOD]!)
 
   term.docks.forEach((k, j) => {
     const cell = boxCell(L, k)

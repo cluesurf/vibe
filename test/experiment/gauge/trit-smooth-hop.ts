@@ -48,14 +48,35 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weyl } from '@/code/tool/weyl'
 import { energyMask, fastWave } from '@/code/measure/trit-hop-light'
-import { hopRadiation, impulseHeating, makeShadowScratch, shadowReading } from '@/code/measure/trit-shaped-light'
-import { addCurrent, emptyHusk, fastBeat, huskGeometry, makeHuskEngine } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack } from '@/code/rule/trit-husk-shaped'
+import {
+  hopRadiation,
+  impulseHeating,
+  makeShadowScratch,
+  shadowReading,
+} from '@/code/measure/trit-shaped-light'
+import {
+  addCurrent,
+  emptyHusk,
+  fastBeat,
+  huskGeometry,
+  makeHuskEngine,
+} from '@/code/rule/trit-husk'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedBeat,
+  shapedBeatBack,
+} from '@/code/rule/trit-husk-shaped'
 import type { HuskLightState } from '@/code/rule/trit-column'
 
 const ADOPTED = 3
 
-function sectionX(): { levelOneMismatches: number; reversal: Record<string, number> } {
+function sectionX(): {
+  levelOneMismatches: number
+  reversal: Record<string, number>
+} {
   const g = huskGeometry(8)
   const e = makeHuskEngine(g, 16)
   const a = emptyHusk(e)
@@ -78,6 +99,7 @@ function sectionX(): { levelOneMismatches: number; reversal: Record<string, numb
   }
 
   const sc = makeShapedScratch(g, 1)
+
   let levelOneMismatches = 0
 
   for (let t = 0; t < 100; t++) {
@@ -89,8 +111,17 @@ function sectionX(): { levelOneMismatches: number; reversal: Record<string, numb
     fastBeat(e, a)
     shapedBeat(e, b, sc, { levels: 1, cyclic: false })
 
-    for (const key of ['angle', 'potential', 'counter', 'lag', 'spatial', 'string'] as const) {
-      for (let i = 0; i < a[key].length; i++) levelOneMismatches += a[key][i] === b[key][i] ? 0 : 1
+    for (const key of [
+      'angle',
+      'potential',
+      'counter',
+      'lag',
+      'spatial',
+      'string',
+    ] as const) {
+      for (let i = 0; i < a[key].length; i++) {
+        levelOneMismatches += a[key][i] === b[key][i] ? 0 : 1
+      }
     }
   }
 
@@ -112,20 +143,29 @@ function sectionX(): { levelOneMismatches: number; reversal: Record<string, numb
       const at = (t: number): number => (t * 13) % s.string.length
 
       for (let t = 0; t < 150; t++) {
-        if (t % 5 === 0) addCurrent(s, at(t), 1)
+        if (t % 5 === 0) {
+          addCurrent(s, at(t), 1)
+        }
+
         shapedBeat(e, s, scratch, options)
       }
 
       for (let t = 149; t >= 0; t--) {
         shapedBeatBack(e, s, scratch, options)
-        if (t % 5 === 0) addCurrent(s, at(t), -1)
+
+        if (t % 5 === 0) {
+          addCurrent(s, at(t), -1)
+        }
       }
 
       const x = shapedArrays(s)
       const y = shapedArrays(s0)
+
       let m = 0
 
-      x.forEach((arr, i) => arr.forEach((v, j) => (m += v === (y[i]?.[j] ?? 0) ? 0 : 1)))
+      x.forEach((arr, i) =>
+        arr.forEach((v, j) => (m += v === (y[i]?.[j] ?? 0) ? 0 : 1)),
+      )
       reversal[`L${levels}_${cyclic ? 'cyclic' : 'window'}`] = m
     }
   }
@@ -142,38 +182,51 @@ function sectionF(): { relative: number; drift: number } {
   const scratch = makeShapedScratch(g, ADOPTED)
   const shaped = emptyShaped(g, ADOPTED)
   const energies: number[] = []
+
   let started = false
 
   // fastWave builds the wave on a plain husk state; the three-level rule steps a mirror of it
-  const wave = fastWave(e, g, [(2 * Math.PI) / 8, 0, 0], 1, 8, 400, (st: HuskLightState) => {
-    if (!started) {
-      shaped.angle.set(st.angle)
-      shaped.potential.set(st.potential)
-      shaped.counter.set(st.counter)
-      shaped.lag.set(st.lag)
-      shaped.spatial.set(st.spatial)
-      shaped.string.set(st.string)
-      started = true
+  const wave = fastWave(
+    e,
+    g,
+    [(2 * Math.PI) / 8, 0, 0],
+    1,
+    8,
+    400,
+    (st: HuskLightState) => {
+      if (!started) {
+        shaped.angle.set(st.angle)
+        shaped.potential.set(st.potential)
+        shaped.counter.set(st.counter)
+        shaped.lag.set(st.lag)
+        shaped.spatial.set(st.spatial)
+        shaped.string.set(st.string)
+        started = true
+        energies.push(shadowReading(e, shaped, options, all, reading))
+      }
+
+      shapedBeat(e, shaped, scratch, options)
+      st.angle.set(shaped.angle)
+      st.potential.set(shaped.potential)
+      st.counter.set(shaped.counter)
+      st.lag.set(shaped.lag)
+      st.spatial.set(shaped.spatial)
       energies.push(shadowReading(e, shaped, options, all, reading))
-    }
+    },
+  )
 
-    shapedBeat(e, shaped, scratch, options)
-    st.angle.set(shaped.angle)
-    st.potential.set(shaped.potential)
-    st.counter.set(shaped.counter)
-    st.lag.set(shaped.lag)
-    st.spatial.set(shaped.spatial)
-    energies.push(shadowReading(e, shaped, options, all, reading))
-  })
-
-  return { relative: wave.relative, drift: (energies[energies.length - 1] ?? 0) / (energies[0] ?? 1) - 1 }
+  return {
+    relative: wave.relative,
+    drift:
+      (energies[energies.length - 1] ?? 0) / (energies[0] ?? 1) - 1,
+  }
 }
 
 export default experiment({
   id: 'gauge/trit-smooth-hop',
   code: 'E-FRC-0214',
   title:
-    'smooth hops: the integer light\'s heating after a charge\'s hop is its last carry\'s remainder pushing the shadow angle, and with the carries shaped level after level (the wave form applied to its own spatial term, three levels, 7 counters of D trits per husk triangle) a trit charge hopping on one link radiates the linear light\'s field, coherent gain 1 and energy within a tenth of a percent at D = 16',
+    "smooth hops: the integer light's heating after a charge's hop is its last carry's remainder pushing the shadow angle, and with the carries shaped level after level (the wave form applied to its own spatial term, three levels, 7 counters of D trits per husk triangle) a trit charge hopping on one link radiates the linear light's field, coherent gain 1 and energy within a tenth of a percent at D = 16",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -182,25 +235,49 @@ export default experiment({
     const x = sectionX()
     const g32 = huskGeometry(32)
     const g8 = huskGeometry(8)
-    const metrics: Record<string, number> = { x_levelOneMismatches: x.levelOneMismatches }
+    const metrics: Record<string, number> = {
+      x_levelOneMismatches: x.levelOneMismatches,
+    }
 
-    for (const [key, value] of Object.entries(x.reversal)) metrics[`x_reversal_${key}`] = value
+    for (const [key, value] of Object.entries(x.reversal)) {
+      metrics[`x_reversal_${key}`] = value
+    }
 
     let okM = true
 
     for (const depth of [16, 32, 64, 128]) {
       for (const levels of [1, 2, 3]) {
-        const r = hopRadiation({ geometry: g32, depth, options: { levels, cyclic: false }, beats: 120, half: 12, radius: 5 })
+        const r = hopRadiation({
+          geometry: g32,
+          depth,
+          options: { levels, cyclic: false },
+          beats: 120,
+          half: 12,
+          radius: 5,
+        })
 
         metrics[`m_D${depth}_L${levels}_gain`] = r.gain
-        metrics[`m_D${depth}_L${levels}_incoherentOverSignal`] = r.incoherentOverSignal
-        metrics[`m_D${depth}_L${levels}_energyRatio`] = r.integerOverLinearTotal
+        metrics[`m_D${depth}_L${levels}_incoherentOverSignal`] =
+          r.incoherentOverSignal
 
-        if (levels === ADOPTED) okM = okM && Math.abs(r.gain - 1) <= 0.02 && Math.abs(r.integerOverLinearTotal - 1) <= 0.02
+        metrics[`m_D${depth}_L${levels}_energyRatio`] =
+          r.integerOverLinearTotal
+
+        if (levels === ADOPTED) {
+          okM =
+            okM &&
+            Math.abs(r.gain - 1) <= 0.02 &&
+            Math.abs(r.integerOverLinearTotal - 1) <= 0.02
+        }
       }
 
-      metrics[`m_D${depth}_fallLevel1to2`] = ((metrics[`m_D${depth}_L1_energyRatio`] ?? 1) - 1) / ((metrics[`m_D${depth}_L2_energyRatio`] ?? 1) - 1)
-      metrics[`m_D${depth}_fallLevel2to3`] = ((metrics[`m_D${depth}_L2_energyRatio`] ?? 1) - 1) / ((metrics[`m_D${depth}_L3_energyRatio`] ?? 1) - 1)
+      metrics[`m_D${depth}_fallLevel1to2`] =
+        ((metrics[`m_D${depth}_L1_energyRatio`] ?? 1) - 1) /
+        ((metrics[`m_D${depth}_L2_energyRatio`] ?? 1) - 1)
+
+      metrics[`m_D${depth}_fallLevel2to3`] =
+        ((metrics[`m_D${depth}_L2_energyRatio`] ?? 1) - 1) /
+        ((metrics[`m_D${depth}_L3_energyRatio`] ?? 1) - 1)
       metrics[`m_D${depth}_qSquared`] = (2 * depth + 1) ** 2
     }
 
@@ -208,12 +285,20 @@ export default experiment({
 
     for (const depth of [11, 16]) {
       for (const levels of [1, 2, 3]) {
-        const h = impulseHeating({ geometry: g8, depth, options: { levels, cyclic: false }, beats: 240, every: 80 })
+        const h = impulseHeating({
+          geometry: g8,
+          depth,
+          options: { levels, cyclic: false },
+          beats: 240,
+          every: 80,
+        })
 
         metrics[`h_D${depth}_L${levels}_beat80`] = h[0] ?? 0
         metrics[`h_D${depth}_L${levels}_beat240`] = h[2] ?? 0
 
-        if (levels === ADOPTED) okH = okH && Math.abs((h[2] ?? 0) / (h[0] ?? 1) - 1) <= 0.02
+        if (levels === ADOPTED) {
+          okH = okH && Math.abs((h[2] ?? 0) / (h[0] ?? 1) - 1) <= 0.02
+        }
       }
     }
 
@@ -225,28 +310,50 @@ export default experiment({
     // the bulk storage each level needs, per husk dock: the potential columns (sum of n_P D over the 20 husk
     // triangles of a dock, 32 D) and 2 L + 1 counter columns of D per husk triangle, against the bulk's 32 D
     // bulk triangles of 4 trits each (u and three counters): in units of D trits
-    for (const levels of [1, 2, 3]) metrics[`storage_L${levels}_needOverHave`] = (32 + 20 * (2 * levels + 1)) / 128
+    for (const levels of [1, 2, 3]) {
+      metrics[`storage_L${levels}_needOverHave`] =
+        (32 + 20 * (2 * levels + 1)) / 128
+    }
 
     const gates = {
-      X: x.levelOneMismatches === 0 && Object.values(x.reversal).every(v => v === 0),
+      X:
+        x.levelOneMismatches === 0 &&
+        Object.values(x.reversal).every(v => v === 0),
       M: okM,
       H: okH,
       F: Math.abs(f.relative) <= 1e-4 && Math.abs(f.drift) < 1e-3,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.X && gates.M ? 'partial' : 'fail'
-    const row = (levels: number): string => [16, 32, 64, 128].map(d => (metrics[`m_D${d}_L${levels}_gain`] ?? 0).toFixed(4)).join(', ')
-    const erow = (levels: number): string => [16, 32, 64, 128].map(d => (metrics[`m_D${d}_L${levels}_energyRatio`] ?? 0).toFixed(4)).join(', ')
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.X && gates.M
+        ? 'partial'
+        : 'fail'
+    const row = (levels: number): string =>
+      [16, 32, 64, 128]
+        .map(d => (metrics[`m_D${d}_L${levels}_gain`] ?? 0).toFixed(4))
+        .join(', ')
+    const erow = (levels: number): string =>
+      [16, 32, 64, 128]
+        .map(d =>
+          (metrics[`m_D${d}_L${levels}_energyRatio`] ?? 0).toFixed(4),
+        )
+        .join(', ')
 
     return verdict({
       status,
       claim: `a trit charge hopping on one link (side 32, 120 beats) radiates with coherent gain ${row(3)} and energy ${erow(3)} times the linear light's at D = 16, 32, 64, 128 in the three-level light, against gain ${row(1)} and energy ${erow(1)} with one level (E-FRC-0211's light) and ${erow(2)} with two; one level equals the wave form bit for bit and every level reverses exactly; a free wave reads its symbol to ${f.relative.toExponential(1)} and drifts ${f.drift.toExponential(1)} in 400 beats`,
       metrics,
-      control: { levelOneGainD16: metrics.m_D16_L1_gain ?? 0, levelOneEnergyD16: metrics.m_D16_L1_energyRatio ?? 0 },
+      control: {
+        levelOneGainD16: metrics.m_D16_L1_gain ?? 0,
+        levelOneEnergyD16: metrics.m_D16_L1_energyRatio ?? 0,
+      },
       notes:
-        'L2, exact integers in the rule, deterministic (golden Weyl starts). FIRST RUN 2026-09-26 (tmp/frc0214.log, 91.5 s), PASS on every gate, no gate moved. X: one level equals fastBeat on every value of 100 beats (0 mismatches), and two and three levels reverse to 0 mismatches with and without the cyclic potential. M, THE GATE: in the three-level light the hopping trit charge radiates with coherent gain 1.0004, 1.0000, 1.0000, 1.0000, incoherent remainder 1.3e-3, 2.9e-5, 1.1e-7, 4.0e-9 and total energy 1.0013, 1.0001, 1.0000, 1.0000 times the linear light at D = 16, 32, 64, 128. One level reproduces E-FRC-0211 exactly (gain 0.8845, 0.2103, 0.5434, 0.5632, energy 60.67, 15.08, 1.61, 1.05), which is the control; two levels give energy 1.548, 1.046, 1.0000, 1.0000. H: a unit impulse in the three-level light holds its energy (0.04903 at beat 80, 0.04897 at 240, D = 16; 0.07187 both at D = 11), where one level heats it 4.8 -> 23.7 and 28.9 -> 116.5. F: a free wave reads its symbol to 1.9e-5 and its energy drifts 3.8e-6 in 400 beats (one level: 15 percent, tmp/smooth-probe1.log). THE CAUSE, confirmed: the heating was never the hop. It was the last carry\'s remainder entering the shadow\'s drift as C^T R / q^2, which does not telescope; each shaped level pushes it one power of q down. The measured fall per level is 109 then 411 at D = 16 and 307 then 472 at D = 32, below the q^2 (1,089 and 4,225) the one-remainder picture predicts: the reported, ungated prediction fails, so the remainder is not white (the levels\' remainders correlate), and the fall is one to two and a half decades per level, not four. ALSO FOUND (tmp/smooth-probe3.log): the one-level light at D = 8 around a static string wraps its potential columns 514,610 times in 2,000 beats, and the three-level light never does; this is what failed E-FRC-0213\'s gate E. WHAT IT COSTS: 2 L + 1 counters per husk triangle, each a column of D trits. Per husk dock the potentials need 32 D trits and the counters 20 (2 L + 1) D, against 128 D in the bulk triangles (32 D triangles, four trits each: u and three counters): 0.72 of the room at one level, 1.03 at two, 1.34 at three. So the three-level light does not fit the bulk\'s present trits: it needs 44 D more trits per husk dock (1.4 more per bulk triangle; two levels need 4 D more), or a counter held in fewer trits than a thermometer. This is the open cost of the result. NOT BUILT: the three-level rule in bulk trits (code/rule/trit-column is one level); a hop spread over the column (argued impossible above: a crossing carries a whole unit).',
+        "L2, exact integers in the rule, deterministic (golden Weyl starts). FIRST RUN 2026-09-26 (tmp/frc0214.log, 91.5 s), PASS on every gate, no gate moved. X: one level equals fastBeat on every value of 100 beats (0 mismatches), and two and three levels reverse to 0 mismatches with and without the cyclic potential. M, THE GATE: in the three-level light the hopping trit charge radiates with coherent gain 1.0004, 1.0000, 1.0000, 1.0000, incoherent remainder 1.3e-3, 2.9e-5, 1.1e-7, 4.0e-9 and total energy 1.0013, 1.0001, 1.0000, 1.0000 times the linear light at D = 16, 32, 64, 128. One level reproduces E-FRC-0211 exactly (gain 0.8845, 0.2103, 0.5434, 0.5632, energy 60.67, 15.08, 1.61, 1.05), which is the control; two levels give energy 1.548, 1.046, 1.0000, 1.0000. H: a unit impulse in the three-level light holds its energy (0.04903 at beat 80, 0.04897 at 240, D = 16; 0.07187 both at D = 11), where one level heats it 4.8 -> 23.7 and 28.9 -> 116.5. F: a free wave reads its symbol to 1.9e-5 and its energy drifts 3.8e-6 in 400 beats (one level: 15 percent, tmp/smooth-probe1.log). THE CAUSE, confirmed: the heating was never the hop. It was the last carry's remainder entering the shadow's drift as C^T R / q^2, which does not telescope; each shaped level pushes it one power of q down. The measured fall per level is 109 then 411 at D = 16 and 307 then 472 at D = 32, below the q^2 (1,089 and 4,225) the one-remainder picture predicts: the reported, ungated prediction fails, so the remainder is not white (the levels' remainders correlate), and the fall is one to two and a half decades per level, not four. ALSO FOUND (tmp/smooth-probe3.log): the one-level light at D = 8 around a static string wraps its potential columns 514,610 times in 2,000 beats, and the three-level light never does; this is what failed E-FRC-0213's gate E. WHAT IT COSTS: 2 L + 1 counters per husk triangle, each a column of D trits. Per husk dock the potentials need 32 D trits and the counters 20 (2 L + 1) D, against 128 D in the bulk triangles (32 D triangles, four trits each: u and three counters): 0.72 of the room at one level, 1.03 at two, 1.34 at three. So the three-level light does not fit the bulk's present trits: it needs 44 D more trits per husk dock (1.4 more per bulk triangle; two levels need 4 D more), or a counter held in fewer trits than a thermometer. This is the open cost of the result. NOT BUILT: the three-level rule in bulk trits (code/rule/trit-column is one level); a hop spread over the column (argued impossible above: a crossing carries a whole unit).",
     })
   },
 })

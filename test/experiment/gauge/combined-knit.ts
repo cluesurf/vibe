@@ -33,11 +33,34 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { type Collision } from '@/code/rule/collision'
 import { collide, stream } from '@/code/rule/lattice-gas'
-import { colorLocalBeat, colorLocalCollision, makeColorLocalWeave } from '@/code/rule/color-local-weave'
+import {
+  colorLocalBeat,
+  colorLocalCollision,
+  makeColorLocalWeave,
+} from '@/code/rule/color-local-weave'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { HEAD_TURN_SPEC, makeScatterWeave, scatterBeat, scatterCollision, scatterSchedule } from '@/code/rule/scatter-weave'
-import { foldRoundRobin, knitBeat, makeSteeredKnit, type KnitState } from '@/code/rule/steered-knit'
-import { advanceWhole, colorLocalKnit, fearBeat, fearKernels, makeLattice, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
+import {
+  HEAD_TURN_SPEC,
+  makeScatterWeave,
+  scatterBeat,
+  scatterCollision,
+  scatterSchedule,
+} from '@/code/rule/scatter-weave'
+import {
+  foldRoundRobin,
+  knitBeat,
+  makeSteeredKnit,
+  type KnitState,
+} from '@/code/rule/steered-knit'
+import {
+  advanceWhole,
+  colorLocalKnit,
+  fearBeat,
+  fearKernels,
+  makeLattice,
+  type BeatRecord,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import {
   combinedBeat,
   combinedBeatBack,
@@ -49,7 +72,10 @@ import {
   type CombinedState,
 } from '@/code/rule/combined-knit'
 import { denseKnitState } from '@/code/measure/steered-acceptance'
-import { cptMirrorPhase, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  cptMirrorPhase,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import { type VibeState } from '@/code/rule/vibe-weave'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
@@ -60,7 +86,10 @@ const FEAR_BEATS = 96
 const SAMPLES = 400
 const MATTER_SCALE = 2.11
 
-function golden(slots: number, scale: number): { vibe: Int8Array; point: Int8Array } {
+function golden(
+  slots: number,
+  scale: number,
+): { vibe: Int8Array; point: Int8Array } {
   const vibe = new Int8Array(slots)
   const point = new Int8Array(slots)
 
@@ -93,7 +122,10 @@ const applyCell = (collision: Collision, v: Int8Array): Int8Array => {
 }
 
 // dock-level: two collision factories agree on every sample state at every beat, forward and back
-function docksAgree(a: (forward: boolean) => (t: number) => Collision, b: (forward: boolean) => (t: number) => Collision): number {
+function docksAgree(
+  a: (forward: boolean) => (t: number) => Collision,
+  b: (forward: boolean) => (t: number) => Collision,
+): number {
   let mismatches = 0
 
   for (const forward of [true, false]) {
@@ -104,7 +136,11 @@ function docksAgree(a: (forward: boolean) => (t: number) => Collision, b: (forwa
       for (let n = 0; n < SAMPLES; n++) {
         const v = sampleVector(n * 13 + t)
 
-        mismatches += applyCell(fa(t), v).every((x, d) => x === applyCell(fb(t), v)[d]) ? 0 : 1
+        mismatches += applyCell(fa(t), v).every(
+          (x, d) => x === applyCell(fb(t), v)[d],
+        )
+          ? 0
+          : 1
       }
     }
   }
@@ -134,41 +170,109 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const probe = makeCombinedKnit({ side: SIDE, spec: { base: HEAD_TURN_SPEC, fold: false, scatter: false, mirror: 23, steer: false } })
+    const probe = makeCombinedKnit({
+      side: SIDE,
+      spec: {
+        base: HEAD_TURN_SPEC,
+        fold: false,
+        scatter: false,
+        mirror: 23,
+        steer: false,
+      },
+    })
     const { mesh, opposite } = probe.weave
     const slots = mesh.cellCount * 24
     const dense = golden(slots, 1.37)
 
     // the mirror phases
-    const specRule = (spec: CombinedKnitSpec): ScheduledRule => (o, forward) => combinedCollision({ spec, opposite: o, forward })
-    const baseMirror = cptMirrorPhase(specRule({ base: HEAD_TURN_SPEC, fold: false, scatter: false, mirror: 23, steer: false }))
-    const foldedMirror = cptMirrorPhase(specRule({ base: HEAD_TURN_SPEC, fold: true, scatter: false, mirror: 23, steer: false }))
-    const combinedMirror = cptMirrorPhase(specRule({ base: HEAD_TURN_SPEC, fold: false, scatter: true, mirror: baseMirror, steer: false }))
-    const combinedFoldedMirror = cptMirrorPhase(specRule({ base: HEAD_TURN_SPEC, fold: true, scatter: true, mirror: foldedMirror, steer: false }))
+    const specRule =
+      (spec: CombinedKnitSpec): ScheduledRule =>
+      (o, forward) =>
+        combinedCollision({ spec, opposite: o, forward })
+    const baseMirror = cptMirrorPhase(
+      specRule({
+        base: HEAD_TURN_SPEC,
+        fold: false,
+        scatter: false,
+        mirror: 23,
+        steer: false,
+      }),
+    )
+    const foldedMirror = cptMirrorPhase(
+      specRule({
+        base: HEAD_TURN_SPEC,
+        fold: true,
+        scatter: false,
+        mirror: 23,
+        steer: false,
+      }),
+    )
+    const combinedMirror = cptMirrorPhase(
+      specRule({
+        base: HEAD_TURN_SPEC,
+        fold: false,
+        scatter: true,
+        mirror: baseMirror,
+        steer: false,
+      }),
+    )
+    const combinedFoldedMirror = cptMirrorPhase(
+      specRule({
+        base: HEAD_TURN_SPEC,
+        fold: true,
+        scatter: true,
+        mirror: foldedMirror,
+        steer: false,
+      }),
+    )
 
     // run a combined knit and a reference side by side from the same fill, comparing vibes and role points
-    const againstRoles = (spec: CombinedKnitSpec, reference: (s: VibeState, t: number) => VibeState): number => {
+    const againstRoles = (
+      spec: CombinedKnitSpec,
+      reference: (s: VibeState, t: number) => VibeState,
+    ): number => {
       const knit = makeCombinedKnit({ side: SIDE, spec })
+
       let a: CombinedState = combinedState(knit, dense)
-      let b: VibeState = { vibe: Int8Array.from(dense.vibe), role: Int8Array.from(dense.point), flow: new Int32Array(slots) }
+      let b: VibeState = {
+        vibe: Int8Array.from(dense.vibe),
+        role: Int8Array.from(dense.point),
+        flow: new Int32Array(slots),
+      }
       let mismatches = 0
 
       for (let t = 0; t < BEATS; t++) {
         a = combinedBeat(knit, a, noneOpen(slots), t).state
         b = reference(b, t)
-        mismatches += differ(a.vibe, b.vibe) + differ(rolesOf(a), b.role)
+        mismatches +=
+          differ(a.vibe, b.vibe) + differ(rolesOf(a), b.role)
       }
 
       return mismatches
     }
 
     // 1. the base alone
-    const baseSpec: CombinedKnitSpec = { base: HEAD_TURN_SPEC, fold: false, scatter: false, mirror: baseMirror, steer: false }
-    const baseWeave = makeColorLocalWeave({ side: SIDE, spec: HEAD_TURN_SPEC })
-    const baseRoles = againstRoles(baseSpec, (s, t) => colorLocalBeat(baseWeave, s, t))
+    const baseSpec: CombinedKnitSpec = {
+      base: HEAD_TURN_SPEC,
+      fold: false,
+      scatter: false,
+      mirror: baseMirror,
+      steer: false,
+    }
+    const baseWeave = makeColorLocalWeave({
+      side: SIDE,
+      spec: HEAD_TURN_SPEC,
+    })
+    const baseRoles = againstRoles(baseSpec, (s, t) =>
+      colorLocalBeat(baseWeave, s, t),
+    )
     const baseVibes = (() => {
       const knit = makeCombinedKnit({ side: SIDE, spec: baseSpec })
-      const rule = colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite })
+      const rule = colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite,
+      })
+
       let a = combinedState(knit, dense)
       let will = { mesh, data: Int8Array.from(dense.vibe) }
       let mismatches = 0
@@ -183,26 +287,70 @@ export default experiment({
       return mismatches
     })()
     const baseDock = docksAgree(
-      forward => combinedCollision({ spec: baseSpec, opposite, forward }),
-      forward => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite, forward }),
+      forward =>
+        combinedCollision({ spec: baseSpec, opposite, forward }),
+      forward =>
+        colorLocalCollision({
+          spec: HEAD_TURN_SPEC,
+          opposite,
+          forward,
+        }),
     )
 
     // 2. the scatter block
-    const scatterSpec: CombinedKnitSpec = { ...baseSpec, scatter: true, mirror: 23 }
-    const scatterWeave = makeScatterWeave({ side: SIDE, spec: { base: HEAD_TURN_SPEC, mirror: 23, sets: scatterSchedule() } })
-    const scatterRoles = againstRoles(scatterSpec, (s, t) => scatterBeat(scatterWeave, s, t))
+    const scatterSpec: CombinedKnitSpec = {
+      ...baseSpec,
+      scatter: true,
+      mirror: 23,
+    }
+    const scatterWeave = makeScatterWeave({
+      side: SIDE,
+      spec: {
+        base: HEAD_TURN_SPEC,
+        mirror: 23,
+        sets: scatterSchedule(),
+      },
+    })
+    const scatterRoles = againstRoles(scatterSpec, (s, t) =>
+      scatterBeat(scatterWeave, s, t),
+    )
     const scatterDock = docksAgree(
-      forward => combinedCollision({ spec: scatterSpec, opposite, forward }),
-      forward => scatterCollision({ spec: { base: HEAD_TURN_SPEC, mirror: 23, sets: scatterSchedule() }, opposite, forward }),
+      forward =>
+        combinedCollision({ spec: scatterSpec, opposite, forward }),
+      forward =>
+        scatterCollision({
+          spec: {
+            base: HEAD_TURN_SPEC,
+            mirror: 23,
+            sets: scatterSchedule(),
+          },
+          opposite,
+          forward,
+        }),
     )
 
     // 3. the fold with lone steering, against knitBeat, on the color turn base and on the head-on base
     const steering = (base: typeof HEAD_TURN_SPEC): number => {
-      const spec: CombinedKnitSpec = { base, fold: true, scatter: false, mirror: 23, steer: 'lone' }
+      const spec: CombinedKnitSpec = {
+        base,
+        fold: true,
+        scatter: false,
+        mirror: 23,
+        steer: 'lone',
+      }
       const knit = makeCombinedKnit({ side: SIDE, spec })
-      const reference = makeSteeredKnit({ side: SIDE, spec: foldRoundRobin(base), steer: 'lone' })
+      const reference = makeSteeredKnit({
+        side: SIDE,
+        spec: foldRoundRobin(base),
+        steer: 'lone',
+      })
       const start = denseKnitState(reference)
-      let a = combinedState(knit, { vibe: start.vibe, point: dense.point, flux: start.flux })
+
+      let a = combinedState(knit, {
+        vibe: start.vibe,
+        point: dense.point,
+        flux: start.flux,
+      })
       let b: KnitState = start
       let mismatches = 0
 
@@ -214,14 +362,20 @@ export default experiment({
 
       return mismatches
     }
+
     const steeringColorTurn = steering(COLOR_TURN_SPEC)
     const steeringHeadOn = steering(HEAD_TURN_SPEC)
 
     // controls: each piece does something, so the agreements above are not vacuous. The same fill run with
     // the piece on and off must differ somewhere within 48 beats
-    const pieceMatters = (on: CombinedKnitSpec, off: CombinedKnitSpec, flux?: Int32Array): number => {
+    const pieceMatters = (
+      on: CombinedKnitSpec,
+      off: CombinedKnitSpec,
+      flux?: Int32Array,
+    ): number => {
       const a = makeCombinedKnit({ side: SIDE, spec: on })
       const b = makeCombinedKnit({ side: SIDE, spec: off })
+
       let sa = combinedState(a, { ...dense, flux })
       let sb = combinedState(b, { ...dense, flux })
       let differing = 0
@@ -234,10 +388,24 @@ export default experiment({
 
       return differing
     }
-    const steerFlux = denseKnitState(makeSteeredKnit({ side: SIDE, spec: foldRoundRobin(HEAD_TURN_SPEC), steer: 'lone' })).flux
+
+    const steerFlux = denseKnitState(
+      makeSteeredKnit({
+        side: SIDE,
+        spec: foldRoundRobin(HEAD_TURN_SPEC),
+        steer: 'lone',
+      }),
+    ).flux
     const scatterMatters = pieceMatters(scatterSpec, baseSpec)
-    const foldMatters = pieceMatters({ ...baseSpec, fold: true }, baseSpec)
-    const steerMatters = pieceMatters({ ...baseSpec, fold: true, steer: 'lone' }, { ...baseSpec, fold: true }, steerFlux)
+    const foldMatters = pieceMatters(
+      { ...baseSpec, fold: true },
+      baseSpec,
+    )
+    const steerMatters = pieceMatters(
+      { ...baseSpec, fold: true, steer: 'lone' },
+      { ...baseSpec, fold: true },
+      steerFlux,
+    )
 
     // 4. the fear beat's records against fearBeat on the color turn base
     const matter = golden(slots, MATTER_SCALE)
@@ -256,9 +424,26 @@ export default experiment({
       table: COLOR_TURN_SPEC.tables[0] ?? [],
       swapWhen: COLOR_TURN_SPEC.swapWhen,
     })
-    const on = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
-    const back = fearKernels({ like: -OMEGA, unlike: -OMEGA, likeExchanged: false })!
-    const turnKnit = makeCombinedKnit({ side: SIDE, spec: { base: COLOR_TURN_SPEC, fold: false, scatter: false, mirror: 23, steer: false } })
+    const on = fearKernels({
+      like: OMEGA,
+      unlike: OMEGA,
+      likeExchanged: false,
+    })!
+    const back = fearKernels({
+      like: -OMEGA,
+      unlike: -OMEGA,
+      likeExchanged: false,
+    })!
+    const turnKnit = makeCombinedKnit({
+      side: SIDE,
+      spec: {
+        base: COLOR_TURN_SPEC,
+        fold: false,
+        scatter: false,
+        mirror: 23,
+        steer: false,
+      },
+    })
 
     let recordMismatch = 0
     let latticeMismatch = 0
@@ -273,7 +458,14 @@ export default experiment({
 
       for (let t = 0; t < FEAR_BEATS; t++) {
         const ra = combinedBeat(turnKnit, a, dock0, t)
-        const rb = fearBeat({ weave: turnKnit.weave, links: turnKnit.weave.links, lattice, open: dock0, t, knit: fearKnit })
+        const rb = fearBeat({
+          weave: turnKnit.weave,
+          links: turnKnit.weave.links,
+          lattice,
+          open: dock0,
+          t,
+          knit: fearKnit,
+        })
 
         a = ra.state
         lattice = rb.lattice
@@ -281,10 +473,14 @@ export default experiment({
         fearRecords.push(rb.record)
         meetingsChecked += ra.record.meetings.length
 
-        const flat = (r: BeatRecord): string => JSON.stringify([r.meetings, r.signs, r.crossings])
+        const flat = (r: BeatRecord): string =>
+          JSON.stringify([r.meetings, r.signs, r.crossings])
 
         recordMismatch += flat(ra.record) === flat(rb.record) ? 0 : 1
-        latticeMismatch += differ(a.vibe, lattice.vibe) + differ(a.token, lattice.token) + differ(a.point, lattice.point)
+        latticeMismatch +=
+          differ(a.vibe, lattice.vibe) +
+          differ(a.token, lattice.token) +
+          differ(a.point, lattice.point)
       }
     }
 
@@ -299,11 +495,21 @@ export default experiment({
       }
     }
 
-    const pair = ([...counts.entries()].sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))[0]?.[0] ?? '0,1').split(',').map(Number)
+    const pair = (
+      [...counts.entries()].sort(
+        (x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1),
+      )[0]?.[0] ?? '0,1'
+    )
+      .split(',')
+      .map(Number)
     // the two tokens at role 0 each: the 9 joint points whose roles are both 0 carry one unit each
     const basis = (tokens: number[]): Whole => ({
       tokens,
-      weight: Array.from({ length: 81 }, (_, i) => (Math.floor(i / 27) === 0 && Math.floor((i % 9) / 3) === 0 ? 1n : 0n)),
+      weight: Array.from({ length: 81 }, (_, i) =>
+        Math.floor(i / 27) === 0 && Math.floor((i % 9) / 3) === 0
+          ? 1n
+          : 0n,
+      ),
     })
     const pairOpen = new Uint8Array(slots)
 
@@ -316,33 +522,67 @@ export default experiment({
 
       for (const record of records) {
         const inside = {
-          meetings: record.meetings.filter(([x, y]) => pairOpen[x] === 1 && pairOpen[y] === 1),
-          signs: (record.signs ?? []).filter((_, k) => pairOpen[record.meetings[k]?.[0] ?? -1] === 1 && pairOpen[record.meetings[k]?.[1] ?? -1] === 1),
-          crossings: record.crossings.filter(([tk]) => pairOpen[tk] === 1),
+          meetings: record.meetings.filter(
+            ([x, y]) => pairOpen[x] === 1 && pairOpen[y] === 1,
+          ),
+          signs: (record.signs ?? []).filter(
+            (_, k) =>
+              pairOpen[record.meetings[k]?.[0] ?? -1] === 1 &&
+              pairOpen[record.meetings[k]?.[1] ?? -1] === 1,
+          ),
+          crossings: record.crossings.filter(
+            ([tk]) => pairOpen[tk] === 1,
+          ),
         }
 
-        whole = advanceWhole({ weave: turnKnit.weave, whole, record: inside, kernel4: [], color: on, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave: turnKnit.weave,
+          whole,
+          record: inside,
+          kernel4: [],
+          color: on,
+          fixed: false,
+          forward: true,
+        })!
       }
 
       return whole
     }
+
     const wholeA = evolve(combinedRecords)
     const wholeB = evolve(fearRecords)
-    const wholeSame = wholeA.weight.every((w, i) => w === wholeB.weight[i])
+    const wholeSame = wholeA.weight.every(
+      (w, i) => w === wholeB.weight[i],
+    )
 
     // 5 and 6: everything on
-    const allSpec: CombinedKnitSpec = { base: HEAD_TURN_SPEC, fold: true, scatter: true, mirror: foldedMirror, steer: 'lone' }
+    const allSpec: CombinedKnitSpec = {
+      base: HEAD_TURN_SPEC,
+      fold: true,
+      scatter: true,
+      mirror: foldedMirror,
+      steer: 'lone',
+    }
     const all = makeCombinedKnit({ side: SIDE, spec: allSpec })
     const allStart = (() => {
-      const k = makeSteeredKnit({ side: SIDE, spec: foldRoundRobin(HEAD_TURN_SPEC), steer: 'lone' })
+      const k = makeSteeredKnit({
+        side: SIDE,
+        spec: foldRoundRobin(HEAD_TURN_SPEC),
+        steer: 'lone',
+      })
       const s = denseKnitState(k)
 
-      return combinedState(all, { vibe: matter.vibe, point: matter.point, flux: s.flux })
+      return combinedState(all, {
+        vibe: matter.vibe,
+        point: matter.point,
+        flux: s.flux,
+      })
     })()
 
     let openBlind = 0
     let closedRun = allStart
     let openRun = allStart
+
     const allRecords: BeatRecord[] = []
 
     for (let t = 0; t < BEATS; t++) {
@@ -352,7 +592,10 @@ export default experiment({
 
       openRun = r.state
       allRecords.push(r.record)
-      openBlind += differ(closedRun.vibe, openRun.vibe) + differ(closedRun.token, openRun.token) + differ(closedRun.flux, openRun.flux)
+      openBlind +=
+        differ(closedRun.vibe, openRun.vibe) +
+        differ(closedRun.token, openRun.token) +
+        differ(closedRun.flux, openRun.flux)
     }
 
     // reversal with the whole of the pair in fixed units
@@ -367,14 +610,27 @@ export default experiment({
       }
     }
 
-    const allPair = ([...allPairCounts.entries()].sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))[0]?.[0] ?? '0,1').split(',').map(Number)
+    const allPair = (
+      [...allPairCounts.entries()].sort(
+        (x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1),
+      )[0]?.[0] ?? '0,1'
+    )
+      .split(',')
+      .map(Number)
     const allPairOpen = new Uint8Array(slots)
 
     for (const tk of allPair) {
       allPairOpen[tk] = 1
     }
 
-    const whole0: Whole = { tokens: allPair, weight: Array.from({ length: 81 }, (_, i) => (Math.floor(i / 27) === 2 && Math.floor((i % 9) / 3) === 0 ? units / 9n : 0n)) }
+    const whole0: Whole = {
+      tokens: allPair,
+      weight: Array.from({ length: 81 }, (_, i) =>
+        Math.floor(i / 27) === 2 && Math.floor((i % 9) / 3) === 0
+          ? units / 9n
+          : 0n,
+      ),
+    }
 
     let whole: Whole | null = whole0
     let state = allStart
@@ -385,19 +641,45 @@ export default experiment({
 
       state = r.state
       allMeetings += r.record.meetings.length
-      whole = whole ? advanceWhole({ weave: all.weave, whole, record: r.record, kernel4: [], color: on, fixed: true, forward: true }) : null
+      whole = whole
+        ? advanceWhole({
+            weave: all.weave,
+            whole,
+            record: r.record,
+            kernel4: [],
+            color: on,
+            fixed: true,
+            forward: true,
+          })
+        : null
     }
 
     for (let t = BEATS - 1; t >= 0; t--) {
       const r = combinedBeatBack(all, state, allPairOpen, t)
 
       state = r.state
-      whole = whole ? advanceWhole({ weave: all.weave, whole, record: r.record, kernel4: [], color: back, fixed: true, forward: false }) : null
+      whole = whole
+        ? advanceWhole({
+            weave: all.weave,
+            whole,
+            record: r.record,
+            kernel4: [],
+            color: back,
+            fixed: true,
+            forward: false,
+          })
+        : null
     }
 
     const allReverses =
-      differ(state.vibe, allStart.vibe) + differ(state.token, allStart.token) + differ(state.point, allStart.point) + differ(state.flux, allStart.flux) === 0
-    const wholeReturns = whole !== null && whole.weight.every((w, i) => w === whole0.weight[i])
+      differ(state.vibe, allStart.vibe) +
+        differ(state.token, allStart.token) +
+        differ(state.point, allStart.point) +
+        differ(state.flux, allStart.flux) ===
+      0
+    const wholeReturns =
+      whole !== null &&
+      whole.weight.every((w, i) => w === whole0.weight[i])
 
     const ok =
       baseVibes === 0 &&
@@ -453,7 +735,7 @@ export default experiment({
         fearBeats: FEAR_BEATS,
       },
       notes:
-        'L2, exact, no random numbers. The dock collision and the beat are written once in code/rule/combined-knit; the base clock and exchange are copies of code/rule/color-local-weave\'s private collision with fear-weave\'s meeting record added, the block a copy of scatter-weave\'s private scatter, and steering is steerDock itself run on a scratch dock whose role points are the slot indices. The checks here are what licenses those copies. Steering reads the flux, so a steered knit has no dock-level collision and runs only through combinedBeat. The mirror phases are measured at the dock level, where the block is placed; box-level CPT of lone steering is E-FRC-0156\'s question and is not re-asked here.',
+        "L2, exact, no random numbers. The dock collision and the beat are written once in code/rule/combined-knit; the base clock and exchange are copies of code/rule/color-local-weave's private collision with fear-weave's meeting record added, the block a copy of scatter-weave's private scatter, and steering is steerDock itself run on a scratch dock whose role points are the slot indices. The checks here are what licenses those copies. Steering reads the flux, so a steered knit has no dock-level collision and runs only through combinedBeat. The mirror phases are measured at the dock level, where the block is placed; box-level CPT of lone steering is E-FRC-0156's question and is not re-asked here.",
     })
   },
 })

@@ -37,13 +37,17 @@
 import { type Collision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { SIDE } from '@/code/rule/scatter-weave'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import { weylRates } from '@/code/tool/weyl-point'
 
 export const SLOT_STATES = 48
 
 const ROOTS = rootsD4()
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 // The draws. A product measure over the 24 slots of a dock needs 24 values per draw that are jointly
 // equidistributed. Each (salt, phase) reads its own Kronecker stream (code/tool/weyl-point, start
@@ -57,13 +61,23 @@ function drawRates(salt: number, phase: number): Uint32Array {
   return weylRates(salt * 10007 + phase)
 }
 
-function slotUniform(rates: Uint32Array, draw: number, slot: number): number {
-  return (Math.imul((draw + 1) | 0, rates[slot] ?? 0) >>> 0) / 4294967296
+function slotUniform(
+  rates: Uint32Array,
+  draw: number,
+  slot: number,
+): number {
+  return (
+    (Math.imul((draw + 1) | 0, rates[slot] ?? 0) >>> 0) / 4294967296
+  )
 }
 
 // A knit state drawn from a product background, dock by dock with the same draws as the estimators (the
 // dock index is the draw), for starts whose slots must be independent
-export function productState(input: { docks: number; background: Float64Array; salt: number }): Int8Array {
+export function productState(input: {
+  docks: number
+  background: Float64Array
+  salt: number
+}): Int8Array {
   const out = new Int8Array(input.docks * 24)
   const rates = drawRates(input.salt, 7919)
 
@@ -82,7 +96,10 @@ export function productState(input: { docks: number; background: Float64Array; s
 
 // the uniform product background: every slot love with probability occupation / 2, fear the same
 export function uniformBackground(occupation: number): Float64Array {
-  return Float64Array.from({ length: SLOT_STATES }, () => occupation / 2)
+  return Float64Array.from(
+    { length: SLOT_STATES },
+    () => occupation / 2,
+  )
 }
 
 // The linearized collision about a product background, and the mean post-collision state of the
@@ -138,7 +155,8 @@ export function linearizedCollision(input: {
       const v = work[e] ?? 0
 
       if (v !== 0) {
-        post[e * 2 + (v > 0 ? 0 : 1)] = (post[e * 2 + (v > 0 ? 0 : 1)] ?? 0) + 1
+        post[e * 2 + (v > 0 ? 0 : 1)] =
+          (post[e * 2 + (v > 0 ? 0 : 1)] ?? 0) + 1
       }
     }
 
@@ -168,23 +186,34 @@ export function linearizedCollision(input: {
           if (a !== 0) {
             const row = e * 2 + (a > 0 ? 0 : 1)
 
-            matrix[row * SLOT_STATES + column] = (matrix[row * SLOT_STATES + column] ?? 0) + 1
+            matrix[row * SLOT_STATES + column] =
+              (matrix[row * SLOT_STATES + column] ?? 0) + 1
           }
 
           if (b !== 0) {
             const row = e * 2 + (b > 0 ? 0 : 1)
 
-            matrix[row * SLOT_STATES + column] = (matrix[row * SLOT_STATES + column] ?? 0) - 1
+            matrix[row * SLOT_STATES + column] =
+              (matrix[row * SLOT_STATES + column] ?? 0) - 1
           }
         }
       }
     }
   }
 
-  return { matrix: matrix.map(v => v / samples), post: post.map(v => v / samples) }
+  return {
+    matrix: matrix.map(v => v / samples),
+    post: post.map(v => v / samples),
+  }
 }
 
-function conditionalCollision(input: { collision: Collision; background: Float64Array; samples: number; salt: number; phase: number }): {
+function conditionalCollision(input: {
+  collision: Collision
+  background: Float64Array
+  samples: number
+  salt: number
+  phase: number
+}): {
   matrix: Float64Array
   post: Float64Array
 } {
@@ -219,7 +248,8 @@ function conditionalCollision(input: { collision: Collision; background: Float64
       const before = x[e] ?? 0
 
       if (after !== 0) {
-        post[e * 2 + (after > 0 ? 0 : 1)] = (post[e * 2 + (after > 0 ? 0 : 1)] ?? 0) + 1
+        post[e * 2 + (after > 0 ? 0 : 1)] =
+          (post[e * 2 + (after > 0 ? 0 : 1)] ?? 0) + 1
       }
 
       if (after === before) {
@@ -266,7 +296,8 @@ function conditionalCollision(input: { collision: Collision; background: Float64
 
       for (let r = 0; r < n; r++) {
         const held = count > 0 ? (sums[bucket * n + r] ?? 0) / count : 0
-        const empty = calmCount > 0 ? (sums[calm * n + r] ?? 0) / calmCount : 0
+        const empty =
+          calmCount > 0 ? (sums[calm * n + r] ?? 0) / calmCount : 0
 
         matrix[r * n + column] = (r === column ? 1 : 0) + held - empty
       }
@@ -285,29 +316,55 @@ export function linearizedSchedule(input: {
   salt: number
   method?: 'conditional' | 'forced'
 }): Float64Array[] {
-  return Array.from({ length: input.period }, (_, t) =>
-    linearizedCollision({ collision: input.rule(t), background: input.background, samples: input.samples, salt: input.salt, phase: t, method: input.method }).matrix,
+  return Array.from(
+    { length: input.period },
+    (_, t) =>
+      linearizedCollision({
+        collision: input.rule(t),
+        background: input.background,
+        samples: input.samples,
+        salt: input.salt,
+        phase: t,
+        method: input.method,
+      }).matrix,
   )
 }
 
 // The additive densities, as left vectors on the 48 one-body numbers
-export const CHARGE_VECTOR: Float64Array = Float64Array.from({ length: SLOT_STATES }, (_, i) => (i % 2 === 0 ? 1 : -1))
-export const COUNT_VECTOR: Float64Array = Float64Array.from({ length: SLOT_STATES }, () => 1)
-export const LINE_SUM_VECTOR: Float64Array = Float64Array.from({ length: SLOT_STATES }, (_, i) => SIDE[Math.floor(i / 2)] ?? 0)
+export const CHARGE_VECTOR: Float64Array = Float64Array.from(
+  { length: SLOT_STATES },
+  (_, i) => (i % 2 === 0 ? 1 : -1),
+)
+export const COUNT_VECTOR: Float64Array = Float64Array.from(
+  { length: SLOT_STATES },
+  () => 1,
+)
+export const LINE_SUM_VECTOR: Float64Array = Float64Array.from(
+  { length: SLOT_STATES },
+  (_, i) => SIDE[Math.floor(i / 2)] ?? 0,
+)
 
-export function momentumVector(direction: readonly number[]): Float64Array {
-  return Float64Array.from({ length: SLOT_STATES }, (_, i) => dot(ROOTS[Math.floor(i / 2)] ?? [], direction))
+export function momentumVector(
+  direction: readonly number[],
+): Float64Array {
+  return Float64Array.from({ length: SLOT_STATES }, (_, i) =>
+    dot(ROOTS[Math.floor(i / 2)] ?? [], direction),
+  )
 }
 
 // The equilibrium shift of a density: the change of the maximum-entropy product state when the multiplier
 // of the left vector moves by one, p_d(s) (l(d, s) - sum over s' of p_d(s') l(d, s')), calm counting 0.
-export function equilibriumShift(background: Float64Array, left: Float64Array): Float64Array {
+export function equilibriumShift(
+  background: Float64Array,
+  left: Float64Array,
+): Float64Array {
   const out = new Float64Array(SLOT_STATES)
 
   for (let d = 0; d < 24; d++) {
     const plus = background[d * 2] ?? 0
     const minus = background[d * 2 + 1] ?? 0
-    const mean = plus * (left[d * 2] ?? 0) + minus * (left[d * 2 + 1] ?? 0)
+    const mean =
+      plus * (left[d * 2] ?? 0) + minus * (left[d * 2 + 1] ?? 0)
 
     out[d * 2] = plus * ((left[d * 2] ?? 0) - mean)
     out[d * 2 + 1] = minus * ((left[d * 2 + 1] ?? 0) - mean)
@@ -321,10 +378,15 @@ export function equilibriumShift(background: Float64Array, left: Float64Array): 
 // along the axis. Both are kept dock by dock, and what it counts streams only inside the slab r_axis =
 // const, so its sum over each such slab is an exact invariant of the knit. Undefined when no such
 // combination exists; the search is over all 81 choices of b.
-export function slabInvariantVector(axis: number): Float64Array | undefined {
+export function slabInvariantVector(
+  axis: number,
+): Float64Array | undefined {
   for (let code = 0; code < 81; code++) {
     const b = [0, 1, 2, 3].map(i => (Math.floor(code / 3 ** i) % 3) - 1)
-    const vanishes = ROOTS.every((r, d) => (r[axis] ?? 0) === 0 || (SIDE[d] ?? 0) + dot(b, r) === 0)
+    const vanishes = ROOTS.every(
+      (r, d) =>
+        (r[axis] ?? 0) === 0 || (SIDE[d] ?? 0) + dot(b, r) === 0,
+    )
 
     if (vanishes) {
       return Float64Array.from({ length: SLOT_STATES }, (_, i) => {
@@ -339,7 +401,12 @@ export function slabInvariantVector(axis: number): Float64Array | undefined {
 }
 
 // the sum of a left vector's |vibe| weights (its love entry) over each slab r_axis = const of a knit state
-export function slabDensity(input: { data: Int8Array; side: number; axis: number; left: Float64Array }): number[] {
+export function slabDensity(input: {
+  data: Int8Array
+  side: number
+  axis: number
+  left: Float64Array
+}): number[] {
   const { data, side, axis, left } = input
   const out = new Array<number>(side).fill(0)
   const docks = data.length / 24
@@ -358,7 +425,10 @@ export function slabDensity(input: { data: Int8Array; side: number; axis: number
 }
 
 // the largest change of a left vector under the matrices: l A - l, over every phase
-export function conservationDefect(matrices: readonly Float64Array[], left: Float64Array): number {
+export function conservationDefect(
+  matrices: readonly Float64Array[],
+  left: Float64Array,
+): number {
   let worst = 0
 
   for (const a of matrices) {
@@ -379,10 +449,17 @@ export function conservationDefect(matrices: readonly Float64Array[], left: Floa
 // ---- the Fourier reading ----
 
 // the period map M(k) = prod over t of S(k) A_(t0 + t), A applied first, for a wave vector k (per dock)
-export function periodMap(input: { matrices: readonly Float64Array[]; wave: readonly number[]; t0?: number }): { re: Float64Array; im: Float64Array } {
+export function periodMap(input: {
+  matrices: readonly Float64Array[]
+  wave: readonly number[]
+  t0?: number
+}): { re: Float64Array; im: Float64Array } {
   const n = SLOT_STATES
   const period = input.matrices.length
-  const phase = Array.from({ length: n }, (_, i) => -dot(ROOTS[Math.floor(i / 2)] ?? [], input.wave))
+  const phase = Array.from(
+    { length: n },
+    (_, i) => -dot(ROOTS[Math.floor(i / 2)] ?? [], input.wave),
+  )
 
   let mr = new Float64Array(n * n)
   let mi = new Float64Array(n * n)
@@ -392,7 +469,9 @@ export function periodMap(input: { matrices: readonly Float64Array[]; wave: read
   }
 
   for (let t = 0; t < period; t++) {
-    const a = input.matrices[((input.t0 ?? 0) + t) % period] ?? new Float64Array(n * n)
+    const a =
+      input.matrices[((input.t0 ?? 0) + t) % period] ??
+      new Float64Array(n * n)
     const nr = new Float64Array(n * n)
     const ni = new Float64Array(n * n)
 
@@ -439,9 +518,18 @@ export type SlowMode = {
 
 // The eigenvalues of a period map whose modulus exceeds a floor, each with its content on the named
 // densities (the densities are compared through their left vectors, normalized over the named set)
-export function slowModes(input: { map: { re: Float64Array; im: Float64Array }; period: number; floor: number; densities: Record<string, Float64Array> }): SlowMode[] {
+export function slowModes(input: {
+  map: { re: Float64Array; im: Float64Array }
+  period: number
+  floor: number
+  densities: Record<string, Float64Array>
+}): SlowMode[] {
   const n = SLOT_STATES
-  const ev = complexEigenvalues({ re: input.map.re, im: input.map.im, n })
+  const ev = complexEigenvalues({
+    re: input.map.re,
+    im: input.map.im,
+    n,
+  })
   const out: SlowMode[] = []
 
   ev.re.forEach((re, i) => {
@@ -452,8 +540,14 @@ export function slowModes(input: { map: { re: Float64Array; im: Float64Array }; 
       return
     }
 
-    const x = complexEigenvector({ re: input.map.re, im: input.map.im, n, value: [re, im] })
+    const x = complexEigenvector({
+      re: input.map.re,
+      im: input.map.im,
+      n,
+      value: [re, im],
+    })
     const raw: Record<string, number> = {}
+
     let total = 0
 
     for (const [name, left] of Object.entries(input.densities)) {
@@ -471,12 +565,25 @@ export function slowModes(input: { map: { re: Float64Array; im: Float64Array }; 
       total += raw[name] ?? 0
     }
 
-    const content = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, total > 0 ? v / total : 0]))
+    const content = Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [
+        k,
+        total > 0 ? v / total : 0,
+      ]),
+    )
 
-    out.push({ re, im, gamma: -Math.log(modulus) / input.period, omega: -Math.atan2(im, re) / input.period, content })
+    out.push({
+      re,
+      im,
+      gamma: -Math.log(modulus) / input.period,
+      omega: -Math.atan2(im, re) / input.period,
+      content,
+    })
   })
 
-  return out.sort((a, b) => Math.hypot(b.re, b.im) - Math.hypot(a.re, a.im))
+  return out.sort(
+    (a, b) => Math.hypot(b.re, b.im) - Math.hypot(a.re, a.im),
+  )
 }
 
 // One hydrodynamic mode followed along a ray of wave vectors k * direction: picked at the first k by a
@@ -491,9 +598,19 @@ export function trackMode(input: {
   densities: Record<string, Float64Array>
   score: (mode: SlowMode) => number
   floor?: number
-}): { k: number; gamma: number; omega: number; content: Record<string, number> }[] {
+}): {
+  k: number
+  gamma: number
+  omega: number
+  content: Record<string, number>
+}[] {
   const period = input.matrices.length
-  const out: { k: number; gamma: number; omega: number; content: Record<string, number> }[] = []
+  const out: {
+    k: number
+    gamma: number
+    omega: number
+    content: Record<string, number>
+  }[] = []
 
   let last: SlowMode | undefined
   let before: SlowMode | undefined
@@ -501,7 +618,12 @@ export function trackMode(input: {
 
   for (const k of input.ks) {
     const wave = input.direction.map(x => x * k)
-    const modes = slowModes({ map: periodMap({ matrices: input.matrices, wave }), period, floor: input.floor ?? 0.02, densities: input.densities })
+    const modes = slowModes({
+      map: periodMap({ matrices: input.matrices, wave }),
+      period,
+      floor: input.floor ?? 0.02,
+      densities: input.densities,
+    })
     const pickFrom = last
     // the next eigenvalue extrapolated from the last two (last times last / before), so two modes that
     // pass each other moving in opposite directions are not swapped
@@ -509,15 +631,27 @@ export function trackMode(input: {
       pickFrom && before
         ? (() => {
             const den = before.re * before.re + before.im * before.im
-            const rr = (pickFrom.re * before.re + pickFrom.im * before.im) / den
-            const ri = (pickFrom.im * before.re - pickFrom.re * before.im) / den
+            const rr =
+              (pickFrom.re * before.re + pickFrom.im * before.im) / den
+            const ri =
+              (pickFrom.im * before.re - pickFrom.re * before.im) / den
 
-            return { re: pickFrom.re * rr - pickFrom.im * ri, im: pickFrom.re * ri + pickFrom.im * rr }
+            return {
+              re: pickFrom.re * rr - pickFrom.im * ri,
+              im: pickFrom.re * ri + pickFrom.im * rr,
+            }
           })()
         : pickFrom
     const mode = predicted
-      ? modes.reduce((best, m) => (Math.hypot(m.re - predicted.re, m.im - predicted.im) < Math.hypot(best.re - predicted.re, best.im - predicted.im) ? m : best))
-      : modes.reduce((best, m) => (input.score(m) > input.score(best) ? m : best))
+      ? modes.reduce((best, m) =>
+          Math.hypot(m.re - predicted.re, m.im - predicted.im) <
+          Math.hypot(best.re - predicted.re, best.im - predicted.im)
+            ? m
+            : best,
+        )
+      : modes.reduce((best, m) =>
+          input.score(m) > input.score(best) ? m : best,
+        )
 
     if (pickFrom) {
       // the principal change of argument from the last eigenvalue to this one
@@ -556,19 +690,28 @@ function siteOf(lattice: ReducedLattice, r: readonly number[]): number {
   let site = 0
 
   for (let j = lattice.axes.length - 1; j >= 0; j--) {
-    site = site * lattice.side + mod(dot(lattice.axes[j] ?? [], r), lattice.side)
+    site =
+      site * lattice.side +
+      mod(dot(lattice.axes[j] ?? [], r), lattice.side)
   }
 
   return site
 }
 
 // the site coordinates of a site index
-export function reducedCoordinates(lattice: ReducedLattice, site: number): number[] {
-  return lattice.axes.map((_, j) => Math.floor(site / lattice.side ** j) % lattice.side)
+export function reducedCoordinates(
+  lattice: ReducedLattice,
+  site: number,
+): number[] {
+  return lattice.axes.map(
+    (_, j) => Math.floor(site / lattice.side ** j) % lattice.side,
+  )
 }
 
 // the gather table of one stream on the reduced lattice: next[site * 48 + i] = current[table[site * 48 + i]]
-export function reducedStreamTable(lattice: ReducedLattice): Int32Array {
+export function reducedStreamTable(
+  lattice: ReducedLattice,
+): Int32Array {
   const sites = reducedSiteCount(lattice)
   const table = new Int32Array(sites * SLOT_STATES)
 
@@ -577,11 +720,17 @@ export function reducedStreamTable(lattice: ReducedLattice): Int32Array {
 
     for (let i = 0; i < SLOT_STATES; i++) {
       const root = ROOTS[Math.floor(i / 2)] ?? []
+
       // the source site is this one minus the root's projections
       let source = 0
 
       for (let j = lattice.axes.length - 1; j >= 0; j--) {
-        source = source * lattice.side + mod((coords[j] ?? 0) - dot(lattice.axes[j] ?? [], root), lattice.side)
+        source =
+          source * lattice.side +
+          mod(
+            (coords[j] ?? 0) - dot(lattice.axes[j] ?? [], root),
+            lattice.side,
+          )
       }
 
       table[site * SLOT_STATES + i] = source * SLOT_STATES + i
@@ -593,7 +742,11 @@ export function reducedStreamTable(lattice: ReducedLattice): Int32Array {
 
 // The knit's averaged one-body field on a reduced lattice: at each site, the fraction of the docks
 // projecting there whose slot d holds love (index d * 2) and fear (d * 2 + 1)
-export function oneBodyField(input: { data: Int8Array; side: number; lattice: ReducedLattice }): Float64Array {
+export function oneBodyField(input: {
+  data: Int8Array
+  side: number
+  lattice: ReducedLattice
+}): Float64Array {
   const { data, side, lattice } = input
   const sites = reducedSiteCount(lattice)
   const field = new Float64Array(sites * SLOT_STATES)
@@ -616,7 +769,8 @@ export function oneBodyField(input: { data: Int8Array; side: number; lattice: Re
       const v = data[dock * 24 + d] ?? 0
 
       if (v !== 0) {
-        field[base + d * 2 + (v > 0 ? 0 : 1)] = (field[base + d * 2 + (v > 0 ? 0 : 1)] ?? 0) + 1
+        field[base + d * 2 + (v > 0 ? 0 : 1)] =
+          (field[base + d * 2 + (v > 0 ? 0 : 1)] ?? 0) + 1
       }
     }
   }
@@ -625,7 +779,8 @@ export function oneBodyField(input: { data: Int8Array; side: number; lattice: Re
     const c = counts[site] ?? 1
 
     for (let i = 0; i < SLOT_STATES; i++) {
-      field[site * SLOT_STATES + i] = (field[site * SLOT_STATES + i] ?? 0) / c
+      field[site * SLOT_STATES + i] =
+        (field[site * SLOT_STATES + i] ?? 0) / c
     }
   }
 
@@ -633,12 +788,18 @@ export function oneBodyField(input: { data: Int8Array; side: number; lattice: Re
 }
 
 // the deviation of a field from a background, site by site
-export function deviationOf(field: Float64Array, background: Float64Array): Float64Array {
+export function deviationOf(
+  field: Float64Array,
+  background: Float64Array,
+): Float64Array {
   return field.map((v, i) => v - (background[i % SLOT_STATES] ?? 0))
 }
 
 // the density of a left vector at every site
-export function densityProfile(field: Float64Array, left: Float64Array): Float64Array {
+export function densityProfile(
+  field: Float64Array,
+  left: Float64Array,
+): Float64Array {
   const sites = field.length / SLOT_STATES
   const out = new Float64Array(sites)
 
@@ -677,13 +838,16 @@ export function linearBoltzmannRun(input: {
   input.observe(current, 0)
 
   for (let t = 0; t < beats; t++) {
-    const a = matrices[((input.t0 ?? 0) + t) % period] ?? new Float64Array(n * n)
+    const a =
+      matrices[((input.t0 ?? 0) + t) % period] ??
+      new Float64Array(n * n)
 
     for (let site = 0; site < sites; site++) {
       const base = site * n
 
       for (let r = 0; r < n; r++) {
         let s = 0
+
         const row = r * n
 
         for (let c = 0; c < n; c++) {

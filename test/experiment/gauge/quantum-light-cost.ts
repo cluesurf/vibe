@@ -53,8 +53,25 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { applyKernel, cubicPhaseKernel, levelOne, meetFresh, qubitWhole, stabilizerLines, sumKernel, swapPhaseKernel, type Kernel } from '@/code/rule/light-register-kernels'
-import { densityOf, emptyState, normalize, registers, wigner, type State } from '@/code/measure/quantum-light'
+import {
+  applyKernel,
+  cubicPhaseKernel,
+  levelOne,
+  meetFresh,
+  qubitWhole,
+  stabilizerLines,
+  sumKernel,
+  swapPhaseKernel,
+  type Kernel,
+} from '@/code/rule/light-register-kernels'
+import {
+  densityOf,
+  emptyState,
+  normalize,
+  registers,
+  wigner,
+  type State,
+} from '@/code/measure/quantum-light'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const SILVER = Math.SQRT2 - 1
@@ -80,15 +97,22 @@ function weylState(size: number, start: number): State {
 }
 
 // the vibe's whole after one meeting with a register: sum over the register's points of K (vibe (x) register)
-function vibeAfter(k: Kernel, vibe: readonly number[], register: readonly number[]): number[] {
+function vibeAfter(
+  k: Kernel,
+  vibe: readonly number[],
+  register: readonly number[],
+): number[] {
   const joint = vibe.flatMap(u => register.map(t => u * t))
   const out = applyKernel(k, joint)
 
-  return Array.from({ length: 9 }, (_, x1) => out.slice(9 * x1, 9 * x1 + 9).reduce((s, x) => s + x, 0))
+  return Array.from({ length: 9 }, (_, x1) =>
+    out.slice(9 * x1, 9 * x1 + 9).reduce((s, x) => s + x, 0),
+  )
 }
 
 // purity Tr rho^2 = 3 sum W^2 for a qutrit whole W (weights over `grain`)
-const purity = (w: readonly number[], grain: number): number => 3 * w.reduce((s, x) => s + (x / grain) ** 2, 0)
+const purity = (w: readonly number[], grain: number): number =>
+  3 * w.reduce((s, x) => s + (x / grain) ** 2, 0)
 
 // ---------------------------------------------------------------------------------------------------------
 // the memory reading: 9 x 9 density matrices, unitaries as dense complex 9 x 9
@@ -96,18 +120,30 @@ const purity = (w: readonly number[], grain: number): number => 3 * w.reduce((s,
 type Matrix = { re: Float64Array; im: Float64Array }
 
 function multiply(a: Matrix, b: Matrix, n: number): Matrix {
-  const out: Matrix = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const out: Matrix = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
       const ar = a.re[i * n + k]!
       const ai = a.im[i * n + k]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
 
       for (let j = 0; j < n; j++) {
-        out.re[i * n + j] = out.re[i * n + j]! + ar * b.re[k * n + j]! - ai * b.im[k * n + j]!
-        out.im[i * n + j] = out.im[i * n + j]! + ar * b.im[k * n + j]! + ai * b.re[k * n + j]!
+        out.re[i * n + j] =
+          out.re[i * n + j]! +
+          ar * b.re[k * n + j]! -
+          ai * b.im[k * n + j]!
+
+        out.im[i * n + j] =
+          out.im[i * n + j]! +
+          ar * b.im[k * n + j]! +
+          ai * b.re[k * n + j]!
       }
     }
   }
@@ -116,7 +152,10 @@ function multiply(a: Matrix, b: Matrix, n: number): Matrix {
 }
 
 const dagger = (a: Matrix, n: number): Matrix => {
-  const out: Matrix = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const out: Matrix = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -133,7 +172,10 @@ const dagger = (a: Matrix, n: number): Matrix => {
 // light register
 function memoryReading(turnVibe: boolean): number {
   // U_meet = w^(v^2 a) (index 3 v + a); U_turn = F (x) F, F|j> = sum_k w^(jk) |k> / sqrt 3
-  const meet: Matrix = { re: new Float64Array(81), im: new Float64Array(81) }
+  const meet: Matrix = {
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   for (let v = 0; v < 3; v++) {
     for (let a = 0; a < 3; a++) {
@@ -144,13 +186,18 @@ function memoryReading(turnVibe: boolean): number {
     }
   }
 
-  const turn: Matrix = { re: new Float64Array(81), im: new Float64Array(81) }
+  const turn: Matrix = {
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       const vi = Math.floor(i / 3)
       const vj = Math.floor(j / 3)
-      const t = (2 * Math.PI * ((turnVibe ? vi * vj : 0) + (i % 3) * (j % 3))) / 3
+      const t =
+        (2 * Math.PI * ((turnVibe ? vi * vj : 0) + (i % 3) * (j % 3))) /
+        3
       const scale = turnVibe ? 1 / 3 : vi === vj ? 1 / Math.sqrt(3) : 0
 
       turn.re[i * 9 + j] = scale * Math.cos(t)
@@ -160,10 +207,16 @@ function memoryReading(turnVibe: boolean): number {
 
   const beat = multiply(turn, meet, 9)
   const beatDagger = dagger(beat, 9)
-  // rho = (1/3) 1 (x) |0><0|
-  let rho: Matrix = { re: new Float64Array(81), im: new Float64Array(81) }
 
-  for (let v = 0; v < 3; v++) rho.re[(3 * v) * 10] = 1 / 3
+  // rho = (1/3) 1 (x) |0><0|
+  let rho: Matrix = {
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
+
+  for (let v = 0; v < 3; v++) {
+    rho.re[3 * v * 10] = 1 / 3
+  }
 
   let best = 1 / 3
 
@@ -203,13 +256,26 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const kernels: Record<string, Kernel> = { sum: sumKernel(1), cubic: cubicPhaseKernel(1), swap: swapPhaseKernel(1) }
+    const kernels: Record<string, Kernel> = {
+      sum: sumKernel(1),
+      cubic: cubicPhaseKernel(1),
+      swap: swapPhaseKernel(1),
+    }
     const lines = stabilizerLines()
     const one = registers([3])
-    const weylRegisters = Array.from({ length: WEYL_REGISTERS }, (_, n) => Array.from(wigner(one, densityOf(weylState(3, 13 * n + 5))).w))
-    const weylVibes = Array.from({ length: WEYL_VIBES }, (_, n) => Array.from(wigner(one, densityOf(weylState(3, 17 * n + 2))).w))
+    const weylRegisters = Array.from(
+      { length: WEYL_REGISTERS },
+      (_, n) =>
+        Array.from(wigner(one, densityOf(weylState(3, 13 * n + 5))).w),
+    )
+    const weylVibes = Array.from({ length: WEYL_VIBES }, (_, n) =>
+      Array.from(wigner(one, densityOf(weylState(3, 17 * n + 2))).w),
+    )
     const mixed = new Array<number>(9).fill(1)
-    const counts: Record<string, { mixedExact: number; mixedFloat: number; purityRise: number }> = {}
+    const counts: Record<
+      string,
+      { mixedExact: number; mixedFloat: number; purityRise: number }
+    > = {}
 
     for (const [name, k] of Object.entries(kernels)) {
       let mixedExact = 0
@@ -224,9 +290,15 @@ export default experiment({
       }
 
       for (const r of weylRegisters) {
-        const out = vibeAfter(k, mixed.map(x => x / 9), r).map(x => x / k.divisor)
+        const out = vibeAfter(
+          k,
+          mixed.map(x => x / 9),
+          r,
+        ).map(x => x / k.divisor)
 
-        mixedFloat += out.every(x => Math.abs(x - 1 / 9) <= 1e-12) ? 0 : 1
+        mixedFloat += out.every(x => Math.abs(x - 1 / 9) <= 1e-12)
+          ? 0
+          : 1
       }
 
       // purity never rises: vibe starts (stabilizer at grain 3, Weyl as floats) against every register start
@@ -235,10 +307,17 @@ export default experiment({
       const vibes: [number[], number][] = [
         ...lines.map(w => [w, 3] as [number[], number]),
         ...weylVibes.map(w => [w, 1] as [number[], number]),
-        ...lines.map(w => [w.map(x => 3 * x + 1), 18] as [number[], number]),
-        ...weylVibes.map(w => [w.map(x => (x + 1 / 9) / 2), 1] as [number[], number]),
+        ...lines.map(
+          w => [w.map(x => 3 * x + 1), 18] as [number[], number],
+        ),
+        ...weylVibes.map(
+          w => [w.map(x => (x + 1 / 9) / 2), 1] as [number[], number],
+        ),
       ]
-      const registerStarts: [number[], number][] = [...lines.map(w => [w, 3] as [number[], number]), ...weylRegisters.map(w => [w, 1] as [number[], number])]
+      const registerStarts: [number[], number][] = [
+        ...lines.map(w => [w, 3] as [number[], number]),
+        ...weylRegisters.map(w => [w, 1] as [number[], number]),
+      ]
 
       for (const [v, vg] of vibes) {
         const before = purity(v, vg)
@@ -257,7 +336,13 @@ export default experiment({
     const angleChanges = (k: Kernel): number => {
       let n = 0
 
-      for (let x = 0; x < 81; x++) for (let y = 0; y < 81; y++) if (k.kernel[x]![y] !== 0 && x % 3 !== y % 3) n++
+      for (let x = 0; x < 81; x++) {
+        for (let y = 0; y < 81; y++) {
+          if (k.kernel[x]![y] !== 0 && x % 3 !== y % 3) {
+            n++
+          }
+        }
+      }
 
       return n
     }
@@ -269,27 +354,37 @@ export default experiment({
     // K3: the grain
     let e = qubitWhole(1, 0, 1)
     let grainExceptions = 0
+
     const grains: bigint[] = [e.grain]
 
     for (let n = 1; n <= MEETINGS; n++) {
       e = meetFresh(kernels.swap!, e)
       grains.push(e.grain)
 
-      if (n >= 2 && e.grain !== grains[n - 1]! * 4n) grainExceptions++
+      if (n >= 2 && e.grain !== grains[n - 1]! * 4n) {
+        grainExceptions++
+      }
     }
 
     const survival = Number(levelOne(e.w)) / Number(e.grain)
+
     let cubicWhole = qubitWhole(1, 1, 2)
+
     const cubicGrains: number[] = []
 
     for (let n = 1; n <= 12; n++) {
-      cubicWhole = meetFresh(kernels.cubic!, cubicWhole, [0, 0, 0, 1, 1, 1, 0, 0, 0])
+      cubicWhole = meetFresh(
+        kernels.cubic!,
+        cubicWhole,
+        [0, 0, 0, 1, 1, 1, 0, 0, 0],
+      )
       cubicGrains.push(Number(cubicWhole.grain))
     }
 
     // reported: the budget
     const metrics: Record<string, number> = {}
-    const digits = (d: number): number => Math.ceil(Math.log(2 * d + 1) / Math.log(3) - 1e-12)
+    const digits = (d: number): number =>
+      Math.ceil(Math.log(2 * d + 1) / Math.log(3) - 1e-12)
 
     for (const d of DEPTHS) {
       metrics[`tritsPerLinkFlowD${d}`] = digits(d)
@@ -341,7 +436,9 @@ export default experiment({
       K3: grainExceptions === 0,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
     const status = Object.values(gates).every(v => v) ? 'pass' : 'fail'
 
@@ -349,7 +446,10 @@ export default experiment({
       status,
       claim: `with fresh light registers the Gauss-safe meetings are unital on the vibe: the maximally mixed vibe stays maximally mixed (SUM ${counts.sum!.mixedExact + counts.sum!.mixedFloat}, w^(v^2 a) ${counts.cubic!.mixedExact + counts.cubic!.mixedFloat} exceptions over ${lines.length + WEYL_REGISTERS} registers) and no vibe's purity rises (${counts.sum!.purityRise}, ${counts.cubic!.purityRise} of ${2 * (lines.length + WEYL_VIBES) * (lines.length + WEYL_REGISTERS)}), so neither can make a vibe decay, while the swap phase can (${counts.swap!.mixedExact + counts.swap!.mixedFloat} and ${counts.swap!.purityRise}); the flow update writes the link's angle on ${angleSum} of 81 points and w^(v^2 a) on ${angleCubic} kernel entries, so the angle is storage no flow update writes; the grain grows by exactly 2 bits a swap-phase meeting (${grainExceptions} exceptions); a per-history link costs ${2 * digits(16)} trits at D = 16 against ${digits(16)} for the flow alone; one register met again and again, turned flow to angle between meetings, leaves the charge's purity at ${memory.toFixed(4)} (1/3: memory does not lift the obstruction at a fixed dock, the charge is conserved), and ${memoryVibeTurned.toFixed(4)} only if the vibe's charge register is turned too, which breaks Gauss`,
       metrics,
-      control: { purityRiseSwap: counts.swap!.purityRise, angleChangesSum: angleSum },
+      control: {
+        purityRiseSwap: counts.swap!.purityRise,
+        angleChangesSum: angleSum,
+      },
       notes:
         "L2. FIRST RUN 2026-09-26 (tmp/frc0226.log), FAIL on K1's purity clause: every vibe start was pure, so no purity could rise and the swap-phase control read 0 (a vacuous clause, a design error in the gate). SECOND RUN (tmp/frc0226-second.log), PASS, with 44 half-mixed starts added, DISCLOSED in the header. THIRD RUN (tmp/frc0226-third.log), PASS, no gate changed: the memory reading, which in the first two runs also turned the vibe's charge register (breaking Gauss, purity 121/243), is split into that labeled reading and the Gauss-safe one (the register turned only), which stays at 1/3 exactly. K1: SUM and w^(v^2 a) keep the maximally mixed vibe exactly maximally mixed for all 28 fresh registers and raise no purity over 2,464 pairs; the swap phase moves it on 28 of 28 and raises purity on 1,232. K2: SUM writes the angle on 0 of 81 points; w^(v^2 a) on 405 kernel entries; the swap phase on 378. K3: the grain multiplies by 4 each meeting (121 bits after 60 meetings, survival 4^-60 = 7.5e-37). Budget: flow and conjugate mod 2D + 1 take 2 ceil(log3(2D + 1)) trits per link per history, 8 at D = 16 against 4 for the flow alone (4, 6, 8, 8, 10 at D = 4, 8, 16, 32, 64); (2D + 1)^2 = 1,089 points per link at D = 16; E-FRC-0221's box (294,912 husk links) would need a whole of 10^895,656 points; E-FRC-0224's ring 59,049.",
     })

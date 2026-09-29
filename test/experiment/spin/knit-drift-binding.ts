@@ -92,10 +92,33 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { lockedBeat, lockedState, lockedTables, newTally, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedBeat,
+  lockedState,
+  lockedTables,
+  newTally,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { d4BoxCell, d4Coordinates } from '@/code/substrate/d4-box'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { OPP, LABEL, SHADOW_DIR, SHADOW_SIGN, clusterBeat, cloneCluster, cycleCost, huskSpan, makeCluster, matchAnchor, spinHalfShares, startCodes, threeLoveCensus, type Cluster, type CycleCost } from '@/code/measure/knit-love-cluster'
+import {
+  OPP,
+  LABEL,
+  SHADOW_DIR,
+  SHADOW_SIGN,
+  clusterBeat,
+  cloneCluster,
+  cycleCost,
+  huskSpan,
+  makeCluster,
+  matchAnchor,
+  spinHalfShares,
+  startCodes,
+  threeLoveCensus,
+  type Cluster,
+  type CycleCost,
+} from '@/code/measure/knit-love-cluster'
 
 const D = 3
 const N = 2 * D + 1
@@ -107,7 +130,14 @@ const SILVER_RATE = 27145
 
 // ---- K1: the exact rule's occupation against the occupation map ----
 
-type K1Row = { member: string; mismatches: number; branchesMax: number; splits: number; beats: number; aliasedStops: number }
+type K1Row = {
+  member: string
+  mismatches: number
+  branchesMax: number
+  splits: number
+  beats: number
+  aliasedStops: number
+}
 
 function k1Starts(): { pos: number[][]; slots: number[] }[] {
   const out: { pos: number[][]; slots: number[] }[] = []
@@ -126,7 +156,10 @@ function k1Starts(): { pos: number[][]; slots: number[] }[] {
       [-1, 0, 0, 1],
     ][i]!
 
-    out.push({ pos: [[0, 0, 0, 0], [0, 0, 0, 0], third], slots: [d1, OPP[d1]!, (u >> 5) % 24] })
+    out.push({
+      pos: [[0, 0, 0, 0], [0, 0, 0, 0], third],
+      slots: [d1, OPP[d1]!, (u >> 5) % 24],
+    })
   }
 
   return out
@@ -135,12 +168,17 @@ function k1Starts(): { pos: number[][]; slots: number[] }[] {
 function k1(side: number, beats: number): K1Row[] {
   return startFamily(16).map(member =>
     withStart(member, () => {
-      const tables = lockedTables(makeColorWeave({ side, table: 'bind' }), 'lone')
+      const tables = lockedTables(
+        makeColorWeave({ side, table: 'bind' }),
+        'lone',
+      )
       const cells = tables.cells
+
       let mismatches = 0
       let branchesMax = 0
       let compared = 0
       let aliasedStops = 0
+
       const tally = newTally()
 
       for (const [i, st] of k1Starts().entries()) {
@@ -152,24 +190,43 @@ function k1(side: number, beats: number): K1Row[] {
           spoint: new Int8Array(cells * 12),
           sopen: new Uint8Array(cells * 12),
         }
-        const cellOf = (p: readonly number[]): number => d4BoxCell({ coordinates: d4Coordinates([...p]), side })
+        const cellOf = (p: readonly number[]): number =>
+          d4BoxCell({ coordinates: d4Coordinates([...p]), side })
 
         st.pos.forEach((p, t) => {
           const slot = cellOf(p) * 24 + st.slots[t]!
 
           config.vibe[slot] = 1
           config.open[slot] = 1
-          config.point[slot] = (((i * 3 + t + 1) * SILVER_RATE) % 65536) % 9
+          config.point[slot] =
+            (((i * 3 + t + 1) * SILVER_RATE) % 65536) % 9
         })
 
         const cluster = makeCluster(st.pos, st.slots, side)
+
         let state: LockedState = lockedState(config)
 
         for (let t = 0; t < beats; t++) {
           // the box identifies docks 8 D4 apart; once two loves the unbounded patch keeps apart land on one box dock,
           // the two are different rules and the comparison stops (counted)
-          const cellsNow = [0, 1, 2].map(v => cellOf([cluster.x[4 * v]!, cluster.x[4 * v + 1]!, cluster.x[4 * v + 2]!, cluster.x[4 * v + 3]!]))
-          const aliased = [0, 1, 2].some(a => [0, 1, 2].some(b => a < b && cellsNow[a] === cellsNow[b] && [0, 1, 2, 3].some(k => cluster.x[4 * a + k] !== cluster.x[4 * b + k])))
+          const cellsNow = [0, 1, 2].map(v =>
+            cellOf([
+              cluster.x[4 * v]!,
+              cluster.x[4 * v + 1]!,
+              cluster.x[4 * v + 2]!,
+              cluster.x[4 * v + 3]!,
+            ]),
+          )
+          const aliased = [0, 1, 2].some(a =>
+            [0, 1, 2].some(
+              b =>
+                a < b &&
+                cellsNow[a] === cellsNow[b] &&
+                [0, 1, 2, 3].some(
+                  k => cluster.x[4 * a + k] !== cluster.x[4 * b + k],
+                ),
+            ),
+          )
 
           if (aliased) {
             aliasedStops++
@@ -183,23 +240,49 @@ function k1(side: number, beats: number): K1Row[] {
 
           const want = new Set<number>()
 
-          for (let v = 0; v < 3; v++) want.add(cellOf([cluster.x[4 * v]!, cluster.x[4 * v + 1]!, cluster.x[4 * v + 2]!, cluster.x[4 * v + 3]!]) * 24 + cluster.d[v]!)
+          for (let v = 0; v < 3; v++) {
+            want.add(
+              cellOf([
+                cluster.x[4 * v]!,
+                cluster.x[4 * v + 1]!,
+                cluster.x[4 * v + 2]!,
+                cluster.x[4 * v + 3]!,
+              ]) *
+                24 +
+                cluster.d[v]!,
+            )
+          }
 
           for (const br of state.branches) {
             let held = 0
 
             for (let s = 0; s < br.vibe.length; s++) {
-              if (br.vibe[s] === 0) continue
+              if (br.vibe[s] === 0) {
+                continue
+              }
+
               held++
-              if (!want.has(s) || br.vibe[s] !== 1) mismatches++
+
+              if (!want.has(s) || br.vibe[s] !== 1) {
+                mismatches++
+              }
             }
 
-            if (held !== 3) mismatches++
+            if (held !== 3) {
+              mismatches++
+            }
           }
         }
       }
 
-      return { member: member.name, mismatches, branchesMax, splits: tally.splitMeetings, beats: compared, aliasedStops }
+      return {
+        member: member.name,
+        mismatches,
+        branchesMax,
+        splits: tally.splitMeetings,
+        beats: compared,
+        aliasedStops,
+      }
     }),
   )
 }
@@ -222,19 +305,30 @@ type Level = {
   maxSpan: number
 }
 
-function readLevel(name: string, start: Cluster, period: number, depth: number): Level {
+function readLevel(
+  name: string,
+  start: Cluster,
+  period: number,
+  depth: number,
+): Level {
   const cost = cycleCost(start, period, depth, 3)
   const links = cost.links.slice(0, period)
   const meets = cost.meetingsByBeat.slice(0, period)
-  const phases = links.map((l, t) => (Math.PI / N) * l - ((2 * Math.PI) / 3) * meets[t]!)
+  const phases = links.map(
+    (l, t) => (Math.PI / N) * l - ((2 * Math.PI) / 3) * meets[t]!,
+  )
   const sumLinks = links.reduce((a, b) => a + b, 0)
   const sumMeetings = meets.reduce((a, b) => a + b, 0)
   const c = cloneCluster(start)
+
   let labelsOk = true
   let maxSpan = huskSpan(c)
 
   for (let t = 0; t < period; t++) {
-    for (let v = 0; v < 3; v++) labelsOk &&= LABEL[c.d[v]!] === 0 || LABEL[c.d[v]!] === 1
+    for (let v = 0; v < 3; v++) {
+      labelsOk &&= LABEL[c.d[v]!] === 0 || LABEL[c.d[v]!] === 1
+    }
+
     clusterBeat(c, depth)
     maxSpan = Math.max(maxSpan, huskSpan(c))
   }
@@ -242,7 +336,11 @@ function readLevel(name: string, start: Cluster, period: number, depth: number):
   // the husk translation over one period: the love of c standing on love 0's place in the start's class
   const a = matchAnchor(c, startCodes(start, depth), depth)
 
-  if (a < 0) throw new Error('E-SPN-0088: a level did not return after its period')
+  if (a < 0) {
+    throw new Error(
+      'E-SPN-0088: a level did not return after its period',
+    )
+  }
 
   const shift = [0, 1, 2].map(k => c.x[4 * a + k]! - start.x[k]!)
 
@@ -254,7 +352,9 @@ function readLevel(name: string, start: Cluster, period: number, depth: number):
     shift,
     cost,
     closes: cost.closes.every(Boolean),
-    energy: (Math.PI / N) * (sumLinks / period) - ((2 * Math.PI) / 3) * (sumMeetings / period),
+    energy:
+      (Math.PI / N) * (sumLinks / period) -
+      ((2 * Math.PI) / 3) * (sumMeetings / period),
     sumLinks,
     sumMeetings,
     spin: spinHalfShares(start, period, depth, phases),
@@ -263,23 +363,31 @@ function readLevel(name: string, start: Cluster, period: number, depth: number):
   }
 }
 
-const norm3 = (h: readonly number[]): number => Math.hypot(h[0]!, h[1]!, h[2]!)
+const norm3 = (h: readonly number[]): number =>
+  Math.hypot(h[0]!, h[1]!, h[2]!)
 
 export default experiment({
   id: 'spin/knit-drift-binding',
   code: 'E-SPN-0088',
-  title: "the drift-cost binding carried off one line onto the doublet-locked knit's own loves, on the 3D husk over columns of depth 4 and 8: whether the lightest charge-one cluster of three loves, held only by the light's drift phase per flux link with Gauss exact, is the natural spin one half, N = 3 with 2 pi sign -1, compact and travelling, over the 17-start family",
+  title:
+    "the drift-cost binding carried off one line onto the doublet-locked knit's own loves, on the 3D husk over columns of depth 4 and 8: whether the lightest charge-one cluster of three loves, held only by the light's drift phase per flux link with Gauss exact, is the natural spin one half, N = 3 with 2 pi sign -1, compact and travelling, over the 17-start family",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- K1 ----
     const k1Rows = k1(8, 12)
-    const k1ok = k1Rows.length === 17 && k1Rows.every(r => r.mismatches === 0 && r.beats >= 4 * 8) && k1Rows.some(r => r.branchesMax > 1)
+    const k1ok =
+      k1Rows.length === 17 &&
+      k1Rows.every(r => r.mismatches === 0 && r.beats >= 4 * 8) &&
+      k1Rows.some(r => r.branchesMax > 1)
 
     log('k1')
 
@@ -306,15 +414,41 @@ export default experiment({
         for (let t = 0; t < cy.period; t++) {
           const before = cloneCluster(c)
 
-          for (let v = 0; v < 3; v++) shadows.add((SHADOW_DIR[c.d[v]!]! + 1) * SHADOW_SIGN[c.d[v]!]!)
-          if ([0, 1, 2].some(a => [0, 1, 2].some(b => a < b && [0, 1, 2, 3].every(k => c.x[4 * a + k] === c.x[4 * b + k])))) collisions++
+          for (let v = 0; v < 3; v++) {
+            shadows.add(
+              (SHADOW_DIR[c.d[v]!]! + 1) * SHADOW_SIGN[c.d[v]!]!,
+            )
+          }
+
+          if (
+            [0, 1, 2].some(a =>
+              [0, 1, 2].some(
+                b =>
+                  a < b &&
+                  [0, 1, 2, 3].every(
+                    k => c.x[4 * a + k] === c.x[4 * b + k],
+                  ),
+              ),
+            )
+          ) {
+            collisions++
+          }
 
           clusterBeat(c, cs.depth)
 
-          for (let v = 0; v < 3; v++) if (SHADOW_DIR[c.d[v]!] !== SHADOW_DIR[before.d[v]!] || SHADOW_SIGN[c.d[v]!] !== SHADOW_SIGN[before.d[v]!]) turns++
+          for (let v = 0; v < 3; v++) {
+            if (
+              SHADOW_DIR[c.d[v]!] !== SHADOW_DIR[before.d[v]!] ||
+              SHADOW_SIGN[c.d[v]!] !== SHADOW_SIGN[before.d[v]!]
+            ) {
+              turns++
+            }
+          }
         }
 
-        if (shadows.size > 1) twoShadows++
+        if (shadows.size > 1) {
+          twoShadows++
+        }
       }
 
       return { depth: cs.depth, twoShadows, turns, collisions }
@@ -326,10 +460,18 @@ export default experiment({
 
     for (const cs of censuses) {
       cs.cycles.forEach((cy, i) => {
-        const lv = readLevel(`census L${cs.depth} #${i}`, cy.start, cy.period, cs.depth)
+        const lv = readLevel(
+          `census L${cs.depth} #${i}`,
+          cy.start,
+          cy.period,
+          cs.depth,
+        )
 
-        if (lv.closes && lv.maxSpan <= RMAX) levels.push(lv)
-        else notLevels.push({ name: lv.name, growth: lv.cost.links })
+        if (lv.closes && lv.maxSpan <= RMAX) {
+          levels.push(lv)
+        } else {
+          notLevels.push({ name: lv.name, growth: lv.cost.links })
+        }
       })
     }
 
@@ -338,19 +480,50 @@ export default experiment({
 
     for (const depth of DEPTHS) {
       for (let r = 0; r < 24; r++) {
-        const stack = makeCluster([[0, 0, 0, 0], [0, 0, 0, 2], [0, 0, 0, 4]], [r, r, r], depth)
-        const lv = readLevel(`stack L${depth} root ${r}`, stack, 1, depth)
+        const stack = makeCluster(
+          [
+            [0, 0, 0, 0],
+            [0, 0, 0, 2],
+            [0, 0, 0, 4],
+          ],
+          [r, r, r],
+          depth,
+        )
+        const lv = readLevel(
+          `stack L${depth} root ${r}`,
+          stack,
+          1,
+          depth,
+        )
 
         stackCheck.roots++
         stackCheck.gaussBad += lv.cost.gaussBad
-        if (lv.closes) levels.push(lv)
-        else notLevels.push({ name: lv.name, growth: lv.cost.links })
+
+        if (lv.closes) {
+          levels.push(lv)
+        } else {
+          notLevels.push({ name: lv.name, growth: lv.cost.links })
+        }
       }
     }
 
     for (const [name, pos] of [
-      ['two columns', [[0, 0, 0, 0], [0, 0, 0, 2], [1, 1, 0, 0]]],
-      ['three columns', [[0, 0, 0, 0], [1, 1, 0, 0], [0, 1, 1, 0]]],
+      [
+        'two columns',
+        [
+          [0, 0, 0, 0],
+          [0, 0, 0, 2],
+          [1, 1, 0, 0],
+        ],
+      ],
+      [
+        'three columns',
+        [
+          [0, 0, 0, 0],
+          [1, 1, 0, 0],
+          [0, 1, 1, 0],
+        ],
+      ],
     ] as const) {
       const c = makeCluster(pos, [0, 0, 0], 4)
       const cost = cycleCost(c, 1, 4, 4)
@@ -360,22 +533,32 @@ export default experiment({
 
     log('levels')
 
-    const gaussBad = levels.reduce((s, l) => s + l.cost.gaussBad, 0) + stackCheck.gaussBad
+    const gaussBad =
+      levels.reduce((s, l) => s + l.cost.gaussBad, 0) +
+      stackCheck.gaussBad
     const k2 = gaussBad === 0
 
     // ---- the lightest ----
     const sorted = levels.slice().sort((a, b) => a.energy - b.energy)
     const lightestE = sorted[0]?.energy ?? Number.NaN
-    const lightest = sorted.filter(l => Math.abs(l.energy - lightestE) < 1e-12)
-    const g1 = lightest.length > 0 && lightest.every(l => Math.min(...l.spin) >= 0.95)
+    const lightest = sorted.filter(
+      l => Math.abs(l.energy - lightestE) < 1e-12,
+    )
+    const g1 =
+      lightest.length > 0 &&
+      lightest.every(l => Math.min(...l.spin) >= 0.95)
     const g2 = lightest.length > 0 && lightest.every(l => l.labelsOk)
-    const g3 = lightest.length > 0 && lightest.every(l => l.closes && l.maxSpan <= RMAX)
-    const g4 = lightest.length > 0 && lightest.every(l => norm3(l.shift) > 0)
+    const g3 =
+      lightest.length > 0 &&
+      lightest.every(l => l.closes && l.maxSpan <= RMAX)
+    const g4 =
+      lightest.length > 0 && lightest.every(l => norm3(l.shift) > 0)
     const g5 = k1ok
     const ok = k1ok && k2 && g1 && g2 && g3 && g4 && g5
 
     const censusCycles = levels.filter(l => l.name.startsWith('census'))
     const stacks = levels.filter(l => l.name.startsWith('stack'))
+
     // the levels grouped by what they read (the first run listed every one; grouped after it, a reporting change only)
     const grouped = (ls: readonly Level[]): string => {
       const g = new Map<string, number>()
@@ -386,8 +569,12 @@ export default experiment({
         g.set(key, (g.get(key) ?? 0) + 1)
       }
 
-      return [...g].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} x (${k})`).join('; ')
+      return [...g]
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, n]) => `${n} x (${k})`)
+        .join('; ')
     }
+
     const cycleGroups = (cs: (typeof censuses)[number]): string => {
       const g = new Map<string, number>()
 
@@ -397,12 +584,22 @@ export default experiment({
         g.set(key, (g.get(key) ?? 0) + 1)
       }
 
-      return [...g].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} x (${k})`).join('; ')
+      return [...g]
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, n]) => `${n} x (${k})`)
+        .join('; ')
     }
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `on the doublet-locked knit's own loves the occupation is classical: the exact rule, every love open with splitting meetings, holds one occupation in every branch equal to the occupation map (${k1Rows.reduce((s, r) => s + r.mismatches, 0)} mismatches, up to ${Math.max(...k1Rows.map(r => r.branchesMax))} branches, 17 of 17 starts), so the drift cost is one phase per history and binds nothing; the census of ${censuses.map(c => `${c.starts.toLocaleString('en-US')} starts at column depth ${c.depth} (${c.escaped.toLocaleString('en-US')} escape, ${c.held} held, ${c.cycles.length} compact cycles)`).join('; ')} leaves ${censusCycles.length} closed collision levels; the lightest level (E ${lightestE.toFixed(5)}) is ${lightest.length === 0 ? 'none' : `${lightest.length} level(s), ${lightest.slice(0, 3).map(l => l.name).join(', ')}`}, spin one half share ${lightest.length ? Math.min(...lightest.flatMap(l => l.spin)).toFixed(4) : 'none'}, N = 3 ${g2}, compact ${g3}, travels ${g4} (|h|/T ${lightest.length ? (norm3(lightest[0]!.shift) / lightest[0]!.period).toFixed(4) : 'none'}); Gauss violations ${gaussBad}`,
+      claim: `on the doublet-locked knit's own loves the occupation is classical: the exact rule, every love open with splitting meetings, holds one occupation in every branch equal to the occupation map (${k1Rows.reduce((s, r) => s + r.mismatches, 0)} mismatches, up to ${Math.max(...k1Rows.map(r => r.branchesMax))} branches, 17 of 17 starts), so the drift cost is one phase per history and binds nothing; the census of ${censuses.map(c => `${c.starts.toLocaleString('en-US')} starts at column depth ${c.depth} (${c.escaped.toLocaleString('en-US')} escape, ${c.held} held, ${c.cycles.length} compact cycles)`).join('; ')} leaves ${censusCycles.length} closed collision levels; the lightest level (E ${lightestE.toFixed(5)}) is ${
+        lightest.length === 0
+          ? 'none'
+          : `${lightest.length} level(s), ${lightest
+              .slice(0, 3)
+              .map(l => l.name)
+              .join(', ')}`
+      }, spin one half share ${lightest.length ? Math.min(...lightest.flatMap(l => l.spin)).toFixed(4) : 'none'}, N = 3 ${g2}, compact ${g3}, travels ${g4} (|h|/T ${lightest.length ? (norm3(lightest[0]!.shift) / lightest[0]!.period).toFixed(4) : 'none'}); Gauss violations ${gaussBad}`,
       metrics: {
         gate_K1: k1ok ? 1 : 0,
         gate_K2: k2 ? 1 : 0,
@@ -415,22 +612,46 @@ export default experiment({
         k1BranchesMax: Math.max(...k1Rows.map(r => r.branchesMax)),
         k1Splits: k1Rows.reduce((s, r) => s + r.splits, 0),
         gaussViolations: gaussBad,
-        ...Object.fromEntries(censuses.flatMap(c => [[`census_L${c.depth}_starts`, c.starts], [`census_L${c.depth}_escaped`, c.escaped], [`census_L${c.depth}_held`, c.held], [`census_L${c.depth}_cycles`, c.cycles.length]])),
-        ...Object.fromEntries(structure.flatMap(s => [[`census_L${s.depth}_twoShadowCycles`, s.twoShadows], [`census_L${s.depth}_huskTurns`, s.turns], [`census_L${s.depth}_collisions`, s.collisions]])),
+        ...Object.fromEntries(
+          censuses.flatMap(c => [
+            [`census_L${c.depth}_starts`, c.starts],
+            [`census_L${c.depth}_escaped`, c.escaped],
+            [`census_L${c.depth}_held`, c.held],
+            [`census_L${c.depth}_cycles`, c.cycles.length],
+          ]),
+        ),
+        ...Object.fromEntries(
+          structure.flatMap(s => [
+            [`census_L${s.depth}_twoShadowCycles`, s.twoShadows],
+            [`census_L${s.depth}_huskTurns`, s.turns],
+            [`census_L${s.depth}_collisions`, s.collisions],
+          ]),
+        ),
         closedCollisionLevels: censusCycles.length,
         closedStacks: stacks.length,
         notLevels: notLevels.length,
         lightestEnergy: lightestE,
         lightestCount: lightest.length,
-        lightestSpinHalf: lightest.length ? Math.min(...lightest.flatMap(l => l.spin)) : Number.NaN,
-        lightestSpeed: lightest.length ? norm3(lightest[0]!.shift) / lightest[0]!.period : Number.NaN,
-        lightestBandWidth: lightest.length ? (Math.PI * norm3(lightest[0]!.shift)) / lightest[0]!.period : Number.NaN,
+        lightestSpinHalf: lightest.length
+          ? Math.min(...lightest.flatMap(l => l.spin))
+          : Number.NaN,
+        lightestSpeed: lightest.length
+          ? norm3(lightest[0]!.shift) / lightest[0]!.period
+          : Number.NaN,
+        lightestBandWidth: lightest.length
+          ? (Math.PI * norm3(lightest[0]!.shift)) / lightest[0]!.period
+          : Number.NaN,
         seconds: (Date.now() - started) / 1000,
       },
       control: {
         stackRoots: stackCheck.roots,
       },
-      notes: `L2 (census and readings on the knit's own rule), L1 for the classical occupation. Gates K1 ${k1ok}, K2 ${k2}, G1 ${g1}, G2 ${g2}, G3 ${g3}, G4 ${g4}, G5 ${g5}. K1 by start: ${k1Rows.map(r => `${r.member} ${r.mismatches}/${r.branchesMax}/${r.splits}/${r.beats}/${r.aliasedStops}`).join(', ')} (mismatches/branches/splits/compared beats/aliased stops). Census (two loves on one dock, third within ${NEAR}, rmax ${RMAX}, tmax ${TMAX}): ${censuses.map(c => `L ${c.depth}: ${c.starts} starts, ${c.beats} beats, escaped ${c.escaped}, held ${c.held}, cycles ${c.cycles.length} (${cycleGroups(c)})`).join('. ')}. Held examples: ${censuses.flatMap(c => c.heldExamples.slice(0, 2).map(h => `L${c.depth} slots ${Array.from(h.d).join(' ')} third (${Array.from(h.x.subarray(8, 12)).join(',')})`)).join('; ') || 'none'}. Structure (reported after run 1): ${structure.map(s => `L ${s.depth}: ${s.twoShadows} compact cycles hold two husk shadows, ${s.collisions} collisions per period summed, ${s.turns} turn a love's husk direction`).join('; ')}. Closed collision levels, grouped:${grouped(censusCycles)}. Lightest, grouped: ${grouped(lightest)}. Stacks: ${stacks.length} closed of ${stackCheck.roots}, energies ${[...new Set(stacks.map(s => s.energy.toFixed(6)))].join(', ')}, speeds ${[...new Set(stacks.map(s => (norm3(s.shift) / s.period).toFixed(4)))].join(', ')}, spin one half ${[...new Set(stacks.map(s => s.spin[0]!.toFixed(4)))].join(', ')}. Not levels (flux does not return): ${notLevels.slice(0, 12).map(n => `${n.name}: l ${n.growth.slice(0, 8).join(' ')}`).join('; ')}${notLevels.length > 12 ? ` and ${notLevels.length - 12} more` : ''}. THE DEPTH is the column's period, not a wall; the husk is unbounded.`,
+      notes: `L2 (census and readings on the knit's own rule), L1 for the classical occupation. Gates K1 ${k1ok}, K2 ${k2}, G1 ${g1}, G2 ${g2}, G3 ${g3}, G4 ${g4}, G5 ${g5}. K1 by start: ${k1Rows.map(r => `${r.member} ${r.mismatches}/${r.branchesMax}/${r.splits}/${r.beats}/${r.aliasedStops}`).join(', ')} (mismatches/branches/splits/compared beats/aliased stops). Census (two loves on one dock, third within ${NEAR}, rmax ${RMAX}, tmax ${TMAX}): ${censuses.map(c => `L ${c.depth}: ${c.starts} starts, ${c.beats} beats, escaped ${c.escaped}, held ${c.held}, cycles ${c.cycles.length} (${cycleGroups(c)})`).join('. ')}. Held examples: ${censuses.flatMap(c => c.heldExamples.slice(0, 2).map(h => `L${c.depth} slots ${Array.from(h.d).join(' ')} third (${Array.from(h.x.subarray(8, 12)).join(',')})`)).join('; ') || 'none'}. Structure (reported after run 1): ${structure.map(s => `L ${s.depth}: ${s.twoShadows} compact cycles hold two husk shadows, ${s.collisions} collisions per period summed, ${s.turns} turn a love's husk direction`).join('; ')}. Closed collision levels, grouped:${grouped(censusCycles)}. Lightest, grouped: ${grouped(lightest)}. Stacks: ${stacks.length} closed of ${stackCheck.roots}, energies ${[...new Set(stacks.map(s => s.energy.toFixed(6)))].join(', ')}, speeds ${[...new Set(stacks.map(s => (norm3(s.shift) / s.period).toFixed(4)))].join(', ')}, spin one half ${[...new Set(stacks.map(s => s.spin[0]!.toFixed(4)))].join(', ')}. Not levels (flux does not return): ${notLevels
+        .slice(0, 12)
+        .map(n => `${n.name}: l ${n.growth.slice(0, 8).join(' ')}`)
+        .join(
+          '; ',
+        )}${notLevels.length > 12 ? ` and ${notLevels.length - 12} more` : ''}. THE DEPTH is the column's period, not a wall; the husk is unbounded.`,
     })
   },
 })

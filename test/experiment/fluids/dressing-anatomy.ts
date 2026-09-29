@@ -42,11 +42,20 @@ import { beat } from '@/code/rule/lattice-gas'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { linearFit } from '@/code/measure/regression'
 import { makeWill, type Will } from '@/code/tone/will'
-import { d4BoxCell, d4BoxDistance, d4BoxMesh } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxDistance,
+  d4BoxMesh,
+} from '@/code/substrate/d4-box'
 import { meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { momentumOf } from '@/code/rule/momentum-weave'
-import { HEAD_TURN_SPEC, scatterCollision, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterCollision,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 
 const BEATS = 192
 const DIRECTIONS = [0, 5, 13, 22]
@@ -66,11 +75,37 @@ type Run = {
   readonly momentumExact: boolean
 }
 
-function follow(side: number, rule: (t: number) => Collision, direction: number): Run {
+function follow(
+  side: number,
+  rule: (t: number) => Collision,
+  direction: number,
+): Run {
   const mesh = d4BoxMesh({ side })
-  const center = d4BoxCell({ coordinates: [Math.floor(side / 2), Math.floor(side / 2), Math.floor(side / 2), Math.floor(side / 2)], side })
-  const distance = Float64Array.from({ length: mesh.cellCount }, (_, x) => d4BoxDistance({ a: x, b: center, side }))
-  const out: Run = { support: [], made: [], taken: [], turned: [], extra: [], radius: [], meanRadius: [], coarseCount: [], coarseMomentum: [], momentumExact: true }
+  const center = d4BoxCell({
+    coordinates: [
+      Math.floor(side / 2),
+      Math.floor(side / 2),
+      Math.floor(side / 2),
+      Math.floor(side / 2),
+    ],
+    side,
+  })
+  const distance = Float64Array.from(
+    { length: mesh.cellCount },
+    (_, x) => d4BoxDistance({ a: x, b: center, side }),
+  )
+  const out: Run = {
+    support: [],
+    made: [],
+    taken: [],
+    turned: [],
+    extra: [],
+    radius: [],
+    meanRadius: [],
+    coarseCount: [],
+    coarseMomentum: [],
+    momentumExact: true,
+  }
 
   let plain: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
@@ -78,6 +113,7 @@ function follow(side: number, rule: (t: number) => Collision, direction: number)
   seeded.data[center * 24 + direction] = 1
 
   const love = ROOTS[direction] ?? []
+
   let exact = true
 
   for (let t = 0; t < BEATS; t++) {
@@ -97,6 +133,7 @@ function follow(side: number, rule: (t: number) => Collision, direction: number)
     for (let x = 0; x < mesh.cellCount; x++) {
       let differs = false
       let dn = 0
+
       const dp = [0, 0, 0, 0]
 
       for (let d = 0; d < 24; d++) {
@@ -106,16 +143,22 @@ function follow(side: number, rule: (t: number) => Collision, direction: number)
         if (a !== b) {
           differs = true
 
-          if (a === 0) made++
-          else if (b === 0) taken++
-          else turned++
+          if (a === 0) {
+            made++
+          } else if (b === 0) {
+            taken++
+          } else {
+            turned++
+          }
         }
 
         const change = Math.abs(b) - Math.abs(a)
 
         dn += change
 
-        for (let k = 0; k < 4; k++) dp[k] = (dp[k] ?? 0) + change * (ROOTS[d]?.[k] ?? 0)
+        for (let k = 0; k < 4; k++) {
+          dp[k] = (dp[k] ?? 0) + change * (ROOTS[d]?.[k] ?? 0)
+        }
       }
 
       extra += dn
@@ -131,7 +174,11 @@ function follow(side: number, rule: (t: number) => Collision, direction: number)
       }
     }
 
-    const total = [0, 1, 2, 3].map(k => (momentumOf(seeded.data).p[k] ?? 0) - (momentumOf(plain.data).p[k] ?? 0))
+    const total = [0, 1, 2, 3].map(
+      k =>
+        (momentumOf(seeded.data).p[k] ?? 0) -
+        (momentumOf(plain.data).p[k] ?? 0),
+    )
 
     exact = exact && total.every((v, k) => v === (love[k] ?? 0))
     out.support.push(made + taken + turned)
@@ -151,15 +198,21 @@ function follow(side: number, rule: (t: number) => Collision, direction: number)
 // the growth exponent of the support before it covers a quarter of the box, and its end fraction
 function reading(runs: readonly Run[], side: number) {
   const slots = side ** 4 * 24
-  const mean = (pick: (r: Run) => number[], t: number): number => runs.reduce((s, r) => s + (pick(r)[t] ?? 0), 0) / runs.length
-  const support = Array.from({ length: BEATS }, (_, t) => mean(r => r.support, t))
+  const mean = (pick: (r: Run) => number[], t: number): number =>
+    runs.reduce((s, r) => s + (pick(r)[t] ?? 0), 0) / runs.length
+  const support = Array.from({ length: BEATS }, (_, t) =>
+    mean(r => r.support, t),
+  )
   const xs: number[] = []
   const ys: number[] = []
 
   for (let t = 3; t < BEATS; t++) {
     const s = support[t] ?? 0
 
-    if (s >= slots / 4) break
+    if (s >= slots / 4) {
+      break
+    }
+
     if (s > 1) {
       xs.push(Math.log(t + 1))
       ys.push(Math.log(s))
@@ -184,7 +237,9 @@ function reading(runs: readonly Run[], side: number) {
   for (let t = 1; t < BEATS; t++) {
     const r = mean(q => q.radius, t)
 
-    if (r > 0 && r < side / 2) speeds.push(r / (t + 1))
+    if (r > 0 && r < side / 2) {
+      speeds.push(r / (t + 1))
+    }
   }
 
   return {
@@ -206,15 +261,41 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-    const kinetic: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule('pair'), condition: 'lone' }
-    const viscous: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
-    const rules: [string, (opposite: number[]) => (t: number) => Collision][] = [
+    const mirror = cptMirrorPhase((o, f) =>
+      colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite: o,
+        forward: f,
+      }),
+    )
+    const kinetic: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule('pair'),
+      condition: 'lone',
+    }
+    const viscous: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+      condition: 'matched',
+    }
+    const rules: [
+      string,
+      (opposite: number[]) => (t: number) => Collision,
+    ][] = [
       ['committed', opposite => turningWeave({ opposite })],
-      ['kinetic', opposite => scatterCollision({ spec: kinetic, opposite })],
-      ['viscous', opposite => scatterCollision({ spec: viscous, opposite })],
+      [
+        'kinetic',
+        opposite => scatterCollision({ spec: kinetic, opposite }),
+      ],
+      [
+        'viscous',
+        opposite => scatterCollision({ spec: viscous, opposite }),
+      ],
     ]
     const readings: Record<string, ReturnType<typeof reading>> = {}
+
     let momentumExact = true
 
     for (const [name, make] of rules) {
@@ -223,20 +304,37 @@ export default experiment({
         const runs = DIRECTIONS.map(d => follow(side, rule, d))
 
         // the committed knit breaks P by its hop (E-FLD-0021), so only the scatter weaves are held to it
-        momentumExact = momentumExact && (name === 'committed' || runs.every(r => r.momentumExact))
+        momentumExact =
+          momentumExact &&
+          (name === 'committed' || runs.every(r => r.momentumExact))
         readings[`${name}${side}`] = reading(runs, side)
       }
     }
 
     const committed = readings.committed9
     const viscous9 = readings.viscous9
-    const committedIsPairs = committed !== undefined && Math.abs(committed.period4.extra - committed.period4.support) < 1e-9
-    const pairCreation = viscous9 !== undefined && viscous9.period4.extra >= viscous9.period4.support / 2
-    const decorrelation = viscous9 !== undefined && viscous9.frontSpeed >= Math.SQRT2 / 2 && viscous9.period4.extra < viscous9.period4.support / 10
+    const committedIsPairs =
+      committed !== undefined &&
+      Math.abs(committed.period4.extra - committed.period4.support) <
+        1e-9
+    const pairCreation =
+      viscous9 !== undefined &&
+      viscous9.period4.extra >= viscous9.period4.support / 2
+    const decorrelation =
+      viscous9 !== undefined &&
+      viscous9.frontSpeed >= Math.SQRT2 / 2 &&
+      viscous9.period4.extra < viscous9.period4.support / 10
 
-    const ok = momentumExact && committedIsPairs && (pairCreation !== decorrelation)
+    const ok =
+      momentumExact &&
+      committedIsPairs &&
+      pairCreation !== decorrelation
 
-    const metrics: Record<string, number> = { pairCreation: pairCreation ? 1 : 0, decorrelation: decorrelation ? 1 : 0, committedSupportIsPairs: committedIsPairs ? 1 : 0 }
+    const metrics: Record<string, number> = {
+      pairCreation: pairCreation ? 1 : 0,
+      decorrelation: decorrelation ? 1 : 0,
+      committedSupportIsPairs: committedIsPairs ? 1 : 0,
+    }
 
     for (const [key, r] of Object.entries(readings)) {
       metrics[`${key}_exponent`] = r.exponent

@@ -10,20 +10,20 @@ export const PAIR_ZERO: ComplexPair = [0, 0]
 export const PAIR_ONE: ComplexPair = [1, 0]
 export const PAIR_I: ComplexPair = [0, 1]
 
-export const pairAdd = (a: ComplexPair, b: ComplexPair): ComplexPair => [
-  a[0] + b[0],
-  a[1] + b[1],
-]
+export const pairAdd = (
+  a: ComplexPair,
+  b: ComplexPair,
+): ComplexPair => [a[0] + b[0], a[1] + b[1]]
 
-export const pairSub = (a: ComplexPair, b: ComplexPair): ComplexPair => [
-  a[0] - b[0],
-  a[1] - b[1],
-]
+export const pairSub = (
+  a: ComplexPair,
+  b: ComplexPair,
+): ComplexPair => [a[0] - b[0], a[1] - b[1]]
 
-export const pairMul = (a: ComplexPair, b: ComplexPair): ComplexPair => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
+export const pairMul = (
+  a: ComplexPair,
+  b: ComplexPair,
+): ComplexPair => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
 
 export const pairScale = (a: ComplexPair, s: number): ComplexPair => [
   a[0] * s,

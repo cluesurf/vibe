@@ -135,12 +135,38 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { samePoints } from '@/code/measure/doublet-locked-readings'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { fullKey, fullPathKey, keyedRunner, lineCharges, meshLines, oldPathKey, pathOffset, type MeshLines, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  fullKey,
+  fullPathKey,
+  keyedRunner,
+  lineCharges,
+  meshLines,
+  oldPathKey,
+  pathOffset,
+  type MeshLines,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { buildHyperbolicBall, cuspLayer, labelTransports, labelledCoin } from '@/code/substrate/coxeter/label-transport'
-import { innerJ, matMul, matVec, identity, type Mat, type Vec } from '@/code/substrate/coxeter/minkowski'
+import {
+  buildHyperbolicBall,
+  cuspLayer,
+  labelTransports,
+  labelledCoin,
+} from '@/code/substrate/coxeter/label-transport'
+import {
+  innerJ,
+  matMul,
+  matVec,
+  identity,
+  type Mat,
+  type Vec,
+} from '@/code/substrate/coxeter/minkowski'
 import {
   addLove,
   ballTables,
@@ -173,12 +199,27 @@ const SKIN = 3
 const SALT = 4099
 const G_RATE = 4
 
-type LineRun = { broken: number; kDocks: number; crossK: number; crossB: number }
+type LineRun = {
+  broken: number
+  kDocks: number
+  crossK: number
+  crossB: number
+}
 
 // one run: the lines whose tone ever differs from the start, and the collision's tally
-function lineRun(tables: LockedTables, lines: MeshLines, start: Configuration, key: PathKey, mix = 0): LineRun {
+function lineRun(
+  tables: LockedTables,
+  lines: MeshLines,
+  start: Configuration,
+  key: PathKey,
+  mix = 0,
+): LineRun {
   const tally: CollideTally = newCollideTally()
-  const run = keyedRunner(tables, start, { key, mix, collide: countingCollide(tally) })
+  const run = keyedRunner(tables, start, {
+    key,
+    mix,
+    collide: countingCollide(tally),
+  })
   const first = lineCharges(lines, start).tone
   const ever = new Uint8Array(lines.count)
 
@@ -187,16 +228,33 @@ function lineRun(tables: LockedTables, lines: MeshLines, start: Configuration, k
 
     const now = lineCharges(lines, run.state()).tone
 
-    for (let k = 0; k < lines.count; k++) if (now[k] !== first[k]) ever[k] = 1
+    for (let k = 0; k < lines.count; k++) {
+      if (now[k] !== first[k]) {
+        ever[k] = 1
+      }
+    }
   }
 
-  return { broken: ever.reduce((s, x) => s + x, 0), kDocks: tally.kDocks, crossK: tally.crossK, crossB: tally.crossB }
+  return {
+    broken: ever.reduce((s, x) => s + x, 0),
+    kDocks: tally.kDocks,
+    crossK: tally.crossK,
+    crossB: tally.crossB,
+  }
 }
 
 // the counted collision against the rule's own, bit for bit, on one start
-function sameAsRule(tables: LockedTables, start: Configuration, key: PathKey): boolean {
-  const counted = keyedRunner(tables, start, { key, collide: countingCollide(newCollideTally()) })
+function sameAsRule(
+  tables: LockedTables,
+  start: Configuration,
+  key: PathKey,
+): boolean {
+  const counted = keyedRunner(tables, start, {
+    key,
+    collide: countingCollide(newCollideTally()),
+  })
   const rule = keyedRunner(tables, start, { key })
+
   let same = true
 
   for (let t = 0; t < BEATS && same; t++) {
@@ -220,9 +278,12 @@ function mergedLines(lines: MeshLines, cells: number): number {
     const seen = new Set<number>()
 
     for (const f of LINE_FIRSTS) {
-      const id = lines.lineOf[x * 24 + f] as number
+      const id = lines.lineOf[x * 24 + f]!
 
-      if (seen.has(id) || lines.lineOf[x * 24 + (OPPOSITE[f] as number)] !== id) merged++
+      if (seen.has(id) || lines.lineOf[x * 24 + OPPOSITE[f]!] !== id) {
+        merged++
+      }
+
       seen.add(id)
     }
   }
@@ -230,25 +291,45 @@ function mergedLines(lines: MeshLines, cells: number): number {
   return merged
 }
 
-function lineLengths(lines: MeshLines): { longest: number; shortest: number } {
+function lineLengths(lines: MeshLines): {
+  longest: number
+  shortest: number
+} {
   const slots = new Int32Array(lines.count)
 
-  for (const id of lines.lineOf) slots[id]!++
+  for (const id of lines.lineOf) {
+    slots[id]!++
+  }
 
-  return { longest: slots.reduce((m, v) => Math.max(m, v), 0) / 2, shortest: slots.reduce((m, v) => Math.min(m, v), Number.POSITIVE_INFINITY) / 2 }
+  return {
+    longest: slots.reduce((m, v) => Math.max(m, v), 0) / 2,
+    shortest:
+      slots.reduce((m, v) => Math.min(m, v), Number.POSITIVE_INFINITY) /
+      2,
+  }
 }
 
-const saltedKey = (x: number, l: number, use: number): number => fullKey(use, x, l, SALT)
+const saltedKey = (x: number, l: number, use: number): number =>
+  fullKey(use, x, l, SALT)
 
-function start(cells: number, fill: StoreFill, love?: { dock: number; slot: number }): Configuration {
+function start(
+  cells: number,
+  fill: StoreFill,
+  love?: { dock: number; slot: number },
+): Configuration {
   const c = vacuumFill(cells, fill, saltedKey)
 
-  if (love) addLove(c, love.dock, love.slot)
+  if (love) {
+    addLove(c, love.dock, love.slot)
+  }
 
   return c
 }
 
-const sum = (xs: readonly LineRun[], f: (r: LineRun) => number): number => xs.reduce((s, r) => s + f(r), 0)
+const sum = (
+  xs: readonly LineRun[],
+  f: (r: LineRun) => number,
+): number => xs.reduce((s, r) => s + f(r), 0)
 
 export default experiment({
   id: 'spin/curved-line-law',
@@ -272,7 +353,8 @@ export default experiment({
 
     // ---- H1 (a), (b): the 96 triangle loops ----
     const pairs = faceLoopPairs()
-    const neg = (k: number): number => OPPOSITE[k] as number
+    const neg = (k: number): number => OPPOSITE[k]!
+
     let tableCloses = 0
     let labelsMatch = 0
     let frameReturns = 0
@@ -280,59 +362,126 @@ export default experiment({
     let lcExact = 0
     let translationIsLc = 0
     let worstFrame = 0
+
     const holonomies: Int32Array[] = []
 
     for (const [a, b] of pairs) {
       const word = [a, neg(b), a, neg(b)]
-      const docks = [0, walkLabels(small, 0, word.slice(0, 1)), walkLabels(small, 0, word.slice(0, 2)), walkLabels(small, 0, word.slice(0, 3))]
+      const docks = [
+        0,
+        walkLabels(small, 0, word.slice(0, 1)),
+        walkLabels(small, 0, word.slice(0, 2)),
+        walkLabels(small, 0, word.slice(0, 3)),
+      ]
 
-      if (walkLabels(small, 0, word) === 0 && new Set(docks).size === 4) tableCloses++
+      if (
+        walkLabels(small, 0, word) === 0 &&
+        new Set(docks).size === 4
+      ) {
+        tableCloses++
+      }
 
-      const centers: Vec[] = docks.map(x => matVec(small.frames[x]!, center))
-      const walked = loopFrames({ coin, transports: antipodal, centers })
+      const centers: Vec[] = docks.map(x =>
+        matVec(small.frames[x]!, center),
+      )
+      const walked = loopFrames({
+        coin,
+        transports: antipodal,
+        centers,
+      })
       const gap = largestEntryGap(walked.frame, identity(center.length))
 
       worstFrame = Math.max(worstFrame, gap)
-      if (walked.found && walked.labels.every((k, i) => k === word[i])) labelsMatch++
-      if (walked.found && gap < 1e-9) frameReturns++
+
+      if (
+        walked.found &&
+        walked.labels.every((k, i) => k === word[i])
+      ) {
+        labelsMatch++
+      }
+
+      if (walked.found && gap < 1e-9) {
+        frameReturns++
+      }
 
       const lc = leviCivitaHolonomy(centers, metric)
       const lcPerm = slotPermutation(coin, lc)
-      const rab = composePermutations(rootReflection(a), rootReflection(b))
+      const rab = composePermutations(
+        rootReflection(a),
+        rootReflection(b),
+      )
       const rab2 = composePermutations(rab, rab)
 
-      if (lcPerm && permutationOrder(lcPerm) === 3) lcOrder3++
-      if (lcPerm && (samePermutation(lcPerm, rab2) || samePermutation(lcPerm, inversePermutation(rab2)))) lcExact++
-      if (lcPerm) holonomies.push(lcPerm)
+      if (lcPerm && permutationOrder(lcPerm) === 3) {
+        lcOrder3++
+      }
 
-      const trans = loopFrames({ coin, transports: translation, centers })
+      if (
+        lcPerm &&
+        (samePermutation(lcPerm, rab2) ||
+          samePermutation(lcPerm, inversePermutation(rab2)))
+      ) {
+        lcExact++
+      }
 
-      if (trans.found && largestEntryGap(trans.frame, lc) < 1e-9) translationIsLc++
+      if (lcPerm) {
+        holonomies.push(lcPerm)
+      }
+
+      const trans = loopFrames({
+        coin,
+        transports: translation,
+        centers,
+      })
+
+      if (trans.found && largestEntryGap(trans.frame, lc) < 1e-9) {
+        translationIsLc++
+      }
     }
 
     // the group the Levi-Civita holonomies generate, by closure
-    const group = new Map<string, Int32Array>([[Array.from({ length: 24 }, (_, d) => d).join(','), Int32Array.from({ length: 24 }, (_, d) => d)]])
+    const group = new Map<string, Int32Array>([
+      [
+        Array.from({ length: 24 }, (_, d) => d).join(','),
+        Int32Array.from({ length: 24 }, (_, d) => d),
+      ],
+    ])
 
     for (const g of group.values()) {
       for (const h of holonomies) {
         const p = composePermutations(h, g)
         const key = Array.from(p).join(',')
 
-        if (!group.has(key)) group.set(key, p)
+        if (!group.has(key)) {
+          group.set(key, p)
+        }
       }
-      if (group.size > 2000) break
+
+      if (group.size > 2000) {
+        break
+      }
     }
 
-    const h1a = tableCloses === 96 && labelsMatch === 96 && frameReturns === 96 && small.inconsistentSteps === 0 && large.inconsistentSteps === 0 && small.returnsExactly && large.returnsExactly
-    const h1b = lcOrder3 === 96 && lcExact === 96 && translationIsLc === 96
+    const h1a =
+      tableCloses === 96 &&
+      labelsMatch === 96 &&
+      frameReturns === 96 &&
+      small.inconsistentSteps === 0 &&
+      large.inconsistentSteps === 0 &&
+      small.returnsExactly &&
+      large.returnsExactly
+    const h1b =
+      lcOrder3 === 96 && lcExact === 96 && translationIsLc === 96
 
     // ---- H1 (c): every label chain is a geodesic with cosh s = 3 ----
     const c1 = matVec(antipodal[0]!, center)
     const coshS = -innerJ(center, c1, metric) / cc
+
     let worstGeodesic = 0
 
     for (let d = 0; d < 24; d++) {
       const chain: Vec[] = []
+
       let g: Mat = identity(center.length)
 
       for (let n = 0; n <= TRACE + 1; n++) {
@@ -343,7 +492,15 @@ export default experiment({
       for (let n = 1; n <= TRACE; n++) {
         const p = chain[n]!
         const size = Math.max(...p.map(Math.abs))
-        const err = Math.max(...p.map((v, i) => Math.abs((chain[n + 1]![i] ?? 0) + (chain[n - 1]![i] ?? 0) - 2 * coshS * v)))
+        const err = Math.max(
+          ...p.map((v, i) =>
+            Math.abs(
+              (chain[n + 1]![i] ?? 0) +
+                (chain[n - 1]![i] ?? 0) -
+                2 * coshS * v,
+            ),
+          ),
+        )
 
         worstGeodesic = Math.max(worstGeodesic, err / size)
       }
@@ -353,8 +510,11 @@ export default experiment({
 
     // descriptive: two lines of one label through neighboring docks (orthogonal step) diverge
     const roots = rootsD4()
-    const orth = roots.findIndex(r => r.reduce((s, v, i) => s + v * (roots[0]![i] ?? 0), 0) === 0)
+    const orth = roots.findIndex(
+      r => r.reduce((s, v, i) => s + v * (roots[0]![i] ?? 0), 0) === 0,
+    )
     const divergence: number[] = []
+
     let alongBase: Mat = identity(center.length)
     let alongNext: Mat = antipodal[orth]!
 
@@ -362,7 +522,9 @@ export default experiment({
       const p = matVec(alongBase, center)
       const q = matVec(alongNext, center)
 
-      divergence.push(Math.acosh(Math.max(1, -innerJ(p, q, metric) / cc)))
+      divergence.push(
+        Math.acosh(Math.max(1, -innerJ(p, q, metric) / cc)),
+      )
       alongBase = matMul(alongBase, antipodal[0]!)
       alongNext = matMul(alongNext, antipodal[0]!)
     }
@@ -375,41 +537,127 @@ export default experiment({
     const flatCenter = centerOf(FLAT_SIDE)
     const flat = contactFresh(FLAT_SIDE, 'pass', flatCenter)
     const flatLines = meshLines(flat.tables)
-    const merged = { small: mergedLines(smallLines, small.cells), large: mergedLines(largeLines, large.cells), flat: mergedLines(flatLines, flat.cells) }
-    const h2a = merged.small === 0 && merged.large === 0 && merged.flat === 0
+    const merged = {
+      small: mergedLines(smallLines, small.cells),
+      large: mergedLines(largeLines, large.cells),
+      flat: mergedLines(flatLines, flat.cells),
+    }
+    const h2a =
+      merged.small === 0 && merged.large === 0 && merged.flat === 0
 
     // ---- H2 (b), (c): the lone love, empty and saturated ----
     const k0 = fullPathKey(pathOffset(0))
-    const keys = Array.from({ length: OFFSETS }, (_, k) => fullPathKey(pathOffset(k)))
-    const smallEmpty = Array.from({ length: 24 }, (_, s) => lineRun(smallTables, smallLines, start(small.cells, 'empty', { dock: 0, slot: s }), k0))
-    const smallSaturated = Array.from({ length: 24 }, (_, s) => lineRun(smallTables, smallLines, start(small.cells, 'saturated', { dock: 0, slot: s }), k0))
-    const largeEmpty = keys.map(key => lineRun(largeTables, largeLines, start(large.cells, 'empty', { dock: 0, slot: 0 }), key))
-    const largeSaturated = keys.map(key => lineRun(largeTables, largeLines, start(large.cells, 'saturated', { dock: 0, slot: 0 }), key))
-    const clean = (xs: LineRun[]): boolean => xs.every(r => r.broken === 0 && r.kDocks === 0 && r.crossK === 0 && r.crossB === 0)
+    const keys = Array.from({ length: OFFSETS }, (_, k) =>
+      fullPathKey(pathOffset(k)),
+    )
+    const smallEmpty = Array.from({ length: 24 }, (_, s) =>
+      lineRun(
+        smallTables,
+        smallLines,
+        start(small.cells, 'empty', { dock: 0, slot: s }),
+        k0,
+      ),
+    )
+    const smallSaturated = Array.from({ length: 24 }, (_, s) =>
+      lineRun(
+        smallTables,
+        smallLines,
+        start(small.cells, 'saturated', { dock: 0, slot: s }),
+        k0,
+      ),
+    )
+    const largeEmpty = keys.map(key =>
+      lineRun(
+        largeTables,
+        largeLines,
+        start(large.cells, 'empty', { dock: 0, slot: 0 }),
+        key,
+      ),
+    )
+    const largeSaturated = keys.map(key =>
+      lineRun(
+        largeTables,
+        largeLines,
+        start(large.cells, 'saturated', { dock: 0, slot: 0 }),
+        key,
+      ),
+    )
+    const clean = (xs: LineRun[]): boolean =>
+      xs.every(
+        r =>
+          r.broken === 0 &&
+          r.kDocks === 0 &&
+          r.crossK === 0 &&
+          r.crossB === 0,
+      )
     const h2b = clean(smallEmpty) && clean(largeEmpty)
     const h2c = clean(smallSaturated) && clean(largeSaturated)
 
     // ---- H2 (d): the sparse vacuum, attribution, and the G control ----
-    const smallSparseStart = start(small.cells, 'sparse', { dock: 0, slot: 0 })
-    const flatSparseStart = start(flat.cells, 'sparse', { dock: flatCenter, slot: 0 })
-    const smallSparse = lineRun(smallTables, smallLines, smallSparseStart, k0)
-    const flatSparse = lineRun(flat.tables, flatLines, flatSparseStart, k0)
-    const instrument = sameAsRule(smallTables, smallSparseStart, k0) && sameAsRule(flat.tables, flatSparseStart, k0)
-    const gControl = lineRun(smallTables, smallLines, start(small.cells, 'empty', { dock: 0, slot: 0 }), k0, G_RATE)
-    const h2d = smallSparse.broken > 0 && flatSparse.broken > 0 && smallSparse.crossB === 0 && flatSparse.crossB === 0 && smallSparse.crossK > 0 && flatSparse.crossK > 0 && instrument && gControl.broken > 0
+    const smallSparseStart = start(small.cells, 'sparse', {
+      dock: 0,
+      slot: 0,
+    })
+    const flatSparseStart = start(flat.cells, 'sparse', {
+      dock: flatCenter,
+      slot: 0,
+    })
+    const smallSparse = lineRun(
+      smallTables,
+      smallLines,
+      smallSparseStart,
+      k0,
+    )
+    const flatSparse = lineRun(
+      flat.tables,
+      flatLines,
+      flatSparseStart,
+      k0,
+    )
+    const instrument =
+      sameAsRule(smallTables, smallSparseStart, k0) &&
+      sameAsRule(flat.tables, flatSparseStart, k0)
+    const gControl = lineRun(
+      smallTables,
+      smallLines,
+      start(small.cells, 'empty', { dock: 0, slot: 0 }),
+      k0,
+      G_RATE,
+    )
+    const h2d =
+      smallSparse.broken > 0 &&
+      flatSparse.broken > 0 &&
+      smallSparse.crossB === 0 &&
+      flatSparse.crossB === 0 &&
+      smallSparse.crossK > 0 &&
+      flatSparse.crossK > 0 &&
+      instrument &&
+      gControl.broken > 0
 
     // parity on the flat box: the same empty and saturated recipes
-    const flatEmpty = lineRun(flat.tables, flatLines, start(flat.cells, 'empty', { dock: flatCenter, slot: 0 }), k0)
-    const flatSaturated = lineRun(flat.tables, flatLines, start(flat.cells, 'saturated', { dock: flatCenter, slot: 0 }), k0)
+    const flatEmpty = lineRun(
+      flat.tables,
+      flatLines,
+      start(flat.cells, 'empty', { dock: flatCenter, slot: 0 }),
+      k0,
+    )
+    const flatSaturated = lineRun(
+      flat.tables,
+      flatLines,
+      start(flat.cells, 'saturated', { dock: flatCenter, slot: 0 }),
+      k0,
+    )
 
     // ---- H3': the husk reading of a line ----
     const chart = horosphericalChart(coin)
     const layer = cuspLayer({ coin, skinRadius: SKIN })
     const target = 17 - 12 * Math.SQRT2
+
     let layerDocks = 0
     let splitRight = 0
     let worstRatio = 0
     let largestExtent = 0
+
     const directions: number[][] = []
 
     for (const m of layer.members) {
@@ -422,6 +670,7 @@ export default experiment({
         // the line through this dock, n = -TRACE .. TRACE
         const forward: Vec[] = []
         const backward: Vec[] = []
+
         let g = m.frame
         let h = m.frame
 
@@ -433,37 +682,72 @@ export default experiment({
         }
 
         const points = [...backward.slice(1).reverse(), ...forward]
-        const onLayer = points.filter(p => Math.abs(chart.level(p) - chart.layerLevel) < 1e-9 * chart.layerLevel).length
+        const onLayer = points.filter(
+          p =>
+            Math.abs(chart.level(p) - chart.layerLevel) <
+            1e-9 * chart.layerLevel,
+        ).length
 
-        if (onLayer === 2) twos++
-        else if (onLayer === 1) ones++
+        if (onLayer === 2) {
+          twos++
+        } else if (onLayer === 1) {
+          ones++
+        }
 
         const xs = points.map(chart.coordinates)
 
-        for (let i = 0; i < xs.length; i++) for (let j = i + 1; j < xs.length; j++) largestExtent = Math.max(largestExtent, Math.hypot(...xs[i]!.map((v, a) => v - (xs[j]![a] ?? 0))))
+        for (let i = 0; i < xs.length; i++) {
+          for (let j = i + 1; j < xs.length; j++) {
+            largestExtent = Math.max(
+              largestExtent,
+              Math.hypot(...xs[i]!.map((v, a) => v - (xs[j]![a] ?? 0))),
+            )
+          }
+        }
 
-        const whole = xs[xs.length - 1]!.map((v, a) => v - (xs[0]![a] ?? 0))
+        const whole = xs[xs.length - 1]!.map(
+          (v, a) => v - (xs[0]![a] ?? 0),
+        )
         const norm = Math.hypot(...whole)
 
         directions.push(whole.map(v => v / norm))
 
         for (const ray of [forward, backward]) {
           const rx = ray.map(chart.coordinates)
-          const step = (n: number): number => Math.hypot(...rx[n]!.map((v, a) => v - (rx[n - 1]![a] ?? 0)))
+          const step = (n: number): number =>
+            Math.hypot(
+              ...rx[n]!.map((v, a) => v - (rx[n - 1]![a] ?? 0)),
+            )
           const ratio = step(TRACE) / step(TRACE - 1)
 
-          worstRatio = Math.max(worstRatio, Math.abs(ratio - target) / target)
+          worstRatio = Math.max(
+            worstRatio,
+            Math.abs(ratio - target) / target,
+          )
         }
       }
 
-      if (twos === 6 && ones === 6) splitRight++
+      if (twos === 6 && ones === 6) {
+        splitRight++
+      }
     }
 
     const distinct: number[][] = []
 
-    for (const u of directions) if (!distinct.some(w => w.every((v, a) => Math.abs(v - (u[a] ?? 0)) < 1e-6))) distinct.push(u)
+    for (const u of directions) {
+      if (
+        !distinct.some(w =>
+          w.every((v, a) => Math.abs(v - (u[a] ?? 0)) < 1e-6),
+        )
+      ) {
+        distinct.push(u)
+      }
+    }
 
-    const h3p = splitRight === layerDocks && worstRatio < 1e-4 && chart.axesError < 1e-9
+    const h3p =
+      splitRight === layerDocks &&
+      worstRatio < 1e-4 &&
+      chart.axesError < 1e-9
 
     // ---- H4: E-SPN-0098's L1 on the flat box ----
     const flatStart = cloneConfiguration(wordVacuum(flat, flat.store))
@@ -472,8 +756,11 @@ export default experiment({
     flatStart.open[flatCenter * 24] = 1
 
     const lawKeys: PathKey[] = [...keys, oldPathKey(flat.cells)]
-    const law = lawKeys.map(key => lineRun(flat.tables, flatLines, flatStart, key))
-    const h4 = flatLines.count === 6144 && law.every(r => r.broken === 0)
+    const law = lawKeys.map(key =>
+      lineRun(flat.tables, flatLines, flatStart, key),
+    )
+    const h4 =
+      flatLines.count === 6144 && law.every(r => r.broken === 0)
 
     const h2 = h2a && h2b && h2c && h2d
     const ok = h1a && h1b && h1c && h2 && h3p && h4
@@ -565,7 +852,10 @@ export default experiment({
       seconds: (Date.now() - t0) / 1000,
     })
 
-    for (const [i, r] of law.entries()) metrics[`flatLaw_${lawKeys[i]!.name.replace('+', '')}_broken`] = r.broken
+    for (const [i, r] of law.entries()) {
+      metrics[`flatLaw_${lawKeys[i]!.name.replace('+', '')}_broken`] =
+        r.broken
+    }
 
     return verdict({
       status: ok ? 'pass' : 'fail',

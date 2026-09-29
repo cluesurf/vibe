@@ -35,8 +35,16 @@
 //   generators, and their traces (commutant dimensions by characters)
 // - weilLift: the unitary of a linear symplectic map on physical points, from the displacements
 
-import { operatorFrom3, displacementOperators } from '@/code/measure/qutrit-clifford'
-import { operator, multiplyOperators, adjointOperator, type Operator } from '@/code/measure/grid-weights'
+import {
+  operatorFrom3,
+  displacementOperators,
+} from '@/code/measure/qutrit-clifford'
+import {
+  operator,
+  multiplyOperators,
+  adjointOperator,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
 
 export const mod3 = (x: number): number => ((x % 3) + 3) % 3
@@ -46,42 +54,65 @@ export function pointForm(u: number, v: number): number {
   return mod3(Math.floor(u / 3) * (v % 3) - (u % 3) * Math.floor(v / 3))
 }
 
-export const addPoints = (u: number, v: number): number => 3 * mod3(Math.floor(u / 3) + Math.floor(v / 3)) + mod3(u + v)
-export const scalePoint = (k: number, u: number): number => 3 * mod3(k * Math.floor(u / 3)) + mod3(k * u)
+export const addPoints = (u: number, v: number): number =>
+  3 * mod3(Math.floor(u / 3) + Math.floor(v / 3)) + mod3(u + v)
+export const scalePoint = (k: number, u: number): number =>
+  3 * mod3(k * Math.floor(u / 3)) + mod3(k * u)
 
 // the vibe charge of a sign pattern, mod 3
-export const chargeOf = (signs: readonly number[]): number => mod3(signs.reduce((s, w) => s + w, 0))
+export const chargeOf = (signs: readonly number[]): number =>
+  mod3(signs.reduce((s, w) => s + w, 0))
 
 // every n x n matrix A over F3 (row-major) with A^T W A = W and A 1 = 1, W = diag(signs): the covariant
 // Clifford meetings of n tokens. Built column by column: column j has B-norm w_j and is B-orthogonal to the
 // columns before it, and the last column is 1 minus the others (A 1 = sum of the columns)
-export function covariantCliffords(signs: readonly number[]): number[][] {
+export function covariantCliffords(
+  signs: readonly number[],
+): number[][] {
   const n = signs.length
   const vectors: number[][] = []
 
   for (let k = 0; k < 3 ** n; k++) {
-    vectors.push(Array.from({ length: n }, (_, i) => Math.floor(k / 3 ** i) % 3))
+    vectors.push(
+      Array.from({ length: n }, (_, i) => Math.floor(k / 3 ** i) % 3),
+    )
   }
 
-  const form = (u: readonly number[], v: readonly number[]): number => mod3(u.reduce((s, x, i) => s + (signs[i] ?? 0) * x * (v[i] ?? 0), 0))
+  const form = (u: readonly number[], v: readonly number[]): number =>
+    mod3(
+      u.reduce((s, x, i) => s + (signs[i] ?? 0) * x * (v[i] ?? 0), 0),
+    )
   const out: number[][] = []
   const columns: number[][] = []
 
   const place = (j: number): void => {
     if (j === n - 1) {
-      const last = Array.from({ length: n }, (_, i) => mod3(1 - columns.reduce((s, c) => s + (c[i] ?? 0), 0)))
+      const last = Array.from({ length: n }, (_, i) =>
+        mod3(1 - columns.reduce((s, c) => s + (c[i] ?? 0), 0)),
+      )
 
-      if (form(last, last) === mod3(signs[j] ?? 0) && columns.every(c => form(c, last) === 0)) {
+      if (
+        form(last, last) === mod3(signs[j] ?? 0) &&
+        columns.every(c => form(c, last) === 0)
+      ) {
         const all = [...columns, last]
 
-        out.push(Array.from({ length: n * n }, (_, k) => all[k % n]?.[Math.floor(k / n)] ?? 0))
+        out.push(
+          Array.from(
+            { length: n * n },
+            (_, k) => all[k % n]?.[Math.floor(k / n)] ?? 0,
+          ),
+        )
       }
 
       return
     }
 
     for (const v of vectors) {
-      if (form(v, v) === mod3(signs[j] ?? 0) && columns.every(c => form(c, v) === 0)) {
+      if (
+        form(v, v) === mod3(signs[j] ?? 0) &&
+        columns.every(c => form(c, v) === 0)
+      ) {
         columns.push(v)
         place(j + 1)
         columns.pop()
@@ -94,12 +125,23 @@ export function covariantCliffords(signs: readonly number[]): number[][] {
   return out
 }
 
-export const isPermutationMatrix = (a: readonly number[], n: number): boolean =>
-  Array.from({ length: n }, (_, i) => a.slice(i * n, i * n + n)).every(row => row.filter(x => x === 1).length === 1 && row.every(x => x === 0 || x === 1)) &&
-  Array.from({ length: n }, (_, j) => Array.from({ length: n }, (__, i) => a[i * n + j] ?? 0)).every(col => col.filter(x => x === 1).length === 1)
+export const isPermutationMatrix = (
+  a: readonly number[],
+  n: number,
+): boolean =>
+  Array.from({ length: n }, (_, i) => a.slice(i * n, i * n + n)).every(
+    row =>
+      row.filter(x => x === 1).length === 1 &&
+      row.every(x => x === 0 || x === 1),
+  ) &&
+  Array.from({ length: n }, (_, j) =>
+    Array.from({ length: n }, (__, i) => a[i * n + j] ?? 0),
+  ).every(col => col.filter(x => x === 1).length === 1)
 
 // the reflection through the frame direction 1, R = 2 q^(-1) 1 w^T - 1, or null on a knot (q = 0)
-export function frameReflection(signs: readonly number[]): number[] | null {
+export function frameReflection(
+  signs: readonly number[],
+): number[] | null {
   const n = signs.length
   const q = chargeOf(signs)
 
@@ -109,11 +151,19 @@ export function frameReflection(signs: readonly number[]): number[] | null {
 
   const c = mod3(2 * (q === 1 ? 1 : 2))
 
-  return Array.from({ length: n * n }, (_, k) => mod3(c * (signs[k % n] ?? 0) - (Math.floor(k / n) === k % n ? 1 : 0)))
+  return Array.from({ length: n * n }, (_, k) =>
+    mod3(
+      c * (signs[k % n] ?? 0) - (Math.floor(k / n) === k % n ? 1 : 0),
+    ),
+  )
 }
 
 // A acting on the tokens' stored points (index 3 a + b each), alike on the role and the tilt
-export function applyStoredLinear(a: readonly number[], points: readonly number[], out: number[]): void {
+export function applyStoredLinear(
+  a: readonly number[],
+  points: readonly number[],
+  out: number[],
+): void {
   const n = points.length
 
   for (let i = 0; i < n; i++) {
@@ -144,7 +194,10 @@ export function linearCommutantDimension(n: number): number {
   const rows: number[][] = []
 
   for (const m of generators) {
-    const block = (r: number, c: number): number => (Math.floor(r / 2) === Math.floor(c / 2) ? (m[2 * (r % 2) + (c % 2)] ?? 0) : 0)
+    const block = (r: number, c: number): number =>
+      Math.floor(r / 2) === Math.floor(c / 2)
+        ? (m[2 * (r % 2) + (c % 2)] ?? 0)
+        : 0
 
     // (L G - G L)_rc = sum_k L_rk G_kc - G_rk L_kc
     for (let r = 0; r < size; r++) {
@@ -152,8 +205,13 @@ export function linearCommutantDimension(n: number): number {
         const row = new Array<number>(unknowns).fill(0)
 
         for (let k = 0; k < size; k++) {
-          row[r * size + k] = mod3((row[r * size + k] ?? 0) + block(k, c))
-          row[k * size + c] = mod3((row[k * size + c] ?? 0) - block(r, k))
+          row[r * size + k] = mod3(
+            (row[r * size + k] ?? 0) + block(k, c),
+          )
+
+          row[k * size + c] = mod3(
+            (row[k * size + c] ?? 0) - block(r, k),
+          )
         }
 
         rows.push(row)
@@ -164,7 +222,9 @@ export function linearCommutantDimension(n: number): number {
   let rank = 0
 
   for (let col = 0; col < unknowns && rank < rows.length; col++) {
-    const pivot = rows.findIndex((row, i) => i >= rank && (row[col] ?? 0) !== 0)
+    const pivot = rows.findIndex(
+      (row, i) => i >= rank && (row[col] ?? 0) !== 0,
+    )
 
     if (pivot < 0) {
       continue
@@ -198,8 +258,10 @@ export function linearCommutantDimension(n: number): number {
 
 // the 648 frame changes of Sigma(648) as 3 x 3 unitaries, enumerated from the generators
 export function sigma648Elements(): Operator[] {
-  const generators = SU3_SUBGROUPS.sigma648.generators.map(operatorFrom3)
-  const key = (m: Operator): string => [...m.re, ...m.im].map(x => Math.round(x * 1e6)).join(',')
+  const generators =
+    SU3_SUBGROUPS.sigma648.generators.map(operatorFrom3)
+  const key = (m: Operator): string =>
+    [...m.re, ...m.im].map(x => Math.round(x * 1e6)).join(',')
   const identity = operator(3)
 
   for (let i = 0; i < 3; i++) {
@@ -225,16 +287,25 @@ export function sigma648Elements(): Operator[] {
 }
 
 // the trace of each element
-export function characterValues(elements: readonly Operator[]): [number, number][] {
-  return elements.map(m => [m.re[0]! + m.re[4]! + m.re[8]!, m.im[0]! + m.im[4]! + m.im[8]!])
+export function characterValues(
+  elements: readonly Operator[],
+): [number, number][] {
+  return elements.map(m => [
+    m.re[0]! + m.re[4]! + m.re[8]!,
+    m.im[0]! + m.im[4]! + m.im[8]!,
+  ])
 }
 
 // The unitary of a linear symplectic map S on n qutrits' PHYSICAL phase points (S as a 2n x 2n matrix over
 // F3 on a1, b1, a2, b2, ...): U = Y / norm, Y = sum_v D(S v) |c><c| D(v)^dagger, which is 3^n Tr(U^dagger
 // |c><c|) U for the U with U D(v) U^dagger = D(S v). null when S has no such lift
-export function weilLift(s: readonly number[], n: number): Operator | null {
+export function weilLift(
+  s: readonly number[],
+  n: number,
+): Operator | null {
   const dim = 3 ** n
   const displacements = displacementOperators(n)
+
   const image = (v: number): number => {
     const coordinates: number[] = []
 
@@ -251,7 +322,7 @@ export function weilLift(s: readonly number[], n: number): Operator | null {
       let b = 0
 
       for (let k = 0; k < 2 * n; k++) {
-        a += (s[(2 * i) * 2 * n + k] ?? 0) * (coordinates[k] ?? 0)
+        a += (s[2 * i * 2 * n + k] ?? 0) * (coordinates[k] ?? 0)
         b += (s[(2 * i + 1) * 2 * n + k] ?? 0) * (coordinates[k] ?? 0)
       }
 
@@ -281,8 +352,11 @@ export function weilLift(s: readonly number[], n: number): Operator | null {
           const br = dv.re[k * dim + c] ?? 0
           const bi = -(dv.im[k * dim + c] ?? 0)
 
-          y.re[r * dim + k] = (y.re[r * dim + k] ?? 0) + ar * br - ai * bi
-          y.im[r * dim + k] = (y.im[r * dim + k] ?? 0) + ar * bi + ai * br
+          y.re[r * dim + k] =
+            (y.re[r * dim + k] ?? 0) + ar * br - ai * bi
+
+          y.im[r * dim + k] =
+            (y.im[r * dim + k] ?? 0) + ar * bi + ai * br
         }
       }
     }
@@ -305,7 +379,10 @@ export function weilLift(s: readonly number[], n: number): Operator | null {
 
 // the physical linear map of A on n tokens with signs w: stored point = R_i physical, R = (a, b) -> (a, -b)
 // on a fear, so S = R (A (x) 1) R, as 2n x 2n on a1, b1, ...
-export function physicalMap(a: readonly number[], signs: readonly number[]): number[] {
+export function physicalMap(
+  a: readonly number[],
+  signs: readonly number[],
+): number[] {
   const n = signs.length
   const out = new Array<number>(4 * n * n).fill(0)
 
@@ -313,8 +390,10 @@ export function physicalMap(a: readonly number[], signs: readonly number[]): num
     for (let j = 0; j < n; j++) {
       const m = a[i * n + j] ?? 0
 
-      out[(2 * i) * 2 * n + 2 * j] = mod3(m)
-      out[(2 * i + 1) * 2 * n + 2 * j + 1] = mod3((signs[i] ?? 1) * m * (signs[j] ?? 1))
+      out[2 * i * 2 * n + 2 * j] = mod3(m)
+      out[(2 * i + 1) * 2 * n + 2 * j + 1] = mod3(
+        (signs[i] ?? 1) * m * (signs[j] ?? 1),
+      )
     }
   }
 
@@ -325,10 +404,17 @@ export function physicalMap(a: readonly number[], signs: readonly number[]): num
 export function commutatorSize(a: Operator, b: Operator): number {
   const ab = multiplyOperators(a, b)
   const ba = multiplyOperators(b, a)
+
   let worst = 0
 
   for (let i = 0; i < ab.re.length; i++) {
-    worst = Math.max(worst, Math.hypot((ab.re[i] ?? 0) - (ba.re[i] ?? 0), (ab.im[i] ?? 0) - (ba.im[i] ?? 0)))
+    worst = Math.max(
+      worst,
+      Math.hypot(
+        (ab.re[i] ?? 0) - (ba.re[i] ?? 0),
+        (ab.im[i] ?? 0) - (ba.im[i] ?? 0),
+      ),
+    )
   }
 
   return worst

@@ -79,10 +79,8 @@ function partialKnit(input: {
   return (slots, base) => {
     for (let k = 0; k < input.couples.length; k++) {
       const [line, wire] = input.couples[k]!
-      const loneAway = (a: Tone, b: Tone): boolean =>
-        a === 0 && b !== 0
-      const empty = (a: Tone, b: Tone): boolean =>
-        a === 0 && b === 0
+      const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+      const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
 
       const swap = (): void => {
         const a0 = slots[base + line[0]]! as Tone
@@ -262,18 +260,16 @@ export default experiment({
     const wBlind = responseAt(3, 1)
     const polarization =
       xOffset1 > 50 && zCoupled > 50 && yBlind === 1 && wBlind === 1
-    const selectivity =
-      xOffset2 > xOffset1 && xOffset3 === 1
+    const selectivity = xOffset2 > xOffset1 && xOffset3 === 1
 
     const ghost = slabRun(lines[3]![0])
-    const ghostClean =
-      ghost.maxSupport === 1 && ghost.distance >= 8
+    const ghostClean = ghost.maxSupport === 1 && ghost.distance >= 8
 
     // 2. exact echo, superposition, CPT
     const start = makeWill(mesh)
 
     for (let i = 0; i < start.data.length; i++) {
-      start.data[i] = ((((i * 5 + (i % 11)) % 3) - 1) as Tone)
+      start.data[i] = (((i * 5 + (i % 11)) % 3) - 1) as Tone
     }
 
     let echoState: Will = { mesh, data: Int8Array.from(start.data) }
@@ -318,8 +314,7 @@ export default experiment({
       const difference = makeWill(mesh)
 
       for (let i = 0; i < seeded.data.length; i++) {
-        difference.data[i] = (seeded.data[i]! -
-          vacuum.data[i]!) as Tone
+        difference.data[i] = (seeded.data[i]! - vacuum.data[i]!) as Tone
       }
 
       return difference
@@ -481,9 +476,7 @@ export default experiment({
       claim:
         'the traveller couples at its wire planes and is exactly blind elsewhere, offsets one, two, three give rising response then the exact null, the ghost streams at support one, echo, superposition and CPT are exactly zero, the partial wall holds under forty percent of the full-palindrome wall with zero interior-row content, and the swap-wire planes carry more wall than the swap-free ones',
       metrics: {
-        xWallOffsets123: Number(
-          `${xOffset1}.${xOffset2}${xOffset3}`,
-        ),
+        xWallOffsets123: Number(`${xOffset1}.${xOffset2}${xOffset3}`),
         blindResponses: Math.max(yBlind, wBlind),
         ghostMaxSupport: ghost.maxSupport,
         echoHamming,

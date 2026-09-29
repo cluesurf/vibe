@@ -106,8 +106,22 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { wrap, type CMatrix } from '@/code/measure/dock-mixer'
-import { boundStateS, coulombSymbol, darwinR, darwinRatio, huskModes, staticR } from '@/code/measure/darwin-exchange'
-import { frameRN, partnerProjector48, REGISTER_ROOTS, registerPiece, scaled, singletProjector24 } from '@/code/measure/spinor-register'
+import {
+  boundStateS,
+  coulombSymbol,
+  darwinR,
+  darwinRatio,
+  huskModes,
+  staticR,
+} from '@/code/measure/darwin-exchange'
+import {
+  frameRN,
+  partnerProjector48,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+} from '@/code/measure/spinor-register'
 import { cycleBand, cyclePhases } from '@/code/measure/swap-cone'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 import { restFrame } from '@/code/measure/two-beat'
@@ -118,7 +132,12 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS3: readonly number[][] = [[1, 0, 0], [s2, s2, 0], [s3, s3, s3], GENERIC]
+const DIRS3: readonly number[][] = [
+  [1, 0, 0],
+  [s2, s2, 0],
+  [s3, s3, s3],
+  GENERIC,
+]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 const FIELDS: readonly number[][] = [
   [0.03, 0, 0, 0],
@@ -136,11 +155,26 @@ const HEAVY_MEAN_R = 5.726
 // the trit column's depth for the second speed ratio: c_l^2 = 2 kappa / 3, kappa = 2 / (2D + 1)
 const COLUMN_DEPTH = 5
 
-export type DarwinPlan = { momenta: number; currentMomenta: number; sigmas: readonly number[]; heavySide: number }
+export type DarwinPlan = {
+  momenta: number
+  currentMomenta: number
+  sigmas: readonly number[]
+  heavySide: number
+}
 
-export const GATE_PLAN: DarwinPlan = { momenta: 64, currentMomenta: 8, sigmas: [2, 3, 4, 5], heavySide: 40 }
+export const GATE_PLAN: DarwinPlan = {
+  momenta: 64,
+  currentMomenta: 8,
+  sigmas: [2, 3, 4, 5],
+  heavySide: 40,
+}
 
-export const SMOKE_PLAN: DarwinPlan = { momenta: 8, currentMomenta: 2, sigmas: [2, 3], heavySide: 24 }
+export const SMOKE_PLAN: DarwinPlan = {
+  momenta: 8,
+  currentMomenta: 2,
+  sigmas: [2, 3],
+  heavySide: 24,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -148,7 +182,10 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 function huskMomenta(count: number): number[][] {
   const alpha = [Math.SQRT2 - 1, Math.sqrt(3) - 1, Math.sqrt(5) - 2]
 
-  return Array.from({ length: count }, (_, j) => [...alpha.map(a => 2 * Math.PI * (((0.5 + (j + 1) * a) % 1) - 0.5)), 0])
+  return Array.from({ length: count }, (_, j) => [
+    ...alpha.map(a => 2 * Math.PI * (((0.5 + (j + 1) * a) % 1) - 0.5)),
+    0,
+  ])
 }
 
 // the Peierls coupling: each row of P (the slot the value is taken to) times e^(-i A . r_row), on all 8 register
@@ -159,14 +196,14 @@ function peierls(P: CMatrix, A: readonly number[]): CMatrix {
   const im = new Float64Array(n * n)
 
   for (let r = 0; r < n; r++) {
-    const root = REGISTER_ROOTS[r] as readonly number[]
+    const root = REGISTER_ROOTS[r]!
     const ph = -root.reduce((s, x, i) => s + x * (A[i] ?? 0), 0)
     const c = Math.cos(ph)
     const s = Math.sin(ph)
 
     for (let q = 0; q < n; q++) {
-      const a = P.re[r * n + q] as number
-      const b = P.im[r * n + q] as number
+      const a = P.re[r * n + q]!
+      const b = P.im[r * n + q]!
 
       re[r * n + q] = c * a - s * b
       im[r * n + q] = c * b + s * a
@@ -180,12 +217,15 @@ const sortedGap = (a: number[], b: number[]): number => {
   const x = [...a].sort((p, q) => p - q)
   const y = [...b].sort((p, q) => p - q)
 
-  return Math.max(...x.map((v, i) => Math.abs(wrap(v - (y[i] as number)))))
+  return Math.max(...x.map((v, i) => Math.abs(wrap(v - y[i]!))))
 }
 
 export function darwinRun(plan: DarwinPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
   // ---------------- the member: E-SPN-0160's light register schedule ----------------
   const u = ringUnit(LIGHT[0], LIGHT[1])
@@ -194,11 +234,24 @@ export function darwinRun(plan: DarwinPlan): Verdict {
   const M = 2 * m
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
-  const P: CMatrix[] = [registerPiece(qS, [Math.cos(theta), Math.sin(theta)]), registerPiece(qD, [Math.cos(theta), -Math.sin(theta)])]
+  const P: CMatrix[] = [
+    registerPiece(qS, [Math.cos(theta), Math.sin(theta)]),
+    registerPiece(qD, [Math.cos(theta), -Math.sin(theta)]),
+  ]
 
   // C4: E-SPN-0160 reproduced
   const frame = restFrame(theta, -theta, M)
-  const fits = DIRS3.map(d => frameRN(P, frame, theta, [...d, 0], C_QUARTER, SCALES, REGISTER_ROOTS))
+  const fits = DIRS3.map(d =>
+    frameRN(
+      P,
+      frame,
+      theta,
+      [...d, 0],
+      C_QUARTER,
+      SCALES,
+      REGISTER_ROOTS,
+    ),
+  )
   const tanRatio = Math.tan(m) / m
   const C4 = fits.every(f => Math.abs(f.R - tanRatio) <= 1e-9)
 
@@ -206,12 +259,25 @@ export function darwinRun(plan: DarwinPlan): Verdict {
 
   // ---------------- G1: the coupling is the shift K -> K + A ----------------
   const momenta = huskMomenta(plan.momenta)
+
   let g1Gap = 0
 
   for (const A of FIELDS) {
     const coupled = P.map(x => peierls(x, A))
 
-    for (const K of momenta) g1Gap = Math.max(g1Gap, sortedGap(cyclePhases(coupled, REGISTER_ROOTS, K), cyclePhases(P, REGISTER_ROOTS, K.map((x, i) => x + (A[i] ?? 0)))))
+    for (const K of momenta) {
+      g1Gap = Math.max(
+        g1Gap,
+        sortedGap(
+          cyclePhases(coupled, REGISTER_ROOTS, K),
+          cyclePhases(
+            P,
+            REGISTER_ROOTS,
+            K.map((x, i) => x + (A[i] ?? 0)),
+          ),
+        ),
+      )
+    }
   }
 
   const G1 = g1Gap <= 1e-12
@@ -221,12 +287,21 @@ export function darwinRun(plan: DarwinPlan): Verdict {
   // ---------------- G2: the current the light reads is the group velocity ----------------
   let g2Gap = 0
 
-  for (const K of momenta.slice(0, plan.currentMomenta).map(k => k.map(x => x * 0.3))) {
+  for (const K of momenta
+    .slice(0, plan.currentMomenta)
+    .map(k => k.map(x => x * 0.3))) {
     const band = cycleBand(P, REGISTER_ROOTS, K)
     // the S band's eigenphase: the one nearest pi + E on the upper branch (theta's side); its eigenvector's velocity
-    const target = band.phase.reduce((b, p, j) => (Math.abs(wrap(p - theta)) < Math.abs(wrap((band.phase[b] as number) - theta)) ? j : b), 0)
-    const phase0 = band.phase[target] as number
-    const hf = band.velocity[target] as number[]
+    const target = band.phase.reduce(
+      (b, p, j) =>
+        Math.abs(wrap(p - theta)) <
+        Math.abs(wrap(band.phase[b]! - theta))
+          ? j
+          : b,
+      0,
+    )
+    const phase0 = band.phase[target]!
+    const hf = band.velocity[target]!
     const fd = [0, 1, 2].map(i => {
       const read = (s: number): number => {
         const A = [0, 0, 0, 0]
@@ -237,14 +312,21 @@ export function darwinRun(plan: DarwinPlan): Verdict {
           P.map(x => peierls(x, A)),
           REGISTER_ROOTS,
           K,
-        ).reduce((b, p) => (Math.abs(wrap(p - phase0)) < Math.abs(wrap(b - phase0)) ? p : b))
+        ).reduce((b, p) =>
+          Math.abs(wrap(p - phase0)) < Math.abs(wrap(b - phase0))
+            ? p
+            : b,
+        )
       }
 
       // E = -phase / beats per beat; dE/dA_i
       return -wrap(read(1) - read(-1)) / (2 * CURRENT_STEP) / P.length
     })
 
-    g2Gap = Math.max(g2Gap, ...fd.map((x, i) => Math.abs(x - (hf[i] ?? 0))))
+    g2Gap = Math.max(
+      g2Gap,
+      ...fd.map((x, i) => Math.abs(x - (hf[i] ?? 0))),
+    )
   }
 
   const G2 = g2Gap <= 1e-6
@@ -254,10 +336,12 @@ export function darwinRun(plan: DarwinPlan): Verdict {
   // ---------------- L0, L1, C5: the light's kernels ----------------
   const smallK = 1e-2
   const tinyK = 1e-3
+
   let gaugeOk = true
   let degeneracy = 0
   let betaGap = 0
   let xGap = 0
+
   const coefficients: number[] = []
 
   for (const d of DIRS3) {
@@ -266,12 +350,19 @@ export function darwinRun(plan: DarwinPlan): Verdict {
       const modes = huskModes(k)
       const x = darwinRatio(k)
 
-      if (x.gauge !== 1) gaugeOk = false
+      if (x.gauge !== 1) {
+        gaugeOk = false
+      }
+
       if (r === smallK) {
         const [a, b] = x.transverse as [number, number]
 
         degeneracy = Math.max(degeneracy, Math.abs(a / b - 1))
-        betaGap = Math.max(betaGap, Math.abs(a / (r * r) - 2 / 3), Math.abs(b / (r * r) - 2 / 3))
+        betaGap = Math.max(
+          betaGap,
+          Math.abs(a / (r * r) - 2 / 3),
+          Math.abs(b / (r * r) - 2 / 3),
+        )
         coefficients.push((1 - x.X) / (r * r))
       } else {
         xGap = Math.max(xGap, Math.abs(x.X - 1))
@@ -280,19 +371,34 @@ export function darwinRun(plan: DarwinPlan): Verdict {
     }
   }
 
-  const coefficientSpread = Math.max(...coefficients.map(c => Math.abs(c / (coefficients[0] as number) - 1)))
+  const coefficientSpread = Math.max(
+    ...coefficients.map(c => Math.abs(c / coefficients[0]! - 1)),
+  )
   const L0 = gaugeOk && degeneracy <= 1e-6 && betaGap <= 1e-5
   const L1 = xGap <= 1e-6 && coefficientSpread <= 0.01
-  const epsGap = Math.max(...DIRS3.map(d => Math.abs(coulombSymbol(d.map(x => x * tinyK)) / (tinyK * tinyK) - 6)))
+  const epsGap = Math.max(
+    ...DIRS3.map(d =>
+      Math.abs(
+        coulombSymbol(d.map(x => x * tinyK)) / (tinyK * tinyK) - 6,
+      ),
+    ),
+  )
   const C5 = epsGap <= 1e-6
 
   log('L0, L1, C5')
 
   // ---------------- L2: the bound state's S ----------------
-  const states = plan.sigmas.map(sigma => ({ sigma, ...boundStateS(sigma, 8 * sigma) }))
-  const rising = states.every((s, i) => i === 0 || s.S > (states[i - 1] as { S: number }).S)
+  const states = plan.sigmas.map(sigma => ({
+    sigma,
+    ...boundStateS(sigma, 8 * sigma),
+  }))
+  const rising = states.every(
+    (s, i) => i === 0 || s.S > (states[i - 1] as { S: number }).S,
+  )
   const lawRatios = states.slice(1).map(s => (s.S - 1) / s.meanK2)
-  const lawSpread = Math.max(...lawRatios.map(x => Math.abs(x / (lawRatios[0] as number) - 1)))
+  const lawSpread = Math.max(
+    ...lawRatios.map(x => Math.abs(x / lawRatios[0]! - 1)),
+  )
   const last = states[states.length - 1] as { S: number }
   const L2 = rising && last.S >= 0.98 && lawSpread <= 0.1
 
@@ -310,24 +416,36 @@ export function darwinRun(plan: DarwinPlan): Verdict {
   const rColumn = darwinR(HEAVY_M, Eb, heavy.S, columnRatio2)
   const removed = (rStatic - rOne) / (rStatic - walk)
   const P1 = removed >= 0.8
-  const P2 = rOne < rStatic && rColumn < rStatic && rOne >= walk && rColumn >= walk
+  const P2 =
+    rOne < rStatic &&
+    rColumn < rStatic &&
+    rOne >= walk &&
+    rColumn >= walk
   const C1 = Math.abs(rStatic / HEAVY_R_RULE - 1) <= 0.02
-  const C2 = darwinR(HEAVY_M, 0, heavy.S, 1) === staticR(HEAVY_M, 0) && Math.abs(staticR(HEAVY_M, 0) - walk) <= 1e-15
+  const C2 =
+    darwinR(HEAVY_M, 0, heavy.S, 1) === staticR(HEAVY_M, 0) &&
+    Math.abs(staticR(HEAVY_M, 0) - walk) <= 1e-15
   const C3 = darwinR(HEAVY_M, Eb, 0, 1) === rStatic
 
   // read: the light register member
-  const lightReads = [0.005, 0.01, 0.02].map(e => ({ Eb: e, rStatic: staticR(m, e), rFull: darwinR(m, e, 1, 1) }))
+  const lightReads = [0.005, 0.01, 0.02].map(e => ({
+    Eb: e,
+    rStatic: staticR(m, e),
+    rFull: darwinR(m, e, 1, 1),
+  }))
 
   log('P, C')
 
   const gates = { G1, G2, L0, L1, L2, P1, P2 }
   const controls = { C1, C2, C3, C4, C5 }
-  const all = Object.values(gates).every(Boolean) && Object.values(controls).every(Boolean)
+  const all =
+    Object.values(gates).every(Boolean) &&
+    Object.values(controls).every(Boolean)
   const f = (x: number, d = 6): string => x.toFixed(d)
 
   return verdict({
     status: all ? 'partial' : 'fail',
-    claim: `the register member couples to the husk light exactly (the Peierls phase is register-blind and is the shift K -> K + A to ${g1Gap.toExponential(1)}, the current the light reads is the group velocity to ${g2Gap.toExponential(1)}), and the light's transverse and Coulomb kernels are one Maxwell Lagrangian at its own speed (1 gauge mode, transverse lambda / k^2 = 2/3 to ${betaGap.toExponential(1)}, X -> 1 to ${xGap.toExponential(1)}, X = 1 - ${f(coefficients[0] as number, 5)} k^2 isotropic to ${coefficientSpread.toExponential(1)}), so the transverse exchange supplies the Darwin inertia -(8/3) S E_b with S ${states.map(s => `${f(s.S, 5)} (sigma ${s.sigma})`).join(', ')}; on E-SPN-0155's bound heavy state (E_b ${f(Eb, 6)}, S ${f(heavy.S, 5)}) it takes R from the static ${f(rStatic, 5)} to ${f(rOne, 5)} at one speed (${f(rColumn, 5)} on the D = 5 trit column) against the member's own tan m / m ${f(walk, 6)}, removing ${f(removed, 3)} of the binding's excess; not run: the two members and the quantum light as one dynamics, and a light register pair held by the Coulomb pull`,
+    claim: `the register member couples to the husk light exactly (the Peierls phase is register-blind and is the shift K -> K + A to ${g1Gap.toExponential(1)}, the current the light reads is the group velocity to ${g2Gap.toExponential(1)}), and the light's transverse and Coulomb kernels are one Maxwell Lagrangian at its own speed (1 gauge mode, transverse lambda / k^2 = 2/3 to ${betaGap.toExponential(1)}, X -> 1 to ${xGap.toExponential(1)}, X = 1 - ${f(coefficients[0]!, 5)} k^2 isotropic to ${coefficientSpread.toExponential(1)}), so the transverse exchange supplies the Darwin inertia -(8/3) S E_b with S ${states.map(s => `${f(s.S, 5)} (sigma ${s.sigma})`).join(', ')}; on E-SPN-0155's bound heavy state (E_b ${f(Eb, 6)}, S ${f(heavy.S, 5)}) it takes R from the static ${f(rStatic, 5)} to ${f(rOne, 5)} at one speed (${f(rColumn, 5)} on the D = 5 trit column) against the member's own tan m / m ${f(walk, 6)}, removing ${f(removed, 3)} of the binding's excess; not run: the two members and the quantum light as one dynamics, and a light register pair held by the Coulomb pull`,
     metrics: {
       G1: flag(G1),
       G2: flag(G2),
@@ -341,10 +459,14 @@ export function darwinRun(plan: DarwinPlan): Verdict {
       betaGap,
       degeneracy,
       xGap,
-      k2Coefficient: coefficients[0] as number,
+      k2Coefficient: coefficients[0]!,
       coefficientSpread,
-      ...Object.fromEntries(states.map(s => [`S_sigma${s.sigma}`, s.S])),
-      ...Object.fromEntries(states.map(s => [`meanK2_sigma${s.sigma}`, s.meanK2])),
+      ...Object.fromEntries(
+        states.map(s => [`S_sigma${s.sigma}`, s.S]),
+      ),
+      ...Object.fromEntries(
+        states.map(s => [`meanK2_sigma${s.sigma}`, s.meanK2]),
+      ),
       lawSpread,
       heavyEb: Eb,
       heavySigma: sigmaHeavy,
@@ -355,12 +477,23 @@ export function darwinRun(plan: DarwinPlan): Verdict {
       rColumn,
       columnRatio2,
       removed,
-      ...Object.fromEntries(lightReads.flatMap(r => [
-        [`lightStatic_Eb${r.Eb}`, r.rStatic],
-        [`lightFull_Eb${r.Eb}`, r.rFull],
-      ])),
+      ...Object.fromEntries(
+        lightReads.flatMap(r => [
+          [`lightStatic_Eb${r.Eb}`, r.rStatic],
+          [`lightFull_Eb${r.Eb}`, r.rFull],
+        ]),
+      ),
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), C5: flag(C5), staticOverRule: rStatic / HEAVY_R_RULE, epsGap, tanRatio },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      C4: flag(C4),
+      C5: flag(C5),
+      staticOverRule: rStatic / HEAVY_R_RULE,
+      epsGap,
+      tanRatio,
+    },
     notes: `L2, deterministic (Weyl momenta, torus grids, separable Gaussian densities; no draw). Gates ${JSON.stringify(gates)}, controls ${JSON.stringify(controls)}. Member: light register u = ringUnit(${LIGHT.join(', ')}) m ${f(m, 6)}, R ${fits.map(x => f(x.R, 12)).join(' ')} against tan m/m ${f(tanRatio, 12)}. The Darwin reduction is the one-quantum exchange at order V^2 / c^2 (linear response of the light to the member's current), weighted by a Gaussian relative density whose continuum S is exactly 1. Light register member (read, S = 1, one speed): ${lightReads.map(r => `E_b ${r.Eb}: static ${f(r.rStatic, 5)}, full ${f(r.rFull, 5)}`).join('; ')} (tan m/m ${f(tanRatio, 6)}). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

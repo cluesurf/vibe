@@ -148,9 +148,37 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { bandAt, dockMatrix, DOCK_ROOTS, eigenphases, multipletsOf, velocityGap, wrap, type CMatrix, type Multiplet } from '@/code/measure/dock-mixer'
-import { fastestBand, masslessPair, singletKinematics, singletLevel, weylMomenta } from '@/code/measure/singlet-kinematics'
-import { cycleBand, cycleMultiplets, cyclePhases, cycleSinglet, eisValue, fastestCycleBand, ringAngle, structureFunction, swapPairSpeed, swapScheduleSpeed, type Eis } from '@/code/measure/swap-cone'
+import {
+  bandAt,
+  dockMatrix,
+  DOCK_ROOTS,
+  eigenphases,
+  multipletsOf,
+  velocityGap,
+  wrap,
+  type CMatrix,
+  type Multiplet,
+} from '@/code/measure/dock-mixer'
+import {
+  fastestBand,
+  masslessPair,
+  singletKinematics,
+  singletLevel,
+  weylMomenta,
+} from '@/code/measure/singlet-kinematics'
+import {
+  cycleBand,
+  cycleMultiplets,
+  cyclePhases,
+  cycleSinglet,
+  eisValue,
+  fastestCycleBand,
+  ringAngle,
+  structureFunction,
+  swapPairSpeed,
+  swapScheduleSpeed,
+  type Eis,
+} from '@/code/measure/swap-cone'
 
 const C = Math.SQRT2
 const SWAP_N = 2 / 3
@@ -182,20 +210,44 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
-const PLANE_PHI: readonly number[] = [Math.PI / 6, Math.PI / 3, (2 * Math.PI) / 3, (5 * Math.PI) / 6, (11 * Math.PI) / 12, Math.PI]
-const PLANE_M: readonly number[] = [0, Math.PI / 192, Math.PI / 48, Math.PI / 12]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
+const PLANE_PHI: readonly number[] = [
+  Math.PI / 6,
+  Math.PI / 3,
+  (2 * Math.PI) / 3,
+  (5 * Math.PI) / 6,
+  (11 * Math.PI) / 12,
+  Math.PI,
+]
+const PLANE_M: readonly number[] = [
+  0,
+  Math.PI / 192,
+  Math.PI / 48,
+  Math.PI / 12,
+]
 
 const coinN = (phi: number): number => (2 * Math.PI) / (3 * phi)
 const radial = DIRS.flatMap(u => RADII.map(r => u.map(x => x * r)))
 
 // the pair's circular midpoint drift and the K where the flat count is not 22 (a crossing within the tolerance)
-function pairDrift(phasesAt: (K: readonly number[]) => number[], flat: readonly number[], mid0: number, momenta: readonly (readonly number[])[]): { drift: number; miss: number } {
+function pairDrift(
+  phasesAt: (K: readonly number[]) => number[],
+  flat: readonly number[],
+  mid0: number,
+  momenta: readonly (readonly number[])[],
+): { drift: number; miss: number } {
   let drift = 0
   let miss = 0
 
   for (const K of momenta) {
-    const moving = phasesAt(K).filter(p => flat.every(c => Math.abs(wrap(p - c)) > FLAT_TOLERANCE))
+    const moving = phasesAt(K).filter(p =>
+      flat.every(c => Math.abs(wrap(p - c)) > FLAT_TOLERANCE),
+    )
 
     if (moving.length !== 2) {
       miss++
@@ -203,20 +255,45 @@ function pairDrift(phasesAt: (K: readonly number[]) => number[], flat: readonly 
     }
 
     const [a, b] = moving as [number, number]
-    const mid = Math.atan2(Math.sin(a) + Math.sin(b), Math.cos(a) + Math.cos(b))
+    const mid = Math.atan2(
+      Math.sin(a) + Math.sin(b),
+      Math.cos(a) + Math.cos(b),
+    )
 
     // two points on a circle have two midpoints, pi apart; the vector sum picks the one on the shorter arc, which
     // switches when the pair spreads past pi, so the midpoint is read modulo pi (a real drift under pi / 2 still shows)
-    drift = Math.max(drift, Math.min(Math.abs(wrap(mid - mid0)), Math.abs(wrap(mid - mid0 - Math.PI))))
+    drift = Math.max(
+      drift,
+      Math.min(
+        Math.abs(wrap(mid - mid0)),
+        Math.abs(wrap(mid - mid0 - Math.PI)),
+      ),
+    )
   }
 
   return { drift, miss }
 }
 
-type OnePoint = { top: number; closedGap: number; third: number; drift: number; miss: number; sizes: string; partnerSize: number; m: number; R: number[]; c2: number[]; eta: number[] }
+type OnePoint = {
+  top: number
+  closedGap: number
+  third: number
+  drift: number
+  miss: number
+  sizes: string
+  partnerSize: number
+  m: number
+  R: number[]
+  c2: number[]
+  eta: number[]
+}
 
 // U1, U2's midpoint and U3 for the one-beat swap coin at theta, hole and love; c0 the massless speed
-function readPoint(theta: number, c0: number, momenta: readonly (readonly number[])[]): OnePoint {
+function readPoint(
+  theta: number,
+  c0: number,
+  momenta: readonly (readonly number[])[],
+): OnePoint {
   let top = 0
   let closedGap = 0
   let third = 0
@@ -225,29 +302,75 @@ function readPoint(theta: number, c0: number, momenta: readonly (readonly number
     const P = dockMatrix(theta, SWAP_N, hole)
 
     for (const K of momenta) {
-      const s = bandAt(P, DOCK_ROOTS, K).velocity.map(v => Math.hypot(...v)).sort((x, y) => y - x)
+      const s = bandAt(P, DOCK_ROOTS, K)
+        .velocity.map(v => Math.hypot(...v))
+        .sort((x, y) => y - x)
 
-      top = Math.max(top, s[0] as number)
-      third = Math.max(third, s[2] as number)
-      closedGap = Math.max(closedGap, Math.abs((s[0] as number) - swapPairSpeed(theta, K)))
+      top = Math.max(top, s[0]!)
+      third = Math.max(third, s[2]!)
+      closedGap = Math.max(
+        closedGap,
+        Math.abs(s[0]! - swapPairSpeed(theta, K)),
+      )
     }
   }
 
   const P = dockMatrix(theta, SWAP_N, true)
   const level = singletLevel(P, DOCK_ROOTS, 12)
-  const flat = level.multiplets.filter(x => x.size > 1).map(x => x.center)
-  const { drift, miss } = pairDrift(K => eigenphases(P, DOCK_ROOTS, K), flat, level.midPhase, momenta)
-  const sizes = level.multiplets.map(x => x.size).sort((a, b) => a - b).join('+')
+  const flat = level.multiplets
+    .filter(x => x.size > 1)
+    .map(x => x.center)
+  const { drift, miss } = pairDrift(
+    K => eigenphases(P, DOCK_ROOTS, K),
+    flat,
+    level.midPhase,
+    momenta,
+  )
+  const sizes = level.multiplets
+    .map(x => x.size)
+    .sort((a, b) => a - b)
+    .join('+')
 
-  if (level.single < 0 || level.partner < 0 || level.m < 1e-9) return { top, closedGap, third, drift, miss, sizes, partnerSize: 0, m: 0, R: [], c2: [], eta: [] }
+  if (level.single < 0 || level.partner < 0 || level.m < 1e-9) {
+    return {
+      top,
+      closedGap,
+      third,
+      drift,
+      miss,
+      sizes,
+      partnerSize: 0,
+      m: 0,
+      R: [],
+      c2: [],
+      eta: [],
+    }
+  }
 
-  const k = DIRS.map(u => singletKinematics(P, DOCK_ROOTS, level, u, SCALES))
+  const k = DIRS.map(u =>
+    singletKinematics(P, DOCK_ROOTS, level, u, SCALES),
+  )
 
-  return { top, closedGap, third, drift, miss, sizes, partnerSize: (level.multiplets[level.partner] as Multiplet).size, m: level.m, R: k.map(x => (c0 * c0) / x.c2), c2: k.map(x => x.c2), eta: k.map(x => x.eta) }
+  return {
+    top,
+    closedGap,
+    third,
+    drift,
+    miss,
+    sizes,
+    partnerSize: level.multiplets[level.partner]!.size,
+    m: level.m,
+    R: k.map(x => (c0 * c0) / x.c2),
+    c2: k.map(x => x.c2),
+    eta: k.map(x => x.eta),
+  }
 }
 
-const rOk = (R: readonly number[]): boolean => R.length === DIRS.length && R.every(x => Math.abs(x - 1) <= R_TOLERANCE)
-const worst = (R: readonly number[]): number => (R.length ? Math.max(...R.map(x => Math.abs(x - 1))) : NaN)
+const rOk = (R: readonly number[]): boolean =>
+  R.length === DIRS.length &&
+  R.every(x => Math.abs(x - 1) <= R_TOLERANCE)
+const worst = (R: readonly number[]): number =>
+  R.length ? Math.max(...R.map(x => Math.abs(x - 1))) : NaN
 
 export default experiment({
   id: 'spin/swap-cone',
@@ -260,32 +383,48 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const weyl = weylMomenta(MOMENTA)
     const mainMomenta = [...weyl, ...radial]
     const sideMomenta = [...weyl.slice(0, SIDE_MOMENTA), ...radial]
 
     // ---------------- the ring: exact norms, the chosen angle, tunability ----------------
-    const table = Array.from({ length: K_TUNE }, (_, i) => ringAngle(PRIME, i + 1))
+    const table = Array.from({ length: K_TUNE }, (_, i) =>
+      ringAngle(PRIME, i + 1),
+    )
     const normsExact = table.every(r => r.normExact)
     const deltas = table.map(r => Math.abs(r.delta))
-    const distinct = deltas.every((d, i) => deltas.every((e, j) => i === j || Math.abs(d - e) > DISTINCT_TOLERANCE))
+    const distinct = deltas.every((d, i) =>
+      deltas.every(
+        (e, j) => i === j || Math.abs(d - e) > DISTINCT_TOLERANCE,
+      ),
+    )
     const leastM = Math.min(...deltas) / 2
     const leastK = deltas.indexOf(Math.min(...deltas)) + 1
-    const star = table[K_STAR - 1] as (typeof table)[number]
-    const second = table[K_SECOND - 1] as (typeof table)[number]
+    const star = table[K_STAR - 1]!
+    const second = table[K_SECOND - 1]!
     const thetaStar = Math.PI + star.delta
     const thetaSecond = Math.PI + second.delta
     const [cr, ci] = eisValue(star.numerator, star.den)
-    const angleGap = Math.max(Math.abs(cr - Math.cos(star.delta)), Math.abs(ci - Math.sin(star.delta)))
+    const angleGap = Math.max(
+      Math.abs(cr - Math.cos(star.delta)),
+      Math.abs(ci - Math.sin(star.delta)),
+    )
 
     log('ring')
 
     // ---------------- c0: the massless swap pair, and U2's gamma ----------------
     const P0 = dockMatrix(Math.PI, SWAP_N, true)
-    const pair0 = DIRS.map(u => masslessPair(P0, DOCK_ROOTS, 13, u, PAIR_KAPPA))
+    const pair0 = DIRS.map(u =>
+      masslessPair(P0, DOCK_ROOTS, 13, u, PAIR_KAPPA),
+    )
     const c0 = (pair0[0] as { c0: number }).c0
-    const gammaOverC0 = Math.max(...pair0.map(p => Math.abs(p.gamma) / p.c0))
+    const gammaOverC0 = Math.max(
+      ...pair0.map(p => Math.abs(p.gamma) / p.c0),
+    )
 
     log('c0')
 
@@ -296,39 +435,101 @@ export default experiment({
 
     let masslessTop = 0
 
-    for (const hole of [true, false]) masslessTop = Math.max(masslessTop, fastestBand(dockMatrix(Math.PI, SWAP_N, hole), DOCK_ROOTS, mainMomenta).speed)
+    for (const hole of [true, false]) {
+      masslessTop = Math.max(
+        masslessTop,
+        fastestBand(
+          dockMatrix(Math.PI, SWAP_N, hole),
+          DOCK_ROOTS,
+          mainMomenta,
+        ).speed,
+      )
+    }
 
-    const masslessRadial = radial.map(K => Math.max(...bandAt(P0, DOCK_ROOTS, K).velocity.map(v => Math.hypot(...v))) / C)
+    const masslessRadial = radial.map(
+      K =>
+        Math.max(
+          ...bandAt(P0, DOCK_ROOTS, K).velocity.map(v =>
+            Math.hypot(...v),
+          ),
+        ) / C,
+    )
 
     log('massless point')
 
-    const U1 = at.top <= c0 * (1 + SPEED_TOLERANCE) && masslessTop <= c0 * (1 + SPEED_TOLERANCE)
-    const U2 = gammaOverC0 <= GAMMA_CEILING && at.drift <= MIDPOINT_TOLERANCE && at.miss === 0
-    const U3 = at.sizes === '1+11+12' && at.partnerSize === 12 && rOk(at.R)
+    const U1 =
+      at.top <= c0 * (1 + SPEED_TOLERANCE) &&
+      masslessTop <= c0 * (1 + SPEED_TOLERANCE)
+    const U2 =
+      gammaOverC0 <= GAMMA_CEILING &&
+      at.drift <= MIDPOINT_TOLERANCE &&
+      at.miss === 0
+    const U3 =
+      at.sizes === '1+11+12' && at.partnerSize === 12 && rOk(at.R)
 
     // ---------------- U4a: the in-ring schedule ----------------
     const PA = dockMatrix(Math.PI, SWAP_N, true)
     const PB = dockMatrix((4 * Math.PI) / 3, SWAP_N, true)
     const schedule = [PA, PB]
-    const schedTop = fastestCycleBand(schedule, DOCK_ROOTS, sideMomenta).speed
-    const schedClosed = Math.max(...sideMomenta.map(K => Math.abs(Math.max(...cycleBand(schedule, DOCK_ROOTS, K).velocity.map(v => Math.hypot(...v))) - swapScheduleSpeed(Math.PI, (4 * Math.PI) / 3, K))))
+    const schedTop = fastestCycleBand(
+      schedule,
+      DOCK_ROOTS,
+      sideMomenta,
+    ).speed
+    const schedClosed = Math.max(
+      ...sideMomenta.map(K =>
+        Math.abs(
+          Math.max(
+            ...cycleBand(schedule, DOCK_ROOTS, K).velocity.map(v =>
+              Math.hypot(...v),
+            ),
+          ) - swapScheduleSpeed(Math.PI, (4 * Math.PI) / 3, K),
+        ),
+      ),
+    )
     const schedMs = cycleMultiplets(schedule, DOCK_ROOTS)
-    const schedSizes = schedMs.map(x => x.size).sort((a, b) => a - b).join('+')
+    const schedSizes = schedMs
+      .map(x => x.size)
+      .sort((a, b) => a - b)
+      .join('+')
     const schedFlat = schedMs.filter(x => x.size > 1).map(x => x.center)
     const schedSingle = schedMs.find(x => x.size === 1)
-    const schedMid0 = schedSingle && schedFlat.length === 1 ? (schedFlat[0] as number) + wrap(schedSingle.center - (schedFlat[0] as number)) / 2 : NaN
-    const schedDrift = pairDrift(K => cyclePhases(schedule, DOCK_ROOTS, K), schedFlat, schedMid0, sideMomenta)
-    const schedFit = DIRS.map(u => cycleSinglet(schedule, DOCK_ROOTS, u, SCALES))
+    const schedMid0 =
+      schedSingle && schedFlat.length === 1
+        ? schedFlat[0]! + wrap(schedSingle.center - schedFlat[0]!) / 2
+        : NaN
+    const schedDrift = pairDrift(
+      K => cyclePhases(schedule, DOCK_ROOTS, K),
+      schedFlat,
+      schedMid0,
+      sideMomenta,
+    )
+    const schedFit = DIRS.map(u =>
+      cycleSinglet(schedule, DOCK_ROOTS, u, SCALES),
+    )
     const schedR = schedFit.map(x => (c0 * c0) / x.c2)
-    const U4a = schedTop <= c0 * (1 + SPEED_TOLERANCE) && schedDrift.drift <= MIDPOINT_TOLERANCE && schedDrift.miss === 0 && schedSizes === '1+23' && rOk(schedR)
+    const U4a =
+      schedTop <= c0 * (1 + SPEED_TOLERANCE) &&
+      schedDrift.drift <= MIDPOINT_TOLERANCE &&
+      schedDrift.miss === 0 &&
+      schedSizes === '1+23' &&
+      rOk(schedR)
     const PT = dockMatrix(Math.PI, SWAP_N, true)
-    const triple = DIRS.slice(0, 1).map(u => cycleSinglet([PT, PT, PB], DOCK_ROOTS, u, SCALES))[0] as ReturnType<typeof cycleSinglet>
+    const triple = DIRS.slice(0, 1).map(u =>
+      cycleSinglet([PT, PT, PB], DOCK_ROOTS, u, SCALES),
+    )[0]!
 
     log('U4a')
 
     // ---------------- U4b: the extension ----------------
     const sec = readPoint(thetaSecond, c0, sideMomenta)
-    const secU = sec.top <= c0 * (1 + SPEED_TOLERANCE) && sec.drift <= MIDPOINT_TOLERANCE && sec.miss === 0 && sec.sizes === '1+11+12' && sec.partnerSize === 12 && rOk(sec.R)
+    const secU =
+      sec.top <= c0 * (1 + SPEED_TOLERANCE) &&
+      sec.drift <= MIDPOINT_TOLERANCE &&
+      sec.miss === 0 &&
+      sec.sizes === '1+11+12' &&
+      sec.partnerSize === 12 &&
+      rOk(sec.R)
     const U4b = normsExact && distinct && leastM <= TUNE_CEILING && secU
 
     log('U4b')
@@ -342,27 +543,62 @@ export default experiment({
       ].flatMap(K => DIRS.map(u => velocityGap(PS, DOCK_ROOTS, K, u))),
     )
     const level = singletLevel(PS, DOCK_ROOTS, 12)
-    const fitGap = Math.max(...DIRS.map(u => Math.abs(cycleSinglet([PS], DOCK_ROOTS, u, SCALES).c2 / singletKinematics(PS, DOCK_ROOTS, level, u, SCALES).c2 - 1)))
-    const instrument = at.closedGap <= CLOSED_TOLERANCE && at.third <= CLOSED_TOLERANCE && velGap <= VELOCITY_TOLERANCE && fitGap <= FIT_TOLERANCE && schedClosed <= CLOSED_TOLERANCE && angleGap <= ANGLE_TOLERANCE
+    const fitGap = Math.max(
+      ...DIRS.map(u =>
+        Math.abs(
+          cycleSinglet([PS], DOCK_ROOTS, u, SCALES).c2 /
+            singletKinematics(PS, DOCK_ROOTS, level, u, SCALES).c2 -
+            1,
+        ),
+      ),
+    )
+    const instrument =
+      at.closedGap <= CLOSED_TOLERANCE &&
+      at.third <= CLOSED_TOLERANCE &&
+      velGap <= VELOCITY_TOLERANCE &&
+      fitGap <= FIT_TOLERANCE &&
+      schedClosed <= CLOSED_TOLERANCE &&
+      angleGap <= ANGLE_TOLERANCE
 
     log('instrument')
 
     // ---------------- controls ----------------
     const phi1 = (2 * Math.PI) / 3
-    const c1Top = fastestBand(dockMatrix(phi1 + Math.PI / 24, 1, true), DOCK_ROOTS, weyl.slice(0, SIDE_MOMENTA)).speed
+    const c1Top = fastestBand(
+      dockMatrix(phi1 + Math.PI / 24, 1, true),
+      DOCK_ROOTS,
+      weyl.slice(0, SIDE_MOMENTA),
+    ).speed
     const C1 = c1Top > c0 * (1 + SPEED_TOLERANCE)
-    const g1 = masslessPair(dockMatrix(phi1, 1, true), DOCK_ROOTS, 13, DIRS[0] as number[], PAIR_KAPPA).gamma
+    const g1 = masslessPair(
+      dockMatrix(phi1, 1, true),
+      DOCK_ROOTS,
+      13,
+      DIRS[0]!,
+      PAIR_KAPPA,
+    ).gamma
     const g1Derived = 1 / Math.tan(phi1 / 2) / 8
     const C2 = Math.abs(g1 / g1Derived - 1) <= GAMMA_CONTROL_TOLERANCE
     const PR = dockMatrix((4 * Math.PI) / 3, SWAP_N, true)
     const lr = singletLevel(PR, DOCK_ROOTS, 12)
-    const ringR = DIRS.map(u => (c0 * c0) / singletKinematics(PR, DOCK_ROOTS, lr, u, SCALES).c2)
-    const C3 = lr.single >= 0 && Math.abs((ringR[0] as number) - 1) > R_TOLERANCE
+    const ringR = DIRS.map(
+      u =>
+        (c0 * c0) / singletKinematics(PR, DOCK_ROOTS, lr, u, SCALES).c2,
+    )
+    const C3 = lr.single >= 0 && Math.abs(ringR[0]! - 1) > R_TOLERANCE
     const phi4 = (11 * Math.PI) / 12
     const P4 = dockMatrix(phi4 + Math.PI / 24, coinN(phi4), true)
+
     let third4 = 0
 
-    for (const K of weyl.slice(0, SIDE_MOMENTA)) third4 = Math.max(third4, bandAt(P4, DOCK_ROOTS, K).velocity.map(v => Math.hypot(...v)).sort((x, y) => y - x)[2] as number)
+    for (const K of weyl.slice(0, SIDE_MOMENTA)) {
+      third4 = Math.max(
+        third4,
+        bandAt(P4, DOCK_ROOTS, K)
+          .velocity.map(v => Math.hypot(...v))
+          .sort((x, y) => y - x)[2]!,
+      )
+    }
 
     const C4 = third4 > FLAT_CONTROL_FLOOR
 
@@ -371,16 +607,31 @@ export default experiment({
     // ---------------- reported: the plane, the stream, the front, the lemma ----------------
     const plane = PLANE_PHI.map(phi => {
       const n = coinN(phi)
-      const g = masslessPair(dockMatrix(phi, n, true), DOCK_ROOTS, 13, DIRS[0] as number[], PAIR_KAPPA)
+      const g = masslessPair(
+        dockMatrix(phi, n, true),
+        DOCK_ROOTS,
+        13,
+        DIRS[0]!,
+        PAIR_KAPPA,
+      )
       const cells = PLANE_M.map(m => {
         const P = dockMatrix(phi + 2 * m, n, true)
-        const top = fastestBand(P, DOCK_ROOTS, weyl.slice(0, SIDE_MOMENTA)).speed
+        const top = fastestBand(
+          P,
+          DOCK_ROOTS,
+          weyl.slice(0, SIDE_MOMENTA),
+        ).speed
+
         let R = NaN
 
         if (m > 0) {
           const l = singletLevel(P, DOCK_ROOTS, 12)
 
-          if (l.single >= 0 && l.partner >= 0) R = (c0 * c0) / singletKinematics(P, DOCK_ROOTS, l, DIRS[0] as number[], SCALES).c2
+          if (l.single >= 0 && l.partner >= 0) {
+            R =
+              (c0 * c0) /
+              singletKinematics(P, DOCK_ROOTS, l, DIRS[0]!, SCALES).c2
+          }
         }
 
         return `m ${m.toFixed(4)}: top ${(top / C).toFixed(4)} c ${top <= c0 * (1 + SPEED_TOLERANCE) ? 'under' : 'OVER'} c0${m > 0 ? `, R ${R.toFixed(5)}` : ''}`
@@ -391,9 +642,15 @@ export default experiment({
 
     log('plane')
 
-    const stream = fastestBand(dockMatrix(0, STREAM_N, true), DOCK_ROOTS, weyl.slice(0, STREAM_MOMENTA)).speed / C
+    const stream =
+      fastestBand(
+        dockMatrix(0, STREAM_N, true),
+        DOCK_ROOTS,
+        weyl.slice(0, STREAM_MOMENTA),
+      ).speed / C
     const B = rootIndex([1, 1, 0, 0])
-    const front = Math.hypot(PS.re[B * 24 + B] as number, PS.im[B * 24 + B] as number)
+    const front = Math.hypot(PS.re[B * 24 + B]!, PS.im[B * 24 + B]!)
+
     let lemmaA = 0
     let lemmaB = 0
 
@@ -408,8 +665,13 @@ export default experiment({
 
     // ---------------- verdict ----------------
     const controls = C1 && C2 && C3 && C4
-    const status = !instrument || !controls ? 'partial' : U1 && U2 && U3 && U4a && U4b ? 'pass' : 'fail'
-    const cEff = Math.sqrt(at.c2[0] as number) / C
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : U1 && U2 && U3 && U4a && U4b
+          ? 'pass'
+          : 'fail'
+    const cEff = Math.sqrt(at.c2[0]!) / C
     const flag = (b: boolean): number => (b ? 1 : 0)
     const metrics: Record<string, number> = {
       U1: flag(U1),
@@ -430,22 +692,22 @@ export default experiment({
       gammaOverC0,
       midpointDrift: at.drift,
       flatMiss: at.miss,
-      RStar: at.R[0] as number,
+      RStar: at.R[0]!,
       RWorst: worst(at.R),
       cEffOverC: cEff,
-      etaStar: at.eta[0] as number,
+      etaStar: at.eta[0]!,
       schedTopOverC: schedTop / C,
       schedM: (schedFit[0] as { m: number }).m,
-      schedR: schedR[0] as number,
+      schedR: schedR[0]!,
       schedDrift: schedDrift.drift,
       tripleR: (c0 * c0) / triple.c2,
       tripleM: triple.m,
       secondM: sec.m,
-      secondR: sec.R[0] as number,
+      secondR: sec.R[0]!,
       secondTopOverC: sec.top / C,
       leastM,
       leastK,
-      ringR: ringR[0] as number,
+      ringR: ringR[0]!,
       c1TopOverC: c1Top / C,
       gammaN1: g1,
       thirdN811: third4 / C,
@@ -464,9 +726,15 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `U1 ${U1} (theta* ${thetaStar.toFixed(6)}: top ${(at.top / C).toFixed(6)} c, massless ${(masslessTop / C).toFixed(8)} c, against c0 ${(c0 / C).toFixed(10)} c); U2 ${U2} (gamma/c0 ${gammaOverC0.toExponential(2)}, midpoint drift ${at.drift.toExponential(2)}, ${at.miss} misses); U3 ${U3} (multiplets ${at.sizes}, partner ${at.partnerSize}, m ${at.m.toFixed(6)}, R ${at.R.map(x => x.toFixed(6)).join(' ')}, c_eff ${cEff.toFixed(6)} c, eta ${(at.eta[0] as number).toExponential(3)}); U4a ${U4a} (schedule pi, 4pi/3: ${schedSizes}, per-beat m ${((schedFit[0] as { m: number }).m).toFixed(6)}, R ${schedR.map(x => x.toFixed(6)).join(' ')}, top ${(schedTop / C).toFixed(6)} c, drift ${schedDrift.drift.toExponential(2)}); U4b ${U4b} (norms exact ${normsExact}, distinct ${distinct}, least m ${leastM.toFixed(6)} at k ${leastK}; k 2: m ${sec.m.toFixed(6)}, R ${sec.R.map(x => x.toFixed(6)).join(' ')}, top ${(sec.top / C).toFixed(6)} c); controls C1 ${C1} (n 1 top ${(c1Top / C).toFixed(4)} c), C2 ${C2} (gamma ${g1.toFixed(7)} against ${g1Derived.toFixed(7)}), C3 ${C3} (in-ring R ${(ringR[0] as number).toFixed(6)}), C4 ${C4} (phi 11pi/12 third band ${(third4 / C).toFixed(4)} c)`,
+      claim: `U1 ${U1} (theta* ${thetaStar.toFixed(6)}: top ${(at.top / C).toFixed(6)} c, massless ${(masslessTop / C).toFixed(8)} c, against c0 ${(c0 / C).toFixed(10)} c); U2 ${U2} (gamma/c0 ${gammaOverC0.toExponential(2)}, midpoint drift ${at.drift.toExponential(2)}, ${at.miss} misses); U3 ${U3} (multiplets ${at.sizes}, partner ${at.partnerSize}, m ${at.m.toFixed(6)}, R ${at.R.map(x => x.toFixed(6)).join(' ')}, c_eff ${cEff.toFixed(6)} c, eta ${at.eta[0]!.toExponential(3)}); U4a ${U4a} (schedule pi, 4pi/3: ${schedSizes}, per-beat m ${(schedFit[0] as { m: number }).m.toFixed(6)}, R ${schedR.map(x => x.toFixed(6)).join(' ')}, top ${(schedTop / C).toFixed(6)} c, drift ${schedDrift.drift.toExponential(2)}); U4b ${U4b} (norms exact ${normsExact}, distinct ${distinct}, least m ${leastM.toFixed(6)} at k ${leastK}; k 2: m ${sec.m.toFixed(6)}, R ${sec.R.map(x => x.toFixed(6)).join(' ')}, top ${(sec.top / C).toFixed(6)} c); controls C1 ${C1} (n 1 top ${(c1Top / C).toFixed(4)} c), C2 ${C2} (gamma ${g1.toFixed(7)} against ${g1Derived.toFixed(7)}), C3 ${C3} (in-ring R ${ringR[0]!.toFixed(6)}), C4 ${C4} (phi 11pi/12 third band ${(third4 / C).toFixed(4)} c)`,
       metrics,
-      control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        C3: flag(C3),
+        C4: flag(C4),
+        instrument: flag(instrument),
+      },
       notes: `L1/L2. Plane (top over ${SIDE_MOMENTA} Weyl momenta, hole): ${plane.join(' | ')}. Chosen point e^(i theta*) = -(${star.numerator.join(' + ')} w) / ${star.den}; ring table (k: m): ${table.map(r => `${r.k}: ${(Math.abs(r.delta) / 2).toFixed(6)}`).join(', ')}. Massless swap speed on the radial set (axis, face, body, generic at |K| ${RADII.join(', ')}): ${masslessRadial.map(x => x.toFixed(9)).join(' ')} c. Period-3 schedule (pi, pi, 4pi/3): ${triple.sizes.join('+')}, per-beat m ${triple.m.toFixed(6)}, R ${((c0 * c0) / triple.c2).toFixed(6)}. Chosen point along axis/face/body/generic: c^2 ${at.c2.map(x => x.toFixed(10)).join(' ')}, eta ${at.eta.map(x => x.toExponential(3)).join(' ')}. Bare stream (n ${STREAM_N}, theta 0): top ${stream.toFixed(8)} c. Front: |P_BB| at theta* ${front.toFixed(6)} (weight ${(front * front).toExponential(3)} a beat at c). Lemma over the U1 momenta: max |grad g|^2 / ((1 - <cos^2>)/2) ${lemmaA.toFixed(9)}, max ((1 - <cos^2>)/2) / ((1 - g^2)/2) ${lemmaB.toFixed(9)}. In-ring 4pi/3 R ${ringR.map(x => x.toFixed(6)).join(' ')}. Instrument: closed form ${at.closedGap.toExponential(2)}, third band ${at.third.toExponential(2)}, velocity ${velGap.toExponential(2)}, fit ${fitGap.toExponential(2)}, schedule closed form ${schedClosed.toExponential(2)}, angle ${angleGap.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

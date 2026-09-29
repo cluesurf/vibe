@@ -151,7 +151,6 @@ export function excessProfileSeries(input: {
       table,
       collision,
     })
-
     ;[referenceCurrent, referenceScratch] = [
       referenceScratch,
       referenceCurrent,

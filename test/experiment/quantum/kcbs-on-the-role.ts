@@ -58,7 +58,13 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { fearKernels, meetingKernel, swapPhase, wholeUnits, type Whole } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  meetingKernel,
+  swapPhase,
+  wholeUnits,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import {
   classicalRecords,
   meetingPairs,
@@ -69,7 +75,10 @@ import {
   weylBackground,
   type RoleState,
 } from '@/code/measure/knit-magic'
-import { displacement, phasePoint } from '@/code/measure/qutrit-phase-space'
+import {
+  displacement,
+  phasePoint,
+} from '@/code/measure/qutrit-phase-space'
 import { operator, type Operator } from '@/code/measure/grid-weights'
 import {
   hermitianEigenvectors,
@@ -99,6 +108,7 @@ function pearson(x: readonly number[], y: readonly number[]): number {
   const n = x.length
   const mx = x.reduce((s, v) => s + v, 0) / n
   const my = y.reduce((s, v) => s + v, 0) / n
+
   let sxy = 0
   let sxx = 0
   let syy = 0
@@ -133,7 +143,7 @@ export default experiment({
   id: 'quantum/kcbs-on-the-role',
   code: 'E-QTM-0120',
   title:
-    'KCBS on the role qutrit: in the grid\'s own frame a pentagram violation happens exactly when a role\'s Wigner weight falls below -sqrt 5 / 15, so violation implies fear but fear does not imply violation, while the pentagram in its best orientation sees only the spectrum and is violated maximally by fear-free states; the stabilizer states hold no pentagon, so KCBS is not the contextuality that equals negativity',
+    "KCBS on the role qutrit: in the grid's own frame a pentagram violation happens exactly when a role's Wigner weight falls below -sqrt 5 / 15, so violation implies fear but fear does not imply violation, while the pentagram in its best orientation sees only the spectrum and is violated maximally by fear-free states; the stabilizer states hold no pentagon, so KCBS is not the contextuality that equals negativity",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -143,10 +153,15 @@ export default experiment({
     let classicalBound = 0
 
     for (let mask = 0; mask < 32; mask++) {
-      const ok = [0, 1, 2, 3, 4].every(k => !((mask >> k) & 1 && (mask >> ((k + 1) % 5)) & 1))
+      const ok = [0, 1, 2, 3, 4].every(
+        k => !((mask >> k) & 1 && (mask >> ((k + 1) % 5)) & 1),
+      )
 
       if (ok) {
-        classicalBound = Math.max(classicalBound, [0, 1, 2, 3, 4].filter(k => (mask >> k) & 1).length)
+        classicalBound = Math.max(
+          classicalBound,
+          [0, 1, 2, 3, 4].filter(k => (mask >> k) & 1).length,
+        )
       }
     }
 
@@ -157,17 +172,24 @@ export default experiment({
     }
 
     const standard = kcbsVectors(identity3)
+
     let orthogonality = 0
 
     for (let k = 0; k < 5; k++) {
       const a = standard.vectors[k]
       const b = standard.vectors[(k + 1) % 5]
+
       let re = 0
       let im = 0
 
       for (let i = 0; i < 3; i++) {
-        re += (a?.re[i] ?? 0) * (b?.re[i] ?? 0) + (a?.im[i] ?? 0) * (b?.im[i] ?? 0)
-        im += (a?.re[i] ?? 0) * (b?.im[i] ?? 0) - (a?.im[i] ?? 0) * (b?.re[i] ?? 0)
+        re +=
+          (a?.re[i] ?? 0) * (b?.re[i] ?? 0) +
+          (a?.im[i] ?? 0) * (b?.im[i] ?? 0)
+
+        im +=
+          (a?.re[i] ?? 0) * (b?.im[i] ?? 0) -
+          (a?.im[i] ?? 0) * (b?.re[i] ?? 0)
       }
 
       orthogonality = Math.max(orthogonality, Math.hypot(re, im))
@@ -218,12 +240,18 @@ export default experiment({
     const orthogonal = (x: number, y: number): boolean => {
       const a = stabilizer[x]
       const b = stabilizer[y]
+
       let re = 0
       let im = 0
 
       for (let i = 0; i < 3; i++) {
-        re += (a?.re[i] ?? 0) * (b?.re[i] ?? 0) + (a?.im[i] ?? 0) * (b?.im[i] ?? 0)
-        im += (a?.re[i] ?? 0) * (b?.im[i] ?? 0) - (a?.im[i] ?? 0) * (b?.re[i] ?? 0)
+        re +=
+          (a?.re[i] ?? 0) * (b?.re[i] ?? 0) +
+          (a?.im[i] ?? 0) * (b?.im[i] ?? 0)
+
+        im +=
+          (a?.re[i] ?? 0) * (b?.im[i] ?? 0) -
+          (a?.im[i] ?? 0) * (b?.re[i] ?? 0)
       }
 
       return Math.hypot(re, im) < 1e-9
@@ -236,7 +264,8 @@ export default experiment({
       for (let y = x + 1; y < 12; y++) {
         if (orthogonal(x, y)) {
           edges++
-          edgesWithinBasis += Math.floor(x / 3) === Math.floor(y / 3) ? 1 : 0
+          edgesWithinBasis +=
+            Math.floor(x / 3) === Math.floor(y / 3) ? 1 : 0
         }
       }
     }
@@ -251,7 +280,12 @@ export default experiment({
             for (let e = 0; e < 12; e++) {
               const cycle = [a, b, c, d, e]
 
-              if (new Set(cycle).size === 5 && cycle.every((x, k) => orthogonal(x, cycle[(k + 1) % 5] ?? x))) {
+              if (
+                new Set(cycle).size === 5 &&
+                cycle.every((x, k) =>
+                  orthogonal(x, cycle[(k + 1) % 5] ?? x),
+                )
+              ) {
                 pentagons++
               }
             }
@@ -261,16 +295,26 @@ export default experiment({
     }
 
     // the phase-point axes: the -1 eigenvector of A(u) first, as the frame's first column
-    const frames: Operator[] = [0, 1, 2].flatMap(a => [0, 1, 2].map(b => hermitianEigenvectors(operatorFrom3(phasePoint(a, b))).vectors))
-    const onePoints = [0, 1, 2].flatMap(a => [0, 1, 2].map(b => operatorFrom3(phasePoint(a, b))))
+    const frames: Operator[] = [0, 1, 2].flatMap(a =>
+      [0, 1, 2].map(
+        b =>
+          hermitianEigenvectors(operatorFrom3(phasePoint(a, b)))
+            .vectors,
+      ),
+    )
+    const onePoints = [0, 1, 2].flatMap(a =>
+      [0, 1, 2].map(b => operatorFrom3(phasePoint(a, b))),
+    )
     const alignedOperators = frames.map(f => kcbsVectors(f).sum)
 
     // the reached states
     const weave = makeColorWeave({ side: SIDE, table: 'pair' })
     const slots = weave.mesh.cellCount * 24
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
+    const colorOn =
+      fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
     const dock0 = Array.from({ length: 24 }, (_, d) => d)
+
     let states = 0
     let fearStates = 0
     let alignedViolations = 0
@@ -283,6 +327,7 @@ export default experiment({
     let fearFreeAtSqrt5 = 0
     let freeViolations = 0
     let deepestWeight = 0
+
     const negativities: number[] = []
     const alignedValues: number[] = []
     const freeValues: number[] = []
@@ -290,9 +335,24 @@ export default experiment({
     // reported after the first run, not gated: the same maxima split by law, and how many reduced states are
     // outside the state space (a negative eigenvalue), since the color law's wholes are not always states
     const byLaw = [
-      { maxAligned: 0, maxFree: 0, violations: 0, states: 0, outside: 0, deepest: 0 },
-      { maxAligned: 0, maxFree: 0, violations: 0, states: 0, outside: 0, deepest: 0 },
+      {
+        maxAligned: 0,
+        maxFree: 0,
+        violations: 0,
+        states: 0,
+        outside: 0,
+        deepest: 0,
+      },
+      {
+        maxAligned: 0,
+        maxFree: 0,
+        violations: 0,
+        states: 0,
+        outside: 0,
+        deepest: 0,
+      },
     ]
+
     let lawIndex = 0
 
     const visit = (w: readonly number[]): void => {
@@ -306,7 +366,14 @@ export default experiment({
       const free = kcbsBestOrientation(spectrum)
       const hasFear = minimum < -1e-12
       const violates = aligned > 2 + 1e-12
-      const tally = byLaw[lawIndex] ?? { maxAligned: 0, maxFree: 0, violations: 0, states: 0, outside: 0, deepest: 0 }
+      const tally = byLaw[lawIndex] ?? {
+        maxAligned: 0,
+        maxFree: 0,
+        violations: 0,
+        states: 0,
+        outside: 0,
+        deepest: 0,
+      }
 
       tally.states++
       tally.outside += (spectrum[0] ?? 0) < -1e-9 ? 1 : 0
@@ -322,22 +389,36 @@ export default experiment({
       fearWithoutViolation += hasFear && !violates ? 1 : 0
 
       if (Math.abs(minimum - KCBS_NEGATIVITY_THRESHOLD) > 1e-12) {
-        equivalenceMismatch += violates !== minimum < KCBS_NEGATIVITY_THRESHOLD ? 1 : 0
+        equivalenceMismatch +=
+          violates !== minimum < KCBS_NEGATIVITY_THRESHOLD ? 1 : 0
       }
 
-      closedFormError = Math.max(closedFormError, Math.abs(direct - aligned))
+      closedFormError = Math.max(
+        closedFormError,
+        Math.abs(direct - aligned),
+      )
       maxAligned = Math.max(maxAligned, aligned)
       maxFree = Math.max(maxFree, free)
       freeViolations += free > 2 + 1e-12 ? 1 : 0
-      fearFreeAtSqrt5 += !hasFear && Math.abs(free - SQRT5) < 1e-9 ? 1 : 0
+      fearFreeAtSqrt5 +=
+        !hasFear && Math.abs(free - SQRT5) < 1e-9 ? 1 : 0
       deepestWeight = Math.min(deepestWeight, minimum)
       negativities.push(negativity)
       alignedValues.push(aligned)
       freeValues.push(free)
     }
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: dock0, beats: BEATS })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: dock0,
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
@@ -345,14 +426,23 @@ export default experiment({
         for (const start of STARTS) {
           const startWhole = productWhole([a, b], start)
 
-          for (const [li, law] of [{ kernel4: kThird }, { kernel4: [] as number[][], color: colorOn }].entries()) {
+          for (const [li, law] of [
+            { kernel4: kThird },
+            { kernel4: [] as number[][], color: colorOn },
+          ].entries()) {
             lawIndex = li
 
             for (const m of marginals(startWhole)) {
               visit(m)
             }
 
-            for (const step of runWhole({ weave, start: startWhole, records: mine, kernel4: law.kernel4, color: law.color })) {
+            for (const step of runWhole({
+              weave,
+              start: startWhole,
+              records: mine,
+              kernel4: law.kernel4,
+              color: law.color,
+            })) {
               for (const m of marginals(step.whole)) {
                 visit(m)
               }
@@ -377,7 +467,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the pentagon\'s classical bound is 2 and the regular pentagram reaches sqrt 5; the 12 stabilizer states form 4 orthogonal triangles with no pentagon; on every reduced role state the knit reaches, the pentagram on a phase point\'s axis equals its closed form in W and violates exactly when W < -sqrt 5 / 15, never without fear, while fear-free states violate the best-oriented pentagram maximally, so KCBS violation tracks fear one way in the grid\'s frame and not at all with free measurements',
+        "the pentagon's classical bound is 2 and the regular pentagram reaches sqrt 5; the 12 stabilizer states form 4 orthogonal triangles with no pentagon; on every reduced role state the knit reaches, the pentagram on a phase point's axis equals its closed form in W and violates exactly when W < -sqrt 5 / 15, never without fear, while fear-free states violate the best-oriented pentagram maximally, so KCBS violation tracks fear one way in the grid's frame and not at all with free measurements",
       metrics: {
         reducedStates: states,
         statesWithFear: fearStates,
@@ -391,8 +481,14 @@ export default experiment({
         maxFreeValue: maxFree,
         freeViolations,
         fearFreeStatesAtSqrt5: fearFreeAtSqrt5,
-        correlationAlignedWithNegativity: pearson(alignedValues, negativities),
-        correlationFreeWithNegativity: pearson(freeValues, negativities),
+        correlationAlignedWithNegativity: pearson(
+          alignedValues,
+          negativities,
+        ),
+        correlationFreeWithNegativity: pearson(
+          freeValues,
+          negativities,
+        ),
         negativityThreshold: KCBS_NEGATIVITY_THRESHOLD,
         swapLawStates: byLaw[0]?.states ?? 0,
         swapLawStatesOutsideStateSpace: byLaw[0]?.outside ?? 0,
@@ -418,7 +514,8 @@ export default experiment({
         stabilizerPentagons: pentagons,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear 113,016 -> 94,658, aligned violations 52,820 -> 63,330, fear without an aligned violation 60,196 -> 31,328, the aligned correlation with negativity 0.9676 -> 0.9722. " + ('L2. The aligned value is (5 - sqrt 5)/2 + (3 sqrt 5 - 5)/2 x (1 - 3 W)/2, checked against the pentagram built on the -1 eigenvector of A(u) at the most negative point of every state; the free value is the best orientation of the regular pentagram, not the best of all pentagon configurations. Reduced states are the marginals of the two-role wholes of E-QTM-0119\'s histories, starts included, both tokens, both laws. The contextuality HWVE equate with negativity is with respect to stabilizer measurements on many copies or with ancillas; one qutrit\'s stabilizer states hold no pentagon, so no KCBS test lives inside them.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear 113,016 -> 94,658, aligned violations 52,820 -> 63,330, fear without an aligned violation 60,196 -> 31,328, the aligned correlation with negativity 0.9676 -> 0.9722. ' +
+        "L2. The aligned value is (5 - sqrt 5)/2 + (3 sqrt 5 - 5)/2 x (1 - 3 W)/2, checked against the pentagram built on the -1 eigenvector of A(u) at the most negative point of every state; the free value is the best orientation of the regular pentagram, not the best of all pentagon configurations. Reduced states are the marginals of the two-role wholes of E-QTM-0119's histories, starts included, both tokens, both laws. The contextuality HWVE equate with negativity is with respect to stabilizer measurements on many copies or with ancillas; one qutrit's stabilizer states hold no pentagon, so no KCBS test lives inside them.",
     })
   },
 })

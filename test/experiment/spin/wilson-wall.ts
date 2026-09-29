@@ -128,19 +128,88 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { ringUnit, unitAngle, unitNormExact } from '@/code/measure/swap-string'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  ringUnit,
+  unitAngle,
+  unitNormExact,
+} from '@/code/measure/swap-string'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { cycleBand, cyclePhases } from '@/code/measure/swap-cone'
 import { radialPaths, restFrame } from '@/code/measure/two-beat'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { cycleMasslessPairN, f4Group, frameRN, matMul, pairCensusN, partnerProjector48, rangeBasis, REGISTER_ROOTS, registerPiece, scaled, singletProjector24, type GroupElement } from '@/code/measure/spinor-register'
-import { chirality2, det4, sectorBasis, sectorBlock, trimaximal, volumeRight } from '@/code/measure/chiral-register'
-import { chernFromZeros, halfCycle, halfPieces, halfPhases, scanZeros, windingOfDet, type Zero } from '@/code/measure/chiral-flow'
-import { qw, qwAdd, qwDiag, qwFromEisQMatrix, qwFromUnit, qwIsZero, qwMul, qwSub, QW_ZERO, type QW, type QWMatrix } from '@/code/measure/flavor-register'
-import { exchangeCount, fockGamma, fockStates, qwMatMulSq, unitPower } from '@/code/measure/register-many-body'
-import { branchBeat, holeImage, pairRate, type FockVector } from '@/code/measure/sea-conjugation'
-import { clusterWeights, eigenResidual, slabReduced, unitaryEigen, wallChirality, wilsonSchedule, windowLevels, type HalfSet, type Slab } from '@/code/measure/wilson-register'
+import {
+  cycleMasslessPairN,
+  f4Group,
+  frameRN,
+  matMul,
+  pairCensusN,
+  partnerProjector48,
+  rangeBasis,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+  type GroupElement,
+} from '@/code/measure/spinor-register'
+import {
+  chirality2,
+  det4,
+  sectorBasis,
+  sectorBlock,
+  trimaximal,
+  volumeRight,
+} from '@/code/measure/chiral-register'
+import {
+  chernFromZeros,
+  halfCycle,
+  halfPieces,
+  halfPhases,
+  scanZeros,
+  windingOfDet,
+  type Zero,
+} from '@/code/measure/chiral-flow'
+import {
+  qw,
+  qwAdd,
+  qwDiag,
+  qwFromEisQMatrix,
+  qwFromUnit,
+  qwIsZero,
+  qwMul,
+  qwSub,
+  QW_ZERO,
+  type QW,
+  type QWMatrix,
+} from '@/code/measure/flavor-register'
+import {
+  exchangeCount,
+  fockGamma,
+  fockStates,
+  qwMatMulSq,
+  unitPower,
+} from '@/code/measure/register-many-body'
+import {
+  branchBeat,
+  holeImage,
+  pairRate,
+  type FockVector,
+} from '@/code/measure/sea-conjugation'
+import {
+  clusterWeights,
+  eigenResidual,
+  slabReduced,
+  unitaryEigen,
+  wallChirality,
+  wilsonSchedule,
+  windowLevels,
+  type HalfSet,
+  type Slab,
+} from '@/code/measure/wilson-register'
 
 const C_QUARTER = Math.SQRT2 / 4
 const HEAVY: readonly [number, number] = [-2, 5]
@@ -158,17 +227,41 @@ const PREDICTED_AS1 = qw(3047158125n, 0n, 10851569165584n)
 const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GEN_RAW = [0.29, 0.52, 0.8, 0]
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GEN_RAW.map(x => x / Math.hypot(...GEN_RAW))]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GEN_RAW.map(x => x / Math.hypot(...GEN_RAW)),
+]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 const WINDOW_GAP = 0.1
 const K_STEP = 0.01
 const FIELD_K2: readonly number[] = [0, 0.4, 0.8, 1.6, 2.4, Math.PI]
 
-export type WilsonPlan = { grid: number; gapMomenta: number; wallL: number; fieldL: number; speedMomenta: number; censusSteps: number; windingSteps: number; controlSteps: readonly number[] }
+export type WilsonPlan = {
+  grid: number
+  gapMomenta: number
+  wallL: number
+  fieldL: number
+  speedMomenta: number
+  censusSteps: number
+  windingSteps: number
+  controlSteps: readonly number[]
+}
 
-export const GATE_PLAN: WilsonPlan = { grid: 12, gapMomenta: 512, wallL: 12, fieldL: 12, speedMomenta: 256, censusSteps: 120, windingSteps: 48, controlSteps: [480, 481] }
+export const GATE_PLAN: WilsonPlan = {
+  grid: 12,
+  gapMomenta: 512,
+  wallL: 12,
+  fieldL: 12,
+  speedMomenta: 256,
+  censusSteps: 120,
+  windingSteps: 48,
+  controlSteps: [480, 481],
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
+
 const unitValue = (k: number, j: number): [number, number] => {
   const t = unitAngle(ringUnit(k, j))
 
@@ -190,15 +283,19 @@ export default experiment({
 })
 
 // covariance of a 192 piece under a list of W(F4) elements: the largest |g P - P g| entry
-function covarianceGap(P: CMatrix, group: readonly GroupElement[]): number {
+function covarianceGap(
+  P: CMatrix,
+  group: readonly GroupElement[],
+): number {
   const n = 192
+
   let worst = 0
 
   for (const g of group) {
     for (let d = 0; d < 24; d++) {
       for (let e = 0; e < 24; e++) {
-        const sd = g.slots[d] as number
-        const se = g.slots[e] as number
+        const sd = g.slots[d]!
+        const se = g.slots[e]!
 
         for (let a = 0; a < 8; a++) {
           for (let c = 0; c < 8; c++) {
@@ -208,15 +305,20 @@ function covarianceGap(P: CMatrix, group: readonly GroupElement[]): number {
             let ri = 0
 
             for (let b = 0; b < 8; b++) {
-              const ga = (g.register[a] as number[])[b] as number
-              const gc = (g.register[b] as number[])[c] as number
+              const ga = g.register[a]![b]!
+              const gc = g.register[b]![c]!
 
-              lr += ga * (P.re[(d * 8 + b) * n + e * 8 + c] as number)
-              li += ga * (P.im[(d * 8 + b) * n + e * 8 + c] as number)
-              rr += (P.re[(sd * 8 + a) * n + se * 8 + b] as number) * gc
-              ri += (P.im[(sd * 8 + a) * n + se * 8 + b] as number) * gc
+              lr += ga * P.re[(d * 8 + b) * n + e * 8 + c]!
+              li += ga * P.im[(d * 8 + b) * n + e * 8 + c]!
+              rr += P.re[(sd * 8 + a) * n + se * 8 + b]! * gc
+              ri += P.im[(sd * 8 + a) * n + se * 8 + b]! * gc
             }
-            worst = Math.max(worst, Math.abs(lr - rr), Math.abs(li - ri))
+
+            worst = Math.max(
+              worst,
+              Math.abs(lr - rr),
+              Math.abs(li - ri),
+            )
           }
         }
       }
@@ -228,6 +330,7 @@ function covarianceGap(P: CMatrix, group: readonly GroupElement[]): number {
 
 function unitarityGap(P: CMatrix): number {
   const n = 192
+
   let worst = 0
 
   for (let i = 0; i < n; i++) {
@@ -236,10 +339,20 @@ function unitarityGap(P: CMatrix): number {
       let im = 0
 
       for (let k = 0; k < n; k++) {
-        r += (P.re[k * n + i] as number) * (P.re[k * n + j] as number) + (P.im[k * n + i] as number) * (P.im[k * n + j] as number)
-        im += (P.re[k * n + i] as number) * (P.im[k * n + j] as number) - (P.im[k * n + i] as number) * (P.re[k * n + j] as number)
+        r +=
+          P.re[k * n + i]! * P.re[k * n + j]! +
+          P.im[k * n + i]! * P.im[k * n + j]!
+
+        im +=
+          P.re[k * n + i]! * P.im[k * n + j]! -
+          P.im[k * n + i]! * P.re[k * n + j]!
       }
-      worst = Math.max(worst, Math.abs(r - (i === j ? 1 : 0)), Math.abs(im))
+
+      worst = Math.max(
+        worst,
+        Math.abs(r - (i === j ? 1 : 0)),
+        Math.abs(im),
+      )
     }
   }
 
@@ -248,7 +361,10 @@ function unitarityGap(P: CMatrix): number {
 
 export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const S24 = singletProjector24()
   const D48 = partnerProjector48()
   const qS = scaled(S24, 24)
@@ -259,8 +375,9 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const basis = sectorBasis(J)
   const group = f4Group()
   const rotations = group.filter(g => det4(g.matrix) === 1)
-  const reflection = group.find(g => det4(g.matrix) === -1) as GroupElement
-  const ang = (kj: readonly [number, number]): number => unitAngle(ringUnit(kj[0], kj[1]))
+  const reflection = group.find(g => det4(g.matrix) === -1)!
+  const ang = (kj: readonly [number, number]): number =>
+    unitAngle(ringUnit(kj[0], kj[1]))
   const thetaH = ang(HEAVY)
   const thetaL = ang(LIGHT_U)
   const thetaLV = ang(LIGHT_V)
@@ -272,50 +389,102 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const vL = unitValue(LIGHT_V[0], LIGHT_V[1])
   const heavy = wilsonSchedule(qS, qD, uH, { wilson: true })
   const light = wilsonSchedule(qS, qD, uL, { wilson: true, v: vL })
-  const chiral = wilsonSchedule(qS, qD, uH, { wilson: true, half: pPlus })
+  const chiral = wilsonSchedule(qS, qD, uH, {
+    wilson: true,
+    half: pPlus,
+  })
   const trivialH = wilsonSchedule(qS, qD, uH, { wilson: false })
   const trivialL = wilsonSchedule(qS, qD, uL, { wilson: false })
 
   // ---------------- W1: exact and covariant ----------------
-  const unitsExact = [HEAVY, LIGHT_U, LIGHT_V, [2 * HEAVY[0], 2 * HEAVY[1]] as const, [-2 * HEAVY[0], -2 * HEAVY[1]] as const].every(([k, j]) => unitNormExact(ringUnit(k, j)))
-  const symmetricV = Math.abs(wrap(ang([-2 * HEAVY[0], -2 * HEAVY[1]]) + 2 * thetaH)) <= 1e-12
+  const unitsExact = [
+    HEAVY,
+    LIGHT_U,
+    LIGHT_V,
+    [2 * HEAVY[0], 2 * HEAVY[1]] as const,
+    [-2 * HEAVY[0], -2 * HEAVY[1]] as const,
+  ].every(([k, j]) => unitNormExact(ringUnit(k, j)))
+  const symmetricV =
+    Math.abs(wrap(ang([-2 * HEAVY[0], -2 * HEAVY[1]]) + 2 * thetaH)) <=
+    1e-12
   const orthogonal = matMul(S24, D48).every(x => x === 0)
-  const commuteS = matMul(S24, P2plus).every((x, i) => x === (matMul(P2plus, S24)[i] as number))
-  const commuteD = matMul(D48, P2plus).every((x, i) => x === (matMul(P2plus, D48)[i] as number))
-  const unitary = Math.max(...[...heavy, ...light, ...chiral].map(unitarityGap))
-  const covSym = Math.max(...[...heavy, ...light].map(P => covarianceGap(P, group)))
-  const covChiralRot = Math.max(...chiral.map(P => covarianceGap(P, rotations)))
-  const covChiralRef = Math.max(...chiral.map(P => covarianceGap(P, [reflection])))
-  const W1 = unitsExact && symmetricV && orthogonal && commuteS && commuteD && unitary <= 1e-13 && covSym <= 1e-13 && covChiralRot <= 1e-13 && covChiralRef > 1e-3
+  const commuteS = matMul(S24, P2plus).every(
+    (x, i) => x === matMul(P2plus, S24)[i]!,
+  )
+  const commuteD = matMul(D48, P2plus).every(
+    (x, i) => x === matMul(P2plus, D48)[i]!,
+  )
+  const unitary = Math.max(
+    ...[...heavy, ...light, ...chiral].map(unitarityGap),
+  )
+  const covSym = Math.max(
+    ...[...heavy, ...light].map(P => covarianceGap(P, group)),
+  )
+  const covChiralRot = Math.max(
+    ...chiral.map(P => covarianceGap(P, rotations)),
+  )
+  const covChiralRef = Math.max(
+    ...chiral.map(P => covarianceGap(P, [reflection])),
+  )
+  const W1 =
+    unitsExact &&
+    symmetricV &&
+    orthogonal &&
+    commuteS &&
+    commuteD &&
+    unitary <= 1e-13 &&
+    covSym <= 1e-13 &&
+    covChiralRot <= 1e-13 &&
+    covChiralRef > 1e-3
 
   log('W1')
 
   // ---------------- W2, W3: the mass at the zeros, and C2 ----------------
   const zeros = scanZeros(plan.grid).zeros
+
   let worstResidual = 0
+
   const massesAt = (P192: CMatrix[], half: 0 | 1): number[] => {
     const pieces = halfPieces(P192, basis, half).pieces
-    const QS = sectorBlock({ re: qS, im: new Float64Array(qS.length) }, basis, half).block.re
+    const QS = sectorBlock(
+      { re: qS, im: new Float64Array(qS.length) },
+      basis,
+      half,
+    ).block.re
 
     return zeros.map((z, i) => {
       const { U, n } = halfCycle(pieces, { q: 1, p: 0 }, z.K)
       const e = unitaryEigen(U, n)
 
-      if (i % 12 === 0) worstResidual = Math.max(worstResidual, eigenResidual(U, e))
+      if (i % 12 === 0) {
+        worstResidual = Math.max(worstResidual, eigenResidual(U, e))
+      }
 
-      const cs = clusterWeights(e, QS, 1e-7).filter(c => Math.abs(wrap(c.phase - Math.PI)) < Math.PI / 2)
+      const cs = clusterWeights(e, QS, 1e-7).filter(
+        c => Math.abs(wrap(c.phase - Math.PI)) < Math.PI / 2,
+      )
 
-      return cs.reduce((s, c) => s + c.weight * wrap(c.phase - Math.PI), 0) / cs.reduce((s, c) => s + c.weight, 0)
+      return (
+        cs.reduce((s, c) => s + c.weight * wrap(c.phase - Math.PI), 0) /
+        cs.reduce((s, c) => s + c.weight, 0)
+      )
     })
   }
+
   const piGap = (P192: CMatrix[], half: 0 | 1): number => {
     const pieces = halfPieces(P192, basis, half).pieces
+
     let g = Math.PI
 
-    for (const K of weylMomenta(plan.gapMomenta)) for (const ph of halfPhases(pieces, { q: 1, p: 0 }, K)) g = Math.min(g, Math.abs(wrap(ph - Math.PI)))
+    for (const K of weylMomenta(plan.gapMomenta)) {
+      for (const ph of halfPhases(pieces, { q: 1, p: 0 }, K)) {
+        g = Math.min(g, Math.abs(wrap(ph - Math.PI)))
+      }
+    }
 
     return g
   }
+
   const isRest = (z: Zero): boolean => Math.abs(z.wilson) < 1e-9
   const readings = [
     { name: 'light', P: light },
@@ -324,48 +493,116 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
     ([0, 1] as const).map(half => {
       const masses = massesAt(c.P, half)
 
-      return { name: c.name, half, masses, c2: chernFromZeros(zeros, masses), gap: piGap(c.P, half) }
+      return {
+        name: c.name,
+        half,
+        masses,
+        c2: chernFromZeros(zeros, masses),
+        gap: piGap(c.P, half),
+      }
     }),
   )
   const uniform = massesAt(trivialL, 0)
   const uniformC2 = chernFromZeros(zeros, uniform)
   const W2 =
     zeros.length === 72 &&
-    readings.every(r => r.masses.every((m, i) => (isRest(zeros[i] as Zero) ? m < 0 : m > 0)) && r.gap >= WINDOW_GAP) &&
+    readings.every(
+      r =>
+        r.masses.every((m, i) => (isRest(zeros[i]!) ? m < 0 : m > 0)) &&
+        r.gap >= WINDOW_GAP,
+    ) &&
     uniform.every(m => m > 0)
   const W3 = readings.every(r => r.c2 === -1) && uniformC2 === 0
 
   log('W2 W3')
 
   // ---------------- W4: the walls ----------------
-  const halfSets = (P: CMatrix[], half: 0 | 1, triv: CMatrix[]): HalfSet[] => [{ pieces: halfPieces(triv, basis, half).pieces }, { pieces: halfPieces(P, basis, half).pieces }]
+  const halfSets = (
+    P: CMatrix[],
+    half: 0 | 1,
+    triv: CMatrix[],
+  ): HalfSet[] => [
+    { pieces: halfPieces(triv, basis, half).pieces },
+    { pieces: halfPieces(P, basis, half).pieces },
+  ]
   const ranges = (half: 0 | 1): { sR: number[][]; dR: number[][] } => ({
-    sR: rangeBasis(sectorBlock({ re: qS, im: new Float64Array(qS.length) }, basis, half).block.re, 96),
-    dR: rangeBasis(sectorBlock({ re: qD, im: new Float64Array(qD.length) }, basis, half).block.re, 96),
+    sR: rangeBasis(
+      sectorBlock(
+        { re: qS, im: new Float64Array(qS.length) },
+        basis,
+        half,
+      ).block.re,
+      96,
+    ),
+    dR: rangeBasis(
+      sectorBlock(
+        { re: qD, im: new Float64Array(qD.length) },
+        basis,
+        half,
+      ).block.re,
+      96,
+    ),
   })
   const L = plan.wallL
-  const wallSlab: Slab = { L, qa: 1, p: 0, profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)) }
-  const aDepths = new Set([L / 2 - 3, L / 2 - 2, L / 2 - 1, L / 2, L / 2 + 1, L / 2 + 2].map(c => ((c % L) + L) % L))
+  const wallSlab: Slab = {
+    L,
+    qa: 1,
+    p: 0,
+    profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)),
+  }
+  const aDepths = new Set(
+    [L / 2 - 3, L / 2 - 2, L / 2 - 1, L / 2, L / 2 + 1, L / 2 + 2].map(
+      c => ((c % L) + L) % L,
+    ),
+  )
+
   const wall = (P: CMatrix[], half: 0 | 1) => {
     const r = ranges(half)
 
-    return wallChirality(wallSlab, halfSets(P, half, trivialH), DOCK_ROOTS, r.sR, r.dR, aDepths, K_STEP, WINDOW_GAP)
+    return wallChirality(
+      wallSlab,
+      halfSets(P, half, trivialH),
+      DOCK_ROOTS,
+      r.sR,
+      r.dR,
+      aDepths,
+      K_STEP,
+      WINDOW_GAP,
+    )
   }
+
   const sym = [wall(heavy, 0), wall(heavy, 1)] as const
   const chi = [wall(chiral, 0), wall(chiral, 1)] as const
-  const splitOk = (w: ReturnType<typeof wall>): boolean => w.inGap === 8 && w.weights.filter(x => x > 0.99).length === 4 && w.weights.filter(x => x < 0.01).length === 4
-  const chirOf = (w: ReturnType<typeof wall>, i: number): number => (w.walls[i] as { chirality: number }).chirality
-  const isoOf = (w: ReturnType<typeof wall>): number => Math.max(...w.walls.map(x => (x.states ? Math.max(...x.speeds) / Math.min(...x.speeds) - 1 : 0)))
+  const splitOk = (w: ReturnType<typeof wall>): boolean =>
+    w.inGap === 8 &&
+    w.weights.filter(x => x > 0.99).length === 4 &&
+    w.weights.filter(x => x < 0.01).length === 4
+  const chirOf = (w: ReturnType<typeof wall>, i: number): number =>
+    (w.walls[i] as { chirality: number }).chirality
+  const isoOf = (w: ReturnType<typeof wall>): number =>
+    Math.max(
+      ...w.walls.map(x =>
+        x.states
+          ? Math.max(...x.speeds) / Math.min(...x.speeds) - 1
+          : 0,
+      ),
+    )
   const two = (x: number): boolean => Math.abs(Math.abs(x) - 2) <= 1e-3
   const W4 =
     sym.every(splitOk) &&
-    sym.every(w => two(chirOf(w, 0)) && two(chirOf(w, 1)) && Math.sign(chirOf(w, 0)) === -Math.sign(chirOf(w, 1))) &&
+    sym.every(
+      w =>
+        two(chirOf(w, 0)) &&
+        two(chirOf(w, 1)) &&
+        Math.sign(chirOf(w, 0)) === -Math.sign(chirOf(w, 1)),
+    ) &&
     Math.sign(chirOf(sym[0], 0)) === -Math.sign(chirOf(sym[1], 0)) &&
     sym.every(w => isoOf(w) <= 1e-6) &&
     splitOk(chi[0]) &&
     Math.abs(chirOf(chi[0], 0) - chirOf(sym[0], 0)) <= 1e-3 &&
     chi[1].inGap === 0
-  const weylSpeed = (((sym[0].walls[0] as { speeds: number[] }).speeds[0] as number) / 2) / C_QUARTER
+  const weylSpeed =
+    (sym[0].walls[0] as { speeds: number[] }).speeds[0]! / 2 / C_QUARTER
 
   log('W4')
 
@@ -373,78 +610,166 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const restL = cyclePhases(light, REGISTER_ROOTS, [0, 0, 0, 0])
   const sRest = wrap(Math.PI - m0L)
   const dRest = wrap(Math.PI + m0L)
-  const count = (ph: number): number => restL.filter(x => Math.abs(wrap(x - ph)) <= 1e-10).length
-  const restOk = count(sRest) === 8 && count(dRest) === 8 && count(0) === 176
+  const count = (ph: number): number =>
+    restL.filter(x => Math.abs(wrap(x - ph)) <= 1e-10).length
+  const restOk =
+    count(sRest) === 8 && count(dRest) === 8 && count(0) === 176
   const frameL = restFrame(sRest, dRest, -m0L)
-  const fits = DIRS.map(d => frameRN(light, frameL, sRest, d, C_QUARTER, SCALES, REGISTER_ROOTS))
-  const isotropy = Math.max(...fits.map(f => Math.abs(f.c2 / (fits[0] as { c2: number }).c2 - 1)))
+  const fits = DIRS.map(d =>
+    frameRN(light, frameL, sRest, d, C_QUARTER, SCALES, REGISTER_ROOTS),
+  )
+  const isotropy = Math.max(
+    ...fits.map(f =>
+      Math.abs(f.c2 / (fits[0] as { c2: number }).c2 - 1),
+    ),
+  )
+
   let top = 0
 
-  for (const K of [...weylMomenta(plan.speedMomenta), ...DIRS.flatMap(d => [0.01, 0.1, 0.3, 1, 2].map(r => d.map(x => x * r)))]) top = Math.max(top, ...cycleBand(light, REGISTER_ROOTS, K).velocity.map(v => Math.hypot(...v)))
+  for (const K of [
+    ...weylMomenta(plan.speedMomenta),
+    ...DIRS.flatMap(d =>
+      [0.01, 0.1, 0.3, 1, 2].map(r => d.map(x => x * r)),
+    ),
+  ]) {
+    top = Math.max(
+      top,
+      ...cycleBand(light, REGISTER_ROOTS, K).velocity.map(v =>
+        Math.hypot(...v),
+      ),
+    )
+  }
 
   const uz = unitValue(MASSLESS[0], MASSLESS[1])
   const PZ = wilsonSchedule(qS, qD, uz, { wilson: true })
-  const PZ0 = [registerPiece(qS, uz), registerPiece(qD, [uz[0], -uz[1]])]
+  const PZ0 = [
+    registerPiece(qS, uz),
+    registerPiece(qD, [uz[0], -uz[1]]),
+  ]
+
   let masslessGap = 0
 
   PZ.forEach((P, b) => {
-    const Q = PZ0[b] as CMatrix
+    const Q = PZ0[b]!
 
-    for (let i = 0; i < P.re.length; i++) masslessGap = Math.max(masslessGap, Math.abs((P.re[i] as number) - (Q.re[i] as number)), Math.abs((P.im[i] as number) - (Q.im[i] as number)))
+    for (let i = 0; i < P.re.length; i++) {
+      masslessGap = Math.max(
+        masslessGap,
+        Math.abs(P.re[i]! - Q.re[i]!),
+        Math.abs(P.im[i]! - Q.im[i]!),
+      )
+    }
   })
 
-  const pairs = DIRS.map(d => cycleMasslessPairN(PZ, Math.PI, d, 0.01, REGISTER_ROOTS))
-  const masslessOk = masslessGap <= 1e-15 && pairs.every(x => Math.abs(x.c0 / C_QUARTER - 1) <= 1e-9 && Math.abs(x.gamma) <= 1e-9)
+  const pairs = DIRS.map(d =>
+    cycleMasslessPairN(PZ, Math.PI, d, 0.01, REGISTER_ROOTS),
+  )
+  const masslessOk =
+    masslessGap <= 1e-15 &&
+    pairs.every(
+      x =>
+        Math.abs(x.c0 / C_QUARTER - 1) <= 1e-9 &&
+        Math.abs(x.gamma) <= 1e-9,
+    )
   // E-SPN-0164's rest asymmetry, and with every flavor mass conjugated
   const V = qwFromEisQMatrix(trimaximal())
   const vtx = qwFromUnit(ringUnit(2, 0))
-  const Pex = (unitPower(exchangeCount(2, 3), [0, 2, 3, 4, 6, 8, 12], vtx) as { U: QWMatrix }).U
+  const Pex = (
+    unitPower(exchangeCount(2, 3), [0, 2, 3, 4, 6, 8, 12], vtx) as {
+      U: QWMatrix
+    }
+  ).U
   const four = fockStates(6, 4)
-  const dense = (U: QWMatrix, block: readonly number[]) => (x: FockVector): FockVector => {
-    const out: FockVector = new Map()
 
-    for (const to of block) {
-      let s = QW_ZERO
+  const dense =
+    (U: QWMatrix, block: readonly number[]) =>
+    (x: FockVector): FockVector => {
+      const out: FockVector = new Map()
 
-      for (const [from, a] of x) {
-        const w = (U[to] as QW[])[from] as QW
+      for (const to of block) {
+        let s = QW_ZERO
 
-        if (!qwIsZero(w)) s = qwAdd(s, qwMul(w, a))
+        for (const [from, a] of x) {
+          const w = (U[to] as QW[])[from]!
+
+          if (!qwIsZero(w)) {
+            s = qwAdd(s, qwMul(w, a))
+          }
+        }
+
+        if (!qwIsZero(s)) {
+          out.set(to, s)
+        }
       }
-      if (!qwIsZero(s)) out.set(to, s)
+
+      return out
     }
 
-    return out
-  }
   const asym = (units: readonly (readonly [number, number])[]): QW => {
     const D = qwDiag(units.map(([a, b]) => qwFromUnit(ringUnit(a, b))))
-    const US = qwMatMulSq(qwMatMulSq(Pex, fockGamma(branchBeat(V, D, 'S'))), Pex)
-    const rate = (a: number, b: number): QW[] => pairRate(dense(US, four), x => holeImage(x, 6), -1, a, b, 1)
+    const US = qwMatMulSq(
+      qwMatMulSq(Pex, fockGamma(branchBeat(V, D, 'S'))),
+      Pex,
+    )
+    const rate = (a: number, b: number): QW[] =>
+      pairRate(dense(US, four), x => holeImage(x, 6), -1, a, b, 1)
 
-    return qwSub(rate(0, 1)[0] as QW, rate(1, 0)[0] as QW)
+    return qwSub(rate(0, 1)[0]!, rate(1, 0)[0]!)
   }
+
   const a0 = asym(FLAVOR_UNITS)
   const a1 = asym(FLAVOR_UNITS.map(([a, b]) => [-a, -b] as const))
-  const conjUnits = FLAVOR_UNITS.every(([a, b]) => Math.abs(wrap(ang([-a, -b]) + ang([a, b]))) <= 1e-12)
+  const conjUnits = FLAVOR_UNITS.every(
+    ([a, b]) => Math.abs(wrap(ang([-a, -b]) + ang([a, b]))) <= 1e-12,
+  )
   const C4 = qwIsZero(qwSub(a0, RECORDED_AS1))
-  const W5 = restOk && isotropy <= 1e-9 && top / C_QUARTER <= 1 + 1e-6 && masslessOk && conjUnits && qwIsZero(qwSub(a1, PREDICTED_AS1))
+  const W5 =
+    restOk &&
+    isotropy <= 1e-9 &&
+    top / C_QUARTER <= 1 + 1e-6 &&
+    masslessOk &&
+    conjUnits &&
+    qwIsZero(qwSub(a1, PREDICTED_AS1))
 
   log('W5')
 
   // ---------------- W6 and G: the exact field ----------------
   const halfH = halfSets(heavy, 0, trivialH)
   const r0 = ranges(0)
-  const minGapAt = (s: Slab, sets: readonly HalfSet[], K: number[]): { gap: number; leak: number } => {
-    const red = slabReduced(s, sets, K, DOCK_ROOTS, r0.sR, r0.dR)
-    const e = complexEigenvalues({ re: red.U.re, im: red.U.im, n: red.d })
 
-    return { gap: Math.min(...e.re.map((x, i) => Math.abs(wrap(Math.atan2(e.im[i] as number, x) - Math.PI)))), leak: red.leak }
+  const minGapAt = (
+    s: Slab,
+    sets: readonly HalfSet[],
+    K: number[],
+  ): { gap: number; leak: number } => {
+    const red = slabReduced(s, sets, K, DOCK_ROOTS, r0.sR, r0.dR)
+    const e = complexEigenvalues({
+      re: red.U.re,
+      im: red.U.im,
+      n: red.d,
+    })
+
+    return {
+      gap: Math.min(
+        ...e.re.map((x, i) =>
+          Math.abs(wrap(Math.atan2(e.im[i]!, x) - Math.PI)),
+        ),
+      ),
+      leak: red.leak,
+    }
   }
+
   let worstLeak = 0
+
   const bulk = (profile: number[], p: number): number =>
     Math.min(
       ...FIELD_K2.map(k2 => {
-        const r = minGapAt({ L: 2, qa: 3, p, profile }, halfH, [0.1, 0.05, k2, 0])
+        const r = minGapAt({ L: 2, qa: 3, p, profile }, halfH, [
+          0.1,
+          0.05,
+          k2,
+          0,
+        ])
 
         worstLeak = Math.max(worstLeak, r.leak)
 
@@ -455,31 +780,74 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const bulkWilsonFree = bulk([1, 1], 0)
   const bulkTrivialField = bulk([0, 0], 1)
   const bulkTrivialFree = bulk([0, 0], 0)
-  const W6 = bulkWilsonField <= 0.02 && bulkTrivialField >= 0.7 && bulkWilsonFree >= 0.45 && bulkTrivialFree >= 0.45
+  const W6 =
+    bulkWilsonField <= 0.02 &&
+    bulkTrivialField >= 0.7 &&
+    bulkWilsonFree >= 0.45 &&
+    bulkTrivialFree >= 0.45
   const G = !W6
 
   log('W6')
 
   // the lowest in-gap pair of the L = fieldL magnetic slab at k2 = 0.3 (read)
   const FL = plan.fieldL
-  const fieldADepths = new Set(Array.from({ length: FL / 2 }, (_, i) => (((FL / 4 + i) % FL) + FL) % FL))
+  const fieldADepths = new Set(
+    Array.from(
+      { length: FL / 2 },
+      (_, i) => (((FL / 4 + i) % FL) + FL) % FL,
+    ),
+  )
+
   const branch = (half: 0 | 1, p: number): string => {
     const sets = halfSets(heavy, half, trivialH)
     const r = ranges(half)
-    const slab: Slab = { L: FL, qa: 3, p, profile: Array.from({ length: FL }, (_, c) => (c < FL / 2 ? 1 : 0)) }
-    const red = slabReduced(slab, sets, [0.1, 0.05, 0.3, 0], DOCK_ROOTS, r.sR, r.dR)
+    const slab: Slab = {
+      L: FL,
+      qa: 3,
+      p,
+      profile: Array.from({ length: FL }, (_, c) =>
+        c < FL / 2 ? 1 : 0,
+      ),
+    }
+    const red = slabReduced(
+      slab,
+      sets,
+      [0.1, 0.05, 0.3, 0],
+      DOCK_ROOTS,
+      r.sR,
+      r.dR,
+    )
 
     worstLeak = Math.max(worstLeak, red.leak)
 
-    const e = complexEigenvalues({ re: red.U.re, im: red.U.im, n: red.d })
-    const phases = e.re.map((x, i) => Math.atan2(e.im[i] as number, x))
-    const lv = windowLevels(slab, red, phases, Math.PI, 0.3, fieldADepths).sort((a, b) => Math.abs(wrap(a.phase - Math.PI)) - Math.abs(wrap(b.phase - Math.PI)))
+    const e = complexEigenvalues({
+      re: red.U.re,
+      im: red.U.im,
+      n: red.d,
+    })
+    const phases = e.re.map((x, i) => Math.atan2(e.im[i]!, x))
+    const lv = windowLevels(
+      slab,
+      red,
+      phases,
+      Math.PI,
+      0.3,
+      fieldADepths,
+    ).sort(
+      (a, b) =>
+        Math.abs(wrap(a.phase - Math.PI)) -
+        Math.abs(wrap(b.phase - Math.PI)),
+    )
 
     return lv
       .slice(0, 4)
-      .map(l => `${wrap(l.phase - Math.PI).toFixed(4)}/${l.wallA.toFixed(2)}`)
+      .map(
+        l =>
+          `${wrap(l.phase - Math.PI).toFixed(4)}/${l.wallA.toFixed(2)}`,
+      )
       .join(' ')
   }
+
   const branches = [
     { at: 'half 0 p 1', read: branch(0, 1) },
     { at: 'half 1 p 1', read: branch(1, 1) },
@@ -495,31 +863,73 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   // I2: the one-class slab against E-SPN-0165's half cycle
   const oneClass: Slab = { L: 1, qa: 1, p: 0, profile: [1] }
   const Kc = [0.37, -0.21, 0.83, 0.4]
-  const red1 = slabReduced(oneClass, halfH, Kc, DOCK_ROOTS, r0.sR, r0.dR)
-  const e1 = complexEigenvalues({ re: red1.U.re, im: red1.U.im, n: red1.d })
-  const reduced = [...e1.re.map((x, i) => Math.atan2(e1.im[i] as number, x)), ...Array(96 - red1.d).fill(0)].sort((a, b) => a - b)
-  const full = [...halfPhases((halfH[1] as HalfSet).pieces as CMatrix[], { q: 1, p: 0 }, Kc)].sort((a, b) => a - b)
-  const oneClassGap = Math.max(...full.map((x, i) => Math.abs(wrap(x - (reduced[i] as number)))))
-  const I2 = full.length === reduced.length && oneClassGap <= 1e-12 && red1.leak <= 1e-12
+  const red1 = slabReduced(
+    oneClass,
+    halfH,
+    Kc,
+    DOCK_ROOTS,
+    r0.sR,
+    r0.dR,
+  )
+  const e1 = complexEigenvalues({
+    re: red1.U.re,
+    im: red1.U.im,
+    n: red1.d,
+  })
+  const reduced = [
+    ...e1.re.map((x, i) => Math.atan2(e1.im[i]!, x)),
+    ...Array(96 - red1.d).fill(0),
+  ].sort((a, b) => a - b)
+  const full = [
+    ...halfPhases(halfH[1]!.pieces as CMatrix[], { q: 1, p: 0 }, Kc),
+  ].sort((a, b) => a - b)
+  const oneClassGap = Math.max(
+    ...full.map((x, i) => Math.abs(wrap(x - (reduced[i] as number)))),
+  )
+  const I2 =
+    full.length === reduced.length &&
+    oneClassGap <= 1e-12 &&
+    red1.leak <= 1e-12
   const I3 = worstResidual <= 1e-10
 
   // ---------------- controls ----------------
   // C1: the Wilson-off pieces are E-SPN-0160's, bit for bit
-  const e0160 = [registerPiece(qS, uH), registerPiece(qD, [uH[0], -uH[1]])]
-  const C1 = trivialH.every((P, b) => P.re.every((x, i) => x === ((e0160[b] as CMatrix).re[i] as number)) && P.im.every((x, i) => x === ((e0160[b] as CMatrix).im[i] as number)))
+  const e0160 = [
+    registerPiece(qS, uH),
+    registerPiece(qD, [uH[0], -uH[1]]),
+  ]
+  const C1 = trivialH.every(
+    (P, b) =>
+      P.re.every((x, i) => x === e0160[b]!.re[i]!) &&
+      P.im.every((x, i) => x === e0160[b]!.im[i]!),
+  )
   // C2: a pure gauge on the magnetic slab
   const gslab: Slab = { L: 4, qa: 3, p: 1, profile: [1, 1, 0, 0] }
-  const chiList = Array.from({ length: 12 }, (_, i) => 0.37 * i - 0.11 * i * i)
+  const chiList = Array.from(
+    { length: 12 },
+    (_, i) => 0.37 * i - 0.11 * i * i,
+  )
   const Kg = [0.2, -0.1, 0.7, 0]
+
   const sorted = (s: Slab): number[] => {
     const red = slabReduced(s, halfH, Kg, DOCK_ROOTS, r0.sR, r0.dR)
-    const e = complexEigenvalues({ re: red.U.re, im: red.U.im, n: red.d })
+    const e = complexEigenvalues({
+      re: red.U.re,
+      im: red.U.im,
+      n: red.d,
+    })
 
-    return e.re.map((x, i) => Math.atan2(e.im[i] as number, x)).sort((a, b) => a - b)
+    return e.re
+      .map((x, i) => Math.atan2(e.im[i]!, x))
+      .sort((a, b) => a - b)
   }
+
   const bare = sorted(gslab)
   const gauged = sorted({ ...gslab, chi: chiList })
-  const gaugeGap = bare.length === gauged.length ? Math.max(...bare.map((x, i) => Math.abs(wrap(x - (gauged[i] as number))))) : Infinity
+  const gaugeGap =
+    bare.length === gauged.length
+      ? Math.max(...bare.map((x, i) => Math.abs(wrap(x - gauged[i]!))))
+      : Infinity
   const C2 = gaugeGap <= 1e-11
   // C3: E-SPN-0165's theorem 2 with the Wilson pieces, and its positive control
   const windings = ([0, 1] as const).flatMap(half => {
@@ -528,18 +938,50 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
     return [
       [0.3, 0.1, 0],
       [1.1, -0.7, Math.PI],
-    ].map(t => windingOfDet(s => halfCycle(pieces, { q: 1, p: 0 }, [t[0] as number, t[1] as number, 2 * Math.PI * s, t[2] as number]), plan.windingSteps).winding)
+    ].map(
+      t =>
+        windingOfDet(
+          s =>
+            halfCycle(pieces, { q: 1, p: 0 }, [
+              t[0]!,
+              t[1]!,
+              2 * Math.PI * s,
+              t[2]!,
+            ]),
+          plan.windingSteps,
+        ).winding,
+    )
   })
+
   const ident = (n: number): CMatrix => {
     const re = new Float64Array(n * n)
 
-    for (let i = 0; i < n; i++) re[i * n + i] = 1
+    for (let i = 0; i < n; i++) {
+      re[i * n + i] = 1
+    }
 
     return { re, im: new Float64Array(n * n) }
   }
-  const chiralRoots = DOCK_ROOTS.map(r => ((r[2] as number) < 0 ? r.map(x => -x) : [...r]))
-  const positive = plan.controlSteps.map(steps => windingOfDet(s => halfCycle([ident(96), ident(96)], { q: 1, p: 0 }, [0.3, 0.1, 2 * Math.PI * s, 0], chiralRoots), steps).winding)
-  const C3 = windings.every(w => Math.abs(w) < 1e-9) && positive.every(w => Math.abs(w + 96) < 1e-6)
+
+  const chiralRoots = DOCK_ROOTS.map(r =>
+    r[2]! < 0 ? r.map(x => -x) : [...r],
+  )
+  const positive = plan.controlSteps.map(
+    steps =>
+      windingOfDet(
+        s =>
+          halfCycle(
+            [ident(96), ident(96)],
+            { q: 1, p: 0 },
+            [0.3, 0.1, 2 * Math.PI * s, 0],
+            chiralRoots,
+          ),
+        steps,
+      ).winding,
+  )
+  const C3 =
+    windings.every(w => Math.abs(w) < 1e-9) &&
+    positive.every(w => Math.abs(w + 96) < 1e-6)
 
   log('instrument and controls')
 
@@ -547,24 +989,60 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   const Rof = (P: CMatrix[], m0: number): number => {
     const sr = wrap(Math.PI - m0)
 
-    return frameRN(P, restFrame(sr, wrap(Math.PI + m0), -m0), sr, [1, 0, 0, 0], C_QUARTER, SCALES, REGISTER_ROOTS).R
+    return frameRN(
+      P,
+      restFrame(sr, wrap(Math.PI + m0), -m0),
+      sr,
+      [1, 0, 0, 0],
+      C_QUARTER,
+      SCALES,
+      REGISTER_ROOTS,
+    ).R
   }
+
   const e0160u = unitValue(E0160_U[0], E0160_U[1])
   const M0160 = wrap(ang(E0160_U) - Math.PI)
   const costs = [
-    { name: `u (${LIGHT_U.join(',')}) v (${LIGHT_V.join(',')})`, M: ML, m0: m0L, R: fits[0]!.R },
-    { name: `u (${HEAVY.join(',')}) v conj u^2`, M: MH, m0: MH, R: Rof(heavy, MH) },
-    { name: `u (${E0160_U.join(',')}) v conj u^2`, M: M0160, m0: M0160, R: Rof(wilsonSchedule(qS, qD, e0160u, { wilson: true }), M0160) },
+    {
+      name: `u (${LIGHT_U.join(',')}) v (${LIGHT_V.join(',')})`,
+      M: ML,
+      m0: m0L,
+      R: fits[0]!.R,
+    },
+    {
+      name: `u (${HEAVY.join(',')}) v conj u^2`,
+      M: MH,
+      m0: MH,
+      R: Rof(heavy, MH),
+    },
+    {
+      name: `u (${E0160_U.join(',')}) v conj u^2`,
+      M: M0160,
+      m0: M0160,
+      R: Rof(wilsonSchedule(qS, qD, e0160u, { wilson: true }), M0160),
+    },
   ]
-  const census = pairCensusN(light, frameL, radialPaths(DIRS, 3 * Math.PI, plan.censusSteps), weylMomenta(64), REGISTER_ROOTS)
+  const census = pairCensusN(
+    light,
+    frameL,
+    radialPaths(DIRS, 3 * Math.PI, plan.censusSteps),
+    weylMomenta(64),
+    REGISTER_ROOTS,
+  )
 
   log('reads')
 
   const hard = W1 && W2 && W3 && W4 && W5 && W6
   const instrument = I1 && I2 && I3
   const controls = C1 && C2 && C3 && C4
-  const status = !hard || !instrument || !controls ? 'fail' : G ? 'pass' : 'partial'
-  const cost = costs.map(c => `${c.name}: M ${c.M.toFixed(4)} m0 ${c.m0.toFixed(4)} R ${c.R.toFixed(6)} tan m/m ${(Math.tan(c.m0 / 2) / (c.m0 / 2)).toFixed(6)} (R - 1 ${(c.R - 1).toFixed(4)}, m0 (M + m0) ${(c.m0 * (c.M + c.m0)).toFixed(4)})`).join('; ')
+  const status =
+    !hard || !instrument || !controls ? 'fail' : G ? 'pass' : 'partial'
+  const cost = costs
+    .map(
+      c =>
+        `${c.name}: M ${c.M.toFixed(4)} m0 ${c.m0.toFixed(4)} R ${c.R.toFixed(6)} tan m/m ${(Math.tan(c.m0 / 2) / (c.m0 / 2)).toFixed(6)} (R - 1 ${(c.R - 1).toFixed(4)}, m0 (M + m0) ${(c.m0 * (c.M + c.m0)).toFixed(4)})`,
+    )
+    .join('; ')
 
   return verdict({
     status,
@@ -604,7 +1082,13 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
       censusCrossings: census.crossings,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), instrument: flag(instrument) },
-    notes: `L2. Light construction u = ringUnit(${LIGHT_U.join(', ')}) (doublers M ${ML.toFixed(6)}), v = ringUnit(${LIGHT_V.join(', ')}) (rest mass m0 ${m0L.toFixed(6)}); heavy symmetric u = ringUnit(${HEAVY.join(', ')}) (M ${MH.toFixed(6)}), v = conj u^2. Masses at one zero of each class, light half 0: ${[...new Map(zeros.map((z, i) => [`${z.wilson.toFixed(0)}`, ((readings[0] as { masses: number[] }).masses[i] as number).toFixed(4)])).entries()].map(([w, m]) => `W ${w}: ${m}`).join(', ')}. Walls (symmetric, L ${L}): in-gap ${sym.map(w => w.inGap).join(', ')}, depth weights ${sym[0].weights.map(x => x.toFixed(4)).join(' ')}, speeds per cycle ${sym[0].walls.map(x => x.speeds.map(v => v.toFixed(5)).join('/')).join(' ')}. The R cost: ${cost}. Light census: crossings ${census.crossings}, B* ${census.Bstar.toFixed(6)} (2 m0 ${(2 * m0L).toFixed(6)}). E-SPN-0164 A_S(1) ${a0.a}/${a0.d}, masses conjugated ${a1.a}/${a1.d}. The exact field, the L ${FL} slab's lowest pair at k2 0.3 (offset from pi / wall A weight): ${branches.map(b => `${b.at}: ${b.read}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      C4: flag(C4),
+      instrument: flag(instrument),
+    },
+    notes: `L2. Light construction u = ringUnit(${LIGHT_U.join(', ')}) (doublers M ${ML.toFixed(6)}), v = ringUnit(${LIGHT_V.join(', ')}) (rest mass m0 ${m0L.toFixed(6)}); heavy symmetric u = ringUnit(${HEAVY.join(', ')}) (M ${MH.toFixed(6)}), v = conj u^2. Masses at one zero of each class, light half 0: ${[...new Map(zeros.map((z, i) => [`${z.wilson.toFixed(0)}`, (readings[0] as { masses: number[] }).masses[i]!.toFixed(4)])).entries()].map(([w, m]) => `W ${w}: ${m}`).join(', ')}. Walls (symmetric, L ${L}): in-gap ${sym.map(w => w.inGap).join(', ')}, depth weights ${sym[0].weights.map(x => x.toFixed(4)).join(' ')}, speeds per cycle ${sym[0].walls.map(x => x.speeds.map(v => v.toFixed(5)).join('/')).join(' ')}. The R cost: ${cost}. Light census: crossings ${census.crossings}, B* ${census.Bstar.toFixed(6)} (2 m0 ${(2 * m0L).toFixed(6)}). E-SPN-0164 A_S(1) ${a0.a}/${a0.d}, masses conjugated ${a1.a}/${a1.d}. The exact field, the L ${FL} slab's lowest pair at k2 0.3 (offset from pi / wall A weight): ${branches.map(b => `${b.at}: ${b.read}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

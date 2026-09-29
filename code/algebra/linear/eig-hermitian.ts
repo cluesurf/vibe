@@ -97,7 +97,8 @@ export function eigHermitian(input: {
       // a simple eigenvalue: either real column is the eigenvector, keep the first unchanged
       for (let a = 0; a < n; a++) {
         vectorsRe[a * n + first] = eig.vectors[a * twoN + start] ?? 0
-        vectorsIm[a * n + first] = eig.vectors[(n + a) * twoN + start] ?? 0
+        vectorsIm[a * n + first] =
+          eig.vectors[(n + a) * twoN + start] ?? 0
       }
 
       continue
@@ -125,7 +126,9 @@ function clusters(values: Float64Array): [number, number][] {
   let start = 0
 
   for (let i = 1; i <= values.length; i++) {
-    const split = i === values.length || (values[i] ?? 0) - (values[i - 1] ?? 0) > gap
+    const split =
+      i === values.length ||
+      (values[i] ?? 0) - (values[i - 1] ?? 0) > gap
 
     if (split && (i - start) % 2 === 0) {
       out.push([start, i])
@@ -152,8 +155,14 @@ function spanCluster(input: {
 
   for (let col = start; col < end; col++) {
     candidates.push({
-      re: Float64Array.from({ length: n }, (_, a) => vectors[a * twoN + col] ?? 0),
-      im: Float64Array.from({ length: n }, (_, a) => vectors[(n + a) * twoN + col] ?? 0),
+      re: Float64Array.from(
+        { length: n },
+        (_, a) => vectors[a * twoN + col] ?? 0,
+      ),
+      im: Float64Array.from(
+        { length: n },
+        (_, a) => vectors[(n + a) * twoN + col] ?? 0,
+      ),
     })
   }
 
@@ -255,18 +264,29 @@ export function hermitianMatrixSignNewton(input: {
   matrix: ComplexMatrix
 }): NewtonSign {
   const n = input.matrix.rows
-  let x = { re: Float64Array.from(input.matrix.re), im: Float64Array.from(input.matrix.im), n }
+
+  let x = {
+    re: Float64Array.from(input.matrix.re),
+    im: Float64Array.from(input.matrix.im),
+    n,
+  }
   let scaling = true
   let iterations = 0
 
   for (;;) {
     if (iterations >= NEWTON_MAX_ITERATIONS) {
-      throw new Error('hermitianMatrixSignNewton: no convergence, the matrix is singular to working precision')
+      throw new Error(
+        'hermitianMatrixSignNewton: no convergence, the matrix is singular to working precision',
+      )
     }
 
     const y = complexInverse(x)
     const mu = scaling ? Math.sqrt(frobenius(y) / frobenius(x)) : 1
-    const next = { re: new Float64Array(n * n), im: new Float64Array(n * n), n }
+    const next = {
+      re: new Float64Array(n * n),
+      im: new Float64Array(n * n),
+      n,
+    }
 
     for (let i = 0; i < n * n; i++) {
       next.re[i] = 0.5 * (mu * (x.re[i] ?? 0) + (y.re[i] ?? 0) / mu)
@@ -278,7 +298,9 @@ export function hermitianMatrixSignNewton(input: {
     let change = 0
 
     for (let i = 0; i < n * n; i++) {
-      change += ((next.re[i] ?? 0) - (x.re[i] ?? 0)) ** 2 + ((next.im[i] ?? 0) - (x.im[i] ?? 0)) ** 2
+      change +=
+        ((next.re[i] ?? 0) - (x.re[i] ?? 0)) ** 2 +
+        ((next.im[i] ?? 0) - (x.im[i] ?? 0)) ** 2
     }
 
     const relative = Math.sqrt(change) / frobenius(next)
@@ -320,7 +342,13 @@ export function hermitianMatrixSignNewton(input: {
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      residual = Math.max(residual, Math.hypot((square.re[i * n + j] ?? 0) - (i === j ? 1 : 0), square.im[i * n + j] ?? 0))
+      residual = Math.max(
+        residual,
+        Math.hypot(
+          (square.re[i * n + j] ?? 0) - (i === j ? 1 : 0),
+          square.im[i * n + j] ?? 0,
+        ),
+      )
     }
   }
 

@@ -108,9 +108,26 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lightN } from '@/code/measure/drift-cost-bloch'
 import { type Vec } from '@/code/measure/quantum-ladder'
-import { meson, pairLevels, type Meson } from '@/code/measure/string-binding'
-import { bandApply, bandCurvature, bandSolve, nrSeed, pairBand, readBand, settle, type BandLevel } from '@/code/measure/meson-band'
-import { bandMetric, followHeld, scaledStep } from '@/code/measure/meson-scaled-step'
+import {
+  meson,
+  pairLevels,
+  type Meson,
+} from '@/code/measure/string-binding'
+import {
+  bandApply,
+  bandCurvature,
+  bandSolve,
+  nrSeed,
+  pairBand,
+  readBand,
+  settle,
+  type BandLevel,
+} from '@/code/measure/meson-band'
+import {
+  bandMetric,
+  followHeld,
+  scaledStep,
+} from '@/code/measure/meson-scaled-step'
 import {
   bandFactor,
   blockMoments,
@@ -158,9 +175,25 @@ const RECORDED_ENERGY: Record<number, number> = {
   8: 0.05213891233226967,
   16: 0.026185373288082,
 }
-const RECORDED_STEPS: Record<number, number> = { 1: 57, 2: 117, 4: 232, 8: 466, 16: 931 }
-const RECORDED_TOTAL: Record<number, number> = { 1: 1.7931, 2: 1.1124, 4: 1.0238, 8: 1.0043, 16: 1.0026 }
-const RECORDED_BREAK: Record<number, number> = { 4: 0.244, 8: 0.216, 16: 0.084 }
+const RECORDED_STEPS: Record<number, number> = {
+  1: 57,
+  2: 117,
+  4: 232,
+  8: 466,
+  16: 931,
+}
+const RECORDED_TOTAL: Record<number, number> = {
+  1: 1.7931,
+  2: 1.1124,
+  4: 1.0238,
+  8: 1.0043,
+  16: 1.0026,
+}
+const RECORDED_BREAK: Record<number, number> = {
+  4: 0.244,
+  8: 0.216,
+  16: 0.084,
+}
 
 type Crossing = {
   K: number
@@ -226,7 +259,9 @@ function levelAt(n: number, D: number): BandLevel {
   const m = meson(D, boxOf(D), n)
 
   if (DENSE_FINES.includes(n)) {
-    const e0 = pairLevels(m).levels.filter(l => l.parity === 0).sort((a, b) => a.unwrapped - b.unwrapped)[0]!
+    const e0 = pairLevels(m)
+      .levels.filter(l => l.parity === 0)
+      .sort((a, b) => a.unwrapped - b.unwrapped)[0]!
 
     return readBand(m, e0.block, e0.energy, 0)
   }
@@ -237,7 +272,9 @@ function levelAt(n: number, D: number): BandLevel {
 const norm = (v: Vec): number => {
   let t = 0
 
-  for (let i = 0; i < v.re.length; i++) t += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    t += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   return Math.sqrt(t)
 }
@@ -245,22 +282,35 @@ const norm = (v: Vec): number => {
 const gapOf = (u: Vec, v: Vec): number => {
   let t = 0
 
-  for (let i = 0; i < u.re.length; i++) t += (u.re[i]! - v.re[i]!) ** 2 + (u.im[i]! - v.im[i]!) ** 2
+  for (let i = 0; i < u.re.length; i++) {
+    t += (u.re[i]! - v.re[i]!) ** 2 + (u.im[i]! - v.im[i]!) ** 2
+  }
 
   return Math.sqrt(t)
 }
 
 // |U X w - X U w| / |w| on a Weyl vector, with the phase sign given
-function commutator(m: Meson, x: Exchange, K: number, sign: number): number {
+function commutator(
+  m: Meson,
+  x: Exchange,
+  K: number,
+  sign: number,
+): number {
   const op = pairBand(m, K, 0)
   const w = weylVector(op.dim, WEYL[0]!)
 
-  return gapOf(bandApply(op, exchange(x, K, w, sign)), exchange(x, K, bandApply(op, w), sign)) / norm(w)
+  return (
+    gapOf(
+      bandApply(op, exchange(x, K, w, sign)),
+      exchange(x, K, bandApply(op, w), sign),
+    ) / norm(w)
+  )
 }
 
 // |<a|U|b>|
 function matrixElement(m: Meson, K: number, a: Vec, b: Vec): number {
   const ub = bandApply(pairBand(m, K, 0), b)
+
   let r = 0
   let i = 0
 
@@ -275,21 +325,37 @@ function matrixElement(m: Meson, K: number, a: Vec, b: Vec): number {
 function median(xs: readonly number[]): number {
   const s = [...xs].sort((a, b) => a - b)
 
-  return s.length === 0 ? Number.NaN : s[Math.floor((s.length - 1) / 2)]!
+  return s.length === 0
+    ? Number.NaN
+    : s[Math.floor((s.length - 1) / 2)]!
 }
 
-function readPoint(n: number, D: number, log: (s: string) => void): Point {
+function readPoint(
+  n: number,
+  D: number,
+  log: (s: string) => void,
+): Point {
   const level = levelAt(n, D)
   const m = meson(D, boxOf(D), n)
   const x = exchangeMap(m)
   const N = lightN(D)
   const sigma = Math.PI / N
   const op0 = pairBand(m, 0, 0)
-  const step = scaledStep(bandMetric(m, level).metric, ROTATION, Math.PI)
+  const step = scaledStep(
+    bandMetric(m, level).metric,
+    ROTATION,
+    Math.PI,
+  )
   const stepCount = Math.round(Math.PI / step)
   const eRest = 2 * half(n) + level.unwrapped
   const kHold = Math.min(eRest, Math.PI)
-  const at0 = { K: 0, energy: level.unwrapped, overlap: 1, residual: level.residual, vector: level.block }
+  const at0 = {
+    K: 0,
+    energy: level.unwrapped,
+    overlap: 1,
+    residual: level.residual,
+    vector: level.block,
+  }
   const total = 1 / bandCurvature(m, at0, CURVE_FRAC * eRest) / eRest
 
   // C2: E-SPN-0114's adiabatic follow
@@ -298,8 +364,12 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
   const adiabaticBreak = broke === -1 ? -1 : adiabatic[broke]!.K
 
   // C4: the symmetry
-  const commute = Math.max(...SYMMETRY_K.map(K => commutator(m, x, K, 1)))
-  const wrong = Math.min(...SYMMETRY_K.filter(K => K > 0).map(K => commutator(m, x, K, -1)))
+  const commute = Math.max(
+    ...SYMMETRY_K.map(K => commutator(m, x, K, 1)),
+  )
+  const wrong = Math.min(
+    ...SYMMETRY_K.filter(K => K > 0).map(K => commutator(m, x, K, -1)),
+  )
   const exchange0 = exchangeValue(x, 0, level.block)
 
   // C5: the factor-once solve against bandSolve
@@ -313,21 +383,46 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
 
   const solveGap = gapOf(a, b) / norm(b)
 
-  log(`n ${n} D ${D}: E(0) ${level.unwrapped} step pi/${stepCount} E_rest ${eRest.toFixed(4)} m*/E_rest ${total.toFixed(5)} adiabatic break ${adiabaticBreak.toFixed(4)} commute ${commute.toExponential(2)} wrong ${wrong.toExponential(2)} <X> ${exchange0} solve ${solveGap.toExponential(2)}`)
+  log(
+    `n ${n} D ${D}: E(0) ${level.unwrapped} step pi/${stepCount} E_rest ${eRest.toFixed(4)} m*/E_rest ${total.toFixed(5)} adiabatic break ${adiabaticBreak.toFixed(4)} commute ${commute.toExponential(2)} wrong ${wrong.toExponential(2)} <X> ${exchange0} solve ${solveGap.toExponential(2)}`,
+  )
 
   // the diabatic band, on the scaled grid to pi
-  const ks = Array.from({ length: stepCount + 1 }, (_, s) => Math.min(s * step, Math.PI))
-  const track: DiabaticStep[] = followDiabatic(m, x, level.block, level.unwrapped, ks, 1, WINDOW_SIGMA * sigma, s => s.overlap < HOLD || s.tail > TAIL)
-  const fail = track.findIndex((t, s) => (s > 0 && t.overlap < HOLD) || t.tail > TAIL)
+  const ks = Array.from({ length: stepCount + 1 }, (_, s) =>
+    Math.min(s * step, Math.PI),
+  )
+  const track: DiabaticStep[] = followDiabatic(
+    m,
+    x,
+    level.block,
+    level.unwrapped,
+    ks,
+    1,
+    WINDOW_SIGMA * sigma,
+    s => s.overlap < HOLD || s.tail > TAIL,
+  )
+  const fail = track.findIndex(
+    (t, s) => (s > 0 && t.overlap < HOLD) || t.tail > TAIL,
+  )
   const last = fail === -1 ? track.length - 1 : fail - 1
-  const reached = fail === -1 ? track[track.length - 1]!.K : track[fail - 1]?.K ?? 0
-  const held = level.even >= EVEN && level.tailN <= TAIL && (fail === -1 || reached >= kHold - 1e-12)
+  const reached =
+    fail === -1 ? track[track.length - 1]!.K : (track[fail - 1]?.K ?? 0)
+  const held =
+    level.even >= EVEN &&
+    level.tailN <= TAIL &&
+    (fail === -1 || reached >= kHold - 1e-12)
+
   let least = 1
   let worstTail = 0
 
   track.forEach((t, s) => {
-    if (s > 0 && track[s - 1]!.K < kHold - 1e-12) least = Math.min(least, t.overlap)
-    if (s === 0 || track[s - 1]!.K < kHold - 1e-12) worstTail = Math.max(worstTail, t.tail)
+    if (s > 0 && track[s - 1]!.K < kHold - 1e-12) {
+      least = Math.min(least, t.overlap)
+    }
+
+    if (s === 0 || track[s - 1]!.K < kHold - 1e-12) {
+      worstTail = Math.max(worstTail, t.tail)
+    }
   })
 
   // X2: c_eff over the held grid points 0 < K <= K_hold
@@ -337,7 +432,9 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
   for (let s = 1; s <= last; s++) {
     const t = track[s]!
 
-    if (t.K > kHold + 1e-12) break
+    if (t.K > kHold + 1e-12) {
+      break
+    }
 
     num += ((t.energy + 2 * half(n)) ** 2 - eRest ** 2) * t.K * t.K
     den += t.K ** 4
@@ -350,7 +447,9 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
   let topAt = 0
 
   for (let s = 1; s < last; s++) {
-    const v = Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) / (track[s + 1]!.K - track[s - 1]!.K)
+    const v =
+      Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) /
+      (track[s + 1]!.K - track[s - 1]!.K)
 
     if (v > top) {
       top = v
@@ -358,10 +457,22 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
     }
   }
 
-  const gapMedian = (2 * median(track.slice(1, last + 1).filter(t => t.K <= kHold + 1e-12).map(t => t.coupling))) / sigma
-  const worstRitz = Math.max(...track.slice(0, last + 1).map(t => t.ritzResidual))
+  const gapMedian =
+    (2 *
+      median(
+        track
+          .slice(1, last + 1)
+          .filter(t => t.K <= kHold + 1e-12)
+          .map(t => t.coupling),
+      )) /
+    sigma
+  const worstRitz = Math.max(
+    ...track.slice(0, last + 1).map(t => t.ritzResidual),
+  )
 
-  log(`n ${n}: diabatic ${held ? 'held' : 'NOT held'} to K_hold ${kHold.toFixed(4)} (least ${least.toFixed(5)}, tail ${worstTail.toExponential(2)}${fail >= 0 ? `, fails at K ${track[fail]!.K.toFixed(4)}` : ''}), c_eff ${cEff.toFixed(5)} top ${top.toFixed(5)} at K ${topAt.toFixed(3)} held to ${track[last]!.K.toFixed(4)} cos m ${Math.cos(half(n)).toFixed(5)} median 2V/sigma ${gapMedian.toExponential(2)} Ritz ${worstRitz.toExponential(1)}`)
+  log(
+    `n ${n}: diabatic ${held ? 'held' : 'NOT held'} to K_hold ${kHold.toFixed(4)} (least ${least.toFixed(5)}, tail ${worstTail.toExponential(2)}${fail >= 0 ? `, fails at K ${track[fail]!.K.toFixed(4)}` : ''}), c_eff ${cEff.toFixed(5)} top ${top.toFixed(5)} at K ${topAt.toFixed(3)} held to ${track[last]!.K.toFixed(4)} cos m ${Math.cos(half(n)).toFixed(5)} median 2V/sigma ${gapMedian.toExponential(2)} Ritz ${worstRitz.toExponential(1)}`,
+  )
 
   // the crossing at E-SPN-0114's break
   let crossing: Crossing | undefined
@@ -369,13 +480,34 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
   if (broke > 0 && broke + 1 < track.length) {
     const t = track[broke]!
     const klein = kleinDistance(m, t.energy + t.partner)
-    const slope = (track[broke + 1]!.energy - track[broke - 1]!.energy) / (track[broke + 1]!.K - track[broke - 1]!.K)
-    const twin = nearSpectrum(m, x, t.K, t.energy + t.partner, [t.vector, ...WEYL.slice(2, 8).map(a => weylVector(op0.dim, a))], -1, 24).sort(
-      (p, q) => Math.abs(p.energy - (t.energy + t.partner)) - Math.abs(q.energy - (t.energy + t.partner)),
+    const slope =
+      (track[broke + 1]!.energy - track[broke - 1]!.energy) /
+      (track[broke + 1]!.K - track[broke - 1]!.K)
+    const twin = nearSpectrum(
+      m,
+      x,
+      t.K,
+      t.energy + t.partner,
+      [t.vector, ...WEYL.slice(2, 8).map(a => weylVector(op0.dim, a))],
+      -1,
+      24,
+    ).sort(
+      (p, q) =>
+        Math.abs(p.energy - (t.energy + t.partner)) -
+        Math.abs(q.energy - (t.energy + t.partner)),
     )[0]!
     const twinMean = blockMoments(m, twin.vector).mean
     const reach = sigma / (2 * Math.abs(slope))
-    const c = closestApproach(m, x, Math.max(0, t.K - reach), t.K + reach, t.energy, t.vector, [t.vector, ...WEYL.slice(0, 5).map(a => weylVector(op0.dim, a))], 1)
+    const c = closestApproach(
+      m,
+      x,
+      Math.max(0, t.K - reach),
+      t.K + reach,
+      t.energy,
+      t.vector,
+      [t.vector, ...WEYL.slice(0, 5).map(a => weylVector(op0.dim, a))],
+      1,
+    )
 
     crossing = {
       K: t.K,
@@ -390,7 +522,10 @@ function readPoint(n: number, D: number, log: (s: string) => void): Point {
       slope,
       width: c.gap / Math.abs(slope),
     }
-    log(`n ${n} crossing at K ${t.K.toFixed(5)}: partner |d| ${t.partnerMean.toFixed(2)} (Klein ${klein.toFixed(2)}) dE ${t.partner.toExponential(3)}; twin X = -1 |d| ${twinMean.toFixed(2)} dE ${crossing.twinGap.toExponential(2)} |<twin|U|point>| ${crossing.twinCoupling.toExponential(2)}; closest approach K* ${c.K.toFixed(6)} gap ${c.gap.toExponential(3)} (residuals ${c.lower.residual.toExponential(1)}, ${c.upper.residual.toExponential(1)}), gap/sigma ${(c.gap / sigma).toExponential(2)}, width in K ${crossing.width.toExponential(2)} against step ${step.toExponential(2)}`)
+
+    log(
+      `n ${n} crossing at K ${t.K.toFixed(5)}: partner |d| ${t.partnerMean.toFixed(2)} (Klein ${klein.toFixed(2)}) dE ${t.partner.toExponential(3)}; twin X = -1 |d| ${twinMean.toFixed(2)} dE ${crossing.twinGap.toExponential(2)} |<twin|U|point>| ${crossing.twinCoupling.toExponential(2)}; closest approach K* ${c.K.toFixed(6)} gap ${c.gap.toExponential(3)} (residuals ${c.lower.residual.toExponential(1)}, ${c.upper.residual.toExponential(1)}), gap/sigma ${(c.gap / sigma).toExponential(2)}, width in K ${crossing.width.toExponential(2)} against step ${step.toExponential(2)}`,
+    )
   }
 
   // C3: no cost
@@ -452,7 +587,8 @@ export default experiment({
   run() {
     const started = Date.now()
     const secs = (): number => Math.round((Date.now() - started) / 1000)
-    const log = (s: string): void => console.error(`${s}; at ${secs()} s`)
+    const log = (s: string): void =>
+      console.error(`${s}; at ${secs()} s`)
     const f4 = (x: number): string => x.toFixed(4)
     const e2 = (x: number): string => x.toExponential(2)
 
@@ -462,23 +598,49 @@ export default experiment({
 
     // gates
     const X1 = points.every(p => p.held)
-    const X2 = gated.every(p => p.held && Math.abs(p.cEff / p.cosM - 1) <= C_TOL)
+    const X2 = gated.every(
+      p => p.held && Math.abs(p.cEff / p.cosM - 1) <= C_TOL,
+    )
     const X3 = gated.every(p => Math.abs(p.top / p.cosM - 1) <= V_TOL)
 
     // controls
     const c1Rows = points.map(p => ({
       n: p.n,
-      ok: Math.abs(p.energy - RECORDED_ENERGY[p.n]!) <= SAME && p.stepCount === RECORDED_STEPS[p.n] && Math.abs(p.total - RECORDED_TOTAL[p.n]!) <= TOTAL_SAME,
+      ok:
+        Math.abs(p.energy - RECORDED_ENERGY[p.n]!) <= SAME &&
+        p.stepCount === RECORDED_STEPS[p.n] &&
+        Math.abs(p.total - RECORDED_TOTAL[p.n]!) <= TOTAL_SAME,
     }))
     const C1 = c1Rows.every(r => r.ok)
-    const C2 = points.every(p => (RECORDED_BREAK[p.n] === undefined ? p.adiabaticBreak === -1 || p.adiabaticBreak >= p.kHold - 1e-12 : Math.abs(p.adiabaticBreak - RECORDED_BREAK[p.n]!) <= BREAK_SAME))
+    const C2 = points.every(p =>
+      RECORDED_BREAK[p.n] === undefined
+        ? p.adiabaticBreak === -1 || p.adiabaticBreak >= p.kHold - 1e-12
+        : Math.abs(p.adiabaticBreak - RECORDED_BREAK[p.n]!) <=
+          BREAK_SAME,
+    )
     const C3 = points.every(p => p.free > TAIL)
-    const C4 = points.every(p => p.commute <= COMMUTE && p.wrong >= WRONG && Math.abs(p.exchange0 - 1) <= COMMUTE)
-    const C5 = points.every(p => p.solveGap <= SOLVE_SAME && p.leak === 0 && p.unitarity <= UNITARY)
+    const C4 = points.every(
+      p =>
+        p.commute <= COMMUTE &&
+        p.wrong >= WRONG &&
+        Math.abs(p.exchange0 - 1) <= COMMUTE,
+    )
+    const C5 = points.every(
+      p =>
+        p.solveGap <= SOLVE_SAME &&
+        p.leak === 0 &&
+        p.unitarity <= UNITARY,
+    )
     const control = C1 && C2 && C3 && C4 && C5
-    const status = !control ? 'partial' : X1 && X2 && X3 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : X1 && X2 && X3
+        ? 'pass'
+        : 'fail'
 
-    log(`X1 ${X1} X2 ${X2} X3 ${X3}; C1 ${C1} (${c1Rows.map(r => `n ${r.n} ${r.ok}`).join(', ')}) C2 ${C2} C3 ${C3} C4 ${C4} C5 ${C5}`)
+    log(
+      `X1 ${X1} X2 ${X2} X3 ${X3}; C1 ${C1} (${c1Rows.map(r => `n ${r.n} ${r.ok}`).join(', ')}) C2 ${C2} C3 ${C3} C4 ${C4} C5 ${C5}`,
+    )
 
     const metrics: Record<string, number> = {
       X1: X1 ? 1 : 0,
@@ -534,9 +696,11 @@ export default experiment({
         metrics[`${k}_gapK`] = c.gapK
         metrics[`${k}_gap`] = c.gap
         metrics[`${k}_gapOverSigma`] = c.gap / p.sigma
-        metrics[`${k}_gapOverEnergyStep`] = c.gap / (Math.abs(c.slope) * p.step)
+        metrics[`${k}_gapOverEnergyStep`] =
+          c.gap / (Math.abs(c.slope) * p.step)
         metrics[`${k}_widthOverStep`] = c.width / p.step
-        metrics[`${k}_widthOverRest`] = (Math.PI * c.gap ** 2) / (2 * p.sigma) / p.eRest
+        metrics[`${k}_widthOverRest`] =
+          (Math.PI * c.gap ** 2) / (2 * p.sigma) / p.eRest
       }
     }
 
@@ -547,11 +711,27 @@ export default experiment({
       status,
       claim:
         `At every E-SPN-0114 break the band's partner is a Klein level of the meson's own exchange sector (X = +1): ${crossings
-          .map(p => `n ${p.n} K ${f4(p.crossing!.K)} |d| ${p.crossing!.partnerMean.toFixed(1)} against (E + 2m)/sigma ${p.crossing!.klein.toFixed(1)}, gap ${e2(p.crossing!.gap)} (${e2(p.crossing!.gap / p.sigma)} sigma), X = -1 twin at |d| ${p.crossing!.twinMean.toFixed(1)} with |<twin|U|band>| ${e2(p.crossing!.twinCoupling)}`)
+          .map(
+            p =>
+              `n ${p.n} K ${f4(p.crossing!.K)} |d| ${p.crossing!.partnerMean.toFixed(1)} against (E + 2m)/sigma ${p.crossing!.klein.toFixed(1)}, gap ${e2(p.crossing!.gap)} (${e2(p.crossing!.gap / p.sigma)} sigma), X = -1 twin at |d| ${p.crossing!.twinMean.toFixed(1)} with |<twin|U|band>| ${e2(p.crossing!.twinCoupling)}`,
+          )
           .join('; ')}. ` +
-        `Read diabatically: X1 ${g(X1)} (least overlap ${points.map(p => f4(p.least)).join(', ')} to K_hold${points.some(p => !p.held) ? `, not held: ${points.filter(p => !p.held).map(p => `n ${p.n}`).join(', ')}` : ''}); X2 ${g(X2)} (c_eff ${points.map(p => f4(p.cEff)).join(', ')} against cos m ${points.map(p => f4(p.cosM)).join(', ')}); X3 ${g(X3)} (top ${points.map(p => f4(p.top)).join(', ')}, held to K ${points.map(p => p.heldTo.toFixed(3)).join(', ')}). Controls: C1 ${C1}, C2 ${C2}, C3 ${C3}, C4 ${C4}, C5 ${C5}`,
+        `Read diabatically: X1 ${g(X1)} (least overlap ${points.map(p => f4(p.least)).join(', ')} to K_hold${
+          points.some(p => !p.held)
+            ? `, not held: ${points
+                .filter(p => !p.held)
+                .map(p => `n ${p.n}`)
+                .join(', ')}`
+            : ''
+        }); X2 ${g(X2)} (c_eff ${points.map(p => f4(p.cEff)).join(', ')} against cos m ${points.map(p => f4(p.cosM)).join(', ')}); X3 ${g(X3)} (top ${points.map(p => f4(p.top)).join(', ')}, held to K ${points.map(p => p.heldTo.toFixed(3)).join(', ')}). Controls: C1 ${C1}, C2 ${C2}, C3 ${C3}, C4 ${C4}, C5 ${C5}`,
       metrics,
-      control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, C3: C3 ? 1 : 0, C4: C4 ? 1 : 0, C5: C5 ? 1 : 0 },
+      control: {
+        C1: C1 ? 1 : 0,
+        C2: C2 ? 1 : 0,
+        C3: C3 ? 1 : 0,
+        C4: C4 ? 1 : 0,
+        C5: C5 ? 1 : 0,
+      },
       notes: `L2. ${secs()} s.`,
     })
   },

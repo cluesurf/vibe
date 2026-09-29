@@ -37,7 +37,12 @@
 // No vibes hop in this form: it is the light sector alone (the photon-links `hop: false`), with the charges
 // entering only through Gauss's law in the start.
 
-import { makePhotonRule, plaquetteField, type PhotonLattice, type PhotonRule } from '@/code/rule/photon-links'
+import {
+  makePhotonRule,
+  plaquetteField,
+  type PhotonLattice,
+  type PhotonRule,
+} from '@/code/rule/photon-links'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
@@ -90,7 +95,14 @@ export function makeRemainderRule(input: {
   charge?: number
 }): RemainderRule {
   const { n, k, q } = input
-  const base = makePhotonRule({ lattice: input.lattice, n, k, capacity: 0, hop: false, charge: input.charge ?? 1 })
+  const base = makePhotonRule({
+    lattice: input.lattice,
+    n,
+    k,
+    capacity: 0,
+    hop: false,
+    charge: input.charge ?? 1,
+  })
   const p = Math.round(((2 * Math.PI * k) / n) * q)
   const table = Int32Array.from({ length: n }, (_, b) => {
     if (input.form === 'linear') {
@@ -102,23 +114,39 @@ export function makeRemainderRule(input: {
     return Math.sign(s) * Math.round(Math.abs(s))
   })
 
-  return { base, lattice: input.lattice, n, form: input.form, p, q, table, on: input.on ?? 'plaquette' }
+  return {
+    base,
+    lattice: input.lattice,
+    n,
+    form: input.form,
+    p,
+    q,
+    table,
+    on: input.on ?? 'plaquette',
+  }
 }
 
 // the coupling the rule's force averages to about B = 0: p / q for the linear form, the sine's slope for the
 // sine form
 export function remainderKappa(rule: RemainderRule): number {
-  return rule.form === 'linear' ? rule.p / rule.q : (2 * Math.PI * rule.base.k) / rule.n
+  return rule.form === 'linear'
+    ? rule.p / rule.q
+    : (2 * Math.PI * rule.base.k) / rule.n
 }
 
 // the number of remainders the rule keeps
 export function remainderCount(rule: RemainderRule): number {
-  return rule.on === 'plaquette' ? rule.lattice.plaquetteCount : rule.lattice.links
+  return rule.on === 'plaquette'
+    ? rule.lattice.plaquetteCount
+    : rule.lattice.links
 }
 
 // the empty state: no vibes, every angle 0, no flux, and the remainders either all 0 or a golden-ratio Weyl
 // sequence over their index, floor(frac((i + 1) golden) q): a deterministic, evenly spread dither
-export function emptyRemainderState(rule: RemainderRule, dither: 'weyl' | 'zero'): RemainderState {
+export function emptyRemainderState(
+  rule: RemainderRule,
+  dither: 'weyl' | 'zero',
+): RemainderState {
   const count = remainderCount(rule)
   const remainder = new Int32Array(count)
 
@@ -137,7 +165,12 @@ export function emptyRemainderState(rule: RemainderRule, dither: 'weyl' | 'zero'
 }
 
 export function copyRemainderState(s: RemainderState): RemainderState {
-  return { vibe: Int8Array.from(s.vibe), angle: Int32Array.from(s.angle), flux: Int32Array.from(s.flux), remainder: Int32Array.from(s.remainder) }
+  return {
+    vibe: Int8Array.from(s.vibe),
+    angle: Int32Array.from(s.angle),
+    flux: Int32Array.from(s.flux),
+    remainder: Int32Array.from(s.remainder),
+  }
 }
 
 // one kick forward: the f paid from T[B] = t and the remainder r. The new remainder is t + r - q f
@@ -151,12 +184,16 @@ export function repaid(t: number, next: number, q: number): number {
   return Math.ceil((t - next) / q)
 }
 
-function drift(rule: RemainderRule, s: RemainderState, sign: number): void {
+function drift(
+  rule: RemainderRule,
+  s: RemainderState,
+  sign: number,
+): void {
   const { angle, flux } = s
   const n = rule.n
 
   for (let l = 0; l < angle.length; l++) {
-    let a = (angle[l] as number) + sign * (flux[l] as number)
+    let a = angle[l]! + sign * flux[l]!
 
     a %= n
     angle[l] = a < 0 ? a + n : a
@@ -164,7 +201,11 @@ function drift(rule: RemainderRule, s: RemainderState, sign: number): void {
 }
 
 // the kick, forward (sign 1) or backward (sign -1), in place
-function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
+function kick(
+  rule: RemainderRule,
+  s: RemainderState,
+  sign: number,
+): void {
   const { lattice, q, table, n } = rule
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
@@ -179,14 +220,15 @@ function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
       let b = 0
 
       for (let j = 0; j < size; j++) {
-        b += (signs[o + j] as number) * (angle[links[o + j] as number] as number)
+        b += signs[o + j]! * angle[links[o + j]!]!
       }
 
       b %= n
 
-      const t = table[b < 0 ? b + n : b] as number
-      const r = remainder[p] as number
-      const f = sign > 0 ? Math.floor((t + r) / q) : Math.ceil((t - r) / q)
+      const t = table[b < 0 ? b + n : b]!
+      const r = remainder[p]!
+      const f =
+        sign > 0 ? Math.floor((t + r) / q) : Math.ceil((t - r) / q)
 
       remainder[p] = sign > 0 ? t + r - q * f : r + q * f - t
 
@@ -197,9 +239,9 @@ function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
       const g = sign * f
 
       for (let j = 0; j < size; j++) {
-        const l = links[o + j] as number
+        const l = links[o + j]!
 
-        flux[l] = (flux[l] as number) - (signs[o + j] as number) * g
+        flux[l] = flux[l]! - signs[o + j]! * g
       }
     }
 
@@ -228,7 +270,9 @@ function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
     for (let j = 0; j < size; j++) {
       const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-      summed[l] = (summed[l] ?? 0) + (lattice.plaquetteSigns[p * size + j] ?? 0) * t
+      summed[l] =
+        (summed[l] ?? 0) +
+        (lattice.plaquetteSigns[p * size + j] ?? 0) * t
     }
   }
 
@@ -241,18 +285,30 @@ function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
 }
 
 // one beat, in place: drift, then the carried kick
-export function remainderBeatInPlace(rule: RemainderRule, s: RemainderState): void {
+export function remainderBeatInPlace(
+  rule: RemainderRule,
+  s: RemainderState,
+): void {
   drift(rule, s, 1)
   kick(rule, s, 1)
 }
 
 // the inverse of one beat, in place: the kick backward, then the drift backward
-export function remainderBeatBackInPlace(rule: RemainderRule, s: RemainderState): void {
+export function remainderBeatBackInPlace(
+  rule: RemainderRule,
+  s: RemainderState,
+): void {
   kick(rule, s, -1)
   drift(rule, s, -1)
 }
 
 // the centered B of every plaquette
-export function centeredFields(rule: RemainderRule, angle: Int32Array): Int32Array {
-  return Int32Array.from({ length: rule.lattice.plaquetteCount }, (_, p) => centeredOf(plaquetteField(rule.base, angle, p), rule.n))
+export function centeredFields(
+  rule: RemainderRule,
+  angle: Int32Array,
+): Int32Array {
+  return Int32Array.from(
+    { length: rule.lattice.plaquetteCount },
+    (_, p) => centeredOf(plaquetteField(rule.base, angle, p), rule.n),
+  )
 }

@@ -10,38 +10,64 @@
 // DETERMINISM: every start is a fixed Weyl pattern; nothing is drawn. NOTHING MOVES: each value takes its new value by
 // the rule.
 
-import { duplicateOpen, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
+import {
+  duplicateOpen,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { huskDistance } from '@/code/measure/open-husk'
-import { LINE_ITEM, type MembranePlan } from '@/code/rule/membrane-horizon'
+import {
+  LINE_ITEM,
+  type MembranePlan,
+} from '@/code/rule/membrane-horizon'
 import type { HorizonRule } from '@/code/rule/horizon-husk'
 
 const PHI = (Math.sqrt(5) - 1) / 2
 const frac = (x: number): number => x - Math.floor(x)
 
 // a Weyl value over the whole window: a step in -top .. top, a line trit in -1 .. 1
-export const weylStep = (rule: HorizonRule, link: number, phase: number): number => Math.floor(rule.span * frac((link + phase) * Math.SQRT2)) - rule.top
-export const weylLine = (link: number, phase: number): number => Math.floor(3 * frac((link + phase) * PHI)) - 1
+export const weylStep = (
+  rule: HorizonRule,
+  link: number,
+  phase: number,
+): number =>
+  Math.floor(rule.span * frac((link + phase) * Math.SQRT2)) - rule.top
+export const weylLine = (link: number, phase: number): number =>
+  Math.floor(3 * frac((link + phase) * PHI)) - 1
 
 const isLine = (item: number): boolean => (item & 1) === LINE_ITEM
-const radix = (rule: HorizonRule, item: number): number => (isLine(item) ? 3 : rule.span)
+const radix = (rule: HorizonRule, item: number): number =>
+  isLine(item) ? 3 : rule.span
 
 // every item register of the plan set to 0 (the torn registers of a horizon that has no infall)
 export function clearItems(plan: MembranePlan, s: OpenState): void {
-  for (const m of plan.interior) (s.step[m] = 0), (s.line[m] = 0)
-  for (const m of plan.cut) s.step[m] = 0
+  for (const m of plan.interior) {
+    ;((s.step[m] = 0), (s.line[m] = 0))
+  }
+
+  for (const m of plan.cut) {
+    s.step[m] = 0
+  }
 }
 
 // THE FILL: `base` with every item 0, then on each surface dock the LEAST significant items (the deepest, pushed last)
 // set to Weyl values while their radices' logs sum to at most `fill` times the dock's capacity c_s ln(span). A fill of 1
 // or less always fits (the product of the radices is at most the window); past 1 it fits only if the value of the most
 // significant filled item leaves the number in the window
-export function fillStart(rule: HorizonRule, plan: MembranePlan, base: OpenState, fill: number, phase: number): OpenState {
+export function fillStart(
+  rule: HorizonRule,
+  plan: MembranePlan,
+  base: OpenState,
+  fill: number,
+  phase: number,
+): OpenState {
   const s = duplicateOpen(base)
   const lnSpan = Math.log(rule.span)
 
   clearItems(plan, s)
   plan.items.forEach((items, k) => {
     const room = fill * plan.digits[k]!.length * lnSpan
+
     let used = 0
 
     for (let i = items.length - 1; i >= 0; i--) {
@@ -49,9 +75,16 @@ export function fillStart(rule: HorizonRule, plan: MembranePlan, base: OpenState
       const link = item >> 1
 
       used += Math.log(radix(rule, item))
-      if (used > room * (1 + 1e-12)) break
-      if (isLine(item)) s.line[link] = weylLine(link, phase)
-      else s.step[link] = weylStep(rule, link, phase)
+
+      if (used > room * (1 + 1e-12)) {
+        break
+      }
+
+      if (isLine(item)) {
+        s.line[link] = weylLine(link, phase)
+      } else {
+        s.step[link] = weylStep(rule, link, phase)
+      }
     }
   })
 
@@ -60,7 +93,15 @@ export function fillStart(rule: HorizonRule, plan: MembranePlan, base: OpenState
 
 // `base` with every item 0 except those whose link has both ends within `radius` of `center` (on the husk): a fixed ball
 // of infall, the same docks at every M
-export function ballInfall(mesh: OpenMesh, rule: HorizonRule, plan: MembranePlan, base: OpenState, center: readonly number[], radius: number, phase: number): OpenState {
+export function ballInfall(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  plan: MembranePlan,
+  base: OpenState,
+  center: readonly number[],
+  radius: number,
+  phase: number,
+): OpenState {
   const s = duplicateOpen(base)
 
   clearItems(plan, s)
@@ -68,9 +109,18 @@ export function ballInfall(mesh: OpenMesh, rule: HorizonRule, plan: MembranePlan
     for (const item of items) {
       const link = item >> 1
 
-      if (huskDistance(mesh, mesh.tail[link]!, center) >= radius || huskDistance(mesh, mesh.head[link]!, center) >= radius) continue
-      if (isLine(item)) s.line[link] = weylLine(link, phase)
-      else s.step[link] = weylStep(rule, link, phase)
+      if (
+        huskDistance(mesh, mesh.tail[link]!, center) >= radius ||
+        huskDistance(mesh, mesh.head[link]!, center) >= radius
+      ) {
+        continue
+      }
+
+      if (isLine(item)) {
+        s.line[link] = weylLine(link, phase)
+      } else {
+        s.step[link] = weylStep(rule, link, phase)
+      }
     }
   })
 
@@ -79,11 +129,19 @@ export function ballInfall(mesh: OpenMesh, rule: HorizonRule, plan: MembranePlan
 
 // a FORMED state with every counter digit a Weyl value and the interior 0: unformed and formed again it must come back,
 // which shows those digits are in the image of formation
-export function weylCounters(rule: HorizonRule, plan: MembranePlan, base: OpenState, phase: number): OpenState {
+export function weylCounters(
+  rule: HorizonRule,
+  plan: MembranePlan,
+  base: OpenState,
+  phase: number,
+): OpenState {
   const s = duplicateOpen(base)
 
   clearItems(plan, s)
-  for (const m of plan.cut) s.step[m] = weylStep(rule, m, phase)
+
+  for (const m of plan.cut) {
+    s.step[m] = weylStep(rule, m, phase)
+  }
 
   return s
 }
@@ -94,7 +152,9 @@ export function weylCounters(rule: HorizonRule, plan: MembranePlan, base: OpenSt
 const lnBig = (x: bigint): number => {
   const bits = x.toString(2).length
 
-  if (bits <= 52) return Math.log(Number(x))
+  if (bits <= 52) {
+    return Math.log(Number(x))
+  }
 
   const shift = bits - 52
 
@@ -109,7 +169,11 @@ export type Witness = {
   capacity: Float64Array
 }
 
-export function infallWitness(rule: HorizonRule, plan: MembranePlan, s: OpenState): Witness {
+export function infallWitness(
+  rule: HorizonRule,
+  plan: MembranePlan,
+  s: OpenState,
+): Witness {
   const n = plan.surface.length
   const dockFits: boolean[] = []
   const nats = new Float64Array(n)
@@ -122,7 +186,9 @@ export function infallWitness(rule: HorizonRule, plan: MembranePlan, s: OpenStat
     for (const item of plan.items[k]!) {
       const link = item >> 1
 
-      x = x * BigInt(radix(rule, item)) + BigInt(isLine(item) ? s.line[link]! : s.step[link]!)
+      x =
+        x * BigInt(radix(rule, item)) +
+        BigInt(isLine(item) ? s.line[link]! : s.step[link]!)
     }
 
     const c = plan.digits[k]!.length
@@ -147,20 +213,37 @@ export type Variety = {
   cutSteps: number
 }
 
-export function tornVariety(plan: MembranePlan, states: readonly OpenState[]): Variety {
-  const varies = (read: (s: OpenState) => number): boolean => states.some(s => read(s) !== read(states[0]!))
+export function tornVariety(
+  plan: MembranePlan,
+  states: readonly OpenState[],
+): Variety {
+  const varies = (read: (s: OpenState) => number): boolean =>
+    states.some(s => read(s) !== read(states[0]!))
+
   let interiorSteps = 0
   let interiorLines = 0
   let cutSteps = 0
 
   for (const m of plan.interior) {
-    if (varies(s => s.step[m]!)) interiorSteps++
-    if (varies(s => s.line[m]!)) interiorLines++
+    if (varies(s => s.step[m]!)) {
+      interiorSteps++
+    }
+
+    if (varies(s => s.line[m]!)) {
+      interiorLines++
+    }
   }
-  for (const m of plan.cut) if (varies(s => s.step[m]!)) cutSteps++
+
+  for (const m of plan.cut) {
+    if (varies(s => s.step[m]!)) {
+      cutSteps++
+    }
+  }
 
   return { interiorSteps, interiorLines, cutSteps }
 }
 
 // the hidden count, in nats: every torn register that varies, over its window (span for a step, 3 for a line)
-export const varietyCount = (rule: HorizonRule, v: Variety): number => (v.interiorSteps + v.cutSteps) * Math.log(rule.span) + v.interiorLines * Math.log(3)
+export const varietyCount = (rule: HorizonRule, v: Variety): number =>
+  (v.interiorSteps + v.cutSteps) * Math.log(rule.span) +
+  v.interiorLines * Math.log(3)

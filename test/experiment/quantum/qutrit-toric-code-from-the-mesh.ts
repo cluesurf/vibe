@@ -35,7 +35,9 @@ function qutritCode(input: { side: number; periodic: boolean }): {
     components: complexComponents(complex),
     commute: ternaryChecksCommute(vertexRows, triangleRows),
     logicalQutrits:
-      qutrits - ternaryMatrixRank(vertexRows) - ternaryMatrixRank(triangleRows),
+      qutrits -
+      ternaryMatrixRank(vertexRows) -
+      ternaryMatrixRank(triangleRows),
   }
 }
 
@@ -75,7 +77,10 @@ export default experiment({
         commute: commute ? 1 : 0,
       },
       // CONTROL: the open patch is contractible and carries no logical qutrit
-      control: { patchQutrits: patch.qutrits, patchLogical: patch.logicalQutrits },
+      control: {
+        patchQutrits: patch.qutrits,
+        patchLogical: patch.logicalQutrits,
+      },
       notes:
         'The qubit and qutrit codes agree in k because the four-torus has no torsion. What the qutrit version adds is that the code alphabet is the ternary tone itself, so a tone configuration on the edges is a code state candidate, and the conserved charge (a stabiliser check for single-site errors, quantum/conservation-as-stabilizer) can be compared with the vertex checks directly. That comparison, and the hyperbolic (constant-rate) version on a closed quotient of the honeycomb, are the next steps.',
     })

@@ -49,7 +49,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { fearKernels, meetingKernel, swapPhase, wholeLovesAndFears } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  meetingKernel,
+  swapPhase,
+  wholeLovesAndFears,
+} from '@/code/rule/fear-weave'
 import {
   classicalRecords,
   meetingPairs,
@@ -60,8 +65,16 @@ import {
   weylBackground,
   type RoleState,
 } from '@/code/measure/knit-magic'
-import { gridWeights, operator, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
-import { hermitianSpectrum, topEigenvector } from '@/code/measure/qutrit-clifford'
+import {
+  gridWeights,
+  operator,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
+import {
+  hermitianSpectrum,
+  topEigenvector,
+} from '@/code/measure/qutrit-clifford'
 import { weylUnitVector } from '@/code/tool/weyl'
 
 const OMEGA = (2 * Math.PI) / 3
@@ -79,10 +92,16 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
 type State = { re: number[]; im: number[] }
 
 function norm(state: State): number {
-  return state.re.reduce((s, x, i) => s + x * x + (state.im[i] ?? 0) ** 2, 0)
+  return state.re.reduce(
+    (s, x, i) => s + x * x + (state.im[i] ?? 0) ** 2,
+    0,
+  )
 }
 
-function signOperator(signs: readonly number[], points: readonly Operator[]): Operator {
+function signOperator(
+  signs: readonly number[],
+  points: readonly Operator[],
+): Operator {
   const n = points[0]?.n ?? 1
   const out = operator(n)
 
@@ -101,7 +120,11 @@ function signOperator(signs: readonly number[], points: readonly Operator[]): Op
 // alternating ascent of sum |W| from a start; returns the value reached
 function ascend(start: State, points: readonly Operator[]): number {
   const size = Math.sqrt(norm(start))
-  let state: State = { re: start.re.map(x => x / size), im: start.im.map(x => x / size) }
+
+  let state: State = {
+    re: start.re.map(x => x / size),
+    im: start.im.map(x => x / size),
+  }
   let value = 0
 
   for (let step = 0; step < MAX_STEPS; step++) {
@@ -115,7 +138,12 @@ function ascend(start: State, points: readonly Operator[]): number {
 
     value = current
 
-    const top = topEigenvector(signOperator(w.map(x => (x >= 0 ? 1 : -1)), points))
+    const top = topEigenvector(
+      signOperator(
+        w.map(x => (x >= 0 ? 1 : -1)),
+        points,
+      ),
+    )
 
     state = { re: top.re, im: top.im }
   }
@@ -127,7 +155,7 @@ export default experiment({
   id: 'quantum/fear-share-is-bounded-by-magic',
   code: 'E-QTM-0121',
   title:
-    'the fear share of a two-role whole is (1 - e^(-mana)) / 2, so its ceiling is set by the most magic pure state of two qutrits: a deterministic search over sign patterns bounds that state\'s Wigner norm, which sets the predicted ceiling against the 1/3 of Cauchy-Schwarz, and every fear share the knit reaches is checked against it',
+    "the fear share of a two-role whole is (1 - e^(-mana)) / 2, so its ceiling is set by the most magic pure state of two qutrits: a deterministic search over sign patterns bounds that state's Wigner norm, which sets the predicted ceiling against the 1/3 of Cauchy-Schwarz, and every fear share the knit reaches is checked against it",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',
@@ -135,13 +163,19 @@ export default experiment({
   run() {
     // one qutrit: every sign pattern, and the ascent
     const points1 = phasePointOperators(1)
+
     let exhaustive = 0
 
     for (let mask = 0; mask < 512; mask++) {
-      const signs = Array.from({ length: 9 }, (_, p) => ((mask >> p) & 1 ? -1 : 1))
+      const signs = Array.from({ length: 9 }, (_, p) =>
+        (mask >> p) & 1 ? -1 : 1,
+      )
       const spectrum = hermitianSpectrum(signOperator(signs, points1))
 
-      exhaustive = Math.max(exhaustive, spectrum[spectrum.length - 1] ?? 0)
+      exhaustive = Math.max(
+        exhaustive,
+        spectrum[spectrum.length - 1] ?? 0,
+      )
     }
 
     let ascentOne = 0
@@ -149,7 +183,16 @@ export default experiment({
     for (let k = 0; k < 64; k++) {
       const v = weylUnitVector({ dimension: 6, start: 1000 + k })
 
-      ascentOne = Math.max(ascentOne, ascend({ re: Array.from(v.slice(0, 3)), im: Array.from(v.slice(3, 6)) }, points1))
+      ascentOne = Math.max(
+        ascentOne,
+        ascend(
+          {
+            re: Array.from(v.slice(0, 3)),
+            im: Array.from(v.slice(3, 6)),
+          },
+          points1,
+        ),
+      )
     }
 
     // two qutrits
@@ -157,22 +200,46 @@ export default experiment({
     const s = Math.SQRT1_2
     const strange = [0, s, -s]
     const strangeStrange: State = {
-      re: Array.from({ length: 9 }, (_, i) => (strange[Math.floor(i / 3)] ?? 0) * (strange[i % 3] ?? 0)),
+      re: Array.from(
+        { length: 9 },
+        (_, i) =>
+          (strange[Math.floor(i / 3)] ?? 0) * (strange[i % 3] ?? 0),
+      ),
       im: new Array<number>(9).fill(0),
     }
-    const antisymmetric: State = { re: [0, s, 0, -s, 0, 0, 0, 0, 0], im: new Array<number>(9).fill(0) }
-    const structured = [ascend(strangeStrange, points2), ascend(antisymmetric, points2)]
+    const antisymmetric: State = {
+      re: [0, s, 0, -s, 0, 0, 0, 0, 0],
+      im: new Array<number>(9).fill(0),
+    }
+    const structured = [
+      ascend(strangeStrange, points2),
+      ascend(antisymmetric, points2),
+    ]
     const found: number[] = []
 
     for (let k = 0; k < WEYL_STARTS; k++) {
       const v = weylUnitVector({ dimension: 18, start: 2000 + k })
 
-      found.push(ascend({ re: Array.from(v.slice(0, 9)), im: Array.from(v.slice(9, 18)) }, points2))
+      found.push(
+        ascend(
+          {
+            re: Array.from(v.slice(0, 9)),
+            im: Array.from(v.slice(9, 18)),
+          },
+          points2,
+        ),
+      )
     }
 
     const best = Math.max(...found, ...structured)
-    const startsAtBest = found.filter(x => Math.abs(x - best) < 1e-9).length
-    const strangeStart = gridWeights({ re: strangeStrange.re, im: strangeStrange.im, points: points2 }).reduce((t, x) => t + Math.abs(x), 0)
+    const startsAtBest = found.filter(
+      x => Math.abs(x - best) < 1e-9,
+    ).length
+    const strangeStart = gridWeights({
+      re: strangeStrange.re,
+      im: strangeStrange.im,
+      points: points2,
+    }).reduce((t, x) => t + Math.abs(x), 0)
     const predictedShare = (1 - 1 / best) / 2
     const bestMana = Math.log(best)
 
@@ -180,17 +247,32 @@ export default experiment({
     const weave = makeColorWeave({ side: SIDE, table: 'pair' })
     const slots = weave.mesh.cellCount * 24
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
+    const colorOn =
+      fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
     const dock0 = Array.from({ length: 24 }, (_, d) => d)
+
     let knitMaxShare = 0
     let knitWholes = 0
     // the color law's wholes are not always states (E-QTM-0120's probe), so its share is reported, not gated
     let colorMaxShare = 0
-    // the largest share reached per start, and the largest reached after the start (so made by the knit)
-    const perStart = STARTS.map(() => ({ max: 0, gainedOverStart: Number.NEGATIVE_INFINITY }))
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: dock0, beats: BEATS })
+    // the largest share reached per start, and the largest reached after the start (so made by the knit)
+    const perStart = STARTS.map(() => ({
+      max: 0,
+      gainedOverStart: Number.NEGATIVE_INFINITY,
+    }))
+
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: dock0,
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
@@ -198,11 +280,22 @@ export default experiment({
         STARTS.forEach((start, si) => {
           const startWhole = productWhole([a, b], start)
           const startCounts = wholeLovesAndFears(startWhole)
-          const startShare = Number(startCounts.fears) / Number(startCounts.loves + startCounts.fears)
+          const startShare =
+            Number(startCounts.fears) /
+            Number(startCounts.loves + startCounts.fears)
           const tally = perStart[si] ?? { max: 0, gainedOverStart: 0 }
 
-          for (const [li, law] of [{ kernel4: kThird }, { kernel4: [] as number[][], color: colorOn }].entries()) {
-            for (const step of runWhole({ weave, start: startWhole, records: mine, kernel4: law.kernel4, color: law.color })) {
+          for (const [li, law] of [
+            { kernel4: kThird },
+            { kernel4: [] as number[][], color: colorOn },
+          ].entries()) {
+            for (const step of runWhole({
+              weave,
+              start: startWhole,
+              records: mine,
+              kernel4: law.kernel4,
+              color: law.color,
+            })) {
               const { loves, fears } = wholeLovesAndFears(step.whole)
               const share = Number(fears) / Number(loves + fears)
 
@@ -215,7 +308,10 @@ export default experiment({
 
               knitMaxShare = Math.max(knitMaxShare, share)
               tally.max = Math.max(tally.max, share)
-              tally.gainedOverStart = Math.max(tally.gainedOverStart, share - startShare)
+              tally.gainedOverStart = Math.max(
+                tally.gainedOverStart,
+                share - startShare,
+              )
             }
           }
         })
@@ -225,12 +321,18 @@ export default experiment({
     const p1 = best < 3 - 1e-6
     const p2 = knitMaxShare <= predictedShare + 1e-12
     // signOperator already divides by the dimension, so its top eigenvalue is sum |W| itself
-    const ok = Math.abs(exhaustive - 5 / 3) < 1e-12 && Math.abs(ascentOne - 5 / 3) < 1e-9 && best >= 25 / 9 - 1e-12 && best <= 3 + 1e-12 && p1 && p2
+    const ok =
+      Math.abs(exhaustive - 5 / 3) < 1e-12 &&
+      Math.abs(ascentOne - 5 / 3) < 1e-9 &&
+      best >= 25 / 9 - 1e-12 &&
+      best <= 3 + 1e-12 &&
+      p1 &&
+      p2
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'one qutrit\'s largest Wigner norm is 5/3 by all 512 sign patterns and the ascent finds it; on two qutrits the largest norm found from 258 starts is 25/9, the Strange state on both roles, below the Cauchy-Schwarz 3, predicting a fear-share ceiling of 8/25 = 0.32 against the gated 1/3; no fear share the knit reaches exceeds it, and the knit reaches 0.32 only from the Strange x Strange start',
+        "one qutrit's largest Wigner norm is 5/3 by all 512 sign patterns and the ascent finds it; on two qutrits the largest norm found from 258 starts is 25/9, the Strange state on both roles, below the Cauchy-Schwarz 3, predicting a fear-share ceiling of 8/25 = 0.32 against the gated 1/3; no fear share the knit reaches exceeds it, and the knit reaches 0.32 only from the Strange x Strange start",
       metrics: {
         oneQutritExhaustiveNorm: exhaustive,
         oneQutritAscentNorm: ascentOne,
@@ -248,9 +350,12 @@ export default experiment({
         knitMaxShareFromBasisStart: perStart[0]?.max ?? -1,
         knitMaxShareFromStrangeBasisStart: perStart[1]?.max ?? -1,
         knitMaxShareFromStrangeStrangeStart: perStart[2]?.max ?? -1,
-        knitLargestGainOverStartBasis: perStart[0]?.gainedOverStart ?? -1,
-        knitLargestGainOverStartStrangeBasis: perStart[1]?.gainedOverStart ?? -1,
-        knitLargestGainOverStartStrangeStrange: perStart[2]?.gainedOverStart ?? -1,
+        knitLargestGainOverStartBasis:
+          perStart[0]?.gainedOverStart ?? -1,
+        knitLargestGainOverStartStrangeBasis:
+          perStart[1]?.gainedOverStart ?? -1,
+        knitLargestGainOverStartStrangeStrange:
+          perStart[2]?.gainedOverStart ?? -1,
         predictionP1Holds: p1 ? 1 : 0,
         predictionP2Holds: p2 ? 1 : 0,
         threeRoleShareBound: (1 - 3 ** -1.5) / 2,
@@ -262,7 +367,8 @@ export default experiment({
         strangeStrangeShare: (1 - 9 / 25) / 2,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the knit's largest fear share from a basis start 0.3094 -> 0.3105 and from a Strange basis start 0.3135 -> 0.3199, both still under the bound. " + ('L1 and L2. The maximum over pure states of sum |W| is the maximum over sign patterns of the top eigenvalue of sum sigma_x A(x) / 9, since sum |W| = max over sigma of sum sigma W; the ascent climbs that monotonely but can stop at a local maximum, so the value found is a lower bound on s_max and 3 is the only certified upper bound. P2 compares against that lower bound, so a knit share above it would mean the search missed, not that the identity failed.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the knit's largest fear share from a basis start 0.3094 -> 0.3105 and from a Strange basis start 0.3135 -> 0.3199, both still under the bound. " +
+        'L1 and L2. The maximum over pure states of sum |W| is the maximum over sign patterns of the top eigenvalue of sum sigma_x A(x) / 9, since sum |W| = max over sigma of sum sigma W; the ascent climbs that monotonely but can stop at a local maximum, so the value found is a lower bound on s_max and 3 is the only certified upper bound. P2 compares against that lower bound, so a knit share above it would mean the search missed, not that the identity failed.',
     })
   },
 })

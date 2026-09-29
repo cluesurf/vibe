@@ -17,14 +17,24 @@
 export const THRESHOLDS = [1, 2, 3, 4, 5, 6, 7].map(i => i / 8)
 export const THRESHOLD_GAP = 0.02
 
-export type PairReport = { gap: number; constantShift: boolean; shift: number; flagged: boolean }
+export type PairReport = {
+  gap: number
+  constantShift: boolean
+  shift: number
+  flagged: boolean
+}
 
-export function thresholdCorrelation(input: { read1: (key: number) => number; read2: (key: number) => number; keys: number }): PairReport {
+export function thresholdCorrelation(input: {
+  read1: (key: number) => number
+  read2: (key: number) => number
+  keys: number
+}): PairReport {
   const { read1, read2, keys } = input
   const n = THRESHOLDS.length
   const joint = new Int32Array(n * n)
   const below1 = new Int32Array(n)
   const below2 = new Int32Array(n)
+
   let first = Number.NaN
   let constantShift = true
 
@@ -62,26 +72,53 @@ export function thresholdCorrelation(input: { read1: (key: number) => number; re
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      gap = Math.max(gap, Math.abs((joint[i * n + j] ?? 0) / keys - ((below1[i] ?? 0) / keys) * ((below2[j] ?? 0) / keys)))
+      gap = Math.max(
+        gap,
+        Math.abs(
+          (joint[i * n + j] ?? 0) / keys -
+            ((below1[i] ?? 0) / keys) * ((below2[j] ?? 0) / keys),
+        ),
+      )
     }
   }
 
-  return { gap, constantShift, shift: first, flagged: gap > THRESHOLD_GAP }
+  return {
+    gap,
+    constantShift,
+    shift: first,
+    flagged: gap > THRESHOLD_GAP,
+  }
 }
 
 // the length of [0, t1) intersected with [0, t2) - delta (mod 1): the exact joint rate of a fixed shift
-export function shiftedJoint(t1: number, t2: number, delta: number): number {
+export function shiftedJoint(
+  t1: number,
+  t2: number,
+  delta: number,
+): number {
   // [0, t2) - delta mod 1 is [1 - delta, 1 - delta + t2) mod 1, as up to two intervals in [0, 1)
   const start = (((1 - delta) % 1) + 1) % 1
   const end = start + t2
-  const pieces: [number, number][] = end <= 1 ? [[start, end]] : [[start, 1], [0, end - 1]]
+  const pieces: [number, number][] =
+    end <= 1
+      ? [[start, end]]
+      : [
+          [start, 1],
+          [0, end - 1],
+        ]
 
-  return pieces.reduce((s, [a, b]) => s + Math.max(0, Math.min(b, t1) - Math.max(a, 0)), 0)
+  return pieces.reduce(
+    (s, [a, b]) => s + Math.max(0, Math.min(b, t1) - Math.max(a, 0)),
+    0,
+  )
 }
 
 // the exact smallest threshold-grid gap any fixed shift can have, over delta on a grid of `steps` points and
 // the grid's breakpoints (the gap is piecewise linear in delta with kinks at +- t1 +- t2 mod 1)
-export function fixedShiftFloor(steps: number): { floor: number; at: number } {
+export function fixedShiftFloor(steps: number): {
+  floor: number
+  at: number
+} {
   const deltas = new Set<number>()
 
   for (let s = 0; s < steps; s++) {
@@ -90,8 +127,17 @@ export function fixedShiftFloor(steps: number): { floor: number; at: number } {
 
   for (const t1 of THRESHOLDS) {
     for (const t2 of THRESHOLDS) {
-      for (const x of [t1 - t2, t2 - t1, t1 + t2, -t1 - t2, t1, -t1, t2, -t2]) {
-        deltas.add((((x % 1) + 1) % 1))
+      for (const x of [
+        t1 - t2,
+        t2 - t1,
+        t1 + t2,
+        -t1 - t2,
+        t1,
+        -t1,
+        t2,
+        -t2,
+      ]) {
+        deltas.add(((x % 1) + 1) % 1)
       }
     }
   }
@@ -104,7 +150,10 @@ export function fixedShiftFloor(steps: number): { floor: number; at: number } {
 
     for (const t1 of THRESHOLDS) {
       for (const t2 of THRESHOLDS) {
-        gap = Math.max(gap, Math.abs(shiftedJoint(t1, t2, delta) - t1 * t2))
+        gap = Math.max(
+          gap,
+          Math.abs(shiftedJoint(t1, t2, delta) - t1 * t2),
+        )
       }
     }
 

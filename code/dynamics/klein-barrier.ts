@@ -42,7 +42,8 @@ export function diracBarrierProbability(input: {
   } = input
 
   const barrierEnd = barrierStart + barrierWidth
-  const inBarrier = (x: number): boolean => x >= barrierStart && x < barrierEnd
+  const inBarrier = (x: number): boolean =>
+    x >= barrierStart && x < barrierEnd
   const walk = makeCoinedWalk({ size })
 
   addGaussianPacket({
@@ -56,12 +57,14 @@ export function diracBarrierProbability(input: {
 
   const { cosMass, sinMass } = massProfile({
     size,
-    massAt: x => (kind === 'mass' && inBarrier(x) ? mass + height : mass),
+    massAt: x =>
+      kind === 'mass' && inBarrier(x) ? mass + height : mass,
   })
 
   const { phaseRe, phaseIm } = potentialPhase({
     size,
-    potentialAt: x => (kind === 'potential' && inBarrier(x) ? height : 0),
+    potentialAt: x =>
+      kind === 'potential' && inBarrier(x) ? height : 0,
   })
 
   for (let t = 0; t < steps; t++) {

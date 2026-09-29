@@ -58,15 +58,34 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { boxMaps, coinData, orientedHub, orientedHubStore } from '@/code/measure/varying-vacuum'
-import { dockMatrices, periodicMedium } from '@/code/measure/bounce-transport'
+import {
+  boxMaps,
+  coinData,
+  orientedHub,
+  orientedHubStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  dockMatrices,
+  periodicMedium,
+} from '@/code/measure/bounce-transport'
 import { weaveOf } from '@/code/measure/varying-living-battery'
-import { familiesOf, invariantsOf, slowModes } from '@/code/measure/store-transport'
-import { NAMED, ORIENTED, SPACE } from '@/code/measure/varying-transport'
+import {
+  familiesOf,
+  invariantsOf,
+  slowModes,
+} from '@/code/measure/store-transport'
+import {
+  NAMED,
+  ORIENTED,
+  SPACE,
+} from '@/code/measure/varying-transport'
 import { huskDirections } from '@/code/measure/husk-transport-order'
 import { matrixOfPermutation } from '@/code/measure/husk-transport-symmetry'
 import { bounceLinearization } from '@/code/measure/bounce-linearization'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import { weyl } from '@/code/tool/weyl'
 import {
   actOn,
@@ -103,45 +122,106 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
     const mesh = weaveOf(4).mesh
     const named = namedDockInvariants()
     const directions = huskDirections(3)
-    const axis = directions[0] as number[]
+    const axis = directions[0]!
 
     // U: the uniform medium
-    const uniformLaws = Array.from({ length: 12 }, () => [1 / 3, 1 / 3, 1 / 3] as const)
-    const u = [bounceLinearization({ kind: 'lone', background: ORIENTED, mode: 'BP', laws: uniformLaws }), bounceLinearization({ kind: 'lone', background: ORIENTED, mode: 'PB', laws: uniformLaws })]
+    const uniformLaws = Array.from(
+      { length: 12 },
+      () => [1 / 3, 1 / 3, 1 / 3] as const,
+    )
+    const u = [
+      bounceLinearization({
+        kind: 'lone',
+        background: ORIENTED,
+        mode: 'BP',
+        laws: uniformLaws,
+      }),
+      bounceLinearization({
+        kind: 'lone',
+        background: ORIENTED,
+        mode: 'PB',
+        laws: uniformLaws,
+      }),
+    ]
     const uInvariants = invariantsOf(SPACE, u)
-    const uniformMedium = periodicMedium(mesh, Array.from({ length: 256 }, () => u[0]!), Array.from({ length: 256 }, () => u[1]!))
+    const uniformMedium = periodicMedium(
+      mesh,
+      Array.from({ length: 256 }, () => u[0]!),
+      Array.from({ length: 256 }, () => u[1]!),
+    )
     const uniformOps = cellOps(uniformMedium)
     const uniformLeft = leftInvariants(uniformMedium, named).vectors
     const uniformRight = rightInvariants(uniformOps, uniformLeft)
-    const uniformReading = readSymmetricTransport({ medium: uniformMedium, left: uniformLeft, right: uniformRight.vectors, directions: [axis], rungs: [KC / 4, KC / 16] })
-    const reference = slowModes(SPACE, u, axis.map(x => (x * KC) / 4), 6, familiesOf(SPACE, NAMED, axis, uInvariants))
+    const uniformReading = readSymmetricTransport({
+      medium: uniformMedium,
+      left: uniformLeft,
+      right: uniformRight.vectors,
+      directions: [axis],
+      rungs: [KC / 4, KC / 16],
+    })
+    const reference = slowModes(
+      SPACE,
+      u,
+      axis.map(x => (x * KC) / 4),
+      6,
+      familiesOf(SPACE, NAMED, axis, uInvariants),
+    )
     const k4 = (KC / 4) ** 2
-    const refCharge = (reference.find(m => m.family === 'charge')?.gamma ?? Number.NaN) / k4
-    const refShear = (reference.find(m => m.family === 'shear')?.gamma ?? Number.NaN) / k4
+    const refCharge =
+      (reference.find(m => m.family === 'charge')?.gamma ??
+        Number.NaN) / k4
+    const refShear =
+      (reference.find(m => m.family === 'shear')?.gamma ?? Number.NaN) /
+      k4
     const refSound = Math.max(...reference.map(m => m.omega)) / (KC / 4)
-    const rel = (a: number, b: number): number => Math.abs(a - b) / Math.abs(b)
+    const rel = (a: number, b: number): number =>
+      Math.abs(a - b) / Math.abs(b)
     const uCharge = uniformReading.values.charge![0]![0] ?? Number.NaN
-    const uShear = Math.max(...uniformReading.values.shear![0]!.map(x => rel(x, refShear)))
+    const uShear = Math.max(
+      ...uniformReading.values.shear![0]!.map(x => rel(x, refShear)),
+    )
     const uSound = uniformReading.values.sound![0]![0] ?? Number.NaN
     const uNamedOutside = outsideSpan(named, uInvariants)
-    const gateU = rel(uCharge, refCharge) < 1e-8 && uShear < 1e-8 && rel(uSound, refSound) < 1e-8 && uniformReading.couplingPS < 1e-8 && uniformReading.couplingSP < 1e-8 && uNamedOutside < 1e-9
+    const gateU =
+      rel(uCharge, refCharge) < 1e-8 &&
+      uShear < 1e-8 &&
+      rel(uSound, refSound) < 1e-8 &&
+      uniformReading.couplingPS < 1e-8 &&
+      uniformReading.couplingSP < 1e-8 &&
+      uNamedOutside < 1e-9
 
     log('U')
 
     // the representation, exact
     const hub = orientedHub(coins)
-    const matrices = hub.group.map(g => matrixOfPermutation(table.permutations[g] as number[]))
+    const matrices = hub.group.map(g =>
+      matrixOfPermutation(table.permutations[g] as number[]),
+    )
     const characters = invariantCharacters(matrices)
     const box = boxMaps(coins, 4)
-    const syms = hub.group.map(g => cellSymmetry(box.linear[g] as Int32Array, table.permutations[g] as number[], matrixOfPermutation(table.permutations[g] as number[])))
+    const syms = hub.group.map(g =>
+      cellSymmetry(
+        box.linear[g]!,
+        table.permutations[g] as number[],
+        matrixOfPermutation(table.permutations[g] as number[]),
+      ),
+    )
     const hubCell = orientedHubStore(coins, 4, [0, 0, 0, 0])
-    const probes = [0, 1].map(b => Float64Array.from({ length: 256 * 72 }, (_, i) => weyl(i + 1 + 7919 * b) - 0.5))
+    const probes = [0, 1].map(b =>
+      Float64Array.from(
+        { length: 256 * 72 },
+        (_, i) => weyl(i + 1 + 7919 * b) - 0.5,
+      ),
+    )
 
     type MediumRead = {
       residual: number
@@ -159,29 +239,64 @@ export default experiment({
     }
 
     const readMedium = (kind: CollisionKind): MediumRead => {
-      const docks = dockMatrices({ kind, store: hubCell, cells: 256, permutations: table.permutations })
-      const medium: PeriodicMedium = periodicMedium(mesh, docks.even, docks.odd)
+      const docks = dockMatrices({
+        kind,
+        store: hubCell,
+        cells: 256,
+        permutations: table.permutations,
+      })
+      const medium: PeriodicMedium = periodicMedium(
+        mesh,
+        docks.even,
+        docks.odd,
+      )
       const ops = cellOps(medium)
-      const dockInvariants = invariantsOf(SPACE, [...new Set([...docks.even, ...docks.odd])])
-      const { vectors: left, consistent } = leftInvariants(medium, named)
+      const dockInvariants = invariantsOf(SPACE, [
+        ...new Set([...docks.even, ...docks.odd]),
+      ])
+      const { vectors: left, consistent } = leftInvariants(
+        medium,
+        named,
+      )
       const residual = leftResidual(ops, left)
+
       let commutation = 0
       let blockDiagonal = 0
+
       const right = rightInvariants(ops, left)
 
       for (let i = 0; i < syms.length; i += 37) {
         const g = syms[i]!
 
-        commutation = Math.max(commutation, commutationDefect(ops, g, probes))
+        commutation = Math.max(
+          commutation,
+          commutationDefect(ops, g, probes),
+        )
 
         const d = reduced(left, right.vectors, v => actOn(g, v))
 
-        for (let r = 0; r < 18; r++) for (let c = 0; c < 18; c++) if (r < 6 !== c < 6) blockDiagonal = Math.max(blockDiagonal, Math.abs(d[r * 18 + c] as number))
+        for (let r = 0; r < 18; r++) {
+          for (let c = 0; c < 18; c++) {
+            if (r < 6 !== c < 6) {
+              blockDiagonal = Math.max(
+                blockDiagonal,
+                Math.abs(d[r * 18 + c]!),
+              )
+            }
+          }
+        }
       }
 
       log(`${kind}: invariants, group`)
 
-      const reading = readSymmetricTransport({ medium, left, right: right.vectors, directions, rungs: RUNGS, log: what => log(`${kind} ${what}`) })
+      const reading = readSymmetricTransport({
+        medium,
+        left,
+        right: right.vectors,
+        directions,
+        rungs: RUNGS,
+        log: what => log(`${kind} ${what}`),
+      })
 
       // P: perturbation theory on the axis at kc / 16
       const e = effectiveMatrices(ops, left, right.vectors, axis)
@@ -191,8 +306,8 @@ export default experiment({
 
       for (let i = 0; i < 6; i++) {
         for (let j = 0; j < 6; j++) {
-          re[i * 6 + j] = (i === j ? 1 : 0) - k * k * (e.h2[i * 18 + j] as number)
-          im[i * 6 + j] = -k * (e.h1[i * 18 + j] as number)
+          re[i * 6 + j] = (i === j ? 1 : 0) - k * k * e.h2[i * 18 + j]!
+          im[i * 6 + j] = -k * e.h1[i * 18 + j]!
         }
       }
 
@@ -200,16 +315,30 @@ export default experiment({
       const modes = ev.re.map((r, i) => {
         const value: [number, number] = [r, ev.im[i] ?? 0]
         const y = complexEigenvector({ re, im, n: 6, value })
-        const w = (j: number): number => (y.re[j] ?? 0) ** 2 + (y.im[j] ?? 0) ** 2
-        const lr = [0, 1, 2, 3].reduce((s, a) => s + (axis[a] ?? 0) * (y.re[2 + a] ?? 0), 0)
-        const li = [0, 1, 2, 3].reduce((s, a) => s + (axis[a] ?? 0) * (y.im[2 + a] ?? 0), 0)
+        const w = (j: number): number =>
+          (y.re[j] ?? 0) ** 2 + (y.im[j] ?? 0) ** 2
+        const lr = [0, 1, 2, 3].reduce(
+          (s, a) => s + (axis[a] ?? 0) * (y.re[2 + a] ?? 0),
+          0,
+        )
+        const li = [0, 1, 2, 3].reduce(
+          (s, a) => s + (axis[a] ?? 0) * (y.im[2 + a] ?? 0),
+          0,
+        )
         const longitudinal = lr * lr + li * li
         const momentum = w(2) + w(3) + w(4) + w(5)
 
         return {
           gamma: -Math.log(Math.hypot(value[0], value[1])) / 2,
           omega: Math.abs(Math.atan2(value[1], value[0])) / 2,
-          weights: { charge: w(0), energy: w(1), longitudinal, shear: Math.max(0, momentum - longitudinal - w(5)), depth: w(5), staggered: 0 },
+          weights: {
+            charge: w(0),
+            energy: w(1),
+            longitudinal,
+            shear: Math.max(0, momentum - longitudinal - w(5)),
+            depth: w(5),
+            staggered: 0,
+          },
         }
       })
       const pq = physicalQuantities(modes, k)
@@ -238,19 +367,63 @@ export default experiment({
 
     log('lone')
 
-    const gateI = [iso, lone].every(m => m.residual < 1e-9 && m.consistent && m.commutation < 1e-12 && m.blockDiagonal < 1e-8 && m.namedOutside < 1e-9)
-    const gateP = [iso, lone].every(m => rel(m.perturbCharge, m.blochCharge) < 5e-2 && rel(m.perturbShear, m.blochShear) < 5e-2)
+    const gateI = [iso, lone].every(
+      m =>
+        m.residual < 1e-9 &&
+        m.consistent &&
+        m.commutation < 1e-12 &&
+        m.blockDiagonal < 1e-8 &&
+        m.namedOutside < 1e-9,
+    )
+    const gateP = [iso, lone].every(
+      m =>
+        rel(m.perturbCharge, m.blochCharge) < 5e-2 &&
+        rel(m.perturbShear, m.blochShear) < 5e-2,
+    )
     const forced = (r: SymmetricReading): boolean =>
-      (r.exponent.charge ?? 0) >= 3.5 && (r.exponent.trace ?? 0) >= 3.5 && (r.exponent.sound ?? 0) >= 3.5 && Math.abs((r.exponent.shear ?? 0) - 2) <= 0.5 && r.sectorsClean
+      (r.exponent.charge ?? 0) >= 3.5 &&
+      (r.exponent.trace ?? 0) >= 3.5 &&
+      (r.exponent.sound ?? 0) >= 3.5 &&
+      Math.abs((r.exponent.shear ?? 0) - 2) <= 0.5 &&
+      r.sectorsClean
     const gateHC = forced(iso.reading)
     const gateHT = forced(lone.reading)
     const instruments = gateU && gateI && gateP
-    const status = instruments && gateHC ? (gateHT ? 'pass' : 'fail') : 'partial'
-    const fmt = (r: SymmetricReading): string => ['charge', 'trace', 'sound', 'shear', 'depth', 'slowTrace', 'mixedShear'].map(q => `${q} ${(r.exponent[q] ?? Number.NaN).toFixed(2)}`).join(', ')
-    const numbers = (prefix: string, m: MediumRead): Record<string, number> => ({
-      ...Object.fromEntries(Object.entries(m.reading.exponent).map(([q, v]) => [`${prefix}_${q}_exponent`, v])),
-      ...Object.fromEntries(Object.entries(m.reading.means).map(([q, v]) => [`${prefix}_${q}_mean`, v])),
-      ...Object.fromEntries(Object.entries(m.reading.anisotropy).flatMap(([q, v]) => v.map((x, i) => [`${prefix}_${q}_anisotropy${i}`, x]))),
+    const status =
+      instruments && gateHC ? (gateHT ? 'pass' : 'fail') : 'partial'
+    const fmt = (r: SymmetricReading): string =>
+      [
+        'charge',
+        'trace',
+        'sound',
+        'shear',
+        'depth',
+        'slowTrace',
+        'mixedShear',
+      ]
+        .map(q => `${q} ${(r.exponent[q] ?? Number.NaN).toFixed(2)}`)
+        .join(', ')
+    const numbers = (
+      prefix: string,
+      m: MediumRead,
+    ): Record<string, number> => ({
+      ...Object.fromEntries(
+        Object.entries(m.reading.exponent).map(([q, v]) => [
+          `${prefix}_${q}_exponent`,
+          v,
+        ]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(m.reading.means).map(([q, v]) => [
+          `${prefix}_${q}_mean`,
+          v,
+        ]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(m.reading.anisotropy).flatMap(([q, v]) =>
+          v.map((x, i) => [`${prefix}_${q}_anisotropy${i}`, x]),
+        ),
+      ),
       [`${prefix}_couplingPS`]: m.reading.couplingPS,
       [`${prefix}_couplingSP`]: m.reading.couplingSP,
       [`${prefix}_leftResidual`]: m.residual,
@@ -265,7 +438,7 @@ export default experiment({
     })
 
     return verdict({
-      status: status as 'pass' | 'fail' | 'partial',
+      status: status,
       claim: `the symmetry-adapted reader ${gateHC ? 'reads' : 'does not read'} the isometric hub at its forced exponents (${fmt(iso.reading)}) and reads the lone bounce knit's hub at ${fmt(lone.reading)}; the physical-staggered coupling is ${lone.reading.couplingPS.toExponential(2)} k^2 and symmetry allows it (<chi_P, chi_S> = ${characters.physicalStaggered})`,
       metrics: {
         gateU: gateU ? 1 : 0,
@@ -276,7 +449,10 @@ export default experiment({
         uniformChargeRelative: rel(uCharge, refCharge),
         uniformShearRelative: uShear,
         uniformSoundRelative: rel(uSound, refSound),
-        uniformCoupling: Math.max(uniformReading.couplingPS, uniformReading.couplingSP),
+        uniformCoupling: Math.max(
+          uniformReading.couplingPS,
+          uniformReading.couplingSP,
+        ),
         characterPhysicalStaggered: characters.physicalStaggered,
         characterMomentumStaggered: characters.momentumStaggered,
         characterStaggeredSquare: characters.staggeredSquare,
@@ -287,8 +463,10 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        isometricMixedShearExponent: iso.reading.exponent.mixedShear ?? Number.NaN,
-        loneMixedShearExponent: lone.reading.exponent.mixedShear ?? Number.NaN,
+        isometricMixedShearExponent:
+          iso.reading.exponent.mixedShear ?? Number.NaN,
+        loneMixedShearExponent:
+          lone.reading.exponent.mixedShear ?? Number.NaN,
       },
       notes: `L2. Gates: U ${gateU}, I ${gateI}, P ${gateP}, HC ${gateHC}, HT ${gateHT}. Uniform: charge ${uCharge} against the 72-index ${refCharge}, sound ${uSound} against ${refSound}, shear worst relative ${uShear.toExponential(2)}, coupling ${Math.max(uniformReading.couplingPS, uniformReading.couplingSP).toExponential(2)}. Characters over the ${hub.group.length} elements: <chi_P, chi_S> ${characters.physicalStaggered}, <chi_V, chi_S> ${characters.momentumStaggered}, <chi_S, chi_S> ${characters.staggeredSquare}, <chi_P, chi_P> ${characters.physicalSquare}. Isometric hub: ${fmt(iso.reading)}, anisotropy ${JSON.stringify(iso.reading.anisotropy)}, means ${JSON.stringify(iso.reading.means)}, coupling PS ${iso.reading.couplingPS.toExponential(3)} SP ${iso.reading.couplingSP.toExponential(3)} (per k^2), left residual ${iso.residual.toExponential(2)}, commutation ${iso.commutation.toExponential(2)}, block diagonal ${iso.blockDiagonal.toExponential(2)}, perturbation charge ${iso.perturbCharge} against ${iso.blochCharge}, shear ${iso.perturbShear} against ${iso.blochShear} (resolvent ${iso.resolventTerms} terms). Lone bounce hub: ${fmt(lone.reading)}, anisotropy ${JSON.stringify(lone.reading.anisotropy)}, means ${JSON.stringify(lone.reading.means)}, coupling PS ${lone.reading.couplingPS.toExponential(3)} SP ${lone.reading.couplingSP.toExponential(3)}, left residual ${lone.residual.toExponential(2)}, commutation ${lone.commutation.toExponential(2)}, block diagonal ${lone.blockDiagonal.toExponential(2)}, perturbation charge ${lone.perturbCharge} against ${lone.blochCharge}, shear ${lone.perturbShear} against ${lone.blochShear}. Sectors clean: isometric ${iso.reading.sectorsClean}, lone ${lone.reading.sectorsClean}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

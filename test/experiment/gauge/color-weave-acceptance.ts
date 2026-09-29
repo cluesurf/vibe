@@ -37,7 +37,12 @@ import { beat, growingBeat, inverseBeat } from '@/code/rule/lattice-gas'
 import { turningWeave, type Collision } from '@/code/rule/collision'
 import { makeWill, type Will } from '@/code/tone/will'
 import { clockAmplitude } from '@/code/measure/clock-amplitude'
-import { d4BoxCell, d4BoxCoordinates, d4BoxDistance, d4BoxMesh } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4BoxDistance,
+  d4BoxMesh,
+} from '@/code/substrate/d4-box'
 
 type Table = 'pair' | 'bind'
 
@@ -56,7 +61,10 @@ function difference(a: Will, b: Will): number {
   return count
 }
 
-function rules(side: number, table: Table): {
+function rules(
+  side: number,
+  table: Table,
+): {
   mesh: ReturnType<typeof d4BoxMesh>
   forward: (t: number) => Collision
   backward: (t: number) => Collision
@@ -89,6 +97,7 @@ function battery(table: Table): {
 } {
   // 1. reversal and charge, side 5
   const five = rules(5, table)
+
   const dense = (): Will => {
     const will = makeWill(five.mesh)
 
@@ -100,6 +109,7 @@ function battery(table: Table): {
 
     return will
   }
+
   const start = dense()
   const charge = (w: Will): number => w.data.reduce((a, b) => a + b, 0)
 
@@ -146,7 +156,10 @@ function battery(table: Table): {
         }
 
         const rhs = applyCell(five.forward(t), v)
-        const lhs = applyCell(five.backward(mirror), Int8Array.from(v, x => -x))
+        const lhs = applyCell(
+          five.backward(mirror),
+          Int8Array.from(v, x => -x),
+        )
 
         holds = lhs.every((x, k) => -x === rhs[k])
       }
@@ -170,7 +183,11 @@ function battery(table: Table): {
   let vacuumPeriod = 0
 
   for (let p = 1; p <= PERIOD && vacuumPeriod === 0; p++) {
-    vacuumPeriod = states.every((x, t) => t + p >= states.length || x === states[t + p]) ? p : 0
+    vacuumPeriod = states.every(
+      (x, t) => t + p >= states.length || x === states[t + p],
+    )
+      ? p
+      : 0
   }
 
   // 4. universality: the line graph on the vacuum and on a dense background, side 5
@@ -183,15 +200,19 @@ function battery(table: Table): {
     }
   }
 
-  const lineOf = (d: number): number => lines.findIndex(([a, b]) => a === d || b === d)
+  const lineOf = (d: number): number =>
+    lines.findIndex(([a, b]) => a === d || b === d)
   const center5 = 2 * (1 + 5 + 25 + 125)
+
   const components = (withDense: boolean): number => {
     const parent = Array.from({ length: 12 }, (_, i) => i)
-    const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+    const find = (x: number): number =>
+      parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
 
     for (let direction = 0; direction < 24; direction++) {
       let vac: Will = withDense ? dense() : makeWill(five.mesh)
       let seeded: Will = withDense ? dense() : makeWill(five.mesh)
+
       const slot = center5 * 24 + direction
       const touched = new Set<number>()
 
@@ -223,9 +244,11 @@ function battery(table: Table): {
   const eleven = rules(11, table)
   const seedA = d4BoxCell({ coordinates: [1, 1, 1, 1], side: 11 })
   const seedB = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 11 })
+
   const branch = (seeds: number[]): [number, number][] => {
     let vac: Will = makeWill(eleven.mesh)
     let seeded: Will = makeWill(eleven.mesh)
+
     const out: [number, number][] = []
 
     for (const cell of seeds) {
@@ -244,16 +267,23 @@ function battery(table: Table): {
 
     return out
   }
+
   const a = branch([seedA])
   const b = branch([seedB])
   const joint = branch([seedA, seedB])
   const additivityWorst = Math.max(
-    ...joint.map((j, t) => Math.hypot(j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0), j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0))),
+    ...joint.map((j, t) =>
+      Math.hypot(
+        j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0),
+        j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0),
+      ),
+    ),
   )
 
   // 6. walls, side 9
   const nine = rules(9, table)
-  const late = (cell: number): boolean => (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
+  const late = (cell: number): boolean =>
+    (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
 
   let staggered: Will = makeWill(nine.mesh)
   let uniform: Will = makeWill(nine.mesh)
@@ -261,7 +291,9 @@ function battery(table: Table): {
   const wall: number[] = []
 
   for (let t = 0; t < 8 * PERIOD; t++) {
-    staggered = growingBeat(staggered, nine.forward(t), cell => (late(cell) ? t >= LATE_BY : true))
+    staggered = growingBeat(staggered, nine.forward(t), cell =>
+      late(cell) ? t >= LATE_BY : true,
+    )
     uniform = growingBeat(uniform, nine.forward(t), () => true)
     wall.push(difference(staggered, uniform))
   }
@@ -276,11 +308,13 @@ function battery(table: Table): {
 
   let worstGrowth = 0
   let protectedSpecies = 0
+
   const periodLargest = [0, 0, 0, 0]
 
   for (let direction = 0; direction < 24; direction++) {
     let vac: Will = makeWill(nine.mesh)
     let seeded: Will = makeWill(nine.mesh)
+
     const support: number[] = []
 
     seeded.data[center9 * 24 + direction] = 1
@@ -291,13 +325,22 @@ function battery(table: Table): {
       support.push(difference(seeded, vac))
     }
 
-    protectedSpecies += support.slice(0, PERIOD).every(x => x === 1) ? 1 : 0
+    protectedSpecies += support.slice(0, PERIOD).every(x => x === 1)
+      ? 1
+      : 0
 
     for (let p = 0; p < 4; p++) {
-      periodLargest[p] = Math.max(periodLargest[p] ?? 0, ...support.slice(p * PERIOD, (p + 1) * PERIOD))
+      periodLargest[p] = Math.max(
+        periodLargest[p] ?? 0,
+        ...support.slice(p * PERIOD, (p + 1) * PERIOD),
+      )
     }
 
-    worstGrowth = Math.max(worstGrowth, Math.max(...support.slice(-PERIOD)) / Math.max(1, Math.max(...support.slice(0, PERIOD))))
+    worstGrowth = Math.max(
+      worstGrowth,
+      Math.max(...support.slice(-PERIOD)) /
+        Math.max(1, Math.max(...support.slice(0, PERIOD))),
+    )
   }
 
   // 8. travel, side 13
@@ -320,7 +363,10 @@ function battery(table: Table): {
     for (let i = 0; i < seeded.data.length; i += 24) {
       for (let d = 0; d < 24; d++) {
         if (seeded.data[i + d] !== vac.data[i + d]) {
-          farthest = Math.max(farthest, d4BoxDistance({ a: i / 24, b: center13, side: 13 }))
+          farthest = Math.max(
+            farthest,
+            d4BoxDistance({ a: i / 24, b: center13, side: 13 }),
+          )
           break
         }
       }
@@ -359,7 +405,8 @@ export default experiment({
   run() {
     const bind = battery('bind')
     const pair = battery('pair')
-    const atLeast = (ok: boolean, reference: boolean): boolean => ok || !reference
+    const atLeast = (ok: boolean, reference: boolean): boolean =>
+      ok || !reference
 
     const ok =
       atLeast(bind.reverses, pair.reverses) &&
@@ -368,9 +415,17 @@ export default experiment({
       atLeast(bind.vacuumPeriod > 0, pair.vacuumPeriod > 0) &&
       bind.vacuumComponents <= pair.vacuumComponents &&
       bind.denseComponents <= pair.denseComponents &&
-      atLeast(bind.additivityWorst < 1e-9, pair.additivityWorst < 1e-9) &&
-      atLeast(bind.wallQuantized && bind.wallMax > 0, pair.wallQuantized && pair.wallMax > 0) &&
-      bind.periodLargest.every((x, p) => x <= (pair.periodLargest[p] ?? 0))
+      atLeast(
+        bind.additivityWorst < 1e-9,
+        pair.additivityWorst < 1e-9,
+      ) &&
+      atLeast(
+        bind.wallQuantized && bind.wallMax > 0,
+        pair.wallQuantized && pair.wallMax > 0,
+      ) &&
+      bind.periodLargest.every(
+        (x, p) => x <= (pair.periodLargest[p] ?? 0),
+      )
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -387,7 +442,12 @@ export default experiment({
         wallQuantized: bind.wallQuantized ? 1 : 0,
         wallSettledMax: bind.wallMax,
         worstSupportGrowth: bind.worstGrowth,
-        ...Object.fromEntries(bind.periodLargest.map((x, p) => [`largestSupportPeriod${p + 1}`, x])),
+        ...Object.fromEntries(
+          bind.periodLargest.map((x, p) => [
+            `largestSupportPeriod${p + 1}`,
+            x,
+          ]),
+        ),
         protectedSpecies: bind.protectedSpecies,
         travellers: bind.travellers,
         meanReach: bind.meanReach,
@@ -402,7 +462,12 @@ export default experiment({
         committedWallQuantized: pair.wallQuantized ? 1 : 0,
         committedWallSettledMax: pair.wallMax,
         committedWorstSupportGrowth: pair.worstGrowth,
-        ...Object.fromEntries(pair.periodLargest.map((x, p) => [`committedLargestSupportPeriod${p + 1}`, x])),
+        ...Object.fromEntries(
+          pair.periodLargest.map((x, p) => [
+            `committedLargestSupportPeriod${p + 1}`,
+            x,
+          ]),
+        ),
         committedProtectedSpecies: pair.protectedSpecies,
         committedTravellers: pair.travellers,
         committedMeanReach: pair.meanReach,

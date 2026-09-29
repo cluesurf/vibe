@@ -31,7 +31,10 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { STORE_N } from '@/code/measure/token-store-linearization'
 import { pairIndexPermutation } from '@/code/measure/pair-knit-linearization'
 import { type PeriodicMedium } from '@/code/measure/bounce-transport'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 
 const ROOTS = rootsD4()
 const N = STORE_N
@@ -45,7 +48,14 @@ export const DUAL_LINES: readonly (readonly number[])[] = (() => {
     [0, 0, 0, 1],
   ]
 
-  for (let m = 0; m < 8; m++) out.push([0.5, m & 1 ? -0.5 : 0.5, m & 2 ? -0.5 : 0.5, m & 4 ? -0.5 : 0.5])
+  for (let m = 0; m < 8; m++) {
+    out.push([
+      0.5,
+      m & 1 ? -0.5 : 0.5,
+      m & 2 ? -0.5 : 0.5,
+      m & 4 ? -0.5 : 0.5,
+    ])
+  }
 
   return out
 })()
@@ -54,22 +64,33 @@ export const DUAL_LINES: readonly (readonly number[])[] = (() => {
 
 // one beat: collide every dock with the beat's matrices, then stream with each slot index weighted by (u . r_d)^power
 // (power 0: the plain stream; stores stay, weight 1 at power 0 and 0 otherwise). Real vectors, out of place.
-export function beat(medium: PeriodicMedium, which: number, v: Float64Array, out: Float64Array, u: readonly number[], power: number, scratch: Float64Array): void {
-  const mats = medium.beats[which] as readonly Float64Array[]
+export function beat(
+  medium: PeriodicMedium,
+  which: number,
+  v: Float64Array,
+  out: Float64Array,
+  u: readonly number[],
+  power: number,
+  scratch: Float64Array,
+): void {
+  const mats = medium.beats[which]!
   const cells = medium.cells
 
   for (let x = 0; x < cells; x++) {
-    const a = mats[x] as Float64Array
+    const a = mats[x]!
     const vo = x * N
 
     for (let r = 0; r < N; r++) {
       let s = 0
+
       const row = r * N
 
       for (let c = 0; c < N; c++) {
-        const w = a[row + c] as number
+        const w = a[row + c]!
 
-        if (w !== 0) s += w * (v[vo + c] as number)
+        if (w !== 0) {
+          s += w * v[vo + c]!
+        }
       }
 
       scratch[vo + r] = s
@@ -79,8 +100,12 @@ export function beat(medium: PeriodicMedium, which: number, v: Float64Array, out
   const weight = new Float64Array(24)
 
   for (let d = 0; d < 24; d++) {
-    const r = ROOTS[d] as number[]
-    const p = (r[0] as number) * (u[0] ?? 0) + (r[1] as number) * (u[1] ?? 0) + (r[2] as number) * (u[2] ?? 0) + (r[3] as number) * (u[3] ?? 0)
+    const r = ROOTS[d]!
+    const p =
+      r[0]! * (u[0] ?? 0) +
+      r[1]! * (u[1] ?? 0) +
+      r[2]! * (u[2] ?? 0) +
+      r[3]! * (u[3] ?? 0)
 
     weight[d] = power === 0 ? 1 : p ** power
   }
@@ -88,47 +113,59 @@ export function beat(medium: PeriodicMedium, which: number, v: Float64Array, out
   for (let x = 0; x < cells; x++) {
     const from = x * N
 
-    for (let i = 48; i < N; i++) out[from + i] = power === 0 ? (scratch[from + i] as number) : 0
+    for (let i = 48; i < N; i++) {
+      out[from + i] = power === 0 ? scratch[from + i]! : 0
+    }
 
     for (let d = 0; d < 24; d++) {
-      const to = (medium.target[x * 24 + d] as number) * N
-      const w = weight[d] as number
+      const to = medium.target[x * 24 + d]! * N
+      const w = weight[d]!
 
-      out[to + 2 * d] = w * (scratch[from + 2 * d] as number)
-      out[to + 2 * d + 1] = w * (scratch[from + 2 * d + 1] as number)
+      out[to + 2 * d] = w * scratch[from + 2 * d]!
+      out[to + 2 * d + 1] = w * scratch[from + 2 * d + 1]!
     }
   }
 }
 
 // the transpose of one beat (power 0): gather along the stream, then the transposed collisions
-export function beatTranspose(medium: PeriodicMedium, which: number, v: Float64Array, out: Float64Array, scratch: Float64Array): void {
-  const mats = medium.beats[which] as readonly Float64Array[]
+export function beatTranspose(
+  medium: PeriodicMedium,
+  which: number,
+  v: Float64Array,
+  out: Float64Array,
+  scratch: Float64Array,
+): void {
+  const mats = medium.beats[which]!
   const cells = medium.cells
 
   for (let x = 0; x < cells; x++) {
     const from = x * N
 
-    for (let i = 48; i < N; i++) scratch[from + i] = v[from + i] as number
+    for (let i = 48; i < N; i++) {
+      scratch[from + i] = v[from + i]!
+    }
 
     for (let d = 0; d < 24; d++) {
-      const to = (medium.target[x * 24 + d] as number) * N
+      const to = medium.target[x * 24 + d]! * N
 
-      scratch[from + 2 * d] = v[to + 2 * d] as number
-      scratch[from + 2 * d + 1] = v[to + 2 * d + 1] as number
+      scratch[from + 2 * d] = v[to + 2 * d]!
+      scratch[from + 2 * d + 1] = v[to + 2 * d + 1]!
     }
   }
 
   for (let x = 0; x < cells; x++) {
-    const a = mats[x] as Float64Array
+    const a = mats[x]!
     const vo = x * N
 
     for (let c = 0; c < N; c++) {
       let s = 0
 
       for (let r = 0; r < N; r++) {
-        const w = a[r * N + c] as number
+        const w = a[r * N + c]!
 
-        if (w !== 0) s += w * (scratch[vo + r] as number)
+        if (w !== 0) {
+          s += w * scratch[vo + r]!
+        }
       }
 
       out[vo + c] = s
@@ -153,7 +190,13 @@ export function cellOps(medium: PeriodicMedium): CellOps {
   const a = new Float64Array(size)
   const b = new Float64Array(size)
   const zero = [0, 0, 0, 0]
-  const twoBeats = (v: Float64Array, p0: number, p1: number, u: readonly number[]): Float64Array => {
+
+  const twoBeats = (
+    v: Float64Array,
+    p0: number,
+    p1: number,
+    u: readonly number[],
+  ): Float64Array => {
     const out = new Float64Array(size)
 
     beat(medium, 0, v, a, u, p0, scratch)
@@ -177,7 +220,9 @@ export function cellOps(medium: PeriodicMedium): CellOps {
       const x = twoBeats(v, 1, 0, u)
       const y = twoBeats(v, 0, 1, u)
 
-      for (let i = 0; i < size; i++) x[i] = (x[i] as number) + (y[i] as number)
+      for (let i = 0; i < size; i++) {
+        x[i] = x[i]! + y[i]!
+      }
 
       return x
     },
@@ -186,7 +231,9 @@ export function cellOps(medium: PeriodicMedium): CellOps {
       const y = twoBeats(v, 0, 2, u)
       const z = twoBeats(v, 1, 1, u)
 
-      for (let i = 0; i < size; i++) x[i] = ((x[i] as number) + (y[i] as number)) / 2 + (z[i] as number)
+      for (let i = 0; i < size; i++) {
+        x[i] = (x[i]! + y[i]!) / 2 + z[i]!
+      }
 
       return x
     },
@@ -197,14 +244,22 @@ export function cellOps(medium: PeriodicMedium): CellOps {
 
 // per dock of the cell, the stagger sign e^(i pi w . x) of each dual line, by walking the stream from dock 0
 // (e^(i pi w . r_d) = -1 exactly when w . r_d != 0); `consistent` is false if a closed walk disagrees
-export function staggerSigns(medium: PeriodicMedium): { signs: Int8Array; consistent: boolean } {
+export function staggerSigns(medium: PeriodicMedium): {
+  signs: Int8Array
+  consistent: boolean
+} {
   const cells = medium.cells
   const signs = new Int8Array(cells * 12)
+
   let consistent = true
 
   for (let w = 0; w < 12; w++) {
     const vec = DUAL_LINES[w] as number[]
-    const flip = ROOTS.map(r => (Math.abs(r.reduce((s, x, k) => s + x * (vec[k] as number), 0)) > 0.5 ? -1 : 1))
+    const flip = ROOTS.map(r =>
+      Math.abs(r.reduce((s, x, k) => s + x * vec[k]!, 0)) > 0.5
+        ? -1
+        : 1,
+    )
     const seen = new Int8Array(cells)
     const queue = [0]
 
@@ -212,18 +267,20 @@ export function staggerSigns(medium: PeriodicMedium): { signs: Int8Array; consis
     seen[0] = 1
 
     while (queue.length > 0) {
-      const x = queue.pop() as number
-      const s = signs[x * 12 + w] as number
+      const x = queue.pop()!
+      const s = signs[x * 12 + w]!
 
       for (let d = 0; d < 24; d++) {
-        const y = medium.target[x * 24 + d] as number
+        const y = medium.target[x * 24 + d]!
         const t = s * (flip[d] as number)
 
         if (seen[y] === 0) {
           seen[y] = 1
           signs[y * 12 + w] = t
           queue.push(y)
-        } else if (signs[y * 12 + w] !== t) consistent = false
+        } else if (signs[y * 12 + w] !== t) {
+          consistent = false
+        }
       }
     }
   }
@@ -233,14 +290,20 @@ export function staggerSigns(medium: PeriodicMedium): { signs: Int8Array; consis
 
 // the 18 left invariants: the 6 dock invariants repeated (in the order given), then the 12 staggered ones, each
 // normalized to unit length
-export function leftInvariants(medium: PeriodicMedium, dockInvariants: readonly Float64Array[]): { vectors: Float64Array[]; consistent: boolean } {
+export function leftInvariants(
+  medium: PeriodicMedium,
+  dockInvariants: readonly Float64Array[],
+): { vectors: Float64Array[]; consistent: boolean } {
   const cells = medium.cells
   const size = cells * N
   const out: Float64Array[] = []
+
   const unit = (v: Float64Array): Float64Array => {
     let n = 0
 
-    for (const x of v) n += x * x
+    for (const x of v) {
+      n += x * x
+    }
 
     n = Math.sqrt(n)
 
@@ -250,7 +313,11 @@ export function leftInvariants(medium: PeriodicMedium, dockInvariants: readonly 
   for (const d of dockInvariants) {
     const v = new Float64Array(size)
 
-    for (let x = 0; x < cells; x++) for (let i = 0; i < N; i++) v[x * N + i] = d[i] as number
+    for (let x = 0; x < cells; x++) {
+      for (let i = 0; i < N; i++) {
+        v[x * N + i] = d[i]!
+      }
+    }
 
     out.push(unit(v))
   }
@@ -262,10 +329,10 @@ export function leftInvariants(medium: PeriodicMedium, dockInvariants: readonly 
     const v = new Float64Array(size)
 
     for (let x = 0; x < cells; x++) {
-      const s = signs[x * 12 + w] as number
+      const s = signs[x * 12 + w]!
 
       for (let d = 0; d < 24; d++) {
-        const p = (ROOTS[d] as number[]).reduce((acc, c, k) => acc + c * (vec[k] as number), 0)
+        const p = ROOTS[d]!.reduce((acc, c, k) => acc + c * vec[k]!, 0)
 
         v[x * N + 2 * d] = s * p
         v[x * N + 2 * d + 1] = s * p
@@ -281,23 +348,29 @@ export function leftInvariants(medium: PeriodicMedium, dockInvariants: readonly 
 const dot = (a: Float64Array, b: Float64Array): number => {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) s += (a[i] as number) * (b[i] as number)
+  for (let i = 0; i < a.length; i++) {
+    s += a[i]! * b[i]!
+  }
 
   return s
 }
 
 // the largest |l M0 - l| over the left vectors (relative to |l|)
-export function leftResidual(ops: CellOps, left: readonly Float64Array[]): number {
+export function leftResidual(
+  ops: CellOps,
+  left: readonly Float64Array[],
+): number {
   let worst = 0
 
   for (const l of left) {
     const m = ops.periodTranspose(l)
+
     let r = 0
     let n = 0
 
     for (let i = 0; i < l.length; i++) {
-      r += ((m[i] as number) - (l[i] as number)) ** 2
-      n += (l[i] as number) ** 2
+      r += (m[i]! - l[i]!) ** 2
+      n += l[i]! ** 2
     }
 
     worst = Math.max(worst, Math.sqrt(r / n))
@@ -307,7 +380,12 @@ export function leftResidual(ops: CellOps, left: readonly Float64Array[]): numbe
 }
 
 // small dense helpers (row-major n x n)
-export function solve(a: Float64Array, b: Float64Array, n: number, m: number): Float64Array {
+export function solve(
+  a: Float64Array,
+  b: Float64Array,
+  n: number,
+  m: number,
+): Float64Array {
   // solve A X = B, A n x n, B n x m, by partial pivoting
   const A = Float64Array.from(a)
   const B = Float64Array.from(b)
@@ -315,39 +393,56 @@ export function solve(a: Float64Array, b: Float64Array, n: number, m: number): F
   for (let c = 0; c < n; c++) {
     let p = c
 
-    for (let r = c + 1; r < n; r++) if (Math.abs(A[r * n + c] as number) > Math.abs(A[p * n + c] as number)) p = r
+    for (let r = c + 1; r < n; r++) {
+      if (Math.abs(A[r * n + c]!) > Math.abs(A[p * n + c]!)) {
+        p = r
+      }
+    }
 
     if (p !== c) {
       for (let j = 0; j < n; j++) {
-        const t = A[c * n + j] as number
+        const t = A[c * n + j]!
 
-        A[c * n + j] = A[p * n + j] as number
+        A[c * n + j] = A[p * n + j]!
         A[p * n + j] = t
       }
 
       for (let j = 0; j < m; j++) {
-        const t = B[c * m + j] as number
+        const t = B[c * m + j]!
 
-        B[c * m + j] = B[p * m + j] as number
+        B[c * m + j] = B[p * m + j]!
         B[p * m + j] = t
       }
     }
 
-    const d = A[c * n + c] as number
+    const d = A[c * n + c]!
 
     for (let r = 0; r < n; r++) {
-      if (r === c) continue
+      if (r === c) {
+        continue
+      }
 
-      const f = (A[r * n + c] as number) / d
+      const f = A[r * n + c]! / d
 
-      if (f === 0) continue
+      if (f === 0) {
+        continue
+      }
 
-      for (let j = 0; j < n; j++) A[r * n + j] = (A[r * n + j] as number) - f * (A[c * n + j] as number)
-      for (let j = 0; j < m; j++) B[r * m + j] = (B[r * m + j] as number) - f * (B[c * m + j] as number)
+      for (let j = 0; j < n; j++) {
+        A[r * n + j] = A[r * n + j]! - f * A[c * n + j]!
+      }
+
+      for (let j = 0; j < m; j++) {
+        B[r * m + j] = B[r * m + j]! - f * B[c * m + j]!
+      }
     }
   }
 
-  for (let r = 0; r < n; r++) for (let j = 0; j < m; j++) B[r * m + j] = (B[r * m + j] as number) / (A[r * n + r] as number)
+  for (let r = 0; r < n; r++) {
+    for (let j = 0; j < m; j++) {
+      B[r * m + j] = B[r * m + j]! / A[r * n + r]!
+    }
+  }
 
   return B
 }
@@ -364,21 +459,30 @@ export function rightInvariants(
   const n = left.length
   const gram = new Float64Array(n * n)
 
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) gram[i * n + j] = dot(left[i] as Float64Array, left[j] as Float64Array)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      gram[i * n + j] = dot(left[i]!, left[j]!)
+    }
+  }
 
   const eye = new Float64Array(n * n)
 
-  for (let i = 0; i < n; i++) eye[i * n + i] = 1
+  for (let i = 0; i < n; i++) {
+    eye[i * n + i] = 1
+  }
 
   const inv = solve(gram, eye, n, n)
+
   let xs = Array.from({ length: n }, (_, j) => {
     const v = new Float64Array(ops.size)
 
     for (let i = 0; i < n; i++) {
-      const c = inv[i * n + j] as number
-      const l = left[i] as Float64Array
+      const c = inv[i * n + j]!
+      const l = left[i]!
 
-      for (let k = 0; k < v.length; k++) v[k] = (v[k] as number) + c * (l[k] as number)
+      for (let k = 0; k < v.length; k++) {
+        v[k] = v[k]! + c * l[k]!
+      }
     }
 
     return v
@@ -390,12 +494,13 @@ export function rightInvariants(
     change = 0
     xs = xs.map(x => {
       const y = ops.period(x)
+
       let d = 0
       let s = 0
 
       for (let k = 0; k < y.length; k++) {
-        d = Math.max(d, Math.abs((y[k] as number) - (x[k] as number)))
-        s = Math.max(s, Math.abs(y[k] as number))
+        d = Math.max(d, Math.abs(y[k]! - x[k]!))
+        s = Math.max(s, Math.abs(y[k]!))
       }
 
       change = Math.max(change, d / s)
@@ -404,14 +509,22 @@ export function rightInvariants(
     })
     iterations++
 
-    if (iterations % 100 === 0) log?.(`right invariants: ${iterations} iterations, change ${change.toExponential(2)}`)
+    if (iterations % 100 === 0) {
+      log?.(
+        `right invariants: ${iterations} iterations, change ${change.toExponential(2)}`,
+      )
+    }
   }
 
   return { vectors: xs, iterations, change }
 }
 
 // the n x n matrix L A R for an operator A given as a function on vectors
-export function reduced(left: readonly Float64Array[], right: readonly Float64Array[], apply: (v: Float64Array) => Float64Array): Float64Array {
+export function reduced(
+  left: readonly Float64Array[],
+  right: readonly Float64Array[],
+  apply: (v: Float64Array) => Float64Array,
+): Float64Array {
   const n = left.length
   const out = new Float64Array(n * n)
 
@@ -427,53 +540,78 @@ export function reduced(left: readonly Float64Array[], right: readonly Float64Ar
 }
 
 // Q v = v - R (L v)
-export function projectOut(left: readonly Float64Array[], right: readonly Float64Array[], v: Float64Array): Float64Array {
+export function projectOut(
+  left: readonly Float64Array[],
+  right: readonly Float64Array[],
+  v: Float64Array,
+): Float64Array {
   const out = Float64Array.from(v)
 
   left.forEach((l, i) => {
     const c = dot(l, v)
-    const r = right[i] as Float64Array
+    const r = right[i]!
 
-    for (let k = 0; k < out.length; k++) out[k] = (out[k] as number) - c * (r[k] as number)
+    for (let k = 0; k < out.length; k++) {
+      out[k] = out[k]! - c * r[k]!
+    }
   })
 
   return out
 }
 
 // S b = sum_n M0^n Q b, until the term falls below `tolerance` relative to the sum
-export function reducedResolvent(ops: CellOps, left: readonly Float64Array[], right: readonly Float64Array[], b: Float64Array, tolerance = 1e-12, limit = 6000): { value: Float64Array; terms: number } {
+export function reducedResolvent(
+  ops: CellOps,
+  left: readonly Float64Array[],
+  right: readonly Float64Array[],
+  b: Float64Array,
+  tolerance = 1e-12,
+  limit = 6000,
+): { value: Float64Array; terms: number } {
   let term = projectOut(left, right, b)
+
   const sum = Float64Array.from(term)
+
   let terms = 1
 
   while (terms < limit) {
     term = ops.period(term)
 
     // re-project every few terms so rounding in the invariant directions cannot grow
-    if (terms % 16 === 0) term = projectOut(left, right, term)
+    if (terms % 16 === 0) {
+      term = projectOut(left, right, term)
+    }
 
     let t = 0
     let s = 0
 
     for (let k = 0; k < sum.length; k++) {
-      sum[k] = (sum[k] as number) + (term[k] as number)
-      t = Math.max(t, Math.abs(term[k] as number))
-      s = Math.max(s, Math.abs(sum[k] as number))
+      sum[k] = sum[k]! + term[k]!
+      t = Math.max(t, Math.abs(term[k]!))
+      s = Math.max(s, Math.abs(sum[k]!))
     }
 
     terms++
 
-    if (t < tolerance * s) break
+    if (t < tolerance * s) {
+      break
+    }
   }
 
   return { value: projectOut(left, right, sum), terms }
 }
 
 // H1(u) = L N1 R and H2(u) = L N2 R + L N1 S N1 R
-export function effectiveMatrices(ops: CellOps, left: readonly Float64Array[], right: readonly Float64Array[], u: readonly number[]): { h1: Float64Array; h2: Float64Array; terms: number } {
+export function effectiveMatrices(
+  ops: CellOps,
+  left: readonly Float64Array[],
+  right: readonly Float64Array[],
+  u: readonly number[],
+): { h1: Float64Array; h2: Float64Array; terms: number } {
   const n = left.length
   const h1 = new Float64Array(n * n)
   const h2 = new Float64Array(n * n)
+
   let terms = 0
 
   right.forEach((r, j) => {
@@ -495,9 +633,17 @@ export function effectiveMatrices(ops: CellOps, left: readonly Float64Array[], r
 // ---- the group ----
 
 // an element of the medium's space group as an index permutation of the cell: out[map[x] * 72 + p[i]] = v[x * 72 + i]
-export type CellSymmetry = { readonly map: Int32Array; readonly index: Int32Array; readonly matrix: readonly number[] }
+export type CellSymmetry = {
+  readonly map: Int32Array
+  readonly index: Int32Array
+  readonly matrix: readonly number[]
+}
 
-export function cellSymmetry(map: Int32Array, slotPermutation: readonly number[], matrix: readonly number[]): CellSymmetry {
+export function cellSymmetry(
+  map: Int32Array,
+  slotPermutation: readonly number[],
+  matrix: readonly number[],
+): CellSymmetry {
   return { map, index: pairIndexPermutation(slotPermutation), matrix }
 }
 
@@ -506,27 +652,34 @@ export function actOn(g: CellSymmetry, v: Float64Array): Float64Array {
   const cells = g.map.length
 
   for (let x = 0; x < cells; x++) {
-    const to = (g.map[x] as number) * N
+    const to = g.map[x]! * N
 
-    for (let i = 0; i < N; i++) out[to + (g.index[i] as number)] = v[x * N + i] as number
+    for (let i = 0; i < N; i++) {
+      out[to + g.index[i]!] = v[x * N + i]!
+    }
   }
 
   return out
 }
 
 // the largest |D M0 v - M0 D v| / |v| over the given vectors (a symmetry of the medium reads 0)
-export function commutationDefect(ops: CellOps, g: CellSymmetry, vectors: readonly Float64Array[]): number {
+export function commutationDefect(
+  ops: CellOps,
+  g: CellSymmetry,
+  vectors: readonly Float64Array[],
+): number {
   let worst = 0
 
   for (const v of vectors) {
     const a = actOn(g, ops.period(v))
     const b = ops.period(actOn(g, v))
+
     let r = 0
     let n = 0
 
     for (let i = 0; i < a.length; i++) {
-      r = Math.max(r, Math.abs((a[i] as number) - (b[i] as number)))
-      n = Math.max(n, Math.abs(v[i] as number))
+      r = Math.max(r, Math.abs(a[i]! - b[i]!))
+      n = Math.max(n, Math.abs(v[i]!))
     }
 
     worst = Math.max(worst, r / n)
@@ -542,20 +695,28 @@ export function commutationDefect(ops: CellOps, g: CellSymmetry, vectors: readon
 // R w = +-w of that sign. Returned: the inner products <chi_P, chi_S> (the dimension of the G-maps from the physical
 // representation to the staggered one: 0 would forbid every physical-staggered coupling), <chi_V, chi_S> for the
 // momentum alone, <chi_S, chi_S> and <chi_P, chi_P> (sums of squared multiplicities).
-export function invariantCharacters(matrices: readonly (readonly number[])[]): { physicalStaggered: number; momentumStaggered: number; staggeredSquare: number; physicalSquare: number } {
+export function invariantCharacters(
+  matrices: readonly (readonly number[])[],
+): {
+  physicalStaggered: number
+  momentumStaggered: number
+  staggeredSquare: number
+  physicalSquare: number
+} {
   let ps = 0
   let vs = 0
   let ss = 0
   let pp = 0
 
   for (const m of matrices) {
-    const trace = (m[0] as number) + (m[5] as number) + (m[10] as number) + (m[15] as number)
+    const trace = m[0]! + m[5]! + m[10]! + m[15]!
+
     let stagger = 0
 
     for (const w of DUAL_LINES) {
       const image = applyMatrix(m, w)
-      const plus = image.every((x, k) => Math.abs(x - (w[k] as number)) < 1e-9)
-      const minus = image.every((x, k) => Math.abs(x + (w[k] as number)) < 1e-9)
+      const plus = image.every((x, k) => Math.abs(x - w[k]!) < 1e-9)
+      const minus = image.every((x, k) => Math.abs(x + w[k]!) < 1e-9)
 
       stagger += plus ? 1 : minus ? -1 : 0
     }
@@ -570,11 +731,22 @@ export function invariantCharacters(matrices: readonly (readonly number[])[]): {
 
   const n = matrices.length
 
-  return { physicalStaggered: ps / n, momentumStaggered: vs / n, staggeredSquare: ss / n, physicalSquare: pp / n }
+  return {
+    physicalStaggered: ps / n,
+    momentumStaggered: vs / n,
+    staggeredSquare: ss / n,
+    physicalSquare: pp / n,
+  }
 }
 
 // the 4 x 4 matrix of an element applied to u
-export const applyMatrix = (m: readonly number[], u: readonly number[]): number[] => [0, 1, 2, 3].map(i => [0, 1, 2, 3].reduce((s, j) => s + (m[i * 4 + j] as number) * (u[j] ?? 0), 0))
+export const applyMatrix = (
+  m: readonly number[],
+  u: readonly number[],
+): number[] =>
+  [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].reduce((s, j) => s + m[i * 4 + j]! * (u[j] ?? 0), 0),
+  )
 
 // ---- the exact reading at finite k: the Bloch effective operator in the coordinates of the left invariants ----
 //
@@ -586,18 +758,33 @@ export const applyMatrix = (m: readonly number[], u: readonly number[]): number[
 // L D(g) R is block diagonal and H(g k) = D_L(g) H(k) D_L(g)^-1: the physical block H_PP(k) is a G-covariant 6 x 6
 // function of k, and the forcing theorems of a uniform six-mode medium apply to it unchanged.
 
-export type ComplexBlock = { re: Float64Array; im: Float64Array; count: number }
+export type ComplexBlock = {
+  re: Float64Array
+  im: Float64Array
+  count: number
+}
 
 // M(k) on a complex block of vectors (block * size), in place
-export function periodComplex(medium: PeriodicMedium, k: readonly number[], re: Float64Array, im: Float64Array, count: number): void {
+export function periodComplex(
+  medium: PeriodicMedium,
+  k: readonly number[],
+  re: Float64Array,
+  im: Float64Array,
+  count: number,
+): void {
   const cells = medium.cells
   const size = cells * N
   const cr = new Float64Array(24)
   const ci = new Float64Array(24)
 
   for (let d = 0; d < 24; d++) {
-    const r = ROOTS[d] as number[]
-    const phase = -((r[0] as number) * (k[0] ?? 0) + (r[1] as number) * (k[1] ?? 0) + (r[2] as number) * (k[2] ?? 0) + (r[3] as number) * (k[3] ?? 0))
+    const r = ROOTS[d]!
+    const phase = -(
+      r[0]! * (k[0] ?? 0) +
+      r[1]! * (k[1] ?? 0) +
+      r[2]! * (k[2] ?? 0) +
+      r[3]! * (k[3] ?? 0)
+    )
 
     cr[d] = Math.cos(phase)
     ci[d] = Math.sin(phase)
@@ -611,22 +798,25 @@ export function periodComplex(medium: PeriodicMedium, k: readonly number[], re: 
 
     for (const mats of medium.beats) {
       for (let x = 0; x < cells; x++) {
-        const a = mats[x] as Float64Array
+        const a = mats[x]!
         const vo = off + x * N
         const to = x * N
 
         for (let r = 0; r < N; r++) {
           let sr = 0
           let si = 0
+
           const row = r * N
 
           for (let c = 0; c < N; c++) {
-            const w = a[row + c] as number
+            const w = a[row + c]!
 
-            if (w === 0) continue
+            if (w === 0) {
+              continue
+            }
 
-            sr += w * (re[vo + c] as number)
-            si += w * (im[vo + c] as number)
+            sr += w * re[vo + c]!
+            si += w * im[vo + c]!
           }
 
           tr[to + r] = sr
@@ -638,19 +828,19 @@ export function periodComplex(medium: PeriodicMedium, k: readonly number[], re: 
         const from = x * N
 
         for (let i = 48; i < N; i++) {
-          re[off + from + i] = tr[from + i] as number
-          im[off + from + i] = ti[from + i] as number
+          re[off + from + i] = tr[from + i]!
+          im[off + from + i] = ti[from + i]!
         }
 
         for (let d = 0; d < 24; d++) {
-          const to = off + (medium.target[x * 24 + d] as number) * N
-          const c = cr[d] as number
-          const s = ci[d] as number
+          const to = off + medium.target[x * 24 + d]! * N
+          const c = cr[d]!
+          const s = ci[d]!
 
           for (let sign = 0; sign < 2; sign++) {
             const i = d * 2 + sign
-            const xr = tr[from + i] as number
-            const xi = ti[from + i] as number
+            const xr = tr[from + i]!
+            const xi = ti[from + i]!
 
             re[to + i] = c * xr - s * xi
             im[to + i] = c * xi + s * xr
@@ -661,49 +851,63 @@ export function periodComplex(medium: PeriodicMedium, k: readonly number[], re: 
   }
 }
 
-function orthonormalizeComplex(re: Float64Array, im: Float64Array, count: number, size: number): void {
+function orthonormalizeComplex(
+  re: Float64Array,
+  im: Float64Array,
+  count: number,
+  size: number,
+): void {
   for (let b = 0; b < count; b++) {
     const ob = b * size
 
     for (let p = 0; p < b; p++) {
       const op = p * size
+
       let sr = 0
       let si = 0
 
       for (let i = 0; i < size; i++) {
-        const pr = re[op + i] as number
-        const pi = im[op + i] as number
-        const br = re[ob + i] as number
-        const bi = im[ob + i] as number
+        const pr = re[op + i]!
+        const pi = im[op + i]!
+        const br = re[ob + i]!
+        const bi = im[ob + i]!
 
         sr += pr * br + pi * bi
         si += pr * bi - pi * br
       }
 
       for (let i = 0; i < size; i++) {
-        const pr = re[op + i] as number
-        const pi = im[op + i] as number
+        const pr = re[op + i]!
+        const pi = im[op + i]!
 
-        re[ob + i] = (re[ob + i] as number) - (sr * pr - si * pi)
-        im[ob + i] = (im[ob + i] as number) - (sr * pi + si * pr)
+        re[ob + i] = re[ob + i]! - (sr * pr - si * pi)
+        im[ob + i] = im[ob + i]! - (sr * pi + si * pr)
       }
     }
 
     let norm = 0
 
-    for (let i = 0; i < size; i++) norm += (re[ob + i] as number) ** 2 + (im[ob + i] as number) ** 2
+    for (let i = 0; i < size; i++) {
+      norm += re[ob + i]! ** 2 + im[ob + i]! ** 2
+    }
 
     norm = Math.sqrt(norm)
 
     for (let i = 0; i < size; i++) {
-      re[ob + i] = (re[ob + i] as number) / norm
-      im[ob + i] = (im[ob + i] as number) / norm
+      re[ob + i] = re[ob + i]! / norm
+      im[ob + i] = im[ob + i]! / norm
     }
   }
 }
 
 // L times a complex block: an n x count complex matrix (row i, column b)
-function leftTimes(left: readonly Float64Array[], re: Float64Array, im: Float64Array, count: number, size: number): { re: Float64Array; im: Float64Array } {
+function leftTimes(
+  left: readonly Float64Array[],
+  re: Float64Array,
+  im: Float64Array,
+  count: number,
+  size: number,
+): { re: Float64Array; im: Float64Array } {
   const n = left.length
   const outR = new Float64Array(n * count)
   const outI = new Float64Array(n * count)
@@ -712,15 +916,18 @@ function leftTimes(left: readonly Float64Array[], re: Float64Array, im: Float64A
     for (let b = 0; b < count; b++) {
       let sr = 0
       let si = 0
+
       const off = b * size
 
       for (let k = 0; k < size; k++) {
-        const w = l[k] as number
+        const w = l[k]!
 
-        if (w === 0) continue
+        if (w === 0) {
+          continue
+        }
 
-        sr += w * (re[off + k] as number)
-        si += w * (im[off + k] as number)
+        sr += w * re[off + k]!
+        si += w * im[off + k]!
       }
 
       outR[i * count + b] = sr
@@ -732,15 +939,19 @@ function leftTimes(left: readonly Float64Array[], re: Float64Array, im: Float64A
 }
 
 // X = B A^-1 for n x n complex A, B (row-major), through the real embedding of A^T X^T = B^T
-export function rightDivide(b: { re: Float64Array; im: Float64Array }, a: { re: Float64Array; im: Float64Array }, n: number): { re: Float64Array; im: Float64Array } {
+export function rightDivide(
+  b: { re: Float64Array; im: Float64Array },
+  a: { re: Float64Array; im: Float64Array },
+  n: number,
+): { re: Float64Array; im: Float64Array } {
   const m = 2 * n
   const big = new Float64Array(m * m)
 
   // A^T = P + i Q with P = a.re^T, Q = a.im^T; real embedding [[P, -Q], [Q, P]]
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      const p = a.re[j * n + i] as number
-      const q = a.im[j * n + i] as number
+      const p = a.re[j * n + i]!
+      const q = a.im[j * n + i]!
 
       big[i * m + j] = p
       big[i * m + n + j] = -q
@@ -755,8 +966,8 @@ export function rightDivide(b: { re: Float64Array; im: Float64Array }, a: { re: 
 
   for (let c = 0; c < cols; c++) {
     for (let i = 0; i < n; i++) {
-      rhsMat[i * cols + c] = b.re[c * n + i] as number
-      rhsMat[(n + i) * cols + c] = b.im[c * n + i] as number
+      rhsMat[i * cols + c] = b.re[c * n + i]!
+      rhsMat[(n + i) * cols + c] = b.im[c * n + i]!
     }
   }
 
@@ -767,15 +978,20 @@ export function rightDivide(b: { re: Float64Array; im: Float64Array }, a: { re: 
   // X^T column c holds row c of X
   for (let c = 0; c < cols; c++) {
     for (let i = 0; i < n; i++) {
-      outR[c * n + i] = x[i * cols + c] as number
-      outI[c * n + i] = x[(n + i) * cols + c] as number
+      outR[c * n + i] = x[i * cols + c]!
+      outI[c * n + i] = x[(n + i) * cols + c]!
     }
   }
 
   return { re: outR, im: outI }
 }
 
-export type BlochReading = { h: { re: Float64Array; im: Float64Array }; iterations: number; change: number; block: ComplexBlock }
+export type BlochReading = {
+  h: { re: Float64Array; im: Float64Array }
+  iterations: number
+  change: number
+  block: ComplexBlock
+}
 
 // the Bloch effective operator of the slow space at wave vector k
 export function blochOperator(input: {
@@ -794,6 +1010,7 @@ export function blochOperator(input: {
   const im = Float64Array.from(input.start.im)
   const tolerance = input.tolerance ?? 1e-12
   const limit = input.limit ?? 1000
+
   let previous: Float64Array | undefined
   let change = Infinity
   let iterations = 0
@@ -822,12 +1039,16 @@ export function blochOperator(input: {
       if (previous) {
         change = 0
 
-        for (let i = 0; i < flat.length; i++) change = Math.max(change, Math.abs((flat[i] as number) - (previous[i] as number)))
+        for (let i = 0; i < flat.length; i++) {
+          change = Math.max(change, Math.abs(flat[i]! - previous[i]!))
+        }
       }
 
       previous = flat
 
-      if (change < tolerance) break
+      if (change < tolerance) {
+        break
+      }
     }
 
     re.set(mr)
@@ -839,25 +1060,36 @@ export function blochOperator(input: {
 }
 
 // a real block (vectors) as a complex block
-export function complexBlock(vectors: readonly Float64Array[]): ComplexBlock {
-  const size = (vectors[0] as Float64Array).length
+export function complexBlock(
+  vectors: readonly Float64Array[],
+): ComplexBlock {
+  const size = vectors[0]!.length
   const re = new Float64Array(size * vectors.length)
 
   vectors.forEach((v, b) => re.set(v, b * size))
 
-  return { re, im: new Float64Array(size * vectors.length), count: vectors.length }
+  return {
+    re,
+    im: new Float64Array(size * vectors.length),
+    count: vectors.length,
+  }
 }
 
 // the leading principal block (the first m rows and columns) of an n x n complex matrix
-export function principal(h: { re: Float64Array; im: Float64Array }, n: number, from: number, to: number): { re: Float64Array; im: Float64Array } {
+export function principal(
+  h: { re: Float64Array; im: Float64Array },
+  n: number,
+  from: number,
+  to: number,
+): { re: Float64Array; im: Float64Array } {
   const m = to - from
   const re = new Float64Array(m * m)
   const im = new Float64Array(m * m)
 
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < m; j++) {
-      re[i * m + j] = h.re[(from + i) * n + from + j] as number
-      im[i * m + j] = h.im[(from + i) * n + from + j] as number
+      re[i * m + j] = h.re[(from + i) * n + from + j]!
+      im[i * m + j] = h.im[(from + i) * n + from + j]!
     }
   }
 
@@ -871,19 +1103,33 @@ export function namedDockInvariants(): Float64Array[] {
   const unit = (v: Float64Array): Float64Array => {
     let n = 0
 
-    for (const x of v) n += x * x
+    for (const x of v) {
+      n += x * x
+    }
 
     return v.map(x => x / Math.sqrt(n))
   }
-  const charge = Float64Array.from({ length: N }, (_, i) => (i < 48 ? (i % 2 === 0 ? 1 : -1) : 0))
-  const energy = Float64Array.from({ length: N }, (_, i) => (i < 48 ? 1 : 2))
-  const momenta = [0, 1, 2, 3].map(a => Float64Array.from({ length: N }, (_, i) => (i < 48 ? ((ROOTS[i >> 1] as number[])[a] as number) : 0)))
+
+  const charge = Float64Array.from({ length: N }, (_, i) =>
+    i < 48 ? (i % 2 === 0 ? 1 : -1) : 0,
+  )
+  const energy = Float64Array.from({ length: N }, (_, i) =>
+    i < 48 ? 1 : 2,
+  )
+  const momenta = [0, 1, 2, 3].map(a =>
+    Float64Array.from({ length: N }, (_, i) =>
+      i < 48 ? ROOTS[i >> 1]![a]! : 0,
+    ),
+  )
 
   return [charge, energy, ...momenta].map(unit)
 }
 
 // how far a list of 72-index vectors lies outside the span of an orthonormal list (largest residual norm)
-export function outsideSpan(vectors: readonly Float64Array[], basis: readonly Float64Array[]): number {
+export function outsideSpan(
+  vectors: readonly Float64Array[],
+  basis: readonly Float64Array[],
+): number {
   let worst = 0
 
   for (const v of vectors) {
@@ -892,7 +1138,9 @@ export function outsideSpan(vectors: readonly Float64Array[], basis: readonly Fl
     for (const b of basis) {
       const s = dot(b, v)
 
-      for (let i = 0; i < r.length; i++) r[i] = (r[i] as number) - s * (b[i] as number)
+      for (let i = 0; i < r.length; i++) {
+        r[i] = r[i]! - s * b[i]!
+      }
     }
 
     worst = Math.max(worst, Math.sqrt(dot(r, r)))
@@ -901,16 +1149,33 @@ export function outsideSpan(vectors: readonly Float64Array[], basis: readonly Fl
   return worst
 }
 
-type ModeRead = { gamma: number; omega: number; weights: { charge: number; energy: number; longitudinal: number; shear: number; depth: number; staggered: number } }
+type ModeRead = {
+  gamma: number
+  omega: number
+  weights: {
+    charge: number
+    energy: number
+    longitudinal: number
+    shear: number
+    depth: number
+    staggered: number
+  }
+}
 
 // eigen-decompose an m x m complex block whose coordinates are (charge, energy, p1, p2, p3, p4[, 12 staggered])
-function modesOf(h: { re: Float64Array; im: Float64Array }, m: number, u: readonly number[]): ModeRead[] {
+function modesOf(
+  h: { re: Float64Array; im: Float64Array },
+  m: number,
+  u: readonly number[],
+): ModeRead[] {
   const ev = complexEigenvalues({ re: h.re, im: h.im, n: m })
 
   return ev.re.map((r, i) => {
     const value: [number, number] = [r, ev.im[i] ?? 0]
     const y = complexEigenvector({ re: h.re, im: h.im, n: m, value })
-    const w = (j: number): number => (y.re[j] ?? 0) ** 2 + (y.im[j] ?? 0) ** 2
+    const w = (j: number): number =>
+      (y.re[j] ?? 0) ** 2 + (y.im[j] ?? 0) ** 2
+
     let lr = 0
     let li = 0
 
@@ -922,29 +1187,53 @@ function modesOf(h: { re: Float64Array; im: Float64Array }, m: number, u: readon
     const momentum = w(2) + w(3) + w(4) + w(5)
     const longitudinal = lr * lr + li * li
     const depth = w(5) - (u[3] ?? 0) ** 2 * w(5)
+
     let staggered = 0
 
-    for (let j = 6; j < m; j++) staggered += w(j)
+    for (let j = 6; j < m; j++) {
+      staggered += w(j)
+    }
 
     return {
       gamma: -Math.log(Math.hypot(value[0], value[1])) / 2,
       omega: Math.abs(Math.atan2(value[1], value[0])) / 2,
-      weights: { charge: w(0), energy: w(1), longitudinal, shear: Math.max(0, momentum - longitudinal - depth), depth, staggered },
+      weights: {
+        charge: w(0),
+        energy: w(1),
+        longitudinal,
+        shear: Math.max(0, momentum - longitudinal - depth),
+        depth,
+        staggered,
+      },
     }
   })
 }
 
 // the husk quantities of the six physical modes at one k (|k| = k): charge, the momentum-sector trace, the sound
 // speed, the two shear rates and the depth rate
-export function physicalQuantities(modes: readonly ModeRead[], k: number): { charge: number; trace: number; sound: number; shear: number[]; depth: number; soundOk: boolean } {
-  const byCharge = [...modes].sort((a, b) => b.weights.charge - a.weights.charge)
-  const chargeMode = byCharge[0] as ModeRead
+export function physicalQuantities(
+  modes: readonly ModeRead[],
+  k: number,
+): {
+  charge: number
+  trace: number
+  sound: number
+  shear: number[]
+  depth: number
+  soundOk: boolean
+} {
+  const byCharge = [...modes].sort(
+    (a, b) => b.weights.charge - a.weights.charge,
+  )
+  const chargeMode = byCharge[0]!
   const rest = byCharge.slice(1)
   const bySpeed = [...rest].sort((a, b) => b.omega - a.omega)
   const sound = bySpeed.slice(0, 2)
   const transverse = bySpeed.slice(2)
-  const byDepth = [...transverse].sort((a, b) => b.weights.depth - a.weights.depth)
-  const depth = byDepth[0] as ModeRead
+  const byDepth = [...transverse].sort(
+    (a, b) => b.weights.depth - a.weights.depth,
+  )
+  const depth = byDepth[0]!
   const shear = byDepth.slice(1)
 
   return {
@@ -953,7 +1242,9 @@ export function physicalQuantities(modes: readonly ModeRead[], k: number): { cha
     sound: Math.max(...sound.map(m => m.omega)) / k,
     shear: shear.map(m => m.gamma / (k * k)),
     depth: depth.gamma / (k * k),
-    soundOk: sound.every(m => m.omega / k > 1e-3) && transverse.every(m => m.omega / k < 1e-6),
+    soundOk:
+      sound.every(m => m.omega / k > 1e-3) &&
+      transverse.every(m => m.omega / k < 1e-6),
   }
 }
 
@@ -973,7 +1264,15 @@ export type SymmetricReading = {
   readonly sectorsClean: boolean
 }
 
-const QUANTITIES = ['charge', 'trace', 'sound', 'shear', 'depth', 'slowTrace', 'mixedShear'] as const
+const QUANTITIES = [
+  'charge',
+  'trace',
+  'sound',
+  'shear',
+  'depth',
+  'slowTrace',
+  'mixedShear',
+] as const
 
 // The reading. For each husk direction u and each |k| of `rungs`: H(k u) exactly; the PHYSICAL block's six modes
 // give charge, trace, sound, shear, depth; the whole 18-mode block gives slowTrace (the sum of Gamma / k^2 over all 18
@@ -992,30 +1291,52 @@ export function readSymmetricTransport(input: {
 }): SymmetricReading {
   const { medium, left, right, directions, rungs } = input
   const n = left.length
-  const values: Record<string, number[][]> = Object.fromEntries(QUANTITIES.map(q => [q, rungs.map(() => [] as number[])]))
+  const values: Record<string, number[][]> = Object.fromEntries(
+    QUANTITIES.map(q => [q, rungs.map(() => [] as number[])]),
+  )
+
   let iterations = 0
   let worstChange = 0
   let couplingPS = 0
   let couplingSP = 0
   let physicalScale = 0
   let sectorsClean = true
+
   const start = complexBlock(right)
 
   directions.forEach((u, index) => {
     let warm = start
 
     rungs.forEach((k, rung) => {
-      const r = blochOperator({ medium, left, k: u.map(x => x * k), start: warm, tolerance: input.tolerance })
+      const r = blochOperator({
+        medium,
+        left,
+        k: u.map(x => x * k),
+        start: warm,
+        tolerance: input.tolerance,
+      })
 
       warm = r.block
       iterations += r.iterations
       worstChange = Math.max(worstChange, r.change)
 
-      const block = (r0: number, r1: number, c0: number, c1: number, minusIdentity: boolean): number => {
+      const block = (
+        r0: number,
+        r1: number,
+        c0: number,
+        c1: number,
+        minusIdentity: boolean,
+      ): number => {
         let s = 0
 
         for (let i = r0; i < r1; i++) {
-          for (let j = c0; j < c1; j++) s += ((r.h.re[i * n + j] as number) - (minusIdentity && i === j ? 1 : 0)) ** 2 + (r.h.im[i * n + j] as number) ** 2
+          for (let j = c0; j < c1; j++) {
+            s +=
+              (r.h.re[i * n + j]! -
+                (minusIdentity && i === j ? 1 : 0)) **
+                2 +
+              r.h.im[i * n + j]! ** 2
+          }
         }
 
         return Math.sqrt(s) / (k * k)
@@ -1037,7 +1358,10 @@ export function readSymmetricTransport(input: {
 
       const whole = modesOf(r.h, n, u)
 
-      values.slowTrace![rung]!.push(whole.reduce((s, m) => s + m.gamma, 0) / (k * k))
+      values.slowTrace![rung]!.push(
+        whole.reduce((s, m) => s + m.gamma, 0) / (k * k),
+      )
+
       values.mixedShear![rung]!.push(
         ...[...whole]
           .sort((a, b) => b.weights.shear - a.weights.shear)
@@ -1045,7 +1369,9 @@ export function readSymmetricTransport(input: {
           .map(m => m.gamma / (k * k)),
       )
 
-      input.log?.(`symmetric direction ${index} rung ${rung}: ${r.iterations} iterations, change ${r.change.toExponential(2)}`)
+      input.log?.(
+        `symmetric direction ${index} rung ${rung}: ${r.iterations} iterations, change ${r.change.toExponential(2)}`,
+      )
     })
   })
 
@@ -1054,15 +1380,36 @@ export function readSymmetricTransport(input: {
   const means: Record<string, number> = {}
 
   for (const q of QUANTITIES) {
-    const a = values[q]!.map(v => (v.length > 1 ? (Math.max(...v) - Math.min(...v)) / Math.abs(v.reduce((s, x) => s + x, 0) / v.length) : Number.NaN))
+    const a = values[q]!.map(v =>
+      v.length > 1
+        ? (Math.max(...v) - Math.min(...v)) /
+          Math.abs(v.reduce((s, x) => s + x, 0) / v.length)
+        : Number.NaN,
+    )
 
     anisotropy[q] = a
-    exponent[q] = Math.log((a[0] ?? 1) / (a[1] ?? 1)) / Math.log((rungs[0] ?? 1) / (rungs[1] ?? 1))
+    exponent[q] =
+      Math.log((a[0] ?? 1) / (a[1] ?? 1)) /
+      Math.log((rungs[0] ?? 1) / (rungs[1] ?? 1))
 
     const first = values[q]![0] ?? []
 
-    means[q] = first.length > 0 ? first.reduce((s, x) => s + x, 0) / first.length : Number.NaN
+    means[q] =
+      first.length > 0
+        ? first.reduce((s, x) => s + x, 0) / first.length
+        : Number.NaN
   }
 
-  return { values, anisotropy, exponent, means, iterations, worstChange, couplingPS, couplingSP, physicalScale, sectorsClean }
+  return {
+    values,
+    anisotropy,
+    exponent,
+    means,
+    iterations,
+    worstChange,
+    couplingPS,
+    couplingSP,
+    physicalScale,
+    sectorsClean,
+  }
 }

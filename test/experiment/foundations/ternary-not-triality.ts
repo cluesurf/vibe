@@ -81,7 +81,9 @@ export default experiment({
       .map(a => [-1, 0, 1].filter(v => Math.abs(v) === a).length)
       .sort((a, b) => a - b)
     const tonePartitionOnePlusTwo =
-      orbitSizes.length === 2 && orbitSizes[0] === 1 && orbitSizes[1] === 2
+      orbitSizes.length === 2 &&
+      orbitSizes[0] === 1 &&
+      orbitSizes[1] === 2
 
     // the triality's three reps are permuted by S3. AUDIT 2026-08-31: the order six is a STATED fact of the
     // triality automorphism group (the symmetric group on three labels), not measured here, so it is not
@@ -92,10 +94,7 @@ export default experiment({
     const differentSymmetry = toneSymmetry !== trialitySymmetry
     const notTheSameThree = differentSymmetry && toneIsZ2
 
-    const ok =
-      toneIsZ2 &&
-      tonePartitionOnePlusTwo &&
-      notTheSameThree
+    const ok = toneIsZ2 && tonePartitionOnePlusTwo && notTheSameThree
 
     return verdict({
       status: ok ? 'pass' : 'fail',

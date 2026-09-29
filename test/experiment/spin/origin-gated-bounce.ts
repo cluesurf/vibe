@@ -144,16 +144,44 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { fullPathKey, keyedRunner, meshLines, pathOffset, type MeshLines } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  pathOffset,
+  type MeshLines,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
 import { placeLoves, starLines } from '@/code/measure/hub-star'
 import { storeLine } from '@/code/measure/planon-lines'
-import { originTrack, type OriginTrack } from '@/code/measure/origin-gated-mixer'
-import { gatedTrack, type GatedTrack, type KGate } from '@/code/measure/origin-gated-bounce'
+import {
+  originTrack,
+  type OriginTrack,
+} from '@/code/measure/origin-gated-mixer'
+import {
+  gatedTrack,
+  type GatedTrack,
+  type KGate,
+} from '@/code/measure/origin-gated-bounce'
 import { meson, pairEmbed } from '@/code/measure/string-binding'
 import { nrSeed, settle } from '@/code/measure/meson-band'
-import { addStates, autocorrelation, axisOfLine, frameAxes, frameBeat, frameSpace, lineFrame, lineState, momentsOf, normalized, ritzLevels, weightOf, type FrameSpace, type FrameState } from '@/code/measure/frame-meson'
+import {
+  addStates,
+  autocorrelation,
+  axisOfLine,
+  frameAxes,
+  frameBeat,
+  frameSpace,
+  lineFrame,
+  lineState,
+  momentsOf,
+  normalized,
+  ritzLevels,
+  weightOf,
+  type FrameSpace,
+  type FrameState,
+} from '@/code/measure/frame-meson'
 import { hermitianEigen } from '@/code/measure/quantum-ladder'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 import { LINE_OF } from '@/code/rule/isometric-knit'
@@ -207,14 +235,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the rule ----
     const setup = (side: number) => {
       const X = centerOf(side)
       const f = contactFresh(side, 'pass', X)
       const vacuum = wordVacuum(f, f.store)
-      const Y = Math.floor((f.tables.target[X * 24 + B] as number) / 24)
+      const Y = Math.floor(f.tables.target[X * 24 + B]! / 24)
 
       return {
         side,
@@ -222,52 +253,118 @@ export default experiment({
         f,
         vacuum,
         lines: meshLines(f.tables),
-        meson: { start: placeVibes(vacuum, [{ dock: X, slot: B, vibe: 1 }, { dock: Y, slot: B, vibe: -1 }]), matter: [X * 24 + B, Y * 24 + B] },
-        love: { start: placeVibes(vacuum, [{ dock: X, slot: B, vibe: 1 }]), matter: [X * 24 + B] },
+        meson: {
+          start: placeVibes(vacuum, [
+            { dock: X, slot: B, vibe: 1 },
+            { dock: Y, slot: B, vibe: -1 },
+          ]),
+          matter: [X * 24 + B, Y * 24 + B],
+        },
+        love: {
+          start: placeVibes(vacuum, [{ dock: X, slot: B, vibe: 1 }]),
+          matter: [X * 24 + B],
+        },
       }
     }
+
     type Setup = ReturnType<typeof setup>
     type Start = { start: Configuration; matter: number[] }
+
     const s8 = setup(SIDE)
-    const track = (g: Setup, s: Start, path: number, n: number, kGate: KGate = 'matter', star?: Uint8Array): GatedTrack =>
-      gatedTrack({ tables: g.f.tables, vacuum: g.vacuum, start: s.start, matter: s.matter, key: fullPathKey(pathOffset(path)), threshold: THRESHOLD_BORN, beats: BEATS, n, gate: 'origin', kGate, lines: g.lines, star })
+    const track = (
+      g: Setup,
+      s: Start,
+      path: number,
+      n: number,
+      kGate: KGate = 'matter',
+      star?: Uint8Array,
+    ): GatedTrack =>
+      gatedTrack({
+        tables: g.f.tables,
+        vacuum: g.vacuum,
+        start: s.start,
+        matter: s.matter,
+        key: fullPathKey(pathOffset(path)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        n,
+        gate: 'origin',
+        kGate,
+        lines: g.lines,
+        star,
+      })
 
     // the lines where a start differs from the vacuum
-    const linesOff = (lines: MeshLines, p: Configuration, q: Configuration): number => {
+    const linesOff = (
+      lines: MeshLines,
+      p: Configuration,
+      q: Configuration,
+    ): number => {
       const on = new Set<number>()
 
-      for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== q.vibe[i] || (p.vibe[i] !== 0 && (p.point[i] !== q.point[i] || p.open[i] !== q.open[i]))) on.add(lines.lineOf[i] as number)
-      for (let s = 0; s < p.store.length; s++) if (p.store[s] !== q.store[s] || (p.store[s] !== 0 && (p.spoint[s] !== q.spoint[s] || p.sopen[s] !== q.sopen[s]))) on.add(storeLine(lines, s))
+      for (let i = 0; i < p.vibe.length; i++) {
+        if (
+          p.vibe[i] !== q.vibe[i] ||
+          (p.vibe[i] !== 0 &&
+            (p.point[i] !== q.point[i] || p.open[i] !== q.open[i]))
+        ) {
+          on.add(lines.lineOf[i]!)
+        }
+      }
+
+      for (let s = 0; s < p.store.length; s++) {
+        if (
+          p.store[s] !== q.store[s] ||
+          (p.store[s] !== 0 &&
+            (p.spoint[s] !== q.spoint[s] || p.sopen[s] !== q.sopen[s]))
+        ) {
+          on.add(storeLine(lines, s))
+        }
+      }
 
       return on.size
     }
+
     // the line bound of point 4, beats over it
     const boundOver = (r: GatedTrack, L0: number): number => {
       let over = 0
       let turns = 0
 
       for (let t = 0; t < BEATS; t++) {
-        turns += r.moved[t] as number
+        turns += r.moved[t]!
 
         const k = r.events.filter(e => e.beat <= t).length
 
-        if ((r.lines[t] as number) > L0 + turns + K_LINES * k + r.collide.bLeft || (r.footprint[t] as number) > LINE_DOCKS * (r.lines[t] as number)) over++
+        if (
+          r.lines[t]! > L0 + turns + K_LINES * k + r.collide.bLeft ||
+          r.footprint[t]! > LINE_DOCKS * r.lines[t]!
+        ) {
+          over++
+        }
       }
 
       return over
     }
 
-    const mesons = Array.from({ length: PATHS }, (_, k) => track(s8, s8.meson, k, RATE))
+    const mesons = Array.from({ length: PATHS }, (_, k) =>
+      track(s8, s8.meson, k, RATE),
+    )
 
     log('meson terms')
 
-    const loves = Array.from({ length: PATHS }, (_, k) => track(s8, s8.love, k, RATE))
+    const loves = Array.from({ length: PATHS }, (_, k) =>
+      track(s8, s8.love, k, RATE),
+    )
 
     log('love terms')
 
-    const growthOf = (r: GatedTrack): number => ((r.footprint[BEATS - 1] as number) - (r.footprint[GROWTH_FROM - 1] as number)) / Math.max(1, r.footprint[GROWTH_FROM - 1] as number)
-    const small = (r: GatedTrack): boolean => (r.footprint[BEATS - 1] as number) < BOX_SHARE * s8.f.cells
-    const bounded = (r: GatedTrack): boolean => growthOf(r) < GROWTH_LIMIT && small(r)
+    const growthOf = (r: GatedTrack): number =>
+      (r.footprint[BEATS - 1]! - r.footprint[GROWTH_FROM - 1]!) /
+      Math.max(1, r.footprint[GROWTH_FROM - 1]!)
+    const small = (r: GatedTrack): boolean =>
+      r.footprint[BEATS - 1]! < BOX_SHARE * s8.f.cells
+    const bounded = (r: GatedTrack): boolean =>
+      growthOf(r) < GROWTH_LIMIT && small(r)
     const O1 = mesons.every(bounded) && loves.every(bounded)
 
     // ---- O2: the vacuum ----
@@ -275,133 +372,325 @@ export default experiment({
       const g = side === SIDE ? s8 : setup(side)
       const r = track(g, { start: g.vacuum, matter: [] }, 0, RATE)
 
-      return { side, wake: r.wake.reduce((u, v) => u + v, 0), gated: r.vacuumGated + r.collide.k + r.collide.bMulti + r.vacuumCollide.k + r.vacuumCollide.bMulti, singles: r.vacuumRunSingles, matter: r.vacuumMatter }
+      return {
+        side,
+        wake: r.wake.reduce((u, v) => u + v, 0),
+        gated:
+          r.vacuumGated +
+          r.collide.k +
+          r.collide.bMulti +
+          r.vacuumCollide.k +
+          r.vacuumCollide.bMulti,
+        singles: r.vacuumRunSingles,
+        matter: r.vacuumMatter,
+      }
     })
-    const runner = keyedRunner(s8.f.tables, s8.vacuum, { key: fullPathKey(0), threshold: THRESHOLD_BORN })
+    const runner = keyedRunner(s8.f.tables, s8.vacuum, {
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+    })
 
-    for (let t = 0; t < BEATS; t++) runner.beat()
+    for (let t = 0; t < BEATS; t++) {
+      runner.beat()
+    }
 
     const differ = (p: Configuration, q: Configuration): number => {
       let n = 0
 
-      for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== q.vibe[i] || (p.vibe[i] !== 0 && (p.point[i] !== q.point[i] || p.open[i] !== q.open[i]))) n++
-      for (let i = 0; i < p.store.length; i++) if (p.store[i] !== q.store[i] || (p.store[i] !== 0 && (p.spoint[i] !== q.spoint[i] || p.sopen[i] !== q.sopen[i]))) n++
+      for (let i = 0; i < p.vibe.length; i++) {
+        if (
+          p.vibe[i] !== q.vibe[i] ||
+          (p.vibe[i] !== 0 &&
+            (p.point[i] !== q.point[i] || p.open[i] !== q.open[i]))
+        ) {
+          n++
+        }
+      }
+
+      for (let i = 0; i < p.store.length; i++) {
+        if (
+          p.store[i] !== q.store[i] ||
+          (p.store[i] !== 0 &&
+            (p.spoint[i] !== q.spoint[i] || p.sopen[i] !== q.sopen[i]))
+        ) {
+          n++
+        }
+      }
 
       return n
     }
-    const vacuumDiffer = differ(runner.state(), (mesons[0] as GatedTrack).vacuumLast)
+
+    const vacuumDiffer = differ(runner.state(), mesons[0]!.vacuumLast)
 
     log('vacuum')
 
     // ---- CK: the K gate off is E-SPN-0123 ----
-    const ungated = Array.from({ length: FEW }, (_, k) => track(s8, s8.meson, k, RATE, 'none'))
-    const old = Array.from({ length: FEW }, (_, k) => originTrack({ tables: s8.f.tables, vacuum: s8.vacuum, start: s8.meson.start, matter: s8.meson.matter, key: fullPathKey(pathOffset(k)), threshold: THRESHOLD_BORN, beats: BEATS, n: RATE, gate: 'origin' }))
+    const ungated = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.meson, k, RATE, 'none'),
+    )
+    const old = Array.from({ length: FEW }, (_, k) =>
+      originTrack({
+        tables: s8.f.tables,
+        vacuum: s8.vacuum,
+        start: s8.meson.start,
+        matter: s8.meson.matter,
+        key: fullPathKey(pathOffset(k)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        n: RATE,
+        gate: 'origin',
+      }),
+    )
     const ckOff = ungated.map((r, k) => {
-      const m = old[k] as OriginTrack
+      const m = old[k]!
+
       let off = 0
 
-      for (let t = 0; t < BEATS; t++) if (r.wake[t] !== m.wake[t] || r.footprint[t] !== m.footprint[t] || r.kDocks[t] !== m.kDocks[t]) off++
-      for (let i = 0; i < r.lastOrigins.slot.length; i++) if (r.lastOrigins.slot[i] !== m.lastOrigins.slot[i]) off++
-      for (let i = 0; i < r.lastOrigins.store.length; i++) if (r.lastOrigins.store[i] !== m.lastOrigins.store[i]) off++
+      for (let t = 0; t < BEATS; t++) {
+        if (
+          r.wake[t] !== m.wake[t] ||
+          r.footprint[t] !== m.footprint[t] ||
+          r.kDocks[t] !== m.kDocks[t]
+        ) {
+          off++
+        }
+      }
+
+      for (let i = 0; i < r.lastOrigins.slot.length; i++) {
+        if (r.lastOrigins.slot[i] !== m.lastOrigins.slot[i]) {
+          off++
+        }
+      }
+
+      for (let i = 0; i < r.lastOrigins.store.length; i++) {
+        if (r.lastOrigins.store[i] !== m.lastOrigins.store[i]) {
+          off++
+        }
+      }
 
       return off + differ(r.last, m.last)
     })
-    const CK = ckOff.every(x => x === 0) && ungated.every(r => !small(r))
+    const CK =
+      ckOff.every(x => x === 0) && ungated.every(r => !small(r))
 
     log('control CK')
 
     // ---- CA: mixer angle 0 with K gated ----
-    const mesons0 = Array.from({ length: FEW }, (_, k) => track(s8, s8.meson, k, 0))
-    const loves0 = Array.from({ length: FEW }, (_, k) => track(s8, s8.love, k, 0))
+    const mesons0 = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.meson, k, 0),
+    )
+    const loves0 = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.love, k, 0),
+    )
     const stepperDiffer = mesons0.map((r, k) => {
-      const run = keyedRunner(s8.f.tables, s8.meson.start, { key: fullPathKey(pathOffset(k)), threshold: THRESHOLD_BORN })
+      const run = keyedRunner(s8.f.tables, s8.meson.start, {
+        key: fullPathKey(pathOffset(k)),
+        threshold: THRESHOLD_BORN,
+      })
 
-      for (let t = 0; t < BEATS; t++) run.beat()
+      for (let t = 0; t < BEATS; t++) {
+        run.beat()
+      }
 
       return differ(run.state(), r.last)
     })
-    const mesonGateReached0 = mesons0.reduce((n, r) => n + r.collide.k + r.collide.bMulti, 0)
+    const mesonGateReached0 = mesons0.reduce(
+      (n, r) => n + r.collide.k + r.collide.bMulti,
+      0,
+    )
 
     log('control CA rule')
 
     // ---- the star and two hubs at angle 0, gated and not ----
     const star = starLines(s8.lines, [s8.X])
-    const Yt = Math.floor((s8.f.tables.target[s8.X * 24 + (TRIO[0] as number)] as number) / 24)
+    const Yt = Math.floor(
+      s8.f.tables.target[s8.X * 24 + TRIO[0]!]! / 24,
+    )
     const trioPlaced = TRIO.map(slot => ({ dock: s8.X, slot }))
     const hubPlaced = [
-      { dock: s8.X, slot: TRIO[1] as number },
-      { dock: s8.X, slot: TRIO[0] as number },
-      { dock: Yt, slot: TRIO[2] as number },
-      { dock: Yt, slot: TRIO[0] as number },
+      { dock: s8.X, slot: TRIO[1]! },
+      { dock: s8.X, slot: TRIO[0]! },
+      { dock: Yt, slot: TRIO[2]! },
+      { dock: Yt, slot: TRIO[0]! },
     ]
-    const placed = (ps: { dock: number; slot: number }[]): Start => ({ start: placeLoves(s8.vacuum, ps), matter: ps.map(p => p.dock * 24 + p.slot) })
+    const placed = (ps: { dock: number; slot: number }[]): Start => ({
+      start: placeLoves(s8.vacuum, ps),
+      matter: ps.map(p => p.dock * 24 + p.slot),
+    })
     const trio = placed(trioPlaced)
     const hubs = placed(hubPlaced)
-    const trioGated = Array.from({ length: FEW }, (_, k) => track(s8, trio, k, 0, 'matter', star))
-    const trioOpen = Array.from({ length: FEW }, (_, k) => track(s8, trio, k, 0, 'none', star))
-    const hubsGated = Array.from({ length: HUB_PATHS }, (_, k) => track(s8, hubs, k, 0, 'matter'))
-    const hubsOpen = Array.from({ length: HUB_PATHS }, (_, k) => track(s8, hubs, k, 0, 'none'))
+    const trioGated = Array.from({ length: FEW }, (_, k) =>
+      track(s8, trio, k, 0, 'matter', star),
+    )
+    const trioOpen = Array.from({ length: FEW }, (_, k) =>
+      track(s8, trio, k, 0, 'none', star),
+    )
+    const hubsGated = Array.from({ length: HUB_PATHS }, (_, k) =>
+      track(s8, hubs, k, 0, 'matter'),
+    )
+    const hubsOpen = Array.from({ length: HUB_PATHS }, (_, k) =>
+      track(s8, hubs, k, 0, 'none'),
+    )
     const starOff = trioGated.reduce((n, r) => n + r.offStar, 0)
     const trioStarOffOpen = trioOpen.reduce((n, r) => n + r.offStar, 0)
+
     const vibesApart = (p: Configuration, q: Configuration): number => {
       let n = 0
 
-      for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== q.vibe[i]) n++
+      for (let i = 0; i < p.vibe.length; i++) {
+        if (p.vibe[i] !== q.vibe[i]) {
+          n++
+        }
+      }
 
       return n
     }
 
     log('star and hubs')
 
-    const everyTrack = [...mesons, ...loves, ...ungated, ...mesons0, ...loves0, ...trioGated, ...trioOpen, ...hubsGated, ...hubsOpen]
-    const vacuumSinglesAll = everyTrack.reduce((n, r) => n + r.vacuumRunSingles, 0)
-    const vacuumGatedAll = everyTrack.reduce((n, r) => n + r.vacuumGated, 0)
-    const vacuumMatterAll = everyTrack.reduce((n, r) => n + r.vacuumMatter, 0)
-    const vacuumCollideAll = everyTrack.reduce((n, r) => n + r.vacuumCollide.k + r.vacuumCollide.bMulti, 0)
-    const O2 = vacuumSinglesAll === 0 && vacuumGatedAll === 0 && vacuumMatterAll === 0 && vacuumCollideAll === 0 && windows.every(w => w.wake === 0 && w.gated === 0 && w.singles === 0 && w.matter === 0) && vacuumDiffer === 0
+    const everyTrack = [
+      ...mesons,
+      ...loves,
+      ...ungated,
+      ...mesons0,
+      ...loves0,
+      ...trioGated,
+      ...trioOpen,
+      ...hubsGated,
+      ...hubsOpen,
+    ]
+    const vacuumSinglesAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumRunSingles,
+      0,
+    )
+    const vacuumGatedAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumGated,
+      0,
+    )
+    const vacuumMatterAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumMatter,
+      0,
+    )
+    const vacuumCollideAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumCollide.k + r.vacuumCollide.bMulti,
+      0,
+    )
+    const O2 =
+      vacuumSinglesAll === 0 &&
+      vacuumGatedAll === 0 &&
+      vacuumMatterAll === 0 &&
+      vacuumCollideAll === 0 &&
+      windows.every(
+        w =>
+          w.wake === 0 &&
+          w.gated === 0 &&
+          w.singles === 0 &&
+          w.matter === 0,
+      ) &&
+      vacuumDiffer === 0
 
     // ---- the stand-in ----
     const F = lineFrame(B)
-    const axisB = axisOfLine(F, LINE_OF[B] as number)
+    const axisB = axisOfLine(F, LINE_OF[B]!)
     const m = meson(D, 2 * N, 1)
     const level = settle(m, nrSeed(m))
     const full = pairEmbed(m, 0, level.block)
-    const entries: { d: number; jl: number; jf: number; amp: [number, number] }[] = []
+    const entries: {
+      d: number
+      jl: number
+      jf: number
+      amp: [number, number]
+    }[] = []
 
     for (let i = 0; i < m.b.size; i++) {
-      if (full.re[i] === 0 && full.im[i] === 0) continue
+      if (full.re[i] === 0 && full.im[i] === 0) {
+        continue
+      }
 
       const c = Math.floor(i / m.b.labelCount)
       const r = i % m.b.labelCount
 
-      entries.push({ d: m.b.configs[c]![1]!, jl: Math.floor(r / 2), jf: r % 2, amp: [full.re[i] as number, full.im[i] as number] })
+      entries.push({
+        d: m.b.configs[c]![1]!,
+        jl: Math.floor(r / 2),
+        jf: r % 2,
+        amp: [full.re[i]!, full.im[i]!],
+      })
     }
 
-    const energyAt = (space: FrameSpace, K: readonly number[], start: FrameState): { energy: number; weight: number; residual: number } => {
-      const ritz = ritzLevels(autocorrelation(space, K, start, RITZ_T).c).sort((x, y) => y.weight - x.weight)
+    const energyAt = (
+      space: FrameSpace,
+      K: readonly number[],
+      start: FrameState,
+    ): { energy: number; weight: number; residual: number } => {
+      const ritz = ritzLevels(
+        autocorrelation(space, K, start, RITZ_T).c,
+      ).sort((x, y) => y.weight - x.weight)
 
-      return ritz[0] as { energy: number; weight: number; residual: number }
+      return ritz[0] as {
+        energy: number
+        weight: number
+        residual: number
+      }
     }
-    const uB = frameAxes(F)[axisB] as number[]
-    const s0 = frameSpace({ frame: F, n: 0, D, cut: 2 * N, floor: 1e-24 })
+
+    const uB = frameAxes(F)[axisB]!
+    const s0 = frameSpace({
+      frame: F,
+      n: 0,
+      D,
+      cut: 2 * N,
+      floor: 1e-24,
+    })
     const onB = lineState(s0, axisB, entries)
     const e0 = energyAt(s0, [0, 0, 0, 0], onB)
     const eRest0 = 2 * MASS + e0.energy
     const step0 = eRest0 * CURVE_FRAC
-    const curve0 = (energyAt(s0, uB.map(x => x * step0), onB).energy + energyAt(s0, uB.map(x => -x * step0), onB).energy - 2 * e0.energy) / (step0 * step0)
+    const curve0 =
+      (energyAt(
+        s0,
+        uB.map(x => x * step0),
+        onB,
+      ).energy +
+        energyAt(
+          s0,
+          uB.map(x => -x * step0),
+          onB,
+        ).energy -
+        2 * e0.energy) /
+      (step0 * step0)
     const total0 = 1 / (curve0 * eRest0)
     const eTrans = energyAt(s0, [0, 0, step0, 0], onB)
-    const CA = stepperDiffer.every(x => x === 0) && mesonGateReached0 === 0 && loves0.every(small) && Math.abs(e0.energy - E_REST) <= ENERGY_SAME && Math.abs(total0 - TOTAL) <= TOTAL_SAME && Math.abs(eTrans.energy - e0.energy) <= 1e-12
+    const CA =
+      stepperDiffer.every(x => x === 0) &&
+      mesonGateReached0 === 0 &&
+      loves0.every(small) &&
+      Math.abs(e0.energy - E_REST) <= ENERGY_SAME &&
+      Math.abs(total0 - TOTAL) <= TOTAL_SAME &&
+      Math.abs(eTrans.energy - e0.energy) <= 1e-12
 
     log('stand-in rate 0')
 
     // a hold on the window: retained weight a beat, the balance, and the moments at the end
     const hold = (n: number, symmetric: boolean) => {
-      const space = frameSpace({ frame: F, n, D, cut: CUT, floor: FLOOR })
+      const space = frameSpace({
+        frame: F,
+        n,
+        D,
+        cut: CUT,
+        floor: FLOOR,
+      })
+
       let s: FrameState = new Map()
 
-      if (symmetric) for (let a = 0; a < 4; a++) s = addStates(s, lineState(space, a, entries))
-      else s = lineState(space, axisB, entries)
+      if (symmetric) {
+        for (let a = 0; a < 4; a++) {
+          s = addStates(s, lineState(space, a, entries))
+        }
+      } else {
+        s = lineState(space, axisB, entries)
+      }
+
       s = normalized(s)
 
       const start = s
@@ -413,7 +702,17 @@ export default experiment({
         retained.push(weightOf(s))
       }
 
-      return { space, start, retained, tally, gap: Math.abs((retained[HOLD_BEATS - 1] as number) + tally.escaped + tally.dropped - 1), moments: momentsOf(space, s, N), held: retained.every(w => w >= 1 - TAIL) }
+      return {
+        space,
+        start,
+        retained,
+        tally,
+        gap: Math.abs(
+          retained[HOLD_BEATS - 1]! + tally.escaped + tally.dropped - 1,
+        ),
+        moments: momentsOf(space, s, N),
+        held: retained.every(w => w >= 1 - TAIL),
+      }
     }
 
     // CW: the window holds the one-line level at rate 0
@@ -434,13 +733,42 @@ export default experiment({
       const e3 = energyAt(main.space, [0, 0, 0, 0], main.start)
       const eRest = 2 * MASS + e3.energy
       const step = eRest * CURVE_FRAC
-      const second = (u: readonly number[]): number => (energyAt(main.space, u.map(x => x * step), main.start).energy + energyAt(main.space, u.map(x => -x * step), main.start).energy - 2 * e3.energy) / (step * step)
-      const unit = (a: number): number[] => [0, 1, 2, 3].map(k => (k === a ? 1 : 0))
+      const second = (u: readonly number[]): number =>
+        (energyAt(
+          main.space,
+          u.map(x => x * step),
+          main.start,
+        ).energy +
+          energyAt(
+            main.space,
+            u.map(x => -x * step),
+            main.start,
+          ).energy -
+          2 * e3.energy) /
+        (step * step)
+      const unit = (a: number): number[] =>
+        [0, 1, 2, 3].map(k => (k === a ? 1 : 0))
       const diag = [0, 1, 2].map(a => second(unit(a)))
 
-      tensor = [0, 1, 2].map(a => [0, 1, 2].map(b => (a === b ? (diag[a] as number) : second(unit(a).map((x, k) => (x + (unit(b)[k] as number)) / Math.SQRT2)) - ((diag[a] as number) + (diag[b] as number)) / 2)))
-      eigen = hermitianEigen(3, Float64Array.from(tensor.flat()), new Float64Array(9)).values.slice().sort((x, y) => x - y)
-      isotropy = (eigen[0] as number) / (eigen[2] as number)
+      tensor = [0, 1, 2].map(a =>
+        [0, 1, 2].map(b =>
+          a === b
+            ? diag[a]!
+            : second(
+                unit(a).map((x, k) => (x + unit(b)[k]!) / Math.SQRT2),
+              ) -
+              (diag[a]! + diag[b]!) / 2,
+        ),
+      )
+
+      eigen = hermitianEigen(
+        3,
+        Float64Array.from(tensor.flat()),
+        new Float64Array(9),
+      )
+        .values.slice()
+        .sort((x, y) => x - y)
+      isotropy = eigen[0]! / eigen[2]!
       curved = eigen.filter(v => v >= (CURVE_SHARE * curve0) / 4).length
       totalMixed = 1 / (second(uB) * eRest)
     }
@@ -456,23 +784,66 @@ export default experiment({
     // ---- checks ----
     const mismatch = everyTrack.reduce((n, r) => n + r.mismatch, 0)
     const drift = everyTrack.reduce((n, r) => n + r.matterDrift, 0)
-    const reversalDiffer = everyTrack.reduce((n, r) => n + r.reversalDiffer, 0)
-    const collideOff = everyTrack.reduce((n, r) => n + r.collide.off + r.vacuumCollide.off, 0)
+    const reversalDiffer = everyTrack.reduce(
+      (n, r) => n + r.reversalDiffer,
+      0,
+    )
+    const collideOff = everyTrack.reduce(
+      (n, r) => n + r.collide.off + r.vacuumCollide.off,
+      0,
+    )
     const L0meson = linesOff(s8.lines, s8.meson.start, s8.vacuum)
     const L0love = linesOff(s8.lines, s8.love.start, s8.vacuum)
-    const boundOff = [...mesons.map(r => boundOver(r, L0meson)), ...loves.map(r => boundOver(r, L0love)), ...mesons0.map(r => boundOver(r, L0meson)), ...loves0.map(r => boundOver(r, L0love))].reduce((u, v) => u + v, 0)
-    const normGap = Math.max(main.gap, window0.gap, ...smaller.map(s => s.gap))
-    const checked = mismatch === 0 && drift === 0 && reversalDiffer === 0 && collideOff === 0 && boundOff === 0 && starOff === 0 && normGap <= NORM_SAME
-    const status = !CK || !CA || !CW || !checked ? 'partial' : O1 && O2 && O3 && O4 ? 'pass' : 'fail'
+    const boundOff = [
+      ...mesons.map(r => boundOver(r, L0meson)),
+      ...loves.map(r => boundOver(r, L0love)),
+      ...mesons0.map(r => boundOver(r, L0meson)),
+      ...loves0.map(r => boundOver(r, L0love)),
+    ].reduce((u, v) => u + v, 0)
+    const normGap = Math.max(
+      main.gap,
+      window0.gap,
+      ...smaller.map(s => s.gap),
+    )
+    const checked =
+      mismatch === 0 &&
+      drift === 0 &&
+      reversalDiffer === 0 &&
+      collideOff === 0 &&
+      boundOff === 0 &&
+      starOff === 0 &&
+      normGap <= NORM_SAME
+    const status =
+      !CK || !CA || !CW || !checked
+        ? 'partial'
+        : O1 && O2 && O3 && O4
+          ? 'pass'
+          : 'fail'
 
     // ---- readings ----
-    const mean = (xs: number[]): number => xs.reduce((u, v) => u + v, 0) / xs.length
+    const mean = (xs: number[]): number =>
+      xs.reduce((u, v) => u + v, 0) / xs.length
     const sum = (xs: number[]): number => xs.reduce((u, v) => u + v, 0)
-    const at = (r: GatedTrack, key: 'footprint' | 'lines' | 'kDocks' | 'matterSingles' | 'vacuumSingles'): string => REPORT_AT.map(t => r[key][t - 1]).join('/')
-    const firstTurn = (r: GatedTrack): number => r.moved.findIndex(x => x > 0) + 1
-    const fell = (r: GatedTrack): number => r.lines.filter((v, t) => t > 0 && v < (r.lines[t - 1] as number)).length
-    const turnsBetween = (r: GatedTrack, a: number, b: number): number => sum(r.moved.slice(a, b))
-    const f128 = (rs: GatedTrack[]): number[] => rs.map(r => r.footprint[BEATS - 1] as number)
+    const at = (
+      r: GatedTrack,
+      key:
+        | 'footprint'
+        | 'lines'
+        | 'kDocks'
+        | 'matterSingles'
+        | 'vacuumSingles',
+    ): string => REPORT_AT.map(t => r[key][t - 1]).join('/')
+    const firstTurn = (r: GatedTrack): number =>
+      r.moved.findIndex(x => x > 0) + 1
+    const fell = (r: GatedTrack): number =>
+      r.lines.filter((v, t) => t > 0 && v < r.lines[t - 1]!).length
+    const turnsBetween = (
+      r: GatedTrack,
+      a: number,
+      b: number,
+    ): number => sum(r.moved.slice(a, b))
+    const f128 = (rs: GatedTrack[]): number[] =>
+      rs.map(r => r.footprint[BEATS - 1]!)
 
     const metrics: Record<string, number> = {
       O1: O1 ? 1 : 0,
@@ -493,22 +864,31 @@ export default experiment({
       mesonMinFootprint128: Math.min(...f128(mesons)),
       mesonMaxFootprint128: Math.max(...f128(mesons)),
       mesonMeanFootprint128: mean(f128(mesons)),
-      mesonMeanFootprint64: mean(mesons.map(r => r.footprint[GROWTH_FROM - 1] as number)),
+      mesonMeanFootprint64: mean(
+        mesons.map(r => r.footprint[GROWTH_FROM - 1]!),
+      ),
       mesonMinGrowth: Math.min(...mesons.map(growthOf)),
       mesonMeanGrowth: mean(mesons.map(growthOf)),
       loveMinFootprint128: Math.min(...f128(loves)),
       loveMaxFootprint128: Math.max(...f128(loves)),
       loveMeanFootprint128: mean(f128(loves)),
-      loveMeanFootprint64: mean(loves.map(r => r.footprint[GROWTH_FROM - 1] as number)),
+      loveMeanFootprint64: mean(
+        loves.map(r => r.footprint[GROWTH_FROM - 1]!),
+      ),
       loveMinGrowth: Math.min(...loves.map(growthOf)),
       loveMeanGrowth: mean(loves.map(growthOf)),
-      mesonMeanLines128: mean(mesons.map(r => r.lines[BEATS - 1] as number)),
-      loveMeanLines128: mean(loves.map(r => r.lines[BEATS - 1] as number)),
+      mesonMeanLines128: mean(mesons.map(r => r.lines[BEATS - 1]!)),
+      loveMeanLines128: mean(loves.map(r => r.lines[BEATS - 1]!)),
       mesonMeanTurns: mean(mesons.map(r => sum(r.moved))),
       loveMeanTurns: mean(loves.map(r => sum(r.moved))),
-      mesonMeanTurnsLate: mean(mesons.map(r => turnsBetween(r, GROWTH_FROM, BEATS))),
-      loveMeanTurnsLate: mean(loves.map(r => turnsBetween(r, GROWTH_FROM, BEATS))),
-      mesonDocksPerLine: sum(f128(mesons)) / sum(mesons.map(r => r.lines[BEATS - 1] as number)),
+      mesonMeanTurnsLate: mean(
+        mesons.map(r => turnsBetween(r, GROWTH_FROM, BEATS)),
+      ),
+      loveMeanTurnsLate: mean(
+        loves.map(r => turnsBetween(r, GROWTH_FROM, BEATS)),
+      ),
+      mesonDocksPerLine:
+        sum(f128(mesons)) / sum(mesons.map(r => r.lines[BEATS - 1]!)),
       mesonMeanFirstTurn: mean(mesons.map(firstTurn)),
       mesonK: sum(mesons.map(r => r.collide.k)),
       loveK: sum(loves.map(r => r.collide.k)),
@@ -518,8 +898,12 @@ export default experiment({
       mesonBSwapped: sum(mesons.map(r => r.collide.bSwapped)),
       mesonBLeft: sum(mesons.map(r => r.collide.bLeft)),
       loveBLeft: sum(loves.map(r => r.collide.bLeft)),
-      mesonMeanVacuumSingles128: mean(mesons.map(r => r.vacuumSingles[BEATS - 1] as number)),
-      mesonMaxMatterSingles: Math.max(...mesons.map(r => Math.max(...r.matterSingles))),
+      mesonMeanVacuumSingles128: mean(
+        mesons.map(r => r.vacuumSingles[BEATS - 1]!),
+      ),
+      mesonMaxMatterSingles: Math.max(
+        ...mesons.map(r => Math.max(...r.matterSingles)),
+      ),
       linesFellBeats: sum([...mesons, ...loves].map(fell)),
       L0meson,
       L0love,
@@ -531,11 +915,21 @@ export default experiment({
       mesonFootprint128Rate0: mean(f128(mesons0)),
       trioKGated: sum(trioGated.map(r => r.events.length)),
       trioKOpen: sum(trioOpen.map(r => r.events.length)),
-      trioRecruitedGated: sum(trioGated.map(r => r.events.reduce((u, e) => u + e.recruited, 0))),
-      trioRecruitedOpen: sum(trioOpen.map(r => r.events.reduce((u, e) => u + e.recruited, 0))),
+      trioRecruitedGated: sum(
+        trioGated.map(r =>
+          r.events.reduce((u, e) => u + e.recruited, 0),
+        ),
+      ),
+      trioRecruitedOpen: sum(
+        trioOpen.map(r =>
+          r.events.reduce((u, e) => u + e.recruited, 0),
+        ),
+      ),
       trioStarOffGated: starOff,
       trioStarOffOpen,
-      trioVibesApart: sum(trioGated.map((r, k) => vibesApart(r.last, (trioOpen[k] as GatedTrack).last))),
+      trioVibesApart: sum(
+        trioGated.map((r, k) => vibesApart(r.last, trioOpen[k]!.last)),
+      ),
       trioBLeft: sum(trioGated.map(r => r.collide.bLeft)),
       hubsFootprint128Gated: mean(f128(hubsGated)),
       hubsFootprint128Open: mean(f128(hubsOpen)),
@@ -556,9 +950,9 @@ export default experiment({
       standEnergy0: e0.energy,
       standTotal0: total0,
       standTransverse: eTrans.energy - e0.energy,
-      window0Retained24: window0.retained[HOLD_BEATS - 1] as number,
-      heldRetained8: main.retained[7] as number,
-      heldRetained24: main.retained[HOLD_BEATS - 1] as number,
+      window0Retained24: window0.retained[HOLD_BEATS - 1]!,
+      heldRetained8: main.retained[7]!,
+      heldRetained24: main.retained[HOLD_BEATS - 1]!,
       heldMeanString: main.moments.meanString,
       heldBent: main.moments.bent,
       windowClasses: main.space.classes.length,
@@ -570,20 +964,33 @@ export default experiment({
     }
 
     for (const s of smaller) {
-      metrics[`rate${s.n}Retained8`] = s.retained[7] as number
-      metrics[`rate${s.n}Retained24`] = s.retained[HOLD_BEATS - 1] as number
+      metrics[`rate${s.n}Retained8`] = s.retained[7]!
+      metrics[`rate${s.n}Retained24`] = s.retained[HOLD_BEATS - 1]!
       metrics[`rate${s.n}MeanString`] = s.moments.meanString
       metrics[`rate${s.n}Bent`] = s.moments.bent
     }
 
-    const perTerm = (rs: GatedTrack[]): string => rs.map((r, k) => `p${k}: footprint ${at(r, 'footprint')}, lines ${at(r, 'lines')}, vacuum-born singles ${at(r, 'vacuumSingles')}, turns ${sum(r.moved)} (${turnsBetween(r, GROWTH_FROM, BEATS)} after beat ${GROWTH_FROM}), K ${r.collide.k}, K refused ${r.collide.refusedK}, B kept/swapped/left ${r.collide.bKept}/${r.collide.bSwapped}/${r.collide.bLeft}, growth ${growthOf(r).toFixed(4)}`).join('; ')
-    const retainedOf = (xs: number[]): string => [1, 2, 4, 8, 16, 24].map(t => (xs[t - 1] as number).toFixed(5)).join(' ')
+    const perTerm = (rs: GatedTrack[]): string =>
+      rs
+        .map(
+          (r, k) =>
+            `p${k}: footprint ${at(r, 'footprint')}, lines ${at(r, 'lines')}, vacuum-born singles ${at(r, 'vacuumSingles')}, turns ${sum(r.moved)} (${turnsBetween(r, GROWTH_FROM, BEATS)} after beat ${GROWTH_FROM}), K ${r.collide.k}, K refused ${r.collide.refusedK}, B kept/swapped/left ${r.collide.bKept}/${r.collide.bSwapped}/${r.collide.bLeft}, growth ${growthOf(r).toFixed(4)}`,
+        )
+        .join('; ')
+    const retainedOf = (xs: number[]): string =>
+      [1, 2, 4, 8, 16, 24].map(t => xs[t - 1]!.toFixed(5)).join(' ')
 
     return verdict({
       status,
-      claim: `E-SPN-0123's origin-gated mixer with K gated on origin too (K only where two matter-born singles share a dock, B elsewhere): the vacuum runs bit for bit (${vacuumCollideAll} vacuum docks reach the gate, ${vacuumDiffer} readings off keyedRunner); the meson ends at ${metrics.mesonMinFootprint128} to ${metrics.mesonMaxFootprint128} of ${s8.f.cells} docks (${metrics.smallMesons} of ${PATHS} under half the box, ${metrics.boundedMesons} bounded), a lone love at ${metrics.loveMinFootprint128} to ${metrics.loveMaxFootprint128} (${metrics.smallLoves} under half, ${metrics.boundedLoves} bounded); K fires ${metrics.mesonK} times over the meson terms; the stand-in keeps ${(main.retained[HOLD_BEATS - 1] as number).toFixed(4)} by beat ${HOLD_BEATS} at rate ${RATE} against ${(window0.retained[HOLD_BEATS - 1] as number).toFixed(5)} at rate 0`,
+      claim: `E-SPN-0123's origin-gated mixer with K gated on origin too (K only where two matter-born singles share a dock, B elsewhere): the vacuum runs bit for bit (${vacuumCollideAll} vacuum docks reach the gate, ${vacuumDiffer} readings off keyedRunner); the meson ends at ${metrics.mesonMinFootprint128} to ${metrics.mesonMaxFootprint128} of ${s8.f.cells} docks (${metrics.smallMesons} of ${PATHS} under half the box, ${metrics.boundedMesons} bounded), a lone love at ${metrics.loveMinFootprint128} to ${metrics.loveMaxFootprint128} (${metrics.smallLoves} under half, ${metrics.boundedLoves} bounded); K fires ${metrics.mesonK} times over the meson terms; the stand-in keeps ${main.retained[HOLD_BEATS - 1]!.toFixed(4)} by beat ${HOLD_BEATS} at rate ${RATE} against ${window0.retained[HOLD_BEATS - 1]!.toFixed(5)} at rate 0`,
       metrics,
-      control: { ckOff: sum(ckOff), stepperDiffer: sum(stepperDiffer), window0Retained24: metrics.window0Retained24 as number, standEnergy0: e0.energy, standTotal0: total0 },
+      control: {
+        ckOff: sum(ckOff),
+        stepperDiffer: sum(stepperDiffer),
+        window0Retained24: metrics.window0Retained24!,
+        standEnergy0: e0.energy,
+        standTotal0: total0,
+      },
       notes: `L1 (O1, O2, checks) and L2 (stand-in). O1 ${O1}; O2 ${O2} (windows ${windows.map(w => `side ${w.side}: wake ${w.wake}, gated ${w.gated}, singles ${w.singles}, matter ${w.matter}`).join('; ')}); O3 ${O3} (held ${main.held}: retained ${retainedOf(main.retained)}; mean string ${main.moments.meanString.toFixed(3)}, bent ${main.moments.bent.toFixed(3)}, ${main.space.classes.length} classes${main.held ? `; tensor ${JSON.stringify(tensor)}, eigenvalues ${eigen.join(', ')}, isotropy ${isotropy}` : ''}); O4 ${O4}${main.held ? ` (m*/E_rest ${totalMixed})` : ' (not reached)'}. CK ${CK} (off ${ckOff.join('/')}, ungated footprints ${f128(ungated).join('/')}); CA ${CA} (stepper ${stepperDiffer.join('/')}, gate reached ${mesonGateReached0}, lone love rate 0 ${f128(loves0).join('/')}, meson rate 0 ${f128(mesons0).join('/')}, E ${e0.energy}, total ${total0}, transverse ${eTrans.energy - e0.energy}); CW ${CW} (rate 0 one-line on the window: ${retainedOf(window0.retained)}). Checks: mismatch ${mismatch}, drift ${drift}, reversal ${reversalDiffer}, collide off ${collideOff}, line bound over ${boundOff} (L0 meson ${L0meson}, love ${L0love}), star off ${starOff}, norm gap ${normGap.toExponential(2)}. Smaller angles from the one-line level: ${smaller.map(s => `rate ${s.n}: ${retainedOf(s.retained)}, mean string ${s.moments.meanString.toFixed(3)}, bent ${s.moments.bent.toFixed(3)}, ${s.space.classes.length} classes`).join('; ')}. Star at rate 0 (trio, ${FEW} paths): K ${metrics.trioKOpen} ungated -> ${metrics.trioKGated} gated, recruited ${metrics.trioRecruitedOpen} -> ${metrics.trioRecruitedGated}, off the star ${trioStarOffOpen} -> ${starOff}, vibes apart at 128 ${metrics.trioVibesApart}, B-leaves ${metrics.trioBLeft}. Two hubs at rate 0 (${HUB_PATHS} paths): footprint ${f128(hubsOpen).join('/')} ungated -> ${f128(hubsGated).join('/')} gated, K ${metrics.hubsKOpen} -> ${metrics.hubsKGated}. Meson terms: ${perTerm(mesons)}. Lone love terms: ${perTerm(loves)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

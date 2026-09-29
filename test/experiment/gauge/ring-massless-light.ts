@@ -46,14 +46,41 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { exactBasis, exactEqual, exactFrom, inverseSteps, reduce, runExact, type Exact } from '@/code/rule/lattice-qed'
-import { classicalOmega, splitOf, type LadderSpec } from '@/code/rule/plaquette-ladder'
-import { huskAxisLambda, loopSize, loopSplit, loopSteps, loopUniformShift, ringCurl, ringSpec, splitNear, loopFluxes } from '@/code/rule/loop-ring'
+import {
+  exactBasis,
+  exactEqual,
+  exactFrom,
+  inverseSteps,
+  reduce,
+  runExact,
+  type Exact,
+} from '@/code/rule/lattice-qed'
+import {
+  classicalOmega,
+  splitOf,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
+import {
+  huskAxisLambda,
+  loopSize,
+  loopSplit,
+  loopSteps,
+  loopUniformShift,
+  ringCurl,
+  ringSpec,
+  splitNear,
+  loopFluxes,
+} from '@/code/rule/loop-ring'
 import { oneQuantumBand } from '@/code/measure/quantum-ladder'
 import { ringBand } from '@/code/measure/loop-spectrum'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 import { makeHusk } from '@/code/measure/photon-husk'
-import { curlSymbol, eigenvalues, huskSymbol, plaquetteShapes } from '@/code/measure/photon-symbol'
+import {
+  curlSymbol,
+  eigenvalues,
+  huskSymbol,
+  plaquetteShapes,
+} from '@/code/measure/photon-symbol'
 import { weyl } from '@/code/tool/weyl'
 
 const STRIPS: readonly [number, number][] = [
@@ -79,13 +106,25 @@ function startsOf(size: number, m: number): Exact[] {
   for (let k = 1; picks.length < 3; k++) {
     const i = Math.floor(weyl(k) * size)
 
-    if (!picks.includes(i)) picks.push(i)
+    if (!picks.includes(i)) {
+      picks.push(i)
+    }
   }
 
-  return [...picks.map(i => exactBasis(m, i)), exactFrom(m, picks.map((i, j) => [i, BigInt(j + 1)]))]
+  return [
+    ...picks.map(i => exactBasis(m, i)),
+    exactFrom(
+      m,
+      picks.map((i, j) => [i, BigInt(j + 1)]),
+    ),
+  ]
 }
 
-const mapExact = (v: Exact, f: (i: number) => number): Exact => ({ m: v.m, den: v.den, entries: new Map([...v.entries].map(([i, e]) => [f(i), e])) })
+const mapExact = (v: Exact, f: (i: number) => number): Exact => ({
+  m: v.m,
+  den: v.den,
+  entries: new Map([...v.entries].map(([i, e]) => [f(i), e])),
+})
 
 export default experiment({
   id: 'gauge/ring-massless-light',
@@ -98,6 +137,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let m1 = true
     let m2 = true
 
@@ -105,6 +145,7 @@ export default experiment({
     const bulk = photonLatticeD4({ side: 4 })
     const husk = makeHusk(bulk)
     const shapes = plaquetteShapes(bulk)
+
     let quadratic = 0
     let partner = 0
     let degenerate = 0
@@ -112,27 +153,48 @@ export default experiment({
 
     for (let j = 0; j <= 16; j++) {
       const k = (Math.PI * j) / 16
-      const values = eigenvalues(huskSymbol(husk, curlSymbol(bulk, shapes, [k, 0, 0, 0])).hermitian)
+      const values = eigenvalues(
+        huskSymbol(husk, curlSymbol(bulk, shapes, [k, 0, 0, 0]))
+          .hermitian,
+      )
       const u = ringCurl(k)
       const lambda = values[1]!
 
-      quadratic = Math.max(quadratic, Math.abs(lambda * lambda - 12 * lambda + 8 * u), Math.abs(values[2]! ** 2 - 12 * values[2]! + 8 * u))
-      degenerate = Math.max(degenerate, Math.abs(values[1]! - values[2]!))
+      quadratic = Math.max(
+        quadratic,
+        Math.abs(lambda * lambda - 12 * lambda + 8 * u),
+        Math.abs(values[2]! ** 2 - 12 * values[2]! + 8 * u),
+      )
+
+      degenerate = Math.max(
+        degenerate,
+        Math.abs(values[1]! - values[2]!),
+      )
       partner = Math.max(partner, Math.abs(values[3]! - (12 - lambda)))
 
-      if (j === 0) zeroCount = values.filter(v => Math.abs(v) < 1e-9).length
-      if (j === 8) metrics.huskAxisLambdaHalfPi = lambda
+      if (j === 0) {
+        zeroCount = values.filter(v => Math.abs(v) < 1e-9).length
+      }
+
+      if (j === 8) {
+        metrics.huskAxisLambdaHalfPi = lambda
+      }
     }
 
     metrics.huskAxisQuadraticResidual = quadratic
     metrics.huskAxisDegeneracy = degenerate
     metrics.huskAxisPartnerResidual = partner
     metrics.huskAxisZeroModesAtK0 = zeroCount
-    metrics.huskAxisLongWaveRatio = huskAxisLambda(1e-3) / ringCurl(1e-3)
+    metrics.huskAxisLongWaveRatio =
+      huskAxisLambda(1e-3) / ringCurl(1e-3)
 
     // j = 0 has three zero eigenvalues on the husk (the gauge mode and the two photons at k = 0); the gate reads
     // the count of zero modes beyond the photons, 1
-    const m3 = quadratic <= 1e-10 && partner <= 1e-10 && degenerate <= 1e-10 && zeroCount - 2 === 1
+    const m3 =
+      quadratic <= 1e-10 &&
+      partner <= 1e-10 &&
+      degenerate <= 1e-10 &&
+      zeroCount - 2 === 1
 
     // M1, M2: the strips
     const chords: string[] = []
@@ -143,6 +205,7 @@ export default experiment({
       const spec = ringSpec(n, L, split)
       const { kappa } = loopSplit(spec)
       const out = ringBand(spec)
+
       let worst = 0
       let overlap = 1
 
@@ -169,18 +232,27 @@ export default experiment({
       metrics[`chord${tag}`] = chord
       metrics[`classicalChord${tag}`] = classicalChord
       metrics[`chordOverSqrtKappa${tag}`] = chord / Math.sqrt(kappa)
-      chords.push(`${chord.toFixed(5)} against ${classicalChord.toFixed(5)} (sqrt kappa ${Math.sqrt(kappa).toFixed(5)}) at N = ${n}, L = ${L}`)
+      chords.push(
+        `${chord.toFixed(5)} against ${classicalChord.toFixed(5)} (sqrt kappa ${Math.sqrt(kappa).toFixed(5)}) at N = ${n}, L = ${L}`,
+      )
 
       // M2: the q = 0 sector's lowest level above the vacuum
       const vac = out.levels[out.vacuum]!
+
       let lowest = Infinity
 
       out.levels.forEach((l, i) => {
-        if (l.q !== 0 || i === out.vacuum) return
+        if (l.q !== 0 || i === out.vacuum) {
+          return
+        }
 
-        const e = (((vac.phase - l.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+        const e =
+          (((vac.phase - l.phase) % (2 * Math.PI)) + 2 * Math.PI) %
+          (2 * Math.PI)
 
-        if (e < Math.PI) lowest = Math.min(lowest, e)
+        if (e < Math.PI) {
+          lowest = Math.min(lowest, e)
+        }
       })
 
       metrics[`zeroMomentumLowest${tag}`] = lowest
@@ -195,13 +267,18 @@ export default experiment({
         let p = 0
 
         for (let i = 0; i < out.vacuumFull.re.length; i++) {
-          const w = out.vacuumFull.re[i]! ** 2 + out.vacuumFull.im[i]! ** 2
+          const w =
+            out.vacuumFull.re[i]! ** 2 + out.vacuumFull.im[i]! ** 2
 
-          if (w === 0) continue
+          if (w === 0) {
+            continue
+          }
 
           loopFluxes(spec, i, flux)
 
-          if (Math.abs(flux[0]!) >= d) p += w
+          if (Math.abs(flux[0]!) >= d) {
+            p += w
+          }
         }
 
         metrics[`vacuumRungDepthP${d}${tag}`] = p
@@ -212,7 +289,13 @@ export default experiment({
     for (const [n, L] of CONTROL_LADDERS) {
       const tag = `N${n}L${L}`
       const ladderSplit = splitNear(n, 3)
-      const ladder: LadderSpec = { n, plaquettes: L, root: ladderSplit.root, drift: ladderSplit.drift, force: ladderSplit.force }
+      const ladder: LadderSpec = {
+        n,
+        plaquettes: L,
+        root: ladderSplit.root,
+        drift: ladderSplit.drift,
+        force: ladderSplit.force,
+      }
       const lb = oneQuantumBand(ladder)
       const cutoff = classicalOmega(splitOf(ladder).kappa, 0, L)
 
@@ -235,12 +318,16 @@ export default experiment({
         const there = runExact(steps, start, BEATS)
         const again = runExact(back, there, BEATS)
 
-        if (!exactEqual(reduce(again), reduce(start))) reverseMismatches++
+        if (!exactEqual(reduce(again), reduce(start))) {
+          reverseMismatches++
+        }
 
         const a = runExact(steps, mapExact(start, shift), 2)
         const b = mapExact(runExact(steps, start, 2), shift)
 
-        if (!exactEqual(a, b)) shiftMismatches++
+        if (!exactEqual(a, b)) {
+          shiftMismatches++
+        }
       }
     }
 
@@ -250,16 +337,22 @@ export default experiment({
     const m4 = reverseMismatches === 0 && shiftMismatches === 0
     const gates = { M1: m1, M2: m2, M3: m3, M4: m4 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = m1 && m2 && m3 && m4 ? 'pass' : m1 && m3 ? 'partial' : 'fail'
+    const status =
+      m1 && m2 && m3 && m4 ? 'pass' : m1 && m3 ? 'partial' : 'fail'
     const tags = STRIPS.map(([n, L]) => `N${n}L${L}`)
 
     return verdict({
       status,
       claim: `husk: the husk's axis photon solves lambda^2 - 12 lambda + 8u = 0 (residual ${quadratic.toExponential(1)} at 17 wave numbers), so it is massless with lambda / u -> 2/3 and light speed sqrt(2 kappa / 3) (${metrics.huskLightSpeedN25L3!.toFixed(4)} per beat at N = 25); strip: with its width closed the plaquette ladder's quantum light has its one-quantum band on the massless classical symbol within ${tags.map(t => metrics[`bandError${t}`]!.toExponential(1)).join(', ')} (N, L = ${STRIPS.map(([n, L]) => `${n}, ${L}`).join('; ')}), the band's chord at the smallest k is ${tags.map(t => metrics[`chordOverSqrtKappa${t}`]!.toFixed(4)).join(', ')} of sqrt(kappa) as the classical chord is, and the zero-momentum sector holds a pair at ${tags.map(t => metrics[`zeroMomentumPairRatio${t}`]!.toFixed(4)).join(', ')} of 2 omega(k_min) instead of a photon, where the open ladder's photon sits at its cutoff; the rule is exact and reversible with the STAND-IN atom (${reverseMismatches} mismatches) and keeps the uniform shift (${shiftMismatches})`,
       metrics,
-      control: { ladderCutoffN25L2: metrics.ladderCutoffN25L2!, ladderCutoffN13L3: metrics.ladderCutoffN13L3! },
+      control: {
+        ladderCutoffN25L2: metrics.ladderCutoffN25L2!,
+        ladderCutoffN13L3: metrics.ladderCutoffN13L3!,
+      },
       notes: `L2 (M3 L1). FIRST RUN 2026-09-26 (tmp/frc0235.log, 569 s), PARTIAL: M1, M3, M4 pass, M2 fails on its first clause through a FLAW IN THE GATE. No gate moved. M1: the one-quantum band sits on the massless classical symbol within 6.6e-14, 7.7e-7, 1.1e-8, 2.0e-4 at (N, L) = (25, 3), (13, 4), (17, 4), (9, 5), overlap with E_k |vac> at least 0.9927 (0.99995 at N >= 13), eigen residuals at most 2.9e-7. M3: the husk's axis photon solves lambda^2 - 12 lambda + 8u = 0 within 2.5e-14 at 17 wave numbers, the two transverse branches degenerate within 4.9e-15, the massive partner at 12 - lambda within 1.2e-14, lambda / u = 0.6666667 at k = 1e-3; three zero eigenvalues at k = 0 (the gauge mode and the two photons, as the gate's count assumed). M4: 0 of 12 reversal mismatches and 0 of 12 uniform-shift mismatches, BigInt exact. M2: the open ladder's photon sits at its cutoff within 1.0e-12 and 2.8e-6 of arccos(1 - kappa) (N = 25 L = 2, N = 13 L = 3), but the gate read the ring's lowest QUASI-energy above the vacuum in q = 0, 0.012 to 0.031 of 2 omega(k_min). DIAGNOSED AFTER THE RUN (tmp/qlit-probe5.ts, disclosed): the q = 0 sector holds 208 and 552 levels spread over the whole circle of quasi-energy, so some high level always folds to within about 0.03 of the vacuum mod 2 pi; the level the gate found has generator energy 12.76 at (25, 3) and 6.47 at (13, 4). Read by generator energy, the lowest zero-momentum excitation IS the pair: quasi-energy 1.000000 and 1.000108 of 2 omega(k_min), overlap with E_k E_-k |vac> 1.000000 and 0.961. So the physics M2 asked for holds, and the gate as written cannot see it: the same folding E-FRC-0230 and 0232 avoided by unwrapping with the invariant energy. HUSK FIRST: the husk light speed is sqrt(2 kappa / 3) (0.2309 at N = 25), the strip's sqrt(kappa) (0.2828); on each strip the quantum chord omega(k_min) / k_min equals the classical chord within 2e-5 relative (0.8355, 0.9123, 0.9094, 0.9479 of sqrt(kappa) at k_min = 2 pi / 3, pi / 2, pi / 2, 2 pi / 5, the lattice's own sublinear factor). The husk's quantum light is NOT run: its speed follows from M3 and the metaplectic theorem that M1 confirms on the strip. BULK: the vacuum's rung-0 column reaches trit depth d with probability 0.742, 0.324, 0.100, 0.021, 0.0031, 0.0003 for d = 1 .. 6 at N = 25. Chords: ${chords.join('; ')}.`,
     })
   },

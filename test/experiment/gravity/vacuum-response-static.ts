@@ -84,7 +84,18 @@ import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { linearFit } from '@/code/measure/regression'
-import { columnAt, columnSeries, differingColumns, lineColumns, lumpStart, READINGS, responseBox, ringsFrom, shellProfile, type ReadingName } from '@/code/measure/vacuum-response'
+import {
+  columnAt,
+  columnSeries,
+  differingColumns,
+  lineColumns,
+  lumpStart,
+  READINGS,
+  responseBox,
+  ringsFrom,
+  shellProfile,
+  type ReadingName,
+} from '@/code/measure/vacuum-response'
 
 const SIDE = 8
 const BEATS = 144
@@ -108,12 +119,26 @@ const RADION_FACTOR = 0.00582
 
 type Profiles = Record<ReadingName, number[]>
 type Fit = { a: number; k: number; residual: number }
-type Fits = { flat: number; inverse: Fit; power: Fit & { p: number }; yukawa: Fit & { l: number } }
+type Fits = {
+  flat: number
+  inverse: Fit
+  power: Fit & { p: number }
+  yukawa: Fit & { l: number }
+}
 
-const mean = (xs: readonly number[][]): number[] => xs[0]!.map((_, r) => xs.reduce((s, x) => s + x[r]!, 0) / xs.length)
-const range = (xs: readonly number[][]): number[] => xs[0]!.map((_, r) => Math.max(...xs.map(x => x[r]!)) - Math.min(...xs.map(x => x[r]!)))
+const mean = (xs: readonly number[][]): number[] =>
+  xs[0]!.map((_, r) => xs.reduce((s, x) => s + x[r]!, 0) / xs.length)
+const range = (xs: readonly number[][]): number[] =>
+  xs[0]!.map(
+    (_, r) =>
+      Math.max(...xs.map(x => x[r]!)) - Math.min(...xs.map(x => x[r]!)),
+  )
 
-function fitOf(rs: readonly number[], ys: readonly number[], f: (r: number) => number): Fit {
+function fitOf(
+  rs: readonly number[],
+  ys: readonly number[],
+  f: (r: number) => number,
+): Fit {
   const g = linearFit({ xs: rs.map(f), ys })
 
   return { a: g.intercept, k: g.slope, residual: g.residual }
@@ -122,21 +147,36 @@ function fitOf(rs: readonly number[], ys: readonly number[], f: (r: number) => n
 function fits(rs: readonly number[], ys: readonly number[]): Fits {
   const m = ys.reduce((s, y) => s + y, 0) / ys.length
   const flat = ys.reduce((s, y) => s + (y - m) ** 2, 0)
-  let power: Fit & { p: number } = { a: 0, k: 0, residual: Infinity, p: 0 }
-  let yukawa: Fit & { l: number } = { a: 0, k: 0, residual: Infinity, l: 0 }
+
+  let power: Fit & { p: number } = {
+    a: 0,
+    k: 0,
+    residual: Infinity,
+    p: 0,
+  }
+  let yukawa: Fit & { l: number } = {
+    a: 0,
+    k: 0,
+    residual: Infinity,
+    l: 0,
+  }
 
   for (let i = 5; i <= 80; i++) {
     const p = i / 20
     const f = fitOf(rs, ys, r => r ** -p)
 
-    if (f.residual < power.residual) power = { ...f, p }
+    if (f.residual < power.residual) {
+      power = { ...f, p }
+    }
   }
 
   for (let i = 1; i <= 64; i++) {
     const l = i / 4
     const f = fitOf(rs, ys, r => Math.exp(-r / l) / r)
 
-    if (f.residual < yukawa.residual) yukawa = { ...f, l }
+    if (f.residual < yukawa.residual) {
+      yukawa = { ...f, l }
+    }
   }
 
   return { flat, inverse: fitOf(rs, ys, r => 1 / r), power, yukawa }
@@ -153,7 +193,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
     const born = { threshold: THRESHOLD_BORN, beats: BEATS, coin: true }
 
@@ -162,14 +205,55 @@ export default experiment({
       withStart(member, () => {
         const box = responseBox(SIDE)
         const rOf = ringsFrom(box, box.center)
-        const profile = (a: ReturnType<typeof columnSeries>, b: ReturnType<typeof columnSeries>, rings = rOf): Profiles => Object.fromEntries(READINGS.map(name => [name, shellProfile(box, rings, a[name], b[name], FROM, BEATS)])) as Profiles
-        const controlOn = columnSeries({ box, start: lumpStart(box, 0, 0).start, mix: true, ...born })
-        const controlOff = columnSeries({ box, start: lumpStart(box, 0, 0).start, mix: false, ...born })
+        const profile = (
+          a: ReturnType<typeof columnSeries>,
+          b: ReturnType<typeof columnSeries>,
+          rings = rOf,
+        ): Profiles =>
+          Object.fromEntries(
+            READINGS.map(name => [
+              name,
+              shellProfile(box, rings, a[name], b[name], FROM, BEATS),
+            ]),
+          ) as Profiles
+        const controlOn = columnSeries({
+          box,
+          start: lumpStart(box, 0, 0).start,
+          mix: true,
+          ...born,
+        })
+        const controlOff = columnSeries({
+          box,
+          start: lumpStart(box, 0, 0).start,
+          mix: false,
+          ...born,
+        })
         const bySize = SIZES.map(size => {
           const love = lumpStart(box, 1, size)
-          const on = profile(columnSeries({ box, start: love.start, mix: true, ...born }), controlOn)
-          const fear = profile(columnSeries({ box, start: lumpStart(box, -1, size).start, mix: true, ...born }), controlOn)
-          const offRun = columnSeries({ box, start: love.start, mix: false, ...born })
+          const on = profile(
+            columnSeries({
+              box,
+              start: love.start,
+              mix: true,
+              ...born,
+            }),
+            controlOn,
+          )
+          const fear = profile(
+            columnSeries({
+              box,
+              start: lumpStart(box, -1, size).start,
+              mix: true,
+              ...born,
+            }),
+            controlOn,
+          )
+          const offRun = columnSeries({
+            box,
+            start: love.start,
+            mix: false,
+            ...born,
+          })
           const lines = lineColumns(box, love.slots)
           const differ = differingColumns(offRun, controlOff, 0, BEATS)
           const offLines = [...differ].filter(c => !lines.has(c)).length
@@ -179,11 +263,29 @@ export default experiment({
               ? PLACES.map(d => {
                   const at = columnAt(box, box.center, d)
 
-                  return profile(columnSeries({ box, start: lumpStart(box, 1, size, at).start, mix: true, ...born }), controlOn, ringsFrom(box, at))
+                  return profile(
+                    columnSeries({
+                      box,
+                      start: lumpStart(box, 1, size, at).start,
+                      mix: true,
+                      ...born,
+                    }),
+                    controlOn,
+                    ringsFrom(box, at),
+                  )
                 })
               : []
 
-          return { size, on, fear, off: profile(offRun, controlOff), offLines, differ: differ.size, lines: lines.size, places }
+          return {
+            size,
+            on,
+            fear,
+            off: profile(offRun, controlOff),
+            offLines,
+            differ: differ.size,
+            lines: lines.size,
+            places,
+          }
         })
 
         log(`start ${member.name}`)
@@ -197,27 +299,80 @@ export default experiment({
     const rs = Array.from({ length: rMax }, (_, i) => i + 1)
     const read = SIZES.map((size, i) => {
       const s = perStart.map(p => p.bySize[i]!)
-      const on = Object.fromEntries(READINGS.map(n => [n, mean(s.map(x => x.on[n]))])) as Profiles
-      const fear = Object.fromEntries(READINGS.map(n => [n, mean(s.map(x => x.fear[n]))])) as Profiles
-      const off = Object.fromEntries(READINGS.map(n => [n, mean(s.map(x => x.off[n]))])) as Profiles
-      const startRange = Object.fromEntries(READINGS.map(n => [n, range(s.map(x => x.on[n]))])) as Profiles
-      const placeRange = Object.fromEntries(READINGS.map(n => [n, range(s[0]!.places.map(x => x[n]))])) as Profiles
-      const sigma = Object.fromEntries(READINGS.map(n => [n, startRange[n].map((v, r) => Math.max(v, placeRange[n][r]!))])) as Profiles
-      const responds = Object.fromEntries(READINGS.map(n => [n, rs.every(r => Math.abs(on[n][r]!) > sigma[n][r]!)])) as Record<ReadingName, boolean>
-      const blind = on.occupied.every((v, r) => Math.abs(v - fear.occupied[r]!) <= sigma.occupied[r]!)
+      const on = Object.fromEntries(
+        READINGS.map(n => [n, mean(s.map(x => x.on[n]))]),
+      ) as Profiles
+      const fear = Object.fromEntries(
+        READINGS.map(n => [n, mean(s.map(x => x.fear[n]))]),
+      ) as Profiles
+      const off = Object.fromEntries(
+        READINGS.map(n => [n, mean(s.map(x => x.off[n]))]),
+      ) as Profiles
+      const startRange = Object.fromEntries(
+        READINGS.map(n => [n, range(s.map(x => x.on[n]))]),
+      ) as Profiles
+      const placeRange = Object.fromEntries(
+        READINGS.map(n => [n, range(s[0]!.places.map(x => x[n]))]),
+      ) as Profiles
+      const sigma = Object.fromEntries(
+        READINGS.map(n => [
+          n,
+          startRange[n].map((v, r) => Math.max(v, placeRange[n][r]!)),
+        ]),
+      ) as Profiles
+      const responds = Object.fromEntries(
+        READINGS.map(n => [
+          n,
+          rs.every(r => Math.abs(on[n][r]!) > sigma[n][r]!),
+        ]),
+      ) as Record<ReadingName, boolean>
+      const blind = on.occupied.every(
+        (v, r) => Math.abs(v - fear.occupied[r]!) <= sigma.occupied[r]!,
+      )
       const offLines = Math.max(...s.map(x => x.offLines))
-      const excess = on.occupied.reduce((t, v, r) => t + v * shellSize[r]!, 0)
-      const excessOff = off.occupied.reduce((t, v, r) => t + v * shellSize[r]!, 0)
-      const fit = fits(rs, rs.map(r => on.occupied[r]!))
-      const startDistinct = new Set(s.map(x => JSON.stringify(x.on))).size
+      const excess = on.occupied.reduce(
+        (t, v, r) => t + v * shellSize[r]!,
+        0,
+      )
+      const excessOff = off.occupied.reduce(
+        (t, v, r) => t + v * shellSize[r]!,
+        0,
+      )
+      const fit = fits(
+        rs,
+        rs.map(r => on.occupied[r]!),
+      )
+      const startDistinct = new Set(s.map(x => JSON.stringify(x.on)))
+        .size
 
-      return { size, on, fear, off, startRange, placeRange, sigma, responds, blind, offLines, excess, excessOff, fit, startDistinct, differMax: Math.max(...s.map(x => x.differ)), linesMax: Math.max(...s.map(x => x.lines)) }
+      return {
+        size,
+        on,
+        fear,
+        off,
+        startRange,
+        placeRange,
+        sigma,
+        responds,
+        blind,
+        offLines,
+        excess,
+        excessOff,
+        fit,
+        startDistinct,
+        differMax: Math.max(...s.map(x => x.differ)),
+        linesMax: Math.max(...s.map(x => x.lines)),
+      }
     })
 
     const big = read.find(x => x.size === FIT_SIZE)!
     const p1 = read.every(x => x.responds.occupied)
     const f = big.fit
-    const p2 = f.inverse.k > 0 && f.inverse.residual <= 0.5 * f.flat && f.inverse.residual <= 2 * Math.min(f.power.residual, f.yukawa.residual)
+    const p2 =
+      f.inverse.k > 0 &&
+      f.inverse.residual <= 0.5 * f.flat &&
+      f.inverse.residual <=
+        2 * Math.min(f.power.residual, f.yukawa.residual)
     const p3 = read.every(x => x.blind)
     const p4 = read.every(x => x.offLines === 0)
     const status = !p1 || !p2 ? 'fail' : p3 && p4 ? 'pass' : 'partial'
@@ -226,12 +381,27 @@ export default experiment({
       const perContent = x.fit.inverse.k / x.size
       const ratio = perContent / RADION_K
 
-      return { size: x.size, perContent, ratio, factor: RADION_FACTOR * ratio }
+      return {
+        size: x.size,
+        perContent,
+        ratio,
+        factor: RADION_FACTOR * ratio,
+      }
     })
 
     const g4 = (x: number): string => x.toPrecision(4)
-    const prof = (xs: readonly number[]): string => xs.map(x => x.toFixed(4)).join(', ')
-    const metrics: Record<string, number> = { gate_P1: p1 ? 1 : 0, gate_P2: p2 ? 1 : 0, gate_P3: p3 ? 1 : 0, gate_P4: p4 ? 1 : 0, starts: family.length, placements: PLACES.length, side: SIDE, beats: BEATS }
+    const prof = (xs: readonly number[]): string =>
+      xs.map(x => x.toFixed(4)).join(', ')
+    const metrics: Record<string, number> = {
+      gate_P1: p1 ? 1 : 0,
+      gate_P2: p2 ? 1 : 0,
+      gate_P3: p3 ? 1 : 0,
+      gate_P4: p4 ? 1 : 0,
+      starts: family.length,
+      placements: PLACES.length,
+      side: SIDE,
+      beats: BEATS,
+    }
 
     for (const x of read) {
       for (const n of READINGS) {
@@ -240,9 +410,15 @@ export default experiment({
       }
 
       metrics[`sigmaMax_${x.size}`] = Math.max(...x.sigma.occupied)
-      metrics[`startRangeMax_${x.size}`] = Math.max(...READINGS.flatMap(n => x.startRange[n]))
+      metrics[`startRangeMax_${x.size}`] = Math.max(
+        ...READINGS.flatMap(n => x.startRange[n]),
+      )
       metrics[`startDistinct_${x.size}`] = x.startDistinct
-      metrics[`loveFearMax_${x.size}`] = Math.max(...x.on.occupied.map((v, r) => Math.abs(v - x.fear.occupied[r]!)))
+      metrics[`loveFearMax_${x.size}`] = Math.max(
+        ...x.on.occupied.map((v, r) =>
+          Math.abs(v - x.fear.occupied[r]!),
+        ),
+      )
       metrics[`offLines_${x.size}`] = x.offLines
       metrics[`excess_${x.size}`] = x.excess
       metrics[`excessOff_${x.size}`] = x.excessOff
@@ -266,7 +442,22 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `a lump in the working vacuum with G (side 8, Born path, 144 beats, read over beats 48 .. 143): reading (a) occupied responds beyond the spread at r = 1 .. ${rMax} for contents ${read.filter(x => x.responds.occupied).map(x => x.size).join(', ') || 'none'} (${SIZES.join(', ')}); (b) events ${read.filter(x => x.responds.events).map(x => x.size).join(', ') || 'none'}; (c) open ${read.filter(x => x.responds.open).map(x => x.size).join(', ') || 'none'}; the content-24 profile of (a) at r = 0 .. ${rMax} is ${prof(big.on.occupied)}, box-wide excess ${read.map(x => `${x.excess.toFixed(0)} (content ${x.size})`).join(', ')}; a + k/r gives k = ${g4(f.inverse.k)} with residual ${g4(f.inverse.residual)} against flat ${g4(f.flat)}, power (p ${f.power.p}) ${g4(f.power.residual)}, Yukawa (l ${f.yukawa.l}) ${g4(f.yukawa.residual)}: ${p2 ? 'a 1/r profile' : 'no 1/r profile'}; love and fear differ by at most ${g4(Math.max(...read.map(x => metrics[`loveFearMax_${x.size}`]!)))} against sigma: charge-blind ${p3}; with G off the lump changes ${read.map(x => `${x.differMax} columns (${x.offLines} off its lines, content ${x.size})`).join(', ')}; implied depth per unit content k / M = ${coupling.map(c => `${g4(c.perContent)} (content ${c.size})`).join(', ')}, ${coupling.map(c => g4(c.ratio)).join(', ')} times the radion's 1 / (24 pi), a light-bending factor ${coupling.map(c => g4(c.factor)).join(', ')} against 1 (Newton) and 2 (general relativity)`,
+      claim: `a lump in the working vacuum with G (side 8, Born path, 144 beats, read over beats 48 .. 143): reading (a) occupied responds beyond the spread at r = 1 .. ${rMax} for contents ${
+        read
+          .filter(x => x.responds.occupied)
+          .map(x => x.size)
+          .join(', ') || 'none'
+      } (${SIZES.join(', ')}); (b) events ${
+        read
+          .filter(x => x.responds.events)
+          .map(x => x.size)
+          .join(', ') || 'none'
+      }; (c) open ${
+        read
+          .filter(x => x.responds.open)
+          .map(x => x.size)
+          .join(', ') || 'none'
+      }; the content-24 profile of (a) at r = 0 .. ${rMax} is ${prof(big.on.occupied)}, box-wide excess ${read.map(x => `${x.excess.toFixed(0)} (content ${x.size})`).join(', ')}; a + k/r gives k = ${g4(f.inverse.k)} with residual ${g4(f.inverse.residual)} against flat ${g4(f.flat)}, power (p ${f.power.p}) ${g4(f.power.residual)}, Yukawa (l ${f.yukawa.l}) ${g4(f.yukawa.residual)}: ${p2 ? 'a 1/r profile' : 'no 1/r profile'}; love and fear differ by at most ${g4(Math.max(...read.map(x => metrics[`loveFearMax_${x.size}`]!)))} against sigma: charge-blind ${p3}; with G off the lump changes ${read.map(x => `${x.differMax} columns (${x.offLines} off its lines, content ${x.size})`).join(', ')}; implied depth per unit content k / M = ${coupling.map(c => `${g4(c.perContent)} (content ${c.size})`).join(', ')}, ${coupling.map(c => g4(c.ratio)).join(', ')} times the radion's 1 / (24 pi), a light-bending factor ${coupling.map(c => g4(c.factor)).join(', ')} against 1 (Newton) and 2 (general relativity)`,
       metrics,
       control: {
         offLinesMax: Math.max(...read.map(x => x.offLines)),
@@ -277,7 +468,9 @@ export default experiment({
           x =>
             `CONTENT ${x.size}: ${READINGS.map(n => `${n} G on [${prof(x.on[n])}] fear [${prof(x.fear[n])}] G off [${prof(x.off[n])}] sigma [${prof(x.sigma[n])}] (starts [${prof(x.startRange[n])}], placements [${prof(x.placeRange[n])}])`).join('; ')}; distinct start profiles ${x.startDistinct}; 1/r fit a ${g4(x.fit.inverse.a)} k ${g4(x.fit.inverse.k)} residual ${g4(x.fit.inverse.residual)}, flat ${g4(x.fit.flat)}, power p ${x.fit.power.p} ${g4(x.fit.power.residual)}, Yukawa l ${x.fit.yukawa.l} ${g4(x.fit.yukawa.residual)}; G off: differing columns up to ${x.differMax}, line columns up to ${x.linesMax}, off lines up to ${x.offLines}, box excess ${x.excessOff.toFixed(1)}`,
         )
-        .join('. ')}. Radion reference: depth per content 1 / (24 pi) = ${g4(RADION_K)}, factor ${RADION_FACTOR} at b = a. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .join(
+          '. ',
+        )}. Radion reference: depth per content 1 / (24 pi) = ${g4(RADION_K)}, factor ${RADION_FACTOR} at b = a. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

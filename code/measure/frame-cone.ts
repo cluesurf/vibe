@@ -28,7 +28,10 @@
 // takes each slot's value one dock along.
 
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import { FRAME_SLOTS, coinBranch } from '@/code/rule/coined-locked-knit'
 import { fermionMixBranch } from '@/code/measure/pauli-mixer'
 import type { Branch } from '@/code/rule/doublet-locked-knit'
@@ -39,12 +42,19 @@ const ROOTS = rootsD4()
 export type Eis = [bigint, bigint]
 
 const eAdd = (x: Eis, y: Eis): Eis => [x[0] + y[0], x[1] + y[1]]
-const eMul = (x: Eis, y: Eis): Eis => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0] - x[1] * y[1]]
-export const eNorm = (x: Eis): bigint => x[0] * x[0] - x[0] * x[1] + x[1] * x[1]
+const eMul = (x: Eis, y: Eis): Eis => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0] - x[1] * y[1],
+]
+
+export const eNorm = (x: Eis): bigint =>
+  x[0] * x[0] - x[0] * x[1] + x[1] * x[1]
+
 const isZero = (x: Eis): boolean => x[0] === 0n && x[1] === 0n
 
 // the roots of frame f's slots, in frame-slot order (q = 2 a + side)
-export const frameRoots = (f: number): number[][] => (FRAME_SLOTS[f] as readonly number[]).map(d => [...(ROOTS[d] as number[])])
+export const frameRoots = (f: number): number[][] =>
+  FRAME_SLOTS[f]!.map(d => [...ROOTS[d]!])
 
 // ---- the rule's own dock matrix ----
 
@@ -52,30 +62,53 @@ export const frameRoots = (f: number): number[][] => (FRAME_SLOTS[f] as readonly
 // lone vibe (an otherwise empty dock) or a lone hole (an otherwise full love dock), read from fermionMixBranch and
 // coinBranch. On one dock the other frames and lines are full or empty, so their phases are read in too
 export function ruleFrameMatrix(f: number, hole: boolean): Eis[][] {
-  const ss = FRAME_SLOTS[f] as readonly number[]
-  const P: Eis[][] = Array.from({ length: 8 }, () => Array.from({ length: 8 }, (): Eis => [0n, 0n]))
+  const ss = FRAME_SLOTS[f]!
+  const P: Eis[][] = Array.from({ length: 8 }, () =>
+    Array.from({ length: 8 }, (): Eis => [0n, 0n]),
+  )
 
   for (let q = 0; q < 8; q++) {
-    const br: Branch = { vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12), a: 1n, b: 0n, k: 0 }
+    const br: Branch = {
+      vibe: new Int8Array(24),
+      point: new Int8Array(24),
+      open: new Uint8Array(24),
+      store: new Int8Array(12),
+      spoint: new Int8Array(12),
+      sopen: new Uint8Array(12),
+      a: 1n,
+      b: 0n,
+      k: 0,
+    }
 
     if (hole) {
       br.vibe.fill(1)
       br.open.fill(1)
     }
 
-    br.vibe[ss[q] as number] = hole ? 0 : 1
-    br.open[ss[q] as number] = hole ? 0 : 1
+    br.vibe[ss[q]!] = hole ? 0 : 1
+    br.open[ss[q]!] = hole ? 0 : 1
 
-    for (const o of fermionMixBranch(1, br, false).flatMap(b => coinBranch(1, b, false))) {
-      const at = [0, 1, 2, 3, 4, 5, 6, 7].filter(r => (o.vibe[ss[r] as number] !== 0) !== hole)
+    for (const o of fermionMixBranch(1, br, false).flatMap(b =>
+      coinBranch(1, b, false),
+    )) {
+      const at = [0, 1, 2, 3, 4, 5, 6, 7].filter(
+        r => (o.vibe[ss[r]!] !== 0) !== hole,
+      )
 
-      if (at.length !== 1) throw new Error(`frame-cone: a branch left the one-excitation sector (${at.length} excitations)`)
-      if (o.k > 4) throw new Error(`frame-cone: a branch over 2^${o.k}, not 16`)
+      if (at.length !== 1) {
+        throw new Error(
+          `frame-cone: a branch left the one-excitation sector (${at.length} excitations)`,
+        )
+      }
+
+      if (o.k > 4) {
+        throw new Error(`frame-cone: a branch over 2^${o.k}, not 16`)
+      }
 
       const scale = 1n << BigInt(4 - o.k)
-      const r = at[0] as number
+      const r = at[0]!
 
-      P[r]![q] = eAdd(P[r]![q] as Eis, [o.a * scale, o.b * scale])
+      P[r]![q] = eAdd(P[r]![q]!, [o.a * scale, o.b * scale])
     }
   }
 
@@ -87,13 +120,20 @@ export function ruleFrameMatrix(f: number, hole: boolean): Eis[][] {
 export type CMatrix = { re: Float64Array; im: Float64Array }
 
 // C_n M_theta (a vibe) or Z conj(C_n M_theta) Z (a hole), row-major, P[to * 8 + from]
-export function frameMatrix(theta: number, n: number, hole: boolean): CMatrix {
+export function frameMatrix(
+  theta: number,
+  n: number,
+  hole: boolean,
+): CMatrix {
   const N = 8
   const er = (Math.cos(theta) - 1) / 8
   const ei = Math.sin(theta) / 8
-  const z = [Math.cos((2 * Math.PI) / (3 * n)), Math.sin((2 * Math.PI) / (3 * n))]
-  const keep = [(1 + (z[0] as number)) / 2, (z[1] as number) / 2]
-  const cross = [(1 - (z[0] as number)) / 2, -(z[1] as number) / 2]
+  const z = [
+    Math.cos((2 * Math.PI) / (3 * n)),
+    Math.sin((2 * Math.PI) / (3 * n)),
+  ]
+  const keep = [(1 + z[0]!) / 2, z[1]! / 2]
+  const cross = [(1 - z[0]!) / 2, -z[1]! / 2]
   const re = new Float64Array(N * N)
   const im = new Float64Array(N * N)
 
@@ -102,8 +142,17 @@ export function frameMatrix(theta: number, n: number, hole: boolean): CMatrix {
       // (C M)[r][q] = keep M[r][q] + cross M[r ^ 1][q]
       const m0 = [(r === q ? 1 : 0) + er, ei]
       const m1 = [((r ^ 1) === q ? 1 : 0) + er, ei]
-      let a = (keep[0] as number) * (m0[0] as number) - (keep[1] as number) * (m0[1] as number) + (cross[0] as number) * (m1[0] as number) - (cross[1] as number) * (m1[1] as number)
-      let b = (keep[0] as number) * (m0[1] as number) + (keep[1] as number) * (m0[0] as number) + (cross[0] as number) * (m1[1] as number) + (cross[1] as number) * (m1[0] as number)
+
+      let a =
+        keep[0]! * m0[0]! -
+        keep[1]! * m0[1]! +
+        cross[0]! * m1[0]! -
+        cross[1]! * m1[1]!
+      let b =
+        keep[0]! * m0[1]! +
+        keep[1]! * m0[0]! +
+        cross[0]! * m1[1]! +
+        cross[1]! * m1[0]!
 
       if (hole) {
         const sign = (r & 1) === (q & 1) ? 1 : -1
@@ -124,15 +173,19 @@ export function frameMatrix(theta: number, n: number, hole: boolean): CMatrix {
 export function matrixGap(exact: Eis[][], m: CMatrix): number {
   const wr = -0.5
   const wi = Math.sqrt(3) / 2
+
   let gap = 0
 
   for (let r = 0; r < 8; r++) {
     for (let q = 0; q < 8; q++) {
-      const [a, b] = (exact[r] as Eis[])[q] as Eis
+      const [a, b] = exact[r]![q]!
       const x = (Number(a) + Number(b) * wr) / 16
       const y = (Number(b) * wi) / 16
 
-      gap = Math.max(gap, Math.hypot(x - (m.re[r * 8 + q] as number), y - (m.im[r * 8 + q] as number)))
+      gap = Math.max(
+        gap,
+        Math.hypot(x - m.re[r * 8 + q]!, y - m.im[r * 8 + q]!),
+      )
     }
   }
 
@@ -145,8 +198,15 @@ export type Site = { v: number[]; amp: Eis[] }
 
 // the exact amplitude of the lone excitation on the frame lattice, U = S P, from one slot at the origin; numerators
 // over 16^t. `each` sees the sites after beat t (1-based)
-export function exactWalk(P: Eis[][], roots: readonly (readonly number[])[], startSlot: number, beats: number, each: (t: number, sites: Map<string, Site>) => void): void {
+export function exactWalk(
+  P: Eis[][],
+  roots: readonly (readonly number[])[],
+  startSlot: number,
+  beats: number,
+  each: (t: number, sites: Map<string, Site>) => void,
+): void {
   let sites = new Map<string, Site>()
+
   const origin: Eis[] = Array.from({ length: 8 }, (): Eis => [0n, 0n])
 
   origin[startSlot] = [1n, 0n]
@@ -160,37 +220,68 @@ export function exactWalk(P: Eis[][], roots: readonly (readonly number[])[], sta
         let x: Eis = [0n, 0n]
 
         for (let q = 0; q < 8; q++) {
-          const a = s.amp[q] as Eis
+          const a = s.amp[q]!
 
-          if (!isZero(a)) x = eAdd(x, eMul((P[r] as Eis[])[q] as Eis, a))
+          if (!isZero(a)) {
+            x = eAdd(x, eMul(P[r]![q]!, a))
+          }
         }
 
-        if (isZero(x)) continue
+        if (isZero(x)) {
+          continue
+        }
 
-        const v = s.v.map((c, k) => c + ((roots[r] as readonly number[])[k] as number))
+        const v = s.v.map((c, k) => c + roots[r]![k]!)
         const key = v.join(',')
+
         let site = next.get(key)
 
         if (!site) {
-          site = { v, amp: Array.from({ length: 8 }, (): Eis => [0n, 0n]) }
+          site = {
+            v,
+            amp: Array.from({ length: 8 }, (): Eis => [0n, 0n]),
+          }
           next.set(key, site)
         }
 
-        site.amp[r] = eAdd(site.amp[r] as Eis, x)
+        site.amp[r] = eAdd(site.amp[r]!, x)
       }
     }
 
-    for (const [k, s] of next) if (s.amp.every(isZero)) next.delete(k)
+    for (const [k, s] of next) {
+      if (s.amp.every(isZero)) {
+        next.delete(k)
+      }
+    }
+
     sites = next
     each(t, sites)
   }
 }
 
 // the float walk (any theta, n); a component counts as reached when its weight is above `floor` times the start's
-export function floatWalk(P: CMatrix, roots: readonly (readonly number[])[], startSlot: number, beats: number, each: (t: number, sites: Map<string, { v: number[]; re: Float64Array; im: Float64Array }>) => void): void {
+export function floatWalk(
+  P: CMatrix,
+  roots: readonly (readonly number[])[],
+  startSlot: number,
+  beats: number,
+  each: (
+    t: number,
+    sites: Map<
+      string,
+      { v: number[]; re: Float64Array; im: Float64Array }
+    >,
+  ) => void,
+): void {
   type F = { v: number[]; re: Float64Array; im: Float64Array }
+
   let sites = new Map<string, F>()
-  const o: F = { v: [0, 0, 0, 0], re: new Float64Array(8), im: new Float64Array(8) }
+
+  const o: F = {
+    v: [0, 0, 0, 0],
+    re: new Float64Array(8),
+    im: new Float64Array(8),
+  }
 
   o.re[startSlot] = 1
   sites.set('0,0,0,0', o)
@@ -204,17 +295,20 @@ export function floatWalk(P: CMatrix, roots: readonly (readonly number[])[], sta
         let xi = 0
 
         for (let q = 0; q < 8; q++) {
-          const pr = P.re[r * 8 + q] as number
-          const pi = P.im[r * 8 + q] as number
+          const pr = P.re[r * 8 + q]!
+          const pi = P.im[r * 8 + q]!
 
-          xr += pr * (s.re[q] as number) - pi * (s.im[q] as number)
-          xi += pr * (s.im[q] as number) + pi * (s.re[q] as number)
+          xr += pr * s.re[q]! - pi * s.im[q]!
+          xi += pr * s.im[q]! + pi * s.re[q]!
         }
 
-        if (xr === 0 && xi === 0) continue
+        if (xr === 0 && xi === 0) {
+          continue
+        }
 
-        const v = s.v.map((c, k) => c + ((roots[r] as readonly number[])[k] as number))
+        const v = s.v.map((c, k) => c + roots[r]![k]!)
         const key = v.join(',')
+
         let site = next.get(key)
 
         if (!site) {
@@ -233,28 +327,41 @@ export function floatWalk(P: CMatrix, roots: readonly (readonly number[])[], sta
 }
 
 // the D4 graph distance of a lattice vector in dock steps (every root one step): max(|v|_inf, |v|_1 / 2)
-export const d4Steps = (v: readonly number[]): number => Math.max(...v.map(Math.abs), v.reduce((s, x) => s + Math.abs(x), 0) / 2)
+export const d4Steps = (v: readonly number[]): number =>
+  Math.max(
+    ...v.map(Math.abs),
+    v.reduce((s, x) => s + Math.abs(x), 0) / 2,
+  )
 
 // the cone's bound along a unit direction, over c: max_q (r_q . u) / |r|
-export const coneBound = (roots: readonly (readonly number[])[], u: readonly number[]): number => Math.max(...roots.map(r => r.reduce((s, x, k) => s + x * (u[k] as number), 0))) / Math.SQRT2
+export const coneBound = (
+  roots: readonly (readonly number[])[],
+  u: readonly number[],
+): number =>
+  Math.max(...roots.map(r => r.reduce((s, x, k) => s + x * u[k]!, 0))) /
+  Math.SQRT2
 
 // ---- the band and its group velocities ----
 
 export type BandPoint = { phase: number[]; velocity: number[][] }
 
 // the eigenphases of U(K) = S(K) P and each eigenvector's group velocity dE/dK = sum_q |psi_q|^2 r_q (Hellmann-Feynman)
-export function bandPoint(P: CMatrix, roots: readonly (readonly number[])[], K: readonly number[]): BandPoint {
+export function bandPoint(
+  P: CMatrix,
+  roots: readonly (readonly number[])[],
+  K: readonly number[],
+): BandPoint {
   const re = new Float64Array(64)
   const im = new Float64Array(64)
 
   for (let r = 0; r < 8; r++) {
-    const ph = -(roots[r] as readonly number[]).reduce((s, x, k) => s + x * (K[k] as number), 0)
+    const ph = -roots[r]!.reduce((s, x, k) => s + x * K[k]!, 0)
     const c = Math.cos(ph)
     const s = Math.sin(ph)
 
     for (let q = 0; q < 8; q++) {
-      const a = P.re[r * 8 + q] as number
-      const b = P.im[r * 8 + q] as number
+      const a = P.re[r * 8 + q]!
+      const b = P.im[r * 8 + q]!
 
       re[r * 8 + q] = c * a - s * b
       im[r * 8 + q] = c * b + s * a
@@ -266,14 +373,16 @@ export function bandPoint(P: CMatrix, roots: readonly (readonly number[])[], K: 
   const velocity: number[][] = []
 
   e.re.forEach((x, i) => {
-    const y = e.im[i] as number
+    const y = e.im[i]!
     const psi = complexEigenvector({ re, im, n: 8, value: [x, y] })
     const v = [0, 0, 0, 0]
 
     for (let q = 0; q < 8; q++) {
-      const w = (psi.re[q] as number) ** 2 + (psi.im[q] as number) ** 2
+      const w = psi.re[q]! ** 2 + psi.im[q]! ** 2
 
-      for (let k = 0; k < 4; k++) v[k]! += w * ((roots[q] as readonly number[])[k] as number)
+      for (let k = 0; k < 4; k++) {
+        v[k]! += w * roots[q]![k]!
+      }
     }
 
     phase.push(Math.atan2(y, x))
@@ -284,29 +393,51 @@ export function bandPoint(P: CMatrix, roots: readonly (readonly number[])[], K: 
 }
 
 // the frame lattice's momentum from its line phases k_a = K . r_a (the four first-slot roots, orthogonal, |r|^2 = 2)
-export const momentumOf = (roots: readonly (readonly number[])[], k: readonly number[]): number[] =>
-  [0, 1, 2, 3].map(j => [0, 1, 2, 3].reduce((s, a) => s + ((k[a] as number) * ((roots[2 * a] as readonly number[])[j] as number)) / 2, 0))
+export const momentumOf = (
+  roots: readonly (readonly number[])[],
+  k: readonly number[],
+): number[] =>
+  [0, 1, 2, 3].map(j =>
+    [0, 1, 2, 3].reduce(
+      (s, a) => s + (k[a]! * roots[2 * a]![j]!) / 2,
+      0,
+    ),
+  )
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // THE TOP GROUP SPEED along each unit direction, over c: max over K and bands of u . v / sqrt 2. A G^4 grid of line
 // phases (offset half a step, off the degenerate points), then coordinate ascent from the best grid point per direction,
 // the step halved down to `finest`
-export function topSpeeds(P: CMatrix, roots: readonly (readonly number[])[], directions: readonly (readonly number[])[], G: number, finest = 1e-4): { speed: number[]; at: number[][] } {
+export function topSpeeds(
+  P: CMatrix,
+  roots: readonly (readonly number[])[],
+  directions: readonly (readonly number[])[],
+  G: number,
+  finest = 1e-4,
+): { speed: number[]; at: number[][] } {
   const best = directions.map(() => ({ s: -Infinity, k: [0, 0, 0, 0] }))
   const h = (2 * Math.PI) / G
+
   const along = (k: number[]): number[] => {
     const b = bandPoint(P, roots, momentumOf(roots, k))
 
-    return directions.map(u => Math.max(...b.velocity.map(v => dot(u, v))) / Math.SQRT2)
+    return directions.map(
+      u => Math.max(...b.velocity.map(v => dot(u, v))) / Math.SQRT2,
+    )
   }
 
   for (let i = 0; i < G ** 4; i++) {
-    const k = [0, 1, 2, 3].map(a => -Math.PI + ((Math.floor(i / G ** a) % G) + 0.5) * h)
+    const k = [0, 1, 2, 3].map(
+      a => -Math.PI + ((Math.floor(i / G ** a) % G) + 0.5) * h,
+    )
     const s = along(k)
 
     s.forEach((x, d) => {
-      if (x > (best[d] as { s: number }).s) best[d] = { s: x, k }
+      if (x > (best[d] as { s: number }).s) {
+        best[d] = { s: x, k }
+      }
     })
   }
 
@@ -322,7 +453,7 @@ export function topSpeeds(P: CMatrix, roots: readonly (readonly number[])[], dir
 
           k[a]! += sgn * step
 
-          const x = (along(k)[d] as number)
+          const x = along(k)[d]!
 
           if (x > b.s) {
             b.s = x
@@ -332,7 +463,9 @@ export function topSpeeds(P: CMatrix, roots: readonly (readonly number[])[], dir
         }
       }
 
-      if (!moved) step /= 2
+      if (!moved) {
+        step /= 2
+      }
     }
   })
 
@@ -341,19 +474,40 @@ export function topSpeeds(P: CMatrix, roots: readonly (readonly number[])[], dir
 
 // the group velocity by a central difference of the eigenphases along u at K, matched to each Hellmann-Feynman band by
 // its phase: the largest gap between the two readings of u . v (a second method for bandPoint)
-export function velocityCheck(P: CMatrix, roots: readonly (readonly number[])[], K: readonly number[], u: readonly number[], h = 1e-5): number {
+export function velocityCheck(
+  P: CMatrix,
+  roots: readonly (readonly number[])[],
+  K: readonly number[],
+  u: readonly number[],
+  h = 1e-5,
+): number {
   const b = bandPoint(P, roots, K)
-  const plus = bandPoint(P, roots, K.map((x, k) => x + h * (u[k] as number))).phase
-  const minus = bandPoint(P, roots, K.map((x, k) => x - h * (u[k] as number))).phase
-  const wrap = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
+  const plus = bandPoint(
+    P,
+    roots,
+    K.map((x, k) => x + h * u[k]!),
+  ).phase
+  const minus = bandPoint(
+    P,
+    roots,
+    K.map((x, k) => x - h * u[k]!),
+  ).phase
+  const wrap = (x: number): number =>
+    Math.atan2(Math.sin(x), Math.cos(x))
+
   let gap = 0
 
   b.phase.forEach((p, i) => {
-    const near = (list: number[]): number => list.reduce((m, x) => (Math.abs(wrap(x - p)) < Math.abs(wrap(m - p)) ? x : m), list[0] as number)
+    const near = (list: number[]): number =>
+      list.reduce(
+        (m, x) =>
+          Math.abs(wrap(x - p)) < Math.abs(wrap(m - p)) ? x : m,
+        list[0]!,
+      )
     // E = -phase
     const fd = -wrap(near(plus) - near(minus)) / (2 * h)
 
-    gap = Math.max(gap, Math.abs(fd - dot(u, b.velocity[i] as number[])))
+    gap = Math.max(gap, Math.abs(fd - dot(u, b.velocity[i]!)))
   })
 
   return gap

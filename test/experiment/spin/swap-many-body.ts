@@ -155,18 +155,58 @@ import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
-import { placeInSea, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  placeInSea,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { bandAt, dockMatrix, DOCK_ROOTS, eigenphases, exactDockWalk, velocityGap, wrap, type CMatrix, type EisB } from '@/code/measure/dock-mixer'
-import { fastestBand, singletKinematics, singletLevel, weylMomenta } from '@/code/measure/singlet-kinematics'
+import {
+  bandAt,
+  dockMatrix,
+  DOCK_ROOTS,
+  eigenphases,
+  exactDockWalk,
+  velocityGap,
+  wrap,
+  type CMatrix,
+  type EisB,
+} from '@/code/measure/dock-mixer'
+import {
+  fastestBand,
+  singletKinematics,
+  singletLevel,
+  weylMomenta,
+} from '@/code/measure/singlet-kinematics'
 import { ringAngle } from '@/code/measure/swap-cone'
 import { slideTied } from '@/code/measure/slide-speed'
 import { primeBelow } from '@/code/algebra/linear/modular-linear'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates, d4Vector } from '@/code/substrate/d4-box-integer'
-import { lockedState, sameConfiguration, type Branch, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { ringScale, swapMixedBeat, swapMixedBeatBack, SWAP_ANGLE } from '@/code/rule/swap-mixer'
-import { BOUNCE_TABLE, bouncePermutation } from '@/code/rule/bounce-pair-knit'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box-integer'
+import {
+  lockedState,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  ringScale,
+  swapMixedBeat,
+  swapMixedBeatBack,
+  SWAP_ANGLE,
+} from '@/code/rule/swap-mixer'
+import {
+  BOUNCE_TABLE,
+  bouncePermutation,
+} from '@/code/rule/bounce-pair-knit'
 import {
   blochPeaks,
   compareWithRule,
@@ -211,7 +251,12 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const FOUR: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
+const FOUR: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
 const NINE: readonly { name: string; u: number[] }[] = [
   { name: 'e1', u: [1, 0, 0, 0] },
   { name: 'e4', u: [0, 0, 0, 1] },
@@ -254,55 +299,93 @@ const C3_WINDOW = 0.3
 const C3_FLOOR = 1e-3
 const WEYL_FLAT = 2048
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 const flag = (b: boolean): number => (b ? 1 : 0)
 
 // the charge register per slot (hole 1, fear 4) and per store (2) of a whole configuration
 function chargeRegister(c: Configuration): number {
   let r = 0
 
-  for (let i = 0; i < c.vibe.length; i++) r += c.vibe[i] === 0 ? 1 : (c.vibe[i] as number) < 0 ? 4 : 0
-  for (let i = 0; i < c.store.length; i++) if (c.store[i] !== 0) r += 2
+  for (let i = 0; i < c.vibe.length; i++) {
+    r += c.vibe[i] === 0 ? 1 : c.vibe[i]! < 0 ? 4 : 0
+  }
+
+  for (let i = 0; i < c.store.length; i++) {
+    if (c.store[i] !== 0) {
+      r += 2
+    }
+  }
 
   return r
 }
 
-const dockRegister = (d: DockState, kind: 'occupation' | 'charge'): number => {
+const dockRegister = (
+  d: DockState,
+  kind: 'occupation' | 'charge',
+): number => {
   let r = 0
 
-  for (let i = 0; i < 24; i++) r += d.vibe[i] === 0 ? 1 : kind === 'charge' && (d.vibe[i] as number) < 0 ? 4 : 0
-  for (let i = 0; i < 12; i++) if (d.store[i] !== 0) r += 2
+  for (let i = 0; i < 24; i++) {
+    r +=
+      d.vibe[i] === 0 ? 1 : kind === 'charge' && d.vibe[i]! < 0 ? 4 : 0
+  }
+
+  for (let i = 0; i < 12; i++) {
+    if (d.store[i] !== 0) {
+      r += 2
+    }
+  }
 
   return r
 }
 
-type Mark = { d: readonly number[]; slot?: number; vibe?: number; line?: number; store?: number }
+type Mark = {
+  d: readonly number[]
+  slot?: number
+  vibe?: number
+  line?: number
+  store?: number
+}
 
 // a start on the flat box sea and the same start on the infinite lattice (positions x0 + d)
-function boxStart(sea: Configuration, side: number, x0: readonly number[], marks: readonly Mark[]): { rule: Configuration; engine: Config } {
+function boxStart(
+  sea: Configuration,
+  side: number,
+  x0: readonly number[],
+  marks: readonly Mark[],
+): { rule: Configuration; engine: Config } {
   const c = placeInSea(sea, [])
-  const engineMarks = marks.map(m => ({ x: x0.map((v, k) => v + (m.d[k] as number)), slot: m.slot, vibe: m.vibe, line: m.line, store: m.store }))
+  const engineMarks = marks.map(m => ({
+    x: x0.map((v, k) => v + m.d[k]!),
+    slot: m.slot,
+    vibe: m.vibe,
+    line: m.line,
+    store: m.store,
+  }))
   const cfg = markedConfig(engineMarks)
 
   for (const d of cfg.docks) {
     const cell = d4BoxCellOf(d.x, side)
 
     for (let q = 0; q < 24; q++) {
-      c.vibe[cell * 24 + q] = d.s.vibe[q] as number
-      c.point[cell * 24 + q] = d.s.point[q] as number
-      c.open[cell * 24 + q] = d.s.open[q] as number
+      c.vibe[cell * 24 + q] = d.s.vibe[q]!
+      c.point[cell * 24 + q] = d.s.point[q]!
+      c.open[cell * 24 + q] = d.s.open[q]!
     }
+
     for (let l = 0; l < 12; l++) {
-      c.store[cell * 12 + l] = d.s.store[l] as number
-      c.spoint[cell * 12 + l] = d.s.spoint[l] as number
-      c.sopen[cell * 12 + l] = d.s.sopen[l] as number
+      c.store[cell * 12 + l] = d.s.store[l]!
+      c.spoint[cell * 12 + l] = d.s.spoint[l]!
+      c.sopen[cell * 12 + l] = d.s.sopen[l]!
     }
   }
 
   return { rule: c, engine: cfg }
 }
 
-const d4BoxCellOf = (x: readonly number[], side: number): number => d4BoxCell({ coordinates: d4Coordinates(x), side })
+const d4BoxCellOf = (x: readonly number[], side: number): number =>
+  d4BoxCell({ coordinates: d4Coordinates(x), side })
 
 export default experiment({
   id: 'spin/swap-many-body',
@@ -315,49 +398,86 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
-    const rB = ROOTS[B] as readonly number[]
+    const rB = ROOTS[B]!
 
     // ---------------- instrument: the ring and the dock matrices ----------------
     const ring = ringAngle([3n, 1n], 3)
-    const ringOk = ring.numerator[0] === -SWAP_ANGLE.num[0] && ring.numerator[1] === -SWAP_ANGLE.num[1] && ring.den === SWAP_ANGLE.den && ring.normExact
+    const ringOk =
+      ring.numerator[0] === -SWAP_ANGLE.num[0] &&
+      ring.numerator[1] === -SWAP_ANGLE.num[1] &&
+      ring.den === SWAP_ANGLE.den &&
+      ring.normExact
     const thetaStar = Math.PI + ring.delta
     const F = seaFactor()
-    const fOk = F[0] === 24n * SWAP_ANGLE.num[0] && F[1] === 24n * SWAP_ANGLE.num[1]
+    const fOk =
+      F[0] === 24n * SWAP_ANGLE.num[0] &&
+      F[1] === 24n * SWAP_ANGLE.num[1]
     const mc = holeDockExact(0, SWAP_ANGLE, 'mixer-coin')
     const all0 = holeDockExact(0)
     const all1 = holeDockExact(1)
     const b0 = pairDockExact(0)
     const b1 = pairDockExact(1)
-    const sameExact = (x: { entries: [bigint, bigint][][]; k: number }, y: { entries: [bigint, bigint][][]; k: number }): boolean => x.k === y.k && x.entries.every((row, i) => row.every((e, j) => e[0] === (y.entries[i] as [bigint, bigint][])[j]![0] && e[1] === (y.entries[i] as [bigint, bigint][])[j]![1]))
+    const sameExact = (
+      x: { entries: [bigint, bigint][][]; k: number },
+      y: { entries: [bigint, bigint][][]; k: number },
+    ): boolean =>
+      x.k === y.k &&
+      x.entries.every((row, i) =>
+        row.every(
+          (e, j) =>
+            e[0] === y.entries[i]![j]![0] &&
+            e[1] === y.entries[i]![j]![1],
+        ),
+      )
     const parityOk = sameExact(all0, all1) && sameExact(b0, b1)
+
     let w11Off = 0
 
     all0.entries.forEach((row, i) =>
       row.forEach((e, j) => {
-        const m = (mc.entries[i] as [bigint, bigint][])[j] as [bigint, bigint]
+        const m = (mc.entries[i] as [bigint, bigint][])[j]!
         // w^11 = w^2 = -1 - w
         const z: [bigint, bigint] = [-m[0] + m[1], -m[0]]
 
-        if (z[0] * 2n ** BigInt(all0.k) !== e[0] * 2n ** BigInt(mc.k) || z[1] * 2n ** BigInt(all0.k) !== e[1] * 2n ** BigInt(mc.k)) w11Off++
+        if (
+          z[0] * 2n ** BigInt(all0.k) !== e[0] * 2n ** BigInt(mc.k) ||
+          z[1] * 2n ** BigInt(all0.k) !== e[1] * 2n ** BigInt(mc.k)
+        ) {
+          w11Off++
+        }
       }),
     )
 
-    const over = (m: { entries: [bigint, bigint][][]; k: number }, P: CMatrix): number => {
+    const over = (
+      m: { entries: [bigint, bigint][][]; k: number },
+      P: CMatrix,
+    ): number => {
       let gap = 0
+
       const den = 8232 * 2 ** m.k
 
       m.entries.forEach((row, i) =>
         row.forEach((e, j) => {
           const [x, y] = eFloat(e[0], e[1])
 
-          gap = Math.max(gap, Math.hypot(x / den - (P.re[i * 24 + j] as number), y / den - (P.im[i * 24 + j] as number)))
+          gap = Math.max(
+            gap,
+            Math.hypot(
+              x / den - P.re[i * 24 + j]!,
+              y / den - P.im[i * 24 + j]!,
+            ),
+          )
         }),
       )
 
       return gap
     }
+
     const PF = dockMatrix(thetaStar, 2 / 3, true)
     const matrixGap = over(mc, PF)
     const oldCoinGap = over(mc, dockMatrix(thetaStar, 1, true))
@@ -373,21 +493,52 @@ export default experiment({
     const PA: CMatrix = { re: A.re, im: A.im }
     const levelA = singletLevel(PA, DOCK_ROOTS, 12)
     const levelF = singletLevel(PF, DOCK_ROOTS, 12)
-    const kinA = FOUR.map(u => singletKinematics(PA, DOCK_ROOTS, levelA, u, SCALES))
-    const kinF = FOUR.map(u => singletKinematics(PF, DOCK_ROOTS, levelF, u, SCALES))
+    const kinA = FOUR.map(u =>
+      singletKinematics(PA, DOCK_ROOTS, levelA, u, SCALES),
+    )
+    const kinF = FOUR.map(u =>
+      singletKinematics(PF, DOCK_ROOTS, levelF, u, SCALES),
+    )
     const RA = kinA.map(k => (C_STAR * C_STAR) / k.c2)
     const RF = kinF.map(k => (C_STAR * C_STAR) / k.c2)
-    const readGap = Math.max(Math.abs(levelA.m - levelF.m), ...RA.map((r, i) => Math.abs(r - (RF[i] as number))), ...kinA.map((k, i) => Math.abs(Math.sqrt(k.c2) - Math.sqrt((kinF[i] as { c2: number }).c2)) / C))
-    const sizes = levelA.multiplets.map(x => x.size).sort((a, b) => a - b).join('+')
-    const partnerSize = levelA.partner >= 0 ? (levelA.multiplets[levelA.partner] as { size: number }).size : 0
+    const readGap = Math.max(
+      Math.abs(levelA.m - levelF.m),
+      ...RA.map((r, i) => Math.abs(r - RF[i]!)),
+      ...kinA.map(
+        (k, i) =>
+          Math.abs(
+            Math.sqrt(k.c2) - Math.sqrt((kinF[i] as { c2: number }).c2),
+          ) / C,
+      ),
+    )
+    const sizes = levelA.multiplets
+      .map(x => x.size)
+      .sort((a, b) => a - b)
+      .join('+')
+    const partnerSize =
+      levelA.partner >= 0
+        ? (levelA.multiplets[levelA.partner] as { size: number }).size
+        : 0
     const weyl = weylMomenta(1024)
     const radial = FOUR.flatMap(u => RADII.map(r => u.map(x => x * r)))
+
     let third = 0
 
-    for (const K of weyl) third = Math.max(third, bandAt(PA, DOCK_ROOTS, K).velocity.map(v => Math.hypot(...v)).sort((a, b) => b - a)[2] as number)
+    for (const K of weyl) {
+      third = Math.max(
+        third,
+        bandAt(PA, DOCK_ROOTS, K)
+          .velocity.map(v => Math.hypot(...v))
+          .sort((a, b) => b - a)[2]!,
+      )
+    }
 
     const top = fastestBand(PA, DOCK_ROOTS, [...weyl, ...radial]).speed
-    const velGap = Math.max(...FOUR.map(u => velocityGap(PA, DOCK_ROOTS, [0.31, -1.07, 0.73, 2.03], u)))
+    const velGap = Math.max(
+      ...FOUR.map(u =>
+        velocityGap(PA, DOCK_ROOTS, [0.31, -1.07, 0.73, 2.03], u),
+      ),
+    )
 
     log('X1a readings')
 
@@ -396,24 +547,52 @@ export default experiment({
     const box = flatBoxTables(BOX_SIDE)
     const fr = contactFresh(BOX_SIDE, 'pass', X)
     const ref = tablesOn(fr.weave, 'pass', flatLinks(fr.weave))
+
     let tablesDiff = 0
 
-    for (let i = 0; i < ref.target.length; i++) if (ref.target[i] !== box.target[i]) tablesDiff++
-    for (let i = 0; i < ref.move.length; i++) if (ref.move[i] !== box.move[i] || ref.back[i] !== box.back[i]) tablesDiff++
+    for (let i = 0; i < ref.target.length; i++) {
+      if (ref.target[i] !== box.target[i]) {
+        tablesDiff++
+      }
+    }
+
+    for (let i = 0; i < ref.move.length; i++) {
+      if (ref.move[i] !== box.move[i] || ref.back[i] !== box.back[i]) {
+        tablesDiff++
+      }
+    }
 
     const cells = box.cells
     const sea = seaConfiguration(cells, 1)
     const x0 = d4Vector(d4BoxCoordinates({ cell: X, side: BOX_SIDE }))
     const ZERO = [0, 0, 0, 0]
+
     let chargeBranchOff = 0
 
-    const runBox = (marks: readonly Mark[], beats: number): { off: number; aliased: number; branches: number[]; last: LockedState } => {
+    const runBox = (
+      marks: readonly Mark[],
+      beats: number,
+    ): {
+      off: number
+      aliased: number
+      branches: number[]
+      last: LockedState
+    } => {
       const st = boxStart(sea, BOX_SIDE, x0, marks)
+
       let s: LockedState = lockedState(st.rule)
-      let e: ExactSum = new Map([[configKey(st.engine), { c: st.engine, amp: { a: 1n, b: 0n, k: 0 } }]])
+      let e: ExactSum = new Map([
+        [
+          configKey(st.engine),
+          { c: st.engine, amp: { a: 1n, b: 0n, k: 0 } },
+        ],
+      ])
+
       const r0 = chargeRegister(st.rule)
+
       let off = 0
       let aliased = 0
+
       const branches: number[] = []
 
       for (let t = 0; t < beats; t++) {
@@ -425,7 +604,12 @@ export default experiment({
         off += cmp.off
         aliased += cmp.aliased
         branches.push(s.branches.length)
-        for (const br of s.branches) if (chargeRegister(br) !== r0) chargeBranchOff++
+
+        for (const br of s.branches) {
+          if (chargeRegister(br) !== r0) {
+            chargeBranchOff++
+          }
+        }
       }
 
       return { off, aliased, branches, last: s }
@@ -436,9 +620,27 @@ export default experiment({
     log('box hole')
 
     const oneBeat = [
-      { name: 'neighbors', marks: [{ d: ZERO, slot: 0, vibe: 0 }, { d: rB, slot: 6, vibe: 0 }] },
-      { name: 'hole and fear', marks: [{ d: ZERO, slot: B, vibe: 0 }, { d: rB, slot: B, vibe: -1 }] },
-      { name: 'hole and stored pair', marks: [{ d: ZERO, slot: B, vibe: 0 }, { d: rB, line: 3, store: 1 }] },
+      {
+        name: 'neighbors',
+        marks: [
+          { d: ZERO, slot: 0, vibe: 0 },
+          { d: rB, slot: 6, vibe: 0 },
+        ],
+      },
+      {
+        name: 'hole and fear',
+        marks: [
+          { d: ZERO, slot: B, vibe: 0 },
+          { d: rB, slot: B, vibe: -1 },
+        ],
+      },
+      {
+        name: 'hole and stored pair',
+        marks: [
+          { d: ZERO, slot: B, vibe: 0 },
+          { d: rB, line: 3, store: 1 },
+        ],
+      },
     ].map(r => ({ name: r.name, ...runBox(r.marks, 1) }))
     const fearBox = runBox([{ d: rB, slot: B, vibe: -1 }], 2)
 
@@ -448,7 +650,10 @@ export default experiment({
     // different slots)
     const box2 = flatBoxTables(2)
     const sea2 = seaConfiguration(box2.cells, 1)
-    const x02 = d4Vector(d4BoxCoordinates({ cell: centerOf(2), side: 2 }))
+    const x02 = d4Vector(
+      d4BoxCoordinates({ cell: centerOf(2), side: 2 }),
+    )
+
     let contactOff = 0
     let contactChecked = 0
 
@@ -458,30 +663,68 @@ export default experiment({
           { d: ZERO, slot: p, vibe: 0 },
           { d: ZERO, slot: q, vibe: 0 },
         ])
-        const s = swapMixedBeat('none', box2, lockedState(st.rule), beat)
-        const e = exactBeat(new Map([[configKey(st.engine), { c: st.engine, amp: { a: 1n, b: 0n, k: 0 } }]]), beat, box2.cells)
+        const s = swapMixedBeat(
+          'none',
+          box2,
+          lockedState(st.rule),
+          beat,
+        )
+        const e = exactBeat(
+          new Map([
+            [
+              configKey(st.engine),
+              { c: st.engine, amp: { a: 1n, b: 0n, k: 0 } },
+            ],
+          ]),
+          beat,
+          box2.cells,
+        )
         const cmp = compareWithRule(s.branches, e, 2)
 
         contactOff += cmp.off + cmp.aliased
         contactChecked++
-        for (const br of s.branches) if (chargeRegister(br) !== 2) chargeBranchOff++
+
+        for (const br of s.branches) {
+          if (chargeRegister(br) !== 2) {
+            chargeBranchOff++
+          }
+        }
       }
     }
 
     log('contact pairs')
 
     // one beat forward and back
-    const holeStart = boxStart(sea, BOX_SIDE, x0, [{ d: ZERO, slot: B, vibe: 0 }]).rule
-    const back = swapMixedBeatBack('none', box, swapMixedBeat('none', box, lockedState(holeStart), 0), 0)
-    const reverseOk = back.branches.length === 1 && sameConfiguration(back.branches[0] as Branch, holeStart) && (back.branches[0] as Branch).a === ringScale(SWAP_ANGLE) ** BigInt(2 * cells) * (1n << BigInt((back.branches[0] as Branch).k)) && (back.branches[0] as Branch).b === 0n
+    const holeStart = boxStart(sea, BOX_SIDE, x0, [
+      { d: ZERO, slot: B, vibe: 0 },
+    ]).rule
+    const back = swapMixedBeatBack(
+      'none',
+      box,
+      swapMixedBeat('none', box, lockedState(holeStart), 0),
+      0,
+    )
+    const reverseOk =
+      back.branches.length === 1 &&
+      sameConfiguration(back.branches[0]!, holeStart) &&
+      back.branches[0]!.a ===
+        ringScale(SWAP_ANGLE) ** BigInt(2 * cells) *
+          (1n << BigInt(back.branches[0]!.k)) &&
+      back.branches[0]!.b === 0n
 
     log('reverse')
 
     // ---------------- X5a: the hole against a love on the empty mesh ----------------
     const loveRun: LockedState[] = []
-    let sl: LockedState = lockedState(placeInSea(seaConfiguration(cells, 0), [{ dock: X, slot: B, vibe: 1 }]))
+
+    let sl: LockedState = lockedState(
+      placeInSea(seaConfiguration(cells, 0), [
+        { dock: X, slot: B, vibe: 1 },
+      ]),
+    )
     let sh: LockedState = lockedState(holeStart)
     let signOff = 0
+
     const signSlots: number[] = []
 
     for (let t = 0; t < BOX_BEATS; t++) {
@@ -489,18 +732,33 @@ export default experiment({
       sh = swapMixedBeat('none', box, sh, t)
       loveRun.push(sl)
 
-      const field = (s: LockedState, find: (b: Branch) => number): Map<number, bigint> => {
+      const field = (
+        s: LockedState,
+        find: (b: Branch) => number,
+      ): Map<number, bigint> => {
         const m = new Map<number, bigint>()
         const K = Math.max(...s.branches.map(b => b.k))
 
-        for (const b of s.branches) m.set(find(b), (m.get(find(b)) ?? 0n) + eNorm([b.a, b.b]) * (1n << BigInt(2 * (K - b.k))))
+        for (const b of s.branches) {
+          m.set(
+            find(b),
+            (m.get(find(b)) ?? 0n) +
+              eNorm([b.a, b.b]) * (1n << BigInt(2 * (K - b.k))),
+          )
+        }
 
         return m
       }
+
       const fh = field(sh, b => b.vibe.findIndex(v => v === 0))
       const fl = field(sl, b => b.vibe.findIndex(v => v === 1))
 
-      for (const [k, v] of fh) if (fl.get(k) !== v) signOff++
+      for (const [k, v] of fh) {
+        if (fl.get(k) !== v) {
+          signOff++
+        }
+      }
+
       signOff += Math.abs(fh.size - fl.size)
       signSlots.push(fh.size)
     }
@@ -513,23 +771,40 @@ export default experiment({
     const reach: number[] = []
     const normOk: boolean[] = []
 
-    exactDockWalk(all0.entries as EisB[][], DOCK_ROOTS, B, WALK_BEATS, (t, sites) => {
-      let r = 0
-      let total = 0n
+    exactDockWalk(
+      all0.entries as EisB[][],
+      DOCK_ROOTS,
+      B,
+      WALK_BEATS,
+      (t, sites) => {
+        let r = 0
+        let total = 0n
 
-      for (const site of sites.values()) {
-        r = Math.max(r, d4Steps(site.v))
-        for (const a of site.amp) total += eNorm(a)
-      }
+        for (const site of sites.values()) {
+          r = Math.max(r, d4Steps(site.v))
 
-      reach.push(r)
-      normOk.push(total === 8232n ** BigInt(2 * t))
-    })
+          for (const a of site.amp) {
+            total += eNorm(a)
+          }
+        }
 
-    const straight = Math.hypot(...eFloat(...((all0.entries[B] as [bigint, bigint][])[B] as [bigint, bigint]))) / 8232
+        reach.push(r)
+        normOk.push(total === 8232n ** BigInt(2 * t))
+      },
+    )
+
+    const straight =
+      Math.hypot(
+        ...eFloat(...(all0.entries[B] as [bigint, bigint][])[B]!),
+      ) / 8232
     const ball = d4Ball(BALL_BEATS)
-    const o = ball.index.get('0,0,0,0') as number
-    let hs = { re: new Float64Array(ball.points.length * 24), im: new Float64Array(ball.points.length * 24) }
+    const o = ball.index.get('0,0,0,0')!
+
+    let hs = {
+      re: new Float64Array(ball.points.length * 24),
+      im: new Float64Array(ball.points.length * 24),
+    }
+
     const fronts: { t: number; worst: number; per: number[] }[] = []
     const W = new Map<number, number>()
 
@@ -541,21 +816,36 @@ export default experiment({
       const w = ball.points.map((_, i) => {
         let x = 0
 
-        for (let d = 0; d < 24; d++) x += (hs.re[i * 24 + d] as number) ** 2 + (hs.im[i * 24 + d] as number) ** 2
+        for (let d = 0; d < 24; d++) {
+          x += hs.re[i * 24 + d]! ** 2 + hs.im[i * 24 + d]! ** 2
+        }
 
         return x
       })
 
-      W.set(t, ball.points.reduce((a, p, i) => (Math.hypot(...p) > (t + 2) / C + 1e-9 ? a + (w[i] as number) : a), 0))
+      W.set(
+        t,
+        ball.points.reduce(
+          (a, p, i) =>
+            Math.hypot(...p) > (t + 2) / C + 1e-9 ? a + w[i]! : a,
+          0,
+        ),
+      )
 
       if (t % 2 === 0 && t >= 8) {
         const per = NINE.map(({ u }) => {
-          const pr = ball.points.map((p, i) => ({ x: dot(p, u), w: w[i] as number })).sort((a, b) => b.x - a.x)
+          const pr = ball.points
+            .map((p, i) => ({ x: dot(p, u), w: w[i]! }))
+            .sort((a, b) => b.x - a.x)
+
           let acc = 0
 
           for (const q of pr) {
             acc += q.w
-            if (acc >= FRONT_QUANTILE) return q.x / t / C
+
+            if (acc >= FRONT_QUANTILE) {
+              return q.x / t / C
+            }
           }
 
           return 0
@@ -565,10 +855,16 @@ export default experiment({
       }
     }
 
-    const w4 = W.get(4) as number
-    const w8 = W.get(8) as number
-    const w16 = W.get(16) as number
-    const X1b = reach.every((r, i) => r === i + 1) && normOk.every(Boolean) && fronts.every(f => f.worst <= 0.5) && w16 < w8 && w8 < w4 && w16 <= W_CEILING
+    const w4 = W.get(4)!
+    const w8 = W.get(8)!
+    const w16 = W.get(16)!
+    const X1b =
+      reach.every((r, i) => r === i + 1) &&
+      normOk.every(Boolean) &&
+      fronts.every(f => f.worst <= 0.5) &&
+      w16 < w8 &&
+      w8 < w4 &&
+      w16 <= W_CEILING
     const X1a =
       matrixGap <= MATRIX_TOLERANCE &&
       w11Off === 0 &&
@@ -588,6 +884,7 @@ export default experiment({
       const tab = flatBoxTables(side)
       const s0 = seaConfiguration(tab.cells, 1)
       const Fc = ePow(F, tab.cells)
+
       let s: LockedState = lockedState(s0)
       let exact = true
       let permutes = 0
@@ -595,16 +892,35 @@ export default experiment({
       for (let t = 0; t < SEA_BEATS; t++) {
         s = swapMixedBeat('none', tab, s, t)
 
-        const br = s.branches[0] as Branch
+        const br = s.branches[0]!
 
-        if (s.branches.length !== 1 || !sameConfiguration(br, s0) || br.k !== 0 || br.a !== Fc[0] || br.b !== Fc[1]) {
+        if (
+          s.branches.length !== 1 ||
+          !sameConfiguration(br, s0) ||
+          br.k !== 0 ||
+          br.a !== Fc[0] ||
+          br.b !== Fc[1]
+        ) {
           exact = false
           break
         }
 
         // a dock counts when the collision's permutation moves a slot (bouncePermutation returns 2 on a dock of full
         // lines even when every like line passes, so its return code alone is not the reading)
-        for (let x = 0; x < tab.cells; x++) if (bouncePermutation(BOUNCE_TABLE, 'pass', br.vibe, x * 24, perm) !== 0 && perm.some((to, d) => to !== d)) permutes++
+        for (let x = 0; x < tab.cells; x++) {
+          if (
+            bouncePermutation(
+              BOUNCE_TABLE,
+              'pass',
+              br.vibe,
+              x * 24,
+              perm,
+            ) !== 0 &&
+            perm.some((to, d) => to !== d)
+          ) {
+            permutes++
+          }
+        }
 
         // the amplitude was checked exactly; the next beat starts from 1 again
         br.a = 1n
@@ -625,10 +941,16 @@ export default experiment({
     for (const [p, q] of PAIRS) {
       const ip = dot(ROOTS[p] as number[], ROOTS[q] as number[])
 
-      if (!classes.has(ip)) classes.set(ip, [p, q])
+      if (!classes.has(ip)) {
+        classes.set(ip, [p, q])
+      }
     }
 
-    const reps = [...classes].map(([inner, pq]) => ({ inner, p: pq[0], q: pq[1] }))
+    const reps = [...classes].map(([inner, pq]) => ({
+      inner,
+      p: pq[0],
+      q: pq[1],
+    }))
     const ball4 = d4Ball(PAIR_RADIUS)
     const ball5 = d4Ball(PAIR_RADIUS_CHECK)
     const U2 = [
@@ -639,7 +961,26 @@ export default experiment({
       { name: '0', K: [0, 0, 0, 0] },
       { name: 'g', K: K_GENERIC },
     ]
-    const run = (b: typeof ball4, K: number[], p: number, q: number, free: boolean, peaks: boolean) => pairRun({ ball: b, h: shape, B: free ? null : Bm, K, p, q, T: PAIR_BEATS, checkpoints: [128, 256], M: PAIR_WINDOW, floor: peaks ? PEAK_FLOOR : -1 })
+    const run = (
+      b: typeof ball4,
+      K: number[],
+      p: number,
+      q: number,
+      free: boolean,
+      peaks: boolean,
+    ) =>
+      pairRun({
+        ball: b,
+        h: shape,
+        B: free ? null : Bm,
+        K,
+        p,
+        q,
+        T: PAIR_BEATS,
+        checkpoints: [128, 256],
+        M: PAIR_WINDOW,
+        floor: peaks ? PEAK_FLOOR : -1,
+      })
     const pairReads = reps.map(rep => {
       const perBase = bases.map(base => {
         const r0 = run(ball4, base.K, rep.p, rep.q, false, true)
@@ -647,43 +988,86 @@ export default experiment({
         const shifted = U2.map(({ name, u }) => {
           const r1 = run(
             ball4,
-            base.K.map((x, k) => x + DELTA * (u[k] as number)),
+            base.K.map((x, k) => x + DELTA * u[k]!),
             rep.p,
             rep.q,
             false,
             true,
           )
 
-          return { name, speeds: peakSpeeds(r0.peaks, r1.peaks, DELTA, PEAK_MATCH), peaks: r1.peaks }
+          return {
+            name,
+            speeds: peakSpeeds(r0.peaks, r1.peaks, DELTA, PEAK_MATCH),
+            peaks: r1.peaks,
+          }
         })
 
-        return { base: base.name, kept: r0.kept, freeKept: free.kept, peaks: r0.peaks, shifted }
+        return {
+          base: base.name,
+          kept: r0.kept,
+          freeKept: free.kept,
+          peaks: r0.peaks,
+          shifted,
+        }
       })
       const check = run(ball5, [0, 0, 0, 0], rep.p, rep.q, false, false)
-      const checkFree = run(ball5, [0, 0, 0, 0], rep.p, rep.q, true, false)
+      const checkFree = run(
+        ball5,
+        [0, 0, 0, 0],
+        rep.p,
+        rep.q,
+        true,
+        false,
+      )
 
       log(`pair class ${rep.inner}`)
 
-      return { ...rep, perBase, check: check.kept, checkFree: checkFree.kept }
+      return {
+        ...rep,
+        perBase,
+        check: check.kept,
+        checkFree: checkFree.kept,
+      }
     })
-    const allSpeeds = pairReads.flatMap(r => r.perBase.flatMap(b => b.shifted.flatMap(s => s.speeds.filter(x => x.weight >= PEAK_FLOOR))))
-    const X3a = allSpeeds.length > 0 && allSpeeds.every(s => Number.isFinite(s.speed) && s.speed <= 0.5)
+    const allSpeeds = pairReads.flatMap(r =>
+      r.perBase.flatMap(b =>
+        b.shifted.flatMap(s =>
+          s.speeds.filter(x => x.weight >= PEAK_FLOOR),
+        ),
+      ),
+    )
+    const X3a =
+      allSpeeds.length > 0 &&
+      allSpeeds.every(s => Number.isFinite(s.speed) && s.speed <= 0.5)
     const topPeakSpeed = Math.max(...allSpeeds.map(s => s.speed))
     const frozenPhase = 2 * Math.atan2(shape.c[1], shape.c[0])
-    const offFrozen = (p: Peak): boolean => Math.min(Math.abs(wrap(p.phase - frozenPhase)), Math.abs(wrap(p.phase - frozenPhase - Math.PI))) > 1e-3
+    const offFrozen = (p: Peak): boolean =>
+      Math.min(
+        Math.abs(wrap(p.phase - frozenPhase)),
+        Math.abs(wrap(p.phase - frozenPhase - Math.PI)),
+      ) > 1e-3
     const held = pairReads.filter(r => {
-      const b0r = r.perBase[0] as (typeof r.perBase)[number]
+      const b0r = r.perBase[0]!
 
-      return (b0r.kept[1] as number) - (b0r.freeKept[1] as number) >= HOLD_MARGIN && (r.check[1] as number) - (r.checkFree[1] as number) >= HOLD_MARGIN
+      return (
+        b0r.kept[1]! - b0r.freeKept[1]! >= HOLD_MARGIN &&
+        r.check[1]! - r.checkFree[1]! >= HOLD_MARGIN
+      )
     })
+
     let X4 = false
+
     const x4Notes: string[] = []
 
     for (const r of held) {
-      const b0r = r.perBase[0] as (typeof r.perBase)[number]
-      const strongest = b0r.peaks.filter(offFrozen).sort((a, b) => b.weight - a.weight)[0]
+      const b0r = r.perBase[0]!
+      const strongest = b0r.peaks
+        .filter(offFrozen)
+        .sort((a, b) => b.weight - a.weight)[0]
 
-      if (!strongest) continue
+      if (!strongest) {
+        continue
+      }
 
       const inert = b0r.shifted.map(s => {
         const m = s.speeds.find(x => x.phase === strongest.phase)
@@ -692,25 +1076,45 @@ export default experiment({
         return (DELTA * DELTA) / (2 * dphi)
       })
       const E = Math.abs(wrap(strongest.phase - frozenPhase))
-      const iso = Math.abs((inert[0] as number) / (inert[1] as number) - 1) <= INERTIA_TOLERANCE
-      const einstein = Math.abs(((inert[0] as number) * C_STAR * C_STAR) / E - 1) <= INERTIA_TOLERANCE
+      const iso =
+        Math.abs(inert[0]! / inert[1]! - 1) <= INERTIA_TOLERANCE
+      const einstein =
+        Math.abs((inert[0]! * C_STAR * C_STAR) / E - 1) <=
+        INERTIA_TOLERANCE
 
-      x4Notes.push(`class ${r.inner}: peak ${strongest.phase.toFixed(5)}, inertia ${inert.map(x => x.toFixed(3)).join('/')}, E ${E.toFixed(4)}`)
-      if (iso && einstein) X4 = true
+      x4Notes.push(
+        `class ${r.inner}: peak ${strongest.phase.toFixed(5)}, inertia ${inert.map(x => x.toFixed(3)).join('/')}, E ${E.toFixed(4)}`,
+      )
+
+      if (iso && einstein) {
+        X4 = true
+      }
     }
 
     log('X3a X4')
 
     // ---------------- C3: the peak reading on the one-hole Bloch beat ----------------
     // the floor sits above the Hann sidelobes (under 1e-3 of a peak), which run 2 read as moving peaks
-    const pk0 = blochPeaks(A, K_GENERIC, B, PAIR_BEATS, PAIR_WINDOW, C3_FLOOR)
+    const pk0 = blochPeaks(
+      A,
+      K_GENERIC,
+      B,
+      PAIR_BEATS,
+      PAIR_WINDOW,
+      C3_FLOOR,
+    )
     const K1 = K_GENERIC.map((x, k) => x + DELTA * (k === 0 ? 1 : 0))
     const pk1 = blochPeaks(A, K1, B, PAIR_BEATS, PAIR_WINDOW, C3_FLOOR)
     const e0 = eigenphases(PA, DOCK_ROOTS, K_GENERIC)
     const e1 = eigenphases(PA, DOCK_ROOTS, K1)
     const cPhase = Math.atan2(shape.c[1], shape.c[0])
-    const flatPhase = (p: number): boolean => Math.min(Math.abs(wrap(p - cPhase)), Math.abs(wrap(p - cPhase - Math.PI))) < 1e-6
+    const flatPhase = (p: number): boolean =>
+      Math.min(
+        Math.abs(wrap(p - cPhase)),
+        Math.abs(wrap(p - cPhase - Math.PI)),
+      ) < 1e-6
     const movingE0 = e0.filter(p => !flatPhase(p))
+
     let c3Gap = 0
     let c3Flat = 0
 
@@ -721,13 +1125,30 @@ export default experiment({
         continue
       }
 
-      const near0 = movingE0.reduce((b, p) => (Math.abs(wrap(p - s.phase)) < Math.abs(wrap(b - s.phase)) ? p : b), movingE0[0] as number)
-      const near1 = e1.reduce((b, p) => (Math.abs(wrap(p - near0)) < Math.abs(wrap(b - near0)) ? p : b), e1[0] as number)
+      const near0 = movingE0.reduce(
+        (b, p) =>
+          Math.abs(wrap(p - s.phase)) < Math.abs(wrap(b - s.phase))
+            ? p
+            : b,
+        movingE0[0]!,
+      )
+      const near1 = e1.reduce(
+        (b, p) =>
+          Math.abs(wrap(p - near0)) < Math.abs(wrap(b - near0)) ? p : b,
+        e1[0]!,
+      )
 
-      c3Gap = Math.max(c3Gap, Math.abs(s.speed - Math.abs(wrap(near1 - near0)) / DELTA / C))
+      c3Gap = Math.max(
+        c3Gap,
+        Math.abs(s.speed - Math.abs(wrap(near1 - near0)) / DELTA / C),
+      )
     }
 
-    const C3 = movingE0.length === 2 && pk0.filter(p => !flatPhase(p.phase)).length === 2 && c3Gap <= C3_TOLERANCE && c3Flat <= 1e-6
+    const C3 =
+      movingE0.length === 2 &&
+      pk0.filter(p => !flatPhase(p.phase)).length === 2 &&
+      c3Gap <= C3_TOLERANCE &&
+      c3Flat <= 1e-6
 
     // ---------------- C4: the free reference against the frozen weight ----------------
     let moving = 0
@@ -740,29 +1161,48 @@ export default experiment({
         const ph = -dot(ROOTS[r] as number[], K)
 
         for (let q = 0; q < 24; q++) {
-          ure[r * 24 + q] = Math.cos(ph) * (A.re[r * 24 + q] as number) - Math.sin(ph) * (A.im[r * 24 + q] as number)
-          uim[r * 24 + q] = Math.cos(ph) * (A.im[r * 24 + q] as number) + Math.sin(ph) * (A.re[r * 24 + q] as number)
+          ure[r * 24 + q] =
+            Math.cos(ph) * A.re[r * 24 + q]! -
+            Math.sin(ph) * A.im[r * 24 + q]!
+
+          uim[r * 24 + q] =
+            Math.cos(ph) * A.im[r * 24 + q]! +
+            Math.sin(ph) * A.re[r * 24 + q]!
         }
       }
 
       const ev = complexEigenvalues({ re: ure, im: uim, n: 24 })
 
       ev.re.forEach((x, i) => {
-        const y = ev.im[i] as number
+        const y = ev.im[i]!
 
-        if (flatPhase(Math.atan2(y, x))) return
+        if (flatPhase(Math.atan2(y, x))) {
+          return
+        }
 
-        const v = complexEigenvector({ re: ure, im: uim, n: 24, value: [x, y] })
-        const nrm = v.re.reduce((a, r2, k) => a + r2 * r2 + (v.im[k] as number) ** 2, 0)
+        const v = complexEigenvector({
+          re: ure,
+          im: uim,
+          n: 24,
+          value: [x, y],
+        })
+        const nrm = v.re.reduce(
+          (a, r2, k) => a + r2 * r2 + v.im[k]! ** 2,
+          0,
+        )
 
-        moving += ((v.re[B] as number) ** 2 + (v.im[B] as number) ** 2) / nrm
+        moving += (v.re[B]! ** 2 + v.im[B]! ** 2) / nrm
       })
     }
 
     moving /= WEYL_FLAT
 
     const frozen2 = (1 - moving) ** 2
-    const C4 = pairReads.every(r => Math.abs(((r.perBase[0] as (typeof r.perBase)[number]).freeKept[1] as number) - frozen2) <= FREE_TOLERANCE)
+    const C4 = pairReads.every(
+      r =>
+        Math.abs(r.perBase[0]!.freeKept[1]! - frozen2) <=
+        FREE_TOLERANCE,
+    )
 
     log('C3 C4')
 
@@ -771,16 +1211,28 @@ export default experiment({
       let r = 0
 
       for (const d of c.docks) {
-        const has = [...d.s.vibe].some(v => v < 0) || [...d.s.store].some(v => v !== 0)
+        const has =
+          [...d.s.vibe].some(v => v < 0) ||
+          [...d.s.store].some(v => v !== 0)
 
-        if (has) r = Math.max(r, d4Steps(d.x.map((v, k) => v - (from[k] as number))))
+        if (has) {
+          r = Math.max(r, d4Steps(d.x.map((v, k) => v - from[k]!)))
+        }
       }
 
       return r
     }
-    const fearRun = (marks: Parameters<typeof markedConfig>[0], beats: number): { reach: number[]; fearFront: number[] } => {
+
+    const fearRun = (
+      marks: Parameters<typeof markedConfig>[0],
+      beats: number,
+    ): { reach: number[]; fearFront: number[] } => {
       const c0 = markedConfig(marks)
-      let s: FloatSum = new Map([[configKey(c0), { c: c0, re: 1, im: 0 }]])
+
+      let s: FloatSum = new Map([
+        [configKey(c0), { c: c0, re: 1, im: 0 }],
+      ])
+
       const reachOut: number[] = []
       const fearFront: number[] = []
 
@@ -794,7 +1246,10 @@ export default experiment({
           const d = charges(c, rB)
 
           r = Math.max(r, d)
-          if (d >= 1) front += re * re + im * im
+
+          if (d >= 1) {
+            front += re * re + im * im
+          }
         }
 
         reachOut.push(r)
@@ -803,7 +1258,11 @@ export default experiment({
 
       return { reach: reachOut, fearFront }
     }
-    const fear = fearRun([{ x: [...rB], slot: B, vibe: -1 }], FEAR_BEATS)
+
+    const fear = fearRun(
+      [{ x: [...rB], slot: B, vibe: -1 }],
+      FEAR_BEATS,
+    )
     const holeFear = fearRun(
       [
         { x: ZERO, slot: B, vibe: 0 },
@@ -811,7 +1270,10 @@ export default experiment({
       ],
       HOLE_FEAR_BEATS,
     )
-    const X3b = fear.reach.every((r, i) => r <= Math.floor(i / 2)) && holeFear.reach.every(r => r === 0)
+    const X3b =
+      fear.reach.every((r, i) => r <= Math.floor(i / 2)) &&
+      holeFear.reach.every(r => r === 0)
+
     let storeOff = 0
 
     for (let h = 0; h < 24; h++) {
@@ -832,13 +1294,24 @@ export default experiment({
           const a = dockOutcomes(plain, beat)
           const b = dockOutcomes(stored, beat)
 
-          if (a.length !== b.length) storeOff++
-          else
+          if (a.length !== b.length) {
+            storeOff++
+          } else {
             a.forEach((x, i) => {
-              const y = b[i] as (typeof b)[number]
+              const y = b[i]!
 
-              if (x.a !== y.a || x.b !== y.b || x.k !== y.k || x.state.vibe.some((v, d) => v !== y.state.vibe[d]) || y.state.store[l] !== 1 || y.state.store.some((v, m) => m !== l && v !== 0)) storeOff++
+              if (
+                x.a !== y.a ||
+                x.b !== y.b ||
+                x.k !== y.k ||
+                x.state.vibe.some((v, d) => v !== y.state.vibe[d]) ||
+                y.state.store[l] !== 1 ||
+                y.state.store.some((v, m) => m !== l && v !== 0)
+              ) {
+                storeOff++
+              }
             })
+          }
         }
       }
     }
@@ -855,9 +1328,21 @@ export default experiment({
 
     for (const { input, out } of metDocks()) {
       met++
+
       for (const x of out) {
-        if (dockRegister(x.state, 'charge') !== dockRegister(input, 'charge')) dockChargeOff++
-        if (dockRegister(x.state, 'occupation') !== dockRegister(input, 'occupation')) dockOccupationOff++
+        if (
+          dockRegister(x.state, 'charge') !==
+          dockRegister(input, 'charge')
+        ) {
+          dockChargeOff++
+        }
+
+        if (
+          dockRegister(x.state, 'occupation') !==
+          dockRegister(input, 'occupation')
+        ) {
+          dockOccupationOff++
+        }
       }
     }
 
@@ -873,6 +1358,7 @@ export default experiment({
 
     // ---------------- instrument: the fast pair beat against the dense one ----------------
     let fastGap = 0
+
     {
       let a = pairStart(ball4, 0, 1)
       let b = pairStart(ball4, 0, 1)
@@ -880,7 +1366,14 @@ export default experiment({
       for (let t = 0; t < 4; t++) {
         a = pairBeat(ball4, shape, Bm, K_GENERIC, a).next
         b = pairBeatDense(ball4, { A, B: Bm }, K_GENERIC, b).next
-        for (let i = 0; i < a.re.length; i++) fastGap = Math.max(fastGap, Math.abs((a.re[i] as number) - (b.re[i] as number)), Math.abs((a.im[i] as number) - (b.im[i] as number)))
+
+        for (let i = 0; i < a.re.length; i++) {
+          fastGap = Math.max(
+            fastGap,
+            Math.abs(a.re[i]! - b.re[i]!),
+            Math.abs(a.im[i]! - b.im[i]!),
+          )
+        }
       }
     }
 
@@ -900,13 +1393,18 @@ export default experiment({
       velGap <= 1e-6
     const controls = C1 && C2 && C3 && C4 && C5
     const X1 = X1a && X1b
-    const status = !instrument || !controls ? 'partial' : X1 && X2 && X3 && X4 && X5 ? 'pass' : 'fail'
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : X1 && X2 && X3 && X4 && X5
+          ? 'pass'
+          : 'fail'
 
     // ---------------- the report ----------------
     const classLine = pairReads
       .map(r => {
-        const b0r = r.perBase[0] as (typeof r.perBase)[number]
-        const bg = r.perBase[1] as (typeof r.perBase)[number]
+        const b0r = r.perBase[0]!
+        const bg = r.perBase[1]!
 
         return `inner ${r.inner} (${r.p},${r.q}, K ${contactActs(r.p, r.q) ? 'acts' : 'never'}): kept at 128/256 K0 ${b0r.kept.map(x => x.toFixed(4)).join('/')} (free ${b0r.freeKept.map(x => x.toFixed(4)).join('/')}), g ${bg.kept.map(x => x.toFixed(4)).join('/')} (free ${bg.freeKept.map(x => x.toFixed(4)).join('/')}), ball 5 ${r.check.map(x => x.toFixed(4)).join('/')} (free ${r.checkFree.map(x => x.toFixed(4)).join('/')}); peaks K0 ${b0r.peaks.map(p => `${p.phase.toFixed(5)}:${p.weight.toFixed(4)}`).join(' ')}; speeds ${r.perBase.map(b => `${b.base}: ${b.shifted.map(s => `${s.name} ${s.speeds.map(x => `${x.phase.toFixed(4)}->${x.speed.toExponential(2)}`).join(' ')}`).join('; ')}`).join(' | ')}`
       })
@@ -934,7 +1432,7 @@ export default experiment({
       matrixGap,
       oldCoinGap,
       mSinglet: levelA.m,
-      RAxis: RA[0] as number,
+      RAxis: RA[0]!,
       cEffOverC: Math.sqrt((kinA[0] as { c2: number }).c2) / C,
       readGap,
       thirdBand: third,
@@ -946,7 +1444,7 @@ export default experiment({
       frontWorst: Math.max(...fronts.map(f => f.worst)),
       topPeakSpeed,
       heldClasses: held.length,
-      fearFront3: fear.fearFront[FEAR_BEATS - 1] as number,
+      fearFront3: fear.fearFront[FEAR_BEATS - 1]!,
       moving,
       frozen2,
       c3Gap,
@@ -966,7 +1464,14 @@ export default experiment({
       status,
       claim: `X1 ${X1} (X1a ${X1a}: rule matrix vs float ${matrixGap.toExponential(2)}, w^11 off ${w11Off}, box one hole ${holeRun.branches.join('/')} branches ${holeRun.off} off; ${sizes}, partner ${partnerSize}, m ${levelA.m.toFixed(6)}, R ${RA.map(x => x.toFixed(6)).join(' ')}, c_eff ${(Math.sqrt((kinA[0] as { c2: number }).c2) / C).toFixed(6)} c, read gap ${readGap.toExponential(2)}, third band ${third.toExponential(2)}, top ${(top / C).toFixed(6)} c; X1b ${X1b}: exact reach ${reach.join(' ')} (straight path ${straight.toFixed(5)} a beat), W(4, 8, 16) ${w4.toExponential(2)} ${w8.toExponential(2)} ${w16.toExponential(2)}, 1e-3 fronts ${fronts.map(f => `${f.t}: ${f.worst.toFixed(4)}`).join(', ')} c); X2 ${X2} (${seas.map(r => `side ${r.side} (${r.cells} docks) exact ${r.exact}, collision permutes ${r.permutes}`).join('; ')}); X3 ${X3} (X3a ${X3a}: top retained-peak speed ${topPeakSpeed.toExponential(2)} c over ${allSpeeds.length} matched peaks; X3b ${X3b}: lone fear charge reach ${fear.reach.join(' ')} roots (front weight ${fear.fearFront.map(x => x.toFixed(4)).join(' ')}), hole and fear ${holeFear.reach.join(' ')}; X3c ${X3c}: stored pair ${storeOff} off); X4 ${X4} (classes holding more than free: ${held.length}${x4Notes.length ? `; ${x4Notes.join('; ')}` : ''}); X5 ${X5} (X5a ${X5a}: hole vs empty-mesh love ${signSlots.join('/')} slots, ${signOff} off; X5b ${X5b}: charge register ${chargeBranchOff} branches off, ${dockChargeOff} of ${met} met docks' outcomes off (occupation ${dockOccupationOff}); X5c ${X5c}: slide at c/2 ${slides.map(s => `mu ${s.mu} pair ${s.pair} tied ${s.tied} face ${s.faceTied}`).join(', ')}); controls C1 ${C1} (${oldCoinGap.toFixed(3)}), C2 ${C2} (K acts on ${kActs} pairs), C3 ${C3} (${c3Gap.toExponential(2)}), C4 ${C4} (free kept vs (1 - ${moving.toFixed(4)})^2 = ${frozen2.toFixed(4)}), C5 ${C5}`,
       metrics,
-      control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), C5: flag(C5), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        C3: flag(C3),
+        C4: flag(C4),
+        C5: flag(C5),
+        instrument: flag(instrument),
+      },
       notes: `L1/L2. Pair classes (ball ${PAIR_RADIUS}, ${PAIR_BEATS} beats, Hann over the last ${PAIR_WINDOW}, peak floor ${PEAK_FLOOR}, delta ${DELTA}): ${classLine}. Frozen phases arg(c^2) ${frozenPhase.toFixed(5)} and minus pi. Fronts per direction (${NINE.map(n => n.name).join(', ')}): ${fronts.map(f => `t ${f.t}: ${f.per.map(x => x.toFixed(3)).join(' ')}`).join('; ')}. Box starts one beat: ${oneBeat.map(r => `${r.name} ${r.branches.join('/')} branches ${r.off} off`).join('; ')}; lone fear 2 beats ${fearBox.branches.join('/')} branches ${fearBox.off} off; contact pairs ${contactChecked} one-beat checks ${contactOff} off; tables ${tablesDiff} off; reverse ${reverseOk}. A = c X (I + beta z z^T): c ${shape.c.map(x => x.toFixed(9)).join(',')}, beta ${shape.beta.map(x => x.toFixed(9)).join(',')}, shape gap ${shape.gap.toExponential(2)}; B unitary ${bUnitary.toExponential(2)}; fast pair beat ${fastGap.toExponential(2)}; velocity ${velGap.toExponential(2)}. Slide control (tie at 1): ${slideControl.map(s => s.tied).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

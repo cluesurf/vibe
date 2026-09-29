@@ -18,12 +18,22 @@
 // measurement.
 
 import { type Vec } from '@/code/measure/quantum-ladder'
-import { bandInverse, overlapOf, pairBand, type BandLevel } from '@/code/measure/meson-band'
-import { fineBranch, parityIndices, type Meson } from '@/code/measure/string-binding'
+import {
+  bandInverse,
+  overlapOf,
+  pairBand,
+  type BandLevel,
+} from '@/code/measure/meson-band'
+import {
+  fineBranch,
+  parityIndices,
+  type Meson,
+} from '@/code/measure/string-binding'
 
 // the variance of d = x_fear - x_love on an even-block vector
 export function blockVarianceD(m: Meson, block: Vec): number {
   const idx = parityIndices(m, 0)
+
   let t = 0
   let s1 = 0
   let s2 = 0
@@ -44,6 +54,7 @@ export function blockVarianceD(m: Meson, block: Vec): number {
 export function branchMetric(fine: number, k = 0, h = 1e-4): number {
   const u = fineBranch(fine, k - h).B
   const v = fineBranch(fine, k + h).B
+
   let r = 0
   let i = 0
 
@@ -55,7 +66,11 @@ export function branchMetric(fine: number, k = 0, h = 1e-4): number {
   return (1 - (r * r + i * i)) / (4 * h * h)
 }
 
-export type BandMetric = { varianceD: number; spin: number; metric: number }
+export type BandMetric = {
+  varianceD: number
+  spin: number
+  metric: number
+}
 
 // g at K = 0 of a level: Var(d)/4 + g_B(0)/2 (see the header)
 export function bandMetric(m: Meson, level: BandLevel): BandMetric {
@@ -66,31 +81,58 @@ export function bandMetric(m: Meson, level: BandLevel): BandMetric {
 }
 
 // the largest step keeping g dK^2/2 <= bound, shrunk so an integer number of steps covers `range`
-export function scaledStep(metric: number, bound: number, range: number): number {
+export function scaledStep(
+  metric: number,
+  bound: number,
+  range: number,
+): number {
   return range / Math.ceil(range / Math.sqrt((2 * bound) / metric))
 }
 
-export type HeldTrack = { K: number; energy: number; overlap: number; residual: number }
+export type HeldTrack = {
+  K: number
+  energy: number
+  overlap: number
+  residual: number
+}
 
 // the even-block level followed from K = 0 in equal steps up to `end` (meson-band followBand's step, with the same six
 // rounds of inverse iteration and the same unwrapping), recording each step's own consecutive overlap and stopping
 // after the first step whose overlap is under `hold`; point 0 is the level at K = 0 (overlap 1)
-export function followHeld(m: Meson, level: BandLevel, step: number, end: number, hold: number, rounds = 6): HeldTrack[] {
+export function followHeld(
+  m: Meson,
+  level: BandLevel,
+  step: number,
+  end: number,
+  hold: number,
+  rounds = 6,
+): HeldTrack[] {
   const count = Math.round(end / step)
-  let prev: Vec = { re: Float64Array.from(level.block.re), im: Float64Array.from(level.block.im) }
+
+  let prev: Vec = {
+    re: Float64Array.from(level.block.re),
+    im: Float64Array.from(level.block.im),
+  }
   let energy = level.unwrapped
-  const out: HeldTrack[] = [{ K: 0, energy, overlap: 1, residual: level.residual }]
+
+  const out: HeldTrack[] = [
+    { K: 0, energy, overlap: 1, residual: level.residual },
+  ]
 
   for (let s = 1; s <= count; s++) {
     const K = s === count ? end : s * step
     const it = bandInverse(pairBand(m, K, 0), prev, rounds)
     const overlap = overlapOf(prev, it.vector)
 
-    energy = it.energy + 2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
+    energy =
+      it.energy +
+      2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
     prev = it.vector
     out.push({ K, energy, overlap, residual: it.residual })
 
-    if (overlap < hold) break
+    if (overlap < hold) {
+      break
+    }
   }
 
   return out

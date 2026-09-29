@@ -41,13 +41,32 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { type Collision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { colorLocalCollision, type ColorLocalSpec } from '@/code/rule/color-local-weave'
-import { cptMirrorPhase, lineComponents, reversalAndCharge, vacuumPeriod, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  colorLocalCollision,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
+import {
+  cptMirrorPhase,
+  lineComponents,
+  reversalAndCharge,
+  vacuumPeriod,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import { latticeQuotient } from '@/code/measure/integer-lattice'
 import { linearFit } from '@/code/measure/regression'
 import { FLIP_TABLE, momentumOf } from '@/code/rule/momentum-weave'
-import { HEAD_TURN_SPEC, scatterCollision, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { dampedCosineFit, momentumWaveSeries, momentumWaveStart, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  HEAD_TURN_SPEC,
+  scatterCollision,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  dampedCosineFit,
+  momentumWaveSeries,
+  momentumWaveStart,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const BEATS = 144
@@ -55,16 +74,29 @@ const SIDES = [12, 16, 20, 24]
 const HALF_C = Math.SQRT1_2
 const THIRD_C = Math.sqrt(2 / 3)
 
-const FLIP_BASE: ColorLocalSpec = { ...HEAD_TURN_SPEC, tables: [FLIP_TABLE] }
+const FLIP_BASE: ColorLocalSpec = {
+  ...HEAD_TURN_SPEC,
+  tables: [FLIP_TABLE],
+}
 
 function spec(base: ColorLocalSpec): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: base, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({ spec: base, opposite: o, forward: f }),
+  )
 
-  return { base, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 // the Smith form of the 48 additive features' changes, and of the 12 line counts alone
-function invariants(rule: (t: number) => Collision, opposite: readonly number[]) {
+function invariants(
+  rule: (t: number) => Collision,
+  opposite: readonly number[],
+) {
   const rows: number[][] = []
 
   for (let n = 0; n < 400; n++) {
@@ -72,32 +104,75 @@ function invariants(rule: (t: number) => Collision, opposite: readonly number[])
       const v = Int8Array.from({ length: 24 }, (_, i) => {
         const u = (((n + 1) * 24 + i + 1) * GOLDEN * 3.7) % 1
 
-        return n % 3 === 0 ? (u < 0.12 ? 1 : u < 0.24 ? -1 : 0) : u < 0.3 ? -1 : u < 0.6 ? 0 : 1
+        return n % 3 === 0
+          ? u < 0.12
+            ? 1
+            : u < 0.24
+              ? -1
+              : 0
+          : u < 0.3
+            ? -1
+            : u < 0.6
+              ? 0
+              : 1
       })
       const w = Int8Array.from(v)
 
       rule(t)(w, 0, 24)
-      rows.push([...Array.from(w, (x, d) => x - (v[d] ?? 0)), ...Array.from(w, (x, d) => Math.abs(x) - Math.abs(v[d] ?? 0))])
+      rows.push([
+        ...Array.from(w, (x, d) => x - (v[d] ?? 0)),
+        ...Array.from(w, (x, d) => Math.abs(x) - Math.abs(v[d] ?? 0)),
+      ])
     }
   }
 
-  const lines = opposite.map((o, d) => (d < o ? d : -1)).filter(d => d >= 0)
+  const lines = opposite
+    .map((o, d) => (d < o ? d : -1))
+    .filter(d => d >= 0)
   const full = latticeQuotient(rows, 48)
   const counts = latticeQuotient(
-    rows.map(row => lines.map(d => (row[24 + d] ?? 0) + (row[24 + (opposite[d] ?? d)] ?? 0))),
+    rows.map(row =>
+      lines.map(
+        d => (row[24 + d] ?? 0) + (row[24 + (opposite[d] ?? d)] ?? 0),
+      ),
+    ),
     lines.length,
   )
-  const toneCount = rows.every(row => row.slice(24).reduce((s, x) => s + x, 0) === 0)
+  const toneCount = rows.every(
+    row => row.slice(24).reduce((s, x) => s + x, 0) === 0,
+  )
 
   return { free: full.free, countFree: counts.free, toneCount }
 }
 
-function wave(weave: ScatterWeaveSpec, side: number, geometry: WaveGeometry) {
+function wave(
+  weave: ScatterWeaveSpec,
+  side: number,
+  geometry: WaveGeometry,
+) {
   const mesh = d4Mesh({ side })
-  const will = momentumWaveStart({ mesh, side, geometry, mode: 1, fill: 0.2, bias: 0.4, salt: 7 })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry,
+    mode: 1,
+    fill: 0.2,
+    bias: 0.4,
+    salt: 7,
+  })
   const p0 = momentumOf(will.data).p
   const n0 = will.data.reduce((s, x) => s + Math.abs(x), 0)
-  const { series, final } = momentumWaveSeries({ will, collision: scatterCollision({ spec: weave, opposite: meshOpposites(mesh) }), beats: BEATS, side, geometry, mode: 1 })
+  const { series, final } = momentumWaveSeries({
+    will,
+    collision: scatterCollision({
+      spec: weave,
+      opposite: meshOpposites(mesh),
+    }),
+    beats: BEATS,
+    side,
+    geometry,
+    mode: 1,
+  })
   const s0 = series[0] ?? 1
   const fit = dampedCosineFit({ series: series.map(x => x / s0) })
   const k = (2 * Math.PI * Math.hypot(...geometry.wave)) / side
@@ -110,8 +185,14 @@ function wave(weave: ScatterWeaveSpec, side: number, geometry: WaveGeometry) {
     r2: fit.r2,
     speed: fit.omega / k,
     oscillates: fit.omega > fit.gamma && fit.r2 > 0.9,
-    momentumDrift: Math.max(...momentumOf(final.data).p.map((x, i) => Math.abs(x - (p0[i] ?? 0)))),
-    countDrift: Math.abs(final.data.reduce((s, x) => s + Math.abs(x), 0) - n0),
+    momentumDrift: Math.max(
+      ...momentumOf(final.data).p.map((x, i) =>
+        Math.abs(x - (p0[i] ?? 0)),
+      ),
+    ),
+    countDrift: Math.abs(
+      final.data.reduce((s, x) => s + Math.abs(x), 0) - n0,
+    ),
   }
 }
 
@@ -127,14 +208,23 @@ export default experiment({
   run() {
     const clock = spec(HEAD_TURN_SPEC)
     const flip = spec(FLIP_BASE)
-    const opposite = rootsD4().map((r, _, all) => all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+    const opposite = rootsD4().map((r, _, all) =>
+      all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+    )
 
     // 1. what is kept
-    const clockKept = invariants(scatterCollision({ spec: clock, opposite }), opposite)
-    const flipKept = invariants(scatterCollision({ spec: flip, opposite }), opposite)
+    const clockKept = invariants(
+      scatterCollision({ spec: clock, opposite }),
+      opposite,
+    )
+    const flipKept = invariants(
+      scatterCollision({ spec: flip, opposite }),
+      opposite,
+    )
 
     // 2. the flip rule's laws and costs
-    const flipRule: ScheduledRule = (o, f) => scatterCollision({ spec: flip, opposite: o, forward: f })
+    const flipRule: ScheduledRule = (o, f) =>
+      scatterCollision({ spec: flip, opposite: o, forward: f })
     const flipReversal = reversalAndCharge(flipRule)
     const flipCpt = cptMirrorPhase(flipRule)
     const flipVacuum = vacuumPeriod(flipRule)
@@ -142,10 +232,16 @@ export default experiment({
     const flipDenseComponents = lineComponents(flipRule, true)
 
     // 3. sound
-    const axis: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }
+    const axis: WaveGeometry = {
+      momentum: [1, 0, 0, 0],
+      wave: [1, 0, 0, 0],
+    }
     const flipWaves = SIDES.map(side => wave(flip, side, axis))
     const clockWaves = SIDES.map(side => wave(clock, side, axis))
-    const extrapolation = linearFit({ xs: flipWaves.map(w => w.k * w.k), ys: flipWaves.map(w => w.speed) })
+    const extrapolation = linearFit({
+      xs: flipWaves.map(w => w.k * w.k),
+      ys: flipWaves.map(w => w.speed),
+    })
     const speedAtZero = extrapolation.intercept
     const directions: [string, WaveGeometry][] = [
       ['axis0', axis],
@@ -154,7 +250,10 @@ export default experiment({
     ]
     // the diagonal at the same k as an axis wave at L = 16 needs L = 16 sqrt 2; the nearest even side, 22,
     // is used and the k of each is printed
-    const oriented = directions.map(([name, geometry]) => ({ name, ...wave(flip, name === 'diagonal01' ? 22 : 16, geometry) }))
+    const oriented = directions.map(([name, geometry]) => ({
+      name,
+      ...wave(flip, name === 'diagonal01' ? 22 : 16, geometry),
+    }))
     const speeds = oriented.map(o => o.speed)
     const anisotropy = Math.max(...speeds) / Math.min(...speeds)
 
@@ -166,8 +265,16 @@ export default experiment({
       flipReversal.reverses &&
       flipReversal.chargeKept &&
       flipCpt >= 0 &&
-      flipWaves.every(w => w.oscillates && w.speed < 1 && w.momentumDrift === 0 && w.countDrift === 0) &&
-      clockWaves.filter(w => w.side >= 20).every(w => !w.oscillates && w.momentumDrift === 0)
+      flipWaves.every(
+        w =>
+          w.oscillates &&
+          w.speed < 1 &&
+          w.momentumDrift === 0 &&
+          w.countDrift === 0,
+      ) &&
+      clockWaves
+        .filter(w => w.side >= 20)
+        .every(w => !w.oscillates && w.momentumDrift === 0)
 
     const metrics: Record<string, number> = {
       clockAdditiveInvariants: clockKept.free,
@@ -186,7 +293,10 @@ export default experiment({
       speedSlopeInKSquared: extrapolation.slope,
       halfC: HALF_C,
       cOverSqrt3: THIRD_C,
-      nearerHalfC: Math.abs(speedAtZero - HALF_C) < Math.abs(speedAtZero - THIRD_C) ? 1 : 0,
+      nearerHalfC:
+        Math.abs(speedAtZero - HALF_C) < Math.abs(speedAtZero - THIRD_C)
+          ? 1
+          : 0,
       anisotropy,
     }
 
@@ -196,6 +306,7 @@ export default experiment({
       metrics[`flipGammaL${w.side}`] = w.gamma
       metrics[`flipR2L${w.side}`] = w.r2
     })
+
     oriented.forEach(o => {
       metrics[`speed_${o.name}`] = o.speed
       metrics[`k_${o.name}`] = o.k

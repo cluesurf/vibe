@@ -13,16 +13,33 @@
 // eigenvalues (code/algebra/linear/complex-eigen) are the Landau levels at that k_y as phases per period.
 
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { coinMatrix, stepGenerator, type Complex, type Mode, type Step } from '@/code/rule/spinor-token'
+import {
+  coinMatrix,
+  stepGenerator,
+  type Complex,
+  type Mode,
+  type Step,
+} from '@/code/rule/spinor-token'
 
 export type Chain = { re: Float64Array; im: Float64Array }
 
-function applyStep(input: { chain: Chain; side: number; step: Step; mode: Mode; field: number; charge: number; ky: number }): Chain {
+function applyStep(input: {
+  chain: Chain
+  side: number
+  step: Step
+  mode: Mode
+  field: number
+  charge: number
+  ky: number
+}): Chain {
   const { chain, side, step, mode, field, charge, ky } = input
   const coin = coinMatrix()
   const gamma = stepGenerator(step, mode)
   const n = 4 * side
-  const mid: Chain = { re: new Float64Array(n), im: new Float64Array(n) }
+  const mid: Chain = {
+    re: new Float64Array(n),
+    im: new Float64Array(n),
+  }
 
   // the coin
   for (let x = 0; x < side; x++) {
@@ -33,8 +50,13 @@ function applyStep(input: { chain: Chain; side: number; step: Step; mode: Mode; 
       for (let j = 0; j < 4; j++) {
         const [mr, mi] = coin[i * 4 + j] ?? [0, 0]
 
-        re += mr * (chain.re[4 * x + j] ?? 0) - mi * (chain.im[4 * x + j] ?? 0)
-        im += mr * (chain.im[4 * x + j] ?? 0) + mi * (chain.re[4 * x + j] ?? 0)
+        re +=
+          mr * (chain.re[4 * x + j] ?? 0) -
+          mi * (chain.im[4 * x + j] ?? 0)
+
+        im +=
+          mr * (chain.im[4 * x + j] ?? 0) +
+          mi * (chain.re[4 * x + j] ?? 0)
       }
 
       mid.re[4 * x + i] = re
@@ -46,8 +68,19 @@ function applyStep(input: { chain: Chain; side: number; step: Step; mode: Mode; 
     return mid
   }
 
-  const out: Chain = { re: new Float64Array(n), im: new Float64Array(n) }
-  const projector = (sign: number): Complex[] => Array.from({ length: 16 }, (_, i) => [((i % 5 === 0 ? 1 : 0) + sign * (gamma[i] ?? [0, 0])[0]) / 2, (sign * (gamma[i] ?? [0, 0])[1]) / 2] as Complex)
+  const out: Chain = {
+    re: new Float64Array(n),
+    im: new Float64Array(n),
+  }
+  const projector = (sign: number): Complex[] =>
+    Array.from(
+      { length: 16 },
+      (_, i) =>
+        [
+          ((i % 5 === 0 ? 1 : 0) + sign * (gamma[i] ?? [0, 0])[0]) / 2,
+          (sign * (gamma[i] ?? [0, 0])[1]) / 2,
+        ] as Complex,
+    )
   const plus = projector(1)
   const minus = projector(-1)
 
@@ -64,8 +97,13 @@ function applyStep(input: { chain: Chain; side: number; step: Step; mode: Mode; 
         for (let j = 0; j < 4; j++) {
           const [mr, mi] = p[i * 4 + j] ?? [0, 0]
 
-          re += mr * (mid.re[4 * x + j] ?? 0) - mi * (mid.im[4 * x + j] ?? 0)
-          im += mr * (mid.im[4 * x + j] ?? 0) + mi * (mid.re[4 * x + j] ?? 0)
+          re +=
+            mr * (mid.re[4 * x + j] ?? 0) -
+            mi * (mid.im[4 * x + j] ?? 0)
+
+          im +=
+            mr * (mid.im[4 * x + j] ?? 0) +
+            mi * (mid.re[4 * x + j] ?? 0)
         }
 
         return [re, im]
@@ -96,18 +134,36 @@ function applyStep(input: { chain: Chain; side: number; step: Step; mode: Mode; 
 }
 
 // the period operator of a schedule on the chain, as a dense matrix
-export function chainOperator(input: { side: number; schedule: readonly Step[]; mode: Mode; field: number; charge: number; ky: number }): { re: Float64Array; im: Float64Array; n: number } {
+export function chainOperator(input: {
+  side: number
+  schedule: readonly Step[]
+  mode: Mode
+  field: number
+  charge: number
+  ky: number
+}): { re: Float64Array; im: Float64Array; n: number } {
   const n = 4 * input.side
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
   for (let col = 0; col < n; col++) {
-    let chain: Chain = { re: new Float64Array(n), im: new Float64Array(n) }
+    let chain: Chain = {
+      re: new Float64Array(n),
+      im: new Float64Array(n),
+    }
 
     chain.re[col] = 1
 
     for (const step of input.schedule) {
-      chain = applyStep({ chain, side: input.side, step, mode: input.mode, field: input.field, charge: input.charge, ky: input.ky })
+      chain = applyStep({
+        chain,
+        side: input.side,
+        step,
+        mode: input.mode,
+        field: input.field,
+        charge: input.charge,
+        ky: input.ky,
+      })
     }
 
     for (let row = 0; row < n; row++) {
@@ -120,7 +176,14 @@ export function chainOperator(input: { side: number; schedule: readonly Step[]; 
 }
 
 // the Landau levels as phases per period, in (-pi, pi]
-export function chainPhases(input: { side: number; schedule: readonly Step[]; mode: Mode; field: number; charge: number; ky: number }): number[] {
+export function chainPhases(input: {
+  side: number
+  schedule: readonly Step[]
+  mode: Mode
+  field: number
+  charge: number
+  ky: number
+}): number[] {
   const u = chainOperator(input)
   const e = complexEigenvalues({ re: u.re, im: u.im, n: u.n })
 

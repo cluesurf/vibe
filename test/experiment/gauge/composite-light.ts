@@ -30,7 +30,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { continuumEdge, correlator, crossGap, eigen2, pairSpectrum, PAULI, unitarityDefect, walkSymbol } from '@/code/measure/composite-light'
+import {
+  continuumEdge,
+  correlator,
+  crossGap,
+  eigen2,
+  pairSpectrum,
+  PAULI,
+  unitarityDefect,
+  walkSymbol,
+} from '@/code/measure/composite-light'
 
 export default experiment({
   id: 'gauge/composite-light',
@@ -47,10 +56,15 @@ export default experiment({
     // G0
     let unitary = 0
     let dispersion = 0
+
     const side = 16
 
     for (let i = 0; i < side ** 3; i++) {
-      const k = [(i % side) * ((2 * Math.PI) / side), (Math.floor(i / side) % side) * ((2 * Math.PI) / side), Math.floor(i / (side * side)) * ((2 * Math.PI) / side)]
+      const k = [
+        (i % side) * ((2 * Math.PI) / side),
+        (Math.floor(i / side) % side) * ((2 * Math.PI) / side),
+        Math.floor(i / (side * side)) * ((2 * Math.PI) / side),
+      ]
 
       unitary = Math.max(unitary, unitarityDefect(walkSymbol(k)))
     }
@@ -59,13 +73,19 @@ export default experiment({
       const k = -Math.PI + ((j + 0.5) * 2 * Math.PI) / 64
       const e = eigen2(walkSymbol([k, 0, 0], [0]))
       const w = Math.acos(Math.cos(k) / 2)
-      const expected = [Math.PI / 3 - w, Math.PI / 3 + w].map(x => x - 2 * Math.PI * Math.round(x / (2 * Math.PI))).sort((a, b) => a - b)
+      const expected = [Math.PI / 3 - w, Math.PI / 3 + w]
+        .map(x => x - 2 * Math.PI * Math.round(x / (2 * Math.PI)))
+        .sort((a, b) => a - b)
 
-      dispersion = Math.max(dispersion, Math.abs(e.theta[0] - expected[0]!), Math.abs(e.theta[1] - expected[1]!))
+      dispersion = Math.max(
+        dispersion,
+        Math.abs(e.theta[0] - expected[0]!),
+        Math.abs(e.theta[1] - expected[1]!),
+      )
     }
 
-    metrics['g0UnitarityDefect'] = unitary
-    metrics['g0DispersionError'] = dispersion
+    metrics.g0UnitarityDefect = unitary
+    metrics.g0DispersionError = dispersion
 
     const okG0 = unitary < 1e-14 && dispersion < 1e-12
 
@@ -97,15 +117,22 @@ export default experiment({
         }
 
         const period = (2 * Math.PI) / edge.top
-        const times = Array.from({ length: 40 }, (_, i) => Math.round(period * (3 + (7 * i) / 39)))
+        const times = Array.from({ length: 40 }, (_, i) =>
+          Math.round(period * (3 + (7 * i) / 39)),
+        )
+
         let surviving = 0
 
         PAULI.forEach((_, n) => {
           const zero = correlator(spectrum, n, 0)
-          const kept = times.reduce((s, t) => s + correlator(spectrum, n, t), 0) / times.length / zero
+          const kept =
+            times.reduce((s, t) => s + correlator(spectrum, n, t), 0) /
+            times.length /
+            zero
 
           metrics[`${prefix}Sigma${n}Kept`] = kept
-          metrics[`${prefix}Sigma${n}AtOnePeriod`] = correlator(spectrum, n, Math.round(period)) / zero
+          metrics[`${prefix}Sigma${n}AtOnePeriod`] =
+            correlator(spectrum, n, Math.round(period)) / zero
           surviving += kept >= 0.5 ? 1 : 0
         })
 
@@ -115,8 +142,8 @@ export default experiment({
       }
     }
 
-    metrics['gateG0'] = okG0 ? 1 : 0
-    metrics['gateG1'] = okG1 ? 1 : 0
+    metrics.gateG0 = okG0 ? 1 : 0
+    metrics.gateG1 = okG1 ? 1 : 0
 
     return verdict({
       status: okG0 && okG1 ? 'pass' : 'fail',

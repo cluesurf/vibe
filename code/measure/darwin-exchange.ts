@@ -33,58 +33,102 @@
 // DETERMINISM: no random numbers; a uniform torus grid of momenta; a separable Gaussian density.
 
 import { hermitianEigen } from '@/code/measure/photon-modes'
-import { makeHusk, HUSK_VECTORS, HUSK_WEIGHTS, type Husk } from '@/code/measure/photon-husk'
-import { curlSymbol, huskLaplacianSymbol, huskSymbol, plaquetteShapes, type PlaquetteShape } from '@/code/measure/photon-symbol'
+import {
+  makeHusk,
+  HUSK_VECTORS,
+  HUSK_WEIGHTS,
+  type Husk,
+} from '@/code/measure/photon-husk'
+import {
+  curlSymbol,
+  huskLaplacianSymbol,
+  huskSymbol,
+  plaquetteShapes,
+  type PlaquetteShape,
+} from '@/code/measure/photon-symbol'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 
 type PhotonLattice = ReturnType<typeof photonLatticeD4>
 
-let lightCache: { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] } | undefined
+let lightCache:
+  | { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] }
+  | undefined
 
-function light(): { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] } {
+function light(): {
+  bulk: PhotonLattice
+  husk: Husk
+  shapes: PlaquetteShape[]
+} {
   if (!lightCache) {
     const bulk = photonLatticeD4({ side: 4 })
 
-    lightCache = { bulk, husk: makeHusk(bulk), shapes: plaquetteShapes(bulk) }
+    lightCache = {
+      bulk,
+      husk: makeHusk(bulk),
+      shapes: plaquetteShapes(bulk),
+    }
   }
 
   return lightCache
 }
 
 /** The Hermitian husk curl-curl at a husk wave vector: its eigenvalues ascending, with unit eigenvectors (columns). */
-export function huskModes(k: readonly number[]): { values: number[]; re: number[][]; im: number[][] } {
+export function huskModes(k: readonly number[]): {
+  values: number[]
+  re: number[][]
+  im: number[][]
+} {
   const p = light()
-  const m = huskSymbol(p.husk, curlSymbol(p.bulk, p.shapes, [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, 0])).hermitian
+  const m = huskSymbol(
+    p.husk,
+    curlSymbol(p.bulk, p.shapes, [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, 0]),
+  ).hermitian
   const e = hermitianEigen(m)
   const n = m.rows
-  const order = Array.from(e.values, (v, i) => [v, i] as const).sort((a, b) => a[0] - b[0])
+  const order = Array.from(e.values, (v, i) => [v, i] as const).sort(
+    (a, b) => a[0] - b[0],
+  )
 
   return {
     values: order.map(([v]) => v),
-    re: order.map(([, i]) => Array.from({ length: n }, (_, a) => e.vectorsRe[a * n + i] ?? 0)),
-    im: order.map(([, i]) => Array.from({ length: n }, (_, a) => e.vectorsIm[a * n + i] ?? 0)),
+    re: order.map(([, i]) =>
+      Array.from({ length: n }, (_, a) => e.vectorsRe[a * n + i] ?? 0),
+    ),
+    im: order.map(([, i]) =>
+      Array.from({ length: n }, (_, a) => e.vectorsIm[a * n + i] ?? 0),
+    ),
   }
 }
 
 /** b_i,h = sqrt(g_h) u_h,i / 6: a unit-velocity current along axis i, in the Hermitian coordinates G^(-1/2) J. */
-export const CURRENT_VECTORS: readonly number[][] = [0, 1, 2].map(i => HUSK_VECTORS.map((u, h) => (Math.sqrt(HUSK_WEIGHTS[h] ?? 1) * (u[i] ?? 0)) / 6))
+export const CURRENT_VECTORS: readonly number[][] = [0, 1, 2].map(i =>
+  HUSK_VECTORS.map(
+    (u, h) => (Math.sqrt(HUSK_WEIGHTS[h] ?? 1) * (u[i] ?? 0)) / 6,
+  ),
+)
 
 /** The Coulomb symbol eps(k) (E-FRC-0241's operator). */
-export const coulombSymbol = (k: readonly number[]): number => huskLaplacianSymbol(k)
+export const coulombSymbol = (k: readonly number[]): number =>
+  huskLaplacianSymbol(k)
 
 /**
  * X(k) = (1/3) sum_i b_i^dag H^+ b_i eps(k): the velocity-averaged transverse exchange over the Coulomb one, times
  * kappa. `gaugeTolerance` (relative to the top eigenvalue) decides which modes are gauge (the pseudo-inverse drops them).
  */
-export function darwinRatio(k: readonly number[], gaugeTolerance = 1e-9): { X: number; transverse: number[]; gauge: number } {
+export function darwinRatio(
+  k: readonly number[],
+  gaugeTolerance = 1e-9,
+): { X: number; transverse: number[]; gauge: number } {
   const modes = huskModes(k)
   const top = Math.max(...modes.values.map(Math.abs))
+
   let sum = 0
   let gauge = 0
 
   modes.values.forEach((value, j) => {
     if (Math.abs(value) <= gaugeTolerance * top) {
       gauge++
+
       return
     }
 
@@ -100,14 +144,20 @@ export function darwinRatio(k: readonly number[], gaugeTolerance = 1e-9): { X: n
     }
   })
 
-  return { X: (sum / 3) * coulombSymbol(k), transverse: modes.values.slice(gauge, gauge + 2), gauge }
+  return {
+    X: (sum / 3) * coulombSymbol(k),
+    transverse: modes.values.slice(gauge, gauge + 2),
+    gauge,
+  }
 }
 
 /** f(k) = sum over x in the torus of exp(-x^2 / sigma^2) cos(k x): one axis of a separable Gaussian density's transform. */
 function gaussianAxis(side: number, sigma: number, k: number): number {
   let s = 0
 
-  for (let x = -side / 2; x < side / 2; x++) s += Math.exp(-(x * x) / (sigma * sigma)) * Math.cos(k * x)
+  for (let x = -side / 2; x < side / 2; x++) {
+    s += Math.exp(-(x * x) / (sigma * sigma)) * Math.cos(k * x)
+  }
 
   return s
 }
@@ -116,9 +166,15 @@ function gaussianAxis(side: number, sigma: number, k: number): number {
  * S for a Gaussian relative density of width sigma on the side^3 husk torus: the rho-hat / eps weighted mean of X over
  * the nonzero torus momenta. Also returns the weighted mean k^2 (which S - 1 should follow at order k^2).
  */
-export function boundStateS(sigma: number, side: number): { S: number; meanK2: number; points: number } {
+export function boundStateS(
+  sigma: number,
+  side: number,
+): { S: number; meanK2: number; points: number } {
   const step = (2 * Math.PI) / side
-  const axis = Array.from({ length: side }, (_, a) => gaussianAxis(side, sigma, a * step))
+  const axis = Array.from({ length: side }, (_, a) =>
+    gaussianAxis(side, sigma, a * step),
+  )
+
   let num = 0
   let den = 0
   let k2 = 0
@@ -127,14 +183,18 @@ export function boundStateS(sigma: number, side: number): { S: number; meanK2: n
   for (let a = 0; a < side; a++) {
     for (let b = 0; b < side; b++) {
       for (let c = 0; c < side; c++) {
-        if (a === 0 && b === 0 && c === 0) continue
+        if (a === 0 && b === 0 && c === 0) {
+          continue
+        }
 
         const k = [a, b, c].map(x => {
           const y = x * step
 
           return y > Math.PI ? y - 2 * Math.PI : y
         })
-        const weight = ((axis[a] ?? 0) * (axis[b] ?? 0) * (axis[c] ?? 0)) / coulombSymbol(k)
+        const weight =
+          ((axis[a] ?? 0) * (axis[b] ?? 0) * (axis[c] ?? 0)) /
+          coulombSymbol(k)
         const { X } = darwinRatio(k)
 
         num += X * weight
@@ -149,11 +209,19 @@ export function boundStateS(sigma: number, side: number): { S: number; meanK2: n
 }
 
 /** E-SPN-0155's static inertia over energy for a pair of members of mass m bound by E_b: (2 tan m + (5/3) E_b) / (2m - E_b). */
-export const staticR = (m: number, Eb: number): number => (2 * Math.tan(m) + (5 / 3) * Eb) / (2 * m - Eb)
+export const staticR = (m: number, Eb: number): number =>
+  (2 * Math.tan(m) + (5 / 3) * Eb) / (2 * m - Eb)
 
 /**
  * With the transverse exchange: the Darwin inertia -(8/3) E_b S (c_member / c_light)^2 added to the numerator. At
  * S = 1 and one speed it is (2 tan m - E_b) / (2m - E_b), whose excess over tan m / m is E_b (tan m - m) / (m (2m -
  * E_b)): second order.
  */
-export const darwinR = (m: number, Eb: number, S: number, speedRatio2: number): number => (2 * Math.tan(m) + (5 / 3) * Eb - (8 / 3) * Eb * S * speedRatio2) / (2 * m - Eb)
+export const darwinR = (
+  m: number,
+  Eb: number,
+  S: number,
+  speedRatio2: number,
+): number =>
+  (2 * Math.tan(m) + (5 / 3) * Eb - (8 / 3) * Eb * S * speedRatio2) /
+  (2 * m - Eb)

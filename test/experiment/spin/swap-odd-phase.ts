@@ -161,11 +161,32 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { centerOf } from '@/code/measure/wall-reading'
-import { DOCK_ROOTS, multipletsOf, wrap, type CMatrix, type Multiplet } from '@/code/measure/dock-mixer'
-import { fastestBand, masslessPair, singletKinematics, singletLevel, weylMomenta } from '@/code/measure/singlet-kinematics'
+import {
+  DOCK_ROOTS,
+  multipletsOf,
+  wrap,
+  type CMatrix,
+  type Multiplet,
+} from '@/code/measure/dock-mixer'
+import {
+  fastestBand,
+  masslessPair,
+  singletKinematics,
+  singletLevel,
+  weylMomenta,
+} from '@/code/measure/singlet-kinematics'
 import { weylF4 } from '@/code/measure/covariant-coin'
 import { d4Ball, flatBoxTables } from '@/code/measure/swap-sector'
-import { bandSumMean, covariantDock, covariantProjectors, flatBands, lineSideVector, pairContent, traceMean, withRankOne } from '@/code/measure/odd-phase'
+import {
+  bandSumMean,
+  covariantDock,
+  covariantProjectors,
+  flatBands,
+  lineSideVector,
+  pairContent,
+  traceMean,
+  withRankOne,
+} from '@/code/measure/odd-phase'
 import { shareSpace, threadEngine } from '@/code/measure/meson-pool'
 import { ODD_OCTET_12 } from '@/code/rule/odd-phase'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
@@ -229,9 +250,41 @@ const LIGHT: readonly [number, number] = [-1, 4]
 const LIGHT_CAP = 14
 const STRING: readonly [number, number] = [3, 4]
 
-export type OddPhasePlan = { ball: number; window: number; sCoarse: number; sFirst: number; sSecond: number; sMove: number; holdBeats: number; threads: number; vacuumBeats: number; vacuumSides: readonly number[]; momenta: number; liveStride: number; pairStride: number; box: number; light: boolean }
+export type OddPhasePlan = {
+  ball: number
+  window: number
+  sCoarse: number
+  sFirst: number
+  sSecond: number
+  sMove: number
+  holdBeats: number
+  threads: number
+  vacuumBeats: number
+  vacuumSides: readonly number[]
+  momenta: number
+  liveStride: number
+  pairStride: number
+  box: number
+  light: boolean
+}
 
-export const GATE_PLAN: OddPhasePlan = { ball: 15, window: 14, sCoarse: 64, sFirst: 256, sSecond: 128, sMove: 64, holdBeats: 256, threads: 12, vacuumBeats: 128, vacuumSides: [4, 8], momenta: 4096, liveStride: 25, pairStride: 12, box: 32, light: true }
+export const GATE_PLAN: OddPhasePlan = {
+  ball: 15,
+  window: 14,
+  sCoarse: 64,
+  sFirst: 256,
+  sSecond: 128,
+  sMove: 64,
+  holdBeats: 256,
+  threads: 12,
+  vacuumBeats: 128,
+  vacuumSides: [4, 8],
+  momenta: 4096,
+  liveStride: 25,
+  pairStride: 12,
+  box: 32,
+  light: true,
+}
 
 // E-SPN-0147's recorded floats (tmp/mstr-exp-run1.log)
 const RECORDED_EPS = 2.265323205134809
@@ -297,38 +350,80 @@ export default experiment({
 })
 
 // one piece's one-body reading at the massive and the massless point
-type OneBody = { name: string; restAtPi: number; restPhases: string; m: number; tanRatio: number; R: number[]; gamma: number[]; c0: number[]; top: number; topMassless: number; flats: { phase: number; count: number }[]; trace: number; sum: number; traceZ: number; sumZ: number; pass: { a: boolean; b: boolean; c: boolean; d: boolean; all: boolean } }
+type OneBody = {
+  name: string
+  restAtPi: number
+  restPhases: string
+  m: number
+  tanRatio: number
+  R: number[]
+  gamma: number[]
+  c0: number[]
+  top: number
+  topMassless: number
+  flats: { phase: number; count: number }[]
+  trace: number
+  sum: number
+  traceZ: number
+  sumZ: number
+  pass: { a: boolean; b: boolean; c: boolean; d: boolean; all: boolean }
+}
 
 // the K = 0 multiplet holding D's rest state (at pi + phi4: pi for every piece but R1's Pi4 row)
-const atRestOf = (ms: readonly Multiplet[], dRest: number): Multiplet | undefined => ms.find(x => Math.abs(wrap(x.center - dRest)) <= LEVEL_TOLERANCE)
+const atRestOf = (
+  ms: readonly Multiplet[],
+  dRest: number,
+): Multiplet | undefined =>
+  ms.find(x => Math.abs(wrap(x.center - dRest)) <= LEVEL_TOLERANCE)
 
-function oneBody(name: string, P: CMatrix, Pz: CMatrix, m0: number, momenta: readonly (readonly number[])[], dRest = Math.PI): OneBody {
+function oneBody(
+  name: string,
+  P: CMatrix,
+  Pz: CMatrix,
+  m0: number,
+  momenta: readonly (readonly number[])[],
+  dRest = Math.PI,
+): OneBody {
   const ms = multipletsOf(P, R)
   const atPi = atRestOf(ms, dRest)
   const restAtPi = atPi ? atPi.size : 0
   const lv = singletLevel(P, R, restAtPi)
-  const Rs = DIRECTIONS.map(d => (C_STAR * C_STAR) / singletKinematics(P, R, lv, d.u, SCALES).c2)
+  const Rs = DIRECTIONS.map(
+    d =>
+      (C_STAR * C_STAR) / singletKinematics(P, R, lv, d.u, SCALES).c2,
+  )
   const tanRatio = Math.tan(lv.m) / lv.m
   const msZ = multipletsOf(Pz, R)
   const atPiZ = atRestOf(msZ, dRest)
-  const pairs = DIRECTIONS.map(d => masslessPair(Pz, R, atPiZ ? atPiZ.size : -1, d.u, PAIR_KAPPA))
+  const pairs = DIRECTIONS.map(d =>
+    masslessPair(Pz, R, atPiZ ? atPiZ.size : -1, d.u, PAIR_KAPPA),
+  )
   const top = fastestBand(P, R, momenta).speed / C_STAR
   const topMassless = fastestBand(Pz, R, momenta).speed / C_STAR
-  const flats = flatBands(P, momenta.slice(0, FLAT_SAMPLE), FLAT_TOLERANCE)
+  const flats = flatBands(
+    P,
+    momenta.slice(0, FLAT_SAMPLE),
+    FLAT_TOLERANCE,
+  )
   const t = traceMean(P, GRID, GRID_OFFSET)
   const s = bandSumMean(P, GRID, GRID_OFFSET)
   const tz = traceMean(Pz, GRID, GRID_OFFSET)
   const sz = bandSumMean(Pz, GRID, GRID_OFFSET)
   const gamma = pairs.map(x => x.gamma / C_STAR)
   const a = gamma.every(g => Math.abs(g) <= GAMMA_TOLERANCE)
-  const b = top <= 1 + SPEED_TOLERANCE && topMassless <= 1 + SPEED_TOLERANCE
-  const c = Math.abs(lv.m - m0) <= LEVEL_TOLERANCE && Rs.every(r => Math.abs(r - tanRatio) <= R_EXACT)
+  const b =
+    top <= 1 + SPEED_TOLERANCE && topMassless <= 1 + SPEED_TOLERANCE
+  const c =
+    Math.abs(lv.m - m0) <= LEVEL_TOLERANCE &&
+    Rs.every(r => Math.abs(r - tanRatio) <= R_EXACT)
   const d = restAtPi === 1
 
   return {
     name,
     restAtPi,
-    restPhases: ms.map(x => `${x.center.toFixed(6)}x${x.size}`).join(' '),
+    restPhases: ms
+      .map(x => `${x.center.toFixed(6)}x${x.size}`)
+      .join(' '),
     m: lv.m,
     tanRatio,
     R: Rs,
@@ -346,11 +441,26 @@ function oneBody(name: string, P: CMatrix, Pz: CMatrix, m0: number, momenta: rea
 }
 
 // the hold witness H
-type Held = { eps: number; lambda: number; residual: number; window: number; fidelity: number; absorbed: number; edge: number; share: number; stored: number; profile: number[]; holds: boolean }
+type Held = {
+  eps: number
+  lambda: number
+  residual: number
+  window: number
+  fidelity: number
+  absorbed: number
+  edge: number
+  share: number
+  stored: number
+  profile: number[]
+  holds: boolean
+}
 
 export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const p = covariantProjectors()
   const u0 = ringUnit(MIXER[0], MIXER[1])
   const uz = ringUnit(MASSLESS[0], MASSLESS[1])
@@ -358,41 +468,69 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   const alphaV = unitAngle(v)
   const theta0 = unitAngle(u0)
   const m0 = Math.PI / 6
-  const radial = DIRECTIONS.flatMap(d => RADII.map(r => d.u.map(x => x * r)))
+  const radial = DIRECTIONS.flatMap(d =>
+    RADII.map(r => d.u.map(x => x * r)),
+  )
   const momenta = [...weylMomenta(plan.momenta), ...radial]
 
   // ---------------- I1: Pi8 exactly, the unit, the rule's matrices with A against the covariant model ----------------
   const Q = ODD_OCTET_12
-  const qq = (i: number, j: number): number => (Q[i] as number[])[j] as number
+  const qq = (i: number, j: number): number => (Q[i] as number[])[j]!
+
   let pi8Exact = true
 
   for (let i = 0; i < 24; i++) {
     for (let j = 0; j < 24; j++) {
       let sq = 0
 
-      for (let k = 0; k < 24; k++) sq += qq(i, k) * qq(k, j)
-      if (sq !== 12 * qq(i, j)) pi8Exact = false
-      if (qq(OPPOSITE[i] as number, j) !== -qq(i, j) || qq(i, OPPOSITE[j] as number) !== -qq(i, j)) pi8Exact = false
+      for (let k = 0; k < 24; k++) {
+        sq += qq(i, k) * qq(k, j)
+      }
+
+      if (sq !== 12 * qq(i, j)) {
+        pi8Exact = false
+      }
+
+      if (
+        qq(OPPOSITE[i]!, j) !== -qq(i, j) ||
+        qq(i, OPPOSITE[j]!) !== -qq(i, j)
+      ) {
+        pi8Exact = false
+      }
     }
 
     let row = 0
 
-    for (let j = 0; j < 24; j++) row += qq(i, j)
-    if (row !== 0) pi8Exact = false
+    for (let j = 0; j < 24; j++) {
+      row += qq(i, j)
+    }
+
+    if (row !== 0) {
+      pi8Exact = false
+    }
+
     for (let k = 0; k < 4; k++) {
       let r = 0
 
-      for (let j = 0; j < 24; j++) r += qq(i, j) * ((R[j] as number[])[k] as number)
-      if (r !== 0) pi8Exact = false
+      for (let j = 0; j < 24; j++) {
+        r += qq(i, j) * (R[j] as number[])[k]!
+      }
+
+      if (r !== 0) {
+        pi8Exact = false
+      }
     }
   }
 
-  const traceQ = Q.reduce((s, row, i) => s + (row[i] as number), 0)
+  const traceQ = Q.reduce((s, row, i) => s + row[i]!, 0)
   const group = weylF4()
-  const covariant = group.every(g => Q.every((row, i) => row.every((x, j) => qq(g[i] as number, g[j] as number) === x)))
+  const covariant = group.every(g =>
+    Q.every((row, i) => row.every((x, j) => qq(g[i]!, g[j]!) === x)),
+  )
   const units = massUnits(MIXER, STEP, CAP, Math.max(plan.ball, CAP))
   const perAngle = units.slice(0, CAP + 1).map((u, V) => {
     const M = covariantDock(p, [unitAngle(u), 0, 0, 0, alphaV])
+
     let worst = 0
 
     for (const [vibe, beat] of [
@@ -403,12 +541,23 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
     ] as const) {
       const A = overEmpty(vibeDockExact(vibe, beat, u, v), u, v)
 
-      for (let i = 0; i < 576; i++) worst = Math.max(worst, Math.hypot((A.re[i] as number) - (M.re[i] as number), (A.im[i] as number) - (M.im[i] as number)))
+      for (let i = 0; i < 576; i++) {
+        worst = Math.max(
+          worst,
+          Math.hypot(A.re[i]! - M.re[i]!, A.im[i]! - M.im[i]!),
+        )
+      }
     }
 
     return { V, worst }
   })
-  const I1 = pi8Exact && traceQ === 96 && covariant && group.length === 1152 && unitNormExact(v) && perAngle.every(x => x.worst <= MATRIX_TOLERANCE)
+  const I1 =
+    pi8Exact &&
+    traceQ === 96 &&
+    covariant &&
+    group.length === 1152 &&
+    unitNormExact(v) &&
+    perAngle.every(x => x.worst <= MATRIX_TOLERANCE)
 
   log('I1')
 
@@ -426,76 +575,182 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
   log('W1 A')
 
-  const pieceB = oneBody('B rank-one on y', withRankOne(A0, y, alphaV), withRankOne(Az, y, alphaV), m0, momenta)
+  const pieceB = oneBody(
+    'B rank-one on y',
+    withRankOne(A0, y, alphaV),
+    withRankOne(Az, y, alphaV),
+    m0,
+    momenta,
+  )
 
   log('W1 B')
 
   const W1 = pieceA.pass.all || pieceB.pass.all
 
   // R1: the covariant table, and C2
-  const variants: { name: string; phases: number[]; massless: number[] }[] = [
-    { name: 'Pi2 alpha', phases: [theta0, -alphaV, 0, 0, 0], massless: [Math.PI, -alphaV, 0, 0, 0] },
-    { name: 'Pi9 0.2', phases: [theta0, 0, 0.2, 0, 0], massless: [Math.PI, 0, 0.2, 0, 0] },
-    { name: 'Pi4 0.2', phases: [theta0 + 0.2, 0, 0, 0.2, 0], massless: [Math.PI + 0.2, 0, 0, 0.2, 0] },
-    { name: 'Pi8 +alpha', phases: [theta0, 0, 0, 0, -alphaV], massless: [Math.PI, 0, 0, 0, -alphaV] },
-    { name: 'Pi8 alpha Pi2 alpha', phases: [theta0, -alphaV, 0, 0, -alphaV], massless: [Math.PI, -alphaV, 0, 0, -alphaV] },
+  const variants: {
+    name: string
+    phases: number[]
+    massless: number[]
+  }[] = [
+    {
+      name: 'Pi2 alpha',
+      phases: [theta0, -alphaV, 0, 0, 0],
+      massless: [Math.PI, -alphaV, 0, 0, 0],
+    },
+    {
+      name: 'Pi9 0.2',
+      phases: [theta0, 0, 0.2, 0, 0],
+      massless: [Math.PI, 0, 0.2, 0, 0],
+    },
+    {
+      name: 'Pi4 0.2',
+      phases: [theta0 + 0.2, 0, 0, 0.2, 0],
+      massless: [Math.PI + 0.2, 0, 0, 0.2, 0],
+    },
+    {
+      name: 'Pi8 +alpha',
+      phases: [theta0, 0, 0, 0, -alphaV],
+      massless: [Math.PI, 0, 0, 0, -alphaV],
+    },
+    {
+      name: 'Pi8 alpha Pi2 alpha',
+      phases: [theta0, -alphaV, 0, 0, -alphaV],
+      massless: [Math.PI, -alphaV, 0, 0, -alphaV],
+    },
   ]
   const variantMomenta = weylMomenta(1024)
   const table = variants.map(x => {
-    const r = oneBody(x.name, covariantDock(p, x.phases), covariantDock(p, x.massless), m0, variantMomenta, Math.PI + (x.phases[3] as number))
-    const gammaPredicted = 1 / Math.tan((Math.PI + (x.phases[2] as number) - (x.phases[3] as number)) / 2) / 8 / C_STAR
+    const r = oneBody(
+      x.name,
+      covariantDock(p, x.phases),
+      covariantDock(p, x.massless),
+      m0,
+      variantMomenta,
+      Math.PI + x.phases[3]!,
+    )
+    const gammaPredicted =
+      1 /
+      Math.tan((Math.PI + x.phases[2]! - x.phases[3]!) / 2) /
+      8 /
+      C_STAR
 
     return { ...r, gammaPredicted }
   })
-  const c2Row = table[table.length - 1] as (typeof table)[number]
-  const C2 = c2Row.flats.some(f => Math.abs(wrap(f.phase)) >= FLAT_OFF && Math.abs(wrap(f.phase - Math.PI)) >= FLAT_OFF)
-  const I0 = [base, pieceA, pieceB, ...table].every(x => x.trace <= TRACE_TOLERANCE && x.traceZ <= TRACE_TOLERANCE && x.sum <= SUM_TOLERANCE && x.sumZ <= SUM_TOLERANCE)
+  const c2Row = table[table.length - 1]!
+  const C2 = c2Row.flats.some(
+    f =>
+      Math.abs(wrap(f.phase)) >= FLAT_OFF &&
+      Math.abs(wrap(f.phase - Math.PI)) >= FLAT_OFF,
+  )
+  const I0 = [base, pieceA, pieceB, ...table].every(
+    x =>
+      x.trace <= TRACE_TOLERANCE &&
+      x.traceZ <= TRACE_TOLERANCE &&
+      x.sum <= SUM_TOLERANCE &&
+      x.sumZ <= SUM_TOLERANCE,
+  )
 
   log('R1 C2 I0')
 
   // ---------------- I2: the contact maps with A against the no-piece maps (the runs use the no-piece maps) ----------------
-  const live = [...Array(CONTACT_STATES).keys()].filter(i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24)
-  const contactPlain = [0, 1].map(b => overEmpty(contactDockExact(b, u0), u0))
-  const contactOdd = [0, 1].map(b => overEmpty(contactDockExact(b, u0, v), u0, v))
-  const unitarity = Math.max(...contactOdd.map(M => contactUnitarity(M, live)))
+  const live = [...Array(CONTACT_STATES).keys()].filter(
+    i => i >= STORE_BASE || Math.floor(i / 24) !== i % 24,
+  )
+  const contactPlain = [0, 1].map(b =>
+    overEmpty(contactDockExact(b, u0), u0),
+  )
+  const contactOdd = [0, 1].map(b =>
+    overEmpty(contactDockExact(b, u0, v), u0, v),
+  )
+  const unitarity = Math.max(
+    ...contactOdd.map(M => contactUnitarity(M, live)),
+  )
+
   let contactGap = 0
 
   contactOdd.forEach((M, b) => {
-    const P0 = contactPlain[b] as (typeof contactPlain)[number]
+    const P0 = contactPlain[b]!
 
-    for (let i = 0; i < M.re.length; i++) contactGap = Math.max(contactGap, Math.hypot((M.re[i] as number) - (P0.re[i] as number), (M.im[i] as number) - (P0.im[i] as number)))
+    for (let i = 0; i < M.re.length; i++) {
+      contactGap = Math.max(
+        contactGap,
+        Math.hypot(M.re[i]! - P0.re[i]!, M.im[i]! - P0.im[i]!),
+      )
+    }
   })
 
-  const contact: [ReturnType<typeof sparseOf>, ReturnType<typeof sparseOf>] = [sparseOf(contactPlain[0] as (typeof contactPlain)[number]), sparseOf(contactPlain[1] as (typeof contactPlain)[number])]
+  const contact: [
+    ReturnType<typeof sparseOf>,
+    ReturnType<typeof sparseOf>,
+  ] = [sparseOf(contactPlain[0]!), sparseOf(contactPlain[1]!)]
   const I2 = unitarity <= MATRIX_TOLERANCE && contactGap <= CONTACT_SAME
 
   log('I2')
 
   // ---------------- I3: the rule with A on the side-4 box against the meson beat with A ----------------
   const shapes = massShapes(units)
-  const shape0 = shapes[0] as VibeShape
+  const shape0 = shapes[0]!
   const box = flatBoxTables(BOX_SIDE)
   const X = centerOf(BOX_SIDE)
-  const Xf1 = Math.floor((box.target[X * 24 + rootIndex([1, 1, 0, 0])] as number) / 24)
-  const checkSpace = mesonSpace(d4Ball(CHECK_BALL), shape0, contact, 0, [0, 0, 0, 0])
+  const Xf1 = Math.floor(
+    box.target[X * 24 + rootIndex([1, 1, 0, 0])]! / 24,
+  )
+  const checkSpace = mesonSpace(
+    d4Ball(CHECK_BALL),
+    shape0,
+    contact,
+    0,
+    [0, 0, 0, 0],
+  )
 
   setMassString(checkSpace, shapes)
   setOddPhase(checkSpace, v)
 
   const liveSubset = live.filter((_, i) => i % plan.liveStride === 0)
-  const pairSubset = boxStarts([], X, Xf1, [-1, -1, 0, 0]).filter((_, i) => i % plan.pairStride === 0)
-  const unitOf = (V: number): (typeof units)[number] => units[Math.min(V, units.length - 1)] as (typeof units)[number]
-  const box0 = boxCheck(box, boxStarts(liveSubset, X, X, [0, 0, 0, 0]).slice(0, liveSubset.length), checkSpace, unitOf, ENTRY_TOLERANCE, v)
-  const box1 = boxCheck(box, pairSubset, checkSpace, unitOf, ENTRY_TOLERANCE, v)
-  const I3 = box0.differ + box1.differ === 0 && box0.inexact + box1.inexact === 0 && box0.stray + box1.stray === 0
+  const pairSubset = boxStarts([], X, Xf1, [-1, -1, 0, 0]).filter(
+    (_, i) => i % plan.pairStride === 0,
+  )
+  const unitOf = (V: number): (typeof units)[number] =>
+    units[Math.min(V, units.length - 1)]!
+  const box0 = boxCheck(
+    box,
+    boxStarts(liveSubset, X, X, [0, 0, 0, 0]).slice(
+      0,
+      liveSubset.length,
+    ),
+    checkSpace,
+    unitOf,
+    ENTRY_TOLERANCE,
+    v,
+  )
+  const box1 = boxCheck(
+    box,
+    pairSubset,
+    checkSpace,
+    unitOf,
+    ENTRY_TOLERANCE,
+    v,
+  )
+  const I3 =
+    box0.differ + box1.differ === 0 &&
+    box0.inexact + box1.inexact === 0 &&
+    box0.stray + box1.stray === 0
 
   log('I3')
 
   // ---------------- I4: threaded against one thread, A on ----------------
   let threadGap = 0
   let threadSums = 0
+
   {
-    const raw = mesonSpace(d4Ball(THREAD_BALL), shape0, contact, 0, K_THREAD)
+    const raw = mesonSpace(
+      d4Ball(THREAD_BALL),
+      shape0,
+      contact,
+      0,
+      K_THREAD,
+    )
 
     setMassString(raw, shapes)
     setOddPhase(raw, v)
@@ -513,6 +768,7 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
       a.re[k] = ((k * g) % 1) - 0.5
       a.im[k] = ((k * g * g) % 1) - 0.5
     }
+
     c.re.set(a.re)
     c.im.set(a.im)
 
@@ -522,8 +778,22 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
       const l1 = ser.beat(a, b, t, f1)
       const l2 = thr.beat(c, d, t, f2)
 
-      for (let k = 0; k < b.re.length; k++) threadGap = Math.max(threadGap, Math.abs((b.re[k] as number) - (d.re[k] as number)), Math.abs((b.im[k] as number) - (d.im[k] as number)))
-      threadSums = Math.max(threadSums, Math.abs(l1 - l2) / Math.max(1, l1), Math.abs(f1.weight - f2.weight) / f1.weight, ...[0, 1, 2, 3].map(k => Math.abs((f1.v[k] as number) - (f2.v[k] as number)) / f1.weight))
+      for (let k = 0; k < b.re.length; k++) {
+        threadGap = Math.max(
+          threadGap,
+          Math.abs(b.re[k]! - d.re[k]!),
+          Math.abs(b.im[k]! - d.im[k]!),
+        )
+      }
+
+      threadSums = Math.max(
+        threadSums,
+        Math.abs(l1 - l2) / Math.max(1, l1),
+        Math.abs(f1.weight - f2.weight) / f1.weight,
+        ...[0, 1, 2, 3].map(
+          k => Math.abs(f1.v[k]! - f2.v[k]!) / f1.weight,
+        ),
+      )
       a.re.set(b.re)
       a.im.set(b.im)
       c.re.set(d.re)
@@ -532,13 +802,24 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
     thr.close()
   }
+
   const I4 = threadGap <= THREAD_TOLERANCE && threadSums <= THREAD_SUMS
 
   log('I4')
 
   // ---------------- W2: the vacuum under the exact rule with A ----------------
-  const vacuum = [0, 1, CAP].flatMap(V => [...plan.vacuumSides.map(side => ({ side, sea: 0 })), { side: BOX_SIDE, sea: 1 }].map(({ side, sea }) => ({ V, ...vacuumRun(units[V] as (typeof units)[number], side, sea, plan.vacuumBeats, v) })))
-  const W2 = vacuum.every(x => x.exact && x.permutes === 0 && x.charged === 0)
+  const vacuum = [0, 1, CAP].flatMap(V =>
+    [
+      ...plan.vacuumSides.map(side => ({ side, sea: 0 })),
+      { side: BOX_SIDE, sea: 1 },
+    ].map(({ side, sea }) => ({
+      V,
+      ...vacuumRun(units[V]!, side, sea, plan.vacuumBeats, v),
+    })),
+  )
+  const W2 = vacuum.every(
+    x => x.exact && x.permutes === 0 && x.charged === 0,
+  )
 
   log('W2')
 
@@ -547,23 +828,41 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
   // I5: the momentum-space reading on a calibration state (z (x) z at every site, a Gaussian in y)
   let calibration = { loveOff: NaN, fearOff: NaN, parseval: NaN }
+
   {
-    const s: MesonState = { re: new Float64Array(ball.points.length * 576 + 24), im: new Float64Array(ball.points.length * 576 + 24) }
-    const origin = ball.index.get('0,0,0,0') as number
+    const s: MesonState = {
+      re: new Float64Array(ball.points.length * 576 + 24),
+      im: new Float64Array(ball.points.length * 576 + 24),
+    }
+    const origin = ball.index.get('0,0,0,0')!
+
     let w = 0
 
     ball.points.forEach((q, i) => {
-      if (i === origin) return
+      if (i === origin) {
+        return
+      }
 
       const a = Math.exp(-q.reduce((t, x) => t + x * x, 0) / 8)
 
-      for (let e = 0; e < 576; e++) s.re[i * 576 + e] = a
+      for (let e = 0; e < 576; e++) {
+        s.re[i * 576 + e] = a
+      }
+
       w += 576 * a * a
     })
-    for (let k = 0; k < s.re.length; k++) s.re[k] = (s.re[k] as number) / Math.sqrt(w)
+
+    for (let k = 0; k < s.re.length; k++) {
+      s.re[k] = s.re[k]! / Math.sqrt(w)
+    }
+
     calibration = pairContent(ball, s, plan.box)
   }
-  const I5 = Math.abs(calibration.loveOff) <= CALIBRATION && Math.abs(calibration.fearOff) <= CALIBRATION && calibration.parseval <= PARSEVAL
+
+  const I5 =
+    Math.abs(calibration.loveOff) <= CALIBRATION &&
+    Math.abs(calibration.fearOff) <= CALIBRATION &&
+    calibration.parseval <= PARSEVAL
 
   log(`I5; ball ${plan.ball}: ${ball.points.length} sites`)
 
@@ -574,17 +873,38 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   const epsOf = (phase: number): number => sign * -wrap(phase - 2 * mid)
   const kap = stringKappa(KAPPA_GRID)
   const tau = unitAngle(ringUnit(STEP[0], STEP[1]))
-  const pred = massStringPrediction(level1.m, tau, CAP, kap.mean, RADIAL_L, RADIAL_N)
-  const space = shareSpace(mesonSpace(ball, shape0, contact, 0, [0, 0, 0, 0]))
+  const pred = massStringPrediction(
+    level1.m,
+    tau,
+    CAP,
+    kap.mean,
+    RADIAL_L,
+    RADIAL_N,
+  )
+  const space = shareSpace(
+    mesonSpace(ball, shape0, contact, 0, [0, 0, 0, 0]),
+  )
 
   setMassString(space, shapes)
 
   const engine: MesonEngine = threadEngine(space, plan.threads, POOL)
-  const hold = (eng: MesonEngine, lv: { v: MesonState; read: { phase: number; lambda2: [number, number]; residual: number } }, eps: (phase: number) => number): Held => {
+
+  const hold = (
+    eng: MesonEngine,
+    lv: {
+      v: MesonState
+      read: {
+        phase: number
+        lambda2: [number, number]
+        residual: number
+      }
+    },
+    eps: (phase: number) => number,
+  ): Held => {
     const h = watchLevel(eng, lv.v, plan.holdBeats, plan.window)
     const profile = stringProfile(ball, lv.v)
     const n = profile.length
-    const edge = (profile[n - 1] as number) + (profile[n - 2] as number)
+    const edge = profile[n - 1]! + profile[n - 2]!
 
     return {
       eps: eps(lv.read.phase),
@@ -597,13 +917,33 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
       share: singletShare(ball, lv.v),
       stored: storeWeight(ball, lv.v),
       profile,
-      holds: h.leastWindow >= 1 - HOLD && h.leastFidelity >= 1 - HOLD && h.absorbed <= ABSORB && edge <= EDGE,
+      holds:
+        h.leastWindow >= 1 - HOLD &&
+        h.leastFidelity >= 1 - HOLD &&
+        h.absorbed <= ABSORB &&
+        edge <= EDGE,
     }
   }
-  const procedure = (eng: MesonEngine, predictedPhase: number): { v: MesonState; read: ReturnType<typeof buildLevel>['read'] } => {
+
+  const procedure = (
+    eng: MesonEngine,
+    predictedPhase: number,
+  ): { v: MesonState; read: ReturnType<typeof buildLevel>['read'] } => {
     const start = mesonStart(ball, ELL)
-    const coarse = buildLevel(eng, start, predictedPhase, plan.sCoarse, 1)
-    const first = buildLevel(eng, coarse.v, coarse.read.phase, plan.sFirst, 1)
+    const coarse = buildLevel(
+      eng,
+      start,
+      predictedPhase,
+      plan.sCoarse,
+      1,
+    )
+    const first = buildLevel(
+      eng,
+      coarse.v,
+      coarse.read.phase,
+      plan.sFirst,
+      1,
+    )
 
     return buildLevel(eng, first.v, first.read.phase, plan.sSecond, 1)
   }
@@ -611,7 +951,10 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   // ---------------- W5: the piece off reproduces E-SPN-0147 ----------------
   const off = procedure(engine, phaseOf(pred.Erest))
   const offHeld = hold(engine, off, epsOf)
-  const W5 = offHeld.eps === RECORDED_EPS && offHeld.lambda === RECORDED_LAMBDA && offHeld.share === RECORDED_SHARE
+  const W5 =
+    offHeld.eps === RECORDED_EPS &&
+    offHeld.lambda === RECORDED_LAMBDA &&
+    offHeld.share === RECORDED_SHARE
 
   log('W5')
 
@@ -627,23 +970,32 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
   log('W3 hold')
 
-  const energyAt = (K: readonly number[], from: MesonState, phase: number): number => {
+  const energyAt = (
+    K: readonly number[],
+    from: MesonState,
+    phase: number,
+  ): number => {
     setMomentum(space, K)
 
-    return epsOf(buildLevel(engine, from, phase, plan.sMove, 1).read.phase)
+    return epsOf(
+      buildLevel(engine, from, phase, plan.sMove, 1).read.phase,
+    )
   }
+
   const zero = energyAt([0, 0, 0, 0], on.v, on.read.phase)
   const dispersion = DIRECTIONS.map(d => {
-    const d1 = energyAt(
-      d.u.map(x => x * KAPPA),
-      on.v,
-      on.read.phase,
-    ) - zero
-    const d2 = energyAt(
-      d.u.map(x => (x * KAPPA) / 2),
-      on.v,
-      on.read.phase,
-    ) - zero
+    const d1 =
+      energyAt(
+        d.u.map(x => x * KAPPA),
+        on.v,
+        on.read.phase,
+      ) - zero
+    const d2 =
+      energyAt(
+        d.u.map(x => (x * KAPPA) / 2),
+        on.v,
+        on.read.phase,
+      ) - zero
 
     log(`W3 ${d.name}`)
 
@@ -652,10 +1004,15 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
   setMomentum(space, [0, 0, 0, 0])
 
-  const a0 = (dispersion[0] as (typeof dispersion)[number]).a
-  const isotropy = Math.max(...dispersion.map(x => Math.abs(x.a / a0 - 1)))
+  const a0 = dispersion[0]!.a
+  const isotropy = Math.max(
+    ...dispersion.map(x => Math.abs(x.a / a0 - 1)),
+  )
   const Rcomposite = (C_STAR * C_STAR) / (2 * a0 * onHeld.eps)
-  const W3 = onHeld.holds && isotropy <= ISOTROPY && Math.abs(Rcomposite - 1) <= R_TOLERANCE
+  const W3 =
+    onHeld.holds &&
+    isotropy <= ISOTROPY &&
+    Math.abs(Rcomposite - 1) <= R_TOLERANCE
   const onVelocity = levelVelocity(engine, on.v)
   const onContent = pairContent(ball, on.v, plan.box)
 
@@ -670,14 +1027,29 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
 
   const eps4 = linearWell(WELL_L, WELL_N)
   const Fphase = sigma * kap.mean
-  const predPhaseString = 2 * level1.m + eps4 * Fphase * (1 / (2 * Math.tan(level1.m) * Fphase)) ** (1 / 3)
+  const predPhaseString =
+    2 * level1.m +
+    eps4 * Fphase * (1 / (2 * Math.tan(level1.m) * Fphase)) ** (1 / 3)
+
   let c1Held: Held
+
   {
     const s0 = mesonStart(ball, ELL_PHASE)
-    const f = buildLevel(engine, s0, phaseOf(predPhaseString), plan.sFirst, 1)
+    const f = buildLevel(
+      engine,
+      s0,
+      phaseOf(predPhaseString),
+      plan.sFirst,
+      1,
+    )
 
-    c1Held = hold(engine, buildLevel(engine, f.v, f.read.phase, plan.sSecond, 1), epsOf)
+    c1Held = hold(
+      engine,
+      buildLevel(engine, f.v, f.read.phase, plan.sSecond, 1),
+      epsOf,
+    )
   }
+
   const C1 = !c1Held.holds
 
   engine.close()
@@ -687,31 +1059,68 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   const uL = ringUnit(LIGHT[0], LIGHT[1])
   const AL = overEmpty(vibeDockExact(1, 0, uL), uL)
   const levelL = singletLevel(AL, R, 12)
-  const kmaxOf = (m: number): number => Math.PI / 2 - m + Math.asin(Math.cos(m) / 3)
-  const windowL = { floor: Math.PI - 2 * levelL.m, ceiling: 2 * Math.PI - 2 * levelL.m - 2 * kmaxOf(levelL.m) }
-  const predL = massStringPrediction(levelL.m, tau, LIGHT_CAP, kap.mean, RADIAL_L, RADIAL_N)
+  const kmaxOf = (m: number): number =>
+    Math.PI / 2 - m + Math.asin(Math.cos(m) / 3)
+  const windowL = {
+    floor: Math.PI - 2 * levelL.m,
+    ceiling: 2 * Math.PI - 2 * levelL.m - 2 * kmaxOf(levelL.m),
+  }
+  const predL = massStringPrediction(
+    levelL.m,
+    tau,
+    LIGHT_CAP,
+    kap.mean,
+    RADIAL_L,
+    RADIAL_N,
+  )
+
   let lightOn: Held | null = null
   let lightOff: Held | null = null
-  const unitsL = massUnits(LIGHT, STEP, LIGHT_CAP, Math.max(plan.ball, LIGHT_CAP))
-  const capAngle = unitAngle(unitsL[LIGHT_CAP] as (typeof unitsL)[number])
-  const mCapL = (capAngle < 0 ? capAngle + 2 * Math.PI : capAngle) / 2 - Math.PI / 2
+
+  const unitsL = massUnits(
+    LIGHT,
+    STEP,
+    LIGHT_CAP,
+    Math.max(plan.ball, LIGHT_CAP),
+  )
+  const capAngle = unitAngle(unitsL[LIGHT_CAP]!)
+  const mCapL =
+    (capAngle < 0 ? capAngle + 2 * Math.PI : capAngle) / 2 - Math.PI / 2
 
   if (plan.light) {
     const shapesL = massShapes(unitsL)
-    const contactL: [ReturnType<typeof sparseOf>, ReturnType<typeof sparseOf>] = [sparseOf(overEmpty(contactDockExact(0, uL), uL)), sparseOf(overEmpty(contactDockExact(1, uL), uL))]
-    const spaceL = shareSpace(mesonSpace(ball, shapesL[0] as VibeShape, contactL, 0, [0, 0, 0, 0]))
+    const contactL: [
+      ReturnType<typeof sparseOf>,
+      ReturnType<typeof sparseOf>,
+    ] = [
+      sparseOf(overEmpty(contactDockExact(0, uL), uL)),
+      sparseOf(overEmpty(contactDockExact(1, uL), uL)),
+    ]
+    const spaceL = shareSpace(
+      mesonSpace(ball, shapesL[0]!, contactL, 0, [0, 0, 0, 0]),
+    )
 
     setMassString(spaceL, shapesL)
     setOddPhase(spaceL, v)
 
     const engineL = threadEngine(spaceL, plan.threads, POOL)
-    const phaseL = (eps: number): number => wrap(2 * levelL.midPhase - levelL.sign * eps)
-    const epsL = (phase: number): number => levelL.sign * -wrap(phase - 2 * levelL.midPhase)
+    const phaseL = (eps: number): number =>
+      wrap(2 * levelL.midPhase - levelL.sign * eps)
+    const epsL = (phase: number): number =>
+      levelL.sign * -wrap(phase - 2 * levelL.midPhase)
 
-    lightOn = hold(engineL, procedure(engineL, phaseL(predL.Erest)), epsL)
+    lightOn = hold(
+      engineL,
+      procedure(engineL, phaseL(predL.Erest)),
+      epsL,
+    )
     log('W4')
     setOddPhase(spaceL, null)
-    lightOff = hold(engineL, procedure(engineL, phaseL(predL.Erest)), epsL)
+    lightOff = hold(
+      engineL,
+      procedure(engineL, phaseL(predL.Erest)),
+      epsL,
+    )
     engineL.close()
     log('R3')
   }
@@ -719,10 +1128,20 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
   const W4 = lightOn !== null && lightOn.holds
   const instrument = I0 && I1 && I2 && I3 && I4 && I5
   const controls = C1 && C2
-  const status = !instrument || !controls ? 'partial' : W1 && W2 && W3 && W4 && W5 ? 'pass' : 'fail'
-  const bodyLine = (b: OneBody): string => `${b.name}: rest ${b.restPhases} (${b.restAtPi} at pi); m ${b.m.toFixed(9)}, R - tan m/m ${b.R.map(r => (r - b.tanRatio).toExponential(2)).join(' ')}; massless c0 ${b.c0.map(x => x.toFixed(6)).join(' ')} c*, gamma/c* ${b.gamma.map(x => x.toExponential(2)).join(' ')}; top ${b.top.toFixed(6)} c*, massless ${b.topMassless.toFixed(6)} c*; flats ${b.flats.map(f => `${f.phase.toFixed(6)}x${f.count}`).join(' ') || 'none'}; band sum ${b.sum.toExponential(1)} / ${b.sumZ.toExponential(1)}, trace ${b.trace.toExponential(1)} / ${b.traceZ.toExponential(1)}; clauses a ${b.pass.a} b ${b.pass.b} c ${b.pass.c} d ${b.pass.d}`
-  const heldLine = (h: Held | null): string => (h ? `eps ${h.eps.toFixed(6)}, |lambda2| ${h.lambda.toFixed(10)}, residual ${h.residual.toExponential(2)}, window ${h.window.toFixed(6)}, fidelity ${h.fidelity.toFixed(9)}, absorbed ${h.absorbed.toExponential(2)}, edge ${h.edge.toExponential(2)}, singlet share ${h.share.toFixed(4)}, stores ${h.stored.toExponential(2)}, holds ${h.holds}; profile ${h.profile.map(x => x.toExponential(1)).join(' ')}` : 'not run')
-  const contentLine = (c: ReturnType<typeof pairContent>): string => `off the moving span: love ${c.loveOff.toFixed(5)}, fear ${c.fearOff.toFixed(5)} (stores ${c.stores.toExponential(2)}, Parseval ${c.parseval.toExponential(1)})`
+  const status =
+    !instrument || !controls
+      ? 'partial'
+      : W1 && W2 && W3 && W4 && W5
+        ? 'pass'
+        : 'fail'
+  const bodyLine = (b: OneBody): string =>
+    `${b.name}: rest ${b.restPhases} (${b.restAtPi} at pi); m ${b.m.toFixed(9)}, R - tan m/m ${b.R.map(r => (r - b.tanRatio).toExponential(2)).join(' ')}; massless c0 ${b.c0.map(x => x.toFixed(6)).join(' ')} c*, gamma/c* ${b.gamma.map(x => x.toExponential(2)).join(' ')}; top ${b.top.toFixed(6)} c*, massless ${b.topMassless.toFixed(6)} c*; flats ${b.flats.map(f => `${f.phase.toFixed(6)}x${f.count}`).join(' ') || 'none'}; band sum ${b.sum.toExponential(1)} / ${b.sumZ.toExponential(1)}, trace ${b.trace.toExponential(1)} / ${b.traceZ.toExponential(1)}; clauses a ${b.pass.a} b ${b.pass.b} c ${b.pass.c} d ${b.pass.d}`
+  const heldLine = (h: Held | null): string =>
+    h
+      ? `eps ${h.eps.toFixed(6)}, |lambda2| ${h.lambda.toFixed(10)}, residual ${h.residual.toExponential(2)}, window ${h.window.toFixed(6)}, fidelity ${h.fidelity.toFixed(9)}, absorbed ${h.absorbed.toExponential(2)}, edge ${h.edge.toExponential(2)}, singlet share ${h.share.toFixed(4)}, stores ${h.stored.toExponential(2)}, holds ${h.holds}; profile ${h.profile.map(x => x.toExponential(1)).join(' ')}`
+      : 'not run'
+  const contentLine = (c: ReturnType<typeof pairContent>): string =>
+    `off the moving span: love ${c.loveOff.toFixed(5)}, fear ${c.fearOff.toFixed(5)} (stores ${c.stores.toExponential(2)}, Parseval ${c.parseval.toExponential(1)})`
 
   return verdict({
     status,
@@ -749,8 +1168,12 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
       topMasslessA: pieceA.topMassless,
       gammaMaxA: Math.max(...pieceA.gamma.map(Math.abs)),
       gammaMaxB: Math.max(...pieceB.gamma.map(Math.abs)),
-      RdefectA: Math.max(...pieceA.R.map(r => Math.abs(r - pieceA.tanRatio))),
-      RdefectB: Math.max(...pieceB.R.map(r => Math.abs(r - pieceB.tanRatio))),
+      RdefectA: Math.max(
+        ...pieceA.R.map(r => Math.abs(r - pieceA.tanRatio)),
+      ),
+      RdefectB: Math.max(
+        ...pieceB.R.map(r => Math.abs(r - pieceB.tanRatio)),
+      ),
       offEps: offHeld.eps,
       onEps: onHeld.eps,
       onWindow: onHeld.window,
@@ -776,7 +1199,11 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
       threadSums,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      instrument: flag(instrument),
+    },
     notes: `L1 and L2. The unit v = e^(-i alpha), alpha ${(-alphaV).toFixed(6)}. I1: 12 Pi8 exact ${pi8Exact}, trace ${traceQ}, W(F4)-invariant ${covariant} over ${group.length}; the rule with A against the covariant model per V: ${perAngle.map(x => x.worst.toExponential(1)).join(' ')}. W1: ${bodyLine(base)} | ${bodyLine(pieceA)} | ${bodyLine(pieceB)}. R1: ${table.map(r => `${bodyLine(r)}; gamma/c* derived ${r.gammaPredicted.toExponential(3)}`).join(' | ')}. I2: unitarity ${unitarity.toExponential(2)}, against the no-piece maps ${contactGap.toExponential(2)}. I3: V 0 ${box0.checked} starts, worst ${box0.worst.toExponential(2)}, ${box0.differ} differ, ${box0.inexact} inexact, ${box0.stray} stray; V 1 ${box1.checked} starts, worst ${box1.worst.toExponential(2)}, ${box1.differ} differ, ${box1.inexact} inexact, ${box1.stray} stray. I4: entries ${threadGap.toExponential(2)}, sums ${threadSums.toExponential(2)}. I5: ${JSON.stringify(calibration)}. W2: ${vacuum.map(x => `u(${x.V}) side ${x.side} ${x.sea ? 'sea' : 'empty'} exact ${x.exact} permutes ${x.permutes} charged ${x.charged}`).join('; ')}. Prediction: E_rest ${pred.Erest.toFixed(6)}, light point E_rest ${predL.Erest.toFixed(6)} (m_cap ${mCapL.toFixed(6)}). W5 level: ${heldLine(offHeld)}. W3 level: ${heldLine(onHeld)}; K^2 coefficients ${dispersion.map(x => `${x.name} ${x.a.toExponential(9)}`).join(', ')}; velocity at rest ${onVelocity.map(x => x.toExponential(1)).join(' ')}. C1 level: ${heldLine(c1Held)}. W4 level (A on): ${heldLine(lightOn)}. R3 (A off): ${heldLine(lightOff)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

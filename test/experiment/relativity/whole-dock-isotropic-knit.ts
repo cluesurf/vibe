@@ -48,12 +48,37 @@ import { linearMapOf } from '@/code/substrate/d4-box'
 import { d4BoxMesh, d4BoxCell } from '@/code/substrate/d4-box'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { turningWeave } from '@/code/rule/collision'
-import { COMBINED_DEFAULT, combinedCollision } from '@/code/rule/combined-knit'
-import { EXCHANGE_LINES, forcedFunctionals, quaternionKnit } from '@/code/rule/quaternion-knit'
-import { CHARGE_CONJUGATION, denseCellStates, moveFiringStates, symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
-import { conjugacyClasses, matrixGroupClosure } from '@/code/measure/glide-group'
-import { chargeWaveResponse, forcedIsotropySpread, kernelParts, responseKernel, unitSamples } from '@/code/measure/coarse-modes'
-import { acceptance, dressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  COMBINED_DEFAULT,
+  combinedCollision,
+} from '@/code/rule/combined-knit'
+import {
+  EXCHANGE_LINES,
+  forcedFunctionals,
+  quaternionKnit,
+} from '@/code/rule/quaternion-knit'
+import {
+  CHARGE_CONJUGATION,
+  denseCellStates,
+  moveFiringStates,
+  symmetryLedger,
+} from '@/code/measure/rule-symmetry-ledger'
+import {
+  conjugacyClasses,
+  matrixGroupClosure,
+} from '@/code/measure/glide-group'
+import {
+  chargeWaveResponse,
+  forcedIsotropySpread,
+  kernelParts,
+  responseKernel,
+  unitSamples,
+} from '@/code/measure/coarse-modes'
+import {
+  acceptance,
+  dressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import {
   closure,
   forcedForms,
@@ -68,29 +93,56 @@ import { collide, stream } from '@/code/rule/lattice-gas'
 import { makeWill, type Will } from '@/code/tone/will'
 
 const GENERIC = [0.31, -0.74, 0.52, 0.29]
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
 const DRESSING_SIDES = [7, 9, 11]
 const RESPONSE_SIDES = [9, 13]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-function anisotropy(side: number, schedule: ReturnType<typeof quaternionKnit>): number {
+function anisotropy(
+  side: number,
+  schedule: ReturnType<typeof quaternionKnit>,
+): number {
   return averagedAnisotropy(side, schedule, 1)[0] ?? 0
 }
 
 // the kernel averaged over `samples` start times 6 beats apart; the anisotropy after 1, 4 and 16 samples
 // (or as many as run): a structural anisotropy stays, noise falls
-function averagedAnisotropy(side: number, schedule: ReturnType<typeof quaternionKnit>, samples: number): number[] {
+function averagedAnisotropy(
+  side: number,
+  schedule: ReturnType<typeof quaternionKnit>,
+  samples: number,
+): number[] {
   let sum: number[][][] | undefined
+
   const out: number[] = []
 
   for (let j = 0; j < samples; j++) {
-    const records = chargeWaveResponse({ mesh: d4Mesh({ side }), side, schedule, directions: rootsD4(), modes: AXES, epsilon: 0.1, warm: 48 + 6 * j, beats: 2 * side })
+    const records = chargeWaveResponse({
+      mesh: d4Mesh({ side }),
+      side,
+      schedule,
+      directions: rootsD4(),
+      modes: AXES,
+      epsilon: 0.1,
+      warm: 48 + 6 * j,
+      beats: 2 * side,
+    })
     const kernel = responseKernel(records)
 
-    sum = sum ? sum.map((m, t) => m.map((row, i) => row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0)))) : kernel
+    sum = sum
+      ? sum.map((m, t) =>
+          m.map((row, i) =>
+            row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0)),
+          ),
+        )
+      : kernel
 
     if ([1, 4, 16].includes(j + 1)) {
-      const parts = kernelParts(sum.map(m => m.map(row => row.map(x => x / (j + 1)))))
+      const parts = kernelParts(
+        sum.map(m => m.map(row => row.map(x => x / (j + 1)))),
+      )
 
       out.push(parts.anisotropic / parts.isotropic)
     }
@@ -103,7 +155,7 @@ export default experiment({
   id: 'relativity/whole-dock-isotropic-knit',
   code: 'E-RLT-0051',
   title:
-    'no knit has exact local color, forced rotation isotropy and momentum exchange as free as the scatter weave\'s: no irreducible coin group keeps the side signs of any of the 4,096 side choices, so a knit whose period group acts irreducibly keeps P and every image of the side sum, at least 8 line-momentum invariants (every subspace of 7 or fewer has a reducible stabilizer) where the scatter weave keeps 5, and 12 (no exchange at all) for 235 of the 320 two-generated irreducible groups; the 109 groups that reach 8 all hold -1 acting without charge conjugation, so no pair clock on a line is symmetric and the vacuum must clock with like pairs on two lines, and only the two quaternion groups keep couples for it; the quaternion knit built on that (one collision, exchange and couple clock, C = E B E) has exact CPT, Q8 forcing rank-2 isotropy (spread 1.3e-15), exact reversal, charge, P and every forced invariant, a clocking vacuum (period 3), exchange on 8 lines and connected line graphs, but its dressing runs away (289, 7,219, 68,735, 106,055 slots at side 9 against the committed 33, 160, 565, 1,508), and its single-background long-wave response reads 2.80 (noise that falls to 1.03 over 16 start times, where the combined knit stays at 0.80)',
+    "no knit has exact local color, forced rotation isotropy and momentum exchange as free as the scatter weave's: no irreducible coin group keeps the side signs of any of the 4,096 side choices, so a knit whose period group acts irreducibly keeps P and every image of the side sum, at least 8 line-momentum invariants (every subspace of 7 or fewer has a reducible stabilizer) where the scatter weave keeps 5, and 12 (no exchange at all) for 235 of the 320 two-generated irreducible groups; the 109 groups that reach 8 all hold -1 acting without charge conjugation, so no pair clock on a line is symmetric and the vacuum must clock with like pairs on two lines, and only the two quaternion groups keep couples for it; the quaternion knit built on that (one collision, exchange and couple clock, C = E B E) has exact CPT, Q8 forcing rank-2 isotropy (spread 1.3e-15), exact reversal, charge, P and every forced invariant, a clocking vacuum (period 3), exchange on 8 lines and connected line graphs, but its dressing runs away (289, 7,219, 68,735, 106,055 slots at side 9 against the committed 33, 160, 565, 1,508), and its single-background long-wave response reads 2.80 (noise that falls to 1.03 over 16 start times, where the combined knit stays at 0.80)",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -122,7 +174,9 @@ export default experiment({
     const reps = new Map<number, number>()
 
     table.permutations.forEach((_, i) => {
-      if (!reps.has(classOf[i] ?? -1)) reps.set(classOf[i] ?? -1, i)
+      if (!reps.has(classOf[i] ?? -1)) {
+        reps.set(classOf[i] ?? -1, i)
+      }
     })
 
     const twoGenerated = new Map<string, number[]>()
@@ -131,7 +185,9 @@ export default experiment({
       for (let b = 0; b < n; b++) {
         const g = closure(table, [a, b])
 
-        if (table.spread(g) < 1e-9) twoGenerated.set(g.join(','), g)
+        if (table.spread(g) < 1e-9) {
+          twoGenerated.set(g.join(','), g)
+        }
       }
     }
 
@@ -139,28 +195,50 @@ export default experiment({
 
     for (const g of twoGenerated.values()) {
       for (let h = 0; h < n; h++) {
-        const k = g.map(x => table.multiply[(table.multiply[h * n + x] ?? 0) * n + (table.inverse[h] ?? 0)] ?? 0).sort((p, q) => p - q)
+        const k = g
+          .map(
+            x =>
+              table.multiply[
+                (table.multiply[h * n + x] ?? 0) * n +
+                  (table.inverse[h] ?? 0)
+              ] ?? 0,
+          )
+          .sort((p, q) => p - q)
 
         conjugates.set(k.join(','), k)
       }
     }
 
     const constraint = new Map<string, number>()
+
     let leastInCensus = 99
 
     for (const g of conjugates.values()) {
       const r = forcedForms(table, g).length
 
       leastInCensus = Math.min(leastInCensus, r)
-      constraint.set(`order${g.length}Rank${r}`, (constraint.get(`order${g.length}Rank${r}`) ?? 0) + 1)
+      constraint.set(
+        `order${g.length}Rank${r}`,
+        (constraint.get(`order${g.length}Rank${r}`) ?? 0) + 1,
+      )
     }
 
     // 3
     const least = leastRankGroups(table)
-    const allHoldMinus = least.groups.every(g => g.includes(table.minus))
-    const pairClockTwists = least.groups.filter(g => twists(table, g).some(t => t.get(table.minus) === -1)).length
-    const coupleKeepers = least.groups.filter(g => twists(table, g).some(t => keptCouplePartitions(table, g, t, 1) > 0))
-    const onlyOrderEight = coupleKeepers.length > 0 && coupleKeepers.every(g => g.length === 8)
+    const allHoldMinus = least.groups.every(g =>
+      g.includes(table.minus),
+    )
+    const pairClockTwists = least.groups.filter(g =>
+      twists(table, g).some(t => t.get(table.minus) === -1),
+    ).length
+    const coupleKeepers = least.groups.filter(g =>
+      twists(table, g).some(
+        t => keptCouplePartitions(table, g, t, 1) > 0,
+      ),
+    )
+    const onlyOrderEight =
+      coupleKeepers.length > 0 &&
+      coupleKeepers.every(g => g.length === 8)
 
     // 4. the quaternion knit
     const opposite = meshOpposites(d4Mesh({ side: 5 }))
@@ -170,12 +248,16 @@ export default experiment({
       Int8Array.from({ length: 24 }, (__, d) => {
         const l = d < (opposite[d] ?? d) ? d : (opposite[d] ?? d)
 
-        return (((m * 7 + l * 5 + ((m * l) % 7)) % 3) - 1) as number
+        return ((m * 7 + l * 5 + ((m * l) % 7)) % 3) - 1
       }),
     )
     const pairs: [number, number, number, number][] = []
 
-    for (let u = 0; u < 24; u++) for (let v = u + 1; v < 24; v++) pairs.push([u, v, u, v])
+    for (let u = 0; u < 24; u++) {
+      for (let v = u + 1; v < 24; v++) {
+        pairs.push([u, v, u, v])
+      }
+    }
 
     const ledger = symmetryLedger({
       forward,
@@ -185,21 +267,42 @@ export default experiment({
       degree: 24,
       quickDense: 64,
       thoroughDense: 1024,
-      extraStates: [...headOn, ...moveFiringStates({ moves: pairs, degree: 24 })],
+      extraStates: [
+        ...headOn,
+        ...moveFiringStates({ moves: pairs, degree: 24 }),
+      ],
     })
     const glides = ledger.filter(e => e.kind === 'forward')
     const reversals = ledger.filter(e => e.kind === 'reversal')
-    const glideGroup = matrixGroupClosure(glides.map(e => linearMapOf(table.permutations[e.p] ?? []) ?? []))
-    const glideSpread = forcedIsotropySpread({ group: glideGroup, rank: 2, generic: GENERIC, samples: unitSamples(64) })
-    const cpt = reversals.some(e => e.p === table.identity && e.tau === CHARGE_CONJUGATION)
-    const minusGlide = glides.filter(e => e.p === table.minus).map(e => e.tau)
-    const plainCharge = glides.some(e => e.p === table.identity && e.tau === CHARGE_CONJUGATION)
+    const glideGroup = matrixGroupClosure(
+      glides.map(e => linearMapOf(table.permutations[e.p] ?? []) ?? []),
+    )
+    const glideSpread = forcedIsotropySpread({
+      group: glideGroup,
+      rank: 2,
+      generic: GENERIC,
+      samples: unitSamples(64),
+    })
+    const cpt = reversals.some(
+      e => e.p === table.identity && e.tau === CHARGE_CONJUGATION,
+    )
+    const minusGlide = glides
+      .filter(e => e.p === table.minus)
+      .map(e => e.tau)
+    const plainCharge = glides.some(
+      e => e.p === table.identity && e.tau === CHARGE_CONJUGATION,
+    )
 
     // conservation on a dense run (side 5 box, 48 beats): charge, P, every forced form at every dock, and how
     // often the line momenta change
     const forms = forcedFunctionals()
     const lineMomenta = (s: Int8Array, base: number): number[] =>
-      table.firsts.map(d => Math.abs(s[base + d] ?? 0) - Math.abs(s[base + (opposite[d] ?? 0)] ?? 0))
+      table.firsts.map(
+        d =>
+          Math.abs(s[base + d] ?? 0) -
+          Math.abs(s[base + (opposite[d] ?? 0)] ?? 0),
+      )
+
     let will: Will = makeWill(d4BoxMesh({ side: 5 }))
 
     for (let i = 0; i < will.data.length; i++) {
@@ -212,6 +315,7 @@ export default experiment({
     let momentumChanges = 0
     let exchangeLineChanges = 0
     let frozenLineChanges = 0
+
     const docks = will.mesh.cellCount
     const collision = forward(0)
 
@@ -224,15 +328,30 @@ export default experiment({
         const after = lineMomenta(will.data, x * 24)
 
         for (const row of forms) {
-          if (Math.abs(row.reduce((a, c, l) => a + c * ((after[l] ?? 0) - (before[l] ?? 0)), 0)) > 1e-9) formBreaks++
+          if (
+            Math.abs(
+              row.reduce(
+                (a, c, l) =>
+                  a + c * ((after[l] ?? 0) - (before[l] ?? 0)),
+                0,
+              ),
+            ) > 1e-9
+          ) {
+            formBreaks++
+          }
         }
 
-        if (after.some((v, l) => v !== before[l])) momentumChanges++
+        if (after.some((v, l) => v !== before[l])) {
+          momentumChanges++
+        }
 
         after.forEach((v, l) => {
           if (v !== before[l]) {
-            if (EXCHANGE_LINES.includes(l)) exchangeLineChanges++
-            else frozenLineChanges++
+            if (EXCHANGE_LINES.includes(l)) {
+              exchangeLineChanges++
+            } else {
+              frozenLineChanges++
+            }
           }
         })
       }
@@ -243,8 +362,10 @@ export default experiment({
     void collide
 
     // the battery against the committed knit
-    const rule: ScheduledRule = (o, f) => quaternionKnit({ opposite: o, forward: f })
-    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
+    const rule: ScheduledRule = (o, f) =>
+      quaternionKnit({ opposite: o, forward: f })
+    const committedRule: ScheduledRule = (o, f) =>
+      turningWeave({ opposite: o, forward: f })
     const battery = acceptance(rule)
     const committed = acceptance(committedRule)
     const dressings = DRESSING_SIDES.flatMap(side =>
@@ -252,20 +373,41 @@ export default experiment({
         side,
         tone,
         knit: dressing(rule, { tone, side }).periodLargest,
-        committed: dressing(committedRule, { tone, side }).periodLargest,
+        committed: dressing(committedRule, { tone, side })
+          .periodLargest,
       })),
     )
-    const dressedMore = dressings.every(d => d.knit.every((x, p) => x > (d.committed[p] ?? 0)))
+    const dressedMore = dressings.every(d =>
+      d.knit.every((x, p) => x > (d.committed[p] ?? 0)),
+    )
     const responses = RESPONSE_SIDES.map(side => ({
       side,
-      knit: anisotropy(side, quaternionKnit({ opposite: meshOpposites(d4Mesh({ side })) })),
-      committed: anisotropy(side, turningWeave({ opposite: meshOpposites(d4Mesh({ side })) })),
+      knit: anisotropy(
+        side,
+        quaternionKnit({ opposite: meshOpposites(d4Mesh({ side })) }),
+      ),
+      committed: anisotropy(
+        side,
+        turningWeave({ opposite: meshOpposites(d4Mesh({ side })) }),
+      ),
     }))
-    const isotropic = (responses[0]?.knit ?? 1) < 0.5 * (responses[0]?.committed ?? 0)
+    const isotropic =
+      (responses[0]?.knit ?? 1) < 0.5 * (responses[0]?.committed ?? 0)
     // reported, not gated (added after the single-sample reading was seen): the side-9 kernel averaged over
     // 1, 4 and 16 start times, for this knit and for the combined knit (CPT, reducible period group)
-    const averaged = averagedAnisotropy(9, quaternionKnit({ opposite: meshOpposites(d4Mesh({ side: 9 })) }), 16)
-    const combinedAveraged = averagedAnisotropy(9, combinedCollision({ spec: COMBINED_DEFAULT, opposite: meshOpposites(d4Mesh({ side: 9 })) }), 16)
+    const averaged = averagedAnisotropy(
+      9,
+      quaternionKnit({ opposite: meshOpposites(d4Mesh({ side: 9 })) }),
+      16,
+    )
+    const combinedAveraged = averagedAnisotropy(
+      9,
+      combinedCollision({
+        spec: COMBINED_DEFAULT,
+        opposite: meshOpposites(d4Mesh({ side: 9 })),
+      }),
+      16,
+    )
     const vacuumCell = new Int8Array(24)
 
     collision(vacuumCell, 0, 24)
@@ -298,7 +440,7 @@ export default experiment({
       // every gate but the single-background response: partial, since that gate stays failed as registered
       status: rest && isotropic ? 'pass' : rest ? 'partial' : 'fail',
       claim:
-        'no side choice has an irreducible signed stabilizer; no forced subspace of dimension 7 or less has one, so every irreducible period group forces at least 8 line-momentum invariants, and 8 is reached; every least-rank group holds -1 with the plain tone map and only order-8 groups keep couples; the quaternion knit has an irreducible Q8 glide group, CPT at the identity coin map, exact reversal, charge, P and forced invariants with exchange on its free lines, and a clocking vacuum, and dresses more than the committed knit at every side, sign and period; its single-background long-wave anisotropy at side 9 is not under half the committed knit\'s (the registered gate that fails)',
+        "no side choice has an irreducible signed stabilizer; no forced subspace of dimension 7 or less has one, so every irreducible period group forces at least 8 line-momentum invariants, and 8 is reached; every least-rank group holds -1 with the plain tone map and only order-8 groups keep couples; the quaternion knit has an irreducible Q8 glide group, CPT at the identity coin map, exact reversal, charge, P and forced invariants with exchange on its free lines, and a clocking vacuum, and dresses more than the committed knit at every side, sign and period; its single-background long-wave anisotropy at side 9 is not under half the committed knit's (the registered gate that fails)",
       metrics: {
         sideChoices: 4096,
         sideChoicesWithIrreducibleStabilizer: sides.irreducible,
@@ -312,7 +454,9 @@ export default experiment({
         dimension8Spaces: least.spaces,
         irreducibleDimension8Stabilizers: least.hosts.length,
         leastRankGroups: least.groups.length,
-        leastRankGroupsHoldingMinusOne: least.groups.filter(g => g.includes(table.minus)).length,
+        leastRankGroupsHoldingMinusOne: least.groups.filter(g =>
+          g.includes(table.minus),
+        ).length,
         leastRankGroupsWithAPairClockTwist: pairClockTwists,
         leastRankGroupsKeepingCouples: coupleKeepers.length,
         knitGlides: glides.length,
@@ -336,11 +480,31 @@ export default experiment({
         knitWallQuantized: battery.wallQuantized ? 1 : 0,
         knitTravellers: battery.travellers,
         ...Object.fromEntries(
-          dressings.flatMap(d => d.knit.map((x, p) => [`knit${d.tone > 0 ? 'Love' : 'Fear'}Side${d.side}Period${p + 1}`, x])),
+          dressings.flatMap(d =>
+            d.knit.map((x, p) => [
+              `knit${d.tone > 0 ? 'Love' : 'Fear'}Side${d.side}Period${p + 1}`,
+              x,
+            ]),
+          ),
         ),
-        ...Object.fromEntries(responses.map(r => [`knitAnisotropySide${r.side}`, Number(r.knit.toFixed(4))])),
-        ...Object.fromEntries(averaged.map((x, i) => [`knitSide9AnisotropyOver${[1, 4, 16][i]}Starts`, Number(x.toFixed(4))])),
-        ...Object.fromEntries(combinedAveraged.map((x, i) => [`combinedSide9AnisotropyOver${[1, 4, 16][i]}Starts`, Number(x.toFixed(4))])),
+        ...Object.fromEntries(
+          responses.map(r => [
+            `knitAnisotropySide${r.side}`,
+            Number(r.knit.toFixed(4)),
+          ]),
+        ),
+        ...Object.fromEntries(
+          averaged.map((x, i) => [
+            `knitSide9AnisotropyOver${[1, 4, 16][i]}Starts`,
+            Number(x.toFixed(4)),
+          ]),
+        ),
+        ...Object.fromEntries(
+          combinedAveraged.map((x, i) => [
+            `combinedSide9AnisotropyOver${[1, 4, 16][i]}Starts`,
+            Number(x.toFixed(4)),
+          ]),
+        ),
       },
       control: {
         committedVacuumPeriod: committed.vacuumPeriod,
@@ -349,12 +513,22 @@ export default experiment({
         committedTravellers: committed.travellers,
         committedCptPhase: committed.cptPhase,
         ...Object.fromEntries(
-          dressings.flatMap(d => d.committed.map((x, p) => [`committed${d.tone > 0 ? 'Love' : 'Fear'}Side${d.side}Period${p + 1}`, x])),
+          dressings.flatMap(d =>
+            d.committed.map((x, p) => [
+              `committed${d.tone > 0 ? 'Love' : 'Fear'}Side${d.side}Period${p + 1}`,
+              x,
+            ]),
+          ),
         ),
-        ...Object.fromEntries(responses.map(r => [`committedAnisotropySide${r.side}`, Number(r.committed.toFixed(4))])),
+        ...Object.fromEntries(
+          responses.map(r => [
+            `committedAnisotropySide${r.side}`,
+            Number(r.committed.toFixed(4)),
+          ]),
+        ),
       },
       notes:
-        'L2. THE PROOF. Exact local color, with role points carried slot for slot and calm ones paired by side, is exactly a kept side sum D per dock. A symmetry g of a knit carries each beat to a beat or a beat inverse, so every beat also keeps D o g. The forced forms are P (4) plus the span of G . D. If that span had rank 7 or less, it would be spanned by P, D and two images of D, it would be G-invariant, and G would lie in its stabilizer; all 249 such subspaces have reducible stabilizers, so rank 8 is the floor over every irreducible subgroup of W(F4), not only the two-generated ones censused. The scatter weave keeps 5 (E-FLD-0024); isotropy by symmetry costs at least 3 more, and for 235 of 320 two-generated irreducible groups all 12 (every line momentum frozen, no exchange). The bound assumes the symmetries keep calm; E-RLT-0052 shows uniform calm-moving relabelings freeze the vacuum and finds no per-side one on any knit, but per-side maps are not excluded in general. THE VACUUM. Every least-rank group is a subgroup of one of 4 irreducible stabilizers (orders 384, 64, 64, 64) of the 1,113 dimension-8 spaces, 109 in all; each holds -1, and -1 lies in the subgroup of squares and commutators, so every tone twist sends it to the plain map: a calm line cannot become (t, -t) symmetrically, and charge-free like pairs on two lines are the only clock. Only the two Q8 (left and right unit quaternions) keep an oriented couple partition (160 each under three of their four twists). THE KNIT. Q8 frees 4 line-momentum directions on 8 lines (e1 +- e3, e2 +- e4, e1 +- e4, e2 +- e3) and freezes the frame e1 +- e2, e3 +- e4; no Q8-invariant quad partition of the free lines hosts any allowed binary scattering, so the exchange reads all 8 lines at once and fires on the 24 lone pairs with exactly one partner. On a dense side-5 run it changed line momenta at 87 dock-beats of 48 x 625 (348 line changes, none on a frozen line), and it changes the outcome of 3.3 percent of random dock states. The couple tables were searched (hill climbing on the first-period dressing, four starts from the plain table, one start with only the two couples of the second orbit clocking): 72,161 for the plain table, then 313, 711, 809, 289, 365 and 385; 289 is the knit. The dressing is supercritical at every side: a lone tone breaks a four-slot creation event, and the broken event throws out like pairs that break more. Travel 4 of 24 (committed 12). P is exact (-1 acts without C), and C and CP are both broken, as in the committed knit. The fear beat (E-QTM-0109) was not ported: its kernels read wire meetings, which this knit does not have, so compatibility is not measured. THE RESPONSE. One background reads 2.80 at side 9 and 1.90 at side 13, above the committed 1.60 and 1.34, and fails the registered gate; the isotropic part is small (0.24 against the combined knit\'s 1.00), the copies decorrelate as the dressing does, and the reading falls with averaging (2.80, 1.60, 1.03 over 1, 4, 16 start times) where the combined knit\'s structural anisotropy stays (0.84, 0.80, 0.80). Forced isotropy is exact in the ensemble mean; the instrument sees it only through that averaging.',
+        "L2. THE PROOF. Exact local color, with role points carried slot for slot and calm ones paired by side, is exactly a kept side sum D per dock. A symmetry g of a knit carries each beat to a beat or a beat inverse, so every beat also keeps D o g. The forced forms are P (4) plus the span of G . D. If that span had rank 7 or less, it would be spanned by P, D and two images of D, it would be G-invariant, and G would lie in its stabilizer; all 249 such subspaces have reducible stabilizers, so rank 8 is the floor over every irreducible subgroup of W(F4), not only the two-generated ones censused. The scatter weave keeps 5 (E-FLD-0024); isotropy by symmetry costs at least 3 more, and for 235 of 320 two-generated irreducible groups all 12 (every line momentum frozen, no exchange). The bound assumes the symmetries keep calm; E-RLT-0052 shows uniform calm-moving relabelings freeze the vacuum and finds no per-side one on any knit, but per-side maps are not excluded in general. THE VACUUM. Every least-rank group is a subgroup of one of 4 irreducible stabilizers (orders 384, 64, 64, 64) of the 1,113 dimension-8 spaces, 109 in all; each holds -1, and -1 lies in the subgroup of squares and commutators, so every tone twist sends it to the plain map: a calm line cannot become (t, -t) symmetrically, and charge-free like pairs on two lines are the only clock. Only the two Q8 (left and right unit quaternions) keep an oriented couple partition (160 each under three of their four twists). THE KNIT. Q8 frees 4 line-momentum directions on 8 lines (e1 +- e3, e2 +- e4, e1 +- e4, e2 +- e3) and freezes the frame e1 +- e2, e3 +- e4; no Q8-invariant quad partition of the free lines hosts any allowed binary scattering, so the exchange reads all 8 lines at once and fires on the 24 lone pairs with exactly one partner. On a dense side-5 run it changed line momenta at 87 dock-beats of 48 x 625 (348 line changes, none on a frozen line), and it changes the outcome of 3.3 percent of random dock states. The couple tables were searched (hill climbing on the first-period dressing, four starts from the plain table, one start with only the two couples of the second orbit clocking): 72,161 for the plain table, then 313, 711, 809, 289, 365 and 385; 289 is the knit. The dressing is supercritical at every side: a lone tone breaks a four-slot creation event, and the broken event throws out like pairs that break more. Travel 4 of 24 (committed 12). P is exact (-1 acts without C), and C and CP are both broken, as in the committed knit. The fear beat (E-QTM-0109) was not ported: its kernels read wire meetings, which this knit does not have, so compatibility is not measured. THE RESPONSE. One background reads 2.80 at side 9 and 1.90 at side 13, above the committed 1.60 and 1.34, and fails the registered gate; the isotropic part is small (0.24 against the combined knit's 1.00), the copies decorrelate as the dressing does, and the reading falls with averaging (2.80, 1.60, 1.03 over 1, 4, 16 start times) where the combined knit's structural anisotropy stays (0.84, 0.80, 0.80). Forced isotropy is exact in the ensemble mean; the instrument sees it only through that averaging.",
     })
   },
 })

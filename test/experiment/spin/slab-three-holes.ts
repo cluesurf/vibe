@@ -124,7 +124,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
 import { ritzLevels, type Ritz } from '@/code/measure/frame-meson'
 import { steinerOffsetPairs } from '@/code/measure/link-holonomy'
 import {
@@ -196,69 +201,165 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const spec = (over: Partial<SlabSpec>): SlabSpec => ({ holes: 3, axes: 2, cut: CUT, rate: RATE, D, cost: 'steiner', boundary: 'absorb', ...over })
-    const holdInput = { ritzBeats: RITZ_T, holdBeats: HOLD_BEATS, fidelity: FIDELITY, tail: TAIL, tailFrom: TAIL_FROM, ritz }
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const spec = (over: Partial<SlabSpec>): SlabSpec => ({
+      holes: 3,
+      axes: 2,
+      cut: CUT,
+      rate: RATE,
+      D,
+      cost: 'steiner',
+      boundary: 'absorb',
+      ...over,
+    })
+    const holdInput = {
+      ritzBeats: RITZ_T,
+      holdBeats: HOLD_BEATS,
+      fidelity: FIDELITY,
+      tail: TAIL,
+      tailFrom: TAIL_FROM,
+      ritz,
+    }
 
     // ---- E-SPN-0104's level ----
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D, box: CUT, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D,
+      box: CUT,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
-    const entries = basis.configs.map((ts, i) => ({ ts, amp: [level.cre[i] as number, level.cim[i] as number] as C }))
+    const entries = basis.configs.map((ts, i) => ({
+      ts,
+      amp: [level.cre[i]!, level.cim[i]!] as C,
+    }))
 
     log('level')
 
     // ---- checks: the image's constants, the windows ----
     const hd = holeDock(0)
     const ld = loveDock(0)
-    const contactGap = Math.hypot(hd.contact[0] - ld.contact[0], hd.contact[1] - ld.contact[1])
+    const contactGap = Math.hypot(
+      hd.contact[0] - ld.contact[0],
+      hd.contact[1] - ld.contact[1],
+    )
     const phi3 = [hd.phi2[0], hd.phi2[1]] as C
+
     let phiCube: C = [1, 0]
 
-    for (let k = 0; k < 3; k++) phiCube = [phiCube[0] * phi3[0] - phiCube[1] * phi3[1], phiCube[0] * phi3[1] + phiCube[1] * phi3[0]]
+    for (let k = 0; k < 3; k++) {
+      phiCube = [
+        phiCube[0] * phi3[0] - phiCube[1] * phi3[1],
+        phiCube[0] * phi3[1] + phiCube[1] * phi3[0],
+      ]
+    }
 
     // ---- H3: one line, mixer off, E-SPN-0104's box ----
-    const line = slabSpace(spec({ axes: 1, rate: 0, boundary: 'reflect' }))
+    const line = slabSpace(
+      spec({ axes: 1, rate: 0, boundary: 'reflect' }),
+    )
     const carried = placeLine(line, 0, entries)
-    const once = slabBeat(line, [0, 0], { re: Float64Array.from(carried.re), im: Float64Array.from(carried.im) }, { escaped: 0 })
+    const once = slabBeat(
+      line,
+      [0, 0],
+      {
+        re: Float64Array.from(carried.re),
+        im: Float64Array.from(carried.im),
+      },
+      { escaped: 0 },
+    )
     const lam = innerSlab(carried, once)
+
     let residual = 0
 
-    for (let k = 0; k < carried.re.length; k++) residual += ((once.re[k] as number) - lam[0] * (carried.re[k] as number) + lam[1] * (carried.im[k] as number)) ** 2 + ((once.im[k] as number) - lam[0] * (carried.im[k] as number) - lam[1] * (carried.re[k] as number)) ** 2
+    for (let k = 0; k < carried.re.length; k++) {
+      residual +=
+        (once.re[k]! -
+          lam[0] * carried.re[k]! +
+          lam[1] * carried.im[k]!) **
+          2 +
+        (once.im[k]! -
+          lam[0] * carried.im[k]! -
+          lam[1] * carried.re[k]!) **
+          2
+    }
+
     residual = Math.sqrt(residual)
 
     const e3 = -Math.atan2(lam[1], lam[0])
-    const holeCurve = richardsonCurvature(K => energyAtSlab(line, [K, 0], carried, CURVE_T, ritz), KAPPA_LINE)
-    const loveCurve = richardsonCurvature(K => loveLineEnergy(basis, K, level.cre, level.cim, CURVE_T, ritz), KAPPA_LINE)
+    const holeCurve = richardsonCurvature(
+      K => energyAtSlab(line, [K, 0], carried, CURVE_T, ritz),
+      KAPPA_LINE,
+    )
+    const loveCurve = richardsonCurvature(
+      K =>
+        loveLineEnergy(basis, K, level.cre, level.cim, CURVE_T, ritz),
+      KAPPA_LINE,
+    )
     const c1 = holeCurve.curvature
     const mStar = 1 / c1
-    const H3 = residual <= RESIDUAL && Math.abs(e3 - E_REST) <= ENERGY_SAME && Math.abs(c1 - loveCurve.curvature) <= CURVE_SAME * Math.abs(loveCurve.curvature) && Math.abs(mStar - M_STAR) <= M_STAR_SAME
+    const H3 =
+      residual <= RESIDUAL &&
+      Math.abs(e3 - E_REST) <= ENERGY_SAME &&
+      Math.abs(c1 - loveCurve.curvature) <=
+        CURVE_SAME * Math.abs(loveCurve.curvature) &&
+      Math.abs(mStar - M_STAR) <= M_STAR_SAME
 
     log('H3')
 
     // ---- the slab ----
-    const startOf = (space: SlabSpace, both: boolean): SlabState => (both ? normalizedSlab(addSlab(placeLine(space, 0, entries), placeLine(space, 1, entries))) : normalizedSlab(placeLine(space, 0, entries)))
+    const startOf = (space: SlabSpace, both: boolean): SlabState =>
+      both
+        ? normalizedSlab(
+            addSlab(
+              placeLine(space, 0, entries),
+              placeLine(space, 1, entries),
+            ),
+          )
+        : normalizedSlab(placeLine(space, 0, entries))
     const slab = slabSpace(spec({}))
     const lineW = slabSpace(spec({ axes: 1, rate: 0 }))
-    const windowsOk = slab.configs === steinerWindow(2, CUT) && lineW.configs === steinerWindow(1, CUT) && steinerWindow(4, REACH_4D) === steinerOffsetPairs(REACH_4D) && steinerOffsetPairs(REACH_4D) === PAIRS_4D
-    const withRate = (rate: number, cost: 'steiner' | 'none' = 'steiner'): SlabSpace => ({ ...slab, spec: { ...slab.spec, rate, cost } })
+    const windowsOk =
+      slab.configs === steinerWindow(2, CUT) &&
+      lineW.configs === steinerWindow(1, CUT) &&
+      steinerWindow(4, REACH_4D) === steinerOffsetPairs(REACH_4D) &&
+      steinerOffsetPairs(REACH_4D) === PAIRS_4D
+    const withRate = (
+      rate: number,
+      cost: 'steiner' | 'none' = 'steiner',
+    ): SlabSpace => ({ ...slab, spec: { ...slab.spec, rate, cost } })
 
     // H1 at the working angle
-    const main = holdLevel(withRate(RATE), startOf(slab, true), holdInput)
+    const main = holdLevel(
+      withRate(RATE),
+      startOf(slab, true),
+      holdInput,
+    )
     const H1 = main.held
 
     log('H1')
 
     // the ladder, only if H1 fails
     const ladder: { rate: number; hold: SlabHold }[] = []
+
     let heldRate: number | undefined = H1 ? RATE : undefined
 
     if (!H1) {
       for (const rate of LADDER) {
-        const h = holdLevel(withRate(rate), startOf(slab, true), holdInput)
+        const h = holdLevel(
+          withRate(rate),
+          startOf(slab, true),
+          holdInput,
+        )
 
         ladder.push({ rate, hold: h })
         log(`ladder ${rate}`)
+
         if (h.held) {
           heldRate = rate
           break
@@ -267,27 +368,68 @@ export default experiment({
     }
 
     // H2 at the working angle (only if H1 holds); the tensor at the held rate is read either way
-    const tensorAt = (rate: number, hold: SlabHold, kappa: number) => slabTensor(withRate(rate), hold.vector, kappa, CURVE_T, ritz)
-    const heldHold = heldRate === undefined ? undefined : heldRate === RATE ? main : (ladder.find(x => x.rate === heldRate) as { hold: SlabHold }).hold
-    const tensor = heldHold && heldRate !== undefined ? tensorAt(heldRate, heldHold, KAPPA_SLAB) : undefined
-    const tensorFine = heldHold && heldRate !== undefined ? tensorAt(heldRate, heldHold, KAPPA_SLAB / 2) : undefined
+    const tensorAt = (rate: number, hold: SlabHold, kappa: number) =>
+      slabTensor(withRate(rate), hold.vector, kappa, CURVE_T, ritz)
+    const heldHold =
+      heldRate === undefined
+        ? undefined
+        : heldRate === RATE
+          ? main
+          : (
+              ladder.find(x => x.rate === heldRate) as {
+                hold: SlabHold
+              }
+            ).hold
+    const tensor =
+      heldHold && heldRate !== undefined
+        ? tensorAt(heldRate, heldHold, KAPPA_SLAB)
+        : undefined
+    const tensorFine =
+      heldHold && heldRate !== undefined
+        ? tensorAt(heldRate, heldHold, KAPPA_SLAB / 2)
+        : undefined
     const threshold = (CURVE_SHARE * Math.abs(c1)) / 2
-    const sameSign = tensor !== undefined && Math.sign(tensor.eigen[0] as number) === Math.sign(tensor.eigen[1] as number) && tensor.eigen[0] !== 0
-    const H2 = H1 && tensor !== undefined && sameSign && tensor.eigen.every(x => Math.abs(x) >= threshold)
-    const isotropy = tensor ? Math.min(...tensor.eigen.map(Math.abs)) / Math.max(...tensor.eigen.map(Math.abs)) : Number.NaN
+    const sameSign =
+      tensor !== undefined &&
+      Math.sign(tensor.eigen[0]!) === Math.sign(tensor.eigen[1]!) &&
+      tensor.eigen[0] !== 0
+    const H2 =
+      H1 &&
+      tensor !== undefined &&
+      sameSign &&
+      tensor.eigen.every(x => Math.abs(x) >= threshold)
+    const isotropy = tensor
+      ? Math.min(...tensor.eigen.map(Math.abs)) /
+        Math.max(...tensor.eigen.map(Math.abs))
+      : Number.NaN
 
     log('H2')
 
     // ---- controls ----
-    const cn0 = holdLevel(withRate(0, 'none'), startOf(slab, true), holdInput)
-    const cnHeld = heldRate !== undefined ? holdLevel(withRate(heldRate, 'none'), startOf(slab, true), holdInput) : undefined
-    const CN = !cn0.held && (cnHeld === undefined || !cnHeld.held)
+    const cn0 = holdLevel(
+      withRate(0, 'none'),
+      startOf(slab, true),
+      holdInput,
+    )
+    const cnHeld =
+      heldRate !== undefined
+        ? holdLevel(
+            withRate(heldRate, 'none'),
+            startOf(slab, true),
+            holdInput,
+          )
+        : undefined
+    const CN = !cn0.held && !cnHeld?.held
 
     log('CN')
 
     const off0 = withRate(0)
     const oneStart = startOf(slab, false)
-    let s = { re: Float64Array.from(oneStart.re), im: Float64Array.from(oneStart.im) }
+
+    let s = {
+      re: Float64Array.from(oneStart.re),
+      im: Float64Array.from(oneStart.im),
+    }
     let offMax = 0
 
     for (let t = 0; t < HOLD_BEATS; t++) {
@@ -296,44 +438,109 @@ export default experiment({
     }
 
     const c0 = holdLevel(off0, oneStart, holdInput)
-    const lineHold = holdLevel(lineW, normalizedSlab(placeLine(lineW, 0, entries)), holdInput)
+    const lineHold = holdLevel(
+      lineW,
+      normalizedSlab(placeLine(lineW, 0, entries)),
+      holdInput,
+    )
     const e0 = energyAtSlab(off0, [0, 0], c0.vector, CURVE_T, ritz)
-    const across = (energyAtSlab(off0, [0, KAPPA_SLAB], c0.vector, CURVE_T, ritz) + energyAtSlab(off0, [0, -KAPPA_SLAB], c0.vector, CURVE_T, ritz) - 2 * e0) / (KAPPA_SLAB * KAPPA_SLAB)
-    const C0 = offMax <= OFF_LINE && c0.held && Math.abs(c0.level.energy - lineHold.level.energy) <= LEVEL_SAME && Math.abs(across) <= ACROSS
+    const across =
+      (energyAtSlab(off0, [0, KAPPA_SLAB], c0.vector, CURVE_T, ritz) +
+        energyAtSlab(off0, [0, -KAPPA_SLAB], c0.vector, CURVE_T, ritz) -
+        2 * e0) /
+      (KAPPA_SLAB * KAPPA_SLAB)
+    const C0 =
+      offMax <= OFF_LINE &&
+      c0.held &&
+      Math.abs(c0.level.energy - lineHold.level.energy) <= LEVEL_SAME &&
+      Math.abs(across) <= ACROSS
 
     log('C0')
 
     // ---- the lone hole ----
-    const lone = (axes: 1 | 2, rate: number, amps: number[]): { space: SlabSpace; start: SlabState } => {
-      const space = slabSpace({ holes: 1, axes, cut: 0, rate, D, cost: 'steiner', boundary: 'absorb' })
+    const lone = (
+      axes: 1 | 2,
+      rate: number,
+      amps: number[],
+    ): { space: SlabSpace; start: SlabState } => {
+      const space = slabSpace({
+        holes: 1,
+        axes,
+        cut: 0,
+        rate,
+        D,
+        cost: 'steiner',
+        boundary: 'absorb',
+      })
       const st = emptyState(space)
 
       amps.forEach((a, k) => (st.re[k] = a))
 
       return { space, start: normalizedSlab(st) }
     }
+
     const l1 = lone(1, 0, [1, 1])
-    const le1 = (K: number): number => energyAtSlab(l1.space, [K, 0], l1.start, RITZ_T, ritz)
-    const loneLine = (le1(LONE_KAPPA) + le1(-LONE_KAPPA) - 2 * le1(0)) / LONE_KAPPA ** 2
+    const le1 = (K: number): number =>
+      energyAtSlab(l1.space, [K, 0], l1.start, RITZ_T, ritz)
+    const loneLine =
+      (le1(LONE_KAPPA) + le1(-LONE_KAPPA) - 2 * le1(0)) /
+      LONE_KAPPA ** 2
     const l2 = lone(2, RATE, [1, 1, -1, -1])
-    const loneSlab = slabTensor(l2.space, l2.start, LONE_KAPPA, RITZ_T, ritz)
-    const loneOk = Math.abs(loneLine + 1 / Math.sqrt(3)) <= LONE_SAME && loneSlab.eigen.every(x => Math.abs(x - loneLine / 2) <= LONE_SAME * Math.abs(loneLine / 2))
+    const loneSlab = slabTensor(
+      l2.space,
+      l2.start,
+      LONE_KAPPA,
+      RITZ_T,
+      ritz,
+    )
+    const loneOk =
+      Math.abs(loneLine + 1 / Math.sqrt(3)) <= LONE_SAME &&
+      loneSlab.eigen.every(
+        x =>
+          Math.abs(x - loneLine / 2) <=
+          LONE_SAME * Math.abs(loneLine / 2),
+      )
 
     log('lone')
 
-    const holds = [main, ...ladder.map(x => x.hold), cn0, ...(cnHeld ? [cnHeld] : []), c0, lineHold]
+    const holds = [
+      main,
+      ...ladder.map(x => x.hold),
+      cn0,
+      ...(cnHeld ? [cnHeld] : []),
+      c0,
+      lineHold,
+    ]
     const normGap = Math.max(...holds.map(h => h.normGap))
     const antiGap = Math.max(...holds.map(h => h.antisymmetry))
-    const checked = normGap <= NORM_SAME && antiGap <= ANTI_SAME && contactGap <= CONTACT_SAME && Math.hypot(phiCube[0] - 1, phiCube[1]) <= CONTACT_SAME * 10 && loneOk && windowsOk
-    const status = !CN || !C0 || !checked ? 'partial' : H1 && H2 && H3 ? 'pass' : 'fail'
+    const checked =
+      normGap <= NORM_SAME &&
+      antiGap <= ANTI_SAME &&
+      contactGap <= CONTACT_SAME &&
+      Math.hypot(phiCube[0] - 1, phiCube[1]) <= CONTACT_SAME * 10 &&
+      loneOk &&
+      windowsOk
+    const status =
+      !CN || !C0 || !checked
+        ? 'partial'
+        : H1 && H2 && H3
+          ? 'pass'
+          : 'fail'
 
     // ---- report ----
     const at = [1, 8, 32, 64, 128]
-    const series = (xs: number[], f: (x: number) => string): string => at.map(t => f(xs[t - 1] as number)).join(' ')
+    const series = (xs: number[], f: (x: number) => string): string =>
+      at.map(t => f(xs[t - 1]!)).join(' ')
     const describe = (name: string, h: SlabHold): string =>
       `${name}: held ${h.held}, level E ${h.level.energy.toFixed(6)} (start weight ${h.level.weight.toFixed(4)}, residual ${h.level.residual.toExponential(2)}), fidelity ${series(h.fidelity, x => x.toFixed(5))} (min ${h.minFidelity.toFixed(5)}), tail ${series(h.tail, x => x.toExponential(2))} (max ${h.maxTail.toExponential(2)}), mean Steiner ${h.meanSteiner.toFixed(3)}, off one line ${h.offLine.toFixed(4)}, shells ${h.shells.map(x => x.toExponential(1)).join('/')}`
-    const tensorText = (t: ReturnType<typeof slabTensor> | undefined): string => (t ? `[[${t.tensor.map(r => r.map(x => x.toFixed(6)).join(', ')).join('], [')}]] eigenvalues ${t.eigen.map(x => x.toFixed(6)).join(', ')}` : 'not read')
-    const theta = (r: number): string => `${((thetaOfRate(r) * 180) / Math.PI).toFixed(2)} deg`
+    const tensorText = (
+      t: ReturnType<typeof slabTensor> | undefined,
+    ): string =>
+      t
+        ? `[[${t.tensor.map(r => r.map(x => x.toFixed(6)).join(', ')).join('], [')}]] eigenvalues ${t.eigen.map(x => x.toFixed(6)).join(', ')}`
+        : 'not read'
+    const theta = (r: number): string =>
+      `${((thetaOfRate(r) * 180) / Math.PI).toFixed(2)} deg`
 
     const metrics: Record<string, number> = {
       H1: H1 ? 1 : 0,
@@ -366,8 +573,8 @@ export default experiment({
       c0LineEnergy: lineHold.level.energy,
       c0Across: across,
       loneLine,
-      loneSlabMin: loneSlab.eigen[0] as number,
-      loneSlabMax: loneSlab.eigen[1] as number,
+      loneSlabMin: loneSlab.eigen[0]!,
+      loneSlabMax: loneSlab.eigen[1]!,
       contactGap,
       normGap,
       antiGap,
@@ -380,22 +587,25 @@ export default experiment({
     }
 
     if (tensor) {
-      metrics.tensorXX = tensor.tensor[0]![0] as number
-      metrics.tensorXY = tensor.tensor[0]![1] as number
-      metrics.tensorYY = tensor.tensor[1]![1] as number
-      metrics.eigenMin = tensor.eigen[0] as number
-      metrics.eigenMax = tensor.eigen[1] as number
+      metrics.tensorXX = tensor.tensor[0]![0]!
+      metrics.tensorXY = tensor.tensor[0]![1]!
+      metrics.tensorYY = tensor.tensor[1]![1]!
+      metrics.eigenMin = tensor.eigen[0]!
+      metrics.eigenMax = tensor.eigen[1]!
       metrics.isotropy = isotropy
       metrics.tensorEnergy = tensor.energy
     }
+
     if (tensorFine) {
-      metrics.eigenMinFine = tensorFine.eigen[0] as number
-      metrics.eigenMaxFine = tensorFine.eigen[1] as number
+      metrics.eigenMinFine = tensorFine.eigen[0]!
+      metrics.eigenMaxFine = tensorFine.eigen[1]!
     }
+
     if (cnHeld) {
       metrics.cnHeldMinFidelity = cnHeld.minFidelity
       metrics.cnHeldMaxTail = cnHeld.maxTail
     }
+
     for (const { rate, hold } of ladder) {
       metrics[`rate${rate}Held`] = hold.held ? 1 : 0
       metrics[`rate${rate}MinFidelity`] = hold.minFidelity
@@ -406,7 +616,13 @@ export default experiment({
       status,
       claim: `three holes in the flat love sea on a slab (two lines of one frame, the Steiner string at pi/${2 * D + 1} a link, the mixer at rate ${RATE}): the dominant level keeps fidelity >= ${main.minFidelity.toFixed(5)} with tail <= ${main.maxTail.toExponential(2)} over ${HOLD_BEATS} beats (H1 ${H1}); largest rate held ${heldRate ?? 'none'}${heldRate !== undefined ? ` (theta ${theta(heldRate)})` : ''}; tensor ${tensorText(tensor)}, isotropy ${Number.isNaN(isotropy) ? 'not read' : isotropy.toFixed(4)} against ${threshold.toFixed(5)} (H2 ${H2}); one line, mixer off: E ${e3} (residual ${residual.toExponential(2)}), m* ${mStar.toFixed(4)}, m*/E_rest ${(mStar / E_REST).toFixed(3)} (H3 ${H3}); no cost: rate 0 fidelity ${cn0.minFidelity.toFixed(4)}${cnHeld ? `, rate ${heldRate} ${cnHeld.minFidelity.toFixed(4)}` : ''} (CN ${CN}); mixer off: off-line ${offMax.toExponential(1)}, across ${across.toExponential(1)} (C0 ${C0})`,
       metrics,
-      control: { cnRate0MinFidelity: cn0.minFidelity, c0OffLineMax: offMax, c0Across: across, loneLine, loneSlabMin: loneSlab.eigen[0] as number },
+      control: {
+        cnRate0MinFidelity: cn0.minFidelity,
+        c0OffLineMax: offMax,
+        c0Across: across,
+        loneLine,
+        loneSlabMin: loneSlab.eigen[0]!,
+      },
       notes: `L2. ${describe(`rate ${RATE}`, main)}. Ladder: ${ladder.map(x => describe(`rate ${x.rate} (theta ${theta(x.rate)})`, x.hold)).join('; ') || 'not run'}. Tensor at kappa pi/32 ${tensorText(tensor)}, at pi/64 ${tensorText(tensorFine)}. H3: carried level E ${e3}, residual ${residual.toExponential(2)}; curvature holes ${c1} (at pi/64 ${holeCurve.at}, pi/32 ${holeCurve.atDouble}), loves ${loveCurve.curvature}. CN: ${describe('rate 0, no cost', cn0)}${cnHeld ? `; ${describe(`rate ${heldRate}, no cost`, cnHeld)}` : ''}. C0: ${describe('rate 0, one line in the slab', c0)}; ${describe('one-line window', lineHold)}; off-line max ${offMax}, across ${across}. Lone hole: line ${loneLine}, slab ${loneSlab.eigen.join(', ')}. Checks: norm ${normGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}, contact ${contactGap.toExponential(2)}, phi2^3 ${phiCube.map(x => x.toFixed(15)).join(', ')}, windows ${windowsOk} (slab ${slab.configs} x ${slab.block}, at 10 ${steinerWindow(2, REACH_4D)}, line ${lineW.configs}, 4d at 10 ${steinerWindow(4, REACH_4D)}). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

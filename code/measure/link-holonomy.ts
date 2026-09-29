@@ -26,15 +26,24 @@
 // off the tables; the rule is not run here.
 
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { lockedTables, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedTables,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { type ColorWeave } from '@/code/rule/color-weave'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { pairWord, wordFirst, wordSecond } from '@/code/rule/occupation-veto-knit'
+import {
+  pairWord,
+  wordFirst,
+  wordSecond,
+} from '@/code/rule/occupation-veto-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { cloneConfiguration } from '@/code/rule/doublet-locked-knit'
 
 const ROOTS = rootsD4()
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // the slot whose root is v, or -1
 export function slotOfRoot(v: readonly number[]): number {
@@ -43,48 +52,81 @@ export function slotOfRoot(v: readonly number[]): number {
 
 export type LoopKind = 'triangle' | 'square' | 'rhombus'
 
-export const LOOP_KINDS: readonly LoopKind[] = ['triangle', 'square', 'rhombus']
+export const LOOP_KINDS: readonly LoopKind[] = [
+  'triangle',
+  'square',
+  'rhombus',
+]
 
 // the step lists (slots) of every elementary loop shape from one dock, by kind (ordered: each geometric loop appears
 // once per starting vertex and orientation, the multiplicity LOOP_MULTIPLICITY)
 export function loopShapes(): Record<LoopKind, number[][]> {
-  const out: Record<LoopKind, number[][]> = { triangle: [], square: [], rhombus: [] }
+  const out: Record<LoopKind, number[][]> = {
+    triangle: [],
+    square: [],
+    rhombus: [],
+  }
 
   for (let a = 0; a < 24; a++) {
     for (let b = 0; b < 24; b++) {
-      const ra = ROOTS[a] as number[]
-      const rb = ROOTS[b] as number[]
+      const ra = ROOTS[a]!
+      const rb = ROOTS[b]!
       const ab = dot(ra, rb)
 
-      if (ab === 2 || ab === -2) continue
+      if (ab === 2 || ab === -2) {
+        continue
+      }
 
       const na = slotOfRoot(ra.map(x => -x))
       const nb = slotOfRoot(rb.map(x => -x))
       const rhombus = [a, b, na, nb]
 
-      if (ab === 0) out.square.push(rhombus)
-      else out.rhombus.push(rhombus)
-      if (ab === -1) out.triangle.push([a, b, slotOfRoot(ra.map((x, k) => -x - (rb[k] as number)))])
+      if (ab === 0) {
+        out.square.push(rhombus)
+      } else {
+        out.rhombus.push(rhombus)
+      }
+
+      if (ab === -1) {
+        out.triangle.push([
+          a,
+          b,
+          slotOfRoot(ra.map((x, k) => -x - rb[k]!)),
+        ])
+      }
     }
   }
 
   return out
 }
 
-export const LOOP_MULTIPLICITY: Record<LoopKind, number> = { triangle: 6, square: 8, rhombus: 8 }
+export const LOOP_MULTIPLICITY: Record<LoopKind, number> = {
+  triangle: 6,
+  square: 8,
+  rhombus: 8,
+}
 
 // the elementary loops through one undirected edge {x, x + a} of the unbounded mesh, derived: a triangle's third dock
 // is x + b with b . a = 1 (8 roots), a square's side is b orthogonal to a (6), a rhombus's other side any root b with
 // b . a = +-1 (16). A single link set off the identity on flat links curves exactly these
-export const LOOPS_THROUGH_EDGE: Record<LoopKind, number> = { triangle: 8, square: 6, rhombus: 16 }
+export const LOOPS_THROUGH_EDGE: Record<LoopKind, number> = {
+  triangle: 8,
+  square: 6,
+  rhombus: 16,
+}
 
 // flat links with one link (x, d) and its reverse set to the move g (the planted curvature of the instrument check)
-export function plantedLinks(weave: ColorWeave, x: number, d: number, g: number): Int16Array {
+export function plantedLinks(
+  weave: ColorWeave,
+  x: number,
+  d: number,
+  g: number,
+): Int16Array {
   const out = flatLinks(weave)
   const y = weave.mesh.neighbour(x, d)
 
   out[x * 24 + d] = g
-  out[y * 24 + (OPPOSITE[d] as number)] = weave.moves.inverse[g] as number
+  out[y * 24 + OPPOSITE[d]!] = weave.moves.inverse[g]!
 
   return out
 }
@@ -95,6 +137,7 @@ export function plantedLinks(weave: ColorWeave, x: number, d: number, g: number)
 // stand-in's window, per slot triple (8^3 = 512 of them)
 export function steinerOffsetPairs(w: number): number {
   let total = 0
+
   const rec = (k: number, left: number, prod: number): void => {
     if (k === 4) {
       total += prod
@@ -102,7 +145,9 @@ export function steinerOffsetPairs(w: number): number {
       return
     }
 
-    for (let s = 0; s <= left; s++) rec(k + 1, left - s, prod * (s === 0 ? 1 : 6 * s))
+    for (let s = 0; s <= left; s++) {
+      rec(k + 1, left - s, prod * (s === 0 ? 1 : 6 * s))
+    }
   }
 
   rec(0, w, 1)
@@ -111,30 +156,44 @@ export function steinerOffsetPairs(w: number): number {
 }
 
 // the holonomy of a walk from dock x along `steps` (slots): the composed point permutation, and the dock it ends on
-export function walkHolonomy(tables: LockedTables, x: number, steps: readonly number[]): { perm: Int8Array; end: number } {
+export function walkHolonomy(
+  tables: LockedTables,
+  x: number,
+  steps: readonly number[],
+): { perm: Int8Array; end: number } {
   const perm = Int8Array.from({ length: 9 }, (_, p) => p)
+
   let at = x
 
   for (const d of steps) {
     const slot = at * 24 + d
 
-    for (let p = 0; p < 9; p++) perm[p] = tables.move[slot * 9 + (perm[p] as number)] as number
-    at = Math.floor((tables.target[slot] as number) / 24)
+    for (let p = 0; p < 9; p++) {
+      perm[p] = tables.move[slot * 9 + perm[p]!]!
+    }
+
+    at = Math.floor(tables.target[slot]! / 24)
   }
 
   return { perm, end: at }
 }
 
-export const isIdentity = (perm: Int8Array): boolean => perm.every((q, p) => q === p)
+export const isIdentity = (perm: Int8Array): boolean =>
+  perm.every((q, p) => q === p)
 
-export const fixedPoints = (perm: Int8Array): number => perm.reduce((n, q, p) => n + (q === p ? 1 : 0), 0)
+export const fixedPoints = (perm: Int8Array): number =>
+  perm.reduce((n, q, p) => n + (q === p ? 1 : 0), 0)
 
 export function permOrder(perm: Int8Array): number {
   const cur = Int8Array.from(perm)
+
   let n = 1
 
   while (!isIdentity(cur) && n < 64) {
-    for (let p = 0; p < 9; p++) cur[p] = perm[cur[p] as number] as number
+    for (let p = 0; p < 9; p++) {
+      cur[p] = perm[cur[p]!]!
+    }
+
     n++
   }
 
@@ -159,15 +218,28 @@ export type HolonomyTally = {
 }
 
 // every elementary loop of every kind from every dock
-export function holonomyCensus(tables: LockedTables): Record<LoopKind, HolonomyTally> {
+export function holonomyCensus(
+  tables: LockedTables,
+): Record<LoopKind, HolonomyTally> {
   const shapes = loopShapes()
   const out = {} as Record<LoopKind, HolonomyTally>
 
   for (const kind of LOOP_KINDS) {
     const m = LOOP_MULTIPLICITY[kind]
-    const t: HolonomyTally = { loops: 0, curved: 0, fixing: 0, fixless: 0, orders: {}, open: 0, walks: 0, curvedDocks: 0 }
+    const t: HolonomyTally = {
+      loops: 0,
+      curved: 0,
+      fixing: 0,
+      fixless: 0,
+      orders: {},
+      open: 0,
+      walks: 0,
+      curvedDocks: 0,
+    }
+
     let curvedWalks = 0
     let fixingWalks = 0
+
     const orderWalks: Record<number, number> = {}
 
     for (let x = 0; x < tables.cells; x++) {
@@ -177,25 +249,41 @@ export function holonomyCensus(tables: LockedTables): Record<LoopKind, HolonomyT
         const h = walkHolonomy(tables, x, steps)
 
         t.walks++
-        if (h.end !== x) t.open++
-        if (isIdentity(h.perm)) continue
+
+        if (h.end !== x) {
+          t.open++
+        }
+
+        if (isIdentity(h.perm)) {
+          continue
+        }
+
         here = true
         curvedWalks++
-        if (fixedPoints(h.perm) > 0) fixingWalks++
+
+        if (fixedPoints(h.perm) > 0) {
+          fixingWalks++
+        }
 
         const o = permOrder(h.perm)
 
         orderWalks[o] = (orderWalks[o] ?? 0) + 1
       }
 
-      if (here) t.curvedDocks++
+      if (here) {
+        t.curvedDocks++
+      }
     }
 
     t.loops = t.walks / m
     t.curved = curvedWalks / m
     t.fixing = fixingWalks / m
     t.fixless = (curvedWalks - fixingWalks) / m
-    for (const [o, n] of Object.entries(orderWalks)) t.orders[Number(o)] = n / m
+
+    for (const [o, n] of Object.entries(orderWalks)) {
+      t.orders[Number(o)] = n / m
+    }
+
     out[kind] = t
   }
 
@@ -204,27 +292,36 @@ export function holonomyCensus(tables: LockedTables): Record<LoopKind, HolonomyT
 
 // the holonomy round every mesh line's ring (a line direction d = a line's first slot, walked until it returns): the
 // noncontractible loops of the torus. Returns per ring its length and holonomy's order and fixed points
-export function ringHolonomies(tables: LockedTables): { length: number; order: number; fixed: number }[] {
+export function ringHolonomies(
+  tables: LockedTables,
+): { length: number; order: number; fixed: number }[] {
   const out: { length: number; order: number; fixed: number }[] = []
 
   for (const d of LINE_FIRSTS) {
     const seen = new Uint8Array(tables.cells)
 
     for (let x = 0; x < tables.cells; x++) {
-      if (seen[x]) continue
+      if (seen[x]) {
+        continue
+      }
 
       const steps: number[] = []
+
       let at = x
 
       do {
         seen[at] = 1
         steps.push(d)
-        at = Math.floor((tables.target[at * 24 + d] as number) / 24)
+        at = Math.floor(tables.target[at * 24 + d]! / 24)
       } while (at !== x)
 
       const h = walkHolonomy(tables, x, steps)
 
-      out.push({ length: steps.length, order: permOrder(h.perm), fixed: fixedPoints(h.perm) })
+      out.push({
+        length: steps.length,
+        order: permOrder(h.perm),
+        fixed: fixedPoints(h.perm),
+      })
     }
   }
 
@@ -237,7 +334,11 @@ export type GroupMoves = ColorWeave['moves']
 
 // the links under the frame field h (one grid move per dock): g(x, d) -> h(y) g(x, d) h(x)^-1, a link and its reverse
 // staying inverse to each other
-export function gaugeLinks(weave: ColorWeave, links: Int16Array, h: Int16Array): Int16Array {
+export function gaugeLinks(
+  weave: ColorWeave,
+  links: Int16Array,
+  h: Int16Array,
+): Int16Array {
   const { compose, inverse } = weave.moves
   const out = new Int16Array(links.length)
 
@@ -245,7 +346,10 @@ export function gaugeLinks(weave: ColorWeave, links: Int16Array, h: Int16Array):
     for (let d = 0; d < 24; d++) {
       const y = weave.mesh.neighbour(x, d)
 
-      out[x * 24 + d] = compose(h[y] as number, compose(links[x * 24 + d] as number, inverse[h[x] as number] as number))
+      out[x * 24 + d] = compose(
+        h[y]!,
+        compose(links[x * 24 + d]!, inverse[h[x]!]!),
+      )
     }
   }
 
@@ -253,33 +357,46 @@ export function gaugeLinks(weave: ColorWeave, links: Int16Array, h: Int16Array):
 }
 
 // the flat links (every move the identity)
-export const flatLinks = (weave: ColorWeave): Int16Array => new Int16Array(weave.links.length).fill(weave.moves.identity)
+export const flatLinks = (weave: ColorWeave): Int16Array =>
+  new Int16Array(weave.links.length).fill(weave.moves.identity)
 
 // the rule's tables on a link field
-export const tablesOn = (weave: ColorWeave, contact: CollisionKind, links: Int16Array): LockedTables => lockedTables(weave, contact, links)
+export const tablesOn = (
+  weave: ColorWeave,
+  contact: CollisionKind,
+  links: Int16Array,
+): LockedTables => lockedTables(weave, contact, links)
 
 // a configuration in the frame h: every held slot's point p -> h(x) p, every stored pair word (s, q) -> (h s, h q)
-export function gaugeConfiguration(weave: ColorWeave, c: Configuration, h: Int16Array): Configuration {
+export function gaugeConfiguration(
+  weave: ColorWeave,
+  c: Configuration,
+  h: Int16Array,
+): Configuration {
   const out = cloneConfiguration(c)
   const act = weave.moves.act
 
   for (let x = 0; x < weave.mesh.cellCount; x++) {
-    const g = act[h[x] as number] as Int8Array
+    const g = act[h[x]!]!
 
     for (let d = 0; d < 24; d++) {
       const i = x * 24 + d
 
-      if (c.vibe[i] !== 0) out.point[i] = g[c.point[i] as number] as number
+      if (c.vibe[i] !== 0) {
+        out.point[i] = g[c.point[i]!]!
+      }
     }
 
     for (let l = 0; l < 12; l++) {
       const s = x * 12 + l
 
-      if (c.store[s] === 0) continue
+      if (c.store[s] === 0) {
+        continue
+      }
 
-      const w = c.spoint[s] as number
+      const w = c.spoint[s]!
 
-      out.spoint[s] = pairWord(g[wordFirst(w)] as number, g[wordSecond(w)] as number)
+      out.spoint[s] = pairWord(g[wordFirst(w)]!, g[wordSecond(w)]!)
     }
   }
 
@@ -287,47 +404,89 @@ export function gaugeConfiguration(weave: ColorWeave, c: Configuration, h: Int16
 }
 
 // slots and stores where two configurations differ (a held slot's point and open bit counted, an empty slot's not)
-export function configurationsApart(a: Configuration, b: Configuration): number {
+export function configurationsApart(
+  a: Configuration,
+  b: Configuration,
+): number {
   let n = 0
 
   for (let i = 0; i < a.vibe.length; i++) {
-    if (a.vibe[i] !== b.vibe[i]) n++
-    else if (a.vibe[i] !== 0 && (a.point[i] !== b.point[i] || a.open[i] !== b.open[i])) n++
+    if (a.vibe[i] !== b.vibe[i]) {
+      n++
+    } else if (
+      a.vibe[i] !== 0 &&
+      (a.point[i] !== b.point[i] || a.open[i] !== b.open[i])
+    ) {
+      n++
+    }
   }
 
   for (let s = 0; s < a.store.length; s++) {
-    if (a.store[s] !== b.store[s]) n++
-    else if (a.store[s] !== 0 && (a.spoint[s] !== b.spoint[s] || a.sopen[s] !== b.sopen[s])) n++
+    if (a.store[s] !== b.store[s]) {
+      n++
+    } else if (
+      a.store[s] !== 0 &&
+      (a.spoint[s] !== b.spoint[s] || a.sopen[s] !== b.sopen[s])
+    ) {
+      n++
+    }
   }
 
   return n
 }
 
 // slots and stores whose OCCUPATION differs (vibe trit, store trit, open bits), points ignored
-export function occupationsApart(a: Configuration, b: Configuration): number {
+export function occupationsApart(
+  a: Configuration,
+  b: Configuration,
+): number {
   let n = 0
 
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.open[i] !== b.open[i])) n++
-  for (let s = 0; s < a.store.length; s++) if (a.store[s] !== b.store[s] || (a.store[s] !== 0 && a.sopen[s] !== b.sopen[s])) n++
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 && a.open[i] !== b.open[i])
+    ) {
+      n++
+    }
+  }
+
+  for (let s = 0; s < a.store.length; s++) {
+    if (
+      a.store[s] !== b.store[s] ||
+      (a.store[s] !== 0 && a.sopen[s] !== b.sopen[s])
+    ) {
+      n++
+    }
+  }
 
   return n
 }
 
 // the like-full dock lines of a configuration (both slots one vibe), by whether their two points agree: the meetings
 // the next beat reads (a coin never makes a full line, so these are the meetings of the beat)
-export function likeMeetings(c: Configuration, cells: number): { equal: number; unequal: number } {
+export function likeMeetings(
+  c: Configuration,
+  cells: number,
+): { equal: number; unequal: number } {
   let equal = 0
   let unequal = 0
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const f = LINE_FIRSTS[l] as number
+      const f = LINE_FIRSTS[l]!
       const i = x * 24 + f
-      const j = x * 24 + (OPPOSITE[f] as number)
+      const j = x * 24 + OPPOSITE[f]!
 
-      if (c.vibe[i] === 0 || c.vibe[i] !== c.vibe[j]) continue
-      if (c.point[i] === c.point[j]) equal++
-      else unequal++
+      if (c.vibe[i] === 0 || c.vibe[i] !== c.vibe[j]) {
+        continue
+      }
+
+      if (c.point[i] === c.point[j]) {
+        equal++
+      } else {
+        unequal++
+      }
     }
   }
 
@@ -335,24 +494,39 @@ export function likeMeetings(c: Configuration, cells: number): { equal: number; 
 }
 
 // the slot opposite each slot by the roots (-r_d), to be checked against the rule's own OPPOSITE
-export const ROOT_OPPOSITE: readonly number[] = ROOTS.map(r => slotOfRoot(r.map(x => -x)))
+export const ROOT_OPPOSITE: readonly number[] = ROOTS.map(r =>
+  slotOfRoot(r.map(x => -x)),
+)
 
 // the love sea's counts against a configuration: loves, fears, empty slots (holes), held stores
-export function seaCounts(c: Configuration): { loves: number; fears: number; holes: number; stores: number } {
+export function seaCounts(c: Configuration): {
+  loves: number
+  fears: number
+  holes: number
+  stores: number
+} {
   let loves = 0
   let fears = 0
   let holes = 0
   let stores = 0
 
   for (let i = 0; i < c.vibe.length; i++) {
-    const v = c.vibe[i] as number
+    const v = c.vibe[i]!
 
-    if (v > 0) loves++
-    else if (v < 0) fears++
-    else holes++
+    if (v > 0) {
+      loves++
+    } else if (v < 0) {
+      fears++
+    } else {
+      holes++
+    }
   }
 
-  for (let s = 0; s < c.store.length; s++) if (c.store[s] !== 0) stores++
+  for (let s = 0; s < c.store.length; s++) {
+    if (c.store[s] !== 0) {
+      stores++
+    }
+  }
 
   return { loves, fears, holes, stores }
 }

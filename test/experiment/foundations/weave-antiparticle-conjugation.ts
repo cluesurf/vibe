@@ -91,6 +91,7 @@ export default experiment({
     const conjugationMismatch = (dir: number): number => {
       const one = evolve([[center, dir, 1]])
       const two = evolve([[center, dir, -1]])
+
       let worst = 0
 
       for (let t = 0; t < BEATS; t++) {
@@ -108,13 +109,14 @@ export default experiment({
       return worst
     }
 
-    const clockMatterMismatch = conjugationMismatch(lines[2]![0]!)
-    const swapMatterMismatch = conjugationMismatch(lines[0]![0]!)
-    const radiatingMismatch = conjugationMismatch(lines[3]![0]!)
+    const clockMatterMismatch = conjugationMismatch(lines[2]![0])
+    const swapMatterMismatch = conjugationMismatch(lines[0]![0])
+    const radiatingMismatch = conjugationMismatch(lines[3]![0])
 
     // conjugate phases on the free species
-    const particle = evolve([[center, lines[2]![0]!, 1]])
-    const antiparticle = evolve([[center, lines[2]![0]!, -1]])
+    const particle = evolve([[center, lines[2]![0], 1]])
+    const antiparticle = evolve([[center, lines[2]![0], -1]])
+
     let phasesConjugate = true
 
     for (let t = 0; t < BEATS; t++) {
@@ -133,9 +135,10 @@ export default experiment({
 
     // the separated pair: net amplitude exactly three at one hundred eighty
     const pair = evolve([
-      [center, lines[2]![0]!, 1],
-      [center + 4, lines[2]![0]!, -1],
+      [center, lines[2]![0], 1],
+      [center + 4, lines[2]![0], -1],
     ])
+
     let pairExact = true
 
     for (let t = 0; t < BEATS; t++) {
@@ -168,9 +171,7 @@ export default experiment({
       // CONTROL: the two free-sector rows, where the identical instrument reads exact zero
       control: {
         freeSectorExact:
-          clockMatterMismatch === 0 && swapMatterMismatch === 0
-            ? 1
-            : 0,
+          clockMatterMismatch === 0 && swapMatterMismatch === 0 ? 1 : 0,
       },
       notes:
         'C violation localizes to the interacting sector: the same conjugation test that reads exact zero on both free matter species reads dozens of differing slots on the radiating swap-wire mode. This is the committed CPT fingerprint (CPT exact, C and CP broken) pinned to WHERE the physics interacts, which is also where the weak interaction breaks it in nature.',

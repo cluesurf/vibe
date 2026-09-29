@@ -116,18 +116,62 @@ import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { staticR, darwinR } from '@/code/measure/darwin-exchange'
 import { DOCK_ROOTS, wrap } from '@/code/measure/dock-mixer'
 import { infiniteGreenZero } from '@/code/measure/husk-coulomb'
-import { huskGreenTable, type GreenTable } from '@/code/measure/husk-meson'
-import { blockShares, clonePair, inner, memberCycle, newPair, norm2, normalizePair, pairCycle, type PairState } from '@/code/measure/register-meson'
-import { coulombCounts, coulombCycle, coulombEngine, densityS, fullBeatQ, fullGapQ, fullRuleQ, greenOf, huskRelBall, hydrogenStart, liftQ, shells, siteWeights, type CoulombCount } from '@/code/measure/register-coulomb'
-import { applyPull, dockCounts, sectorPiece, splitCycle, splitEngine, splitFilter, splitRead, type SplitEngine, type SplitForm } from '@/code/measure/register-coulomb-split'
-import { diracPhase, gammaMatrices } from '@/code/measure/spinor-register'
+import {
+  huskGreenTable,
+  type GreenTable,
+} from '@/code/measure/husk-meson'
+import {
+  blockShares,
+  clonePair,
+  inner,
+  memberCycle,
+  newPair,
+  norm2,
+  normalizePair,
+  pairCycle,
+  type PairState,
+} from '@/code/measure/register-meson'
+import {
+  coulombCounts,
+  coulombCycle,
+  coulombEngine,
+  densityS,
+  fullBeatQ,
+  fullGapQ,
+  fullRuleQ,
+  greenOf,
+  huskRelBall,
+  hydrogenStart,
+  liftQ,
+  shells,
+  siteWeights,
+  type CoulombCount,
+} from '@/code/measure/register-coulomb'
+import {
+  applyPull,
+  dockCounts,
+  sectorPiece,
+  splitCycle,
+  splitEngine,
+  splitFilter,
+  splitRead,
+  type SplitEngine,
+  type SplitForm,
+} from '@/code/measure/register-coulomb-split'
+import {
+  diracPhase,
+  gammaMatrices,
+} from '@/code/measure/spinor-register'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 
 const LIGHT: readonly [number, number] = [-5, 1]
 const UNIT: readonly [number, number] = [11, 5]
 const C_STAR2 = 0.5
 const GENERIC_RAW = [0.29, 0.52, 0.8]
-const GENERIC = [...GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW)), 0]
+const GENERIC = [
+  ...GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW)),
+  0,
+]
 const DIRS: readonly number[][] = [[1, 0, 0, 0], GENERIC]
 const WITNESS_K: readonly number[][] = [
   [0, 0, 0, 0],
@@ -163,19 +207,92 @@ const I5_CENTROID = 1e-15
 const I5_SMEAR = 1e-12
 
 // one point of the gate plan: a coupling, a ball, the filters, and the placement of the pull it reads
-export type SplitPoint = { name: string; aB: number; radius: number; filters: readonly number[]; kFilter: number; form: SplitForm; dock: boolean }
+export type SplitPoint = {
+  name: string
+  aB: number
+  radius: number
+  filters: readonly number[]
+  kFilter: number
+  form: SplitForm
+  dock: boolean
+}
 
-export type SplitPlan = { points: readonly SplitPoint[]; hold: number; witnessCoord: number; witnessFull: number; sTorus: number; main: number; weak: number; strong: number }
+export type SplitPlan = {
+  points: readonly SplitPoint[]
+  hold: number
+  witnessCoord: number
+  witnessFull: number
+  sTorus: number
+  main: number
+  weak: number
+  strong: number
+}
 
 export const GATE_PLAN: SplitPlan = {
   points: [
-    { name: 'main-strang', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'strang', dock: false },
-    { name: 'main-coulomb', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: false },
-    { name: 'main-dock', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: true },
-    { name: 'strong-strang', aB: 3, radius: 10, filters: [128, 512, 1024], kFilter: 128, form: 'strang', dock: false },
-    { name: 'strong-coulomb', aB: 3, radius: 10, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: false },
-    { name: 'weak-strang', aB: 5, radius: 14, filters: [128, 512], kFilter: 128, form: 'strang', dock: false },
-    { name: 'weak-coulomb', aB: 5, radius: 14, filters: [128, 512], kFilter: 128, form: 'coulomb', dock: false },
+    {
+      name: 'main-strang',
+      aB: 3.5,
+      radius: 12,
+      filters: [128, 512, 1024],
+      kFilter: 128,
+      form: 'strang',
+      dock: false,
+    },
+    {
+      name: 'main-coulomb',
+      aB: 3.5,
+      radius: 12,
+      filters: [128, 512, 1024],
+      kFilter: 128,
+      form: 'coulomb',
+      dock: false,
+    },
+    {
+      name: 'main-dock',
+      aB: 3.5,
+      radius: 12,
+      filters: [128, 512, 1024],
+      kFilter: 128,
+      form: 'coulomb',
+      dock: true,
+    },
+    {
+      name: 'strong-strang',
+      aB: 3,
+      radius: 10,
+      filters: [128, 512, 1024],
+      kFilter: 128,
+      form: 'strang',
+      dock: false,
+    },
+    {
+      name: 'strong-coulomb',
+      aB: 3,
+      radius: 10,
+      filters: [128, 512, 1024],
+      kFilter: 128,
+      form: 'coulomb',
+      dock: false,
+    },
+    {
+      name: 'weak-strang',
+      aB: 5,
+      radius: 14,
+      filters: [128, 512],
+      kFilter: 128,
+      form: 'strang',
+      dock: false,
+    },
+    {
+      name: 'weak-coulomb',
+      aB: 5,
+      radius: 14,
+      filters: [128, 512],
+      kFilter: 128,
+      form: 'coulomb',
+      dock: false,
+    },
   ],
   hold: 64,
   witnessCoord: 7,
@@ -187,10 +304,24 @@ export const GATE_PLAN: SplitPlan = {
 }
 
 const flag = (b: boolean): number => (b ? 1 : 0)
-const unitValue = (angle: number): [number, number] => [Math.cos(angle), Math.sin(angle)]
+const unitValue = (angle: number): [number, number] => [
+  Math.cos(angle),
+  Math.sin(angle),
+]
 
 // the member, the unit, the Green's function
-export type Setup = { u: [number, number]; M0: number; m: number; tanOver: number; theta: number; mu: number; aMember: number; G0: number; table: GreenTable; alphaOf: (aB: number) => number }
+export type Setup = {
+  u: [number, number]
+  M0: number
+  m: number
+  tanOver: number
+  theta: number
+  mu: number
+  aMember: number
+  G0: number
+  table: GreenTable
+  alphaOf: (aB: number) => number
+}
 
 export function setup(): Setup {
   const theta0 = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
@@ -198,26 +329,52 @@ export function setup(): Setup {
   const M0 = wrap(theta0 - Math.PI)
   const m = M0 / 2
   const theta = unitAngle(ringUnit(UNIT[0], UNIT[1]))
+
   const sEps = (k: number): number => {
     const c = memberCycle(u, [k, 0, 0, 0])
     const ev = complexEigenvalues({ re: c.re, im: c.im, n: 16 })
 
-    return ev.re.map((x, i) => wrap(Math.atan2(ev.im[i] as number, x) - Math.PI)).reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
+    return ev.re
+      .map((x, i) => wrap(Math.atan2(ev.im[i]!, x) - Math.PI))
+      .reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
   }
-  const aMember = (4 * ((sEps(0.01) - M0) / 0.01 ** 2) - (sEps(0.02) - M0) / 0.02 ** 2) / 3
+
+  const aMember =
+    (4 * ((sEps(0.01) - M0) / 0.01 ** 2) -
+      (sEps(0.02) - M0) / 0.02 ** 2) /
+    3
   const mu = C_STAR2 / (2 * aMember) / 2
   const G0 = infiniteGreenZero('husk', 64).value
 
-  return { u, M0, m, tanOver: Math.tan(m) / m, theta, mu, aMember, G0, table: huskGreenTable(128, 16, G0), alphaOf: (aB: number) => (24 * Math.PI) / (mu * aB) }
+  return {
+    u,
+    M0,
+    m,
+    tanOver: Math.tan(m) / m,
+    theta,
+    mu,
+    aMember,
+    G0,
+    table: huskGreenTable(128, 16, G0),
+    alphaOf: (aB: number) => (24 * Math.PI) / (mu * aB),
+  }
 }
 
 // Weyl-filled generic coordinates on the sites within husk radius `within`
-function genericState(ball: ReturnType<typeof huskRelBall>, within: number, seed: number): PairState {
+function genericState(
+  ball: ReturnType<typeof huskRelBall>,
+  within: number,
+  seed: number,
+): PairState {
   const s = newPair(ball)
+
   let w = seed
 
   ball.points.forEach((p, i) => {
-    if (Math.hypot(p[0] as number, p[1] as number, p[2] as number) > within) return
+    if (Math.hypot(p[0]!, p[1]!, p[2]!) > within) {
+      return
+    }
+
     for (let k = 0; k < 256; k++) {
       w = (w + 0.6180339887498949) % 1
       s.re[i * 256 + k] = w - 0.5
@@ -234,8 +391,11 @@ function relativeGap(a: PairState, b: PairState): number {
   let n = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    g = Math.max(g, Math.hypot((a.re[i] as number) - (b.re[i] as number), (a.im[i] as number) - (b.im[i] as number)))
-    n = Math.max(n, Math.hypot(a.re[i] as number, a.im[i] as number))
+    g = Math.max(
+      g,
+      Math.hypot(a.re[i]! - b.re[i]!, a.im[i]! - b.im[i]!),
+    )
+    n = Math.max(n, Math.hypot(a.re[i]!, a.im[i]!))
   }
 
   return g / n
@@ -243,7 +403,15 @@ function relativeGap(a: PairState, b: PairState): number {
 
 // ---------------- the witness, the instrument and the controls (one part) ----------------
 
-export type WitnessRead = { what: string; K: number[]; kind: string; gap: number; gapInner: number; weights: number[]; norms: number[] }
+export type WitnessRead = {
+  what: string
+  K: number[]
+  kind: string
+  gap: number
+  gapInner: number
+  weights: number[]
+  norms: number[]
+}
 
 export type Parts = {
   witness: WitnessRead[]
@@ -258,19 +426,32 @@ export type Parts = {
   C2: boolean
 }
 
-export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void): Parts {
+export function partsRun(
+  su: Setup,
+  plan: SplitPlan,
+  log: (what: string) => void,
+): Parts {
   const { u, M0, theta, table } = su
+
   // I1: the member coordinates' 16 phases on the husk slice, the Dirac band
   let i1 = 0
 
   for (const K of I1_MOMENTA) {
     const c = memberCycle(u, K)
     const ev = complexEigenvalues({ re: c.re, im: c.im, n: 16 })
-    const ph = ev.re.map((x, i) => Math.atan2(ev.im[i] as number, x)).sort((a, b) => a - b)
+    const ph = ev.re
+      .map((x, i) => Math.atan2(ev.im[i]!, x))
+      .sort((a, b) => a - b)
     const E = diracPhase(K, M0)
-    const want = [...Array(8).fill(wrap(Math.PI + E)), ...Array(8).fill(wrap(Math.PI - E))].sort((a, b) => a - b)
+    const want = [
+      ...Array(8).fill(wrap(Math.PI + E)),
+      ...Array(8).fill(wrap(Math.PI - E)),
+    ].sort((a, b) => a - b)
 
-    i1 = Math.max(i1, ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))))
+    i1 = Math.max(
+      i1,
+      ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))),
+    )
   }
 
   const RMember = C_STAR2 / (2 * su.aMember * M0)
@@ -287,13 +468,14 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   const alpha = su.alphaOf(plan.main)
   const cc = coulombCounts(coord, table, alpha, theta)
   const fc = coulombCounts(full, table, alpha, theta)
-  const at = coord.index.get('0,0,0,0') as number
+  const at = coord.index.get('0,0,0,0')!
 
   for (const what of ['free', 'pieces'] as const) {
     for (const K of WITNESS_K) {
       for (const kind of ['SS', 'generic'] as const) {
         const e = splitEngine(coord, u, K, cc, 'strang')
         const s = newPair(coord)
+
         let w = 0.5
 
         for (let k = 0; k < (kind === 'SS' ? 64 : 256); k++) {
@@ -305,28 +487,48 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
 
         const n0 = norm2(e.free, s)
         const before = liftQ(coord, s, full, K)
+
         let two
 
         if (what === 'free') {
           pairCycle(e.free, s)
 
-          const rule = fullRuleQ(full, u, K, new Array<number>(full.points.length).fill(0), 'vector')
+          const rule = fullRuleQ(
+            full,
+            u,
+            K,
+            new Array<number>(full.points.length).fill(0),
+            'vector',
+          )
 
           two = fullBeatQ(rule, fullBeatQ(rule, before, 1), 2)
         } else {
           sectorPiece(e.half, s, 'SS')
           sectorPiece(e.half, s, 'DD')
 
-          const rule = fullRuleQ(full, [1, 0], K, Array.from(fc.counts, n => (-theta * n) / 2), 'vector')
+          const rule = fullRuleQ(
+            full,
+            [1, 0],
+            K,
+            Array.from(fc.counts, n => (-theta * n) / 2),
+            'vector',
+          )
 
           two = fullBeatQ(rule, fullBeatQ(rule, before, 1), 2)
         }
 
         const n1 = norm2(e.free, s)
+
         let want = liftQ(coord, s, full, K)
 
         if (what === 'pieces') {
-          const idle = fullRuleQ(full, [1, 0], K, new Array<number>(full.points.length).fill(0), 'vector')
+          const idle = fullRuleQ(
+            full,
+            [1, 0],
+            K,
+            new Array<number>(full.points.length).fill(0),
+            'vector',
+          )
 
           want = fullBeatQ(idle, fullBeatQ(idle, want, 1), 2)
         }
@@ -334,7 +536,15 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
         const g = fullGapQ(full, two, want)
         const gIn = fullGapQ(full, two, want, plan.witnessFull - 3)
 
-        witness.push({ what, K: [...K], kind, gap: g.worst, gapInner: gIn.worst, weights: [g.weightA, g.weightB], norms: [n0, n1] })
+        witness.push({
+          what,
+          K: [...K],
+          kind,
+          gap: g.worst,
+          gapInner: gIn.worst,
+          weights: [g.weightA, g.weightB],
+          norms: [n0, n1],
+        })
         log(`witness ${what} ${kind} ${K.join(',')}`)
       }
     }
@@ -343,7 +553,8 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   // I2 THE FACTORED CYCLE IS E-SPN-0173'S, CONJUGATED: P_SS U s against V K P_SS s, a generic start within radius 3
   const ball = huskRelBall(8)
   const count = coulombCounts(ball, table, alpha, theta)
-  const Kg = WITNESS_K[1] as number[]
+  const Kg = WITNESS_K[1]!
+
   let conjugacy = 0
   let strangNorm = 0
 
@@ -365,7 +576,13 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   // radius-14 ball (one Strang cycle reaches up to eight links: two pulls of two each and the free cycle between)
   {
     const b14 = huskRelBall(14)
-    const es = splitEngine(b14, u, Kg, coulombCounts(b14, table, alpha, theta), 'strang')
+    const es = splitEngine(
+      b14,
+      u,
+      Kg,
+      coulombCounts(b14, table, alpha, theta),
+      'strang',
+    )
     const c = genericState(b14, 3, 0.1)
     const n0 = norm2(es.free, c)
 
@@ -379,7 +596,20 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   // stencils against G beyond one link of contact
   const g = gammaMatrices()
   const f = 1 / (2 * Math.sqrt(12))
-  const E = DOCK_ROOTS.map(r => Array.from({ length: 8 }, (_, a) => Array.from({ length: 8 }, (_, eta) => f * [0, 1, 2, 3].reduce((acc, i) => acc + (r[i] as number) * (((g[i] as number[][])[eta] as number[])[a] as number), 0))))
+  const E = DOCK_ROOTS.map(r =>
+    Array.from({ length: 8 }, (_, a) =>
+      Array.from(
+        { length: 8 },
+        (_, eta) =>
+          f *
+          [0, 1, 2, 3].reduce(
+            (acc, i) => acc + r[i]! * g[i]![eta]![a]!,
+            0,
+          ),
+      ),
+    ),
+  )
+
   let centroid = 0
 
   for (let axis = 0; axis < 4; axis++) {
@@ -388,7 +618,9 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
         let acc = 0
 
         DOCK_ROOTS.forEach((r, d) => {
-          for (let a = 0; a < 8; a++) acc += (r[axis] as number) * ((E[d] as number[][])[a] as number[])[x]! * ((E[d] as number[][])[a] as number[])[y]!
+          for (let a = 0; a < 8; a++) {
+            acc += r[axis]! * E[d]![a]![x]! * E[d]![a]![y]!
+          }
         })
         centroid = Math.max(centroid, Math.abs(acc))
       }
@@ -396,7 +628,8 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   }
 
   const G = (p: readonly number[]): number => greenOf(table, p)
-  const R3 = DOCK_ROOTS.map(r => [r[0] as number, r[1] as number, r[2] as number])
+  const R3 = DOCK_ROOTS.map(r => [r[0]!, r[1]!, r[2]!])
+
   let smear = 0
   let smearContact = 0
 
@@ -405,21 +638,37 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
       for (let c = -8; c <= 8; c++) {
         const r = Math.hypot(a, b, c)
 
-        if (r > 8) continue
+        if (r > 8) {
+          continue
+        }
 
         const gy = G([a, b, c])
+
         let one = 0
         let two = 0
 
         for (const q1 of R3) {
-          one += G([a + (q1[0] as number), b + (q1[1] as number), c + (q1[2] as number)])
-          for (const q2 of R3) two += G([a + (q1[0] as number) - (q2[0] as number), b + (q1[1] as number) - (q2[1] as number), c + (q1[2] as number) - (q2[2] as number)])
+          one += G([a + q1[0]!, b + q1[1]!, c + q1[2]!])
+
+          for (const q2 of R3) {
+            two += G([
+              a + q1[0]! - q2[0]!,
+              b + q1[1]! - q2[1]!,
+              c + q1[2]! - q2[2]!,
+            ])
+          }
         }
 
-        const worst = Math.max(Math.abs(one / 24 / gy - 1), Math.abs(two / 576 / gy - 1))
+        const worst = Math.max(
+          Math.abs(one / 24 / gy - 1),
+          Math.abs(two / 576 / gy - 1),
+        )
 
-        if (r > Math.SQRT2 + 1e-9) smear = Math.max(smear, worst)
-        else smearContact = Math.max(smearContact, worst)
+        if (r > Math.SQRT2 + 1e-9) {
+          smear = Math.max(smear, worst)
+        } else {
+          smearContact = Math.max(smearContact, worst)
+        }
       }
     }
   }
@@ -445,9 +694,18 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
       splitCycle(mine, a)
       coulombCycle(theirs, b)
     }
-    C1 = a.re.every((x, i) => x === b.re[i]) && a.im.every((x, i) => x === b.im[i])
 
-    const off = splitEngine(b6, u, Kg, { ...c6, counts: new Int32Array(c6.counts.length) }, 'strang')
+    C1 =
+      a.re.every((x, i) => x === b.re[i]) &&
+      a.im.every((x, i) => x === b.im[i])
+
+    const off = splitEngine(
+      b6,
+      u,
+      Kg,
+      { ...c6, counts: new Int32Array(c6.counts.length) },
+      'strang',
+    )
     const c = clonePair(s)
     const d = clonePair(s)
 
@@ -455,12 +713,26 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
       splitCycle(off, c)
       pairCycle(off.free, d)
     }
-    C2 = c.re.every((x, i) => x === d.re[i]) && c.im.every((x, i) => x === d.im[i])
+
+    C2 =
+      c.re.every((x, i) => x === d.re[i]) &&
+      c.im.every((x, i) => x === d.im[i])
   }
 
   log('C1 C2')
 
-  return { witness, i1, RMember, conjugacy, strangNorm, centroid, smear, smearContact, C1, C2 }
+  return {
+    witness,
+    i1,
+    RMember,
+    conjugacy,
+    strangNorm,
+    centroid,
+    smear,
+    smearContact,
+    C1,
+    C2,
+  }
 }
 
 // ---------------- one point: the level, the hold, the motion, S and R in one placement of the pull ----------------
@@ -498,35 +770,55 @@ export type PointRead = {
   seconds: number
 }
 
-export function readPoint(su: Setup, plan: SplitPlan, p: SplitPoint, log: (what: string) => void): PointRead {
+export function readPoint(
+  su: Setup,
+  plan: SplitPlan,
+  p: SplitPoint,
+  log: (what: string) => void,
+): PointRead {
   const started = Date.now()
   const { u, M0, m, theta, table, mu } = su
   const alpha = su.alphaOf(p.aB)
   const ball = huskRelBall(p.radius)
   const count: CoulombCount = coulombCounts(ball, table, alpha, theta)
-  const dock = p.dock ? dockCounts(ball, q => greenOf(table, q), alpha, theta) : undefined
-  const dockSites = dock ? ball.points.filter((_, i) => dock.SD[i] !== count.counts[i] || dock.DD[i] !== count.counts[i]).length : 0
-  const engineAt = (K: readonly number[]): SplitEngine => splitEngine(ball, u, K, count, p.form, dock)
+  const dock = p.dock
+    ? dockCounts(ball, q => greenOf(table, q), alpha, theta)
+    : undefined
+  const dockSites = dock
+    ? ball.points.filter(
+        (_, i) =>
+          dock.SD[i] !== count.counts[i] ||
+          dock.DD[i] !== count.counts[i],
+      ).length
+    : 0
+  const engineAt = (K: readonly number[]): SplitEngine =>
+    splitEngine(ball, u, K, count, p.form, dock)
   const e = engineAt([0, 0, 0, 0])
   const EbContinuum = (mu * (alpha / (24 * Math.PI)) ** 2) / 2
+
   let v = hydrogenStart(ball, p.aB)
   let phase = 2 * M0 - EbContinuum
   let read = splitRead(e, v)
+
   const reads: number[] = []
 
   normalizePair(e.free, v)
+
   for (const S of p.filters) {
     v = splitFilter(e, v, phase, S)
     normalizePair(e.free, v)
     read = splitRead(e, v)
     reads.push(read.residual)
     phase = read.phase
-    log(`${p.name} filter ${S}: E ${read.phase} residual ${read.residual.toExponential(3)}`)
+    log(
+      `${p.name} filter ${S}: E ${read.phase} residual ${read.residual.toExponential(3)}`,
+    )
   }
 
   const EL = read.phase
   // the hold
   const s = clonePair(v)
+
   let least = 1
 
   for (let c = 1; c <= plan.hold; c++) {
@@ -547,9 +839,10 @@ export function readPoint(su: Setup, plan: SplitPlan, p: SplitPoint, log: (what:
   applyPull(e.half, hv)
   applyPull(e.half, hv)
   applyPull(e.pull, fv)
+
   for (let i = 0; i < hv.re.length; i++) {
-    hv.re[i] = (hv.re[i] as number) - (fv.re[i] as number)
-    hv.im[i] = (hv.im[i] as number) - (fv.im[i] as number)
+    hv.re[i] = hv.re[i]! - fv.re[i]!
+    hv.im[i] = hv.im[i]! - fv.im[i]!
   }
 
   const commutator = Math.sqrt(norm2(e.free, hv))
@@ -564,14 +857,19 @@ export function readPoint(su: Setup, plan: SplitPlan, p: SplitPoint, log: (what:
 
     return splitRead(ek, x).phase
   }
+
   const base = eAt([0, 0, 0, 0])
   const coefficients = DIRS.map(d => {
     const e1 = eAt(d.map(x => x * KAPPA))
     const e2 = eAt(d.map(x => (x * KAPPA) / 2))
 
-    return (4 * ((e2 - base) / (KAPPA / 2) ** 2) - (e1 - base) / KAPPA ** 2) / 3
+    return (
+      (4 * ((e2 - base) / (KAPPA / 2) ** 2) -
+        (e1 - base) / KAPPA ** 2) /
+      3
+    )
   })
-  const a0 = coefficients[0] as number
+  const a0 = coefficients[0]!
   const Rstatic = C_STAR2 / (2 * a0 * base)
   const dS = densityS(ball, w, plan.sTorus)
   const Eb = 2 * M0 - EL
@@ -616,34 +914,77 @@ export function readPoint(su: Setup, plan: SplitPlan, p: SplitPoint, log: (what:
 
 // ---------------- the verdict ----------------
 
-export function combine(reads: readonly PointRead[], parts: Parts, plan: SplitPlan, su: Setup): Verdict {
+export function combine(
+  reads: readonly PointRead[],
+  parts: Parts,
+  plan: SplitPlan,
+  su: Setup,
+): Verdict {
   const { tanOver, m, M0, theta, mu, G0 } = su
-  const find = (aB: number, form: SplitForm, dock = false): PointRead | undefined => reads.find(r => r.aB === aB && r.form === form && r.dock === dock)
-  const main = find(plan.main, 'strang') as PointRead
-  const excess = (r: PointRead | undefined): number => (r ? Math.abs(r.Rstatic / r.RformulaStatic - 1) : NaN)
+  const find = (
+    aB: number,
+    form: SplitForm,
+    dock = false,
+  ): PointRead | undefined =>
+    reads.find(r => r.aB === aB && r.form === form && r.dock === dock)
+  const main = find(plan.main, 'strang')!
+  const excess = (r: PointRead | undefined): number =>
+    r ? Math.abs(r.Rstatic / r.RformulaStatic - 1) : NaN
   const H0 =
     parts.witness.length === 8 &&
-    parts.witness.every(w => (w.kind === 'SS' ? w.gap : w.gapInner) <= ENTRY && Math.abs((w.norms[1] as number) / (w.norms[0] as number) - 1) <= NORM) &&
-    parts.witness.filter(w => w.kind === 'SS').every(w => Math.abs((w.weights[0] as number) / (w.weights[1] as number) - 1) <= WEIGHT)
-  const H1 = main.lambdaAbs >= 1 - LAMBDA && main.residual <= RESIDUAL && Math.abs(main.lost) <= LOST && main.least >= 1 - FIDELITY && main.edge <= EDGE
+    parts.witness.every(
+      w =>
+        (w.kind === 'SS' ? w.gap : w.gapInner) <= ENTRY &&
+        Math.abs(w.norms[1]! / w.norms[0]! - 1) <= NORM,
+    ) &&
+    parts.witness
+      .filter(w => w.kind === 'SS')
+      .every(w => Math.abs(w.weights[0]! / w.weights[1]! - 1) <= WEIGHT)
+  const H1 =
+    main.lambdaAbs >= 1 - LAMBDA &&
+    main.residual <= RESIDUAL &&
+    Math.abs(main.lost) <= LOST &&
+    main.least >= 1 - FIDELITY &&
+    main.edge <= EDGE
   const H2 = main.isotropy <= ISOTROPY
   const H3 = excess(main) <= STATIC_BAND
   const H4 = Math.abs(main.Rfull - tanOver) <= FULL_BAND
-  const trend = [plan.strong, plan.main, plan.weak].map(aB => excess(find(aB, 'strang')))
-  const H5 = trend.every(x => Number.isFinite(x)) && (trend[0] as number) > (trend[1] as number) && (trend[1] as number) > (trend[2] as number)
+  const trend = [plan.strong, plan.main, plan.weak].map(aB =>
+    excess(find(aB, 'strang')),
+  )
+  const H5 =
+    trend.every(x => Number.isFinite(x)) &&
+    trend[0]! > trend[1]! &&
+    trend[1]! > trend[2]!
   // H6 THE SPLIT REMOVES THE FIRST-ORDER ERROR: at every coupling, the Strang cycle's excess over the formula at most half
   // the unsplit cycle's (the directive's hypothesis; the derivation predicts it fails)
-  const pairs = [plan.strong, plan.main, plan.weak].map(aB => ({ aB, s: find(aB, 'strang'), c: find(aB, 'coulomb') }))
-  const H6 = pairs.every(({ s, c }) => s !== undefined && c !== undefined && (s.Rstatic - s.RformulaStatic) <= HALF * (c.Rstatic - c.RformulaStatic))
+  const pairs = [plan.strong, plan.main, plan.weak].map(aB => ({
+    aB,
+    s: find(aB, 'strang'),
+    c: find(aB, 'coulomb'),
+  }))
+  const H6 = pairs.every(
+    ({ s, c }) =>
+      s !== undefined &&
+      c !== undefined &&
+      s.Rstatic - s.RformulaStatic <=
+        HALF * (c.Rstatic - c.RformulaStatic),
+  )
   const I1 = parts.i1 <= I1_TOLERANCE
-  const I2 = Math.abs(parts.RMember - tanOver) <= I2_TOLERANCE && parts.conjugacy <= I3_TOLERANCE
+  const I2 =
+    Math.abs(parts.RMember - tanOver) <= I2_TOLERANCE &&
+    parts.conjugacy <= I3_TOLERANCE
   const I3 = parts.strangNorm <= I4_NORM
   const I4 = parts.centroid <= I5_CENTROID && parts.smear <= I5_SMEAR
   const C3 = darwinR(m, main.Eb / 2, 0, 1) === staticR(m, main.Eb / 2)
   const instrument = I1 && I2 && I3 && I4
   const controls = parts.C1 && parts.C2 && C3
   const hard = H0 && H1 && H2 && H3 && H4 && H5 && H6
-  const status = !hard ? 'fail' : !instrument || !controls ? 'partial' : 'pass'
+  const status = !hard
+    ? 'fail'
+    : !instrument || !controls
+      ? 'partial'
+      : 'pass'
   const pointClaim = (r: PointRead): string =>
     `${r.name} (a_B ${r.aB}, ${r.form}${r.dock ? ' at the true docks' : ''}, alpha ${r.alpha.toFixed(3)}, ball ${r.radius}, ${r.sites} sites${r.dock ? `, ${r.dockSites} sites re-counted` : ''}): E_L ${r.EL.toFixed(8)}, E_b ${r.Eb.toFixed(6)} (continuum ${r.EbContinuum.toFixed(6)}), |lambda| ${r.lambdaAbs.toFixed(10)}, residual ${r.residual.toExponential(2)} (after each filter ${r.reads.map(x => x.toExponential(2)).join(', ')}), lost ${r.lost.toExponential(2)} over ${plan.hold} cycles, least fidelity ${r.least.toFixed(10)}, edge ${r.edge.toExponential(2)}, mean r ${r.mean.toFixed(3)}, shares ${r.shares.map(x => x.toFixed(4)).join(' ')}, the pieces' commutator on the level ${r.commutator.toExponential(3)}; a ${r.coefficients.map(a => a.toFixed(10)).join(' ')} (isotropy ${r.isotropy.toExponential(2)}); R static ${r.Rstatic.toFixed(6)} against the formula ${r.RformulaStatic.toFixed(6)}; S ${r.S.toFixed(6)}; R with the Darwin exchange ${r.Rfull.toFixed(6)} against tan m / m ${tanOver.toFixed(6)} [${r.seconds.toFixed(0)} s]`
   const metrics: Record<string, number> = {
@@ -679,7 +1020,12 @@ export function combine(reads: readonly PointRead[], parts: Parts, plan: SplitPl
     status,
     claim: `H0 ${H0} (${parts.witness.map(w => `${w.what} ${w.kind} K ${w.K.join(',')}: gap ${w.gap.toExponential(2)} (inner ${w.gapInner.toExponential(2)}), norm ${w.norms.map(x => x.toFixed(12)).join(' -> ')}`).join('; ')}); H1 ${H1}; H2 ${H2}; H3 ${H3} (the Strang cycle's static R within ${STATIC_BAND} of the formula at a_B ${plan.main}); H4 ${H4} (R with the Darwin exchange within ${FULL_BAND} of tan m / m); H5 ${H5} (the Strang excess over the formula ${trend.map(x => x.toFixed(4)).join(', ')} at a_B ${plan.strong}, ${plan.main}, ${plan.weak}, falling); H6 ${H6} (the Strang excess at most ${HALF} of the unsplit's at every coupling: ${pairs.map(({ aB, s, c }) => `a_B ${aB} ${s && c ? `${(s.Rstatic - s.RformulaStatic).toFixed(4)} against ${(c.Rstatic - c.RformulaStatic).toFixed(4)}` : 'not read'}`).join(', ')}). POINTS ${reads.map(pointClaim).join('. ')}. Instrument I1 ${I1} (${parts.i1.toExponential(2)}) I2 ${I2} (member R ${parts.RMember.toFixed(9)} vs ${tanOver.toFixed(9)}; P_SS U against V K P_SS ${parts.conjugacy.toExponential(2)}) I3 ${I3} (the Strang cycle's Gram norm over one cycle ${parts.strangNorm.toExponential(2)}) I4 ${I4} (the D content's centroid ${parts.centroid.toExponential(2)}; its smeared pull against G beyond one link ${parts.smear.toExponential(2)}, within it ${parts.smearContact.toExponential(2)}); controls C1 ${parts.C1} (the unsplit pull is E-SPN-0173's cycle bit for bit) C2 ${parts.C2} (light off: the Strang cycle is the free cycle bit for bit) C3 ${C3}`,
     metrics,
-    control: { C1: flag(parts.C1), C2: flag(parts.C2), C3: flag(C3), instrument: flag(instrument) },
+    control: {
+      C1: flag(parts.C1),
+      C2: flag(parts.C2),
+      C3: flag(C3),
+      instrument: flag(instrument),
+    },
     notes: `L2. Light m ${m.toFixed(6)} (M0 ${M0.toFixed(6)}), the Coulomb count in steps of ringUnit(${UNIT.join(', ')}) (angle ${theta.toFixed(9)}), the half pull in steps of its square root, G(0) ${G0.toFixed(9)}, mu ${mu.toFixed(6)}.`,
   })
 }
@@ -687,7 +1033,10 @@ export function combine(reads: readonly PointRead[], parts: Parts, plan: SplitPl
 // run() reads every part in one process; the gate run reads the same parts in parallel processes and calls combine()
 export function registerCoulombSplitRun(plan: SplitPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const su = setup()
   const parts = partsRun(su, plan, log)
   const reads = plan.points.map(p => readPoint(su, plan, p, log))

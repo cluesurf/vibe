@@ -27,7 +27,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { heldColor, storeStudy, type StoreStudy } from '@/code/measure/token-store-gates'
+import {
+  heldColor,
+  storeStudy,
+  type StoreStudy,
+} from '@/code/measure/token-store-gates'
 
 export default experiment({
   id: 'relativity/labeled-pairs',
@@ -44,16 +48,29 @@ export default experiment({
     const again = storeStudy('labeled')
     const flip = storeStudy('plain')
     const neutral = storeStudy('labeled-neutral')
-    const deterministic = JSON.stringify(candidate.metrics) === JSON.stringify(again.metrics)
+    const deterministic =
+      JSON.stringify(candidate.metrics) ===
+      JSON.stringify(again.metrics)
     const held = heldColor('labeled')
     const plain = heldColor('plain')
     const heldNeutral = heldColor('labeled-neutral')
-    const gatesOf = (s: StoreStudy, h: { heldChanges: number; made: number }, det: boolean): Record<string, boolean> => {
+
+    const gatesOf = (
+      s: StoreStudy,
+      h: { heldChanges: number; made: number },
+      det: boolean,
+    ): Record<string, boolean> => {
       const g = s.gates
 
       return {
-        G1: !!(g.frameCovariant && g.frameTestSensitive && g.swapControlBites),
-        G2: (flip.metrics.frameMismatch ?? 0) > 0 && (flip.metrics.searchSignFlips ?? 0) > 0,
+        G1: !!(
+          g.frameCovariant &&
+          g.frameTestSensitive &&
+          g.swapControlBites
+        ),
+        G2:
+          (flip.metrics.frameMismatch ?? 0) > 0 &&
+          (flip.metrics.searchSignFlips ?? 0) > 0,
         G3: h.heldChanges === 0 && h.made > 0 && plain.heldChanges > 0,
         G4: !!(g.fermionKept && g.fermionControlBreaks),
         G5: !!g.wf4,
@@ -64,6 +81,7 @@ export default experiment({
         G10: det,
       }
     }
+
     const gates = gatesOf(candidate, held, deterministic)
     const neutralGates = gatesOf(neutral, heldNeutral, true)
     const ok = Object.values(gates).every(Boolean)
@@ -77,12 +95,20 @@ export default experiment({
       plainMade: plain.made,
       labeledNeutralHeldChanges: heldNeutral.heldChanges,
       labeledNeutralMade: heldNeutral.made,
-      labeledNeutralAllGates: Object.values(neutralGates).every(Boolean) ? 1 : 0,
+      labeledNeutralAllGates: Object.values(neutralGates).every(Boolean)
+        ? 1
+        : 0,
       seconds: 0,
     }
+
     const add = (s: StoreStudy, name: string): void => {
-      for (const [k, v] of Object.entries(s.metrics)) metrics[`${name}_${k}`] = v
-      for (const [k, v] of Object.entries(s.gates)) metrics[`${name}_gate_${k}`] = v ? 1 : 0
+      for (const [k, v] of Object.entries(s.metrics)) {
+        metrics[`${name}_${k}`] = v
+      }
+
+      for (const [k, v] of Object.entries(s.gates)) {
+        metrics[`${name}_gate_${k}`] = v ? 1 : 0
+      }
     }
 
     add(candidate, 'labeled')
@@ -98,7 +124,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim: `a latent sign on every token stops every flip (${c.searchSignFlips} in ${c.searchMeetings} meetings, the plain move ${f.searchSignFlips}): frame covariance ${c.frameMismatch} whole and ${c.classicalMismatch} classical mismatches over ${c.openPairs} open pairs x 480 beats (${c.frameLoveFearMeetings} love-fear meetings, ${c.framePassages} passages; the swap-phase control ${c.swapControlMismatch}, the plain move ${f.frameMismatch}), the fermion number kept at ${c.fermionKept} of ${c.fermionMeetings}, W(F4) ${(c.coinMapFailures ?? 0) + (c.boxCoinMapFailures ?? 0)} and CPT ${(c.motionReversalFailures ?? 0) + (c.cptFailures ?? 0)} failures, ${c.nonStates} non-states of ${c.wholesRead}; but the held color changes on ${held.heldChanges} of ${held.dockBeats} dock-beats (${held.made} pairs made), since a label says nothing of the points; with the neutral veto added the held color changes on ${heldNeutral.heldChanges} (${heldNeutral.made} pairs made) and frame covariance reads ${n.frameMismatch}`,
       metrics,
-      control: { swapPhaseMismatch: c.swapControlMismatch ?? -1, plainMismatch: f.frameMismatch ?? -1, plainHeldChanges: plain.heldChanges },
+      control: {
+        swapPhaseMismatch: c.swapControlMismatch ?? -1,
+        plainMismatch: f.frameMismatch ?? -1,
+        plainHeldChanges: plain.heldChanges,
+      },
       notes: `L2. Gates: ${JSON.stringify(gates)}; labeled-neutral (reading) ${JSON.stringify(neutralGates)}; candidate study gates ${JSON.stringify(candidate.gates)}; plain ${JSON.stringify(flip.gates)}. Open pairs: ${JSON.stringify(candidate.pairs)}. First run recorded as is.`,
     })
   },

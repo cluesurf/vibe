@@ -105,11 +105,22 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { fullPathKey, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
 import { starBeat, type KEvent } from '@/code/measure/hub-star'
-import { fermionTrack, keyedFermionMix, newFermionTally, placeInSea, pointFieldDefects, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  fermionTrack,
+  keyedFermionMix,
+  newFermionTally,
+  placeInSea,
+  pointFieldDefects,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import {
   configurationsApart,
   fixedPoints,
@@ -130,7 +141,11 @@ import {
   type HolonomyTally,
   type LoopKind,
 } from '@/code/measure/link-holonomy'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import { linkStart } from '@/code/rule/vibe-weave'
 
@@ -154,54 +169,98 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const X = centerOf(SIDE)
     const fr = contactFresh(SIDE, 'pass', X)
     const w = fr.weave
     const cells = fr.cells
     const B = rootIndex([1, 1, 0, 0])
-    const Y = Math.floor((fr.tables.target[X * 24 + B] as number) / 24)
-    const h = Int16Array.from({ length: cells }, (_, x) => linkStart(x, w.moves.act.length, FRAME_OFFSET))
+    const Y = Math.floor(fr.tables.target[X * 24 + B]! / 24)
+    const h = Int16Array.from({ length: cells }, (_, x) =>
+      linkStart(x, w.moves.act.length, FRAME_OFFSET),
+    )
     const working = fr.tables
     const flat = tablesOn(w, 'pass', flatLinks(w))
     const pure = tablesOn(w, 'pass', gaugeLinks(w, flatLinks(w), h))
     const workingGauged = tablesOn(w, 'pass', gaugeLinks(w, w.links, h))
 
     // ---- A: the census ----
-    const census = { working: holonomyCensus(working), flat: holonomyCensus(flat), pure: holonomyCensus(pure), gauged: holonomyCensus(workingGauged) }
-    const rings = { working: ringHolonomies(working), flat: ringHolonomies(flat), pure: ringHolonomies(pure), gauged: ringHolonomies(workingGauged) }
+    const census = {
+      working: holonomyCensus(working),
+      flat: holonomyCensus(flat),
+      pure: holonomyCensus(pure),
+      gauged: holonomyCensus(workingGauged),
+    }
+    const rings = {
+      working: ringHolonomies(working),
+      flat: ringHolonomies(flat),
+      pure: ringHolonomies(pure),
+      gauged: ringHolonomies(workingGauged),
+    }
     // the planted link: a pure translation (p -> p + (1, 0)), which fixes no point
-    const shift = w.moves.act.findIndex(t => t.every((q, p) => q === ((p % 3) + 1) % 3 + 3 * Math.floor(p / 3)))
+    const shift = w.moves.act.findIndex(t =>
+      t.every(
+        (q, p) => q === (((p % 3) + 1) % 3) + 3 * Math.floor(p / 3),
+      ),
+    )
     const planted = tablesOn(w, 'pass', plantedLinks(w, X, B, shift))
     const plantedCensus = holonomyCensus(planted)
-    const plantedRings = ringHolonomies(planted).filter(r => r.order !== 1).length
-    const curvedOf = (c: Record<LoopKind, HolonomyTally>): number => LOOP_KINDS.reduce((s, k) => s + c[k].curved, 0)
-    const loopsOf = (c: Record<LoopKind, HolonomyTally>): number => LOOP_KINDS.reduce((s, k) => s + c[k].loops, 0)
-    const curvedRings = (r: { order: number }[]): number => r.filter(x => x.order !== 1).length
-    const sameTally = (a: HolonomyTally, b: HolonomyTally): boolean => a.loops === b.loops && a.curved === b.curved && a.fixing === b.fixing && JSON.stringify(a.orders) === JSON.stringify(b.orders)
+    const plantedRings = ringHolonomies(planted).filter(
+      r => r.order !== 1,
+    ).length
+    const curvedOf = (c: Record<LoopKind, HolonomyTally>): number =>
+      LOOP_KINDS.reduce((s, k) => s + c[k].curved, 0)
+    const loopsOf = (c: Record<LoopKind, HolonomyTally>): number =>
+      LOOP_KINDS.reduce((s, k) => s + c[k].loops, 0)
+    const curvedRings = (r: { order: number }[]): number =>
+      r.filter(x => x.order !== 1).length
+    const sameTally = (a: HolonomyTally, b: HolonomyTally): boolean =>
+      a.loops === b.loops &&
+      a.curved === b.curved &&
+      a.fixing === b.fixing &&
+      JSON.stringify(a.orders) === JSON.stringify(b.orders)
     const G1count = curvedOf(census.working)
     const verdictA = G1count === 0 ? 'gauge' : 'curvature'
     const fieldWorking = pointFieldDefects(working).flat()
     const fieldPure = pointFieldDefects(pure).flat()
     const instrument =
-      LOOP_KINDS.every(k => census.working[k].open === 0 && census.flat[k].open === 0) &&
+      LOOP_KINDS.every(
+        k => census.working[k].open === 0 && census.flat[k].open === 0,
+      ) &&
       curvedOf(census.flat) === 0 &&
       curvedOf(census.pure) === 0 &&
       curvedRings(rings.flat) === 0 &&
       curvedRings(rings.pure) === 0 &&
-      LOOP_KINDS.every(k => sameTally(census.working[k], census.gauged[k])) &&
-      JSON.stringify(rings.working.map(r => [r.order, r.fixed])) === JSON.stringify(rings.gauged.map(r => [r.order, r.fixed])) &&
+      LOOP_KINDS.every(k =>
+        sameTally(census.working[k], census.gauged[k]),
+      ) &&
+      JSON.stringify(rings.working.map(r => [r.order, r.fixed])) ===
+        JSON.stringify(rings.gauged.map(r => [r.order, r.fixed])) &&
       shift >= 0 &&
-      LOOP_KINDS.every(k => plantedCensus[k].curved === LOOPS_THROUGH_EDGE[k] && plantedCensus[k].fixless === LOOPS_THROUGH_EDGE[k]) &&
+      LOOP_KINDS.every(
+        k =>
+          plantedCensus[k].curved === LOOPS_THROUGH_EDGE[k] &&
+          plantedCensus[k].fixless === LOOPS_THROUGH_EDGE[k],
+      ) &&
       plantedRings === 1 &&
       ROOT_OPPOSITE.every((o, d) => o === OPPOSITE[d])
 
     log('census')
 
     // ---- the runs ----
-    const run = (tables: LockedTables, start: Configuration, path: number, mix: boolean, each: (t: number, c: Configuration) => void): void => {
+    const run = (
+      tables: LockedTables,
+      start: Configuration,
+      path: number,
+      mix: boolean,
+      each: (t: number, c: Configuration) => void,
+    ): void => {
       let a = cloneConfiguration(start)
       let b = cloneConfiguration(start)
+
       const key = fullPathKey(pathOffset(path))
       const events: KEvent[] = []
       const tally = newFermionTally()
@@ -213,13 +272,22 @@ export default experiment({
         each(t, a)
       }
     }
-    const record = (tables: LockedTables, start: Configuration, path: number, mix: boolean): Configuration[] => {
+
+    const record = (
+      tables: LockedTables,
+      start: Configuration,
+      path: number,
+      mix: boolean,
+    ): Configuration[] => {
       const out: Configuration[] = []
 
-      run(tables, start, path, mix, (_, c) => out.push(cloneConfiguration(c)))
+      run(tables, start, path, mix, (_, c) =>
+        out.push(cloneConfiguration(c)),
+      )
 
       return out
     }
+
     const vacuum = wordVacuum(fr, fr.store)
     const meson = placeVibes(vacuum, [
       { dock: X, slot: B, vibe: 1 },
@@ -230,9 +298,20 @@ export default experiment({
     // A2: covariance
     const covariance = [false, true].map(mix => {
       const ref = record(working, meson, 0, mix)
+
       let off = 0
 
-      run(workingGauged, gaugeConfiguration(w, meson, h), 0, mix, (t, c) => (off += configurationsApart(gaugeConfiguration(w, ref[t] as Configuration, h), c)))
+      run(
+        workingGauged,
+        gaugeConfiguration(w, meson, h),
+        0,
+        mix,
+        (t, c) =>
+          (off += configurationsApart(
+            gaugeConfiguration(w, ref[t]!, h),
+            c,
+          )),
+      )
 
       return off
     })
@@ -245,6 +324,7 @@ export default experiment({
       const ref = record(working, meson, path, false)
       const mw = { equal: 0, unequal: 0 }
       const mf = { equal: 0, unequal: 0 }
+
       let occupation = 0
       let points = 0
 
@@ -254,9 +334,10 @@ export default experiment({
         mw.equal += m.equal
         mw.unequal += m.unequal
       })
+
       run(flat, meson, path, false, (t, c) => {
-        occupation += occupationsApart(ref[t] as Configuration, c)
-        points += configurationsApart(ref[t] as Configuration, c)
+        occupation += occupationsApart(ref[t]!, c)
+        points += configurationsApart(ref[t]!, c)
 
         const m = likeMeetings(c, cells)
 
@@ -276,18 +357,65 @@ export default experiment({
     const lines = meshLines(flat)
     const carry = paths.map(path => {
       const ref = record(flat, hole, path, true)
+
       let off = 0
 
-      run(pure, gaugeConfiguration(w, hole, h), path, true, (t, c) => (off += configurationsApart(gaugeConfiguration(w, ref[t] as Configuration, h), c)))
+      run(
+        pure,
+        gaugeConfiguration(w, hole, h),
+        path,
+        true,
+        (t, c) =>
+          (off += configurationsApart(
+            gaugeConfiguration(w, ref[t]!, h),
+            c,
+          )),
+      )
 
       const key = fullPathKey(pathOffset(path))
-      const flatTrack = fermionTrack({ tables: flat, reference: love, start: hole, key, threshold: THRESHOLD_BORN, beats: BEATS, on: true, lines })
-      const pureTrack = fermionTrack({ tables: pure, reference: gaugeConfiguration(w, love, h), start: gaugeConfiguration(w, hole, h), key, threshold: THRESHOLD_BORN, beats: BEATS, on: true, lines })
-      const workingTrack = fermionTrack({ tables: working, reference: love, start: hole, key, threshold: THRESHOLD_BORN, beats: BEATS, on: true, lines })
+      const flatTrack = fermionTrack({
+        tables: flat,
+        reference: love,
+        start: hole,
+        key,
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        on: true,
+        lines,
+      })
+      const pureTrack = fermionTrack({
+        tables: pure,
+        reference: gaugeConfiguration(w, love, h),
+        start: gaugeConfiguration(w, hole, h),
+        key,
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        on: true,
+        lines,
+      })
+      const workingTrack = fermionTrack({
+        tables: working,
+        reference: love,
+        start: hole,
+        key,
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        on: true,
+        lines,
+      })
 
-      return { off, flatLines: flatTrack.linesTouched, pureLines: pureTrack.linesTouched, workingLines: workingTrack.linesTouched, pureGated: pureTrack.tally.gated, workingGated: workingTrack.tally.gated }
+      return {
+        off,
+        flatLines: flatTrack.linesTouched,
+        pureLines: pureTrack.linesTouched,
+        workingLines: workingTrack.linesTouched,
+        pureGated: pureTrack.tally.gated,
+        workingGated: workingTrack.tally.gated,
+      }
     })
-    const A4 = carry.every(r => r.off === 0 && r.flatLines === r.pureLines)
+    const A4 = carry.every(
+      r => r.off === 0 && r.flatLines === r.pureLines,
+    )
 
     log('A4')
 
@@ -302,6 +430,7 @@ export default experiment({
         const c0 = seaCounts(start)
         const fs0 = c0.fears + c0.stores
         const hs0 = c0.holes - 2 * c0.stores
+
         let fearsAfter = 0
         let kept = true
         let first = { fears: 0, holes: 0, stores: 0 }
@@ -309,9 +438,16 @@ export default experiment({
         run(flat, start, path, true, (t, c) => {
           const n = seaCounts(c)
 
-          if (t === 0) first = { fears: n.fears, holes: n.holes, stores: n.stores }
-          else fearsAfter = Math.max(fearsAfter, n.fears)
-          kept = kept && n.fears + n.stores === fs0 && n.holes - 2 * n.stores === hs0
+          if (t === 0) {
+            first = { fears: n.fears, holes: n.holes, stores: n.stores }
+          } else {
+            fearsAfter = Math.max(fearsAfter, n.fears)
+          }
+
+          kept =
+            kept &&
+            n.fears + n.stores === fs0 &&
+            n.holes - 2 * n.stores === hs0
         })
 
         return { first, fearsAfter, kept }
@@ -319,31 +455,63 @@ export default experiment({
     )
     const B0 = charges.every(r => r.first.fears === 0 && r.kept)
     const steinerPairs = steinerOffsetPairs(STEINER_REACH)
+
     let twoBody = 0
 
-    for (let a = -TWO_BODY_REACH; a <= TWO_BODY_REACH; a++)
-      for (let b = -TWO_BODY_REACH; b <= TWO_BODY_REACH; b++)
+    for (let a = -TWO_BODY_REACH; a <= TWO_BODY_REACH; a++) {
+      for (let b = -TWO_BODY_REACH; b <= TWO_BODY_REACH; b++) {
         for (let c = -TWO_BODY_REACH; c <= TWO_BODY_REACH; c++) {
-          const left = TWO_BODY_REACH - Math.abs(a) - Math.abs(b) - Math.abs(c)
+          const left =
+            TWO_BODY_REACH - Math.abs(a) - Math.abs(b) - Math.abs(c)
 
-          if (left >= 0) twoBody += 2 * left + 1
+          if (left >= 0) {
+            twoBody += 2 * left + 1
+          }
         }
+      }
+    }
 
     log('B0')
 
     // ---- verdict ----
-    const status = !instrument || !A2 || !A3 || !A4 || !B0 ? 'partial' : 'open'
-    const kindText = (c: Record<LoopKind, HolonomyTally>): string => LOOP_KINDS.map(k => `${k} ${c[k].curved} of ${c[k].loops} (fixing a point ${c[k].fixing}, none ${c[k].fixless}; orders ${Object.entries(c[k].orders).map(([o, n]) => `${o}:${n}`).join(' ')}; curved at ${c[k].curvedDocks} of ${cells} docks)`).join('; ')
-    const ringText = (r: { length: number; order: number; fixed: number }[]): string => {
+    const status =
+      !instrument || !A2 || !A3 || !A4 || !B0 ? 'partial' : 'open'
+    const kindText = (c: Record<LoopKind, HolonomyTally>): string =>
+      LOOP_KINDS.map(
+        k =>
+          `${k} ${c[k].curved} of ${c[k].loops} (fixing a point ${c[k].fixing}, none ${c[k].fixless}; orders ${Object.entries(
+            c[k].orders,
+          )
+            .map(([o, n]) => `${o}:${n}`)
+            .join(
+              ' ',
+            )}; curved at ${c[k].curvedDocks} of ${cells} docks)`,
+      ).join('; ')
+
+    const ringText = (
+      r: { length: number; order: number; fixed: number }[],
+    ): string => {
       const by: Record<string, number> = {}
 
-      for (const x of r) by[`order ${x.order} fixing ${x.fixed}`] = (by[`order ${x.order} fixing ${x.fixed}`] ?? 0) + 1
+      for (const x of r) {
+        by[`order ${x.order} fixing ${x.fixed}`] =
+          (by[`order ${x.order} fixing ${x.fixed}`] ?? 0) + 1
+      }
 
-      return Object.entries(by).map(([k, n]) => `${k}: ${n}`).join(', ')
+      return Object.entries(by)
+        .map(([k, n]) => `${k}: ${n}`)
+        .join(', ')
     }
+
     const sum = (xs: number[]): number => xs.reduce((s, x) => s + x, 0)
-    const meetW = { equal: sum(blind.map(r => r.mw.equal)), unequal: sum(blind.map(r => r.mw.unequal)) }
-    const meetF = { equal: sum(blind.map(r => r.mf.equal)), unequal: sum(blind.map(r => r.mf.unequal)) }
+    const meetW = {
+      equal: sum(blind.map(r => r.mw.equal)),
+      unequal: sum(blind.map(r => r.mw.unequal)),
+    }
+    const meetF = {
+      equal: sum(blind.map(r => r.mf.equal)),
+      unequal: sum(blind.map(r => r.mf.unequal)),
+    }
 
     const metrics: Record<string, number> = {
       G1_curved: G1count,
@@ -373,7 +541,8 @@ export default experiment({
       plantedSquares: plantedCensus.square.curved,
       plantedRhombi: plantedCensus.rhombus.curved,
       plantedRings,
-      plantedShiftFixed: shift >= 0 ? fixedPoints(w.moves.act[shift] as Int8Array) : -1,
+      plantedShiftFixed:
+        shift >= 0 ? fixedPoints(w.moves.act[shift]!) : -1,
       pointFieldWorkingMin: Math.min(...fieldWorking),
       pointFieldWorkingMax: Math.max(...fieldWorking),
       pointFieldPure: Math.max(...fieldPure),
@@ -391,7 +560,9 @@ export default experiment({
       pureHoleGated: sum(carry.map(r => r.pureGated)) / PATHS,
       workingHoleGated: sum(carry.map(r => r.workingGated)) / PATHS,
       fearFirstBeatFears: Math.max(...charges.map(r => r.first.fears)),
-      fearFirstBeatStores: Math.min(...charges.map(r => r.first.stores)),
+      fearFirstBeatStores: Math.min(
+        ...charges.map(r => r.first.stores),
+      ),
       fearsLater: Math.max(...charges.map(r => r.fearsAfter)),
       steinerPairs,
       steinerAmplitudes: steinerPairs * SLOT_TRIPLES,
@@ -404,7 +575,13 @@ export default experiment({
       status,
       claim: `A (G1): ${G1count} of ${loopsOf(census.working)} contractible elementary loops of the working links carry a nontrivial holonomy (${kindText(census.working)}), and ${curvedRings(rings.working)} of ${rings.working.length} rings: the point moves are ${verdictA}, spread over every dock, not a gauge; the working beat commutes with every frame change (${sum(covariance)} slots off) and its occupation is the same on flat links on every path (${sum(blind.map(r => r.occupation))} readings off), so the curvature is read only where a like meeting compares two points (equal on ${meetW.equal} of ${meetW.equal + meetW.unequal} meetings against ${meetF.equal} on flat links) and where the mixer asks for one content; on pure-gauge links E-SPN-0130's hole is its flat run bit for bit (${sum(carry.map(r => r.off))} off, ${metrics.pureHoleLines} mesh lines); B: the love sea holds no opposite charge of a hole, and its Z3-neutral pair, a hole and a fear, is three holes and a store after one beat (fears ${metrics.fearFirstBeatFears} after beat 1 on every path), so Q3b is a three-body question left undecided (H1 to H3 not computed)`,
       metrics,
-      control: { flatCurved: metrics.flatCurved as number, pureCurved: metrics.pureCurved as number, plantedTriangles: metrics.plantedTriangles as number, plantedSquares: metrics.plantedSquares as number, plantedRhombi: metrics.plantedRhombi as number },
+      control: {
+        flatCurved: metrics.flatCurved!,
+        pureCurved: metrics.pureCurved!,
+        plantedTriangles: metrics.plantedTriangles!,
+        plantedSquares: metrics.plantedSquares!,
+        plantedRhombi: metrics.plantedRhombi!,
+      },
       notes: `L1. Census (side ${SIDE}, ${cells} docks): working ${kindText(census.working)}; rings ${ringText(rings.working)}; flat ${curvedOf(census.flat)} curved, rings ${ringText(rings.flat)}; pure gauge ${curvedOf(census.pure)} curved; working under the frame h equal to working ${LOOP_KINDS.every(k => sameTally(census.working[k], census.gauged[k]))}; planted translation ${LOOP_KINDS.map(k => `${k} ${plantedCensus[k].curved}`).join(', ')}, rings ${plantedRings}. Point field defects per frame component: working ${fieldWorking.join(' ')}, pure gauge ${fieldPure.join(' ')}. Covariance off ${covariance.join(', ')} (without, with the mixer). Blindness per path (occupation off, points off): ${blind.map(r => `${r.occupation}/${r.points}`).join('; ')}; like meetings over ${BEATS} beats and ${PATHS} paths working ${meetW.equal} equal ${meetW.unequal} unequal, flat ${meetF.equal} equal ${meetF.unequal} unequal. Carry-over per path (off, lines flat/pure/working, gated pure/working): ${carry.map(r => `${r.off}, ${r.flatLines}/${r.pureLines}/${r.workingLines}, ${r.pureGated}/${r.workingGated}`).join('; ')}. B0 per start and path (beat-1 fears/holes/stores, later fears, kept): ${charges.map(r => `${r.first.fears}/${r.first.holes}/${r.first.stores}, ${r.fearsAfter}, ${r.kept}`).join('; ')}. Three-hole route-free window at Steiner length ${STEINER_REACH}: ${steinerPairs} offset pairs x ${SLOT_TRIPLES}; two-body at |n|_1 ${TWO_BODY_REACH}: ${twoBody} x ${SLOT_PAIRS}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

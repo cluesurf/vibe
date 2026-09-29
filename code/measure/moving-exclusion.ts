@@ -36,7 +36,11 @@
 export type Complex = [number, number]
 
 // an internal operator, n x n complex, row-major
-export type Internal = { readonly n: number; readonly re: Float64Array; readonly im: Float64Array }
+export type Internal = {
+  readonly n: number
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
 // one substep of the schedule: its coin, its axis, and the projectors onto the parts copied forward and back
 export type Substep = {
@@ -70,10 +74,10 @@ function kron(a: Internal, b: Internal): Internal {
     for (let j = 0; j < n; j++) {
       for (let k = 0; k < n; k++) {
         for (let l = 0; l < n; l++) {
-          const ar = a.re[i * n + k] as number
-          const ai = a.im[i * n + k] as number
-          const br = b.re[j * n + l] as number
-          const bi = b.im[j * n + l] as number
+          const ar = a.re[i * n + k]!
+          const ai = a.im[i * n + k]!
+          const br = b.re[j * n + l]!
+          const bi = b.im[j * n + l]!
           const row = i * n + j
           const col = k * n + l
 
@@ -88,7 +92,11 @@ function kron(a: Internal, b: Internal): Internal {
 }
 
 function add(a: Internal, b: Internal): Internal {
-  return { n: a.n, re: Float64Array.from(a.re, (x, i) => x + (b.re[i] as number)), im: Float64Array.from(a.im, (x, i) => x + (b.im[i] as number)) }
+  return {
+    n: a.n,
+    re: Float64Array.from(a.re, (x, i) => x + b.re[i]!),
+    im: Float64Array.from(a.im, (x, i) => x + b.im[i]!),
+  }
 }
 
 function multiply(a: Internal, b: Internal): Internal {
@@ -98,16 +106,19 @@ function multiply(a: Internal, b: Internal): Internal {
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const xr = a.re[i * n + k] as number
-      const xi = a.im[i * n + k] as number
+      const xr = a.re[i * n + k]!
+      const xi = a.im[i * n + k]!
 
       if (xr === 0 && xi === 0) {
         continue
       }
 
       for (let j = 0; j < n; j++) {
-        re[i * n + j] = (re[i * n + j] as number) + xr * (b.re[k * n + j] as number) - xi * (b.im[k * n + j] as number)
-        im[i * n + j] = (im[i * n + j] as number) + xr * (b.im[k * n + j] as number) + xi * (b.re[k * n + j] as number)
+        re[i * n + j] =
+          re[i * n + j]! + xr * b.re[k * n + j]! - xi * b.im[k * n + j]!
+
+        im[i * n + j] =
+          im[i * n + j]! + xr * b.im[k * n + j]! + xi * b.re[k * n + j]!
       }
     }
   }
@@ -122,16 +133,23 @@ function adjoint(a: Internal): Internal {
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      re[j * n + i] = a.re[i * n + j] as number
-      im[j * n + i] = -(a.im[i * n + j] as number)
+      re[j * n + i] = a.re[i * n + j]!
+      im[j * n + i] = -a.im[i * n + j]!
     }
   }
 
   return { n, re, im }
 }
 
-export function internalFrom(n: number, entries: readonly Complex[]): Internal {
-  return { n, re: Float64Array.from(entries, e => e[0]), im: Float64Array.from(entries, e => e[1]) }
+export function internalFrom(
+  n: number,
+  entries: readonly Complex[],
+): Internal {
+  return {
+    n,
+    re: Float64Array.from(entries, e => e[0]),
+    im: Float64Array.from(entries, e => e[1]),
+  }
 }
 
 // the per-substep pair operators, precomputed once
@@ -142,7 +160,12 @@ type PairStep = {
   readonly coin: Internal
   readonly coinAdjoint: Internal
   // P_s1 x P_s2 for (s1, s2) = (+,+), (+,-), (-,+), (-,-)
-  readonly parts: readonly { s1: number; s2: number; op: Internal; opAdjoint: Internal }[]
+  readonly parts: readonly {
+    s1: number
+    s2: number
+    op: Internal
+    opAdjoint: Internal
+  }[]
   // (C x C)^dagger (P+ x P+ + P- x P-): its columns span the pulled-back forbidden functionals at r = 0
   readonly forbidden: Internal
 }
@@ -160,7 +183,14 @@ function pairSteps(substeps: readonly Substep[]): PairStep[] {
       ? s.components.map(c => kron(c, c)).reduce((a, b) => add(a, b))
       : add(parts[0]?.op ?? coin, parts[3]?.op ?? coin)
 
-    return { axis: s.axis, checked: s.checked, coin, coinAdjoint: adjoint(coin), parts, forbidden: multiply(adjoint(coin), same) }
+    return {
+      axis: s.axis,
+      checked: s.checked,
+      coin,
+      coinAdjoint: adjoint(coin),
+      parts,
+      forbidden: multiply(adjoint(coin), same),
+    }
   })
 }
 
@@ -175,11 +205,19 @@ function cellOf(side: number, x: number, y: number, z: number): number {
 export type Vector = { re: Float64Array; im: Float64Array }
 
 function zero(dimension: number): Vector {
-  return { re: new Float64Array(dimension), im: new Float64Array(dimension) }
+  return {
+    re: new Float64Array(dimension),
+    im: new Float64Array(dimension),
+  }
 }
 
 // out(r) = M v(r) for every r, M on n^2
-function applyLocal(side: number, m: Internal, v: Vector, out: Vector): void {
+function applyLocal(
+  side: number,
+  m: Internal,
+  v: Vector,
+  out: Vector,
+): void {
   const d = m.n
   const cells = side ** 3
 
@@ -191,15 +229,15 @@ function applyLocal(side: number, m: Internal, v: Vector, out: Vector): void {
       let si = 0
 
       for (let j = 0; j < d; j++) {
-        const mr = m.re[i * d + j] as number
-        const mi = m.im[i * d + j] as number
+        const mr = m.re[i * d + j]!
+        const mi = m.im[i * d + j]!
 
         if (mr === 0 && mi === 0) {
           continue
         }
 
-        const vr = v.re[base + j] as number
-        const vi = v.im[base + j] as number
+        const vr = v.re[base + j]!
+        const vi = v.im[base + j]!
 
         sr += mr * vr - mi * vi
         si += mr * vi + mi * vr
@@ -231,18 +269,25 @@ function forward(sector: Sector, step: PairStep, v: Vector): Vector {
     applyLocal(side, p.op, coined, part)
 
     for (let r = 0; r < cells; r++) {
-      const xyz = [r % side, Math.floor(r / side) % side, Math.floor(r / (side * side))]
+      const xyz = [
+        r % side,
+        Math.floor(r / side) % side,
+        Math.floor(r / (side * side)),
+      ]
 
       xyz[step.axis] = (xyz[step.axis] ?? 0) + shift
 
       const target = cellOf(side, xyz[0] ?? 0, xyz[1] ?? 0, xyz[2] ?? 0)
 
       for (let i = 0; i < d; i++) {
-        const pr = part.re[r * d + i] as number
-        const pi = part.im[r * d + i] as number
+        const pr = part.re[r * d + i]!
+        const pi = part.im[r * d + i]!
 
-        out.re[target * d + i] = (out.re[target * d + i] as number) + c * pr - s * pi
-        out.im[target * d + i] = (out.im[target * d + i] as number) + c * pi + s * pr
+        out.re[target * d + i] =
+          out.re[target * d + i]! + c * pr - s * pi
+
+        out.im[target * d + i] =
+          out.im[target * d + i]! + c * pi + s * pr
       }
     }
   }
@@ -267,15 +312,19 @@ function backward(sector: Sector, step: PairStep, v: Vector): Vector {
     const s = Math.sin(p.s1 * kAxis)
 
     for (let r = 0; r < cells; r++) {
-      const xyz = [r % side, Math.floor(r / side) % side, Math.floor(r / (side * side))]
+      const xyz = [
+        r % side,
+        Math.floor(r / side) % side,
+        Math.floor(r / (side * side)),
+      ]
 
       xyz[step.axis] = (xyz[step.axis] ?? 0) + shift
 
       const source = cellOf(side, xyz[0] ?? 0, xyz[1] ?? 0, xyz[2] ?? 0)
 
       for (let i = 0; i < d; i++) {
-        const vr = v.re[source * d + i] as number
-        const vi = v.im[source * d + i] as number
+        const vr = v.re[source * d + i]!
+        const vi = v.im[source * d + i]!
 
         shifted.re[r * d + i] = c * vr - s * vi
         shifted.im[r * d + i] = c * vi + s * vr
@@ -285,8 +334,8 @@ function backward(sector: Sector, step: PairStep, v: Vector): Vector {
     applyLocal(side, p.opAdjoint, shifted, part)
 
     for (let i = 0; i < gathered.re.length; i++) {
-      gathered.re[i] = (gathered.re[i] as number) + (part.re[i] as number)
-      gathered.im[i] = (gathered.im[i] as number) + (part.im[i] as number)
+      gathered.re[i] = gathered.re[i]! + part.re[i]!
+      gathered.im[i] = gathered.im[i]! + part.im[i]!
     }
   }
 
@@ -306,7 +355,10 @@ class Basis {
 
   // add v's component outside the span, if it is larger than the tolerance times |v|; returns whether it grew
   add(v: Vector): boolean {
-    const w: Vector = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
+    const w: Vector = {
+      re: Float64Array.from(v.re),
+      im: Float64Array.from(v.im),
+    }
     const before = Math.sqrt(norm2(w))
 
     if (before === 0) {
@@ -320,10 +372,10 @@ class Basis {
         let ci = 0
 
         for (let i = 0; i < this.dimension; i++) {
-          const qr = q.re[i] as number
-          const qi = q.im[i] as number
-          const wr = w.re[i] as number
-          const wi = w.im[i] as number
+          const qr = q.re[i]!
+          const qi = q.im[i]!
+          const wr = w.re[i]!
+          const wi = w.im[i]!
 
           cr += qr * wr + qi * wi
           ci += qr * wi - qi * wr
@@ -334,11 +386,11 @@ class Basis {
         }
 
         for (let i = 0; i < this.dimension; i++) {
-          const qr = q.re[i] as number
-          const qi = q.im[i] as number
+          const qr = q.re[i]!
+          const qi = q.im[i]!
 
-          w.re[i] = (w.re[i] as number) - (cr * qr - ci * qi)
-          w.im[i] = (w.im[i] as number) - (cr * qi + ci * qr)
+          w.re[i] = w.re[i]! - (cr * qr - ci * qi)
+          w.im[i] = w.im[i]! - (cr * qi + ci * qr)
         }
       }
     }
@@ -350,8 +402,8 @@ class Basis {
     }
 
     for (let i = 0; i < this.dimension; i++) {
-      w.re[i] = (w.re[i] as number) / after
-      w.im[i] = (w.im[i] as number) / after
+      w.re[i] = w.re[i]! / after
+      w.im[i] = w.im[i]! / after
     }
 
     this.vectors.push(w)
@@ -361,7 +413,10 @@ class Basis {
 
   // |v - projection of v on the span| / |v|
   residual(v: Vector): number {
-    const w: Vector = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
+    const w: Vector = {
+      re: Float64Array.from(v.re),
+      im: Float64Array.from(v.im),
+    }
     const before = Math.sqrt(norm2(w))
 
     for (let pass = 0; pass < 2; pass++) {
@@ -370,16 +425,16 @@ class Basis {
         let ci = 0
 
         for (let i = 0; i < this.dimension; i++) {
-          cr += (q.re[i] as number) * (w.re[i] as number) + (q.im[i] as number) * (w.im[i] as number)
-          ci += (q.re[i] as number) * (w.im[i] as number) - (q.im[i] as number) * (w.re[i] as number)
+          cr += q.re[i]! * w.re[i]! + q.im[i]! * w.im[i]!
+          ci += q.re[i]! * w.im[i]! - q.im[i]! * w.re[i]!
         }
 
         for (let i = 0; i < this.dimension; i++) {
-          const qr = q.re[i] as number
-          const qi = q.im[i] as number
+          const qr = q.re[i]!
+          const qi = q.im[i]!
 
-          w.re[i] = (w.re[i] as number) - (cr * qr - ci * qi)
-          w.im[i] = (w.im[i] as number) - (cr * qi + ci * qr)
+          w.re[i] = w.re[i]! - (cr * qr - ci * qi)
+          w.im[i] = w.im[i]! - (cr * qi + ci * qr)
         }
       }
     }
@@ -392,7 +447,7 @@ function norm2(v: Vector): number {
   let s = 0
 
   for (let i = 0; i < v.re.length; i++) {
-    s += (v.re[i] as number) ** 2 + (v.im[i] as number) ** 2
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
   }
 
   return s
@@ -410,14 +465,20 @@ export function exchange(sector: Sector, v: Vector): Vector {
     const y = Math.floor(r / side) % side
     const z = Math.floor(r / (side * side))
     const minus = cellOf(side, -x, -y, -z)
-    const phase = (2 * Math.PI * ((sector.k[0] ?? 0) * x + (sector.k[1] ?? 0) * y + (sector.k[2] ?? 0) * z)) / side
+    const phase =
+      (2 *
+        Math.PI *
+        ((sector.k[0] ?? 0) * x +
+          (sector.k[1] ?? 0) * y +
+          (sector.k[2] ?? 0) * z)) /
+      side
     const c = Math.cos(phase)
     const s = Math.sin(phase)
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        const vr = v.re[minus * d + j * n + i] as number
-        const vi = v.im[minus * d + j * n + i] as number
+        const vr = v.re[minus * d + j * n + i]!
+        const vi = v.im[minus * d + j * n + i]!
 
         out.re[r * d + i * n + j] = c * vr - s * vi
         out.im[r * d + i * n + j] = c * vi + s * vr
@@ -451,30 +512,44 @@ export type KeptSpace = {
 }
 
 // the kept space of one total-momentum sector
-export function keptSpace(input: { side: number; n: number; k: readonly [number, number, number]; substeps: readonly Substep[]; tolerance?: number }): KeptSpace {
+export function keptSpace(input: {
+  side: number
+  n: number
+  k: readonly [number, number, number]
+  substeps: readonly Substep[]
+  tolerance?: number
+}): KeptSpace {
   const { side, n, k, substeps } = input
   const d = n * n
   const sector: Sector = { side, n, k, dimension: d * side ** 3 }
   const steps = pairSteps(substeps)
   const tolerance = input.tolerance ?? KRYLOV_TOLERANCE
+
   const period = (v: Vector): Vector => {
     // the adjoint of the period map: the last substep's adjoint first ... the first's last
     let w = v
 
     for (let s = steps.length - 1; s >= 0; s--) {
-      w = backward(sector, steps[s] as PairStep, w)
+      w = backward(sector, steps[s]!, w)
     }
 
     return w
   }
-  const periodForward = (v: Vector): Vector => steps.reduce((w, s) => forward(sector, s, w), v)
+
+  const periodForward = (v: Vector): Vector =>
+    steps.reduce((w, s) => forward(sector, s, w), v)
+
   // the exchange sectors: the beat commutes with X, so each sector's bad space is found on its own, every vector
   // projected back into its sector after each map so rounding cannot leak between them
   const project = (v: Vector, sign: 1 | -1): Vector => {
     const x = exchange(sector, v)
 
-    return { re: Float64Array.from(v.re, (a, j) => (a + sign * (x.re[j] as number)) / 2), im: Float64Array.from(v.im, (a, j) => (a + sign * (x.im[j] as number)) / 2) }
+    return {
+      re: Float64Array.from(v.re, (a, j) => (a + sign * x.re[j]!) / 2),
+      im: Float64Array.from(v.im, (a, j) => (a + sign * x.im[j]!) / 2),
+    }
   }
+
   // the forbidden functionals of every checked substep, pulled back to the start of the period
   const seeds: Vector[] = []
 
@@ -488,12 +563,12 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
 
       // the column of (C x C)^dagger (P+ P+ + P- P-) at r = 0
       for (let i = 0; i < d; i++) {
-        v.re[i] = step.forbidden.re[i * d + col] as number
-        v.im[i] = step.forbidden.im[i * d + col] as number
+        v.re[i] = step.forbidden.re[i * d + col]!
+        v.im[i] = step.forbidden.im[i * d + col]!
       }
 
       for (let t = s - 1; t >= 0; t--) {
-        v = backward(sector, steps[t] as PairStep, v)
+        v = backward(sector, steps[t]!, v)
       }
 
       if (norm2(v) > 0) {
@@ -505,7 +580,14 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
   // the Krylov closure of one sector's seeds under the (adjoint) period map. A vector is new when its residual,
   // after projection on the span, exceeds the tolerance times its norm; the smallest accepted and the largest
   // rejected residuals are kept, so the gap between genuine directions and rounding is on the record
-  const closure = (sign: 1 | -1): { basis: Basis; accepted: number; rejected: number; closureResidual: number } => {
+  const closure = (
+    sign: 1 | -1,
+  ): {
+    basis: Basis
+    accepted: number
+    rejected: number
+    closureResidual: number
+  } => {
     const basis = new Basis(sector.dimension, 0)
     const queue: Vector[] = []
 
@@ -524,7 +606,7 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
 
       if (r > tolerance) {
         basis.add(w)
-        queue.push(basis.vectors[basis.vectors.length - 1] as Vector)
+        queue.push(basis.vectors[basis.vectors.length - 1]!)
         accepted = Math.min(accepted, r)
       } else {
         rejected = Math.max(rejected, r)
@@ -534,15 +616,24 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
     seeds.forEach(offer)
 
     while (queue.length > 0) {
-      offer(period(queue.shift() as Vector))
+      offer(period(queue.shift()!))
     }
 
-    const closureResidual = basis.vectors.reduce((worst, v) => Math.max(worst, basis.residual(project(periodForward(v), sign))), 0)
+    const closureResidual = basis.vectors.reduce(
+      (worst, v) =>
+        Math.max(
+          worst,
+          basis.residual(project(periodForward(v), sign)),
+        ),
+      0,
+    )
 
     return { basis, accepted, rejected, closureResidual }
   }
+
   const badSymmetric = closure(1)
   const badAntisymmetric = closure(-1)
+
   // the sectors' dimensions from the trace of X: dim = (D +- tr X) / 2
   let traceX = 0
 
@@ -552,31 +643,59 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
     const z = Math.floor(r / (side * side))
 
     if (cellOf(side, -x, -y, -z) === r) {
-      traceX += n * Math.cos((2 * Math.PI * ((k[0] ?? 0) * x + (k[1] ?? 0) * y + (k[2] ?? 0) * z)) / side)
+      traceX +=
+        n *
+        Math.cos(
+          (2 *
+            Math.PI *
+            ((k[0] ?? 0) * x + (k[1] ?? 0) * y + (k[2] ?? 0) * z)) /
+            side,
+        )
     }
   }
 
   const symmetricDimension = Math.round((sector.dimension + traceX) / 2)
-  const antisymmetricDimension = Math.round((sector.dimension - traceX) / 2)
-  const bad = { vectors: [...badSymmetric.basis.vectors, ...badAntisymmetric.basis.vectors] }
-  const closureResidual = Math.max(badSymmetric.closureResidual, badAntisymmetric.closureResidual)
-  const symmetricKept = symmetricDimension - badSymmetric.basis.vectors.length
+  const antisymmetricDimension = Math.round(
+    (sector.dimension - traceX) / 2,
+  )
+  const bad = {
+    vectors: [
+      ...badSymmetric.basis.vectors,
+      ...badAntisymmetric.basis.vectors,
+    ],
+  }
+  const closureResidual = Math.max(
+    badSymmetric.closureResidual,
+    badAntisymmetric.closureResidual,
+  )
+  const symmetricKept =
+    symmetricDimension - badSymmetric.basis.vectors.length
   const antisymmetric = { vectors: { length: antisymmetricDimension } }
-  const grown = antisymmetricDimension - badAntisymmetric.basis.vectors.length
-  const smallestAccepted = Math.min(badSymmetric.accepted, badAntisymmetric.accepted)
-  const largestRejected = Math.max(badSymmetric.rejected, badAntisymmetric.rejected)
+  const grown =
+    antisymmetricDimension - badAntisymmetric.basis.vectors.length
+  const smallestAccepted = Math.min(
+    badSymmetric.accepted,
+    badAntisymmetric.accepted,
+  )
+  const largestRejected = Math.max(
+    badSymmetric.rejected,
+    badAntisymmetric.rejected,
+  )
 
   // the exchange commutes with the beat: one probe vector from the golden sequence
   const probe = zero(sector.dimension)
 
   for (let i = 0; i < sector.dimension; i++) {
-    probe.re[i] = ((i + 1) * 0.6180339887498949) % 1 - 0.5
-    probe.im[i] = ((i + 1) * 0.41421356237309515) % 1 - 0.5
+    probe.re[i] = (((i + 1) * 0.6180339887498949) % 1) - 0.5
+    probe.im[i] = (((i + 1) * 0.41421356237309515) % 1) - 0.5
   }
 
   const a = exchange(sector, periodForward(probe))
   const b = periodForward(exchange(sector, probe))
-  const diff = { re: Float64Array.from(a.re, (x, i) => x - (b.re[i] as number)), im: Float64Array.from(a.im, (x, i) => x - (b.im[i] as number)) }
+  const diff = {
+    re: Float64Array.from(a.re, (x, i) => x - b.re[i]!),
+    im: Float64Array.from(a.im, (x, i) => x - b.im[i]!),
+  }
 
   return {
     sector,
@@ -636,9 +755,16 @@ export type TokenStep = 'x' | 'y' | 'z' | 'up' | 'down'
 export type ExclusionReading = 'slot' | 'component'
 
 // the substeps of a schedule for the spinor token (n = 4, index 2 slot + spin) or the bare fear walk (n = 2)
-export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, reading: ExclusionReading = 'slot'): Substep[] {
+export function tokenSubsteps(
+  schedule: readonly TokenStep[],
+  mode: TokenMode,
+  reading: ExclusionReading = 'slot',
+): Substep[] {
   const n = mode === 'walk' ? 2 : 4
-  const coin: Complex[] = Array.from({ length: n * n }, () => [0, 0] as Complex)
+  const coin: Complex[] = Array.from(
+    { length: n * n },
+    () => [0, 0] as Complex,
+  )
   const spins = n / 2
 
   for (let s = 0; s < spins; s++) {
@@ -651,7 +777,10 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, r
   return schedule.map(step => {
     const depth = step === 'up' || step === 'down'
     const axis = step === 'x' ? 0 : step === 'y' ? 1 : 2
-    const gamma: Complex[] = Array.from({ length: n * n }, (_, i) => [depth && i % (n + 1) === 0 ? 1 : 0, 0] as Complex)
+    const gamma: Complex[] = Array.from(
+      { length: n * n },
+      (_, i) => [depth && i % (n + 1) === 0 ? 1 : 0, 0] as Complex,
+    )
 
     if (!depth) {
       for (let slot = 0; slot < 2; slot++) {
@@ -659,9 +788,17 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, r
 
         for (let s = 0; s < spins; s++) {
           for (let t = 0; t < spins; t++) {
-            const sigma: Complex = mode === 'locked' ? (PAULI[step as 'x' | 'y' | 'z'][s * 2 + t] ?? [0, 0]) : s === t ? [1, 0] : [0, 0]
+            const sigma: Complex =
+              mode === 'locked'
+                ? (PAULI[step][s * 2 + t] ?? [0, 0])
+                : s === t
+                  ? [1, 0]
+                  : [0, 0]
 
-            gamma[(spins * slot + s) * n + (spins * slot + t)] = [tau * sigma[0], tau * sigma[1]]
+            gamma[(spins * slot + s) * n + (spins * slot + t)] = [
+              tau * sigma[0],
+              tau * sigma[1],
+            ]
           }
         }
       }
@@ -669,22 +806,34 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, r
 
     // a depth step's shadow copies every component the same way, +z (up) or -z (down); as a two-token move it
     // shifts both tokens together, so it is written as an axis-2 substep whose plus or minus part is everything
-    const identity: Complex[] = Array.from({ length: n * n }, (_, i) => [i % (n + 1) === 0 ? 1 : 0, 0] as Complex)
-    const plus: Complex[] = identity.map((v, i) => [(v[0] + (gamma[i] as Complex)[0]) / 2, (v[1] + (gamma[i] as Complex)[1]) / 2])
-    const minus: Complex[] = identity.map((v, i) => [(v[0] - (gamma[i] as Complex)[0]) / 2, (v[1] - (gamma[i] as Complex)[1]) / 2])
+    const identity: Complex[] = Array.from(
+      { length: n * n },
+      (_, i) => [i % (n + 1) === 0 ? 1 : 0, 0] as Complex,
+    )
+    const plus: Complex[] = identity.map((v, i) => [
+      (v[0] + gamma[i]![0]) / 2,
+      (v[1] + gamma[i]![1]) / 2,
+    ])
+    const minus: Complex[] = identity.map((v, i) => [
+      (v[0] - gamma[i]![0]) / 2,
+      (v[1] - gamma[i]![1]) / 2,
+    ])
     const zeroes: Complex[] = identity.map(() => [0, 0])
     // the component reading: the rank-one projectors onto (tau_z = t) x (sigma_a = s), or onto the slots alone
     // for the bare walk
     const components =
       reading === 'component' && !depth
-        ? componentProjectors(n, mode === 'locked' ? (step as 'x' | 'y' | 'z') : 'z')
+        ? componentProjectors(n, mode === 'locked' ? step : 'z')
         : undefined
 
     return {
       axis,
       coin: internalFrom(n, coin),
       plus: internalFrom(n, step === 'down' ? zeroes : plus),
-      minus: internalFrom(n, step === 'down' ? identity : step === 'up' ? zeroes : minus),
+      minus: internalFrom(
+        n,
+        step === 'down' ? identity : step === 'up' ? zeroes : minus,
+      ),
       checked: !depth,
       components,
     }
@@ -692,9 +841,20 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, r
 }
 
 // the rank-one projectors |t, s><t, s| with t a slot and s an eigenvector of sigma_a (n = 4), or the slots (n = 2)
-function componentProjectors(n: number, a: 'x' | 'y' | 'z'): Internal[] {
+function componentProjectors(
+  n: number,
+  a: 'x' | 'y' | 'z',
+): Internal[] {
   if (n === 2) {
-    return [0, 1].map(t => internalFrom(2, Array.from({ length: 4 }, (_, i) => [i === 3 * t ? 1 : 0, 0] as Complex)))
+    return [0, 1].map(t =>
+      internalFrom(
+        2,
+        Array.from(
+          { length: 4 },
+          (_, i) => [i === 3 * t ? 1 : 0, 0] as Complex,
+        ),
+      ),
+    )
   }
 
   // the eigenvectors of sigma_a
@@ -735,16 +895,21 @@ function componentProjectors(n: number, a: 'x' | 'y' | 'z'): Internal[] {
 
   for (let t = 0; t < 2; t++) {
     for (const v of spin[a]) {
-      const vector: Complex[] = [0, 1, 2, 3].map(i => (Math.floor(i / 2) === t ? (v[i % 2] as Complex) : [0, 0]))
+      const vector: Complex[] = [0, 1, 2, 3].map(i =>
+        Math.floor(i / 2) === t ? v[i % 2]! : [0, 0],
+      )
       const entries: Complex[] = []
 
       for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-          const p = vector[i] as Complex
-          const q = vector[j] as Complex
+          const p = vector[i]!
+          const q = vector[j]!
 
           // |v><v|: v_i conj(v_j)
-          entries.push([p[0] * q[0] + p[1] * q[1], p[1] * q[0] - p[0] * q[1]])
+          entries.push([
+            p[0] * q[0] + p[1] * q[1],
+            p[1] * q[0] - p[0] * q[1],
+          ])
         }
       }
 
@@ -759,12 +924,18 @@ function componentProjectors(n: number, a: 'x' | 'y' | 'z'): Internal[] {
 // period, for two tokens that are both in one uniform (k = 0) orbital. At k = 0 the stream copies a uniform
 // state onto itself, so the internal state evolves by the coin alone and the pair's forbidden weight per period
 // is this number times the chance the two share a dock (1 / L^3 on the torus, sum |phi|^4 in an atom).
-export function contactWeight(input: { substeps: readonly Substep[]; pair: Vector }): { perSubstep: number[]; total: number } {
+export function contactWeight(input: {
+  substeps: readonly Substep[]
+  pair: Vector
+}): { perSubstep: number[]; total: number } {
   const steps = pairSteps(input.substeps)
   const d = steps[0]?.coin.n ?? 0
   const perSubstep: number[] = []
 
-  let state: Vector = { re: Float64Array.from(input.pair.re), im: Float64Array.from(input.pair.im) }
+  let state: Vector = {
+    re: Float64Array.from(input.pair.re),
+    im: Float64Array.from(input.pair.im),
+  }
 
   for (const step of steps) {
     const coined = zero(d)
@@ -775,7 +946,12 @@ export function contactWeight(input: { substeps: readonly Substep[]; pair: Vecto
       // the forbidden weight: |Pi_f (C x C) state|^2, with Pi_f = C2 (forbidden) since forbidden = C2^dagger Pi_f
       const projected = zero(d)
 
-      applyLocal(1, multiply(step.coin, step.forbidden), coined, projected)
+      applyLocal(
+        1,
+        multiply(step.coin, step.forbidden),
+        coined,
+        projected,
+      )
       perSubstep.push(norm2(projected) / norm2(state))
     }
 
@@ -789,7 +965,15 @@ export function contactWeight(input: { substeps: readonly Substep[]; pair: Vecto
 // trace: (1 / k!) sum over permutations of sgn(p) d^(cycles of p)
 export function antisymmetricLabels(d: number, k: number): number {
   const permutations = (m: number): number[][] =>
-    m === 0 ? [[]] : permutations(m - 1).flatMap(p => Array.from({ length: m }, (_, i) => [...p.slice(0, i), m - 1, ...p.slice(i)]))
+    m === 0
+      ? [[]]
+      : permutations(m - 1).flatMap(p =>
+          Array.from({ length: m }, (_, i) => [
+            ...p.slice(0, i),
+            m - 1,
+            ...p.slice(i),
+          ]),
+        )
   const all = permutations(k)
 
   let sum = 0
@@ -807,7 +991,7 @@ export function antisymmetricLabels(d: number, k: number): number {
 
         while (!seen[j]) {
           seen[j] = true
-          j = p[j] as number
+          j = p[j]!
           length++
         }
 

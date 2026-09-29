@@ -127,13 +127,38 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { fullPathKey, keyedRunner, lineCharges, linesDiffering, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  lineCharges,
+  linesDiffering,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
-import { mixTrack, pieceCensus, type MixTrack } from '@/code/measure/string-gated-mixer'
+import {
+  mixTrack,
+  pieceCensus,
+  type MixTrack,
+} from '@/code/measure/string-gated-mixer'
 import { meson, pairEmbed } from '@/code/measure/string-binding'
 import { nrSeed, settle } from '@/code/measure/meson-band'
-import { addStates, autocorrelation, axisOfLine, frameAxes, frameBeat, frameSpace, lineFrame, lineState, momentsOf, normalized, ritzLevels, weightOf, type FrameState } from '@/code/measure/frame-meson'
+import {
+  addStates,
+  autocorrelation,
+  axisOfLine,
+  frameAxes,
+  frameBeat,
+  frameSpace,
+  lineFrame,
+  lineState,
+  momentsOf,
+  normalized,
+  ritzLevels,
+  weightOf,
+  type FrameState,
+} from '@/code/measure/frame-meson'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 import { LINE_OF } from '@/code/rule/isometric-knit'
 
@@ -153,7 +178,12 @@ const BOX_SHARE = 0.5
 const WINDOW_SIDES = [4, 8]
 const WIDE = 12
 const CENSUS_BEATS = 24
-const TRIO_WAKE: Record<number, number> = { 8: 26, 16: 52, 32: 54, 128: 60 }
+const TRIO_WAKE: Record<number, number> = {
+  8: 26,
+  16: 52,
+  32: 54,
+  128: 60,
+}
 const CU_WAKE = 39184
 const CU_DOCKS = 4096
 // the stand-in
@@ -184,14 +214,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the rule ----
     const setup = (side: number) => {
       const X = centerOf(side)
       const f = contactFresh(side, 'pass', X)
       const vacuum = wordVacuum(f, f.store)
-      const Y = Math.floor((f.tables.target[X * 24 + B] as number) / 24)
+      const Y = Math.floor(f.tables.target[X * 24 + B]! / 24)
 
       return {
         side,
@@ -205,7 +238,10 @@ export default experiment({
             { dock: Y, slot: B, vibe: -1 },
           ]),
           love: placeVibes(vacuum, [{ dock: X, slot: B, vibe: 1 }]),
-          trio: placeVibes(vacuum, [B, A, C].map(slot => ({ dock: X, slot, vibe: 1 }))),
+          trio: placeVibes(
+            vacuum,
+            [B, A, C].map(slot => ({ dock: X, slot, vibe: 1 })),
+          ),
           twoHub: placeVibes(vacuum, [
             { dock: X, slot: A, vibe: 1 },
             { dock: X, slot: B, vibe: 1 },
@@ -221,17 +257,42 @@ export default experiment({
         },
       }
     }
-    type Setup = ReturnType<typeof setup>
-    const s8 = setup(SIDE)
-    const track = (g: Setup, start: Configuration, path: number, n: number, stringless = false): MixTrack =>
-      mixTrack({ tables: g.f.tables, vacuum: g.vacuum, start, hub: g.X, key: fullPathKey(pathOffset(path)), threshold: THRESHOLD_BORN, beats: BEATS, side: g.side, n, stringless })
 
-    const terms = Array.from({ length: PATHS }, (_, k) => track(s8, s8.starts.meson, k, RATE))
+    type Setup = ReturnType<typeof setup>
+
+    const s8 = setup(SIDE)
+    const track = (
+      g: Setup,
+      start: Configuration,
+      path: number,
+      n: number,
+      stringless = false,
+    ): MixTrack =>
+      mixTrack({
+        tables: g.f.tables,
+        vacuum: g.vacuum,
+        start,
+        hub: g.X,
+        key: fullPathKey(pathOffset(path)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        side: g.side,
+        n,
+        stringless,
+      })
+
+    const terms = Array.from({ length: PATHS }, (_, k) =>
+      track(s8, s8.starts.meson, k, RATE),
+    )
 
     log('meson terms')
 
-    const growthOf = (r: MixTrack): number => ((r.wake[BEATS - 1] as number) - (r.wake[GROWTH_FROM - 1] as number)) / Math.max(1, r.wake[GROWTH_FROM - 1] as number)
-    const bounded = (r: MixTrack, cells: number): boolean => growthOf(r) < GROWTH_LIMIT && (r.footprint[BEATS - 1] as number) < BOX_SHARE * cells
+    const growthOf = (r: MixTrack): number =>
+      (r.wake[BEATS - 1]! - r.wake[GROWTH_FROM - 1]!) /
+      Math.max(1, r.wake[GROWTH_FROM - 1]!)
+    const bounded = (r: MixTrack, cells: number): boolean =>
+      growthOf(r) < GROWTH_LIMIT &&
+      r.footprint[BEATS - 1]! < BOX_SHARE * cells
     const S1b = terms.every(r => bounded(r, s8.f.cells))
 
     // S1a: the vacuum
@@ -239,27 +300,68 @@ export default experiment({
       const g = side === SIDE ? s8 : setup(side)
       const r = track(g, g.vacuum, 0, RATE)
 
-      return { side, wake: r.wake.reduce((u, v) => u + v, 0), gated: r.gated.reduce((u, v) => u + v, 0) + r.vacuumGated, singles: r.vacuumSingles, last: r.last }
+      return {
+        side,
+        wake: r.wake.reduce((u, v) => u + v, 0),
+        gated: r.gated.reduce((u, v) => u + v, 0) + r.vacuumGated,
+        singles: r.vacuumSingles,
+        last: r.last,
+      }
     })
-    const runner = keyedRunner(s8.f.tables, s8.vacuum, { key: fullPathKey(0), threshold: THRESHOLD_BORN })
+    const runner = keyedRunner(s8.f.tables, s8.vacuum, {
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+    })
 
-    for (let t = 0; t < BEATS; t++) runner.beat()
+    for (let t = 0; t < BEATS; t++) {
+      runner.beat()
+    }
 
     const ref = runner.state()
-    const vac8 = (terms[0] as MixTrack).vacuumLast
+    const vac8 = terms[0]!.vacuumLast
+
     let vacuumDiffer = 0
 
-    for (let i = 0; i < ref.vibe.length; i++) if (ref.vibe[i] !== vac8.vibe[i] || (ref.vibe[i] !== 0 && (ref.point[i] !== vac8.point[i] || ref.open[i] !== vac8.open[i]))) vacuumDiffer++
-    for (let i = 0; i < ref.store.length; i++) if (ref.store[i] !== vac8.store[i] || (ref.store[i] !== 0 && (ref.spoint[i] !== vac8.spoint[i] || ref.sopen[i] !== vac8.sopen[i]))) vacuumDiffer++
+    for (let i = 0; i < ref.vibe.length; i++) {
+      if (
+        ref.vibe[i] !== vac8.vibe[i] ||
+        (ref.vibe[i] !== 0 &&
+          (ref.point[i] !== vac8.point[i] ||
+            ref.open[i] !== vac8.open[i]))
+      ) {
+        vacuumDiffer++
+      }
+    }
+
+    for (let i = 0; i < ref.store.length; i++) {
+      if (
+        ref.store[i] !== vac8.store[i] ||
+        (ref.store[i] !== 0 &&
+          (ref.spoint[i] !== vac8.spoint[i] ||
+            ref.sopen[i] !== vac8.sopen[i]))
+      ) {
+        vacuumDiffer++
+      }
+    }
 
     log('vacuum')
 
     // ---- controls and reads on the rule ----
-    const loves = Array.from({ length: FEW }, (_, k) => track(s8, s8.starts.love, k, RATE))
-    const loves0 = Array.from({ length: FEW }, (_, k) => track(s8, s8.starts.love, k, 0))
-    const twoHubs = Array.from({ length: FEW }, (_, k) => track(s8, s8.starts.twoHub, k, RATE))
-    const trios = Array.from({ length: FEW }, (_, k) => track(s8, s8.starts.trio, k, RATE))
-    const slow = Array.from({ length: FEW }, (_, k) => track(s8, s8.starts.meson, k, 1))
+    const loves = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.starts.love, k, RATE),
+    )
+    const loves0 = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.starts.love, k, 0),
+    )
+    const twoHubs = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.starts.twoHub, k, RATE),
+    )
+    const trios = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.starts.trio, k, RATE),
+    )
+    const slow = Array.from({ length: FEW }, (_, k) =>
+      track(s8, s8.starts.meson, k, 1),
+    )
     const stringless = track(s8, s8.starts.meson, 0, RATE, true)
     const meson0 = track(s8, s8.starts.meson, 0, 0)
     const trio0 = track(s8, s8.starts.trio, 0, 0)
@@ -269,79 +371,218 @@ export default experiment({
 
     log('reads')
 
-    const mesonRunner = keyedRunner(s8.f.tables, s8.starts.meson, { key: fullPathKey(0), threshold: THRESHOLD_BORN })
+    const mesonRunner = keyedRunner(s8.f.tables, s8.starts.meson, {
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+    })
 
-    for (let t = 0; t < BEATS; t++) mesonRunner.beat()
+    for (let t = 0; t < BEATS; t++) {
+      mesonRunner.beat()
+    }
 
     const mref = mesonRunner.state()
+
     let stepperDiffer = 0
 
-    for (let i = 0; i < mref.vibe.length; i++) if (mref.vibe[i] !== meson0.last.vibe[i] || (mref.vibe[i] !== 0 && (mref.point[i] !== meson0.last.point[i] || mref.open[i] !== meson0.last.open[i]))) stepperDiffer++
-    for (let i = 0; i < mref.store.length; i++) if (mref.store[i] !== meson0.last.store[i] || (mref.store[i] !== 0 && (mref.spoint[i] !== meson0.last.spoint[i] || mref.sopen[i] !== meson0.last.sopen[i]))) stepperDiffer++
+    for (let i = 0; i < mref.vibe.length; i++) {
+      if (
+        mref.vibe[i] !== meson0.last.vibe[i] ||
+        (mref.vibe[i] !== 0 &&
+          (mref.point[i] !== meson0.last.point[i] ||
+            mref.open[i] !== meson0.last.open[i]))
+      ) {
+        stepperDiffer++
+      }
+    }
 
-    const trioAgrees = Object.entries(TRIO_WAKE).every(([t, w]) => trio0.wake[Number(t) - 1] === w)
-    const unboundAgrees = unbound0.wake[BEATS - 1] === CU_WAKE && unbound0.kDocks[BEATS - 1] === CU_DOCKS
+    for (let i = 0; i < mref.store.length; i++) {
+      if (
+        mref.store[i] !== meson0.last.store[i] ||
+        (mref.store[i] !== 0 &&
+          (mref.spoint[i] !== meson0.last.spoint[i] ||
+            mref.sopen[i] !== meson0.last.sopen[i]))
+      ) {
+        stepperDiffer++
+      }
+    }
 
-    const everyTrack = [...terms, ...loves, ...loves0, ...twoHubs, ...trios, ...slow, stringless, meson0, trio0, unbound0, wide]
-    const vacuumSinglesAll = everyTrack.reduce((n, r) => n + r.vacuumSingles, 0)
-    const vacuumGatedAll = everyTrack.reduce((n, r) => n + r.vacuumGated, 0)
-    const S1a = vacuumSinglesAll === 0 && vacuumGatedAll === 0 && windows.every(w => w.wake === 0 && w.gated === 0 && w.singles === 0) && vacuumDiffer === 0 && wide.vacuumSingles === 0
+    const trioAgrees = Object.entries(TRIO_WAKE).every(
+      ([t, w]) => trio0.wake[Number(t) - 1] === w,
+    )
+    const unboundAgrees =
+      unbound0.wake[BEATS - 1] === CU_WAKE &&
+      unbound0.kDocks[BEATS - 1] === CU_DOCKS
 
-    const census3 = pieceCensus({ tables: s8.f.tables, vacuum: s8.vacuum, start: s8.starts.love, key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: CENSUS_BEATS, n: RATE })
-    const census0 = pieceCensus({ tables: s8.f.tables, vacuum: s8.vacuum, start: s8.starts.love, key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: CENSUS_BEATS, n: 0 })
-    const toneDiffer = (r: MixTrack): number => linesDiffering(lineCharges(s8.lines, r.last).tone, lineCharges(s8.lines, r.vacuumLast).tone)
+    const everyTrack = [
+      ...terms,
+      ...loves,
+      ...loves0,
+      ...twoHubs,
+      ...trios,
+      ...slow,
+      stringless,
+      meson0,
+      trio0,
+      unbound0,
+      wide,
+    ]
+    const vacuumSinglesAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumSingles,
+      0,
+    )
+    const vacuumGatedAll = everyTrack.reduce(
+      (n, r) => n + r.vacuumGated,
+      0,
+    )
+    const S1a =
+      vacuumSinglesAll === 0 &&
+      vacuumGatedAll === 0 &&
+      windows.every(
+        w => w.wake === 0 && w.gated === 0 && w.singles === 0,
+      ) &&
+      vacuumDiffer === 0 &&
+      wide.vacuumSingles === 0
+
+    const census3 = pieceCensus({
+      tables: s8.f.tables,
+      vacuum: s8.vacuum,
+      start: s8.starts.love,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: CENSUS_BEATS,
+      n: RATE,
+    })
+    const census0 = pieceCensus({
+      tables: s8.f.tables,
+      vacuum: s8.vacuum,
+      start: s8.starts.love,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: CENSUS_BEATS,
+      n: 0,
+    })
+    const toneDiffer = (r: MixTrack): number =>
+      linesDiffering(
+        lineCharges(s8.lines, r.last).tone,
+        lineCharges(s8.lines, r.vacuumLast).tone,
+      )
 
     log('census')
 
     // ---- the stand-in ----
     const F = lineFrame(B)
-    const axisB = axisOfLine(F, LINE_OF[B] as number)
+    const axisB = axisOfLine(F, LINE_OF[B]!)
     const m = meson(D, 2 * N, 1)
     const level = settle(m, nrSeed(m))
     const full = pairEmbed(m, 0, level.block)
-    const entries: { d: number; jl: number; jf: number; amp: [number, number] }[] = []
+    const entries: {
+      d: number
+      jl: number
+      jf: number
+      amp: [number, number]
+    }[] = []
 
     for (let i = 0; i < m.b.size; i++) {
-      if (full.re[i] === 0 && full.im[i] === 0) continue
+      if (full.re[i] === 0 && full.im[i] === 0) {
+        continue
+      }
 
       const c = Math.floor(i / m.b.labelCount)
       const r = i % m.b.labelCount
 
-      entries.push({ d: m.b.configs[c]![1]!, jl: Math.floor(r / 2), jf: r % 2, amp: [full.re[i] as number, full.im[i] as number] })
+      entries.push({
+        d: m.b.configs[c]![1]!,
+        jl: Math.floor(r / 2),
+        jf: r % 2,
+        amp: [full.re[i]!, full.im[i]!],
+      })
     }
 
     // rate 0: the level's energy and its band along its line, and a transverse boost
-    const s0 = frameSpace({ frame: F, n: 0, D, cut: 2 * N, floor: 1e-24 })
+    const s0 = frameSpace({
+      frame: F,
+      n: 0,
+      D,
+      cut: 2 * N,
+      floor: 1e-24,
+    })
     const onB = lineState(s0, axisB, entries)
-    const uB = frameAxes(F)[axisB] as number[]
-    const energyAt = (space: ReturnType<typeof frameSpace>, K: readonly number[], start: FrameState): { energy: number; weight: number; residual: number } => {
-      const ritz = ritzLevels(autocorrelation(space, K, start, RITZ_T).c).sort((x, y) => y.weight - x.weight)
+    const uB = frameAxes(F)[axisB]!
 
-      return ritz[0] as { energy: number; weight: number; residual: number }
+    const energyAt = (
+      space: ReturnType<typeof frameSpace>,
+      K: readonly number[],
+      start: FrameState,
+    ): { energy: number; weight: number; residual: number } => {
+      const ritz = ritzLevels(
+        autocorrelation(space, K, start, RITZ_T).c,
+      ).sort((x, y) => y.weight - x.weight)
+
+      return ritz[0] as {
+        energy: number
+        weight: number
+        residual: number
+      }
     }
+
     const e0 = energyAt(s0, [0, 0, 0, 0], onB)
     // E-SPN-0115's rest energy counts the two constituents' gap: E_rest = 2 m + E(0), m = pi/3 on the working coin, and
     // its curvature step is E_rest / 64 (meson-crossing readPoint)
     const eRest = 2 * MASS + e0.energy
     const step = eRest * CURVE_FRAC
-    const ePlus = energyAt(s0, uB.map(x => x * step), onB)
-    const eMinus = energyAt(s0, uB.map(x => -x * step), onB)
-    const curvature = (ePlus.energy + eMinus.energy - 2 * e0.energy) / (step * step)
+    const ePlus = energyAt(
+      s0,
+      uB.map(x => x * step),
+      onB,
+    )
+    const eMinus = energyAt(
+      s0,
+      uB.map(x => -x * step),
+      onB,
+    )
+    const curvature =
+      (ePlus.energy + eMinus.energy - 2 * e0.energy) / (step * step)
     const total = 1 / (curvature * eRest)
-    const eTrans = energyAt(s0, [0, 0, 1, 0].map(x => x * step), onB)
-    const C0stand = Math.abs(e0.energy - E_REST) <= ENERGY_SAME && Math.abs(total - TOTAL) <= TOTAL_SAME && Math.abs(eTrans.energy - e0.energy) <= 1e-12
+    const eTrans = energyAt(
+      s0,
+      [0, 0, 1, 0].map(x => x * step),
+      onB,
+    )
+    const C0stand =
+      Math.abs(e0.energy - E_REST) <= ENERGY_SAME &&
+      Math.abs(total - TOTAL) <= TOTAL_SAME &&
+      Math.abs(eTrans.energy - e0.energy) <= 1e-12
 
     log('stand-in rate 0')
 
     // rate 3 and the cost-off control on the window
-    const hold = (n: number, cost: boolean): { retained: number[]; moments: ReturnType<typeof momentsOf>; classes: number; normGap: number } => {
-      const space = frameSpace({ frame: F, n, D: cost ? D : 1e9, cut: CUT, floor: FLOOR })
+    const hold = (
+      n: number,
+      cost: boolean,
+    ): {
+      retained: number[]
+      moments: ReturnType<typeof momentsOf>
+      classes: number
+      normGap: number
+    } => {
+      const space = frameSpace({
+        frame: F,
+        n,
+        D: cost ? D : 1e9,
+        cut: CUT,
+        floor: FLOOR,
+      })
+
       let sym: FrameState = new Map()
 
-      for (let a = 0; a < 4; a++) sym = addStates(sym, lineState(space, a, entries))
+      for (let a = 0; a < 4; a++) {
+        sym = addStates(sym, lineState(space, a, entries))
+      }
+
       sym = normalized(sym)
 
       let s = sym
+
       const tally = { escaped: 0, dropped: 0 }
       const retained: number[] = []
 
@@ -351,8 +592,16 @@ export default experiment({
       }
 
       // unitarity of the stand-in's beat: what is held, escaped past the cut and dropped under the floor sums to 1
-      return { retained, moments: momentsOf(space, s, N), classes: space.classes.length, normGap: Math.abs((retained[HOLD_BEATS - 1] as number) + tally.escaped + tally.dropped - 1) }
+      return {
+        retained,
+        moments: momentsOf(space, s, N),
+        classes: space.classes.length,
+        normGap: Math.abs(
+          retained[HOLD_BEATS - 1]! + tally.escaped + tally.dropped - 1,
+        ),
+      }
     }
+
     const held = hold(RATE, true)
 
     log('stand-in rate 3')
@@ -368,15 +617,32 @@ export default experiment({
     const S4 = false
 
     // ---- verdict ----
-    const C0 = stepperDiffer === 0 && trioAgrees && unboundAgrees && C0stand
+    const C0 =
+      stepperDiffer === 0 && trioAgrees && unboundAgrees && C0stand
     // CHECKS: the keyed piece undone by itself on every beat of every track, and the stand-in's weight accounted
-    const reversalDiffer = everyTrack.reduce((n, r) => n + r.reversalDiffer, 0)
-    const checked = reversalDiffer === 0 && held.normGap <= NORM_SAME && free.normGap <= NORM_SAME
+    const reversalDiffer = everyTrack.reduce(
+      (n, r) => n + r.reversalDiffer,
+      0,
+    )
+    const checked =
+      reversalDiffer === 0 &&
+      held.normGap <= NORM_SAME &&
+      free.normGap <= NORM_SAME
     const S1 = S1a && S1b
-    const status = !C0 || !checked ? 'partial' : S1 && S2 && S3 && S4 ? 'pass' : 'fail'
-    const mean = (xs: number[]): number => xs.reduce((u, v) => u + v, 0) / xs.length
-    const at = (r: MixTrack, key: 'wake' | 'footprint' | 'kDocks' | 'singles'): string => REPORT_AT.map(t => r[key][t - 1]).join('/')
-    const firstFill = (r: MixTrack, cells: number): number => r.footprint.findIndex(x => x >= BOX_SHARE * cells) + 1
+    const status =
+      !C0 || !checked
+        ? 'partial'
+        : S1 && S2 && S3 && S4
+          ? 'pass'
+          : 'fail'
+    const mean = (xs: number[]): number =>
+      xs.reduce((u, v) => u + v, 0) / xs.length
+    const at = (
+      r: MixTrack,
+      key: 'wake' | 'footprint' | 'kDocks' | 'singles',
+    ): string => REPORT_AT.map(t => r[key][t - 1]).join('/')
+    const firstFill = (r: MixTrack, cells: number): number =>
+      r.footprint.findIndex(x => x >= BOX_SHARE * cells) + 1
 
     const metrics: Record<string, number> = {
       S1: S1 ? 1 : 0,
@@ -388,14 +654,24 @@ export default experiment({
       S4: S4 ? 1 : 0,
       control_C0: C0 ? 1 : 0,
       boundedTerms: terms.filter(r => bounded(r, s8.f.cells)).length,
-      minFootprint128: Math.min(...terms.map(r => r.footprint[BEATS - 1] as number)),
-      maxFootprint128: Math.max(...terms.map(r => r.footprint[BEATS - 1] as number)),
+      minFootprint128: Math.min(
+        ...terms.map(r => r.footprint[BEATS - 1]!),
+      ),
+      maxFootprint128: Math.max(
+        ...terms.map(r => r.footprint[BEATS - 1]!),
+      ),
       cells: s8.f.cells,
-      minHalfBoxBeat: Math.min(...terms.map(r => firstFill(r, s8.f.cells))),
-      maxHalfBoxBeat: Math.max(...terms.map(r => firstFill(r, s8.f.cells))),
-      meanWake128: mean(terms.map(r => r.wake[BEATS - 1] as number)),
-      meanSingles32: mean(terms.map(r => r.singles[31] as number)),
-      meanMoved: mean(terms.map(r => r.moved.reduce((u, v) => u + v, 0))),
+      minHalfBoxBeat: Math.min(
+        ...terms.map(r => firstFill(r, s8.f.cells)),
+      ),
+      maxHalfBoxBeat: Math.max(
+        ...terms.map(r => firstFill(r, s8.f.cells)),
+      ),
+      meanWake128: mean(terms.map(r => r.wake[BEATS - 1]!)),
+      meanSingles32: mean(terms.map(r => r.singles[31]!)),
+      meanMoved: mean(
+        terms.map(r => r.moved.reduce((u, v) => u + v, 0)),
+      ),
       meanUngated: mean(terms.map(r => r.ungatedLone)),
       vacuumSingles: vacuumSinglesAll,
       vacuumGated: vacuumGatedAll,
@@ -405,17 +681,25 @@ export default experiment({
       stepperDiffer,
       trioAgrees: trioAgrees ? 1 : 0,
       unboundAgrees: unboundAgrees ? 1 : 0,
-      loveFootprint128: mean(loves.map(r => r.footprint[BEATS - 1] as number)),
-      loveFootprint128Rate0: mean(loves0.map(r => r.footprint[BEATS - 1] as number)),
-      loveHalfBoxBeat: Math.min(...loves.map(r => firstFill(r, s8.f.cells))),
-      twoHubFootprint128: mean(twoHubs.map(r => r.footprint[BEATS - 1] as number)),
-      trioFootprint128: mean(trios.map(r => r.footprint[BEATS - 1] as number)),
-      rate1Footprint128: mean(slow.map(r => r.footprint[BEATS - 1] as number)),
-      rate1HalfBoxBeat: Math.min(...slow.map(r => firstFill(r, s8.f.cells))),
-      stringlessFootprint128: stringless.footprint[BEATS - 1] as number,
-      side12Footprint128: wide.footprint[BEATS - 1] as number,
+      loveFootprint128: mean(loves.map(r => r.footprint[BEATS - 1]!)),
+      loveFootprint128Rate0: mean(
+        loves0.map(r => r.footprint[BEATS - 1]!),
+      ),
+      loveHalfBoxBeat: Math.min(
+        ...loves.map(r => firstFill(r, s8.f.cells)),
+      ),
+      twoHubFootprint128: mean(
+        twoHubs.map(r => r.footprint[BEATS - 1]!),
+      ),
+      trioFootprint128: mean(trios.map(r => r.footprint[BEATS - 1]!)),
+      rate1Footprint128: mean(slow.map(r => r.footprint[BEATS - 1]!)),
+      rate1HalfBoxBeat: Math.min(
+        ...slow.map(r => firstFill(r, s8.f.cells)),
+      ),
+      stringlessFootprint128: stringless.footprint[BEATS - 1]!,
+      side12Footprint128: wide.footprint[BEATS - 1]!,
       side12Cells: s12.f.cells,
-      toneLinesRate3: toneDiffer(terms[0] as MixTrack),
+      toneLinesRate3: toneDiffer(terms[0]!),
       toneLinesRate0: toneDiffer(meson0),
       meshLines: s8.lines.count,
       censusMix3: census3.mix,
@@ -425,32 +709,49 @@ export default experiment({
       censusBounce3: census3.bounce,
       censusStream3: census3.stream,
       censusStreamNet3: census3.streamNet,
-      censusOther0: census0.mix + census0.coin + census0.meet + census0.pair + census0.bounce,
+      censusOther0:
+        census0.mix +
+        census0.coin +
+        census0.meet +
+        census0.pair +
+        census0.bounce,
       censusStream0: census0.stream,
       standEnergy0: e0.energy,
       standResidual0: e0.residual,
       standTotal: total,
       standERest: eRest,
       standTransverse: eTrans.energy - e0.energy,
-      heldRetained8: held.retained[7] as number,
-      heldRetained24: held.retained[HOLD_BEATS - 1] as number,
+      heldRetained8: held.retained[7]!,
+      heldRetained24: held.retained[HOLD_BEATS - 1]!,
       reversalDiffer,
       heldNormGap: held.normGap,
       freeNormGap: free.normGap,
-      freeRetained8: free.retained[7] as number,
-      freeRetained24: free.retained[HOLD_BEATS - 1] as number,
+      freeRetained8: free.retained[7]!,
+      freeRetained24: free.retained[HOLD_BEATS - 1]!,
       heldMeanString: held.moments.meanString,
       heldBent: held.moments.bent,
       windowClasses: held.classes,
       seconds: (Date.now() - started) / 1000,
     }
-    const perTerm = terms.map((r, k) => `p${k}: wake ${at(r, 'wake')}, footprint ${at(r, 'footprint')}, K docks ${at(r, 'kDocks')}, singles ${at(r, 'singles')}, growth ${growthOf(r).toFixed(4)}`).join('; ')
+    const perTerm = terms
+      .map(
+        (r, k) =>
+          `p${k}: wake ${at(r, 'wake')}, footprint ${at(r, 'footprint')}, K docks ${at(r, 'kDocks')}, singles ${at(r, 'singles')}, growth ${growthOf(r).toFixed(4)}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `a line mixer gated on a dock's one single dragging string (M = (1 + w)/2 I + (1 - w)/2 G on its frame, move rate 21/64) leaves the vacuum untouched (${vacuumGatedAll} vacuum docks gated, ${vacuumDiffer} readings off keyedRunner) but cascades: the meson fills at least ${metrics.minFootprint128} of ${s8.f.cells} docks by beat 128 on ${PATHS} of ${PATHS} terms (${metrics.boundedTerms} bounded), a lone love ${metrics.loveFootprint128}; every piece but the stream keeps the single count, and the stream's unpaired vacuum vibes pass the gate; in the stand-in the window at ${CUT} links retains ${held.retained[HOLD_BEATS - 1]!.toFixed(4)} with the string and ${free.retained[HOLD_BEATS - 1]!.toFixed(4)} without it by beat ${HOLD_BEATS}`,
       metrics,
-      control: { stepperDiffer, trioAgrees: trioAgrees ? 1 : 0, unboundAgrees: unboundAgrees ? 1 : 0, standEnergy0: e0.energy, standTotal: total, loveFootprint128Rate0: metrics.loveFootprint128Rate0 as number },
+      control: {
+        stepperDiffer,
+        trioAgrees: trioAgrees ? 1 : 0,
+        unboundAgrees: unboundAgrees ? 1 : 0,
+        standEnergy0: e0.energy,
+        standTotal: total,
+        loveFootprint128Rate0: metrics.loveFootprint128Rate0!,
+      },
       notes: `L1 (S1) and L2 (stand-in). S1a ${S1a} (vacuum singles ${vacuumSinglesAll}, vacuum gated ${vacuumGatedAll}, windows ${windows.map(w => `side ${w.side}: wake ${w.wake}, gated ${w.gated}`).join('; ')}, keyedRunner vacuum differ ${vacuumDiffer}); S1b ${S1b}; S2 ${S2} (decided ${S2decided}: retained ${held.retained.map(w => w.toFixed(4)).join(' ')}; cost off ${free.retained.map(w => w.toFixed(4)).join(' ')}; mean string ${held.moments.meanString.toFixed(3)}, bent ${held.moments.bent.toFixed(3)}, ${held.classes} classes); S3, S4 not reached. C0 ${C0} (stepper ${stepperDiffer}, trio ${trioAgrees}, unbound ${unboundAgrees}, stand-in E ${e0.energy} residual ${e0.residual.toExponential(2)}, total ${total}, transverse ${eTrans.energy - e0.energy}). Census over ${CENSUS_BEATS} beats of a lone love: rate 3 ${JSON.stringify(census3)}, rate 0 ${JSON.stringify(census0)}. Meson terms: ${perTerm}. Lone love rate 3: ${loves.map(r => at(r, 'footprint')).join('; ')}; rate 0: ${loves0.map(r => at(r, 'footprint')).join('; ')}. Two-hub: ${twoHubs.map(r => at(r, 'footprint')).join('; ')}. Trio: ${trios.map(r => at(r, 'footprint')).join('; ')}. Rate 1: ${slow.map(r => at(r, 'footprint')).join('; ')}. Stringless: ${at(stringless, 'footprint')}. Side 12: ${at(wide, 'footprint')} of ${s12.f.cells}. Tone lines differing at 128: rate 3 ${metrics.toneLinesRate3}, rate 0 ${metrics.toneLinesRate0} of ${s8.lines.count}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

@@ -69,6 +69,7 @@ export default experiment({
     ): number[] => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const far: number[] = []
 
       for (let t = 0; t < 13; t++) {
@@ -155,10 +156,7 @@ export default experiment({
         heavyAntiparticleFar: heavyMinusA[3]!,
         middleweightParticleFar: midPlus[3]!,
         middleweightAntiparticleFar: midMinus[3]!,
-        heavyNullWorst: Math.max(
-          ...heavyNullPlus,
-          ...heavyNullMinus,
-        ),
+        heavyNullWorst: Math.max(...heavyNullPlus, ...heavyNullMinus),
       },
       // CONTROL: the exact no-slab null for the heavy species and the translation invariance
       control: {

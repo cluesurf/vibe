@@ -57,21 +57,26 @@ export default experiment({
     for (let d = 0; d < 24; d++) {
       const to = mesh.neighbour(center, d)
 
-      roots.push(
-        [0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)),
-      )
+      roots.push([0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)))
     }
 
     const telegraph = (
       dir: number,
-    ): { steps: number; flips: number; dips: number; isolated: boolean } => {
+    ): {
+      steps: number
+      flips: number
+      dips: number
+      isolated: boolean
+    } => {
       const axis = roots[dir]!.map(v => v / Math.SQRT2)
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
       seeded.data[center * 24 + dir] = 1
 
       let prevPos: number[] | null = null
+
       const signs: number[] = []
 
       for (let t = 0; t < BEATS; t++) {
@@ -152,6 +157,7 @@ export default experiment({
     }
 
     const hbar = 3 / (2 * Math.PI)
+
     const massOf = (dir: number): number => {
       const r = rows.get(dir)!
 
@@ -210,8 +216,7 @@ export default experiment({
       // CONTROL: the massless lap-dip accounting and the exact 21-22 degeneracy, both
       // integer-level checks that could have failed
       control: {
-        exactChecks:
-          masslessFloor && exactDegeneracy ? 1 : 0,
+        exactChecks: masslessFloor && exactDegeneracy ? 1 : 0,
       },
       notes:
         'PRECISION UPDATE (side twenty-one, ninety-six beats, task/kac-mass-table-probe.ts variant): the line degeneracy SURVIVES exactly (twenty-one and twenty-two identical at thirty-one flips each), but the mirror near-degeneracies DO NOT (eight against nine moves to 0.113 versus 0.146), so the mirror pairing was unconverged statistics and only the charge-conjugate line equality is physical, and the individual masses shift substantially with size, so this experiment gates side-seventeen REGRESSION values while the physical masses await convergence. The untrackable massless direction (its bare content converts out of the seeded slot immediately) and the four short-lived species (under twenty steps) are reported in scope, not gated. The named continuation is the lattice-scale calibration: identifying the lightest charged dressed species with the electron converts this table into physical masses, and the mirror-pair degeneracy structure suggests the symmetry classes of the table are the place generation structure would live, and the exact line degeneracy doubles as a particle-antiparticle mass equality check, which CPT requires and the table delivers.',

@@ -50,10 +50,36 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { boxHusk } from '@/code/measure/causal-components'
 import { shellMeans, staticDepth } from '@/code/measure/energy-lines'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, fitRing, levelPlacement, placePoints, pointBeat, pointDensity, ringCenter, ringColumns, ringRadius, type PointState } from '@/code/measure/held-cluster'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { lineGauge, meetingWindow, placeCutFramed } from '@/code/measure/permutation-meeting'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  placePoints,
+  pointBeat,
+  pointDensity,
+  ringCenter,
+  ringColumns,
+  ringRadius,
+  type PointState,
+} from '@/code/measure/held-cluster'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  lineGauge,
+  meetingWindow,
+  placeCutFramed,
+} from '@/code/measure/permutation-meeting'
 import type { BoundOptions } from '@/code/rule/bound-line-pieces'
 
 const BOX = 12
@@ -67,15 +93,23 @@ const MOVE = 4
 const EXACT = 1e-12
 const SOURCES: readonly { name: string; options: BoundOptions }[] = [
   { name: 'WabP', options: { cost: true, sign: true } },
-  { name: 'KabP', options: { cost: true, sign: true, meeting: 'keep' } },
+  {
+    name: 'KabP',
+    options: { cost: true, sign: true, meeting: 'keep' },
+  },
 ]
 
 // least squares of y = a + k / r
-function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const xs = rs.map(r => 1 / r)
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const k = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const k =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - k * mx, k }
 }
@@ -91,14 +125,32 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
     const placed = levelPlacement(basis, level.cre, level.cim)
 
     // ---- E0, per source ----
-    const windows = SOURCES.map(s => meetingWindow(s.options, 'parallel', 8, 2, placed, P))
-    const e0 = windows.map(w => w.reversed && w.beats.every(b => b.normKept && b.disturbed === 0 && b.leak === 0 && b.energyGap <= EXACT))
+    const windows = SOURCES.map(s =>
+      meetingWindow(s.options, 'parallel', 8, 2, placed, P),
+    )
+    const e0 = windows.map(
+      w =>
+        w.reversed &&
+        w.beats.every(
+          b =>
+            b.normKept &&
+            b.disturbed === 0 &&
+            b.leak === 0 &&
+            b.energyGap <= EXACT,
+        ),
+    )
 
     // ---- the sources on the side-16 line ----
     const center = centerOf(SIDE)
@@ -111,12 +163,19 @@ export default experiment({
     const a = blochPacket(basis, L, level.cre, level.cim, true)
     const startDensity = a.density()
     const c0 = Math.round(ringCenter(startDensity)) % L
-    const col = husk.column[ring.docks[c0] as number] as number
+    const col = husk.column[ring.docks[c0]!]!
     const sums = SOURCES.map(() => new Float64Array(L))
     const sumA = new Float64Array(L)
     const sumW = new Float64Array(L)
-    const states: CutState[] = SOURCES.map(() => placeCutFramed(gauge, fit.kept, P, 'parallel'))
-    const options: PieceOptions[] = SOURCES.map(s => ({ ...s.options, unit: 0, flat: false }))
+    const states: CutState[] = SOURCES.map(() =>
+      placeCutFramed(gauge, fit.kept, P, 'parallel'),
+    )
+    const options: PieceOptions[] = SOURCES.map(s => ({
+      ...s.options,
+      unit: 0,
+      flat: false,
+    }))
+
     let w: PointState = placePoints(L, fit.kept, 0, P)
 
     for (let t = 1; t <= WINDOW; t++) {
@@ -127,16 +186,23 @@ export default experiment({
       const dw = pointDensity(L, w)
 
       SOURCES.forEach((_, i) => {
-        states[i] = pointBeatWith(options[i] as PieceOptions, f.tables, ring, states[i] as CutState)
+        states[i] = pointBeatWith(
+          options[i]!,
+          f.tables,
+          ring,
+          states[i]!,
+        )
 
-        const d = cutDensity(L, states[i] as CutState)
+        const d = cutDensity(L, states[i])
 
-        for (let x = 0; x < L; x++) (sums[i] as Float64Array)[x]! += d[x] as number
+        for (let x = 0; x < L; x++) {
+          ;(sums[i] as Float64Array)[x]! += d[x]!
+        }
       })
 
       for (let x = 0; x < L; x++) {
-        sumA[x]! += da[x] as number
-        sumW[x]! += dw[x] as number
+        sumA[x]! += da[x]!
+        sumW[x]! += dw[x]!
       }
     }
 
@@ -144,11 +210,13 @@ export default experiment({
     const avgA = Float64Array.from(sumA, v => v / WINDOW)
     const avgW = Float64Array.from(sumW, v => v / WINDOW)
     const total = (avg[0] as Float64Array).reduce((s, v) => s + v, 0)
+
     const profile = (rho: Float64Array): number[] => {
       const m = shellMeans(SIDE, col, staticDepth(SIDE, rho).depth)
 
-      return m.map(v => v - (m[REF] as number))
+      return m.map(v => v - m[REF]!)
     }
+
     const pointAt = (c: number): Float64Array => {
       const rho = new Float64Array(husk.columns)
 
@@ -156,31 +224,64 @@ export default experiment({
 
       return rho
     }
+
     const pp = profile(pointAt(col))
-    const pointFit = inverseFit(PROFILE_R, PROFILE_R.map(r => pp[r] as number))
+    const pointFit = inverseFit(
+      PROFILE_R,
+      PROFILE_R.map(r => pp[r]!),
+    )
+
     const read = (pr: number[], source: Float64Array) => {
-      const ratio = [1, 2, 3, 4, 5, 6, 7].map(r => (pr[r] as number) / (pp[r] as number))
-      const k = inverseFit(PROFILE_R, PROFILE_R.map(r => pr[r] as number)).k
-      const d1 = PROFILE_R.every(r => Math.abs((ratio[r - 1] as number) - 1) <= TOLERANCE) && Math.abs(k / pointFit.k - 1) <= TOLERANCE
+      const ratio = [1, 2, 3, 4, 5, 6, 7].map(r => pr[r]! / pp[r]!)
+      const k = inverseFit(
+        PROFILE_R,
+        PROFILE_R.map(r => pr[r]!),
+      ).k
+      const d1 =
+        PROFILE_R.every(
+          r => Math.abs(ratio[r - 1]! - 1) <= TOLERANCE,
+        ) && Math.abs(k / pointFit.k - 1) <= TOLERANCE
+
       let core = 7
 
       for (let r = 7; r >= 1; r--) {
-        if (Math.abs((ratio[r - 1] as number) - 1) > TOLERANCE) break
+        if (Math.abs(ratio[r - 1]! - 1) > TOLERANCE) {
+          break
+        }
+
         core = r
       }
 
       const r90 = ringRadius(source, c0, 0.9)
 
-      return { ratio, k, d1, core, r90, d2: core <= r90 + 1, profile: pr }
+      return {
+        ratio,
+        k,
+        d1,
+        core,
+        r90,
+        d2: core <= r90 + 1,
+        profile: pr,
+      }
     }
-    const rS = avg.map(s => read(profile(ringColumns(husk, ring, s)), s))
+
+    const rS = avg.map(s =>
+      read(profile(ringColumns(husk, ring, s)), s),
+    )
     const rA = read(profile(ringColumns(husk, ring, avgA)), avgA)
     const rW = read(profile(ringColumns(husk, ring, avgW)), avgW)
-    const rM = read(profile(pointAt(husk.column[ring.docks[(c0 + MOVE) % L] as number] as number)), avg[0] as Float64Array)
+    const rM = read(
+      profile(pointAt(husk.column[ring.docks[(c0 + MOVE) % L]!]!)),
+      avg[0] as Float64Array,
+    )
     const controlPlus = rA.d1 && rA.d2
     const controlMinus = !rM.d1 && !rW.d1
-    const held = SOURCES.map((_, i) => (e0[i] as boolean) && (rS[i] as ReturnType<typeof read>).d1 && (rS[i] as ReturnType<typeof read>).d2)
-    const status = !(controlPlus && controlMinus) ? 'partial' : held.every(Boolean) ? 'pass' : 'fail'
+    const held = SOURCES.map((_, i) => e0[i]! && rS[i]!.d1 && rS[i]!.d2)
+    const status = !(controlPlus && controlMinus)
+      ? 'partial'
+      : held.every(Boolean)
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const f3 = (x: number): string => x.toFixed(3)
     const metrics: Record<string, number> = {
@@ -196,7 +297,7 @@ export default experiment({
     }
 
     SOURCES.forEach((s, i) => {
-      const r = rS[i] as ReturnType<typeof read>
+      const r = rS[i]!
 
       metrics[`${s.name}_E0`] = e0[i] ? 1 : 0
       metrics[`${s.name}_D1`] = r.d1 ? 1 : 0
@@ -204,22 +305,40 @@ export default experiment({
       metrics[`${s.name}_k`] = r.k
       metrics[`${s.name}_core`] = r.core
       metrics[`${s.name}_r90`] = r.r90
-      metrics[`${s.name}_worstEnergyGap`] = Math.max(...(windows[i] as (typeof windows)[number]).beats.map(b => b.energyGap))
-      metrics[`${s.name}_total`] = (avg[i] as Float64Array).reduce((q, v) => q + v, 0)
-      for (let q = 0; q <= REF; q++) metrics[`${s.name}_r${q}`] = r.profile[q] as number
+      metrics[`${s.name}_worstEnergyGap`] = Math.max(
+        ...windows[i]!.beats.map(b => b.energyGap),
+      )
+
+      metrics[`${s.name}_total`] = (avg[i] as Float64Array).reduce(
+        (q, v) => q + v,
+        0,
+      )
+
+      for (let q = 0; q <= REF; q++) {
+        metrics[`${s.name}_r${q}`] = r.profile[q]!
+      }
     })
 
-    for (let q = 0; q <= REF; q++) metrics[`point_r${q}`] = pp[q] as number
+    for (let q = 0; q <= REF; q++) {
+      metrics[`point_r${q}`] = pp[q]!
+    }
 
-    const sourceRow = (name: string, r: ReturnType<typeof read>, s: Float64Array): string =>
+    const sourceRow = (
+      name: string,
+      r: ReturnType<typeof read>,
+      s: Float64Array,
+    ): string =>
       `${name} (along its husk line ${[...s].map(v => v.toFixed(3)).join(' ')}, R90 ${r.r90}): x(r) - x(8) ${r.profile.slice(0, REF).map(f4).join(', ')}, ratio ${r.ratio.map(f3).join(', ')} at r = 1 .. 7, k ${r.k.toExponential(4)}, core ${r.core}, D1 ${r.d1}, D2 ${r.d2}`
 
     return verdict({
       status,
-      claim: `the held cluster, energy ${total.toFixed(5)} averaged over ${WINDOW} beats: ${SOURCES.map((s, i) => `${sourceRow(s.name, rS[i] as ReturnType<typeof read>, avg[i] as Float64Array)}, E0 ${e0[i]}`).join(' | ')}; the point lump ${pp.slice(0, REF).map(f4).join(', ')}, k ${pointFit.k.toExponential(4)}; the stand-in's packet ratio ${rA.ratio.map(f3).join(', ')}, k ${rA.k.toExponential(4)}, core ${rA.core}; E-GRV-0110's spreading source ratio ${rW.ratio.map(f3).join(', ')}, k ${rW.k.toExponential(4)} (D1 ${rW.d1}); the lump moved ${MOVE} columns ${rM.ratio.map(f3).join(', ')}`,
+      claim: `the held cluster, energy ${total.toFixed(5)} averaged over ${WINDOW} beats: ${SOURCES.map((s, i) => `${sourceRow(s.name, rS[i]!, avg[i] as Float64Array)}, E0 ${e0[i]}`).join(' | ')}; the point lump ${pp.slice(0, REF).map(f4).join(', ')}, k ${pointFit.k.toExponential(4)}; the stand-in's packet ratio ${rA.ratio.map(f3).join(', ')}, k ${rA.k.toExponential(4)}, core ${rA.core}; E-GRV-0110's spreading source ratio ${rW.ratio.map(f3).join(', ')}, k ${rW.k.toExponential(4)} (D1 ${rW.d1}); the lump moved ${MOVE} columns ${rM.ratio.map(f3).join(', ')}`,
       metrics,
-      control: { plus: controlPlus ? 1 : 0, minus: controlMinus ? 1 : 0 },
-      notes: `L2. Held (E0, D1, D2): ${SOURCES.map((s, i) => `${s.name} ${held[i]}`).join(', ')}; control+ ${controlPlus} (D1 ${rA.d1}, D2 ${rA.d2}), control- ${controlMinus} (moved lump D1 ${rM.d1}, E-GRV-0110's source D1 ${rW.d1}). Point fit a ${pointFit.a.toExponential(3)} k ${pointFit.k.toExponential(4)}. Exact windows (side 8, 2 beats): ${SOURCES.map((s, i) => `${s.name} ${(windows[i] as (typeof windows)[number]).beats.map(b => `${b.branches} branches, energy gap ${b.energyGap.toExponential(1)}, disturbed ${b.disturbed}`).join('; ')}, reversed ${(windows[i] as (typeof windows)[number]).reversed}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        plus: controlPlus ? 1 : 0,
+        minus: controlMinus ? 1 : 0,
+      },
+      notes: `L2. Held (E0, D1, D2): ${SOURCES.map((s, i) => `${s.name} ${held[i]}`).join(', ')}; control+ ${controlPlus} (D1 ${rA.d1}, D2 ${rA.d2}), control- ${controlMinus} (moved lump D1 ${rM.d1}, E-GRV-0110's source D1 ${rW.d1}). Point fit a ${pointFit.a.toExponential(3)} k ${pointFit.k.toExponential(4)}. Exact windows (side 8, 2 beats): ${SOURCES.map((s, i) => `${s.name} ${windows[i]!.beats.map(b => `${b.branches} branches, energy gap ${b.energyGap.toExponential(1)}, disturbed ${b.disturbed}`).join('; ')}, reversed ${windows[i]!.reversed}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

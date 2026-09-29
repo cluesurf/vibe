@@ -29,48 +29,86 @@
 
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 import { makeHusk, type Husk } from '@/code/measure/photon-husk'
-import { curlSymbol, eigenvalues, huskSymbol, leapfrogBlock, plaquetteShapes, type PlaquetteShape } from '@/code/measure/photon-symbol'
+import {
+  curlSymbol,
+  eigenvalues,
+  huskSymbol,
+  leapfrogBlock,
+  plaquetteShapes,
+  type PlaquetteShape,
+} from '@/code/measure/photon-symbol'
 import type { Split } from '@/code/rule/loop-ring'
 
 type PhotonLattice = ReturnType<typeof photonLatticeD4>
 
-let cache: { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] } | undefined
+let cache:
+  | { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] }
+  | undefined
 
-function light(): { bulk: PhotonLattice; husk: Husk; shapes: PlaquetteShape[] } {
+function light(): {
+  bulk: PhotonLattice
+  husk: Husk
+  shapes: PlaquetteShape[]
+} {
   if (!cache) {
     const bulk = photonLatticeD4({ side: 4 })
 
-    cache = { bulk, husk: makeHusk(bulk), shapes: plaquetteShapes(bulk) }
+    cache = {
+      bulk,
+      husk: makeHusk(bulk),
+      shapes: plaquetteShapes(bulk),
+    }
   }
 
   return cache
 }
 
 // the husk curl-curl's eigenvalues at a husk wave vector, ascending, and the intertwining defect |P M - M_h P|
-export function huskEigen(k: readonly number[]): { values: number[]; intertwining: number } {
+export function huskEigen(k: readonly number[]): {
+  values: number[]
+  intertwining: number
+} {
   const p = light()
-  const s = huskSymbol(p.husk, curlSymbol(p.bulk, p.shapes, [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, 0]))
+  const s = huskSymbol(
+    p.husk,
+    curlSymbol(p.bulk, p.shapes, [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, 0]),
+  )
 
-  return { values: eigenvalues(s.hermitian), intertwining: s.intertwining }
+  return {
+    values: eigenvalues(s.hermitian),
+    intertwining: s.intertwining,
+  }
 }
 
 // the bulk curl-curl's eigenvalues at a bulk wave vector, ascending
 export function bulkEigen(k: readonly number[]): number[] {
   const p = light()
 
-  return eigenvalues(curlSymbol(p.bulk, p.shapes, [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, k[3] ?? 0]))
+  return eigenvalues(
+    curlSymbol(p.bulk, p.shapes, [
+      k[0] ?? 0,
+      k[1] ?? 0,
+      k[2] ?? 0,
+      k[3] ?? 0,
+    ]),
+  )
 }
 
 // the largest eigenvalue on a grid of g points per axis (3 axes for the husk, 4 for the bulk)
-export function gridTop(g: number, dims: 3 | 4): { top: number; at: number[]; intertwining: number } {
+export function gridTop(
+  g: number,
+  dims: 3 | 4,
+): { top: number; at: number[]; intertwining: number } {
   let top = -Infinity
   let at: number[] = []
   let intertwining = 0
+
   const step = (2 * Math.PI) / g
   const total = g ** dims
 
   for (let i = 0; i < total; i++) {
     let rest = i
+
     const k: number[] = []
 
     for (let d = 0; d < dims; d++) {
@@ -101,22 +139,31 @@ export function gridTop(g: number, dims: 3 | 4): { top: number; at: number[]; in
 }
 
 // the leapfrog's growth per beat at x = kappa lambda (1 on the unit circle)
-export const leapfrogGrowth = (x: number): number => leapfrogBlock(1, x).growth
+export const leapfrogGrowth = (x: number): number =>
+  leapfrogBlock(1, x).growth
 
 // the husk photon's (the two lowest nonzero branches') top group velocity along a husk direction, husk docks per
 // beat, by central differences on `steps` points of k in (0, pi] along the unit direction (measurement)
-export function photonTopVelocity(kappa: number, dir: readonly number[], steps = 240): number {
+export function photonTopVelocity(
+  kappa: number,
+  dir: readonly number[],
+  steps = 240,
+): number {
   const norm = Math.hypot(...dir)
   const u = dir.map(x => x / norm)
   // along the direction until its largest component reaches pi (the zone edge on that line)
   const reach = Math.PI / Math.max(...u.map(Math.abs))
   const h = 1e-5
+
   let top = 0
+
   const omega = (t: number, branch: number): number => {
     const v = huskEigen(u.map(x => x * t)).values
     const x = kappa * (v[branch] ?? 0)
 
-    return x <= 4 ? 2 * Math.asin(Math.sqrt(Math.max(0, x)) / 2) : Number.NaN
+    return x <= 4
+      ? 2 * Math.asin(Math.sqrt(Math.max(0, x)) / 2)
+      : Number.NaN
   }
 
   for (let i = 1; i <= steps; i++) {
@@ -125,7 +172,9 @@ export function photonTopVelocity(kappa: number, dir: readonly number[], steps =
     for (const branch of [1, 2]) {
       const v = (omega(t + h, branch) - omega(t - h, branch)) / (2 * h)
 
-      if (Number.isFinite(v)) top = Math.max(top, Math.abs(v))
+      if (Number.isFinite(v)) {
+        top = Math.max(top, Math.abs(v))
+      }
     }
   }
 
@@ -153,31 +202,54 @@ export const HUSK_DIRECTIONS: readonly (readonly number[])[] = [
 // integer existence
 
 // every (p, D) with 2 p / (2D + 1) = a / b, D <= dMax, p <= 2D + 1 (the trit column light), compared in integers
-export function tritSolutions(a: number, b: number, dMax: number): { p: number; d: number }[] {
+export function tritSolutions(
+  a: number,
+  b: number,
+  dMax: number,
+): { p: number; d: number }[] {
   const out: { p: number; d: number }[] = []
 
   for (let d = 1; d <= dMax; d++) {
     const q = 2 * d + 1
 
-    for (let p = 1; p <= q; p++) if (2 * p * b === a * q) out.push({ p, d })
+    for (let p = 1; p <= q; p++) {
+      if (2 * p * b === a * q) {
+        out.push({ p, d })
+      }
+    }
   }
 
   return out
 }
 
 // every loop-light split with kappa = c r / m^2 = a / b, m <= mMax: the Split for register modulus n (M = 2 n m)
-export function loopSplits(n: number, a: number, b: number, mMax: number): Split[] {
+export function loopSplits(
+  n: number,
+  a: number,
+  b: number,
+  mMax: number,
+): Split[] {
   const out: Split[] = []
 
   for (let m = 1; m <= mMax; m++) {
-    if ((a * m * m) % b !== 0) continue
+    if ((a * m * m) % b !== 0) {
+      continue
+    }
 
     const product = (a * m * m) / b
 
     for (let c = 1; c <= product; c++) {
-      if (product % c !== 0) continue
+      if (product % c !== 0) {
+        continue
+      }
 
-      out.push({ root: 2 * n * m, drift: c, force: product / c, ratio: product / c / c, w: m })
+      out.push({
+        root: 2 * n * m,
+        drift: c,
+        force: product / c,
+        ratio: product / c / c,
+        w: m,
+      })
     }
   }
 
@@ -186,7 +258,10 @@ export function loopSplits(n: number, a: number, b: number, mMax: number): Split
 
 // the split among `splits` whose r / c is nearest `target` multiplicatively, by cross-multiplication in integers
 // (ties to the smaller root, then the smaller drift)
-export function nearestRatio(splits: readonly Split[], target: readonly [number, number]): Split {
+export function nearestRatio(
+  splits: readonly Split[],
+  target: readonly [number, number],
+): Split {
   let best: Split | undefined
   let bn = 0
   let bd = 1

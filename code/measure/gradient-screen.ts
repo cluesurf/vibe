@@ -62,7 +62,10 @@ export function profileActivity(input: {
 }
 
 // The slope of the activity per cell inside a monotone stretch of a profile.
-export function profileSlope(input: { profile: Profile; side: number }): number {
+export function profileSlope(input: {
+  profile: Profile
+  side: number
+}): number {
   return input.profile.kind === 'ramp'
     ? (4 * input.profile.size) / input.side
     : 0
@@ -81,7 +84,12 @@ export function gradientStart(input: {
   const degree = mesh.degree
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const active = profileActivity({ profile, mean, side, x: cell % side })
+    const active = profileActivity({
+      profile,
+      mean,
+      side,
+      x: cell % side,
+    })
 
     for (let d = 0; d < degree; d++) {
       const i = cell * degree + d
@@ -111,7 +119,8 @@ export function mirrorWithinBlocks(input: {
     const mirrored = cell - x + low + (block - 1 - (x - low))
 
     for (let d = 0; d < degree; d++) {
-      out.data[mirrored * degree + d] = will.data[cell * degree + d] ?? 0
+      out.data[mirrored * degree + d] =
+        will.data[cell * degree + d] ?? 0
     }
   }
 
@@ -144,7 +153,8 @@ export function shiftWithinSlabs(input: {
       const m = slab.length
 
       for (let k = 0; k < m; k++) {
-        out.data[slab[(k + shift) % m] ?? 0] = will.data[slab[k] ?? 0] ?? 0
+        out.data[slab[(k + shift) % m] ?? 0] =
+          will.data[slab[k] ?? 0] ?? 0
       }
     }
   }

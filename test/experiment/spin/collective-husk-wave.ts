@@ -185,14 +185,42 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { fullPathKey, keyedRunner, lineCharges, linesDiffering, meshLines, type KeyedRunner } from '@/code/measure/full-key-paths'
-import { addLove, ballTables, countingCollide, horosphericalChart, newCollideTally, vacuumFill } from '@/code/measure/hyperbolic-lines'
-import { laws, THRESHOLD_BORN, THRESHOLD_KEEP, type LockedFresh } from '@/code/measure/doublet-locked-readings'
+import {
+  fullPathKey,
+  keyedRunner,
+  lineCharges,
+  linesDiffering,
+  meshLines,
+  type KeyedRunner,
+} from '@/code/measure/full-key-paths'
+import {
+  addLove,
+  ballTables,
+  countingCollide,
+  horosphericalChart,
+  newCollideTally,
+  vacuumFill,
+} from '@/code/measure/hyperbolic-lines'
+import {
+  laws,
+  THRESHOLD_BORN,
+  THRESHOLD_KEEP,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
 import { boxHusk } from '@/code/measure/causal-components'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { buildHyperbolicBall, cuspLayer, labelledCoin, type HyperbolicBall } from '@/code/substrate/coxeter/label-transport'
+import {
+  buildHyperbolicBall,
+  cuspLayer,
+  labelledCoin,
+  type HyperbolicBall,
+} from '@/code/substrate/coxeter/label-transport'
 import { matVec } from '@/code/substrate/coxeter/minkowski'
 import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
 import {
@@ -234,7 +262,7 @@ const DISPERSION_K = [0.05, 0.2, 0.4, 0.8]
 const REPORT_BEATS = [0, 12, 24, 48]
 
 const ROOTS = rootsD4()
-const SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const DIRECTIONS = [
   { name: 'axis', m: [1, 0, 0, 0] },
   { name: 'face', m: [1, 1, 0, 0] },
@@ -242,54 +270,85 @@ const DIRECTIONS = [
   { name: 'generic', m: [2, 1, 0, 0] },
 ] as const
 const PACKET_DIRECTIONS = DIRECTIONS.slice(0, 3)
+
 const unit = (m: readonly number[]): number[] => {
   const n = Math.hypot(...m)
 
   return m.map(v => v / n)
 }
-const waveNorm2 = (m: readonly number[]): number => ((2 * Math.PI) / SIDE) ** 2 * m.reduce((s, v) => s + v * v, 0)
+
+const waveNorm2 = (m: readonly number[]): number =>
+  ((2 * Math.PI) / SIDE) ** 2 * m.reduce((s, v) => s + v * v, 0)
 
 // the first beat (linearly interpolated) at which a series falls to 1/2, or NaN
 function halfTime(series: readonly number[]): number {
   for (let t = 1; t < series.length; t++) {
-    const a = series[t - 1] as number
-    const b = series[t] as number
+    const a = series[t - 1]!
+    const b = series[t]!
 
-    if (b <= 0.5) return t - 1 + (a - 0.5) / (a - b)
+    if (b <= 0.5) {
+      return t - 1 + (a - 0.5) / (a - b)
+    }
   }
 
   return Number.NaN
 }
 
-const spread = (xs: readonly number[]): number => Math.max(...xs) - Math.min(...xs)
+const spread = (xs: readonly number[]): number =>
+  Math.max(...xs) - Math.min(...xs)
 // a metric that is undefined (a half-time never reached) is recorded as -1
 const finite = (x: number): number => (Number.isFinite(x) ? x : -1)
-const ratio = (xs: readonly number[]): number => (xs.every(Number.isFinite) ? Math.max(...xs) / Math.min(...xs) : Number.POSITIVE_INFINITY)
+const ratio = (xs: readonly number[]): number =>
+  xs.every(Number.isFinite)
+    ? Math.max(...xs) / Math.min(...xs)
+    : Number.POSITIVE_INFINITY
 
 function singlesOf(c: Configuration, cells: number): number {
   let n = 0
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      if ((c.vibe[x * 24 + (LINE_FIRSTS[l] as number)] !== 0) !== (c.vibe[x * 24 + (SECONDS[l] as number)] !== 0)) n++
+      if (
+        (c.vibe[x * 24 + LINE_FIRSTS[l]!] !== 0) !==
+        (c.vibe[x * 24 + SECONDS[l]!] !== 0)
+      ) {
+        n++
+      }
     }
   }
 
   return n
 }
 
-const storedOf = (c: Configuration): number => c.store.reduce((s, v) => s + (v !== 0 ? 1 : 0), 0)
+const storedOf = (c: Configuration): number =>
+  c.store.reduce((s, v) => s + (v !== 0 ? 1 : 0), 0)
 
 // ---- the linear regime: the 24 one-line laws on one path ----
 
-type Linear = { p: Float64Array[][]; kDocks: number; lineMisses: number; offClass: number; lawBreaks: number; vacuumSingles: number; lines: number }
+type Linear = {
+  p: Float64Array[][]
+  kDocks: number
+  lineMisses: number
+  offClass: number
+  lawBreaks: number
+  vacuumSingles: number
+  lines: number
+}
 
-function linearLaws(f: LockedFresh, threshold: number, log: (s: string) => void): Linear {
+function linearLaws(
+  f: LockedFresh,
+  threshold: number,
+  log: (s: string) => void,
+): Linear {
   const key = fullPathKey(0)
   const vacuumStart = wordVacuum(f, f.store)
-  const vacuumRun = keyedRunner(f.tables, vacuumStart, { key, threshold })
+  const vacuumRun = keyedRunner(f.tables, vacuumStart, {
+    key,
+    threshold,
+  })
   const vibes: Int8Array[] = [Int8Array.from(vacuumStart.vibe)]
   const stores: Int8Array[] = [Int8Array.from(vacuumStart.store)]
+
   let vacuumSingles = singlesOf(vacuumStart, f.cells)
 
   for (let t = 0; t < BEATS; t++) {
@@ -302,8 +361,13 @@ function linearLaws(f: LockedFresh, threshold: number, log: (s: string) => void)
     vacuumSingles += singlesOf(s, f.cells)
   }
 
-  const vacuumAt = (t: number): Configuration => ({ ...vacuumStart, vibe: vibes[t] as Int8Array, store: stores[t] as Int8Array })
+  const vacuumAt = (t: number): Configuration => ({
+    ...vacuumStart,
+    vibe: vibes[t]!,
+    store: stores[t]!,
+  })
   const p: Float64Array[][] = []
+
   let kDocks = 0
   let lineMisses = 0
   let offClass = 0
@@ -321,16 +385,27 @@ function linearLaws(f: LockedFresh, threshold: number, log: (s: string) => void)
 
     const l0 = laws(start)
     const tally = newCollideTally()
-    const run = keyedRunner(f.tables, start, { key, threshold, collide: countingCollide(tally) })
+    const run = keyedRunner(f.tables, start, {
+      key,
+      threshold,
+      collide: countingCollide(tally),
+    })
     const series: Float64Array[] = []
 
     lines = cls.count
 
     for (let t = 0; t <= BEATS; t++) {
-      if (t > 0) run.beat()
+      if (t > 0) {
+        run.beat()
+      }
 
       const s = run.state()
-      const read = lineDisplacement({ run: s, vacuum: vacuumAt(t), lines: cls, tone: 1 })
+      const read = lineDisplacement({
+        run: s,
+        vacuum: vacuumAt(t),
+        lines: cls,
+        tone: 1,
+      })
       const l = laws(s)
 
       series.push(Float64Array.from(read.histogram, v => v / cls.count))
@@ -345,21 +420,35 @@ function linearLaws(f: LockedFresh, threshold: number, log: (s: string) => void)
 
   log(`linear ${threshold}`)
 
-  return { p, kDocks, lineMisses, offClass, lawBreaks, vacuumSingles, lines }
+  return {
+    p,
+    kDocks,
+    lineMisses,
+    offClass,
+    lawBreaks,
+    vacuumSingles,
+    lines,
+  }
 }
 
 // the class distributions at one beat
-const at = (lin: Linear, t: number): Float64Array[] => lin.p.map(series => series[t] as Float64Array)
+const at = (lin: Linear, t: number): Float64Array[] =>
+  lin.p.map(series => series[t]!)
 
 // the class-average plane wave at a real husk wave vector K (any length): A = (1/24) sum_d sum_s p_d(s) cos(K . r_d s)
-function realWave(distributions: readonly Float64Array[], K: readonly number[]): number {
+function realWave(
+  distributions: readonly Float64Array[],
+  K: readonly number[],
+): number {
   let a = 0
 
   distributions.forEach((p, d) => {
     const k = ROOTS[d]!.reduce((s, v, i) => s + v * (K[i] ?? 0), 0)
     const half = p.length / 2
 
-    for (let i = 0; i < p.length; i++) a += (p[i] as number) * Math.cos(k * (i - half))
+    for (let i = 0; i < p.length; i++) {
+      a += p[i]! * Math.cos(k * (i - half))
+    }
   })
 
   return a / distributions.length
@@ -367,59 +456,118 @@ function realWave(distributions: readonly Float64Array[], K: readonly number[]):
 
 // ---- the dense regime: a lineon on every dock ----
 
-type Dense = { q: [number, number][]; stored: number[]; kDocks: number; lawBreaks: number; linesBroken: number }
+type Dense = {
+  q: [number, number][]
+  stored: number[]
+  kDocks: number
+  lawBreaks: number
+  linesBroken: number
+}
 
-function denseRun(input: { f: LockedFresh; vectors: Int32Array; m: readonly number[]; sign: number; threshold: number; control: boolean; field: 'charge' | 'count'; lines?: ReturnType<typeof meshLines> }): Dense {
+function denseRun(input: {
+  f: LockedFresh
+  vectors: Int32Array
+  m: readonly number[]
+  sign: number
+  threshold: number
+  control: boolean
+  field: 'charge' | 'count'
+  lines?: ReturnType<typeof meshLines>
+}): Dense {
   const { f, vectors, m, sign, threshold, control, field } = input
   const start = wordVacuum(f, f.store)
-  const cos = (x: number): number => Math.cos((2 * Math.PI * phaseIndex(m, vectors, x, SIDE)) / SIDE)
+  const cos = (x: number): number =>
+    Math.cos((2 * Math.PI * phaseIndex(m, vectors, x, SIDE)) / SIDE)
 
   for (let x = 0; x < f.cells; x++) {
     const bias = 1 + sign * CONTRAST * cos(x)
 
-    if (field === 'count' && !(weyl(x + 1) < bias / 2)) continue
+    if (field === 'count' && !(weyl(x + 1) < bias / 2)) {
+      continue
+    }
 
     const d = Math.floor(weyl(x + 1, SILVER) * 24)
 
-    start.vibe[x * 24 + d] = field === 'charge' ? (weyl(x + 7, GOLDEN) < bias / 2 ? 1 : -1) : weyl(x + 7, GOLDEN) < 0.5 ? 1 : -1
+    start.vibe[x * 24 + d] =
+      field === 'charge'
+        ? weyl(x + 7, GOLDEN) < bias / 2
+          ? 1
+          : -1
+        : weyl(x + 7, GOLDEN) < 0.5
+          ? 1
+          : -1
     start.open[x * 24 + d] = 1
   }
 
   const l0 = laws(start)
   const tally = newCollideTally()
   const local: LineLocalTally = { kDocks: 0 }
-  const run: KeyedRunner = keyedRunner(f.tables, start, { key: fullPathKey(0), threshold, collide: control ? lineLocalCollide(local) : countingCollide(tally) })
-  const first = input.lines ? lineCharges(input.lines, start).tone : undefined
+  const run: KeyedRunner = keyedRunner(f.tables, start, {
+    key: fullPathKey(0),
+    threshold,
+    collide: control ? lineLocalCollide(local) : countingCollide(tally),
+  })
+  const first = input.lines
+    ? lineCharges(input.lines, start).tone
+    : undefined
   const q: [number, number][] = []
   const stored: number[] = []
+
   let lawBreaks = 0
   let linesBroken = 0
 
   for (let t = 0; t <= BEATS; t++) {
-    if (t > 0) run.beat()
+    if (t > 0) {
+      run.beat()
+    }
 
     const s = run.state()
     const l = laws(s)
 
-    q.push(huskFourier(field === 'charge' ? dockCharge(s, f.cells) : dockContent(s, f.cells), vectors, m, SIDE))
+    q.push(
+      huskFourier(
+        field === 'charge'
+          ? dockCharge(s, f.cells)
+          : dockContent(s, f.cells),
+        vectors,
+        m,
+        SIDE,
+      ),
+    )
     stored.push(storedOf(s))
     lawBreaks += l[0] !== l0[0] || l[1] !== l0[1] ? 1 : 0
-    if (first && input.lines) linesBroken = Math.max(linesBroken, linesDiffering(first, lineCharges(input.lines, s).tone))
+
+    if (first && input.lines) {
+      linesBroken = Math.max(
+        linesBroken,
+        linesDiffering(first, lineCharges(input.lines, s).tone),
+      )
+    }
   }
 
-  return { q, stored, kDocks: control ? local.kDocks : tally.kDocks, lawBreaks, linesBroken }
+  return {
+    q,
+    stored,
+    kDocks: control ? local.kDocks : tally.kDocks,
+    lawBreaks,
+    linesBroken,
+  }
 }
 
 // the response of a pair of runs at phases + and -: Re of the half difference, over its beat-0 value
 function response(a: Dense, b: Dense): number[] {
-  const re = a.q.map((v, t) => (v[0] - (b.q[t] as [number, number])[0]) / 2)
+  const re = a.q.map((v, t) => (v[0] - b.q[t]![0]) / 2)
 
-  return re.map(v => v / (re[0] as number))
+  return re.map(v => v / re[0]!)
 }
 
 // ---- the true mesh ----
 
-type Shadowed = { ball: HyperbolicBall; tables: LockedTables; shadow: Float64Array }
+type Shadowed = {
+  ball: HyperbolicBall
+  tables: LockedTables
+  shadow: Float64Array
+}
 
 function shadowedBall(radius: number): Shadowed {
   const coin = labelledCoin()
@@ -427,22 +575,44 @@ function shadowedBall(radius: number): Shadowed {
   const ball = buildHyperbolicBall({ coin, radius })
   const shadow = new Float64Array(ball.cells * 3)
 
-  for (let x = 0; x < ball.cells; x++) shadow.set(chart.coordinates(matVec(ball.frames[x]!, coin.frame.center)), x * 3)
+  for (let x = 0; x < ball.cells; x++) {
+    shadow.set(
+      chart.coordinates(matVec(ball.frames[x]!, coin.frame.center)),
+      x * 3,
+    )
+  }
 
   return { ball, tables: ballTables(ball, 'pass'), shadow }
 }
 
-const shadowGap = (b: Shadowed, x: number, y: number): number => Math.hypot(...[0, 1, 2].map(a => (b.shadow[x * 3 + a] as number) - (b.shadow[y * 3 + a] as number)))
+const shadowGap = (b: Shadowed, x: number, y: number): number =>
+  Math.hypot(
+    ...[0, 1, 2].map(a => b.shadow[x * 3 + a]! - b.shadow[y * 3 + a]!),
+  )
 
-type Lone = { shadowMax: number; reach: number; chargeKept: boolean; track: number[] }
+type Lone = {
+  shadowMax: number
+  reach: number
+  chargeKept: boolean
+  track: number[]
+}
 
-function loneOnBall(b: Shadowed, dock: number, slot: number, threshold: number): Lone {
+function loneOnBall(
+  b: Shadowed,
+  dock: number,
+  slot: number,
+  threshold: number,
+): Lone {
   const c = vacuumFill(b.ball.cells, 'empty', () => 0)
 
   addLove(c, dock, slot)
 
-  const run = keyedRunner(b.tables, c, { key: fullPathKey(0), threshold })
+  const run = keyedRunner(b.tables, c, {
+    key: fullPathKey(0),
+    threshold,
+  })
   const track: number[] = [dock]
+
   let shadowMax = 0
   let reach = 0
   let chargeKept = true
@@ -451,32 +621,50 @@ function loneOnBall(b: Shadowed, dock: number, slot: number, threshold: number):
     run.beat()
 
     const s = run.state()
+
     let where = -1
     let charge = 0
 
     for (let i = 0; i < s.vibe.length; i++) {
-      if (s.vibe[i] === 0) continue
-      charge += s.vibe[i] as number
+      if (s.vibe[i] === 0) {
+        continue
+      }
+
+      charge += s.vibe[i]!
       where = (i / 24) | 0
     }
 
     chargeKept &&= charge === 1 && where >= 0
-    if (where < 0) break
+
+    if (where < 0) {
+      break
+    }
+
     track.push(where)
     shadowMax = Math.max(shadowMax, shadowGap(b, dock, where))
-    reach = Math.max(reach, Math.abs((b.ball.distance[where] as number) - (b.ball.distance[dock] as number)))
+    reach = Math.max(
+      reach,
+      Math.abs(b.ball.distance[where]! - b.ball.distance[dock]!),
+    )
   }
 
   return { shadowMax, reach, chargeKept, track }
 }
 
-type BallPacket = { radius: number[]; centroidShift: number[]; kDocks: number; chargeKept: boolean }
+type BallPacket = {
+  radius: number[]
+  centroidShift: number[]
+  kDocks: number
+  chargeKept: boolean
+}
 
 function ballPacket(b: Shadowed, control: boolean): BallPacket {
   const c = vacuumFill(b.ball.cells, 'empty', () => 0)
 
   for (let x = 0; x < b.ball.cells; x++) {
-    if ((b.ball.distance[x] as number) > 2) continue
+    if (b.ball.distance[x]! > 2) {
+      continue
+    }
 
     const d = Math.floor(weyl(x + 1, SILVER) * 24)
 
@@ -487,29 +675,63 @@ function ballPacket(b: Shadowed, control: boolean): BallPacket {
   const total = c.vibe.reduce((s, v) => s + v, 0)
   const tally = newCollideTally()
   const local: LineLocalTally = { kDocks: 0 }
-  const run = keyedRunner(b.tables, c, { key: fullPathKey(0), threshold: THRESHOLD_BORN, collide: control ? lineLocalCollide(local) : countingCollide(tally) })
+  const run = keyedRunner(b.tables, c, {
+    key: fullPathKey(0),
+    threshold: THRESHOLD_BORN,
+    collide: control ? lineLocalCollide(local) : countingCollide(tally),
+  })
   const radius: number[] = []
   const centroidShift: number[] = []
+
   let origin: number[] = []
   let chargeKept = true
 
   for (let t = 0; t <= BALL_BEATS; t++) {
-    if (t > 0) run.beat()
+    if (t > 0) {
+      run.beat()
+    }
 
     const q = dockCharge(run.state(), b.ball.cells)
     const sum = q.reduce((s, v) => s + v, 0)
-    const center = [0, 1, 2].map(a => q.reduce((s, v, x) => s + v * (b.shadow[x * 3 + a] as number), 0) / sum)
+    const center = [0, 1, 2].map(
+      a => q.reduce((s, v, x) => s + v * b.shadow[x * 3 + a]!, 0) / sum,
+    )
 
     chargeKept &&= sum === total
-    if (t === 0) origin = center
+
+    if (t === 0) {
+      origin = center
+    }
 
     if (REPORT_BEATS.includes(t)) {
-      radius.push(Math.sqrt(q.reduce((s, v, x) => s + v * [0, 1, 2].reduce((r, a) => r + ((b.shadow[x * 3 + a] as number) - (origin[a] as number)) ** 2, 0), 0) / sum))
-      centroidShift.push(Math.hypot(...center.map((v, a) => v - (origin[a] as number))))
+      radius.push(
+        Math.sqrt(
+          q.reduce(
+            (s, v, x) =>
+              s +
+              v *
+                [0, 1, 2].reduce(
+                  (r, a) =>
+                    r + (b.shadow[x * 3 + a]! - origin[a]!) ** 2,
+                  0,
+                ),
+            0,
+          ) / sum,
+        ),
+      )
+
+      centroidShift.push(
+        Math.hypot(...center.map((v, a) => v - origin[a]!)),
+      )
     }
   }
 
-  return { radius, centroidShift, kDocks: control ? local.kDocks : tally.kDocks, chargeKept }
+  return {
+    radius,
+    centroidShift,
+    kDocks: control ? local.kDocks : tally.kDocks,
+    chargeKept,
+  }
 }
 
 export default experiment({
@@ -523,7 +745,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const f = contactFresh(SIDE, 'pass')
     const vectors = dockVectors(f.cells, SIDE)
     const husk = boxHusk(f.weave.mesh, SIDE)
@@ -532,48 +757,126 @@ export default experiment({
     // ---- the linear regime, Born and keep ----
     const born = linearLaws(f, THRESHOLD_BORN, log)
     const keep = linearLaws(f, THRESHOLD_KEEP, log)
-    const linearClean = (l: Linear): boolean => l.kDocks === 0 && l.lineMisses === 0 && l.offClass === 0 && l.lawBreaks === 0 && l.vacuumSingles === 0
-    const waveSeries = (l: Linear, m: readonly number[]): number[] => Array.from({ length: BEATS + 1 }, (_, t) => classWave(at(l, t), ROOTS, m, SIDE)[0])
+    const linearClean = (l: Linear): boolean =>
+      l.kDocks === 0 &&
+      l.lineMisses === 0 &&
+      l.offClass === 0 &&
+      l.lawBreaks === 0 &&
+      l.vacuumSingles === 0
+    const waveSeries = (l: Linear, m: readonly number[]): number[] =>
+      Array.from(
+        { length: BEATS + 1 },
+        (_, t) => classWave(at(l, t), ROOTS, m, SIDE)[0],
+      )
     const bornWaves = DIRECTIONS.map(dir => waveSeries(born, dir.m))
     const keepWaves = DIRECTIONS.map(dir => waveSeries(keep, dir.m))
-    const frozen = DIRECTIONS.map(dir => perpendicularShare(dir.m, ROOTS))
-    const lateBorn = bornWaves.map(w => w[BEATS] as number)
+    const frozen = DIRECTIONS.map(dir =>
+      perpendicularShare(dir.m, ROOTS),
+    )
+    const lateBorn = bornWaves.map(w => w[BEATS]!)
     const tauBorn = bornWaves.map(halfTime)
-    const diffBorn = DIRECTIONS.map((dir, i) => Math.LN2 / (waveNorm2(dir.m) * (tauBorn[i] as number)))
-    const w1 = spread(lateBorn) <= AMPLITUDE_SPREAD && tauBorn.every(Number.isFinite) && ratio(diffBorn) <= RATE_SPREAD
+    const diffBorn = DIRECTIONS.map(
+      (dir, i) => Math.LN2 / (waveNorm2(dir.m) * tauBorn[i]!),
+    )
+    const w1 =
+      spread(lateBorn) <= AMPLITUDE_SPREAD &&
+      tauBorn.every(Number.isFinite) &&
+      ratio(diffBorn) <= RATE_SPREAD
 
     // W1e: a common small |K| along each direction
-    const earlyRatios = EARLY_BEATS.map(t => DIRECTIONS.map(dir => (1 - realWave(at(born, t), unit(dir.m).map(v => v * EARLY_K))) / EARLY_K ** 2))
+    const earlyRatios = EARLY_BEATS.map(t =>
+      DIRECTIONS.map(
+        dir =>
+          (1 -
+            realWave(
+              at(born, t),
+              unit(dir.m).map(v => v * EARLY_K),
+            )) /
+          EARLY_K ** 2,
+      ),
+    )
     const w1e = earlyRatios.every(r => ratio(r) <= EARLY_SPREAD)
 
     // W2: the packet at t* and the biased packets' centers
-    const classSecond = (t: number): number => at(born, t).reduce((s, p) => s + p.reduce((q, v, i) => q + v * (i - p.length / 2) ** 2, 0), 0) / 24
+    const classSecond = (t: number): number =>
+      at(born, t).reduce(
+        (s, p) =>
+          s + p.reduce((q, v, i) => q + v * (i - p.length / 2) ** 2, 0),
+        0,
+      ) / 24
+
     let packetBeat = 0
 
-    for (let t = 0; t <= BEATS; t++) if (classSecond(t) <= PACKET_SECOND) packetBeat = t
+    for (let t = 0; t <= BEATS; t++) {
+      if (classSecond(t) <= PACKET_SECOND) {
+        packetBeat = t
+      }
+    }
 
     const packet = packetMoments(at(born, packetBeat), ROOTS)
-    const kurtosis = PACKET_DIRECTIONS.map(dir => packet.along(unit(dir.m)).kurtosis)
-    const drift = (l: Linear, t: number, m: readonly number[]): number => {
-      const n = unit(m)
-      const use = ROOTS.map((r, d) => ({ r, d })).filter(({ r }) => r.reduce((s, v, a) => s + v * (n[a] ?? 0), 0) > 0)
+    const kurtosis = PACKET_DIRECTIONS.map(
+      dir => packet.along(unit(dir.m)).kurtosis,
+    )
 
-      return use.reduce((s, { r, d }) => s + meanDisplacement(l.p[d]![t] as Float64Array) * r.reduce((q, v, a) => q + v * (n[a] ?? 0), 0), 0) / use.length
+    const drift = (
+      l: Linear,
+      t: number,
+      m: readonly number[],
+    ): number => {
+      const n = unit(m)
+      const use = ROOTS.map((r, d) => ({ r, d })).filter(
+        ({ r }) => r.reduce((s, v, a) => s + v * (n[a] ?? 0), 0) > 0,
+      )
+
+      return (
+        use.reduce(
+          (s, { r, d }) =>
+            s +
+            meanDisplacement(l.p[d]![t]!) *
+              r.reduce((q, v, a) => q + v * (n[a] ?? 0), 0),
+          0,
+        ) / use.length
+      )
     }
-    const drifts = PACKET_DIRECTIONS.map(dir => ({ half: drift(born, Math.floor(packetBeat / 2), dir.m), end: drift(born, packetBeat, dir.m) }))
-    const w2 = kurtosis.every(k => k <= ONE_PACKET) && drifts.every(d => d.end >= DRIFT_GROWTH * d.half && d.half > 0) && ratio(drifts.map(d => Math.abs(d.end))) <= DRIFT_SPREAD
+
+    const drifts = PACKET_DIRECTIONS.map(dir => ({
+      half: drift(born, Math.floor(packetBeat / 2), dir.m),
+      end: drift(born, packetBeat, dir.m),
+    }))
+    const w2 =
+      kurtosis.every(k => k <= ONE_PACKET) &&
+      drifts.every(d => d.end >= DRIFT_GROWTH * d.half && d.half > 0) &&
+      ratio(drifts.map(d => Math.abs(d.end))) <= DRIFT_SPREAD
 
     // the one-line law, class-averaged (reported)
-    const oneLine = (l: Linear, t: number): { mean: number; second: number; kurtosis: number } => {
+    const oneLine = (
+      l: Linear,
+      t: number,
+    ): { mean: number; second: number; kurtosis: number } => {
       const ps = at(l, t)
-      const moment = (p: Float64Array, k: number): number => p.reduce((s, v, i) => s + v * (i - p.length / 2) ** k, 0)
+      const moment = (p: Float64Array, k: number): number =>
+        p.reduce((s, v, i) => s + v * (i - p.length / 2) ** k, 0)
       const m2 = ps.reduce((s, p) => s + moment(p, 2), 0) / 24
       const m4 = ps.reduce((s, p) => s + moment(p, 4), 0) / 24
 
-      return { mean: ps.reduce((s, p) => s + meanDisplacement(p), 0) / 24, second: m2, kurtosis: m4 / (m2 * m2) }
+      return {
+        mean: ps.reduce((s, p) => s + meanDisplacement(p), 0) / 24,
+        second: m2,
+        kurtosis: m4 / (m2 * m2),
+      }
     }
-    const classSeconds = at(born, BEATS).map(p => p.reduce((s, v, i) => s + v * (i - p.length / 2) ** 2, 0))
-    const dispersion = DIRECTIONS.map(dir => DISPERSION_K.map(k => realWave(at(born, BEATS), unit(dir.m).map(v => v * k))))
+
+    const classSeconds = at(born, BEATS).map(p =>
+      p.reduce((s, v, i) => s + v * (i - p.length / 2) ** 2, 0),
+    )
+    const dispersion = DIRECTIONS.map(dir =>
+      DISPERSION_K.map(k =>
+        realWave(
+          at(born, BEATS),
+          unit(dir.m).map(v => v * k),
+        ),
+      ),
+    )
     const keepFirstZero = keepWaves.map(w => w.findIndex(v => v < 0))
 
     log('linear readings')
@@ -581,59 +884,142 @@ export default experiment({
     // ---- the dense regime ----
     const lines = meshLines(f.tables)
     const denseCharge = DIRECTIONS.map(dir => {
-      const rule = [1, -1].map(sign => denseRun({ f, vectors, m: dir.m, sign, threshold: THRESHOLD_BORN, control: false, field: 'charge' }))
-      const control = [1, -1].map(sign => denseRun({ f, vectors, m: dir.m, sign, threshold: THRESHOLD_BORN, control: true, field: 'charge', lines }))
+      const rule = [1, -1].map(sign =>
+        denseRun({
+          f,
+          vectors,
+          m: dir.m,
+          sign,
+          threshold: THRESHOLD_BORN,
+          control: false,
+          field: 'charge',
+        }),
+      )
+      const control = [1, -1].map(sign =>
+        denseRun({
+          f,
+          vectors,
+          m: dir.m,
+          sign,
+          threshold: THRESHOLD_BORN,
+          control: true,
+          field: 'charge',
+          lines,
+        }),
+      )
 
       log(`dense ${dir.name}`)
 
-      return { rule, control, ruleWave: response(rule[0]!, rule[1]!), controlWave: response(control[0]!, control[1]!) }
+      return {
+        rule,
+        control,
+        ruleWave: response(rule[0]!, rule[1]!),
+        controlWave: response(control[0]!, control[1]!),
+      }
     })
     const denseSound = DIRECTIONS.map(dir => {
-      const runs = [1, -1].map(sign => denseRun({ f, vectors, m: dir.m, sign, threshold: THRESHOLD_KEEP, control: false, field: 'count' }))
+      const runs = [1, -1].map(sign =>
+        denseRun({
+          f,
+          vectors,
+          m: dir.m,
+          sign,
+          threshold: THRESHOLD_KEEP,
+          control: false,
+          field: 'count',
+        }),
+      )
 
       log(`sound ${dir.name}`)
 
       return { runs, wave: response(runs[0]!, runs[1]!) }
     })
-    const controlLate = denseCharge.map(d => d.controlWave[BEATS] as number)
-    const ruleLate = denseCharge.map(d => d.ruleWave[BEATS] as number)
+    const controlLate = denseCharge.map(d => d.controlWave[BEATS]!)
+    const ruleLate = denseCharge.map(d => d.ruleWave[BEATS]!)
     const ruleTau = denseCharge.map(d => halfTime(d.ruleWave))
-    const ruleDiff = DIRECTIONS.map((dir, i) => Math.LN2 / (waveNorm2(dir.m) * (ruleTau[i] as number)))
-    const w3 = denseCharge.every(d => d.control.every(r => r.linesBroken === 0)) && spread(controlLate) >= CONTROL_SPREAD
-    const melt = denseCharge.every(d => d.rule.every(r => (r.stored[BEATS] as number) < MELT * (r.stored[0] as number)))
-    const w1dIso = spread(ruleLate) <= AMPLITUDE_SPREAD && ruleTau.every(Number.isFinite) && ratio(ruleDiff) <= DENSE_RATE_SPREAD
+    const ruleDiff = DIRECTIONS.map(
+      (dir, i) => Math.LN2 / (waveNorm2(dir.m) * ruleTau[i]!),
+    )
+    const w3 =
+      denseCharge.every(d =>
+        d.control.every(r => r.linesBroken === 0),
+      ) && spread(controlLate) >= CONTROL_SPREAD
+    const melt = denseCharge.every(d =>
+      d.rule.every(r => r.stored[BEATS]! < MELT * r.stored[0]!),
+    )
+    const w1dIso =
+      spread(ruleLate) <= AMPLITUDE_SPREAD &&
+      ruleTau.every(Number.isFinite) &&
+      ratio(ruleDiff) <= DENSE_RATE_SPREAD
     const w1dProp = denseCharge.every(d => d.ruleWave.some(v => v < 0))
-    const denseLawBreaks = [...denseCharge.flatMap(d => [...d.rule, ...d.control]), ...denseSound.flatMap(d => d.runs)].reduce((s, r) => s + r.lawBreaks, 0)
+    const denseLawBreaks = [
+      ...denseCharge.flatMap(d => [...d.rule, ...d.control]),
+      ...denseSound.flatMap(d => d.runs),
+    ].reduce((s, r) => s + r.lawBreaks, 0)
     const soundZero = denseSound.map(d => d.wave.findIndex(v => v < 0))
-    const soundSpeed = DIRECTIONS.map((dir, i) => ((soundZero[i] as number) > 0 ? Math.PI / 2 / ((soundZero[i] as number) * Math.sqrt(waveNorm2(dir.m))) : Number.NaN))
+    const soundSpeed = DIRECTIONS.map((dir, i) =>
+      soundZero[i]! > 0
+        ? Math.PI / 2 / (soundZero[i]! * Math.sqrt(waveNorm2(dir.m)))
+        : Number.NaN,
+    )
 
     // ---- the true mesh ----
     const large = shadowedBall(4)
     const small = shadowedBall(3)
     const coin = labelledCoin()
     const layer = cuspLayer({ coin, skinRadius: 1 })
-    const skinOne = layer.members.filter(mbr => mbr.skin === 1).map(mbr => small.ball.index.get(mbr.key) ?? -1)
+    const skinOne = layer.members
+      .filter(mbr => mbr.skin === 1)
+      .map(mbr => small.ball.index.get(mbr.key) ?? -1)
     const lone = [THRESHOLD_BORN, THRESHOLD_KEEP].map(threshold => ({
       threshold,
-      base: Array.from({ length: 24 }, (_, s) => loneOnBall(large, 0, s, threshold)),
-      skin: skinOne.flatMap(x => (x < 0 ? [] : Array.from({ length: 24 }, (_, s) => loneOnBall(small, x, s, threshold)))),
+      base: Array.from({ length: 24 }, (_, s) =>
+        loneOnBall(large, 0, s, threshold),
+      ),
+      skin: skinOne.flatMap(x =>
+        x < 0
+          ? []
+          : Array.from({ length: 24 }, (_, s) =>
+              loneOnBall(small, x, s, threshold),
+            ),
+      ),
     }))
     const allLone = lone.flatMap(l => [...l.base, ...l.skin])
     const shadowWorst = Math.max(...allLone.map(r => r.shadowMax))
-    const keepReach = Math.min(...(lone[1]?.base ?? []).map(r => r.reach))
-    const c1 = skinOne.every(x => x >= 0) && skinOne.length === 6 && allLone.every(r => r.chargeKept) && shadowWorst <= SHADOW_BOUND && keepReach >= BULK_REACH
+    const keepReach = Math.min(
+      ...(lone[1]?.base ?? []).map(r => r.reach),
+    )
+    const c1 =
+      skinOne.every(x => x >= 0) &&
+      skinOne.length === 6 &&
+      allLone.every(r => r.chargeKept) &&
+      shadowWorst <= SHADOW_BOUND &&
+      keepReach >= BULK_REACH
     // the class-averaged husk wave of the base-dock loves (reported)
     const ballWave = lone.map(l =>
       PACKET_DIRECTIONS.map(dir => {
         const K = unit(dir.m.slice(0, 3)).map(v => v * BALL_WAVE)
+
         let least = 1
 
         for (let t = 0; t <= BALL_BEATS; t++) {
-          const a = l.base.reduce((s, r) => {
-            const x = r.track[Math.min(t, r.track.length - 1)] as number
+          const a =
+            l.base.reduce((s, r) => {
+              const x = r.track[Math.min(t, r.track.length - 1)]!
 
-            return s + Math.cos([0, 1, 2].reduce((q, i) => q + (K[i] as number) * ((large.shadow[x * 3 + i] as number) - (large.shadow[i] as number)), 0))
-          }, 0) / l.base.length
+              return (
+                s +
+                Math.cos(
+                  [0, 1, 2].reduce(
+                    (q, i) =>
+                      q +
+                      K[i]! *
+                        (large.shadow[x * 3 + i]! - large.shadow[i]!),
+                    0,
+                  ),
+                )
+              )
+            }, 0) / l.base.length
 
           least = Math.min(least, a)
         }
@@ -641,12 +1027,19 @@ export default experiment({
         return least
       }),
     )
-    const packets = [false, true].map(control => ballPacket(large, control))
+    const packets = [false, true].map(control =>
+      ballPacket(large, control),
+    )
 
     log('ball')
 
     // ---- W4 ----
-    const w4 = husk.stepErrors === 0 && linearClean(born) && linearClean(keep) && denseLawBreaks === 0 && packets.every(p => p.chargeKept)
+    const w4 =
+      husk.stepErrors === 0 &&
+      linearClean(born) &&
+      linearClean(keep) &&
+      denseLawBreaks === 0 &&
+      packets.every(p => p.chargeKept)
     const status = !(w3 && w4) ? 'partial' : w1 && w2 ? 'pass' : 'fail'
     const gates: [string, boolean][] = [
       ['W1', w1],
@@ -660,7 +1053,9 @@ export default experiment({
       ['C1', c1],
     ]
     const failed = gates.filter(([, v]) => !v).map(([n]) => n)
-    const metrics: Record<string, number> = Object.fromEntries(gates.map(([n, v]) => [`gate_${n.replace('-', '_')}`, v ? 1 : 0]))
+    const metrics: Record<string, number> = Object.fromEntries(
+      gates.map(([n, v]) => [`gate_${n.replace('-', '_')}`, v ? 1 : 0]),
+    )
 
     Object.assign(metrics, {
       stepErrors: husk.stepErrors,
@@ -682,40 +1077,59 @@ export default experiment({
     })
 
     DIRECTIONS.forEach((dir, i) => {
-      metrics[`frozen_${dir.name}`] = frozen[i] as number
-      metrics[`bornLate_${dir.name}`] = lateBorn[i] as number
-      metrics[`bornTau_${dir.name}`] = finite(tauBorn[i] as number)
-      metrics[`keepLate_${dir.name}`] = keepWaves[i]![BEATS] as number
-      metrics[`keepFirstZero_${dir.name}`] = keepFirstZero[i] as number
-      metrics[`controlLate_${dir.name}`] = controlLate[i] as number
-      metrics[`ruleLate_${dir.name}`] = ruleLate[i] as number
-      metrics[`ruleTau_${dir.name}`] = finite(ruleTau[i] as number)
-      metrics[`ruleDiffusivity_${dir.name}`] = finite(ruleDiff[i] as number)
-      metrics[`bornDiffusivity_${dir.name}`] = finite(diffBorn[i] as number)
-      metrics[`ruleStoredEnd_${dir.name}`] = denseCharge[i]!.rule[0]!.stored[BEATS] as number
-      metrics[`controlStoredEnd_${dir.name}`] = denseCharge[i]!.control[0]!.stored[BEATS] as number
-      metrics[`soundSpeed_${dir.name}`] = finite(soundSpeed[i] as number)
-      EARLY_BEATS.forEach((t, j) => (metrics[`early_${dir.name}_${t}`] = earlyRatios[j]![i] as number))
+      metrics[`frozen_${dir.name}`] = frozen[i]!
+      metrics[`bornLate_${dir.name}`] = lateBorn[i]!
+      metrics[`bornTau_${dir.name}`] = finite(tauBorn[i]!)
+      metrics[`keepLate_${dir.name}`] = keepWaves[i]![BEATS]!
+      metrics[`keepFirstZero_${dir.name}`] = keepFirstZero[i]!
+      metrics[`controlLate_${dir.name}`] = controlLate[i]!
+      metrics[`ruleLate_${dir.name}`] = ruleLate[i]!
+      metrics[`ruleTau_${dir.name}`] = finite(ruleTau[i]!)
+      metrics[`ruleDiffusivity_${dir.name}`] = finite(ruleDiff[i]!)
+      metrics[`bornDiffusivity_${dir.name}`] = finite(diffBorn[i]!)
+      metrics[`ruleStoredEnd_${dir.name}`] =
+        denseCharge[i]!.rule[0]!.stored[BEATS]!
+
+      metrics[`controlStoredEnd_${dir.name}`] =
+        denseCharge[i]!.control[0]!.stored[BEATS]!
+      metrics[`soundSpeed_${dir.name}`] = finite(soundSpeed[i]!)
+      EARLY_BEATS.forEach(
+        (t, j) =>
+          (metrics[`early_${dir.name}_${t}`] = earlyRatios[j]![i]!),
+      )
     })
+
     PACKET_DIRECTIONS.forEach((dir, i) => {
-      metrics[`kurtosis_${dir.name}`] = kurtosis[i] as number
+      metrics[`kurtosis_${dir.name}`] = kurtosis[i]!
       metrics[`driftHalf_${dir.name}`] = drifts[i]!.half
       metrics[`driftEnd_${dir.name}`] = drifts[i]!.end
     })
 
-    const lineReport = (l: Linear): string => [12, 24, 48, 96].map(t => oneLine(l, t)).map((o, i) => `beat ${[12, 24, 48, 96][i]}: <s> ${f4(o.mean)}, <s^2> ${f4(o.second)}, k1 ${f4(o.kurtosis)}`).join('; ')
-    const series = (w: readonly number[]): string => [0, 1, 2, 4, 8, 16, 32, 48, 64, 96].map(t => f4(w[t] as number)).join(' ')
+    const lineReport = (l: Linear): string =>
+      [12, 24, 48, 96]
+        .map(t => oneLine(l, t))
+        .map(
+          (o, i) =>
+            `beat ${[12, 24, 48, 96][i]}: <s> ${f4(o.mean)}, <s^2> ${f4(o.second)}, k1 ${f4(o.kurtosis)}`,
+        )
+        .join('; ')
+    const series = (w: readonly number[]): string =>
+      [0, 1, 2, 4, 8, 16, 32, 48, 64, 96].map(t => f4(w[t]!)).join(' ')
 
     return verdict({
       status,
-      claim: `linear regime (side 16, one love on each of the 4,096 lines of a class, 24 classes, K on ${born.kDocks + keep.kDocks} docks): the husk charge wave at beat 96 reads ${DIRECTIONS.map((dir, i) => `${dir.name} ${f4(lateBorn[i] as number)} (frozen share ${f4(frozen[i] as number)})`).join(', ')} on the Born path, early ratio (1 - A)/K^2 at |K| 0.05 ${earlyRatios.map(r => r.map(f4).join('/')).join(', ')}, packet kurtosis ${kurtosis.map(f4).join(', ')} at beat ${packetBeat}, biased-packet drift at ${Math.floor(packetBeat / 2)} and ${packetBeat} ${drifts.map(d => `${f4(d.half)} to ${f4(d.end)}`).join(', ')}; dense (a lineon on every dock): the rule melts the vacuum (stored ${denseCharge.map(d => d.rule[0]!.stored[BEATS]).join(', ')} of ${denseCharge[0]!.rule[0]!.stored[0]}) and its charge wave reads ${ruleLate.map(f4).join(', ')} at 96 (half-times ${ruleTau.map(v => v.toFixed(1)).join(', ')}), the K-off control ${controlLate.map(f4).join(', ')} with ${Math.max(...denseCharge.flatMap(d => d.control.map(r => r.linesBroken)))} lines broken; true mesh: a lone love's husk shadow moves at most ${f4(shadowWorst)} lattice units over ${allLone.length} runs while it reaches ball distance ${keepReach} on the keep path${failed.length ? `; FAILED ${failed.join(', ')}` : ''}`,
+      claim: `linear regime (side 16, one love on each of the 4,096 lines of a class, 24 classes, K on ${born.kDocks + keep.kDocks} docks): the husk charge wave at beat 96 reads ${DIRECTIONS.map((dir, i) => `${dir.name} ${f4(lateBorn[i]!)} (frozen share ${f4(frozen[i]!)})`).join(', ')} on the Born path, early ratio (1 - A)/K^2 at |K| 0.05 ${earlyRatios.map(r => r.map(f4).join('/')).join(', ')}, packet kurtosis ${kurtosis.map(f4).join(', ')} at beat ${packetBeat}, biased-packet drift at ${Math.floor(packetBeat / 2)} and ${packetBeat} ${drifts.map(d => `${f4(d.half)} to ${f4(d.end)}`).join(', ')}; dense (a lineon on every dock): the rule melts the vacuum (stored ${denseCharge.map(d => d.rule[0]!.stored[BEATS]).join(', ')} of ${denseCharge[0]!.rule[0]!.stored[0]}) and its charge wave reads ${ruleLate.map(f4).join(', ')} at 96 (half-times ${ruleTau.map(v => v.toFixed(1)).join(', ')}), the K-off control ${controlLate.map(f4).join(', ')} with ${Math.max(...denseCharge.flatMap(d => d.control.map(r => r.linesBroken)))} lines broken; true mesh: a lone love's husk shadow moves at most ${f4(shadowWorst)} lattice units over ${allLone.length} runs while it reaches ball distance ${keepReach} on the keep path${failed.length ? `; FAILED ${failed.join(', ')}` : ''}`,
       metrics,
       control: {
         controlLateSpread: spread(controlLate),
-        controlLinesBroken: Math.max(...denseCharge.flatMap(d => d.control.map(r => r.linesBroken))),
+        controlLinesBroken: Math.max(
+          ...denseCharge.flatMap(d =>
+            d.control.map(r => r.linesBroken),
+          ),
+        ),
         ruleLateSpread: spread(ruleLate),
       },
-      notes: `L2. Gates: ${gates.map(([n, v]) => `${n} ${v}`).join(', ')}. LINEAR, Born: waves ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(bornWaves[i]!)}]`).join('; ')}; half-times ${tauBorn.map(v => v.toFixed(2)).join(', ')}, diffusivities ${diffBorn.map(f4).join(', ')}; one-line law ${lineReport(born)}; per-class <s^2> at 96 from ${f4(Math.min(...classSeconds))} to ${f4(Math.max(...classSeconds))}; dispersion A(96) at |K| ${DISPERSION_K.join(', ')}: ${DIRECTIONS.map((dir, i) => `${dir.name} ${dispersion[i]!.map(f4).join(' ')}`).join('; ')}; packet second-moment tensor ${packet.second.map(f4).join(' ')}. LINEAR, keep: waves ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(keepWaves[i]!)}]`).join('; ')}; first negative beat ${keepFirstZero.join(', ')}; one-line law ${lineReport(keep)}. DENSE, Born, rule: ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseCharge[i]!.ruleWave)}] K docks ${denseCharge[i]!.rule[0]!.kDocks}, stored ${denseCharge[i]!.rule.map(r => `${r.stored[0]} to ${r.stored[BEATS]}`).join(' and ')}`).join('; ')}; diffusivities ${ruleDiff.map(f4).join(', ')}. DENSE, Born, K-off control: ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseCharge[i]!.controlWave)}] would-be K docks ${denseCharge[i]!.control[0]!.kDocks}, stored ${denseCharge[i]!.control.map(r => `${r.stored[0]} to ${r.stored[BEATS]}`).join(' and ')}, lines broken ${denseCharge[i]!.control.map(r => r.linesBroken).join('/')}`).join('; ')}. DENSE, keep, count wave (sound, reported): ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseSound[i]!.wave)}] first negative beat ${soundZero[i]}, speed ${f4(soundSpeed[i] as number)}`).join('; ')} (predicted 0.7071 if FCHC-type). TRUE MESH: ${large.ball.cells} and ${small.ball.cells} docks; lone loves ${allLone.length} runs, worst husk-shadow displacement ${f4(shadowWorst)} (bound ${SHADOW_BOUND}), keep-path bulk reach min ${keepReach}; class-averaged husk wave at |K| = 2 pi / 8, least over 48 beats (Born; keep) axis/face/body ${ballWave.map(w => w.map(f4).join('/')).join('; ')}; dense packet (every dock within distance 2, one love each), husk-shadow rms radius at beats ${REPORT_BEATS.join(', ')}: rule ${packets[0]!.radius.map(f4).join(' ')} (centroid shift ${packets[0]!.centroidShift.map(f4).join(' ')}, K docks ${packets[0]!.kDocks}), K-off ${packets[1]!.radius.map(f4).join(' ')} (centroid shift ${packets[1]!.centroidShift.map(f4).join(' ')}, would-be K docks ${packets[1]!.kDocks}). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      notes: `L2. Gates: ${gates.map(([n, v]) => `${n} ${v}`).join(', ')}. LINEAR, Born: waves ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(bornWaves[i]!)}]`).join('; ')}; half-times ${tauBorn.map(v => v.toFixed(2)).join(', ')}, diffusivities ${diffBorn.map(f4).join(', ')}; one-line law ${lineReport(born)}; per-class <s^2> at 96 from ${f4(Math.min(...classSeconds))} to ${f4(Math.max(...classSeconds))}; dispersion A(96) at |K| ${DISPERSION_K.join(', ')}: ${DIRECTIONS.map((dir, i) => `${dir.name} ${dispersion[i]!.map(f4).join(' ')}`).join('; ')}; packet second-moment tensor ${packet.second.map(f4).join(' ')}. LINEAR, keep: waves ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(keepWaves[i]!)}]`).join('; ')}; first negative beat ${keepFirstZero.join(', ')}; one-line law ${lineReport(keep)}. DENSE, Born, rule: ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseCharge[i]!.ruleWave)}] K docks ${denseCharge[i]!.rule[0]!.kDocks}, stored ${denseCharge[i]!.rule.map(r => `${r.stored[0]} to ${r.stored[BEATS]}`).join(' and ')}`).join('; ')}; diffusivities ${ruleDiff.map(f4).join(', ')}. DENSE, Born, K-off control: ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseCharge[i]!.controlWave)}] would-be K docks ${denseCharge[i]!.control[0]!.kDocks}, stored ${denseCharge[i]!.control.map(r => `${r.stored[0]} to ${r.stored[BEATS]}`).join(' and ')}, lines broken ${denseCharge[i]!.control.map(r => r.linesBroken).join('/')}`).join('; ')}. DENSE, keep, count wave (sound, reported): ${DIRECTIONS.map((dir, i) => `${dir.name} [${series(denseSound[i]!.wave)}] first negative beat ${soundZero[i]}, speed ${f4(soundSpeed[i]!)}`).join('; ')} (predicted 0.7071 if FCHC-type). TRUE MESH: ${large.ball.cells} and ${small.ball.cells} docks; lone loves ${allLone.length} runs, worst husk-shadow displacement ${f4(shadowWorst)} (bound ${SHADOW_BOUND}), keep-path bulk reach min ${keepReach}; class-averaged husk wave at |K| = 2 pi / 8, least over 48 beats (Born; keep) axis/face/body ${ballWave.map(w => w.map(f4).join('/')).join('; ')}; dense packet (every dock within distance 2, one love each), husk-shadow rms radius at beats ${REPORT_BEATS.join(', ')}: rule ${packets[0]!.radius.map(f4).join(' ')} (centroid shift ${packets[0]!.centroidShift.map(f4).join(' ')}, K docks ${packets[0]!.kDocks}), K-off ${packets[1]!.radius.map(f4).join(' ')} (centroid shift ${packets[1]!.centroidShift.map(f4).join(' ')}, would-be K docks ${packets[1]!.kDocks}). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

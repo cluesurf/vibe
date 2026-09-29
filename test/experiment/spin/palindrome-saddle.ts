@@ -38,11 +38,14 @@ import { type Step } from '@/code/rule/spinor-token'
 import { bandHessian, restGap } from '@/code/measure/token-gates'
 
 const MODEL_COIN = Math.PI / 3
+
 type Letter = 'x' | 'y' | 'z' | 'P'
 type Shape = 'bowl' | 'saddle' | 'flat' | 'massless'
 
-const stepsOf = (word: readonly Letter[]): Step[] => word.flatMap((l): Step[] => (l === 'P' ? ['up', 'down'] : [l]))
-const isPalindrome = <T,>(w: readonly T[]): boolean => w.every((l, i) => l === w[w.length - 1 - i])
+const stepsOf = (word: readonly Letter[]): Step[] =>
+  word.flatMap((l): Step[] => (l === 'P' ? ['up', 'down'] : [l]))
+const isPalindrome = <T>(w: readonly T[]): boolean =>
+  w.every((l, i) => l === w[w.length - 1 - i])
 
 function shape3(word: readonly Letter[]): Shape {
   const steps = stepsOf(word)
@@ -53,14 +56,25 @@ function shape3(word: readonly Letter[]): Shape {
 
   const h = bandHessian(steps, 'locked')
   const a = h[0]?.[0] ?? 0
-  const scale = Math.max(...[0, 1, 2].map(i => Math.abs(h[i]?.[i] ?? 0)), 1e-12)
+  const scale = Math.max(
+    ...[0, 1, 2].map(i => Math.abs(h[i]?.[i] ?? 0)),
+    1e-12,
+  )
   const d2 = a * (h[1]?.[1] ?? 0) - (h[0]?.[1] ?? 0) ** 2
   const d3 =
     a * ((h[1]?.[1] ?? 0) * (h[2]?.[2] ?? 0) - (h[1]?.[2] ?? 0) ** 2) -
-    (h[0]?.[1] ?? 0) * ((h[0]?.[1] ?? 0) * (h[2]?.[2] ?? 0) - (h[1]?.[2] ?? 0) * (h[0]?.[2] ?? 0)) +
-    (h[0]?.[2] ?? 0) * ((h[0]?.[1] ?? 0) * (h[1]?.[2] ?? 0) - (h[1]?.[1] ?? 0) * (h[0]?.[2] ?? 0))
+    (h[0]?.[1] ?? 0) *
+      ((h[0]?.[1] ?? 0) * (h[2]?.[2] ?? 0) -
+        (h[1]?.[2] ?? 0) * (h[0]?.[2] ?? 0)) +
+    (h[0]?.[2] ?? 0) *
+      ((h[0]?.[1] ?? 0) * (h[1]?.[2] ?? 0) -
+        (h[1]?.[1] ?? 0) * (h[0]?.[2] ?? 0))
 
-  if (Math.abs(a) < 1e-8 * scale || Math.abs(d2) < 1e-8 * scale ** 2 || Math.abs(d3) < 1e-8 * scale ** 3) {
+  if (
+    Math.abs(a) < 1e-8 * scale ||
+    Math.abs(d2) < 1e-8 * scale ** 2 ||
+    Math.abs(d3) < 1e-8 * scale ** 3
+  ) {
     return 'flat'
   }
 
@@ -77,23 +91,50 @@ const PLANES = [
 function planarBowls(word: readonly Letter[]): boolean {
   const steps = stepsOf(word)
 
-  return PLANES.every(([a, b]) => tokenG({ schedule: steps.map((s): TokenStep => ({ axis: s === a ? 'x' : s === b ? 'y' : 'none' })), mu: MODEL_COIN }).bowl)
+  return PLANES.every(
+    ([a, b]) =>
+      tokenG({
+        schedule: steps.map(
+          (s): TokenStep => ({
+            axis: s === a ? 'x' : s === b ? 'y' : 'none',
+          }),
+        ),
+        mu: MODEL_COIN,
+      }).bowl,
+  )
 }
 
-function wordsOf(length: number, letters: readonly Letter[]): Letter[][] {
+function wordsOf(
+  length: number,
+  letters: readonly Letter[],
+): Letter[][] {
   const out: Letter[][] = []
 
   for (let code = 0; code < letters.length ** length; code++) {
-    out.push(Array.from({ length }, (_, k) => letters[Math.floor(code / letters.length ** k) % letters.length] ?? 'P'))
+    out.push(
+      Array.from(
+        { length },
+        (_, k) =>
+          letters[
+            Math.floor(code / letters.length ** k) % letters.length
+          ] ?? 'P',
+      ),
+    )
   }
 
   return out
 }
 
-function palindromesOf(length: number, letters: readonly Letter[]): Letter[][] {
+function palindromesOf(
+  length: number,
+  letters: readonly Letter[],
+): Letter[][] {
   const half = Math.ceil(length / 2)
 
-  return wordsOf(half, letters).map(h => [...h, ...h.slice(0, length - half).reverse()])
+  return wordsOf(half, letters).map(h => [
+    ...h,
+    ...h.slice(0, length - half).reverse(),
+  ])
 }
 
 export default experiment({
@@ -107,40 +148,82 @@ export default experiment({
   paper: false,
   run() {
     // G1
-    const xyyx = tokenG({ schedule: [{ axis: 'x' }, { axis: 'y' }, { axis: 'y' }, { axis: 'x' }], mu: MODEL_COIN })
-    const g1 = xyyx.bowl && Math.abs(xyyx.restGap) > 1e-9 && Math.abs(xyyx.g - 1) < 1e-9
+    const xyyx = tokenG({
+      schedule: [
+        { axis: 'x' },
+        { axis: 'y' },
+        { axis: 'y' },
+        { axis: 'x' },
+      ],
+      mu: MODEL_COIN,
+    })
+    const g1 =
+      xyyx.bowl &&
+      Math.abs(xyyx.restGap) > 1e-9 &&
+      Math.abs(xyyx.g - 1) < 1e-9
 
     // G2: E-SPN-0053's family
-    const family: { word: Letter[]; palindrome: boolean; shape: Shape }[] = []
+    const family: {
+      word: Letter[]
+      palindrome: boolean
+      shape: Shape
+    }[] = []
 
     for (const a of [0, 1, 2]) {
       for (const b of [0, 1, 2]) {
-        const pal: Letter[] = ['x', 'y', 'z', ...Array<Letter>(a).fill('P'), 'z', 'y', 'x', ...Array<Letter>(b).fill('P')]
+        const pal: Letter[] = [
+          'x',
+          'y',
+          'z',
+          ...Array<Letter>(a).fill('P'),
+          'z',
+          'y',
+          'x',
+          ...Array<Letter>(b).fill('P'),
+        ]
 
         family.push({ word: pal, palindrome: true, shape: shape3(pal) })
       }
 
-      const non: Letter[] = ['x', 'y', 'z', ...Array<Letter>(a).fill('P')]
+      const non: Letter[] = [
+        'x',
+        'y',
+        'z',
+        ...Array<Letter>(a).fill('P'),
+      ]
 
       family.push({ word: non, palindrome: false, shape: shape3(non) })
     }
 
     const massiveFamily = family.filter(f => f.shape !== 'massless')
-    const g2 = massiveFamily.length > 0 && massiveFamily.every(f => (f.palindrome ? f.shape === 'saddle' : f.shape === 'bowl'))
+    const g2 =
+      massiveFamily.length > 0 &&
+      massiveFamily.every(f =>
+        f.palindrome ? f.shape === 'saddle' : f.shape === 'bowl',
+      )
 
     // G3, G4: the 3D enumeration
     const letters: Letter[] = ['x', 'y', 'z', 'P']
     const seen = new Set<string>()
-    const tally = { palindrome: { bowl: 0, saddle: 0, flat: 0, massless: 0 }, other: { bowl: 0, saddle: 0, flat: 0, massless: 0 } }
+    const tally = {
+      palindrome: { bowl: 0, saddle: 0, flat: 0, massless: 0 },
+      other: { bowl: 0, saddle: 0, flat: 0, massless: 0 },
+    }
+
     let agree = 0
     let disagree = 0
     let massiveWords = 0
+
     const bowlPalindromes: string[] = []
     const disagreements: string[] = []
+
     const consider = (word: Letter[]): void => {
       const key = word.join('')
 
-      if (seen.has(key) || !(['x', 'y', 'z'] as const).every(a => word.includes(a))) {
+      if (
+        seen.has(key) ||
+        !(['x', 'y', 'z'] as const).every(a => word.includes(a))
+      ) {
         return
       }
 
@@ -182,7 +265,19 @@ export default experiment({
       palindromesOf(length, letters).forEach(consider)
     }
 
-    const nested: Letter[] = ['z', 'P', 'x', 'P', 'y', 'P', 'y', 'P', 'x', 'P', 'z']
+    const nested: Letter[] = [
+      'z',
+      'P',
+      'x',
+      'P',
+      'y',
+      'P',
+      'y',
+      'P',
+      'x',
+      'P',
+      'z',
+    ]
     const nestedShape = shape3(nested)
 
     consider(nested)
@@ -195,14 +290,24 @@ export default experiment({
       const half = Math.ceil(length / 2)
 
       for (let code = 0; code < 3 ** half; code++) {
-        const h = Array.from({ length: half }, (_, k) => 'xy-'[Math.floor(code / 3 ** k) % 3] ?? '-')
+        const h = Array.from(
+          { length: half },
+          (_, k) => 'xy-'[Math.floor(code / 3 ** k) % 3] ?? '-',
+        )
         const word = [...h, ...h.slice(0, length - half).reverse()]
 
         if (!word.includes('x') || !word.includes('y')) {
           continue
         }
 
-        const r = tokenG({ schedule: word.map((c): TokenStep => ({ axis: c === '-' ? 'none' : (c as 'x' | 'y') })), mu: MODEL_COIN })
+        const r = tokenG({
+          schedule: word.map(
+            (c): TokenStep => ({
+              axis: c === '-' ? 'none' : (c as 'x' | 'y'),
+            }),
+          ),
+          mu: MODEL_COIN,
+        })
 
         if (Math.abs(r.restGap) < 1e-9) {
           planar.massless++
@@ -218,21 +323,38 @@ export default experiment({
       }
     }
 
-    const g3 = tally.palindrome.bowl > 0 && nestedShape === 'bowl' && planar.bowl > 0
+    const g3 =
+      tally.palindrome.bowl > 0 &&
+      nestedShape === 'bowl' &&
+      planar.bowl > 0
     const g4 = massiveWords > 0 && disagree === 0
     const ok = g1 && g2 && g3 && g4
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `x, y, y, x is a ${xyyx.bowl ? 'bowl' : 'saddle'} with g = ${xyyx.g.toFixed(9)}; on E-SPN-0053's family the massive palindromes are ${massiveFamily.filter(f => f.palindrome).map(f => f.shape).join(', ')} and the massive non-palindromes ${massiveFamily.filter(f => !f.palindrome).map(f => f.shape).join(', ')}; over ${seen.size} 3D words (all up to 6 letters, palindromes to 9, letters x, y, z and the depth pair P) the palindromes are ${tally.palindrome.bowl} bowls, ${tally.palindrome.saddle} saddles, ${tally.palindrome.flat} flat and ${tally.palindrome.massless} massless, the other words ${tally.other.bowl}, ${tally.other.saddle}, ${tally.other.flat} and ${tally.other.massless}; the nested palindrome is a ${nestedShape}; planar palindromes over x, y, - up to length 8: ${planar.bowl} bowls, ${planar.saddle} saddles, ${planar.massless} massless; the 3D shape is a bowl exactly when all three planes are second-order bowls on ${agree} of ${massiveWords} massive words`,
+      claim: `x, y, y, x is a ${xyyx.bowl ? 'bowl' : 'saddle'} with g = ${xyyx.g.toFixed(9)}; on E-SPN-0053's family the massive palindromes are ${massiveFamily
+        .filter(f => f.palindrome)
+        .map(f => f.shape)
+        .join(', ')} and the massive non-palindromes ${massiveFamily
+        .filter(f => !f.palindrome)
+        .map(f => f.shape)
+        .join(
+          ', ',
+        )}; over ${seen.size} 3D words (all up to 6 letters, palindromes to 9, letters x, y, z and the depth pair P) the palindromes are ${tally.palindrome.bowl} bowls, ${tally.palindrome.saddle} saddles, ${tally.palindrome.flat} flat and ${tally.palindrome.massless} massless, the other words ${tally.other.bowl}, ${tally.other.saddle}, ${tally.other.flat} and ${tally.other.massless}; the nested palindrome is a ${nestedShape}; planar palindromes over x, y, - up to length 8: ${planar.bowl} bowls, ${planar.saddle} saddles, ${planar.massless} massless; the 3D shape is a bowl exactly when all three planes are second-order bowls on ${agree} of ${massiveWords} massive words`,
       metrics: {
         xyyxBowl: xyyx.bowl ? 1 : 0,
         xyyxG: xyyx.g,
         familyMassive: massiveFamily.length,
-        familyPalindromeSaddles: massiveFamily.filter(f => f.palindrome && f.shape === 'saddle').length,
-        familyPalindromes: massiveFamily.filter(f => f.palindrome).length,
-        familyNonPalindromeBowls: massiveFamily.filter(f => !f.palindrome && f.shape === 'bowl').length,
-        familyNonPalindromes: massiveFamily.filter(f => !f.palindrome).length,
+        familyPalindromeSaddles: massiveFamily.filter(
+          f => f.palindrome && f.shape === 'saddle',
+        ).length,
+        familyPalindromes: massiveFamily.filter(f => f.palindrome)
+          .length,
+        familyNonPalindromeBowls: massiveFamily.filter(
+          f => !f.palindrome && f.shape === 'bowl',
+        ).length,
+        familyNonPalindromes: massiveFamily.filter(f => !f.palindrome)
+          .length,
         words3d: seen.size,
         palindromeBowls: tally.palindrome.bowl,
         palindromeSaddles: tally.palindrome.saddle,

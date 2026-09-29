@@ -79,18 +79,61 @@ import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { gridMoves } from '@/code/rule/vibe-weave'
 import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { cloneConfiguration, lockedBeat, lockedState, mergeBranches, newTally, type Branch, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { dockAllows, meetBranch, pairPiece, toWords, vetoBeat, VETO_KINDS, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { idRun, lockedFresh, sameOccupation, vacuumConfiguration, THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP, type LockedFresh } from '@/code/measure/doublet-locked-readings'
+import {
+  cloneConfiguration,
+  lockedBeat,
+  lockedState,
+  mergeBranches,
+  newTally,
+  type Branch,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  dockAllows,
+  meetBranch,
+  pairPiece,
+  toWords,
+  vetoBeat,
+  VETO_KINDS,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  idRun,
+  lockedFresh,
+  sameOccupation,
+  vacuumConfiguration,
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
 import { vetoPathRunner } from '@/code/measure/occupation-veto-readings'
 
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const K1_SEEDS = [0, 7, 13, 20]
 
 // full equality of two configurations (vibes, held points, open bits, stores, stored words, stored open bits)
 function sameAll(a: Configuration, b: Configuration): boolean {
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && (a.point[i] !== b.point[i] || a.open[i] !== b.open[i]))) return false
-  for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i]))) return false
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 &&
+        (a.point[i] !== b.point[i] || a.open[i] !== b.open[i]))
+    ) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.store.length; i++) {
+    if (
+      a.store[i] !== b.store[i] ||
+      (a.store[i] !== 0 &&
+        (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i]))
+    ) {
+      return false
+    }
+  }
 
   return true
 }
@@ -99,23 +142,49 @@ function sameAll(a: Configuration, b: Configuration): boolean {
 function oldAgainstWords(o: Configuration, w: Configuration): number {
   let n = 0
 
-  for (let i = 0; i < o.vibe.length; i++) if (o.vibe[i] !== w.vibe[i] || (o.vibe[i] !== 0 && o.point[i] !== w.point[i])) n++
-  for (let i = 0; i < o.store.length; i++) if (o.store[i] !== w.store[i] || (o.store[i] !== 0 && 10 * (o.spoint[i] as number) !== w.spoint[i])) n++
+  for (let i = 0; i < o.vibe.length; i++) {
+    if (
+      o.vibe[i] !== w.vibe[i] ||
+      (o.vibe[i] !== 0 && o.point[i] !== w.point[i])
+    ) {
+      n++
+    }
+  }
+
+  for (let i = 0; i < o.store.length; i++) {
+    if (
+      o.store[i] !== w.store[i] ||
+      (o.store[i] !== 0 && 10 * o.spoint[i]! !== w.spoint[i])
+    ) {
+      n++
+    }
+  }
 
   return n
 }
 
 // ---- T1 ----
 function likeMeeting(): { cases: number; failures: number } {
-  const i = LINE_FIRSTS[0] as number
-  const j = LINE_SECONDS[0] as number
+  const i = LINE_FIRSTS[0]!
+  const j = LINE_SECONDS[0]!
+
   let cases = 0
   let failures = 0
 
   for (const tone of [1, -1]) {
     for (let p = 0; p < 9; p++) {
       for (let q = 0; q < 9; q++) {
-        const br: Branch = { vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12), a: 1n, b: 0n, k: 0 }
+        const br: Branch = {
+          vibe: new Int8Array(24),
+          point: new Int8Array(24),
+          open: new Uint8Array(24),
+          store: new Int8Array(12),
+          spoint: new Int8Array(12),
+          sopen: new Uint8Array(12),
+          a: 1n,
+          b: 0n,
+          k: 0,
+        }
 
         br.vibe[i] = tone
         br.vibe[j] = tone
@@ -125,23 +194,67 @@ function likeMeeting(): { cases: number; failures: number } {
         br.open[j] = 1
 
         const start = cloneConfiguration(br)
-        const out = meetBranch({ ...cloneConfiguration(br), a: 1n, b: 0n, k: 0 }, 1, false)
-        let ok = out.every(o => sameOccupation(o, start) && Math.min(o.point[i] as number, o.point[j] as number) === Math.min(p, q) && Math.max(o.point[i] as number, o.point[j] as number) === Math.max(p, q))
+        const out = meetBranch(
+          { ...cloneConfiguration(br), a: 1n, b: 0n, k: 0 },
+          1,
+          false,
+        )
 
-        if (p === q) ok = ok && out.length === 1 && out[0]!.a === 0n && out[0]!.b === 1n && out[0]!.k === 0
-        else {
+        let ok = out.every(
+          o =>
+            sameOccupation(o, start) &&
+            Math.min(o.point[i]!, o.point[j]!) === Math.min(p, q) &&
+            Math.max(o.point[i]!, o.point[j]!) === Math.max(p, q),
+        )
+
+        if (p === q) {
+          ok =
+            ok &&
+            out.length === 1 &&
+            out[0]!.a === 0n &&
+            out[0]!.b === 1n &&
+            out[0]!.k === 0
+        } else {
           const keep = out.find(o => o.point[i] === p)
           const exch = out.find(o => o.point[i] === q)
 
-          ok = ok && out.length === 2 && !!keep && !!exch && keep.k === 1 && exch.k === 1
+          ok =
+            ok &&
+            out.length === 2 &&
+            !!keep &&
+            !!exch &&
+            keep.k === 1 &&
+            exch.k === 1
+
           // K + E = w and K - E = 1, numerators over 2
-          ok = ok && !!keep && !!exch && keep.a + exch.a === 0n && keep.b + exch.b === 2n && keep.a - exch.a === 2n && keep.b - exch.b === 0n
+          ok =
+            ok &&
+            !!keep &&
+            !!exch &&
+            keep.a + exch.a === 0n &&
+            keep.b + exch.b === 2n &&
+            keep.a - exch.a === 2n &&
+            keep.b - exch.b === 0n
         }
 
         // the adjoint meeting returns the start with amplitude 1
-        const back = mergeBranches(out.flatMap(o => meetBranch({ ...cloneConfiguration(o), a: o.a, b: o.b, k: o.k }, 1, true)))
+        const back = mergeBranches(
+          out.flatMap(o =>
+            meetBranch(
+              { ...cloneConfiguration(o), a: o.a, b: o.b, k: o.k },
+              1,
+              true,
+            ),
+          ),
+        )
 
-        ok = ok && back.length === 1 && back[0]!.a === 1n && back[0]!.b === 0n && back[0]!.k === 0 && sameAll(back[0]!, start)
+        ok =
+          ok &&
+          back.length === 1 &&
+          back[0]!.a === 1n &&
+          back[0]!.b === 0n &&
+          back[0]!.k === 0 &&
+          sameAll(back[0]!, start)
         cases++
         failures += ok ? 0 : 1
       }
@@ -153,7 +266,12 @@ function likeMeeting(): { cases: number; failures: number } {
 
 // the configurations of a kind's side-4 Born path, 48 beats
 function bornHistory(kind: VetoKind, f: LockedFresh): Configuration[] {
-  const run = vetoPathRunner(kind, f.tables, toWords(vacuumConfiguration(f, 'all')), THRESHOLD_BORN)
+  const run = vetoPathRunner(
+    kind,
+    f.tables,
+    toWords(vacuumConfiguration(f, 'all')),
+    THRESHOLD_BORN,
+  )
   const out: Configuration[] = [cloneConfiguration(run.state())]
 
   for (let t = 0; t < 48; t++) {
@@ -165,19 +283,29 @@ function bornHistory(kind: VetoKind, f: LockedFresh): Configuration[] {
 }
 
 // ---- T2 (a): a dock decision under slot-by-slot point changes ----
-function blindness(kind: VetoKind, history: readonly Configuration[], cells: number): { docks: number; changed: number } {
+function blindness(
+  kind: VetoKind,
+  history: readonly Configuration[],
+  cells: number,
+): { docks: number; changed: number } {
   let docks = 0
   let changed = 0
 
   for (const c of history) {
     const d = cloneConfiguration(c)
 
-    for (let i = 0; i < d.point.length; i++) d.point[i] = ((d.point[i] as number) + (i % 24)) % 9
-    for (let l = 0; l < d.spoint.length; l++) d.spoint[l] = ((d.spoint[l] as number) + (l % 12) + 1) % 81
+    for (let i = 0; i < d.point.length; i++) {
+      d.point[i] = (d.point[i]! + (i % 24)) % 9
+    }
+
+    for (let l = 0; l < d.spoint.length; l++) {
+      d.spoint[l] = (d.spoint[l]! + (l % 12) + 1) % 81
+    }
 
     for (let x = 0; x < cells; x++) {
       docks++
-      changed += dockAllows(kind, c, x) === dockAllows(kind, d, x) ? 0 : 1
+      changed +=
+        dockAllows(kind, c, x) === dockAllows(kind, d, x) ? 0 : 1
     }
   }
 
@@ -185,7 +313,11 @@ function blindness(kind: VetoKind, history: readonly Configuration[], cells: num
 }
 
 // ---- T4 ----
-function involution(kind: VetoKind, history: readonly Configuration[], cells: number): number {
+function involution(
+  kind: VetoKind,
+  history: readonly Configuration[],
+  cells: number,
+): number {
   let failures = 0
 
   for (const c of history) {
@@ -202,8 +334,16 @@ function involution(kind: VetoKind, history: readonly Configuration[], cells: nu
 }
 
 // ---- T2 (c), T3: single exchanges of the vacuum's first period ----
-function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; changed: number; decisionChanged: number } {
-  const keep = vetoPathRunner(kind, f.tables, toWords(vacuumConfiguration(f, 'all')), THRESHOLD_KEEP)
+function sensitivity(
+  kind: VetoKind,
+  f: LockedFresh,
+): { meetings: number; changed: number; decisionChanged: number } {
+  const keep = vetoPathRunner(
+    kind,
+    f.tables,
+    toWords(vacuumConfiguration(f, 'all')),
+    THRESHOLD_KEEP,
+  )
   const history: Configuration[] = [cloneConfiguration(keep.state())]
 
   for (let t = 0; t < 6; t++) {
@@ -216,30 +356,46 @@ function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; change
   let decisionChanged = 0
 
   for (let t0 = 1; t0 <= 3; t0++) {
-    const s = history[t0] as Configuration
+    const s = history[t0]!
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (s.vibe[i] === 0 || s.vibe[i] !== s.vibe[j] || s.point[i] === s.point[j]) continue
+        if (
+          s.vibe[i] === 0 ||
+          s.vibe[i] !== s.vibe[j] ||
+          s.point[i] === s.point[j]
+        ) {
+          continue
+        }
 
         meetings++
 
         const p = cloneConfiguration(s)
-        const a = p.point[i] as number
+        const a = p.point[i]!
 
-        p.point[i] = p.point[j] as number
+        p.point[i] = p.point[j]!
         p.point[j] = a
-        decisionChanged += dockAllows('pairing', s, x) === dockAllows('pairing', p, x) ? 0 : 1
+        decisionChanged +=
+          dockAllows('pairing', s, x) === dockAllows('pairing', p, x)
+            ? 0
+            : 1
 
-        const run = vetoPathRunner(kind, f.tables, p, THRESHOLD_KEEP, t0)
+        const run = vetoPathRunner(
+          kind,
+          f.tables,
+          p,
+          THRESHOLD_KEEP,
+          t0,
+        )
+
         let differs = false
 
         for (let k = 0; k < 2 && !differs; k++) {
           run.beat()
-          differs = !sameOccupation(run.state(), history[t0 + k + 1] as Configuration)
+          differs = !sameOccupation(run.state(), history[t0 + k + 1]!)
         }
 
         changed += differs ? 1 : 0
@@ -251,8 +407,18 @@ function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; change
 }
 
 // ---- T2 (b): one occupation on every path and start ----
-function onePath(kind: VetoKind, f: LockedFresh, threshold: number, beats: number): Int8Array[] {
-  const run = vetoPathRunner(kind, f.tables, toWords(vacuumConfiguration(f, 'all')), threshold)
+function onePath(
+  kind: VetoKind,
+  f: LockedFresh,
+  threshold: number,
+  beats: number,
+): Int8Array[] {
+  const run = vetoPathRunner(
+    kind,
+    f.tables,
+    toWords(vacuumConfiguration(f, 'all')),
+    threshold,
+  )
   const out: Int8Array[] = []
 
   for (let t = 0; t < beats; t++) {
@@ -269,18 +435,28 @@ function onePath(kind: VetoKind, f: LockedFresh, threshold: number, beats: numbe
   return out
 }
 
-const sameBytes = (a: Int8Array, b: Int8Array): boolean => a.length === b.length && a.every((v, i) => v === b[i])
+const sameBytes = (a: Int8Array, b: Int8Array): boolean =>
+  a.length === b.length && a.every((v, i) => v === b[i])
 
 // ---- T5 ----
-function classical(kind: VetoKind, f: LockedFresh, beats: number): number {
+function classical(
+  kind: VetoKind,
+  f: LockedFresh,
+  beats: number,
+): number {
   let old: LockedState = lockedState(vacuumConfiguration(f, 'none'))
-  let mine: LockedState = lockedState(toWords(vacuumConfiguration(f, 'none')))
+  let mine: LockedState = lockedState(
+    toWords(vacuumConfiguration(f, 'none')),
+  )
   let mismatches = 0
 
   for (let t = 0; t < beats; t++) {
     old = lockedBeat(f.tables, old, t)
     mine = vetoBeat(kind, f.tables, mine, t)
-    mismatches += old.branches.length === 1 && mine.branches.length === 1 ? oldAgainstWords(old.branches[0]!, mine.branches[0]!) : 1
+    mismatches +=
+      old.branches.length === 1 && mine.branches.length === 1
+        ? oldAgainstWords(old.branches[0]!, mine.branches[0]!)
+        : 1
   }
 
   return mismatches
@@ -290,9 +466,18 @@ function classical(kind: VetoKind, f: LockedFresh, beats: number): number {
 function firstLikePair(f: LockedFresh): [number, number] | undefined {
   const all = new Map<number, [number, number]>()
 
-  for (let line = 0; line < f.store.length; line++) if (f.store[line] !== 0) all.set(line, [2 * line, 2 * line + 1])
+  for (let line = 0; line < f.store.length; line++) {
+    if (f.store[line] !== 0) {
+      all.set(line, [2 * line, 2 * line + 1])
+    }
+  }
 
-  const r = idRun(f.tables, f.weave, vacuumConfiguration(f, 'none'), all)
+  const r = idRun(
+    f.tables,
+    f.weave,
+    vacuumConfiguration(f, 'none'),
+    all,
+  )
 
   for (let t = 0; t < 12; t++) {
     const c = r.state()
@@ -300,10 +485,18 @@ function firstLikePair(f: LockedFresh): [number, number] | undefined {
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (c.vibe[i] !== 0 && c.vibe[i] === c.vibe[j] && c.point[i] !== c.point[j] && (ids[i] as number) >= 0 && (ids[j] as number) >= 0) return [ids[i] as number, ids[j] as number]
+        if (
+          c.vibe[i] !== 0 &&
+          c.vibe[i] === c.vibe[j] &&
+          c.point[i] !== c.point[j] &&
+          ids[i]! >= 0 &&
+          ids[j]! >= 0
+        ) {
+          return [ids[i]!, ids[j]!]
+        }
       }
     }
 
@@ -313,14 +506,21 @@ function firstLikePair(f: LockedFresh): [number, number] | undefined {
   return undefined
 }
 
-function fidelity(f: LockedFresh, beats: number): { found: boolean; mismatches: number; branchesMax: number } {
+function fidelity(
+  f: LockedFresh,
+  beats: number,
+): { found: boolean; mismatches: number; branchesMax: number } {
   const pick = firstLikePair(f)
 
-  if (!pick) return { found: false, mismatches: 1, branchesMax: 0 }
+  if (!pick) {
+    return { found: false, mismatches: 1, branchesMax: 0 }
+  }
 
   const start = vacuumConfiguration(f, 'none')
 
-  for (const id of pick) start.sopen[id >> 1] = (start.sopen[id >> 1] as number) | (1 << (id & 1))
+  for (const id of pick) {
+    start.sopen[id >> 1] = start.sopen[id >> 1]! | (1 << (id & 1))
+  }
 
   let old: LockedState = lockedState(start)
   let mine: LockedState = lockedState(toWords(start))
@@ -341,7 +541,9 @@ function fidelity(f: LockedFresh, beats: number): { found: boolean; mismatches: 
       const w = toWords(b)
       const twin = mine.branches.find(o => sameAll(o, w))
 
-      if (!twin || twin.a !== b.a || twin.b !== b.b || twin.k !== b.k) mismatches++
+      if (!twin || twin.a !== b.a || twin.b !== b.b || twin.k !== b.k) {
+        mismatches++
+      }
     }
   }
 
@@ -353,6 +555,7 @@ function seeds(kind: VetoKind): number {
   const side = 8
   const center = centerOf(side)
   const g = lockedFresh(side, center)
+
   let mismatches = 0
 
   for (const tone of [1, -1]) {
@@ -368,7 +571,12 @@ function seeds(kind: VetoKind): number {
       for (let t = 0; t < 96; t++) {
         old = lockedBeat(g.tables, old, t)
         mine = vetoBeat(kind, g.tables, mine, t)
-        mismatches += old.branches.length === 1 && mine.branches.length === 1 && oldAgainstWords(old.branches[0]!, mine.branches[0]!) === 0 ? 0 : 1
+        mismatches +=
+          old.branches.length === 1 &&
+          mine.branches.length === 1 &&
+          oldAgainstWords(old.branches[0]!, mine.branches[0]!) === 0
+            ? 0
+            : 1
       }
     }
   }
@@ -387,14 +595,21 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const t1 = likeMeeting()
     const moves = gridMoves()
     const pairs = new Set<number>()
 
-    for (const a of moves.act) pairs.add((a[0] as number) * 9 + (a[1] as number))
+    for (const a of moves.act) {
+      pairs.add(a[0]! * 9 + a[1]!)
+    }
 
-    const twoTransitive = pairs.size === 72 && [...pairs].every(k => ((k / 9) | 0) !== k % 9)
+    const twoTransitive =
+      pairs.size === 72 &&
+      [...pairs].every(k => ((k / 9) | 0) !== k % 9)
 
     log('T1, T3 2-transitivity')
 
@@ -403,55 +618,134 @@ export default experiment({
       withStart(member, () => {
         const f4 = lockedFresh(4)
         const f8 = lockedFresh(8)
-        const born = Object.fromEntries(VETO_KINDS.map(k => [k, bornHistory(k, f4)])) as Record<VetoKind, Configuration[]>
-        const blind = Object.fromEntries(VETO_KINDS.map(k => [k, blindness(k, born.occupation, f4.cells)])) as Record<VetoKind, { docks: number; changed: number }>
-        const invol = Object.fromEntries(VETO_KINDS.map(k => [k, involution(k, born[k], f4.cells)])) as Record<VetoKind, number>
-        const sens = Object.fromEntries(VETO_KINDS.map(k => [k, sensitivity(k, f4)])) as Record<VetoKind, { meetings: number; changed: number; decisionChanged: number }>
-        const paths = [THRESHOLD_KEEP, THRESHOLD_BORN, THRESHOLD_EXCHANGE].map(th => onePath('occupation', f8, th, 96))
-        const pathsAgree = paths.every(p => p.every((o, t) => sameBytes(o, paths[0]![t]!)))
-        const classic = Object.fromEntries(VETO_KINDS.map(k => [k, classical(k, f8, 96)])) as Record<VetoKind, number>
+        const born = Object.fromEntries(
+          VETO_KINDS.map(k => [k, bornHistory(k, f4)]),
+        ) as Record<VetoKind, Configuration[]>
+        const blind = Object.fromEntries(
+          VETO_KINDS.map(k => [
+            k,
+            blindness(k, born.occupation, f4.cells),
+          ]),
+        ) as Record<VetoKind, { docks: number; changed: number }>
+        const invol = Object.fromEntries(
+          VETO_KINDS.map(k => [k, involution(k, born[k], f4.cells)]),
+        ) as Record<VetoKind, number>
+        const sens = Object.fromEntries(
+          VETO_KINDS.map(k => [k, sensitivity(k, f4)]),
+        ) as Record<
+          VetoKind,
+          { meetings: number; changed: number; decisionChanged: number }
+        >
+        const paths = [
+          THRESHOLD_KEEP,
+          THRESHOLD_BORN,
+          THRESHOLD_EXCHANGE,
+        ].map(th => onePath('occupation', f8, th, 96))
+        const pathsAgree = paths.every(p =>
+          p.every((o, t) => sameBytes(o, paths[0]![t]!)),
+        )
+        const classic = Object.fromEntries(
+          VETO_KINDS.map(k => [k, classical(k, f8, 96)]),
+        ) as Record<VetoKind, number>
         const fid = fidelity(f4, 48)
 
         log(`start ${member.name}`)
 
-        return { name: member.name, blind, invol, sens, keepOccupation: paths[0]!, pathsAgree, classic, fid }
+        return {
+          name: member.name,
+          blind,
+          invol,
+          sens,
+          keepOccupation: paths[0]!,
+          pathsAgree,
+          classic,
+          fid,
+        }
       }),
     )
 
-    const acrossStarts = perStart.every(p => p.keepOccupation.every((o, t) => sameBytes(o, perStart[0]!.keepOccupation[t]!)))
-    const seedMismatches = Object.fromEntries(VETO_KINDS.map(k => [k, seeds(k)])) as Record<VetoKind, number>
+    const acrossStarts = perStart.every(p =>
+      p.keepOccupation.every((o, t) =>
+        sameBytes(o, perStart[0]!.keepOccupation[t]!),
+      ),
+    )
+    const seedMismatches = Object.fromEntries(
+      VETO_KINDS.map(k => [k, seeds(k)]),
+    ) as Record<VetoKind, number>
 
     log('seeds')
 
     const gT1 = t1.failures === 0 && t1.cases === 162
-    const gT2 = perStart.every(p => p.blind.occupation.changed === 0 && p.pathsAgree && p.sens.occupation.changed === 0 && p.sens.point.meetings > 0 && p.sens.point.changed === p.sens.point.meetings) && acrossStarts
-    const gT3 = twoTransitive && perStart.every(p => VETO_KINDS.every(k => p.sens[k].decisionChanged === 0))
-    const gT4 = perStart.every(p => VETO_KINDS.every(k => p.invol[k] === 0))
-    const gT5 = perStart.every(p => VETO_KINDS.every(k => p.classic[k] === 0))
-    const gT6 = perStart.every(p => p.fid.found && p.fid.mismatches === 0)
-    const status = gT1 && gT2 && gT3 && gT4 && gT5 && gT6 ? 'pass' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const gT2 =
+      perStart.every(
+        p =>
+          p.blind.occupation.changed === 0 &&
+          p.pathsAgree &&
+          p.sens.occupation.changed === 0 &&
+          p.sens.point.meetings > 0 &&
+          p.sens.point.changed === p.sens.point.meetings,
+      ) && acrossStarts
+    const gT3 =
+      twoTransitive &&
+      perStart.every(p =>
+        VETO_KINDS.every(k => p.sens[k].decisionChanged === 0),
+      )
+    const gT4 = perStart.every(p =>
+      VETO_KINDS.every(k => p.invol[k] === 0),
+    )
+    const gT5 = perStart.every(p =>
+      VETO_KINDS.every(k => p.classic[k] === 0),
+    )
+    const gT6 = perStart.every(
+      p => p.fid.found && p.fid.mismatches === 0,
+    )
+    const status =
+      gT1 && gT2 && gT3 && gT4 && gT5 && gT6 ? 'pass' : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
     const metrics: Record<string, number> = {
       gateT1: gT1 ? 1 : 0,
       gateT2: gT2 ? 1 : 0,
       gateT3: gT3 ? 1 : 0,
       gateT4: gT4 ? 1 : 0,
-      gateT5: perStart.filter(p => VETO_KINDS.every(k => p.classic[k] === 0)).length,
-      gateT6: perStart.filter(p => p.fid.found && p.fid.mismatches === 0).length,
+      gateT5: perStart.filter(p =>
+        VETO_KINDS.every(k => p.classic[k] === 0),
+      ).length,
+      gateT6: perStart.filter(
+        p => p.fid.found && p.fid.mismatches === 0,
+      ).length,
       starts: family.length,
       meetingCases: t1.cases,
       orderedUnequalPairsReached: pairs.size,
-      firstPeriodExchangesMin: Math.min(...perStart.map(p => p.sens.point.meetings)),
-      changedUnderPointMin: Math.min(...perStart.map(p => p.sens.point.changed)),
-      changedUnderOccupationMax: Math.max(...perStart.map(p => p.sens.occupation.changed)),
-      changedUnderPairingMin: Math.min(...perStart.map(p => p.sens.pairing.changed)),
-      changedUnderPairingMax: Math.max(...perStart.map(p => p.sens.pairing.changed)),
-      pairingBlindChangedMax: Math.max(...perStart.map(p => p.blind.pairing.changed)),
-      pointBlindChangedMax: Math.max(...perStart.map(p => p.blind.point.changed)),
+      firstPeriodExchangesMin: Math.min(
+        ...perStart.map(p => p.sens.point.meetings),
+      ),
+      changedUnderPointMin: Math.min(
+        ...perStart.map(p => p.sens.point.changed),
+      ),
+      changedUnderOccupationMax: Math.max(
+        ...perStart.map(p => p.sens.occupation.changed),
+      ),
+      changedUnderPairingMin: Math.min(
+        ...perStart.map(p => p.sens.pairing.changed),
+      ),
+      changedUnderPairingMax: Math.max(
+        ...perStart.map(p => p.sens.pairing.changed),
+      ),
+      pairingBlindChangedMax: Math.max(
+        ...perStart.map(p => p.blind.pairing.changed),
+      ),
+      pointBlindChangedMax: Math.max(
+        ...perStart.map(p => p.blind.point.changed),
+      ),
       seedMismatchesOccupation: seedMismatches.occupation,
       seedMismatchesPairing: seedMismatches.pairing,
       seedMismatchesPoint: seedMismatches.point,
-      fidelityBranchesMax: Math.max(...perStart.map(p => p.fid.branchesMax)),
+      fidelityBranchesMax: Math.max(
+        ...perStart.map(p => p.fid.branchesMax),
+      ),
       seconds: (Date.now() - started) / 1000,
     }
 
@@ -461,14 +755,18 @@ export default experiment({
       metrics,
       control: {
         pointVetoSeedMismatches: seedMismatches.point,
-        pointVetoChangedEqualsMeetings: perStart.filter(p => p.sens.point.changed === p.sens.point.meetings).length,
+        pointVetoChangedEqualsMeetings: perStart.filter(
+          p => p.sens.point.changed === p.sens.point.meetings,
+        ).length,
       },
       notes: `L2 (L1 for T1 and 2-transitivity). Gates: T1 ${gT1}, T2 ${gT2}, T3 ${gT3}, T4 ${gT4}, T5 ${gT5}, T6 ${gT6}. Per start (blind changed point/occupation/pairing of docks; involution failures; first-period exchanges and changed within 2 beats point/occupation/pairing, pairing decision changed at the meeting; paths agree; classical mismatches; fidelity branches max and mismatches): ${perStart
         .map(
           p =>
             `${p.name} ${p.blind.point.changed}/${p.blind.occupation.changed}/${p.blind.pairing.changed} of ${p.blind.occupation.docks}; ${VETO_KINDS.map(k => p.invol[k]).join('/')}; ${p.sens.point.meetings}: ${p.sens.point.changed}/${p.sens.occupation.changed}/${p.sens.pairing.changed}, ${VETO_KINDS.map(k => p.sens[k].decisionChanged).join('/')}; ${p.pathsAgree}; ${VETO_KINDS.map(k => p.classic[k]).join('/')}; ${p.fid.branchesMax}, ${p.fid.mismatches}`,
         )
-        .join(' | ')}. Seeds (8 runs x 96 beats): ${JSON.stringify(seedMismatches)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .join(
+          ' | ',
+        )}. Seeds (8 runs x 96 beats): ${JSON.stringify(seedMismatches)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

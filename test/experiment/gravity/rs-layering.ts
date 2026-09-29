@@ -93,8 +93,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lapseLinks, openMesh, type OpenMesh } from '@/code/rule/open-husk'
-import { greenSolve, huskDock, openContent, stackLayers, stackModes } from '@/code/measure/open-husk'
+import {
+  lapseLinks,
+  openMesh,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  greenSolve,
+  huskDock,
+  openContent,
+  stackLayers,
+  stackModes,
+} from '@/code/measure/open-husk'
 import { periodicGreen } from '@/code/measure/husk-box'
 import {
   antipodeReading,
@@ -119,9 +129,15 @@ const PER_DOUBLING: readonly number[] = [1, 2, 4, 8, 16]
 const DEEP_FLOOR = 1e-10
 const KERNEL_FLOOR = 1e-30
 const KERNEL_P = 2e-3
-const FAR_R: readonly number[] = Array.from({ length: 13 }, (_, i) => 32 * 2 ** (i / 4))
+const FAR_R: readonly number[] = Array.from(
+  { length: 13 },
+  (_, i) => 32 * 2 ** (i / 4),
+)
 const LOCAL_R: readonly number[] = [4, 8, 16, 32, 64, 128]
-const FIT_R: readonly number[] = Array.from({ length: 13 }, (_, i) => i + 4)
+const FIT_R: readonly number[] = Array.from(
+  { length: 13 },
+  (_, i) => i + 4,
+)
 const SCREEN_NEAR = 2
 const SCREEN_FAR = 24
 const MACHINE = 1e-12
@@ -148,14 +164,30 @@ const AXES: readonly (readonly number[])[] = [
 // E-GRV-0105's linear reading: its source and sink, solved outright, the six-axis mean, the 1/r coefficient on r = 4 .. 16
 function latticeK(mesh: OpenMesh): number {
   const h = SIDE / 2
-  const rho = openContent(mesh, [{ at: [0, 0, 0], units: CONTENT, to: [h, h, h] }])
+  const rho = openContent(mesh, [
+    { at: [0, 0, 0], units: CONTENT, to: [h, h, h] },
+  ])
   const x = greenSolve(mesh, rho).x
-  const W = FIT_R.map(r => AXES.reduce((t, a) => t + x[huskDock(mesh, a.map(v => v * r))]!, 0) / AXES.length)
+  const W = FIT_R.map(
+    r =>
+      AXES.reduce(
+        (t, a) =>
+          t +
+          x[
+            huskDock(
+              mesh,
+              a.map(v => v * r),
+            )
+          ]!,
+        0,
+      ) / AXES.length,
+  )
 
   return inverseCoefficient(FIT_R, W)
 }
 
-const worstOff = (a: readonly number[], b: readonly number[]): number => Math.max(...a.map((v, i) => Math.abs(v / b[i]! - 1)))
+const worstOff = (a: readonly number[], b: readonly number[]): number =>
+  Math.max(...a.map((v, i) => Math.abs(v / b[i]! - 1)))
 
 type PerL = {
   L: number
@@ -186,21 +218,29 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
 
     // THE CURVATURE, from E-GRV-0105's own stack
     const aloneMesh = openMesh(SIDE, 0, 'shrink')
     const stackMesh = lapseLinks(openMesh(SIDE, LAYERS, 'shrink'))
     const stack = stackLayers(stackMesh.sides, 'lapse_upper')
     const spacing1 = Math.sqrt(stack.stiff[0]! / stack.conduct[0]!)
-    const k = Math.log(stack.stiff[0]! / stack.stiff[1]!) / (2 * spacing1)
+    const k =
+      Math.log(stack.stiff[0]! / stack.stiff[1]!) / (2 * spacing1)
     const scalar = 1 / (2 * k * k)
     const rs = 2 / (3 * k * k)
 
     // C0a: warpedLayering at L = 1 is E-GRV-0105's stack
     const one = shallowLayering(k, 1, LAYERS)
-    const c0a = one.stiff.length === stack.stiff.length && worstOff(one.stiff, stack.stiff) <= MACHINE && worstOff(one.conduct, stack.conduct) <= MACHINE
-    const c0aOff = Math.max(worstOff(one.stiff, stack.stiff), worstOff(one.conduct, stack.conduct))
+    const c0a =
+      one.stiff.length === stack.stiff.length &&
+      worstOff(one.stiff, stack.stiff) <= MACHINE &&
+      worstOff(one.conduct, stack.conduct) <= MACHINE
+    const c0aOff = Math.max(
+      worstOff(one.stiff, stack.stiff),
+      worstOff(one.conduct, stack.conduct),
+    )
 
     // C0c and C1: the lattice linear solves
     const kAloneLattice = latticeK(aloneMesh)
@@ -212,14 +252,20 @@ export default experiment({
     log('lattice stack')
 
     const aloneModes = stackModes(aloneMesh.sides, 'none')
-    const kAlonePeriodic = inverseCoefficient(FIT_R, antipodeReading(periodicGreen(aloneModes, SIDE), FIT_R))
+    const kAlonePeriodic = inverseCoefficient(
+      FIT_R,
+      antipodeReading(periodicGreen(aloneModes, SIDE), FIT_R),
+    )
     const kAloneInfinite = inverseCoefficient(
       FIT_R,
       FIT_R.map(r => modeProfile(aloneModes, r) / (4 * Math.PI * r)),
     )
-    const aloneOff = Math.abs(kAloneLattice / (CONTENT * kAlonePeriodic) - 1)
+    const aloneOff = Math.abs(
+      kAloneLattice / (CONTENT * kAlonePeriodic) - 1,
+    )
     const c0c = aloneOff <= ALONE_TOLERANCE
     const latticeRatio = kStackLattice / kAloneLattice
+
     let curvatureOff = 0
 
     const perL: PerL[] = PER_DOUBLING.map(L => {
@@ -227,37 +273,59 @@ export default experiment({
       const spacing = spacing1 / L
       const read = layeringCurvature(deep, spacing)
 
-      for (const v of [...read.lateral, ...read.vertical]) curvatureOff = Math.max(curvatureOff, Math.abs(v / k - 1))
+      for (const v of [...read.lateral, ...read.vertical]) {
+        curvatureOff = Math.max(curvatureOff, Math.abs(v / k - 1))
+      }
 
       const modes = layeringModes(deep)
       const w0 = zeroModeWeight(deep)
       const fit = correctionFit(modes, FAR_R)
-      const kernel = logCoefficient(fixedBulkLayering(k, L, KERNEL_FLOOR), KERNEL_P).c2
+      const kernel = logCoefficient(
+        fixedBulkLayering(k, L, KERNEL_FLOOR),
+        KERNEL_P,
+      ).c2
       const massive = modes.filter(m => m.mass > 1e-6)
       const range = 1 / Math.min(...massive.map(m => m.mass))
-      const local = LOCAL_R.map(r => (r * r * (modeProfile(modes, r) / w0 - 1)) / scalar)
+      const local = LOCAL_R.map(
+        r => (r * r * (modeProfile(modes, r) / w0 - 1)) / scalar,
+      )
       // E-GRV-0105's force-form delta at r = 4: the force over the zero mode's share of the husk alone's, less 1
-      const G = (r: number): number => modeProfile(modes, r) / (4 * Math.PI * r)
-      const delta4 = (G(4) - G(5)) / (w0 * (1 / (4 * Math.PI * 4) - 1 / (4 * Math.PI * 5))) - 1
+      const G = (r: number): number =>
+        modeProfile(modes, r) / (4 * Math.PI * r)
+      const delta4 =
+        (G(4) - G(5)) /
+          (w0 * (1 / (4 * Math.PI * 4) - 1 / (4 * Math.PI * 5))) -
+        1
 
       // E-GRV-0105's depth (4 doublings), full-lattice weights: the share, its periodic and infinite readings
       const shallow = shallowLayering(k, L, LAYERS)
       const shallowModes = layeringModes(shallow)
       const shallowShare = 6 * zeroModeWeight(shallow)
-      const periodicRatio = inverseCoefficient(FIT_R, antipodeReading(periodicGreen(shallowModes, SIDE), FIT_R)) / kAlonePeriodic
+      const periodicRatio =
+        inverseCoefficient(
+          FIT_R,
+          antipodeReading(periodicGreen(shallowModes, SIDE), FIT_R),
+        ) / kAlonePeriodic
       const infiniteRatio =
         inverseCoefficient(
           FIT_R,
-          FIT_R.map(r => modeProfile(shallowModes, r) / (4 * Math.PI * r)),
+          FIT_R.map(
+            r => modeProfile(shallowModes, r) / (4 * Math.PI * r),
+          ),
         ) / kAloneInfinite
 
       // C2: the growing, grounded bulk
       const growing: Layering = growingLayering(k, L, LAYERS)
       const growingModes = layeringModes(growing)
-      const yukawa = (r: number): number => growingModes.reduce((t, m) => t + m.weight * Math.exp(-m.mass * r), 0)
+      const yukawa = (r: number): number =>
+        growingModes.reduce(
+          (t, m) => t + m.weight * Math.exp(-m.mass * r),
+          0,
+        )
       const growingLightest = Math.min(...growingModes.map(m => m.mass))
       const growingScreen = yukawa(SCREEN_FAR) / yukawa(SCREEN_NEAR)
-      const rsScreen = modeProfile(modes, SCREEN_FAR) / modeProfile(modes, SCREEN_NEAR)
+      const rsScreen =
+        modeProfile(modes, SCREEN_FAR) / modeProfile(modes, SCREEN_NEAR)
 
       log(`L ${L} (${deep.stiff.length} slabs)`)
 
@@ -286,11 +354,20 @@ export default experiment({
     const atOne = perL[0]!
     const c1Off = Math.abs(atOne.periodicRatio - latticeRatio)
     const c1 = c1Off <= C1_TOLERANCE
-    const c2 = perL.every(p => p.growingLightest >= LIGHTEST_LEAST && p.growingScreen < SCREENED)
-    const kernelOff = Math.max(...perL.map(p => Math.abs(p.kernel / p.derived - 1)))
-    const fitOff = Math.max(...perL.map(p => Math.abs(p.fit.c2 / p.kernel - 1)))
+    const c2 = perL.every(
+      p =>
+        p.growingLightest >= LIGHTEST_LEAST &&
+        p.growingScreen < SCREENED,
+    )
+    const kernelOff = Math.max(
+      ...perL.map(p => Math.abs(p.kernel / p.derived - 1)),
+    )
+    const fitOff = Math.max(
+      ...perL.map(p => Math.abs(p.fit.c2 / p.kernel - 1)),
+    )
     const r0 = kernelOff <= KERNEL_TOLERANCE && fitOff <= FIT_TOLERANCE
-    const c2At = (L: number): number => perL.find(p => p.L === L)!.fit.c2
+    const c2At = (L: number): number =>
+      perL.find(p => p.L === L)!.fit.c2
     const steps = [
       Math.abs(c2At(4) - c2At(2)),
       Math.abs(c2At(8) - c2At(4)),
@@ -301,15 +378,27 @@ export default experiment({
     const overRS = extrapolated / rs
     const overScalar = extrapolated / scalar
     const r1 = converges && Math.abs(overRS - 1) <= RS_TOLERANCE
-    const r1s = converges && Math.abs(overScalar - 1) <= SCALAR_TOLERANCE
-    const gSpread = Math.max(...perL.map(p => Math.abs(p.fit.G / atOne.fit.G - 1)))
+    const r1s =
+      converges && Math.abs(overScalar - 1) <= SCALAR_TOLERANCE
+    const gSpread = Math.max(
+      ...perL.map(p => Math.abs(p.fit.G / atOne.fit.G - 1)),
+    )
     const r2 = gSpread <= G_TOLERANCE
-    const gRead = Math.max(...perL.map(p => Math.abs(p.fit.G / p.w0 - 1)))
+    const gRead = Math.max(
+      ...perL.map(p => Math.abs(p.fit.G / p.w0 - 1)),
+    )
     const r2b = gRead <= G_READ_TOLERANCE
-    const overshoot = perL.map(p => p.shallowShare / p.periodicRatio - 1)
-    const falls = overshoot.every((o, i) => i === 0 || o < overshoot[i - 1]!)
+    const overshoot = perL.map(
+      p => p.shallowShare / p.periodicRatio - 1,
+    )
+    const falls = overshoot.every(
+      (o, i) => i === 0 || o < overshoot[i - 1]!,
+    )
     const r3 = c1 && falls
-    const status = c0 && c1 && c2 && r0 && r1 && r1s && r2 && r2b && r3 ? 'pass' : 'fail'
+    const status =
+      c0 && c1 && c2 && r0 && r1 && r1s && r2 && r2b && r3
+        ? 'pass'
+        : 'fail'
 
     // REPORTED: the three parts of E-GRV-0105's 3 percent at L = 1
     const latticeOvershoot = atOne.shallowShare / latticeRatio - 1
@@ -371,16 +460,25 @@ export default experiment({
       metrics[`${key}_growingLightest`] = p.growingLightest
       metrics[`${key}_growingScreen`] = p.growingScreen
       metrics[`${key}_rsScreen`] = p.rsScreen
-      LOCAL_R.forEach((r, j) => (metrics[`${key}_local_r${r}`] = p.local[j]!))
+      LOCAL_R.forEach(
+        (r, j) => (metrics[`${key}_local_r${r}`] = p.local[j]!),
+      )
     })
 
-    const row = (pick: (p: PerL) => number): string => perL.map(p => f(pick(p))).join(', ')
+    const row = (pick: (p: PerL) => number): string =>
+      perL.map(p => f(pick(p))).join(', ')
 
     return verdict({
       status,
       claim: `E-GRV-0105's lapse stack (k = ${f(k)} a dock, read off its own weights) cut into L = ${PER_DOUBLING.join(', ')} slabs a doubling: the fitted c_2 over RS's 2 / (3 k^2) = ${f(rs)} is ${row(p => p.fit.c2 / rs)} (derived ${row(p => p.derived / rs)}), over the scalar's 1 / (2 k^2) = ${f(scalar)} ${row(p => p.fit.c2 / scalar)}; the kernel method agrees with the derived R(L) to ${e(kernelOff)} and the fit with the kernel to ${e(fitOff)}; the steps ${steps.map(f).join(', ')} ${converges ? 'shrink' : 'do NOT shrink'}; A + B / L + C / L^2 through L = 4, 8, 16 gives ${f(extrapolated)}, ${f(overRS)} of RS's (gate 1 within 0.1) and ${f(overScalar)} of the scalar's (gate 0.03); G at a fixed bulk ${row(p => p.fit.G)} (spread ${f(gSpread)} against 0.01), equal to 1 / sum s to ${e(gRead)}; E-GRV-0105's overshoot share / ratio - 1 on the periodic side-${SIDE} husk ${overshoot.map(f).join(', ')} (${falls ? 'falling' : 'NOT falling'}), the lattice's ${f(latticeOvershoot)} at L = 1 = window ${f(windowPart)}, box ${f(boxPart)}, the coarse layers' lattice ${f(latticePart)} (C1 off ${f(c1Off)}, gate 0.005); a growing grounded bulk's lightest mass ${row(p => p.growingLightest)}, U(24) / U(2) ${row(p => p.growingScreen)} against the shrinking stack's ${row(p => p.rsScreen)}`,
       metrics,
-      control: { c0: c0 ? 1 : 0, c1: c1 ? 1 : 0, c2: c2 ? 1 : 0, aloneOff, growingScreenWorst: Math.max(...perL.map(p => p.growingScreen)) },
+      control: {
+        c0: c0 ? 1 : 0,
+        c1: c1 ? 1 : 0,
+        c2: c2 ? 1 : 0,
+        aloneOff,
+        growingScreenWorst: Math.max(...perL.map(p => p.growingScreen)),
+      },
       notes: `L1. C0 ${c0} (layering ${e(c0aOff)}, curvature ${e(curvatureOff)}, alone ${e(aloneOff)}), C1 ${c1}, C2 ${c2}, R0 ${r0}, R1 ${r1}, R1s ${r1s}, R2 ${r2}, R2b ${r2b}, R3 ${r3}. Local r^2 (U / w_0 - 1) over 1 / (2 k^2) at r = ${LOCAL_R.join(', ')}: ${perL.map(p => `L ${p.L}: ${p.local.map(f).join(' ')}`).join('; ')}. c_4 ${row(p => p.fit.c4)}. Lightest massive range at a floor of ${DEEP_FLOOR}: ${row(p => p.range)}. Force-form delta(4): ${row(p => p.delta4)}. G on full-lattice weights ${row(p => p.fit.G / p.L)}. Shallow share ${row(p => p.shallowShare)}, periodic ratio ${row(p => p.periodicRatio)}, infinite ratio ${row(p => p.infiniteRatio)}, lattice ratio ${f(latticeRatio)}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

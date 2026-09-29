@@ -68,7 +68,13 @@
 // DETERMINISM: every start and source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the
 // rule; a unit of content added is a scheduled event.
 
-import { HUSK_LATERAL, openRestLow, VERTICAL, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
+import {
+  HUSK_LATERAL,
+  openRestLow,
+  VERTICAL,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import type { StepTally } from '@/code/rule/step-depth'
 import type { HorizonScratch } from '@/code/rule/horizon-husk'
 import type { ClockHorizonRule } from '@/code/rule/clock-horizon'
@@ -86,20 +92,46 @@ export type WaveHorizonRule = ClockHorizonRule & {
 
 export const LAMBDA = 4
 
-export function waveHorizonRule(rule: ClockHorizonRule, lambda = LAMBDA): WaveHorizonRule {
-  if (!Number.isInteger(2 * lambda) || lambda <= 0) throw new Error('waveHorizonRule: lambda is a positive multiple of 1 / 2')
+export function waveHorizonRule(
+  rule: ClockHorizonRule,
+  lambda = LAMBDA,
+): WaveHorizonRule {
+  if (!Number.isInteger(2 * lambda) || lambda <= 0) {
+    throw new Error(
+      'waveHorizonRule: lambda is a positive multiple of 1 / 2',
+    )
+  }
 
   const waveDivisor = 2 * rule.q
 
-  return { ...rule, stiffTwice: 2 * lambda, waveDivisor, waveLow: openRestLow(waveDivisor) }
+  return {
+    ...rule,
+    stiffTwice: 2 * lambda,
+    waveDivisor,
+    waveLow: openRestLow(waveDivisor),
+  }
 }
 
 // an inner link: husk lateral with both ends on the horizon (the only links this rule tears)
-export const innerLink = (mesh: OpenMesh, horizon: Uint8Array, m: number): boolean => mesh.kind[m] === HUSK_LATERAL && horizon[mesh.tail[m]!] === 1 && horizon[mesh.head[m]!] === 1
+export const innerLink = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  m: number,
+): boolean =>
+  mesh.kind[m] === HUSK_LATERAL &&
+  horizon[mesh.tail[m]!] === 1 &&
+  horizon[mesh.head[m]!] === 1
 
 // the local path for each husk lateral link: its ends' vertical links with the sign that gives x_end - x_parent =
 // sign F / g, and the bulk link joining the parents (-1 when they share one) with the sign that gives x_Ptail - x_Phead
-export type WavePaths = { vt: Int32Array; st: Int8Array; vh: Int32Array; sh: Int8Array; bulk: Int32Array; sb: Int8Array }
+export type WavePaths = {
+  vt: Int32Array
+  st: Int8Array
+  vh: Int32Array
+  sh: Int8Array
+  bulk: Int32Array
+  sb: Int8Array
+}
 
 export function wavePaths(mesh: OpenMesh): WavePaths {
   const huskLinks = mesh.huskDocks * 9
@@ -111,19 +143,37 @@ export function wavePaths(mesh: OpenMesh): WavePaths {
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 
-      if (mesh.kind[m] !== VERTICAL) continue
-      if (vertical[y] !== -1) throw new Error('wavePaths: a husk dock with two verticals')
+      if (mesh.kind[m] !== VERTICAL) {
+        continue
+      }
+
+      if (vertical[y] !== -1) {
+        throw new Error('wavePaths: a husk dock with two verticals')
+      }
+
       vertical[y] = m
       vsign[y] = mesh.incSign[j]!
       parent[y] = mesh.incSign[j]! > 0 ? mesh.head[m]! : mesh.tail[m]!
     }
-    if (vertical[y] === -1) throw new Error('wavePaths: a husk dock with no vertical')
+
+    if (vertical[y] === -1) {
+      throw new Error('wavePaths: a husk dock with no vertical')
+    }
   }
 
-  const out: WavePaths = { vt: new Int32Array(huskLinks), st: new Int8Array(huskLinks), vh: new Int32Array(huskLinks), sh: new Int8Array(huskLinks), bulk: new Int32Array(huskLinks).fill(-1), sb: new Int8Array(huskLinks) }
+  const out: WavePaths = {
+    vt: new Int32Array(huskLinks),
+    st: new Int8Array(huskLinks),
+    vh: new Int32Array(huskLinks),
+    sh: new Int8Array(huskLinks),
+    bulk: new Int32Array(huskLinks).fill(-1),
+    sb: new Int8Array(huskLinks),
+  }
 
   for (let m = 0; m < huskLinks; m++) {
-    if (mesh.kind[m] !== HUSK_LATERAL) throw new Error('wavePaths: the husk lateral links are not first')
+    if (mesh.kind[m] !== HUSK_LATERAL) {
+      throw new Error('wavePaths: the husk lateral links are not first')
+    }
 
     const t = mesh.tail[m]!
     const h = mesh.head[m]!
@@ -134,7 +184,11 @@ export function wavePaths(mesh: OpenMesh): WavePaths {
     out.st[m] = vsign[t]!
     out.vh[m] = vertical[h]!
     out.sh[m] = vsign[h]!
-    if (pt === ph) continue
+
+    if (pt === ph) {
+      continue
+    }
+
     for (let j = mesh.incStart[pt]!; j < mesh.incStart[pt + 1]!; j++) {
       const b = mesh.incLink[j]!
       const other = mesh.incSign[j]! > 0 ? mesh.head[b]! : mesh.tail[b]!
@@ -145,21 +199,36 @@ export function wavePaths(mesh: OpenMesh): WavePaths {
         break
       }
     }
-    if (out.bulk[m] === -1) throw new Error('wavePaths: two neighboring husk docks whose parents are not neighbors')
+
+    if (out.bulk[m] === -1) {
+      throw new Error(
+        'wavePaths: two neighboring husk docks whose parents are not neighbors',
+      )
+    }
   }
 
   return out
 }
 
 // 2 (x_tail - x_head) for husk lateral link m, read along its local path, in register units (an exact integer)
-export function pathTwice(mesh: OpenMesh, paths: WavePaths, step: ArrayLike<number>, m: number): number {
+export function pathTwice(
+  mesh: OpenMesh,
+  paths: WavePaths,
+  step: ArrayLike<number>,
+  m: number,
+): number {
   const w = mesh.weight
   const vt = paths.vt[m]!
   const vh = paths.vh[m]!
   const b = paths.bulk[m]!
-  let d = (paths.st[m]! * 2 * step[vt]!) / w[vt]! - (paths.sh[m]! * 2 * step[vh]!) / w[vh]!
 
-  if (b >= 0) d += (paths.sb[m]! * 2 * step[b]!) / w[b]!
+  let d =
+    (paths.st[m]! * 2 * step[vt]!) / w[vt]! -
+    (paths.sh[m]! * 2 * step[vh]!) / w[vh]!
+
+  if (b >= 0) {
+    d += (paths.sb[m]! * 2 * step[b]!) / w[b]!
+  }
 
   return d
 }
@@ -178,7 +247,10 @@ export type WaveScratch = HorizonScratch & {
   waveWraps: number
 }
 
-export const waveScratch = (mesh: OpenMesh, paths = wavePaths(mesh)): WaveScratch => ({
+export const waveScratch = (
+  mesh: OpenMesh,
+  paths = wavePaths(mesh),
+): WaveScratch => ({
   divLine: new Float64Array(mesh.docks),
   divStep: new Float64Array(mesh.docks),
   sigma: new Float64Array(mesh.huskDocks),
@@ -190,30 +262,53 @@ export const waveScratch = (mesh: OpenMesh, paths = wavePaths(mesh)): WaveScratc
   waveWraps: 0,
 })
 
-const wrapTrit = (rule: WaveHorizonRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
-const wrapBulk = (rule: WaveHorizonRule, v: number): number => mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
+const wrapTrit = (rule: WaveHorizonRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
+const wrapBulk = (rule: WaveHorizonRule, v: number): number =>
+  mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
 
-function divergence(mesh: OpenMesh, field: ArrayLike<number>, out: Float64Array, horizon?: Uint8Array): void {
+function divergence(
+  mesh: OpenMesh,
+  field: ArrayLike<number>,
+  out: Float64Array,
+  horizon?: Uint8Array,
+): void {
   out.fill(0)
 
   for (let m = 0; m < mesh.links; m++) {
     const v = field[m]!
 
-    if (v === 0 || (horizon && innerLink(mesh, horizon, m))) continue
+    if (v === 0 || (horizon && innerLink(mesh, horizon, m))) {
+      continue
+    }
+
     out[mesh.tail[m]!] = out[mesh.tail[m]!]! + v
-    if (mesh.head[m]! >= 0) out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+
+    if (mesh.head[m]! >= 0) {
+      out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+    }
   }
 }
 
 // THE HANDOVER, one way or the other: sense +1 hands every link inner under `horizon` but not under `known` to the
 // shares (horizon grown since the last beat); sense -1 hands every link inner under `known` but not under `horizon` back
 // (horizon shrunk: a join undone). The sigma it would give is written to `sigma` (the scratch's, or a copy).
-export function handover(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8Array, known: Uint8Array, sigma: Float64Array, sense: 1 | -1): number {
+export function handover(
+  mesh: OpenMesh,
+  step: ArrayLike<number>,
+  horizon: Uint8Array,
+  known: Uint8Array,
+  sigma: Float64Array,
+  sense: 1 | -1,
+): number {
   const [wide, narrow] = sense > 0 ? [horizon, known] : [known, horizon]
+
   let links = 0
 
   for (let m = 0; m < mesh.huskDocks * 9; m++) {
-    if (!innerLink(mesh, wide, m) || innerLink(mesh, narrow, m)) continue
+    if (!innerLink(mesh, wide, m) || innerLink(mesh, narrow, m)) {
+      continue
+    }
 
     const F = step[m]!
 
@@ -226,39 +321,107 @@ export function handover(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8
 }
 
 // bring the scratch's handover up to `horizon` (forward: it has only grown; backward: it has only shrunk)
-function sync(mesh: OpenMesh, s: OpenState, horizon: Uint8Array, w: WaveScratch): void {
+function sync(
+  mesh: OpenMesh,
+  s: OpenState,
+  horizon: Uint8Array,
+  w: WaveScratch,
+): void {
   let grown = false
   let shrunk = false
 
   for (let y = 0; y < mesh.huskDocks; y++) {
-    if (horizon[y] && !w.known[y]) grown = true
-    else if (!horizon[y] && w.known[y]) shrunk = true
+    if (horizon[y] && !w.known[y]) {
+      grown = true
+    } else if (!horizon[y] && w.known[y]) {
+      shrunk = true
+    }
   }
-  if (grown && shrunk) throw new Error('waveBeat: the horizon both grew and shrank between beats')
-  if (grown) handover(mesh, s.step, horizon, w.known, w.sigma, 1)
+
+  if (grown && shrunk) {
+    throw new Error(
+      'waveBeat: the horizon both grew and shrank between beats',
+    )
+  }
+
+  if (grown) {
+    handover(mesh, s.step, horizon, w.known, w.sigma, 1)
+  }
+
   if (shrunk) {
     for (let m = 0; m < mesh.huskDocks * 9; m++) {
-      if (innerLink(mesh, w.known, m) && !innerLink(mesh, horizon, m) && (w.flow[m] !== 0 || w.carry[m] !== 0)) throw new Error('waveBeat: a handover undone with its flow still running')
+      if (
+        innerLink(mesh, w.known, m) &&
+        !innerLink(mesh, horizon, m) &&
+        (w.flow[m] !== 0 || w.carry[m] !== 0)
+      ) {
+        throw new Error(
+          'waveBeat: a handover undone with its flow still running',
+        )
+      }
     }
+
     handover(mesh, s.step, horizon, w.known, w.sigma, -1)
-    for (let y = 0; y < mesh.huskDocks; y++) if (!horizon[y] && w.sigma[y] !== 0) throw new Error('waveBeat: a share left off the horizon')
+
+    for (let y = 0; y < mesh.huskDocks; y++) {
+      if (!horizon[y] && w.sigma[y] !== 0) {
+        throw new Error('waveBeat: a share left off the horizon')
+      }
+    }
   }
+
   w.known.set(horizon)
 }
 
 // S per dock in register units: Q^L div f, plus sigma on the horizon
-function sources(mesh: OpenMesh, rule: WaveHorizonRule, horizon: Uint8Array, w: WaveScratch): void {
-  for (let y = 0; y < mesh.docks; y++) w.source[y] = rule.unit * w.divLine[y]! + (y < mesh.huskDocks && horizon[y] ? w.sigma[y]! : 0)
+function sources(
+  mesh: OpenMesh,
+  rule: WaveHorizonRule,
+  horizon: Uint8Array,
+  w: WaveScratch,
+): void {
+  for (let y = 0; y < mesh.docks; y++) {
+    w.source[y] =
+      rule.unit * w.divLine[y]! +
+      (y < mesh.huskDocks && horizon[y] ? w.sigma[y]! : 0)
+  }
 }
 
 // the kick's numerator for inner link m, from S and the steps at the same beat
-const kickOf = (mesh: OpenMesh, rule: WaveHorizonRule, w: WaveScratch, step: ArrayLike<number>, m: number): number => rule.a * mesh.weight[m]! * (rule.stiffTwice * (w.source[mesh.tail[m]!]! - w.source[mesh.head[m]!]!) - pathTwice(mesh, w.paths, step, m))
+const kickOf = (
+  mesh: OpenMesh,
+  rule: WaveHorizonRule,
+  w: WaveScratch,
+  step: ArrayLike<number>,
+  m: number,
+): number =>
+  rule.a *
+  mesh.weight[m]! *
+  (rule.stiffTwice *
+    (w.source[mesh.tail[m]!]! - w.source[mesh.head[m]!]!) -
+    pathTwice(mesh, w.paths, step, m))
 
-const dockTrit = (mesh: OpenMesh, horizon: Uint8Array, y: number): boolean => y < mesh.huskDocks && horizon[y] === 0
+const dockTrit = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  y: number,
+): boolean => y < mesh.huskDocks && horizon[y] === 0
 
 // one beat, in place, for the horizon `horizon` (fixed through the beat; the handover to it made first)
-export function waveBeat(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState, horizon: Uint8Array, w: WaveScratch, tally?: StepTally): void {
-  if (mesh.lapse) throw new Error('waveBeat: the lapse in the links is not carried here')
+export function waveBeat(
+  mesh: OpenMesh,
+  rule: WaveHorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  w: WaveScratch,
+  tally?: StepTally,
+): void {
+  if (mesh.lapse) {
+    throw new Error(
+      'waveBeat: the lapse in the links is not carried here',
+    )
+  }
+
   sync(mesh, s, horizon, w)
 
   const { a, q, h } = rule
@@ -271,7 +434,9 @@ export function waveBeat(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState, ho
 
   // the kicks, both from the positions at n
   for (let m = 0; m < mesh.huskDocks * 9; m++) {
-    if (!innerLink(mesh, horizon, m)) continue
+    if (!innerLink(mesh, horizon, m)) {
+      continue
+    }
 
     const x = kickOf(mesh, rule, w, s.step, m)
     const k = floorDiv(x + w.carry[m]! + rule.waveLow, d)
@@ -279,37 +444,68 @@ export function waveBeat(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState, ho
 
     w.carry[m] = x + w.carry[m]! - d * k
     w.flow[m] = wrapBulk(rule, raw)
-    if (w.flow[m] !== raw) w.waveWraps++
+
+    if (w.flow[m] !== raw) {
+      w.waveWraps++
+    }
   }
+
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (w.source[y]! - w.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const k = floorDiv(x + s.rest[y]! + (inertia ? openRestLow(qy) : h), qy)
+    const k = floorDiv(
+      x + s.rest[y]! + (inertia ? openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! + k
 
     s.rest[y] = x + s.rest[y]! - qy * k
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.rate[y] !== raw) tally.vWraps++
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
+
+    if (tally && s.rate[y] !== raw) {
+      tally.vWraps++
+    }
   }
 
   // the drifts, both from the momenta at n + 1
   const { tail, head, weight, kind } = mesh
 
   for (let m = 0; m < mesh.links; m++) {
-    if (innerLink(mesh, horizon, m)) continue
+    if (innerLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! + weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! +
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = kind[m] === HUSK_LATERAL ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.step[m] !== raw) tally.fWraps++
+    s.step[m] =
+      kind[m] === HUSK_LATERAL
+        ? wrapTrit(rule, raw)
+        : wrapBulk(rule, raw)
+
+    if (tally && s.step[m] !== raw) {
+      tally.fWraps++
+    }
   }
+
   drift(mesh, rule, horizon, w, 1)
 }
 
-function drift(mesh: OpenMesh, rule: WaveHorizonRule, horizon: Uint8Array, w: WaveScratch, sense: 1 | -1): void {
+function drift(
+  mesh: OpenMesh,
+  rule: WaveHorizonRule,
+  horizon: Uint8Array,
+  w: WaveScratch,
+  sense: 1 | -1,
+): void {
   for (let m = 0; m < mesh.huskDocks * 9; m++) {
-    if (!innerLink(mesh, horizon, m) || w.flow[m] === 0) continue
+    if (!innerLink(mesh, horizon, m) || w.flow[m] === 0) {
+      continue
+    }
 
     const t = mesh.tail[m]!
     const hd = mesh.head[m]!
@@ -318,11 +514,20 @@ function drift(mesh: OpenMesh, rule: WaveHorizonRule, horizon: Uint8Array, w: Wa
 
     w.sigma[t] = wrapBulk(rule, rt)
     w.sigma[hd] = wrapBulk(rule, rh)
-    if (w.sigma[t] !== rt || w.sigma[hd] !== rh) w.waveWraps++
+
+    if (w.sigma[t] !== rt || w.sigma[hd] !== rh) {
+      w.waveWraps++
+    }
   }
 }
 
-export function waveBeatBack(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState, horizon: Uint8Array, w: WaveScratch): void {
+export function waveBeatBack(
+  mesh: OpenMesh,
+  rule: WaveHorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  w: WaveScratch,
+): void {
   sync(mesh, s, horizon, w)
 
   const { a, q, h } = rule
@@ -331,13 +536,21 @@ export function waveBeatBack(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState
   const d = rule.waveDivisor
 
   drift(mesh, rule, horizon, w, -1)
+
   for (let m = 0; m < mesh.links; m++) {
-    if (innerLink(mesh, horizon, m)) continue
+    if (innerLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! - weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! -
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = kind[m] === HUSK_LATERAL ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.step[m] =
+      kind[m] === HUSK_LATERAL
+        ? wrapTrit(rule, raw)
+        : wrapBulk(rule, raw)
   }
 
   divergence(mesh, s.line, w.divLine)
@@ -345,7 +558,9 @@ export function waveBeatBack(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState
   divergence(mesh, s.step, w.divStep, horizon)
 
   for (let m = 0; m < mesh.huskDocks * 9; m++) {
-    if (!innerLink(mesh, horizon, m)) continue
+    if (!innerLink(mesh, horizon, m)) {
+      continue
+    }
 
     const x = kickOf(mesh, rule, w, s.step, m)
     const k = floorDiv(x - w.carry[m]! + d - 1 - rule.waveLow, d)
@@ -353,13 +568,19 @@ export function waveBeatBack(mesh: OpenMesh, rule: WaveHorizonRule, s: OpenState
     w.carry[m] = w.carry[m]! - x + d * k
     w.flow[m] = wrapBulk(rule, w.flow[m]! - k)
   }
+
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (w.source[y]! - w.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const k = floorDiv(x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h), qy)
+    const k = floorDiv(
+      x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! - k
 
     s.rest[y] = s.rest[y]! - x + qy * k
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
   }
 }

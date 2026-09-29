@@ -51,7 +51,10 @@ function signedPermutations(): Elem[] {
     }
 
     for (let i = 0; i < rest.length; i++) {
-      build([...acc, rest[i]!], rest.filter((_, j) => j !== i))
+      build(
+        [...acc, rest[i]!],
+        rest.filter((_, j) => j !== i),
+      )
     }
   }
 
@@ -63,7 +66,12 @@ function signedPermutations(): Elem[] {
     for (let m = 0; m < 16; m++) {
       out.push({
         p,
-        s: [m & 1 ? -1 : 1, m & 2 ? -1 : 1, m & 4 ? -1 : 1, m & 8 ? -1 : 1],
+        s: [
+          m & 1 ? -1 : 1,
+          m & 2 ? -1 : 1,
+          m & 4 ? -1 : 1,
+          m & 8 ? -1 : 1,
+        ],
       })
     }
   }
@@ -80,7 +88,13 @@ const TONE_PERMS: [Tone, Tone, Tone][] = [
   [1, 0, -1],
 ]
 
-type Hit = { perm: number; negation: boolean; inversion: boolean; t: boolean; kind: 'sym' | 'rev' }
+type Hit = {
+  perm: number
+  negation: boolean
+  inversion: boolean
+  t: boolean
+  kind: 'sym' | 'rev'
+}
 
 function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
   const mesh = d4Mesh({ side: SIDE })
@@ -105,9 +119,9 @@ function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
     [0, 1, 2, 3].map(i => e.s[i]! * v[e.p[i]!]!)
 
   const patterns: ((i: number) => Tone)[] = [
-    i => ((((i * 5 + (i % 11)) % 3) - 1) as Tone),
-    i => ((((i * i + 2 * i) % 3) - 1) as Tone),
-    i => ((((i * 11 + (i % 7) * 2) % 3) - 1) as Tone),
+    i => (((i * 5 + (i % 11)) % 3) - 1) as Tone,
+    i => (((i * i + 2 * i) % 3) - 1) as Tone,
+    i => (((i * 11 + (i % 7) * 2) % 3) - 1) as Tone,
   ]
   const states = patterns.map(pattern => {
     const will = makeWill(mesh)
@@ -201,11 +215,7 @@ function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
         let symOk = true
         let revOk = true
 
-        for (
-          let si = 0;
-          si < states.length && (symOk || revOk);
-          si++
-        ) {
+        for (let si = 0; si < states.length && (symOk || revOk); si++) {
           const lhs = beat(transform(states[si]!), input.rule)
 
           if (symOk && !same(lhs, transform(forwardImages[si]!))) {
@@ -300,8 +310,7 @@ export default experiment({
       },
       // CONTROL: lineHop, whose empty table is what failing the gate measures
       control: {
-        lineHopReversalsFound: hop.filter(h => h.kind === 'rev')
-          .length,
+        lineHopReversalsFound: hop.filter(h => h.kind === 'rev').length,
       },
       notes:
         'the group swept is the full signed-permutation group, the subgroup of the 1,152-element 24-cell group that acts on the integer torus (the remaining triality cosets have half-integer matrices and do not descend to this quotient, stated as the honest scope). The structural diagnosis: negation fixes the swap clause and inverts the clock table, so lineHop misses CPT only through its swap-then-clock order, and the palindrome (a collision equal to its own conjugated inverse by construction) is the minimal repair. Its particle physics is measured in E-FND-0103.',

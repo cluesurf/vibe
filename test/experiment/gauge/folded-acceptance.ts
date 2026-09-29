@@ -71,9 +71,23 @@ import {
   type SteeredRule,
 } from '@/code/measure/steered-acceptance'
 import { turningWeave, PAIR_FORWARD } from '@/code/rule/collision'
-import { COLOR_TURN_SPEC, colorTurnWeave } from '@/code/rule/color-turn-weave'
-import { colorLocalCollision, colorLocalLeaks, colorLocalSpec, makeColorLocalWeave } from '@/code/rule/color-local-weave'
-import { foldRoundRobin, makeSteeredKnit, partitionAt, steerDock, type KnitSteer } from '@/code/rule/steered-knit'
+import {
+  COLOR_TURN_SPEC,
+  colorTurnWeave,
+} from '@/code/rule/color-turn-weave'
+import {
+  colorLocalCollision,
+  colorLocalLeaks,
+  colorLocalSpec,
+  makeColorLocalWeave,
+} from '@/code/rule/color-local-weave'
+import {
+  foldRoundRobin,
+  makeSteeredKnit,
+  partitionAt,
+  steerDock,
+  type KnitSteer,
+} from '@/code/rule/steered-knit'
 
 const SIDES = [7, 9, 11]
 const PERIODS = 4
@@ -82,10 +96,14 @@ const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 const FOLDED_SPEC = foldRoundRobin(COLOR_TURN_SPEC)
 
-const RULES: Readonly<Record<'committed' | 'colorTurn' | 'folded', ScheduledRule>> = {
+const RULES: Readonly<
+  Record<'committed' | 'colorTurn' | 'folded', ScheduledRule>
+> = {
   committed: (opposite, forward) => turningWeave({ opposite, forward }),
-  colorTurn: (opposite, forward) => colorTurnWeave({ opposite, forward }),
-  folded: (opposite, forward) => colorLocalCollision({ spec: FOLDED_SPEC, opposite, forward }),
+  colorTurn: (opposite, forward) =>
+    colorTurnWeave({ opposite, forward }),
+  folded: (opposite, forward) =>
+    colorLocalCollision({ spec: FOLDED_SPEC, opposite, forward }),
 }
 
 // the battery through weave-acceptance, for a dock collision
@@ -112,7 +130,13 @@ function dockBattery(rule: ScheduledRule): Record<string, number> {
       ['Love', 1],
       ['Fear', -1],
     ] as const) {
-      dressing(rule, { side, tone, periods: PERIODS }).periodLargest.forEach((x, p) => (out[`dressing${name}Side${side}Period${p + 1}`] = x))
+      dressing(rule, {
+        side,
+        tone,
+        periods: PERIODS,
+      }).periodLargest.forEach(
+        (x, p) => (out[`dressing${name}Side${side}Period${p + 1}`] = x),
+      )
     }
   }
 
@@ -120,7 +144,10 @@ function dockBattery(rule: ScheduledRule): Record<string, number> {
 }
 
 // the battery through steered-acceptance, for a flux-carrying rule; `full` adds the costly items
-function boxBattery(rule: SteeredRule, full: boolean): Record<string, number> {
+function boxBattery(
+  rule: SteeredRule,
+  full: boolean,
+): Record<string, number> {
   const { reverses, chargeKept } = steeredReversal(rule)
   const cpt = boxCptPhase(rule)
   const vacuum = steeredVacuum(rule, 6)
@@ -147,7 +174,9 @@ function boxBattery(rule: SteeredRule, full: boolean): Record<string, number> {
         continue
       }
 
-      steeredDressing(rule, { side, tone, periods: PERIODS }).forEach((x, p) => (out[`dressing${name}Side${side}Period${p + 1}`] = x))
+      steeredDressing(rule, { side, tone, periods: PERIODS }).forEach(
+        (x, p) => (out[`dressing${name}Side${side}Period${p + 1}`] = x),
+      )
     }
   }
 
@@ -166,8 +195,13 @@ function boxBattery(rule: SteeredRule, full: boolean): Record<string, number> {
 function steeringColorLeaks(steer: KnitSteer): number {
   const knit = makeSteeredKnit({ side: 3, spec: FOLDED_SPEC, steer })
   const state = denseKnitState(knit)
-  const role = Int8Array.from({ length: state.vibe.length }, (_, i) => Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9))
-  const sign = Array.from({ length: 24 }, (_, d) => (d < (knit.opposite[d] ?? d) ? 1 : -1))
+  const role = Int8Array.from({ length: state.vibe.length }, (_, i) =>
+    Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9),
+  )
+  const sign = Array.from({ length: 24 }, (_, d) =>
+    d < (knit.opposite[d] ?? d) ? 1 : -1,
+  )
+
   const content = (x: number): string => {
     let w = 0
     let qx = 0
@@ -193,9 +227,18 @@ function steeringColorLeaks(steer: KnitSteer): number {
 
     for (let x = 0; x < knit.mesh.cellCount; x++) {
       const before = content(x)
-      const string = (d: number): boolean => mod3(state.flux[knit.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
+      const string = (d: number): boolean =>
+        mod3(state.flux[knit.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
 
-      steerDock({ knit, slots: state.vibe, base: x * 24, string, t, role, couples })
+      steerDock({
+        knit,
+        slots: state.vibe,
+        base: x * 24,
+        string,
+        t,
+        role,
+        couples,
+      })
       leaks += content(x) === before ? 0 : 1
     }
   }
@@ -205,11 +248,17 @@ function steeringColorLeaks(steer: KnitSteer): number {
 
 function knitColorLeaks(): number {
   const weave = makeColorLocalWeave({ side: 3, spec: FOLDED_SPEC })
-  const knit = makeSteeredKnit({ side: 3, spec: FOLDED_SPEC, steer: false })
+  const knit = makeSteeredKnit({
+    side: 3,
+    spec: FOLDED_SPEC,
+    steer: false,
+  })
   const dense = denseKnitState(knit)
   const state = {
     vibe: dense.vibe,
-    role: Int8Array.from({ length: dense.vibe.length }, (_, i) => Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9)),
+    role: Int8Array.from({ length: dense.vibe.length }, (_, i) =>
+      Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9),
+    ),
     flow: new Int32Array(dense.vibe.length),
   }
 
@@ -235,43 +284,85 @@ export default experiment({
     const committed = dockBattery(RULES.committed)
     const colorTurn = dockBattery(RULES.colorTurn)
     const folded = dockBattery(RULES.folded)
-    const committedBox = boxBattery({ spec: colorLocalSpec({ tables: [PAIR_FORWARD] }), steer: false }, false)
-    const colorTurnBox = boxBattery({ spec: COLOR_TURN_SPEC, steer: false }, false)
-    const foldedBox = boxBattery({ spec: FOLDED_SPEC, steer: false }, false)
+    const committedBox = boxBattery(
+      {
+        spec: colorLocalSpec({ tables: [PAIR_FORWARD] }),
+        steer: false,
+      },
+      false,
+    )
+    const colorTurnBox = boxBattery(
+      { spec: COLOR_TURN_SPEC, steer: false },
+      false,
+    )
+    const foldedBox = boxBattery(
+      { spec: FOLDED_SPEC, steer: false },
+      false,
+    )
     const lone = boxBattery({ spec: FOLDED_SPEC, steer: 'lone' }, true)
     const line = boxBattery({ spec: FOLDED_SPEC, steer: 'line' }, true)
-    const leaks = { knit: knitColorLeaks(), lone: steeringColorLeaks('lone'), line: steeringColorLeaks('line') }
+    const leaks = {
+      knit: knitColorLeaks(),
+      lone: steeringColorLeaks('lone'),
+      line: steeringColorLeaks('line'),
+    }
 
     const dressingKeys = SIDES.flatMap(side =>
-      ['Love', 'Fear'].flatMap(name => Array.from({ length: PERIODS }, (_, p) => `dressing${name}Side${side}Period${p + 1}`)),
+      ['Love', 'Fear'].flatMap(name =>
+        Array.from(
+          { length: PERIODS },
+          (_, p) => `dressing${name}Side${side}Period${p + 1}`,
+        ),
+      ),
     )
     const agree =
       foldedBox.vacuumComponents === folded.vacuumComponents &&
       foldedBox.denseComponents === folded.denseComponents &&
       foldedBox.travellers === folded.travellers &&
-      Math.abs((foldedBox.meanReach ?? 0) - (folded.meanReach ?? 0)) < 1e-9 &&
-      [1, 2, 3, 4].every(p => foldedBox[`dressingLoveSide7Period${p}`] === folded[`dressingLoveSide7Period${p}`])
+      Math.abs((foldedBox.meanReach ?? 0) - (folded.meanReach ?? 0)) <
+        1e-9 &&
+      [1, 2, 3, 4].every(
+        p =>
+          foldedBox[`dressingLoveSide7Period${p}`] ===
+          folded[`dressingLoveSide7Period${p}`],
+      )
     const foldedPasses =
       folded.reverses === 1 &&
       folded.chargeKept === 1 &&
       (folded.cptPhase ?? -1) >= 0 &&
       (folded.additivityWorst ?? 1) < 1e-9 &&
       folded.wallQuantized === 1 &&
-      (folded.vacuumComponents ?? 99) <= (colorTurn.vacuumComponents ?? 0) &&
-      (folded.denseComponents ?? 99) <= (colorTurn.denseComponents ?? 0) &&
+      (folded.vacuumComponents ?? 99) <=
+        (colorTurn.vacuumComponents ?? 0) &&
+      (folded.denseComponents ?? 99) <=
+        (colorTurn.denseComponents ?? 0) &&
       leaks.knit === 0 &&
-      dressingKeys.every(k => (folded[k] ?? Infinity) <= (committed[k] ?? 0))
-    const steeredExact = [lone, line].every(r => r.reverses === 1 && r.chargeKept === 1)
+      dressingKeys.every(
+        k => (folded[k] ?? Infinity) <= (committed[k] ?? 0),
+      )
+    const steeredExact = [lone, line].every(
+      r => r.reverses === 1 && r.chargeKept === 1,
+    )
 
-    const ok = agree && foldedPasses && steeredExact && (line.boxCptPhase ?? -1) >= 0
+    const ok =
+      agree &&
+      foldedPasses &&
+      steeredExact &&
+      (line.boxCptPhase ?? -1) >= 0
 
-    const prefix = (name: string, values: Record<string, number>): [string, number][] =>
-      Object.entries(values).map(([k, v]) => [`${name}${k.charAt(0).toUpperCase()}${k.slice(1)}`, v])
+    const prefix = (
+      name: string,
+      values: Record<string, number>,
+    ): [string, number][] =>
+      Object.entries(values).map(([k, v]) => [
+        `${name}${k.charAt(0).toUpperCase()}${k.slice(1)}`,
+        v,
+      ])
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        "the whole-box instruments agree with the dock instruments on the unsteered fold; the unsteered fold reverses, keeps charge and CPT, superposes exactly, quantizes walls, has no more line components than the color turn weave, leaks no color, and dresses no more than the committed knit at sides 7, 9 and 11 for a love and a fear; both steered folds reverse and keep charge with the flux, and line steering keeps CPT on the full box",
+        'the whole-box instruments agree with the dock instruments on the unsteered fold; the unsteered fold reverses, keeps charge and CPT, superposes exactly, quantizes walls, has no more line components than the color turn weave, leaks no color, and dresses no more than the committed knit at sides 7, 9 and 11 for a love and a fear; both steered folds reverse and keep charge with the flux, and line steering keeps CPT on the full box',
       metrics: {
         instrumentsAgree: agree ? 1 : 0,
         foldedPassesBattery: foldedPasses ? 1 : 0,

@@ -81,9 +81,22 @@ import {
   type TritLight,
   type TritState,
 } from '@/code/rule/trit-column'
-import { e179HuskValues, sortedEigen, tritHuskSymbol, tritKappa, tritWave } from '@/code/measure/trit-column-light'
+import {
+  e179HuskValues,
+  sortedEigen,
+  tritHuskSymbol,
+  tritKappa,
+  tritWave,
+} from '@/code/measure/trit-column-light'
 
-const KEYS = ['angle', 'potential', 'counter', 'lag', 'spatial', 'string'] as const
+const KEYS = [
+  'angle',
+  'potential',
+  'counter',
+  'lag',
+  'spatial',
+  'string',
+] as const
 
 function mismatches(a: HuskLightState, b: HuskLightState): number {
   let m = 0
@@ -100,7 +113,15 @@ function mismatches(a: HuskLightState, b: HuskLightState): number {
 function tritMismatches(a: TritState, b: TritState): number {
   let m = 0
 
-  for (const key of ['vibe', 'angle', 'string', 'potential', 'counter', 'lag', 'spatial'] as const) {
+  for (const key of [
+    'vibe',
+    'angle',
+    'string',
+    'potential',
+    'counter',
+    'lag',
+    'spatial',
+  ] as const) {
     for (let i = 0; i < a[key].length; i++) {
       m += a[key][i] === b[key][i] ? 0 : 1
     }
@@ -112,7 +133,15 @@ function tritMismatches(a: TritState, b: TritState): number {
 function outOfRange(s: TritState): number {
   let bad = 0
 
-  for (const key of ['vibe', 'angle', 'string', 'potential', 'counter', 'lag', 'spatial'] as const) {
+  for (const key of [
+    'vibe',
+    'angle',
+    'string',
+    'potential',
+    'counter',
+    'lag',
+    'spatial',
+  ] as const) {
     for (const v of s[key]) {
       bad += v >= -1 && v <= 1 ? 0 : 1
     }
@@ -145,7 +174,11 @@ function weylStart(light: TritLight): TritState {
   return s
 }
 
-function exactRun(light: TritLight, start: TritState, beats: number): { mismatches: number; back: number; range: number } {
+function exactRun(
+  light: TritLight,
+  start: TritState,
+  beats: number,
+): { mismatches: number; back: number; range: number } {
   const s = copyTritState(start)
   const ref = readHusk(light, s)
 
@@ -177,7 +210,12 @@ function waveStart(light: TritLight): TritState {
     const n = light.window[l % 9] ?? 1
     const x = y % light.bulk.side
 
-    h.angle[l] = ((Math.floor(6 * Math.cos(tau * x + (l % 9)) + 0.5) + n / 2) % n + n) % n - n / 2
+    h.angle[l] =
+      ((((Math.floor(6 * Math.cos(tau * x + (l % 9)) + 0.5) + n / 2) %
+        n) +
+        n) %
+        n) -
+      n / 2
   }
 
   writeHusk(light, s, h)
@@ -200,10 +238,14 @@ function sectionA(): Record<string, number> {
   const big = makeTritLight({ side: 8, depth: 16, form: 'wave' })
   const r = exactRun(big, waveStart(big), 100)
 
-  out['aWaveBoxMismatches'] = r.mismatches
-  out['aWaveBoxBackMismatches'] = r.back
-  out['aWaveBoxOutOfRange'] = r.range
-  out['aTritsPerBulkDock'] = 1 + 12 * 2 + big.bulk.triangles / big.bulk.docks + (3 * big.bulk.huskTriangles * big.bulk.depth) / big.bulk.docks
+  out.aWaveBoxMismatches = r.mismatches
+  out.aWaveBoxBackMismatches = r.back
+  out.aWaveBoxOutOfRange = r.range
+  out.aTritsPerBulkDock =
+    1 +
+    12 * 2 +
+    big.bulk.triangles / big.bulk.docks +
+    (3 * big.bulk.huskTriangles * big.bulk.depth) / big.bulk.docks
 
   return out
 }
@@ -222,18 +264,32 @@ function sectionG(): Record<string, number> {
     const e = bulkFlux(light, s)
 
     bulkBad += bulkGaussViolations(light, s)
-    huskBad += huskGaussViolations(light, columnSumLinks(light, e), s.vibe)
+    huskBad += huskGaussViolations(
+      light,
+      columnSumLinks(light, e),
+      s.vibe,
+    )
 
-    const sheet = Int32Array.from(e, (v, l) => ((light.bulk.level[Math.floor(l / 12)] ?? 0) === 0 ? v : 0))
+    const sheet = Int32Array.from(e, (v, l) =>
+      (light.bulk.level[Math.floor(l / 12)] ?? 0) === 0 ? v : 0,
+    )
 
-    sheetBad += huskGaussViolations(light, columnSumLinks(light, sheet), s.vibe)
+    sheetBad += huskGaussViolations(
+      light,
+      columnSumLinks(light, sheet),
+      s.vibe,
+    )
 
     if (t < 200) {
       tritLightBeat(light, s)
     }
   }
 
-  return { gBulkViolations: bulkBad, gHuskViolations: huskBad, gSheetControlViolations: sheetBad }
+  return {
+    gBulkViolations: bulkBad,
+    gHuskViolations: huskBad,
+    gSheetControlViolations: sheetBad,
+  }
 }
 
 function sectionS(): Record<string, number> {
@@ -243,6 +299,7 @@ function sectionS(): Record<string, number> {
   let gap = 0
   let gaugeZeros = 0
   let photonsBelow = 0
+
   const vectors = [
     [1, 0, 0],
     [1, 1, 0],
@@ -256,9 +313,16 @@ function sectionS(): Record<string, number> {
     const mine = sortedEigen(tritHuskSymbol(light, k).hermitian).values
     const theirs = e179HuskValues(k)
 
-    gap = Math.max(gap, ...mine.map((v, i) => Math.abs(v - (theirs[i] ?? 0))))
-    gaugeZeros += mine.filter(v => Math.abs(v) < 1e-12).length === 1 ? 1 : 0
-    photonsBelow += (mine[2] ?? 0) < (mine[3] ?? 0) && (mine[1] ?? 0) > 1e-9 ? 1 : 0
+    gap = Math.max(
+      gap,
+      ...mine.map((v, i) => Math.abs(v - (theirs[i] ?? 0))),
+    )
+
+    gaugeZeros +=
+      mine.filter(v => Math.abs(v) < 1e-12).length === 1 ? 1 : 0
+
+    photonsBelow +=
+      (mine[2] ?? 0) < (mine[3] ?? 0) && (mine[1] ?? 0) > 1e-9 ? 1 : 0
   }
 
   let lambdaMax = 0
@@ -266,18 +330,35 @@ function sectionS(): Record<string, number> {
   for (let a = 0; a < 8; a++) {
     for (let b = 0; b < 8; b++) {
       for (let c = 0; c < 8; c++) {
-        lambdaMax = Math.max(lambdaMax, sortedEigen(tritHuskSymbol(light, [a * tau, b * tau, c * tau]).hermitian).values[8] ?? 0)
+        lambdaMax = Math.max(
+          lambdaMax,
+          sortedEigen(
+            tritHuskSymbol(light, [a * tau, b * tau, c * tau])
+              .hermitian,
+          ).values[8] ?? 0,
+        )
       }
     }
   }
 
-  return { sSymbolGap: gap, sGaugeZeroVectors: gaugeZeros, sPhotonVectors: photonsBelow, sVectors: vectors.length, sLambdaMax: lambdaMax }
+  return {
+    sSymbolGap: gap,
+    sGaugeZeroVectors: gaugeZeros,
+    sPhotonVectors: photonsBelow,
+    sVectors: vectors.length,
+    sLambdaMax: lambdaMax,
+  }
 }
 
-function sectionW(form: TritForm, prefix: string): { metrics: Record<string, number>; ok: boolean } {
+function sectionW(
+  form: TritForm,
+  prefix: string,
+): { metrics: Record<string, number>; ok: boolean } {
   const light = makeTritLight({ side: 8, depth: 16, form })
   const tau = (2 * Math.PI) / 8
-  const out: Record<string, number> = { [`${prefix}Kappa`]: tritKappa(light) }
+  const out: Record<string, number> = {
+    [`${prefix}Kappa`]: tritKappa(light),
+  }
 
   let worst = 0
   let worstRaw = 0
@@ -290,7 +371,14 @@ function sectionW(form: TritForm, prefix: string): { metrics: Record<string, num
     [1, 1, 1],
   ]) {
     for (const rank of [1, 2]) {
-      const w = tritWave(light, m.map(x => x * tau), rank, 8, 400, 'trit')
+      const w = tritWave(
+        light,
+        m.map(x => x * tau),
+        rank,
+        8,
+        400,
+        'trit',
+      )
       const name = `${prefix}_${m.join('')}_${rank}`
 
       out[`${name}_Relative`] = w.relative
@@ -311,7 +399,10 @@ function sectionW(form: TritForm, prefix: string): { metrics: Record<string, num
   out[`${prefix}PotentialWraps`] = wraps
   out[`${prefix}SeamTouched`] = touched
 
-  return { metrics: out, ok: worst < 1e-4 && wraps === 0 && touched === 0 }
+  return {
+    metrics: out,
+    ok: worst < 1e-4 && wraps === 0 && touched === 0,
+  }
 }
 
 function sectionP(): Record<string, number> {
@@ -331,7 +422,12 @@ function sectionP(): Record<string, number> {
         const reach = v === w ? 0 : Math.max(Math.abs(v), Math.abs(w))
 
         cases++
-        exceptions += r.flips === Math.abs(w - v) && r.reach === reach && trits.reduce((a, b) => a + b, 0) === w ? 0 : 1
+        exceptions +=
+          r.flips === Math.abs(w - v) &&
+          r.reach === reach &&
+          trits.reduce((a, b) => a + b, 0) === w
+            ? 0
+            : 1
       }
     }
   }
@@ -356,7 +452,11 @@ function sectionL(): Record<string, number> {
     }
   }
 
-  return { lSplits: splits, lNonAdditiveSplits: differ, lIntegerLinearKappaLambdaMax: 16 }
+  return {
+    lSplits: splits,
+    lNonAdditiveSplits: differ,
+    lIntegerLinearKappaLambdaMax: 16,
+  }
 }
 
 export default experiment({
@@ -376,14 +476,42 @@ export default experiment({
     const w0 = sectionW('first', 'w0')
     const p = sectionP()
     const l = sectionL()
-    const okA = ['first', 'wave'].every(f => a[`a_${f}_Mismatches`] === 0) && a['aWaveBoxMismatches'] === 0
-    const okR = ['first', 'wave'].every(f => a[`a_${f}_BackMismatches`] === 0) && a['aWaveBoxBackMismatches'] === 0
-    const okT = ['first', 'wave'].every(f => a[`a_${f}_OutOfRange`] === 0) && a['aWaveBoxOutOfRange'] === 0
-    const okG = g['gBulkViolations'] === 0 && g['gHuskViolations'] === 0 && (g['gSheetControlViolations'] ?? 0) > 0
-    const okS = (s['sSymbolGap'] ?? 1) < 1e-12 && s['sGaugeZeroVectors'] === s['sVectors'] && s['sPhotonVectors'] === s['sVectors']
-    const okP = p['pExceptions'] === 0
-    const gates = { A: okA, R: okR, T: okT, G: okG, S: okS, W: w.ok, P: okP }
-    const metrics: Record<string, number> = { ...a, ...g, ...s, ...w.metrics, ...w0.metrics, ...p, ...l }
+    const okA =
+      ['first', 'wave'].every(f => a[`a_${f}_Mismatches`] === 0) &&
+      a.aWaveBoxMismatches === 0
+    const okR =
+      ['first', 'wave'].every(f => a[`a_${f}_BackMismatches`] === 0) &&
+      a.aWaveBoxBackMismatches === 0
+    const okT =
+      ['first', 'wave'].every(f => a[`a_${f}_OutOfRange`] === 0) &&
+      a.aWaveBoxOutOfRange === 0
+    const okG =
+      g.gBulkViolations === 0 &&
+      g.gHuskViolations === 0 &&
+      (g.gSheetControlViolations ?? 0) > 0
+    const okS =
+      (s.sSymbolGap ?? 1) < 1e-12 &&
+      s.sGaugeZeroVectors === s.sVectors &&
+      s.sPhotonVectors === s.sVectors
+    const okP = p.pExceptions === 0
+    const gates = {
+      A: okA,
+      R: okR,
+      T: okT,
+      G: okG,
+      S: okS,
+      W: w.ok,
+      P: okP,
+    }
+    const metrics: Record<string, number> = {
+      ...a,
+      ...g,
+      ...s,
+      ...w.metrics,
+      ...w0.metrics,
+      ...p,
+      ...l,
+    }
 
     for (const [gate, ok] of Object.entries(gates)) {
       metrics[`gate${gate}`] = ok ? 1 : 0
@@ -398,8 +526,8 @@ export default experiment({
         "the husk's U(1) integers are column sums of bulk trits: a rule on trits only runs the husk integer leapfrog bit for bit, reversible, with Gauss's law exact in the bulk and on the husk, E-FRC-0179's husk symbol, and light within 1e-4 on both polarizations, at the price of reading whole columns",
       metrics,
       control: {
-        firstFormWorstRelative: w0.metrics['w0WorstRelative'] ?? -1,
-        sheetControlViolations: g['gSheetControlViolations'] ?? -1,
+        firstFormWorstRelative: w0.metrics.w0WorstRelative ?? -1,
+        sheetControlViolations: g.gSheetControlViolations ?? -1,
       },
       notes:
         "L2, exact integers, deterministic (golden and silver Weyl starts, no seeds). First run 2026-09-26 (tmp/frc0207.log, 102 s), PASS on every gate. A: 0 mismatches between the trit rule's column sums and the husk integer rule, both forms, 60 beats from the Weyl start (side 4, D 4) and 100 beats from a wave start (side 8, D 16). R: 0 trit mismatches after running back. T: 0 values outside -1 .. 1; 117 trits per bulk dock (1 vibe, 12 angle and 12 string per 12 links, 32 potentials, 60 counter trits: 20 husk triangles times 3 counters, D trits each, per column of D docks). G: 0 bulk and 0 husk Gauss violations over 201 readings of a static pair, against 4,998 for the one-sheet reading (depth level 0 only). S: the rule's husk operator has E-FRC-0179's husk eigenvalues within 3.4e-14 at 5 wave vectors, 1 gauge zero and 2 photons each, and lambda_max = 16 exactly (over the side-8 torus). W: on the trit rule (side 8, D 16, kappa 2/33, peak |B| 8, 400 beats) every wave reads the symbol within 8.1e-6 on the shadow (worst (1,1,0) first photon), within 2.1e-3 on the raw field, with 0 potential wraps, the field peaking at 18 to 20 against the seam at 32, the potential at 2 to 3 against its window of 16 or 32, 3.0e5 to 3.1e5 unit trit changes per beat (about 600 per husk dock) and the deepest trit written at position 16 to 19. P: 454 of 454 column moves change exactly |v' - v| units at depth max(|v|, |v'|). W0 CONTROL: the first form (E-FRC-0181's carried remainder) heats at this depth: 120,590 potential wraps, every wave at the seam, 174 percent off, because a D-deep column holds a field of only 2D = 32 in B, so a wave's flux is a few units and the one-unit white error is as large as the wave; the wave form (the error fed back through the leapfrog operator) is required, and with it the shadow is exact to the second counter's carry. HOW A KICK IS PAID: the counters take the drive n_P p B_P and each wrap of a counter (a cycling number in -D .. D mod 2D + 1, held as D trits in the thermometer code) pays one unit of force; a force of f moves the potential column's front by f, changing exactly |f| trits at depth |U|; the angle column's front moves by the flux each beat; a column that passes its window wraps (the angle's wrap is compact U(1), a potential wrap is counted and never happened). THE THEOREM (L): let a trit rule be depth-local with reach w and let its column sums evolve by a closed husk rule H. Put a husk state V1 in a depth block and V2 in another more than 2w away: the column sums change by the sum of what each block does alone, which closure makes H(V1) - V1 and H(V2) - V2, while closure on the whole makes it H(V1 + V2) - V1 - V2. So H - id is additive, hence integer-linear: the force is c B with c an integer, so kappa lambda_max = 16 c, unstable for every c other than 0, and c = 0 carries no light. The counter's floor is not additive (9,792 of 39,601 splits of the drive into two blocks disagree), nor is any wrap. So the rule MUST read whole columns: its read reach is D (every column is summed each beat), local on the husk and global along the depth. WHAT THIS ANSWERS: no integer register is stored anywhere (every stored value is a trit, and the husk integers are column sums), but the rule's neighborhood is a column, and that cannot be made depth-local. Flux is a relation (s - C^T u), no link stores it. Not done here: matter hops (a vibe crossing a link flips its string trit, refused when the trit is full), so charges are static; a hot start (the seam at 2D is far below the committed N / 2 = 4096).",

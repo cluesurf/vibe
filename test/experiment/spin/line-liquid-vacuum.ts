@@ -100,12 +100,35 @@ import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { fullPathKey, pathOffset } from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
-import { gatedMix, mixTrack, newMixTally } from '@/code/measure/string-gated-mixer'
+import {
+  gatedMix,
+  mixTrack,
+  newMixTally,
+} from '@/code/measure/string-gated-mixer'
 import { starBeat, type KEvent } from '@/code/measure/hub-star'
 import { weylF4 } from '@/code/measure/covariant-coin'
 import { FRAME_LINES } from '@/code/rule/coined-locked-knit'
-import { cloneConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
-import { liquidBeat, liquidDistance, liquidLattice, liquidReading, liquidStart, liquidVacuum, liquidWeight, newLiquidTally, termOnBox, termSingles, type LiquidLattice, type LiquidReading, type LiquidSpec, type LiquidState, type LiquidTerm } from '@/code/measure/line-liquid'
+import {
+  cloneConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  liquidBeat,
+  liquidDistance,
+  liquidLattice,
+  liquidReading,
+  liquidStart,
+  liquidVacuum,
+  liquidWeight,
+  newLiquidTally,
+  termOnBox,
+  termSingles,
+  type LiquidLattice,
+  type LiquidReading,
+  type LiquidSpec,
+  type LiquidState,
+  type LiquidTerm,
+} from '@/code/measure/line-liquid'
 
 const SIDE = 8
 const CELL_SIDE = 4
@@ -146,13 +169,27 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const group = weylF4()
 
     // ---- L1: the liquid on one vacuum cell ----
     const f4 = contactFresh(CELL_SIDE, 'pass', centerOf(CELL_SIDE))
-    const liquid = liquidVacuum(f4.tables, wordVacuum(f4, f4.store), CELL_SIDE, group)
-    const L1 = liquid.singles === 0 && liquid.gated === 0 && liquid.periodic === liquid.images && liquid.overlap64 >= OVERLAP && liquid.generated === group.length && liquid.reflectionChange <= SAME
+    const liquid = liquidVacuum(
+      f4.tables,
+      wordVacuum(f4, f4.store),
+      CELL_SIDE,
+      group,
+    )
+    const L1 =
+      liquid.singles === 0 &&
+      liquid.gated === 0 &&
+      liquid.periodic === liquid.images &&
+      liquid.overlap64 >= OVERLAP &&
+      liquid.generated === group.length &&
+      liquid.reflectionChange <= SAME
 
     log('liquid')
 
@@ -167,42 +204,77 @@ export default experiment({
     // rigidity: every dock of one cell given no stores or a whole stored frame (3 frames x 16 tones), 12 beats
     let tested = 0
     let keptNonTrivial = 0
-    const rigidSpec: LiquidSpec = { n: 0, bloch: false, K: [0, 0, 0, 0], cut: Infinity, key: fullPathKey(0), threshold: THRESHOLD_BORN }
+
+    const rigidSpec: LiquidSpec = {
+      n: 0,
+      bloch: false,
+      K: [0, 0, 0, 0],
+      cut: Infinity,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+    }
 
     for (let x = 0; x < CELL_SIDE ** 4; x++) {
-      const c = [x % 4, Math.floor(x / 4) % 4, Math.floor(x / 16) % 4, Math.floor(x / 64) % 4]
-      const dock = c[0]! + SIDE * (c[1]! + SIDE * (c[2]! + SIDE * c[3]!))
-      const own = vac.store.subarray(dock * 12, dock * 12 + 12).join(',')
+      const c = [
+        x % 4,
+        Math.floor(x / 4) % 4,
+        Math.floor(x / 16) % 4,
+        Math.floor(x / 64) % 4,
+      ]
+      const dock =
+        c[0]! + SIDE * (c[1]! + SIDE * (c[2]! + SIDE * c[3]!))
+      const own = vac.store
+        .subarray(dock * 12, dock * 12 + 12)
+        .join(',')
       const alternatives: Int8Array[] = [new Int8Array(12)]
 
       for (let fr = 0; fr < 3; fr++) {
         for (let tones = 0; tones < 16; tones++) {
           const st = new Int8Array(12)
 
-          ;(FRAME_LINES[fr] as readonly number[]).forEach((l, i) => (st[l] = (tones >> i) & 1 ? -1 : 1))
+          FRAME_LINES[fr]!.forEach(
+            (l, i) => (st[l] = (tones >> i) & 1 ? -1 : 1),
+          )
           alternatives.push(st)
         }
       }
 
       for (const st of alternatives) {
-        if (st.join(',') === own) continue
+        if (st.join(',') === own) {
+          continue
+        }
 
         const start = cloneConfiguration(vac)
 
         start.store.set(st, dock * 12)
-        for (let l = 0; l < 12; l++) start.sopen[dock * 12 + l] = st[l] !== 0 ? 3 : 0
 
-        let s = liquidStart(Lbox, rigidSpec, [{ config: start, amp: [1, 0] }])
+        for (let l = 0; l < 12; l++) {
+          start.sopen[dock * 12 + l] = st[l] !== 0 ? 3 : 0
+        }
+
+        let s = liquidStart(Lbox, rigidSpec, [
+          { config: start, amp: [1, 0] },
+        ])
+
         const k0 = [...s.keys()][0]
+
         let ok = true
 
         for (let t = 0; t < 12 && ok; t++) {
           s = liquidBeat(Lbox, s, t, rigidSpec, newLiquidTally())
-          for (const term of s.values()) if (termSingles(term) > 0) ok = false
+
+          for (const term of s.values()) {
+            if (termSingles(term) > 0) {
+              ok = false
+            }
+          }
         }
 
         tested++
-        if (ok && [...s.keys()][0] === k0) keptNonTrivial++
+
+        if (ok && [...s.keys()][0] === k0) {
+          keptNonTrivial++
+        }
       }
     }
 
@@ -211,25 +283,58 @@ export default experiment({
     // ---- CHECK: the stand-in on keyed paths is the rule's occupation ----
     const keyedDiffer = [3, 0].map(n => {
       const key = fullPathKey(pathOffset(0))
-      const spec: LiquidSpec = { n, bloch: false, K: [0, 0, 0, 0], cut: Infinity, key, threshold: THRESHOLD_BORN }
+      const spec: LiquidSpec = {
+        n,
+        bloch: false,
+        K: [0, 0, 0, 0],
+        cut: Infinity,
+        key,
+        threshold: THRESHOLD_BORN,
+      }
+
       let s = liquidStart(Lbox, spec, [{ config: love, amp: [1, 0] }])
       let a = cloneConfiguration(love)
       let b = cloneConfiguration(love)
+
       const flux = new Int8Array(f.cells * 12)
       const events: KEvent[] = []
+
       let differ = 0
 
       for (let t = 0; t < CHECK_BEATS; t++) {
-        gatedMix(f.tables, a, flux, flux, key, t, n, newMixTally(), true)
+        gatedMix(
+          f.tables,
+          a,
+          flux,
+          flux,
+          key,
+          t,
+          n,
+          newMixTally(),
+          true,
+        )
+
         starBeat(f.tables, a, b, key, THRESHOLD_BORN, t, events)
         ;[a, b] = [b, a]
         s = liquidBeat(Lbox, s, t, spec, newLiquidTally())
-        if (s.size !== 1) return Infinity
 
-        const box = termOnBox(Lbox, [...s.values()][0] as LiquidTerm, t + 1)
+        if (s.size !== 1) {
+          return Infinity
+        }
 
-        for (let i = 0; i < box.vibe.length; i++) if (box.vibe[i] !== a.vibe[i]) differ++
-        for (let i = 0; i < box.store.length; i++) if (box.store[i] !== a.store[i]) differ++
+        const box = termOnBox(Lbox, [...s.values()][0]!, t + 1)
+
+        for (let i = 0; i < box.vibe.length; i++) {
+          if (box.vibe[i] !== a.vibe[i]) {
+            differ++
+          }
+        }
+
+        for (let i = 0; i < box.store.length; i++) {
+          if (box.store[i] !== a.store[i]) {
+            differ++
+          }
+        }
       }
 
       return differ
@@ -238,21 +343,58 @@ export default experiment({
     log('keyed check')
 
     // ---- L2: the coherent stand-in and its decoherent limit ----
-    const runs = (n: number, window: number, specs: [string, LiquidSpec][]): Record<string, { readings: LiquidReading[]; unitGap: number }> & { distance: number[] } => {
-      const states = new Map<string, LiquidState>(specs.map(([name, spec]) => [name, liquidStart(L, spec, [{ config: love, amp: [1, 0] }])]))
-      const out: Record<string, { readings: LiquidReading[]; unitGap: number }> = Object.fromEntries(specs.map(([name]) => [name, { readings: [], unitGap: 0 }]))
+    const runs = (
+      n: number,
+      window: number,
+      specs: [string, LiquidSpec][],
+    ): Record<
+      string,
+      { readings: LiquidReading[]; unitGap: number }
+    > & { distance: number[] } => {
+      const states = new Map<string, LiquidState>(
+        specs.map(([name, spec]) => [
+          name,
+          liquidStart(L, spec, [{ config: love, amp: [1, 0] }]),
+        ]),
+      )
+      const out: Record<
+        string,
+        { readings: LiquidReading[]; unitGap: number }
+      > = Object.fromEntries(
+        specs.map(([name]) => [name, { readings: [], unitGap: 0 }]),
+      )
       const distance: number[] = []
 
       for (let t = 0; t < window; t++) {
         for (const [name, spec] of specs) {
-          const s = liquidBeat(L, states.get(name)!, t, spec, newLiquidTally())
+          const s = liquidBeat(
+            L,
+            states.get(name)!,
+            t,
+            spec,
+            newLiquidTally(),
+          )
 
           states.set(name, s)
-          out[name]!.readings.push(liquidReading(L, s, t + 1, spec.classical))
-          out[name]!.unitGap = Math.max(out[name]!.unitGap, Math.abs(liquidWeight(s, spec.classical) - 1))
+          out[name]!.readings.push(
+            liquidReading(L, s, t + 1, spec.classical),
+          )
+
+          out[name]!.unitGap = Math.max(
+            out[name]!.unitGap,
+            Math.abs(liquidWeight(s, spec.classical) - 1),
+          )
         }
 
-        if (states.has('across')) distance.push(liquidDistance(states.get('coherent')!, states.get('across')!))
+        if (states.has('across')) {
+          distance.push(
+            liquidDistance(
+              states.get('coherent')!,
+              states.get('across')!,
+            ),
+          )
+        }
+
         log(`n ${n} beat ${t + 1}`)
       }
 
@@ -260,13 +402,32 @@ export default experiment({
 
       return Object.assign(out, { distance })
     }
+
     const zero = runs(0, WINDOW0, [
-      ['coherent', { n: 0, bloch: true, K: [0, 0, 0, 0], cut: Infinity }],
-      ['across', { n: 0, bloch: true, K: [0, 0, KAPPA, 0], cut: Infinity }],
+      [
+        'coherent',
+        { n: 0, bloch: true, K: [0, 0, 0, 0], cut: Infinity },
+      ],
+      [
+        'across',
+        { n: 0, bloch: true, K: [0, 0, KAPPA, 0], cut: Infinity },
+      ],
     ])
     const three = runs(RATE, WINDOW3, [
-      ['coherent', { n: RATE, bloch: true, K: [0, 0, 0, 0], cut: Infinity }],
-      ['classical', { n: RATE, bloch: true, K: [0, 0, 0, 0], cut: Infinity, classical: true }],
+      [
+        'coherent',
+        { n: RATE, bloch: true, K: [0, 0, 0, 0], cut: Infinity },
+      ],
+      [
+        'classical',
+        {
+          n: RATE,
+          bloch: true,
+          K: [0, 0, 0, 0],
+          cut: Infinity,
+          classical: true,
+        },
+      ],
     ])
     const coh = three.coherent!.readings
     const dec = three.classical!.readings
@@ -275,20 +436,66 @@ export default experiment({
     const L3 = false
 
     // ---- C1: E-SPN-0121's own track ----
-    const at = (xs: number[]): number[] => REPORT_AT.map(t => xs[t - 1] as number)
+    const at = (xs: number[]): number[] =>
+      REPORT_AT.map(t => xs[t - 1]!)
     const footprints = (n: number): number[][] =>
-      [0, 1, 2, 3].map(k => at(mixTrack({ tables: f.tables, vacuum: vac, start: love, hub: X, key: fullPathKey(pathOffset(k)), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE, n }).footprint))
+      [0, 1, 2, 3].map(k =>
+        at(
+          mixTrack({
+            tables: f.tables,
+            vacuum: vac,
+            start: love,
+            hub: X,
+            key: fullPathKey(pathOffset(k)),
+            threshold: THRESHOLD_BORN,
+            beats: BEATS,
+            side: SIDE,
+            n,
+          }).footprint,
+        ),
+      )
     const f3 = footprints(RATE)
     const f0 = footprints(0)
-    const C1 = f3.every((r, k) => r.every((v, i) => v === RECORD_RATE3[k]![i])) && f0.every((r, k) => r.every((v, i) => v === RECORD_RATE0[k]![i]))
+    const C1 =
+      f3.every((r, k) =>
+        r.every((v, i) => v === RECORD_RATE3[k]![i]),
+      ) &&
+      f0.every((r, k) => r.every((v, i) => v === RECORD_RATE0[k]![i]))
 
     log('C1')
 
-    const C2 = zero.coherent!.readings.every(r => Math.abs(r.onLine - 1) <= UNIT && Math.abs(r.e1 - 1) <= UNIT && r.maxOff === 1) && zero.distance.every(d => d <= SAME)
-    const checked = keyedDiffer.every(d => d === 0) && zero.coherent!.unitGap <= UNIT && zero.across!.unitGap <= UNIT && three.coherent!.unitGap <= UNIT && three.classical!.unitGap <= UNIT && keptNonTrivial === 0
-    const status = !C1 || !C2 || !checked ? 'partial' : !L1 || (L2decided && !L2) ? 'fail' : L1 && L2 && L3 ? 'pass' : 'open'
-    const last = (r: LiquidReading[]): LiquidReading => r[r.length - 1] as LiquidReading
-    const gapCD = Math.max(...coh.map((r, i) => Math.max(Math.abs(r.e1 - dec[i]!.e1), Math.abs(r.meanOff - dec[i]!.meanOff), Math.abs(r.onLine - dec[i]!.onLine))))
+    const C2 =
+      zero.coherent!.readings.every(
+        r =>
+          Math.abs(r.onLine - 1) <= UNIT &&
+          Math.abs(r.e1 - 1) <= UNIT &&
+          r.maxOff === 1,
+      ) && zero.distance.every(d => d <= SAME)
+    const checked =
+      keyedDiffer.every(d => d === 0) &&
+      zero.coherent!.unitGap <= UNIT &&
+      zero.across!.unitGap <= UNIT &&
+      three.coherent!.unitGap <= UNIT &&
+      three.classical!.unitGap <= UNIT &&
+      keptNonTrivial === 0
+    const status =
+      !C1 || !C2 || !checked
+        ? 'partial'
+        : !L1 || (L2decided && !L2)
+          ? 'fail'
+          : L1 && L2 && L3
+            ? 'pass'
+            : 'open'
+    const last = (r: LiquidReading[]): LiquidReading => r[r.length - 1]!
+    const gapCD = Math.max(
+      ...coh.map((r, i) =>
+        Math.max(
+          Math.abs(r.e1 - dec[i]!.e1),
+          Math.abs(r.meanOff - dec[i]!.meanOff),
+          Math.abs(r.onLine - dec[i]!.onLine),
+        ),
+      ),
+    )
 
     const metrics: Record<string, number> = {
       L1: L1 ? 1 : 0,
@@ -310,8 +517,8 @@ export default experiment({
       cellDocks: liquid.cells,
       rigidTested: tested,
       rigidKept: keptNonTrivial,
-      keyedDiffer3: keyedDiffer[0] as number,
-      keyedDiffer0: keyedDiffer[1] as number,
+      keyedDiffer3: keyedDiffer[0]!,
+      keyedDiffer0: keyedDiffer[1]!,
       window0: WINDOW0,
       window3: WINDOW3,
       terms0: last(zero.coherent!.readings).terms,
@@ -323,18 +530,33 @@ export default experiment({
       onLineRate3: last(coh).onLine,
       coherentVsDecoherent: gapCD,
       across0: Math.max(...zero.distance),
-      unitGap: Math.max(zero.coherent!.unitGap, three.coherent!.unitGap),
-      footprint128Rate3: f3.reduce((s, r) => s + (r[4] as number), 0) / 4,
-      footprint128Rate0: f0.reduce((s, r) => s + (r[4] as number), 0) / 4,
+      unitGap: Math.max(
+        zero.coherent!.unitGap,
+        three.coherent!.unitGap,
+      ),
+      footprint128Rate3: f3.reduce((s, r) => s + r[4]!, 0) / 4,
+      footprint128Rate0: f0.reduce((s, r) => s + r[4]!, 0) / 4,
       seconds: (Date.now() - started) / 1000,
     }
-    const trend = (r: LiquidReading[]): string => r.map((x, i) => `t${i + 1}: terms ${x.terms}, e1 ${x.e1.toFixed(4)}, off ${x.meanOff.toFixed(3)}/${x.maxOff}, one line ${x.onLine.toFixed(4)}`).join('; ')
+    const trend = (r: LiquidReading[]): string =>
+      r
+        .map(
+          (x, i) =>
+            `t${i + 1}: terms ${x.terms}, e1 ${x.e1.toFixed(4)}, off ${x.meanOff.toFixed(3)}/${x.maxOff}, one line ${x.onLine.toFixed(4)}`,
+        )
+        .join('; ')
 
     return verdict({
       status,
       claim: `a frame-invariant stationary vacuum exists (${liquid.images} W(F4) images, overlap ${liquid.overlap64.toFixed(12)} after 64 beats, ${liquid.gated} gated docks, unchanged by ${liquid.reflections} generators of a group of ${liquid.generated}) but only as a superposition of images at least ${liquid.minApart} of ${liquid.cells} docks apart, since ${keptNonTrivial} of ${tested} one-dock rearrangements are vacua; on it a love sees a classical mixture of fixed vacua, so E-SPN-0121's cascade carries over; the coherent window (${WINDOW3} beats at rate 3) is far short of the ${LEVEL_BEATS} a Floquet level needs, and in it the coherent and decoherent readings agree to ${gapCD.toExponential(1)}`,
       metrics,
-      control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, footprint128Rate3: metrics.footprint128Rate3 as number, footprint128Rate0: metrics.footprint128Rate0 as number, across0: metrics.across0 as number },
+      control: {
+        C1: C1 ? 1 : 0,
+        C2: C2 ? 1 : 0,
+        footprint128Rate3: metrics.footprint128Rate3!,
+        footprint128Rate0: metrics.footprint128Rate0!,
+        across0: metrics.across0!,
+      },
       notes: `L1 ${L1} (images ${liquid.images}, singles ${liquid.singles}, gated ${liquid.gated}, periodic ${liquid.periodic}, overlap ${liquid.overlap64}, reflections ${liquid.reflections} change ${liquid.reflectionChange}, min apart ${liquid.minApart} of ${liquid.cells}). Rigidity: ${keptNonTrivial} of ${tested} non-trivial one-dock alternatives keep Z and the period. L2 undecided (window ${WINDOW0} beats at n = 0, ${WINDOW3} at n = 3, ${LEVEL_BEATS} needed). n = 0: ${trend(zero.coherent!.readings)}; across-line moduli ${zero.distance.map(d => d.toExponential(1)).join(' ')}. n = 3 coherent: ${trend(coh)}; decoherent: ${trend(dec)}. C1 rate 3 ${f3.map(r => r.join('/')).join('; ')}; rate 0 ${f0.map(r => r.join('/')).join('; ')}. Keyed check differ ${keyedDiffer.join(', ')}. ${metrics.seconds!.toFixed(0)} s.`,
     })
   },

@@ -93,8 +93,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { energyDrift, GAUGE_BEATS, spanRuleSurvey, SPAN_DEPTHS } from '@/code/measure/depth-span'
-import { predictionSurvey, REST_TERMS } from '@/code/measure/depth-arena'
+import {
+  energyDrift,
+  GAUGE_BEATS,
+  spanRuleSurvey,
+  SPAN_DEPTHS,
+} from '@/code/measure/depth-span'
+import {
+  predictionSurvey,
+  REST_TERMS,
+} from '@/code/measure/depth-arena'
 
 const TOL4 = 1e-8
 
@@ -110,19 +118,47 @@ export default experiment({
   run() {
     const s = spanRuleSurvey(what => console.error(what))
     const old = predictionSurvey(what => console.error(what))
-    const runs = [...s.speeds.map(x => x.run), s.lens.uniform, s.lens.lens]
-    const wraps = runs.reduce((a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential, 0)
+    const runs = [
+      ...s.speeds.map(x => x.run),
+      s.lens.uniform,
+      s.lens.lens,
+    ]
+    const wraps = runs.reduce(
+      (a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential,
+      0,
+    )
     const gauges = [s.uniformGauge, s.lensGauge]
-    const r1 = runs.every(r => r.reversed && r.gauss === 0) && wraps === 0 && gauges.every(g => g.plaquette === 0 && g.covariantBeats === GAUGE_BEATS)
-    const r2 = Math.abs(s.speedSlope + 1) <= 0.01 && s.speeds.every(x => Math.abs(x.speed / x.closed - 1) <= 0.01)
+    const r1 =
+      runs.every(r => r.reversed && r.gauss === 0) &&
+      wraps === 0 &&
+      gauges.every(
+        g => g.plaquette === 0 && g.covariantBeats === GAUGE_BEATS,
+      )
+    const r2 =
+      Math.abs(s.speedSlope + 1) <= 0.01 &&
+      s.speeds.every(x => Math.abs(x.speed / x.closed - 1) <= 0.01)
     const lensDrift = energyDrift(s.lens.lens.energy)
-    const lensEnd = Math.abs(s.lens.lens.energy[s.lens.lens.energy.length - 1]! / s.lens.lens.energy[0]! - 1)
+    const lensEnd = Math.abs(
+      s.lens.lens.energy[s.lens.lens.energy.length - 1]! /
+        s.lens.lens.energy[0]! -
+        1,
+    )
     const r3 = s.stability <= 4 && lensEnd <= 0.05
-    const uniformDrifts = [...s.speeds.map(x => energyDrift(x.run.energy)), energyDrift(s.lens.uniform.energy)]
+    const uniformDrifts = [
+      ...s.speeds.map(x => energyDrift(x.run.energy)),
+      energyDrift(s.lens.uniform.energy),
+    ]
     const r4 = uniformDrifts.every(d => d <= TOL4)
     const factors = s.restSlope.map(r => s.speedSlope / r)
-    const r5 = s.restSlope.every(r => Math.abs(r + 0.5) <= 0.01) && factors.every(f => Math.abs(f - 2) <= 0.03) && s.rest.every(r => r.reversed)
-    const status = !r1 ? 'partial' : r2 && r3 && r4 && r5 ? 'pass' : 'fail'
+    const r5 =
+      s.restSlope.every(r => Math.abs(r + 0.5) <= 0.01) &&
+      factors.every(f => Math.abs(f - 2) <= 0.03) &&
+      s.rest.every(r => r.reversed)
+    const status = !r1
+      ? 'partial'
+      : r2 && r3 && r4 && r5
+        ? 'pass'
+        : 'fail'
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(2)
     const metrics: Record<string, number> = {
@@ -154,16 +190,21 @@ export default experiment({
       metrics[`speedOverClosed_D${x.depth}`] = x.speed / x.closed
       metrics[`drift_D${x.depth}`] = energyDrift(x.run.energy)
     })
+
     s.rest.forEach(r => {
       metrics[`restRate_m${r.m}_D${r.depth}`] = r.rate
-      metrics[`restRateOverClosed_m${r.m}_D${r.depth}`] = r.rate / r.closed
+      metrics[`restRateOverClosed_m${r.m}_D${r.depth}`] =
+        r.rate / r.closed
     })
 
     return verdict({
       status,
       claim: `the spanned light (a link's stiffness divided by the mean count of the two columns it joins, carried in the link, three shaped levels) reverses bit for bit with 0 Gauss violations and ${wraps} wraps on the uniform line at D = ${SPAN_DEPTHS.join(', ')} and on E-GRV-0089's slab, and is gauge covariant on ${s.uniformGauge.covariantBeats} and ${s.lensGauge.covariantBeats} of ${GAUGE_BEATS} beats (uniform, slab); its speed goes as q^${f(s.speedSlope)} (${s.speeds.map(x => f(x.speed / x.closed)).join(', ')} of 2 / (q sqrt 3)); the span lump's rest rate goes as q^${f(s.restSlope[0]!)} and q^${f(s.restSlope[1]!)} (m = ${REST_TERMS.join(', ')}), so the predicted bending factor from the read exponents is ${factors.map(f).join(' and ')} (closed form 2, general relativity's), with no fitted parameter; kappa lambda_max at most ${f(s.stability)} of the bound 4; the shadow invariant drifts at most ${e(Math.max(...uniformDrifts))} on a uniform depth and ${e(lensDrift)} on the slab`,
       metrics,
-      control: { oldLightSlope: old.lightSlope, oldFactor: old.lightSlope / old.restSlope[1]! },
+      control: {
+        oldLightSlope: old.lightSlope,
+        oldFactor: old.lightSlope / old.restSlope[1]!,
+      },
       notes: `L2. Gates R1 ${r1}, R2 ${r2}, R3 ${r3}, R4 ${r4}, R5 ${r5}. Control, the unchanged light by E-GRV-0088's survey on the same depths: speed q^${f(old.lightSlope)}, factor ${f(old.lightSlope / old.restSlope[1]!)}. Arrivals (t60, t100) per depth: ${s.speeds.map(x => `D ${x.depth} ${x.run.arrival.map(a => a.toFixed(2)).join(' ')}`).join('; ')}. Rest rates over closed: ${s.rest.map(r => `m ${r.m} D ${r.depth} ${f(r.rate / r.closed)}`).join('; ')}. Uniform drifts ${uniformDrifts.map(e).join(', ')}; slab drift ${e(lensDrift)}, end ${e(lensEnd)}. Run seconds ${runs.map(r => r.seconds.toFixed(1)).join(', ')}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

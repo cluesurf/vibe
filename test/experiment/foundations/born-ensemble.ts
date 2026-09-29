@@ -58,7 +58,9 @@ export default experiment({
     const transmitted = (seedBeat: number, tone: number): number => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const readout = seedBeat + 7
+
       let far = 0
 
       for (let t = 0; t <= readout; t++) {
@@ -66,8 +68,7 @@ export default experiment({
           const slot = cellAt([10, 4, mid, mid]) * 24 + 8
           const v = seeded.data[slot]!
 
-          seeded.data[slot] = (((v + tone + 4) % 3) -
-            1) as -1 | 0 | 1
+          seeded.data[slot] = (((v + tone + 4) % 3) - 1) as -1 | 0 | 1
         }
 
         const active = (c: number): boolean =>

@@ -56,9 +56,22 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, blockEnergy, lowEntropyStart, makeHuskLaw, readHuskLaw, sampleHuskLaw, twoWay, type ArrowBox } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  blockEnergy,
+  lowEntropyStart,
+  makeHuskLaw,
+  readHuskLaw,
+  sampleHuskLaw,
+  twoWay,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { addExcess, autocorrelation, variance } from '@/code/measure/fluctuation-dissipation'
+import {
+  addExcess,
+  autocorrelation,
+  variance,
+} from '@/code/measure/fluctuation-dissipation'
 import type { Reduced } from '@/code/measure/living-pair-kernel'
 
 const SIDE = 12
@@ -73,43 +86,78 @@ const LAGS = 24
 const LN9 = Math.log(9)
 const HALF_LN9 = 0.5 * LN9
 
-type Reading = { mean: number; variance: number; beta: number; gap: number; series: Float64Array[]; origins: { state: Reduced; time: number }[] }
+type Reading = {
+  mean: number
+  variance: number
+  beta: number
+  gap: number
+  series: Float64Array[]
+  origins: { state: Reduced; time: number }[]
+}
 
-function readAt(box: ArrowBox, perDock: number, phase: number, emptyVacuum = false): Reading {
-  const r = twoWay(box, lowEntropyStart(box, { blocks: [0], perDock, phase, emptyVacuum }))
+function readAt(
+  box: ArrowBox,
+  perDock: number,
+  phase: number,
+  emptyVacuum = false,
+): Reading {
+  const r = twoWay(
+    box,
+    lowEntropyStart(box, { blocks: [0], perDock, phase, emptyVacuum }),
+  )
   const e = new Float64Array(box.blocks)
   const law = makeHuskLaw(box.side)
-  const series = Array.from({ length: box.blocks }, () => new Float64Array(SAMPLE))
+  const series = Array.from(
+    { length: box.blocks },
+    () => new Float64Array(SAMPLE),
+  )
   const pooled: number[] = []
   const origins: { state: Reduced; time: number }[] = []
 
-  for (let t = 1; t <= SETTLE; t++) r.forward()
+  for (let t = 1; t <= SETTLE; t++) {
+    r.forward()
+  }
 
   for (let t = 0; t < SAMPLE; t++) {
     r.forward()
     blockEnergy(box, r.state(), e)
 
     for (let b = 0; b < box.blocks; b++) {
-      ;(series[b] as Float64Array)[t] = e[b] as number
-      pooled.push(e[b] as number)
+      ;(series[b] as Float64Array)[t] = e[b]!
+      pooled.push(e[b]!)
     }
 
     sampleHuskLaw(box, law, r.state())
 
-    if (t % ORIGIN_EVERY === 0) origins.push({ state: structuredClone(r.state()), time: r.time() })
+    if (t % ORIGIN_EVERY === 0) {
+      origins.push({
+        state: structuredClone(r.state()),
+        time: r.time(),
+      })
+    }
   }
 
   const { mean, variance: v } = variance(pooled)
   const reading = readHuskLaw(law)
 
-  return { mean, variance: v, beta: reading.betaSlot + LN9, gap: reading.betaStore - reading.betaSlot, series, origins }
+  return {
+    mean,
+    variance: v,
+    beta: reading.betaSlot + LN9,
+    gap: reading.betaStore - reading.betaSlot,
+    series,
+    origins,
+  }
 }
 
 function staticRatio(box: ArrowBox, readings: Reading[]): number {
   const [lo, mid, hi] = readings as [Reading, Reading, Reading]
   const B = box.blocks
 
-  return ((B / (B - 1)) * mid.variance) / (-(hi.mean - lo.mean) / (hi.beta - lo.beta))
+  return (
+    ((B / (B - 1)) * mid.variance) /
+    (-(hi.mean - lo.mean) / (hi.beta - lo.beta))
+  )
 }
 
 export function huskFdtRun() {
@@ -120,12 +168,13 @@ export function huskFdtRun() {
   const betas: number[][] = []
   const cSum = new Float64Array(LAGS + 1)
   const rSum = new Float64Array(LAGS + 1)
+
   let twins = 0
 
   members.forEach((member, k) => {
     const box = withStart(member, () => arrowBox(SIDE, BLOCK))
     const readings = ENERGIES.map(perDock => readAt(box, perDock, k))
-    const mid = readings[1] as Reading
+    const mid = readings[1]!
 
     ratios.push(staticRatio(box, readings))
     gaps.push(...readings.map(r => r.gap))
@@ -134,26 +183,36 @@ export function huskFdtRun() {
     const c = autocorrelation(mid.series, LAGS)
 
     c.forEach((x, lag) => {
-      cSum[lag] = (cSum[lag] as number) + x / MEMBERS
+      cSum[lag] = cSum[lag]! + x / MEMBERS
     })
 
     mid.origins.forEach((origin, o) => {
       for (const phase of [0, 1]) {
-        const pert = addExcess({ box, state: origin.state, block: 0, count: EXCESS, phase: k * 100 + o * 2 + phase })
+        const pert = addExcess({
+          box,
+          state: origin.state,
+          block: 0,
+          count: EXCESS,
+          phase: k * 100 + o * 2 + phase,
+        })
         const a = twoWay(box, origin.state, origin.time)
         const b = twoWay(box, pert, origin.time)
         const ea = new Float64Array(box.blocks)
         const eb = new Float64Array(box.blocks)
+
         let d0 = 0
 
         for (let t = 0; t <= LAGS; t++) {
           blockEnergy(box, a.state(), ea)
           blockEnergy(box, b.state(), eb)
 
-          const d = (eb[0] as number) - (ea[0] as number)
+          const d = eb[0]! - ea[0]!
 
-          if (t === 0) d0 = d
-          rSum[t] = (rSum[t] as number) + d / d0
+          if (t === 0) {
+            d0 = d
+          }
+
+          rSum[t] = rSum[t]! + d / d0
           a.forward()
           b.forward()
         }
@@ -161,31 +220,51 @@ export function huskFdtRun() {
         twins++
       }
     })
-    console.error(`member ${k} ${Math.round((Date.now() - started) / 1000)}s`)
+
+    console.error(
+      `member ${k} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   })
 
   const C = Array.from(cSum)
   const R = Array.from(rSum, x => x / twins)
-  const diff = R.map((r, lag) => Math.abs(r - (C[lag] as number)))
+  const diff = R.map((r, lag) => Math.abs(r - C[lag]!))
   const earlyDiff = Math.max(...diff.slice(0, 5))
   const allDiff = Math.max(...diff)
 
   // the control, arm B, first start
-  const controlBox = withStart(members[0]!, () => arrowBox(SIDE, BLOCK, 'union', 'lone', true))
-  const controlRatio = staticRatio(controlBox, ENERGIES.map(perDock => readAt(controlBox, perDock, 0, true)))
+  const controlBox = withStart(members[0]!, () =>
+    arrowBox(SIDE, BLOCK, 'union', 'lone', true),
+  )
+  const controlRatio = staticRatio(
+    controlBox,
+    ENERGIES.map(perDock => readAt(controlBox, perDock, 0, true)),
+  )
 
   const inBand = ratios.filter(r => r >= 0.85 && r <= 1.15).length
-  const s1 = inBand >= MEMBERS - 1 && Math.abs(ratios.reduce((a, b) => a + b, 0) / MEMBERS - 1) <= 0.1
+  const s1 =
+    inBand >= MEMBERS - 1 &&
+    Math.abs(ratios.reduce((a, b) => a + b, 0) / MEMBERS - 1) <= 0.1
   const s2 = gaps.every(g => Math.abs(g - HALF_LN9) <= 0.02)
   const d1 = earlyDiff <= 0.05 && allDiff <= 0.12
   const c1 = controlRatio < 0.85 || controlRatio > 1.15
   const status = s1 && s2 && d1 && c1 ? 'pass' : 'fail'
   const meanRatio = ratios.reduce((a, b) => a + b, 0) / MEMBERS
-  const range = (xs: number[], digits = 3): string => `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
+  const range = (xs: number[], digits = 3): string =>
+    `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
 
   return verdict({
     status,
-    claim: `on the adopted knit (side ${SIDE}, a husk block of 768 docks as the subsystem, the other 26 as the bath, ${MEMBERS} link starts) noise and drag come from one bath at one temperature: the block energy's fluctuation, (B / (B - 1)) Var(E_b), is ${range(ratios)} of its response to temperature, - dE_b / dbeta (mean ${meanRatio.toFixed(3)}), with beta ${range(betas.flat())} per unit from the occupations and the slot and store thermometers apart by ${range(gaps, 4)} against (1/2) ln 9 = ${HALF_LN9.toFixed(4)}; and the relaxation of a 384-vibe excess, averaged over ${twins} twins, follows the equilibrium autocorrelation lag by lag (${R.slice(0, 5).map(x => x.toFixed(3)).join(', ')} against ${C.slice(0, 5).map(x => x.toFixed(3)).join(', ')} at lags 0 to 4, largest gap ${allDiff.toFixed(3)} to lag ${LAGS}); on the control where the depth step is exact and the husk is not Gibbs, the static ratio is ${controlRatio.toFixed(1)}`,
+    claim: `on the adopted knit (side ${SIDE}, a husk block of 768 docks as the subsystem, the other 26 as the bath, ${MEMBERS} link starts) noise and drag come from one bath at one temperature: the block energy's fluctuation, (B / (B - 1)) Var(E_b), is ${range(ratios)} of its response to temperature, - dE_b / dbeta (mean ${meanRatio.toFixed(3)}), with beta ${range(betas.flat())} per unit from the occupations and the slot and store thermometers apart by ${range(gaps, 4)} against (1/2) ln 9 = ${HALF_LN9.toFixed(4)}; and the relaxation of a 384-vibe excess, averaged over ${twins} twins, follows the equilibrium autocorrelation lag by lag (${R.slice(
+      0,
+      5,
+    )
+      .map(x => x.toFixed(3))
+      .join(', ')} against ${C.slice(0, 5)
+      .map(x => x.toFixed(3))
+      .join(
+        ', ',
+      )} at lags 0 to 4, largest gap ${allDiff.toFixed(3)} to lag ${LAGS}); on the control where the depth step is exact and the husk is not Gibbs, the static ratio is ${controlRatio.toFixed(1)}`,
     metrics: {
       gate_S1: s1 ? 1 : 0,
       gate_S2: s2 ? 1 : 0,
@@ -217,7 +296,7 @@ export default experiment({
   id: 'foundations/husk-fluctuation-dissipation',
   code: 'E-FND-0156',
   title:
-    'fluctuation and dissipation on the husk of the adopted knit, pass: a husk block\'s energy fluctuation is 0.941 to 1.045 of its response to temperature on 17 of 17 link starts (mean 1.001, beta 3.87 to 3.93 per unit), and the relaxation of an added excess follows the block\'s equilibrium autocorrelation lag by lag (within 0.025 to lag 4 and 0.085 to lag 24, 170 twins), so noise and drag come from one bath at one temperature; on the control where the depth step is exact and the husk is not Gibbs the static relation fails by a factor of 159',
+    "fluctuation and dissipation on the husk of the adopted knit, pass: a husk block's energy fluctuation is 0.941 to 1.045 of its response to temperature on 17 of 17 link starts (mean 1.001, beta 3.87 to 3.93 per unit), and the relaxation of an added excess follows the block's equilibrium autocorrelation lag by lag (within 0.025 to lag 4 and 0.085 to lag 24, 170 twins), so noise and drag come from one bath at one temperature; on the control where the depth step is exact and the husk is not Gibbs the static relation fails by a factor of 159",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

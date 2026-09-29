@@ -61,7 +61,11 @@ export type Frame = {
 }
 
 // the static field of a charge held at x = 1: beta = alpha / (e^(i omega) - 1), alpha = -i g u
-export function staticField(omega: number, u: number, g: number): [number, number] {
+export function staticField(
+  omega: number,
+  u: number,
+  g: number,
+): [number, number] {
   const dr = Math.cos(omega) - 1
   const di = Math.sin(omega)
   const d2 = dr * dr + di * di
@@ -85,6 +89,7 @@ export function buildFrame(input: FrameInput): Frame {
   const gammaIm = new Float64Array(M)
   const kappaRe = new Float64Array(M)
   const kappaIm = new Float64Array(M)
+
   let W = 0
   let K = 0
   let chi = 0
@@ -111,10 +116,14 @@ export function buildFrame(input: FrameInput): Frame {
     W += gammaRe[k]! ** 2 + gammaIm[k]! ** 2
     K += kappaRe[k]! ** 2 + kappaIm[k]! ** 2
     // Im(alpha conj gamma) - Im(gamma conj r)
-    chi += alphaIm[k]! * gammaRe[k]! - alphaRe[k]! * gammaIm[k]! - (gammaIm[k]! * rr - gammaRe[k]! * ri)
+    chi +=
+      alphaIm[k]! * gammaRe[k]! -
+      alphaRe[k]! * gammaIm[k]! -
+      (gammaIm[k]! * rr - gammaRe[k]! * ri)
   }
 
   const pairStart = new Int32Array(M)
+
   let at = 1 + M
 
   for (let a = 0; a < M; a++) {
@@ -154,7 +163,14 @@ export function buildFrame(input: FrameInput): Frame {
 // D(d) = e^(-|d|^2 / 2) e^(d b^dag) e^(-conj(d) b); returns the weight it sent past two quanta (the dropped part,
 // measured before the truncation from the block's norm, which D keeps)
 
-export type Scratch = { r1: Float64Array; i1: Float64Array; cr: Float64Array; ci: Float64Array; dr: Float64Array; di: Float64Array }
+export type Scratch = {
+  r1: Float64Array
+  i1: Float64Array
+  cr: Float64Array
+  ci: Float64Array
+  dr: Float64Array
+  di: Float64Array
+}
 
 export function makeScratch(modes: number): Scratch {
   return {
@@ -169,13 +185,25 @@ export function makeScratch(modes: number): Scratch {
 
 const SQRT2 = Math.SQRT2
 
-export function displaceBlock(q: Frame, dRe: Float64Array, dIm: Float64Array, sign: number, re: Float64Array, im: Float64Array, offset: number, scratch: Scratch): number {
+export function displaceBlock(
+  q: Frame,
+  dRe: Float64Array,
+  dIm: Float64Array,
+  sign: number,
+  re: Float64Array,
+  im: Float64Array,
+  offset: number,
+  scratch: Scratch,
+): number {
   const M = q.modes
   const { r1, i1, cr, ci, dr, di } = scratch
+
   let A = 0
   let before = 0
 
-  for (let j = offset; j < offset + q.dim; j++) before += re[j]! ** 2 + im[j]! ** 2
+  for (let j = offset; j < offset + q.dim; j++) {
+    before += re[j]! ** 2 + im[j]! ** 2
+  }
 
   for (let a = 0; a < M; a++) {
     dr[a] = sign * dRe[a]!
@@ -245,8 +273,15 @@ export function displaceBlock(q: Frame, dRe: Float64Array, dIm: Float64Array, si
     const sqr = dar * dar - dai * dai
     const sqi = 2 * dar * dai
 
-    re[base] = re[base]! + SQRT2 * (dar * r1[a]! - dai * i1[a]!) + (sqr * c0r - sqi * c0i) / SQRT2
-    im[base] = im[base]! + SQRT2 * (dar * i1[a]! + dai * r1[a]!) + (sqr * c0i + sqi * c0r) / SQRT2
+    re[base] =
+      re[base]! +
+      SQRT2 * (dar * r1[a]! - dai * i1[a]!) +
+      (sqr * c0r - sqi * c0i) / SQRT2
+
+    im[base] =
+      im[base]! +
+      SQRT2 * (dar * i1[a]! + dai * r1[a]!) +
+      (sqr * c0i + sqi * c0r) / SQRT2
 
     for (let b = a + 1; b < M; b++) {
       const dbr = dr[b]!
@@ -256,8 +291,17 @@ export function displaceBlock(q: Frame, dRe: Float64Array, dIm: Float64Array, si
       const abr = dar * dbr - dai * dbi
       const abi = dar * dbi + dai * dbr
 
-      re[j] = re[j]! + (dar * r1[b]! - dai * i1[b]!) + (dbr * r1[a]! - dbi * i1[a]!) + (abr * c0r - abi * c0i)
-      im[j] = im[j]! + (dar * i1[b]! + dai * r1[b]!) + (dbr * i1[a]! + dbi * r1[a]!) + (abr * c0i + abi * c0r)
+      re[j] =
+        re[j]! +
+        (dar * r1[b]! - dai * i1[b]!) +
+        (dbr * r1[a]! - dbi * i1[a]!) +
+        (abr * c0r - abi * c0i)
+
+      im[j] =
+        im[j]! +
+        (dar * i1[b]! + dai * r1[b]!) +
+        (dbr * i1[a]! + dbi * r1[a]!) +
+        (abr * c0i + abi * c0r)
     }
   }
 
@@ -279,7 +323,9 @@ export function displaceBlock(q: Frame, dRe: Float64Array, dIm: Float64Array, si
 
   let after = 0
 
-  for (let j = offset; j < offset + q.dim; j++) after += re[j]! ** 2 + im[j]! ** 2
+  for (let j = offset; j < offset + q.dim; j++) {
+    after += re[j]! ** 2 + im[j]! ** 2
+  }
 
   return before - after
 }
@@ -332,14 +378,27 @@ export function frameRun(q: Frame): FrameRun {
 
 // the lab state atom (x) vacuum, carried into the frame: psi'_0 = e0 |0>, psi'_1 = e1 D(-gamma)|0> (truncated;
 // returns the start's dropped weight)
-export function frameStart(q: Frame, run: FrameRun, atom: readonly [number, number, number, number]): number {
+export function frameStart(
+  q: Frame,
+  run: FrameRun,
+  atom: readonly [number, number, number, number],
+): number {
   run.re.fill(0)
   run.im.fill(0)
   run.re[0] = atom[0]
   run.im[0] = atom[1]
   run.re[q.dim] = 1
 
-  const lost = displaceBlock(q, q.gammaRe, q.gammaIm, -1, run.re, run.im, q.dim, run.scratch)
+  const lost = displaceBlock(
+    q,
+    q.gammaRe,
+    q.gammaIm,
+    -1,
+    run.re,
+    run.im,
+    q.dim,
+    run.scratch,
+  )
 
   for (let j = q.dim; j < 2 * q.dim; j++) {
     const xr = run.re[j]!
@@ -363,8 +422,35 @@ export function frameBeat(q: Frame, run: FrameRun): void {
   // Vt: new psi0 = a psi0 + b D(gamma) psi1 ; new psi1 = a psi1 + b D(-gamma) psi0
   tRe.set(re)
   tIm.set(im)
-  run.dropped += Math.abs(displaceBlock(q, q.gammaRe, q.gammaIm, 1, tRe, tIm, d, run.scratch)) * (br * br + bi * bi)
-  run.dropped += Math.abs(displaceBlock(q, q.gammaRe, q.gammaIm, -1, tRe, tIm, 0, run.scratch)) * (br * br + bi * bi)
+  run.dropped +=
+    Math.abs(
+      displaceBlock(
+        q,
+        q.gammaRe,
+        q.gammaIm,
+        1,
+        tRe,
+        tIm,
+        d,
+        run.scratch,
+      ),
+    ) *
+    (br * br + bi * bi)
+
+  run.dropped +=
+    Math.abs(
+      displaceBlock(
+        q,
+        q.gammaRe,
+        q.gammaIm,
+        -1,
+        tRe,
+        tIm,
+        0,
+        run.scratch,
+      ),
+    ) *
+    (br * br + bi * bi)
 
   for (let i = 0; i < d; i++) {
     const x0r = re[i]!
@@ -411,13 +497,21 @@ export function frameBeat(q: Frame, run: FrameRun): void {
   }
 
   // the residual kick on x = 1
-  if (q.K > 0) run.dropped += Math.abs(displaceBlock(q, q.kappaRe, q.kappaIm, 1, re, im, d, run.scratch))
+  if (q.K > 0) {
+    run.dropped += Math.abs(
+      displaceBlock(q, q.kappaRe, q.kappaIm, 1, re, im, d, run.scratch),
+    )
+  }
 }
 
 // the atom's lab-frame density matrix rho[x][x'] = <psi_x' | psi_x> (lab psi_0 = psi'_0, psi_1 = D(gamma) psi'_1),
 // as [re00, re01, im01, re11]: rho_10 = conj(rho_01)
-export function frameAtomMatrix(q: Frame, run: FrameRun): { r00: number; r11: number; r01Re: number; r01Im: number } {
+export function frameAtomMatrix(
+  q: Frame,
+  run: FrameRun,
+): { r00: number; r11: number; r01Re: number; r01Im: number } {
   const d = q.dim
+
   let n0 = 0
   let n1 = 0
 
@@ -428,7 +522,16 @@ export function frameAtomMatrix(q: Frame, run: FrameRun): { r00: number; r11: nu
 
   run.tRe.set(run.re)
   run.tIm.set(run.im)
-  displaceBlock(q, q.gammaRe, q.gammaIm, 1, run.tRe, run.tIm, d, run.scratch)
+  displaceBlock(
+    q,
+    q.gammaRe,
+    q.gammaIm,
+    1,
+    run.tRe,
+    run.tIm,
+    d,
+    run.scratch,
+  )
 
   // rho_01 = <psi_1 | psi_0> = conj(<psi_0 | psi_1>)
   let sr = 0
@@ -449,7 +552,11 @@ export function frameAtomMatrix(q: Frame, run: FrameRun): { r00: number; r11: nu
 }
 
 // <s| rho |t> for atom states s, t on (x = 0, 1)
-export function atomElement(rho: { r00: number; r11: number; r01Re: number; r01Im: number }, s: readonly [number, number, number, number], t: readonly [number, number, number, number]): [number, number] {
+export function atomElement(
+  rho: { r00: number; r11: number; r01Re: number; r01Im: number },
+  s: readonly [number, number, number, number],
+  t: readonly [number, number, number, number],
+): [number, number] {
   // rho as complex 2x2: [[r00, r01], [conj r01, r11]]
   const R: [number, number][][] = [
     [
@@ -461,6 +568,7 @@ export function atomElement(rho: { r00: number; r11: number; r01Re: number; r01I
       [rho.r11, 0],
     ],
   ]
+
   let re = 0
   let im = 0
 
@@ -484,8 +592,13 @@ export function atomElement(rho: { r00: number; r11: number; r01Re: number; r01I
 }
 
 // the lab-frame population of `state` and the frame state's norm
-export function frameRead(q: Frame, run: FrameRun, state: readonly [number, number, number, number]): { population: number; norm: number; two: number } {
+export function frameRead(
+  q: Frame,
+  run: FrameRun,
+  state: readonly [number, number, number, number],
+): { population: number; norm: number; two: number } {
   const d = q.dim
+
   let n0 = 0
   let n1 = 0
   let two = 0
@@ -497,13 +610,24 @@ export function frameRead(q: Frame, run: FrameRun, state: readonly [number, numb
     n0 += w0
     n1 += w1
 
-    if (i > q.modes) two += w0 + w1
+    if (i > q.modes) {
+      two += w0 + w1
+    }
   }
 
   // <psi0 | D(gamma) psi1>
   run.tRe.set(run.re)
   run.tIm.set(run.im)
-  displaceBlock(q, q.gammaRe, q.gammaIm, 1, run.tRe, run.tIm, d, run.scratch)
+  displaceBlock(
+    q,
+    q.gammaRe,
+    q.gammaIm,
+    1,
+    run.tRe,
+    run.tIm,
+    d,
+    run.scratch,
+  )
 
   let sr = 0
   let si = 0
@@ -522,7 +646,10 @@ export function frameRead(q: Frame, run: FrameRun, state: readonly [number, numb
   // e0 conj(e1)
   const pr = e0r * e1r + e0i * e1i
   const pi = e0i * e1r - e0r * e1i
-  const population = (e0r ** 2 + e0i ** 2) * n0 + (e1r ** 2 + e1i ** 2) * n1 + 2 * (pr * sr - pi * si)
+  const population =
+    (e0r ** 2 + e0i ** 2) * n0 +
+    (e1r ** 2 + e1i ** 2) * n1 +
+    2 * (pr * sr - pi * si)
 
   return { population, norm: n0 + n1, two }
 }
@@ -532,7 +659,10 @@ export function frameRead(q: Frame, run: FrameRun, state: readonly [number, numb
 
 type C = [number, number]
 
-const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: C, b: C): C => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
 const csub = (a: C, b: C): C => [a[0] - b[0], a[1] - b[1]]
 const cscale = (a: C, s: number): C => [a[0] * s, a[1] * s]
@@ -557,10 +687,23 @@ export type Dressed = {
 }
 
 // the zeroth order of the frame's beat: <0| U' |0> = e^(i x chi) e^(-x K / 2) Phi (a + b e^(-W/2) T)
-export function dressedAtom(input: { hopA: readonly [number, number]; hopB: readonly [number, number]; atomPhase: number; chi: number; W: number; K: number }): Dressed {
+export function dressedAtom(input: {
+  hopA: readonly [number, number]
+  hopB: readonly [number, number]
+  atomPhase: number
+  chi: number
+  W: number
+  K: number
+}): Dressed {
   const a: C = [input.hopA[0], input.hopA[1]]
-  const b = cscale([input.hopB[0], input.hopB[1]], Math.exp(-input.W / 2))
-  const row1 = cscale(cexp(input.atomPhase + input.chi), Math.exp(-input.K / 2))
+  const b = cscale(
+    [input.hopB[0], input.hopB[1]],
+    Math.exp(-input.W / 2),
+  )
+  const row1 = cscale(
+    cexp(input.atomPhase + input.chi),
+    Math.exp(-input.K / 2),
+  )
   // A = [[a, b], [row1 b, row1 a]]
   const A00 = a
   const A01 = b
@@ -571,10 +714,12 @@ export function dressedAtom(input: { hopA: readonly [number, number]; hopB: read
   const disc = csqrt(csub(cmul(tr, tr), cscale(det, 4)))
   const l1 = cscale(cadd(tr, disc), 0.5)
   const l2 = cscale(csub(tr, disc), 0.5)
+
   const vec = (l: C): [number, number, number, number] => {
     // (A00 - l) v0 + A01 v1 = 0 -> v = (A01, l - A00)
     let v0 = A01
     let v1 = csub(l, A00)
+
     const n = Math.sqrt(cabs2(v0) + cabs2(v1))
 
     v0 = cscale(v0, 1 / n)
@@ -582,19 +727,39 @@ export function dressedAtom(input: { hopA: readonly [number, number]; hopB: read
 
     return [v0[0], v0[1], v1[0], v1[1]]
   }
+
   const e1 = -Math.atan2(l1[1], l1[0])
   const e2 = -Math.atan2(l2[1], l2[0])
   const [g, e] = e1 < e2 ? [l1, l2] : [l2, l1]
-  const gap = (((Math.atan2(g[1], g[0]) - Math.atan2(e[1], e[0])) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+  const gap =
+    (((Math.atan2(g[1], g[0]) - Math.atan2(e[1], e[0])) %
+      (2 * Math.PI)) +
+      2 * Math.PI) %
+    (2 * Math.PI)
 
-  return { gap, ground: vec(g), excited: vec(e), modulus: Math.sqrt(cabs2(e)) }
+  return {
+    gap,
+    ground: vec(g),
+    excited: vec(e),
+    modulus: Math.sqrt(cabs2(e)),
+  }
 }
 
 // the ring's rung-0 amplitude and frequency at any k (the continuum of code/measure/few-quanta stripModes)
-export function ringMode(n: number, L: number, f: number, kappa: number, k: number): { omega: number; u: number; velocity: number } {
+export function ringMode(
+  n: number,
+  L: number,
+  f: number,
+  kappa: number,
+  k: number,
+): { omega: number; u: number; velocity: number } {
   const hbar = n / (2 * Math.PI)
   const omega = Math.acos(1 - (kappa * (2 - 2 * Math.cos(k))) / 2)
-  const u = Math.sqrt(((4 * Math.sin(k / 2) ** 2) / L) * (hbar / 2) * (f / Math.sin(omega)))
+  const u = Math.sqrt(
+    ((4 * Math.sin(k / 2) ** 2) / L) *
+      (hbar / 2) *
+      (f / Math.sin(omega)),
+  )
 
   return { omega, u, velocity: (kappa * Math.sin(k)) / Math.sin(omega) }
 }
@@ -629,14 +794,18 @@ export function framePrediction(input: {
 }): FramePrediction {
   const dressed = dressedAtom(input)
   const target = (2 - 2 * Math.cos(dressed.gap)) / input.kappa
+
   let lo = 0
   let hi = Math.PI
 
   for (let it = 0; it < 200; it++) {
     const mid = (lo + hi) / 2
 
-    if (2 - 2 * Math.cos(mid) < target) lo = mid
-    else hi = mid
+    if (2 - 2 * Math.cos(mid) < target) {
+      lo = mid
+    } else {
+      hi = mid
+    }
   }
 
   const k = (lo + hi) / 2
@@ -649,7 +818,10 @@ export function framePrediction(input: {
   const dw = Math.exp(-input.W / 2)
   const a: C = [input.hopA[0], input.hopA[1]]
   const b: C = [input.hopB[0], input.hopB[1]]
-  const phi1 = cscale(cexp(input.atomPhase + input.chi), Math.exp(-input.K / 2))
+  const phi1 = cscale(
+    cexp(input.atomPhase + input.chi),
+    Math.exp(-input.K / 2),
+  )
   // M as a 2x2 on (x = 0, x = 1): row x, column x'
   // term 1: x kappa Phi (a + b dw T): only row 1; Phi row 1 = phi1
   // term 2: e^(-i omega) Phi b (1 - 2x) gamma dw T: row x from column 1 - x, sign (1 - 2x)
@@ -670,7 +842,14 @@ export function framePrediction(input: {
   // |u|^2 carries 1 / L, so 2 L |amp|^2 / v is L-free
   const rate = (2 * input.L * cabs2(amp)) / mode.velocity
 
-  return { gap: dressed.gap, k, rate, debyeWaller: dw * dw, lambdaAtResonance: lambda, dressed }
+  return {
+    gap: dressed.gap,
+    k,
+    rate,
+    debyeWaller: dw * dw,
+    lambdaAtResonance: lambda,
+    dressed,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -683,9 +862,16 @@ export const langFirsov = (omega: number): number => (omega > 0 ? 1 : 0)
 // frequency against the dressed gap's, lambda = sin(omega / 2) / (sin(omega / 2) + sin(gap_r / 2)) (Hamiltonian
 // form omega / (omega + Delta_r); the chord 2 sin(omega/2) = |e^(i omega) - 1| is the beat's own denominator),
 // gap_r solved self-consistently from the frame's zeroth order
-export const silbeyHarris = (gap: number) => (omega: number): number => Math.sin(omega / 2) / (Math.sin(omega / 2) + Math.sin(gap / 2))
+export const silbeyHarris =
+  (gap: number) =>
+  (omega: number): number =>
+    Math.sin(omega / 2) / (Math.sin(omega / 2) + Math.sin(gap / 2))
 
-export type FrameChoice = { frame: Frame; prediction: FramePrediction; iterations: number }
+export type FrameChoice = {
+  frame: Frame
+  prediction: FramePrediction
+  iterations: number
+}
 
 export function chooseFrame(input: {
   n: number
@@ -707,10 +893,24 @@ export function chooseFrame(input: {
   let prediction: FramePrediction | undefined
 
   for (let it = 0; it < 200; it++) {
-    const lambdaOf = input.kind === 'lang-firsov' ? langFirsov : input.kind === 'lab' ? () => 0 : silbeyHarris(gap)
+    const lambdaOf =
+      input.kind === 'lang-firsov'
+        ? langFirsov
+        : input.kind === 'lab'
+          ? () => 0
+          : silbeyHarris(gap)
     const lambda = Array.from(input.omega, w => lambdaOf(w))
 
-    frame = buildFrame({ omega: input.omega, u: input.u, g: input.g, hop: input.hop, drift: input.drift, root: input.root, lambda })
+    frame = buildFrame({
+      omega: input.omega,
+      u: input.u,
+      g: input.g,
+      hop: input.hop,
+      drift: input.drift,
+      root: input.root,
+      lambda,
+    })
+
     prediction = framePrediction({
       n: input.n,
       L: input.L,
@@ -727,7 +927,12 @@ export function chooseFrame(input: {
     })
     iterations = it + 1
 
-    if (input.kind !== 'silbey-harris' || Math.abs(prediction.gap - gap) < 1e-13) break
+    if (
+      input.kind !== 'silbey-harris' ||
+      Math.abs(prediction.gap - gap) < 1e-13
+    ) {
+      break
+    }
 
     gap = prediction.gap
   }

@@ -68,13 +68,35 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { lumpStart, responseBox, type ResponseBox } from '@/code/measure/vacuum-response'
+import {
+  lumpStart,
+  responseBox,
+  type ResponseBox,
+} from '@/code/measure/vacuum-response'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 import { RADION_DEPTH } from '@/code/measure/radion'
-import { cloneConfiguration, lockedState, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  lockedState,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { vetoBeat } from '@/code/rule/occupation-veto-knit'
 import { linearFit } from '@/code/measure/regression'
-import { componentsOf, huskCubeAbout, huskRegionFamily, KNOT_ENTROPY, knotNetwork, networkBeat, networkBeatBack, networkNormExact, networkReturned, regionEntropy, sameAsBranches, tokenDocks, type HuskRegion } from '@/code/measure/knot-network'
+import {
+  componentsOf,
+  huskCubeAbout,
+  huskRegionFamily,
+  KNOT_ENTROPY,
+  knotNetwork,
+  networkBeat,
+  networkBeatBack,
+  networkNormExact,
+  networkReturned,
+  regionEntropy,
+  sameAsBranches,
+  tokenDocks,
+  type HuskRegion,
+} from '@/code/measure/knot-network'
 
 const SIDE = 8
 const SIZES = [0, 1, 2, 3] as const
@@ -86,61 +108,111 @@ const MASKED_BEATS = 36
 const RADION_FACTOR = 0.00582
 const KNOT_BEAT = 2
 
-type Run = { size: number; S: number[]; E: number[]; normExact: boolean; returned: boolean; largest: number; lumpJoined: boolean; family: number[] }
+type Run = {
+  size: number
+  S: number[]
+  E: number[]
+  normExact: boolean
+  returned: boolean
+  largest: number
+  lumpJoined: boolean
+  family: number[]
+}
 
 // one run: the mean S and count of each cube over the window; for the control also every region of E-GRV-0083's
 // family (its eta is re-read here, on the same run, rather than copied)
-function lumpRun(box: ResponseBox, size: number, cubes: readonly HuskRegion[], family: readonly HuskRegion[]): Run {
+function lumpRun(
+  box: ResponseBox,
+  size: number,
+  cubes: readonly HuskRegion[],
+  family: readonly HuskRegion[],
+): Run {
   const start = lumpStart(box, 1, size).start
   const net = knotNetwork('none', box.tables, start)
-  const lumpTokens = Array.from({ length: size }, (_, i) => net.tokens - size + i)
+  const lumpTokens = Array.from(
+    { length: size },
+    (_, i) => net.tokens - size + i,
+  )
   const S = new Array<number>(cubes.length).fill(0)
   const E = new Array<number>(cubes.length).fill(0)
   const F = new Array<number>(family.length).fill(0)
+
   let count = 0
   let normExact = true
 
   for (let t = 0; t < BEATS; t++) {
     networkBeat(net)
-    if (t < EQUILIBRIUM[0] || t > EQUILIBRIUM[1]) continue
+
+    if (t < EQUILIBRIUM[0] || t > EQUILIBRIUM[1]) {
+      continue
+    }
 
     const docks = tokenDocks(net)
     const cache = new Map<number, { entropy: number; rows: number }>()
-    const within = (q: HuskRegion) => (tk: number): boolean => q.inside[box.column[docks[tk] as number] as number] === 1
+    const within =
+      (q: HuskRegion) =>
+      (tk: number): boolean =>
+        q.inside[box.column[docks[tk]!]!] === 1
 
     cubes.forEach((c, i) => {
       const inside = within(c)
+
       let n = 0
 
-      for (let tk = 0; tk < net.tokens; tk++) n += inside(tk) ? 1 : 0
-      S[i] = (S[i] as number) + regionEntropy(net, inside, cache).entropy
-      E[i] = (E[i] as number) + n
+      for (let tk = 0; tk < net.tokens; tk++) {
+        n += inside(tk) ? 1 : 0
+      }
+
+      S[i] = S[i]! + regionEntropy(net, inside, cache).entropy
+      E[i] = E[i]! + n
     })
+
     family.forEach((q, i) => {
-      F[i] = (F[i] as number) + regionEntropy(net, within(q), cache).entropy
+      F[i] = F[i]! + regionEntropy(net, within(q), cache).entropy
     })
     count++
     normExact = normExact && networkNormExact(net)
   }
 
   const largest = net.tally.largest
-  const lumpJoined = lumpTokens.some(tk => (net.components[net.comp[tk] as number]?.members.length ?? 1) > 1)
+  const lumpJoined = lumpTokens.some(
+    tk => (net.components[net.comp[tk]!]?.members.length ?? 1) > 1,
+  )
 
-  for (let t = 0; t < BEATS; t++) networkBeatBack(net)
+  for (let t = 0; t < BEATS; t++) {
+    networkBeatBack(net)
+  }
 
-  return { size, S: S.map(v => v / count), E: E.map(v => v / count), normExact, returned: networkReturned(net, knotNetwork('none', box.tables, start)), largest, lumpJoined, family: F.map(v => v / count) }
+  return {
+    size,
+    S: S.map(v => v / count),
+    E: E.map(v => v / count),
+    normExact,
+    returned: networkReturned(
+      net,
+      knotNetwork('none', box.tables, start),
+    ),
+    largest,
+    lumpJoined,
+    family: F.map(v => v / count),
+  }
 }
 
 // eta_1: E-GRV-0083's knot phase, the width-2 slab's S over its area at beat 2
 function knotEta(box: ResponseBox): number {
   const net = knotNetwork('none', box.tables, box.vacuum)
-  const slab = huskRegionFamily(SIDE).find(q => q.name === 'slab0-2') as HuskRegion
+  const slab = huskRegionFamily(SIDE).find(q => q.name === 'slab0-2')!
 
-  for (let t = 0; t <= KNOT_BEAT; t++) networkBeat(net)
+  for (let t = 0; t <= KNOT_BEAT; t++) {
+    networkBeat(net)
+  }
 
   const docks = tokenDocks(net)
 
-  return regionEntropy(net, tk => slab.inside[box.column[docks[tk] as number] as number] === 1).entropy / slab.area
+  return (
+    regionEntropy(net, tk => slab.inside[box.column[docks[tk]!]!] === 1)
+      .entropy / slab.area
+  )
 }
 
 // F0: the network against vetoBeat on a masked lump start
@@ -148,17 +220,27 @@ function maskedAgreement(box: ResponseBox): number {
   const probe = knotNetwork('none', box.tables, box.vacuum)
   const lineOf = new Map<number, number>()
 
-  for (let h = 0; h < probe.storeToken.length; h++) if ((probe.storeToken[h] as number) >= 0) lineOf.set(probe.storeToken[h] as number, h >> 1)
+  for (let h = 0; h < probe.storeToken.length; h++) {
+    if (probe.storeToken[h]! >= 0) {
+      lineOf.set(probe.storeToken[h]!, h >> 1)
+    }
+  }
 
-  for (let t = 0; t < 3; t++) networkBeat(probe)
+  for (let t = 0; t < 3; t++) {
+    networkBeat(probe)
+  }
 
   const first = componentsOf(probe).find(c => c.members.length === 2)
   const masked = cloneConfiguration(lumpStart(box, 1, 1).start)
 
   masked.sopen.fill(0)
-  for (const t of first?.members ?? []) masked.sopen[lineOf.get(t) as number] = 3
+
+  for (const t of first?.members ?? []) {
+    masked.sopen[lineOf.get(t)!] = 3
+  }
 
   const net = knotNetwork('none', box.tables, masked)
+
   let rule: LockedState = lockedState(masked)
   let agree = 0
 
@@ -182,7 +264,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
     const out = withStart(family[0]!, () => {
       const box = responseBox(SIDE)
@@ -195,19 +280,45 @@ export default experiment({
 
         return r
       })
-      const fit = linearFit({ xs: family.map(q => q.area), ys: runs[0]!.family })
+      const fit = linearFit({
+        xs: family.map(q => q.area),
+        ys: runs[0]!.family,
+      })
 
-      return { runs, agree: maskedAgreement(box), cubes, etaKnot: knotEta(box), etaEquilibrium: fit.slope, fitR2: fit.r2 }
+      return {
+        runs,
+        agree: maskedAgreement(box),
+        cubes,
+        etaKnot: knotEta(box),
+        etaEquilibrium: fit.slope,
+        fitR2: fit.r2,
+      }
     })
     const [control, ...lumps] = out.runs as [Run, ...Run[]]
-    const dS = lumps.map(r => r.S.map((s, i) => s - (control.S[i] as number)))
-    const dE = lumps.map(r => r.E.map((e, i) => e - (control.E[i] as number)))
-    const f0 = out.runs.every(r => r.normExact && r.returned) && out.agree === MASKED_BEATS
-    const one = dS[0] as number[]
-    const f1 = one.every(v => v !== 0) && CUBES.every((_, i) => Math.abs((dS[1]![i] as number) / (one[i] as number) - 2) <= 0.2 && Math.abs((dS[2]![i] as number) / (one[i] as number) - 3) <= 0.3)
-    const T = CUBES.map((_, i) => (dE[0]![i] as number) / (one[i] as number))
-    const f2 = T.every(v => Number.isFinite(v) && v > 0) && (T[T.length - 1] as number) < (T[0] as number)
-    const status = !f0 ? 'fail' : f1 && f2 ? 'pass' : f1 || f2 ? 'partial' : 'fail'
+    const dS = lumps.map(r => r.S.map((s, i) => s - control.S[i]!))
+    const dE = lumps.map(r => r.E.map((e, i) => e - control.E[i]!))
+    const f0 =
+      out.runs.every(r => r.normExact && r.returned) &&
+      out.agree === MASKED_BEATS
+    const one = dS[0]!
+    const f1 =
+      one.every(v => v !== 0) &&
+      CUBES.every(
+        (_, i) =>
+          Math.abs(dS[1]![i]! / one[i]! - 2) <= 0.2 &&
+          Math.abs(dS[2]![i]! / one[i]! - 3) <= 0.3,
+      )
+    const T = CUBES.map((_, i) => dE[0]![i]! / one[i]!)
+    const f2 =
+      T.every(v => Number.isFinite(v) && v > 0) &&
+      T[T.length - 1]! < T[0]!
+    const status = !f0
+      ? 'fail'
+      : f1 && f2
+        ? 'pass'
+        : f1 || f2
+          ? 'partial'
+          : 'fail'
 
     // Newton's constant and the radion coupling it fixes
     const c = lightSpeed(RADION_DEPTH)
@@ -219,7 +330,14 @@ export default experiment({
       const ba = (6 * RADION_DEPTH) / x.eta
       const baLight = (6 * RADION_DEPTH) / (c * x.eta)
 
-      return { ...x, G, ba, baLight, factor: RADION_FACTOR * ba, factorLight: RADION_FACTOR * baLight }
+      return {
+        ...x,
+        G,
+        ba,
+        baLight,
+        factor: RADION_FACTOR * ba,
+        factorLight: RADION_FACTOR * baLight,
+      }
     })
     const f4 = (x: number): string => x.toPrecision(4)
     const metrics: Record<string, number> = {
@@ -247,19 +365,23 @@ export default experiment({
       metrics[`content${r.size}_largest`] = r.largest
       metrics[`content${r.size}_lumpJoined`] = r.lumpJoined ? 1 : 0
       CUBES.forEach((a, i) => {
-        metrics[`content${r.size}_dS_a${a}`] = dS[k]![i] as number
-        metrics[`content${r.size}_dE_a${a}`] = dE[k]![i] as number
+        metrics[`content${r.size}_dS_a${a}`] = dS[k]![i]!
+        metrics[`content${r.size}_dE_a${a}`] = dE[k]![i]!
       })
     })
+
     CUBES.forEach((a, i) => {
-      metrics[`T_a${a}`] = T[i] as number
+      metrics[`T_a${a}`] = T[i]!
     })
 
     return verdict({
       status,
       claim: `a lump of content 1, 2, 3 in the vacuum without the coin (side ${SIDE}, mean of beats ${EQUILIBRIUM[0]} .. ${EQUILIBRIUM[1]}): delta S on cubes a = ${CUBES.join(', ')} about it ${lumps.map((r, k) => `content ${r.size}: ${dS[k]!.map(f4).join(', ')}`).join('; ')}; delta E ${lumps.map((r, k) => `content ${r.size}: ${dE[k]!.map(f4).join(', ')}`).join('; ')}; the lump's loves join a component: ${lumps.map(r => r.lumpJoined).join('/')}; linear in content ${f1}; T = delta E / delta S for content 1: ${T.map(f4).join(', ')} (positive and falling ${f2}); ${newton.map(n => `from eta_${n.name} ${f4(n.eta)}: G ${f4(n.G)} husk steps squared, b / a ${f4(n.ba)} (bending ${f4(n.factor)}), with c = c(${RADION_DEPTH}) b / a ${f4(n.baLight)} (bending ${f4(n.factorLight)})`).join('; ')}, against 1 (Newton) and 2 (general relativity), which need b / a 172 and 344`,
       metrics,
-      control: { controlS_a1: control.S[0] as number, controlS_a7: control.S[CUBES.length - 1] as number },
+      control: {
+        controlS_a1: control.S[0]!,
+        controlS_a7: control.S[CUBES.length - 1]!,
+      },
       notes: `L2. Gates F0 ${f0}, F1 ${f1}, F2 ${f2}. Runs (content, norm exact, returned, largest component): ${out.runs.map(r => `${r.size} ${r.normExact} ${r.returned} ${r.largest}`).join('; ')}. Cube areas and volumes: ${out.cubes.map(q => `a ${q.name.split('-')[1]} A ${q.area} V ${q.volume}`).join(', ')}. Control S by cube ${control.S.map(f4).join(', ')}, count ${control.E.map(f4).join(', ')}. Masked lump start against vetoBeat: ${out.agree} of ${MASKED_BEATS}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

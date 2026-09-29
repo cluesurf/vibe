@@ -191,12 +191,7 @@ export function plaquetteFlux(input: {
   orientation: number
 }): number {
   const { side: L, field, x, y, z, orientation } = input
-  const A = (
-    px: number,
-    py: number,
-    pz: number,
-    d: number,
-  ): number =>
+  const A = (px: number, py: number, pz: number, d: number): number =>
     field[
       maxwellLinkIndex({ side: L, x: px, y: py, z: pz, direction: d })
     ]!
@@ -204,20 +199,29 @@ export function plaquetteFlux(input: {
   if (orientation === 2) {
     // xy: A_x(x,y,z) + A_y(x+1,y,z) - A_x(x,y+1,z) - A_y(x,y,z)
     return (
-      A(x, y, z, 0) + A(x + 1, y, z, 1) - A(x, y + 1, z, 0) - A(x, y, z, 1)
+      A(x, y, z, 0) +
+      A(x + 1, y, z, 1) -
+      A(x, y + 1, z, 0) -
+      A(x, y, z, 1)
     )
   }
 
   if (orientation === 0) {
     // yz: A_y(x,y,z) + A_z(x,y+1,z) - A_y(x,y,z+1) - A_z(x,y,z)
     return (
-      A(x, y, z, 1) + A(x, y + 1, z, 2) - A(x, y, z + 1, 1) - A(x, y, z, 2)
+      A(x, y, z, 1) +
+      A(x, y + 1, z, 2) -
+      A(x, y, z + 1, 1) -
+      A(x, y, z, 2)
     )
   }
 
   // zx: A_z(x,y,z) + A_x(x,y,z+1) - A_z(x+1,y,z) - A_x(x,y,z)
   return (
-    A(x, y, z, 2) + A(x, y, z + 1, 0) - A(x + 1, y, z, 2) - A(x, y, z, 0)
+    A(x, y, z, 2) +
+    A(x, y, z + 1, 0) -
+    A(x + 1, y, z, 2) -
+    A(x, y, z, 0)
   )
 }
 

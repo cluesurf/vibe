@@ -138,7 +138,9 @@ export function makeWaitingSlots(input: {
   sign[WAIT_PLUS] = 1
   sign[WAIT_MINUS] = -1
 
-  const classes = [1, -1].map(s => Array.from({ length: 24 }, (_, d) => d).filter(d => sign[d] === s))
+  const classes = [1, -1].map(s =>
+    Array.from({ length: 24 }, (_, d) => d).filter(d => sign[d] === s),
+  )
   const neighbour = new Int32Array(mesh.cellCount * 24)
 
   for (let x = 0; x < mesh.cellCount; x++) {
@@ -170,7 +172,8 @@ export function makeWaitingSlots(input: {
         edgeOf[x * 24 + d] = edgeAt[x * 24 + d] ?? 0
         forwardOf[x * 24 + d] = 1
       } else {
-        edgeOf[x * 24 + d] = edgeAt[(neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0
+        edgeOf[x * 24 + d] =
+          edgeAt[(neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0
         forwardOf[x * 24 + d] = -1
       }
     }
@@ -186,7 +189,27 @@ export function makeWaitingSlots(input: {
     previous[onward] = l
   })
 
-  return { mesh, side, mass, tension, orientation, order, pairing, opposite, lines, sign, classes, moves, links, neighbour, edges, edgeOf, forwardOf, next, previous }
+  return {
+    mesh,
+    side,
+    mass,
+    tension,
+    orientation,
+    order,
+    pairing,
+    opposite,
+    lines,
+    sign,
+    classes,
+    moves,
+    links,
+    neighbour,
+    edges,
+    edgeOf,
+    forwardOf,
+    next,
+    previous,
+  }
 }
 
 // the zero-sum triangles inside the plus side of an orientation, as direction triples
@@ -194,6 +217,7 @@ export function plusTriangles(orientation: number): number[][] {
   const roots = rootsD4()
   const mesh = d4BoxMesh({ side: 3 })
   const plus = new Set<number>()
+
   let k = 0
 
   for (let d = 0; d < 24; d++) {
@@ -203,13 +227,19 @@ export function plusTriangles(orientation: number): number[][] {
     }
   }
 
-  return zeroSumTriangles({ directions: roots }).filter(t => t.every(d => plus.has(d)))
+  return zeroSumTriangles({ directions: roots }).filter(t =>
+    t.every(d => plus.has(d)),
+  )
 }
 
 // the returning orientation nearest the committed one: fewest lines flipped, then the lowest mask
 export function nearestReturningOrientation(): number {
   const masks = Array.from({ length: 4096 }, (_, m) => m)
-  const flipped = (m: number): number => m.toString(2).split('').filter(c => c === '1').length
+  const flipped = (m: number): number =>
+    m
+      .toString(2)
+      .split('')
+      .filter(c => c === '1').length
 
   masks.sort((a, b) => flipped(a) - flipped(b) || a - b)
 
@@ -238,18 +268,37 @@ export function copyWaitingState(state: WaitingState): WaitingState {
   }
 }
 
-const tensionOf = (rule: WaitingSlots, e: number): number => (mod3(e) !== 0 ? rule.tension : 0)
+const tensionOf = (rule: WaitingSlots, e: number): number =>
+  mod3(e) !== 0 ? rule.tension : 0
 
 // the change in string energy if a charge v crosses from cell x along direction d
-export function crossingCost(rule: WaitingSlots, state: WaitingState, x: number, d: number, v: number): number {
+export function crossingCost(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+  d: number,
+  v: number,
+): number {
   const l = rule.edgeOf[x * 24 + d] ?? 0
   const e = state.flux[l] ?? 0
 
-  return tensionOf(rule, e - (rule.forwardOf[x * 24 + d] ?? 1) * v) - tensionOf(rule, e)
+  return (
+    tensionOf(rule, e - (rule.forwardOf[x * 24 + d] ?? 1) * v) -
+    tensionOf(rule, e)
+  )
 }
 
-export function canPay(rule: WaitingSlots, state: WaitingState, x: number, d: number, v: number): boolean {
-  return (state.demon[rule.edgeOf[x * 24 + d] ?? 0] ?? 0) >= crossingCost(rule, state, x, d, v)
+export function canPay(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+  d: number,
+  v: number,
+): boolean {
+  return (
+    (state.demon[rule.edgeOf[x * 24 + d] ?? 0] ?? 0) >=
+    crossingCost(rule, state, x, d, v)
+  )
 }
 
 function swapSlots(state: WaitingState, i: number, j: number): void {
@@ -267,7 +316,13 @@ function swapSlots(state: WaitingState, i: number, j: number): void {
 }
 
 // the paid clock on the waiting line of cell x, forward (I1 then I2) or back (I2 then I1)
-function clockCell(rule: WaitingSlots, state: WaitingState, x: number, forward: boolean, log?: BeatLog): void {
+function clockCell(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+  forward: boolean,
+  log?: BeatLog,
+): void {
   const { vibe, role, demon } = state
   const i = x * SLOTS + WAIT_PLUS
   const j = x * SLOTS + WAIT_MINUS
@@ -321,12 +376,20 @@ function clockCell(rule: WaitingSlots, state: WaitingState, x: number, forward: 
 
 // the decisions of cell x at beat t: one pass of conditional swaps between a waiting slot and the moving
 // slots of its side. `leave` swaps where the charge can pay, otherwise where it cannot
-function decisionPass(rule: WaitingSlots, state: WaitingState, x: number, t: number, leave: boolean, reverse: boolean): void {
+function decisionPass(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+  t: number,
+  leave: boolean,
+  reverse: boolean,
+): void {
   const { vibe } = state
 
   for (let c = 0; c < 2; c++) {
     const wait = x * SLOTS + (c === 0 ? WAIT_PLUS : WAIT_MINUS)
-    const order = rule.classes[rule.pairing === 'same' ? c : 1 - c] ?? []
+    const order =
+      rule.classes[rule.pairing === 'same' ? c : 1 - c] ?? []
     const offset = ((t % 12) + 12) % 12
 
     for (let k = 0; k < 12; k++) {
@@ -346,7 +409,13 @@ function decisionPass(rule: WaitingSlots, state: WaitingState, x: number, t: num
   }
 }
 
-function collideCell(rule: WaitingSlots, state: WaitingState, x: number, t: number, forward: boolean): void {
+function collideCell(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+  t: number,
+  forward: boolean,
+): void {
   const first = rule.order === 'leave-first'
 
   if (forward) {
@@ -359,7 +428,12 @@ function collideCell(rule: WaitingSlots, state: WaitingState, x: number, t: numb
 }
 
 // the collision of the whole box: the clock in every cell, then the decisions in every cell
-export function waitingCollide(rule: WaitingSlots, state: WaitingState, t: number, log?: BeatLog): void {
+export function waitingCollide(
+  rule: WaitingSlots,
+  state: WaitingState,
+  t: number,
+  log?: BeatLog,
+): void {
   for (let x = 0; x < rule.mesh.cellCount; x++) {
     clockCell(rule, state, x, true, log)
   }
@@ -369,7 +443,11 @@ export function waitingCollide(rule: WaitingSlots, state: WaitingState, t: numbe
   }
 }
 
-export function waitingCollideBack(rule: WaitingSlots, state: WaitingState, t: number): void {
+export function waitingCollideBack(
+  rule: WaitingSlots,
+  state: WaitingState,
+  t: number,
+): void {
   for (let x = 0; x < rule.mesh.cellCount; x++) {
     collideCell(rule, state, x, t, false)
   }
@@ -382,7 +460,11 @@ export function waitingCollideBack(rule: WaitingSlots, state: WaitingState, t: n
 // the change of an edge's flux when v crosses it forward and u crosses it backward
 const fluxChange = (v: number, u: number): number => u - v
 
-export function waitingStream(rule: WaitingSlots, state: WaitingState, log?: BeatLog): WaitingState {
+export function waitingStream(
+  rule: WaitingSlots,
+  state: WaitingState,
+  log?: BeatLog,
+): WaitingState {
   const { mesh, moves, links, neighbour, edges, opposite, next } = rule
   const out = copyWaitingState(state)
 
@@ -414,7 +496,10 @@ export function waitingStream(rule: WaitingSlots, state: WaitingState, log?: Bea
       const to = (neighbour[x * 24 + d] ?? 0) * SLOTS + d
 
       out.vibe[to] = state.vibe[from] ?? 0
-      out.role[to] = moves.act[links[x * 24 + d] ?? moves.identity]?.[state.role[from] ?? 0] ?? 0
+      out.role[to] =
+        moves.act[links[x * 24 + d] ?? moves.identity]?.[
+          state.role[from] ?? 0
+        ] ?? 0
       out.tag[to] = state.tag[from] ?? 0
     }
   }
@@ -428,8 +513,12 @@ export function waitingStream(rule: WaitingSlots, state: WaitingState, log?: Bea
   return out
 }
 
-export function waitingStreamBack(rule: WaitingSlots, state: WaitingState): WaitingState {
-  const { mesh, moves, links, neighbour, edges, opposite, previous } = rule
+export function waitingStreamBack(
+  rule: WaitingSlots,
+  state: WaitingState,
+): WaitingState {
+  const { mesh, moves, links, neighbour, edges, opposite, previous } =
+    rule
   const out = copyWaitingState(state)
 
   for (let l = 0; l < edges.length; l++) {
@@ -442,7 +531,11 @@ export function waitingStreamBack(rule: WaitingSlots, state: WaitingState): Wait
       const from = (neighbour[x * 24 + d] ?? 0) * SLOTS + d
 
       out.vibe[to] = state.vibe[from] ?? 0
-      out.role[to] = moves.act[moves.inverse[links[x * 24 + d] ?? moves.identity] ?? moves.identity]?.[state.role[from] ?? 0] ?? 0
+      out.role[to] =
+        moves.act[
+          moves.inverse[links[x * 24 + d] ?? moves.identity] ??
+            moves.identity
+        ]?.[state.role[from] ?? 0] ?? 0
       out.tag[to] = state.tag[from] ?? 0
     }
   }
@@ -461,13 +554,19 @@ export function waitingStreamBack(rule: WaitingSlots, state: WaitingState): Wait
     const before = e - fluxChange(v, u)
 
     out.flux[l] = before
-    out.demon[l] = (demon[l] ?? 0) + tensionOf(rule, e) - tensionOf(rule, before)
+    out.demon[l] =
+      (demon[l] ?? 0) + tensionOf(rule, e) - tensionOf(rule, before)
   })
 
   return out
 }
 
-export function waitingBeat(rule: WaitingSlots, state: WaitingState, t: number, log?: BeatLog): WaitingState {
+export function waitingBeat(
+  rule: WaitingSlots,
+  state: WaitingState,
+  t: number,
+  log?: BeatLog,
+): WaitingState {
   const work = copyWaitingState(state)
 
   waitingCollide(rule, work, t, log)
@@ -475,7 +574,11 @@ export function waitingBeat(rule: WaitingSlots, state: WaitingState, t: number, 
   return waitingStream(rule, work, log)
 }
 
-export function waitingBeatBack(rule: WaitingSlots, state: WaitingState, t: number): WaitingState {
+export function waitingBeatBack(
+  rule: WaitingSlots,
+  state: WaitingState,
+  t: number,
+): WaitingState {
   const back = waitingStreamBack(rule, state)
 
   waitingCollideBack(rule, back, t)
@@ -483,7 +586,10 @@ export function waitingBeatBack(rule: WaitingSlots, state: WaitingState, t: numb
   return back
 }
 
-export function waitingEnergy(rule: WaitingSlots, state: WaitingState): number {
+export function waitingEnergy(
+  rule: WaitingSlots,
+  state: WaitingState,
+): number {
   let total = 0
 
   for (let i = 0; i < state.vibe.length; i++) {
@@ -499,7 +605,11 @@ export function waitingEnergy(rule: WaitingSlots, state: WaitingState): number {
 
 // Gauss's law at every cell, as a change from a start: the change in a cell's vibe equals the change in
 // the flux entering it minus the change in the flux leaving it. Exact Gauss when the start satisfies it
-export function waitingGaussHolds(rule: WaitingSlots, start: WaitingState, now: WaitingState): boolean {
+export function waitingGaussHolds(
+  rule: WaitingSlots,
+  start: WaitingState,
+  now: WaitingState,
+): boolean {
   const balance = new Int32Array(rule.mesh.cellCount)
 
   rule.edges.forEach(([a, b], l) => {
@@ -513,7 +623,9 @@ export function waitingGaussHolds(rule: WaitingSlots, start: WaitingState, now: 
     let change = 0
 
     for (let s = 0; s < SLOTS; s++) {
-      change += (now.vibe[x * SLOTS + s] ?? 0) - (start.vibe[x * SLOTS + s] ?? 0)
+      change +=
+        (now.vibe[x * SLOTS + s] ?? 0) -
+        (start.vibe[x * SLOTS + s] ?? 0)
     }
 
     if (change !== balance[x]) {
@@ -525,7 +637,11 @@ export function waitingGaussHolds(rule: WaitingSlots, start: WaitingState, now: 
 }
 
 // a cell's color content: [weight, x, y], each mod 3, with w the vibe or, on a calm slot, its sign
-export function waitingCellColor(rule: WaitingSlots, state: WaitingState, x: number): [number, number, number] {
+export function waitingCellColor(
+  rule: WaitingSlots,
+  state: WaitingState,
+  x: number,
+): [number, number, number] {
   let w = 0
   let qx = 0
   let qy = 0
@@ -544,9 +660,15 @@ export function waitingCellColor(rule: WaitingSlots, state: WaitingState, x: num
 }
 
 // how many cells the collision alone changes the color content of, at beat t
-export function waitingColorLeaks(rule: WaitingSlots, state: WaitingState, t: number): number {
+export function waitingColorLeaks(
+  rule: WaitingSlots,
+  state: WaitingState,
+  t: number,
+): number {
   const work = copyWaitingState(state)
-  const before = Array.from({ length: rule.mesh.cellCount }, (_, x) => waitingCellColor(rule, work, x))
+  const before = Array.from({ length: rule.mesh.cellCount }, (_, x) =>
+    waitingCellColor(rule, work, x),
+  )
 
   waitingCollide(rule, work, t)
 

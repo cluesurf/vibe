@@ -48,7 +48,9 @@ export function registerCounts(): RegisterCounts {
     huskLinkDirections: HUSK_WEIGHTS.length,
     huskLinkWeight: HUSK_WEIGHTS.reduce((sum, w) => sum + w, 0),
     huskTriangles: bulk.huskTriangles / bulk.huskDocks,
-    huskTriangleMultiplicity: Array.from(bulk.multiplicity).reduce((sum, v) => sum + v, 0) / bulk.huskDocks,
+    huskTriangleMultiplicity:
+      Array.from(bulk.multiplicity).reduce((sum, v) => sum + v, 0) /
+      bulk.huskDocks,
   }
 }
 
@@ -64,12 +66,19 @@ export function isThreeRationalSquare(a: number, b: number): boolean {
 
 /** The integer square root of a non-negative BigInt (floor). */
 export function sqrtBig(n: bigint): bigint {
-  if (n < 2n) return n
+  if (n < 2n) {
+    return n
+  }
 
   let x = BigInt(Math.floor(Math.sqrt(Number(n))))
 
-  while (x * x > n) x -= 1n
-  while ((x + 1n) * (x + 1n) <= n) x += 1n
+  while (x * x > n) {
+    x -= 1n
+  }
+
+  while ((x + 1n) * (x + 1n) <= n) {
+    x += 1n
+  }
 
   return x
 }
@@ -78,22 +87,32 @@ export function sqrtBig(n: bigint): bigint {
  * Every loop-light split with kappa = c r / m^2 = 3/16 and r / c = a / b, m <= mMax, counted in integers:
  * 16 c r = 3 m^2 and b r = a c.
  */
-export function jointSplits(a: number, b: number, mMax: number): { m: number; c: number; r: number }[] {
+export function jointSplits(
+  a: number,
+  b: number,
+  mMax: number,
+): { m: number; c: number; r: number }[] {
   const out: { m: number; c: number; r: number }[] = []
 
   for (let m = 1; m <= mMax; m++) {
     const product = 3 * m * m
 
-    if (product % 16 !== 0) continue
+    if (product % 16 !== 0) {
+      continue
+    }
 
     const cr = product / 16
 
     for (let c = 1; c <= cr; c++) {
-      if (cr % c !== 0) continue
+      if (cr % c !== 0) {
+        continue
+      }
 
       const r = cr / c
 
-      if (b * r === a * c) out.push({ m, c, r })
+      if (b * r === a * c) {
+        out.push({ m, c, r })
+      }
     }
   }
 
@@ -101,8 +120,11 @@ export function jointSplits(a: number, b: number, mMax: number): { m: number; c:
 }
 
 /** The Pell pairs p^2 - 2 q^2 = +-1, (1, 1), (3, 2), (7, 5), ..., while q <= qMax, as BigInts. */
-export function pellPairs(qMax: bigint): { p: bigint; q: bigint; sign: bigint }[] {
+export function pellPairs(
+  qMax: bigint,
+): { p: bigint; q: bigint; sign: bigint }[] {
   const out: { p: bigint; q: bigint; sign: bigint }[] = []
+
   let p = 1n
   let q = 1n
 
@@ -118,7 +140,13 @@ export function pellPairs(qMax: bigint): { p: bigint; q: bigint; sign: bigint }[
  * The balanced split at a Pell pair: drift c = 8p, force r = 3p, register m = 16q, so r / c = 3/8 exactly, and
  * the exact relative miss of the squared speed from 1/8, as a fraction num / den in integers.
  */
-export function pellSplit(pair: { p: bigint; q: bigint }): { c: bigint; r: bigint; m: bigint; missNum: bigint; missDen: bigint } {
+export function pellSplit(pair: { p: bigint; q: bigint }): {
+  c: bigint
+  r: bigint
+  m: bigint
+  missNum: bigint
+  missDen: bigint
+} {
   const c = 8n * pair.p
   const r = 3n * pair.p
   const m = 16n * pair.q
@@ -130,7 +158,11 @@ export function pellSplit(pair: { p: bigint; q: bigint }): { c: bigint; r: bigin
 }
 
 /** alpha = s / (12 N c) at a split ratio rho and coupling kappa, the general form (E-FRC-0250). */
-export function alphaCoulomb(n: number, rho: number, kappa: number): number {
+export function alphaCoulomb(
+  n: number,
+  rho: number,
+  kappa: number,
+): number {
   const s = Math.sqrt(kappa / rho)
   const c = Math.sqrt((2 * kappa) / 3)
 
@@ -138,20 +170,28 @@ export function alphaCoulomb(n: number, rho: number, kappa: number): number {
 }
 
 /** The same, reduced: sqrt(3 / (2 rho)) / (12 N), free of kappa. */
-export const alphaOfBalance = (n: number, rho: number): number => Math.sqrt(3 / (2 * rho)) / (12 * n)
+export const alphaOfBalance = (n: number, rho: number): number =>
+  Math.sqrt(3 / (2 * rho)) / (12 * n)
 
 /** E-FRC-0240's golden-rule form, alpha = 1 / (2 N sqrt rho), defined through a stand-in atom's dipole. */
-export const alphaGoldenRule = (n: number, rho: number): number => 1 / (2 * n * Math.sqrt(rho))
+export const alphaGoldenRule = (n: number, rho: number): number =>
+  1 / (2 * n * Math.sqrt(rho))
 
 /** The depth D in 1 .. dMax whose 1 / alpha(2D + 1) is nearest the target, relatively, and its miss. */
-export function nearestDepth(alpha: (n: number) => number, target: number, dMax: number): { d: number; inverse: number; miss: number } {
+export function nearestDepth(
+  alpha: (n: number) => number,
+  target: number,
+  dMax: number,
+): { d: number; inverse: number; miss: number } {
   let best = { d: 0, inverse: 0, miss: Infinity }
 
   for (let d = 1; d <= dMax; d++) {
     const inverse = 1 / alpha(2 * d + 1)
     const miss = Math.abs(inverse / target - 1)
 
-    if (miss < best.miss) best = { d, inverse, miss }
+    if (miss < best.miss) {
+      best = { d, inverse, miss }
+    }
   }
 
   return best

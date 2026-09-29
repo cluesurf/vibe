@@ -138,9 +138,34 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { blockGap, d4Walk, faceOf, loopCensus, pieceExact, TiedFlux, tiedBlocks, tiedCostProfile, tiedPositions, triangles, type Face } from '@/code/measure/flux-plaquette'
-import { patternGauss, patternKey, ruleVacuumFlux, treeBeat, wordPattern, wordSpace } from '@/code/measure/link-flux'
-import { overEmpty, ringUnit, unitAngle, vibeDockExact, vibeShape } from '@/code/measure/swap-string'
+import {
+  blockGap,
+  d4Walk,
+  faceOf,
+  loopCensus,
+  pieceExact,
+  TiedFlux,
+  tiedBlocks,
+  tiedCostProfile,
+  tiedPositions,
+  triangles,
+  type Face,
+} from '@/code/measure/flux-plaquette'
+import {
+  patternGauss,
+  patternKey,
+  ruleVacuumFlux,
+  treeBeat,
+  wordPattern,
+  wordSpace,
+} from '@/code/measure/link-flux'
+import {
+  overEmpty,
+  ringUnit,
+  unitAngle,
+  vibeDockExact,
+  vibeShape,
+} from '@/code/measure/swap-string'
 import { d4Ball, d4Steps } from '@/code/measure/swap-sector'
 
 const LIGHT: readonly [number, number] = [-1, 4]
@@ -149,7 +174,11 @@ const KS_THETAS: readonly (readonly [string, number, number])[] = [
   ['2pi/3', 0, 2],
   ['pi', 0, 3],
 ]
-const CONTROLLED_THETAS: readonly (readonly [string, number, number])[] = [
+const CONTROLLED_THETAS: readonly (readonly [
+  string,
+  number,
+  number,
+])[] = [
   ['0.0936', 3, 4],
   ['0.187', -6, 4],
   ['alpha', 1, 0],
@@ -163,16 +192,33 @@ const MOVED = 1e-6
 const INTERFERENCE = 0.5
 const ABSORB = 1e-2
 const VACUUM_TOLERANCE = 1e-14
-const CENSUS = { types: 32, perLink: 8, squares: 144, rhombi: 384, classes: 8 }
+const CENSUS = {
+  types: 32,
+  perLink: 8,
+  squares: 144,
+  rhombi: 384,
+  classes: 8,
+}
 
-export type PlaquettePlan = { beats: number; box: number; vacuumBeats: number; vacuumSide: number }
+export type PlaquettePlan = {
+  beats: number
+  box: number
+  vacuumBeats: number
+  vacuumSide: number
+}
 
-export const GATE_PLAN: PlaquettePlan = { beats: 3, box: 4, vacuumBeats: 32, vacuumSide: 4 }
+export const GATE_PLAN: PlaquettePlan = {
+  beats: 3,
+  box: 4,
+  vacuumBeats: 32,
+  vacuumSide: 4,
+}
 
 export default experiment({
   id: 'spin/flux-plaquette',
   code: 'E-SPN-0151',
-  title: 'a triangle plaquette term for the Z3 link flux cannot make a tied member light, fail (P1): the Kogut-Susskind piece (order-free, W(F4) covariant, Gauss exact, not inert on the empty register) commutes with the member walk, so the member reduced state is unchanged to 6e-17 at every angle, and D4 motion exists only in the flat sector, where every link flux is uniform and the string tension is exactly 0; the vacuum-inert controlled piece (8 ordered classes, not covariant) does move the member but writes more path record than it erases: at theta 0.0936 it restores 2% of the D4-to-tree difference while 3.4e-2 of the weight leaves the plain string (twice that whole difference), and from theta alpha the string boils past the cost-4 box within 3 beats (0.69 to 1.00 absorbed); Gauss holds on 427,196 patterns, the vacuum and love sea stay exact, and the piece off reproduces E-SPN-0150 bit for bit; Z3 in 4d has a first-order transition, so no light-and-confined window exists',
+  title:
+    'a triangle plaquette term for the Z3 link flux cannot make a tied member light, fail (P1): the Kogut-Susskind piece (order-free, W(F4) covariant, Gauss exact, not inert on the empty register) commutes with the member walk, so the member reduced state is unchanged to 6e-17 at every angle, and D4 motion exists only in the flat sector, where every link flux is uniform and the string tension is exactly 0; the vacuum-inert controlled piece (8 ordered classes, not covariant) does move the member but writes more path record than it erases: at theta 0.0936 it restores 2% of the D4-to-tree difference while 3.4e-2 of the weight leaves the plain string (twice that whole difference), and from theta alpha the string boils past the cost-4 box within 3 beats (0.69 to 1.00 absorbed); Gauss holds on 427,196 patterns, the vacuum and love sea stay exact, and the piece off reproduces E-SPN-0150 bit for bit; Z3 in 4d has a first-order transition, so no light-and-confined window exists',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -182,21 +228,54 @@ export default experiment({
   },
 })
 
-type Run = { name: string; theta: number; positions: Map<string, number>[]; blocks: Map<string, Float64Array>[]; absorbed: number[]; plain: number[]; profile: number[][]; patterns: number; gaussBad: number; reachBad: number; amplitudes: Map<string, Float64Array>[] }
+type Run = {
+  name: string
+  theta: number
+  positions: Map<string, number>[]
+  blocks: Map<string, Float64Array>[]
+  absorbed: number[]
+  plain: number[]
+  profile: number[][]
+  patterns: number
+  gaussBad: number
+  reachBad: number
+  amplitudes: Map<string, Float64Array>[]
+}
 
 export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const e2 = (x: number): string => x.toExponential(2)
   const u = ringUnit(LIGHT[0], LIGHT[1])
   const shape = vibeShape(overEmpty(vibeDockExact(1, 0, u), u))
-  const table = Float64Array.from([shape.c[0], shape.c[1], shape.beta[0], shape.beta[1]])
+  const table = Float64Array.from([
+    shape.c[0],
+    shape.c[1],
+    shape.beta[0],
+    shape.beta[1],
+  ])
   const T = plan.beats
 
   // ---------------- I1, I2 ----------------
   const census = loopCensus()
-  const I1 = census.types === CENSUS.types && census.perLink === CENSUS.perLink && census.squares === CENSUS.squares && census.squaresFilled === CENSUS.squares && census.rhombi === CENSUS.rhombi && census.rhombiFilled === CENSUS.rhombi && census.linesDistinct && census.classes === CENSUS.classes && census.classesDisjoint
-  const pieces = [...KS_THETAS, ...CONTROLLED_THETAS, ['one', ONE[0], ONE[1]] as const].map(([name, k, j]) => ({ name, ...pieceExact(ringUnit(k, j)) }))
+  const I1 =
+    census.types === CENSUS.types &&
+    census.perLink === CENSUS.perLink &&
+    census.squares === CENSUS.squares &&
+    census.squaresFilled === CENSUS.squares &&
+    census.rhombi === CENSUS.rhombi &&
+    census.rhombiFilled === CENSUS.rhombi &&
+    census.linesDistinct &&
+    census.classes === CENSUS.classes &&
+    census.classesDisjoint
+  const pieces = [
+    ...KS_THETAS,
+    ...CONTROLLED_THETAS,
+    ['one', ONE[0], ONE[1]] as const,
+  ].map(([name, k, j]) => ({ name, ...pieceExact(ringUnit(k, j)) }))
   const I2 = pieces.every(p => p.unitary)
 
   log(`I1 ${I1} ${JSON.stringify(census)}; I2 ${I2}`)
@@ -205,21 +284,66 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   const ws = wordSpace(T)
   const wordKeys = new Map<string, number>()
 
-  for (let w = 0; w < ws.words; w++) wordKeys.set(patternKey(wordPattern(ws, w)), w)
+  for (let w = 0; w < ws.words; w++) {
+    wordKeys.set(patternKey(wordPattern(ws, w)), w)
+  }
 
   // ---------------- the runs ----------------
-  const ksFaces: Face[] = (triangles().onLine.get(0) as { type: number; offset: number[] }[]).slice(0, KS_FACES).map(t => faceOf(t.type, t.offset))
-  const runOf = (name: string, lambda: readonly [number, number] | null, kind: 'off' | 'controlled' | 'ks', box: number, keep = false): Run => {
+  const ksFaces: Face[] = (
+    triangles().onLine.get(0) as { type: number; offset: number[] }[]
+  )
+    .slice(0, KS_FACES)
+    .map(t => faceOf(t.type, t.offset))
+
+  const runOf = (
+    name: string,
+    lambda: readonly [number, number] | null,
+    kind: 'off' | 'controlled' | 'ks',
+    box: number,
+    keep = false,
+  ): Run => {
     const p = lambda ? pieceExact(ringUnit(lambda[0], lambda[1])) : null
-    const magnetic = kind === 'off' || !p ? ({ kind: 'off' } as const) : kind === 'ks' ? ({ kind: 'ks', stay: p.stayFloat, move: p.moveFloat, faces: ksFaces } as const) : ({ kind: 'controlled', stay: p.stayFloat, move: p.moveFloat } as const)
+    const magnetic =
+      kind === 'off' || !p
+        ? ({ kind: 'off' } as const)
+        : kind === 'ks'
+          ? ({
+              kind: 'ks',
+              stay: p.stayFloat,
+              move: p.moveFloat,
+              faces: ksFaces,
+            } as const)
+          : ({
+              kind: 'controlled',
+              stay: p.stayFloat,
+              move: p.moveFloat,
+            } as const)
     const s = new TiedFlux(shape, 0, magnetic, box)
+
     let re = new Float64Array(24)
     let im = new Float64Array(24)
-    const out: Run = { name, theta: lambda ? unitAngle(ringUnit(lambda[0], lambda[1])) : 0, positions: [], blocks: [], absorbed: [], plain: [], profile: [], patterns: 0, gaussBad: 0, reachBad: 0, amplitudes: [] }
+
+    const out: Run = {
+      name,
+      theta: lambda ? unitAngle(ringUnit(lambda[0], lambda[1])) : 0,
+      positions: [],
+      blocks: [],
+      absorbed: [],
+      plain: [],
+      profile: [],
+      patterns: 0,
+      gaussBad: 0,
+      reachBad: 0,
+      amplitudes: [],
+    }
+
     let lost = 0
 
     s.intern([], [0, 0, 0, 0])
-    for (let d = 0; d < 24; d++) re[d] = 1 / Math.sqrt(24)
+
+    for (let d = 0; d < 24; d++) {
+      re[d] = 1 / Math.sqrt(24)
+    }
 
     for (let t = 1; t <= T; t++) {
       const r = s.beat(re, im)
@@ -233,10 +357,21 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
       for (let i = 0; i < s.size && i * 24 < re.length; i++) {
         let w = 0
 
-        for (let d = 0; d < 24; d++) w += (re[i * 24 + d] as number) ** 2 + (im[i * 24 + d] as number) ** 2
-        if (w === 0) continue
-        if (wordKeys.has(patternKey(s.patterns[i] as number[]))) plain += w
-        if (d4Steps(s.where[i] as number[]) > t) out.reachBad++
+        for (let d = 0; d < 24; d++) {
+          w += re[i * 24 + d]! ** 2 + im[i * 24 + d]! ** 2
+        }
+
+        if (w === 0) {
+          continue
+        }
+
+        if (wordKeys.has(patternKey(s.patterns[i] as number[]))) {
+          plain += w
+        }
+
+        if (d4Steps(s.where[i]!) > t) {
+          out.reachBad++
+        }
       }
 
       out.positions.push(tiedPositions(s, re, im))
@@ -244,14 +379,20 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
       out.absorbed.push(Math.abs(lost))
       out.plain.push(plain)
       out.profile.push(tiedCostProfile(s, re, im))
+
       // the nonzero amplitudes by pattern (kept for the two runs C1 compares)
       if (keep) {
         const m = new Map<string, Float64Array>()
 
         for (let i = 0; i < s.size && i * 24 < re.length; i++) {
-          const v = Float64Array.from([...re.subarray(i * 24, i * 24 + 24), ...im.subarray(i * 24, i * 24 + 24)])
+          const v = Float64Array.from([
+            ...re.subarray(i * 24, i * 24 + 24),
+            ...im.subarray(i * 24, i * 24 + 24),
+          ])
 
-          if (v.some(x => x !== 0)) m.set(patternKey(s.patterns[i] as number[]), v)
+          if (v.some(x => x !== 0)) {
+            m.set(patternKey(s.patterns[i] as number[]), v)
+          }
         }
 
         out.amplitudes.push(m)
@@ -260,13 +401,17 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
 
     for (let i = 0; i < s.size; i++) {
       const g = patternGauss(s.patterns[i] as number[])
-      const x = s.where[i] as number[]
+      const x = s.where[i]!
 
-      if (!g.legal || g.fear.some((v, k) => v !== x[k])) out.gaussBad++
+      if (!g.legal || g.fear.some((v, k) => v !== x[k])) {
+        out.gaussBad++
+      }
     }
 
     out.patterns = s.size
-    log(`${kind} ${name}: patterns ${s.size}, absorbed ${out.absorbed.map(e2).join(' ')}, plain ${out.plain.map(x => x.toFixed(6)).join(' ')}, gauss bad ${out.gaussBad}, reach bad ${out.reachBad}`)
+    log(
+      `${kind} ${name}: patterns ${s.size}, absorbed ${out.absorbed.map(e2).join(' ')}, plain ${out.plain.map(x => x.toFixed(6)).join(' ')}, gauss bad ${out.gaussBad}, reach bad ${out.reachBad}`,
+    )
 
     return out
   }
@@ -276,14 +421,18 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   // ---------------- C1: the tree bit for bit, and lambda = 1 ----------------
   let c1Compared = 0
   let c1Differ = 0
+
   {
     let wre = new Float64Array(ws.words * 24)
     let wim = new Float64Array(ws.words * 24)
+
     const s = new TiedFlux(shape, 0, { kind: 'off' }, T)
+
     let re = new Float64Array(24)
     let im = new Float64Array(24)
 
     s.intern([], [0, 0, 0, 0])
+
     for (let d = 0; d < 24; d++) {
       wre[d] = 1 / Math.sqrt(24)
       re[d] = 1 / Math.sqrt(24)
@@ -306,43 +455,60 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
         const i = s.index.get(patternKey(wordPattern(ws, w)))
 
         for (let d = 0; d < 24; d++) {
-          const a = i === undefined || i * 24 >= re.length ? 0 : (re[i * 24 + d] as number)
-          const b = i === undefined || i * 24 >= im.length ? 0 : (im[i * 24 + d] as number)
+          const a =
+            i === undefined || i * 24 >= re.length ? 0 : re[i * 24 + d]!
+          const b =
+            i === undefined || i * 24 >= im.length ? 0 : im[i * 24 + d]!
 
           c1Compared++
-          if (a !== wre[w * 24 + d] || b !== wim[w * 24 + d]) c1Differ++
+
+          if (a !== wre[w * 24 + d] || b !== wim[w * 24 + d]) {
+            c1Differ++
+          }
         }
       }
     }
   }
+
   const unit = runOf('lambda 1', ONE, 'controlled', plan.box, true)
   // the lambda = 1 run interns more patterns (its zero-amplitude branches) in another order, so the two are compared by
   // pattern: the same nonzero patterns, every amplitude equal (===)
   const unitSame = unit.amplitudes.every((a, t) => {
-    const b = off.amplitudes[t] as Map<string, Float64Array>
+    const b = off.amplitudes[t]!
 
-    if (a.size !== b.size) return false
+    if (a.size !== b.size) {
+      return false
+    }
 
     for (const [k, v] of a) {
       const w = b.get(k)
 
-      if (!w || v.some((x, j) => x !== w[j])) return false
+      if (!w || v.some((x, j) => x !== w[j])) {
+        return false
+      }
     }
 
     return true
   })
   const C1 = c1Differ === 0 && c1Compared > 0 && unitSame
 
-  log(`C1 treeBeat ${c1Compared} compared, ${c1Differ} differ; lambda 1 same ${unitSame}`)
+  log(
+    `C1 treeBeat ${c1Compared} compared, ${c1Differ} differ; lambda 1 same ${unitSame}`,
+  )
 
   // ---------------- the D4 walk ----------------
   const ball = d4Ball(T + 1)
   const np = ball.points.length
+
   let dre = new Float64Array(np * 24)
   let dim = new Float64Array(np * 24)
+
   const d4P: Map<string, number>[] = []
 
-  for (let d = 0; d < 24; d++) dre[(ball.index.get('0,0,0,0') as number) * 24 + d] = 1 / Math.sqrt(24)
+  for (let d = 0; d < 24; d++) {
+    dre[ball.index.get('0,0,0,0')! * 24 + d] = 1 / Math.sqrt(24)
+  }
+
   for (let t = 1; t <= T; t++) {
     const r = d4Walk(table, ball.step, np, dre, dim)
 
@@ -354,17 +520,26 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
     for (let p = 0; p < np; p++) {
       let s = 0
 
-      for (let d = 0; d < 24; d++) s += (dre[p * 24 + d] as number) ** 2 + (dim[p * 24 + d] as number) ** 2
-      if (s > 0) q.set((ball.points[p] as number[]).join(','), s)
+      for (let d = 0; d < 24; d++) {
+        s += dre[p * 24 + d]! ** 2 + dim[p * 24 + d]! ** 2
+      }
+
+      if (s > 0) {
+        q.set(ball.points[p]!.join(','), s)
+      }
     }
 
     d4P.push(q)
   }
 
-  const interference = (r: Run, t: number): { I: number; move: number; gap: number } => {
-    const P = r.positions[t] as Map<string, number>
-    const B = off.positions[t] as Map<string, number>
-    const D = d4P[t] as Map<string, number>
+  const interference = (
+    r: Run,
+    t: number,
+  ): { I: number; move: number; gap: number } => {
+    const P = r.positions[t]!
+    const B = off.positions[t]!
+    const D = d4P[t]!
+
     let dot = 0
     let n2 = 0
     let m2 = 0
@@ -384,7 +559,9 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   // ---------------- P1a: KS ----------------
   const ks = KS_THETAS.map(([name, k, j]) => {
     const r = runOf(name, [k, j], 'ks', plan.box + 3 * KS_FACES)
-    const gap = Math.max(...r.blocks.map((b, t) => blockGap(b, off.blocks[t] as Map<string, Float64Array>)))
+    const gap = Math.max(
+      ...r.blocks.map((b, t) => blockGap(b, off.blocks[t]!)),
+    )
 
     return { name, theta: r.theta, gap, run: r }
   })
@@ -395,7 +572,17 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   // ---------------- I3: KS on the empty register ----------------
   const i3 = KS_THETAS.map(([name, k, j]) => {
     const p = pieceExact(ringUnit(k, j))
-    const s = new TiedFlux(shape, 0, { kind: 'ks', stay: p.stayFloat, move: p.moveFloat, faces: ksFaces }, 3 * KS_FACES)
+    const s = new TiedFlux(
+      shape,
+      0,
+      {
+        kind: 'ks',
+        stay: p.stayFloat,
+        move: p.moveFloat,
+        faces: ksFaces,
+      },
+      3 * KS_FACES,
+    )
     const re = new Float64Array(24)
     const im = new Float64Array(24)
     const th = unitAngle(ringUnit(k, j))
@@ -417,25 +604,52 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
   const controlled = CONTROLLED_THETAS.map(([name, k, j]) => {
     const r = runOf(name, [k, j], 'controlled', plan.box)
     const f = interference(r, T - 1)
-    const gap = Math.max(...r.blocks.map((b, t) => blockGap(b, off.blocks[t] as Map<string, Float64Array>)))
+    const gap = Math.max(
+      ...r.blocks.map((b, t) => blockGap(b, off.blocks[t]!)),
+    )
 
-    return { name, theta: r.theta, I: f.I, move: f.move, absorbed: r.absorbed[T - 1] as number, plain: r.plain, gap, run: r, pass: f.I >= INTERFERENCE && (r.absorbed[T - 1] as number) <= ABSORB }
+    return {
+      name,
+      theta: r.theta,
+      I: f.I,
+      move: f.move,
+      absorbed: r.absorbed[T - 1]!,
+      plain: r.plain,
+      gap,
+      run: r,
+      pass: f.I >= INTERFERENCE && r.absorbed[T - 1]! <= ABSORB,
+    }
   })
   const P1b = controlled.some(x => x.pass)
   const P1 = P1a || P1b
   const C2 = (controlled[0] as { gap: number }).gap > MOVED
   const d4Gap = interference(off, T - 1).gap
 
-  log(`P1b ${controlled.map(x => `${x.name}: I ${x.I.toFixed(5)} absorbed ${e2(x.absorbed)} plain ${x.plain.map(y => y.toFixed(4)).join(' ')}`).join('; ')}`)
+  log(
+    `P1b ${controlled.map(x => `${x.name}: I ${x.I.toFixed(5)} absorbed ${e2(x.absorbed)} plain ${x.plain.map(y => y.toFixed(4)).join(' ')}`).join('; ')}`,
+  )
 
   // ---------------- P2 ----------------
-  const vacuum = [0, 1].map(sea => ({ sea, ...ruleVacuumFlux(u, plan.vacuumSide, sea, plan.vacuumBeats) }))
-  const runs = [off, unit, ...ks.map(x => x.run), ...controlled.map(x => x.run)]
+  const vacuum = [0, 1].map(sea => ({
+    sea,
+    ...ruleVacuumFlux(u, plan.vacuumSide, sea, plan.vacuumBeats),
+  }))
+  const runs = [
+    off,
+    unit,
+    ...ks.map(x => x.run),
+    ...controlled.map(x => x.run),
+  ]
   const gaussBad = runs.reduce((s, r) => s + r.gaussBad, 0)
   const reachBad = runs.reduce((s, r) => s + r.reachBad, 0)
-  const P2 = gaussBad === 0 && reachBad === 0 && vacuum.every(v => v.exact && v.worstLinks === 0)
+  const P2 =
+    gaussBad === 0 &&
+    reachBad === 0 &&
+    vacuum.every(v => v.exact && v.worstLinks === 0)
 
-  log(`P2 gauss bad ${gaussBad}, reach bad ${reachBad}, vacuum ${JSON.stringify(vacuum)}`)
+  log(
+    `P2 gauss bad ${gaussBad}, reach bad ${reachBad}, vacuum ${JSON.stringify(vacuum)}`,
+  )
 
   // P3 and P4 are run only when P1 holds; this plan has no engine for them, so a P1 that held would make the verdict
   // partial rather than pass on gates never run
@@ -469,19 +683,30 @@ export function fluxPlaquetteRun(plan: PlaquettePlan): Verdict {
       c1Compared,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, instrument: instrument ? 1 : 0 },
-    notes: `L1 and L2. Light unit m0 0.190126, sigma 0, ${T} beats, cost box ${plan.box}. |P_D4 - P_tree| at beat ${T}: ${e2(d4Gap)}. Census ${JSON.stringify(census)}. Pieces ${pieces.map(p => `${p.name} stay ${p.stayFloat.map(x => x.toFixed(6)).join(',')} move ${p.moveFloat.map(x => x.toFixed(6)).join(',')}`).join('; ')}. KS ${ks.map(x => `${x.name} (theta ${x.theta.toFixed(6)}): gap ${e2(x.gap)}, patterns ${x.run.patterns}`).join('; ')}. I3 ${JSON.stringify(i3)}. Controlled ${controlled.map(x => `${x.name} (theta ${x.theta.toFixed(6)}): I(3) ${x.I.toFixed(5)}, |P - P_tree| ${e2(x.move)}, reduced-state gap ${e2(x.gap)}, absorbed by beat ${x.run.absorbed.map(e2).join(' ')}, plain-string weight ${x.plain.map(y => y.toFixed(5)).join(' ')}, cost profile at beat ${T} ${(x.run.profile[T - 1] as number[]).map(e2).join(' ')}, patterns ${x.run.patterns}`).join('; ')}. C1 ${c1Compared} amplitudes compared with treeBeat, ${c1Differ} differ; lambda 1 same ${unitSame}. P2 gauss bad ${gaussBad}, reach bad ${reachBad}, vacuum ${JSON.stringify(vacuum)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    control: {
+      C1: C1 ? 1 : 0,
+      C2: C2 ? 1 : 0,
+      instrument: instrument ? 1 : 0,
+    },
+    notes: `L1 and L2. Light unit m0 0.190126, sigma 0, ${T} beats, cost box ${plan.box}. |P_D4 - P_tree| at beat ${T}: ${e2(d4Gap)}. Census ${JSON.stringify(census)}. Pieces ${pieces.map(p => `${p.name} stay ${p.stayFloat.map(x => x.toFixed(6)).join(',')} move ${p.moveFloat.map(x => x.toFixed(6)).join(',')}`).join('; ')}. KS ${ks.map(x => `${x.name} (theta ${x.theta.toFixed(6)}): gap ${e2(x.gap)}, patterns ${x.run.patterns}`).join('; ')}. I3 ${JSON.stringify(i3)}. Controlled ${controlled.map(x => `${x.name} (theta ${x.theta.toFixed(6)}): I(3) ${x.I.toFixed(5)}, |P - P_tree| ${e2(x.move)}, reduced-state gap ${e2(x.gap)}, absorbed by beat ${x.run.absorbed.map(e2).join(' ')}, plain-string weight ${x.plain.map(y => y.toFixed(5)).join(' ')}, cost profile at beat ${T} ${x.run.profile[T - 1]!.map(e2).join(' ')}, patterns ${x.run.patterns}`).join('; ')}. C1 ${c1Compared} amplitudes compared with treeBeat, ${c1Differ} differ; lambda 1 same ${unitSame}. P2 gauss bad ${gaussBad}, reach bad ${reachBad}, vacuum ${JSON.stringify(vacuum)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }
 
 // the KS step alone on a basis register (the member does not move): the weight kept on the empty register, reading
 // TiedFlux's magnetic stage through a beat whose coin and stream are the identity (a table with c = 1, beta = 0 and
 // the member's slot sent back to itself would move it, so the stage is read by its own class products instead)
-function ksAlone(s: TiedFlux, re: Float64Array, im: Float64Array): number {
-  if (s.magnetic.kind !== 'ks') return NaN
+function ksAlone(
+  s: TiedFlux,
+  re: Float64Array,
+  im: Float64Array,
+): number {
+  if (s.magnetic.kind !== 'ks') {
+    return NaN
+  }
 
   const { stay, move, faces } = s.magnetic
-  let amp = new Map<number, [number, number]>([[0, [re[0] as number, im[0] as number]]])
+
+  let amp = new Map<number, [number, number]>([[0, [re[0]!, im[0]!]]])
 
   for (let c = 0; c < 8; c++) {
     const next = new Map<number, [number, number]>()
@@ -490,19 +715,24 @@ function ksAlone(s: TiedFlux, re: Float64Array, im: Float64Array): number {
       const br = s.mixTargets(i, c, faces)
 
       for (let m = 0; m < br.to.length; m++) {
-        const t = br.to[m] as number
+        const t = br.to[m]!
 
-        if (t < 0) continue
+        if (t < 0) {
+          continue
+        }
 
         let f: [number, number] = [1, 0]
 
-        for (let j = 0; j < (br.code[m] as number); j++) {
-          const g = j < (br.moved[m] as number) ? move : stay
+        for (let j = 0; j < br.code[m]!; j++) {
+          const g = j < br.moved[m]! ? move : stay
 
           f = [f[0] * g[0] - f[1] * g[1], f[0] * g[1] + f[1] * g[0]]
         }
 
-        const v: [number, number] = [a[0] * f[0] - a[1] * f[1], a[0] * f[1] + a[1] * f[0]]
+        const v: [number, number] = [
+          a[0] * f[0] - a[1] * f[1],
+          a[0] * f[1] + a[1] * f[0],
+        ]
         const had = next.get(t) ?? [0, 0]
 
         next.set(t, [had[0] + v[0], had[1] + v[1]])
@@ -516,5 +746,3 @@ function ksAlone(s: TiedFlux, re: Float64Array, im: Float64Array): number {
 
   return kept[0] * kept[0] + kept[1] * kept[1]
 }
-
-

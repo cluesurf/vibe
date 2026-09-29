@@ -27,9 +27,29 @@
 // rule sees only the integer count n(y).
 
 import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
-import { coulombSymbol, darwinRatio } from '@/code/measure/darwin-exchange'
-import { greenAt, huskPoint, type GreenTable } from '@/code/measure/husk-meson'
-import { axpy, BLOCK, blackmanHarris, clonePair, inner, norm2, pairCycle, pairEngine, type PairEngine, type PairParams, type PairState, type RelBall } from '@/code/measure/register-meson'
+import {
+  coulombSymbol,
+  darwinRatio,
+} from '@/code/measure/darwin-exchange'
+import {
+  greenAt,
+  huskPoint,
+  type GreenTable,
+} from '@/code/measure/husk-meson'
+import {
+  axpy,
+  BLOCK,
+  blackmanHarris,
+  clonePair,
+  inner,
+  norm2,
+  pairCycle,
+  pairEngine,
+  type PairEngine,
+  type PairParams,
+  type PairState,
+  type RelBall,
+} from '@/code/measure/register-meson'
 import { gammaMatrices } from '@/code/measure/spinor-register'
 import { fft3 } from '@/code/measure/standin-chemistry'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
@@ -42,8 +62,10 @@ const PAIR = 64
 const ROOTS = DOCK_ROOTS
 const NR = ROOTS.length
 
-const qkey = (a: number, b: number, c: number): string => huskPoint(a, b, c).join(',')
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const qkey = (a: number, b: number, c: number): string =>
+  huskPoint(a, b, c).join(',')
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // ---- the quotient ball ----
 
@@ -51,7 +73,15 @@ export function huskRelBall(R: number): RelBall {
   const points: number[][] = []
   const R2 = R * R
 
-  for (let a = -R; a <= R; a++) for (let b = -R; b <= R; b++) for (let c = -R; c <= R; c++) if (a * a + b * b + c * c <= R2) points.push(huskPoint(a, b, c))
+  for (let a = -R; a <= R; a++) {
+    for (let b = -R; b <= R; b++) {
+      for (let c = -R; c <= R; c++) {
+        if (a * a + b * b + c * c <= R2) {
+          points.push(huskPoint(a, b, c))
+        }
+      }
+    }
+  }
 
   const index = new Map(points.map((p, i) => [p.join(','), i]))
   const plus = new Int32Array(points.length * NR)
@@ -59,31 +89,57 @@ export function huskRelBall(R: number): RelBall {
 
   points.forEach((p, i) => {
     ROOTS.forEach((r, d) => {
-      plus[i * NR + d] = index.get(qkey((p[0] as number) + (r[0] as number), (p[1] as number) + (r[1] as number), (p[2] as number) + (r[2] as number))) ?? -1
-      minus[i * NR + d] = index.get(qkey((p[0] as number) - (r[0] as number), (p[1] as number) - (r[1] as number), (p[2] as number) - (r[2] as number))) ?? -1
+      plus[i * NR + d] =
+        index.get(qkey(p[0]! + r[0]!, p[1]! + r[1]!, p[2]! + r[2]!)) ??
+        -1
+
+      minus[i * NR + d] =
+        index.get(qkey(p[0]! - r[0]!, p[1]! - r[1]!, p[2]! - r[2]!)) ??
+        -1
     })
   })
 
-  const V = Int32Array.from(points.map(p => Math.round(Math.hypot(p[0] as number, p[1] as number, p[2] as number))))
+  const V = Int32Array.from(
+    points.map(p => Math.round(Math.hypot(p[0]!, p[1]!, p[2]!))),
+  )
+
   let radius = 0
 
-  for (const v of V) radius = Math.max(radius, v)
+  for (const v of V) {
+    radius = Math.max(radius, v)
+  }
 
   return { radius, points, index, plus, minus, V }
 }
 
-export const huskR = (p: readonly number[]): number => Math.hypot(p[0] as number, p[1] as number, p[2] as number)
+export const huskR = (p: readonly number[]): number =>
+  Math.hypot(p[0]!, p[1]!, p[2]!)
 
 // ---- the Coulomb count ----
 
-export type CoulombCount = { alpha: number; theta: number; counts: Int32Array; nearest: number; top: number }
+export type CoulombCount = {
+  alpha: number
+  theta: number
+  counts: Int32Array
+  nearest: number
+  top: number
+}
 
 // G(y) = G(0) - D(y): the husk Green's function at a relative position
-export const greenOf = (table: GreenTable, p: readonly number[]): number => table.g0 - greenAt(table, p[0] as number, p[1] as number, p[2] as number)
+export const greenOf = (
+  table: GreenTable,
+  p: readonly number[],
+): number => table.g0 - greenAt(table, p[0]!, p[1]!, p[2]!)
 
 // n(y) = floor(alpha G(y) / theta): the pair's Coulomb energy counted in steps of the unit's angle
-export function coulombCounts(ball: RelBall, table: GreenTable, alpha: number, theta: number): CoulombCount {
+export function coulombCounts(
+  ball: RelBall,
+  table: GreenTable,
+  alpha: number,
+  theta: number,
+): CoulombCount {
   const counts = new Int32Array(ball.points.length)
+
   let nearest = Infinity
   let top = 0
 
@@ -115,10 +171,20 @@ function betaOf(wr: number, wi: number, phi: number): [number, number] {
 // sectors, applied as the exact projector pieces coulombCross (after the cycle).
 export type PairForm = 'scalar' | 'vector'
 
-export type CoulombEngine = PairEngine & { form: PairForm; phi: Float64Array; cross: Float64Array }
+export type CoulombEngine = PairEngine & {
+  form: PairForm
+  phi: Float64Array
+  cross: Float64Array
+}
 
 // the engine with the pair phase phi(y) = -theta n(y) in the chosen form
-export function coulombEngine(ball: RelBall, u: readonly [number, number], K: readonly number[], count: CoulombCount, form: PairForm = 'vector'): CoulombEngine {
+export function coulombEngine(
+  ball: RelBall,
+  u: readonly [number, number],
+  K: readonly number[],
+  count: CoulombCount,
+  form: PairForm = 'vector',
+): CoulombEngine {
   const params: PairParams = { u, tau: 0, cap: 0, K }
   const e = pairEngine(ball, params)
   const phi = Float64Array.from(count.counts, n => -count.theta * n)
@@ -137,7 +203,11 @@ export function coulombEngine(ball: RelBall, u: readonly [number, number], K: re
 }
 
 // every site's beta from the S S pair phase phi (beat 1) and, on D D (beat 2), -phi (scalar) or phi (vector)
-export function setPairPhases(e: PairEngine, phi: readonly number[], form: PairForm = 'scalar'): void {
+export function setPairPhases(
+  e: PairEngine,
+  phi: readonly number[],
+  form: PairForm = 'scalar',
+): void {
   const [ur, ui] = e.params.u
 
   phi.forEach((ph, i) => {
@@ -162,7 +232,17 @@ export function setPairPhases(e: PairEngine, phi: readonly number[], form: PairF
 // identity on its complement, so W (x) W stays exact. They are applied after the cycle, P_SD then P_DS.
 
 // out = conv of a block (member m, C or C^dag), register-meson's conv re-stated
-function conv(e: PairEngine, srcRe: Float64Array, srcIm: Float64Array, srcOff: number, srcStride: number, outRe: Float64Array, outIm: Float64Array, member: 1 | 2, dagger: boolean): void {
+function conv(
+  e: PairEngine,
+  srcRe: Float64Array,
+  srcIm: Float64Array,
+  srcOff: number,
+  srcStride: number,
+  outRe: Float64Array,
+  outIm: Float64Array,
+  member: 1 | 2,
+  dagger: boolean,
+): void {
   const { ball } = e
   const N = ball.points.length
   const table = (member === 1) !== dagger ? ball.minus : ball.plus
@@ -171,24 +251,31 @@ function conv(e: PairEngine, srcRe: Float64Array, srcIm: Float64Array, srcOff: n
 
   outRe.fill(0)
   outIm.fill(0)
+
   for (let i = 0; i < N; i++) {
     const oo = i * PAIR
 
     for (let d = 0; d < NR; d++) {
-      const j = table[i * NR + d] as number
+      const j = table[i * NR + d]!
 
-      if (j < 0) continue
+      if (j < 0) {
+        continue
+      }
 
-      const pr = e.halfRe[d] as number
-      const pi = sgn * (e.halfIm[d] as number)
+      const pr = e.halfRe[d]!
+      const pi = sgn * e.halfIm[d]!
       const so = j * srcStride + srcOff
-      const mm = mats[d] as { row: Int8Array; col: Int8Array; val: Float64Array }
+      const mm = mats[d] as {
+        row: Int8Array
+        col: Int8Array
+        val: Float64Array
+      }
       const L = mm.val.length
 
       for (let q = 0; q < L; q++) {
-        const row = mm.row[q] as number
-        const col = mm.col[q] as number
-        const v = mm.val[q] as number
+        const row = mm.row[q]!
+        const col = mm.col[q]!
+        const v = mm.val[q]!
         const wr = v * pr
         const wi = v * pi
 
@@ -197,16 +284,16 @@ function conv(e: PairEngine, srcRe: Float64Array, srcIm: Float64Array, srcOff: n
           const sb = so + col * 8
 
           for (let r2 = 0; r2 < 8; r2++) {
-            const xr = srcRe[sb + r2] as number
-            const xi = srcIm[sb + r2] as number
+            const xr = srcRe[sb + r2]!
+            const xi = srcIm[sb + r2]!
 
             outRe[ob + r2]! += wr * xr - wi * xi
             outIm[ob + r2]! += wr * xi + wi * xr
           }
         } else {
           for (let r1 = 0; r1 < 8; r1++) {
-            const xr = srcRe[so + r1 * 8 + col] as number
-            const xi = srcIm[so + r1 * 8 + col] as number
+            const xr = srcRe[so + r1 * 8 + col]!
+            const xi = srcIm[so + r1 * 8 + col]!
 
             outRe[oo + r1 * 8 + row]! += wr * xr - wi * xi
             outIm[oo + r1 * 8 + row]! += wr * xi + wi * xr
@@ -219,12 +306,28 @@ function conv(e: PairEngine, srcRe: Float64Array, srcIm: Float64Array, srcOff: n
 
 // the projected field of one cross piece: 'SD' gives B + C1 D + C2^dag A + C2^dag C1 X, 'DS' gives X + C1^dag A + C2 D +
 // C2 C1^dag B (each a block field of stride 64)
-export function crossProjection(e: PairEngine, s: PairState, kind: 'SD' | 'DS'): { re: Float64Array; im: Float64Array } {
+export function crossProjection(
+  e: PairEngine,
+  s: PairState,
+  kind: 'SD' | 'DS',
+): { re: Float64Array; im: Float64Array } {
   const N = e.ball.points.length
-  const [t1r, t1i, t2r, t2i, t3r, t3i, t4r, t4i] = e.t as [Float64Array, Float64Array, Float64Array, Float64Array, Float64Array, Float64Array, Float64Array, Float64Array]
+  const [t1r, t1i, t2r, t2i, t3r, t3i, t4r, t4i] = e.t as [
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+  ]
   const outRe = new Float64Array(N * PAIR)
   const outIm = new Float64Array(N * PAIR)
-  const [own, viaA, viaD, viaOther] = kind === 'SD' ? [BLOCK.B, BLOCK.A, BLOCK.D, BLOCK.X] : [BLOCK.X, BLOCK.A, BLOCK.D, BLOCK.B]
+  const [own, viaA, viaD, viaOther] =
+    kind === 'SD'
+      ? [BLOCK.B, BLOCK.A, BLOCK.D, BLOCK.X]
+      : [BLOCK.X, BLOCK.A, BLOCK.D, BLOCK.B]
 
   if (kind === 'SD') {
     conv(e, s.re, s.im, viaD, SITE, t1r, t1i, 1, false) // C1 D
@@ -242,8 +345,8 @@ export function crossProjection(e: PairEngine, s: PairState, kind: 'SD' | 'DS'):
     for (let k = 0; k < PAIR; k++) {
       const c = i * PAIR + k
 
-      outRe[c] = (s.re[i * SITE + own + k] as number) + (t1r[c] as number) + (t2r[c] as number) + (t4r[c] as number)
-      outIm[c] = (s.im[i * SITE + own + k] as number) + (t1i[c] as number) + (t2i[c] as number) + (t4i[c] as number)
+      outRe[c] = s.re[i * SITE + own + k]! + t1r[c]! + t2r[c]! + t4r[c]!
+      outIm[c] = s.im[i * SITE + own + k]! + t1i[c]! + t2i[c]! + t4i[c]!
     }
   }
 
@@ -251,20 +354,27 @@ export function crossProjection(e: PairEngine, s: PairState, kind: 'SD' | 'DS'):
 }
 
 // apply one cross piece in place: the own block += (e^(i phi) - 1) times the projected field
-export function crossPiece(e: CoulombEngine, s: PairState, kind: 'SD' | 'DS'): void {
+export function crossPiece(
+  e: CoulombEngine,
+  s: PairState,
+  kind: 'SD' | 'DS',
+): void {
   const N = e.ball.points.length
   const p = crossProjection(e, s, kind)
   const own = kind === 'SD' ? BLOCK.B : BLOCK.X
 
   for (let i = 0; i < N; i++) {
-    const cr = e.cross[2 * i] as number
-    const ci = e.cross[2 * i + 1] as number
+    const cr = e.cross[2 * i]!
+    const ci = e.cross[2 * i + 1]!
 
-    if (cr === 0 && ci === 0) continue
+    if (cr === 0 && ci === 0) {
+      continue
+    }
+
     for (let k = 0; k < PAIR; k++) {
       const c = i * PAIR + k
-      const xr = p.re[c] as number
-      const xi = p.im[c] as number
+      const xr = p.re[c]!
+      const xi = p.im[c]!
 
       s.re[i * SITE + own + k]! += cr * xr - ci * xi
       s.im[i * SITE + own + k]! += cr * xi + ci * xr
@@ -275,6 +385,7 @@ export function crossPiece(e: CoulombEngine, s: PairState, kind: 'SD' | 'DS'): v
 // one cycle of the Coulomb pair: the two beats (S S and D D in them), then, for the vector form, P_SD and P_DS
 export function coulombCycle(e: CoulombEngine, s: PairState): void {
   pairCycle(e, s)
+
   if (e.form === 'vector') {
     crossPiece(e, s, 'SD')
     crossPiece(e, s, 'DS')
@@ -282,8 +393,16 @@ export function coulombCycle(e: CoulombEngine, s: PairState): void {
 }
 
 // the filter and the level read on the Coulomb cycle (register-meson's filterPair / readLevel, with coulombCycle)
-export function coulombFilter(e: CoulombEngine, psi: PairState, phase: number, S: number): PairState {
-  const out: PairState = { re: new Float64Array(psi.re.length), im: new Float64Array(psi.im.length) }
+export function coulombFilter(
+  e: CoulombEngine,
+  psi: PairState,
+  phase: number,
+  S: number,
+): PairState {
+  const out: PairState = {
+    re: new Float64Array(psi.re.length),
+    im: new Float64Array(psi.im.length),
+  }
   const s = clonePair(psi)
 
   for (let k = 0; k < S; k++) {
@@ -296,7 +415,10 @@ export function coulombFilter(e: CoulombEngine, psi: PairState, phase: number, S
   return out
 }
 
-export function coulombRead(e: CoulombEngine, v: PairState): { lambda: [number, number]; phase: number; residual: number } {
+export function coulombRead(
+  e: CoulombEngine,
+  v: PairState,
+): { lambda: [number, number]; phase: number; residual: number } {
   const n = norm2(e, v)
   const Uv = clonePair(v)
 
@@ -307,7 +429,11 @@ export function coulombRead(e: CoulombEngine, v: PairState): { lambda: [number, 
 
   axpy(r, v, -lr, -li)
 
-  return { lambda: [lr, li], phase: Math.atan2(li, lr), residual: Math.sqrt(norm2(e, r) / n) }
+  return {
+    lambda: [lr, li],
+    phase: Math.atan2(li, lr),
+    residual: Math.sqrt(norm2(e, r) / n),
+  }
 }
 
 // ---- starts and readings ----
@@ -315,12 +441,17 @@ export function coulombRead(e: CoulombEngine, v: PairState): { lambda: [number, 
 // both members in S with the hydrogenic profile exp(-r / a), the registers paired by delta (the W(F4)-symmetric sector)
 export function hydrogenStart(ball: RelBall, a: number): PairState {
   const n = ball.points.length
-  const s: PairState = { re: new Float64Array(n * SITE), im: new Float64Array(n * SITE) }
+  const s: PairState = {
+    re: new Float64Array(n * SITE),
+    im: new Float64Array(n * SITE),
+  }
 
   ball.points.forEach((p, i) => {
     const f = Math.exp(-huskR(p) / a)
 
-    for (let r = 0; r < REG; r++) s.re[i * SITE + BLOCK.A + r * 8 + r] = f
+    for (let r = 0; r < REG; r++) {
+      s.re[i * SITE + BLOCK.A + r * 8 + r] = f
+    }
   })
 
   return s
@@ -333,7 +464,10 @@ export function siteWeights(ball: RelBall, s: PairState): Float64Array {
   for (let i = 0; i < ball.points.length; i++) {
     let x = 0
 
-    for (let k = 0; k < SITE; k++) x += (s.re[i * SITE + k] as number) ** 2 + (s.im[i * SITE + k] as number) ** 2
+    for (let k = 0; k < SITE; k++) {
+      x += s.re[i * SITE + k]! ** 2 + s.im[i * SITE + k]! ** 2
+    }
+
     w[i] = x
   }
 
@@ -341,30 +475,42 @@ export function siteWeights(ball: RelBall, s: PairState): Float64Array {
 }
 
 // the weight in unit shells of husk radius, the mean radius, and the weight at the ball's outermost shell
-export function shells(ball: RelBall, w: Float64Array): { shells: number[]; mean: number; edge: number } {
+export function shells(
+  ball: RelBall,
+  w: Float64Array,
+): { shells: number[]; mean: number; edge: number } {
   const out = new Array<number>(ball.radius + 1).fill(0)
+
   let t = 0
   let m = 0
 
   ball.points.forEach((p, i) => {
     const r = huskR(p)
 
-    out[ball.V[i] as number]! += w[i] as number
-    t += w[i] as number
-    m += (w[i] as number) * r
+    out[ball.V[i]!]! += w[i]!
+    t += w[i]!
+    m += w[i]! * r
   })
 
-  return { shells: out.map(x => x / t), mean: m / t, edge: (out[ball.radius] as number) / t }
+  return {
+    shells: out.map(x => x / t),
+    mean: m / t,
+    edge: out[ball.radius]! / t,
+  }
 }
 
 // <G(y)> over a density: the mean Coulomb count and the mean Green's function
-export function meanGreen(ball: RelBall, table: GreenTable, w: Float64Array): number {
+export function meanGreen(
+  ball: RelBall,
+  table: GreenTable,
+  w: Float64Array,
+): number {
   let t = 0
   let g = 0
 
   ball.points.forEach((p, i) => {
-    t += w[i] as number
-    g += (w[i] as number) * greenOf(table, p)
+    t += w[i]!
+    g += w[i]! * greenOf(table, p)
   })
 
   return g / t
@@ -374,24 +520,38 @@ export function meanGreen(ball: RelBall, table: GreenTable, w: Float64Array): nu
 
 // S on the side-T husk torus: the density wrapped onto it (minimum image), rhohat by the 3d FFT, then the weighted means
 // of X(k) (E-SPN-0169's darwinRatio) over the nonzero torus momenta. Also the weighted mean k^2.
-export function densityS(ball: RelBall, w: Float64Array, T: number): { S: number; meanK2: number; points: number; wrapped: number } {
+export function densityS(
+  ball: RelBall,
+  w: Float64Array,
+  T: number,
+): { S: number; meanK2: number; points: number; wrapped: number } {
   const re = new Float64Array(T * T * T)
   const im = new Float64Array(T * T * T)
   const m = (x: number): number => ((x % T) + T) % T
+
   let wrapped = 0
   let total = 0
 
   ball.points.forEach((p, i) => {
     const [a, b, c] = p as [number, number, number]
 
-    total += w[i] as number
-    if (Math.abs(a) >= T / 2 || Math.abs(b) >= T / 2 || Math.abs(c) >= T / 2) wrapped += w[i] as number
-    re[m(a) + T * m(b) + T * T * m(c)]! += w[i] as number
+    total += w[i]!
+
+    if (
+      Math.abs(a) >= T / 2 ||
+      Math.abs(b) >= T / 2 ||
+      Math.abs(c) >= T / 2
+    ) {
+      wrapped += w[i]!
+    }
+
+    re[m(a) + T * m(b) + T * T * m(c)]! += w[i]!
   })
 
   fft3(re, im, T, false)
 
   const step = (2 * Math.PI) / T
+
   let num = 0
   let den = 0
   let k2 = 0
@@ -400,14 +560,16 @@ export function densityS(ball: RelBall, w: Float64Array, T: number): { S: number
   for (let c = 0; c < T; c++) {
     for (let b = 0; b < T; b++) {
       for (let a = 0; a < T; a++) {
-        if (a === 0 && b === 0 && c === 0) continue
+        if (a === 0 && b === 0 && c === 0) {
+          continue
+        }
 
         const k = [a, b, c].map(x => {
           const y = x * step
 
           return y > Math.PI ? y - 2 * Math.PI : y
         })
-        const rho = re[a + T * b + T * T * c] as number
+        const rho = re[a + T * b + T * T * c]!
         const weight = rho / coulombSymbol(k)
         const { X } = darwinRatio(k)
 
@@ -419,13 +581,27 @@ export function densityS(ball: RelBall, w: Float64Array, T: number): { S: number
     }
   }
 
-  return { S: num / den, meanK2: k2 / den, points, wrapped: wrapped / total }
+  return {
+    S: num / den,
+    meanK2: k2 / den,
+    points,
+    wrapped: wrapped / total,
+  }
 }
 
 // ---- the full rule on the quotient, for the witness ----
 
 export type FullState = { re: Float64Array; im: Float64Array }
-export type FullRuleQ = { ball: RelBall; u: readonly [number, number]; K: readonly number[]; phi: Float64Array; E: Float64Array; phase: Float64Array; target: Int32Array; form: PairForm }
+export type FullRuleQ = {
+  ball: RelBall
+  u: readonly [number, number]
+  K: readonly number[]
+  phi: Float64Array
+  E: Float64Array
+  phase: Float64Array
+  target: Int32Array
+  form: PairForm
+}
 
 // E[d][a][eta] = gamma(r_d)[eta][a] / (2 sqrt 12): the D basis (Q_D = E E^T)
 function partnerBasis(): Float64Array {
@@ -438,7 +614,10 @@ function partnerBasis(): Float64Array {
       for (let eta = 0; eta < REG; eta++) {
         let s = 0
 
-        for (let i = 0; i < 4; i++) s += (r[i] as number) * (((g[i] as number[][])[eta] as number[])[a] as number)
+        for (let i = 0; i < 4; i++) {
+          s += r[i]! * g[i]![eta]![a]!
+        }
+
         E[(d * REG + a) * REG + eta] = f * s
       }
     }
@@ -450,37 +629,83 @@ function partnerBasis(): Float64Array {
 // the rule on a quotient ball: phi[i] the S S pair phase at site i (beat 1; D D takes -phi (scalar) or phi (vector) in
 // beat 2). The cross pieces are not in it: the witness compares the two beats, and the cross pieces are checked as exact
 // projectors in coordinates (their Gram self-adjointness and the norm)
-export function fullRuleQ(ball: RelBall, u: readonly [number, number], K: readonly number[], phi: readonly number[], form: PairForm = 'scalar'): FullRuleQ {
+export function fullRuleQ(
+  ball: RelBall,
+  u: readonly [number, number],
+  K: readonly number[],
+  phi: readonly number[],
+  form: PairForm = 'scalar',
+): FullRuleQ {
   const phase = new Float64Array(NR * NR * 2)
   const target = new Int32Array(ball.points.length * NR * NR)
 
   for (let d = 0; d < NR; d++) {
     for (let f = 0; f < NR; f++) {
-      const ph = -(dot(K, ROOTS[d] as number[]) + dot(K, ROOTS[f] as number[])) / 2
+      const ph =
+        -(dot(K, ROOTS[d] as number[]) + dot(K, ROOTS[f] as number[])) /
+        2
 
       phase[(d * NR + f) * 2] = Math.cos(ph)
       phase[(d * NR + f) * 2 + 1] = Math.sin(ph)
     }
   }
+
   ball.points.forEach((p, i) => {
     for (let d = 0; d < NR; d++) {
       for (let f = 0; f < NR; f++) {
         const r = ROOTS[d] as number[]
         const q = ROOTS[f] as number[]
 
-        target[(i * NR + d) * NR + f] = ball.index.get(qkey((p[0] as number) + (r[0] as number) - (q[0] as number), (p[1] as number) + (r[1] as number) - (q[1] as number), (p[2] as number) + (r[2] as number) - (q[2] as number))) ?? -1
+        target[(i * NR + d) * NR + f] =
+          ball.index.get(
+            qkey(
+              p[0]! + r[0]! - q[0]!,
+              p[1]! + r[1]! - q[1]!,
+              p[2]! + r[2]! - q[2]!,
+            ),
+          ) ?? -1
       }
     }
   })
 
-  return { ball, u, K, phi: Float64Array.from(phi), E: partnerBasis(), phase, target, form }
+  return {
+    ball,
+    u,
+    K,
+    phi: Float64Array.from(phi),
+    E: partnerBasis(),
+    phase,
+    target,
+    form,
+  }
 }
 
-export const newFull = (ball: RelBall): FullState => ({ re: new Float64Array(ball.points.length * FULL), im: new Float64Array(ball.points.length * FULL) })
+export const newFull = (ball: RelBall): FullState => ({
+  re: new Float64Array(ball.points.length * FULL),
+  im: new Float64Array(ball.points.length * FULL),
+})
 
 // the pair piece at one site: psi + alpha (Q psi + psi Q^T) + beta Q psi Q^T (register-meson's pieceAt, re-stated)
-function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S' | 'D', wr: number, wi: number, br: number, bi: number, E: Float64Array): void {
-  const q = (re: Float64Array, im: Float64Array, off: number, stride1: number, stride2: number, outRe: Float64Array, outIm: Float64Array): void => {
+function pieceAt(
+  psiRe: Float64Array,
+  psiIm: Float64Array,
+  o: number,
+  sector: 'S' | 'D',
+  wr: number,
+  wi: number,
+  br: number,
+  bi: number,
+  E: Float64Array,
+): void {
+  const q = (
+    re: Float64Array,
+    im: Float64Array,
+    off: number,
+    stride1: number,
+    stride2: number,
+    outRe: Float64Array,
+    outIm: Float64Array,
+  ): void => {
     for (let s2 = 0; s2 < MODES; s2++) {
       if (sector === 'S') {
         for (let a = 0; a < REG; a++) {
@@ -488,11 +713,13 @@ function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S
           let si = 0
 
           for (let d = 0; d < 24; d++) {
-            sr += re[off + (d * REG + a) * stride1 + s2 * stride2] as number
-            si += im[off + (d * REG + a) * stride1 + s2 * stride2] as number
+            sr += re[off + (d * REG + a) * stride1 + s2 * stride2]!
+            si += im[off + (d * REG + a) * stride1 + s2 * stride2]!
           }
+
           sr /= 24
           si /= 24
+
           for (let d = 0; d < 24; d++) {
             outRe[(d * REG + a) * MODES + s2] = sr
             outIm[(d * REG + a) * MODES + s2] = si
@@ -503,34 +730,43 @@ function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S
         const ci = new Float64Array(REG)
 
         for (let s1 = 0; s1 < MODES; s1++) {
-          const xr = re[off + s1 * stride1 + s2 * stride2] as number
-          const xi = im[off + s1 * stride1 + s2 * stride2] as number
+          const xr = re[off + s1 * stride1 + s2 * stride2]!
+          const xi = im[off + s1 * stride1 + s2 * stride2]!
 
-          if (xr === 0 && xi === 0) continue
+          if (xr === 0 && xi === 0) {
+            continue
+          }
+
           for (let eta = 0; eta < REG; eta++) {
-            const w = E[s1 * REG + eta] as number
+            const w = E[s1 * REG + eta]!
 
-            if (w === 0) continue
+            if (w === 0) {
+              continue
+            }
+
             cr[eta]! += w * xr
             ci[eta]! += w * xi
           }
         }
+
         for (let s1 = 0; s1 < MODES; s1++) {
           let sr = 0
           let si = 0
 
           for (let eta = 0; eta < REG; eta++) {
-            const w = E[s1 * REG + eta] as number
+            const w = E[s1 * REG + eta]!
 
-            sr += w * (cr[eta] as number)
-            si += w * (ci[eta] as number)
+            sr += w * cr[eta]!
+            si += w * ci[eta]!
           }
+
           outRe[s1 * MODES + s2] = sr
           outIm[s1 * MODES + s2] = si
         }
       }
     }
   }
+
   const q1r = new Float64Array(FULL)
   const q1i = new Float64Array(FULL)
   const q2r = new Float64Array(FULL)
@@ -542,17 +778,20 @@ function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S
 
   q(psiRe, psiIm, o, MODES, 1, q1r, q1i)
   q(psiRe, psiIm, o, 1, MODES, tr, ti)
+
   for (let s1 = 0; s1 < MODES; s1++) {
     for (let s2 = 0; s2 < MODES; s2++) {
-      q2r[s1 * MODES + s2] = tr[s2 * MODES + s1] as number
-      q2i[s1 * MODES + s2] = ti[s2 * MODES + s1] as number
+      q2r[s1 * MODES + s2] = tr[s2 * MODES + s1]!
+      q2i[s1 * MODES + s2] = ti[s2 * MODES + s1]!
     }
   }
+
   q(q1r, q1i, 0, 1, MODES, tr, ti)
+
   for (let s1 = 0; s1 < MODES; s1++) {
     for (let s2 = 0; s2 < MODES; s2++) {
-      q12r[s1 * MODES + s2] = tr[s2 * MODES + s1] as number
-      q12i[s1 * MODES + s2] = ti[s2 * MODES + s1] as number
+      q12r[s1 * MODES + s2] = tr[s2 * MODES + s1]!
+      q12i[s1 * MODES + s2] = ti[s2 * MODES + s1]!
     }
   }
 
@@ -560,10 +799,10 @@ function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S
   const ali = wi
 
   for (let k = 0; k < FULL; k++) {
-    const pr = (q1r[k] as number) + (q2r[k] as number)
-    const pi = (q1i[k] as number) + (q2i[k] as number)
-    const zr = q12r[k] as number
-    const zi = q12i[k] as number
+    const pr = q1r[k]! + q2r[k]!
+    const pi = q1i[k]! + q2i[k]!
+    const zr = q12r[k]!
+    const zi = q12i[k]!
 
     psiRe[o + k]! += alr * pr - ali * pi + br * zr - bi * zi
     psiIm[o + k]! += alr * pi + ali * pr + br * zi + bi * zr
@@ -573,39 +812,56 @@ function pieceAt(psiRe: Float64Array, psiIm: Float64Array, o: number, sector: 'S
 // one beat of the full rule on the quotient: the pieces (S with u and the pair phase in beat 1, D with conj u and minus
 // it in beat 2), the swap coin (slot d takes its opposite's value, the register kept), and the stream (the relative
 // position moves r_d - r_e, reduced to the quotient; out of the ball is dropped)
-export function fullBeatQ(f: FullRuleQ, s: FullState, beat: 1 | 2): FullState {
+export function fullBeatQ(
+  f: FullRuleQ,
+  s: FullState,
+  beat: 1 | 2,
+): FullState {
   const N = f.ball.points.length
   const [ur, ui] = f.u
   const w: [number, number] = beat === 1 ? [ur, ui] : [ur, -ui]
 
   for (let i = 0; i < N; i++) {
-    const ph = (beat === 1 || f.form === 'vector' ? 1 : -1) * (f.phi[i] as number)
+    const ph = (beat === 1 || f.form === 'vector' ? 1 : -1) * f.phi[i]!
     const [br, bi] = betaOf(w[0], w[1], ph)
 
-    pieceAt(s.re, s.im, i * FULL, beat === 1 ? 'S' : 'D', w[0], w[1], br, bi, f.E)
+    pieceAt(
+      s.re,
+      s.im,
+      i * FULL,
+      beat === 1 ? 'S' : 'D',
+      w[0],
+      w[1],
+      br,
+      bi,
+      f.E,
+    )
   }
 
   const out = newFull(f.ball)
 
   for (let i = 0; i < N; i++) {
     for (let d = 0; d < NR; d++) {
-      const from1 = OPPOSITE[d] as number
+      const from1 = OPPOSITE[d]!
 
       for (let e = 0; e < NR; e++) {
-        const j = f.target[(i * NR + d) * NR + e] as number
+        const j = f.target[(i * NR + d) * NR + e]!
 
-        if (j < 0) continue
+        if (j < 0) {
+          continue
+        }
 
-        const from2 = OPPOSITE[e] as number
-        const cr = f.phase[(d * NR + e) * 2] as number
-        const ci = f.phase[(d * NR + e) * 2 + 1] as number
+        const from2 = OPPOSITE[e]!
+        const cr = f.phase[(d * NR + e) * 2]!
+        const ci = f.phase[(d * NR + e) * 2 + 1]!
 
         for (let a = 0; a < REG; a++) {
           for (let b = 0; b < REG; b++) {
-            const src = i * FULL + (from1 * REG + a) * MODES + from2 * REG + b
+            const src =
+              i * FULL + (from1 * REG + a) * MODES + from2 * REG + b
             const dst = j * FULL + (d * REG + a) * MODES + e * REG + b
-            const xr = s.re[src] as number
-            const xi = s.im[src] as number
+            const xr = s.re[src]!
+            const xi = s.im[src]!
 
             out.re[dst] = cr * xr - ci * xi
             out.im[dst] = cr * xi + ci * xr
@@ -619,32 +875,56 @@ export function fullBeatQ(f: FullRuleQ, s: FullState, beat: 1 | 2): FullState {
 }
 
 // the lift of coordinates into the full space on the quotient (register-meson's lift, every shift reduced)
-export function liftQ(pairBall: RelBall, s: PairState, fullBall: RelBall, K: readonly number[]): FullState {
+export function liftQ(
+  pairBall: RelBall,
+  s: PairState,
+  fullBall: RelBall,
+  K: readonly number[],
+): FullState {
   const out = newFull(fullBall)
   const E = partnerBasis()
   const sq = 1 / Math.sqrt(24)
 
   type Piece = { shift: number[]; mode: number; re: number; im: number }
+
   const member = (kind: 'a' | 'b', label: number): Piece[] => {
     const list: Piece[] = []
 
     if (kind === 'a') {
-      for (let d = 0; d < 24; d++) list.push({ shift: [0, 0, 0, 0], mode: d * REG + label, re: sq, im: 0 })
+      for (let d = 0; d < 24; d++) {
+        list.push({
+          shift: [0, 0, 0, 0],
+          mode: d * REG + label,
+          re: sq,
+          im: 0,
+        })
+      }
     } else {
       ROOTS.forEach((r, d) => {
         const ph = -dot(K, r) / 2
 
         for (let a = 0; a < REG; a++) {
-          const x = E[(d * REG + a) * REG + label] as number
+          const x = E[(d * REG + a) * REG + label]!
 
-          if (x !== 0) list.push({ shift: [...r], mode: d * REG + a, re: x * Math.cos(ph), im: x * Math.sin(ph) })
+          if (x !== 0) {
+            list.push({
+              shift: [...r],
+              mode: d * REG + a,
+              re: x * Math.cos(ph),
+              im: x * Math.sin(ph),
+            })
+          }
         }
       })
     }
 
     return list
   }
-  const pieces = { a: Array.from({ length: REG }, (_, l) => member('a', l)), b: Array.from({ length: REG }, (_, l) => member('b', l)) }
+
+  const pieces = {
+    a: Array.from({ length: REG }, (_, l) => member('a', l)),
+    b: Array.from({ length: REG }, (_, l) => member('b', l)),
+  }
   const kinds: ['a' | 'b', 'a' | 'b'][] = [
     ['a', 'a'],
     ['a', 'b'],
@@ -653,20 +933,31 @@ export function liftQ(pairBall: RelBall, s: PairState, fullBall: RelBall, K: rea
   ]
 
   for (let i = 0; i < pairBall.points.length; i++) {
-    const y = pairBall.points[i] as number[]
+    const y = pairBall.points[i]!
 
     kinds.forEach(([k1, k2], blk) => {
       for (let r1 = 0; r1 < REG; r1++) {
         for (let r2 = 0; r2 < REG; r2++) {
-          const cr = s.re[i * SITE + blk * PAIR + r1 * 8 + r2] as number
-          const ci = s.im[i * SITE + blk * PAIR + r1 * 8 + r2] as number
+          const cr = s.re[i * SITE + blk * PAIR + r1 * 8 + r2]!
+          const ci = s.im[i * SITE + blk * PAIR + r1 * 8 + r2]!
 
-          if (cr === 0 && ci === 0) continue
-          for (const p1 of pieces[k1][r1] as Piece[]) {
-            for (const p2 of pieces[k2][r2] as Piece[]) {
-              const j = fullBall.index.get(qkey((y[0] as number) + (p1.shift[0] as number) - (p2.shift[0] as number), (y[1] as number) + (p1.shift[1] as number) - (p2.shift[1] as number), (y[2] as number) + (p1.shift[2] as number) - (p2.shift[2] as number)))
+          if (cr === 0 && ci === 0) {
+            continue
+          }
 
-              if (j === undefined) continue
+          for (const p1 of pieces[k1][r1]!) {
+            for (const p2 of pieces[k2][r2]!) {
+              const j = fullBall.index.get(
+                qkey(
+                  y[0]! + p1.shift[0]! - p2.shift[0]!,
+                  y[1]! + p1.shift[1]! - p2.shift[1]!,
+                  y[2]! + p1.shift[2]! - p2.shift[2]!,
+                ),
+              )
+
+              if (j === undefined) {
+                continue
+              }
 
               const wr = p1.re * p2.re - p1.im * p2.im
               const wi = p1.re * p2.im + p1.im * p2.re
@@ -685,17 +976,28 @@ export function liftQ(pairBall: RelBall, s: PairState, fullBall: RelBall, K: rea
 }
 
 // the largest entry gap and both weights over the sites within husk radius `within`
-export function fullGapQ(ball: RelBall, a: FullState, b: FullState, within = Infinity): { worst: number; weightA: number; weightB: number } {
+export function fullGapQ(
+  ball: RelBall,
+  a: FullState,
+  b: FullState,
+  within = Infinity,
+): { worst: number; weightA: number; weightB: number } {
   let worst = 0
   let wa = 0
   let wb = 0
 
   ball.points.forEach((p, s) => {
-    if (huskR(p) > within) return
+    if (huskR(p) > within) {
+      return
+    }
+
     for (let k = s * FULL; k < (s + 1) * FULL; k++) {
-      worst = Math.max(worst, Math.hypot((a.re[k] as number) - (b.re[k] as number), (a.im[k] as number) - (b.im[k] as number)))
-      wa += (a.re[k] as number) ** 2 + (a.im[k] as number) ** 2
-      wb += (b.re[k] as number) ** 2 + (b.im[k] as number) ** 2
+      worst = Math.max(
+        worst,
+        Math.hypot(a.re[k]! - b.re[k]!, a.im[k]! - b.im[k]!),
+      )
+      wa += a.re[k]! ** 2 + a.im[k]! ** 2
+      wb += b.re[k]! ** 2 + b.im[k]! ** 2
     }
   })
 

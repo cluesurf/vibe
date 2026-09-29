@@ -53,8 +53,14 @@ import {
   linearMapOf,
 } from '@/code/substrate/d4-box'
 import { Collision, turningWeave } from '@/code/rule/collision'
-import { colorTurnWeave, COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { MOMENTUM_WEAVE, momentumWeave } from '@/code/rule/momentum-weave'
+import {
+  colorTurnWeave,
+  COLOR_TURN_SPEC,
+} from '@/code/rule/color-turn-weave'
+import {
+  MOMENTUM_WEAVE,
+  momentumWeave,
+} from '@/code/rule/momentum-weave'
 import { foldRoundRobin } from '@/code/rule/steered-knit'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import {
@@ -97,7 +103,9 @@ const ORBIT_SIDES = [9, 13]
 const PHASES = 8
 const WARM = 48
 const GENERIC = [0.31, -0.74, 0.52, 0.29]
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
 
 type Knit = {
   forward: (t: number) => Collision
@@ -105,8 +113,15 @@ type Knit = {
   period: number
 }
 
-function vacuumPeriod(schedule: (t: number) => Collision, period: number): number {
-  const vacuum = vacuumCellTrajectory({ schedule, beats: 3 * period + 48, degree: 24 })
+function vacuumPeriod(
+  schedule: (t: number) => Collision,
+  period: number,
+): number {
+  const vacuum = vacuumCellTrajectory({
+    schedule,
+    beats: 3 * period + 48,
+    degree: 24,
+  })
 
   for (let p = 1; p <= 2 * period; p++) {
     if (
@@ -133,8 +148,10 @@ function phaseAveragedKernel(input: {
   const { side, schedule, phases, step, box } = input
   const mesh = box ? d4BoxMesh({ side }) : d4Mesh({ side })
   const positionOf = box
-    ? (dock: number): number[] => d4Vector(d4BoxCoordinates({ cell: dock, side }))
+    ? (dock: number): number[] =>
+        d4Vector(d4BoxCoordinates({ cell: dock, side }))
     : undefined
+
   let sum: number[][][] | undefined
   let curves: number[][] | undefined
 
@@ -153,16 +170,27 @@ function phaseAveragedKernel(input: {
     const kernel = responseKernel(records)
 
     sum = sum
-      ? sum.map((m, t) => m.map((row, i) => row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0))))
+      ? sum.map((m, t) =>
+          m.map((row, i) =>
+            row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0)),
+          ),
+        )
       : kernel
+
     curves = curves
-      ? curves.map((c, m) => c.map((x, t) => x + (records[m]?.relaxation[t] ?? 0)))
+      ? curves.map((c, m) =>
+          c.map((x, t) => x + (records[m]?.relaxation[t] ?? 0)),
+        )
       : records.map(r => [...r.relaxation])
   }
 
   return {
-    kernel: (sum ?? []).map(m => m.map(row => row.map(x => x / phases))),
-    axisSpread: curveSpread((curves ?? []).map(c => c.map(x => x / phases))),
+    kernel: (sum ?? []).map(m =>
+      m.map(row => row.map(x => x / phases)),
+    ),
+    axisSpread: curveSpread(
+      (curves ?? []).map(c => c.map(x => x / phases)),
+    ),
   }
 }
 
@@ -170,7 +198,7 @@ export default experiment({
   id: 'relativity/knit-that-restores-isotropy',
   code: 'E-RLT-0048',
   title:
-    'no schedule of the committed architecture can restore rotation symmetry, since only one non-central coin map (minus a reflection) leaves any of its beats invariant, so every glide group is abelian and reducible, as measured for the committed, color turn, momentum and round-robin knits; letting each line carry its own orientation and the swap run on an orbit of couples admits 24 irreducible glide groups of order 24, each of complex type with one invariant two-form of one handedness (chirality allowed beside isotropy), none with a CPT partner; the orbit knit built from one keeps reversal, charge and a periodic vacuum and its glide-averaged long-wave response is isotropic within the noise where the committed knit\'s is not, but it has no CPT and can couple at most 54 of the 66 line pairs, so isotropy by symmetry pulls against both CPT and the round robin',
+    "no schedule of the committed architecture can restore rotation symmetry, since only one non-central coin map (minus a reflection) leaves any of its beats invariant, so every glide group is abelian and reducible, as measured for the committed, color turn, momentum and round-robin knits; letting each line carry its own orientation and the swap run on an orbit of couples admits 24 irreducible glide groups of order 24, each of complex type with one invariant two-form of one handedness (chirality allowed beside isotropy), none with a CPT partner; the orbit knit built from one keeps reversal, charge and a periodic vacuum and its glide-averaged long-wave response is isotropic within the noise where the committed knit's is not, but it has no CPT and can couple at most 54 of the 66 line pairs, so isotropy by symmetry pulls against both CPT and the round robin",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -178,16 +206,27 @@ export default experiment({
   run() {
     const roots = rootsD4()
     const opposite = meshOpposites(d4Mesh({ side: 5 }))
-    const permutations = weylF4DirectionPermutations({ directions: roots })
-    const matrices: Matrix4[] = permutations.map(p => linearMapOf(p) ?? [])
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
+    const matrices: Matrix4[] = permutations.map(
+      p => linearMapOf(p) ?? [],
+    )
     const samples = unitSamples(64)
     const spread = (group: readonly Matrix4[]): number =>
-      forcedIsotropySpread({ group, rank: 2, generic: GENERIC, samples })
+      forcedIsotropySpread({
+        group,
+        rank: 2,
+        generic: GENERIC,
+        samples,
+      })
+
     const traceOf = (p: readonly number[]): number => {
       const m = linearMapOf(p) ?? []
 
       return [0, 1, 2, 3].reduce((s, i) => s + (m[i]?.[i] ?? 0), 0)
     }
+
     const orderOf = (p: readonly number[]): number =>
       permutationOrder({ permutation: p })
 
@@ -205,11 +244,18 @@ export default experiment({
       },
       momentum: {
         forward: momentumWeave({ spec: MOMENTUM_WEAVE, opposite }),
-        inverse: momentumWeave({ spec: MOMENTUM_WEAVE, opposite, forward: false }),
+        inverse: momentumWeave({
+          spec: MOMENTUM_WEAVE,
+          opposite,
+          forward: false,
+        }),
         period: PERIOD,
       },
       roundRobin: {
-        forward: colorLocalCollision({ spec: foldRoundRobin(COLOR_TURN_SPEC), opposite }),
+        forward: colorLocalCollision({
+          spec: foldRoundRobin(COLOR_TURN_SPEC),
+          opposite,
+        }),
         inverse: colorLocalCollision({
           spec: foldRoundRobin(COLOR_TURN_SPEC),
           opposite,
@@ -218,84 +264,100 @@ export default experiment({
         period: PERIOD,
       },
     }
-    const candidateRows = Object.entries(candidates).map(([name, knit]) => {
-      const ledger = symmetryLedger({
-        forward: knit.forward,
-        inverse: knit.inverse,
-        period: knit.period,
-        permutations,
-        degree: 24,
-        quickDense: 32,
-        thoroughDense: 512,
-      })
-      const glides = ledger.filter(e => e.kind === 'forward')
-      const group = matrixGroupClosure(glides.map(e => matrices[e.p] ?? []))
-      const stabilizers = Array.from({ length: knit.period }, (_, t) => {
-        const beat = knit.forward(t)
-        const back = knit.inverse(t)
-
-        return symmetryLedger({
-          forward: () => beat,
-          inverse: () => back,
-          period: 1,
+    const candidateRows = Object.entries(candidates).map(
+      ([name, knit]) => {
+        const ledger = symmetryLedger({
+          forward: knit.forward,
+          inverse: knit.inverse,
+          period: knit.period,
           permutations,
           degree: 24,
           quickDense: 32,
-          thoroughDense: 256,
-        }).filter(e => e.kind === 'forward').length
-      })
-      const arrow = [0, 0, 0, 0]
+          thoroughDense: 512,
+        })
+        const glides = ledger.filter(e => e.kind === 'forward')
+        const group = matrixGroupClosure(
+          glides.map(e => matrices[e.p] ?? []),
+        )
+        const stabilizers = Array.from(
+          { length: knit.period },
+          (_, t) => {
+            const beat = knit.forward(t)
+            const back = knit.inverse(t)
 
-      for (let t = 0; t < knit.period; t++) {
-        const dock = new Int8Array(24)
+            return symmetryLedger({
+              forward: () => beat,
+              inverse: () => back,
+              period: 1,
+              permutations,
+              degree: 24,
+              quickDense: 32,
+              thoroughDense: 256,
+            }).filter(e => e.kind === 'forward').length
+          },
+        )
+        const arrow = [0, 0, 0, 0]
 
-        knit.forward(t)(dock, 0, 24)
-        dock.forEach((tone, d) => {
-          for (let a = 0; a < 4; a++) {
-            arrow[a] = (arrow[a] ?? 0) + (tone * (roots[d]?.[a] ?? 0)) / knit.period
+        for (let t = 0; t < knit.period; t++) {
+          const dock = new Int8Array(24)
+
+          knit.forward(t)(dock, 0, 24)
+          dock.forEach((tone, d) => {
+            for (let a = 0; a < 4; a++) {
+              arrow[a] =
+                (arrow[a] ?? 0) +
+                (tone * (roots[d]?.[a] ?? 0)) / knit.period
+            }
+          })
+        }
+
+        const responses = SIDES.map(side => {
+          const { kernel } = phaseAveragedKernel({
+            side,
+            schedule: knit.forward,
+            phases: 1,
+            step: 0,
+            box: false,
+          })
+          const parts = kernelParts(kernel)
+
+          return {
+            anisotropy: parts.anisotropic / parts.isotropic,
+            ratio: parts.selfDual / parts.antiSelfDual,
           }
         })
-      }
-
-      const responses = SIDES.map(side => {
-        const { kernel } = phaseAveragedKernel({
-          side,
-          schedule: knit.forward,
-          phases: 1,
-          step: 0,
-          box: false,
-        })
-        const parts = kernelParts(kernel)
 
         return {
-          anisotropy: parts.anisotropic / parts.isotropic,
-          ratio: parts.selfDual / parts.antiSelfDual,
+          name,
+          glides: glides.length,
+          reversals: ledger.length - glides.length,
+          groupOrder: group.length,
+          forcedSpread: spread(group),
+          largestBeatStabilizer: Math.max(...stabilizers),
+          vacuumPeriod: vacuumPeriod(knit.forward, knit.period),
+          arrow: Math.hypot(...arrow),
+          responses,
         }
-      })
-
-      return {
-        name,
-        glides: glides.length,
-        reversals: ledger.length - glides.length,
-        groupOrder: group.length,
-        forcedSpread: spread(group),
-        largestBeatStabilizer: Math.max(...stabilizers),
-        vacuumPeriod: vacuumPeriod(knit.forward, knit.period),
-        arrow: Math.hypot(...arrow),
-        responses,
-      }
-    })
+      },
+    )
     const candidatesReducible = candidateRows.every(
       r => r.forcedSpread > 1e-6 && r.largestBeatStabilizer <= 2,
     )
 
     // 2. why not: the census of the committed architecture
     const census = (relaxation: 'index' | 'free' | 'orbit') =>
-      beatStabilizerCensus({ permutations, opposite, traceOf, orderOf, relaxation })
+      beatStabilizerCensus({
+        permutations,
+        opposite,
+        traceOf,
+        orderOf,
+        relaxation,
+      })
     const indexRows = census('index').filter(r => r.invariantBeats > 0)
     const freeRows = census('free').filter(r => r.invariantBeats > 0)
     const orbitRows = census('orbit').filter(r => r.invariantBeats > 0)
-    const onlyOneClass = new Set(indexRows.map(r => r.classIndex)).size === 1
+    const onlyOneClass =
+      new Set(indexRows.map(r => r.classIndex)).size === 1
 
     // 3. the smallest change: irreducible glide groups under the orbit relaxation
     const { classOf } = conjugacyClasses(permutations)
@@ -356,15 +418,36 @@ export default experiment({
     ]
     const powers = pair
       ? Math.max(
-          orbitKnitPeriod({ beat: pair.first, glide: g, opposite, states }),
-          orbitKnitPeriod({ beat: pair.second, glide: g, opposite, states }),
+          orbitKnitPeriod({
+            beat: pair.first,
+            glide: g,
+            opposite,
+            states,
+          }),
+          orbitKnitPeriod({
+            beat: pair.second,
+            glide: g,
+            opposite,
+            states,
+          }),
         )
       : 1
     const orbitPeriod = 2 * powers
     const beats = pair ? [pair.first, pair.second] : []
     const orbit: Knit = {
-      forward: orbitKnit({ beat: beats, glide: g, period: orbitPeriod, opposite }),
-      inverse: orbitKnit({ beat: beats, glide: g, period: orbitPeriod, opposite, forward: false }),
+      forward: orbitKnit({
+        beat: beats,
+        glide: g,
+        period: orbitPeriod,
+        opposite,
+      }),
+      inverse: orbitKnit({
+        beat: beats,
+        glide: g,
+        period: orbitPeriod,
+        opposite,
+        forward: false,
+      }),
       period: orbitPeriod,
     }
     const orbitLedger = symmetryLedger({
@@ -377,17 +460,21 @@ export default experiment({
       thoroughDense: 512,
     })
     const orbitGlides = orbitLedger.filter(e => e.kind === 'forward')
-    const orbitGroup = matrixGroupClosure(orbitGlides.map(e => matrices[e.p] ?? []))
+    const orbitGroup = matrixGroupClosure(
+      orbitGlides.map(e => matrices[e.p] ?? []),
+    )
     const orbitReversals = orbitLedger.length - orbitGlides.length
 
     // reversal and charge on the D4 box
     const boxSide = ORBIT_SIDES[0] ?? 9
+
     let will: Will = makeWill(d4BoxMesh({ side: boxSide }))
 
     goldenFill({ will, love: 0.3, fear: 0.3 })
 
     const start = Int8Array.from(will.data)
-    const charge = (d: Int8Array): number => d.reduce((a, b) => a + b, 0)
+    const charge = (d: Int8Array): number =>
+      d.reduce((a, b) => a + b, 0)
 
     for (let t = 0; t < 2 * orbit.period; t++) {
       collide(will, orbit.forward(t))
@@ -401,20 +488,31 @@ export default experiment({
       collide(will, orbit.inverse(t))
     }
 
-    const echo = will.data.reduce((a, x, i) => a + (x !== start[i] ? 1 : 0), 0)
+    const echo = will.data.reduce(
+      (a, x, i) => a + (x !== start[i] ? 1 : 0),
+      0,
+    )
     const orbitVacuum = vacuumPeriod(orbit.forward, orbit.period)
     const swapParent = Array.from({ length: 12 }, (_, i) => i)
     const findSwap = (x: number): number =>
-      swapParent[x] === x ? x : (swapParent[x] = findSwap(swapParent[x] ?? x))
+      swapParent[x] === x
+        ? x
+        : (swapParent[x] = findSwap(swapParent[x] ?? x))
 
-    for (const s of carriedStructure({ beats, glide: g, opposite, powers })) {
+    for (const s of carriedStructure({
+      beats,
+      glide: g,
+      opposite,
+      powers,
+    })) {
       for (const [a, b] of s.swapEdges) {
         swapParent[findSwap(a)] = findSwap(b)
       }
     }
 
     const swapsConnected =
-      new Set(Array.from({ length: 12 }, (_, l) => findSwap(l))).size === 1
+      new Set(Array.from({ length: 12 }, (_, l) => findSwap(l)))
+        .size === 1
 
     // the glide-averaged response, and its allowed and forbidden parts
     const averaged = ORBIT_SIDES.map(side => {
@@ -426,13 +524,17 @@ export default experiment({
         box: true,
       })
       const parts = kernelParts(kernel)
+
       let allowedAnti = 0
       let forbiddenAnti = 0
       let allowedSelfDual = 0
       let allowedAntiSelfDual = 0
 
       for (const m of kernel) {
-        const split = allowedAndForbidden({ group: orbitGroup, response: m })
+        const split = allowedAndForbidden({
+          group: orbitGroup,
+          response: m,
+        })
 
         allowedAnti += split.antisymmetricAllowed ** 2
         forbiddenAnti += split.antisymmetricForbidden ** 2
@@ -445,7 +547,8 @@ export default experiment({
         anisotropy: parts.anisotropic / parts.isotropic,
         axisSpread,
         antisymmetricOverIsotropic:
-          Math.hypot(parts.selfDual, parts.antiSelfDual) / parts.isotropic,
+          Math.hypot(parts.selfDual, parts.antiSelfDual) /
+          parts.isotropic,
         allowedAnti: Math.sqrt(allowedAnti) / parts.isotropic,
         forbiddenAnti: Math.sqrt(forbiddenAnti) / parts.isotropic,
         allowedSelfDual: Math.sqrt(allowedSelfDual),
@@ -455,14 +558,21 @@ export default experiment({
     const committedAveraged = (() => {
       const { kernel, axisSpread } = phaseAveragedKernel({
         side: ORBIT_SIDES[0] ?? 9,
-        schedule: turningWeave({ opposite: meshOpposites(d4BoxMesh({ side: ORBIT_SIDES[0] ?? 9 })) }),
+        schedule: turningWeave({
+          opposite: meshOpposites(
+            d4BoxMesh({ side: ORBIT_SIDES[0] ?? 9 }),
+          ),
+        }),
         phases: PHASES,
         step: 2,
         box: true,
       })
       const parts = kernelParts(kernel)
 
-      return { anisotropy: parts.anisotropic / parts.isotropic, axisSpread }
+      return {
+        anisotropy: parts.anisotropic / parts.isotropic,
+        axisSpread,
+      }
     })()
     const small = averaged[0]
     const orbitIsotropic =
@@ -488,19 +598,28 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the four candidate knits have reducible glide groups and beat stabilizers of order at most 2; the committed architecture admits exactly one class of non-central beat symmetry; the relaxed beat admits irreducible glide groups, none with a CPT partner; the orbit knit built from the first has an irreducible glide group, no reversal symmetry, exact echo and charge, a periodic vacuum and connected swaps, and its glide-averaged long-wave anisotropy is under half the committed knit\'s with an axis spread under 0.1 at side 9; and no set of its invariant beats couples all 66 line pairs',
+        "the four candidate knits have reducible glide groups and beat stabilizers of order at most 2; the committed architecture admits exactly one class of non-central beat symmetry; the relaxed beat admits irreducible glide groups, none with a CPT partner; the orbit knit built from the first has an irreducible glide group, no reversal symmetry, exact echo and charge, a periodic vacuum and connected swaps, and its glide-averaged long-wave anisotropy is under half the committed knit's with an axis spread under 0.1 at side 9; and no set of its invariant beats couples all 66 line pairs",
       metrics: {
         ...Object.fromEntries(
           candidateRows.flatMap(r => [
             [`${r.name}Glides`, r.glides],
             [`${r.name}GlideGroupOrder`, r.groupOrder],
-            [`${r.name}ForcedSpread`, Number(r.forcedSpread.toFixed(4))],
+            [
+              `${r.name}ForcedSpread`,
+              Number(r.forcedSpread.toFixed(4)),
+            ],
             [`${r.name}LargestBeatStabilizer`, r.largestBeatStabilizer],
             [`${r.name}VacuumPeriod`, r.vacuumPeriod],
             [`${r.name}Arrow`, Number(r.arrow.toFixed(4))],
             ...r.responses.flatMap((x, k) => [
-              [`${r.name}AnisotropySide${SIDES[k]}`, Number(x.anisotropy.toFixed(4))],
-              [`${r.name}SelfDualRatioSide${SIDES[k]}`, Number(x.ratio.toFixed(4))],
+              [
+                `${r.name}AnisotropySide${SIDES[k]}`,
+                Number(x.anisotropy.toFixed(4)),
+              ],
+              [
+                `${r.name}SelfDualRatioSide${SIDES[k]}`,
+                Number(x.ratio.toFixed(4)),
+              ],
             ]),
           ]),
         ),
@@ -511,8 +630,12 @@ export default experiment({
         irreducibleGlideGroupOrder: first?.order ?? -1,
         commutantDimension: first?.commutant ?? -1,
         invariantTwoForms: first?.twoForms.total ?? -1,
-        groupsWithSelfDualForm: glideGroups.filter(c => c.twoForms.selfDual > 0).length,
-        groupsWithAntiSelfDualForm: glideGroups.filter(c => c.twoForms.antiSelfDual > 0).length,
+        groupsWithSelfDualForm: glideGroups.filter(
+          c => c.twoForms.selfDual > 0,
+        ).length,
+        groupsWithAntiSelfDualForm: glideGroups.filter(
+          c => c.twoForms.antiSelfDual > 0,
+        ).length,
         groupsWithCptPartner: partners.filter(n => n > 0).length,
         mostLinePairsCoupled: Math.max(...coverage.map(c => c.pairs)),
         orbitPeriod: orbit.period,
@@ -526,19 +649,44 @@ export default experiment({
         orbitLinePairsCoupled: pair?.pairs ?? -1,
         ...Object.fromEntries(
           averaged.flatMap(a => [
-            [`orbitAveragedAnisotropySide${a.side}`, Number(a.anisotropy.toFixed(4))],
-            [`orbitAveragedAxisSpreadSide${a.side}`, Number(a.axisSpread.toFixed(4))],
-            [`orbitAntisymmetricOverIsotropicSide${a.side}`, Number(a.antisymmetricOverIsotropic.toFixed(4))],
-            [`orbitAllowedAntisymmetricSide${a.side}`, Number(a.allowedAnti.toFixed(4))],
-            [`orbitForbiddenAntisymmetricSide${a.side}`, Number(a.forbiddenAnti.toFixed(4))],
-            [`orbitAllowedSelfDualSide${a.side}`, Number(a.allowedSelfDual.toFixed(4))],
-            [`orbitAllowedAntiSelfDualSide${a.side}`, Number(a.allowedAntiSelfDual.toFixed(4))],
+            [
+              `orbitAveragedAnisotropySide${a.side}`,
+              Number(a.anisotropy.toFixed(4)),
+            ],
+            [
+              `orbitAveragedAxisSpreadSide${a.side}`,
+              Number(a.axisSpread.toFixed(4)),
+            ],
+            [
+              `orbitAntisymmetricOverIsotropicSide${a.side}`,
+              Number(a.antisymmetricOverIsotropic.toFixed(4)),
+            ],
+            [
+              `orbitAllowedAntisymmetricSide${a.side}`,
+              Number(a.allowedAnti.toFixed(4)),
+            ],
+            [
+              `orbitForbiddenAntisymmetricSide${a.side}`,
+              Number(a.forbiddenAnti.toFixed(4)),
+            ],
+            [
+              `orbitAllowedSelfDualSide${a.side}`,
+              Number(a.allowedSelfDual.toFixed(4)),
+            ],
+            [
+              `orbitAllowedAntiSelfDualSide${a.side}`,
+              Number(a.allowedAntiSelfDual.toFixed(4)),
+            ],
           ]),
         ),
       },
       control: {
-        committedAveragedAnisotropySide9: Number(committedAveraged.anisotropy.toFixed(4)),
-        committedAveragedAxisSpreadSide9: Number(committedAveraged.axisSpread.toFixed(4)),
+        committedAveragedAnisotropySide9: Number(
+          committedAveraged.anisotropy.toFixed(4),
+        ),
+        committedAveragedAxisSpreadSide9: Number(
+          committedAveraged.axisSpread.toFixed(4),
+        ),
         indexAdmissibleClass: indexRows[0]?.classIndex ?? -1,
         indexAdmissibleTrace: indexRows[0]?.trace ?? 99,
         indexAdmissibleEta: indexRows[0]?.eta ?? 0,

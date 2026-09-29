@@ -82,20 +82,47 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { denseFresh } from '@/code/measure/dense-hub'
 import { readWord, isBowl } from '@/code/measure/g-two-census'
-import { loneKeepsSlot, orderedReadings, simultaneousReading, steeringCheck } from '@/code/measure/knit-schedule'
+import {
+  loneKeepsSlot,
+  orderedReadings,
+  simultaneousReading,
+  steeringCheck,
+} from '@/code/measure/knit-schedule'
 import { lazyStreamMap, portCount } from '@/code/rule/lazy-root-token'
 import { type Step } from '@/code/rule/spinor-token'
 
 const SIDE = 8
 const BEATS = 24
-const NESTED: Step[] = ['z', 'up', 'down', 'x', 'up', 'down', 'y', 'up', 'down', 'y', 'up', 'down', 'x', 'up', 'down', 'z']
+const NESTED: Step[] = [
+  'z',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'z',
+]
 const KS: number[][] = [
   [0.1, 0.2, 0.3],
   [0.7, -0.4, 0.05],
 ]
 
 // K1 on one start: off-line departures and the number of distinct histories over the 9 role points
-function roleReading(): { offLine: number; distinctMax: number; distinctSum: number; runs: number } {
+function roleReading(): {
+  offLine: number
+  distinctMax: number
+  distinctSum: number
+  runs: number
+} {
   const h = denseFresh(SIDE, 'lone', 'union')
   const center = centerOf(SIDE)
   const vac: Reduced[] = []
@@ -106,7 +133,12 @@ function roleReading(): { offLine: number; distinctMax: number; distinctSum: num
 
     const s = vr.state()
 
-    vac.push({ vibe: Int8Array.from(s.vibe), point: Int8Array.from(s.point), store: Int8Array.from(s.store), spoint: Int8Array.from(s.spoint) })
+    vac.push({
+      vibe: Int8Array.from(s.vibe),
+      point: Int8Array.from(s.point),
+      store: Int8Array.from(s.store),
+      spoint: Int8Array.from(s.spoint),
+    })
   }
 
   let offLine = 0
@@ -115,7 +147,7 @@ function roleReading(): { offLine: number; distinctMax: number; distinctSum: num
   let runs = 0
 
   for (let d = 0; d < 24; d++) {
-    const line = LINE_OF[d] as number
+    const line = LINE_OF[d]!
     const hashes = new Set<number>()
 
     for (let p = 0; p < 9; p++) {
@@ -125,24 +157,45 @@ function roleReading(): { offLine: number; distinctMax: number; distinctSum: num
       start.point[center * 24 + d] = p
 
       const run = bounceRunner(h.kernel, start)
+
       let hash = 2166136261
 
       for (let t = 0; t < BEATS; t++) {
         run.beat()
 
         const a = run.state()
-        const b = vac[t] as Reduced
+        const b = vac[t]!
 
         for (let i = 0; i < a.vibe.length; i++) {
-          const differs = a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+          const differs =
+            a.vibe[i] !== b.vibe[i] ||
+            (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
 
-          if (!differs) continue
-          if (LINE_OF[i % 24] !== line) offLine++
-          if (a.vibe[i] !== b.vibe[i]) hash = Math.imul(hash ^ (t * 1_000_003 + i * 3 + (a.vibe[i] as number) + 1), 16777619) >>> 0
+          if (!differs) {
+            continue
+          }
+
+          if (LINE_OF[i % 24] !== line) {
+            offLine++
+          }
+
+          if (a.vibe[i] !== b.vibe[i]) {
+            hash =
+              Math.imul(
+                hash ^ (t * 1_000_003 + i * 3 + a.vibe[i]! + 1),
+                16777619,
+              ) >>> 0
+          }
         }
 
         for (let i = 0; i < a.store.length; i++) {
-          if ((a.store[i] !== b.store[i] || a.spoint[i] !== b.spoint[i]) && i % 12 !== line) offLine++
+          if (
+            (a.store[i] !== b.store[i] ||
+              a.spoint[i] !== b.spoint[i]) &&
+            i % 12 !== line
+          ) {
+            offLine++
+          }
         }
       }
 
@@ -168,22 +221,52 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- K2, K3, K4, K5: exact and start-free ----
     const lone = loneKeepsSlot()
-    const k2 = lone.moved === 0 && lone.lineLeaks === 0 && lone.pairTouched === 0 && lone.docks === 294912 && lone.fullDocks === 12288 && lone.pairCases === 288
+    const k2 =
+      lone.moved === 0 &&
+      lone.lineLeaks === 0 &&
+      lone.pairTouched === 0 &&
+      lone.docks === 294912 &&
+      lone.fullDocks === 12288 &&
+      lone.pairCases === 288
 
     const sim = simultaneousReading([[0, 1, 2]], 1)
     const orders = orderedReadings([[0, 1, 2]], 1)
-    const saddleOrders = orders.filter(r => r.planes.some(v => !isBowl(v))).length
-    const g2four = sim.g2.every(g => g !== undefined && g[0] === 4 && g[1] === 1)
-    const isotropic = sim.planes.every(v => v.a === sim.planes[0]?.a && v.b === sim.planes[0]?.a && v.c === 0)
-    const loneWords = ['x', 'xx', 'xxxx', 'xxxxx'].map(w => ({ w, bowls: readWord(w).planes.filter(isBowl).length }))
-    const k3 = sim.bowl.every(Boolean) && g2four && sim.orderingFree && isotropic && saddleOrders === orders.length && loneWords.every(x => x.bowls === 0)
+    const saddleOrders = orders.filter(r =>
+      r.planes.some(v => !isBowl(v)),
+    ).length
+    const g2four = sim.g2.every(g => g?.[0] === 4 && g[1] === 1)
+    const isotropic = sim.planes.every(
+      v =>
+        v.a === sim.planes[0]?.a &&
+        v.b === sim.planes[0]?.a &&
+        v.c === 0,
+    )
+    const loneWords = ['x', 'xx', 'xxxx', 'xxxxx'].map(w => ({
+      w,
+      bowls: readWord(w).planes.filter(isBowl).length,
+    }))
+    const k3 =
+      sim.bowl.every(Boolean) &&
+      g2four &&
+      sim.orderingFree &&
+      isotropic &&
+      saddleOrders === orders.length &&
+      loneWords.every(x => x.bowls === 0)
 
     const steer = steeringCheck([['x', 'y', 'z'], NESTED], KS)
-    const k4 = steer.lockedAnticommutator === 0 && steer.lockedCommutator === 2 && steer.spectatorCommutator === 0 && steer.spectatorSpinCommutator < 1e-14 && steer.lockedSpinCommutator > 0.1
+    const k4 =
+      steer.lockedAnticommutator === 0 &&
+      steer.lockedCommutator === 2 &&
+      steer.spectatorCommutator === 0 &&
+      steer.spectatorSpinCommutator < 1e-14 &&
+      steer.lockedSpinCommutator > 0.1
 
     let lazyBad = 0
 
@@ -194,13 +277,26 @@ export default experiment({
       const seen = new Uint8Array(map.length)
 
       for (let i = 0; i < map.length; i++) {
-        const to = map[i] as number
+        const to = map[i]!
         const port = i % Q
 
-        if (seen[to]) lazyBad++
+        if (seen[to]) {
+          lazyBad++
+        }
+
         seen[to] = 1
-        if (map[to] !== i) lazyBad++
-        if (port < 24 ? Math.floor(to / Q) === Math.floor(i / Q) : to !== i) lazyBad++
+
+        if (map[to] !== i) {
+          lazyBad++
+        }
+
+        if (
+          port < 24
+            ? Math.floor(to / Q) === Math.floor(i / Q)
+            : to !== i
+        ) {
+          lazyBad++
+        }
       }
     }
 
@@ -210,12 +306,15 @@ export default experiment({
 
     // ---- K0, K1 per start ----
     const family = startFamily(16)
+
     let referenceTarget: Int32Array | undefined
+
     const linkKeys = new Set<string>()
     const perStart = family.map(member =>
       withStart(member, () => {
         const h = denseFresh(SIDE, 'lone', 'union')
         const k = h.kernel
+
         let orderOk = k.schedule === 'alternate'
 
         for (let t = 0; t < 24; t++) {
@@ -225,27 +324,44 @@ export default experiment({
         }
 
         let targetOk = true
+
         const hit = new Uint8Array(k.target.length)
 
         for (let x = 0; x < h.cells; x++) {
           for (let d = 0; d < 24; d++) {
-            const to = k.target[x * 24 + d] as number
+            const to = k.target[x * 24 + d]!
 
-            targetOk = targetOk && to === h.mesh.neighbour(x, d) * 24 + d && hit[to] === 0
+            targetOk =
+              targetOk &&
+              to === h.mesh.neighbour(x, d) * 24 + d &&
+              hit[to] === 0
             hit[to] = 1
           }
         }
 
-        const sameTarget = referenceTarget === undefined ? true : referenceTarget.every((v, i) => v === k.target[i])
+        const sameTarget =
+          referenceTarget === undefined
+            ? true
+            : referenceTarget.every((v, i) => v === k.target[i])
 
         referenceTarget ??= Int32Array.from(k.target)
-        linkKeys.add(Array.from(makeColorWeave({ side: SIDE, table: 'bind' }).links).slice(0, 4096).join(','))
+        linkKeys.add(
+          Array.from(
+            makeColorWeave({ side: SIDE, table: 'bind' }).links,
+          )
+            .slice(0, 4096)
+            .join(','),
+        )
 
         const role = roleReading()
 
         log(`start ${member.name}`)
 
-        return { name: member.name, k0: orderOk && targetOk && sameTarget, role }
+        return {
+          name: member.name,
+          k0: orderOk && targetOk && sameTarget,
+          role,
+        }
       }),
     )
 
@@ -279,9 +395,15 @@ export default experiment({
         pairTouched: lone.pairTouched,
         roleRuns: perStart.reduce((s, p) => s + p.role.runs, 0),
         roleOffLine: perStart.reduce((s, p) => s + p.role.offLine, 0),
-        roleDistinctMax: Math.max(...perStart.map(p => p.role.distinctMax)),
-        roleDistinctTotalMin: Math.min(...perStart.map(p => p.role.distinctSum)),
-        roleDistinctTotalMax: Math.max(...perStart.map(p => p.role.distinctSum)),
+        roleDistinctMax: Math.max(
+          ...perStart.map(p => p.role.distinctMax),
+        ),
+        roleDistinctTotalMin: Math.min(
+          ...perStart.map(p => p.role.distinctSum),
+        ),
+        roleDistinctTotalMax: Math.max(
+          ...perStart.map(p => p.role.distinctSum),
+        ),
         simultaneousOrders: sim.orders,
         simultaneousA: (sim.planes[0]?.a ?? 0) / sim.orders,
         simultaneousC: (sim.planes[0]?.c ?? 0) / sim.orders,

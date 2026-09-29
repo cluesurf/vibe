@@ -89,19 +89,61 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { cloneConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 import { LINE_OF } from '@/code/rule/isometric-knit'
-import { fullPathKey, keyedRunner, meshLines, pathOffset } from '@/code/measure/full-key-paths'
-import { placeLoves, recruitCensus, starBeat, starCrossings, starLines, type KEvent } from '@/code/measure/hub-star'
-import { boxCoordinates, committedContact, fusionCensus, hubSearch, lineClosure, plantedContact, singleSets, slotOfRoot, vacuumFusionRun, vacuumPath, type FusionRun } from '@/code/measure/fused-mover'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
+import {
+  placeLoves,
+  recruitCensus,
+  starBeat,
+  starCrossings,
+  starLines,
+  type KEvent,
+} from '@/code/measure/hub-star'
+import {
+  boxCoordinates,
+  committedContact,
+  fusionCensus,
+  hubSearch,
+  lineClosure,
+  plantedContact,
+  singleSets,
+  slotOfRoot,
+  vacuumFusionRun,
+  vacuumPath,
+  type FusionRun,
+} from '@/code/measure/fused-mover'
 
 const PAIR_BEATS = 24
 const TRIPLE_BEATS = 8
 const PLANTED_BEATS = 8
-const RULE_RUNS: { side: number; contact: CollisionKind; path: number; beats: number }[] = [
-  ...[0, 1, 2, 3].map(path => ({ side: 4, contact: 'pass' as CollisionKind, path, beats: 64 })),
-  ...[0, 1].map(path => ({ side: 4, contact: 'lone' as CollisionKind, path, beats: 64 })),
+const RULE_RUNS: {
+  side: number
+  contact: CollisionKind
+  path: number
+  beats: number
+}[] = [
+  ...[0, 1, 2, 3].map(path => ({
+    side: 4,
+    contact: 'pass' as CollisionKind,
+    path,
+    beats: 64,
+  })),
+  ...[0, 1].map(path => ({
+    side: 4,
+    contact: 'lone' as CollisionKind,
+    path,
+    beats: 64,
+  })),
   { side: 8, contact: 'pass', path: 0, beats: 32 },
 ]
 const LOVE_SLOTS = [0, 5, 11]
@@ -116,14 +158,17 @@ export default experiment({
   id: 'spin/fused-mover',
   code: 'E-SPN-0125',
   title:
-    "singles at one dock never fuse into a mover along a new line, pass at L1 (G1, G2, G3; X-cube fusion, angle 2 of 3d motion): K = w_P is line-preserving and keeps the single-line count on all 679,936 firing docks of two and three singles with any vacuum full lines (0 fusions; with three singles one vibe lands on the line of a + b on 360,448 docks, with two on 0), and every other piece acts line by line as in the vacuum, so the difference from the vacuum holds at least two lines through the hub at every beat, while a translation needs it on one line: no fused mover exists at any period; exhaustively, 0 translations over all 264 pairs and 1,760 triples of loves at X in a vacuum-free stand-in (every coin history, 24 and 8 beats, 27,250,464 states, fewest line classes 2, and 0 one-class nodes in the line-class closure at every depth) and 0 over 14,168 runs of the working knit with its vacuum (6 paths at side 4, 64 beats, and side 8, 32 beats; fewest differing lines 2, 0 readings off the star); a planted table that sends (1,1,0,0) and (1,-1,0,0) onto the line of (1,0,1,0) gives 1,484 fused translations, a bare lone love 262 translations on its own line, and a lone love on the vacuum stays on its line",
+    'singles at one dock never fuse into a mover along a new line, pass at L1 (G1, G2, G3; X-cube fusion, angle 2 of 3d motion): K = w_P is line-preserving and keeps the single-line count on all 679,936 firing docks of two and three singles with any vacuum full lines (0 fusions; with three singles one vibe lands on the line of a + b on 360,448 docks, with two on 0), and every other piece acts line by line as in the vacuum, so the difference from the vacuum holds at least two lines through the hub at every beat, while a translation needs it on one line: no fused mover exists at any period; exhaustively, 0 translations over all 264 pairs and 1,760 triples of loves at X in a vacuum-free stand-in (every coin history, 24 and 8 beats, 27,250,464 states, fewest line classes 2, and 0 one-class nodes in the line-class closure at every depth) and 0 over 14,168 runs of the working knit with its vacuum (6 paths at side 4, 64 beats, and side 8, 32 beats; fewest differing lines 2, 0 readings off the star); a planted table that sends (1,1,0,0) and (1,-1,0,0) onto the line of (1,0,1,0) gives 1,484 fused translations, a bare lone love 262 translations on its own line, and a lone love on the vacuum stays on its line',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const pass = committedContact('pass')
     const pairs = singleSets(2)
     const triples = singleSets(3)
@@ -132,7 +177,12 @@ export default experiment({
     // ---- G3: the dock census ----
     const census2 = fusionCensus(2, pass)
     const census3 = fusionCensus(3, pass)
-    const G3 = [census2, census3].every(c => c.splitLines === 0 && c.singleCountChanged === 0 && c.fused === 0)
+    const G3 = [census2, census3].every(
+      c =>
+        c.splitLines === 0 &&
+        c.singleCountChanged === 0 &&
+        c.fused === 0,
+    )
     const reference = recruitCensus(2, 'pass')
 
     log('census')
@@ -150,7 +200,11 @@ export default experiment({
     let lineChangingStarts = 0
 
     for (const s of starts) {
-      const h = hubSearch(s, pass, s.length === 2 ? PAIR_BEATS : TRIPLE_BEATS)
+      const h = hubSearch(
+        s,
+        pass,
+        s.length === 2 ? PAIR_BEATS : TRIPLE_BEATS,
+      )
       const c = lineClosure(s, pass)
 
       g1Translations += h.translations
@@ -161,11 +215,23 @@ export default experiment({
       closureOneClass += c.oneClass
       closureMin = Math.min(closureMin, c.minClasses)
       closureNodes += c.nodes.size
-      if (c.nodes.size > 1) lineChangingStarts++
-      for (const k of h.classSets) if (!c.nodes.has(k)) closureMisses++
+
+      if (c.nodes.size > 1) {
+        lineChangingStarts++
+      }
+
+      for (const k of h.classSets) {
+        if (!c.nodes.has(k)) {
+          closureMisses++
+        }
+      }
     }
 
-    const G1 = g1Translations === 0 && g1Fused === 0 && g1OneClass === 0 && closureOneClass === 0
+    const G1 =
+      g1Translations === 0 &&
+      g1Fused === 0 &&
+      g1OneClass === 0 &&
+      closureOneClass === 0
 
     log('stand-in')
 
@@ -177,29 +243,61 @@ export default experiment({
     const plantedSearch = hubSearch([a, b], planted, PLANTED_BEATS)
     const plantedClosure = lineClosure([a, b], planted)
     const plantedCensus = fusionCensus(2, planted)
-    const plantedClass = LINE_OF[c] as number
-    const CP = plantedSearch.fused > 0 && plantedSearch.example?.l === plantedClass && plantedClosure.newClassOnly > 0 && plantedCensus.fused > 0
+    const plantedClass = LINE_OF[c]!
+    const CP =
+      plantedSearch.fused > 0 &&
+      plantedSearch.example?.l === plantedClass &&
+      plantedClosure.newClassOnly > 0 &&
+      plantedCensus.fused > 0
 
     log('planted')
 
     // ---- G2: the rule with its vacuum ----
-    type Setup = { side: number; contact: CollisionKind; X: number; tables: ReturnType<typeof contactFresh>['tables']; lines: ReturnType<typeof meshLines>; vacuum: Configuration; coords: number[][]; crossings: number }
+    type Setup = {
+      side: number
+      contact: CollisionKind
+      X: number
+      tables: ReturnType<typeof contactFresh>['tables']
+      lines: ReturnType<typeof meshLines>
+      vacuum: Configuration
+      coords: number[][]
+      crossings: number
+    }
+
     const setups = new Map<string, Setup>()
+
     const setupOf = (side: number, contact: CollisionKind): Setup => {
       const k = `${side}/${contact}`
       const have = setups.get(k)
 
-      if (have) return have
+      if (have) {
+        return have
+      }
 
       const X = centerOf(side)
       const f = contactFresh(side, contact, X)
       const lines = meshLines(f.tables)
-      const made: Setup = { side, contact, X, tables: f.tables, lines, vacuum: wordVacuum(f, f.store), coords: boxCoordinates(f.cells, side), crossings: starCrossings(f.cells, lines, starLines(lines, [X]), [X]).length }
+      const made: Setup = {
+        side,
+        contact,
+        X,
+        tables: f.tables,
+        lines,
+        vacuum: wordVacuum(f, f.store),
+        coords: boxCoordinates(f.cells, side),
+        crossings: starCrossings(
+          f.cells,
+          lines,
+          starLines(lines, [X]),
+          [X],
+        ).length,
+      }
 
       setups.set(k, made)
 
       return made
     }
+
     let g2Runs = 0
     let g2Translations = 0
     let g2Fused = 0
@@ -210,12 +308,20 @@ export default experiment({
     let g2MinLines = Number.POSITIVE_INFINITY
     let g2MaxLines = 0
     let vacuumEvents = 0
+
     const perRun: string[] = []
 
     for (const r of RULE_RUNS) {
       const s = setupOf(r.side, r.contact)
       const key = fullPathKey(pathOffset(r.path))
-      const vp = vacuumPath(s.tables, s.vacuum, key, THRESHOLD_BORN, r.beats)
+      const vp = vacuumPath(
+        s.tables,
+        s.vacuum,
+        key,
+        THRESHOLD_BORN,
+        r.beats,
+      )
+
       let min = Number.POSITIVE_INFINITY
       let translations = 0
       let events = 0
@@ -223,9 +329,25 @@ export default experiment({
       vacuumEvents += vp.events
 
       for (const slots of starts) {
-        const start = placeLoves(s.vacuum, slots.map(slot => ({ dock: s.X, slot })))
-        const startLines = new Set(slots.map(slot => s.lines.lineOf[s.X * 24 + slot] as number))
-        const run: FusionRun = vacuumFusionRun({ tables: s.tables, path: vp.path, start, lines: s.lines, hub: s.X, key, threshold: THRESHOLD_BORN, side: s.side, coords: s.coords, startLines })
+        const start = placeLoves(
+          s.vacuum,
+          slots.map(slot => ({ dock: s.X, slot })),
+        )
+        const startLines = new Set(
+          slots.map(slot => s.lines.lineOf[s.X * 24 + slot]!),
+        )
+        const run: FusionRun = vacuumFusionRun({
+          tables: s.tables,
+          path: vp.path,
+          start,
+          lines: s.lines,
+          hub: s.X,
+          key,
+          threshold: THRESHOLD_BORN,
+          side: s.side,
+          coords: s.coords,
+          startLines,
+        })
 
         g2Runs++
         g2Translations += run.translations
@@ -241,40 +363,107 @@ export default experiment({
       }
 
       g2MinLines = Math.min(g2MinLines, min)
-      perRun.push(`${r.contact}/s${r.side}/p${r.path}/${r.beats}b: K ${events}, min lines ${min}, translations ${translations}`)
+      perRun.push(
+        `${r.contact}/s${r.side}/p${r.path}/${r.beats}b: K ${events}, min lines ${min}, translations ${translations}`,
+      )
       log(`rule ${r.contact} s${r.side} p${r.path}`)
     }
 
-    const G2 = g2Translations === 0 && g2Fused === 0 && g2OffStar === 0 && g2MinLines >= 2
+    const G2 =
+      g2Translations === 0 &&
+      g2Fused === 0 &&
+      g2OffStar === 0 &&
+      g2MinLines >= 2
 
     // ---- CT and CL: a lone love, bare and on the vacuum ----
     const s4 = setupOf(4, 'pass')
     const key0 = fullPathKey(0)
-    const empty: Configuration = { ...s4.vacuum, vibe: new Int8Array(s4.vacuum.vibe.length), store: new Int8Array(s4.vacuum.store.length), sopen: new Uint8Array(s4.vacuum.sopen.length) }
-    const emptyPath = vacuumPath(s4.tables, empty, key0, THRESHOLD_BORN, LOVE_BEATS)
-    const vacPath = vacuumPath(s4.tables, s4.vacuum, key0, THRESHOLD_BORN, LOVE_BEATS)
+    const empty: Configuration = {
+      ...s4.vacuum,
+      vibe: new Int8Array(s4.vacuum.vibe.length),
+      store: new Int8Array(s4.vacuum.store.length),
+      sopen: new Uint8Array(s4.vacuum.sopen.length),
+    }
+    const emptyPath = vacuumPath(
+      s4.tables,
+      empty,
+      key0,
+      THRESHOLD_BORN,
+      LOVE_BEATS,
+    )
+    const vacPath = vacuumPath(
+      s4.tables,
+      s4.vacuum,
+      key0,
+      THRESHOLD_BORN,
+      LOVE_BEATS,
+    )
     const loves = LOVE_SLOTS.map(slot => {
-      const startLines = new Set([s4.lines.lineOf[s4.X * 24 + slot] as number])
-      const bare = vacuumFusionRun({ tables: s4.tables, path: emptyPath.path, start: placeLoves(empty, [{ dock: s4.X, slot }]), lines: s4.lines, hub: s4.X, key: key0, threshold: THRESHOLD_BORN, side: 4, coords: s4.coords, startLines })
-      const onVacuum = vacuumFusionRun({ tables: s4.tables, path: vacPath.path, start: placeLoves(s4.vacuum, [{ dock: s4.X, slot }]), lines: s4.lines, hub: s4.X, key: key0, threshold: THRESHOLD_BORN, side: 4, coords: s4.coords, startLines })
+      const startLines = new Set([s4.lines.lineOf[s4.X * 24 + slot]!])
+      const bare = vacuumFusionRun({
+        tables: s4.tables,
+        path: emptyPath.path,
+        start: placeLoves(empty, [{ dock: s4.X, slot }]),
+        lines: s4.lines,
+        hub: s4.X,
+        key: key0,
+        threshold: THRESHOLD_BORN,
+        side: 4,
+        coords: s4.coords,
+        startLines,
+      })
+      const onVacuum = vacuumFusionRun({
+        tables: s4.tables,
+        path: vacPath.path,
+        start: placeLoves(s4.vacuum, [{ dock: s4.X, slot }]),
+        lines: s4.lines,
+        hub: s4.X,
+        key: key0,
+        threshold: THRESHOLD_BORN,
+        side: 4,
+        coords: s4.coords,
+        startLines,
+      })
 
       return { slot, bare, onVacuum }
     })
-    const CT = loves.reduce((n, l) => n + l.bare.translations, 0) > 0 && loves.every(l => l.bare.fused === 0)
-    const CL = loves.every(l => l.onVacuum.minLines === 1 && l.onVacuum.maxLines === 1 && l.onVacuum.offStart === 0)
-    const CV = vacuumEvents === 0 && vacPath.events === 0 && emptyPath.events === 0
+    const CT =
+      loves.reduce((n, l) => n + l.bare.translations, 0) > 0 &&
+      loves.every(l => l.bare.fused === 0)
+    const CL = loves.every(
+      l =>
+        l.onVacuum.minLines === 1 &&
+        l.onVacuum.maxLines === 1 &&
+        l.onVacuum.offStart === 0,
+    )
+    const CV =
+      vacuumEvents === 0 &&
+      vacPath.events === 0 &&
+      emptyPath.events === 0
 
     log('love')
 
     // ---- checks ----
     let stepperDiffer = 0
-    const stepperStarts = [...pairs.slice(0, STEPPER_STARTS), ...triples.slice(0, STEPPER_STARTS)]
+
+    const stepperStarts = [
+      ...pairs.slice(0, STEPPER_STARTS),
+      ...triples.slice(0, STEPPER_STARTS),
+    ]
 
     for (const slots of stepperStarts) {
-      const start = placeLoves(s4.vacuum, slots.map(slot => ({ dock: s4.X, slot })))
+      const start = placeLoves(
+        s4.vacuum,
+        slots.map(slot => ({ dock: s4.X, slot })),
+      )
+
       let p = cloneConfiguration(start)
       let q = cloneConfiguration(start)
-      const check = keyedRunner(s4.tables, start, { key: key0, threshold: THRESHOLD_BORN })
+
+      const check = keyedRunner(s4.tables, start, {
+        key: key0,
+        threshold: THRESHOLD_BORN,
+      })
       const events: KEvent[] = []
 
       for (let t = 0; t < STEPPER_BEATS; t++) {
@@ -284,16 +473,48 @@ export default experiment({
 
         const x = check.state()
 
-        for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== x.vibe[i] || p.point[i] !== x.point[i] || p.open[i] !== x.open[i]) stepperDiffer++
-        for (let k = 0; k < p.store.length; k++) if (p.store[k] !== x.store[k] || p.spoint[k] !== x.spoint[k] || p.sopen[k] !== x.sopen[k]) stepperDiffer++
+        for (let i = 0; i < p.vibe.length; i++) {
+          if (
+            p.vibe[i] !== x.vibe[i] ||
+            p.point[i] !== x.point[i] ||
+            p.open[i] !== x.open[i]
+          ) {
+            stepperDiffer++
+          }
+        }
+
+        for (let k = 0; k < p.store.length; k++) {
+          if (
+            p.store[k] !== x.store[k] ||
+            p.spoint[k] !== x.spoint[k] ||
+            p.sopen[k] !== x.sopen[k]
+          ) {
+            stepperDiffer++
+          }
+        }
       }
     }
 
-    const crossings = [...setups.values()].reduce((n, s) => n + s.crossings, 0)
-    const checks = { stepper: stepperDiffer === 0, census: census2.fires === reference.fires && census2.docks === reference.docks, closure: closureMisses === 0, crossings: crossings === 0 }
+    const crossings = [...setups.values()].reduce(
+      (n, s) => n + s.crossings,
+      0,
+    )
+    const checks = {
+      stepper: stepperDiffer === 0,
+      census:
+        census2.fires === reference.fires &&
+        census2.docks === reference.docks,
+      closure: closureMisses === 0,
+      crossings: crossings === 0,
+    }
     const checked = Object.values(checks).every(Boolean)
     const controlled = CP && CT && CL && CV
-    const status = !checked || !controlled ? 'partial' : G1 && G2 && G3 ? 'pass' : 'fail'
+    const status =
+      !checked || !controlled
+        ? 'partial'
+        : G1 && G2 && G3
+          ? 'pass'
+          : 'fail'
 
     const metrics: Record<string, number> = {
       G1: G1 ? 1 : 0,
@@ -315,7 +536,8 @@ export default experiment({
       census3SumLanded: census3.sumLanded,
       census3SingleNewLine: census3.singleNewLine,
       censusSplitLines: census2.splitLines + census3.splitLines,
-      censusCountChanged: census2.singleCountChanged + census3.singleCountChanged,
+      censusCountChanged:
+        census2.singleCountChanged + census3.singleCountChanged,
       censusFused: census2.fused + census3.fused,
       standInStates: g1States,
       standInTranslations: g1Translations,
@@ -343,9 +565,15 @@ export default experiment({
       ruleMinLines: g2MinLines,
       ruleMaxLines: g2MaxLines,
       vacuumEvents,
-      loveBareTranslations: loves.reduce((n, l) => n + l.bare.translations, 0),
+      loveBareTranslations: loves.reduce(
+        (n, l) => n + l.bare.translations,
+        0,
+      ),
       loveBareFused: loves.reduce((n, l) => n + l.bare.fused, 0),
-      loveVacuumOffStart: loves.reduce((n, l) => n + l.onVacuum.offStart, 0),
+      loveVacuumOffStart: loves.reduce(
+        (n, l) => n + l.onVacuum.offStart,
+        0,
+      ),
       stepperDiffer,
       starCrossings: crossings,
       seconds: (Date.now() - started) / 1000,
@@ -355,7 +583,11 @@ export default experiment({
       status,
       claim: `singles at one dock never fuse into a mover along a new line: K is line-preserving and keeps the single-line count on all ${census2.fires + census3.fires} firing docks (${census2.fused + census3.fused} fused), so the difference from the vacuum holds at least 2 lines at every beat; the stand-in finds ${g1Translations} translations over ${starts.length} starts (every coin history, ${PAIR_BEATS} and ${TRIPLE_BEATS} beats; fewest classes ${g1MinClasses}), the rule with its vacuum ${g2Translations} over ${g2Runs} runs (fewest differing lines ${g2MinLines}, ${g2OffStar} off the star); a planted fusing table gives ${plantedSearch.fused} fused translations`,
       metrics,
-      control: { plantedFused: plantedSearch.fused, loveBareTranslations: metrics.loveBareTranslations as number, vacuumEvents },
+      control: {
+        plantedFused: plantedSearch.fused,
+        loveBareTranslations: metrics.loveBareTranslations!,
+        vacuumEvents,
+      },
       notes: `L1. G1 ${G1}, G2 ${G2}, G3 ${G3}; CP ${CP}, CT ${CT}, CL ${CL}, CV ${CV}; checks ${JSON.stringify(checks)}. Census 2: ${JSON.stringify(census2)}; 3: ${JSON.stringify(census3)}; recruitCensus(2) fires ${reference.fires} of ${reference.docks}. Stand-in: ${g1States} states, closure ${closureNodes} nodes (${lineChangingStarts} starts reach more than their own line set). Planted: ${JSON.stringify({ ...plantedSearch, classSets: plantedSearch.classSets.size })}, closure one-class new ${plantedClosure.newClassOnly}, census fused ${plantedCensus.fused}. Rule: ${perRun.join('; ')}. Loves: ${loves.map(l => `slot ${l.slot} bare ${l.bare.translations} translations (fused ${l.bare.fused}), vacuum lines ${l.onVacuum.minLines}-${l.onVacuum.maxLines} off-start ${l.onVacuum.offStart}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

@@ -36,8 +36,21 @@
 // Measurement uses reals: the walk, its energies, projections, and the light's shadow reading.
 
 import { fft3 } from '@/code/measure/standin-chemistry'
-import { HUSK_ATOM, ROWS, coulombBox, kindBandGrid, lowestLevels, makeAtom, positionElement } from '@/code/measure/stand-in-atom'
-import { huskGeometry, makeHuskEngine, type HuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
+import {
+  HUSK_ATOM,
+  ROWS,
+  coulombBox,
+  kindBandGrid,
+  lowestLevels,
+  makeAtom,
+  positionElement,
+} from '@/code/measure/stand-in-atom'
+import {
+  huskGeometry,
+  makeHuskEngine,
+  type HuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
 import { shapedFlux } from '@/code/rule/trit-husk-shaped'
 import {
   bucketScale,
@@ -94,7 +107,13 @@ export type QuantumAtom = {
   readonly tally: LoadTally
 }
 
-export function makeQuantumAtom(input: { side: number; depth: number; levels: number; charge: number; coupled?: boolean }): QuantumAtom {
+export function makeQuantumAtom(input: {
+  side: number
+  depth: number
+  levels: number
+  charge: number
+  coupled?: boolean
+}): QuantumAtom {
   const { side, depth, levels, charge } = input
   const geometry = huskGeometry(side)
   const engine = makeHuskEngine(geometry, depth)
@@ -132,8 +151,20 @@ export function makeQuantumAtom(input: { side: number; depth: number; levels: nu
 }
 
 // the lattice 1s and 2p_x of the stand-in hydrogen (the static H = T + V_Z), for the start and projections
-export function atomLevels(atom: QuantumAtom): { s: Float64Array; p: Float64Array; es: number; ep: number; omega: number; dipole: number } {
-  const h = makeAtom({ kind: HUSK_ATOM, side: atom.side, a: atom.a, potential: Float64Array.from(atom.nucleus) })
+export function atomLevels(atom: QuantumAtom): {
+  s: Float64Array
+  p: Float64Array
+  es: number
+  ep: number
+  omega: number
+  dipole: number
+} {
+  const h = makeAtom({
+    kind: HUSK_ATOM,
+    side: atom.side,
+    a: atom.a,
+    potential: Float64Array.from(atom.nucleus),
+  })
   const s = lowestLevels({ atom: h, row: ROWS.A1g!, count: 1 })
   const p = lowestLevels({ atom: h, row: ROWS.T1u!, count: 1 })
   const sv = s.vectors[0]!
@@ -143,16 +174,28 @@ export function atomLevels(atom: QuantumAtom): { s: Float64Array; p: Float64Arra
   const su = Float64Array.from(sv, v => v / ns)
   const pu = Float64Array.from(pv, v => v / np)
 
-  return { s: su, p: pu, es: s.values[0]!, ep: p.values[0]!, omega: p.values[0]! - s.values[0]!, dipole: Math.abs(positionElement(atom.side, su, pu, 0)) }
+  return {
+    s: su,
+    p: pu,
+    es: s.values[0]!,
+    ep: p.values[0]!,
+    omega: p.values[0]! - s.values[0]!,
+    dipole: Math.abs(positionElement(atom.side, su, pu, 0)),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // the path polarization P[w] on the husk axis links (weight 1/6 per axis order), and its adjoint, the line
 // integral of a link field from the nucleus
 
-const idx = (side: number, c: readonly number[]): number => c[0]! + side * (c[1]! + side * c[2]!)
+const idx = (side: number, c: readonly number[]): number =>
+  c[0]! + side * (c[1]! + side * c[2]!)
 
-export function polarization(side: number, w: Float64Array, out: Float64Array): void {
+export function polarization(
+  side: number,
+  w: Float64Array,
+  out: Float64Array,
+): void {
   const h = side / 2
   const line = new Float64Array(side)
   const m2 = new Float64Array(side * side)
@@ -169,7 +212,12 @@ export function polarization(side: number, w: Float64Array, out: Float64Array): 
 
     for (let u = side - 1; u >= h; u--) {
       c[axis] = u
-      if (u < side - 1) out[idx(side, c) * 9 + axis] = out[idx(side, c) * 9 + axis]! + beyond / 6
+
+      if (u < side - 1) {
+        out[idx(side, c) * 9 + axis] =
+          out[idx(side, c) * 9 + axis]! + beyond / 6
+      }
+
       beyond += line[u]!
     }
 
@@ -178,7 +226,8 @@ export function polarization(side: number, w: Float64Array, out: Float64Array): 
     for (let u = 0; u < h; u++) {
       before += line[u]!
       c[axis] = u
-      out[idx(side, c) * 9 + axis] = out[idx(side, c) * 9 + axis]! - before / 6
+      out[idx(side, c) * 9 + axis] =
+        out[idx(side, c) * 9 + axis]! - before / 6
     }
   }
 
@@ -222,7 +271,9 @@ export function polarization(side: number, w: Float64Array, out: Float64Array): 
     }
 
     // segment 1: along a at (b = h, z = h)
-    for (let ua = 0; ua < side; ua++) line[ua] = m1[ua]!
+    for (let ua = 0; ua < side; ua++) {
+      line[ua] = m1[ua]!
+    }
 
     c[b] = h
     c[z] = h
@@ -231,7 +282,11 @@ export function polarization(side: number, w: Float64Array, out: Float64Array): 
 }
 
 // V(x) = sum_l Pi_l(x) e_l, e a field on the axis links: the path-averaged line integral from the nucleus
-export function lineIntegral(side: number, e: Float64Array, out: Float64Array): void {
+export function lineIntegral(
+  side: number,
+  e: Float64Array,
+  out: Float64Array,
+): void {
   const h = side / 2
   const c = [0, 0, 0]
   const f1 = new Float64Array(side)
@@ -288,7 +343,10 @@ export function lineIntegral(side: number, e: Float64Array, out: Float64Array): 
 // ---------------------------------------------------------------------------------------------------------
 // the light's shadow as the walk reads it, and its energy
 
-function fractions(atom: QuantumAtom): { now: Float64Array; lag: Float64Array } {
+function fractions(atom: QuantumAtom): {
+  now: Float64Array
+  lag: Float64Array
+} {
   const { light: s, engine, levels } = atom
   const q = engine.q
   const n = engine.geometry.triangles
@@ -313,20 +371,34 @@ function fractions(atom: QuantumAtom): { now: Float64Array; lag: Float64Array } 
   return { now, lag }
 }
 
-function curlT(g: HuskGeometry, x: Float64Array, out: Float64Array): void {
+function curlT(
+  g: HuskGeometry,
+  x: Float64Array,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    }
   }
 }
 
 // E~ on every husk link: E - g + g_lag + C^T (f_now - f_lag), into work[0]; returns the fractions
-function shadowFlux(atom: QuantumAtom): { now: Float64Array; lag: Float64Array; shadow: Float64Array; curlNow: Float64Array; curlLag: Float64Array } {
+function shadowFlux(atom: QuantumAtom): {
+  now: Float64Array
+  lag: Float64Array
+  shadow: Float64Array
+  curlNow: Float64Array
+  curlLag: Float64Array
+} {
   const { engine, light: s, levels } = atom
   const g = engine.geometry
   const scale = bucketScale(engine, levels)
@@ -339,7 +411,14 @@ function shadowFlux(atom: QuantumAtom): { now: Float64Array; lag: Float64Array; 
   curlT(g, f.now, curlNow)
   curlT(g, f.lag, curlLag)
 
-  for (let l = 0; l < g.huskLinks; l++) shadow[l] = atom.flux[l]! - s.bucket[l]! / scale + s.bucketLag[l]! / scale + curlNow[l]! - curlLag[l]!
+  for (let l = 0; l < g.huskLinks; l++) {
+    shadow[l] =
+      atom.flux[l]! -
+      s.bucket[l]! / scale +
+      s.bucketLag[l]! / scale +
+      curlNow[l]! -
+      curlLag[l]!
+  }
 
   return { ...f, shadow, curlNow, curlLag }
 }
@@ -348,7 +427,10 @@ function shadowFlux(atom: QuantumAtom): { now: Float64Array; lag: Float64Array; 
 // E~ = S* - C^T U~ for the source the next drift uses. `point`: 'loaded' right after a load (A~_t = A +
 // C^T f_lag - g_lag), 'beaten' right after a light beat, before the next load (A~ = A + C^T f_lag - g, the
 // source still the one the last drift used)
-export function lightEnergy(atom: QuantumAtom, point: 'loaded' | 'beaten' = 'loaded'): number {
+export function lightEnergy(
+  atom: QuantumAtom,
+  point: 'loaded' | 'beaten' = 'loaded',
+): number {
   const { engine, light: s, levels } = atom
   const g = engine.geometry
   const scale = bucketScale(engine, levels)
@@ -357,9 +439,12 @@ export function lightEnergy(atom: QuantumAtom, point: 'loaded' | 'beaten' = 'loa
   const nb = engine.nb
   const metric = [2, 2, 2, 1, 1, 1, 1, 1, 1]
   const shiftOf = point === 'loaded' ? s.bucketLag : s.bucket
+
   let e = 0
 
-  for (let l = 0; l < g.huskLinks; l++) e += (r.shadow[l]! * r.shadow[l]!) / (2 * metric[l % 9]!)
+  for (let l = 0; l < g.huskLinks; l++) {
+    e += (r.shadow[l]! * r.shadow[l]!) / (2 * metric[l % 9]!)
+  }
 
   for (let p = 0; p < g.triangles; p++) {
     let bn = 0
@@ -389,7 +474,10 @@ export function lightEnergy(atom: QuantumAtom, point: 'loaded' | 'beaten' = 'loa
 
 // V on every dock from the light as it stands: (pi / D) line integral of E~ / g along the axis paths
 // `point` as in lightEnergy: which bucket shifts A~_t (after a light beat: the bucket; after a load: its lag)
-function interaction(atom: QuantumAtom, point: 'loaded' | 'beaten'): void {
+function interaction(
+  atom: QuantumAtom,
+  point: 'loaded' | 'beaten',
+): void {
   if (!atom.coupled) {
     atom.potential.fill(0)
 
@@ -406,7 +494,11 @@ function interaction(atom: QuantumAtom, point: 'loaded' | 'beaten'): void {
 
   atom.field.fill(0)
 
-  for (let l = 0; l < atom.field.length; l++) if (l % 9 < 3) atom.field[l] = (coupling * r.shadow[l]!) / G_AXIS
+  for (let l = 0; l < atom.field.length; l++) {
+    if (l % 9 < 3) {
+      atom.field[l] = (coupling * r.shadow[l]!) / G_AXIS
+    }
+  }
 
   // the leapfrog invariant's cross term (kappa / 8) sum n B~_t B~(A~_t + E~) also depends on S*, through E~:
   // its derivative (kappa / 8) (C W)^T (n B~_t), with A~_t = A + C^T f_lag - g
@@ -430,7 +522,10 @@ function interaction(atom: QuantumAtom, point: 'loaded' | 'beaten'): void {
     for (let j = p * 3; j < p * 3 + 3; j++) {
       const l = g.triLinks[j]!
 
-      if (l % 9 < 3) atom.field[l] = atom.field[l]! + w * g.triSigns[j]! * g.weight[l % 9]!
+      if (l % 9 < 3) {
+        atom.field[l] =
+          atom.field[l]! + w * g.triSigns[j]! * g.weight[l % 9]!
+      }
     }
   }
 
@@ -440,18 +535,29 @@ function interaction(atom: QuantumAtom, point: 'loaded' | 'beaten'): void {
 // ---------------------------------------------------------------------------------------------------------
 // the walk
 
-export function setWalk(atom: QuantumAtom, re: Float64Array, im: Float64Array): void {
+export function setWalk(
+  atom: QuantumAtom,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   atom.re.set(re)
   atom.im.set(im)
 
   const rho = atom.work[0]!
 
-  for (let i = 0; i < rho.length; i++) rho[i] = re[i]! ** 2 + im[i]! ** 2
+  for (let i = 0; i < rho.length; i++) {
+    rho[i] = re[i]! ** 2 + im[i]! ** 2
+  }
 
   polarization(atom.side, rho, atom.reference)
 }
 
-function kinetic(atom: QuantumAtom, re: Float64Array, im: Float64Array, sign: number): void {
+function kinetic(
+  atom: QuantumAtom,
+  re: Float64Array,
+  im: Float64Array,
+  sign: number,
+): void {
   const { kineticCos: kc, kineticSin: ks } = atom
 
   fft3(re, im, atom.side, false)
@@ -490,18 +596,36 @@ function potentialStep(atom: QuantumAtom, sign: number): void {
 const THRESHOLD_PHASE = (Math.sqrt(5) - 1) / 2
 
 // X = floor(q^L S* + theta) from a walk (re, im), S* = P[rho] - P[rho0] (q_e = -1), on axis links
-function countSource(atom: QuantumAtom, re: Float64Array, im: Float64Array, out: Int32Array): void {
+function countSource(
+  atom: QuantumAtom,
+  re: Float64Array,
+  im: Float64Array,
+  out: Int32Array,
+): void {
   const rho = atom.work[3]!
   const scale = bucketScale(atom.engine, atom.levels)
 
-  for (let i = 0; i < rho.length; i++) rho[i] = re[i]! ** 2 + im[i]! ** 2
+  for (let i = 0; i < rho.length; i++) {
+    rho[i] = re[i]! ** 2 + im[i]! ** 2
+  }
 
   polarization(atom.side, rho, atom.polar)
 
-  for (let l = 0; l < out.length; l++) out[l] = l % 9 < 3 ? Math.floor(scale * (atom.polar[l]! - atom.reference[l]!) + THRESHOLD_PHASE) : 0
+  for (let l = 0; l < out.length; l++) {
+    out[l] =
+      l % 9 < 3
+        ? Math.floor(
+            scale * (atom.polar[l]! - atom.reference[l]!) +
+              THRESHOLD_PHASE,
+          )
+        : 0
+  }
 }
 
-export type BeatTally = { sourceMismatches: number; previousMismatches: number }
+export type BeatTally = {
+  sourceMismatches: number
+  previousMismatches: number
+}
 
 // One beat of matter and light, a Strang splitting of the matter step around one light state: (a1) half
 // potential from the light as it stands (the source S*_old), (b) the kinetic step, (c) load the source counted
@@ -528,7 +652,10 @@ export function atomBeat(atom: QuantumAtom, read = false): number {
 
 // Its inverse. The previous source is read from exp(+i T) psi, which the light does not enter; counts links
 // where the source the state holds differs from the one the walk gives
-export function atomBeatBack(atom: QuantumAtom, tally: BeatTally): void {
+export function atomBeatBack(
+  atom: QuantumAtom,
+  tally: BeatTally,
+): void {
   polarizedBeatBack(atom.engine, atom.light, atom.scratch, atom.levels)
   interaction(atom, 'loaded')
   potentialStep(atom, -1)
@@ -536,7 +663,10 @@ export function atomBeatBack(atom: QuantumAtom, tally: BeatTally): void {
   loadedSource(atom.engine, atom.light, atom.levels, atom.previous)
   countSource(atom, atom.re, atom.im, atom.source)
 
-  for (let l = 0; l < atom.source.length; l++) tally.sourceMismatches += atom.source[l] === atom.previous[l] ? 0 : 1
+  for (let l = 0; l < atom.source.length; l++) {
+    tally.sourceMismatches +=
+      atom.source[l] === atom.previous[l] ? 0 : 1
+  }
 
   kinetic(atom, atom.re, atom.im, -1)
   countSource(atom, atom.re, atom.im, atom.previous)
@@ -552,7 +682,9 @@ export function sourceConsistency(atom: QuantumAtom): number {
 
   let m = 0
 
-  for (let l = 0; l < atom.source.length; l++) m += atom.source[l] === atom.previous[l] ? 0 : 1
+  for (let l = 0; l < atom.source.length; l++) {
+    m += atom.source[l] === atom.previous[l] ? 0 : 1
+  }
 
   return m
 }
@@ -563,18 +695,23 @@ export function sourceConsistency(atom: QuantumAtom): number {
 export function walkEnergy(atom: QuantumAtom): number {
   const re = atom.work[1]!
   const im = atom.work[2]!
+
   let v = 0
 
   re.set(atom.re)
   im.set(atom.im)
 
-  for (let i = 0; i < re.length; i++) v += atom.nucleus[i]! * (re[i]! ** 2 + im[i]! ** 2)
+  for (let i = 0; i < re.length; i++) {
+    v += atom.nucleus[i]! * (re[i]! ** 2 + im[i]! ** 2)
+  }
 
   fft3(re, im, atom.side, false)
 
   let t = 0
 
-  for (let i = 0; i < re.length; i++) t += atom.band[i]! * (re[i]! ** 2 + im[i]! ** 2)
+  for (let i = 0; i < re.length; i++) {
+    t += atom.band[i]! * (re[i]! ** 2 + im[i]! ** 2)
+  }
 
   return t / re.length + v
 }
@@ -592,9 +729,13 @@ export function overlap(atom: QuantumAtom, u: Float64Array): number {
 }
 
 // the chance within radius R of the nucleus, and the norm
-export function within(atom: QuantumAtom, radius: number): { inside: number; norm: number } {
+export function within(
+  atom: QuantumAtom,
+  radius: number,
+): { inside: number; norm: number } {
   const side = atom.side
   const h = side / 2
+
   let inside = 0
   let norm = 0
 
@@ -605,7 +746,13 @@ export function within(atom: QuantumAtom, radius: number): { inside: number; nor
         const p = atom.re[i]! ** 2 + atom.im[i]! ** 2
 
         norm += p
-        if ((x - h) ** 2 + (y - h) ** 2 + (z - h) ** 2 <= radius * radius) inside += p
+
+        if (
+          (x - h) ** 2 + (y - h) ** 2 + (z - h) ** 2 <=
+          radius * radius
+        ) {
+          inside += p
+        }
       }
     }
   }
@@ -617,16 +764,28 @@ export function within(atom: QuantumAtom, radius: number): { inside: number; nor
 export function dipoleX(atom: QuantumAtom): number {
   const side = atom.side
   const h = side / 2
+
   let d = 0
 
-  for (let i = 0; i < atom.re.length; i++) d += (atom.re[i]! ** 2 + atom.im[i]! ** 2) * ((i % side) - h)
+  for (let i = 0; i < atom.re.length; i++) {
+    d += (atom.re[i]! ** 2 + atom.im[i]! ** 2) * ((i % side) - h)
+  }
 
   return d
 }
 
 // Gauss in the shadow: max over docks of |div (X / q^L) + (rho - rho0)| (div S* = -(rho - rho0) exactly), and
 // the integer charges div S the string records
-export function gaussReading(atom: QuantumAtom, rho0: Float64Array): { shadowMax: number; integerMax: number; integerDocks: number; integerTotal: number; integerIdentity: number } {
+export function gaussReading(
+  atom: QuantumAtom,
+  rho0: Float64Array,
+): {
+  shadowMax: number
+  integerMax: number
+  integerDocks: number
+  integerTotal: number
+  integerIdentity: number
+} {
   const { engine, light: s, levels } = atom
   const g = engine.geometry
   const scale = bucketScale(engine, levels)
@@ -661,26 +820,41 @@ export function gaussReading(atom: QuantumAtom, rho0: Float64Array): { shadowMax
   for (let y = 0; y < g.huskDocks; y++) {
     const rho = atom.re[y]! ** 2 + atom.im[y]! ** 2
 
-    shadowMax = Math.max(shadowMax, Math.abs(divX[y]! / scale + (rho - rho0[y]!)))
+    shadowMax = Math.max(
+      shadowMax,
+      Math.abs(divX[y]! / scale + (rho - rho0[y]!)),
+    )
     integerMax = Math.max(integerMax, Math.abs(divS[y]!))
     integerDocks += divS[y] === 0 ? 0 : 1
     integerTotal += divS[y]!
     integerIdentity += divE[y] === divS[y] ? 0 : 1
   }
 
-  return { shadowMax, integerMax, integerDocks, integerTotal, integerIdentity }
+  return {
+    shadowMax,
+    integerMax,
+    integerDocks,
+    integerTotal,
+    integerIdentity,
+  }
 }
 
 export function lightSnapshot(atom: QuantumAtom): PolarizedState {
   return copyPolarized(atom.light)
 }
 
-export function lightMismatches(a: PolarizedState, b: PolarizedState): number {
+export function lightMismatches(
+  a: PolarizedState,
+  b: PolarizedState,
+): number {
   const x = polarizedArrays(a)
   const y = polarizedArrays(b)
+
   let m = 0
 
-  x.forEach((arr, i) => arr.forEach((v, j) => (m += v === y[i]![j] ? 0 : 1)))
+  x.forEach((arr, i) =>
+    arr.forEach((v, j) => (m += v === y[i]![j] ? 0 : 1)),
+  )
 
   return m
 }

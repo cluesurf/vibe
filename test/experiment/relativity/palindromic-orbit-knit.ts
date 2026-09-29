@@ -87,8 +87,16 @@ const SIDE = 9
 const PHASES = 8
 const WARM = 48
 const GENERIC = [0.31, -0.74, 0.52, 0.29]
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
-const RELAXATIONS: Relaxation[] = ['index', 'headOn', 'free', 'orbit', 'headOnOrbit']
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
+const RELAXATIONS: Relaxation[] = [
+  'index',
+  'headOn',
+  'free',
+  'orbit',
+  'headOnOrbit',
+]
 
 // the long-wave kernel on the D4 box, averaged over start phases `step` beats apart
 function averagedResponse(input: {
@@ -98,6 +106,7 @@ function averagedResponse(input: {
   const mesh = d4BoxMesh({ side: SIDE })
   const positionOf = (dock: number): number[] =>
     d4Vector(d4BoxCoordinates({ cell: dock, side: SIDE }))
+
   let sum: number[][][] | undefined
   let curves: number[][] | undefined
 
@@ -116,18 +125,29 @@ function averagedResponse(input: {
     const kernel = responseKernel(records)
 
     sum = sum
-      ? sum.map((m, t) => m.map((row, i) => row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0))))
+      ? sum.map((m, t) =>
+          m.map((row, i) =>
+            row.map((x, k) => x + (kernel[t]?.[i]?.[k] ?? 0)),
+          ),
+        )
       : kernel
+
     curves = curves
-      ? curves.map((c, m) => c.map((x, t) => x + (records[m]?.relaxation[t] ?? 0)))
+      ? curves.map((c, m) =>
+          c.map((x, t) => x + (records[m]?.relaxation[t] ?? 0)),
+        )
       : records.map(r => [...r.relaxation])
   }
 
-  const parts = kernelParts((sum ?? []).map(m => m.map(row => row.map(x => x / PHASES))))
+  const parts = kernelParts(
+    (sum ?? []).map(m => m.map(row => row.map(x => x / PHASES))),
+  )
 
   return {
     anisotropy: parts.anisotropic / parts.isotropic,
-    axisSpread: curveSpread((curves ?? []).map(c => c.map(x => x / PHASES))),
+    axisSpread: curveSpread(
+      (curves ?? []).map(c => c.map(x => x / PHASES)),
+    ),
   }
 }
 
@@ -143,23 +163,40 @@ export default experiment({
   run() {
     const roots = rootsD4()
     const opposite = meshOpposites(d4BoxMesh({ side: 5 }))
-    const permutations = weylF4DirectionPermutations({ directions: roots })
-    const matrices: Matrix4[] = permutations.map(p => linearMapOf(p) ?? [])
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
+    const matrices: Matrix4[] = permutations.map(
+      p => linearMapOf(p) ?? [],
+    )
     const samples = unitSamples(64)
     const spread = (group: readonly Matrix4[]): number =>
-      forcedIsotropySpread({ group, rank: 2, generic: GENERIC, samples })
+      forcedIsotropySpread({
+        group,
+        rank: 2,
+        generic: GENERIC,
+        samples,
+      })
+
     const traceOf = (p: readonly number[]): number => {
       const m = linearMapOf(p) ?? []
 
       return [0, 1, 2, 3].reduce((s, i) => s + (m[i]?.[i] ?? 0), 0)
     }
+
     const orderOf = (p: readonly number[]): number =>
       permutationOrder({ permutation: p })
 
     // the orbit knit of E-RLT-0048, rebuilt the same way
     const { classOf } = conjugacyClasses(permutations)
     const admissible = new Set(
-      beatStabilizerCensus({ permutations, opposite, relaxation: 'orbit', traceOf, orderOf })
+      beatStabilizerCensus({
+        permutations,
+        opposite,
+        relaxation: 'orbit',
+        traceOf,
+        orderOf,
+      })
         .filter(r => r.invariantBeats > 0 && r.eta === 1)
         .map(r => r.classIndex),
     )
@@ -173,7 +210,13 @@ export default experiment({
     const k = permutations[first?.k ?? 0] ?? []
     const g = permutations[first?.g ?? 0] ?? []
     const pair = bestBeatPair({
-      beats: orbitBeatFor({ k, glide: g, opposite, limit: 1_000_000, components: 12 }),
+      beats: orbitBeatFor({
+        k,
+        glide: g,
+        opposite,
+        limit: 1_000_000,
+        components: 12,
+      }),
       glide: g,
       opposite,
       powers: 8,
@@ -185,13 +228,34 @@ export default experiment({
     const beats = pair ? [pair.first, pair.second] : []
     const powers = pair
       ? Math.max(
-          orbitKnitPeriod({ beat: pair.first, glide: g, opposite, states }),
-          orbitKnitPeriod({ beat: pair.second, glide: g, opposite, states }),
+          orbitKnitPeriod({
+            beat: pair.first,
+            glide: g,
+            opposite,
+            states,
+          }),
+          orbitKnitPeriod({
+            beat: pair.second,
+            glide: g,
+            opposite,
+            states,
+          }),
         )
       : 1
     const n = 2 * powers
-    const glideForward = orbitKnit({ beat: beats, glide: g, period: n, opposite })
-    const glideInverse = orbitKnit({ beat: beats, glide: g, period: n, opposite, forward: false })
+    const glideForward = orbitKnit({
+      beat: beats,
+      glide: g,
+      period: n,
+      opposite,
+    })
+    const glideInverse = orbitKnit({
+      beat: beats,
+      glide: g,
+      period: n,
+      opposite,
+      forward: false,
+    })
     const forward = palindromicSchedule({ schedule: glideForward, n })
     const inverse = palindromicSchedule({ schedule: glideInverse, n })
     const period = 2 * n
@@ -208,11 +272,15 @@ export default experiment({
     })
     const glides = ledger.filter(e => e.kind === 'forward')
     const reversals = ledger.filter(e => e.kind === 'reversal')
-    const identityIndex = permutations.findIndex(p => p.every((x, i) => x === i))
+    const identityIndex = permutations.findIndex(p =>
+      p.every((x, i) => x === i),
+    )
     const cpt = reversals.filter(
       e => e.p === identityIndex && e.tau === CHARGE_CONJUGATION,
     )
-    const periodGroup = matrixGroupClosure(ledger.map(e => matrices[e.p] ?? []))
+    const periodGroup = matrixGroupClosure(
+      ledger.map(e => matrices[e.p] ?? []),
+    )
     const periodSpread = spread(periodGroup)
 
     // reversal and charge on the D4 box, and the vacuum
@@ -221,7 +289,8 @@ export default experiment({
     goldenFill({ will, love: 0.3, fear: 0.3 })
 
     const start = Int8Array.from(will.data)
-    const charge = (d: Int8Array): number => d.reduce((a, b) => a + b, 0)
+    const charge = (d: Int8Array): number =>
+      d.reduce((a, b) => a + b, 0)
 
     for (let t = 0; t < period; t++) {
       collide(will, forward(t))
@@ -235,8 +304,15 @@ export default experiment({
       collide(will, inverse(t))
     }
 
-    const echo = will.data.reduce((a, x, i) => a + (x !== start[i] ? 1 : 0), 0)
-    const vacuum = vacuumCellTrajectory({ schedule: forward, beats: 3 * period + 48, degree: 24 })
+    const echo = will.data.reduce(
+      (a, x, i) => a + (x !== start[i] ? 1 : 0),
+      0,
+    )
+    const vacuum = vacuumCellTrajectory({
+      schedule: forward,
+      beats: 3 * period + 48,
+      degree: 24,
+    })
     const vacuumPeriod =
       Array.from({ length: 2 * period }, (_, p) => p + 1).find(p =>
         vacuum
@@ -245,10 +321,15 @@ export default experiment({
       ) ?? -1
 
     // the responses
-    const palindrome = averagedResponse({ schedule: forward, step: period / PHASES })
+    const palindrome = averagedResponse({
+      schedule: forward,
+      step: period / PHASES,
+    })
     const glide = averagedResponse({ schedule: glideForward, step: 2 })
     const committed = averagedResponse({
-      schedule: turningWeave({ opposite: meshOpposites(d4BoxMesh({ side: SIDE })) }),
+      schedule: turningWeave({
+        opposite: meshOpposites(d4BoxMesh({ side: SIDE })),
+      }),
       step: 2,
     })
 
@@ -281,7 +362,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the palindromic orbit knit has CPT with the identity coin map and charge conjugation, a reducible period group, exact echo and charge and a periodic vacuum, and a period-averaged anisotropy more than twice the glide orbit knit\'s; and no irreducible period group, palindrome alone or with a glide, exists for any subgroup of any beat stabilizer of the five beat shapes',
+        "the palindromic orbit knit has CPT with the identity coin map and charge conjugation, a reducible period group, exact echo and charge and a periodic vacuum, and a period-averaged anisotropy more than twice the glide orbit knit's; and no irreducible period group, palindrome alone or with a glide, exists for any subgroup of any beat stabilizer of the five beat shapes",
       metrics: {
         palindromePeriod: period,
         palindromeGlides: glides.length,
@@ -293,27 +374,45 @@ export default experiment({
         echo,
         chargeDrift,
         vacuumPeriod,
-        palindromeAveragedAnisotropy: Number(palindrome.anisotropy.toFixed(4)),
-        palindromeAveragedAxisSpread: Number(palindrome.axisSpread.toFixed(4)),
+        palindromeAveragedAnisotropy: Number(
+          palindrome.anisotropy.toFixed(4),
+        ),
+        palindromeAveragedAxisSpread: Number(
+          palindrome.axisSpread.toFixed(4),
+        ),
         ...Object.fromEntries(
           searches.flatMap(s => [
             [`${s.relaxation}Beats`, s.beats],
             [`${s.relaxation}Stabilizers`, s.stabilizers],
             [`${s.relaxation}LargestStabilizer`, s.largestStabilizer],
             [`${s.relaxation}Subgroups`, s.subgroups],
-            [`${s.relaxation}IrreduciblePalindromeGroups`, s.palindromeGroups],
-            [`${s.relaxation}IrreducibleGlideAndReversalGroups`, s.glideGroups],
+            [
+              `${s.relaxation}IrreduciblePalindromeGroups`,
+              s.palindromeGroups,
+            ],
+            [
+              `${s.relaxation}IrreducibleGlideAndReversalGroups`,
+              s.glideGroups,
+            ],
           ]),
         ),
       },
       control: {
-        glideOrbitAveragedAnisotropy: Number(glide.anisotropy.toFixed(4)),
-        glideOrbitAveragedAxisSpread: Number(glide.axisSpread.toFixed(4)),
-        committedAveragedAnisotropy: Number(committed.anisotropy.toFixed(4)),
-        committedAveragedAxisSpread: Number(committed.axisSpread.toFixed(4)),
+        glideOrbitAveragedAnisotropy: Number(
+          glide.anisotropy.toFixed(4),
+        ),
+        glideOrbitAveragedAxisSpread: Number(
+          glide.axisSpread.toFixed(4),
+        ),
+        committedAveragedAnisotropy: Number(
+          committed.anisotropy.toFixed(4),
+        ),
+        committedAveragedAxisSpread: Number(
+          committed.axisSpread.toFixed(4),
+        ),
       },
       notes:
-        'L2. The fold keeps the beats and their order but not the glide: g carries the forward half two beats on and the backward half two beats back, which is no single shift, so only the beat symmetries survive as glides and the period group is the order-3 group they form, with the identity reversal. The palindrome\'s axis-shell spread stays small (0.034, against 0.030 for the glide orbit knit and 0.252 for the committed knit) while its kernel anisotropy returns to 0.63, so what comes back is mostly off-diagonal; why the diagonal stays balanced is not measured here. The average sits between the glide orbit knit\'s noise floor (0.23) and the committed knit (1.20). The search is the theorem extended to palindromes: every symmetry of a schedule is a glide or a reversal, reversals carry glides to inverses and square to beat symmetries of the plain tone map, and every glide and reversal keeps the sign each beat symmetry acts with, so the period group is <K, g, q> under those constraints, and K is a subgroup of every beat\'s stabilizer. Its first version omitted the sign condition and the plain-tone condition, and found candidates that the ledger of the knit built from them refuted; the conditions were then derived from the refutation, and the ledger is what the search now reproduces (no candidate survives). The tone maps searched are the identity and charge conjugation; the scatter block\'s quadruples are the subject of E-RLT-0050.',
+        "L2. The fold keeps the beats and their order but not the glide: g carries the forward half two beats on and the backward half two beats back, which is no single shift, so only the beat symmetries survive as glides and the period group is the order-3 group they form, with the identity reversal. The palindrome's axis-shell spread stays small (0.034, against 0.030 for the glide orbit knit and 0.252 for the committed knit) while its kernel anisotropy returns to 0.63, so what comes back is mostly off-diagonal; why the diagonal stays balanced is not measured here. The average sits between the glide orbit knit's noise floor (0.23) and the committed knit (1.20). The search is the theorem extended to palindromes: every symmetry of a schedule is a glide or a reversal, reversals carry glides to inverses and square to beat symmetries of the plain tone map, and every glide and reversal keeps the sign each beat symmetry acts with, so the period group is <K, g, q> under those constraints, and K is a subgroup of every beat's stabilizer. Its first version omitted the sign condition and the plain-tone condition, and found candidates that the ledger of the knit built from them refuted; the conditions were then derived from the refutation, and the ledger is what the search now reproduces (no candidate survives). The tone maps searched are the identity and charge conjugation; the scatter block's quadruples are the subject of E-RLT-0050.",
     })
   },
 })

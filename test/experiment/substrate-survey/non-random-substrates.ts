@@ -47,7 +47,10 @@ function evaluate(
   }
 }
 
-export function nonRandomSubstrates(input: { seed: number; scale?: number }): Record<
+export function nonRandomSubstrates(input: {
+  seed: number
+  scale?: number
+}): Record<
   string,
   {
     degree: number

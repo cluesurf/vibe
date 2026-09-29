@@ -34,7 +34,11 @@
 //
 // Deterministic throughout: the null points are the golden Weyl sequence of code/measure/integer-relation.
 
-import { namedFormChance, nullMatchRate, relationHits } from '@/code/measure/integer-relation'
+import {
+  namedFormChance,
+  nullMatchRate,
+  relationHits,
+} from '@/code/measure/integer-relation'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 // CODATA 2022
@@ -48,7 +52,8 @@ export function warpFactor(): number {
   let x = 18.3
 
   for (let i = 0; i < 60; i++) {
-    x -= (x ** 3 - 21 * x ** 2 + 51 * x - 23) / (3 * x ** 2 - 42 * x + 51)
+    x -=
+      (x ** 3 - 21 * x ** 2 + 51 * x - 23) / (3 * x ** 2 - 42 * x + 51)
   }
 
   return x
@@ -56,12 +61,25 @@ export function warpFactor(): number {
 
 // the pair energy per unit a, G(0) - G(r e1), for each separation r (even, so r e1 is a D4 dock) on the D4
 // torus with husk period p and depth period 2 depth; with the torus background r^2 / (36 depth p^3) removed
-export function columnPairEnergy(input: { p: number; depth: number; separations: readonly number[] }): number[] {
+export function columnPairEnergy(input: {
+  p: number
+  depth: number
+  separations: readonly number[]
+}): number[] {
   const { p, depth, separations } = input
   const q = 2 * depth
-  const axis = Float64Array.from({ length: p }, (_, n) => Math.cos((2 * Math.PI * n) / p))
-  const deep = Float64Array.from({ length: q }, (_, n) => Math.cos((2 * Math.PI * n) / q))
-  const along = separations.map(r => Float64Array.from({ length: p }, (_, n) => 1 - Math.cos((2 * Math.PI * n * r) / p)))
+  const axis = Float64Array.from({ length: p }, (_, n) =>
+    Math.cos((2 * Math.PI * n) / p),
+  )
+  const deep = Float64Array.from({ length: q }, (_, n) =>
+    Math.cos((2 * Math.PI * n) / q),
+  )
+  const along = separations.map(r =>
+    Float64Array.from(
+      { length: p },
+      (_, n) => 1 - Math.cos((2 * Math.PI * n * r) / p),
+    ),
+  )
   const sums = new Float64Array(separations.length)
 
   for (let n1 = 0; n1 < p; n1++) {
@@ -92,7 +110,9 @@ export function columnPairEnergy(input: { p: number; depth: number; separations:
 
   const m = q * p ** 3
 
-  return separations.map((r, s) => (sums[s] ?? 0) / m + (r * r) / (36 * depth * p ** 3))
+  return separations.map(
+    (r, s) => (sums[s] ?? 0) / m + (r * r) / (36 * depth * p ** 3),
+  )
 }
 
 // the quadratic form (1/3) sum over the 96 root pairs a . b = 1 of (F(a, b) / 2)^2 on Lambda^2, as a 6 x 6
@@ -108,6 +128,7 @@ export function d4PlaquetteForm(): number[][] {
     [2, 3],
   ]
   const form = index.map(() => index.map(() => 0))
+
   let pairs = 0
 
   for (let i = 0; i < roots.length; i++) {
@@ -146,19 +167,47 @@ export type Judged = {
 
 export const NULL_SAMPLES = 5000
 
-export function judge(input: { value: number; uncertainty: number; target: number; delta: number; trials: number }): Judged {
+export function judge(input: {
+  value: number
+  uncertainty: number
+  target: number
+  delta: number
+  trials: number
+}): Judged {
   const { value, uncertainty, target, delta, trials } = input
   const deviation = value - target
   const tolerance = Math.max(Math.abs(deviation), uncertainty)
-  const exact = Math.abs(deviation) <= 3 * Math.hypot(delta, uncertainty)
-  const budgetNull = tolerance >= 0.1 * Math.abs(target) ? 1 : nullMatchRate(target, tolerance, NULL_SAMPLES)
-  const namedNull = Math.min(1, trials * namedFormChance(target, tolerance))
-  const loose = uncertainty > 0 && Math.abs(deviation) <= 2 * uncertainty && budgetNull < 0.01 && namedNull < 0.01
+  const exact =
+    Math.abs(deviation) <= 3 * Math.hypot(delta, uncertainty)
+  const budgetNull =
+    tolerance >= 0.1 * Math.abs(target)
+      ? 1
+      : nullMatchRate(target, tolerance, NULL_SAMPLES)
+  const namedNull = Math.min(
+    1,
+    trials * namedFormChance(target, tolerance),
+  )
+  const loose =
+    uncertainty > 0 &&
+    Math.abs(deviation) <= 2 * uncertainty &&
+    budgetNull < 0.01 &&
+    namedNull < 0.01
 
-  return { value, deviation, relative: deviation / target, exact, budgetNull, namedNull, identified: exact || loose }
+  return {
+    value,
+    deviation,
+    relative: deviation / target,
+    exact,
+    budgetNull,
+    namedNull,
+    identified: exact || loose,
+  }
 }
 
 // how many budget forms reach the target at its own precision (the budget is not trivially full there)
-export function targetBudgetHits(target: number, delta: number): number {
+export function targetBudgetHits(
+  target: number,
+  delta: number,
+): number {
   return relationHits(target, delta).length
 }

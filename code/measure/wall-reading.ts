@@ -17,35 +17,87 @@
 //    run on its own) and the EXCITATION (the run against that ideal), the part the wall itself makes.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { bounceRunner, coinMove, collideBounce, makeBounceKernel, pairMove, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, tritDifference, type Reduced } from '@/code/measure/living-pair-kernel'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { coinData, orientedHubStore } from '@/code/measure/varying-vacuum'
+import {
+  bounceRunner,
+  coinMove,
+  collideBounce,
+  makeBounceKernel,
+  pairMove,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  cloneReduced,
+  tritDifference,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  coinData,
+  orientedHubStore,
+} from '@/code/measure/varying-vacuum'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { layoutOf, weaveOf } from '@/code/measure/varying-living-battery'
+import {
+  layoutOf,
+  weaveOf,
+} from '@/code/measure/varying-living-battery'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
-export type HubSetup = { readonly kernel: BounceKernel; readonly store: Int8Array; readonly layout: Int8Array; readonly cells: number; readonly side: number; readonly anchor: number }
+export type HubSetup = {
+  readonly kernel: BounceKernel
+  readonly store: Int8Array
+  readonly layout: Int8Array
+  readonly cells: number
+  readonly side: number
+  readonly anchor: number
+}
 
 let COINS: ReturnType<typeof coinData> | undefined
 
 // the oriented hub vacuum on a side-`side` box anchored so dock `anchor` stores line 0 (E-RLT-0082's convention)
-export function hubSetup(side: number, kind: CollisionKind, anchor = 0): HubSetup {
+export function hubSetup(
+  side: number,
+  kind: CollisionKind,
+  anchor = 0,
+): HubSetup {
   COINS ??= coinData(groupTable())
 
-  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
-  const hub = d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number))
+  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
+  const hub = d4BoxCoordinates({ cell: anchor, side }).map(
+    (v, k) => v - r0[k]!,
+  )
   const weave = weaveOf(side)
 
-  return { kernel: makeBounceKernel(weave, kind), store: orientedHubStore(COINS, side, hub), layout: layoutOf(side), cells: weave.mesh.cellCount, side, anchor }
+  return {
+    kernel: makeBounceKernel(weave, kind),
+    store: orientedHubStore(COINS, side, hub),
+    layout: layoutOf(side),
+    cells: weave.mesh.cellCount,
+    side,
+    anchor,
+  }
 }
 
 export function emptyOf(s: HubSetup): Reduced {
-  return { vibe: new Int8Array(s.cells * 24), point: new Int8Array(s.cells * 24), store: Int8Array.from(s.store), spoint: Int8Array.from(s.layout) }
+  return {
+    vibe: new Int8Array(s.cells * 24),
+    point: new Int8Array(s.cells * 24),
+    store: Int8Array.from(s.store),
+    spoint: Int8Array.from(s.layout),
+  }
 }
 
 export const centerOf = (side: number): number => {
@@ -59,18 +111,24 @@ function singlesAt(vibe: Int8Array, x: number): number {
   let n = 0
 
   for (let l = 0; l < 12; l++) {
-    const a = vibe[x * 24 + (LINE_FIRSTS[l] as number)] !== 0
-    const b = vibe[x * 24 + (LINE_SECONDS[l] as number)] !== 0
+    const a = vibe[x * 24 + LINE_FIRSTS[l]!] !== 0
+    const b = vibe[x * 24 + LINE_SECONDS[l]!] !== 0
 
-    if (a !== b) n++
+    if (a !== b) {
+      n++
+    }
   }
 
   return n
 }
 
 // condition (i): over `beats` beats of the vacuum, the dock-beats whose dock holds a single line at its coin piece
-export function vacuumSingleDocks(s: HubSetup, beats: number): { withSingle: number; checked: number } {
+export function vacuumSingleDocks(
+  s: HubSetup,
+  beats: number,
+): { withSingle: number; checked: number } {
   const k = s.kernel
+
   let a = emptyOf(s)
   let withSingle = 0
   let checked = 0
@@ -78,8 +136,9 @@ export function vacuumSingleDocks(s: HubSetup, beats: number): { withSingle: num
   for (let t = 0; t < beats; t++) {
     for (let x = 0; x < s.cells; x++) {
       for (const piece of collisionOrder(k.schedule, t)) {
-        if (piece === 'P') pairMove(k, a, x)
-        else {
+        if (piece === 'P') {
+          pairMove(k, a, x)
+        } else {
           checked++
           withSingle += singlesAt(a.vibe, x) > 0 ? 1 : 0
           coinMove(k, a, x)
@@ -92,14 +151,16 @@ export function vacuumSingleDocks(s: HubSetup, beats: number): { withSingle: num
     next.vibe.fill(0)
 
     for (let slot = 0; slot < a.vibe.length; slot++) {
-      const v = a.vibe[slot] as number
+      const v = a.vibe[slot]!
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
 
-      const to = k.target[slot] as number
+      const to = k.target[slot]!
 
       next.vibe[to] = v
-      next.point[to] = (k.move[slot] as Int8Array)[a.point[slot] as number] as number
+      next.point[to] = k.move[slot]![a.point[slot]!]!
     }
 
     a = next
@@ -121,13 +182,19 @@ const background = (s: HubSetup, beats: number): Reduced[] => {
 }
 
 // the lines a run touches against the background (vibes and stores that differ), and the trits off `own`
-function touched(run: Reduced, bg: Reduced, cells: number, own: ReadonlySet<number>, lines: Set<number>): number {
+function touched(
+  run: Reduced,
+  bg: Reduced,
+  cells: number,
+  own: ReadonlySet<number>,
+  lines: Set<number>,
+): number {
   let off = 0
 
   for (let x = 0; x < cells; x++) {
     for (let d = 0; d < 24; d++) {
       if (run.vibe[x * 24 + d] !== bg.vibe[x * 24 + d]) {
-        const l = LINE_OF[d] as number
+        const l = LINE_OF[d]!
 
         lines.add(l)
         off += own.has(l) ? 0 : 1
@@ -147,17 +214,27 @@ function touched(run: Reduced, bg: Reduced, cells: number, own: ReadonlySet<numb
 
 const components = (edges: readonly (readonly number[])[]): number => {
   const parent = Array.from({ length: 12 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] as number)))
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x]!))
 
-  for (const group of edges) for (const l of group) parent[find(l)] = find(group[0] as number)
+  for (const group of edges) {
+    for (const l of group) {
+      parent[find(l)] = find(group[0]!)
+    }
+  }
 
   return new Set(Array.from({ length: 12 }, (_, i) => find(i))).size
 }
 
 // one seed (a love on an empty slot, or the slot flipped) from each of the 24 slots of `center`
-export function seedWake(s: HubSetup, center: number, beats: number): { offLine: number; components: number; largestWake: number } {
+export function seedWake(
+  s: HubSetup,
+  center: number,
+  beats: number,
+): { offLine: number; components: number; largestWake: number } {
   const bg = background(s, beats)
   const edges: number[][] = []
+
   let offLine = 0
   let largestWake = 0
 
@@ -168,13 +245,16 @@ export function seedWake(s: HubSetup, center: number, beats: number): { offLine:
     start.vibe[slot] = start.vibe[slot] === 1 ? -1 : 1
 
     const run = bounceRunner(s.kernel, start)
-    const own = new Set([LINE_OF[d] as number])
+    const own = new Set([LINE_OF[d]!])
     const lines = new Set<number>(own)
 
     for (let t = 0; t < beats; t++) {
       run.beat()
-      offLine += touched(run.state(), bg[t] as Reduced, s.cells, own, lines)
-      largestWake = Math.max(largestWake, tritDifference(run.state(), bg[t] as Reduced).trits)
+      offLine += touched(run.state(), bg[t]!, s.cells, own, lines)
+      largestWake = Math.max(
+        largestWake,
+        tritDifference(run.state(), bg[t]!).trits,
+      )
     }
 
     edges.push([...lines])
@@ -184,15 +264,22 @@ export function seedWake(s: HubSetup, center: number, beats: number): { offLine:
 }
 
 // two seeds on two different lines of `center`, every pair of slots
-export function pairSeedComponents(s: HubSetup, center: number, beats: number): { pairs: number; components: number; crossing: number } {
+export function pairSeedComponents(
+  s: HubSetup,
+  center: number,
+  beats: number,
+): { pairs: number; components: number; crossing: number } {
   const bg = background(s, beats)
   const edges: number[][] = []
+
   let pairs = 0
   let crossing = 0
 
   for (let d1 = 0; d1 < 24; d1++) {
     for (let d2 = d1 + 1; d2 < 24; d2++) {
-      if (LINE_OF[d1] === LINE_OF[d2]) continue
+      if (LINE_OF[d1] === LINE_OF[d2]) {
+        continue
+      }
 
       const start = emptyOf(s)
 
@@ -200,13 +287,14 @@ export function pairSeedComponents(s: HubSetup, center: number, beats: number): 
       start.vibe[center * 24 + d2] = 1
 
       const run = bounceRunner(s.kernel, start)
-      const own = new Set([LINE_OF[d1] as number, LINE_OF[d2] as number])
+      const own = new Set([LINE_OF[d1]!, LINE_OF[d2]!])
       const lines = new Set<number>(own)
+
       let off = 0
 
       for (let t = 0; t < beats; t++) {
         run.beat()
-        off += touched(run.state(), bg[t] as Reduced, s.cells, own, lines)
+        off += touched(run.state(), bg[t]!, s.cells, own, lines)
       }
 
       pairs++
@@ -214,8 +302,13 @@ export function pairSeedComponents(s: HubSetup, center: number, beats: number): 
 
       // two seeds join their own lines only when the run reached past them (a meeting that moved something);
       // otherwise each seed's line is its own group
-      if (off > 0) edges.push([...lines])
-      else for (const l of own) edges.push([l])
+      if (off > 0) {
+        edges.push([...lines])
+      } else {
+        for (const l of own) {
+          edges.push([l])
+        }
+      }
     }
   }
 
@@ -239,8 +332,13 @@ export type WallReading = {
 function hashOf(s: Reduced): number {
   let h = 0x811c9dc5
 
-  for (let i = 0; i < s.vibe.length; i++) h = Math.imul(h ^ ((s.vibe[i] as number) + 2), 0x01000193)
-  for (let i = 0; i < s.store.length; i++) h = Math.imul(h ^ ((s.store[i] as number) + 5), 0x01000193)
+  for (let i = 0; i < s.vibe.length; i++) {
+    h = Math.imul(h ^ (s.vibe[i]! + 2), 0x01000193)
+  }
+
+  for (let i = 0; i < s.store.length; i++) {
+    h = Math.imul(h ^ (s.store[i]! + 5), 0x01000193)
+  }
 
   return h >>> 0
 }
@@ -251,33 +349,52 @@ export function wallReading(s: HubSetup): WallReading {
   const k = s.kernel
   const cells = s.cells
   const edge = Math.ceil(s.side / 2)
-  const layerOf = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side: s.side })[0] ?? 0)
+  const layerOf = Array.from(
+    { length: cells },
+    (_, x) => d4BoxCoordinates({ cell: x, side: s.side })[0] ?? 0,
+  )
   const late = layerOf.map(c => c >= edge)
+
   const delayed = (which: (x: number) => boolean): Reduced => {
     const a = emptyOf(s)
 
-    for (let x = 0; x < cells; x++) if (!which(x)) collideBounce(k, a, x, 0)
+    for (let x = 0; x < cells; x++) {
+      if (!which(x)) {
+        collideBounce(k, a, x, 0)
+      }
+    }
 
     const out = cloneReduced(a)
 
     out.vibe.fill(0)
 
     for (let slot = 0; slot < a.vibe.length; slot++) {
-      const v = a.vibe[slot] as number
+      const v = a.vibe[slot]!
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
 
-      const to = k.target[slot] as number
+      const to = k.target[slot]!
 
       out.vibe[to] = v
-      out.point[to] = (k.move[slot] as Int8Array)[a.point[slot] as number] as number
+      out.point[to] = k.move[slot]![a.point[slot]!]!
     }
 
     return out
   }
+
   const uniform = bounceRunner(k, emptyOf(s))
-  const run = bounceRunner(k, delayed(x => late[x] as boolean), 1)
-  const allLate = bounceRunner(k, delayed(() => true), 1)
+  const run = bounceRunner(
+    k,
+    delayed(x => late[x]!),
+    1,
+  )
+  const allLate = bounceRunner(
+    k,
+    delayed(() => true),
+    1,
+  )
   const gate: number[] = []
   const ideal: number[] = []
   const excitation: number[] = []
@@ -293,19 +410,25 @@ export function wallReading(s: HubSetup): WallReading {
     uniform.beat()
     allLate.beat()
 
-    if (t < 3 * 24) continue
+    if (t < 3 * 24) {
+      continue
+    }
 
     hashes.push(hashOf(run.state()))
 
     // keep the last 25 states for the exact confirmation of the period
-    if (t >= 8 * 24 - 25) saved.push(cloneReduced(run.state()))
+    if (t >= 8 * 24 - 25) {
+      saved.push(cloneReduced(run.state()))
+    }
 
     const u = uniform.state()
     const b = allLate.state()
     const id = cloneReduced(u)
 
     for (let x = 0; x < cells; x++) {
-      if (!late[x]) continue
+      if (!late[x]) {
+        continue
+      }
 
       id.vibe.set(b.vibe.subarray(x * 24, x * 24 + 24), x * 24)
       id.point.set(b.point.subarray(x * 24, x * 24 + 24), x * 24)
@@ -326,23 +449,46 @@ export function wallReading(s: HubSetup): WallReading {
     for (let x = 0; x < cells; x++) {
       let differs = false
 
-      for (let d = 0; d < 24 && !differs; d++) differs = a.vibe[x * 24 + d] !== id.vibe[x * 24 + d]
-      for (let l = 0; l < 12 && !differs; l++) differs = a.store[x * 12 + l] !== id.store[x * 12 + l]
+      for (let d = 0; d < 24 && !differs; d++) {
+        differs = a.vibe[x * 24 + d] !== id.vibe[x * 24 + d]
+      }
 
-      if (differs) layers.add(layerOf[x] as number)
+      for (let l = 0; l < 12 && !differs; l++) {
+        differs = a.store[x * 12 + l] !== id.store[x * 12 + l]
+      }
+
+      if (differs) {
+        layers.add(layerOf[x]!)
+      }
     }
   }
 
   let period = 0
 
   for (let p = 1; p <= 24 && period === 0; p++) {
-    if (!hashes.every((h, i) => i + p >= hashes.length || h === hashes[i + p])) continue
+    if (
+      !hashes.every(
+        (h, i) => i + p >= hashes.length || h === hashes[i + p],
+      )
+    ) {
+      continue
+    }
 
-    const last = saved[saved.length - 1] as Reduced
-    const earlier = saved[saved.length - 1 - p] as Reduced
+    const last = saved[saved.length - 1]!
+    const earlier = saved[saved.length - 1 - p]!
 
-    if (tritDifference(last, earlier).trits === 0) period = p
+    if (tritDifference(last, earlier).trits === 0) {
+      period = p
+    }
   }
 
-  return { gate, ideal, excitation, excitationDocks, layers: [...layers].sort((p, q) => p - q), sheet: s.side ** 3, period }
+  return {
+    gate,
+    ideal,
+    excitation,
+    excitationDocks,
+    layers: [...layers].sort((p, q) => p - q),
+    sheet: s.side ** 3,
+    period,
+  }
 }

@@ -90,7 +90,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { LIGHT_DEPTHS, predictionSurvey, REST_TERMS } from '@/code/measure/depth-arena'
+import {
+  LIGHT_DEPTHS,
+  predictionSurvey,
+  REST_TERMS,
+} from '@/code/measure/depth-arena'
 import { RADION_DEPTH } from '@/code/measure/radion'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 
@@ -108,17 +112,39 @@ export default experiment({
     const q0 = 2 * RADION_DEPTH + 1
     const c0 = lightSpeed(RADION_DEPTH)
 
-    const instrument = s.light.every(l => l.run.reversed && l.run.gauss === 0 && l.run.wraps.angle + l.run.wraps.field + l.run.wraps.potential === 0) && s.rest.every(r => r.reversed) && [...s.fall, s.uniform, s.column, s.mirror].every(f => f.reversed) && s.field.reversed
+    const instrument =
+      s.light.every(
+        l =>
+          l.run.reversed &&
+          l.run.gauss === 0 &&
+          l.run.wraps.angle +
+            l.run.wraps.field +
+            l.run.wraps.potential ===
+            0,
+      ) &&
+      s.rest.every(r => r.reversed) &&
+      [...s.fall, s.uniform, s.column, s.mirror].every(
+        f => f.reversed,
+      ) &&
+      s.field.reversed
 
     // P1
     const factor = s.lightSlope / s.restSlope[1]!
     const factorLight = s.lightSlope / s.restSlope[0]!
-    const p1 = Math.abs(s.lightSlope + 0.5) <= 0.01 && s.restSlope.every(r => Math.abs(r + 0.5) <= 0.01) && Math.abs(factor - 1) <= 0.03 && Math.abs(factorLight - 1) <= 0.03
+    const p1 =
+      Math.abs(s.lightSlope + 0.5) <= 0.01 &&
+      s.restSlope.every(r => Math.abs(r + 0.5) <= 0.01) &&
+      Math.abs(factor - 1) <= 0.03 &&
+      Math.abs(factorLight - 1) <= 0.03
 
     // P2
-    const [light, heavy] = s.fall as [(typeof s.fall)[0], (typeof s.fall)[0]]
+    const [light, heavy] = s.fall as [
+      (typeof s.fall)[0],
+      (typeof s.fall)[0],
+    ]
     const alike = Math.abs(light.g / heavy.g - 1)
-    const near = (g: number, want: number): boolean => Math.abs(g / want - 1) <= 0.1
+    const near = (g: number, want: number): boolean =>
+      Math.abs(g / want - 1) <= 0.1
     const scale = Math.abs(heavy.gPredicted)
     const p2 =
       light.g < 0 &&
@@ -172,16 +198,22 @@ export default experiment({
       metrics[`lightSpeed_D${l.depth}`] = l.speed
       metrics[`lightSpeedOverClosed_D${l.depth}`] = l.speed / l.closed
     })
+
     s.rest.forEach(r => {
       metrics[`restRate_m${r.m}_D${r.depth}`] = r.rate
-      metrics[`restRateOverClosed_m${r.m}_D${r.depth}`] = r.rate / r.closed
+      metrics[`restRateOverClosed_m${r.m}_D${r.depth}`] =
+        r.rate / r.closed
     })
 
     return verdict({
       status,
       claim: `the husk light's speed over D = ${LIGHT_DEPTHS.join(', ')} goes as q^${f(s.lightSlope)} (q = 2D + 1) and the clock lump's rest rate as q^${f(s.restSlope[0]!)} and q^${f(s.restSlope[1]!)} (m = ${REST_TERMS.join(', ')}), so depth enters the light only through its clock and the predicted bending factor is ${f(factor)} (closed form 1, Newton's count; general relativity 2, Nordstrom 0), with no fitted parameter; in the radion's own depth field a lump of m = 3 and one of m = 12 with nine times the energy fall toward the deep side at ${e(light.g)} and ${e(heavy.g)} per beat squared (alike to ${e(alike)}, lattice predictions ${e(light.gPredicted)} and ${e(heavy.gPredicted)}), the mirrored lump at ${e(s.mirror.g)} (predicted ${e(s.mirror.gPredicted)}), the column-counted rest term at ${e(s.column.g)} and the uniform depth at ${e(s.uniform.g)}; the count coupling b = a gives G_N = ${e(gArena)}, ${f(gArena / gHand)} of the hand-set radion pull`,
       metrics,
-      control: { gColumn: s.column.g, gUniform: s.uniform.g, gMirror: s.mirror.g },
+      control: {
+        gColumn: s.column.g,
+        gUniform: s.uniform.g,
+        gMirror: s.mirror.g,
+      },
       notes: `L2. Gates P1 ${p1}, P2 ${p2}; instrument ${instrument}. Light speeds over c(D): ${s.light.map(l => f(l.speed / l.closed)).join(', ')}. Rest rates over the leapfrog's closed form: ${s.rest.map(r => `m ${r.m} D ${r.depth} ${f(r.rate / r.closed)}`).join('; ')}. Field depth along x (every 8): ${s.field.depth.filter((_, i) => i % 8 === 0).join(' ')}. Lump fits r2 ${[light, heavy, s.mirror].map(x => f(x.fitR2)).join(', ')}, v0 ${[light, heavy, s.mirror, s.column, s.uniform].map(x => e(x.v0)).join(', ')}, energy drift ${[light, heavy, s.mirror, s.column, s.uniform].map(x => e(x.energyDrift)).join(', ')}; centroid of the m = 12 lump at beats 0, 120, 240, 360, 480: ${[0, 120, 240, 360, 480].map(t => heavy.centroid[t]!.toFixed(3)).join(', ')}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

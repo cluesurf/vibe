@@ -94,11 +94,37 @@ import {
   type EndRegisters,
   type EndSpec,
 } from '@/code/rule/end-store-line'
-import { endBlochColumn, endBlochSpace, endContactEnergy, endSpan, endSpectrumAt, endSubspace, portUse } from '@/code/measure/end-store-bloch'
+import {
+  endBlochColumn,
+  endBlochSpace,
+  endContactEnergy,
+  endSpan,
+  endSpectrumAt,
+  endSubspace,
+  portUse,
+} from '@/code/measure/end-store-bloch'
 import { endRun, type EndRun } from '@/code/measure/end-run'
-import { antisymmetrizedTokens, endExactCheck } from '@/code/measure/end-exact'
-import { dockSharing, reelLightest, reelOverlap, reelQuartetShare, reelStringMoments, type Level, type ReelBlochSpec } from '@/code/measure/reel-string-bloch'
-import { lightestUnwrapped, lineString, quartetShare, spectrumAt, stringMoments, type BlochSpec } from '@/code/measure/flux-store-bloch'
+import {
+  antisymmetrizedTokens,
+  endExactCheck,
+} from '@/code/measure/end-exact'
+import {
+  dockSharing,
+  reelLightest,
+  reelOverlap,
+  reelQuartetShare,
+  reelStringMoments,
+  type Level,
+  type ReelBlochSpec,
+} from '@/code/measure/reel-string-bloch'
+import {
+  lightestUnwrapped,
+  lineString,
+  quartetShare,
+  spectrumAt,
+  stringMoments,
+  type BlochSpec,
+} from '@/code/measure/flux-store-bloch'
 import { spanOf } from '@/code/measure/locked-run'
 import { arcFlux } from '@/code/measure/reel-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
@@ -111,24 +137,53 @@ import { weyl, GOLDEN, SILVER } from '@/code/tool/weyl'
 import { type Vibe } from '@/code/rule/locked-token-line'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
-const ringDistance = (L: number, a: number, b: number): number => Math.min(mod(a - b, L), mod(b - a, L))
+const ringDistance = (L: number, a: number, b: number): number =>
+  Math.min(mod(a - b, L), mod(b - a, L))
 
-const ruleSpec = (ring: number, kinds: Vibe[], depth: number, cost = false): EndSpec => {
+const ruleSpec = (
+  ring: number,
+  kinds: Vibe[],
+  depth: number,
+  cost = false,
+): EndSpec => {
   const N = 2 * depth + 1
 
-  return { ring, kinds, convention: 'C', depth, cost: cost ? N : 0, root: cost ? 2 * N * N : 3 }
+  return {
+    ring,
+    kinds,
+    convention: 'C',
+    depth,
+    cost: cost ? N : 0,
+    root: cost ? 2 * N * N : 3,
+  }
 }
 
 const threeSpec = (D: number, labels: 2 | 3 = 2): ReelBlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels }
+  return {
+    kinds: ['love', 'love', 'love'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels,
+  }
 }
 
 const pairSpec = (D: number): ReelBlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels: 2 }
+  return {
+    kinds: ['love', 'fear'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels: 2,
+  }
 }
 
 const gridOf = (s: ReelBlochSpec): number => 2 * endSpan(s) + 6
@@ -140,20 +195,30 @@ function sector(s: EndSpec, T: number): EndRegisters[] {
   const out: EndRegisters[] = []
 
   for (let p = 0; p < L ** n; p++) {
-    const x = Array.from({ length: n }, (_, t) => Math.floor(p / L ** (n - 1 - t)) % L)
+    const x = Array.from(
+      { length: n },
+      (_, t) => Math.floor(p / L ** (n - 1 - t)) % L,
+    )
 
-    if (spanOf(L, x) > 2 * s.depth + Math.max(T, 0) + 1) continue
+    if (spanOf(L, x) > 2 * s.depth + Math.max(T, 0) + 1) {
+      continue
+    }
 
     const f = arcFlux(L, s.kinds, x)
     const l = stringCount(f)
 
     for (let lab = 0; lab < 3 ** n; lab++) {
-      const j = Array.from({ length: n }, (_, t) => Math.floor(lab / 3 ** (n - 1 - t)) % 3)
+      const j = Array.from(
+        { length: n },
+        (_, t) => Math.floor(lab / 3 ** (n - 1 - t)) % 3,
+      )
 
       for (let rL = -s.depth; rL <= s.depth; rL++) {
         const rR = T - l - rL
 
-        if (rR < -s.depth || rR > s.depth) continue
+        if (rR < -s.depth || rR > s.depth) {
+          continue
+        }
 
         out.push({ x, j, f, rL, rR })
       }
@@ -163,13 +228,22 @@ function sector(s: EndSpec, T: number): EndRegisters[] {
   return out
 }
 
-function reach(s: EndSpec): { states: EndRegisters[]; maxString: number } {
+function reach(s: EndSpec): {
+  states: EndRegisters[]
+  maxString: number
+} {
   const n = s.kinds.length
   const x0 = Math.floor(s.ring / 2)
-  const start = placedRegisters(s, new Array<number>(n).fill(x0), new Array<number>(n).fill(0))
-  const key = (g: EndRegisters): number => encodeRegisters(s, { ...g, j: new Array<number>(n).fill(0) })
+  const start = placedRegisters(
+    s,
+    new Array<number>(n).fill(x0),
+    new Array<number>(n).fill(0),
+  )
+  const key = (g: EndRegisters): number =>
+    encodeRegisters(s, { ...g, j: new Array<number>(n).fill(0) })
   const seen = new Map<number, EndRegisters>([[key(start), start]])
   const queue = [start]
+
   let maxString = 0
 
   while (queue.length > 0) {
@@ -178,7 +252,10 @@ function reach(s: EndSpec): { states: EndRegisters[]; maxString: number } {
     maxString = Math.max(maxString, stringCount(g.f))
 
     for (let c = 0; c < 2 ** n; c++) {
-      const out = streamRegisters(s, { ...g, j: Array.from({ length: n }, (_, t) => (c >> t) & 1) })
+      const out = streamRegisters(s, {
+        ...g,
+        j: Array.from({ length: n }, (_, t) => (c >> t) & 1),
+      })
       const k = key(out)
 
       if (!seen.has(k)) {
@@ -196,58 +273,97 @@ function reach(s: EndSpec): { states: EndRegisters[]; maxString: number } {
 // ---- E1 ----
 type Locality = { witnesses: number; checked: number }
 
-function locality(s: EndSpec, states: readonly EndRegisters[], labels: readonly number[]): Locality {
+function locality(
+  s: EndSpec,
+  states: readonly EndRegisters[],
+  labels: readonly number[],
+): Locality {
   const n = s.kinds.length
   const Q = labels.length
+
   let witnesses = 0
   let checked = 0
 
   for (const g0 of states) {
     for (let c = 0; c < Q ** n; c++) {
-      const j = Array.from({ length: n }, (_, t) => labels[Math.floor(c / Q ** t) % Q]!)
+      const j = Array.from(
+        { length: n },
+        (_, t) => labels[Math.floor(c / Q ** t) % Q]!,
+      )
       const g = { ...g0, j }
       const base = streamRegisters(s, g)
       const [pl, pr] = endDocks(s, runOf(s, g))
-      const same = (a: EndRegisters, t: number): boolean => a.x[t] === base.x[t] && a.j[t] === base.j[t]
+      const same = (a: EndRegisters, t: number): boolean =>
+        a.x[t] === base.x[t] && a.j[t] === base.j[t]
 
       for (let t = 0; t < n; t++) {
         // another token's label, far from t
         for (let u = 0; u < n; u++) {
-          if (u === t || ringDistance(s.ring, g.x[t]!, g.x[u]!) < 2) continue
+          if (u === t || ringDistance(s.ring, g.x[t]!, g.x[u]!) < 2) {
+            continue
+          }
 
           for (const ju of labels) {
-            if (ju === j[u]) continue
+            if (ju === j[u]) {
+              continue
+            }
 
             const j2 = j.slice()
 
             j2[u] = ju
             checked++
 
-            if (!same(streamRegisters(s, { ...g, j: j2 }), t)) witnesses++
+            if (!same(streamRegisters(s, { ...g, j: j2 }), t)) {
+              witnesses++
+            }
           }
         }
 
         // a port far from t
-        for (const [which, dock] of [['left', pl], ['right', pr]] as const) {
-          if (ringDistance(s.ring, g.x[t]!, dock) < 2) continue
+        for (const [which, dock] of [
+          ['left', pl],
+          ['right', pr],
+        ] as const) {
+          if (ringDistance(s.ring, g.x[t]!, dock) < 2) {
+            continue
+          }
 
           for (let v = -s.depth; v <= s.depth; v++) {
-            if (v === (which === 'left' ? g.rL : g.rR)) continue
+            if (v === (which === 'left' ? g.rL : g.rR)) {
+              continue
+            }
 
             checked++
 
-            if (!same(streamRegisters(s, which === 'left' ? { ...g, rL: v } : { ...g, rR: v }), t)) witnesses++
+            if (
+              !same(
+                streamRegisters(
+                  s,
+                  which === 'left' ? { ...g, rL: v } : { ...g, rR: v },
+                ),
+                t,
+              )
+            ) {
+              witnesses++
+            }
           }
         }
       }
 
       // a port against a far token's label
-      for (const [which, dock] of [['left', pl], ['right', pr]] as const) {
+      for (const [which, dock] of [
+        ['left', pl],
+        ['right', pr],
+      ] as const) {
         for (let u = 0; u < n; u++) {
-          if (ringDistance(s.ring, g.x[u]!, dock) < 2) continue
+          if (ringDistance(s.ring, g.x[u]!, dock) < 2) {
+            continue
+          }
 
           for (const ju of labels) {
-            if (ju === j[u]) continue
+            if (ju === j[u]) {
+              continue
+            }
 
             const j2 = j.slice()
 
@@ -256,7 +372,12 @@ function locality(s: EndSpec, states: readonly EndRegisters[], labels: readonly 
 
             const other = streamRegisters(s, { ...g, j: j2 })
 
-            if ((which === 'left' ? other.rL : other.rR) !== (which === 'left' ? base.rL : base.rR)) witnesses++
+            if (
+              (which === 'left' ? other.rL : other.rR) !==
+              (which === 'left' ? base.rL : base.rR)
+            ) {
+              witnesses++
+            }
           }
         }
       }
@@ -267,12 +388,21 @@ function locality(s: EndSpec, states: readonly EndRegisters[], labels: readonly 
 }
 
 // ---- E2, E4 ----
-type SectorCheck = { states: number; permutation: boolean; inverse: boolean; gaussBroken: number; countBroken: number; invariantBroken: number; invariantAtContactMove: number }
+type SectorCheck = {
+  states: number
+  permutation: boolean
+  inverse: boolean
+  gaussBroken: number
+  countBroken: number
+  invariantBroken: number
+  invariantAtContactMove: number
+}
 
 function sectorCheck(s: EndSpec, T: number): SectorCheck {
   const states = sector(s, T)
   const keys = new Set(states.map(g => encodeRegisters(s, g)))
   const images = new Set<number>()
+
   let inverse = true
   let gaussBroken = 0
   let countBroken = 0
@@ -286,35 +416,62 @@ function sectorCheck(s: EndSpec, T: number): SectorCheck {
 
     images.add(k)
 
-    if (streamIndexBack(s, k) !== i) inverse = false
-    if (!gaussHolds(s, o)) gaussBroken++
-    if (o.rL + o.rR + stringCount(o.f) !== T) countBroken++
+    if (streamIndexBack(s, k) !== i) {
+      inverse = false
+    }
+
+    if (!gaussHolds(s, o)) {
+      gaussBroken++
+    }
+
+    if (o.rL + o.rR + stringCount(o.f) !== T) {
+      countBroken++
+    }
 
     const a = endInvariants(s, g)
     const b = endInvariants(s, o)
 
     if (a[0] !== b[0] || a[1] !== b[1]) {
-      const wholeMoved = stringCount(g.f) === 0 && o.x.every(v => v === o.x[0]) && o.x[0] !== g.x[0]
+      const wholeMoved =
+        stringCount(g.f) === 0 &&
+        o.x.every(v => v === o.x[0]) &&
+        o.x[0] !== g.x[0]
 
-      if (wholeMoved) invariantAtContactMove++
-      else invariantBroken++
+      if (wholeMoved) {
+        invariantAtContactMove++
+      } else {
+        invariantBroken++
+      }
     }
   }
 
-  return { states: states.length, permutation: images.size === states.length && [...images].every(k => keys.has(k)), inverse, gaussBroken, countBroken, invariantBroken, invariantAtContactMove }
+  return {
+    states: states.length,
+    permutation:
+      images.size === states.length &&
+      [...images].every(k => keys.has(k)),
+    inverse,
+    gaussBroken,
+    countBroken,
+    invariantBroken,
+    invariantAtContactMove,
+  }
 }
 
 // three loves on one dock in the antisymmetric doublet sector
 function tripleWeight(D: number): number {
   const b = endBlochSpace(threeSpec(D))
   const sub = endSubspace(b, 0)
+
   let w = 0
 
   for (const v of sub.vectors) {
     v.idx.forEach((i, k) => {
       const d = b.positions[Math.floor(i / b.labelCount)]!
 
-      if (d[1] === 0 && d[2] === 0) w += v.re[k]! ** 2 + v.im[k]! ** 2
+      if (d[1] === 0 && d[2] === 0) {
+        w += v.re[k]! ** 2 + v.im[k]! ** 2
+      }
     })
   }
 
@@ -322,22 +479,33 @@ function tripleWeight(D: number): number {
 }
 
 // ---- E6 ----
-function lineLeak(D: number, K: number): { leak: number; columns: number } {
+function lineLeak(
+  D: number,
+  K: number,
+): { leak: number; columns: number } {
   const b = endBlochSpace(threeSpec(D, 3))
+
   let leak = 0
   let columns = 0
-  const hasLine = (lab: number): boolean => [Math.floor(lab / 9), Math.floor(lab / 3) % 3, lab % 3].includes(2)
+
+  const hasLine = (lab: number): boolean =>
+    [Math.floor(lab / 9), Math.floor(lab / 3) % 3, lab % 3].includes(2)
 
   for (let col = 0; col < b.size; col++) {
-    if (hasLine(col % b.labelCount)) continue
+    if (hasLine(col % b.labelCount)) {
+      continue
+    }
 
     columns++
 
     const img = endBlochColumn(b, K, col)
+
     let w = 0
 
     img.idx.forEach((i, m) => {
-      if (hasLine(i % b.labelCount)) w += img.re[m]! ** 2 + img.im[m]! ** 2
+      if (hasLine(i % b.labelCount)) {
+        w += img.re[m]! ** 2 + img.im[m]! ** 2
+      }
     })
     leak = Math.max(leak, w)
   }
@@ -366,8 +534,14 @@ type LightRow = {
 function lightestThree(D: number): LightRow {
   const spec = threeSpec(D)
   const r = endSpectrumAt(spec, 0)
-  const lp = reelLightest(r.bloch, r.all, gridOf(spec), endContactEnergy)
+  const lp = reelLightest(
+    r.bloch,
+    r.all,
+    gridOf(spec),
+    endContactEnergy,
+  )
   const S = endSpan(spec)
+
   let cap = 0
   let tot = 0
 
@@ -376,7 +550,9 @@ function lightestThree(D: number): LightRow {
 
     tot += p
 
-    if (r.bloch.strings[Math.floor(i / r.bloch.labelCount)] === S) cap += p
+    if (r.bloch.strings[Math.floor(i / r.bloch.labelCount)] === S) {
+      cap += p
+    }
   }
 
   const use = portUse(r.bloch, lp.level.vector)
@@ -400,9 +576,18 @@ function lightestThree(D: number): LightRow {
 }
 
 // ---- E8 ----
-function dispersion(D: number, start: Level): { bandwidth: number; velocity: number; minOverlap: number; energies: number[] } {
+function dispersion(
+  D: number,
+  start: Level,
+): {
+  bandwidth: number
+  velocity: number
+  minOverlap: number
+  energies: number[]
+} {
   const steps = 12
   const energies = [start.energy]
+
   let prev = start
   let minOverlap = 1
   let velocity = 0
@@ -410,6 +595,7 @@ function dispersion(D: number, start: Level): { bandwidth: number; velocity: num
   for (let s = 1; s <= steps; s++) {
     const K = (Math.PI * s) / steps
     const r = endSpectrumAt(threeSpec(D), K)
+
     let best = r.all[0]!
     let bestOverlap = -1
 
@@ -424,48 +610,84 @@ function dispersion(D: number, start: Level): { bandwidth: number; velocity: num
 
     let e = best.energy
 
-    while (e - energies[s - 1]! > Math.PI) e -= 2 * Math.PI
-    while (e - energies[s - 1]! < -Math.PI) e += 2 * Math.PI
+    while (e - energies[s - 1]! > Math.PI) {
+      e -= 2 * Math.PI
+    }
 
-    velocity = Math.max(velocity, Math.abs(e - energies[s - 1]!) / (Math.PI / steps))
+    while (e - energies[s - 1]! < -Math.PI) {
+      e += 2 * Math.PI
+    }
+
+    velocity = Math.max(
+      velocity,
+      Math.abs(e - energies[s - 1]!) / (Math.PI / steps),
+    )
     energies.push(e)
     minOverlap = Math.min(minOverlap, bestOverlap)
     prev = best
   }
 
-  return { bandwidth: Math.max(...energies) - Math.min(...energies), velocity, minOverlap, energies }
+  return {
+    bandwidth: Math.max(...energies) - Math.min(...energies),
+    velocity,
+    minOverlap,
+    energies,
+  }
 }
 
 // REPORTED: the largest change of the sorted spectrum between K = 0 and K = pi / 2
 function spectrumShift(spec: ReelBlochSpec): number {
-  const a = endSpectrumAt(spec, 0).all.map(l => l.energy).sort((x, y) => x - y)
-  const b = endSpectrumAt(spec, Math.PI / 2).all.map(l => l.energy).sort((x, y) => x - y)
+  const a = endSpectrumAt(spec, 0)
+    .all.map(l => l.energy)
+    .sort((x, y) => x - y)
+  const b = endSpectrumAt(spec, Math.PI / 2)
+    .all.map(l => l.energy)
+    .sort((x, y) => x - y)
 
   return Math.max(...a.map((e, i) => Math.abs(e - b[i]!)))
 }
 
 // ---- E9 ----
-function ringAgreement(spec: ReelBlochSpec, ring: number, m: number): { gap: number; outside: number } {
+function ringAgreement(
+  spec: ReelBlochSpec,
+  ring: number,
+  m: number,
+): { gap: number; outside: number } {
   const b = endBlochSpace(spec)
   const K = (2 * Math.PI * m) / ring
   const n = spec.kinds.length
-  const phi = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+  const phi = {
+    re: new Float64Array(b.size),
+    im: new Float64Array(b.size),
+  }
 
   for (let i = 0; i < b.size; i++) {
     phi.re[i] = weyl(i + 1, GOLDEN) - 0.5
     phi.im[i] = weyl(i + 1, SILVER) - 0.5
   }
 
-  const run: EndRun = endRun({ ring, kinds: spec.kinds, depth: spec.depth, cost: spec.cost, root: spec.root })
+  const run: EndRun = endRun({
+    ring,
+    kinds: spec.kinds,
+    depth: spec.depth,
+    cost: spec.cost,
+    root: spec.root,
+  })
   const R = 3 ** n
+
   const ringIndex = (x0: number, i: number): number => {
     const c = Math.floor(i / b.labelCount)
     const x = b.positions[c]!.map(v => mod(x0 + v, ring))
     const cc = run.indexOf(x, b.reels[c]!)
 
-    if (cc < 0) throw new Error('ring agreement: a Bloch configuration is not on the ring')
+    if (cc < 0) {
+      throw new Error(
+        'ring agreement: a Bloch configuration is not on the ring',
+      )
+    }
 
     let code = i % b.labelCount
+
     const digits: number[] = []
 
     for (let t = n - 1; t >= 0; t--) {
@@ -490,18 +712,25 @@ function ringAgreement(spec: ReelBlochSpec, ring: number, m: number): { gap: num
 
   run.beat()
 
-  const img = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+  const img = {
+    re: new Float64Array(b.size),
+    im: new Float64Array(b.size),
+  }
 
   for (let col = 0; col < b.size; col++) {
     const c = endBlochColumn(b, K, col)
 
     c.idx.forEach((i, k) => {
-      img.re[i] = img.re[i]! + c.re[k]! * phi.re[col]! - c.im[k]! * phi.im[col]!
-      img.im[i] = img.im[i]! + c.re[k]! * phi.im[col]! + c.im[k]! * phi.re[col]!
+      img.re[i] =
+        img.re[i]! + c.re[k]! * phi.re[col]! - c.im[k]! * phi.im[col]!
+
+      img.im[i] =
+        img.im[i]! + c.re[k]! * phi.im[col]! + c.im[k]! * phi.re[col]!
     })
   }
 
   let gap = 0
+
   const covered = new Uint8Array(run.re.length)
 
   for (let x0 = 0; x0 < ring; x0++) {
@@ -514,13 +743,20 @@ function ringAgreement(spec: ReelBlochSpec, ring: number, m: number): { gap: num
       const wi = img.re[i]! * sn + img.im[i]! * cs
 
       covered[at] = 1
-      gap = Math.max(gap, Math.hypot(wr - run.re[at]!, wi - run.im[at]!))
+      gap = Math.max(
+        gap,
+        Math.hypot(wr - run.re[at]!, wi - run.im[at]!),
+      )
     }
   }
 
   let outside = 0
 
-  for (let a = 0; a < run.re.length; a++) if (!covered[a]) outside += run.re[a]! ** 2 + run.im[a]! ** 2
+  for (let a = 0; a < run.re.length; a++) {
+    if (!covered[a]) {
+      outside += run.re[a]! ** 2 + run.im[a]! ** 2
+    }
+  }
 
   return { gap, outside }
 }
@@ -529,37 +765,64 @@ function ringAgreement(spec: ReelBlochSpec, ring: number, m: number): { gap: num
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
 // the paired control: E-SPN-0077's port store at the same depth
-function portLightest(D: number): { spinHalf: number; mean: number; energy: number } {
+function portLightest(D: number): {
+  spinHalf: number
+  mean: number
+  energy: number
+} {
   const N = 2 * D + 1
-  const spec: BlochSpec = { kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels: 2 }
+  const spec: BlochSpec = {
+    kinds: ['love', 'love', 'love'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels: 2,
+  }
   const r = spectrumAt(spec, 0)
   const lp = lightestUnwrapped(r.bloch, r.all, 4 * D + 6)
 
-  return { spinHalf: 1 - quartetShare(r.bloch, lp.level.vector), mean: stringMoments(r.bloch, lp.level.vector).mean, energy: lp.unwrapped }
+  return {
+    spinHalf: 1 - quartetShare(r.bloch, lp.level.vector),
+    mean: stringMoments(r.bloch, lp.level.vector).mean,
+    energy: lp.unwrapped,
+  }
 }
 
 export default experiment({
   id: 'spin/string-count-on-the-hop',
   code: 'E-SPN-0085',
-  title: "the string's count carried by the light's copy on a husk line (the recorded hop at the string's two end ports), a STAND-IN on locked tokens on a husk line, fail on E7 and E8: the rule is husk-local, reversible, integer, Gauss exact, reaches exactly 2D and keeps Pauli's lock with no flavor, but its two end invariants pin three loves exactly (every band flat to 1e-15, the cluster cannot travel) and the lightest level is not the natural spin one half (0.57 to 0.76)",
+  title:
+    "the string's count carried by the light's copy on a husk line (the recorded hop at the string's two end ports), a STAND-IN on locked tokens on a husk line, fail on E7 and E8: the rule is husk-local, reversible, integer, Gauss exact, reaches exactly 2D and keeps Pauli's lock with no flavor, but its two end invariants pin three loves exactly (every band flat to 1e-15, the cluster cannot travel) and the lightest level is not the natural spin one half (0.57 to 0.76)",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const kindsOf = (name: 'pair' | 'three'): Vibe[] => (name === 'pair' ? ['love', 'fear'] : ['love', 'love', 'love'])
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const kindsOf = (name: 'pair' | 'three'): Vibe[] =>
+      name === 'pair' ? ['love', 'fear'] : ['love', 'love', 'love']
 
     // ---- E5 and the reach sets ----
     const reaches = (['pair', 'three'] as const).flatMap(name =>
@@ -577,42 +840,93 @@ export default experiment({
     // ---- E1 ----
     const localRows = reaches
       .filter(r => r.D <= 3)
-      .map(r => ({ name: `${r.name} D ${r.D}`, ...locality(r.s, r.states, [0, 1]) }))
+      .map(r => ({
+        name: `${r.name} D ${r.D}`,
+        ...locality(r.s, r.states, [0, 1]),
+      }))
     const sectorLocal = (['pair', 'three'] as const).map(name => {
       const s = ruleSpec(9, kindsOf(name), 1)
       const states = sector(s, 0).filter(g => g.j.every(v => v === 0))
 
-      return { name: `${name} ring 9 D 1 sector`, ...locality(s, states, [0, 1, 2]) }
+      return {
+        name: `${name} ring 9 D 1 sector`,
+        ...locality(s, states, [0, 1, 2]),
+      }
     })
-    const e1 = [...localRows, ...sectorLocal].every(r => r.witnesses === 0 && r.checked > 0)
+    const e1 = [...localRows, ...sectorLocal].every(
+      r => r.witnesses === 0 && r.checked > 0,
+    )
 
     log('e1')
 
     // ---- E2, E4 ----
     const sectors = [
-      { name: 'pair ring 9 D 1 T 0', ...sectorCheck(ruleSpec(9, ['love', 'fear'], 1), 0) },
-      { name: 'pair ring 9 D 1 T 1', ...sectorCheck(ruleSpec(9, ['love', 'fear'], 1), 1) },
-      { name: 'three ring 9 D 1 T 0', ...sectorCheck(ruleSpec(9, ['love', 'love', 'love'], 1), 0) },
-      { name: 'three ring 9 D 1 T -1', ...sectorCheck(ruleSpec(9, ['love', 'love', 'love'], 1), -1) },
-      { name: 'pair ring 13 D 2 T 0', ...sectorCheck(ruleSpec(13, ['love', 'fear'], 2), 0) },
-      { name: 'three ring 13 D 2 T 0', ...sectorCheck(ruleSpec(13, ['love', 'love', 'love'], 2), 0) },
+      {
+        name: 'pair ring 9 D 1 T 0',
+        ...sectorCheck(ruleSpec(9, ['love', 'fear'], 1), 0),
+      },
+      {
+        name: 'pair ring 9 D 1 T 1',
+        ...sectorCheck(ruleSpec(9, ['love', 'fear'], 1), 1),
+      },
+      {
+        name: 'three ring 9 D 1 T 0',
+        ...sectorCheck(ruleSpec(9, ['love', 'love', 'love'], 1), 0),
+      },
+      {
+        name: 'three ring 9 D 1 T -1',
+        ...sectorCheck(ruleSpec(9, ['love', 'love', 'love'], 1), -1),
+      },
+      {
+        name: 'pair ring 13 D 2 T 0',
+        ...sectorCheck(ruleSpec(13, ['love', 'fear'], 2), 0),
+      },
+      {
+        name: 'three ring 13 D 2 T 0',
+        ...sectorCheck(ruleSpec(13, ['love', 'love', 'love'], 2), 0),
+      },
     ]
-    const e2 = sectors.every(r => r.permutation && r.inverse && r.gaussBroken === 0 && r.countBroken === 0)
+    const e2 = sectors.every(
+      r =>
+        r.permutation &&
+        r.inverse &&
+        r.gaussBroken === 0 &&
+        r.countBroken === 0,
+    )
     const triples = [1, 2, 3].map(D => ({ D, weight: tripleWeight(D) }))
-    const e4 = sectors.every(r => r.invariantBroken === 0) && triples.every(t => t.weight === 0)
+    const e4 =
+      sectors.every(r => r.invariantBroken === 0) &&
+      triples.every(t => t.weight === 0)
 
     log('e2 e4')
 
     // ---- E3 ----
-    const exactPair = endExactCheck(ruleSpec(11, ['love', 'fear'], 2, true), [{ x: [5, 5], j: [0, 1], amp: 1 }], [0, 0], 12)
-    const exactThree = endExactCheck(ruleSpec(7, ['love', 'love', 'love'], 1, true), antisymmetrizedTokens({ x: [3, 3, 4], j: [0, 1, 0] }), [0, -1], 6)
-    const exactOk = (e: typeof exactPair): boolean => e.gap < 1e-12 && e.norm && e.reverses && e.registersOk && e.merged === 0
+    const exactPair = endExactCheck(
+      ruleSpec(11, ['love', 'fear'], 2, true),
+      [{ x: [5, 5], j: [0, 1], amp: 1 }],
+      [0, 0],
+      12,
+    )
+    const exactThree = endExactCheck(
+      ruleSpec(7, ['love', 'love', 'love'], 1, true),
+      antisymmetrizedTokens({ x: [3, 3, 4], j: [0, 1, 0] }),
+      [0, -1],
+      6,
+    )
+    const exactOk = (e: typeof exactPair): boolean =>
+      e.gap < 1e-12 &&
+      e.norm &&
+      e.reverses &&
+      e.registersOk &&
+      e.merged === 0
     const e3 = exactOk(exactPair) && exactOk(exactThree)
 
     log('e3')
 
     // ---- E6 ----
-    const leaks = [1, 2].flatMap(D => [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })))
+    const leaks = [1, 2].flatMap(D =>
+      [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })),
+    )
     const e6 = leaks.every(l => l.leak < 1e-14 && l.columns > 0)
 
     log('e6')
@@ -629,45 +943,115 @@ export default experiment({
 
     // ---- E8 ----
     const bands = [2, 3].map(D => {
-      const band = { D, ...dispersion(D, rows.find(r => r.D === D)!.level) }
+      const band = {
+        D,
+        ...dispersion(D, rows.find(r => r.D === D)!.level),
+      }
 
       log(`e8 D ${D}`)
 
       return band
     })
-    const e8 = bands.every(b => b.bandwidth >= 0.01 && b.velocity >= 0.02 && b.minOverlap >= 0.5)
-    const shifts = { three: [1, 2, 3].map(D => spectrumShift(threeSpec(D))), pair: [1, 2, 3].map(D => spectrumShift(pairSpec(D))) }
+    const e8 = bands.every(
+      b =>
+        b.bandwidth >= 0.01 &&
+        b.velocity >= 0.02 &&
+        b.minOverlap >= 0.5,
+    )
+    const shifts = {
+      three: [1, 2, 3].map(D => spectrumShift(threeSpec(D))),
+      pair: [1, 2, 3].map(D => spectrumShift(pairSpec(D))),
+    }
 
     log('shifts')
 
     // ---- E9 ----
     const agreeThree = ringAgreement(threeSpec(2), 16, 3)
     const agreePair = ringAgreement(pairSpec(3), 16, 3)
-    const e9 = agreeThree.gap < 1e-12 && agreePair.gap < 1e-12 && agreeThree.outside < 1e-24 && agreePair.outside < 1e-24
+    const e9 =
+      agreeThree.gap < 1e-12 &&
+      agreePair.gap < 1e-12 &&
+      agreeThree.outside < 1e-24 &&
+      agreePair.outside < 1e-24
 
     log('e9')
 
     // ---- E10 ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
-    const cases: { L: number; kinds: Vibe[]; D: number; beats: number; ports: [number, number]; start: { x: readonly number[]; j: readonly number[]; amp: number }[] }[] = [
-      { L: 12, kinds: ['love', 'love', 'love'], D: 2, beats: 5, ports: [0, -1], start: antisymmetrizedTokens({ x: [5, 5, 6], j: [0, 1, 0] }) },
-      { L: 24, kinds: ['love', 'fear'], D: 2, beats: 10, ports: [0, 0], start: [{ x: [12, 12], j: [0, 1], amp: 1 }] },
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
+    const cases: {
+      L: number
+      kinds: Vibe[]
+      D: number
+      beats: number
+      ports: [number, number]
+      start: {
+        x: readonly number[]
+        j: readonly number[]
+        amp: number
+      }[]
+    }[] = [
+      {
+        L: 12,
+        kinds: ['love', 'love', 'love'],
+        D: 2,
+        beats: 5,
+        ports: [0, -1],
+        start: antisymmetrizedTokens({ x: [5, 5, 6], j: [0, 1, 0] }),
+      },
+      {
+        L: 24,
+        kinds: ['love', 'fear'],
+        D: 2,
+        beats: 10,
+        ports: [0, 0],
+        start: [{ x: [12, 12], j: [0, 1], amp: 1 }],
+      },
     ]
     const ensemble = startFamily(16).map(member => {
-      const linksOf = (L: number): M3[] => Array.from({ length: L }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
+      const linksOf = (L: number): M3[] =>
+        Array.from(
+          { length: L },
+          (_, x) =>
+            unitaries[
+              table.indexOf(
+                phaseMove(
+                  moves.act[member.start(x, moves.act.length)] ?? [],
+                ),
+              )
+            ]!,
+        )
+
       let gap = 0
 
       for (const c of cases) {
         const N = 2 * c.D + 1
-        const make = (links?: M3[]): EndRun => {
-          const run = endRun({ ring: c.L, kinds: c.kinds, depth: c.D, cost: N, root: 2 * N * N, links })
 
-          run.place(c.start.map(e => ({ x: e.x, ports: c.ports, j: e.j, amp: [e.amp, 0] as [number, number] })))
+        const make = (links?: M3[]): EndRun => {
+          const run = endRun({
+            ring: c.L,
+            kinds: c.kinds,
+            depth: c.D,
+            cost: N,
+            root: 2 * N * N,
+            links,
+          })
+
+          run.place(
+            c.start.map(e => ({
+              x: e.x,
+              ports: c.ports,
+              j: e.j,
+              amp: [e.amp, 0] as [number, number],
+            })),
+          )
 
           return run
         }
+
         const field = make(linksOf(c.L))
         const plain = make()
 
@@ -678,27 +1062,39 @@ export default experiment({
           const a = field.positions()
           const b = plain.positions()
 
-          for (let i = 0; i < a.length; i++) gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          for (let i = 0; i < a.length; i++) {
+            gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          }
         }
       }
 
       return { member: member.name, gap }
     })
-    const e10 = ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
+    const e10 =
+      ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
 
     log('e10')
 
     // ---- E11 ----
     let e11 = true
+
     const split: number[] = []
 
     for (let s = 1; s <= 20; s++) {
-      const apart = lineString([0, 0, 0, s, s], ['love', 'love', 'love', 'love', 'fear'])
-      const held = lineString([0, 0, 0, 0, s], ['love', 'love', 'love', 'love', 'fear'])
+      const apart = lineString(
+        [0, 0, 0, s, s],
+        ['love', 'love', 'love', 'love', 'fear'],
+      )
+      const held = lineString(
+        [0, 0, 0, 0, s],
+        ['love', 'love', 'love', 'love', 'fear'],
+      )
 
       split.push(apart)
 
-      if (apart !== 0 || held !== s) e11 = false
+      if (apart !== 0 || held !== s) {
+        e11 = false
+      }
     }
 
     // ---- the paired control ----
@@ -706,7 +1102,8 @@ export default experiment({
 
     log('control')
 
-    const ok = e1 && e2 && e3 && e4 && e5 && e6 && e7 && e8 && e9 && e10 && e11
+    const ok =
+      e1 && e2 && e3 && e4 && e5 && e6 && e7 && e8 && e9 && e10 && e11
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -723,10 +1120,33 @@ export default experiment({
         gate_E9: e9 ? 1 : 0,
         gate_E10: e10 ? 1 : 0,
         gate_E11: e11 ? 1 : 0,
-        localityWitnesses: [...localRows, ...sectorLocal].reduce((a, r) => a + r.witnesses, 0),
-        localityChecked: [...localRows, ...sectorLocal].reduce((a, r) => a + r.checked, 0),
-        ...Object.fromEntries(reaches.map(r => [`reach_${r.name}_D${r.D}_maxString`, r.maxString])),
-        ...Object.fromEntries(sectors.flatMap(r => [[`sector_${r.name.replace(/ /g, '_')}_states`, r.states], [`sector_${r.name.replace(/ /g, '_')}_invariantBroken`, r.invariantBroken], [`sector_${r.name.replace(/ /g, '_')}_contactMoves`, r.invariantAtContactMove]])),
+        localityWitnesses: [...localRows, ...sectorLocal].reduce(
+          (a, r) => a + r.witnesses,
+          0,
+        ),
+        localityChecked: [...localRows, ...sectorLocal].reduce(
+          (a, r) => a + r.checked,
+          0,
+        ),
+        ...Object.fromEntries(
+          reaches.map(r => [
+            `reach_${r.name}_D${r.D}_maxString`,
+            r.maxString,
+          ]),
+        ),
+        ...Object.fromEntries(
+          sectors.flatMap(r => [
+            [`sector_${r.name.replace(/ /g, '_')}_states`, r.states],
+            [
+              `sector_${r.name.replace(/ /g, '_')}_invariantBroken`,
+              r.invariantBroken,
+            ],
+            [
+              `sector_${r.name.replace(/ /g, '_')}_contactMoves`,
+              r.invariantAtContactMove,
+            ],
+          ]),
+        ),
         exactPairGap: exactPair.gap,
         exactThreeGap: exactThree.gap,
         lineLeakWorst: Math.max(...leaks.map(l => l.leak)),
@@ -747,7 +1167,13 @@ export default experiment({
             [`three_D${r.D}_sharedTriple`, r.sharing.triple],
           ]),
         ),
-        ...Object.fromEntries(bands.flatMap(b => [[`band_D${b.D}_width`, b.bandwidth], [`band_D${b.D}_velocity`, b.velocity], [`band_D${b.D}_minOverlap`, b.minOverlap]])),
+        ...Object.fromEntries(
+          bands.flatMap(b => [
+            [`band_D${b.D}_width`, b.bandwidth],
+            [`band_D${b.D}_velocity`, b.velocity],
+            [`band_D${b.D}_minOverlap`, b.minOverlap],
+          ]),
+        ),
         ringGapThree: agreeThree.gap,
         ringGapPair: agreePair.gap,
         ensembleWorstGap: Math.max(...ensemble.map(e => e.gap)),
@@ -756,9 +1182,25 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        ...Object.fromEntries(shifts.three.map((x, i) => [`spectrumShift_three_D${i + 1}`, x])),
-        ...Object.fromEntries(shifts.pair.map((x, i) => [`spectrumShift_pair_D${i + 1}`, x])),
-        ...Object.fromEntries(port.flatMap(p => [[`port_D${p.D}_spinHalfShare`, p.spinHalf], [`port_D${p.D}_meanString`, p.mean], [`port_D${p.D}_energy`, p.energy]])),
+        ...Object.fromEntries(
+          shifts.three.map((x, i) => [
+            `spectrumShift_three_D${i + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          shifts.pair.map((x, i) => [
+            `spectrumShift_pair_D${i + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          port.flatMap(p => [
+            [`port_D${p.D}_spinHalfShare`, p.spinHalf],
+            [`port_D${p.D}_meanString`, p.mean],
+            [`port_D${p.D}_energy`, p.energy],
+          ]),
+        ),
       },
       notes: `L2, a STAND-IN (locked tokens on one husk line). Gates E1 ${e1}, E2 ${e2}, E3 ${e3}, E4 ${e4}, E5 ${e5}, E6 ${e6}, E7 ${e7}, E8 ${e8}, E9 ${e9}, E10 ${e10}, E11 ${e11}. Locality: ${[...localRows, ...sectorLocal].map(r => `${r.name} ${r.witnesses} of ${r.checked}`).join('; ')}. Sectors: ${sectors.map(r => `${r.name}: ${r.states} states, permutation ${r.permutation}, inverse ${r.inverse}, Gauss broken ${r.gaussBroken}, count broken ${r.countBroken}, end invariants broken ${r.invariantBroken} (plus ${r.invariantAtContactMove} whole-cluster moves at contact)`).join('; ')}. Three loves on one dock in the doublet sector: ${triples.map(t => `D ${t.D} ${t.weight}`).join(', ')}. Exact: pair ${JSON.stringify(exactPair)}, three loves ${JSON.stringify(exactThree)}. Line leak: ${leaks.map(l => `(${l.D}, ${l.K}) ${l.leak.toExponential(1)} over ${l.columns}`).join(', ')}. Lightest three-love level: ${rows.map(r => `D ${r.D} (dim ${r.dim}): E ${r.energy.toFixed(5)} (raw ${r.raw.toFixed(5)}), spin one half ${r.spinHalf.toFixed(4)}, <l> ${r.mean.toFixed(3)} of 2D = ${2 * r.D} (at capacity ${r.atCapacity.toFixed(3)}), particle ${r.even.toFixed(3)}, next +${r.gapNext.toFixed(4)}, mean |port| ${r.portMean.toFixed(3)}, a port at its edge ${r.portEdge.toFixed(3)}, a like pair on a dock ${r.sharing.pair.toFixed(3)}, three on a dock ${r.sharing.triple.toFixed(3)}, residual ${r.residual.toExponential(1)}`).join('; ')}. Bands (K = 0 to pi, 12 steps): ${bands.map(b => `D ${b.D}: ${b.energies.map(e => e.toFixed(6)).join(' ')} (min overlap ${b.minOverlap.toFixed(3)})`).join('; ')}. Spectrum shift K = 0 to pi / 2: three loves ${shifts.three.map(x => x.toExponential(1)).join(', ')}, pair ${shifts.pair.map(x => x.toExponential(2)).join(', ')}. Port-store control (E-SPN-0077's rule): ${port.map(p => `D ${p.D} spin one half ${p.spinHalf.toFixed(4)}, <l> ${p.mean.toFixed(3)}, E ${p.energy.toFixed(4)}`).join('; ')}. Ring agreement: three loves ${agreeThree.gap.toExponential(1)} (outside ${agreeThree.outside.toExponential(1)}), pair ${agreePair.gap.toExponential(1)} (outside ${agreePair.outside.toExponential(1)}). Start members: ${ensemble.map(e => `${e.member} ${e.gap.toExponential(1)}`).join(', ')}.`,
     })

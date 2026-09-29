@@ -88,7 +88,10 @@ export default experiment({
     const checksCommute = oddOverlaps === 0
 
     const ok =
-      fourPerComponent && evenSideSplits && patchIsTrivial && checksCommute
+      fourPerComponent &&
+      evenSideSplits &&
+      patchIsTrivial &&
+      checksCommute
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -101,8 +104,10 @@ export default experiment({
         componentsAtSide4: torus[1]!.components,
         logicalQubitsAtSide3: torus[0]!.logicalQubits,
         logicalQubitsAtSide4: torus[1]!.logicalQubits,
-        independentVertexChecksAtSide3: torus[0]!.independentVertexChecks,
-        independentTriangleChecksAtSide3: torus[0]!.independentTriangleChecks,
+        independentVertexChecksAtSide3:
+          torus[0]!.independentVertexChecks,
+        independentTriangleChecksAtSide3:
+          torus[0]!.independentTriangleChecks,
         triangleChecksAtSide3: torus[0]!.triangleChecks,
         oddOverlaps,
       },

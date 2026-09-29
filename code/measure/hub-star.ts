@@ -15,39 +15,77 @@
 // DETERMINISM: no random numbers; the key is integer arithmetic on (beat, dock, line). The rule is exact integers.
 // NOTHING MOVES: every piece hands a value to a slot, and the stream takes it one dock along.
 
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinPiece, pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { streamInto } from '@/code/measure/doublet-locked-readings'
-import { keyedCoin, keyedMeet, keyedRunner, type MeshLines, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  keyedCoin,
+  keyedMeet,
+  keyedRunner,
+  type MeshLines,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { storeLine } from '@/code/measure/planon-lines'
 import { d4BoxCoordinates } from '@/code/substrate/d4-box-integer'
 
 const PERM = new Int32Array(24)
 
 // the mesh lines of a set of docks' slots (a dock's star is its own twelve)
-export function starLines(lines: MeshLines, docks: readonly number[]): Uint8Array {
+export function starLines(
+  lines: MeshLines,
+  docks: readonly number[],
+): Uint8Array {
   const inStar = new Uint8Array(lines.count)
 
-  for (const x of docks) for (let d = 0; d < 24; d++) inStar[lines.lineOf[x * 24 + d] as number] = 1
+  for (const x of docks) {
+    for (let d = 0; d < 24; d++) {
+      inStar[lines.lineOf[x * 24 + d]!] = 1
+    }
+  }
 
   return inStar
 }
 
 // the docks outside `docks` that lie on two or more lines of the star (where K could fire off the hub)
-export function starCrossings(cells: number, lines: MeshLines, inStar: Uint8Array, docks: readonly number[]): number[] {
+export function starCrossings(
+  cells: number,
+  lines: MeshLines,
+  inStar: Uint8Array,
+  docks: readonly number[],
+): number[] {
   const own = new Set(docks)
   const out: number[] = []
 
   for (let y = 0; y < cells; y++) {
-    if (own.has(y)) continue
+    if (own.has(y)) {
+      continue
+    }
 
     let n = 0
 
-    for (let l = 0; l < 12; l++) if (inStar[lines.lineOf[y * 24 + (LINE_FIRSTS[l] as number)] as number]) n++
-    if (n >= 2) out.push(y)
+    for (let l = 0; l < 12; l++) {
+      if (inStar[lines.lineOf[y * 24 + LINE_FIRSTS[l]!]!]) {
+        n++
+      }
+    }
+
+    if (n >= 2) {
+      out.push(y)
+    }
   }
 
   return out
@@ -58,33 +96,60 @@ export function singlesAt(c: Configuration, x: number): number {
   let n = 0
 
   for (let l = 0; l < 12; l++) {
-    const f = LINE_FIRSTS[l] as number
+    const f = LINE_FIRSTS[l]!
 
-    if ((c.vibe[x * 24 + f] !== 0) !== (c.vibe[x * 24 + (OPPOSITE[f] as number)] !== 0)) n++
+    if (
+      (c.vibe[x * 24 + f] !== 0) !==
+      (c.vibe[x * 24 + OPPOSITE[f]!] !== 0)
+    ) {
+      n++
+    }
   }
 
   return n
 }
 
 // the full lines K carries onto another line of its dock, for the dock's occupation (0 if K does not fire)
-export function recruitedAt(vibe: Int8Array, base: number, perm: Int32Array): number {
+export function recruitedAt(
+  vibe: Int8Array,
+  base: number,
+  perm: Int32Array,
+): number {
   let n = 0
 
   for (let l = 0; l < 12; l++) {
-    const f = LINE_FIRSTS[l] as number
+    const f = LINE_FIRSTS[l]!
 
-    if (vibe[base + f] === 0 || vibe[base + (OPPOSITE[f] as number)] === 0) continue
-    if (LINE_OF[perm[f] as number] !== l) n++
+    if (vibe[base + f] === 0 || vibe[base + OPPOSITE[f]!] === 0) {
+      continue
+    }
+
+    if (LINE_OF[perm[f]!] !== l) {
+      n++
+    }
   }
 
   return n
 }
 
-export type KEvent = { beat: number; dock: number; singles: number; recruited: number }
+export type KEvent = {
+  beat: number
+  dock: number
+  singles: number
+  recruited: number
+}
 
 // one beat of the working knit (keyedRunner's pieces: coin, meeting, collision with veto 'none', stream), with every
 // firing of K (a dock of two or more singles whose bounce permutation is not the identity) recorded before it acts
-export function starBeat(tables: LockedTables, a: Configuration, b: Configuration, key: PathKey, threshold: number, t: number, events: KEvent[]): void {
+export function starBeat(
+  tables: LockedTables,
+  a: Configuration,
+  b: Configuration,
+  key: PathKey,
+  threshold: number,
+  t: number,
+  events: KEvent[],
+): void {
   keyedCoin(tables, a, key, threshold, t)
   keyedMeet(tables, a, key, threshold, t)
 
@@ -99,7 +164,24 @@ export function starBeat(tables: LockedTables, a: Configuration, b: Configuratio
 
       const singles = singlesAt(a, x)
 
-      if (singles >= 2 && bouncePermutation(BOUNCE_TABLE, tables.collision, a.vibe, x * 24, PERM) !== 0) events.push({ beat: t, dock: x, singles, recruited: recruitedAt(a.vibe, x * 24, PERM) })
+      if (
+        singles >= 2 &&
+        bouncePermutation(
+          BOUNCE_TABLE,
+          tables.collision,
+          a.vibe,
+          x * 24,
+          PERM,
+        ) !== 0
+      ) {
+        events.push({
+          beat: t,
+          dock: x,
+          singles,
+          recruited: recruitedAt(a.vibe, x * 24, PERM),
+        })
+      }
+
       coinPiece(tables, a, x)
     }
   }
@@ -107,8 +189,22 @@ export function starBeat(tables: LockedTables, a: Configuration, b: Configuratio
   streamInto(tables, a, b)
 }
 
-const sameSlot = (p: Configuration, q: Configuration, i: number): boolean => p.vibe[i] === q.vibe[i] && (p.vibe[i] === 0 || (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
-const sameStore = (p: Configuration, q: Configuration, s: number): boolean => p.store[s] === q.store[s] && (p.store[s] === 0 || (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
+const sameSlot = (
+  p: Configuration,
+  q: Configuration,
+  i: number,
+): boolean =>
+  p.vibe[i] === q.vibe[i] &&
+  (p.vibe[i] === 0 ||
+    (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
+const sameStore = (
+  p: Configuration,
+  q: Configuration,
+  s: number,
+): boolean =>
+  p.store[s] === q.store[s] &&
+  (p.store[s] === 0 ||
+    (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
 
 export type StarReading = {
   // slot and store readings where the run differs from the vacuum, off and on the star, summed over beats
@@ -137,21 +233,43 @@ export type StarReading = {
 }
 
 // the joint run and the vacuum run in lockstep, with keyedRunner on the start beside them as the check
-export function starRun(input: { tables: LockedTables; vacuum: Configuration; start: Configuration; lines: MeshLines; hub: readonly number[]; key: PathKey; threshold: number; beats: number; side: number }): StarReading {
-  const { tables, vacuum, start, lines, hub, key, threshold, beats, side } = input
+export function starRun(input: {
+  tables: LockedTables
+  vacuum: Configuration
+  start: Configuration
+  lines: MeshLines
+  hub: readonly number[]
+  key: PathKey
+  threshold: number
+  beats: number
+  side: number
+}): StarReading {
+  const {
+    tables,
+    vacuum,
+    start,
+    lines,
+    hub,
+    key,
+    threshold,
+    beats,
+    side,
+  } = input
   const inStar = starLines(lines, hub)
   const hubs = new Set(hub)
-  const origin = d4BoxCoordinates({ cell: hub[0] as number, side })
+  const origin = d4BoxCoordinates({ cell: hub[0]!, side })
   const offset = (x: number): number[] =>
     d4BoxCoordinates({ cell: x, side }).map((v, k) => {
-      const d = (((v - (origin[k] as number)) % side) + side) % side
+      const d = (((v - origin[k]!) % side) + side) % side
 
       return d > side / 2 ? d - side : d
     })
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let p = cloneConfiguration(vacuum)
   let q = cloneConfiguration(vacuum)
+
   const check = keyedRunner(tables, start, { key, threshold })
   const events: KEvent[] = []
   const vacuumEvents: KEvent[] = []
@@ -159,7 +277,16 @@ export function starRun(input: { tables: LockedTables; vacuum: Configuration; st
   const stores = tables.cells * 12
   const centroids: number[][] = []
   const wake: number[] = []
-  const out = { offStar: 0, onStar: 0, firstOff: -1, onStarLast: 0, onStarPeak: 0, vacuumSingles: 0, stepperDiffer: 0, reach: 0 }
+  const out = {
+    offStar: 0,
+    onStar: 0,
+    firstOff: -1,
+    onStarLast: 0,
+    onStarPeak: 0,
+    vacuumSingles: 0,
+    stepperDiffer: 0,
+    reach: 0,
+  }
 
   for (let t = 0; t < beats; t++) {
     starBeat(tables, a, b, key, threshold, t, events)
@@ -170,21 +297,35 @@ export function starRun(input: { tables: LockedTables; vacuum: Configuration; st
 
     const c = check.state()
     const offBefore = out.offStar
+
     let on = 0
+
     const sum = [0, 0, 0, 0]
+
     let count = 0
 
-    for (let x = 0; x < tables.cells; x++) out.vacuumSingles += singlesAt(p, x)
+    for (let x = 0; x < tables.cells; x++) {
+      out.vacuumSingles += singlesAt(p, x)
+    }
 
     for (let i = 0; i < a.vibe.length; i++) {
-      if (!sameSlot(a, c, i)) out.stepperDiffer++
-      if (sameSlot(a, p, i)) continue
+      if (!sameSlot(a, c, i)) {
+        out.stepperDiffer++
+      }
 
-      const L = lines.lineOf[i] as number
+      if (sameSlot(a, p, i)) {
+        continue
+      }
+
+      const L = lines.lineOf[i]!
 
       if (!inStar[L]) {
         out.offStar++
-        if (out.firstOff < 0) out.firstOff = t + 1
+
+        if (out.firstOff < 0) {
+          out.firstOff = t + 1
+        }
+
         continue
       }
 
@@ -199,24 +340,46 @@ export function starRun(input: { tables: LockedTables; vacuum: Configuration; st
     }
 
     for (let s = 0; s < stores; s++) {
-      if (!sameStore(a, c, s)) out.stepperDiffer++
-      if (sameStore(a, p, s)) continue
+      if (!sameStore(a, c, s)) {
+        out.stepperDiffer++
+      }
+
+      if (sameStore(a, p, s)) {
+        continue
+      }
 
       if (!inStar[storeLine(lines, s)]) {
         out.offStar++
-        if (out.firstOff < 0) out.firstOff = t + 1
-      } else on++
+
+        if (out.firstOff < 0) {
+          out.firstOff = t + 1
+        }
+      } else {
+        on++
+      }
     }
 
     wake.push(on + out.offStar - offBefore)
     out.onStar += on
     out.onStarLast = on
     out.onStarPeak = Math.max(out.onStarPeak, on)
-    if (count > 0) centroids.push(sum.map(v => v / count))
+
+    if (count > 0) {
+      centroids.push(sum.map(v => v / count))
+    }
   }
 
-  const mean = [0, 1, 2, 3].map(k => centroids.reduce((s, v) => s + (v[k] as number), 0) / Math.max(1, centroids.length))
-  const centroidSpread = Math.sqrt(centroids.reduce((s, v) => s + v.reduce((u, x, k) => u + (x - (mean[k] as number)) ** 2, 0), 0) / Math.max(1, centroids.length))
+  const mean = [0, 1, 2, 3].map(
+    k =>
+      centroids.reduce((s, v) => s + v[k]!, 0) /
+      Math.max(1, centroids.length),
+  )
+  const centroidSpread = Math.sqrt(
+    centroids.reduce(
+      (s, v) => s + v.reduce((u, x, k) => u + (x - mean[k]!) ** 2, 0),
+      0,
+    ) / Math.max(1, centroids.length),
+  )
 
   return {
     ...out,
@@ -236,54 +399,108 @@ export function starRun(input: { tables: LockedTables; vacuum: Configuration; st
 // (every image is a slot of the same dock, so this must be 0: the recruit lands on a line through the dock)
 // `recruit` counts docks where some full line lands on another line (full or not); `recruitNew` those where some full
 // line lands on a line that was not full (E-SPN-0118's `fullMoved`), so a vacuum pair takes a line it did not hold
-export function recruitCensus(m: number, collision: LockedTables['collision']): { docks: number; fires: number; recruit: number; recruitNew: number; maxRecruited: number; singlesLeft: number; offDock: number } {
-  const out = { docks: 0, fires: 0, recruit: 0, recruitNew: 0, maxRecruited: 0, singlesLeft: 0, offDock: 0 }
+export function recruitCensus(
+  m: number,
+  collision: LockedTables['collision'],
+): {
+  docks: number
+  fires: number
+  recruit: number
+  recruitNew: number
+  maxRecruited: number
+  singlesLeft: number
+  offDock: number
+} {
+  const out = {
+    docks: 0,
+    fires: 0,
+    recruit: 0,
+    recruitNew: 0,
+    maxRecruited: 0,
+    singlesLeft: 0,
+    offDock: 0,
+  }
   const vibe = new Int8Array(24)
+
   const pick = (from: number, acc: number[]): void => {
     if (acc.length === m) {
-      const own = new Set(acc.map(d => LINE_OF[d] as number))
+      const own = new Set(acc.map(d => LINE_OF[d]!))
 
-      if (own.size < m) return
+      if (own.size < m) {
+        return
+      }
 
-      const others = Array.from({ length: 12 }, (_, l) => l).filter(l => !own.has(l))
+      const others = Array.from({ length: 12 }, (_, l) => l).filter(
+        l => !own.has(l),
+      )
 
       for (let mask = 0; mask < 1 << others.length; mask++) {
         vibe.fill(0)
-        for (const d of acc) vibe[d] = 1
+
+        for (const d of acc) {
+          vibe[d] = 1
+        }
+
         others.forEach((l, i) => {
-          if (((mask >> i) & 1) === 0) return
-          vibe[LINE_FIRSTS[l] as number] = 1
-          vibe[OPPOSITE[LINE_FIRSTS[l] as number] as number] = -1
+          if (((mask >> i) & 1) === 0) {
+            return
+          }
+
+          vibe[LINE_FIRSTS[l]!] = 1
+          vibe[OPPOSITE[LINE_FIRSTS[l]!]!] = -1
         })
         out.docks++
-        if (bouncePermutation(BOUNCE_TABLE, collision, vibe, 0, PERM) === 0) continue
+
+        if (
+          bouncePermutation(BOUNCE_TABLE, collision, vibe, 0, PERM) ===
+          0
+        ) {
+          continue
+        }
+
         out.fires++
 
-        for (let d = 0; d < 24; d++) if ((PERM[d] as number) < 0 || (PERM[d] as number) >= 24) out.offDock++
+        for (let d = 0; d < 24; d++) {
+          if (PERM[d]! < 0 || PERM[d]! >= 24) {
+            out.offDock++
+          }
+        }
 
         const moved = recruitedAt(vibe, 0, PERM)
 
-        if (moved > 0) out.recruit++
+        if (moved > 0) {
+          out.recruit++
+        }
+
         if (
           Array.from({ length: 12 }, (_, l) => l).some(l => {
-            const f = LINE_FIRSTS[l] as number
+            const f = LINE_FIRSTS[l]!
 
-            if (vibe[f] === 0 || vibe[OPPOSITE[f] as number] === 0) return false
+            if (vibe[f] === 0 || vibe[OPPOSITE[f]!] === 0) {
+              return false
+            }
 
-            const to = LINE_FIRSTS[LINE_OF[PERM[f] as number] as number] as number
+            const to = LINE_FIRSTS[LINE_OF[PERM[f]!]!]!
 
-            return vibe[to] === 0 || vibe[OPPOSITE[to] as number] === 0
+            return vibe[to] === 0 || vibe[OPPOSITE[to]!] === 0
           })
-        )
+        ) {
           out.recruitNew++
+        }
+
         out.maxRecruited = Math.max(out.maxRecruited, moved)
-        if (m === 2 && acc.some(d => !own.has(LINE_OF[PERM[d] as number] as number))) out.singlesLeft++
+
+        if (m === 2 && acc.some(d => !own.has(LINE_OF[PERM[d]!]!))) {
+          out.singlesLeft++
+        }
       }
 
       return
     }
 
-    for (let d = from; d < 24; d++) pick(d + 1, [...acc, d])
+    for (let d = from; d < 24; d++) {
+      pick(d + 1, [...acc, d])
+    }
   }
 
   pick(0, [])
@@ -292,17 +509,21 @@ export function recruitCensus(m: number, collision: LockedTables['collision']): 
 }
 
 // loves placed on the vacuum: each on its slot at its dock, the slot's dock line cleared first (both slots, its store)
-export function placeLoves(vacuum: Configuration, loves: readonly { dock: number; slot: number }[]): Configuration {
+export function placeLoves(
+  vacuum: Configuration,
+  loves: readonly { dock: number; slot: number }[],
+): Configuration {
   const s = cloneConfiguration(vacuum)
 
   for (const { dock, slot } of loves) {
-    const l = LINE_OF[slot] as number
+    const l = LINE_OF[slot]!
 
-    for (const d of [LINE_FIRSTS[l] as number, OPPOSITE[LINE_FIRSTS[l] as number] as number]) {
+    for (const d of [LINE_FIRSTS[l]!, OPPOSITE[LINE_FIRSTS[l]!]!]) {
       s.vibe[dock * 24 + d] = 0
       s.point[dock * 24 + d] = 0
       s.open[dock * 24 + d] = 0
     }
+
     s.store[dock * 12 + l] = 0
     s.spoint[dock * 12 + l] = 0
     s.sopen[dock * 12 + l] = 0

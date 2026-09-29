@@ -50,8 +50,23 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { bal } from '@/code/rule/lattice-qed'
-import { classicalOmega, inverseDepthSpec, ladderKernel, splitOf, type LadderSpec } from '@/code/rule/plaquette-ladder'
-import { ellipseStates, ladderSpectrum, modeEnergy, planck, planckTruncated, thermalEnergy, unitaryEigen, unwrapped } from '@/code/measure/quantum-ladder'
+import {
+  classicalOmega,
+  inverseDepthSpec,
+  ladderKernel,
+  splitOf,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
+import {
+  ellipseStates,
+  ladderSpectrum,
+  modeEnergy,
+  planck,
+  planckTruncated,
+  thermalEnergy,
+  unitaryEigen,
+  unwrapped,
+} from '@/code/measure/quantum-ladder'
 
 const QUARTER_DEPTHS = 40
 const LADDER_NS = [9, 25, 49, 81]
@@ -82,12 +97,23 @@ function column(spec: LadderSpec): Column {
   const kernel = ladderKernel(spec)
   const { s, f, kappa } = splitOf(spec)
   const omega = classicalOmega(kappa, 0, 1)
-  const { levels } = ladderSpectrum(spec, full => modeEnergy(kernel, full.re, full.im))
+  const { levels } = ladderSpectrum(spec, full =>
+    modeEnergy(kernel, full.re, full.im),
+  )
   const { vacuum, energies } = unwrapped(levels)
-  const order = energies.map((e, i) => [e, i] as const).sort((a, b) => a[0] - b[0])
+  const order = energies
+    .map((e, i) => [e, i] as const)
+    .sort((a, b) => a[0] - b[0])
+
   let rungs = 1
 
-  while (rungs < order.length && Math.abs(order[rungs]![0] - order[rungs - 1]![0] - omega) <= RUNG_TOLERANCE * omega) rungs++
+  while (
+    rungs < order.length &&
+    Math.abs(order[rungs]![0] - order[rungs - 1]![0] - omega) <=
+      RUNG_TOLERANCE * omega
+  ) {
+    rungs++
+  }
 
   return {
     omega,
@@ -123,8 +149,11 @@ export default experiment({
 
       for (let b = 0; b < n; b++) {
         for (let m = 0; m < n; m++) {
-          re[b * n + m] = Math.cos((-2 * Math.PI * ((b * m) % n)) / n) / Math.sqrt(n)
-          im[b * n + m] = Math.sin((-2 * Math.PI * ((b * m) % n)) / n) / Math.sqrt(n)
+          re[b * n + m] =
+            Math.cos((-2 * Math.PI * ((b * m) % n)) / n) / Math.sqrt(n)
+
+          im[b * n + m] =
+            Math.sin((-2 * Math.PI * ((b * m) % n)) / n) / Math.sqrt(n)
         }
       }
 
@@ -133,8 +162,13 @@ export default experiment({
       const found = [0, 0, 0, 0]
 
       for (const phase of eig.phases) {
-        const j = (((Math.round((-phase * 2) / Math.PI) % 4) + 4) % 4)
-        const dist = Math.abs(Math.atan2(Math.sin(phase + (Math.PI * j) / 2), Math.cos(phase + (Math.PI * j) / 2)))
+        const j = ((Math.round((-phase * 2) / Math.PI) % 4) + 4) % 4
+        const dist = Math.abs(
+          Math.atan2(
+            Math.sin(phase + (Math.PI * j) / 2),
+            Math.cos(phase + (Math.PI * j) / 2),
+          ),
+        )
 
         quarterWorst = Math.max(quarterWorst, dist)
         found[j] = found[j]! + 1
@@ -143,9 +177,15 @@ export default experiment({
       for (let j = 0; j < 4; j++) {
         let expected = 0
 
-        for (let k = 0; k <= 2 * D; k++) if (k % 4 === j) expected++
+        for (let k = 0; k <= 2 * D; k++) {
+          if (k % 4 === j) {
+            expected++
+          }
+        }
 
-        if (expected !== found[j]) quarterMismatches++
+        if (expected !== found[j]) {
+          quarterMismatches++
+        }
       }
     }
 
@@ -156,31 +196,47 @@ export default experiment({
 
     // Q2, Q3: the ladders
     const columns = new Map<string, Column>()
+
     let q2 = true
     let q3 = true
 
     for (const n of LADDER_NS) {
       for (const split of ['balanced', 'classical'] as const) {
-        const spec = split === 'balanced' ? balancedSpec(n) : inverseDepthSpec(n, 1, 'force')
+        const spec =
+          split === 'balanced'
+            ? balancedSpec(n)
+            : inverseDepthSpec(n, 1, 'force')
         const col = column(spec)
 
         columns.set(`${split}${n}`, col)
         metrics[`${split}N${n}Rungs`] = col.rungs
         metrics[`${split}N${n}Predicted`] = col.predicted
-        metrics[`${split}N${n}FirstSpacingError`] = Math.abs(col.firstSpacing / col.omega - 1)
+        metrics[`${split}N${n}FirstSpacingError`] = Math.abs(
+          col.firstSpacing / col.omega - 1,
+        )
 
-        if (!GATED_NS.includes(n)) continue
+        if (!GATED_NS.includes(n)) {
+          continue
+        }
 
         if (split === 'balanced') {
           const ratio = col.rungs / col.predicted
 
           metrics[`balancedN${n}RungRatio`] = ratio
-          q2 &&= ratio >= 0.6 && ratio <= 1.05 && Math.abs(col.firstSpacing / col.omega - 1) <= FIRST_TOLERANCE
-        } else q3 &&= col.rungs <= col.predicted + 1.5
+          q2 &&=
+            ratio >= 0.6 &&
+            ratio <= 1.05 &&
+            Math.abs(col.firstSpacing / col.omega - 1) <=
+              FIRST_TOLERANCE
+        } else {
+          q3 &&= col.rungs <= col.predicted + 1.5
+        }
       }
     }
 
-    const holdRatio = columns.get('balanced81')!.rungs / columns.get('classical81')!.rungs
+    const holdRatio =
+      columns.get('balanced81')!.rungs /
+      columns.get('classical81')!.rungs
 
     metrics.balancedOverClassicalN81 = holdRatio
     q3 &&= holdRatio >= 3
@@ -190,6 +246,7 @@ export default experiment({
     const spec49 = balancedSpec(PLANCK_N)
     const { s, f } = splitOf(spec49)
     const omega = planckColumn.firstSpacing
+
     let q4 = true
 
     for (const x of T_OVER_OMEGA) {
@@ -210,6 +267,7 @@ export default experiment({
 
     for (const x of [1 / 4, 1 / 2]) {
       const T = x * omega
+
       let z = 0
       let e = 0
 
@@ -234,29 +292,51 @@ export default experiment({
       const e = thermalEnergy(planckColumn.energies, T)
 
       metrics[`hotPlanckRatioT${x}`] = e / planck(omega, T)
-      metrics[`hotCutLawRatioT${x}`] = e / planckTruncated(omega, T, planckColumn.rungs)
+      metrics[`hotCutLawRatioT${x}`] =
+        e / planckTruncated(omega, T, planckColumn.rungs)
     }
 
     // reported: the bulk, the vacuum's depth profile down the column (P(|m| >= d)) and the top rung's seam weight
     const D49 = (PLANCK_N - 1) / 2
+
     let deepest = 0
 
     for (let d = 1; d <= D49; d++) {
       let p = 0
 
-      for (let m = 0; m < PLANCK_N; m++) if (Math.abs(bal(m, PLANCK_N)) >= d) p += planckColumn.vacuum.re[m]! ** 2 + planckColumn.vacuum.im[m]! ** 2
+      for (let m = 0; m < PLANCK_N; m++) {
+        if (Math.abs(bal(m, PLANCK_N)) >= d) {
+          p +=
+            planckColumn.vacuum.re[m]! ** 2 +
+            planckColumn.vacuum.im[m]! ** 2
+        }
+      }
 
-      if (d <= 6) metrics[`vacuumDepthP${d}`] = p
+      if (d <= 6) {
+        metrics[`vacuumDepthP${d}`] = p
+      }
 
-      if (p >= 1e-6) deepest = d
+      if (p >= 1e-6) {
+        deepest = d
+      }
     }
 
     metrics.vacuumDeepestTritAt1e6 = deepest
-    metrics.topRungSeamWeight = planckColumn.topRung.re.reduce((acc, _, m) => acc + (Math.abs(bal(m, PLANCK_N)) === D49 ? planckColumn.topRung.re[m]! ** 2 + planckColumn.topRung.im[m]! ** 2 : 0), 0)
+    metrics.topRungSeamWeight = planckColumn.topRung.re.reduce(
+      (acc, _, m) =>
+        acc +
+        (Math.abs(bal(m, PLANCK_N)) === D49
+          ? planckColumn.topRung.re[m]! ** 2 +
+            planckColumn.topRung.im[m]! ** 2
+          : 0),
+      0,
+    )
 
     const gates = { Q1: q1, Q2: q2, Q3: q3, Q4: q4 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
     const status = Object.values(gates).every(v => v) ? 'pass' : 'fail'
     const b = (n: number): Column => columns.get(`balanced${n}`)!

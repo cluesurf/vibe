@@ -54,7 +54,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BEATS, CONTENTS, IMPACTS, KNIT_COLUMN_ROOTS, depthLumpSurvey, readingOf, type ImpactReading } from '@/code/measure/depth-lump'
+import {
+  BEATS,
+  CONTENTS,
+  IMPACTS,
+  KNIT_COLUMN_ROOTS,
+  depthLumpSurvey,
+  readingOf,
+  type ImpactReading,
+} from '@/code/measure/depth-lump'
 
 export default experiment({
   id: 'gravity/depth-lump-front',
@@ -69,21 +77,34 @@ export default experiment({
     const started = Date.now()
     const survey = depthLumpSurvey(what => console.error(what))
     const through = IMPACTS.indexOf(0)
-    const at = (name: string): ImpactReading => readingOf(survey, name).impacts[through] as ImpactReading
+    const at = (name: string): ImpactReading =>
+      readingOf(survey, name).impacts[through]!
     const empty = at('empty')
-    const touched = (r: ImpactReading): boolean => r.mismatch.some(m => m > 0)
+    const touched = (r: ImpactReading): boolean =>
+      r.mismatch.some(m => m > 0)
 
     // D1
-    const g1 = survey.readings.every(r => r.gauss === 0 && r.closure && r.lumpKept) && readingOf(survey, 'empty').impacts.every(i => i.arrival <= BEATS)
+    const g1 =
+      survey.readings.every(
+        r => r.gauss === 0 && r.closure && r.lumpKept,
+      ) &&
+      readingOf(survey, 'empty').impacts.every(i => i.arrival <= BEATS)
 
     // D2, D3
-    const neutralEffect = CONTENTS.filter(n => at(`neutral${n}`).arrival !== empty.arrival || touched(at(`neutral${n}`)))
+    const neutralEffect = CONTENTS.filter(
+      n =>
+        at(`neutral${n}`).arrival !== empty.arrival ||
+        touched(at(`neutral${n}`)),
+    )
     const g2 = neutralEffect.length > 0
     const g3 = CONTENTS.every(n => {
       const a = at(`neutral${n}`)
       const f = at(`neutral${n}-flipped`)
 
-      return a.arrival === f.arrival && a.mismatch.every((m, t) => m === f.mismatch[t])
+      return (
+        a.arrival === f.arrival &&
+        a.mismatch.every((m, t) => m === f.mismatch[t])
+      )
     })
 
     // D4
@@ -107,25 +128,34 @@ export default experiment({
     const notes: string[] = []
 
     for (const r of survey.readings) {
-      const x = r.impacts[through] as ImpactReading
+      const x = r.impacts[through]!
       const name = r.config.name
       const firstMismatch = x.mismatch.findIndex(m => m > 0)
-      const farDiff = x.far.map((f, t) => f - (empty.far[t] as number))
+      const farDiff = x.far.map((f, t) => f - empty.far[t]!)
 
       metrics[`arrival_${name}`] = x.arrival
       metrics[`delay_${name}`] = x.arrival - empty.arrival
-      metrics[`mismatchTotal_${name}`] = x.mismatch.reduce((a, b) => a + b, 0)
+      metrics[`mismatchTotal_${name}`] = x.mismatch.reduce(
+        (a, b) => a + b,
+        0,
+      )
       metrics[`mismatchMax_${name}`] = Math.max(...x.mismatch)
-      metrics[`firstMismatchBeat_${name}`] = firstMismatch < 0 ? BEATS + 1 : firstMismatch + 1
+      metrics[`firstMismatchBeat_${name}`] =
+        firstMismatch < 0 ? BEATS + 1 : firstMismatch + 1
       metrics[`farDiffSum_${name}`] = farDiff.reduce((a, b) => a + b, 0)
-      notes.push(`${name}: arrival ${x.arrival} (empty ${empty.arrival}), first mismatch beat ${firstMismatch < 0 ? 'none' : firstMismatch + 1}, mismatch per beat [${x.mismatch.join(' ')}], front reach minus empty per beat [${farDiff.join(' ')}]`)
+      notes.push(
+        `${name}: arrival ${x.arrival} (empty ${empty.arrival}), first mismatch beat ${firstMismatch < 0 ? 'none' : firstMismatch + 1}, mismatch per beat [${x.mismatch.join(' ')}], front reach minus empty per beat [${farDiff.join(' ')}]`,
+      )
     }
 
     const splitEven = CONTENTS.map(n => {
       const a = at(`split${n}`)
       const f = at(`split${n}-flipped`)
 
-      return a.arrival === f.arrival && a.mismatch.every((m, t) => m === f.mismatch[t])
+      return (
+        a.arrival === f.arrival &&
+        a.mismatch.every((m, t) => m === f.mismatch[t])
+      )
     })
 
     metrics.splitSignEven = splitEven.filter(Boolean).length

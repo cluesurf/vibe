@@ -60,10 +60,35 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { boxCellMap, d4BoxCoordinates, d4BoxMesh, d4Vector, linearMapOf } from '@/code/substrate/d4-box'
-import { isometricTable, LINE_FIRSTS, momentumKey, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
-import { makePairKnit, pairBeat, pairCharge, pairDockCollide, pairEnergy, transformPairState, type PairKnit, type PairState } from '@/code/rule/pair-making-knit'
-import { forcedIsotropic, matrixOfPermutation, type Matrix4 } from '@/code/measure/husk-transport-symmetry'
+import {
+  boxCellMap,
+  d4BoxCoordinates,
+  d4BoxMesh,
+  d4Vector,
+  linearMapOf,
+} from '@/code/substrate/d4-box'
+import {
+  isometricTable,
+  LINE_FIRSTS,
+  momentumKey,
+  OPPOSITE,
+  SIDE,
+} from '@/code/rule/isometric-knit'
+import {
+  makePairKnit,
+  pairBeat,
+  pairCharge,
+  pairDockCollide,
+  pairEnergy,
+  transformPairState,
+  type PairKnit,
+  type PairState,
+} from '@/code/rule/pair-making-knit'
+import {
+  forcedIsotropic,
+  matrixOfPermutation,
+  type Matrix4,
+} from '@/code/measure/husk-transport-symmetry'
 import { kroneckerPairDock } from '@/code/measure/pair-knit-linearization'
 import { hermitianSpectrum } from '@/code/measure/qutrit-clifford'
 import { operator } from '@/code/measure/grid-weights'
@@ -73,7 +98,8 @@ const LONE_BEATS = 48
 const SOFT_BEATS = 96
 const BOX = 9
 
-const hotStore = (cells: number, tau = 1): Int8Array => new Int8Array(cells * 12).fill(tau)
+const hotStore = (cells: number, tau = 1): Int8Array =>
+  new Int8Array(cells * 12).fill(tau)
 
 // the least-length vector of each dock from dock 0 over the periods (the 81 shifts of d4BoxDistance)
 function minimalImages(side: number): Float64Array {
@@ -81,12 +107,17 @@ function minimalImages(side: number): Float64Array {
   const out = new Float64Array(cells * 4)
 
   for (let x = 0; x < cells; x++) {
-    const c = d4BoxCoordinates({ cell: x, side }).map(v => (v > side / 2 ? v - side : v))
+    const c = d4BoxCoordinates({ cell: x, side }).map(v =>
+      v > side / 2 ? v - side : v,
+    )
+
     let best: number[] = [0, 0, 0, 0]
     let bestLength = Number.POSITIVE_INFINITY
 
     for (let shift = 0; shift < 81; shift++) {
-      const s = [0, 1, 2, 3].map(k => (Math.floor(shift / 3 ** k) % 3) - 1)
+      const s = [0, 1, 2, 3].map(
+        k => (Math.floor(shift / 3 ** k) % 3) - 1,
+      )
       const v = d4Vector(c.map((x0, k) => x0 + side * (s[k] ?? 0)))
       const length = v.reduce((a, b) => a + b * b, 0)
 
@@ -106,7 +137,11 @@ function eigenvalues(m: number[][]): number[] {
   const n = m.length
   const op = operator(n)
 
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) op.re[i * n + j] = m[i]?.[j] ?? 0
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      op.re[i * n + j] = m[i]?.[j] ?? 0
+    }
+  }
 
   return hermitianSpectrum(op)
 }
@@ -114,7 +149,9 @@ function eigenvalues(m: number[][]): number[] {
 const anisotropy = (values: number[]): number => {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
 
-  return mean === 0 ? 0 : (Math.max(...values) - Math.min(...values)) / mean
+  return mean === 0
+    ? 0
+    : (Math.max(...values) - Math.min(...values)) / mean
 }
 
 export default experiment({
@@ -128,16 +165,21 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+    const permutations = weylF4DirectionPermutations({
+      directions: ROOTS,
+    })
     const dockKnit = makePairKnit({ mesh: d4BoxMesh({ side: 1 }) })
 
     // V1
     const w0 = isometricTable()[momentumKey([0, 0, 0, 0])]
-    const w0IsMinus = !!w0 && Array.from(w0).every((image, d) => image === OPPOSITE[d])
+    const w0IsMinus =
+      !!w0 && Array.from(w0).every((image, d) => image === OPPOSITE[d])
+
     let dockFailures = 0
 
     for (let code = 0; code < 3 ** 12; code++) {
       const store = new Int8Array(12)
+
       let rest = code
 
       for (let l = 0; l < 12; l++) {
@@ -145,45 +187,116 @@ export default experiment({
         rest = Math.floor(rest / 3)
       }
 
-      const s: PairState = { vibe: new Int8Array(24), store: Int8Array.from(store) }
+      const s: PairState = {
+        vibe: new Int8Array(24),
+        store: Int8Array.from(store),
+      }
 
       pairDockCollide(dockKnit, s, 0)
-      dockFailures += s.vibe.every(v => v === 0) && s.store.every((t, l) => t === -(store[l] as number)) ? 0 : 1
+      dockFailures +=
+        s.vibe.every(v => v === 0) &&
+        s.store.every((t, l) => t === -store[l]!)
+          ? 0
+          : 1
     }
 
     const v1 = w0IsMinus && dockFailures === 0
 
     // V2 and H1: the residual group
-    const signsOf = (g: readonly number[]): number[] => LINE_FIRSTS.map(f => SIDE[g[f] as number] as number)
+    const signsOf = (g: readonly number[]): number[] =>
+      LINE_FIRSTS.map(f => SIDE[g[f]!]!)
     const h0 = permutations.filter(g => signsOf(g).every(s => s === 1))
     const h1 = permutations.filter(g => signsOf(g).every(s => s === -1))
-    const orbit = new Set(permutations.map(g => transformPairState({ vibe: new Int8Array(24), store: hotStore(1) }, [0], g).store.join(','))).size
+    const orbit = new Set(
+      permutations.map(g =>
+        transformPairState(
+          { vibe: new Int8Array(24), store: hotStore(1) },
+          [0],
+          g,
+        ).store.join(','),
+      ),
+    ).size
     const v2 = h0.length * orbit === 1152 && h0.length < 1152
-    const matricesOf = (group: readonly (readonly number[])[]): Matrix4[] => group.map(g => matrixOfPermutation(g))
-    const forcing = (group: readonly (readonly number[])[]): Record<string, number> => {
+    const matricesOf = (
+      group: readonly (readonly number[])[],
+    ): Matrix4[] => group.map(g => matrixOfPermutation(g))
+
+    const forcing = (
+      group: readonly (readonly number[])[],
+    ): Record<string, number> => {
       const m = matricesOf(group)
 
       return {
-        bulk2: forcedIsotropic({ group: m, kind: 'scalar', degree: 2, husk: false }).forced ? 1 : 0,
-        bulk4: forcedIsotropic({ group: m, kind: 'scalar', degree: 4, husk: false }).forced ? 1 : 0,
-        husk2: forcedIsotropic({ group: m, kind: 'scalar', degree: 2, husk: true }).forced ? 1 : 0,
-        husk4: forcedIsotropic({ group: m, kind: 'scalar', degree: 4, husk: true }).forced ? 1 : 0,
-        husk6: forcedIsotropic({ group: m, kind: 'scalar', degree: 6, husk: true }).forced ? 1 : 0,
-        huskShear2: forcedIsotropic({ group: m, kind: 'transverse', degree: 2, husk: true }).forced ? 1 : 0,
+        bulk2: forcedIsotropic({
+          group: m,
+          kind: 'scalar',
+          degree: 2,
+          husk: false,
+        }).forced
+          ? 1
+          : 0,
+        bulk4: forcedIsotropic({
+          group: m,
+          kind: 'scalar',
+          degree: 4,
+          husk: false,
+        }).forced
+          ? 1
+          : 0,
+        husk2: forcedIsotropic({
+          group: m,
+          kind: 'scalar',
+          degree: 2,
+          husk: true,
+        }).forced
+          ? 1
+          : 0,
+        husk4: forcedIsotropic({
+          group: m,
+          kind: 'scalar',
+          degree: 4,
+          husk: true,
+        }).forced
+          ? 1
+          : 0,
+        husk6: forcedIsotropic({
+          group: m,
+          kind: 'scalar',
+          degree: 6,
+          husk: true,
+        }).forced
+          ? 1
+          : 0,
+        huskShear2: forcedIsotropic({
+          group: m,
+          kind: 'transverse',
+          degree: 2,
+          husk: true,
+        }).forced
+          ? 1
+          : 0,
       }
     }
+
     const h0Forcing = forcing(h0)
     const h1Ok = h0.length === 6 && h0Forcing.bulk2 === 0
 
     // V3: soft modes on the side-3 hot vacuum
     const soft = makePairKnit({ mesh: d4BoxMesh({ side: 3 }) })
     const softCells = soft.mesh.cellCount
+
     let softFailures = 0
 
     for (let l = 0; l < 12; l++) {
       for (const changed of [-1, 0]) {
-        let vac: PairState = { vibe: new Int8Array(softCells * 24), store: hotStore(softCells) }
-        let mod: PairState = { vibe: new Int8Array(softCells * 24), store: hotStore(softCells) }
+        let vac: PairState = {
+          vibe: new Int8Array(softCells * 24),
+          store: hotStore(softCells),
+        }
+        let mod: PairState = {
+          vibe: new Int8Array(softCells * 24),
+          store: hotStore(softCells),
+        }
 
         mod.store[l] = changed
 
@@ -193,13 +306,19 @@ export default experiment({
 
           let differences = 0
 
-          for (let i = 0; i < mod.vibe.length; i++) differences += mod.vibe[i] === vac.vibe[i] ? 0 : 1
-          for (let i = 0; i < mod.store.length; i++) differences += mod.store[i] === vac.store[i] ? 0 : 1
+          for (let i = 0; i < mod.vibe.length; i++) {
+            differences += mod.vibe[i] === vac.vibe[i] ? 0 : 1
+          }
+
+          for (let i = 0; i < mod.store.length; i++) {
+            differences += mod.store[i] === vac.store[i] ? 0 : 1
+          }
 
           const sign = t % 2 === 0 ? -1 : 1
           const expected = changed === 0 ? 0 : -sign
 
-          softFailures += differences === 1 && mod.store[l] === expected ? 0 : 1
+          softFailures +=
+            differences === 1 && mod.store[l] === expected ? 0 : 1
         }
       }
     }
@@ -211,20 +330,52 @@ export default experiment({
     const cells = mesh.cellCount
     const knit = makePairKnit({ mesh })
     const images = minimalImages(BOX)
-    const coords = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side: BOX }))
+    const coords = Array.from({ length: cells }, (_, x) =>
+      d4BoxCoordinates({ cell: x, side: BOX }),
+    )
     const minus = (a: number, b: number): number =>
-      [0, 1, 2, 3].reduce((index, k) => index + ((((coords[a]?.[k] ?? 0) - (coords[b]?.[k] ?? 0)) % BOX) + BOX) % BOX * BOX ** k, 0)
-    type Run = { displacement: number[]; wake: number; chargeExact: boolean; energyExact: boolean; final: PairState }
-    const loneRun = (k: PairKnit, store: Int8Array, slot: number, sign: number): Run => {
-      let s: PairState = { vibe: new Int8Array(cells * 24), store: Int8Array.from(store) }
+      [0, 1, 2, 3].reduce(
+        (index, k) =>
+          index +
+          (((((coords[a]?.[k] ?? 0) - (coords[b]?.[k] ?? 0)) % BOX) +
+            BOX) %
+            BOX) *
+            BOX ** k,
+        0,
+      )
+
+    type Run = {
+      displacement: number[]
+      wake: number
+      chargeExact: boolean
+      energyExact: boolean
+      final: PairState
+    }
+
+    const loneRun = (
+      k: PairKnit,
+      store: Int8Array,
+      slot: number,
+      sign: number,
+    ): Run => {
+      let s: PairState = {
+        vibe: new Int8Array(cells * 24),
+        store: Int8Array.from(store),
+      }
 
       s.vibe[slot] = sign
 
       const q0 = pairCharge(s)
       const e0 = pairEnergy(s)
-      let vac: PairState = { vibe: new Int8Array(cells * 24), store: Int8Array.from(store) }
+
+      let vac: PairState = {
+        vibe: new Int8Array(cells * 24),
+        store: Int8Array.from(store),
+      }
       let ref = Math.floor(slot / 24)
+
       const acc = [0, 0, 0, 0]
+
       let chargeExact = true
       let energyExact = true
       let centroid = [0, 0, 0, 0]
@@ -238,16 +389,24 @@ export default experiment({
         const charge = new Map<number, number>()
 
         for (let i = 0; i < s.vibe.length; i++) {
-          const v = s.vibe[i] as number
+          const v = s.vibe[i]!
 
-          if (v !== 0) charge.set(Math.floor(i / 24), (charge.get(Math.floor(i / 24)) ?? 0) + v)
+          if (v !== 0) {
+            charge.set(
+              Math.floor(i / 24),
+              (charge.get(Math.floor(i / 24)) ?? 0) + v,
+            )
+          }
         }
 
         let next = ref
         let largest = -1
 
         for (const [x, q] of charge) {
-          if (Math.abs(q) > largest || (Math.abs(q) === largest && x < next)) {
+          if (
+            Math.abs(q) > largest ||
+            (Math.abs(q) === largest && x < next)
+          ) {
             largest = Math.abs(q)
             next = x
           }
@@ -255,22 +414,35 @@ export default experiment({
 
         const step = minus(next, ref)
 
-        for (let c = 0; c < 4; c++) acc[c] = (acc[c] as number) + (images[step * 4 + c] as number)
+        for (let c = 0; c < 4; c++) {
+          acc[c] = acc[c]! + images[step * 4 + c]!
+        }
+
         ref = next
         centroid = [...acc]
 
         for (const [x, q] of charge) {
           const rel = minus(x, ref)
 
-          for (let c = 0; c < 4; c++) centroid[c] = (centroid[c] as number) + ((q * (images[rel * 4 + c] as number)) / q0)
+          for (let c = 0; c < 4; c++) {
+            centroid[c] = centroid[c]! + (q * images[rel * 4 + c]!) / q0
+          }
         }
       }
 
       let wake = 0
 
-      for (let i = 0; i < s.store.length; i++) wake += s.store[i] === vac.store[i] ? 0 : 1
+      for (let i = 0; i < s.store.length; i++) {
+        wake += s.store[i] === vac.store[i] ? 0 : 1
+      }
 
-      return { displacement: centroid, wake, chargeExact, energyExact, final: s }
+      return {
+        displacement: centroid,
+        wake,
+        chargeExact,
+        energyExact,
+        final: s,
+      }
     }
 
     const hot = hotStore(cells)
@@ -284,52 +456,117 @@ export default experiment({
       }
     }
 
-    const apply = (g: readonly number[], v: readonly number[]): number[] => {
+    const apply = (
+      g: readonly number[],
+      v: readonly number[],
+    ): number[] => {
       const m = matrixOfPermutation(g)
 
-      return [0, 1, 2, 3].map(i => [0, 1, 2, 3].reduce((s, j) => s + (m[i * 4 + j] as number) * (v[j] ?? 0), 0))
+      return [0, 1, 2, 3].map(i =>
+        [0, 1, 2, 3].reduce(
+          (s, j) => s + m[i * 4 + j]! * (v[j] ?? 0),
+          0,
+        ),
+      )
     }
-    const close = (a: readonly number[], b: readonly number[]): boolean => a.every((x, i) => Math.abs(x - (b[i] ?? 0)) < 1e-9)
+
+    const close = (
+      a: readonly number[],
+      b: readonly number[],
+    ): boolean => a.every((x, i) => Math.abs(x - (b[i] ?? 0)) < 1e-9)
+
     let h0Failures = 0
 
     for (const h of h0) {
       starts.forEach(([d, sign], i) => {
         const j = starts.findIndex(([e, t]) => e === h[d] && t === sign)
 
-        h0Failures += close(lone[j]?.displacement ?? [], apply(h, lone[i]?.displacement ?? [])) ? 0 : 1
+        h0Failures += close(
+          lone[j]?.displacement ?? [],
+          apply(h, lone[i]?.displacement ?? []),
+        )
+          ? 0
+          : 1
       })
     }
 
-    const outside = permutations.filter(g => !signsOf(g).every(s => s === 1) && !signsOf(g).every(s => s === -1)).slice(0, 2)
+    const outside = permutations
+      .filter(
+        g =>
+          !signsOf(g).every(s => s === 1) &&
+          !signsOf(g).every(s => s === -1),
+      )
+      .slice(0, 2)
+
     let outsideFailures = 0
 
     for (const g of outside) {
       const matrix = linearMapOf(g)
-      const cellMap = matrix ? boxCellMap({ matrix, side: BOX }) : undefined
+      const cellMap = matrix
+        ? boxCellMap({ matrix, side: BOX })
+        : undefined
 
       if (!cellMap) {
         outsideFailures++
         continue
       }
 
-      const gHot = transformPairState({ vibe: new Int8Array(cells * 24), store: hot }, cellMap, g).store
+      const gHot = transformPairState(
+        { vibe: new Int8Array(cells * 24), store: hot },
+        cellMap,
+        g,
+      ).store
 
       starts.forEach(([d, sign], i) => {
-        const run = loneRun(knit, gHot, g[d] as number, sign)
-        const expected = transformPairState(lone[i]?.final as PairState, cellMap, g)
-        const same = run.final.vibe.every((v, k) => v === expected.vibe[k]) && run.final.store.every((v, k) => v === expected.store[k])
+        const run = loneRun(knit, gHot, g[d]!, sign)
+        const expected = transformPairState(lone[i]?.final!, cellMap, g)
+        const same =
+          run.final.vibe.every((v, k) => v === expected.vibe[k]) &&
+          run.final.store.every((v, k) => v === expected.store[k])
 
-        outsideFailures += same && close(run.displacement, apply(g, lone[i]?.displacement ?? [])) ? 0 : 1
+        outsideFailures +=
+          same &&
+          close(run.displacement, apply(g, lone[i]?.displacement ?? []))
+            ? 0
+            : 1
       })
     }
 
     const lawsExact = lone.every(r => r.chargeExact && r.energyExact)
-    const v4 = h0Failures === 0 && outside.length === 2 && outsideFailures === 0 && lawsExact
-    const straightFailures = lone.reduce((n, r, i) => n + (close(r.displacement, (ROOTS[starts[i]?.[0] ?? 0] as number[]).map(x => LONE_BEATS * x)) ? 0 : 1), 0)
-    const second = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => lone.reduce((s, r) => s + (r.displacement[i] ?? 0) * (r.displacement[j] ?? 0), 0) / lone.length))
+    const v4 =
+      h0Failures === 0 &&
+      outside.length === 2 &&
+      outsideFailures === 0 &&
+      lawsExact
+    const straightFailures = lone.reduce(
+      (n, r, i) =>
+        n +
+        (close(
+          r.displacement,
+          ROOTS[starts[i]?.[0] ?? 0]!.map(x => LONE_BEATS * x),
+        )
+          ? 0
+          : 1),
+      0,
+    )
+    const second = [0, 1, 2, 3].map(i =>
+      [0, 1, 2, 3].map(
+        j =>
+          lone.reduce(
+            (s, r) =>
+              s + (r.displacement[i] ?? 0) * (r.displacement[j] ?? 0),
+            0,
+          ) / lone.length,
+      ),
+    )
     const bulkEigen = eigenvalues(second)
-    const huskEigen = eigenvalues(second.slice(0, 3).map(row => row.slice(0, 3)))
-    const h2 = straightFailures === 0 && anisotropy(bulkEigen) < 1e-9 && anisotropy(huskEigen) < 1e-9
+    const huskEigen = eigenvalues(
+      second.slice(0, 3).map(row => row.slice(0, 3)),
+    )
+    const h2 =
+      straightFailures === 0 &&
+      anisotropy(bulkEigen) < 1e-9 &&
+      anisotropy(huskEigen) < 1e-9
 
     // H3: the effective two-body collision on the hot and the cold vacuum
     const inputs: Int8Array[] = []
@@ -354,13 +591,19 @@ export default experiment({
     }
 
     const outVibes = (vibe: Int8Array, store: Int8Array): Int8Array => {
-      const s: PairState = { vibe: Int8Array.from(vibe), store: Int8Array.from(store) }
+      const s: PairState = {
+        vibe: Int8Array.from(vibe),
+        store: Int8Array.from(store),
+      }
 
       pairDockCollide(dockKnit, s, 0)
 
       return s.vibe
     }
-    const effectiveGroup = (store: Int8Array): { kept: number[][]; visible: number } => {
+
+    const effectiveGroup = (
+      store: Int8Array,
+    ): { kept: number[][]; visible: number } => {
       const base = inputs.map(v => outVibes(v, store))
       const kept: number[][] = []
 
@@ -372,8 +615,8 @@ export default experiment({
           const gout = new Int8Array(24)
 
           for (let d = 0; d < 24; d++) {
-            gin[g[d] as number] = inputs[i]?.[d] as number
-            gout[g[d] as number] = base[i]?.[d] as number
+            gin[g[d]!] = inputs[i]?.[d]!
+            gout[g[d]!] = base[i]?.[d]!
           }
 
           const actual = outVibes(gin, store)
@@ -381,23 +624,31 @@ export default experiment({
           ok = actual.every((v, d) => v === gout[d])
         }
 
-        if (ok) kept.push([...g])
+        if (ok) {
+          kept.push([...g])
+        }
       }
 
       let visible = 0
 
       for (let i = 0; i < inputs.length; i++) {
-        const cold = outVibes(inputs[i] as Int8Array, new Int8Array(12))
+        const cold = outVibes(inputs[i]!, new Int8Array(12))
 
         visible += cold.every((v, d) => v === base[i]?.[d]) ? 0 : 1
       }
 
       return { kept, visible }
     }
+
     const hotEffective = effectiveGroup(hotStore(1))
     const coldEffective = effectiveGroup(new Int8Array(12))
-    const containsH0 = h0.every(h => hotEffective.kept.some(g => g.every((x, i) => x === h[i])))
-    const h3 = hotEffective.kept.length < 1152 && containsH0 && coldEffective.kept.length === 1152
+    const containsH0 = h0.every(h =>
+      hotEffective.kept.some(g => g.every((x, i) => x === h[i])),
+    )
+    const h3 =
+      hotEffective.kept.length < 1152 &&
+      containsH0 &&
+      coldEffective.kept.length === 1152
     const effectiveForcing = forcing(hotEffective.kept)
 
     // spacetime residual group: H0 at even shifts; H1 (all line signs -1, the -1 map among them) and charge
@@ -415,7 +666,9 @@ export default experiment({
       h1Order: h1.length,
       hotOrbit: orbit,
       spacetimeResidualOrder: spacetimeOrder,
-      ...Object.fromEntries(Object.entries(h0Forcing).map(([k, v]) => [`h0Forces_${k}`, v])),
+      ...Object.fromEntries(
+        Object.entries(h0Forcing).map(([k, v]) => [`h0Forces_${k}`, v]),
+      ),
       softModeFailures: softFailures,
       softModeCases: 24,
       loneStarts: lone.length,
@@ -433,7 +686,12 @@ export default experiment({
       coldEffectiveOrder: coldEffective.kept.length,
       hotEffectiveContainsH0: containsH0 ? 1 : 0,
       vacuumVisibleInputs: hotEffective.visible,
-      ...Object.fromEntries(Object.entries(effectiveForcing).map(([k, v]) => [`effectiveForces_${k}`, v])),
+      ...Object.fromEntries(
+        Object.entries(effectiveForcing).map(([k, v]) => [
+          `effectiveForces_${k}`,
+          v,
+        ]),
+      ),
       seconds: (Date.now() - started) / 1000,
     }
 

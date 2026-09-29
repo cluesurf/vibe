@@ -46,13 +46,27 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
-import { tritsApart, type LockedFresh } from '@/code/measure/doublet-locked-readings'
+import {
+  tritsApart,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { cloneConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
 import { loneFrames } from '@/code/rule/coined-locked-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { fullPathKey, keyedRunner, oldPathKey, pathOffset, wakeGrowth, type KeyedMix, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  oldPathKey,
+  pathOffset,
+  wakeGrowth,
+  type KeyedMix,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 
 const SIDE = 16
 const BEATS = 64
@@ -69,9 +83,20 @@ const BOUNCE_FLOOR = 1000
 const OMEGA_GROWTH = 1.1
 const PROBE_G_PASS = 575174
 
-type Run = { wake: number[]; moves: number; lone: number[]; growth: number }
+type Run = {
+  wake: number[]
+  moves: number
+  lone: number[]
+  growth: number
+}
 
-function wakeRun(f: LockedFresh, vacuum: Configuration, start: Configuration, key: PathKey, mix: KeyedMix): Run {
+function wakeRun(
+  f: LockedFresh,
+  vacuum: Configuration,
+  start: Configuration,
+  key: PathKey,
+  mix: KeyedMix,
+): Run {
   const a = keyedRunner(f.tables, vacuum, { key, mix })
   const b = keyedRunner(f.tables, start, { key, mix })
   const wake: number[] = []
@@ -84,13 +109,20 @@ function wakeRun(f: LockedFresh, vacuum: Configuration, start: Configuration, ke
     lone.push(mix === G ? loneFrames(f.cells, b.state()).length : 0)
   }
 
-  return { wake, moves: b.mixed(), lone, growth: wakeGrowth(wake, QUIET, (f.cells * 24) / 20) }
+  return {
+    wake,
+    moves: b.mixed(),
+    lone,
+    growth: wakeGrowth(wake, QUIET, (f.cells * 24) / 20),
+  }
 }
 
 const mean = (xs: number[]): number => {
   const ys = xs.filter(x => !Number.isNaN(x))
 
-  return ys.length ? ys.reduce((s, x) => s + x, 0) / ys.length : Number.NaN
+  return ys.length
+    ? ys.reduce((s, x) => s + x, 0) / ys.length
+    : Number.NaN
 }
 
 export default experiment({
@@ -105,7 +137,14 @@ export default experiment({
   run() {
     const t0 = Date.now()
     const center = centerOf(SIDE)
-    const fresh = (contact: CollisionKind): { f: LockedFresh; vacuum: Configuration; start: Configuration } => {
+
+    const fresh = (
+      contact: CollisionKind,
+    ): {
+      f: LockedFresh
+      vacuum: Configuration
+      start: Configuration
+    } => {
       const f = contactFresh(SIDE, contact, center)
       const vacuum = wordVacuum(f, f.store)
       const start = cloneConfiguration(vacuum)
@@ -115,32 +154,84 @@ export default experiment({
 
       return { f, vacuum, start }
     }
+
     const pass = fresh('pass')
     const scrambled = (pass.f.cells * 24) / 20
-    const keys = Array.from({ length: PATHS }, (_, k) => fullPathKey(pathOffset(k)))
-    const onPass = RATES.map(n => keys.map(key => wakeRun(pass.f, pass.vacuum, pass.start, key, n)))
-    const oldPass = [0, 1, 2, G].map(n => ({ n, run: wakeRun(pass.f, pass.vacuum, pass.start, oldPathKey(pass.f.cells), n) }))
-    const liftPass = keys.slice(0, LIFT_PATHS).map(key => wakeRun(pass.f, pass.vacuum, pass.start, key, 'lift'))
+    const keys = Array.from({ length: PATHS }, (_, k) =>
+      fullPathKey(pathOffset(k)),
+    )
+    const onPass = RATES.map(n =>
+      keys.map(key => wakeRun(pass.f, pass.vacuum, pass.start, key, n)),
+    )
+    const oldPass = [0, 1, 2, G].map(n => ({
+      n,
+      run: wakeRun(
+        pass.f,
+        pass.vacuum,
+        pass.start,
+        oldPathKey(pass.f.cells),
+        n,
+      ),
+    }))
+    const liftPass = keys
+      .slice(0, LIFT_PATHS)
+      .map(key => wakeRun(pass.f, pass.vacuum, pass.start, key, 'lift'))
     const bounce = fresh('bounce')
-    const onBounce = [0, G].map(n => keys.map(key => wakeRun(bounce.f, bounce.vacuum, bounce.start, key, n)))
-    const liftBounce = keys.slice(0, LIFT_PATHS).map(key => wakeRun(bounce.f, bounce.vacuum, bounce.start, key, 'lift'))
+    const onBounce = [0, G].map(n =>
+      keys.map(key =>
+        wakeRun(bounce.f, bounce.vacuum, bounce.start, key, n),
+      ),
+    )
+    const liftBounce = keys
+      .slice(0, LIFT_PATHS)
+      .map(key =>
+        wakeRun(bounce.f, bounce.vacuum, bounce.start, key, 'lift'),
+      )
 
-    const last = (r: Run): number => r.wake[BEATS - 1] as number
-    const gC1 = [...onPass[0]!, ...onBounce[0]!].every(r => Math.max(...r.wake) <= QUIET)
-    const gC2 = RATES.slice(1).every(n => onPass[n]!.every(r => r.moves > 0))
-    const gC3 = RATES.slice(1).every(n => onPass[n]!.every(r => last(r) > scrambled))
-    const gC4 = onPass[OMEGA]!.filter(r => !Number.isNaN(r.growth)).every(r => r.growth > OMEGA_GROWTH) && onPass[OMEGA]!.some(r => !Number.isNaN(r.growth))
+    const last = (r: Run): number => r.wake[BEATS - 1]!
+    const gC1 = [...onPass[0]!, ...onBounce[0]!].every(
+      r => Math.max(...r.wake) <= QUIET,
+    )
+    const gC2 = RATES.slice(1).every(n =>
+      onPass[n]!.every(r => r.moves > 0),
+    )
+    const gC3 = RATES.slice(1).every(n =>
+      onPass[n]!.every(r => last(r) > scrambled),
+    )
+    const gC4 =
+      onPass[OMEGA]!.filter(r => !Number.isNaN(r.growth)).every(
+        r => r.growth > OMEGA_GROWTH,
+      ) && onPass[OMEGA]!.some(r => !Number.isNaN(r.growth))
     const means = RATES.map(n => mean(onPass[n]!.map(r => r.growth)))
-    const gC5 = [3, 4, 5].every(n => (means[n + 1] as number) > (means[n] as number))
+    const gC5 = [3, 4, 5].every(n => means[n + 1]! > means[n]!)
     const bounceMean = mean(onBounce[1]!.map(r => r.growth))
-    const gC6 = onBounce[1]!.every(r => last(r) > BOUNCE_FLOOR) && bounceMean < (means[G] as number)
-    const gC7 = [...liftPass, ...liftBounce].every(r => last(r) > scrambled)
-    const gC8 = onPass[G]!.every(r => (r.lone[RELAY_TO - 1] as number) >= RELAY_FACTOR * Math.max(1, r.lone[RELAY_FROM - 1] as number))
+    const gC6 =
+      onBounce[1]!.every(r => last(r) > BOUNCE_FLOOR) &&
+      bounceMean < means[G]!
+    const gC7 = [...liftPass, ...liftBounce].every(
+      r => last(r) > scrambled,
+    )
+    const gC8 = onPass[G]!.every(
+      r =>
+        r.lone[RELAY_TO - 1]! >=
+        RELAY_FACTOR * Math.max(1, r.lone[RELAY_FROM - 1]!),
+    )
     const oldNone = oldPass.find(o => o.n === 0)!.run
-    const controlQuietRates = oldPass.filter(o => o.n === 1 || o.n === 2).every(o => o.run.moves === 0 && o.run.wake.every((w, t) => w === oldNone.wake[t]))
-    const controlG = last(oldPass.find(o => o.n === G)!.run) === PROBE_G_PASS
+    const controlQuietRates = oldPass
+      .filter(o => o.n === 1 || o.n === 2)
+      .every(
+        o =>
+          o.run.moves === 0 &&
+          o.run.wake.every((w, t) => w === oldNone.wake[t]),
+      )
+    const controlG =
+      last(oldPass.find(o => o.n === G)!.run) === PROBE_G_PASS
     const gates = [gC1, gC2, gC3, gC4, gC5, gC6, gC7, gC8]
-    const status = !gates.every(Boolean) ? 'fail' : controlQuietRates && controlG ? 'pass' : 'partial'
+    const status = !gates.every(Boolean)
+      ? 'fail'
+      : controlQuietRates && controlG
+        ? 'pass'
+        : 'partial'
     const metrics: Record<string, number> = {}
 
     gates.forEach((g, i) => (metrics[`gate_C${i + 1}`] = g ? 1 : 0))
@@ -150,30 +241,55 @@ export default experiment({
     for (const n of RATES) {
       const runs = onPass[n]!
 
-      metrics[`rate${7 * n}_meanGrowth`] = means[n] as number
+      metrics[`rate${7 * n}_meanGrowth`] = means[n]!
       metrics[`rate${7 * n}_leastWake64`] = Math.min(...runs.map(last))
       metrics[`rate${7 * n}_mostWake64`] = Math.max(...runs.map(last))
-      metrics[`rate${7 * n}_leastMoves`] = Math.min(...runs.map(r => r.moves))
+      metrics[`rate${7 * n}_leastMoves`] = Math.min(
+        ...runs.map(r => r.moves),
+      )
     }
 
-    metrics.bounceNoneMaxWake = Math.max(...onBounce[0]!.flatMap(r => r.wake))
+    metrics.bounceNoneMaxWake = Math.max(
+      ...onBounce[0]!.flatMap(r => r.wake),
+    )
     metrics.bounceG_meanGrowth = bounceMean
     metrics.bounceG_leastWake64 = Math.min(...onBounce[1]!.map(last))
     metrics.liftPass_leastWake64 = Math.min(...liftPass.map(last))
     metrics.liftBounce_leastWake64 = Math.min(...liftBounce.map(last))
-    metrics.relayLeastLoneAt47 = Math.min(...onPass[G]!.map(r => r.lone[RELAY_TO - 1] as number))
+    metrics.relayLeastLoneAt47 = Math.min(
+      ...onPass[G]!.map(r => r.lone[RELAY_TO - 1]!),
+    )
     metrics.controlQuietRates = controlQuietRates ? 1 : 0
     metrics.controlG = controlG ? 1 : 0
     metrics.seconds = (Date.now() - t0) / 1000
 
-    const g4 = (x: number): string => (Number.isNaN(x) ? 'none' : x.toFixed(4))
-    const rateLine = (n: number): string => `${7 * n}/64: growth ${onPass[n]!.map(r => g4(r.growth)).join(' ')}, wake at 64 ${onPass[n]!.map(last).join(' ')}, moves ${onPass[n]!.map(r => r.moves).join(' ')}`
+    const g4 = (x: number): string =>
+      Number.isNaN(x) ? 'none' : x.toFixed(4)
+    const rateLine = (n: number): string =>
+      `${7 * n}/64: growth ${onPass[n]!.map(r => g4(r.growth)).join(' ')}, wake at 64 ${onPass[n]!.map(last).join(' ')}, moves ${onPass[n]!.map(r => r.moves).join(' ')}`
 
     return verdict({
       status,
-      claim: `the frame mixer at 7N/64 on six full-key paths (side ${SIDE}, 'pass', ${BEATS} beats): mean growth a beat ${RATES.map(n => `${7 * n}/64 ${g4(means[n] as number)}`).join(', ')}; every rate from 7/64 fires on every path (least moves ${RATES.slice(1).map(n => metrics[`rate${7 * n}_leastMoves`]).join('/')}) and scrambles ${gC3 ? 'on every path' : 'NOT on every path'} (least wake at 64 ${RATES.slice(1).map(n => metrics[`rate${7 * n}_leastWake64`]).join('/')} against ${scrambled}); no mixer stays at or under ${Math.max(...onPass[0]!.flatMap(r => r.wake), metrics.bounceNoneMaxWake!)}; G on 'bounce' grows ${g4(bounceMean)} a beat against ${g4(means[G] as number)} on 'pass'; Gamma(G) reaches ${metrics.liftPass_leastWake64} ('pass') and ${metrics.liftBounce_leastWake64} ('bounce') or more; lone frames in G's wake reach ${metrics.relayLeastLoneAt47} or more by beat ${RELAY_TO}`,
+      claim: `the frame mixer at 7N/64 on six full-key paths (side ${SIDE}, 'pass', ${BEATS} beats): mean growth a beat ${RATES.map(n => `${7 * n}/64 ${g4(means[n]!)}`).join(', ')}; every rate from 7/64 fires on every path (least moves ${RATES.slice(
+        1,
+      )
+        .map(n => metrics[`rate${7 * n}_leastMoves`])
+        .join(
+          '/',
+        )}) and scrambles ${gC3 ? 'on every path' : 'NOT on every path'} (least wake at 64 ${RATES.slice(
+        1,
+      )
+        .map(n => metrics[`rate${7 * n}_leastWake64`])
+        .join(
+          '/',
+        )} against ${scrambled}); no mixer stays at or under ${Math.max(...onPass[0]!.flatMap(r => r.wake), metrics.bounceNoneMaxWake)}; G on 'bounce' grows ${g4(bounceMean)} a beat against ${g4(means[G]!)} on 'pass'; Gamma(G) reaches ${metrics.liftPass_leastWake64} ('pass') and ${metrics.liftBounce_leastWake64} ('bounce') or more; lone frames in G's wake reach ${metrics.relayLeastLoneAt47} or more by beat ${RELAY_TO}`,
       metrics,
-      control: { oldNeverFiredAt7And14: controlQuietRates ? 1 : 0, oldGWake64: last(oldPass.find(o => o.n === G)!.run), oldRate7Moves: oldPass.find(o => o.n === 1)!.run.moves, oldRate14Moves: oldPass.find(o => o.n === 2)!.run.moves },
+      control: {
+        oldNeverFiredAt7And14: controlQuietRates ? 1 : 0,
+        oldGWake64: last(oldPass.find(o => o.n === G)!.run),
+        oldRate7Moves: oldPass.find(o => o.n === 1)!.run.moves,
+        oldRate14Moves: oldPass.find(o => o.n === 2)!.run.moves,
+      },
       notes: `L2. Gates ${gates.map((g, i) => `C${i + 1} ${g}`).join(', ')}; control (old key: 7/64 and 14/64 never fire and equal the no-mixer wake ${controlQuietRates}; G ${controlG}). Per rate on 'pass', per path: ${RATES.map(rateLine).join(' | ')}. 'bounce': no mixer max ${metrics.bounceNoneMaxWake}; G growth ${onBounce[1]!.map(r => g4(r.growth)).join(' ')}, wake at 64 ${onBounce[1]!.map(last).join(' ')}. Gamma(G) wake at 64: 'pass' ${liftPass.map(last).join(' ')}, 'bounce' ${liftBounce.map(last).join(' ')}; Gamma(G) moves in the seeded run ${liftPass.map(r => r.moves).join(' ')} / ${liftBounce.map(r => r.moves).join(' ')}. G on 'pass', path 0, lone frames per beat: ${onPass[G]![0]!.lone.join(' ')}. G on 'pass', path 0, wake per beat: ${onPass[G]![0]!.wake.join(' ')}. Old key growth per rate 0/7/14/28: ${oldPass.map(o => g4(o.run.growth)).join(' ')}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

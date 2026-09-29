@@ -34,7 +34,12 @@ export type ReducedKernel = {
 }
 
 // the reduced digits d_1 .. d_(L-1) of a light index (d_0 = 0 prepended)
-export function reducedDigits(n: number, L: number, r: number, out: Int32Array): Int32Array {
+export function reducedDigits(
+  n: number,
+  L: number,
+  r: number,
+  out: Int32Array,
+): Int32Array {
   out[0] = 0
 
   let rest = r
@@ -48,15 +53,25 @@ export function reducedDigits(n: number, L: number, r: number, out: Int32Array):
 }
 
 // sum over the ring's rungs of bal(e)^2, x added to rung 0
-export function reducedElectric(n: number, L: number, d: Int32Array, x: number): number {
+export function reducedElectric(
+  n: number,
+  L: number,
+  d: Int32Array,
+  x: number,
+): number {
   let s = bal(d[L - 1]! + x, n) ** 2
 
-  for (let p = 1; p < L; p++) s += bal(d[p - 1]! - d[p]!, n) ** 2
+  for (let p = 1; p < L; p++) {
+    s += bal(d[p - 1]! - d[p]!, n) ** 2
+  }
 
   return s
 }
 
-export function reducedKernel(spec: LoopSpec, options: { withAtom: boolean }): ReducedKernel {
+export function reducedKernel(
+  spec: LoopSpec,
+  options: { withAtom: boolean },
+): ReducedKernel {
   const { n, squares: L, root } = spec
   const digits = L - 1
   const half = n ** digits
@@ -72,7 +87,11 @@ export function reducedKernel(spec: LoopSpec, options: { withAtom: boolean }): R
 
     reducedDigits(n, L, i % half, d)
 
-    const t = (-2 * Math.PI * mod(spec.drift * reducedElectric(n, L, d, x), root)) / root
+    const t =
+      (-2 *
+        Math.PI *
+        mod(spec.drift * reducedElectric(n, L, d, x), root)) /
+      root
 
     driftRe[i] = Math.cos(t)
     driftIm[i] = Math.sin(t)
@@ -114,9 +133,14 @@ export function reducedKernel(spec: LoopSpec, options: { withAtom: boolean }): R
   for (let p = 0; p < digits; p++) {
     const stride = n ** p
     const list = new Int32Array(half / n)
+
     let k = 0
 
-    for (let base = 0; base < half; base++) if (Math.floor(base / stride) % n === 0) list[k++] = base
+    for (let base = 0; base < half; base++) {
+      if (Math.floor(base / stride) % n === 0) {
+        list[k++] = base
+      }
+    }
 
     starts.push(list)
   }
@@ -142,7 +166,14 @@ export function reducedKernel(spec: LoopSpec, options: { withAtom: boolean }): R
   }
 }
 
-function transform(k: ReducedKernel, re: Float64Array, im: Float64Array, offset: number, p: number, inverse: boolean): void {
+function transform(
+  k: ReducedKernel,
+  re: Float64Array,
+  im: Float64Array,
+  offset: number,
+  p: number,
+  inverse: boolean,
+): void {
   const n = k.spec.n
   const stride = n ** p
   const sr = k.scratchRe
@@ -177,7 +208,15 @@ function transform(k: ReducedKernel, re: Float64Array, im: Float64Array, offset:
   }
 }
 
-function multiply(re: Float64Array, im: Float64Array, tr: Float64Array, ti: Float64Array, offset: number, count: number, conjugate: boolean): void {
+function multiply(
+  re: Float64Array,
+  im: Float64Array,
+  tr: Float64Array,
+  ti: Float64Array,
+  offset: number,
+  count: number,
+  conjugate: boolean,
+): void {
   const s = conjugate ? -1 : 1
 
   for (let i = 0; i < count; i++) {
@@ -192,8 +231,15 @@ function multiply(re: Float64Array, im: Float64Array, tr: Float64Array, ti: Floa
   }
 }
 
-function hop(k: ReducedKernel, re: Float64Array, im: Float64Array, conjugate: boolean): void {
-  if (k.size === k.half) return
+function hop(
+  k: ReducedKernel,
+  re: Float64Array,
+  im: Float64Array,
+  conjugate: boolean,
+): void {
+  if (k.size === k.half) {
+    return
+  }
 
   const half = k.half
   const s = conjugate ? -1 : 1
@@ -216,26 +262,42 @@ function hop(k: ReducedKernel, re: Float64Array, im: Float64Array, conjugate: bo
 }
 
 // one beat in place: hop, drift, force
-export function reducedBeat(k: ReducedKernel, re: Float64Array, im: Float64Array): void {
+export function reducedBeat(
+  k: ReducedKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   hop(k, re, im, false)
   multiply(re, im, k.driftRe, k.driftIm, 0, k.size, false)
 
   for (let offset = 0; offset < k.size; offset += k.half) {
-    for (let p = 0; p < k.digits; p++) transform(k, re, im, offset, p, false)
+    for (let p = 0; p < k.digits; p++) {
+      transform(k, re, im, offset, p, false)
+    }
 
     multiply(re, im, k.forceRe, k.forceIm, offset, k.half, false)
 
-    for (let p = 0; p < k.digits; p++) transform(k, re, im, offset, p, true)
+    for (let p = 0; p < k.digits; p++) {
+      transform(k, re, im, offset, p, true)
+    }
   }
 }
 
-export function reducedInverseBeat(k: ReducedKernel, re: Float64Array, im: Float64Array): void {
+export function reducedInverseBeat(
+  k: ReducedKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   for (let offset = 0; offset < k.size; offset += k.half) {
-    for (let p = 0; p < k.digits; p++) transform(k, re, im, offset, p, false)
+    for (let p = 0; p < k.digits; p++) {
+      transform(k, re, im, offset, p, false)
+    }
 
     multiply(re, im, k.forceRe, k.forceIm, offset, k.half, true)
 
-    for (let p = 0; p < k.digits; p++) transform(k, re, im, offset, p, true)
+    for (let p = 0; p < k.digits; p++) {
+      transform(k, re, im, offset, p, true)
+    }
   }
 
   multiply(re, im, k.driftRe, k.driftIm, 0, k.size, true)
@@ -244,16 +306,25 @@ export function reducedInverseBeat(k: ReducedKernel, re: Float64Array, im: Float
 
 // the full-space vector of a reduced one (for the kernel check against code/rule/loop-ring on small boxes):
 // psi(x, m) = phi(x, d(m)) / sqrt N
-export function reducedToFull(spec: LoopSpec, re: Float64Array, im: Float64Array, sites: number): { re: Float64Array; im: Float64Array } {
+export function reducedToFull(
+  spec: LoopSpec,
+  re: Float64Array,
+  im: Float64Array,
+  sites: number,
+): { re: Float64Array; im: Float64Array } {
   const { n, squares: L } = spec
   const fullHalf = n ** L
   const half = n ** (L - 1)
-  const out = { re: new Float64Array(sites * fullHalf), im: new Float64Array(sites * fullHalf) }
+  const out = {
+    re: new Float64Array(sites * fullHalf),
+    im: new Float64Array(sites * fullHalf),
+  }
   const scale = 1 / Math.sqrt(n)
 
   for (let x = 0; x < sites; x++) {
     for (let i = 0; i < fullHalf; i++) {
       const m0 = i % n
+
       let rest = Math.floor(i / n)
       let r = 0
       let stride = 1
@@ -274,13 +345,20 @@ export function reducedToFull(spec: LoopSpec, re: Float64Array, im: Float64Array
 
 // the product trial of the light (every register in one register's harmonic ground state, E-FRC-0235's
 // ringTrial) summed over the uniform shifts, as a reduced vector (light only)
-export function reducedTrial(spec: LoopSpec, s: number, f: number): { re: Float64Array; im: Float64Array } {
+export function reducedTrial(
+  spec: LoopSpec,
+  s: number,
+  f: number,
+): { re: Float64Array; im: Float64Array } {
   const { n, squares: L } = spec
   const half = n ** (L - 1)
   const width = (n / (2 * Math.PI)) * 0.5 * Math.sqrt(f / (2 * s))
-  const g = Array.from({ length: n }, (_, v) => Math.exp(-(bal(v, n) ** 2) / (4 * width)))
+  const g = Array.from({ length: n }, (_, v) =>
+    Math.exp(-(bal(v, n) ** 2) / (4 * width)),
+  )
   const out = { re: new Float64Array(half), im: new Float64Array(half) }
   const d = new Int32Array(L)
+
   let norm = 0
 
   for (let r = 0; r < half; r++) {
@@ -291,7 +369,9 @@ export function reducedTrial(spec: LoopSpec, s: number, f: number): { re: Float6
     for (let m0 = 0; m0 < n; m0++) {
       let p = 1
 
-      for (let q = 0; q < L; q++) p *= g[mod(m0 + d[q]!, n)]!
+      for (let q = 0; q < L; q++) {
+        p *= g[mod(m0 + d[q]!, n)]!
+      }
 
       sum += p
     }
@@ -302,7 +382,9 @@ export function reducedTrial(spec: LoopSpec, s: number, f: number): { re: Float6
 
   const scale = 1 / Math.sqrt(norm)
 
-  for (let r = 0; r < half; r++) out.re[r] = out.re[r]! * scale
+  for (let r = 0; r < half; r++) {
+    out.re[r] = out.re[r]! * scale
+  }
 
   return out
 }

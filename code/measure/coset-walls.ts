@@ -41,16 +41,26 @@
 // NO RULE CODE HERE: the runs use code/measure/bounce-pair-kernel unchanged. The start family is E-MTH-0028's.
 
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { boxCellMapDoubled, d4BoxCell, d4BoxCoordinates } from '@/code/substrate/d4-box'
+import {
+  boxCellMapDoubled,
+  d4BoxCell,
+  d4BoxCoordinates,
+} from '@/code/substrate/d4-box'
 import { type CoinData } from '@/code/measure/varying-vacuum'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
 
 // ---- histories and dock types ----
 
 // the trits of one beat: vibes (cells x 24) and stores (cells x 12)
-export type Frame = { readonly vibe: Int8Array; readonly store: Int8Array }
+export type Frame = {
+  readonly vibe: Int8Array
+  readonly store: Int8Array
+}
 
-export const frameOf = (s: Reduced): Frame => ({ vibe: Int8Array.from(s.vibe), store: Int8Array.from(s.store) })
+export const frameOf = (s: Reduced): Frame => ({
+  vibe: Int8Array.from(s.vibe),
+  store: Int8Array.from(s.store),
+})
 
 // A dock history is W beats of 36 trits. Its exact key: per beat two base-3 integers of 18 trits each.
 export class TypeBook {
@@ -74,8 +84,13 @@ export class TypeBook {
       let a = 0
       let c = 0
 
-      for (let i = 0; i < 18; i++) a = a * 3 + ((content[b * 36 + i] as number) + 1)
-      for (let i = 18; i < 36; i++) c = c * 3 + ((content[b * 36 + i] as number) + 1)
+      for (let i = 0; i < 18; i++) {
+        a = a * 3 + (content[b * 36 + i]! + 1)
+      }
+
+      for (let i = 18; i < 36; i++) {
+        c = c * 3 + (content[b * 36 + i]! + 1)
+      }
 
       parts.push(a, c)
     }
@@ -83,7 +98,9 @@ export class TypeBook {
     const key = parts.join(',')
     const known = this.index.get(key)
 
-    if (known !== undefined) return known
+    if (known !== undefined) {
+      return known
+    }
 
     this.index.set(key, this.contents.length)
     this.contents.push(Int8Array.from(content))
@@ -99,8 +116,13 @@ export class TypeBook {
       let a = 0
       let c = 0
 
-      for (let i = 0; i < 18; i++) a = a * 3 + ((content[b * 36 + i] as number) + 1)
-      for (let i = 18; i < 36; i++) c = c * 3 + ((content[b * 36 + i] as number) + 1)
+      for (let i = 0; i < 18; i++) {
+        a = a * 3 + (content[b * 36 + i]! + 1)
+      }
+
+      for (let i = 18; i < 36; i++) {
+        c = c * 3 + (content[b * 36 + i]! + 1)
+      }
 
       parts.push(a, c)
     }
@@ -112,17 +134,30 @@ export class TypeBook {
 const SCRATCH = new Int8Array(36 * 64)
 
 // the type of every dock of a window of frames (frames[0..W-1]); unknown histories get -1 when `add` is false
-export function dockTypes(book: TypeBook, frames: readonly Frame[], cells: number, add: boolean): Int32Array {
+export function dockTypes(
+  book: TypeBook,
+  frames: readonly Frame[],
+  cells: number,
+  add: boolean,
+): Int32Array {
   const w = book.window
   const out = new Int32Array(cells)
-  const content = w * 36 <= SCRATCH.length ? SCRATCH.subarray(0, w * 36) : new Int8Array(w * 36)
+  const content =
+    w * 36 <= SCRATCH.length
+      ? SCRATCH.subarray(0, w * 36)
+      : new Int8Array(w * 36)
 
   for (let x = 0; x < cells; x++) {
     for (let b = 0; b < w; b++) {
-      const f = frames[b] as Frame
+      const f = frames[b]!
 
-      for (let d = 0; d < 24; d++) content[b * 36 + d] = f.vibe[x * 24 + d] as number
-      for (let l = 0; l < 12; l++) content[b * 36 + 24 + l] = f.store[x * 12 + l] as number
+      for (let d = 0; d < 24; d++) {
+        content[b * 36 + d] = f.vibe[x * 24 + d]!
+      }
+
+      for (let l = 0; l < 12; l++) {
+        content[b * 36 + 24 + l] = f.store[x * 12 + l]!
+      }
     }
 
     out[x] = add ? book.intern(content) : book.lookup(content)
@@ -142,17 +177,26 @@ export type Cell4 = {
 }
 
 export function cell4(coins: CoinData): Cell4 {
-  const coords = Array.from({ length: 256 }, (_, x) => d4BoxCoordinates({ cell: x, side: 4 }))
+  const coords = Array.from({ length: 256 }, (_, x) =>
+    d4BoxCoordinates({ cell: x, side: 4 }),
+  )
   const sub = new Int32Array(256 * 256)
 
   for (let a = 0; a < 256; a++) {
-    for (let b = 0; b < 256; b++) sub[a * 256 + b] = d4BoxCell({ coordinates: (coords[a] as number[]).map((v, k) => v - ((coords[b] as number[])[k] as number)), side: 4 })
+    for (let b = 0; b < 256; b++) {
+      sub[a * 256 + b] = d4BoxCell({
+        coordinates: coords[a]!.map((v, k) => v - coords[b]![k]!),
+        side: 4,
+      })
+    }
   }
 
   const linear = coins.doubled.map((m, g) => {
     const map = boxCellMapDoubled({ doubled: m as number[][], side: 4 })
 
-    if (!map) throw new Error(`element ${g} does not act on the side-4 cell`)
+    if (!map) {
+      throw new Error(`element ${g} does not act on the side-4 cell`)
+    }
 
     return Int32Array.from(map)
   })
@@ -162,21 +206,36 @@ export function cell4(coins: CoinData): Cell4 {
 
 // the cell (mod 4 D4) of every dock of a side-L box, L divisible by 4
 export function cellOfDocks(side: number): Int32Array {
-  if (side % 4 !== 0) throw new Error('the side must be divisible by 4')
+  if (side % 4 !== 0) {
+    throw new Error('the side must be divisible by 4')
+  }
 
-  return Int32Array.from({ length: side ** 4 }, (_, x) => d4BoxCell({ coordinates: d4BoxCoordinates({ cell: x, side }), side: 4 }))
+  return Int32Array.from({ length: side ** 4 }, (_, x) =>
+    d4BoxCell({
+      coordinates: d4BoxCoordinates({ cell: x, side }),
+      side: 4,
+    }),
+  )
 }
 
 // is a history on the side-L box periodic under 4 D4, and its restriction to the cell (docks of the cell = the docks
 // of the box with coordinates 0..3)
-export function restrictToCell(frames: readonly Frame[], side: number): { periodic: boolean; mismatches: number; frames: Frame[] } {
+export function restrictToCell(
+  frames: readonly Frame[],
+  side: number,
+): { periodic: boolean; mismatches: number; frames: Frame[] } {
   const cells = side ** 4
   const cellOf = cellOfDocks(side)
   const rep = new Int32Array(256).fill(-1)
 
-  for (let x = 0; x < cells; x++) if ((rep[cellOf[x] as number] as number) < 0) rep[cellOf[x] as number] = x
+  for (let x = 0; x < cells; x++) {
+    if (rep[cellOf[x]!]! < 0) {
+      rep[cellOf[x]!] = x
+    }
+  }
 
   let mismatches = 0
+
   const out: Frame[] = []
 
   for (const f of frames) {
@@ -184,18 +243,24 @@ export function restrictToCell(frames: readonly Frame[], side: number): { period
     const store = new Int8Array(256 * 12)
 
     for (let c = 0; c < 256; c++) {
-      const x = rep[c] as number
+      const x = rep[c]!
 
       vibe.set(f.vibe.subarray(x * 24, x * 24 + 24), c * 24)
       store.set(f.store.subarray(x * 12, x * 12 + 12), c * 12)
     }
 
     for (let x = 0; x < cells; x++) {
-      const c = cellOf[x] as number
+      const c = cellOf[x]!
+
       let differs = false
 
-      for (let d = 0; d < 24 && !differs; d++) differs = f.vibe[x * 24 + d] !== vibe[c * 24 + d]
-      for (let l = 0; l < 12 && !differs; l++) differs = f.store[x * 12 + l] !== store[c * 12 + l]
+      for (let d = 0; d < 24 && !differs; d++) {
+        differs = f.vibe[x * 24 + d] !== vibe[c * 24 + d]
+      }
+
+      for (let l = 0; l < 12 && !differs; l++) {
+        differs = f.store[x * 12 + l] !== store[c * 12 + l]
+      }
 
       mismatches += differs ? 1 : 0
     }
@@ -208,56 +273,88 @@ export function restrictToCell(frames: readonly Frame[], side: number): { period
 
 // ---- the group action on dock types ----
 
-export type PointElement = { readonly g: number; readonly c: number; readonly s: number }
+export type PointElement = {
+  readonly g: number
+  readonly c: number
+  readonly s: number
+}
 
 // the image of a type's content under (g, c) read s beats later
-export function transformContent(coins: CoinData, content: Int8Array, window: number, e: PointElement): Int8Array {
+export function transformContent(
+  coins: CoinData,
+  content: Int8Array,
+  window: number,
+  e: PointElement,
+): Int8Array {
   const out = new Int8Array(window * 36)
-  const p = coins.table.permutations[e.g] as readonly number[]
-  const li = coins.lineImage[e.g] as Int8Array
-  const ls = coins.lineSign[e.g] as Int8Array
+  const p = coins.table.permutations[e.g]!
+  const li = coins.lineImage[e.g]!
+  const ls = coins.lineSign[e.g]!
 
   for (let b = 0; b < window; b++) {
     const src = ((b + e.s) % window) * 36
 
-    for (let d = 0; d < 24; d++) out[b * 36 + (p[d] as number)] = e.c * (content[src + d] as number)
-    for (let l = 0; l < 12; l++) out[b * 36 + 24 + (li[l] as number)] = e.c * (ls[l] as number) * (content[src + 24 + l] as number)
+    for (let d = 0; d < 24; d++) {
+      out[b * 36 + p[d]!] = e.c * content[src + d]!
+    }
+
+    for (let l = 0; l < 12; l++) {
+      out[b * 36 + 24 + li[l]!] = e.c * ls[l]! * content[src + 24 + l]!
+    }
   }
 
   return out
 }
 
 // the image of a cell type array (256 docks) under a point element (about the origin)
-export function imageTypes(coins: CoinData, cell: Cell4, book: TypeBook, types: Int32Array, e: PointElement, cache: Map<string, number>): Int32Array {
-  const lin = cell.linear[e.g] as Int32Array
+export function imageTypes(
+  coins: CoinData,
+  cell: Cell4,
+  book: TypeBook,
+  types: Int32Array,
+  e: PointElement,
+  cache: Map<string, number>,
+): Int32Array {
+  const lin = cell.linear[e.g]!
   const out = new Int32Array(256)
 
   for (let y = 0; y < 256; y++) {
-    const k = types[y] as number
+    const k = types[y]!
     const key = `${k}:${e.g}:${e.c}:${e.s}`
+
     let img = cache.get(key)
 
     if (img === undefined) {
-      img = book.intern(transformContent(coins, book.contents[k] as Int8Array, book.window, e))
+      img = book.intern(
+        transformContent(coins, book.contents[k]!, book.window, e),
+      )
       cache.set(key, img)
     }
 
-    out[lin[y] as number] = img
+    out[lin[y]!] = img
   }
 
   return out
 }
 
 // the translations tau (cells) with tau . a = b, i.e. a[z - tau] = b[z] for every z
-export function translationsBetween(cell: Cell4, a: Int32Array, b: Int32Array): number[] {
+export function translationsBetween(
+  cell: Cell4,
+  a: Int32Array,
+  b: Int32Array,
+): number[] {
   const out: number[] = []
 
   for (let tau = 0; tau < 256; tau++) {
     let ok = true
 
-    for (let z = 0; z < 256 && ok; z++) ok = a[cell.sub[z * 256 + tau] as number] === b[z]
+    for (let z = 0; z < 256 && ok; z++) {
+      ok = a[cell.sub[z * 256 + tau]!] === b[z]
+    }
 
-    if (ok) out.push(tau)
+    if (ok) {
+      out.push(tau)
+    }
   }
 
   return out
@@ -292,17 +389,28 @@ export type GroundManifold = {
 }
 
 // Gamma's point part: every W(F4) element, both signs of C, and the time shifts allowed (multiples of 2 mod W)
-export function groundManifold(coins: CoinData, cell: Cell4, book: TypeBook, bases: readonly Int32Array[], shifts: readonly number[]): GroundManifold {
+export function groundManifold(
+  coins: CoinData,
+  cell: Cell4,
+  book: TypeBook,
+  bases: readonly Int32Array[],
+  shifts: readonly number[],
+): GroundManifold {
   const reps: GroundRep[] = []
   const cache = new Map<string, number>()
   const pointStabilizer: number[] = []
   const baseRep: { rep: number; tau: number }[] = []
   const n = coins.table.permutations.length
-  const known = (img: Int32Array): { rep: number; tau: number } | undefined => {
-    for (let r = 0; r < reps.length; r++) {
-      const t = translationsBetween(cell, (reps[r] as GroundRep).types, img)
 
-      if (t.length > 0) return { rep: r, tau: t[0] as number }
+  const known = (
+    img: Int32Array,
+  ): { rep: number; tau: number } | undefined => {
+    for (let r = 0; r < reps.length; r++) {
+      const t = translationsBetween(cell, reps[r]!.types, img)
+
+      if (t.length > 0) {
+        return { rep: r, tau: t[0]! }
+      }
     }
 
     return undefined
@@ -310,14 +418,23 @@ export function groundManifold(coins: CoinData, cell: Cell4, book: TypeBook, bas
 
   bases.forEach((base, bi) => {
     let stab = 0
+
     const found = known(base)
 
     if (!found) {
       const stabilizer = translationsBetween(cell, base, base)
 
-      reps.push({ base: bi, element: { g: coins.table.identity, c: 1, s: 0 }, types: base, stabilizer, canon: canonOf(cell, stabilizer) })
+      reps.push({
+        base: bi,
+        element: { g: coins.table.identity, c: 1, s: 0 },
+        types: base,
+        stabilizer,
+        canon: canonOf(cell, stabilizer),
+      })
       baseRep.push({ rep: reps.length - 1, tau: 0 })
-    } else baseRep.push(found)
+    } else {
+      baseRep.push(found)
+    }
 
     for (let g = 0; g < n; g++) {
       for (const c of [1, -1]) {
@@ -325,13 +442,23 @@ export function groundManifold(coins: CoinData, cell: Cell4, book: TypeBook, bas
           const e = { g, c, s }
           const img = imageTypes(coins, cell, book, base, e, cache)
 
-          if (translationsBetween(cell, img, base).length > 0) stab++
+          if (translationsBetween(cell, img, base).length > 0) {
+            stab++
+          }
 
-          if (known(img)) continue
+          if (known(img)) {
+            continue
+          }
 
           const stabilizer = translationsBetween(cell, img, img)
 
-          reps.push({ base: bi, element: e, types: img, stabilizer, canon: canonOf(cell, stabilizer) })
+          reps.push({
+            base: bi,
+            element: e,
+            types: img,
+            stabilizer,
+            canon: canonOf(cell, stabilizer),
+          })
         }
       }
     }
@@ -343,7 +470,7 @@ export function groundManifold(coins: CoinData, cell: Cell4, book: TypeBook, bas
 
   reps.forEach((r, j) => {
     for (let y = 0; y < 256; y++) {
-      const k = r.types[y] as number
+      const k = r.types[y]!
       const list = occurrences.get(k) ?? []
 
       list.push(j, y)
@@ -364,14 +491,22 @@ export function groundManifold(coins: CoinData, cell: Cell4, book: TypeBook, bas
   }
 }
 
-function canonOf(cell: Cell4, stabilizer: readonly number[]): Int32Array {
+function canonOf(
+  cell: Cell4,
+  stabilizer: readonly number[],
+): Int32Array {
   const canon = new Int32Array(256)
 
   for (let tau = 0; tau < 256; tau++) {
     let least = 256
 
     // tau + u = tau - (-u); sub[tau][neg u]
-    for (const u of stabilizer) least = Math.min(least, cell.sub[tau * 256 + (cell.sub[0 * 256 + u] as number)] as number)
+    for (const u of stabilizer) {
+      least = Math.min(
+        least,
+        cell.sub[tau * 256 + cell.sub[0 * 256 + u]!]!,
+      )
+    }
 
     canon[tau] = least
   }
@@ -380,7 +515,11 @@ function canonOf(cell: Cell4, stabilizer: readonly number[]): Int32Array {
 }
 
 // the id of the ground state (rep j, translation tau)
-export const stateId = (m: GroundManifold, j: number, tau: number): number => j * 256 + ((m.reps[j] as GroundRep).canon[tau] as number)
+export const stateId = (
+  m: GroundManifold,
+  j: number,
+  tau: number,
+): number => j * 256 + m.reps[j]!.canon[tau]!
 
 // ---- the local reading ----
 
@@ -395,75 +534,101 @@ export type Reading = {
   readonly empty: Uint8Array
 }
 
-export type BoxGeometry = { readonly side: number; readonly cells: number; readonly cellOf: Int32Array; readonly neighbour: Int32Array }
+export type BoxGeometry = {
+  readonly side: number
+  readonly cells: number
+  readonly cellOf: Int32Array
+  readonly neighbour: Int32Array
+}
 
 // neighbour[x * 12 + l]: the dock one root along line l's first slot
-export function boxGeometry(side: number, target: Int32Array): BoxGeometry {
+export function boxGeometry(
+  side: number,
+  target: Int32Array,
+): BoxGeometry {
   const cells = side ** 4
   const neighbour = new Int32Array(cells * 12)
 
-  for (let x = 0; x < cells; x++) for (let l = 0; l < 12; l++) neighbour[x * 12 + l] = Math.floor((target[x * 24 + (LINE_FIRSTS[l] as number)] as number) / 24)
+  for (let x = 0; x < cells; x++) {
+    for (let l = 0; l < 12; l++) {
+      neighbour[x * 12 + l] = Math.floor(
+        target[x * 24 + LINE_FIRSTS[l]!]! / 24,
+      )
+    }
+  }
 
   return { side, cells, cellOf: cellOfDocks(side), neighbour }
 }
 
 // S(x) as bitsets, then defects and walls; `assigned` (per dock a ground state id) adds the holds mask
-export function readWindow(m: GroundManifold, box: BoxGeometry, types: Int32Array, assigned?: Int32Array): Reading {
+export function readWindow(
+  m: GroundManifold,
+  box: BoxGeometry,
+  types: Int32Array,
+  assigned?: Int32Array,
+): Reading {
   const bits = m.reps.length * 256
   const words = Math.ceil(bits / 32)
   const sets = new Uint32Array(box.cells * words)
   const empty = new Uint8Array(box.cells)
   const holds = assigned ? new Uint8Array(box.cells) : undefined
+
   let defects = 0
 
   for (let x = 0; x < box.cells; x++) {
-    const occ = m.occurrences.get(types[x] as number)
+    const occ = m.occurrences.get(types[x]!)
 
-    if (!occ || (types[x] as number) < 0) {
+    if (!occ || types[x]! < 0) {
       empty[x] = 1
       defects++
       continue
     }
 
-    const cx = box.cellOf[x] as number
+    const cx = box.cellOf[x]!
 
     for (let i = 0; i < occ.length; i += 2) {
-      const j = occ[i] as number
-      const y = occ[i + 1] as number
+      const j = occ[i]!
+      const y = occ[i + 1]!
       // rep j translated by tau holds x's history when rep j at x - tau does: tau = cx - y
-      const id = stateId(m, j, m.cell.sub[cx * 256 + y] as number)
+      const id = stateId(m, j, m.cell.sub[cx * 256 + y]!)
 
-      sets[x * words + (id >>> 5)] = (sets[x * words + (id >>> 5)] as number) | (1 << (id & 31))
+      sets[x * words + (id >>> 5)] =
+        sets[x * words + (id >>> 5)]! | (1 << (id & 31))
     }
   }
 
   if (holds && assigned) {
     for (let x = 0; x < box.cells; x++) {
-      const id = assigned[x] as number
+      const id = assigned[x]!
 
-      holds[x] = ((sets[x * words + (id >>> 5)] as number) >>> (id & 31)) & 1
+      holds[x] = (sets[x * words + (id >>> 5)]! >>> (id & 31)) & 1
     }
   }
 
   const wallEdges = new Uint8Array(box.cells * 12)
   const uniformEdges = new Uint8Array(box.cells * 12)
+
   let walls = 0
   let uniformWalls = 0
 
   for (let x = 0; x < box.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const y = box.neighbour[x * 12 + l] as number
+      const y = box.neighbour[x * 12 + l]!
 
       if (types[x] !== types[y] || types[x] === -1) {
         uniformEdges[x * 12 + l] = 1
         uniformWalls++
       }
 
-      if (empty[x] === 1 || empty[y] === 1) continue
+      if (empty[x] === 1 || empty[y] === 1) {
+        continue
+      }
 
       let shared = false
 
-      for (let w = 0; w < words && !shared; w++) shared = ((sets[x * words + w] as number) & (sets[y * words + w] as number)) !== 0
+      for (let w = 0; w < words && !shared; w++) {
+        shared = (sets[x * words + w]! & sets[y * words + w]!) !== 0
+      }
 
       if (!shared) {
         wallEdges[x * 12 + l] = 1
@@ -472,38 +637,77 @@ export function readWindow(m: GroundManifold, box: BoxGeometry, types: Int32Arra
     }
   }
 
-  return { defects, walls, uniformWalls, holds, wallEdges, uniformEdges, empty }
+  return {
+    defects,
+    walls,
+    uniformWalls,
+    holds,
+    wallEdges,
+    uniformEdges,
+    empty,
+  }
 }
 
 // the ideal history's dock types for an assignment (ground state (rep, tau) per dock): type of rep at x - tau
-export function idealTypes(m: GroundManifold, box: BoxGeometry, rep: Int32Array, tau: Int32Array): Int32Array {
-  return Int32Array.from({ length: box.cells }, (_, x) => (m.reps[rep[x] as number] as GroundRep).types[m.cell.sub[(box.cellOf[x] as number) * 256 + (tau[x] as number)] as number] as number)
+export function idealTypes(
+  m: GroundManifold,
+  box: BoxGeometry,
+  rep: Int32Array,
+  tau: Int32Array,
+): Int32Array {
+  return Int32Array.from(
+    { length: box.cells },
+    (_, x) =>
+      m.reps[rep[x]!]!.types[
+        m.cell.sub[box.cellOf[x]! * 256 + tau[x]!]!
+      ]!,
+  )
 }
 
 // The known wall, by an independent path: for every edge, is there a ground state (every rep, every one of the 256
 // translations, no bitsets and no canonical classes) whose history matches both ends
-export function bruteForceWalls(m: GroundManifold, box: BoxGeometry, types: Int32Array): { walls: number; defects: number; edges: Uint8Array } {
+export function bruteForceWalls(
+  m: GroundManifold,
+  box: BoxGeometry,
+  types: Int32Array,
+): { walls: number; defects: number; edges: Uint8Array } {
   const edges = new Uint8Array(box.cells * 12)
-  const matches = (j: number, tau: number, x: number): boolean => (m.reps[j] as GroundRep).types[m.cell.sub[(box.cellOf[x] as number) * 256 + tau] as number] === types[x]
+  const matches = (j: number, tau: number, x: number): boolean =>
+    m.reps[j]!.types[m.cell.sub[box.cellOf[x]! * 256 + tau]!] ===
+    types[x]
+
   let walls = 0
   let defects = 0
+
   const explained = new Uint8Array(box.cells)
 
   for (let x = 0; x < box.cells; x++) {
-    for (let j = 0; j < m.reps.length && explained[x] === 0; j++) for (let tau = 0; tau < 256 && explained[x] === 0; tau++) if (matches(j, tau, x)) explained[x] = 1
+    for (let j = 0; j < m.reps.length && explained[x] === 0; j++) {
+      for (let tau = 0; tau < 256 && explained[x] === 0; tau++) {
+        if (matches(j, tau, x)) {
+          explained[x] = 1
+        }
+      }
+    }
 
     defects += explained[x] === 1 ? 0 : 1
   }
 
   for (let x = 0; x < box.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const y = box.neighbour[x * 12 + l] as number
+      const y = box.neighbour[x * 12 + l]!
 
-      if (explained[x] === 0 || explained[y] === 0) continue
+      if (explained[x] === 0 || explained[y] === 0) {
+        continue
+      }
 
       let common = false
 
-      for (let j = 0; j < m.reps.length && !common; j++) for (let tau = 0; tau < 256 && !common; tau++) common = matches(j, tau, x) && matches(j, tau, y)
+      for (let j = 0; j < m.reps.length && !common; j++) {
+        for (let tau = 0; tau < 256 && !common; tau++) {
+          common = matches(j, tau, x) && matches(j, tau, y)
+        }
+      }
 
       if (!common) {
         edges[x * 12 + l] = 1
@@ -519,21 +723,27 @@ export function bruteForceWalls(m: GroundManifold, box: BoxGeometry, types: Int3
 export function edgeDifference(a: Uint8Array, b: Uint8Array): number {
   let n = 0
 
-  for (let i = 0; i < a.length; i++) n += a[i] !== b[i] ? 1 : 0
+  for (let i = 0; i < a.length; i++) {
+    n += a[i] !== b[i] ? 1 : 0
+  }
 
   return n
 }
 
 // graph distance (in roots) from every dock to the nearest dock of another domain (1 for a dock with a neighbor in
 // another domain); domains given per dock as integers
-export function distanceToInterface(box: BoxGeometry, domain: Int32Array): Int32Array {
+export function distanceToInterface(
+  box: BoxGeometry,
+  domain: Int32Array,
+): Int32Array {
   const dist = new Int32Array(box.cells).fill(-1)
+
   let frontier: number[] = []
 
   // an edge between two domains puts both its ends at distance 1 (the edges are stored forward, one per line)
   for (let x = 0; x < box.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const y = box.neighbour[x * 12 + l] as number
+      const y = box.neighbour[x * 12 + l]!
 
       if (domain[y] !== domain[x]) {
         dist[x] = 1
@@ -542,7 +752,11 @@ export function distanceToInterface(box: BoxGeometry, domain: Int32Array): Int32
     }
   }
 
-  for (let x = 0; x < box.cells; x++) if (dist[x] === 1) frontier.push(x)
+  for (let x = 0; x < box.cells; x++) {
+    if (dist[x] === 1) {
+      frontier.push(x)
+    }
+  }
 
   let d = 1
 
@@ -551,7 +765,7 @@ export function distanceToInterface(box: BoxGeometry, domain: Int32Array): Int32
 
     for (const x of frontier) {
       for (let l = 0; l < 12; l++) {
-        const y = box.neighbour[x * 12 + l] as number
+        const y = box.neighbour[x * 12 + l]!
 
         if (dist[y] === -1) {
           dist[y] = d + 1
@@ -563,13 +777,17 @@ export function distanceToInterface(box: BoxGeometry, domain: Int32Array): Int32
     // backward edges: scan all docks whose forward neighbor is in the frontier (rare enough to scan once per level)
     const inFrontier = new Uint8Array(box.cells)
 
-    for (const x of frontier) inFrontier[x] = 1
+    for (const x of frontier) {
+      inFrontier[x] = 1
+    }
 
     for (let z = 0; z < box.cells; z++) {
-      if (dist[z] !== -1) continue
+      if (dist[z] !== -1) {
+        continue
+      }
 
       for (let l = 0; l < 12; l++) {
-        if (inFrontier[box.neighbour[z * 12 + l] as number] === 1) {
+        if (inFrontier[box.neighbour[z * 12 + l]!] === 1) {
           dist[z] = d + 1
           next.push(z)
           break
@@ -587,24 +805,41 @@ export function distanceToInterface(box: BoxGeometry, domain: Int32Array): Int32
 // ---- stores on the side-L box under a Gamma element ----
 
 // the image of a store (cells x 12) under (g, c) about the origin followed by the translation t (basis coordinates)
-export function storeImage(coins: CoinData, side: number, store: Int8Array, g: number, c: number, t: readonly number[]): Int8Array {
+export function storeImage(
+  coins: CoinData,
+  side: number,
+  store: Int8Array,
+  g: number,
+  c: number,
+  t: readonly number[],
+): Int8Array {
   const cells = side ** 4
-  const map = boxCellMapDoubled({ doubled: coins.doubled[g] as number[][], side })
+  const map = boxCellMapDoubled({
+    doubled: coins.doubled[g] as number[][],
+    side,
+  })
 
-  if (!map) throw new Error(`element ${g} does not act on the side-${side} box`)
+  if (!map) {
+    throw new Error(`element ${g} does not act on the side-${side} box`)
+  }
 
-  const li = coins.lineImage[g] as Int8Array
-  const ls = coins.lineSign[g] as Int8Array
+  const li = coins.lineImage[g]!
+  const ls = coins.lineSign[g]!
   const out = new Int8Array(cells * 12)
 
   for (let x = 0; x < cells; x++) {
-    const gx = d4BoxCoordinates({ cell: map[x] as number, side })
-    const y = d4BoxCell({ coordinates: gx.map((v, k) => v + (t[k] as number)), side })
+    const gx = d4BoxCoordinates({ cell: map[x]!, side })
+    const y = d4BoxCell({
+      coordinates: gx.map((v, k) => v + t[k]!),
+      side,
+    })
 
     for (let l = 0; l < 12; l++) {
-      const v = store[x * 12 + l] as number
+      const v = store[x * 12 + l]!
 
-      if (v !== 0) out[y * 12 + (li[l] as number)] = c * (ls[l] as number) * v
+      if (v !== 0) {
+        out[y * 12 + li[l]!] = c * ls[l]! * v
+      }
     }
   }
 
@@ -612,20 +847,37 @@ export function storeImage(coins: CoinData, side: number, store: Int8Array, g: n
 }
 
 // the image of a frame under (g, c) about the origin then t
-export function frameImage(coins: CoinData, side: number, f: Frame, g: number, c: number, t: readonly number[]): Frame {
+export function frameImage(
+  coins: CoinData,
+  side: number,
+  f: Frame,
+  g: number,
+  c: number,
+  t: readonly number[],
+): Frame {
   const cells = side ** 4
-  const map = boxCellMapDoubled({ doubled: coins.doubled[g] as number[][], side })
+  const map = boxCellMapDoubled({
+    doubled: coins.doubled[g] as number[][],
+    side,
+  })
 
-  if (!map) throw new Error(`element ${g} does not act on the side-${side} box`)
+  if (!map) {
+    throw new Error(`element ${g} does not act on the side-${side} box`)
+  }
 
-  const p = coins.table.permutations[g] as readonly number[]
+  const p = coins.table.permutations[g]!
   const vibe = new Int8Array(cells * 24)
 
   for (let x = 0; x < cells; x++) {
-    const gx = d4BoxCoordinates({ cell: map[x] as number, side })
-    const y = d4BoxCell({ coordinates: gx.map((v, k) => v + (t[k] as number)), side })
+    const gx = d4BoxCoordinates({ cell: map[x]!, side })
+    const y = d4BoxCell({
+      coordinates: gx.map((v, k) => v + t[k]!),
+      side,
+    })
 
-    for (let d = 0; d < 24; d++) vibe[y * 24 + (p[d] as number)] = c * (f.vibe[x * 24 + d] as number)
+    for (let d = 0; d < 24; d++) {
+      vibe[y * 24 + p[d]!] = c * f.vibe[x * 24 + d]!
+    }
   }
 
   return { vibe, store: storeImage(coins, side, f.store, g, c, t) }
@@ -651,26 +903,61 @@ export type CaseReading = {
   readonly oldTrits: number[]
 }
 
-type Runner = { state: () => Reduced; beat: () => void; time: () => number }
+type Runner = {
+  state: () => Reduced
+  beat: () => void
+  time: () => number
+}
 
 // Run `run` to beat `to` - 1, reading every aligned window of W beats from `from` (a multiple of W) against the ideal
 // of the assignment (rep, tau per dock). `reference`, run in step, gives the old trit difference.
-export function readCase(input: { m: GroundManifold; box: BoxGeometry; run: Runner; rep: Int32Array; tau: Int32Array; from: number; to: number; reference?: Runner; bulkFrom?: number }): CaseReading {
+export function readCase(input: {
+  m: GroundManifold
+  box: BoxGeometry
+  run: Runner
+  rep: Int32Array
+  tau: Int32Array
+  from: number
+  to: number
+  reference?: Runner
+  bulkFrom?: number
+}): CaseReading {
   const { m, box, run, rep, tau, from, to } = input
   const W = m.book.window
-  const assigned = Int32Array.from({ length: box.cells }, (_, x) => stateId(m, rep[x] as number, tau[x] as number))
-  const ideal = readWindow(m, box, idealTypes(m, box, rep, tau), assigned)
+  const assigned = Int32Array.from({ length: box.cells }, (_, x) =>
+    stateId(m, rep[x]!, tau[x]!),
+  )
+  const ideal = readWindow(
+    m,
+    box,
+    idealTypes(m, box, rep, tau),
+    assigned,
+  )
   const dist = distanceToInterface(box, assigned)
   const bulkFrom = input.bulkFrom ?? 3
+
   let bulkDocks = 0
 
-  for (let x = 0; x < box.cells; x++) bulkDocks += (dist[x] as number) === -1 || (dist[x] as number) >= bulkFrom ? 1 : 0
+  for (let x = 0; x < box.cells; x++) {
+    bulkDocks += dist[x]! === -1 || dist[x]! >= bulkFrom ? 1 : 0
+  }
 
-  const out = { departureDocks: [] as number[], edgeDifference: [] as number[], actualWalls: [] as number[], defects: [] as number[], uniformWalls: [] as number[], bulkDeparture: [] as number[], oldTrits: [] as number[] }
+  const out = {
+    departureDocks: [] as number[],
+    edgeDifference: [] as number[],
+    actualWalls: [] as number[],
+    defects: [] as number[],
+    uniformWalls: [] as number[],
+    bulkDeparture: [] as number[],
+    oldTrits: [] as number[],
+  }
+
   let farthest = 0
   let window: Frame[] = []
 
-  if (from % W !== 0) throw new Error('windows must start at a multiple of W')
+  if (from % W !== 0) {
+    throw new Error('windows must start at a multiple of W')
+  }
 
   while (run.time() < to) {
     const t = run.time()
@@ -680,33 +967,52 @@ export function readCase(input: { m: GroundManifold; box: BoxGeometry; run: Runn
 
       if (input.reference) {
         let n = 0
+
         const a = run.state()
         const b = input.reference.state()
 
-        for (let i = 0; i < a.vibe.length; i++) n += a.vibe[i] !== b.vibe[i] ? 1 : 0
-        for (let i = 0; i < a.store.length; i++) n += a.store[i] !== b.store[i] ? 1 : 0
+        for (let i = 0; i < a.vibe.length; i++) {
+          n += a.vibe[i] !== b.vibe[i] ? 1 : 0
+        }
+
+        for (let i = 0; i < a.store.length; i++) {
+          n += a.store[i] !== b.store[i] ? 1 : 0
+        }
 
         out.oldTrits.push(n)
       }
 
       if (window.length === W) {
-        const r = readWindow(m, box, dockTypes(m.book, window, box.cells, false), assigned)
+        const r = readWindow(
+          m,
+          box,
+          dockTypes(m.book, window, box.cells, false),
+          assigned,
+        )
+
         let dep = 0
         let bulk = 0
 
         for (let x = 0; x < box.cells; x++) {
-          if ((r.holds as Uint8Array)[x] === 1) continue
+          if (r.holds![x] === 1) {
+            continue
+          }
 
           dep++
 
-          const d = dist[x] as number
+          const d = dist[x]!
 
-          if (d === -1 || d >= bulkFrom) bulk++
+          if (d === -1 || d >= bulkFrom) {
+            bulk++
+          }
+
           farthest = Math.max(farthest, d === -1 ? Infinity : d)
         }
 
         out.departureDocks.push(dep)
-        out.edgeDifference.push(edgeDifference(r.wallEdges, ideal.wallEdges))
+        out.edgeDifference.push(
+          edgeDifference(r.wallEdges, ideal.wallEdges),
+        )
         out.actualWalls.push(r.walls)
         out.defects.push(r.defects)
         out.uniformWalls.push(r.uniformWalls)
@@ -719,5 +1025,12 @@ export function readCase(input: { m: GroundManifold; box: BoxGeometry; run: Runn
     input.reference?.beat()
   }
 
-  return { windows: out.departureDocks.length, idealWalls: ideal.walls, idealUniformWalls: ideal.uniformWalls, bulkDocks, farthest, ...out }
+  return {
+    windows: out.departureDocks.length,
+    idealWalls: ideal.walls,
+    idealUniformWalls: ideal.uniformWalls,
+    bulkDocks,
+    farthest,
+    ...out,
+  }
 }

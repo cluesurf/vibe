@@ -55,7 +55,7 @@ export default experiment({
   id: 'holography/page-curve-from-scrambling',
   code: 'E-HLG-0036',
   title:
-    "the Page curve from the coined Dirac walk model: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent",
+    'the Page curve from the coined Dirac walk model: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent',
   category: 'holography',
   substrates: 'any',
   depth: 'L1',

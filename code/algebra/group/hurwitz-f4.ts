@@ -5,13 +5,24 @@
 // so the Hurwitz units (+-1, +-i, +-j, +-k, (+-1 +-i +-j +-k) / 2) are integer 4-vectors.
 
 export type DoubledMatrix = Int32Array
-export type DoubledQuaternion = readonly [number, number, number, number]
+export type DoubledQuaternion = readonly [
+  number,
+  number,
+  number,
+  number,
+]
 
-export const DOUBLED_IDENTITY: DoubledMatrix = Int32Array.from({ length: 16 }, (_, i) => (i % 5 === 0 ? 2 : 0))
+export const DOUBLED_IDENTITY: DoubledMatrix = Int32Array.from(
+  { length: 16 },
+  (_, i) => (i % 5 === 0 ? 2 : 0),
+)
 
 export const matrixKey = (m: DoubledMatrix): string => m.join(',')
 
-export function multiplyDoubled(a: DoubledMatrix, b: DoubledMatrix): DoubledMatrix {
+export function multiplyDoubled(
+  a: DoubledMatrix,
+  b: DoubledMatrix,
+): DoubledMatrix {
   const out = new Int32Array(16)
 
   for (let i = 0; i < 4; i++) {
@@ -51,7 +62,9 @@ export function f4Roots(): number[][] {
     for (let j = i + 1; j < 4; j++) {
       for (const a of [2, -2]) {
         for (const b of [2, -2]) {
-          roots.push([0, 1, 2, 3].map(k => (k === i ? a : k === j ? b : 0)))
+          roots.push(
+            [0, 1, 2, 3].map(k => (k === i ? a : k === j ? b : 0)),
+          )
         }
       }
     }
@@ -60,7 +73,8 @@ export function f4Roots(): number[][] {
   return roots
 }
 
-export const isLongRoot = (r: readonly number[]): boolean => r.reduce((s, x) => s + x * x, 0) === 8
+export const isLongRoot = (r: readonly number[]): boolean =>
+  r.reduce((s, x) => s + x * x, 0) === 8
 
 export function doubledReflection(r: readonly number[]): DoubledMatrix {
   const rr = r.reduce((s, x) => s + x * x, 0)
@@ -68,15 +82,22 @@ export function doubledReflection(r: readonly number[]): DoubledMatrix {
 
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
-      m[i * 4 + j] = Math.round(2 * ((i === j ? 1 : 0) - (2 * r[i]! * r[j]!) / rr))
+      m[i * 4 + j] = Math.round(
+        2 * ((i === j ? 1 : 0) - (2 * r[i]! * r[j]!) / rr),
+      )
     }
   }
 
   return m
 }
 
-export function doubledClosure(generators: readonly DoubledMatrix[]): Map<string, DoubledMatrix> {
-  const seen = new Map<string, DoubledMatrix>([[matrixKey(DOUBLED_IDENTITY), DOUBLED_IDENTITY]])
+export function doubledClosure(
+  generators: readonly DoubledMatrix[],
+): Map<string, DoubledMatrix> {
+  const seen = new Map<string, DoubledMatrix>([
+    [matrixKey(DOUBLED_IDENTITY), DOUBLED_IDENTITY],
+  ])
+
   let frontier = [DOUBLED_IDENTITY]
 
   while (frontier.length > 0) {
@@ -102,8 +123,15 @@ export function doubledClosure(generators: readonly DoubledMatrix[]): Map<string
 
 // det(I - t g) for the top-left n x n block of a doubled matrix, integer coefficients (Faddeev-LeVerrier)
 export function oneMinusDeterminant(m: DoubledMatrix, n = 4): number[] {
-  const g = Array.from({ length: n * n }, (_, i) => m[Math.floor(i / n) * 4 + (i % n)]! / 2)
-  let mk: number[] = Array.from({ length: n * n }, (_, i) => (i % (n + 1) === 0 ? 1 : 0))
+  const g = Array.from(
+    { length: n * n },
+    (_, i) => m[Math.floor(i / n) * 4 + (i % n)]! / 2,
+  )
+
+  let mk: number[] = Array.from({ length: n * n }, (_, i) =>
+    i % (n + 1) === 0 ? 1 : 0,
+  )
+
   const c = [1]
 
   for (let k = 1; k <= n; k++) {
@@ -137,7 +165,10 @@ export function oneMinusDeterminant(m: DoubledMatrix, n = 4): number[] {
 }
 
 // h_0 .. h_count of 1 / det(I - t g): the characters of the symmetric powers
-export function symmetricPowerTraces(determinant: readonly number[], count: number): number[] {
+export function symmetricPowerTraces(
+  determinant: readonly number[],
+  count: number,
+): number[] {
   const h = [1]
 
   for (let n = 1; n <= count; n++) {
@@ -163,14 +194,22 @@ export type MolienReport = {
   readonly anisotropicQuarticCovariants: number
 }
 
-export function molien(group: Iterable<DoubledMatrix>, dimension: number, count: number): MolienReport {
+export function molien(
+  group: Iterable<DoubledMatrix>,
+  dimension: number,
+  count: number,
+): MolienReport {
   const total = Array<number>(count + 1).fill(0)
+
   let order = 0
   let quartic = 0
   let anisotropic = 0
 
   for (const g of group) {
-    const h = symmetricPowerTraces(oneMinusDeterminant(g, dimension), count)
+    const h = symmetricPowerTraces(
+      oneMinusDeterminant(g, dimension),
+      count,
+    )
 
     h.forEach((x, i) => (total[i] = total[i]! + x))
     quartic += h[4]! * h[2]!
@@ -178,11 +217,19 @@ export function molien(group: Iterable<DoubledMatrix>, dimension: number, count:
     order++
   }
 
-  return { series: total.map(x => x / order), order, quarticCovariants: quartic / order, anisotropicQuarticCovariants: anisotropic / order }
+  return {
+    series: total.map(x => x / order),
+    order,
+    quarticCovariants: quartic / order,
+    anisotropicQuarticCovariants: anisotropic / order,
+  }
 }
 
 // the series of 1 / prod (1 - t^d)
-export function degreeSeries(degrees: readonly number[], count: number): number[] {
+export function degreeSeries(
+  degrees: readonly number[],
+  count: number,
+): number[] {
   let s = Array<number>(count + 1).fill(0)
 
   s[0] = 1
@@ -200,7 +247,10 @@ export function degreeSeries(degrees: readonly number[], count: number): number[
   return s
 }
 
-export function multiplyQuaternions(p: DoubledQuaternion, q: DoubledQuaternion): DoubledQuaternion {
+export function multiplyQuaternions(
+  p: DoubledQuaternion,
+  q: DoubledQuaternion,
+): DoubledQuaternion {
   const [a1, b1, c1, d1] = p
   const [a2, b2, c2, d2] = q
 
@@ -212,7 +262,8 @@ export function multiplyQuaternions(p: DoubledQuaternion, q: DoubledQuaternion):
   ]
 }
 
-export const quaternionKey = (q: DoubledQuaternion): string => q.join(',')
+export const quaternionKey = (q: DoubledQuaternion): string =>
+  q.join(',')
 
 // the 24 Hurwitz units, doubled: the short F4 roots
 export function hurwitzUnits(): DoubledQuaternion[] {
@@ -238,11 +289,15 @@ export function quaternionOrder(q: DoubledQuaternion): number {
 }
 
 // x -> q x and x -> x q as doubled matrices
-export function leftMultiplication(q: DoubledQuaternion): DoubledMatrix {
+export function leftMultiplication(
+  q: DoubledQuaternion,
+): DoubledMatrix {
   const m = new Int32Array(16)
 
   for (let j = 0; j < 4; j++) {
-    const e = [0, 0, 0, 0].map((_, i) => (i === j ? 2 : 0)) as unknown as DoubledQuaternion
+    const e = [0, 0, 0, 0].map((_, i) =>
+      i === j ? 2 : 0,
+    ) as unknown as DoubledQuaternion
     const image = multiplyQuaternions(q, e)
 
     for (let i = 0; i < 4; i++) {
@@ -253,11 +308,15 @@ export function leftMultiplication(q: DoubledQuaternion): DoubledMatrix {
   return m
 }
 
-export function rightMultiplication(q: DoubledQuaternion): DoubledMatrix {
+export function rightMultiplication(
+  q: DoubledQuaternion,
+): DoubledMatrix {
   const m = new Int32Array(16)
 
   for (let j = 0; j < 4; j++) {
-    const e = [0, 0, 0, 0].map((_, i) => (i === j ? 2 : 0)) as unknown as DoubledQuaternion
+    const e = [0, 0, 0, 0].map((_, i) =>
+      i === j ? 2 : 0,
+    ) as unknown as DoubledQuaternion
     const image = multiplyQuaternions(e, q)
 
     for (let i = 0; i < 4; i++) {
@@ -274,14 +333,21 @@ export type Mod3Matrix = readonly [number, number, number, number]
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 export function multiplyMod3(p: Mod3Matrix, q: Mod3Matrix): Mod3Matrix {
-  return [mod3(p[0] * q[0] + p[1] * q[2]), mod3(p[0] * q[1] + p[1] * q[3]), mod3(p[2] * q[0] + p[3] * q[2]), mod3(p[2] * q[1] + p[3] * q[3])]
+  return [
+    mod3(p[0] * q[0] + p[1] * q[2]),
+    mod3(p[0] * q[1] + p[1] * q[3]),
+    mod3(p[2] * q[0] + p[3] * q[2]),
+    mod3(p[2] * q[1] + p[3] * q[3]),
+  ]
 }
 
 export function specialLinearMod3(): Mod3Matrix[] {
   const out: Mod3Matrix[] = []
 
   for (let m = 0; m < 81; m++) {
-    const s = [0, 1, 2, 3].map(k => Math.floor(m / 3 ** k) % 3) as unknown as Mod3Matrix
+    const s = [0, 1, 2, 3].map(
+      k => Math.floor(m / 3 ** k) % 3,
+    ) as unknown as Mod3Matrix
 
     if (mod3(s[0] * s[3] - s[1] * s[2]) === 1) {
       out.push(s)
@@ -307,12 +373,18 @@ export function mod3Order(s: Mod3Matrix): number {
 // words: a choice counts when the extension is well defined on all 24 units and injective
 export function binaryTetrahedralIsomorphisms(): number {
   const targets = specialLinearMod3()
+
   let count = 0
 
   for (const a of targets) {
     for (const b of targets) {
-      const image = new Map<string, Mod3Matrix>([[quaternionKey(ONE_QUATERNION), [1, 0, 0, 1]]])
-      let frontier: [DoubledQuaternion, Mod3Matrix][] = [[ONE_QUATERNION, [1, 0, 0, 1]]]
+      const image = new Map<string, Mod3Matrix>([
+        [quaternionKey(ONE_QUATERNION), [1, 0, 0, 1]],
+      ])
+
+      let frontier: [DoubledQuaternion, Mod3Matrix][] = [
+        [ONE_QUATERNION, [1, 0, 0, 1]],
+      ]
       let consistent = true
 
       while (frontier.length > 0 && consistent) {
@@ -339,7 +411,11 @@ export function binaryTetrahedralIsomorphisms(): number {
         frontier = next
       }
 
-      if (consistent && image.size === 24 && new Set([...image.values()].map(s => s.join(''))).size === 24) {
+      if (
+        consistent &&
+        image.size === 24 &&
+        new Set([...image.values()].map(s => s.join(''))).size === 24
+      ) {
         count++
       }
     }
@@ -349,7 +425,9 @@ export function binaryTetrahedralIsomorphisms(): number {
 }
 
 // how many elements have each order, keyed in increasing order
-export function orderCensus(orders: readonly number[]): Record<string, number> {
+export function orderCensus(
+  orders: readonly number[],
+): Record<string, number> {
   const out: Record<string, number> = {}
 
   for (const o of [...orders].sort((a, b) => a - b)) {

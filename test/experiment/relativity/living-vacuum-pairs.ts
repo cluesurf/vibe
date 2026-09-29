@@ -68,9 +68,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
-import { cloneStoreState, sameStoreState, storeCharge, storeEnergy, transformLinks, transformStoreState, type TokenStoreState } from '@/code/rule/token-store-knit'
+import {
+  cloneStoreState,
+  sameStoreState,
+  storeCharge,
+  storeEnergy,
+  transformLinks,
+  transformStoreState,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
 import {
   layoutViolations,
   livingBeat,
@@ -83,12 +94,22 @@ import {
   type LivingKnit,
   type LivingSchedule,
 } from '@/code/rule/living-pair-knit'
-import { livingRunner, livingVacuum, makeLivingKernel, type KernelTally } from '@/code/measure/living-pair-kernel'
+import {
+  livingRunner,
+  livingVacuum,
+  makeLivingKernel,
+  type KernelTally,
+} from '@/code/measure/living-pair-kernel'
 import { goldenFill } from '@/code/measure/candidate-kernel'
 import { storeStart } from '@/code/measure/token-store-gates'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { boxCellMap, linearMapOf } from '@/code/substrate/d4-box'
-import { advanceWhole, reduceWhole, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import {
+  advanceWhole,
+  reduceWhole,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
 
 const ROOTS = rootsD4()
@@ -100,23 +121,52 @@ const slots = cells * 24
 const tokens = slots * 2
 const layout = separatedLayout(weave)
 
-const hotGolden = (): TokenStoreState => livingState({ ...goldenFill(slots, 1.37), tau: 1, layout })
-const hotVacuum = (on: ColorWeave = weave, lay: Int8Array = layout): TokenStoreState =>
-  livingState({ vibe: new Int8Array(on.mesh.cellCount * 24), point: new Int8Array(on.mesh.cellCount * 24), tau: 1, layout: lay })
-const starts = (): TokenStoreState[] => [hotGolden(), storeStart(cells, 101), storeStart(cells, 2003)]
+const hotGolden = (): TokenStoreState =>
+  livingState({ ...goldenFill(slots, 1.37), tau: 1, layout })
+const hotVacuum = (
+  on: ColorWeave = weave,
+  lay: Int8Array = layout,
+): TokenStoreState =>
+  livingState({
+    vibe: new Int8Array(on.mesh.cellCount * 24),
+    point: new Int8Array(on.mesh.cellCount * 24),
+    tau: 1,
+    layout: lay,
+  })
+const starts = (): TokenStoreState[] => [
+  hotGolden(),
+  storeStart(cells, 101),
+  storeStart(cells, 2003),
+]
 
-function run(k: LivingKnit, s: TokenStoreState, beats: number, open?: Uint8Array): TokenStoreState {
+function run(
+  k: LivingKnit,
+  s: TokenStoreState,
+  beats: number,
+  open?: Uint8Array,
+): TokenStoreState {
   const o = open ?? new Uint8Array(s.point.length)
+
   let x = s
 
-  for (let t = 0; t < beats; t++) x = livingBeat(k, x, o, t).state
+  for (let t = 0; t < beats; t++) {
+    x = livingBeat(k, x, o, t).state
+  }
 
   return x
 }
 
 // G1
-function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures: number; dockSamples: number; boxAutomorphisms: number; boxFailures: number } {
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+function covariance(k: LivingKnit): {
+  coinFailures: number
+  conjugationFailures: number
+  dockSamples: number
+  boxAutomorphisms: number
+  boxFailures: number
+} {
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
   const samples: TokenStoreState[] = []
 
   for (const start of [hotGolden(), storeStart(cells, 11)]) {
@@ -146,15 +196,20 @@ function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures:
         const cx = cloneStoreState(x)
 
         livingCollide(k, cx, 0, t)
-        bad += sameStoreState(gx, transformStoreState(cx, [0], g, sign)) ? 0 : 1
+        bad += sameStoreState(gx, transformStoreState(cx, [0], g, sign))
+          ? 0
+          : 1
       }
     }
 
     return bad
   }
+
   let coinFailures = 0
 
-  for (const g of permutations) coinFailures += failures(g, 1)
+  for (const g of permutations) {
+    coinFailures += failures(g, 1)
+  }
 
   const conjugationFailures = failures(
     Array.from({ length: 24 }, (_, d) => d),
@@ -162,101 +217,190 @@ function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures:
   )
   const boxStart = run(k, storeStart(cells, 777), 3)
   const none = new Uint8Array(tokens)
+
   let boxAutomorphisms = 0
   let boxFailures = 0
 
   for (const g of permutations) {
     const matrix = linearMapOf(g)
-    const cellMap = matrix ? boxCellMap({ matrix, side: SIDE_LENGTH }) : undefined
+    const cellMap = matrix
+      ? boxCellMap({ matrix, side: SIDE_LENGTH })
+      : undefined
 
-    if (!cellMap) continue
+    if (!cellMap) {
+      continue
+    }
 
     boxAutomorphisms++
 
-    const kg: LivingKnit = { ...k, weave: { ...weave, links: transformLinks(weave.links, cellMap, g) } }
+    const kg: LivingKnit = {
+      ...k,
+      weave: {
+        ...weave,
+        links: transformLinks(weave.links, cellMap, g),
+      },
+    }
 
     for (const t of [0, 1]) {
-      const lhs = livingBeat(kg, transformStoreState(boxStart, cellMap, g), none, t).state
-      const rhs = transformStoreState(livingBeat(k, boxStart, none, t).state, cellMap, g)
+      const lhs = livingBeat(
+        kg,
+        transformStoreState(boxStart, cellMap, g),
+        none,
+        t,
+      ).state
+      const rhs = transformStoreState(
+        livingBeat(k, boxStart, none, t).state,
+        cellMap,
+        g,
+      )
 
       boxFailures += sameStoreState(lhs, rhs) ? 0 : 1
     }
   }
 
-  return { coinFailures, conjugationFailures, dockSamples: samples.length, boxAutomorphisms, boxFailures }
+  return {
+    coinFailures,
+    conjugationFailures,
+    dockSamples: samples.length,
+    boxAutomorphisms,
+    boxFailures,
+  }
 }
 
 // G2 and C2
-function reversal(schedule: LivingSchedule): { reverses: boolean; motionFailures: number; cptFailures: number } {
+function reversal(schedule: LivingSchedule): {
+  reverses: boolean
+  motionFailures: number
+  cptFailures: number
+} {
   const k = makeLivingKnit(weave, schedule)
   const none = new Uint8Array(tokens)
+
   let reverses = true
 
   for (const start of starts()) {
     let s = start
 
-    for (let t = 0; t < 96; t++) s = livingBeat(k, s, none, t).state
-    for (let t = 95; t >= 0; t--) s = livingBeatBack(k, s, none, t).state
+    for (let t = 0; t < 96; t++) {
+      s = livingBeat(k, s, none, t).state
+    }
+
+    for (let t = 95; t >= 0; t--) {
+      s = livingBeatBack(k, s, none, t).state
+    }
 
     reverses = reverses && sameStoreState(s, start)
   }
 
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
+
   let inversionCells: number[] = []
 
   for (const g of permutations) {
-    if (!g.every((image, d) => image === OPPOSITE[d])) continue
+    if (!g.every((image, d) => image === OPPOSITE[d])) {
+      continue
+    }
 
     const matrix = linearMapOf(g)
 
-    inversionCells = matrix ? (boxCellMap({ matrix, side: SIDE_LENGTH }) ?? []) : []
+    inversionCells = matrix
+      ? (boxCellMap({ matrix, side: SIDE_LENGTH }) ?? [])
+      : []
   }
 
-  const kp: LivingKnit = { ...k, weave: { ...weave, links: transformLinks(weave.links, inversionCells, OPPOSITE) } }
+  const kp: LivingKnit = {
+    ...k,
+    weave: {
+      ...weave,
+      links: transformLinks(weave.links, inversionCells, OPPOSITE),
+    },
+  }
+
   let motionFailures = 0
   let cptFailures = 0
 
   for (const x of starts()) {
     for (const t of [0, 1]) {
       // T U_t x against U_(t+1)^-1 T x
-      const lhs = livingMotionReversal(k, livingBeat(k, x, none, t).state, t)
-      const rhs = livingBeatBack(k, livingMotionReversal(k, x, t + 1), none, t + 1).state
+      const lhs = livingMotionReversal(
+        k,
+        livingBeat(k, x, none, t).state,
+        t,
+      )
+      const rhs = livingBeatBack(
+        k,
+        livingMotionReversal(k, x, t + 1),
+        none,
+        t + 1,
+      ).state
 
       motionFailures += sameStoreState(lhs, rhs) ? 0 : 1
 
       // CPT: M = charge conjugation with the inversion carries the knit onto kp; M^-1 T U_t T M x = U_(t+1)^-1 x
       const m = transformStoreState(x, inversionCells, OPPOSITE, -1)
-      const y = livingBeat(kp, livingMotionReversal(kp, m, t), none, t).state
-      const undone = transformStoreState(livingMotionReversal(kp, y, t + 1), inversionCells, OPPOSITE, -1)
+      const y = livingBeat(
+        kp,
+        livingMotionReversal(kp, m, t),
+        none,
+        t,
+      ).state
+      const undone = transformStoreState(
+        livingMotionReversal(kp, y, t + 1),
+        inversionCells,
+        OPPOSITE,
+        -1,
+      )
 
-      cptFailures += sameStoreState(undone, livingBeatBack(k, x, none, t + 1).state) ? 0 : 1
+      cptFailures += sameStoreState(
+        undone,
+        livingBeatBack(k, x, none, t + 1).state,
+      )
+        ? 0
+        : 1
     }
   }
 
-  return { reverses, motionFailures, cptFailures: inversionCells.length === cells ? cptFailures : -1 }
+  return {
+    reverses,
+    motionFailures,
+    cptFailures: inversionCells.length === cells ? cptFailures : -1,
+  }
 }
 
 // G3
 function laws(k: LivingKnit): boolean {
   const none = new Uint8Array(tokens)
+
   const momentum = (st: TokenStoreState): number[] => {
     const p = [0, 0, 0, 0]
 
-    for (let i = 0; i < st.vibe.length; i++) if (st.vibe[i] !== 0) (ROOTS[i % 24] as number[]).forEach((v, c) => (p[c] = (p[c] as number) + v))
+    for (let i = 0; i < st.vibe.length; i++) {
+      if (st.vibe[i] !== 0) {
+        ROOTS[i % 24]!.forEach((v, c) => (p[c] = p[c]! + v))
+      }
+    }
 
     return p
   }
+
   let exact = true
 
   for (const start of [hotGolden(), storeStart(cells, 11)]) {
     let s = start
+
     const q0 = storeCharge(s)
     const e0 = storeEnergy(s)
     const p0 = momentum(s)
 
     for (let t = 0; t < 96; t++) {
       s = livingBeat(k, s, none, t).state
-      exact = exact && storeCharge(s) === q0 && storeEnergy(s) === e0 && momentum(s).every((v, c) => v === p0[c])
+      exact =
+        exact &&
+        storeCharge(s) === q0 &&
+        storeEnergy(s) === e0 &&
+        momentum(s).every((v, c) => v === p0[c])
     }
   }
 
@@ -264,19 +408,27 @@ function laws(k: LivingKnit): boolean {
 }
 
 // G4
-function heldColorAndSigns(k: LivingKnit): { leaks: number; dockBeats: number; flips: number; meetings: number } {
+function heldColorAndSigns(k: LivingKnit): {
+  leaks: number
+  dockBeats: number
+  flips: number
+  meetings: number
+} {
   const none = new Uint8Array(tokens)
+
   const content = (s: TokenStoreState, x: number): number => {
     let w = 0
     let qx = 0
     let qy = 0
 
     for (let d = 0; d < 24; d++) {
-      const v = s.vibe[x * 24 + d] as number
+      const v = s.vibe[x * 24 + d]!
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
 
-      const p = s.point[s.token[x * 24 + d] as number] as number
+      const p = s.point[s.token[x * 24 + d]!]!
 
       w += v
       qx += v * (p % 3)
@@ -287,6 +439,7 @@ function heldColorAndSigns(k: LivingKnit): { leaks: number; dockBeats: number; f
 
     return m(w) * 9 + m(qx) * 3 + m(qy)
   }
+
   let s = hotGolden()
   let leaks = 0
 
@@ -305,6 +458,7 @@ function heldColorAndSigns(k: LivingKnit): { leaks: number; dockBeats: number; f
 
   const all = new Uint8Array(tokens).fill(1)
   const last = new Int8Array(tokens)
+
   let flips = 0
   let meetings = 0
 
@@ -316,7 +470,9 @@ function heldColorAndSigns(k: LivingKnit): { leaks: number; dockBeats: number; f
     r.record.meetings.forEach(([a, b], m) => {
       const [sa, sb] = r.record.signs?.[m] ?? [1, 1]
 
-      flips += (last[a] !== 0 && last[a] !== sa ? 1 : 0) + (last[b] !== 0 && last[b] !== sb ? 1 : 0)
+      flips +=
+        (last[a] !== 0 && last[a] !== sa ? 1 : 0) +
+        (last[b] !== 0 && last[b] !== sb ? 1 : 0)
       last[a] = sa
       last[b] = sb
       meetings++
@@ -328,17 +484,24 @@ function heldColorAndSigns(k: LivingKnit): { leaks: number; dockBeats: number; f
 }
 
 // G5, and C3
-function vacuumPattern(on: ColorWeave, lay: Int8Array, beats: number): { period: number; exact: boolean; vetoed: number; tallies: string } {
+function vacuumPattern(
+  on: ColorWeave,
+  lay: Int8Array,
+  beats: number,
+): { period: number; exact: boolean; vetoed: number; tallies: string } {
   const k = makeLivingKernel(on)
   const n = 12 * on.mesh.cellCount
   const r = livingRunner(k, livingVacuum(on.mesh.cellCount, 1, lay))
   const states: string[] = []
   const seen: string[] = []
+
   let exact = true
   let vetoed = 0
 
   for (let t = 0; t < beats; t++) {
-    states.push(`${r.state().vibe.join('')}|${r.state().store.join('')}`)
+    states.push(
+      `${r.state().vibe.join('')}|${r.state().store.join('')}`,
+    )
 
     const tally: KernelTally = { made: 0, unmade: 0, vetoed: 0 }
 
@@ -346,26 +509,52 @@ function vacuumPattern(on: ColorWeave, lay: Int8Array, beats: number): { period:
     vetoed += tally.vetoed
 
     const phase = t % 3
-    const expected = phase === 0 ? [n, 0, 0] : phase === 1 ? [0, 0, n] : [0, n, 0]
+    const expected =
+      phase === 0 ? [n, 0, 0] : phase === 1 ? [0, 0, n] : [0, n, 0]
 
-    exact = exact && tally.made === expected[0] && tally.unmade === expected[1] && tally.vetoed === expected[2]
+    exact =
+      exact &&
+      tally.made === expected[0] &&
+      tally.unmade === expected[1] &&
+      tally.vetoed === expected[2]
 
-    if (phase === 2) exact = exact && r.state().store.every(v => v === 1)
+    if (phase === 2) {
+      exact = exact && r.state().store.every(v => v === 1)
+    }
 
-    if (t < 6) seen.push(`${tally.made}/${tally.unmade}/${tally.vetoed}`)
+    if (t < 6) {
+      seen.push(`${tally.made}/${tally.unmade}/${tally.vetoed}`)
+    }
   }
 
   states.push(`${r.state().vibe.join('')}|${r.state().store.join('')}`)
 
   let period = 0
 
-  for (let p = 1; p <= 24 && period === 0; p++) if (states.every((x, t) => t + p >= states.length || x === states[t + p])) period = p
+  for (let p = 1; p <= 24 && period === 0; p++) {
+    if (
+      states.every(
+        (x, t) => t + p >= states.length || x === states[t + p],
+      )
+    ) {
+      period = p
+    }
+  }
 
-  return { period, exact: exact && period === 6, vetoed, tallies: seen.join(' ') }
+  return {
+    period,
+    exact: exact && period === 6,
+    vetoed,
+    tallies: seen.join(' '),
+  }
 }
 
-function partnerMeetings(k: LivingKnit, beats: number): { partner: number; across: number; stray: number } {
+function partnerMeetings(
+  k: LivingKnit,
+  beats: number,
+): { partner: number; across: number; stray: number } {
   const all = new Uint8Array(tokens).fill(1)
+
   let s = hotVacuum()
   let partner = 0
   let across = 0
@@ -376,11 +565,18 @@ function partnerMeetings(k: LivingKnit, beats: number): { partner: number; acros
 
     for (const [a, b] of r.record.meetings) {
       // a unit's own two tokens are the two place tokens it starts with (the store returns them)
-      const own = a >= slots && b >= slots && Math.floor((a - slots) / 2) === Math.floor((b - slots) / 2)
+      const own =
+        a >= slots &&
+        b >= slots &&
+        Math.floor((a - slots) / 2) === Math.floor((b - slots) / 2)
 
-      if (t % 3 === 2 && own) partner++
-      else if (t % 3 === 1 && !own) across++
-      else stray++
+      if (t % 3 === 2 && own) {
+        partner++
+      } else if (t % 3 === 1 && !own) {
+        across++
+      } else {
+        stray++
+      }
     }
 
     s = r.state
@@ -394,26 +590,37 @@ function vacuumPair(k: LivingKnit): { pair: number[]; kind: number } {
   const openOf = (pair: number[]): Uint8Array => {
     const o = new Uint8Array(tokens)
 
-    for (const t of pair) o[t] = 1
+    for (const t of pair) {
+      o[t] = 1
+    }
 
     return o
   }
-  const firsts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(l => {
-    const f = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].filter(d => d < (OPPOSITE[d] ?? d))[l] as number
 
-    return [f, OPPOSITE[f] as number]
+  const firsts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(l => {
+    const f = [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+      19, 20, 21, 22, 23,
+    ].filter(d => d < (OPPOSITE[d] ?? d))[l]!
+
+    return [f, OPPOSITE[f]!]
   })
 
   for (let kind = 0; kind < 2; kind++) {
     for (let l = 0; l < 12; l++) {
-      const pair = kind === 0 ? (firsts[l] as number[]) : [slots + 2 * l, slots + 2 * l + 1]
+      const pair =
+        kind === 0 ? firsts[l]! : [slots + 2 * l, slots + 2 * l + 1]
+
       let s = hotVacuum()
+
       const open = openOf(pair)
 
       for (let t = 0; t < 24; t++) {
         const r = livingBeat(k, s, open, t)
 
-        if (r.record.meetings.length > 0) return { pair, kind }
+        if (r.record.meetings.length > 0) {
+          return { pair, kind }
+        }
 
         s = r.state
       }
@@ -426,28 +633,59 @@ function vacuumPair(k: LivingKnit): { pair: number[]; kind: number } {
 // the vacuum pair's whole from a basis start (both roles at the given digits; E-FRC-0159's vacuum start is 0, 0),
 // 480 beats: its meetings, the most fears it carries at a meeting, the meetings that change the whole (added after
 // the first run, a reading), and the distinct wholes it visits at meetings
-function fearInVacuum(k: LivingKnit, pair: number[], mode: 'on' | 'off', digits: readonly number[] = [0, 0]): { meetings: number; fearsMax: number; changes: number; distinct: number } {
-  const kernels = exactFearKernels({ like: mode === 'on' ? 1 : 0, unlike: mode === 'on' ? 1 : 0, likeExchanged: false })
+function fearInVacuum(
+  k: LivingKnit,
+  pair: number[],
+  mode: 'on' | 'off',
+  digits: readonly number[] = [0, 0],
+): {
+  meetings: number
+  fearsMax: number
+  changes: number
+  distinct: number
+} {
+  const kernels = exactFearKernels({
+    like: mode === 'on' ? 1 : 0,
+    unlike: mode === 'on' ? 1 : 0,
+    likeExchanged: false,
+  })
   const open = new Uint8Array(tokens)
 
-  for (const t of pair) open[t] = 1
+  for (const t of pair) {
+    open[t] = 1
+  }
 
   const weight = new Array<bigint>(81).fill(0n)
 
-  for (let i = 0; i < 81; i++) weight[i] = Math.floor(Math.floor(i / 9) / 3) === digits[0] && Math.floor((i % 9) / 3) === digits[1] ? 1n : 0n
+  for (let i = 0; i < 81; i++) {
+    weight[i] =
+      Math.floor(Math.floor(i / 9) / 3) === digits[0] &&
+      Math.floor((i % 9) / 3) === digits[1]
+        ? 1n
+        : 0n
+  }
 
   let whole: Whole = { tokens: pair, weight }
   let s = hotVacuum()
   let meetings = 0
   let fearsMax = 0n
   let changes = 0
+
   const seen = new Set<string>()
 
   for (let t = 0; t < 480; t++) {
     const r = livingBeat(k, s, open, t)
     const before = reduceWhole(whole).weight.join(',')
 
-    whole = advanceWhole({ weave, whole, record: r.record, kernel4: [], color: kernels, fixed: false, forward: true }) as Whole
+    whole = advanceWhole({
+      weave,
+      whole,
+      record: r.record,
+      kernel4: [],
+      color: kernels,
+      fixed: false,
+      forward: true,
+    })!
 
     if (r.record.meetings.length > 0) {
       meetings += r.record.meetings.length
@@ -463,7 +701,12 @@ function fearInVacuum(k: LivingKnit, pair: number[], mode: 'on' | 'off', digits:
     s = r.state
   }
 
-  return { meetings, fearsMax: Number(fearsMax), changes, distinct: seen.size }
+  return {
+    meetings,
+    fearsMax: Number(fearsMax),
+    changes,
+    distinct: seen.size,
+  }
 }
 
 export default experiment({
@@ -483,22 +726,45 @@ export default experiment({
     const lawsExact = laws(k)
     const held = heldColorAndSigns(k)
     const boxes = [3, 5, 7, 9].map(side => {
-      const w = side === SIDE_LENGTH ? weave : makeColorWeave({ side, table: 'bind' })
+      const w =
+        side === SIDE_LENGTH
+          ? weave
+          : makeColorWeave({ side, table: 'bind' })
       const lay = side === SIDE_LENGTH ? layout : separatedLayout(w)
 
-      return { side, violations: layoutViolations(w, lay), ...vacuumPattern(w, lay, 24) }
+      return {
+        side,
+        violations: layoutViolations(w, lay),
+        ...vacuumPattern(w, lay, 24),
+      }
     })
     const partners = partnerMeetings(k, 24)
     const pair = vacuumPair(k)
-    const fearOn = pair.pair.length === 2 ? fearInVacuum(k, pair.pair, 'on') : { meetings: 0, fearsMax: 0, changes: 0, distinct: 0 }
-    const fearOff = pair.pair.length === 2 ? fearInVacuum(k, pair.pair, 'off') : { meetings: 0, fearsMax: 0, changes: 0, distinct: 0 }
+    const fearOn =
+      pair.pair.length === 2
+        ? fearInVacuum(k, pair.pair, 'on')
+        : { meetings: 0, fearsMax: 0, changes: 0, distinct: 0 }
+    const fearOff =
+      pair.pair.length === 2
+        ? fearInVacuum(k, pair.pair, 'off')
+        : { meetings: 0, fearsMax: 0, changes: 0, distinct: 0 }
     // added after the first run (a reading, no gate): every basis start of the vacuum pair
-    const digitScan = pair.pair.length === 2 ? [0, 1, 2].flatMap(a => [0, 1, 2].map(b => ({ a, b, ...fearInVacuum(k, pair.pair, 'on', [a, b]) }))) : []
+    const digitScan =
+      pair.pair.length === 2
+        ? [0, 1, 2].flatMap(a =>
+            [0, 1, 2].map(b => ({
+              a,
+              b,
+              ...fearInVacuum(k, pair.pair, 'on', [a, b]),
+            })),
+          )
+        : []
 
     // controls
     const palindrome = makeLivingKnit(weave, 'palindrome')
     const paliMeetings = (() => {
       const all = new Uint8Array(tokens).fill(1)
+
       let s = hotVacuum()
       let n = 0
 
@@ -512,23 +778,43 @@ export default experiment({
       return n
     })()
     const first = reversal('first')
-    const flatWeave: ColorWeave = { ...weave, links: new Int16Array(slots).fill(weave.moves.identity) }
+    const flatWeave: ColorWeave = {
+      ...weave,
+      links: new Int16Array(slots).fill(weave.moves.identity),
+    }
     const equalLayout = new Int8Array(cells * 12)
     const broken = vacuumPattern(flatWeave, equalLayout, 24)
     const flatSeparated = separatedLayout(flatWeave)
     const flatGood = vacuumPattern(flatWeave, flatSeparated, 24)
 
-    const g1 = cov.coinFailures === 0 && cov.conjugationFailures === 0 && cov.boxAutomorphisms === 1152 && cov.boxFailures === 0
-    const g2 = rev.reverses && rev.motionFailures === 0 && rev.cptFailures === 0
+    const g1 =
+      cov.coinFailures === 0 &&
+      cov.conjugationFailures === 0 &&
+      cov.boxAutomorphisms === 1152 &&
+      cov.boxFailures === 0
+    const g2 =
+      rev.reverses && rev.motionFailures === 0 && rev.cptFailures === 0
     const g3 = lawsExact
     const g4 = held.leaks === 0 && held.flips === 0 && held.meetings > 0
-    const g5 = boxes.every(b => b.violations === 0 && b.exact) && partners.partner === 8 * 12 * cells && partners.across === 8 * 12 * cells && partners.stray === 0
-    const g6 = pair.pair.length === 2 && fearOn.meetings >= 150 && fearOn.fearsMax > 0 && fearOff.fearsMax === 0
+    const g5 =
+      boxes.every(b => b.violations === 0 && b.exact) &&
+      partners.partner === 8 * 12 * cells &&
+      partners.across === 8 * 12 * cells &&
+      partners.stray === 0
+    const g6 =
+      pair.pair.length === 2 &&
+      fearOn.meetings >= 150 &&
+      fearOn.fearsMax > 0 &&
+      fearOff.fearsMax === 0
     const c1 = paliMeetings === 0
     const c2 = first.reverses && first.motionFailures > 0
     const c3 = broken.vetoed === 0 && broken.period !== 6
     const instruments = g1 && g2 && g3 && g4 && c1 && c2 && c3
-    const status = instruments ? (g5 && g6 ? 'pass' : 'fail') : 'partial'
+    const status = instruments
+      ? g5 && g6
+        ? 'pass'
+        : 'fail'
+      : 'partial'
     const seconds = (Date.now() - started) / 1000
     const metrics: Record<string, number> = {
       coinMapFailures: cov.coinFailures,
@@ -544,11 +830,13 @@ export default experiment({
       heldColorDockBeats: held.dockBeats,
       signFlips: held.flips,
       allOpenMeetings: held.meetings,
-      ...Object.fromEntries(boxes.flatMap(b => [
-        [`side${b.side}_layoutViolations`, b.violations],
-        [`side${b.side}_vacuumPeriod`, b.period],
-        [`side${b.side}_patternExact`, b.exact ? 1 : 0],
-      ])),
+      ...Object.fromEntries(
+        boxes.flatMap(b => [
+          [`side${b.side}_layoutViolations`, b.violations],
+          [`side${b.side}_vacuumPeriod`, b.period],
+          [`side${b.side}_patternExact`, b.exact ? 1 : 0],
+        ]),
+      ),
       partnerMeetings: partners.partner,
       acrossMeetings: partners.across,
       strayMeetings: partners.stray,
@@ -560,11 +848,13 @@ export default experiment({
       vacuumFearsMaxOff: fearOff.fearsMax,
       vacuumWholeChangesOn: fearOn.changes,
       vacuumDistinctWholesOn: fearOn.distinct,
-      ...Object.fromEntries(digitScan.flatMap(d => [
-        [`start${d.a}${d.b}_fearsMax`, d.fearsMax],
-        [`start${d.a}${d.b}_changes`, d.changes],
-        [`start${d.a}${d.b}_distinct`, d.distinct],
-      ])),
+      ...Object.fromEntries(
+        digitScan.flatMap(d => [
+          [`start${d.a}${d.b}_fearsMax`, d.fearsMax],
+          [`start${d.a}${d.b}_changes`, d.changes],
+          [`start${d.a}${d.b}_distinct`, d.distinct],
+        ]),
+      ),
       palindromeVacuumMeetings: paliMeetings,
       firstReverses: first.reverses ? 1 : 0,
       firstMotionReversalFailures: first.motionFailures,
@@ -579,7 +869,12 @@ export default experiment({
       status,
       claim: `the pair move applied once per beat, alternately before and after the coin map, keeps W(F4) (${cov.coinFailures} failures over 1,152 coin maps on ${cov.dockSamples} docks and both collisions, ${cov.boxFailures} over ${cov.boxAutomorphisms} box automorphisms), charge conjugation, exact reversal, the motion reversal T = S R (${rev.motionFailures} failures, the one-phase control ${first.motionFailures}) and CPT (${rev.cptFailures}), charge, momentum and energy, the held color (${held.leaks} of ${held.dockBeats} dock-beats) and every token's sign (${held.flips} flips in ${held.meetings} meetings); its hot vacuum runs exactly as derived on sides 3 to 9 (period ${boxes.map(b => b.period).join(', ')}; beats made, refused, unmade ${boxes[0]?.tallies}), every vacuum pair streams two beats and its own tokens meet again (${partners.partner} partner and ${partners.across} cross meetings in 24 beats, ${partners.stray} stray), dock 0's vacuum pair meets ${fearOn.meetings} times in 480 beats and the fear beat puts fears in it (${fearOn.fearsMax} at most, ${fearOff.fearsMax} with it off); the palindrome's vacuum meets ${paliMeetings} times`,
       metrics,
-      control: { palindromeVacuumMeetings: paliMeetings, firstMotionReversalFailures: first.motionFailures, brokenLayoutVetoes: broken.vetoed, brokenLayoutPeriod: broken.period },
+      control: {
+        palindromeVacuumMeetings: paliMeetings,
+        firstMotionReversalFailures: first.motionFailures,
+        brokenLayoutVetoes: broken.vetoed,
+        brokenLayoutPeriod: broken.period,
+      },
       notes: `L2. Gates: G1 ${g1}, G2 ${g2}, G3 ${g3}, G4 ${g4}, G5 ${g5}, G6 ${g6}; controls C1 ${c1}, C2 ${c2}, C3 ${c3}. The vacuum pair is of kind ${pair.kind === 0 ? 'slot tokens' : pair.kind === 1 ? 'place tokens' : 'none'} (${pair.pair.join(', ')}). On flat links with a separated layout the vacuum has period ${flatGood.period} (pattern exact ${flatGood.exact}); with every stored point equal (the broken layout) the veto refuses ${broken.vetoed} and the period is ${broken.period}: two units' members pair off across the vacuum each beat. THE VACUUM PAIR'S WHOLE (added after the first run): from each basis start, fears at most ${digitScan.map(d => d.fearsMax).join(', ')}, meetings that change the whole ${digitScan.map(d => d.changes).join(', ')}, distinct wholes ${digitScan.map(d => d.distinct).join(', ')} (starts 00, 01, 02, 10, 11, 12, 20, 21, 22). WHY NO FEAR: a vacuum pair meets nobody but its own partner, and between two meetings each token crosses one link and then its inverse, so its whole sees the same love-fear kernel at every meeting and nothing between; that kernel is the singlet phase I + (omega - 1) P, P the projector on the correlated state sum_j |j, j> / sqrt 3 (code/rule/fear-kernel-exact tripledSingletPhase), whose cube is the identity and which moves only the equal-digit starts, so the whole cycles through at most 3 states, and from the basis starts those states carry no negative weight. The fears E-FRC-0159 read on H's vacuum pair come from meetings mixed with transport (like and love-fear kernels, links between); this vacuum has neither. FIRST RUN 100.4 s, fail on G6, recorded as is. ${seconds.toFixed(1)} s.`,
     })
   },

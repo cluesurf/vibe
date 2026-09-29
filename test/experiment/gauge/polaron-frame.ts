@@ -42,11 +42,32 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { loopBeat, loopKernel, loopSplit, ringCurl, ringOmega, ringSpec, splitNear, type LoopSpec } from '@/code/rule/loop-ring'
+import {
+  loopBeat,
+  loopKernel,
+  loopSplit,
+  ringCurl,
+  ringOmega,
+  ringSpec,
+  splitNear,
+  type LoopSpec,
+} from '@/code/rule/loop-ring'
 import { atomBare } from '@/code/measure/quantum-ladder'
-import { ringAtomSpec, stripGoldenRule, stripModes } from '@/code/measure/few-quanta'
-import { reducedBeat, reducedKernel, reducedToFull } from '@/code/measure/ring-reduced'
-import { atomWithLight, reducedVacuum, restrictedFrame } from '@/code/measure/polaron-runs'
+import {
+  ringAtomSpec,
+  stripGoldenRule,
+  stripModes,
+} from '@/code/measure/few-quanta'
+import {
+  reducedBeat,
+  reducedKernel,
+  reducedToFull,
+} from '@/code/measure/ring-reduced'
+import {
+  atomWithLight,
+  reducedVacuum,
+  restrictedFrame,
+} from '@/code/measure/polaron-runs'
 import { staticField } from '@/code/measure/polaron-frame'
 import { weyl } from '@/code/tool/weyl'
 
@@ -55,7 +76,11 @@ const LOW = 12
 
 type Mat = { re: Float64Array; im: Float64Array; n: number }
 
-const zeros = (n: number): Mat => ({ re: new Float64Array(n * n), im: new Float64Array(n * n), n })
+const zeros = (n: number): Mat => ({
+  re: new Float64Array(n * n),
+  im: new Float64Array(n * n),
+  n,
+})
 
 function matMul(a: Mat, b: Mat): Mat {
   const n = a.n
@@ -66,11 +91,20 @@ function matMul(a: Mat, b: Mat): Mat {
       const ar = a.re[i * n + k]!
       const ai = a.im[i * n + k]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
 
       for (let j = 0; j < n; j++) {
-        out.re[i * n + j] = out.re[i * n + j]! + ar * b.re[k * n + j]! - ai * b.im[k * n + j]!
-        out.im[i * n + j] = out.im[i * n + j]! + ar * b.im[k * n + j]! + ai * b.re[k * n + j]!
+        out.re[i * n + j] =
+          out.re[i * n + j]! +
+          ar * b.re[k * n + j]! -
+          ai * b.im[k * n + j]!
+
+        out.im[i * n + j] =
+          out.im[i * n + j]! +
+          ar * b.im[k * n + j]! +
+          ai * b.re[k * n + j]!
       }
     }
   }
@@ -79,7 +113,10 @@ function matMul(a: Mat, b: Mat): Mat {
 }
 
 // <m| D(g) |n> of the untruncated displacement (generalized Laguerre), for m, n <= CUT
-function displacementMatrix(gr: number, gi: number): { re: Float64Array; im: Float64Array } {
+function displacementMatrix(
+  gr: number,
+  gi: number,
+): { re: Float64Array; im: Float64Array } {
   const C = CUT + 1
   const re = new Float64Array(C * C)
   const im = new Float64Array(C * C)
@@ -87,14 +124,18 @@ function displacementMatrix(gr: number, gi: number): { re: Float64Array; im: Flo
   const damp = Math.exp(-x / 2)
   const lf = new Float64Array(C + 1)
 
-  for (let i = 1; i <= C; i++) lf[i] = lf[i - 1]! + Math.log(i)
+  for (let i = 1; i <= C; i++) {
+    lf[i] = lf[i - 1]! + Math.log(i)
+  }
 
   const laguerre = (k: number, a: number): number => {
     // L_k^(a)(x) by recurrence
     let l0 = 1
     let l1 = 1 + a - x
 
-    if (k === 0) return l0
+    if (k === 0) {
+      return l0
+    }
 
     for (let j = 1; j < k; j++) {
       const l2 = ((2 * j + 1 + a - x) * l1 - (j + a) * l0) / (j + 1)
@@ -112,6 +153,7 @@ function displacementMatrix(gr: number, gi: number): { re: Float64Array; im: Flo
       const [lo, hi] = m >= n ? [n, m] : [m, n]
       const d = hi - lo
       const base: [number, number] = m >= n ? [gr, gi] : [-gr, gi]
+
       let pr = 1
       let pi = 0
 
@@ -122,7 +164,8 @@ function displacementMatrix(gr: number, gi: number): { re: Float64Array; im: Flo
         pr = t
       }
 
-      const scale = damp * Math.exp((lf[lo]! - lf[hi]!) / 2) * laguerre(lo, d)
+      const scale =
+        damp * Math.exp((lf[lo]! - lf[hi]!) / 2) * laguerre(lo, d)
 
       re[m * C + n] = pr * scale
       im[m * C + n] = pi * scale
@@ -133,7 +176,9 @@ function displacementMatrix(gr: number, gi: number): { re: Float64Array; im: Flo
 }
 
 // an operator on (x, n), x in {0, 1}, n <= CUT, from 2x2 blocks of Fock matrices (undefined = zero)
-function blocks(parts: ({ re: Float64Array; im: Float64Array } | undefined)[][]): Mat {
+function blocks(
+  parts: ({ re: Float64Array; im: Float64Array } | undefined)[][],
+): Mat {
   const C = CUT + 1
   const out = zeros(2 * C)
 
@@ -141,7 +186,9 @@ function blocks(parts: ({ re: Float64Array; im: Float64Array } | undefined)[][])
     for (let y = 0; y < 2; y++) {
       const p = parts[x]![y]
 
-      if (!p) continue
+      if (!p) {
+        continue
+      }
 
       for (let i = 0; i < C; i++) {
         for (let j = 0; j < C; j++) {
@@ -155,7 +202,10 @@ function blocks(parts: ({ re: Float64Array; im: Float64Array } | undefined)[][])
   return out
 }
 
-const identity = (cr = 1, ci = 0): { re: Float64Array; im: Float64Array } => {
+const identity = (
+  cr = 1,
+  ci = 0,
+): { re: Float64Array; im: Float64Array } => {
   const C = CUT + 1
   const re = new Float64Array(C * C)
   const im = new Float64Array(C * C)
@@ -168,12 +218,19 @@ const identity = (cr = 1, ci = 0): { re: Float64Array; im: Float64Array } => {
   return { re, im }
 }
 
-const scaled = (m: { re: Float64Array; im: Float64Array }, cr: number, ci: number) => ({
+const scaled = (
+  m: { re: Float64Array; im: Float64Array },
+  cr: number,
+  ci: number,
+) => ({
   re: m.re.map((v, i) => v * cr - m.im[i]! * ci),
   im: m.re.map((v, i) => v * ci + m.im[i]! * cr),
 })
 
-function freePhase(omega: number): { re: Float64Array; im: Float64Array } {
+function freePhase(omega: number): {
+  re: Float64Array
+  im: Float64Array
+} {
   const C = CUT + 1
   const re = new Float64Array(C * C)
   const im = new Float64Array(C * C)
@@ -187,7 +244,13 @@ function freePhase(omega: number): { re: Float64Array; im: Float64Array } {
 }
 
 // P1: one point
-function frameIdentity(omega: number, gu: number, lambda: number, z: number, phi: number): number {
+function frameIdentity(
+  omega: number,
+  gu: number,
+  lambda: number,
+  z: number,
+  phi: number,
+): number {
   const [br, bi] = staticField(omega, gu, 1)
   const gr = lambda * br
   const gi = lambda * bi
@@ -244,6 +307,7 @@ function frameIdentity(omega: number, gu: number, lambda: number, z: number, phi
   ])
   const rhs = matMul(E, matMul(Pm, matMul(Phi, Vt)))
   const C = CUT + 1
+
   let worst = 0
 
   for (let x = 0; x < 2; x++) {
@@ -252,7 +316,13 @@ function frameIdentity(omega: number, gu: number, lambda: number, z: number, phi
         for (let j = 0; j <= LOW; j++) {
           const p = (x * C + i) * 2 * C + y * C + j
 
-          worst = Math.max(worst, Math.hypot(lhs.re[p]! - rhs.re[p]!, lhs.im[p]! - rhs.im[p]!))
+          worst = Math.max(
+            worst,
+            Math.hypot(
+              lhs.re[p]! - rhs.re[p]!,
+              lhs.im[p]! - rhs.im[p]!,
+            ),
+          )
         }
       }
     }
@@ -262,26 +332,52 @@ function frameIdentity(omega: number, gu: number, lambda: number, z: number, phi
 }
 
 // P2: the vacuum survival under a frozen charge, exact rule and harmonic formula
-function loschmidt(n: number, L: number, beats: number, forceOff: boolean): { worst: number; lowest: number; lowestPredicted: number; controlEnd: number; W: number; vacuumResidual: number } {
+function loschmidt(
+  n: number,
+  L: number,
+  beats: number,
+  forceOff: boolean,
+): {
+  worst: number
+  lowest: number
+  lowestPredicted: number
+  controlEnd: number
+  W: number
+  vacuumResidual: number
+} {
   const split = splitNear(n, 1)
   const spec = ringSpec(n, L, split, 0)
   const { f, kappa } = loopSplit(spec)
   const vac = reducedVacuum(spec)
   const kernel = reducedKernel(spec, { withAtom: true })
   const g = (4 * Math.PI * spec.drift) / spec.root
-  const modes = stripModes({ n, squares: L, f, js: Array.from({ length: L - 1 }, (_, j) => j + 1), omegaOf: k => ringOmega(kappa, k) })
+  const modes = stripModes({
+    n,
+    squares: L,
+    f,
+    js: Array.from({ length: L - 1 }, (_, j) => j + 1),
+    omegaOf: k => ringOmega(kappa, k),
+  })
   const beta2 = Array.from(modes.omega, (w, a) => {
     const [br, bi] = staticField(w, modes.u[a]!, g)
 
     return br * br + bi * bi
   })
   const half = kernel.half
+
   let worst = 0
   let lowest = 1
   let lowestPredicted = 1
   let controlEnd = 1
+
   const run = (off: boolean): number[] => {
-    const k = off ? { ...kernel, forceRe: new Float64Array(half).fill(1), forceIm: new Float64Array(half) } : kernel
+    const k = off
+      ? {
+          ...kernel,
+          forceRe: new Float64Array(half).fill(1),
+          forceIm: new Float64Array(half),
+        }
+      : kernel
     const v = atomWithLight([0, 0, 1, 0], vac.vacuum)
     const out: number[] = []
 
@@ -301,11 +397,14 @@ function loschmidt(n: number, L: number, beats: number, forceOff: boolean): { wo
 
       out.push(sr * sr + si * si)
 
-      if (t < beats) reducedBeat(k, v.re, v.im)
+      if (t < beats) {
+        reducedBeat(k, v.re, v.im)
+      }
     }
 
     return out
   }
+
   const exact = run(false)
 
   for (let t = 0; t <= beats; t++) {
@@ -322,15 +421,29 @@ function loschmidt(n: number, L: number, beats: number, forceOff: boolean): { wo
     lowestPredicted = Math.min(lowestPredicted, predicted)
   }
 
-  if (forceOff) controlEnd = run(true)[beats]!
+  if (forceOff) {
+    controlEnd = run(true)[beats]!
+  }
 
-  return { worst, lowest, lowestPredicted, controlEnd, W: beta2.reduce((s, x) => s + x, 0), vacuumResidual: vac.residual }
+  return {
+    worst,
+    lowest,
+    lowestPredicted,
+    controlEnd,
+    W: beta2.reduce((s, x) => s + x, 0),
+    vacuumResidual: vac.residual,
+  }
 }
 
 // P3: reduced against full
 function kernelCheck(n: number, L: number): number {
   const split = splitNear(n, 1)
-  const spec: LoopSpec = ringSpec(n, L, split, Math.floor(split.root / 7))
+  const spec: LoopSpec = ringSpec(
+    n,
+    L,
+    split,
+    Math.floor(split.root / 7),
+  )
   const red = reducedKernel(spec, { withAtom: true })
   const full = loopKernel(spec)
   const re = new Float64Array(red.size)
@@ -342,6 +455,7 @@ function kernelCheck(n: number, L: number): number {
   }
 
   const f = reducedToFull(spec, re, im, 2)
+
   let worst = 0
 
   for (let t = 0; t < 5; t++) {
@@ -350,13 +464,26 @@ function kernelCheck(n: number, L: number): number {
 
     const back = reducedToFull(spec, re, im, 2)
 
-    for (let i = 0; i < f.re.length; i++) worst = Math.max(worst, Math.abs(back.re[i]! - f.re[i]!), Math.abs(back.im[i]! - f.im[i]!))
+    for (let i = 0; i < f.re.length; i++) {
+      worst = Math.max(
+        worst,
+        Math.abs(back.re[i]! - f.re[i]!),
+        Math.abs(back.im[i]! - f.im[i]!),
+      )
+    }
   }
 
   return worst
 }
 
-const ladderShape = (spec: LoopSpec) => ({ n: spec.n, plaquettes: spec.squares, root: spec.root, drift: spec.drift, force: spec.force, hop: spec.hop! })
+const ladderShape = (spec: LoopSpec) => ({
+  n: spec.n,
+  plaquettes: spec.squares,
+  root: spec.root,
+  drift: spec.drift,
+  force: spec.force,
+  hop: spec.hop!,
+})
 
 export default experiment({
   id: 'gauge/polaron-frame',
@@ -372,6 +499,7 @@ export default experiment({
 
     // P1
     const lambdas = [0, 0.5, 1, weyl(101), weyl(102), weyl(103)]
+
     let p1 = 0
 
     lambdas.forEach((lambda, j) => {
@@ -437,40 +565,70 @@ export default experiment({
       const { f, kappa } = loopSplit(spec)
       const bare = atomBare(ladderShape(spec))
       const g = (4 * Math.PI * spec.drift) / spec.root
-      const gr = stripGoldenRule({ n, f, kappa, g, dipole: bare.dipole, gap: bare.gap, curl: ringCurl, curlSlope: k => 2 * Math.sin(k) })
+      const gr = stripGoldenRule({
+        n,
+        f,
+        kappa,
+        g,
+        dipole: bare.dipole,
+        gap: bare.gap,
+        curl: ringCurl,
+        curlSlope: k => 2 * Math.sin(k),
+      })
 
       metrics[`coupling${tag}`] = g
       metrics[`bareGap${tag}`] = bare.gap
       metrics[`goldenRule${tag}`] = gr.rate
 
-      for (const kind of ['lab', 'lang-firsov', 'silbey-harris'] as const) {
+      for (const kind of [
+        'lab',
+        'lang-firsov',
+        'silbey-harris',
+      ] as const) {
         const c = restrictedFrame(spec, bare.gap, kind)
-        const key = kind === 'lab' ? 'Lab' : kind === 'lang-firsov' ? 'LF' : 'SH'
+        const key =
+          kind === 'lab' ? 'Lab' : kind === 'lang-firsov' ? 'LF' : 'SH'
+
         let kick = 0
 
-        for (let a = 0; a < c.frame.modes; a++) kick += c.frame.kappaRe[a]! ** 2 + c.frame.kappaIm[a]! ** 2
+        for (let a = 0; a < c.frame.modes; a++) {
+          kick += c.frame.kappaRe[a]! ** 2 + c.frame.kappaIm[a]! ** 2
+        }
 
         metrics[`W${key}${tag}`] = c.frame.W
         metrics[`kickPerBeat${key}${tag}`] = Math.sqrt(kick)
-        metrics[`dressedHopOffVacuum${key}${tag}`] = Math.hypot(...c.frame.hopB) * Math.sqrt(1 - Math.exp(-c.frame.W))
+        metrics[`dressedHopOffVacuum${key}${tag}`] =
+          Math.hypot(...c.frame.hopB) *
+          Math.sqrt(1 - Math.exp(-c.frame.W))
         metrics[`chi${key}${tag}`] = c.frame.chi
         metrics[`dressedGap${key}${tag}`] = c.prediction.gap
         metrics[`predictedRate${key}${tag}`] = c.prediction.rate
-        metrics[`predictedOverGolden${key}${tag}`] = c.prediction.rate / gr.rate
+        metrics[`predictedOverGolden${key}${tag}`] =
+          c.prediction.rate / gr.rate
       }
     }
 
     const gates = { P1: p1 <= 1e-10, P2: p2, P3: p3 <= 1e-12 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = gates.P1 && gates.P2 && gates.P3 ? 'pass' : gates.P1 && gates.P3 ? 'partial' : 'fail'
+    const status =
+      gates.P1 && gates.P2 && gates.P3
+        ? 'pass'
+        : gates.P1 && gates.P3
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
       claim: `the frame D(x gamma) conjugates the beat into e^(i x chi) D(x kappa) P Phi Vt within ${p1.toExponential(1)} (six Weyl points, one mode, 70 quanta), so with lambda = 1 the per-beat kick (|alpha| ${metrics.kickPerBeatLabN25L512!.toFixed(4)} at N = 25, L = 512) is exactly zero and the coupling is a dressed hop of off-vacuum amplitude ${metrics.dressedHopOffVacuumLFN25L512!.toFixed(4)}; the exact register rule's vacuum survival under a frozen charge follows exp(-2 sum |beta|^2 (1 - cos omega t)) within ${metrics.survivalWorstN25L4!.toExponential(1)} and ${metrics.survivalWorstN49L4!.toExponential(1)} (N = 25, 49, L = 4; plateau minimum ${metrics.survivalLowestN25L4!.toFixed(5)} against ${metrics.survivalLowestPredictedN25L4!.toFixed(5)}), where the force-off light falls to ${metrics.forceOffSurvivalEndN25L4!.toFixed(4)}; the reduced kernel equals the full rule within ${p3.toExponential(1)}. Predicted long-ring rates (N = 25, 49): Lang-Firsov ${metrics.predictedOverGoldenLFN25L512!.toFixed(4)}, ${metrics.predictedOverGoldenLFN49L512!.toFixed(4)} and Silbey-Harris ${metrics.predictedOverGoldenSHN25L512!.toFixed(4)}, ${metrics.predictedOverGoldenSHN49L512!.toFixed(4)} of the bare golden rule (W = ${metrics.WLFN25L512!.toFixed(4)} against ${metrics.WSHN25L512!.toFixed(4)} at N = 25)`,
       metrics,
-      control: { forceOffSurvivalEndN25L4: metrics.forceOffSurvivalEndN25L4!, forceOffSurvivalEndN49L4: metrics.forceOffSurvivalEndN49L4! },
+      control: {
+        forceOffSurvivalEndN25L4: metrics.forceOffSurvivalEndN25L4!,
+        forceOffSurvivalEndN49L4: metrics.forceOffSurvivalEndN49L4!,
+      },
       notes:
         "L2 (P1 L1). FIRST RUN 2026-09-26 (tmp/frc0238.log, 115 s), PASS on all three gates. No gate moved. P1: the frame identity holds within 5.7e-15 at six Weyl points (lambda = 0, 1/2, 1 and three Weyl values). P3: the reduced kernel equals the full rule within 6.4e-16. P2: the exact register rule's vacuum survival under a frozen charge follows exp(-2 sum |beta|^2 (1 - cos omega t)) within 3.2e-9 (N = 25) and 3.9e-12 (N = 49) over 200 and 300 beats, plateau minimum 0.783485 against 0.783485 and 0.884522 against 0.884522 (W = 0.0611, 0.0308); at E-FRC-0236's box within 4.7e-3 (N = 9, W = 0.213, minimum 0.4566 against 0.4569) and 5.1e-4 (N = 11). CONTROL: with the force step off the charge's kick has no fixed point and the survival falls to 1.9e-3 and 1.1e-3. So the charge's static dressing IS the Weyl displacement beta of the harmonic reading, to 1e-9 in the exact rule at N >= 25. The frames (predictions, stated before E-FRC-0239 and 0240 ran): Lang-Firsov removes the kick exactly (|kappa| 1.8e-17 against the lab 0.114 at N = 25, L = 512) and leaves a dressed hop of off-vacuum amplitude 0.067, W = 0.254 and 0.129 (N = 25, 49); Silbey-Harris keeps a kick 0.047 and a dressed hop 0.024, W = 0.028 and 0.014. The predicted rates: Lang-Firsov 0.853 and 0.920 of the bare golden rule (the dressed gap closed to 0.250 from 0.286 by the slow modes' ln L), Silbey-Harris 0.984 and 0.991. E-FRC-0237's lab restriction measured 0.860 and 0.928, which sits on Lang-Firsov's numbers.",
     })

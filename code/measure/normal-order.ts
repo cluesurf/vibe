@@ -27,32 +27,56 @@
 // NOTHING MOVES: these are readings of the rule's configurations. Exact integers.
 
 import { LINE_FIRSTS, LINE_OF } from '@/code/rule/isometric-knit'
-import type { Configuration, LockedTables } from '@/code/rule/doublet-locked-knit'
-import { lineDivergence, type BulkLinks } from '@/code/measure/energy-lines'
+import type {
+  Configuration,
+  LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  lineDivergence,
+  type BulkLinks,
+} from '@/code/measure/energy-lines'
 
 export type Register = 'occupation' | 'charge'
 
 // the weight of one slot's value on a sea of value v
-export function slotWeight(value: number, v: number, register: Register): number {
+export function slotWeight(
+  value: number,
+  v: number,
+  register: Register,
+): number {
   const held = value !== 0 ? 1 : 0
 
-  return register === 'occupation' ? Math.abs(held - (v !== 0 ? 1 : 0)) : held - v * v - 2 * v * (value - v)
+  return register === 'occupation'
+    ? Math.abs(held - (v !== 0 ? 1 : 0))
+    : held - v * v - 2 * v * (value - v)
 }
 
 // the weight of a store (the sea's stores are empty)
-export const storeWeight = (store: number): number => (store !== 0 ? 2 : 0)
+export const storeWeight = (store: number): number =>
+  store !== 0 ? 2 : 0
 
 // the per-dock register of a configuration on a sea of value v
-export function seaEnergies(c: Configuration, v: number, register: Register, out: Int32Array): Int32Array {
+export function seaEnergies(
+  c: Configuration,
+  v: number,
+  register: Register,
+  out: Int32Array,
+): Int32Array {
   out.fill(0)
 
   for (let i = 0; i < c.vibe.length; i++) {
-    const w = slotWeight(c.vibe[i] as number, v, register)
+    const w = slotWeight(c.vibe[i]!, v, register)
 
-    if (w !== 0) out[Math.floor(i / 24)]! += w
+    if (w !== 0) {
+      out[Math.floor(i / 24)]! += w
+    }
   }
 
-  for (let s = 0; s < c.store.length; s++) if (c.store[s] !== 0) out[Math.floor(s / 12)]! += storeWeight(c.store[s] as number)
+  for (let s = 0; s < c.store.length; s++) {
+    if (c.store[s] !== 0) {
+      out[Math.floor(s / 12)]! += storeWeight(c.store[s]!)
+    }
+  }
 
   return out
 }
@@ -60,31 +84,51 @@ export function seaEnergies(c: Configuration, v: number, register: Register, out
 export const totalOf = (xs: ArrayLike<number>): number => {
   let s = 0
 
-  for (let k = 0; k < xs.length; k++) s += xs[k] as number
+  for (let k = 0; k < xs.length; k++) {
+    s += xs[k]!
+  }
 
   return s
 }
 
 // the weighted drag of one beat, read on the state just after the stream (sense -1 applies it): each slot's weight
 // crosses the link its value came through, as code/measure/energy-lines dragLines does for weight 1 per vibe
-export function dragWeighted(tables: LockedTables, after: Configuration, line: Int32Array, sense: -1 | 1, v: number, register: Register): void {
+export function dragWeighted(
+  tables: LockedTables,
+  after: Configuration,
+  line: Int32Array,
+  sense: -1 | 1,
+  v: number,
+  register: Register,
+): void {
   for (let i = 0; i < after.vibe.length; i++) {
-    const w = slotWeight(after.vibe[i] as number, v, register)
+    const w = slotWeight(after.vibe[i]!, v, register)
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     const d = i % 24
-    const l = LINE_OF[d] as number
+    const l = LINE_OF[d]!
 
-    if (d === LINE_FIRSTS[l]) line[Math.floor((tables.source[i] as number) / 24) * 12 + l]! += sense * w
-    else line[Math.floor(i / 24) * 12 + l]! -= sense * w
+    if (d === LINE_FIRSTS[l]) {
+      line[Math.floor(tables.source[i]! / 24) * 12 + l]! += sense * w
+    } else {
+      line[Math.floor(i / 24) * 12 + l]! -= sense * w
+    }
   }
 }
 
 // b = div L - e per dock under a register, the Gauss invariant a run must keep
-export function seaGauss(links: BulkLinks, line: Int32Array, c: Configuration, v: number, register: Register): Int32Array {
+export function seaGauss(
+  links: BulkLinks,
+  line: Int32Array,
+  c: Configuration,
+  v: number,
+  register: Register,
+): Int32Array {
   const div = lineDivergence(links, line, new Int32Array(links.cells))
   const e = seaEnergies(c, v, register, new Int32Array(links.cells))
 
-  return Int32Array.from(div, (x, k) => x - (e[k] as number))
+  return Int32Array.from(div, (x, k) => x - e[k]!)
 }

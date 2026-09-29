@@ -29,19 +29,33 @@ const frac = (x: number): number => x - Math.floor(x)
 // a copy of s with `count` extra vibes on calm slots of the docks of one husk block, alternately love and fear in the
 // order of a Weyl ranking of phase `phase`, each with a Weyl role point: a small excess of energy in that block with
 // charge 0 or 1
-export function addExcess(input: { box: ArrowBox; state: Reduced; block: number; count: number; phase: number; points?: number }): Reduced {
+export function addExcess(input: {
+  box: ArrowBox
+  state: Reduced
+  block: number
+  count: number
+  phase: number
+  points?: number
+}): Reduced {
   const { box, state, block, count, phase } = input
   const points = input.points ?? 9
   const out = cloneReduced(state)
   const calm: { slot: number; u: number }[] = []
 
   for (let x = 0; x < box.cells; x++) {
-    if (box.block[x] !== block) continue
+    if (box.block[x] !== block) {
+      continue
+    }
 
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
 
-      if (out.vibe[slot] === 0) calm.push({ slot, u: frac((slot + 1) * GOLDEN + phase * SILVER) })
+      if (out.vibe[slot] === 0) {
+        calm.push({
+          slot,
+          u: frac((slot + 1) * GOLDEN + phase * SILVER),
+        })
+      }
     }
   }
 
@@ -51,7 +65,9 @@ export function addExcess(input: { box: ArrowBox; state: Reduced; block: number;
     const slot = (calm[r] as { slot: number }).slot
 
     out.vibe[slot] = r % 2 === 0 ? 1 : -1
-    out.point[slot] = Math.floor(points * frac((slot + 1) * SILVER + phase * GOLDEN))
+    out.point[slot] = Math.floor(
+      points * frac((slot + 1) * SILVER + phase * GOLDEN),
+    )
   }
 
   return out
@@ -59,8 +75,12 @@ export function addExcess(input: { box: ArrowBox; state: Reduced; block: number;
 
 // the normalized autocorrelation of a set of equally long series (one per block), pooled over blocks and time origins,
 // for lags 0 .. maxLag
-export function autocorrelation(series: Float64Array[], maxLag: number): number[] {
+export function autocorrelation(
+  series: Float64Array[],
+  maxLag: number,
+): number[] {
   const out: number[] = []
+
   let mean = 0
   let n = 0
 
@@ -79,7 +99,7 @@ export function autocorrelation(series: Float64Array[], maxLag: number): number[
 
     for (const s of series) {
       for (let t = 0; t + lag < s.length; t++) {
-        sum += ((s[t] as number) - mean) * ((s[t + lag] as number) - mean)
+        sum += (s[t]! - mean) * (s[t + lag]! - mean)
         count++
       }
     }
@@ -87,14 +107,19 @@ export function autocorrelation(series: Float64Array[], maxLag: number): number[
     out.push(sum / count)
   }
 
-  const c0 = out[0] as number
+  const c0 = out[0]!
 
   return out.map(c => c / c0)
 }
 
-export function variance(values: number[]): { mean: number; variance: number } {
+export function variance(values: number[]): {
+  mean: number
+  variance: number
+} {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
-  const variance = values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / values.length
+  const variance =
+    values.reduce((a, b) => a + (b - mean) * (b - mean), 0) /
+    values.length
 
   return { mean, variance }
 }

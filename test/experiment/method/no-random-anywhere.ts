@@ -42,7 +42,12 @@ const PLANTED_DIRTY = [
     '}',
     `const u = mix(draw) / ${'42949'}${'67296'}`,
   ].join('\n'),
-  ['let x = key | 0', 'x ^= x >>> 11', 'x = Math.imul(x, 0x2c1b3c6d)', `const u = (x >>> 0) / 2 ** ${'32'}`].join('\n'),
+  [
+    'let x = key | 0',
+    'x ^= x >>> 11',
+    'x = Math.imul(x, 0x2c1b3c6d)',
+    `const u = (x >>> 0) / 2 ** ${'32'}`,
+  ].join('\n'),
 ]
 const PLANTED_CLEAN = [
   "import { makeWeyl } from '@/code/tool/weyl'\nconst v = makeWeyl({ start: 1 }).next()",

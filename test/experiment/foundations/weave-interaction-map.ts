@@ -52,6 +52,7 @@ export default experiment({
     const cellAt = (v: number[]): number =>
       v[0]! + v[1]! * SIDE + v[2]! * SIDE * SIDE + v[3]! * SIDE ** 3
     const center = cellAt([mid, mid, mid, mid])
+
     const step = (dir: number): number[] => {
       const to = mesh.neighbour(center, dir)
 
@@ -112,15 +113,11 @@ export default experiment({
 
     // head-on seeds five steps out on both sides of the center, along the line's own root
     const headOn = (line: number): number[] => {
-      const dirF = lines[line]![0]!
-      const dirB = lines[line]![1]!
+      const dirF = lines[line]![0]
+      const dirB = lines[line]![1]
       const v = step(dirF)
       const at = (k: number): number =>
-        cellAt(
-          [0, 1, 2, 3].map(
-            a => (mid + k * v[a]! + SIDE) % SIDE,
-          ) as number[],
-        )
+        cellAt([0, 1, 2, 3].map(a => (mid + k * v[a]! + SIDE) % SIDE))
 
       return mismatches([at(-5), dirF], [at(5), dirB])
     }
@@ -128,12 +125,12 @@ export default experiment({
     const clockHeadOn = headOn(2)
     const swapHeadOn = headOn(0)
     const crossCouple = mismatches(
-      [center, lines[0]![0]!],
-      [center, lines[2]![0]!],
+      [center, lines[0]![0]],
+      [center, lines[2]![0]],
     )
     const contactVertex = mismatches(
-      [center, lines[0]![0]!],
-      [center, lines[3]![0]!],
+      [center, lines[0]![0]],
+      [center, lines[3]![0]],
     )
 
     const clockFree = clockHeadOn.every(m => m === 0)

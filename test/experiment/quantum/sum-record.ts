@@ -77,10 +77,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { meetWhole, meetingKernel, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import {
+  meetWhole,
+  meetingKernel,
+  swapPhase,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { makeColorWeave, colorBeat } from '@/code/rule/color-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { advanceKnot, bellHistories, lineKnot } from '@/code/measure/knot-histories'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+} from '@/code/measure/knot-histories'
 import {
   LINE_CLASSES,
   lineSums,
@@ -95,7 +105,10 @@ import {
   traceOut,
 } from '@/code/measure/sum-record'
 import { operatorFrom3 } from '@/code/measure/qutrit-clifford'
-import { tensorOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  tensorOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
@@ -108,8 +121,12 @@ const RANK_TOLERANCE = 1e-9
 
 const frac = (x: number): number => x - Math.floor(x)
 const roleOf = (p: number): number => Math.floor(p / 3)
-const same = (a: readonly bigint[], b: readonly bigint[]): boolean => a.length === b.length && a.every((x, i) => x === b[i])
-const roleShares = (m: readonly bigint[]): bigint[] => [0, 1, 2].map(a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n))
+const same = (a: readonly bigint[], b: readonly bigint[]): boolean =>
+  a.length === b.length && a.every((x, i) => x === b[i])
+const roleShares = (m: readonly bigint[]): bigint[] =>
+  [0, 1, 2].map(
+    a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n),
+  )
 
 // the joint (coordinate c role, coordinate d role) weights, 9 entries, index 3 role_c + role_d
 function jointRoles(w: Whole, c: number, d: number): bigint[] {
@@ -119,7 +136,9 @@ function jointRoles(w: Whole, c: number, d: number): bigint[] {
   const out = new Array<bigint>(9).fill(0n)
 
   w.weight.forEach((x, i) => {
-    const j = 3 * roleOf(Math.floor(i / sc) % 9) + roleOf(Math.floor(i / sd) % 9)
+    const j =
+      3 * roleOf(Math.floor(i / sc) % 9) +
+      roleOf(Math.floor(i / sd) % 9)
 
     out[j] = (out[j] ?? 0n) + x
   })
@@ -127,7 +146,8 @@ function jointRoles(w: Whole, c: number, d: number): bigint[] {
   return out
 }
 
-const offDiagonalZero = (j: readonly bigint[]): boolean => j.every((x, i) => Math.floor(i / 3) === i % 3 || x === 0n)
+const offDiagonalZero = (j: readonly bigint[]): boolean =>
+  j.every((x, i) => Math.floor(i / 3) === i % 3 || x === 0n)
 
 // the real dimension of the solution space of G X = X G for every G, X a complex n x n matrix, by rank
 function commutantDimension(generators: readonly Operator[]): number {
@@ -179,7 +199,10 @@ function commutantDimension(generators: readonly Operator[]): number {
     let pivot = rank
 
     for (let r = rank + 1; r < rows.length; r++) {
-      if (Math.abs(rows[r]?.[col] ?? 0) > Math.abs(rows[pivot]?.[col] ?? 0)) {
+      if (
+        Math.abs(rows[r]?.[col] ?? 0) >
+        Math.abs(rows[pivot]?.[col] ?? 0)
+      ) {
         pivot = r
       }
     }
@@ -213,7 +236,7 @@ export default experiment({
   id: 'quantum/sum-record',
   code: 'E-QTM-0127',
   title:
-    'a SUM record: the qutrit SUM, read off its own Wigner kernel as a symplectic permutation of the joint grid, copies a role into a fresh token exactly, leaves the role distribution and the partner untouched, erases the tilt, agrees with a second record, and reads any line class when conjugated; the knit\'s own flow update is SUM on the vibe, but no frame-covariant meeting can read a role',
+    "a SUM record: the qutrit SUM, read off its own Wigner kernel as a symplectic permutation of the joint grid, copies a role into a fresh token exactly, leaves the role distribution and the partner untouched, erases the tilt, agrees with a second record, and reads any line class when conjugated; the knit's own flow update is SUM on the vibe, but no frame-covariant meeting can read a role",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -225,7 +248,9 @@ export default experiment({
       const [a1, b1] = pointVector(Math.floor(j / 9))
       const [a2, b2] = pointVector(j % 9)
 
-      return 9 * Math.floor(j / 9) + 3 * ((a1 + a2) % 3) + ((b1 + b2) % 3)
+      return (
+        9 * Math.floor(j / 9) + 3 * ((a1 + a2) % 3) + ((b1 + b2) % 3)
+      )
     })
     const fullCheck = symplecticCheck(fullCopy)
 
@@ -237,21 +262,34 @@ export default experiment({
       for (const r of ROLE_LINE_0) {
         const image = sum[9 * x + r] ?? 0
 
-        classicalCopyBad += roleOf(image % 9) === roleOf(x) && roleOf(Math.floor(image / 9)) === roleOf(x) ? 0 : 1
+        classicalCopyBad +=
+          roleOf(image % 9) === roleOf(x) &&
+          roleOf(Math.floor(image / 9)) === roleOf(x)
+            ? 0
+            : 1
 
         for (const r2 of ROLE_LINE_0) {
           const second = sum[9 * Math.floor(image / 9) + r2] ?? 0
 
-          classicalAgreeBad += roleOf(second % 9) === roleOf(image % 9) ? 0 : 1
+          classicalAgreeBad +=
+            roleOf(second % 9) === roleOf(image % 9) ? 0 : 1
         }
       }
     }
 
     // G7: SUM^3 = 1
-    const cubeIsIdentity = Array.from({ length: 81 }, (_, j) => sum[sum[sum[j] ?? 0] ?? 0]).every((v, j) => v === j)
+    const cubeIsIdentity = Array.from(
+      { length: 81 },
+      (_, j) => sum[sum[sum[j] ?? 0] ?? 0],
+    ).every((v, j) => v === j)
 
-    const readers = LINE_CLASSES.map(c => ({ c, ...readerPermutation(c.direction) }))
-    const readersSymplectic = readers.every(r => symplecticCheck(r.perm).symplectic)
+    const readers = LINE_CLASSES.map(c => ({
+      c,
+      ...readerPermutation(c.direction),
+    }))
+    const readersSymplectic = readers.every(
+      r => symplecticCheck(r.perm).symplectic,
+    )
     const tiltReader = readers.find(r => r.c.name === 'tilt')!
     const modelKernel = meetingKernel(swapPhase(OMEGA)) ?? []
 
@@ -273,7 +311,11 @@ export default experiment({
     }
 
     for (const h of bellHistories(BEATS)) {
-      let w: Whole = lineKnot(h.tokens, [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k), [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k))
+      let w: Whole = lineKnot(
+        h.tokens,
+        [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
+        [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k),
+      )
 
       for (const record of h.records) {
         w = advanceKnot(h, w, record)
@@ -282,60 +324,156 @@ export default experiment({
         // opening a token on 3 points triples the units, so every before is read times 3
         const beforeA = marginalOne(state, 0).map(x => 3n * x)
         const beforeB = marginalOne(state, 1).map(x => 3n * x)
-        const tiltBefore = [0, 1, 2].map(b => (beforeA[b] ?? 0n) + (beforeA[3 + b] ?? 0n) + (beforeA[6 + b] ?? 0n))
+        const tiltBefore = [0, 1, 2].map(
+          b =>
+            (beforeA[b] ?? 0n) +
+            (beforeA[3 + b] ?? 0n) +
+            (beforeA[6 + b] ?? 0n),
+        )
 
         counts.states++
         counts.statesWithFearOnA += beforeA.some(x => x < 0n) ? 1 : 0
-        counts.statesWithNonUniformTiltBefore += tiltBefore.every(x => x === tiltBefore[0]) ? 0 : 1
+        counts.statesWithNonUniformTiltBefore += tiltBefore.every(
+          x => x === tiltBefore[0],
+        )
+          ? 0
+          : 1
 
         // the role record
-        const measured = permuteTwo(openToken(state, -1, ROLE_LINE_0), 0, 2, sum)
+        const measured = permuteTwo(
+          openToken(state, -1, ROLE_LINE_0),
+          0,
+          2,
+          sum,
+        )
         const afterA = marginalOne(measured, 0)
         const afterB = marginalOne(measured, 1)
         const pa = roleShares(afterA)
-        const { loves: l0, fears: f0 } = wholeLovesAndFears(openToken(state, -1, ROLE_LINE_0))
+        const { loves: l0, fears: f0 } = wholeLovesAndFears(
+          openToken(state, -1, ROLE_LINE_0),
+        )
         const { loves: l1, fears: f1 } = wholeLovesAndFears(measured)
 
         counts.lovesFearsBad += l0 === l1 && f0 === f1 ? 0 : 1
-        counts.copyBad += offDiagonalZero(jointRoles(measured, 0, 2)) ? 0 : 1
-        counts.readsBad += same(roleShares(beforeA), pa) && same(beforeB, afterB) ? 0 : 1
-        counts.flatBad += afterA.every((x, p) => 3n * x === (pa[roleOf(p)] ?? 0n)) ? 0 : 1
+        counts.copyBad += offDiagonalZero(jointRoles(measured, 0, 2))
+          ? 0
+          : 1
+
+        counts.readsBad +=
+          same(roleShares(beforeA), pa) && same(beforeB, afterB) ? 0 : 1
+
+        counts.flatBad += afterA.every(
+          (x, p) => 3n * x === (pa[roleOf(p)] ?? 0n),
+        )
+          ? 0
+          : 1
 
         // a second record of A, on A's reduced whole
         const alone = traceOut(state, 1)
-        const twice = permuteTwo(openToken(permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, sum), -2, ROLE_LINE_0), 0, 2, sum)
+        const twice = permuteTwo(
+          openToken(
+            permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, sum),
+            -2,
+            ROLE_LINE_0,
+          ),
+          0,
+          2,
+          sum,
+        )
 
-        counts.agreeBad += offDiagonalZero(jointRoles(twice, 1, 2)) ? 0 : 1
+        counts.agreeBad += offDiagonalZero(jointRoles(twice, 1, 2))
+          ? 0
+          : 1
 
         // every line class
         for (const r of readers) {
-          const read = permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, r.perm)
+          const read = permuteTwo(
+            openToken(alone, -1, ROLE_LINE_0),
+            0,
+            1,
+            r.perm,
+          )
           const recordRoles = roleShares(marginalOne(read, 1))
-          const byLabel = [0, 1, 2].map(k => beforeA.reduce((s, x, p) => (r.label[p] === k ? s + x : s), 0n))
-          const keeps = same(lineSums(marginalOne(read, 0), r.c), lineSums(beforeA, r.c))
+          const byLabel = [0, 1, 2].map(k =>
+            beforeA.reduce(
+              (s, x, p) => (r.label[p] === k ? s + x : s),
+              0n,
+            ),
+          )
+          const keeps = same(
+            lineSums(marginalOne(read, 0), r.c),
+            lineSums(beforeA, r.c),
+          )
 
           counts.classBad += same(recordRoles, byLabel) && keeps ? 0 : 1
         }
 
         // C1: a record on a tilt line
-        const tiltRecord = permuteTwo(openToken(alone, -1, TILT_LINE_0), 0, 1, sum)
+        const tiltRecord = permuteTwo(
+          openToken(alone, -1, TILT_LINE_0),
+          0,
+          1,
+          sum,
+        )
         const tiltRoles = roleShares(marginalOne(tiltRecord, 1))
 
-        counts.tiltRecordDisturbed += same(marginalOne(tiltRecord, 0), beforeA) ? 0 : 1
-        counts.tiltRecordLearned += tiltRoles.every(x => x === tiltRoles[0]) ? 0 : 1
+        counts.tiltRecordDisturbed += same(
+          marginalOne(tiltRecord, 0),
+          beforeA,
+        )
+          ? 0
+          : 1
+
+        counts.tiltRecordLearned += tiltRoles.every(
+          x => x === tiltRoles[0],
+        )
+          ? 0
+          : 1
 
         // C2: the model's own record, the fear beat with the same fresh token
-        const met = meetWhole({ whole: openToken(alone, -1, ROLE_LINE_0), a: 0, b: 1, kernel4: modelKernel, divisor: 4, fixed: false })!
+        const met = meetWhole({
+          whole: openToken(alone, -1, ROLE_LINE_0),
+          a: 0,
+          b: 1,
+          kernel4: modelKernel,
+          divisor: 4,
+          fixed: false,
+        })!
         const metRoles = roleShares(marginalOne(met, 0))
-        const scale = (xs: readonly bigint[]): bigint => xs.reduce((s, x) => s + x, 0n)
+        const scale = (xs: readonly bigint[]): bigint =>
+          xs.reduce((s, x) => s + x, 0n)
 
-        counts.modelRecordDisagrees += offDiagonalZero(jointRoles(met, 0, 1)) ? 0 : 1
-        counts.modelRecordWrites += roleShares(beforeA).every((x, a) => x * scale(metRoles) === (metRoles[a] ?? 0n) * scale(roleShares(beforeA))) ? 0 : 1
+        counts.modelRecordDisagrees += offDiagonalZero(
+          jointRoles(met, 0, 1),
+        )
+          ? 0
+          : 1
+
+        counts.modelRecordWrites += roleShares(beforeA).every(
+          (x, a) =>
+            x * scale(metRoles) ===
+            (metRoles[a] ?? 0n) * scale(roleShares(beforeA)),
+        )
+          ? 0
+          : 1
 
         // C3: a role record, then a tilt record of A
-        const both = permuteTwo(openToken(permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, sum), -2, ROLE_LINE_0), 0, 2, tiltReader.perm)
+        const both = permuteTwo(
+          openToken(
+            permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, sum),
+            -2,
+            ROLE_LINE_0,
+          ),
+          0,
+          2,
+          tiltReader.perm,
+        )
 
-        counts.complementaryAgree += offDiagonalZero(jointRoles(both, 1, 2)) ? 1 : 0
+        counts.complementaryAgree += offDiagonalZero(
+          jointRoles(both, 1, 2),
+        )
+          ? 1
+          : 0
       }
     }
 
@@ -346,7 +484,10 @@ export default experiment({
         const moved = 9 * (g[Math.floor(j / 9)] ?? 0) + (g[j % 9] ?? 0)
         const image = sum[j] ?? 0
 
-        if ((sum[moved] ?? 0) !== 9 * (g[Math.floor(image / 9)] ?? 0) + (g[image % 9] ?? 0)) {
+        if (
+          (sum[moved] ?? 0) !==
+          9 * (g[Math.floor(image / 9)] ?? 0) + (g[image % 9] ?? 0)
+        ) {
           return false
         }
       }
@@ -356,14 +497,23 @@ export default experiment({
 
     // the commutants of the frame changes on two roles, love-love and love-fear
     const frames = SU3_SUBGROUPS.sigma648.generators.map(operatorFrom3)
-    const conjugateOf = (c: Operator): Operator => ({ n: c.n, re: Float64Array.from(c.re), im: Float64Array.from(c.im, x => -x) })
-    const likeCommutant = commutantDimension(frames.map(c => tensorOperators(c, c))) / 2
-    const unlikeCommutant = commutantDimension(frames.map(c => tensorOperators(c, conjugateOf(c)))) / 2
+    const conjugateOf = (c: Operator): Operator => ({
+      n: c.n,
+      re: Float64Array.from(c.re),
+      im: Float64Array.from(c.im, x => -x),
+    })
+    const likeCommutant =
+      commutantDimension(frames.map(c => tensorOperators(c, c))) / 2
+    const unlikeCommutant =
+      commutantDimension(
+        frames.map(c => tensorOperators(c, conjugateOf(c))),
+      ) / 2
 
     // the fear beat against a token's role: || [U, Z x 1] ||, Z = diag(1, omega, omega^2), at the model's angle
     const u = swapPhase(OMEGA)
     const zRe = [1, Math.cos(OMEGA), Math.cos(2 * OMEGA)]
     const zIm = [0, Math.sin(OMEGA), Math.sin(2 * OMEGA)]
+
     let commutatorSquared = 0
 
     for (let r = 0; r < 9; r++) {
@@ -371,10 +521,13 @@ export default experiment({
         // (U Z)_rc - (Z U)_rc = U_rc (z_c - z_r), z indexed by the first role
         const ur = u.re[r * 9 + c] ?? 0
         const ui = u.im[r * 9 + c] ?? 0
-        const dr = (zRe[Math.floor(c / 3)] ?? 0) - (zRe[Math.floor(r / 3)] ?? 0)
-        const di = (zIm[Math.floor(c / 3)] ?? 0) - (zIm[Math.floor(r / 3)] ?? 0)
+        const dr =
+          (zRe[Math.floor(c / 3)] ?? 0) - (zRe[Math.floor(r / 3)] ?? 0)
+        const di =
+          (zIm[Math.floor(c / 3)] ?? 0) - (zIm[Math.floor(r / 3)] ?? 0)
 
-        commutatorSquared += (ur * dr - ui * di) ** 2 + (ur * di + ui * dr) ** 2
+        commutatorSquared +=
+          (ur * dr - ui * di) ** 2 + (ur * di + ui * dr) ** 2
       }
     }
 
@@ -386,6 +539,7 @@ export default experiment({
       for (const w2 of [-1, 1]) {
         for (let j = 0; j < 81; j++) {
           const image = sum[j] ?? 0
+
           const q = (x: number, y: number): string => {
             const [a1, b1] = pointVector(x)
             const [a2, b2] = pointVector(y)
@@ -394,7 +548,11 @@ export default experiment({
           }
 
           colorCases++
-          colorChanged += q(Math.floor(j / 9), j % 9) === q(Math.floor(image / 9), image % 9) ? 0 : 1
+          colorChanged +=
+            q(Math.floor(j / 9), j % 9) ===
+            q(Math.floor(image / 9), image % 9)
+              ? 0
+              : 1
         }
       }
     }
@@ -402,13 +560,23 @@ export default experiment({
     // G8: the flow update on the color weave is SUM on (copied vibe, flow)
     const weave = makeColorWeave({ side: 3, table: 'bind' })
     const slots = weave.mesh.cellCount * 24
+
     let state = {
-      vibe: Int8Array.from({ length: slots }, (_, i) => (frac((i + 1) * GOLDEN) < 0.25 ? (frac((i + 1) * SILVER) < 0.5 ? 1 : -1) : 0)),
-      role: Int8Array.from({ length: slots }, (_, i) => Math.floor(9 * frac((i + 3) * GOLDEN))),
+      vibe: Int8Array.from({ length: slots }, (_, i) =>
+        frac((i + 1) * GOLDEN) < 0.25
+          ? frac((i + 1) * SILVER) < 0.5
+            ? 1
+            : -1
+          : 0,
+      ),
+      role: Int8Array.from({ length: slots }, (_, i) =>
+        Math.floor(9 * frac((i + 3) * GOLDEN)),
+      ),
       flow: new Int32Array(slots),
     }
     let flowChecks = 0
     let flowBad = 0
+
     const flowPairs = new Set<number>()
 
     for (let t = 0; t < FLOW_BEATS; t++) {
@@ -417,12 +585,15 @@ export default experiment({
       for (let x = 0; x < weave.mesh.cellCount; x++) {
         for (let d = 0; d < 24; d++) {
           const slot = x * 24 + d
-          const copied = next.vibe[weave.mesh.neighbour(x, d) * 24 + d] ?? 0
+          const copied =
+            next.vibe[weave.mesh.neighbour(x, d) * 24 + d] ?? 0
           const before = state.flow[slot] ?? 0
 
           flowChecks++
           flowBad += (next.flow[slot] ?? 0) === before + copied ? 0 : 1
-          flowPairs.add(3 * (((copied % 3) + 3) % 3) + (((before % 3) + 3) % 3))
+          flowPairs.add(
+            3 * (((copied % 3) + 3) % 3) + (((before % 3) + 3) % 3),
+          )
         }
       }
 
@@ -430,7 +601,10 @@ export default experiment({
     }
 
     const gates = {
-      G1: sumCheck.symplectic && !fullCheck.symplectic && fullCheck.affine,
+      G1:
+        sumCheck.symplectic &&
+        !fullCheck.symplectic &&
+        fullCheck.affine,
       G2: classicalCopyBad === 0 && counts.copyBad === 0,
       G3: counts.readsBad === 0,
       G4: counts.flatBad === 0,
@@ -438,7 +612,9 @@ export default experiment({
       G6: readersSymplectic && counts.classBad === 0,
       G7: cubeIsIdentity && counts.lovesFearsBad === 0,
       G8: flowChecks > 0 && flowBad === 0,
-      C1: counts.tiltRecordDisturbed === 0 && counts.tiltRecordLearned === 0,
+      C1:
+        counts.tiltRecordDisturbed === 0 &&
+        counts.tiltRecordLearned === 0,
       C2: counts.modelRecordDisagrees + counts.modelRecordWrites > 0,
       C3: counts.complementaryAgree < counts.states,
     }
@@ -447,7 +623,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'SUM, read off its own Wigner kernel as the symplectic permutation (a1, b1), (a2, b2) -> (a1, b1 - b2), (a1 + a2, b2), is a von Neumann measurement of the role on every state six Bell histories reach: the record copies the role exactly, the role distribution and the partner are untouched, the tilt is erased to exactly uniform, a second record always agrees, and conjugated by a determinant-1 map it reads any of the 4 line classes as that class\'s line sums; the color weave\'s own flow update is SUM with the copied vibe as control, but it reads the vibe, and no meeting that commutes with every frame change can read a role',
+        "SUM, read off its own Wigner kernel as the symplectic permutation (a1, b1), (a2, b2) -> (a1, b1 - b2), (a1 + a2, b2), is a von Neumann measurement of the role on every state six Bell histories reach: the record copies the role exactly, the role distribution and the partner are untouched, the tilt is erased to exactly uniform, a second record always agrees, and conjugated by a determinant-1 map it reads any of the 4 line classes as that class's line sums; the color weave's own flow update is SUM with the copied vibe as control, but it reads the vibe, and no meeting that commutes with every frame change can read a role",
       metrics: {
         ...counts,
         classicalCopyBad,
@@ -463,10 +639,16 @@ export default experiment({
         flowChecks,
         flowMismatches: flowBad,
         flowResiduePairsSeenOf9: flowPairs.size,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. " + ('L2, exact BigInt wholes; the commutants in floating point with rank tolerance 1e-9. The SUM permutation is derived from the SUM operator through the fear weave\'s own wignerKernel, never typed in. G2 to G6 are theorems for a Clifford record (Gross 2006) checked on the model\'s own reached states; what is measured is that the knit\'s states, including those with fears, obey them. G8 is a code identity (colorBeat adds the post-collision vibe to the flow) checked on the running rule.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. ' +
+        "L2, exact BigInt wholes; the commutants in floating point with rank tolerance 1e-9. The SUM permutation is derived from the SUM operator through the fear weave's own wignerKernel, never typed in. G2 to G6 are theorems for a Clifford record (Gross 2006) checked on the model's own reached states; what is measured is that the knit's states, including those with fears, obey them. G8 is a code identity (colorBeat adds the post-collision vibe to the flow) checked on the running rule.",
     })
   },
 })

@@ -50,8 +50,22 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lockedIndex, lockedNormSum, lockedPairBeat, lockedPairBeatBack, lockedPairState, ringDistance, streamPermutation, type LockedPairOptions } from '@/code/rule/locked-token-line'
-import { antisymmetrized, lockedRun, spanOf, type LockedStart } from '@/code/measure/locked-run'
+import {
+  lockedIndex,
+  lockedNormSum,
+  lockedPairBeat,
+  lockedPairBeatBack,
+  lockedPairState,
+  ringDistance,
+  streamPermutation,
+  type LockedPairOptions,
+} from '@/code/rule/locked-token-line'
+import {
+  antisymmetrized,
+  lockedRun,
+  spanOf,
+  type LockedStart,
+} from '@/code/measure/locked-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
 import { eisValue } from '@/code/measure/eisenstein-words'
 import { phaseMove } from '@/code/rule/fear-weave'
@@ -68,21 +82,35 @@ const SIZES = [16, 24, 32] as const
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
 // the three-token walled stream on labels, as a map from allowed configurations: returns whether it permutes them
-function tripleWallIsPermutation(L: number, S: number): { allowed: number; ok: boolean } {
+function tripleWallIsPermutation(
+  L: number,
+  S: number,
+): { allowed: number; ok: boolean } {
   const steps = [1, -1, 0]
   const flip = [1, 0, 2]
-  const code = (x: number[], j: number[]): number => ((((x[0] as number) * L + (x[1] as number)) * L + (x[2] as number)) * 27) + 9 * (j[0] as number) + 3 * (j[1] as number) + (j[2] as number)
+  const code = (x: number[], j: number[]): number =>
+    ((x[0]! * L + x[1]!) * L + x[2]!) * 27 +
+    9 * j[0]! +
+    3 * j[1]! +
+    j[2]!
   const hits = new Map<number, number>()
+
   let allowed = 0
   let ok = true
 
@@ -91,13 +119,20 @@ function tripleWallIsPermutation(L: number, S: number): { allowed: number; ok: b
       for (let x3 = 0; x3 < L; x3++) {
         const x = [x1, x2, x3]
 
-        if (spanOf(L, x) > S) continue
+        if (spanOf(L, x) > S) {
+          continue
+        }
 
         for (let r = 0; r < 27; r++) {
           const j = [Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3]
-          const y = x.map((v, t) => (((v + (steps[j[t] as number] as number)) % L) + L) % L)
+          const y = x.map((v, t) => (((v + steps[j[t]!]!) % L) + L) % L)
           const blocked = spanOf(L, y) > S
-          const target = blocked ? code(x, j.map(v => flip[v] as number)) : code(y, j)
+          const target = blocked
+            ? code(
+                x,
+                j.map(v => flip[v]!),
+              )
+            : code(y, j)
           const ty = blocked ? x : y
 
           allowed++
@@ -108,7 +143,13 @@ function tripleWallIsPermutation(L: number, S: number): { allowed: number; ok: b
     }
   }
 
-  return { allowed, ok: ok && hits.size === allowed && [...hits.values()].every(v => v === 1) }
+  return {
+    allowed,
+    ok:
+      ok &&
+      hits.size === allowed &&
+      [...hits.values()].every(v => v === 1),
+  }
 }
 
 const CONTACT: readonly { name: string; j: [number, number] }[] = [
@@ -119,10 +160,24 @@ const CONTACT: readonly { name: string; j: [number, number] }[] = [
 ]
 
 // the late compact chance (span <= NEAR) averaged over beats 2L to 4L
-function lateCompact(input: { ring: number; wall?: number; phaseString?: boolean; j: [number, number] }): number {
+function lateCompact(input: {
+  ring: number
+  wall?: number
+  phaseString?: boolean
+  j: [number, number]
+}): number {
   const x0 = Math.floor(input.ring / 2)
-  const run = lockedRun({ ring: input.ring, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: input.wall, phaseString: input.phaseString, start: [{ x: [x0, x0], j: input.j, amp: [1, 0] }] })
+  const run = lockedRun({
+    ring: input.ring,
+    kinds: ['love', 'fear'],
+    convention: 'C',
+    unlike: 'knit',
+    wall: input.wall,
+    phaseString: input.phaseString,
+    start: [{ x: [x0, x0], j: input.j, amp: [1, 0] }],
+  })
   const T = 4 * input.ring
+
   let sum = 0
   let n = 0
 
@@ -138,7 +193,11 @@ function lateCompact(input: { ring: number; wall?: number; phaseString?: boolean
   return sum / n
 }
 
-function fit(values: readonly number[]): { a: number; b: number; check: number } {
+function fit(values: readonly number[]): {
+  a: number
+  b: number
+  check: number
+} {
   const [v16, v24, v32] = values as [number, number, number]
   const b = (v24 - v32) / (1 / 24 - 1 / 32)
   const a = v32 - b / 32
@@ -149,51 +208,86 @@ function fit(values: readonly number[]): { a: number; b: number; check: number }
 export default experiment({
   id: 'spin/paid-string-binding',
   code: 'E-SPN-0074',
-  title: 'a string that reads the love-fear pair through the flux, a STAND-IN on locked tokens: paid from a store (a joint copy past what the store holds bounces), it is an integer, reversible, role-blind rule that binds the love-fear pair in every channel the fear beat cannot see and three loves as three, and the bound pair still travels ballistically; charged as a phase omega^span instead it cannot confine (about a third of the weight escapes, a = 0.64), because a phase is periodic in the length: in discrete time only a count confines',
+  title:
+    'a string that reads the love-fear pair through the flux, a STAND-IN on locked tokens: paid from a store (a joint copy past what the store holds bounces), it is an integer, reversible, role-blind rule that binds the love-fear pair in every channel the fear beat cannot see and three loves as three, and the bound pair still travels ballistically; charged as a phase omega^span instead it cannot confine (about a third of the weight escapes, a = 0.64), because a phase is periodic in the length: in discrete time only a count confines',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- S1 ----
-    const pairOpts: LockedPairOptions = { ring: 16, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: WALL }
+    const pairOpts: LockedPairOptions = {
+      ring: 16,
+      kinds: ['love', 'fear'],
+      convention: 'C',
+      unlike: 'knit',
+      wall: WALL,
+    }
     const pairMap = streamPermutation(pairOpts)
     const pairPermutation = (() => {
       const L = pairOpts.ring
+
       const allowedIndex = (i: number): boolean => {
         const x1 = Math.floor(i / (9 * L))
         const x2 = Math.floor(i / 9) % L
 
         return ringDistance(L, x1, x2) <= WALL
       }
+
       const hits = new Map<number, number>()
+
       let allowed = 0
       let ok = true
 
       for (let i = 0; i < pairMap.length; i++) {
-        if (!allowedIndex(i)) continue
+        if (!allowedIndex(i)) {
+          continue
+        }
 
         allowed++
 
-        const j = pairMap[i] as number
+        const j = pairMap[i]!
 
         ok = ok && allowedIndex(j)
         hits.set(j, (hits.get(j) ?? 0) + 1)
       }
 
-      return { allowed, ok: ok && hits.size === allowed && [...hits.values()].every(v => v === 1) }
+      return {
+        allowed,
+        ok:
+          ok &&
+          hits.size === allowed &&
+          [...hits.values()].every(v => v === 1),
+      }
     })()
     const triplePermutation = tripleWallIsPermutation(12, 3)
     const exactRing = 10
     const exactWall = 3
-    const exactOpts: LockedPairOptions = { ring: exactRing, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: exactWall }
+    const exactOpts: LockedPairOptions = {
+      ring: exactRing,
+      kinds: ['love', 'fear'],
+      convention: 'C',
+      unlike: 'knit',
+      wall: exactWall,
+    }
     const exactMap = streamPermutation(exactOpts)
     const at = lockedIndex(exactRing, 5, 5, 0, 1)
     const ex = lockedPairState(exactOpts, [{ index: at, a: 1n, b: 0n }])
-    const fl = lockedRun({ ring: exactRing, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: exactWall, start: [{ x: [5, 5], j: [0, 1], amp: [1, 0] }] })
+    const fl = lockedRun({
+      ring: exactRing,
+      kinds: ['love', 'fear'],
+      convention: 'C',
+      unlike: 'knit',
+      wall: exactWall,
+      start: [{ x: [5, 5], j: [0, 1], amp: [1, 0] }],
+    })
+
     let exactGap = 0
     let beyondExact = true
 
@@ -208,19 +302,39 @@ export default experiment({
         const x1 = Math.floor(i / (9 * exactRing))
         const x2 = Math.floor(i / 9) % exactRing
 
-        exactGap = Math.max(exactGap, Math.hypot(v[0] - (fl.re[i] as number), v[1] - (fl.im[i] as number)))
+        exactGap = Math.max(
+          exactGap,
+          Math.hypot(v[0] - fl.re[i]!, v[1] - fl.im[i]!),
+        )
 
-        if (ringDistance(exactRing, x1, x2) > exactWall && (ex.a[i] !== 0n || ex.b[i] !== 0n)) beyondExact = false
+        if (
+          ringDistance(exactRing, x1, x2) > exactWall &&
+          (ex.a[i] !== 0n || ex.b[i] !== 0n)
+        ) {
+          beyondExact = false
+        }
       }
     }
 
-    const normIdentity = lockedNormSum(ex) === ex.denominator * ex.denominator
+    const normIdentity =
+      lockedNormSum(ex) === ex.denominator * ex.denominator
     const forward = ex.denominator
 
-    for (let t = 0; t < 12; t++) lockedPairBeatBack(ex, exactMap)
+    for (let t = 0; t < 12; t++) {
+      lockedPairBeatBack(ex, exactMap)
+    }
 
-    const reverses = ex.a.every((x, i) => (i === at ? x === forward * forward : x === 0n)) && ex.b.every(x => x === 0n)
-    const s1 = pairPermutation.ok && triplePermutation.ok && exactGap < 1e-12 && normIdentity && reverses && beyondExact
+    const reverses =
+      ex.a.every((x, i) =>
+        i === at ? x === forward * forward : x === 0n,
+      ) && ex.b.every(x => x === 0n)
+    const s1 =
+      pairPermutation.ok &&
+      triplePermutation.ok &&
+      exactGap < 1e-12 &&
+      normIdentity &&
+      reverses &&
+      beyondExact
 
     log('s1')
 
@@ -230,7 +344,14 @@ export default experiment({
 
       for (const c of CONTACT) {
         const x0 = L / 2
-        const run = lockedRun({ ring: L, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: WALL, start: [{ x: [x0, x0], j: c.j, amp: [1, 0] }] })
+        const run = lockedRun({
+          ring: L,
+          kinds: ['love', 'fear'],
+          convention: 'C',
+          unlike: 'knit',
+          wall: WALL,
+          start: [{ x: [x0, x0], j: c.j, amp: [1, 0] }],
+        })
 
         for (let t = 0; t < 4 * L; t++) {
           run.beat()
@@ -240,7 +361,9 @@ export default experiment({
 
       return { ring: L, worst }
     })
-    const freeValues = SIZES.map(L => lateCompact({ ring: L, j: [0, 1] }))
+    const freeValues = SIZES.map(L =>
+      lateCompact({ ring: L, j: [0, 1] }),
+    )
     const freeFit = fit(freeValues)
     const s2 = confined.every(c => c.worst < 1e-12) && freeFit.a < 0.1
 
@@ -250,9 +373,18 @@ export default experiment({
     const travel = (() => {
       const L = 64
       const x0 = 32
-      const run = lockedRun({ ring: L, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', wall: WALL, start: [{ x: [x0, x0], j: [0, 1], amp: [1, 0] }] })
+      const run = lockedRun({
+        ring: L,
+        kinds: ['love', 'fear'],
+        convention: 'C',
+        unlike: 'knit',
+        wall: WALL,
+        start: [{ x: [x0, x0], j: [0, 1], amp: [1, 0] }],
+      })
+
       const spread = (): number => {
         const pos = run.positions()
+
         let m1 = 0
         let m2 = 0
 
@@ -261,20 +393,26 @@ export default experiment({
           const x2 = (p % L) - x0
           const c = (x1 + x2) / 2
 
-          m1 += (pos[p] as number) * c
-          m2 += (pos[p] as number) * c * c
+          m1 += pos[p]! * c
+          m2 += pos[p]! * c * c
         }
 
         return Math.sqrt(m2 - m1 * m1)
       }
+
       let at12 = 0
       let at24 = 0
 
       for (let t = 1; t <= 24; t++) {
         run.beat()
 
-        if (t === 12) at12 = spread()
-        if (t === 24) at24 = spread()
+        if (t === 12) {
+          at12 = spread()
+        }
+
+        if (t === 24) {
+          at24 = spread()
+        }
       }
 
       return { at12, at24, ratio: at24 / at12 }
@@ -284,7 +422,9 @@ export default experiment({
     log('s3')
 
     // ---- S4: the phase string ----
-    const phaseValues = SIZES.map(L => lateCompact({ ring: L, phaseString: true, j: [0, 1] }))
+    const phaseValues = SIZES.map(L =>
+      lateCompact({ ring: L, phaseString: true, j: [0, 1] }),
+    )
     const phaseFit = fit(phaseValues)
     const s4 = phaseFit.a < 0.9
 
@@ -294,7 +434,15 @@ export default experiment({
     const three = (() => {
       const L = 16
       const S = 3
-      const run = lockedRun({ ring: L, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', wall: S, start: antisymmetrized({ x: [7, 7, 8], j: [0, 1, 0] }) })
+      const run = lockedRun({
+        ring: L,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        wall: S,
+        start: antisymmetrized({ x: [7, 7, 8], j: [0, 1, 0] }),
+      })
+
       let beyond = 0
       let line = 0
 
@@ -313,24 +461,33 @@ export default experiment({
         [1, 2, 0],
         [2, 0, 1],
       ]
+
       let quartet = 0
       let total = 0
 
       for (let p = 0; p < L ** 3; p++) {
         for (let r = 0; r < 27; r++) {
-          const digits = [Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3]
+          const digits = [
+            Math.floor(r / 9),
+            Math.floor(r / 3) % 3,
+            r % 3,
+          ]
+
           let sr = 0
           let si = 0
 
           for (const perm of perms) {
-            const q = 9 * (digits[perm[0] as number] as number) + 3 * (digits[perm[1] as number] as number) + (digits[perm[2] as number] as number)
+            const q =
+              9 * digits[perm[0]!]! +
+              3 * digits[perm[1]!]! +
+              digits[perm[2]!]!
 
-            sr += (run.re[p * 27 + q] as number) / 6
-            si += (run.im[p * 27 + q] as number) / 6
+            sr += run.re[p * 27 + q]! / 6
+            si += run.im[p * 27 + q]! / 6
           }
 
           quartet += sr * sr + si * si
-          total += (run.re[p * 27 + r] as number) ** 2 + (run.im[p * 27 + r] as number) ** 2
+          total += run.re[p * 27 + r]! ** 2 + run.im[p * 27 + r]! ** 2
         }
       }
 
@@ -343,19 +500,67 @@ export default experiment({
     // ---- S6: the start ensemble ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
     const ensemble = startFamily(16).map(member => {
-      const linksOf = (L: number): M3[] => Array.from({ length: L }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
+      const linksOf = (L: number): M3[] =>
+        Array.from(
+          { length: L },
+          (_, x) =>
+            unitaries[
+              table.indexOf(
+                phaseMove(
+                  moves.act[member.start(x, moves.act.length)] ?? [],
+                ),
+              )
+            ]!,
+        )
+
       let gap = 0
-      const cases: { L: number; kinds: ('love' | 'fear')[]; wall: number; beats: number; start: LockedStart[] }[] = [
-        { L: 24, kinds: ['love', 'fear'], wall: WALL, beats: 10, start: [{ x: [12, 12], j: [0, 1], amp: [1, 0] as Complex }] },
-        { L: 12, kinds: ['love', 'love', 'love'], wall: 3, beats: 5, start: antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }) },
+
+      const cases: {
+        L: number
+        kinds: ('love' | 'fear')[]
+        wall: number
+        beats: number
+        start: LockedStart[]
+      }[] = [
+        {
+          L: 24,
+          kinds: ['love', 'fear'],
+          wall: WALL,
+          beats: 10,
+          start: [{ x: [12, 12], j: [0, 1], amp: [1, 0] as Complex }],
+        },
+        {
+          L: 12,
+          kinds: ['love', 'love', 'love'],
+          wall: 3,
+          beats: 5,
+          start: antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }),
+        },
       ]
 
       for (const c of cases) {
         const links = linksOf(c.L)
-        const field = lockedRun({ ring: c.L, kinds: c.kinds, convention: 'C', unlike: 'knit', wall: c.wall, links, start: c.start })
-        const plain = lockedRun({ ring: c.L, kinds: c.kinds, convention: 'C', unlike: 'knit', wall: c.wall, start: c.start })
+        const field = lockedRun({
+          ring: c.L,
+          kinds: c.kinds,
+          convention: 'C',
+          unlike: 'knit',
+          wall: c.wall,
+          links,
+          start: c.start,
+        })
+        const plain = lockedRun({
+          ring: c.L,
+          kinds: c.kinds,
+          convention: 'C',
+          unlike: 'knit',
+          wall: c.wall,
+          start: c.start,
+        })
 
         for (let t = 0; t < c.beats; t++) {
           field.beat()
@@ -364,7 +569,7 @@ export default experiment({
           const a = field.positions()
           const b = plain.positions()
 
-          gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - (b[i] as number))))
+          gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - b[i]!)))
         }
       }
 
@@ -395,14 +600,26 @@ export default experiment({
         pairStreamIsPermutation: pairPermutation.ok ? 1 : 0,
         tripleStreamIsPermutation: triplePermutation.ok ? 1 : 0,
         exactDenominatorBits: forward.toString(2).length,
-        ...Object.fromEntries(confined.map(c => [`walledConfinementWorstRing${c.ring}`, c.worst])),
-        ...Object.fromEntries(freeValues.map((v, k) => [`freeCompactRing${SIZES[k]}`, v])),
+        ...Object.fromEntries(
+          confined.map(c => [
+            `walledConfinementWorstRing${c.ring}`,
+            c.worst,
+          ]),
+        ),
+        ...Object.fromEntries(
+          freeValues.map((v, k) => [`freeCompactRing${SIZES[k]}`, v]),
+        ),
         freeFitA: freeFit.a,
         freeFitCheck16: freeFit.check,
         travelSpread12: travel.at12,
         travelSpread24: travel.at24,
         travelRatio: travel.ratio,
-        ...Object.fromEntries(phaseValues.map((v, k) => [`phaseStringCompactRing${SIZES[k]}`, v])),
+        ...Object.fromEntries(
+          phaseValues.map((v, k) => [
+            `phaseStringCompactRing${SIZES[k]}`,
+            v,
+          ]),
+        ),
         phaseStringFitA: phaseFit.a,
         phaseStringFitCheck16: phaseFit.check,
         threeWalledBeyond: three.beyond,

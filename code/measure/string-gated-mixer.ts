@@ -26,55 +26,96 @@
 // a vibe's value, point and open bit to another slot of its own frame on its own dock; the stream takes it one dock
 // along.
 
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { FRAME_LINES, FRAME_SLOTS } from '@/code/rule/coined-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  FRAME_LINES,
+  FRAME_SLOTS,
+} from '@/code/rule/coined-locked-knit'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { keyedCoin, keyedMeet, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  keyedCoin,
+  keyedMeet,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { streamInto } from '@/code/measure/doublet-locked-readings'
 import { coinPiece, pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { singlesAt, starBeat, type KEvent } from '@/code/measure/hub-star'
-import { cartesianOffset, unequalLikeMeetings, writeFluxAfterStream } from '@/code/measure/two-hub-bound'
+import {
+  singlesAt,
+  starBeat,
+  type KEvent,
+} from '@/code/measure/hub-star'
+import {
+  cartesianOffset,
+  unequalLikeMeetings,
+  writeFluxAfterStream,
+} from '@/code/measure/two-hub-bound'
 
 // the eight links of frame f's lines at dock x: (x, l) joins x to the dock its line's first slot streams into, and
 // (y, l) joins the dock y whose first slot streams into x, to x
-export function frameLinks(tables: LockedTables, x: number, f: number): number[] {
+export function frameLinks(
+  tables: LockedTables,
+  x: number,
+  f: number,
+): number[] {
   const out: number[] = []
 
-  for (const l of FRAME_LINES[f] as readonly number[]) {
-    const first = LINE_FIRSTS[l] as number
+  for (const l of FRAME_LINES[f]!) {
+    const first = LINE_FIRSTS[l]!
 
     out.push(x * 12 + l)
-    out.push(Math.floor((tables.source[x * 24 + first] as number) / 24) * 12 + l)
+    out.push(Math.floor(tables.source[x * 24 + first]! / 24) * 12 + l)
   }
 
   return out
 }
 
-export type MixTally = { gated: number; moved: number; ungatedLone: number }
+export type MixTally = {
+  gated: number
+  moved: number
+  ungatedLone: number
+}
 
-export const newMixTally = (): MixTally => ({ gated: 0, moved: 0, ungatedLone: 0 })
+export const newMixTally = (): MixTally => ({
+  gated: 0,
+  moved: 0,
+  ungatedLone: 0,
+})
 
 // the dock's lone frame holding its one single, or -1: the frame index and the frame slot q
-export function gatedFrame(c: Configuration, x: number): { f: number; q: number } {
-  if (singlesAt(c, x) !== 1) return { f: -1, q: -1 }
+export function gatedFrame(
+  c: Configuration,
+  x: number,
+): { f: number; q: number } {
+  if (singlesAt(c, x) !== 1) {
+    return { f: -1, q: -1 }
+  }
 
   for (let f = 0; f < 3; f++) {
-    const ss = FRAME_SLOTS[f] as readonly number[]
+    const ss = FRAME_SLOTS[f]!
+
     let held = 0
     let at = -1
 
     for (let q = 0; q < 8; q++) {
-      if (c.vibe[x * 24 + (ss[q] as number)] !== 0) {
+      if (c.vibe[x * 24 + ss[q]!] !== 0) {
         held++
         at = q
       }
     }
 
-    if (held !== 1) continue
+    if (held !== 1) {
+      continue
+    }
 
     // a lone frame's vibe is alone on its line (both slots of a line lie in its frame), so it is the dock's one single
-    if (!c.open[x * 24 + (ss[at] as number)]) return { f: -1, q: -1 }
+    if (!c.open[x * 24 + ss[at]!]) {
+      return { f: -1, q: -1 }
+    }
 
     return { f, q: at }
   }
@@ -84,17 +125,40 @@ export function gatedFrame(c: Configuration, x: number): { f: number; q: number 
 
 // THE KEYED PIECE: on every gated dock, keep (bins 0 .. 63 - 7 n) or hand the single to frame slot q XOR o (n bins for
 // each o = 1 .. 7), bins read from the key's frame slot; `stringless` drops the string clause (a control)
-export function gatedMix(tables: LockedTables, c: Configuration, flux: Int8Array, vacuumFlux: Int8Array, key: PathKey, t: number, n: number, tally: MixTally, stringless = false): void {
-  if (n <= 0) return
-  if (n > 9) throw new Error('string-gated-mixer: a move rate above 63/64 has no keep bin')
+export function gatedMix(
+  tables: LockedTables,
+  c: Configuration,
+  flux: Int8Array,
+  vacuumFlux: Int8Array,
+  key: PathKey,
+  t: number,
+  n: number,
+  tally: MixTally,
+  stringless = false,
+): void {
+  if (n <= 0) {
+    return
+  }
+
+  if (n > 9) {
+    throw new Error(
+      'string-gated-mixer: a move rate above 63/64 has no keep bin',
+    )
+  }
 
   const keep = 64 - 7 * n
 
   for (let x = 0; x < tables.cells; x++) {
     const { f, q } = gatedFrame(c, x)
 
-    if (f < 0) continue
-    if (!stringless && !frameLinks(tables, x, f).some(k => flux[k] !== vacuumFlux[k])) {
+    if (f < 0) {
+      continue
+    }
+
+    if (
+      !stringless &&
+      !frameLinks(tables, x, f).some(k => flux[k] !== vacuumFlux[k])
+    ) {
       tally.ungatedLone++
       continue
     }
@@ -103,16 +167,18 @@ export function gatedMix(tables: LockedTables, c: Configuration, flux: Int8Array
 
     const b = Math.floor(key.frame(t, x, f) / 1024)
 
-    if (b < keep) continue
+    if (b < keep) {
+      continue
+    }
 
     const o = Math.floor((b - keep) / n) + 1
-    const ss = FRAME_SLOTS[f] as readonly number[]
-    const from = x * 24 + (ss[q] as number)
-    const to = x * 24 + (ss[q ^ o] as number)
+    const ss = FRAME_SLOTS[f]!
+    const from = x * 24 + ss[q]!
+    const to = x * 24 + ss[q ^ o]!
 
-    c.vibe[to] = c.vibe[from] as number
-    c.point[to] = c.point[from] as number
-    c.open[to] = c.open[from] as number
+    c.vibe[to] = c.vibe[from]!
+    c.point[to] = c.point[from]!
+    c.open[to] = c.open[from]!
     c.vibe[from] = 0
     c.point[from] = 0
     c.open[from] = 0
@@ -146,16 +212,56 @@ export type MixTrack = {
   vacuumLast: Configuration
 }
 
-const sameSlot = (p: Configuration, q: Configuration, i: number): boolean => p.vibe[i] === q.vibe[i] && (p.vibe[i] === 0 || (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
-const sameStore = (p: Configuration, q: Configuration, s: number): boolean => p.store[s] === q.store[s] && (p.store[s] === 0 || (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
+const sameSlot = (
+  p: Configuration,
+  q: Configuration,
+  i: number,
+): boolean =>
+  p.vibe[i] === q.vibe[i] &&
+  (p.vibe[i] === 0 ||
+    (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
+const sameStore = (
+  p: Configuration,
+  q: Configuration,
+  s: number,
+): boolean =>
+  p.store[s] === q.store[s] &&
+  (p.store[s] === 0 ||
+    (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
 
-export function mixTrack(input: { tables: LockedTables; vacuum: Configuration; start: Configuration; hub: number; key: PathKey; threshold: number; beats: number; side: number; n: number; stringless?: boolean }): MixTrack {
-  const { tables, vacuum, start, hub, key, threshold, beats, side, n, stringless = false } = input
-  const offsets = Array.from({ length: tables.cells }, (_, x) => cartesianOffset(side, hub, x))
+export function mixTrack(input: {
+  tables: LockedTables
+  vacuum: Configuration
+  start: Configuration
+  hub: number
+  key: PathKey
+  threshold: number
+  beats: number
+  side: number
+  n: number
+  stringless?: boolean
+}): MixTrack {
+  const {
+    tables,
+    vacuum,
+    start,
+    hub,
+    key,
+    threshold,
+    beats,
+    side,
+    n,
+    stringless = false,
+  } = input
+  const offsets = Array.from({ length: tables.cells }, (_, x) =>
+    cartesianOffset(side, hub, x),
+  )
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let p = cloneConfiguration(vacuum)
   let q = cloneConfiguration(vacuum)
+
   const events: KEvent[] = []
   const vacuumEvents: KEvent[] = []
   const fired = new Uint8Array(tables.cells)
@@ -163,8 +269,10 @@ export function mixTrack(input: { tables: LockedTables; vacuum: Configuration; s
   const vacuumFlux = new Int8Array(tables.cells * 12)
   const tally = newMixTally()
   const vacuumTally = newMixTally()
+
   let firedCount = 0
   let seen = 0
+
   const out: MixTrack = {
     wake: [],
     footprint: [],
@@ -193,23 +301,62 @@ export function mixTrack(input: { tables: LockedTables; vacuum: Configuration; s
     const twice = cloneConfiguration(a)
     const scratch = newMixTally()
 
-    gatedMix(tables, twice, flux, vacuumFlux, key, t, n, scratch, stringless)
-    gatedMix(tables, twice, flux, vacuumFlux, key, t, n, scratch, stringless)
-    for (let i = 0; i < a.vibe.length; i++) if (!sameSlot(a, twice, i)) out.reversalDiffer++
+    gatedMix(
+      tables,
+      twice,
+      flux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      scratch,
+      stringless,
+    )
+
+    gatedMix(
+      tables,
+      twice,
+      flux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      scratch,
+      stringless,
+    )
+
+    for (let i = 0; i < a.vibe.length; i++) {
+      if (!sameSlot(a, twice, i)) {
+        out.reversalDiffer++
+      }
+    }
 
     gatedMix(tables, a, flux, vacuumFlux, key, t, n, tally, stringless)
     // the vacuum run carries the same piece on its own register, with the string clause dropped: condition Z alone
-    gatedMix(tables, p, vacuumFlux, vacuumFlux, key, t, n, vacuumTally, true)
+    gatedMix(
+      tables,
+      p,
+      vacuumFlux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      vacuumTally,
+      true,
+    )
     starBeat(tables, a, b, key, threshold, t, events)
     starBeat(tables, p, q, key, threshold, t, vacuumEvents)
     ;[a, b] = [b, a]
     ;[p, q] = [q, p]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)
-    out.vacuumSplits = Math.max(out.vacuumSplits, unequalLikeMeetings(p))
+    out.vacuumSplits = Math.max(
+      out.vacuumSplits,
+      unequalLikeMeetings(p),
+    )
 
     for (; seen < events.length; seen++) {
-      const d = (events[seen] as KEvent).dock
+      const d = events[seen]!.dock
 
       if (!fired[d]) {
         fired[d] = 1
@@ -220,19 +367,34 @@ export function mixTrack(input: { tables: LockedTables; vacuum: Configuration; s
     let wake = 0
     let docks = 0
     let singles = 0
+
     const sum = [0, 0, 0, 0]
 
     for (let x = 0; x < tables.cells; x++) {
       let here = 0
 
-      for (let d = 0; d < 24; d++) if (!sameSlot(a, p, x * 24 + d)) here++
-      for (let l = 0; l < 12; l++) if (!sameStore(a, p, x * 12 + l)) here++
+      for (let d = 0; d < 24; d++) {
+        if (!sameSlot(a, p, x * 24 + d)) {
+          here++
+        }
+      }
+
+      for (let l = 0; l < 12; l++) {
+        if (!sameStore(a, p, x * 12 + l)) {
+          here++
+        }
+      }
+
       out.vacuumSingles += singlesAt(p, x)
       singles += singlesAt(a, x)
-      if (here === 0) continue
+
+      if (here === 0) {
+        continue
+      }
+
       wake += here
       docks++
-      ;(offsets[x] as number[]).forEach((v, k) => (sum[k]! += here * v))
+      offsets[x]!.forEach((v, k) => (sum[k]! += here * v))
     }
 
     out.wake.push(wake)
@@ -255,45 +417,93 @@ export function mixTrack(input: { tables: LockedTables; vacuum: Configuration; s
 
 // ---- where singles are made: every piece of the beat, the single lines it changes dock by dock ----
 
-export type PieceCensus = { mix: number; coin: number; meet: number; pair: number; bounce: number; stream: number; streamNet: number }
+export type PieceCensus = {
+  mix: number
+  coin: number
+  meet: number
+  pair: number
+  bounce: number
+  stream: number
+  streamNet: number
+}
 
 const countSingles = (cells: number, c: Configuration): number => {
   let s = 0
 
-  for (let x = 0; x < cells; x++) s += singlesAt(c, x)
+  for (let x = 0; x < cells; x++) {
+    s += singlesAt(c, x)
+  }
 
   return s
 }
 
 // the joint run with the mixer, beat by beat: for each piece the sum over docks of |singles after - singles before|
 // (the stream moves vibes between docks, so it is read as the change of the total, and its net sum)
-export function pieceCensus(input: { tables: LockedTables; vacuum: Configuration; start: Configuration; key: PathKey; threshold: number; beats: number; n: number }): PieceCensus {
+export function pieceCensus(input: {
+  tables: LockedTables
+  vacuum: Configuration
+  start: Configuration
+  key: PathKey
+  threshold: number
+  beats: number
+  n: number
+}): PieceCensus {
   const { tables, vacuum, start, key, threshold, beats, n } = input
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let p = cloneConfiguration(vacuum)
   let q = cloneConfiguration(vacuum)
+
   const flux = new Int8Array(tables.cells * 12)
   const vacuumFlux = new Int8Array(tables.cells * 12)
-  const out: PieceCensus = { mix: 0, coin: 0, meet: 0, pair: 0, bounce: 0, stream: 0, streamNet: 0 }
+  const out: PieceCensus = {
+    mix: 0,
+    coin: 0,
+    meet: 0,
+    pair: 0,
+    bounce: 0,
+    stream: 0,
+    streamNet: 0,
+  }
+
   const per = (fn: () => void): number => {
-    const before = Array.from({ length: tables.cells }, (_, x) => singlesAt(a, x))
+    const before = Array.from({ length: tables.cells }, (_, x) =>
+      singlesAt(a, x),
+    )
 
     fn()
 
-    return before.reduce((s, v, x) => s + Math.abs(singlesAt(a, x) - v), 0)
+    return before.reduce(
+      (s, v, x) => s + Math.abs(singlesAt(a, x) - v),
+      0,
+    )
   }
+
   const tally = newMixTally()
   const events: KEvent[] = []
 
   for (let t = 0; t < beats; t++) {
-    out.mix += per(() => gatedMix(tables, a, flux, vacuumFlux, key, t, n, tally))
+    out.mix += per(() =>
+      gatedMix(tables, a, flux, vacuumFlux, key, t, n, tally),
+    )
     out.coin += per(() => keyedCoin(tables, a, key, threshold, t))
     out.meet += per(() => keyedMeet(tables, a, key, threshold, t))
 
     for (const piece of collisionOrder('alternate', t)) {
-      if (piece === 'P') out.pair += per(() => { for (let x = 0; x < tables.cells; x++) pairPiece('none', a, x) })
-      else out.bounce += per(() => { for (let x = 0; x < tables.cells; x++) coinPiece(tables, a, x) })
+      if (piece === 'P') {
+        out.pair += per(() => {
+          for (let x = 0; x < tables.cells; x++) {
+            pairPiece('none', a, x)
+          }
+        })
+      } else {
+        out.bounce += per(() => {
+          for (let x = 0; x < tables.cells; x++) {
+            coinPiece(tables, a, x)
+          }
+        })
+      }
     }
 
     const s0 = countSingles(tables.cells, a)

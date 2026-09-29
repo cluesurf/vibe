@@ -57,13 +57,23 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { meanError } from '@/code/measure/held-knot'
-import { CROWD, CROWD_CONFIGS, crowdSurvey, type CrowdConfig, type CrowdMember, type DriftConfig } from '@/code/measure/gated-crowd'
+import {
+  CROWD,
+  CROWD_CONFIGS,
+  crowdSurvey,
+  type CrowdConfig,
+  type CrowdMember,
+  type DriftConfig,
+} from '@/code/measure/gated-crowd'
 
 type Stat = { mean: number; error: number }
 
-const significant = (x: Stat): boolean => x.mean > 0 && x.mean >= 3 * x.error
-const nullish = (x: Stat): boolean => (x.error === 0 ? x.mean === 0 : Math.abs(x.mean) <= 3 * x.error)
-const f = (x: Stat): string => `${x.mean.toFixed(3)} +- ${x.error.toFixed(3)}`
+const significant = (x: Stat): boolean =>
+  x.mean > 0 && x.mean >= 3 * x.error
+const nullish = (x: Stat): boolean =>
+  x.error === 0 ? x.mean === 0 : Math.abs(x.mean) <= 3 * x.error
+const f = (x: Stat): string =>
+  `${x.mean.toFixed(3)} +- ${x.error.toFixed(3)}`
 
 export default experiment({
   id: 'gravity/gated-take-crowd',
@@ -76,12 +86,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const S = CROWD
     const members: CrowdMember[] = crowdSurvey(log)
     const W = S.beats
     const zero = S.impacts.indexOf(0)
-    const beside = S.impacts.map((b, i) => ({ b, i })).filter(x => x.b > S.radius)
+    const beside = S.impacts
+      .map((b, i) => ({ b, i }))
+      .filter(x => x.b > S.radius)
     const read32 = S.driftReads.indexOf(W)
     const read16 = S.driftReads.indexOf(16)
 
@@ -89,20 +104,50 @@ export default experiment({
     const g1 = members.every(m => m.exact && m.noneIsOld && m.returns)
 
     // H2
-    const delay = (a: CrowdConfig, b: CrowdConfig, i: number): Stat => meanError(members.map(m => (m.arrival[a][i] as number) - (m.arrival[b][i] as number)))
-    const through = members.every(m => (m.arrival.crowd[zero] as number) <= W && (m.arrival.crowd[zero] as number) < (m.behind.crowd[zero] as number))
+    const delay = (a: CrowdConfig, b: CrowdConfig, i: number): Stat =>
+      meanError(members.map(m => m.arrival[a][i]! - m.arrival[b][i]!))
+    const through = members.every(
+      m =>
+        m.arrival.crowd[zero]! <= W &&
+        m.arrival.crowd[zero]! < m.behind.crowd[zero]!,
+    )
     const delay0 = delay('crowd', 'none', zero)
     const g2 = through && significant(delay0)
 
     // H3
-    const deflection = (c: CrowdConfig, m: CrowdMember, i: number): number => (S.impacts[i] as number) - (m.planeY[c][i] as number)
-    const bend = (a: CrowdConfig, b: CrowdConfig, i: number): Stat => meanError(members.map(m => deflection(a, m, i) - deflection(b, m, i)))
+    const deflection = (
+      c: CrowdConfig,
+      m: CrowdMember,
+      i: number,
+    ): number => S.impacts[i]! - m.planeY[c][i]!
+    const bend = (a: CrowdConfig, b: CrowdConfig, i: number): Stat =>
+      meanError(
+        members.map(m => deflection(a, m, i) - deflection(b, m, i)),
+      )
     const bends = beside.map(x => bend('crowd', 'none', x.i))
-    const g3 = bends.every(x => Number.isFinite(x.mean) && significant(x)) && bends.every((x, j) => j === 0 || x.mean <= (bends[j - 1] as Stat).mean)
+    const g3 =
+      bends.every(x => Number.isFinite(x.mean) && significant(x)) &&
+      bends.every((x, j) => j === 0 || x.mean <= bends[j - 1]!.mean)
 
     // H4
-    const pull = (a: DriftConfig, b: DriftConfig, read: number, i: number): Stat => meanError(members.flatMap(m => S.axes.map((_, j) => (m.drift[a][read]![i]![j] as number) - (m.drift[b][read]![i]![j] as number))))
-    const pulls = S.distances.map((_, i) => pull('crowd', 'none', read32, i))
+    const pull = (
+      a: DriftConfig,
+      b: DriftConfig,
+      read: number,
+      i: number,
+    ): Stat =>
+      meanError(
+        members.flatMap(m =>
+          S.axes.map(
+            (_, j) =>
+              m.drift[a][read]![i]![j]! - m.drift[b][read]![i]![j]!,
+          ),
+        ),
+      )
+    const pulls = S.distances.map((_, i) =>
+      pull('crowd', 'none', read32, i),
+    )
+
     let slope = Number.NaN
 
     if (pulls.every(x => x.mean > 0)) {
@@ -110,31 +155,47 @@ export default experiment({
       const ly = pulls.map(x => Math.log(x.mean))
       const mx = lx.reduce((a, b) => a + b, 0) / lx.length
       const my = ly.reduce((a, b) => a + b, 0) / ly.length
+
       let num = 0
       let den = 0
 
       for (let i = 0; i < lx.length; i++) {
-        num += ((lx[i] as number) - mx) * ((ly[i] as number) - my)
-        den += ((lx[i] as number) - mx) ** 2
+        num += (lx[i]! - mx) * (ly[i]! - my)
+        den += (lx[i]! - mx) ** 2
       }
 
       slope = num / den
     }
 
-    const g4 = pulls.every(significant) && pulls.every((x, j) => j === 0 || x.mean <= (pulls[j - 1] as Stat).mean) && slope >= -2.5 && slope <= -1.5
+    const g4 =
+      pulls.every(significant) &&
+      pulls.every((x, j) => j === 0 || x.mean <= pulls[j - 1]!.mean) &&
+      slope >= -2.5 &&
+      slope <= -1.5
 
     // H5
     const flipDelay = delay('crowd', 'flip', zero)
     const flipBends = beside.map(x => bend('crowd', 'flip', x.i))
-    const flipPulls = S.distances.map((_, i) => pull('crowd', 'flip', read32, i))
-    const g5 = nullish(flipDelay) && flipBends.every(x => Number.isFinite(x.mean) && nullish(x)) && flipPulls.every(nullish)
+    const flipPulls = S.distances.map((_, i) =>
+      pull('crowd', 'flip', read32, i),
+    )
+    const g5 =
+      nullish(flipDelay) &&
+      flipBends.every(x => Number.isFinite(x.mean) && nullish(x)) &&
+      flipPulls.every(nullish)
 
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+
     const spread = (xs: number[]): string => {
       const s = [...xs].sort((a, b) => a - b)
 
       return `${s[0]}/${s[Math.floor(s.length / 2)]}/${s[s.length - 1]}`
     }
+
     const metrics: Record<string, number> = {
       gate_H1: g1 ? 1 : 0,
       gate_H2: g2 ? 1 : 0,
@@ -151,31 +212,43 @@ export default experiment({
       crowdTakes: members.reduce((a, m) => a + m.crowdTakes, 0),
       crowdDockBeats: members.reduce((a, m) => a + m.crowdDockBeats, 0),
       outsidePaused: members.reduce((a, m) => a + m.outsidePaused, 0),
-      maxOutsideEnergy: Math.max(...members.map(m => m.maxOutsideEnergy)),
+      maxOutsideEnergy: Math.max(
+        ...members.map(m => m.maxOutsideEnergy),
+      ),
       turnedBack: members.reduce((a, m) => a + m.turned, 0),
     }
     const arrivalNotes: string[] = []
 
     S.impacts.forEach((b, i) => {
       for (const c of CROWD_CONFIGS) {
-        metrics[`arrival_${c}_b${b}_mean`] = members.reduce((a, m) => a + (m.arrival[c][i] as number), 0) / members.length
-        arrivalNotes.push(`b${b} ${c}: detector ${spread(members.map(m => m.arrival[c][i] as number))}, behind ${spread(members.map(m => m.behind[c][i] as number))}, back ${spread(members.map(m => m.back[c][i] as number))}, plane ${spread(members.map(m => m.planeBeat[c][i] as number))} y ${members.map(m => (m.planeY[c][i] as number).toFixed(2)).join('/')}`)
+        metrics[`arrival_${c}_b${b}_mean`] =
+          members.reduce((a, m) => a + m.arrival[c][i]!, 0) /
+          members.length
+
+        arrivalNotes.push(
+          `b${b} ${c}: detector ${spread(members.map(m => m.arrival[c][i]!))}, behind ${spread(members.map(m => m.behind[c][i]!))}, back ${spread(members.map(m => m.back[c][i]!))}, plane ${spread(members.map(m => m.planeBeat[c][i]!))} y ${members.map(m => m.planeY[c][i]!.toFixed(2)).join('/')}`,
+        )
       }
     })
 
     beside.forEach((x, j) => {
-      metrics[`bend_b${x.b}`] = (bends[j] as Stat).mean
-      metrics[`bendError_b${x.b}`] = (bends[j] as Stat).error
-      metrics[`bendFlip_b${x.b}`] = (flipBends[j] as Stat).mean
+      metrics[`bend_b${x.b}`] = bends[j]!.mean
+      metrics[`bendError_b${x.b}`] = bends[j]!.error
+      metrics[`bendFlip_b${x.b}`] = flipBends[j]!.mean
       metrics[`bendOld_b${x.b}`] = bend('old', 'none', x.i).mean
     })
 
     S.distances.forEach((r, i) => {
-      metrics[`pull_r${r}`] = (pulls[i] as Stat).mean
-      metrics[`pullError_r${r}`] = (pulls[i] as Stat).error
-      metrics[`pullFlip_r${r}`] = (flipPulls[i] as Stat).mean
+      metrics[`pull_r${r}`] = pulls[i]!.mean
+      metrics[`pullError_r${r}`] = pulls[i]!.error
+      metrics[`pullFlip_r${r}`] = flipPulls[i]!.mean
       metrics[`pull16_r${r}`] = pull('crowd', 'none', read16, i).mean
-      metrics[`pull16Error_r${r}`] = pull('crowd', 'none', read16, i).error
+      metrics[`pull16Error_r${r}`] = pull(
+        'crowd',
+        'none',
+        read16,
+        i,
+      ).error
     })
 
     metrics.seconds = (Date.now() - started) / 1000

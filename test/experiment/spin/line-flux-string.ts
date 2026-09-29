@@ -130,9 +130,30 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { lightN } from '@/code/measure/drift-cost-bloch'
-import { meson, pairColumn, pairEmbed, pairLevels, pairModelInertia, parityIndices, type Meson } from '@/code/measure/string-binding'
-import { bandCurvature, carry, nrSeed, readBand, settle, type BandLevel } from '@/code/measure/meson-band'
-import { lineBeat, lineGauss, lineRegisterColumn, lineStateKey, type LineBranch } from '@/code/measure/link-flux'
+import {
+  meson,
+  pairColumn,
+  pairEmbed,
+  pairLevels,
+  pairModelInertia,
+  parityIndices,
+  type Meson,
+} from '@/code/measure/string-binding'
+import {
+  bandCurvature,
+  carry,
+  nrSeed,
+  readBand,
+  settle,
+  type BandLevel,
+} from '@/code/measure/meson-band'
+import {
+  lineBeat,
+  lineGauss,
+  lineRegisterColumn,
+  lineStateKey,
+  type LineBranch,
+} from '@/code/measure/link-flux'
 
 const TAIL = 1e-3
 const EVEN = 0.5
@@ -156,17 +177,38 @@ const RUN_POINT: readonly [number, number] = [2, 13]
 const RUN_BEATS = 32
 const RUN_D0: readonly number[] = [0, 2, 6]
 // E-SPN-0115's recorded E(0) on the path and E-SPN-0114's printed totals
-const RECORDED_ENERGY: Record<number, number> = { 1: 0.3188654375223234, 2: 0.19314564649226765, 4: 0.10386658008071757, 8: 0.05213891233226967, 16: 0.026185373288082 }
-const RECORDED_TOTAL: Record<number, number> = { 1: 1.7931, 2: 1.1124, 4: 1.0238, 8: 1.0043, 16: 1.0026 }
+const RECORDED_ENERGY: Record<number, number> = {
+  1: 0.3188654375223234,
+  2: 0.19314564649226765,
+  4: 0.10386658008071757,
+  8: 0.05213891233226967,
+  16: 0.026185373288082,
+}
+const RECORDED_TOTAL: Record<number, number> = {
+  1: 1.7931,
+  2: 1.1124,
+  4: 1.0238,
+  8: 1.0043,
+  16: 1.0026,
+}
 
-export type LineFluxPlan = { fines: readonly number[]; mults: readonly number[]; dense: readonly number[] }
+export type LineFluxPlan = {
+  fines: readonly number[]
+  mults: readonly number[]
+  dense: readonly number[]
+}
 
-export const GATE_PLAN: LineFluxPlan = { fines: [1, 2, 4, 8, 16], mults: [1, 1.5, 2, 3, 4], dense: [1, 2] }
+export const GATE_PLAN: LineFluxPlan = {
+  fines: [1, 2, 4, 8, 16],
+  mults: [1, 1.5, 2, 3, 4],
+  dense: [1, 2],
+}
 
 export default experiment({
   id: 'spin/line-flux-string',
   code: 'E-SPN-0149',
-  title: 'on one line the local Z3 link-flux string is the instantaneous separation cost bit for bit (Gauss leaves the flux no freedom; 6,516 columns and 32 beats equal, Gauss on every branch), so candidate (ii) has no separate existence in 1d, pass: on the continuum path the meson R_total - 1 falls as n^-2.08 (the lattice mass tan m/m, 1.0016 at n = 16), binding with E_b/m up to 0.4 moves R by at most 1.4e-3 while the positive-branch potential model stays 1.6 to 3% low, and the large strong-string excursions (R 0.35 to 1.03) are Klein crossings; the missing inertia of an instantaneous string in d > 1 is derived to be the string transverse inertia (2 - 2/d) T',
+  title:
+    'on one line the local Z3 link-flux string is the instantaneous separation cost bit for bit (Gauss leaves the flux no freedom; 6,516 columns and 32 beats equal, Gauss on every branch), so candidate (ii) has no separate existence in 1d, pass: on the continuum path the meson R_total - 1 falls as n^-2.08 (the lattice mass tan m/m, 1.0016 at n = 16), binding with E_b/m up to 0.4 moves R by at most 1.4e-3 while the positive-branch potential model stays 1.6 to 3% low, and the large strong-string excursions (R 0.35 to 1.03) are Klein crossings; the missing inertia of an instantaneous string in d > 1 is derived to be the string transverse inertia (2 - 2/d) T',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -180,7 +222,12 @@ const half = (n: number): number => Math.PI / (3 * n)
 
 // E-SPN-0113's D(n): the least D with 2D + 1 >= 9 n^2 ln(1/TAIL)/pi^2
 function derivedD(n: number): number {
-  return Math.max(0, Math.ceil(((9 * n * n * Math.log(1 / TAIL)) / Math.PI ** 2 - 1) / 2))
+  return Math.max(
+    0,
+    Math.ceil(
+      ((9 * n * n * Math.log(1 / TAIL)) / Math.PI ** 2 - 1) / 2,
+    ),
+  )
 }
 
 const boxOf = (D: number): number => BOX * lightN(D)
@@ -205,20 +252,41 @@ type Point = {
   model: number
 }
 
-function readPoint(level: BandLevel, n: number, k: number, carryOverlap: number): Point {
+function readPoint(
+  level: BandLevel,
+  n: number,
+  k: number,
+  carryOverlap: number,
+): Point {
   const m = meson(level.D, level.box, n)
   const eRest = 2 * half(n) + level.unwrapped
-  const mass = 1 / bandCurvature(m, { K: 0, energy: level.unwrapped, overlap: 1, residual: 0, vector: level.block }, eRest * CURVE_FRAC)
+  const mass =
+    1 /
+    bandCurvature(
+      m,
+      {
+        K: 0,
+        energy: level.unwrapped,
+        overlap: 1,
+        residual: 0,
+        vector: level.block,
+      },
+      eRest * CURVE_FRAC,
+    )
   const N = lightN(level.D)
   const walk = Math.tan(half(n)) / half(n)
-  const model = pairModelInertia(m, 2 * m.box + 6, pairEmbed(m, 0, level.block)).inertia
+  const model = pairModelInertia(
+    m,
+    2 * m.box + 6,
+    pairEmbed(m, 0, level.block),
+  ).inertia
 
   return {
     n,
     k,
     D: level.D,
     N,
-    r: (Math.PI / N) / half(n) ** 2,
+    r: Math.PI / N / half(n) ** 2,
     held: level.even >= EVEN && level.tailN <= TAIL,
     energy: level.unwrapped,
     eRest,
@@ -235,19 +303,34 @@ function readPoint(level: BandLevel, n: number, k: number, carryOverlap: number)
 }
 
 // E-SPN-0113's dense e0 (the least unwrapped even-block particle level)
-function denseE0(n: number, D: number, withCost = true): { m: Meson; level: BandLevel | null; inside: number } {
+function denseE0(
+  n: number,
+  D: number,
+  withCost = true,
+): { m: Meson; level: BandLevel | null; inside: number } {
   const m = meson(D, boxOf(D), n)
   const levels = pairLevels(m, withCost).levels
-  const e0 = levels.filter(l => l.parity === 0).sort((a, b) => a.unwrapped - b.unwrapped)[0]
+  const e0 = levels
+    .filter(l => l.parity === 0)
+    .sort((a, b) => a.unwrapped - b.unwrapped)[0]
 
-  return { m, level: e0 ? readBand(m, e0.block, e0.energy, 0, withCost) : null, inside: levels.filter(l => l.tailN <= TAIL).length }
+  return {
+    m,
+    level: e0 ? readBand(m, e0.block, e0.energy, 0, withCost) : null,
+    inside: levels.filter(l => l.tailN <= TAIL).length,
+  }
 }
 
 // ---- F1: the register against the instantaneous cost ----
-function columnCheck(n: number, D: number, fearCharge = -1): { columns: number; differ: number; gaussBroken: number } {
+function columnCheck(
+  n: number,
+  D: number,
+  fearCharge = -1,
+): { columns: number; differ: number; gaussBroken: number } {
   const m = meson(D, boxOf(D), n)
   const N = lightN(D)
   const angle = (l: number): number => (-Math.PI * l) / N
+
   let columns = 0
   let differ = 0
   let gaussBroken = 0
@@ -260,13 +343,29 @@ function columnCheck(n: number, D: number, fearCharge = -1): { columns: number; 
 
       for (const K of COLUMN_K) {
         const want = pairColumn(m, K, col)
-        const got = lineRegisterColumn(n, angle, m.box, d, r0 >> 1, r0 & 1, K, fearCharge)
+        const got = lineRegisterColumn(
+          n,
+          angle,
+          m.box,
+          d,
+          r0 >> 1,
+          r0 & 1,
+          K,
+          fearCharge,
+        )
         const byIndex = new Map<number, [number, number]>()
 
         columns++
+
         for (const g of got) {
-          if (!g.gauss) gaussBroken++
-          byIndex.set(m.b.index(m.b.configOf([0, g.d]), g.j0 * 2 + g.j1), [g.re, g.im])
+          if (!g.gauss) {
+            gaussBroken++
+          }
+
+          byIndex.set(
+            m.b.index(m.b.configOf([0, g.d]), g.j0 * 2 + g.j1),
+            [g.re, g.im],
+          )
         }
 
         let same = byIndex.size === want.idx.length
@@ -274,10 +373,14 @@ function columnCheck(n: number, D: number, fearCharge = -1): { columns: number; 
         want.idx.forEach((i, e) => {
           const a = byIndex.get(i)
 
-          if (!a || a[0] !== want.re[e] || a[1] !== want.im[e]) same = false
+          if (!a || a[0] !== want.re[e] || a[1] !== want.im[e]) {
+            same = false
+          }
         })
 
-        if (!same) differ++
+        if (!same) {
+          differ++
+        }
       }
     }
   }
@@ -285,7 +388,12 @@ function columnCheck(n: number, D: number, fearCharge = -1): { columns: number; 
   return { columns, differ, gaussBroken }
 }
 
-function runCheck(fearCharge = -1): { beats: number; differ: number; gaussBroken: number; branches: number } {
+function runCheck(fearCharge = -1): {
+  beats: number
+  differ: number
+  gaussBroken: number
+  branches: number
+} {
   const [n, D] = RUN_POINT
   const box = boxOf(D)
   const N = lightN(D)
@@ -294,17 +402,36 @@ function runCheck(fearCharge = -1): { beats: number; differ: number; gaussBroken
   const lo = -reach
   const width = 2 * reach + 1
   const g = 0.6180339887498949
+
   let register: LineBranch[] = []
   let instant: LineBranch[] = []
   let s = 0
 
   for (const d0 of RUN_D0) {
     for (let j = 0; j < 4; j++) {
-      const amp: [number, number] = [((s * g) % 1) - 0.5, ((s * g * g) % 1) - 0.5]
+      const amp: [number, number] = [
+        ((s * g) % 1) - 0.5,
+        ((s * g * g) % 1) - 0.5,
+      ]
 
       s++
-      register.push({ x0: 0, x1: d0, j0: j >> 1, j1: j & 1, flux: lineGauss(0, d0, lo, width), amp })
-      instant.push({ x0: 0, x1: d0, j0: j >> 1, j1: j & 1, flux: null, amp })
+      register.push({
+        x0: 0,
+        x1: d0,
+        j0: j >> 1,
+        j1: j & 1,
+        flux: lineGauss(0, d0, lo, width),
+        amp,
+      })
+
+      instant.push({
+        x0: 0,
+        x1: d0,
+        j0: j >> 1,
+        j1: j & 1,
+        flux: null,
+        amp,
+      })
     }
   }
 
@@ -318,15 +445,22 @@ function runCheck(fearCharge = -1): { beats: number; differ: number; gaussBroken
 
     const byKey = new Map(instant.map(b => [lineStateKey(b), b.amp]))
 
-    if (byKey.size !== register.length) differ++
+    if (byKey.size !== register.length) {
+      differ++
+    }
+
     for (const b of register) {
       const a = byKey.get(lineStateKey(b))
 
-      if (!a || a[0] !== b.amp[0] || a[1] !== b.amp[1]) differ++
+      if (a?.[0] !== b.amp[0] || a[1] !== b.amp[1]) {
+        differ++
+      }
 
       const gl = lineGauss(b.x0, b.x1, lo, width)
 
-      if (!(b.flux as Int8Array).every((v, k) => v === gl[k])) gaussBroken++
+      if (!b.flux!.every((v, k) => v === gl[k])) {
+        gaussBroken++
+      }
     }
 
     branches = Math.max(branches, register.length)
@@ -337,44 +471,64 @@ function runCheck(fearCharge = -1): { beats: number; differ: number; gaussBroken
 
 export function lineFluxRun(plan: LineFluxPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const f4 = (x: number): string => x.toFixed(4)
   const e2 = (x: number): string => x.toExponential(2)
 
   // ---- F1 ----
-  const columns = COLUMN_POINTS.map(([n, D]) => ({ n, D, ...columnCheck(n, D) }))
+  const columns = COLUMN_POINTS.map(([n, D]) => ({
+    n,
+    D,
+    ...columnCheck(n, D),
+  }))
   const run = runCheck()
-  const F1 = columns.every(c => c.differ === 0 && c.gaussBroken === 0) && run.differ === 0 && run.gaussBroken === 0
+  const F1 =
+    columns.every(c => c.differ === 0 && c.gaussBroken === 0) &&
+    run.differ === 0 &&
+    run.gaussBroken === 0
 
-  log(`F1 columns ${columns.map(c => `(${c.n},${c.D}) ${c.columns} differ ${c.differ} gauss ${c.gaussBroken}`).join('; ')}; run ${JSON.stringify(run)}`)
+  log(
+    `F1 columns ${columns.map(c => `(${c.n},${c.D}) ${c.columns} differ ${c.differ} gauss ${c.gaussBroken}`).join('; ')}; run ${JSON.stringify(run)}`,
+  )
 
   // C3: the wrong register, over the 32-beat run (a one-beat column reads only the start's register, which is Gauss's)
   const wrong = columnCheck(RUN_POINT[0], RUN_POINT[1], 1)
   const wrongRun = runCheck(1)
   const C3 = wrongRun.differ > 0 && wrongRun.gaussBroken > 0
 
-  log(`C3 columns ${JSON.stringify(wrong)}, run ${JSON.stringify(wrongRun)}`)
+  log(
+    `C3 columns ${JSON.stringify(wrong)}, run ${JSON.stringify(wrongRun)}`,
+  )
 
   // ---- the grid ----
   const points: Point[] = []
 
   for (const n of plan.fines) {
     const Dn = derivedD(n)
-    const wanted = plan.mults.map(k => ({ k, D: Math.max(1, Math.round(k * Dn)) })).sort((a, b) => b.D - a.D)
+    const wanted = plan.mults
+      .map(k => ({ k, D: Math.max(1, Math.round(k * Dn)) }))
+      .sort((a, b) => b.D - a.D)
 
     if (plan.dense.includes(n)) {
       for (const w of wanted) {
         const { level } = denseE0(n, w.D)
-        const p = readPoint(level as BandLevel, n, w.k, 1)
+        const p = readPoint(level!, n, w.k, 1)
 
         points.push(p)
-        log(`n ${n} k ${w.k} D ${w.D}: E ${p.energy} R_bind ${p.bind} klein ${e2(p.klein)} tail ${e2(p.tail)}`)
+        log(
+          `n ${n} k ${w.k} D ${w.D}: E ${p.energy} R_bind ${p.bind} klein ${e2(p.klein)} tail ${e2(p.tail)}`,
+        )
       }
+
       continue
     }
 
     const top = wanted[0] as { k: number; D: number }
     const mTop = meson(top.D, boxOf(top.D), n)
+
     let level = settle(mTop, nrSeed(mTop))
     let least = 1
 
@@ -390,59 +544,111 @@ export function lineFluxRun(plan: LineFluxPlan): Verdict {
       const p = readPoint(level, n, w.k, least)
 
       points.push(p)
-      log(`n ${n} k ${w.k} D ${w.D}: E ${p.energy} R_bind ${p.bind} klein ${e2(p.klein)} tail ${e2(p.tail)} carry ${f4(least)}`)
+      log(
+        `n ${n} k ${w.k} D ${w.D}: E ${p.energy} R_bind ${p.bind} klein ${e2(p.klein)} tail ${e2(p.tail)} carry ${f4(least)}`,
+      )
     }
   }
 
-  const at = (n: number, k: number): Point | undefined => points.find(p => p.n === n && p.k === k)
+  const at = (n: number, k: number): Point | undefined =>
+    points.find(p => p.n === n && p.k === k)
   const has = (n: number, k: number): boolean => at(n, k) !== undefined
 
   // ---- L1 ----
   const pathFines = plan.fines.filter(n => n >= 2)
   const L1rows = [2, 4].map(k => {
-    const rows = pathFines.filter(n => has(n, k)).map(n => at(n, k) as Point)
+    const rows = pathFines.filter(n => has(n, k)).map(n => at(n, k)!)
     const held = rows.every(p => p.held)
-    const bind = rows.filter(p => p.n >= 4).every(p => Math.abs(p.bind - 1) <= BIND)
-    const falls = rows.every((p, i) => i === 0 || p.total - 1 < (rows[i - 1] as Point).total - 1)
+    const bind = rows
+      .filter(p => p.n >= 4)
+      .every(p => Math.abs(p.bind - 1) <= BIND)
+    const falls = rows.every(
+      (p, i) => i === 0 || p.total - 1 < rows[i - 1]!.total - 1,
+    )
     const last = rows.find(p => p.n === 16)
-    const lastOk = last !== undefined && Math.abs(last.total - 1) <= LAST
+    const lastOk =
+      last !== undefined && Math.abs(last.total - 1) <= LAST
 
     return { k, rows, held, bind, falls, lastOk }
   })
-  const slopeRows = [2, 4, 8].filter(n => has(n, 4)).map(n => ({ x: Math.log(n), y: Math.log((at(n, 4) as Point).total - 1) }))
+  const slopeRows = [2, 4, 8]
+    .filter(n => has(n, 4))
+    .map(n => ({ x: Math.log(n), y: Math.log(at(n, 4)!.total - 1) }))
   const mx = slopeRows.reduce((s, p) => s + p.x, 0) / slopeRows.length
   const my = slopeRows.reduce((s, p) => s + p.y, 0) / slopeRows.length
-  const slope = slopeRows.reduce((s, p) => s + (p.x - mx) * (p.y - my), 0) / slopeRows.reduce((s, p) => s + (p.x - mx) ** 2, 0)
-  const L1 = L1rows.every(x => x.held && x.bind && x.falls && x.lastOk) && slopeRows.length === 3 && slope >= SLOPE[0] && slope <= SLOPE[1]
+  const slope =
+    slopeRows.reduce((s, p) => s + (p.x - mx) * (p.y - my), 0) /
+    slopeRows.reduce((s, p) => s + (p.x - mx) ** 2, 0)
+  const L1 =
+    L1rows.every(x => x.held && x.bind && x.falls && x.lastOk) &&
+    slopeRows.length === 3 &&
+    slope >= SLOPE[0] &&
+    slope <= SLOPE[1]
 
   // ---- L2 ----
-  const clean = [4, 8, 16].flatMap(n => [3, 4].map(k => at(n, k))).filter((p): p is Point => p !== undefined)
+  const clean = [4, 8, 16]
+    .flatMap(n => [3, 4].map(k => at(n, k)))
+    .filter((p): p is Point => p !== undefined)
   const strong = [4, 8].map(n => ({ one: at(n, 1), three: at(n, 3) }))
-  const L2 = F1 && clean.length === 6 && clean.every(p => Math.abs(p.bind - 1) <= BIND) && strong.every(x => x.one !== undefined && x.three !== undefined && Math.abs(x.one.bind - 1) >= OFF && x.one.klein >= KLEIN_RATIO * x.three.klein)
+  const L2 =
+    F1 &&
+    clean.length === 6 &&
+    clean.every(p => Math.abs(p.bind - 1) <= BIND) &&
+    strong.every(
+      x =>
+        x.one !== undefined &&
+        x.three !== undefined &&
+        Math.abs(x.one.bind - 1) >= OFF &&
+        x.one.klein >= KLEIN_RATIO * x.three.klein,
+    )
 
   // ---- C1, C2 ----
-  const c1Rows = plan.fines.filter(n => has(n, 2)).map(n => {
-    const p = at(n, 2) as Point
+  const c1Rows = plan.fines
+    .filter(n => has(n, 2))
+    .map(n => {
+      const p = at(n, 2)!
 
-    return { n, energy: p.energy, total: p.total, ok: Math.abs(p.energy - (RECORDED_ENERGY[n] as number)) <= SAME && Math.abs(p.total - (RECORDED_TOTAL[n] as number)) <= TOTAL_SAME }
-  })
-  const C1 = c1Rows.length === plan.fines.length && c1Rows.every(r => r.ok)
+      return {
+        n,
+        energy: p.energy,
+        total: p.total,
+        ok:
+          Math.abs(p.energy - RECORDED_ENERGY[n]!) <= SAME &&
+          Math.abs(p.total - RECORDED_TOTAL[n]!) <= TOTAL_SAME,
+      }
+    })
+  const C1 =
+    c1Rows.length === plan.fines.length && c1Rows.every(r => r.ok)
   const free = plan.fines.map(n => {
     const D = 2 * derivedD(n)
 
-    if (plan.dense.includes(n)) return { n, D, tail: NaN, inside: denseE0(n, D, false).inside }
+    if (plan.dense.includes(n)) {
+      return { n, D, tail: NaN, inside: denseE0(n, D, false).inside }
+    }
 
     const m = meson(D, boxOf(D), n)
 
-    return { n, D, tail: settle(m, nrSeed(m), 12, false).tailN, inside: -1 }
+    return {
+      n,
+      D,
+      tail: settle(m, nrSeed(m), 12, false).tailN,
+      inside: -1,
+    }
   })
-  const C2 = free.every(f => (f.inside >= 0 ? f.inside === 0 : f.tail > TAIL))
+  const C2 = free.every(f =>
+    f.inside >= 0 ? f.inside === 0 : f.tail > TAIL,
+  )
 
   log(`C1 ${JSON.stringify(c1Rows)}; C2 ${JSON.stringify(free)}`)
 
   const controls = C1 && C2 && C3
-  const status = !controls ? 'partial' : F1 && L1 && L2 ? 'pass' : 'fail'
-  const row = (p: Point): string => `n ${p.n} k ${p.k} D ${p.D} (r ${p.r.toFixed(3)}, pi/r ${(Math.PI / p.r).toFixed(1)}): ${p.held ? 'held' : 'NOT held'}, E(0) ${p.energy.toFixed(6)}, E_rest ${f4(p.eRest)}, m* ${f4(p.mass)}, R_total ${p.total.toFixed(5)}, R_walk ${p.walk.toFixed(5)}, R_bind ${p.bind.toFixed(5)}, Klein ${e2(p.klein)}, tail ${e2(p.tail)}, <|d|> ${p.mean.toFixed(2)}, carry ${f4(p.carry)}, R_pm ${p.model.toFixed(5)}`
+  const status = !controls
+    ? 'partial'
+    : F1 && L1 && L2
+      ? 'pass'
+      : 'fail'
+  const row = (p: Point): string =>
+    `n ${p.n} k ${p.k} D ${p.D} (r ${p.r.toFixed(3)}, pi/r ${(Math.PI / p.r).toFixed(1)}): ${p.held ? 'held' : 'NOT held'}, E(0) ${p.energy.toFixed(6)}, E_rest ${f4(p.eRest)}, m* ${f4(p.mass)}, R_total ${p.total.toFixed(5)}, R_walk ${p.walk.toFixed(5)}, R_bind ${p.bind.toFixed(5)}, Klein ${e2(p.klein)}, tail ${e2(p.tail)}, <|d|> ${p.mean.toFixed(2)}, carry ${f4(p.carry)}, R_pm ${p.model.toFixed(5)}`
   const metrics: Record<string, number> = {
     F1: F1 ? 1 : 0,
     L1: L1 ? 1 : 0,

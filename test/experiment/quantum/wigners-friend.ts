@@ -46,7 +46,26 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { add, apply, coinGate, dirOf, eq, float, gatesOnFamily, lineOfTwo, ONE, pointsOf, qw, show, start, sub, weightWhere, ZERO, type Qw, type State } from '@/code/measure/rule-gates'
+import {
+  add,
+  apply,
+  coinGate,
+  dirOf,
+  eq,
+  float,
+  gatesOnFamily,
+  lineOfTwo,
+  ONE,
+  pointsOf,
+  qw,
+  show,
+  start,
+  sub,
+  weightWhere,
+  ZERO,
+  type Qw,
+  type State,
+} from '@/code/measure/rule-gates'
 
 const FRIEND = 1
 
@@ -54,7 +73,8 @@ function prepared(points: number[]): State {
   return apply(start('R', points), coinGate)
 }
 
-const friendMeasures = (s: State): State => apply(s, lineOfTwo(0, FRIEND, 'R'))
+const friendMeasures = (s: State): State =>
+  apply(s, lineOfTwo(0, FRIEND, 'R'))
 
 function wignerUndo(s: State): State {
   let t = apply(s, lineOfTwo(0, FRIEND, 'R'))
@@ -64,7 +84,8 @@ function wignerUndo(s: State): State {
   return apply(t, coinGate)
 }
 
-const readS = (s: State): Qw[] => ['R', 'L'].map(f => weightWhere(s, l => dirOf(l) === f))
+const readS = (s: State): Qw[] =>
+  ['R', 'L'].map(f => weightWhere(s, l => dirOf(l) === f))
 
 // the collapse account: split by F's record, act on each branch alone, add the probabilities
 function collapsed(s: State): Qw[] {
@@ -72,17 +93,20 @@ function collapsed(s: State): Qw[] {
   const total = [ZERO, ZERO]
 
   for (const r of records) {
-    const branch: State = new Map([...s].filter(([l]) => pointsOf(l)[FRIEND] === r))
+    const branch: State = new Map(
+      [...s].filter(([l]) => pointsOf(l)[FRIEND] === r),
+    )
     const p = readS(wignerUndo(branch))
 
-    total[0] = add(total[0] as Qw, p[0] as Qw)
-    total[1] = add(total[1] as Qw, p[1] as Qw)
+    total[0] = add(total[0]!, p[0]!)
+    total[1] = add(total[1]!, p[1]!)
   }
 
   return total
 }
 
-const l1 = (p: Qw[], q: Qw[]): number => p.reduce((s, x, i) => s + Math.abs(float(sub(x, q[i] as Qw)).re), 0)
+const l1 = (p: Qw[], q: Qw[]): number =>
+  p.reduce((s, x, i) => s + Math.abs(float(sub(x, q[i]!)).re), 0)
 
 export default experiment({
   id: 'quantum/wigners-friend',
@@ -100,8 +124,14 @@ export default experiment({
 
     // F1
     const afterFriend = friendMeasures(prepared(points))
-    const readsZero = weightWhere(afterFriend, l => pointsOf(l)[FRIEND] === 0)
-    const zeroAndR = weightWhere(afterFriend, l => pointsOf(l)[FRIEND] === 0 && dirOf(l) === 'R')
+    const readsZero = weightWhere(
+      afterFriend,
+      l => pointsOf(l)[FRIEND] === 0,
+    )
+    const zeroAndR = weightWhere(
+      afterFriend,
+      l => pointsOf(l)[FRIEND] === 0 && dirOf(l) === 'R',
+    )
     const f1 = eq(readsZero, qw(3n, 0n, 16n)) && eq(zeroAndR, readsZero)
 
     // F2
@@ -109,7 +139,8 @@ export default experiment({
     const noFriend = readS(apply(prepared(points), coinGate))
     const wigner = readS(undone)
     const restored = weightWhere(undone, l => pointsOf(l)[FRIEND] === 1)
-    const f2 = eq(restored, ONE) && wigner.every((p, i) => eq(p, noFriend[i] as Qw))
+    const f2 =
+      eq(restored, ONE) && wigner.every((p, i) => eq(p, noFriend[i]!))
 
     // F3
     const collapse = collapsed(afterFriend)
@@ -119,38 +150,61 @@ export default experiment({
     const copied = apply(afterFriend, lineOfTwo(FRIEND, 2, null))
     const redundant = wignerUndo(copied)
     const redundantRead = readS(redundant)
-    const redundantRestored = weightWhere(redundant, l => pointsOf(l)[FRIEND] === 1)
-    const f4 = l1(redundantRead, noFriend) > 0 && !eq(redundantRestored, ONE)
+    const redundantRestored = weightWhere(
+      redundant,
+      l => pointsOf(l)[FRIEND] === 1,
+    )
+    const f4 =
+      l1(redundantRead, noFriend) > 0 && !eq(redundantRestored, ONE)
 
     // C1: no record (F's point equal to A's)
     const plainAfter = friendMeasures(prepared([0, 0, 2]))
-    const c1 = collapsed(plainAfter).every((p, i) => eq(p, readS(wignerUndo(plainAfter))[i] as Qw))
+    const c1 = collapsed(plainAfter).every((p, i) =>
+      eq(p, readS(wignerUndo(plainAfter))[i]!),
+    )
 
-    const g = { G0: gates.passing === gates.of, F1: f1, F2: f2, F3: f3, F4: f4, C1: c1 }
-    const status = !g.G0 || !g.C1 ? 'fail' : Object.values(g).every(Boolean) ? 'partial' : 'fail'
+    const g = {
+      G0: gates.passing === gates.of,
+      F1: f1,
+      F2: f2,
+      F3: f3,
+      F4: f4,
+      C1: c1,
+    }
+    const status =
+      !g.G0 || !g.C1
+        ? 'fail'
+        : Object.values(g).every(Boolean)
+          ? 'partial'
+          : 'fail'
     const metrics: Record<string, number> = {
       startsReadingTheGates: gates.passing,
       starts: gates.of,
       friendReadsZero: float(readsZero).re,
-      wignerR: float(wigner[0] as Qw).re,
-      noFriendR: float(noFriend[0] as Qw).re,
-      collapseR: float(collapse[0] as Qw).re,
+      wignerR: float(wigner[0]!).re,
+      noFriendR: float(noFriend[0]!).re,
+      collapseR: float(collapse[0]!).re,
       ruleVersusCollapseL1: l1(wigner, collapse),
       redundantVersusNoFriendL1: l1(redundantRead, noFriend),
       redundantFriendRestored: float(redundantRestored).re,
     }
 
-    for (const [k, v] of Object.entries(g)) metrics[`gate_${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(g)) {
+      metrics[`gate_${k}`] = v ? 1 : 0
+    }
+
     metrics.seconds = (Date.now() - started) / 1000
 
     return verdict({
       status,
-      claim: `Wigner's friend posed exactly on the working rule's gates (read on ${gates.passing} of ${gates.of} starts): the friend, a love whose point is its memory, records the system's arm by a meeting (reads 0 with probability ${show(readsZero)}, and then the system was R for certain); the rule predicts that Wigner, meeting the system twice more ((w U)^3 = I), restores the friend's memory with probability ${show(restored)} and sees the no-friend interference exactly (P(R) ${show(wigner[0] as Qw)}), where the account with the friend's reading made definite predicts P(R) ${show(collapse[0] as Qw)}; once the record is copied to a third love, Wigner's undo on system and friend fails (L1 ${l1(redundantRead, noFriend).toFixed(4)}, memory restored with probability ${show(redundantRestored)})`,
+      claim: `Wigner's friend posed exactly on the working rule's gates (read on ${gates.passing} of ${gates.of} starts): the friend, a love whose point is its memory, records the system's arm by a meeting (reads 0 with probability ${show(readsZero)}, and then the system was R for certain); the rule predicts that Wigner, meeting the system twice more ((w U)^3 = I), restores the friend's memory with probability ${show(restored)} and sees the no-friend interference exactly (P(R) ${show(wigner[0]!)}), where the account with the friend's reading made definite predicts P(R) ${show(collapse[0]!)}; once the record is copied to a third love, Wigner's undo on system and friend fails (L1 ${l1(redundantRead, noFriend).toFixed(4)}, memory restored with probability ${show(redundantRestored)})`,
       metrics,
       control: { noRecordCollapseEqualsRule: c1 ? 1 : 0 },
       notes: `L2. Gates ${Object.entries(g)
         .map(([k, v]) => `${k} ${v}`)
-        .join(', ')}. P(f) for f = R, L: no friend ${noFriend.map(show).join(', ')}; Wigner after undo ${wigner.map(show).join(', ')}; collapse account ${collapse.map(show).join(', ')}; record copied to G then undo ${redundantRead.map(show).join(', ')}. The friend is one vibe's point, not a self region, and the schedule is arranged. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+        .join(
+          ', ',
+        )}. P(f) for f = R, L: no friend ${noFriend.map(show).join(', ')}; Wigner after undo ${wigner.map(show).join(', ')}; collapse account ${collapse.map(show).join(', ')}; record copied to G then undo ${redundantRead.map(show).join(', ')}. The friend is one vibe's point, not a self region, and the schedule is arranged. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

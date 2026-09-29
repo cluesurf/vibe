@@ -168,7 +168,8 @@ export function retractionSearch(input: {
   const { normals, metric, dim } = coin.frame
   const r = normals.map(normal => reflectionMatrix(normal, metric))
   const one = identity(dim)
-  const same = (a: Mat, b: Mat): boolean => maxAbsDifference(a, b) < 1e-9
+  const same = (a: Mat, b: Mat): boolean =>
+    maxAbsDifference(a, b) < 1e-9
   const outer = r[4]!
   const Z = coin.inversion
   const antipode = matMul(matMul(Z, outer), Z)
@@ -190,9 +191,7 @@ export function retractionSearch(input: {
     involutions++
 
     if (
-      ![0, 1, 2].every(i =>
-        same(matMul(X, r[i]!), matMul(r[i]!, X)),
-      )
+      ![0, 1, 2].every(i => same(matMul(X, r[i]!), matMul(r[i]!, X)))
     ) {
       continue
     }
@@ -213,7 +212,9 @@ export function retractionSearch(input: {
     }
 
     labelling++
-    transportDeterminants.push(Math.round(determinant(matMul(outer, X))))
+    transportDeterminants.push(
+      Math.round(determinant(matMul(outer, X))),
+    )
 
     if (same(X, Z)) {
       inversionSurvives = true
@@ -270,6 +271,7 @@ export function skinCertificate(input: {
   const alpha = -1 / dot(c0, v)
   const beta = (-alpha * dot(c0, c0)) / (2 * dot(c0, v))
   const w = c0.map((x, a) => alpha * x + beta * (v[a] ?? 0))
+
   const horizontal = (p: Vec): Vec => {
     const height = -dot(p, v)
     const q = p.map(x => x / height)
@@ -277,6 +279,7 @@ export function skinCertificate(input: {
 
     return q.map((x, a) => x - along * (v[a] ?? 0) - (w[a] ?? 0))
   }
+
   const levelOf = (p: Vec): number => -dot(p, v)
   const origin = horizontal(c0)
   const level0 = levelOf(c0)
@@ -368,10 +371,7 @@ export function skinCertificate(input: {
   return {
     steps: count,
     largestStep,
-    largestStepByBand: Array.from(
-      largestStepByBand,
-      x => x ?? 0,
-    ),
+    largestStepByBand: Array.from(largestStepByBand, x => x ?? 0),
     stepsByBand: Array.from(stepsByBand, x => x ?? 0),
     axesError,
     skinIsL1,

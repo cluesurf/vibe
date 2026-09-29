@@ -39,9 +39,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildHyperbolicBall, cuspLayer, labelledCoin } from '@/code/substrate/coxeter/label-transport'
+import {
+  buildHyperbolicBall,
+  cuspLayer,
+  labelledCoin,
+} from '@/code/substrate/coxeter/label-transport'
 import { CANONICAL_SHELLS } from '@/code/substrate/mesh-unfolding'
-import { cubicBall, cubicShell, huskDocks } from '@/code/measure/husk-cosmology'
+import {
+  cubicBall,
+  cubicShell,
+  huskDocks,
+} from '@/code/measure/husk-cosmology'
 
 const RADIUS = 4
 const SKIN = 8
@@ -55,43 +63,80 @@ export function huskGrowthRun() {
   const docks = huskDocks({ ball, layer })
 
   // ---- G1 ----
-  const reach = Array.from({ length: RADIUS + 1 }, (_, t) => docks.filter(h => (ball.distance[h.cell] as number) <= t).length)
-  const g1 = docks.every(h => ball.distance[h.cell] === h.skin) && reach.every((n, t) => n === cubicBall(t))
+  const reach = Array.from(
+    { length: RADIUS + 1 },
+    (_, t) => docks.filter(h => ball.distance[h.cell]! <= t).length,
+  )
+  const g1 =
+    docks.every(h => ball.distance[h.cell] === h.skin) &&
+    reach.every((n, t) => n === cubicBall(t))
 
   // ---- G2 ----
   const layerShells = new Array<number>(SKIN + 1).fill(0)
 
-  for (const s of layer.skin.values()) layerShells[s] = (layerShells[s] ?? 0) + 1
+  for (const s of layer.skin.values()) {
+    layerShells[s] = (layerShells[s] ?? 0) + 1
+  }
 
-  const cumulative = layerShells.map((_, s) => layerShells.slice(0, s + 1).reduce((a, b) => a + b, 0))
+  const cumulative = layerShells.map((_, s) =>
+    layerShells.slice(0, s + 1).reduce((a, b) => a + b, 0),
+  )
   const cubic = layerShells.every((n, s) => n === cubicShell(s))
-  const rate = cumulative.map((v, t) => (t === 0 ? NaN : Math.log(v / (cumulative[t - 1] as number))))
-  const falling = rate.slice(2).every((r, i) => r < (rate[i + 1] as number))
-  const g2 = cubic && cumulative.every((v, t) => v === cubicBall(t)) && falling && (rate[SKIN] as number) < 0.5
+  const rate = cumulative.map((v, t) =>
+    t === 0 ? NaN : Math.log(v / cumulative[t - 1]!),
+  )
+  const falling = rate.slice(2).every((r, i) => r < rate[i + 1]!)
+  const g2 =
+    cubic &&
+    cumulative.every((v, t) => v === cubicBall(t)) &&
+    falling &&
+    rate[SKIN]! < 0.5
   const eFoldBeats = rate.filter(r => r >= 1).length
-  const eFolds = Math.log(cumulative[eFoldBeats] as number)
+  const eFolds = Math.log(cumulative[eFoldBeats]!)
 
   // ---- C1 ----
   const bulk = new Array<number>(RADIUS + 1).fill(0)
 
-  for (const d of ball.distance) bulk[d] = (bulk[d] ?? 0) + 1
+  for (const d of ball.distance) {
+    bulk[d] = (bulk[d] ?? 0) + 1
+  }
 
-  const bulkCone = bulk.map((_, t) => bulk.slice(0, t + 1).reduce((a, b) => a + b, 0))
-  const bulkRate = bulkCone.map((v, t) => (t === 0 ? NaN : Math.log(v / (bulkCone[t - 1] as number))))
-  const c1 = bulk.every((n, r) => n === CANONICAL_SHELLS[r]) && [3, 4].every(t => Math.abs((bulkRate[t] as number) - LN_WARP) <= 0.1)
+  const bulkCone = bulk.map((_, t) =>
+    bulk.slice(0, t + 1).reduce((a, b) => a + b, 0),
+  )
+  const bulkRate = bulkCone.map((v, t) =>
+    t === 0 ? NaN : Math.log(v / bulkCone[t - 1]!),
+  )
+  const c1 =
+    bulk.every((n, r) => n === CANONICAL_SHELLS[r]) &&
+    [3, 4].every(t => Math.abs(bulkRate[t]! - LN_WARP) <= 0.1)
   const status = g1 && g2 && c1 ? 'pass' : 'fail'
 
   return verdict({
     status,
-    claim: `on the true {3,4,3,4} mesh the husk the seed reaches grows as the cubic l1 ball, not exponentially: ${cumulative.join(', ')} husk docks by beats 0 to ${SKIN} (measured in the radius-${RADIUS} ball to beat ${RADIUS}, then by the cusp layer's cubic shells and E-NVG-0014's certificate), a per-beat growth of ${rate.slice(1).map(r => r.toFixed(3)).join(', ')} e-folds, above one e-fold per beat only at beats 1 to ${eFoldBeats} (${eFolds.toFixed(2)} e-folds in all); the bulk seed cone in the same beats holds ${bulkCone.join(', ')} cells, ${bulkRate.slice(1).map(r => r.toFixed(3)).join(', ')} e-folds a beat against ln 18.278 = ${LN_WARP.toFixed(3)}, so the exponential room is volume, off the husk`,
+    claim: `on the true {3,4,3,4} mesh the husk the seed reaches grows as the cubic l1 ball, not exponentially: ${cumulative.join(', ')} husk docks by beats 0 to ${SKIN} (measured in the radius-${RADIUS} ball to beat ${RADIUS}, then by the cusp layer's cubic shells and E-NVG-0014's certificate), a per-beat growth of ${rate
+      .slice(1)
+      .map(r => r.toFixed(3))
+      .join(
+        ', ',
+      )} e-folds, above one e-fold per beat only at beats 1 to ${eFoldBeats} (${eFolds.toFixed(2)} e-folds in all); the bulk seed cone in the same beats holds ${bulkCone.join(', ')} cells, ${bulkRate
+      .slice(1)
+      .map(r => r.toFixed(3))
+      .join(
+        ', ',
+      )} e-folds a beat against ln 18.278 = ${LN_WARP.toFixed(3)}, so the exponential room is volume, off the husk`,
     metrics: {
       gate_G1: g1 ? 1 : 0,
       gate_G2: g2 ? 1 : 0,
       gate_C1: c1 ? 1 : 0,
-      ...Object.fromEntries(cumulative.map((v, t) => [`huskReachBeat${t}`, v])),
-      ...Object.fromEntries(bulkCone.map((v, t) => [`bulkConeBeat${t}`, v])),
-      huskRateBeat8: rate[SKIN] as number,
-      bulkRateBeat4: bulkRate[RADIUS] as number,
+      ...Object.fromEntries(
+        cumulative.map((v, t) => [`huskReachBeat${t}`, v]),
+      ),
+      ...Object.fromEntries(
+        bulkCone.map((v, t) => [`bulkConeBeat${t}`, v]),
+      ),
+      huskRateBeat8: rate[SKIN]!,
+      bulkRateBeat4: bulkRate[RADIUS]!,
       eFoldBeats,
       eFolds,
       seconds: (Date.now() - started) / 1000,
@@ -99,7 +144,7 @@ export function huskGrowthRun() {
     control: {
       bulkSustainsExponential: c1 ? 1 : 0,
     },
-    notes: `L2. Gates G1 ${g1}, G2 ${g2}, C1 ${c1}. The husk's rate falls as about 3 / t (a cubic), the bulk's holds at ln 18.28: after 4 beats the husk holds ${cumulative[4]} docks and the cone ${bulkCone[4]} cells, a ratio of ${((bulkCone[4] as number) / (cumulative[4] as number)).toFixed(0)}. What the model has in inflation's place: its start (one seed) and its geometry (a horosphere) do the horizon and flatness jobs (E-CSM-0058). The scale-invariant ripple spectrum is not read here. The continuum horospherical metric ds^2 = dz^2 + e^(2z) dx^2 has an exponential scale factor along the depth z, the flat slicing of de Sitter, but the cell graph realizes no shortcut along a cusp (E-NVG-0014), and depth is not the rule's time. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L2. Gates G1 ${g1}, G2 ${g2}, C1 ${c1}. The husk's rate falls as about 3 / t (a cubic), the bulk's holds at ln 18.28: after 4 beats the husk holds ${cumulative[4]} docks and the cone ${bulkCone[4]} cells, a ratio of ${(bulkCone[4]! / cumulative[4]!).toFixed(0)}. What the model has in inflation's place: its start (one seed) and its geometry (a horosphere) do the horizon and flatness jobs (E-CSM-0058). The scale-invariant ripple spectrum is not read here. The continuum horospherical metric ds^2 = dz^2 + e^(2z) dx^2 has an exponential scale factor along the depth z, the flat slicing of de Sitter, but the cell graph realizes no shortcut along a cusp (E-NVG-0014), and depth is not the rule's time. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }
 
@@ -107,7 +152,7 @@ export default experiment({
   id: 'cosmology/husk-growth-rate',
   code: 'E-CSM-0059',
   title:
-    'the husk does not inflate, pass: on the true {3,4,3,4} mesh the husk the seed reaches grows as the cubic l1 ball, 1, 7, 25, 63, 129 docks by beats 0 to 4 (measured) and 833 by beat 8, a per-beat growth falling as 3 / t that exceeds one e-fold per beat only at beats 1 and 2 (3.22 e-folds in all), while the bulk seed cone grows 1, 25, 481, 8857, 162049 at ln 18.28 = 2.9 e-folds a beat without end: the exponential room is volume off the husk, so inflation\'s growth has no husk counterpart, and its horizon and flatness jobs are done by the single seed and the horosphere instead (E-CSM-0058)',
+    "the husk does not inflate, pass: on the true {3,4,3,4} mesh the husk the seed reaches grows as the cubic l1 ball, 1, 7, 25, 63, 129 docks by beats 0 to 4 (measured) and 833 by beat 8, a per-beat growth falling as 3 / t that exceeds one e-fold per beat only at beats 1 and 2 (3.22 e-folds in all), while the bulk seed cone grows 1, 25, 481, 8857, 162049 at ln 18.28 = 2.9 e-folds a beat without end: the exponential room is volume off the husk, so inflation's growth has no husk counterpart, and its horizon and flatness jobs are done by the single seed and the horosphere instead (E-CSM-0058)",
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L2',

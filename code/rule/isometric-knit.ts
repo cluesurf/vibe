@@ -46,31 +46,52 @@ const ROOTS = rootsD4()
 const F4 = rootsF4()
 
 // the opposite slot of each slot (the root -r_d)
-export const OPPOSITE: readonly number[] = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+export const OPPOSITE: readonly number[] = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 
 // the first slot of each of the twelve lines (d < opposite d), the line of each slot, and each slot's side
 // sign (+1 first, -1 second)
-export const LINE_FIRSTS: readonly number[] = ROOTS.map((_, d) => d).filter(d => d < (OPPOSITE[d] ?? d))
-export const LINE_OF: readonly number[] = ROOTS.map((_, d) => LINE_FIRSTS.indexOf(Math.min(d, OPPOSITE[d] ?? d)))
-export const SIDE: readonly number[] = ROOTS.map((_, d) => (d < (OPPOSITE[d] ?? d) ? 1 : -1))
+export const LINE_FIRSTS: readonly number[] = ROOTS.map(
+  (_, d) => d,
+).filter(d => d < (OPPOSITE[d] ?? d))
+export const LINE_OF: readonly number[] = ROOTS.map((_, d) =>
+  LINE_FIRSTS.indexOf(Math.min(d, OPPOSITE[d] ?? d)),
+)
+export const SIDE: readonly number[] = ROOTS.map((_, d) =>
+  d < (OPPOSITE[d] ?? d) ? 1 : -1,
+)
 
 // the occupation momentum of a dock is a D4 vector with every entry in [-6, 6] (six roots carry +1 on an axis)
 const SPAN = 13
 const OFFSET = 6
 
 export function momentumKey(p: readonly number[]): number {
-  return (p[0] ?? 0) + OFFSET + SPAN * ((p[1] ?? 0) + OFFSET + SPAN * ((p[2] ?? 0) + OFFSET + SPAN * ((p[3] ?? 0) + OFFSET)))
+  return (
+    (p[0] ?? 0) +
+    OFFSET +
+    SPAN *
+      ((p[1] ?? 0) +
+        OFFSET +
+        SPAN * ((p[2] ?? 0) + OFFSET + SPAN * ((p[3] ?? 0) + OFFSET)))
+  )
 }
 
 // the permutation of the 24 slots a 4 x 4 matrix (rows) induces, or undefined when some root is not sent to
 // a root
-export function slotPermutationOf(matrix: readonly (readonly number[])[]): Int32Array | undefined {
+export function slotPermutationOf(
+  matrix: readonly (readonly number[])[],
+): Int32Array | undefined {
   const out = new Int32Array(24)
 
   for (let d = 0; d < 24; d++) {
     const r = ROOTS[d] ?? []
-    const image = matrix.map(row => row.reduce((s, x, k) => s + x * (r[k] ?? 0), 0))
-    const e = ROOTS.findIndex(o => o.every((x, k) => Math.abs(x - (image[k] ?? 0)) < 1e-9))
+    const image = matrix.map(row =>
+      row.reduce((s, x, k) => s + x * (r[k] ?? 0), 0),
+    )
+    const e = ROOTS.findIndex(o =>
+      o.every((x, k) => Math.abs(x - (image[k] ?? 0)) < 1e-9),
+    )
 
     if (e < 0) {
       return undefined
@@ -84,8 +105,12 @@ export function slotPermutationOf(matrix: readonly (readonly number[])[]): Int32
 
 // the isometry that is -1 on the span of the F4 roots orthogonal to p and +1 on its complement, as a slot
 // permutation, or undefined when it is the identity (no root is orthogonal to p) or not a coin map
-export function stabilizerInvolution(p: readonly number[]): Int32Array | undefined {
-  const orthogonal = F4.filter(root => root.reduce((s, x, k) => s + x * (p[k] ?? 0), 0) === 0)
+export function stabilizerInvolution(
+  p: readonly number[],
+): Int32Array | undefined {
+  const orthogonal = F4.filter(
+    root => root.reduce((s, x, k) => s + x * (p[k] ?? 0), 0) === 0,
+  )
   const basis: number[][] = []
 
   for (const root of orthogonal) {
@@ -94,12 +119,16 @@ export function stabilizerInvolution(p: readonly number[]): Int32Array | undefin
     for (const b of basis) {
       const s = w.reduce((acc, x, k) => acc + x * (b[k] ?? 0), 0)
 
-      for (let k = 0; k < 4; k++) w[k] = (w[k] ?? 0) - s * (b[k] ?? 0)
+      for (let k = 0; k < 4; k++) {
+        w[k] = (w[k] ?? 0) - s * (b[k] ?? 0)
+      }
     }
 
     const norm = Math.hypot(...w)
 
-    if (norm > 1e-9) basis.push(w.map(x => x / norm))
+    if (norm > 1e-9) {
+      basis.push(w.map(x => x / norm))
+    }
   }
 
   if (basis.length === 0) {
@@ -107,21 +136,37 @@ export function stabilizerInvolution(p: readonly number[]): Int32Array | undefin
   }
 
   // w = I - 2 (projection onto the span)
-  const matrix = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - 2 * basis.reduce((s, b) => s + (b[i] ?? 0) * (b[j] ?? 0), 0)))
+  const matrix = [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(
+      j =>
+        (i === j ? 1 : 0) -
+        2 * basis.reduce((s, b) => s + (b[i] ?? 0) * (b[j] ?? 0), 0),
+    ),
+  )
 
   return slotPermutationOf(matrix)
 }
 
 // the reflection in the first F4 root (rootsF4 order) orthogonal to p, or undefined when none is
-export function firstMirrorReflection(p: readonly number[]): Int32Array | undefined {
-  const root = F4.find(r => r.reduce((s, x, k) => s + x * (p[k] ?? 0), 0) === 0)
+export function firstMirrorReflection(
+  p: readonly number[],
+): Int32Array | undefined {
+  const root = F4.find(
+    r => r.reduce((s, x, k) => s + x * (p[k] ?? 0), 0) === 0,
+  )
 
   if (!root) {
     return undefined
   }
 
   const norm = root.reduce((s, x) => s + x * x, 0)
-  const matrix = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - (2 * (root[i] ?? 0) * (root[j] ?? 0)) / norm))
+  const matrix = [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(
+      j =>
+        (i === j ? 1 : 0) -
+        (2 * (root[i] ?? 0) * (root[j] ?? 0)) / norm,
+    ),
+  )
 
   return slotPermutationOf(matrix)
 }
@@ -129,14 +174,22 @@ export function firstMirrorReflection(p: readonly number[]): Int32Array | undefi
 // a momentum table: the slot permutation for every momentum key (undefined where the dock is left alone)
 export type MomentumTable = readonly (Int32Array | undefined)[]
 
-function tableOf(choose: (p: readonly number[]) => Int32Array | undefined): MomentumTable {
-  const out: (Int32Array | undefined)[] = new Array(SPAN ** 4).fill(undefined)
+function tableOf(
+  choose: (p: readonly number[]) => Int32Array | undefined,
+): MomentumTable {
+  const out: (Int32Array | undefined)[] = new Array(SPAN ** 4).fill(
+    undefined,
+  )
 
   for (let key = 0; key < SPAN ** 4; key++) {
-    const p = [0, 1, 2, 3].map(k => (Math.floor(key / SPAN ** k) % SPAN) - OFFSET)
+    const p = [0, 1, 2, 3].map(
+      k => (Math.floor(key / SPAN ** k) % SPAN) - OFFSET,
+    )
 
     // only D4 vectors (even sum) occur
-    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) continue
+    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) {
+      continue
+    }
 
     out[key] = choose(p)
   }
@@ -159,7 +212,9 @@ export function binaryTetrahedralMatrices(): number[][][] {
     }
   }
 
-  for (let code = 0; code < 16; code++) units.push([0, 1, 2, 3].map(k => (code & (1 << k) ? -0.5 : 0.5)))
+  for (let code = 0; code < 16; code++) {
+    units.push([0, 1, 2, 3].map(k => (code & (1 << k) ? -0.5 : 0.5)))
+  }
 
   return units.map(([a = 0, b = 0, c = 0, d = 0]) => [
     [a, -b, -c, -d],
@@ -169,7 +224,13 @@ export function binaryTetrahedralMatrices(): number[][][] {
   ])
 }
 
-const applyMatrix = (m: readonly (readonly number[])[], v: readonly number[]): number[] => m.map(row => Math.round(row.reduce((s, x, k) => s + x * (v[k] ?? 0), 0)))
+const applyMatrix = (
+  m: readonly (readonly number[])[],
+  v: readonly number[],
+): number[] =>
+  m.map(row =>
+    Math.round(row.reduce((s, x, k) => s + x * (v[k] ?? 0), 0)),
+  )
 
 // The 2T-covariant knit's table: P = 0 gives -1 (central, so covariant); every other momentum's 2T orbit is
 // free (24 momenta), its least key is the representative, the representative gets the first-mirror
@@ -177,14 +238,22 @@ const applyMatrix = (m: readonly (readonly number[])[], v: readonly number[]): n
 // than the first-mirror choice allows. Only momenta a dock can hold are filled (the rest stay undefined).
 function binaryTetrahedralTable(): MomentumTable {
   const group = binaryTetrahedralMatrices()
-  const slots = group.map(m => slotPermutationOf(m) ?? new Int32Array(24))
-  const out: (Int32Array | undefined)[] = new Array(SPAN ** 4).fill(undefined)
+  const slots = group.map(
+    m => slotPermutationOf(m) ?? new Int32Array(24),
+  )
+  const out: (Int32Array | undefined)[] = new Array(SPAN ** 4).fill(
+    undefined,
+  )
   const done = new Set<number>()
 
   for (let key = 0; key < SPAN ** 4; key++) {
-    const p = [0, 1, 2, 3].map(k => (Math.floor(key / SPAN ** k) % SPAN) - OFFSET)
+    const p = [0, 1, 2, 3].map(
+      k => (Math.floor(key / SPAN ** k) % SPAN) - OFFSET,
+    )
 
-    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0 || done.has(key)) continue
+    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0 || done.has(key)) {
+      continue
+    }
 
     if (p.every(x => x === 0)) {
       out[key] = Int32Array.from(OPPOSITE)
@@ -216,19 +285,28 @@ function binaryTetrahedralTable(): MomentumTable {
     orbit.forEach((_, i) => {
       done.add(keys[i] ?? 0)
 
-      if (!w) return
+      if (!w) {
+        return
+      }
 
       const h = slots[i] ?? new Int32Array(24)
       // g = h_i h_r^-1 carries the representative to member i: g w g^-1 at slot e is g(w(g^-1 e))
       const g = new Int32Array(24)
       const gInverse = new Int32Array(24)
 
-      for (let d = 0; d < 24; d++) g[d] = h[backInverse[d] ?? 0] ?? 0
-      for (let d = 0; d < 24; d++) gInverse[g[d] ?? 0] = d
+      for (let d = 0; d < 24; d++) {
+        g[d] = h[backInverse[d] ?? 0] ?? 0
+      }
+
+      for (let d = 0; d < 24; d++) {
+        gInverse[g[d] ?? 0] = d
+      }
 
       const image = new Int32Array(24)
 
-      for (let e = 0; e < 24; e++) image[e] = g[w[gInverse[e] ?? 0] ?? 0] ?? 0
+      for (let e = 0; e < 24; e++) {
+        image[e] = g[w[gInverse[e] ?? 0] ?? 0] ?? 0
+      }
 
       out[keys[i] ?? 0] = image
     })
@@ -262,14 +340,20 @@ export function firstMirrorTable(): MomentumTable {
 // A line-momentum rule: the slot permutation a dock applies, as a function of its twelve line momenta (n_l in
 // {-1, 0, 1}, line order LINE_FIRSTS), or undefined for none. `p` is the dock's momentum, passed so the rule
 // need not recompute it.
-export type LineMomentumRule = (n: Int8Array, p: readonly number[]) => Int32Array | undefined
+export type LineMomentumRule = (
+  n: Int8Array,
+  p: readonly number[],
+) => Int32Array | undefined
 
 // whether a slot permutation keeps every line momentum: n_(line of w(first l)) = side(w(first l)) n_l
 export function keepsLineMomenta(w: Int32Array, n: Int8Array): boolean {
   for (let l = 0; l < 12; l++) {
     const image = w[LINE_FIRSTS[l] ?? 0] ?? 0
 
-    if ((n[LINE_OF[image] ?? 0] ?? 0) !== (SIDE[image] ?? 1) * (n[l] ?? 0)) {
+    if (
+      (n[LINE_OF[image] ?? 0] ?? 0) !==
+      (SIDE[image] ?? 1) * (n[l] ?? 0)
+    ) {
       return false
     }
   }
@@ -277,10 +361,21 @@ export function keepsLineMomenta(w: Int32Array, n: Int8Array): boolean {
   return true
 }
 
-export type IsometricVariant = 'isometric' | 'color-exact' | 'first-mirror' | 'binary-tetrahedral'
+export type IsometricVariant =
+  | 'isometric'
+  | 'color-exact'
+  | 'first-mirror'
+  | 'binary-tetrahedral'
 
-export function lineMomentumRule(variant: IsometricVariant): LineMomentumRule {
-  const table = variant === 'first-mirror' ? firstMirrorTable() : variant === 'binary-tetrahedral' ? binaryTetrahedralKnitTable() : isometricTable()
+export function lineMomentumRule(
+  variant: IsometricVariant,
+): LineMomentumRule {
+  const table =
+    variant === 'first-mirror'
+      ? firstMirrorTable()
+      : variant === 'binary-tetrahedral'
+        ? binaryTetrahedralKnitTable()
+        : isometricTable()
 
   if (variant === 'color-exact') {
     return (n, p) => {
@@ -294,7 +389,10 @@ export function lineMomentumRule(variant: IsometricVariant): LineMomentumRule {
 }
 
 // a rule conjugated by a coin map g (g C g^-1): the image dock reads back its line momenta through g
-export function conjugateRule(rule: LineMomentumRule, g: readonly number[]): LineMomentumRule {
+export function conjugateRule(
+  rule: LineMomentumRule,
+  g: readonly number[],
+): LineMomentumRule {
   const inverse = new Int32Array(24)
 
   g.forEach((image, d) => {
@@ -317,7 +415,9 @@ export function conjugateRule(rule: LineMomentumRule, g: readonly number[]): Lin
     for (let l = 0; l < 12; l++) {
       const r = ROOTS[LINE_FIRSTS[l] ?? 0] ?? []
 
-      for (let k = 0; k < 4; k++) q[k] = (q[k] ?? 0) + (back[l] ?? 0) * (r[k] ?? 0)
+      for (let k = 0; k < 4; k++) {
+        q[k] = (q[k] ?? 0) + (back[l] ?? 0) * (r[k] ?? 0)
+      }
     }
 
     void p
@@ -340,7 +440,9 @@ export function conjugateRule(rule: LineMomentumRule, g: readonly number[]): Lin
 }
 
 // the dock collision of a line-momentum rule: read n and P off the occupation, copy slot d to slot w(d)
-export function lineMomentumCollision(rule: LineMomentumRule): Collision {
+export function lineMomentumCollision(
+  rule: LineMomentumRule,
+): Collision {
   const n = new Int8Array(12)
   const p = [0, 0, 0, 0]
   const scratch = new Int8Array(24)
@@ -353,7 +455,9 @@ export function lineMomentumCollision(rule: LineMomentumRule): Collision {
 
     for (let l = 0; l < 12; l++) {
       const first = LINE_FIRSTS[l] ?? 0
-      const value = (slots[base + first] !== 0 ? 1 : 0) - (slots[base + (OPPOSITE[first] ?? 0)] !== 0 ? 1 : 0)
+      const value =
+        (slots[base + first] !== 0 ? 1 : 0) -
+        (slots[base + (OPPOSITE[first] ?? 0)] !== 0 ? 1 : 0)
       const r = ROOTS[first] ?? []
 
       n[l] = value
@@ -372,13 +476,20 @@ export function lineMomentumCollision(rule: LineMomentumRule): Collision {
       return
     }
 
-    for (let d = 0; d < 24; d++) scratch[w[d] ?? 0] = slots[base + d] ?? 0
-    for (let d = 0; d < 24; d++) slots[base + d] = scratch[d] ?? 0
+    for (let d = 0; d < 24; d++) {
+      scratch[w[d] ?? 0] = slots[base + d] ?? 0
+    }
+
+    for (let d = 0; d < 24; d++) {
+      slots[base + d] = scratch[d] ?? 0
+    }
   }
 }
 
 // the knit as a scheduled rule (the battery's factory shape): period one, its own inverse
-export function isometricKnit(variant: IsometricVariant): (t: number) => Collision {
+export function isometricKnit(
+  variant: IsometricVariant,
+): (t: number) => Collision {
   const collision = lineMomentumCollision(lineMomentumRule(variant))
 
   return () => collision

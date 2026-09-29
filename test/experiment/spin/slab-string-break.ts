@@ -131,16 +131,46 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
 import { ritzLevels, type Ritz } from '@/code/measure/frame-meson'
-import { addSlab, holdLevel, normalizedSlab, placeLine, slabSpace, thetaOfRate, type SlabHold, type SlabSpace, type SlabSpec } from '@/code/measure/slab-holes'
-import { crossingTheta, holdMargin, holesOutside, leakSectors, seaCount, watchHold, type LeakSectors } from '@/code/measure/slab-string-break'
+import {
+  addSlab,
+  holdLevel,
+  normalizedSlab,
+  placeLine,
+  slabSpace,
+  thetaOfRate,
+  type SlabHold,
+  type SlabSpace,
+  type SlabSpec,
+} from '@/code/measure/slab-holes'
+import {
+  crossingTheta,
+  holdMargin,
+  holesOutside,
+  leakSectors,
+  seaCount,
+  watchHold,
+  type LeakSectors,
+} from '@/code/measure/slab-string-break'
 import { lineFit } from '@/code/measure/moving-level'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { fullPathKey, pathOffset, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  pathOffset,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { placeInSea, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  placeInSea,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
 import { candidateRun } from '@/code/measure/candidate-audit'
 import type { Configuration } from '@/code/rule/doublet-locked-knit'
@@ -164,9 +194,18 @@ const PATHS = 4
 const PAIR_STEPS = 2
 const HOLES = 3
 // the records compared against (E-SPN-0139's registered numbers)
-const R0_ENERGY: Record<number, number> = { 3: 0.330017263726011, 6: -0.12246960716426848 }
-const F64_FIDELITY: Record<number, number> = { 3: 0.9290323687319242, 6: 0.8967043880394913 }
-const F64_TAIL: Record<number, number> = { 3: 0.0033217368741665556, 6: 0.060211346429437915 }
+const R0_ENERGY: Record<number, number> = {
+  3: 0.330017263726011,
+  6: -0.12246960716426848,
+}
+const F64_FIDELITY: Record<number, number> = {
+  3: 0.9290323687319242,
+  6: 0.8967043880394913,
+}
+const F64_TAIL: Record<number, number> = {
+  3: 0.0033217368741665556,
+  6: 0.060211346429437915,
+}
 const ENERGY_SAME = 1e-9
 const RECORD_SAME = 1e-9
 const LEAK_SAME = 1e-10
@@ -174,7 +213,16 @@ const NORM_SAME = 1e-10
 const ANTI_SAME = 1e-12
 
 type C = [number, number]
-type Point = { D: number; rate: number; hold: SlabHold; margin: number; sectors: LeakSectors; missed: number[]; watchSame: boolean; leakGap: number }
+type Point = {
+  D: number
+  rate: number
+  hold: SlabHold
+  margin: number
+  sectors: LeakSectors
+  missed: number[]
+  watchSame: boolean
+  leakGap: number
+}
 
 const ritz = (c: readonly C[]): Ritz[] => ritzLevels(c)
 
@@ -189,11 +237,32 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const holdInput = { ritzBeats: RITZ_T, holdBeats: HOLD_BEATS, fidelity: FIDELITY, tail: TAIL, tailFrom: TAIL_FROM, ritz }
-    const base: SlabSpec = { holes: HOLES, axes: 2, cut: CUT, rate: 0, D: 3, cost: 'steiner', boundary: 'absorb' }
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const holdInput = {
+      ritzBeats: RITZ_T,
+      holdBeats: HOLD_BEATS,
+      fidelity: FIDELITY,
+      tail: TAIL,
+      tailFrom: TAIL_FROM,
+      ritz,
+    }
+    const base: SlabSpec = {
+      holes: HOLES,
+      axes: 2,
+      cut: CUT,
+      rate: 0,
+      D: 3,
+      cost: 'steiner',
+      boundary: 'absorb',
+    }
     const slab = slabSpace(base)
-    const at = (space: SlabSpace, over: Partial<SlabSpec>): SlabSpace => ({ ...space, spec: { ...space.spec, ...over } })
+    const at = (
+      space: SlabSpace,
+      over: Partial<SlabSpec>,
+    ): SlabSpace => ({ ...space, spec: { ...space.spec, ...over } })
     const radii = Array.from({ length: CUT + 1 }, (_, R) => R)
     const outsides = radii.map(R => holesOutside(slab, R))
     const holds: SlabHold[] = []
@@ -201,77 +270,149 @@ export default experiment({
 
     // ---- the grid: rate 0, the record's 1/64, then followed ----
     const gap: Record<number, number> = {}
-    const rest: Record<number, { hold: SlabHold; missed: number[] }> = {}
+    const rest: Record<number, { hold: SlabHold; missed: number[] }> =
+      {}
     const record: Record<number, SlabHold> = {}
     const points: Point[] = []
 
     const watched = (D: number, rate: number, h: SlabHold): Point => {
       const space = at(slab, { D, rate })
-      const w = watchHold(space, h.vector, HOLD_BEATS, TAIL_FROM, outsides)
-      const sectors = leakSectors(space, h.vector, w.last, w.escaped, TAIL_FROM)
-      const watchSame = w.fidelity.every((f, t) => f === h.fidelity[t]) && w.tail.every((x, t) => x === h.tail[t])
-      const leakGap = Math.abs(sectors.leaked - (1 - (w.fidelity[HOLD_BEATS - 1] as number)))
+      const w = watchHold(
+        space,
+        h.vector,
+        HOLD_BEATS,
+        TAIL_FROM,
+        outsides,
+      )
+      const sectors = leakSectors(
+        space,
+        h.vector,
+        w.last,
+        w.escaped,
+        TAIL_FROM,
+      )
+      const watchSame =
+        w.fidelity.every((f, t) => f === h.fidelity[t]) &&
+        w.tail.every((x, t) => x === h.tail[t])
+      const leakGap = Math.abs(
+        sectors.leaked - (1 - w.fidelity[HOLD_BEATS - 1]!),
+      )
 
-      return { D, rate, hold: h, margin: holdMargin(h.minFidelity, h.maxTail, FIDELITY, TAIL), sectors, missed: w.missed.map(m => Math.max(...m) / HOLES), watchSame, leakGap }
+      return {
+        D,
+        rate,
+        hold: h,
+        margin: holdMargin(h.minFidelity, h.maxTail, FIDELITY, TAIL),
+        sectors,
+        missed: w.missed.map(m => Math.max(...m) / HOLES),
+        watchSame,
+        leakGap,
+      }
     }
 
     for (const D of DS) {
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D, box: CUT, unit: 0 }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D,
+        box: CUT,
+        unit: 0,
+      }
       const basis = lineBasis(sector)
       const line = lineLightest(basis, wholeBasis(basis))
       const level = line.lightest
-      const entries = basis.configs.map((ts, i) => ({ ts, amp: [level.cre[i] as number, level.cim[i] as number] as C }))
-      const placed = normalizedSlab(addSlab(placeLine(slab, 0, entries), placeLine(slab, 1, entries)))
+      const entries = basis.configs.map((ts, i) => ({
+        ts,
+        amp: [level.cre[i]!, level.cim[i]!] as C,
+      }))
+      const placed = normalizedSlab(
+        addSlab(
+          placeLine(slab, 0, entries),
+          placeLine(slab, 1, entries),
+        ),
+      )
 
       gap[D] = line.next - level.unwrapped
 
-      const h0 = keep(holdLevel(at(slab, { D, rate: 0 }), placed, holdInput))
+      const h0 = keep(
+        holdLevel(at(slab, { D, rate: 0 }), placed, holdInput),
+      )
       const p0 = watched(D, 0, h0)
 
       rest[D] = { hold: h0, missed: p0.missed }
       points.push(p0)
-      log(`D ${D} rate 0: held ${h0.held} E ${h0.level.energy} gap ${gap[D]}`)
+      log(
+        `D ${D} rate 0: held ${h0.held} E ${h0.level.energy} gap ${gap[D]}`,
+      )
 
-      record[D] = keep(holdLevel(at(slab, { D, rate: LAST }), h0.vector, holdInput))
-      log(`D ${D} record 1/64: ${record[D]!.minFidelity} ${record[D]!.maxTail}`)
+      record[D] = keep(
+        holdLevel(at(slab, { D, rate: LAST }), h0.vector, holdInput),
+      )
+
+      log(
+        `D ${D} record 1/64: ${record[D].minFidelity} ${record[D].maxTail}`,
+      )
 
       let start = h0.vector
 
       for (const rate of RATES) {
-        const h = keep(holdLevel(at(slab, { D, rate }), start, holdInput))
+        const h = keep(
+          holdLevel(at(slab, { D, rate }), start, holdInput),
+        )
         const p = watched(D, rate, h)
 
         points.push(p)
         start = h.vector
-        log(`D ${D} rate ${rate}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail} E ${h.level.energy} leak ${JSON.stringify(p.sectors)}`)
+        log(
+          `D ${D} rate ${rate}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail} E ${h.level.energy} leak ${JSON.stringify(p.sectors)}`,
+        )
       }
 
       // free the vectors: nothing later reads them
-      for (const h of holds) h.vector = { re: new Float64Array(0), im: new Float64Array(0) }
+      for (const h of holds) {
+        h.vector = { re: new Float64Array(0), im: new Float64Array(0) }
+      }
     }
 
     // ---- T1 ----
-    const scan = (D: number): Point[] => points.filter(p => p.D === D && p.rate > 0)
-    const threshold = (D: number): { heldRate: number; theta: number } => {
+    const scan = (D: number): Point[] =>
+      points.filter(p => p.D === D && p.rate > 0)
+
+    const threshold = (
+      D: number,
+    ): { heldRate: number; theta: number } => {
       const ps = scan(D)
       const held = ps.filter(p => p.hold.held)
 
-      if (held.length === 0) return { heldRate: Number.NaN, theta: Number.NaN }
+      if (held.length === 0) {
+        return { heldRate: Number.NaN, theta: Number.NaN }
+      }
 
       const top = held.reduce((a, b) => (b.rate > a.rate ? b : a))
-      const next = ps.filter(p => p.rate > top.rate).sort((a, b) => a.rate - b.rate)[0]
+      const next = ps
+        .filter(p => p.rate > top.rate)
+        .sort((a, b) => a.rate - b.rate)[0]
 
-      return { heldRate: top.rate, theta: next ? crossingTheta(top, next) : Number.NaN }
+      return {
+        heldRate: top.rate,
+        theta: next ? crossingTheta(top, next) : Number.NaN,
+      }
     }
+
     const th: Record<number, { heldRate: number; theta: number }> = {}
 
-    for (const D of DS) th[D] = threshold(D)
+    for (const D of DS) {
+      th[D] = threshold(D)
+    }
 
     const T1a = DS.every(D => !Number.isNaN(th[D]!.heldRate))
-    const ratioPredicted = (gap[6] as number) / (gap[3] as number)
+    const ratioPredicted = gap[6]! / gap[3]!
     const ratioMeasured = th[6]!.theta / th[3]!.theta
     const agreement = ratioMeasured / ratioPredicted
-    const T1b = Number.isFinite(agreement) && agreement <= RATIO_FACTOR && agreement >= 1 / RATIO_FACTOR
+    const T1b =
+      Number.isFinite(agreement) &&
+      agreement <= RATIO_FACTOR &&
+      agreement >= 1 / RATIO_FACTOR
     const slope: Record<number, number> = {}
 
     for (const D of DS) {
@@ -283,17 +424,24 @@ export default experiment({
       ).b
     }
 
-    const T1c = DS.every(D => Math.abs((slope[D] as number) - SLOPE_PREDICTED) <= SLOPE_TOL)
+    const T1c = DS.every(
+      D => Math.abs(slope[D]! - SLOPE_PREDICTED) <= SLOPE_TOL,
+    )
     const T1 = T1a && T1b && T1c
 
     log('T1')
 
     // ---- T2s, T3 ----
-    const lastAt = (D: number): Point => points.find(p => p.D === D && p.rate === LAST) as Point
-    const compactShare = (s: LeakSectors): number => (s.compactOnLine + s.compactOffLine) / s.leaked
+    const lastAt = (D: number): Point =>
+      points.find(p => p.D === D && p.rate === LAST)!
+    const compactShare = (s: LeakSectors): number =>
+      (s.compactOnLine + s.compactOffLine) / s.leaked
     const T2s = DS.every(D => compactShare(lastAt(D).sectors) > 0.5)
-    const R = radii.find(r => r > 0 && DS.every(D => (rest[D]!.missed[r] as number) <= TAIL))
-    const T3 = R !== undefined && DS.every(D => (lastAt(D).missed[R] as number) <= TAIL)
+    const R = radii.find(
+      r => r > 0 && DS.every(D => rest[D]!.missed[r]! <= TAIL),
+    )
+    const T3 =
+      R !== undefined && DS.every(D => lastAt(D).missed[R]! <= TAIL)
 
     // ---- T2r and CP: the rule ----
     const X = centerOf(SIDE)
@@ -301,14 +449,15 @@ export default experiment({
     const flat = tablesOn(fr.weave, 'pass', flatLinks(fr.weave))
     const cells = fr.cells
     const B = rootIndex([1, 1, 0, 0])
-    const Y = Math.floor((flat.target[X * 24 + B] as number) / 24)
+    const Y = Math.floor(flat.target[X * 24 + B]! / 24)
     const a1 = rootIndex([1, 0, 0, 1])
     const a2 = rootIndex([1, 0, 0, -1])
+
     let Z = X
 
     for (let k = 0; k < PAIR_STEPS; k++) {
-      Z = Math.floor((flat.target[Z * 24 + a1] as number) / 24)
-      Z = Math.floor((flat.target[Z * 24 + a2] as number) / 24)
+      Z = Math.floor(flat.target[Z * 24 + a1]! / 24)
+      Z = Math.floor(flat.target[Z * 24 + a2]! / 24)
     }
 
     const sea = seaConfiguration(cells, 1)
@@ -321,10 +470,18 @@ export default experiment({
       { dock: X, slot: B, vibe: 0 },
       { dock: Y, slot: B, vibe: -1 },
     ])
-    const keyOf = (path: number): PathKey => fullPathKey(pathOffset(path))
+    const keyOf = (path: number): PathKey =>
+      fullPathKey(pathOffset(path))
     const buffer = new Int32Array(cells)
     const start3 = seaCount(three, buffer)
-    const rule = { holesOff: 0, fears: 0, stores: 0, registerOff: 0, beats: 0 }
+    const rule = {
+      holesOff: 0,
+      fears: 0,
+      stores: 0,
+      registerOff: 0,
+      beats: 0,
+    }
+
     let pairPaths = 0
 
     for (let path = 0; path < PATHS; path++) {
@@ -338,20 +495,43 @@ export default experiment({
           const s = seaCount(c, buffer)
 
           rule.beats++
-          rule.holesOff = Math.max(rule.holesOff, Math.abs(s.holes - HOLES))
+          rule.holesOff = Math.max(
+            rule.holesOff,
+            Math.abs(s.holes - HOLES),
+          )
           rule.fears = Math.max(rule.fears, s.fears)
           rule.stores = Math.max(rule.stores, s.stores)
-          rule.registerOff = Math.max(rule.registerOff, Math.abs(s.register - HOLES))
+          rule.registerOff = Math.max(
+            rule.registerOff,
+            Math.abs(s.register - HOLES),
+          )
         },
       })
 
       let stored = 0
 
-      candidateRun({ tables: flat, start: holeFear, key: keyOf(path), beats: RULE_BEATS, mix: true, each: (_t, c: Configuration) => (stored = Math.max(stored, seaCount(c, buffer).stores)) })
-      if (stored > 0) pairPaths++
+      candidateRun({
+        tables: flat,
+        start: holeFear,
+        key: keyOf(path),
+        beats: RULE_BEATS,
+        mix: true,
+        each: (_t, c: Configuration) =>
+          (stored = Math.max(stored, seaCount(c, buffer).stores)),
+      })
+
+      if (stored > 0) {
+        pairPaths++
+      }
     }
 
-    const T2r = start3.holes === HOLES && start3.register === HOLES && rule.holesOff === 0 && rule.fears === 0 && rule.stores === 0 && rule.registerOff === 0
+    const T2r =
+      start3.holes === HOLES &&
+      start3.register === HOLES &&
+      rule.holesOff === 0 &&
+      rule.fears === 0 &&
+      rule.stores === 0 &&
+      rule.registerOff === 0
     const T2 = T2r && T2s
     const CP = pairPaths === PATHS
 
@@ -361,20 +541,42 @@ export default experiment({
     const Bsupported = !T2r && T3
 
     // ---- controls and checks ----
-    const CR = DS.every(D => rest[D]!.hold.held && Math.abs(rest[D]!.hold.level.energy - (R0_ENERGY[D] as number)) <= ENERGY_SAME)
-    const CF = DS.every(D => Math.abs(record[D]!.minFidelity - (F64_FIDELITY[D] as number)) <= RECORD_SAME * (F64_FIDELITY[D] as number) && Math.abs(record[D]!.maxTail - (F64_TAIL[D] as number)) <= RECORD_SAME * (F64_TAIL[D] as number))
+    const CR = DS.every(
+      D =>
+        rest[D]!.hold.held &&
+        Math.abs(rest[D]!.hold.level.energy - R0_ENERGY[D]!) <=
+          ENERGY_SAME,
+    )
+    const CF = DS.every(
+      D =>
+        Math.abs(record[D]!.minFidelity - F64_FIDELITY[D]!) <=
+          RECORD_SAME * F64_FIDELITY[D]! &&
+        Math.abs(record[D]!.maxTail - F64_TAIL[D]!) <=
+          RECORD_SAME * F64_TAIL[D]!,
+    )
     const normGap = Math.max(...holds.map(h => h.normGap))
     const antiGap = Math.max(...holds.map(h => h.antisymmetry))
     const leakGap = Math.max(...points.map(p => p.leakGap))
     const watchSame = points.every(p => p.watchSame)
-    const checked = watchSame && leakGap <= LEAK_SAME && normGap <= NORM_SAME && antiGap <= ANTI_SAME
-    const status = !CR || !CF || !CP || !checked ? 'partial' : T1 && T2 ? 'pass' : 'fail'
+    const checked =
+      watchSame &&
+      leakGap <= LEAK_SAME &&
+      normGap <= NORM_SAME &&
+      antiGap <= ANTI_SAME
+    const status =
+      !CR || !CF || !CP || !checked
+        ? 'partial'
+        : T1 && T2
+          ? 'pass'
+          : 'fail'
 
     // ---- report ----
-    const rateName = (r: number): string => (r === 0 ? '0' : `1/${Math.round(1 / r)}`)
-    const deg = (r: number): string => ((thetaOfRate(r) * 180) / Math.PI).toFixed(2)
+    const rateName = (r: number): string =>
+      r === 0 ? '0' : `1/${Math.round(1 / r)}`
+    const deg = (r: number): string =>
+      ((thetaOfRate(r) * 180) / Math.PI).toFixed(2)
     const pointText = (p: Point): string =>
-      `D ${p.D} rate ${rateName(p.rate)} (${deg(p.rate)} deg): ${p.hold.held ? 'HELD' : 'not held'} least fidelity ${p.hold.minFidelity.toPrecision(6)} largest tail ${p.hold.maxTail.toExponential(3)} margin ${p.margin.toPrecision(4)} E ${p.hold.level.energy.toFixed(6)} start weight ${p.hold.level.weight.toFixed(4)}; leak ${p.sectors.leaked.toExponential(3)} = escaped ${p.sectors.escaped.toExponential(2)} + far ${p.sectors.far.toExponential(2)} + compact on line ${p.sectors.compactOnLine.toExponential(2)} + off line ${p.sectors.compactOffLine.toExponential(2)}; missed register per hole at R ${R ?? '-'} ${R === undefined ? '-' : (p.missed[R] as number).toExponential(2)}`
+      `D ${p.D} rate ${rateName(p.rate)} (${deg(p.rate)} deg): ${p.hold.held ? 'HELD' : 'not held'} least fidelity ${p.hold.minFidelity.toPrecision(6)} largest tail ${p.hold.maxTail.toExponential(3)} margin ${p.margin.toPrecision(4)} E ${p.hold.level.energy.toFixed(6)} start weight ${p.hold.level.weight.toFixed(4)}; leak ${p.sectors.leaked.toExponential(3)} = escaped ${p.sectors.escaped.toExponential(2)} + far ${p.sectors.far.toExponential(2)} + compact on line ${p.sectors.compactOnLine.toExponential(2)} + off line ${p.sectors.compactOffLine.toExponential(2)}; missed register per hole at R ${R ?? '-'} ${R === undefined ? '-' : p.missed[R]!.toExponential(2)}`
 
     const metrics: Record<string, number> = {
       T1: T1 ? 1 : 0,
@@ -391,8 +593,8 @@ export default experiment({
       control_CF: CF ? 1 : 0,
       control_CP: CP ? 1 : 0,
       checked: checked ? 1 : 0,
-      gapD3: gap[3] as number,
-      gapD6: gap[6] as number,
+      gapD3: gap[3]!,
+      gapD6: gap[6]!,
       heldRateD3: th[3]!.heldRate,
       heldRateD6: th[6]!.heldRate,
       thetaCD3: th[3]!.theta,
@@ -400,8 +602,8 @@ export default experiment({
       ratioPredicted,
       ratioMeasured,
       agreement,
-      slopeD3: slope[3] as number,
-      slopeD6: slope[6] as number,
+      slopeD3: slope[3]!,
+      slopeD6: slope[6]!,
       windowRadius: R ?? Number.NaN,
       ruleBeats: rule.beats,
       ruleHolesOff: rule.holesOff,
@@ -425,20 +627,37 @@ export default experiment({
       metrics[`${key}Far`] = p.sectors.far + p.sectors.escaped
       metrics[`${key}CompactOff`] = p.sectors.compactOffLine
       metrics[`${key}CompactOn`] = p.sectors.compactOnLine
-      if (R !== undefined) metrics[`${key}Missed`] = p.missed[R] as number
+
+      if (R !== undefined) {
+        metrics[`${key}Missed`] = p.missed[R]!
+      }
     }
+
     for (const D of DS) {
       metrics[`recordD${D}MinFidelity`] = record[D]!.minFidelity
       metrics[`recordD${D}MaxTail`] = record[D]!.maxTail
     }
 
-    const heldMap = DS.map(D => `D ${D}: ${scan(D).map(p => (p.hold.held ? 'H' : '-')).join('')}`).join(', ')
+    const heldMap = DS.map(
+      D =>
+        `D ${D}: ${scan(D)
+          .map(p => (p.hold.held ? 'H' : '-'))
+          .join('')}`,
+    ).join(', ')
 
     return verdict({
       status,
-      claim: `three holes on the slab (w ${CUT}, D 3 and 6) under the mixer at rates ${RATES.map(rateName).join(', ')}: held ${heldMap}; theta_c ${DS.map(D => `D ${D} ${Number.isNaN(th[D]!.theta) ? 'none' : th[D]!.theta.toFixed(4)}`).join(', ')} against gaps ${DS.map(D => (gap[D] as number).toFixed(4)).join(', ')} (T1a ${T1a}, T1b ${T1b}: measured ratio ${ratioMeasured.toFixed(3)} against ${ratioPredicted.toFixed(3)}), slope of the loss on the rate ${DS.map(D => (slope[D] as number).toFixed(3)).join(', ')} (T1c ${T1c}); the rule keeps three holes three holes (${rule.beats} beats, holes off ${rule.holesOff}, fears ${rule.fears}, stores ${rule.stores}, register off ${rule.registerOff}; T2r ${T2r}), compact share of the leak at 1/64 ${DS.map(D => compactShare(lastAt(D).sectors).toFixed(3)).join(', ')} (T2s ${T2s}); register witness R ${R ?? 'none'} missed ${DS.map(D => (R === undefined ? '-' : (lastAt(D).missed[R] as number).toExponential(2))).join(', ')} (T3 ${T3}); A ${A}, B ${Bsupported}; CR ${CR}, CF ${CF}, CP ${CP}`,
+      claim: `three holes on the slab (w ${CUT}, D 3 and 6) under the mixer at rates ${RATES.map(rateName).join(', ')}: held ${heldMap}; theta_c ${DS.map(D => `D ${D} ${Number.isNaN(th[D]!.theta) ? 'none' : th[D]!.theta.toFixed(4)}`).join(', ')} against gaps ${DS.map(D => gap[D]!.toFixed(4)).join(', ')} (T1a ${T1a}, T1b ${T1b}: measured ratio ${ratioMeasured.toFixed(3)} against ${ratioPredicted.toFixed(3)}), slope of the loss on the rate ${DS.map(D => slope[D]!.toFixed(3)).join(', ')} (T1c ${T1c}); the rule keeps three holes three holes (${rule.beats} beats, holes off ${rule.holesOff}, fears ${rule.fears}, stores ${rule.stores}, register off ${rule.registerOff}; T2r ${T2r}), compact share of the leak at 1/64 ${DS.map(D => compactShare(lastAt(D).sectors).toFixed(3)).join(', ')} (T2s ${T2s}); register witness R ${R ?? 'none'} missed ${DS.map(D => (R === undefined ? '-' : lastAt(D).missed[R]!.toExponential(2))).join(', ')} (T3 ${T3}); A ${A}, B ${Bsupported}; CR ${CR}, CF ${CF}, CP ${CP}`,
       metrics,
-      control: { recordD3MinFidelity: record[3]!.minFidelity, recordD3MaxTail: record[3]!.maxTail, recordD6MinFidelity: record[6]!.minFidelity, recordD6MaxTail: record[6]!.maxTail, restD3Energy: rest[3]!.hold.level.energy, restD6Energy: rest[6]!.hold.level.energy, pairPaths },
+      control: {
+        recordD3MinFidelity: record[3]!.minFidelity,
+        recordD3MaxTail: record[3]!.maxTail,
+        recordD6MinFidelity: record[6]!.minFidelity,
+        recordD6MaxTail: record[6]!.maxTail,
+        restD3Energy: rest[3]!.hold.level.energy,
+        restD6Energy: rest[6]!.hold.level.energy,
+        pairPaths,
+      },
       notes: `L2. Points: ${points.map(pointText).join('; ')}. Rest missed register per hole by R: ${DS.map(D => `D ${D} ${rest[D]!.missed.map(x => x.toExponential(1)).join(' ')}`).join('; ')}. Checks: watch equal ${watchSame}, leak identity ${leakGap.toExponential(2)}, norm ${normGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

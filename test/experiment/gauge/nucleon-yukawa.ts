@@ -135,14 +135,25 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4BoxMesh({ side: SIDE })
-    const graph = makeStringGraph({ mesh, mass: 4, tension: 1, capacity: CAPACITY })
+    const graph = makeStringGraph({
+      mesh,
+      mass: 4,
+      tension: 1,
+      capacity: CAPACITY,
+    })
     const geometry = makeBoxGeometry(SIDE)
     const shells = dockShells(geometry)
     const pairs = linkPairShells(graph, geometry)
 
     const fills = FILLS.map(fill => {
-      const profile = { bulk: new Map() as LengthHistogram, husk: new Map() as LengthHistogram }
-      const dimers = { bulk: new Map() as LengthHistogram, husk: new Map() as LengthHistogram }
+      const profile = {
+        bulk: new Map() as LengthHistogram,
+        husk: new Map() as LengthHistogram,
+      }
+      const dimers = {
+        bulk: new Map() as LengthHistogram,
+        husk: new Map() as LengthHistogram,
+      }
 
       let dimerPairs = 0
       let charges = 0
@@ -166,7 +177,11 @@ export default experiment({
             if (p.loves.length === 1 && p.fears.length === 1) {
               inMesons += 2
 
-              const v = boxDisplacement(geometry, p.fears[0] ?? 0, p.loves[0] ?? 0)
+              const v = boxDisplacement(
+                geometry,
+                p.fears[0] ?? 0,
+                p.loves[0] ?? 0,
+              )
 
               addTo(profile.bulk, lengthKey(bulkLength(v) ** 2))
               addTo(profile.husk, lengthKey(huskLength(v) ** 2))
@@ -179,7 +194,12 @@ export default experiment({
 
           for (let i = 0; i < compact.length; i++) {
             for (let j = i + 1; j < compact.length; j++) {
-              const v = midpointDisplacement({ graph, geometry, first: compact[i] ?? 0, second: compact[j] ?? 0 })
+              const v = midpointDisplacement({
+                graph,
+                geometry,
+                first: compact[i] ?? 0,
+                second: compact[j] ?? 0,
+              })
 
               addTo(dimers.bulk, lengthKey(bulkLength(v) ** 2))
               addTo(dimers.husk, lengthKey(huskLength(v) ** 2))
@@ -194,41 +214,89 @@ export default experiment({
           .map(([key, count]) => {
             const r = Math.sqrt(key / 4)
 
-            return { r, count, value: count / (shells[which].get(key) ?? 1) }
+            return {
+              r,
+              count,
+              value: count / (shells[which].get(key) ?? 1),
+            }
           })
-          .filter(p => p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 && p.r <= R_MAX && p.count >= PROFILE_MIN_COUNT)
+          .filter(
+            p =>
+              p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 &&
+              p.r <= R_MAX &&
+              p.count >= PROFILE_MIN_COUNT,
+          )
         // normalized on the far shells (R at least R_FAR), where the residual is taken to be gone
-        const far = (h: LengthHistogram): number => [...h.entries()].filter(([key]) => Math.sqrt(key / 4) >= R_FAR).reduce((a, [, c]) => a + c, 0)
-        const scale = far(dimers[which]) / Math.max(1, far(pairs[which]))
+        const far = (h: LengthHistogram): number =>
+          [...h.entries()]
+            .filter(([key]) => Math.sqrt(key / 4) >= R_FAR)
+            .reduce((a, [, c]) => a + c, 0)
+        const scale =
+          far(dimers[which]) / Math.max(1, far(pairs[which]))
         const excess = [...pairs[which].entries()]
           .map(([key, reference]) => {
             const expected = scale * reference
             const observed = dimers[which].get(key) ?? 0
             const sigma = Math.sqrt(Math.max(observed, 1)) / expected
 
-            return { r: Math.sqrt(key / 4), g: observed / expected, sigma }
+            return {
+              r: Math.sqrt(key / 4),
+              g: observed / expected,
+              sigma,
+            }
           })
           .sort((a, b) => a.r - b.r)
-        const tail = excess.filter(p => p.r >= RESIDUAL_R_MIN && p.r <= R_MAX && p.g - 1 > SIGMAS * p.sigma).map(p => ({ r: p.r, value: p.g - 1, count: ((p.g - 1) / p.sigma) ** 2 }))
+        const tail = excess
+          .filter(
+            p =>
+              p.r >= RESIDUAL_R_MIN &&
+              p.r <= R_MAX &&
+              p.g - 1 > SIGMAS * p.sigma,
+          )
+          .map(p => ({
+            r: p.r,
+            value: p.g - 1,
+            count: ((p.g - 1) / p.sigma) ** 2,
+          }))
         const contact = excess.find(p => p.r > 0)?.g ?? Number.NaN
         // the pooled excess and its error over the window R_MIN .. R_MAX, whatever its sign
-        const window = excess.filter(p => p.r >= RESIDUAL_R_MIN && p.r <= R_MAX)
+        const window = excess.filter(
+          p => p.r >= RESIDUAL_R_MIN && p.r <= R_MAX,
+        )
         const weight = window.reduce((a, p) => a + 1 / p.sigma ** 2, 0)
-        const pooled = window.reduce((a, p) => a + (p.g - 1) / p.sigma ** 2, 0) / Math.max(1e-300, weight)
+        const pooled =
+          window.reduce((a, p) => a + (p.g - 1) / p.sigma ** 2, 0) /
+          Math.max(1e-300, weight)
 
         return {
           pooled,
           pooledError: 1 / Math.sqrt(Math.max(1e-300, weight)),
-          nearest: excess.filter(p => p.r >= RESIDUAL_R_MIN)[0] ?? { r: 0, g: 1, sigma: 0 },
-          profile: ornsteinZernikeRate({ points: profilePoints, power: which === 'bulk' ? 1.5 : 1 }),
-          yukawa: ornsteinZernikeRate({ points: tail, power: which === 'bulk' ? 1.5 : 1 }),
-          history: ornsteinZernikeRate({ points: tail, power: which === 'bulk' ? 3 : 2.5 }),
+          nearest: excess.filter(p => p.r >= RESIDUAL_R_MIN)[0] ?? {
+            r: 0,
+            g: 1,
+            sigma: 0,
+          },
+          profile: ornsteinZernikeRate({
+            points: profilePoints,
+            power: which === 'bulk' ? 1.5 : 1,
+          }),
+          yukawa: ornsteinZernikeRate({
+            points: tail,
+            power: which === 'bulk' ? 1.5 : 1,
+          }),
+          history: ornsteinZernikeRate({
+            points: tail,
+            power: which === 'bulk' ? 3 : 2.5,
+          }),
           contact,
           points: tail.length,
         }
       }
 
-      const beta = unitDemonBeta({ meanDemon: out.meanDemon, capacity: CAPACITY })
+      const beta = unitDemonBeta({
+        meanDemon: out.meanDemon,
+        capacity: CAPACITY,
+      })
 
       return {
         fill,
@@ -242,11 +310,21 @@ export default experiment({
       }
     })
 
-    const g0 = fills.every(f => f.exact && f.agrees && f.confinedShare >= CONFINED_SHARE)
-    const within = (a: number, b: number): boolean => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a / b - 1) < TOLERANCE
-    const yukawa = fills.every(f => within(f.husk.yukawa, f.husk.profile))
-    const history = fills.every(f => within(f.husk.history, 2 * f.husk.profile))
-    const status = g0 && yukawa ? 'pass' : g0 && history ? 'partial' : 'fail'
+    const g0 = fills.every(
+      f => f.exact && f.agrees && f.confinedShare >= CONFINED_SHARE,
+    )
+    const within = (a: number, b: number): boolean =>
+      Number.isFinite(a) &&
+      Number.isFinite(b) &&
+      Math.abs(a / b - 1) < TOLERANCE
+    const yukawa = fills.every(f =>
+      within(f.husk.yukawa, f.husk.profile),
+    )
+    const history = fills.every(f =>
+      within(f.husk.history, 2 * f.husk.profile),
+    )
+    const status =
+      g0 && yukawa ? 'pass' : g0 && history ? 'partial' : 'fail'
 
     return verdict({
       status,
@@ -278,15 +356,27 @@ export default experiment({
             [`huskMesonRateFill${key}`, f.husk.profile],
             [`huskResidualYukawaRateFill${key}`, f.husk.yukawa],
             [`huskResidualHistoryRateFill${key}`, f.husk.history],
-            [`huskYukawaOverMesonFill${key}`, f.husk.yukawa / f.husk.profile],
-            [`huskHistoryOverTwiceMesonFill${key}`, f.husk.history / (2 * f.husk.profile)],
+            [
+              `huskYukawaOverMesonFill${key}`,
+              f.husk.yukawa / f.husk.profile,
+            ],
+            [
+              `huskHistoryOverTwiceMesonFill${key}`,
+              f.husk.history / (2 * f.husk.profile),
+            ],
             [`huskResidualShellsFill${key}`, f.husk.points],
             [`huskContactGFill${key}`, f.husk.contact],
             [`bulkMesonRateFill${key}`, f.bulk.profile],
             [`bulkResidualYukawaRateFill${key}`, f.bulk.yukawa],
             [`bulkResidualHistoryRateFill${key}`, f.bulk.history],
-            [`bulkYukawaOverMesonFill${key}`, f.bulk.yukawa / f.bulk.profile],
-            [`bulkHistoryOverTwiceMesonFill${key}`, f.bulk.history / (2 * f.bulk.profile)],
+            [
+              `bulkYukawaOverMesonFill${key}`,
+              f.bulk.yukawa / f.bulk.profile,
+            ],
+            [
+              `bulkHistoryOverTwiceMesonFill${key}`,
+              f.bulk.history / (2 * f.bulk.profile),
+            ],
             [`bulkResidualShellsFill${key}`, f.bulk.points],
             [`bulkContactGFill${key}`, f.bulk.contact],
           ]

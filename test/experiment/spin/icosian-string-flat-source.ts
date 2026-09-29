@@ -122,12 +122,43 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { averagedHop, boxSize, flatCount, flatVector, hermitianGap, involutionGap, linkField, mixerTheta, pairChecks, pairMass, reverseGap, stepsAgree, weylVector, type FieldKind, type GroupName, type LinkField } from '@/code/measure/flat-source'
+import {
+  averagedHop,
+  boxSize,
+  flatCount,
+  flatVector,
+  hermitianGap,
+  involutionGap,
+  linkField,
+  mixerTheta,
+  pairChecks,
+  pairMass,
+  reverseGap,
+  stepsAgree,
+  weylVector,
+  type FieldKind,
+  type GroupName,
+  type LinkField,
+} from '@/code/measure/flat-source'
 import { gOf } from '@/code/measure/husk-meson'
-import { overEmpty, ringUnit, unitAngle, vibeDockExact, vibeShape } from '@/code/measure/swap-string'
-import { binaryIcosahedral, conjugacyClasses } from '@/code/measure/hurwitz-gauge'
+import {
+  overEmpty,
+  ringUnit,
+  unitAngle,
+  vibeDockExact,
+  vibeShape,
+} from '@/code/measure/swap-string'
+import {
+  binaryIcosahedral,
+  conjugacyClasses,
+} from '@/code/measure/hurwitz-gauge'
 import { icosianCharacters } from '@/code/measure/gauge-window'
-import { exactCharacterAlgebra, huskTetrahedron, registerOf, sectorsOf } from '@/code/measure/prethermal-patch'
+import {
+  exactCharacterAlgebra,
+  huskTetrahedron,
+  registerOf,
+  sectorsOf,
+} from '@/code/measure/prethermal-patch'
 
 const LIGHT: readonly [number, number] = [-1, 4]
 const COUNT_TOLERANCE = 1e-9
@@ -150,9 +181,23 @@ const TREE_TOLERANCE = 2e-3
 const TETRAHEDRON = { size: 1728000, orbits: 29288, symmetric: 1589 }
 const PHASE_STRING = { m: Math.PI / 6, sigma: 0.093556, recorded: 11 }
 
-export type FlatSourcePlan = { sides: readonly number[]; groups: readonly GroupName[]; starts: readonly number[]; pairIndices: readonly number[]; densities: readonly number[]; diluteSide: number }
+export type FlatSourcePlan = {
+  sides: readonly number[]
+  groups: readonly GroupName[]
+  starts: readonly number[]
+  pairIndices: readonly number[]
+  densities: readonly number[]
+  diluteSide: number
+}
 
-export const GATE_PLAN: FlatSourcePlan = { sides: [4, 6, 8], groups: ['2I', '2T', 'Q8'], starts: [0.11, 0.37, 0.71], pairIndices: [0, 31, 63, 95, 127], densities: [0, 0.01, 0.03, 0.1, 0.3, 1], diluteSide: 6 }
+export const GATE_PLAN: FlatSourcePlan = {
+  sides: [4, 6, 8],
+  groups: ['2I', '2T', 'Q8'],
+  starts: [0.11, 0.37, 0.71],
+  pairIndices: [0, 31, 63, 95, 127],
+  densities: [0, 0.01, 0.03, 0.1, 0.3, 1],
+  diluteSide: 6,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -173,78 +218,186 @@ export default experiment({
 const sortedSpectrum = (f: LinkField): number[] => {
   const T = averagedHop(f)
 
-  return [...complexEigenvalues({ re: T.re, im: T.im, n: T.n }).re].sort((a, b) => a - b)
+  return [
+    ...complexEigenvalues({ re: T.re, im: T.im, n: T.n }).re,
+  ].sort((a, b) => a - b)
 }
 
-const spectrumGap = (a: readonly number[], b: readonly number[]): number => Math.max(...a.map((x, i) => Math.abs(x - (b[i] as number))))
+const spectrumGap = (
+  a: readonly number[],
+  b: readonly number[],
+): number => Math.max(...a.map((x, i) => Math.abs(x - b[i]!)))
 
 export function flatSourceRun(plan: FlatSourcePlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const u = ringUnit(LIGHT[0], LIGHT[1])
   const shape = vibeShape(overEmpty(vibeDockExact(1, 0, u), u))
   const theta = mixerTheta(shape)
   const m0 = pairMass(theta, 1)
 
   // ---------------- the fields ----------------
-  type Row = { L: number; group: GroupName; kind: FieldKind; plus: number; minus: number; base: number; top: number; gapPlus: number; gapMinus: number; reverse: number; herm: number; involution: number; mass: number }
+  type Row = {
+    L: number
+    group: GroupName
+    kind: FieldKind
+    plus: number
+    minus: number
+    base: number
+    top: number
+    gapPlus: number
+    gapMinus: number
+    reverse: number
+    herm: number
+    involution: number
+    mass: number
+  }
+
   const rows: Row[] = []
-  const kinds: [GroupName, FieldKind][] = [...plan.groups.map((g): [GroupName, FieldKind] => [g, 'weyl']), ['trivial', 'trivial'], ['2I', 'pure-gauge'], ['trivial', 'minus']]
+  const kinds: [GroupName, FieldKind][] = [
+    ...plan.groups.map((g): [GroupName, FieldKind] => [g, 'weyl']),
+    ['trivial', 'trivial'],
+    ['2I', 'pure-gauge'],
+    ['trivial', 'minus'],
+  ]
 
   for (const L of plan.sides) {
     for (const [group, kind] of kinds) {
       const f = linkField(L, group, kind)
       const c = flatCount(f, COUNT_TOLERANCE)
-      const row: Row = { L, group, kind, plus: c.plus, minus: c.minus, base: 22 * c.cells, top: c.top, gapPlus: c.gapPlus, gapMinus: c.gapMinus, reverse: reverseGap(f), herm: hermitianGap(averagedHop(f)), involution: involutionGap(f, weylVector(boxSize(f), 0.3)), mass: pairMass(theta, Math.max(c.top, -c.bottom)) }
+      const row: Row = {
+        L,
+        group,
+        kind,
+        plus: c.plus,
+        minus: c.minus,
+        base: 22 * c.cells,
+        top: c.top,
+        gapPlus: c.gapPlus,
+        gapMinus: c.gapMinus,
+        reverse: reverseGap(f),
+        herm: hermitianGap(averagedHop(f)),
+        involution: involutionGap(f, weylVector(boxSize(f), 0.3)),
+        mass: pairMass(theta, Math.max(c.top, -c.bottom)),
+      }
 
       rows.push(row)
-      log(`L ${L} ${group} ${kind}: flats + ${row.plus} - ${row.minus} (11 c N ${row.base}), top ${row.top.toFixed(9)}, gaps ${row.gapPlus.toExponential(3)} ${row.gapMinus.toExponential(3)}, mass ${row.mass.toFixed(6)}`)
+      log(
+        `L ${L} ${group} ${kind}: flats + ${row.plus} - ${row.minus} (11 c N ${row.base}), top ${row.top.toFixed(9)}, gaps ${row.gapPlus.toExponential(3)} ${row.gapMinus.toExponential(3)}, mass ${row.mass.toFixed(6)}`,
+      )
     }
   }
 
   const weylRows = rows.filter(r => r.kind === 'weyl')
   const countsExact =
-    weylRows.every(r => r.plus === r.base && r.minus === r.base && r.gapPlus >= APART && r.gapMinus >= APART) &&
-    rows.filter(r => r.kind === 'trivial' || r.kind === 'pure-gauge').every(r => r.plus === r.base + 2 && r.minus === r.base) &&
-    rows.filter(r => r.kind === 'minus').every(r => r.plus === r.base && r.minus === r.base + 2)
+    weylRows.every(
+      r =>
+        r.plus === r.base &&
+        r.minus === r.base &&
+        r.gapPlus >= APART &&
+        r.gapMinus >= APART,
+    ) &&
+    rows
+      .filter(r => r.kind === 'trivial' || r.kind === 'pure-gauge')
+      .every(r => r.plus === r.base + 2 && r.minus === r.base) &&
+    rows
+      .filter(r => r.kind === 'minus')
+      .every(r => r.plus === r.base && r.minus === r.base + 2)
 
   // realized: flat vectors at L = 4 in each Weyl field
   const vectors = plan.groups.flatMap(group => {
     const f = linkField(4, group, 'weyl')
 
-    return ([1, -1] as const).flatMap(sign => plan.starts.map(o => ({ group, sign, ...flatVector(f, shape, sign, weylVector(boxSize(f), o)) })))
+    return ([1, -1] as const).flatMap(sign =>
+      plan.starts.map(o => ({
+        group,
+        sign,
+        ...flatVector(f, shape, sign, weylVector(boxSize(f), o)),
+      })),
+    )
   })
-  const vectorsHold = vectors.every(v => v.uniform <= VECTOR_TOLERANCE && v.residual <= VECTOR_TOLERANCE)
+  const vectorsHold = vectors.every(
+    v =>
+      v.uniform <= VECTOR_TOLERANCE && v.residual <= VECTOR_TOLERANCE,
+  )
   const F1 = countsExact && vectorsHold
 
-  log(`F1 ${F1}: counts ${countsExact}, vectors ${vectorsHold} (worst uniform ${Math.max(...vectors.map(v => v.uniform)).toExponential(2)}, residual ${Math.max(...vectors.map(v => v.residual)).toExponential(2)})`)
+  log(
+    `F1 ${F1}: counts ${countsExact}, vectors ${vectorsHold} (worst uniform ${Math.max(...vectors.map(v => v.uniform)).toExponential(2)}, residual ${Math.max(...vectors.map(v => v.residual)).toExponential(2)})`,
+  )
 
   // ---------------- the moving pair ----------------
   const pairFields: [GroupName, FieldKind][] = [
     ['trivial', 'trivial'],
     ['2I', 'weyl'],
   ]
-  const pairs = pairFields.map(([group, kind]) => ({ group, kind, checks: pairChecks(linkField(4, group, kind), shape, plan.pairIndices) }))
-  const F2 = pairs.every(p => p.checks.every(c => c.closure <= PAIR_TOLERANCE && c.lawGap <= PAIR_TOLERANCE))
+  const pairs = pairFields.map(([group, kind]) => ({
+    group,
+    kind,
+    checks: pairChecks(
+      linkField(4, group, kind),
+      shape,
+      plan.pairIndices,
+    ),
+  }))
+  const F2 = pairs.every(p =>
+    p.checks.every(
+      c => c.closure <= PAIR_TOLERANCE && c.lawGap <= PAIR_TOLERANCE,
+    ),
+  )
 
-  log(`F2 ${F2}: ${pairs.map(p => `${p.group}: ${p.checks.map(c => `lambda ${c.lambda.toFixed(6)} closure ${c.closure.toExponential(1)} law ${c.lawGap.toExponential(1)}`).join(', ')}`).join('; ')}`)
+  log(
+    `F2 ${F2}: ${pairs.map(p => `${p.group}: ${p.checks.map(c => `lambda ${c.lambda.toFixed(6)} closure ${c.closure.toExponential(1)} law ${c.lawGap.toExponential(1)}`).join(', ')}`).join('; ')}`,
+  )
 
   // ---------------- heavy in a disordered field ----------------
-  const F3 = weylRows.every(r => r.top >= (TOP_RANGE[0] as number) && r.top <= (TOP_RANGE[1] as number) && r.mass >= HEAVY_FLOOR)
+  const F3 = weylRows.every(
+    r =>
+      r.top >= TOP_RANGE[0] &&
+      r.top <= TOP_RANGE[1] &&
+      r.mass >= HEAVY_FLOOR,
+  )
   const F4 = !F1
 
   // ---------------- the instrument ----------------
   const steps = stepsAgree()
-  const instrument = steps && rows.every(r => r.reverse <= EXACT && r.herm <= EXACT && r.involution <= INVOLUTION)
+  const instrument =
+    steps &&
+    rows.every(
+      r =>
+        r.reverse <= EXACT &&
+        r.herm <= EXACT &&
+        r.involution <= INVOLUTION,
+    )
 
   // ---------------- controls ----------------
   // C1 the trivial field's T spectrum is g over the box momenta, twice
   const c1 = [4, 6].map(L => {
     const predicted: number[] = []
 
-    for (let a = 0; a < L; a++) for (let b = 0; b < L; b++) for (let c = 0; c < L; c++) for (let k = 0; k < 2; k++) predicted.push(gOf([(2 * Math.PI * a) / L, (2 * Math.PI * b) / L, (2 * Math.PI * c) / L]))
+    for (let a = 0; a < L; a++) {
+      for (let b = 0; b < L; b++) {
+        for (let c = 0; c < L; c++) {
+          for (let k = 0; k < 2; k++) {
+            predicted.push(
+              gOf([
+                (2 * Math.PI * a) / L,
+                (2 * Math.PI * b) / L,
+                (2 * Math.PI * c) / L,
+              ]),
+            )
+          }
+        }
+      }
+    }
 
-    return spectrumGap(sortedSpectrum(linkField(L, 'trivial', 'trivial')), predicted.sort((x, y) => x - y))
+    return spectrumGap(
+      sortedSpectrum(linkField(L, 'trivial', 'trivial')),
+      predicted.sort((x, y) => x - y),
+    )
   })
   const C1 = c1.every(g => g <= SPECTRUM)
 
@@ -252,32 +405,70 @@ export function flatSourceRun(plan: FlatSourcePlan): Verdict {
   const g = binaryIcosahedral()
   const reg = registerOf(g, huskTetrahedron(), conjugacyClasses(g))
   const sec = sectorsOf(reg)
-  const algebra = exactCharacterAlgebra(g, icosianCharacters(g), reg.classOf)
-  const C2 = algebra.integral && algebra.classConstant && algebra.completeness && algebra.idempotents && reg.size === TETRAHEDRON.size && sec.orbits === TETRAHEDRON.orbits && sec.n === TETRAHEDRON.symmetric
+  const algebra = exactCharacterAlgebra(
+    g,
+    icosianCharacters(g),
+    reg.classOf,
+  )
+  const C2 =
+    algebra.integral &&
+    algebra.classConstant &&
+    algebra.completeness &&
+    algebra.idempotents &&
+    reg.size === TETRAHEDRON.size &&
+    sec.orbits === TETRAHEDRON.orbits &&
+    sec.n === TETRAHEDRON.symmetric
 
   // C3 E-SPN-0150's Kesten floor
-  const c3 = TREE_RECORD.map(([m, measured]) => ({ m, measured, floor: Math.PI / 2 - Math.asin(KESTEN * Math.cos(m)) }))
-  const C3 = c3.every(x => Math.abs(x.floor - x.measured) <= TREE_TOLERANCE)
+  const c3 = TREE_RECORD.map(([m, measured]) => ({
+    m,
+    measured,
+    floor: Math.PI / 2 - Math.asin(KESTEN * Math.cos(m)),
+  }))
+  const C3 = c3.every(
+    x => Math.abs(x.floor - x.measured) <= TREE_TOLERANCE,
+  )
 
   // C4 pure gauge equals trivial
-  const c4 = [4, 6].map(L => spectrumGap(sortedSpectrum(linkField(L, '2I', 'pure-gauge')), sortedSpectrum(linkField(L, 'trivial', 'trivial'))))
+  const c4 = [4, 6].map(L =>
+    spectrumGap(
+      sortedSpectrum(linkField(L, '2I', 'pure-gauge')),
+      sortedSpectrum(linkField(L, 'trivial', 'trivial')),
+    ),
+  )
   const C4 = c4.every(x => x <= SPECTRUM)
   const controls = C1 && C2 && C3 && C4
 
-  log(`instrument ${instrument}; C1 ${C1} (${c1.map(x => x.toExponential(1)).join(' ')}), C2 ${C2}, C3 ${C3}, C4 ${C4} (${c4.map(x => x.toExponential(1)).join(' ')})`)
+  log(
+    `instrument ${instrument}; C1 ${C1} (${c1.map(x => x.toExponential(1)).join(' ')}), C2 ${C2}, C3 ${C3}, C4 ${C4} (${c4.map(x => x.toExponential(1)).join(' ')})`,
+  )
 
   // ---------------- reads ----------------
   const dilute = plan.densities.map(p => {
-    const c = flatCount(linkField(plan.diluteSide, '2I', 'dilute', 0.5, p), COUNT_TOLERANCE)
+    const c = flatCount(
+      linkField(plan.diluteSide, '2I', 'dilute', 0.5, p),
+      COUNT_TOLERANCE,
+    )
 
-    return { p, top: c.top, mass: pairMass(theta, c.top), plus: c.plus, minus: c.minus, base: 22 * c.cells }
+    return {
+      p,
+      top: c.top,
+      mass: pairMass(theta, c.top),
+      plus: c.plus,
+      minus: c.minus,
+      base: 22 * c.cells,
+    }
   })
   const vStar = (2 * PHASE_STRING.m) / PHASE_STRING.sigma
 
-  log(`R1 ${dilute.map(d => `p ${d.p}: top ${d.top.toFixed(6)} m ${d.mass.toFixed(6)} flats ${d.plus} ${d.minus}`).join('; ')}; R2 V* ${vStar.toFixed(3)}`)
+  log(
+    `R1 ${dilute.map(d => `p ${d.p}: top ${d.top.toFixed(6)} m ${d.mass.toFixed(6)} flats ${d.plus} ${d.minus}`).join('; ')}; R2 V* ${vStar.toFixed(3)}`,
+  )
 
   const status = !instrument || !controls || F4 ? 'partial' : 'fail'
-  const weylTops = weylRows.map(r => `${r.group} L ${r.L} ${r.top.toFixed(4)}`).join(', ')
+  const weylTops = weylRows
+    .map(r => `${r.group} L ${r.L} ${r.top.toFixed(4)}`)
+    .join(', ')
 
   return verdict({
     status,
@@ -298,11 +489,19 @@ export function flatSourceRun(plan: FlatSourcePlan): Verdict {
       topMax: Math.max(...weylRows.map(r => r.top)),
       massMin: Math.min(...weylRows.map(r => r.mass)),
       vectorResidual: Math.max(...vectors.map(v => v.residual)),
-      pairLaw: Math.max(...pairs.flatMap(p => p.checks.map(c => c.lawGap))),
+      pairLaw: Math.max(
+        ...pairs.flatMap(p => p.checks.map(c => c.lawGap)),
+      ),
       vStar,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      C4: flag(C4),
+      instrument: flag(instrument),
+    },
     notes: `Light point u = ringUnit(${LIGHT.join(', ')}), angle ${unitAngle(u).toFixed(6)}, theta ${theta.toFixed(6)}, m0 ${m0.toFixed(6)}; Kesten ${KESTEN.toFixed(6)}. Fields: ${rows.map(r => `L ${r.L} ${r.group} ${r.kind} + ${r.plus} - ${r.minus} of ${r.base}, top ${r.top.toFixed(6)}, mass ${r.mass.toFixed(4)}, reverse ${r.reverse.toExponential(0)}, herm ${r.herm.toExponential(0)}, U0^2 ${r.involution.toExponential(1)}`).join('; ')}. F2: ${pairs.map(p => `${p.group}: ${p.checks.map(c => `lambda ${c.lambda.toFixed(6)} phases ${c.phases.map(x => x.toFixed(6)).join('/')} closure ${c.closure.toExponential(1)} law ${c.lawGap.toExponential(1)}`).join(', ')}`).join('; ')}. C1: ${c1.map(x => x.toExponential(1)).join(' ')}. C2: ${JSON.stringify(algebra)}, register ${reg.size}, orbits ${sec.orbits}, symmetric ${sec.n}. C3: ${c3.map(x => `m0 ${x.m} floor ${x.floor.toFixed(4)} measured ${x.measured}`).join(', ')}. C4: ${c4.map(x => x.toExponential(1)).join(' ')}. R1 (L ${plan.diluteSide}): ${dilute.map(d => `p ${d.p} top ${d.top.toFixed(6)} m ${d.mass.toFixed(4)} flats ${d.plus - d.base}/${d.minus - d.base} over 11 c N`).join('; ')}. R2: V* = 2 m / sigma ${vStar.toFixed(3)} against E-SPN-0146's recorded ${PHASE_STRING.recorded}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

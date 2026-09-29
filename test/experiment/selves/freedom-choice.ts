@@ -186,7 +186,10 @@ export function freedomChoice(input: { n: number; seed: number }): {
   let urgeCanFlip = false
 
   for (let k = 0; k < 8; k++) {
-    const u2 = ternaryVector(n, makeWeyl({ start: input.seed + 500 + k }))
+    const u2 = ternaryVector(
+      n,
+      makeWeyl({ start: input.seed + 500 + k }),
+    )
     const c2 = settle({
       patterns: selfA,
       coupling: 1,
@@ -239,7 +242,10 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
   for (let k = 0; k < 8; k++) {
     const s = selves[k % selves.length]!
-    const u = ternaryVector(n, makeWeyl({ start: input.seed + 900 + k }))
+    const u = ternaryVector(
+      n,
+      makeWeyl({ start: input.seed + 900 + k }),
+    )
     const res = settle({
       patterns: s,
       coupling: 2,

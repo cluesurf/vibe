@@ -75,15 +75,42 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { HUSK_LATERAL, openMesh, warpClock, type OpenState } from '@/code/rule/open-husk'
+import {
+  HUSK_LATERAL,
+  openMesh,
+  warpClock,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { horizonRule, tornLink } from '@/code/rule/horizon-husk'
 import { clockHorizonRule, clockJoin } from '@/code/rule/clock-horizon'
 import { countShares } from '@/code/rule/count-horizon'
 import { compressLump } from '@/code/measure/step-depth'
 import { greenSolve, huskDistance } from '@/code/measure/open-husk'
-import { growthRun, newHorizonRecord, realHorizonDepth, tornEngine, tornMesh, verticalOf, type Addition, type HorizonEngine, type HorizonRecord } from '@/code/measure/horizon-husk'
-import { accretionOrder, axisForce, clockStatics, routeUnits, spreadSinks } from '@/code/measure/clock-horizon'
-import { countEngine, countSource, countStatics, lineDivergence, sweepOrder } from '@/code/measure/count-horizon'
+import {
+  growthRun,
+  newHorizonRecord,
+  realHorizonDepth,
+  tornEngine,
+  tornMesh,
+  verticalOf,
+  type Addition,
+  type HorizonEngine,
+  type HorizonRecord,
+} from '@/code/measure/horizon-husk'
+import {
+  accretionOrder,
+  axisForce,
+  clockStatics,
+  routeUnits,
+  spreadSinks,
+} from '@/code/measure/clock-horizon'
+import {
+  countEngine,
+  countSource,
+  countStatics,
+  lineDivergence,
+  sweepOrder,
+} from '@/code/measure/count-horizon'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -103,7 +130,20 @@ const ORDER_TOLERANCE = 0.02
 const RADII: readonly number[] = [8, 9, 10, 11]
 const CENTER = [12, 12, 12]
 
-type Settled = { record: HorizonRecord; reversed: boolean; horizon: Uint8Array; rho: Int32Array; final: OpenState; mean: Float64Array; depth: Float64Array; countOff: number; firstJoin: number; downFlux: number; upHorizon: number; returnUp: number }
+type Settled = {
+  record: HorizonRecord
+  reversed: boolean
+  horizon: Uint8Array
+  rho: Int32Array
+  final: OpenState
+  mean: Float64Array
+  depth: Float64Array
+  countOff: number
+  firstJoin: number
+  downFlux: number
+  upHorizon: number
+  returnUp: number
+}
 
 export default experiment({
   id: 'gravity/count-horizon-growth',
@@ -116,24 +156,48 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
-    const rule = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+    const rule = clockHorizonRule(
+      horizonRule(stepRule(DEPTH, LEVELS), BULK),
+      CAP,
+    )
     const sinks = spreadSinks(mesh, CENTER, M, SINKS_FROM)
-    const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, M, 1, sinks)
-    const scheduleOf = (order: readonly number[]): Addition[] => routeUnits(mesh, order, sinks).map((u, i) => ({ beat: EVERY * i, at: u.at, sink: u.sink, path: u.path }))
-    const accretion = scheduleOf(accretionOrder(mesh, lump.content, CENTER))
+    const lump = compressLump(
+      radionMesh([SIDE, SIDE, SIDE]),
+      CENTER,
+      M,
+      1,
+      sinks,
+    )
+    const scheduleOf = (order: readonly number[]): Addition[] =>
+      routeUnits(mesh, order, sinks).map((u, i) => ({
+        beat: EVERY * i,
+        at: u.at,
+        sink: u.sink,
+        path: u.path,
+      }))
+    const accretion = scheduleOf(
+      accretionOrder(mesh, lump.content, CENTER),
+    )
     const sweep = scheduleOf(sweepOrder(mesh, lump.content))
     const growEnd = EVERY * (M - 1) + 1
     const beats = growEnd + SETTLE
     const vertical = verticalOf(mesh)
-    const join = (s: OpenState, h: Uint8Array): number[] => clockJoin(mesh, rule, s, h)
+    const join = (s: OpenState, h: Uint8Array): number[] =>
+      clockJoin(mesh, rule, s, h)
     const noHair = countEngine(mesh, rule)
     const held = tornEngine(mesh, rule)
 
-    const grow = (engine: HorizonEngine, additions: Addition[], counted: boolean): Settled => {
+    const grow = (
+      engine: HorizonEngine,
+      additions: Addition[],
+      counted: boolean,
+    ): Settled => {
       const record = newHorizonRecord()
       const mean = new Float64Array(mesh.links)
+
       let weight = 0
       let countOff = 0
       let firstJoin = -1
@@ -147,21 +211,43 @@ export default experiment({
         CENTER,
         SAMPLE,
         (t, s, horizon, rho) => {
-          if (firstJoin < 0 && horizon.some(v => v === 1)) firstJoin = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
+          if (firstJoin < 0 && horizon.some(v => v === 1)) {
+            firstJoin = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
+          }
+
           // Gauss through the horizon: the shares the beat read sum to Q^L N, N the content the events put inside
           if (counted) {
-            const shares = countShares(mesh, rule, lineDivergence(mesh, s.line), horizon)
+            const shares = countShares(
+              mesh,
+              rule,
+              lineDivergence(mesh, s.line),
+              horizon,
+            )
+
             let inside = 0
             let sum = 0
 
-            for (let y = 0; y < mesh.huskDocks; y++) if (horizon[y]) (inside += rho[y]!), (sum += shares.share[y]!)
-            if (shares.count !== inside || sum !== rule.unit * inside) countOff++
+            for (let y = 0; y < mesh.huskDocks; y++) {
+              if (horizon[y]) {
+                ;((inside += rho[y]!), (sum += shares.share[y]!))
+              }
+            }
+
+            if (shares.count !== inside || sum !== rule.unit * inside) {
+              countOff++
+            }
           }
-          if (t <= growEnd) return
+
+          if (t <= growEnd) {
+            return
+          }
 
           const w = Math.sin((Math.PI * (t - growEnd)) / SETTLE) ** 2
 
-          for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
+          for (let m = 0; m < mesh.links; m++) {
+            mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
+          }
+
           weight += w
         },
         false,
@@ -169,7 +255,9 @@ export default experiment({
         engine,
       )
 
-      for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! / weight
+      for (let m = 0; m < mesh.links; m++) {
+        mean[m] = mean[m]! / weight
+      }
 
       let downFlux = 0
       let upHorizon = 0
@@ -178,11 +266,27 @@ export default experiment({
       for (let y = 0; y < mesh.huskDocks; y++) {
         const F = mean[vertical[y]!]!
 
-        if (run.horizon[y]) (F > 0 ? (downFlux += F) : upHorizon++)
-        else if (F < 0) returnUp -= F
+        if (run.horizon[y]) {
+          F > 0 ? (downFlux += F) : upHorizon++
+        } else if (F < 0) {
+          returnUp -= F
+        }
       }
 
-      return { record, reversed: run.reversed && record.reversed, horizon: run.horizon, rho: run.rho, final: run.final, mean, depth: realHorizonDepth(mesh, mean, run.horizon), countOff, firstJoin, downFlux, upHorizon, returnUp }
+      return {
+        record,
+        reversed: run.reversed && record.reversed,
+        horizon: run.horizon,
+        rho: run.rho,
+        final: run.final,
+        mean,
+        depth: realHorizonDepth(mesh, mean, run.horizon),
+        countOff,
+        firstJoin,
+        downFlux,
+        upHorizon,
+        returnUp,
+      }
     }
 
     const a = grow(noHair, accretion, true)
@@ -203,20 +307,40 @@ export default experiment({
 
     // C3: the no-hair rule with the torn steps erased at the tear: every husk link of a joined dock set to 0
     const c3Record = newHorizonRecord()
+
     const erase = (s: OpenState, h: Uint8Array): number[] => {
       const joined = clockJoin(mesh, rule, s, h)
 
       for (const y of joined) {
-        for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
+        for (
+          let j = mesh.incStart[y]!;
+          j < mesh.incStart[y + 1]!;
+          j++
+        ) {
           const m = mesh.incLink[j]!
 
-          if (mesh.kind[m] === HUSK_LATERAL) s.step[m] = 0
+          if (mesh.kind[m] === HUSK_LATERAL) {
+            s.step[m] = 0
+          }
         }
       }
 
       return joined
     }
-    const c3 = growthRun(mesh, rule, accretion.slice(0, ERASE_UNITS), EVERY * ERASE_UNITS, c3Record, CENTER, SAMPLE * 8, undefined, false, erase, noHair)
+
+    const c3 = growthRun(
+      mesh,
+      rule,
+      accretion.slice(0, ERASE_UNITS),
+      EVERY * ERASE_UNITS,
+      c3Record,
+      CENTER,
+      SAMPLE * 8,
+      undefined,
+      false,
+      erase,
+      noHair,
+    )
 
     log('C3')
 
@@ -224,22 +348,62 @@ export default experiment({
     const rho = a.rho
     const placedNoHair = countStatics(mesh, rule, rho)
     const placedHeld = clockStatics(mesh, rule, rho)
-    const heldPlacedX = greenSolve(tornMesh(mesh, placedHeld.horizon), rho, 1e-12).x
-    const sameHorizonA = greenSolve(tornMesh(mesh, a.horizon), countSource(mesh, rule, rho, a.horizon), 1e-12).x
-    const sameHorizonC1 = greenSolve(tornMesh(mesh, c1.horizon), rho, 1e-12).x
+    const heldPlacedX = greenSolve(
+      tornMesh(mesh, placedHeld.horizon),
+      rho,
+      1e-12,
+    ).x
+    const sameHorizonA = greenSolve(
+      tornMesh(mesh, a.horizon),
+      countSource(mesh, rule, rho, a.horizon),
+      1e-12,
+    ).x
+    const sameHorizonC1 = greenSolve(
+      tornMesh(mesh, c1.horizon),
+      rho,
+      1e-12,
+    ).x
 
     log('statics')
 
-    const off = (x: Float64Array, ref: Float64Array): number => Math.max(...RADII.map(r => Math.abs(axisForce(mesh, x, CENTER, r) / axisForce(mesh, ref, CENTER, r) - 1)))
-    const sameContent = b.rho.every((v, y) => v === rho[y]) && c1.rho.every((v, y) => v === rho[y]) && c2.rho.every((v, y) => v === rho[y])
-    const placedSource = countSource(mesh, rule, rho, placedNoHair.horizon)
+    const off = (x: Float64Array, ref: Float64Array): number =>
+      Math.max(
+        ...RADII.map(r =>
+          Math.abs(
+            axisForce(mesh, x, CENTER, r) /
+              axisForce(mesh, ref, CENTER, r) -
+              1,
+          ),
+        ),
+      )
+    const sameContent =
+      b.rho.every((v, y) => v === rho[y]) &&
+      c1.rho.every((v, y) => v === rho[y]) &&
+      c2.rho.every((v, y) => v === rho[y])
+    const placedSource = countSource(
+      mesh,
+      rule,
+      rho,
+      placedNoHair.horizon,
+    )
+
     let rhoX = 0
 
-    for (let y = 0; y < mesh.docks; y++) rhoX += placedSource[y]! * placedNoHair.x[y]!
+    for (let y = 0; y < mesh.docks; y++) {
+      rhoX += placedSource[y]! * placedNoHair.x[y]!
+    }
 
-    const energyStatic = (Math.PI / DEPTH) * Math.abs(rhoX) / 2
-    const wrapsOf = (r: HorizonRecord): number => r.wraps.fWraps + r.wraps.vWraps
-    const exact = (s: Settled): boolean => s.reversed && s.record.gaussOff === 0 && s.countOff === 0 && s.record.curl === 0 && s.record.verticalChecked > 0 && s.record.restOff === 0 && s.record.energyDrift <= ENERGY_TOLERANCE * energyStatic
+    const energyStatic = ((Math.PI / DEPTH) * Math.abs(rhoX)) / 2
+    const wrapsOf = (r: HorizonRecord): number =>
+      r.wraps.fWraps + r.wraps.vWraps
+    const exact = (s: Settled): boolean =>
+      s.reversed &&
+      s.record.gaussOff === 0 &&
+      s.countOff === 0 &&
+      s.record.curl === 0 &&
+      s.record.verticalChecked > 0 &&
+      s.record.restOff === 0 &&
+      s.record.energyDrift <= ENERGY_TOLERANCE * energyStatic
 
     const h1 = wrapsOf(a.record) === 0 && wrapsOf(b.record) === 0
     const placedOff = off(a.depth, placedNoHair.x)
@@ -252,27 +416,51 @@ export default experiment({
     const heldOrderOff = off(c1.depth, c2.depth)
     const c2Refuses = heldOrderOff > ORDER_TOLERANCE
     const c3Refuses = !c3.reversed
-    const status = !c1Refuses || !c2Refuses || !c3Refuses ? 'partial' : h1 && h2 && h3 && h4 ? 'pass' : 'fail'
+    const status =
+      !c1Refuses || !c2Refuses || !c3Refuses
+        ? 'partial'
+        : h1 && h2 && h3 && h4
+          ? 'pass'
+          : 'fail'
 
-    const docksOf = (h: Uint8Array): number => h.reduce((n, v) => n + v, 0)
+    const docksOf = (h: Uint8Array): number =>
+      h.reduce((n, v) => n + v, 0)
+
     const radiusOf = (h: Uint8Array): number => {
       let r = 0
 
-      for (let y = 0; y < mesh.huskDocks; y++) if (h[y]) r = Math.max(r, huskDistance(mesh, y, CENTER))
+      for (let y = 0; y < mesh.huskDocks; y++) {
+        if (h[y]) {
+          r = Math.max(r, huskDistance(mesh, y, CENTER))
+        }
+      }
 
       return r
     }
+
     let horizonDiffer = 0
 
-    for (let y = 0; y < mesh.huskDocks; y++) if (a.horizon[y] !== b.horizon[y]) horizonDiffer++
+    for (let y = 0; y < mesh.huskDocks; y++) {
+      if (a.horizon[y] !== b.horizon[y]) {
+        horizonDiffer++
+      }
+    }
 
     let heldMax = 0
 
-    for (let m = 0; m < mesh.links; m++) if (tornLink(mesh, a.horizon, m)) heldMax = Math.max(heldMax, Math.abs(a.final.step[m]!) / rule.unit)
+    for (let m = 0; m < mesh.links; m++) {
+      if (tornLink(mesh, a.horizon, m)) {
+        heldMax = Math.max(
+          heldMax,
+          Math.abs(a.final.step[m]!) / rule.unit,
+        )
+      }
+    }
 
     const f = (v: number): string => v.toPrecision(4)
     const e = (v: number): string => v.toExponential(2)
-    const forces = (x: Float64Array): string => RADII.map(r => f(axisForce(mesh, x, CENTER, r))).join(', ')
+    const forces = (x: Float64Array): string =>
+      RADII.map(r => f(axisForce(mesh, x, CENTER, r))).join(', ')
     const metrics: Record<string, number> = {
       gate_H1: h1 ? 1 : 0,
       gate_H2: h2 ? 1 : 0,
@@ -339,17 +527,33 @@ export default experiment({
     RADII.forEach(r => {
       metrics[`A_force_r${r}`] = axisForce(mesh, a.depth, CENTER, r)
       metrics[`B_force_r${r}`] = axisForce(mesh, b.depth, CENTER, r)
-      metrics[`placed_force_r${r}`] = axisForce(mesh, placedNoHair.x, CENTER, r)
+      metrics[`placed_force_r${r}`] = axisForce(
+        mesh,
+        placedNoHair.x,
+        CENTER,
+        r,
+      )
       metrics[`C1_force_r${r}`] = axisForce(mesh, c1.depth, CENTER, r)
       metrics[`C2_force_r${r}`] = axisForce(mesh, c2.depth, CENTER, r)
-      metrics[`heldPlaced_force_r${r}`] = axisForce(mesh, heldPlacedX, CENTER, r)
+      metrics[`heldPlaced_force_r${r}`] = axisForce(
+        mesh,
+        heldPlacedX,
+        CENTER,
+        r,
+      )
     })
 
     return verdict({
       status,
       claim: `E-GRV-0112's M = ${M} lump grown one unit every ${EVERY} beats under the clock criterion (cap ${CAP}) with the horizon sourcing only the count of lines through it, spread evenly over its verticals with carry, then ${SETTLE} beats: wraps ${wrapsOf(a.record)} (accretion) and ${wrapsOf(b.record)} (sweep); the settled force at r = 8 .. 11 ${forces(a.depth)} against the placed lump's ${forces(placedNoHair.x)} (off ${f(placedOff)}; on the run's own horizon ${f(metrics.sameHorizonOff!)}), and the sweep's ${forces(b.depth)} (off ${f(orderOff)}); horizons ${docksOf(a.horizon)} and ${docksOf(b.horizon)} docks (placed ${docksOf(placedNoHair.horizon)}), ${horizonDiffer} differing; reversed ${a.reversed} and ${b.reversed}, Gauss off ${a.record.gaussOff} and ${b.record.gaussOff}, count Gauss off ${a.countOff} and ${b.countOff}, curl ${a.record.curl} and ${b.record.curl}, energy between events ${e(a.record.energyDrift / energyStatic)} and ${e(b.record.energyDrift / energyStatic)} of the statics; controls: held tears off their placed lump by ${f(c1PlacedOff)} and their two orders apart by ${f(heldOrderOff)}, the erasing rule reversed ${c3.reversed}`,
       metrics,
-      control: { c1: c1Refuses ? 1 : 0, c1PlacedOff, c2: c2Refuses ? 1 : 0, heldOrderOff, c3: c3Refuses ? 1 : 0 },
+      control: {
+        c1: c1Refuses ? 1 : 0,
+        c1PlacedOff,
+        c2: c2Refuses ? 1 : 0,
+        heldOrderOff,
+        c3: c3Refuses ? 1 : 0,
+      },
       notes: `L2. Gates H1 ${h1}, H2 ${h2} (${f(placedOff)}), H3 ${h3} (${f(orderOff)}, same content ${sameContent}), H4 ${h4}; controls C1 ${c1Refuses} (${f(c1PlacedOff)}; on its own horizon ${f(metrics.c1SameHorizonOff!)}), C2 ${c2Refuses} (${f(heldOrderOff)}), C3 ${c3Refuses}. Held rule forces r = 8 .. 11: accretion ${forces(c1.depth)}, sweep ${forces(c2.depth)}, its placed lump ${forces(heldPlacedX)}. First join: A ${a.firstJoin}, B ${b.firstJoin}. Husk step A ${f(a.record.huskStep)}, B ${f(b.record.huskStep)}; vertical A ${f(a.record.verticalStep)}, B ${f(b.record.verticalStep)}; the unread torn registers of A up to ${f(heldMax)}. Settled flux down through A's horizon ${f(a.downFlux)} (count ${rho.reduce((n, v, y) => n + (y < mesh.huskDocks && a.horizon[y] ? v : 0), 0)}), ${a.upHorizon} horizon verticals up, ${f(a.returnUp)} up through the verticals outside (held: ${f(c1.downFlux)}, ${c1.upHorizon}, ${f(c1.returnUp)}). Wraps C1 ${wrapsOf(c1.record)}, C2 ${wrapsOf(c2.record)}.`,
     })
   },

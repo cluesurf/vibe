@@ -15,9 +15,37 @@
 // rule.
 
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { emptyRadion, radionBeat, radionMesh, radionRule, radionScratch, radionWeight, type RadionMesh } from '@/code/rule/trit-radion'
+import {
+  emptyRadion,
+  radionBeat,
+  radionMesh,
+  radionRule,
+  radionScratch,
+  radionWeight,
+  type RadionMesh,
+} from '@/code/rule/trit-radion'
 import { shadow } from '@/code/measure/radion'
-import { applyPath, duplicateStep, emptyStep, fittingPath, gaussOff, hopPaths, incidence, newStepTally, placeLines, sameStep, stepBeat, stepBeatBack, stepDepth, stepRule, stepScratch, type LinePath, type StepRule, type StepState, type StepTally } from '@/code/rule/step-depth'
+import {
+  applyPath,
+  duplicateStep,
+  emptyStep,
+  fittingPath,
+  gaussOff,
+  hopPaths,
+  incidence,
+  newStepTally,
+  placeLines,
+  sameStep,
+  stepBeat,
+  stepBeatBack,
+  stepDepth,
+  stepRule,
+  stepScratch,
+  type LinePath,
+  type StepRule,
+  type StepState,
+  type StepTally,
+} from '@/code/rule/step-depth'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -29,19 +57,45 @@ export function dockAt(mesh: RadionMesh, v: readonly number[]): number {
   return mod(v[0]!, sx) + sx * mod(v[1]!, sy) + sx * sy * mod(v[2]!, sz)
 }
 
-export const coordOf = (mesh: RadionMesh, y: number): number[] => [y % mesh.sides[0], Math.floor(y / mesh.sides[0]) % mesh.sides[1], Math.floor(y / (mesh.sides[0] * mesh.sides[1]))]
+export const coordOf = (mesh: RadionMesh, y: number): number[] => [
+  y % mesh.sides[0],
+  Math.floor(y / mesh.sides[0]) % mesh.sides[1],
+  Math.floor(y / (mesh.sides[0] * mesh.sides[1])),
+]
 
 // the torus distance between two docks
-export function torusDistance(mesh: RadionMesh, y: number, center: readonly number[]): number {
+export function torusDistance(
+  mesh: RadionMesh,
+  y: number,
+  center: readonly number[],
+): number {
   const p = coordOf(mesh, y)
 
-  return Math.sqrt(p.reduce((s, v, i) => s + Math.min(mod(v - center[i]!, mesh.sides[i]!), mod(center[i]! - v, mesh.sides[i]!)) ** 2, 0))
+  return Math.sqrt(
+    p.reduce(
+      (s, v, i) =>
+        s +
+        Math.min(
+          mod(v - center[i]!, mesh.sides[i]!),
+          mod(center[i]! - v, mesh.sides[i]!),
+        ) **
+          2,
+      0,
+    ),
+  )
 }
 
 // a content map: `units` at each `at` and minus that at `to`
-export type Placed = { at: readonly number[]; to: readonly number[]; units: number }
+export type Placed = {
+  at: readonly number[]
+  to: readonly number[]
+  units: number
+}
 
-export function contentOf(mesh: RadionMesh, sources: readonly Placed[]): Int32Array {
+export function contentOf(
+  mesh: RadionMesh,
+  sources: readonly Placed[],
+): Int32Array {
   const rho = new Int32Array(mesh.docks)
 
   for (const s of sources) {
@@ -53,28 +107,51 @@ export function contentOf(mesh: RadionMesh, sources: readonly Placed[]): Int32Ar
 }
 
 // the previous beat's steps, recovered from the state: F0 = wrap(F1 - g (v_tail - v_head))
-export function previousStep(mesh: RadionMesh, rule: StepRule, s: StepState): Float64Array {
+export function previousStep(
+  mesh: RadionMesh,
+  rule: StepRule,
+  s: StepState,
+): Float64Array {
   const out = new Float64Array(s.step.length)
 
   for (let y = 0; y < mesh.docks; y++) {
     for (let h = 0; h < 9; h++) {
       const l = y * 9 + h
 
-      out[l] = mod(s.step[l]! - radionWeight(h) * (s.rate[y]! - s.rate[mesh.neighbour[l]!]!) + rule.top, rule.span) - rule.top
+      out[l] =
+        mod(
+          s.step[l]! -
+            radionWeight(h) *
+              (s.rate[y]! - s.rate[mesh.neighbour[l]!]!) +
+            rule.top,
+          rule.span,
+        ) - rule.top
     }
   }
 
   return out
 }
 
-export type StepEnergy = { energy: number; free: number; sourceFound: number; sourceLocal: number; curl: number }
+export type StepEnergy = {
+  energy: number
+  free: number
+  sourceFound: number
+  sourceLocal: number
+  curl: number
+}
 
-export function stepEnergy(mesh: RadionMesh, rule: StepRule, s: StepState, rho: Int32Array): StepEnergy {
+export function stepEnergy(
+  mesh: RadionMesh,
+  rule: StepRule,
+  s: StepState,
+  rho: Int32Array,
+): StepEnergy {
   const u = rule.unit
   const f0 = previousStep(mesh, rule, s)
   const d1 = stepDepth(mesh, s.step)
   const d0 = stepDepth(mesh, f0)
   const kappa = kappaOfStep(rule)
+
   let kinetic = 0
   let links = 0
   let sourceFound = 0
@@ -88,7 +165,7 @@ export function stepEnergy(mesh: RadionMesh, rule: StepRule, s: StepState, rho: 
       const l = y * 9 + h
       const g = radionWeight(h)
 
-      links += (s.step[l]! / u) * (f0[l]! / u) / g
+      links += ((s.step[l]! / u) * (f0[l]! / u)) / g
       sourceLocal += (s.line[l]! * (s.step[l]! + f0[l]!)) / (2 * u * g)
     }
   }
@@ -96,11 +173,22 @@ export function stepEnergy(mesh: RadionMesh, rule: StepRule, s: StepState, rho: 
   const scale = Math.PI / rule.depth
   const free = scale * (kinetic / (2 * kappa) + links / 2)
 
-  return { energy: free - scale * sourceFound, free, sourceFound, sourceLocal, curl: d1.curl + d0.curl }
+  return {
+    energy: free - scale * sourceFound,
+    free,
+    sourceFound,
+    sourceLocal,
+    curl: d1.curl + d0.curl,
+  }
 }
 
 // the static functional at a real step field (depth found by summation, in reals)
-export function staticStepFunctional(mesh: RadionMesh, rule: StepRule, step: Float64Array, rho: Int32Array): number {
+export function staticStepFunctional(
+  mesh: RadionMesh,
+  rule: StepRule,
+  step: Float64Array,
+  rho: Int32Array,
+): number {
   const [sx, sy, sz] = mesh.sides
   const x = new Float64Array(mesh.docks)
 
@@ -109,9 +197,13 @@ export function staticStepFunctional(mesh: RadionMesh, rule: StepRule, step: Flo
       for (let a = 0; a < sx; a++) {
         const y = a + sx * (b + sy * c)
 
-        if (a > 0) x[y] = x[y - 1]! - step[(y - 1) * 9]! / 2
-        else if (b > 0) x[y] = x[y - sx]! - step[(y - sx) * 9 + 1]! / 2
-        else if (c > 0) x[y] = x[y - sx * sy]! - step[(y - sx * sy) * 9 + 2]! / 2
+        if (a > 0) {
+          x[y] = x[y - 1]! - step[(y - 1) * 9]! / 2
+        } else if (b > 0) {
+          x[y] = x[y - sx]! - step[(y - sx) * 9 + 1]! / 2
+        } else if (c > 0) {
+          x[y] = x[y - sx * sy]! - step[(y - sx * sy) * 9 + 2]! / 2
+        }
       }
     }
   }
@@ -121,7 +213,10 @@ export function staticStepFunctional(mesh: RadionMesh, rule: StepRule, step: Flo
 
   for (let y = 0; y < mesh.docks; y++) {
     source += rho[y]! * x[y]!
-    for (let h = 0; h < 9; h++) quad += step[y * 9 + h]! ** 2 / radionWeight(h)
+
+    for (let h = 0; h < 9; h++) {
+      quad += step[y * 9 + h]! ** 2 / radionWeight(h)
+    }
   }
 
   return (Math.PI / rule.depth) * (quad / 2 - source)
@@ -148,20 +243,55 @@ export type StepRecord = {
   beats: number
 }
 
-export const newRecord = (): StepRecord => ({ runs: 0, reversed: true, gaussOff: 0, gaussChecks: 0, curl: 0, curlChecks: 0, wraps: newStepTally(), maxStep: 0, maxRate: 0, maxRest: 0, beats: 0 })
+export const newRecord = (): StepRecord => ({
+  runs: 0,
+  reversed: true,
+  gaussOff: 0,
+  gaussChecks: 0,
+  curl: 0,
+  curlChecks: 0,
+  wraps: newStepTally(),
+  maxStep: 0,
+  maxRate: 0,
+  maxRest: 0,
+  beats: 0,
+})
 
-function observe(rule: StepRule, s: StepState, record: StepRecord): void {
-  for (let l = 0; l < s.step.length; l++) record.maxStep = Math.max(record.maxStep, Math.abs(s.step[l]!) / rule.unit)
+function observe(
+  rule: StepRule,
+  s: StepState,
+  record: StepRecord,
+): void {
+  for (let l = 0; l < s.step.length; l++) {
+    record.maxStep = Math.max(
+      record.maxStep,
+      Math.abs(s.step[l]!) / rule.unit,
+    )
+  }
+
   for (let y = 0; y < s.rate.length; y++) {
-    record.maxRate = Math.max(record.maxRate, Math.abs(s.rate[y]!) / rule.unit)
+    record.maxRate = Math.max(
+      record.maxRate,
+      Math.abs(s.rate[y]!) / rule.unit,
+    )
     record.maxRest = Math.max(record.maxRest, Math.abs(s.rest[y]!))
   }
 }
 
-export type StaticStep = { mean: Float64Array; energy: number; tension: number }
+export type StaticStep = {
+  mean: Float64Array
+  energy: number
+  tension: number
+}
 
 // from zero field with the lines placed, T beats forward (Hann average of the steps), then T back, compared bit for bit
-export function staticStepRun(mesh: RadionMesh, rule: StepRule, rho: Int32Array, beats: number, record: StepRecord): StaticStep {
+export function staticStepRun(
+  mesh: RadionMesh,
+  rule: StepRule,
+  rho: Int32Array,
+  beats: number,
+  record: StepRecord,
+): StaticStep {
   const s = emptyStep(mesh)
 
   s.line.set(placeLines(mesh, rho))
@@ -169,6 +299,7 @@ export function staticStepRun(mesh: RadionMesh, rule: StepRule, rho: Int32Array,
   const start = duplicateStep(s)
   const scratch = stepScratch(mesh)
   const mean = new Float64Array(s.step.length)
+
   let weight = 0
 
   for (let t = 1; t <= beats; t++) {
@@ -176,6 +307,7 @@ export function staticStepRun(mesh: RadionMesh, rule: StepRule, rho: Int32Array,
     record.beats++
     record.gaussOff += gaussOff(mesh, s.line, rho)
     record.gaussChecks++
+
     if (t % 64 === 0 || t === beats) {
       record.curl += stepDepth(mesh, s.step).curl
       record.curlChecks++
@@ -184,36 +316,61 @@ export function staticStepRun(mesh: RadionMesh, rule: StepRule, rho: Int32Array,
 
     const w = Math.sin((Math.PI * t) / beats) ** 2
 
-    if (w === 0) continue
-    for (let l = 0; l < mean.length; l++) mean[l] = mean[l]! + (w * s.step[l]!) / rule.unit
+    if (w === 0) {
+      continue
+    }
+
+    for (let l = 0; l < mean.length; l++) {
+      mean[l] = mean[l]! + (w * s.step[l]!) / rule.unit
+    }
+
     weight += w
   }
 
-  for (let t = 0; t < beats; t++) stepBeatBack(mesh, rule, s, scratch)
+  for (let t = 0; t < beats; t++) {
+    stepBeatBack(mesh, rule, s, scratch)
+  }
 
-  for (let l = 0; l < mean.length; l++) mean[l] = mean[l]! / weight
+  for (let l = 0; l < mean.length; l++) {
+    mean[l] = mean[l]! / weight
+  }
 
   record.runs++
   record.reversed = record.reversed && sameStep(s, start)
 
   let tension = 0
 
-  for (let l = 0; l < s.line.length; l++) tension += Math.abs(s.line[l]!)
+  for (let l = 0; l < s.line.length; l++) {
+    tension += Math.abs(s.line[l]!)
+  }
 
-  return { mean, energy: staticStepFunctional(mesh, rule, mean, rho), tension }
+  return {
+    mean,
+    energy: staticStepFunctional(mesh, rule, mean, rho),
+    tension,
+  }
 }
 
 export type PairStep = { w: number; tensionW: number }
 
 // E-GRV-0079's six configurations (code/measure/radion pairEnergy): sa at a = 0 and sb at b = (r, 0, 0), compensated at
 // Z1 = (0, h, h), Z2 = (r, h, h), h = side / 2; the same combination of the lines' step counts (tension alone) beside it
-export function pairStep(mesh: RadionMesh, rule: StepRule, r: number, sa: number, sb: number, beats: number, record: StepRecord): PairStep {
+export function pairStep(
+  mesh: RadionMesh,
+  rule: StepRule,
+  r: number,
+  sa: number,
+  sb: number,
+  beats: number,
+  record: StepRecord,
+): PairStep {
   const h = mesh.sides[0] / 2
   const a = [0, 0, 0]
   const b = [r, 0, 0]
   const z1 = [0, h, h]
   const z2 = [r, h, h]
-  const u = (sources: Placed[]): StaticStep => staticStepRun(mesh, rule, contentOf(mesh, sources), beats, record)
+  const u = (sources: Placed[]): StaticStep =>
+    staticStepRun(mesh, rule, contentOf(mesh, sources), beats, record)
   const c4 = u([
     { at: a, to: z1, units: sa },
     { at: b, to: z2, units: sb },
@@ -223,9 +380,13 @@ export function pairStep(mesh: RadionMesh, rule: StepRule, r: number, sa: number
   const c12 = u([{ at: z1, to: z2, units: 1 }])
   const ca2 = u([{ at: a, to: z2, units: 1 }])
   const cb1 = u([{ at: b, to: z1, units: 1 }])
-  const combine = (k: (c: StaticStep) => number): number => k(c4) - k(ca) - k(cb) + sa * sb * (k(c12) - k(ca2) - k(cb1))
+  const combine = (k: (c: StaticStep) => number): number =>
+    k(c4) - k(ca) - k(cb) + sa * sb * (k(c12) - k(ca2) - k(cb1))
 
-  return { w: combine(c => c.energy), tensionW: combine(c => c.tension / 2) }
+  return {
+    w: combine(c => c.energy),
+    tensionW: combine(c => c.tension / 2),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -233,10 +394,23 @@ export function pairStep(mesh: RadionMesh, rule: StepRule, r: number, sa: number
 
 // the links crossing the sphere of radius r about `center` (one end at distance <= r, the other beyond), the net lines
 // leaving through them, and the content inside
-export type Shell = { r: number; crossing: number; outward: number; inside: number }
+export type Shell = {
+  r: number
+  crossing: number
+  outward: number
+  inside: number
+}
 
-export function shells(mesh: RadionMesh, line: Int8Array, content: Int32Array, center: readonly number[], radii: readonly number[]): Shell[] {
-  const dist = Float64Array.from({ length: mesh.docks }, (_, y) => torusDistance(mesh, y, center))
+export function shells(
+  mesh: RadionMesh,
+  line: Int8Array,
+  content: Int32Array,
+  center: readonly number[],
+  radii: readonly number[],
+): Shell[] {
+  const dist = Float64Array.from({ length: mesh.docks }, (_, y) =>
+    torusDistance(mesh, y, center),
+  )
 
   return radii.map(r => {
     let crossing = 0
@@ -244,7 +418,9 @@ export function shells(mesh: RadionMesh, line: Int8Array, content: Int32Array, c
     let inside = 0
 
     for (let y = 0; y < mesh.docks; y++) {
-      if (dist[y]! <= r) inside += content[y]!
+      if (dist[y]! <= r) {
+        inside += content[y]!
+      }
 
       for (let h = 0; h < 9; h++) {
         const l = y * 9 + h
@@ -252,7 +428,10 @@ export function shells(mesh: RadionMesh, line: Int8Array, content: Int32Array, c
         const yin = dist[y]! <= r
         const zin = dist[z]! <= r
 
-        if (yin === zin) continue
+        if (yin === zin) {
+          continue
+        }
+
         crossing++
         outward += yin ? line[l]! : -line[l]!
       }
@@ -264,32 +443,57 @@ export function shells(mesh: RadionMesh, line: Int8Array, content: Int32Array, c
 
 // each unit in the order it was placed: its dock, the sink its line ends at, and the line's links with the sign each
 // changed by (applied in order from no lines, they give `line`: the lump grown one unit at a time, E-GRV-0109)
-export type CompressedUnit = { at: number; sink: number; path: [number, number][] }
+export type CompressedUnit = {
+  at: number
+  sink: number
+  path: [number, number][]
+}
 
-export type Compressed = { content: Int32Array; line: Int8Array; seconds: number; units: CompressedUnit[] }
+export type Compressed = {
+  content: Int32Array
+  line: Int8Array
+  seconds: number
+  units: CompressedUnit[]
+}
 
 // M units placed one at a time, each at the dock nearest the center (ties by dock index) from which a unit line can still
 // reach a sink with room (breadth first backward over the links with room), and routed there: the densest lump the lines'
 // capacity allows. The sinks: the M docks farthest from the center, one unit each (tmp/step-field-probe), or the M docks
 // given (one unit each: E-GRV-0111's sinks spread over the far husk, spreadSinks)
-export function compressLump(mesh: RadionMesh, center: readonly number[], m: number, capacity: number, sinks?: readonly number[]): Compressed {
+export function compressLump(
+  mesh: RadionMesh,
+  center: readonly number[],
+  m: number,
+  capacity: number,
+  sinks?: readonly number[],
+): Compressed {
   const t0 = Date.now()
   const inc = incidence(mesh)
-  const dist = Float64Array.from({ length: mesh.docks }, (_, y) => torusDistance(mesh, y, center))
-  const order = Array.from({ length: mesh.docks }, (_, y) => y).sort((p, q) => dist[p]! - dist[q]! || p - q)
+  const dist = Float64Array.from({ length: mesh.docks }, (_, y) =>
+    torusDistance(mesh, y, center),
+  )
+  const order = Array.from({ length: mesh.docks }, (_, y) => y).sort(
+    (p, q) => dist[p]! - dist[q]! || p - q,
+  )
   const content = new Int32Array(mesh.docks)
   const line = new Int8Array(mesh.docks * 9)
   const demand = new Int32Array(mesh.docks)
   const sink = new Uint8Array(mesh.docks)
 
-  if (sinks && sinks.length !== m) throw new Error('compressLump: one sink a unit')
-  for (const y of sinks ?? order.slice(mesh.docks - m)) (demand[y] = 1), (sink[y] = 1), (content[y] = -1)
+  if (sinks && sinks.length !== m) {
+    throw new Error('compressLump: one sink a unit')
+  }
+
+  for (const y of sinks ?? order.slice(mesh.docks - m)) {
+    ;((demand[y] = 1), (sink[y] = 1), (content[y] = -1))
+  }
 
   const reach = new Uint8Array(mesh.docks)
   const queue = new Int32Array(mesh.docks)
   const prev = new Int32Array(mesh.docks)
   const units: CompressedUnit[] = []
-  const other = (l: number, sg: number): number => (sg > 0 ? mesh.neighbour[l]! : Math.floor(l / 9))
+  const other = (l: number, sg: number): number =>
+    sg > 0 ? mesh.neighbour[l]! : Math.floor(l / 9)
 
   for (let unit = 0; unit < m; unit++) {
     // backward: every dock that can send a unit to a sink with demand left
@@ -297,7 +501,11 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
 
     let tail = 0
 
-    for (let y = 0; y < mesh.docks; y++) if (demand[y]! > 0) (reach[y] = 1), (queue[tail++] = y)
+    for (let y = 0; y < mesh.docks; y++) {
+      if (demand[y]! > 0) {
+        ;((reach[y] = 1), (queue[tail++] = y))
+      }
+    }
 
     for (let head = 0; head < tail; head++) {
       const q = queue[head]!
@@ -308,7 +516,10 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
         const p = other(l, sq)
 
         // p sends to q along l: p's sign is -sq
-        if (reach[p] || -sq * line[l]! >= capacity) continue
+        if (reach[p] || -sq * line[l]! >= capacity) {
+          continue
+        }
+
         reach[p] = 1
         queue[tail++] = p
       }
@@ -316,7 +527,11 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
 
     const from = order.find(y => reach[y] && !sink[y])
 
-    if (from === undefined) throw new Error(`compressLump: unit ${unit} of ${m} has nowhere to go`)
+    if (from === undefined) {
+      throw new Error(
+        `compressLump: unit ${unit} of ${m} has nowhere to go`,
+      )
+    }
 
     // forward: the nearest sink with demand from `from`
     prev.fill(-2)
@@ -333,28 +548,37 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
         const l = inc.link[y * 18 + k]!
         const sg = inc.sign[y * 18 + k]!
 
-        if (sg * line[l]! >= capacity) continue
+        if (sg * line[l]! >= capacity) {
+          continue
+        }
 
         const z = other(l, sg)
 
-        if (prev[z] !== -2) continue
+        if (prev[z] !== -2) {
+          continue
+        }
+
         prev[z] = y * 18 + k
+
         if (demand[z]! > 0) {
           found = z
           break
         }
+
         queue[tail++] = z
       }
     }
 
     let z = found
+
     const path: [number, number][] = []
 
     while (prev[z] !== -1) {
       const y = Math.floor(prev[z]! / 18)
       const k = prev[z]! % 18
 
-      line[inc.link[y * 18 + k]!] = line[inc.link[y * 18 + k]!]! + inc.sign[y * 18 + k]!
+      line[inc.link[y * 18 + k]!] =
+        line[inc.link[y * 18 + k]!]! + inc.sign[y * 18 + k]!
       path.push([inc.link[y * 18 + k]!, inc.sign[y * 18 + k]!])
       z = y
     }
@@ -368,13 +592,19 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
 }
 
 // the distinct torus distances of docks from `center` up to `limit`, ascending
-export function distinctRadii(mesh: RadionMesh, center: readonly number[], limit: number): number[] {
+export function distinctRadii(
+  mesh: RadionMesh,
+  center: readonly number[],
+  limit: number,
+): number[] {
   const set = new Set<number>()
 
   for (let y = 0; y < mesh.docks; y++) {
     const d = torusDistance(mesh, y, center)
 
-    if (d <= limit) set.add(Math.round(d * 1e9) / 1e9)
+    if (d <= limit) {
+      set.add(Math.round(d * 1e9) / 1e9)
+    }
   }
 
   return [...set].sort((a, b) => a - b)
@@ -386,7 +616,12 @@ export const CROSSING_DENSITY = (3 + 6 * Math.SQRT2) / 2
 // ---------------------------------------------------------------------------------------------------------
 // runs with hops
 
-export type Hop = { beat: number; from: readonly number[]; to: readonly number[]; units: number }
+export type Hop = {
+  beat: number
+  from: readonly number[]
+  to: readonly number[]
+  units: number
+}
 
 export type HopRun = {
   // per beat (1 .. beats), the state after the beat
@@ -400,7 +635,15 @@ export type HopRun = {
 // from zero field with the lines of `rho0` placed, `beats` beats; each hop is applied before beat hop.beat + 1 (after beat
 // hop.beat), unit by unit along the first fitting path; every beat Gauss's law is checked against the moving content;
 // then everything is undone back to the start and compared bit for bit
-export function hopRun(mesh: RadionMesh, rule: StepRule, rho0: Int32Array, hops: readonly Hop[], beats: number, record: StepRecord, keep?: (t: number, s: StepState) => void): HopRun {
+export function hopRun(
+  mesh: RadionMesh,
+  rule: StepRule,
+  rho0: Int32Array,
+  hops: readonly Hop[],
+  beats: number,
+  record: StepRecord,
+  keep?: (t: number, s: StepState) => void,
+): HopRun {
   const s = emptyStep(mesh)
 
   s.line.set(placeLines(mesh, rho0))
@@ -414,7 +657,9 @@ export function hopRun(mesh: RadionMesh, rule: StepRule, rho0: Int32Array, hops:
 
   for (let t = 1; t <= beats; t++) {
     for (const hop of hops) {
-      if (hop.beat !== t - 1) continue
+      if (hop.beat !== t - 1) {
+        continue
+      }
 
       const y = dockAt(mesh, hop.from)
       const z = dockAt(mesh, hop.to)
@@ -424,7 +669,10 @@ export function hopRun(mesh: RadionMesh, rule: StepRule, rho0: Int32Array, hops:
       for (let k = 0; k < hop.units; k++) {
         const i = fittingPath(s.line, candidates)
 
-        if (i < 0) throw new Error(`hopRun: no fitting path at beat ${t}`)
+        if (i < 0) {
+          throw new Error(`hopRun: no fitting path at beat ${t}`)
+        }
+
         applyPath(s.line, candidates[i]!, 1)
         used.push(candidates[i]!)
         rho[y]!--
@@ -438,24 +686,32 @@ export function hopRun(mesh: RadionMesh, rule: StepRule, rho0: Int32Array, hops:
     record.beats++
     record.gaussOff += gaussOff(mesh, s.line, rho)
     record.gaussChecks++
+
     if (t % 64 === 0 || t === beats) {
       record.curl += stepDepth(mesh, s.step).curl
       record.curlChecks++
       observe(rule, s, record)
     }
+
     keep?.(t, s)
   }
 
   const final = duplicateStep(s)
+
   let hopIndex = paths.length - 1
 
   for (let t = beats; t >= 1; t--) {
     stepBeatBack(mesh, rule, s, scratch)
 
     for (let k = hops.length - 1; k >= 0; k--) {
-      if (hops[k]!.beat !== t - 1) continue
+      if (hops[k]!.beat !== t - 1) {
+        continue
+      }
 
-      for (const p of [...paths[hopIndex]!].reverse()) applyPath(s.line, p, -1)
+      for (const p of [...paths[hopIndex]!].reverse()) {
+        applyPath(s.line, p, -1)
+      }
+
       hopIndex--
     }
   }
@@ -471,38 +727,75 @@ export function hopRun(mesh: RadionMesh, rule: StepRule, rho0: Int32Array, hops:
 // ---------------------------------------------------------------------------------------------------------
 // covariance: the image of a link under a symmetry S of the husk mesh (an integer 3x3 matrix)
 
-export function linkImage(mesh: RadionMesh, matrix: readonly (readonly number[])[], l: number): [number, number] {
+export function linkImage(
+  mesh: RadionMesh,
+  matrix: readonly (readonly number[])[],
+  l: number,
+): [number, number] {
   const y = Math.floor(l / 9)
   const h = l % 9
   const p = coordOf(mesh, y)
   const u = TRIT_HUSK_VECTORS[h]!
-  const apply = (v: readonly number[]): number[] => matrix.map(row => row[0]! * v[0]! + row[1]! * v[1]! + row[2]! * v[2]!)
+  const apply = (v: readonly number[]): number[] =>
+    matrix.map(
+      row => row[0]! * v[0]! + row[1]! * v[1]! + row[2]! * v[2]!,
+    )
   const su = apply(u)
   const sp = apply(p)
 
   for (let k = 0; k < 9; k++) {
     const w = TRIT_HUSK_VECTORS[k]!
 
-    if (w.every((c, i) => c === su[i])) return [dockAt(mesh, sp) * 9 + k, 1]
-    if (w.every((c, i) => c === -su[i]!)) return [dockAt(mesh, sp.map((c, i) => c + su[i]!)) * 9 + k, -1]
+    if (w.every((c, i) => c === su[i])) {
+      return [dockAt(mesh, sp) * 9 + k, 1]
+    }
+
+    if (w.every((c, i) => c === -su[i]!)) {
+      return [
+        dockAt(
+          mesh,
+          sp.map((c, i) => c + su[i]!),
+        ) *
+          9 +
+          k,
+        -1,
+      ]
+    }
   }
 
   throw new Error('linkImage: not a symmetry of the husk directions')
 }
 
 // the steps, rates and rests of b equal a's carried by S, bit for bit (the lines are bookkeeping, routed afresh)
-export function sameUnder(mesh: RadionMesh, matrix: readonly (readonly number[])[], a: StepState, b: StepState): boolean {
+export function sameUnder(
+  mesh: RadionMesh,
+  matrix: readonly (readonly number[])[],
+  a: StepState,
+  b: StepState,
+): boolean {
   for (let l = 0; l < a.step.length; l++) {
     const [m, sg] = linkImage(mesh, matrix, l)
 
-    if (b.step[m] !== sg * a.step[l]! && !(a.step[l] === 0 && b.step[m] === 0)) return false
+    if (
+      b.step[m] !== sg * a.step[l]! &&
+      !(a.step[l] === 0 && b.step[m] === 0)
+    ) {
+      return false
+    }
   }
 
   for (let y = 0; y < mesh.docks; y++) {
     const p = coordOf(mesh, y)
-    const z = dockAt(mesh, matrix.map(row => row[0]! * p[0]! + row[1]! * p[1]! + row[2]! * p[2]!))
+    const z = dockAt(
+      mesh,
+      matrix.map(
+        row => row[0]! * p[0]! + row[1]! * p[1]! + row[2]! * p[2]!,
+      ),
+    )
 
-    if (b.rate[z] !== a.rate[y] || b.rest[z] !== a.rest[y]) return false
+    if (b.rate[z] !== a.rate[y] || b.rest[z] !== a.rest[y]) {
+      return false
+    }
   }
 
   return true
@@ -511,9 +804,19 @@ export function sameUnder(mesh: RadionMesh, matrix: readonly (readonly number[])
 // ---------------------------------------------------------------------------------------------------------
 // the radion beside it: the depth found by summation against E-GRV-0079's integer depth, beat for beat
 
-export type Equivalence = { beats: number; largestDepth: number; largestDifference: number }
+export type Equivalence = {
+  beats: number
+  largestDepth: number
+  largestDifference: number
+}
 
-export function radionEquivalence(side: number, depth: number, levels: number, rho: Int32Array, beats: number): Equivalence {
+export function radionEquivalence(
+  side: number,
+  depth: number,
+  levels: number,
+  rho: Int32Array,
+  beats: number,
+): Equivalence {
   const mesh = radionMesh([side, side, side])
   const rr = radionRule(depth, 3)
   const sr = stepRule(depth, levels)
@@ -539,7 +842,10 @@ export function radionEquivalence(side: number, depth: number, levels: number, r
       const theirs = x[y]! - x[0]!
 
       largestDepth = Math.max(largestDepth, Math.abs(theirs))
-      largestDifference = Math.max(largestDifference, Math.abs(mine - theirs))
+      largestDifference = Math.max(
+        largestDifference,
+        Math.abs(mine - theirs),
+      )
     }
   }
 
@@ -576,7 +882,13 @@ export type HorizonRun = {
 
 export const WIDE = 2187
 
-export function horizonRun(side: number, depth: number, levels: number, m: number, beats: number): HorizonRun {
+export function horizonRun(
+  side: number,
+  depth: number,
+  levels: number,
+  m: number,
+  beats: number,
+): HorizonRun {
   const t0 = Date.now()
   const mesh = radionMesh([side, side, side])
   const center = [side / 2, side / 2, side / 2]
@@ -593,20 +905,35 @@ export function horizonRun(side: number, depth: number, levels: number, m: numbe
   const sa = stepScratch(mesh)
   const sb = stepScratch(mesh)
   const tally = newStepTally()
+
   const midpoint = (l: number): number => {
     const y = Math.floor(l / 9)
     const p = coordOf(mesh, y)
     const u = TRIT_HUSK_VECTORS[l % 9]!
 
-    return Math.sqrt(p.reduce((s, v, i) => s + (Math.min(mod(v + u[i]! / 2 - center[i]!, side), mod(center[i]! - v - u[i]! / 2, side))) ** 2, 0))
+    return Math.sqrt(
+      p.reduce(
+        (s, v, i) =>
+          s +
+          Math.min(
+            mod(v + u[i]! / 2 - center[i]!, side),
+            mod(center[i]! - v - u[i]! / 2, side),
+          ) **
+            2,
+        0,
+      ),
+    )
   }
+
   const mean = new Float64Array(a.step.length)
+
   let weight = 0
   let firstWrap = 0
   let firstWrapDistances: number[] = []
   let farthestWrap = 0
   let wideMax = 0
   let wideFarthestOver = 0
+
   const energyStart = stepEnergy(mesh, trit, a, lump.content).energy
 
   for (let t = 1; t <= beats; t++) {
@@ -620,8 +947,13 @@ export function horizonRun(side: number, depth: number, levels: number, m: numbe
     for (let l = 0; l < b.step.length; l++) {
       const f = Math.abs(b.step[l]!) / u
 
-      if (f > wideMax) wideMax = f
-      if (f > 1.5) wideFarthestOver = Math.max(wideFarthestOver, midpoint(l))
+      if (f > wideMax) {
+        wideMax = f
+      }
+
+      if (f > 1.5) {
+        wideFarthestOver = Math.max(wideFarthestOver, midpoint(l))
+      }
     }
 
     if (tally.fWraps + tally.vWraps > before) {
@@ -629,18 +961,34 @@ export function horizonRun(side: number, depth: number, levels: number, m: numbe
 
       for (let l = 0; l < a.step.length; l++) {
         // a link that wrapped this beat: its step moved by more than a half window from the last beat's value
-        const last = a.step[l]! - radionWeight(l % 9) * (a.rate[Math.floor(l / 9)]! - a.rate[mesh.neighbour[l]!]!)
+        const last =
+          a.step[l]! -
+          radionWeight(l % 9) *
+            (a.rate[Math.floor(l / 9)]! - a.rate[mesh.neighbour[l]!]!)
 
-        if (Math.abs(last) > trit.top) wrapped.push(midpoint(l))
+        if (Math.abs(last) > trit.top) {
+          wrapped.push(midpoint(l))
+        }
       }
 
-      if (firstWrap === 0) (firstWrap = t), (firstWrapDistances = [...new Set(wrapped.map(d => Math.round(d * 100) / 100))].sort((p, q) => p - q))
-      for (const d of wrapped) farthestWrap = Math.max(farthestWrap, d)
+      if (firstWrap === 0) {
+        ;((firstWrap = t),
+          (firstWrapDistances = [
+            ...new Set(wrapped.map(d => Math.round(d * 100) / 100)),
+          ].sort((p, q) => p - q)))
+      }
+
+      for (const d of wrapped) {
+        farthestWrap = Math.max(farthestWrap, d)
+      }
     }
 
     const w = Math.sin((Math.PI * t) / beats) ** 2
 
-    for (let l = 0; l < mean.length; l++) mean[l] = mean[l]! + (w * b.step[l]!) / u
+    for (let l = 0; l < mean.length; l++) {
+      mean[l] = mean[l]! + (w * b.step[l]!) / u
+    }
+
     weight += w
   }
 
@@ -652,13 +1000,21 @@ export function horizonRun(side: number, depth: number, levels: number, m: numbe
     const f = Math.abs(mean[l]! / weight)
 
     staticMax = Math.max(staticMax, f)
-    if (f > 1.5) staticFarthestOver = Math.max(staticFarthestOver, midpoint(l))
-    if (f > 0.75) staticFarthestHalf = Math.max(staticFarthestHalf, midpoint(l))
+
+    if (f > 1.5) {
+      staticFarthestOver = Math.max(staticFarthestOver, midpoint(l))
+    }
+
+    if (f > 0.75) {
+      staticFarthestHalf = Math.max(staticFarthestHalf, midpoint(l))
+    }
   }
 
   const end = stepEnergy(mesh, trit, a, lump.content)
 
-  for (let t = 0; t < beats; t++) stepBeatBack(mesh, trit, a, sa)
+  for (let t = 0; t < beats; t++) {
+    stepBeatBack(mesh, trit, a, sa)
+  }
 
   return {
     m,

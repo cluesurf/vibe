@@ -53,7 +53,10 @@ export function encodeDock(state: ArrayLike<number>): number {
   return code
 }
 
-export function decodeDock(code: number, into: Int8Array = new Int8Array(DEGREE)): Int8Array {
+export function decodeDock(
+  code: number,
+  into: Int8Array = new Int8Array(DEGREE),
+): Int8Array {
   let c = code
 
   for (let d = 0; d < DEGREE; d++) {
@@ -67,7 +70,8 @@ export function decodeDock(code: number, into: Int8Array = new Int8Array(DEGREE)
 }
 
 // the index of a local point (x, y, z, w) in a cube of side n
-const pointIndex = (p: readonly number[], n: number): number => (p[0] ?? 0) + n * ((p[1] ?? 0) + n * ((p[2] ?? 0) + n * (p[3] ?? 0)))
+const pointIndex = (p: readonly number[], n: number): number =>
+  (p[0] ?? 0) + n * ((p[1] ?? 0) + n * ((p[2] ?? 0) + n * (p[3] ?? 0)))
 
 export type HashLifeStats = {
   nodes: number
@@ -101,21 +105,37 @@ export type HashLife = {
   readonly stats: () => HashLifeStats
   // a universe holding these docks (Z^4 vectors with even sum, full 24-slot states) and this fill at beat
   // `beat`, vacuum everywhere else
-  readonly universe: (input: { docks?: readonly { vector: readonly number[]; state: ArrayLike<number> }[]; fill?: Fill; beat: number }) => Universe
+  readonly universe: (input: {
+    docks?: readonly {
+      vector: readonly number[]
+      state: ArrayLike<number>
+    }[]
+    fill?: Fill
+    beat: number
+  }) => Universe
   // advance by 2^j beats
   readonly advance: (u: Universe, j: number) => Universe
   // every dock that differs from the vacuum, with its Z^4 vector
-  readonly differences: (u: Universe) => { vector: number[]; state: Int8Array }[]
+  readonly differences: (
+    u: Universe,
+  ) => { vector: number[]; state: Int8Array }[]
   // how many docks differ from the vacuum, counted through shared subtrees once
   readonly differenceCount: (u: Universe) => number
   // the state of one dock (vacuum outside the root)
-  readonly stateAt: (u: Universe, vector: readonly number[]) => Int8Array
+  readonly stateAt: (
+    u: Universe,
+    vector: readonly number[],
+  ) => Int8Array
   // docks in the root (even-sum points)
   readonly rootDocks: (u: Universe) => number
   readonly vacuum: (t: number) => Int8Array
 }
 
-export function makeHashLife(input: { forward: (t: number) => Collision; period: number; maxNodes?: number }): HashLife {
+export function makeHashLife(input: {
+  forward: (t: number) => Collision
+  period: number
+  maxNodes?: number
+}): HashLife {
   const { forward, period } = input
   const maxNodes = input.maxNodes ?? 1 << 22
   const rules = Array.from({ length: period }, (_, t) => forward(t))
@@ -130,11 +150,18 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     vacua.push(next)
   }
 
-  if (!(vacua[period] ?? new Int8Array(0)).every((x, d) => x === (vacua[0]?.[d] ?? 0))) {
-    throw new Error(`hash life: the vacuum does not return in ${period} beats`)
+  if (
+    !(vacua[period] ?? new Int8Array(0)).every(
+      (x, d) => x === (vacua[0]?.[d] ?? 0),
+    )
+  ) {
+    throw new Error(
+      `hash life: the vacuum does not return in ${period} beats`,
+    )
   }
 
-  const vacuum = (t: number): Int8Array => vacua[((t % period) + period) % period] ?? new Int8Array(DEGREE)
+  const vacuum = (t: number): Int8Array =>
+    vacua[((t % period) + period) % period] ?? new Int8Array(DEGREE)
 
   // node store
   let capacity = 1 << 16
@@ -144,8 +171,16 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
   let count = 0
   let indexSize = 1 << 17
   let index = new Int32Array(indexSize).fill(-1)
+
   const leafIds = new Map<number, number>()
-  const stats: HashLifeStats = { nodes: 0, leaves: 0, resultCalls: 0, resultMisses: 0, baseCalls: 0, baseMisses: 0 }
+  const stats: HashLifeStats = {
+    nodes: 0,
+    leaves: 0,
+    resultCalls: 0,
+    resultMisses: 0,
+    baseCalls: 0,
+    baseMisses: 0,
+  }
 
   const allocate = (): number => {
     if (count >= maxNodes) {
@@ -155,7 +190,11 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     if (count >= capacity) {
       const bigger = capacity * 2
 
-      level = Uint8Array.from({ length: bigger }, (_, i) => level[i] ?? 0)
+      level = Uint8Array.from(
+        { length: bigger },
+        (_, i) => level[i] ?? 0,
+      )
+
       const k = new Int32Array(bigger * 16)
 
       k.set(kids)
@@ -264,6 +303,7 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
   // the vacuum node of a level at a phase
   const vacuumNodes = new Map<number, number>()
+
   const vacuumNode = (k: number, phase: number): number => {
     const key = k * period + phase
     const found = vacuumNodes.get(key)
@@ -279,7 +319,15 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     } else if (k === 1) {
       const dock = vacuumNode(0, phase)
 
-      id = node(Array.from({ length: 16 }, (_, c) => ((c & 1) + ((c >> 1) & 1) + ((c >> 2) & 1) + ((c >> 3) & 1)) % 2 === 0 ? dock : NONE))
+      id = node(
+        Array.from({ length: 16 }, (_, c) =>
+          ((c & 1) + ((c >> 1) & 1) + ((c >> 2) & 1) + ((c >> 3) & 1)) %
+            2 ===
+          0
+            ? dock
+            : NONE,
+        ),
+      )
     } else {
       const child = vacuumNode(k - 1, phase)
 
@@ -313,18 +361,36 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
   // the node of the 2^4 grid entries of a grid of side n at a corner
   const scratchKids = new Array<number>(16)
-  const fromGrid = (grid: number[], n: number, a: number, b: number, c: number, e: number): number => {
+
+  const fromGrid = (
+    grid: number[],
+    n: number,
+    a: number,
+    b: number,
+    c: number,
+    e: number,
+  ): number => {
     for (let q = 0; q < 16; q++) {
-      scratchKids[q] = grid[a + (q & 1) + n * (b + ((q >> 1) & 1) + n * (c + ((q >> 2) & 1) + n * (e + ((q >> 3) & 1))))] ?? 0
+      scratchKids[q] =
+        grid[
+          a +
+            (q & 1) +
+            n *
+              (b +
+                ((q >> 1) & 1) +
+                n * (c + ((q >> 2) & 1) + n * (e + ((q >> 3) & 1))))
+        ] ?? 0
     }
 
     return node(scratchKids)
   }
 
-  const center = (id: number): number => fromGrid(grandchildren(id), 4, 1, 1, 1, 1)
+  const center = (id: number): number =>
+    fromGrid(grandchildren(id), 4, 1, 1, 1, 1)
 
   // collided dock states, by code and phase
   const collided = new Map<number, Int8Array>()
+
   const collide = (code: number, phase: number): Int8Array => {
     const key = code * period + phase
     const found = collided.get(key)
@@ -383,6 +449,7 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
       for (let d = 0; d < DEGREE; d++) {
         const source = p - (ROOT_OFFSETS[d] ?? 0)
+
         let s = states[source]
 
         if (!s) {
@@ -441,7 +508,14 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     const children = new Array<number>(16)
 
     for (let q = 0; q < 16; q++) {
-      const sub = fromGrid(first, 3, q & 1, (q >> 1) & 1, (q >> 2) & 1, (q >> 3) & 1)
+      const sub = fromGrid(
+        first,
+        3,
+        q & 1,
+        (q >> 1) & 1,
+        (q >> 2) & 1,
+        (q >> 3) & 1,
+      )
 
       children[q] = result(sub, phase2, half)
     }
@@ -455,12 +529,43 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
   // build a node of level k with corner `origin`: listed docks, else the fill inside its box, else vacuum. A
   // node wholly inside a periodic fill, of a side the period divides, is the same node at every corner
-  const build = (k: number, origin: readonly number[], phase: number, docks: Map<string, number>, boxes: readonly number[][], fill: Fill | undefined, tiles: Map<number, number>): number => {
+  const build = (
+    k: number,
+    origin: readonly number[],
+    phase: number,
+    docks: Map<string, number>,
+    boxes: readonly number[][],
+    fill: Fill | undefined,
+    tiles: Map<number, number>,
+  ): number => {
     const side = 2 ** k
-    const listed = boxes.some(v => v.every((x, a) => x >= (origin[a] ?? 0) && x < (origin[a] ?? 0) + side))
-    const meets = fill !== undefined && origin.every((x, a) => x < (fill.lo[a] ?? 0) + fill.side && x + side > (fill.lo[a] ?? 0))
-    const within = fill !== undefined && origin.every((x, a) => x >= (fill.lo[a] ?? 0) && x + side <= (fill.lo[a] ?? 0) + fill.side)
-    const tiled = within && !listed && fill?.period !== undefined && side % fill.period === 0 && origin.every((x, a) => (x - (fill.lo[a] ?? 0)) % (fill.period ?? 1) === 0)
+    const listed = boxes.some(v =>
+      v.every(
+        (x, a) => x >= (origin[a] ?? 0) && x < (origin[a] ?? 0) + side,
+      ),
+    )
+    const meets =
+      fill !== undefined &&
+      origin.every(
+        (x, a) =>
+          x < (fill.lo[a] ?? 0) + fill.side &&
+          x + side > (fill.lo[a] ?? 0),
+      )
+    const within =
+      fill !== undefined &&
+      origin.every(
+        (x, a) =>
+          x >= (fill.lo[a] ?? 0) &&
+          x + side <= (fill.lo[a] ?? 0) + fill.side,
+      )
+    const tiled =
+      within &&
+      !listed &&
+      fill?.period !== undefined &&
+      side % fill.period === 0 &&
+      origin.every(
+        (x, a) => (x - (fill.lo[a] ?? 0)) % (fill.period ?? 1) === 0,
+      )
 
     if (!listed && !meets) {
       return vacuumNode(k, phase)
@@ -481,11 +586,28 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
       const listedCode = docks.get(origin.join(','))
 
-      id = leaf(listedCode ?? (within && fill ? encodeDock(fill.state(origin)) : encodeDock(vacuum(phase))))
+      id = leaf(
+        listedCode ??
+          (within && fill
+            ? encodeDock(fill.state(origin))
+            : encodeDock(vacuum(phase))),
+      )
     } else {
       const half = side / 2
 
-      id = node(Array.from({ length: 16 }, (_, q) => build(k - 1, origin.map((x, a) => x + ((q >> a) & 1) * half), phase, docks, boxes, fill, tiles)))
+      id = node(
+        Array.from({ length: 16 }, (_, q) =>
+          build(
+            k - 1,
+            origin.map((x, a) => x + ((q >> a) & 1) * half),
+            phase,
+            docks,
+            boxes,
+            fill,
+            tiles,
+          ),
+        ),
+      )
     }
 
     if (tiled) {
@@ -495,26 +617,45 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     return id
   }
 
-  const universe = (u: { docks?: readonly { vector: readonly number[]; state: ArrayLike<number> }[]; fill?: Fill; beat: number }): Universe => {
+  const universe = (u: {
+    docks?: readonly {
+      vector: readonly number[]
+      state: ArrayLike<number>
+    }[]
+    fill?: Fill
+    beat: number
+  }): Universe => {
     const phase = ((u.beat % period) + period) % period
     const lookup = new Map<string, number>()
     const listed = u.docks ?? []
 
     for (const d of listed) {
       if (d.vector.reduce((s, x) => s + x, 0) % 2 !== 0) {
-        throw new Error('hash life: a dock must have even coordinate sum')
+        throw new Error(
+          'hash life: a dock must have even coordinate sum',
+        )
       }
 
       lookup.set(d.vector.join(','), encodeDock(d.state))
     }
 
     const vectors = listed.map(d => [...d.vector])
-    const corners = u.fill ? [[...u.fill.lo], u.fill.lo.map(x => x + (u.fill?.side ?? 1) - 1)] : []
+    const corners = u.fill
+      ? [
+          [...u.fill.lo],
+          u.fill.lo.map(x => x + (u.fill?.side ?? 1) - 1),
+        ]
+      : []
     const all = [...vectors, ...corners]
+
     // the root is centred on the lattice origin, corner -2^(k-1) on every axis, so it is aligned with every
     // power of two up to its half side (which a periodic fill's tiles need)
     let k = 3
-    const extent = Math.max(0, ...all.flatMap(v => v.map(x => (x < 0 ? -x : x + 1))))
+
+    const extent = Math.max(
+      0,
+      ...all.flatMap(v => v.map(x => (x < 0 ? -x : x + 1))),
+    )
 
     while (2 ** (k - 1) < extent + 1) {
       k += 1
@@ -522,17 +663,37 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
     const origin = [0, 1, 2, 3].map(() => -(2 ** (k - 1)))
 
-    if (u.fill && (u.fill.side % 2 !== 0 || u.fill.lo.some(x => x % 2 !== 0) || (u.fill.period !== undefined && u.fill.side % u.fill.period !== 0))) {
-      throw new Error('hash life: a fill needs an even corner and side, and a period dividing its side')
+    if (
+      u.fill &&
+      (u.fill.side % 2 !== 0 ||
+        u.fill.lo.some(x => x % 2 !== 0) ||
+        (u.fill.period !== undefined &&
+          u.fill.side % u.fill.period !== 0))
+    ) {
+      throw new Error(
+        'hash life: a fill needs an even corner and side, and a period dividing its side',
+      )
     }
 
-    return { root: build(k, origin, phase, lookup, vectors, u.fill, new Map()), level: k, origin, beat: u.beat }
+    return {
+      root: build(k, origin, phase, lookup, vectors, u.fill, new Map()),
+      level: k,
+      origin,
+      beat: u.beat,
+    }
   }
 
   // the bounding box of what differs from the vacuum, in local coordinates, or undefined; memoized by node
   // and phase, so a shared subtree is measured once
-  const boundsMemo = new Map<number, { lo: number[]; hi: number[] } | null>()
-  const bounds = (id: number, phase: number): { lo: number[]; hi: number[] } | undefined => {
+  const boundsMemo = new Map<
+    number,
+    { lo: number[]; hi: number[] } | null
+  >()
+
+  const bounds = (
+    id: number,
+    phase: number,
+  ): { lo: number[]; hi: number[] } | undefined => {
     const key = id * period + phase
     const found = boundsMemo.get(key)
 
@@ -550,7 +711,11 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
     return box
   }
-  const measureBounds = (id: number, phase: number): { lo: number[]; hi: number[] } | undefined => {
+
+  const measureBounds = (
+    id: number,
+    phase: number,
+  ): { lo: number[]; hi: number[] } | undefined => {
     const k = level[id] ?? 0
 
     if (id === vacuumNode(k, phase)) {
@@ -558,10 +723,13 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     }
 
     if (k === 0) {
-      return id === NONE ? undefined : { lo: [0, 0, 0, 0], hi: [0, 0, 0, 0] }
+      return id === NONE
+        ? undefined
+        : { lo: [0, 0, 0, 0], hi: [0, 0, 0, 0] }
     }
 
     const half = 2 ** (k - 1)
+
     let box: { lo: number[]; hi: number[] } | undefined
 
     for (let q = 0; q < 16; q++) {
@@ -575,7 +743,12 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
       const lo = inner.lo.map((x, a) => x + (shift[a] ?? 0))
       const hi = inner.hi.map((x, a) => x + (shift[a] ?? 0))
 
-      box = box ? { lo: box.lo.map((x, a) => Math.min(x, lo[a] ?? 0)), hi: box.hi.map((x, a) => Math.max(x, hi[a] ?? 0)) } : { lo, hi }
+      box = box
+        ? {
+            lo: box.lo.map((x, a) => Math.min(x, lo[a] ?? 0)),
+            hi: box.hi.map((x, a) => Math.max(x, hi[a] ?? 0)),
+          }
+        : { lo, hi }
     }
 
     return box
@@ -593,20 +766,35 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
       for (let g = 0; g < 16; g++) {
         // block coordinate in the 4^4 grid of level-(k-1) blocks
-        const block = [0, 1, 2, 3].map(a => (((q >> a) & 1) << 1) | ((g >> a) & 1))
+        const block = [0, 1, 2, 3].map(
+          a => (((q >> a) & 1) << 1) | ((g >> a) & 1),
+        )
         const inner = block.every(x => x === 1 || x === 2)
 
-        grandkids.push(inner ? (kids[u.root * 16 + block.reduce((s, x, a) => s + ((x - 1) << a), 0)] ?? 0) : empty)
+        grandkids.push(
+          inner
+            ? (kids[
+                u.root * 16 +
+                  block.reduce((s, x, a) => s + ((x - 1) << a), 0)
+              ] ?? 0)
+            : empty,
+        )
       }
 
       children.push(node(grandkids))
     }
 
-    return { root: node(children), level: k + 1, origin: u.origin.map(x => x - 2 ** (k - 1)), beat: u.beat }
+    return {
+      root: node(children),
+      level: k + 1,
+      origin: u.origin.map(x => x - 2 ** (k - 1)),
+      beat: u.beat,
+    }
   }
 
   const advance = (start: Universe, j: number): Universe => {
     let u = start
+
     const phase = ((u.beat % period) + period) % period
 
     for (;;) {
@@ -615,7 +803,12 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
       const margin = 2 ** j
       const fits =
         u.level >= j + 2 &&
-        (!box || box.lo.every((x, a) => x >= side / 4 + margin && (box.hi[a] ?? 0) < (3 * side) / 4 - margin))
+        (!box ||
+          box.lo.every(
+            (x, a) =>
+              x >= side / 4 + margin &&
+              (box.hi[a] ?? 0) < (3 * side) / 4 - margin,
+          ))
 
       if (fits) {
         break
@@ -626,12 +819,20 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
     const next = result(u.root, phase, j)
 
-    return { root: next, level: u.level - 1, origin: u.origin.map(x => x + 2 ** (u.level - 2)), beat: u.beat + 2 ** j }
+    return {
+      root: next,
+      level: u.level - 1,
+      origin: u.origin.map(x => x + 2 ** (u.level - 2)),
+      beat: u.beat + 2 ** j,
+    }
   }
 
-  const differences = (u: Universe): { vector: number[]; state: Int8Array }[] => {
+  const differences = (
+    u: Universe,
+  ): { vector: number[]; state: Int8Array }[] => {
     const phase = ((u.beat % period) + period) % period
     const found: { vector: number[]; state: Int8Array }[] = []
+
     const walk = (id: number, origin: number[]): void => {
       const k = level[id] ?? 0
 
@@ -640,7 +841,10 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
       }
 
       if (k === 0) {
-        found.push({ vector: origin, state: decodeDock(codes[id] ?? 0) })
+        found.push({
+          vector: origin,
+          state: decodeDock(codes[id] ?? 0),
+        })
 
         return
       }
@@ -648,7 +852,10 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
       const half = 2 ** (k - 1)
 
       for (let q = 0; q < 16; q++) {
-        walk(kids[id * 16 + q] ?? 0, origin.map((x, a) => x + ((q >> a) & 1) * half))
+        walk(
+          kids[id * 16 + q] ?? 0,
+          origin.map((x, a) => x + ((q >> a) & 1) * half),
+        )
       }
     }
 
@@ -659,6 +866,7 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
   // how many docks differ from the vacuum, memoized by node and phase
   const countMemo = new Map<number, number>()
+
   const countIn = (id: number, phase: number): number => {
     const k = level[id] ?? 0
 
@@ -688,7 +896,10 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     return total
   }
 
-  const stateAt = (u: Universe, vector: readonly number[]): Int8Array => {
+  const stateAt = (
+    u: Universe,
+    vector: readonly number[],
+  ): Int8Array => {
     const local = vector.map((x, a) => x - (u.origin[a] ?? 0))
     const side = 2 ** u.level
 
@@ -700,7 +911,10 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
 
     for (let k = u.level; k > 0; k--) {
       const half = 2 ** (k - 1)
-      const q = local.reduce((s, x, a) => s + ((Math.floor(x / half) % 2) << a), 0)
+      const q = local.reduce(
+        (s, x, a) => s + ((Math.floor(x / half) % 2) << a),
+        0,
+      )
 
       id = kids[id * 16 + q] ?? 0
     }
@@ -714,7 +928,8 @@ export function makeHashLife(input: { forward: (t: number) => Collision; period:
     universe,
     advance,
     differences,
-    differenceCount: u => countIn(u.root, ((u.beat % period) + period) % period),
+    differenceCount: u =>
+      countIn(u.root, ((u.beat % period) + period) % period),
     stateAt,
     rootDocks: u => 2 ** (4 * u.level) / 2,
     vacuum,

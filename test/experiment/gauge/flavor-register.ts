@@ -140,12 +140,25 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { cycleMatrix, cyclePhases } from '@/code/measure/swap-cone'
-import { ringUnit, unitAngle, unitNormExact } from '@/code/measure/swap-string'
+import {
+  ringUnit,
+  unitAngle,
+  unitNormExact,
+} from '@/code/measure/swap-string'
 import { type RingUnit } from '@/code/rule/swap-mixer'
-import { radialPaths, restFrame, type Census, type Frame } from '@/code/measure/two-beat'
+import {
+  radialPaths,
+  restFrame,
+  type Census,
+  type Frame,
+} from '@/code/measure/two-beat'
 import {
   commutesExactly,
   cycleMasslessPairN,
@@ -162,7 +175,19 @@ import {
   scaled,
   singletProjector24,
 } from '@/code/measure/spinor-register'
-import { chiralPiece, chirality2, det4, mixedCensus, phaseMismatch, SECTOR_ROOTS, sectorBasis, sectorBlock, trimaximal, unitaryExact, volumeRight } from '@/code/measure/chiral-register'
+import {
+  chiralPiece,
+  chirality2,
+  det4,
+  mixedCensus,
+  phaseMismatch,
+  SECTOR_ROOTS,
+  sectorBasis,
+  sectorBlock,
+  trimaximal,
+  unitaryExact,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import {
   commutantRows,
   FLAVOR_MODES,
@@ -203,7 +228,12 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 const FLAVOR_UNITS: readonly (readonly [number, number])[] = [
   [2, 2],
@@ -226,9 +256,23 @@ const COST = 1e-3
 const INSTRUMENT_TOLERANCE = 1e-12
 const INSTRUMENT_BEATS = 8
 
-export type FlavorPlan = { momenta: number; censusSteps: number; weylExtra: number; symmetryMomenta: number; toyMomenta: number; beats: number }
+export type FlavorPlan = {
+  momenta: number
+  censusSteps: number
+  weylExtra: number
+  symmetryMomenta: number
+  toyMomenta: number
+  beats: number
+}
 
-export const GATE_PLAN: FlavorPlan = { momenta: 64, censusSteps: 300, weylExtra: 64, symmetryMomenta: 8, toyMomenta: 2, beats: 12 }
+export const GATE_PLAN: FlavorPlan = {
+  momenta: 64,
+  censusSteps: 300,
+  weylExtra: 64,
+  symmetryMomenta: 8,
+  toyMomenta: 2,
+  beats: 12,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -236,7 +280,7 @@ export default experiment({
   id: 'gauge/flavor-register',
   code: 'E-FRC-0259',
   title:
-    'three flavors with the trimaximal mixing on the Clifford register do not break C and CP together, fail as derived: a flavor index W(F4) does not touch keeps every one-body property of E-FRC-0258 exactly (three copies of E-SPN-0160 at three exact light masses, gamma = 0, c/4, R = tan m/m, isotropy, every census closed, mixed flavors at 2 min M), but mixing on one half is removed by a change of basis, and no piece that keeps E-SPN-0160\'s Dirac pairing can couple the halves, since its register operators are the right multiplications of Cl+(4) and the volume element is central (rank-exact commutant, with rotations only the chiral masses remain); the one covariant coupling, a phase on the volume blade, makes the trimaximal phase physical (an exact rational T-odd asymmetry, odd in V, rephasing invariant, det[H+, H-] = -2iJ prod dc^2) at the cost of the Dirac band and CPT; so C and CP together, and baryon-number violation, need a many-body interaction between the halves, and the mirror half meets this one only through depth and that interaction',
+    "three flavors with the trimaximal mixing on the Clifford register do not break C and CP together, fail as derived: a flavor index W(F4) does not touch keeps every one-body property of E-FRC-0258 exactly (three copies of E-SPN-0160 at three exact light masses, gamma = 0, c/4, R = tan m/m, isotropy, every census closed, mixed flavors at 2 min M), but mixing on one half is removed by a change of basis, and no piece that keeps E-SPN-0160's Dirac pairing can couple the halves, since its register operators are the right multiplications of Cl+(4) and the volume element is central (rank-exact commutant, with rotations only the chiral masses remain); the one covariant coupling, a phase on the volume blade, makes the trimaximal phase physical (an exact rational T-odd asymmetry, odd in V, rephasing invariant, det[H+, H-] = -2iJ prod dc^2) at the cost of the Dirac band and CPT; so C and CP together, and baryon-number violation, need a many-body interaction between the halves, and the mirror half meets this one only through depth and that interaction",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -251,37 +295,96 @@ const unitValue = (u: RingUnit): [number, number] => {
 
   return [Math.cos(t), Math.sin(t)]
 }
-const conj = (u: readonly [number, number]): [number, number] => [u[0], -u[1]]
+
+const conj = (u: readonly [number, number]): [number, number] => [
+  u[0],
+  -u[1],
+]
 const mOf = (u: RingUnit): number => wrap(unitAngle(u) - Math.PI) / 2
-const mm = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number[][] => a.map(r => (b[0] as number[]).map((_, j) => r.reduce((s, x, k) => s + x * ((b[k] as number[])[j] as number), 0)))
-const tr8 = (a: readonly (readonly number[])[]): number[][] => (a[0] as number[]).map((_, j) => a.map(r => r[j] as number))
-const eqM = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): boolean => a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
-const scalar3 = (u: readonly [number, number]): Complex => ({ re: [0, 1, 2].map(i => [0, 1, 2].map(j => (i === j ? u[0] : 0))), im: [0, 1, 2].map(i => [0, 1, 2].map(j => (i === j ? u[1] : 0))) })
+const mm = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): number[][] =>
+  a.map(r =>
+    (b[0] as number[]).map((_, j) =>
+      r.reduce((s, x, k) => s + x * (b[k] as number[])[j]!, 0),
+    ),
+  )
+const tr8 = (a: readonly (readonly number[])[]): number[][] =>
+  (a[0] as number[]).map((_, j) => a.map(r => r[j]!))
+const eqM = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): boolean =>
+  a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
+const scalar3 = (u: readonly [number, number]): Complex => ({
+  re: [0, 1, 2].map(i => [0, 1, 2].map(j => (i === j ? u[0] : 0))),
+  im: [0, 1, 2].map(i => [0, 1, 2].map(j => (i === j ? u[1] : 0))),
+})
 const asFraction = (x: QW): number => Number(x.a) / Number(x.d)
 
 export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const group = f4Group()
   const rotations = group.filter(g => det4(g.matrix) === 1)
   const J = volumeRight()
   const basis = sectorBasis(J)
   const gam = gammaMatrices()
-  const bilinears = [0, 1, 2, 3].flatMap(i => [0, 1, 2, 3].map(j => mm(tr8(gam[i] as number[][]), gam[j] as number[][])))
+  const bilinears = [0, 1, 2, 3].flatMap(i =>
+    [0, 1, 2, 3].map(j => mm(tr8(gam[i]!), gam[j]!)),
+  )
 
   // ---------------- A1: the commutant ----------------
   const nullBilinears = 64 - rankExact(commutantRows(bilinears, 1))
   const rights = EVEN.map(rightMultiplication)
-  const rightsCommute = rights.every(R => bilinears.every(L => eqM(mm(R, L), mm(L, R))))
-  const rightsRank = rankExact(rights.map(R => R.flat().map(x => BigInt(x))))
+  const rightsCommute = rights.every(R =>
+    bilinears.every(L => eqM(mm(R, L), mm(L, R))),
+  )
+  const rightsRank = rankExact(
+    rights.map(R => R.flat().map(x => BigInt(x))),
+  )
   const rightsKeepJ = rights.every(R => eqM(mm(R, J), mm(J, R)))
-  const nullWithRotations = 64 - rankExact(commutantRows([...bilinears, ...rotations.map(g => g.register)], 4))
-  const nullRotations = 64 - rankExact(commutantRows(rotations.map(g => g.register), 4))
-  const nullRotationsJ = 64 - rankExact(commutantRows([...rotations.map(g => g.register), J], 4))
-  const Pplus = J.map((r, i) => r.map((x, j) => (x + (i === j ? 1 : 0)) / 2))
-  const Pminus = J.map((r, i) => r.map((x, j) => (-x + (i === j ? 1 : 0)) / 2))
-  const chiralInCommutant = [Pplus, Pminus].every(P => bilinears.every(L => eqM(mm(P, L), mm(L, P))) && rotations.every(g => eqM(mm(P, g.register), mm(g.register, P))))
-  const A1 = nullBilinears === 8 && rightsCommute && rightsRank === 8 && rightsKeepJ && nullWithRotations === 2 && chiralInCommutant
+  const nullWithRotations =
+    64 -
+    rankExact(
+      commutantRows(
+        [...bilinears, ...rotations.map(g => g.register)],
+        4,
+      ),
+    )
+  const nullRotations =
+    64 -
+    rankExact(
+      commutantRows(
+        rotations.map(g => g.register),
+        4,
+      ),
+    )
+  const nullRotationsJ =
+    64 -
+    rankExact(commutantRows([...rotations.map(g => g.register), J], 4))
+  const Pplus = J.map((r, i) =>
+    r.map((x, j) => (x + (i === j ? 1 : 0)) / 2),
+  )
+  const Pminus = J.map((r, i) =>
+    r.map((x, j) => (-x + (i === j ? 1 : 0)) / 2),
+  )
+  const chiralInCommutant = [Pplus, Pminus].every(
+    P =>
+      bilinears.every(L => eqM(mm(P, L), mm(L, P))) &&
+      rotations.every(g => eqM(mm(P, g.register), mm(g.register, P))),
+  )
+  const A1 =
+    nullBilinears === 8 &&
+    rightsCommute &&
+    rightsRank === 8 &&
+    rightsKeepJ &&
+    nullWithRotations === 2 &&
+    chiralInCommutant
 
   log('A1')
 
@@ -298,30 +401,51 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   const D = qwDiag(units.map(qwFromUnit))
   const V = qwFromEisQMatrix(trimaximal())
   const Vbar = V.map(r => r.map(qwConj))
-  const aPlus = (W: QWMatrix): QWMatrix => qwMatMul(qwMatMul(W, D), qwDagger(W))
-  const hermitian = (A: QWMatrix): QWMatrix => A.map((r, i) => r.map((x, j) => {
-    const s = qwAdd(x, qwConj((A[j] as QW[])[i] as QW))
+  const aPlus = (W: QWMatrix): QWMatrix =>
+    qwMatMul(qwMatMul(W, D), qwDagger(W))
+  const hermitian = (A: QWMatrix): QWMatrix =>
+    A.map((r, i) =>
+      r.map((x, j) => {
+        const s = qwAdd(x, qwConj((A[j] as QW[])[i]!))
 
-    return qw(s.a, s.b, s.d * 2n)
-  }))
+        return qw(s.a, s.b, s.d * 2n)
+      }),
+    )
+
   const commutator = (X: QWMatrix, Y: QWMatrix): QWMatrix => {
     const a = qwMatMul(X, Y)
     const b = qwMatMul(Y, X)
 
-    return a.map((r, i) => r.map((x, j) => qwSub(x, (b[i] as QW[])[j] as QW)))
+    return a.map((r, i) =>
+      r.map((x, j) => qwSub(x, (b[i] as QW[])[j]!)),
+    )
   }
-  const cpInvariant = (W: QWMatrix): QW => qwDet3(commutator(hermitian(aPlus(W)), hermitian(D)))
-  const cosines = units.map(qwFromUnit).map(x => qw(2n * x.a - x.b, 0n, 2n * x.d))
-  const dc = (i: number, j: number): QW => qwSub(cosines[i] as QW, cosines[j] as QW)
-  const prod = [dc(0, 1), dc(1, 2), dc(2, 0)].reduce((s, x) => qwMul(s, x), QW_ONE)
+
+  const cpInvariant = (W: QWMatrix): QW =>
+    qwDet3(commutator(hermitian(aPlus(W)), hermitian(D)))
+  const cosines = units
+    .map(qwFromUnit)
+    .map(x => qw(2n * x.a - x.b, 0n, 2n * x.d))
+  const dc = (i: number, j: number): QW =>
+    qwSub(cosines[i]!, cosines[j]!)
+  const prod = [dc(0, 1), dc(1, 2), dc(2, 0)].reduce(
+    (s, x) => qwMul(s, x),
+    QW_ONE,
+  )
   const prod2 = qwMul(prod, prod)
   const detV = cpInvariant(V)
   const detVbar = cpInvariant(Vbar)
   const detH = cpInvariant(HOUSEHOLDER)
   // (a + b w) / d is purely imaginary iff 2 a = b; its imaginary part is b sqrt(3) / (2 d); -2 i J prod^2 with J = sqrt(3)
   // / 18 has imaginary part -(sqrt(3) / 9) prod^2, so b / d = -(2 / 9) prod^2 exactly
-  const ratio = (x: QW, sign: bigint): boolean => 2n * x.a === x.b && x.b * 9n * prod2.d === sign * -2n * prod2.a * x.d
-  const A3 = ratio(detV, 1n) && ratio(detVbar, -1n) && detH.a === 0n && detH.b === 0n
+  const ratio = (x: QW, sign: bigint): boolean =>
+    2n * x.a === x.b &&
+    x.b * 9n * prod2.d === sign * -2n * prod2.a * x.d
+  const A3 =
+    ratio(detV, 1n) &&
+    ratio(detVbar, -1n) &&
+    detH.a === 0n &&
+    detH.b === 0n
 
   log('A2 A3')
 
@@ -335,7 +459,11 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   const qDp = scaled(matMul(D48, P2), 96)
   const qDm = scaled(matMul(D48, M2), 96)
   const cx = qwToComplex
-  const rule = (Aplus: QWMatrix, Aminus: QWMatrix, coupling?: readonly [number, number]): CMatrix[] => [
+  const rule = (
+    Aplus: QWMatrix,
+    Aminus: QWMatrix,
+    coupling?: readonly [number, number],
+  ): CMatrix[] => [
     flavorPiece(
       [
         { q: qSp, F: cx(Aplus) },
@@ -354,56 +482,120 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   // ---------------- B1: the free rule splits ----------------
   const split = free.map(P => flavorSectorBlocks(P, basis, Vc))
   const leak = Math.max(...split.map(x => x.leak))
+
   let blockGap = 0
 
   units.forEach((u, f) => {
-    const own = [registerPiece(scaled(S24, 24), unitValue(u)), registerPiece(scaled(D48, 48), conj(unitValue(u)))]
+    const own = [
+      registerPiece(scaled(S24, 24), unitValue(u)),
+      registerPiece(scaled(D48, 48), conj(unitValue(u))),
+    ]
 
     for (const s of [0, 1] as const) {
       own.forEach((P, b) => {
         const ref = sectorBlock(P, basis, s).block
-        const got = (((split[b] as { blocks: CMatrix[][] }).blocks[s] as CMatrix[])[f]) as CMatrix
+        const got = (split[b] as { blocks: CMatrix[][] }).blocks[s]![f]!
 
-        blockGap = Math.max(blockGap, ...ref.re.map((x, i) => Math.abs(x - (got.re[i] as number))), ...ref.im.map((x, i) => Math.abs(x - (got.im[i] as number))))
+        blockGap = Math.max(
+          blockGap,
+          ...ref.re.map((x, i) => Math.abs(x - got.re[i]!)),
+          ...ref.im.map((x, i) => Math.abs(x - got.im[i]!)),
+        )
       })
     }
   })
 
   const B1 = leak <= LEAK_TOLERANCE && blockGap <= LEAK_TOLERANCE
-  const flavorBlocks = [0, 1, 2].map(f => split.map(x => ((x.blocks[0] as CMatrix[])[f]) as CMatrix))
+  const flavorBlocks = [0, 1, 2].map(f =>
+    split.map(x => x.blocks[0]![f]!),
+  )
   const roots96 = SECTOR_ROOTS(DOCK_ROOTS)
 
   log('B1')
 
   // ---------------- B2: per flavor ----------------
   const Ms = masses.map(m => 2 * m)
+
   let bandCounts = true
   let bandGap = 0
 
   for (const K of weylMomenta(plan.momenta)) {
     flavorBlocks.forEach((blocks, f) => {
       const ph = cyclePhases(blocks, roots96, K)
-      const E = diracPhase(K, Ms[f] as number)
-      const up = ph.filter(x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE).length
-      const down = ph.filter(x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE).length
-      const flat = ph.filter(x => Math.abs(wrap(x)) <= FLAT_TOLERANCE).length
+      const E = diracPhase(K, Ms[f]!)
+      const up = ph.filter(
+        x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE,
+      ).length
+      const down = ph.filter(
+        x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE,
+      ).length
+      const flat = ph.filter(
+        x => Math.abs(wrap(x)) <= FLAT_TOLERANCE,
+      ).length
 
-      if (up !== 4 || down !== 4 || flat !== 88) bandCounts = false
-      bandGap = Math.max(bandGap, ...ph.map(x => Math.min(Math.abs(wrap(x)), Math.abs(wrap(x - Math.PI - E)), Math.abs(wrap(x - Math.PI + E)))))
+      if (up !== 4 || down !== 4 || flat !== 88) {
+        bandCounts = false
+      }
+
+      bandGap = Math.max(
+        bandGap,
+        ...ph.map(x =>
+          Math.min(
+            Math.abs(wrap(x)),
+            Math.abs(wrap(x - Math.PI - E)),
+            Math.abs(wrap(x - Math.PI + E)),
+          ),
+        ),
+      )
     })
   }
 
   const uZ = ringUnit(MASSLESS[0], MASSLESS[1])
   const zeroMass = qwDiag([0, 1, 2].map(() => qwFromUnit(uZ)))
-  const massless = rule(zeroMass, zeroMass).map(P => (((flavorSectorBlocks(P, basis, null).blocks[0] as CMatrix[])[0]) as CMatrix))
-  const pairs = DIRS.map(u => cycleMasslessPairN(massless, Math.PI, u, 0.01, roots96))
-  const frames: Frame[] = units.map((u, f) => restFrame(unitAngle(u), -unitAngle(u), Ms[f] as number))
-  const fits = flavorBlocks.map((blocks, f) => DIRS.map(u => frameRN(blocks, frames[f] as Frame, unitAngle(units[f] as RingUnit), u, C_QUARTER, SCALES, roots96)))
-  const rGap = Math.max(...fits.flatMap((row, f) => row.map(x => Math.abs(x.R - Math.tan(masses[f] as number) / (masses[f] as number)))))
-  const iso = Math.max(...fits.map(row => Math.max(...row.map(x => Math.abs(x.c2 / (row[0] as { c2: number }).c2 - 1)))))
+  const massless = rule(zeroMass, zeroMass).map(
+    P => flavorSectorBlocks(P, basis, null).blocks[0]![0]!,
+  )
+  const pairs = DIRS.map(u =>
+    cycleMasslessPairN(massless, Math.PI, u, 0.01, roots96),
+  )
+  const frames: Frame[] = units.map((u, f) =>
+    restFrame(unitAngle(u), -unitAngle(u), Ms[f]),
+  )
+  const fits = flavorBlocks.map((blocks, f) =>
+    DIRS.map(u =>
+      frameRN(
+        blocks,
+        frames[f]!,
+        unitAngle(units[f]!),
+        u,
+        C_QUARTER,
+        SCALES,
+        roots96,
+      ),
+    ),
+  )
+  const rGap = Math.max(
+    ...fits.flatMap((row, f) =>
+      row.map(x => Math.abs(x.R - Math.tan(masses[f]!) / masses[f]!)),
+    ),
+  )
+  const iso = Math.max(
+    ...fits.map(row =>
+      Math.max(
+        ...row.map(x =>
+          Math.abs(x.c2 / (row[0] as { c2: number }).c2 - 1),
+        ),
+      ),
+    ),
+  )
   const B2 =
     bandCounts &&
-    pairs.every(x => x.size === 8 && Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE && Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE) &&
+    pairs.every(
+      x =>
+        x.size === 8 &&
+        Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE &&
+        Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE,
+    ) &&
     rGap <= R_EXACT &&
     iso <= ISOTROPY
 
@@ -412,39 +604,104 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   // ---------------- B3: the channels ----------------
   const paths = radialPaths(DIRS, 3 * Math.PI, plan.censusSteps)
   const extra = weylMomenta(plan.weylExtra)
-  const censuses = flavorBlocks.map((blocks, f) => pairCensusN(blocks, frames[f] as Frame, paths, extra, roots96))
+  const censuses = flavorBlocks.map((blocks, f) =>
+    pairCensusN(blocks, frames[f]!, paths, extra, roots96),
+  )
   const mixed: { i: number; j: number; c: Census }[] = []
 
-  for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) mixed.push({ i, j, c: mixedCensus(flavorBlocks[i] as CMatrix[], frames[i] as Frame, flavorBlocks[j] as CMatrix[], frames[j] as Frame, paths, roots96) })
+  for (let i = 0; i < 3; i++) {
+    for (let j = i + 1; j < 3; j++) {
+      mixed.push({
+        i,
+        j,
+        c: mixedCensus(
+          flavorBlocks[i]!,
+          frames[i]!,
+          flavorBlocks[j]!,
+          frames[j]!,
+          paths,
+          roots96,
+        ),
+      })
+    }
+  }
 
   const B3 =
-    censuses.every((c, f) => c.crossings === 0 && Math.abs(c.Bstar - 2 * (Ms[f] as number)) <= BSTAR_TOLERANCE) &&
-    mixed.every(({ i, j, c }) => c.crossings === 0 && Math.abs(c.Bstar - 2 * Math.min(Ms[i] as number, Ms[j] as number)) <= BSTAR_TOLERANCE)
+    censuses.every(
+      (c, f) =>
+        c.crossings === 0 &&
+        Math.abs(c.Bstar - 2 * Ms[f]!) <= BSTAR_TOLERANCE,
+    ) &&
+    mixed.every(
+      ({ i, j, c }) =>
+        c.crossings === 0 &&
+        Math.abs(c.Bstar - 2 * Math.min(Ms[i]!, Ms[j]!)) <=
+          BSTAR_TOLERANCE,
+    )
 
   log('B3')
 
   // ---------------- B4: the mixing is invisible ----------------
   const roots288 = SECTOR_FLAVOR_ROOTS(DOCK_ROOTS)
-  const halves = [0, 1].map(s => free.map(P => sectorFlavorBlock(P, basis, s as 0 | 1).block))
-  const gK = (K: readonly number[]): number[] => [-(K[0] as number), -(K[1] as number), -(K[2] as number), K[3] as number]
+  const halves = [0, 1].map(s =>
+    free.map(P => sectorFlavorBlock(P, basis, s as 0 | 1).block),
+  )
+  const gK = (K: readonly number[]): number[] => [
+    -K[0]!,
+    -K[1]!,
+    -K[2]!,
+    K[3]!,
+  ]
   const neg = (K: readonly number[]): number[] => K.map(x => -x)
+
   let unionGap = 0
+
   const read = { Pimp: 0, Prot: 0, Craw: 0, CP: 0, CPT: 0 }
 
   for (const K of weylMomenta(plan.symmetryMomenta)) {
-    const pK = cyclePhases(halves[0] as CMatrix[], roots288, K)
-    const mG = cyclePhases(halves[1] as CMatrix[], roots288, gK(K))
-    const pN = cyclePhases(halves[0] as CMatrix[], roots288, neg(K))
-    const mGN = cyclePhases(halves[1] as CMatrix[], roots288, neg(gK(K)))
-    const mK = cyclePhases(halves[1] as CMatrix[], roots288, K)
-    const union = flavorBlocks.flatMap(blocks => cyclePhases(blocks, roots96, K))
+    const pK = cyclePhases(halves[0]!, roots288, K)
+    const mG = cyclePhases(halves[1]!, roots288, gK(K))
+    const pN = cyclePhases(halves[0]!, roots288, neg(K))
+    const mGN = cyclePhases(halves[1]!, roots288, neg(gK(K)))
+    const mK = cyclePhases(halves[1]!, roots288, K)
+    const union = flavorBlocks.flatMap(blocks =>
+      cyclePhases(blocks, roots96, K),
+    )
 
     unionGap = Math.max(unionGap, phaseMismatch(pK, union, false))
     read.Pimp = Math.max(read.Pimp, phaseMismatch(pK, mG, false))
     read.Prot = Math.max(read.Prot, phaseMismatch(pK, pN, false))
-    read.Craw = Math.max(read.Craw, phaseMismatch(pK, pN.map(x => -x), false))
-    read.CP = Math.max(read.CP, phaseMismatch(pK, mGN.map(x => -x), true))
-    read.CPT = Math.max(read.CPT, phaseMismatch(pK, pK.map(x => -x), true), phaseMismatch(mK, mK.map(x => -x), true))
+    read.Craw = Math.max(
+      read.Craw,
+      phaseMismatch(
+        pK,
+        pN.map(x => -x),
+        false,
+      ),
+    )
+
+    read.CP = Math.max(
+      read.CP,
+      phaseMismatch(
+        pK,
+        mGN.map(x => -x),
+        true,
+      ),
+    )
+
+    read.CPT = Math.max(
+      read.CPT,
+      phaseMismatch(
+        pK,
+        pK.map(x => -x),
+        true,
+      ),
+      phaseMismatch(
+        mK,
+        mK.map(x => -x),
+        true,
+      ),
+    )
   }
 
   const half = qw(1n, 0n, 2n)
@@ -455,29 +712,52 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
       const t = Math.floor(j / 3)
       const f = i % 3
       const g = j % 3
-      const v = qwMul(half, (V[f] as QW[])[g] as QW)
+      const v = qwMul(half, (V[f] as QW[])[g]!)
       const one = f === g ? half : qw(0n, 0n)
 
       return s === t ? qwAdd(v, one) : qwSub(v, one)
     }),
   )
-  const removable = qwMatEq(restToy(aPlus(V), D, QW_ONE), qwMatMul(qwMatMul(Wrest, restToy(D, D, QW_ONE)), qwDagger(Wrest)))
-  const B4 = unionGap <= BAND_TOLERANCE && read.Pimp <= SYMMETRY_HOLDS && read.Prot <= SYMMETRY_HOLDS && read.Craw <= SYMMETRY_HOLDS && read.CP <= SYMMETRY_HOLDS && read.CPT <= SYMMETRY_HOLDS && removable
+  const removable = qwMatEq(
+    restToy(aPlus(V), D, QW_ONE),
+    qwMatMul(qwMatMul(Wrest, restToy(D, D, QW_ONE)), qwDagger(Wrest)),
+  )
+  const B4 =
+    unionGap <= BAND_TOLERANCE &&
+    read.Pimp <= SYMMETRY_HOLDS &&
+    read.Prot <= SYMMETRY_HOLDS &&
+    read.Craw <= SYMMETRY_HOLDS &&
+    read.CP <= SYMMETRY_HOLDS &&
+    read.CPT <= SYMMETRY_HOLDS &&
+    removable
 
   log('B4')
 
   // ---------------- G: C and CP together in the exact Dirac class ----------------
   // the class's covariant register operators are the null space of the bilinears and the rotations (A1); G asks for one
   // that does not commute with J: exists iff adding J to those conditions lowers the null space
-  const nullWithJ = 64 - rankExact(commutantRows([...bilinears, ...rotations.map(g => g.register), J], 4))
+  const nullWithJ =
+    64 -
+    rankExact(
+      commutantRows(
+        [...bilinears, ...rotations.map(g => g.register), J],
+        4,
+      ),
+    )
   const G = nullWithJ < nullWithRotations
 
   // ---------------- D1: the coupling ----------------
   const vol24 = new Float64Array(192 * 192)
 
-  for (let d = 0; d < 24; d++) for (let e = 0; e < 24; e++) vol24[(d * 8 + 7) * 192 + e * 8 + 7] = 1
+  for (let d = 0; d < 24; d++) {
+    for (let e = 0; e < 24; e++) {
+      vol24[(d * 8 + 7) * 192 + e * 8 + 7] = 1
+    }
+  }
 
-  const volBlade = EVEN.map((_, i) => EVEN.map((__, j) => (i === 7 && j === 7 ? 1 : 0)))
+  const volBlade = EVEN.map((_, i) =>
+    EVEN.map((__, j) => (i === 7 && j === 7 ? 1 : 0)),
+  )
   const D1 =
     group.every(g => commutesExactly(g, vol24)) &&
     !sameMatrix(matMul(vol24, P2), matMul(P2, vol24)) &&
@@ -486,7 +766,11 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   function vol24Scaled(): Float64Array {
     const q = new Float64Array(192 * 192)
 
-    for (let d = 0; d < 24; d++) for (let e = 0; e < 24; e++) q[(d * 8 + 7) * 192 + e * 8 + 7] = 1 / 24
+    for (let d = 0; d < 24; d++) {
+      for (let e = 0; e < 24; e++) {
+        q[(d * 8 + 7) * 192 + e * 8 + 7] = 1 / 24
+      }
+    }
 
     return q
   }
@@ -494,19 +778,22 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   // ---------------- D2: the phase is physical once coupled ----------------
   const uK = ringUnit(COUPLING[0], COUPLING[1])
   const qK = qwFromUnit(uK)
+
   const asymmetry = (W: QWMatrix, u: QW): QW[] => {
     const B = restToy(aPlus(W), D, u)
     const p = transition(B, 0, 1, plan.beats)
     const q = transition(B, 1, 0, plan.beats)
 
-    return p.map((x, i) => qwSub(x, q[i] as QW))
+    return p.map((x, i) => qwSub(x, q[i]!))
   }
+
   const AV = asymmetry(V, qK)
   const AVbar = asymmetry(Vbar, qK)
   const AH = asymmetry(HOUSEHOLDER, qK)
   const AI = asymmetry(qwIdentity(3), qK)
   const Afree = asymmetry(V, QW_ONE)
-  const zero = (xs: QW[]): boolean => xs.every(x => x.a === 0n && x.b === 0n)
+  const zero = (xs: QW[]): boolean =>
+    xs.every(x => x.a === 0n && x.b === 0n)
   const sixth: [bigint, bigint][] = [
     [1n, 0n],
     [1n, 1n],
@@ -515,20 +802,30 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
     [-1n, -1n],
     [0n, -1n],
   ]
+
   let rephased = true
 
   for (const a of sixth) {
     for (const b of sixth) {
       const Ar = asymmetry(rephase(V, a, b), qK)
 
-      if (!Ar.every((x, i) => qwSub(x, AV[i] as QW).a === 0n && qwSub(x, AV[i] as QW).b === 0n)) rephased = false
+      if (
+        !Ar.every(
+          (x, i) =>
+            qwSub(x, AV[i]!).a === 0n && qwSub(x, AV[i]!).b === 0n,
+        )
+      ) {
+        rephased = false
+      }
     }
   }
 
   const D2 =
     AV.every(x => x.b === 0n) &&
     AV.some(x => x.a !== 0n) &&
-    AVbar.every((x, i) => qwAdd(x, AV[i] as QW).a === 0n && qwAdd(x, AV[i] as QW).b === 0n) &&
+    AVbar.every(
+      (x, i) => qwAdd(x, AV[i]!).a === 0n && qwAdd(x, AV[i]!).b === 0n,
+    ) &&
     zero(AH) &&
     zero(AI) &&
     zero(Afree) &&
@@ -540,8 +837,14 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   const toy = rule(aPlus(V), D, unitValue(uK))
   const roots576 = FLAVOR_ROOTS(DOCK_ROOTS)
   const U0 = cycleMatrix(toy, roots576, [0, 0, 0, 0])
-  const exactRest = transition(restToy(aPlus(V), D, qK), 0, 1, INSTRUMENT_BEATS).map(asFraction)
+  const exactRest = transition(
+    restToy(aPlus(V), D, qK),
+    0,
+    1,
+    INSTRUMENT_BEATS,
+  ).map(asFraction)
   const n = FLAVOR_MODES
+
   let xr = new Float64Array(n)
   let xi = new Float64Array(n)
 
@@ -561,11 +864,11 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
       let si = 0
 
       for (let k = 0; k < n; k++) {
-        const a = U0.re[i * n + k] as number
-        const b = U0.im[i * n + k] as number
+        const a = U0.re[i * n + k]!
+        const b = U0.im[i * n + k]!
 
-        sr += a * (xr[k] as number) - b * (xi[k] as number)
-        si += a * (xi[k] as number) + b * (xr[k] as number)
+        sr += a * xr[k]! - b * xi[k]!
+        si += a * xi[k]! + b * xr[k]!
       }
 
       nr[i] = sr
@@ -579,11 +882,19 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
     let ai = 0
 
     for (let d = 0; d < 24; d++) {
-      ar += ((xr[(d * 8 + 0) * 3 + 1] as number) - (xr[(d * 8 + 7) * 3 + 1] as number)) / Math.sqrt(48)
-      ai += ((xi[(d * 8 + 0) * 3 + 1] as number) - (xi[(d * 8 + 7) * 3 + 1] as number)) / Math.sqrt(48)
+      ar +=
+        (xr[(d * 8 + 0) * 3 + 1]! - xr[(d * 8 + 7) * 3 + 1]!) /
+        Math.sqrt(48)
+
+      ai +=
+        (xi[(d * 8 + 0) * 3 + 1]! - xi[(d * 8 + 7) * 3 + 1]!) /
+        Math.sqrt(48)
     }
 
-    instrumentGap = Math.max(instrumentGap, Math.abs(ar * ar + ai * ai - (exactRest[t - 1] as number)))
+    instrumentGap = Math.max(
+      instrumentGap,
+      Math.abs(ar * ar + ai * ai - exactRest[t - 1]!),
+    )
   }
 
   const I1 = instrumentGap <= INSTRUMENT_TOLERANCE
@@ -599,15 +910,39 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
       const ph = cyclePhases(Ps, roots576, K)
       const E = Ms.map(M => diracPhase(K, M))
 
-      cpt = Math.max(cpt, phaseMismatch(ph, ph.map(x => -x), true))
-      law = Math.max(law, ...ph.map(x => Math.min(Math.abs(wrap(x)), ...E.flatMap(e => [Math.abs(wrap(x - Math.PI - e)), Math.abs(wrap(x - Math.PI + e))]))))
+      cpt = Math.max(
+        cpt,
+        phaseMismatch(
+          ph,
+          ph.map(x => -x),
+          true,
+        ),
+      )
+
+      law = Math.max(
+        law,
+        ...ph.map(x =>
+          Math.min(
+            Math.abs(wrap(x)),
+            ...E.flatMap(e => [
+              Math.abs(wrap(x - Math.PI - e)),
+              Math.abs(wrap(x - Math.PI + e)),
+            ]),
+          ),
+        ),
+      )
     }
 
     return { law, cpt }
   }
+
   const freeCost = cost(free)
   const toyCost = cost(toy)
-  const D3 = toyCost.law > COST && toyCost.cpt > COST && freeCost.law <= SYMMETRY_HOLDS && freeCost.cpt <= SYMMETRY_HOLDS
+  const D3 =
+    toyCost.law > COST &&
+    toyCost.cpt > COST &&
+    freeCost.law <= SYMMETRY_HOLDS &&
+    freeCost.cpt <= SYMMETRY_HOLDS
 
   log('D3')
 
@@ -624,11 +959,15 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
       { q: qDm, F: scalar3(conj(uM)) },
     ]),
   ]
-  const ref0258 = [chiralPiece(qSp, qSm, uP, uM), chiralPiece(qDp, qDm, conj(uP), conj(uM))]
+  const ref0258 = [
+    chiralPiece(qSp, qSm, uP, uM),
+    chiralPiece(qDp, qDm, conj(uP), conj(uM)),
+  ]
+
   let C1 = true
 
   ctl.forEach((P, b) => {
-    const R = ref0258[b] as CMatrix
+    const R = ref0258[b]!
 
     for (let i = 0; i < 192; i++) {
       for (let j = 0; j < 192; j++) {
@@ -636,7 +975,14 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
           for (let g = 0; g < 3; g++) {
             const k = (i * 3 + f) * n + j * 3 + g
 
-            if (f === g ? P.re[k] !== R.re[i * 192 + j] || P.im[k] !== R.im[i * 192 + j] : P.re[k] !== 0 || P.im[k] !== 0) C1 = false
+            if (
+              f === g
+                ? P.re[k] !== R.re[i * 192 + j] ||
+                  P.im[k] !== R.im[i * 192 + j]
+                : P.re[k] !== 0 || P.im[k] !== 0
+            ) {
+              C1 = false
+            }
           }
         }
       }
@@ -651,8 +997,10 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
   const hard = A1 && A2 && A3 && B1 && B2 && B3 && B4 && D1 && D2 && D3
   const controls = C1 && C2 && C3
   const status = hard && G && controls && I1 ? 'partial' : 'fail'
-  const censusLine = (c: Census): string => `B* ${c.Bstar.toFixed(9)} x${c.crossings}`
-  const asymLine = (xs: QW[]): string => xs.map(x => asFraction(x).toExponential(3)).join(' ')
+  const censusLine = (c: Census): string =>
+    `B* ${c.Bstar.toFixed(9)} x${c.crossings}`
+  const asymLine = (xs: QW[]): string =>
+    xs.map(x => asFraction(x).toExponential(3)).join(' ')
 
   return verdict({
     status,
@@ -682,21 +1030,23 @@ export function flavorRegisterRun(plan: FlavorPlan): Verdict {
       bandGap,
       rGap,
       isotropy: iso,
-      census0: (censuses[0] as Census).Bstar,
-      census1: (censuses[1] as Census).Bstar,
-      census2: (censuses[2] as Census).Bstar,
-      crossings: censuses.reduce((s, c) => s + c.crossings, 0) + mixed.reduce((s, x) => s + x.c.crossings, 0),
+      census0: censuses[0]!.Bstar,
+      census1: censuses[1]!.Bstar,
+      census2: censuses[2]!.Bstar,
+      crossings:
+        censuses.reduce((s, c) => s + c.crossings, 0) +
+        mixed.reduce((s, x) => s + x.c.crossings, 0),
       unionGap,
       Pimp: read.Pimp,
       CP: read.CP,
       CPT: read.CPT,
-      asymmetryLast: asFraction(AV[AV.length - 1] as QW),
+      asymmetryLast: asFraction(AV[AV.length - 1]!),
       toyLaw: toyCost.law,
       toyCPT: toyCost.cpt,
       instrumentGap,
       seconds: (Date.now() - started) / 1000,
     },
     control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), I1: flag(I1) },
-    notes: `L1 and L2. ${FLAVOR_MODES} modes a member. Masses ${masses.map(m => m.toFixed(6)).join(', ')} (ringUnit ${FLAVOR_UNITS.map(u => `(${u.join(', ')})`).join(', ')}); coupling ringUnit(${COUPLING.join(', ')}), angle ${unitAngle(uK).toFixed(6)}. Massless pairs ${pairs.map(x => `${x.size} c0/(c/4) ${(x.c0 / C_QUARTER).toFixed(12)} gamma ${(x.gamma / C_QUARTER).toExponential(2)}`).join('; ')}. R - tan m/m at most ${rGap.toExponential(2)}, isotropy ${iso.toExponential(2)}, band gap ${bandGap.toExponential(2)}. Census per flavor ${censuses.map((c, f) => `${censusLine(c)} (2M ${(2 * (Ms[f] as number)).toFixed(9)})`).join('; ')}; mixed ${mixed.map(x => `${x.i}${x.j} ${censusLine(x.c)}`).join('; ')}. Free rule readings: P_imp ${read.Pimp.toExponential(2)}, P_rot ${read.Prot.toExponential(2)}, C raw ${read.Craw.toExponential(2)}, CP ${read.CP.toExponential(2)}, CPT ${read.CPT.toExponential(2)}. CP invariant det[H+, H-] (${detV.a} + ${detV.b} w) / ${detV.d}, prod^2 ${prod2.a} / ${prod2.d}; conj V (${detVbar.a} + ${detVbar.b} w); Householder ${detH.a}. Rest asymmetry A(t), t = 1 .. ${plan.beats}: trimaximal ${asymLine(AV)}; conj V ${asymLine(AVbar)}. Toy cost: Dirac law ${toyCost.law.toExponential(2)}, CPT ${toyCost.cpt.toExponential(2)}; free ${freeCost.law.toExponential(2)}, ${freeCost.cpt.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L1 and L2. ${FLAVOR_MODES} modes a member. Masses ${masses.map(m => m.toFixed(6)).join(', ')} (ringUnit ${FLAVOR_UNITS.map(u => `(${u.join(', ')})`).join(', ')}); coupling ringUnit(${COUPLING.join(', ')}), angle ${unitAngle(uK).toFixed(6)}. Massless pairs ${pairs.map(x => `${x.size} c0/(c/4) ${(x.c0 / C_QUARTER).toFixed(12)} gamma ${(x.gamma / C_QUARTER).toExponential(2)}`).join('; ')}. R - tan m/m at most ${rGap.toExponential(2)}, isotropy ${iso.toExponential(2)}, band gap ${bandGap.toExponential(2)}. Census per flavor ${censuses.map((c, f) => `${censusLine(c)} (2M ${(2 * Ms[f]!).toFixed(9)})`).join('; ')}; mixed ${mixed.map(x => `${x.i}${x.j} ${censusLine(x.c)}`).join('; ')}. Free rule readings: P_imp ${read.Pimp.toExponential(2)}, P_rot ${read.Prot.toExponential(2)}, C raw ${read.Craw.toExponential(2)}, CP ${read.CP.toExponential(2)}, CPT ${read.CPT.toExponential(2)}. CP invariant det[H+, H-] (${detV.a} + ${detV.b} w) / ${detV.d}, prod^2 ${prod2.a} / ${prod2.d}; conj V (${detVbar.a} + ${detVbar.b} w); Householder ${detH.a}. Rest asymmetry A(t), t = 1 .. ${plan.beats}: trimaximal ${asymLine(AV)}; conj V ${asymLine(AVbar)}. Toy cost: Dirac law ${toyCost.law.toExponential(2)}, CPT ${toyCost.cpt.toExponential(2)}; free ${freeCost.law.toExponential(2)}, ${freeCost.cpt.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

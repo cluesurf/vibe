@@ -41,22 +41,50 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { COLOR_TURN_SPEC, colorTurnWeave } from '@/code/rule/color-turn-weave'
+import {
+  COLOR_TURN_SPEC,
+  colorTurnWeave,
+} from '@/code/rule/color-turn-weave'
 import { turningWeave, type Collision } from '@/code/rule/collision'
 import { collide } from '@/code/rule/lattice-gas'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
 import { makeWill } from '@/code/tone/will'
-import { colorLocalKnit, colorWeaveKnit, type Knit } from '@/code/rule/fear-weave'
+import {
+  colorLocalKnit,
+  colorWeaveKnit,
+  type Knit,
+} from '@/code/rule/fear-weave'
 import { norm } from '@/code/rule/fear-walk'
-import { chargeProfile, configOf, dockBeat, makeDock, setTone, totalNorm, type Amplitudes } from '@/code/rule/fear-clock'
-import { dockCross, dockNorm, dockProfile, dockReducedBeat, dockStart, expandDock, type ClockKind, type DockMode, type DockState } from '@/code/rule/fear-dock'
+import {
+  chargeProfile,
+  configOf,
+  dockBeat,
+  makeDock,
+  setTone,
+  totalNorm,
+  type Amplitudes,
+} from '@/code/rule/fear-clock'
+import {
+  dockCross,
+  dockNorm,
+  dockProfile,
+  dockReducedBeat,
+  dockStart,
+  expandDock,
+  type ClockKind,
+  type DockMode,
+  type DockState,
+} from '@/code/rule/fear-dock'
 
 const BEATS = 48
 // the largest joint map a run may hold before it stops: memory, not time, is the laptop's limit here
 const JOINT_CAP = 150000
 const CHECK_BEATS = 6
 
-const stateOf = (k: number): [number, number] => [Math.floor(k / 3) - 1, (k % 3) - 1]
+const stateOf = (k: number): [number, number] => [
+  Math.floor(k / 3) - 1,
+  (k % 3) - 1,
+]
 
 export default experiment({
   id: 'quantum/dock-interference',
@@ -69,8 +97,12 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4BoxMesh({ side: 1 })
-    const opposite = Array.from({ length: 24 }, (_, d) => mesh.opposite(d))
-    const committedKnit = colorWeaveKnit(makeColorWeave({ side: 1, table: 'pair' }))
+    const opposite = Array.from({ length: 24 }, (_, d) =>
+      mesh.opposite(d),
+    )
+    const committedKnit = colorWeaveKnit(
+      makeColorWeave({ side: 1, table: 'pair' }),
+    )
     const turnKnit: Knit = colorLocalKnit({
       opposite,
       couplesZero: COLOR_TURN_SPEC.couplesZero,
@@ -81,10 +113,16 @@ export default experiment({
       swapWhen: COLOR_TURN_SPEC.swapWhen,
     })
     const lines = committedKnit.lines
-    const seedsOf = (knit: Knit): number[] => {
-      const wires = (knit.positions[knit.positionAt[0] ?? 0] ?? []).map(c => c[1])
 
-      return [knit.lines[wires[0] ?? 0]?.[1] ?? 0, knit.lines[wires[1] ?? 0]?.[1] ?? 0]
+    const seedsOf = (knit: Knit): number[] => {
+      const wires = (knit.positions[knit.positionAt[0] ?? 0] ?? []).map(
+        c => c[1],
+      )
+
+      return [
+        knit.lines[wires[0] ?? 0]?.[1] ?? 0,
+        knit.lines[wires[1] ?? 0]?.[1] ?? 0,
+      ]
     }
 
     const configOfDock = (s: DockState): number | null => {
@@ -97,12 +135,15 @@ export default experiment({
 
       for (let l = 0; l < lines.length; l++) {
         const at = s.touched.indexOf(l)
+
         let local = -1
 
         if (at >= 0) {
           local = Math.floor((key ?? 0) / 9 ** at) % 9
         } else {
-          const nonzero = (s.free[l] ?? []).map((z, k) => (z[0] !== 0n || z[1] !== 0n ? k : -1)).filter(k => k >= 0)
+          const nonzero = (s.free[l] ?? [])
+            .map((z, k) => (z[0] !== 0n || z[1] !== 0n ? k : -1))
+            .filter(k => k >= 0)
 
           if (nonzero.length !== 1) {
             return null
@@ -120,10 +161,22 @@ export default experiment({
       return configOf(tones)
     }
 
-    const study = (knit: Knit, kind: ClockKind, classical: (t: number) => Collision) => {
+    const study = (
+      knit: Knit,
+      kind: ClockKind,
+      classical: (t: number) => Collision,
+    ) => {
       const [slotA, slotB] = seedsOf(knit)
-      const starts = [undefined, { slot: slotA ?? 0, vibe: 1 }, { slot: slotB ?? 0, vibe: 1 }]
-      const run = (mode: DockMode, start: (typeof starts)[number]): DockState[] => {
+      const starts = [
+        undefined,
+        { slot: slotA ?? 0, vibe: 1 },
+        { slot: slotB ?? 0, vibe: 1 },
+      ]
+
+      const run = (
+        mode: DockMode,
+        start: (typeof starts)[number],
+      ): DockState[] => {
         const out: DockState[] = [dockStart(lines, start)]
 
         for (let t = 0; t < BEATS; t++) {
@@ -138,6 +191,7 @@ export default experiment({
 
       for (const start of starts) {
         const states = run('committed', start)
+
         let will = makeWill(mesh)
 
         if (start) {
@@ -149,7 +203,8 @@ export default experiment({
 
           const config = configOfDock(states[t + 1]!)
 
-          classicalMismatch += config === configOf([...will.data]) ? 0 : 1
+          classicalMismatch +=
+            config === configOf([...will.data]) ? 0 : 1
         }
 
         will = makeWill(mesh)
@@ -160,38 +215,43 @@ export default experiment({
       let v = dockStart(lines, starts[0])
       let a = dockStart(lines, starts[1])
       let b = dockStart(lines, starts[2])
+
       const early: { v: DockState; a: DockState }[] = []
+
       let exact = true
       let sectorViolations = 0
       let vacuumTouched = 0
       let reached = 0
+
       const defect: number[] = []
       const cross: number[] = []
       const pairsPerBeat: number[] = []
+
       let spreadAtEnd = 0
       let jointMax = 0
 
       const check = (s: DockState, charge: number): void => {
         exact = exact && dockNorm(s) === 4n ** BigInt(s.halvings)
 
-          for (const key of s.joint.keys()) {
-            let q = 0
+        for (const key of s.joint.keys()) {
+          let q = 0
 
-            s.touched.forEach((_, i) => {
-              const [x, y] = stateOf(Math.floor(key / 9 ** i) % 9)
+          s.touched.forEach((_, i) => {
+            const [x, y] = stateOf(Math.floor(key / 9 ** i) % 9)
 
-              q += x + y
-            })
+            q += x + y
+          })
 
-            sectorViolations += q === charge ? 0 : 1
-          }
+          sectorViolations += q === charge ? 0 : 1
+        }
 
         s.free.forEach((vec, l) => {
           if (!s.touched.includes(l)) {
             vec.forEach((z, k) => {
               const [x, y] = stateOf(k)
 
-              sectorViolations += (z[0] !== 0n || z[1] !== 0n) && x + y !== 0 ? 1 : 0
+              sectorViolations +=
+                (z[0] !== 0n || z[1] !== 0n) && x + y !== 0 ? 1 : 0
             })
           }
         })
@@ -201,8 +261,17 @@ export default experiment({
         const pv = dockProfile(v, lines, 24)
         const pa = dockProfile(a, lines, 24)
 
-        defect.push(pa.filter((x, s) => x * 4n ** BigInt(v.halvings) !== (pv[s] ?? 0n) * 4n ** BigInt(a.halvings)).length)
-        cross.push(dockCross(a, b, lines, 24).filter(x => x !== 0n).length)
+        defect.push(
+          pa.filter(
+            (x, s) =>
+              x * 4n ** BigInt(v.halvings) !==
+              (pv[s] ?? 0n) * 4n ** BigInt(a.halvings),
+          ).length,
+        )
+
+        cross.push(
+          dockCross(a, b, lines, 24).filter(x => x !== 0n).length,
+        )
 
         // the vacuum: the chance each line holds a pair
         let mean = 0
@@ -211,7 +280,10 @@ export default experiment({
         v.free.forEach(vec => {
           const total = vec.reduce((acc, z) => acc + norm(z), 0n)
           const calm = norm(vec[4] ?? [0n, 0n])
-          const p = total > 0n ? Number(((total - calm) * 1000000n) / total) / 1e6 : 0
+          const p =
+            total > 0n
+              ? Number(((total - calm) * 1000000n) / total) / 1e6
+              : 0
 
           mean += p
           variance += p * (1 - p)
@@ -263,7 +335,11 @@ export default experiment({
         [...es].every(([k, z]) => {
           const w = eb.get(k)
 
-          return w !== undefined && w[0] * scaleB === z[0] * scaleS && w[1] * scaleB === z[1] * scaleS
+          return (
+            w !== undefined &&
+            w[0] * scaleB === z[0] * scaleS &&
+            w[1] * scaleB === z[1] * scaleS
+          )
         })
 
       const classicalPairs: number[] = []
@@ -275,14 +351,21 @@ export default experiment({
 
         for (let t = 0; t < BEATS; t++) {
           collide(will, classical(t))
-          classicalPairs.push(lines.filter(([i, j]) => will.data[i] !== 0 || will.data[j] !== 0).length)
+          classicalPairs.push(
+            lines.filter(
+              ([i, j]) => will.data[i] !== 0 || will.data[j] !== 0,
+            ).length,
+          )
         }
 
         will = makeWill(mesh)
       }
 
-      const mean = (xs: number[]): number => xs.slice(1).reduce((s, x) => s + x, 0) / (xs.length - 1)
-      const lineSupports = v.free.map(vec => vec.filter(z => z[0] !== 0n || z[1] !== 0n).length)
+      const mean = (xs: number[]): number =>
+        xs.slice(1).reduce((s, x) => s + x, 0) / (xs.length - 1)
+      const lineSupports = v.free.map(
+        vec => vec.filter(z => z[0] !== 0n || z[1] !== 0n).length,
+      )
 
       return {
         seeds: [slotA ?? -1, slotB ?? -1],
@@ -307,14 +390,27 @@ export default experiment({
       }
     }
 
-    const committed = study(committedKnit, 'pair', turningWeave({ opposite }))
+    const committed = study(
+      committedKnit,
+      'pair',
+      turningWeave({ opposite }),
+    )
     const turned = study(turnKnit, 'bind', colorTurnWeave({ opposite }))
 
     // 1: the reduced method against the full configuration method, committed knit, turn on
     const dock = makeDock(opposite)
     const calm = configOf(new Array<number>(24).fill(0))
-    let fullV: Amplitudes = { weights: new Map([[calm, [1n, 0n]]]), halvings: 0 }
-    let fullA: Amplitudes = { weights: new Map([[setTone(calm, committed.seeds[0] ?? 0, 1), [1n, 0n]]]), halvings: 0 }
+
+    let fullV: Amplitudes = {
+      weights: new Map([[calm, [1n, 0n]]]),
+      halvings: 0,
+    }
+    let fullA: Amplitudes = {
+      weights: new Map([
+        [setTone(calm, committed.seeds[0] ?? 0, 1), [1n, 0n]],
+      ]),
+      halvings: 0,
+    }
     let fullMismatch = 0
 
     for (let t = 0; t < CHECK_BEATS; t++) {
@@ -328,15 +424,31 @@ export default experiment({
         const pf = chargeProfile(full, 24)
         const pr = dockProfile(reduced, lines, 24)
 
-        fullMismatch += totalNorm(full) * 4n ** BigInt(reduced.halvings) === dockNorm(reduced) * 4n ** BigInt(full.halvings) ? 0 : 1
-        fullMismatch += pf.filter((x, s) => x * 4n ** BigInt(reduced.halvings) !== (pr[s] ?? 0n) * 4n ** BigInt(full.halvings)).length
+        fullMismatch +=
+          totalNorm(full) * 4n ** BigInt(reduced.halvings) ===
+          dockNorm(reduced) * 4n ** BigInt(full.halvings)
+            ? 0
+            : 1
+
+        fullMismatch += pf.filter(
+          (x, s) =>
+            x * 4n ** BigInt(reduced.halvings) !==
+            (pr[s] ?? 0n) * 4n ** BigInt(full.halvings),
+        ).length
       }
     }
 
     const both = [committed, turned]
     const ok =
       fullMismatch === 0 &&
-      both.every(s => s.classicalMismatch === 0 && s.exact && s.sectorViolations === 0 && s.reverses && s.vacuumTouched === 0) &&
+      both.every(
+        s =>
+          s.classicalMismatch === 0 &&
+          s.exact &&
+          s.sectorViolations === 0 &&
+          s.reverses &&
+          s.vacuumTouched === 0,
+      ) &&
       committed.crossMax > 0
 
     const report = (name: string, s: typeof committed) => [
@@ -367,7 +479,10 @@ export default experiment({
         'the reduced method equals the full configuration space for 6 beats; at phi = pi both knits stay one configuration and equal the classical knit for 48 beats; with the turn both are exact, stay in their charge sector and reverse, and the vacuum never correlates two lines; two seeds on different lines interfere, from beat 15 on the committed knit (run to beat 24, where the joint map passes the cap) and from beat 37 on the color turn knit (run to 48)',
       metrics: {
         reducedAgainstFullMismatch: fullMismatch,
-        ...Object.fromEntries([...report('committed', committed), ...report('colorTurn', turned)]),
+        ...Object.fromEntries([
+          ...report('committed', committed),
+          ...report('colorTurn', turned),
+        ]),
       },
       control: {
         beats: BEATS,

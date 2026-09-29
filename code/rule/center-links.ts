@@ -67,9 +67,18 @@ export type CenterState = MatterState & {
   readonly flux: Int32Array
 }
 
-export type CenterMoves = { links: number; loops: number; roles: number; hops: number }
+export type CenterMoves = {
+  links: number
+  loops: number
+  roles: number
+  hops: number
+}
 
-export type HopListener = (from: number, to: number, direction: number) => void
+export type HopListener = (
+  from: number,
+  to: number,
+  direction: number,
+) => void
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
@@ -104,30 +113,54 @@ export function makeCenterLinks(input: {
 }
 
 // the stored slot of the undirected link (x, d), and the sign of d against the stored direction
-function slotOf(matter: MatterLinks, x: number, d: number): [number, number] {
+function slotOf(
+  matter: MatterLinks,
+  x: number,
+  d: number,
+): [number, number] {
   const o = matter.opposite[d] ?? d
 
-  return d < o ? [x * DEGREE + d, 1] : [(matter.neighbour[x * DEGREE + d] ?? 0) * DEGREE + o, -1]
+  return d < o
+    ? [x * DEGREE + d, 1]
+    : [(matter.neighbour[x * DEGREE + d] ?? 0) * DEGREE + o, -1]
 }
 
 // the flux along x -> x + d
-export function fluxAlong(rule: CenterLinks, flux: Int32Array, x: number, d: number): number {
+export function fluxAlong(
+  rule: CenterLinks,
+  flux: Int32Array,
+  x: number,
+  d: number,
+): number {
   const [slot, sign] = slotOf(rule.matter, x, d)
 
   return sign * (flux[slot] ?? 0)
 }
 
 // add `amount` of flux along x -> x + d
-export function addFlux(rule: CenterLinks, flux: Int32Array, x: number, d: number, amount: number): void {
+export function addFlux(
+  rule: CenterLinks,
+  flux: Int32Array,
+  x: number,
+  d: number,
+  amount: number,
+): void {
   const [slot, sign] = slotOf(rule.matter, x, d)
 
   flux[slot] = (flux[slot] ?? 0) + sign * amount
 }
 
-const cost = (rule: CenterLinks, e: number): number => (mod3(e) !== 0 ? rule.tension : 0)
+const cost = (rule: CenterLinks, e: number): number =>
+  mod3(e) !== 0 ? rule.tension : 0
 
 // shift the flux round the triangle x -a-> -b-> -c-> x by one step: an involution
-function loopMove(rule: CenterLinks, state: CenterState, x: number, a: number, type: number): boolean {
+function loopMove(
+  rule: CenterLinks,
+  state: CenterState,
+  x: number,
+  a: number,
+  type: number,
+): boolean {
   const { matter } = rule
   const pairs = matter.staples[a] ?? []
   const [b, c] = pairs[type % pairs.length] ?? [0, 0]
@@ -138,7 +171,8 @@ function loopMove(rule: CenterLinks, state: CenterState, x: number, a: number, t
     [y, b],
     [z, c],
   ]
-  const step = ((fluxAlong(rule, state.flux, x, a) % 2) + 2) % 2 === 0 ? 1 : -1
+  const step =
+    ((fluxAlong(rule, state.flux, x, a) % 2) + 2) % 2 === 0 ? 1 : -1
 
   let change = 0
 
@@ -148,7 +182,9 @@ function loopMove(rule: CenterLinks, state: CenterState, x: number, a: number, t
     change += cost(rule, e + step) - cost(rule, e)
   }
 
-  if (!pay(matter, state, x * DEGREE + a, rule.priceFlux ? change : 0)) {
+  if (
+    !pay(matter, state, x * DEGREE + a, rule.priceFlux ? change : 0)
+  ) {
     return false
   }
 
@@ -160,7 +196,13 @@ function loopMove(rule: CenterLinks, state: CenterState, x: number, a: number, t
 }
 
 // a lone vibe crosses the link (x, a), its role point carried and its string trailing: an involution
-function hop(rule: CenterLinks, state: CenterState, x: number, a: number, onHop?: HopListener): boolean {
+function hop(
+  rule: CenterLinks,
+  state: CenterState,
+  x: number,
+  a: number,
+  onHop?: HopListener,
+): boolean {
   const { matter } = rule
   const y = matter.neighbour[x * DEGREE + a] ?? 0
   const vx = state.vibe[x] ?? 0
@@ -170,7 +212,8 @@ function hop(rule: CenterLinks, state: CenterState, x: number, a: number, onHop?
     return false
   }
 
-  const [from, to, d] = vx !== 0 ? [x, y, a] : [y, x, matter.opposite[a] ?? a]
+  const [from, to, d] =
+    vx !== 0 ? [x, y, a] : [y, x, matter.opposite[a] ?? a]
   const via = state.links[from * DEGREE + d] ?? 0
   const v = state.vibe[from] ?? 0
   const p = state.role[from] ?? 0
@@ -211,7 +254,12 @@ function copy(state: CenterState): CenterState {
   }
 }
 
-export function centerBeat(rule: CenterLinks, input: CenterState, t: number, onHop?: HopListener): { state: CenterState; moved: CenterMoves } {
+export function centerBeat(
+  rule: CenterLinks,
+  input: CenterState,
+  t: number,
+  onHop?: HopListener,
+): { state: CenterState; moved: CenterMoves } {
   const { matter } = rule
   const state = copy(input)
   const moved: CenterMoves = { links: 0, loops: 0, roles: 0, hops: 0 }
@@ -253,7 +301,11 @@ export function centerBeat(rule: CenterLinks, input: CenterState, t: number, onH
   return { state, moved }
 }
 
-export function centerBeatBack(rule: CenterLinks, input: CenterState, t: number): CenterState {
+export function centerBeatBack(
+  rule: CenterLinks,
+  input: CenterState,
+  t: number,
+): CenterState {
   const { matter } = rule
   const state = copy(input)
 
@@ -278,7 +330,11 @@ export function centerBeatBack(rule: CenterLinks, input: CenterState, t: number)
     }
   }
 
-  for (let k = rule.loops ? matter.firsts.length - 1 : -1; k >= 0; k--) {
+  for (
+    let k = rule.loops ? matter.firsts.length - 1 : -1;
+    k >= 0;
+    k--
+  ) {
     const a = matter.firsts[k] ?? 0
 
     for (let x = matter.cells - 1; x >= 0; x--) {
@@ -298,7 +354,10 @@ export function centerBeatBack(rule: CenterLinks, input: CenterState, t: number)
 }
 
 // how many links carry a triality flux, E mod 3 not 0
-export function stringLinks(rule: CenterLinks, flux: Int32Array): number {
+export function stringLinks(
+  rule: CenterLinks,
+  flux: Int32Array,
+): number {
   let count = 0
 
   for (let x = 0; x < rule.matter.cells; x++) {
@@ -310,12 +369,21 @@ export function stringLinks(rule: CenterLinks, flux: Int32Array): number {
   return count
 }
 
-export function centerEnergy(rule: CenterLinks, state: CenterState): number {
-  return totalEnergy(rule.matter, state) + rule.tension * stringLinks(rule, state.flux)
+export function centerEnergy(
+  rule: CenterLinks,
+  state: CenterState,
+): number {
+  return (
+    totalEnergy(rule.matter, state) +
+    rule.tension * stringLinks(rule, state.flux)
+  )
 }
 
 // cells where the flux leaving minus the flux entering differs from the vibe
-export function gaussViolations(rule: CenterLinks, state: CenterState): number {
+export function gaussViolations(
+  rule: CenterLinks,
+  state: CenterState,
+): number {
   const { matter } = rule
 
   let violations = 0
@@ -324,7 +392,9 @@ export function gaussViolations(rule: CenterLinks, state: CenterState): number {
     let divergence = 0
 
     for (const a of matter.firsts) {
-      divergence += fluxAlong(rule, state.flux, x, a) + fluxAlong(rule, state.flux, x, matter.opposite[a] ?? a)
+      divergence +=
+        fluxAlong(rule, state.flux, x, a) +
+        fluxAlong(rule, state.flux, x, matter.opposite[a] ?? a)
     }
 
     violations += divergence === state.vibe[x] ? 0 : 1
@@ -333,6 +403,13 @@ export function gaussViolations(rule: CenterLinks, state: CenterState): number {
   return violations
 }
 
-export function changeCenterFrame(rule: CenterLinks, state: CenterState, frame: ArrayLike<number>): CenterState {
-  return { ...changeFrame(rule.matter, state, frame), flux: Int32Array.from(state.flux) }
+export function changeCenterFrame(
+  rule: CenterLinks,
+  state: CenterState,
+  frame: ArrayLike<number>,
+): CenterState {
+  return {
+    ...changeFrame(rule.matter, state, frame),
+    flux: Int32Array.from(state.flux),
+  }
 }

@@ -21,30 +21,71 @@
 // own dock; the stream takes each slot's value one dock along.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { cloneConfiguration, mergeBranches, times, type Branch, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  mergeBranches,
+  times,
+  type Branch,
+  type LockedState,
+  type LockedTables,
+  type LockedTally,
+} from '@/code/rule/doublet-locked-knit'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
-import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { dockHold, ringDockMixBranch, swapCoinBranch, type RingUnit } from '@/code/rule/swap-mixer'
+import {
+  vetoBeat,
+  vetoBeatBack,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  dockHold,
+  ringDockMixBranch,
+  swapCoinBranch,
+  type RingUnit,
+} from '@/code/rule/swap-mixer'
 
 const ROOTS = rootsD4()
 
 // 12 Pi8, row-major [to][from]
-export const ODD_OCTET_12: readonly (readonly number[])[] = ROOTS.map((r, i) => ROOTS.map((s, j) => (i === j ? 6 : 0) - (OPPOSITE[i] === j ? 6 : 0) - r.reduce((t, x, k) => t + x * (s[k] as number), 0)))
+export const ODD_OCTET_12: readonly (readonly number[])[] = ROOTS.map(
+  (r, i) =>
+    ROOTS.map(
+      (s, j) =>
+        (i === j ? 6 : 0) -
+        (OPPOSITE[i] === j ? 6 : 0) -
+        r.reduce((t, x, k) => t + x * s[k]!, 0),
+    ),
+)
 
 // the per-dock scale of the piece
 export const oddScale = (v: RingUnit): bigint => 12n * v.den ** 8n
 
-const conj = (x: readonly [bigint, bigint]): [bigint, bigint] => [x[0] - x[1], -x[1]]
+const conj = (x: readonly [bigint, bigint]): [bigint, bigint] => [
+  x[0] - x[1],
+  -x[1],
+]
 
-const cloneBranch = (b: Branch): Branch => ({ ...cloneConfiguration(b), a: b.a, b: b.b, k: b.k })
+const cloneBranch = (b: Branch): Branch => ({
+  ...cloneConfiguration(b),
+  a: b.a,
+  b: b.b,
+  k: b.k,
+})
 
 // the piece on one branch, every dock, each dock times oddScale(v)
-export function oddPhaseBranch(cells: number, br: Branch, v: RingUnit, adjoint: boolean): Branch[] {
-  const num = adjoint ? conj(v.num) : ([v.num[0], v.num[1]] as [bigint, bigint])
+export function oddPhaseBranch(
+  cells: number,
+  br: Branch,
+  v: RingUnit,
+  adjoint: boolean,
+): Branch[] {
+  const num = adjoint
+    ? conj(v.num)
+    : ([v.num[0], v.num[1]] as [bigint, bigint])
   const S = oddScale(v)
   const den7 = v.den ** 7n
   const hopU = num[0] - v.den
   const hopV = num[1]
+
   let branches: Branch[] = [br]
 
   for (let x = 0; x < cells; x++) {
@@ -60,22 +101,31 @@ export function oddPhaseBranch(cells: number, br: Branch, v: RingUnit, adjoint: 
       }
 
       if (h.held === 24) {
-        for (let e = 0; e < 8; e++) times(b, num[0], num[1])
+        for (let e = 0; e < 8; e++) {
+          times(b, num[0], num[1])
+        }
+
         times(b, 12n, 0n)
         next.push(b)
         continue
       }
 
-      if (h.held !== 1) throw new Error(`odd-phase: a dock of ${h.held} vibes of one content (only 0, 1 and 24 are built)`)
+      if (h.held !== 1) {
+        throw new Error(
+          `odd-phase: a dock of ${h.held} vibes of one content (only 0, 1 and 24 are built)`,
+        )
+      }
 
       const from = Math.log2(h.mask)
 
       for (let to = 0; to < 24; to++) {
-        const q = BigInt((ODD_OCTET_12[to] as number[])[from] as number)
+        const q = BigInt((ODD_OCTET_12[to] as number[])[from]!)
         const re = to === from ? 12n * v.den + hopU * q : hopU * q
         const im = hopV * q
 
-        if (re === 0n && im === 0n) continue
+        if (re === 0n && im === 0n) {
+          continue
+        }
 
         const k = cloneBranch(b)
 
@@ -83,9 +133,9 @@ export function oddPhaseBranch(cells: number, br: Branch, v: RingUnit, adjoint: 
           const i = x * 24 + from
           const j = x * 24 + to
 
-          k.vibe[j] = k.vibe[i] as number
-          k.point[j] = k.point[i] as number
-          k.open[j] = k.open[i] as number
+          k.vibe[j] = k.vibe[i]!
+          k.point[j] = k.point[i]!
+          k.open[j] = k.open[i]!
           k.vibe[i] = 0
           k.point[i] = 0
           k.open[i] = 0
@@ -104,18 +154,53 @@ export function oddPhaseBranch(cells: number, br: Branch, v: RingUnit, adjoint: 
 
 // one beat: the ring mixer (u), the odd-octet piece (v), the swap coin, the working beat. The amplitudes carry the global
 // factor (ringScale(u) oddScale(v))^cells
-export function oddPhasedBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, u: RingUnit, v: RingUnit, tally?: LockedTally): LockedState {
-  const mixed = mergeBranches(s.branches.flatMap(b => ringDockMixBranch(t.cells, cloneBranch(b), u, false)))
-  const odd = mergeBranches(mixed.flatMap(b => oddPhaseBranch(t.cells, b, v, false)))
+export function oddPhasedBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  u: RingUnit,
+  v: RingUnit,
+  tally?: LockedTally,
+): LockedState {
+  const mixed = mergeBranches(
+    s.branches.flatMap(b =>
+      ringDockMixBranch(t.cells, cloneBranch(b), u, false),
+    ),
+  )
+  const odd = mergeBranches(
+    mixed.flatMap(b => oddPhaseBranch(t.cells, b, v, false)),
+  )
   const coined = odd.flatMap(b => swapCoinBranch(t.cells, b))
 
-  return vetoBeat(kind, t, { branches: mergeBranches(coined) }, beat, tally)
+  return vetoBeat(
+    kind,
+    t,
+    { branches: mergeBranches(coined) },
+    beat,
+    tally,
+  )
 }
 
 // its exact inverse (the same global factor)
-export function oddPhasedBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, u: RingUnit, v: RingUnit): LockedState {
-  const back = vetoBeatBack(kind, t, s, beat).branches.flatMap(b => swapCoinBranch(t.cells, cloneBranch(b)))
-  const odd = mergeBranches(back.flatMap(b => oddPhaseBranch(t.cells, b, v, true)))
+export function oddPhasedBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  u: RingUnit,
+  v: RingUnit,
+): LockedState {
+  const back = vetoBeatBack(kind, t, s, beat).branches.flatMap(b =>
+    swapCoinBranch(t.cells, cloneBranch(b)),
+  )
+  const odd = mergeBranches(
+    back.flatMap(b => oddPhaseBranch(t.cells, b, v, true)),
+  )
 
-  return { branches: mergeBranches(odd.flatMap(b => ringDockMixBranch(t.cells, b, u, true))) }
+  return {
+    branches: mergeBranches(
+      odd.flatMap(b => ringDockMixBranch(t.cells, b, u, true)),
+    ),
+  }
 }

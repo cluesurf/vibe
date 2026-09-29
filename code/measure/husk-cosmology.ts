@@ -16,7 +16,10 @@
 //
 // Reals appear only in the readers (ratios, logarithms, fits). The mesh and its distances are integers.
 
-import type { HyperbolicBall, CuspLayer } from '@/code/substrate/coxeter/label-transport'
+import type {
+  HyperbolicBall,
+  CuspLayer,
+} from '@/code/substrate/coxeter/label-transport'
 
 // the cubic lattice's l1 ball: how many points lie within l1 distance s of a point of Z^3 (1, 7, 25, 63, 129, ...)
 export function cubicBall(s: number): number {
@@ -31,35 +34,47 @@ export function cubicShell(s: number): number {
 // the husk docks of the cusp layer that lie inside the ball, each with its skin distance and its cell index
 export type HuskDock = { cell: number; skin: number }
 
-export function huskDocks(input: { ball: HyperbolicBall; layer: CuspLayer }): HuskDock[] {
+export function huskDocks(input: {
+  ball: HyperbolicBall
+  layer: CuspLayer
+}): HuskDock[] {
   const { ball, layer } = input
   const out: HuskDock[] = []
 
   for (const m of layer.members) {
     const cell = ball.index.get(m.key)
 
-    if (cell !== undefined) out.push({ cell, skin: m.skin })
+    if (cell !== undefined) {
+      out.push({ cell, skin: m.skin })
+    }
   }
 
   return out
 }
 
 // breadth-first distance from one cell over the real cells of the ball, stopping at `limit`; -1 beyond it
-export function distancesFrom(input: { ball: HyperbolicBall; source: number; limit: number }): Int16Array {
+export function distancesFrom(input: {
+  ball: HyperbolicBall
+  source: number
+  limit: number
+}): Int16Array {
   const { ball, source, limit } = input
   const { mesh, cells } = ball
   const distance = new Int16Array(cells).fill(-1)
   const queue = new Int32Array(cells)
+
   let tail = 0
 
   distance[source] = 0
   queue[tail++] = source
 
   for (let head = 0; head < tail; head++) {
-    const c = queue[head] as number
-    const dc = distance[c] as number
+    const c = queue[head]!
+    const dc = distance[c]!
 
-    if (dc >= limit) continue
+    if (dc >= limit) {
+      continue
+    }
 
     for (let d = 0; d < mesh.degree; d++) {
       const n = mesh.neighbour(c, d)
@@ -75,14 +90,20 @@ export function distancesFrom(input: { ball: HyperbolicBall; source: number; lim
 }
 
 // the causal past at beat T of one husk dock: the cells c with seed(c) + d(c, a) <= T, as a bit mask over the ball
-export function pastMask(input: { seed: ArrayLike<number>; from: Int16Array; beat: number }): Uint8Array {
+export function pastMask(input: {
+  seed: ArrayLike<number>
+  from: Int16Array
+  beat: number
+}): Uint8Array {
   const { seed, from, beat } = input
   const mask = new Uint8Array(from.length)
 
   for (let c = 0; c < from.length; c++) {
-    const d = from[c] as number
+    const d = from[c]!
 
-    if (d >= 0 && (seed[c] as number) + d <= beat) mask[c] = 1
+    if (d >= 0 && seed[c]! + d <= beat) {
+      mask[c] = 1
+    }
   }
 
   return mask
@@ -91,7 +112,9 @@ export function pastMask(input: { seed: ArrayLike<number>; from: Int16Array; bea
 export function countMask(mask: Uint8Array): number {
   let n = 0
 
-  for (const b of mask) n += b
+  for (const b of mask) {
+    n += b
+  }
 
   return n
 }
@@ -99,7 +122,9 @@ export function countMask(mask: Uint8Array): number {
 export function countBoth(a: Uint8Array, b: Uint8Array): number {
   let n = 0
 
-  for (let i = 0; i < a.length; i++) n += (a[i] as number) & (b[i] as number)
+  for (let i = 0; i < a.length; i++) {
+    n += a[i]! & b[i]!
+  }
 
   return n
 }

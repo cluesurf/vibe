@@ -44,15 +44,58 @@
 // read exactly from the rule. NOTHING MOVES: the pieces hand values between slots of one dock; the stream takes each
 // slot's value one dock along; the string is a phase.
 
-import { collideVeto, meetBranch } from '@/code/rule/occupation-veto-knit'
-import { lockedState, mergeBranches, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  collideVeto,
+  meetBranch,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  lockedState,
+  mergeBranches,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { LINE_OF, LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { ringDockMixBranch, ringScale, swapCoinBranch, swapMixedBeat, type RingUnit } from '@/code/rule/swap-mixer'
-import { oddPhaseBranch, oddPhasedBeat, oddScale } from '@/code/rule/odd-phase'
-import { BOUNCE_TABLE, bouncePermutation } from '@/code/rule/bounce-pair-knit'
+import {
+  ringDockMixBranch,
+  ringScale,
+  swapCoinBranch,
+  swapMixedBeat,
+  type RingUnit,
+} from '@/code/rule/swap-mixer'
+import {
+  oddPhaseBranch,
+  oddPhasedBeat,
+  oddScale,
+} from '@/code/rule/odd-phase'
+import {
+  BOUNCE_TABLE,
+  bouncePermutation,
+} from '@/code/rule/bounce-pair-knit'
 import { seaConfiguration } from '@/code/measure/pauli-mixer'
-import { cloneDock, d4Steps, eFloat, ePow, flatBoxTables, ROOTS, seaFactor, type Ball, type DockState, type Eis, type ExactMatrix, type Outcome } from '@/code/measure/swap-sector'
-import { eisConj, eisMul, eisNorm, eisPow, eisValue } from '@/code/measure/swap-cone'
+import {
+  cloneDock,
+  d4Steps,
+  eFloat,
+  ePow,
+  flatBoxTables,
+  ROOTS,
+  seaFactor,
+  type Ball,
+  type DockState,
+  type Eis,
+  type ExactMatrix,
+  type Outcome,
+} from '@/code/measure/swap-sector'
+import {
+  eisConj,
+  eisMul,
+  eisNorm,
+  eisPow,
+  eisValue,
+} from '@/code/measure/swap-cone'
 
 // ---- ring units ----
 
@@ -69,8 +112,11 @@ const UNITS: readonly Eis[] = [
 // mixer or a string can hold
 export function ringUnit(k: number, j: number): RingUnit {
   const p: Eis = [3n, 1n]
-  const base = k >= 0 ? eisPow(eisMul(p, p), k) : eisPow(eisMul(eisConj(p), eisConj(p)), -k)
-  const num = eisMul(base, UNITS[((j % 6) + 6) % 6] as Eis)
+  const base =
+    k >= 0
+      ? eisPow(eisMul(p, p), k)
+      : eisPow(eisMul(eisConj(p), eisConj(p)), -k)
+  const num = eisMul(base, UNITS[((j % 6) + 6) % 6]!)
 
   return { num: [num[0], num[1]], den: 7n ** BigInt(Math.abs(k)) }
 }
@@ -81,44 +127,93 @@ export const unitAngle = (u: RingUnit): number => {
   return Math.atan2(im, re)
 }
 
-export const unitNormExact = (u: RingUnit): boolean => eisNorm([u.num[0], u.num[1]]) === u.den * u.den
+export const unitNormExact = (u: RingUnit): boolean =>
+  eisNorm([u.num[0], u.num[1]]) === u.den * u.den
 
 // ---- one dock of the empty mesh ----
 
-export const emptyDock = (): DockState => ({ vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12) })
+export const emptyDock = (): DockState => ({
+  vibe: new Int8Array(24),
+  point: new Int8Array(24),
+  open: new Uint8Array(24),
+  store: new Int8Array(12),
+  spoint: new Int8Array(12),
+  sopen: new Uint8Array(12),
+})
 
 export function emptyKey(s: DockState): string {
   let k = ''
 
-  for (let d = 0; d < 24; d++) if (s.vibe[d] !== 0) k += `${d}:${s.vibe[d]}:${s.point[d]}:${s.open[d]};`
+  for (let d = 0; d < 24; d++) {
+    if (s.vibe[d] !== 0) {
+      k += `${d}:${s.vibe[d]}:${s.point[d]}:${s.open[d]};`
+    }
+  }
+
   k += '|'
-  for (let l = 0; l < 12; l++) if (s.store[l] !== 0) k += `${l}:${s.store[l]}:${s.spoint[l]}:${s.sopen[l]};`
+
+  for (let l = 0; l < 12; l++) {
+    if (s.store[l] !== 0) {
+      k += `${l}:${s.store[l]}:${s.spoint[l]}:${s.sopen[l]};`
+    }
+  }
 
   return k
 }
 
-const ONE_DOCK: LockedTables = { cells: 1, collision: 'pass', veto: false, target: new Int32Array(24), source: new Int32Array(24), move: new Int8Array(216), back: new Int8Array(216) }
+const ONE_DOCK: LockedTables = {
+  cells: 1,
+  collision: 'pass',
+  veto: false,
+  target: new Int32Array(24),
+  source: new Int32Array(24),
+  move: new Int8Array(216),
+  back: new Int8Array(216),
+}
 
 const OUTCOMES = new Map<string, Outcome[]>()
 
 // the rule's pieces before the stream on one dock of the empty mesh (the mixer scaled by ringScale(u), with `v` the
 // odd-octet piece of code/rule/odd-phase scaled by oddScale(v) (E-SPN-0148), the swap coin, the meetings, the collision
 // of beat `beat`): outcomes with numerators over ringScale(u) (oddScale(v)) 2^k
-export function emptyOutcomes(s: DockState, beat: number, u: RingUnit, v?: RingUnit): Outcome[] {
+export function emptyOutcomes(
+  s: DockState,
+  beat: number,
+  u: RingUnit,
+  v?: RingUnit,
+): Outcome[] {
   const key = `${beat % 2}#${u.num.join(',')}/${u.den}${v ? `#odd${v.num.join(',')}/${v.den}` : ''}#${emptyKey(s)}`
   const hit = OUTCOMES.get(key)
 
-  if (hit) return hit
+  if (hit) {
+    return hit
+  }
 
   const br: Branch = { ...cloneDock(s), a: 1n, b: 0n, k: 0 }
   const ringed = mergeBranches(ringDockMixBranch(1, br, u, false))
-  const mixed = v ? mergeBranches(ringed.flatMap(b => oddPhaseBranch(1, b, v, false))) : ringed
+  const mixed = v
+    ? mergeBranches(ringed.flatMap(b => oddPhaseBranch(1, b, v, false)))
+    : ringed
   const coined = mixed.flatMap(b => swapCoinBranch(1, b))
   const met = coined.flatMap(b => meetBranch(b, 1, false))
 
-  for (const b of met) collideVeto('none', ONE_DOCK, b, beat, false)
+  for (const b of met) {
+    collideVeto('none', ONE_DOCK, b, beat, false)
+  }
 
-  const out = mergeBranches(met).map(b => ({ state: { vibe: b.vibe, point: b.point, open: b.open, store: b.store, spoint: b.spoint, sopen: b.sopen }, a: b.a, b: b.b, k: b.k }))
+  const out = mergeBranches(met).map(b => ({
+    state: {
+      vibe: b.vibe,
+      point: b.point,
+      open: b.open,
+      store: b.store,
+      spoint: b.spoint,
+      sopen: b.sopen,
+    },
+    a: b.a,
+    b: b.b,
+    k: b.k,
+  }))
 
   OUTCOMES.set(key, out)
 
@@ -126,20 +221,45 @@ export function emptyOutcomes(s: DockState, beat: number, u: RingUnit, v?: RingU
 }
 
 // the per-dock scale of the pieces before the stream: ringScale(u), times oddScale(v) with the odd-octet piece
-export const pieceScale = (u: RingUnit, v?: RingUnit): bigint => ringScale(u) * (v ? oddScale(v) : 1n)
+export const pieceScale = (u: RingUnit, v?: RingUnit): bigint =>
+  ringScale(u) * (v ? oddScale(v) : 1n)
 
 // the empty dock's factor: required to be the empty dock alone, with amplitude S = pieceScale(u, v) (numerator over S: S)
-export function emptyFactor(u: RingUnit, v?: RingUnit): { a: bigint; b: bigint; k: number; alone: boolean } {
+export function emptyFactor(
+  u: RingUnit,
+  v?: RingUnit,
+): { a: bigint; b: bigint; k: number; alone: boolean } {
   const o = emptyOutcomes(emptyDock(), 0, u, v)
   const o1 = emptyOutcomes(emptyDock(), 1, u, v)
-  const alone = o.length === 1 && o1.length === 1 && emptyKey((o[0] as Outcome).state) === '|' && emptyKey((o1[0] as Outcome).state) === '|'
+  const alone =
+    o.length === 1 &&
+    o1.length === 1 &&
+    emptyKey(o[0]!.state) === '|' &&
+    emptyKey(o1[0]!.state) === '|'
 
-  return { a: (o[0] as Outcome).a, b: (o[0] as Outcome).b, k: (o[0] as Outcome).k, alone: alone && (o1[0] as Outcome).a === (o[0] as Outcome).a && (o1[0] as Outcome).b === (o[0] as Outcome).b }
+  return {
+    a: o[0]!.a,
+    b: o[0]!.b,
+    k: o[0]!.k,
+    alone: alone && o1[0]!.a === o[0]!.a && o1[0]!.b === o[0]!.b,
+  }
 }
 
 // A[to][from] for a lone vibe (1 a love, -1 a fear) on an empty dock, numerators over S 2^k
-export function vibeDockExact(vibe: 1 | -1, beat: number, u: RingUnit, v?: RingUnit): ExactMatrix {
-  const found: { from: number; to: number; a: bigint; b: bigint; k: number }[] = []
+export function vibeDockExact(
+  vibe: 1 | -1,
+  beat: number,
+  u: RingUnit,
+  v?: RingUnit,
+): ExactMatrix {
+  const found: {
+    from: number
+    to: number
+    a: bigint
+    b: bigint
+    k: number
+  }[] = []
+
   let kMax = 0
 
   for (let from = 0; from < 24; from++) {
@@ -149,11 +269,21 @@ export function vibeDockExact(vibe: 1 | -1, beat: number, u: RingUnit, v?: RingU
     s.open[from] = 1
 
     for (const o of emptyOutcomes(s, beat, u, v)) {
-      const at = [...o.state.vibe].map((v, d) => (v !== 0 ? d : -1)).filter(d => d >= 0)
+      const at = [...o.state.vibe]
+        .map((v, d) => (v !== 0 ? d : -1))
+        .filter(d => d >= 0)
 
-      if (at.length !== 1 || o.state.vibe[at[0] as number] !== vibe || [...o.state.store].some(x => x !== 0)) throw new Error('swap-string: a lone vibe left the one-vibe sector')
+      if (
+        at.length !== 1 ||
+        o.state.vibe[at[0]!] !== vibe ||
+        [...o.state.store].some(x => x !== 0)
+      ) {
+        throw new Error(
+          'swap-string: a lone vibe left the one-vibe sector',
+        )
+      }
 
-      found.push({ from, to: at[0] as number, a: o.a, b: o.b, k: o.k })
+      found.push({ from, to: at[0]!, a: o.a, b: o.b, k: o.k })
       kMax = Math.max(kMax, o.k)
     }
   }
@@ -161,14 +291,26 @@ export function vibeDockExact(vibe: 1 | -1, beat: number, u: RingUnit, v?: RingU
   return assemble(24, found, kMax)
 }
 
-function assemble(n: number, found: readonly { from: number; to: number; a: bigint; b: bigint; k: number }[], kMax: number): ExactMatrix {
-  const entries: Eis[][] = Array.from({ length: n }, () => Array.from({ length: n }, (): Eis => [0n, 0n]))
+function assemble(
+  n: number,
+  found: readonly {
+    from: number
+    to: number
+    a: bigint
+    b: bigint
+    k: number
+  }[],
+  kMax: number,
+): ExactMatrix {
+  const entries: Eis[][] = Array.from({ length: n }, () =>
+    Array.from({ length: n }, (): Eis => [0n, 0n]),
+  )
 
   for (const f of found) {
     const sc = 1n << BigInt(kMax - f.k)
-    const e = (entries[f.to] as Eis[])[f.from] as Eis
+    const e = entries[f.to]![f.from]!
 
-    ;(entries[f.to] as Eis[])[f.from] = [e[0] + f.a * sc, e[1] + f.b * sc]
+    entries[f.to]![f.from] = [e[0] + f.a * sc, e[1] + f.b * sc]
   }
 
   return { entries, k: kMax }
@@ -187,7 +329,11 @@ export function contactState(i: number): DockState {
     const l = Math.floor(i / 24)
     const f = i % 24
 
-    if (l === f) throw new Error('swap-string: a love and a fear cannot share a slot')
+    if (l === f) {
+      throw new Error(
+        'swap-string: a love and a fear cannot share a slot',
+      )
+    }
 
     s.vibe[l] = 1
     s.open[l] = 1
@@ -213,55 +359,107 @@ export function contactIndex(s: DockState): number {
   let n = 0
 
   for (let d = 0; d < 24; d++) {
-    const v = s.vibe[d] as number
+    const v = s.vibe[d]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     n++
-    if (v > 0) l = d
-    else f = d
-    if (s.point[d] !== 0 || s.open[d] !== 1) return -1
+
+    if (v > 0) {
+      l = d
+    } else {
+      f = d
+    }
+
+    if (s.point[d] !== 0 || s.open[d] !== 1) {
+      return -1
+    }
   }
 
   let stores = 0
   let L = -1
 
   for (let k = 0; k < 12; k++) {
-    if (s.store[k] === 0) continue
+    if (s.store[k] === 0) {
+      continue
+    }
+
     stores++
     L = k
   }
 
-  if (n === 2 && l >= 0 && f >= 0 && stores === 0) return l * 24 + f
-  if (n === 0 && stores === 1 && s.spoint[L] === 0 && s.sopen[L] === 3) return STORE_BASE + 2 * L + ((s.store[L] as number) > 0 ? 0 : 1)
+  if (n === 2 && l >= 0 && f >= 0 && stores === 0) {
+    return l * 24 + f
+  }
+
+  if (
+    n === 0 &&
+    stores === 1 &&
+    s.spoint[L] === 0 &&
+    s.sopen[L] === 3
+  ) {
+    return STORE_BASE + 2 * L + (s.store[L]! > 0 ? 0 : 1)
+  }
 
   return -1
 }
 
 export const lineOfStore = (i: number): number => (i - STORE_BASE) >> 1
-export const storeOnLine = (slotA: number, slotB: number): boolean => LINE_OF[slotA] === LINE_OF[slotB]
-export const firstOfLine = (L: number): number => LINE_FIRSTS[L] as number
+export const storeOnLine = (slotA: number, slotB: number): boolean =>
+  LINE_OF[slotA] === LINE_OF[slotB]
+export const firstOfLine = (L: number): number => LINE_FIRSTS[L]!
 
 // the contact map C[to][from] over the 600 contact indices (the l == f indices are empty rows and columns),
 // numerators over S 2^k, and a census of what the collision did
-export type ContactExact = ExactMatrix & { stored: number; released: number; permuted: number }
+export type ContactExact = ExactMatrix & {
+  stored: number
+  released: number
+  permuted: number
+}
 
-export function contactDockExact(beat: number, u: RingUnit, v?: RingUnit): ContactExact {
-  const found: { from: number; to: number; a: bigint; b: bigint; k: number }[] = []
+export function contactDockExact(
+  beat: number,
+  u: RingUnit,
+  v?: RingUnit,
+): ContactExact {
+  const found: {
+    from: number
+    to: number
+    a: bigint
+    b: bigint
+    k: number
+  }[] = []
+
   let kMax = 0
   let stored = 0
   let released = 0
-  let permuted = 0
+
+  const permuted = 0
 
   for (let from = 0; from < CONTACT_STATES; from++) {
-    if (from < STORE_BASE && Math.floor(from / 24) === from % 24) continue
+    if (from < STORE_BASE && Math.floor(from / 24) === from % 24) {
+      continue
+    }
 
     for (const o of emptyOutcomes(contactState(from), beat, u, v)) {
       const to = contactIndex(o.state)
 
-      if (to < 0) throw new Error(`swap-string: a love and a fear at contact left the contact sector (from ${from}, beat ${beat})`)
+      if (to < 0) {
+        throw new Error(
+          `swap-string: a love and a fear at contact left the contact sector (from ${from}, beat ${beat})`,
+        )
+      }
 
-      if (from < STORE_BASE && to >= STORE_BASE) stored++
-      if (from >= STORE_BASE && to < STORE_BASE) released++
+      if (from < STORE_BASE && to >= STORE_BASE) {
+        stored++
+      }
+
+      if (from >= STORE_BASE && to < STORE_BASE) {
+        released++
+      }
+
       found.push({ from, to, a: o.a, b: o.b, k: o.k })
       kMax = Math.max(kMax, o.k)
     }
@@ -269,14 +467,23 @@ export function contactDockExact(beat: number, u: RingUnit, v?: RingUnit): Conta
 
   // a slot pair that the mixer and coin alone would not have produced: counted by the caller from a comparison; here
   // the number of from-states whose outcome set is not a product of the one-vibe maps is left to the reading
-  return { ...assemble(CONTACT_STATES, found, kMax), stored, released, permuted }
+  return {
+    ...assemble(CONTACT_STATES, found, kMax),
+    stored,
+    released,
+    permuted,
+  }
 }
 
 // ---- the prediction's two numbers ----
 
 // the string length per Euclidean unit, d4Steps(y) / |y|, averaged over directions (a grid of the 4-ball of radius G,
 // radially projected), with its least and largest values (1/sqrt 2 along a root, 1 along an axis)
-export function stringKappa(G: number): { mean: number; least: number; most: number } {
+export function stringKappa(G: number): {
+  mean: number
+  least: number
+  most: number
+} {
   let sum = 0
   let n = 0
   let least = 9
@@ -288,7 +495,9 @@ export function stringKappa(G: number): { mean: number; least: number; most: num
         for (let d = -G; d <= G; d++) {
           const r = Math.hypot(a, b, c, d)
 
-          if (r === 0 || r > G) continue
+          if (r === 0 || r > G) {
+            continue
+          }
 
           const k = d4Steps([a / r, b / r, c / r, d / r])
 
@@ -307,9 +516,14 @@ export function stringKappa(G: number): { mean: number; least: number; most: num
 // the lowest eigenvalue of -u'' + (3/4) u / x^2 + x u on (0, L), u(0) = u(L) = 0, N interior points (the 4d s-wave in a
 // linear potential, in the units l = (2 mu F)^(-1/3) and F l), by Sturm-sequence bisection; `centrifugal` 0 gives the 3d
 // s-wave, whose value is the Airy zero 2.338107 (the solver's check)
-export function linearWell(L: number, N: number, centrifugal = 0.75): number {
+export function linearWell(
+  L: number,
+  N: number,
+  centrifugal = 0.75,
+): number {
   const h = L / (N + 1)
   const off2 = 1 / h ** 4
+
   const count = (e: number): number => {
     let k = 0
     let q = 0
@@ -319,19 +533,26 @@ export function linearWell(L: number, N: number, centrifugal = 0.75): number {
       const diag = 2 / (h * h) + centrifugal / (x * x) + x - e
 
       q = i === 0 ? diag : diag - off2 / (q === 0 ? 1e-300 : q)
-      if (q < 0) k++
+
+      if (q < 0) {
+        k++
+      }
     }
 
     return k
   }
+
   let a = 0
   let b = 20
 
   for (let it = 0; it < 80; it++) {
     const mid = (a + b) / 2
 
-    if (count(mid) >= 1) b = mid
-    else a = mid
+    if (count(mid) >= 1) {
+      b = mid
+    } else {
+      a = mid
+    }
   }
 
   return (a + b) / 2
@@ -341,7 +562,13 @@ export function linearWell(L: number, N: number, centrifugal = 0.75): number {
 // points (the 4d s-wave with a position-dependent reduced mass, in physical units; the symmetric difference keeps the
 // operator hermitian), by Sturm-sequence bisection, with its normalized radial vector u (inverse iteration) and the
 // grid step. With mu constant and W = F x it is linearWell's eps4 F l
-export function radialWell(W: (x: number) => number, mu: (x: number) => number, L: number, N: number, centrifugal = 0.75): { E: number; u: Float64Array; h: number } {
+export function radialWell(
+  W: (x: number) => number,
+  mu: (x: number) => number,
+  L: number,
+  N: number,
+  centrifugal = 0.75,
+): { E: number; u: Float64Array; h: number } {
   const h = L / (N + 1)
   const d = new Float64Array(N)
   const o = new Float64Array(N)
@@ -351,7 +578,10 @@ export function radialWell(W: (x: number) => number, mu: (x: number) => number, 
     const up = mu(x + h / 2)
     const down = mu(x - h / 2)
 
-    d[i] = (1 / up + 1 / down) / (2 * h * h) + centrifugal / (2 * mu(x) * x * x) + W(x)
+    d[i] =
+      (1 / up + 1 / down) / (2 * h * h) +
+      centrifugal / (2 * mu(x) * x * x) +
+      W(x)
     o[i] = -1 / (2 * up * h * h)
   }
 
@@ -360,25 +590,33 @@ export function radialWell(W: (x: number) => number, mu: (x: number) => number, 
     let q = 0
 
     for (let i = 0; i < N; i++) {
-      const di = (d[i] as number) - e
+      const di = d[i]! - e
 
-      q = i === 0 ? di : di - (o[i - 1] as number) ** 2 / (q === 0 ? 1e-300 : q)
-      if (q < 0) k++
+      q = i === 0 ? di : di - o[i - 1]! ** 2 / (q === 0 ? 1e-300 : q)
+
+      if (q < 0) {
+        k++
+      }
     }
 
     return k
   }
+
   let a = -20
   let b = 20
 
   for (let it = 0; it < 100; it++) {
     const mid = (a + b) / 2
 
-    if (count(mid) >= 1) b = mid
-    else a = mid
+    if (count(mid) >= 1) {
+      b = mid
+    } else {
+      a = mid
+    }
   }
 
   const E = (a + b) / 2
+
   let u = new Float64Array(N).fill(1)
 
   for (let it = 0; it < 6; it++) {
@@ -388,18 +626,27 @@ export function radialWell(W: (x: number) => number, mu: (x: number) => number, 
     const shift = E + 1e-9 * Math.max(1, Math.abs(E))
 
     for (let i = 0; i < N; i++) {
-      const lower = i > 0 ? (o[i - 1] as number) : 0
-      const den = (d[i] as number) - shift - lower * (i > 0 ? (cp[i - 1] as number) : 0)
+      const lower = i > 0 ? o[i - 1]! : 0
+      const den = d[i]! - shift - lower * (i > 0 ? cp[i - 1]! : 0)
 
-      cp[i] = (i < N - 1 ? (o[i] as number) : 0) / den
-      dp[i] = ((u[i] as number) - lower * (i > 0 ? (dp[i - 1] as number) : 0)) / den
+      cp[i] = (i < N - 1 ? o[i]! : 0) / den
+      dp[i] = (u[i]! - lower * (i > 0 ? dp[i - 1]! : 0)) / den
     }
-    for (let i = N - 1; i >= 0; i--) x[i] = (dp[i] as number) - (cp[i] as number) * (i < N - 1 ? (x[i + 1] as number) : 0)
+
+    for (let i = N - 1; i >= 0; i--) {
+      x[i] = dp[i]! - cp[i]! * (i < N - 1 ? x[i + 1]! : 0)
+    }
 
     let n2 = 0
 
-    for (let i = 0; i < N; i++) n2 += (x[i] as number) ** 2
-    for (let i = 0; i < N; i++) x[i] = (x[i] as number) / Math.sqrt(n2)
+    for (let i = 0; i < N; i++) {
+      n2 += x[i]! ** 2
+    }
+
+    for (let i = 0; i < N; i++) {
+      x[i] = x[i]! / Math.sqrt(n2)
+    }
+
     u = x
   }
 
@@ -410,16 +657,31 @@ export function radialWell(W: (x: number) => number, mu: (x: number) => number, 
 // potential W = 4 (m(V) - m0), V = kappa x, m(V) = m0 + (tau / 2) min(V, cap), with the reduced mass `mu` (tan m(V(x))
 // for the local mass); the binding, the rest energy 2 m0 + E_b, the kinetic part, the mean string length and the
 // potential model's R = (1 / <1 / (2 tan m)> + 1.5 T) / E_rest
-export function massStringPrediction(m0: number, tau: number, cap: number, kappa: number, L: number, N: number, local = true): { Eb: number; Erest: number; T: number; meanV: number; R: number } {
-  const massAt = (x: number): number => m0 + (tau / 2) * Math.min(kappa * x, cap)
-  const r = radialWell(x => 4 * (massAt(x) - m0), local ? x => Math.tan(massAt(x)) : () => Math.tan(m0), L, N)
+export function massStringPrediction(
+  m0: number,
+  tau: number,
+  cap: number,
+  kappa: number,
+  L: number,
+  N: number,
+  local = true,
+): { Eb: number; Erest: number; T: number; meanV: number; R: number } {
+  const massAt = (x: number): number =>
+    m0 + (tau / 2) * Math.min(kappa * x, cap)
+  const r = radialWell(
+    x => 4 * (massAt(x) - m0),
+    local ? x => Math.tan(massAt(x)) : () => Math.tan(m0),
+    L,
+    N,
+  )
+
   let W = 0
   let V = 0
   let inv = 0
 
   for (let i = 0; i < r.u.length; i++) {
     const x = (i + 1) * r.h
-    const p = (r.u[i] as number) ** 2
+    const p = r.u[i]! ** 2
 
     W += p * 4 * (massAt(x) - m0)
     V += p * kappa * x
@@ -435,25 +697,43 @@ export function massStringPrediction(m0: number, tau: number, cap: number, kappa
 // ---- the rule itself on a periodic box of the empty mesh, one beat, against the meson beat ----
 
 // a start: a love at (dock, slot) and a fear at (dock, slot), or a store at (dock, line, sign)
-export type BoxStart = { love: [number, number]; fear: [number, number] } | { store: [number, number, number] }
+export type BoxStart =
+  | { love: [number, number]; fear: [number, number] }
+  | { store: [number, number, number] }
 
 // the key of a configuration holding one love and one fear, or one store, on the box: `L dock:slot F dock:slot` or
 // `S dock:line:sign`; null for anything else
-export function mesonKey(c: Configuration, cells: number): string | null {
+export function mesonKey(
+  c: Configuration,
+  cells: number,
+): string | null {
   const loves: [number, number][] = []
   const fears: [number, number][] = []
   const stores: [number, number, number][] = []
 
   for (let i = 0; i < cells * 24; i++) {
-    const v = c.vibe[i] as number
+    const v = c.vibe[i]!
 
-    if (v > 0) loves.push([Math.floor(i / 24), i % 24])
-    else if (v < 0) fears.push([Math.floor(i / 24), i % 24])
+    if (v > 0) {
+      loves.push([Math.floor(i / 24), i % 24])
+    } else if (v < 0) {
+      fears.push([Math.floor(i / 24), i % 24])
+    }
   }
-  for (let i = 0; i < cells * 12; i++) if (c.store[i] !== 0) stores.push([Math.floor(i / 12), i % 12, c.store[i] as number])
 
-  if (loves.length === 1 && fears.length === 1 && stores.length === 0) return `L${(loves[0] as number[]).join(':')} F${(fears[0] as number[]).join(':')}`
-  if (loves.length === 0 && fears.length === 0 && stores.length === 1) return `S${(stores[0] as number[]).join(':')}`
+  for (let i = 0; i < cells * 12; i++) {
+    if (c.store[i] !== 0) {
+      stores.push([Math.floor(i / 12), i % 12, c.store[i]!])
+    }
+  }
+
+  if (loves.length === 1 && fears.length === 1 && stores.length === 0) {
+    return `L${(loves[0] as number[]).join(':')} F${(fears[0] as number[]).join(':')}`
+  }
+
+  if (loves.length === 0 && fears.length === 0 && stores.length === 1) {
+    return `S${(stores[0] as number[]).join(':')}`
+  }
 
   return null
 }
@@ -462,9 +742,20 @@ export function mesonKey(c: Configuration, cells: number): string | null {
 // each branch's amplitude divided by S^cells (exactly by S^(cells - occupied docks) as integers, then as a float), keyed
 // by mesonKey; `inexact` counts branches whose integers S^(cells - occupied) did not divide, `stray` branches that are
 // not a meson configuration
-export function boxOneBeat(tables: LockedTables, u: RingUnit, start: BoxStart, beat: number, v?: RingUnit): { amps: Map<string, [number, number]>; inexact: number; stray: number } {
+export function boxOneBeat(
+  tables: LockedTables,
+  u: RingUnit,
+  start: BoxStart,
+  beat: number,
+  v?: RingUnit,
+): {
+  amps: Map<string, [number, number]>
+  inexact: number
+  stray: number
+} {
   const cells = tables.cells
   const c = seaConfiguration(cells, 0)
+
   let occupied: number
 
   if ('store' in start) {
@@ -487,8 +778,11 @@ export function boxOneBeat(tables: LockedTables, u: RingUnit, start: BoxStart, b
 
   const S = pieceScale(u, v)
   const div = S ** BigInt(cells - occupied)
-  const out = v ? oddPhasedBeat('none', tables, lockedState(c), beat, u, v) : swapMixedBeat('none', tables, lockedState(c), beat, u)
+  const out = v
+    ? oddPhasedBeat('none', tables, lockedState(c), beat, u, v)
+    : swapMixedBeat('none', tables, lockedState(c), beat, u)
   const amps = new Map<string, [number, number]>()
+
   let inexact = 0
   let stray = 0
 
@@ -500,7 +794,9 @@ export function boxOneBeat(tables: LockedTables, u: RingUnit, start: BoxStart, b
       continue
     }
 
-    if (br.a % div !== 0n || br.b % div !== 0n) inexact++
+    if (br.a % div !== 0n || br.b % div !== 0n) {
+      inexact++
+    }
 
     const [re, im] = eFloat(br.a / div, br.b / div)
     const scale = 1 / (Number(S) ** occupied * 2 ** br.k)
@@ -514,7 +810,13 @@ export function boxOneBeat(tables: LockedTables, u: RingUnit, start: BoxStart, b
 
 // the meson beat's one-beat image of the same start (K = 0, no string, on a ball large enough for one beat), keyed as
 // mesonKey keys the box: the love's new dock is its start dock's neighbor along its new slot, the fear's likewise
-export function modelOneBeat(space: MesonSpace, tables: LockedTables, start: BoxStart, startY: readonly number[], beat: number): Map<string, [number, number]> {
+export function modelOneBeat(
+  space: MesonSpace,
+  tables: LockedTables,
+  start: BoxStart,
+  startY: readonly number[],
+  beat: number,
+): Map<string, [number, number]> {
   const { ball } = space
   const n = ball.points.length
   const s = newMeson(ball)
@@ -525,7 +827,7 @@ export function modelOneBeat(space: MesonSpace, tables: LockedTables, start: Box
 
     s.re[n * 576 + 2 * L + (sign > 0 ? 0 : 1)] = 1
   } else {
-    const p = ball.index.get(startY.join(',')) as number
+    const p = ball.index.get(startY.join(','))!
 
     s.re[p * 576 + start.love[1] * 24 + start.fear[1]] = 1
   }
@@ -533,31 +835,43 @@ export function modelOneBeat(space: MesonSpace, tables: LockedTables, start: Box
   mesonBeat(space, s, o, beat)
 
   const amps = new Map<string, [number, number]>()
+
   const add = (key: string, re: number, im: number): void => {
     const x = amps.get(key) ?? [0, 0]
 
     amps.set(key, [x[0] + re, x[1] + im])
   }
+
   const xl = 'store' in start ? start.store[0] : start.love[0]
   const xf = 'store' in start ? start.store[0] : start.fear[0]
 
   for (let p = 0; p < n; p++) {
     for (let l = 0; l < 24; l++) {
       for (let f = 0; f < 24; f++) {
-        const re = o.re[p * 576 + l * 24 + f] as number
-        const im = o.im[p * 576 + l * 24 + f] as number
+        const re = o.re[p * 576 + l * 24 + f]!
+        const im = o.im[p * 576 + l * 24 + f]!
 
-        if (re === 0 && im === 0) continue
-        add(`L${Math.floor((tables.target[xl * 24 + l] as number) / 24)}:${l} F${Math.floor((tables.target[xf * 24 + f] as number) / 24)}:${f}`, re, im)
+        if (re === 0 && im === 0) {
+          continue
+        }
+
+        add(
+          `L${Math.floor(tables.target[xl * 24 + l]! / 24)}:${l} F${Math.floor(tables.target[xf * 24 + f]! / 24)}:${f}`,
+          re,
+          im,
+        )
       }
     }
   }
 
   for (let j = 0; j < 24; j++) {
-    const re = o.re[n * 576 + j] as number
-    const im = o.im[n * 576 + j] as number
+    const re = o.re[n * 576 + j]!
+    const im = o.im[n * 576 + j]!
 
-    if (re === 0 && im === 0) continue
+    if (re === 0 && im === 0) {
+      continue
+    }
+
     add(`S${xl}:${j >> 1}:${j & 1 ? -1 : 1}`, re, im)
   }
 
@@ -565,7 +879,10 @@ export function modelOneBeat(space: MesonSpace, tables: LockedTables, start: Box
 }
 
 // the largest |difference| between two keyed amplitude maps (a key missing on one side counts its full size)
-export function ampGap(a: Map<string, [number, number]>, b: Map<string, [number, number]>): number {
+export function ampGap(
+  a: Map<string, [number, number]>,
+  b: Map<string, [number, number]>,
+): number {
   let gap = 0
 
   for (const [k, x] of a) {
@@ -573,7 +890,12 @@ export function ampGap(a: Map<string, [number, number]>, b: Map<string, [number,
 
     gap = Math.max(gap, Math.hypot(x[0] - y[0], x[1] - y[1]))
   }
-  for (const [k, y] of b) if (!a.has(k)) gap = Math.max(gap, Math.hypot(y[0], y[1]))
+
+  for (const [k, y] of b) {
+    if (!a.has(k)) {
+      gap = Math.max(gap, Math.hypot(y[0], y[1]))
+    }
+  }
 
   return gap
 }
@@ -583,7 +905,11 @@ export function ampGap(a: Map<string, [number, number]>, b: Map<string, [number,
 export type CMat = { n: number; re: Float64Array; im: Float64Array }
 
 // an exact matrix over S 2^k divided by the empty dock's factor S (pieceScale(u, v)), as floats
-export function overEmpty(m: ExactMatrix, u: RingUnit, v?: RingUnit): CMat {
+export function overEmpty(
+  m: ExactMatrix,
+  u: RingUnit,
+  v?: RingUnit,
+): CMat {
   const n = m.entries.length
   const S = Number(pieceScale(u, v))
   const scale = 2 ** -m.k / S
@@ -592,7 +918,7 @@ export function overEmpty(m: ExactMatrix, u: RingUnit, v?: RingUnit): CMat {
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      const e = (m.entries[i] as Eis[])[j] as Eis
+      const e = m.entries[i]![j]!
       const [zr, zi] = eFloat(e[0], e[1])
 
       re[i * n + j] = zr * scale
@@ -604,7 +930,10 @@ export function overEmpty(m: ExactMatrix, u: RingUnit, v?: RingUnit): CMat {
 }
 
 // the sparse columns of a float matrix: for each from, the (to, re, im) with a nonzero entry
-export type Sparse = { n: number; cols: { to: Int32Array; re: Float64Array; im: Float64Array }[] }
+export type Sparse = {
+  n: number
+  cols: { to: Int32Array; re: Float64Array; im: Float64Array }[]
+}
 
 export function sparseOf(m: CMat): Sparse {
   const cols: Sparse['cols'] = []
@@ -615,16 +944,23 @@ export function sparseOf(m: CMat): Sparse {
     const im: number[] = []
 
     for (let t = 0; t < m.n; t++) {
-      const r = m.re[t * m.n + f] as number
-      const i = m.im[t * m.n + f] as number
+      const r = m.re[t * m.n + f]!
+      const i = m.im[t * m.n + f]!
 
-      if (r === 0 && i === 0) continue
+      if (r === 0 && i === 0) {
+        continue
+      }
+
       to.push(t)
       re.push(r)
       im.push(i)
     }
 
-    cols.push({ to: Int32Array.from(to), re: Float64Array.from(re), im: Float64Array.from(im) })
+    cols.push({
+      to: Int32Array.from(to),
+      re: Float64Array.from(re),
+      im: Float64Array.from(im),
+    })
   }
 
   return { n: m.n, cols }
@@ -632,26 +968,45 @@ export function sparseOf(m: CMat): Sparse {
 
 // the one-vibe matrix's shape A = c X (I + beta 1 1^T): the coin X after the mixer's rank-one change on the uniform
 // vector (a lone vibe's hop carries no fermion sign). Read off A and checked on all 576 entries
-export type VibeShape = { c: [number, number]; beta: [number, number]; gap: number }
+export type VibeShape = {
+  c: [number, number]
+  beta: [number, number]
+  gap: number
+}
 
-const OPP: readonly number[] = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] as number))))
+const OPP: readonly number[] = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -r[k]!)),
+)
 
 export function vibeShape(A: CMat): VibeShape {
-  const at = (t: number, f: number): [number, number] => [A.re[t * 24 + f] as number, A.im[t * 24 + f] as number]
-  const cb = at(OPP[1] as number, 0)
-  const d = at(OPP[0] as number, 0)
+  const at = (t: number, f: number): [number, number] => [
+    A.re[t * 24 + f]!,
+    A.im[t * 24 + f]!,
+  ]
+  const cb = at(OPP[1]!, 0)
+  const d = at(OPP[0]!, 0)
   const c: [number, number] = [d[0] - cb[0], d[1] - cb[1]]
   const c2 = c[0] * c[0] + c[1] * c[1]
-  const beta: [number, number] = [(cb[0] * c[0] + cb[1] * c[1]) / c2, (cb[1] * c[0] - cb[0] * c[1]) / c2]
+  const beta: [number, number] = [
+    (cb[0] * c[0] + cb[1] * c[1]) / c2,
+    (cb[1] * c[0] - cb[0] * c[1]) / c2,
+  ]
+
   let gap = 0
 
   for (let t = 0; t < 24; t++) {
     for (let f = 0; f < 24; f++) {
-      const i = OPP[t] as number
+      const i = OPP[t]!
       const mr = (i === f ? 1 : 0) + beta[0]
       const mi = beta[1]
 
-      gap = Math.max(gap, Math.hypot((A.re[t * 24 + f] as number) - (c[0] * mr - c[1] * mi), (A.im[t * 24 + f] as number) - (c[0] * mi + c[1] * mr)))
+      gap = Math.max(
+        gap,
+        Math.hypot(
+          A.re[t * 24 + f]! - (c[0] * mr - c[1] * mi),
+          A.im[t * 24 + f]! - (c[0] * mi + c[1] * mr),
+        ),
+      )
     }
   }
 
@@ -662,31 +1017,46 @@ export function vibeShape(A: CMat): VibeShape {
 // table of (c re, c im, beta re, beta im). With the odd-octet piece (E-SPN-0148, odd = gamma = v - 1 nonzero) A = c X (I
 // + beta 1 1^T + gamma Pi8), Pi8 w = (w - X w) / 2 - R (R^T w) / 12; with gamma = 0 the arithmetic is E-SPN-0146's, entry
 // for entry
-const ROOT_FLAT: Float64Array = Float64Array.from(ROOTS.flatMap(r => [...r]))
+const ROOT_FLAT: Float64Array = Float64Array.from(
+  ROOTS.flatMap(r => [...r]),
+)
 
-export function applyVibe(table: Float64Array, row: number, vr: Float64Array, vi: Float64Array, vo: number, stride: number, or: Float64Array, oi: Float64Array, oo: number, ostride: number, odd?: Float64Array): void {
-  const c0 = table[4 * row] as number
-  const c1 = table[4 * row + 1] as number
-  const b0 = table[4 * row + 2] as number
-  const b1 = table[4 * row + 3] as number
+export function applyVibe(
+  table: Float64Array,
+  row: number,
+  vr: Float64Array,
+  vi: Float64Array,
+  vo: number,
+  stride: number,
+  or: Float64Array,
+  oi: Float64Array,
+  oo: number,
+  ostride: number,
+  odd?: Float64Array,
+): void {
+  const c0 = table[4 * row]!
+  const c1 = table[4 * row + 1]!
+  const b0 = table[4 * row + 2]!
+  const b1 = table[4 * row + 3]!
+
   let sr = 0
   let si = 0
 
   for (let e = 0; e < 24; e++) {
-    sr += vr[vo + e * stride] as number
-    si += vi[vo + e * stride] as number
+    sr += vr[vo + e * stride]!
+    si += vi[vo + e * stride]!
   }
 
   const bsr = b0 * sr - b1 * si
   const bsi = b0 * si + b1 * sr
-  const g0 = odd ? (odd[0] as number) : 0
-  const g1 = odd ? (odd[1] as number) : 0
+  const g0 = odd ? odd[0]! : 0
+  const g1 = odd ? odd[1]! : 0
 
   if (g0 === 0 && g1 === 0) {
     for (let t = 0; t < 24; t++) {
-      const i = OPP[t] as number
-      const wr = (vr[vo + i * stride] as number) + bsr
-      const wi = (vi[vo + i * stride] as number) + bsi
+      const i = OPP[t]!
+      const wr = vr[vo + i * stride]! + bsr
+      const wi = vi[vo + i * stride]! + bsi
 
       or[oo + t * ostride] = c0 * wr - c1 * wi
       oi[oo + t * ostride] = c0 * wi + c1 * wr
@@ -700,25 +1070,26 @@ export function applyVibe(table: Float64Array, row: number, vr: Float64Array, vi
   const qi = [0, 0, 0, 0]
 
   for (let e = 0; e < 24; e++) {
-    const xr = vr[vo + e * stride] as number
-    const xi = vi[vo + e * stride] as number
+    const xr = vr[vo + e * stride]!
+    const xi = vi[vo + e * stride]!
 
     for (let k = 0; k < 4; k++) {
-      qr[k]! += (ROOT_FLAT[4 * e + k] as number) * xr
-      qi[k]! += (ROOT_FLAT[4 * e + k] as number) * xi
+      qr[k]! += ROOT_FLAT[4 * e + k]! * xr
+      qi[k]! += ROOT_FLAT[4 * e + k]! * xi
     }
   }
 
   for (let t = 0; t < 24; t++) {
-    const i = OPP[t] as number
-    const xr = vr[vo + i * stride] as number
-    const xi = vi[vo + i * stride] as number
-    let pr = (xr - (vr[vo + t * stride] as number)) / 2
-    let pi = (xi - (vi[vo + t * stride] as number)) / 2
+    const i = OPP[t]!
+    const xr = vr[vo + i * stride]!
+    const xi = vi[vo + i * stride]!
+
+    let pr = (xr - vr[vo + t * stride]!) / 2
+    let pi = (xi - vi[vo + t * stride]!) / 2
 
     for (let k = 0; k < 4; k++) {
-      pr -= ((ROOT_FLAT[4 * i + k] as number) * (qr[k] as number)) / 12
-      pi -= ((ROOT_FLAT[4 * i + k] as number) * (qi[k] as number)) / 12
+      pr -= (ROOT_FLAT[4 * i + k]! * qr[k]!) / 12
+      pi -= (ROOT_FLAT[4 * i + k]! * qi[k]!) / 12
     }
 
     const wr = xr + bsr + g0 * pr - g1 * pi
@@ -733,9 +1104,13 @@ export function applyVibe(table: Float64Array, row: number, vr: Float64Array, vi
 
 export type MesonState = { re: Float64Array; im: Float64Array }
 
-export const mesonSize = (ball: Ball): number => ball.points.length * 576 + 24
+export const mesonSize = (ball: Ball): number =>
+  ball.points.length * 576 + 24
 
-export const newMeson = (ball: Ball): MesonState => ({ re: new Float64Array(mesonSize(ball)), im: new Float64Array(mesonSize(ball)) })
+export const newMeson = (ball: Ball): MesonState => ({
+  re: new Float64Array(mesonSize(ball)),
+  im: new Float64Array(mesonSize(ball)),
+})
 
 export type MesonSpace = {
   ball: Ball
@@ -772,12 +1147,21 @@ export const stringSteps = (y: readonly number[]): number => d4Steps(y)
 // a beat moves eps by sign s V, so the string is a cost (raises eps with V, confining the branch's slow states) iff
 // s = sign sigma. With the other sign it lowers eps with V, a hill: the slow pair rolls apart and only the Bloch
 // oscillation of the bounded band holds it, at a distance set by the bandwidth, not by the rest energy.
-export const stringSign = (singletSign: number, sigma: number): number => singletSign * sigma
+export const stringSign = (
+  singletSign: number,
+  sigma: number,
+): number => singletSign * sigma
 
 // the space for one run: the ball, the one-vibe shape, the contact maps of both beat parities, the string's SIGNED angle
 // (the phase e^(-i sigma V) a beat; 0 for no string; the sign that makes it a cost for the composite's branch is the
 // caller's, see stringSign) and total momentum K
-export function mesonSpace(ball: Ball, shape: VibeShape, contact: [Sparse, Sparse], sigma: number, K: readonly number[]): MesonSpace {
+export function mesonSpace(
+  ball: Ball,
+  shape: VibeShape,
+  contact: [Sparse, Sparse],
+  sigma: number,
+  K: readonly number[],
+): MesonSpace {
   const n = ball.points.length
   const string = new Float64Array(n * 2)
 
@@ -790,11 +1174,16 @@ export function mesonSpace(ball: Ball, shape: VibeShape, contact: [Sparse, Spars
 
   const shapes = new Float64Array(4 * (ball.radius + 1))
 
-  for (let V = 0; V <= ball.radius; V++) shapes.set([shape.c[0], shape.c[1], shape.beta[0], shape.beta[1]], 4 * V)
+  for (let V = 0; V <= ball.radius; V++) {
+    shapes.set(
+      [shape.c[0], shape.c[1], shape.beta[0], shape.beta[1]],
+      4 * V,
+    )
+  }
 
   const space: MesonSpace = {
     ball,
-    origin: ball.index.get('0,0,0,0') as number,
+    origin: ball.index.get('0,0,0,0')!,
     shape,
     contact,
     shapes,
@@ -828,9 +1217,12 @@ export function setString(space: MesonSpace, sigma: number): void {
 
 // THE MASS STRING (E-SPN-0147), in place: both vibes at string length V take the one-vibe shape shapes[min(V, last)]
 // (a threaded engine reads the same table). One shape switches it off
-export function setMassString(space: MesonSpace, shapes: readonly VibeShape[]): void {
+export function setMassString(
+  space: MesonSpace,
+  shapes: readonly VibeShape[],
+): void {
   for (let V = 0; V <= space.ball.radius; V++) {
-    const h = shapes[Math.min(V, shapes.length - 1)] as VibeShape
+    const h = shapes[Math.min(V, shapes.length - 1)]!
 
     space.shapes.set([h.c[0], h.c[1], h.beta[0], h.beta[1]], 4 * V)
   }
@@ -838,7 +1230,10 @@ export function setMassString(space: MesonSpace, shapes: readonly VibeShape[]): 
 
 // THE ODD-OCTET PIECE (E-SPN-0148), in place: gamma = v - 1 for the unit v, or none (a threaded engine reads the same
 // array)
-export function setOddPhase(space: MesonSpace, v: RingUnit | null): void {
+export function setOddPhase(
+  space: MesonSpace,
+  v: RingUnit | null,
+): void {
   if (!v) {
     space.odd[0] = 0
     space.odd[1] = 0
@@ -854,19 +1249,35 @@ export function setOddPhase(space: MesonSpace, v: RingUnit | null): void {
 
 // the mass string's schedule: the mixer unit at string length V is base * step^min(V, cap), each a ring unit (k, j), so
 // u(V) = ringUnit(base k + min(V, cap) step k, base j + min(V, cap) step j): exact, norm one, denominator 7^|k|
-export function massUnits(base: readonly [number, number], step: readonly [number, number], cap: number, radius: number): RingUnit[] {
-  return Array.from({ length: radius + 1 }, (_, V) => ringUnit(base[0] + Math.min(V, cap) * step[0], base[1] + Math.min(V, cap) * step[1]))
+export function massUnits(
+  base: readonly [number, number],
+  step: readonly [number, number],
+  cap: number,
+  radius: number,
+): RingUnit[] {
+  return Array.from({ length: radius + 1 }, (_, V) =>
+    ringUnit(
+      base[0] + Math.min(V, cap) * step[0],
+      base[1] + Math.min(V, cap) * step[1],
+    ),
+  )
 }
 
 // the one-vibe shape at each unit (a love on an empty dock, beat parity 0; the caller checks both parities and the fear)
-export const massShapes = (units: readonly RingUnit[]): VibeShape[] => units.map(u => vibeShape(overEmpty(vibeDockExact(1, 0, u), u)))
+export const massShapes = (units: readonly RingUnit[]): VibeShape[] =>
+  units.map(u => vibeShape(overEmpty(vibeDockExact(1, 0, u), u)))
 
-export function setMomentum(space: MesonSpace, K: readonly number[]): void {
+export function setMomentum(
+  space: MesonSpace,
+  K: readonly number[],
+): void {
   for (let l = 0; l < 24; l++) {
     for (let f = 0; f < 24; f++) {
-      const r1 = ROOTS[l] as readonly number[]
-      const r2 = ROOTS[f] as readonly number[]
-      const ph = -(K.reduce((sum, x, k) => sum + x * ((r1[k] as number) + (r2[k] as number)), 0) / 2)
+      const r1 = ROOTS[l]!
+      const r2 = ROOTS[f]!
+      const ph = -(
+        K.reduce((sum, x, k) => sum + x * (r1[k]! + r2[k]!), 0) / 2
+      )
 
       space.stream[(l * 24 + f) * 2] = Math.cos(ph)
       space.stream[(l * 24 + f) * 2 + 1] = Math.sin(ph)
@@ -878,11 +1289,20 @@ export function setMomentum(space: MesonSpace, K: readonly number[]): void {
 // of the beat this is Hellmann-Feynman's d phase / dK = -<step>, so the level's group velocity is the mean step
 export type CenterFlow = { weight: number; v: Float64Array }
 
-export const newFlow = (): CenterFlow => ({ weight: 0, v: new Float64Array(4) })
+export const newFlow = (): CenterFlow => ({
+  weight: 0,
+  v: new Float64Array(4),
+})
 
 // one beat of the meson: the pieces (A (x) A off contact, the contact map at y = 0), the stream, the string. Writes
 // `out` (cleared here) and returns the weight absorbed at the ball's edge
-export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, beat: number, flow?: CenterFlow): number {
+export function mesonBeat(
+  space: MesonSpace,
+  s: MesonState,
+  out: MesonState,
+  beat: number,
+  flow?: CenterFlow,
+): number {
   const { ball, origin, shapes, length, tr, ti, mr, mi, vr, vi } = space
   const n = ball.points.length
 
@@ -890,9 +1310,12 @@ export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, bea
   ti.fill(0)
 
   for (let p = 0; p < n; p++) {
-    if (p === origin) continue
+    if (p === origin) {
+      continue
+    }
 
     const base = p * 576
+
     let empty = true
 
     for (let i = 0; i < 576; i++) {
@@ -902,45 +1325,78 @@ export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, bea
       }
     }
 
-    if (empty) continue
+    if (empty) {
+      continue
+    }
 
     // A on the fear index (stride 1), then on the love index (stride 24), both at the site's string length's shape
-    const row = length[p] as number
+    const row = length[p]!
 
-    for (let l = 0; l < 24; l++) applyVibe(shapes, row, s.re, s.im, base + l * 24, 1, mr, mi, l * 24, 1, space.odd)
-    for (let f = 0; f < 24; f++) applyVibe(shapes, row, mr, mi, f, 24, tr, ti, base + f, 24, space.odd)
+    for (let l = 0; l < 24; l++) {
+      applyVibe(
+        shapes,
+        row,
+        s.re,
+        s.im,
+        base + l * 24,
+        1,
+        mr,
+        mi,
+        l * 24,
+        1,
+        space.odd,
+      )
+    }
+
+    for (let f = 0; f < 24; f++) {
+      applyVibe(
+        shapes,
+        row,
+        mr,
+        mi,
+        f,
+        24,
+        tr,
+        ti,
+        base + f,
+        24,
+        space.odd,
+      )
+    }
   }
 
   // contact: the 552 slot pairs at y = 0 and the 24 stores
   {
-    const C = space.contact[beat % 2] as Sparse
+    const C = space.contact[beat % 2]!
     const base = origin * 576
 
     for (let i = 0; i < STORE_BASE; i++) {
-      vr[i] = s.re[base + i] as number
-      vi[i] = s.im[base + i] as number
+      vr[i] = s.re[base + i]!
+      vi[i] = s.im[base + i]!
     }
 
     for (let j = 0; j < 24; j++) {
-      vr[STORE_BASE + j] = s.re[n * 576 + j] as number
-      vi[STORE_BASE + j] = s.im[n * 576 + j] as number
+      vr[STORE_BASE + j] = s.re[n * 576 + j]!
+      vi[STORE_BASE + j] = s.im[n * 576 + j]!
     }
 
     const or = new Float64Array(CONTACT_STATES)
     const oi = new Float64Array(CONTACT_STATES)
 
     for (let f = 0; f < CONTACT_STATES; f++) {
-      const xr = vr[f] as number
-      const xi = vi[f] as number
+      const xr = vr[f]!
+      const xi = vi[f]!
 
-      if (xr === 0 && xi === 0) continue
+      if (xr === 0 && xi === 0) {
+        continue
+      }
 
-      const col = C.cols[f] as Sparse['cols'][number]
+      const col = C.cols[f]!
 
       for (let e = 0; e < col.to.length; e++) {
-        const t = col.to[e] as number
-        const cr = col.re[e] as number
-        const ci = col.im[e] as number
+        const t = col.to[e]!
+        const cr = col.re[e]!
+        const ci = col.im[e]!
 
         or[t]! += cr * xr - ci * xi
         oi[t]! += cr * xi + ci * xr
@@ -948,8 +1404,8 @@ export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, bea
     }
 
     for (let i = 0; i < STORE_BASE; i++) {
-      tr[base + i] = or[i] as number
-      ti[base + i] = oi[i] as number
+      tr[base + i] = or[i]!
+      ti[base + i] = oi[i]!
     }
 
     vr.set(or)
@@ -961,55 +1417,64 @@ export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, bea
   out.im.fill(0)
 
   let lost = 0
+
   const phase = space.stream
   const step = ball.step
 
   for (let p = 0; p < n; p++) {
     for (let l = 0; l < 24; l++) {
-      const q1 = step[p * 24 + l] as number
+      const q1 = step[p * 24 + l]!
 
       for (let f = 0; f < 24; f++) {
         const i = p * 576 + l * 24 + f
-        const xr = tr[i] as number
-        const xi = ti[i] as number
+        const xr = tr[i]!
+        const xi = ti[i]!
 
-        if (xr === 0 && xi === 0) continue
+        if (xr === 0 && xi === 0) {
+          continue
+        }
 
         if (flow) {
           const w = xr * xr + xi * xi
-          const r1 = ROOTS[l] as readonly number[]
-          const r2 = ROOTS[f] as readonly number[]
+          const r1 = ROOTS[l]!
+          const r2 = ROOTS[f]!
 
           flow.weight += w
-          for (let k = 0; k < 4; k++) flow.v[k] = (flow.v[k] as number) + (w * ((r1[k] as number) + (r2[k] as number))) / 2
+
+          for (let k = 0; k < 4; k++) {
+            flow.v[k] = flow.v[k]! + (w * (r1[k]! + r2[k]!)) / 2
+          }
         }
 
-        const q = q1 < 0 ? -1 : (step[q1 * 24 + (OPP[f] as number)] as number)
+        const q = q1 < 0 ? -1 : step[q1 * 24 + OPP[f]!]!
 
         if (q < 0) {
           lost += xr * xr + xi * xi
           continue
         }
 
-        const c = phase[(l * 24 + f) * 2] as number
-        const sn = phase[(l * 24 + f) * 2 + 1] as number
+        const c = phase[(l * 24 + f) * 2]!
+        const sn = phase[(l * 24 + f) * 2 + 1]!
         const zr = xr * c - xi * sn
         const zi = xr * sn + xi * c
-        const gr = space.string[2 * q] as number
-        const gi = space.string[2 * q + 1] as number
+        const gr = space.string[2 * q]!
+        const gi = space.string[2 * q + 1]!
         const j = q * 576 + l * 24 + f
 
-        out.re[j] = (out.re[j] as number) + zr * gr - zi * gi
-        out.im[j] = (out.im[j] as number) + zr * gi + zi * gr
+        out.re[j] = out.re[j]! + zr * gr - zi * gi
+        out.im[j] = out.im[j]! + zr * gi + zi * gr
       }
     }
   }
 
   // a store does not stream, and its string length is 0
   for (let j = 0; j < 24; j++) {
-    out.re[n * 576 + j] = vr[STORE_BASE + j] as number
-    out.im[n * 576 + j] = vi[STORE_BASE + j] as number
-    if (flow) flow.weight += (vr[STORE_BASE + j] as number) ** 2 + (vi[STORE_BASE + j] as number) ** 2
+    out.re[n * 576 + j] = vr[STORE_BASE + j]!
+    out.im[n * 576 + j] = vi[STORE_BASE + j]!
+
+    if (flow) {
+      flow.weight += vr[STORE_BASE + j]! ** 2 + vi[STORE_BASE + j]! ** 2
+    }
   }
 
   return lost
@@ -1017,15 +1482,18 @@ export function mesonBeat(space: MesonSpace, s: MesonState, out: MesonState, bea
 
 // ---- readings of a meson state ----
 
-export const mesonInner = (a: MesonState, b: MesonState): [number, number] => {
+export const mesonInner = (
+  a: MesonState,
+  b: MesonState,
+): [number, number] => {
   let r = 0
   let i = 0
 
   for (let k = 0; k < a.re.length; k++) {
-    const ar = a.re[k] as number
-    const ai = a.im[k] as number
-    const br = b.re[k] as number
-    const bi = b.im[k] as number
+    const ar = a.re[k]!
+    const ai = a.im[k]!
+    const br = b.re[k]!
+    const bi = b.im[k]!
 
     r += ar * br + ai * bi
     i += ar * bi - ai * br
@@ -1034,18 +1502,32 @@ export const mesonInner = (a: MesonState, b: MesonState): [number, number] => {
   return [r, i]
 }
 
-export const mesonWeight = (s: MesonState): number => mesonInner(s, s)[0]
+export const mesonWeight = (s: MesonState): number =>
+  mesonInner(s, s)[0]
 
 // the weight at string length at most `within` (a store counts at 0)
-export function weightWithin(ball: Ball, s: MesonState, within: number): number {
+export function weightWithin(
+  ball: Ball,
+  s: MesonState,
+  within: number,
+): number {
   let w = 0
+
   const n = ball.points.length
 
   ball.points.forEach((p, i) => {
-    if (stringSteps(p) > within) return
-    for (let j = 0; j < 576; j++) w += (s.re[i * 576 + j] as number) ** 2 + (s.im[i * 576 + j] as number) ** 2
+    if (stringSteps(p) > within) {
+      return
+    }
+
+    for (let j = 0; j < 576; j++) {
+      w += s.re[i * 576 + j]! ** 2 + s.im[i * 576 + j]! ** 2
+    }
   })
-  for (let j = 0; j < 24; j++) w += (s.re[n * 576 + j] as number) ** 2 + (s.im[n * 576 + j] as number) ** 2
+
+  for (let j = 0; j < 24; j++) {
+    w += s.re[n * 576 + j]! ** 2 + s.im[n * 576 + j]! ** 2
+  }
 
   return w
 }
@@ -1058,33 +1540,48 @@ export function stringProfile(ball: Ball, s: MesonState): number[] {
   ball.points.forEach((p, i) => {
     let w = 0
 
-    for (let j = 0; j < 576; j++) w += (s.re[i * 576 + j] as number) ** 2 + (s.im[i * 576 + j] as number) ** 2
+    for (let j = 0; j < 576; j++) {
+      w += s.re[i * 576 + j]! ** 2 + s.im[i * 576 + j]! ** 2
+    }
+
     out[stringSteps(p)]! += w
   })
-  for (let j = 0; j < 24; j++) out[0]! += (s.re[n * 576 + j] as number) ** 2 + (s.im[n * 576 + j] as number) ** 2
+
+  for (let j = 0; j < 24; j++) {
+    out[0]! += s.re[n * 576 + j]! ** 2 + s.im[n * 576 + j]! ** 2
+  }
 
   return out
 }
 
 export function scaleMeson(s: MesonState, f: number): void {
   for (let k = 0; k < s.re.length; k++) {
-    s.re[k] = (s.re[k] as number) * f
-    s.im[k] = (s.im[k] as number) * f
+    s.re[k] = s.re[k]! * f
+    s.im[k] = s.im[k]! * f
   }
 }
 
-export const cloneMeson = (s: MesonState): MesonState => ({ re: Float64Array.from(s.re), im: Float64Array.from(s.im) })
+export const cloneMeson = (s: MesonState): MesonState => ({
+  re: Float64Array.from(s.re),
+  im: Float64Array.from(s.im),
+})
 
 // a start: both vibes in their dock's singlet mode (every slot pair alike, the two slots distinct at y = 0), with the
 // weight exp(-(V / ell)^(3/2)) on string length V (the linear well's tail), normalized; no store
 export function mesonStart(ball: Ball, ell: number): MesonState {
   const s = newMeson(ball)
-  const origin = ball.index.get('0,0,0,0') as number
+  const origin = ball.index.get('0,0,0,0')!
 
   ball.points.forEach((p, i) => {
     const a = Math.exp(-((stringSteps(p) / ell) ** 1.5))
 
-    for (let l = 0; l < 24; l++) for (let f = 0; f < 24; f++) if (i !== origin || l !== f) s.re[i * 576 + l * 24 + f] = a
+    for (let l = 0; l < 24; l++) {
+      for (let f = 0; f < 24; f++) {
+        if (i !== origin || l !== f) {
+          s.re[i * 576 + l * 24 + f] = a
+        }
+      }
+    }
   })
 
   normalizeMeson(s)
@@ -1101,9 +1598,10 @@ export function singletShare(ball: Ball, v: MesonState): number {
     let im = 0
 
     for (let j = 0; j < 576; j++) {
-      r += v.re[i * 576 + j] as number
-      im += v.im[i * 576 + j] as number
+      r += v.re[i * 576 + j]!
+      im += v.im[i * 576 + j]!
     }
+
     w += (r * r + im * im) / 576
   }
 
@@ -1112,9 +1610,12 @@ export function singletShare(ball: Ball, v: MesonState): number {
 
 export const storeWeight = (ball: Ball, v: MesonState): number => {
   let w = 0
+
   const n = ball.points.length
 
-  for (let j = 0; j < 24; j++) w += (v.re[n * 576 + j] as number) ** 2 + (v.im[n * 576 + j] as number) ** 2
+  for (let j = 0; j < 24; j++) {
+    w += v.re[n * 576 + j]! ** 2 + v.im[n * 576 + j]! ** 2
+  }
 
   return w
 }
@@ -1138,7 +1639,12 @@ export type MesonEngine = {
   // a state the engine can beat; give it back when done
   borrow(): MesonState
   give(s: MesonState): void
-  beat(s: MesonState, out: MesonState, beat: number, flow?: CenterFlow): number
+  beat(
+    s: MesonState,
+    out: MesonState,
+    beat: number,
+    flow?: CenterFlow,
+  ): number
   close(): void
   threads: number
 }
@@ -1165,7 +1671,11 @@ function borrowed(engine: MesonEngine, v: MesonState): MesonState {
 }
 
 // two beats from parity 0, in place through a scratch state; returns the weight absorbed
-export function twoBeats(engine: MesonEngine, s: MesonState, scratch: MesonState): number {
+export function twoBeats(
+  engine: MesonEngine,
+  s: MesonState,
+  scratch: MesonState,
+): number {
   const a = engine.beat(s, scratch, 0)
   const b = engine.beat(scratch, s, 1)
 
@@ -1178,30 +1688,45 @@ const BH = [0.35875, 0.48829, 0.14128, 0.01168]
 export const blackmanHarris = (s: number, S: number): number => {
   const x = (2 * Math.PI * s) / (S - 1)
 
-  return (BH[0] as number) - (BH[1] as number) * Math.cos(x) + (BH[2] as number) * Math.cos(2 * x) - (BH[3] as number) * Math.cos(3 * x)
+  return (
+    BH[0]! -
+    BH[1]! * Math.cos(x) +
+    BH[2]! * Math.cos(2 * x) -
+    BH[3]! * Math.cos(3 * x)
+  )
 }
 
 // v = sum_(s < S) w_s e^(-i phase2 s) U2^s psi, normalized: the part of psi at U2's phase phase2, within the window's
 // main lobe (half width 8 pi / S in phase2)
-export function filterMeson(engine: MesonEngine, psi: MesonState, phase2: number, S: number): MesonState {
+export function filterMeson(
+  engine: MesonEngine,
+  psi: MesonState,
+  phase2: number,
+  S: number,
+): MesonState {
   const v = newMeson(engine.space.ball)
   const s = borrowed(engine, psi)
   const scratch = engine.borrow()
 
   for (let t = 0; t < S; t++) {
-    if (t > 0) twoBeats(engine, s, scratch)
+    if (t > 0) {
+      twoBeats(engine, s, scratch)
+    }
 
     const w = blackmanHarris(t, S)
     const c = Math.cos(-phase2 * t) * w
     const sn = Math.sin(-phase2 * t) * w
 
     for (let k = 0; k < v.re.length; k++) {
-      const xr = s.re[k] as number
-      const xi = s.im[k] as number
+      const xr = s.re[k]!
+      const xi = s.im[k]!
 
-      if (xr === 0 && xi === 0) continue
-      v.re[k] = (v.re[k] as number) + xr * c - xi * sn
-      v.im[k] = (v.im[k] as number) + xr * sn + xi * c
+      if (xr === 0 && xi === 0) {
+        continue
+      }
+
+      v.re[k] = v.re[k]! + xr * c - xi * sn
+      v.im[k] = v.im[k]! + xr * sn + xi * c
     }
   }
 
@@ -1215,9 +1740,17 @@ export function filterMeson(engine: MesonEngine, psi: MesonState, phase2: number
 // the level's quotients: lambda2 = <v|U2 v> (|lambda2| < 1 by the absorbed weight and the residual), the residual
 // |U2 v - lambda2 v|, the one-beat quotient lambda1 = <v|U(0) v>, and the phase per beat: half arg lambda2 on the
 // branch nearest arg lambda1
-export type LevelRead = { lambda2: [number, number]; residual: number; lambda1: [number, number]; phase: number }
+export type LevelRead = {
+  lambda2: [number, number]
+  residual: number
+  lambda1: [number, number]
+  phase: number
+}
 
-export function readLevel(engine: MesonEngine, v: MesonState): LevelRead {
+export function readLevel(
+  engine: MesonEngine,
+  v: MesonState,
+): LevelRead {
   const zero = borrowed(engine, v)
   const one = engine.borrow()
 
@@ -1229,11 +1762,14 @@ export function readLevel(engine: MesonEngine, v: MesonState): LevelRead {
 
   const two = zero
   const lambda2 = mesonInner(v, two)
+
   let r = 0
 
   for (let k = 0; k < v.re.length; k++) {
-    const er = (two.re[k] as number) - (lambda2[0] * (v.re[k] as number) - lambda2[1] * (v.im[k] as number))
-    const ei = (two.im[k] as number) - (lambda2[0] * (v.im[k] as number) + lambda2[1] * (v.re[k] as number))
+    const er =
+      two.re[k]! - (lambda2[0] * v.re[k]! - lambda2[1] * v.im[k]!)
+    const ei =
+      two.im[k]! - (lambda2[0] * v.im[k]! + lambda2[1] * v.re[k]!)
 
     r += er * er + ei * ei
   }
@@ -1243,15 +1779,26 @@ export function readLevel(engine: MesonEngine, v: MesonState): LevelRead {
 
   const half = Math.atan2(lambda2[1], lambda2[0]) / 2
   const p1 = Math.atan2(lambda1[1], lambda1[0])
-  const wrapped = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
-  const phase = Math.abs(wrapped(half - p1)) <= Math.abs(wrapped(half + Math.PI - p1)) ? half : wrapped(half + Math.PI)
+  const wrapped = (x: number): number =>
+    Math.atan2(Math.sin(x), Math.cos(x))
+  const phase =
+    Math.abs(wrapped(half - p1)) <=
+    Math.abs(wrapped(half + Math.PI - p1))
+      ? half
+      : wrapped(half + Math.PI)
 
   return { lambda2, residual: Math.sqrt(r), lambda1, phase }
 }
 
 // a level from a start: the filter at the guessed phase per beat, then again from its output at the read phase
 // (`passes` in all); the vector and its reading
-export function buildLevel(engine: MesonEngine, start: MesonState, phase: number, S: number, passes = 2): { v: MesonState; read: LevelRead } {
+export function buildLevel(
+  engine: MesonEngine,
+  start: MesonState,
+  phase: number,
+  S: number,
+  passes = 2,
+): { v: MesonState; read: LevelRead } {
   let v = filterMeson(engine, start, 2 * phase, S)
   let read = readLevel(engine, v)
 
@@ -1265,21 +1812,36 @@ export function buildLevel(engine: MesonEngine, start: MesonState, phase: number
 
 // THE HOLD WITNESS: from the level v, `beats` beats; the least weight at string length <= window (stores included) at
 // any beat, the least fidelity |<v|psi_t>|^2 at the even beats (the level's period), and the weight absorbed
-export type Hold = { leastWindow: number; leastFidelity: number; absorbed: number; fidelity: number[] }
+export type Hold = {
+  leastWindow: number
+  leastFidelity: number
+  absorbed: number
+  fidelity: number[]
+}
 
 // `within`, when given, reads the window weight in place of the string-length window (E-SPN-0155's husk radius)
-export function watchLevel(engine: MesonEngine, v: MesonState, beats: number, window: number, within?: (s: MesonState) => number): Hold {
+export function watchLevel(
+  engine: MesonEngine,
+  v: MesonState,
+  beats: number,
+  window: number,
+  within?: (s: MesonState) => number,
+): Hold {
   let a = borrowed(engine, v)
   let b = engine.borrow()
   let absorbed = 0
   let leastWindow = 1
   let leastFidelity = 1
+
   const fidelity: number[] = []
 
   for (let t = 0; t < beats; t++) {
     absorbed += engine.beat(a, b, t)
     ;[a, b] = [b, a]
-    leastWindow = Math.min(leastWindow, within ? within(a) : weightWithin(engine.space.ball, a, window))
+    leastWindow = Math.min(
+      leastWindow,
+      within ? within(a) : weightWithin(engine.space.ball, a, window),
+    )
 
     if ((t + 1) % 2 === 0) {
       const f = mesonInner(v, a)
@@ -1299,7 +1861,10 @@ export function watchLevel(engine: MesonEngine, v: MesonState, beats: number, wi
 // the level's group velocity by Hellmann-Feynman: the weight-mean center-of-mass step (r_l + r_f) / 2 over its two
 // beats, per beat (coordinate units). For U2 v = lambda2 v, d phase2 / dK = -(step 0 + step 1), so the per-beat
 // phase's slope is minus this and E = -phase moves with it
-export function levelVelocity(engine: MesonEngine, v: MesonState): number[] {
+export function levelVelocity(
+  engine: MesonEngine,
+  v: MesonState,
+): number[] {
   const f0 = newFlow()
   const f1 = newFlow()
   const zero = borrowed(engine, v)
@@ -1310,13 +1875,18 @@ export function levelVelocity(engine: MesonEngine, v: MesonState): number[] {
   engine.give(zero)
   engine.give(one)
 
-  return [0, 1, 2, 3].map(k => ((f0.v[k] as number) / f0.weight + (f1.v[k] as number) / f1.weight) / 2)
+  return [0, 1, 2, 3].map(
+    k => (f0.v[k]! / f0.weight + f1.v[k]! / f1.weight) / 2,
+  )
 }
 
 // ---- the checks E-SPN-0146 and E-SPN-0147 share ----
 
 // the largest |C^dag C - I| entry of a contact map over its live states (a unitarity check on the 576 live states)
-export function contactUnitarity(M: CMat, live: readonly number[]): number {
+export function contactUnitarity(
+  M: CMat,
+  live: readonly number[],
+): number {
   let worst = 0
 
   for (const a of live) {
@@ -1325,14 +1895,15 @@ export function contactUnitarity(M: CMat, live: readonly number[]): number {
       let im = 0
 
       for (let t = 0; t < M.n; t++) {
-        const ar = M.re[t * M.n + a] as number
-        const ai = -(M.im[t * M.n + a] as number)
-        const br = M.re[t * M.n + b] as number
-        const bi = M.im[t * M.n + b] as number
+        const ar = M.re[t * M.n + a]!
+        const ai = -M.im[t * M.n + a]!
+        const br = M.re[t * M.n + b]!
+        const bi = M.im[t * M.n + b]!
 
         r += ar * br - ai * bi
         im += ar * bi + ai * br
       }
+
       worst = Math.max(worst, Math.hypot(r - (a === b ? 1 : 0), im))
     }
   }
@@ -1342,11 +1913,35 @@ export function contactUnitarity(M: CMat, live: readonly number[]): number {
 
 // the one-beat box starts: every live contact state (a love and a fear at dock X, or a store there, y = 0), and every
 // slot pair with the love at X and the fear at Xf (relative position y)
-export function boxStarts(live: readonly number[], X: number, Xf: number, y: readonly number[]): { start: BoxStart; y: number[] }[] {
+export function boxStarts(
+  live: readonly number[],
+  X: number,
+  Xf: number,
+  y: readonly number[],
+): { start: BoxStart; y: number[] }[] {
   const starts: { start: BoxStart; y: number[] }[] = []
 
-  for (const i of live) starts.push({ start: i < STORE_BASE ? { love: [X, Math.floor(i / 24)], fear: [X, i % 24] } : { store: [X, (i - STORE_BASE) >> 1, (i - STORE_BASE) & 1 ? -1 : 1] }, y: [0, 0, 0, 0] })
-  for (let l = 0; l < 24; l++) for (let f = 0; f < 24; f++) starts.push({ start: { love: [X, l], fear: [Xf, f] }, y: [...y] })
+  for (const i of live) {
+    starts.push({
+      start:
+        i < STORE_BASE
+          ? { love: [X, Math.floor(i / 24)], fear: [X, i % 24] }
+          : {
+              store: [
+                X,
+                (i - STORE_BASE) >> 1,
+                (i - STORE_BASE) & 1 ? -1 : 1,
+              ],
+            },
+      y: [0, 0, 0, 0],
+    })
+  }
+
+  for (let l = 0; l < 24; l++) {
+    for (let f = 0; f < 24; f++) {
+      starts.push({ start: { love: [X, l], fear: [Xf, f] }, y: [...y] })
+    }
+  }
 
   return starts
 }
@@ -1354,7 +1949,20 @@ export function boxStarts(live: readonly number[], X: number, Xf: number, y: rea
 // one beat of the rule (swapMixedBeat on the empty box at the unit a start's string length reads, unitOf(V)) against the
 // meson beat of `space` from every start, both parities: the worst entry, how many differ beyond `tolerance`, and the
 // rule's inexact divisions and stray branches
-export function boxCheck(box: LockedTables, starts: readonly { start: BoxStart; y: number[] }[], space: MesonSpace, unitOf: (V: number) => RingUnit, tolerance: number, v?: RingUnit): { worst: number; differ: number; checked: number; inexact: number; stray: number } {
+export function boxCheck(
+  box: LockedTables,
+  starts: readonly { start: BoxStart; y: number[] }[],
+  space: MesonSpace,
+  unitOf: (V: number) => RingUnit,
+  tolerance: number,
+  v?: RingUnit,
+): {
+  worst: number
+  differ: number
+  checked: number
+  inexact: number
+  stray: number
+} {
   let worst = 0
   let differ = 0
   let checked = 0
@@ -1367,7 +1975,11 @@ export function boxCheck(box: LockedTables, starts: readonly { start: BoxStart; 
       const g = ampGap(r.amps, modelOneBeat(space, box, start, y, beat))
 
       worst = Math.max(worst, g)
-      if (g > tolerance) differ++
+
+      if (g > tolerance) {
+        differ++
+      }
+
       inexact += r.inexact
       stray += r.stray
       checked++
@@ -1381,30 +1993,80 @@ export function boxCheck(box: LockedTables, starts: readonly { start: BoxStart; 
 // exact: one branch equal to the vacuum with amplitude S^cells (F^cells) every beat; charged: slots that differ from the
 // vacuum's value; permutes: dock-beats where the collision's permutation moves a value onto a slot of another value (a
 // formal permutation of equal values, which the bounce table returns on empty and full docks, changes nothing)
-export function vacuumRun(u: RingUnit, side: number, sea: number, beats: number, v?: RingUnit): { side: number; sea: number; cells: number; exact: boolean; permutes: number; charged: number } {
+export function vacuumRun(
+  u: RingUnit,
+  side: number,
+  sea: number,
+  beats: number,
+  v?: RingUnit,
+): {
+  side: number
+  sea: number
+  cells: number
+  exact: boolean
+  permutes: number
+  charged: number
+} {
   const tab = flatBoxTables(side)
   const c0 = seaConfiguration(tab.cells, sea)
   // a full dock takes the ring mixer's sea factor and, with the odd-octet piece, 12 num^8 (det G8 = v^8 over its scale)
-  const oddFull: [bigint, bigint] = v ? eisMul([12n, 0n], eisPow([v.num[0], v.num[1]], 8)) : [1n, 0n]
-  const factor = sea === 0 ? ([pieceScale(u, v) ** BigInt(tab.cells), 0n] as [bigint, bigint]) : ePow(eisMul(seaFactor(u), oddFull), tab.cells)
+  const oddFull: [bigint, bigint] = v
+    ? eisMul([12n, 0n], eisPow([v.num[0], v.num[1]], 8))
+    : [1n, 0n]
+  const factor =
+    sea === 0
+      ? ([pieceScale(u, v) ** BigInt(tab.cells), 0n] as [
+          bigint,
+          bigint,
+        ])
+      : ePow(eisMul(seaFactor(u), oddFull), tab.cells)
   const perm = new Int32Array(24)
+
   let s: LockedState = lockedState(c0)
   let exact = true
   let permutes = 0
   let charged = 0
 
   for (let t = 0; t < beats; t++) {
-    s = v ? oddPhasedBeat('none', tab, s, t, u, v) : swapMixedBeat('none', tab, s, t, u)
+    s = v
+      ? oddPhasedBeat('none', tab, s, t, u, v)
+      : swapMixedBeat('none', tab, s, t, u)
 
-    const br = s.branches[0] as Branch
+    const br = s.branches[0]!
 
-    if (s.branches.length !== 1 || !sameConfiguration(br, c0) || br.k !== 0 || br.a !== factor[0] || br.b !== factor[1]) {
+    if (
+      s.branches.length !== 1 ||
+      !sameConfiguration(br, c0) ||
+      br.k !== 0 ||
+      br.a !== factor[0] ||
+      br.b !== factor[1]
+    ) {
       exact = false
       break
     }
 
-    for (let i = 0; i < tab.cells * 24; i++) if (br.vibe[i] !== c0.vibe[i]) charged++
-    for (let x = 0; x < tab.cells; x++) if (bouncePermutation(BOUNCE_TABLE, 'pass', br.vibe, x * 24, perm) !== 0 && [...perm].some((to, d) => br.vibe[x * 24 + to] !== br.vibe[x * 24 + d])) permutes++
+    for (let i = 0; i < tab.cells * 24; i++) {
+      if (br.vibe[i] !== c0.vibe[i]) {
+        charged++
+      }
+    }
+
+    for (let x = 0; x < tab.cells; x++) {
+      if (
+        bouncePermutation(
+          BOUNCE_TABLE,
+          'pass',
+          br.vibe,
+          x * 24,
+          perm,
+        ) !== 0 &&
+        [...perm].some(
+          (to, d) => br.vibe[x * 24 + to] !== br.vibe[x * 24 + d],
+        )
+      ) {
+        permutes++
+      }
+    }
 
     br.a = 1n
     br.b = 0n
@@ -1417,16 +2079,31 @@ export function vacuumRun(u: RingUnit, side: number, sea: number, beats: number,
 // w(V) >= `floor` (under it the float's noise floor sets the ratio); `rises` counts the V where r(V + 1) > (1 + slack)
 // r(V) (a bound state's tail falls ever faster; an outgoing tail's ratio climbs back toward a constant); `edge` the
 // weight on the two outermost shells
-export function profileTail(profile: readonly number[], from: number, floor: number, slack: number): { ratios: number[]; rises: number; edge: number } {
+export function profileTail(
+  profile: readonly number[],
+  from: number,
+  floor: number,
+  slack: number,
+): { ratios: number[]; rises: number; edge: number } {
   const ratios: number[] = []
 
-  for (let V = from; V + 1 < profile.length && (profile[V] as number) >= floor; V++) ratios.push((profile[V + 1] as number) / (profile[V] as number))
+  for (
+    let V = from;
+    V + 1 < profile.length && profile[V]! >= floor;
+    V++
+  ) {
+    ratios.push(profile[V + 1]! / profile[V]!)
+  }
 
   let rises = 0
 
-  for (let k = 1; k < ratios.length; k++) if ((ratios[k] as number) > (1 + slack) * (ratios[k - 1] as number)) rises++
+  for (let k = 1; k < ratios.length; k++) {
+    if (ratios[k]! > (1 + slack) * ratios[k - 1]!) {
+      rises++
+    }
+  }
 
   const n = profile.length
 
-  return { ratios, rises, edge: (profile[n - 1] as number) + (profile[n - 2] as number) }
+  return { ratios, rises, edge: profile[n - 1]! + profile[n - 2]! }
 }

@@ -74,34 +74,87 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { wrap } from '@/code/measure/dock-mixer'
-import { coulombModel, floquetLevel, floquetSpace, huskGreenTable, pairChannels, channelGap } from '@/code/measure/husk-meson'
+import {
+  coulombModel,
+  floquetLevel,
+  floquetSpace,
+  huskGreenTable,
+  pairChannels,
+  channelGap,
+} from '@/code/measure/husk-meson'
 import { infiniteGreenZero } from '@/code/measure/husk-coulomb'
-import { beyondRadius, photoDrive, photoSpace } from '@/code/measure/light-matter'
+import {
+  beyondRadius,
+  photoDrive,
+  photoSpace,
+} from '@/code/measure/light-matter'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 
 const HEAVY: readonly [number, number] = [1, 4]
 const A_C = 3.5
 const E_RECORDED = 1.66677892
 
-export type PhotoPlan = { N: number; rAbs: number; beats: number; ramp: number; filter: number; lanczos: number; recordTolerance: number }
+export type PhotoPlan = {
+  N: number
+  rAbs: number
+  beats: number
+  ramp: number
+  filter: number
+  lanczos: number
+  recordTolerance: number
+}
 
-export const GATE_PLAN: PhotoPlan = { N: 128, rAbs: 44, beats: 1200, ramp: 400, filter: 512, lanczos: 200, recordTolerance: 1e-6 }
+export const GATE_PLAN: PhotoPlan = {
+  N: 128,
+  rAbs: 44,
+  beats: 1200,
+  ramp: 400,
+  filter: 512,
+  lanczos: 200,
+  recordTolerance: 1e-6,
+}
 
-export const SMOKE_PLAN: PhotoPlan = { N: 32, rAbs: 12, beats: 120, ramp: 40, filter: 64, lanczos: 60, recordTolerance: 1 }
+export const SMOKE_PLAN: PhotoPlan = {
+  N: 32,
+  rAbs: 12,
+  beats: 120,
+  ramp: 40,
+  filter: 64,
+  lanczos: 60,
+  recordTolerance: 1,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
 export function photoelectricRun(plan: PhotoPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const m = wrap(unitAngle(ringUnit(HEAVY[0], HEAVY[1])) - Math.PI) / 2
   const alpha = (24 * Math.PI) / (Math.tan(m) * A_C)
   const G0 = infiniteGreenZero('husk', 64).value
   const table = huskGreenTable(64, 16, G0)
   const N = plan.N
-  const ham = coulombModel({ m, alpha, table, N, K: [0, 0, 0], steps: plan.lanczos, start: A_C })
+  const ham = coulombModel({
+    m,
+    alpha,
+    table,
+    N,
+    K: [0, 0, 0],
+    steps: plan.lanczos,
+    start: A_C,
+  })
   const fs = floquetSpace({ m, alpha, table, N, K: [0, 0, 0] })
-  const lv = floquetLevel(fs, ham.psi, new Float64Array(N * N * N), ham.E, plan.filter, 2)
+  const lv = floquetLevel(
+    fs,
+    ham.psi,
+    new Float64Array(N * N * N),
+    ham.E,
+    plan.filter,
+    2,
+  )
   const E = lv.eps - alpha * G0
   const Eb = 2 * m - E
   const p = photoSpace(fs, m, plan.rAbs, 0.01)
@@ -110,23 +163,40 @@ export function photoelectricRun(plan: PhotoPlan): Verdict {
   log('level')
 
   const half = Math.round((plan.beats + plan.ramp) / 2)
+
   const rate = (A0: number, omega: number, still = false): number => {
-    const [mid, end] = photoDrive({ p, vr: lv.vr, vi: lv.vi, A0, omega, beats: plan.beats, ramp: plan.ramp, marks: [half, plan.beats], still }) as [number, number]
+    const [mid, end] = photoDrive({
+      p,
+      vr: lv.vr,
+      vi: lv.vi,
+      A0,
+      omega,
+      beats: plan.beats,
+      ramp: plan.ramp,
+      marks: [half, plan.beats],
+      still,
+    }) as [number, number]
 
     return -Math.log((1 - end) / (1 - mid)) / (plan.beats - half)
   }
+
   const at = (x: number, A0: number): number => rate(A0, x * Eb)
   const reads: Record<string, number> = {}
+
   const read = (name: string, v: number): number => {
     reads[name] = v
     log(name)
+
     return v
   }
+
   const below = read('rate_0.8_A5e-3', at(0.8, 5e-3))
   const below2 = read('rate_0.8_A1e-2', at(0.8, 1e-2))
   const above = read('rate_1.25_A5e-3', at(1.25, 5e-3))
   const above2 = read('rate_1.25_A1e-2', at(1.25, 1e-2))
-  const open = [1.1, 1.6, 2.2].map(x => read(`rate_${x}_A5e-3`, at(x, 5e-3)))
+  const open = [1.1, 1.6, 2.2].map(x =>
+    read(`rate_${x}_A5e-3`, at(x, 5e-3)),
+  )
   const undriven = read('rate_undriven', rate(0, 0.3))
   const still = read('rate_static', rate(5e-3, 0, true))
 
@@ -138,19 +208,45 @@ export function photoelectricRun(plan: PhotoPlan): Verdict {
   const C2 = still <= 1e-9
   const C3 = Math.abs(E - E_RECORDED) <= plan.recordTolerance
   const channels = pairChannels(m)
-  const gap = Math.min(channelGap(E, channels, ['SS']).distance, channelGap(E + Math.PI, channels).distance)
+  const gap = Math.min(
+    channelGap(E, channels, ['SS']).distance,
+    channelGap(E + Math.PI, channels).distance,
+  )
   const C4 = gap > 0.2
 
   const gates = { P1, P2, P3, P4 }
   const controls = { C1, C2, C3, C4 }
-  const all = Object.values(gates).every(Boolean) && Object.values(controls).every(Boolean)
+  const all =
+    Object.values(gates).every(Boolean) &&
+    Object.values(controls).every(Boolean)
   const e = (x: number): string => x.toExponential(2)
 
   return verdict({
     status: all ? 'partial' : 'fail',
     claim: `E-SPN-0155's heavy love-fear pair (E_b ${E_b(Eb)}) driven by a uniform light field, the coupling the shift of the relative momentum: above its binding energy it ionizes at first order (${[above, ...open].map(e).join(', ')} a beat at 1.25, 1.1, 1.6, 2.2 E_b), the rate growing as the intensity (doubling A0 gives ${(above2 / above).toFixed(3)}); at 0.8 E_b it loses ${e(below / above)} of that rate, scaling as the intensity too (${(below2 / below).toFixed(2)}), so a first-order loss below threshold ${P1 && P4 ? 'is absent' : 'is present'}; no loss undriven (${e(undriven)}) or under a static field (${e(still)}); a static stand-in pair and a uniform field`,
-    metrics: { P1: flag(P1), P2: flag(P2), P3: flag(P3), P4: flag(P4), m, alpha, E, Eb, residual: lv.residual, tail, ...reads, belowOverAbove: below / above, aboveScaling: above2 / above, belowScaling: below2 / below },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), gap },
+    metrics: {
+      P1: flag(P1),
+      P2: flag(P2),
+      P3: flag(P3),
+      P4: flag(P4),
+      m,
+      alpha,
+      E,
+      Eb,
+      residual: lv.residual,
+      tail,
+      ...reads,
+      belowOverAbove: below / above,
+      aboveScaling: above2 / above,
+      belowScaling: below2 / below,
+    },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      C4: flag(C4),
+      gap,
+    },
     notes: `L2, deterministic (a placed Lanczos start, fixed frequencies; no draw). Gates ${JSON.stringify(gates)}, controls ${JSON.stringify(controls)}. Plan ${JSON.stringify(plan)}. Level E ${E.toFixed(10)} (recorded ${E_RECORDED}), residual ${e(lv.residual)}, tail beyond r ${plan.rAbs} ${e(tail)}, nearest open channel ${gap.toFixed(4)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

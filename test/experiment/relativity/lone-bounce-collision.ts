@@ -66,23 +66,73 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { isometricTable, LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  isometricTable,
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { turningWeave } from '@/code/rule/collision'
 import { livingState } from '@/code/rule/living-pair-knit'
-import { cloneStoreState, sameStoreState, storeCharge, transformStoreState } from '@/code/rule/token-store-knit'
-import { bounceBeat, bounceBeatBack, bounceCollide, bounceMotionReversal, bouncePermutation, makeBounceKnit, type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { bounceKernelAgreement, bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { tritDifference, type Reduced } from '@/code/measure/living-pair-kernel'
-import { bounceLinearization, sampledBounceLinearization } from '@/code/measure/bounce-linearization'
+import {
+  cloneStoreState,
+  sameStoreState,
+  storeCharge,
+  transformStoreState,
+} from '@/code/rule/token-store-knit'
+import {
+  bounceBeat,
+  bounceBeatBack,
+  bounceCollide,
+  bounceMotionReversal,
+  bouncePermutation,
+  makeBounceKnit,
+  type CollisionKind,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  bounceKernelAgreement,
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  tritDifference,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  bounceLinearization,
+  sampledBounceLinearization,
+} from '@/code/measure/bounce-linearization'
 import { goldenFill } from '@/code/measure/candidate-kernel'
 import { storeStart } from '@/code/measure/token-store-gates'
-import { orientedLinearization, sparseLivingState } from '@/code/measure/sparse-living-vacuum'
-import { coinData, orientedHubStore, uniformStore } from '@/code/measure/varying-vacuum'
-import { layoutOf, weaveOf } from '@/code/measure/varying-living-battery'
-import { equivarianceDefect, ORIENTED, readTransport, SPACE } from '@/code/measure/varying-transport'
+import {
+  orientedLinearization,
+  sparseLivingState,
+} from '@/code/measure/sparse-living-vacuum'
+import {
+  coinData,
+  orientedHubStore,
+  uniformStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  layoutOf,
+  weaveOf,
+} from '@/code/measure/varying-living-battery'
+import {
+  equivarianceDefect,
+  ORIENTED,
+  readTransport,
+  SPACE,
+} from '@/code/measure/varying-transport'
 import { invariantsOf } from '@/code/measure/store-transport'
-import { dressing as ruleDressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  dressing as ruleDressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 import { weyl } from '@/code/tool/weyl'
 
 const ROOTS = rootsD4()
@@ -101,13 +151,23 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
     const perms = table.permutations
     const iso = isometricTable()
-    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0] as number] as number[])
-    const hubStore = (side: number, anchor: number): Int8Array => orientedHubStore(coins, side, d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number)))
+    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0]!]!)
+    const hubStore = (side: number, anchor: number): Int8Array =>
+      orientedHubStore(
+        coins,
+        side,
+        d4BoxCoordinates({ cell: anchor, side }).map(
+          (v, k) => v - r0[k]!,
+        ),
+      )
 
     // ---- B1, B2: dock-level covariance, involution, momentum ----
     const docks: Int8Array[] = []
@@ -117,15 +177,17 @@ export default experiment({
 
       for (let l = 0; l < 12; l++) {
         if ((full >> l) & 1) {
-          base[LINE_FIRSTS[l] as number] = 1
-          base[LINE_SECONDS[l] as number] = -1
+          base[LINE_FIRSTS[l]!] = 1
+          base[LINE_SECONDS[l]!] = -1
         }
       }
 
       docks.push(base)
 
       for (let d = 0; d < 24; d++) {
-        if ((full >> (LINE_OF[d] as number)) & 1) continue
+        if ((full >> LINE_OF[d]!) & 1) {
+          continue
+        }
 
         const v = Int8Array.from(base)
 
@@ -140,7 +202,10 @@ export default experiment({
       const v = new Int8Array(24)
 
       for (let d = 0; d < 24; d++) {
-        const x = weyl(m + 1, Math.sqrt(2 + d) - Math.floor(Math.sqrt(2 + d)))
+        const x = weyl(
+          m + 1,
+          Math.sqrt(2 + d) - Math.floor(Math.sqrt(2 + d)),
+        )
 
         v[d] = x < 0.3 ? 1 : x < 0.6 ? -1 : 0
       }
@@ -151,17 +216,28 @@ export default experiment({
     const p1 = new Int32Array(24)
     const p2 = new Int32Array(24)
     const identity = Int32Array.from({ length: 24 }, (_, d) => d)
+
     let covarianceFailures = 0
     let involutionFailures = 0
     let momentumFailures = 0
     let differsFromK = 0
-    const permOf = (v: Int8Array, out: Int32Array, kind: CollisionKind): void => {
-      if (bouncePermutation(iso, kind, v, 0, out) === 0) out.set(identity)
+
+    const permOf = (
+      v: Int8Array,
+      out: Int32Array,
+      kind: CollisionKind,
+    ): void => {
+      if (bouncePermutation(iso, kind, v, 0, out) === 0) {
+        out.set(identity)
+      }
     }
+
     const apply = (perm: Int32Array, v: Int8Array): Int8Array => {
       const out = new Int8Array(24)
 
-      for (let d = 0; d < 24; d++) out[perm[d] as number] = v[d] as number
+      for (let d = 0; d < 24; d++) {
+        out[perm[d]!] = v[d]!
+      }
 
       return out
     }
@@ -169,15 +245,22 @@ export default experiment({
     for (const v of docks) {
       permOf(v, p1, KIND)
       permOf(v, p2, 'isometric')
-      differsFromK += p1.some((x, d) => x !== p2[d] && v[d] !== 0) ? 1 : 0
+      differsFromK += p1.some((x, d) => x !== p2[d] && v[d] !== 0)
+        ? 1
+        : 0
 
       const after = apply(p1, v)
       const q = new Int32Array(24)
 
       permOf(after, q, KIND)
-      involutionFailures += apply(q, after).every((x, d) => x === v[d]) ? 0 : 1
+      involutionFailures += apply(q, after).every((x, d) => x === v[d])
+        ? 0
+        : 1
 
-      const mom = (u: Int8Array): number[] => [0, 1, 2, 3].map(k => u.reduce((s, x, d) => s + (x !== 0 ? ((ROOTS[d] as number[])[k] as number) : 0), 0))
+      const mom = (u: Int8Array): number[] =>
+        [0, 1, 2, 3].map(k =>
+          u.reduce((s, x, d) => s + (x !== 0 ? ROOTS[d]![k]! : 0), 0),
+        )
       const m0 = mom(v)
       const m1 = mom(after)
 
@@ -186,7 +269,9 @@ export default experiment({
       for (const g of perms) {
         const gv = new Int8Array(24)
 
-        for (let d = 0; d < 24; d++) gv[g[d] as number] = v[d] as number
+        for (let d = 0; d < 24; d++) {
+          gv[g[d]!] = v[d]!
+        }
 
         const pg = new Int32Array(24)
 
@@ -195,7 +280,11 @@ export default experiment({
         // g p1 = pg g on the held slots
         let ok = true
 
-        for (let d = 0; d < 24 && ok; d++) if (v[d] !== 0) ok = pg[g[d] as number] === g[p1[d] as number]
+        for (let d = 0; d < 24 && ok; d++) {
+          if (v[d] !== 0) {
+            ok = pg[g[d]!] === g[p1[d]!]
+          }
+        }
 
         covarianceFailures += ok ? 0 : 1
       }
@@ -206,6 +295,7 @@ export default experiment({
     // charge conjugation on 400 dock states with three stores (cptAtCollision's set), both beats' collisions
     const knit3 = makeBounceKnit(weaveOf(3), 'alternate', true, KIND)
     const id24 = Array.from({ length: 24 }, (_, d) => d)
+
     let chargeConjugationFailures = 0
 
     for (let n = 0; n < 400; n++) {
@@ -214,14 +304,27 @@ export default experiment({
 
       for (let i = 0; i < 24; i++) {
         v[i] = ((n * 31 + i * 7 + ((n * i) % 5)) % 3) - 1
-        if (n % 2 === 0 && (n + i) % 5 !== 0) v[i] = 0
+
+        if (n % 2 === 0 && (n + i) % 5 !== 0) {
+          v[i] = 0
+        }
+
         point[i] = (n * 5 + i * 2) % 9
       }
 
       for (const pattern of [1, 0, 2]) {
-        const x = livingState({ vibe: v, point, tau: pattern === 2 ? 0 : pattern, layout: new Int8Array(12).fill(4) })
+        const x = livingState({
+          vibe: v,
+          point,
+          tau: pattern === 2 ? 0 : pattern,
+          layout: new Int8Array(12).fill(4),
+        })
 
-        if (pattern === 2) for (let l = 0; l < 12; l++) x.store[l] = ((n + l) % 3) - 1
+        if (pattern === 2) {
+          for (let l = 0; l < 12; l++) {
+            x.store[l] = ((n + l) % 3) - 1
+          }
+        }
 
         for (const t of [0, 1]) {
           const lhs = transformStoreState(x, [0], id24, -1)
@@ -231,31 +334,62 @@ export default experiment({
           const y = cloneStoreState(x)
 
           bounceCollide(knit3, y, 0, t)
-          chargeConjugationFailures += sameStoreState(lhs, transformStoreState(y, [0], id24, -1)) ? 0 : 1
+          chargeConjugationFailures += sameStoreState(
+            lhs,
+            transformStoreState(y, [0], id24, -1),
+          )
+            ? 0
+            : 1
         }
       }
     }
 
     const b1 = covarianceFailures === 0
-    const b2 = involutionFailures === 0 && momentumFailures === 0 && chargeConjugationFailures === 0
+    const b2 =
+      involutionFailures === 0 &&
+      momentumFailures === 0 &&
+      chargeConjugationFailures === 0
 
     // ---- B3: kernel agreement ----
     const w4 = weaveOf(4)
     const cells4 = w4.mesh.cellCount
     const knit4 = makeBounceKnit(w4, 'alternate', true, KIND)
-    const agreements = [hubStore(4, 0), uniformStore(cells4, [0]), new Int8Array(cells4 * 12)].map(store =>
-      bounceKernelAgreement({ knit: knit4, start: sparseLivingState({ ...goldenFill(cells4 * 24, 1.37), store, layout: layoutOf(4) }), beats: 48 }),
+    const agreements = [
+      hubStore(4, 0),
+      uniformStore(cells4, [0]),
+      new Int8Array(cells4 * 12),
+    ].map(store =>
+      bounceKernelAgreement({
+        knit: knit4,
+        start: sparseLivingState({
+          ...goldenFill(cells4 * 24, 1.37),
+          store,
+          layout: layoutOf(4),
+        }),
+        beats: 48,
+      }),
     )
 
-    agreements.push(bounceKernelAgreement({ knit: knit4, start: storeStart(cells4, 11), beats: 48 }))
+    agreements.push(
+      bounceKernelAgreement({
+        knit: knit4,
+        start: storeStart(cells4, 11),
+        beats: 48,
+      }),
+    )
 
     const b3 = agreements.every(a => a.mismatches === 0 && a.vetoed > 0)
 
     log('b3')
 
     // ---- B4: reversal, motion reversal, charge ----
-    const box0 = sparseLivingState({ ...goldenFill(cells4 * 24, 1.37), store: hubStore(4, 0), layout: layoutOf(4) })
+    const box0 = sparseLivingState({
+      ...goldenFill(cells4 * 24, 1.37),
+      store: hubStore(4, 0),
+      layout: layoutOf(4),
+    })
     const none = new Uint8Array(box0.point.length)
+
     let s = box0
     let chargeKept = true
 
@@ -264,9 +398,12 @@ export default experiment({
       chargeKept = chargeKept && storeCharge(s) === storeCharge(box0)
     }
 
-    for (let t = 47; t >= 0; t--) s = bounceBeatBack(knit4, s, none, t).state
+    for (let t = 47; t >= 0; t--) {
+      s = bounceBeatBack(knit4, s, none, t).state
+    }
 
     const reverses = sameStoreState(s, box0)
+
     // U_1 T U_0 T = 1: T, beat 0, T, beat 1
     let m = bounceMotionReversal(knit4, box0, 0)
 
@@ -280,9 +417,19 @@ export default experiment({
     log('b4')
 
     // ---- B5: the vacuum is unchanged ----
-    const vacuumHistory = (kind: CollisionKind, side: number, store: Int8Array, beats: number): Reduced[] => {
+    const vacuumHistory = (
+      kind: CollisionKind,
+      side: number,
+      store: Int8Array,
+      beats: number,
+    ): Reduced[] => {
       const kernel = makeBounceKernel(weaveOf(side), kind)
-      const run = bounceRunner(kernel, { vibe: new Int8Array(kernel.cells * 24), point: new Int8Array(kernel.cells * 24), store: Int8Array.from(store), spoint: Int8Array.from(layoutOf(side)) })
+      const run = bounceRunner(kernel, {
+        vibe: new Int8Array(kernel.cells * 24),
+        point: new Int8Array(kernel.cells * 24),
+        store: Int8Array.from(store),
+        spoint: Int8Array.from(layoutOf(side)),
+      })
       const out: Reduced[] = []
 
       for (let t = 0; t < beats; t++) {
@@ -290,23 +437,41 @@ export default experiment({
 
         const r = run.state()
 
-        out.push({ vibe: Int8Array.from(r.vibe), point: Int8Array.from(r.point), store: Int8Array.from(r.store), spoint: Int8Array.from(r.spoint) })
+        out.push({
+          vibe: Int8Array.from(r.vibe),
+          point: Int8Array.from(r.point),
+          store: Int8Array.from(r.store),
+          spoint: Int8Array.from(r.spoint),
+        })
       }
 
       return out
     }
+
     const vacua: [string, number, Int8Array][] = [
-      ['hub', 8, hubStore(8, d4BoxCell({ coordinates: [4, 4, 4, 4], side: 8 }))],
+      [
+        'hub',
+        8,
+        hubStore(8, d4BoxCell({ coordinates: [4, 4, 4, 4], side: 8 })),
+      ],
       ['one line', 9, uniformStore(9 ** 4, [0])],
-      ['all lines', 9, uniformStore(9 ** 4, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])],
+      [
+        'all lines',
+        9,
+        uniformStore(9 ** 4, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+      ],
     ]
+
     let vacuumDifferences = 0
 
     for (const [, side, store] of vacua) {
       const a = vacuumHistory(KIND, side, store, 24)
       const b = vacuumHistory('isometric', side, store, 24)
 
-      vacuumDifferences += a.reduce((n, x, t) => n + tritDifference(x, b[t] as Reduced).trits, 0)
+      vacuumDifferences += a.reduce(
+        (n, x, t) => n + tritDifference(x, b[t]!).trits,
+        0,
+      )
     }
 
     const b5 = vacuumDifferences === 0
@@ -314,40 +479,73 @@ export default experiment({
     log('b5')
 
     // ---- B6: the wake ----
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-    const wakeOf = (kind: CollisionKind, side: number, tone: number): { worst: number[]; offLine: number; bare: number; perDirection: number[] } => {
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
+
+    const wakeOf = (
+      kind: CollisionKind,
+      side: number,
+      tone: number,
+    ): {
+      worst: number[]
+      offLine: number
+      bare: number
+      perDirection: number[]
+    } => {
       const kernel = makeBounceKernel(weaveOf(side), kind)
       const cells = kernel.cells
       const mid = side / 2
-      const center = d4BoxCell({ coordinates: [mid, mid, mid, mid], side })
+      const center = d4BoxCell({
+        coordinates: [mid, mid, mid, mid],
+        side,
+      })
       const store = hubStore(side, center)
       const vac = vacuumHistory(kind, side, store, BEATS)
       const worst = [0, 0, 0, 0]
       const perDirection: number[] = []
+
       let offLine = 0
       let bare = 0
 
       for (let d = 0; d < 24; d++) {
-        const start: Reduced = { vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: Int8Array.from(store), spoint: Int8Array.from(layoutOf(side)) }
+        const start: Reduced = {
+          vibe: new Int8Array(cells * 24),
+          point: new Int8Array(cells * 24),
+          store: Int8Array.from(store),
+          spoint: Int8Array.from(layoutOf(side)),
+        }
 
         start.vibe[center * 24 + d] = tone
 
         const run = bounceRunner(kernel, start)
-        const line = LINE_OF[d] as number
+        const line = LINE_OF[d]!
+
         let most = 0
 
         for (let t = 0; t < BEATS; t++) {
           run.beat()
 
           const a = run.state()
-          const b = vac[t] as Reduced
+          const b = vac[t]!
           const trits = tritDifference(a, b).trits
 
-          worst[Math.floor(t / 24)] = Math.max(worst[Math.floor(t / 24)] ?? 0, trits)
+          worst[Math.floor(t / 24)] = Math.max(
+            worst[Math.floor(t / 24)] ?? 0,
+            trits,
+          )
           most = Math.max(most, trits)
 
-          for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] && LINE_OF[i % 24] !== line) offLine++
-          for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] && i % 12 !== line) offLine++
+          for (let i = 0; i < a.vibe.length; i++) {
+            if (a.vibe[i] !== b.vibe[i] && LINE_OF[i % 24] !== line) {
+              offLine++
+            }
+          }
+
+          for (let i = 0; i < a.store.length; i++) {
+            if (a.store[i] !== b.store[i] && i % 12 !== line) {
+              offLine++
+            }
+          }
         }
 
         perDirection.push(most)
@@ -356,12 +554,15 @@ export default experiment({
 
       return { worst, offLine, bare, perDirection }
     }
+
     const wakes = [8, 12].map(side => ({
       side,
       love: wakeOf(KIND, side, 1),
       fear: wakeOf(KIND, side, -1),
-      committedLove: ruleDressing(committedRule, { side, tone: 1 }).periodLargest,
-      committedFear: ruleDressing(committedRule, { side, tone: -1 }).periodLargest,
+      committedLove: ruleDressing(committedRule, { side, tone: 1 })
+        .periodLargest,
+      committedFear: ruleDressing(committedRule, { side, tone: -1 })
+        .periodLargest,
     }))
     const b6 = wakes.every(
       w =>
@@ -375,29 +576,129 @@ export default experiment({
     log('b6')
 
     // ---- B7: transport ----
-    const stored = Array.from({ length: 12 }, (_, l) => (l === 0 ? ([2 / 3, 1 / 6, 1 / 6] as const) : ([1 / 6, 1 / 6, 2 / 3] as const)))
-    const uniform = Array.from({ length: 12 }, () => [1 / 3, 1 / 3, 1 / 3] as const)
-    const maxDiff = (a: Float64Array, b: Float64Array): number => a.reduce((mx, x, i) => Math.max(mx, Math.abs(x - (b[i] as number))), 0)
-    const againstExisting = Math.max(
-      maxDiff(bounceLinearization({ kind: 'isometric', background: ORIENTED, mode: 'BP', laws: stored }), orientedLinearization({ table: iso, background: ORIENTED, mode: 'PK', laws: stored })),
-      maxDiff(bounceLinearization({ kind: 'isometric', background: ORIENTED, mode: 'PB', laws: stored }), orientedLinearization({ table: iso, background: ORIENTED, mode: 'KP', laws: stored })),
+    const stored = Array.from({ length: 12 }, (_, l) =>
+      l === 0
+        ? ([2 / 3, 1 / 6, 1 / 6] as const)
+        : ([1 / 6, 1 / 6, 2 / 3] as const),
     )
-    const lone = [bounceLinearization({ kind: KIND, background: ORIENTED, mode: 'BP', laws: uniform }), bounceLinearization({ kind: KIND, background: ORIENTED, mode: 'PB', laws: uniform })]
-    const sampled = [20000, 80000].map(samples => maxDiff(lone[0]!, sampledBounceLinearization({ knit: knit3, background: ORIENTED, laws: uniform, samples, t: 0 })))
-    const defect = Math.max(equivarianceDefect(lone[0]!, perms), equivarianceDefect(lone[1]!, perms))
+    const uniform = Array.from(
+      { length: 12 },
+      () => [1 / 3, 1 / 3, 1 / 3] as const,
+    )
+    const maxDiff = (a: Float64Array, b: Float64Array): number =>
+      a.reduce((mx, x, i) => Math.max(mx, Math.abs(x - b[i]!)), 0)
+    const againstExisting = Math.max(
+      maxDiff(
+        bounceLinearization({
+          kind: 'isometric',
+          background: ORIENTED,
+          mode: 'BP',
+          laws: stored,
+        }),
+        orientedLinearization({
+          table: iso,
+          background: ORIENTED,
+          mode: 'PK',
+          laws: stored,
+        }),
+      ),
+      maxDiff(
+        bounceLinearization({
+          kind: 'isometric',
+          background: ORIENTED,
+          mode: 'PB',
+          laws: stored,
+        }),
+        orientedLinearization({
+          table: iso,
+          background: ORIENTED,
+          mode: 'KP',
+          laws: stored,
+        }),
+      ),
+    )
+    const lone = [
+      bounceLinearization({
+        kind: KIND,
+        background: ORIENTED,
+        mode: 'BP',
+        laws: uniform,
+      }),
+      bounceLinearization({
+        kind: KIND,
+        background: ORIENTED,
+        mode: 'PB',
+        laws: uniform,
+      }),
+    ]
+    const sampled = [20000, 80000].map(samples =>
+      maxDiff(
+        lone[0]!,
+        sampledBounceLinearization({
+          knit: knit3,
+          background: ORIENTED,
+          laws: uniform,
+          samples,
+          t: 0,
+        }),
+      ),
+    )
+    const defect = Math.max(
+      equivarianceDefect(lone[0]!, perms),
+      equivarianceDefect(lone[1]!, perms),
+    )
     const invariants = invariantsOf(SPACE, lone).length
     const transport = readTransport(lone)
     const t3 = transport.three
-    const always = [bounceLinearization({ kind: 'bounce', background: ORIENTED, mode: 'BP', laws: uniform }), bounceLinearization({ kind: 'bounce', background: ORIENTED, mode: 'PB', laws: uniform })]
+    const always = [
+      bounceLinearization({
+        kind: 'bounce',
+        background: ORIENTED,
+        mode: 'BP',
+        laws: uniform,
+      }),
+      bounceLinearization({
+        kind: 'bounce',
+        background: ORIENTED,
+        mode: 'PB',
+        laws: uniform,
+      }),
+    ]
     const alwaysTransport = readTransport(always)
-    const reference = readTransport([orientedLinearization({ table: iso, background: ORIENTED, mode: 'PK', laws: uniform }), orientedLinearization({ table: iso, background: ORIENTED, mode: 'KP', laws: uniform })])
-    const instrument = againstExisting < 1e-10 && (sampled[0] ?? 0) >= 3 * (sampled[1] ?? 1) && defect < 1e-10 && invariants === 6
-    const isotropic = (t3.charge ?? 0) >= 3.5 && (t3.trace ?? 0) >= 3.5 && (t3.sound ?? 0) >= 3.5 && Math.abs((t3.shear ?? 0) - 2) <= 0.5
+    const reference = readTransport([
+      orientedLinearization({
+        table: iso,
+        background: ORIENTED,
+        mode: 'PK',
+        laws: uniform,
+      }),
+      orientedLinearization({
+        table: iso,
+        background: ORIENTED,
+        mode: 'KP',
+        laws: uniform,
+      }),
+    ])
+    const instrument =
+      againstExisting < 1e-10 &&
+      (sampled[0] ?? 0) >= 3 * (sampled[1] ?? 1) &&
+      defect < 1e-10 &&
+      invariants === 6
+    const isotropic =
+      (t3.charge ?? 0) >= 3.5 &&
+      (t3.trace ?? 0) >= 3.5 &&
+      (t3.sound ?? 0) >= 3.5 &&
+      Math.abs((t3.shear ?? 0) - 2) <= 0.5
     const b7 = instrument && isotropic
 
     log('b7')
 
-    const status = b1 && b2 && b3 && b4 && b5 && instrument ? (b6 && isotropic ? 'pass' : 'fail') : 'partial'
+    const status =
+      b1 && b2 && b3 && b4 && b5 && instrument
+        ? b6 && isotropic
+          ? 'pass'
+          : 'fail'
+        : 'partial'
     const per = (xs: readonly number[]): string => xs.join(', ')
     const w8 = wakes[0]!
     const w12 = wakes[1]!
@@ -413,35 +714,89 @@ export default experiment({
         momentumFailures,
         chargeConjugationFailures,
         docksWhereLDiffersFromK: differsFromK,
-        kernelMismatchBeats: agreements.reduce((a, b) => a + b.mismatches, 0),
+        kernelMismatchBeats: agreements.reduce(
+          (a, b) => a + b.mismatches,
+          0,
+        ),
         kernelVetoes: agreements.reduce((a, b) => a + b.vetoed, 0),
         boxReverses: reverses ? 1 : 0,
         motionReversal: motion ? 1 : 0,
         chargeKept: chargeKept ? 1 : 0,
         vacuumDifferences,
-        ...Object.fromEntries(wakes.flatMap(w => [
-          ...w.love.worst.map((x, p) => [`side${w.side}LovePeriod${p + 1}`, x] as const),
-          ...w.fear.worst.map((x, p) => [`side${w.side}FearPeriod${p + 1}`, x] as const),
-          ...w.committedLove.map((x, p) => [`committedSide${w.side}LovePeriod${p + 1}`, x] as const),
-          ...w.committedFear.map((x, p) => [`committedSide${w.side}FearPeriod${p + 1}`, x] as const),
-          [`side${w.side}LoveBare`, w.love.bare] as const,
-          [`side${w.side}FearBare`, w.fear.bare] as const,
-          [`side${w.side}OffLine`, w.love.offLine + w.fear.offLine] as const,
-        ])),
+        ...Object.fromEntries(
+          wakes.flatMap(w => [
+            ...w.love.worst.map(
+              (x, p) => [`side${w.side}LovePeriod${p + 1}`, x] as const,
+            ),
+            ...w.fear.worst.map(
+              (x, p) => [`side${w.side}FearPeriod${p + 1}`, x] as const,
+            ),
+            ...w.committedLove.map(
+              (x, p) =>
+                [
+                  `committedSide${w.side}LovePeriod${p + 1}`,
+                  x,
+                ] as const,
+            ),
+            ...w.committedFear.map(
+              (x, p) =>
+                [
+                  `committedSide${w.side}FearPeriod${p + 1}`,
+                  x,
+                ] as const,
+            ),
+            [`side${w.side}LoveBare`, w.love.bare] as const,
+            [`side${w.side}FearBare`, w.fear.bare] as const,
+            [
+              `side${w.side}OffLine`,
+              w.love.offLine + w.fear.offLine,
+            ] as const,
+          ]),
+        ),
         alwaysBounceSide8Worst: Math.max(...alwaysBounce.worst),
         linearAgainstExisting: againstExisting,
         linearSampled20000: sampled[0] ?? -1,
         linearSampled80000: sampled[1] ?? -1,
         linearEquivarianceDefect: defect,
         linearInvariants: invariants,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`lone_${q}_exponent3`, t3[q] ?? Number.NaN])),
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`lone_${q}_mean`, transport.means[q] ?? Number.NaN])),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `lone_${q}_exponent3`,
+            t3[q] ?? Number.NaN,
+          ]),
+        ),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `lone_${q}_mean`,
+            transport.means[q] ?? Number.NaN,
+          ]),
+        ),
         loneCrossoverK: transport.kc,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`always_${q}_exponent3`, alwaysTransport.three[q] ?? Number.NaN])),
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`always_${q}_mean`, alwaysTransport.means[q] ?? Number.NaN])),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `always_${q}_exponent3`,
+            alwaysTransport.three[q] ?? Number.NaN,
+          ]),
+        ),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `always_${q}_mean`,
+            alwaysTransport.means[q] ?? Number.NaN,
+          ]),
+        ),
         alwaysCrossoverK: alwaysTransport.kc,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`isometric_${q}_exponent3`, reference.three[q] ?? Number.NaN])),
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(q => [`isometric_${q}_mean`, reference.means[q] ?? Number.NaN])),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `isometric_${q}_exponent3`,
+            reference.three[q] ?? Number.NaN,
+          ]),
+        ),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(q => [
+            `isometric_${q}_mean`,
+            reference.means[q] ?? Number.NaN,
+          ]),
+        ),
         isometricCrossoverK: reference.kc,
         seconds: (Date.now() - started) / 1000,
       },

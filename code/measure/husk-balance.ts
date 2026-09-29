@@ -33,34 +33,57 @@ export type LightSymbol = {
   /** links per dock, each with its weight w */
   linkWeights: number[]
   /** plaquettes per dock: each one's multiplicity n, and its links as (link type, sign, offset) */
-  plaquettes: { n: number; links: { link: number; sign: number; offset: number[] }[] }[]
+  plaquettes: {
+    n: number
+    links: { link: number; sign: number; offset: number[] }[]
+  }[]
 }
 
 /** A real symmetric matrix's eigenvalues and orthonormal eigenvectors (columns), by cyclic Jacobi. */
-export function jacobiEigen(a: number[][]): { values: number[]; vectors: number[][] } {
+export function jacobiEigen(a: number[][]): {
+  values: number[]
+  vectors: number[][]
+} {
   const n = a.length
   const m = a.map(row => row.slice())
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
+  )
+
   let total = 0
 
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) total += m[i]![j]! * m[i]![j]!
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      total += m[i]![j]! * m[i]![j]!
+    }
+  }
 
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
 
-    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += m[i]![j]! * m[i]![j]!
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        off += m[i]![j]! * m[i]![j]!
+      }
+    }
 
     // converged when the off-diagonal part is below 1e-28 of the matrix, relative, so rounding cannot stall it
-    if (off <= 1e-28 * total || off < 1e-300) break
+    if (off <= 1e-28 * total || off < 1e-300) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = m[p]![q]!
 
-        if (Math.abs(apq) < 1e-300) continue
+        if (Math.abs(apq) < 1e-300) {
+          continue
+        }
 
         const theta = (m[q]![q]! - m[p]![p]!) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -95,14 +118,20 @@ export function jacobiEigen(a: number[][]): { values: number[]; vectors: number[
 }
 
 /** The complex plaquette-by-link symbol C(k) of a light, as real and imaginary parts (P rows, L columns). */
-export function curlAt(light: LightSymbol, k: readonly number[]): { re: number[][]; im: number[][] } {
+export function curlAt(
+  light: LightSymbol,
+  k: readonly number[],
+): { re: number[][]; im: number[][] } {
   const L = light.linkWeights.length
   const re = light.plaquettes.map(() => new Array<number>(L).fill(0))
   const im = light.plaquettes.map(() => new Array<number>(L).fill(0))
 
   light.plaquettes.forEach((plaquette, t) => {
     for (const { link, sign, offset } of plaquette.links) {
-      const phase = offset.reduce((sum, x, d) => sum + x * (k[d] ?? 0), 0)
+      const phase = offset.reduce(
+        (sum, x, d) => sum + x * (k[d] ?? 0),
+        0,
+      )
 
       re[t]![link] = re[t]![link]! + sign * Math.cos(phase)
       im[t]![link] = im[t]![link]! + sign * Math.sin(phase)
@@ -121,9 +150,17 @@ function embed(a: number[][], b: number[][]): number[][] {
       const r = i % n
       const c = j % n
 
-      if (i < n && j < n) return a[r]![c]!
-      if (i >= n && j >= n) return a[r]![c]!
-      if (i < n) return -b[r]![c]!
+      if (i < n && j < n) {
+        return a[r]![c]!
+      }
+
+      if (i >= n && j >= n) {
+        return a[r]![c]!
+      }
+
+      if (i < n) {
+        return -b[r]![c]!
+      }
 
       return b[r]![c]!
     }),
@@ -131,7 +168,11 @@ function embed(a: number[][], b: number[][]): number[][] {
 }
 
 /** Fills at one wave vector: pi_l (links) and Pi_P (plaquettes), and the rank of C(k). */
-export function fillsAt(light: LightSymbol, k: readonly number[], weights: { w: number[]; n: number[] }): { pi: number[]; Pi: number[]; rank: number } {
+export function fillsAt(
+  light: LightSymbol,
+  k: readonly number[],
+  weights: { w: number[]; n: number[] },
+): { pi: number[]; Pi: number[]; rank: number } {
   const { re, im } = curlAt(light, k)
   const L = weights.w.length
   const P = weights.n.length
@@ -139,8 +180,12 @@ export function fillsAt(light: LightSymbol, k: readonly number[], weights: { w: 
   const sn = weights.n.map(Math.sqrt)
 
   // links: G = W^(1/2) C^dagger C W^(1/2), Hermitian L x L; pi = diag of the projector onto its nonzero eigenspace
-  const gRe = Array.from({ length: L }, () => new Array<number>(L).fill(0))
-  const gIm = Array.from({ length: L }, () => new Array<number>(L).fill(0))
+  const gRe = Array.from({ length: L }, () =>
+    new Array<number>(L).fill(0),
+  )
+  const gIm = Array.from({ length: L }, () =>
+    new Array<number>(L).fill(0),
+  )
 
   for (let i = 0; i < L; i++) {
     for (let j = 0; j < L; j++) {
@@ -161,21 +206,36 @@ export function fillsAt(light: LightSymbol, k: readonly number[], weights: { w: 
   const ge = jacobiEigen(embed(gRe, gIm))
   const top = Math.max(...ge.values.map(Math.abs))
   const pi = new Array<number>(L).fill(0)
+
   let kept = 0
 
   ge.values.forEach((value, j) => {
-    if (value <= 1e-9 * top) return
+    if (value <= 1e-9 * top) {
+      return
+    }
 
     kept++
 
-    for (let h = 0; h < L; h++) pi[h] = pi[h]! + (ge.vectors[h]![j]! ** 2 + ge.vectors[h + L]![j]! ** 2) / 2
+    for (let h = 0; h < L; h++) {
+      pi[h] =
+        pi[h]! +
+        (ge.vectors[h]![j]! ** 2 + ge.vectors[h + L]![j]! ** 2) / 2
+    }
   })
 
   // plaquettes: Y = N^(1/2) C W, V = Y^dagger Y (L x L); Pi_P = sum over V's nonzero eigenvectors of |(Y v)_P|^2 / lambda
-  const yRe = re.map((row, t) => row.map((x, l) => sn[t]! * x * weights.w[l]!))
-  const yIm = im.map((row, t) => row.map((x, l) => sn[t]! * x * weights.w[l]!))
-  const vRe = Array.from({ length: L }, () => new Array<number>(L).fill(0))
-  const vIm = Array.from({ length: L }, () => new Array<number>(L).fill(0))
+  const yRe = re.map((row, t) =>
+    row.map((x, l) => sn[t]! * x * weights.w[l]!),
+  )
+  const yIm = im.map((row, t) =>
+    row.map((x, l) => sn[t]! * x * weights.w[l]!),
+  )
+  const vRe = Array.from({ length: L }, () =>
+    new Array<number>(L).fill(0),
+  )
+  const vIm = Array.from({ length: L }, () =>
+    new Array<number>(L).fill(0),
+  )
 
   for (let i = 0; i < L; i++) {
     for (let j = 0; j < L; j++) {
@@ -197,7 +257,9 @@ export function fillsAt(light: LightSymbol, k: readonly number[], weights: { w: 
   const Pi = new Array<number>(P).fill(0)
 
   ve.values.forEach((value, j) => {
-    if (value <= 1e-9 * vTop) return
+    if (value <= 1e-9 * vTop) {
+      return
+    }
 
     const xr = ve.vectors.slice(0, L).map(row => row[j]!)
     const xi = ve.vectors.slice(L).map(row => row[j]!)
@@ -232,11 +294,14 @@ export function averageFills(
   const P = weights.n.length
   const pi = new Array<number>(L).fill(0)
   const Pi = new Array<number>(P).fill(0)
+
   let rank = 0
+
   const points = g ** light.dims
 
   for (let i = 0; i < points; i++) {
     let rest = i
+
     const k: number[] = []
 
     for (let d = 0; d < light.dims; d++) {
@@ -251,16 +316,29 @@ export function averageFills(
     rank += f.rank
   }
 
-  return { pi: pi.map(x => x / points), Pi: Pi.map(x => x / points), rank: rank / points, points }
+  return {
+    pi: pi.map(x => x / points),
+    Pi: Pi.map(x => x / points),
+    rank: rank / points,
+    points,
+  }
 }
 
 /** The balances from averaged fills: every class pair, and the average against the average. */
-export function balances(fills: { pi: number[]; Pi: number[] }, weights: { w: number[]; n: number[] }): { average: number; linkFill: number[]; plaquetteFill: number[] } {
+export function balances(
+  fills: { pi: number[]; Pi: number[] },
+  weights: { w: number[]; n: number[] },
+): { average: number; linkFill: number[]; plaquetteFill: number[] } {
   const linkFill = fills.pi.map((x, l) => x / weights.w[l]!)
   const plaquetteFill = fills.Pi.map((x, t) => x / weights.n[t]!)
-  const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+  const mean = (xs: number[]): number =>
+    xs.reduce((a, b) => a + b, 0) / xs.length
 
-  return { average: mean(plaquetteFill) / mean(linkFill), linkFill, plaquetteFill }
+  return {
+    average: mean(plaquetteFill) / mean(linkFill),
+    linkFill,
+    plaquetteFill,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -271,22 +349,48 @@ export function balances(fills: { pi: number[]; Pi: number[] }, weights: { w: nu
  * and its husk triangles per dock, read off the trit bulk and grouped into types by their shape relative to their
  * first link's dock, each with its multiplicity n_P.
  */
-export function huskLight(): { light: LightSymbol; w: number[]; n: number[] } {
+export function huskLight(): {
+  light: LightSymbol
+  w: number[]
+  n: number[]
+} {
   const side = 6
   const bulk = buildTritBulk({ side, depth: 2 })
-  const position = (y: number): number[] => [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
+  const position = (y: number): number[] => [
+    y % side,
+    Math.floor(y / side) % side,
+    Math.floor(y / (side * side)),
+  ]
+
   const wrap = (x: number): number => {
     const m = ((x % side) + side) % side
 
     return m > side / 2 ? m - side : m
   }
-  const types = new Map<string, { n: number; links: { link: number; sign: number; offset: number[] }[]; count: number }>()
+
+  const types = new Map<
+    string,
+    {
+      n: number
+      links: { link: number; sign: number; offset: number[] }[]
+      count: number
+    }
+  >()
 
   // A shape's key must not depend on which link the box's indexing lists first, since that order changes across
   // the torus's wrap: take every link's dock as the anchor and both orientations, and keep the least key.
   for (let p = 0; p < bulk.huskTriangles; p++) {
-    const links = [0, 1, 2].map(j => ({ l: bulk.huskTriLinks[p * 3 + j] ?? 0, s: bulk.huskTriSigns[p * 3 + j] ?? 0 }))
-    let best: { key: string; shape: { link: number; sign: number; offset: number[] }[] } | undefined
+    const links = [0, 1, 2].map(j => ({
+      l: bulk.huskTriLinks[p * 3 + j] ?? 0,
+      s: bulk.huskTriSigns[p * 3 + j] ?? 0,
+    }))
+
+    let best:
+      | {
+          key: string
+          shape: { link: number; sign: number; offset: number[] }[]
+        }
+      | undefined
 
     for (const at of links) {
       const anchor = position(Math.floor(at.l / 9))
@@ -296,41 +400,78 @@ export function huskLight(): { light: LightSymbol; w: number[]; n: number[] } {
           .map(({ l, s }) => ({
             link: l % 9,
             sign: s * flip,
-            offset: position(Math.floor(l / 9)).map((x, d) => wrap(x - anchor[d]!)),
+            offset: position(Math.floor(l / 9)).map((x, d) =>
+              wrap(x - anchor[d]!),
+            ),
           }))
-          .sort((a, b) => a.link - b.link || a.offset.join('.').localeCompare(b.offset.join('.')))
-        const key = shape.map(x => `${x.link}:${x.sign}:${x.offset.join('.')}`).join('|')
+          .sort(
+            (a, b) =>
+              a.link - b.link ||
+              a.offset.join('.').localeCompare(b.offset.join('.')),
+          )
+        const key = shape
+          .map(x => `${x.link}:${x.sign}:${x.offset.join('.')}`)
+          .join('|')
 
-        if (!best || key < best.key) best = { key, shape }
+        if (!best || key < best.key) {
+          best = { key, shape }
+        }
       }
     }
 
     const seen = types.get(best!.key)
 
-    if (seen) seen.count++
-    else types.set(best!.key, { n: bulk.multiplicity[p] ?? 0, links: best!.shape, count: 1 })
+    if (seen) {
+      seen.count++
+    } else {
+      types.set(best!.key, {
+        n: bulk.multiplicity[p] ?? 0,
+        links: best!.shape,
+        count: 1,
+      })
+    }
   }
 
   const plaquettes = [...types.values()]
 
-  if (plaquettes.some(t => t.count !== side ** 3)) throw new Error('a husk triangle type does not tile the husk')
+  if (plaquettes.some(t => t.count !== side ** 3)) {
+    throw new Error('a husk triangle type does not tile the husk')
+  }
 
   const w = Array.from(bulk.weight)
 
-  return { light: { dims: 3, linkWeights: w, plaquettes }, w, n: plaquettes.map(t => t.n) }
+  return {
+    light: { dims: 3, linkWeights: w, plaquettes },
+    w,
+    n: plaquettes.map(t => t.n),
+  }
 }
 
 /** The bulk light: 12 first roots as the link types per D4 dock and 32 triangles, every weight 1. */
-export function bulkLight(): { light: LightSymbol; w: number[]; n: number[] } {
+export function bulkLight(): {
+  light: LightSymbol
+  w: number[]
+  n: number[]
+} {
   const roots = rootsD4()
-  const index = (v: readonly number[]): number => roots.findIndex(r => r.every((x, k) => x === (v[k] ?? 0)))
+  const index = (v: readonly number[]): number =>
+    roots.findIndex(r => r.every((x, k) => x === (v[k] ?? 0)))
   const opposite = roots.map(r => index(r.map(x => -x)))
   const first: number[] = []
 
   for (const [u, depths] of [
-    [[1, 0, 0], [1, -1]],
-    [[0, 1, 0], [1, -1]],
-    [[0, 0, 1], [1, -1]],
+    [
+      [1, 0, 0],
+      [1, -1],
+    ],
+    [
+      [0, 1, 0],
+      [1, -1],
+    ],
+    [
+      [0, 0, 1],
+      [1, -1],
+    ],
     [[1, 1, 0], [0]],
     [[1, -1, 0], [0]],
     [[1, 0, 1], [0]],
@@ -338,37 +479,61 @@ export function bulkLight(): { light: LightSymbol; w: number[]; n: number[] } {
     [[0, 1, 1], [0]],
     [[0, 1, -1], [0]],
   ] as const) {
-    for (const z of depths) first.push(index([u[0], u[1], u[2], z]))
+    for (const z of depths) {
+      first.push(index([u[0], u[1], u[2], z]))
+    }
   }
 
   const firstOf = new Array<number>(24).fill(-1)
 
   first.forEach((d, k) => (firstOf[d] = k))
 
-  const step = (at: number[], d: number): { link: number; sign: number; offset: number[] } => {
-    if (firstOf[d]! >= 0) return { link: firstOf[d]!, sign: 1, offset: at }
+  const step = (
+    at: number[],
+    d: number,
+  ): { link: number; sign: number; offset: number[] } => {
+    if (firstOf[d]! >= 0) {
+      return { link: firstOf[d]!, sign: 1, offset: at }
+    }
 
-    return { link: firstOf[opposite[d]!]!, sign: -1, offset: at.map((x, k) => x + roots[d]![k]!) }
+    return {
+      link: firstOf[opposite[d]!]!,
+      sign: -1,
+      offset: at.map((x, k) => x + roots[d]![k]!),
+    }
   }
+
   const plaquettes: LightSymbol['plaquettes'] = []
 
   for (let a = 0; a < 24; a++) {
     for (let b = 0; b < 24; b++) {
       const c = index(roots[a]!.map((v, k) => -v - roots[b]![k]!))
 
-      if (c < 0 || a >= Math.min(b, c, opposite[a]!, opposite[b]!, opposite[c]!)) continue
+      if (
+        c < 0 ||
+        a >= Math.min(b, c, opposite[a]!, opposite[b]!, opposite[c]!)
+      ) {
+        continue
+      }
 
       const x = [0, 0, 0, 0]
       const y = roots[a]!.slice()
       const z = y.map((v, k) => v + roots[b]![k]!)
 
-      plaquettes.push({ n: 1, links: [step(x, a), step(y, b), step(z, c)] })
+      plaquettes.push({
+        n: 1,
+        links: [step(x, a), step(y, b), step(z, c)],
+      })
     }
   }
 
   const w = new Array<number>(12).fill(1)
 
-  return { light: { dims: 4, linkWeights: w, plaquettes }, w, n: plaquettes.map(() => 1) }
+  return {
+    light: { dims: 4, linkWeights: w, plaquettes },
+    w,
+    n: plaquettes.map(() => 1),
+  }
 }
 
 /**
@@ -376,13 +541,20 @@ export function bulkLight(): { light: LightSymbol; w: number[]; n: number[] } {
  * links (no symbol, no grouping into types), by dense projectors. Returns each husk link's and husk triangle's
  * fill, pi_l / w_l and Pi_P / n_P, and the type of each triangle is not used.
  */
-export function boxFills(side: number): { linkFill: number[]; plaquetteFill: number[]; linkDirection: number[]; plaquetteN: number[] } {
+export function boxFills(side: number): {
+  linkFill: number[]
+  plaquetteFill: number[]
+  linkDirection: number[]
+  plaquetteN: number[]
+} {
   const bulk = buildTritBulk({ side, depth: 2 })
   const L = bulk.huskLinks
   const P = bulk.huskTriangles
   const w = Array.from({ length: L }, (_, l) => bulk.weight[l % 9] ?? 1)
   const n = Array.from(bulk.multiplicity)
-  const c = Array.from({ length: P }, () => new Array<number>(L).fill(0))
+  const c = Array.from({ length: P }, () =>
+    new Array<number>(L).fill(0),
+  )
 
   for (let p = 0; p < P; p++) {
     for (let j = 0; j < 3; j++) {
@@ -397,7 +569,9 @@ export function boxFills(side: number): { linkFill: number[]; plaquetteFill: num
     Array.from({ length: L }, (_, j) => {
       let s = 0
 
-      for (let p = 0; p < P; p++) s += c[p]![i]! * c[p]![j]!
+      for (let p = 0; p < P; p++) {
+        s += c[p]![i]! * c[p]![j]!
+      }
 
       return Math.sqrt(w[i]!) * s * Math.sqrt(w[j]!)
     }),
@@ -407,16 +581,24 @@ export function boxFills(side: number): { linkFill: number[]; plaquetteFill: num
   const pi = new Array<number>(L).fill(0)
 
   ge.values.forEach((value, j) => {
-    if (value > 1e-9 * gTop) for (let l = 0; l < L; l++) pi[l] = pi[l]! + ge.vectors[l]![j]! ** 2
+    if (value > 1e-9 * gTop) {
+      for (let l = 0; l < L; l++) {
+        pi[l] = pi[l]! + ge.vectors[l]![j]! ** 2
+      }
+    }
   })
 
   // plaquettes: Y = N^(1/2) C W, V = Y^T Y; Pi_P = sum over nonzero eigenvectors of (Y v)_P^2 / lambda
-  const y = c.map((row, p) => row.map((x, l) => Math.sqrt(n[p]!) * x * w[l]!))
+  const y = c.map((row, p) =>
+    row.map((x, l) => Math.sqrt(n[p]!) * x * w[l]!),
+  )
   const v = Array.from({ length: L }, (_, i) =>
     Array.from({ length: L }, (_, j) => {
       let s = 0
 
-      for (let p = 0; p < P; p++) s += y[p]![i]! * y[p]![j]!
+      for (let p = 0; p < P; p++) {
+        s += y[p]![i]! * y[p]![j]!
+      }
 
       return s
     }),
@@ -426,12 +608,16 @@ export function boxFills(side: number): { linkFill: number[]; plaquetteFill: num
   const Pi = new Array<number>(P).fill(0)
 
   ve.values.forEach((value, j) => {
-    if (value <= 1e-9 * vTop) return
+    if (value <= 1e-9 * vTop) {
+      return
+    }
 
     for (let p = 0; p < P; p++) {
       let a = 0
 
-      for (let l = 0; l < L; l++) a += y[p]![l]! * ve.vectors[l]![j]!
+      for (let l = 0; l < L; l++) {
+        a += y[p]![l]! * ve.vectors[l]![j]!
+      }
 
       Pi[p] = Pi[p]! + (a * a) / value
     }
@@ -446,7 +632,11 @@ export function boxFills(side: number): { linkFill: number[]; plaquetteFill: num
 }
 
 /** The ladder of squares (E-FRC-0234's): two rails and a rung per square, one plaquette, every weight 1. */
-export function ladderLight(): { light: LightSymbol; w: number[]; n: number[] } {
+export function ladderLight(): {
+  light: LightSymbol
+  w: number[]
+  n: number[]
+} {
   // links: rail 0 (x, 0) -> (x + 1, 0), rail 1 (x, 1) -> (x + 1, 1), rung (x, 0) -> (x, 1)
   const plaquette = {
     n: 1,
@@ -458,5 +648,9 @@ export function ladderLight(): { light: LightSymbol; w: number[]; n: number[] } 
     ],
   }
 
-  return { light: { dims: 1, linkWeights: [1, 1, 1], plaquettes: [plaquette] }, w: [1, 1, 1], n: [1] }
+  return {
+    light: { dims: 1, linkWeights: [1, 1, 1], plaquettes: [plaquette] },
+    w: [1, 1, 1],
+    n: [1],
+  }
 }

@@ -74,11 +74,28 @@ const CYCLES = 30
 const CYCLE_FILL = 0.003
 const CYCLE_BEATS = 30
 const ANNEAL = 20000
-const FAMILIES: MoveFamily[] = ['one', 'staples', 'center', 'words', 'wide']
+const FAMILIES: MoveFamily[] = [
+  'one',
+  'staples',
+  'center',
+  'words',
+  'wide',
+]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 const fieldRule = (moves: MoveFamily): SigmaLinks =>
-  makeSigmaLinks({ side: SIDE, kappa: 12, tension: 0, capacity: 48, hop: false, roles: false, couple: 'center', scale: SCALE, ratio: RATIO, moves })
+  makeSigmaLinks({
+    side: SIDE,
+    kappa: 12,
+    tension: 0,
+    capacity: 48,
+    hop: false,
+    roles: false,
+    couple: 'center',
+    scale: SCALE,
+    ratio: RATIO,
+    moves,
+  })
 
 const empty = (rule: SigmaLinks, links: Int16Array): SigmaState => ({
   vibe: new Int8Array(rule.cells),
@@ -88,7 +105,8 @@ const empty = (rule: SigmaLinks, links: Int16Array): SigmaState => ({
   flux: new Int32Array(rule.cells * 24),
 })
 
-const perTriangle = (rule: SigmaLinks, links: Int16Array): number => sigmaFieldEnergy(rule, links) / ((rule.cells * 12 * 8) / 3)
+const perTriangle = (rule: SigmaLinks, links: Int16Array): number =>
+  sigmaFieldEnergy(rule, links) / ((rule.cells * 12 * 8) / 3)
 
 function drain(rule: SigmaLinks, links: Int16Array): number {
   let s = empty(rule, links)
@@ -102,7 +120,13 @@ function drain(rule: SigmaLinks, links: Int16Array): number {
 }
 
 function heatAssisted(rule: SigmaLinks, links: Int16Array): number {
-  const { state } = coolSigmaLinks(rule, links, { drain: DRAIN, cycles: CYCLES, fill: CYCLE_FILL, beats: CYCLE_BEATS, empties: 10 })
+  const { state } = coolSigmaLinks(rule, links, {
+    drain: DRAIN,
+    cycles: CYCLES,
+    fill: CYCLE_FILL,
+    beats: CYCLE_BEATS,
+    empties: 10,
+  })
 
   return perTriangle(rule, state.links)
 }
@@ -122,11 +146,16 @@ function anneal(rule: SigmaLinks): number {
       for (const a of rule.firsts) {
         const u = links[x * 24 + a] ?? 0
         const g = rng.nextInt({ max: rule.order })
-        const change = linkTriangleEnergy(rule, links, x, a, g) - linkTriangleEnergy(rule, links, x, a, u)
+        const change =
+          linkTriangleEnergy(rule, links, x, a, g) -
+          linkTriangleEnergy(rule, links, x, a, u)
 
         if (change <= 0 || rng.next() < Math.exp(-beta * change)) {
           links[x * 24 + a] = g
-          links[(rule.neighbour[x * 24 + a] ?? 0) * 24 + (rule.opposite[a] ?? a)] = rule.group.inverse[g] ?? 0
+          links[
+            (rule.neighbour[x * 24 + a] ?? 0) * 24 +
+              (rule.opposite[a] ?? a)
+          ] = rule.group.inverse[g] ?? 0
         }
       }
     }
@@ -136,8 +165,22 @@ function anneal(rule: SigmaLinks): number {
 }
 
 // the structural battery of E-FRC-0154 for one family
-function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFrame: number; gauss: number } {
-  const rule = makeSigmaLinks({ side: SIDE, kappa: 3, tension: 3, capacity: 24, couple: 'center', scale: SCALE, ratio: RATIO, moves })
+function structure(moves: MoveFamily): {
+  exact: boolean
+  frame: number
+  centerFrame: number
+  gauss: number
+} {
+  const rule = makeSigmaLinks({
+    side: SIDE,
+    kappa: 3,
+    tension: 3,
+    capacity: 24,
+    couple: 'center',
+    scale: SCALE,
+    ratio: RATIO,
+    moves,
+  })
 
   const start = (scale: number): SigmaState => {
     const s = empty(rule, hashedSigmaLinks(rule))
@@ -157,21 +200,37 @@ function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFr
         addSigmaFlux(rule, s.flux, x, d, love ? 1 : -1)
       }
 
-      rule.firsts.forEach(a => (s.demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * 25)))
+      rule.firsts.forEach(
+        a =>
+          (s.demon[x * 24 + a] = Math.floor(
+            (((x * 24 + a + 5) * GOLDEN * scale) % 1) * 25,
+          )),
+      )
     }
 
     return s
   }
 
-  const fields = (s: SigmaState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+  const fields = (s: SigmaState): ArrayLike<number>[] => [
+    s.vibe,
+    s.role,
+    s.links,
+    s.demon,
+    s.flux,
+  ]
 
   const mismatches = (a: SigmaState, b: SigmaState): number => {
     const right = fields(b)
 
-    return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
+    return fields(a).reduce(
+      (n, f, k) =>
+        n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length,
+      0,
+    )
   }
 
-  const count = (s: SigmaState, v: number): number => s.vibe.filter(x => x === v).length
+  const count = (s: SigmaState, v: number): number =>
+    s.vibe.filter(x => x === v).length
   const s0 = start(1.37)
   const e0 = sigmaEnergy(rule, s0)
 
@@ -181,7 +240,11 @@ function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFr
 
   for (let t = 0; t < 24; t++) {
     s = sigmaBeat(rule, s, t).state
-    exact = exact && sigmaEnergy(rule, s) === e0 && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    exact =
+      exact &&
+      sigmaEnergy(rule, s) === e0 &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
     gauss += sigmaGaussViolations(rule, s)
   }
 
@@ -193,8 +256,15 @@ function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFr
 
   const centers = centerElements(rule)
   const frames = [
-    Array.from({ length: rule.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order)),
-    Array.from({ length: rule.cells }, (_, x) => centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ?? rule.identity),
+    Array.from({ length: rule.cells }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order),
+    ),
+    Array.from(
+      { length: rule.cells },
+      (_, x) =>
+        centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ??
+        rule.identity,
+    ),
   ]
   const [frame, centerFrame] = frames.map(f => {
     let a = start(2.33)
@@ -226,17 +296,32 @@ export default experiment({
     const ladder = FAMILIES.map(moves => {
       const rule = fieldRule(moves)
 
-      return { moves, ordered: drain(rule, defectSigmaLinks(rule, 0.1, 3.3)), disordered: drain(rule, hashedSigmaLinks(rule)) }
+      return {
+        moves,
+        ordered: drain(rule, defectSigmaLinks(rule, 0.1, 3.3)),
+        disordered: drain(rule, hashedSigmaLinks(rule)),
+      }
     })
     const wide = fieldRule('wide')
     const cooled = heatAssisted(wide, defectSigmaLinks(wide, 0.1, 3.3))
     const reference = anneal(wide)
-    const structures = (['center', 'wide'] as MoveFamily[]).map(structure)
+    const structures = (['center', 'wide'] as MoveFamily[]).map(
+      structure,
+    )
 
     const monotone = ladder.every(
-      (row, k) => k === 0 || (row.ordered <= (ladder[k - 1]?.ordered ?? Infinity) && row.disordered <= (ladder[k - 1]?.disordered ?? Infinity)),
+      (row, k) =>
+        k === 0 ||
+        (row.ordered <= (ladder[k - 1]?.ordered ?? Infinity) &&
+          row.disordered <= (ladder[k - 1]?.disordered ?? Infinity)),
     )
-    const structural = structures.every(s => s.exact && s.frame === 0 && s.centerFrame === 0 && s.gauss === 0)
+    const structural = structures.every(
+      s =>
+        s.exact &&
+        s.frame === 0 &&
+        s.centerFrame === 0 &&
+        s.gauss === 0,
+    )
     const reaches = cooled <= reference + 0.05
 
     const ok = structural && monotone && reaches
@@ -253,12 +338,17 @@ export default experiment({
         ['wideHeatAssistedDrain', cooled],
         ['lowestLevel', Math.min(...Array.from(wide.level))],
         ['monotoneLadder', monotone ? 1 : 0],
-        ...(['center', 'wide'] as MoveFamily[]).flatMap((moves, k): [string, number][] => [
-          [`${moves}Exact`, structures[k]?.exact ? 1 : 0],
-          [`${moves}FrameMismatches`, structures[k]?.frame ?? -1],
-          [`${moves}CenterFrameMismatches`, structures[k]?.centerFrame ?? -1],
-          [`${moves}GaussViolations`, structures[k]?.gauss ?? -1],
-        ]),
+        ...(['center', 'wide'] as MoveFamily[]).flatMap(
+          (moves, k): [string, number][] => [
+            [`${moves}Exact`, structures[k]?.exact ? 1 : 0],
+            [`${moves}FrameMismatches`, structures[k]?.frame ?? -1],
+            [
+              `${moves}CenterFrameMismatches`,
+              structures[k]?.centerFrame ?? -1,
+            ],
+            [`${moves}GaussViolations`, structures[k]?.gauss ?? -1],
+          ],
+        ),
       ]),
       control: {
         annealingReference: reference,

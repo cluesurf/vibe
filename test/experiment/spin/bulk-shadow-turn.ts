@@ -106,11 +106,44 @@ import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { fullPathKey, meshLines } from '@/code/measure/full-key-paths'
-import { placeLoves, starCrossings, starLines, starRun, type StarReading } from '@/code/measure/hub-star'
-import { boost, conjugateOther, exchangeLines, levelState, oneBody, oneLevels, placedPacket, productState, rootIndex, runCross, sumStates, trackVelocity, type Amp, type CrossSpec } from '@/code/measure/crossing-lines'
-import { huskLineCensus, huskStar, offShadow, projectionCensus, shadowCensus, shadowClasses, shadowOf } from '@/code/measure/bulk-shadow'
+import {
+  placeLoves,
+  starCrossings,
+  starLines,
+  starRun,
+  type StarReading,
+} from '@/code/measure/hub-star'
+import {
+  boost,
+  conjugateOther,
+  exchangeLines,
+  levelState,
+  oneBody,
+  oneLevels,
+  placedPacket,
+  productState,
+  rootIndex,
+  runCross,
+  sumStates,
+  trackVelocity,
+  type Amp,
+  type CrossSpec,
+} from '@/code/measure/crossing-lines'
+import {
+  huskLineCensus,
+  huskStar,
+  offShadow,
+  projectionCensus,
+  shadowCensus,
+  shadowClasses,
+  shadowOf,
+} from '@/code/measure/bulk-shadow'
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box-integer'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box-integer'
 
 const ROOTS = rootsD4()
 const SIDE = 8
@@ -152,27 +185,46 @@ const DEPTH_TRIO = [
 
 const f4 = (x: number): string => x.toFixed(4)
 const e2 = (x: number): string => x.toExponential(2)
-const spinor = (k: number): [Amp, Amp] => loneBand(k).vector.map(c => [c[0], c[1]] as Amp) as [Amp, Amp]
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, c) => s + x * (b[c] as number), 0)
+const spinor = (k: number): [Amp, Amp] =>
+  loneBand(k).vector.map(c => [c[0], c[1]] as Amp) as [Amp, Amp]
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, c) => s + x * b[c]!, 0)
 const envelope = (x: number): number => Math.exp(-(x * x) / 8)
 
 // the rank of a set of real vectors (Gaussian elimination with a tolerance)
 function rankOf(vectors: readonly (readonly number[])[]): number {
   const rows = vectors.map(v => v.slice())
+
   let r = 0
 
   for (let c = 0; c < (rows[0]?.length ?? 0) && r < rows.length; c++) {
     let p = -1
 
-    for (let i = r; i < rows.length; i++) if (Math.abs((rows[i] as number[])[c] as number) > ZERO && (p < 0 || Math.abs((rows[i] as number[])[c] as number) > Math.abs((rows[p] as number[])[c] as number))) p = i
-    if (p < 0) continue
-    ;[rows[r], rows[p]] = [rows[p] as number[], rows[r] as number[]]
-    for (let i = 0; i < rows.length; i++) {
-      if (i === r) continue
-      const f = ((rows[i] as number[])[c] as number) / ((rows[r] as number[])[c] as number)
-
-      rows[i] = (rows[i] as number[]).map((x, k) => x - f * ((rows[r] as number[])[k] as number))
+    for (let i = r; i < rows.length; i++) {
+      if (
+        Math.abs(rows[i]![c]!) > ZERO &&
+        (p < 0 || Math.abs(rows[i]![c]!) > Math.abs(rows[p]![c]!))
+      ) {
+        p = i
+      }
     }
+
+    if (p < 0) {
+      continue
+    }
+
+    ;[rows[r], rows[p]] = [rows[p]!, rows[r]!]
+
+    for (let i = 0; i < rows.length; i++) {
+      if (i === r) {
+        continue
+      }
+
+      const f = rows[i]![c]! / rows[r]![c]!
+
+      rows[i] = rows[i]!.map((x, k) => x - f * rows[r]![k]!)
+    }
+
     r++
   }
 
@@ -190,7 +242,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- items 1 to 3 on the box ----
     const X = centerOf(SIDE)
@@ -200,10 +255,25 @@ export default experiment({
     const projection = projectionCensus(fresh.tables, SIDE)
     const huskLines = huskLineCensus(fresh.tables, lines, SIDE)
     const star = huskStar(fresh.tables, lines, SIDE, X)
-    const census = { two: shadowCensus([1, -1]), twoLoves: shadowCensus([1, 1]), three: shadowCensus([1, 1, 1]), four: shadowCensus([1, 1, 1, 1]) }
-    const projectionHolds = projection.off === 0 && projection.fiberMin === SIDE && projection.fiberMax === SIDE
-    const linesHold = huskLines.off === 0 && huskLines.perHusk.every(h => h.bulkPerHusk.length === 1 && h.bulkPerHusk[0] === SIDE * h.bulkClasses)
-    const pairKeeps = census.two.lineChange === 0 && census.twoLoves.lineChange === 0
+    const census = {
+      two: shadowCensus([1, -1]),
+      twoLoves: shadowCensus([1, 1]),
+      three: shadowCensus([1, 1, 1]),
+      four: shadowCensus([1, 1, 1, 1]),
+    }
+    const projectionHolds =
+      projection.off === 0 &&
+      projection.fiberMin === SIDE &&
+      projection.fiberMax === SIDE
+    const linesHold =
+      huskLines.off === 0 &&
+      huskLines.perHusk.every(
+        h =>
+          h.bulkPerHusk.length === 1 &&
+          h.bulkPerHusk[0] === SIDE * h.bulkClasses,
+      )
+    const pairKeeps =
+      census.two.lineChange === 0 && census.twoLoves.lineChange === 0
 
     log('box')
 
@@ -211,33 +281,78 @@ export default experiment({
     const standIn = CANDIDATES.map(g => {
       const A = rootIndex(g.a)
       const B = rootIndex(g.b)
-      const spec: CrossSpec = { L: RING, roots: [A, B], charges: [1, -1], cost: true, contact: 'rule' }
+      const spec: CrossSpec = {
+        L: RING,
+        roots: [A, B],
+        charges: [1, -1],
+        cost: true,
+        contact: 'rule',
+      }
       const one = oneBody({ ...spec, charges: [1], anchor: -1 }, 0)
       const { levels } = oneLevels(one, N)
-      const nearest = levels.slice().sort((p, q) => p.meanString - q.meanString)[0] as (typeof levels)[number]
+      const nearest = levels
+        .slice()
+        .sort((p, q) => p.meanString - q.meanString)[0]!
       const love = levelState(one, nearest.vector)
       const product = productState(love, conjugateOther(spec, love))
       const level = sumStates(product, exchangeLines(spec, product), 1)
       const held = runCross(spec, level, HOLD, N, FLOOR)
       const cosTheta = dot(g.a, g.b) / 2
       const k = (K * Math.sqrt((1 + cosTheta) / 2)) / 2
-      const moved = runCross(spec, boost(spec, level, [k, k]), READ, N, FLOOR)
+      const moved = runCross(
+        spec,
+        boost(spec, level, [k, k]),
+        READ,
+        N,
+        FLOOR,
+      )
       const velocity = trackVelocity(spec, moved.centroid)
       const husk = shadowOf(velocity.velocity)
       const shadows = [shadowOf(g.a), shadowOf(g.b)]
 
       log(`stand-in ${g.name}`)
 
-      return { g, cosTheta, k, held, moved, velocity, husk, off: offShadow(husk, shadows), heldTail: Math.max(...held.tail), movedTail: Math.max(...moved.tail), exact: Math.min(...held.fidelity) >= 1 - EXACT }
+      return {
+        g,
+        cosTheta,
+        k,
+        held,
+        moved,
+        velocity,
+        husk,
+        off: offShadow(husk, shadows),
+        heldTail: Math.max(...held.tail),
+        movedTail: Math.max(...moved.tail),
+        exact: Math.min(...held.fidelity) >= 1 - EXACT,
+      }
     })
 
     // ---- C1: one bulk line class ----
     const A1 = rootIndex([1, 0, 0, 1])
-    const onLine: CrossSpec = { L: RING, roots: [A1, rootIndex([0, 1, 0, 1])], charges: [1, -1], cost: true, contact: 'off' }
-    const lineRun = runCross(onLine, placedPacket(onLine, [0, 0], PACKET.radius, envelope, [PACKET.k, PACKET.k], [spinor(PACKET.k), spinor(PACKET.k)]), READ, N, FLOOR)
+    const onLine: CrossSpec = {
+      L: RING,
+      roots: [A1, rootIndex([0, 1, 0, 1])],
+      charges: [1, -1],
+      cost: true,
+      contact: 'off',
+    }
+    const lineRun = runCross(
+      onLine,
+      placedPacket(
+        onLine,
+        [0, 0],
+        PACKET.radius,
+        envelope,
+        [PACKET.k, PACKET.k],
+        [spinor(PACKET.k), spinor(PACKET.k)],
+      ),
+      READ,
+      N,
+      FLOOR,
+    )
     const lineVelocity = trackVelocity(onLine, lineRun.centroid)
     const lineHusk = shadowOf(lineVelocity.velocity)
-    const controlOff = offShadow(lineHusk, [shadowOf(ROOTS[A1] as number[])])
+    const controlOff = offShadow(lineHusk, [shadowOf(ROOTS[A1]!)])
     const C1 = lineVelocity.reach >= 1 && controlOff <= ZERO
     const threshold = FACTOR * Math.max(controlOff, CONTROL_FLOOR)
 
@@ -245,11 +360,33 @@ export default experiment({
 
     // ---- CAL: two free vibes on xy60 ----
     const xy = CANDIDATES[1]
-    const free: CrossSpec = { L: CAL.ring, roots: [rootIndex(xy.a), rootIndex(xy.b)], charges: [1, -1], cost: false, contact: 'off' }
-    const freeRun = runCross(free, placedPacket(free, [0, 1], PACKET.radius, envelope, [PACKET.k, PACKET.k], [spinor(PACKET.k), spinor(PACKET.k)]), CAL.beats, N, FLOOR)
+    const free: CrossSpec = {
+      L: CAL.ring,
+      roots: [rootIndex(xy.a), rootIndex(xy.b)],
+      charges: [1, -1],
+      cost: false,
+      contact: 'off',
+    }
+    const freeRun = runCross(
+      free,
+      placedPacket(
+        free,
+        [0, 1],
+        PACKET.radius,
+        envelope,
+        [PACKET.k, PACKET.k],
+        [spinor(PACKET.k), spinor(PACKET.k)],
+      ),
+      CAL.beats,
+      N,
+      FLOOR,
+    )
     const freeVelocity = trackVelocity(free, freeRun.centroid)
     const freeHusk = shadowOf(freeVelocity.velocity)
-    const freeOff = offShadow(freeHusk, [shadowOf(xy.a), shadowOf(xy.b)])
+    const freeOff = offShadow(freeHusk, [
+      shadowOf(xy.a),
+      shadowOf(xy.b),
+    ])
     const freeTail = Math.max(...freeRun.tail)
     const CAL_HOLDS = freeOff > threshold && freeTail > APART
 
@@ -258,24 +395,81 @@ export default experiment({
     // ---- the working knit: B2, C2, CP ----
     const key = fullPathKey(0)
     const vacuum = wordVacuum(fresh, fresh.store)
-    const run = (start: ReturnType<typeof placeLoves>, hub: number[]): StarReading => starRun({ tables: fresh.tables, vacuum, start, lines, hub, key, threshold: THRESHOLD_BORN, beats: KNIT_BEATS, side: SIDE })
-    const withFear = (start: ReturnType<typeof placeLoves>, dock: number, slot: number): ReturnType<typeof placeLoves> => {
+    const run = (
+      start: ReturnType<typeof placeLoves>,
+      hub: number[],
+    ): StarReading =>
+      starRun({
+        tables: fresh.tables,
+        vacuum,
+        start,
+        lines,
+        hub,
+        key,
+        threshold: THRESHOLD_BORN,
+        beats: KNIT_BEATS,
+        side: SIDE,
+      })
+
+    const withFear = (
+      start: ReturnType<typeof placeLoves>,
+      dock: number,
+      slot: number,
+    ): ReturnType<typeof placeLoves> => {
       start.vibe[dock * 24 + slot] = -1
 
       return start
     }
+
     const knit = CANDIDATES.map(g => {
-      const r = run(withFear(placeLoves(vacuum, [{ dock: X, slot: rootIndex(g.a) }, { dock: X, slot: rootIndex(g.b) }]), X, rootIndex(g.b)), [X])
+      const r = run(
+        withFear(
+          placeLoves(vacuum, [
+            { dock: X, slot: rootIndex(g.a) },
+            { dock: X, slot: rootIndex(g.b) },
+          ]),
+          X,
+          rootIndex(g.b),
+        ),
+        [X],
+      )
 
       log(`knit ${g.name}`)
 
-      return { name: g.name, r, b2: r.offStar === 0 && r.vacuumSingles === 0 && r.vacuumEvents === 0 }
+      return {
+        name: g.name,
+        r,
+        b2:
+          r.offStar === 0 &&
+          r.vacuumSingles === 0 &&
+          r.vacuumEvents === 0,
+      }
     })
-    const crossings = starCrossings(fresh.cells, lines, starLines(lines, [X]), [X]).length
-    const trios = [HUSK_TRIO, DEPTH_TRIO].map(t => run(placeLoves(vacuum, t.map(r => ({ dock: X, slot: rootIndex(r) }))), [X]))
-    const C2 = crossings === 0 && trios.every(r => r.offStar === 0 && r.offHub === 0 && r.events.length > 0)
+    const crossings = starCrossings(
+      fresh.cells,
+      lines,
+      starLines(lines, [X]),
+      [X],
+    ).length
+    const trios = [HUSK_TRIO, DEPTH_TRIO].map(t =>
+      run(
+        placeLoves(
+          vacuum,
+          t.map(r => ({ dock: X, slot: rootIndex(r) })),
+        ),
+        [X],
+      ),
+    )
+    const C2 =
+      crossings === 0 &&
+      trios.every(
+        r => r.offStar === 0 && r.offHub === 0 && r.events.length > 0,
+      )
     const Xc = d4BoxCoordinates({ cell: X, side: SIDE })
-    const Y = d4BoxCell({ coordinates: Xc.map((c, k) => c + (d4Coordinates(DEPTH_STACK)[k] as number)), side: SIDE })
+    const Y = d4BoxCell({
+      coordinates: Xc.map((c, k) => c + d4Coordinates(DEPTH_STACK)[k]!),
+      side: SIDE,
+    })
     const stacked = run(
       placeLoves(vacuum, [
         { dock: X, slot: rootIndex([1, 0, 0, 1]) },
@@ -285,24 +479,46 @@ export default experiment({
       ]),
       [X, Y],
     )
-    const stackedCrossings = starCrossings(fresh.cells, lines, starLines(lines, [X, Y]), [X, Y]).length
+    const stackedCrossings = starCrossings(
+      fresh.cells,
+      lines,
+      starLines(lines, [X, Y]),
+      [X, Y],
+    ).length
     const CP = stacked.offStar > 0
 
     log('knit')
 
     // ---- the gates ----
-    const b1 = standIn.map(s => s.off > threshold && s.heldTail <= TAIL && s.movedTail <= APART)
+    const b1 = standIn.map(
+      s =>
+        s.off > threshold && s.heldTail <= TAIL && s.movedTail <= APART,
+    )
     const B1 = b1.some(Boolean)
     const B2 = knit.every(k => k.b2)
-    const movers = standIn.filter((_, i) => b1[i] && (knit[i] as (typeof knit)[number]).b2)
-    const moverRank = movers.length === 0 ? 0 : rankOf(movers.map(m => m.husk))
+    const movers = standIn.filter((_, i) => b1[i] && knit[i]!.b2)
+    const moverRank =
+      movers.length === 0 ? 0 : rankOf(movers.map(m => m.husk))
     const B3 = moverRank >= 3
-    const stepper = [...knit.map(k => k.r), ...trios, stacked].every(r => r.stepperDiffer === 0)
-    const checks = { projection: projectionHolds, lines: linesHold, pairKeeps, exact: standIn.every(s => s.exact), stepper }
+    const stepper = [...knit.map(k => k.r), ...trios, stacked].every(
+      r => r.stepperDiffer === 0,
+    )
+    const checks = {
+      projection: projectionHolds,
+      lines: linesHold,
+      pairKeeps,
+      exact: standIn.every(s => s.exact),
+      stepper,
+    }
     const checked = Object.values(checks).every(Boolean)
     const controls = { C1, C2, CP, CAL: CAL_HOLDS }
     const controlled = Object.values(controls).every(Boolean)
-    const status = !checked || !controlled ? 'partial' : B1 && B2 && B3 ? 'pass' : 'fail'
+    const status =
+      !checked || !controlled
+        ? 'partial'
+        : B1 && B2 && B3
+          ? 'pass'
+          : 'fail'
 
     const metrics: Record<string, number> = {
       B1: B1 ? 1 : 0,
@@ -343,15 +559,15 @@ export default experiment({
       freeOff,
       freeTail,
       moverRank,
-      trioHuskOffStar: (trios[0] as StarReading).offStar,
-      trioHuskK: (trios[0] as StarReading).events.length,
-      trioDepthOffStar: (trios[1] as StarReading).offStar,
-      trioDepthK: (trios[1] as StarReading).events.length,
-      trioDepthOffHub: (trios[1] as StarReading).offHub,
+      trioHuskOffStar: trios[0]!.offStar,
+      trioHuskK: trios[0]!.events.length,
+      trioDepthOffStar: trios[1]!.offStar,
+      trioDepthK: trios[1]!.events.length,
+      trioDepthOffHub: trios[1]!.offHub,
       stackedOffStar: stacked.offStar,
       stackedK: stacked.events.length,
       stackedKDocks: new Set(stacked.events.map(e => e.dock)).size,
-      stackedWakeLast: stacked.wake[stacked.wake.length - 1] as number,
+      stackedWakeLast: stacked.wake[stacked.wake.length - 1]!,
       seconds: (Date.now() - started) / 1000,
     }
 
@@ -365,20 +581,39 @@ export default experiment({
       metrics[`${p}_movedTail`] = s.movedTail
       metrics[`${p}_leastFidelity`] = Math.min(...s.held.fidelity)
     })
+
     knit.forEach(k => {
       metrics[`${k.name}_knitOffStar`] = k.r.offStar
       metrics[`${k.name}_knitK`] = k.r.events.length
       metrics[`${k.name}_knitRecruited`] = k.r.recruited
     })
 
-    const standText = standIn.map(s => `${s.g.name} husk v (${s.husk.map(e2).join(', ')}) off ${e2(s.off)}, reach ${f4(s.velocity.reach)}, tails ${e2(s.heldTail)} / ${e2(s.movedTail)}`).join('; ')
-    const knitText = knit.map(k => `${k.name} off-star ${k.r.offStar}, K ${k.r.events.length} (recruited ${k.r.recruited})`).join('; ')
+    const standText = standIn
+      .map(
+        s =>
+          `${s.g.name} husk v (${s.husk.map(e2).join(', ')}) off ${e2(s.off)}, reach ${f4(s.velocity.reach)}, tails ${e2(s.heldTail)} / ${e2(s.movedTail)}`,
+      )
+      .join('; ')
+    const knitText = knit
+      .map(
+        k =>
+          `${k.name} off-star ${k.r.offStar}, K ${k.r.events.length} (recruited ${k.r.recruited})`,
+      )
+      .join('; ')
+
     return verdict({
       status,
       claim: `the husk read as the projection of the D4 box: 12 bulk line classes cast 9 husk directions (the 6 depth classes two to one onto the axes), the stream commutes with the projection on ${projection.off === 0 ? 'every' : 'not every'} slot, each face-diagonal husk line carries ${SIDE} bulk lines and each axis ${2 * SIDE}; K without the vacuum keeps two singles' line set (0 of ${census.two.fires} change it) and changes three singles' shadow set on ${census.three.shadowSetChange} of ${census.three.fires} firings, always at its own dock; bound pairs boosted along their bisector: ${standText} (threshold ${e2(threshold)}; B1 ${B1}); in the working knit ${knitText} (B2 ${B2}); movers' rank ${moverRank} (B3 ${B3}); two hubs over one husk point: off-star ${stacked.offStar}, K on ${new Set(stacked.events.map(e => e.dock)).size} docks`,
       metrics,
-      control: { controlOff, controlReach: lineVelocity.reach, freeOff, freeTail, trioOffStar: (trios[0] as StarReading).offStar + (trios[1] as StarReading).offStar, stackedOffStar: stacked.offStar },
-      notes: `L1. B1 ${B1}, B2 ${B2}, B3 ${B3}; controls ${JSON.stringify(controls)}; checks ${JSON.stringify(checks)}. Classes ${JSON.stringify(classes)}. Projection ${JSON.stringify(projection)}. Husk lines ${JSON.stringify(huskLines)}. Star ${JSON.stringify(star)}, stacked star crossings ${stackedCrossings}. K census ${JSON.stringify(census)}. Stand-in: ${standIn.map(s => `${s.g.name} cos ${f4(s.cosTheta)} k ${f4(s.k)} v4 (${s.velocity.velocity.map(e2).join(', ')}) least fidelity ${Math.min(...s.held.fidelity)} size ${s.moved.size} dropped ${e2(s.moved.dropped)}`).join('; ')}. C1: husk v (${lineHusk.map(e2).join(', ')}), reach ${f4(lineVelocity.reach)}, off ${e2(controlOff)}. CAL: husk v (${freeHusk.map(e2).join(', ')}), off ${e2(freeOff)}, tail ${e2(freeTail)}. Trios: husk off-star ${(trios[0] as StarReading).offStar} K ${(trios[0] as StarReading).events.length} off X ${(trios[0] as StarReading).offHub}; depth off-star ${(trios[1] as StarReading).offStar} K ${(trios[1] as StarReading).events.length} off X ${(trios[1] as StarReading).offHub}. Stacked hubs X ${X}, Y ${Y}: off-star ${stacked.offStar}, K ${stacked.events.length} on ${new Set(stacked.events.map(e => e.dock)).size} docks, wake ${stacked.wake.filter((_, i) => i % 16 === 15).join(' ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        controlOff,
+        controlReach: lineVelocity.reach,
+        freeOff,
+        freeTail,
+        trioOffStar: trios[0]!.offStar + trios[1]!.offStar,
+        stackedOffStar: stacked.offStar,
+      },
+      notes: `L1. B1 ${B1}, B2 ${B2}, B3 ${B3}; controls ${JSON.stringify(controls)}; checks ${JSON.stringify(checks)}. Classes ${JSON.stringify(classes)}. Projection ${JSON.stringify(projection)}. Husk lines ${JSON.stringify(huskLines)}. Star ${JSON.stringify(star)}, stacked star crossings ${stackedCrossings}. K census ${JSON.stringify(census)}. Stand-in: ${standIn.map(s => `${s.g.name} cos ${f4(s.cosTheta)} k ${f4(s.k)} v4 (${s.velocity.velocity.map(e2).join(', ')}) least fidelity ${Math.min(...s.held.fidelity)} size ${s.moved.size} dropped ${e2(s.moved.dropped)}`).join('; ')}. C1: husk v (${lineHusk.map(e2).join(', ')}), reach ${f4(lineVelocity.reach)}, off ${e2(controlOff)}. CAL: husk v (${freeHusk.map(e2).join(', ')}), off ${e2(freeOff)}, tail ${e2(freeTail)}. Trios: husk off-star ${trios[0]!.offStar} K ${trios[0]!.events.length} off X ${trios[0]!.offHub}; depth off-star ${trios[1]!.offStar} K ${trios[1]!.events.length} off X ${trios[1]!.offHub}. Stacked hubs X ${X}, Y ${Y}: off-star ${stacked.offStar}, K ${stacked.events.length} on ${new Set(stacked.events.map(e => e.dock)).size} docks, wake ${stacked.wake.filter((_, i) => i % 16 === 15).join(' ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

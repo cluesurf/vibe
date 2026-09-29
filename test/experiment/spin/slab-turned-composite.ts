@@ -138,11 +138,47 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
 import { ritzLevels, type Ritz } from '@/code/measure/frame-meson'
-import { addSlab, antisymmetryGap, innerSlab, offLineSlab, placeLine, slabBeat, slabLevelVector, slabSpace, steinerShells, thetaOfRate, weightOfSlab, type SlabSpace, type SlabSpec, type SlabState } from '@/code/measure/slab-holes'
-import { holesOutside, registerMissed, watchHold } from '@/code/measure/slab-string-break'
-import { actSymmetry, characterOf, followLevel, levelResidual, normalizeSlab, sectorProject, slabPerms, turnedTensor, uniformCount, type SlabPerms, type SlabSector } from '@/code/measure/slab-turned-level'
+import {
+  addSlab,
+  antisymmetryGap,
+  innerSlab,
+  offLineSlab,
+  placeLine,
+  slabBeat,
+  slabLevelVector,
+  slabSpace,
+  steinerShells,
+  thetaOfRate,
+  weightOfSlab,
+  type SlabSpace,
+  type SlabSpec,
+  type SlabState,
+} from '@/code/measure/slab-holes'
+import {
+  holesOutside,
+  registerMissed,
+  watchHold,
+} from '@/code/measure/slab-string-break'
+import {
+  actSymmetry,
+  characterOf,
+  followLevel,
+  levelResidual,
+  normalizeSlab,
+  sectorProject,
+  slabPerms,
+  turnedTensor,
+  uniformCount,
+  type SlabPerms,
+  type SlabSector,
+} from '@/code/measure/slab-turned-level'
 
 type C = [number, number]
 
@@ -150,7 +186,10 @@ const CUT: Record<number, number> = { 3: 12, 6: 16 }
 const CUT_SMALL = 12
 const GATE_RATES = [1 / 1024, 1 / 512, 1 / 256, 1 / 128, 1 / 64]
 const MORE_RATES = [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 3]
-const TENSOR_RATES: Record<number, number[]> = { 3: [1 / 1024, 1 / 256, 1 / 64], 6: [1 / 1024, 1 / 64] }
+const TENSOR_RATES: Record<number, number[]> = {
+  3: [1 / 1024, 1 / 256, 1 / 64],
+  6: [1 / 1024, 1 / 64],
+}
 const FILTER_T = 512
 const RITZ_T = 240
 const FAMILY_FILTER_T = 64
@@ -180,9 +219,16 @@ const A1: SlabSector = { x: 1, y: 1, swap: 1 }
 const B1: SlabSector = { x: 1, y: 1, swap: -1 }
 
 const ritz = (c: readonly C[]): Ritz[] => ritzLevels(c)
-const wrap = (x: number): number => x - 2 * Math.PI * Math.round(x / (2 * Math.PI))
-const at = (space: SlabSpace, rate: number): SlabSpace => ({ ...space, spec: { ...space.spec, rate } })
-const scale = (s: SlabState, f: number): SlabState => ({ re: s.re.map(v => v * f), im: s.im.map(v => v * f) })
+const wrap = (x: number): number =>
+  x - 2 * Math.PI * Math.round(x / (2 * Math.PI))
+const at = (space: SlabSpace, rate: number): SlabSpace => ({
+  ...space,
+  spec: { ...space.spec, rate },
+})
+const scale = (s: SlabState, f: number): SlabState => ({
+  re: s.re.map(v => v * f),
+  im: s.im.map(v => v * f),
+})
 
 type Point = {
   D: number
@@ -208,7 +254,15 @@ type Point = {
   vector: SlabState
 }
 
-type Family = { dE: number; modulus: number; slope: number; coupling: number; offLine: number; missed: number; residual: number }
+type Family = {
+  dE: number
+  modulus: number
+  slope: number
+  coupling: number
+  offLine: number
+  missed: number
+  residual: number
+}
 
 export default experiment({
   id: 'spin/slab-turned-composite',
@@ -221,23 +275,62 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const points: Point[] = []
     const families: Record<number, Family[]> = {}
-    const rest: Record<number, { energy: number; line: number; residual: number; slope: number; held: boolean; vector: SlabState }> = {}
+    const rest: Record<
+      number,
+      {
+        energy: number
+        line: number
+        residual: number
+        slope: number
+        held: boolean
+        vector: SlabState
+      }
+    > = {}
     const symmetryGaps: number[] = []
+
     let negative = { minFidelity: Number.NaN, held: true }
 
     // one level at one rate, read and watched
-    const readLevel = (space: SlabSpace, perms: SlabPerms, sector: SlabSector, name: string, D: number, rate: number, start: SlabState, E: number, reference: SlabState, v0: SlabState, outside: Uint8Array): Point => {
+    const readLevel = (
+      space: SlabSpace,
+      perms: SlabPerms,
+      sector: SlabSector,
+      name: string,
+      D: number,
+      rate: number,
+      start: SlabState,
+      E: number,
+      reference: SlabState,
+      v0: SlabState,
+      outside: Uint8Array,
+    ): Point => {
       const s = at(space, rate)
-      let f = followLevel(s, [0, 0], start, { E, filterBeats: FILTER_T, ritzBeats: RITZ_T, reference, ritz })
+
+      let f = followLevel(s, [0, 0], start, {
+        E,
+        filterBeats: FILTER_T,
+        ritzBeats: RITZ_T,
+        reference,
+        ritz,
+      })
       let v = normalizeSlab(sectorProject(perms, f.vector, sector))
       let r = levelResidual(s, [0, 0], v)
       let passes = 1
 
       if (r.residual > REFINE) {
-        f = followLevel(s, [0, 0], v, { E: r.energy, filterBeats: FILTER_T, ritzBeats: RITZ_T, reference: v, ritz })
+        f = followLevel(s, [0, 0], v, {
+          E: r.energy,
+          filterBeats: FILTER_T,
+          ritzBeats: RITZ_T,
+          reference: v,
+          ritz,
+        })
         v = normalizeSlab(sectorProject(perms, f.vector, sector))
         r = levelResidual(s, [0, 0], v)
         passes = 2
@@ -245,7 +338,7 @@ export default experiment({
 
       const cut = space.spec.cut
       const w = watchHold(s, v, HOLD_BEATS, cut - EDGE, [outside])
-      const missed = (w.missed[0] as number[]).map(m => m / HOLES)
+      const missed = w.missed[0]!.map(m => m / HOLES)
       const shells = steinerShells(s, v)
       const [or, oi] = innerSlab(v0, v)
       const slope = innerSlab(v, uniformCount(s, v))[0]
@@ -254,11 +347,33 @@ export default experiment({
       const eigen = minFidelity >= FIDELITY
       const window = maxMissed <= WINDOW
       const chosen = f.levels[f.chosen]
-      const others = f.levels.filter((l, k) => k !== f.chosen && l.weight > FAMILY_WEIGHT && chosen !== undefined)
-      const gapNear = others.length === 0 ? Number.NaN : Math.min(...others.map(l => Math.abs(wrap(l.energy - (chosen as { energy: number }).energy))))
+      const others = f.levels.filter(
+        (l, k) =>
+          k !== f.chosen &&
+          l.weight > FAMILY_WEIGHT &&
+          chosen !== undefined,
+      )
+      const gapNear =
+        others.length === 0
+          ? Number.NaN
+          : Math.min(
+              ...others.map(l =>
+                Math.abs(
+                  wrap(
+                    l.energy - (chosen as { energy: number }).energy,
+                  ),
+                ),
+              ),
+            )
       // read on the followed vector BEFORE its projection: the beat must keep the sector by itself
       const raw = f.vector
-      const characterGap = Math.max(Math.abs(characterOf(perms.x, raw)[0] - sector.x), Math.abs(characterOf(perms.y, raw)[0] - sector.y), sector.swap === undefined ? 0 : Math.abs(characterOf(perms.swap, raw)[0] - sector.swap))
+      const characterGap = Math.max(
+        Math.abs(characterOf(perms.x, raw)[0] - sector.x),
+        Math.abs(characterOf(perms.y, raw)[0] - sector.y),
+        sector.swap === undefined
+          ? 0
+          : Math.abs(characterOf(perms.swap, raw)[0] - sector.swap),
+      )
       const p: Point = {
         D,
         cut,
@@ -283,68 +398,194 @@ export default experiment({
         vector: v,
       }
 
-      log(`D ${D} w ${cut} ${name} rate ${rate}: E ${r.energy} slope ${slope} residual ${r.residual.toExponential(2)} passes ${passes} fidelity ${minFidelity} missed ${maxMissed.toExponential(2)} edge ${p.edge.toExponential(2)} offline ${p.offLine.toFixed(4)} rest ${p.restFidelity.toFixed(5)} near ${gapNear}`)
+      log(
+        `D ${D} w ${cut} ${name} rate ${rate}: E ${r.energy} slope ${slope} residual ${r.residual.toExponential(2)} passes ${passes} fidelity ${minFidelity} missed ${maxMissed.toExponential(2)} edge ${p.edge.toExponential(2)} offline ${p.offLine.toFixed(4)} rest ${p.restFidelity.toFixed(5)} near ${gapNear}`,
+      )
 
       return p
     }
 
     // follow a level up a list of rates from (v, E, slope) at rate r0; stop at the first non-held rate when asked
-    const chain = (space: SlabSpace, perms: SlabPerms, sector: SlabSector, name: string, D: number, from: { v: SlabState; E: number; slope: number; rate: number }, rates: readonly number[], stop: boolean, v0: SlabState, outside: Uint8Array): Point[] => {
+    const chain = (
+      space: SlabSpace,
+      perms: SlabPerms,
+      sector: SlabSector,
+      name: string,
+      D: number,
+      from: { v: SlabState; E: number; slope: number; rate: number },
+      rates: readonly number[],
+      stop: boolean,
+      v0: SlabState,
+      outside: Uint8Array,
+    ): Point[] => {
       const out: Point[] = []
+
       let cur = from
 
       for (const rate of rates) {
-        const E = cur.E + cur.slope * (thetaOfRate(rate) - thetaOfRate(cur.rate))
-        const p = readLevel(space, perms, sector, name, D, rate, cur.v, E, cur.v, v0, outside)
+        const E =
+          cur.E +
+          cur.slope * (thetaOfRate(rate) - thetaOfRate(cur.rate))
+        const p = readLevel(
+          space,
+          perms,
+          sector,
+          name,
+          D,
+          rate,
+          cur.v,
+          E,
+          cur.v,
+          v0,
+          outside,
+        )
 
         out.push(p)
         cur = { v: p.vector, E: p.energy, slope: p.slope, rate }
-        if (stop && !p.held) break
+
+        if (stop && !p.held) {
+          break
+        }
       }
 
       return out
     }
 
-    const levelsAt = (D: number, cut: number): { space: SlabSpace; perms: SlabPerms; lx: SlabState; ly: SlabState; line: number } => {
-      const spec: SlabSpec = { holes: HOLES, axes: 2, cut, rate: 0, D, cost: 'steiner', boundary: 'absorb' }
+    const levelsAt = (
+      D: number,
+      cut: number,
+    ): {
+      space: SlabSpace
+      perms: SlabPerms
+      lx: SlabState
+      ly: SlabState
+      line: number
+    } => {
+      const spec: SlabSpec = {
+        holes: HOLES,
+        axes: 2,
+        cut,
+        rate: 0,
+        D,
+        cost: 'steiner',
+        boundary: 'absorb',
+      }
       const space = slabSpace(spec)
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D, box: CUT_SMALL, unit: 0 }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D,
+        box: CUT_SMALL,
+        unit: 0,
+      }
       const basis = lineBasis(sector)
       const line = lineLightest(basis, wholeBasis(basis)).lightest
-      const entries = basis.configs.map((ts, i) => ({ ts, amp: [line.cre[i] as number, line.cim[i] as number] as C }))
+      const entries = basis.configs.map((ts, i) => ({
+        ts,
+        amp: [line.cre[i]!, line.cim[i]!] as C,
+      }))
 
-      return { space, perms: slabPerms(space), lx: placeLine(space, 0, entries), ly: placeLine(space, 1, entries), line: line.energy }
+      return {
+        space,
+        perms: slabPerms(space),
+        lx: placeLine(space, 0, entries),
+        ly: placeLine(space, 1, entries),
+        line: line.energy,
+      }
     }
 
-    const restLevel = (space: SlabSpace, perms: SlabPerms, sector: SlabSector, placed: SlabState, line: number): { v: SlabState; energy: number; residual: number; slope: number } => {
-      let f = followLevel(space, [0, 0], placed, { E: line, filterBeats: FILTER_T, ritzBeats: RITZ_T, reference: placed, ritz })
+    const restLevel = (
+      space: SlabSpace,
+      perms: SlabPerms,
+      sector: SlabSector,
+      placed: SlabState,
+      line: number,
+    ): {
+      v: SlabState
+      energy: number
+      residual: number
+      slope: number
+    } => {
+      let f = followLevel(space, [0, 0], placed, {
+        E: line,
+        filterBeats: FILTER_T,
+        ritzBeats: RITZ_T,
+        reference: placed,
+        ritz,
+      })
       let v = normalizeSlab(sectorProject(perms, f.vector, sector))
       let r = levelResidual(space, [0, 0], v)
 
       if (r.residual > REFINE) {
-        f = followLevel(space, [0, 0], v, { E: r.energy, filterBeats: FILTER_T, ritzBeats: RITZ_T, reference: v, ritz })
+        f = followLevel(space, [0, 0], v, {
+          E: r.energy,
+          filterBeats: FILTER_T,
+          ritzBeats: RITZ_T,
+          reference: v,
+          ritz,
+        })
         v = normalizeSlab(sectorProject(perms, f.vector, sector))
         r = levelResidual(space, [0, 0], v)
       }
 
-      return { v, energy: r.energy, residual: r.residual, slope: innerSlab(v, uniformCount(space, v))[0] }
+      return {
+        v,
+        energy: r.energy,
+        residual: r.residual,
+        slope: innerSlab(v, uniformCount(space, v))[0],
+      }
     }
 
     // the rate-0 family the mixer reaches from v0 to second order: long-lived levels in the band, their slopes and
     // couplings (the prediction's inputs, recomputed here as they were read before the run)
-    const familyOf = (space: SlabSpace, perms: SlabPerms, v0: SlabState, E0: number, outside: Uint8Array): Family[] => {
-      const s = normalizeSlab(sectorProject(perms, uniformCount(space, uniformCount(space, v0)), A1))
-      const f = followLevel(space, [0, 0], s, { E: E0, filterBeats: FAMILY_FILTER_T, ritzBeats: FAMILY_RITZ_T, reference: v0, ritz })
+    const familyOf = (
+      space: SlabSpace,
+      perms: SlabPerms,
+      v0: SlabState,
+      E0: number,
+      outside: Uint8Array,
+    ): Family[] => {
+      const s = normalizeSlab(
+        sectorProject(
+          perms,
+          uniformCount(space, uniformCount(space, v0)),
+          A1,
+        ),
+      )
+      const f = followLevel(space, [0, 0], s, {
+        E: E0,
+        filterBeats: FAMILY_FILTER_T,
+        ritzBeats: FAMILY_RITZ_T,
+        reference: v0,
+        ritz,
+      })
       const Nv0 = uniformCount(space, v0)
 
       return f.levels
-        .filter(l => Math.abs(wrap(l.energy - E0)) < FAMILY_BAND && l.weight > FAMILY_WEIGHT)
+        .filter(
+          l =>
+            Math.abs(wrap(l.energy - E0)) < FAMILY_BAND &&
+            l.weight > FAMILY_WEIGHT,
+        )
         .map(l => {
-          const v = slabLevelVector(space, [0, 0], f.filtered, l.coefficients)
+          const v = slabLevelVector(
+            space,
+            [0, 0],
+            f.filtered,
+            l.coefficients,
+          )
           const r = levelResidual(space, [0, 0], v)
           const g = innerSlab(v, Nv0)
 
-          return { dE: wrap(r.energy - E0), modulus: Math.hypot(...r.lambda), slope: innerSlab(v, uniformCount(space, v))[0], coupling: Math.hypot(...g), offLine: offLineSlab(space, v), missed: registerMissed(space, v, outside) / HOLES, residual: r.residual }
+          return {
+            dE: wrap(r.energy - E0),
+            modulus: Math.hypot(...r.lambda),
+            slope: innerSlab(v, uniformCount(space, v))[0],
+            coupling: Math.hypot(...g),
+            offLine: offLineSlab(space, v),
+            missed: registerMissed(space, v, outside) / HOLES,
+            residual: r.residual,
+          }
         })
         .sort((a, b) => a.dE - b.dE)
     }
@@ -352,124 +593,366 @@ export default experiment({
     // nondegenerate perturbation theory within the family: the level takes weight (theta g_k / dE_k)^2 from each bent
     // level k, and with it that level's loss over the hold, 1 - |lambda_k|^(2 HOLD_BEATS); the hold's eigen clause fails
     // where the summed loss reaches 1 - FIDELITY. The gap is the nearest family level with coupling at least 0.01
-    const predicted: Record<number, { gap: number; lossCoefficient: number; thetaC: number; rateC: number }> = {}
-    const predictionOf = (fam: readonly Family[]): { gap: number; lossCoefficient: number; thetaC: number; rateC: number } => {
-      const coupled = fam.filter(f => f.coupling >= COUPLED && Math.abs(f.dE) > DISTINCT)
-      const lossCoefficient = coupled.reduce((x, f) => x + (f.coupling / f.dE) ** 2 * (1 - f.modulus ** (2 * HOLD_BEATS)), 0)
+    const predicted: Record<
+      number,
+      {
+        gap: number
+        lossCoefficient: number
+        thetaC: number
+        rateC: number
+      }
+    > = {}
+
+    const predictionOf = (
+      fam: readonly Family[],
+    ): {
+      gap: number
+      lossCoefficient: number
+      thetaC: number
+      rateC: number
+    } => {
+      const coupled = fam.filter(
+        f => f.coupling >= COUPLED && Math.abs(f.dE) > DISTINCT,
+      )
+      const lossCoefficient = coupled.reduce(
+        (x, f) =>
+          x +
+          (f.coupling / f.dE) ** 2 *
+            (1 - f.modulus ** (2 * HOLD_BEATS)),
+        0,
+      )
       const thetaC = Math.sqrt((1 - FIDELITY) / lossCoefficient)
 
-      return { gap: Math.min(...coupled.map(f => Math.abs(f.dE))), lossCoefficient, thetaC, rateC: 2 - 2 * Math.cos(thetaC) }
+      return {
+        gap: Math.min(...coupled.map(f => Math.abs(f.dE))),
+        lossCoefficient,
+        thetaC,
+        rateC: 2 - 2 * Math.cos(thetaC),
+      }
     }
 
-    const tensors: { D: number; rate: number; xx: number; yy: number; xy: number; eigen: [number, number]; mStar: number; eRest: number; ratio: number; isotropy: number; worstResidual: number; leastWeight: number }[] = []
+    const tensors: {
+      D: number
+      rate: number
+      xx: number
+      yy: number
+      xy: number
+      eigen: [number, number]
+      mStar: number
+      eRest: number
+      ratio: number
+      isotropy: number
+      worstResidual: number
+      leastWeight: number
+    }[] = []
     const partner: { rate: number; split: number; held: boolean }[] = []
     const small: Point[] = []
 
     for (const D of [3, 6]) {
-      const cut = CUT[D] as number
+      const cut = CUT[D]!
       const { space, perms, lx, ly, line } = levelsAt(D, cut)
       const outside = holesOutside(space, RADIUS)
-      const placedA = normalizeSlab(sectorProject(perms, addSlab(lx, ly), A1))
+      const placedA = normalizeSlab(
+        sectorProject(perms, addSlab(lx, ly), A1),
+      )
 
       // symmetry check: each operation commutes with one beat at rate 1/64 on the placed x-line
       const s64 = at(space, 1 / 64)
 
       for (const g of [perms.x, perms.y, perms.swap]) {
-        const a = actSymmetry(g, slabBeat(s64, [0, 0], normalizeSlab(lx), { escaped: 0 }))
-        const b = slabBeat(s64, [0, 0], actSymmetry(g, normalizeSlab(lx)), { escaped: 0 })
+        const a = actSymmetry(
+          g,
+          slabBeat(s64, [0, 0], normalizeSlab(lx), { escaped: 0 }),
+        )
+        const b = slabBeat(
+          s64,
+          [0, 0],
+          actSymmetry(g, normalizeSlab(lx)),
+          { escaped: 0 },
+        )
 
-        symmetryGaps.push(Math.sqrt(weightOfSlab(addSlab(a, scale(b, -1)))))
+        symmetryGaps.push(
+          Math.sqrt(weightOfSlab(addSlab(a, scale(b, -1)))),
+        )
       }
 
       const r0 = restLevel(space, perms, A1, placedA, line)
-      const w0 = watchHold(space, r0.v, HOLD_BEATS, cut - EDGE, [outside])
+      const w0 = watchHold(space, r0.v, HOLD_BEATS, cut - EDGE, [
+        outside,
+      ])
 
-      rest[D] = { energy: r0.energy, line, residual: r0.residual, slope: r0.slope, held: Math.min(...w0.fidelity) >= FIDELITY && Math.max(...(w0.missed[0] as number[])) / HOLES <= WINDOW, vector: r0.v }
-      log(`D ${D} rest: E ${r0.energy} line ${line} residual ${r0.residual} slope ${r0.slope}`)
+      rest[D] = {
+        energy: r0.energy,
+        line,
+        residual: r0.residual,
+        slope: r0.slope,
+        held:
+          Math.min(...w0.fidelity) >= FIDELITY &&
+          Math.max(...w0.missed[0]!) / HOLES <= WINDOW,
+        vector: r0.v,
+      }
+
+      log(
+        `D ${D} rest: E ${r0.energy} line ${line} residual ${r0.residual} slope ${r0.slope}`,
+      )
       families[D] = familyOf(space, perms, r0.v, r0.energy, outside)
-      predicted[D] = predictionOf(families[D] as Family[])
-      log(`D ${D} family ${JSON.stringify(families[D])} prediction ${JSON.stringify(predicted[D])}`)
+      predicted[D] = predictionOf(families[D])
+      log(
+        `D ${D} family ${JSON.stringify(families[D])} prediction ${JSON.stringify(predicted[D])}`,
+      )
 
       if (D === 3) {
         // the negative control: the rate-0 level watched under the mixer at 1/64 is not a level there
-        const wn = watchHold(s64, r0.v, HOLD_BEATS, cut - EDGE, [outside])
+        const wn = watchHold(s64, r0.v, HOLD_BEATS, cut - EDGE, [
+          outside,
+        ])
 
-        negative = { minFidelity: Math.min(...wn.fidelity), held: Math.min(...wn.fidelity) >= FIDELITY && Math.max(...(wn.missed[0] as number[])) / HOLES <= WINDOW }
+        negative = {
+          minFidelity: Math.min(...wn.fidelity),
+          held:
+            Math.min(...wn.fidelity) >= FIDELITY &&
+            Math.max(...wn.missed[0]!) / HOLES <= WINDOW,
+        }
       }
 
-      const gate = chain(space, perms, A1, 'A1', D, { v: r0.v, E: r0.energy, slope: r0.slope, rate: 0 }, GATE_RATES, false, r0.v, outside)
+      const gate = chain(
+        space,
+        perms,
+        A1,
+        'A1',
+        D,
+        { v: r0.v, E: r0.energy, slope: r0.slope, rate: 0 },
+        GATE_RATES,
+        false,
+        r0.v,
+        outside,
+      )
 
       points.push(...gate)
 
-      const last = gate[gate.length - 1] as Point
+      const last = gate[gate.length - 1]!
 
-      if (gate.every(p => p.held)) points.push(...chain(space, perms, A1, 'A1', D, { v: last.vector, E: last.energy, slope: last.slope, rate: last.rate }, MORE_RATES, true, r0.v, outside))
+      if (gate.every(p => p.held)) {
+        points.push(
+          ...chain(
+            space,
+            perms,
+            A1,
+            'A1',
+            D,
+            {
+              v: last.vector,
+              E: last.energy,
+              slope: last.slope,
+              rate: last.rate,
+            },
+            MORE_RATES,
+            true,
+            r0.v,
+            outside,
+          ),
+        )
+      }
 
       // the swap-odd partner at D 3: its splitting from the A1 level
       if (D === 3) {
-        const placedB = normalizeSlab(sectorProject(perms, addSlab(lx, scale(ly, -1)), B1))
+        const placedB = normalizeSlab(
+          sectorProject(perms, addSlab(lx, scale(ly, -1)), B1),
+        )
         const rb = restLevel(space, perms, B1, placedB, line)
-        const odd = chain(space, perms, B1, 'B1', D, { v: rb.v, E: rb.energy, slope: rb.slope, rate: 0 }, GATE_RATES, false, rb.v, outside)
+        const odd = chain(
+          space,
+          perms,
+          B1,
+          'B1',
+          D,
+          { v: rb.v, E: rb.energy, slope: rb.slope, rate: 0 },
+          GATE_RATES,
+          false,
+          rb.v,
+          outside,
+        )
 
-        odd.forEach((p, k) => partner.push({ rate: p.rate, split: wrap(p.energy - (gate[k] as Point).energy), held: p.held }))
-        for (const p of odd) p.vector = { re: new Float64Array(0), im: new Float64Array(0) }
+        odd.forEach((p, k) =>
+          partner.push({
+            rate: p.rate,
+            split: wrap(p.energy - gate[k]!.energy),
+            held: p.held,
+          }),
+        )
+
+        for (const p of odd) {
+          p.vector = {
+            re: new Float64Array(0),
+            im: new Float64Array(0),
+          }
+        }
       }
 
       // H3: the inertia at the held tensor rates
-      for (const rate of TENSOR_RATES[D] as number[]) {
-        const p = points.find(q => q.D === D && q.sector === 'A1' && q.rate === rate && q.cut === cut)
+      for (const rate of TENSOR_RATES[D]!) {
+        const p = points.find(
+          q =>
+            q.D === D &&
+            q.sector === 'A1' &&
+            q.rate === rate &&
+            q.cut === cut,
+        )
 
-        if (!p || !p.held) continue
+        if (!p?.held) {
+          continue
+        }
 
-        const t = turnedTensor(at(space, rate), p.vector, p.energy, KAPPA, TENSOR_T, ritz)
+        const t = turnedTensor(
+          at(space, rate),
+          p.vector,
+          p.energy,
+          KAPPA,
+          TENSOR_T,
+          ritz,
+        )
         const mean = (t.xx + t.yy) / 2
         const mStar = 1 / Math.abs(t.xx)
         const eRest = Math.abs(p.energy)
 
-        tensors.push({ D, rate, xx: t.xx, yy: t.yy, xy: t.xy, eigen: t.eigen, mStar, eRest, ratio: mStar / eRest, isotropy: Math.min(Math.abs(t.eigen[0]), Math.abs(t.eigen[1])) / Math.max(Math.abs(t.eigen[0]), Math.abs(t.eigen[1])), worstResidual: t.worstResidual, leastWeight: t.leastWeight })
+        tensors.push({
+          D,
+          rate,
+          xx: t.xx,
+          yy: t.yy,
+          xy: t.xy,
+          eigen: t.eigen,
+          mStar,
+          eRest,
+          ratio: mStar / eRest,
+          isotropy:
+            Math.min(Math.abs(t.eigen[0]), Math.abs(t.eigen[1])) /
+            Math.max(Math.abs(t.eigen[0]), Math.abs(t.eigen[1])),
+          worstResidual: t.worstResidual,
+          leastWeight: t.leastWeight,
+        })
         void mean
-        log(`D ${D} tensor at ${rate}: ${JSON.stringify(tensors[tensors.length - 1])}`)
+        log(
+          `D ${D} tensor at ${rate}: ${JSON.stringify(tensors[tensors.length - 1])}`,
+        )
       }
 
-      for (const p of points) if (p.D === D) p.vector = { re: new Float64Array(0), im: new Float64Array(0) }
-      rest[D]!.vector = { re: new Float64Array(0), im: new Float64Array(0) }
+      for (const p of points) {
+        if (p.D === D) {
+          p.vector = {
+            re: new Float64Array(0),
+            im: new Float64Array(0),
+          }
+        }
+      }
+
+      rest[D].vector = {
+        re: new Float64Array(0),
+        im: new Float64Array(0),
+      }
 
       // the w 12 window at D 6, read the same way, for the window's effect
       if (D === 6) {
         const sm = levelsAt(6, CUT_SMALL)
         const outSmall = holesOutside(sm.space, RADIUS)
-        const placedSmall = normalizeSlab(sectorProject(sm.perms, addSlab(sm.lx, sm.ly), A1))
-        const rs = restLevel(sm.space, sm.perms, A1, placedSmall, sm.line)
+        const placedSmall = normalizeSlab(
+          sectorProject(sm.perms, addSlab(sm.lx, sm.ly), A1),
+        )
+        const rs = restLevel(
+          sm.space,
+          sm.perms,
+          A1,
+          placedSmall,
+          sm.line,
+        )
 
-        small.push(...chain(sm.space, sm.perms, A1, 'A1', 6, { v: rs.v, E: rs.energy, slope: rs.slope, rate: 0 }, GATE_RATES, false, rs.v, outSmall))
-        for (const p of small) p.vector = { re: new Float64Array(0), im: new Float64Array(0) }
+        small.push(
+          ...chain(
+            sm.space,
+            sm.perms,
+            A1,
+            'A1',
+            6,
+            { v: rs.v, E: rs.energy, slope: rs.slope, rate: 0 },
+            GATE_RATES,
+            false,
+            rs.v,
+            outSmall,
+          ),
+        )
+
+        for (const p of small) {
+          p.vector = {
+            re: new Float64Array(0),
+            im: new Float64Array(0),
+          }
+        }
       }
     }
 
     // ---- gates ----
-    const gatePoints = (D: number): Point[] => points.filter(p => p.D === D && p.sector === 'A1' && GATE_RATES.includes(p.rate))
-    const heldRates = (D: number): number[] => points.filter(p => p.D === D && p.sector === 'A1' && p.held).map(p => p.rate)
+    const gatePoints = (D: number): Point[] =>
+      points.filter(
+        p =>
+          p.D === D && p.sector === 'A1' && GATE_RATES.includes(p.rate),
+      )
+    const heldRates = (D: number): number[] =>
+      points
+        .filter(p => p.D === D && p.sector === 'A1' && p.held)
+        .map(p => p.rate)
+
     const highest = (D: number): number => {
       const hs = heldRates(D)
 
       return hs.length === 0 ? Number.NaN : Math.max(...hs)
     }
-    const H1 = gatePoints(3).length === GATE_RATES.length && gatePoints(3).every(p => p.held)
+
+    const H1 =
+      gatePoints(3).length === GATE_RATES.length &&
+      gatePoints(3).every(p => p.held)
     const adequate = gatePoints(6).every(p => p.edge <= ADEQUATE)
-    const H2 = adequate && gatePoints(6).length === GATE_RATES.length && gatePoints(6).every(p => p.held)
-    const H3 = tensors.length > 0 && tensors.every(t => t.eigen[0] * t.eigen[1] > 0 && t.isotropy >= ISOTROPY && t.ratio <= ENERGY_FACTOR && t.ratio >= 1 / ENERGY_FACTOR)
+    const H2 =
+      adequate &&
+      gatePoints(6).length === GATE_RATES.length &&
+      gatePoints(6).every(p => p.held)
+    const H3 =
+      tensors.length > 0 &&
+      tensors.every(
+        t =>
+          t.eigen[0] * t.eigen[1] > 0 &&
+          t.isotropy >= ISOTROPY &&
+          t.ratio <= ENERGY_FACTOR &&
+          t.ratio >= 1 / ENERGY_FACTOR,
+      )
 
     // ---- controls and checks ----
-    const CR = [3, 6].every(D => Math.abs((rest[D] as { energy: number }).energy - (rest[D] as { line: number }).line) <= LINE_SAME && (rest[D] as { residual: number }).residual <= REST_RESIDUAL && (rest[D] as { held: boolean }).held)
+    const CR = [3, 6].every(
+      D =>
+        Math.abs(
+          (rest[D] as { energy: number }).energy -
+            (rest[D] as { line: number }).line,
+        ) <= LINE_SAME &&
+        (rest[D] as { residual: number }).residual <= REST_RESIDUAL &&
+        (rest[D] as { held: boolean }).held,
+    )
     const CN = !negative.held
     const symmetryGap = Math.max(...symmetryGaps)
     const characterGap = Math.max(...points.map(p => p.characterGap))
     const antiGap = Math.max(...points.map(p => p.antisymmetry))
-    const checked = symmetryGap <= SYMMETRY_SAME && characterGap <= CHARACTER_SAME && antiGap <= ANTI_SAME
-    const status = !CR || !CN || !checked ? 'partial' : H1 && H2 && H3 ? 'pass' : 'fail'
+    const checked =
+      symmetryGap <= SYMMETRY_SAME &&
+      characterGap <= CHARACTER_SAME &&
+      antiGap <= ANTI_SAME
+    const status =
+      !CR || !CN || !checked
+        ? 'partial'
+        : H1 && H2 && H3
+          ? 'pass'
+          : 'fail'
 
     // ---- report ----
-    const rateName = (r: number): string => (r === 0 ? '0' : r >= 1 ? `${r}` : `1/${Math.round(1 / r)}`)
+    const rateName = (r: number): string =>
+      r === 0 ? '0' : r >= 1 ? `${r}` : `1/${Math.round(1 / r)}`
     const pointText = (p: Point): string =>
       `D ${p.D} w ${p.cut} ${p.sector} rate ${rateName(p.rate)}: ${p.held ? 'HELD' : 'not held'} E ${p.energy.toFixed(6)} slope ${p.slope.toFixed(4)} residual ${p.residual.toExponential(2)} (${p.passes} pass) least fidelity ${p.minFidelity.toPrecision(6)} missed ${p.maxMissed.toExponential(2)} tail ${p.maxTail.toExponential(2)} edge ${p.edge.toExponential(2)} off line ${p.offLine.toFixed(4)} fidelity to rest ${p.restFidelity.toFixed(5)} nearest Ritz ${p.gapNear.toFixed(4)}`
     const metrics: Record<string, number> = {
@@ -490,16 +973,22 @@ export default experiment({
     }
 
     for (const D of [3, 6]) {
-      const r = rest[D] as { energy: number; slope: number; residual: number }
+      const r = rest[D] as {
+        energy: number
+        slope: number
+        residual: number
+      }
 
       metrics[`restD${D}Energy`] = r.energy
       metrics[`restD${D}Slope`] = r.slope
       metrics[`restD${D}Residual`] = r.residual
-      metrics[`familyD${D}Size`] = (families[D] as Family[]).length
+      metrics[`familyD${D}Size`] = families[D]!.length
       metrics[`predictedD${D}Gap`] = predicted[D]!.gap
-      metrics[`predictedD${D}LossCoefficient`] = predicted[D]!.lossCoefficient
+      metrics[`predictedD${D}LossCoefficient`] =
+        predicted[D]!.lossCoefficient
       metrics[`predictedD${D}RateC`] = predicted[D]!.rateC
     }
+
     for (const p of [...points, ...small]) {
       const key = `D${p.D}w${p.cut}${p.sector}r${rateName(p.rate).replace('/', '_')}`
 
@@ -511,6 +1000,7 @@ export default experiment({
       metrics[`${key}Edge`] = p.edge
       metrics[`${key}OffLine`] = p.offLine
     }
+
     for (const t of tensors) {
       const key = `tensorD${t.D}r${rateName(t.rate).replace('/', '_')}`
 
@@ -521,16 +1011,31 @@ export default experiment({
       metrics[`${key}Ratio`] = t.ratio
       metrics[`${key}Isotropy`] = t.isotropy
     }
-    for (const q of partner) metrics[`splitD3r${rateName(q.rate).replace('/', '_')}`] = q.split
 
-    const heldMap = [3, 6].map(D => `D ${D}: ${points.filter(p => p.D === D && p.sector === 'A1').map(p => `${rateName(p.rate)} ${p.held ? 'H' : '-'}`).join(' ')}`).join('; ')
+    for (const q of partner) {
+      metrics[`splitD3r${rateName(q.rate).replace('/', '_')}`] = q.split
+    }
+
+    const heldMap = [3, 6]
+      .map(
+        D =>
+          `D ${D}: ${points
+            .filter(p => p.D === D && p.sector === 'A1')
+            .map(p => `${rateName(p.rate)} ${p.held ? 'H' : '-'}`)
+            .join(' ')}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `the mixer-on eigenlevel of three holes on the slab (A1 sector, followed from the line level): ${heldMap}; highest held rate D 3 ${rateName(highest(3))}, D 6 ${rateName(highest(6))} (w ${CUT[6]}, adequate ${adequate}); tensors ${tensors.map(t => `D ${t.D} ${rateName(t.rate)} m* ${t.mStar.toFixed(2)} m*/E ${t.ratio.toFixed(2)} isotropy ${t.isotropy.toFixed(3)}`).join(', ')}; H1 ${H1}, H2 ${H2}, H3 ${H3}; CR ${CR}, CN ${CN} (rate-0 level at 1/64 least fidelity ${negative.minFidelity.toFixed(4)})`,
       metrics,
-      control: { negativeMinFidelity: negative.minFidelity, restD3Energy: (rest[3] as { energy: number }).energy, restD6Energy: (rest[6] as { energy: number }).energy },
-      notes: `L2. Points: ${[...points, ...small].map(pointText).join('; ')}. Families: ${[3, 6].map(D => `D ${D} ${(families[D] as Family[]).map(f => `dE ${f.dE.toFixed(4)} |lam| ${f.modulus.toFixed(6)} slope ${f.slope.toFixed(3)} g ${f.coupling.toFixed(4)} off ${f.offLine.toFixed(3)} missed ${f.missed.toExponential(1)}`).join(', ')}`).join('; ')}. A1-B1 split at D 3: ${partner.map(q => `${rateName(q.rate)} ${q.split.toExponential(3)}${q.held ? ' H' : ''}`).join(', ')}. Checks: symmetry ${symmetryGap.toExponential(2)}, character ${characterGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        negativeMinFidelity: negative.minFidelity,
+        restD3Energy: (rest[3] as { energy: number }).energy,
+        restD6Energy: (rest[6] as { energy: number }).energy,
+      },
+      notes: `L2. Points: ${[...points, ...small].map(pointText).join('; ')}. Families: ${[3, 6].map(D => `D ${D} ${families[D]!.map(f => `dE ${f.dE.toFixed(4)} |lam| ${f.modulus.toFixed(6)} slope ${f.slope.toFixed(3)} g ${f.coupling.toFixed(4)} off ${f.offLine.toFixed(3)} missed ${f.missed.toExponential(1)}`).join(', ')}`).join('; ')}. A1-B1 split at D 3: ${partner.map(q => `${rateName(q.rate)} ${q.split.toExponential(3)}${q.held ? ' H' : ''}`).join(', ')}. Checks: symmetry ${symmetryGap.toExponential(2)}, character ${characterGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

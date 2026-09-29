@@ -63,7 +63,15 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
-import { FALL_R, FALL_SOURCE, HOP_D, LENS_DETECTORS, radionCausalSurvey, RADION_DEPTH, STATIC_SIDE } from '@/code/measure/radion'
+import {
+  FALL_R,
+  FALL_SOURCE,
+  HOP_D,
+  LENS_DETECTORS,
+  radionCausalSurvey,
+  RADION_DEPTH,
+  STATIC_SIDE,
+} from '@/code/measure/radion'
 
 const RECORDED_0077 = -6.41986e-4
 const LUMP_28 = 28
@@ -91,20 +99,34 @@ export default experiment({
     const ys = hop.halfArrival.slice(fitFrom)
     const mx = xs.reduce((a, v) => a + v, 0) / xs.length
     const my = ys.reduce((a, v) => a + v, 0) / ys.length
-    const slope = xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) / xs.reduce((a, v) => a + (v - mx) ** 2, 0)
+    const slope =
+      xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) /
+      xs.reduce((a, v) => a + (v - mx) ** 2, 0)
     const frontSpeed = 1 / slope
     const noInstant = hop.instantChange.every(v => v === 0)
     const cone = hop.firstChange.every((t, i) => t >= HOP_D[i]!)
     const c1 = noInstant && cone && Math.abs(frontSpeed / c - 1) <= 0.1
 
     // C2
-    const force = (w: number[]): number => -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!)
+    const force = (w: number[]): number =>
+      -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!)
     const aLight = force(s.fall.light) / 1
     const aHeavy = force(s.fall.heavy) / 3
     const aZero = force(s.fall.zero) / 1
-    const aWant = (-FALL_SOURCE * (Math.PI / D) * (huskGreenDifference(STATIC_SIDE, [FALL_R[1]!, 0, 0]) - huskGreenDifference(STATIC_SIDE, [FALL_R[0]!, 0, 0]))) / (FALL_R[1]! - FALL_R[0]!)
+    const aWant =
+      (-FALL_SOURCE *
+        (Math.PI / D) *
+        (huskGreenDifference(STATIC_SIDE, [FALL_R[1]!, 0, 0]) -
+          huskGreenDifference(STATIC_SIDE, [FALL_R[0]!, 0, 0]))) /
+      (FALL_R[1]! - FALL_R[0]!)
     const alike = Math.abs(aLight / aHeavy - 1)
-    const c2 = aLight < 0 && aHeavy < 0 && alike <= 1e-6 && Math.abs(aLight / aWant - 1) <= 1e-3 && Math.abs(aHeavy / aWant - 1) <= 1e-3 && Math.abs(aZero) < 1e-12
+    const c2 =
+      aLight < 0 &&
+      aHeavy < 0 &&
+      alike <= 1e-6 &&
+      Math.abs(aLight / aWant - 1) <= 1e-3 &&
+      Math.abs(aHeavy / aWant - 1) <= 1e-3 &&
+      Math.abs(aZero) < 1e-12
     const control = Math.abs(aLight / RECORDED_0077 - 1) <= 1e-5
 
     // C3
@@ -112,14 +134,30 @@ export default experiment({
     const factor = lens.measuredDelay / lens.newtonDelay
     const factorLinear = lens.linearDelay / lens.newtonDelay
     const factorWeak = (4 * D) / (3 * Math.PI * (2 * D + 1) ** 2)
-    const fieldOff = Math.max(...lens.field.map((v, i) => Math.abs(v - lens.closedField[i]!)))
+    const fieldOff = Math.max(
+      ...lens.field.map((v, i) => Math.abs(v - lens.closedField[i]!)),
+    )
     const depthTop = Math.max(...lens.depth)
     const depthLow = Math.min(...lens.depth)
-    const wraps = (w: { angle: number; field: number; potential: number }): number => w.angle + w.field + w.potential
-    const pointLens = IMPACTS.map(b => LUMP_28 / (12 * Math.PI * (2 * D + 1) * b))
+    const wraps = (w: {
+      angle: number
+      field: number
+      potential: number
+    }): number => w.angle + w.field + w.potential
+    const pointLens = IMPACTS.map(
+      b => LUMP_28 / (12 * Math.PI * (2 * D + 1) * b),
+    )
 
-    const instrument = hop.reversed && s.fall.tally.reversed && lens.fieldReversed && lens.u0.reversed && lens.lens.reversed && lens.u0.gauss === 0 && lens.lens.gauss === 0
-    const status = !instrument || !control ? 'partial' : c1 && c2 ? 'pass' : 'fail'
+    const instrument =
+      hop.reversed &&
+      s.fall.tally.reversed &&
+      lens.fieldReversed &&
+      lens.u0.reversed &&
+      lens.lens.reversed &&
+      lens.u0.gauss === 0 &&
+      lens.lens.gauss === 0
+    const status =
+      !instrument || !control ? 'partial' : c1 && c2 ? 'pass' : 'fail'
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(2)
     const metrics: Record<string, number> = {
@@ -158,6 +196,7 @@ export default experiment({
       metrics[`hopFinalChange_d${d}`] = hop.finalChange[i]!
       metrics[`hopLightCone_d${d}`] = rho[i]! / c
     })
+
     IMPACTS.forEach((b, i) => {
       metrics[`pointLensAlpha_b${b}`] = pointLens[i]!
     })
@@ -166,7 +205,11 @@ export default experiment({
       status,
       claim: `the radion at D ${D}: when a source hops one dock, nothing changes at d = ${HOP_D.join(', ')} on beat 1 (${noInstant ? 'none' : 'SOME'}), the first register there changes at beats ${hop.firstChange.join(', ')} and the pull's change reaches half its final size at beats ${hop.halfArrival.join(', ')}, a front at ${f(frontSpeed)} (c_s = ${f(c)}, ratio ${f(frontSpeed / c)}); a 1-love and a 3-fear lump at r = 4 from a neutral source accelerate at ${f(aLight)} and ${f(aHeavy)} per unit content (alike to ${e(alike)}, the closed form ${f(aWant)}, E-GRV-0077's negated vector ${RECORDED_0077}), inertia a stand-in; a slab of content the scalar deepens to D ${depthTop} (and shallows its sink to ${depthLow}) delays the light between x = ${LENS_DETECTORS[0]} and ${LENS_DETECTORS[LENS_DETECTORS.length - 1]} by ${f(lens.measuredDelay)} beats against the eikonal ${f(lens.eikonalDelay)}, which is ${f(factor)} times the Newtonian falling-light count (${f(lens.newtonDelay)}; weak-field ${f(factorWeak)}; general relativity 2, Nordstrom 0)`,
       metrics,
-      control: { recorded0077: RECORDED_0077, controlHolds: control ? 1 : 0, aZero },
+      control: {
+        recorded0077: RECORDED_0077,
+        controlHolds: control ? 1 : 0,
+        aZero,
+      },
       notes: `L2. Gates C1 ${c1}, C2 ${c2}; control ${control}; instrument ${instrument}. Hop final changes ${hop.finalChange.map(e).join(', ')}; instant changes ${hop.instantChange.map(e).join(', ')}; light-cone beats rho / c_s ${rho.map(r => (r / c).toFixed(1)).join(', ')}. W at r = ${FALL_R.join(', ')}: light ${s.fall.light.map(x => x.toExponential(8)).join(' ')}, heavy ${s.fall.heavy.map(x => x.toExponential(8)).join(' ')}, zero ${s.fall.zero.join(' ')}. Lens field (rule average) against the closed tent to ${e(fieldOff)}; depth along x (every 8): ${lens.depth.filter((_, i) => i % 8 === 0).join(' ')}; light arrivals uniform ${lens.u0.arrival.map(x => x.toFixed(2)).join(' ')}, lens ${lens.lens.arrival.map(x => x.toFixed(2)).join(' ')} at x = ${LENS_DETECTORS.join(', ')}; lens wraps ${JSON.stringify(lens.lens.wraps)}. Linear-index delay ${f(lens.linearDelay)}. Point-lump eikonal alpha(b) for M = ${LUMP_28}: ${pointLens.map(e).join(', ')} rad at b = ${IMPACTS.join(', ')}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

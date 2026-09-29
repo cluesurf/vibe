@@ -10,9 +10,21 @@
 //
 // DETERMINISM and EXACTNESS: every count is an exact rank over GF(p). Nothing is drawn.
 
-import { addScaled, nullSpaceOfRows, parseMono, type Poly } from '@/code/algebra/jet-polynomial'
+import {
+  addScaled,
+  nullSpaceOfRows,
+  parseMono,
+  type Poly,
+} from '@/code/algebra/jet-polynomial'
 import { rankMod } from '@/code/algebra/linear/modular-linear'
-import { cubicAnsatz, kernelKey as k, monomialRows, quadraticKernel, rowContext, type Ansatz } from '@/code/measure/cubic-slide'
+import {
+  cubicAnsatz,
+  kernelKey as k,
+  monomialRows,
+  quadraticKernel,
+  rowContext,
+  type Ansatz,
+} from '@/code/measure/cubic-slide'
 
 const XY = 3
 const XZ = 4
@@ -22,7 +34,18 @@ type Functional = readonly (readonly [string, number])[]
 
 let ANSATZ: Ansatz | undefined
 
-export type SlideTie = { invariant: number; mu: number; pair: number; tied: number; decoupled: number; faceMu: number; facePair: number; faceTied: number; faceDecoupled: number; speedAtC: boolean }
+export type SlideTie = {
+  invariant: number
+  mu: number
+  pair: number
+  tied: number
+  decoupled: number
+  faceMu: number
+  facePair: number
+  faceTied: number
+  faceDecoupled: number
+  speedAtC: boolean
+}
 
 // E-GRV-0141's Y2 functionals on the full slide's invariant family at speed residue c mod p
 // (`tie`, default c: the speed the tie gamma + tie^2 mu = 0 is read at; a tie other than the slide's is the control)
@@ -43,10 +66,15 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
         r = monomialRows(ctx, parseMono(key))
         memo.set(key, r)
       }
+
       addScaled(total, r, ((coef % p) + p) % p, p)
     }
+
     for (const [rk, val] of total) {
-      if (!rows.has(rk)) rows.set(rk, new Map())
+      if (!rows.has(rk)) {
+        rows.set(rk, new Map())
+      }
+
       rows.get(rk)!.set(col, val)
     }
   })
@@ -54,7 +82,9 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
   const { basis } = nullSpaceOfRows(rows.values(), width, p)
   const dim = basis.length
   const kernels = ansatz.columns.map((column, col) => {
-    if (!ansatz.quadratic[col]) return new Map<string, number>()
+    if (!ansatz.quadratic[col]) {
+      return new Map<string, number>()
+    }
 
     const modded: Poly = new Map()
 
@@ -65,13 +95,29 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
   const members = basis.map(theta => {
     const out: Poly = new Map()
 
-    theta.forEach((x, col) => x !== 0 && kernels[col]!.size > 0 && addScaled(out, kernels[col]!, x, p))
+    theta.forEach(
+      (x, col) =>
+        x !== 0 &&
+        kernels[col]!.size > 0 &&
+        addScaled(out, kernels[col]!, x, p),
+    )
 
     return out
   })
   const mod = (x: number): number => ((x % p) + p) % p
-  const value = (f: Functional, m: Poly): number => f.reduce((t, [key, w]) => (t + ((m.get(key) ?? 0) * mod(w)) % p) % p, 0)
-  const rank = (fs: readonly Functional[]): number => (dim === 0 || fs.length === 0 ? 0 : rankMod(fs.map(f => members.map(m => value(f, m))), dim, p))
+  const value = (f: Functional, m: Poly): number =>
+    f.reduce(
+      (t, [key, w]) => (t + (((m.get(key) ?? 0) * mod(w)) % p)) % p,
+      0,
+    )
+  const rank = (fs: readonly Functional[]): number =>
+    dim === 0 || fs.length === 0
+      ? 0
+      : rankMod(
+          fs.map(f => members.map(m => value(f, m))),
+          dim,
+          p,
+        )
   const one = (key: string): Functional => [[key, 1]]
   // c^2 mod p without leaving the exact integer range
   const c2 = Number((BigInt(tie) * BigInt(tie)) % BigInt(p))
@@ -83,7 +129,17 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
   ]
   const decoupled: Functional[] = [one(k(XY, XY, 0, 3))]
 
-  for (let b = 0; b < 12; b++) if (b !== XY) for (const [m, n] of [[0, 0], [0, 3], [3, 3]] as const) decoupled.push(one(k(XY, b, m, n)))
+  for (let b = 0; b < 12; b++) {
+    if (b !== XY) {
+      for (const [m, n] of [
+        [0, 0],
+        [0, 3],
+        [3, 3],
+      ] as const) {
+        decoupled.push(one(k(XY, b, m, n)))
+      }
+    }
+  }
 
   const face = (m: number, n: number): Functional => [
     [k(XZ, XZ, m, n), 1],
@@ -92,7 +148,13 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
   ]
   const faceMu = face(0, 0)
   const faceGamma = [...face(1, 1), ...face(2, 2), ...face(1, 2)]
-  const faceTied: Functional = [...faceGamma, ...faceMu.map(([key, w]): [string, number] => [key, Number((2n * BigInt(c2) * BigInt(mod(w))) % BigInt(p))])]
+  const faceTied: Functional = [
+    ...faceGamma,
+    ...faceMu.map(([key, w]): [string, number] => [
+      key,
+      Number((2n * BigInt(c2) * BigInt(mod(w))) % BigInt(p)),
+    ]),
+  ]
   const faceDecoupled = [[...face(0, 1), ...face(0, 2)]]
   const r = {
     invariant: dim,
@@ -106,5 +168,16 @@ export function slideTied(c: number, p: number, tie = c): SlideTie {
     faceDecoupled: rank(faceDecoupled),
   }
 
-  return { ...r, speedAtC: r.mu === 1 && r.pair === 1 && r.tied === 0 && r.decoupled === 0 && r.faceMu === 1 && r.facePair === 1 && r.faceTied === 0 && r.faceDecoupled === 0 }
+  return {
+    ...r,
+    speedAtC:
+      r.mu === 1 &&
+      r.pair === 1 &&
+      r.tied === 0 &&
+      r.decoupled === 0 &&
+      r.faceMu === 1 &&
+      r.facePair === 1 &&
+      r.faceTied === 0 &&
+      r.faceDecoupled === 0,
+  }
 }

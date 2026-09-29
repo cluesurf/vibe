@@ -63,10 +63,25 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { arrowBox } from '@/code/measure/second-law-husk'
-import { knotStart, knotStream, type KnotStream } from '@/code/measure/held-knot'
+import {
+  knotStart,
+  knotStream,
+  type KnotStream,
+} from '@/code/measure/held-knot'
 import { cloneReduced } from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { fluctuations, gaussianInformation, jackknife, recordLockstep, recordRun, shellCorrelation, shellPairs, shellSums, type Recording, type ShellPairs } from '@/code/measure/shared-distance'
+import {
+  fluctuations,
+  gaussianInformation,
+  jackknife,
+  recordLockstep,
+  recordRun,
+  shellCorrelation,
+  shellPairs,
+  shellSums,
+  type Recording,
+  type ShellPairs,
+} from '@/code/measure/shared-distance'
 
 const SIDE = 16
 const RADIUS = 2
@@ -83,16 +98,25 @@ export default experiment({
   id: 'gravity/shared-information-knot',
   code: 'E-GRV-0065',
   title:
-    'no emergent curvature from shared information around a held knot on the adopted knit, fail on K2, K3 and K5: in the settled gas (side 16, 17 starts, 192 beats) a held husk ball of radius 2 leaves the axis-neighbor column correlation at zero within 2.2 errors in every shell r = 3 to 7 (largest -1.27e-3 +- 5.7e-4 at r = 6), as the no-knot vacuum is (within 1.9 errors), so the emergent-distance deficit is a ratio of noise (-1.4 +- 12, -2.6 +- 79, 0.91 +- 0.57, 0.98 +- 0.25, 0.69 +- 0.69), significant in 1 shell far from the knot and never in the innermost shell; the outsides of the dense lump, its charge-flipped copy and the empty knot agree bit for bit on 240 of 240 beats on all 17 members, so the reading is charge blind exactly and the knot\'s content changes nothing outside exactly (a theorem of the held-knot stand-in, checked); energy, charge and the held trits exact',
+    "no emergent curvature from shared information around a held knot on the adopted knit, fail on K2, K3 and K5: in the settled gas (side 16, 17 starts, 192 beats) a held husk ball of radius 2 leaves the axis-neighbor column correlation at zero within 2.2 errors in every shell r = 3 to 7 (largest -1.27e-3 +- 5.7e-4 at r = 6), as the no-knot vacuum is (within 1.9 errors), so the emergent-distance deficit is a ratio of noise (-1.4 +- 12, -2.6 +- 79, 0.91 +- 0.57, 0.98 +- 0.25, 0.69 +- 0.69), significant in 1 shell far from the knot and never in the innermost shell; the outsides of the dense lump, its charge-flipped copy and the empty knot agree bit for bit on 240 of 240 beats on all 17 members, so the reading is charge blind exactly and the knot's content changes nothing outside exactly (a theorem of the held-knot stand-in, checked); energy, charge and the held trits exact",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = startFamily(16)
-    const recordings: Record<Run, Recording[]> = { lump: [], flipped: [], empty: [], vacuum: [] }
+    const recordings: Record<Run, Recording[]> = {
+      lump: [],
+      flipped: [],
+      empty: [],
+      vacuum: [],
+    }
+
     let knot: KnotStream | undefined
     let outsideSameMin = Infinity
 
@@ -100,23 +124,55 @@ export default experiment({
       const box = withStart(member, () => arrowBox(SIDE, 1))
       const held = knotStream(box, RADIUS, CENTER)
       const plain = knotStream(box, -1, CENTER)
-      const lump = knotStart(held, { perDock: PER_DOCK, phase: k, lump: true })
+      const lump = knotStart(held, {
+        perDock: PER_DOCK,
+        phase: k,
+        lump: true,
+      })
       const flipped = cloneReduced(lump)
 
       for (let x = 0; x < box.cells; x++) {
-        if (!held.held[x]) continue
+        if (!held.held[x]) {
+          continue
+        }
 
-        for (let d = 0; d < 24; d++) flipped.vibe[x * 24 + d] = -(lump.vibe[x * 24 + d] as number)
+        for (let d = 0; d < 24; d++) {
+          flipped.vibe[x * 24 + d] = -lump.vibe[x * 24 + d]!
+        }
       }
 
-      const empty = knotStart(held, { perDock: PER_DOCK, phase: k, lump: false })
-      const together = recordLockstep(held, [lump, flipped, empty], SETTLE, SAMPLES)
+      const empty = knotStart(held, {
+        perDock: PER_DOCK,
+        phase: k,
+        lump: false,
+      })
+      const together = recordLockstep(
+        held,
+        [lump, flipped, empty],
+        SETTLE,
+        SAMPLES,
+      )
 
       recordings.lump.push(together.recordings[0]!)
       recordings.flipped.push(together.recordings[1]!)
       recordings.empty.push(together.recordings[2]!)
-      recordings.vacuum.push(recordRun(plain, knotStart(plain, { perDock: PER_DOCK, phase: k, lump: false }), SETTLE, SAMPLES))
-      outsideSameMin = Math.min(outsideSameMin, together.outsideSameBeats)
+      recordings.vacuum.push(
+        recordRun(
+          plain,
+          knotStart(plain, {
+            perDock: PER_DOCK,
+            phase: k,
+            lump: false,
+          }),
+          SETTLE,
+          SAMPLES,
+        ),
+      )
+
+      outsideSameMin = Math.min(
+        outsideSameMin,
+        together.outsideSameBeats,
+      )
       knot = held
       log(`member ${member.name}`)
     })
@@ -142,10 +198,23 @@ export default experiment({
 
         return out
       })
-    const info = (total: Float64Array, offset: number, s: number): number => gaussianInformation(shellCorrelation(total.subarray(offset, offset + width), s))
+    const info = (
+      total: Float64Array,
+      offset: number,
+      s: number,
+    ): number =>
+      gaussianInformation(
+        shellCorrelation(total.subarray(offset, offset + width), s),
+      )
     // the deficit of run x against reference y in shell s: 1 - sqrt(I_y / I_x)
-    const deficit = (x: Run, y: Run, s: number) => jackknife(joined(x, y), total => 1 - Math.sqrt(info(total, width, s) / info(total, 0, s)))
-    const rho = (x: Run, s: number) => jackknife(sums[x], total => shellCorrelation(total, s))
+    const deficit = (x: Run, y: Run, s: number) =>
+      jackknife(
+        joined(x, y),
+        total =>
+          1 - Math.sqrt(info(total, width, s) / info(total, 0, s)),
+      )
+    const rho = (x: Run, s: number) =>
+      jackknife(sums[x], total => shellCorrelation(total, s))
     const flipGap = (s: number) =>
       jackknife(
         members.map((_, m) => {
@@ -157,40 +226,75 @@ export default experiment({
 
           return out
         }),
-        total => 1 - Math.sqrt(info(total, 2 * width, s) / info(total, 0, s)) - (1 - Math.sqrt(info(total, 2 * width, s) / info(total, width, s))),
+        total =>
+          1 -
+          Math.sqrt(info(total, 2 * width, s) / info(total, 0, s)) -
+          (1 -
+            Math.sqrt(
+              info(total, 2 * width, s) / info(total, width, s),
+            )),
       )
 
     const shells = SHELLS.map((r, s) => ({
       r,
-      pairs: (pairs.pairs[s] as Int32Array).length / 2,
-      rho: Object.fromEntries(RUNS.map(x => [x, rho(x, s)])) as Record<Run, { value: number; error: number }>,
+      pairs: pairs.pairs[s]!.length / 2,
+      rho: Object.fromEntries(RUNS.map(x => [x, rho(x, s)])) as Record<
+        Run,
+        { value: number; error: number }
+      >,
       lumpVacuum: deficit('lump', 'vacuum', s),
       emptyVacuum: deficit('empty', 'vacuum', s),
       lumpEmpty: deficit('lump', 'empty', s),
       flip: flipGap(s),
     }))
 
-    const pos = (x: { value: number; error: number }): boolean => x.value > 0 && x.value >= 3 * x.error
-    const all = [...recordings.lump, ...recordings.flipped, ...recordings.empty, ...recordings.vacuum]
-    const g1 = all.every(r => r.exact) && [...recordings.lump, ...recordings.flipped, ...recordings.empty].every(r => r.heldSame)
+    const pos = (x: { value: number; error: number }): boolean =>
+      x.value > 0 && x.value >= 3 * x.error
+    const all = [
+      ...recordings.lump,
+      ...recordings.flipped,
+      ...recordings.empty,
+      ...recordings.vacuum,
+    ]
+    const g1 =
+      all.every(r => r.exact) &&
+      [
+        ...recordings.lump,
+        ...recordings.flipped,
+        ...recordings.empty,
+      ].every(r => r.heldSame)
     const inner = shells[0]!
-    const g2 = Math.abs(inner.rho.vacuum.value) >= 3 * inner.rho.vacuum.error && pos(inner.lumpVacuum)
+    const g2 =
+      Math.abs(inner.rho.vacuum.value) >= 3 * inner.rho.vacuum.error &&
+      pos(inner.lumpVacuum)
     const positive = shells.filter(sh => pos(sh.lumpVacuum))
     const slope = (() => {
-      if (positive.length < 2) return 0
+      if (positive.length < 2) {
+        return 0
+      }
 
       const xs = positive.map(sh => Math.log(sh.r))
       const ys = positive.map(sh => Math.log(sh.lumpVacuum.value))
       const mx = xs.reduce((a, b) => a + b, 0) / xs.length
       const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-      return xs.reduce((a, x, i) => a + (x - mx) * ((ys[i] as number) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+      return (
+        xs.reduce((a, x, i) => a + (x - mx) * (ys[i]! - my), 0) /
+        xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+      )
     })()
     const g3 = positive.length >= 3 && slope >= -1.5 && slope <= -0.5
-    const g4 = shells.every(sh => Math.abs(sh.flip.value) <= 3 * sh.flip.error)
+    const g4 = shells.every(
+      sh => Math.abs(sh.flip.value) <= 3 * sh.flip.error,
+    )
     const g5 = pos(inner.lumpEmpty)
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const e = (x: { value: number; error: number }): string => `${x.value.toExponential(2)} +- ${x.error.toExponential(1)}`
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const e = (x: { value: number; error: number }): string =>
+      `${x.value.toExponential(2)} +- ${x.error.toExponential(1)}`
     const beats = SETTLE + SAMPLES
 
     return verdict({
@@ -205,12 +309,36 @@ export default experiment({
         outsideSameBeatsMin: outsideSameMin,
         shellsPositive: positive.length,
         slope,
-        ...Object.fromEntries(shells.map(sh => [`deficitLumpVacuumR${sh.r}`, sh.lumpVacuum.value])),
-        ...Object.fromEntries(shells.map(sh => [`deficitLumpVacuumErrorR${sh.r}`, sh.lumpVacuum.error])),
-        ...Object.fromEntries(shells.map(sh => [`deficitEmptyVacuumR${sh.r}`, sh.emptyVacuum.value])),
-        ...Object.fromEntries(shells.map(sh => [`deficitLumpEmptyR${sh.r}`, sh.lumpEmpty.value])),
-        ...Object.fromEntries(shells.map(sh => [`rhoVacuumR${sh.r}`, sh.rho.vacuum.value])),
-        ...Object.fromEntries(shells.map(sh => [`rhoLumpR${sh.r}`, sh.rho.lump.value])),
+        ...Object.fromEntries(
+          shells.map(sh => [
+            `deficitLumpVacuumR${sh.r}`,
+            sh.lumpVacuum.value,
+          ]),
+        ),
+        ...Object.fromEntries(
+          shells.map(sh => [
+            `deficitLumpVacuumErrorR${sh.r}`,
+            sh.lumpVacuum.error,
+          ]),
+        ),
+        ...Object.fromEntries(
+          shells.map(sh => [
+            `deficitEmptyVacuumR${sh.r}`,
+            sh.emptyVacuum.value,
+          ]),
+        ),
+        ...Object.fromEntries(
+          shells.map(sh => [
+            `deficitLumpEmptyR${sh.r}`,
+            sh.lumpEmpty.value,
+          ]),
+        ),
+        ...Object.fromEntries(
+          shells.map(sh => [`rhoVacuumR${sh.r}`, sh.rho.vacuum.value]),
+        ),
+        ...Object.fromEntries(
+          shells.map(sh => [`rhoLumpR${sh.r}`, sh.rho.lump.value]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

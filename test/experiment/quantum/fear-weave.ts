@@ -99,11 +99,19 @@ function sumGate() {
 }
 
 // the product of role basis states |j>: the three points (j, s) of each role, one unit each
-function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole {
+function basisWhole(
+  tokens: readonly number[],
+  digits: readonly number[],
+): Whole {
   const weight = new Array<bigint>(9 ** tokens.length).fill(0n)
 
   for (let i = 0; i < weight.length; i++) {
-    const on = tokens.every((_, c) => Math.floor((Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3) === digits[c])
+    const on = tokens.every(
+      (_, c) =>
+        Math.floor(
+          (Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3,
+        ) === digits[c],
+    )
 
     weight[i] = on ? 1n : 0n
   }
@@ -132,10 +140,18 @@ export default experiment({
     const kPi = meetingKernel(swapPhase(Math.PI)) ?? []
     const kThirdBack = meetingKernel(swapPhase(-OMEGA)) ?? []
     const kSum = meetingKernel(sumGate()) ?? []
-    const kernelsExact = [kThird, kPi, kThirdBack, kSum].every(k => k.length === 81)
+    const kernelsExact = [kThird, kPi, kThirdBack, kSum].every(
+      k => k.length === 81,
+    )
     const allOpen = new Uint8Array(slots).fill(1)
     // the swap phase leaves every joint point with x = y alone
-    const diagonalFixed = Array.from({ length: 9 }, (_, x) => x * 9 + x).every(c => kThird.every((row, r) => (row[c] ?? 0) === (r === c ? 4 : 0)))
+    const diagonalFixed = Array.from(
+      { length: 9 },
+      (_, x) => x * 9 + x,
+    ).every(c =>
+      kThird.every((row, r) => (row[c] ?? 0) === (r === c ? 4 : 0)),
+    )
+
     const openOf = (tokens: readonly number[]): Uint8Array => {
       const open = new Uint8Array(slots)
 
@@ -145,7 +161,10 @@ export default experiment({
 
       return open
     }
-    const golden = (scale: number): { vibe: Int8Array; point: Int8Array } => {
+
+    const golden = (
+      scale: number,
+    ): { vibe: Int8Array; point: Int8Array } => {
       const vibe = new Int8Array(slots)
       const point = new Int8Array(slots)
 
@@ -158,7 +177,11 @@ export default experiment({
 
       return { vibe, point }
     }
-    const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
+
+    const vacuum = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
     const matter = golden(MATTER_SCALE)
 
     // 1. phi = pi is the color weave: every token open, a delta tracked through the meeting kernel
@@ -167,12 +190,25 @@ export default experiment({
 
     {
       const start = golden(1.37)
+
       let lattice = makeLattice(start)
+
       const delta = Int8Array.from(start.point)
-      let state = { vibe: Int8Array.from(start.vibe), role: Int8Array.from(start.point), flow: new Int32Array(slots) }
+
+      let state = {
+        vibe: Int8Array.from(start.vibe),
+        role: Int8Array.from(start.point),
+        flow: new Int32Array(slots),
+      }
 
       for (let t = 0; t < 24; t++) {
-        const r = fearBeat({ weave, links: liveLinks, lattice, open: allOpen, t })
+        const r = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice,
+          open: allOpen,
+          t,
+        })
 
         lattice = r.lattice
 
@@ -192,15 +228,26 @@ export default experiment({
         state = colorBeat(weave, state, t)
 
         for (let s = 0; s < slots; s++) {
-          equivalenceMismatch += (delta[lattice.token[s] ?? 0] ?? 0) === state.role[s] ? 0 : 1
-          equivalenceMismatch += lattice.vibe[s] === state.vibe[s] ? 0 : 1
+          equivalenceMismatch +=
+            (delta[lattice.token[s] ?? 0] ?? 0) === state.role[s]
+              ? 0
+              : 1
+
+          equivalenceMismatch +=
+            lattice.vibe[s] === state.vibe[s] ? 0 : 1
         }
       }
     }
 
     // 2. the wholes
-    const recordsOf = (background: { vibe: Int8Array; point: Int8Array }, links: Int16Array, open: Uint8Array, beats: number): BeatRecord[] => {
+    const recordsOf = (
+      background: { vibe: Int8Array; point: Int8Array },
+      links: Int16Array,
+      open: Uint8Array,
+      beats: number,
+    ): BeatRecord[] => {
       let lattice = makeLattice(background)
+
       const out: BeatRecord[] = []
 
       for (let t = 0; t < beats; t++) {
@@ -218,7 +265,12 @@ export default experiment({
     for (let d = 0; d < 24 && vacuumPair.length === 0; d++) {
       const o = opposite[d] ?? d
 
-      if (o > d && recordsOf(vacuum, liveLinks, openOf([d, o]), 24).some(r => r.meetings.length > 0)) {
+      if (
+        o > d &&
+        recordsOf(vacuum, liveLinks, openOf([d, o]), 24).some(
+          r => r.meetings.length > 0,
+        )
+      ) {
         vacuumPair = [d, o]
       }
     }
@@ -231,7 +283,12 @@ export default experiment({
 
     const meetingCount = new Map<string, number>()
 
-    for (const record of recordsOf(matter, liveLinks, cell0, SEARCH_BEATS)) {
+    for (const record of recordsOf(
+      matter,
+      liveLinks,
+      cell0,
+      SEARCH_BEATS,
+    )) {
       for (const [a, b] of record.meetings) {
         const key = `${Math.min(a, b)},${Math.max(a, b)}`
 
@@ -239,16 +296,37 @@ export default experiment({
       }
     }
 
-    const matterPair = ([...meetingCount.entries()].sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))[0]?.[0] ?? '0,1').split(',').map(Number)
+    const matterPair = (
+      [...meetingCount.entries()].sort(
+        (x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1),
+      )[0]?.[0] ?? '0,1'
+    )
+      .split(',')
+      .map(Number)
 
-    const runGrain = (tokens: number[], records: BeatRecord[], kernel4: number[][], color?: FearKernels): { rows: Row[]; pure: boolean; meetings: number } => {
+    const runGrain = (
+      tokens: number[],
+      records: BeatRecord[],
+      kernel4: number[][],
+      color?: FearKernels,
+    ): { rows: Row[]; pure: boolean; meetings: number } => {
       let whole: Whole | null = basisWhole(tokens, [0, 1])
+
       const rows: Row[] = []
+
       let pure = true
       let meetings = 0
 
       for (const record of records) {
-        whole = advanceWhole({ weave, whole: whole!, record, kernel4, color, fixed: false, forward: true })
+        whole = advanceWhole({
+          weave,
+          whole: whole!,
+          record,
+          kernel4,
+          color,
+          fixed: false,
+          forward: true,
+        })
 
         const units = wholeUnits(whole!)
         const squares = whole!.weight.reduce((s, w) => s + w * w, 0n)
@@ -264,13 +342,29 @@ export default experiment({
       return { rows, pure, meetings }
     }
 
-    const firstRefused = (tokens: number[], records: BeatRecord[], m: number): number => {
-      let whole: Whole | null = { tokens, weight: basisWhole(tokens, [0, 1]).weight.map(w => w * 4n ** BigInt(m)) }
+    const firstRefused = (
+      tokens: number[],
+      records: BeatRecord[],
+      m: number,
+    ): number => {
+      let whole: Whole | null = {
+        tokens,
+        weight: basisWhole(tokens, [0, 1]).weight.map(
+          w => w * 4n ** BigInt(m),
+        ),
+      }
       let meeting = 0
 
       for (const record of records) {
         meeting += record.meetings.length
-        whole = advanceWhole({ weave, whole: whole!, record, kernel4: kThird, fixed: true, forward: true })
+        whole = advanceWhole({
+          weave,
+          whole: whole,
+          record,
+          kernel4: kThird,
+          fixed: true,
+          forward: true,
+        })
 
         if (!whole) {
           return meeting
@@ -280,10 +374,17 @@ export default experiment({
       return 0
     }
 
-    const shareOf = (r: Row): number => Number(r.fears) / Number(r.loves + r.fears)
-    const unitsMax = (rows: Row[]): bigint => rows.reduce((m, r) => (r.units > m ? r.units : m), 0n)
-    const log4 = (units: bigint): number => Math.log(Number(units) / 9) / Math.log(4)
-    const study = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[]) => {
+    const shareOf = (r: Row): number =>
+      Number(r.fears) / Number(r.loves + r.fears)
+    const unitsMax = (rows: Row[]): bigint =>
+      rows.reduce((m, r) => (r.units > m ? r.units : m), 0n)
+    const log4 = (units: bigint): number =>
+      Math.log(Number(units) / 9) / Math.log(4)
+
+    const study = (
+      background: { vibe: Int8Array; point: Int8Array },
+      tokens: number[],
+    ) => {
       const open = openOf(tokens)
       const live = recordsOf(background, liveLinks, open, GRAIN_BEATS)
       const flat = recordsOf(background, flatLinks, open, GRAIN_BEATS)
@@ -296,7 +397,9 @@ export default experiment({
         grain,
         flatGrain,
         off,
-        refusals: [1, 2, 4, 8, 16].map(m => [m, firstRefused(tokens, live, m)] as const),
+        refusals: [1, 2, 4, 8, 16].map(
+          m => [m, firstRefused(tokens, live, m)] as const,
+        ),
       }
     }
 
@@ -307,17 +410,38 @@ export default experiment({
     // the meeting cell moves both alike and commutes with the swap phase, so only the loop Pb^-1 Pa
     // (a Wilson loop of the link field) can matter. Every pair of cell-0 tokens that meets, both
     // backgrounds, one classical run each: meetings, loops that are not the identity, and the units reached
-    const survey = (background: { vibe: Int8Array; point: Int8Array }) => {
-      const records = recordsOf(background, liveLinks, cell0, GRAIN_BEATS)
-      const results: { a: number; b: number; meetings: number; loops: number; units: bigint }[] = []
+    const survey = (background: {
+      vibe: Int8Array
+      point: Int8Array
+    }) => {
+      const records = recordsOf(
+        background,
+        liveLinks,
+        cell0,
+        GRAIN_BEATS,
+      )
+      const results: {
+        a: number
+        b: number
+        meetings: number
+        loops: number
+        units: bigint
+      }[] = []
 
       for (let a = 0; a < 24; a++) {
         for (let b = a + 1; b < 24; b++) {
           const mine = records.map(r => ({
-            meetings: r.meetings.filter(([x, y]) => (x === a && y === b) || (x === b && y === a)),
-            crossings: r.crossings.filter(([tk]) => tk === a || tk === b),
+            meetings: r.meetings.filter(
+              ([x, y]) => (x === a && y === b) || (x === b && y === a),
+            ),
+            crossings: r.crossings.filter(
+              ([tk]) => tk === a || tk === b,
+            ),
           }))
-          const meetings = mine.reduce((n, r) => n + r.meetings.length, 0)
+          const meetings = mine.reduce(
+            (n, r) => n + r.meetings.length,
+            0,
+          )
 
           if (meetings === 0) {
             continue
@@ -329,7 +453,13 @@ export default experiment({
 
           for (const r of mine) {
             if (r.meetings.length > 0) {
-              loops += moves.compose(moves.inverse[pb] ?? moves.identity, pa) === moves.identity ? 0 : 1
+              loops +=
+                moves.compose(
+                  moves.inverse[pb] ?? moves.identity,
+                  pa,
+                ) === moves.identity
+                  ? 0
+                  : 1
               pa = moves.identity
               pb = moves.identity
             }
@@ -343,7 +473,13 @@ export default experiment({
             }
           }
 
-          results.push({ a, b, meetings, loops, units: unitsMax(runGrain([a, b], mine, kThird).rows) })
+          results.push({
+            a,
+            b,
+            meetings,
+            loops,
+            units: unitsMax(runGrain([a, b], mine, kThird).rows),
+          })
         }
       }
 
@@ -353,20 +489,41 @@ export default experiment({
     const surveyVacuum = survey(vacuum)
     const surveyMatter = survey(matter)
     const surveyAll = [...surveyVacuum, ...surveyMatter]
-    const surveyed = (list: typeof surveyAll, pair: number[]) => list.find(s => s.a === Math.min(pair[0] ?? 0, pair[1] ?? 0) && s.b === Math.max(pair[0] ?? 0, pair[1] ?? 0))
+    const surveyed = (list: typeof surveyAll, pair: number[]) =>
+      list.find(
+        s =>
+          s.a === Math.min(pair[0] ?? 0, pair[1] ?? 0) &&
+          s.b === Math.max(pair[0] ?? 0, pair[1] ?? 0),
+      )
     // the survey and the study agree on the two wholes: a second route to the same numbers
     const surveyAgrees =
-      surveyed(surveyVacuum, vacuumPair)?.units === unitsMax(inVacuum.grain.rows) && surveyed(surveyMatter, matterPair)?.units === unitsMax(inMatter.grain.rows)
+      surveyed(surveyVacuum, vacuumPair)?.units ===
+        unitsMax(inVacuum.grain.rows) &&
+      surveyed(surveyMatter, matterPair)?.units ===
+        unitsMax(inMatter.grain.rows)
     // the whole that spends the most grain: the matter pair with the largest units, studied in full
-    const growing = [...surveyMatter].sort((x, y) => (y.units > x.units ? 1 : y.units < x.units ? -1 : x.a - y.a || x.b - y.b))[0]
+    const growing = [...surveyMatter].sort((x, y) =>
+      y.units > x.units
+        ? 1
+        : y.units < x.units
+          ? -1
+          : x.a - y.a || x.b - y.b,
+    )[0]
     const grower = [growing?.a ?? 0, growing?.b ?? 1]
     const inGrower = study(matter, grower)
     const gRows = inGrower.grain.rows
-    const loopsOf = (list: typeof surveyAll, grows: boolean) => list.filter(s => s.units > 36n === grows)
-    const loopShare = (list: typeof surveyAll): number => list.reduce((n, s) => n + s.loops, 0) / Math.max(1, list.reduce((n, s) => n + s.meetings, 0))
+    const loopsOf = (list: typeof surveyAll, grows: boolean) =>
+      list.filter(s => s.units > 36n === grows)
+    const loopShare = (list: typeof surveyAll): number =>
+      list.reduce((n, s) => n + s.loops, 0) /
+      Math.max(
+        1,
+        list.reduce((n, s) => n + s.meetings, 0),
+      )
 
     // 3. reversal and charge on the matter whole, fixed units
     const bigUnits = 9n * 4n ** 200n
+
     let reverses = true
     let chargeKept = true
     let vibeChargeKept = true
@@ -374,27 +531,70 @@ export default experiment({
 
     {
       const open = openOf(matterPair)
+
       let lattice = makeLattice(matter)
+
       const start = lattice
       const vibeCharge = lattice.vibe.reduce((a, b) => a + b, 0)
-      const whole0: Whole = { tokens: matterPair, weight: basisWhole(matterPair, [2, 0]).weight.map(w => w * (bigUnits / 9n)) }
+      const whole0: Whole = {
+        tokens: matterPair,
+        weight: basisWhole(matterPair, [2, 0]).weight.map(
+          w => w * (bigUnits / 9n),
+        ),
+      }
+
       let whole: Whole | null = whole0
 
       for (let t = 0; t < REVERSAL_BEATS; t++) {
-        const r = fearBeat({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
         reversalMeetings += r.record.meetings.length
-        whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: kThird, fixed: true, forward: true }) : null
-        chargeKept = chargeKept && whole !== null && wholeUnits(whole) === bigUnits
-        vibeChargeKept = vibeChargeKept && lattice.vibe.reduce((a, b) => a + b, 0) === vibeCharge
+        whole = whole
+          ? advanceWhole({
+              weave,
+              whole,
+              record: r.record,
+              kernel4: kThird,
+              fixed: true,
+              forward: true,
+            })
+          : null
+
+        chargeKept =
+          chargeKept && whole !== null && wholeUnits(whole) === bigUnits
+
+        vibeChargeKept =
+          vibeChargeKept &&
+          lattice.vibe.reduce((a, b) => a + b, 0) === vibeCharge
       }
 
       for (let t = REVERSAL_BEATS - 1; t >= 0; t--) {
-        const r = fearBeatBack({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeatBack({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: kThirdBack, fixed: true, forward: false }) : null
+        whole = whole
+          ? advanceWhole({
+              weave,
+              whole,
+              record: r.record,
+              kernel4: kThirdBack,
+              fixed: true,
+              forward: false,
+            })
+          : null
       }
 
       reverses =
@@ -406,53 +606,127 @@ export default experiment({
     }
 
     // 4. gauge on the matter whole: a frame in every cell, links changed to match
-    const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+    const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+    )
     const gaugeLinks = new Int16Array(slots)
 
     for (let x = 0; x < mesh.cellCount; x++) {
       for (let d = 0; d < 24; d++) {
         const y = mesh.neighbour(x, d)
 
-        gaugeLinks[x * 24 + d] = moves.compose(moves.compose(frame[y] ?? moves.identity, liveLinks[x * 24 + d] ?? moves.identity), moves.inverse[frame[x] ?? moves.identity] ?? moves.identity)
+        gaugeLinks[x * 24 + d] = moves.compose(
+          moves.compose(
+            frame[y] ?? moves.identity,
+            liveLinks[x * 24 + d] ?? moves.identity,
+          ),
+          moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
+        )
       }
     }
 
     const matterOpen = openOf(matterPair)
-    const transform = (lattice: Lattice, whole: Whole): { lattice: Lattice; whole: Whole } => {
+
+    const transform = (
+      lattice: Lattice,
+      whole: Whole,
+    ): { lattice: Lattice; whole: Whole } => {
       const at = new Map<number, number>()
 
       lattice.token.forEach((tk, s) => at.set(tk, Math.floor(s / 24)))
 
-      const point = Int8Array.from(lattice.point, (p, tk) => moves.act[frame[at.get(tk) ?? 0] ?? moves.identity]?.[p] ?? 0)
+      const point = Int8Array.from(
+        lattice.point,
+        (p, tk) =>
+          moves.act[frame[at.get(tk) ?? 0] ?? moves.identity]?.[p] ?? 0,
+      )
+
       let moved = whole
 
       whole.tokens.forEach((tk, c) => {
         // a change of frame relabels the own point with the weights (the comoving beat reads it, 2026-09-26)
-        moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+        moved = carryCoordinate(
+          moved,
+          c,
+          moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [],
+        )
       })
 
-      return { lattice: { vibe: lattice.vibe, token: lattice.token, point }, whole: moved }
+      return {
+        lattice: { vibe: lattice.vibe, token: lattice.token, point },
+        whole: moved,
+      }
     }
 
-    const gaugeMismatch = (kernel4: number[][], color?: FearKernels): number => {
-      let a = { lattice: makeLattice(matter), whole: basisWhole(matterPair, [0, 1]) }
+    const gaugeMismatch = (
+      kernel4: number[][],
+      color?: FearKernels,
+    ): number => {
+      let a = {
+        lattice: makeLattice(matter),
+        whole: basisWhole(matterPair, [0, 1]),
+      }
       let b = transform(a.lattice, a.whole)
       let mismatch = 0
 
       for (let t = 0; t < GAUGE_BEATS; t++) {
-        const ra = fearBeat({ weave, links: liveLinks, lattice: a.lattice, open: matterOpen, t })
-        const rb = fearBeat({ weave, links: gaugeLinks, lattice: b.lattice, open: matterOpen, t })
+        const ra = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice: a.lattice,
+          open: matterOpen,
+          t,
+        })
+        const rb = fearBeat({
+          weave,
+          links: gaugeLinks,
+          lattice: b.lattice,
+          open: matterOpen,
+          t,
+        })
 
-        a = { lattice: ra.lattice, whole: advanceWhole({ weave, whole: a.whole, record: ra.record, kernel4, color, fixed: false, forward: true })! }
-        b = { lattice: rb.lattice, whole: advanceWhole({ weave, whole: b.whole, record: rb.record, kernel4, color, fixed: false, forward: true })! }
+        a = {
+          lattice: ra.lattice,
+          whole: advanceWhole({
+            weave,
+            whole: a.whole,
+            record: ra.record,
+            kernel4,
+            color,
+            fixed: false,
+            forward: true,
+          })!,
+        }
+
+        b = {
+          lattice: rb.lattice,
+          whole: advanceWhole({
+            weave,
+            whole: b.whole,
+            record: rb.record,
+            kernel4,
+            color,
+            fixed: false,
+            forward: true,
+          })!,
+        }
 
         const expected = transform(a.lattice, a.whole)
         const expectedWeights = reduceWhole(expected.whole).weight
         const actualWeights = reduceWhole(b.whole).weight
 
         // the classical points of the tokens outside the whole (the open tokens' slot is never read)
-        mismatch += expected.lattice.point.reduce((n, p, tk) => n + (matterOpen[tk] === 1 || p === b.lattice.point[tk] ? 0 : 1), 0)
-        mismatch += expectedWeights.reduce((n, w, i) => n + (w === actualWeights[i] ? 0 : 1), 0)
+        mismatch += expected.lattice.point.reduce(
+          (n, p, tk) =>
+            n +
+            (matterOpen[tk] === 1 || p === b.lattice.point[tk] ? 0 : 1),
+          0,
+        )
+
+        mismatch += expectedWeights.reduce(
+          (n, w, i) => n + (w === actualWeights[i] ? 0 : 1),
+          0,
+        )
       }
 
       return mismatch
@@ -460,7 +734,9 @@ export default experiment({
 
     const gaugeSwapPhase = gaugeMismatch(kThird)
     const gaugeSum = gaugeMismatch(kSum)
-    const gaugeMeetings = inMatter.live.slice(0, GAUGE_BEATS).reduce((n, r) => n + r.meetings.length, 0)
+    const gaugeMeetings = inMatter.live
+      .slice(0, GAUGE_BEATS)
+      .reduce((n, r) => n + r.meetings.length, 0)
 
     // 5. the cost of an open vacuum: every token open, roles all at one point, flat links, one colored token
     const openVacuum = (kernel4: number[][]): number[] => {
@@ -470,13 +746,33 @@ export default experiment({
           .sort((x, y) => x[0] - y[0])
           .map(([tk, p]) => `${tk}:${p}`)
           .join(',')
-      const parse = (key: string): Map<number, number> => new Map(key === '' ? [] : key.split(',').map(part => part.split(':').map(Number) as [number, number]))
-      let weights = new Map<string, bigint>([[keyOf(new Map([[vacuumPair[0] ?? 0, 3]])), 1n]])
+      const parse = (key: string): Map<number, number> =>
+        new Map(
+          key === ''
+            ? []
+            : key
+                .split(',')
+                .map(
+                  part =>
+                    part.split(':').map(Number) as [number, number],
+                ),
+        )
+
+      let weights = new Map<string, bigint>([
+        [keyOf(new Map([[vacuumPair[0] ?? 0, 3]])), 1n],
+      ])
       let lattice = makeLattice(vacuum)
+
       const support: number[] = []
 
       for (let t = 0; t < OPEN_BEATS && weights.size <= OPEN_CAP; t++) {
-        const r = fearBeat({ weave, links: flatLinks, lattice, open: allOpen, t })
+        const r = fearBeat({
+          weave,
+          links: flatLinks,
+          lattice,
+          open: allOpen,
+          t,
+        })
         const partner = new Map<number, readonly [number, number]>()
 
         lattice = r.lattice
@@ -486,11 +782,17 @@ export default experiment({
           partner.set(m[1], m)
         }
 
-        const expanded: { diff: Map<number, number>; weight: bigint; m: number }[] = []
+        const expanded: {
+          diff: Map<number, number>
+          weight: bigint
+          m: number
+        }[] = []
 
         for (const [key, weight] of weights) {
           const diff0 = parse(key)
+
           let branches = [{ diff: diff0, weight, m: 0 }]
+
           const done = new Set<readonly [number, number]>()
 
           for (const tk of diff0.keys()) {
@@ -521,7 +823,13 @@ export default experiment({
                 diff.set(ta, Math.floor(target / 9))
                 diff.set(tb, target % 9)
 
-                return [{ diff, weight: branch.weight * BigInt(k), m: branch.m + 1 }]
+                return [
+                  {
+                    diff,
+                    weight: branch.weight * BigInt(k),
+                    m: branch.m + 1,
+                  },
+                ]
               })
             })
           }
@@ -535,7 +843,10 @@ export default experiment({
         for (const e of expanded) {
           const key = keyOf(e.diff)
 
-          next.set(key, (next.get(key) ?? 0n) + e.weight * 4n ** BigInt(top - e.m))
+          next.set(
+            key,
+            (next.get(key) ?? 0n) + e.weight * 4n ** BigInt(top - e.m),
+          )
         }
 
         weights = new Map([...next].filter(([, w]) => w !== 0n))
@@ -551,10 +862,19 @@ export default experiment({
 
     const vRows = inVacuum.grain.rows
     const mRows = inMatter.grain.rows
-    const lastOf = (rows: Row[]): Row | undefined => rows[rows.length - 1]
-    const maxShare = Math.max(...vRows.map(shareOf), ...mRows.map(shareOf))
-    const offFears = [...inVacuum.off.rows, ...inMatter.off.rows].reduce((m, r) => (r.fears > m ? r.fears : m), 0n)
-    const offUnits = [...inVacuum.off.rows, ...inMatter.off.rows].every(r => r.units === 9n)
+    const lastOf = (rows: Row[]): Row | undefined =>
+      rows[rows.length - 1]
+    const maxShare = Math.max(
+      ...vRows.map(shareOf),
+      ...mRows.map(shareOf),
+    )
+    const offFears = [
+      ...inVacuum.off.rows,
+      ...inMatter.off.rows,
+    ].reduce((m, r) => (r.fears > m ? r.fears : m), 0n)
+    const offUnits = [...inVacuum.off.rows, ...inMatter.off.rows].every(
+      r => r.units === 9n,
+    )
     const matterFinal = lastOf(mRows)
 
     // 6. the color mode, adopted after E-QTM-0102: the singlet phase where a love meets a fear (the fear's
@@ -565,6 +885,7 @@ export default experiment({
     const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA })
     const colorBack = fearKernels({ like: -OMEGA, unlike: -OMEGA })
     const colorOff = fearKernels({ like: Math.PI, unlike: 0 })
+
     const powerOf = (units: bigint, p: bigint): number => {
       let u = units
       let k = 0
@@ -576,12 +897,15 @@ export default experiment({
 
       return k
     }
+
     const colorStudy = (records: BeatRecord[], tokens: number[]) => {
       const grain = runGrain(tokens, records, [], colorOn ?? undefined)
       const off = runGrain(tokens, records, [], colorOff ?? undefined)
+
       let like = 0
       let unlike = 0
       let flips = 0
+
       const lastSign = new Map<number, number>()
 
       for (const record of records) {
@@ -610,11 +934,16 @@ export default experiment({
         flips,
         twos: powerOf(top, 2n),
         threes: powerOf(top, 3n),
-        fearsMax: Number(grain.rows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n)),
+        fearsMax: Number(
+          grain.rows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n),
+        ),
         shareMax: Math.max(0, ...grain.rows.map(shareOf)),
-        offFears: Number(off.rows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n)),
+        offFears: Number(
+          off.rows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n),
+        ),
       }
     }
+
     const colorVacuum = colorStudy(inVacuum.live, vacuumPair)
     const colorMatter = colorStudy(inMatter.live, matterPair)
     const colorGrower = colorStudy(inGrower.live, grower)
@@ -625,26 +954,72 @@ export default experiment({
     {
       const colorUnits = 9n * 4n ** 200n * 3n ** 200n
       const open = openOf(matterPair)
+
       let lattice = makeLattice(matter)
-      const whole0: Whole = { tokens: matterPair, weight: basisWhole(matterPair, [2, 0]).weight.map(w => w * (colorUnits / 9n)) }
+
+      const whole0: Whole = {
+        tokens: matterPair,
+        weight: basisWhole(matterPair, [2, 0]).weight.map(
+          w => w * (colorUnits / 9n),
+        ),
+      }
+
       let whole: Whole | null = whole0
 
       for (let t = 0; t < REVERSAL_BEATS; t++) {
-        const r = fearBeat({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: [], color: colorOn ?? undefined, fixed: true, forward: true }) : null
-        colorCharge = colorCharge && whole !== null && wholeUnits(whole) === colorUnits
+        whole = whole
+          ? advanceWhole({
+              weave,
+              whole,
+              record: r.record,
+              kernel4: [],
+              color: colorOn ?? undefined,
+              fixed: true,
+              forward: true,
+            })
+          : null
+
+        colorCharge =
+          colorCharge &&
+          whole !== null &&
+          wholeUnits(whole) === colorUnits
       }
 
       for (let t = REVERSAL_BEATS - 1; t >= 0; t--) {
-        const r = fearBeatBack({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeatBack({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: [], color: colorBack ?? undefined, fixed: true, forward: false }) : null
+        whole = whole
+          ? advanceWhole({
+              weave,
+              whole,
+              record: r.record,
+              kernel4: [],
+              color: colorBack ?? undefined,
+              fixed: true,
+              forward: false,
+            })
+          : null
       }
 
-      colorReverses = whole !== null && whole.weight.every((w, i) => w === whole0.weight[i])
+      colorReverses =
+        whole !== null &&
+        whole.weight.every((w, i) => w === whole0.weight[i])
     }
 
     const colorGauge = gaugeMismatch([], colorOn ?? undefined)
@@ -652,7 +1027,9 @@ export default experiment({
       colorOn !== null &&
       colorReverses &&
       colorCharge &&
-      [colorVacuum, colorMatter, colorGrower].every(s => s.grain.pure && s.shareMax <= 1 / 3 && s.offFears === 0) &&
+      [colorVacuum, colorMatter, colorGrower].every(
+        s => s.grain.pure && s.shareMax <= 1 / 3 && s.offFears === 0,
+      ) &&
       colorGauge === 0
 
     const ok =
@@ -693,33 +1070,79 @@ export default experiment({
         reversalMeetings,
         loveMinusFearKept: chargeKept ? 1 : 0,
         vibeChargeKept: vibeChargeKept ? 1 : 0,
-        pureEveryBeat: inVacuum.grain.pure && inMatter.grain.pure ? 1 : 0,
+        pureEveryBeat:
+          inVacuum.grain.pure && inMatter.grain.pure ? 1 : 0,
         fearShareMax: maxShare,
         gaugeMismatchSwapPhase: gaugeSwapPhase,
         gaugeMeetings,
         vacuumMeetings480: inVacuum.grain.meetings,
         vacuumUnitsMaxLive: Number(unitsMax(vRows)),
         vacuumUnitsMaxFlat: Number(unitsMax(inVacuum.flatGrain.rows)),
-        vacuumFearsMax: Number(vRows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n)),
-        ...Object.fromEntries(inVacuum.refusals.map(([m, meeting]) => [`vacuumFirstRefusedMeeting9x4pow${m}`, meeting])),
+        vacuumFearsMax: Number(
+          vRows.reduce((m, r) => (r.fears > m ? r.fears : m), 0n),
+        ),
+        ...Object.fromEntries(
+          inVacuum.refusals.map(([m, meeting]) => [
+            `vacuumFirstRefusedMeeting9x4pow${m}`,
+            meeting,
+          ]),
+        ),
         matterMeetings480: inMatter.grain.meetings,
-        matterUnitsLog4Over9After1: mRows[0] ? log4(mRows[0].units) : -1,
-        matterUnitsLog4Over9After4: mRows[3] ? log4(mRows[3].units) : -1,
-        matterUnitsLog4Over9After8: mRows[7] ? log4(mRows[7].units) : -1,
-        matterUnitsLog4Over9After16: mRows[15] ? log4(mRows[15].units) : -1,
-        matterUnitsLog4Over9Final: matterFinal ? log4(matterFinal.units) : -1,
-        matterUnitsLog4Over9MaxFlat: log4(unitsMax(inMatter.flatGrain.rows)),
+        matterUnitsLog4Over9After1: mRows[0]
+          ? log4(mRows[0].units)
+          : -1,
+        matterUnitsLog4Over9After4: mRows[3]
+          ? log4(mRows[3].units)
+          : -1,
+        matterUnitsLog4Over9After8: mRows[7]
+          ? log4(mRows[7].units)
+          : -1,
+        matterUnitsLog4Over9After16: mRows[15]
+          ? log4(mRows[15].units)
+          : -1,
+        matterUnitsLog4Over9Final: matterFinal
+          ? log4(matterFinal.units)
+          : -1,
+        matterUnitsLog4Over9MaxFlat: log4(
+          unitsMax(inMatter.flatGrain.rows),
+        ),
         matterFearShareFinal: matterFinal ? shareOf(matterFinal) : -1,
-        matterNegativityFinal: matterFinal ? Number(matterFinal.loves + matterFinal.fears) / Number(matterFinal.units) : -1,
-        matterNegativityMax: Math.max(...mRows.map(r => Number(r.loves + r.fears) / Number(r.units))),
-        ...Object.fromEntries(inMatter.refusals.map(([m, meeting]) => [`matterFirstRefusedMeeting9x4pow${m}`, meeting])),
+        matterNegativityFinal: matterFinal
+          ? Number(matterFinal.loves + matterFinal.fears) /
+            Number(matterFinal.units)
+          : -1,
+        matterNegativityMax: Math.max(
+          ...mRows.map(
+            r => Number(r.loves + r.fears) / Number(r.units),
+          ),
+        ),
+        ...Object.fromEntries(
+          inMatter.refusals.map(([m, meeting]) => [
+            `matterFirstRefusedMeeting9x4pow${m}`,
+            meeting,
+          ]),
+        ),
         surveyPairsVacuum: surveyVacuum.length,
         surveyPairsMatter: surveyMatter.length,
         surveyMeetings: surveyAll.reduce((n, s) => n + s.meetings, 0),
-        surveyNontrivialLoops: surveyAll.reduce((n, s) => n + s.loops, 0),
-        surveyUnitsLog4Over9MaxVacuum: log4(surveyVacuum.reduce((m, s) => (s.units > m ? s.units : m), 0n)),
-        surveyUnitsLog4Over9MaxMatter: log4(surveyMatter.reduce((m, s) => (s.units > m ? s.units : m), 0n)),
-        surveyPairsPast36Units: surveyAll.filter(s => s.units > 36n).length,
+        surveyNontrivialLoops: surveyAll.reduce(
+          (n, s) => n + s.loops,
+          0,
+        ),
+        surveyUnitsLog4Over9MaxVacuum: log4(
+          surveyVacuum.reduce(
+            (m, s) => (s.units > m ? s.units : m),
+            0n,
+          ),
+        ),
+        surveyUnitsLog4Over9MaxMatter: log4(
+          surveyMatter.reduce(
+            (m, s) => (s.units > m ? s.units : m),
+            0n,
+          ),
+        ),
+        surveyPairsPast36Units: surveyAll.filter(s => s.units > 36n)
+          .length,
         surveyAgreesWithStudy: surveyAgrees ? 1 : 0,
         loopShareWherePast36: loopShare(loopsOf(surveyAll, true)),
         loopShareWhereAtMost36: loopShare(loopsOf(surveyAll, false)),
@@ -727,17 +1150,41 @@ export default experiment({
         growerSecondToken: grower[1] ?? -1,
         growerMeetings480: inGrower.grain.meetings,
         growerPure: inGrower.grain.pure ? 1 : 0,
-        growerUnitsLog4Over9After1: gRows[0] ? log4(gRows[0].units) : -1,
-        growerUnitsLog4Over9After2: gRows[1] ? log4(gRows[1].units) : -1,
-        growerUnitsLog4Over9After4: gRows[3] ? log4(gRows[3].units) : -1,
-        growerUnitsLog4Over9After8: gRows[7] ? log4(gRows[7].units) : -1,
-        growerUnitsLog4Over9After16: gRows[15] ? log4(gRows[15].units) : -1,
-        growerUnitsLog4Over9Final: lastOf(gRows) ? log4(lastOf(gRows)!.units) : -1,
-        growerUnitsLog4Over9MaxFlat: log4(unitsMax(inGrower.flatGrain.rows)),
+        growerUnitsLog4Over9After1: gRows[0]
+          ? log4(gRows[0].units)
+          : -1,
+        growerUnitsLog4Over9After2: gRows[1]
+          ? log4(gRows[1].units)
+          : -1,
+        growerUnitsLog4Over9After4: gRows[3]
+          ? log4(gRows[3].units)
+          : -1,
+        growerUnitsLog4Over9After8: gRows[7]
+          ? log4(gRows[7].units)
+          : -1,
+        growerUnitsLog4Over9After16: gRows[15]
+          ? log4(gRows[15].units)
+          : -1,
+        growerUnitsLog4Over9Final: lastOf(gRows)
+          ? log4(lastOf(gRows)!.units)
+          : -1,
+        growerUnitsLog4Over9MaxFlat: log4(
+          unitsMax(inGrower.flatGrain.rows),
+        ),
         growerFearShareMax: Math.max(...gRows.map(shareOf)),
-        growerFearShareFinal: lastOf(gRows) ? shareOf(lastOf(gRows)!) : -1,
-        growerNegativityFinal: lastOf(gRows) ? Number(lastOf(gRows)!.loves + lastOf(gRows)!.fears) / Number(lastOf(gRows)!.units) : -1,
-        ...Object.fromEntries(inGrower.refusals.map(([m, meeting]) => [`growerFirstRefusedMeeting9x4pow${m}`, meeting])),
+        growerFearShareFinal: lastOf(gRows)
+          ? shareOf(lastOf(gRows)!)
+          : -1,
+        growerNegativityFinal: lastOf(gRows)
+          ? Number(lastOf(gRows)!.loves + lastOf(gRows)!.fears) /
+            Number(lastOf(gRows)!.units)
+          : -1,
+        ...Object.fromEntries(
+          inGrower.refusals.map(([m, meeting]) => [
+            `growerFirstRefusedMeeting9x4pow${m}`,
+            meeting,
+          ]),
+        ),
         colorModeGatesPass: colorOk ? 1 : 0,
         colorReversesExactly: colorReverses ? 1 : 0,
         colorLoveMinusFearKept: colorCharge ? 1 : 0,
@@ -761,18 +1208,26 @@ export default experiment({
           ]),
         ),
         openVacuumFirstSpreadBeat: firstSpread,
-        openVacuumSupportPerBeat: openSupport[openSupport.length - 1] ?? -1,
+        openVacuumSupportPerBeat:
+          openSupport[openSupport.length - 1] ?? -1,
         openVacuumBeatsRun: openSupport.length,
-        ...Object.fromEntries(openSupport.map((s, i) => [`openVacuumSupportBeat${i + 1}`, s])),
+        ...Object.fromEntries(
+          openSupport.map((s, i) => [
+            `openVacuumSupportBeat${i + 1}`,
+            s,
+          ]),
+        ),
       },
       control: {
         gaugeMismatchSum: gaugeSum,
         fearBeatOffFearsMax: Number(offFears),
         fearBeatOffUnitsStay9: offUnits ? 1 : 0,
-        openVacuumSupportFearOff: openSupportOff[openSupportOff.length - 1] ?? -1,
+        openVacuumSupportFearOff:
+          openSupportOff[openSupportOff.length - 1] ?? -1,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat, the frame change now carrying each coordinate's own point with its weights (carryCoordinate): status fail as before; survey pairs past 36 units 19 -> 21, the grower's largest fear share 0.3048 -> 0.3105 and final negativity 2.490 -> 2.146, the color gauge mismatch 540 -> 536, the color grower's fears max 84 -> 80. " + ('L2, exact integers (BigInt) for every weight, no random numbers (golden-ratio fills for the backgrounds, links and frames). Tokens move as the color weave moves role points, exchange included, so the classical layer never depends on the whole, and a meeting of two open tokens applies the kernel of SWAP U(phi) to their coordinates. The whole is closed: only its tokens carry weight. The open-vacuum run puts every token of the box in the whole with roles at one grid point (a classical background, not a quantum state) and one token moved to another point, on flat links, and counts joint points holding weight until the count passes 200,000 or 24 beats. Purity 9 sum n^2 = N^2 is the integer form of sum W^2 = 1/9 for a pure state of two roles, which with love minus fear = N bounds the share of fear by 1/3 (E-FRC-0122). Log4 units over 9: how many factors of 4 the grain has grown from the nine units of |0>|1>.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat, the frame change now carrying each coordinate's own point with its weights (carryCoordinate): status fail as before; survey pairs past 36 units 19 -> 21, the grower's largest fear share 0.3048 -> 0.3105 and final negativity 2.490 -> 2.146, the color gauge mismatch 540 -> 536, the color grower's fears max 84 -> 80. " +
+        'L2, exact integers (BigInt) for every weight, no random numbers (golden-ratio fills for the backgrounds, links and frames). Tokens move as the color weave moves role points, exchange included, so the classical layer never depends on the whole, and a meeting of two open tokens applies the kernel of SWAP U(phi) to their coordinates. The whole is closed: only its tokens carry weight. The open-vacuum run puts every token of the box in the whole with roles at one grid point (a classical background, not a quantum state) and one token moved to another point, on flat links, and counts joint points holding weight until the count passes 200,000 or 24 beats. Purity 9 sum n^2 = N^2 is the integer form of sum W^2 = 1/9 for a pure state of two roles, which with love minus fear = N bounds the share of fear by 1/3 (E-FRC-0122). Log4 units over 9: how many factors of 4 the grain has grown from the nine units of |0>|1>.',
     })
   },
 })

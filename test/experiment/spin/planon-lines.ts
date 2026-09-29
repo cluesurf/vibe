@@ -91,12 +91,39 @@ import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP } from '@/code/measure/doublet-locked-readings'
-import { cloneConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
+import {
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  cloneConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
-import { boxSteps, fullPathKey, keyedRunner, meshLines, oldPathKey, type MeshLines, type PathKey } from '@/code/measure/full-key-paths'
-import { hash, lineClasses, lineMembers, parallelRun, singleLines, toneExcess, type ParallelReading } from '@/code/measure/planon-lines'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
+import {
+  boxSteps,
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  oldPathKey,
+  type MeshLines,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
+import {
+  hash,
+  lineClasses,
+  lineMembers,
+  parallelRun,
+  singleLines,
+  toneExcess,
+  type ParallelReading,
+} from '@/code/measure/planon-lines'
 
 const SIDE = 8
 const BEATS = 128
@@ -105,19 +132,65 @@ const SPARSE = 8
 const CROSS_BEATS = 48
 const REACH = 2
 
-type Variant = { name: string; contact: CollisionKind; key: (cells: number) => PathKey; threshold: number }
+type Variant = {
+  name: string
+  contact: CollisionKind
+  key: (cells: number) => PathKey
+  threshold: number
+}
 
 const VARIANTS: Variant[] = [
-  { name: 'pass_full0', contact: 'pass', key: () => fullPathKey(0), threshold: THRESHOLD_BORN },
-  { name: 'pass_full7919', contact: 'pass', key: () => fullPathKey(7919), threshold: THRESHOLD_BORN },
-  { name: 'pass_old', contact: 'pass', key: cells => oldPathKey(cells), threshold: THRESHOLD_BORN },
-  { name: 'pass_keep', contact: 'pass', key: () => fullPathKey(0), threshold: THRESHOLD_KEEP },
-  { name: 'pass_exchange', contact: 'pass', key: () => fullPathKey(0), threshold: THRESHOLD_EXCHANGE },
-  { name: 'lone_full0', contact: 'lone', key: () => fullPathKey(0), threshold: THRESHOLD_BORN },
-  { name: 'bounce_full0', contact: 'bounce', key: () => fullPathKey(0), threshold: THRESHOLD_BORN },
+  {
+    name: 'pass_full0',
+    contact: 'pass',
+    key: () => fullPathKey(0),
+    threshold: THRESHOLD_BORN,
+  },
+  {
+    name: 'pass_full7919',
+    contact: 'pass',
+    key: () => fullPathKey(7919),
+    threshold: THRESHOLD_BORN,
+  },
+  {
+    name: 'pass_old',
+    contact: 'pass',
+    key: cells => oldPathKey(cells),
+    threshold: THRESHOLD_BORN,
+  },
+  {
+    name: 'pass_keep',
+    contact: 'pass',
+    key: () => fullPathKey(0),
+    threshold: THRESHOLD_KEEP,
+  },
+  {
+    name: 'pass_exchange',
+    contact: 'pass',
+    key: () => fullPathKey(0),
+    threshold: THRESHOLD_EXCHANGE,
+  },
+  {
+    name: 'lone_full0',
+    contact: 'lone',
+    key: () => fullPathKey(0),
+    threshold: THRESHOLD_BORN,
+  },
+  {
+    name: 'bounce_full0',
+    contact: 'bounce',
+    key: () => fullPathKey(0),
+    threshold: THRESHOLD_BORN,
+  },
 ]
 
-type Box = { f: ReturnType<typeof contactFresh>; lines: MeshLines; vacuum: Configuration; steps: Int32Array; center: number }
+type Box = {
+  f: ReturnType<typeof contactFresh>
+  lines: MeshLines
+  vacuum: Configuration
+  steps: Int32Array
+  center: number
+}
 
 const boxes = new Map<CollisionKind, Box>()
 
@@ -128,41 +201,62 @@ function boxOf(contact: CollisionKind): Box {
     const center = centerOf(SIDE)
     const f = contactFresh(SIDE, contact, center)
 
-    box = { f, lines: meshLines(f.tables), vacuum: wordVacuum(f, f.store), steps: boxSteps(f.cells, SIDE, center), center }
+    box = {
+      f,
+      lines: meshLines(f.tables),
+      vacuum: wordVacuum(f, f.store),
+      steps: boxSteps(f.cells, SIDE, center),
+      center,
+    }
     boxes.set(contact, box)
   }
 
   return box
 }
 
-type Start = { start: Configuration; set: number[]; sparse: boolean; slot: number }
+type Start = {
+  start: Configuration
+  set: number[]
+  sparse: boolean
+  slot: number
+}
 
 // start k: 1 to 3 parallel lines (the class of slot d0) through the center and a chain of neighbors one dock apart
 function buildStart(box: Box, k: number): Start {
   const { f, lines, vacuum, center } = box
   const d0 = k === 0 ? 0 : (k * 7) % 24
-  const c = LINE_OF[d0] as number
+  const c = LINE_OF[d0]!
   const count = k === 0 ? 2 : 1 + (k % 3)
-  const others = Array.from({ length: 24 }, (_, d) => d).filter(d => LINE_OF[d] !== c)
+  const others = Array.from({ length: 24 }, (_, d) => d).filter(
+    d => LINE_OF[d] !== c,
+  )
   const docks = [center]
-  const set = [lines.lineOf[center * 24 + d0] as number]
+  const set = [lines.lineOf[center * 24 + d0]!]
 
   for (let j = 1; set.length < count; j++) {
-    const prev = docks[docks.length - 1] as number
+    const prev = docks[docks.length - 1]!
+
     let placed = false
 
     for (let m = 0; m < others.length && !placed; m++) {
-      const e = others[(hash(k, j) + m) % others.length] as number
+      const e = others[(hash(k, j) + m) % others.length]!
       const y = f.weave.mesh.neighbour(prev, e)
-      const L = lines.lineOf[y * 24 + d0] as number
+      const L = lines.lineOf[y * 24 + d0]!
 
-      if (set.includes(L)) continue
+      if (set.includes(L)) {
+        continue
+      }
+
       docks.push(y)
       set.push(L)
       placed = true
     }
 
-    if (!placed) throw new Error(`planon-lines: start ${k} found no new parallel line`)
+    if (!placed) {
+      throw new Error(
+        `planon-lines: start ${k} found no new parallel line`,
+      )
+    }
   }
 
   const start = cloneConfiguration(vacuum)
@@ -171,17 +265,18 @@ function buildStart(box: Box, k: number): Start {
   if (sparse) {
     docks.forEach((x, j) => {
       const i = x * 24 + d0
-      const o = x * 24 + (OPPOSITE[d0] as number)
+      const o = x * 24 + OPPOSITE[d0]!
       const kind = k === 0 ? j : (k + j) % 4
-      const l = LINE_OF[d0] as number
-      const first = x * 24 + (LINE_FIRSTS[l] as number)
-      const second = x * 24 + (OPPOSITE[LINE_FIRSTS[l] as number] as number)
+      const l = LINE_OF[d0]!
+      const first = x * 24 + LINE_FIRSTS[l]!
+      const second = x * 24 + OPPOSITE[LINE_FIRSTS[l]!]!
 
       // clear the dock line, then place: 0 a love, 1 a fear, 2 a full love-fear pair, 3 a stored pair
       for (const s of [first, second]) {
         start.vibe[s] = 0
         start.open[s] = 0
       }
+
       start.store[x * 12 + l] = 0
       start.sopen[x * 12 + l] = 0
 
@@ -190,11 +285,13 @@ function buildStart(box: Box, k: number): Start {
         start.point[i] = hash(k, i) % 9
         start.open[i] = 1
       }
+
       if (kind === 1 || kind === 2) {
         start.vibe[o] = -1
         start.point[o] = hash(k, o) % 9
         start.open[o] = 1
       }
+
       if (kind === 3) {
         start.store[x * 12 + l] = hash(k, x) % 2 === 0 ? 1 : -1
         start.spoint[x * 12 + l] = hash(k, x + 1) % 81
@@ -211,6 +308,7 @@ function buildStart(box: Box, k: number): Start {
       start.point[i] = (h >> 2) % 9
       start.open[i] = (h >> 6) % 2
     })
+
     members.stores.flat().forEach(s => {
       const h = hash(k + 101, s)
 
@@ -236,6 +334,7 @@ export default experiment({
     const t0 = Date.now()
     const metrics: Record<string, number> = {}
     const lineNotes: string[] = []
+
     let constant = true
     let vacuumSingles = 0
     let off = 0
@@ -254,11 +353,30 @@ export default experiment({
 
       for (let k = 0; k < STARTS; k++) {
         const s = buildStart(box, k)
-        const r = parallelRun({ tables: box.f.tables, vacuum: box.vacuum, start: s.start, lines: box.lines, set: s.set, key, threshold: v.threshold, beats: BEATS, steps: box.steps, factor: s.set.length > 1 })
+        const r = parallelRun({
+          tables: box.f.tables,
+          vacuum: box.vacuum,
+          start: s.start,
+          lines: box.lines,
+          set: s.set,
+          key,
+          threshold: v.threshold,
+          beats: BEATS,
+          steps: box.steps,
+          factor: s.set.length > 1,
+        })
 
         readings.push(r)
-        if (v.name === 'pass_full0' && s.sparse) sparseReach = Math.max(sparseReach, r.reach)
-        if (v.name === 'pass_full0' && k < 4) lineNotes.push(`start ${k} (${s.set.length} lines, class ${LINE_OF[s.slot]}, ${s.sparse ? 'sparse' : 'dense'}): wake at most ${r.wake}, reach ${r.reach}, store events ${r.storeEvents}`)
+
+        if (v.name === 'pass_full0' && s.sparse) {
+          sparseReach = Math.max(sparseReach, r.reach)
+        }
+
+        if (v.name === 'pass_full0' && k < 4) {
+          lineNotes.push(
+            `start ${k} (${s.set.length} lines, class ${LINE_OF[s.slot]}, ${s.sparse ? 'sparse' : 'dense'}): wake at most ${r.wake}, reach ${r.reach}, store events ${r.storeEvents}`,
+          )
+        }
       }
 
       const vOff = readings.reduce((a, r) => a + r.off, 0)
@@ -274,13 +392,26 @@ export default experiment({
       metrics[`${v.name}_unfactored`] = vUnfactored
       metrics[`${v.name}_vacuumSingles`] = vSingles
       metrics[`${v.name}_storeEvents`] = vStore
-      metrics[`${v.name}_wakeMax`] = Math.max(...readings.map(r => r.wake))
+      metrics[`${v.name}_wakeMax`] = Math.max(
+        ...readings.map(r => r.wake),
+      )
     }
 
     // ---- C1: K on every dock ----
     const iso = boxOf('isometric')
     const isoStart = buildStart(iso, 0)
-    const isoRun = parallelRun({ tables: iso.f.tables, vacuum: iso.vacuum, start: isoStart.start, lines: iso.lines, set: isoStart.set, key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: BEATS, steps: iso.steps, factor: false })
+    const isoRun = parallelRun({
+      tables: iso.f.tables,
+      vacuum: iso.vacuum,
+      start: isoStart.start,
+      lines: iso.lines,
+      set: isoStart.set,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: BEATS,
+      steps: iso.steps,
+      factor: false,
+    })
     const gC1 = isoRun.off > 0
 
     // ---- C2: crossing lines at one dock ----
@@ -299,7 +430,9 @@ export default experiment({
     let crossToneMoved = 0
 
     for (let e = 0; e < 24; e++) {
-      if (LINE_OF[e] === LINE_OF[0]) continue
+      if (LINE_OF[e] === LINE_OF[0]) {
+        continue
+      }
 
       for (const tone of [1, -1]) {
         const start = cloneConfiguration(pass.vacuum)
@@ -311,9 +444,13 @@ export default experiment({
         start.vibe[b] = tone
         start.open[b] = 1
 
-        const two = new Set([pass.lines.lineOf[a] as number, pass.lines.lineOf[b] as number])
+        const two = new Set([
+          pass.lines.lineOf[a]!,
+          pass.lines.lineOf[b]!,
+        ])
         const run = keyedRunner(pass.f.tables, start, { key })
         const first = toneExcess(pass.lines, start, pass.vacuum)
+
         let leaves = false
         let moved = false
 
@@ -321,15 +458,31 @@ export default experiment({
           run.beat()
 
           const q = run.state()
-          const p = track[t] as Configuration
+          const p = track[t]!
 
-          for (let i = 0; i < q.vibe.length && !leaves; i++) if (q.vibe[i] !== p.vibe[i] && !two.has(pass.lines.lineOf[i] as number)) leaves = true
-          if (!moved && toneExcess(pass.lines, q, p) !== first) moved = true
+          for (let i = 0; i < q.vibe.length && !leaves; i++) {
+            if (
+              q.vibe[i] !== p.vibe[i] &&
+              !two.has(pass.lines.lineOf[i]!)
+            ) {
+              leaves = true
+            }
+          }
+
+          if (!moved && toneExcess(pass.lines, q, p) !== first) {
+            moved = true
+          }
         }
 
         crossSeeds++
-        if (leaves) crossLeaving++
-        if (moved) crossToneMoved++
+
+        if (leaves) {
+          crossLeaving++
+        }
+
+        if (moved) {
+          crossToneMoved++
+        }
       }
     }
 
@@ -339,7 +492,11 @@ export default experiment({
     const gT2 = unfactored === 0
     const gT3 = sparseReach >= REACH && storeEvents > 0
     const gates = [gT0, gT1, gT2, gT3]
-    const status = !gates.every(Boolean) ? 'fail' : gC1 && gC2 ? 'pass' : 'partial'
+    const status = !gates.every(Boolean)
+      ? 'fail'
+      : gC1 && gC2
+        ? 'pass'
+        : 'partial'
 
     gates.forEach((g, i) => (metrics[`gate_T${i}`] = g ? 1 : 0))
     Object.assign(metrics, {

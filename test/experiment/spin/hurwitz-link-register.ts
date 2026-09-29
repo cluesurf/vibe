@@ -212,7 +212,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { d4Walk } from '@/code/measure/flux-plaquette'
 import { treeBeat, wordSpace } from '@/code/measure/link-flux'
-import { overEmpty, ringUnit, unitAngle, vibeDockExact, vibeShape } from '@/code/measure/swap-string'
+import {
+  overEmpty,
+  ringUnit,
+  unitAngle,
+  vibeDockExact,
+  vibeShape,
+} from '@/code/measure/swap-string'
 import { d4Ball, d4Steps, ROOTS } from '@/code/measure/swap-sector'
 import {
   binaryIcosahedral,
@@ -257,7 +263,12 @@ const THETAS: readonly (readonly [string, number, number])[] = [
 ]
 const CASIMIRS = [0, 12, 12, 4, 10, 10, 8]
 const ORDERS: Record<string, number> = { Q8: 8, '2O': 48, '2I': 120 }
-const MONTE_CARLO: Record<string, number> = { Q8: 1.15, '2T': 2.15, '2O': 3.2, '2I': 5.7 }
+const MONTE_CARLO: Record<string, number> = {
+  Q8: 1.15,
+  '2T': 2.15,
+  '2O': 3.2,
+  '2I': 5.7,
+}
 const CALIBRATION = 0.2
 const SMALL = 0.25
 const ERROR = 0.25
@@ -281,7 +292,8 @@ export const GATE_PLAN: RegisterPlan = { beats: 3, toyBeats: 6 }
 export default experiment({
   id: 'spin/hurwitz-link-register',
   code: 'E-SPN-0152',
-  title: 'a 2T link register on D4 triangles (the 24 roots as Hurwitz units) freezes before the string is light, fail (G1, G2c, G3): the beat is exact in Z[w][1/14] with a real-quaternion colour in Z[1/2] and Gauss holds to 3.5e-16, but the magnetic piece commutes with the member hop for every group (member state unchanged to 1.6e-13 at every angle) and moves it only through the electric piece (0.14); from the E = 0 register the 2T member is the Z3 tree exactly at beat 3 (I = 0); the Hamiltonian strong- and weak-coupling branches on D4 cross at y 0.365 where the string still costs 0.822 of its strong-coupling energy a link (2O 0.649, 2I past the series), and the Euclidean estimator, calibrated at 1 to 18% on 4d Monte Carlo freezing points, puts 2T on D4 triangles at beta 1.31 with u 0.31; the bulk is 4+1 dimensional, where SU(2) itself has a first-order transition',
+  title:
+    'a 2T link register on D4 triangles (the 24 roots as Hurwitz units) freezes before the string is light, fail (G1, G2c, G3): the beat is exact in Z[w][1/14] with a real-quaternion colour in Z[1/2] and Gauss holds to 3.5e-16, but the magnetic piece commutes with the member hop for every group (member state unchanged to 1.6e-13 at every angle) and moves it only through the electric piece (0.14); from the E = 0 register the 2T member is the Z3 tree exactly at beat 3 (I = 0); the Hamiltonian strong- and weak-coupling branches on D4 cross at y 0.365 where the string still costs 0.822 of its strong-coupling energy a link (2O 0.649, 2I past the series), and the Euclidean estimator, calibrated at 1 to 18% on 4d Monte Carlo freezing points, puts 2T on D4 triangles at beta 1.31 with u 0.31; the bulk is 4+1 dimensional, where SU(2) itself has a first-order transition',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -293,7 +305,10 @@ export default experiment({
 
 export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const e2 = (x: number): string => x.toExponential(2)
   const f4 = (x: number): string => x.toFixed(4)
 
@@ -302,47 +317,91 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
   const chars = hurwitzCharacters(h)
   const casimirs = hurwitzCasimirs(h, chars)
   const T2 = h.group
-  const others: GaugeGroup[] = [quaternionEight(), binaryOctahedral(), binaryIcosahedral()]
-  const su2 = [T2, others[1] as GaugeGroup, others[2] as GaugeGroup]
+  const others: GaugeGroup[] = [
+    quaternionEight(),
+    binaryOctahedral(),
+    binaryIcosahedral(),
+  ]
+  const su2 = [T2, others[1]!, others[2]!]
   const hdata = new Map(su2.map(g => [g.name, hamiltonianData(g)]))
-  const I1 = chars.orthogonal && casimirs.every((c, k) => Math.abs(c - (CASIMIRS[k] as number)) < 1e-12) && others.every(g => g.order === ORDERS[g.name]) && su2.every(g => (hdata.get(g.name) as { tensorOk: boolean }).tensorOk)
+  const I1 =
+    chars.orthogonal &&
+    casimirs.every((c, k) => Math.abs(c - CASIMIRS[k]!) < 1e-12) &&
+    others.every(g => g.order === ORDERS[g.name]) &&
+    su2.every(
+      g => (hdata.get(g.name) as { tensorOk: boolean }).tensorOk,
+    )
 
-  log(`I1 ${I1}: orthogonal ${chars.orthogonal}, Casimirs ${casimirs.join(',')}, orders ${others.map(g => `${g.name} ${g.order}`).join(', ')}, 2x2=1+3 ${su2.map(g => (hdata.get(g.name) as { tensorOk: boolean }).tensorOk).join(',')}`)
+  log(
+    `I1 ${I1}: orthogonal ${chars.orthogonal}, Casimirs ${casimirs.join(',')}, orders ${others.map(g => `${g.name} ${g.order}`).join(', ')}, 2x2=1+3 ${su2.map(g => (hdata.get(g.name) as { tensorOk: boolean }).tensorOk).join(',')}`,
+  )
 
   // ---------------- I3: the D4 census, the husk ----------------
   const D4 = triangleLattice('D4 triangles', ROOTS as number[][])
   const husk = triangleLattice('husk triangles', huskVectors())
-  const I3 = D4.plaquettes === CENSUS.perDock && D4.classes.length === 1 && (D4.classes[0] as { perLink: number }).perLink === CENSUS.perLink && D4.decorations === CENSUS.tetrahedra
+  const I3 =
+    D4.plaquettes === CENSUS.perDock &&
+    D4.classes.length === 1 &&
+    (D4.classes[0] as { perLink: number }).perLink === CENSUS.perLink &&
+    D4.decorations === CENSUS.tetrahedra
 
-  log(`I3 ${I3}: D4 ${JSON.stringify(D4)}; husk ${JSON.stringify(husk)}`)
+  log(
+    `I3 ${I3}: D4 ${JSON.stringify(D4)}; husk ${JSON.stringify(husk)}`,
+  )
 
   // ---------------- G2a: exactness ----------------
   const exponents = casimirs.map(c => c / 2)
-  const electric = [LIGHT, ALPHA].map(([k, j]) => electricExact(h, chars, exponents, ringUnit(k, j)))
+  const electric = [LIGHT, ALPHA].map(([k, j]) =>
+    electricExact(h, chars, exponents, ringUnit(k, j)),
+  )
   const spinor = spinorExact(h)
   const muAlpha = magneticExact(h, ringUnit(ALPHA[0], ALPHA[1]))
-  const G2a = h.fromRoots && h.closed && h.exactProducts && electric.every(e => e.classFunction && e.unitary) && spinor.homomorphism && spinor.orthogonal
+  const G2a =
+    h.fromRoots &&
+    h.closed &&
+    h.exactProducts &&
+    electric.every(e => e.classFunction && e.unitary) &&
+    spinor.homomorphism &&
+    spinor.orthogonal
 
-  log(`G2a ${G2a}: roots ${h.fromRoots} closed ${h.closed} exact ${h.exactProducts}; electric ${electric.map(e => `class ${e.classFunction} unitary ${e.unitary} den ${e.den} needs 1/3 ${e.needsThird}`).join('; ')}; spinor ${JSON.stringify(spinor)}`)
+  log(
+    `G2a ${G2a}: roots ${h.fromRoots} closed ${h.closed} exact ${h.exactProducts}; electric ${electric.map(e => `class ${e.classFunction} unitary ${e.unitary} den ${e.den} needs 1/3 ${e.needsThird}`).join('; ')}; spinor ${JSON.stringify(spinor)}`,
+  )
 
   // ---------------- G2c: the E = 0 register under one face ----------------
   const G2c = Math.abs(muAlpha.keptWeight - 1) <= EXACT_FLOAT
-  const kept = THETAS.map(([name, k, j]) => ({ name, weight: magneticExact(h, ringUnit(k, j)).keptWeight }))
+  const kept = THETAS.map(([name, k, j]) => ({
+    name,
+    weight: magneticExact(h, ringUnit(k, j)).keptWeight,
+  }))
 
-  log(`G2c ${G2c}: kept weight ${kept.map(x => `${x.name} ${x.weight.toFixed(6)}`).join(', ')}`)
+  log(
+    `G2c ${G2c}: kept weight ${kept.map(x => `${x.name} ${x.weight.toFixed(6)}`).join(', ')}`,
+  )
 
   // ---------------- the toy: G2b, G3a, G3b, C3 ----------------
   const toy = toyTriangle(h)
   const eAlpha = (electric[1] as { float: [number, number][] }).float
   const mAlpha = muAlpha.float
   const weyl = weylVector(TOY_SIZE)
+
   let gaussGap = 0
 
   for (let v = 0; v < 3; v++) {
     for (let k = 0; k < 24; k++) {
       const a = toyGauge(toy, v, k, weyl.re, weyl.im)
-      const b = toyBeat(toy, { magnetic: mAlpha, electric: eAlpha }, a.re, a.im)
-      const c = toyBeat(toy, { magnetic: mAlpha, electric: eAlpha }, weyl.re, weyl.im)
+      const b = toyBeat(
+        toy,
+        { magnetic: mAlpha, electric: eAlpha },
+        a.re,
+        a.im,
+      )
+      const c = toyBeat(
+        toy,
+        { magnetic: mAlpha, electric: eAlpha },
+        weyl.re,
+        weyl.im,
+      )
       const d = toyGauge(toy, v, k, c.re, c.im)
 
       gaussGap = Math.max(gaussGap, vectorGap(b, d))
@@ -358,14 +417,23 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
   const wmIn = toyMagnetic(toy, mAlpha, weyl.re, weyl.im)
   const wm = toyWalk(toy, wmIn.re, wmIn.im)
   const commutator = vectorGap(mw, wm)
-  const start = { re: new Float64Array(TOY_SIZE), im: new Float64Array(TOY_SIZE) }
+  const start = {
+    re: new Float64Array(TOY_SIZE),
+    im: new Float64Array(TOY_SIZE),
+  }
   const amp = 1 / Math.sqrt(24 * 24 * 24)
 
   // E = 0 register (uniform), member at dock A, slot 0, colour 1
-  for (let r = 0; r < 24 * 24 * 24; r++) start.re[r * 24] = amp
+  for (let r = 0; r < 24 * 24 * 24; r++) {
+    start.re[r * 24] = amp
+  }
 
-  const reduced = (pieces: { magnetic?: [number, number][]; electric?: [number, number][] }): Float64Array[] => {
+  const reduced = (pieces: {
+    magnetic?: [number, number][]
+    electric?: [number, number][]
+  }): Float64Array[] => {
     let s = start
+
     const out: Float64Array[] = []
 
     for (let t = 0; t < plan.toyBeats; t++) {
@@ -375,36 +443,62 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
 
     return out
   }
-  const gapOf = (a: Float64Array[], b: Float64Array[]): number => Math.max(...a.map((x, t) => Math.max(...x.map((v, k) => Math.abs(v - ((b[t] as Float64Array)[k] as number))))))
+
+  const gapOf = (a: Float64Array[], b: Float64Array[]): number =>
+    Math.max(
+      ...a.map((x, t) =>
+        Math.max(...x.map((v, k) => Math.abs(v - b[t]![k]!))),
+      ),
+    )
   const off = reduced({})
-  const magneticOnly = THETAS.map(([name, k, j]) => ({ name, gap: gapOf(reduced({ magnetic: magneticExact(h, ringUnit(k, j)).float }), off) }))
+  const magneticOnly = THETAS.map(([name, k, j]) => ({
+    name,
+    gap: gapOf(
+      reduced({ magnetic: magneticExact(h, ringUnit(k, j)).float }),
+      off,
+    ),
+  }))
   const electricOnly = reduced({ electric: eAlpha })
   const both = reduced({ electric: eAlpha, magnetic: mAlpha })
   const escape = gapOf(both, electricOnly)
   const c3 = gapOf(electricOnly, off)
-  const G3a = commutator <= TRAP && magneticOnly.every(x => x.gap <= TRAP_REDUCED)
+  const G3a =
+    commutator <= TRAP && magneticOnly.every(x => x.gap <= TRAP_REDUCED)
   const G3b = escape > MOVED
   const C3 = c3 > MOVED
 
-  log(`G3a ${G3a}: [M, W] ${e2(commutator)}, magnetic alone ${magneticOnly.map(x => `${x.name} ${e2(x.gap)}`).join(', ')}; G3b ${G3b}: escape ${e2(escape)}; C3 ${C3}: electric alone ${e2(c3)}`)
+  log(
+    `G3a ${G3a}: [M, W] ${e2(commutator)}, magnetic alone ${magneticOnly.map(x => `${x.name} ${e2(x.gap)}`).join(', ')}; G3b ${G3b}: escape ${e2(escape)}; C3 ${C3}: electric alone ${e2(c3)}`,
+  )
 
   // ---------------- the path sums: G3c, G2d, C1, C2 ----------------
   const u = ringUnit(LIGHT[0], LIGHT[1])
   const shape = vibeShape(overEmpty(vibeDockExact(1, 0, u), u))
-  const table = Float64Array.from([shape.c[0], shape.c[1], shape.beta[0], shape.beta[1]])
+  const table = Float64Array.from([
+    shape.c[0],
+    shape.c[1],
+    shape.beta[0],
+    shape.beta[1],
+  ])
   const T = plan.beats
   const ws = wordSpace(T)
+
   let wre = new Float64Array(ws.words * 24)
   let wim = new Float64Array(ws.words * 24)
 
-  for (let d = 0; d < 24; d++) wre[d] = 1 / Math.sqrt(24)
+  for (let d = 0; d < 24; d++) {
+    wre[d] = 1 / Math.sqrt(24)
+  }
 
   const ball = d4Ball(T + 1)
   const np = ball.points.length
+
   let dre = new Float64Array(np * 24)
   let dim = new Float64Array(np * 24)
 
-  for (let d = 0; d < 24; d++) dre[(ball.index.get('0,0,0,0') as number) * 24 + d] = 1 / Math.sqrt(24)
+  for (let d = 0; d < 24; d++) {
+    dre[ball.index.get('0,0,0,0')! * 24 + d] = 1 / Math.sqrt(24)
+  }
 
   const Z3 = cyclicGroup(3)
   const triv = trivialGroup()
@@ -413,7 +507,16 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
     ['Z3', new Map()],
     ['trivial', new Map()],
   ])
-  const rows: { t: number; treeGap: number; walkGap: number; reachBad: number; I: number; gap: number; move: number; pairs: number }[] = []
+  const rows: {
+    t: number
+    treeGap: number
+    walkGap: number
+    reachBad: number
+    I: number
+    gap: number
+    move: number
+    pairs: number
+  }[] = []
 
   for (let t = 1; t <= T; t++) {
     const ore = new Float64Array(ws.words * 24)
@@ -433,14 +536,31 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
     for (let p = 0; p < np; p++) {
       let s = 0
 
-      for (let d = 0; d < 24; d++) s += (dre[p * 24 + d] as number) ** 2 + (dim[p * 24 + d] as number) ** 2
-      if (s > 0) walk.set((ball.points[p] as number[]).join(','), s)
+      for (let d = 0; d < 24; d++) {
+        s += dre[p * 24 + d]! ** 2 + dim[p * 24 + d]! ** 2
+      }
+
+      if (s > 0) {
+        walk.set(ball.points[p]!.join(','), s)
+      }
     }
 
-    const p2 = memberDistribution(ws, wre, wim, T2, caches.get('2T') as Map<string, number>)
-    const pz = memberDistribution(ws, wre, wim, Z3, caches.get('Z3') as Map<string, number>)
-    const p1 = memberDistribution(ws, wre, wim, triv, caches.get('trivial') as Map<string, number>)
-    const keys = new Set([...p2.P.keys(), ...pz.P.keys(), ...p1.P.keys(), ...walk.keys()])
+    const p2 = memberDistribution(ws, wre, wim, T2, caches.get('2T')!)
+    const pz = memberDistribution(ws, wre, wim, Z3, caches.get('Z3')!)
+    const p1 = memberDistribution(
+      ws,
+      wre,
+      wim,
+      triv,
+      caches.get('trivial')!,
+    )
+    const keys = new Set([
+      ...p2.P.keys(),
+      ...pz.P.keys(),
+      ...p1.P.keys(),
+      ...walk.keys(),
+    ])
+
     let treeGap = 0
     let walkGap = 0
     let reachBad = 0
@@ -454,23 +574,49 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
       const c = (p2.P.get(k) ?? 0) - tree
 
       treeGap = Math.max(treeGap, Math.abs((pz.P.get(k) ?? 0) - tree))
-      walkGap = Math.max(walkGap, Math.abs((p1.P.get(k) ?? 0) - (walk.get(k) ?? 0)))
-      if ((p2.P.get(k) ?? 0) > 1e-15 && d4Steps(k.split(',').map(Number)) > t) reachBad++
+      walkGap = Math.max(
+        walkGap,
+        Math.abs((p1.P.get(k) ?? 0) - (walk.get(k) ?? 0)),
+      )
+
+      if (
+        (p2.P.get(k) ?? 0) > 1e-15 &&
+        d4Steps(k.split(',').map(Number)) > t
+      ) {
+        reachBad++
+      }
+
       dot += a * c
       n2 += a * a
       m2 += c * c
     }
 
-    rows.push({ t, treeGap, walkGap, reachBad, I: n2 > 0 ? dot / n2 : 0, gap: Math.sqrt(n2), move: Math.sqrt(m2), pairs: p2.pairs })
-    log(`beat ${t}: pairs ${p2.pairs}, Z3 vs tree ${e2(treeGap)}, trivial vs D4 walk ${e2(walkGap)}, 2T I ${(n2 > 0 ? dot / n2 : 0).toExponential(4)}, |P_D4 - P_tree| ${e2(Math.sqrt(n2))}, |P_2T - P_tree| ${e2(Math.sqrt(m2))}, reach bad ${reachBad}`)
+    rows.push({
+      t,
+      treeGap,
+      walkGap,
+      reachBad,
+      I: n2 > 0 ? dot / n2 : 0,
+      gap: Math.sqrt(n2),
+      move: Math.sqrt(m2),
+      pairs: p2.pairs,
+    })
+
+    log(
+      `beat ${t}: pairs ${p2.pairs}, Z3 vs tree ${e2(treeGap)}, trivial vs D4 walk ${e2(walkGap)}, 2T I ${(n2 > 0 ? dot / n2 : 0).toExponential(4)}, |P_D4 - P_tree| ${e2(Math.sqrt(n2))}, |P_2T - P_tree| ${e2(Math.sqrt(m2))}, reach bad ${reachBad}`,
+    )
   }
 
-  const last = rows[T - 1] as (typeof rows)[number]
+  const last = rows[T - 1]!
   const G3c = last.I >= INTERFERENCE
   const G2d = rows.every(r => r.reachBad === 0)
-  const kernels = [...(caches.get('2T') as Map<string, number>).entries()].filter(([, v]) => v !== 0)
+  const kernels = [...caches.get('2T')!.entries()].filter(
+    ([, v]) => v !== 0,
+  )
 
-  log(`G3c ${G3c}; G2d ${G2d}; 2T nonzero loop kernels ${JSON.stringify(kernels)}`)
+  log(
+    `G3c ${G3c}; G2d ${G2d}; 2T nonzero loop kernels ${JSON.stringify(kernels)}`,
+  )
 
   // ---------------- estimators ----------------
   const sq3 = hypercubicLattice(3)
@@ -479,40 +625,70 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
   const Z2 = cyclicGroup(2)
   const z2Cross = euclideanFreezing(Z2, hc4)
   const z3Cross = euclideanFreezing(Z3, hc4)
-  const z2Ham = hamiltonianFreezing(Z2, { S: [1], C2: 2, C3: 0, meanSquare: 1, tensorOk: false }, sq3)
+  const z2Ham = hamiltonianFreezing(
+    Z2,
+    { S: [1], C2: 2, C3: 0, meanSquare: 1, tensorOk: false },
+    sq3,
+  )
   const C1 =
     rows.every(r => r.treeGap <= TREE_SAME) &&
     Math.abs(last.gap - RECORDED_GAP) <= RECORDED_GAP_TOLERANCE &&
     !!z2Cross &&
-    Math.abs(z2Cross.beta - Math.log(1 + Math.SQRT2) / 2) <= SELF_DUAL &&
+    Math.abs(z2Cross.beta - Math.log(1 + Math.SQRT2) / 2) <=
+      SELF_DUAL &&
     !!z3Cross &&
-    Math.abs(z3Cross.beta - (2 / 3) * Math.log(1 + Math.sqrt(3))) <= SELF_DUAL &&
+    Math.abs(z3Cross.beta - (2 / 3) * Math.log(1 + Math.sqrt(3))) <=
+      SELF_DUAL &&
     !!z2Ham &&
     Math.abs(z2Ham.y - 0.5) <= SELF_DUAL
   const C2 = rows.every(r => r.walkGap <= WALK_SAME)
 
-  log(`C1 ${C1}: Z2 hc4 ${JSON.stringify(z2Cross)}, Z3 hc4 ${JSON.stringify(z3Cross)}, Z2 Hamiltonian cubic ${JSON.stringify(z2Ham)}; C2 ${C2}`)
+  log(
+    `C1 ${C1}: Z2 hc4 ${JSON.stringify(z2Cross)}, Z3 hc4 ${JSON.stringify(z3Cross)}, Z2 Hamiltonian cubic ${JSON.stringify(z2Ham)}; C2 ${C2}`,
+  )
 
-  const all = [others[0] as GaugeGroup, T2, others[1] as GaugeGroup, others[2] as GaugeGroup]
+  const all = [others[0]!, T2, others[1]!, others[2]!]
   const calibration = all.map(g => {
     const c = euclideanFreezing(g, hc4)
 
-    return { name: g.name, beta: c ? c.beta : NaN, mc: MONTE_CARLO[g.name] as number, rel: c ? Math.abs(c.beta - (MONTE_CARLO[g.name] as number)) / (MONTE_CARLO[g.name] as number) : Infinity, cross: c }
+    return {
+      name: g.name,
+      beta: c ? c.beta : NaN,
+      mc: MONTE_CARLO[g.name]!,
+      rel: c
+        ? Math.abs(c.beta - MONTE_CARLO[g.name]!) / MONTE_CARLO[g.name]!
+        : Infinity,
+      cross: c,
+    }
   })
   const I2 = calibration.every(c => c.rel <= CALIBRATION)
 
-  log(`I2 ${I2}: ${calibration.map(c => `${c.name} ${f4(c.beta)} vs ${c.mc} (${(100 * c.rel).toFixed(1)}%)`).join(', ')}`)
+  log(
+    `I2 ${I2}: ${calibration.map(c => `${c.name} ${f4(c.beta)} vs ${c.mc} (${(100 * c.rel).toFixed(1)}%)`).join(', ')}`,
+  )
 
   const euclid = (L: PlaquetteLattice) =>
     all.map(g => {
       const c = euclideanFreezing(g, L)
 
-      return { name: g.name, ...(c ?? { beta: NaN, u: NaN, plaquetteStrong: NaN, plaquetteWeak: NaN, sigmaLead: NaN, sigmaCorrection: NaN }) }
+      return {
+        name: g.name,
+        ...(c ?? {
+          beta: NaN,
+          u: NaN,
+          plaquetteStrong: NaN,
+          plaquetteWeak: NaN,
+          sigmaLead: NaN,
+          sigmaCorrection: NaN,
+        }),
+      }
     })
   const euclidD4 = euclid(D4)
   const euclid5 = euclid(hc5)
 
-  log(`Euclidean D4 ${JSON.stringify(euclidD4)}; 5d ${JSON.stringify(euclid5)}`)
+  log(
+    `Euclidean D4 ${JSON.stringify(euclidD4)}; 5d ${JSON.stringify(euclid5)}`,
+  )
 
   const ham = (L: PlaquetteLattice) =>
     su2.map(g => {
@@ -522,19 +698,34 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
         const s = stringSlope(H, L.perimeter, c.perLink)
         const y = f ? f.y : NaN
 
-        return { perLink: c.perLink, slope: s, eps: 1 - s * y * y, error: (s * y * y) ** 2 }
+        return {
+          perLink: c.perLink,
+          slope: s,
+          eps: 1 - s * y * y,
+          error: (s * y * y) ** 2,
+        }
       })
 
-      return { name: g.name, C2: H.C2, C3: H.C3, y: f ? f.y : NaN, yValid: f ? f.yValid : NaN, strings }
+      return {
+        name: g.name,
+        C2: H.C2,
+        C3: H.C3,
+        y: f ? f.y : NaN,
+        yValid: f ? f.yValid : NaN,
+        strings,
+      }
     })
   const hamD4 = ham(D4)
   const hamHusk = ham(husk)
 
-  log(`Hamiltonian D4 ${JSON.stringify(hamD4)}; husk ${JSON.stringify(hamHusk)}`)
+  log(
+    `Hamiltonian D4 ${JSON.stringify(hamD4)}; husk ${JSON.stringify(hamHusk)}`,
+  )
 
   // ---------------- G1 ----------------
-  const g1 = hamD4[0] as (typeof hamD4)[number]
+  const g1 = hamD4[0]!
   const s1 = (g1.strings[0] as { slope: number }).slope
+
   let monotone = true
   let positive = true
   let worstError = 0
@@ -545,28 +736,54 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
       const y = (g1.y * k) / (GRID - 1)
       const eps = 1 - s1 * y * y
 
-      if (eps <= 0) positive = false
-      if (k > 0 && !(eps < prev)) monotone = false
+      if (eps <= 0) {
+        positive = false
+      }
+
+      if (k > 0 && !(eps < prev)) {
+        monotone = false
+      }
+
       worstError = Math.max(worstError, (s1 * y * y) ** 2 / eps)
       prev = eps
     }
   }
 
   const epsF = 1 - s1 * g1.y * g1.y
-  const G1a = Number.isFinite(g1.y) && positive && monotone && worstError <= ERROR
+  const G1a =
+    Number.isFinite(g1.y) && positive && monotone && worstError <= ERROR
   const G1b = Number.isFinite(g1.y) && epsF <= SMALL
   const G1 = G1a && G1b
 
-  log(`G1 ${G1}: y_f ${g1.y}, eps(y_f) ${epsF}, positive ${positive}, monotone ${monotone}, worst error ratio ${worstError}`)
+  log(
+    `G1 ${G1}: y_f ${g1.y}, eps(y_f) ${epsF}, positive ${positive}, monotone ${monotone}, worst error ratio ${worstError}`,
+  )
 
   const G2 = G2a && G2b && G2c && G2d
   const G3 = G3c
   const G4 = false
   const instrument = I1 && I2 && I3
   const controls = C1 && C2 && C3
-  const status = !instrument || !controls ? 'partial' : G1 && G2 && G3 && G4 ? 'pass' : 'fail'
-  const hamText = (rs: typeof hamD4): string => rs.map(r => `${r.name} (C2 ${f4(r.C2)}, C3 ${f4(r.C3)}): y_f ${f4(r.y)} (valid from ${f4(r.yValid)}), ${r.strings.map(s => `eps ${f4(s.eps)} on ${s.perLink}-triangle links (slope ${f4(s.slope)}, error ${e2(s.error)})`).join(', ')}`).join('; ')
-  const euclidText = (rs: typeof euclidD4): string => rs.map(r => `${r.name} beta_f ${f4(r.beta)}, u ${f4(r.u)}, plaquette ${f4(r.plaquetteStrong)} -> ${f4(r.plaquetteWeak)}, sigma ${f4(r.sigmaLead)} - ${f4(r.sigmaCorrection)}`).join('; ')
+  const status =
+    !instrument || !controls
+      ? 'partial'
+      : G1 && G2 && G3 && G4
+        ? 'pass'
+        : 'fail'
+  const hamText = (rs: typeof hamD4): string =>
+    rs
+      .map(
+        r =>
+          `${r.name} (C2 ${f4(r.C2)}, C3 ${f4(r.C3)}): y_f ${f4(r.y)} (valid from ${f4(r.yValid)}), ${r.strings.map(s => `eps ${f4(s.eps)} on ${s.perLink}-triangle links (slope ${f4(s.slope)}, error ${e2(s.error)})`).join(', ')}`,
+      )
+      .join('; ')
+  const euclidText = (rs: typeof euclidD4): string =>
+    rs
+      .map(
+        r =>
+          `${r.name} beta_f ${f4(r.beta)}, u ${f4(r.u)}, plaquette ${f4(r.plaquetteStrong)} -> ${f4(r.plaquetteWeak)}, sigma ${f4(r.sigmaLead)} - ${f4(r.sigmaCorrection)}`,
+      )
+      .join('; ')
 
   return verdict({
     status,
@@ -600,7 +817,12 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
       keptWeight: muAlpha.keptWeight,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, C3: C3 ? 1 : 0, instrument: instrument ? 1 : 0 },
+    control: {
+      C1: C1 ? 1 : 0,
+      C2: C2 ? 1 : 0,
+      C3: C3 ? 1 : 0,
+      instrument: instrument ? 1 : 0,
+    },
     notes: `L1 and L2. Casimirs ${casimirs.join(', ')}; electric denominators ${electric.map(e => `${e.den} (needs 1/3 ${e.needsThird})`).join(', ')} at light and alpha, angles ${[LIGHT, ALPHA].map(([k, j]) => unitAngle(ringUnit(k, j)).toFixed(6)).join(', ')}. Kept weight of E = 0 under one face ${kept.map(x => `${x.name} ${x.weight.toFixed(6)}`).join(', ')}. Toy: gauge gap ${e2(gaussGap)}, [M, W] ${e2(commutator)}, magnetic alone ${magneticOnly.map(x => `${x.name} ${e2(x.gap)}`).join(', ')}, electric alone ${e2(c3)}, electric plus magnetic against electric ${e2(escape)}. Path sums ${rows.map(r => `beat ${r.t}: pairs ${r.pairs}, I ${r.I.toExponential(4)}, |P_D4 - P_tree| ${e2(r.gap)}, |P_2T - P_tree| ${e2(r.move)}, Z3 vs tree ${e2(r.treeGap)}, trivial vs walk ${e2(r.walkGap)}`).join('; ')}. 2T nonzero loop kernels ${JSON.stringify(kernels)}. Calibration (4d hypercubic) ${calibration.map(c => `${c.name} ${f4(c.beta)} vs ${c.mc}`).join(', ')}; Z2 ${z2Cross ? f4(z2Cross.beta) : 'none'}, Z3 ${z3Cross ? f4(z3Cross.beta) : 'none'}, Z2 Hamiltonian ${z2Ham ? f4(z2Ham.y) : 'none'}. Euclidean D4 triangles: ${euclidText(euclidD4)}. Euclidean 5d: ${euclidText(euclid5)}. Euclidean 4d: ${euclidText(calibration.map(c => ({ name: c.name, ...(c.cross ?? { beta: NaN, u: NaN, plaquetteStrong: NaN, plaquetteWeak: NaN, sigmaLead: NaN, sigmaCorrection: NaN }) })))}. Hamiltonian D4: ${hamText(hamD4)}. Hamiltonian husk: ${hamText(hamHusk)}. Euclidean branches at beta 1 on D4 for 2T ${JSON.stringify(euclideanBranches(T2, D4, 1))}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

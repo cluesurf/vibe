@@ -33,7 +33,12 @@
 // Exact (BigInt weights), deterministic, no random numbers.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { advanceWhole, type BeatRecord, type FearKernels, type Whole } from '@/code/rule/fear-weave'
+import {
+  advanceWhole,
+  type BeatRecord,
+  type FearKernels,
+  type Whole,
+} from '@/code/rule/fear-weave'
 
 export type ComovingWhole = Whole & {
   // each coordinate's own role point, phase index 3 a + b
@@ -41,8 +46,16 @@ export type ComovingWhole = Whole & {
 }
 
 // a whole with every own point at the origin, or at the given points
-export function comovingOf(whole: Whole, own?: readonly number[]): ComovingWhole {
-  return { ...whole, own: own ? [...own] : new Array<number>(whole.tokens.length).fill(0) }
+export function comovingOf(
+  whole: Whole,
+  own?: readonly number[],
+): ComovingWhole {
+  return {
+    ...whole,
+    own: own
+      ? [...own]
+      : new Array<number>(whole.tokens.length).fill(0),
+  }
 }
 
 // one beat's record applied to a comoving whole: advanceWhole's color mode with frames on, the kernels read about
@@ -56,14 +69,27 @@ export function advanceComoving(input: {
   forward: boolean
   comoving: boolean
 }): ComovingWhole | null {
-  const { weave, whole, record, color, fixed, forward, comoving } = input
+  const { weave, whole, record, color, fixed, forward, comoving } =
+    input
 
-  return advanceWhole({ weave, whole, record, kernel4: [], color, fixed, forward, comoving }) as ComovingWhole | null
+  return advanceWhole({
+    weave,
+    whole,
+    record,
+    kernel4: [],
+    color,
+    fixed,
+    forward,
+    comoving,
+  }) as ComovingWhole | null
 }
 
 // each coordinate's own number, the marginal weight at its own point (the spinor number is (1 + 3 m / units) / 2
 // in the frame the coordinate is written in), and the units
-export function ownMarginals(whole: ComovingWhole): { units: bigint; own: bigint[] } {
+export function ownMarginals(whole: ComovingWhole): {
+  units: bigint
+  own: bigint[]
+} {
   const k = whole.tokens.length
   const units = whole.weight.reduce((a, b) => a + b, 0n)
   const own = Array.from({ length: k }, () => 0n)

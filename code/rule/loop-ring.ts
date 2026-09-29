@@ -49,7 +49,10 @@ export type LoopSpec = {
 
 // the ring: rung p between squares p - 1 and p (link 0 the atom's rung)
 export function ringLinks(L: number): LoopLink[] {
-  return Array.from({ length: L }, (_, p) => [mod(p - 1, L), p] as const)
+  return Array.from(
+    { length: L },
+    (_, p) => [mod(p - 1, L), p] as const,
+  )
 }
 
 // the open ladder of code/rule/plaquette-ladder in the same form: bottom rails, top rails (-m_p, the same
@@ -57,9 +60,17 @@ export function ringLinks(L: number): LoopLink[] {
 export function ladderLinks(L: number): LoopLink[] {
   const out: LoopLink[] = []
 
-  for (let p = 0; p < L; p++) out.push([p, -1])
-  for (let p = 0; p < L; p++) out.push([p, -1])
-  for (let p = 0; p < L; p++) out.push([mod(p - 1, L), p])
+  for (let p = 0; p < L; p++) {
+    out.push([p, -1])
+  }
+
+  for (let p = 0; p < L; p++) {
+    out.push([p, -1])
+  }
+
+  for (let p = 0; p < L; p++) {
+    out.push([mod(p - 1, L), p])
+  }
 
   return out
 }
@@ -68,59 +79,116 @@ export function ladderLinks(L: number): LoopLink[] {
 // s f = 2 / N exactly; the pair (c, r) whose ratio r / c = f / s is nearest the integer `target` in the
 // multiplicative sense (the fraction max(r, T c) / min(r, T c) smallest, compared by cross-multiplication in
 // integers), w = 1 .. wMax, ties to the smaller M. Deterministic, integer only: no real enters the choice.
-export type Split = { readonly root: number; readonly drift: number; readonly force: number; readonly ratio: number; readonly w: number }
+export type Split = {
+  readonly root: number
+  readonly drift: number
+  readonly force: number
+  readonly ratio: number
+  readonly w: number
+}
 
 export function splitNear(n: number, target: number, wMax = 8): Split {
-  let best: { c: number; r: number; w: number; num: number; den: number } | undefined
+  let best:
+    | { c: number; r: number; w: number; num: number; den: number }
+    | undefined
 
   for (let w = 1; w <= wMax; w++) {
     const product = 2 * n * w * w
 
     for (let c = 1; c <= product; c++) {
-      if (product % c !== 0) continue
+      if (product % c !== 0) {
+        continue
+      }
 
       const r = product / c
       const num = Math.max(r, target * c)
       const den = Math.min(r, target * c)
 
-      if (best === undefined || num * best.den < best.num * den) best = { c, r, w, num, den }
+      if (best === undefined || num * best.den < best.num * den) {
+        best = { c, r, w, num, den }
+      }
     }
   }
 
   const b = best!
 
-  return { root: 2 * n * n * b.w, drift: b.c, force: b.r, ratio: b.r / b.c, w: b.w }
+  return {
+    root: 2 * n * n * b.w,
+    drift: b.c,
+    force: b.r,
+    ratio: b.r / b.c,
+    w: b.w,
+  }
 }
 
-export function ringSpec(n: number, L: number, split: Split, hop?: number): LoopSpec {
-  const base = { n, squares: L, links: ringLinks(L), root: split.root, drift: split.drift, force: split.force, atomLink: 0, periodic: true, closed: true }
+export function ringSpec(
+  n: number,
+  L: number,
+  split: Split,
+  hop?: number,
+): LoopSpec {
+  const base = {
+    n,
+    squares: L,
+    links: ringLinks(L),
+    root: split.root,
+    drift: split.drift,
+    force: split.force,
+    atomLink: 0,
+    periodic: true,
+    closed: true,
+  }
 
   return hop === undefined ? base : { ...base, hop }
 }
 
-export function ladderLoopSpec(n: number, L: number, split: Split, hop?: number): LoopSpec {
-  const base = { n, squares: L, links: ladderLinks(L), root: split.root, drift: split.drift, force: split.force, atomLink: 2 * L, periodic: true, closed: false }
+export function ladderLoopSpec(
+  n: number,
+  L: number,
+  split: Split,
+  hop?: number,
+): LoopSpec {
+  const base = {
+    n,
+    squares: L,
+    links: ladderLinks(L),
+    root: split.root,
+    drift: split.drift,
+    force: split.force,
+    atomLink: 2 * L,
+    periodic: true,
+    closed: false,
+  }
 
   return hop === undefined ? base : { ...base, hop }
 }
 
-export const loopSplit = (spec: LoopSpec): { s: number; f: number; kappa: number } => {
+export const loopSplit = (
+  spec: LoopSpec,
+): { s: number; f: number; kappa: number } => {
   const s = (2 * spec.n * spec.drift) / spec.root
   const f = (2 * spec.n * spec.force) / spec.root
 
   return { s, f, kappa: s * f }
 }
 
-export const loopHalf = (spec: LoopSpec): number => spec.n ** spec.squares
+export const loopHalf = (spec: LoopSpec): number =>
+  spec.n ** spec.squares
 
-export const loopSize = (spec: LoopSpec): number => (spec.hop === undefined ? 1 : 2) * loopHalf(spec)
+export const loopSize = (spec: LoopSpec): number =>
+  (spec.hop === undefined ? 1 : 2) * loopHalf(spec)
 
 // the link fluxes of an index (the atom's x added to link 0), balanced
-export function loopFluxes(spec: LoopSpec, i: number, out?: Int32Array): Int32Array {
+export function loopFluxes(
+  spec: LoopSpec,
+  i: number,
+  out?: Int32Array,
+): Int32Array {
   const { n, squares: P, links } = spec
   const half = n ** P
   const x = Math.floor(i / half)
   const m = new Int32Array(P)
+
   let rest = i % half
 
   for (let p = 0; p < P; p++) {
@@ -131,7 +199,10 @@ export function loopFluxes(spec: LoopSpec, i: number, out?: Int32Array): Int32Ar
   const e = out ?? new Int32Array(links.length)
 
   links.forEach(([a, b], l) => {
-    e[l] = bal(m[a]! - (b < 0 ? 0 : m[b]!) + (l === spec.atomLink ? x : 0), n)
+    e[l] = bal(
+      m[a]! - (b < 0 ? 0 : m[b]!) + (l === spec.atomLink ? x : 0),
+      n,
+    )
   })
 
   return e
@@ -141,7 +212,9 @@ export function loopFluxes(spec: LoopSpec, i: number, out?: Int32Array): Int32Ar
 export function loopElectric(spec: LoopSpec, i: number): number {
   let s = 0
 
-  for (const e of loopFluxes(spec, i)) s += e * e
+  for (const e of loopFluxes(spec, i)) {
+    s += e * e
+  }
 
   return s
 }
@@ -153,13 +226,27 @@ export function loopSteps(spec: LoopSpec): Step[] {
   const { n, squares: P } = spec
   const size = loopSize(spec)
   const half = loopHalf(spec)
-  const electric = Int32Array.from({ length: size }, (_, i) => loopElectric(spec, i))
-  const exponents = Array.from({ length: n }, (_, B) => -spec.force * bal(B, n) ** 2)
+  const electric = Int32Array.from({ length: size }, (_, i) =>
+    loopElectric(spec, i),
+  )
+  const exponents = Array.from(
+    { length: n },
+    (_, B) => -spec.force * bal(B, n) ** 2,
+  )
   const steps: Step[] = []
 
-  if (spec.hop !== undefined) steps.push({ kind: 'hop', move: i => (i < half ? i + half : i - half), z: spec.hop })
+  if (spec.hop !== undefined) {
+    steps.push({
+      kind: 'hop',
+      move: i => (i < half ? i + half : i - half),
+      z: spec.hop,
+    })
+  }
 
-  steps.push({ kind: 'phase', exponent: i => -spec.drift * electric[i]! })
+  steps.push({
+    kind: 'phase',
+    exponent: i => -spec.drift * electric[i]!,
+  })
 
   for (let p = 0; p < P; p++) {
     const stride = n ** p
@@ -184,7 +271,9 @@ export function loopTranslate(spec: LoopSpec, i: number): number {
   const { n, squares: P } = spec
   const half = n ** P
   const x = Math.floor(i / half)
+
   let rest = i % half
+
   const m = new Array<number>(P)
 
   for (let p = 0; p < P; p++) {
@@ -194,7 +283,9 @@ export function loopTranslate(spec: LoopSpec, i: number): number {
 
   let out = 0
 
-  for (let p = P - 1; p >= 0; p--) out = out * n + m[(p - 1 + P) % P]!
+  for (let p = P - 1; p >= 0; p--) {
+    out = out * n + m[(p - 1 + P) % P]!
+  }
 
   return x * half + out
 }
@@ -204,6 +295,7 @@ export function loopUniformShift(spec: LoopSpec, i: number): number {
   const { n, squares: P } = spec
   const half = n ** P
   const x = Math.floor(i / half)
+
   let rest = i % half
   let out = 0
   let stride = 1
@@ -238,7 +330,10 @@ export type LoopKernel = {
   readonly starts: Int32Array[]
 }
 
-export function loopKernel(spec: LoopSpec, options: { forceOff?: boolean } = {}): LoopKernel {
+export function loopKernel(
+  spec: LoopSpec,
+  options: { forceOff?: boolean } = {},
+): LoopKernel {
   const { n, squares: P, root } = spec
   const size = loopSize(spec)
   const half = loopHalf(spec)
@@ -253,7 +348,9 @@ export function loopKernel(spec: LoopSpec, options: { forceOff?: boolean } = {})
 
     let e = 0
 
-    for (let l = 0; l < flux.length; l++) e += flux[l]! * flux[l]!
+    for (let l = 0; l < flux.length; l++) {
+      e += flux[l]! * flux[l]!
+    }
 
     const t = (-2 * Math.PI * ((spec.drift * e) % root)) / root
 
@@ -270,7 +367,9 @@ export function loopKernel(spec: LoopSpec, options: { forceOff?: boolean } = {})
       rest = Math.floor(rest / n)
     }
 
-    const t = options.forceOff ? 0 : (-2 * Math.PI * ((spec.force * e) % root)) / root
+    const t = options.forceOff
+      ? 0
+      : (-2 * Math.PI * ((spec.force * e) % root)) / root
 
     forceRe[i] = Math.cos(t)
     forceIm[i] = Math.sin(t)
@@ -294,9 +393,14 @@ export function loopKernel(spec: LoopSpec, options: { forceOff?: boolean } = {})
   for (let p = 0; p < P; p++) {
     const stride = n ** p
     const list = new Int32Array(half / n)
+
     let k = 0
 
-    for (let base = 0; base < half; base++) if (Math.floor(base / stride) % n === 0) list[k++] = base
+    for (let base = 0; base < half; base++) {
+      if (Math.floor(base / stride) % n === 0) {
+        list[k++] = base
+      }
+    }
 
     starts.push(list)
   }
@@ -319,7 +423,14 @@ export function loopKernel(spec: LoopSpec, options: { forceOff?: boolean } = {})
   }
 }
 
-function transformDigit(k: LoopKernel, re: Float64Array, im: Float64Array, offset: number, p: number, inverse: boolean): void {
+function transformDigit(
+  k: LoopKernel,
+  re: Float64Array,
+  im: Float64Array,
+  offset: number,
+  p: number,
+  inverse: boolean,
+): void {
   const n = k.spec.n
   const stride = n ** p
   const sr = k.scratchRe
@@ -355,13 +466,25 @@ function transformDigit(k: LoopKernel, re: Float64Array, im: Float64Array, offse
 }
 
 // every square's digit to its angle (forward) or back, in place
-export function loopToAngle(k: LoopKernel, re: Float64Array, im: Float64Array, inverse: boolean): void {
+export function loopToAngle(
+  k: LoopKernel,
+  re: Float64Array,
+  im: Float64Array,
+  inverse: boolean,
+): void {
   for (let offset = 0; offset < k.size; offset += k.half) {
-    for (let p = 0; p < k.spec.squares; p++) transformDigit(k, re, im, offset, p, inverse)
+    for (let p = 0; p < k.spec.squares; p++) {
+      transformDigit(k, re, im, offset, p, inverse)
+    }
   }
 }
 
-function applyHop(k: LoopKernel, re: Float64Array, im: Float64Array, conjugate: boolean): void {
+function applyHop(
+  k: LoopKernel,
+  re: Float64Array,
+  im: Float64Array,
+  conjugate: boolean,
+): void {
   const half = k.half
   const s = conjugate ? -1 : 1
   const ar = k.hopA[0]
@@ -382,7 +505,15 @@ function applyHop(k: LoopKernel, re: Float64Array, im: Float64Array, conjugate: 
   }
 }
 
-function applyTable(re: Float64Array, im: Float64Array, tr: Float64Array, ti: Float64Array, offset: number, count: number, conjugate: boolean): void {
+function applyTable(
+  re: Float64Array,
+  im: Float64Array,
+  tr: Float64Array,
+  ti: Float64Array,
+  offset: number,
+  count: number,
+  conjugate: boolean,
+): void {
   const s = conjugate ? -1 : 1
 
   for (let i = 0; i < count; i++) {
@@ -398,33 +529,53 @@ function applyTable(re: Float64Array, im: Float64Array, tr: Float64Array, ti: Fl
 }
 
 // one beat in place: hop, drift, force
-export function loopBeat(k: LoopKernel, re: Float64Array, im: Float64Array): void {
-  if (k.spec.hop !== undefined) applyHop(k, re, im, false)
+export function loopBeat(
+  k: LoopKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
+  if (k.spec.hop !== undefined) {
+    applyHop(k, re, im, false)
+  }
 
   applyTable(re, im, k.driftRe, k.driftIm, 0, k.size, false)
 
   for (let offset = 0; offset < k.size; offset += k.half) {
-    for (let p = 0; p < k.spec.squares; p++) transformDigit(k, re, im, offset, p, false)
+    for (let p = 0; p < k.spec.squares; p++) {
+      transformDigit(k, re, im, offset, p, false)
+    }
 
     applyTable(re, im, k.forceRe, k.forceIm, offset, k.half, false)
 
-    for (let p = 0; p < k.spec.squares; p++) transformDigit(k, re, im, offset, p, true)
+    for (let p = 0; p < k.spec.squares; p++) {
+      transformDigit(k, re, im, offset, p, true)
+    }
   }
 }
 
 // the inverse beat in place: force^-1, drift^-1, hop^-1
-export function loopInverseBeat(k: LoopKernel, re: Float64Array, im: Float64Array): void {
+export function loopInverseBeat(
+  k: LoopKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   for (let offset = 0; offset < k.size; offset += k.half) {
-    for (let p = 0; p < k.spec.squares; p++) transformDigit(k, re, im, offset, p, false)
+    for (let p = 0; p < k.spec.squares; p++) {
+      transformDigit(k, re, im, offset, p, false)
+    }
 
     applyTable(re, im, k.forceRe, k.forceIm, offset, k.half, true)
 
-    for (let p = 0; p < k.spec.squares; p++) transformDigit(k, re, im, offset, p, true)
+    for (let p = 0; p < k.spec.squares; p++) {
+      transformDigit(k, re, im, offset, p, true)
+    }
   }
 
   applyTable(re, im, k.driftRe, k.driftIm, 0, k.size, true)
 
-  if (k.spec.hop !== undefined) applyHop(k, re, im, true)
+  if (k.spec.hop !== undefined) {
+    applyHop(k, re, im, true)
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -432,10 +583,13 @@ export function loopInverseBeat(k: LoopKernel, re: Float64Array, im: Float64Arra
 
 export const ringCurl = (k: number): number => 2 - 2 * Math.cos(k)
 
-export const ringOmega = (kappa: number, k: number): number => Math.acos(1 - (kappa * ringCurl(k)) / 2)
+export const ringOmega = (kappa: number, k: number): number =>
+  Math.acos(1 - (kappa * ringCurl(k)) / 2)
 
-export const ringVelocity = (kappa: number, k: number): number => (kappa * Math.sin(k)) / Math.sin(ringOmega(kappa, k))
+export const ringVelocity = (kappa: number, k: number): number =>
+  (kappa * Math.sin(k)) / Math.sin(ringOmega(kappa, k))
 
 // the husk photon along a husk axis (E-FRC-0235 M3): the root of lambda^2 - 12 lambda + 8 u = 0, u = 2 - 2 cos k,
 // that vanishes at k = 0 (its partner, 12 minus it, is the massive branch)
-export const huskAxisLambda = (k: number): number => 6 - Math.sqrt(36 - 8 * ringCurl(k))
+export const huskAxisLambda = (k: number): number =>
+  6 - Math.sqrt(36 - 8 * ringCurl(k))

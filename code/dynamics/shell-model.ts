@@ -7,7 +7,13 @@
 
 // the time-averaged shell energy spectrum |u_n|^2 of the GOY model, integrated to a statistical steady state. With
 // `nonlinear` false the advective coupling is removed (no cascade, the control).
-import { ComplexPair as Complex, pairMul as mul, pairConj as conj, pairAdd as add, pairScale as scale } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as Complex,
+  pairMul as mul,
+  pairConj as conj,
+  pairAdd as add,
+  pairScale as scale,
+} from '@/code/algebra/linear/complex-pair'
 
 export function goyShellSpectrum(input: {
   shells: number

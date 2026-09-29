@@ -105,18 +105,52 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { classAverage, designSum, lineClasses } from '@/code/measure/crossing-lines'
+import {
+  classAverage,
+  designSum,
+  lineClasses,
+} from '@/code/measure/crossing-lines'
 import { fineBand } from '@/code/measure/fine-coin'
-import { absoluteMoment, exactMoment, fractionValue, lineAverage, octantGrid, relativisticSeries, sixthPattern, walkBand, walkEigen, walkSeries, type Series } from '@/code/measure/line-anisotropy'
+import {
+  absoluteMoment,
+  exactMoment,
+  fractionValue,
+  lineAverage,
+  octantGrid,
+  relativisticSeries,
+  sixthPattern,
+  walkBand,
+  walkEigen,
+  walkSeries,
+  type Series,
+} from '@/code/measure/line-anisotropy'
 
 const NS: readonly number[] = [1, 2, 4, 8]
 const MESON_NS: readonly number[] = [4, 8, 16]
 // E-SPN-0115's recorded meson levels E(0) (test/experiment/spin/meson-crossing, RECORDED_ENERGY) and c_eff (its RUN 1)
-const MESON_E0: Record<number, number> = { 4: 0.10386658008071757, 8: 0.05213891233226967, 16: 0.026185373288082 }
-const MESON_C: Record<number, number> = { 4: 0.9874, 8: 0.9969, 16: 0.9992 }
+const MESON_E0: Record<number, number> = {
+  4: 0.10386658008071757,
+  8: 0.05213891233226967,
+  16: 0.026185373288082,
+}
+const MESON_C: Record<number, number> = {
+  4: 0.9874,
+  8: 0.9969,
+  16: 0.9992,
+}
 // E-SPN-0107's measured run (test/experiment/spin/fine-coin, FIRST RUN)
-const RECORDED_TOP: Record<number, number> = { 1: 0.5, 2: 0.86603, 4: 0.96593, 8: 0.99144 }
-const RECORDED_RATIO: Record<number, number> = { 1: 1.65399, 2: 1.10266, 4: 1.02349, 8: 1.00579 }
+const RECORDED_TOP: Record<number, number> = {
+  1: 0.5,
+  2: 0.86603,
+  4: 0.96593,
+  8: 0.99144,
+}
+const RECORDED_RATIO: Record<number, number> = {
+  1: 1.65399,
+  2: 1.10266,
+  4: 1.02349,
+  8: 1.00579,
+}
 const XS: readonly number[] = [0.01, 0.02, 0.04]
 const ORDER_FLOOR = 4
 const NEG_ORDER = 4
@@ -141,22 +175,37 @@ const ME_EV = 0.51099895e6
 const STECKER = 2e-16
 const LHAASO_EV = 1.1e15
 
-const DIRS = { axis: [1, 0, 0, 0], face: [Math.SQRT1_2, Math.SQRT1_2, 0, 0], body: [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0] }
+const DIRS = {
+  axis: [1, 0, 0, 0],
+  face: [Math.SQRT1_2, Math.SQRT1_2, 0, 0],
+  body: [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0],
+}
 const DIR_LIST = Object.values(DIRS)
 
-type Band = { name: string; series: Series; scale: number; band: (k: number) => { energy: number; slope: number } }
+type Band = {
+  name: string
+  series: Series
+  scale: number
+  band: (k: number) => { energy: number; slope: number }
+}
 
 // the largest minus the least class-averaged energy over axis, face and body
-const spreadOver = (average: (n: readonly number[], K: number) => number, K: number): number => {
+const spreadOver = (
+  average: (n: readonly number[], K: number) => number,
+  K: number,
+): number => {
   const es = DIR_LIST.map(n => average(n, K))
 
   return Math.max(...es) - Math.min(...es)
 }
 
-const orders = (average: (n: readonly number[], K: number) => number, scale: number): { d: number[]; p: number[] } => {
+const orders = (
+  average: (n: readonly number[], K: number) => number,
+  scale: number,
+): { d: number[]; p: number[] } => {
   const d = XS.map(x => spreadOver(average, x * scale))
 
-  return { d, p: d.slice(1).map((x, i) => Math.log2(x / (d[i] as number))) }
+  return { d, p: d.slice(1).map((x, i) => Math.log2(x / d[i]!)) }
 }
 
 export default experiment({
@@ -184,17 +233,45 @@ export default experiment({
       [1, 4, 8],
       [3, 4, 12],
     ]
-    const momentRows = integerDirs.map(p => ({ p, m2: exactMoment(p, 2), m4: exactMoment(p, 4), m6: exactMoment(p, 6), m8: exactMoment(p, 8) }))
-    const lowIsotropic = momentRows.every(r => r.m2.num === 3n && r.m2.den === 1n && r.m4.num === 3n && r.m4.den === 2n)
+    const momentRows = integerDirs.map(p => ({
+      p,
+      m2: exactMoment(p, 2),
+      m4: exactMoment(p, 4),
+      m6: exactMoment(p, 6),
+      m8: exactMoment(p, 8),
+    }))
+    const lowIsotropic = momentRows.every(
+      r =>
+        r.m2.num === 3n &&
+        r.m2.den === 1n &&
+        r.m4.num === 3n &&
+        r.m4.den === 2n,
+    )
     const sixthExact = [
       [3n, 4n],
       [9n, 8n],
       [11n, 12n],
-    ].every(([num, den], i) => (momentRows[i] as (typeof momentRows)[number]).m6.num === num && (momentRows[i] as (typeof momentRows)[number]).m6.den === den)
+    ].every(
+      ([num, den], i) =>
+        momentRows[i]!.m6.num === num && momentRows[i]!.m6.den === den,
+    )
     const grid = octantGrid(GRID)
-    const patternOff = Math.max(...grid.map(n => Math.abs(sixthPattern(n) - designSum(n, 6))))
-    const rationalOff = Math.max(...momentRows.map(r => Math.abs(fractionValue(r.m6) - sixthPattern(r.p.map(x => x / Math.hypot(...r.p))))))
-    const controlMoments = lowIsotropic && sixthExact && patternOff <= GRID_SAME && rationalOff <= GRID_SAME
+    const patternOff = Math.max(
+      ...grid.map(n => Math.abs(sixthPattern(n) - designSum(n, 6))),
+    )
+    const rationalOff = Math.max(
+      ...momentRows.map(r =>
+        Math.abs(
+          fractionValue(r.m6) -
+            sixthPattern(r.p.map(x => x / Math.hypot(...r.p))),
+        ),
+      ),
+    )
+    const controlMoments =
+      lowIsotropic &&
+      sixthExact &&
+      patternOff <= GRID_SAME &&
+      rationalOff <= GRID_SAME
     const m6Grid = grid.map(n => sixthPattern(n))
 
     // ---- control (b): the lone love's 1d band ----
@@ -207,42 +284,91 @@ export default experiment({
           const u = fineBand(n, K, true)
           const e = walkEigen(m, K)
 
-          return [Math.abs(a.energy - b.energy), Math.abs(a.slope - b.slope), Math.abs(e[0] - b.energy), Math.abs(e[1] - u.energy)]
+          return [
+            Math.abs(a.energy - b.energy),
+            Math.abs(a.slope - b.slope),
+            Math.abs(e[0] - b.energy),
+            Math.abs(e[1] - u.energy),
+          ]
         }),
       )
       const series = walkSeries(m, ORDER)
-      const e2Off = Math.abs((series[2] as number) * 2 * Math.tan(m) - 1)
-      const top = Math.max(...[Math.PI / 4, (3 * Math.PI) / 8, Math.PI / 2].map(K => Math.abs(walkBand(m, K).slope)))
-      const ratio = 1 / (2 * (series[2] as number)) / m
+      const e2Off = Math.abs(series[2]! * 2 * Math.tan(m) - 1)
+      const top = Math.max(
+        ...[Math.PI / 4, (3 * Math.PI) / 8, Math.PI / 2].map(K =>
+          Math.abs(walkBand(m, K).slope),
+        ),
+      )
+      const ratio = 1 / (2 * series[2]!) / m
 
-      return { n, m, off, series, e2Off, top, ratio, topOff: Math.abs(top - (RECORDED_TOP[n] as number)), ratioOff: Math.abs(ratio - (RECORDED_RATIO[n] as number)) }
+      return {
+        n,
+        m,
+        off,
+        series,
+        e2Off,
+        top,
+        ratio,
+        topOff: Math.abs(top - RECORDED_TOP[n]!),
+        ratioOff: Math.abs(ratio - RECORDED_RATIO[n]!),
+      }
     })
-    const controlBand = bandRows.every(r => r.off <= EXACT && r.e2Off <= SERIES_SAME && r.topOff <= TOP_SAME && r.ratioOff <= RATIO_SAME)
+    const controlBand = bandRows.every(
+      r =>
+        r.off <= EXACT &&
+        r.e2Off <= SERIES_SAME &&
+        r.topOff <= TOP_SAME &&
+        r.ratioOff <= RATIO_SAME,
+    )
 
     // ---- the bands ----
     const bands: Band[] = [
-      ...bandRows.map(r => ({ name: `love${r.n}`, series: r.series, scale: r.m, band: (k: number) => walkBand(r.m, k) })),
+      ...bandRows.map(r => ({
+        name: `love${r.n}`,
+        series: r.series,
+        scale: r.m,
+        band: (k: number) => walkBand(r.m, k),
+      })),
       ...MESON_NS.map(n => {
-        const rest = 2 * half(n) + (MESON_E0[n] as number)
-        const c = MESON_C[n] as number
+        const rest = 2 * half(n) + MESON_E0[n]!
+        const c = MESON_C[n]!
+
         const band = (k: number) => {
           const e = Math.hypot(rest, c * k)
 
-          return { energy: (c * c * k * k) / (e + rest), slope: (c * c * k) / e }
+          return {
+            energy: (c * c * k * k) / (e + rest),
+            slope: (c * c * k) / e,
+          }
         }
 
-        return { name: `meson${n}`, series: relativisticSeries(rest, c, ORDER), scale: rest / c, band }
+        return {
+          name: `meson${n}`,
+          series: relativisticSeries(rest, c, ORDER),
+          scale: rest / c,
+          band,
+        }
       }),
     ]
 
     // ---- A1 and control (d) ----
     const aniso = bands.map(b => {
-      const { d, p } = orders((n, K) => classAverage(n, K, b.band).energy, b.scale)
-      const K0 = (XS[0] as number) * b.scale
-      const predicted = ((b.series[6] as number) * 3) / 8 / 12
-      const measured = (d[0] as number) / K0 ** 6
+      const { d, p } = orders(
+        (n, K) => classAverage(n, K, b.band).energy,
+        b.scale,
+      )
+      const K0 = XS[0]! * b.scale
+      const predicted = (b.series[6]! * 3) / 8 / 12
+      const measured = d[0]! / K0 ** 6
 
-      return { name: b.name, d, p, predicted, measured, coeffOff: Math.abs(measured / predicted - 1) }
+      return {
+        name: b.name,
+        d,
+        p,
+        predicted,
+        measured,
+        coeffOff: Math.abs(measured / predicted - 1),
+      }
     })
     const A1 = aniso.every(a => a.p.every(p => p >= ORDER_FLOOR))
     const controlDerivation = aniso.every(a => a.coeffOff <= COEFF_SAME)
@@ -262,32 +388,62 @@ export default experiment({
       [0, 1, 0, 0],
       [0, 0, 1, 0],
     ]
-    const negLove = bandRows[3] as (typeof bandRows)[number]
+    const negLove = bandRows[3]!
     const negatives = [
       { name: 'cube faces', dirs: cubeFaces },
       { name: 'cube axes', dirs: cubeAxes },
-    ].map(set => ({ name: set.name, ...orders((n, K) => lineAverage(set.dirs, n, K, k => walkBand(negLove.m, k)), negLove.m) }))
-    const controlNegative = negatives.every(x => x.p.every(p => Math.abs(p - NEG_ORDER) <= NEG_TOL))
+    ].map(set => ({
+      name: set.name,
+      ...orders(
+        (n, K) =>
+          lineAverage(set.dirs, n, K, k => walkBand(negLove.m, k)),
+        negLove.m,
+      ),
+    }))
+    const controlNegative = negatives.every(x =>
+      x.p.every(p => Math.abs(p - NEG_ORDER) <= NEG_TOL),
+    )
 
     // ---- the isotropic failures (measurement) ----
     const isotropic = bandRows.map(r => {
-      const e2c = r.series[2] as number
-      const e4c = r.series[4] as number
+      const e2c = r.series[2]!
+      const e4c = r.series[4]!
 
-      return { n: r.n, inertiaOverEnergy: 2 / (e2c * r.m), c3: Math.sqrt(r.m * 2 * e2c) / 2, lineQuartic: (-2 * r.m * e4c) / (e2c * e2c), classQuartic: (-4 * r.m * e4c) / (e2c * e2c) }
+      return {
+        n: r.n,
+        inertiaOverEnergy: 2 / (e2c * r.m),
+        c3: Math.sqrt(r.m * 2 * e2c) / 2,
+        lineQuartic: (-2 * r.m * e4c) / (e2c * e2c),
+        classQuartic: (-4 * r.m * e4c) / (e2c * e2c),
+      }
     })
 
     // ---- the massless limit (measurement) ----
     const tiny = half(1e6)
     const masslessK = 0.1
-    const massless = (n: readonly number[]) => classAverage(n, masslessK, k => walkBand(tiny, k))
-    const masslessDirs = Object.fromEntries(Object.entries(DIRS).map(([k, n]) => [k, { phase: massless(n).energy / masslessK, group: Math.hypot(...massless(n).velocity), exact: absoluteMoment(n) }]))
+    const massless = (n: readonly number[]) =>
+      classAverage(n, masslessK, k => walkBand(tiny, k))
+    const masslessDirs = Object.fromEntries(
+      Object.entries(DIRS).map(([k, n]) => [
+        k,
+        {
+          phase: massless(n).energy / masslessK,
+          group: Math.hypot(...massless(n).velocity),
+          exact: absoluteMoment(n),
+        },
+      ]),
+    )
     const masslessGrid = grid.map(n => {
       const r = massless(n)
       const speed = Math.hypot(...r.velocity)
-      const cos = r.velocity.reduce((t, x, c) => t + x * (n[c] as number), 0) / speed
+      const cos =
+        r.velocity.reduce((t, x, c) => t + x * n[c]!, 0) / speed
 
-      return { speed, phase: r.energy / masslessK, angle: Math.acos(Math.min(1, cos)) }
+      return {
+        speed,
+        phase: r.energy / masslessK,
+        angle: Math.acos(Math.min(1, cos)),
+      }
     })
     const groupMin = Math.min(...masslessGrid.map(g => g.speed))
     const groupMax = Math.max(...masslessGrid.map(g => g.speed))
@@ -299,13 +455,19 @@ export default experiment({
     // ---- A2 ----
     const limitM = half(LIMIT_N)
     const limitSeries = walkSeries(limitM, ORDER)
-    const deltaOverM2 = (1 - Math.sqrt(limitM / Math.tan(limitM))) / limitM ** 2
-    const scaledSixth = (limitSeries[6] as number) * 16 * limitM ** 5
+    const deltaOverM2 =
+      (1 - Math.sqrt(limitM / Math.tan(limitM))) / limitM ** 2
+    const scaledSixth = limitSeries[6]! * 16 * limitM ** 5
     const lhaasoDelta = 2 * (ME_EV / LHAASO_EV) ** 2
-    const boundOf = (delta: number): number => LAMBDA_E * Math.sqrt(6 * delta)
+    const boundOf = (delta: number): number =>
+      LAMBDA_E * Math.sqrt(6 * delta)
     const bound = boundOf(STECKER)
     const boundLhaaso = boundOf(lhaasoDelta)
-    const A2 = Math.abs(deltaOverM2 * 6 - 1) <= LIMIT_TOL && Math.abs(scaledSixth - 1) <= LIMIT_TOL && Number.isFinite(bound) && bound > 0
+    const A2 =
+      Math.abs(deltaOverM2 * 6 - 1) <= LIMIT_TOL &&
+      Math.abs(scaledSixth - 1) <= LIMIT_TOL &&
+      Number.isFinite(bound) &&
+      bound > 0
 
     // ---- A3 ----
     const splitM = half(SPLIT_N)
@@ -321,10 +483,24 @@ export default experiment({
     const ruledOut = splitMin > COLLIMATED
     const consistent = splits.flat().some(x => x < COLLIMATED)
     const A3 = ruledOut !== consistent
-    const still = DIR_LIST.map(n => lineClasses().filter(u => Math.abs(u.reduce((t, x, c) => t + x * (n[c] as number), 0)) < 1e-12).length / 12)
+    const still = DIR_LIST.map(
+      n =>
+        lineClasses().filter(
+          u =>
+            Math.abs(u.reduce((t, x, c) => t + x * n[c]!, 0)) < 1e-12,
+        ).length / 12,
+    )
 
-    const control = controlMoments && controlBand && controlNegative && controlDerivation
-    const status = !control ? 'partial' : A1 && A2 && A3 ? 'pass' : 'fail'
+    const control =
+      controlMoments &&
+      controlBand &&
+      controlNegative &&
+      controlDerivation
+    const status = !control
+      ? 'partial'
+      : A1 && A2 && A3
+        ? 'pass'
+        : 'fail'
 
     const metrics: Record<string, number> = {
       gate_A1: A1 ? 1 : 0,
@@ -338,9 +514,9 @@ export default experiment({
       controlDerivation: controlDerivation ? 1 : 0,
       patternOff,
       rationalOff,
-      sixthAxis: fractionValue((momentRows[0] as (typeof momentRows)[number]).m6),
-      sixthFace: fractionValue((momentRows[1] as (typeof momentRows)[number]).m6),
-      sixthBody: fractionValue((momentRows[2] as (typeof momentRows)[number]).m6),
+      sixthAxis: fractionValue(momentRows[0]!.m6),
+      sixthFace: fractionValue(momentRows[1]!.m6),
+      sixthBody: fractionValue(momentRows[2]!.m6),
       sixthGridMin: Math.min(...m6Grid),
       sixthGridMax: Math.max(...m6Grid),
       masslessGroupMin: groupMin,
@@ -358,9 +534,9 @@ export default experiment({
       lhaasoDelta,
       splitMin,
       splitMax,
-      stillAxis: still[0] as number,
-      stillFace: still[1] as number,
-      stillBody: still[2] as number,
+      stillAxis: still[0]!,
+      stillFace: still[1]!,
+      stillBody: still[2]!,
     }
 
     for (const a of aniso) {
@@ -373,10 +549,15 @@ export default experiment({
       metrics[`love${r.n}_bandOff`] = r.off
       metrics[`love${r.n}_top`] = r.top
       metrics[`love${r.n}_ratio`] = r.ratio
-      metrics[`love${r.n}_scaledSixth`] = (r.series[6] as number) * 16 * r.m ** 5
+      metrics[`love${r.n}_scaledSixth`] = r.series[6]! * 16 * r.m ** 5
     }
 
-    for (const x of negatives) x.p.forEach((p, i) => (metrics[`${x.name.replace(' ', '_')}_order${i}`] = p))
+    for (const x of negatives) {
+      x.p.forEach(
+        (p, i) =>
+          (metrics[`${x.name.replace(' ', '_')}_order${i}`] = p),
+      )
+    }
 
     for (const i of isotropic) {
       metrics[`love${i.n}_inertiaOverEnergy`] = i.inertiaOverEnergy
@@ -395,8 +576,32 @@ export default experiment({
       status,
       claim: `a 3d state spread over the twelve line classes: its band's first direction-dependent term is order ${aniso.map(a => f4(Math.min(...a.p))).join(', ')} in aP (lone love n = ${NS.join(', ')}, meson n = ${MESON_NS.join(', ')}; A1 ${A1}), pattern M_6 = 3/4 + (3/2)q - 9r (axis 3/4, face 9/8, body 11/12, exact), coefficient e_6 (3/8)/12 to ${e2(Math.max(...aniso.map(a => a.coeffOff)))}, and 16 m^5 e_6 = ${f6(scaledSixth)} at n = ${LIMIT_N}: the anisotropy is M c^2 (P/Mc)^6/512, with no a in it; the isotropic part is not Lorentz either (inertia ${isotropic.map(i => f4(i.inertiaOverEnergy)).join(', ')} times the energy, P^4 term ${isotropic.map(i => f4(i.classQuartic)).join(', ')} times Lorentz); massless, the speed runs ${f4(groupMin)} to ${f4(groupMax)} c with direction (${f4(100 * speedAnisotropy)} percent, velocity up to ${f4((angleMax * 180) / Math.PI)} degrees off P); the only a-dependent term is delta = (a/lambda_C)^2/6 (${f6(deltaOverM2)} m^2), which with c_gamma - c_e < 2e-16 gives a < ${e2(bound)} m = ${e2(bound / PLANCK)} Planck lengths (A2 ${A2}); branches separate at ${f6(splitMin)} to ${f6(splitMax)} times the drift at every aP/m from 1e-3 to 1e3, ruled out ${ruledOut} (A3 ${A3}); controls moments ${controlMoments}, band ${controlBand}, negative ${controlNegative}, derivation ${controlDerivation}`,
       metrics,
-      control: { moments: controlMoments ? 1 : 0, band: controlBand ? 1 : 0, negative: controlNegative ? 1 : 0, derivation: controlDerivation ? 1 : 0 },
-      notes: `L1. A1 ${A1}, A2 ${A2}, A3 ${A3} (ruled out ${ruledOut}). Moments (exact, m = 2, 4, 6, 8): ${momentRows.map(r => `(${r.p.join(',')}) ${[r.m2, r.m4, r.m6, r.m8].map(f => `${f.num}/${f.den}`).join(' ')}`).join('; ')}; closed form against the class sum on the grid ${e2(patternOff)}, on the rational directions ${e2(rationalOff)}; M_6 on the grid ${f4(Math.min(...m6Grid))} to ${f4(Math.max(...m6Grid))}. Bands: ${bandRows.map(r => `n ${r.n} m ${f6(r.m)} off ${e2(r.off)} e_2 off ${e2(r.e2Off)} top ${r.top.toFixed(6)} (recorded ${RECORDED_TOP[r.n]}) m*/E_rest ${r.ratio.toFixed(6)} (recorded ${RECORDED_RATIO[r.n]}) series ${r.series.filter((_, j) => j % 2 === 0 && j > 0).map(e4).join(' ')}`).join('; ')}. Anisotropy D at x = ${XS.join(', ')}: ${aniso.map(a => `${a.name} ${a.d.map(e4).join(' ')} order ${a.p.map(f4).join(' ')} coefficient ${e4(a.measured)} (derived ${e4(a.predicted)})`).join('; ')}. Not 5-designs (love n 8): ${negatives.map(x => `${x.name} D ${x.d.map(e4).join(' ')} order ${x.p.map(f4).join(' ')}`).join('; ')}. Isotropic: ${isotropic.map(i => `n ${i.n} inertia/energy ${f4(i.inertiaOverEnergy)} c_3 ${f4(i.c3)} line quartic ${f4(i.lineQuartic)} class quartic ${f4(i.classQuartic)}`).join('; ')}. Massless (m = pi/3e6, aP = ${masslessK}): ${Object.entries(masslessDirs).map(([k, v]) => `${k} phase ${f6(v.phase)} group ${f6(v.group)} exact ${f6(v.exact)}`).join('; ')}; grid group ${f6(groupMin)} to ${f6(groupMax)}, phase ${f6(phaseMin)} to ${f6(phaseMax)}, largest angle v to P ${f4((angleMax * 180) / Math.PI)} degrees. A2: delta/m^2 ${deltaOverM2} at n ${LIMIT_N}, 16 m^5 e_6 ${scaledSixth}; bound from c_gamma - c_e < ${STECKER} (Stecker and Glashow 2001): a < ${e2(bound)} m = ${e2(bound / PLANCK)} l_P; from the 1.1 PeV Crab photon by the same threshold (delta < ${e2(lhaasoDelta)}): a < ${e2(boundLhaaso)} m = ${e2(boundLhaaso / PLANCK)} l_P. A3: spread over drift ${splits.map((row, i) => `aP/m ${SPLIT_XS[i]} ${row.map(f6).join(' ')}`).join('; ')}; weight that never moves: axis ${f4(still[0] as number)}, face ${f4(still[1] as number)}, body ${f4(still[2] as number)}.`,
+      control: {
+        moments: controlMoments ? 1 : 0,
+        band: controlBand ? 1 : 0,
+        negative: controlNegative ? 1 : 0,
+        derivation: controlDerivation ? 1 : 0,
+      },
+      notes: `L1. A1 ${A1}, A2 ${A2}, A3 ${A3} (ruled out ${ruledOut}). Moments (exact, m = 2, 4, 6, 8): ${momentRows.map(r => `(${r.p.join(',')}) ${[r.m2, r.m4, r.m6, r.m8].map(f => `${f.num}/${f.den}`).join(' ')}`).join('; ')}; closed form against the class sum on the grid ${e2(patternOff)}, on the rational directions ${e2(rationalOff)}; M_6 on the grid ${f4(Math.min(...m6Grid))} to ${f4(Math.max(...m6Grid))}. Bands: ${bandRows
+        .map(
+          r =>
+            `n ${r.n} m ${f6(r.m)} off ${e2(r.off)} e_2 off ${e2(r.e2Off)} top ${r.top.toFixed(6)} (recorded ${RECORDED_TOP[r.n]}) m*/E_rest ${r.ratio.toFixed(6)} (recorded ${RECORDED_RATIO[r.n]}) series ${r.series
+              .filter((_, j) => j % 2 === 0 && j > 0)
+              .map(e4)
+              .join(' ')}`,
+        )
+        .join(
+          '; ',
+        )}. Anisotropy D at x = ${XS.join(', ')}: ${aniso.map(a => `${a.name} ${a.d.map(e4).join(' ')} order ${a.p.map(f4).join(' ')} coefficient ${e4(a.measured)} (derived ${e4(a.predicted)})`).join('; ')}. Not 5-designs (love n 8): ${negatives.map(x => `${x.name} D ${x.d.map(e4).join(' ')} order ${x.p.map(f4).join(' ')}`).join('; ')}. Isotropic: ${isotropic.map(i => `n ${i.n} inertia/energy ${f4(i.inertiaOverEnergy)} c_3 ${f4(i.c3)} line quartic ${f4(i.lineQuartic)} class quartic ${f4(i.classQuartic)}`).join('; ')}. Massless (m = pi/3e6, aP = ${masslessK}): ${Object.entries(
+        masslessDirs,
+      )
+        .map(
+          ([k, v]) =>
+            `${k} phase ${f6(v.phase)} group ${f6(v.group)} exact ${f6(v.exact)}`,
+        )
+        .join(
+          '; ',
+        )}; grid group ${f6(groupMin)} to ${f6(groupMax)}, phase ${f6(phaseMin)} to ${f6(phaseMax)}, largest angle v to P ${f4((angleMax * 180) / Math.PI)} degrees. A2: delta/m^2 ${deltaOverM2} at n ${LIMIT_N}, 16 m^5 e_6 ${scaledSixth}; bound from c_gamma - c_e < ${STECKER} (Stecker and Glashow 2001): a < ${e2(bound)} m = ${e2(bound / PLANCK)} l_P; from the 1.1 PeV Crab photon by the same threshold (delta < ${e2(lhaasoDelta)}): a < ${e2(boundLhaaso)} m = ${e2(boundLhaaso / PLANCK)} l_P. A3: spread over drift ${splits.map((row, i) => `aP/m ${SPLIT_XS[i]} ${row.map(f6).join(' ')}`).join('; ')}; weight that never moves: axis ${f4(still[0]!)}, face ${f4(still[1]!)}, body ${f4(still[2]!)}.`,
     })
   },
 })

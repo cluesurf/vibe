@@ -22,9 +22,18 @@
 
 import { Worker } from 'node:worker_threads'
 import { ROOTS } from '@/code/measure/swap-sector'
-import { CONTACT_STATES, STORE_BASE, type MesonEngine, type MesonSpace, type MesonState, type Sparse } from '@/code/measure/swap-string'
+import {
+  CONTACT_STATES,
+  STORE_BASE,
+  type MesonEngine,
+  type MesonSpace,
+  type MesonState,
+  type Sparse,
+} from '@/code/measure/swap-string'
 
-const OPP: readonly number[] = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] as number))))
+const OPP: readonly number[] = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -r[k]!)),
+)
 
 // the worker's program (plain JavaScript, evaluated in each thread)
 const PROGRAM = `
@@ -210,7 +219,8 @@ for (;;) {
 }
 `
 
-const shared = (n: number): Float64Array => new Float64Array(new SharedArrayBuffer(n * 8))
+const shared = (n: number): Float64Array =>
+  new Float64Array(new SharedArrayBuffer(n * 8))
 
 // a space whose scratch, string and stream arrays live in shared memory (so a threaded engine can read them); the
 // caller builds it with swap-string mesonSpace and passes it through here before any engine is made
@@ -223,25 +233,54 @@ export function shareSpace(space: MesonSpace): MesonSpace {
     return b
   }
 
-  const length = new Int32Array(new SharedArrayBuffer(space.length.length * 4))
+  const length = new Int32Array(
+    new SharedArrayBuffer(space.length.length * 4),
+  )
 
   length.set(space.length)
 
-  return { ...space, tr: move(space.tr), ti: move(space.ti), string: move(space.string), stream: move(space.stream), shapes: move(space.shapes), odd: move(space.odd), length }
+  return {
+    ...space,
+    tr: move(space.tr),
+    ti: move(space.ti),
+    string: move(space.string),
+    stream: move(space.stream),
+    shapes: move(space.shapes),
+    odd: move(space.odd),
+    length,
+  }
 }
 
 // the threaded engine over `threads` workers and a pool of `states` shared states
-export function threadEngine(space: MesonSpace, threads: number, states: number): MesonEngine {
-  if (!(space.tr.buffer instanceof SharedArrayBuffer) || !(space.string.buffer instanceof SharedArrayBuffer) || !(space.stream.buffer instanceof SharedArrayBuffer) || !(space.shapes.buffer instanceof SharedArrayBuffer) || !(space.odd.buffer instanceof SharedArrayBuffer) || !(space.length.buffer instanceof SharedArrayBuffer)) throw new Error('meson-pool: the space is not shared (shareSpace)')
+export function threadEngine(
+  space: MesonSpace,
+  threads: number,
+  states: number,
+): MesonEngine {
+  if (
+    !(space.tr.buffer instanceof SharedArrayBuffer) ||
+    !(space.string.buffer instanceof SharedArrayBuffer) ||
+    !(space.stream.buffer instanceof SharedArrayBuffer) ||
+    !(space.shapes.buffer instanceof SharedArrayBuffer) ||
+    !(space.odd.buffer instanceof SharedArrayBuffer) ||
+    !(space.length.buffer instanceof SharedArrayBuffer)
+  ) {
+    throw new Error('meson-pool: the space is not shared (shareSpace)')
+  }
 
   const { ball, origin } = space
   const n = ball.points.length
   const size = n * 576 + 24
-  const pool: MesonState[] = Array.from({ length: states }, () => ({ re: shared(size), im: shared(size) }))
+  const pool: MesonState[] = Array.from({ length: states }, () => ({
+    re: shared(size),
+    im: shared(size),
+  }))
   const free = new Set(pool)
   const index = new Map(pool.map((s, i) => [s, i]))
   const ctrl = new Int32Array(new SharedArrayBuffer(8 * 4))
-  const step = new Int32Array(new SharedArrayBuffer(ball.step.length * 4))
+  const step = new Int32Array(
+    new SharedArrayBuffer(ball.step.length * 4),
+  )
   const partial = shared(threads * 6)
 
   step.set(ball.step)
@@ -280,7 +319,10 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
   for (;;) {
     const ready = Atomics.load(ctrl, 3)
 
-    if (ready >= threads) break
+    if (ready >= threads) {
+      break
+    }
+
     Atomics.wait(ctrl, 3, ready, 1000)
   }
 
@@ -293,7 +335,10 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
     for (;;) {
       const done = Atomics.load(ctrl, 2)
 
-      if (done >= threads) break
+      if (done >= threads) {
+        break
+      }
+
       Atomics.wait(ctrl, 2, done, 1000)
     }
   }
@@ -305,21 +350,30 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
     space,
     threads,
     borrow: () => {
-      const s = free.values().next().value as MesonState | undefined
+      const s = free.values().next().value
 
-      if (!s) throw new Error('meson-pool: every pooled state is in use')
+      if (!s) {
+        throw new Error('meson-pool: every pooled state is in use')
+      }
+
       free.delete(s)
 
       return s
     },
     give: s => {
-      if (index.has(s)) free.add(s)
+      if (index.has(s)) {
+        free.add(s)
+      }
     },
     beat: (s, out, beat, flow) => {
       const si = index.get(s)
       const oi = index.get(out)
 
-      if (si === undefined || oi === undefined || si === oi) throw new Error('meson-pool: beat needs two distinct pooled states')
+      if (si === undefined || oi === undefined || si === oi) {
+        throw new Error(
+          'meson-pool: beat needs two distinct pooled states',
+        )
+      }
 
       ctrl[4] = si
       ctrl[5] = oi
@@ -327,33 +381,36 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
       run(1)
 
       // the contact at y = 0 and the stores, on this thread (mesonBeat's own step)
-      const C = space.contact[beat % 2] as Sparse
+      const C = space.contact[beat % 2]!
       const base = origin * 576
 
       for (let i = 0; i < STORE_BASE; i++) {
-        vr[i] = s.re[base + i] as number
-        vi[i] = s.im[base + i] as number
+        vr[i] = s.re[base + i]!
+        vi[i] = s.im[base + i]!
       }
+
       for (let j = 0; j < 24; j++) {
-        vr[STORE_BASE + j] = s.re[n * 576 + j] as number
-        vi[STORE_BASE + j] = s.im[n * 576 + j] as number
+        vr[STORE_BASE + j] = s.re[n * 576 + j]!
+        vi[STORE_BASE + j] = s.im[n * 576 + j]!
       }
 
       const or = new Float64Array(CONTACT_STATES)
       const oim = new Float64Array(CONTACT_STATES)
 
       for (let f = 0; f < CONTACT_STATES; f++) {
-        const xr = vr[f] as number
-        const xi = vi[f] as number
+        const xr = vr[f]!
+        const xi = vi[f]!
 
-        if (xr === 0 && xi === 0) continue
+        if (xr === 0 && xi === 0) {
+          continue
+        }
 
-        const col = C.cols[f] as Sparse['cols'][number]
+        const col = C.cols[f]!
 
         for (let e = 0; e < col.to.length; e++) {
-          const t = col.to[e] as number
-          const cr = col.re[e] as number
-          const ci = col.im[e] as number
+          const t = col.to[e]!
+          const cr = col.re[e]!
+          const ci = col.im[e]!
 
           or[t]! += cr * xr - ci * xi
           oim[t]! += cr * xi + ci * xr
@@ -362,32 +419,41 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
 
       let lost = 0
       let fw = 0
+
       const fv = [0, 0, 0, 0]
 
       for (let l = 0; l < 24; l++) {
-        const q1 = ball.step[origin * 24 + l] as number
+        const q1 = ball.step[origin * 24 + l]!
 
         for (let f = 0; f < 24; f++) {
           const i = l * 24 + f
-          const xr = or[i] as number
-          const xi = oim[i] as number
+          const xr = or[i]!
+          const xi = oim[i]!
 
           space.tr[base + i] = xr
           space.ti[base + i] = xi
 
           const w = xr * xr + xi * xi
 
-          if (w === 0) continue
+          if (w === 0) {
+            continue
+          }
 
-          const q = q1 < 0 ? -1 : (ball.step[q1 * 24 + (OPP[f] as number)] as number)
+          const q = q1 < 0 ? -1 : ball.step[q1 * 24 + OPP[f]!]!
 
-          if (q < 0) lost += w
+          if (q < 0) {
+            lost += w
+          }
+
           if (flow) {
-            const r1 = ROOTS[l] as readonly number[]
-            const r2 = ROOTS[f] as readonly number[]
+            const r1 = ROOTS[l]!
+            const r2 = ROOTS[f]!
 
             fw += w
-            for (let k = 0; k < 4; k++) fv[k]! += (w * ((r1[k] as number) + (r2[k] as number))) / 2
+
+            for (let k = 0; k < 4; k++) {
+              fv[k]! += (w * (r1[k]! + r2[k]!)) / 2
+            }
           }
         }
       }
@@ -395,22 +461,32 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
       run(2)
 
       for (let j = 0; j < 24; j++) {
-        out.re[n * 576 + j] = or[STORE_BASE + j] as number
-        out.im[n * 576 + j] = oim[STORE_BASE + j] as number
-        if (flow) fw += (or[STORE_BASE + j] as number) ** 2 + (oim[STORE_BASE + j] as number) ** 2
+        out.re[n * 576 + j] = or[STORE_BASE + j]!
+        out.im[n * 576 + j] = oim[STORE_BASE + j]!
+
+        if (flow) {
+          fw += or[STORE_BASE + j]! ** 2 + oim[STORE_BASE + j]! ** 2
+        }
       }
 
       for (let t = 0; t < threads; t++) {
-        lost += partial[t * 6] as number
+        lost += partial[t * 6]!
+
         if (flow) {
-          fw += partial[t * 6 + 1] as number
-          for (let k = 0; k < 4; k++) fv[k]! += partial[t * 6 + 2 + k] as number
+          fw += partial[t * 6 + 1]!
+
+          for (let k = 0; k < 4; k++) {
+            fv[k]! += partial[t * 6 + 2 + k]!
+          }
         }
       }
 
       if (flow) {
         flow.weight += fw
-        for (let k = 0; k < 4; k++) flow.v[k] = (flow.v[k] as number) + (fv[k] as number)
+
+        for (let k = 0; k < 4; k++) {
+          flow.v[k] = flow.v[k]! + fv[k]!
+        }
       }
 
       return lost
@@ -419,7 +495,10 @@ export function threadEngine(space: MesonSpace, threads: number, states: number)
       Atomics.store(ctrl, 0, 3)
       Atomics.add(ctrl, 1, 1)
       Atomics.notify(ctrl, 1)
-      for (const w of workers) void w.terminate()
+
+      for (const w of workers) {
+        void w.terminate()
+      }
     },
   }
 }

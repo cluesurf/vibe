@@ -53,17 +53,39 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { type FluxStoreSpec } from '@/code/rule/flux-store-line'
-import { antisymmetrized, type LockedStart } from '@/code/measure/locked-run'
+import {
+  antisymmetrized,
+  type LockedStart,
+} from '@/code/measure/locked-run'
 import { exactCheck } from '@/code/measure/flux-store-exact'
-import { lightestUnwrapped, lineShare, nearestBandBottom, spectrumAt, stringMoments, type BlochSpec } from '@/code/measure/flux-store-bloch'
+import {
+  lightestUnwrapped,
+  lineShare,
+  nearestBandBottom,
+  spectrumAt,
+  stringMoments,
+  type BlochSpec,
+} from '@/code/measure/flux-store-bloch'
 
 const DEPTHS = [1, 2, 3, 4, 6, 8, 12, 16] as const
 const SIZE_DEPTHS = [4, 8, 16] as const
 
-const pairSpec = (D: number, convention: 'C' | 'Cprime', cost: number): BlochSpec => {
+const pairSpec = (
+  D: number,
+  convention: 'C' | 'Cprime',
+  cost: number,
+): BlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'fear'], convention, unlike: convention === 'C' ? 'knit' : 'dock', depth: D, cost, root: 2 * N * N, labels: convention === 'C' ? 2 : 3 }
+  return {
+    kinds: ['love', 'fear'],
+    convention,
+    unlike: convention === 'C' ? 'knit' : 'dock',
+    depth: D,
+    cost,
+    root: 2 * N * N,
+    labels: convention === 'C' ? 2 : 3,
+  }
 }
 
 type Reading = {
@@ -85,7 +107,11 @@ type Reading = {
   naiveEnergy: number
 }
 
-function readPair(D: number, convention: 'C' | 'Cprime', cost: number): Reading {
+function readPair(
+  D: number,
+  convention: 'C' | 'Cprime',
+  cost: number,
+): Reading {
   const spec = pairSpec(D, convention, cost)
   const r = spectrumAt(spec, 0)
   const lp = lightestUnwrapped(r.bloch, r.all, 4 * D + 6)
@@ -115,24 +141,63 @@ function readPair(D: number, convention: 'C' | 'Cprime', cost: number): Reading 
 export default experiment({
   id: 'spin/string-cost-lightest',
   code: 'E-SPN-0076',
-  title: "the string's cost is the light's own drift term read on the flux, zeta^(-c l) with c = N the classical light's split, and it never wraps inside the column (the longest string costs 2D pi / (2D + 1) < pi); a STAND-IN on locked tokens: the rule stays exact and reversible, and with the particle sector read in momentum space and each level unwrapped by its own content the lightest level is defined, unique, and the most compact, its size set by the cost and not the wall",
+  title:
+    "the string's cost is the light's own drift term read on the flux, zeta^(-c l) with c = N the classical light's split, and it never wraps inside the column (the longest string costs 2D pi / (2D + 1) < pi); a STAND-IN on locked tokens: the rule stays exact and reversible, and with the particle sector read in momentum space and each level unwrapped by its own content the lightest level is defined, unique, and the most compact, its size set by the cost and not the wall",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- C1 ----
-    const pairStart: LockedStart[] = [{ x: [6, 6], j: [0, 1], amp: [1, 0] }]
-    const pairExact: FluxStoreSpec = { ring: 12, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', depth: 2, cost: 5, root: 50 }
-    const threeExact: FluxStoreSpec = { ring: 7, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: 1, cost: 3, root: 18 }
-    const variantExact: FluxStoreSpec = { ring: 12, kinds: ['love', 'fear'], convention: 'Cprime', unlike: 'dock', depth: 2, cost: 5, root: 50 }
+    const pairStart: LockedStart[] = [
+      { x: [6, 6], j: [0, 1], amp: [1, 0] },
+    ]
+    const pairExact: FluxStoreSpec = {
+      ring: 12,
+      kinds: ['love', 'fear'],
+      convention: 'C',
+      unlike: 'knit',
+      depth: 2,
+      cost: 5,
+      root: 50,
+    }
+    const threeExact: FluxStoreSpec = {
+      ring: 7,
+      kinds: ['love', 'love', 'love'],
+      convention: 'C',
+      unlike: 'knit',
+      depth: 1,
+      cost: 3,
+      root: 18,
+    }
+    const variantExact: FluxStoreSpec = {
+      ring: 12,
+      kinds: ['love', 'fear'],
+      convention: 'Cprime',
+      unlike: 'dock',
+      depth: 2,
+      cost: 5,
+      root: 50,
+    }
     const e1 = exactCheck(pairExact, pairStart, 12)
-    const e2 = exactCheck(threeExact, antisymmetrized({ x: [3, 3, 4], j: [0, 1, 0] }), 6)
+    const e2 = exactCheck(
+      threeExact,
+      antisymmetrized({ x: [3, 3, 4], j: [0, 1, 0] }),
+      6,
+    )
     const e3 = exactCheck(variantExact, pairStart, 8)
-    const exactOk = (e: typeof e1): boolean => e.gap < 1e-12 && e.norm && e.reverses && e.registersOk && e.merged === 0
+    const exactOk = (e: typeof e1): boolean =>
+      e.gap < 1e-12 &&
+      e.norm &&
+      e.reverses &&
+      e.registersOk &&
+      e.merged === 0
     const c1 = exactOk(e1) && exactOk(e2)
 
     log('c1')
@@ -143,7 +208,9 @@ export default experiment({
     for (let D = 1; D <= 64; D++) {
       const N = 2 * D + 1
 
-      if (!(2 * N * (2 * D) < 2 * N * N)) c2 = false
+      if (!(2 * N * (2 * D) < 2 * N * N)) {
+        c2 = false
+      }
     }
 
     // ---- C3 ----
@@ -155,22 +222,38 @@ export default experiment({
 
     log('c3 variant')
 
-    const c3 = primary.every(r => r.particleLevels > 0 && r.offset < Math.PI / 2 && r.gapNext >= 1e-3 && r.mean <= r.compactest + 1e-9)
+    const c3 = primary.every(
+      r =>
+        r.particleLevels > 0 &&
+        r.offset < Math.PI / 2 &&
+        r.gapNext >= 1e-3 &&
+        r.mean <= r.compactest + 1e-9,
+    )
 
     // ---- C4 ----
     const wallOnly = SIZE_DEPTHS.map(D => readPair(D, 'C', 0))
-    const costSized = SIZE_DEPTHS.map(D => primary.find(r => r.D === D)!)
-    const c4 = costSized.every(r => r.mean <= r.D / 4) && wallOnly.every(r => r.mean >= r.D / 3)
+    const costSized = SIZE_DEPTHS.map(
+      D => primary.find(r => r.D === D)!,
+    )
+    const c4 =
+      costSized.every(r => r.mean <= r.D / 4) &&
+      wallOnly.every(r => r.mean >= r.D / 3)
     const otherSplit = readPair(8, 'C', 2)
 
     log('c4')
 
     const ok = c1 && c2 && c3 && c4
-    const row = (r: Reading): string => `D ${r.D}: E ${r.unwrapped.toFixed(4)}, <l> ${r.mean.toFixed(3)}, next +${r.gapNext.toFixed(4)}`
+    const row = (r: Reading): string =>
+      `D ${r.D}: E ${r.unwrapped.toFixed(4)}, <l> ${r.mean.toFixed(3)}, next +${r.gapNext.toFixed(4)}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `the drift's cost zeta_(2N)^(-l) keeps the rule exact over Z[zeta_K] (pair ${e1.gap.toExponential(1)} from the float runner, three loves ${e2.gap.toExponential(1)}, norm identity ${e1.norm && e2.norm}, exact reversal ${e1.reverses && e2.reverses}) and never wraps inside the column (2D pi / (2D + 1) < pi at every D); with the particle sector read in momentum space and each level unwrapped by its own kinetic, string and meeting content, the love-fear pair's lightest level under C is defined and the most compact particle level at every depth (${primary.map(row).join('; ')}), its size set by the cost: at D = 4, 8, 16 <l> = ${costSized.map(r => r.mean.toFixed(2)).join(', ')} with the cost against ${wallOnly.map(r => r.mean.toFixed(2)).join(', ')} with the wall alone; C' (reported): ${variant.filter(r => [2, 8, 16].includes(r.D)).map(row).join('; ')}; the naive nearest-to-zero level holds <l> = ${primary.map(r => r.naiveMean.toFixed(1)).join(', ')}`,
+      claim: `the drift's cost zeta_(2N)^(-l) keeps the rule exact over Z[zeta_K] (pair ${e1.gap.toExponential(1)} from the float runner, three loves ${e2.gap.toExponential(1)}, norm identity ${e1.norm && e2.norm}, exact reversal ${e1.reverses && e2.reverses}) and never wraps inside the column (2D pi / (2D + 1) < pi at every D); with the particle sector read in momentum space and each level unwrapped by its own kinetic, string and meeting content, the love-fear pair's lightest level under C is defined and the most compact particle level at every depth (${primary.map(row).join('; ')}), its size set by the cost: at D = 4, 8, 16 <l> = ${costSized.map(r => r.mean.toFixed(2)).join(', ')} with the cost against ${wallOnly.map(r => r.mean.toFixed(2)).join(', ')} with the wall alone; C' (reported): ${variant
+        .filter(r => [2, 8, 16].includes(r.D))
+        .map(row)
+        .join(
+          '; ',
+        )}; the naive nearest-to-zero level holds <l> = ${primary.map(r => r.naiveMean.toFixed(1)).join(', ')}`,
       metrics: {
         gate_C1: c1 ? 1 : 0,
         gate_C2: c2 ? 1 : 0,
@@ -199,7 +282,12 @@ export default experiment({
             [`pairC_D${r.D}_naiveMeanString`, r.naiveMean],
           ]),
         ),
-        ...Object.fromEntries(wallOnly.flatMap(r => [[`wallOnly_D${r.D}_meanString`, r.mean], [`wallOnly_D${r.D}_energy`, r.unwrapped]])),
+        ...Object.fromEntries(
+          wallOnly.flatMap(r => [
+            [`wallOnly_D${r.D}_meanString`, r.mean],
+            [`wallOnly_D${r.D}_energy`, r.unwrapped],
+          ]),
+        ),
         otherSplitD8_energy: otherSplit.unwrapped,
         otherSplitD8_meanString: otherSplit.mean,
         seconds: (Date.now() - started) / 1000,
@@ -215,7 +303,10 @@ export default experiment({
             [`pairCprime_D${r.D}_evenShare`, r.even],
             [`pairCprime_D${r.D}_lineShare`, r.line],
             [`pairCprime_D${r.D}_gapNext`, r.gapNext],
-            [`pairCprime_D${r.D}_mostCompact`, r.mean <= r.compactest + 1e-9 ? 1 : 0],
+            [
+              `pairCprime_D${r.D}_mostCompact`,
+              r.mean <= r.compactest + 1e-9 ? 1 : 0,
+            ],
           ]),
         ),
       },

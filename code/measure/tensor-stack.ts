@@ -32,10 +32,23 @@
 //
 // DETERMINISM: nothing is drawn. NOTHING MOVES: values only.
 
-import { solveLinearSystem, makeDense } from '@/code/algebra/linear/dense'
-import { dyadicMod, inverseMod, mod, mulMod } from '@/code/algebra/linear/modular-linear'
+import {
+  solveLinearSystem,
+  makeDense,
+} from '@/code/algebra/linear/dense'
+import {
+  dyadicMod,
+  inverseMod,
+  mod,
+  mulMod,
+} from '@/code/algebra/linear/modular-linear'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { hField, kernelKey, LAPSE, SHIFT } from '@/code/measure/cubic-slide'
+import {
+  hField,
+  kernelKey,
+  LAPSE,
+  SHIFT,
+} from '@/code/measure/cubic-slide'
 import { type StackMode } from '@/code/measure/open-husk'
 import { type Layering } from '@/code/measure/rs-layering'
 
@@ -43,13 +56,18 @@ export const eta = (mu: number): number => (mu === 0 ? -1 : 1)
 
 export type Tensor = number[][]
 
-export const zeroTensor = (D: number): Tensor => Array.from({ length: D }, () => new Array<number>(D).fill(0))
+export const zeroTensor = (D: number): Tensor =>
+  Array.from({ length: D }, () => new Array<number>(D).fill(0))
 
 // the independent components (m <= n) of a symmetric D x D tensor
 export function symmetricComponents(D: number): [number, number][] {
   const out: [number, number][] = []
 
-  for (let m = 0; m < D; m++) for (let n = m; n < D; n++) out.push([m, n])
+  for (let m = 0; m < D; m++) {
+    for (let n = m; n < D; n++) {
+      out.push([m, n])
+    }
+  }
 
   return out
 }
@@ -66,15 +84,29 @@ export function tensorOf(D: number, h: readonly number[]): Tensor {
 }
 
 // H.K = H_mn K^mn and tr H = eta^mn H_mn
-export const contract = (H: Tensor, K: Tensor): number => H.reduce((t, row, m) => t + row.reduce((u, v, n) => u + eta(m) * eta(n) * v * K[m]![n]!, 0), 0)
-export const trace = (H: Tensor): number => H.reduce((t, row, m) => t + eta(m) * row[m]!, 0)
+export const contract = (H: Tensor, K: Tensor): number =>
+  H.reduce(
+    (t, row, m) =>
+      t +
+      row.reduce((u, v, n) => u + eta(m) * eta(n) * v * K[m]![n]!, 0),
+    0,
+  )
+export const trace = (H: Tensor): number =>
+  H.reduce((t, row, m) => t + eta(m) * row[m]!, 0)
 
 // the Fierz-Pauli Lagrangian from its derivatives dH(l, m, n) = D_l H_mn, in D dimensions
-export function fierzPauliForm(D: number, dH: (l: number, m: number, n: number) => number): number {
+export function fierzPauliForm(
+  D: number,
+  dH: (l: number, m: number, n: number) => number,
+): number {
   let q = 0
 
   for (let l = 0; l < D; l++) {
-    for (let m = 0; m < D; m++) for (let n = 0; n < D; n++) q -= 0.5 * eta(l) * eta(m) * eta(n) * dH(l, m, n) ** 2
+    for (let m = 0; m < D; m++) {
+      for (let n = 0; n < D; n++) {
+        q -= 0.5 * eta(l) * eta(m) * eta(n) * dH(l, m, n) ** 2
+      }
+    }
 
     let V = 0
     let T = 0
@@ -83,6 +115,7 @@ export function fierzPauliForm(D: number, dH: (l: number, m: number, n: number) 
       V += eta(m) * dH(m, m, l)
       T += eta(m) * dH(l, m, m)
     }
+
     q += eta(l) * (V * V - V * T + 0.5 * T * T)
   }
 
@@ -90,11 +123,19 @@ export function fierzPauliForm(D: number, dH: (l: number, m: number, n: number) 
 }
 
 // the symmetric matrix M of a quadratic form Q on R^n, Q(x) = x^T M x, by polarization
-export function formMatrix(n: number, Q: (x: number[]) => number): number[][] {
-  const e = (i: number, j = -1): number[] => Array.from({ length: n }, (_, k) => (k === i || k === j ? 1 : 0))
+export function formMatrix(
+  n: number,
+  Q: (x: number[]) => number,
+): number[][] {
+  const e = (i: number, j = -1): number[] =>
+    Array.from({ length: n }, (_, k) => (k === i || k === j ? 1 : 0))
   const diag = Array.from({ length: n }, (_, i) => Q(e(i)))
 
-  return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? diag[i]! : (Q(e(i, j)) - diag[i]! - diag[j]!) / 2)))
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) =>
+      i === j ? diag[i]! : (Q(e(i, j)) - diag[i]! - diag[j]!) / 2,
+    ),
+  )
 }
 
 export type FormSpec = {
@@ -107,7 +148,11 @@ export type FormSpec = {
 }
 
 // the momentum-space form on the independent components: D_l -> k_l
-export function fierzPauliMatrix(D: number, k: readonly number[], spec: FormSpec = {}): number[][] {
+export function fierzPauliMatrix(
+  D: number,
+  k: readonly number[],
+  spec: FormSpec = {},
+): number[][] {
   const { mass2 = 0, traceWeight = 1, gauge = 0 } = spec
   const n = symmetricComponents(D).length
 
@@ -115,31 +160,54 @@ export function fierzPauliMatrix(D: number, k: readonly number[], spec: FormSpec
     const H = tensorOf(D, h)
     const kinetic = fierzPauliForm(D, (l, m, r) => k[l]! * H[m]![r]!)
     const tr = trace(H)
+
     let fixing = 0
 
     for (let v = 0; v < D; v++) {
       let V = 0
 
-      for (let m = 0; m < D; m++) V += eta(m) * k[m]! * H[m]![v]!
+      for (let m = 0; m < D; m++) {
+        V += eta(m) * k[m]! * H[m]![v]!
+      }
+
       fixing += eta(v) * (V - 0.5 * k[v]! * tr) ** 2
     }
 
-    return kinetic - 0.5 * mass2 * (contract(H, H) - traceWeight * tr * tr) - gauge * fixing
+    return (
+      kinetic -
+      0.5 * mass2 * (contract(H, H) - traceWeight * tr * tr) -
+      gauge * fixing
+    )
   })
 }
 
 // J_c = (1/2) sum over the ordered pairs of c of T^mn, so the coupling (1/2) H_mn T^mn is sum_c h_c J_c
-export const sourceVector = (D: number, T: Tensor): number[] => symmetricComponents(D).map(([m, r]) => (m === r ? 0.5 : 1) * eta(m) * eta(r) * T[m]![r]!)
+export const sourceVector = (D: number, T: Tensor): number[] =>
+  symmetricComponents(D).map(
+    ([m, r]) => (m === r ? 0.5 : 1) * eta(m) * eta(r) * T[m]![r]!,
+  )
 
 // the largest |J . h| over the gauge directions h = k xi + xi k, xi each unit vector: 0 for a conserved source
-export function gaugeLeak(D: number, k: readonly number[], T: Tensor): number {
+export function gaugeLeak(
+  D: number,
+  k: readonly number[],
+  T: Tensor,
+): number {
   const J = sourceVector(D, T)
+
   let worst = 0
 
   for (let a = 0; a < D; a++) {
-    const h = symmetricComponents(D).map(([m, r]) => (m === r ? 2 * k[m]! * (m === a ? 1 : 0) : k[m]! * (r === a ? 1 : 0) + k[r]! * (m === a ? 1 : 0)))
+    const h = symmetricComponents(D).map(([m, r]) =>
+      m === r
+        ? 2 * k[m]! * (m === a ? 1 : 0)
+        : k[m]! * (r === a ? 1 : 0) + k[r]! * (m === a ? 1 : 0),
+    )
 
-    worst = Math.max(worst, Math.abs(h.reduce((t, v, c) => t + v * J[c]!, 0)))
+    worst = Math.max(
+      worst,
+      Math.abs(h.reduce((t, v, c) => t + v * J[c]!, 0)),
+    )
   }
 
   return worst
@@ -148,13 +216,21 @@ export function gaugeLeak(D: number, k: readonly number[], T: Tensor): number {
 // W = -(1/4) J^T M^-1 J, in floating point
 export function exchange(D: number, M: number[][], T: Tensor): number {
   const J = sourceVector(D, T)
-  const x = solveLinearSystem({ matrix: M.map(r => [...r]), rightHandSide: J })
+  const x = solveLinearSystem({
+    matrix: M.map(r => [...r]),
+    rightHandSide: J,
+  })
 
   return -0.25 * x.reduce((t, v, i) => t + v * J[i]!, 0)
 }
 
 // W as a residue mod p: every entry of M and J is a dyadic rational (integer momenta and squared masses), read exactly
-export function exactExchange(D: number, M: number[][], T: Tensor, p: number): number {
+export function exactExchange(
+  D: number,
+  M: number[][],
+  T: Tensor,
+  p: number,
+): number {
   const J = sourceVector(D, T).map(v => dyadicMod(v, p))
   const x = solveMod(
     M.map(r => r.map(v => dyadicMod(v, p))),
@@ -168,23 +244,38 @@ export function exactExchange(D: number, M: number[][], T: Tensor, p: number): n
 
 // solve A x = b mod p by Gauss-Jordan with a nonzero pivot searched in each column (throws if A is singular mod p;
 // modular-linear's inverseMatrixMod reads a column-permuted echelon form as singular)
-export function solveMod(A: readonly (readonly number[])[], b: readonly number[], p: number): number[] {
+export function solveMod(
+  A: readonly (readonly number[])[],
+  b: readonly number[],
+  p: number,
+): number[] {
   const n = b.length
-  const m = A.map((row, i) => [...row.map(v => mod(v, p)), mod(b[i]!, p)])
+  const m = A.map((row, i) => [
+    ...row.map(v => mod(v, p)),
+    mod(b[i]!, p),
+  ])
 
   for (let col = 0; col < n; col++) {
     const pivot = m.findIndex((row, r) => r >= col && row[col] !== 0)
 
-    if (pivot < 0) throw new Error('solveMod: singular mod p')
+    if (pivot < 0) {
+      throw new Error('solveMod: singular mod p')
+    }
+
     ;[m[col], m[pivot]] = [m[pivot]!, m[col]!]
 
     const scale = inverseMod(m[col]![col]!, p)
 
     m[col] = m[col]!.map(v => mulMod(v, scale, p))
+
     for (let r = 0; r < n; r++) {
       const f = m[r]![col]!
 
-      if (r !== col && f !== 0) m[r] = m[r]!.map((v, c) => mod(v - mulMod(f, m[col]![c]!, p), p))
+      if (r !== col && f !== 0) {
+        m[r] = m[r]!.map((v, c) =>
+          mod(v - mulMod(f, m[col]![c]!, p), p),
+        )
+      }
     }
   }
 
@@ -209,33 +300,66 @@ export function referenceSource(D: number): Tensor {
   return T
 }
 
-export type TensorFactor = { factor: number; reference: number; leak: number }
+export type TensorFactor = {
+  factor: number
+  reference: number
+  leak: number
+}
 
 // the tensor factor of a static source at momentum k: W(T) / T.T over W(T') / T'.T'; `reference` is W(T') / T'.T'
-export function tensorFactor(D: number, k: readonly number[], spec: FormSpec = {}): TensorFactor {
+export function tensorFactor(
+  D: number,
+  k: readonly number[],
+  spec: FormSpec = {},
+): TensorFactor {
   const M = fierzPauliMatrix(D, k, spec)
   const T = staticSource(D)
   const R = referenceSource(D)
   const reference = exchange(D, M, R) / contract(R, R)
 
-  return { factor: exchange(D, M, T) / contract(T, T) / reference, reference, leak: Math.max(gaugeLeak(D, k, T), gaugeLeak(D, k, R)) }
+  return {
+    factor: exchange(D, M, T) / contract(T, T) / reference,
+    reference,
+    leak: Math.max(gaugeLeak(D, k, T), gaugeLeak(D, k, R)),
+  }
 }
 
-export type ExactFactor = { factor: number; staticW: number; referenceW: number }
+export type ExactFactor = {
+  factor: number
+  staticW: number
+  referenceW: number
+}
 
 // the same, as residues mod p (T.T = 1 for the static source, 2 for the reference)
-export function exactTensorFactor(D: number, k: readonly number[], spec: FormSpec, p: number): ExactFactor {
+export function exactTensorFactor(
+  D: number,
+  k: readonly number[],
+  spec: FormSpec,
+  p: number,
+): ExactFactor {
   const M = fierzPauliMatrix(D, k, spec)
   const staticW = exactExchange(D, M, staticSource(D), p)
   const referenceW = exactExchange(D, M, referenceSource(D), p)
   const reference = mulMod(referenceW, inverseMod(2, p), p)
 
-  return { factor: mulMod(staticW, inverseMod(reference, p), p), staticW, referenceW }
+  return {
+    factor: mulMod(staticW, inverseMod(reference, p), p),
+    staticW,
+    referenceW,
+  }
 }
 
 // the rational n / q (q <= maxDenominator) a double is, to `tolerance`, or undefined
-export function smallRational(x: number, maxDenominator = 64, tolerance = 1e-9): [number, number] | undefined {
-  for (let q = 1; q <= maxDenominator; q++) if (Math.abs(x * q - Math.round(x * q)) <= tolerance * q) return [Math.round(x * q), q]
+export function smallRational(
+  x: number,
+  maxDenominator = 64,
+  tolerance = 1e-9,
+): [number, number] | undefined {
+  for (let q = 1; q <= maxDenominator; q++) {
+    if (Math.abs(x * q - Math.round(x * q)) <= tolerance * q) {
+      return [Math.round(x * q), q]
+    }
+  }
 
   return undefined
 }
@@ -248,12 +372,19 @@ export function smallRational(x: number, maxDenominator = 64, tolerance = 1e-9):
 export function fierzPauliKernelKeys(): Map<string, number> {
   const fields = LAPSE + 1
   const width = fields * 4
+
   const loading = (m: number, n: number): [number, number] => {
-    if (m === 0 && n === 0) return [LAPSE, -2]
-    if (m === 0 || n === 0) return [SHIFT[m + n - 1]!, 1]
+    if (m === 0 && n === 0) {
+      return [LAPSE, -2]
+    }
+
+    if (m === 0 || n === 0) {
+      return [SHIFT[m + n - 1]!, 1]
+    }
 
     return [hField(m - 1, n - 1), 1]
   }
+
   const B = formMatrix(width, X =>
     fierzPauliForm(4, (l, m, n) => {
       const [f, s] = loading(m, n)
@@ -265,9 +396,16 @@ export function fierzPauliKernelKeys(): Map<string, number> {
 
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < width; b++) {
-      if (B[a]![b] === 0) continue
+      if (B[a]![b] === 0) {
+        continue
+      }
 
-      const key = kernelKey(Math.floor(a / 4), Math.floor(b / 4), a % 4, b % 4)
+      const key = kernelKey(
+        Math.floor(a / 4),
+        Math.floor(b / 4),
+        a % 4,
+        b % 4,
+      )
 
       out.set(key, (out.get(key) ?? 0) + B[a]![b]!)
     }
@@ -281,14 +419,37 @@ export function fierzPauliKernelKeys(): Map<string, number> {
 
 const invert = (A: number[][]): number[][] => {
   const n = A.length
-  const cols = Array.from({ length: n }, (_, j) => solveLinearSystem({ matrix: A, rightHandSide: Array.from({ length: n }, (_, i) => (i === j ? 1 : 0)) }))
+  const cols = Array.from({ length: n }, (_, j) =>
+    solveLinearSystem({
+      matrix: A,
+      rightHandSide: Array.from({ length: n }, (_, i) =>
+        i === j ? 1 : 0,
+      ),
+    }),
+  )
 
   return Array.from({ length: n }, (_, i) => cols.map(c => c[i]!))
 }
 
-const times = (A: number[][], B: number[][]): number[][] => A.map(row => B[0]!.map((_, j) => row.reduce((t, v, k) => t + v * B[k]![j]!, 0)))
-const sandwich = (E: number[][], M: number[][]): number[][] => times(times(E[0]!.map((_, j) => E.map(r => r[j]!)), M), E)
-export const offIdentity = (A: number[][], scale = 1): number => Math.max(...A.flatMap((row, i) => row.map((v, j) => Math.abs(v / scale - (i === j ? 1 : 0)))))
+const times = (A: number[][], B: number[][]): number[][] =>
+  A.map(row =>
+    B[0]!.map((_, j) => row.reduce((t, v, k) => t + v * B[k]![j]!, 0)),
+  )
+const sandwich = (E: number[][], M: number[][]): number[][] =>
+  times(
+    times(
+      E[0]!.map((_, j) => E.map(r => r[j]!)),
+      M,
+    ),
+    E,
+  )
+
+export const offIdentity = (A: number[][], scale = 1): number =>
+  Math.max(
+    ...A.flatMap((row, i) =>
+      row.map((v, j) => Math.abs(v / scale - (i === j ? 1 : 0))),
+    ),
+  )
 
 // an orthonormal basis (columns, in the 4d components) of the transverse traceless tensors at 4-momentum k
 export function ttBasis(k: readonly number[]): number[][] {
@@ -297,23 +458,52 @@ export function ttBasis(k: readonly number[]): number[][] {
   const rows: number[][] = []
 
   // row r: eta^mm k_m H_mr, H_ms = H_sm read from the component (m, s)
-  for (let r = 0; r < 4; r++) rows.push(comps.map(([m, s]) => (s === r ? eta(m) * k[m]! : 0) + (m === r && m !== s ? eta(s) * k[s]! : 0)))
+  for (let r = 0; r < 4; r++) {
+    rows.push(
+      comps.map(
+        ([m, s]) =>
+          (s === r ? eta(m) * k[m]! : 0) +
+          (m === r && m !== s ? eta(s) * k[s]! : 0),
+      ),
+    )
+  }
+
   rows.push(comps.map(([m, s]) => (m === s ? eta(m) : 0)))
 
   const gram = makeDense({ rows: n, cols: n })
 
-  for (const row of rows) for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) gram.data[i * n + j] = gram.data[i * n + j]! + row[i]! * row[j]!
+  for (const row of rows) {
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        gram.data[i * n + j] = gram.data[i * n + j]! + row[i]! * row[j]!
+      }
+    }
+  }
 
   const eig = eigSymmetric({ matrix: gram })
   const top = Math.max(...Array.from(eig.values, Math.abs))
   const keep: number[] = []
 
-  for (let j = 0; j < n; j++) if (Math.abs(eig.values[j]!) <= 1e-12 * top) keep.push(j)
+  for (let j = 0; j < n; j++) {
+    if (Math.abs(eig.values[j]!) <= 1e-12 * top) {
+      keep.push(j)
+    }
+  }
 
-  return Array.from({ length: n }, (_, i) => keep.map(j => eig.vectors[i * n + j]!))
+  return Array.from({ length: n }, (_, i) =>
+    keep.map(j => eig.vectors[i * n + j]!),
+  )
 }
 
-export type TTBlock = { k2: number; polarizations: number; lateral: number[][]; vertical: number[][]; gram: number[][]; lateralOff: number; verticalOff: number }
+export type TTBlock = {
+  k2: number
+  polarizations: number
+  lateral: number[][]
+  vertical: number[][]
+  gram: number[][]
+  lateralOff: number
+  verticalOff: number
+}
 
 // the stack's tensor operator on the TT polarizations at 4-momentum k: lateral A = E^T M4(k) E, vertical B = the 5d
 // form's y part (k = e_5) on the 4d components, G = E^T (H.H) E; the ratios G^-1 A / (-(1/2) k^2) and G^-1 B / (-(1/2))
@@ -323,7 +513,9 @@ export function ttBlock(k: readonly number[]): TTBlock {
   const comps5 = symmetricComponents(5)
   const M4 = fierzPauliMatrix(4, k)
   const M5 = fierzPauliMatrix(5, [0, 0, 0, 0, 1])
-  const index5 = comps4.map(([m, n]) => comps5.findIndex(([a, b]) => a === m && b === n))
+  const index5 = comps4.map(([m, n]) =>
+    comps5.findIndex(([a, b]) => a === m && b === n),
+  )
   const My = index5.map(i => index5.map(j => M5[i]![j]!))
   const Gm = formMatrix(comps4.length, h => {
     const H = tensorOf(4, h)
@@ -352,37 +544,64 @@ export function ttBlock(k: readonly number[]): TTBlock {
 //   Y_n = p^2 s_n P,  Y_j = p^2 s_j P + c_j V (c_j V + Y_(j+1))^-1 Y_(j+1),  K = Y_0^-1.
 // If the tensor radial operator is the scalar's times G, K = K_scalar(p) G^-1. The block must be built at a
 // spacelike k (a static exchange), where p^2 > 0.
-export function tensorBraneKernel(layering: Layering, block: TTBlock, p: number): number[][] {
+export function tensorBraneKernel(
+  layering: Layering,
+  block: TTBlock,
+  p: number,
+): number[][] {
   const { stiff, conduct } = layering
   const P = block.lateral.map(r => r.map(v => (-2 * v) / block.k2))
   const V = block.vertical.map(r => r.map(v => -2 * v))
-  const scaled = (A: number[][], s: number): number[][] => A.map(r => r.map(v => v * s))
-  const plus = (A: number[][], B: number[][]): number[][] => A.map((r, i) => r.map((v, j) => v + B[i]![j]!))
+  const scaled = (A: number[][], s: number): number[][] =>
+    A.map(r => r.map(v => v * s))
+  const plus = (A: number[][], B: number[][]): number[][] =>
+    A.map((r, i) => r.map((v, j) => v + B[i]![j]!))
+
   let Y = scaled(P, p * p * stiff[stiff.length - 1]!)
 
   for (let j = stiff.length - 2; j >= 0; j--) {
     const G = scaled(V, conduct[j]!)
 
-    Y = plus(scaled(P, p * p * stiff[j]!), times(times(G, invert(plus(G, Y))), Y))
+    Y = plus(
+      scaled(P, p * p * stiff[j]!),
+      times(times(G, invert(plus(G, Y))), Y),
+    )
   }
 
   return invert(Y)
 }
 
 // max |K G / K_scalar - I| for a tensor kernel K and the scalar's kernel value at the same p
-export const kernelOff = (K: number[][], gram: number[][], scalar: number): number => offIdentity(times(K, gram), scalar)
+export const kernelOff = (
+  K: number[][],
+  gram: number[][],
+  scalar: number,
+): number => offIdentity(times(K, gram), scalar)
 
 // ---------------------------------------------------------------------------------------------------------
 // the tower reweighted: the zero mode (the lightest) kept, every massive mode's weight times `ratio`
 
-export function reweightTower(modes: readonly StackMode[], ratio: number): StackMode[] {
-  const lightest = modes.reduce((a, m) => (m.mass < a.mass ? m : a), modes[0]!)
+export function reweightTower(
+  modes: readonly StackMode[],
+  ratio: number,
+): StackMode[] {
+  const lightest = modes.reduce(
+    (a, m) => (m.mass < a.mass ? m : a),
+    modes[0]!,
+  )
 
-  return modes.map(m => (m === lightest ? m : { mass: m.mass, weight: m.weight * ratio }))
+  return modes.map(m =>
+    m === lightest ? m : { mass: m.mass, weight: m.weight * ratio },
+  )
 }
 
-export const zeroModeOnly = (modes: readonly StackMode[]): StackMode[] => {
-  const lightest = modes.reduce((a, m) => (m.mass < a.mass ? m : a), modes[0]!)
+export const zeroModeOnly = (
+  modes: readonly StackMode[],
+): StackMode[] => {
+  const lightest = modes.reduce(
+    (a, m) => (m.mass < a.mass ? m : a),
+    modes[0]!,
+  )
 
   return [lightest]
 }

@@ -53,11 +53,32 @@
 //
 // DETERMINISM: nothing is drawn. NOTHING MOVES: values only.
 
-import { addScaled, addTerm, monoKey, monomial, multiply, norm, parseMono, substitute, type Poly } from '@/code/algebra/jet-polynomial'
+import {
+  addScaled,
+  addTerm,
+  monoKey,
+  monomial,
+  multiply,
+  norm,
+  parseMono,
+  substitute,
+  type Poly,
+} from '@/code/algebra/jet-polynomial'
 import { jetSpace, type JetSpace } from '@/code/algebra/jet-space'
-import { dyadicMod, inverseMod, mod, mulMod } from '@/code/algebra/linear/modular-linear'
+import {
+  dyadicMod,
+  inverseMod,
+  mod,
+  mulMod,
+} from '@/code/algebra/linear/modular-linear'
 import { cubeGroup, kernelKey } from '@/code/measure/cubic-slide'
-import { eta, solveMod, sourceVector, symmetricComponents, type Tensor } from '@/code/measure/tensor-stack'
+import {
+  eta,
+  solveMod,
+  sourceVector,
+  symmetricComponents,
+  type Tensor,
+} from '@/code/measure/tensor-stack'
 
 // ---------------------------------------------------------------------------------------------------------
 // the frame
@@ -76,41 +97,78 @@ export type BulkFrame = {
 export function bulkFrame(D: number): BulkFrame {
   const comps = symmetricComponents(D)
   const F = comps.length
-  const index = (m: number, n: number): number => comps.findIndex(([a, b]) => a === Math.min(m, n) && b === Math.max(m, n))
+  const index = (m: number, n: number): number =>
+    comps.findIndex(
+      ([a, b]) => a === Math.min(m, n) && b === Math.max(m, n),
+    )
 
-  return { D, space: jetSpace(D), comps, F, xi: Array.from({ length: D }, (_, a) => F + a), index }
+  return {
+    D,
+    space: jetSpace(D),
+    comps,
+    F,
+    xi: Array.from({ length: D }, (_, a) => F + a),
+    index,
+  }
 }
 
-const unit = (D: number, axis: number): number[] => Array.from({ length: D }, (_, a) => (a === axis ? 1 : 0))
+const unit = (D: number, axis: number): number[] =>
+  Array.from({ length: D }, (_, a) => (a === axis ? 1 : 0))
 
 // the depth components of a five-dimensional frame: A_m = H_m4 (m < 4) and phi = H_44
-export const depthFields = (frame: BulkFrame): number[] => (frame.D === 5 ? frame.comps.flatMap(([m, n], f) => (n === 4 ? [f] : [])) : [])
-export const huskFields = (frame: BulkFrame): number[] => frame.comps.flatMap(([m, n], f) => (m < 4 && n < 4 ? [f] : []))
+export const depthFields = (frame: BulkFrame): number[] =>
+  frame.D === 5
+    ? frame.comps.flatMap(([m, n], f) => (n === 4 ? [f] : []))
+    : []
+export const huskFields = (frame: BulkFrame): number[] =>
+  frame.comps.flatMap(([m, n], f) => (m < 4 && n < 4 ? [f] : []))
 
 // ---------------------------------------------------------------------------------------------------------
 // the slide
 
 export type BulkKind = 'full' | 'husk' | 'depth-foliation'
 
-export type BulkSpec = { readonly kind: BulkKind; readonly scales: readonly number[]; readonly p: number }
+export type BulkSpec = {
+  readonly kind: BulkKind
+  readonly scales: readonly number[]
+  readonly p: number
+}
 
 // delta H_MN for every component, as polynomials linear in the xi jets (mod p)
-export function bulkSlideAction(frame: BulkFrame, spec: BulkSpec): Poly[] {
+export function bulkSlideAction(
+  frame: BulkFrame,
+  spec: BulkSpec,
+): Poly[] {
   const { D, space, F, xi, index } = frame
   const { p } = spec
   const inv = spec.scales.map(s => inverseMod(s, p))
   const out: Poly[] = Array.from({ length: F }, () => new Map())
   const depthXi = xi[D - 1]!
+
   const add = (f: number, c: number, jets: number[]): void => {
-    if (spec.kind === 'husk' && jets.some(j => space.field(j) === depthXi)) return
-    addTerm(out[f]!, monoKey([...jets].sort((a, b) => a - b)), norm(c, p), p)
+    if (
+      spec.kind === 'husk' &&
+      jets.some(j => space.field(j) === depthXi)
+    ) {
+      return
+    }
+
+    addTerm(
+      out[f]!,
+      monoKey([...jets].sort((a, b) => a - b)),
+      norm(c, p),
+      p,
+    )
   }
-  const d = (f: number, axis: number): number => space.jet(f, unit(D, axis))
+
+  const d = (f: number, axis: number): number =>
+    space.jet(f, unit(D, axis))
   const z = (f: number): number => space.jet(f)
 
   frame.comps.forEach(([M, N], f) => {
     add(f, eta(N) * inv[M]!, [d(xi[N]!, M)])
     add(f, eta(M) * inv[N]!, [d(xi[M]!, N)])
+
     for (let R = 0; R < D; R++) {
       add(f, inv[R]!, [z(xi[R]!), d(f, R)])
       add(f, inv[M]!, [z(index(R, N)), d(xi[R]!, M)])
@@ -129,35 +187,65 @@ export type BulkContext = {
   readonly derived: Map<number, Poly>
 }
 
-export function bulkContext(frame: BulkFrame, spec: BulkSpec, maxOrder: 1 | 2): BulkContext {
-  return { frame, spec, maxOrder, action: bulkSlideAction(frame, spec), derived: new Map() }
+export function bulkContext(
+  frame: BulkFrame,
+  spec: BulkSpec,
+  maxOrder: 1 | 2,
+): BulkContext {
+  return {
+    frame,
+    spec,
+    maxOrder,
+    action: bulkSlideAction(frame, spec),
+    derived: new Map(),
+  }
 }
 
 // D^alpha (delta H_a), with xi^depth's derivatives off the depth axis dropped for a depth-foliation slide
 function derivedAction(ctx: BulkContext, id: number): Poly {
   const hit = ctx.derived.get(id)
 
-  if (hit) return hit
+  if (hit) {
+    return hit
+  }
 
   const { space, D, xi } = ctx.frame
-  const raw = space.deriveBy(ctx.action[space.field(id)]!, space.orders(id), ctx.spec.p)
+  const raw = space.deriveBy(
+    ctx.action[space.field(id)]!,
+    space.orders(id),
+    ctx.spec.p,
+  )
+
   let out = raw
 
   if (ctx.spec.kind === 'depth-foliation') {
     out = new Map()
+
     for (const [k, c] of raw) {
       const x = parseMono(k).find(j => space.field(j) === xi[D - 1])
 
-      if (x === undefined || space.orders(x).slice(0, D - 1).every(n => n === 0)) out.set(k, c)
+      if (
+        x === undefined ||
+        space
+          .orders(x)
+          .slice(0, D - 1)
+          .every(n => n === 0)
+      ) {
+        out.set(k, c)
+      }
     }
   }
+
   ctx.derived.set(id, out)
 
   return out
 }
 
 // the invariance rows one monomial of the action contributes: key -> coefficient (mod p)
-export function bulkMonomialRows(ctx: BulkContext, mono: readonly number[]): Poly {
+export function bulkMonomialRows(
+  ctx: BulkContext,
+  mono: readonly number[],
+): Poly {
   const { p } = ctx.spec
   const { space, F, D, xi } = ctx.frame
   const isField = (f: number): boolean => f < F
@@ -169,7 +257,9 @@ export function bulkMonomialRows(ctx: BulkContext, mono: readonly number[]): Pol
     for (const [k, c] of derivedAction(ctx, id)) {
       const m = [...rest, ...parseMono(k)].sort((a, b) => a - b)
 
-      if (space.count(m, isField) <= ctx.maxOrder) addTerm(variation, monoKey(m), c, p)
+      if (space.count(m, isField) <= ctx.maxOrder) {
+        addTerm(variation, monoKey(m), c, p)
+      }
     }
   })
 
@@ -177,8 +267,15 @@ export function bulkMonomialRows(ctx: BulkContext, mono: readonly number[]): Pol
   const moving = Array.from({ length: D - 1 }, (_, a) => a)
 
   for (const [f, e] of space.gaugeEuler(variation, g => g >= F, p)) {
-    if (f === xi[D - 1] && ctx.spec.kind === 'depth-foliation') for (const [k, c] of space.partialEuler(e, moving, p)) addTerm(rows, `F|${k}`, c, p)
-    else for (const [k, c] of e) addTerm(rows, `${f}|${k}`, c, p)
+    if (f === xi[D - 1] && ctx.spec.kind === 'depth-foliation') {
+      for (const [k, c] of space.partialEuler(e, moving, p)) {
+        addTerm(rows, `F|${k}`, c, p)
+      }
+    } else {
+      for (const [k, c] of e) {
+        addTerm(rows, `${f}|${k}`, c, p)
+      }
+    }
   }
 
   return rows
@@ -187,31 +284,53 @@ export function bulkMonomialRows(ctx: BulkContext, mono: readonly number[]): Pol
 // ---------------------------------------------------------------------------------------------------------
 // the ansatz: O_h on the husk's space axes (1, 2, 3) only
 
-type Signed = { readonly perm: readonly number[]; readonly signs: readonly number[] }
+type Signed = {
+  readonly perm: readonly number[]
+  readonly signs: readonly number[]
+}
 
-const moveAxis = (g: Signed, a: number): number => (a >= 1 && a <= 3 ? g.perm[a - 1]! + 1 : a)
-const axisSign = (g: Signed, a: number): number => (a >= 1 && a <= 3 ? g.signs[a - 1]! : 1)
+const moveAxis = (g: Signed, a: number): number =>
+  a >= 1 && a <= 3 ? g.perm[a - 1]! + 1 : a
+const axisSign = (g: Signed, a: number): number =>
+  a >= 1 && a <= 3 ? g.signs[a - 1]! : 1
 
 function jetImage(frame: BulkFrame, g: Signed, id: number): Poly {
   const { space, D } = frame
   const f = space.field(id)
   const o = space.orders(id)
   const orders = new Array<number>(D).fill(0)
+
   let sign = 1
 
   o.forEach((n, a) => {
     orders[moveAxis(g, a)] = n
-    if (n % 2 === 1) sign *= axisSign(g, a)
+
+    if (n % 2 === 1) {
+      sign *= axisSign(g, a)
+    }
   })
 
   const [m, n] = frame.comps[f]!
 
-  return new Map([[monoKey([space.jet(frame.index(moveAxis(g, m), moveAxis(g, n)), orders)]), sign * axisSign(g, m) * axisSign(g, n)]])
+  return new Map([
+    [
+      monoKey([
+        space.jet(frame.index(moveAxis(g, m), moveAxis(g, n)), orders),
+      ]),
+      sign * axisSign(g, m) * axisSign(g, n),
+    ],
+  ])
 }
 
-export type BulkAnsatz = { readonly columns: Poly[]; readonly quadratic: boolean[] }
+export type BulkAnsatz = {
+  readonly columns: Poly[]
+  readonly quadratic: boolean[]
+}
 
-export function bulkAnsatz(frame: BulkFrame, withCubic: boolean): BulkAnsatz {
+export function bulkAnsatz(
+  frame: BulkFrame,
+  withCubic: boolean,
+): BulkAnsatz {
   const { space, D, F } = frame
   const group = cubeGroup()
   const first: number[] = []
@@ -219,42 +338,81 @@ export function bulkAnsatz(frame: BulkFrame, withCubic: boolean): BulkAnsatz {
 
   for (let f = 0; f < F; f++) {
     zero.push(space.jet(f))
-    for (let a = 0; a < D; a++) first.push(space.jet(f, unit(D, a)))
+
+    for (let a = 0; a < D; a++) {
+      first.push(space.jet(f, unit(D, a)))
+    }
   }
 
   const covered = new Set<string>()
   const seen = new Set<string>()
   const columns: Poly[] = []
   const quadratic: boolean[] = []
+
   const consider = (m: number[]): void => {
     const key = monoKey(m)
 
-    if (covered.has(key)) return
+    if (covered.has(key)) {
+      return
+    }
 
     const sum: Poly = new Map()
 
-    for (const g of group) addScaled(sum, substitute(monomial(m), id => jetImage(frame, g, id), 0), 1, 0)
-    for (const k of sum.keys()) covered.add(k)
+    for (const g of group) {
+      addScaled(
+        sum,
+        substitute(monomial(m), id => jetImage(frame, g, id), 0),
+        1,
+        0,
+      )
+    }
+
+    for (const k of sum.keys()) {
+      covered.add(k)
+    }
+
     covered.add(key)
-    if (sum.size === 0) return
+
+    if (sum.size === 0) {
+      return
+    }
 
     const canonical = canonicalString(sum)
 
-    if (seen.has(canonical)) return
+    if (seen.has(canonical)) {
+      return
+    }
+
     seen.add(canonical)
     columns.push(sum)
     quadratic.push(m.length === 2)
   }
 
-  for (let a = 0; a < first.length; a++) for (let b = a; b < first.length; b++) consider([first[a]!, first[b]!])
-  if (withCubic) for (const z of zero) for (let a = 0; a < first.length; a++) for (let b = a; b < first.length; b++) consider([z, first[a]!, first[b]!].sort((x, y) => x - y))
+  for (let a = 0; a < first.length; a++) {
+    for (let b = a; b < first.length; b++) {
+      consider([first[a]!, first[b]!])
+    }
+  }
+
+  if (withCubic) {
+    for (const z of zero) {
+      for (let a = 0; a < first.length; a++) {
+        for (let b = a; b < first.length; b++) {
+          consider([z, first[a]!, first[b]!].sort((x, y) => x - y))
+        }
+      }
+    }
+  }
 
   return { columns, quadratic }
 }
 
 function canonicalString(poly: Poly): string {
-  const terms = [...poly].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-  const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b))
+  const terms = [...poly].sort(([a], [b]) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  )
+  const gcd = (a: number, b: number): number =>
+    b === 0 ? Math.abs(a) : gcd(b, a % b)
   const g = terms.reduce((t, [, c]) => gcd(t, c), 0)
   const s = Math.sign(terms[0]![1]) * g
 
@@ -265,18 +423,35 @@ function canonicalString(poly: Poly): string {
 // the quadratic kernel, keyed as cubic-slide keys it: kernelKey(a, b, mu, nu) -> coefficient of D_mu H_a D_nu H_b (raw
 // derivatives d_mu, not the scaled D_mu)
 
-export function bulkKernel(frame: BulkFrame, poly: Poly, p: number): Poly {
+export function bulkKernel(
+  frame: BulkFrame,
+  poly: Poly,
+  p: number,
+): Poly {
   const { space } = frame
   const out: Poly = new Map()
 
   for (const [k, c] of poly) {
     const m = parseMono(k)
 
-    if (m.length !== 2 || m.some(id => space.degree(id) !== 1)) continue
+    if (m.length !== 2 || m.some(id => space.degree(id) !== 1)) {
+      continue
+    }
 
-    const axis = (id: number): number => space.orders(id).findIndex(x => x === 1)
+    const axis = (id: number): number =>
+      space.orders(id).findIndex(x => x === 1)
 
-    addTerm(out, kernelKey(space.field(m[0]!), space.field(m[1]!), axis(m[0]!), axis(m[1]!)), c, p)
+    addTerm(
+      out,
+      kernelKey(
+        space.field(m[0]!),
+        space.field(m[1]!),
+        axis(m[0]!),
+        axis(m[1]!),
+      ),
+      c,
+      p,
+    )
   }
 
   return out
@@ -284,11 +459,17 @@ export function bulkKernel(frame: BulkFrame, poly: Poly, p: number): Poly {
 
 // the Fierz-Pauli Lagrangian in D dimensions on the covariant H, with D_l = (1 / s_l) d_l (mod p):
 //   -(1/2) dH_mn dH^mn + dH^ml d^n H_nl - dH^mn d_n H + (1/2) dH d H
-export function bulkFierzPauli(frame: BulkFrame, scales: readonly number[], p: number): Poly {
+export function bulkFierzPauli(
+  frame: BulkFrame,
+  scales: readonly number[],
+  p: number,
+): Poly {
   const { D, space, index } = frame
   const inv = scales.map(s => inverseMod(s, p))
   const half = inverseMod(2, p)
-  const dH = (l: number, m: number, n: number): Poly => new Map([[monoKey([space.jet(index(m, n), unit(D, l))]), inv[l]!]])
+  const dH = (l: number, m: number, n: number): Poly =>
+    new Map([[monoKey([space.jet(index(m, n), unit(D, l))]), inv[l]!]])
+
   const sum = (terms: Poly[], signs: number[]): Poly => {
     const out: Poly = new Map()
 
@@ -296,13 +477,32 @@ export function bulkFierzPauli(frame: BulkFrame, scales: readonly number[], p: n
 
     return out
   }
+
   const range = Array.from({ length: D }, (_, a) => a)
-  const V = (l: number): Poly => sum(range.map(m => dH(m, m, l)), range.map(eta))
-  const T = (l: number): Poly => sum(range.map(m => dH(l, m, m)), range.map(eta))
+  const V = (l: number): Poly =>
+    sum(
+      range.map(m => dH(m, m, l)),
+      range.map(eta),
+    )
+  const T = (l: number): Poly =>
+    sum(
+      range.map(m => dH(l, m, m)),
+      range.map(eta),
+    )
   const out: Poly = new Map()
 
   for (const l of range) {
-    for (const m of range) for (const n of range) addScaled(out, multiply(dH(l, m, n), dH(l, m, n), p), norm(-half * eta(l) * eta(m) * eta(n), p), p)
+    for (const m of range) {
+      for (const n of range) {
+        addScaled(
+          out,
+          multiply(dH(l, m, n), dH(l, m, n), p),
+          norm(-half * eta(l) * eta(m) * eta(n), p),
+          p,
+        )
+      }
+    }
+
     addScaled(out, multiply(V(l), V(l), p), norm(eta(l), p), p)
     addScaled(out, multiply(V(l), T(l), p), norm(-eta(l), p), p)
     addScaled(out, multiply(T(l), T(l), p), norm(half * eta(l), p), p)
@@ -312,7 +512,12 @@ export function bulkFierzPauli(frame: BulkFrame, scales: readonly number[], p: n
 }
 
 // a kernel's keys moved to a smaller frame: the components and axes both below `to.D`, renumbered; others dropped
-export function restrictKernel(from: BulkFrame, to: BulkFrame, kernel: Poly, p: number): Poly {
+export function restrictKernel(
+  from: BulkFrame,
+  to: BulkFrame,
+  kernel: Poly,
+  p: number,
+): Poly {
   const out: Poly = new Map()
 
   for (const [key, c] of kernel) {
@@ -322,8 +527,16 @@ export function restrictKernel(from: BulkFrame, to: BulkFrame, kernel: Poly, p: 
     const [am, an] = from.comps[a]!
     const [bm, bn] = from.comps[b]!
 
-    if (Math.max(am, an, bm, bn, mu, nu) >= to.D) continue
-    addTerm(out, kernelKey(to.index(am, an), to.index(bm, bn), mu, nu), c, p)
+    if (Math.max(am, an, bm, bn, mu, nu) >= to.D) {
+      continue
+    }
+
+    addTerm(
+      out,
+      kernelKey(to.index(am, an), to.index(bm, bn), mu, nu),
+      c,
+      p,
+    )
   }
 
   return out
@@ -333,17 +546,29 @@ export function restrictKernel(from: BulkFrame, to: BulkFrame, kernel: Poly, p: 
 // the kernel as a momentum-space form, and the static exchange it gives (all residues mod p)
 
 // M with Q(h) = h^T M h = sum over keys q k_mu k_nu h_a h_b, the raw momenta k (d_mu -> k_mu)
-export function kernelMatrix(frame: BulkFrame, kernel: Poly, k: readonly number[], p: number): number[][] {
-  const M = Array.from({ length: frame.F }, () => new Array<number>(frame.F).fill(0))
+export function kernelMatrix(
+  frame: BulkFrame,
+  kernel: Poly,
+  k: readonly number[],
+  p: number,
+): number[][] {
+  const M = Array.from({ length: frame.F }, () =>
+    new Array<number>(frame.F).fill(0),
+  )
   const half = inverseMod(2, p)
 
   for (const [key, c] of kernel) {
     const [pair, axes] = key.split('|') as [string, string]
     const [a, b] = pair.split(',').map(Number) as [number, number]
-    const v = mulMod(mulMod(c, mod(k[Number(axes[0])]!, p), p), mod(k[Number(axes[1])]!, p), p)
+    const v = mulMod(
+      mulMod(c, mod(k[Number(axes[0])]!, p), p),
+      mod(k[Number(axes[1])]!, p),
+      p,
+    )
 
-    if (a === b) M[a]![a] = mod(M[a]![a]! + v, p)
-    else {
+    if (a === b) {
+      M[a]![a] = mod(M[a]![a]! + v, p)
+    } else {
       const w = mulMod(v, half, p)
 
       M[a]![b] = mod(M[a]![b]! + w, p)
@@ -355,10 +580,16 @@ export function kernelMatrix(frame: BulkFrame, kernel: Poly, k: readonly number[
 }
 
 // the de Donder form sum_v eta_vv (D^m H_mv - (1/2) D_v H)^2 at the physical momenta K (residues)
-export function deDonderMatrix(frame: BulkFrame, K: readonly number[], p: number): number[][] {
+export function deDonderMatrix(
+  frame: BulkFrame,
+  K: readonly number[],
+  p: number,
+): number[][] {
   const { D, F, index } = frame
   const half = inverseMod(2, p)
-  const G = Array.from({ length: F }, () => new Array<number>(F).fill(0))
+  const G = Array.from({ length: F }, () =>
+    new Array<number>(F).fill(0),
+  )
 
   for (let v = 0; v < D; v++) {
     const L = new Array<number>(F).fill(0)
@@ -367,16 +598,30 @@ export function deDonderMatrix(frame: BulkFrame, K: readonly number[], p: number
       const at = index(m, v)
 
       L[at] = mod(L[at]! + eta(m) * mod(K[m]!, p), p)
-      L[index(m, m)] = mod(L[index(m, m)]! - mulMod(mulMod(half, mod(K[v]!, p), p), mod(eta(m), p), p), p)
+      L[index(m, m)] = mod(
+        L[index(m, m)]! -
+          mulMod(mulMod(half, mod(K[v]!, p), p), mod(eta(m), p), p),
+        p,
+      )
     }
-    for (let a = 0; a < F; a++) for (let b = 0; b < F; b++) G[a]![b] = mod(G[a]![b]! + eta(v) * mulMod(L[a]!, L[b]!, p), p)
+
+    for (let a = 0; a < F; a++) {
+      for (let b = 0; b < F; b++) {
+        G[a]![b] = mod(G[a]![b]! + eta(v) * mulMod(L[a]!, L[b]!, p), p)
+      }
+    }
   }
 
   return G
 }
 
 // W = -(1/4) J^T M^-1 J for the coupling (1/2) H_MN T^MN
-export function bulkExchange(frame: BulkFrame, M: readonly (readonly number[])[], T: Tensor, p: number): number {
+export function bulkExchange(
+  frame: BulkFrame,
+  M: readonly (readonly number[])[],
+  T: Tensor,
+  p: number,
+): number {
   const J = sourceVector(frame.D, T).map(v => dyadicMod(v, p))
   const x = solveMod(M, J, p)
   const s = x.reduce((t, v, i) => mod(t + mulMod(v, J[i]!, p), p), 0)
@@ -384,17 +629,36 @@ export function bulkExchange(frame: BulkFrame, M: readonly (readonly number[])[]
   return mulMod(mod(-s, p), inverseMod(4, p), p)
 }
 
-export type KernelExchange = { factor: number; staticW: number; referenceW: number }
+export type KernelExchange = {
+  factor: number
+  staticW: number
+  referenceW: number
+}
 
 // the tensor factor of a static T_00 at raw momentum k: W(T) / T.T over W(T') / T'.T', T'_23 = T'_32 = 1, with the de
 // Donder term at weight g added to the kernel's form (k must have no 2 or 3 part and no time part)
-export function kernelExchange(frame: BulkFrame, kernel: Poly, k: readonly number[], scales: readonly number[], g: number, p: number): KernelExchange {
-  const K = k.map((v, a) => mulMod(mod(v, p), inverseMod(scales[a]!, p), p))
+export function kernelExchange(
+  frame: BulkFrame,
+  kernel: Poly,
+  k: readonly number[],
+  scales: readonly number[],
+  g: number,
+  p: number,
+): KernelExchange {
+  const K = k.map((v, a) =>
+    mulMod(mod(v, p), inverseMod(scales[a]!, p), p),
+  )
   const A = kernelMatrix(frame, kernel, k, p)
   const G = deDonderMatrix(frame, K, p)
-  const M = A.map((row, a) => row.map((v, b) => mod(v - g * G[a]![b]!, p)))
-  const T = Array.from({ length: frame.D }, () => new Array<number>(frame.D).fill(0))
-  const R = Array.from({ length: frame.D }, () => new Array<number>(frame.D).fill(0))
+  const M = A.map((row, a) =>
+    row.map((v, b) => mod(v - g * G[a]![b]!, p)),
+  )
+  const T = Array.from({ length: frame.D }, () =>
+    new Array<number>(frame.D).fill(0),
+  )
+  const R = Array.from({ length: frame.D }, () =>
+    new Array<number>(frame.D).fill(0),
+  )
 
   T[0]![0] = 1
   R[2]![3] = 1
@@ -405,5 +669,9 @@ export function kernelExchange(frame: BulkFrame, kernel: Poly, k: readonly numbe
   // T.T = 1, T'.T' = 2
   const reference = mulMod(referenceW, inverseMod(2, p), p)
 
-  return { factor: mulMod(staticW, inverseMod(reference, p), p), staticW, referenceW }
+  return {
+    factor: mulMod(staticW, inverseMod(reference, p), p),
+    staticW,
+    referenceW,
+  }
 }

@@ -125,7 +125,9 @@ export function arpGates(input: {
   }
 
   const supportMean =
-    supportTrajectory.length === 0 ? supportBefore : sum / supportTrajectory.length
+    supportTrajectory.length === 0
+      ? supportBefore
+      : sum / supportTrajectory.length
 
   const stateRecoverable = isReversible(
     cloneWill(will),
@@ -144,6 +146,7 @@ export function arpGates(input: {
     supportAfter,
     supportMean,
     supportMin,
-    supportTrajectory: supportTrajectory.length === 0 ? [] : supportTrajectory,
+    supportTrajectory:
+      supportTrajectory.length === 0 ? [] : supportTrajectory,
   }
 }

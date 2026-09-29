@@ -92,6 +92,7 @@ export default experiment({
 
       const snaps: string[] = []
       const supports: number[] = []
+
       let maxFar = 0
       let leak = 0
 
@@ -104,7 +105,9 @@ export default experiment({
 
         for (let i = 0; i < seeded.data.length; i++) {
           if (seeded.data[i] !== vacuum.data[i]) {
-            diffs.push(i * 3 + ((seeded.data[i]! - vacuum.data[i]! + 3) % 3))
+            diffs.push(
+              i * 3 + ((seeded.data[i]! - vacuum.data[i]! + 3) % 3),
+            )
             cells.add(Math.floor(i / 24))
 
             if (coupleOf[i % 24] !== coupleOf[dir]) {

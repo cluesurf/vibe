@@ -10,7 +10,16 @@
 // a d level into e_g (2) and t_2g (3); both count toward the same 3d. Ionization energies are Koopmans':
 // minus the highest occupied level, in stand-in Rydbergs.
 
-import { makeGrid, makePoisson, orbitalCharacter, selfConsistent, standinUnits, type MeanField, type Point, type Scf } from '@/code/measure/standin-chemistry'
+import {
+  makeGrid,
+  makePoisson,
+  orbitalCharacter,
+  selfConsistent,
+  standinUnits,
+  type MeanField,
+  type Point,
+  type Scf,
+} from '@/code/measure/standin-chemistry'
 
 const S_SHARE = 0.5
 const LABELS = ['s', 'p', 'd'] as const
@@ -19,12 +28,23 @@ export type AtomBox = { readonly side: number; readonly a0: number }
 
 export const ATOM_BOX: AtomBox = { side: 32, a0: 3 }
 
-export const centerOf = (box: AtomBox): Point => [box.side / 2, box.side / 2, box.side / 2]
+export const centerOf = (box: AtomBox): Point => [
+  box.side / 2,
+  box.side / 2,
+  box.side / 2,
+]
 
-export type Shell = { readonly name: string; readonly l: number; readonly n: number }
+export type Shell = {
+  readonly name: string
+  readonly l: number
+  readonly n: number
+}
 
 // the (n, l) label of each orbital of an atom, in energy order
-export function labelOrbitals(box: AtomBox, orbitals: readonly Float64Array[]): Shell[] {
+export function labelOrbitals(
+  box: AtomBox,
+  orbitals: readonly Float64Array[],
+): Shell[] {
   const seen = [0, 0, 0]
 
   return orbitals.map(v => {
@@ -51,7 +71,14 @@ export type Atom = {
   readonly outer: Shell
 }
 
-export function atom(input: { box: AtomBox; z: number; electrons?: number; capacity: number; field?: MeanField; start?: readonly Float64Array[] }): Atom {
+export function atom(input: {
+  box: AtomBox
+  z: number
+  electrons?: number
+  capacity: number
+  field?: MeanField
+  start?: readonly Float64Array[]
+}): Atom {
   const { box, z, capacity } = input
   const electrons = input.electrons ?? z
   const grid = makeGrid(box.side)
@@ -71,7 +98,9 @@ export function atom(input: { box: AtomBox; z: number; electrons?: number; capac
     degenerate: 1e-6,
   })
   const shells = labelOrbitals(box, scf.orbitals)
-  const occupiedIndex = scf.occupations.map((f, j) => (f > 1e-9 ? j : -1)).filter(j => j >= 0)
+  const occupiedIndex = scf.occupations
+    .map((f, j) => (f > 1e-9 ? j : -1))
+    .filter(j => j >= 0)
   const top = Math.max(...occupiedIndex)
 
   return {
@@ -79,7 +108,9 @@ export function atom(input: { box: AtomBox; z: number; electrons?: number; capac
     electrons,
     scf,
     shells,
-    occupied: [...new Set(occupiedIndex.map(j => shells[j]?.name ?? '?'))],
+    occupied: [
+      ...new Set(occupiedIndex.map(j => shells[j]?.name ?? '?')),
+    ],
     top,
     ionization: -(scf.values[top] ?? 0) / units.rydberg,
     outer: shells[top] ?? { name: '?', l: -1, n: 0 },
@@ -87,13 +118,22 @@ export function atom(input: { box: AtomBox; z: number; electrons?: number; capac
 }
 
 // the neutral atoms of the listed Z with `capacity` stand-ins per orbital, each started from the one before
-export function atomSeries(input: { box: AtomBox; charges: readonly number[]; capacity: number }): Atom[] {
+export function atomSeries(input: {
+  box: AtomBox
+  charges: readonly number[]
+  capacity: number
+}): Atom[] {
   const rows: Atom[] = []
 
   let start: Float64Array[] | undefined
 
   for (const z of input.charges) {
-    const row = atom({ box: input.box, z, capacity: input.capacity, start })
+    const row = atom({
+      box: input.box,
+      z,
+      capacity: input.capacity,
+      start,
+    })
 
     start = row.scf.block
     rows.push(row)
@@ -118,19 +158,34 @@ export function fillingOrder(rows: readonly Atom[]): string[] {
 }
 
 // is the ionization energy at Z above both neighbors (only the next one at Z = 1)? Both must be computed
-export function isLocalMaximum(rows: readonly Atom[], z: number): boolean {
-  const at = (x: number): number | undefined => rows.find(r => r.z === x)?.ionization
+export function isLocalMaximum(
+  rows: readonly Atom[],
+  z: number,
+): boolean {
+  const at = (x: number): number | undefined =>
+    rows.find(r => r.z === x)?.ionization
   const here = at(z)
   const next = at(z + 1)
   const previous = z === 1 ? Number.NEGATIVE_INFINITY : at(z - 1)
 
-  return here !== undefined && next !== undefined && previous !== undefined && here > next && here > previous
+  return (
+    here !== undefined &&
+    next !== undefined &&
+    previous !== undefined &&
+    here > next &&
+    here > previous
+  )
 }
 
 // the Z of the local maxima of the ionization energy over [from, to], largest first, on a contiguous series.
 // The first atom of the series counts as a maximum when it beats the next one
-export function closures(rows: readonly Atom[], from: number, to: number): number[] {
-  const at = (z: number): number => rows.find(r => r.z === z)?.ionization ?? Number.NaN
+export function closures(
+  rows: readonly Atom[],
+  from: number,
+  to: number,
+): number[] {
+  const at = (z: number): number =>
+    rows.find(r => r.z === z)?.ionization ?? Number.NaN
   const first = rows[0]?.z ?? 1
   const maxima: { z: number; value: number }[] = []
 

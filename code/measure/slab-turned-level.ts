@@ -25,7 +25,16 @@
 // these are readings of code/measure/slab-holes slabBeat, which is unchanged.
 
 import { type Ritz } from '@/code/measure/frame-meson'
-import { emptyState, innerSlab, slabBeat, slabLevelVector, weightOfSlab, type SlabSpace, type SlabState, type SlabTally } from '@/code/measure/slab-holes'
+import {
+  emptyState,
+  innerSlab,
+  slabBeat,
+  slabLevelVector,
+  weightOfSlab,
+  type SlabSpace,
+  type SlabState,
+  type SlabTally,
+} from '@/code/measure/slab-holes'
 
 type C = [number, number]
 
@@ -37,16 +46,32 @@ export function slabSymmetry(space: SlabSpace, op: SlabOp): Int32Array {
   const n = spec.holes
   const A = spec.axes
 
-  if (A !== 2) throw new Error('slab-turned-level: the symmetries are the slab`s (axes 2)')
+  if (A !== 2) {
+    throw new Error(
+      'slab-turned-level: the symmetries are the slab`s (axes 2)',
+    )
+  }
 
   const dims = n * A
   const index = new Map<string, number>()
 
-  for (let p = 0; p < configs; p++) index.set(Array.from(space.coords.subarray(p * dims, (p + 1) * dims)).join(','), p)
+  for (let p = 0; p < configs; p++) {
+    index.set(
+      Array.from(space.coords.subarray(p * dims, (p + 1) * dims)).join(
+        ',',
+      ),
+      p,
+    )
+  }
 
   const slotMap = (s: number): number => {
-    if (op === 'swap') return 2 * (1 - (s >> 1)) + (s & 1)
-    if (op === 'reflect-x') return s >> 1 === 0 ? s ^ 1 : s
+    if (op === 'swap') {
+      return 2 * (1 - (s >> 1)) + (s & 1)
+    }
+
+    if (op === 'reflect-x') {
+      return s >> 1 === 0 ? s ^ 1 : s
+    }
 
     return s >> 1 === 1 ? s ^ 1 : s
   }
@@ -56,29 +81,39 @@ export function slabSymmetry(space: SlabSpace, op: SlabOp): Int32Array {
   const sl = new Array<number>(n)
 
   for (let p = 0; p < configs; p++) {
-    for (let q = 0; q < dims; q++) c[q] = space.coords[p * dims + q] as number
+    for (let q = 0; q < dims; q++) {
+      c[q] = space.coords[p * dims + q]!
+    }
 
     const d: number[] = new Array<number>(dims)
 
     if (op === 'swap') {
       for (let i = 0; i < n; i++) {
-        d[i * A] = c[i * A + 1] as number
-        d[i * A + 1] = c[i * A] as number
+        d[i * A] = c[i * A + 1]!
+        d[i * A + 1] = c[i * A]!
       }
     } else {
       const axis = op === 'reflect-x' ? 0 : 1
+
       let hi = -Infinity
 
-      for (let i = 0; i < n; i++) hi = Math.max(hi, c[i * A + axis] as number)
       for (let i = 0; i < n; i++) {
-        d[i * A + axis] = hi - (c[i * A + axis] as number)
-        d[i * A + 1 - axis] = c[i * A + 1 - axis] as number
+        hi = Math.max(hi, c[i * A + axis]!)
+      }
+
+      for (let i = 0; i < n; i++) {
+        d[i * A + axis] = hi - c[i * A + axis]!
+        d[i * A + 1 - axis] = c[i * A + 1 - axis]!
       }
     }
 
     const to = index.get(d.join(','))
 
-    if (to === undefined) throw new Error('slab-turned-level: a symmetric image is outside the window')
+    if (to === undefined) {
+      throw new Error(
+        'slab-turned-level: a symmetric image is outside the window',
+      )
+    }
 
     for (let b = 0; b < block; b++) {
       let r = b
@@ -90,7 +125,10 @@ export function slabSymmetry(space: SlabSpace, op: SlabOp): Int32Array {
 
       let b2 = 0
 
-      for (let i = 0; i < n; i++) b2 = b2 * slots + slotMap(sl[i] as number)
+      for (let i = 0; i < n; i++) {
+        b2 = b2 * slots + slotMap(sl[i]!)
+      }
+
       perm[p * block + b] = to * block + b2
     }
   }
@@ -103,10 +141,10 @@ export function actSymmetry(perm: Int32Array, s: SlabState): SlabState {
   const im = new Float64Array(s.im.length)
 
   for (let e = 0; e < perm.length; e++) {
-    const t = perm[e] as number
+    const t = perm[e]!
 
-    re[t] = s.re[e] as number
-    im[t] = s.im[e] as number
+    re[t] = s.re[e]!
+    im[t] = s.im[e]!
   }
 
   return { re, im }
@@ -121,16 +159,31 @@ export function characterOf(perm: Int32Array, s: SlabState): C {
   return [r / w, i / w]
 }
 
-export type SlabPerms = { x: Int32Array; y: Int32Array; swap: Int32Array }
+export type SlabPerms = {
+  x: Int32Array
+  y: Int32Array
+  swap: Int32Array
+}
 
-export const slabPerms = (space: SlabSpace): SlabPerms => ({ x: slabSymmetry(space, 'reflect-x'), y: slabSymmetry(space, 'reflect-y'), swap: slabSymmetry(space, 'swap') })
+export const slabPerms = (space: SlabSpace): SlabPerms => ({
+  x: slabSymmetry(space, 'reflect-x'),
+  y: slabSymmetry(space, 'reflect-y'),
+  swap: slabSymmetry(space, 'swap'),
+})
 
 export type SlabSector = { x: 1 | -1; y: 1 | -1; swap?: 1 | -1 }
 
-const combine = (a: SlabState, b: SlabState, f: number): SlabState => ({ re: a.re.map((v, k) => v + f * (b.re[k] as number)), im: a.im.map((v, k) => v + f * (b.im[k] as number)) })
+const combine = (a: SlabState, b: SlabState, f: number): SlabState => ({
+  re: a.re.map((v, k) => v + f * b.re[k]!),
+  im: a.im.map((v, k) => v + f * b.im[k]!),
+})
 
 // (1 + x R_x)(1 + y R_y)(1 + swap W) / (4 or 8) s, not normalized
-export function sectorProject(perms: SlabPerms, s: SlabState, sector: SlabSector): SlabState {
+export function sectorProject(
+  perms: SlabPerms,
+  s: SlabState,
+  sector: SlabSector,
+): SlabState {
   let u = combine(s, actSymmetry(perms.x, s), sector.x)
 
   u = combine(u, actSymmetry(perms.y, u), sector.y)
@@ -138,7 +191,12 @@ export function sectorProject(perms: SlabPerms, s: SlabState, sector: SlabSector
   let scale = 0.25
 
   if (sector.swap !== undefined) {
-    if (sector.x !== sector.y) throw new Error('slab-turned-level: the swap character needs x = y')
+    if (sector.x !== sector.y) {
+      throw new Error(
+        'slab-turned-level: the swap character needs x = y',
+      )
+    }
+
     u = combine(u, actSymmetry(perms.swap, u), sector.swap)
     scale = 0.125
   }
@@ -147,7 +205,10 @@ export function sectorProject(perms: SlabPerms, s: SlabState, sector: SlabSector
 }
 
 // N_u s: per hole, its four slots replaced by their mean, summed over the holes
-export function uniformCount(space: SlabSpace, s: SlabState): SlabState {
+export function uniformCount(
+  space: SlabSpace,
+  s: SlabState,
+): SlabState {
   const { spec, slots, configs, block } = space
   const n = spec.holes
   const out = emptyState(space)
@@ -161,13 +222,16 @@ export function uniformCount(space: SlabSpace, s: SlabState): SlabState {
         let si = 0
 
         for (let q = 0; q < slots; q++) {
-          sr += s.re[base + o + q * stride] as number
-          si += s.im[base + o + q * stride] as number
+          sr += s.re[base + o + q * stride]!
+          si += s.im[base + o + q * stride]!
         }
 
         for (let q = 0; q < slots; q++) {
-          out.re[base + o + q * stride] = (out.re[base + o + q * stride] as number) + sr / slots
-          out.im[base + o + q * stride] = (out.im[base + o + q * stride] as number) + si / slots
+          out.re[base + o + q * stride] =
+            out.re[base + o + q * stride]! + sr / slots
+
+          out.im[base + o + q * stride] =
+            out.im[base + o + q * stride]! + si / slots
         }
       }
     }
@@ -182,7 +246,12 @@ export function blackmanHarris(T: number): number[] {
   return Array.from({ length: T }, (_, t) => {
     const x = (2 * Math.PI * t) / (T - 1)
 
-    return (a[0] as number) - (a[1] as number) * Math.cos(x) + (a[2] as number) * Math.cos(2 * x) - (a[3] as number) * Math.cos(3 * x)
+    return (
+      a[0]! -
+      a[1]! * Math.cos(x) +
+      a[2]! * Math.cos(2 * x) -
+      a[3]! * Math.cos(3 * x)
+    )
   })
 }
 
@@ -194,34 +263,60 @@ export const normalizeSlab = (s: SlabState): SlabState => {
 
 // F s = sum_t w_t e^(i E t) U^t s over t = 0 .. T - 1, normalized; a level e^(-i E' t) passes with gain
 // sum_t w_t e^(i (E - E') t)
-export function filterSlab(space: SlabSpace, K: readonly number[], s: SlabState, E: number, T: number): SlabState {
+export function filterSlab(
+  space: SlabSpace,
+  K: readonly number[],
+  s: SlabState,
+  E: number,
+  T: number,
+): SlabState {
   const w = blackmanHarris(T)
   const tally: SlabTally = { escaped: 0 }
   const out = emptyState(space)
-  let u: SlabState = { re: Float64Array.from(s.re), im: Float64Array.from(s.im) }
+
+  let u: SlabState = {
+    re: Float64Array.from(s.re),
+    im: Float64Array.from(s.im),
+  }
 
   for (let t = 0; t < T; t++) {
-    if (t > 0) u = slabBeat(space, K, u, tally)
+    if (t > 0) {
+      u = slabBeat(space, K, u, tally)
+    }
 
-    const fr = (w[t] as number) * Math.cos(E * t)
-    const fi = (w[t] as number) * Math.sin(E * t)
+    const fr = w[t]! * Math.cos(E * t)
+    const fi = w[t]! * Math.sin(E * t)
 
     for (let k = 0; k < u.re.length; k++) {
-      const ur = u.re[k] as number
-      const ui = u.im[k] as number
+      const ur = u.re[k]!
+      const ui = u.im[k]!
 
-      if (ur === 0 && ui === 0) continue
-      out.re[k] = (out.re[k] as number) + fr * ur - fi * ui
-      out.im[k] = (out.im[k] as number) + fr * ui + fi * ur
+      if (ur === 0 && ui === 0) {
+        continue
+      }
+
+      out.re[k] = out.re[k]! + fr * ur - fi * ui
+      out.im[k] = out.im[k]! + fr * ui + fi * ur
     }
   }
 
   return normalizeSlab(out)
 }
 
-export type FollowedLevel = { energy: number; weight: number; overlap: number; residual: number; coefficients: C[] }
+export type FollowedLevel = {
+  energy: number
+  weight: number
+  overlap: number
+  residual: number
+  coefficients: C[]
+}
 
-export type Followed = { levels: FollowedLevel[]; chosen: number; vector: SlabState; filtered: SlabState }
+export type Followed = {
+  levels: FollowedLevel[]
+  chosen: number
+  vector: SlabState
+  filtered: SlabState
+}
 
 // the Ritz levels of the filtered start over `ritzBeats` beats; the overlap of each with `reference` (unit) from
 // d(t) = <reference|U^t f>; the vector of the level of largest overlap
@@ -229,13 +324,23 @@ export function followLevel(
   space: SlabSpace,
   K: readonly number[],
   start: SlabState,
-  input: { E: number; filterBeats: number; ritzBeats: number; reference: SlabState; ritz: (c: readonly C[]) => Ritz[] },
+  input: {
+    E: number
+    filterBeats: number
+    ritzBeats: number
+    reference: SlabState
+    ritz: (c: readonly C[]) => Ritz[]
+  },
 ): Followed {
   const f = filterSlab(space, K, start, input.E, input.filterBeats)
   const tally: SlabTally = { escaped: 0 }
   const c: C[] = [innerSlab(f, f)]
   const d: C[] = [innerSlab(input.reference, f)]
-  let u: SlabState = { re: Float64Array.from(f.re), im: Float64Array.from(f.im) }
+
+  let u: SlabState = {
+    re: Float64Array.from(f.re),
+    im: Float64Array.from(f.im),
+  }
 
   for (let t = 1; t <= input.ritzBeats; t++) {
     u = slabBeat(space, K, u, tally)
@@ -248,69 +353,127 @@ export function followLevel(
     let i = 0
 
     l.coefficients.forEach((x, t) => {
-      const z = d[t] as C
+      const z = d[t]!
 
       r += x[0] * z[0] - x[1] * z[1]
       i += x[0] * z[1] + x[1] * z[0]
     })
 
-    return { energy: l.energy, weight: l.weight, overlap: r * r + i * i, residual: l.residual, coefficients: l.coefficients }
+    return {
+      energy: l.energy,
+      weight: l.weight,
+      overlap: r * r + i * i,
+      residual: l.residual,
+      coefficients: l.coefficients,
+    }
   })
 
   let chosen = 0
 
   levels.forEach((l, k) => {
-    if (l.overlap > (levels[chosen] as FollowedLevel).overlap) chosen = k
+    if (l.overlap > levels[chosen]!.overlap) {
+      chosen = k
+    }
   })
 
-  const vector = slabLevelVector(space, K, f, (levels[chosen] as FollowedLevel).coefficients)
+  const vector = slabLevelVector(
+    space,
+    K,
+    f,
+    levels[chosen]!.coefficients,
+  )
 
   return { levels, chosen, vector, filtered: f }
 }
 
 // |U v - lambda v| for a unit v, lambda = <v|U v>
-export function levelResidual(space: SlabSpace, K: readonly number[], v: SlabState): { residual: number; lambda: C; energy: number } {
-  const u = slabBeat(space, K, { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }, { escaped: 0 })
+export function levelResidual(
+  space: SlabSpace,
+  K: readonly number[],
+  v: SlabState,
+): { residual: number; lambda: C; energy: number } {
+  const u = slabBeat(
+    space,
+    K,
+    { re: Float64Array.from(v.re), im: Float64Array.from(v.im) },
+    { escaped: 0 },
+  )
   const lam = innerSlab(v, u)
+
   let r = 0
 
   for (let k = 0; k < u.re.length; k++) {
-    const vr = v.re[k] as number
-    const vi = v.im[k] as number
-    const dr = (u.re[k] as number) - (lam[0] * vr - lam[1] * vi)
-    const di = (u.im[k] as number) - (lam[0] * vi + lam[1] * vr)
+    const vr = v.re[k]!
+    const vi = v.im[k]!
+    const dr = u.re[k]! - (lam[0] * vr - lam[1] * vi)
+    const di = u.im[k]! - (lam[0] * vi + lam[1] * vr)
 
     r += dr * dr + di * di
   }
 
-  return { residual: Math.sqrt(r), lambda: lam, energy: -Math.atan2(lam[1], lam[0]) }
+  return {
+    residual: Math.sqrt(r),
+    lambda: lam,
+    energy: -Math.atan2(lam[1], lam[0]),
+  }
 }
 
 // the level at momentum K continued from a K = 0 level v: the dominant Krylov Ritz level of v under U_K over `beats`
 // beats, its vector, and its explicit Rayleigh energy and residual (the Toeplitz Ritz energy is not used: on a start
 // that is not one level it is off by up to 1e-4)
-export function levelAt(space: SlabSpace, K: readonly number[], v: SlabState, beats: number, ritz: (c: readonly C[]) => Ritz[]): { energy: number; residual: number; weight: number } {
+export function levelAt(
+  space: SlabSpace,
+  K: readonly number[],
+  v: SlabState,
+  beats: number,
+  ritz: (c: readonly C[]) => Ritz[],
+): { energy: number; residual: number; weight: number } {
   const tally: SlabTally = { escaped: 0 }
   const c: C[] = [innerSlab(v, v)]
-  let u: SlabState = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
+
+  let u: SlabState = {
+    re: Float64Array.from(v.re),
+    im: Float64Array.from(v.im),
+  }
 
   for (let t = 1; t <= beats; t++) {
     u = slabBeat(space, K, u, tally)
     c.push(innerSlab(v, u))
   }
 
-  const level = ritz(c).sort((x, y) => y.weight - x.weight)[0] as Ritz
+  const level = ritz(c).sort((x, y) => y.weight - x.weight)[0]!
   const w = slabLevelVector(space, K, v, level.coefficients)
   const r = levelResidual(space, K, w)
 
-  return { energy: r.energy, residual: r.residual, weight: level.weight }
+  return {
+    energy: r.energy,
+    residual: r.residual,
+    weight: level.weight,
+  }
 }
 
 // the inverse mass tensor of a K = 0 level by second differences of levelAt energies: xx also Richardson-extrapolated
 // from kappa and 2 kappa (the inertia), the tensor from xx, yy and the diagonal at kappa; E(K) = E(-K) is used (the level is even under both reflections, which
 // map K to -K along their axis)
-export function turnedTensor(space: SlabSpace, v: SlabState, E0: number, kappa: number, beats: number, ritz: (c: readonly C[]) => Ritz[]): { xx: number; xxSingle: number; yy: number; xy: number; eigen: [number, number]; worstResidual: number; leastWeight: number } {
-  const reads: { energy: number; residual: number; weight: number }[] = []
+export function turnedTensor(
+  space: SlabSpace,
+  v: SlabState,
+  E0: number,
+  kappa: number,
+  beats: number,
+  ritz: (c: readonly C[]) => Ritz[],
+): {
+  xx: number
+  xxSingle: number
+  yy: number
+  xy: number
+  eigen: [number, number]
+  worstResidual: number
+  leastWeight: number
+} {
+  const reads: { energy: number; residual: number; weight: number }[] =
+    []
+
   const second = (K: readonly number[], k: number): number => {
     const r = levelAt(space, K, v, beats, ritz)
     const d = r.energy - E0
@@ -320,6 +483,7 @@ export function turnedTensor(space: SlabSpace, v: SlabState, E0: number, kappa: 
 
     return (2 * wrapped) / (k * k)
   }
+
   const xxSingle = second([kappa, 0], kappa)
   const xxDouble = second([2 * kappa, 0], 2 * kappa)
   const xx = (4 * xxSingle - xxDouble) / 3
@@ -330,11 +494,22 @@ export function turnedTensor(space: SlabSpace, v: SlabState, E0: number, kappa: 
   const mean = (xxSingle + yy) / 2
   const rr = Math.sqrt(((xxSingle - yy) / 2) ** 2 + xy * xy)
 
-  return { xx, xxSingle, yy, xy, eigen: [mean - rr, mean + rr], worstResidual: Math.max(...reads.map(r => r.residual)), leastWeight: Math.min(...reads.map(r => r.weight)) }
+  return {
+    xx,
+    xxSingle,
+    yy,
+    xy,
+    eigen: [mean - rr, mean + rr],
+    worstResidual: Math.max(...reads.map(r => r.residual)),
+    leastWeight: Math.min(...reads.map(r => r.weight)),
+  }
 }
 
 // <v_j|N_u|v_k> over a family of unit vectors, row-major
-export function familyAction(space: SlabSpace, family: readonly SlabState[]): { re: Float64Array; im: Float64Array } {
+export function familyAction(
+  space: SlabSpace,
+  family: readonly SlabState[],
+): { re: Float64Array; im: Float64Array } {
   const m = family.length
   const re = new Float64Array(m * m)
   const im = new Float64Array(m * m)
@@ -342,7 +517,7 @@ export function familyAction(space: SlabSpace, family: readonly SlabState[]): { 
 
   for (let j = 0; j < m; j++) {
     for (let k = 0; k < m; k++) {
-      const [r, i] = innerSlab(family[j] as SlabState, pushed[k] as SlabState)
+      const [r, i] = innerSlab(family[j]!, pushed[k]!)
 
       re[j * m + k] = r
       im[j * m + k] = i
@@ -353,8 +528,13 @@ export function familyAction(space: SlabSpace, family: readonly SlabState[]): { 
 }
 
 // the weight of N_u v outside the span of an orthonormal family, |(1 - P) N_u v|^2
-export function pushOutside(space: SlabSpace, family: readonly SlabState[], v: SlabState): number {
+export function pushOutside(
+  space: SlabSpace,
+  family: readonly SlabState[],
+  v: SlabState,
+): number {
   const p = uniformCount(space, v)
+
   let w = weightOfSlab(p)
 
   for (const f of family) {

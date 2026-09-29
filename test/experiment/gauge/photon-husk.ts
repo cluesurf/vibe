@@ -106,7 +106,8 @@ function uniformStart(rule: PhotonRule, husk: Husk): PhotonState {
   const perDock = lattice.plaquetteCount / lattice.cells
   const size = lattice.plaquetteSize
   const s = emptyPhotonState(rule)
-  const hash = (i: number, h: number, top: number): number => Math.floor((((i + 7) * GOLDEN * h) % 1) * (2 * top + 1)) - top
+  const hash = (i: number, h: number, top: number): number =>
+    Math.floor((((i + 7) * GOLDEN * h) % 1) * (2 * top + 1)) - top
 
   for (let x = 0; x < lattice.cells; x++) {
     const c = husk.column[x] ?? 0
@@ -122,7 +123,9 @@ function uniformStart(rule: PhotonRule, husk: Husk): PhotonState {
       for (let e = 0; e < size; e++) {
         const l = lattice.plaquetteLinks[p * size + e] ?? 0
 
-        s.flux[l] = (s.flux[l] ?? 0) + (lattice.plaquetteSigns[p * size + e] ?? 0) * h
+        s.flux[l] =
+          (s.flux[l] ?? 0) +
+          (lattice.plaquetteSigns[p * size + e] ?? 0) * h
       }
     }
   }
@@ -131,7 +134,11 @@ function uniformStart(rule: PhotonRule, husk: Husk): PhotonState {
 }
 
 // docks whose links differ from their depth translate's
-function depthMismatches(rule: PhotonRule, husk: Husk, s: PhotonState): number {
+function depthMismatches(
+  rule: PhotonRule,
+  husk: Husk,
+  s: PhotonState,
+): number {
   const f = rule.lattice.firsts.length
 
   let n = 0
@@ -140,7 +147,10 @@ function depthMismatches(rule: PhotonRule, husk: Husk, s: PhotonState): number {
     const y = husk.along[x] ?? 0
 
     for (let k = 0; k < f; k++) {
-      if (s.angle[x * f + k] !== s.angle[y * f + k] || s.flux[x * f + k] !== s.flux[y * f + k]) {
+      if (
+        s.angle[x * f + k] !== s.angle[y * f + k] ||
+        s.flux[x * f + k] !== s.flux[y * f + k]
+      ) {
         n += 1
 
         break
@@ -173,7 +183,12 @@ export default experiment({
   run() {
     const lattice = photonLatticeD4({ side: SIDE })
     const husk = makeHusk(lattice)
-    const rule = makePhotonRule({ lattice, n: N, k: K, capacity: CAPACITY })
+    const rule = makePhotonRule({
+      lattice,
+      n: N,
+      k: K,
+      capacity: CAPACITY,
+    })
 
     // 1. husk Gauss's law, projection against sheet
     const s = start(rule, 1.37)
@@ -186,12 +201,23 @@ export default experiment({
 
       const charge = columnSum(husk, s.vibe)
 
-      gauss += huskGaussViolations(husk, projectLinks(husk, s.flux), charge)
-      sheetGauss += huskGaussViolations(husk, restrictLinks(husk, s.flux), charge)
+      gauss += huskGaussViolations(
+        husk,
+        projectLinks(husk, s.flux),
+        charge,
+      )
+
+      sheetGauss += huskGaussViolations(
+        husk,
+        restrictLinks(husk, s.flux),
+        charge,
+      )
     }
 
     // 2. husk gauge covariance
-    const chi = Array.from({ length: lattice.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N))
+    const chi = Array.from({ length: lattice.cells }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N),
+    )
     const huskChi = columnSum(husk, chi)
     const a = start(rule, 1.7)
     const b = changePhotonFrame(rule, copyPhotonState(a), chi)
@@ -201,12 +227,30 @@ export default experiment({
     for (let t = 0; t < BEATS; t++) {
       photonBeatInPlace(rule, a, t)
       photonBeatInPlace(rule, b, t)
-      frame += differ(projectAngles(husk, b.angle, N), changeHuskFrame(husk, projectAngles(husk, a.angle, N), huskChi, N))
-      frame += differ(projectLinks(husk, b.flux), projectLinks(husk, a.flux))
+      frame += differ(
+        projectAngles(husk, b.angle, N),
+        changeHuskFrame(
+          husk,
+          projectAngles(husk, a.angle, N),
+          huskChi,
+          N,
+        ),
+      )
+
+      frame += differ(
+        projectLinks(husk, b.flux),
+        projectLinks(husk, a.flux),
+      )
     }
 
     // 3. an exact 3D rule on column-constant fields
-    const free = makePhotonRule({ lattice, n: N, k: K, capacity: CAPACITY, hop: false })
+    const free = makePhotonRule({
+      lattice,
+      n: N,
+      k: K,
+      capacity: CAPACITY,
+      hop: false,
+    })
     const uniform = uniformStart(free, husk)
     const generic = start(free, 2.3)
     const uniformAtStart = depthMismatches(free, husk, uniform)
@@ -227,10 +271,22 @@ export default experiment({
     const kept = survival.every(sv => {
       const [g0 = 0, g1 = 0, g2 = 0] = sv.photonGram
 
-      return g0 > 0.1 && g1 > 0.1 && g2 < 1e-9 * g0 && sv.killedOdd > 1 - 1e-9
+      return (
+        g0 > 0.1 &&
+        g1 > 0.1 &&
+        g2 < 1e-9 * g0 &&
+        sv.killedOdd > 1 - 1e-9
+      )
     })
 
-    const ok = gauss === 0 && sheetGauss > 0 && frame === 0 && uniformAtStart === 0 && uniformLater === 0 && genericLater > 0 && kept
+    const ok =
+      gauss === 0 &&
+      sheetGauss > 0 &&
+      frame === 0 &&
+      uniformAtStart === 0 &&
+      uniformLater === 0 &&
+      genericLater > 0 &&
+      kept
 
     return verdict({
       status: ok ? 'pass' : 'fail',

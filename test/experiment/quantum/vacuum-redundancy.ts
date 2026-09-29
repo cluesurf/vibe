@@ -68,8 +68,16 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { LINE_CLASSES, readerPermutation } from '@/code/measure/sum-record'
-import { GRID_LINES, onPoints, UNIFORM, unitsOf } from '@/code/measure/pointer-basis'
+import {
+  LINE_CLASSES,
+  readerPermutation,
+} from '@/code/measure/sum-record'
+import {
+  GRID_LINES,
+  onPoints,
+  UNIFORM,
+  unitsOf,
+} from '@/code/measure/pointer-basis'
 import {
   jointTable,
   knotPairs,
@@ -91,25 +99,41 @@ const DELTA = 0.1
 const LOG3 = Math.log(3)
 const STARTS = GRID_LINES.filter(l => l.points.includes(0))
 
-const READERS = LINE_CLASSES.map(c => readerPermutation(c.direction).perm)
+const READERS = LINE_CLASSES.map(
+  c => readerPermutation(c.direction).perm,
+)
 
 // the knot's retained weight on its start line carried by its moves, exactly, as [on, units]
-function retained(s: VacuumSchedule, w: Whole, startCls: number, t: number): [bigint, bigint] {
-  const line = (STARTS.find(l => l.cls === startCls) as (typeof STARTS)[number]).points.map(p => (s.knotMove[t] as readonly number[])[p] as number)
+function retained(
+  s: VacuumSchedule,
+  w: Whole,
+  startCls: number,
+  t: number,
+): [bigint, bigint] {
+  const line = STARTS.find(l => l.cls === startCls)!.points.map(
+    p => s.knotMove[t]![p]!,
+  )
   const m = marginalSingle(w, 0)
 
-  return [line.reduce((a, p) => a + (m[p] as bigint), 0n), unitsOf(m)]
+  return [line.reduce((a, p) => a + m[p]!, 0n), unitsOf(m)]
 }
 
 // every partner's best record of each knot class (own frame): the largest I and the knot's H, and negatives
-function records(s: VacuumSchedule, w: Whole, t: number): { info: number[][]; h: number[]; negative: number } {
+function records(
+  s: VacuumSchedule,
+  w: Whole,
+  t: number,
+): { info: number[][]; h: number[]; negative: number } {
   const pairs = knotPairs(w)
-  const move = s.knotMove[t] as readonly number[]
+  const move = s.knotMove[t]!
+
   let negative = 0
+
   const h = [0, 0, 0, 0]
   const info = pairs.map(pair =>
     [0, 1, 2, 3].map(c => {
       const cd = movedClass(move, c)
+
       let best = 0
 
       for (let e = 0; e < 4; e++) {
@@ -134,28 +158,59 @@ function records(s: VacuumSchedule, w: Whole, t: number): { info: number[][]; h:
 export default experiment({
   id: 'quantum/vacuum-redundancy',
   code: 'E-QTM-0155',
-  title: 'no redundant record in the coset-union vacuum: counted exactly over 17 starts, a knot\'s environment of vacuum tokens holds no record of any class under the fear beat and no class decoheres apart, while a stand-in SUM reader in the knot\'s own frame makes the role class a pointer basis on the same instrument',
+  title:
+    "no redundant record in the coset-union vacuum: counted exactly over 17 starts, a knot's environment of vacuum tokens holds no record of any class under the fear beat and no class decoheres apart, while a stand-in SUM reader in the knot's own frame makes the role class a pointer basis on the same instrument",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const perStart: { name: string; c1: boolean; m1: boolean; m2: boolean; cases: number; maxRatio: number; equalSurvival: number; memberNegative: number; memberRecords: number; standInR: number[]; standInColumns: number[]; dockSurvival: string[]; survivals: string[] }[] = []
+    const perStart: {
+      name: string
+      c1: boolean
+      m1: boolean
+      m2: boolean
+      cases: number
+      maxRatio: number
+      equalSurvival: number
+      memberNegative: number
+      memberRecords: number
+      standInR: number[]
+      standInColumns: number[]
+      dockSurvival: string[]
+      survivals: string[]
+    }[] = []
 
     for (const member of startFamily(16)) {
-      const row = { name: member.name, c1: true, m1: true, m2: true, cases: 0, maxRatio: 0, equalSurvival: 0, memberNegative: 0, memberRecords: 0, standInR: [] as number[], standInColumns: [] as number[], dockSurvival: [] as string[], survivals: [] as string[] }
+      const row = {
+        name: member.name,
+        c1: true,
+        m1: true,
+        m2: true,
+        cases: 0,
+        maxRatio: 0,
+        equalSurvival: 0,
+        memberNegative: 0,
+        memberRecords: 0,
+        standInR: [] as number[],
+        standInColumns: [] as number[],
+        dockSurvival: [] as string[],
+        survivals: [] as string[],
+      }
 
       withStart(member, () => {
         for (let d = 0; d < 24; d++) {
           const s = vacuumSchedule(SIDE, d, BEATS)
 
-          if (s.knotMeetings.every(n => n === 0)) continue
+          if (s.knotMeetings.every(n => n === 0)) {
+            continue
+          }
 
           row.cases++
 
           const firstMeeting = s.knotMeetings.findIndex(n => n > 0)
-          const firstPartner = s.partners[0] as number
+          const firstPartner = s.partners[0]!
 
           // the model, ensemble opening, every beat
           const survival: [bigint, bigint][] = []
@@ -170,11 +225,14 @@ export default experiment({
 
               r.info.forEach(byClass =>
                 byClass.forEach((i, c) => {
-                  const h = r.h[c] as number
+                  const h = r.h[c]!
 
                   if (h > 1e-12) {
                     row.maxRatio = Math.max(row.maxRatio, i / h)
-                    if (i >= (1 - DELTA) * h) row.m1 = false
+
+                    if (i >= (1 - DELTA) * h) {
+                      row.m1 = false
+                    }
                   }
                 }),
               )
@@ -186,33 +244,61 @@ export default experiment({
           const exactOne = survival.map(([on, u]) => on === u)
           const below = survival.map(([on, u]) => on < u)
 
-          if (exactOne.some(Boolean) && below.some(Boolean)) row.m2 = false
-          row.equalSurvival += survival.every(([on, u]) => on * (survival[0]?.[1] as bigint) === (survival[0]?.[0] as bigint) * u) ? 1 : 0
-          row.survivals.push(survival.map(([on, u]) => ((3 * Number(on)) / Number(u) - 1) / 2).map(x => x.toFixed(4)).join('/'))
+          if (exactOne.some(Boolean) && below.some(Boolean)) {
+            row.m2 = false
+          }
+
+          row.equalSurvival += survival.every(
+            ([on, u]) =>
+              on * survival[0]?.[1]! === survival[0]?.[0]! * u,
+          )
+            ? 1
+            : 0
+
+          row.survivals.push(
+            survival
+              .map(([on, u]) => ((3 * Number(on)) / Number(u) - 1) / 2)
+              .map(x => x.toFixed(4))
+              .join('/'),
+          )
 
           // the model, member opening, at the end
           for (const start of STARTS) {
-            const w = runWhole(s, startWhole(s, start.points, j => onPoints([s.partnerPoint[j] as number])), 0, BEATS)
+            const w = runWhole(
+              s,
+              startWhole(s, start.points, j =>
+                onPoints([s.partnerPoint[j]!]),
+              ),
+              0,
+              BEATS,
+            )
             const r = records(s, w, BEATS - 1)
 
             row.memberNegative += r.negative
             r.info.forEach(byClass =>
               byClass.forEach((i, c) => {
-                const h = r.h[c] as number
+                const h = r.h[c]!
 
-                row.memberRecords += h > 1e-12 && i >= (1 - DELTA) * h ? 1 : 0
+                row.memberRecords +=
+                  h > 1e-12 && i >= (1 - DELTA) * h ? 1 : 0
               }),
             )
           }
 
           // the stand-in: the role reader carried in the knot's own frame, partners on their role line
           const roleLine = (j: number): bigint[] => {
-            const p = s.partnerPoint[j] as number
+            const p = s.partnerPoint[j]!
 
-            return onPoints([3 * Math.floor(p / 3), 3 * Math.floor(p / 3) + 1, 3 * Math.floor(p / 3) + 2])
+            return onPoints([
+              3 * Math.floor(p / 3),
+              3 * Math.floor(p / 3) + 1,
+              3 * Math.floor(p / 3) + 2,
+            ])
           }
-          const ownReader = (t: number): ArrayLike<number> => READERS[movedClass(moveBefore(s, t), 0)] as Int16Array
-          const dockReader = (): ArrayLike<number> => READERS[0] as Int16Array
+
+          const ownReader = (t: number): ArrayLike<number> =>
+            READERS[movedClass(moveBefore(s, t), 0)]!
+          const dockReader = (): ArrayLike<number> => READERS[0]!
           const dockSurv: string[] = []
 
           for (const start of STARTS) {
@@ -226,29 +312,46 @@ export default experiment({
                 const j = s.partners.indexOf(firstPartner)
                 const i = r.info[j]?.[0] ?? 0
 
-                if (Math.abs(i - LOG3) > 1e-12) row.c1 = false
+                if (Math.abs(i - LOG3) > 1e-12) {
+                  row.c1 = false
+                }
               }
             }
 
             const [on, u] = retained(s, w, start.cls, BEATS - 1)
 
-            if (start.cls === 0 ? on !== u : 3n * on !== u) row.c1 = false
+            if (start.cls === 0 ? on !== u : 3n * on !== u) {
+              row.c1 = false
+            }
 
             if (start.cls !== 0) {
               const r = records(s, w, BEATS - 1)
-              const holders = r.info.map((byClass, j) => ((byClass[0] ?? 0) >= (1 - DELTA) * (r.h[0] ?? 0) && (r.h[0] ?? 0) > 1e-12 ? j : -1)).filter(j => j >= 0)
+              const holders = r.info
+                .map((byClass, j) =>
+                  (byClass[0] ?? 0) >= (1 - DELTA) * (r.h[0] ?? 0) &&
+                  (r.h[0] ?? 0) > 1e-12
+                    ? j
+                    : -1,
+                )
+                .filter(j => j >= 0)
 
               row.standInR.push(holders.length)
-              row.standInColumns.push(new Set(holders.map(j => s.partnerColumn[j])).size)
+              row.standInColumns.push(
+                new Set(holders.map(j => s.partnerColumn[j])).size,
+              )
             }
 
             let wd = startWhole(s, start.points, roleLine)
 
-            for (let t = 0; t < BEATS; t++) wd = standInBeat(s, wd, t, dockReader)
+            for (let t = 0; t < BEATS; t++) {
+              wd = standInBeat(s, wd, t, dockReader)
+            }
 
             const [ond, ud] = retained(s, wd, start.cls, BEATS - 1)
 
-            dockSurv.push((((3 * Number(ond)) / Number(ud) - 1) / 2).toFixed(4))
+            dockSurv.push(
+              (((3 * Number(ond)) / Number(ud) - 1) / 2).toFixed(4),
+            )
           }
 
           row.dockSurvival.push(dockSurv.join('/'))
@@ -258,8 +361,14 @@ export default experiment({
       perStart.push(row)
     }
 
-    const count = (f: (r: (typeof perStart)[number]) => boolean): number => perStart.filter(f).length
-    const g = { C1: count(r => r.c1), M1: count(r => r.m1), M2: count(r => r.m2) }
+    const count = (
+      f: (r: (typeof perStart)[number]) => boolean,
+    ): number => perStart.filter(f).length
+    const g = {
+      C1: count(r => r.c1),
+      M1: count(r => r.m1),
+      M2: count(r => r.m2),
+    }
     const ok = g.C1 === 17 && g.M1 === 17 && g.M2 === 17
     const maxRatio = Math.max(...perStart.map(r => r.maxRatio))
     const cases = perStart.reduce((a, r) => a + r.cases, 0)
@@ -277,8 +386,14 @@ export default experiment({
         startsM2: g.M2,
         maxInformationRatio: maxRatio,
         equalSurvivalCases: equal,
-        memberNegativeTables: perStart.reduce((a, r) => a + r.memberNegative, 0),
-        memberRecords: perStart.reduce((a, r) => a + r.memberRecords, 0),
+        memberNegativeTables: perStart.reduce(
+          (a, r) => a + r.memberNegative,
+          0,
+        ),
+        memberRecords: perStart.reduce(
+          (a, r) => a + r.memberRecords,
+          0,
+        ),
         standInRedundancyMin: Math.min(...standInR),
         standInRedundancyMax: Math.max(...standInR),
         standInHuskColumnsMin: Math.min(...standInColumns),

@@ -60,7 +60,15 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { fearKernels, meetingKernel, physicalWhole, swapPhase, type BeatRecord, type FearKernels, type Whole } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  meetingKernel,
+  physicalWhole,
+  swapPhase,
+  type BeatRecord,
+  type FearKernels,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import {
   classicalRecords,
   meetingPairs,
@@ -72,9 +80,24 @@ import {
   type Background,
   type RoleState,
 } from '@/code/measure/knit-magic'
-import { assignmentSpace, cosetLabels, lagrangians, marginalOf, phaseSpace, type Space } from '@/code/measure/stabilizer-contexts'
-import { displacementOperators, hermitianSpectrum, kcbsAligned, operatorFromWigner } from '@/code/measure/qutrit-clifford'
-import { multiplyOperators, phasePointOperators } from '@/code/measure/grid-weights'
+import {
+  assignmentSpace,
+  cosetLabels,
+  lagrangians,
+  marginalOf,
+  phaseSpace,
+  type Space,
+} from '@/code/measure/stabilizer-contexts'
+import {
+  displacementOperators,
+  hermitianSpectrum,
+  kcbsAligned,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
+import {
+  multiplyOperators,
+  phasePointOperators,
+} from '@/code/measure/grid-weights'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 
 const OMEGA = (2 * Math.PI) / 3
@@ -89,7 +112,12 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
   ['strange', 'strange'],
 ]
 
-type Law = { name: string; fear: boolean; kernel4: readonly (readonly number[])[]; color?: FearKernels }
+type Law = {
+  name: string
+  fear: boolean
+  kernel4: readonly (readonly number[])[]
+  color?: FearKernels
+}
 
 type Tally = {
   wholes: number
@@ -120,7 +148,11 @@ const newTally = (): Tally => ({
 })
 
 // the per-point sums S_u, times the units, of a two-role whole, and what they say
-function readWhole(input: { weight: readonly bigint[]; space: Space; planes: readonly Int32Array[] }): {
+function readWhole(input: {
+  weight: readonly bigint[]
+  space: Space
+  planes: readonly Int32Array[]
+}): {
   violating: number
   identityOk: boolean
   fearOk: boolean
@@ -130,7 +162,9 @@ function readWhole(input: { weight: readonly bigint[]; space: Space; planes: rea
 } {
   const { weight, space, planes } = input
   const n = weight.reduce((a, b) => a + b, 0n)
-  const sums = planes.map(() => new Array<bigint>(space.points).fill(0n))
+  const sums = planes.map(() =>
+    new Array<bigint>(space.points).fill(0n),
+  )
 
   weight.forEach((w, x) => {
     if (w !== 0n) {
@@ -181,7 +215,7 @@ export default experiment({
   id: 'quantum/stabilizer-contextuality-is-fear',
   code: 'E-QTM-0149',
   title:
-    'contextuality on the knots is the fear: the only noncontextual value assignments of two roles\' displacements are the 81 phase points, so a knot is contextual for the model\'s own readings exactly when it holds a fear, and the 40-context inequality S_u >= 4 reads S_u = 36 W(u) + 4 exactly on every knot the knit makes, violated only at fears, never with the fear beat off from stabilizer starts, and changing only at meetings; one role is never contextual for its own readings',
+    "contextuality on the knots is the fear: the only noncontextual value assignments of two roles' displacements are the 81 phase points, so a knot is contextual for the model's own readings exactly when it holds a fear, and the 40-context inequality S_u >= 4 reads S_u = 36 W(u) + 4 exactly on every knot the knit makes, violated only at fears, never with the fear beat off from stabilizer starts, and changing only at meetings; one role is never contextual for its own readings",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -199,10 +233,16 @@ export default experiment({
     const phaseFunctions = new Set<string>()
 
     for (let x = 0; x < 81; x++) {
-      phaseFunctions.add(Array.from({ length: 81 }, (_, v) => two.form[x * 81 + v] ?? 0).join(''))
+      phaseFunctions.add(
+        Array.from(
+          { length: 81 },
+          (_, v) => two.form[x * 81 + v] ?? 0,
+        ).join(''),
+      )
     }
 
     const displacements = displacementOperators(2)
+
     let commutingPairs = 0
     let commutingFailures = 0
 
@@ -214,12 +254,20 @@ export default experiment({
 
         commutingPairs++
 
-        const product = multiplyOperators(displacements[u]!, displacements[v]!)
+        const product = multiplyOperators(
+          displacements[u]!,
+          displacements[v]!,
+        )
         const target = displacements[two.add[u * 81 + v] ?? 0]!
+
         let error = 0
 
         for (let k = 0; k < 81; k++) {
-          error = Math.max(error, Math.abs((product.re[k] ?? 0) - (target.re[k] ?? 0)), Math.abs((product.im[k] ?? 0) - (target.im[k] ?? 0)))
+          error = Math.max(
+            error,
+            Math.abs((product.re[k] ?? 0) - (target.re[k] ?? 0)),
+            Math.abs((product.im[k] ?? 0) - (target.im[k] ?? 0)),
+          )
         }
 
         commutingFailures += error > 1e-12 ? 1 : 0
@@ -232,7 +280,10 @@ export default experiment({
       let ok = true
 
       for (let x = 0; x < 81; x++) {
-        const count = planeLabels.reduce((s, labels) => s + (labels[x] === labels[u] ? 1 : 0), 0)
+        const count = planeLabels.reduce(
+          (s, labels) => s + (labels[x] === labels[u] ? 1 : 0),
+          0,
+        )
 
         ok = ok && count === (x === u ? 40 : 4)
       }
@@ -284,8 +335,10 @@ export default experiment({
     // the laws
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const kOff = meetingKernel(swapPhase(Math.PI)) ?? []
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
-    const colorOff = fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
+    const colorOn =
+      fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
+    const colorOff =
+      fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
     const laws: Law[] = [
       { name: 'swap', fear: true, kernel4: kThird },
       { name: 'swapOff', fear: false, kernel4: kOff },
@@ -295,6 +348,7 @@ export default experiment({
     const points2 = phasePointOperators(2)
 
     const tallies = new Map<string, Tally>()
+
     let reducedStates = 0
     let reducedWithFear = 0
     let negativeLineChances = 0
@@ -302,7 +356,8 @@ export default experiment({
     let kcbsWithoutFear = 0
     let kcbsLargest = 0
 
-    const physical = (law: Law, whole: Whole): readonly bigint[] => (law.color ? physicalWhole(whole).weight : whole.weight)
+    const physical = (law: Law, whole: Whole): readonly bigint[] =>
+      law.color ? physicalWhole(whole).weight : whole.weight
 
     const runHistories = (input: {
       background: Background
@@ -313,7 +368,13 @@ export default experiment({
       reduced: boolean
     }): void => {
       const weave = makeColorWeave({ side: SIDE, table: 'pair' })
-      const records = classicalRecords({ weave, links: weave.links, background: input.background, open: Array.from({ length: 24 }, (_, d) => d), beats: input.beats })
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background: input.background,
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: input.beats,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine: BeatRecord[] = pairRecords(records, a, b)
@@ -323,12 +384,26 @@ export default experiment({
             const key = input.key(law, start)
             const tally = tallies.get(key) ?? newTally()
             const startWhole = productWhole([a, b], start)
-            const wholes: Whole[] = [startWhole, ...runWhole({ weave, start: startWhole, records: mine, kernel4: law.kernel4, color: law.color }).map(s => s.whole)]
+            const wholes: Whole[] = [
+              startWhole,
+              ...runWhole({
+                weave,
+                start: startWhole,
+                records: mine,
+                kernel4: law.kernel4,
+                color: law.color,
+              }).map(s => s.whole),
+            ]
+
             let previous = -1
 
             wholes.forEach((whole, t) => {
               const weight = physical(law, whole)
-              const read = readWhole({ weight, space: two, planes: planeLabels })
+              const read = readWhole({
+                weight,
+                space: two,
+                planes: planeLabels,
+              })
 
               tally.wholes++
               tally.violatingWholes += read.violating > 0 ? 1 : 0
@@ -337,18 +412,31 @@ export default experiment({
               tally.fearMismatches += read.fearOk ? 0 : 1
               tally.deficitMismatches += read.deficitOk ? 0 : 1
               tally.deepest = Math.min(tally.deepest, read.deepest)
-              tally.largestDeficit = Math.max(tally.largestDeficit, read.deficitShare)
+              tally.largestDeficit = Math.max(
+                tally.largestDeficit,
+                read.deficitShare,
+              )
 
               // a beat whose record holds no meeting of the pair (t indexes the whole after record t - 1)
-              if (t > 0 && (mine[t - 1]?.meetings.length ?? 0) === 0 && previous >= 0 && read.violating !== previous) {
+              if (
+                t > 0 &&
+                (mine[t - 1]?.meetings.length ?? 0) === 0 &&
+                previous >= 0 &&
+                read.violating !== previous
+              ) {
                 tally.quietChanges++
               }
 
               previous = read.violating
 
-              if ((tally.wholes % STATE_SAMPLE) === 0) {
+              if (tally.wholes % STATE_SAMPLE === 0) {
                 const n = Number(weight.reduce((x, y) => x + y, 0n))
-                const spectrum = hermitianSpectrum(operatorFromWigner(weight.map(x => Number(x) / n), points2))
+                const spectrum = hermitianSpectrum(
+                  operatorFromWigner(
+                    weight.map(x => Number(x) / n),
+                    points2,
+                  ),
+                )
 
                 tally.sampled++
                 tally.outside += (spectrum[0] ?? 0) < -1e-9 ? 1 : 0
@@ -358,6 +446,7 @@ export default experiment({
                 for (const keep of [0, 1]) {
                   const m = marginalOf(weight, 2, [keep])
                   const n = m.reduce((x, y) => x + y, 0n)
+
                   let fear = false
                   let minimum = 0
 
@@ -372,7 +461,12 @@ export default experiment({
                   for (const labels of lineLabels) {
                     const chance = new Map<number, bigint>()
 
-                    m.forEach((w, x) => chance.set(labels[x] ?? 0, (chance.get(labels[x] ?? 0) ?? 0n) + w))
+                    m.forEach((w, x) =>
+                      chance.set(
+                        labels[x] ?? 0,
+                        (chance.get(labels[x] ?? 0) ?? 0n) + w,
+                      ),
+                    )
 
                     for (const c of chance.values()) {
                       negativeLineChances += c < 0n ? 1 : 0
@@ -394,27 +488,36 @@ export default experiment({
       }
     }
 
-    const slots = makeColorWeave({ side: SIDE, table: 'pair' }).mesh.cellCount * 24
+    const slots =
+      makeColorWeave({ side: SIDE, table: 'pair' }).mesh.cellCount * 24
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
       runHistories({
         background,
         beats: BEATS,
         starts: STARTS,
         laws,
-        key: (law, start) => `${law.name}:${start[0] === 'strange' ? 'magicStart' : 'stabilizerStart'}`,
+        key: (law, start) =>
+          `${law.name}:${start[0] === 'strange' ? 'magicStart' : 'stabilizerStart'}`,
         reduced: true,
       })
     }
 
     // G6 over the start family
     const family = startFamily(16)
+
     let familyPass = 0
     let familyViolatingWholes = 0
+
     const familyDetail: string[] = []
 
     for (const member of family) {
-      const before = new Map([...tallies.entries()].map(([k, v]) => [k, { ...v }]))
+      const before = new Map(
+        [...tallies.entries()].map(([k, v]) => [k, { ...v }]),
+      )
 
       withStart(member, () => {
         runHistories({
@@ -445,26 +548,47 @@ export default experiment({
       familyDetail.push(`${member.name}:${violated}`)
     }
 
-    const sum = (pick: (t: Tally) => number, keys: readonly string[]): number => keys.reduce((s, k) => s + pick(tallies.get(k) ?? newTally()), 0)
+    const sum = (
+      pick: (t: Tally) => number,
+      keys: readonly string[],
+    ): number =>
+      keys.reduce((s, k) => s + pick(tallies.get(k) ?? newTally()), 0)
     const allKeys = [...tallies.keys()]
-    const onStabilizer = ['swap:stabilizerStart', 'color:stabilizerStart']
-    const offStabilizer = ['swapOff:stabilizerStart', 'colorOff:stabilizerStart', 'family:colorOff']
-    const onKeys = allKeys.filter(k => k.startsWith('swap:') || k.startsWith('color:') || k === 'family:color')
+    const onStabilizer = [
+      'swap:stabilizerStart',
+      'color:stabilizerStart',
+    ]
+    const offStabilizer = [
+      'swapOff:stabilizerStart',
+      'colorOff:stabilizerStart',
+      'family:colorOff',
+    ]
+    const onKeys = allKeys.filter(
+      k =>
+        k.startsWith('swap:') ||
+        k.startsWith('color:') ||
+        k === 'family:color',
+    )
 
     const g2 =
-      sum(t => t.identityMismatches, allKeys) === 0 && sum(t => t.fearMismatches, allKeys) === 0 && sum(t => t.deficitMismatches, allKeys) === 0
+      sum(t => t.identityMismatches, allKeys) === 0 &&
+      sum(t => t.fearMismatches, allKeys) === 0 &&
+      sum(t => t.deficitMismatches, allKeys) === 0
     const g3 = sum(t => t.violatingWholes, offStabilizer) === 0
-    const g4 = sum(t => t.quietChanges, allKeys) === 0 && sum(t => t.violatingWholes, onStabilizer) > 0
+    const g4 =
+      sum(t => t.quietChanges, allKeys) === 0 &&
+      sum(t => t.violatingWholes, onStabilizer) > 0
     const g5 = negativeLineChances === 0 && reducedWithFear > 0
     const g6 = familyPass === family.length
 
     const ok = structureOk && g2 && g3 && g4 && g5 && g6
-    const read = (key: string, pick: (t: Tally) => number): number => pick(tallies.get(key) ?? newTally())
+    const read = (key: string, pick: (t: Tally) => number): number =>
+      pick(tallies.get(key) ?? newTally())
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the noncontextual value assignments of two roles\' displacements are exactly the 81 phase points (an F3 system of dimension 4), one role\'s are 81 against 9 points; so the model\'s own readings are contextual on a knot exactly where it holds a fear: S_u = 36 W(u) + 4 on every whole, violations only at fears, none with the fear beat off from stabilizer starts on any link start, changing only at meetings, and no one-role reading is ever contextual',
+        "the noncontextual value assignments of two roles' displacements are exactly the 81 phase points (an F3 system of dimension 4), one role's are 81 against 9 points; so the model's own readings are contextual on a knot exactly where it holds a fear: S_u = 36 W(u) + 4 on every whole, violations only at fears, none with the fear beat off from stabilizer starts on any link start, changing only at meetings, and no one-role reading is ever contextual",
       metrics: {
         gateStructure: structureOk ? 1 : 0,
         gateIdentityAndFear: g2 ? 1 : 0,
@@ -478,18 +602,46 @@ export default experiment({
         deficitMismatches: sum(t => t.deficitMismatches, allKeys),
         quietChanges: sum(t => t.quietChanges, allKeys),
         violatingWholesFearOn: sum(t => t.violatingWholes, onKeys),
-        violatingWholesFearOnStabilizerStart: sum(t => t.violatingWholes, onStabilizer),
-        violatingWholesFearOffStabilizerStart: sum(t => t.violatingWholes, offStabilizer),
-        violatingWholesFearOffMagicStart: read('swapOff:magicStart', t => t.violatingWholes) + read('colorOff:magicStart', t => t.violatingWholes),
-        wholesFearOffMagicStart: read('swapOff:magicStart', t => t.wholes) + read('colorOff:magicStart', t => t.wholes),
-        swapDeepestWeight: Math.min(read('swap:stabilizerStart', t => t.deepest), read('swap:magicStart', t => t.deepest)),
-        colorDeepestWeight: Math.min(read('color:stabilizerStart', t => t.deepest), read('color:magicStart', t => t.deepest)),
-        largestPointDeficit: -36 * Math.min(...allKeys.map(k => read(k, t => t.deepest))),
-        largestPointDeficitStabilizerStart: -36 * Math.min(...onStabilizer.map(k => read(k, t => t.deepest))),
-        largestPointDeficitStartFamily: -36 * read('family:color', t => t.deepest),
-        largestTotalDeficit: Math.max(...allKeys.map(k => read(k, t => t.largestDeficit))),
-        swapLargestTotalDeficitStabilizerStart: read('swap:stabilizerStart', t => t.largestDeficit),
-        colorLargestTotalDeficitStabilizerStart: read('color:stabilizerStart', t => t.largestDeficit),
+        violatingWholesFearOnStabilizerStart: sum(
+          t => t.violatingWholes,
+          onStabilizer,
+        ),
+        violatingWholesFearOffStabilizerStart: sum(
+          t => t.violatingWholes,
+          offStabilizer,
+        ),
+        violatingWholesFearOffMagicStart:
+          read('swapOff:magicStart', t => t.violatingWholes) +
+          read('colorOff:magicStart', t => t.violatingWholes),
+        wholesFearOffMagicStart:
+          read('swapOff:magicStart', t => t.wholes) +
+          read('colorOff:magicStart', t => t.wholes),
+        swapDeepestWeight: Math.min(
+          read('swap:stabilizerStart', t => t.deepest),
+          read('swap:magicStart', t => t.deepest),
+        ),
+        colorDeepestWeight: Math.min(
+          read('color:stabilizerStart', t => t.deepest),
+          read('color:magicStart', t => t.deepest),
+        ),
+        largestPointDeficit:
+          -36 * Math.min(...allKeys.map(k => read(k, t => t.deepest))),
+        largestPointDeficitStabilizerStart:
+          -36 *
+          Math.min(...onStabilizer.map(k => read(k, t => t.deepest))),
+        largestPointDeficitStartFamily:
+          -36 * read('family:color', t => t.deepest),
+        largestTotalDeficit: Math.max(
+          ...allKeys.map(k => read(k, t => t.largestDeficit)),
+        ),
+        swapLargestTotalDeficitStabilizerStart: read(
+          'swap:stabilizerStart',
+          t => t.largestDeficit,
+        ),
+        colorLargestTotalDeficitStabilizerStart: read(
+          'color:stabilizerStart',
+          t => t.largestDeficit,
+        ),
         reducedStates,
         reducedStatesWithFear: reducedWithFear,
         negativeLineChances,
@@ -515,9 +667,10 @@ export default experiment({
         oneRoleOrthogonalPairs,
         oneRoleOrthogonalPairsAcrossDirections: oneRoleOrthogonalAcross,
       },
-      notes: `family violating wholes per start (color law, fear on, vacuum, ${FAMILY_BEATS} beats): ${familyDetail.join(' ')}. ` +
+      notes:
+        `family violating wholes per start (color law, fear on, vacuum, ${FAMILY_BEATS} beats): ${familyDetail.join(' ')}. ` +
         'First run 2026-09-26: every gate passed as fixed (202,756 wholes, 0 mismatches). Two reported metrics, the largest point deficit from stabilizer starts (3.9375, W = -7/64) and on the start family (2.667), were added after it and the file rerun, every other number unchanged. The deepest weight reached is the two-role floor -1/9 (from a Strange start), where all 40 cosets through the point have chance 0 and every noncontextual model needs at least 4 of them. integer+10 makes no fear in 120 beats, so it tests G3 only. ' +
-        'L2. HWVE (2014) is derived here in the model\'s own terms: the displacement assignments are solved over F3, the coset identity is counted, and every knot is read in BigInt. The one-role result is the reason E-QTM-0120 found KCBS unrelated to this contextuality: a role alone has 81 noncontextual assignments for 4 unconnected contexts. The color law is read in the love frame (physicalWhole); the stored frame is not a state for an entangled love-fear knot.',
+        "L2. HWVE (2014) is derived here in the model's own terms: the displacement assignments are solved over F3, the coset identity is counted, and every knot is read in BigInt. The one-role result is the reason E-QTM-0120 found KCBS unrelated to this contextuality: a role alone has 81 noncontextual assignments for 4 unconnected contexts. The color law is read in the love frame (physicalWhole); the stored frame is not a state for an entangled love-fear knot.",
     })
   },
 })

@@ -95,12 +95,23 @@ const MESON_BEATS = 600
 const SEPARATIONS = [1, 2, 3, 4]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-type Loops = { w11: number; w12: number; w22: number; w23: number; w33: number }
+type Loops = {
+  w11: number
+  w12: number
+  w22: number
+  w23: number
+  w33: number
+}
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
-function connectedString(rule: SigmaLinks, flux: Int32Array, sources: number[]): number {
+function connectedString(
+  rule: SigmaLinks,
+  flux: Int32Array,
+  sources: number[],
+): number {
   const seen = new Uint8Array(rule.cells)
   const counted = new Uint8Array(rule.cells * 24)
   const queue = [...sources]
@@ -149,10 +160,30 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-    const make = (input: { tension: number; couple: 'none' | 'center'; hop: boolean; roles: boolean; kappa?: number }): SigmaLinks =>
-      makeSigmaLinks({ side: SIDE, capacity: CAPACITY, scale: SCALE, kappa: input.kappa ?? KAPPA, ...input })
-    const coupled = make({ tension: 0, couple: 'center', hop: false, roles: false })
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
+    const make = (input: {
+      tension: number
+      couple: 'none' | 'center'
+      hop: boolean
+      roles: boolean
+      kappa?: number
+    }): SigmaLinks =>
+      makeSigmaLinks({
+        side: SIDE,
+        capacity: CAPACITY,
+        scale: SCALE,
+        kappa: input.kappa ?? KAPPA,
+        ...input,
+      })
+    const coupled = make({
+      tension: 0,
+      couple: 'center',
+      hop: false,
+      roles: false,
+    })
     const { cells, group } = coupled
     const triangles = (cells * 12 * 8) / 3
 
@@ -166,7 +197,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const demonMean = (s: SigmaState): number => {
       let sum = 0
@@ -183,7 +215,9 @@ export default experiment({
     const fill = (demon: Int32Array, amount: number): void => {
       for (let x = 0; x < cells; x++) {
         for (const a of coupled.firsts) {
-          demon[x * 24 + a] = Math.floor(2 * amount * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5)
+          demon[x * 24 + a] = Math.floor(
+            2 * amount * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5,
+          )
         }
       }
     }
@@ -206,7 +240,10 @@ export default experiment({
           const g = hot[x * 24 + a] ?? 0
 
           pointLinks[x * 24 + a] = g
-          pointLinks[(coupled.neighbour[x * 24 + a] ?? 0) * 24 + (coupled.opposite[a] ?? a)] = group.inverse[g] ?? 0
+          pointLinks[
+            (coupled.neighbour[x * 24 + a] ?? 0) * 24 +
+              (coupled.opposite[a] ?? a)
+          ] = group.inverse[g] ?? 0
         }
       }
     }
@@ -239,7 +276,9 @@ export default experiment({
       ['w33', 3, 3],
     ]
     const paths = sizes.map(([, r, h]) => rectangle(r, h))
-    const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const starts = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
     const samples: Loops[] = []
 
     let s = copyState(point)
@@ -258,7 +297,15 @@ export default experiment({
       const sample: Loops = { w11: 0, w12: 0, w22: 0, w23: 0, w33: 0 }
 
       for (let x = 0; x < cells; x++) {
-        sizes.forEach(([key], k) => (sample[key] += (group.trace[pathTransport(coupled, s.links, x, paths[k] ?? [])] ?? 0) / 3 / cells))
+        sizes.forEach(
+          ([key], k) =>
+            (sample[key] +=
+              (group.trace[
+                pathTransport(coupled, s.links, x, paths[k] ?? [])
+              ] ?? 0) /
+              3 /
+              cells),
+        )
       }
 
       samples.push(sample)
@@ -275,24 +322,46 @@ export default experiment({
 
       pre += sr / LOOP_BEATS
       pim += si / LOOP_BEATS
-      level += sigmaFieldEnergy(coupled, s.links) / triangles / LOOP_BEATS
+      level +=
+        sigmaFieldEnergy(coupled, s.links) / triangles / LOOP_BEATS
       demon += demonMean(s) / LOOP_BEATS
     }
 
-    const mean = (xs: readonly Loops[], key: keyof Loops): number => xs.reduce((a, x) => a + x[key], 0) / xs.length
+    const mean = (xs: readonly Loops[], key: keyof Loops): number =>
+      xs.reduce((a, x) => a + x[key], 0) / xs.length
     const creutz = (a: keyof Loops, b: keyof Loops, c: keyof Loops) =>
-      jackknife({ samples, estimator: picked => -Math.log((mean(picked, c) * mean(picked, a)) / mean(picked, b) ** 2), binSize: BIN })
+      jackknife({
+        samples,
+        estimator: picked =>
+          -Math.log(
+            (mean(picked, c) * mean(picked, a)) / mean(picked, b) ** 2,
+          ),
+        binSize: BIN,
+      })
     const chi22 = creutz('w11', 'w12', 'w22')
     // chi(3,3) = -ln(W33 W22 / W23^2)
     const chi33 = creutz('w22', 'w23', 'w33')
-    const pointBeta = unitDemonBeta({ meanDemon: demon, capacity: CAPACITY })
+    const pointBeta = unitDemonBeta({
+      meanDemon: demon,
+      capacity: CAPACITY,
+    })
 
     // 2. does the field carry the string? static lines, tension 0, the string's links twisted to match
-    const twisted = (rule: SigmaLinks, st: SigmaState, x: number, d: number): void => {
-      const g = group.product[rule.omega * group.order + (st.links[x * 24 + d] ?? 0)] ?? 0
+    const twisted = (
+      rule: SigmaLinks,
+      st: SigmaState,
+      x: number,
+      d: number,
+    ): void => {
+      const g =
+        group.product[
+          rule.omega * group.order + (st.links[x * 24 + d] ?? 0)
+        ] ?? 0
 
       st.links[x * 24 + d] = g
-      st.links[(rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)] = group.inverse[g] ?? 0
+      st.links[
+        (rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)
+      ] = group.inverse[g] ?? 0
       addSigmaFlux(rule, st.flux, x, d, 1)
     }
 
@@ -327,8 +396,14 @@ export default experiment({
 
       for (let t = 0; t < BEATS; t++) {
         cur = sigmaBeat(rule, cur, POINT.settle + LOOP_BEATS + t).state
-        exact = exact && sigmaEnergy(rule, cur) === e && sigmaGaussViolations(rule, cur) === 0
-        length += sources ? connectedString(rule, cur.flux, src) / SIDE / BEATS : 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, cur) === e &&
+          sigmaGaussViolations(rule, cur) === 0
+
+        length += sources
+          ? connectedString(rule, cur.flux, src) / SIDE / BEATS
+          : 0
         field += sigmaFieldEnergy(rule, cur.links) / BEATS
       }
 
@@ -337,14 +412,25 @@ export default experiment({
 
     const reference = pairRun(coupled, 1, false)
     const pairs = SEPARATIONS.map(r => pairRun(coupled, r, true))
-    const uncoupledRule = make({ tension: 0, couple: 'none', hop: false, roles: false })
+    const uncoupledRule = make({
+      tension: 0,
+      couple: 'none',
+      hop: false,
+      roles: false,
+    })
     const uncoupledReference = pairRun(uncoupledRule, 4, false)
     const uncoupled = pairRun(uncoupledRule, 4, true)
-    const fieldExcess = pairs.map(p => (p.field - reference.field) / SIDE)
+    const fieldExcess = pairs.map(
+      p => (p.field - reference.field) / SIDE,
+    )
     const excess = pairs.map((p, k) => p.length - (SEPARATIONS[k] ?? 0))
 
     // 3. mesons
-    const mesonRun = (rule: SigmaLinks, base: SigmaState, start: number) => {
+    const mesonRun = (
+      rule: SigmaLinks,
+      base: SigmaState,
+      start: number,
+    ) => {
       const st = copyState(base)
       const x0 = 0
       const y0 = walk(x0, along, 1)
@@ -352,7 +438,10 @@ export default experiment({
       st.vibe[x0] = 1
       st.vibe[y0] = -1
       st.role[x0] = 4
-      st.role[y0] = rule.act[(rule.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4] ?? 0
+      st.role[y0] =
+        rule.act[
+          (rule.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4
+        ] ?? 0
 
       if (rule.couple === 'center') {
         twisted(rule, st, x0, along)
@@ -383,7 +472,10 @@ export default experiment({
 
       for (let t = 0; t < MESON_BEATS; t++) {
         cur = sigmaBeat(rule, cur, start + t, onHop).state
-        exact = exact && sigmaEnergy(rule, cur) === e && sigmaGaussViolations(rule, cur) === 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, cur) === e &&
+          sigmaGaussViolations(rule, cur) === 0
 
         const [love, fear] = charges
 
@@ -394,10 +486,19 @@ export default experiment({
       return { exact, meanGap: gap, travel }
     }
 
-    const pointMeson = mesonRun(make({ tension: 0, couple: 'center', hop: true, roles: true }), s, POINT.settle + LOOP_BEATS)
+    const pointMeson = mesonRun(
+      make({ tension: 0, couple: 'center', hop: true, roles: true }),
+      s,
+      POINT.settle + LOOP_BEATS,
+    )
 
     // E-FRC-0151's cold branch, uncoupled, prepared the same way
-    const plain = make({ tension: COLD_TENSION, couple: 'none', hop: false, roles: true })
+    const plain = make({
+      tension: COLD_TENSION,
+      couple: 'none',
+      hop: false,
+      roles: true,
+    })
 
     let cold: SigmaState = {
       vibe: new Int8Array(cells),
@@ -416,20 +517,46 @@ export default experiment({
       cold = sigmaBeat(plain, cold, t).state
     }
 
-    const coldBeta = unitDemonBeta({ meanDemon: demonMean(cold), capacity: CAPACITY })
-    const coldBound = mesonRun(make({ tension: COLD_TENSION, couple: 'none', hop: true, roles: true }), cold, COLD.settle)
-    const coldFree = mesonRun(make({ tension: 0, couple: 'none', hop: true, roles: true, kappa: 0 }), cold, COLD.settle)
+    const coldBeta = unitDemonBeta({
+      meanDemon: demonMean(cold),
+      capacity: CAPACITY,
+    })
+    const coldBound = mesonRun(
+      make({
+        tension: COLD_TENSION,
+        couple: 'none',
+        hop: true,
+        roles: true,
+      }),
+      cold,
+      COLD.settle,
+    )
+    const coldFree = mesonRun(
+      make({
+        tension: 0,
+        couple: 'none',
+        hop: true,
+        roles: true,
+        kappa: 0,
+      }),
+      cold,
+      COLD.settle,
+    )
 
     const exact =
       exactField &&
-      [reference, ...pairs, uncoupledReference, uncoupled].every(p => p.exact) &&
+      [reference, ...pairs, uncoupledReference, uncoupled].every(
+        p => p.exact,
+      ) &&
       [pointMeson, coldBound, coldFree].every(m => m.exact)
 
     const ok =
       exact &&
       chi22.value > 3 * chi22.error &&
       excess.every(e => e < 1) &&
-      fieldExcess.every((v, k) => k === 0 || v > (fieldExcess[k - 1] ?? 0)) &&
+      fieldExcess.every(
+        (v, k) => k === 0 || v > (fieldExcess[k - 1] ?? 0),
+      ) &&
       uncoupled.length - 4 > 1 &&
       coldBound.meanGap < coldFree.meanGap / 10 &&
       coldBound.travel > 5
@@ -458,7 +585,10 @@ export default experiment({
           SEPARATIONS.flatMap((r, k) => [
             [`fieldOnlyStringLengthR${r}`, pairs[k]?.length ?? 0],
             [`fieldOnlyExcessR${r}`, excess[k] ?? 0],
-            [`fieldEnergyAboveVacuumPerSliceR${r}`, fieldExcess[k] ?? 0],
+            [
+              `fieldEnergyAboveVacuumPerSliceR${r}`,
+              fieldExcess[k] ?? 0,
+            ],
           ]),
         ),
         pointMesonMeanGap: pointMeson.meanGap,
@@ -470,7 +600,8 @@ export default experiment({
       },
       control: {
         uncoupledTensionZeroExcessR4: uncoupled.length - 4,
-        uncoupledFieldEnergyAboveVacuumPerSliceR4: (uncoupled.field - uncoupledReference.field) / SIDE,
+        uncoupledFieldEnergyAboveVacuumPerSliceR4:
+          (uncoupled.field - uncoupledReference.field) / SIDE,
         coldFreeMesonMeanGap: coldFree.meanGap,
         coldFreeMesonTravel: coldFree.travel,
         confinementCreutz0126: 1.41,

@@ -150,15 +150,32 @@ import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { fullPathKey, meshLines, pathOffset, weylDocks, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  meshLines,
+  pathOffset,
+  weylDocks,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { lineFrame } from '@/code/measure/frame-meson'
 import { placeVibes } from '@/code/measure/two-hub-bound'
-import { newFermionTally, placeInSea, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  newFermionTally,
+  placeInSea,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { starBeat, type KEvent } from '@/code/measure/hub-star'
-import { bandPoint, d4Steps, frameMatrix, frameRoots, momentumOf, topSpeeds } from '@/code/measure/frame-cone'
+import {
+  bandPoint,
+  d4Steps,
+  frameMatrix,
+  frameRoots,
+  momentumOf,
+  topSpeeds,
+} from '@/code/measure/frame-cone'
 import { weylF4 } from '@/code/measure/covariant-coin'
 import {
   asymmetry,
@@ -194,8 +211,20 @@ import {
   type EisB,
   type Multiplet,
 } from '@/code/measure/dock-mixer'
-import { coinBranch, coinedVetoBeat } from '@/code/rule/coined-locked-knit'
-import { cloneConfiguration, lockedState, mergeBranches, norm, sameConfiguration, type Branch, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  coinBranch,
+  coinedVetoBeat,
+} from '@/code/rule/coined-locked-knit'
+import {
+  cloneConfiguration,
+  lockedState,
+  mergeBranches,
+  norm,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { LINE_OF } from '@/code/rule/isometric-knit'
 
 const WORKING_THETA = (2 * Math.PI) / 3
@@ -250,20 +279,32 @@ const HUSK: readonly { name: string; u: number[] }[] = [
   { name: 'generic', u: GENERIC },
 ]
 
-const bMul = (x: EisB, y: EisB): EisB => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0] - x[1] * y[1]]
-const mean = (xs: readonly number[]): number => xs.reduce((s, x) => s + x, 0) / xs.length
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const bMul = (x: EisB, y: EisB): EisB => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0] - x[1] * y[1],
+]
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((s, x) => s + x, 0) / xs.length
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // every slot of a configuration a sea love (1, point 0, open) or a hole, and no store: the count of holes, or -1 if not
 function seaHoles(c: Configuration): number {
   let holes = 0
 
   for (let i = 0; i < c.vibe.length; i++) {
-    if (c.vibe[i] === 0) holes++
-    else if (c.vibe[i] !== 1 || c.point[i] !== 0 || c.open[i] !== 1) return -1
+    if (c.vibe[i] === 0) {
+      holes++
+    } else if (c.vibe[i] !== 1 || c.point[i] !== 0 || c.open[i] !== 1) {
+      return -1
+    }
   }
 
-  for (let s = 0; s < c.store.length; s++) if (c.store[s] !== 0) return -1
+  for (let s = 0; s < c.store.length; s++) {
+    if (c.store[s] !== 0) {
+      return -1
+    }
+  }
 
   return holes
 }
@@ -279,7 +320,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
 
     // ---------------- instrument ----------------
@@ -291,13 +335,28 @@ export default experiment({
       const ua = dockFockColumns(n, false, true)
       const keep = f.columns[0]![0]![1]
 
-      return { n, states: f.states.length, off: composeOff(a.columns, f.columns), asym: asymmetry(f.columns), unsignedOff: composeOff(ua.columns, uf.columns), keep }
+      return {
+        n,
+        states: f.states.length,
+        off: composeOff(a.columns, f.columns),
+        asym: asymmetry(f.columns),
+        unsignedOff: composeOff(ua.columns, uf.columns),
+        keep,
+      }
     })
     const fockOk = fock.every(r => r.off === 0 && r.asym === 0)
     const fullKeep = fock.find(r => r.n === 24)!.keep
     const emptyKeep = fock.find(r => r.n === 0)!.keep
-    const phasesOk = fullKeep[0] === 0 && fullKeep[1] === 24 && emptyKeep[0] === 24 && emptyKeep[1] === 0
-    const C4 = fock.every(r => ([0, 1, 24].includes(r.n) ? r.unsignedOff === 0 : r.unsignedOff > 0))
+    const phasesOk =
+      fullKeep[0] === 0 &&
+      fullKeep[1] === 24 &&
+      emptyKeep[0] === 24 &&
+      emptyKeep[1] === 0
+    const C4 = fock.every(r =>
+      [0, 1, 24].includes(r.n)
+        ? r.unsignedOff === 0
+        : r.unsignedOff > 0,
+    )
 
     log('fock')
 
@@ -305,7 +364,11 @@ export default experiment({
     const Pv = ruleDockMatrix(false)
     const PW = dockMatrix(WORKING_THETA, 1, true)
     const gapHole = exactGap(Ph, PW, 48)
-    const gapVibe = exactGap(Pv, dockMatrix(WORKING_THETA, 1, false), 48)
+    const gapVibe = exactGap(
+      Pv,
+      dockMatrix(WORKING_THETA, 1, false),
+      48,
+    )
 
     // the rule's superposed run of a hole on the flat side-4 sea against the folded exact walk (D2c read here too)
     const X4 = centerOf(CHECK_SIDE)
@@ -314,33 +377,60 @@ export default experiment({
     const sea4 = seaConfiguration(fr4.cells, 1)
     const walks: Map<string, EisB>[] = []
 
-    exactDockWalk(Ph, DOCK_ROOTS, B, CHECK_BEATS, (t, sites) => (walks[t] = foldDockWalk(sites, CHECK_SIDE, X4)))
+    exactDockWalk(
+      Ph,
+      DOCK_ROOTS,
+      B,
+      CHECK_BEATS,
+      (t, sites) => (walks[t] = foldDockWalk(sites, CHECK_SIDE, X4)),
+    )
 
-    let s: LockedState = lockedState(placeInSea(sea4, [{ dock: X4, slot: B, vibe: 0 }]))
+    let s: LockedState = lockedState(
+      placeInSea(sea4, [{ dock: X4, slot: B, vibe: 0 }]),
+    )
+
     const runBeats: string[] = []
+
     let runOk = true
     let oneHoleEveryBranch = true
 
     for (let t = 0; t < CHECK_BEATS; t++) {
-      s = { branches: mergeBranches(s.branches.flatMap(b => dockMixBranch(fr4.cells, b, false, true))) }
+      s = {
+        branches: mergeBranches(
+          s.branches.flatMap(b =>
+            dockMixBranch(fr4.cells, b, false, true),
+          ),
+        ),
+      }
       s = coinedVetoBeat('none', flat4, s, t)
 
-      const w = walks[t + 1] as Map<string, EisB>
+      const w = walks[t + 1]!
       const T = 48n ** BigInt(t + 1)
       const three = 3n ** BigInt(fr4.cells * (t + 1))
 
-      for (const br of s.branches) if (seaHoles(br) !== 1) oneHoleEveryBranch = false
+      for (const br of s.branches) {
+        if (seaHoles(br) !== 1) {
+          oneHoleEveryBranch = false
+        }
+      }
 
       const unit = UNITS_B.findIndex(u =>
         s.branches.every(br => {
           let where = ''
 
-          for (let i = 0; i < br.vibe.length; i++) if (br.vibe[i] === 0) where = `${Math.floor(i / 24)},${i % 24}`
+          for (let i = 0; i < br.vibe.length; i++) {
+            if (br.vibe[i] === 0) {
+              where = `${Math.floor(i / 24)},${i % 24}`
+            }
+          }
 
           const want = bMul(u, w.get(where) ?? [0n, 0n])
           const scale = 1n << BigInt(br.k)
 
-          return br.a * T === want[0] * three * scale && br.b * T === want[1] * three * scale
+          return (
+            br.a * T === want[0] * three * scale &&
+            br.b * T === want[1] * three * scale
+          )
         }),
       )
       const same = unit >= 0 && s.branches.length === w.size
@@ -356,13 +446,16 @@ export default experiment({
         [0.31, -1.07, 0.73, 2.03],
         [1.9, 0.2, -2.6, 0.45],
         [-0.8, 2.2, 1.3, -0.1],
-      ].flatMap(K => FOUR.map(d => velocityGap(PW, DOCK_ROOTS, K, d.u))),
+      ].flatMap(K =>
+        FOUR.map(d => velocityGap(PW, DOCK_ROOTS, K, d.u)),
+      ),
     )
 
     // this file's band routine against E-SPN-0136's on the frame's 8 x 8
     const F = lineFrame(B)
     const fRoots = frameRoots(F)
     const Pf = frameMatrix(WORKING_THETA, 1, true)
+
     let builderPhase = 0
     let builderVelocity = 0
 
@@ -376,12 +469,26 @@ export default experiment({
       const a = [...mine.phase].sort((x, y) => x - y)
       const b = [...theirs.phase].sort((x, y) => x - y)
 
-      a.forEach((x, i) => (builderPhase = Math.max(builderPhase, Math.abs(x - (b[i] as number)))))
-      for (const d of FOUR) {
-        const va = mine.velocity.map(v => dot(v, d.u)).sort((x, y) => x - y)
-        const vb = theirs.velocity.map(v => dot(v, d.u)).sort((x, y) => x - y)
+      a.forEach(
+        (x, i) =>
+          (builderPhase = Math.max(builderPhase, Math.abs(x - b[i]!))),
+      )
 
-        va.forEach((x, i) => (builderVelocity = Math.max(builderVelocity, Math.abs(x - (vb[i] as number)))))
+      for (const d of FOUR) {
+        const va = mine.velocity
+          .map(v => dot(v, d.u))
+          .sort((x, y) => x - y)
+        const vb = theirs.velocity
+          .map(v => dot(v, d.u))
+          .sort((x, y) => x - y)
+
+        va.forEach(
+          (x, i) =>
+            (builderVelocity = Math.max(
+              builderVelocity,
+              Math.abs(x - vb[i]!),
+            )),
+        )
       }
     }
 
@@ -395,57 +502,133 @@ export default experiment({
       const pc = pairClasses(group)
       const tb = schemeTable(pc)
 
-      return { name, order: group.length, classes: pc.count, multiplicity: tb.multiplicity, exact: tb.exact, commutative: tb.commutative, ring: ringCensus(pc, tb) }
+      return {
+        name,
+        order: group.length,
+        classes: pc.count,
+        multiplicity: tb.multiplicity,
+        exact: tb.exact,
+        commutative: tb.commutative,
+        ring: ringCensus(pc, tb),
+      }
     })
     const f4 = census[0]!
     const d4 = census[1]!
-    const censusOk = f4.ring.tried === 7776 && f4.ring.inRing === 216 && f4.ring.reachInnerOne === 0 && census.every(c => c.exact && c.commutative)
+    const censusOk =
+      f4.ring.tried === 7776 &&
+      f4.ring.inRing === 216 &&
+      f4.ring.reachInnerOne === 0 &&
+      census.every(c => c.exact && c.commutative)
 
     log('census')
 
     // ---------------- D3: the band at the working point ----------------
     const msW = multipletsOf(PW, DOCK_ROOTS)
-    const multi = msW.map((m, i) => ({ m, i })).filter(x => x.m.size > 1)
+    const multi = msW
+      .map((m, i) => ({ m, i }))
+      .filter(x => x.m.size > 1)
     const tensors = meanTensors(PW, DOCK_ROOTS, msW, KAPPA)
-    const tensorRead = multi.map(({ i }) => tensorDefect(tensors[i] as number[][]))
-    const sixOf = (P: typeof PW, ms: readonly Multiplet[], k: number): number[][] => FOUR.map(d => multipletPhases(P, DOCK_ROOTS, d.u.map(x => x * k), ms).map(mean))
-    const anis = (P: typeof PW, ms: readonly Multiplet[], idx: number, k: number): number[] => {
+    const tensorRead = multi.map(({ i }) => tensorDefect(tensors[i]!))
+    const sixOf = (
+      P: typeof PW,
+      ms: readonly Multiplet[],
+      k: number,
+    ): number[][] =>
+      FOUR.map(d =>
+        multipletPhases(
+          P,
+          DOCK_ROOTS,
+          d.u.map(x => x * k),
+          ms,
+        ).map(mean),
+      )
+
+    const anis = (
+      P: typeof PW,
+      ms: readonly Multiplet[],
+      idx: number,
+      k: number,
+    ): number[] => {
       const f = sixOf(P, ms, k)
 
-      return [1, 2, 3].map(j => ((f[j] as number[])[idx] as number) - ((f[0] as number[])[idx] as number))
+      return [1, 2, 3].map(j => f[j]![idx]! - f[0]![idx]!)
     }
+
     const slopes = multi.map(({ i }) => {
       const a = anis(PW, msW, i, KAPPA_SIX[0])
       const b = anis(PW, msW, i, KAPPA_SIX[1])
 
-      return a.map((x, j) => Math.log2(x / (b[j] as number)))
+      return a.map((x, j) => Math.log2(x / b[j]!))
     })
     const genericRatio = (sixthMoment(GENERIC) - 0.75) / 0.375
-    const patternOf = (d: number[]): { faceBody: number; genericFace: number; off: number } => {
-      const faceBody = (d[0] as number) / (d[1] as number)
-      const genericFace = (d[2] as number) / (d[0] as number)
 
-      return { faceBody, genericFace, off: Math.max(Math.abs(faceBody / 2.25 - 1), Math.abs(genericFace / genericRatio - 1)) }
+    const patternOf = (
+      d: number[],
+    ): { faceBody: number; genericFace: number; off: number } => {
+      const faceBody = d[0]! / d[1]!
+      const genericFace = d[2]! / d[0]!
+
+      return {
+        faceBody,
+        genericFace,
+        off: Math.max(
+          Math.abs(faceBody / 2.25 - 1),
+          Math.abs(genericFace / genericRatio - 1),
+        ),
+      }
     }
-    const patterns = multi.map(({ i }) => patternOf(anis(PW, msW, i, KAPPA_SIX[1])))
+
+    const patterns = multi.map(({ i }) =>
+      patternOf(anis(PW, msW, i, KAPPA_SIX[1])),
+    )
     const patternOk = patterns.every(p => p.off <= PATTERN_TOLERANCE)
-    const D3a = tensorRead.every(r => r.defect <= ISOTROPY_TOLERANCE) && slopes.every(sl => sl.every(x => x >= (SLOPE_RANGE[0] as number) && x <= (SLOPE_RANGE[1] as number)))
-    const branches = multi.map(({ i }) => FOUR.map(d => (multipletPhases(PW, DOCK_ROOTS, d.u.map(x => x * KAPPA), msW)[i] as number[]).map(x => x / (KAPPA * KAPPA))))
+    const D3a =
+      tensorRead.every(r => r.defect <= ISOTROPY_TOLERANCE) &&
+      slopes.every(sl =>
+        sl.every(x => x >= SLOPE_RANGE[0] && x <= SLOPE_RANGE[1]),
+      )
+    const branches = multi.map(({ i }) =>
+      FOUR.map(d =>
+        multipletPhases(
+          PW,
+          DOCK_ROOTS,
+          d.u.map(x => x * KAPPA),
+          msW,
+        )[i]!.map(x => x / (KAPPA * KAPPA)),
+      ),
+    )
     const branchDefect = branches.map(lists => {
       const scale = Math.max(...lists.flat().map(Math.abs))
+
       let off = 0
 
-      lists.forEach(l => l.forEach((x, j) => (off = Math.max(off, Math.abs(x - ((lists[0] as number[])[j] as number))))))
+      lists.forEach(l =>
+        l.forEach(
+          (x, j) => (off = Math.max(off, Math.abs(x - lists[0]![j]!))),
+        ),
+      )
 
       return off / scale
     })
-    const flatBranches = branches.map(lists => lists.map(l => l.filter(x => Math.abs(x) < 1e-3).length))
+    const flatBranches = branches.map(lists =>
+      lists.map(l => l.filter(x => Math.abs(x) < 1e-3).length),
+    )
     const D3b = branchDefect.every(x => x <= ISOTROPY_TOLERANCE)
     const D3 = D3a && D3b
     // the linear pair at the working point: its speed along each direction over c
     const pairSpeed = FOUR.map(d => {
       const k = 0.01
-      const top = Math.max(...multi.flatMap(({ i }) => multipletPhases(PW, DOCK_ROOTS, d.u.map(x => x * k), msW)[i] as number[]))
+      const top = Math.max(
+        ...multi.flatMap(
+          ({ i }) =>
+            multipletPhases(
+              PW,
+              DOCK_ROOTS,
+              d.u.map(x => x * k),
+              msW,
+            )[i]!,
+        ),
+      )
 
       return top / k / Math.SQRT2
     })
@@ -456,12 +639,14 @@ export default experiment({
       { name: 'n 4', P: dockMatrix(WORKING_THETA, 4, true) },
     ].map(({ name, P }) => {
       const ms = multipletsOf(P, DOCK_ROOTS)
-      const tens = meanTensors(P, DOCK_ROOTS, ms, KAPPA).map(A => tensorDefect(A))
+      const tens = meanTensors(P, DOCK_ROOTS, ms, KAPPA).map(A =>
+        tensorDefect(A),
+      )
       const slope = ms.map((_, i) => {
         const a = anis(P, ms, i, 0.05)
         const b = anis(P, ms, i, 0.025)
 
-        return Math.min(...a.map((x, j) => Math.log2(x / (b[j] as number))))
+        return Math.min(...a.map((x, j) => Math.log2(x / b[j]!)))
       })
 
       return { name, sizes: ms.map(m => m.size), tensor: tens, slope }
@@ -473,14 +658,30 @@ export default experiment({
     const skip = wrap((12 * 2 * Math.PI) / (3 * LIGHT_N))
     const speeds = THETAS.map(({ name, theta }) => {
       const P = dockMatrix(theta, LIGHT_N, true)
-      const read = FOUR.map(d => speedsAt(P, DOCK_ROOTS, d.u, KAPPA, skip))
+      const read = FOUR.map(d =>
+        speedsAt(P, DOCK_ROOTS, d.u, KAPPA, skip),
+      )
       const top = read.map(r => r.top)
 
-      return { name, top, rms: read.map(r => r.rms), least: Math.min(...top), spread: Math.max(...top) / Math.min(...top) }
+      return {
+        name,
+        top,
+        rms: read.map(r => r.rms),
+        least: Math.min(...top),
+        spread: Math.max(...top) / Math.min(...top),
+      }
     })
     const derived = FOUR.map(d => derivedMasslessSpeeds(d.u))
-    const derivedGap = Math.max(...speeds.flatMap(r => r.top.map((x, j) => Math.abs(x - (derived[j] as { top: number }).top))))
-    const D4 = speeds.every(r => r.least >= SPEED_FLOOR && r.spread <= SPREAD_CEILING)
+    const derivedGap = Math.max(
+      ...speeds.flatMap(r =>
+        r.top.map((x, j) =>
+          Math.abs(x - (derived[j] as { top: number }).top),
+        ),
+      ),
+    )
+    const D4 = speeds.every(
+      r => r.least >= SPEED_FLOOR && r.spread <= SPREAD_CEILING,
+    )
 
     log('D4')
 
@@ -494,21 +695,39 @@ export default experiment({
     exactDockWalk(Ph, DOCK_ROOTS, B, WALK_BEATS, (t, sites) => {
       let r = 0
       let total = 0n
+
       const along = HUSK.map(() => -Infinity)
 
       for (const site of sites.values()) {
         r = Math.max(r, d4Steps(site.v))
-        for (const a of site.amp) total += bNorm(a)
-        HUSK.forEach((h, i) => (along[i] = Math.max(along[i] as number, dot(site.v, h.u) / Math.SQRT2)))
+
+        for (const a of site.amp) {
+          total += bNorm(a)
+        }
+
+        HUSK.forEach(
+          (h, i) =>
+            (along[i] = Math.max(
+              along[i]!,
+              dot(site.v, h.u) / Math.SQRT2,
+            )),
+        )
       }
 
       reach.push(r)
       normExact.push(total === 2304n ** BigInt(t))
-      alongOff.push(Math.max(...HUSK.map((_, i) => Math.abs((along[i] as number) - t * (huskCone[i] as number)))))
+      alongOff.push(
+        Math.max(
+          ...HUSK.map((_, i) => Math.abs(along[i]! - t * huskCone[i]!)),
+        ),
+      )
       siteCount.push(sites.size)
     })
 
-    const D5 = reach.every((r, i) => r === i + 1) && normExact.every(Boolean) && alongOff.every(x => x <= 1e-12)
+    const D5 =
+      reach.every((r, i) => r === i + 1) &&
+      normExact.every(Boolean) &&
+      alongOff.every(x => x <= 1e-12)
 
     log('D5')
 
@@ -518,23 +737,54 @@ export default experiment({
       const fr = contactFresh(side, 'pass', X)
       const flat = tablesOn(fr.weave, 'pass', flatLinks(fr.weave))
       const sea = seaConfiguration(fr.cells, 1)
+
       let st: LockedState = lockedState(sea)
       let exact = true
       let maxBranches = 1
 
       for (let t = 0; t < SEA_BEATS; t++) {
-        st = { branches: mergeBranches(st.branches.flatMap(b => dockMixBranch(fr.cells, b, false, false))) }
+        st = {
+          branches: mergeBranches(
+            st.branches.flatMap(b =>
+              dockMixBranch(fr.cells, b, false, false),
+            ),
+          ),
+        }
         st = coinedVetoBeat('none', flat, st, t)
         maxBranches = Math.max(maxBranches, st.branches.length)
 
-        const br = st.branches[0] as Branch
+        const br = st.branches[0]!
 
-        if (st.branches.length !== 1 || !sameConfiguration(br, sea) || br.k !== 0 || norm(br.a, br.b) !== 1n) exact = false
+        if (
+          st.branches.length !== 1 ||
+          !sameConfiguration(br, sea) ||
+          br.k !== 0 ||
+          norm(br.a, br.b) !== 1n
+        ) {
+          exact = false
+        }
       }
 
-      const keyed = dockTrack({ tables: flat, start: sea, reference: sea, key: fullPathKey(pathOffset(0)), threshold: THRESHOLD_BORN, beats: SEA_BEATS, on: true, referenceOn: false })
+      const keyed = dockTrack({
+        tables: flat,
+        start: sea,
+        reference: sea,
+        key: fullPathKey(pathOffset(0)),
+        threshold: THRESHOLD_BORN,
+        beats: SEA_BEATS,
+        on: true,
+        referenceOn: false,
+      })
 
-      return { side, cells: fr.cells, exact, maxBranches, keyedMax: Math.max(...keyed.footprint), blocked: keyed.tally.blockedFull, kEvents: keyed.kEvents }
+      return {
+        side,
+        cells: fr.cells,
+        exact,
+        maxBranches,
+        keyedMax: Math.max(...keyed.footprint),
+        blocked: keyed.tally.blockedFull,
+        kEvents: keyed.kEvents,
+      }
     })
     const D1 = seaRuns.every(r => r.exact && r.keyedMax === 0)
 
@@ -544,6 +794,7 @@ export default experiment({
     // (a) the one-beat step, keyed at every dock, slot and parity; superposed at every slot of 8 docks
     let keyedFailures = 0
     let keyedChecked = 0
+
     const key0 = fullPathKey(pathOffset(0))
     const events: KEvent[] = []
     const tally = newFermionTally()
@@ -557,7 +808,10 @@ export default experiment({
           keyedDockMix(flat4, a, key0, t, true, tally)
           starBeat(flat4, a, b, key0, THRESHOLD_BORN, t, events)
           keyedChecked++
-          if (seaHoles(b) !== 1) keyedFailures++
+
+          if (seaHoles(b) !== 1) {
+            keyedFailures++
+          }
         }
       }
     }
@@ -569,13 +823,24 @@ export default experiment({
     for (const x of weylDocks(fr4.cells, SUPERPOSED_DOCKS)) {
       for (let d = 0; d < 24; d++) {
         for (let t = 0; t < 2; t++) {
-          let st: LockedState = lockedState(placeInSea(sea4, [{ dock: x, slot: d, vibe: 0 }]))
+          let st: LockedState = lockedState(
+            placeInSea(sea4, [{ dock: x, slot: d, vibe: 0 }]),
+          )
 
-          st = { branches: mergeBranches(st.branches.flatMap(b => dockMixBranch(fr4.cells, b, false, true))) }
+          st = {
+            branches: mergeBranches(
+              st.branches.flatMap(b =>
+                dockMixBranch(fr4.cells, b, false, true),
+              ),
+            ),
+          }
           st = coinedVetoBeat('none', flat4, st, t)
           superChecked++
           superBranches += st.branches.length
-          if (st.branches.some(br => seaHoles(br) !== 1)) superFailures++
+
+          if (st.branches.some(br => seaHoles(br) !== 1)) {
+            superFailures++
+          }
         }
       }
     }
@@ -588,46 +853,97 @@ export default experiment({
     const flat8 = tablesOn(fr8.weave, 'pass', flatLinks(fr8.weave))
     const sea8 = seaConfiguration(fr8.cells, 1)
     const lines8 = meshLines(flat8)
-    const keyOf = (path: number): PathKey => fullPathKey(pathOffset(path))
+    const keyOf = (path: number): PathKey =>
+      fullPathKey(pathOffset(path))
     const holeRuns = Array.from({ length: TRACK_PATHS }, (_, path) => {
       const start = placeInSea(sea8, [{ dock: X8, slot: B, vibe: 0 }])
-      const on = dockTrack({ tables: flat8, start, reference: sea8, key: keyOf(path), threshold: THRESHOLD_BORN, beats: TRACK_BEATS, on: true, lines: lines8 })
-      const off = dockTrack({ tables: flat8, start, reference: sea8, key: keyOf(path), threshold: THRESHOLD_BORN, beats: TRACK_BEATS, on: false, lines: lines8 })
+      const on = dockTrack({
+        tables: flat8,
+        start,
+        reference: sea8,
+        key: keyOf(path),
+        threshold: THRESHOLD_BORN,
+        beats: TRACK_BEATS,
+        on: true,
+        lines: lines8,
+      })
+      const off = dockTrack({
+        tables: flat8,
+        start,
+        reference: sea8,
+        key: keyOf(path),
+        threshold: THRESHOLD_BORN,
+        beats: TRACK_BEATS,
+        on: false,
+        lines: lines8,
+      })
 
-      return { max: Math.max(...on.footprint), lines: on.linesTouched, linesOff: off.linesTouched, moved: on.tally.moved, gated: on.tally.gated, k: on.kEvents }
+      return {
+        max: Math.max(...on.footprint),
+        lines: on.linesTouched,
+        linesOff: off.linesTouched,
+        moved: on.tally.moved,
+        gated: on.tally.gated,
+        k: on.kEvents,
+      }
     })
-    const D2 = keyedFailures === 0 && superFailures === 0 && holeRuns.every(r => r.max <= 1) && oneHoleEveryBranch
+    const D2 =
+      keyedFailures === 0 &&
+      superFailures === 0 &&
+      holeRuns.every(r => r.max <= 1) &&
+      oneHoleEveryBranch
 
     log('D2')
 
     // ---------------- controls ----------------
     // C1: E-SPN-0136's frame mixer along e13
     const e13 = HUSK.find(h => h.name === 'e13')!.u
-    const frameE13 = topSpeeds(frameMatrix(WORKING_THETA, FRAME_N, true), fRoots, [e13], 8).speed[0] as number
+    const frameE13 = topSpeeds(
+      frameMatrix(WORKING_THETA, FRAME_N, true),
+      fRoots,
+      [e13],
+      8,
+    ).speed[0]!
     const C1 = frameE13 >= 0.49 && frameE13 <= 0.5 + 1e-9
 
     log('C1')
 
     // C2: theta = 0, the rule's coin alone on a one-hole dock, exact over 2
-    const P0: EisB[][] = Array.from({ length: 24 }, () => Array.from({ length: 24 }, (): EisB => [0n, 0n]))
+    const P0: EisB[][] = Array.from({ length: 24 }, () =>
+      Array.from({ length: 24 }, (): EisB => [0n, 0n]),
+    )
 
     for (let q = 0; q < 24; q++) {
-      const br: Branch = { vibe: new Int8Array(24).fill(1), point: new Int8Array(24), open: new Uint8Array(24).fill(1), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12), a: 1n, b: 0n, k: 0 }
+      const br: Branch = {
+        vibe: new Int8Array(24).fill(1),
+        point: new Int8Array(24),
+        open: new Uint8Array(24).fill(1),
+        store: new Int8Array(12),
+        spoint: new Int8Array(12),
+        sopen: new Uint8Array(12),
+        a: 1n,
+        b: 0n,
+        k: 0,
+      }
 
       br.vibe[q] = 0
       br.open[q] = 0
-      for (const o of coinBranch(1, br, false)) {
-        const r = Array.from({ length: 24 }, (_, d) => d).find(d => o.vibe[d] === 0) as number
-        const scale = 1n << BigInt(1 - o.k)
-        const old = (P0[r] as EisB[])[q] as EisB
 
-        ;(P0[r] as EisB[])[q] = [old[0] + o.a * scale, old[1] + o.b * scale]
+      for (const o of coinBranch(1, br, false)) {
+        const r = Array.from({ length: 24 }, (_, d) => d).find(
+          d => o.vibe[d] === 0,
+        )!
+        const scale = 1n << BigInt(1 - o.k)
+        const old = P0[r]![q]!
+
+        P0[r]![q] = [old[0] + o.a * scale, old[1] + o.b * scale]
       }
     }
 
     let offLine = 0
+
     const lineReach: number[] = []
-    const rB = DOCK_ROOTS[B] as readonly number[]
+    const rB = DOCK_ROOTS[B]!
 
     exactDockWalk(P0, DOCK_ROOTS, B, LINE_BEATS, (t, sites) => {
       let r = 0
@@ -637,9 +953,17 @@ export default experiment({
 
         const m = dot(site.v, rB) / 2
 
-        if (!site.v.every((x, k) => x === m * (rB[k] as number))) offLine++
+        if (!site.v.every((x, k) => x === m * rB[k]!)) {
+          offLine++
+        }
+
         site.amp.forEach((a, q) => {
-          if ((a[0] !== 0n || a[1] !== 0n) && LINE_OF[q] !== LINE_OF[B]) offLine++
+          if (
+            (a[0] !== 0n || a[1] !== 0n) &&
+            LINE_OF[q] !== LINE_OF[B]
+          ) {
+            offLine++
+          }
         })
       }
 
@@ -649,31 +973,50 @@ export default experiment({
     const lineDir = rB.map(x => x / Math.SQRT2)
     const lineTop = LINE_COINS.map(n => {
       const P = dockMatrix(0, n, true)
-      const along = (k: number): number => Math.max(...bandAt(P, DOCK_ROOTS, lineDir.map(x => x * k)).velocity.map(v => dot(v, lineDir))) / Math.SQRT2
+      const along = (k: number): number =>
+        Math.max(
+          ...bandAt(
+            P,
+            DOCK_ROOTS,
+            lineDir.map(x => x * k),
+          ).velocity.map(v => dot(v, lineDir)),
+        ) / Math.SQRT2
+
       let best = { k: 0, s: -Infinity }
 
       for (let i = 1; i < 400; i++) {
         const k = (i / 400) * (Math.PI / Math.SQRT2) * 2
         const x = along(k)
 
-        if (x > best.s) best = { k, s: x }
+        if (x > best.s) {
+          best = { k, s: x }
+        }
       }
 
-      let step = (Math.PI / Math.SQRT2) * 2 / 400
+      let step = ((Math.PI / Math.SQRT2) * 2) / 400
 
       while (step > 1e-9) {
         const up = along(best.k + step)
         const down = along(best.k - step)
 
-        if (up > best.s) best = { k: best.k + step, s: up }
-        else if (down > best.s) best = { k: best.k - step, s: down }
-        else step /= 2
+        if (up > best.s) {
+          best = { k: best.k + step, s: up }
+        } else if (down > best.s) {
+          best = { k: best.k - step, s: down }
+        } else {
+          step /= 2
+        }
       }
 
       return { n, top: best.s, want: Math.cos(Math.PI / (3 * n)) }
     })
-    const lineGap = Math.max(...lineTop.map(r => Math.abs(r.top - r.want)))
-    const C2 = offLine === 0 && lineReach.every((r, i) => r === i + 1) && lineGap <= 1e-6
+    const lineGap = Math.max(
+      ...lineTop.map(r => Math.abs(r.top - r.want)),
+    )
+    const C2 =
+      offLine === 0 &&
+      lineReach.every((r, i) => r === i + 1) &&
+      lineGap <= 1e-6
 
     log('C2')
 
@@ -681,20 +1024,71 @@ export default experiment({
     const vac8 = wordVacuum(fr8, fr8.store)
     const cascade = Array.from({ length: CASCADE_PATHS }, (_, path) => {
       const love = placeVibes(vac8, [{ dock: X8, slot: B, vibe: 1 }])
-      const on = dockTrack({ tables: fr8.tables, start: love, reference: vac8, key: keyOf(path), threshold: THRESHOLD_BORN, beats: TRACK_BEATS, on: true })
-      const off = dockTrack({ tables: fr8.tables, start: love, reference: vac8, key: keyOf(path), threshold: THRESHOLD_BORN, beats: TRACK_BEATS, on: false })
-      const alone = dockTrack({ tables: fr8.tables, start: vac8, reference: vac8, key: keyOf(path), threshold: THRESHOLD_BORN, beats: TRACK_BEATS, on: true, referenceOn: false })
+      const on = dockTrack({
+        tables: fr8.tables,
+        start: love,
+        reference: vac8,
+        key: keyOf(path),
+        threshold: THRESHOLD_BORN,
+        beats: TRACK_BEATS,
+        on: true,
+      })
+      const off = dockTrack({
+        tables: fr8.tables,
+        start: love,
+        reference: vac8,
+        key: keyOf(path),
+        threshold: THRESHOLD_BORN,
+        beats: TRACK_BEATS,
+        on: false,
+      })
+      const alone = dockTrack({
+        tables: fr8.tables,
+        start: vac8,
+        reference: vac8,
+        key: keyOf(path),
+        threshold: THRESHOLD_BORN,
+        beats: TRACK_BEATS,
+        on: true,
+        referenceOn: false,
+      })
 
-      return { on: on.footprint[TRACK_BEATS - 1] as number, off: off.footprint[TRACK_BEATS - 1] as number, gated: on.tally.gated, kOn: on.kEvents, kOff: off.kEvents, aloneGated: alone.tally.gated, aloneMax: Math.max(...alone.footprint) }
+      return {
+        on: on.footprint[TRACK_BEATS - 1]!,
+        off: off.footprint[TRACK_BEATS - 1]!,
+        gated: on.tally.gated,
+        kOn: on.kEvents,
+        kOff: off.kEvents,
+        aloneGated: alone.tally.gated,
+        aloneMax: Math.max(...alone.footprint),
+      }
     })
-    const C3 = cascade.every(r => r.on > fr8.cells / 2 && r.off <= CASCADE_OFF_CEILING)
+    const C3 = cascade.every(
+      r => r.on > fr8.cells / 2 && r.off <= CASCADE_OFF_CEILING,
+    )
 
     log('C3')
 
     // ---------------- verdict ----------------
-    const instrument = rootsAgree && fockOk && phasesOk && gapHole <= MATRIX_TOLERANCE && gapVibe <= MATRIX_TOLERANCE && runOk && velGap <= VELOCITY_TOLERANCE && builderPhase <= 1e-12 && builderVelocity <= 1e-9 && censusOk && patternOk
+    const instrument =
+      rootsAgree &&
+      fockOk &&
+      phasesOk &&
+      gapHole <= MATRIX_TOLERANCE &&
+      gapVibe <= MATRIX_TOLERANCE &&
+      runOk &&
+      velGap <= VELOCITY_TOLERANCE &&
+      builderPhase <= 1e-12 &&
+      builderVelocity <= 1e-9 &&
+      censusOk &&
+      patternOk
     const controls = C1 && C2 && C3 && C4
-    const status = !instrument || !controls ? 'partial' : D1 && D2 && D3 && D4 && D5 ? 'pass' : 'fail'
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : D1 && D2 && D3 && D4 && D5
+          ? 'pass'
+          : 'fail'
     const f4d = (x: number): string => x.toFixed(4)
     const metrics: Record<string, number> = {
       D1: D1 ? 1 : 0,
@@ -730,27 +1124,50 @@ export default experiment({
 
     multi.forEach(({ m }, j) => {
       metrics[`tensor_${m.size}_a`] = (tensorRead[j] as { a: number }).a
-      metrics[`tensor_${m.size}_defect`] = (tensorRead[j] as { defect: number }).defect
-      metrics[`branchDefect_${m.size}`] = branchDefect[j] as number
-      ;(slopes[j] as number[]).forEach((x, k) => (metrics[`slope_${m.size}_${(FOUR[k + 1] as { name: string }).name}`] = x))
-      metrics[`pattern_${m.size}_faceBody`] = (patterns[j] as { faceBody: number }).faceBody
-      metrics[`pattern_${m.size}_genericFace`] = (patterns[j] as { genericFace: number }).genericFace
+      metrics[`tensor_${m.size}_defect`] = (
+        tensorRead[j] as { defect: number }
+      ).defect
+      metrics[`branchDefect_${m.size}`] = branchDefect[j]!
+      slopes[j]!.forEach(
+        (x, k) =>
+          (metrics[
+            `slope_${m.size}_${(FOUR[k + 1] as { name: string }).name}`
+          ] = x),
+      )
+
+      metrics[`pattern_${m.size}_faceBody`] = (
+        patterns[j] as { faceBody: number }
+      ).faceBody
+
+      metrics[`pattern_${m.size}_genericFace`] = (
+        patterns[j] as { genericFace: number }
+      ).genericFace
     })
+
     speeds.forEach(r => {
       metrics[`D4_${r.name}_least`] = r.least
       metrics[`D4_${r.name}_spread`] = r.spread
-      FOUR.forEach((d, j) => (metrics[`top_${r.name}_${d.name}`] = r.top[j] as number))
+      FOUR.forEach(
+        (d, j) => (metrics[`top_${r.name}_${d.name}`] = r.top[j]!),
+      )
     })
+
     FOUR.forEach((d, j) => {
       metrics[`derived_${d.name}`] = (derived[j] as { top: number }).top
-      metrics[`pair_${d.name}`] = pairSpeed[j] as number
+      metrics[`pair_${d.name}`] = pairSpeed[j]!
     })
 
     return verdict({
       status,
       claim: `D1 ${D1} (the flat love sea, sides ${SEA_SIDES.join(' and ')}, ${SEA_BEATS} beats: ${seaRuns.map(r => `side ${r.side} one branch equal to the start with a unit amplitude ${r.exact}, keyed ${r.keyedMax} docks off, ${r.blocked} blocked dock-beats, K ${r.kEvents}`).join('; ')}); D2 ${D2} (one-beat step: keyed ${keyedFailures} of ${keyedChecked} off, superposed ${superFailures} of ${superChecked} off; keyed side-${TRACK_SIDE} footprints ${holeRuns.map(r => r.max).join(' ')} over ${TRACK_BEATS} beats; superposed one hole per branch ${oneHoleEveryBranch}); D3 ${D3} (multiplets ${msW.map(m => m.size).join(' + ')}; D3a ${D3a}: mean tensors ${tensorRead.map(r => `${r.a.toFixed(6)} I to ${r.defect.toExponential(1)}`).join(', ')}, K^6 slopes ${slopes.map(sl => sl.map(x => x.toFixed(3)).join('/')).join(', ')}; D3b ${D3b}: branch spread ${branchDefect.map(x => x.toFixed(3)).join(', ')} of the largest, flat branches axis/face/body/generic ${flatBranches.map(f => f.join('/')).join(', ')}); D4 ${D4} (n ${LIGHT_N}, kappa ${KAPPA}: ${speeds.map(r => `theta ${r.name} top ${r.top.map(f4d).join(' ')} c, least ${f4d(r.least)}, spread ${f4d(r.spread)}`).join('; ')}; derived ${derived.map(d => f4d(d.top)).join(' ')}); D5 ${D5} (exact reach ${reach.join(' ')}, norm exact ${normExact.every(Boolean)}, along the husk off ${Math.max(...alongOff).toExponential(1)}); controls C1 ${C1} (frame e13 ${frameE13.toFixed(5)} c), C2 ${C2} (off line ${offLine}, line top ${lineTop.map(r => r.top.toFixed(6)).join(' ')}), C3 ${C3} (a love in the working vacuum ${cascade.map(r => `${r.on} on, ${r.off} off`).join('; ')} of ${fr8.cells}), C4 ${C4}`,
       metrics,
-      control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, C3: C3 ? 1 : 0, C4: C4 ? 1 : 0, instrument: instrument ? 1 : 0 },
+      control: {
+        C1: C1 ? 1 : 0,
+        C2: C2 ? 1 : 0,
+        C3: C3 ? 1 : 0,
+        C4: C4 ? 1 : 0,
+        instrument: instrument ? 1 : 0,
+      },
       notes: `L1/L2. Census: ${census.map(c => `${c.name} order ${c.order}, ${c.classes} orbitals, multiplicities ${c.multiplicity.join(',')}, exact ${c.exact}, ${c.ring.inRing} of ${c.ring.tried} unit choices in Z[w][1/2], ${c.ring.reachInnerOne} reach inner +-1, ${c.ring.mixLines} leave the line (by inner ${JSON.stringify(c.ring.perInner)})`).join('; ')}. Fock: ${fock.map(r => `n ${r.n} (${r.states}) off ${r.off} asym ${r.asym} unsigned off ${r.unsignedOff}`).join(', ')}; full keep ${fullKeep.join(',')}/24, empty ${emptyKeep.join(',')}/24. Rule run (branches/walk, unit): ${runBeats.join(', ')}. Matrix gaps ${gapHole.toExponential(2)} (hole), ${gapVibe.toExponential(2)} (vibe); velocity ${velGap.toExponential(2)}; builder ${builderPhase.toExponential(2)}, ${builderVelocity.toExponential(2)}. D3 patterns at kappa ${KAPPA_SIX[1]}: ${patterns.map(p => `face/body ${p.faceBody.toFixed(5)} (2.25), generic/face ${p.genericFace.toFixed(5)} (${genericRatio.toFixed(5)})`).join('; ')}; branches (offset/kappa^2 at ${KAPPA}, axis || face || body || generic): ${branches.map(lists => lists.map(l => l.map(x => x.toFixed(3)).join(' ')).join(' || ')).join(' ### ')}. The linear pair at the working point, speed over c: ${pairSpeed.map(x => x.toFixed(5)).join(' ')}. Robustness: ${robust.map(r => `${r.name}: multiplets ${r.sizes.join('+')}, tensor defects ${r.tensor.map(x => `${x.a.toFixed(4)}:${x.defect.toExponential(1)}`).join(' ')}, least K^6 slope ${r.slope.map(x => x.toFixed(2)).join(' ')}`).join('; ')}. D4 rms over c: ${speeds.map(r => `${r.name} ${r.rms.map(f4d).join(' ')}`).join('; ')} (derived ${derived.map(d => f4d(d.rms)).join(' ')}); derived gap ${derivedGap.toExponential(2)}. D5 sites ${siteCount.join(' ')}, husk cone ${huskCone.map(f4d).join(' ')}. D2 keyed hole runs: lines ${holeRuns.map(r => r.lines).join(' ')} (piece off ${holeRuns.map(r => r.linesOff).join(' ')}), hops ${holeRuns.map(r => r.moved).join(' ')} of ${holeRuns.map(r => r.gated).join(' ')} gated beats, K ${holeRuns.map(r => r.k).join(' ')}; superposed step branches ${superBranches}. C2 line reach ${lineReach.join(' ')}, top ${lineTop.map(r => `n ${r.n} ${r.top.toFixed(8)} vs ${r.want.toFixed(8)}`).join(', ')}. C3: gated ${cascade.map(r => r.gated).join(' ')}, K ${cascade.map(r => `${r.kOn}/${r.kOff}`).join(' ')}, the vacuum alone gated ${cascade.map(r => r.aloneGated).join(' ')} and ${cascade.map(r => r.aloneMax).join(' ')} docks off. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

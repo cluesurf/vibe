@@ -162,12 +162,29 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
-import { cyclePhases, eisConj, eisMul, type Eis } from '@/code/measure/swap-cone'
-import { ringUnit, unitAngle, unitNormExact } from '@/code/measure/swap-string'
+import {
+  cyclePhases,
+  eisConj,
+  eisMul,
+  type Eis,
+} from '@/code/measure/swap-cone'
+import {
+  ringUnit,
+  unitAngle,
+  unitNormExact,
+} from '@/code/measure/swap-string'
 import { type RingUnit } from '@/code/rule/swap-mixer'
-import { radialPaths, restFrame, type Census } from '@/code/measure/two-beat'
+import {
+  radialPaths,
+  restFrame,
+  type Census,
+} from '@/code/measure/two-beat'
 import {
   commutesExactly,
   cycleMasslessPairN,
@@ -212,7 +229,12 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 const PLUS: readonly [number, number] = [-1, 4]
 const MINUS: readonly [number, number] = [2, 2]
@@ -233,9 +255,21 @@ const PAIR_KAPPA = 0.01
 const PIECE_TOLERANCE = 1e-15
 const JARLSKOG_TOLERANCE = 1e-15
 
-export type ChiralPlan = { momenta: number; censusSteps: number; weylExtra: number; symmetryMomenta: number; checkMomenta: number }
+export type ChiralPlan = {
+  momenta: number
+  censusSteps: number
+  weylExtra: number
+  symmetryMomenta: number
+  checkMomenta: number
+}
 
-export const GATE_PLAN: ChiralPlan = { momenta: 64, censusSteps: 300, weylExtra: 64, symmetryMomenta: 64, checkMomenta: 8 }
+export const GATE_PLAN: ChiralPlan = {
+  momenta: 64,
+  censusSteps: 300,
+  weylExtra: 64,
+  symmetryMomenta: 64,
+  checkMomenta: 8,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -243,7 +277,7 @@ export default experiment({
   id: 'gauge/chiral-register',
   code: 'E-FRC-0258',
   title:
-    'the Clifford register gives the model exact chirality and P and CP violation, partial (C is kept, so no asymmetry yet): right multiplication by the volume element splits Cl+(4) into two halves that commute with every piece of E-SPN-0160 and that W(F4) keeps under its 576 rotations and swaps under its 576 reflections, so the member space is two mirror species; W+(F4) has W(F4)\'s invariants in every degree below 24 (Molien), so a rule covariant under the rotations only is exactly as isotropic, and the husk parity that keeps depth (the cusp fixes it) is the reflection; a chiral mass (u on one half, another unit on the other) is exact over Z[w][1/42] and keeps gamma = 0, c/4, R = tan m/m, isotropy and every channel census closed (mixed pairs at 2 M-), breaks P and CP and keeps C, P under -I and CPT; a phase on one conserved half is removed by rephasing; the frames cannot be three generations (their stabilizer has three quartic invariants), and the ring holds the trimaximal mixing exactly, with the maximal Jarlskog invariant sqrt(3)/18',
+    "the Clifford register gives the model exact chirality and P and CP violation, partial (C is kept, so no asymmetry yet): right multiplication by the volume element splits Cl+(4) into two halves that commute with every piece of E-SPN-0160 and that W(F4) keeps under its 576 rotations and swaps under its 576 reflections, so the member space is two mirror species; W+(F4) has W(F4)'s invariants in every degree below 24 (Molien), so a rule covariant under the rotations only is exactly as isotropic, and the husk parity that keeps depth (the cusp fixes it) is the reflection; a chiral mass (u on one half, another unit on the other) is exact over Z[w][1/42] and keeps gamma = 0, c/4, R = tan m/m, isotropy and every channel census closed (mixed pairs at 2 M-), breaks P and CP and keeps C, P under -I and CPT; a phase on one conserved half is removed by rephasing; the frames cannot be three generations (their stabilizer has three quartic invariants), and the ring holds the trimaximal mixing exactly, with the maximal Jarlskog invariant sqrt(3)/18",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -258,15 +292,35 @@ const unitValue = (u: RingUnit): [number, number] => {
 
   return [Math.cos(t), Math.sin(t)]
 }
-const conj = (u: readonly [number, number]): [number, number] => [u[0], -u[1]]
+
+const conj = (u: readonly [number, number]): [number, number] => [
+  u[0],
+  -u[1],
+]
 const mOf = (u: RingUnit): number => wrap(unitAngle(u) - Math.PI) / 2
-const eqM = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): boolean => a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
-const mm = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number[][] => a.map(r => (b[0] as number[]).map((_, j) => r.reduce((s, x, k) => s + x * ((b[k] as number[])[j] as number), 0)))
-const tr8 = (a: readonly (readonly number[])[]): number[][] => (a[0] as number[]).map((_, j) => a.map(r => r[j] as number))
+const eqM = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): boolean =>
+  a.every((r, i) => r.every((x, j) => x === (b[i] as number[])[j]))
+const mm = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): number[][] =>
+  a.map(r =>
+    (b[0] as number[]).map((_, j) =>
+      r.reduce((s, x, k) => s + x * (b[k] as number[])[j]!, 0),
+    ),
+  )
+const tr8 = (a: readonly (readonly number[])[]): number[][] =>
+  (a[0] as number[]).map((_, j) => a.map(r => r[j]!))
 
 export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const group = f4Group()
   const dets = group.map(g => det4(g.matrix))
   const rotations = group.filter((_, i) => dets[i] === 1)
@@ -276,13 +330,20 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const J = volumeRight()
   const I8 = J.map((_, i) => J.map((_, j) => (i === j ? 1 : 0)))
   const gam = gammaMatrices()
-  const bilinears = [0, 1, 2, 3].flatMap(i => [0, 1, 2, 3].map(j => mm(tr8(gam[i] as number[][]), gam[j] as number[][])))
+  const bilinears = [0, 1, 2, 3].flatMap(i =>
+    [0, 1, 2, 3].map(j => mm(tr8(gam[i]!), gam[j]!)),
+  )
   const A1 =
     J.every(r => r.every(x => Number.isInteger(x))) &&
     eqM(mm(J, J), I8) &&
-    J.reduce((s, r, i) => s + (r[i] as number), 0) === 0 &&
+    J.reduce((s, r, i) => s + r[i]!, 0) === 0 &&
     bilinears.every(b => eqM(mm(J, b), mm(b, J))) &&
-    group.every((g, i) => eqM(mm(g.register, J), mm(J, g.register).map(r => r.map(x => (dets[i] as number) * x)))) &&
+    group.every((g, i) =>
+      eqM(
+        mm(g.register, J),
+        mm(J, g.register).map(r => r.map(x => dets[i]! * x)),
+      ),
+    ) &&
     rotations.length === 576 &&
     group.length === 1152
 
@@ -291,20 +352,44 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const D48 = partnerProjector48()
   const P2 = chirality2(J, 1)
   const M2 = chirality2(J, -1)
-  const commute = (x: Float64Array, y: Float64Array): boolean => sameMatrix(matMul(x, y), matMul(y, x))
-  const A2 = commute(P2, S24) && commute(P2, D48) && rotations.every(g => commutesExactly(g, P2)) && reflections.every(g => intertwinesExactly(g, P2, M2))
+  const commute = (x: Float64Array, y: Float64Array): boolean =>
+    sameMatrix(matMul(x, y), matMul(y, x))
+  const A2 =
+    commute(P2, S24) &&
+    commute(P2, D48) &&
+    rotations.every(g => commutesExactly(g, P2)) &&
+    reflections.every(g => intertwinesExactly(g, P2, M2))
 
   log('A1 A2')
 
   // ---------------- A3: the lifts ----------------
-  const find = (m: readonly (readonly number[])[]) => group.find(e => e.matrix.every((r, i) => r.every((x, j) => Math.abs(x - ((m[i] as number[])[j] as number)) < 1e-12)))
-  const minusI = find([0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? -1 : 0))))
-  const depthKeeping = [0, 1, 2, 3].map(depth => find([0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? (i === depth ? 1 : -1) : 0)))))
-  const A3 = !!minusI && det4(minusI.matrix) === 1 && eqM(minusI.register, I8) && depthKeeping.every(e => !!e && det4(e.matrix) === -1)
+  const find = (m: readonly (readonly number[])[]) =>
+    group.find(e =>
+      e.matrix.every((r, i) =>
+        r.every((x, j) => Math.abs(x - (m[i] as number[])[j]!) < 1e-12),
+      ),
+    )
+  const minusI = find(
+    [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? -1 : 0))),
+  )
+  const depthKeeping = [0, 1, 2, 3].map(depth =>
+    find(
+      [0, 1, 2, 3].map(i =>
+        [0, 1, 2, 3].map(j => (i === j ? (i === depth ? 1 : -1) : 0)),
+      ),
+    ),
+  )
+  const A3 =
+    !!minusI &&
+    det4(minusI.matrix) === 1 &&
+    eqM(minusI.register, I8) &&
+    depthKeeping.every(e => !!e && det4(e.matrix) === -1)
 
   // ---------------- A4: Molien ----------------
   const frames = DOCK_ROOTS.map(frameOf)
-  const stabilizer = group.filter(e => DOCK_ROOTS.every((_, d) => frames[e.slots[d] as number] === frames[d]))
+  const stabilizer = group.filter(e =>
+    DOCK_ROOTS.every((_, d) => frames[e.slots[d]!] === frames[d]),
+  )
   const mW = molien(group, MOLIEN_DEGREE)
   const mWplus = molien(rotations, MOLIEN_DEGREE)
   const mStab = molien(stabilizer, MOLIEN_DEGREE)
@@ -313,7 +398,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     mW.every(x => x >= 0n) &&
     mWplus.every(x => x >= 0n) &&
     firstDiff === PSEUDO_DEGREE &&
-    (mWplus[PSEUDO_DEGREE] as bigint) - (mW[PSEUDO_DEGREE] as bigint) === 1n &&
+    mWplus[PSEUDO_DEGREE]! - mW[PSEUDO_DEGREE]! === 1n &&
     mW[2] === 1n &&
     mW[4] === 1n &&
     mWplus[2] === 1n &&
@@ -335,9 +420,15 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const S48m = matMul(S24, M2)
   const D96p = matMul(D48, P2)
   const D96m = matMul(D48, M2)
-  const integer = (x: Float64Array): boolean => x.every(v => Number.isInteger(v))
-  const idem = (x: Float64Array, s: number): boolean => sameMatrix(matMul(x, x), x.map(v => s * v))
-  const zero = (x: Float64Array, y: Float64Array): boolean => matMul(x, y).every(v => v === 0)
+  const integer = (x: Float64Array): boolean =>
+    x.every(v => Number.isInteger(v))
+  const idem = (x: Float64Array, s: number): boolean =>
+    sameMatrix(
+      matMul(x, x),
+      x.map(v => s * v),
+    )
+  const zero = (x: Float64Array, y: Float64Array): boolean =>
+    matMul(x, y).every(v => v === 0)
   const four = [S48p, S48m, D96p, D96m]
   const scales = [48, 48, 96, 96]
   const B1 =
@@ -345,8 +436,8 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     unitNormExact(uM) &&
     unitNormExact(uZ) &&
     four.every(integer) &&
-    four.every((x, i) => idem(x, scales[i] as number)) &&
-    four.every((x, i) => trace(x) / (scales[i] as number) === 4) &&
+    four.every((x, i) => idem(x, scales[i]!)) &&
+    four.every((x, i) => trace(x) / scales[i]! === 4) &&
     zero(S48p, S48m) &&
     zero(S48p, D96p) &&
     zero(S48p, D96m) &&
@@ -362,20 +453,35 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const qDp = scaled(D96p, 96)
   const qDm = scaled(D96m, 96)
   const qP = scaled(P2, 2)
-  const schedule = (a: readonly [number, number], b: readonly [number, number]): CMatrix[] => [chiralPiece(qSp, qSm, a, b), chiralPiece(qDp, qDm, conj(a), conj(b))]
+  const schedule = (
+    a: readonly [number, number],
+    b: readonly [number, number],
+  ): CMatrix[] => [
+    chiralPiece(qSp, qSm, a, b),
+    chiralPiece(qDp, qDm, conj(a), conj(b)),
+  ]
   const basis = sectorBasis(J)
   const roots = SECTOR_ROOTS(DOCK_ROOTS)
-  const sectors = (Ps: readonly CMatrix[]): { plus: CMatrix[]; minus: CMatrix[]; leak: number } => {
+
+  const sectors = (
+    Ps: readonly CMatrix[],
+  ): { plus: CMatrix[]; minus: CMatrix[]; leak: number } => {
     const p = Ps.map(P => sectorBlock(P, basis, 0))
     const m = Ps.map(P => sectorBlock(P, basis, 1))
 
-    return { plus: p.map(x => x.block), minus: m.map(x => x.block), leak: Math.max(...p.map(x => x.leak), ...m.map(x => x.leak)) }
+    return {
+      plus: p.map(x => x.block),
+      minus: m.map(x => x.block),
+      leak: Math.max(...p.map(x => x.leak), ...m.map(x => x.leak)),
+    }
   }
+
   const chiral = schedule(unitValue(uP), unitValue(uM))
   const ch = sectors(chiral)
 
   // ---------------- B2: the sectors ----------------
   const check = weylMomenta(plan.momenta)
+
   let bandGap = 0
   let bandCounts = true
 
@@ -386,12 +492,30 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     ] as const) {
       const ph = cyclePhases(blocks, roots, K)
       const E = diracPhase(K, M)
-      const up = ph.filter(x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE).length
-      const down = ph.filter(x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE).length
-      const flat = ph.filter(x => Math.abs(wrap(x)) <= FLAT_TOLERANCE).length
+      const up = ph.filter(
+        x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE,
+      ).length
+      const down = ph.filter(
+        x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE,
+      ).length
+      const flat = ph.filter(
+        x => Math.abs(wrap(x)) <= FLAT_TOLERANCE,
+      ).length
 
-      if (up !== 4 || down !== 4 || flat !== 88) bandCounts = false
-      bandGap = Math.max(bandGap, ...ph.map(x => Math.min(Math.abs(wrap(x)), Math.abs(wrap(x - Math.PI - E)), Math.abs(wrap(x - Math.PI + E)))))
+      if (up !== 4 || down !== 4 || flat !== 88) {
+        bandCounts = false
+      }
+
+      bandGap = Math.max(
+        bandGap,
+        ...ph.map(x =>
+          Math.min(
+            Math.abs(wrap(x)),
+            Math.abs(wrap(x - Math.PI - E)),
+            Math.abs(wrap(x - Math.PI + E)),
+          ),
+        ),
+      )
     }
   }
 
@@ -401,18 +525,36 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
 
   // ---------------- B3: per sector ----------------
   const zs = sectors(schedule(unitValue(uZ), unitValue(uZ)))
-  const pairs = [zs.plus, zs.minus].flatMap(blocks => DIRS.map(u => cycleMasslessPairN(blocks, Math.PI, u, PAIR_KAPPA, roots)))
+  const pairs = [zs.plus, zs.minus].flatMap(blocks =>
+    DIRS.map(u =>
+      cycleMasslessPairN(blocks, Math.PI, u, PAIR_KAPPA, roots),
+    ),
+  )
   const thetaP = unitAngle(uP)
   const thetaM = unitAngle(uM)
   const frameP = restFrame(thetaP, -thetaP, MP)
   const frameM = restFrame(thetaM, -thetaM, MM)
-  const fitsP = DIRS.map(u => frameRN(ch.plus, frameP, thetaP, u, C_QUARTER, SCALES, roots))
-  const fitsM = DIRS.map(u => frameRN(ch.minus, frameM, thetaM, u, C_QUARTER, SCALES, roots))
+  const fitsP = DIRS.map(u =>
+    frameRN(ch.plus, frameP, thetaP, u, C_QUARTER, SCALES, roots),
+  )
+  const fitsM = DIRS.map(u =>
+    frameRN(ch.minus, frameM, thetaM, u, C_QUARTER, SCALES, roots),
+  )
   const tanP = Math.tan(mP) / mP
   const tanM = Math.tan(mM) / mM
-  const iso = (fits: { c2: number }[]): number => Math.max(...fits.map(x => Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1)))
+  const iso = (fits: { c2: number }[]): number =>
+    Math.max(
+      ...fits.map(x =>
+        Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1),
+      ),
+    )
   const B3 =
-    pairs.every(x => x.size === 8 && Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE && Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE) &&
+    pairs.every(
+      x =>
+        x.size === 8 &&
+        Math.abs(x.gamma) / C_QUARTER <= GAMMA_TOLERANCE &&
+        Math.abs(x.c0 / C_QUARTER - 1) <= GAMMA_TOLERANCE,
+    ) &&
     fitsP.every(x => Math.abs(x.R - tanP) <= R_EXACT) &&
     fitsM.every(x => Math.abs(x.R - tanM) <= R_EXACT) &&
     iso(fitsP) <= ISOTROPY &&
@@ -425,7 +567,14 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const extra = weylMomenta(plan.weylExtra)
   const censusP = pairCensusN(ch.plus, frameP, paths, extra, roots)
   const censusM = pairCensusN(ch.minus, frameM, paths, extra, roots)
-  const censusX = mixedCensus(ch.plus, frameP, ch.minus, frameM, paths, roots)
+  const censusX = mixedCensus(
+    ch.plus,
+    frameP,
+    ch.minus,
+    frameM,
+    paths,
+    roots,
+  )
   const lighter = Math.min(MP, MM)
   const B4 =
     censusP.crossings === 0 &&
@@ -439,11 +588,37 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
 
   // ---------------- S: the symmetries ----------------
   const sym = weylMomenta(plan.symmetryMomenta)
-  const gK = (K: readonly number[]): number[] => [-(K[0] as number), -(K[1] as number), -(K[2] as number), K[3] as number]
+  const gK = (K: readonly number[]): number[] => [
+    -K[0]!,
+    -K[1]!,
+    -K[2]!,
+    K[3]!,
+  ]
   const neg = (K: readonly number[]): number[] => K.map(x => -x)
-  const readings = (s: { plus: CMatrix[]; minus: CMatrix[] }): { Pimp: number; PimpRaw: number; Prot: number; Craw: number; C: number; CP: number; CPT: number } => {
-    const spec = (b: CMatrix[], K: readonly number[]): number[] => cyclePhases(b, roots, K)
-    const r = { Pimp: 0, PimpRaw: 0, Prot: 0, Craw: 0, C: 0, CP: 0, CPT: 0 }
+
+  const readings = (s: {
+    plus: CMatrix[]
+    minus: CMatrix[]
+  }): {
+    Pimp: number
+    PimpRaw: number
+    Prot: number
+    Craw: number
+    C: number
+    CP: number
+    CPT: number
+  } => {
+    const spec = (b: CMatrix[], K: readonly number[]): number[] =>
+      cyclePhases(b, roots, K)
+    const r = {
+      Pimp: 0,
+      PimpRaw: 0,
+      Prot: 0,
+      Craw: 0,
+      C: 0,
+      CP: 0,
+      CPT: 0,
+    }
 
     for (const K of sym) {
       const pK = spec(s.plus, K)
@@ -455,7 +630,12 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
 
       r.PimpRaw = Math.max(r.PimpRaw, phaseMismatch(pK, mG, false))
       r.Pimp = Math.max(r.Pimp, phaseMismatch(pK, mG, true))
-      r.Prot = Math.max(r.Prot, phaseMismatch(pK, pN, false), phaseMismatch(mK, mN, false))
+      r.Prot = Math.max(
+        r.Prot,
+        phaseMismatch(pK, pN, false),
+        phaseMismatch(mK, mN, false),
+      )
+
       r.Craw = Math.max(
         r.Craw,
         phaseMismatch(
@@ -469,6 +649,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
           false,
         ),
       )
+
       r.C = Math.max(
         r.C,
         phaseMismatch(
@@ -482,6 +663,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
           true,
         ),
       )
+
       r.CP = Math.max(
         r.CP,
         phaseMismatch(
@@ -490,6 +672,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
           true,
         ),
       )
+
       r.CPT = Math.max(
         r.CPT,
         phaseMismatch(
@@ -507,15 +690,27 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
 
     return r
   }
+
   const mass = readings(ch)
-  const S = mass.PimpRaw > SYMMETRY_BREAKS && mass.Pimp > SYMMETRY_BREAKS && mass.Prot <= SYMMETRY_HOLDS && mass.Craw <= SYMMETRY_HOLDS && mass.CP > SYMMETRY_BREAKS && mass.CPT <= SYMMETRY_HOLDS
+  const S =
+    mass.PimpRaw > SYMMETRY_BREAKS &&
+    mass.Pimp > SYMMETRY_BREAKS &&
+    mass.Prot <= SYMMETRY_HOLDS &&
+    mass.Craw <= SYMMETRY_HOLDS &&
+    mass.CP > SYMMETRY_BREAKS &&
+    mass.CPT <= SYMMETRY_HOLDS
 
   log('S')
 
   // ---------------- D1, D2: the trimaximal mixing ----------------
   const V = trimaximal()
   const jV = jarlskog(V)
-  const D1 = unitaryExact(V) && jV.num[0] === 0n && jV.num[1] === 9n && jV.den === 81n && Math.abs(jV.value - 1 / (6 * Math.sqrt(3))) <= JARLSKOG_TOLERANCE
+  const D1 =
+    unitaryExact(V) &&
+    jV.num[0] === 0n &&
+    jV.num[1] === 9n &&
+    jV.den === 81n &&
+    Math.abs(jV.value - 1 / (6 * Math.sqrt(3))) <= JARLSKOG_TOLERANCE
   const sixth: Eis[] = [
     [1n, 0n],
     [1n, 1n],
@@ -524,16 +719,28 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     [-1n, -1n],
     [0n, -1n],
   ]
+
   let D2 = true
 
   for (const a of sixth) {
     for (const b of sixth) {
-      const W = V.map((row, j) => row.map((x, k) => ({ num: eisMul(eisMul(x.num, j === 0 ? a : [1n, 0n]), k === 0 ? b : [1n, 0n]), den: x.den })))
+      const W = V.map((row, j) =>
+        row.map((x, k) => ({
+          num: eisMul(
+            eisMul(x.num, j === 0 ? a : [1n, 0n]),
+            k === 0 ? b : [1n, 0n],
+          ),
+          den: x.den,
+        })),
+      )
       const jW = jarlskog(W)
       // the imaginary part of (p + q w) / den is q sqrt(3) / 2 / den, compared as q / den = 9 / 81
-      const rephased = jW.num[1] * 81n === 9n * jW.den && jW.num[0] === 0n
+      const rephased =
+        jW.num[1] * 81n === 9n * jW.den && jW.num[0] === 0n
 
-      if (!rephased) D2 = false
+      if (!rephased) {
+        D2 = false
+      }
     }
   }
 
@@ -544,13 +751,20 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
 
   for (const K of weylMomenta(plan.checkMomenta)) {
     const full = cyclePhases(chiral, REGISTER_ROOTS, K)
-    const split = [...cyclePhases(ch.plus, roots, K), ...cyclePhases(ch.minus, roots, K)]
+    const split = [
+      ...cyclePhases(ch.plus, roots, K),
+      ...cyclePhases(ch.minus, roots, K),
+    ]
 
     I1gap = Math.max(I1gap, phaseMismatch(full, split, false))
   }
 
   const I1 = I1gap <= BAND_TOLERANCE
-  const own = sectors([registerPiece(scaled(S24, 24), unitValue(uP)), registerPiece(scaled(D48, 48), conj(unitValue(uP)))])
+  const own = sectors([
+    registerPiece(scaled(S24, 24), unitValue(uP)),
+    registerPiece(scaled(D48, 48), conj(unitValue(uP))),
+  ])
+
   let I2 = own.leak <= LEAK_TOLERANCE
 
   for (const K of weylMomenta(plan.checkMomenta)) {
@@ -559,7 +773,18 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     for (const blocks of [own.plus, own.minus]) {
       const ph = cyclePhases(blocks, roots, K)
 
-      if (ph.filter(x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE).length !== 4 || ph.filter(x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE).length !== 4 || ph.filter(x => Math.abs(wrap(x)) <= FLAT_TOLERANCE).length !== 88) I2 = false
+      if (
+        ph.filter(
+          x => Math.abs(wrap(x - Math.PI - E)) <= BAND_TOLERANCE,
+        ).length !== 4 ||
+        ph.filter(
+          x => Math.abs(wrap(x - Math.PI + E)) <= BAND_TOLERANCE,
+        ).length !== 4 ||
+        ph.filter(x => Math.abs(wrap(x)) <= FLAT_TOLERANCE).length !==
+          88
+      ) {
+        I2 = false
+      }
     }
   }
 
@@ -568,12 +793,33 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   // ---------------- controls ----------------
   const mirror = schedule(unitValue(uP), unitValue(uP))
   const mirrorReadings = readings(sectors(mirror))
-  const own192 = [registerPiece(scaled(S24, 24), unitValue(uP)), registerPiece(scaled(D48, 48), conj(unitValue(uP)))]
-  const pieceGap = Math.max(...mirror.map((P, b) => Math.max(...P.re.map((x, i) => Math.abs(x - ((own192[b] as CMatrix).re[i] as number))), ...P.im.map((x, i) => Math.abs(x - ((own192[b] as CMatrix).im[i] as number))))))
-  const C1 = mirrorReadings.Pimp <= SYMMETRY_HOLDS && mirrorReadings.CP <= SYMMETRY_HOLDS && pieceGap <= PIECE_TOLERANCE
-  const withPhase = [mirror[0] as CMatrix, phaseAfter(mirror[1] as CMatrix, qP, unitValue(ringUnit(PHASE[0], PHASE[1])))]
+  const own192 = [
+    registerPiece(scaled(S24, 24), unitValue(uP)),
+    registerPiece(scaled(D48, 48), conj(unitValue(uP))),
+  ]
+  const pieceGap = Math.max(
+    ...mirror.map((P, b) =>
+      Math.max(
+        ...P.re.map((x, i) => Math.abs(x - own192[b]!.re[i]!)),
+        ...P.im.map((x, i) => Math.abs(x - own192[b]!.im[i]!)),
+      ),
+    ),
+  )
+  const C1 =
+    mirrorReadings.Pimp <= SYMMETRY_HOLDS &&
+    mirrorReadings.CP <= SYMMETRY_HOLDS &&
+    pieceGap <= PIECE_TOLERANCE
+  const withPhase = [
+    mirror[0]!,
+    phaseAfter(mirror[1]!, qP, unitValue(ringUnit(PHASE[0], PHASE[1]))),
+  ]
   const phaseReadings = readings(sectors(withPhase))
-  const C2 = phaseReadings.PimpRaw > SYMMETRY_BREAKS && phaseReadings.Craw > SYMMETRY_BREAKS && phaseReadings.Pimp <= SYMMETRY_HOLDS && phaseReadings.C <= SYMMETRY_HOLDS && phaseReadings.CP <= SYMMETRY_HOLDS
+  const C2 =
+    phaseReadings.PimpRaw > SYMMETRY_BREAKS &&
+    phaseReadings.Craw > SYMMETRY_BREAKS &&
+    phaseReadings.Pimp <= SYMMETRY_HOLDS &&
+    phaseReadings.C <= SYMMETRY_HOLDS &&
+    phaseReadings.CP <= SYMMETRY_HOLDS
   const rational: EisQ[][] = [
     [
       { num: [3n, 0n], den: 5n },
@@ -593,17 +839,22 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   ]
   const C3 = jarlskog(rational).num[1] === 0n
   const conjCheck = eisConj([0n, 1n])
+
   void conjCheck
 
   log('C')
 
-  const hard = A1 && A2 && A3 && A4 && B1 && B2 && B3 && B4 && S && D1 && D2
+  const hard =
+    A1 && A2 && A3 && A4 && B1 && B2 && B3 && B4 && S && D1 && D2
   const instrument = I1 && I2
   const controls = C1 && C2 && C3
   const status = !hard ? 'fail' : 'partial'
-  const censusLine = (c: Census): string => `B* ${c.Bstar.toFixed(9)} x${c.crossings}, nearest at |q| ${Math.hypot(...c.at).toFixed(4)} (pair ${c.pair.map(x => x.toFixed(4)).join(', ')})`
-  const readLine = (r: ReturnType<typeof readings>): string => `P_imp raw ${r.PimpRaw.toExponential(2)} rephased ${r.Pimp.toExponential(2)}, P_rot ${r.Prot.toExponential(2)}, C raw ${r.Craw.toExponential(2)} rephased ${r.C.toExponential(2)}, CP ${r.CP.toExponential(2)}, CPT ${r.CPT.toExponential(2)}`
-  const series = (x: bigint[]): string => x.filter((_, n) => n % 2 === 0).join(' ')
+  const censusLine = (c: Census): string =>
+    `B* ${c.Bstar.toFixed(9)} x${c.crossings}, nearest at |q| ${Math.hypot(...c.at).toFixed(4)} (pair ${c.pair.map(x => x.toFixed(4)).join(', ')})`
+  const readLine = (r: ReturnType<typeof readings>): string =>
+    `P_imp raw ${r.PimpRaw.toExponential(2)} rephased ${r.Pimp.toExponential(2)}, P_rot ${r.Prot.toExponential(2)}, C raw ${r.Craw.toExponential(2)} rephased ${r.C.toExponential(2)}, CP ${r.CP.toExponential(2)}, CPT ${r.CPT.toExponential(2)}`
+  const series = (x: bigint[]): string =>
+    x.filter((_, n) => n % 2 === 0).join(' ')
 
   return verdict({
     status,
@@ -635,7 +886,8 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
       censusPlus: censusP.Bstar,
       censusMinus: censusM.Bstar,
       censusMixed: censusX.Bstar,
-      crossings: censusP.crossings + censusM.crossings + censusX.crossings,
+      crossings:
+        censusP.crossings + censusM.crossings + censusX.crossings,
       Pimp: mass.Pimp,
       Prot: mass.Prot,
       Craw: mass.Craw,
@@ -644,7 +896,12 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
       jarlskog: jV.value,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      instrument: flag(instrument),
+    },
     notes: `L1 and L2. ${MODES} modes a member, two sectors of 96. Masses m+ ${mP.toFixed(6)} (ringUnit(${PLUS.join(', ')})), m- ${mM.toFixed(6)} (ringUnit(${MINUS.join(', ')})). Molien (even degrees 0 .. ${MOLIEN_DEGREE}): W(F4) ${series(mW)}; W+(F4) ${series(mWplus)}; frame stabilizer ${series(mStab)}. Group ${group.length}, rotations ${rotations.length}. Per sector: massless pairs ${pairs.map(x => `${x.size} c0/(c/4) ${(x.c0 / C_QUARTER).toFixed(12)} gamma ${(x.gamma / C_QUARTER).toExponential(2)}`).join('; ')}; R+ - tan m/m ${fitsP.map(x => (x.R - tanP).toExponential(2)).join(' ')}; R- - tan m/m ${fitsM.map(x => (x.R - tanM).toExponential(2)).join(' ')}; isotropy ${iso(fitsP).toExponential(2)}, ${iso(fitsM).toExponential(2)}. Census: + ${censusLine(censusP)} (2M ${(2 * MP).toFixed(9)}); - ${censusLine(censusM)} (2M ${(2 * MM).toFixed(9)}); mixed ${censusLine(censusX)} (2 M- ${(2 * lighter).toFixed(9)}). Symmetries: chiral mass ${readLine(mass)}; mirror-symmetric mass ${readLine(mirrorReadings)} (piece gap ${pieceGap.toExponential(2)}); chiral phase ${readLine(phaseReadings)}. Trimaximal Jarlskog ${jV.num[0]} + ${jV.num[1]} w over ${jV.den}, value ${jV.value} against 1/(6 sqrt 3) ${1 / (6 * Math.sqrt(3))}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

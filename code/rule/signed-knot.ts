@@ -16,8 +16,16 @@
 // kernel's divisor at every meeting inside the knot and are reduced over both parts together.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { CONJUGATE_POINT, type BeatRecord } from '@/code/rule/fear-weave'
-import { advanceDeparture, conjugateIndex, mergeDepartures, type Departure } from '@/code/rule/calm-weave'
+import {
+  CONJUGATE_POINT,
+  type BeatRecord,
+} from '@/code/rule/fear-weave'
+import {
+  advanceDeparture,
+  conjugateIndex,
+  mergeDepartures,
+  type Departure,
+} from '@/code/rule/calm-weave'
 
 export type KnotRule = 'sign' | 'center' | 'label'
 
@@ -49,12 +57,19 @@ function gcd(a: bigint, b: bigint): bigint {
 }
 
 // (re + om omega) omega^q, exact: (a + b omega) omega = -b + (a - b) omega
-export function timesOmega(re: readonly bigint[], om: readonly bigint[], q: number): { re: bigint[]; om: bigint[] } {
+export function timesOmega(
+  re: readonly bigint[],
+  om: readonly bigint[],
+  q: number,
+): { re: bigint[]; om: bigint[] } {
   let a = [...re]
   let b = [...om]
 
   for (let i = 0; i < mod3(q); i++) {
-    const next = { re: b.map(x => -x), om: a.map((x, j) => x - (b[j] ?? 0n)) }
+    const next = {
+      re: b.map(x => -x),
+      om: a.map((x, j) => x - (b[j] ?? 0n)),
+    }
 
     a = next.re
     b = next.om
@@ -64,13 +79,28 @@ export function timesOmega(re: readonly bigint[], om: readonly bigint[], q: numb
 }
 
 function reduceKnot(k: SignedKnot): SignedKnot {
-  const g = k.om.reduce((acc, x) => gcd(acc, x), k.re.reduce((acc, x) => gcd(acc, x), k.units))
+  const g = k.om.reduce(
+    (acc, x) => gcd(acc, x),
+    k.re.reduce((acc, x) => gcd(acc, x), k.units),
+  )
 
-  return g > 1n ? { ...k, re: k.re.map(x => x / g), om: k.om.map(x => x / g), units: k.units / g } : k
+  return g > 1n
+    ? {
+        ...k,
+        re: k.re.map(x => x / g),
+        om: k.om.map(x => x / g),
+        units: k.units / g,
+      }
+    : k
 }
 
 // store a departure under a rule
-export function knotOf(input: { departure: Departure; rule: KnotRule; sign: number; charge: number }): SignedKnot {
+export function knotOf(input: {
+  departure: Departure
+  rule: KnotRule
+  sign: number
+  charge: number
+}): SignedKnot {
   const { departure, rule, sign, charge } = input
   const zero = departure.delta.map(() => 0n)
   const stored =
@@ -80,7 +110,15 @@ export function knotOf(input: { departure: Departure; rule: KnotRule; sign: numb
         ? timesOmega(departure.delta, zero, charge)
         : { re: [...departure.delta], om: zero }
 
-  return { rule, tokens: departure.tokens, ...stored, units: departure.units, sign, charge, ...(departure.own ? { own: departure.own } : {}) }
+  return {
+    rule,
+    tokens: departure.tokens,
+    ...stored,
+    units: departure.units,
+    sign,
+    charge,
+    ...(departure.own ? { own: departure.own } : {}),
+  }
 }
 
 // the departure a knot reads as: the factor divided out. null when what is left is not real (the stored
@@ -88,22 +126,38 @@ export function knotOf(input: { departure: Departure; rule: KnotRule; sign: numb
 export function readKnot(k: SignedKnot): Departure | null {
   const plain =
     k.rule === 'sign'
-      ? { re: k.re.map(x => BigInt(k.sign) * x), om: k.om.map(x => BigInt(k.sign) * x) }
+      ? {
+          re: k.re.map(x => BigInt(k.sign) * x),
+          om: k.om.map(x => BigInt(k.sign) * x),
+        }
       : k.rule === 'center'
         ? timesOmega(k.re, k.om, -k.charge)
         : { re: [...k.re], om: [...k.om] }
 
-  return plain.om.every(x => x === 0n) ? { tokens: k.tokens, delta: plain.re, units: k.units, ...(k.own ? { own: k.own } : {}) } : null
+  return plain.om.every(x => x === 0n)
+    ? {
+        tokens: k.tokens,
+        delta: plain.re,
+        units: k.units,
+        ...(k.own ? { own: k.own } : {}),
+      }
+    : null
 }
 
 // the sum of the stored weights, re + om omega, over the units
 export function knotTotal(k: SignedKnot): { re: bigint; om: bigint } {
-  return { re: k.re.reduce((a, b) => a + b, 0n), om: k.om.reduce((a, b) => a + b, 0n) }
+  return {
+    re: k.re.reduce((a, b) => a + b, 0n),
+    om: k.om.reduce((a, b) => a + b, 0n),
+  }
 }
 
 // two knots joined: the tensor product of what each reads, stored under the joint labels. The sign rule's
 // joint sign is the product (the only factor that still divides out); the charge adds
-export function mergeKnots(a: SignedKnot, b: SignedKnot): SignedKnot | null {
+export function mergeKnots(
+  a: SignedKnot,
+  b: SignedKnot,
+): SignedKnot | null {
   const da = readKnot(a)
   const db = readKnot(b)
 
@@ -111,7 +165,12 @@ export function mergeKnots(a: SignedKnot, b: SignedKnot): SignedKnot | null {
     return null
   }
 
-  return knotOf({ departure: mergeDepartures(da, db), rule: a.rule, sign: a.sign * b.sign, charge: a.charge + b.charge })
+  return knotOf({
+    departure: mergeDepartures(da, db),
+    rule: a.rule,
+    sign: a.sign * b.sign,
+    charge: a.charge + b.charge,
+  })
 }
 
 // charge conjugation of a knot: C on every point, and the factor conjugated with the charge. sign: every
@@ -119,18 +178,34 @@ export function mergeKnots(a: SignedKnot, b: SignedKnot): SignedKnot | null {
 // label: the charge negated
 export function mirrorKnot(k: SignedKnot): SignedKnot {
   const n = k.tokens.length
-  const moved = (w: readonly bigint[]): bigint[] => w.map((_, i) => w[conjugateIndex(i, n)] ?? 0n)
+  const moved = (w: readonly bigint[]): bigint[] =>
+    w.map((_, i) => w[conjugateIndex(i, n)] ?? 0n)
   const re = moved(k.re)
   const om = moved(k.om)
   // C moves the own points with the weights
-  const own = k.own ? { own: k.own.map(p => CONJUGATE_POINT[p] ?? 0) } : {}
+  const own = k.own
+    ? { own: k.own.map(p => CONJUGATE_POINT[p] ?? 0) }
+    : {}
 
   if (k.rule === 'sign') {
-    return { ...k, re: re.map(x => -x), om: om.map(x => -x), sign: -k.sign, charge: -k.charge, ...own }
+    return {
+      ...k,
+      re: re.map(x => -x),
+      om: om.map(x => -x),
+      sign: -k.sign,
+      charge: -k.charge,
+      ...own,
+    }
   }
 
   if (k.rule === 'center') {
-    return { ...k, re: re.map((x, i) => x - (om[i] ?? 0n)), om: om.map(x => -x), charge: -k.charge, ...own }
+    return {
+      ...k,
+      re: re.map((x, i) => x - (om[i] ?? 0n)),
+      om: om.map(x => -x),
+      charge: -k.charge,
+      ...own,
+    }
   }
 
   return { ...k, re, om, charge: -k.charge, ...own }
@@ -151,14 +226,33 @@ export function advanceKnot(input: {
   moveOf?: (g: number) => ArrayLike<number>
   comoving?: boolean
 }): SignedKnot | null {
-  const { weave, knot, record, kernel, divisor, fixed, forward, moveOf, comoving } = input
+  const {
+    weave,
+    knot,
+    record,
+    kernel,
+    divisor,
+    fixed,
+    forward,
+    moveOf,
+    comoving,
+  } = input
   const inside = new Set(knot.tokens)
-  const meetings = record.meetings.filter(([a, b]) => inside.has(a) && inside.has(b)).length
+  const meetings = record.meetings.filter(
+    ([a, b]) => inside.has(a) && inside.has(b),
+  ).length
+
   let own: readonly number[] | undefined = knot.own
+
   const step = (w: readonly bigint[]): bigint[] | null => {
     const d = advanceDeparture({
       weave,
-      departure: { tokens: knot.tokens, delta: w, units: 1n, ...(knot.own ? { own: knot.own } : {}) },
+      departure: {
+        tokens: knot.tokens,
+        delta: w,
+        units: 1n,
+        ...(knot.own ? { own: knot.own } : {}),
+      },
       record,
       kernel,
       divisor: fixed ? divisor : 1,
@@ -177,11 +271,19 @@ export function advanceKnot(input: {
     const re = step(knot.re)
     const om = step(knot.om)
 
-    return re && om ? { ...knot, re, om, ...(own ? { own } : {}) } : null
+    return re && om
+      ? { ...knot, re, om, ...(own ? { own } : {}) }
+      : null
   }
 
   const re = step(knot.re)!
   const om = step(knot.om)!
 
-  return reduceKnot({ ...knot, re, om, units: knot.units * BigInt(divisor) ** BigInt(meetings), ...(own ? { own } : {}) })
+  return reduceKnot({
+    ...knot,
+    re,
+    om,
+    units: knot.units * BigInt(divisor) ** BigInt(meetings),
+    ...(own ? { own } : {}),
+  })
 }

@@ -98,20 +98,48 @@ type Run = {
   reversal?: { light: number; source: number; walk: number }
 }
 
-function run(start: 'superposition' | 'ground', coupled: boolean, beats: number, reverse: boolean): Run {
-  const atom = makeQuantumAtom({ side: SIDE, depth: DEPTH, levels: LEVELS, charge: CHARGE, coupled })
+function run(
+  start: 'superposition' | 'ground',
+  coupled: boolean,
+  beats: number,
+  reverse: boolean,
+): Run {
+  const atom = makeQuantumAtom({
+    side: SIDE,
+    depth: DEPTH,
+    levels: LEVELS,
+    charge: CHARGE,
+    coupled,
+  })
   const lv = atomLevels(atom)
   const re = new Float64Array(SIDE ** 3)
   const im = new Float64Array(SIDE ** 3)
 
-  for (let i = 0; i < re.length; i++) re[i] = start === 'ground' ? lv.s[i]! : (lv.s[i]! + lv.p[i]!) / Math.SQRT2
+  for (let i = 0; i < re.length; i++) {
+    re[i] =
+      start === 'ground' ? lv.s[i]! : (lv.s[i]! + lv.p[i]!) / Math.SQRT2
+  }
 
   setWalk(atom, re, im)
 
   const rho0 = Float64Array.from(re, v => v * v)
   const light0 = lightSnapshot(atom)
   const re0 = Float64Array.from(atom.re)
-  const out: Run = { inside: [within(atom, RADIUS).inside], walk: [walkEnergy(atom)], light: [0], total: [walkEnergy(atom)], p2: [overlap(atom, lv.p)], p1: [overlap(atom, lv.s)], lightBeat: 0, gaussShadow: 0, gaussIdentity: 0, integerMax: 0, integerDocks: 0, consistency: 0, crossings: 0 }
+  const out: Run = {
+    inside: [within(atom, RADIUS).inside],
+    walk: [walkEnergy(atom)],
+    light: [0],
+    total: [walkEnergy(atom)],
+    p2: [overlap(atom, lv.p)],
+    p1: [overlap(atom, lv.s)],
+    lightBeat: 0,
+    gaussShadow: 0,
+    gaussIdentity: 0,
+    integerMax: 0,
+    integerDocks: 0,
+    consistency: 0,
+    crossings: 0,
+  }
 
   for (let t = 1; t <= beats; t++) {
     const read = t % EVERY === 0
@@ -119,7 +147,9 @@ function run(start: 'superposition' | 'ground', coupled: boolean, beats: number,
 
     out.consistency += sourceConsistency(atom)
 
-    if (!read) continue
+    if (!read) {
+      continue
+    }
 
     // the light beat against its invariant: read again after the beat for the same source ('beaten')
     const after = lightEnergy(atom, 'beaten')
@@ -144,25 +174,38 @@ function run(start: 'superposition' | 'ground', coupled: boolean, beats: number,
   if (reverse) {
     const tally = { sourceMismatches: 0, previousMismatches: 0 }
 
-    for (let t = 0; t < beats; t++) atomBeatBack(atom, tally)
+    for (let t = 0; t < beats; t++) {
+      atomBeatBack(atom, tally)
+    }
 
     let dev = 0
 
-    for (let i = 0; i < re0.length; i++) dev = Math.max(dev, Math.abs(atom.re[i]! - re0[i]!), Math.abs(atom.im[i]!))
+    for (let i = 0; i < re0.length; i++) {
+      dev = Math.max(
+        dev,
+        Math.abs(atom.re[i]! - re0[i]!),
+        Math.abs(atom.im[i]!),
+      )
+    }
 
-    out.reversal = { light: lightMismatches(atom.light, light0), source: tally.sourceMismatches, walk: dev }
+    out.reversal = {
+      light: lightMismatches(atom.light, light0),
+      source: tally.sourceMismatches,
+      walk: dev,
+    }
   }
 
   return out
 }
 
-const maxAbsFrom = (xs: number[], from: number, ref: number): number => Math.max(...xs.slice(from).map(x => Math.abs(x - ref)))
+const maxAbsFrom = (xs: number[], from: number, ref: number): number =>
+  Math.max(...xs.slice(from).map(x => Math.abs(x - ref)))
 
 export default experiment({
   id: 'gauge/trit-quantum-atom',
   code: 'E-FRC-0221',
   title:
-    'the first quantum atom on trits: a STAND-IN fear-walk electron whose charge and current enter the five-level shaped light as the signed whole\'s expectation (semiclassical), counted into the rule by thresholds and carried by a shaped bucket, with the light\'s field acting back on the walk\'s phases, stays bound over 15 orbital periods where a classical point charge flew apart, keeps matter plus light energy, keeps Gauss exact and reverses exactly',
+    "the first quantum atom on trits: a STAND-IN fear-walk electron whose charge and current enter the five-level shaped light as the signed whole's expectation (semiclassical), counted into the rule by thresholds and carried by a shaped bucket, with the light's field acting back on the walk's phases, stays bound over 15 orbital periods where a classical point charge flew apart, keeps matter plus light energy, keeps Gauss exact and reverses exactly",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -180,13 +223,28 @@ export default experiment({
       ['oneWay', oneWay],
     ] as const) {
       metrics[`${name}_insideStart`] = r.inside[0] ?? 0
-      metrics[`${name}_insideMaxChange`] = maxAbsFrom(r.inside, 0, r.inside[0] ?? 0)
-      metrics[`${name}_walkRiseMax`] = Math.max(...r.walk.map(w => w - (r.walk[0] ?? 0)))
-      metrics[`${name}_walkChangeEnd`] = (r.walk[r.walk.length - 1] ?? 0) - (r.walk[0] ?? 0)
+      metrics[`${name}_insideMaxChange`] = maxAbsFrom(
+        r.inside,
+        0,
+        r.inside[0] ?? 0,
+      )
+
+      metrics[`${name}_walkRiseMax`] = Math.max(
+        ...r.walk.map(w => w - (r.walk[0] ?? 0)),
+      )
+
+      metrics[`${name}_walkChangeEnd`] =
+        (r.walk[r.walk.length - 1] ?? 0) - (r.walk[0] ?? 0)
       metrics[`${name}_lightMax`] = Math.max(...r.light)
       metrics[`${name}_lightEnd`] = r.light[r.light.length - 1] ?? 0
-      metrics[`${name}_totalMaxDeparture`] = maxAbsFrom(r.total, 2, ref(r))
-      metrics[`${name}_totalEndDeparture`] = (r.total[r.total.length - 1] ?? 0) - ref(r)
+      metrics[`${name}_totalMaxDeparture`] = maxAbsFrom(
+        r.total,
+        2,
+        ref(r),
+      )
+
+      metrics[`${name}_totalEndDeparture`] =
+        (r.total[r.total.length - 1] ?? 0) - ref(r)
       metrics[`${name}_p2End`] = r.p2[r.p2.length - 1] ?? 0
       metrics[`${name}_p1End`] = r.p1[r.p1.length - 1] ?? 0
       metrics[`${name}_lightBeatMax`] = r.lightBeat
@@ -208,27 +266,50 @@ export default experiment({
 
     metrics.gaussBound = bound
 
-    const okB = [sup, ground].every(r => maxAbsFrom(r.inside, 0, r.inside[0] ?? 0) <= 0.01 && Math.max(...r.walk.map(w => w - (r.walk[0] ?? 0))) <= 0.02 * binding)
+    const okB = [sup, ground].every(
+      r =>
+        maxAbsFrom(r.inside, 0, r.inside[0] ?? 0) <= 0.01 &&
+        Math.max(...r.walk.map(w => w - (r.walk[0] ?? 0))) <=
+          0.02 * binding,
+    )
     const okE =
       [sup, ground].every(r => r.lightBeat <= 1e-9) &&
-      (metrics.sup_totalMaxDeparture ?? 1) <= 0.15 * (metrics.sup_lightMax ?? 0) &&
-      Math.abs(metrics.oneWay_totalEndDeparture ?? 0) >= 0.8 * (metrics.oneWay_lightEnd ?? 1)
-    const okG = [sup, ground, oneWay].every(r => r.gaussIdentity === 0 && r.gaussShadow <= bound)
-    const okR = sup.reversal !== undefined && sup.reversal.light === 0 && sup.reversal.source === 0 && sup.reversal.walk <= 1e-12 && sup.consistency === 0
+      (metrics.sup_totalMaxDeparture ?? 1) <=
+        0.15 * (metrics.sup_lightMax ?? 0) &&
+      Math.abs(metrics.oneWay_totalEndDeparture ?? 0) >=
+        0.8 * (metrics.oneWay_lightEnd ?? 1)
+    const okG = [sup, ground, oneWay].every(
+      r => r.gaussIdentity === 0 && r.gaussShadow <= bound,
+    )
+    const okR =
+      sup.reversal?.light === 0 &&
+      sup.reversal.source === 0 &&
+      sup.reversal.walk <= 1e-12 &&
+      sup.consistency === 0
     const gates = { B: okB, E: okE, G: okG, R: okR }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.B && gates.G && gates.R ? 'partial' : 'fail'
-    const e = (x: number | undefined): string => (x ?? 0).toExponential(2)
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.B && gates.G && gates.R
+        ? 'partial'
+        : 'fail'
+    const e = (x: number | undefined): string =>
+      (x ?? 0).toExponential(2)
 
     return verdict({
       status,
       claim: `a STAND-IN fear-walk electron (Z = ${CHARGE}, a = 3.00 docks, D = ${DEPTH}, five shaped levels, side ${SIDE}) coupled semiclassically to the trit light stays bound over ${BEATS} beats: the chance within 4 a moves by at most ${e(metrics.sup_insideMaxChange)} (superposition) and ${e(metrics.ground_insideMaxChange)} (1s); from (1s + 2p) / sqrt 2 the light gains ${e(metrics.sup_lightEnd)} while matter plus light stays within ${e(metrics.sup_totalMaxDeparture)} of its value (one-way control: ${e(metrics.oneWay_totalEndDeparture)} created in 300 beats) and P_2p falls to ${(metrics.sup_p2End ?? 0).toFixed(4)}; the 1s radiates at most ${e(metrics.ground_lightMax)}; the light beat keeps its invariant to ${e(metrics.sup_lightBeatMax)} per beat, Gauss holds (shadow to ${e(metrics.sup_gaussShadowMax)} against ${e(bound)}), and the run reverses with ${metrics.rev_lightMismatches} light mismatches and the walk to ${e(metrics.rev_walk)}`,
       metrics,
-      control: { oneWayTotalEndDeparture: metrics.oneWay_totalEndDeparture ?? 0, oneWayLightEnd: metrics.oneWay_lightEnd ?? 0 },
+      control: {
+        oneWayTotalEndDeparture: metrics.oneWay_totalEndDeparture ?? 0,
+        oneWayLightEnd: metrics.oneWay_lightEnd ?? 0,
+      },
       notes:
-        'L2, STAND-IN electron and nucleus, semiclassical coupling. FIRST RUN 2026-09-26 (tmp/frc0221.log, 1,063 s), PASS on every gate, no gate moved. B: over 1,500 beats the chance within 4 a moves by at most 5.8e-3 from (1s + 2p) / sqrt 2 and 1.5e-3 from 1s, and the walk energy never rises more than 5.9e-5 and 1.7e-4 (E-FRC-0216\'s classical pair: 4 to 1,172.6 docks). E: the light beat keeps its invariant to 6.6e-11 per beat; from the superposition the light holds up to 5.4e-4 and ends at 1.3e-4 while matter plus light stays within 3.1e-5 of its value (0.057 of the light\'s largest energy), where the one-way control (light driven, no back-action) creates 1.5e-4 in 300 beats (0.92 of its light). The 1s radiates at most 2.3e-6 (the lattice eigenvector is not an exact eigenvector of the split beat, so it breathes). G: the integer flux\'s divergence equals the integer string\'s at every dock (0 failures) and the shadow\'s divergence equals the expectation charge change to 7.5e-8 (bound 6 / 33^5 = 1.5e-7); the integer string records whole charges of at most 4 units on at most 25 docks (4,371 crossings in 1,500 beats), all of which telescope out of the shadow. R: the 1,500 beats run back return every light integer (0 mismatches), the held source equals the counted one on every link of every beat (0), the walk to 8.7e-15. P_2p falls 0.5 -> 0.4967 in 1,500 beats: E-FRC-0222 reads the rate. SEMICLASSICAL: the light sees rho = |psi|^2, one field for the whole signed ensemble; the walk feels its own Hartree field (1/Z of the binding). A fully signed coupling would give each history (each joint point of the signed whole) its own light, sourced by that history\'s own whole-unit string, and read the outcome as the net line count (the Bell-fork resolution): the light would have to carry one branch per history, which the rule does not hold.',
+        "L2, STAND-IN electron and nucleus, semiclassical coupling. FIRST RUN 2026-09-26 (tmp/frc0221.log, 1,063 s), PASS on every gate, no gate moved. B: over 1,500 beats the chance within 4 a moves by at most 5.8e-3 from (1s + 2p) / sqrt 2 and 1.5e-3 from 1s, and the walk energy never rises more than 5.9e-5 and 1.7e-4 (E-FRC-0216's classical pair: 4 to 1,172.6 docks). E: the light beat keeps its invariant to 6.6e-11 per beat; from the superposition the light holds up to 5.4e-4 and ends at 1.3e-4 while matter plus light stays within 3.1e-5 of its value (0.057 of the light's largest energy), where the one-way control (light driven, no back-action) creates 1.5e-4 in 300 beats (0.92 of its light). The 1s radiates at most 2.3e-6 (the lattice eigenvector is not an exact eigenvector of the split beat, so it breathes). G: the integer flux's divergence equals the integer string's at every dock (0 failures) and the shadow's divergence equals the expectation charge change to 7.5e-8 (bound 6 / 33^5 = 1.5e-7); the integer string records whole charges of at most 4 units on at most 25 docks (4,371 crossings in 1,500 beats), all of which telescope out of the shadow. R: the 1,500 beats run back return every light integer (0 mismatches), the held source equals the counted one on every link of every beat (0), the walk to 8.7e-15. P_2p falls 0.5 -> 0.4967 in 1,500 beats: E-FRC-0222 reads the rate. SEMICLASSICAL: the light sees rho = |psi|^2, one field for the whole signed ensemble; the walk feels its own Hartree field (1/Z of the binding). A fully signed coupling would give each history (each joint point of the signed whole) its own light, sourced by that history's own whole-unit string, and read the outcome as the net line count (the Bell-fork resolution): the light would have to carry one branch per history, which the rule does not hold.",
     })
   },
 })

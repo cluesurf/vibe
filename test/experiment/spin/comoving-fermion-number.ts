@@ -53,8 +53,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
-import { daggerMatrix, kronecker, matrixDistance, phasePointMatrix, scaleMatrix } from '@/code/algebra/weil-representation'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
+import {
+  daggerMatrix,
+  kronecker,
+  matrixDistance,
+  phasePointMatrix,
+  scaleMatrix,
+} from '@/code/algebra/weil-representation'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import {
   CONJUGATE_POINT,
@@ -66,10 +76,29 @@ import {
   wholeUnits,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { classicalRecords, meetingPairs, pairRecords, runWhole, vacuumBackground, weylBackground, type Background, type RoleState } from '@/code/measure/knit-magic'
-import { phaseOfGrid, productWholeAt, pureGaugeLinks, readComoving, sameRatio, trackPoints } from '@/code/measure/comoving-parity'
+import {
+  classicalRecords,
+  meetingPairs,
+  pairRecords,
+  runWhole,
+  vacuumBackground,
+  weylBackground,
+  type Background,
+  type RoleState,
+} from '@/code/measure/knit-magic'
+import {
+  phaseOfGrid,
+  productWholeAt,
+  pureGaugeLinks,
+  readComoving,
+  sameRatio,
+  trackPoints,
+} from '@/code/measure/comoving-parity'
 import { phasePointOperators } from '@/code/measure/grid-weights'
-import { hermitianSpectrum, operatorFromWigner } from '@/code/measure/qutrit-clifford'
+import {
+  hermitianSpectrum,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
 
 const OMEGA_ANGLE = (2 * Math.PI) / 3
 const SIDE = 3
@@ -84,18 +113,32 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
   ['basis1', 'basis1'],
 ]
 
-const combine = (a: ComplexMatrix, s: number, b: ComplexMatrix, t: number): ComplexMatrix => ({
+const combine = (
+  a: ComplexMatrix,
+  s: number,
+  b: ComplexMatrix,
+  t: number,
+): ComplexMatrix => ({
   re: a.re.map((x, i) => s * x + t * (b.re[i] ?? 0)),
   im: a.im.map((x, i) => s * x + t * (b.im[i] ?? 0)),
   n: a.n,
 })
-const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number => matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
+const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number =>
+  matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
+
 // the largest squared singular value of a 9 x 9 matrix
 const largestChance = (m: ComplexMatrix): number => {
   const gram = complexMultiply(daggerMatrix(m), m)
 
-  return Math.max(...hermitianSpectrum({ n: gram.n, re: Float64Array.from(gram.re), im: Float64Array.from(gram.im) }))
+  return Math.max(
+    ...hermitianSpectrum({
+      n: gram.n,
+      re: Float64Array.from(gram.re),
+      im: Float64Array.from(gram.im),
+    }),
+  )
 }
+
 const shareOf = (w: Whole): number => {
   const { loves, fears } = wholeLovesAndFears(w)
 
@@ -106,20 +149,45 @@ export default experiment({
   id: 'spin/comoving-fermion-number',
   code: 'E-SPN-0059',
   title:
-    'a fermion number about each token\'s own role point: every link keeps it exactly, the like-vibe fear beat keeps the sum of two tokens\' numbers and the love-fear beat keeps their difference (a love a fermion, a fear an antifermion, pair annihilation at chance up to 2/3), but only where the two tokens\' points coincide; on live links that is a minority of meetings and the number breaks at the rest, on pure-gauge links it is every meeting and the number is exact, so the color field\'s holonomy is what breaks it',
+    "a fermion number about each token's own role point: every link keeps it exactly, the like-vibe fear beat keeps the sum of two tokens' numbers and the love-fear beat keeps their difference (a love a fermion, a fear an antifermion, pair annihilation at chance up to 2/3), but only where the two tokens' points coincide; on live links that is a minority of meetings and the number breaks at the rest, on pure-gauge links it is every meeting and the number is exact, so the color field's holonomy is what breaks it",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const identity3 = complexIdentity(3)
-    const q = Array.from({ length: 9 }, (_, p) => scaleMatrix(combine(identity3, 1, phasePointMatrix(3, Math.floor(p / 3), p % 3), 1), [0.5, 0]))
+    const q = Array.from({ length: 9 }, (_, p) =>
+      scaleMatrix(
+        combine(
+          identity3,
+          1,
+          phasePointMatrix(3, Math.floor(p / 3), p % 3),
+          1,
+        ),
+        [0.5, 0],
+      ),
+    )
     const notQ = q.map(m => combine(identity3, 1, m, -1))
     const u = swapPhase(OMEGA_ANGLE) as ComplexMatrix
-    const uToken = complexMultiply(exchangeOperator() as ComplexMatrix, u)
+    const uToken = complexMultiply(
+      exchangeOperator() as ComplexMatrix,
+      u,
+    )
     const v = singletPhase(OMEGA_ANGLE) as ComplexMatrix
-    const sumAt = (x: number, y: number): ComplexMatrix => combine(kronecker(q[x] as ComplexMatrix, identity3), 1, kronecker(identity3, q[y] as ComplexMatrix), 1)
-    const differenceAt = (x: number, y: number): ComplexMatrix => combine(kronecker(q[x] as ComplexMatrix, identity3), 1, kronecker(identity3, q[y] as ComplexMatrix), -1)
+    const sumAt = (x: number, y: number): ComplexMatrix =>
+      combine(
+        kronecker(q[x]!, identity3),
+        1,
+        kronecker(identity3, q[y]!),
+        1,
+      )
+    const differenceAt = (x: number, y: number): ComplexMatrix =>
+      combine(
+        kronecker(q[x]!, identity3),
+        1,
+        kronecker(identity3, q[y]!),
+        -1,
+      )
 
     // G1: the like-vibe beat
     let likeSameGap = 0
@@ -128,25 +196,51 @@ export default experiment({
     let likeTradeLeast = Infinity
 
     for (let x = 0; x < 9; x++) {
-      likeSameGap = Math.max(likeSameGap, commutatorGap(u, sumAt(x, x)), commutatorGap(uToken, sumAt(x, x)))
+      likeSameGap = Math.max(
+        likeSameGap,
+        commutatorGap(u, sumAt(x, x)),
+        commutatorGap(uToken, sumAt(x, x)),
+      )
 
       for (let y = 0; y < 9; y++) {
         if (y !== x) {
-          likeApartLeast = Math.min(likeApartLeast, commutatorGap(u, sumAt(x, y)))
+          likeApartLeast = Math.min(
+            likeApartLeast,
+            commutatorGap(u, sumAt(x, y)),
+          )
         }
       }
 
-      const fermions = kronecker(q[x] as ComplexMatrix, q[x] as ComplexMatrix)
-      const bosons = kronecker(notQ[x] as ComplexMatrix, notQ[x] as ComplexMatrix)
+      const fermions = kronecker(q[x]!, q[x]!)
+      const bosons = kronecker(notQ[x]!, notQ[x]!)
 
-      likeAnnihilation = Math.max(likeAnnihilation, Math.sqrt(largestChance(complexMultiply(complexMultiply(bosons, u), fermions))))
+      likeAnnihilation = Math.max(
+        likeAnnihilation,
+        Math.sqrt(
+          largestChance(
+            complexMultiply(complexMultiply(bosons, u), fermions),
+          ),
+        ),
+      )
+
       likeTradeLeast = Math.min(
         likeTradeLeast,
-        Math.sqrt(largestChance(complexMultiply(complexMultiply(kronecker(q[x] as ComplexMatrix, notQ[x] as ComplexMatrix), u), kronecker(notQ[x] as ComplexMatrix, q[x] as ComplexMatrix)))),
+        Math.sqrt(
+          largestChance(
+            complexMultiply(
+              complexMultiply(kronecker(q[x]!, notQ[x]!), u),
+              kronecker(notQ[x]!, q[x]!),
+            ),
+          ),
+        ),
       )
     }
 
-    const g1 = likeSameGap < EXACT && likeApartLeast > APART && likeAnnihilation < EXACT && likeTradeLeast > APART
+    const g1 =
+      likeSameGap < EXACT &&
+      likeApartLeast > APART &&
+      likeAnnihilation < EXACT &&
+      likeTradeLeast > APART
 
     // G2: the love-fear beat
     let unlikeDifferenceGap = 0
@@ -157,10 +251,22 @@ export default experiment({
     for (let x = 0; x < 9; x++) {
       const bar = CONJUGATE_POINT[x] ?? 0
 
-      unlikeDifferenceGap = Math.max(unlikeDifferenceGap, commutatorGap(v, differenceAt(x, bar)))
-      unlikeSumLeast = Math.min(unlikeSumLeast, commutatorGap(v, sumAt(x, bar)))
+      unlikeDifferenceGap = Math.max(
+        unlikeDifferenceGap,
+        commutatorGap(v, differenceAt(x, bar)),
+      )
 
-      const chance = largestChance(complexMultiply(complexMultiply(kronecker(notQ[x] as ComplexMatrix, notQ[bar] as ComplexMatrix), v), kronecker(q[x] as ComplexMatrix, q[bar] as ComplexMatrix)))
+      unlikeSumLeast = Math.min(
+        unlikeSumLeast,
+        commutatorGap(v, sumAt(x, bar)),
+      )
+
+      const chance = largestChance(
+        complexMultiply(
+          complexMultiply(kronecker(notQ[x]!, notQ[bar]!), v),
+          kronecker(q[x]!, q[bar]!),
+        ),
+      )
 
       annihilationLow = Math.min(annihilationLow, chance)
       annihilationHigh = Math.max(annihilationHigh, chance)
@@ -170,6 +276,7 @@ export default experiment({
     const r = Math.SQRT1_2
     const e = [0, r, r]
     const o = [0, r, -r]
+
     let amplitudeRe = 0
     let amplitudeIm = 0
 
@@ -213,57 +320,127 @@ export default experiment({
       apartMeetings: 0,
       rhoCheckGap: 0,
     }
-    const histories = (input: { background: Background; links: Int16Array }) => {
-      const records = classicalRecords({ weave, links: input.links, background: input.background, open: dock0, beats: BEATS })
+
+    const histories = (input: {
+      background: Background
+      links: Int16Array
+    }) => {
+      const records = classicalRecords({
+        weave,
+        links: input.links,
+        background: input.background,
+        open: dock0,
+        beats: BEATS,
+      })
 
       return { records, pairs: meetingPairs(records) }
     }
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
-      const { records, pairs } = histories({ background, links: weave.links })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
+      const { records, pairs } = histories({
+        background,
+        links: weave.links,
+      })
 
       tally.pairs += pairs.length
 
       for (const { a, b } of pairs) {
         const mine = pairRecords(records, a, b)
-        const startGrid: [number, number] = [background.point[a] ?? 0, background.point[b] ?? 0]
-        const track = trackPoints({ weave, records: mine, tokens: [a, b], start: startGrid })
-        const startPhase: [number, number] = [phaseOfGrid(startGrid[0]), phaseOfGrid(startGrid[1])]
+        const startGrid: [number, number] = [
+          background.point[a] ?? 0,
+          background.point[b] ?? 0,
+        ]
+        const track = trackPoints({
+          weave,
+          records: mine,
+          tokens: [a, b],
+          start: startGrid,
+        })
+        const startPhase: [number, number] = [
+          phaseOfGrid(startGrid[0]),
+          phaseOfGrid(startGrid[1]),
+        ]
 
         for (const states of STARTS) {
-          const start = productWholeAt({ tokens: [a, b], states, points: startPhase })
+          const start = productWholeAt({
+            tokens: [a, b],
+            states,
+            points: startPhase,
+          })
           // the model's beat as it stood when this was registered: the fixed-frame beat, not the comoving one the
           // user adopted from this line of work on 2026-09-26
-          const steps = runWhole({ weave, start, records: mine, kernel4: kernel, comoving: false })
+          const steps = runWhole({
+            weave,
+            start,
+            records: mine,
+            kernel4: kernel,
+            comoving: false,
+          })
+
           let before = start
 
           tally.runs++
 
           steps.forEach((step, t) => {
-            const pointsBefore = (track.before[t] ?? [0, 0]).map(phaseOfGrid) as [number, number]
-            const pointsAfter = (track.after[t] ?? [0, 0]).map(phaseOfGrid) as [number, number]
+            const pointsBefore = (track.before[t] ?? [0, 0]).map(
+              phaseOfGrid,
+            ) as [number, number]
+            const pointsAfter = (track.after[t] ?? [0, 0]).map(
+              phaseOfGrid,
+            ) as [number, number]
             const r0 = readComoving(before, pointsBefore)
             const r1 = readComoving(step.whole, pointsAfter)
 
             if (step.meetings === 0) {
               tally.freeBeats++
               tally.freeBeatsWithMoves += step.moves > 0 ? 1 : 0
-              tally.freeOwnChanges += sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) && sameRatio(r0.own[1], r0.units, r1.own[1], r1.units) ? 0 : 1
+              tally.freeOwnChanges +=
+                sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) &&
+                sameRatio(r0.own[1], r0.units, r1.own[1], r1.units)
+                  ? 0
+                  : 1
 
               const f0 = readComoving(before, startPhase)
               const f1 = readComoving(step.whole, startPhase)
 
-              tally.freeFixedChanges += sameRatio(f0.own[0], f0.units, f1.own[0], f1.units) && sameRatio(f0.own[1], f0.units, f1.own[1], f1.units) ? 0 : 1
+              tally.freeFixedChanges +=
+                sameRatio(f0.own[0], f0.units, f1.own[0], f1.units) &&
+                sameRatio(f0.own[1], f0.units, f1.own[1], f1.units)
+                  ? 0
+                  : 1
             } else {
               tally.meetings++
 
-              const sumKept = sameRatio(r0.own[0] + r0.own[1], r0.units, r1.own[0] + r1.own[1], r1.units)
+              const sumKept = sameRatio(
+                r0.own[0] + r0.own[1],
+                r0.units,
+                r1.own[0] + r1.own[1],
+                r1.units,
+              )
 
               if (pointsBefore[0] === pointsBefore[1]) {
                 tally.coincident++
                 tally.coincidentSumChanges += sumKept ? 0 : 1
-                tally.coincidentJointChanges += sameRatio(r0.joint, r0.units, r1.joint, r1.units) ? 0 : 1
-                tally.coincidentTrades += sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) ? 0 : 1
+                tally.coincidentJointChanges += sameRatio(
+                  r0.joint,
+                  r0.units,
+                  r1.joint,
+                  r1.units,
+                )
+                  ? 0
+                  : 1
+
+                tally.coincidentTrades += sameRatio(
+                  r0.own[0],
+                  r0.units,
+                  r1.own[0],
+                  r1.units,
+                )
+                  ? 0
+                  : 1
               } else {
                 tally.apartMeetings++
                 tally.apartSumChanges += sumKept ? 0 : 1
@@ -279,62 +456,120 @@ export default experiment({
             before.weight.map(w => Number(w) / units),
             points2,
           ) as ComplexMatrix
-          const last = (track.after[track.after.length - 1] ?? startGrid).map(phaseOfGrid) as [number, number]
+          const last = (
+            track.after[track.after.length - 1] ?? startGrid
+          ).map(phaseOfGrid) as [number, number]
           const reading = readComoving(before, last)
+
           const fromRho = (m: ComplexMatrix): number => {
             let s = 0
 
             for (let i = 0; i < 9; i++) {
               for (let j = 0; j < 9; j++) {
-                s += (rho.re[i * 9 + j] ?? 0) * (m.re[j * 9 + i] ?? 0) - (rho.im[i * 9 + j] ?? 0) * (m.im[j * 9 + i] ?? 0)
+                s +=
+                  (rho.re[i * 9 + j] ?? 0) * (m.re[j * 9 + i] ?? 0) -
+                  (rho.im[i * 9 + j] ?? 0) * (m.im[j * 9 + i] ?? 0)
               }
             }
 
             return s
           }
-          const na = fromRho(kronecker(q[last[0]] as ComplexMatrix, identity3))
-          const nb = fromRho(kronecker(identity3, q[last[1]] as ComplexMatrix))
+
+          const na = fromRho(kronecker(q[last[0]]!, identity3))
+          const nb = fromRho(kronecker(identity3, q[last[1]]!))
 
           tally.rhoCheckGap = Math.max(
             tally.rhoCheckGap,
-            Math.abs(na - (1 + (3 * Number(reading.own[0])) / units) / 2),
-            Math.abs(nb - (1 + (3 * Number(reading.own[1])) / units) / 2),
+            Math.abs(
+              na - (1 + (3 * Number(reading.own[0])) / units) / 2,
+            ),
+            Math.abs(
+              nb - (1 + (3 * Number(reading.own[1])) / units) / 2,
+            ),
           )
         }
       }
     }
 
-    const g3 = tally.freeOwnChanges === 0 && tally.freeBeatsWithMoves > 0 && tally.freeFixedChanges > 0 && tally.rhoCheckGap < 1e-9
-    const g4 = tally.coincidentSumChanges === 0 && tally.coincidentJointChanges === 0 && tally.apartSumChanges > 0
+    const g3 =
+      tally.freeOwnChanges === 0 &&
+      tally.freeBeatsWithMoves > 0 &&
+      tally.freeFixedChanges > 0 &&
+      tally.rhoCheckGap < 1e-9
+    const g4 =
+      tally.coincidentSumChanges === 0 &&
+      tally.coincidentJointChanges === 0 &&
+      tally.apartSumChanges > 0
 
     // G5: pure-gauge links in the vacuum
     const flatLinks = pureGaugeLinks(weave)
-    const flat = { meetings: 0, coincident: 0, sumChanges: 0, shareChanges: 0, beats: 0 }
+    const flat = {
+      meetings: 0,
+      coincident: 0,
+      sumChanges: 0,
+      shareChanges: 0,
+      beats: 0,
+    }
     const vacuum = vacuumBackground(slots)
-    const flatHistories = histories({ background: vacuum, links: flatLinks })
+    const flatHistories = histories({
+      background: vacuum,
+      links: flatLinks,
+    })
 
     for (const { a, b } of flatHistories.pairs) {
       const mine = pairRecords(flatHistories.records, a, b)
-      const track = trackPoints({ weave, records: mine, tokens: [a, b], start: [0, 0] })
+      const track = trackPoints({
+        weave,
+        records: mine,
+        tokens: [a, b],
+        start: [0, 0],
+      })
 
       for (const states of STARTS) {
-        const start = productWholeAt({ tokens: [a, b], states, points: [0, 0] })
-        const steps = runWhole({ weave, start, records: mine, kernel4: kernel, comoving: false })
+        const start = productWholeAt({
+          tokens: [a, b],
+          states,
+          points: [0, 0],
+        })
+        const steps = runWhole({
+          weave,
+          start,
+          records: mine,
+          kernel4: kernel,
+          comoving: false,
+        })
+
         let before = start
 
         steps.forEach((step, t) => {
-          const pointsBefore = (track.before[t] ?? [0, 0]).map(phaseOfGrid) as [number, number]
-          const pointsAfter = (track.after[t] ?? [0, 0]).map(phaseOfGrid) as [number, number]
+          const pointsBefore = (track.before[t] ?? [0, 0]).map(
+            phaseOfGrid,
+          ) as [number, number]
+          const pointsAfter = (track.after[t] ?? [0, 0]).map(
+            phaseOfGrid,
+          ) as [number, number]
           const r0 = readComoving(before, pointsBefore)
           const r1 = readComoving(step.whole, pointsAfter)
 
           flat.beats++
-          flat.sumChanges += sameRatio(r0.own[0] + r0.own[1], r0.units, r1.own[0] + r1.own[1], r1.units) ? 0 : 1
+          flat.sumChanges += sameRatio(
+            r0.own[0] + r0.own[1],
+            r0.units,
+            r1.own[0] + r1.own[1],
+            r1.units,
+          )
+            ? 0
+            : 1
 
           if (step.meetings > 0) {
             flat.meetings++
-            flat.coincident += pointsBefore[0] === pointsBefore[1] ? 1 : 0
-            flat.shareChanges += Math.abs(shareOf(step.whole) - shareOf(before)) > 1e-12 ? 1 : 0
+            flat.coincident +=
+              pointsBefore[0] === pointsBefore[1] ? 1 : 0
+
+            flat.shareChanges +=
+              Math.abs(shareOf(step.whole) - shareOf(before)) > 1e-12
+                ? 1
+                : 0
           }
 
           before = step.whole
@@ -342,7 +577,11 @@ export default experiment({
       }
     }
 
-    const g5 = flat.meetings > 0 && flat.coincident === flat.meetings && flat.sumChanges === 0 && flat.shareChanges > 0
+    const g5 =
+      flat.meetings > 0 &&
+      flat.coincident === flat.meetings &&
+      flat.sumChanges === 0 &&
+      flat.shareChanges > 0
 
     const ok = g1 && g2 && g3 && g4 && g5
 
@@ -366,7 +605,8 @@ export default experiment({
         meetingFreeOwnChanges: tally.freeOwnChanges,
         meetings: tally.meetings,
         coincidentMeetings: tally.coincident,
-        coincidentFraction: tally.coincident / Math.max(1, tally.meetings),
+        coincidentFraction:
+          tally.coincident / Math.max(1, tally.meetings),
         coincidentSumChanges: tally.coincidentSumChanges,
         coincidentJointChanges: tally.coincidentJointChanges,
         coincidentTrades: tally.coincidentTrades,
@@ -383,7 +623,7 @@ export default experiment({
         meetingFreeStartPointChanges: tally.freeFixedChanges,
       },
       notes:
-        'L2, exact integers along the histories. First run, every gate as fixed. The rough "about 1 in 9" of P4 (not a gate) was wrong: 980 of 3,176 meetings (0.31) have coinciding points, more than unrelated points would give; the cause (repeat meetings of one pair, the vacuum\'s common start point) is not measured here. A fermion number EXISTS in the role once it is read about the token\'s own point: N_i = (1 + 3 W_i(x_i)) / 2, x_i the classical role point the knit already carries, and F = sum over loves of N minus sum over fears of N. Links keep every N_i, the like fear beat keeps a sum and the love-fear beat keeps a difference, so F is a U(1) number, not only a parity, and the love-fear beat is where a fermion pair annihilates into two bosons (chance 1/3 from |ee>, 2/3 at most). The spinor it counts is the parity-even doublet about the token\'s own point, so if this number is the electron\'s, the electron\'s spin is that doublet. What breaks it is not the translations E-SPN-0054 blamed (the comoving point absorbs them) but a meeting of two tokens whose points differ, which on live links is most meetings. On a pure-gauge field every meeting coincides and F is exact, so the breaking is the holonomy of the loop the two tokens\' paths close: the color field strength. E-SPN-0062 asks for the smallest change to the fear beat that closes it on live links. Scope: the histories run the swap-phase law only; the love-fear law is tested as algebra (G2), since its histories need the frame bookkeeping of E-QTM-0123.',
+        "L2, exact integers along the histories. First run, every gate as fixed. The rough \"about 1 in 9\" of P4 (not a gate) was wrong: 980 of 3,176 meetings (0.31) have coinciding points, more than unrelated points would give; the cause (repeat meetings of one pair, the vacuum's common start point) is not measured here. A fermion number EXISTS in the role once it is read about the token's own point: N_i = (1 + 3 W_i(x_i)) / 2, x_i the classical role point the knit already carries, and F = sum over loves of N minus sum over fears of N. Links keep every N_i, the like fear beat keeps a sum and the love-fear beat keeps a difference, so F is a U(1) number, not only a parity, and the love-fear beat is where a fermion pair annihilates into two bosons (chance 1/3 from |ee>, 2/3 at most). The spinor it counts is the parity-even doublet about the token's own point, so if this number is the electron's, the electron's spin is that doublet. What breaks it is not the translations E-SPN-0054 blamed (the comoving point absorbs them) but a meeting of two tokens whose points differ, which on live links is most meetings. On a pure-gauge field every meeting coincides and F is exact, so the breaking is the holonomy of the loop the two tokens' paths close: the color field strength. E-SPN-0062 asks for the smallest change to the fear beat that closes it on live links. Scope: the histories run the swap-phase law only; the love-fear law is tested as algebra (G2), since its histories need the frame bookkeeping of E-QTM-0123.",
     })
   },
 })

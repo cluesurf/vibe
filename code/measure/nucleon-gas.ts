@@ -19,9 +19,22 @@
 // - its husk shadow: the first three coordinates, dropping the depth x4 (code/measure/photon-husk: the husk is
 //   the column sum along e4, so a husk dock is a column and a husk displacement is v without its depth)
 
-import { d4BoxCell, d4BoxCoordinates, d4Vector } from '@/code/substrate/d4-box'
-import { graphBeat, graphEnergy, graphGaussHolds, type GraphState, type StringGraph } from '@/code/rule/string-graph'
-import { GOLDEN as GOLDEN_RATIO_FRACTION, SILVER as SILVER_RATIO_FRACTION } from '@/code/tool/weyl'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box'
+import {
+  graphBeat,
+  graphEnergy,
+  graphGaussHolds,
+  type GraphState,
+  type StringGraph,
+} from '@/code/rule/string-graph'
+import {
+  GOLDEN as GOLDEN_RATIO_FRACTION,
+  SILVER as SILVER_RATIO_FRACTION,
+} from '@/code/tool/weyl'
 
 // one singlet piece of a snapshot
 export type Piece = {
@@ -48,17 +61,23 @@ const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 export function makeBoxGeometry(side: number): BoxGeometry {
   const cells = side ** 4
-  const coordinates = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side }))
+  const coordinates = Array.from({ length: cells }, (_, x) =>
+    d4BoxCoordinates({ cell: x, side }),
+  )
   const minimal: number[][] = []
 
   for (let i = 0; i < cells; i++) {
-    const c = (coordinates[i] ?? []).map(x => (x > side / 2 ? x - side : x))
+    const c = (coordinates[i] ?? []).map(x =>
+      x > side / 2 ? x - side : x,
+    )
 
     let best: number[] = []
     let bestNorm = Infinity
 
     for (let shift = 0; shift < 81; shift++) {
-      const s = [0, 1, 2, 3].map(k => (Math.floor(shift / 3 ** k) % 3) - 1)
+      const s = [0, 1, 2, 3].map(
+        k => (Math.floor(shift / 3 ** k) % 3) - 1,
+      )
       const v = d4Vector(c.map((x, k) => x + side * (s[k] ?? 0)))
       const norm = v.reduce((a, b) => a + b * b, 0)
 
@@ -75,52 +94,79 @@ export function makeBoxGeometry(side: number): BoxGeometry {
 }
 
 // the minimal-image D4 vector from dock b to dock a
-export function boxDisplacement(geometry: BoxGeometry, a: number, b: number): readonly number[] {
+export function boxDisplacement(
+  geometry: BoxGeometry,
+  a: number,
+  b: number,
+): readonly number[] {
   const ca = geometry.coordinates[a] ?? []
   const cb = geometry.coordinates[b] ?? []
 
-  return geometry.minimal[d4BoxCell({ coordinates: ca.map((x, k) => x - (cb[k] ?? 0)), side: geometry.side })] ?? []
+  return (
+    geometry.minimal[
+      d4BoxCell({
+        coordinates: ca.map((x, k) => x - (cb[k] ?? 0)),
+        side: geometry.side,
+      })
+    ] ?? []
+  )
 }
 
 // the fewest D4 roots that sum to v
 export function d4GraphDistance(v: readonly number[]): number {
-  return Math.max(...v.map(Math.abs), v.reduce((a, b) => a + Math.abs(b), 0) / 2)
+  return Math.max(
+    ...v.map(Math.abs),
+    v.reduce((a, b) => a + Math.abs(b), 0) / 2,
+  )
 }
 
-export const bulkLength = (v: readonly number[]): number => Math.hypot(...v)
+export const bulkLength = (v: readonly number[]): number =>
+  Math.hypot(...v)
 
 // the husk shadow of a bulk displacement: drop the depth coordinate
-export const huskLength = (v: readonly number[]): number => Math.hypot(v[0] ?? 0, v[1] ?? 0, v[2] ?? 0)
+export const huskLength = (v: readonly number[]): number =>
+  Math.hypot(v[0] ?? 0, v[1] ?? 0, v[2] ?? 0)
 
 // the singlet pieces of one snapshot: union-find over the paid links
 // Union-find scratch, per dock count: parent[x] is -1 for a dock no paid link touches in this snapshot, and
 // `touched` lists the docks to reset. Typed arrays only, so a snapshot allocates nothing but its pieces (the
 // first version used Maps and was the slow part of every long gas run; the pieces and their order are the
 // same: a piece is listed where its first paid link falls in link order).
-const SCRATCH = new Map<number, { parent: Int32Array; piece: Int32Array; touched: Int32Array }>()
+const SCRATCH = new Map<
+  number,
+  { parent: Int32Array; piece: Int32Array; touched: Int32Array }
+>()
 
-export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
+export function singletPieces(
+  graph: StringGraph,
+  state: GraphState,
+): Piece[] {
   const cells = graph.mesh.cellCount
 
   let scratch = SCRATCH.get(cells)
 
   if (!scratch) {
-    scratch = { parent: new Int32Array(cells).fill(-1), piece: new Int32Array(cells).fill(-1), touched: new Int32Array(cells) }
+    scratch = {
+      parent: new Int32Array(cells).fill(-1),
+      piece: new Int32Array(cells).fill(-1),
+      touched: new Int32Array(cells),
+    }
     SCRATCH.set(cells, scratch)
   }
 
   const { parent, piece, touched } = scratch
+
   const find = (x: number): number => {
     let r = x
 
-    while ((parent[r] as number) !== r) {
-      r = parent[r] as number
+    while (parent[r]! !== r) {
+      r = parent[r]!
     }
 
     let y = x
 
-    while ((parent[y] as number) !== r) {
-      const up = parent[y] as number
+    while (parent[y]! !== r) {
+      const up = parent[y]!
 
       parent[y] = r
       y = up
@@ -128,6 +174,7 @@ export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
 
     return r
   }
+
   const paidLinks: number[] = []
 
   let count = 0
@@ -159,7 +206,11 @@ export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
     }
   }
 
-  const pieces: { loves: number[]; fears: number[]; links: number[] }[] = []
+  const pieces: {
+    loves: number[]
+    fears: number[]
+    links: number[]
+  }[] = []
 
   for (const l of paidLinks) {
     const r = find((graph.links[l] ?? [0, 0, 0])[0])
@@ -169,7 +220,7 @@ export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
       pieces.push({ loves: [], fears: [], links: [] })
     }
 
-    pieces[piece[r] as number]?.links.push(l)
+    pieces[piece[r]!]?.links.push(l)
   }
 
   for (let x = 0; x < cells; x++) {
@@ -177,7 +228,7 @@ export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
 
     // a charge always has a paid link (its divergence is not 0 mod 3), so it is always in a piece
     if (v !== 0 && parent[x] !== -1) {
-      const p = pieces[piece[find(x)] as number]
+      const p = pieces[piece[find(x)]!]
 
       if (p) {
         ;(v > 0 ? p.loves : p.fears).push(x)
@@ -186,19 +237,26 @@ export function singletPieces(graph: StringGraph, state: GraphState): Piece[] {
   }
 
   for (let k = 0; k < count; k++) {
-    const x = touched[k] as number
+    const x = touched[k]!
 
     parent[x] = -1
     piece[x] = -1
   }
 
-  return pieces.filter(p => p.loves.length + p.fears.length > 0).map(p => ({ ...p, paid: p.links.length }))
+  return pieces
+    .filter(p => p.loves.length + p.fears.length > 0)
+    .map(p => ({ ...p, paid: p.links.length }))
 }
 
 // The displacement between the midpoints of two links (a1, b1) and (a2, b2): the minimal image of a2 - a1 plus
 // half the difference of their steps. Near half a period this can miss a shorter image, which the observed
 // and the reference counts share, since both are read through this one function.
-export function midpointDisplacement(input: { graph: StringGraph; geometry: BoxGeometry; first: number; second: number }): number[] {
+export function midpointDisplacement(input: {
+  graph: StringGraph
+  geometry: BoxGeometry
+  first: number
+  second: number
+}): number[] {
   const { graph, geometry, first, second } = input
   const [a1, b1] = graph.links[first] ?? [0, 0, 0]
   const [a2, b2] = graph.links[second] ?? [0, 0, 0]
@@ -212,15 +270,24 @@ export function midpointDisplacement(input: { graph: StringGraph; geometry: BoxG
 // The seeds a gas starts from: mesons (a love and a fear on neighboring docks, flux 1 on their link) and
 // baryon-antibaryon pairs (three loves then three fears along direction 0, fluxes 1, 2, 3, 2, 1, the middle
 // link costing nothing), at docks spread by the golden Weyl sequence, each moved on to the next free place.
-export function seedGas(input: { graph: StringGraph; mesons: number; baryons: number }): { vibe: Int8Array; flux: Int32Array } {
+export function seedGas(input: {
+  graph: StringGraph
+  mesons: number
+  baryons: number
+}): { vibe: Int8Array; flux: Int32Array } {
   const { graph, mesons, baryons } = input
   const { mesh } = graph
   const cells = mesh.cellCount
   const vibe = new Int8Array(cells)
   const flux = new Int32Array(graph.links.length)
   const busy = new Uint8Array(cells)
-  const place = (k: number, signs: number[], fluxes: number[]): void => {
-    let x = Math.floor(((k + 1) * GOLDEN_RATIO_FRACTION) % 1 * cells)
+
+  const place = (
+    k: number,
+    signs: number[],
+    fluxes: number[],
+  ): void => {
+    let x = Math.floor((((k + 1) * GOLDEN_RATIO_FRACTION) % 1) * cells)
 
     const run = (start: number): number[] => {
       const docks = [start]
@@ -233,7 +300,14 @@ export function seedGas(input: { graph: StringGraph; mesons: number; baryons: nu
     }
 
     // free means the docks and all their neighbours are empty, so a seed never starts in contact
-    const free = (docks: number[]): boolean => docks.every(d => busy[d] === 0 && Array.from({ length: 24 }, (_, e) => mesh.neighbour(d, e)).every(y => busy[y] === 0))
+    const free = (docks: number[]): boolean =>
+      docks.every(
+        d =>
+          busy[d] === 0 &&
+          Array.from({ length: 24 }, (_, e) =>
+            mesh.neighbour(d, e),
+          ).every(y => busy[y] === 0),
+      )
 
     while (!free(run(x))) {
       x = (x + 1) % cells
@@ -245,7 +319,10 @@ export function seedGas(input: { graph: StringGraph; mesons: number; baryons: nu
       vibe[d] = signs[j] ?? 0
       busy[d] = 1
     })
-    fluxes.forEach((e, j) => (flux[graph.linkAt[(docks[j] ?? 0) * 24] ?? 0] = e))
+
+    fluxes.forEach(
+      (e, j) => (flux[graph.linkAt[(docks[j] ?? 0) * 24] ?? 0] = e),
+    )
   }
 
   for (let k = 0; k < mesons; k++) {
@@ -289,17 +366,18 @@ export function makeFastGraph(graph: StringGraph): FastGraph {
 }
 
 export function fastBeat(fast: FastGraph, state: GraphState): void {
-  const { from, to, order, next, mass, tension, capacity, scratch } = fast
-  const vibe = state.vibe as Int8Array
-  const flux = state.flux as Int32Array
-  const demon = state.demon as Int32Array
+  const { from, to, order, next, mass, tension, capacity, scratch } =
+    fast
+  const vibe = state.vibe
+  const flux = state.flux
+  const demon = state.demon
 
   for (let k = 0; k < order.length; k++) {
-    const l = order[k] as number
-    const i = from[l] as number
-    const j = to[l] as number
-    const a = vibe[i] as number
-    const b = vibe[j] as number
+    const l = order[k]!
+    const i = from[l]!
+    const j = to[l]!
+    const a = vibe[i]!
+    const b = vibe[j]!
 
     let na: number
     let nb: number
@@ -328,10 +406,10 @@ export function fastBeat(fast: FastGraph, state: GraphState): void {
       continue
     }
 
-    const e = flux[l] as number
+    const e = flux[l]!
     const before = ((e % 3) + 3) % 3 !== 0 ? tension : 0
     const after = (((e + change) % 3) + 3) % 3 !== 0 ? tension : 0
-    const d = (demon[l] as number) - (after - before + massChange)
+    const d = demon[l]! - (after - before + massChange)
 
     if (d < 0 || d > capacity) {
       continue
@@ -346,14 +424,22 @@ export function fastBeat(fast: FastGraph, state: GraphState): void {
   scratch.set(demon)
 
   for (let l = 0; l < scratch.length; l++) {
-    demon[next[l] as number] = scratch[l] as number
+    demon[next[l]!] = scratch[l]!
   }
 }
 
 // does fastBeat reproduce graphBeat bit for bit from this state over this many beats
-export function fastBeatAgrees(graph: StringGraph, start: GraphState, beats: number): boolean {
+export function fastBeatAgrees(
+  graph: StringGraph,
+  start: GraphState,
+  beats: number,
+): boolean {
   const fast = makeFastGraph(graph)
-  const mine: GraphState = { vibe: Int8Array.from(start.vibe), flux: Int32Array.from(start.flux), demon: Int32Array.from(start.demon) }
+  const mine: GraphState = {
+    vibe: Int8Array.from(start.vibe),
+    flux: Int32Array.from(start.flux),
+    demon: Int32Array.from(start.demon),
+  }
 
   let reference = start
 
@@ -362,7 +448,9 @@ export function fastBeatAgrees(graph: StringGraph, start: GraphState, beats: num
     fastBeat(fast, mine)
 
     const same =
-      mine.vibe.every((v, i) => v === reference.vibe[i]) && mine.flux.every((v, i) => v === reference.flux[i]) && mine.demon.every((v, i) => v === reference.demon[i])
+      mine.vibe.every((v, i) => v === reference.vibe[i]) &&
+      mine.flux.every((v, i) => v === reference.flux[i]) &&
+      mine.demon.every((v, i) => v === reference.demon[i])
 
     if (!same) {
       return false
@@ -385,16 +473,23 @@ export function runGas(input: {
   every: number
   look: (state: GraphState, beat: number) => void
 }): { meanDemon: number; exact: boolean; agrees: boolean } {
-  const { graph, mesons, baryons, fill, settle, beats, every, look } = input
+  const { graph, mesons, baryons, fill, settle, beats, every, look } =
+    input
   const seeded = seedGas({ graph, mesons, baryons })
   const start: GraphState = {
     ...seeded,
-    demon: Int32Array.from({ length: graph.links.length }, (_, l) => (((l + 1) * SILVER_RATIO_FRACTION) % 1 < fill ? 1 : 0)),
+    demon: Int32Array.from({ length: graph.links.length }, (_, l) =>
+      ((l + 1) * SILVER_RATIO_FRACTION) % 1 < fill ? 1 : 0,
+    ),
   }
   const e0 = graphEnergy(graph, start)
   const agrees = fastBeatAgrees(graph, start, AGREEMENT_BEATS)
   const fast = makeFastGraph(graph)
-  const s: GraphState = { vibe: Int8Array.from(start.vibe), flux: Int32Array.from(start.flux), demon: Int32Array.from(start.demon) }
+  const s: GraphState = {
+    vibe: Int8Array.from(start.vibe),
+    flux: Int32Array.from(start.flux),
+    demon: Int32Array.from(start.demon),
+  }
 
   let exact = graphGaussHolds(graph, start)
   let demonSum = 0
@@ -405,7 +500,10 @@ export function runGas(input: {
 
     if (t >= settle && (t - settle) % every === 0) {
       if (samples % EXACT_CHECK_EVERY === 0) {
-        exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+        exact =
+          exact &&
+          graphEnergy(graph, s) === e0 &&
+          graphGaussHolds(graph, s)
       }
 
       let d = 0
@@ -420,7 +518,8 @@ export function runGas(input: {
     }
   }
 
-  exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+  exact =
+    exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
 
   return { meanDemon: demonSum / Math.max(1, samples), exact, agrees }
 }
@@ -434,15 +533,23 @@ const EXACT_CHECK_EVERY = 25
 // A histogram keyed by 4 x a squared length (exact for every length here, whose squares are multiples of 1/4).
 export type LengthHistogram = Map<number, number>
 
-export const lengthKey = (squared: number): number => Math.round(4 * squared)
+export const lengthKey = (squared: number): number =>
+  Math.round(4 * squared)
 
-export function addTo(histogram: LengthHistogram, key: number, weight = 1): void {
+export function addTo(
+  histogram: LengthHistogram,
+  key: number,
+  weight = 1,
+): void {
   histogram.set(key, (histogram.get(key) ?? 0) + weight)
 }
 
 // How many dock displacements of the box have each bulk and each husk squared length: the normalizer that
 // turns a histogram of love-fear displacements into a profile per dock (bulk) and per dock of a column (husk).
-export function dockShells(geometry: BoxGeometry): { bulk: LengthHistogram; husk: LengthHistogram } {
+export function dockShells(geometry: BoxGeometry): {
+  bulk: LengthHistogram
+  husk: LengthHistogram
+} {
   const bulk: LengthHistogram = new Map()
   const husk: LengthHistogram = new Map()
 
@@ -461,10 +568,16 @@ export function dockShells(geometry: BoxGeometry): { bulk: LengthHistogram; husk
 // How many ordered pairs of links (the first one of the 12 at dock 0, which by translation stands for every
 // link) sharing no dock have each bulk and husk squared midpoint distance: the ideal-gas reference for a pair
 // of compact singlets.
-export function linkPairShells(graph: StringGraph, geometry: BoxGeometry): { bulk: LengthHistogram; husk: LengthHistogram; total: number } {
+export function linkPairShells(
+  graph: StringGraph,
+  geometry: BoxGeometry,
+): { bulk: LengthHistogram; husk: LengthHistogram; total: number } {
   const bulk: LengthHistogram = new Map()
   const husk: LengthHistogram = new Map()
-  const firsts = Array.from({ length: 24 }, (_, d) => graph.linkAt[d] ?? -1).filter(l => l >= 0)
+  const firsts = Array.from(
+    { length: 24 },
+    (_, d) => graph.linkAt[d] ?? -1,
+  ).filter(l => l >= 0)
 
   let total = 0
 
@@ -490,12 +603,17 @@ export function linkPairShells(graph: StringGraph, geometry: BoxGeometry): { bul
 }
 
 // A weighted straight-line fit y = intercept + slope x.
-export function weightedLine(points: { x: number; y: number; w: number }[]): { slope: number; intercept: number } {
+export function weightedLine(
+  points: { x: number; y: number; w: number }[],
+): { slope: number; intercept: number } {
   const sw = points.reduce((a, p) => a + p.w, 0)
   const mx = points.reduce((a, p) => a + p.w * p.x, 0) / sw
   const my = points.reduce((a, p) => a + p.w * p.y, 0) / sw
   const sxx = points.reduce((a, p) => a + p.w * (p.x - mx) ** 2, 0)
-  const sxy = points.reduce((a, p) => a + p.w * (p.x - mx) * (p.y - my), 0)
+  const sxy = points.reduce(
+    (a, p) => a + p.w * (p.x - mx) * (p.y - my),
+    0,
+  )
   const slope = sxy / sxx
 
   return { slope, intercept: my - slope * mx }
@@ -504,7 +622,10 @@ export function weightedLine(points: { x: number; y: number; w: number }[]): { s
 // The decay rate m of an Ornstein-Zernike form A e^(-m r) / r^power, fitted to per-shell values with their
 // counts: the weighted line through ln(value r^power) against r, each point weighted by its count (the
 // variance of the log of a Poisson count is one over the count). Returns NaN with fewer than three points.
-export function ornsteinZernikeRate(input: { points: { r: number; value: number; count: number }[]; power: number }): number {
+export function ornsteinZernikeRate(input: {
+  points: { r: number; value: number; count: number }[]
+  power: number
+}): number {
   const { points, power } = input
   const usable = points.filter(p => p.value > 0 && p.count > 0)
 
@@ -512,7 +633,13 @@ export function ornsteinZernikeRate(input: { points: { r: number; value: number;
     return Number.NaN
   }
 
-  const fit = weightedLine(usable.map(p => ({ x: p.r, y: Math.log(p.value * p.r ** power), w: p.count })))
+  const fit = weightedLine(
+    usable.map(p => ({
+      x: p.r,
+      y: Math.log(p.value * p.r ** power),
+      w: p.count,
+    })),
+  )
 
   return -fit.slope
 }

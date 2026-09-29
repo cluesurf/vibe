@@ -25,10 +25,17 @@
 // Layout as code/coarse/knit-boltzmann: index d * 2 + (0 love, 1 fear), rows the output, columns the input.
 
 import { type Collision } from '@/code/rule/collision'
-import { blockMap, interactionBlocks, probeConfigurations } from '@/code/measure/collision-anatomy'
+import {
+  blockMap,
+  interactionBlocks,
+  probeConfigurations,
+} from '@/code/measure/collision-anatomy'
 
 // a set of slots and the permutation of their 3^size local states (digit k is slot k's vibe + 1)
-export type SlotBlock = { readonly slots: readonly number[]; readonly map: Int32Array }
+export type SlotBlock = {
+  readonly slots: readonly number[]
+  readonly map: Int32Array
+}
 
 // disjoint blocks covering every slot of the dock (singletons included)
 export type Layer = readonly SlotBlock[]
@@ -39,12 +46,19 @@ const CALM = 1
 const LOVE = 2
 
 // the layer of a collision: its interaction blocks and each block's exact map
-export function layerOf(input: { collision: Collision; degree: number; probes?: readonly Int8Array[] }): Layer {
+export function layerOf(input: {
+  collision: Collision
+  degree: number
+  probes?: readonly Int8Array[]
+}): Layer {
   const { collision, degree } = input
   const probes = input.probes ?? probeConfigurations({ degree })
   const blocks = interactionBlocks({ collision, degree, probes })
 
-  return blocks.map(slots => ({ slots, map: Int32Array.from(blockMap({ collision, degree, block: slots })) }))
+  return blocks.map(slots => ({
+    slots,
+    map: Int32Array.from(blockMap({ collision, degree, block: slots })),
+  }))
 }
 
 // apply one layer to a dock state in place
@@ -66,7 +80,11 @@ export function applyLayer(layer: Layer, state: Int8Array): void {
 }
 
 // how many of the given dock states the composed layers send somewhere other than the collision does
-export function composeMismatches(input: { layers: readonly Layer[]; collision: Collision; states: readonly Int8Array[] }): number {
+export function composeMismatches(input: {
+  layers: readonly Layer[]
+  collision: Collision
+  states: readonly Int8Array[]
+}): number {
   let mismatches = 0
 
   for (const state of input.states) {
@@ -117,7 +135,8 @@ function marginalize(table: Table, slot: number): Table {
     const low = i % stride
     const high = Math.floor(i / (stride * 3))
 
-    data[high * stride + low] = (data[high * stride + low] ?? 0) + (table.data[i] ?? 0)
+    data[high * stride + low] =
+      (data[high * stride + low] ?? 0) + (table.data[i] ?? 0)
   }
 
   return { vars: table.vars.filter((_, k) => k !== p), data }
@@ -162,7 +181,11 @@ function applyBlock(table: Table, block: SlotBlock): Table {
 // The joint distribution of (x_d, output slots of one block of the last layer), as J[a][e][b]: the chance
 // that slot d held value a (digit) and output slot e holds b, for e in the target block's slots.
 // Exposed for the toy brute-force check.
-export function jointToTarget(input: { layers: readonly Layer[]; d: number; target: SlotBlock }): Map<number, Float64Array> {
+export function jointToTarget(input: {
+  layers: readonly Layer[]
+  d: number
+  target: SlotBlock
+}): Map<number, Float64Array> {
   const { layers, d, target } = input
   const n = layers.length
   // relevant[l]: the slots at the input of layer l that the target can depend on
@@ -184,7 +207,8 @@ export function jointToTarget(input: { layers: readonly Layer[]; d: number; targ
   }
 
   const result = new Map<number, Float64Array>()
-  const uniform = (): Float64Array => Float64Array.from({ length: 9 }, () => 1 / 9)
+  const uniform = (): Float64Array =>
+    Float64Array.from({ length: 9 }, () => 1 / 9)
 
   if (!(relevant[0] ?? new Set()).has(d)) {
     target.slots.forEach(e => result.set(e, uniform()))
@@ -200,7 +224,10 @@ export function jointToTarget(input: { layers: readonly Layer[]; d: number; targ
 
   for (let l = 0; l < n; l++) {
     const blocks = l === n - 1 ? [target] : (layers[l] ?? [])
-    const keep = l === n - 1 ? new Set(target.slots) : (relevant[l + 1] ?? new Set<number>())
+    const keep =
+      l === n - 1
+        ? new Set(target.slots)
+        : (relevant[l + 1] ?? new Set<number>())
 
     for (const block of blocks) {
       const touched = block.slots.filter(s => table.vars.includes(s))
@@ -243,10 +270,12 @@ export function jointToTarget(input: { layers: readonly Layer[]; d: number; targ
 
       if (b < 0) {
         for (let c = 0; c < 3; c++) {
-          joint[a * 3 + c] = (joint[a * 3 + c] ?? 0) + (table.data[i] ?? 0) / 3
+          joint[a * 3 + c] =
+            (joint[a * 3 + c] ?? 0) + (table.data[i] ?? 0) / 3
         }
       } else {
-        joint[a * 3 + b] = (joint[a * 3 + b] ?? 0) + (table.data[i] ?? 0)
+        joint[a * 3 + b] =
+          (joint[a * 3 + b] ?? 0) + (table.data[i] ?? 0)
       }
     }
 
@@ -257,7 +286,10 @@ export function jointToTarget(input: { layers: readonly Layer[]; d: number; targ
 }
 
 // The exact linearized collision of a product of layers at the uniform background, 2 degree by 2 degree
-export function exactLinearization(input: { layers: readonly Layer[]; degree: number }): Float64Array {
+export function exactLinearization(input: {
+  layers: readonly Layer[]
+  degree: number
+}): Float64Array {
   const { layers, degree } = input
   const n = 2 * degree
   const matrix = new Float64Array(n * n)
@@ -271,9 +303,11 @@ export function exactLinearization(input: { layers: readonly Layer[]; degree: nu
       for (const [e, joint] of joints) {
         for (const a of [LOVE, FEAR]) {
           for (const b of [LOVE, FEAR]) {
-            const value = 3 * ((joint[a * 3 + b] ?? 0) - (joint[CALM * 3 + b] ?? 0))
+            const value =
+              3 * ((joint[a * 3 + b] ?? 0) - (joint[CALM * 3 + b] ?? 0))
 
-            matrix[(e * 2 + valueRow(b)) * n + d * 2 + valueRow(a)] = value
+            matrix[(e * 2 + valueRow(b)) * n + d * 2 + valueRow(a)] =
+              value
           }
         }
       }
@@ -285,14 +319,23 @@ export function exactLinearization(input: { layers: readonly Layer[]; degree: nu
 
 // The layers of a knit's dock collision at one beat, given the collision of each layer as a function.
 // Each factor's blocks are found by influence probes; the caller checks the product against the knit.
-export function layersOf(input: { factors: readonly Collision[]; degree: number; probes?: readonly Int8Array[] }): Layer[] {
-  return input.factors.map(collision => layerOf({ collision, degree: input.degree, probes: input.probes }))
+export function layersOf(input: {
+  factors: readonly Collision[]
+  degree: number
+  probes?: readonly Int8Array[]
+}): Layer[] {
+  return input.factors.map(collision =>
+    layerOf({ collision, degree: input.degree, probes: input.probes }),
+  )
 }
 
 // ---- symmetrization, for the controls ----
 
 // conjugate a one-body matrix by a slot permutation (slot d goes to perm[d], the vibe kept)
-export function conjugateBySlots(matrix: Float64Array, perm: readonly number[]): Float64Array {
+export function conjugateBySlots(
+  matrix: Float64Array,
+  perm: readonly number[],
+): Float64Array {
   const n = perm.length * 2
   const out = new Float64Array(n * n)
 
@@ -310,7 +353,10 @@ export function conjugateBySlots(matrix: Float64Array, perm: readonly number[]):
 }
 
 // the average of a one-body matrix over a group of slot permutations
-export function symmetrize(matrix: Float64Array, group: readonly (readonly number[])[]): Float64Array {
+export function symmetrize(
+  matrix: Float64Array,
+  group: readonly (readonly number[])[],
+): Float64Array {
   const out = new Float64Array(matrix.length)
 
   for (const g of group) {

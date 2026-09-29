@@ -61,28 +61,64 @@
 // measurements (husk-transport-symmetry evaluates invariant polynomials at deterministic points).
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { boxCellMapDoubled, d4BoxCell, d4BoxCoordinates, d4Coordinates, linearMapOfDoubled } from '@/code/substrate/d4-box'
-import { binaryTetrahedralMatrices, LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE, slotPermutationOf } from '@/code/rule/isometric-knit'
-import { closure, type GroupTable } from '@/code/measure/color-isotropy-bound'
-import { forcedIsotropic, matrixOfPermutation, type Matrix4 } from '@/code/measure/husk-transport-symmetry'
+import {
+  boxCellMapDoubled,
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+  linearMapOfDoubled,
+} from '@/code/substrate/d4-box'
+import {
+  binaryTetrahedralMatrices,
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  SIDE,
+  slotPermutationOf,
+} from '@/code/rule/isometric-knit'
+import {
+  closure,
+  type GroupTable,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  forcedIsotropic,
+  matrixOfPermutation,
+  type Matrix4,
+} from '@/code/measure/husk-transport-symmetry'
 
 const ROOTS = rootsD4()
-const LINE_ROOTS: readonly (readonly number[])[] = LINE_FIRSTS.map(f => ROOTS[f] as number[])
+const LINE_ROOTS: readonly (readonly number[])[] = LINE_FIRSTS.map(
+  f => ROOTS[f]!,
+)
 
 // ---- fact 1: which sets of lines are spherical designs ----
 
-export type DesignCensus = { sets: number; twoDesigns: number; fourDesigns: number; fourDesignSizes: number[]; twoDesignSizes: number[]; frames: number[][] }
+export type DesignCensus = {
+  sets: number
+  twoDesigns: number
+  fourDesigns: number
+  fourDesignSizes: number[]
+  twoDesignSizes: number[]
+  frames: number[][]
+}
 
 // the second moment sum_l r r^T and the fourth moment sum_l (r . k)^4 of a set of lines (one root per line), both
 // tested for isotropy in exact integers
-export function lineSetMoments(lines: readonly number[]): { two: boolean; four: boolean } {
+export function lineSetMoments(lines: readonly number[]): {
+  two: boolean
+  four: boolean
+} {
   const s2 = new Array<number>(16).fill(0)
   const s4 = new Map<string, number>()
 
   for (const l of lines) {
     const r = LINE_ROOTS[l] as number[]
 
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) s2[i * 4 + j] = (s2[i * 4 + j] as number) + (r[i] as number) * (r[j] as number)
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        s2[i * 4 + j] = s2[i * 4 + j]! + r[i]! * r[j]!
+      }
+    }
 
     for (let a = 0; a < 4; a++) {
       for (let b = a; b < 4; b++) {
@@ -90,30 +126,45 @@ export function lineSetMoments(lines: readonly number[]): { two: boolean; four: 
           for (let d = c; d < 4; d++) {
             const key = `${a}${b}${c}${d}`
 
-            s4.set(key, (s4.get(key) ?? 0) + (r[a] as number) * (r[b] as number) * (r[c] as number) * (r[d] as number))
+            s4.set(
+              key,
+              (s4.get(key) ?? 0) + r[a]! * r[b]! * r[c]! * r[d]!,
+            )
           }
         }
       }
     }
   }
 
-  const diagonal = s2[0] as number
-  const two = s2.every((v, k) => (k % 5 === 0 ? v === diagonal : v === 0))
+  const diagonal = s2[0]!
+  const two = s2.every((v, k) =>
+    k % 5 === 0 ? v === diagonal : v === 0,
+  )
   // isotropic quartic c |k|^4: sum r_i^4 = c, sum r_i^2 r_j^2 = c / 3 (the coefficient of k_i^2 k_j^2 is
   // 6 sum r_i^2 r_j^2 and must be 2 c), every other moment 0
   const c = s4.get('0000') ?? 0
+
   let four = true
 
   for (const [key, v] of s4) {
     const counts = [0, 0, 0, 0]
 
-    for (const ch of key) counts[Number(ch)] = (counts[Number(ch)] as number) + 1
+    for (const ch of key) {
+      counts[Number(ch)] = counts[Number(ch)]! + 1
+    }
 
-    const shape = counts.filter(n => n > 0).sort((x, y) => y - x).join('')
+    const shape = counts
+      .filter(n => n > 0)
+      .sort((x, y) => y - x)
+      .join('')
 
-    if (shape === '4') four = four && v === c
-    else if (shape === '22') four = four && 3 * v === c
-    else four = four && v === 0
+    if (shape === '4') {
+      four = four && v === c
+    } else if (shape === '22') {
+      four = four && 3 * v === c
+    } else {
+      four = four && v === 0
+    }
   }
 
   return { two, four }
@@ -122,18 +173,24 @@ export function lineSetMoments(lines: readonly number[]): { two: boolean; four: 
 export function designCensus(): DesignCensus {
   let twoDesigns = 0
   let fourDesigns = 0
+
   const fourDesignSizes: number[] = []
   const twoDesignSizes = new Set<number>()
   const frames: number[][] = []
 
   for (let mask = 1; mask < 4096; mask++) {
-    const lines = Array.from({ length: 12 }, (_, l) => l).filter(l => (mask >> l) & 1)
+    const lines = Array.from({ length: 12 }, (_, l) => l).filter(
+      l => (mask >> l) & 1,
+    )
     const m = lineSetMoments(lines)
 
     if (m.two) {
       twoDesigns++
       twoDesignSizes.add(lines.length)
-      if (lines.length === 4) frames.push(lines)
+
+      if (lines.length === 4) {
+        frames.push(lines)
+      }
     }
 
     if (m.four) {
@@ -142,7 +199,14 @@ export function designCensus(): DesignCensus {
     }
   }
 
-  return { sets: 4095, twoDesigns, fourDesigns, fourDesignSizes, twoDesignSizes: [...twoDesignSizes].sort((a, b) => a - b), frames }
+  return {
+    sets: 4095,
+    twoDesigns,
+    fourDesigns,
+    fourDesignSizes,
+    twoDesignSizes: [...twoDesignSizes].sort((a, b) => a - b),
+    frames,
+  }
 }
 
 // ---- W(F4) as integer data ----
@@ -161,15 +225,21 @@ export type CoinData = {
 
 export function coinData(table: GroupTable): CoinData {
   const n = table.permutations.length
-  const doubled = table.permutations.map(p => linearMapOfDoubled(p) ?? [])
-  const lineImage = table.permutations.map(p => Int8Array.from(LINE_FIRSTS, f => LINE_OF[p[f] as number] as number))
-  const lineSign = table.permutations.map(p => Int8Array.from(LINE_FIRSTS, f => SIDE[p[f] as number] as number))
+  const doubled = table.permutations.map(
+    p => linearMapOfDoubled(p) ?? [],
+  )
+  const lineImage = table.permutations.map(p =>
+    Int8Array.from(LINE_FIRSTS, f => LINE_OF[p[f]!]!),
+  )
+  const lineSign = table.permutations.map(p =>
+    Int8Array.from(LINE_FIRSTS, f => SIDE[p[f]!]!),
+  )
   const order = Array.from({ length: n }, (_, g) => {
     let x = g
     let k = 1
 
     while (x !== table.identity) {
-      x = table.multiply[g * n + x] as number
+      x = table.multiply[g * n + x]!
       k++
     }
 
@@ -177,15 +247,41 @@ export function coinData(table: GroupTable): CoinData {
   })
   const lineFree = lineImage.map(im => im.every((m, l) => m !== l))
   // no fixed nonzero vector: det(2 I - 2 g) != 0, in integers
-  const vectorFree = doubled.map(m => integerDeterminant(m.map((row, i) => row.map((x, j) => (i === j ? 2 : 0) - x))) !== 0)
+  const vectorFree = doubled.map(
+    m =>
+      integerDeterminant(
+        m.map((row, i) => row.map((x, j) => (i === j ? 2 : 0) - x)),
+      ) !== 0,
+  )
 
-  return { table, doubled, lineImage, lineSign, order, lineFree, vectorFree }
+  return {
+    table,
+    doubled,
+    lineImage,
+    lineSign,
+    order,
+    lineFree,
+    vectorFree,
+  }
 }
 
-export function integerDeterminant(a: readonly (readonly number[])[]): number {
-  if (a.length === 1) return (a[0] as number[])[0] as number
+export function integerDeterminant(
+  a: readonly (readonly number[])[],
+): number {
+  if (a.length === 1) {
+    return (a[0] as number[])[0]!
+  }
 
-  return (a[0] as number[]).reduce((s, x, j) => s + (j % 2 === 0 ? 1 : -1) * x * integerDeterminant(a.slice(1).map(row => row.filter((_, k) => k !== j))), 0)
+  return (a[0] as number[]).reduce(
+    (s, x, j) =>
+      s +
+      (j % 2 === 0 ? 1 : -1) *
+        x *
+        integerDeterminant(
+          a.slice(1).map(row => row.filter((_, k) => k !== j)),
+        ),
+    0,
+  )
 }
 
 // ---- the forcing census by characters (exact) ----
@@ -196,51 +292,111 @@ export function integerDeterminant(a: readonly (readonly number[])[]): number {
 // the rank-4 scalars when the quartics are 1-dimensional (|k|^4); the bulk forcing implies the husk one.
 
 function powerSums(m2: readonly (readonly number[])[]): number[] {
-  const mul = (a: number[][], b: readonly (readonly number[])[]): number[][] => a.map(row => [0, 1, 2, 3].map(j => row.reduce((s, x, k) => s + x * ((b[k] as number[])[j] as number), 0)))
+  const mul = (
+    a: number[][],
+    b: readonly (readonly number[])[],
+  ): number[][] =>
+    a.map(row =>
+      [0, 1, 2, 3].map(j =>
+        row.reduce((s, x, k) => s + x * (b[k] as number[])[j]!, 0),
+      ),
+    )
+
   let power: number[][] = m2.map(r => [...r])
+
   const sums: number[] = []
 
   for (let k = 1; k <= 4; k++) {
-    sums.push([0, 1, 2, 3].reduce((s, i) => s + ((power[i] as number[])[i] as number), 0) / 2 ** k)
+    sums.push(
+      [0, 1, 2, 3].reduce((s, i) => s + power[i]![i]!, 0) / 2 ** k,
+    )
     power = mul(power, m2)
   }
 
   return sums
 }
 
-export type CharacterForcing = { quadratics: number; quartics: number; bulk2: boolean; bulk4: boolean }
+export type CharacterForcing = {
+  quadratics: number
+  quartics: number
+  bulk2: boolean
+  bulk4: boolean
+}
 
-export function characterForcing(coins: CoinData, group: readonly number[]): CharacterForcing {
+export function characterForcing(
+  coins: CoinData,
+  group: readonly number[],
+): CharacterForcing {
   let h2 = 0
   let h4 = 0
 
   for (const g of group) {
-    const [p1 = 0, p2 = 0, p3 = 0, p4 = 0] = powerSums(coins.doubled[g] as number[][])
+    const [p1 = 0, p2 = 0, p3 = 0, p4 = 0] = powerSums(
+      coins.doubled[g] as number[][],
+    )
 
     h2 += (p1 * p1 + p2) / 2
-    h4 += (p1 ** 4 + 6 * p1 * p1 * p2 + 3 * p2 * p2 + 8 * p1 * p3 + 6 * p4) / 24
+    h4 +=
+      (p1 ** 4 +
+        6 * p1 * p1 * p2 +
+        3 * p2 * p2 +
+        8 * p1 * p3 +
+        6 * p4) /
+      24
   }
 
   const quadratics = Math.round(h2 / group.length)
   const quartics = Math.round(h4 / group.length)
 
-  return { quadratics, quartics, bulk2: quadratics === 1, bulk4: quartics === 1 }
+  return {
+    quadratics,
+    quartics,
+    bulk2: quadratics === 1,
+    bulk4: quartics === 1,
+  }
 }
 
 // the husk forcing (E-RLT-0058's test) of a group, and its matrices
-export function groupMatrices(coins: CoinData, group: readonly number[]): Matrix4[] {
-  return group.map(g => matrixOfPermutation(coins.table.permutations[g] ?? []))
+export function groupMatrices(
+  coins: CoinData,
+  group: readonly number[],
+): Matrix4[] {
+  return group.map(g =>
+    matrixOfPermutation(coins.table.permutations[g] ?? []),
+  )
 }
 
-export type HuskForcing = { husk2: boolean; husk4: boolean; huskShear2: boolean }
+export type HuskForcing = {
+  husk2: boolean
+  husk4: boolean
+  huskShear2: boolean
+}
 
-export function huskForcing(coins: CoinData, group: readonly number[]): HuskForcing {
+export function huskForcing(
+  coins: CoinData,
+  group: readonly number[],
+): HuskForcing {
   const matrices = groupMatrices(coins, group)
 
   return {
-    husk2: forcedIsotropic({ group: matrices, kind: 'scalar', degree: 2, husk: true }).forced,
-    husk4: forcedIsotropic({ group: matrices, kind: 'scalar', degree: 4, husk: true }).forced,
-    huskShear2: forcedIsotropic({ group: matrices, kind: 'transverse', degree: 2, husk: true }).forced,
+    husk2: forcedIsotropic({
+      group: matrices,
+      kind: 'scalar',
+      degree: 2,
+      husk: true,
+    }).forced,
+    husk4: forcedIsotropic({
+      group: matrices,
+      kind: 'scalar',
+      degree: 4,
+      husk: true,
+    }).forced,
+    huskShear2: forcedIsotropic({
+      group: matrices,
+      kind: 'transverse',
+      degree: 2,
+      husk: true,
+    }).forced,
   }
 }
 
@@ -251,34 +407,56 @@ export function huskForcing(coins: CoinData, group: readonly number[]): HuskForc
 // claim of fact 2 is that every t with 2 t in D lies in D. Returned: the translations giving a free map at all, and
 // those among the commuting ones (the claim says 0).
 
-export type FixedDock = { side: number; translations: number; free: number; freeCommuting: number }
+export type FixedDock = {
+  side: number
+  translations: number
+  free: number
+  freeCommuting: number
+}
 
-export function fixedDockCheck(coins: CoinData, g: number, side: number): FixedDock {
+export function fixedDockCheck(
+  coins: CoinData,
+  g: number,
+  side: number,
+): FixedDock {
   const cells = side ** 4
-  const map = boxCellMapDoubled({ doubled: coins.doubled[g] as number[][], side })
+  const map = boxCellMapDoubled({
+    doubled: coins.doubled[g] as number[][],
+    side,
+  })
 
-  if (!map) throw new Error(`element ${g} does not act on the side-${side} box`)
+  if (!map) {
+    throw new Error(`element ${g} does not act on the side-${side} box`)
+  }
 
   const inImage = new Uint8Array(cells)
 
   for (let x = 0; x < cells; x++) {
     const a = d4BoxCoordinates({ cell: x, side })
-    const b = d4BoxCoordinates({ cell: map[x] as number, side })
+    const b = d4BoxCoordinates({ cell: map[x]!, side })
 
-    inImage[d4BoxCell({ coordinates: a.map((v, k) => v - (b[k] as number)), side })] = 1
+    inImage[
+      d4BoxCell({ coordinates: a.map((v, k) => v - b[k]!), side })
+    ] = 1
   }
 
   let free = 0
   let freeCommuting = 0
 
   for (let t = 0; t < cells; t++) {
-    if (inImage[t] === 1) continue
+    if (inImage[t] === 1) {
+      continue
+    }
 
     free++
 
     const c = d4BoxCoordinates({ cell: t, side })
 
-    if (inImage[d4BoxCell({ coordinates: c.map(v => 2 * v), side })] === 1) freeCommuting++
+    if (
+      inImage[d4BoxCell({ coordinates: c.map(v => 2 * v), side })] === 1
+    ) {
+      freeCommuting++
+    }
   }
 
   return { side, translations: cells, free, freeCommuting }
@@ -289,10 +467,21 @@ export function fixedDockCheck(coins: CoinData, g: number, side: number): FixedD
 // The submodules of D4 / L D4 generated by the orbit of one vector under a group (given as cell maps of the side-L
 // box), and, when `pairs`, the sums of two of them; returned: the distinct indices L^4 / |M|.
 
-export function invariantIndices(maps: readonly (readonly number[])[], side: number, pairs: boolean): number[] {
+export function invariantIndices(
+  maps: readonly (readonly number[])[],
+  side: number,
+  pairs: boolean,
+): number[] {
   const cells = side ** 4
-  const coords = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side }))
-  const add = (a: number, b: number): number => d4BoxCell({ coordinates: (coords[a] as number[]).map((v, k) => v + ((coords[b] as number[])[k] as number)), side })
+  const coords = Array.from({ length: cells }, (_, x) =>
+    d4BoxCoordinates({ cell: x, side }),
+  )
+  const add = (a: number, b: number): number =>
+    d4BoxCell({
+      coordinates: coords[a]!.map((v, k) => v + coords[b]![k]!),
+      side,
+    })
+
   const span = (gens: readonly number[]): Uint8Array => {
     const inM = new Uint8Array(cells)
     const queue = [0]
@@ -300,7 +489,7 @@ export function invariantIndices(maps: readonly (readonly number[])[], side: num
     inM[0] = 1
 
     while (queue.length > 0) {
-      const x = queue.pop() as number
+      const x = queue.pop()!
 
       for (const g of gens) {
         const y = add(x, g)
@@ -314,31 +503,46 @@ export function invariantIndices(maps: readonly (readonly number[])[], side: num
 
     return inM
   }
+
   const seen = new Map<string, { gens: number[]; size: number }>()
 
   for (let v = 0; v < cells; v++) {
-    const orbit = [...new Set(maps.map(m => m[v] as number))]
+    const orbit = [...new Set(maps.map(m => m[v]!))]
     const inM = span(orbit)
     const members: number[] = []
 
-    for (let x = 0; x < cells; x++) if (inM[x] === 1) members.push(x)
+    for (let x = 0; x < cells; x++) {
+      if (inM[x] === 1) {
+        members.push(x)
+      }
+    }
 
     const key = members.join(',')
 
-    if (!seen.has(key)) seen.set(key, { gens: orbit, size: members.length })
+    if (!seen.has(key)) {
+      seen.set(key, { gens: orbit, size: members.length })
+    }
   }
 
-  const indices = new Set<number>([...seen.values()].map(m => cells / m.size))
+  const indices = new Set<number>(
+    [...seen.values()].map(m => cells / m.size),
+  )
 
   if (pairs) {
     const list = [...seen.values()]
 
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
-        const inM = span([...(list[i] as { gens: number[] }).gens, ...(list[j] as { gens: number[] }).gens])
+        const inM = span([
+          ...(list[i] as { gens: number[] }).gens,
+          ...(list[j] as { gens: number[] }).gens,
+        ])
+
         let size = 0
 
-        for (let x = 0; x < cells; x++) size += inM[x] as number
+        for (let x = 0; x < cells; x++) {
+          size += inM[x]!
+        }
 
         indices.add(cells / size)
       }
@@ -359,25 +563,40 @@ export function classLines(): Int8Array {
     const c = d4Coordinates(r)
     const key = c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0)
 
-    out[key] = LINE_OF[d] as number
+    out[key] = LINE_OF[d]!
   })
 
   return out
 }
 
-export function dockClass(x: number, side: number, hub: readonly number[]): number {
+export function dockClass(
+  x: number,
+  side: number,
+  hub: readonly number[],
+): number {
   const c = d4BoxCoordinates({ cell: x, side })
 
-  return c.reduce((s, v, k) => s + (((((v - (hub[k] as number)) % 2) + 2) % 2) << k), 0)
+  return c.reduce(
+    (s, v, k) => s + (((((v - hub[k]!) % 2) + 2) % 2) << k),
+    0,
+  )
 }
 
 // the unoriented hub pattern: per dock, its stored line or -1 (hub given in basis coordinates)
-export function hubLines(side: number, hub: readonly number[]): Int8Array {
-  if (side % 2 !== 0) throw new Error('the hub pattern needs an even side')
+export function hubLines(
+  side: number,
+  hub: readonly number[],
+): Int8Array {
+  if (side % 2 !== 0) {
+    throw new Error('the hub pattern needs an even side')
+  }
 
   const lines = classLines()
 
-  return Int8Array.from({ length: side ** 4 }, (_, x) => lines[dockClass(x, side, hub)] as number)
+  return Int8Array.from(
+    { length: side ** 4 },
+    (_, x) => lines[dockClass(x, side, hub)]!,
+  )
 }
 
 // a store (cells x 12) from per-dock lines and per-dock signs
@@ -385,7 +604,9 @@ export function storeOf(lines: Int8Array, signs: Int8Array): Int8Array {
   const store = new Int8Array(lines.length * 12)
 
   lines.forEach((l, x) => {
-    if (l >= 0) store[x * 12 + l] = signs[x] as number
+    if (l >= 0) {
+      store[x * 12 + l] = signs[x]!
+    }
   })
 
   return store
@@ -403,11 +624,17 @@ export type BoxMaps = {
 
 export function boxMaps(coins: CoinData, side: number): BoxMaps {
   const cells = side ** 4
-  const coords = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side }))
+  const coords = Array.from({ length: cells }, (_, x) =>
+    d4BoxCoordinates({ cell: x, side }),
+  )
   const linear = coins.doubled.map((m, g) => {
     const map = boxCellMapDoubled({ doubled: m as number[][], side })
 
-    if (!map) throw new Error(`element ${g} does not act on the side-${side} box`)
+    if (!map) {
+      throw new Error(
+        `element ${g} does not act on the side-${side} box`,
+      )
+    }
 
     return Int32Array.from(map)
   })
@@ -415,48 +642,103 @@ export function boxMaps(coins: CoinData, side: number): BoxMaps {
   return { side, cells, coords, linear }
 }
 
-export function translate(box: BoxMaps, x: number, t: readonly number[]): number {
-  return d4BoxCell({ coordinates: (box.coords[x] as number[]).map((v, k) => v + (t[k] as number)), side: box.side })
+export function translate(
+  box: BoxMaps,
+  x: number,
+  t: readonly number[],
+): number {
+  return d4BoxCell({
+    coordinates: (box.coords[x] as number[]).map((v, k) => v + t[k]!),
+    side: box.side,
+  })
 }
 
 // the translation (basis coordinates) that makes g fix the dock with coordinates h: t = h - g h
-export function centerShift(box: BoxMaps, g: number, h: readonly number[]): number[] {
+export function centerShift(
+  box: BoxMaps,
+  g: number,
+  h: readonly number[],
+): number[] {
   const x = d4BoxCell({ coordinates: h, side: box.side })
-  const gx = (box.coords[(box.linear[g] as Int32Array)[x] as number] as number[]).map(v => v)
+  const gx = (box.coords[box.linear[g]![x]!] as number[]).map(v => v)
 
-  return h.map((v, k) => v - (gx[k] as number))
+  return h.map((v, k) => v - gx[k]!)
 }
 
 // an affine generator: dock map, line image, arriving side sign and a charge-conjugation sign c
-export type AffineGenerator = { readonly name: string; readonly map: Int32Array; readonly lineImage: Int8Array; readonly lineSign: Int8Array; readonly c: number }
+export type AffineGenerator = {
+  readonly name: string
+  readonly map: Int32Array
+  readonly lineImage: Int8Array
+  readonly lineSign: Int8Array
+  readonly c: number
+}
 
-export function pointGenerator(coins: CoinData, box: BoxMaps, g: number, hub: readonly number[], c: number): AffineGenerator {
+export function pointGenerator(
+  coins: CoinData,
+  box: BoxMaps,
+  g: number,
+  hub: readonly number[],
+  c: number,
+): AffineGenerator {
   const t = centerShift(box, g, hub)
-  const lin = box.linear[g] as Int32Array
-  const map = Int32Array.from({ length: box.cells }, (_, x) => translate(box, lin[x] as number, t))
+  const lin = box.linear[g]!
+  const map = Int32Array.from({ length: box.cells }, (_, x) =>
+    translate(box, lin[x]!, t),
+  )
 
-  return { name: `g${g}${c < 0 ? 'C' : ''}`, map, lineImage: coins.lineImage[g] as Int8Array, lineSign: coins.lineSign[g] as Int8Array, c }
+  return {
+    name: `g${g}${c < 0 ? 'C' : ''}`,
+    map,
+    lineImage: coins.lineImage[g]!,
+    lineSign: coins.lineSign[g]!,
+    c,
+  }
 }
 
-export function translationGenerator(coins: CoinData, box: BoxMaps, t: readonly number[], c: number): AffineGenerator {
+export function translationGenerator(
+  coins: CoinData,
+  box: BoxMaps,
+  t: readonly number[],
+  c: number,
+): AffineGenerator {
   const identity = coins.table.identity
-  const map = Int32Array.from({ length: box.cells }, (_, x) => translate(box, x, t))
+  const map = Int32Array.from({ length: box.cells }, (_, x) =>
+    translate(box, x, t),
+  )
 
-  return { name: `t${t.join('')}${c < 0 ? 'C' : ''}`, map, lineImage: coins.lineImage[identity] as Int8Array, lineSign: coins.lineSign[identity] as Int8Array, c }
+  return {
+    name: `t${t.join('')}${c < 0 ? 'C' : ''}`,
+    map,
+    lineImage: coins.lineImage[identity]!,
+    lineSign: coins.lineSign[identity]!,
+    c,
+  }
 }
 
-export type Orientation = { ok: boolean; conflicts: number; orbits: number; signs: Int8Array }
+export type Orientation = {
+  ok: boolean
+  conflicts: number
+  orbits: number
+  signs: Int8Array
+}
 
 // Orient the units of an unoriented pattern so every generator carries the orientation to itself: each orbit of
 // units gets +1 on its least unit and the generators carry the sign; a unit reached with both signs is a conflict
-export function orientPattern(lines: Int8Array, generators: readonly AffineGenerator[]): Orientation {
+export function orientPattern(
+  lines: Int8Array,
+  generators: readonly AffineGenerator[],
+): Orientation {
   const cells = lines.length
   const signs = new Int8Array(cells)
+
   let conflicts = 0
   let orbits = 0
 
   for (let x0 = 0; x0 < cells; x0++) {
-    if ((lines[x0] as number) < 0 || signs[x0] !== 0) continue
+    if (lines[x0]! < 0 || signs[x0] !== 0) {
+      continue
+    }
 
     orbits++
     signs[x0] = 1
@@ -464,20 +746,20 @@ export function orientPattern(lines: Int8Array, generators: readonly AffineGener
     const queue = [x0]
 
     while (queue.length > 0) {
-      const x = queue.pop() as number
-      const l = lines[x] as number
-      const s = signs[x] as number
+      const x = queue.pop()!
+      const l = lines[x]!
+      const s = signs[x]!
 
       for (const gen of generators) {
-        const y = gen.map[x] as number
-        const m = gen.lineImage[l] as number
+        const y = gen.map[x]!
+        const m = gen.lineImage[l]!
 
         if (lines[y] !== m) {
           conflicts++
           continue
         }
 
-        const image = gen.c * (gen.lineSign[l] as number) * s
+        const image = gen.c * gen.lineSign[l]! * s
 
         if (signs[y] === 0) {
           signs[y] = image
@@ -505,67 +787,100 @@ export type PatternSymmetry = {
 }
 
 // `unoriented`: compare only which lines are stored, not their signs (the line pattern's own symmetry)
-export function patternSymmetry(coins: CoinData, box: BoxMaps, store: Int8Array, unoriented = false): PatternSymmetry {
+export function patternSymmetry(
+  coins: CoinData,
+  box: BoxMaps,
+  store: Int8Array,
+  unoriented = false,
+): PatternSymmetry {
   const cells = box.cells
   const units: number[] = []
 
-  for (let i = 0; i < store.length; i++) if (store[i] !== 0) units.push(i)
+  for (let i = 0; i < store.length; i++) {
+    if (store[i] !== 0) {
+      units.push(i)
+    }
+  }
 
-  if (units.length === 0) throw new Error('an empty store')
+  if (units.length === 0) {
+    throw new Error('an empty store')
+  }
 
-  const first = units[0] as number
+  const first = units[0]!
   const x0 = Math.floor(first / 12)
   const l0 = first % 12
-  const tau0 = store[first] as number
+  const tau0 = store[first]!
   const point = new Set<number>()
   const plain = new Set<number>()
+
   let elements = 0
   let translations = 0
 
   for (let g = 0; g < coins.table.permutations.length; g++) {
-    const lin = box.linear[g] as Int32Array
-    const li = coins.lineImage[g] as Int8Array
-    const ls = coins.lineSign[g] as Int8Array
-    const m0 = li[l0] as number
-    const gx0 = box.coords[lin[x0] as number] as number[]
+    const lin = box.linear[g]!
+    const li = coins.lineImage[g]!
+    const ls = coins.lineSign[g]!
+    const m0 = li[l0]!
+    const gx0 = box.coords[lin[x0]!] as number[]
 
     for (let y = 0; y < cells; y++) {
-      const target = store[y * 12 + m0] as number
+      const target = store[y * 12 + m0]!
 
-      if (target === 0) continue
+      if (target === 0) {
+        continue
+      }
 
-      const c = unoriented ? 1 : target * (ls[l0] as number) * tau0
+      const c = unoriented ? 1 : target * ls[l0]! * tau0
       const yc = box.coords[y] as number[]
-      const t = yc.map((v, k) => v - (gx0[k] as number))
+      const t = yc.map((v, k) => v - gx0[k]!)
+
       let holds = true
 
       for (let i = 0; i < units.length && holds; i++) {
-        const u = units[i] as number
+        const u = units[i]!
         const x = Math.floor(u / 12)
         const l = u % 12
-        const image = translate(box, lin[x] as number, t)
-        const there = store[image * 12 + (li[l] as number)] as number
+        const image = translate(box, lin[x]!, t)
+        const there = store[image * 12 + li[l]!]!
 
-        holds = unoriented ? there !== 0 : there === c * (ls[l] as number) * (store[u] as number)
+        holds = unoriented
+          ? there !== 0
+          : there === c * ls[l]! * store[u]!
       }
 
       if (holds) {
         elements++
         point.add(g)
-        if (c === 1) plain.add(g)
-        if (g === coins.table.identity && c === 1) translations++
+
+        if (c === 1) {
+          plain.add(g)
+        }
+
+        if (g === coins.table.identity && c === 1) {
+          translations++
+        }
       }
     }
   }
 
-  return { elements, pointGroup: [...point].sort((a, b) => a - b), withoutC: [...plain].sort((a, b) => a - b), translations }
+  return {
+    elements,
+    pointGroup: [...point].sort((a, b) => a - b),
+    withoutC: [...plain].sort((a, b) => a - b),
+    translations,
+  }
 }
 
 // ---- condition (Z) on a per-dock store ----
 
 // the docks where (Z) fails: the occupation momentum a dock holds at beat 1
-export function momentumFailures(store: Int8Array, side: number, neighbour: (x: number, d: number) => number): number {
+export function momentumFailures(
+  store: Int8Array,
+  side: number,
+  neighbour: (x: number, d: number) => number,
+): number {
   const cells = side ** 4
+
   let bad = 0
 
   for (let y = 0; y < cells; y++) {
@@ -574,10 +889,12 @@ export function momentumFailures(store: Int8Array, side: number, neighbour: (x: 
     for (let d = 0; d < 24; d++) {
       const z = neighbour(y, d)
 
-      if (store[z * 12 + (LINE_OF[d] as number)] !== 0) {
-        const r = ROOTS[d] as number[]
+      if (store[z * 12 + LINE_OF[d]!] !== 0) {
+        const r = ROOTS[d]!
 
-        for (let k = 0; k < 4; k++) p[k] = (p[k] as number) + (r[k] as number)
+        for (let k = 0; k < 4; k++) {
+          p[k] = p[k]! + r[k]!
+        }
       }
     }
 
@@ -597,10 +914,16 @@ export function momentumFailures(store: Int8Array, side: number, neighbour: (x: 
 // hub moved to `hub`.
 
 export function binaryTetrahedralIndices(table: GroupTable): number[] {
-  const indexOf = new Map(table.permutations.map((p, i) => [p.join(','), i]))
+  const indexOf = new Map(
+    table.permutations.map((p, i) => [p.join(','), i]),
+  )
 
   return binaryTetrahedralMatrices()
-    .map(m => indexOf.get(Array.from(slotPermutationOf(m) ?? []).join(',')) ?? -1)
+    .map(
+      m =>
+        indexOf.get(Array.from(slotPermutationOf(m) ?? []).join(',')) ??
+        -1,
+    )
     .sort((a, b) => a - b)
 }
 
@@ -617,7 +940,9 @@ export type OrientedHub = {
 let ORIENTED: OrientedHub | undefined
 
 export function orientedHub(coins: CoinData): OrientedHub {
-  if (ORIENTED) return ORIENTED
+  if (ORIENTED) {
+    return ORIENTED
+  }
 
   const table = coins.table
   const twoT = binaryTetrahedralIndices(table)
@@ -627,17 +952,33 @@ export function orientedHub(coins: CoinData): OrientedHub {
   const base = twoT.map(g => pointGenerator(coins, box, g, hub, 1))
 
   for (let g = 0; g < table.permutations.length; g++) {
-    if (twoT.includes(g)) continue
+    if (twoT.includes(g)) {
+      continue
+    }
 
     const group = closure(table, [...twoT, g])
 
-    if (group.length !== 576) continue
+    if (group.length !== 576) {
+      continue
+    }
 
-    const o = orientPattern(lines, [...base, pointGenerator(coins, box, g, hub, 1)])
+    const o = orientPattern(lines, [
+      ...base,
+      pointGenerator(coins, box, g, hub, 1),
+    ])
 
-    if (!o.ok) continue
+    if (!o.ok) {
+      continue
+    }
 
-    ORIENTED = { twoT, extra: g, group, lines, signs: o.signs, orbits: o.orbits }
+    ORIENTED = {
+      twoT,
+      extra: g,
+      group,
+      lines,
+      signs: o.signs,
+      orbits: o.orbits,
+    }
 
     return ORIENTED
   }
@@ -646,8 +987,16 @@ export function orientedHub(coins: CoinData): OrientedHub {
 }
 
 // the oriented hub store on a box whose side is divisible by 4, hub at the given basis coordinates
-export function orientedHubStore(coins: CoinData, side: number, hub: readonly number[]): Int8Array {
-  if (side % 4 !== 0) throw new Error('the oriented hub vacuum has period 4 D4: the side must be divisible by 4')
+export function orientedHubStore(
+  coins: CoinData,
+  side: number,
+  hub: readonly number[],
+): Int8Array {
+  if (side % 4 !== 0) {
+    throw new Error(
+      'the oriented hub vacuum has period 4 D4: the side must be divisible by 4',
+    )
+  }
 
   const o = orientedHub(coins)
   const cells = side ** 4
@@ -655,20 +1004,32 @@ export function orientedHubStore(coins: CoinData, side: number, hub: readonly nu
 
   for (let x = 0; x < cells; x++) {
     const c = d4BoxCoordinates({ cell: x, side })
-    const y = d4BoxCell({ coordinates: c.map((v, k) => v - (hub[k] as number)), side: 4 })
-    const l = o.lines[y] as number
+    const y = d4BoxCell({
+      coordinates: c.map((v, k) => v - hub[k]!),
+      side: 4,
+    })
+    const l = o.lines[y]!
 
-    if (l >= 0) store[x * 12 + l] = o.signs[y] as number
+    if (l >= 0) {
+      store[x * 12 + l] = o.signs[y]!
+    }
   }
 
   return store
 }
 
 // the unoriented or uniformly oriented store of a translation-invariant line set (every dock stores `lines` with +1)
-export function uniformStore(cells: number, lines: readonly number[]): Int8Array {
+export function uniformStore(
+  cells: number,
+  lines: readonly number[],
+): Int8Array {
   const store = new Int8Array(cells * 12)
 
-  for (let x = 0; x < cells; x++) for (const l of lines) store[x * 12 + l] = 1
+  for (let x = 0; x < cells; x++) {
+    for (const l of lines) {
+      store[x * 12 + l] = 1
+    }
+  }
 
   return store
 }
@@ -680,11 +1041,18 @@ export function uniformStore(cells: number, lines: readonly number[]): Int8Array
 // optionally the four translations 2 b_k with any signs. Returned: how many of these orient the hub pattern with no
 // conflict. (By hand: a lift must fix no unit it reverses; the reflection in a long root r fixes the hyperplane
 // x . r = 2k, which holds units on lines along r and across r, which it reverses and keeps respectively.)
-export function liftSearch(coins: CoinData, side: number): { tried: number; oriented: number; leastConflicts: number } {
+export function liftSearch(
+  coins: CoinData,
+  side: number,
+): { tried: number; oriented: number; leastConflicts: number } {
   const table = coins.table
   const box = boxMaps(coins, side)
   const lines = hubLines(side, [0, 0, 0, 0])
-  const all = Array.from({ length: table.permutations.length }, (_, i) => i)
+  const all = Array.from(
+    { length: table.permutations.length },
+    (_, i) => i,
+  )
+
   let pair: [number, number] = [0, 0]
 
   search: for (const a of all) {
@@ -698,13 +1066,23 @@ export function liftSearch(coins: CoinData, side: number): { tried: number; orie
 
   const twists: number[][] = []
 
-  for (let bits = 0; bits < 16; bits++) twists.push([0, 1, 2, 3].map(k => ((bits >> k) & 1) * 2))
+  for (let bits = 0; bits < 16; bits++) {
+    twists.push([0, 1, 2, 3].map(k => ((bits >> k) & 1) * 2))
+  }
 
-  const lifted = (g: number, t: readonly number[], c: number): AffineGenerator => {
+  const lifted = (
+    g: number,
+    t: readonly number[],
+    c: number,
+  ): AffineGenerator => {
     const base = pointGenerator(coins, box, g, [0, 0, 0, 0], c)
 
-    return { ...base, map: Int32Array.from(base.map, x => translate(box, x, t)) }
+    return {
+      ...base,
+      map: Int32Array.from(base.map, x => translate(box, x, t)),
+    }
   }
+
   let tried = 0
   let oriented = 0
   let leastConflicts = Infinity
@@ -713,9 +1091,23 @@ export function liftSearch(coins: CoinData, side: number): { tried: number; orie
     for (let tb = 0; tb < 16; tb++) {
       for (let cs = 0; cs < 4; cs++) {
         for (let extra = -1; extra < 16; extra++) {
-          const gens: AffineGenerator[] = [lifted(pair[0], twists[ta] as number[], cs & 1 ? -1 : 1), lifted(pair[1], twists[tb] as number[], cs & 2 ? -1 : 1)]
+          const gens: AffineGenerator[] = [
+            lifted(pair[0], twists[ta]!, cs & 1 ? -1 : 1),
+            lifted(pair[1], twists[tb]!, cs & 2 ? -1 : 1),
+          ]
 
-          if (extra >= 0) for (let k = 0; k < 4; k++) gens.push(translationGenerator(coins, box, [0, 1, 2, 3].map(j => (j === k ? 2 : 0)), (extra >> k) & 1 ? -1 : 1))
+          if (extra >= 0) {
+            for (let k = 0; k < 4; k++) {
+              gens.push(
+                translationGenerator(
+                  coins,
+                  box,
+                  [0, 1, 2, 3].map(j => (j === k ? 2 : 0)),
+                  (extra >> k) & 1 ? -1 : 1,
+                ),
+              )
+            }
+          }
 
           const o = orientPattern(lines, gens)
 
@@ -740,62 +1132,103 @@ export function liftSearch(coins: CoinData, side: number): { tried: number; orie
 // dock -1 fixes (2T has no sign character, so -1 would reverse that unit), and returns the heaviest set of pairwise
 // compatible orbits (branch and bound, exact within its node budget), oriented under 2T.
 
-export type ChainPattern = { chains: number; orbits: number; usable: number; chosen: number; units: number; nodes: number; exact: boolean; lines: Int8Array; orientation: Orientation }
+export type ChainPattern = {
+  chains: number
+  orbits: number
+  usable: number
+  chosen: number
+  units: number
+  nodes: number
+  exact: boolean
+  lines: Int8Array
+  orientation: Orientation
+}
 
-export function chainPattern(coins: CoinData, side: number, budget = 2_000_000): ChainPattern {
+export function chainPattern(
+  coins: CoinData,
+  side: number,
+  budget = 2_000_000,
+): ChainPattern {
   const table = coins.table
   const twoT = binaryTetrahedralIndices(table)
   const box = boxMaps(coins, side)
   const cells = box.cells
-  const minus = box.linear[table.minus] as Int32Array
-  const r2 = LINE_FIRSTS.map(f => d4Coordinates((ROOTS[f] as number[]).map(v => 2 * v)))
-  const r1 = LINE_FIRSTS.map(f => d4Coordinates(ROOTS[f] as number[]))
+  const minus = box.linear[table.minus]!
+  const r2 = LINE_FIRSTS.map(f =>
+    d4Coordinates(ROOTS[f]!.map(v => 2 * v)),
+  )
+  const r1 = LINE_FIRSTS.map(f => d4Coordinates(ROOTS[f]!))
   const chainOf = new Int32Array(cells * 12).fill(-1)
   const chains: { line: number; units: number[]; mids: number[] }[] = []
 
   for (let l = 0; l < 12; l++) {
     for (let x = 0; x < cells; x++) {
-      if (chainOf[x * 12 + l] !== -1) continue
+      if (chainOf[x * 12 + l] !== -1) {
+        continue
+      }
 
       const units: number[] = []
+
       let y = x
 
       do {
         chainOf[y * 12 + l] = chains.length
         units.push(y)
-        y = translate(box, y, r2[l] as number[])
+        y = translate(box, y, r2[l]!)
       } while (y !== x)
 
-      chains.push({ line: l, units, mids: [...new Set(units.map(u => translate(box, u, r1[l] as number[])))] })
+      chains.push({
+        line: l,
+        units,
+        mids: [...new Set(units.map(u => translate(box, u, r1[l]!)))],
+      })
     }
   }
 
   const image = (c: number, g: number): number => {
     const ch = chains[c] as { line: number; units: number[] }
 
-    return chainOf[((box.linear[g] as Int32Array)[ch.units[0] as number] as number) * 12 + (coins.lineImage[g]?.[ch.line] as number)] as number
+    return chainOf[
+      box.linear[g]![ch.units[0]!]! * 12 +
+        coins.lineImage[g]?.[ch.line]!
+    ]!
   }
+
   const seen = new Uint8Array(chains.length)
-  const orbits: { members: number[]; units: Set<number>; mids: Set<number>; ok: boolean }[] = []
+  const orbits: {
+    members: number[]
+    units: Set<number>
+    mids: Set<number>
+    ok: boolean
+  }[] = []
 
   for (let c = 0; c < chains.length; c++) {
-    if (seen[c] === 1) continue
+    if (seen[c] === 1) {
+      continue
+    }
 
     const members = [...new Set(twoT.map(g => image(c, g)))]
     const units = new Set<number>()
     const mids = new Set<number>()
+
     let ok = true
 
     for (const m of members) {
       seen[m] = 1
 
       for (const u of chains[m]?.units ?? []) {
-        if (units.has(u) || minus[u] === u) ok = false
+        if (units.has(u) || minus[u] === u) {
+          ok = false
+        }
+
         units.add(u)
       }
 
       for (const u of chains[m]?.mids ?? []) {
-        if (mids.has(u)) ok = false
+        if (mids.has(u)) {
+          ok = false
+        }
+
         mids.add(u)
       }
     }
@@ -805,52 +1238,105 @@ export function chainPattern(coins: CoinData, side: number, budget = 2_000_000):
 
   const usable = orbits.filter(o => o.ok)
   const clash = usable.map(a =>
-    usable.map(b => a !== b && ([...a.units].some(u => b.units.has(u)) || [...a.mids].some(u => b.mids.has(u)))),
+    usable.map(
+      b =>
+        a !== b &&
+        ([...a.units].some(u => b.units.has(u)) ||
+          [...a.mids].some(u => b.mids.has(u))),
+    ),
   )
   const weight = usable.map(o => o.units.size)
-  const order = usable.map((_, k) => k).sort((a, b) => (weight[b] as number) - (weight[a] as number) || a - b)
+  const order = usable
+    .map((_, k) => k)
+    .sort((a, b) => weight[b]! - weight[a]! || a - b)
+
   let best: number[] = []
   let bestWeight = 0
   let nodes = 0
-  const search = (k: number, chosen: number[], w: number, remaining: number): void => {
+
+  const search = (
+    k: number,
+    chosen: number[],
+    w: number,
+    remaining: number,
+  ): void => {
     nodes++
 
-    if (nodes > budget) return
+    if (nodes > budget) {
+      return
+    }
 
     if (w > bestWeight) {
       bestWeight = w
       best = [...chosen]
     }
 
-    if (k >= order.length || w + remaining <= bestWeight) return
+    if (k >= order.length || w + remaining <= bestWeight) {
+      return
+    }
 
-    const i = order[k] as number
-    const rest = remaining - (weight[i] as number)
+    const i = order[k]!
+    const rest = remaining - weight[i]!
 
-    if (chosen.every(j => !clash[i]?.[j])) search(k + 1, [...chosen, i], w + (weight[i] as number), rest)
+    if (chosen.every(j => !clash[i]?.[j])) {
+      search(k + 1, [...chosen, i], w + weight[i]!, rest)
+    }
 
     search(k + 1, chosen, w, rest)
   }
 
-  search(0, [], 0, weight.reduce((s, x) => s + x, 0))
+  search(
+    0,
+    [],
+    0,
+    weight.reduce((s, x) => s + x, 0),
+  )
 
   const lines = new Int8Array(cells).fill(-1)
 
-  for (const k of best) for (const c of usable[k]?.members ?? []) for (const u of chains[c]?.units ?? []) lines[u] = chains[c]?.line as number
+  for (const k of best) {
+    for (const c of usable[k]?.members ?? []) {
+      for (const u of chains[c]?.units ?? []) {
+        lines[u] = chains[c]?.line!
+      }
+    }
+  }
 
-  const orientation = orientPattern(lines, twoT.map(g => pointGenerator(coins, box, g, [0, 0, 0, 0], 1)))
+  const orientation = orientPattern(
+    lines,
+    twoT.map(g => pointGenerator(coins, box, g, [0, 0, 0, 0], 1)),
+  )
 
-  return { chains: chains.length, orbits: orbits.length, usable: usable.length, chosen: best.length, units: bestWeight, nodes, exact: nodes <= budget, lines, orientation }
+  return {
+    chains: chains.length,
+    orbits: orbits.length,
+    usable: usable.length,
+    chosen: best.length,
+    units: bestWeight,
+    nodes,
+    exact: nodes <= budget,
+    lines,
+    orientation,
+  }
 }
 
 // a side-L store repeated on a box whose side is a multiple of L
-export function tileStore(store: Int8Array, side: number, bigSide: number): Int8Array {
+export function tileStore(
+  store: Int8Array,
+  side: number,
+  bigSide: number,
+): Int8Array {
   const out = new Int8Array(bigSide ** 4 * 12)
 
   for (let x = 0; x < bigSide ** 4; x++) {
-    const y = d4BoxCell({ coordinates: d4BoxCoordinates({ cell: x, side: bigSide }), side })
+    const y = d4BoxCell({
+      coordinates: d4BoxCoordinates({ cell: x, side: bigSide }),
+      side,
+    })
 
-    for (let l = 0; l < 12; l++) out[x * 12 + l] = store[y * 12 + l] as number
+    for (let l = 0; l < 12; l++) {
+      out[x * 12 + l] = store[y * 12 + l]!
+    }
   }
 
   return out
@@ -860,17 +1346,22 @@ export function tileStore(store: Int8Array, side: number, bigSide: number): Int8
 //
 // A translation-invariant orientation of all 12 lines is one root per line (a half-set H of the roots). The count of
 // half-sets that every element of a group carries to H or to -H (the second with charge conjugation).
-export function halfSetsKept(coins: CoinData, group: readonly number[]): number {
+export function halfSetsKept(
+  coins: CoinData,
+  group: readonly number[],
+): number {
   let kept = 0
 
   for (let mask = 0; mask < 4096; mask++) {
     const sign = (l: number): number => ((mask >> l) & 1 ? -1 : 1)
     const ok = group.every(g => {
-      const li = coins.lineImage[g] as Int8Array
-      const ls = coins.lineSign[g] as Int8Array
+      const li = coins.lineImage[g]!
+      const ls = coins.lineSign[g]!
       const ratio = new Set<number>()
 
-      for (let l = 0; l < 12; l++) ratio.add(sign(li[l] as number) * (ls[l] as number) * sign(l))
+      for (let l = 0; l < 12; l++) {
+        ratio.add(sign(li[l]!) * ls[l]! * sign(l))
+      }
 
       return ratio.size === 1
     })

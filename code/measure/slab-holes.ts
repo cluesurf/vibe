@@ -42,17 +42,28 @@
 // each value one dock along.
 
 import { type Ritz } from '@/code/measure/frame-meson'
-import { lineImage, type LineBasis } from '@/code/measure/coined-line-bloch'
+import {
+  lineImage,
+  type LineBasis,
+} from '@/code/measure/coined-line-bloch'
 
 type C = [number, number]
 
 const W: C = [-0.5, Math.sqrt(3) / 2]
-const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: C, b: C): C => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
+
 const cdiv = (a: C, b: C): C => {
   const d = b[0] * b[0] + b[1] * b[1]
 
-  return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]
+  return [
+    (a[0] * b[0] + a[1] * b[1]) / d,
+    (a[1] * b[0] - a[0] * b[1]) / d,
+  ]
 }
+
 const conjC = (a: C): C => [a[0], -a[1]]
 
 // the working coin's entries and the contact lift e^(i pi unit / 3) (unit 0 the passing knit)
@@ -62,7 +73,10 @@ export type DockPieces = { keep: C; cross: C; contact: C }
 export function loveDock(unit = 0): DockPieces {
   const keep: C = [(1 + W[0]) / 2, W[1] / 2]
   const cross: C = [(1 - W[0]) / 2, -W[1] / 2]
-  const lift: C = [Math.cos((Math.PI * unit) / 3), Math.sin((Math.PI * unit) / 3)]
+  const lift: C = [
+    Math.cos((Math.PI * unit) / 3),
+    Math.sin((Math.PI * unit) / 3),
+  ]
 
   return { keep, cross, contact: cmul(W, lift) }
 }
@@ -82,7 +96,13 @@ export function holeDock(unit = 0): DockPieces & { phi2: C; det: C } {
   const c2 = cmul(cross, cross)
   const detH: C = [k2[0] - c2[0], k2[1] - c2[1]]
 
-  return { keep, cross, contact: cdiv(cdiv([1, 0], phi2), detH), phi2, det: detU }
+  return {
+    keep,
+    cross,
+    contact: cdiv(cdiv([1, 0], phi2), detH),
+    phi2,
+    det: detU,
+  }
 }
 
 export type SlabCost = 'steiner' | 'none'
@@ -117,7 +137,12 @@ export type SlabSpace = {
 }
 
 // the rectilinear Steiner length of up to three points: the bounding box's half perimeter
-const steinerOf = (c: ArrayLike<number>, n: number, A: number, at = 0): number => {
+const steinerOf = (
+  c: ArrayLike<number>,
+  n: number,
+  A: number,
+  at = 0,
+): number => {
   let v = 0
 
   for (let d = 0; d < A; d++) {
@@ -125,7 +150,7 @@ const steinerOf = (c: ArrayLike<number>, n: number, A: number, at = 0): number =
     let hi = -Infinity
 
     for (let i = 0; i < n; i++) {
-      const x = c[at + i * A + d] as number
+      const x = c[at + i * A + d]!
 
       lo = Math.min(lo, x)
       hi = Math.max(hi, x)
@@ -142,6 +167,7 @@ const steinerOf = (c: ArrayLike<number>, n: number, A: number, at = 0): number =
 // there fixed at 4 dimensions)
 export function steinerWindow(dims: number, w: number): number {
   let total = 0
+
   const rec = (k: number, left: number, prod: number): void => {
     if (k === dims) {
       total += prod
@@ -149,7 +175,9 @@ export function steinerWindow(dims: number, w: number): number {
       return
     }
 
-    for (let s = 0; s <= left; s++) rec(k + 1, left - s, prod * (s === 0 ? 1 : 6 * s))
+    for (let s = 0; s <= left; s++) {
+      rec(k + 1, left - s, prod * (s === 0 ? 1 : 6 * s))
+    }
   }
 
   rec(0, w, 1)
@@ -180,11 +208,19 @@ export function slabSpace(spec: SlabSpec): SlabSpace {
     for (let d = 0; d < A && ok; d++) {
       let lo = Infinity
 
-      for (let i = 0; i < n; i++) lo = Math.min(lo, c[i * A + d] as number)
-      if (lo !== 0) ok = false
+      for (let i = 0; i < n; i++) {
+        lo = Math.min(lo, c[i * A + d]!)
+      }
+
+      if (lo !== 0) {
+        ok = false
+      }
     }
 
-    if (!ok || steinerOf(c, n, A) > spec.cut) continue
+    if (!ok || steinerOf(c, n, A) > spec.cut) {
+      continue
+    }
+
     lookup[key] = list.length
     list.push(key)
   }
@@ -225,22 +261,38 @@ export function slabSpace(spec: SlabSpec): SlabSpace {
 
       for (let i = 0; i < n; i++) {
         for (let k = i + 1; k < n; k++) {
-          if ((s[i] as number) >> 1 !== (s[k] as number) >> 1) continue
+          if (s[i]! >> 1 !== s[k]! >> 1) {
+            continue
+          }
 
           let same = true
 
-          for (let d = 0; d < A; d++) if (coords[p * dims + i * A + d] !== coords[p * dims + k * A + d]) same = false
-          if (same) two++
+          for (let d = 0; d < A; d++) {
+            if (
+              coords[p * dims + i * A + d] !==
+              coords[p * dims + k * A + d]
+            ) {
+              same = false
+            }
+          }
+
+          if (same) {
+            two++
+          }
         }
       }
 
       pairs[p * block + b] = two
 
-      for (let q = 0; q < dims; q++) moved[q] = coords[p * dims + q] as number
-      for (let i = 0; i < n; i++) {
-        const si = s[i] as number
+      for (let q = 0; q < dims; q++) {
+        moved[q] = coords[p * dims + q]!
+      }
 
-        moved[i * A + (si >> 1)] = (moved[i * A + (si >> 1)] as number) + ((si & 1) === 0 ? 1 : -1)
+      for (let i = 0; i < n; i++) {
+        const si = s[i]!
+
+        moved[i * A + (si >> 1)] =
+          moved[i * A + (si >> 1)]! + ((si & 1) === 0 ? 1 : -1)
       }
 
       const lows: number[] = []
@@ -248,18 +300,29 @@ export function slabSpace(spec: SlabSpec): SlabSpace {
       for (let d = 0; d < A; d++) {
         let lo = Infinity
 
-        for (let i = 0; i < n; i++) lo = Math.min(lo, moved[i * A + d] as number)
+        for (let i = 0; i < n; i++) {
+          lo = Math.min(lo, moved[i * A + d]!)
+        }
+
         lows.push(lo)
       }
 
-      for (let i = 0; i < n; i++) for (let d = 0; d < A; d++) moved[i * A + d] = (moved[i * A + d] as number) - (lows[d] as number)
+      for (let i = 0; i < n; i++) {
+        for (let d = 0; d < A; d++) {
+          moved[i * A + d] = moved[i * A + d]! - lows[d]!
+        }
+      }
 
       if (steinerOf(moved, n, A) > spec.cut) {
-        if (spec.boundary === 'absorb') target[p * block + b] = -1
-        else {
+        if (spec.boundary === 'absorb') {
+          target[p * block + b] = -1
+        } else {
           let flipped = 0
 
-          for (let i = 0; i < n; i++) flipped = flipped * slots + ((s[i] as number) ^ 1)
+          for (let i = 0; i < n; i++) {
+            flipped = flipped * slots + (s[i]! ^ 1)
+          }
+
           target[p * block + b] = p * block + flipped
         }
 
@@ -271,29 +334,53 @@ export function slabSpace(spec: SlabSpec): SlabSpace {
 
       let key = 0
 
-      for (let q = dims - 1; q >= 0; q--) key = key * base + (moved[q] as number)
+      for (let q = dims - 1; q >= 0; q--) {
+        key = key * base + moved[q]!
+      }
 
-      const to = lookup[key] as number
+      const to = lookup[key]!
 
-      if (to < 0) throw new Error('slab-holes: a moved configuration is outside the window')
+      if (to < 0) {
+        throw new Error(
+          'slab-holes: a moved configuration is outside the window',
+        )
+      }
+
       target[p * block + b] = to * block + b
       // shift code: (dx + 1) * 3 + (dy + 1), dy 0 on one line
-      shift[p * block + b] = ((lows[0] as number) + 1) * 3 + (A === 2 ? (lows[1] as number) : 0) + 1
+      shift[p * block + b] =
+        (lows[0]! + 1) * 3 + (A === 2 ? lows[1]! : 0) + 1
     }
   }
 
-  return { spec, slots, block, configs: P, coords, steiner, target, shift, pairs, dock: holeDock(spec.unit ?? 0) }
+  return {
+    spec,
+    slots,
+    block,
+    configs: P,
+    coords,
+    steiner,
+    target,
+    shift,
+    pairs,
+    dock: holeDock(spec.unit ?? 0),
+  }
 }
 
 export type SlabState = { re: Float64Array; im: Float64Array }
 export type SlabTally = { escaped: number }
 
-export const emptyState = (space: SlabSpace): SlabState => ({ re: new Float64Array(space.configs * space.block), im: new Float64Array(space.configs * space.block) })
+export const emptyState = (space: SlabSpace): SlabState => ({
+  re: new Float64Array(space.configs * space.block),
+  im: new Float64Array(space.configs * space.block),
+})
 
 export function weightOfSlab(s: SlabState): number {
   let w = 0
 
-  for (let i = 0; i < s.re.length; i++) w += (s.re[i] as number) ** 2 + (s.im[i] as number) ** 2
+  for (let i = 0; i < s.re.length; i++) {
+    w += s.re[i]! ** 2 + s.im[i]! ** 2
+  }
 
   return w
 }
@@ -303,10 +390,10 @@ export function innerSlab(u: SlabState, v: SlabState): C {
   let i = 0
 
   for (let k = 0; k < u.re.length; k++) {
-    const ar = u.re[k] as number
-    const ai = u.im[k] as number
-    const br = v.re[k] as number
-    const bi = v.im[k] as number
+    const ar = u.re[k]!
+    const ai = u.im[k]!
+    const br = v.re[k]!
+    const bi = v.im[k]!
 
     r += ar * br + ai * bi
     i += ar * bi - ai * br
@@ -315,10 +402,16 @@ export function innerSlab(u: SlabState, v: SlabState): C {
   return [r, i]
 }
 
-export const thetaOfRate = (rate: number): number => Math.acos(1 - rate / 2)
+export const thetaOfRate = (rate: number): number =>
+  Math.acos(1 - rate / 2)
 
 // one beat at momentum K (per dock step along each axis), in place of `s`'s content; returns the new state
-export function slabBeat(space: SlabSpace, K: readonly number[], s: SlabState, tally: SlabTally): SlabState {
+export function slabBeat(
+  space: SlabSpace,
+  K: readonly number[],
+  s: SlabState,
+  tally: SlabTally,
+): SlabState {
   const { spec, slots, block, configs } = space
   const n = spec.holes
   const { re, im } = s
@@ -332,22 +425,26 @@ export function slabBeat(space: SlabSpace, K: readonly number[], s: SlabState, t
     for (let i = 0; i < n; i++) {
       const stride = slots ** (n - 1 - i)
 
-      for (let base = 0; base < configs * block; base += stride * slots) {
+      for (
+        let base = 0;
+        base < configs * block;
+        base += stride * slots
+      ) {
         for (let o = 0; o < stride; o++) {
           let sr = 0
           let si = 0
 
           for (let q = 0; q < slots; q++) {
-            sr += re[base + o + q * stride] as number
-            si += im[base + o + q * stride] as number
+            sr += re[base + o + q * stride]!
+            si += im[base + o + q * stride]!
           }
 
           const ar = zr * sr - zi * si
           const ai = zr * si + zi * sr
 
           for (let q = 0; q < slots; q++) {
-            re[base + o + q * stride] = (re[base + o + q * stride] as number) + ar
-            im[base + o + q * stride] = (im[base + o + q * stride] as number) + ai
+            re[base + o + q * stride] = re[base + o + q * stride]! + ar
+            im[base + o + q * stride] = im[base + o + q * stride]! + ai
           }
         }
       }
@@ -365,15 +462,22 @@ export function slabBeat(space: SlabSpace, K: readonly number[], s: SlabState, t
         for (let a = 0; a < slots / 2; a++) {
           const x = base + o + 2 * a * stride
           const y = x + stride
-          const xr = re[x] as number
-          const xi = im[x] as number
-          const yr = re[y] as number
-          const yi = im[y] as number
+          const xr = re[x]!
+          const xi = im[x]!
+          const yr = re[y]!
+          const yi = im[y]!
 
-          re[x] = keep[0] * xr - keep[1] * xi + cross[0] * yr - cross[1] * yi
-          im[x] = keep[0] * xi + keep[1] * xr + cross[0] * yi + cross[1] * yr
-          re[y] = cross[0] * xr - cross[1] * xi + keep[0] * yr - keep[1] * yi
-          im[y] = cross[0] * xi + cross[1] * xr + keep[0] * yi + keep[1] * yr
+          re[x] =
+            keep[0] * xr - keep[1] * xi + cross[0] * yr - cross[1] * yi
+
+          im[x] =
+            keep[0] * xi + keep[1] * xr + cross[0] * yi + cross[1] * yr
+
+          re[y] =
+            cross[0] * xr - cross[1] * xi + keep[0] * yr - keep[1] * yi
+
+          im[y] =
+            cross[0] * xi + cross[1] * xr + keep[0] * yi + keep[1] * yr
         }
       }
     }
@@ -383,7 +487,9 @@ export function slabBeat(space: SlabSpace, K: readonly number[], s: SlabState, t
   const N = 2 * spec.D + 1
   const contactPow: C[] = [[1, 0]]
 
-  for (let k = 1; k <= 3; k++) contactPow.push(cmul(contactPow[k - 1] as C, contact))
+  for (let k = 1; k <= 3; k++) {
+    contactPow.push(cmul(contactPow[k - 1]!, contact))
+  }
 
   const shiftPhase: C[] = []
 
@@ -400,37 +506,52 @@ export function slabBeat(space: SlabSpace, K: readonly number[], s: SlabState, t
   const out = emptyState(space)
 
   for (let p = 0; p < configs; p++) {
-    const th = spec.cost === 'none' ? 0 : (-Math.PI * (space.steiner[p] as number)) / N
+    const th =
+      spec.cost === 'none' ? 0 : (-Math.PI * space.steiner[p]!) / N
     const cost: C = [Math.cos(th), Math.sin(th)]
 
     for (let b = 0; b < block; b++) {
       const e = p * block + b
-      const vr = re[e] as number
-      const vi = im[e] as number
+      const vr = re[e]!
+      const vi = im[e]!
 
-      if (vr === 0 && vi === 0) continue
+      if (vr === 0 && vi === 0) {
+        continue
+      }
 
-      const ph = cmul(cmul(cost, contactPow[space.pairs[e] as number] as C), shiftPhase[space.shift[e] as number] as C)
-      const t = space.target[e] as number
+      const ph = cmul(
+        cmul(cost, contactPow[space.pairs[e]!]!),
+        shiftPhase[space.shift[e]!]!,
+      )
+      const t = space.target[e]!
 
       if (t < 0) {
         tally.escaped += vr * vr + vi * vi
         continue
       }
 
-      out.re[t] = (out.re[t] as number) + ph[0] * vr - ph[1] * vi
-      out.im[t] = (out.im[t] as number) + ph[0] * vi + ph[1] * vr
+      out.re[t] = out.re[t]! + ph[0] * vr - ph[1] * vi
+      out.im[t] = out.im[t]! + ph[0] * vi + ph[1] * vr
     }
   }
 
   return out
 }
 
-const copyState = (s: SlabState): SlabState => ({ re: Float64Array.from(s.re), im: Float64Array.from(s.im) })
+const copyState = (s: SlabState): SlabState => ({
+  re: Float64Array.from(s.re),
+  im: Float64Array.from(s.im),
+})
 
-export function slabAutocorrelation(space: SlabSpace, K: readonly number[], start: SlabState, T: number): { c: C[]; tally: SlabTally } {
+export function slabAutocorrelation(
+  space: SlabSpace,
+  K: readonly number[],
+  start: SlabState,
+  T: number,
+): { c: C[]; tally: SlabTally } {
   const tally: SlabTally = { escaped: 0 }
   const c: C[] = [innerSlab(start, start)]
+
   let s = copyState(start)
 
   for (let t = 1; t <= T; t++) {
@@ -442,28 +563,40 @@ export function slabAutocorrelation(space: SlabSpace, K: readonly number[], star
 }
 
 // v = sum_t x_t U^t start, normalized (code/measure/route-free-meson routeLevelVector on this space)
-export function slabLevelVector(space: SlabSpace, K: readonly number[], start: SlabState, coefficients: readonly C[]): SlabState {
+export function slabLevelVector(
+  space: SlabSpace,
+  K: readonly number[],
+  start: SlabState,
+  coefficients: readonly C[],
+): SlabState {
   const tally: SlabTally = { escaped: 0 }
   const out = emptyState(space)
+
   let s = copyState(start)
 
   coefficients.forEach((x, t) => {
-    if (t > 0) s = slabBeat(space, K, s, tally)
-    for (let k = 0; k < s.re.length; k++) {
-      const br = s.re[k] as number
-      const bi = s.im[k] as number
+    if (t > 0) {
+      s = slabBeat(space, K, s, tally)
+    }
 
-      if (br === 0 && bi === 0) continue
-      out.re[k] = (out.re[k] as number) + x[0] * br - x[1] * bi
-      out.im[k] = (out.im[k] as number) + x[0] * bi + x[1] * br
+    for (let k = 0; k < s.re.length; k++) {
+      const br = s.re[k]!
+      const bi = s.im[k]!
+
+      if (br === 0 && bi === 0) {
+        continue
+      }
+
+      out.re[k] = out.re[k]! + x[0] * br - x[1] * bi
+      out.im[k] = out.im[k]! + x[0] * bi + x[1] * br
     }
   })
 
   const w = Math.sqrt(weightOfSlab(out))
 
   for (let k = 0; k < out.re.length; k++) {
-    out.re[k] = (out.re[k] as number) / w
-    out.im[k] = (out.im[k] as number) / w
+    out.re[k] = out.re[k]! / w
+    out.im[k] = out.im[k]! / w
   }
 
   return out
@@ -476,7 +609,11 @@ export type LineToken = { x: number; j: number }
 // a state from second-quantized configurations of loves on one line (tokens in their canonical order, amplitudes), put
 // on axis `axis` of the slab as holes: every assignment of tokens to holes with the permutation's sign / sqrt(n!), the
 // gauge G = (-1)^(tokens on a back slot), at y = 0 (or x = 0 on axis 1)
-export function placeLine(space: SlabSpace, axis: number, entries: readonly { ts: readonly LineToken[]; amp: C }[]): SlabState {
+export function placeLine(
+  space: SlabSpace,
+  axis: number,
+  entries: readonly { ts: readonly LineToken[]; amp: C }[],
+): SlabState {
   const { spec, slots, block } = space
   const n = spec.holes
   const A = spec.axes
@@ -486,16 +623,21 @@ export function placeLine(space: SlabSpace, axis: number, entries: readonly { ts
   const index = coordIndex(space)
 
   for (const { ts, amp } of entries) {
-    if (ts.length !== n) throw new Error('slab-holes: a placed configuration has the wrong number of tokens')
+    if (ts.length !== n) {
+      throw new Error(
+        'slab-holes: a placed configuration has the wrong number of tokens',
+      )
+    }
 
     const gauge = ts.reduce((g, t) => g * (t.j === 1 ? -1 : 1), 1)
 
     for (const { perm, sign } of perms) {
       const c = new Array<number>(n * A).fill(0)
+
       let b = 0
 
       for (let i = 0; i < n; i++) {
-        const t = ts[perm[i] as number] as LineToken
+        const t = ts[perm[i]!]!
 
         c[i * A + axis] = t.x
         b = b * slots + 2 * axis + t.j
@@ -503,21 +645,29 @@ export function placeLine(space: SlabSpace, axis: number, entries: readonly { ts
 
       const p = index.get(c.join(','))
 
-      if (p === undefined) throw new Error('slab-holes: a placed configuration is outside the window')
+      if (p === undefined) {
+        throw new Error(
+          'slab-holes: a placed configuration is outside the window',
+        )
+      }
 
       const f = sign * gauge * norm
       const e = p * block + b
 
-      out.re[e] = (out.re[e] as number) + f * amp[0]
-      out.im[e] = (out.im[e] as number) + f * amp[1]
+      out.re[e] = out.re[e]! + f * amp[0]
+      out.im[e] = out.im[e]! + f * amp[1]
     }
   }
 
   return out
 }
 
-export function permutations(n: number): { perm: number[]; sign: number }[] {
-  if (n === 1) return [{ perm: [0], sign: 1 }]
+export function permutations(
+  n: number,
+): { perm: number[]; sign: number }[] {
+  if (n === 1) {
+    return [{ perm: [0], sign: 1 }]
+  }
 
   const out: { perm: number[]; sign: number }[] = []
 
@@ -525,7 +675,10 @@ export function permutations(n: number): { perm: number[]; sign: number }[] {
     for (let at = 0; at <= perm.length; at++) {
       const p = [...perm.slice(0, at), n - 1, ...perm.slice(at)]
 
-      out.push({ perm: p, sign: sign * ((perm.length - at) % 2 === 0 ? 1 : -1) })
+      out.push({
+        perm: p,
+        sign: sign * ((perm.length - at) % 2 === 0 ? 1 : -1),
+      })
     }
   }
 
@@ -536,12 +689,22 @@ const coordIndex = (space: SlabSpace): Map<string, number> => {
   const dims = space.spec.holes * space.spec.axes
   const m = new Map<string, number>()
 
-  for (let p = 0; p < space.configs; p++) m.set(Array.from(space.coords.subarray(p * dims, (p + 1) * dims)).join(','), p)
+  for (let p = 0; p < space.configs; p++) {
+    m.set(
+      Array.from(space.coords.subarray(p * dims, (p + 1) * dims)).join(
+        ',',
+      ),
+      p,
+    )
+  }
 
   return m
 }
 
-export const addSlab = (u: SlabState, v: SlabState): SlabState => ({ re: u.re.map((x, k) => x + (v.re[k] as number)), im: u.im.map((x, k) => x + (v.im[k] as number)) })
+export const addSlab = (u: SlabState, v: SlabState): SlabState => ({
+  re: u.re.map((x, k) => x + v.re[k]!),
+  im: u.im.map((x, k) => x + v.im[k]!),
+})
 
 export function normalizedSlab(s: SlabState): SlabState {
   const w = Math.sqrt(weightOfSlab(s))
@@ -552,14 +715,22 @@ export function normalizedSlab(s: SlabState): SlabState {
 // ---- readings ----
 
 // the weight at each Steiner length 0 .. cut
-export function steinerShells(space: SlabSpace, s: SlabState): number[] {
+export function steinerShells(
+  space: SlabSpace,
+  s: SlabState,
+): number[] {
   const out = new Array<number>(space.spec.cut + 1).fill(0)
 
   for (let p = 0; p < space.configs; p++) {
     let w = 0
 
-    for (let b = 0; b < space.block; b++) w += (s.re[p * space.block + b] as number) ** 2 + (s.im[p * space.block + b] as number) ** 2
-    out[space.steiner[p] as number] = (out[space.steiner[p] as number] as number) + w
+    for (let b = 0; b < space.block; b++) {
+      w +=
+        s.re[p * space.block + b]! ** 2 +
+        s.im[p * space.block + b]! ** 2
+    }
+
+    out[space.steiner[p]!] = out[space.steiner[p]!]! + w
   }
 
   return out
@@ -571,16 +742,20 @@ export function offLineSlab(space: SlabSpace, s: SlabState): number {
   const { spec, slots, block } = space
   const n = spec.holes
   const A = spec.axes
+
   let w = 0
 
   for (let p = 0; p < space.configs; p++) {
     for (let b = 0; b < block; b++) {
       const e = p * block + b
-      const x = (s.re[e] as number) ** 2 + (s.im[e] as number) ** 2
+      const x = s.re[e]! ** 2 + s.im[e]! ** 2
 
-      if (x === 0) continue
+      if (x === 0) {
+        continue
+      }
 
       const axesOf: number[] = []
+
       let r = b
 
       for (let i = n - 1; i >= 0; i--) {
@@ -588,19 +763,28 @@ export function offLineSlab(space: SlabSpace, s: SlabState): number {
         r = Math.floor(r / slots)
       }
 
-      const a0 = axesOf[0] as number
+      const a0 = axesOf[0]!
+
       let off = axesOf.some(a => a !== a0)
 
       // positions across the line: the other axis's coordinates differ among holes
       for (let d = 0; d < A && !off; d++) {
-        if (d === a0) continue
+        if (d === a0) {
+          continue
+        }
 
-        const c0 = space.coords[p * n * A + d] as number
+        const c0 = space.coords[p * n * A + d]!
 
-        for (let i = 1; i < n; i++) if (space.coords[p * n * A + i * A + d] !== c0) off = true
+        for (let i = 1; i < n; i++) {
+          if (space.coords[p * n * A + i * A + d] !== c0) {
+            off = true
+          }
+        }
       }
 
-      if (off) w += x
+      if (off) {
+        w += x
+      }
     }
   }
 
@@ -609,33 +793,42 @@ export function offLineSlab(space: SlabSpace, s: SlabState): number {
 
 // the largest |psi + P psi| over the transpositions P of hole 0 with each other hole, over the norm: 0 for an
 // antisymmetric state
-export function antisymmetryGap(space: SlabSpace, s: SlabState): number {
+export function antisymmetryGap(
+  space: SlabSpace,
+  s: SlabState,
+): number {
   const { spec, slots, block } = space
   const n = spec.holes
   const A = spec.axes
 
-  if (n < 2) return 0
+  if (n < 2) {
+    return 0
+  }
 
   const index = coordIndex(space)
+
   let worst = 0
 
   for (let k = 1; k < n; k++) {
     let gap = 0
 
     for (let p = 0; p < space.configs; p++) {
-      const c = Array.from(space.coords.subarray(p * n * A, (p + 1) * n * A))
+      const c = Array.from(
+        space.coords.subarray(p * n * A, (p + 1) * n * A),
+      )
 
       for (let d = 0; d < A; d++) {
-        const t = c[d] as number
+        const t = c[d]!
 
-        c[d] = c[k * A + d] as number
+        c[d] = c[k * A + d]!
         c[k * A + d] = t
       }
 
-      const q = index.get(c.join(',')) as number
+      const q = index.get(c.join(','))!
 
       for (let b = 0; b < block; b++) {
         const sl: number[] = []
+
         let r = b
 
         for (let i = n - 1; i >= 0; i--) {
@@ -643,16 +836,16 @@ export function antisymmetryGap(space: SlabSpace, s: SlabState): number {
           r = Math.floor(r / slots)
         }
 
-        const t = sl[0] as number
+        const t = sl[0]!
 
-        sl[0] = sl[k] as number
+        sl[0] = sl[k]!
         sl[k] = t
 
         const b2 = sl.reduce((x, y) => x * slots + y, 0)
         const e = p * block + b
         const f = q * block + b2
 
-        gap += ((s.re[e] as number) + (s.re[f] as number)) ** 2 + ((s.im[e] as number) + (s.im[f] as number)) ** 2
+        gap += (s.re[e]! + s.re[f]!) ** 2 + (s.im[e]! + s.im[f]!) ** 2
       }
     }
 
@@ -664,23 +857,50 @@ export function antisymmetryGap(space: SlabSpace, s: SlabState): number {
 
 // ---- the procedure: the dominant level, its hold, its curvature ----
 
-export type SlabHold = { level: Ritz; vector: SlabState; fidelity: number[]; tail: number[]; minFidelity: number; maxTail: number; held: boolean; normGap: number; shells: number[]; meanSteiner: number; offLine: number; antisymmetry: number }
+export type SlabHold = {
+  level: Ritz
+  vector: SlabState
+  fidelity: number[]
+  tail: number[]
+  minFidelity: number
+  maxTail: number
+  held: boolean
+  normGap: number
+  shells: number[]
+  meanSteiner: number
+  offLine: number
+  antisymmetry: number
+}
 
-export function dominantRitz(c: readonly C[], ritz: (c: readonly C[]) => Ritz[]): Ritz {
-  return ritz(c).sort((x, y) => y.weight - x.weight)[0] as Ritz
+export function dominantRitz(
+  c: readonly C[],
+  ritz: (c: readonly C[]) => Ritz[],
+): Ritz {
+  return ritz(c).sort((x, y) => y.weight - x.weight)[0]!
 }
 
 export function holdLevel(
   space: SlabSpace,
   start: SlabState,
-  input: { ritzBeats: number; holdBeats: number; fidelity: number; tail: number; tailFrom: number; ritz: (c: readonly C[]) => Ritz[] },
+  input: {
+    ritzBeats: number
+    holdBeats: number
+    fidelity: number
+    tail: number
+    tailFrom: number
+    ritz: (c: readonly C[]) => Ritz[]
+  },
 ): SlabHold {
   const K = [0, 0]
-  const level = dominantRitz(slabAutocorrelation(space, K, start, input.ritzBeats).c, input.ritz)
+  const level = dominantRitz(
+    slabAutocorrelation(space, K, start, input.ritzBeats).c,
+    input.ritz,
+  )
   const v = slabLevelVector(space, K, start, level.coefficients)
   const tally: SlabTally = { escaped: 0 }
   const fidelity: number[] = []
   const tail: number[] = []
+
   let u = copyState(v)
 
   for (let t = 0; t < input.holdBeats; t++) {
@@ -690,7 +910,10 @@ export function holdLevel(
     const sh = steinerShells(space, u)
 
     fidelity.push(r * r + i * i)
-    tail.push(tally.escaped + sh.slice(input.tailFrom).reduce((x, y) => x + y, 0))
+    tail.push(
+      tally.escaped +
+        sh.slice(input.tailFrom).reduce((x, y) => x + y, 0),
+    )
   }
 
   const shells = steinerShells(space, v)
@@ -702,7 +925,9 @@ export function holdLevel(
     tail,
     minFidelity: Math.min(...fidelity),
     maxTail: Math.max(...tail),
-    held: fidelity.every(f => f >= input.fidelity) && tail.every(x => x <= input.tail),
+    held:
+      fidelity.every(f => f >= input.fidelity) &&
+      tail.every(x => x <= input.tail),
     normGap: Math.abs(weightOfSlab(u) + tally.escaped - 1),
     shells,
     meanSteiner: shells.reduce((x, w, L) => x + w * L, 0),
@@ -712,27 +937,45 @@ export function holdLevel(
 }
 
 // the dominant level's energy at momentum K, read from the autocorrelation of `start`
-export const energyAtSlab = (space: SlabSpace, K: readonly number[], start: SlabState, beats: number, ritz: (c: readonly C[]) => Ritz[]): number => dominantRitz(slabAutocorrelation(space, K, start, beats).c, ritz).energy
+export const energyAtSlab = (
+  space: SlabSpace,
+  K: readonly number[],
+  start: SlabState,
+  beats: number,
+  ritz: (c: readonly C[]) => Ritz[],
+): number =>
+  dominantRitz(slabAutocorrelation(space, K, start, beats).c, ritz)
+    .energy
 
 // the dominant level's energy at K of E-SPN-0104's love operator (code/measure/coined-line-bloch lineImage, its box),
 // read from the autocorrelation of the configuration vector (cre, cim) exactly as energyAtSlab reads the holes
-export function loveLineEnergy(basis: LineBasis, K: number, cre: Float64Array, cim: Float64Array, beats: number, ritz: (c: readonly C[]) => Ritz[]): number {
+export function loveLineEnergy(
+  basis: LineBasis,
+  K: number,
+  cre: Float64Array,
+  cim: Float64Array,
+  beats: number,
+  ritz: (c: readonly C[]) => Ritz[],
+): number {
   const c: C[] = []
+
   let re = Float64Array.from(cre)
   let im = Float64Array.from(cim)
+
   const dot = (): C => {
     let a = 0
     let b = 0
 
     for (let k = 0; k < re.length; k++) {
-      a += (cre[k] as number) * (re[k] as number) + (cim[k] as number) * (im[k] as number)
-      b += (cre[k] as number) * (im[k] as number) - (cim[k] as number) * (re[k] as number)
+      a += cre[k]! * re[k]! + cim[k]! * im[k]!
+      b += cre[k]! * im[k]! - cim[k]! * re[k]!
     }
 
     return [a, b]
   }
 
   c.push(dot())
+
   for (let t = 1; t <= beats; t++) {
     const w = lineImage(basis, K, re, im)
 
@@ -745,9 +988,13 @@ export function loveLineEnergy(basis: LineBasis, K: number, cre: Float64Array, c
 }
 
 // E''(0) by second differences at kappa and 2 kappa, Richardson-extrapolated (the K^4 term removed)
-export function richardsonCurvature(energy: (K: number) => number, kappa: number): { curvature: number; at: number; atDouble: number } {
+export function richardsonCurvature(
+  energy: (K: number) => number,
+  kappa: number,
+): { curvature: number; at: number; atDouble: number } {
   const e0 = energy(0)
-  const d = (k: number): number => (energy(k) + energy(-k) - 2 * e0) / (k * k)
+  const d = (k: number): number =>
+    (energy(k) + energy(-k) - 2 * e0) / (k * k)
   const at = d(kappa)
   const atDouble = d(2 * kappa)
 
@@ -756,9 +1003,31 @@ export function richardsonCurvature(energy: (K: number) => number, kappa: number
 
 // the inverse mass tensor d2E / dK_a dK_b in the slab (2 x 2), by second differences at step kappa along e_x, e_y and
 // (e_x + e_y) / sqrt 2, and its eigenvalues ascending
-export function slabTensor(space: SlabSpace, start: SlabState, kappa: number, beats: number, ritz: (c: readonly C[]) => Ritz[]): { tensor: number[][]; eigen: number[]; energy: number } {
+export function slabTensor(
+  space: SlabSpace,
+  start: SlabState,
+  kappa: number,
+  beats: number,
+  ritz: (c: readonly C[]) => Ritz[],
+): { tensor: number[][]; eigen: number[]; energy: number } {
   const e0 = energyAtSlab(space, [0, 0], start, beats, ritz)
-  const second = (d: readonly number[]): number => (energyAtSlab(space, d.map(x => x * kappa), start, beats, ritz) + energyAtSlab(space, d.map(x => -x * kappa), start, beats, ritz) - 2 * e0) / (kappa * kappa)
+  const second = (d: readonly number[]): number =>
+    (energyAtSlab(
+      space,
+      d.map(x => x * kappa),
+      start,
+      beats,
+      ritz,
+    ) +
+      energyAtSlab(
+        space,
+        d.map(x => -x * kappa),
+        start,
+        beats,
+        ritz,
+      ) -
+      2 * e0) /
+    (kappa * kappa)
   const xx = second([1, 0])
   const yy = second([0, 1])
   const dd = second([Math.SQRT1_2, Math.SQRT1_2])

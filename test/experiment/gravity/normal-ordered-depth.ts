@@ -88,14 +88,37 @@ import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { fullPathKey, pathOffset, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  pathOffset,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { boxHusk } from '@/code/measure/causal-components'
-import { bulkLinks, dockEnergies, shellMeans, staticDepth } from '@/code/measure/energy-lines'
-import { placeInSea, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  bulkLinks,
+  dockEnergies,
+  shellMeans,
+  staticDepth,
+} from '@/code/measure/energy-lines'
+import {
+  placeInSea,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
-import { candidateRun, columnField, huskField, largest } from '@/code/measure/candidate-audit'
-import { dragWeighted, seaEnergies, seaGauss, totalOf, type Register } from '@/code/measure/normal-order'
+import {
+  candidateRun,
+  columnField,
+  huskField,
+  largest,
+} from '@/code/measure/candidate-audit'
+import {
+  dragWeighted,
+  seaEnergies,
+  seaGauss,
+  totalOf,
+  type Register,
+} from '@/code/measure/normal-order'
 import type { Configuration } from '@/code/rule/doublet-locked-knit'
 
 const SIDE = 8
@@ -120,16 +143,25 @@ const SPN_0134_HOLE_DEPTH0 = -0.0014837189754721514
 const REGISTERS: readonly Register[] = ['occupation', 'charge']
 
 // least squares of y = a + k / r (E-GRV-0119's fit)
-function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const xs = rs.map(r => 1 / r)
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const k = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const k =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - k * mx, k }
 }
 
-type Conservation = { drift: number; gaussOff: number; firstBreak: number }
+type Conservation = {
+  drift: number
+  gaussOff: number
+  firstBreak: number
+}
 
 export default experiment({
   id: 'gravity/normal-ordered-depth',
@@ -142,9 +174,13 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
-    const keyOf = (path: number): PathKey => fullPathKey(pathOffset(path))
+    const keyOf = (path: number): PathKey =>
+      fullPathKey(pathOffset(path))
 
     // ---------------- N1, N3 (runs), C1: side 8 ----------------
     const X = centerOf(SIDE)
@@ -153,26 +189,45 @@ export default experiment({
     const cells = fr.cells
     const flat = tablesOn(w, 'pass', flatLinks(w))
     const links = bulkLinks(flat)
-    const Y = Math.floor((flat.target[X * 24 + B] as number) / 24)
+    const Y = Math.floor(flat.target[X * 24 + B]! / 24)
+
     let Z = X
+
     const a1 = rootIndex([1, 0, 0, 1])
     const a2 = rootIndex([1, 0, 0, -1])
 
     for (let k = 0; k < PAIR_STEPS; k++) {
-      Z = Math.floor((flat.target[Z * 24 + a1] as number) / 24)
-      Z = Math.floor((flat.target[Z * 24 + a2] as number) / 24)
+      Z = Math.floor(flat.target[Z * 24 + a1]! / 24)
+      Z = Math.floor(flat.target[Z * 24 + a2]! / 24)
     }
 
     const love = seaConfiguration(cells, 1)
     const empty = seaConfiguration(cells, 0)
     const starts: { name: string; c: Configuration }[] = [
       { name: 'sea', c: love },
-      { name: 'hole', c: placeInSea(love, [{ dock: X, slot: B, vibe: 0 }]) },
-      { name: 'two holes', c: placeInSea(love, [{ dock: X, slot: B, vibe: 0 }, { dock: Z, slot: B, vibe: 0 }]) },
-      { name: 'hole and fear', c: placeInSea(love, [{ dock: X, slot: B, vibe: 0 }, { dock: Y, slot: B, vibe: -1 }]) },
+      {
+        name: 'hole',
+        c: placeInSea(love, [{ dock: X, slot: B, vibe: 0 }]),
+      },
+      {
+        name: 'two holes',
+        c: placeInSea(love, [
+          { dock: X, slot: B, vibe: 0 },
+          { dock: Z, slot: B, vibe: 0 },
+        ]),
+      },
+      {
+        name: 'hole and fear',
+        c: placeInSea(love, [
+          { dock: X, slot: B, vibe: 0 },
+          { dock: Y, slot: B, vibe: -1 },
+        ]),
+      },
     ]
     const buf = new Int32Array(cells)
+
     let seaLargest = 0
+
     const conservation = starts.map(s =>
       Array.from({ length: PATHS }, (_, path) => {
         const out = new Map<Register, Conservation>()
@@ -197,30 +252,51 @@ export default experiment({
           mix: true,
           each: (t, c) => {
             for (const reg of REGISTERS) {
-              const l = line.get(reg) as Int32Array
-              const o = out.get(reg) as Conservation
+              const l = line.get(reg)!
+              const o = out.get(reg)!
               const e = seaEnergies(c, 1, reg, buf)
 
-              if (s.name === 'sea') seaLargest = Math.max(seaLargest, largest(e))
+              if (s.name === 'sea') {
+                seaLargest = Math.max(seaLargest, largest(e))
+              }
+
               dragWeighted(flat, c, l, -1, 1, reg)
 
-              const drift = Math.abs(totalOf(e) - (total0.get(reg) as number))
+              const drift = Math.abs(totalOf(e) - total0.get(reg)!)
               const g = seaGauss(links, l, c, 1, reg)
-              const g0 = gauss0.get(reg) as Int32Array
+              const g0 = gauss0.get(reg)!
+
               let off = 0
 
-              for (let x = 0; x < cells; x++) if (g[x] !== g0[x]) off++
+              for (let x = 0; x < cells; x++) {
+                if (g[x] !== g0[x]) {
+                  off++
+                }
+              }
+
               o.drift = Math.max(o.drift, drift)
               o.gaussOff += off
-              if (o.firstBreak < 0 && (drift > 0 || off > 0)) o.firstBreak = t + 1
+
+              if (o.firstBreak < 0 && (drift > 0 || off > 0)) {
+                o.firstBreak = t + 1
+              }
             }
           },
         })
 
-        return { start: s.name, total0: total0.get('occupation') as number, total0Charge: total0.get('charge') as number, occupation: out.get('occupation') as Conservation, charge: out.get('charge') as Conservation }
+        return {
+          start: s.name,
+          total0: total0.get('occupation')!,
+          total0Charge: total0.get('charge')!,
+          occupation: out.get('occupation')!,
+          charge: out.get('charge')!,
+        }
       }),
     )
-    const holds = (reg: 'occupation' | 'charge'): boolean => conservation.every(rs => rs.every(r => r[reg].drift === 0 && r[reg].gaussOff === 0))
+    const holds = (reg: 'occupation' | 'charge'): boolean =>
+      conservation.every(rs =>
+        rs.every(r => r[reg].drift === 0 && r[reg].gaussOff === 0),
+      )
     const N1 = holds('occupation')
     const N1c = holds('charge')
 
@@ -228,7 +304,7 @@ export default experiment({
 
     // C1: E-SPN-0134's time-averaged depth at the source, the count and the asked register on the same runs
     const husk = boxHusk(w.mesh, SIDE)
-    const col = husk.column[X] as number
+    const col = husk.column[X]!
     const hole8 = starts[1]!.c
     const perPath = Array.from({ length: PATHS }, (_, path) => {
       const count = new Float64Array(husk.columns)
@@ -241,32 +317,54 @@ export default experiment({
         beats: AUDIT_BEATS,
         mix: true,
         each: (_, c) => {
-          columnField(husk, dockEnergies(c, buf)).forEach((v, k) => (count[k]! += v / AUDIT_BEATS))
-          columnField(husk, seaEnergies(c, 1, 'occupation', buf)).forEach((v, k) => (normal[k]! += v / AUDIT_BEATS))
+          columnField(husk, dockEnergies(c, buf)).forEach(
+            (v, k) => (count[k]! += v / AUDIT_BEATS),
+          )
+
+          columnField(
+            husk,
+            seaEnergies(c, 1, 'occupation', buf),
+          ).forEach((v, k) => (normal[k]! += v / AUDIT_BEATS))
         },
       })
 
       return { count, normal }
     })
+
     const avgShell0 = (pick: 'count' | 'normal'): number => {
       const avg = new Float64Array(husk.columns)
 
-      perPath.forEach(r => r[pick].forEach((v, k) => (avg[k]! += v / PATHS)))
+      perPath.forEach(r =>
+        r[pick].forEach((v, k) => (avg[k]! += v / PATHS)),
+      )
 
-      return shellMeans(SIDE, col, huskField(SIDE, avg).depth)[0] as number
+      return shellMeans(SIDE, col, huskField(SIDE, avg).depth)[0]!
     }
+
     const auditCount = avgShell0('count')
     const auditNormal = avgShell0('normal')
-    const C1 = Math.abs(auditCount - SPN_0134_HOLE_DEPTH0) <= REPRODUCE && Math.abs(auditNormal + SPN_0134_HOLE_DEPTH0) <= REPRODUCE
+    const C1 =
+      Math.abs(auditCount - SPN_0134_HOLE_DEPTH0) <= REPRODUCE &&
+      Math.abs(auditNormal + SPN_0134_HOLE_DEPTH0) <= REPRODUCE
 
     log('C1')
 
     // N3's field: the sea's register, and its depth, before any mean is removed
-    const seaRho = columnField(husk, seaEnergies(love, 1, 'occupation', buf))
-    const seaRhoCharge = columnField(husk, seaEnergies(love, 1, 'charge', buf))
+    const seaRho = columnField(
+      husk,
+      seaEnergies(love, 1, 'occupation', buf),
+    )
+    const seaRhoCharge = columnField(
+      husk,
+      seaEnergies(love, 1, 'charge', buf),
+    )
     const seaDepth = staticDepth(SIDE, seaRho).depth
     const seaCountRho = columnField(husk, dockEnergies(love, buf))
-    const N3 = seaLargest === 0 && largest(seaRho) === 0 && largest(seaRhoCharge) === 0 && largest(seaDepth) === 0
+    const N3 =
+      seaLargest === 0 &&
+      largest(seaRho) === 0 &&
+      largest(seaRhoCharge) === 0 &&
+      largest(seaDepth) === 0
 
     // ---------------- N2: side 16 ----------------
     const X16 = centerOf(DEPTH_SIDE)
@@ -274,14 +372,17 @@ export default experiment({
     const flat16 = tablesOn(fr16.weave, 'pass', flatLinks(fr16.weave))
     const cells16 = fr16.cells
     const husk16 = boxHusk(fr16.weave.mesh, DEPTH_SIDE)
-    const col16 = husk16.column[X16] as number
+    const col16 = husk16.column[X16]!
     const love16 = seaConfiguration(cells16, 1)
     const hole16 = placeInSea(love16, [{ dock: X16, slot: B, vibe: 0 }])
-    const loveEmpty16 = placeInSea(seaConfiguration(cells16, 0), [{ dock: X16, slot: B, vibe: 1 }])
+    const loveEmpty16 = placeInSea(seaConfiguration(cells16, 0), [
+      { dock: X16, slot: B, vibe: 1 },
+    ])
     const buf16 = new Int32Array(cells16)
     const holeAvg = new Float64Array(husk16.columns)
     const holeCountAvg = new Float64Array(husk16.columns)
     const loveAvg = new Float64Array(husk16.columns)
+
     let particleHoleOff = 0
     let chargeOff = 0
 
@@ -296,15 +397,28 @@ export default experiment({
         beats: WINDOW,
         mix: true,
         each: (_, c) => {
-          const e = Int32Array.from(seaEnergies(c, 1, 'occupation', buf16))
+          const e = Int32Array.from(
+            seaEnergies(c, 1, 'occupation', buf16),
+          )
           const q = seaEnergies(c, 1, 'charge', buf16)
 
-          for (let x = 0; x < cells16; x++) if (q[x] !== e[x]) chargeOff++
+          for (let x = 0; x < cells16; x++) {
+            if (q[x] !== e[x]) {
+              chargeOff++
+            }
+          }
+
           fields.push(e)
-          columnField(husk16, e).forEach((v, k) => (holeAvg[k]! += v * scale))
-          columnField(husk16, dockEnergies(c, buf16)).forEach((v, k) => (holeCountAvg[k]! += v * scale))
+          columnField(husk16, e).forEach(
+            (v, k) => (holeAvg[k]! += v * scale),
+          )
+
+          columnField(husk16, dockEnergies(c, buf16)).forEach(
+            (v, k) => (holeCountAvg[k]! += v * scale),
+          )
         },
       })
+
       candidateRun({
         tables: flat16,
         start: loveEmpty16,
@@ -313,41 +427,66 @@ export default experiment({
         mix: true,
         each: (t, c) => {
           const e = dockEnergies(c, buf16)
-          const h = fields[t] as Int32Array
+          const h = fields[t]!
 
-          for (let x = 0; x < cells16; x++) if (e[x] !== h[x]) particleHoleOff++
-          columnField(husk16, e).forEach((v, k) => (loveAvg[k]! += v * scale))
+          for (let x = 0; x < cells16; x++) {
+            if (e[x] !== h[x]) {
+              particleHoleOff++
+            }
+          }
+
+          columnField(husk16, e).forEach(
+            (v, k) => (loveAvg[k]! += v * scale),
+          )
         },
       })
       log(`N2 path ${path}`)
     }
 
-    const depthOf = (rho: Float64Array): Float64Array => staticDepth(DEPTH_SIDE, rho).depth
+    const depthOf = (rho: Float64Array): Float64Array =>
+      staticDepth(DEPTH_SIDE, rho).depth
+
     const profile = (depth: Float64Array): number[] => {
       const m = shellMeans(DEPTH_SIDE, col16, depth)
 
-      return m.map(v => v - (m[REF] as number))
+      return m.map(v => v - m[REF]!)
     }
+
     const holeDepth = depthOf(holeAvg)
     const loveDepth = depthOf(loveAvg)
     const countDepth = depthOf(holeCountAvg)
+
     let avgGap = 0
 
-    for (let k = 0; k < holeDepth.length; k++) avgGap = Math.max(avgGap, Math.abs((holeDepth[k] as number) - (loveDepth[k] as number)))
+    for (let k = 0; k < holeDepth.length; k++) {
+      avgGap = Math.max(avgGap, Math.abs(holeDepth[k]! - loveDepth[k]!))
+    }
 
     // beat 0: the hole's register against a love placed in the working vacuum (its count excess over the vacuum)
     const vacuum16 = wordVacuum(fr16, fr16.store)
-    const loveWorking = placeInSea(vacuum16, [{ dock: X16, slot: B, vibe: 1 }])
+    const loveWorking = placeInSea(vacuum16, [
+      { dock: X16, slot: B, vibe: 1 },
+    ])
     const excess = Int32Array.from(dockEnergies(loveWorking, buf16))
     const vac = dockEnergies(vacuum16, new Int32Array(cells16))
 
-    for (let x = 0; x < cells16; x++) excess[x] = (excess[x] as number) - (vac[x] as number)
+    for (let x = 0; x < cells16; x++) {
+      excess[x] = excess[x]! - vac[x]!
+    }
 
-    const holeStartDepth = depthOf(columnField(husk16, seaEnergies(hole16, 1, 'occupation', buf16)))
+    const holeStartDepth = depthOf(
+      columnField(husk16, seaEnergies(hole16, 1, 'occupation', buf16)),
+    )
     const workingDepth = depthOf(columnField(husk16, excess))
+
     let startGap = 0
 
-    for (let k = 0; k < holeStartDepth.length; k++) startGap = Math.max(startGap, Math.abs((holeStartDepth[k] as number) - (workingDepth[k] as number)))
+    for (let k = 0; k < holeStartDepth.length; k++) {
+      startGap = Math.max(
+        startGap,
+        Math.abs(holeStartDepth[k]! - workingDepth[k]!),
+      )
+    }
 
     const holeProfile = profile(holeDepth)
     const loveProfile = profile(loveDepth)
@@ -357,7 +496,11 @@ export default experiment({
     pointRho[col16] = 1
 
     const pointProfile = profile(depthOf(pointRho))
-    const fitOf = (p: number[]): { a: number; k: number } => inverseFit(PROFILE_R, PROFILE_R.map(r => p[r] as number))
+    const fitOf = (p: number[]): { a: number; k: number } =>
+      inverseFit(
+        PROFILE_R,
+        PROFILE_R.map(r => p[r]!),
+      )
     const holeFit = fitOf(holeProfile)
     const pointFit = fitOf(pointProfile)
     const countFit = fitOf(countProfile)
@@ -367,8 +510,12 @@ export default experiment({
     const kRatio = kPerUnit / kRef
     const pointRatio = pointFit.k / (GRV_0119_POINT_K / GRV_0119_ENERGY)
     const C2 = Math.abs(pointRatio - 1) <= POINT_TOLERANCE
-    const holeSource = holeDepth[col16] as number
-    const N2exact = particleHoleOff === 0 && avgGap <= EXACT && startGap <= EXACT && holeSource > 0
+    const holeSource = holeDepth[col16]!
+    const N2exact =
+      particleHoleOff === 0 &&
+      avgGap <= EXACT &&
+      startGap <= EXACT &&
+      holeSource > 0
     const N2k = Math.abs(kRatio - 1) <= K_TOLERANCE
     const N2 = N2exact && N2k
 
@@ -376,7 +523,11 @@ export default experiment({
 
     // ---------------- verdict ----------------
     const controls = C1 && C2
-    const status = !controls ? 'partial' : N1 && N2 && N3 ? 'pass' : 'fail'
+    const status = !controls
+      ? 'partial'
+      : N1 && N2 && N3
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const e3 = (x: number): string => x.toExponential(3)
     const rowOf = (rs: (typeof conservation)[number]): string =>
@@ -395,7 +546,7 @@ export default experiment({
       averageDepthGap: avgGap,
       startDepthGap: startGap,
       holeSourceDepth: holeSource,
-      holeCountSourceDepth: countDepth[col16] as number,
+      holeCountSourceDepth: countDepth[col16]!,
       holeK: holeFit.k,
       holeEnergy,
       kPerUnit,
@@ -414,22 +565,50 @@ export default experiment({
     conservation.forEach(rs => {
       const n = rs[0]!.start.replace(/ /g, '_')
 
-      metrics[`${n}_asked_drift`] = Math.max(...rs.map(r => r.occupation.drift))
-      metrics[`${n}_asked_gaussOff`] = rs.reduce((s, r) => s + r.occupation.gaussOff, 0)
-      metrics[`${n}_charge_drift`] = Math.max(...rs.map(r => r.charge.drift))
-      metrics[`${n}_charge_gaussOff`] = rs.reduce((s, r) => s + r.charge.gaussOff, 0)
+      metrics[`${n}_asked_drift`] = Math.max(
+        ...rs.map(r => r.occupation.drift),
+      )
+
+      metrics[`${n}_asked_gaussOff`] = rs.reduce(
+        (s, r) => s + r.occupation.gaussOff,
+        0,
+      )
+
+      metrics[`${n}_charge_drift`] = Math.max(
+        ...rs.map(r => r.charge.drift),
+      )
+
+      metrics[`${n}_charge_gaussOff`] = rs.reduce(
+        (s, r) => s + r.charge.gaussOff,
+        0,
+      )
     })
+
     for (let r = 0; r <= REF; r++) {
-      metrics[`hole_r${r}`] = holeProfile[r] as number
-      metrics[`point_r${r}`] = pointProfile[r] as number
+      metrics[`hole_r${r}`] = holeProfile[r]!
+      metrics[`point_r${r}`] = pointProfile[r]!
     }
 
     return verdict({
       status,
-      claim: `N1 ${N1} (the asked register |occupied - sea| + 2 stored; ${conservation.map(rowOf).join(' | ')}); N1c ${N1c} (the charge register); N2 ${N2} (particle-hole off ${particleHoleOff}, averaged depth gap ${e3(avgGap)}, beat-0 gap against a love in the working vacuum ${e3(startGap)}, source depth ${e3(holeSource)} against the count's ${e3(countDepth[col16] as number)}; k per unit ${e3(kPerUnit)} against E-GRV-0119's ${e3(kRef)}, ratio ${f4(kRatio)}); N3 ${N3} (sea register largest ${seaLargest}, depth ${largest(seaDepth)}); C1 ${C1} (count ${auditCount}, asked ${auditNormal}); C2 ${C2} (point ratio ${pointRatio.toFixed(6)})`,
+      claim: `N1 ${N1} (the asked register |occupied - sea| + 2 stored; ${conservation.map(rowOf).join(' | ')}); N1c ${N1c} (the charge register); N2 ${N2} (particle-hole off ${particleHoleOff}, averaged depth gap ${e3(avgGap)}, beat-0 gap against a love in the working vacuum ${e3(startGap)}, source depth ${e3(holeSource)} against the count's ${e3(countDepth[col16]!)}; k per unit ${e3(kPerUnit)} against E-GRV-0119's ${e3(kRef)}, ratio ${f4(kRatio)}); N3 ${N3} (sea register largest ${seaLargest}, depth ${largest(seaDepth)}); C1 ${C1} (count ${auditCount}, asked ${auditNormal}); C2 ${C2} (point ratio ${pointRatio.toFixed(6)})`,
       metrics,
       control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0 },
-      notes: `L1. Profiles x(r) - x(8) at r = 0 .. 8: hole ${holeProfile.slice(0, REF + 1).map(f4).join(' ')}; love ${loveProfile.slice(0, REF + 1).map(f4).join(' ')}; the un-ordered hole ${countProfile.slice(0, REF + 1).map(f4).join(' ')}; point unit ${pointProfile.slice(0, REF + 1).map(f4).join(' ')}. Fits: hole a ${e3(holeFit.a)} k ${e3(holeFit.k)}; point k ${e3(pointFit.k)} (hole/point ${f4(holeFit.k / pointFit.k)}); un-ordered hole k ${e3(countFit.k)}. The un-ordered sea's column source is ${largest(seaCountRho)} on every column (removed only as the torus mean). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      notes: `L1. Profiles x(r) - x(8) at r = 0 .. 8: hole ${holeProfile
+        .slice(0, REF + 1)
+        .map(f4)
+        .join(' ')}; love ${loveProfile
+        .slice(0, REF + 1)
+        .map(f4)
+        .join(' ')}; the un-ordered hole ${countProfile
+        .slice(0, REF + 1)
+        .map(f4)
+        .join(' ')}; point unit ${pointProfile
+        .slice(0, REF + 1)
+        .map(f4)
+        .join(
+          ' ',
+        )}. Fits: hole a ${e3(holeFit.a)} k ${e3(holeFit.k)}; point k ${e3(pointFit.k)} (hole/point ${f4(holeFit.k / pointFit.k)}); un-ordered hole k ${e3(countFit.k)}. The un-ordered sea's column source is ${largest(seaCountRho)} on every column (removed only as the torus mean). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

@@ -31,8 +31,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { blochSpace, lightestUnwrapped, spectrumAt, stringMoments, type BlochSpec } from '@/code/measure/flux-store-bloch'
-import { nullMatchRate, relationHits } from '@/code/measure/integer-relation'
+import {
+  blochSpace,
+  lightestUnwrapped,
+  spectrumAt,
+  stringMoments,
+  type BlochSpec,
+} from '@/code/measure/flux-store-bloch'
+import {
+  nullMatchRate,
+  relationHits,
+} from '@/code/measure/integer-relation'
 
 const FIT_DEPTHS = [4, 6, 8, 12, 16] as const
 const NULL_SAMPLES = 2000
@@ -40,22 +49,42 @@ const NULL_SAMPLES = 2000
 const pairSpec = (D: number): BlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels: 2 }
+  return {
+    kinds: ['love', 'fear'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels: 2,
+  }
 }
 
 const threeSpec = (D: number): BlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels: 2 }
+  return {
+    kinds: ['love', 'love', 'love'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels: 2,
+  }
 }
 
 // least squares of log y on log x: slope and its standard error
-function logFit(x: readonly number[], y: readonly number[]): { slope: number; intercept: number; se: number } {
+function logFit(
+  x: readonly number[],
+  y: readonly number[],
+): { slope: number; intercept: number; se: number } {
   const lx = x.map(Math.log)
   const ly = y.map(Math.log)
   const n = lx.length
   const mx = lx.reduce((a, b) => a + b, 0) / n
   const my = ly.reduce((a, b) => a + b, 0) / n
+
   let sxx = 0
   let sxy = 0
 
@@ -66,25 +95,50 @@ function logFit(x: readonly number[], y: readonly number[]): { slope: number; in
 
   const slope = sxy / sxx
   const intercept = my - slope * mx
+
   let rss = 0
 
-  for (let i = 0; i < n; i++) rss += (ly[i]! - intercept - slope * lx[i]!) ** 2
+  for (let i = 0; i < n; i++) {
+    rss += (ly[i]! - intercept - slope * lx[i]!) ** 2
+  }
 
   return { slope, intercept, se: Math.sqrt(rss / (n - 2) / sxx) }
 }
 
-type Candidate = { name: string; value: number; delta: number; hits: number; best: string; nullRate: number }
+type Candidate = {
+  name: string
+  value: number
+  delta: number
+  hits: number
+  best: string
+  nullRate: number
+}
 
-function underNull(name: string, value: number, delta: number): Candidate {
+function underNull(
+  name: string,
+  value: number,
+  delta: number,
+): Candidate {
   const hits = relationHits(value, delta)
 
-  return { name, value, delta, hits: hits.length, best: hits[0]?.form ?? 'none', nullRate: hits.length > 0 ? nullMatchRate(value, delta, NULL_SAMPLES) : Number.NaN }
+  return {
+    name,
+    value,
+    delta,
+    hits: hits.length,
+    best: hits[0]?.form ?? 'none',
+    nullRate:
+      hits.length > 0
+        ? nullMatchRate(value, delta, NULL_SAMPLES)
+        : Number.NaN,
+  }
 }
 
 export default experiment({
   id: 'spin/string-depth-relation',
   code: 'E-SPN-0078',
-  title: "the flux string gives no integer relation to the depth beyond its built-in range 2D, a pre-registered negative: the bound pair grows as N^(1/3) and its energy falls as N^(-2/3) (continuum Airy scaling of a slope pi / N), the three-love state's size is set by its meetings, and no size or energy at D = 16 passes the E-MTH-0010 null, so the string does not select D and alpha stays a chosen knob",
+  title:
+    "the flux string gives no integer relation to the depth beyond its built-in range 2D, a pre-registered negative: the bound pair grows as N^(1/3) and its energy falls as N^(-2/3) (continuum Airy scaling of a slope pi / N), the three-love state's size is set by its meetings, and no size or energy at D = 16 passes the E-MTH-0010 null, so the string does not select D and alpha stays a chosen knob",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -93,16 +147,29 @@ export default experiment({
     const started = Date.now()
 
     // ---- Q1 ----
-    const ranges = Array.from({ length: 16 }, (_, i) => i + 1).map(D => ({ D, max: Math.max(...blochSpace(pairSpec(D)).strings) }))
-    const threeRanges = [1, 2, 3, 4].map(D => ({ D, max: Math.max(...blochSpace(threeSpec(D)).strings) }))
-    const q1 = ranges.every(r => r.max === 2 * r.D) && threeRanges.every(r => r.max === 2 * r.D)
+    const ranges = Array.from({ length: 16 }, (_, i) => i + 1).map(
+      D => ({ D, max: Math.max(...blochSpace(pairSpec(D)).strings) }),
+    )
+    const threeRanges = [1, 2, 3, 4].map(D => ({
+      D,
+      max: Math.max(...blochSpace(threeSpec(D)).strings),
+    }))
+    const q1 =
+      ranges.every(r => r.max === 2 * r.D) &&
+      threeRanges.every(r => r.max === 2 * r.D)
 
     // ---- Q2, Q3 ----
     const pair = FIT_DEPTHS.map(D => {
       const r = spectrumAt(pairSpec(D), 0)
       const lp = lightestUnwrapped(r.bloch, r.all, 4 * D + 6)
 
-      return { D, N: 2 * D + 1, mean: stringMoments(r.bloch, lp.level.vector).mean, energy: lp.unwrapped, residual: r.residual }
+      return {
+        D,
+        N: 2 * D + 1,
+        mean: stringMoments(r.bloch, lp.level.vector).mean,
+        energy: lp.unwrapped,
+        residual: r.residual,
+      }
     })
     const sizeFit = logFit(
       pair.map(p => p.N),
@@ -120,10 +187,15 @@ export default experiment({
       const r = spectrumAt(threeSpec(D), 0)
       const lp = lightestUnwrapped(r.bloch, r.all, 4 * D + 6)
 
-      return { D, mean: stringMoments(r.bloch, lp.level.vector).mean, energy: lp.unwrapped }
+      return {
+        D,
+        mean: stringMoments(r.bloch, lp.level.vector).mean,
+        energy: lp.unwrapped,
+      }
     })
     const means = three.map(t => t.mean)
-    const spread = (Math.max(...means) - Math.min(...means)) / Math.min(...means)
+    const spread =
+      (Math.max(...means) - Math.min(...means)) / Math.min(...means)
     const q4 = spread < 0.1
 
     // ---- Q5 ----
@@ -133,7 +205,11 @@ export default experiment({
       underNull('pair <l> at D = 16', at16.mean, precision),
       underNull('pair E at D = 16', at16.energy, precision),
       underNull('size exponent p', sizeFit.slope, sizeFit.se),
-      underNull('energy exponent q', Math.abs(energyFit.slope), energyFit.se),
+      underNull(
+        'energy exponent q',
+        Math.abs(energyFit.slope),
+        energyFit.se,
+      ),
     ]
     const q5 = candidates.every(c => c.hits === 0 || c.nullRate >= 0.01)
     const alpha16 = Math.sqrt(3 * 33) / (48 * 16)
@@ -152,10 +228,25 @@ export default experiment({
         sizeExponentSE: sizeFit.se,
         energyExponent: energyFit.slope,
         energyExponentSE: energyFit.se,
-        ...Object.fromEntries(pair.flatMap(p => [[`pair_D${p.D}_meanString`, p.mean], [`pair_D${p.D}_energy`, p.energy]])),
-        ...Object.fromEntries(three.flatMap(t => [[`three_D${t.D}_meanString`, t.mean], [`three_D${t.D}_energy`, t.energy]])),
+        ...Object.fromEntries(
+          pair.flatMap(p => [
+            [`pair_D${p.D}_meanString`, p.mean],
+            [`pair_D${p.D}_energy`, p.energy],
+          ]),
+        ),
+        ...Object.fromEntries(
+          three.flatMap(t => [
+            [`three_D${t.D}_meanString`, t.mean],
+            [`three_D${t.D}_energy`, t.energy],
+          ]),
+        ),
         threeSizeSpread: spread,
-        ...Object.fromEntries(candidates.flatMap((c, i) => [[`candidate${i}_hits`, c.hits], [`candidate${i}_nullRate`, c.nullRate]])),
+        ...Object.fromEntries(
+          candidates.flatMap((c, i) => [
+            [`candidate${i}_hits`, c.hits],
+            [`candidate${i}_nullRate`, c.nullRate],
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

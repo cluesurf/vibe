@@ -60,11 +60,9 @@ export default experiment({
 
     seeded.data[center * 24 + 1] = 1
 
-    const slotSeries = new Map<
-      number,
-      { re: number[]; im: number[] }
-    >()
+    const slotSeries = new Map<number, { re: number[]; im: number[] }>()
     const classPhases: number[] = []
+
     let magnitudeLocked = true
 
     for (let t = 0; t < BEATS; t++) {
@@ -111,8 +109,7 @@ export default experiment({
 
     const classValues = new Set(classPhases)
     const naiveEigenstate =
-      classValues.size === 6 &&
-      !classCyclePeriodThree
+      classValues.size === 6 && !classCyclePeriodThree
 
     // instrument two: the temporal spectrum
     const powerAt = (f: number): number => {

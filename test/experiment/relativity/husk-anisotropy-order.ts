@@ -60,7 +60,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { composeMismatches, exactLinearization, jointToTarget, layerOf, symmetrize, type Layer, type SlotBlock } from '@/code/measure/exact-linear-collision'
+import {
+  composeMismatches,
+  exactLinearization,
+  jointToTarget,
+  layerOf,
+  symmetrize,
+  type Layer,
+  type SlotBlock,
+} from '@/code/measure/exact-linear-collision'
 import {
   bulkDirections,
   CHARGE,
@@ -74,7 +82,10 @@ import {
   spanInside,
   spread,
 } from '@/code/measure/husk-transport-order'
-import { periodMap, LINE_SUM_VECTOR } from '@/code/coarse/knit-boltzmann'
+import {
+  periodMap,
+  LINE_SUM_VECTOR,
+} from '@/code/coarse/knit-boltzmann'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { combinedFactors } from '@/code/rule/combined-knit-layers'
 import { knitForward } from '@/code/compute/knit-reference'
@@ -105,25 +116,45 @@ function toyCheck(): number {
       [1, 3, 5, 7],
     ],
   ]
+
   let start = 11
-  const toy: Layer[] = blocks.map(layer => layer.map(slots => ({ slots, map: Int32Array.from(weylPermutation({ size: 81, start: start++ })) }) as SlotBlock))
+
+  const toy: Layer[] = blocks.map(layer =>
+    layer.map(
+      slots =>
+        ({
+          slots,
+          map: Int32Array.from(
+            weylPermutation({ size: 81, start: start++ }),
+          ),
+        }) as SlotBlock,
+    ),
+  )
   const degree = 8
+
   let worst = 0
 
   for (let d = 0; d < degree; d++) {
     for (const target of toy[2]!) {
       const joints = jointToTarget({ layers: toy, d, target })
-      const counts = new Map<number, Float64Array>(target.slots.map(e => [e, new Float64Array(9)]))
+      const counts = new Map<number, Float64Array>(
+        target.slots.map(e => [e, new Float64Array(9)]),
+      )
 
       for (let x = 0; x < 3 ** degree; x++) {
-        const s = Int8Array.from({ length: degree }, (_, i) => (Math.floor(x / 3 ** i) % 3) - 1)
+        const s = Int8Array.from(
+          { length: degree },
+          (_, i) => (Math.floor(x / 3 ** i) % 3) - 1,
+        )
         const a = (s[d] ?? 0) + 1
 
         for (const layer of toy) {
           for (const b of layer) {
             let local = 0
 
-            for (let k = b.slots.length - 1; k >= 0; k--) local = local * 3 + ((s[b.slots[k]!] ?? 0) + 1)
+            for (let k = b.slots.length - 1; k >= 0; k--) {
+              local = local * 3 + ((s[b.slots[k]!] ?? 0) + 1)
+            }
 
             let image = b.map[local]!
 
@@ -137,7 +168,8 @@ function toyCheck(): number {
         for (const e of target.slots) {
           const c = counts.get(e)!
 
-          c[a * 3 + (s[e]! + 1)] = c[a * 3 + (s[e]! + 1)]! + 1 / 3 ** degree
+          c[a * 3 + (s[e]! + 1)] =
+            c[a * 3 + (s[e]! + 1)]! + 1 / 3 ** degree
         }
       }
 
@@ -145,7 +177,9 @@ function toyCheck(): number {
         const j = joints.get(e)!
         const c = counts.get(e)!
 
-        for (let i = 0; i < 9; i++) worst = Math.max(worst, Math.abs(j[i]! - c[i]!))
+        for (let i = 0; i < 9; i++) {
+          worst = Math.max(worst, Math.abs(j[i]! - c[i]!))
+        }
       }
     }
   }
@@ -172,12 +206,29 @@ function buildKnit(name: 'committed' | 'combined'): Built {
       return u < 0.1 ? -1 : u < 0.8 ? 0 : 1
     }),
   )
-  let mismatches = 0
-  const matrices = Array.from({ length: PERIOD }, (_, t) => {
-    const factors = name === 'committed' ? [forward(t)] : combinedFactors({ t, opposite })
-    const layers = factors.map(collision => layerOf({ collision, degree: 24 }))
 
-    mismatches += composeMismatches({ layers, collision: forward(t), states: dense }) + composeMismatches({ layers, collision: forward(t), states: sparse })
+  let mismatches = 0
+
+  const matrices = Array.from({ length: PERIOD }, (_, t) => {
+    const factors =
+      name === 'committed'
+        ? [forward(t)]
+        : combinedFactors({ t, opposite })
+    const layers = factors.map(collision =>
+      layerOf({ collision, degree: 24 }),
+    )
+
+    mismatches +=
+      composeMismatches({
+        layers,
+        collision: forward(t),
+        states: dense,
+      }) +
+      composeMismatches({
+        layers,
+        collision: forward(t),
+        states: sparse,
+      })
 
     return exactLinearization({ layers, degree: 24 })
   })
@@ -186,14 +237,19 @@ function buildKnit(name: 'committed' | 'combined'): Built {
 }
 
 // the largest change l A - l of a left vector over the matrices
-function defect(matrices: readonly Float64Array[], left: Float64Array): number {
+function defect(
+  matrices: readonly Float64Array[],
+  left: Float64Array,
+): number {
   let worst = 0
 
   for (const a of matrices) {
     for (let c = 0; c < 48; c++) {
       let s = 0
 
-      for (let r = 0; r < 48; r++) s += (left[r] ?? 0) * (a[r * 48 + c] ?? 0)
+      for (let r = 0; r < 48; r++) {
+        s += (left[r] ?? 0) * (a[r * 48 + c] ?? 0)
+      }
 
       worst = Math.max(worst, Math.abs(s - (left[c] ?? 0)))
     }
@@ -215,16 +271,27 @@ type Reading = {
 
 const ZERO_RATE = 1e-4
 
-type Spectrum = { invariants: number; unitEigenvalues: number; gap: number; kc: number }
+type Spectrum = {
+  invariants: number
+  unitEigenvalues: number
+  gap: number
+  kc: number
+}
 
-function spectrumOf(matrices: readonly Float64Array[], invariants: readonly Float64Array[]): Spectrum {
+function spectrumOf(
+  matrices: readonly Float64Array[],
+  invariants: readonly Float64Array[],
+): Spectrum {
   const m0 = periodMap({ matrices, wave: [0, 0, 0, 0] })
   const ev = complexEigenvalues({ re: m0.re, im: m0.im, n: 48 })
-  const moduli = ev.re.map((r, i) => Math.hypot(r, ev.im[i] ?? 0)).sort((a, b) => b - a)
+  const moduli = ev.re
+    .map((r, i) => Math.hypot(r, ev.im[i] ?? 0))
+    .sort((a, b) => b - a)
   const unit = moduli.filter(x => Math.abs(x - 1) < 1e-12).length
   const next = moduli[invariants.length] ?? 0
   const gap = -Math.log(next) / PERIOD
   const probe = 1e-4
+
   let dMax = 0
 
   for (const u of [
@@ -232,51 +299,119 @@ function spectrumOf(matrices: readonly Float64Array[], invariants: readonly Floa
     [0, 1, 0, 0],
     [0, 0, 1, 0],
   ]) {
-    const modes = slowModesAt({ matrices, wave: u.map(x => x * probe), count: invariants.length, families: familiesFor({ u, invariants, husk: true }) })
+    const modes = slowModesAt({
+      matrices,
+      wave: u.map(x => x * probe),
+      count: invariants.length,
+      families: familiesFor({ u, invariants, husk: true }),
+    })
 
-    for (const m of modes) dMax = Math.max(dMax, m.gamma / probe / probe)
+    for (const m of modes) {
+      dMax = Math.max(dMax, m.gamma / probe / probe)
+    }
   }
 
-  return { invariants: invariants.length, unitEigenvalues: unit, gap, kc: Math.sqrt(gap / dMax) }
+  return {
+    invariants: invariants.length,
+    unitEigenvalues: unit,
+    gap,
+    kc: Math.sqrt(gap / dMax),
+  }
 }
 
-function readAnisotropy(input: { matrices: readonly Float64Array[]; invariants: readonly Float64Array[]; kc: number; husk: boolean }): Reading {
+function readAnisotropy(input: {
+  matrices: readonly Float64Array[]
+  invariants: readonly Float64Array[]
+  kc: number
+  husk: boolean
+}): Reading {
   const { matrices, invariants, kc, husk } = input
   const directions = husk ? huskDirections(24) : bulkDirections(24)
   const ks = LADDER.map(r => kc / r)
-  const series: Record<string, number[]> = { charge: [], trace: [], slowest: [], shear: [], ballistic: [] }
-  const axes: Record<string, number[]> = { charge: [], trace: [], slowest: [] }
+  const series: Record<string, number[]> = {
+    charge: [],
+    trace: [],
+    slowest: [],
+    shear: [],
+    ballistic: [],
+  }
+  const axes: Record<string, number[]> = {
+    charge: [],
+    trace: [],
+    slowest: [],
+  }
   const frozen: number[] = []
 
   ks.forEach((k, rung) => {
-    const values: Record<string, number[]> = { charge: [], trace: [], slowest: [], shear: [], ballistic: [] }
+    const values: Record<string, number[]> = {
+      charge: [],
+      trace: [],
+      slowest: [],
+      shear: [],
+      ballistic: [],
+    }
 
     directions.forEach((u, index) => {
-      const modes = slowModesAt({ matrices, wave: u.map(x => x * k), count: invariants.length, families: familiesFor({ u, invariants, husk }) })
-      const chargeMode = modes.reduce((best, m) => (m.family === 'charge' && m.share > (best?.share ?? -1) ? m : best), undefined as (typeof modes)[number] | undefined)
+      const modes = slowModesAt({
+        matrices,
+        wave: u.map(x => x * k),
+        count: invariants.length,
+        families: familiesFor({ u, invariants, husk }),
+      })
+      const chargeMode = modes.reduce(
+        (best, m) =>
+          m.family === 'charge' && m.share > (best?.share ?? -1)
+            ? m
+            : best,
+        undefined as (typeof modes)[number] | undefined,
+      )
       const rest = modes.filter(m => m !== chargeMode)
       // a mode that does not decay (Gamma / k^2 under 1e-4, far below every decaying one and above the
       // eigenvalue rounding at the shortest k) is ballistic, or frozen when it does not move either
       const decaying = rest.filter(m => m.gamma / (k * k) > ZERO_RATE)
       const ballistic = rest.filter(m => m.gamma / (k * k) <= ZERO_RATE)
 
-      frozen[rung] = (frozen[rung] ?? 0) + (ballistic.some(m => m.omega / k < 1e-3) ? 1 : 0)
+      frozen[rung] =
+        (frozen[rung] ?? 0) +
+        (ballistic.some(m => m.omega / k < 1e-3) ? 1 : 0)
 
-      if (chargeMode) values.charge!.push(chargeMode.gamma / (k * k))
-
-      if (decaying.length > 0) {
-        values.trace!.push(decaying.reduce((s, m) => s + m.gamma / (k * k), 0))
-        values.slowest!.push(Math.min(...decaying.map(m => m.gamma / (k * k))))
+      if (chargeMode) {
+        values.charge!.push(chargeMode.gamma / (k * k))
       }
 
-      for (const m of decaying) if (m.family === 'shear') values.shear!.push(m.gamma / (k * k))
-      for (const m of ballistic) values.ballistic!.push(m.omega / k)
+      if (decaying.length > 0) {
+        values.trace!.push(
+          decaying.reduce((s, m) => s + m.gamma / (k * k), 0),
+        )
+
+        values.slowest!.push(
+          Math.min(...decaying.map(m => m.gamma / (k * k))),
+        )
+      }
+
+      for (const m of decaying) {
+        if (m.family === 'shear') {
+          values.shear!.push(m.gamma / (k * k))
+        }
+      }
+
+      for (const m of ballistic) {
+        values.ballistic!.push(m.omega / k)
+      }
 
       if (rung === 0 && index < 3) {
-        if (chargeMode) axes.charge!.push(chargeMode.gamma / (k * k))
+        if (chargeMode) {
+          axes.charge!.push(chargeMode.gamma / (k * k))
+        }
+
         if (decaying.length > 0) {
-          axes.trace!.push(decaying.reduce((s, m) => s + m.gamma / (k * k), 0))
-          axes.slowest!.push(Math.min(...decaying.map(m => m.gamma / (k * k))))
+          axes.trace!.push(
+            decaying.reduce((s, m) => s + m.gamma / (k * k), 0),
+          )
+
+          axes.slowest!.push(
+            Math.min(...decaying.map(m => m.gamma / (k * k))),
+          )
         }
       }
     })
@@ -284,24 +419,43 @@ function readAnisotropy(input: { matrices: readonly Float64Array[]; invariants: 
     for (const name of Object.keys(series)) {
       const v = values[name] ?? []
 
-      series[name]!.push(v.length > 1 && v.some(x => x !== 0) ? spread(v) : Number.NaN)
+      series[name]!.push(
+        v.length > 1 && v.some(x => x !== 0) ? spread(v) : Number.NaN,
+      )
     }
   })
 
   return { series, ks, axes, frozen, directions: directions.length }
 }
 
-function exponents(reading: Reading): Record<string, { slope: number; error: number; tail: number; atShortest: number }> {
-  const out: Record<string, { slope: number; error: number; tail: number; atShortest: number }> = {}
+function exponents(
+  reading: Reading,
+): Record<
+  string,
+  { slope: number; error: number; tail: number; atShortest: number }
+> {
+  const out: Record<
+    string,
+    { slope: number; error: number; tail: number; atShortest: number }
+  > = {}
 
   for (const [name, ys] of Object.entries(reading.series)) {
-    if (ys.some(y => !Number.isFinite(y))) continue
+    if (ys.some(y => !Number.isFinite(y))) {
+      continue
+    }
 
     const fit = logSlope(reading.ks.slice(0, FIT), ys.slice(0, FIT))
     const n = ys.length
-    const tail = Math.log((ys[n - 2] ?? 1) / (ys[n - 1] ?? 1)) / Math.log((reading.ks[n - 2] ?? 1) / (reading.ks[n - 1] ?? 1))
+    const tail =
+      Math.log((ys[n - 2] ?? 1) / (ys[n - 1] ?? 1)) /
+      Math.log((reading.ks[n - 2] ?? 1) / (reading.ks[n - 1] ?? 1))
 
-    out[name] = { slope: fit.slope, error: fit.error, tail, atShortest: ys[n - 1] ?? Number.NaN }
+    out[name] = {
+      slope: fit.slope,
+      error: fit.error,
+      tail,
+      atShortest: ys[n - 1] ?? Number.NaN,
+    }
   }
 
   return out
@@ -327,12 +481,15 @@ export default experiment({
     const fixesDepth = (p: readonly number[]): boolean =>
       ROOTS.every((r, d) => {
         const image = ROOTS[p[d] ?? d] ?? r
+
         // the linear map fixes e4 exactly when every root's fourth entry is kept
         return (image[3] ?? 0) === (r[3] ?? 0)
       })
     const cubicPerms = perms.filter(fixesDepth)
     const wf4Matrices = combined.matrices.map(a => symmetrize(a, perms))
-    const cubicMatrices = combined.matrices.map(a => symmetrize(a, cubicPerms))
+    const cubicMatrices = combined.matrices.map(a =>
+      symmetrize(a, cubicPerms),
+    )
 
     const sets = {
       committed: committed.matrices,
@@ -340,9 +497,32 @@ export default experiment({
       wf4Averaged: wf4Matrices,
       cubicAveraged: cubicMatrices,
     }
-    const metrics: Record<string, number> = { toyWorst: toy, committedMismatches: committed.mismatches, combinedMismatches: combined.mismatches, cubicGroupOrder: cubicPerms.length }
-    const results: Record<string, Record<string, Record<string, { slope: number; error: number; tail: number; atShortest: number }>>> = {}
-    let exact = toy < 1e-14 && committed.mismatches === 0 && combined.mismatches === 0
+    const metrics: Record<string, number> = {
+      toyWorst: toy,
+      committedMismatches: committed.mismatches,
+      combinedMismatches: combined.mismatches,
+      cubicGroupOrder: cubicPerms.length,
+    }
+    const results: Record<
+      string,
+      Record<
+        string,
+        Record<
+          string,
+          {
+            slope: number
+            error: number
+            tail: number
+            atShortest: number
+          }
+        >
+      >
+    > = {}
+
+    let exact =
+      toy < 1e-14 &&
+      committed.mismatches === 0 &&
+      combined.mismatches === 0
 
     for (const [name, matrices] of Object.entries(sets)) {
       const invariants = invariantBasis(matrices)
@@ -353,17 +533,37 @@ export default experiment({
       metrics[`${name}Gap`] = spectrum.gap
       metrics[`${name}Kc`] = spectrum.kc
       metrics[`${name}ChargeDefect`] = defect(matrices, CHARGE)
-      metrics[`${name}MomentumKept`] = spanInside(orthonormalize([0, 1, 2, 3].map(i => momentumAlong([0, 1, 2, 3].map(k => (k === i ? 1 : 0))))), invariants)
-      metrics[`${name}LineSumKept`] = spanInside(orthonormalize([LINE_SUM_VECTOR]), invariants)
+      metrics[`${name}MomentumKept`] = spanInside(
+        orthonormalize(
+          [0, 1, 2, 3].map(i =>
+            momentumAlong([0, 1, 2, 3].map(k => (k === i ? 1 : 0))),
+          ),
+        ),
+        invariants,
+      )
+
+      metrics[`${name}LineSumKept`] = spanInside(
+        orthonormalize([LINE_SUM_VECTOR]),
+        invariants,
+      )
 
       if (name === 'committed' || name === 'combined') {
-        exact = exact && spectrum.unitEigenvalues === spectrum.invariants && (metrics[`${name}ChargeDefect`] ?? 1) < 1e-12
+        exact =
+          exact &&
+          spectrum.unitEigenvalues === spectrum.invariants &&
+          (metrics[`${name}ChargeDefect`] ?? 1) < 1e-12
       }
 
       if (name === 'combined') {
         exact =
           exact &&
-          [0, 1, 2, 3].every(i => defect(matrices, momentumAlong([0, 1, 2, 3].map(k => (k === i ? 1 : 0)))) < 1e-12) &&
+          [0, 1, 2, 3].every(
+            i =>
+              defect(
+                matrices,
+                momentumAlong([0, 1, 2, 3].map(k => (k === i ? 1 : 0))),
+              ) < 1e-12,
+          ) &&
           defect(matrices, LINE_SUM_VECTOR) < 1e-12
       }
 
@@ -371,22 +571,39 @@ export default experiment({
 
       for (const husk of [true, false]) {
         const region = husk ? 'husk' : 'bulk'
-        const reading = readAnisotropy({ matrices, invariants, kc: spectrum.kc, husk })
+        const reading = readAnisotropy({
+          matrices,
+          invariants,
+          kc: spectrum.kc,
+          husk,
+        })
         const fits = exponents(reading)
 
-        results[name]![region] = fits
+        results[name][region] = fits
 
         for (const [q, f] of Object.entries(fits)) {
-          metrics[`${name}_${region}_${q}_exponent`] = Number(f.slope.toFixed(4))
-          metrics[`${name}_${region}_${q}_error`] = Number(f.error.toFixed(4))
-          metrics[`${name}_${region}_${q}_tailSlope`] = Number(f.tail.toFixed(4))
-          metrics[`${name}_${region}_${q}_anisotropyAtShortestK`] = f.atShortest
+          metrics[`${name}_${region}_${q}_exponent`] = Number(
+            f.slope.toFixed(4),
+          )
+
+          metrics[`${name}_${region}_${q}_error`] = Number(
+            f.error.toFixed(4),
+          )
+
+          metrics[`${name}_${region}_${q}_tailSlope`] = Number(
+            f.tail.toFixed(4),
+          )
+
+          metrics[`${name}_${region}_${q}_anisotropyAtShortestK`] =
+            f.atShortest
         }
 
         reading.series.charge!.forEach((v, i) => {
           metrics[`${name}_${region}_charge_anisotropy_k${i}`] = v
         })
-        metrics[`${name}_${region}_frozenDirectionsAtShortestK`] = reading.frozen[reading.frozen.length - 1] ?? 0
+
+        metrics[`${name}_${region}_frozenDirectionsAtShortestK`] =
+          reading.frozen[reading.frozen.length - 1] ?? 0
         metrics[`${name}_${region}_directions`] = reading.directions
 
         if (husk) {
@@ -399,26 +616,54 @@ export default experiment({
       }
     }
 
-    const within = (x: number | undefined, target: number): boolean => x !== undefined && Math.abs(x - target) <= 0.5
+    const within = (x: number | undefined, target: number): boolean =>
+      x !== undefined && Math.abs(x - target) <= 0.5
     const controls =
-      within(results.wf4Averaged?.husk?.charge?.slope, 4) && within(results.wf4Averaged?.husk?.trace?.slope, 4) && within(results.cubicAveraged?.husk?.charge?.slope, 2)
-    const knitFits = ['committed', 'combined'].flatMap(n => Object.entries(results[n]?.husk ?? {}).map(([q, f]) => ({ knit: n, q, ...f })))
-    const resolved = knitFits.every(f => f.error < 0.3) && ['committed', 'combined'].every(n => (results[n]?.husk?.charge?.slope ?? Number.NaN) === (results[n]?.husk?.charge?.slope ?? 0))
+      within(results.wf4Averaged?.husk?.charge?.slope, 4) &&
+      within(results.wf4Averaged?.husk?.trace?.slope, 4) &&
+      within(results.cubicAveraged?.husk?.charge?.slope, 2)
+    const knitFits = ['committed', 'combined'].flatMap(n =>
+      Object.entries(results[n]?.husk ?? {}).map(([q, f]) => ({
+        knit: n,
+        q,
+        ...f,
+      })),
+    )
+    const resolved =
+      knitFits.every(f => f.error < 0.3) &&
+      ['committed', 'combined'].every(
+        n =>
+          (results[n]?.husk?.charge?.slope ?? Number.NaN) ===
+          (results[n]?.husk?.charge?.slope ?? 0),
+      )
     const closes = knitFits.every(f => f.slope >= 3)
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = exact && controls && resolved ? (closes ? 'pass' : 'fail') : 'partial'
-    const huskList = knitFits.map(f => `${f.knit} ${f.q} ${f.slope.toFixed(2)} +- ${f.error.toFixed(2)}`).join(', ')
+    const status =
+      exact && controls && resolved
+        ? closes
+          ? 'pass'
+          : 'fail'
+        : 'partial'
+    const huskList = knitFits
+      .map(
+        f =>
+          `${f.knit} ${f.q} ${f.slope.toFixed(2)} +- ${f.error.toFixed(2)}`,
+      )
+      .join(', ')
 
     return verdict({
       status,
       claim: `husk anisotropy exponents from the exact linear equation: ${huskList}; controls W(F4)-averaged charge ${results.wf4Averaged?.husk?.charge?.slope.toFixed(2)} and trace ${results.wf4Averaged?.husk?.trace?.slope.toFixed(2)}, cubic-averaged charge ${results.cubicAveraged?.husk?.charge?.slope.toFixed(2)}; the fork ${closes ? 'closes' : 'stands'} physically`,
       metrics,
       control: {
-        wf4AveragedHuskChargeExponent: results.wf4Averaged?.husk?.charge?.slope ?? Number.NaN,
-        wf4AveragedHuskTraceExponent: results.wf4Averaged?.husk?.trace?.slope ?? Number.NaN,
-        cubicAveragedHuskChargeExponent: results.cubicAveraged?.husk?.charge?.slope ?? Number.NaN,
+        wf4AveragedHuskChargeExponent:
+          results.wf4Averaged?.husk?.charge?.slope ?? Number.NaN,
+        wf4AveragedHuskTraceExponent:
+          results.wf4Averaged?.husk?.trace?.slope ?? Number.NaN,
+        cubicAveragedHuskChargeExponent:
+          results.cubicAveraged?.husk?.charge?.slope ?? Number.NaN,
       },
       notes: `L2. Gates: X1 exact ${exact}, X2 controls ${controls}, X3 resolved ${resolved}, H closes ${closes}. First run recorded as is; nothing moved. The committed knit keeps 5 exact invariants: the charge and the love and fear densities of directions 0 and 1 (roots (1, 1, 0, 0) and (1, -1, 0, 0)), which its collision never touches (0 changes in 72,000 dock collisions), so those two directions stream freely and carry 4 undamped ballistic modes; it keeps no momentum, so it has no shear and no sound. The combined knit keeps charge, P and the line sum S (6), no count, so it has no sound either; its slab invariant S - P0 is a mode frozen at every k along husk axis x and nowhere else on the husk. Its charge diffusion is large (D 97 to 189 on the husk axes, lone vibes rarely scatter), so its hydrodynamic range lies below k_c = 0.0027. The W(F4)-averaged control shows what E-RLT-0058 found: W(F4) forces the husk scalars through k^4 (exponent 4) but not the shear's degree (2, 4), so even a W(F4) knit's shear anisotropy is k^2 unless its dynamics puts no weight there, as the photon's does. Magnitudes are the linear lattice Boltzmann equation's (molecular chaos at the uniform third-each background); the exponents follow from its symmetry, which is the knit's.`,
     })

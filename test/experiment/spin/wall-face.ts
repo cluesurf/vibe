@@ -138,14 +138,44 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { restFrame } from '@/code/measure/two-beat'
-import { f4Group, pairCensusN, partnerProjector48, rangeBasis, REGISTER_ROOTS, registerPiece, scaled, singletProjector24, type GroupElement } from '@/code/measure/spinor-register'
-import { chirality2, sectorBasis, sectorBlock, volumeRight } from '@/code/measure/chiral-register'
+import {
+  f4Group,
+  pairCensusN,
+  partnerProjector48,
+  rangeBasis,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+  type GroupElement,
+} from '@/code/measure/spinor-register'
+import {
+  chirality2,
+  sectorBasis,
+  sectorBlock,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import { halfPieces, halfPhases } from '@/code/measure/chiral-flow'
-import { wallChirality, wilsonSchedule, type HalfSet, type Slab } from '@/code/measure/wilson-register'
-import { levelsNearPi, slabLevels, wallCensus, wallFlow, type WallFlow } from '@/code/measure/wall-face'
+import {
+  wallChirality,
+  wilsonSchedule,
+  type HalfSet,
+  type Slab,
+} from '@/code/measure/wilson-register'
+import {
+  levelsNearPi,
+  slabLevels,
+  wallCensus,
+  wallFlow,
+  type WallFlow,
+} from '@/code/measure/wall-face'
 
 const HEAVY: readonly [number, number] = [-2, 5]
 const E0160_U: readonly [number, number] = [-1, 4]
@@ -196,12 +226,13 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 // 0166's covariance reading, for a single element
 function covarianceGap(P: CMatrix, g: GroupElement): number {
   const n = 192
+
   let worst = 0
 
   for (let d = 0; d < 24; d++) {
     for (let e = 0; e < 24; e++) {
-      const sd = g.slots[d] as number
-      const se = g.slots[e] as number
+      const sd = g.slots[d]!
+      const se = g.slots[e]!
 
       for (let a = 0; a < 8; a++) {
         for (let c = 0; c < 8; c++) {
@@ -211,14 +242,15 @@ function covarianceGap(P: CMatrix, g: GroupElement): number {
           let ri = 0
 
           for (let b = 0; b < 8; b++) {
-            const ga = (g.register[a] as number[])[b] as number
-            const gc = (g.register[b] as number[])[c] as number
+            const ga = g.register[a]![b]!
+            const gc = g.register[b]![c]!
 
-            lr += ga * (P.re[(d * 8 + b) * n + e * 8 + c] as number)
-            li += ga * (P.im[(d * 8 + b) * n + e * 8 + c] as number)
-            rr += (P.re[(sd * 8 + a) * n + se * 8 + b] as number) * gc
-            ri += (P.im[(sd * 8 + a) * n + se * 8 + b] as number) * gc
+            lr += ga * P.re[(d * 8 + b) * n + e * 8 + c]!
+            li += ga * P.im[(d * 8 + b) * n + e * 8 + c]!
+            rr += P.re[(sd * 8 + a) * n + se * 8 + b]! * gc
+            ri += P.im[(sd * 8 + a) * n + se * 8 + b]! * gc
           }
+
           worst = Math.max(worst, Math.abs(lr - rr), Math.abs(li - ri))
         }
       }
@@ -227,11 +259,13 @@ function covarianceGap(P: CMatrix, g: GroupElement): number {
 
   return worst
 }
+
 const unitValue = (kj: readonly [number, number]): [number, number] => {
   const t = unitAngle(ringUnit(kj[0], kj[1]))
 
   return [Math.cos(t), Math.sin(t)]
 }
+
 const DIRS3: readonly number[][] = [
   [1, 0, 0],
   [Math.SQRT1_2, Math.SQRT1_2, 0],
@@ -255,7 +289,10 @@ export default experiment({
 
 export function wallFaceRun(plan: WallFacePlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
   const J = volumeRight()
@@ -265,35 +302,96 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   const MH = wrap(unitAngle(ringUnit(HEAVY[0], HEAVY[1])) - Math.PI)
   const heavy = wilsonSchedule(qS, qD, uH, { wilson: true })
   const trivial = wilsonSchedule(qS, qD, uH, { wilson: false })
-  const chiral = wilsonSchedule(qS, qD, uH, { wilson: true, half: pPlus })
-  const setsOf = (P: CMatrix[], half: 0 | 1): HalfSet[] => [{ pieces: halfPieces(trivial, basis, half).pieces }, { pieces: halfPieces(P, basis, half).pieces }]
-  const rangesOf = (half: 0 | 1): { sR: number[][]; dR: number[][] } => ({
-    sR: rangeBasis(sectorBlock({ re: qS, im: new Float64Array(qS.length) }, basis, half).block.re, 96),
-    dR: rangeBasis(sectorBlock({ re: qD, im: new Float64Array(qD.length) }, basis, half).block.re, 96),
+  const chiral = wilsonSchedule(qS, qD, uH, {
+    wilson: true,
+    half: pPlus,
+  })
+  const setsOf = (P: CMatrix[], half: 0 | 1): HalfSet[] => [
+    { pieces: halfPieces(trivial, basis, half).pieces },
+    { pieces: halfPieces(P, basis, half).pieces },
+  ]
+  const rangesOf = (
+    half: 0 | 1,
+  ): { sR: number[][]; dR: number[][] } => ({
+    sR: rangeBasis(
+      sectorBlock(
+        { re: qS, im: new Float64Array(qS.length) },
+        basis,
+        half,
+      ).block.re,
+      96,
+    ),
+    dR: rangeBasis(
+      sectorBlock(
+        { re: qD, im: new Float64Array(qD.length) },
+        basis,
+        half,
+      ).block.re,
+      96,
+    ),
   })
   const r0 = rangesOf(0)
   const r1 = rangesOf(1)
-  const wallSlab = (L: number, qa = 1, p = 0): Slab => ({ L, qa, p, profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)) })
+  const wallSlab = (L: number, qa = 1, p = 0): Slab => ({
+    L,
+    qa,
+    p,
+    profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)),
+  })
   const radial = (steps: number): number[][][] =>
     DIRS3.map(d =>
       Array.from({ length: steps + 1 }, (_, i) => {
         const k = (Math.PI * i) / steps
 
-        return [(d[0] as number) * k, (d[1] as number) * k, (d[2] as number) * k, 0]
+        return [d[0]! * k, d[1]! * k, d[2]! * k, 0]
       }),
     )
+
   let worstLeak = 0
 
   // ---------------- A0, A1: the census instrument ----------------
   const u0160 = unitValue(E0160_U)
-  const M0160 = Math.abs(wrap(unitAngle(ringUnit(E0160_U[0], E0160_U[1])) - Math.PI))
+  const M0160 = Math.abs(
+    wrap(unitAngle(ringUnit(E0160_U[0], E0160_U[1])) - Math.PI),
+  )
   const plain = wilsonSchedule(qS, qD, u0160, { wilson: false })
-  const plainSets: HalfSet[] = [{ pieces: halfPieces(plain, basis, 0).pieces }]
+  const plainSets: HalfSet[] = [
+    { pieces: halfPieces(plain, basis, 0).pieces },
+  ]
   const paths = radial(plan.censusSteps)
-  const own = pairCensusN([registerPiece(qS, u0160), registerPiece(qD, [u0160[0], -u0160[1]])], restFrame(wrap(Math.PI - M0160), wrap(Math.PI + M0160)), paths, [], REGISTER_ROOTS)
-  const oneClass = wallCensus({ L: 1, qa: 1, p: 0, profile: [0] }, plainSets, M0160, paths, DOCK_ROOTS, r0.sR, r0.dR)
-  const folded = wallCensus({ L: 4, qa: 1, p: 0, profile: [0, 0, 0, 0] }, plainSets, M0160, paths, DOCK_ROOTS, r0.sR, r0.dR)
-  const A0 = oneClass.crossings === 0 && Math.abs(oneClass.Bstar - 2 * M0160) <= 1e-9 && own.crossings === oneClass.crossings && Math.abs(own.Bstar - oneClass.Bstar) <= 1e-12
+  const own = pairCensusN(
+    [
+      registerPiece(qS, u0160),
+      registerPiece(qD, [u0160[0], -u0160[1]]),
+    ],
+    restFrame(wrap(Math.PI - M0160), wrap(Math.PI + M0160)),
+    paths,
+    [],
+    REGISTER_ROOTS,
+  )
+  const oneClass = wallCensus(
+    { L: 1, qa: 1, p: 0, profile: [0] },
+    plainSets,
+    M0160,
+    paths,
+    DOCK_ROOTS,
+    r0.sR,
+    r0.dR,
+  )
+  const folded = wallCensus(
+    { L: 4, qa: 1, p: 0, profile: [0, 0, 0, 0] },
+    plainSets,
+    M0160,
+    paths,
+    DOCK_ROOTS,
+    r0.sR,
+    r0.dR,
+  )
+  const A0 =
+    oneClass.crossings === 0 &&
+    Math.abs(oneClass.Bstar - 2 * M0160) <= 1e-9 &&
+    own.crossings === oneClass.crossings &&
+    Math.abs(own.Bstar - oneClass.Bstar) <= 1e-12
   const A1 = folded.crossings > 0
 
   worstLeak = Math.max(worstLeak, oneClass.leak, folded.leak)
@@ -302,14 +400,26 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   // ---------------- A2: the wall member's mass against the depth ----------------
   const sets0 = setsOf(heavy, 0)
   const masses = plan.massL.map(L => {
-    const eps = slabLevels(wallSlab(L), sets0, [0, 0, 0, 0], DOCK_ROOTS, r0.sR, r0.dR, false).eps
+    const eps = slabLevels(
+      wallSlab(L),
+      sets0,
+      [0, 0, 0, 0],
+      DOCK_ROOTS,
+      r0.sR,
+      r0.dR,
+      false,
+    ).eps
     const m = Math.min(...eps.filter(x => x > 0))
-    const mult = eps.filter(x => Math.abs(Math.abs(x) - m) <= 1e-9).length
+    const mult = eps.filter(
+      x => Math.abs(Math.abs(x) - m) <= 1e-9,
+    ).length
 
     return { L, m, mult }
   })
   const A2 =
-    masses.every((x, i) => i === 0 || x.m < (masses[i - 1] as { m: number }).m) &&
+    masses.every(
+      (x, i) => i === 0 || x.m < (masses[i - 1] as { m: number }).m,
+    ) &&
     (masses[0] as { m: number }).m > 0.1 &&
     (masses[masses.length - 1] as { m: number }).m < 1e-3 &&
     masses.every(x => x.mult === 8)
@@ -318,10 +428,30 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
 
   // ---------------- B1: W4 reread with Richardson ----------------
   const L = plan.wallL
-  const aDepths = new Set([L / 2 - 3, L / 2 - 2, L / 2 - 1, L / 2, L / 2 + 1, L / 2 + 2].map(c => ((c % L) + L) % L))
-  const w4 = ([0, 1] as const).map(half => plan.steps.map(h => wallChirality(wallSlab(L), setsOf(heavy, half), DOCK_ROOTS, (half ? r1 : r0).sR, (half ? r1 : r0).dR, aDepths, h, 0.1)))
-  const speedsAt = (half: 0 | 1, i: number, wall: number): number[] => (((w4[half] as ReturnType<typeof wallChirality>[])[i] as ReturnType<typeof wallChirality>).walls[wall] as { speeds: number[] }).speeds
-  const rich = (a: number[], b: number[]): number[] => a.map((x, j) => (4 * (b[j] as number) - x) / 3)
+  const aDepths = new Set(
+    [L / 2 - 3, L / 2 - 2, L / 2 - 1, L / 2, L / 2 + 1, L / 2 + 2].map(
+      c => ((c % L) + L) % L,
+    ),
+  )
+  const w4 = ([0, 1] as const).map(half =>
+    plan.steps.map(h =>
+      wallChirality(
+        wallSlab(L),
+        setsOf(heavy, half),
+        DOCK_ROOTS,
+        (half ? r1 : r0).sR,
+        (half ? r1 : r0).dR,
+        aDepths,
+        h,
+        0.1,
+      ),
+    ),
+  )
+  const speedsAt = (half: 0 | 1, i: number, wall: number): number[] =>
+    (w4[half]![i]!.walls[wall] as { speeds: number[] }).speeds
+  const rich = (a: number[], b: number[]): number[] =>
+    a.map((x, j) => (4 * b[j]! - x) / 3)
+
   let rawIso = 0
   let richIso = 0
   let richGap = 0
@@ -335,27 +465,52 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
 
       rawIso = Math.max(rawIso, Math.max(...raw) / Math.min(...raw) - 1)
       richIso = Math.max(richIso, Math.max(...R2) / Math.min(...R2) - 1)
-      richGap = Math.max(richGap, ...R1.map((x, j) => Math.abs(x - (R2[j] as number))))
-      for (const w of (w4[half] as ReturnType<typeof wallChirality>[]).map(x => (x.walls[wall] as { chirality: number }).chirality)) chiOk = chiOk && Math.abs(Math.abs(w) - 2) <= 1e-3
+      richGap = Math.max(
+        richGap,
+        ...R1.map((x, j) => Math.abs(x - R2[j]!)),
+      )
+
+      for (const w of w4[half]!.map(
+        x => (x.walls[wall] as { chirality: number }).chirality,
+      )) {
+        chiOk = chiOk && Math.abs(Math.abs(w) - 2) <= 1e-3
+      }
     }
   }
 
-  const cW = rich(speedsAt(0, 2, 0), speedsAt(0, 3, 0))[0] as number
-  const B1 = chiOk && rawIso > 1e-6 && richIso <= 1e-8 && richGap <= 1e-9
+  const cW = rich(speedsAt(0, 2, 0), speedsAt(0, 3, 0))[0]!
+  const B1 =
+    chiOk && rawIso > 1e-6 && richIso <= 1e-8 && richGap <= 1e-9
   // C1: E-SPN-0166's recorded chiralities at h = 0.01 (half 0), bit for bit
-  const recorded = (((w4[0] as ReturnType<typeof wallChirality>[])[1] as ReturnType<typeof wallChirality>).walls as { chirality: number }[]).map(w => w.chirality)
-  const C1 = recorded[0] === RECORDED_CHI_A0 && recorded[1] === RECORDED_CHI_B0
+  const recorded = (w4[0]![1]!.walls as { chirality: number }[]).map(
+    w => w.chirality,
+  )
+  const C1 =
+    recorded[0] === RECORDED_CHI_A0 && recorded[1] === RECORDED_CHI_B0
 
   log('B1')
 
   // ---------------- A3: the wall member is relativistic ----------------
   const fits = plan.censusL.map(Lc => {
     const slab = wallSlab(Lc)
-    const low = (K: number[]): number => Math.min(...slabLevels(slab, sets0, K, DOCK_ROOTS, r0.sR, r0.dR, false).eps.filter(x => x > 0))
+    const low = (K: number[]): number =>
+      Math.min(
+        ...slabLevels(
+          slab,
+          sets0,
+          K,
+          DOCK_ROOTS,
+          r0.sR,
+          r0.dR,
+          false,
+        ).eps.filter(x => x > 0),
+      )
     const m = low([0, 0, 0, 0])
     const per = DIRS3.map(d => {
       const xs = plan.fitK.map(k => k * k)
-      const ys = plan.fitK.map(k => low([(d[0] as number) * k, (d[1] as number) * k, (d[2] as number) * k, 0]) ** 2)
+      const ys = plan.fitK.map(
+        k => low([d[0]! * k, d[1]! * k, d[2]! * k, 0]) ** 2,
+      )
       // least squares y = a + b x + c x^2
       const S = [0, 0, 0, 0, 0, 0, 0, 0, 0]
       const T = [0, 0, 0]
@@ -364,16 +519,27 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
         const row = [1, x, x * x]
 
         for (let p = 0; p < 3; p++) {
-          T[p]! += (row[p] as number) * (ys[i] as number)
-          for (let q = 0; q < 3; q++) S[p * 3 + q]! += (row[p] as number) * (row[q] as number)
+          T[p]! += row[p]! * ys[i]!
+
+          for (let q = 0; q < 3; q++) {
+            S[p * 3 + q]! += row[p]! * row[q]!
+          }
         }
       })
 
-      const det3 = (M: number[]): number => M[0]! * (M[4]! * M[8]! - M[5]! * M[7]!) - M[1]! * (M[3]! * M[8]! - M[5]! * M[6]!) + M[2]! * (M[3]! * M[7]! - M[4]! * M[6]!)
+      const det3 = (M: number[]): number =>
+        M[0]! * (M[4]! * M[8]! - M[5]! * M[7]!) -
+        M[1]! * (M[3]! * M[8]! - M[5]! * M[6]!) +
+        M[2]! * (M[3]! * M[7]! - M[4]! * M[6]!)
       const D = det3(S)
-      const sol = [0, 1, 2].map(c => det3(S.map((x, i) => (i % 3 === c ? (T[Math.floor(i / 3)] as number) : x))) / D)
+      const sol = [0, 1, 2].map(
+        c =>
+          det3(
+            S.map((x, i) => (i % 3 === c ? T[Math.floor(i / 3)]! : x)),
+          ) / D,
+      )
 
-      return { m2: sol[0] as number, c2: sol[1] as number }
+      return { m2: sol[0]!, c2: sol[1]! }
     })
     const cEff = Math.sqrt((per[0] as { c2: number }).c2)
 
@@ -381,27 +547,43 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
       L: Lc,
       m,
       m2Gap: Math.max(...per.map(x => Math.abs(x.m2 / (m * m) - 1))),
-      iso: Math.max(...per.map(x => Math.abs(Math.sqrt(x.c2) / cEff - 1))),
+      iso: Math.max(
+        ...per.map(x => Math.abs(Math.sqrt(x.c2) / cEff - 1)),
+      ),
       cEff,
       R: (cW / cEff) ** 2,
       tan: Math.tan(m / 2) / (m / 2),
     }
   })
-  const A3 = fits.every(f => f.m2Gap <= 1e-6 && f.iso <= 1e-6) && Math.abs((fits[0] as { R: number }).R - 1) <= 2e-2 && Math.abs((fits[1] as { R: number }).R - 1) <= 1e-3
+  const A3 =
+    fits.every(f => f.m2Gap <= 1e-6 && f.iso <= 1e-6) &&
+    Math.abs((fits[0] as { R: number }).R - 1) <= 2e-2 &&
+    Math.abs((fits[1] as { R: number }).R - 1) <= 1e-3
 
   log('A3')
 
   // ---------------- G1: the wall pair census ----------------
   const censuses = plan.censusL.map(Lc => {
     const m = (fits.find(f => f.L === Lc) as { m: number }).m
-    const c = wallCensus(wallSlab(Lc), sets0, m, paths, DOCK_ROOTS, r0.sR, r0.dR)
+    const c = wallCensus(
+      wallSlab(Lc),
+      sets0,
+      m,
+      paths,
+      DOCK_ROOTS,
+      r0.sR,
+      r0.dR,
+    )
 
     worstLeak = Math.max(worstLeak, c.leak)
 
     return { L: Lc, m, c }
   })
   const G1 = censuses.every(x => x.c.crossings === 0)
-  const G1open = censuses.every(x => x.c.crossings > 0 && x.c.channels.MM > 0 && x.c.channels.FF > 0)
+  const G1open = censuses.every(
+    x =>
+      x.c.crossings > 0 && x.c.channels.MM > 0 && x.c.channels.FF > 0,
+  )
 
   log('G1')
 
@@ -409,19 +591,43 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   const widths = [...V_SCAN, ...V_READ].map(vkj => {
     const v = unitValue(vkj)
     const argV = unitAngle(ringUnit(vkj[0], vkj[1]))
-    const pieces = halfPieces(wilsonSchedule(qS, qD, uH, { wilson: true, v }), basis, 0).pieces
+    const pieces = halfPieces(
+      wilsonSchedule(qS, qD, uH, { wilson: true, v }),
+      basis,
+      0,
+    ).pieces
+
     let w = 0
 
-    for (const K of weylMomenta(512)) for (const ph of halfPhases(pieces, { q: 1, p: 0 }, K)) if (Math.abs(ph) < Math.PI / 2) w = Math.max(w, Math.abs(ph))
+    for (const K of weylMomenta(512)) {
+      for (const ph of halfPhases(pieces, { q: 1, p: 0 }, K)) {
+        if (Math.abs(ph) < Math.PI / 2) {
+          w = Math.max(w, Math.abs(ph))
+        }
+      }
+    }
 
     return { vkj, argV: wrap(argV), m0: -(MH + wrap(argV)), width: w }
   })
-  const A4 = widths.slice(0, V_SCAN.length).every(x => x.argV < 0 && Math.abs(x.width - Math.abs(x.argV)) <= 5e-3 && (x.m0 <= 0 || x.width > Math.abs(MH)))
+  const A4 = widths
+    .slice(0, V_SCAN.length)
+    .every(
+      x =>
+        x.argV < 0 &&
+        Math.abs(x.width - Math.abs(x.argV)) <= 5e-3 &&
+        (x.m0 <= 0 || x.width > Math.abs(MH)),
+    )
 
   log('A4')
 
   // ---------------- P1, P2, P3: the husk parity ----------------
-  const pm = weylMomenta(plan.parityMomenta).map(K => [K[0] as number, K[1] as number, K[2] as number, 0])
+  const pm = weylMomenta(plan.parityMomenta).map(K => [
+    K[0]!,
+    K[1]!,
+    K[2]!,
+    0,
+  ])
+
   // the spectrum as positions on the circle, [0, 2 pi) with the point pi (eps = +-pi, the flats at phase 0, whose sign
   // the arctangent sets by rounding) taken once, then sorted, so two spectra compare level by level
   const circle = (x: number): number => {
@@ -429,7 +635,13 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
 
     return c > 2 * Math.PI - 1e-9 ? 0 : c
   }
-  const sortedPhases = (slab: Slab, sets: readonly HalfSet[], K: number[], half: 0 | 1): number[] => {
+
+  const sortedPhases = (
+    slab: Slab,
+    sets: readonly HalfSet[],
+    K: number[],
+    half: 0 | 1,
+  ): number[] => {
     const r = half ? r1 : r0
     const lv = slabLevels(slab, sets, K, DOCK_ROOTS, r.sR, r.dR, false)
 
@@ -437,17 +649,33 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
 
     return lv.eps.map(circle).sort((a, b) => a - b)
   }
-  const spectralGap = (a: number[], b: number[]): number => (a.length === b.length ? Math.max(...a.map((x, i) => Math.abs(wrap(x - (b[i] as number))))) : Infinity)
+
+  const spectralGap = (a: number[], b: number[]): number =>
+    a.length === b.length
+      ? Math.max(...a.map((x, i) => Math.abs(wrap(x - b[i]!))))
+      : Infinity
   const neg = (K: number[]): number[] => K.map(x => -x)
-  const ph = (K: number[]): number[] => [-(K[0] as number), -(K[1] as number), -(K[2] as number), K[3] as number]
+  const ph = (K: number[]): number[] => [-K[0]!, -K[1]!, -K[2]!, K[3]!]
+
   let P1gap = 0
 
-  for (const slab of [{ L: 1, qa: 1, p: 0, profile: [1] }, { L: 2, qa: 1, p: 0, profile: [1, 1] }] as Slab[]) {
+  for (const slab of [
+    { L: 1, qa: 1, p: 0, profile: [1] },
+    { L: 2, qa: 1, p: 0, profile: [1, 1] },
+  ] as Slab[]) {
     for (const P of [heavy, trivial]) {
       for (const half of [0, 1] as const) {
         const sets = setsOf(P, half)
 
-        for (const K of pm) P1gap = Math.max(P1gap, spectralGap(sortedPhases(slab, sets, K, half), sortedPhases(slab, sets, neg(K), half)))
+        for (const K of pm) {
+          P1gap = Math.max(
+            P1gap,
+            spectralGap(
+              sortedPhases(slab, sets, K, half),
+              sortedPhases(slab, sets, neg(K), half),
+            ),
+          )
+        }
       }
     }
   }
@@ -456,14 +684,27 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   // -1, +1) (a reflection, which swaps the halves). The stream and the slab geometry are kept by both (they map the root
   // set to itself and keep x3), so a parity holds on the slab exactly when every piece commutes with it
   const group = f4Group()
-  const isDiag = (g: GroupElement, d: readonly number[]): boolean => g.matrix.every((row, i) => row.every((x, j) => x === (i === j ? (d[i] as number) : 0)))
-  const minusI = group.find(g => isDiag(g, [-1, -1, -1, -1])) as GroupElement
-  const Ph = group.find(g => isDiag(g, [-1, -1, -1, 1])) as GroupElement
-  const covAll = (Ps: readonly CMatrix[], g: GroupElement): number => Math.max(...Ps.map(P => covarianceGap(P, g)))
-  const opMinusI = Math.max(covAll(heavy, minusI), covAll(trivial, minusI), covAll(chiral, minusI))
+  const isDiag = (g: GroupElement, d: readonly number[]): boolean =>
+    g.matrix.every((row, i) =>
+      row.every((x, j) => x === (i === j ? d[i]! : 0)),
+    )
+  const minusI = group.find(g => isDiag(g, [-1, -1, -1, -1]))!
+  const Ph = group.find(g => isDiag(g, [-1, -1, -1, 1]))!
+  const covAll = (Ps: readonly CMatrix[], g: GroupElement): number =>
+    Math.max(...Ps.map(P => covarianceGap(P, g)))
+  const opMinusI = Math.max(
+    covAll(heavy, minusI),
+    covAll(trivial, minusI),
+    covAll(chiral, minusI),
+  )
   const opPhSym = Math.max(covAll(heavy, Ph), covAll(trivial, Ph))
   const opPhChiral = covAll(chiral, Ph)
-  const P1 = Boolean(minusI) && Boolean(Ph) && opMinusI <= 1e-13 && P1gap <= 1e-12
+  const P1 =
+    Boolean(minusI) &&
+    Boolean(Ph) &&
+    opMinusI <= 1e-13 &&
+    P1gap <= 1e-12
+
   let P2gap = 0
   // read: the same comparison without the parity map (half 0 at K against half 1 at K), so P2 is seen to have teeth
   let sameK = 0
@@ -471,31 +712,122 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   for (const K of pm) {
     const a = sortedPhases(wallSlab(L), setsOf(heavy, 0), K, 0)
 
-    P2gap = Math.max(P2gap, spectralGap(a, sortedPhases(wallSlab(L), setsOf(heavy, 1), ph(K), 1)))
-    sameK = Math.max(sameK, spectralGap(a, sortedPhases(wallSlab(L), setsOf(heavy, 1), K, 1)))
+    P2gap = Math.max(
+      P2gap,
+      spectralGap(
+        a,
+        sortedPhases(wallSlab(L), setsOf(heavy, 1), ph(K), 1),
+      ),
+    )
+
+    sameK = Math.max(
+      sameK,
+      spectralGap(a, sortedPhases(wallSlab(L), setsOf(heavy, 1), K, 1)),
+    )
   }
 
-  const chiOf = (half: 0 | 1, wall: number): number => ((((w4[half] as ReturnType<typeof wallChirality>[])[1] as ReturnType<typeof wallChirality>).walls[wall] as { chirality: number }).chirality)
+  const chiOf = (half: 0 | 1, wall: number): number =>
+    (w4[half]![1]!.walls[wall] as { chirality: number }).chirality
   const symFace = [0, 1].map(wall => chiOf(0, wall) + chiOf(1, wall))
   // P_h maps a face's half-0 modes to the same face's half-1 modes and reverses handedness: it holds on a face when
   // chi(half 1) = -chi(half 0) there, so the face's summed chirality, a P_h-odd number, is 0
-  const P2 = opPhSym <= 1e-13 && [0, 1].every(wall => Math.abs(chiOf(1, wall) + chiOf(0, wall)) <= 1e-3)
-  const chi = ([0, 1] as const).map(half => wallChirality(wallSlab(L), setsOf(chiral, half), DOCK_ROOTS, (half ? r1 : r0).sR, (half ? r1 : r0).dR, aDepths, 0.01, 0.1))
-  const chiralFace = [0, 1].map(wall => chi.reduce((s, w) => s + (w.walls[wall] ? (w.walls[wall] as { chirality: number }).chirality : 0), 0))
-  const inGap0 = slabLevels(wallSlab(L), setsOf(chiral, 0), [0, 0, 0, 0], DOCK_ROOTS, r0.sR, r0.dR, false).eps.filter(x => Math.abs(x) < 0.1)
-  const all1 = slabLevels(wallSlab(L), setsOf(chiral, 1), [0, 0, 0, 0], DOCK_ROOTS, r1.sR, r1.dR, false).eps
-  const partnerless = inGap0.length ? Math.min(...inGap0.map(x => Math.min(...all1.map(y => Math.abs(wrap(x - y)))))) : 0
-  const P3 = opPhChiral > 1e-3 && Math.abs((chiralFace[0] as number) - 2) <= 1e-3 && Math.abs((chiralFace[1] as number) + 2) <= 1e-3 && inGap0.length > 0 && partnerless >= 0.1
+  const P2 =
+    opPhSym <= 1e-13 &&
+    [0, 1].every(
+      wall => Math.abs(chiOf(1, wall) + chiOf(0, wall)) <= 1e-3,
+    )
+  const chi = ([0, 1] as const).map(half =>
+    wallChirality(
+      wallSlab(L),
+      setsOf(chiral, half),
+      DOCK_ROOTS,
+      (half ? r1 : r0).sR,
+      (half ? r1 : r0).dR,
+      aDepths,
+      0.01,
+      0.1,
+    ),
+  )
+  const chiralFace = [0, 1].map(wall =>
+    chi.reduce(
+      (s, w) =>
+        s +
+        (w.walls[wall]
+          ? (w.walls[wall] as { chirality: number }).chirality
+          : 0),
+      0,
+    ),
+  )
+  const inGap0 = slabLevels(
+    wallSlab(L),
+    setsOf(chiral, 0),
+    [0, 0, 0, 0],
+    DOCK_ROOTS,
+    r0.sR,
+    r0.dR,
+    false,
+  ).eps.filter(x => Math.abs(x) < 0.1)
+  const all1 = slabLevels(
+    wallSlab(L),
+    setsOf(chiral, 1),
+    [0, 0, 0, 0],
+    DOCK_ROOTS,
+    r1.sR,
+    r1.dR,
+    false,
+  ).eps
+  const partnerless = inGap0.length
+    ? Math.min(
+        ...inGap0.map(x =>
+          Math.min(...all1.map(y => Math.abs(wrap(x - y)))),
+        ),
+      )
+    : 0
+  const P3 =
+    opPhChiral > 1e-3 &&
+    Math.abs(chiralFace[0]! - 2) <= 1e-3 &&
+    Math.abs(chiralFace[1]! + 2) <= 1e-3 &&
+    inGap0.length > 0 &&
+    partnerless >= 0.1
   // C2: the chiral variant's halves are the symmetric half 0 and the plain half 1
-  const pieceGap = (A: CMatrix[], B: CMatrix[]): number => Math.max(...A.map((P, b) => Math.max(...Array.from(P.re, (x, i) => Math.abs(x - ((B[b] as CMatrix).re[i] as number))), ...Array.from(P.im, (x, i) => Math.abs(x - ((B[b] as CMatrix).im[i] as number))))))
-  const C2gap = Math.max(pieceGap(halfPieces(chiral, basis, 0).pieces, halfPieces(heavy, basis, 0).pieces), pieceGap(halfPieces(chiral, basis, 1).pieces, halfPieces(trivial, basis, 1).pieces))
+  const pieceGap = (A: CMatrix[], B: CMatrix[]): number =>
+    Math.max(
+      ...A.map((P, b) =>
+        Math.max(
+          ...Array.from(P.re, (x, i) => Math.abs(x - B[b]!.re[i]!)),
+          ...Array.from(P.im, (x, i) => Math.abs(x - B[b]!.im[i]!)),
+        ),
+      ),
+    )
+  const C2gap = Math.max(
+    pieceGap(
+      halfPieces(chiral, basis, 0).pieces,
+      halfPieces(heavy, basis, 0).pieces,
+    ),
+    pieceGap(
+      halfPieces(chiral, basis, 1).pieces,
+      halfPieces(trivial, basis, 1).pieces,
+    ),
+  )
   const C2 = C2gap <= 1e-15
 
   log('P1 P2 P3')
 
   // ---------------- F0: the field keeps the gap ----------------
   const fieldGaps = plan.fieldQa.map(qa => {
-    const g = [0, 0.8, 1.6, Math.PI].map(k2 => Math.min(...slabLevels({ L: 2, qa, p: 1, profile: [1, 1] }, sets0, [0.02, 0.05, k2, 0], DOCK_ROOTS, r0.sR, r0.dR, false).eps.map(Math.abs)))
+    const g = [0, 0.8, 1.6, Math.PI].map(k2 =>
+      Math.min(
+        ...slabLevels(
+          { L: 2, qa, p: 1, profile: [1, 1] },
+          sets0,
+          [0.02, 0.05, k2, 0],
+          DOCK_ROOTS,
+          r0.sR,
+          r0.dR,
+          false,
+        ).eps.map(Math.abs),
+      ),
+    )
 
     return { qa, gap: Math.min(...g) }
   })
@@ -507,12 +839,41 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
   let I1gap = 0
   let I1count = true
 
-  for (const K of [[0.05, 0, 0, 0], [0.11, -0.07, 0.19, 0]]) {
-    const dense = slabLevels(wallSlab(L), sets0, K, DOCK_ROOTS, r0.sR, r0.dR, false).eps.map(x => -x).filter(x => Math.abs(x) < WINDOW).sort((a, b) => a - b)
-    const mf = levelsNearPi(wallSlab(L), sets0, K, DOCK_ROOTS, WINDOW, plan.lanczosSteps).levels.map(l => l.offset).sort((a, b) => a - b)
+  for (const K of [
+    [0.05, 0, 0, 0],
+    [0.11, -0.07, 0.19, 0],
+  ]) {
+    const dense = slabLevels(
+      wallSlab(L),
+      sets0,
+      K,
+      DOCK_ROOTS,
+      r0.sR,
+      r0.dR,
+      false,
+    )
+      .eps.map(x => -x)
+      .filter(x => Math.abs(x) < WINDOW)
+      .sort((a, b) => a - b)
+    const mf = levelsNearPi(
+      wallSlab(L),
+      sets0,
+      K,
+      DOCK_ROOTS,
+      WINDOW,
+      plan.lanczosSteps,
+    )
+      .levels.map(l => l.offset)
+      .sort((a, b) => a - b)
 
     I1count = I1count && dense.length === mf.length
-    if (dense.length === mf.length) I1gap = Math.max(I1gap, ...dense.map((x, i) => Math.abs(x - (mf[i] as number))))
+
+    if (dense.length === mf.length) {
+      I1gap = Math.max(
+        I1gap,
+        ...dense.map((x, i) => Math.abs(x - mf[i]!)),
+      )
+    }
   }
 
   const I1 = I1count && I1gap <= 1e-10
@@ -521,32 +882,70 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
 
   // ---------------- E1, E2, E3: the flow ----------------
   const FL = plan.flowL
-  const flowDepths = new Set(Array.from({ length: FL / 2 }, (_, i) => (FL / 4 + i) % FL))
+  const flowDepths = new Set(
+    Array.from({ length: FL / 2 }, (_, i) => (FL / 4 + i) % FL),
+  )
+
   const flow = (qa: number, p: number, half: 0 | 1): WallFlow => {
-    const f = wallFlow(wallSlab(FL, qa, p), setsOf(heavy, half), 0.02, 0.05, 0.013, plan.loopSteps, DOCK_ROOTS, flowDepths, WINDOW, plan.lanczosSteps, WINDOW)
+    const f = wallFlow(
+      wallSlab(FL, qa, p),
+      setsOf(heavy, half),
+      0.02,
+      0.05,
+      0.013,
+      plan.loopSteps,
+      DOCK_ROOTS,
+      flowDepths,
+      WINDOW,
+      plan.lanczosSteps,
+      WINDOW,
+    )
 
     log(`flow qa ${qa} p ${p} half ${half}: A ${f.netA} B ${f.netB}`)
 
     return f
   }
-  const f15h0 = flow(plan.fieldQa[0] as number, 1, 0)
-  const f15h1 = flow(plan.fieldQa[0] as number, 1, 1)
-  const f15p0 = flow(plan.fieldQa[0] as number, 0, 0)
-  const f21h0 = flow(plan.fieldQa[1] as number, 1, 0)
+
+  const f15h0 = flow(plan.fieldQa[0]!, 1, 0)
+  const f15h1 = flow(plan.fieldQa[0]!, 1, 1)
+  const f15p0 = flow(plan.fieldQa[0]!, 0, 0)
+  const f21h0 = flow(plan.fieldQa[1]!, 1, 0)
   const flows = [f15h0, f15h1, f15p0, f21h0]
-  const E1 = f15h0.netA === 4 && f15h0.netB === -4 && f15h1.netA === -4 && f15h1.netB === 4
+  const E1 =
+    f15h0.netA === 4 &&
+    f15h0.netB === -4 &&
+    f15h1.netA === -4 &&
+    f15h1.netB === 4
   const E2 = f15p0.netA === 0 && f15p0.netB === 0
   const E3 = f21h0.netA === 4 && f21h0.netB === -4
-  const I2 = flows.every(f => f.steps.every(st => st.complete && st.eigenResidual <= 1e-8))
+  const I2 = flows.every(f =>
+    f.steps.every(st => st.complete && st.eigenResidual <= 1e-8),
+  )
   const I3 = worstLeak <= 1e-12
 
   log('E')
 
-  const hard = A0 && A1 && A2 && A3 && A4 && B1 && P1 && P2 && P3 && F0 && E1 && E2 && E3 && G1open
+  const hard =
+    A0 &&
+    A1 &&
+    A2 &&
+    A3 &&
+    A4 &&
+    B1 &&
+    P1 &&
+    P2 &&
+    P3 &&
+    F0 &&
+    E1 &&
+    E2 &&
+    E3 &&
+    G1open
   const instrument = I1 && I2 && I3
   const controls = C1 && C2
-  const status = !hard || !instrument || !controls ? 'fail' : G1 ? 'pass' : 'partial'
-  const flowLine = (f: WallFlow): string => `A ${f.netA} (up ${f.A.up} down ${f.A.down}) B ${f.netB} (up ${f.B.up} down ${f.B.down}), ambiguous ${f.ambiguous}, eigen ${f.worstEigen.toExponential(1)}`
+  const status =
+    !hard || !instrument || !controls ? 'fail' : G1 ? 'pass' : 'partial'
+  const flowLine = (f: WallFlow): string =>
+    `A ${f.netA} (up ${f.A.up} down ${f.A.down}) B ${f.netB} (up ${f.B.up} down ${f.B.down}), ambiguous ${f.ambiguous}, eigen ${f.worstEigen.toExponential(1)}`
 
   return verdict({
     status,
@@ -576,13 +975,18 @@ export function wallFaceRun(plan: WallFacePlan): Verdict {
       cW,
       weylOverQuarter: cW / C_QUARTER_CYCLE,
       richIso,
-      censusCrossings8: (censuses[1] as { c: { crossings: number } }).c.crossings,
+      censusCrossings8: (censuses[1] as { c: { crossings: number } }).c
+        .crossings,
       flowA: f15h0.netA,
       flowB: f15h0.netB,
-      chiralFaceA: chiralFace[0] as number,
+      chiralFaceA: chiralFace[0]!,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      instrument: flag(instrument),
+    },
     notes: `L2. Heavy construction u = ringUnit(${HEAVY.join(', ')}) (M ${MH.toFixed(6)}), v = conj u^2. Wall speed c_w ${cW.toFixed(10)} per cycle, ${(cW / C_QUARTER_CYCLE).toFixed(6)} of c/4. Wall member masses ${masses.map(x => `L ${x.L}: ${x.m.toExponential(6)}`).join(', ')}. Census channels (MM member side, MF mixed, FF far-side resonance): ${censuses.map(x => `L ${x.L}: ${x.c.channels.MM}/${x.c.channels.MF}/${x.c.channels.FF}, first at |q| ${x.c.first.q.toFixed(3)} (${x.c.first.pair.map(y => y.toFixed(4)).join(', ')})`).join('; ')}. Far side: ${widths.map(x => `v (${x.vkj.join(',')}): arg ${x.argV.toFixed(6)}, m0 ${x.m0.toFixed(6)}, width ${x.width.toFixed(6)}`).join('; ')}. Flow steps (qa 15, half 0): ${f15h0.steps.map(st => `${st.k2.toFixed(3)}: ${st.levels.map(l => `${l.offset.toFixed(4)}/${l.wallA.toFixed(2)}`).join(' ')}`).join('; ')}. A face's member number per loop with the chiral variant (half 0 flows, half 1 has no wall): ${f15h0.netA} on face A. The asymmetry per winding is not run jointly; E-SPN-0164's rest asymmetry per transition is 3047158125 / 10851569165584 = 2.81e-4. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

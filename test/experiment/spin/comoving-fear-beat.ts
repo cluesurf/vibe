@@ -48,7 +48,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
 import {
   closeGroup,
   conjugateMatrix,
@@ -73,10 +77,29 @@ import {
   wholeUnits,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { classicalRecords, meetingPairs, pairRecords, runWhole, vacuumBackground, weylBackground, type RoleState } from '@/code/measure/knit-magic'
-import { phaseOfGrid, productWholeAt, pureGaugeLinks, readComoving, sameRatio, trackPoints, translatedKernel } from '@/code/measure/comoving-parity'
+import {
+  classicalRecords,
+  meetingPairs,
+  pairRecords,
+  runWhole,
+  vacuumBackground,
+  weylBackground,
+  type RoleState,
+} from '@/code/measure/knit-magic'
+import {
+  phaseOfGrid,
+  productWholeAt,
+  pureGaugeLinks,
+  readComoving,
+  sameRatio,
+  trackPoints,
+  translatedKernel,
+} from '@/code/measure/comoving-parity'
 import { phasePointOperators } from '@/code/measure/grid-weights'
-import { hermitianSpectrum, operatorFromWigner } from '@/code/measure/qutrit-clifford'
+import {
+  hermitianSpectrum,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
 
 const OMEGA_ANGLE = (2 * Math.PI) / 3
 const SIDE = 3
@@ -91,14 +114,26 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
   ['basis1', 'basis1'],
 ]
 
-const combine = (a: ComplexMatrix, s: number, b: ComplexMatrix, t: number): ComplexMatrix => ({
+const combine = (
+  a: ComplexMatrix,
+  s: number,
+  b: ComplexMatrix,
+  t: number,
+): ComplexMatrix => ({
   re: a.re.map((x, i) => s * x + t * (b.re[i] ?? 0)),
   im: a.im.map((x, i) => s * x + t * (b.im[i] ?? 0)),
   n: a.n,
 })
-const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number => matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
-const conjugateBy = (u: ComplexMatrix, m: ComplexMatrix): ComplexMatrix => complexMultiply(complexMultiply(u, m), daggerMatrix(u))
-const displacement = (p: number): ComplexMatrix => displacementMatrix(3, Math.floor(p / 3), p % 3)
+const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number =>
+  matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
+const conjugateBy = (
+  u: ComplexMatrix,
+  m: ComplexMatrix,
+): ComplexMatrix =>
+  complexMultiply(complexMultiply(u, m), daggerMatrix(u))
+const displacement = (p: number): ComplexMatrix =>
+  displacementMatrix(3, Math.floor(p / 3), p % 3)
+
 const shareOf = (w: Whole): number => {
   const { loves, fears } = wholeLovesAndFears(w)
 
@@ -109,28 +144,50 @@ export default experiment({
   id: 'spin/comoving-fear-beat',
   code: 'E-SPN-0062',
   title:
-    'the fear beat read in each token\'s own frame, U\' = T (SWAP U) T^dagger with T the displacements to the two tokens\' own points: gauge covariant with no phase, equal to the model\'s beat wherever the points coincide, and on live links it keeps the role\'s fermion number at every meeting while still making and spending fear, so an exactly conserved fermion number costs one choice, a meeting read in the tokens\' own frames',
+    "the fear beat read in each token's own frame, U' = T (SWAP U) T^dagger with T the displacements to the two tokens' own points: gauge covariant with no phase, equal to the model's beat wherever the points coincide, and on live links it keeps the role's fermion number at every meeting while still making and spending fear, so an exactly conserved fermion number costs one choice, a meeting read in the tokens' own frames",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const identity3 = complexIdentity(3)
-    const phasePoints = Array.from({ length: 9 }, (_, p) => phasePointMatrix(3, Math.floor(p / 3), p % 3))
-    const q = phasePoints.map(a => scaleMatrix(combine(identity3, 1, a, 1), [0.5, 0]))
+    const phasePoints = Array.from({ length: 9 }, (_, p) =>
+      phasePointMatrix(3, Math.floor(p / 3), p % 3),
+    )
+    const q = phasePoints.map(a =>
+      scaleMatrix(combine(identity3, 1, a, 1), [0.5, 0]),
+    )
     const u = swapPhase(OMEGA_ANGLE) as ComplexMatrix
-    const uToken = complexMultiply(exchangeOperator() as ComplexMatrix, u)
+    const uToken = complexMultiply(
+      exchangeOperator() as ComplexMatrix,
+      u,
+    )
     const v = singletPhase(OMEGA_ANGLE) as ComplexMatrix
     const kernel = meetingKernel(swapPhase(OMEGA_ANGLE)) ?? []
-    const likeAt = (a: number, b: number): ComplexMatrix => conjugateBy(kronecker(displacement(a), displacement(b)), uToken)
-    const unlikeAt = (a: number, y: number): ComplexMatrix => conjugateBy(kronecker(displacement(a), displacement(y)), v)
-    const sumAt = (a: number, b: number): ComplexMatrix => combine(kronecker(q[a] as ComplexMatrix, identity3), 1, kronecker(identity3, q[b] as ComplexMatrix), 1)
-    const differenceAt = (a: number, b: number): ComplexMatrix => combine(kronecker(q[a] as ComplexMatrix, identity3), 1, kronecker(identity3, q[b] as ComplexMatrix), -1)
+    const likeAt = (a: number, b: number): ComplexMatrix =>
+      conjugateBy(kronecker(displacement(a), displacement(b)), uToken)
+    const unlikeAt = (a: number, y: number): ComplexMatrix =>
+      conjugateBy(kronecker(displacement(a), displacement(y)), v)
+    const sumAt = (a: number, b: number): ComplexMatrix =>
+      combine(
+        kronecker(q[a]!, identity3),
+        1,
+        kronecker(identity3, q[b]!),
+        1,
+      )
+    const differenceAt = (a: number, b: number): ComplexMatrix =>
+      combine(
+        kronecker(q[a]!, identity3),
+        1,
+        kronecker(identity3, q[b]!),
+        -1,
+      )
 
     // G1
     let conservationGap = 0
     let diagonalGap = 0
     let kernelMismatches = 0
+
     const like: ComplexMatrix[] = []
     const unlike: ComplexMatrix[] = []
 
@@ -141,7 +198,11 @@ export default experiment({
 
         like.push(l)
         unlike.push(w)
-        conservationGap = Math.max(conservationGap, commutatorGap(l, sumAt(a, b)), commutatorGap(w, differenceAt(a, b)))
+        conservationGap = Math.max(
+          conservationGap,
+          commutatorGap(l, sumAt(a, b)),
+          commutatorGap(w, differenceAt(a, b)),
+        )
 
         if (a === b) {
           diagonalGap = Math.max(diagonalGap, matrixDistance(l, uToken))
@@ -155,26 +216,46 @@ export default experiment({
         } else {
           for (let r = 0; r < 81; r++) {
             for (let c = 0; c < 81; c++) {
-              kernelMismatches += (own[r]?.[c] ?? 0) === (translated[r]?.[c] ?? 0) ? 0 : 1
+              kernelMismatches +=
+                (own[r]?.[c] ?? 0) === (translated[r]?.[c] ?? 0) ? 0 : 1
             }
           }
         }
       }
     }
 
-    const g1 = conservationGap < EXACT && diagonalGap < EXACT && kernelMismatches === 0
+    const g1 =
+      conservationGap < EXACT &&
+      diagonalGap < EXACT &&
+      kernelMismatches === 0
 
     // G2: covariance under Sigma(648)
     const lift = weilLifts(3)[0]
-    const s = lift ? liftOf(lift, [0, 2, 1, 0]) ?? identity3 : identity3
-    const t = lift ? liftOf(lift, [1, 1, 0, 1]) ?? identity3 : identity3
-    const sigma = closeGroup([s, t, displacementMatrix(3, 1, 0), displacementMatrix(3, 0, 1)], 5000) ?? []
+    const s = lift
+      ? (liftOf(lift, [0, 2, 1, 0]) ?? identity3)
+      : identity3
+    const t = lift
+      ? (liftOf(lift, [1, 1, 0, 1]) ?? identity3)
+      : identity3
+    const sigma =
+      closeGroup(
+        [
+          s,
+          t,
+          displacementMatrix(3, 1, 0),
+          displacementMatrix(3, 0, 1),
+        ],
+        5000,
+      ) ?? []
     const pointMap = (m: ComplexMatrix): number[] =>
       phasePoints.map(a => {
         const moved = conjugateBy(m, a)
 
-        return phasePoints.findIndex(b => matrixDistance(moved, b) < MATCH)
+        return phasePoints.findIndex(
+          b => matrixDistance(moved, b) < MATCH,
+        )
       })
+
     let covarianceGap = 0
     let unmatched = 0
 
@@ -196,14 +277,21 @@ export default experiment({
 
           covarianceGap = Math.max(
             covarianceGap,
-            matrixDistance(conjugateBy(both, like[9 * a + b] as ComplexMatrix), like[9 * ga + gb] as ComplexMatrix),
-            matrixDistance(conjugateBy(mixed, unlike[9 * a + b] as ComplexMatrix), unlike[9 * ga + gy] as ComplexMatrix),
+            matrixDistance(
+              conjugateBy(both, like[9 * a + b]!),
+              like[9 * ga + gb]!,
+            ),
+            matrixDistance(
+              conjugateBy(mixed, unlike[9 * a + b]!),
+              unlike[9 * ga + gy]!,
+            ),
           )
         }
       }
     }
 
-    const g2 = sigma.length === 648 && unmatched === 0 && covarianceGap < EXACT
+    const g2 =
+      sigma.length === 648 && unmatched === 0 && covarianceGap < EXACT
 
     // G3, G4: live-link histories
     const weave = makeColorWeave({ side: SIDE, table: 'pair' })
@@ -211,6 +299,7 @@ export default experiment({
     const dock0 = Array.from({ length: 24 }, (_, d) => d)
     const points2 = phasePointOperators(2)
     const kernelCache = new Map<number, number[][]>()
+
     const kernelAt = (a: number, b: number): number[][] => {
       const key = 9 * a + b
       const known = kernelCache.get(key)
@@ -225,27 +314,43 @@ export default experiment({
 
       return made
     }
+
     // one run of the comoving law along a pair's records, the tokens' own points tracked beside it
-    const comovingRun = (input: { records: ReturnType<typeof pairRecords>; tokens: [number, number]; start: Whole; before: readonly (readonly [number, number])[] }): Whole[] => {
+    const comovingRun = (input: {
+      records: ReturnType<typeof pairRecords>
+      tokens: [number, number]
+      start: Whole
+      before: readonly (readonly [number, number])[]
+    }): Whole[] => {
       let whole: Whole | null = input.start
+
       const out: Whole[] = []
 
       input.records.forEach((record, beat) => {
         const pts = input.before[beat] ?? [0, 0]
-        const phaseOf = (tk: number): number => phaseOfGrid(tk === input.tokens[0] ? (pts[0] ?? 0) : (pts[1] ?? 0))
+        const phaseOf = (tk: number): number =>
+          phaseOfGrid(
+            tk === input.tokens[0] ? (pts[0] ?? 0) : (pts[1] ?? 0),
+          )
 
         whole = advanceWhole({
           weave,
-          whole: whole as Whole,
+          whole: whole!,
           record,
           kernel4: kernel,
           fixed: false,
           forward: true,
-          kernelOf: (ta, tb) => ({ kernel: kernelAt(phaseOf(ta), phaseOf(tb)), divisor: 4, order: [ta, tb] as const }),
+          kernelOf: (ta, tb) => ({
+            kernel: kernelAt(phaseOf(ta), phaseOf(tb)),
+            divisor: 4,
+            order: [ta, tb] as const,
+          }),
         })
 
         if (!whole) {
-          throw new Error('the comoving law refused a grain-mode whole, which advanceWhole never does')
+          throw new Error(
+            'the comoving law refused a grain-mode whole, which advanceWhole never does',
+          )
         }
 
         out.push(whole)
@@ -254,22 +359,66 @@ export default experiment({
       return out
     }
 
-    const live = { runs: 0, meetings: 0, sumChanges: 0, freeOwnChanges: 0, shareChanges: 0, trades: 0, pure: 0, modelSumChanges: 0 }
+    const live = {
+      runs: 0,
+      meetings: 0,
+      sumChanges: 0,
+      freeOwnChanges: 0,
+      shareChanges: 0,
+      trades: 0,
+      pure: 0,
+      modelSumChanges: 0,
+    }
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: dock0, beats: BEATS })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: dock0,
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
-        const startGrid: [number, number] = [background.point[a] ?? 0, background.point[b] ?? 0]
-        const track = trackPoints({ weave, records: mine, tokens: [a, b], start: startGrid })
-        const startPhase: [number, number] = [phaseOfGrid(startGrid[0]), phaseOfGrid(startGrid[1])]
+        const startGrid: [number, number] = [
+          background.point[a] ?? 0,
+          background.point[b] ?? 0,
+        ]
+        const track = trackPoints({
+          weave,
+          records: mine,
+          tokens: [a, b],
+          start: startGrid,
+        })
+        const startPhase: [number, number] = [
+          phaseOfGrid(startGrid[0]),
+          phaseOfGrid(startGrid[1]),
+        ]
 
         for (const states of STARTS) {
-          const start = productWholeAt({ tokens: [a, b], states, points: startPhase })
-          const comoving = comovingRun({ records: mine, tokens: [a, b], start, before: track.before })
+          const start = productWholeAt({
+            tokens: [a, b],
+            states,
+            points: startPhase,
+          })
+          const comoving = comovingRun({
+            records: mine,
+            tokens: [a, b],
+            start,
+            before: track.before,
+          })
           // the control is the fixed-frame beat, the model's before the user adopted this change (2026-09-26)
-          const model = runWhole({ weave, start, records: mine, kernel4: kernel, comoving: false }).map(x => x.whole)
+          const model = runWhole({
+            weave,
+            start,
+            records: mine,
+            kernel4: kernel,
+            comoving: false,
+          }).map(x => x.whole)
 
           live.runs++
 
@@ -280,20 +429,52 @@ export default experiment({
             let before = start
 
             wholes.forEach((after, beat) => {
-              const r0 = readComoving(before, (track.before[beat] ?? [0, 0]).map(phaseOfGrid) as [number, number])
-              const r1 = readComoving(after, (track.after[beat] ?? [0, 0]).map(phaseOfGrid) as [number, number])
+              const r0 = readComoving(
+                before,
+                (track.before[beat] ?? [0, 0]).map(phaseOfGrid) as [
+                  number,
+                  number,
+                ],
+              )
+              const r1 = readComoving(
+                after,
+                (track.after[beat] ?? [0, 0]).map(phaseOfGrid) as [
+                  number,
+                  number,
+                ],
+              )
               const met = (mine[beat]?.meetings.length ?? 0) > 0
-              const sumKept = sameRatio(r0.own[0] + r0.own[1], r0.units, r1.own[0] + r1.own[1], r1.units)
+              const sumKept = sameRatio(
+                r0.own[0] + r0.own[1],
+                r0.units,
+                r1.own[0] + r1.own[1],
+                r1.units,
+              )
 
               if (law === 'model') {
                 live.modelSumChanges += met && !sumKept ? 1 : 0
               } else if (met) {
                 live.meetings++
                 live.sumChanges += sumKept ? 0 : 1
-                live.shareChanges += Math.abs(shareOf(after) - shareOf(before)) > 1e-12 ? 1 : 0
-                live.trades += sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) ? 0 : 1
+                live.shareChanges +=
+                  Math.abs(shareOf(after) - shareOf(before)) > 1e-12
+                    ? 1
+                    : 0
+
+                live.trades += sameRatio(
+                  r0.own[0],
+                  r0.units,
+                  r1.own[0],
+                  r1.units,
+                )
+                  ? 0
+                  : 1
               } else {
-                live.freeOwnChanges += sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) && sameRatio(r0.own[1], r0.units, r1.own[1], r1.units) ? 0 : 1
+                live.freeOwnChanges +=
+                  sameRatio(r0.own[0], r0.units, r1.own[0], r1.units) &&
+                  sameRatio(r0.own[1], r0.units, r1.own[1], r1.units)
+                    ? 0
+                    : 1
               }
 
               before = after
@@ -302,7 +483,12 @@ export default experiment({
 
           const last = comoving[comoving.length - 1] ?? start
           const units = Number(wholeUnits(last))
-          const spectrum = hermitianSpectrum(operatorFromWigner(last.weight.map(w => Number(w) / units), points2))
+          const spectrum = hermitianSpectrum(
+            operatorFromWigner(
+              last.weight.map(w => Number(w) / units),
+              points2,
+            ),
+          )
           const top = spectrum[spectrum.length - 1] ?? 0
           const rest = Math.max(...spectrum.slice(0, -1).map(Math.abs))
 
@@ -311,28 +497,64 @@ export default experiment({
       }
     }
 
-    const g3 = live.sumChanges === 0 && live.freeOwnChanges === 0 && live.shareChanges > 0 && live.trades > 0 && live.pure === live.runs
+    const g3 =
+      live.sumChanges === 0 &&
+      live.freeOwnChanges === 0 &&
+      live.shareChanges > 0 &&
+      live.trades > 0 &&
+      live.pure === live.runs
     const g4 = live.modelSumChanges > 0
 
     // G5: pure-gauge links, the two laws side by side
     const flatLinks = pureGaugeLinks(weave)
     const vacuum = vacuumBackground(slots)
-    const flatRecords = classicalRecords({ weave, links: flatLinks, background: vacuum, open: dock0, beats: BEATS })
+    const flatRecords = classicalRecords({
+      weave,
+      links: flatLinks,
+      background: vacuum,
+      open: dock0,
+      beats: BEATS,
+    })
+
     let flatBeats = 0
     let flatDifferences = 0
 
     for (const { a, b } of meetingPairs(flatRecords)) {
       const mine = pairRecords(flatRecords, a, b)
-      const track = trackPoints({ weave, records: mine, tokens: [a, b], start: [0, 0] })
+      const track = trackPoints({
+        weave,
+        records: mine,
+        tokens: [a, b],
+        start: [0, 0],
+      })
 
       for (const states of STARTS) {
-        const start = productWholeAt({ tokens: [a, b], states, points: [0, 0] })
-        const comoving = comovingRun({ records: mine, tokens: [a, b], start, before: track.before })
-        const model = runWhole({ weave, start, records: mine, kernel4: kernel, comoving: false }).map(x => x.whole)
+        const start = productWholeAt({
+          tokens: [a, b],
+          states,
+          points: [0, 0],
+        })
+        const comoving = comovingRun({
+          records: mine,
+          tokens: [a, b],
+          start,
+          before: track.before,
+        })
+        const model = runWhole({
+          weave,
+          start,
+          records: mine,
+          kernel4: kernel,
+          comoving: false,
+        }).map(x => x.whole)
 
         comoving.forEach((w, beat) => {
           flatBeats++
-          flatDifferences += w.weight.every((x, i) => x === model[beat]?.weight[i]) ? 0 : 1
+          flatDifferences += w.weight.every(
+            (x, i) => x === model[beat]?.weight[i],
+          )
+            ? 0
+            : 1
         })
       }
     }
@@ -365,7 +587,7 @@ export default experiment({
         modelLawSumChanges: live.modelSumChanges,
       },
       notes:
-        'L2. The fermion number of E-SPN-0059, F = sum over loves of <Q_(x_i)> minus sum over fears, becomes exact on live links with one change: the fear beat reads the two roles in their own frames. The change is local (the meeting uses the two tokens\' own points, data the knit already carries at the dock), exact (one integer kernel per pair of points, 81 in all, still quarters) and gauge covariant with no phase, so it adds no preferred frame; where the points coincide it IS the model\'s beat, and on a pure-gauge field the two rules are the same rule. It keeps the fear beat\'s job: fear is still made and spent at meetings, and the numbers still trade between tokens, so the beat is not frozen into a superselected corner. What it costs is universality across sectors: every generator now keeps F, so the pair\'s dynamics splits into F sectors, which is what a conserved fermion number means. The singlet form is covered as algebra (G1, G2); its histories need E-QTM-0123\'s frame bookkeeping and were not run. Whether the model should make this choice is not a measurement: it is a design decision this file prices, and until it is made the model has the number only on pure-gauge links (E-SPN-0059).',
+        "L2. The fermion number of E-SPN-0059, F = sum over loves of <Q_(x_i)> minus sum over fears, becomes exact on live links with one change: the fear beat reads the two roles in their own frames. The change is local (the meeting uses the two tokens' own points, data the knit already carries at the dock), exact (one integer kernel per pair of points, 81 in all, still quarters) and gauge covariant with no phase, so it adds no preferred frame; where the points coincide it IS the model's beat, and on a pure-gauge field the two rules are the same rule. It keeps the fear beat's job: fear is still made and spent at meetings, and the numbers still trade between tokens, so the beat is not frozen into a superselected corner. What it costs is universality across sectors: every generator now keeps F, so the pair's dynamics splits into F sectors, which is what a conserved fermion number means. The singlet form is covered as algebra (G1, G2); its histories need E-QTM-0123's frame bookkeeping and were not run. Whether the model should make this choice is not a measurement: it is a design decision this file prices, and until it is made the model has the number only on pure-gauge links (E-SPN-0059).",
     })
   },
 })

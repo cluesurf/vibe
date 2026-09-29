@@ -71,8 +71,17 @@
 //
 // DETERMINISM: nothing is drawn. Every count is an exact rank.
 
-import { addScaled, nullSpaceOfRows, parseMono, type Poly } from '@/code/algebra/jet-polynomial'
-import { multiplyMod, primeBelow, rankMod } from '@/code/algebra/linear/modular-linear'
+import {
+  addScaled,
+  nullSpaceOfRows,
+  parseMono,
+  type Poly,
+} from '@/code/algebra/jet-polynomial'
+import {
+  multiplyMod,
+  primeBelow,
+  rankMod,
+} from '@/code/algebra/linear/modular-linear'
 import {
   cubicAnsatz,
   DOUBLET,
@@ -95,7 +104,12 @@ const WIDTH = ANSATZ.columns.length
 // the metric alone (no doublet): how many genuine invariants the full slide leaves on h, N and n
 const METRIC_ANSATZ = cubicAnsatz(10, true)
 
-type Variant = { name: string; kind: SlideKind; c: number; maxOrder: 1 | 2 }
+type Variant = {
+  name: string
+  kind: SlideKind
+  c: number
+  maxOrder: 1 | 2
+}
 
 const VARIANTS: readonly Variant[] = [
   { name: 'full', kind: 'full', c: 1, maxOrder: 2 },
@@ -115,14 +129,24 @@ const YZ = 5
 const k = kernelKey
 const METRIC_PAIRS: [number, number][] = []
 
-for (let s = 0; s < 6; s++) for (let t = s; t < 6; t++) METRIC_PAIRS.push([s, t])
+for (let s = 0; s < 6; s++) {
+  for (let t = s; t < 6; t++) {
+    METRIC_PAIRS.push([s, t])
+  }
+}
 
 // DeWitt with lambda = 1 in the q form (|dh|^2 - (tr dh)^2): diagonal slots 0, diagonal pairs -2, off-diagonal slots 2
-const dewitt = (s: number, t: number): number => (s === t ? (s < 3 ? 0 : 2) : s < 3 && t < 3 ? -2 : 0)
+const dewitt = (s: number, t: number): number =>
+  s === t ? (s < 3 ? 0 : 2) : s < 3 && t < 3 ? -2 : 0
+
 const ALL_KEYS = (a: number, b: number): string[] => {
   const out: string[] = []
 
-  for (let m = 0; m < 4; m++) for (let n = m; n < 4; n++) out.push(k(a, b, m, n))
+  for (let m = 0; m < 4; m++) {
+    for (let n = m; n < 4; n++) {
+      out.push(k(a, b, m, n))
+    }
+  }
 
   return out
 }
@@ -151,9 +175,17 @@ type Reads = {
   doubletMixing: number
 }
 
-function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ): Reads {
+function analyse(
+  v: Variant,
+  p: number,
+  eomRank: number,
+  ansatz: Ansatz = ANSATZ,
+): Reads {
   const width = ansatz.columns.length
-  const ctx = rowContext({ kind: v.kind, c: v.c, p, doublet: true }, v.maxOrder)
+  const ctx = rowContext(
+    { kind: v.kind, c: v.c, p, doublet: true },
+    v.maxOrder,
+  )
   const memo = new Map<string, Poly>()
   const rows = new Map<string, Map<number, number>>()
 
@@ -167,10 +199,15 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
         r = monomialRows(ctx, parseMono(key))
         memo.set(key, r)
       }
+
       addScaled(total, r, ((coef % p) + p) % p, p)
     }
+
     for (const [rk, val] of total) {
-      if (!rows.has(rk)) rows.set(rk, new Map())
+      if (!rows.has(rk)) {
+        rows.set(rk, new Map())
+      }
+
       rows.get(rk)!.set(col, val)
     }
   })
@@ -179,7 +216,9 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
   const dim = basis.length
   // each member's quadratic kernel
   const kernels = ansatz.columns.map((column, col) => {
-    if (!ansatz.quadratic[col]) return new Map<string, number>()
+    if (!ansatz.quadratic[col]) {
+      return new Map<string, number>()
+    }
 
     const modded: Poly = new Map()
 
@@ -190,12 +229,29 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
   const members = basis.map(theta => {
     const out: Poly = new Map()
 
-    theta.forEach((x, col) => x !== 0 && kernels[col]!.size > 0 && addScaled(out, kernels[col]!, x, p))
+    theta.forEach(
+      (x, col) =>
+        x !== 0 &&
+        kernels[col]!.size > 0 &&
+        addScaled(out, kernels[col]!, x, p),
+    )
 
     return out
   })
-  const value = (f: Functional, m: Poly): number => f.reduce((t, [key, w]) => (t + (((m.get(key) ?? 0) * (((w % p) + p) % p)) % p)) % p, 0)
-  const rank = (fs: readonly Functional[]): number => (dim === 0 || fs.length === 0 ? 0 : rankMod(fs.map(f => members.map(m => value(f, m))), dim, p))
+  const value = (f: Functional, m: Poly): number =>
+    f.reduce(
+      (t, [key, w]) =>
+        (t + (((m.get(key) ?? 0) * (((w % p) + p) % p)) % p)) % p,
+      0,
+    )
+  const rank = (fs: readonly Functional[]): number =>
+    dim === 0 || fs.length === 0
+      ? 0
+      : rankMod(
+          fs.map(f => members.map(m => value(f, m))),
+          dim,
+          p,
+        )
   const one = (key: string): Functional => [[key, 1]]
   const c2 = v.c * v.c
 
@@ -214,7 +270,17 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
   ]
   const decoupled: Functional[] = [one(k(XY, XY, 0, 3))]
 
-  for (let b = 0; b < 12; b++) if (b !== XY) for (const [m, n] of [[0, 0], [0, 3], [3, 3]] as const) decoupled.push(one(k(XY, b, m, n)))
+  for (let b = 0; b < 12; b++) {
+    if (b !== XY) {
+      for (const [m, n] of [
+        [0, 0],
+        [0, 3],
+        [3, 3],
+      ] as const) {
+        decoupled.push(one(k(XY, b, m, n)))
+      }
+    }
+  }
 
   // the cross polarization on the face diagonal (1, 1, 0): h_xz = 1, h_yz = -1
   const face = (m: number, n: number): Functional => [
@@ -224,21 +290,44 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
   ]
   const faceMu = face(0, 0)
   const faceGamma = [...face(1, 1), ...face(2, 2), ...face(1, 2)]
-  const faceTied: Functional = [...faceGamma, ...faceMu.map(([key, w]): [string, number] => [key, 2 * c2 * w])]
+  const faceTied: Functional = [
+    ...faceGamma,
+    ...faceMu.map(([key, w]): [string, number] => [key, 2 * c2 * w]),
+  ]
   const faceDecoupled = [[...face(0, 1), ...face(0, 2)]]
 
   const aux: Functional[] = []
 
-  for (let a = 6; a < 10; a++) for (let b = 0; b < 12; b++) aux.push(one(k(a, b, 0, 0)))
+  for (let a = 6; a < 10; a++) {
+    for (let b = 0; b < 12; b++) {
+      aux.push(one(k(a, b, 0, 0)))
+    }
+  }
 
   const metricKeys: string[] = []
 
-  for (let a = 0; a < 10; a++) for (let b = a; b < 10; b++) metricKeys.push(...ALL_KEYS(a, b))
+  for (let a = 0; a < 10; a++) {
+    for (let b = a; b < 10; b++) {
+      metricKeys.push(...ALL_KEYS(a, b))
+    }
+  }
 
-  const metricMatrix = metricKeys.map(key => members.map(m => m.get(key) ?? 0))
+  const metricMatrix = metricKeys.map(key =>
+    members.map(m => m.get(key) ?? 0),
+  )
   const metricKernel = dim === 0 ? 0 : rankMod(metricMatrix, dim, p)
   const fp = quadraticKernel(fierzPauli(v.c, p), p)
-  const withFp = dim === 0 ? 1 : rankMod(metricKeys.map((key, i) => [...metricMatrix[i]!, fp.get(key) ?? 0]), dim + 1, p)
+  const withFp =
+    dim === 0
+      ? 1
+      : rankMod(
+          metricKeys.map((key, i) => [
+            ...metricMatrix[i]!,
+            fp.get(key) ?? 0,
+          ]),
+          dim + 1,
+          p,
+        )
 
   const pairs: [number, number][] = [
     [DOUBLET[0], DOUBLET[0]],
@@ -255,13 +344,22 @@ function analyse(v: Variant, p: number, eomRank: number, ansatz: Ansatz = ANSATZ
         [k(a, b, 0, 0), c2],
       ])
       doubletOffLight.push(one(k(a, b, 0, i)))
-      for (let j = i + 1; j < 4; j++) doubletOffLight.push(one(k(a, b, i, j)))
+
+      for (let j = i + 1; j < 4; j++) {
+        doubletOffLight.push(one(k(a, b, i, j)))
+      }
     }
   }
 
   const mixing: Functional[] = []
 
-  for (const d of DOUBLET) for (let b = 0; b < 10; b++) for (const key of ALL_KEYS(b, d)) mixing.push(one(key))
+  for (const d of DOUBLET) {
+    for (let b = 0; b < 10; b++) {
+      for (const key of ALL_KEYS(b, d)) {
+        mixing.push(one(key))
+      }
+    }
+  }
 
   return {
     invariant: dim,
@@ -295,9 +393,20 @@ function equationRank(p: number, ansatz: Ansatz = ANSATZ): number {
   ansatz.columns.forEach((column, col) => {
     const total: Poly = new Map()
 
-    for (const [key, coef] of column) addScaled(total, monomialEquations(parseMono(key), p), ((coef % p) + p) % p, p)
+    for (const [key, coef] of column) {
+      addScaled(
+        total,
+        monomialEquations(parseMono(key), p),
+        ((coef % p) + p) % p,
+        p,
+      )
+    }
+
     for (const [rk, val] of total) {
-      if (!rows.has(rk)) rows.set(rk, new Map())
+      if (!rows.has(rk)) {
+        rows.set(rk, new Map())
+      }
+
       rows.get(rk)!.set(col, val)
     }
   })
@@ -306,17 +415,25 @@ function equationRank(p: number, ansatz: Ansatz = ANSATZ): number {
 }
 
 // C3: the hand-expanded minimal scalar's residual rows, at speed c and at speed^2 2 c^2
-function scalarResidual(p: number): { atLight: number[]; offLight: number[] } {
+function scalarResidual(p: number): {
+  atLight: number[]
+  offLight: number[]
+} {
   const residual = (c: number, v2: number): number => {
     const ctx = rowContext({ kind: 'full', c, p, doublet: true }, 2)
     const rows: Poly = new Map()
 
-    for (const [key, coef] of minimalScalar(DOUBLET[0], c, v2, p)) addScaled(rows, monomialRows(ctx, parseMono(key)), coef, p)
+    for (const [key, coef] of minimalScalar(DOUBLET[0], c, v2, p)) {
+      addScaled(rows, monomialRows(ctx, parseMono(key)), coef, p)
+    }
 
     return rows.size
   }
 
-  return { atLight: [1, 2, 3].map(c => residual(c, c * c)), offLight: [1, 2, 3].map(c => residual(c, 2 * c * c)) }
+  return {
+    atLight: [1, 2, 3].map(c => residual(c, c * c)),
+    offLight: [1, 2, 3].map(c => residual(c, 2 * c * c)),
+  }
 }
 
 export default experiment({
@@ -330,31 +447,65 @@ export default experiment({
   paper: false,
   run() {
     const eom = PRIMES.map(p => equationRank(p))
-    const table = VARIANTS.map(v => ({ v, reads: PRIMES.map((p, i) => analyse(v, p, eom[i]!)) }))
+    const table = VARIANTS.map(v => ({
+      v,
+      reads: PRIMES.map((p, i) => analyse(v, p, eom[i]!)),
+    }))
     const scalar = PRIMES.map(scalarResidual)
-    const metricOnly = PRIMES.map(p => analyse(VARIANTS[0]!, p, equationRank(p, METRIC_ANSATZ), METRIC_ANSATZ))
+    const metricOnly = PRIMES.map(p =>
+      analyse(
+        VARIANTS[0]!,
+        p,
+        equationRank(p, METRIC_ANSATZ),
+        METRIC_ANSATZ,
+      ),
+    )
     const agree =
-      table.every(({ reads }) => JSON.stringify(reads[0]) === JSON.stringify(reads[1])) &&
+      table.every(
+        ({ reads }) =>
+          JSON.stringify(reads[0]) === JSON.stringify(reads[1]),
+      ) &&
       JSON.stringify(scalar[0]) === JSON.stringify(scalar[1]) &&
       JSON.stringify(metricOnly[0]) === JSON.stringify(metricOnly[1]) &&
       eom[0] === eom[1]
-    const read = (name: string): Reads => table.find(t => t.v.name === name)!.reads[0]!
+    const read = (name: string): Reads =>
+      table.find(t => t.v.name === name)!.reads[0]!
     const fulls = ['full', 'full c 2', 'full c 3'].map(read)
     const full = fulls[0]!
     const linear = read('linear')
     const foliation = read('foliation')
     const frozen = read('frozen-time')
 
-    const Y1 = full.metricKinetic > 0 && full.dewittResidual === 0 && full.mu === 1
+    const Y1 =
+      full.metricKinetic > 0 &&
+      full.dewittResidual === 0 &&
+      full.mu === 1
     const speedAtC = (r: Reads): boolean =>
-      r.mu === 1 && r.pair === 1 && r.tied === 0 && r.decoupled === 0 && r.faceMu === 1 && r.facePair === 1 && r.faceTied === 0 && r.faceDecoupled === 0
+      r.mu === 1 &&
+      r.pair === 1 &&
+      r.tied === 0 &&
+      r.decoupled === 0 &&
+      r.faceMu === 1 &&
+      r.facePair === 1 &&
+      r.faceTied === 0 &&
+      r.faceDecoupled === 0
     const Y2 = fulls.every(speedAtC)
     const Y3 = foliation.pair === 2
-    const C1 = linear.dewittResidual === 0 && linear.mu === 1 && linear.pair === 2
+    const C1 =
+      linear.dewittResidual === 0 &&
+      linear.mu === 1 &&
+      linear.pair === 2
     const C2 = full.fierzPauliInSpan && linear.fierzPauliInSpan
-    const C3 = scalar[0]!.atLight.every(x => x === 0) && scalar[0]!.offLight.every(x => x > 0)
+    const C3 =
+      scalar[0]!.atLight.every(x => x === 0) &&
+      scalar[0]!.offLight.every(x => x > 0)
     const controls = C1 && C2 && C3 && agree
-    const status = Y1 && Y2 && Y3 && controls ? 'pass' : controls && Y1 && Y3 ? 'partial' : 'fail'
+    const status =
+      Y1 && Y2 && Y3 && controls
+        ? 'pass'
+        : controls && Y1 && Y3
+          ? 'partial'
+          : 'fail'
     const row = (r: Reads): string =>
       `rows ${r.rows}, invariant ${r.invariant} (genuine, modulo total derivatives, ${r.genuine}); metric kernel rank ${r.metricKernel} (Fierz-Pauli in span ${r.fierzPauliInSpan}); metric kinetic rank ${r.metricKinetic}, DeWitt residual ${r.dewittResidual}, (mu, q_xx,yy) rank ${r.lambdaPair}; cross on axis: mu ${r.mu}, (mu, gamma) ${r.pair}, gamma + c^2 mu ${r.tied}, mixing ${r.decoupled}; on face: mu ${r.faceMu}, pair ${r.facePair}, tied ${r.faceTied}, mixing ${r.faceDecoupled}; shift and lapse kinetic ${r.auxKinetic}, lapse-lapse ${r.lapseLapse}; doublet kinetic ${r.doubletKinetic}, off the light cone ${r.doubletOffLight}, coupling to the metric ${r.doubletMixing}`
 
@@ -388,7 +539,11 @@ export default experiment({
         metricOnlyGenuine: metricOnly[0]!.genuine,
         metricOnlyMetricKernel: metricOnly[0]!.metricKernel,
       },
-      control: { linearPair: linear.pair, foliationPair: foliation.pair, scalarOffLight: scalar[0]!.offLight[0]! },
+      control: {
+        linearPair: linear.pair,
+        foliationPair: foliation.pair,
+        scalarOffLight: scalar[0]!.offLight[0]!,
+      },
       notes: `primes ${PRIMES.join(', ')}. Ansatz ${WIDTH} columns (${ANSATZ.quadratic.filter(x => x).length} quadratic), Euler-Lagrange rank ${eom[0]} so ${WIDTH - eom[0]!} total-derivative directions. Metric alone (${METRIC_ANSATZ.columns.length} columns), full slide: ${row(metricOnly[0]!)}. Minimal scalar residual rows at c 1, 2, 3: speed c ${scalar[0]!.atLight.join(', ')}, speed^2 2c^2 ${scalar[0]!.offLight.join(', ')}.`,
     })
   },

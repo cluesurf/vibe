@@ -68,7 +68,16 @@ import {
   type ModeFrequencies,
   type ModeVector,
 } from '@/code/measure/photon-modes'
-import { bulkModeOfHusk, columnSum, HUSK_VECTORS, huskCoulomb, huskEnergy, makeHusk, projectLinks, type Husk } from '@/code/measure/photon-husk'
+import {
+  bulkModeOfHusk,
+  columnSum,
+  HUSK_VECTORS,
+  huskCoulomb,
+  huskEnergy,
+  makeHusk,
+  projectLinks,
+  type Husk,
+} from '@/code/measure/photon-husk'
 
 const SIDE = 12
 const N = 8192
@@ -88,36 +97,64 @@ const ORBIT_B = [
   [2, 1, 2],
 ]
 
-const kappaOf = (rule: PhotonRule): number => (2 * Math.PI * rule.k) / rule.n
-const cutOf = (rule: PhotonRule): number => leapfrogOmega(kappaOf(rule), 12) / 2
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const kappaOf = (rule: PhotonRule): number =>
+  (2 * Math.PI * rule.k) / rule.n
+const cutOf = (rule: PhotonRule): number =>
+  leapfrogOmega(kappaOf(rule), 12) / 2
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
 function thermalStart(rule: PhotonRule): PhotonState {
   const s = emptyPhotonState(rule)
   const target = (rule.k * rule.n) / (2 * Math.PI * BETA)
 
-  addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), 5.3)
+  addHashedCurl(
+    rule,
+    s,
+    Math.max(1, Math.round(Math.sqrt((3 * target) / 4))),
+    5.3,
+  )
 
   return s
 }
 
-type Probe = { c0: Correlator; lagged: Correlator; history: ModeVector[]; read: (f: ArrayLike<number>) => ModeVector }
+type Probe = {
+  c0: Correlator
+  lagged: Correlator
+  history: ModeVector[]
+  read: (f: ArrayLike<number>) => ModeVector
+}
 
-type Run = { modes: ModeFrequencies[]; meanCos: number; beta: number; series: number[][] }
+type Run = {
+  modes: ModeFrequencies[]
+  meanCos: number
+  beta: number
+  series: number[][]
+}
 
 // run the rule, reading `modes` of the field `view(state)` on `lattice` every beat after settling
 function measure(
   rule: PhotonRule,
   lattice: PhotonLattice,
   view: (s: PhotonState) => ArrayLike<number>,
-  input: { settle: number; beats: number; modes: number[][]; track?: number[] },
+  input: {
+    settle: number
+    beats: number
+    modes: number[][]
+    track?: number[]
+  },
 ): Run {
   const s = thermalStart(rule)
   const f = lattice.firsts.length
   const probes: Probe[] = input.modes.map(n => {
     const reader = modeReader(lattice, n)
 
-    return { c0: makeCorrelator(f), lagged: makeCorrelator(f), history: [], read: field => reader.read(field) }
+    return {
+      c0: makeCorrelator(f),
+      lagged: makeCorrelator(f),
+      history: [],
+      read: field => reader.read(field),
+    }
   })
   const series: number[][] = []
   const cosines: number[] = []
@@ -152,30 +189,48 @@ function measure(
       if (i === 0 && input.track) {
         const w = input.track
 
-        series.push([v.re.reduce((a, x, j) => a + x * (w[j] ?? 0), 0), v.im.reduce((a, x, j) => a + x * (w[j] ?? 0), 0)])
+        series.push([
+          v.re.reduce((a, x, j) => a + x * (w[j] ?? 0), 0),
+          v.im.reduce((a, x, j) => a + x * (w[j] ?? 0), 0),
+        ])
       }
     })
 
     if ((t - input.settle) % 10 === 0) {
       cosines.push(magneticSum(rule, s.angle).meanCos)
-      temperatures.push(s.flux.reduce((a, b) => a + b * b, 0) / (rule.lattice.links - rule.lattice.cells + 1))
+      temperatures.push(
+        s.flux.reduce((a, b) => a + b * b, 0) /
+          (rule.lattice.links - rule.lattice.cells + 1),
+      )
     }
   }
 
   return {
-    modes: probes.map(p => modeFrequencies({ c0: p.c0, c1: p.lagged, lag: LAG, tolerance: 1e-9 })),
+    modes: probes.map(p =>
+      modeFrequencies({
+        c0: p.c0,
+        c1: p.lagged,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+    ),
     meanCos: mean(cosines),
     beta: (rule.k * rule.n) / (2 * Math.PI * mean(temperatures)),
     series,
   }
 }
 
-function firstZero(series: readonly number[][], maxLag: number): number {
+function firstZero(
+  series: readonly number[][],
+  maxLag: number,
+): number {
   const r = (tau: number): number => {
     let sum = 0
 
     for (let t = 0; t + tau < series.length; t++) {
-      sum += (series[t + tau]?.[0] ?? 0) * (series[t]?.[0] ?? 0) + (series[t + tau]?.[1] ?? 0) * (series[t]?.[1] ?? 0)
+      sum +=
+        (series[t + tau]?.[0] ?? 0) * (series[t]?.[0] ?? 0) +
+        (series[t + tau]?.[1] ?? 0) * (series[t]?.[1] ?? 0)
     }
 
     return sum / Math.max(1, series.length - tau)
@@ -196,43 +251,90 @@ function firstZero(series: readonly number[][], maxLag: number): number {
   return Number.NaN
 }
 
-function lightBranches(rule: PhotonRule, at1: ModeFrequencies, at2: ModeFrequencies): number[] {
+function lightBranches(
+  rule: PhotonRule,
+  at1: ModeFrequencies,
+  at2: ModeFrequencies,
+): number[] {
   return at1.omega.flatMap((w, i) => {
     const ratio = (at2.omega[i] ?? 0) / w
 
-    return w < cutOf(rule) && ratio >= DOUBLING[0] && ratio <= DOUBLING[1] ? [i] : []
+    return w < cutOf(rule) &&
+      ratio >= DOUBLING[0] &&
+      ratio <= DOUBLING[1]
+      ? [i]
+      : []
   })
 }
 
-function sectionAB(): Record<string, number> & { okA: number; okB: number } {
+function sectionAB(): Record<string, number> & {
+  okA: number
+  okB: number
+} {
   const bulk = photonLatticeD4({ side: SIDE })
   const husk = makeHusk(bulk)
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const modes = [[1, 0, 0], [2, 0, 0], ...ORBIT_A, ...ORBIT_B]
   // a transverse polarization at m1: epsilon = (0, 0, 1), read on the 9 husk directions as u_h . epsilon
   const track = HUSK_VECTORS.map(u => u[2] ?? 0)
-  const run = measure(rule, husk.lattice, s => projectLinks(husk, s.flux), { settle: 300, beats: 2000, modes, track })
+  const run = measure(
+    rule,
+    husk.lattice,
+    s => projectLinks(husk, s.flux),
+    { settle: 300, beats: 2000, modes, track },
+  )
   const [m1, m2] = run.modes as [ModeFrequencies, ModeFrequencies]
   const light = lightBranches(rule, m1, m2)
   const w1 = mean(light.map(i => m1.omega[i] ?? 0))
   const w2 = mean(light.map(i => m2.omega[i] ?? 0))
-  const lambda = (m: number[]): number => linearWaveEigenvalues(bulk, bulkModeOfHusk(m))[1] ?? 0
+  const lambda = (m: number[]): number =>
+    linearWaveEigenvalues(bulk, bulkModeOfHusk(m))[1] ?? 0
   const q = (w: number): number => 4 * Math.sin(w / 2) ** 2
-  const slope = (q(w2) - q(w1)) / (lambda([2, 0, 0]) - lambda([1, 0, 0]))
+  const slope =
+    (q(w2) - q(w1)) / (lambda([2, 0, 0]) - lambda([1, 0, 0]))
   const mass2 = q(w1) - slope * lambda([1, 0, 0])
-  const predicted = leapfrogOmega(kappaOf(rule) * run.meanCos, lambda([1, 0, 0]))
+  const predicted = leapfrogOmega(
+    kappaOf(rule) * run.meanCos,
+    lambda([1, 0, 0]),
+  )
   const tau0 = firstZero(run.series, 80)
   const direct = Math.PI / (2 * tau0)
   const kNorm = Math.hypot(...waveVector(husk.lattice, [1, 0, 0]))
-  const orbitMean = (from: number): number => mean(run.modes.slice(from, from + 3).map(m => mean(m.omega.slice(0, 2))))
+  const orbitMean = (from: number): number =>
+    mean(
+      run.modes
+        .slice(from, from + 3)
+        .map(m => mean(m.omega.slice(0, 2))),
+    )
   const huskA = orbitMean(2)
   const huskB = orbitMean(5)
 
   // the plain cubic torus, same kappa, beta and estimator
   const cube = photonLatticeCubic({ side: SIDE })
-  const cubeRule = makePhotonRule({ lattice: cube, n: N, k: K, capacity: 0, hop: false })
-  const cubeRun = measure(cubeRule, cube, s => s.flux, { settle: 300, beats: 2000, modes: [...ORBIT_A, ...ORBIT_B] })
-  const cubeMean = (from: number): number => mean(cubeRun.modes.slice(from, from + 3).map(m => mean(m.omega.slice(0, 2))))
+  const cubeRule = makePhotonRule({
+    lattice: cube,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
+  const cubeRun = measure(cubeRule, cube, s => s.flux, {
+    settle: 300,
+    beats: 2000,
+    modes: [...ORBIT_A, ...ORBIT_B],
+  })
+  const cubeMean = (from: number): number =>
+    mean(
+      cubeRun.modes
+        .slice(from, from + 3)
+        .map(m => mean(m.omega.slice(0, 2))),
+    )
   const cubeA = cubeMean(0)
   const cubeB = cubeMean(3)
 
@@ -243,7 +345,9 @@ function sectionAB(): Record<string, number> & { okA: number; okB: number } {
     Math.abs(mass2) < 0.05 * q(w1) &&
     Math.abs(w1 / predicted - 1) < 0.05 &&
     Math.abs(direct / w1 - 1) < 0.1
-  const okB = Math.abs(huskB / huskA - 1) < 0.01 && Math.abs(cubeB / cubeA - 1) > 0.03
+  const okB =
+    Math.abs(huskB / huskA - 1) < 0.01 &&
+    Math.abs(cubeB / cubeA - 1) > 0.03
 
   return {
     okA: okA ? 1 : 0,
@@ -270,7 +374,8 @@ function sectionAB(): Record<string, number> & { okA: number; okB: number } {
     bHuskOmegaAxes: huskA,
     bHuskOmegaOther: huskB,
     bHuskAnisotropy: huskB / huskA - 1,
-    bHuskLinearRatio: lambda(ORBIT_B[0] ?? []) / lambda(ORBIT_A[0] ?? []),
+    bHuskLinearRatio:
+      lambda(ORBIT_B[0] ?? []) / lambda(ORBIT_A[0] ?? []),
     bCubicOmegaAxes: cubeA,
     bCubicOmegaOther: cubeB,
     bCubicAnisotropy: cubeB / cubeA - 1,
@@ -282,7 +387,8 @@ function sectionAB(): Record<string, number> & { okA: number; okB: number } {
 function falloff(u: readonly number[]): number {
   const [u2 = 0, u3 = 0, u4 = 0] = u
   const target = (u4 - u3) / (u3 - u2)
-  const shape = (p: number): number => (3 ** -p - 4 ** -p) / (2 ** -p - 3 ** -p)
+  const shape = (p: number): number =>
+    (3 ** -p - 4 ** -p) / (2 ** -p - 3 ** -p)
 
   let lo = 0.05
   let hi = 8
@@ -303,8 +409,16 @@ function falloff(u: readonly number[]): number {
 function sectionC(): Record<string, number> & { okC: number } {
   const bulk = photonLatticeD4({ side: SIDE })
   const husk: Husk = makeHusk(bulk)
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false, charge: CHARGE })
-  const root = (v: number[]): number => bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge: CHARGE,
+  })
+  const root = (v: number[]): number =>
+    bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
   const up = root([1, 0, 0, 1])
   const down = root([1, 0, 0, -1])
   const metrics: Record<string, number> = {}
@@ -316,10 +430,19 @@ function sectionC(): Record<string, number> & { okC: number } {
   for (const r of [1, 2, 3, 4]) {
     const s = emptyPhotonState(rule)
 
-    placePairAlong(rule, s, 0, Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)), 1)
+    placePairAlong(
+      rule,
+      s,
+      0,
+      Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)),
+      1,
+    )
 
     const stringFlux = projectLinks(husk, s.flux)
-    const charge = Float64Array.from(columnSum(husk, s.vibe), q => q * CHARGE)
+    const charge = Float64Array.from(
+      columnSum(husk, s.vibe),
+      q => q * CHARGE,
+    )
     const coulomb = huskCoulomb(husk, charge)
     const bulkField = coulombFlux(rule, s.vibe)
     const average = new Float64Array(stringFlux.length)
@@ -333,7 +456,8 @@ function sectionC(): Record<string, number> & { okC: number } {
         const p = projectLinks(husk, s.flux)
 
         for (let i = 0; i < p.length; i++) {
-          average[i] = (average[i] ?? 0) + (p[i] ?? 0) / (beats - settle)
+          average[i] =
+            (average[i] ?? 0) + (p[i] ?? 0) / (beats - settle)
         }
       }
     }
@@ -347,7 +471,10 @@ function sectionC(): Record<string, number> & { okC: number } {
 
       return Math.sqrt(sum)
     }
-    const residual = norm(i => (average[i] ?? 0) - (coulomb.flux[i] ?? 0)) / norm(i => (stringFlux[i] ?? 0) - (coulomb.flux[i] ?? 0))
+
+    const residual =
+      norm(i => (average[i] ?? 0) - (coulomb.flux[i] ?? 0)) /
+      norm(i => (stringFlux[i] ?? 0) - (coulomb.flux[i] ?? 0))
     const energy = huskEnergy(average)
 
     measured.push(energy)
@@ -357,7 +484,8 @@ function sectionC(): Record<string, number> & { okC: number } {
     metrics[`cR${r}HuskEnergy`] = energy
     metrics[`cR${r}HuskCoulomb`] = coulomb.energy
     metrics[`cR${r}HuskString`] = huskEnergy(stringFlux)
-    metrics[`cR${r}BulkCoulomb`] = bulkCoulomb[bulkCoulomb.length - 1] ?? 0
+    metrics[`cR${r}BulkCoulomb`] =
+      bulkCoulomb[bulkCoulomb.length - 1] ?? 0
   }
 
   const pHusk = falloff(measured.slice(1))
@@ -369,7 +497,14 @@ function sectionC(): Record<string, number> & { okC: number } {
     cHuskEnergyRatio41: ratio,
     cHuskFalloff: pHusk,
     cBulkFalloff: pBulk,
-    okC: ok && ratio < 2 && pHusk >= 0.5 && pHusk <= 2 && pBulk - pHusk >= 0.5 ? 1 : 0,
+    okC:
+      ok &&
+      ratio < 2 &&
+      pHusk >= 0.5 &&
+      pHusk <= 2 &&
+      pBulk - pHusk >= 0.5
+        ? 1
+        : 0,
   }
 }
 
@@ -386,16 +521,29 @@ export default experiment({
     const ab = sectionAB()
     const c = sectionC()
     const sections = [ab.okA, ab.okB, c.okC]
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => !key.startsWith('ok')))
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => !key.startsWith('ok')),
+      )
 
     return verdict({
-      status: sections.every(x => x === 1) ? 'pass' : sections.some(x => x === 1) ? 'partial' : 'fail',
+      status: sections.every(x => x === 1)
+        ? 'pass'
+        : sections.some(x => x === 1)
+          ? 'partial'
+          : 'fail',
       claim:
         "projected onto the 12^3 husk, the bulk leapfrog shows 2 light branches at the smallest husk wave vector, massless, with the longitudinal flux pinned by the husk's Gauss's law, at the renormalized leapfrog speed, isotropic to under 1 percent between two cubic-inequivalent directions at |k| = pi / 2 where the plain cubic torus differs by over 3 percent, and a static love and fear whose projected flux relaxes to the husk's Coulomb field with an energy falling as about 1 / r, slower than the bulk's",
-      metrics: { ...strip(ab), ...strip(c), sectionA: ab.okA, sectionB: ab.okB, sectionC: c.okC },
+      metrics: {
+        ...strip(ab),
+        ...strip(c),
+        sectionA: ab.okA,
+        sectionB: ab.okB,
+        sectionC: c.okC,
+      },
       control: {
-        cubicAnisotropy: ab['bCubicAnisotropy'] ?? -1,
-        bulkFalloff: c['cBulkFalloff'] ?? -1,
+        cubicAnisotropy: ab.bCubicAnisotropy ?? -1,
+        bulkFalloff: c.cBulkFalloff ?? -1,
       },
       notes:
         'L2, exact integers, deterministic. The husk field is a projection: the column sum is the bulk field at k4 = 0, so husk light is the bulk light whose wave vector lies in the husk, with its depth-polarized branch killed by the projection (E-FRC-0168). The flat box models the cusp region. The hyperbolic bulk would weight the column by the warp factor, which is not modeled. First run, 2026-09-25, status partial, and the failures stand: (A) 2 light branches, 1 pinned direction and a doubling of 1.89 all pass, but the lagged estimator still reads the photon 8.1 percent above the renormalized prediction (0.1107 against 0.1024) and gives m^2 at 0.117 of its value at m1, against gates of 5 percent and 0.05, while the time-domain zero crossing reads 0.1015, within 0.9 percent of the prediction; (C) the flux residual is 0.132 at r = 1 against a gate of 0.1 (0.090, 0.075, 0.066 at r = 2 to 4), the other two C gates pass.',

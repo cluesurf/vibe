@@ -103,9 +103,45 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { loneBand } from '@/code/measure/moving-level'
-import { conjugateOther, crossBeat, exchangeLines, levelState, oneBody, oneLevels, productState, prune, rootIndex, spectralPeak, sumStates, trackVelocity, lineDirection, type CrossSpec, type CrossState } from '@/code/measure/crossing-lines'
-import { classesDisjoint, divergenceKey, exactMixer, exactRegistry, faceShift, fluxFromKey, fluxKey, liveFaces, mixClass, planePatch, registerFlux, activeFaces, type Flux, type PlanePatch } from '@/code/rule/plaquette-mixer'
-import { exactBasis, exactEqual, reduce, toComplex } from '@/code/rule/lattice-qed'
+import {
+  conjugateOther,
+  crossBeat,
+  exchangeLines,
+  levelState,
+  oneBody,
+  oneLevels,
+  productState,
+  prune,
+  rootIndex,
+  spectralPeak,
+  sumStates,
+  trackVelocity,
+  lineDirection,
+  type CrossSpec,
+  type CrossState,
+} from '@/code/measure/crossing-lines'
+import {
+  classesDisjoint,
+  divergenceKey,
+  exactMixer,
+  exactRegistry,
+  faceShift,
+  fluxFromKey,
+  fluxKey,
+  liveFaces,
+  mixClass,
+  planePatch,
+  registerFlux,
+  activeFaces,
+  type Flux,
+  type PlanePatch,
+} from '@/code/rule/plaquette-mixer'
+import {
+  exactBasis,
+  exactEqual,
+  reduce,
+  toComplex,
+} from '@/code/rule/lattice-qed'
 import {
   bentBeat,
   bentBoost,
@@ -155,17 +191,30 @@ const GEOMETRIES = [
 const wrap = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
 const f4 = (x: number): string => x.toFixed(4)
 const e2 = (x: number): string => x.toExponential(2)
-const predicted = (k: number): number => 2 * (loneBand(k).energy - loneBand(0).energy)
+const predicted = (k: number): number =>
+  2 * (loneBand(k).energy - loneBand(0).energy)
 
 // the exact mixer on one register: reversible, divergence kept, float agreement, norm, image size
-function exactCheck(patch: PlanePatch, f: Flux): { reversible: boolean; gauss: boolean; float: number; norm: number; size: number; fixed: boolean } {
+function exactCheck(
+  patch: PlanePatch,
+  f: Flux,
+): {
+  reversible: boolean
+  gauss: boolean
+  float: number
+  norm: number
+  size: number
+  fixed: boolean
+} {
   const mix = { m: RING, r: R }
   const reg = exactRegistry()
   const v = exactBasis(RING, registerFlux(reg, f))
   const image = reduce(exactMixer(patch, mix, reg, v))
   const back = exactMixer(patch, mix, reg, image, true)
   const div = divergenceKey(patch, f)
-  const gauss = [...image.entries.keys()].every(k => divergenceKey(patch, fluxFromKey(reg.keys[k] as string)) === div)
+  const gauss = [...image.entries.keys()].every(
+    k => divergenceKey(patch, fluxFromKey(reg.keys[k]!)) === div,
+  )
   const float = new Map<string, [number, number]>()
 
   for (const x of mixClass(patch, mix, f, 0, 0)) {
@@ -173,7 +222,10 @@ function exactCheck(patch: PlanePatch, f: Flux): { reversible: boolean; gauss: b
       const k = fluxKey(y.flux)
       const o = float.get(k) ?? [0, 0]
 
-      float.set(k, [o[0] + x.amp[0] * y.amp[0] - x.amp[1] * y.amp[1], o[1] + x.amp[0] * y.amp[1] + x.amp[1] * y.amp[0]])
+      float.set(k, [
+        o[0] + x.amp[0] * y.amp[0] - x.amp[1] * y.amp[1],
+        o[1] + x.amp[0] * y.amp[1] + x.amp[1] * y.amp[0],
+      ])
     }
   }
 
@@ -182,13 +234,20 @@ function exactCheck(patch: PlanePatch, f: Flux): { reversible: boolean; gauss: b
 
   for (const [k, c] of image.entries) {
     const z = toComplex(c, image.den, RING)
-    const y = float.get(reg.keys[k] as string) ?? [0, 0]
+    const y = float.get(reg.keys[k]!) ?? [0, 0]
 
     norm += z[0] ** 2 + z[1] ** 2
     worst = Math.max(worst, Math.hypot(z[0] - y[0], z[1] - y[1]))
   }
 
-  return { reversible: exactEqual(back, v), gauss, float: worst, norm, size: image.entries.size, fixed: exactEqual(image, v) }
+  return {
+    reversible: exactEqual(back, v),
+    gauss,
+    float: worst,
+    norm,
+    size: image.entries.size,
+    fixed: exactEqual(image, v),
+  }
 }
 
 export default experiment({
@@ -202,20 +261,33 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const A = rootIndex([1, 1, 0, 0])
 
     const results = GEOMETRIES.map(g => {
       const B = rootIndex(g.second)
-      const cross: CrossSpec = { L, roots: [A, B], charges: [1, -1], cost: true, contact: 'rule' }
+      const cross: CrossSpec = {
+        L,
+        roots: [A, B],
+        charges: [1, -1],
+        cost: true,
+        contact: 'rule',
+      }
       const whole = planePatch(L, g.kind)
       const patch = planePatch(L, g.kind, WINDOW)
       const disjoint = classesDisjoint(whole) && classesDisjoint(patch)
-      const cosTheta = [1, 1, 0, 0].reduce((s, x, c) => s + x * (g.second[c] as number), 0) / 2
+      const cosTheta =
+        [1, 1, 0, 0].reduce(
+          (s, x, c) => s + x * (g.second[c] as number),
+          0,
+        ) / 2
       const cosHalf = Math.sqrt((1 + cosTheta) / 2)
       const uA = lineDirection(cross, 0)
       const uB = lineDirection(cross, 1)
-      const bis = uA.map((x, c) => x + (uB[c] as number))
+      const bis = uA.map((x, c) => x + uB[c]!)
       const bisNorm = Math.hypot(...bis)
       const bisUnit = bis.map(x => x / bisNorm)
 
@@ -225,25 +297,53 @@ export default experiment({
         [lineLink(L, 0, 1), 2],
         [lineLink(L, 1, 0), 1],
       ])
-      const corner = activeFaces(patch, straight, 0)[0] ?? activeFaces(patch, straight, 1)[0]
-      const bent = corner === undefined ? straight : faceShift(patch, straight, corner, 1)
-      const exact = [whole, patch].flatMap(p => [new Map<number, number>(), straight, bent].map(f => exactCheck(p, f)))
-      const exactHolds = exact.every(x => x.reversible && x.gauss && x.float <= 1e-13 && Math.abs(x.norm - 1) <= EXACT)
-      const vacuumExact = exact[0]?.fixed === true && exact[3]?.fixed === true
-      const bends = (exact[1]?.size ?? 0) > 1 && (exact[4]?.size ?? 0) > 1
+      const corner =
+        activeFaces(patch, straight, 0)[0] ??
+        activeFaces(patch, straight, 1)[0]
+      const bent =
+        corner === undefined
+          ? straight
+          : faceShift(patch, straight, corner, 1)
+      const exact = [whole, patch].flatMap(p =>
+        [new Map<number, number>(), straight, bent].map(f =>
+          exactCheck(p, f),
+        ),
+      )
+      const exactHolds = exact.every(
+        x =>
+          x.reversible &&
+          x.gauss &&
+          x.float <= 1e-13 &&
+          Math.abs(x.norm - 1) <= EXACT,
+      )
+      const vacuumExact =
+        exact[0]?.fixed === true && exact[3]?.fixed === true
+      const bends =
+        (exact[1]?.size ?? 0) > 1 && (exact[4]?.size ?? 0) > 1
 
       log(`${g.name}: exact`)
 
       // ---- E-SPN-0110's level ----
       const o = oneBody({ ...cross, charges: [1], anchor: -1 }, 0)
-      const one = oneLevels(o, N).levels.slice().sort((a, b) => a.meanString - b.meanString)[0] as ReturnType<typeof oneLevels>['levels'][number]
+      const one = oneLevels(o, N)
+        .levels.slice()
+        .sort((a, b) => a.meanString - b.meanString)[0]!
       const love = levelState(o, one.vector)
       const product = productState(love, conjugateOther(cross, love))
-      const level0: CrossState = sumStates(product, exchangeLines(cross, product), 1)
+      const level0: CrossState = sumStates(
+        product,
+        exchangeLines(cross, product),
+        1,
+      )
 
       // ---- C0: theta = 0 is E-SPN-0110 ----
-      const zeroSpec: BentSpec = { cross, patch, mix: { m: RING, r: 0 } }
+      const zeroSpec: BentSpec = {
+        cross,
+        patch,
+        mix: { m: RING, r: 0 },
+      }
       const zc = bentCodec(zeroSpec)
+
       let cz = level0
       let bz = fromCross(zc, level0)
       let c0Distance = 0
@@ -256,7 +356,10 @@ export default experiment({
 
         const back = toCross(zc, bz)
 
-        c0Distance = Math.max(c0Distance, back ? crossDistance(cz, back) : Infinity)
+        c0Distance = Math.max(
+          c0Distance,
+          back ? crossDistance(cz, back) : Infinity,
+        )
       }
 
       const K2 = Math.PI / 2
@@ -266,9 +369,19 @@ export default experiment({
 
       pruneBent(zeroStart, FLOOR)
 
-      const zeroMove = runBent(zc, bentBoost(zc, zeroStart, [k2, k2]), MOVE, N, FLOOR)
-      const zeroVelocity = trackVelocity(cross, zeroMove.centroid).velocity.reduce((s, x, c) => s + x * (bisUnit[c] as number), 0)
-      const c0 = c0Distance <= EXACT && Math.abs(zeroVelocity) <= FROZEN * vPred
+      const zeroMove = runBent(
+        zc,
+        bentBoost(zc, zeroStart, [k2, k2]),
+        MOVE,
+        N,
+        FLOOR,
+      )
+      const zeroVelocity = trackVelocity(
+        cross,
+        zeroMove.centroid,
+      ).velocity.reduce((s, x, c) => s + x * bisUnit[c]!, 0)
+      const c0 =
+        c0Distance <= EXACT && Math.abs(zeroVelocity) <= FROZEN * vPred
 
       log(`${g.name}: theta 0`)
 
@@ -281,7 +394,13 @@ export default experiment({
 
       const probe = runBent(c, start, PROBE, N, FLOOR)
       const probePeak = spectralPeak(probe.overlap)
-      const level = filterLevel(c, start, FILTER, probePeak.energy, FLOOR)
+      const level = filterLevel(
+        c,
+        start,
+        FILTER,
+        probePeak.energy,
+        FLOOR,
+      )
 
       log(`${g.name}: level`)
 
@@ -301,7 +420,9 @@ export default experiment({
 
       // ---- B1 ----
       const held = runBent(c, level, HOLD, N, FLOOR)
-      const heldWorst = Math.max(...held.tail.map((x, t) => x + (held.lost[t] as number)))
+      const heldWorst = Math.max(
+        ...held.tail.map((x, t) => x + held.lost[t]!),
+      )
       const e0 = spectralPeak(held.overlap)
       const b1 = heldWorst <= TAIL
       const levelShapes = shapes(c, level, 12)
@@ -313,37 +434,100 @@ export default experiment({
       // ---- B2 and B3 ----
       const moves = KS.map(K => {
         const k = (K * cosHalf) / 2
-        const r = runBent(c, bentBoost(c, level, [k, k]), MOVE, N, FLOOR)
+        const r = runBent(
+          c,
+          bentBoost(c, level, [k, k]),
+          MOVE,
+          N,
+          FLOOR,
+        )
         const v = trackVelocity(cross, r.centroid)
-        const along = v.velocity.reduce((s, x, d) => s + x * (bisUnit[d] as number), 0)
+        const along = v.velocity.reduce(
+          (s, x, d) => s + x * bisUnit[d]!,
+          0,
+        )
         const peak = spectralPeak(r.overlap)
-        const worst = Math.max(...r.tail.map((x, t) => x + (r.lost[t] as number)))
+        const worst = Math.max(...r.tail.map((x, t) => x + r.lost[t]!))
 
-        return { K, k, along, reach: v.reach, dE: wrap(peak.energy - e0.energy), pred: predicted(k), share: peak.share, worst, vPred: (loneBand(k).slope / 2) * bisNorm }
+        return {
+          K,
+          k,
+          along,
+          reach: v.reach,
+          dE: wrap(peak.energy - e0.energy),
+          pred: predicted(k),
+          share: peak.share,
+          worst,
+          vPred: (loneBand(k).slope / 2) * bisNorm,
+        }
       })
 
       log(`${g.name}: B2 B3`)
 
-      const top = moves[moves.length - 1] as (typeof moves)[number]
+      const top = moves[moves.length - 1]!
       const b2 = top.along >= HALF * top.vPred && top.worst <= TAIL
-      const b3 = moves.every(m => Math.abs(m.dE - m.pred) <= TOL * Math.abs(m.pred))
+      const b3 = moves.every(
+        m => Math.abs(m.dE - m.pred) <= TOL * Math.abs(m.pred),
+      )
 
       // ---- C1: no string ----
-      const loose = runBent(bentCodec({ cross: { ...cross, cost: false }, patch, mix: { m: RING, r: R } }), level, CONTROL, N, FLOOR)
+      const loose = runBent(
+        bentCodec({
+          cross: { ...cross, cost: false },
+          patch,
+          mix: { m: RING, r: R },
+        }),
+        level,
+        CONTROL,
+        N,
+        FLOOR,
+      )
       const c1 = Math.max(...loose.tail) > TAIL
 
       // ---- C2: the vacuum under the float beat ----
-      const vc = bentCodec({ cross: { ...cross, charges: [] }, patch, mix: { m: RING, r: R } })
-      const vacuum: BentState = new Map([[packConfig(vc, { bodies: [], sector: 0, m: 0 }), [1, 0]]])
+      const vc = bentCodec({
+        cross: { ...cross, charges: [] },
+        patch,
+        mix: { m: RING, r: R },
+      })
+      const vacuum: BentState = new Map([
+        [packConfig(vc, { bodies: [], sector: 0, m: 0 }), [1, 0]],
+      ])
       const vacuumAfter = bentBeat(vc, vacuum)
-      const vacuumFloat = vacuumAfter.size === 1 && [...vacuumAfter].every(([k, a]) => vacuum.has(k) && a[0] === 1 && a[1] === 0)
+      const vacuumFloat =
+        vacuumAfter.size === 1 &&
+        [...vacuumAfter].every(
+          ([k, a]) => vacuum.has(k) && a[0] === 1 && a[1] === 0,
+        )
       const c2 = vacuumExact && vacuumFloat
 
       // ---- the lone love's walk, cost off, mixer on against off ----
-      const loneCross: CrossSpec = { ...cross, charges: [1], anchor: -1, cost: false }
-      const lone = (r: number): { w: Map<string, number>; codec: Codec; state: BentState } => {
-        const codec = bentCodec({ cross: loneCross, patch, mix: { m: RING, r } })
-        let s: BentState = new Map([[packConfig(codec, { bodies: [{ line: 0, p: 0, j: 0 }], sector: 0, m: 0 }), [1, 0]]])
+      const loneCross: CrossSpec = {
+        ...cross,
+        charges: [1],
+        anchor: -1,
+        cost: false,
+      }
+
+      const lone = (
+        r: number,
+      ): { w: Map<string, number>; codec: Codec; state: BentState } => {
+        const codec = bentCodec({
+          cross: loneCross,
+          patch,
+          mix: { m: RING, r },
+        })
+
+        let s: BentState = new Map([
+          [
+            packConfig(codec, {
+              bodies: [{ line: 0, p: 0, j: 0 }],
+              sector: 0,
+              m: 0,
+            }),
+            [1, 0],
+          ],
+        ])
 
         for (let t = 0; t < FRONT; t++) {
           s = bentBeat(codec, s, FLOOR)
@@ -352,17 +536,61 @@ export default experiment({
 
         return { w: positionWeights(codec, s), codec, state: s }
       }
+
       const loneOn = lone(R)
       const loneOff = lone(0)
-      const reach = (w: Map<string, number>): number => Math.max(...[...w.entries()].filter(([, v]) => v > FLOOR).map(([k]) => Math.abs(Number(k.split(':')[1]))))
+      const reach = (w: Map<string, number>): number =>
+        Math.max(
+          ...[...w.entries()]
+            .filter(([, v]) => v > FLOOR)
+            .map(([k]) => Math.abs(Number(k.split(':')[1]))),
+        )
       const onLine = [...loneOn.w.keys()].every(k => k.startsWith('0:'))
-      const front = { tv: totalVariation(loneOn.w, loneOff.w), reachOn: reach(loneOn.w), reachOff: reach(loneOff.w), onLine, lost: 1 - bentWeight(loneOn.state), tail: bentTail(loneOn.codec, loneOn.state, N) }
+      const front = {
+        tv: totalVariation(loneOn.w, loneOff.w),
+        reachOn: reach(loneOn.w),
+        reachOff: reach(loneOff.w),
+        onLine,
+        lost: 1 - bentWeight(loneOn.state),
+        tail: bentTail(loneOn.codec, loneOn.state, N),
+      }
 
       log(`${g.name}: controls`)
 
       const checks = disjoint && exactHolds && bends && strict
 
-      return { g, cosTheta, exact, exactHolds, bends, disjoint, c0Distance, zeroVelocity, vPred, c0, c1, c2, loose, probe, probePeak, level, held, heldWorst, e0, b1, moves, b2, b3, levelShapes, endShapes, zeroShapes, front, strict, checks, liveFaces: liveFaces(patch) }
+      return {
+        g,
+        cosTheta,
+        exact,
+        exactHolds,
+        bends,
+        disjoint,
+        c0Distance,
+        zeroVelocity,
+        vPred,
+        c0,
+        c1,
+        c2,
+        loose,
+        probe,
+        probePeak,
+        level,
+        held,
+        heldWorst,
+        e0,
+        b1,
+        moves,
+        b2,
+        b3,
+        levelShapes,
+        endShapes,
+        zeroShapes,
+        front,
+        strict,
+        checks,
+        liveFaces: liveFaces(patch),
+      }
     })
 
     const B1 = results.every(r => r.b1)
@@ -370,8 +598,19 @@ export default experiment({
     const B3 = results.every(r => r.b3)
     const controls = results.every(r => r.c0 && r.c1 && r.c2)
     const checked = results.every(r => r.checks)
-    const status = !checked || !controls ? 'partial' : B1 && B2 && B3 ? 'pass' : 'fail'
-    const metrics: Record<string, number> = { B1: B1 ? 1 : 0, B2: B2 ? 1 : 0, B3: B3 ? 1 : 0, theta: (2 * Math.PI * R) / RING, seconds: (Date.now() - started) / 1000 }
+    const status =
+      !checked || !controls
+        ? 'partial'
+        : B1 && B2 && B3
+          ? 'pass'
+          : 'fail'
+    const metrics: Record<string, number> = {
+      B1: B1 ? 1 : 0,
+      B2: B2 ? 1 : 0,
+      B3: B3 ? 1 : 0,
+      theta: (2 * Math.PI * R) / RING,
+      seconds: (Date.now() - started) / 1000,
+    }
 
     for (const r of results) {
       const p = r.g.name
@@ -382,7 +621,7 @@ export default experiment({
       metrics[`${p}_probeEnergy`] = r.probePeak.energy
       metrics[`${p}_heldWorst`] = r.heldWorst
       metrics[`${p}_heldMaxTail`] = Math.max(...r.held.tail)
-      metrics[`${p}_heldLost`] = r.held.lost[r.held.lost.length - 1] as number
+      metrics[`${p}_heldLost`] = r.held.lost[r.held.lost.length - 1]!
       metrics[`${p}_heldLeastFidelity`] = Math.min(...r.held.fidelity)
       metrics[`${p}_heldSize`] = r.held.size
       metrics[`${p}_probeMaxTail`] = Math.max(...r.probe.tail)
@@ -410,7 +649,7 @@ export default experiment({
     }
 
     const text = results.map(r => {
-      const top = r.moves[r.moves.length - 1] as (typeof r.moves)[number]
+      const top = r.moves[r.moves.length - 1]!
 
       return `${r.g.name} (${r.liveFaces} live faces): level E ${f4(r.e0.energy)} (share ${f4(r.e0.share)}), tail + dropped at most ${e2(r.heldWorst)} over ${HOLD} beats (B1 ${r.b1}), least fidelity ${f4(Math.min(...r.held.fidelity))}; boosted to pi/2 its centroid moves ${e2(top.along)} docks a beat along the bisector against ${f4(top.vPred)} predicted, reach ${f4(top.reach)}, held ${e2(top.worst)} (B2 ${r.b2}); dE ${r.moves.map(m => `${f4(m.dE)} (${f4(m.pred)})`).join(', ')} (B3 ${r.b3}); string bent ${f4(r.levelShapes.bent)}, mean length ${f4(r.levelShapes.meanLength)} against ${f4(r.zeroShapes.meanLength)} at theta 0, ${f4(r.levelShapes.meanOffLine)} links off the lines, excess over the vibes' distance ${f4(r.levelShapes.meanExcess)}; theta 0 equals crossBeat to ${e2(r.c0Distance)} and moves ${e2(r.zeroVelocity)}; no string tail ${e2(Math.max(...r.loose.tail))}; the lone love's walk moved ${e2(r.front.tv)} in total variation, reach ${r.front.reachOn} against ${r.front.reachOff}`
     })
@@ -419,7 +658,14 @@ export default experiment({
       status,
       claim: text.join('; '),
       metrics,
-      control: Object.fromEntries(results.flatMap(r => [[`${r.g.name}_thetaZeroDistance`, r.c0Distance], [`${r.g.name}_thetaZeroVelocity`, r.zeroVelocity], [`${r.g.name}_noStringMaxTail`, Math.max(...r.loose.tail)], [`${r.g.name}_vacuumFixed`, r.c2 ? 1 : 0]])),
+      control: Object.fromEntries(
+        results.flatMap(r => [
+          [`${r.g.name}_thetaZeroDistance`, r.c0Distance],
+          [`${r.g.name}_thetaZeroVelocity`, r.zeroVelocity],
+          [`${r.g.name}_noStringMaxTail`, Math.max(...r.loose.tail)],
+          [`${r.g.name}_vacuumFixed`, r.c2 ? 1 : 0],
+        ]),
+      ),
       notes: `L2. B1 ${B1}, B2 ${B2}, B3 ${B3}; controls ${controls}, checks ${checked}. theta = 2 pi ${R} / ${RING}, window ${WINDOW}, floor ${FLOOR}. ${results
         .map(
           r =>

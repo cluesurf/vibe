@@ -29,7 +29,9 @@
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const OPPOSITE = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 const FIRSTS: number[] = []
 const LINE_OF: number[] = []
 
@@ -62,25 +64,38 @@ export type ScatterSet = {
   readonly classSizes: readonly (readonly [number, number])[]
 }
 
-const pairKey = (u: number, v: number): string => (u < v ? `${u}.${v}` : `${v}.${u}`)
+const pairKey = (u: number, v: number): string =>
+  u < v ? `${u}.${v}` : `${v}.${u}`
 
 // every quad and rotation for a group (root permutations) and its forced functionals (rows on the 12 line
 // momenta, lines in rootsD4 order of first slots)
-export function scatterMoves(input: { group: readonly (readonly number[])[]; forms: readonly (readonly number[])[]; rotation?: readonly number[] }): ScatterSet {
+export function scatterMoves(input: {
+  group: readonly (readonly number[])[]
+  forms: readonly (readonly number[])[]
+  rotation?: readonly number[]
+}): ScatterSet {
   const { group, forms } = input
   const classes = new Map<string, [number, number][]>()
 
   for (let u = 0; u < 24; u++) {
     for (let v = u + 1; v < 24; v++) {
-      if (OPPOSITE[u] === v) continue
+      if (OPPOSITE[u] === v) {
+        continue
+      }
 
       const dn = new Array<number>(12).fill(0)
 
       dn[LINE_OF[u] ?? 0] = (dn[LINE_OF[u] ?? 0] ?? 0) + (SIDE[u] ?? 0)
       dn[LINE_OF[v] ?? 0] = (dn[LINE_OF[v] ?? 0] ?? 0) + (SIDE[v] ?? 0)
 
-      const sum = [0, 1, 2, 3].map(k => (ROOTS[u]?.[k] ?? 0) + (ROOTS[v]?.[k] ?? 0))
-      const values = forms.map(r => Math.round(1e6 * r.reduce((a, c, l) => a + c * (dn[l] ?? 0), 0)))
+      const sum = [0, 1, 2, 3].map(
+        k => (ROOTS[u]?.[k] ?? 0) + (ROOTS[v]?.[k] ?? 0),
+      )
+      const values = forms.map(r =>
+        Math.round(
+          1e6 * r.reduce((a, c, l) => a + c * (dn[l] ?? 0), 0),
+        ),
+      )
       const key = `${sum.join(',')}|${values.join(',')}`
 
       classes.set(key, [...(classes.get(key) ?? []), [u, v]])
@@ -95,43 +110,74 @@ export function scatterMoves(input: { group: readonly (readonly number[])[]; for
   for (const [key, members] of classes) {
     sizes.set(members.length, (sizes.get(members.length) ?? 0) + 1)
 
-    for (const [u, v] of members) classOfPair.set(pairKey(u, v), key)
+    for (const [u, v] of members) {
+      classOfPair.set(pairKey(u, v), key)
+    }
   }
 
-  const image = (g: readonly number[], p: readonly [number, number]): [number, number] => [g[p[0]] ?? 0, g[p[1]] ?? 0]
+  const image = (
+    g: readonly number[],
+    p: readonly [number, number],
+  ): [number, number] => [g[p[0]] ?? 0, g[p[1]] ?? 0]
 
   for (const [key, members] of classes) {
-    if (members.length < 2 || done.has(key)) continue
+    if (members.length < 2 || done.has(key)) {
+      continue
+    }
 
-    if (members.length % 2 !== 0) continue
+    if (members.length % 2 !== 0) {
+      continue
+    }
 
     // the class's stabilizer, and a perfect matching of its pairs it keeps
     const keys = members.map(([u, v]) => pairKey(u, v))
-    const stab = group.filter(g => members.every(p => classOfPair.get(pairKey(...image(g, p))) === key))
+    const stab = group.filter(g =>
+      members.every(
+        p => classOfPair.get(pairKey(...image(g, p))) === key,
+      ),
+    )
     const matchings = perfectMatchings(members.length)
     const kept = matchings.find(m =>
       stab.every(g =>
         m.every(([i, j]) => {
-          const gi = keys.indexOf(pairKey(...image(g, members[i] ?? [0, 0])))
-          const gj = keys.indexOf(pairKey(...image(g, members[j] ?? [0, 0])))
+          const gi = keys.indexOf(
+            pairKey(...image(g, members[i] ?? [0, 0])),
+          )
+          const gj = keys.indexOf(
+            pairKey(...image(g, members[j] ?? [0, 0])),
+          )
 
-          return m.some(([c, d]) => (c === gi && d === gj) || (c === gj && d === gi))
+          return m.some(
+            ([c, d]) =>
+              (c === gi && d === gj) || (c === gj && d === gi),
+          )
         }),
       ),
     )
 
-    if (!kept) continue
+    if (!kept) {
+      continue
+    }
 
     // carry the matching over the class's orbit
     for (const g of group) {
-      const target = classOfPair.get(pairKey(...image(g, members[0] ?? [0, 0])))
+      const target = classOfPair.get(
+        pairKey(...image(g, members[0] ?? [0, 0])),
+      )
 
-      if (!target || done.has(target)) continue
+      if (!target || done.has(target)) {
+        continue
+      }
 
       done.add(target)
 
       for (const [i, j] of kept) {
-        moves.push({ kind: 'quad', a: image(g, members[i] ?? [0, 0]), b: image(g, members[j] ?? [0, 0]), alike: true })
+        moves.push({
+          kind: 'quad',
+          a: image(g, members[i] ?? [0, 0]),
+          b: image(g, members[j] ?? [0, 0]),
+          alike: true,
+        })
       }
     }
   }
@@ -147,38 +193,63 @@ export function scatterMoves(input: { group: readonly (readonly number[])[]; for
       const d = FIRSTS[l] ?? 0
       const target = LINE_OF[h[d] ?? 0] ?? 0
 
-      if (seen.has(l) || target === l) continue
+      if (seen.has(l) || target === l) {
+        continue
+      }
 
       seen.add(l)
       seen.add(target)
-      moves.push({ kind: 'rotation', a: [d, OPPOSITE[d] ?? 0], b: [h[d] ?? 0, h[OPPOSITE[d] ?? 0] ?? 0], alike: !involution })
+      moves.push({
+        kind: 'rotation',
+        a: [d, OPPOSITE[d] ?? 0],
+        b: [h[d] ?? 0, h[OPPOSITE[d] ?? 0] ?? 0],
+        alike: !involution,
+      })
     }
   }
 
-  return { moves, quads, rotations: moves.length - quads, classSizes: [...sizes].sort((x, y) => x[0] - y[0]) }
+  return {
+    moves,
+    quads,
+    rotations: moves.length - quads,
+    classSizes: [...sizes].sort((x, y) => x[0] - y[0]),
+  }
 }
 
 function perfectMatchings(n: number): [number, number][][] {
   const out: [number, number][][] = []
+
   const walk = (rest: number[], acc: [number, number][]): void => {
     if (rest.length === 0) {
       out.push(acc)
+
       return
     }
 
     const [a, ...others] = rest
 
-    others.forEach((b, i) => walk(others.filter((_, j) => j !== i), [...acc, [a ?? 0, b]]))
+    others.forEach((b, i) =>
+      walk(
+        others.filter((_, j) => j !== i),
+        [...acc, [a ?? 0, b]],
+      ),
+    )
   }
 
-  walk(Array.from({ length: n }, (_, i) => i), [])
+  walk(
+    Array.from({ length: n }, (_, i) => i),
+    [],
+  )
 
   return out
 }
 
 // elements h of W(F4) (root permutations) commuting with every element of the group, with h^2 = +-1 and no
 // line fixed: the rotation maps
-export function rotationMaps(input: { permutations: readonly (readonly number[])[]; group: readonly (readonly number[])[] }): number[][] {
+export function rotationMaps(input: {
+  permutations: readonly (readonly number[])[]
+  group: readonly (readonly number[])[]
+}): number[][] {
   const out: number[][] = []
 
   for (const h of input.permutations) {
@@ -186,15 +257,30 @@ export function rotationMaps(input: { permutations: readonly (readonly number[])
     const plus = square.every((x, d) => x === d)
     const minus = square.every((x, d) => x === OPPOSITE[d])
 
-    if (!plus && !minus) continue
-    if (!input.group.every(g => g.every((_, d) => (g[h[d] ?? 0] ?? 0) === (h[g[d] ?? 0] ?? 0)))) continue
-    if (!FIRSTS.every((d, l) => (LINE_OF[h[d] ?? 0] ?? 0) !== l)) continue
+    if (!plus && !minus) {
+      continue
+    }
+
+    if (
+      !input.group.every(g =>
+        g.every((_, d) => (g[h[d] ?? 0] ?? 0) === (h[g[d] ?? 0] ?? 0)),
+      )
+    ) {
+      continue
+    }
+
+    if (!FIRSTS.every((d, l) => (LINE_OF[h[d] ?? 0] ?? 0) !== l)) {
+      continue
+    }
 
     out.push([...h])
   }
 
   // the involutions (h^2 = 1) first, which carry any two tones
-  return [...out.filter(h => h.every((x, d) => (h[x] ?? 0) === d)), ...out.filter(h => !h.every((x, d) => (h[x] ?? 0) === d))]
+  return [
+    ...out.filter(h => h.every((x, d) => (h[x] ?? 0) === d)),
+    ...out.filter(h => !h.every((x, d) => (h[x] ?? 0) === d)),
+  ]
 }
 
 export type LabelledArrays = {
@@ -205,10 +291,18 @@ export type LabelledArrays = {
   token: Int32Array | undefined
 }
 
-export type ScatterMeeting = { readonly tokens: readonly [number, number]; readonly signs: readonly [number, number]; readonly kind: 'quad' | 'rotation' }
+export type ScatterMeeting = {
+  readonly tokens: readonly [number, number]
+  readonly signs: readonly [number, number]
+  readonly kind: 'quad' | 'rotation'
+}
 
 // written without inner closures: it runs for every move of every dock of every beat
-function canFire(m: ScatterMove, a: LabelledArrays, base: number): 0 | 1 | -1 {
+function canFire(
+  m: ScatterMove,
+  a: LabelledArrays,
+  base: number,
+): 0 | 1 | -1 {
   const v = a.vibe
   const s = a.store
   const a0 = base + m.a[0]
@@ -221,17 +315,34 @@ function canFire(m: ScatterMove, a: LabelledArrays, base: number): 0 | 1 | -1 {
   const vb1 = v[b1] ?? 0
 
   if (vb0 === 0 && vb1 === 0) {
-    if (va0 !== 0 && va1 !== 0 && s[a0] === s[a1] && (!m.alike || va0 === va1)) return 1
+    if (
+      va0 !== 0 &&
+      va1 !== 0 &&
+      s[a0] === s[a1] &&
+      (!m.alike || va0 === va1)
+    ) {
+      return 1
+    }
 
     return 0
   }
 
-  if (va0 === 0 && va1 === 0 && vb0 !== 0 && vb1 !== 0 && s[b0] === s[b1] && (!m.alike || vb0 === vb1)) return -1
+  if (
+    va0 === 0 &&
+    va1 === 0 &&
+    vb0 !== 0 &&
+    vb1 !== 0 &&
+    s[b0] === s[b1] &&
+    (!m.alike || vb0 === vb1)
+  ) {
+    return -1
+  }
 
   return 0
 }
 
-const weightOf = (tone: number, d: number): number => (tone !== 0 ? tone : (SIDE[d] ?? 1))
+const weightOf = (tone: number, d: number): number =>
+  tone !== 0 ? tone : (SIDE[d] ?? 1)
 
 function swapLabels(a: LabelledArrays, i: number, j: number): void {
   if (a.role) {
@@ -249,14 +360,23 @@ function swapLabels(a: LabelledArrays, i: number, j: number): void {
   }
 }
 
-function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: number): void {
+function apply(
+  m: ScatterMove,
+  direction: 1 | -1,
+  a: LabelledArrays,
+  base: number,
+): void {
   const from = direction === 1 ? m.a : m.b
   const to = direction === 1 ? m.b : m.a
-  const tones = [a.vibe[base + from[0]] ?? 0, a.vibe[base + from[1]] ?? 0]
+  const tones = [
+    a.vibe[base + from[0]] ?? 0,
+    a.vibe[base + from[1]] ?? 0,
+  ]
   const store = a.store[base + from[0]] ?? 0
 
   if (m.kind === 'quad') {
-    const straight = SIDE[from[0]] === SIDE[to[0]] && SIDE[from[1]] === SIDE[to[1]]
+    const straight =
+      SIDE[from[0]] === SIDE[to[0]] && SIDE[from[1]] === SIDE[to[1]]
     const into = straight ? [to[0], to[1]] : [to[1], to[0]]
 
     for (let k = 0; k < 2; k++) {
@@ -293,8 +413,13 @@ function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: numbe
     const w0 = weightOf(before[i] ?? 0, d)
     const w1 = weightOf(a.vibe[base + d] ?? 0, d)
 
-    if (w0 === 1 && w1 === -1) down.push(base + d)
-    if (w0 === -1 && w1 === 1) up.push(base + d)
+    if (w0 === 1 && w1 === -1) {
+      down.push(base + d)
+    }
+
+    if (w0 === -1 && w1 === 1) {
+      up.push(base + d)
+    }
   })
 
   down.forEach((i, k) => swapLabels(a, i, up[k] ?? i))
@@ -305,8 +430,16 @@ function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: numbe
 const ACTIVE = new Int32Array(256)
 const DIRECTION = new Int8Array(256)
 
-export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, forward: boolean, meetings?: ScatterMeeting[], tally?: { fired: number; blocked: number }): void {
+export function scatterDock(
+  set: ScatterSet,
+  a: LabelledArrays,
+  base: number,
+  forward: boolean,
+  meetings?: ScatterMeeting[],
+  tally?: { fired: number; blocked: number },
+): void {
   const moves = set.moves
+
   let count = 0
   let used = 0
   let overlap = false
@@ -314,47 +447,81 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
   for (let i = 0; i < moves.length; i++) {
     const m = moves[i]
 
-    if (!m) continue
+    if (!m) {
+      continue
+    }
 
     const f = canFire(m, a, base)
 
-    if (f === 0) continue
+    if (f === 0) {
+      continue
+    }
 
     ACTIVE[count] = i
     DIRECTION[count] = f
     count++
 
-    const bits = (1 << m.a[0]) | (1 << m.a[1]) | (1 << m.b[0]) | (1 << m.b[1])
+    const bits =
+      (1 << m.a[0]) | (1 << m.a[1]) | (1 << m.b[0]) | (1 << m.b[1])
 
-    if ((used & bits) !== 0) overlap = true
+    if ((used & bits) !== 0) {
+      overlap = true
+    }
 
     used |= bits
   }
 
-  if (count === 0) return
+  if (count === 0) {
+    return
+  }
 
   if (overlap) {
-    if (tally) tally.blocked++
+    if (tally) {
+      tally.blocked++
+    }
 
     return
   }
 
   const active: [number, 1 | -1][] = []
 
-  for (let k = 0; k < count; k++) active.push([ACTIVE[k] ?? 0, (DIRECTION[k] ?? 1) as 1 | -1])
+  for (let k = 0; k < count; k++) {
+    active.push([ACTIVE[k] ?? 0, (DIRECTION[k] ?? 1) as 1 | -1])
+  }
 
-  const snapshot = { vibe: a.vibe.slice(base, base + 24), store: a.store.slice(base, base + 24), role: a.role?.slice(base, base + 24), token: a.token?.slice(base, base + 24) }
-  const moving: { tokens: [number, number]; signs: [number, number]; kind: 'quad' | 'rotation' }[] = []
+  const snapshot = {
+    vibe: a.vibe.slice(base, base + 24),
+    store: a.store.slice(base, base + 24),
+    role: a.role?.slice(base, base + 24),
+    token: a.token?.slice(base, base + 24),
+  }
+  const moving: {
+    tokens: [number, number]
+    signs: [number, number]
+    kind: 'quad' | 'rotation'
+  }[] = []
 
   for (const [i, f] of active) {
     const m = moves[i]
 
-    if (!m) continue
+    if (!m) {
+      continue
+    }
 
     const from = f === 1 ? m.a : m.b
 
     if (forward && a.token) {
-      moving.push({ tokens: [a.token[base + from[0]] ?? 0, a.token[base + from[1]] ?? 0], signs: [a.vibe[base + from[0]] ?? 0, a.vibe[base + from[1]] ?? 0], kind: m.kind })
+      moving.push({
+        tokens: [
+          a.token[base + from[0]] ?? 0,
+          a.token[base + from[1]] ?? 0,
+        ],
+        signs: [
+          a.vibe[base + from[0]] ?? 0,
+          a.vibe[base + from[1]] ?? 0,
+        ],
+        kind: m.kind,
+      })
     }
 
     apply(m, f, a, base)
@@ -367,17 +534,25 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
   for (let i = 0; i < moves.length && same; i++) {
     const m = moves[i]
 
-    if (!m) continue
+    if (!m) {
+      continue
+    }
 
     const f = canFire(m, a, base)
 
-    if (f === 0) continue
+    if (f === 0) {
+      continue
+    }
 
     again++
 
     let found = false
 
-    for (const [j, g] of active) if (j === i && g === -f) found = true
+    for (const [j, g] of active) {
+      if (j === i && g === -f) {
+        found = true
+      }
+    }
 
     same = found
   }
@@ -387,19 +562,33 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
   if (!same) {
     a.vibe.set(snapshot.vibe, base)
     a.store.set(snapshot.store, base)
-    if (a.role && snapshot.role) a.role.set(snapshot.role, base)
-    if (a.token && snapshot.token) a.token.set(snapshot.token, base)
-    if (tally) tally.blocked++
+
+    if (a.role && snapshot.role) {
+      a.role.set(snapshot.role, base)
+    }
+
+    if (a.token && snapshot.token) {
+      a.token.set(snapshot.token, base)
+    }
+
+    if (tally) {
+      tally.blocked++
+    }
 
     return
   }
 
-  if (tally) tally.fired += active.length
+  if (tally) {
+    tally.fired += active.length
+  }
 
-  if (!meetings || !a.token) return
+  if (!meetings || !a.token) {
+    return
+  }
 
   if (forward) {
     meetings.push(...moving)
+
     return
   }
 
@@ -407,10 +596,16 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
   for (const [i, f] of active) {
     const m = set.moves[i]
 
-    if (!m) continue
+    if (!m) {
+      continue
+    }
 
     const to = f === 1 ? m.b : m.a
 
-    meetings.push({ tokens: [a.token[base + to[0]] ?? 0, a.token[base + to[1]] ?? 0], signs: [a.vibe[base + to[0]] ?? 0, a.vibe[base + to[1]] ?? 0], kind: m.kind })
+    meetings.push({
+      tokens: [a.token[base + to[0]] ?? 0, a.token[base + to[1]] ?? 0],
+      signs: [a.vibe[base + to[0]] ?? 0, a.vibe[base + to[1]] ?? 0],
+      kind: m.kind,
+    })
   }
 }

@@ -127,8 +127,35 @@ import { verdict } from '@/test/scaffold/verdict'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { meson, pairEmbed } from '@/code/measure/string-binding'
 import { nrSeed, settle } from '@/code/measure/meson-band'
-import { addStates, autocorrelation, axisOfLine, frameAxes, frameBeat, frameSpace, innerOf, lineFrame, lineState, normalized, ritzLevels, weightOf, type FrameState } from '@/code/measure/frame-meson'
-import { d4Distance, frameLength, offLineWeight, routeAutocorrelation, routeBeat, routeLength, routeLevelVector, routeLineState, routeSpace, shellWeights, type RouteCost, type RouteSpace } from '@/code/measure/route-free-meson'
+import {
+  addStates,
+  autocorrelation,
+  axisOfLine,
+  frameAxes,
+  frameBeat,
+  frameSpace,
+  innerOf,
+  lineFrame,
+  lineState,
+  normalized,
+  ritzLevels,
+  weightOf,
+  type FrameState,
+} from '@/code/measure/frame-meson'
+import {
+  d4Distance,
+  frameLength,
+  offLineWeight,
+  routeAutocorrelation,
+  routeBeat,
+  routeLength,
+  routeLevelVector,
+  routeLineState,
+  routeSpace,
+  shellWeights,
+  type RouteCost,
+  type RouteSpace,
+} from '@/code/measure/route-free-meson'
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
 import { hermitianEigen } from '@/code/measure/quantum-ladder'
 import { LINE_OF } from '@/code/rule/isometric-knit'
@@ -165,8 +192,18 @@ const BFS_REACH = 6
 const READ_RATES = [1, 0.25]
 const ZERO = [0, 0, 0, 0]
 
-type Entry = { d: number; jl: number; jf: number; amp: [number, number] }
-type Level = { energy: number; weight: number; residual: number; coefficients: [number, number][] }
+type Entry = {
+  d: number
+  jl: number
+  jf: number
+  amp: [number, number]
+}
+type Level = {
+  energy: number
+  weight: number
+  residual: number
+  coefficients: [number, number][]
+}
 
 export default experiment({
   id: 'spin/route-free-string',
@@ -179,66 +216,119 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- E-SPN-0115's level on one line, as E-SPN-0128 placed it ----
     const F = lineFrame(B)
-    const axisB = axisOfLine(F, LINE_OF[B] as number)
-    const uB = frameAxes(F)[axisB] as number[]
+    const axisB = axisOfLine(F, LINE_OF[B]!)
+    const uB = frameAxes(F)[axisB]!
     const m = meson(D, 2 * N, 1)
     const level0 = settle(m, nrSeed(m))
     const full = pairEmbed(m, 0, level0.block)
     const entries: Entry[] = []
 
     for (let i = 0; i < m.b.size; i++) {
-      if (full.re[i] === 0 && full.im[i] === 0) continue
+      if (full.re[i] === 0 && full.im[i] === 0) {
+        continue
+      }
 
       const c = Math.floor(i / m.b.labelCount)
       const r = i % m.b.labelCount
 
-      entries.push({ d: m.b.configs[c]![1]!, jl: Math.floor(r / 2), jf: r % 2, amp: [full.re[i] as number, full.im[i] as number] })
+      entries.push({
+        d: m.b.configs[c]![1]!,
+        jl: Math.floor(r / 2),
+        jf: r % 2,
+        amp: [full.re[i]!, full.im[i]!],
+      })
     }
 
     const fourLines = (space: RouteSpace): FrameState => {
       let s: FrameState = new Map()
 
-      for (let a = 0; a < 4; a++) s = addStates(s, routeLineState(space, a, entries))
+      for (let a = 0; a < 4; a++) {
+        s = addStates(s, routeLineState(space, a, entries))
+      }
 
       return normalized(s)
     }
-    const dominant = (c: [number, number][]): Level => ritzLevels(c).sort((x, y) => y.weight - x.weight)[0] as Level
-    const energyAt = (space: RouteSpace, K: readonly number[], start: FrameState): number => dominant(routeAutocorrelation(space, K, start, RITZ_T).c).energy
+
+    const dominant = (c: [number, number][]): Level =>
+      ritzLevels(c).sort((x, y) => y.weight - x.weight)[0] as Level
+    const energyAt = (
+      space: RouteSpace,
+      K: readonly number[],
+      start: FrameState,
+    ): number =>
+      dominant(routeAutocorrelation(space, K, start, RITZ_T).c).energy
 
     // ---- R3: one line, mixer off ----
-    const line0 = routeSpace({ frame: F, n: 0, D, cut: 2 * N, floor: LINE_FLOOR }, 'frame')
+    const line0 = routeSpace(
+      { frame: F, n: 0, D, cut: 2 * N, floor: LINE_FLOOR },
+      'frame',
+    )
     const onB = routeLineState(line0, axisB, entries)
     const e0 = energyAt(line0, ZERO, onB)
     const eRest0 = 2 * MASS + e0
     const step0 = eRest0 * CURVE_FRAC
-    const curve0 = (energyAt(line0, uB.map(x => x * step0), onB) + energyAt(line0, uB.map(x => -x * step0), onB) - 2 * e0) / (step0 * step0)
+    const curve0 =
+      (energyAt(
+        line0,
+        uB.map(x => x * step0),
+        onB,
+      ) +
+        energyAt(
+          line0,
+          uB.map(x => -x * step0),
+          onB,
+        ) -
+        2 * e0) /
+      (step0 * step0)
     const total0 = 1 / (curve0 * eRest0)
     const transverse = energyAt(line0, [0, 0, step0, 0], onB) - e0
-    const R3 = Math.abs(e0 - E_REST) <= ENERGY_SAME && Math.abs(total0 - TOTAL) <= TOTAL_SAME && Math.abs(transverse) <= TRANSVERSE_SAME
+    const R3 =
+      Math.abs(e0 - E_REST) <= ENERGY_SAME &&
+      Math.abs(total0 - TOTAL) <= TOTAL_SAME &&
+      Math.abs(transverse) <= TRANSVERSE_SAME
 
     // check: the recorded register on one line at rate 0 is the same beat
-    const rec0 = frameSpace({ frame: F, n: 0, D, cut: 2 * N, floor: LINE_FLOOR })
+    const rec0 = frameSpace({
+      frame: F,
+      n: 0,
+      D,
+      cut: 2 * N,
+      floor: LINE_FLOOR,
+    })
     const recStart = lineState(rec0, axisB, entries)
     const recC = autocorrelation(rec0, ZERO, recStart, RITZ_T).c
     const routeC = routeAutocorrelation(line0, ZERO, onB, RITZ_T).c
-    const autoGap = Math.max(...recC.map((z, t) => Math.hypot(z[0] - (routeC[t] as [number, number])[0], z[1] - (routeC[t] as [number, number])[1])))
+    const autoGap = Math.max(
+      ...recC.map((z, t) =>
+        Math.hypot(z[0] - routeC[t]![0], z[1] - routeC[t]![1]),
+      ),
+    )
 
     log('R3')
 
     // ---- the R1 procedure: level, hold, tensor ----
     const bound = (cost: RouteCost, n: number, tensorToo: boolean) => {
-      const space = routeSpace({ frame: F, n, D, cut: CUT, floor: FLOOR }, cost)
+      const space = routeSpace(
+        { frame: F, n, D, cut: CUT, floor: FLOOR },
+        cost,
+      )
       const start = fourLines(space)
-      const lv = dominant(routeAutocorrelation(space, ZERO, start, RITZ_T).c)
+      const lv = dominant(
+        routeAutocorrelation(space, ZERO, start, RITZ_T).c,
+      )
       const v = routeLevelVector(space, ZERO, start, lv.coefficients)
       const shells = shellWeights(space, v)
       const tally = { escaped: 0, dropped: 0 }
       const fidelity: number[] = []
       const tail: number[] = []
+
       let u = v
 
       for (let t = 0; t < HOLD_BEATS; t++) {
@@ -248,12 +338,20 @@ export default experiment({
         const sh = shellWeights(space, u)
 
         fidelity.push(r * r + i * i)
-        tail.push(tally.escaped + tally.dropped + sh.slice(TAIL_FROM).reduce((x, y) => x + y, 0))
+        tail.push(
+          tally.escaped +
+            tally.dropped +
+            sh.slice(TAIL_FROM).reduce((x, y) => x + y, 0),
+        )
       }
 
-      const gap = Math.abs(weightOf(u) + tally.escaped + tally.dropped - 1)
-      const held = fidelity.every(f => f >= FIDELITY) && tail.every(x => x <= TAIL)
+      const gap = Math.abs(
+        weightOf(u) + tally.escaped + tally.dropped - 1,
+      )
+      const held =
+        fidelity.every(f => f >= FIDELITY) && tail.every(x => x <= TAIL)
       const eRest = 2 * MASS + lv.energy
+
       let tensor: number[][] = []
       let eigen: number[] = []
       let fourth = Number.NaN
@@ -262,12 +360,41 @@ export default experiment({
       if (tensorToo) {
         const e = energyAt(space, ZERO, start)
         const step = eRest * CURVE_FRAC
-        const second = (w: readonly number[]): number => (energyAt(space, w.map(x => x * step), start) + energyAt(space, w.map(x => -x * step), start) - 2 * e) / (step * step)
-        const unit = (a: number): number[] => [0, 1, 2, 3].map(k => (k === a ? 1 : 0))
+        const second = (w: readonly number[]): number =>
+          (energyAt(
+            space,
+            w.map(x => x * step),
+            start,
+          ) +
+            energyAt(
+              space,
+              w.map(x => -x * step),
+              start,
+            ) -
+            2 * e) /
+          (step * step)
+        const unit = (a: number): number[] =>
+          [0, 1, 2, 3].map(k => (k === a ? 1 : 0))
         const diag = [0, 1, 2].map(a => second(unit(a)))
 
-        tensor = [0, 1, 2].map(a => [0, 1, 2].map(b => (a === b ? (diag[a] as number) : second(unit(a).map((x, k) => (x + (unit(b)[k] as number)) / Math.SQRT2)) - ((diag[a] as number) + (diag[b] as number)) / 2)))
-        eigen = hermitianEigen(3, Float64Array.from(tensor.flat()), new Float64Array(9)).values.slice().sort((x, y) => x - y)
+        tensor = [0, 1, 2].map(a =>
+          [0, 1, 2].map(b =>
+            a === b
+              ? diag[a]!
+              : second(
+                  unit(a).map((x, k) => (x + unit(b)[k]!) / Math.SQRT2),
+                ) -
+                (diag[a]! + diag[b]!) / 2,
+          ),
+        )
+
+        eigen = hermitianEigen(
+          3,
+          Float64Array.from(tensor.flat()),
+          new Float64Array(9),
+        )
+          .values.slice()
+          .sort((x, y) => x - y)
         fourth = second(unit(3))
         along = 1 / (second(uB) * eRest)
       }
@@ -295,10 +422,12 @@ export default experiment({
     }
 
     const main = bound('frame', RATE, true)
-    const curved = main.eigen.filter(x => x >= (CURVE_SHARE * curve0) / 4).length
+    const curved = main.eigen.filter(
+      x => x >= (CURVE_SHARE * curve0) / 4,
+    ).length
     const R1 = main.held
     const R2 = curved >= CURVED_NEEDED
-    const isotropy = (main.eigen[0] as number) / (main.eigen[2] as number)
+    const isotropy = main.eigen[0]! / main.eigen[2]!
 
     log('R1 R2')
 
@@ -309,10 +438,20 @@ export default experiment({
     log('CN')
 
     // ---- CR: the recorded register, E-SPN-0128's hold ----
-    const recSpace = frameSpace({ frame: F, n: RATE, D, cut: RECORDED_CUT, floor: RECORDED_FLOOR })
+    const recSpace = frameSpace({
+      frame: F,
+      n: RATE,
+      D,
+      cut: RECORDED_CUT,
+      floor: RECORDED_FLOOR,
+    })
+
     let rs: FrameState = new Map()
 
-    for (let a = 0; a < 4; a++) rs = addStates(rs, lineState(recSpace, a, entries))
+    for (let a = 0; a < 4; a++) {
+      rs = addStates(rs, lineState(recSpace, a, entries))
+    }
+
     rs = normalized(rs)
 
     const recTally = { escaped: 0, dropped: 0 }
@@ -323,8 +462,10 @@ export default experiment({
       recRetained.push(weightOf(rs))
     }
 
-    const rec24 = recRetained[RECORDED_BEATS - 1] as number
-    const recGap = Math.abs(rec24 + recTally.escaped + recTally.dropped - 1)
+    const rec24 = recRetained[RECORDED_BEATS - 1]!
+    const recGap = Math.abs(
+      rec24 + recTally.escaped + recTally.dropped - 1,
+    )
     const CR = Math.abs(rec24 - RECORDED_24) <= RECORDED_SAME
 
     log('CR')
@@ -340,6 +481,7 @@ export default experiment({
     // the D4 distance against a breadth-first search over the 24 roots
     const roots = rootsD4()
     const dist = new Map<string, number>([[ZERO.join(','), 0]])
+
     let front = [ZERO]
 
     for (let r = 1; r <= BFS_REACH; r++) {
@@ -347,10 +489,13 @@ export default experiment({
 
       for (const p of front) {
         for (const q of roots) {
-          const x = p.map((v, k) => v + (q[k] as number))
+          const x = p.map((v, k) => v + q[k]!)
           const key = x.join(',')
 
-          if (dist.has(key)) continue
+          if (dist.has(key)) {
+            continue
+          }
+
           dist.set(key, r)
           next.push(x)
         }
@@ -359,23 +504,38 @@ export default experiment({
       front = next
     }
 
-    const probe = routeSpace({ frame: F, n: 0, D, cut: BFS_REACH, floor: FLOOR }, 'd4')
+    const probe = routeSpace(
+      { frame: F, n: 0, D, cut: BFS_REACH, floor: FLOOR },
+      'd4',
+    )
+
     let bfsOff = 0
     let bfsChecked = 0
+
     const span = [-BFS_REACH, BFS_REACH]
 
-    for (let a = span[0] as number; a <= (span[1] as number); a++) {
-      for (let b = span[0] as number; b <= (span[1] as number); b++) {
-        for (let c = span[0] as number; c <= (span[1] as number); c++) {
-          for (let d = span[0] as number; d <= (span[1] as number); d++) {
+    for (let a = span[0]!; a <= span[1]!; a++) {
+      for (let b = span[0]!; b <= span[1]!; b++) {
+        for (let c = span[0]!; c <= span[1]!; c++) {
+          for (let d = span[0]!; d <= span[1]!; d++) {
             const n = [a, b, c, d]
 
-            if (frameLength(n) > BFS_REACH) continue
+            if (frameLength(n) > BFS_REACH) {
+              continue
+            }
 
-            const v = [0, 1, 2, 3].map(k => n.reduce((s, x, i) => s + x * ((probe.roots[i] as number[])[k] as number), 0))
+            const v = [0, 1, 2, 3].map(k =>
+              n.reduce((s, x, i) => s + x * probe.roots[i]![k]!, 0),
+            )
 
             bfsChecked++
-            if (dist.get(v.join(',')) !== d4Distance(v) || routeLength('d4', probe.roots, n) !== d4Distance(v)) bfsOff++
+
+            if (
+              dist.get(v.join(',')) !== d4Distance(v) ||
+              routeLength('d4', probe.roots, n) !== d4Distance(v)
+            ) {
+              bfsOff++
+            }
           }
         }
       }
@@ -387,16 +547,36 @@ export default experiment({
       for (let a = 0; a < 4; a++) {
         const n = [0, 1, 2, 3].map(k => (k === a ? d : 0))
 
-        for (const cost of ['frame', 'd4'] as RouteCost[]) if (routeLength(cost, probe.roots, n) !== Math.abs(d)) lineOff++
+        for (const cost of ['frame', 'd4'] as RouteCost[]) {
+          if (routeLength(cost, probe.roots, n) !== Math.abs(d)) {
+            lineOff++
+          }
+        }
       }
     }
 
-    const normGap = Math.max(main.gap, free.gap, d4.gap, recGap, ...smaller.map(s => s.gap))
-    const checked = normGap <= NORM_SAME && autoGap <= AUTO_SAME && bfsOff === 0 && lineOff === 0
-    const status = !CR || !CN || !checked ? 'partial' : R1 && R2 && R3 ? 'pass' : 'fail'
+    const normGap = Math.max(
+      main.gap,
+      free.gap,
+      d4.gap,
+      recGap,
+      ...smaller.map(s => s.gap),
+    )
+    const checked =
+      normGap <= NORM_SAME &&
+      autoGap <= AUTO_SAME &&
+      bfsOff === 0 &&
+      lineOff === 0
+    const status =
+      !CR || !CN || !checked
+        ? 'partial'
+        : R1 && R2 && R3
+          ? 'pass'
+          : 'fail'
 
     const at = [1, 8, 32, 64, 128]
-    const series = (xs: number[], f: (x: number) => string): string => at.map(t => f(xs[t - 1] as number)).join(' ')
+    const series = (xs: number[], f: (x: number) => string): string =>
+      at.map(t => f(xs[t - 1]!)).join(' ')
     const describe = (b: ReturnType<typeof bound>): string =>
       `cost ${b.cost} rate ${b.n}: held ${b.held}, level E ${b.level.energy.toFixed(6)} (start weight ${b.level.weight.toFixed(4)}, residual ${b.level.residual.toExponential(2)}), fidelity ${series(b.fidelity, x => x.toFixed(5))} (min ${b.minFidelity.toFixed(5)}), tail ${series(b.tail, x => x.toExponential(2))} (max ${b.maxTail.toExponential(2)}), mean string ${b.meanString.toFixed(3)}, off-line ${b.offLine.toFixed(3)}, shells ${b.shells.map(x => x.toExponential(1)).join('/')}, ${b.classes} classes`
 
@@ -416,9 +596,9 @@ export default experiment({
       meanString: main.meanString,
       offLine: main.offLine,
       curvedDirections: curved,
-      eigenMin: main.eigen[0] as number,
-      eigenMid: main.eigen[1] as number,
-      eigenMax: main.eigen[2] as number,
+      eigenMin: main.eigen[0]!,
+      eigenMid: main.eigen[1]!,
+      eigenMax: main.eigen[2]!,
       isotropy,
       curveFourth: main.fourth,
       curveLine0: curve0,
@@ -447,17 +627,24 @@ export default experiment({
       metrics[`rate${s.n}MinFidelity`] = s.minFidelity
       metrics[`rate${s.n}MaxTail`] = s.maxTail
     }
+
     if (d4Tensor) {
-      metrics.d4EigenMin = d4Tensor.eigen[0] as number
-      metrics.d4EigenMax = d4Tensor.eigen[2] as number
-      metrics.d4Isotropy = (d4Tensor.eigen[0] as number) / (d4Tensor.eigen[2] as number)
+      metrics.d4EigenMin = d4Tensor.eigen[0]!
+      metrics.d4EigenMax = d4Tensor.eigen[2]!
+      metrics.d4Isotropy = d4Tensor.eigen[0]! / d4Tensor.eigen[2]!
     }
 
     return verdict({
       status,
       claim: `the stand-in's string cost read as V = |n|_1 of the two members' offset (no register): at rate ${RATE} the dominant level holds fidelity >= ${main.minFidelity.toFixed(5)} and tail <= ${main.maxTail.toExponential(2)} over ${HOLD_BEATS} beats (R1 ${R1}), inverse mass eigenvalues ${main.eigen.map(x => x.toFixed(5)).join(', ')} against ${((CURVE_SHARE * curve0) / 4).toFixed(5)} (R2 ${R2}, isotropy ${isotropy.toFixed(4)}), one line at rate 0 gives E ${e0} and m*/E_rest ${total0} (R3 ${R3}); the recorded register keeps ${rec24.toFixed(4)} by beat ${RECORDED_BEATS} (CR ${CR}) and no cost gives fidelity ${free.minFidelity.toFixed(4)}, tail ${free.maxTail.toExponential(2)} (CN ${CN})`,
       metrics,
-      control: { recordedRetained24: rec24, freeMinFidelity: free.minFidelity, freeMaxTail: free.maxTail, standEnergy0: e0, standTotal0: total0 },
+      control: {
+        recordedRetained24: rec24,
+        freeMinFidelity: free.minFidelity,
+        freeMaxTail: free.maxTail,
+        standEnergy0: e0,
+        standTotal0: total0,
+      },
       notes: `L2. ${describe(main)}. Tensor on e_1..e_3 ${JSON.stringify(main.tensor)}, eigenvalues ${main.eigen.join(', ')}, e_4 curvature ${main.fourth}, one-line curvature ${curve0}, m*/E_rest along the line with the mixer on ${main.along}. CN: ${describe(free)}. CR: recorded retained ${recRetained.map(x => x.toFixed(4)).join(' ')}, ${recSpace.classes.length} classes. Reads: ${describe(d4)}${d4Tensor ? `, tensor eigenvalues ${d4Tensor.eigen.join(', ')}` : ''}; ${smaller.map(describe).join('; ')}. Checks: norm gap ${normGap.toExponential(2)}, rate-0 autocorrelation gap ${autoGap.toExponential(2)}, D4 distance against BFS ${bfsOff} off of ${bfsChecked}, one-line costs ${lineOff} off. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

@@ -46,14 +46,19 @@
 // DETERMINISM: nothing is drawn; the order of every search and push is fixed by index. NOTHING MOVES: each value takes
 // its new value by the rule.
 
-import { HUSK_LATERAL, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
+import {
+  HUSK_LATERAL,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import type { HorizonRule } from '@/code/rule/horizon-husk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
 
 // the balanced representative of x in an odd radix m: -(m - 1) / 2 .. (m - 1) / 2
-export const balanced = (x: number, m: number): number => mod(x + (m - 1) / 2, m) - (m - 1) / 2
+export const balanced = (x: number, m: number): number =>
+  mod(x + (m - 1) / 2, m) - (m - 1) / 2
 
 // an item: 2 x link + 0 for its step, + 1 for its line
 export const STEP_ITEM = 0
@@ -77,23 +82,34 @@ export type MembranePlan = {
 }
 
 // the other end of link m seen from dock y
-const across = (mesh: OpenMesh, m: number, y: number): number => (mesh.tail[m] === y ? mesh.head[m]! : mesh.tail[m]!)
+const across = (mesh: OpenMesh, m: number, y: number): number =>
+  mesh.tail[m] === y ? mesh.head[m]! : mesh.tail[m]!
 
-export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan {
+export function membranePlan(
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+): MembranePlan {
   const n = mesh.huskDocks
   const depth = new Int32Array(n).fill(-1)
   const owner = new Int32Array(n).fill(-1)
   const surface: number[] = []
+
   let docks = 0
 
   for (let y = 0; y < n; y++) {
-    if (!horizon[y]) continue
+    if (!horizon[y]) {
+      continue
+    }
+
     docks++
 
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 
-      if (mesh.kind[m] === HUSK_LATERAL && !horizon[across(mesh, m, y)]) {
+      if (
+        mesh.kind[m] === HUSK_LATERAL &&
+        !horizon[across(mesh, m, y)]
+      ) {
         surface.push(y)
         break
       }
@@ -102,27 +118,40 @@ export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan 
 
   // breadth first inward from the surface docks, in index order
   const queue = new Int32Array(docks)
+
   let tail = 0
 
-  for (const y of surface) (depth[y] = 0), (owner[y] = y), (queue[tail++] = y)
+  for (const y of surface) {
+    ;((depth[y] = 0), (owner[y] = y), (queue[tail++] = y))
+  }
+
   for (let at = 0; at < tail; at++) {
     const y = queue[at]!
 
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 
-      if (mesh.kind[m] !== HUSK_LATERAL) continue
+      if (mesh.kind[m] !== HUSK_LATERAL) {
+        continue
+      }
 
       const z = across(mesh, m, y)
 
-      if (!horizon[z] || depth[z]! >= 0) continue
+      if (!horizon[z] || depth[z]! >= 0) {
+        continue
+      }
+
       depth[z] = depth[y]! + 1
       owner[z] = owner[y]!
       queue[tail++] = z
     }
   }
 
-  if (tail !== docks) throw new Error('membranePlan: a horizon dock is not reached from the surface')
+  if (tail !== docks) {
+    throw new Error(
+      'membranePlan: a horizon dock is not reached from the surface',
+    )
+  }
 
   const slot = new Int32Array(n).fill(-1)
 
@@ -131,10 +160,14 @@ export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan 
   const interior: number[] = []
   const cut: number[] = []
   const digits: number[][] = surface.map(() => [])
-  const deep: { depth: number; item: number }[][] = surface.map(() => [])
+  const deep: { depth: number; item: number }[][] = surface.map(
+    () => [],
+  )
 
   for (let m = 0; m < mesh.links; m++) {
-    if (mesh.kind[m] !== HUSK_LATERAL) continue
+    if (mesh.kind[m] !== HUSK_LATERAL) {
+      continue
+    }
 
     const a = mesh.tail[m]!
     const b = mesh.head[m]!
@@ -142,10 +175,18 @@ export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan 
     if (horizon[a] && horizon[b]) {
       interior.push(m)
 
-      const e = depth[a]! < depth[b]! ? a : depth[b]! < depth[a]! ? b : Math.min(a, b)
+      const e =
+        depth[a]! < depth[b]!
+          ? a
+          : depth[b]! < depth[a]!
+            ? b
+            : Math.min(a, b)
       const k = slot[owner[e]!]!
 
-      deep[k]!.push({ depth: depth[e]!, item: 2 * m + LINE_ITEM }, { depth: depth[e]!, item: 2 * m + STEP_ITEM })
+      deep[k]!.push(
+        { depth: depth[e]!, item: 2 * m + LINE_ITEM },
+        { depth: depth[e]!, item: 2 * m + STEP_ITEM },
+      )
     } else if (horizon[a] || horizon[b]) {
       cut.push(m)
       digits[slot[horizon[a] ? a : b]!]!.push(m)
@@ -154,9 +195,14 @@ export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan 
 
   // cut steps first (link order), then interior items shallowest first (a stable sort keeps link order, line before step)
   const items = surface.map((_, k) => {
-    const inner = deep[k]!.sort((p, q) => p.depth - q.depth).map(p => p.item)
+    const inner = deep[k]!.sort((p, q) => p.depth - q.depth).map(
+      p => p.item,
+    )
 
-    return Int32Array.from([...digits[k]!.map(m => 2 * m + STEP_ITEM), ...inner])
+    return Int32Array.from([
+      ...digits[k]!.map(m => 2 * m + STEP_ITEM),
+      ...inner,
+    ])
   })
 
   return {
@@ -175,7 +221,12 @@ export function membranePlan(mesh: OpenMesh, horizon: Uint8Array): MembranePlan 
 // the counter: c balanced digits in base `base`, least significant first
 
 // n <- n r + v, with carry; false when a carry is left over the top digit (n out of the window)
-export function pushDigit(d: Float64Array, base: number, r: number, v: number): boolean {
+export function pushDigit(
+  d: Float64Array,
+  base: number,
+  r: number,
+  v: number,
+): boolean {
   let carry = v
 
   for (let i = 0; i < d.length; i++) {
@@ -190,12 +241,19 @@ export function pushDigit(d: Float64Array, base: number, r: number, v: number): 
 }
 
 // v = n balanced mod r, n <- (n - v) / r; the inverse of pushDigit
-export function popDigit(d: Float64Array, base: number, r: number): number {
+export function popDigit(
+  d: Float64Array,
+  base: number,
+  r: number,
+): number {
   let rem = 0
 
-  for (let i = d.length - 1; i >= 0; i--) rem = mod(rem * base + d[i]!, r)
+  for (let i = d.length - 1; i >= 0; i--) {
+    rem = mod(rem * base + d[i]!, r)
+  }
 
   const v = balanced(rem, r)
+
   let carry = -v
 
   for (let i = 0; i < d.length; i++) {
@@ -205,9 +263,13 @@ export function popDigit(d: Float64Array, base: number, r: number): number {
     carry = (t - di) / base
     d[i] = di
   }
-  if (carry !== 0) throw new Error('popDigit: the counter left its window')
+
+  if (carry !== 0) {
+    throw new Error('popDigit: the counter left its window')
+  }
 
   rem = 0
+
   for (let i = d.length - 1; i >= 0; i--) {
     const t = rem * base + d[i]!
     const q = floorDiv(t, r)
@@ -215,9 +277,15 @@ export function popDigit(d: Float64Array, base: number, r: number): number {
     rem = t - q * r
     d[i] = q
   }
-  if (rem !== 0) throw new Error('popDigit: the counter was not divisible after taking its remainder')
+
+  if (rem !== 0) {
+    throw new Error(
+      'popDigit: the counter was not divisible after taking its remainder',
+    )
+  }
 
   carry = 0
+
   for (let i = 0; i < d.length; i++) {
     const t = d[i]! + carry
     const di = balanced(t, base)
@@ -225,7 +293,10 @@ export function popDigit(d: Float64Array, base: number, r: number): number {
     carry = (t - di) / base
     d[i] = di
   }
-  if (carry !== 0) throw new Error('popDigit: the quotient left the window')
+
+  if (carry !== 0) {
+    throw new Error('popDigit: the quotient left the window')
+  }
 
   return v
 }
@@ -240,12 +311,19 @@ export type Formation = {
 }
 
 // FORM the membrane horizon on `s` in place, or refuse and leave `s` unchanged. `scratch` holds one digit a link
-export function membraneForm(mesh: OpenMesh, rule: HorizonRule, plan: MembranePlan, s: OpenState, scratch = new Float64Array(mesh.links)): Formation {
+export function membraneForm(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  plan: MembranePlan,
+  s: OpenState,
+  scratch = new Float64Array(mesh.links),
+): Formation {
   const overflow: number[] = []
 
   plan.surface.forEach((_, k) => {
     const cells = plan.digits[k]!
     const d = new Float64Array(cells.length)
+
     let fits = true
 
     for (const item of plan.items[k]!) {
@@ -253,26 +331,47 @@ export function membraneForm(mesh: OpenMesh, rule: HorizonRule, plan: MembranePl
       const line = (item & 1) === LINE_ITEM
       const r = line ? 3 : rule.span
 
-      if (!pushDigit(d, rule.span, r, line ? s.line[link]! : s.step[link]!)) {
+      if (
+        !pushDigit(
+          d,
+          rule.span,
+          r,
+          line ? s.line[link]! : s.step[link]!,
+        )
+      ) {
         fits = false
         break
       }
     }
 
-    if (!fits) overflow.push(k)
-    else cells.forEach((m, i) => (scratch[m] = d[i]!))
+    if (!fits) {
+      overflow.push(k)
+    } else {
+      cells.forEach((m, i) => (scratch[m] = d[i]!))
+    }
   })
 
-  if (overflow.length > 0) return { formed: false, overflow }
+  if (overflow.length > 0) {
+    return { formed: false, overflow }
+  }
 
-  for (const m of plan.interior) (s.step[m] = 0), (s.line[m] = 0)
-  for (const m of plan.cut) s.step[m] = scratch[m]!
+  for (const m of plan.interior) {
+    ;((s.step[m] = 0), (s.line[m] = 0))
+  }
+
+  for (const m of plan.cut) {
+    s.step[m] = scratch[m]!
+  }
 
   return { formed: true, overflow }
 }
 
 // the inverse of a formation: every item read back off its surface dock's counter, deepest first
-export function membraneUnform(rule: HorizonRule, plan: MembranePlan, s: OpenState): void {
+export function membraneUnform(
+  rule: HorizonRule,
+  plan: MembranePlan,
+  s: OpenState,
+): void {
   plan.surface.forEach((_, k) => {
     const cells = plan.digits[k]!
     const d = Float64Array.from(cells, m => s.step[m]!)
@@ -282,10 +381,15 @@ export function membraneUnform(rule: HorizonRule, plan: MembranePlan, s: OpenSta
       const item = items[i]!
       const link = item >> 1
 
-      if ((item & 1) === LINE_ITEM) s.line[link] = popDigit(d, rule.span, 3)
-      else s.step[link] = popDigit(d, rule.span, rule.span)
+      if ((item & 1) === LINE_ITEM) {
+        s.line[link] = popDigit(d, rule.span, 3)
+      } else {
+        s.step[link] = popDigit(d, rule.span, rule.span)
+      }
     }
 
-    if (d.some(v => v !== 0)) throw new Error('membraneUnform: the counter did not empty')
+    if (d.some(v => v !== 0)) {
+      throw new Error('membraneUnform: the counter did not empty')
+    }
   })
 }

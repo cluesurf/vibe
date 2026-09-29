@@ -26,21 +26,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import {
-  d4Mesh,
-  squareMesh,
-  meshOpposites,
-} from '@/code/tool/mesh'
+import { d4Mesh, squareMesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
 import { lineHop, pairCollision } from '@/code/rule/collision'
 import { growingBeat } from '@/code/rule/lattice-gas'
 
 const SIDE = 24
 
-function grownPair(input: {
-  offset: number
-  beats: number
-}): { profile: number[]; total: number } {
+function grownPair(input: { offset: number; beats: number }): {
+  profile: number[]
+  total: number
+} {
   const mesh = squareMesh({ side: SIDE })
   const rule = pairCollision({ opposite: meshOpposites(mesh) })
 
@@ -54,9 +50,7 @@ function grownPair(input: {
     return will
   }
 
-  const two = evolve(c =>
-    c % SIDE < SIDE / 2 ? 0 : input.offset,
-  )
+  const two = evolve(c => (c % SIDE < SIDE / 2 ? 0 : input.offset))
   const vacuumA = evolve(() => 0)
   const vacuumB = evolve(() => input.offset)
   const profile = new Array<number>(SIDE).fill(0)
@@ -163,10 +157,7 @@ export default experiment({
     // 12 and 0 on the torus), at both breathing phases
     const nearBoundary = (profile: number[]): boolean =>
       profile.every((v, x) => {
-        const dA = Math.min(
-          Math.abs(x - 12),
-          Math.min(x, SIDE - x),
-        )
+        const dA = Math.min(Math.abs(x - 12), Math.min(x, SIDE - x))
 
         return v === 0 || dA <= 2
       })
@@ -186,9 +177,7 @@ export default experiment({
     const commensurateNull = none.total === 0
 
     const supports = crossingSupports()
-    const transparent = supports
-      .slice(3)
-      .every(s => s === 1)
+    const transparent = supports.slice(3).every(s => s === 1)
 
     const ok =
       localized &&

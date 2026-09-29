@@ -37,7 +37,11 @@ export function neighbourTable(mesh: Mesh): Int32Array {
 }
 
 // the vacuum's one-cell state after each beat, from empty
-export function vacuumCells(input: { forward: (t: number) => Collision; beats: number; degree?: number }): Int8Array[] {
+export function vacuumCells(input: {
+  forward: (t: number) => Collision
+  beats: number
+  degree?: number
+}): Int8Array[] {
   const degree = input.degree ?? 24
   const out: Int8Array[] = []
   const cell = new Int8Array(degree)
@@ -52,7 +56,10 @@ export function vacuumCells(input: { forward: (t: number) => Collision; beats: n
 
 // A background run kept beat by beat: before[t] is the whole state entering beat t (before[0] the
 // start), after[t] the state once beat t's collision has acted, before streaming.
-export type Background = { readonly before: readonly Int8Array[]; readonly after: readonly Int8Array[] }
+export type Background = {
+  readonly before: readonly Int8Array[]
+  readonly after: readonly Int8Array[]
+}
 
 export function backgroundRun(input: {
   neighbours: Int32Array
@@ -78,7 +85,8 @@ export function backgroundRun(input: {
 
     for (let x = 0; x < cells; x++) {
       for (let d = 0; d < degree; d++) {
-        streamed[(neighbours[x * degree + d] ?? 0) * degree + d] = collided[x * degree + d] ?? 0
+        streamed[(neighbours[x * degree + d] ?? 0) * degree + d] =
+          collided[x * degree + d] ?? 0
       }
     }
 
@@ -102,11 +110,26 @@ export function perturbationOn(input: {
   // the value the slot is set to
   value: number
   beats: number
-  watch?: (t: number, live: ReadonlyMap<number, Int8Array>, background: Int8Array) => void
+  watch?: (
+    t: number,
+    live: ReadonlyMap<number, Int8Array>,
+    background: Int8Array,
+  ) => void
 }): void {
-  const { neighbours, forward, background, cell, direction, value, beats } = input
+  const {
+    neighbours,
+    forward,
+    background,
+    cell,
+    direction,
+    value,
+    beats,
+  } = input
   const degree = 24
-  const first = (background.before[0] ?? new Int8Array(0)).slice(cell * degree, (cell + 1) * degree)
+  const first = (background.before[0] ?? new Int8Array(0)).slice(
+    cell * degree,
+    (cell + 1) * degree,
+  )
 
   first[direction] = value
 
@@ -157,9 +180,14 @@ export function loneDressing(input: {
   // stop after the beat where this holds of (beat, support): the later beats are then not reported
   stop?: (t: number, support: number) => boolean
   // called after every beat with the cells that differ from the vacuum and their states
-  watch?: (t: number, live: ReadonlyMap<number, Int8Array>, vacuum: Int8Array) => void
+  watch?: (
+    t: number,
+    live: ReadonlyMap<number, Int8Array>,
+    vacuum: Int8Array,
+  ) => void
 }): DressingBeat[] {
-  const { neighbours, forward, vacuum, cell, direction, beats, stop } = input
+  const { neighbours, forward, vacuum, cell, direction, beats, stop } =
+    input
   const degree = 24
   const out: DressingBeat[] = []
   const seed = new Int8Array(degree)

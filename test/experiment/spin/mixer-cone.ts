@@ -85,17 +85,55 @@ import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { boxSteps, fullPathKey, pathOffset, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  boxSteps,
+  fullPathKey,
+  pathOffset,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { lineFrame } from '@/code/measure/frame-meson'
 import { placeVibes } from '@/code/measure/two-hub-bound'
-import { fermionMixBranch, placeInSea, seaConfiguration } from '@/code/measure/pauli-mixer'
+import {
+  fermionMixBranch,
+  placeInSea,
+  seaConfiguration,
+} from '@/code/measure/pauli-mixer'
 import { flatLinks, tablesOn } from '@/code/measure/link-holonomy'
 import { lockstepFront } from '@/code/measure/candidate-audit'
-import { bandPoint, coneBound, d4Steps, eNorm, exactWalk, floatWalk, frameMatrix, frameRoots, matrixGap, momentumOf, ruleFrameMatrix, topSpeeds, velocityCheck, type Eis, type Site } from '@/code/measure/frame-cone'
-import { coinedVetoBeat, FRAME_SLOTS } from '@/code/rule/coined-locked-knit'
-import { lockedState, mergeBranches, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box-integer'
+import {
+  bandPoint,
+  coneBound,
+  d4Steps,
+  eNorm,
+  exactWalk,
+  floatWalk,
+  frameMatrix,
+  frameRoots,
+  matrixGap,
+  momentumOf,
+  ruleFrameMatrix,
+  topSpeeds,
+  velocityCheck,
+  type Eis,
+  type Site,
+} from '@/code/measure/frame-cone'
+import {
+  coinedVetoBeat,
+  FRAME_SLOTS,
+} from '@/code/rule/coined-locked-knit'
+import {
+  lockedState,
+  mergeBranches,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box-integer'
 
 const WALK_BEATS = 12
 const CHECK_SIDE = 4
@@ -138,7 +176,10 @@ const UNITS: readonly Eis[] = [
   [1n, 1n],
 ]
 
-const eMul = (x: Eis, y: Eis): Eis => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0] - x[1] * y[1]]
+const eMul = (x: Eis, y: Eis): Eis => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0] - x[1] * y[1],
+]
 
 export default experiment({
   id: 'spin/mixer-cone',
@@ -151,13 +192,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const B = rootIndex([1, 1, 0, 0])
     const F = lineFrame(B)
     const roots = frameRoots(F)
-    const ss = FRAME_SLOTS[F] as readonly number[]
+    const ss = FRAME_SLOTS[F]!
     const startQ = ss.indexOf(B)
-    const keyOf = (path: number): PathKey => fullPathKey(pathOffset(path))
+    const keyOf = (path: number): PathKey =>
+      fullPathKey(pathOffset(path))
     const lineDir = HUSK.find(h => h.name === 'e12')!.u
 
     // ---------------- instrument ----------------
@@ -169,12 +214,20 @@ export default experiment({
     const X4 = centerOf(cX)
     const fr4 = contactFresh(cX, 'pass', X4)
     const flat4 = tablesOn(fr4.weave, 'pass', flatLinks(fr4.weave))
-    const fold = (sites: Map<string, Site>, side: number, from: number): Map<string, Eis> => {
+
+    const fold = (
+      sites: Map<string, Site>,
+      side: number,
+      from: number,
+    ): Map<string, Eis> => {
       const c0 = d4BoxCoordinates({ cell: from, side })
       const m = new Map<string, Eis>()
 
       for (const s of sites.values()) {
-        const cell = d4BoxCell({ coordinates: d4Coordinates(s.v).map((x, k) => x + (c0[k] as number)), side })
+        const cell = d4BoxCell({
+          coordinates: d4Coordinates(s.v).map((x, k) => x + c0[k]!),
+          side,
+        })
 
         s.amp.forEach((a, q) => {
           const key = `${cell},${ss[q]}`
@@ -184,36 +237,70 @@ export default experiment({
         })
       }
 
-      for (const [k, a] of m) if (a[0] === 0n && a[1] === 0n) m.delete(k)
+      for (const [k, a] of m) {
+        if (a[0] === 0n && a[1] === 0n) {
+          m.delete(k)
+        }
+      }
 
       return m
     }
-    const ruleCheck = (hole: boolean): { beats: string[]; ok: boolean } => {
-      const start: Configuration = hole ? placeInSea(seaConfiguration(fr4.cells, 1), [{ dock: X4, slot: B, vibe: 0 }]) : placeInSea(seaConfiguration(fr4.cells, 0), [{ dock: X4, slot: B, vibe: 1 }])
+
+    const ruleCheck = (
+      hole: boolean,
+    ): { beats: string[]; ok: boolean } => {
+      const start: Configuration = hole
+        ? placeInSea(seaConfiguration(fr4.cells, 1), [
+            { dock: X4, slot: B, vibe: 0 },
+          ])
+        : placeInSea(seaConfiguration(fr4.cells, 0), [
+            { dock: X4, slot: B, vibe: 1 },
+          ])
       const walks: Map<string, Eis>[] = []
 
-      exactWalk(hole ? Ph : Pv, roots, startQ, CHECK_BEATS, (t, sites) => (walks[t] = fold(sites, cX, X4)))
+      exactWalk(
+        hole ? Ph : Pv,
+        roots,
+        startQ,
+        CHECK_BEATS,
+        (t, sites) => (walks[t] = fold(sites, cX, X4)),
+      )
 
       let s: LockedState = lockedState(start)
+
       const beats: string[] = []
+
       let ok = true
 
       for (let t = 0; t < CHECK_BEATS; t++) {
-        s = { branches: mergeBranches(s.branches.flatMap(b => fermionMixBranch(fr4.cells, b, false))) }
-        s = coinedVetoBeat('none', flat4 as LockedTables, s, t)
+        s = {
+          branches: mergeBranches(
+            s.branches.flatMap(b =>
+              fermionMixBranch(fr4.cells, b, false),
+            ),
+          ),
+        }
+        s = coinedVetoBeat('none', flat4, s, t)
 
-        const w = walks[t + 1] as Map<string, Eis>
+        const w = walks[t + 1]!
         const T = 16n ** BigInt(t + 1)
         const unit = UNITS.findIndex(u =>
           s.branches.every(br => {
             let where = ''
 
-            for (let i = 0; i < br.vibe.length; i++) if ((br.vibe[i] !== 0) !== hole) where = `${Math.floor(i / 24)},${i % 24}`
+            for (let i = 0; i < br.vibe.length; i++) {
+              if ((br.vibe[i] !== 0) !== hole) {
+                where = `${Math.floor(i / 24)},${i % 24}`
+              }
+            }
 
             const want = eMul(u, w.get(where) ?? [0n, 0n])
             const scale = 1n << BigInt(br.k)
 
-            return br.a * T === want[0] * scale && br.b * T === want[1] * scale
+            return (
+              br.a * T === want[0] * scale &&
+              br.b * T === want[1] * scale
+            )
           }),
         )
         const same = unit >= 0 && s.branches.length === w.size
@@ -224,6 +311,7 @@ export default experiment({
 
       return { beats, ok }
     }
+
     const checkHole = ruleCheck(true)
     const checkVibe = ruleCheck(false)
     const PhF = frameMatrix(WORKING_THETA, 1, true)
@@ -232,9 +320,18 @@ export default experiment({
         [0.31, -1.07, 0.73, 2.03],
         [1.9, 0.2, -2.6, 0.45],
         [-0.8, 2.2, 1.3, -0.1],
-      ].flatMap(k => HUSK.map(h => velocityCheck(PhF, roots, momentumOf(roots, k), h.u))),
+      ].flatMap(k =>
+        HUSK.map(h =>
+          velocityCheck(PhF, roots, momentumOf(roots, k), h.u),
+        ),
+      ),
     )
-    const instrument = gapHole <= MATRIX_TOLERANCE && gapVibe <= MATRIX_TOLERANCE && checkHole.ok && checkVibe.ok && velocityGap <= VELOCITY_TOLERANCE
+    const instrument =
+      gapHole <= MATRIX_TOLERANCE &&
+      gapVibe <= MATRIX_TOLERANCE &&
+      checkHole.ok &&
+      checkVibe.ok &&
+      velocityGap <= VELOCITY_TOLERANCE
 
     log('instrument')
 
@@ -254,17 +351,32 @@ export default experiment({
       let r = 0
       let front = 0n
       let total = 0n
+
       const along = HUSK.map(() => -Infinity)
 
       for (const s of sites.values()) {
         const d = d4Steps(s.v)
+
         let w = 0n
 
-        for (const a of s.amp) w += eNorm(a)
+        for (const a of s.amp) {
+          w += eNorm(a)
+        }
+
         total += w
         r = Math.max(r, d)
-        if (d === t) front += w
-        HUSK.forEach((h, i) => (along[i] = Math.max(along[i] as number, s.v.reduce((x, y, k) => x + y * (h.u[k] as number), 0) / Math.SQRT2)))
+
+        if (d === t) {
+          front += w
+        }
+
+        HUSK.forEach(
+          (h, i) =>
+            (along[i] = Math.max(
+              along[i]!,
+              s.v.reduce((x, y, k) => x + y * h.u[k]!, 0) / Math.SQRT2,
+            )),
+        )
       }
 
       const unit = 256n ** BigInt(t)
@@ -272,13 +384,36 @@ export default experiment({
       reach.push(r)
       frontWeight.push(Number((front * 10n ** 18n) / unit) / 1e18)
       normExact.push(total === unit)
-      alongOff.push(Math.max(...HUSK.map((h, i) => Math.abs((along[i] as number) - t * coneBound(roots, h.u)))))
-      if (t === WALK_BEATS) along.forEach(x => alongAtEnd.push(x / t))
-      if (t <= FRONT_BEATS) amplitudeBoxFront.push(Math.max(...[...fold(sites, FRONT_SIDE, X16).keys()].map(k => steps16[Number(k.split(',')[0])] as number)))
+      alongOff.push(
+        Math.max(
+          ...HUSK.map((h, i) =>
+            Math.abs(along[i]! - t * coneBound(roots, h.u)),
+          ),
+        ),
+      )
+
+      if (t === WALK_BEATS) {
+        along.forEach(x => alongAtEnd.push(x / t))
+      }
+
+      if (t <= FRONT_BEATS) {
+        amplitudeBoxFront.push(
+          Math.max(
+            ...[...fold(sites, FRONT_SIDE, X16).keys()].map(
+              k => steps16[Number(k.split(',')[0])]!,
+            ),
+          ),
+        )
+      }
     })
 
-    const F1 = reach.every((r, i) => r === i + 1) && frontWeight.every(x => x > 0) && normExact.every(Boolean) && alongOff.every(x => x <= 1e-12)
-    const frontRatio = (frontWeight[WALK_BEATS - 1] as number) / (frontWeight[WALK_BEATS - 2] as number)
+    const F1 =
+      reach.every((r, i) => r === i + 1) &&
+      frontWeight.every(x => x > 0) &&
+      normExact.every(Boolean) &&
+      alongOff.every(x => x <= 1e-12)
+    const frontRatio =
+      frontWeight[WALK_BEATS - 1]! / frontWeight[WALK_BEATS - 2]!
 
     // the reach by theta (float walk, working coin, 8 beats): D4 reach, and the support's reach along e3 over c t
     const thetaReach = THETAS.map(({ name, theta }) => {
@@ -287,19 +422,37 @@ export default experiment({
       let sites = 0
       let offLine = 0
 
-      floatWalk(frameMatrix(theta, 1, true), roots, startQ, FRONT_BEATS, (t, m) => {
-        if (t !== FRONT_BEATS) return
-        for (const s of m.values()) {
-          let wgt = 0
+      floatWalk(
+        frameMatrix(theta, 1, true),
+        roots,
+        startQ,
+        FRONT_BEATS,
+        (t, m) => {
+          if (t !== FRONT_BEATS) {
+            return
+          }
 
-          for (let q = 0; q < 8; q++) wgt += (s.re[q] as number) ** 2 + (s.im[q] as number) ** 2
-          if (wgt === 0) continue
-          sites++
-          r = Math.max(r, d4Steps(s.v))
-          e3 = Math.max(e3, (s.v[2] as number) / Math.SQRT2 / t)
-          if (!(s.v[0] === s.v[1] && s.v[2] === 0 && s.v[3] === 0)) offLine++
-        }
-      })
+          for (const s of m.values()) {
+            let wgt = 0
+
+            for (let q = 0; q < 8; q++) {
+              wgt += s.re[q]! ** 2 + s.im[q]! ** 2
+            }
+
+            if (wgt === 0) {
+              continue
+            }
+
+            sites++
+            r = Math.max(r, d4Steps(s.v))
+            e3 = Math.max(e3, s.v[2]! / Math.SQRT2 / t)
+
+            if (!(s.v[0] === s.v[1] && s.v[2] === 0 && s.v[3] === 0)) {
+              offLine++
+            }
+          }
+        },
+      )
 
       return { name, reach: r, e3, sites, offLine }
     })
@@ -313,9 +466,19 @@ export default experiment({
         const P = frameMatrix(theta, n, true)
         const top = topSpeeds(P, roots, dirs, GRID)
         const low = dirs.map(u => {
-          const b = bandPoint(P, roots, u.map(x => x * LOW_K))
+          const b = bandPoint(
+            P,
+            roots,
+            u.map(x => x * LOW_K),
+          )
 
-          return Math.max(...b.velocity.map(v => v.reduce((s, x, k) => s + x * (u[k] as number), 0))) / Math.SQRT2
+          return (
+            Math.max(
+              ...b.velocity.map(v =>
+                v.reduce((s, x, k) => s + x * u[k]!, 0),
+              ),
+            ) / Math.SQRT2
+          )
         })
 
         log(`F2 theta ${name} n ${n}`)
@@ -324,52 +487,114 @@ export default experiment({
       }),
     )
     const cone = dirs.map(u => coneBound(roots, u))
-    const lightest = COINS[COINS.length - 1] as number
-    const f2Rows = speeds.flat().filter(r => r.n === lightest && r.theta > 0)
-    const f2Of = (top: number[]): { least: number; spread: number } => ({ least: Math.min(...top), spread: Math.max(...top) / Math.min(...top) })
+    const lightest = COINS[COINS.length - 1]!
+    const f2Rows = speeds
+      .flat()
+      .filter(r => r.n === lightest && r.theta > 0)
+    const f2Of = (
+      top: number[],
+    ): { least: number; spread: number } => ({
+      least: Math.min(...top),
+      spread: Math.max(...top) / Math.min(...top),
+    })
     const F2 = f2Rows.every(r => {
       const x = f2Of(r.top)
 
-      return x.least >= 1 - SPEED_TOLERANCE && x.spread <= 1 + SPEED_TOLERANCE
+      return (
+        x.least >= 1 - SPEED_TOLERANCE &&
+        x.spread <= 1 + SPEED_TOLERANCE
+      )
     })
-    const aboveCone = Math.max(...speeds.flat().map(r => Math.max(...r.top.map((x, i) => x - (cone[i] as number)))))
+    const aboveCone = Math.max(
+      ...speeds
+        .flat()
+        .map(r => Math.max(...r.top.map((x, i) => x - cone[i]!))),
+    )
 
     // ---------------- controls ----------------
     const lineIndex = HUSK.findIndex(h => h.name === 'e12')
-    const lineon = speeds.find(rs => rs[0]!.theta === 0) as (typeof speeds)[number]
-    const closedGap = Math.max(...lineon.map(r => Math.abs((r.top[lineIndex] as number) - Math.cos(Math.PI / (3 * r.n)))))
+    const lineon = speeds.find(rs => rs[0]!.theta === 0)!
+    const closedGap = Math.max(
+      ...lineon.map(r =>
+        Math.abs(r.top[lineIndex]! - Math.cos(Math.PI / (3 * r.n))),
+      ),
+    )
     const theta0 = thetaReach.find(r => r.name === '0')!
-    const lightLine = lineon.find(r => r.n === lightest)!.top[lineIndex] as number
-    const C1 = closedGap <= CLOSED_TOLERANCE && theta0.offLine === 0 && theta0.reach === FRONT_BEATS && lightLine >= 1 - SPEED_TOLERANCE
+    const lightLine = lineon.find(r => r.n === lightest)!.top[
+      lineIndex
+    ]!
+    const C1 =
+      closedGap <= CLOSED_TOLERANCE &&
+      theta0.offLine === 0 &&
+      theta0.reach === FRONT_BEATS &&
+      lightLine >= 1 - SPEED_TOLERANCE
 
     const flat16 = tablesOn(fr16.weave, 'pass', flatLinks(fr16.weave))
     const vacuum16 = wordVacuum(fr16, fr16.store)
     const love16 = seaConfiguration(cells16, 1)
     const empty16 = seaConfiguration(cells16, 0)
-    const envelope = (tables: LockedTables, start: Configuration, reference: Configuration, mix: boolean): number[] => {
+
+    const envelope = (
+      tables: LockedTables,
+      start: Configuration,
+      reference: Configuration,
+      mix: boolean,
+    ): number[] => {
       const out = new Array<number>(FRONT_BEATS).fill(-1)
 
       for (let path = 0; path < FRONT_PATHS; path++) {
-        lockstepFront({ tables, start, reference, key: keyOf(path), beats: FRONT_BEATS, mix, steps: steps16 }).forEach((r, t) => (out[t] = Math.max(out[t] as number, r)))
+        lockstepFront({
+          tables,
+          start,
+          reference,
+          key: keyOf(path),
+          beats: FRONT_BEATS,
+          mix,
+          steps: steps16,
+        }).forEach((r, t) => (out[t] = Math.max(out[t]!, r)))
       }
 
       return out
     }
-    const frontWorking = envelope(fr16.tables, placeVibes(vacuum16, [{ dock: X16, slot: B, vibe: 1 }]), vacuum16, false)
-    const frontHole = envelope(flat16, placeInSea(love16, [{ dock: X16, slot: B, vibe: 0 }]), love16, true)
-    const frontBareLove = envelope(flat16, placeInSea(empty16, [{ dock: X16, slot: B, vibe: 1 }]), empty16, false)
-    const C2 = frontHole[FRONT_BEATS - 1] === 4 && frontWorking[FRONT_BEATS - 1] === 8
-    const amplitudeMatchesWorking = amplitudeBoxFront.every((r, t) => r === frontWorking[t])
+
+    const frontWorking = envelope(
+      fr16.tables,
+      placeVibes(vacuum16, [{ dock: X16, slot: B, vibe: 1 }]),
+      vacuum16,
+      false,
+    )
+    const frontHole = envelope(
+      flat16,
+      placeInSea(love16, [{ dock: X16, slot: B, vibe: 0 }]),
+      love16,
+      true,
+    )
+    const frontBareLove = envelope(
+      flat16,
+      placeInSea(empty16, [{ dock: X16, slot: B, vibe: 1 }]),
+      empty16,
+      false,
+    )
+    const C2 =
+      frontHole[FRONT_BEATS - 1] === 4 &&
+      frontWorking[FRONT_BEATS - 1] === 8
+    const amplitudeMatchesWorking = amplitudeBoxFront.every(
+      (r, t) => r === frontWorking[t],
+    )
 
     log('C2')
 
     // ---------------- verdict ----------------
     const controls = C1 && C2
-    const status = !instrument || !controls ? 'partial' : F1 && F2 ? 'pass' : 'fail'
+    const status =
+      !instrument || !controls ? 'partial' : F1 && F2 ? 'pass' : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const table = speeds
       .flat()
-      .map(r => `theta ${r.name} n ${r.n}: top ${r.top.map(f4).join(' ')}; at |K| ${LOW_K} ${r.low.map(f4).join(' ')}`)
+      .map(
+        r =>
+          `theta ${r.name} n ${r.n}: top ${r.top.map(f4).join(' ')}; at |K| ${LOW_K} ${r.low.map(f4).join(' ')}`,
+      )
       .join(' | ')
     const metrics: Record<string, number> = {
       F1: F1 ? 1 : 0,
@@ -380,17 +605,17 @@ export default experiment({
       matrixGapHole: gapHole,
       matrixGapVibe: gapVibe,
       velocityGap,
-      reachAtEnd: reach[WALK_BEATS - 1] as number,
-      frontWeightAtEnd: frontWeight[WALK_BEATS - 1] as number,
+      reachAtEnd: reach[WALK_BEATS - 1]!,
+      frontWeightAtEnd: frontWeight[WALK_BEATS - 1]!,
       frontRatio,
       alongOff: Math.max(...alongOff),
       aboveCone,
       closedGap,
       lightLine,
-      frontWorking8: frontWorking[FRONT_BEATS - 1] as number,
-      frontHole8: frontHole[FRONT_BEATS - 1] as number,
-      frontBareLove8: frontBareLove[FRONT_BEATS - 1] as number,
-      amplitudeFront8: amplitudeBoxFront[FRONT_BEATS - 1] as number,
+      frontWorking8: frontWorking[FRONT_BEATS - 1]!,
+      frontHole8: frontHole[FRONT_BEATS - 1]!,
+      frontBareLove8: frontBareLove[FRONT_BEATS - 1]!,
+      amplitudeFront8: amplitudeBoxFront[FRONT_BEATS - 1]!,
       amplitudeMatchesWorking: amplitudeMatchesWorking ? 1 : 0,
       seconds: (Date.now() - started) / 1000,
     }
@@ -401,14 +626,26 @@ export default experiment({
       metrics[`F2_${r.name}_least`] = x.least
       metrics[`F2_${r.name}_spread`] = x.spread
     })
-    speeds.flat().forEach(r => HUSK.forEach((h, i) => (metrics[`top_${r.name}_n${r.n}_${h.name}`] = r.top[i] as number)))
-    HUSK.forEach((h, i) => (metrics[`cone_${h.name}`] = cone[i] as number))
+
+    speeds
+      .flat()
+      .forEach(r =>
+        HUSK.forEach(
+          (h, i) =>
+            (metrics[`top_${r.name}_n${r.n}_${h.name}`] = r.top[i]!),
+        ),
+      )
+    HUSK.forEach((h, i) => (metrics[`cone_${h.name}`] = cone[i]!))
 
     return verdict({
       status,
       claim: `F1 ${F1} (exact reach ${reach.join(' ')} over t = 1 .. ${WALK_BEATS}, norm exact ${normExact.every(Boolean)}, front weight ${frontWeight.map(x => x.toExponential(2)).join(' ')}, ratio per beat ${f4(frontRatio)}; along the husk directions the support reaches t times the cone bound, off ${Math.max(...alongOff)}); F2 ${F2} (at n = ${lightest}: ${f2Rows.map(r => `theta ${r.name} least ${f4(f2Of(r.top).least)} c, spread ${f4(f2Of(r.top).spread)}`).join('; ')}; cone bound ${cone.map(f4).join(' ')} on ${HUSK.map(h => h.name).join(' ')}, largest excess over it ${aboveCone.toExponential(2)}); C1 ${C1} (closed form gap ${closedGap.toExponential(2)}, theta 0 off-line sites ${theta0.offLine}, line speed at n ${lightest} ${f4(lightLine)}); C2 ${C2} (keyed fronts over ${FRONT_PATHS} paths in box steps: working lineon ${frontWorking.join(' ')}, sea hole ${frontHole.join(' ')}, a love on the empty mesh WITHOUT the mixer ${frontBareLove.join(' ')}; the hole's amplitude ${amplitudeBoxFront.join(' ')})`,
       metrics,
-      control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, instrument: instrument ? 1 : 0 },
+      control: {
+        C1: C1 ? 1 : 0,
+        C2: C2 ? 1 : 0,
+        instrument: instrument ? 1 : 0,
+      },
       notes: `L1/L2. Instrument: dock matrix gaps ${gapHole.toExponential(2)} (hole), ${gapVibe.toExponential(2)} (vibe); the rule's exact run against the folded walk (branches/walk entries, global unit index) hole ${checkHole.beats.join(', ')}, vibe ${checkVibe.beats.join(', ')}; velocity check ${velocityGap.toExponential(2)}. The support's reach over c t along ${HUSK.map(h => h.name).join(' ')} at t = ${WALK_BEATS}: ${alongAtEnd.map(f4).join(' ')}. Reach by theta at t = ${FRONT_BEATS} (working coin): ${thetaReach.map(r => `${r.name}: D4 ${r.reach}, e3 ${f4(r.e3)} c, ${r.sites} sites, ${r.offLine} off the line`).join('; ')}. Top speeds over c along ${HUSK.map(h => h.name).join(' ')}: ${table}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

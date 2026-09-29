@@ -32,10 +32,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
 import { turnElements } from '@/code/rule/color-local-family'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { colorLocalLeaks, colorLocalSpec, makeColorLocalWeave } from '@/code/rule/color-local-weave'
+import {
+  colorLocalLeaks,
+  colorLocalSpec,
+  makeColorLocalWeave,
+} from '@/code/rule/color-local-weave'
 import { BIND_MOVE_FORWARD } from '@/code/rule/collision'
 import {
   couplesCovered,
@@ -60,11 +67,18 @@ function matchings(rest: number[]): number[][][] {
 
   const [a, ...others] = rest
 
-  return others.flatMap((b, i) => matchings([...others.slice(0, i), ...others.slice(i + 1)]).map(m => [[a ?? 0, b], ...m]))
+  return others.flatMap((b, i) =>
+    matchings([...others.slice(0, i), ...others.slice(i + 1)]).map(
+      m => [[a ?? 0, b], ...m],
+    ),
+  )
 }
 
 // the most pairs of lines the powers of any element of a group reach from any start
-function bestCover(group: readonly (readonly number[])[], starts: readonly number[][][]): { best: number; maxOrder: number } {
+function bestCover(
+  group: readonly (readonly number[])[],
+  starts: readonly number[][][],
+): { best: number; maxOrder: number } {
   let best = 0
   let maxOrder = 0
 
@@ -79,8 +93,16 @@ function bestCover(group: readonly (readonly number[])[], starts: readonly numbe
       let current = start
 
       for (let k = 0; k < order; k++) {
-        current.forEach(([a, b]) => seen.add(Math.min(a ?? 0, b ?? 0) * 12 + Math.max(a ?? 0, b ?? 0)))
-        current = current.map(([a, b]) => [g[a ?? 0] ?? 0, g[b ?? 0] ?? 0])
+        current.forEach(([a, b]) =>
+          seen.add(
+            Math.min(a ?? 0, b ?? 0) * 12 + Math.max(a ?? 0, b ?? 0),
+          ),
+        )
+
+        current = current.map(([a, b]) => [
+          g[a ?? 0] ?? 0,
+          g[b ?? 0] ?? 0,
+        ])
       }
 
       best = Math.max(best, seen.size)
@@ -98,13 +120,32 @@ function cptPhase(knit: SteeredKnit): number {
       const mirror = (((c - t) % 24) + 24) % 24
 
       for (let n = 0; n < 300 && holds; n++) {
-        const v = Int8Array.from({ length: 24 }, (_, i) => (n % 2 === 0 && (n + i) % 5 !== 0 ? 0 : ((n * 31 + i * 7 + ((n * i) % 5)) % 3) - 1))
+        const v = Int8Array.from({ length: 24 }, (_, i) =>
+          n % 2 === 0 && (n + i) % 5 !== 0
+            ? 0
+            : ((n * 31 + i * 7 + ((n * i) % 5)) % 3) - 1,
+        )
         const string = (d: number): boolean => (n * 13 + d * 5) % 7 < 3
         const rhs = Int8Array.from(v)
         const lhs = Int8Array.from(v, x => -x)
 
-        knitDock({ knit, slots: rhs, base: 0, string, t, forward: true })
-        knitDock({ knit, slots: lhs, base: 0, string, t: mirror, forward: false })
+        knitDock({
+          knit,
+          slots: rhs,
+          base: 0,
+          string,
+          t,
+          forward: true,
+        })
+
+        knitDock({
+          knit,
+          slots: lhs,
+          base: 0,
+          string,
+          t: mirror,
+          forward: false,
+        })
         holds = lhs.every((x, k) => -x === rhs[k])
       }
     }
@@ -117,16 +158,24 @@ function cptPhase(knit: SteeredKnit): number {
   return -1
 }
 
-function vacuum(knit: SteeredKnit): { period: number; firstEmpty: number; reverses: boolean } {
+function vacuum(knit: SteeredKnit): {
+  period: number
+  firstEmpty: number
+  reverses: boolean
+} {
   const states: string[] = []
 
-  let s: KnitState = { vibe: new Int8Array(knit.mesh.cellCount * 24), flux: new Int32Array(knit.edges.length) }
+  let s: KnitState = {
+    vibe: new Int8Array(knit.mesh.cellCount * 24),
+    flux: new Int32Array(knit.edges.length),
+  }
   let firstEmpty = -1
 
   for (let t = 0; t < VACUUM_BEATS; t++) {
     states.push(`${s.vibe.join('')}|${s.flux.join(',')}`)
     s = knitBeat(knit, s, t)
-    firstEmpty = firstEmpty < 0 && s.vibe.every(v => v === 0) ? t + 1 : firstEmpty
+    firstEmpty =
+      firstEmpty < 0 && s.vibe.every(v => v === 0) ? t + 1 : firstEmpty
   }
 
   let back = s
@@ -138,10 +187,19 @@ function vacuum(knit: SteeredKnit): { period: number; firstEmpty: number; revers
   let period = 0
 
   for (let p = 1; p <= VACUUM_BEATS / 2 && period === 0; p++) {
-    period = states.every((x, t) => t + p >= states.length || x === states[t + p]) ? p : 0
+    period = states.every(
+      (x, t) => t + p >= states.length || x === states[t + p],
+    )
+      ? p
+      : 0
   }
 
-  return { period, firstEmpty, reverses: back.vibe.every(v => v === 0) && back.flux.every(v => v === 0) }
+  return {
+    period,
+    firstEmpty,
+    reverses:
+      back.vibe.every(v => v === 0) && back.flux.every(v => v === 0),
+  }
 }
 
 function leaks(spec: ColorLocalSpec): number {
@@ -153,7 +211,9 @@ function leaks(spec: ColorLocalSpec): number {
 
       return u < 0.2 ? -1 : u < 0.8 ? 0 : 1
     }),
-    role: Int8Array.from({ length: slots }, (_, i) => Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9)),
+    role: Int8Array.from({ length: slots }, (_, i) =>
+      Math.floor(((i + 3) * GOLDEN * 9 * 1.37) % 9),
+    ),
     flow: new Int32Array(slots),
   }
 
@@ -188,14 +248,20 @@ export default experiment({
       }
     })
 
-    const lineOf = (d: number): number => lines.findIndex(([a, b]) => a === d || b === d)
-    const f4 = weylF4DirectionPermutations({ directions: roots }).map(p => lines.map(([a]) => lineOf(p[a] ?? 0)))
+    const lineOf = (d: number): number =>
+      lines.findIndex(([a, b]) => a === d || b === d)
+    const f4 = weylF4DirectionPermutations({ directions: roots }).map(
+      p => lines.map(([a]) => lineOf(p[a] ?? 0)),
+    )
     const starts = matchings(Array.from({ length: 12 }, (_, i) => i))
     const signed = bestCover(turnElements(), starts)
     const weyl = bestCover(f4, starts)
 
     const colorTurnCover = couplesCovered(COLOR_TURN_SPEC, 24)
-    const committedCover = couplesCovered(colorLocalSpec({ tables: [BIND_MOVE_FORWARD] }), 24)
+    const committedCover = couplesCovered(
+      colorLocalSpec({ tables: [BIND_MOVE_FORWARD] }),
+      24,
+    )
     const folded = foldRoundRobin(COLOR_TURN_SPEC)
     const foldedCover = couplesCovered(folded, 24)
 
@@ -207,16 +273,32 @@ export default experiment({
       steers.map(steer => {
         const knit = makeSteeredKnit({ side: 3, spec, steer })
 
-        return { name, steer, cpt: cptPhase(knit), vacuum: vacuum(knit) }
+        return {
+          name,
+          steer,
+          cpt: cptPhase(knit),
+          vacuum: vacuum(knit),
+        }
       }),
     )
-    const find = (name: string, steer: KnitSteer): (typeof runs)[number] => runs.find(r => r.name === name && r.steer === steer) ?? runs[0]!
+    const find = (
+      name: string,
+      steer: KnitSteer,
+    ): (typeof runs)[number] =>
+      runs.find(r => r.name === name && r.steer === steer) ?? runs[0]!
     const foldedLeaks = leaks(folded)
 
     const loneKeepsVacuum = ['colorTurn', 'folded'].every(
-      n => find(n, 'lone').vacuum.period === find(n, false).vacuum.period && find(n, false).vacuum.period > 0 && find(n, 'lone').vacuum.reverses,
+      n =>
+        find(n, 'lone').vacuum.period ===
+          find(n, false).vacuum.period &&
+        find(n, false).vacuum.period > 0 &&
+        find(n, 'lone').vacuum.reverses,
     )
-    const slotChangesVacuum = ['colorTurn', 'folded'].every(n => find(n, 'slot').vacuum.period !== find(n, false).vacuum.period)
+    const slotChangesVacuum = ['colorTurn', 'folded'].every(
+      n =>
+        find(n, 'slot').vacuum.period !== find(n, false).vacuum.period,
+    )
 
     const ok =
       colorTurnCover < 66 &&
@@ -228,7 +310,10 @@ export default experiment({
       slotChangesVacuum &&
       foldedLeaks === 0
 
-    const metric = (name: string, steer: KnitSteer): [string, number][] => {
+    const metric = (
+      name: string,
+      steer: KnitSteer,
+    ): [string, number][] => {
       const r = find(name, steer)
       const key = `${name}${steer === false ? 'Unsteered' : steer === 'slot' ? 'SlotSteered' : 'LoneSteered'}`
 
@@ -252,7 +337,11 @@ export default experiment({
         weylF4BestPairs: weyl.best,
         weylF4MaxOrderOnLines: weyl.maxOrder,
         startsTried: starts.length,
-        ...Object.fromEntries(['colorTurn', 'folded'].flatMap(n => steers.flatMap(s => metric(n, s)))),
+        ...Object.fromEntries(
+          ['colorTurn', 'folded'].flatMap(n =>
+            steers.flatMap(s => metric(n, s)),
+          ),
+        ),
         foldedColorLeaks: foldedLeaks,
         vacuumReverses: runs.every(r => r.vacuum.reverses) ? 1 : 0,
       },

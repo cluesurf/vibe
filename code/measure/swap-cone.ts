@@ -19,20 +19,34 @@
 // measurement. NOTHING MOVES: the coin and the mixer hand a value to another slot of the same dock; the stream takes it one
 // dock along.
 
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
-import { DOCK_ROOTS, wrap, type CMatrix, type Multiplet } from '@/code/measure/dock-mixer'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+  type Multiplet,
+} from '@/code/measure/dock-mixer'
 import { polynomialAtZero } from '@/code/measure/singlet-kinematics'
 
 type Roots = readonly (readonly number[])[]
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // ---- the D4 structure function ----
 
 // g(K) = (1/24) sum_d cos(K . r_d) and its gradient -(1/24) sum_d sin(K . r_d) r_d
-export function structureFunction(K: readonly number[]): { g: number; grad: number[]; meanCos2: number } {
+export function structureFunction(K: readonly number[]): {
+  g: number
+  grad: number[]
+  meanCos2: number
+} {
   let g = 0
   let c2 = 0
+
   const grad = [0, 0, 0, 0]
 
   for (const r of DOCK_ROOTS) {
@@ -42,7 +56,10 @@ export function structureFunction(K: readonly number[]): { g: number; grad: numb
 
     g += c / 24
     c2 += (c * c) / 24
-    for (let k = 0; k < 4; k++) grad[k]! -= (s * (r[k] as number)) / 24
+
+    for (let k = 0; k < 4; k++) {
+      grad[k]! -= (s * r[k]!) / 24
+    }
   }
 
   return { g, grad, meanCos2: c2 }
@@ -50,7 +67,10 @@ export function structureFunction(K: readonly number[]): { g: number; grad: numb
 
 // the swap coin's moving pair: its group speed (coordinate units a beat) at K for mixer angle theta, from
 // sin w = sin(theta / 2) g
-export function swapPairSpeed(theta: number, K: readonly number[]): number {
+export function swapPairSpeed(
+  theta: number,
+  K: readonly number[],
+): number {
   const { g, grad } = structureFunction(K)
   const s = Math.abs(Math.sin(theta / 2))
 
@@ -59,12 +79,18 @@ export function swapPairSpeed(theta: number, K: readonly number[]): number {
 
 // the swap coin with the mixer angle alternating theta1, theta2 (beat 1 first): the pair's two-beat quasi-energy obeys
 // cos W = cos((theta1 + theta2) / 2) + 2 sin(theta1 / 2) sin(theta2 / 2) (1 - g^2); its speed per beat |dW/dK| / 2
-export function swapScheduleSpeed(theta1: number, theta2: number, K: readonly number[]): number {
+export function swapScheduleSpeed(
+  theta1: number,
+  theta2: number,
+  K: readonly number[],
+): number {
   const { g, grad } = structureFunction(K)
   const a = 2 * Math.sin(theta1 / 2) * Math.sin(theta2 / 2)
   const cw = Math.cos((theta1 + theta2) / 2) + a * (1 - g * g)
 
-  return (Math.abs(a * g) * Math.hypot(...grad)) / Math.sqrt(1 - cw * cw)
+  return (
+    (Math.abs(a * g) * Math.hypot(...grad)) / Math.sqrt(1 - cw * cw)
+  )
 }
 
 // ---- a periodic schedule of dock matrices (a Floquet cycle) ----
@@ -75,14 +101,16 @@ function cmulN(a: CMatrix, b: CMatrix, n: number): CMatrix {
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const ar = a.re[i * n + k] as number
-      const ai = a.im[i * n + k] as number
+      const ar = a.re[i * n + k]!
+      const ai = a.im[i * n + k]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
 
       for (let j = 0; j < n; j++) {
-        const br = b.re[k * n + j] as number
-        const bi = b.im[k * n + j] as number
+        const br = b.re[k * n + j]!
+        const bi = b.im[k * n + j]!
 
         re[i * n + j]! += ar * br - ai * bi
         im[i * n + j]! += ar * bi + ai * br
@@ -94,19 +122,23 @@ function cmulN(a: CMatrix, b: CMatrix, n: number): CMatrix {
 }
 
 // one beat's Bloch matrix S(K) P
-function beatMatrix(P: CMatrix, roots: Roots, K: readonly number[]): CMatrix {
+function beatMatrix(
+  P: CMatrix,
+  roots: Roots,
+  K: readonly number[],
+): CMatrix {
   const n = roots.length
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
   for (let r = 0; r < n; r++) {
-    const ph = -dot(roots[r] as readonly number[], K)
+    const ph = -dot(roots[r]!, K)
     const c = Math.cos(ph)
     const s = Math.sin(ph)
 
     for (let q = 0; q < n; q++) {
-      const a = P.re[r * n + q] as number
-      const b = P.im[r * n + q] as number
+      const a = P.re[r * n + q]!
+      const b = P.im[r * n + q]!
 
       re[r * n + q] = c * a - s * b
       im[r * n + q] = c * b + s * a
@@ -117,25 +149,40 @@ function beatMatrix(P: CMatrix, roots: Roots, K: readonly number[]): CMatrix {
 }
 
 // U_N(K) = S P_N ... S P_1 (beat 1 first)
-export function cycleMatrix(Ps: readonly CMatrix[], roots: Roots, K: readonly number[]): CMatrix {
+export function cycleMatrix(
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  K: readonly number[],
+): CMatrix {
   const n = roots.length
-  let u = beatMatrix(Ps[0] as CMatrix, roots, K)
 
-  for (let j = 1; j < Ps.length; j++) u = cmulN(beatMatrix(Ps[j] as CMatrix, roots, K), u, n)
+  let u = beatMatrix(Ps[0]!, roots, K)
+
+  for (let j = 1; j < Ps.length; j++) {
+    u = cmulN(beatMatrix(Ps[j]!, roots, K), u, n)
+  }
 
   return u
 }
 
-export const cyclePhases = (Ps: readonly CMatrix[], roots: Roots, K: readonly number[]): number[] => {
+export const cyclePhases = (
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  K: readonly number[],
+): number[] => {
   const u = cycleMatrix(Ps, roots, K)
   const e = complexEigenvalues({ re: u.re, im: u.im, n: roots.length })
 
-  return e.re.map((x, i) => Math.atan2(e.im[i] as number, x))
+  return e.re.map((x, i) => Math.atan2(e.im[i]!, x))
 }
 
 // the cycle's eigenphases and each eigenvector's group velocity per beat: dE/dK with E = -phase / N is the mean over the
 // cycle's N beats of sum_q |psi_j,q|^2 r_q, psi_j the state after beat j (Hellmann-Feynman on the product)
-export function cycleBand(Ps: readonly CMatrix[], roots: Roots, K: readonly number[]): { phase: number[]; velocity: number[][] } {
+export function cycleBand(
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  K: readonly number[],
+): { phase: number[]; velocity: number[][] } {
   const n = roots.length
   const u = cycleMatrix(Ps, roots, K)
   const beats = Ps.map(P => beatMatrix(P, roots, K))
@@ -144,8 +191,15 @@ export function cycleBand(Ps: readonly CMatrix[], roots: Roots, K: readonly numb
   const velocity: number[][] = []
 
   e.re.forEach((x, i) => {
-    const y = e.im[i] as number
-    let psi = complexEigenvector({ re: u.re, im: u.im, n, value: [x, y] })
+    const y = e.im[i]!
+
+    let psi = complexEigenvector({
+      re: u.re,
+      im: u.im,
+      n,
+      value: [x, y],
+    })
+
     const v = [0, 0, 0, 0]
 
     for (const B of beats) {
@@ -154,20 +208,22 @@ export function cycleBand(Ps: readonly CMatrix[], roots: Roots, K: readonly numb
 
       for (let r = 0; r < n; r++) {
         for (let q = 0; q < n; q++) {
-          const a = B.re[r * n + q] as number
-          const b = B.im[r * n + q] as number
+          const a = B.re[r * n + q]!
+          const b = B.im[r * n + q]!
 
-          re[r]! += a * (psi.re[q] as number) - b * (psi.im[q] as number)
-          im[r]! += a * (psi.im[q] as number) + b * (psi.re[q] as number)
+          re[r]! += a * psi.re[q]! - b * psi.im[q]!
+          im[r]! += a * psi.im[q]! + b * psi.re[q]!
         }
       }
 
       psi = { re, im }
 
       for (let q = 0; q < n; q++) {
-        const w = ((re[q] as number) ** 2 + (im[q] as number) ** 2) / beats.length
+        const w = (re[q]! ** 2 + im[q]! ** 2) / beats.length
 
-        for (let k = 0; k < 4; k++) v[k]! += w * ((roots[q] as readonly number[])[k] as number)
+        for (let k = 0; k < 4; k++) {
+          v[k]! += w * roots[q]![k]!
+        }
       }
     }
 
@@ -179,7 +235,11 @@ export function cycleBand(Ps: readonly CMatrix[], roots: Roots, K: readonly numb
 }
 
 // the largest group speed per beat over every band of the cycle at the given momenta
-export function fastestCycleBand(Ps: readonly CMatrix[], roots: Roots, momenta: readonly (readonly number[])[]): { speed: number; at: number[] } {
+export function fastestCycleBand(
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  momenta: readonly (readonly number[])[],
+): { speed: number; at: number[] } {
   let speed = 0
   let at: number[] = []
 
@@ -198,51 +258,95 @@ export function fastestCycleBand(Ps: readonly CMatrix[], roots: Roots, momenta: 
 }
 
 // the cycle's K = 0 phases grouped within tol
-export function cycleMultiplets(Ps: readonly CMatrix[], roots: Roots, tol = 1e-9): Multiplet[] {
+export function cycleMultiplets(
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  tol = 1e-9,
+): Multiplet[] {
   const ph = cyclePhases(Ps, roots, [0, 0, 0, 0]).sort((a, b) => a - b)
   const out: Multiplet[] = []
 
   for (const p of ph) {
     const m = out.find(g => Math.abs(wrap(p - g.center)) <= tol)
 
-    if (m) m.size++
-    else out.push({ center: p, size: 1 })
+    if (m) {
+      m.size++
+    } else {
+      out.push({ center: p, size: 1 })
+    }
   }
 
   return out
 }
 
-export type CycleSinglet = { sizes: number[]; partnerSize: number; m: number; gap: number; c2: number; d: number; eta: number }
+export type CycleSinglet = {
+  sizes: number[]
+  partnerSize: number
+  m: number
+  gap: number
+  c2: number
+  d: number
+  eta: number
+}
 
 // THE SINGLET OF A CYCLE: the size-1 level at K = 0 and its nearest level (the partner), m half the gap PER BEAT, and
 // along u the fit eps^2 = m^2 + c^2 K^2 + d K^4 (per beat, eps from the midpoint), read at K = s m u for s in scales
 // through code/measure/singlet-kinematics polynomialAtZero; the branch is the eigenphase nearest the singlet's K = 0
 // phase (the scales keep K well inside half the gap)
-export function cycleSinglet(Ps: readonly CMatrix[], roots: Roots, u: readonly number[], scales: readonly number[]): CycleSinglet {
+export function cycleSinglet(
+  Ps: readonly CMatrix[],
+  roots: Roots,
+  u: readonly number[],
+  scales: readonly number[],
+): CycleSinglet {
   const N = Ps.length
   const ms = cycleMultiplets(Ps, roots)
   const sizes = ms.map(x => x.size).sort((a, b) => a - b)
   const single = ms.findIndex(x => x.size === 1)
 
-  if (single < 0) return { sizes, partnerSize: 0, m: 0, gap: 0, c2: NaN, d: NaN, eta: NaN }
+  if (single < 0) {
+    return {
+      sizes,
+      partnerSize: 0,
+      m: 0,
+      gap: 0,
+      c2: NaN,
+      d: NaN,
+      eta: NaN,
+    }
+  }
 
-  const cs = (ms[single] as Multiplet).center
+  const cs = ms[single]!.center
+
   let partner = -1
 
   ms.forEach((x, i) => {
-    if (i === single) return
-    if (partner < 0 || Math.abs(wrap(x.center - cs)) < Math.abs(wrap((ms[partner] as Multiplet).center - cs))) partner = i
+    if (i === single) {
+      return
+    }
+
+    if (
+      partner < 0 ||
+      Math.abs(wrap(x.center - cs)) <
+        Math.abs(wrap(ms[partner]!.center - cs))
+    ) {
+      partner = i
+    }
   })
 
-  const half = wrap(cs - (ms[partner] as Multiplet).center) / 2
-  const midPhase = (ms[partner] as Multiplet).center + half
+  const half = wrap(cs - ms[partner]!.center) / 2
+  const midPhase = ms[partner]!.center + half
   const sign = half > 0 ? -1 : 1
   const m = Math.abs(half) / N
+
   const eps = (K: readonly number[]): number => {
-    const near = cyclePhases(Ps, roots, K).reduce((b, p) => (Math.abs(wrap(p - cs)) < Math.abs(wrap(b - cs)) ? p : b))
+    const near = cyclePhases(Ps, roots, K).reduce((b, p) =>
+      Math.abs(wrap(p - cs)) < Math.abs(wrap(b - cs)) ? p : b,
+    )
 
     return (sign * -wrap(near - midPhase)) / N
   }
+
   const xs = scales.map(s => s * s)
   const ys = scales.map(s => {
     const K = s * m
@@ -253,7 +357,15 @@ export function cycleSinglet(Ps: readonly CMatrix[], roots: Roots, u: readonly n
   const p = polynomialAtZero(xs, ys)
   const d = p.slope / (m * m)
 
-  return { sizes, partnerSize: (ms[partner] as Multiplet).size, m, gap: 2 * m, c2: p.value, d, eta: (d * m * m) / (p.value * p.value) }
+  return {
+    sizes,
+    partnerSize: ms[partner]!.size,
+    m,
+    gap: 2 * m,
+    c2: p.value,
+    d,
+    eta: (d * m * m) / (p.value * p.value),
+  }
 }
 
 // ---- norm-one Eisenstein numbers: the mixer angles a ring can hold ----
@@ -261,19 +373,29 @@ export function cycleSinglet(Ps: readonly CMatrix[], roots: Roots, u: readonly n
 // a + b w, w = e^(2 pi i / 3), as bigints
 export type Eis = [bigint, bigint]
 
-export const eisMul = (x: Eis, y: Eis): Eis => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0] - x[1] * y[1]]
+export const eisMul = (x: Eis, y: Eis): Eis => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0] - x[1] * y[1],
+]
 export const eisConj = (x: Eis): Eis => [x[0] - x[1], -x[1]]
-export const eisNorm = (x: Eis): bigint => x[0] * x[0] - x[0] * x[1] + x[1] * x[1]
+export const eisNorm = (x: Eis): bigint =>
+  x[0] * x[0] - x[0] * x[1] + x[1] * x[1]
+
 export const eisPow = (x: Eis, k: number): Eis => {
   let r: Eis = [1n, 0n]
 
-  for (let i = 0; i < k; i++) r = eisMul(r, x)
+  for (let i = 0; i < k; i++) {
+    r = eisMul(r, x)
+  }
 
   return r
 }
 
 // the complex value of x / den
-export const eisValue = (x: Eis, den: bigint): [number, number] => [(Number(x[0]) - Number(x[1]) / 2) / Number(den), (Number(x[1]) * Math.sqrt(3)) / 2 / Number(den)]
+export const eisValue = (x: Eis, den: bigint): [number, number] => [
+  (Number(x[0]) - Number(x[1]) / 2) / Number(den),
+  (Number(x[1]) * Math.sqrt(3)) / 2 / Number(den),
+]
 
 const UNITS: readonly Eis[] = [
   [1n, 0n],
@@ -284,7 +406,13 @@ const UNITS: readonly Eis[] = [
   [0n, -1n],
 ]
 
-export type RingAngle = { k: number; numerator: Eis; den: bigint; normExact: boolean; delta: number }
+export type RingAngle = {
+  k: number
+  numerator: Eis
+  den: bigint
+  normExact: boolean
+  delta: number
+}
 
 // the angles delta with e^(i delta) = w^j (p / conj p)^(+-k), for a prime p of Z[w] of norm q: numerator over q^k, the
 // representative nearest 0 (ties to the positive side), and whether numerator times its conjugate is q^(2k) exactly
@@ -293,6 +421,7 @@ export function ringAngle(p: Eis, k: number): RingAngle {
   const den = q ** BigInt(k)
   const up = eisPow(eisMul(p, p), k)
   const down = eisPow(eisMul(eisConj(p), eisConj(p)), k)
+
   let best: RingAngle | undefined
 
   for (const base of k === 0 ? [[1n, 0n] as Eis] : [up, down]) {
@@ -301,11 +430,22 @@ export function ringAngle(p: Eis, k: number): RingAngle {
       const [re, im] = eisValue(x, den)
       const delta = Math.atan2(im, re)
 
-      if (!best || Math.abs(delta) < Math.abs(best.delta) - 1e-15 || (Math.abs(Math.abs(delta) - Math.abs(best.delta)) <= 1e-15 && delta > best.delta)) {
-        best = { k, numerator: x, den, normExact: eisNorm(x) === den * den, delta }
+      if (
+        !best ||
+        Math.abs(delta) < Math.abs(best.delta) - 1e-15 ||
+        (Math.abs(Math.abs(delta) - Math.abs(best.delta)) <= 1e-15 &&
+          delta > best.delta)
+      ) {
+        best = {
+          k,
+          numerator: x,
+          den,
+          normExact: eisNorm(x) === den * den,
+          delta,
+        }
       }
     }
   }
 
-  return best as RingAngle
+  return best!
 }

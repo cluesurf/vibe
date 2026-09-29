@@ -68,7 +68,11 @@ import {
   type BeatRecord,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { gridWeights, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  gridWeights,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { d4BoxDistance } from '@/code/substrate/d4-box'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
@@ -81,11 +85,19 @@ const GROWER_PAIR = [4, 20]
 
 type Hermitian = { re: Float64Array; im: Float64Array }
 
-function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole {
+function basisWhole(
+  tokens: readonly number[],
+  digits: readonly number[],
+): Whole {
   const weight = new Array<bigint>(9 ** tokens.length).fill(0n)
 
   for (let i = 0; i < weight.length; i++) {
-    const on = tokens.every((_, c) => Math.floor((Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3) === digits[c])
+    const on = tokens.every(
+      (_, c) =>
+        Math.floor(
+          (Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3,
+        ) === digits[c],
+    )
 
     weight[i] = on ? 1n : 0n
   }
@@ -98,7 +110,10 @@ function roleChance(whole: Whole, j: number, k: number): number {
   let sum = 0n
 
   whole.weight.forEach((w, i) => {
-    if (Math.floor(Math.floor(i / 9) / 3) === j && Math.floor((i % 9) / 3) === k) {
+    if (
+      Math.floor(Math.floor(i / 9) / 3) === j &&
+      Math.floor((i % 9) / 3) === k
+    ) {
       sum += w
     }
   })
@@ -107,7 +122,10 @@ function roleChance(whole: Whole, j: number, k: number): number {
 }
 
 // loves and fears cancelled by a meeting, in wholes: contributions of opposite sign on one joint point
-function cancelled(whole: Whole, kernel4: readonly (readonly number[])[]): number {
+function cancelled(
+  whole: Whole,
+  kernel4: readonly (readonly number[])[],
+): number {
   let lost = 0n
 
   for (let r = 0; r < 81; r++) {
@@ -128,10 +146,15 @@ function cancelled(whole: Whole, kernel4: readonly (readonly number[])[]): numbe
 }
 
 // real symmetric eigen-decomposition by cyclic Jacobi, columns of the returned matrix
-function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
+function jacobi(a: number[][]): {
+  values: number[]
+  vectors: number[][]
+} {
   const n = a.length
   const m = a.map(row => [...row])
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)),
+  )
 
   for (let sweep = 0; sweep < 60; sweep++) {
     let off = 0
@@ -155,7 +178,9 @@ function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
         }
 
         const theta = ((m[q]?.[q] ?? 0) - (m[p]?.[p] ?? 0)) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -191,7 +216,9 @@ function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
 
 // the sign of a 3 x 3 Hermitian matrix (eigenvalues sent to +1 or -1), through its 6 x 6 real form
 function signOf(h: Hermitian): Hermitian {
-  const z = Array.from({ length: 6 }, () => new Array<number>(6).fill(0))
+  const z = Array.from({ length: 6 }, () =>
+    new Array<number>(6).fill(0),
+  )
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
@@ -206,7 +233,10 @@ function signOf(h: Hermitian): Hermitian {
   }
 
   const { values, vectors } = jacobi(z)
-  const out: Hermitian = { re: new Float64Array(9), im: new Float64Array(9) }
+  const out: Hermitian = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
@@ -229,14 +259,21 @@ function signOf(h: Hermitian): Hermitian {
 }
 
 function combine(a: Hermitian, b: Hermitian, s: number): Hermitian {
-  return { re: a.re.map((x, i) => x + s * (b.re[i] ?? 0)), im: a.im.map((x, i) => x + s * (b.im[i] ?? 0)) }
+  return {
+    re: a.re.map((x, i) => x + s * (b.re[i] ?? 0)),
+    im: a.im.map((x, i) => x + s * (b.im[i] ?? 0)),
+  }
 }
 
 // rho = sum W(x) A(x) on two roles, row-major 9 x 9
 function densityOf(whole: Whole): Operator {
   const points = twoRolePoints()
   const units = Number(wholeUnits(whole))
-  const rho: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+  const rho: Operator = {
+    n: 9,
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   whole.weight.forEach((w, x) => {
     if (w === 0n) {
@@ -258,7 +295,10 @@ function densityOf(whole: Whole): Operator {
 // the reduced operator on one role against an observable on the other: side 1 gives R with
 // Tr(rho (X x Y)) = Tr(R Y), R_jj' = sum rho_(i j),(i' j') X_i'i; side 0 gives L with Tr(rho (X x Y)) = Tr(L X)
 function reduce(rho: Operator, o: Hermitian, side: 0 | 1): Hermitian {
-  const out: Hermitian = { re: new Float64Array(9), im: new Float64Array(9) }
+  const out: Hermitian = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let p = 0; p < 3; p++) {
     for (let q = 0; q < 3; q++) {
@@ -285,12 +325,18 @@ function reduce(rho: Operator, o: Hermitian, side: 0 | 1): Hermitian {
   }
 
   // its Hermitian part
-  const h: Hermitian = { re: new Float64Array(9), im: new Float64Array(9) }
+  const h: Hermitian = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let p = 0; p < 3; p++) {
     for (let q = 0; q < 3; q++) {
-      h.re[p * 3 + q] = ((out.re[p * 3 + q] ?? 0) + (out.re[q * 3 + p] ?? 0)) / 2
-      h.im[p * 3 + q] = ((out.im[p * 3 + q] ?? 0) - (out.im[q * 3 + p] ?? 0)) / 2
+      h.re[p * 3 + q] =
+        ((out.re[p * 3 + q] ?? 0) + (out.re[q * 3 + p] ?? 0)) / 2
+
+      h.im[p * 3 + q] =
+        ((out.im[p * 3 + q] ?? 0) - (out.im[q * 3 + p] ?? 0)) / 2
     }
   }
 
@@ -302,7 +348,9 @@ function traceProduct(a: Hermitian, b: Hermitian): number {
 
   for (let i = 0; i < 3; i++) {
     for (let k = 0; k < 3; k++) {
-      re += (a.re[i * 3 + k] ?? 0) * (b.re[k * 3 + i] ?? 0) - (a.im[i * 3 + k] ?? 0) * (b.im[k * 3 + i] ?? 0)
+      re +=
+        (a.re[i * 3 + k] ?? 0) * (b.re[k * 3 + i] ?? 0) -
+        (a.im[i * 3 + k] ?? 0) * (b.im[k * 3 + i] ?? 0)
     }
   }
 
@@ -311,7 +359,10 @@ function traceProduct(a: Hermitian, b: Hermitian): number {
 
 // a fixed Hermitian matrix from a golden-ratio fill, for the see-saw's starts
 function fixedHermitian(seed: number): Hermitian {
-  const h: Hermitian = { re: new Float64Array(9), im: new Float64Array(9) }
+  const h: Hermitian = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let i = 0; i < 3; i++) {
     for (let j = i; j < 3; j++) {
@@ -344,7 +395,9 @@ function chsh(rho: Operator): number {
       a0 = signOf(reduce(rho, combine(b0, b1, 1), 0))
       a1 = signOf(reduce(rho, combine(b0, b1, -1), 0))
 
-      const next = traceProduct(reduce(rho, combine(b0, b1, 1), 0), a0) + traceProduct(reduce(rho, combine(b0, b1, -1), 0), a1)
+      const next =
+        traceProduct(reduce(rho, combine(b0, b1, 1), 0), a0) +
+        traceProduct(reduce(rho, combine(b0, b1, -1), 0), a1)
 
       if (Math.abs(next - value) < 1e-13) {
         value = next
@@ -364,7 +417,7 @@ export default experiment({
   id: 'quantum/fear-witness',
   code: 'E-QTM-0100',
   title:
-    'the fear weave is quantum in its roles, pass at the default integer link start (E-MTH-0027), and on 9 of 17 starts of E-MTH-0028\'s family: a pair made together reads 1/4, 3/4, 1 over three meetings with fears cancelling where the phase-free stand-in gives 1/4, 3/8, 7/16, and its tokens violate CHSH from different docks where both classical rules stay at 2, at a rung of one meeting\'s three-rung ladder {2, 4 / sqrt 3, sqrt 7} (E-QTM-0140) that the start chooses: at the default start the gated top rung sqrt 7 = 2.6458 (color mode 2.5523), and on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 = 2.3094 (color mode 2.3612 to 2.3669 by its eight-start see-saw, a lower bound; the retired golden start among them) it fails that gate; meetings keep the singlet share of three roles at exactly 1/6, so they can neither make nor unmake a knot of different roles',
+    "the fear weave is quantum in its roles, pass at the default integer link start (E-MTH-0027), and on 9 of 17 starts of E-MTH-0028's family: a pair made together reads 1/4, 3/4, 1 over three meetings with fears cancelling where the phase-free stand-in gives 1/4, 3/8, 7/16, and its tokens violate CHSH from different docks where both classical rules stay at 2, at a rung of one meeting's three-rung ladder {2, 4 / sqrt 3, sqrt 7} (E-QTM-0140) that the start chooses: at the default start the gated top rung sqrt 7 = 2.6458 (color mode 2.5523), and on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 = 2.3094 (color mode 2.3612 to 2.3669 by its eight-start see-saw, a lower bound; the retired golden start among them) it fails that gate; meetings keep the singlet share of three roles at exactly 1/6, so they can neither make nor unmake a knot of different roles",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -385,6 +438,7 @@ export default experiment({
         return (r === c ? 3 : 0) + (r === swapped ? 1 : 0)
       }),
     )
+
     const openOf = (tokens: readonly number[]): Uint8Array => {
       const open = new Uint8Array(slots)
 
@@ -394,18 +448,33 @@ export default experiment({
 
       return open
     }
-    const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
-    const matter = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
+
+    const vacuum = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
+    const matter = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
 
     for (let i = 0; i < slots; i++) {
       const u = ((i + 1) * GOLDEN * MATTER_SCALE) % 1
 
       matter.vibe[i] = u < 0.3 ? -1 : u < 0.6 ? 0 : 1
-      matter.point[i] = Math.floor(((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9)
+      matter.point[i] = Math.floor(
+        ((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9,
+      )
     }
 
-    const run = (background: typeof vacuum, links: Int16Array, open: Uint8Array, beats: number) => {
+    const run = (
+      background: typeof vacuum,
+      links: Int16Array,
+      open: Uint8Array,
+      beats: number,
+    ) => {
       let lattice = makeLattice(background)
+
       const records: BeatRecord[] = []
       const cells: Map<number, number>[] = []
 
@@ -430,8 +499,12 @@ export default experiment({
 
     // 1. interference on flat links
     const flatRun = run(vacuum, flatLinks, openOf(VACUUM_PAIR), 60)
-    const chances = (kernel4: number[][]): { chance: number[]; cancel: number[] } => {
+
+    const chances = (
+      kernel4: number[][],
+    ): { chance: number[]; cancel: number[] } => {
       let whole: Whole = basisWhole(VACUUM_PAIR, [0, 1])
+
       const chance: number[] = []
       const cancel: number[] = []
 
@@ -440,7 +513,14 @@ export default experiment({
           cancel.push(cancelled(whole, kernel4))
         }
 
-        whole = advanceWhole({ weave, whole, record, kernel4, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4,
+          fixed: false,
+          forward: true,
+        })!
 
         if (record.meetings.length > 0 && chance.length < 3) {
           chance.push(roleChance(whole, 1, 0))
@@ -453,28 +533,43 @@ export default experiment({
     const quantum = chances(kThird)
     const stochastic = chances(kStochastic)
     const fearOff = chances(kPi)
-    const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
+    const exact = (x: number, y: number): boolean =>
+      Math.abs(x - y) < 1e-12
 
     // 2. nonlocality: one beat after the first meeting on live links
     const liveRun = run(vacuum, liveLinks, openOf(VACUUM_PAIR), 60)
-    const firstMeeting = liveRun.records.findIndex(r => r.meetings.length > 0)
+    const firstMeeting = liveRun.records.findIndex(
+      r => r.meetings.length > 0,
+    )
+
     const stateAfter = (kernel4: number[][]): Whole => {
       let whole: Whole = basisWhole(VACUUM_PAIR, [0, 1])
 
       for (let t = 0; t <= firstMeeting + 1; t++) {
-        whole = advanceWhole({ weave, whole, record: liveRun.records[t]!, kernel4, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record: liveRun.records[t]!,
+          kernel4,
+          fixed: false,
+          forward: true,
+        })!
       }
 
       return whole
     }
-    const readAt = liveRun.cells[firstMeeting + 1] ?? new Map<number, number>()
+
+    const readAt =
+      liveRun.cells[firstMeeting + 1] ?? new Map<number, number>()
     const cellA = readAt.get(VACUUM_PAIR[0] ?? 0) ?? 0
     const cellB = readAt.get(VACUUM_PAIR[1] ?? 0) ?? 0
     const separation = d4BoxDistance({ a: cellA, b: cellB, side: SIDE })
     const bellQuantum = chsh(densityOf(stateAfter(kThird)))
     const bellOff = chsh(densityOf(stateAfter(kPi)))
     const bellStochastic = chsh(densityOf(stateAfter(kStochastic)))
-    const fearsAtReading = Number(wholeLovesAndFears(stateAfter(kThird)).fears)
+    const fearsAtReading = Number(
+      wholeLovesAndFears(stateAfter(kThird)).fears,
+    )
 
     // and after every meeting of the pair that spends the most grain in E-QTM-0099
     const growerRun = run(matter, liveLinks, openOf(GROWER_PAIR), BEATS)
@@ -484,7 +579,14 @@ export default experiment({
       let whole: Whole = basisWhole(GROWER_PAIR, [0, 1])
 
       for (const record of growerRun.records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: kThird, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kThird,
+          fixed: false,
+          forward: true,
+        })!
 
         if (record.meetings.length > 0) {
           growerBell.push(chsh(densityOf(whole)))
@@ -500,25 +602,52 @@ export default experiment({
     // with the fear beat off (V(0) = 1) it stays 1. One beat after the first meeting on live links the pair
     // violates CHSH (above 2), read from the density matrix with the fear's role taken back to its own
     // convention; the fear-off rule and the stand-in stay at 2
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
-    const colorOff = fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
+    const colorOn =
+      fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
+    const colorOff =
+      fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
+
     const dephase = (whole: Whole): Whole => {
       const role = new Array<bigint>(9).fill(0n)
 
       whole.weight.forEach((w, i) => {
-        const k = Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)
+        const k =
+          Math.floor(Math.floor(i / 9) / 3) * 3 +
+          Math.floor((i % 9) / 3)
 
         role[k] = (role[k] ?? 0n) + w
       })
 
-      return { tokens: whole.tokens, weight: whole.weight.map((_, i) => role[Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)] ?? 0n) }
+      return {
+        tokens: whole.tokens,
+        weight: whole.weight.map(
+          (_, i) =>
+            role[
+              Math.floor(Math.floor(i / 9) / 3) * 3 +
+                Math.floor((i % 9) / 3)
+            ] ?? 0n,
+        ),
+      }
     }
-    const colorChances = (color: typeof colorOn, dephased: boolean): number[] => {
+
+    const colorChances = (
+      color: typeof colorOn,
+      dephased: boolean,
+    ): number[] => {
       let whole: Whole = basisWhole(VACUUM_PAIR, [0, 0])
+
       const out: number[] = []
 
       for (const record of flatRun.records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: [], color, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: [],
+          color,
+          fixed: false,
+          forward: true,
+        })!
 
         if (record.meetings.length > 0 && out.length < 3) {
           whole = dephased ? dephase(whole) : whole
@@ -528,29 +657,57 @@ export default experiment({
 
       return out
     }
+
     const colorQuantum = colorChances(colorOn, false)
     const colorStandIn = colorChances(colorOn, true)
     const colorOffChances = colorChances(colorOff, false)
+
     const nativeDensity = (whole: Whole): Operator => {
-      const native = whole.weight.map((_, i) => whole.weight[Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)] ?? 0n)
+      const native = whole.weight.map(
+        (_, i) =>
+          whole.weight[
+            Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
+          ] ?? 0n,
+      )
 
       return densityOf({ tokens: whole.tokens, weight: native })
     }
-    const colorState = (color: typeof colorOn, dephased: boolean): Whole => {
+
+    const colorState = (
+      color: typeof colorOn,
+      dephased: boolean,
+    ): Whole => {
       let whole: Whole = basisWhole(VACUUM_PAIR, [0, 0])
 
       for (let t = 0; t <= firstMeeting + 1; t++) {
         const record = liveRun.records[t]!
 
-        whole = advanceWhole({ weave, whole, record, kernel4: [], color, fixed: false, forward: true })!
-        whole = dephased && record.meetings.length > 0 ? dephase(whole) : whole
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: [],
+          color,
+          fixed: false,
+          forward: true,
+        })!
+
+        whole =
+          dephased && record.meetings.length > 0
+            ? dephase(whole)
+            : whole
       }
 
       return whole
     }
+
     const colorBell = chsh(nativeDensity(colorState(colorOn, false)))
-    const colorBellOff = chsh(nativeDensity(colorState(colorOff, false)))
-    const colorBellStandIn = chsh(nativeDensity(colorState(colorOn, true)))
+    const colorBellOff = chsh(
+      nativeDensity(colorState(colorOff, false)),
+    )
+    const colorBellStandIn = chsh(
+      nativeDensity(colorState(colorOn, true)),
+    )
     const colorOk =
       exact(colorQuantum[0] ?? 0, 1 / 3) &&
       exact(colorQuantum[1] ?? 0, 1 / 3) &&
@@ -578,14 +735,31 @@ export default experiment({
       singletRe[9 * i + 3 * j + k] = sign * s6
     }
 
-    const singlet = gridWeights({ re: singletRe, im: new Array<number>(27).fill(0), points: phasePointOperators(3) }).map(w => BigInt(Math.round(54 * w)))
-    const singletFears = -singlet.filter(w => w < 0n).reduce((a, b) => a + b, 0n)
+    const singlet = gridWeights({
+      re: singletRe,
+      im: new Array<number>(27).fill(0),
+      points: phasePointOperators(3),
+    }).map(w => BigInt(Math.round(54 * w)))
+    const singletFears = -singlet
+      .filter(w => w < 0n)
+      .reduce((a, b) => a + b, 0n)
+
     const shareOf = (whole: Whole): number => {
-      const dot = whole.weight.reduce((s, w, i) => s + w * (singlet[i] ?? 0n), 0n)
+      const dot = whole.weight.reduce(
+        (s, w, i) => s + w * (singlet[i] ?? 0n),
+        0n,
+      )
 
       return Number(dot) / Number(2n * wholeUnits(whole))
     }
-    const exactSixth = (whole: Whole): boolean => 3n * whole.weight.reduce((s, w, i) => s + w * (singlet[i] ?? 0n), 0n) === wholeUnits(whole)
+
+    const exactSixth = (whole: Whole): boolean =>
+      3n *
+        whole.weight.reduce(
+          (s, w, i) => s + w * (singlet[i] ?? 0n),
+          0n,
+        ) ===
+      wholeUnits(whole)
 
     const cell0 = openOf(Array.from({ length: 24 }, (_, s) => s))
     const surveyRecords = run(matter, liveLinks, cell0, BEATS).records
@@ -599,7 +773,9 @@ export default experiment({
       }
     }
 
-    const met = (a: number, b: number): number => pairMeetings.get(`${Math.min(a, b)},${Math.max(a, b)}`) ?? 0
+    const met = (a: number, b: number): number =>
+      pairMeetings.get(`${Math.min(a, b)},${Math.max(a, b)}`) ?? 0
+
     let triple: number[] = []
     let tripleMeetings = 0
 
@@ -608,7 +784,12 @@ export default experiment({
         for (let c = b + 1; c < 24; c++) {
           const total = met(a, b) + met(a, c) + met(b, c)
 
-          if (met(a, b) > 0 && met(a, c) > 0 && met(b, c) > 0 && total > tripleMeetings) {
+          if (
+            met(a, b) > 0 &&
+            met(a, c) > 0 &&
+            met(b, c) > 0 &&
+            total > tripleMeetings
+          ) {
             triple = [a, b, c]
             tripleMeetings = total
           }
@@ -616,21 +797,42 @@ export default experiment({
       }
     }
 
-    const tripleStudy = (links: Int16Array): { shares: number[]; allSixth: boolean; pure: boolean; pairings: number } => {
+    const tripleStudy = (
+      links: Int16Array,
+    ): {
+      shares: number[]
+      allSixth: boolean
+      pure: boolean
+      pairings: number
+    } => {
       const open = openOf(triple)
       const records = run(matter, links, open, BEATS).records
+
       let whole: Whole = basisWhole(triple, [0, 1, 2])
+
       const shares: number[] = [shareOf(whole)]
+
       let allSixth = exactSixth(whole)
       let pure = true
+
       const pairings = new Set<string>()
 
       for (const record of records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: kThird, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kThird,
+          fixed: false,
+          forward: true,
+        })!
 
         const units = wholeUnits(whole)
 
-        pure = pure && 27n * whole.weight.reduce((s, w) => s + w * w, 0n) === units * units
+        pure =
+          pure &&
+          27n * whole.weight.reduce((s, w) => s + w * w, 0n) ===
+            units * units
 
         if (record.meetings.length > 0) {
           for (const [a, b] of record.meetings) {
@@ -677,8 +879,13 @@ export default experiment({
     // block value of a knot with three Schmidt weights, a lower bound on that knot's maximum, not the maximum (a
     // 1,500-start see-saw on the same physical knot reaches 2.3848), so a color reading between the middle and top
     // values is named as such, never forced onto a rung.
-    const rungOf = (value: number, ladder: readonly (readonly [string, number])[]): string => {
-      const hit = ladder.find(([, v]) => value >= v - 1e-6 && value <= v + 1e-9)
+    const rungOf = (
+      value: number,
+      ladder: readonly (readonly [string, number])[],
+    ): string => {
+      const hit = ladder.find(
+        ([, v]) => value >= v - 1e-6 && value <= v + 1e-9,
+      )
       const middle = ladder[1]?.[1] ?? 0
       const top = ladder[2]?.[1] ?? 0
 
@@ -690,6 +897,7 @@ export default experiment({
         ? `${value.toFixed(4)}, above the middle-rung value ${middle.toFixed(4)} and below the top rung`
         : `${value.toFixed(4)}, on no rung of the one-meeting ladder`
     }
+
     const swapLadder = [
       ['2, the bottom rung', 2],
       ['4 / sqrt 3 = 2.3094, the middle rung', 4 / Math.sqrt(3)],
@@ -697,8 +905,18 @@ export default experiment({
     ] as const
     const colorLadder = [
       ['2, the bottom rung', 2],
-      ['(8 + 2 sqrt 21 + 2 sqrt 35 - 2 sqrt 15) / 9 = 2.3613, the middle-rung value (Schmidt-aligned, a lower bound on this knot\'s maximum)',(8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * Math.sqrt(15)) / 9],
-      ['(2 + 4 sqrt 2) / 3 = 2.5523, the top rung', (2 + 4 * Math.sqrt(2)) / 3],
+      [
+        "(8 + 2 sqrt 21 + 2 sqrt 35 - 2 sqrt 15) / 9 = 2.3613, the middle-rung value (Schmidt-aligned, a lower bound on this knot's maximum)",
+        (8 +
+          2 * Math.sqrt(21) +
+          2 * Math.sqrt(35) -
+          2 * Math.sqrt(15)) /
+          9,
+      ],
+      [
+        '(2 + 4 sqrt 2) / 3 = 2.5523, the top rung',
+        (2 + 4 * Math.sqrt(2)) / 3,
+      ],
     ] as const
     const swapRung = rungOf(bellQuantum, swapLadder)
     const colorRung = rungOf(colorBell, colorLadder)
@@ -725,7 +943,8 @@ export default experiment({
         growerChshMax: Math.max(...growerBell),
         growerChshMin: Math.min(...growerBell),
         growerChshFinal: growerBell[growerBell.length - 1] ?? -1,
-        growerMeetingsAbove2: growerBell.filter(v => v > 2 + 1e-9).length,
+        growerMeetingsAbove2: growerBell.filter(v => v > 2 + 1e-9)
+          .length,
         singletUnits: 54,
         singletFears: Number(singletFears),
         tripleFirst: triple[0] ?? -1,
@@ -740,7 +959,8 @@ export default experiment({
         tripleLivePure: tripleLive.pure ? 1 : 0,
         tripleLiveSingletShareMin: Math.min(...tripleLive.shares),
         tripleLiveSingletShareMax: Math.max(...tripleLive.shares),
-        tripleLiveSingletShareFinal: tripleLive.shares[tripleLive.shares.length - 1] ?? -1,
+        tripleLiveSingletShareFinal:
+          tripleLive.shares[tripleLive.shares.length - 1] ?? -1,
         colorModeGatesPass: colorOk ? 1 : 0,
         colorChanceAfterMeeting1: colorQuantum[0] ?? -1,
         colorChanceAfterMeeting2: colorQuantum[1] ?? -1,
@@ -761,7 +981,8 @@ export default experiment({
         chshStochastic: bellStochastic,
       },
       notes:
-        "STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 9 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the grower's CHSH max 2.7607 -> 2.4037 (min 2.2215 -> 2.0951, final 2.2900 -> 2.1824), the color-mode CHSH 2.3631 -> 2.3613, the live triple's final singlet share 0.0551 -> 0.0158. " + ('L2. Chances and the singlet share are exact ratios of BigInt sums; the CHSH value is a floating-point see-saw (200 rounds from eight fixed golden-ratio starts), a lower bound on the maximum that meets the analytic sqrt 7 for this state. The stochastic stand-in is the swap phase with its phases dropped, which is the kernel a classical rule with a coin at each meeting would carry; it is not reversible. The tokens are read in different docks, but the rule is local and deterministic in its classical layer, so the witness is of the state the meeting made, not a loophole-free test. Positions stay classical: no witness here is in where a vibe goes. The triple is the dock-0 triple of the matter fill (golden ratio at 2.11) whose three pairs all meet in 480 beats, with the most meetings in total, found from one classical run. The grower pair (4, 20) is the one E-QTM-0099 found spending the most grain.'),
+        "STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 9 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the grower's CHSH max 2.7607 -> 2.4037 (min 2.2215 -> 2.0951, final 2.2900 -> 2.1824), the color-mode CHSH 2.3631 -> 2.3613, the live triple's final singlet share 0.0551 -> 0.0158. " +
+        'L2. Chances and the singlet share are exact ratios of BigInt sums; the CHSH value is a floating-point see-saw (200 rounds from eight fixed golden-ratio starts), a lower bound on the maximum that meets the analytic sqrt 7 for this state. The stochastic stand-in is the swap phase with its phases dropped, which is the kernel a classical rule with a coin at each meeting would carry; it is not reversible. The tokens are read in different docks, but the rule is local and deterministic in its classical layer, so the witness is of the state the meeting made, not a loophole-free test. Positions stay classical: no witness here is in where a vibe goes. The triple is the dock-0 triple of the matter fill (golden ratio at 2.11) whose three pairs all meet in 480 beats, with the most meetings in total, found from one classical run. The grower pair (4, 20) is the one E-QTM-0099 found spending the most grain.',
     })
   },
 })

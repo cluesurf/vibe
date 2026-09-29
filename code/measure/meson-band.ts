@@ -25,12 +25,37 @@
 
 import { lightN } from '@/code/measure/drift-cost-bloch'
 import { type Vec } from '@/code/measure/quantum-ladder'
-import { fineBranch, meson, pairColumn, pairEmbed, pairMoments, pairReader, parityIndices, type Meson, type Parity } from '@/code/measure/string-binding'
+import {
+  fineBranch,
+  meson,
+  pairColumn,
+  pairEmbed,
+  pairMoments,
+  pairReader,
+  parityIndices,
+  type Meson,
+  type Parity,
+} from '@/code/measure/string-binding'
 
-export type PairBand = { dim: number; kl: number; ku: number; start: Int32Array; rows: Int32Array; re: Float64Array; im: Float64Array; leak: number; unitarity: number }
+export type PairBand = {
+  dim: number
+  kl: number
+  ku: number
+  start: Int32Array
+  rows: Int32Array
+  re: Float64Array
+  im: Float64Array
+  leak: number
+  unitarity: number
+}
 
 // the beat on one parity block at total momentum K, as sparse columns (string-binding pairReduced, banded)
-export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): PairBand {
+export function pairBand(
+  m: Meson,
+  K: number,
+  parity: Parity,
+  withCost = true,
+): PairBand {
   const idx = parityIndices(m, parity)
   const at = new Map(idx.map((i, a) => [i, a]))
   const dim = idx.length
@@ -38,6 +63,7 @@ export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): 
   const rows: number[] = []
   const re: number[] = []
   const im: number[] = []
+
   let kl = 0
   let ku = 0
   let leak = 0
@@ -46,6 +72,7 @@ export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): 
   idx.forEach((i0, col) => {
     const c = pairColumn(m, K, i0, withCost)
     const acc = new Map<number, [number, number]>()
+
     let out = 0
     let t = 0
 
@@ -54,6 +81,7 @@ export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): 
 
       if (a === undefined) {
         out += c.re[k]! ** 2 + c.im[k]! ** 2
+
         return
       }
 
@@ -63,7 +91,10 @@ export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): 
     })
 
     start[col] = rows.length
-    for (const [a, v] of [...acc.entries()].sort((x, y) => x[0] - y[0])) {
+
+    for (const [a, v] of [...acc.entries()].sort(
+      (x, y) => x[0] - y[0],
+    )) {
       rows.push(a)
       re.push(v[0])
       im.push(v[1])
@@ -77,17 +108,32 @@ export function pairBand(m: Meson, K: number, parity: Parity, withCost = true): 
   })
   start[dim] = rows.length
 
-  return { dim, kl, ku, start, rows: Int32Array.from(rows), re: Float64Array.from(re), im: Float64Array.from(im), leak, unitarity }
+  return {
+    dim,
+    kl,
+    ku,
+    start,
+    rows: Int32Array.from(rows),
+    re: Float64Array.from(re),
+    im: Float64Array.from(im),
+    leak,
+    unitarity,
+  }
 }
 
 export function bandApply(op: PairBand, x: Vec): Vec {
-  const y = { re: new Float64Array(op.dim), im: new Float64Array(op.dim) }
+  const y = {
+    re: new Float64Array(op.dim),
+    im: new Float64Array(op.dim),
+  }
 
   for (let j = 0; j < op.dim; j++) {
     const xr = x.re[j]!
     const xi = x.im[j]!
 
-    if (xr === 0 && xi === 0) continue
+    if (xr === 0 && xi === 0) {
+      continue
+    }
 
     for (let p = op.start[j]!; p < op.start[j + 1]!; p++) {
       const i = op.rows[p]!
@@ -101,7 +147,13 @@ export function bandApply(op: PairBand, x: Vec): Vec {
 }
 
 // (U - s) x = b, banded elimination with partial pivoting; b is overwritten by x
-export function bandSolve(op: PairBand, sr: number, si: number, bre: Float64Array, bim: Float64Array): void {
+export function bandSolve(
+  op: PairBand,
+  sr: number,
+  si: number,
+  bre: Float64Array,
+  bim: Float64Array,
+): void {
   const { dim: n, kl, ku } = op
   const W = 2 * kl + ku + 1
   const ar = new Float64Array(n * W)
@@ -123,6 +175,7 @@ export function bandSolve(op: PairBand, sr: number, si: number, bre: Float64Arra
   for (let k = 0; k < n; k++) {
     const last = Math.min(n - 1, k + kl)
     const right = Math.min(n - 1, k + kl + ku)
+
     let p = k
     let best = ar[slot(k, k)]! ** 2 + ai[slot(k, k)]! ** 2
 
@@ -166,10 +219,13 @@ export function bandSolve(op: PairBand, sr: number, si: number, bre: Float64Arra
       const fr = (ar[s]! * pr + ai[s]! * pi) / pp
       const fi = (ai[s]! * pr - ar[s]! * pi) / pp
 
-      if (fr === 0 && fi === 0) continue
+      if (fr === 0 && fi === 0) {
+        continue
+      }
 
       ar[s] = 0
       ai[s] = 0
+
       for (let j = k + 1; j <= right; j++) {
         const a = slot(k, j)
         const b = slot(i, j)
@@ -186,6 +242,7 @@ export function bandSolve(op: PairBand, sr: number, si: number, bre: Float64Arra
   for (let k = n - 1; k >= 0; k--) {
     let sr2 = bre[k]!
     let si2 = bim[k]!
+
     const right = Math.min(n - 1, k + kl + ku)
 
     for (let j = k + 1; j <= right; j++) {
@@ -207,8 +264,13 @@ export function bandSolve(op: PairBand, sr: number, si: number, bre: Float64Arra
 const wrapE = (phase: number): number => {
   let e = -phase
 
-  while (e <= -Math.PI) e += 2 * Math.PI
-  while (e > Math.PI) e -= 2 * Math.PI
+  while (e <= -Math.PI) {
+    e += 2 * Math.PI
+  }
+
+  while (e > Math.PI) {
+    e -= 2 * Math.PI
+  }
 
   return e
 }
@@ -216,7 +278,9 @@ const wrapE = (phase: number): number => {
 function normalizeVec(x: Vec): void {
   let t = 0
 
-  for (let i = 0; i < x.re.length; i++) t += x.re[i]! ** 2 + x.im[i]! ** 2
+  for (let i = 0; i < x.re.length; i++) {
+    t += x.re[i]! ** 2 + x.im[i]! ** 2
+  }
 
   const s = 1 / Math.sqrt(t)
 
@@ -227,9 +291,16 @@ function normalizeVec(x: Vec): void {
 }
 
 // drift-cost-bloch's inverseIterate on the banded block
-export function bandInverse(op: PairBand, start: Vec, rounds = 4): { vector: Vec; energy: number; residual: number } {
+export function bandInverse(
+  op: PairBand,
+  start: Vec,
+  rounds = 4,
+): { vector: Vec; energy: number; residual: number } {
   const n = op.dim
-  const x = { re: Float64Array.from(start.re), im: Float64Array.from(start.im) }
+  const x = {
+    re: Float64Array.from(start.re),
+    im: Float64Array.from(start.im),
+  }
 
   normalizeVec(x)
 
@@ -238,6 +309,7 @@ export function bandInverse(op: PairBand, start: Vec, rounds = 4): { vector: Vec
 
   for (let round = 0; round < rounds; round++) {
     const ux = bandApply(op, x)
+
     let lr = 0
     let li = 0
 
@@ -250,19 +322,35 @@ export function bandInverse(op: PairBand, start: Vec, rounds = 4): { vector: Vec
 
     let r2 = 0
 
-    for (let i = 0; i < n; i++) r2 += (ux.re[i]! - (lr * x.re[i]! - li * x.im[i]!)) ** 2 + (ux.im[i]! - (lr * x.im[i]! + li * x.re[i]!)) ** 2
+    for (let i = 0; i < n; i++) {
+      r2 +=
+        (ux.re[i]! - (lr * x.re[i]! - li * x.im[i]!)) ** 2 +
+        (ux.im[i]! - (lr * x.im[i]! + li * x.re[i]!)) ** 2
+    }
 
     residual = Math.sqrt(r2)
 
-    if (residual < 1e-11) break
+    if (residual < 1e-11) {
+      break
+    }
 
     const mg = Math.hypot(lr, li)
 
-    bandSolve(op, (lr / mg) * (1 + 1e-10), (li / mg) * (1 + 1e-10), x.re, x.im)
+    bandSolve(
+      op,
+      (lr / mg) * (1 + 1e-10),
+      (li / mg) * (1 + 1e-10),
+      x.re,
+      x.im,
+    )
     normalizeVec(x)
   }
 
-  return { vector: x, energy: wrapE(Math.atan2(lambda[1], lambda[0])), residual }
+  return {
+    vector: x,
+    energy: wrapE(Math.atan2(lambda[1], lambda[0])),
+    residual,
+  }
 }
 
 // |<u|v>| / (|u| |v|)
@@ -283,22 +371,34 @@ export function overlapOf(u: Vec, v: Vec): number {
 }
 
 // a block vector of one meson moved to another meson's block of the same parity, amplitude by (d, labels)
-export function moveBlock(from: Meson, to: Meson, parity: Parity, v: Vec): Vec {
+export function moveBlock(
+  from: Meson,
+  to: Meson,
+  parity: Parity,
+  v: Vec,
+): Vec {
   const src = parityIndices(from, parity)
   const dst = parityIndices(to, parity)
   const where = new Map(dst.map((i, a) => [i, a]))
-  const out = { re: new Float64Array(dst.length), im: new Float64Array(dst.length) }
+  const out = {
+    re: new Float64Array(dst.length),
+    im: new Float64Array(dst.length),
+  }
 
   src.forEach((i, a) => {
     const c = Math.floor(i / from.b.labelCount)
     const r = i % from.b.labelCount
     const d = from.b.configs[c]![1]!
 
-    if (Math.abs(d) > to.box) return
+    if (Math.abs(d) > to.box) {
+      return
+    }
 
     const j = where.get(to.b.index(to.b.configOf([0, d]), r))
 
-    if (j === undefined) return
+    if (j === undefined) {
+      return
+    }
 
     out.re[j] = v.re[a]!
     out.im[j] = v.im[a]!
@@ -314,7 +414,10 @@ export function nrSeed(m: Meson): Vec {
   const sigma = Math.PI / lightN(m.D)
   const l = (sigma * Math.tan(mass)) ** (-1 / 3)
   const B = fineBranch(m.fine, 0).B
-  const out = { re: new Float64Array(idx.length), im: new Float64Array(idx.length) }
+  const out = {
+    re: new Float64Array(idx.length),
+    im: new Float64Array(idx.length),
+  }
 
   idx.forEach((i, a) => {
     const c = Math.floor(i / m.b.labelCount)
@@ -349,19 +452,43 @@ export type BandLevel = {
 }
 
 // the reading of an even-block vector at K = 0 (string-binding pairLevels' reading of one level)
-export function readBand(m: Meson, block: Vec, energy: number, residual: number, withCost = true): BandLevel {
+export function readBand(
+  m: Meson,
+  block: Vec,
+  energy: number,
+  residual: number,
+  withCost = true,
+): BandLevel {
   const vector = pairEmbed(m, 0, block)
   const r = pairReader(m, 2 * m.box + 6)(vector)
   const mo = pairMoments(m, vector)
   const sigma = withCost ? Math.PI / lightN(m.D) : 0
   const reference = r.kinetic + sigma * mo.mean
-  const unwrapped = energy + 2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
+  const unwrapped =
+    energy +
+    2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
 
-  return { D: m.D, box: m.box, fine: m.fine, energy, unwrapped, even: r.even, kinetic: r.kinetic, ...mo, residual, block }
+  return {
+    D: m.D,
+    box: m.box,
+    fine: m.fine,
+    energy,
+    unwrapped,
+    even: r.even,
+    kinetic: r.kinetic,
+    ...mo,
+    residual,
+    block,
+  }
 }
 
 // the level at (D, box) from a start on that block
-export function settle(m: Meson, start: Vec, rounds = 12, withCost = true): BandLevel {
+export function settle(
+  m: Meson,
+  start: Vec,
+  rounds = 12,
+  withCost = true,
+): BandLevel {
   const it = bandInverse(pairBand(m, 0, 0, withCost), start, rounds)
 
   return readBand(m, it.vector, it.energy, it.residual, withCost)
@@ -369,7 +496,12 @@ export function settle(m: Meson, start: Vec, rounds = 12, withCost = true): Band
 
 // a level carried from its meson to (D, box) at the same fine (see the header); `overlap` is the carried start's
 // overlap with the level it settles on
-export function carry(level: BandLevel, D: number, box: number, rounds = 12): { level: BandLevel; overlap: number } {
+export function carry(
+  level: BandLevel,
+  D: number,
+  box: number,
+  rounds = 12,
+): { level: BandLevel; overlap: number } {
   const from = meson(level.D, level.box, level.fine)
   const to = meson(D, box, level.fine)
   const startVec = moveBlock(from, to, 0, level.block)
@@ -381,16 +513,32 @@ export function carry(level: BandLevel, D: number, box: number, rounds = 12): { 
   return { level: next, overlap: overlapOf(startVec, next.block) }
 }
 
-export type BandTrack = { K: number; energy: number; overlap: number; residual: number; vector: Vec }
+export type BandTrack = {
+  K: number
+  energy: number
+  overlap: number
+  residual: number
+  vector: Vec
+}
 
 // the even-block level followed from K = 0 through `ks` (increasing) by inverse iteration in steps of at most `step`
 // (string-binding followPair, banded); energy unwrapped by continuity, `overlap` the least consecutive one so far
-export function followBand(m: Meson, start: BandLevel, ks: readonly number[], step: number, rounds = 6): BandTrack[] {
-  let prev: Vec = { re: Float64Array.from(start.block.re), im: Float64Array.from(start.block.im) }
+export function followBand(
+  m: Meson,
+  start: BandLevel,
+  ks: readonly number[],
+  step: number,
+  rounds = 6,
+): BandTrack[] {
+  let prev: Vec = {
+    re: Float64Array.from(start.block.re),
+    im: Float64Array.from(start.block.im),
+  }
   let K = 0
   let energy = start.unwrapped
   let least = 1
   let residual = 0
+
   const out: BandTrack[] = []
 
   for (const target of ks) {
@@ -400,23 +548,42 @@ export function followBand(m: Meson, start: BandLevel, ks: readonly number[], st
 
       least = Math.min(least, overlapOf(prev, it.vector))
       residual = Math.max(residual, it.residual)
-      energy = it.energy + 2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
+      energy =
+        it.energy +
+        2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
       prev = it.vector
       K = next
     }
 
-    out.push({ K, energy, overlap: least, residual, vector: { re: Float64Array.from(prev.re), im: Float64Array.from(prev.im) } })
+    out.push({
+      K,
+      energy,
+      overlap: least,
+      residual,
+      vector: {
+        re: Float64Array.from(prev.re),
+        im: Float64Array.from(prev.im),
+      },
+    })
   }
 
   return out
 }
 
 // E''(K) at a band point by a second difference of eigenvalues (string-binding pairCurvature, banded)
-export function bandCurvature(m: Meson, at: BandTrack, d: number, rounds = 6): number {
+export function bandCurvature(
+  m: Meson,
+  at: BandTrack,
+  d: number,
+  rounds = 6,
+): number {
   const near = (K: number): number => {
     const it = bandInverse(pairBand(m, K, 0), at.vector, rounds)
 
-    return it.energy + 2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+    return (
+      it.energy +
+      2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+    )
   }
 
   return (near(at.K + d) + near(at.K - d) - 2 * at.energy) / (d * d)
@@ -425,11 +592,15 @@ export function bandCurvature(m: Meson, at: BandTrack, d: number, rounds = 6): n
 // the lone walk's largest group velocity at the fine coin: max over k of dE_B/dk, by a symmetric difference on a grid
 export function loneTopVelocity(fine: number, grid = 4096): number {
   let top = 0
+
   const h = Math.PI / grid
 
   for (let s = 1; s < grid; s++) {
     const k = (Math.PI * s) / grid
-    const v = (fineBranch(fine, k + h).energy - fineBranch(fine, k - h).energy) / (2 * h)
+    const v =
+      (fineBranch(fine, k + h).energy -
+        fineBranch(fine, k - h).energy) /
+      (2 * h)
 
     top = Math.max(top, v)
   }

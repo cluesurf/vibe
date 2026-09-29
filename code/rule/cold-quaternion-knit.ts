@@ -67,11 +67,19 @@ import {
   quaternionGroup,
   twistOf,
 } from '@/code/rule/quaternion-knit'
-import { rotationMaps, scatterDock, scatterMoves, type ScatterMeeting, type ScatterSet } from '@/code/rule/cold-scatter'
+import {
+  rotationMaps,
+  scatterDock,
+  scatterMoves,
+  type ScatterMeeting,
+  type ScatterSet,
+} from '@/code/rule/cold-scatter'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 
 const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const OPPOSITE = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 const FIRSTS: number[] = []
 const LINE_OF: number[] = []
 
@@ -83,12 +91,15 @@ ROOTS.forEach((_, d) => {
   }
 })
 
-export const COLD_SIDE: readonly number[] = ROOTS.map((_, d) => (d < (OPPOSITE[d] ?? d) ? 1 : -1))
+export const COLD_SIDE: readonly number[] = ROOTS.map((_, d) =>
+  d < (OPPOSITE[d] ?? d) ? 1 : -1,
+)
 export const COLD_FIRSTS: readonly number[] = FIRSTS
 export const COLD_LINE_OF: readonly number[] = LINE_OF
 export const COLD_OPPOSITE: readonly number[] = OPPOSITE
 
 const FRAMES = coupleFrames()
+
 export const COUPLE_ORBIT: readonly number[] = FRAMES.map(f => f.orbit)
 
 // the couple each line belongs to
@@ -103,7 +114,9 @@ export const COUPLE_OF_LINE: readonly number[] = (() => {
   return out
 })()
 
-const MASS = Array.from({ length: 81 }, (_, k) => coupleTones(k).reduce((s, x) => s + Math.abs(x), 0))
+const MASS = Array.from({ length: 81 }, (_, k) =>
+  coupleTones(k).reduce((s, x) => s + Math.abs(x), 0),
+)
 const TONES_OF = Array.from({ length: 81 }, (_, k) => coupleTones(k))
 
 // the first-return tables: FIRST_RETURN[direction][orbit][level][state], level 0..4 (4 or more is the table)
@@ -127,7 +140,10 @@ function firstReturn(table: readonly number[]): number[][] {
 
 const FORWARD_TABLES = QUATERNION_TABLES.map(t => [...t])
 const BACKWARD_TABLES = FORWARD_TABLES.map(invertCoupleTable)
-const FIRST_RETURN = [FORWARD_TABLES.map(firstReturn), BACKWARD_TABLES.map(firstReturn)]
+const FIRST_RETURN = [
+  FORWARD_TABLES.map(firstReturn),
+  BACKWARD_TABLES.map(firstReturn),
+]
 
 // the exchange partners of code/rule/quaternion-knit (buildPartners, not exported there), rebuilt the same
 // way: pairs of lone directions on the free lines whose class (equal root sum, equal forced functionals) has
@@ -142,15 +158,25 @@ const PARTNER: Int32Array = (() => {
       const lu = LINE_OF[u] ?? 0
       const lv = LINE_OF[v] ?? 0
 
-      if (lu === lv || !EXCHANGE_LINES.includes(lu) || !EXCHANGE_LINES.includes(lv)) continue
+      if (
+        lu === lv ||
+        !EXCHANGE_LINES.includes(lu) ||
+        !EXCHANGE_LINES.includes(lv)
+      ) {
+        continue
+      }
 
       const n = new Array<number>(12).fill(0)
 
       n[lu] = (n[lu] ?? 0) + (COLD_SIDE[u] ?? 0)
       n[lv] = (n[lv] ?? 0) + (COLD_SIDE[v] ?? 0)
 
-      const sum = [0, 1, 2, 3].map(c => (ROOTS[u]?.[c] ?? 0) + (ROOTS[v]?.[c] ?? 0))
-      const values = rows.map(r => r.reduce((a, c, l) => a + c * (n[l] ?? 0), 0))
+      const sum = [0, 1, 2, 3].map(
+        c => (ROOTS[u]?.[c] ?? 0) + (ROOTS[v]?.[c] ?? 0),
+      )
+      const values = rows.map(r =>
+        r.reduce((a, c, l) => a + c * (n[l] ?? 0), 0),
+      )
       const k = `${sum.join(',')}|${values.join(',')}`
 
       classes.set(k, [...(classes.get(k) ?? []), [u, v]])
@@ -158,11 +184,15 @@ const PARTNER: Int32Array = (() => {
   }
 
   for (const members of classes.values()) {
-    if (members.length !== 2) continue
+    if (members.length !== 2) {
+      continue
+    }
 
     const [a, b] = members
 
-    if (!a || !b) continue
+    if (!a || !b) {
+      continue
+    }
 
     partner[a[0] * 24 + a[1]] = b[0] * 24 + b[1]
     partner[a[1] * 24 + a[0]] = b[0] * 24 + b[1]
@@ -178,19 +208,27 @@ const PARTNER: Int32Array = (() => {
 // E-RLT-0054.
 export function payerMaps(): number[][] {
   const group = quaternionGroup()
-  const lineImage = (g: readonly number[], l: number): number => LINE_OF[g[FIRSTS[l] ?? 0] ?? 0] ?? 0
+  const lineImage = (g: readonly number[], l: number): number =>
+    LINE_OF[g[FIRSTS[l] ?? 0] ?? 0] ?? 0
+
   const coupleImage = (g: readonly number[], c: number): number => {
     const [p] = QUATERNION_COUPLES[c] ?? [0, 0]
 
     return COUPLE_OF_LINE[lineImage(g, p)] ?? -1
   }
-  const first = COUPLE_ORBIT.map((o, c) => (o === 0 ? c : -1)).filter(c => c >= 0)
-  const targets = COUPLE_ORBIT.flatMap((o, c) => (o === 1 ? [...(QUATERNION_COUPLES[c] ?? [])] : []))
+
+  const first = COUPLE_ORBIT.map((o, c) => (o === 0 ? c : -1)).filter(
+    c => c >= 0,
+  )
+  const targets = COUPLE_ORBIT.flatMap((o, c) =>
+    o === 1 ? [...(QUATERNION_COUPLES[c] ?? [])] : [],
+  )
   const out: number[][] = []
   const rep = first[0] ?? 0
 
   for (const line of targets) {
     const map = new Array<number>(6).fill(-1)
+
     let ok = true
 
     for (const g of group) {
@@ -204,7 +242,11 @@ export function payerMaps(): number[][] {
       }
     }
 
-    if (ok && first.every(c => map[c] !== -1) && new Set(first.map(c => map[c])).size === first.length) {
+    if (
+      ok &&
+      first.every(c => map[c] !== -1) &&
+      new Set(first.map(c => map[c])).size === first.length
+    ) {
       out.push(map)
     }
   }
@@ -220,10 +262,15 @@ export function quaternionScatter(): ScatterSet {
   const table = QUATERNION_ROTATION_SOURCE()
   const group = quaternionGroup()
 
-  return scatterMoves({ group, forms: forcedFunctionals(), rotation: rotationMaps({ permutations: table, group })[0] })
+  return scatterMoves({
+    group,
+    forms: forcedFunctionals(),
+    rotation: rotationMaps({ permutations: table, group })[0],
+  })
 }
 
-const QUATERNION_ROTATION_SOURCE = (): number[][] => weylF4DirectionPermutations({ directions: ROOTS })
+const QUATERNION_ROTATION_SOURCE = (): number[][] =>
+  weylF4DirectionPermutations({ directions: ROOTS })
 
 export type ColdQuaternionOptions = {
   // 'quaternion' (the default): T E B E T; 'scatter': one scattering involution alone, for any group
@@ -258,7 +305,9 @@ export type ColdQuaternionKnit = {
 
 export const DEFAULT_PAYERS_INDEX = 0
 
-export function makeColdQuaternionKnit(options: ColdQuaternionOptions = {}): ColdQuaternionKnit {
+export function makeColdQuaternionKnit(
+  options: ColdQuaternionOptions = {},
+): ColdQuaternionKnit {
   return {
     mode: options.mode ?? 'quaternion',
     scatter: options.scatter,
@@ -314,11 +363,17 @@ function swapLabels(a: Arrays, i: number, j: number): void {
   }
 }
 
-const weightOf = (tone: number, d: number): number => (tone !== 0 ? tone : (COLD_SIDE[d] ?? 1))
+const weightOf = (tone: number, d: number): number =>
+  tone !== 0 ? tone : (COLD_SIDE[d] ?? 1)
 
 // carry labels over a move on the listed dock slots (in frame order), from the tones before to the tones
 // now in `a`
-function carryLabels(a: Arrays, base: number, slots: readonly number[], before: readonly number[]): void {
+function carryLabels(
+  a: Arrays,
+  base: number,
+  slots: readonly number[],
+  before: readonly number[],
+): void {
   if (!a.role && !a.token) {
     return
   }
@@ -330,12 +385,19 @@ function carryLabels(a: Arrays, base: number, slots: readonly number[], before: 
     const w0 = weightOf(before[i] ?? 0, d)
     const w1 = weightOf(a.vibe[base + d] ?? 0, d)
 
-    if (w0 === 1 && w1 === -1) down.push(base + d)
-    if (w0 === -1 && w1 === 1) up.push(base + d)
+    if (w0 === 1 && w1 === -1) {
+      down.push(base + d)
+    }
+
+    if (w0 === -1 && w1 === 1) {
+      up.push(base + d)
+    }
   })
 
   if (down.length !== up.length) {
-    throw new Error('cold quaternion knit: a move changed the dock weight count')
+    throw new Error(
+      'cold quaternion knit: a move changed the dock weight count',
+    )
   }
 
   down.forEach((i, k) => swapLabels(a, i, up[k] ?? i))
@@ -344,15 +406,24 @@ function carryLabels(a: Arrays, base: number, slots: readonly number[], before: 
 const SCRATCH = [0, 0, 0, 0]
 const BEFORE = [0, 0, 0, 0]
 
-function clock(a: Arrays, base: number, dock: number, direction: 0 | 1, meetings: ColdMeeting[] | undefined): void {
+function clock(
+  a: Arrays,
+  base: number,
+  dock: number,
+  direction: 0 | 1,
+  meetings: ColdMeeting[] | undefined,
+): void {
   const returns = FIRST_RETURN[direction] ?? []
 
   for (let c = 0; c < 6; c++) {
     const frame = FRAMES[c]
 
-    if (!frame) continue
+    if (!frame) {
+      continue
+    }
 
     const slots = frame.slots
+
     let mass = 0
     let busy = false
 
@@ -366,14 +437,18 @@ function clock(a: Arrays, base: number, dock: number, direction: 0 | 1, meetings
       busy = busy || (a.store[at] ?? 0) !== 0
     }
 
-    if (busy) continue
+    if (busy) {
+      continue
+    }
 
     const counterAt = dock * 6 + c
     const level = mass + (a.counter[counterAt] ?? 0)
     const k = coupleState(SCRATCH)
     const next = returns[frame.orbit]?.[Math.min(level, 4)]?.[k] ?? k
 
-    if (next === k) continue
+    if (next === k) {
+      continue
+    }
 
     const out = TONES_OF[next] ?? [0, 0, 0, 0]
 
@@ -381,7 +456,10 @@ function clock(a: Arrays, base: number, dock: number, direction: 0 | 1, meetings
 
     // the forward-sense state before the move is the state now going forward and the result going
     // backward; its tokens are read before the labels move going forward and after going backward
-    const tokensBefore = meetings && a.token && direction === 0 ? slots.map(d => a.token?.[base + d] ?? 0) : undefined
+    const tokensBefore =
+      meetings && a.token && direction === 0
+        ? slots.map(d => a.token?.[base + d] ?? 0)
+        : undefined
     const beforeTones = [...BEFORE]
 
     for (let i = 0; i < 4; i++) {
@@ -391,14 +469,22 @@ function clock(a: Arrays, base: number, dock: number, direction: 0 | 1, meetings
     carryLabels(a, base, slots, BEFORE)
 
     if (meetings && a.token) {
-      const pre = direction === 0 ? beforeTones : slots.map(d => a.vibe[base + d] ?? 0)
-      const tokens = tokensBefore ?? slots.map(d => a.token?.[base + d] ?? 0)
+      const pre =
+        direction === 0
+          ? beforeTones
+          : slots.map(d => a.vibe[base + d] ?? 0)
+      const tokens =
+        tokensBefore ?? slots.map(d => a.token?.[base + d] ?? 0)
       const held = [0, 1, 2, 3].filter(i => (pre[i] ?? 0) !== 0)
 
       if (held.length === 2) {
         const [i, j] = held as [number, number]
 
-        meetings.push({ tokens: [tokens[i] ?? 0, tokens[j] ?? 0], signs: [pre[i] ?? 0, pre[j] ?? 0], kind: 'clock' })
+        meetings.push({
+          tokens: [tokens[i] ?? 0, tokens[j] ?? 0],
+          signs: [pre[i] ?? 0, pre[j] ?? 0],
+          kind: 'clock',
+        })
       } else if (held.length > 2) {
         meetings.push({ tokens: [-1, -1], signs: [0, 0], kind: 'many' })
       }
@@ -406,7 +492,11 @@ function clock(a: Arrays, base: number, dock: number, direction: 0 | 1, meetings
   }
 }
 
-function exchange(a: Arrays, base: number, meetings: ColdMeeting[] | undefined): void {
+function exchange(
+  a: Arrays,
+  base: number,
+  meetings: ColdMeeting[] | undefined,
+): void {
   let first = -1
   let second = -1
   let lone = 0
@@ -422,40 +512,71 @@ function exchange(a: Arrays, base: number, meetings: ColdMeeting[] | undefined):
 
       const held = x !== 0 ? d : o
 
-      if (first < 0) first = held
-      else second = held
+      if (first < 0) {
+        first = held
+      } else {
+        second = held
+      }
     }
   }
 
-  if (lone !== 2) return
+  if (lone !== 2) {
+    return
+  }
 
   const tone = a.vibe[base + first] ?? 0
 
-  if ((a.vibe[base + second] ?? 0) !== tone) return
-  if ((a.store[base + first] ?? 0) !== (a.store[base + second] ?? 0)) return
+  if ((a.vibe[base + second] ?? 0) !== tone) {
+    return
+  }
+
+  if ((a.store[base + first] ?? 0) !== (a.store[base + second] ?? 0)) {
+    return
+  }
 
   const target = PARTNER[first * 24 + second] ?? -1
 
-  if (target < 0) return
+  if (target < 0) {
+    return
+  }
 
   const w = Math.floor(target / 24)
   const x = target % 24
 
   for (const d of [w, x]) {
-    if ((a.vibe[base + d] ?? 0) !== 0 || (a.vibe[base + (OPPOSITE[d] ?? 0)] ?? 0) !== 0) return
+    if (
+      (a.vibe[base + d] ?? 0) !== 0 ||
+      (a.vibe[base + (OPPOSITE[d] ?? 0)] ?? 0) !== 0
+    ) {
+      return
+    }
   }
 
   // the tones' labels go with them, each to the target of its own side (D is kept, so one pairing fits)
-  const straight = COLD_SIDE[first] === COLD_SIDE[w] && COLD_SIDE[second] === COLD_SIDE[x]
+  const straight =
+    COLD_SIDE[first] === COLD_SIDE[w] &&
+    COLD_SIDE[second] === COLD_SIDE[x]
   const to = straight ? [w, x] : [x, w]
   const store = a.store[base + first] ?? 0
 
-  if (!straight && !(COLD_SIDE[first] === COLD_SIDE[x] && COLD_SIDE[second] === COLD_SIDE[w])) {
-    throw new Error('cold quaternion knit: an exchange with no side-keeping pairing')
+  if (
+    !straight &&
+    !(
+      COLD_SIDE[first] === COLD_SIDE[x] &&
+      COLD_SIDE[second] === COLD_SIDE[w]
+    )
+  ) {
+    throw new Error(
+      'cold quaternion knit: an exchange with no side-keeping pairing',
+    )
   }
 
   if (meetings && a.token) {
-    meetings.push({ tokens: [a.token[base + first] ?? 0, a.token[base + second] ?? 0], signs: [tone, tone], kind: 'exchange' })
+    meetings.push({
+      tokens: [a.token[base + first] ?? 0, a.token[base + second] ?? 0],
+      signs: [tone, tone],
+      kind: 'exchange',
+    })
   }
 
   ;[first, second].forEach((from, k) => {
@@ -471,20 +592,29 @@ function exchange(a: Arrays, base: number, meetings: ColdMeeting[] | undefined):
 
 const X_FRAME = [1, 1, -1, -1]
 
-function threshold(a: Arrays, base: number, knit: ColdQuaternionKnit): void {
+function threshold(
+  a: Arrays,
+  base: number,
+  knit: ColdQuaternionKnit,
+): void {
   for (let c = 0; c < 6; c++) {
     const payer = knit.payers[c] ?? -1
     const frame = FRAMES[c]
 
-    if (payer < 0 || !frame) continue
+    if (payer < 0 || !frame) {
+      continue
+    }
 
     const p0 = base + (FIRSTS[payer] ?? 0)
     const p1 = base + (OPPOSITE[FIRSTS[payer] ?? 0] ?? 0)
     const s = a.vibe[p0] ?? 0
 
-    if (s === 0 || (a.vibe[p1] ?? 0) !== s) continue
+    if (s === 0 || (a.vibe[p1] ?? 0) !== s) {
+      continue
+    }
 
     const sign = knit.signRule === 'plain' ? s : frame.twist * s
+
     let calm = true
     let made = true
 
@@ -494,16 +624,28 @@ function threshold(a: Arrays, base: number, knit: ColdQuaternionKnit): void {
 
       BEFORE[i] = v
       calm = calm && v === 0
-      made = made && frame.twist * v === sign * (X_FRAME[i] ?? 0) && (a.store[at] ?? 0) === 0
+      made =
+        made &&
+        frame.twist * v === sign * (X_FRAME[i] ?? 0) &&
+        (a.store[at] ?? 0) === 0
     }
 
-    if (calm && (a.store[p0] ?? 0) >= knit.price && (a.store[p1] ?? 0) >= knit.price) {
-      for (let i = 0; i < 4; i++) a.vibe[base + (frame.slots[i] ?? 0)] = frame.twist * sign * (X_FRAME[i] ?? 0)
+    if (
+      calm &&
+      (a.store[p0] ?? 0) >= knit.price &&
+      (a.store[p1] ?? 0) >= knit.price
+    ) {
+      for (let i = 0; i < 4; i++) {
+        a.vibe[base + (frame.slots[i] ?? 0)] =
+          frame.twist * sign * (X_FRAME[i] ?? 0)
+      }
 
       a.store[p0] = (a.store[p0] ?? 0) - knit.price
       a.store[p1] = (a.store[p1] ?? 0) - knit.price
     } else if (made) {
-      for (let i = 0; i < 4; i++) a.vibe[base + (frame.slots[i] ?? 0)] = 0
+      for (let i = 0; i < 4; i++) {
+        a.vibe[base + (frame.slots[i] ?? 0)] = 0
+      }
 
       a.store[p0] = (a.store[p0] ?? 0) + knit.price
       a.store[p1] = (a.store[p1] ?? 0) + knit.price
@@ -516,9 +658,25 @@ function threshold(a: Arrays, base: number, knit: ColdQuaternionKnit): void {
 }
 
 // the exchange of either kind: the rich scattering set when the knit has one, the lone exchange otherwise
-function scatterStep(knit: ColdQuaternionKnit, a: Arrays, base: number, forward: boolean, meetings: ColdMeeting[] | undefined): void {
-  if (knit.scatter) scatterDock(knit.scatter, a, base, forward, meetings as ScatterMeeting[] | undefined, knit.tally)
-  else if (knit.exchange) exchange(a, base, meetings)
+function scatterStep(
+  knit: ColdQuaternionKnit,
+  a: Arrays,
+  base: number,
+  forward: boolean,
+  meetings: ColdMeeting[] | undefined,
+): void {
+  if (knit.scatter) {
+    scatterDock(
+      knit.scatter,
+      a,
+      base,
+      forward,
+      meetings as ScatterMeeting[] | undefined,
+      knit.tally,
+    )
+  } else if (knit.exchange) {
+    exchange(a, base, meetings)
+  }
 }
 
 // one dock's collision, forward (C) or backward (C^-1), in place on the arrays; meetings are appended in
@@ -535,16 +693,21 @@ export function coldQuaternionCollide(
   // no closures here: this runs once per dock per beat, and the build wraps every closure it creates
   if (knit.mode === 'scatter') {
     scatterStep(knit, a, base, forward, meetings)
+
     return
   }
 
-  if (knit.threshold) threshold(a, base, knit)
+  if (knit.threshold) {
+    threshold(a, base, knit)
+  }
 
   scatterStep(knit, a, base, forward, meetings)
   clock(a, base, dock, forward ? 0 : 1, meetings)
   scatterStep(knit, a, base, forward, meetings)
 
-  if (knit.threshold) threshold(a, base, knit)
+  if (knit.threshold) {
+    threshold(a, base, knit)
+  }
 }
 
 export type ColdQuaternionLattice = {
@@ -554,12 +717,17 @@ export type ColdQuaternionLattice = {
   readonly target: Int32Array
 }
 
-export function makeColdQuaternionLattice(mesh: Mesh, knit: ColdQuaternionKnit): ColdQuaternionLattice {
+export function makeColdQuaternionLattice(
+  mesh: Mesh,
+  knit: ColdQuaternionKnit,
+): ColdQuaternionLattice {
   const target = new Int32Array(mesh.cellCount * 24)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     if (!ROOTS.every((_, d) => mesh.opposite(d) === OPPOSITE[d])) {
-      throw new Error('the cold quaternion knit needs the rootsD4 direction order')
+      throw new Error(
+        'the cold quaternion knit needs the rootsD4 direction order',
+      )
     }
 
     for (let d = 0; d < 24; d++) {
@@ -570,7 +738,10 @@ export function makeColdQuaternionLattice(mesh: Mesh, knit: ColdQuaternionKnit):
   return { mesh, knit, target }
 }
 
-export function emptyColdState(mesh: Mesh, labels = false): ColdQuaternionState {
+export function emptyColdState(
+  mesh: Mesh,
+  labels = false,
+): ColdQuaternionState {
   const n = mesh.cellCount * 24
 
   return {
@@ -578,7 +749,9 @@ export function emptyColdState(mesh: Mesh, labels = false): ColdQuaternionState 
     store: new Int32Array(n),
     counter: new Int32Array(mesh.cellCount * 6),
     role: labels ? new Int8Array(n) : undefined,
-    token: labels ? Int32Array.from({ length: n }, (_, i) => i) : undefined,
+    token: labels
+      ? Int32Array.from({ length: n }, (_, i) => i)
+      : undefined,
   }
 }
 
@@ -615,7 +788,10 @@ export function coldQuaternionBeat(
     vibe[to] = a.vibe[i] ?? 0
     store[to] = a.store[i] ?? 0
 
-    if (role && a.role) role[to] = a.role[i] ?? 0
+    if (role && a.role) {
+      role[to] = a.role[i] ?? 0
+    }
+
     if (token && a.token) {
       token[to] = a.token[i] ?? 0
       record?.crossings?.push([a.token[i] ?? 0, i])
@@ -626,18 +802,30 @@ export function coldQuaternionBeat(
 }
 
 // the collision alone at every dock (no stream), for instruments that read between the two
-export function coldQuaternionCollideAll(lattice: ColdQuaternionLattice, state: ColdQuaternionState): ColdQuaternionState {
+export function coldQuaternionCollideAll(
+  lattice: ColdQuaternionLattice,
+  state: ColdQuaternionState,
+): ColdQuaternionState {
   const a = copyArrays(state)
 
   for (let x = 0; x < lattice.mesh.cellCount; x++) {
     coldQuaternionCollide(lattice.knit, a, x, true)
   }
 
-  return { vibe: a.vibe, store: a.store, counter: a.counter, role: a.role, token: a.token }
+  return {
+    vibe: a.vibe,
+    store: a.store,
+    counter: a.counter,
+    role: a.role,
+    token: a.token,
+  }
 }
 
 // the stream alone
-export function coldQuaternionStream(lattice: ColdQuaternionLattice, state: ColdQuaternionState): ColdQuaternionState {
+export function coldQuaternionStream(
+  lattice: ColdQuaternionLattice,
+  state: ColdQuaternionState,
+): ColdQuaternionState {
   const n = state.vibe.length
   const vibe = new Int8Array(n)
   const store = new Int32Array(n)
@@ -673,7 +861,10 @@ export function coldQuaternionBeatBack(
     a.vibe[i] = state.vibe[from] ?? 0
     a.store[i] = state.store[from] ?? 0
 
-    if (a.role && state.role) a.role[i] = state.role[from] ?? 0
+    if (a.role && state.role) {
+      a.role[i] = state.role[from] ?? 0
+    }
+
     if (a.token && state.token) {
       a.token[i] = state.token[from] ?? 0
       record?.crossings?.push([state.token[from] ?? 0, i])
@@ -684,15 +875,31 @@ export function coldQuaternionBeatBack(
     coldQuaternionCollide(lattice.knit, a, x, false, record?.meetings)
   }
 
-  return { vibe: a.vibe, store: a.store, counter: a.counter, role: a.role, token: a.token }
+  return {
+    vibe: a.vibe,
+    store: a.store,
+    counter: a.counter,
+    role: a.role,
+    token: a.token,
+  }
 }
 
 // one dock's collision on a copy of a 24-slot state with its stores and six counters
 export function collideDockCopy(
   knit: ColdQuaternionKnit,
-  dock: { vibe: ArrayLike<number>; store: ArrayLike<number>; counter: ArrayLike<number>; role?: ArrayLike<number> },
+  dock: {
+    vibe: ArrayLike<number>
+    store: ArrayLike<number>
+    counter: ArrayLike<number>
+    role?: ArrayLike<number>
+  },
   forward: boolean,
-): { vibe: Int8Array; store: Int32Array; counter: Int32Array; role: Int8Array | undefined } {
+): {
+  vibe: Int8Array
+  store: Int32Array
+  counter: Int32Array
+  role: Int8Array | undefined
+} {
   const a: Arrays = {
     vibe: Int8Array.from(dock.vibe),
     store: Int32Array.from(dock.store),
@@ -703,10 +910,19 @@ export function collideDockCopy(
 
   coldQuaternionCollide(knit, a, 0, forward)
 
-  return { vibe: a.vibe, store: a.store, counter: a.counter, role: a.role }
+  return {
+    vibe: a.vibe,
+    store: a.store,
+    counter: a.counter,
+    role: a.role,
+  }
 }
 
-export function coldQuaternionEnergy(state: { vibe: ArrayLike<number>; store: ArrayLike<number>; counter: ArrayLike<number> }): number {
+export function coldQuaternionEnergy(state: {
+  vibe: ArrayLike<number>
+  store: ArrayLike<number>
+  counter: ArrayLike<number>
+}): number {
   let e = 0
 
   for (let i = 0; i < state.vibe.length; i++) {
@@ -723,7 +939,10 @@ export function coldQuaternionEnergy(state: { vibe: ArrayLike<number>; store: Ar
 }
 
 // P (count momentum) and P_E (energy current), 4-vectors
-export function coldQuaternionMomenta(state: { vibe: ArrayLike<number>; store: ArrayLike<number> }): { p: number[]; pe: number[] } {
+export function coldQuaternionMomenta(state: {
+  vibe: ArrayLike<number>
+  store: ArrayLike<number>
+}): { p: number[]; pe: number[] } {
   const p = [0, 0, 0, 0]
   const pe = [0, 0, 0, 0]
 
@@ -748,7 +967,11 @@ export function coldQuaternionMomenta(state: { vibe: ArrayLike<number>; store: A
 // its store; couple c's counter goes to the couple holding g's image of c's plus line
 export function actOnDock(
   g: readonly number[],
-  dock: { vibe: ArrayLike<number>; store: ArrayLike<number>; counter: ArrayLike<number> },
+  dock: {
+    vibe: ArrayLike<number>
+    store: ArrayLike<number>
+    counter: ArrayLike<number>
+  },
 ): { vibe: Int8Array; store: Int32Array; counter: Int32Array } {
   const twist = twistOf(g)
   const vibe = new Int8Array(24)
@@ -761,7 +984,8 @@ export function actOnDock(
   }
 
   QUATERNION_COUPLES.forEach(([p], c) => {
-    const image = COUPLE_OF_LINE[LINE_OF[g[FIRSTS[p] ?? 0] ?? 0] ?? 0] ?? 0
+    const image =
+      COUPLE_OF_LINE[LINE_OF[g[FIRSTS[p] ?? 0] ?? 0] ?? 0] ?? 0
 
     counter[image] = dock.counter[c] ?? 0
   })

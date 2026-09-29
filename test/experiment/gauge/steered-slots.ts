@@ -62,10 +62,15 @@ function dense(rule: ReflectingSlots, scale: number): ReflectingState {
     s.vibe[i] = v
     s.role[i] = Math.floor(((i + 3) * GOLDEN * 9 * scale) % 9)
     s.tag[i] = i
-    s.store[i] = v !== 0 ? Math.floor(((i + 7) * GOLDEN * 3 * scale) % 3) : 0
+    s.store[i] =
+      v !== 0 ? Math.floor(((i + 7) * GOLDEN * 3 * scale) % 3) : 0
   }
 
-  s.demon.set(Int32Array.from({ length: s.demon.length }, (_, l) => Math.floor(((l + 1) * GOLDEN * 3.1) % 3)))
+  s.demon.set(
+    Int32Array.from({ length: s.demon.length }, (_, l) =>
+      Math.floor(((l + 1) * GOLDEN * 3.1) % 3),
+    ),
+  )
 
   return s
 }
@@ -83,9 +88,12 @@ function laws(rule: ReflectingSlots): {
   end: ReflectingState
 } {
   const start = dense(rule, 1.37)
-  const charge = (s: ReflectingState): number => s.vibe.reduce((a, b) => a + b, 0)
+  const charge = (s: ReflectingState): number =>
+    s.vibe.reduce((a, b) => a + b, 0)
   const e0 = reflectEnergy(rule, start)
-  const sides = Int8Array.from({ length: 24 }, (_, d) => (d < (rule.opposite[d] ?? d) ? 1 : -1))
+  const sides = Int8Array.from({ length: 24 }, (_, d) =>
+    d < (rule.opposite[d] ?? d) ? 1 : -1,
+  )
 
   let s = start
   let chargeKept = true
@@ -102,24 +110,34 @@ function laws(rule: ReflectingSlots): {
     chargeKept = chargeKept && charge(s) === charge(start)
     energyKept = energyKept && reflectEnergy(rule, s) === e0
     gauss = gauss && reflectGaussHolds(rule, start, s)
-    nonNegative = nonNegative && s.demon.every(x => x >= 0) && s.store.every(x => x >= 0)
+    nonNegative =
+      nonNegative &&
+      s.demon.every(x => x >= 0) &&
+      s.store.every(x => x >= 0)
   }
 
   const end = s
-  const storeChanges = end.store.filter((k, i) => k !== start.store[i]).length
+  const storeChanges = end.store.filter(
+    (k, i) => k !== start.store[i],
+  ).length
 
   for (let t = BEATS - 1; t >= 0; t--) {
     s = reflectBeatBack(rule, s, t)
   }
 
   const { moves, mesh, neighbour } = rule
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const links = new Int16Array(rule.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       links[x * 24 + d] = moves.compose(
-        moves.compose(frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity, rule.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity,
+          rule.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -128,7 +146,12 @@ function laws(rule: ReflectingSlots): {
   const gauged: ReflectingSlots = { ...rule, links }
   const gauge = (state: ReflectingState): ReflectingState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    ),
   })
 
   let a = dense(rule, 2.11)
@@ -141,7 +164,18 @@ function laws(rule: ReflectingSlots): {
     frameFree = frameFree && same(gauge(a), b)
   }
 
-  return { reverses: same(s, start), chargeKept, energyKept, gauss, nonNegative, leaks, fixedLeaks, frameFree, storeChanges, end }
+  return {
+    reverses: same(s, start),
+    chargeKept,
+    energyKept,
+    gauss,
+    nonNegative,
+    leaks,
+    fixedLeaks,
+    frameFree,
+    storeChanges,
+    end,
+  }
 }
 
 export default experiment({
@@ -155,16 +189,46 @@ export default experiment({
   paper: false,
   run() {
     const shape = { side: 3, mass: 4, tension: 1, turn: false }
-    const steered = laws(makeReflectingSlots({ ...shape, steer: 'round-robin' }))
-    const weave = laws(makeReflectingSlots({ ...shape, steer: 'weave' }))
-    const contact = laws(makeReflectingSlots({ ...shape, steer: 'round-robin', carry: true, contact: 4 }))
-    const isolated = laws(makeReflectingSlots({ ...shape, steer: 'round-robin', carry: true, contact: 0 }))
+    const steered = laws(
+      makeReflectingSlots({ ...shape, steer: 'round-robin' }),
+    )
+    const weave = laws(
+      makeReflectingSlots({ ...shape, steer: 'weave' }),
+    )
+    const contact = laws(
+      makeReflectingSlots({
+        ...shape,
+        steer: 'round-robin',
+        carry: true,
+        contact: 4,
+      }),
+    )
+    const isolated = laws(
+      makeReflectingSlots({
+        ...shape,
+        steer: 'round-robin',
+        carry: true,
+        contact: 0,
+      }),
+    )
     const straight = laws(makeReflectingSlots(shape))
     const runs = [steered, weave, contact, isolated]
-    const steeringActs = steered.end.vibe.some((v, i) => v !== straight.end.vibe[i])
+    const steeringActs = steered.end.vibe.some(
+      (v, i) => v !== straight.end.vibe[i],
+    )
 
     const ok =
-      runs.every(r => r.reverses && r.chargeKept && r.energyKept && r.gauss && r.nonNegative && r.leaks === 0 && r.fixedLeaks > 0 && r.frameFree) &&
+      runs.every(
+        r =>
+          r.reverses &&
+          r.chargeKept &&
+          r.energyKept &&
+          r.gauss &&
+          r.nonNegative &&
+          r.leaks === 0 &&
+          r.fixedLeaks > 0 &&
+          r.frameFree,
+      ) &&
       steeringActs &&
       contact.storeChanges > 0 &&
       isolated.storeChanges > 0
@@ -184,7 +248,9 @@ export default experiment({
         carriedColorLeaks: contact.leaks,
         isolatedColorLeaks: isolated.leaks,
         frameFree: runs.every(r => r.frameFree) ? 1 : 0,
-        vibesSteeringChanged: steered.end.vibe.filter((v, i) => v !== straight.end.vibe[i]).length,
+        vibesSteeringChanged: steered.end.vibe.filter(
+          (v, i) => v !== straight.end.vibe[i],
+        ).length,
         storesChangedWithContact: contact.storeChanges,
         storesChangedIsolated: isolated.storeChanges,
       },
@@ -196,7 +262,7 @@ export default experiment({
         straightReverses: straight.reverses ? 1 : 0,
       },
       notes:
-        'L2, exact integers, no random numbers. A store belongs to what a slot holds and moves with it through every trade and bounce, so it never touches color or the frame. The steering condition reads only the flux, which no cell step changes, and the same pair of slots satisfies it before and after a trade, which is what makes it its own inverse. Steering replaces the turning weave\'s lone-charge turn rather than running beside it, so a charge with no string near it never turns and flies straight. E-FRC-0147 measures what each addition does to binding.',
+        "L2, exact integers, no random numbers. A store belongs to what a slot holds and moves with it through every trade and bounce, so it never touches color or the frame. The steering condition reads only the flux, which no cell step changes, and the same pair of slots satisfies it before and after a trade, which is what makes it its own inverse. Steering replaces the turning weave's lone-charge turn rather than running beside it, so a charge with no string near it never turns and flies straight. E-FRC-0147 measures what each addition does to binding.",
     })
   },
 })

@@ -478,11 +478,13 @@ export function baseCellVertices(coin: LabelledCoin): {
 } {
   const { normals, metric, timeAxis } = coin.frame
   const vertex = nullVector(normals.slice(1), metric)
+
   const unit = (v: Vec): Vec => {
     const t = v[timeAxis] ?? 1
 
     return v.map(x => x / t)
   }
+
   const mirrors = normals
     .slice(0, 4)
     .map(normal => reflectionMatrix(normal, metric))

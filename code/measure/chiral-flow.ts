@@ -26,15 +26,20 @@
 
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { DOCK_ROOTS, type CMatrix } from '@/code/measure/dock-mixer'
-import { sectorBlock, SECTOR_MODES } from '@/code/measure/chiral-register'
+import {
+  sectorBlock,
+  SECTOR_MODES,
+} from '@/code/measure/chiral-register'
 import { det4 } from '@/code/measure/chiral-register'
 
 type Roots = readonly (readonly number[])[]
 
 const SLOTS = 24
 const HALF = SECTOR_MODES / SLOTS
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
-const wrapAngle = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
+const wrapAngle = (x: number): number =>
+  Math.atan2(Math.sin(x), Math.cos(x))
 
 // ---- one half's pieces ----
 
@@ -42,8 +47,13 @@ export type HalfPieces = { pieces: CMatrix[]; leak: number }
 
 // each 192-mode piece rotated to the chirality basis and cut to one half; leak is the largest weight left between the
 // halves over all pieces
-export function halfPieces(pieces192: readonly CMatrix[], basis: readonly (readonly number[])[], half: 0 | 1): HalfPieces {
+export function halfPieces(
+  pieces192: readonly CMatrix[],
+  basis: readonly (readonly number[])[],
+  half: 0 | 1,
+): HalfPieces {
   let leak = 0
+
   const pieces = pieces192.map(P => {
     const b = sectorBlock(P, basis, half)
 
@@ -70,7 +80,11 @@ const representative = (j: number): number[] => [j, j, 0, 0]
 
 // the stream of one half on the supercell: mode (j, d, a) goes to (j', d, a), j' = (j + r0) mod q, with the Peierls
 // phase and the Bloch phase exp(-i K . (p_j + r_d - p_j')); returned as the target index and the phase of each mode
-function stream(field: Field, K: readonly number[], roots: Roots): { to: Int32Array; re: Float64Array; im: Float64Array } {
+function stream(
+  field: Field,
+  K: readonly number[],
+  roots: Roots,
+): { to: Int32Array; re: Float64Array; im: Float64Array } {
   const q = field.q
   const B = (2 * Math.PI * field.p) / q
   const n = SECTOR_MODES * q
@@ -82,12 +96,12 @@ function stream(field: Field, K: readonly number[], roots: Roots): { to: Int32Ar
     const pj = representative(j)
 
     for (let d = 0; d < SLOTS; d++) {
-      const r = roots[d] as readonly number[]
-      const jp = (((j + (r[0] as number)) % q) + q) % q
+      const r = roots[d]!
+      const jp = (((j + r[0]!) % q) + q) % q
       const pjp = representative(jp)
-      const disp = [0, 1, 2, 3].map(k => (pj[k] as number) + (r[k] as number) - (pjp[k] as number))
-      const peierls = B * (r[1] as number) * (j + (r[0] as number) / 2)
-      const gauge = field.chi ? (field.chi[jp] as number) - (field.chi[j] as number) : 0
+      const disp = [0, 1, 2, 3].map(k => pj[k]! + r[k]! - pjp[k]!)
+      const peierls = B * r[1]! * (j + r[0]! / 2)
+      const gauge = field.chi ? field.chi[jp]! - field.chi[j]! : 0
       const phase = peierls + gauge - dot(K, disp)
 
       for (let a = 0; a < HALF; a++) {
@@ -104,7 +118,12 @@ function stream(field: Field, K: readonly number[], roots: Roots): { to: Int32Ar
 }
 
 // out = S (P (x) 1_q) v for a column block: the piece acts within each class, then the stream moves and phases
-function beatMatrix(piece: CMatrix, field: Field, K: readonly number[], roots: Roots): CMatrix {
+function beatMatrix(
+  piece: CMatrix,
+  field: Field,
+  K: readonly number[],
+  roots: Roots,
+): CMatrix {
   const m = SECTOR_MODES
   const q = field.q
   const n = m * q
@@ -116,15 +135,18 @@ function beatMatrix(piece: CMatrix, field: Field, K: readonly number[], roots: R
   for (let j = 0; j < q; j++) {
     for (let i = 0; i < m; i++) {
       const from = j * m + i
-      const row = s.to[from] as number
-      const cr = s.re[from] as number
-      const ci = s.im[from] as number
+      const row = s.to[from]!
+      const cr = s.re[from]!
+      const ci = s.im[from]!
 
       for (let c = 0; c < m; c++) {
-        const pr = piece.re[i * m + c] as number
-        const pi = piece.im[i * m + c] as number
+        const pr = piece.re[i * m + c]!
+        const pi = piece.im[i * m + c]!
 
-        if (pr === 0 && pi === 0) continue
+        if (pr === 0 && pi === 0) {
+          continue
+        }
+
         re[row * n + j * m + c] = cr * pr - ci * pi
         im[row * n + j * m + c] = cr * pi + ci * pr
       }
@@ -140,13 +162,16 @@ function cmul(a: CMatrix, b: CMatrix, n: number): CMatrix {
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const ar = a.re[i * n + k] as number
-      const ai = a.im[i * n + k] as number
+      const ar = a.re[i * n + k]!
+      const ai = a.im[i * n + k]!
 
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
+
       for (let j = 0; j < n; j++) {
-        const br = b.re[k * n + j] as number
-        const bi = b.im[k * n + j] as number
+        const br = b.re[k * n + j]!
+        const bi = b.im[k * n + j]!
 
         re[i * n + j]! += ar * br - ai * bi
         im[i * n + j]! += ar * bi + ai * br
@@ -158,27 +183,44 @@ function cmul(a: CMatrix, b: CMatrix, n: number): CMatrix {
 }
 
 // the half's cycle U = S P_N ... S P_1, beat 1 first
-export function halfCycle(pieces: readonly CMatrix[], field: Field, K: readonly number[], roots: Roots = DOCK_ROOTS): { U: CMatrix; n: number } {
+export function halfCycle(
+  pieces: readonly CMatrix[],
+  field: Field,
+  K: readonly number[],
+  roots: Roots = DOCK_ROOTS,
+): { U: CMatrix; n: number } {
   const n = SECTOR_MODES * field.q
-  let U = beatMatrix(pieces[0] as CMatrix, field, K, roots)
 
-  for (let b = 1; b < pieces.length; b++) U = cmul(beatMatrix(pieces[b] as CMatrix, field, K, roots), U, n)
+  let U = beatMatrix(pieces[0]!, field, K, roots)
+
+  for (let b = 1; b < pieces.length; b++) {
+    U = cmul(beatMatrix(pieces[b]!, field, K, roots), U, n)
+  }
 
   return { U, n }
 }
 
-export function halfPhases(pieces: readonly CMatrix[], field: Field, K: readonly number[], roots: Roots = DOCK_ROOTS): number[] {
+export function halfPhases(
+  pieces: readonly CMatrix[],
+  field: Field,
+  K: readonly number[],
+  roots: Roots = DOCK_ROOTS,
+): number[] {
   const { U, n } = halfCycle(pieces, field, K, roots)
   const e = complexEigenvalues({ re: U.re, im: U.im, n })
 
-  return e.re.map((x, i) => Math.atan2(e.im[i] as number, x))
+  return e.re.map((x, i) => Math.atan2(e.im[i]!, x))
 }
 
 // ---- determinants and winding ----
 
-export function complexDeterminant(M: CMatrix, n: number): { phase: number; logAbs: number } {
+export function complexDeterminant(
+  M: CMatrix,
+  n: number,
+): { phase: number; logAbs: number } {
   const re = Float64Array.from(M.re)
   const im = Float64Array.from(M.im)
+
   let phase = 0
   let logAbs = 0
 
@@ -187,7 +229,7 @@ export function complexDeterminant(M: CMatrix, n: number): { phase: number; logA
     let best = -1
 
     for (let r = c; r < n; r++) {
-      const w = Math.hypot(re[r * n + c] as number, im[r * n + c] as number)
+      const w = Math.hypot(re[r * n + c]!, im[r * n + c]!)
 
       if (w > best) {
         best = w
@@ -195,39 +237,46 @@ export function complexDeterminant(M: CMatrix, n: number): { phase: number; logA
       }
     }
 
-    if (best === 0) return { phase: NaN, logAbs: -Infinity }
+    if (best === 0) {
+      return { phase: NaN, logAbs: -Infinity }
+    }
+
     if (p !== c) {
       for (let k = 0; k < n; k++) {
-        const tr = re[c * n + k] as number
-        const ti = im[c * n + k] as number
+        const tr = re[c * n + k]!
+        const ti = im[c * n + k]!
 
-        re[c * n + k] = re[p * n + k] as number
-        im[c * n + k] = im[p * n + k] as number
+        re[c * n + k] = re[p * n + k]!
+        im[c * n + k] = im[p * n + k]!
         re[p * n + k] = tr
         im[p * n + k] = ti
       }
+
       phase += Math.PI
     }
 
-    const ar = re[c * n + c] as number
-    const ai = im[c * n + c] as number
+    const ar = re[c * n + c]!
+    const ai = im[c * n + c]!
     const den = ar * ar + ai * ai
 
     phase += Math.atan2(ai, ar)
     logAbs += 0.5 * Math.log(den)
-    for (let r = c + 1; r < n; r++) {
-      const br = re[r * n + c] as number
-      const bi = im[r * n + c] as number
 
-      if (br === 0 && bi === 0) continue
+    for (let r = c + 1; r < n; r++) {
+      const br = re[r * n + c]!
+      const bi = im[r * n + c]!
+
+      if (br === 0 && bi === 0) {
+        continue
+      }
 
       // f = b / a
       const fr = (br * ar + bi * ai) / den
       const fi = (bi * ar - br * ai) / den
 
       for (let k = c; k < n; k++) {
-        const xr = re[c * n + k] as number
-        const xi = im[c * n + k] as number
+        const xr = re[c * n + k]!
+        const xi = im[c * n + k]!
 
         re[r * n + k]! -= fr * xr - fi * xi
         im[r * n + k]! -= fr * xi + fi * xr
@@ -238,16 +287,26 @@ export function complexDeterminant(M: CMatrix, n: number): { phase: number; logA
   return { phase: wrapAngle(phase), logAbs }
 }
 
-export type Winding = { winding: number; maxStep: number; spread: number; logAbsMax: number }
+export type Winding = {
+  winding: number
+  maxStep: number
+  spread: number
+  logAbsMax: number
+}
 
 // along a closed path of matrices (the last point equal to the first), the net turns of det; maxStep is the largest
 // phase change between neighbors (the resolution), spread the largest departure of arg det from its start
-export function windingOfDet(at: (t: number) => { U: CMatrix; n: number }, steps: number): Winding {
+export function windingOfDet(
+  at: (t: number) => { U: CMatrix; n: number },
+  steps: number,
+): Winding {
   let total = 0
   let maxStep = 0
   let spread = 0
   let logAbsMax = 0
+
   const first = complexDeterminant(at(0).U, at(0).n)
+
   let prev = first.phase
 
   for (let s = 1; s <= steps; s++) {
@@ -257,7 +316,10 @@ export function windingOfDet(at: (t: number) => { U: CMatrix; n: number }, steps
 
     total += step
     maxStep = Math.max(maxStep, Math.abs(step))
-    spread = Math.max(spread, Math.abs(wrapAngle(d.phase - first.phase)))
+    spread = Math.max(
+      spread,
+      Math.abs(wrapAngle(d.phase - first.phase)),
+    )
     logAbsMax = Math.max(logAbsMax, Math.abs(d.logAbs))
     prev = d.phase
   }
@@ -267,13 +329,20 @@ export function windingOfDet(at: (t: number) => { U: CMatrix; n: number }, steps
 
 // ---- the zeros of the Dirac vector ----
 
-export type HalfPeriod = { K: number[]; sZero: boolean; jacobian: number[][]; det: number; wilson: number }
+export type HalfPeriod = {
+  K: number[]
+  sZero: boolean
+  jacobian: number[][]
+  det: number
+  wilson: number
+}
 
 // the 16 classes of pi D4* / 2 pi D4*: the integer vectors in {0,1}^4 modulo adding (1,1,1,1), and the half-integer
 // vectors (1/2)(+-1, ...) modulo the same, each times pi
 export function halfPeriods(roots: Roots = DOCK_ROOTS): HalfPeriod[] {
   const reps: number[][] = []
   const seen = new Set<string>()
+
   const keyOf = (v: readonly number[]): string => {
     // reduce modulo 2 D4*: D4* = Z^4 u (Z^4 + h), so 2 D4* = 2 Z^4 u (2 Z^4 + 1); take the lexicographically least of v
     // and v + (1,1,1,1), each reduced mod 2
@@ -281,7 +350,7 @@ export function halfPeriods(roots: Roots = DOCK_ROOTS): HalfPeriod[] {
     const a = v.map(mod2)
     const b = v.map(x => mod2(x + 1))
 
-    return [a.join(','), b.join(',')].sort()[0] as string
+    return [a.join(','), b.join(',')].sort()[0]!
   }
 
   for (const half of [0, 0.5]) {
@@ -289,7 +358,10 @@ export function halfPeriods(roots: Roots = DOCK_ROOTS): HalfPeriod[] {
       const v = [0, 1, 2, 3].map(k => ((mask >> k) & 1) + half)
       const k = keyOf(v)
 
-      if (seen.has(k)) continue
+      if (seen.has(k)) {
+        continue
+      }
+
       seen.add(k)
       reps.push(v)
     }
@@ -298,15 +370,30 @@ export function halfPeriods(roots: Roots = DOCK_ROOTS): HalfPeriod[] {
   return reps.map(v => {
     const K = v.map(x => Math.PI * x)
     const eps = roots.map(r => Math.round(Math.cos(dot(K, r))))
-    const sZero = roots.every(r => Math.abs(Math.sin(dot(K, r))) < 1e-12)
-    const jacobian = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => roots.reduce((s, r, d) => s + (eps[d] as number) * (r[i] as number) * (r[j] as number), 0)))
+    const sZero = roots.every(
+      r => Math.abs(Math.sin(dot(K, r))) < 1e-12,
+    )
+    const jacobian = [0, 1, 2, 3].map(i =>
+      [0, 1, 2, 3].map(j =>
+        roots.reduce((s, r, d) => s + eps[d]! * r[i]! * r[j]!, 0),
+      ),
+    )
 
-    return { K, sZero, jacobian, det: det4(jacobian), wilson: eps.reduce((s, e) => s + (1 - e), 0) }
+    return {
+      K,
+      sZero,
+      jacobian,
+      det: det4(jacobian),
+      wilson: eps.reduce((s, e) => s + (1 - e), 0),
+    }
   })
 }
 
 // s(K) = sum_r r sin(K . r) and its Jacobian
-function sField(K: readonly number[], roots: Roots): { s: number[]; J: number[][] } {
+function sField(
+  K: readonly number[],
+  roots: Roots,
+): { s: number[]; J: number[][] } {
   const s = [0, 0, 0, 0]
   const J = [0, 1, 2, 3].map(() => [0, 0, 0, 0])
 
@@ -316,8 +403,11 @@ function sField(K: readonly number[], roots: Roots): { s: number[]; J: number[][
     const cs = Math.cos(t)
 
     for (let i = 0; i < 4; i++) {
-      s[i]! += (r[i] as number) * sn
-      for (let j = 0; j < 4; j++) (J[i] as number[])[j]! += (r[i] as number) * (r[j] as number) * cs
+      s[i]! += r[i]! * sn
+
+      for (let j = 0; j < 4; j++) {
+        J[i]![j]! += r[i]! * r[j]! * cs
+      }
     }
   }
 
@@ -327,22 +417,35 @@ function sField(K: readonly number[], roots: Roots): { s: number[]; J: number[][
 // the determinant of a real 4 x 4 matrix, unrounded (det4 rounds to an integer, right only for integer matrices)
 function floatDet4(m: readonly (readonly number[])[]): number {
   const a = m.map(r => [...r])
+
   let d = 1
 
   for (let c = 0; c < 4; c++) {
     let p = c
 
-    for (let r = c + 1; r < 4; r++) if (Math.abs((a[r] as number[])[c] as number) > Math.abs((a[p] as number[])[c] as number)) p = r
-    if (Math.abs((a[p] as number[])[c] as number) < 1e-14) return 0
+    for (let r = c + 1; r < 4; r++) {
+      if (Math.abs(a[r]![c]!) > Math.abs(a[p]![c]!)) {
+        p = r
+      }
+    }
+
+    if (Math.abs(a[p]![c]!) < 1e-14) {
+      return 0
+    }
+
     if (p !== c) {
-      ;[a[p], a[c]] = [a[c] as number[], a[p] as number[]]
+      ;[a[p], a[c]] = [a[c]!, a[p]!]
       d = -d
     }
-    d *= (a[c] as number[])[c] as number
-    for (let r = c + 1; r < 4; r++) {
-      const f = ((a[r] as number[])[c] as number) / ((a[c] as number[])[c] as number)
 
-      for (let k = c; k < 4; k++) (a[r] as number[])[k]! -= f * ((a[c] as number[])[k] as number)
+    d *= a[c]![c]!
+
+    for (let r = c + 1; r < 4; r++) {
+      const f = a[r]![c]! / a[c]![c]!
+
+      for (let k = c; k < 4; k++) {
+        a[r]![k]! -= f * a[c]![k]!
+      }
     }
   }
 
@@ -350,30 +453,49 @@ function floatDet4(m: readonly (readonly number[])[]): number {
 }
 
 // solve J x = b (4 x 4, partial pivoting)
-function solve4(J: readonly (readonly number[])[], b: readonly number[]): number[] | null {
-  const a = J.map((row, i) => [...row, b[i] as number])
+function solve4(
+  J: readonly (readonly number[])[],
+  b: readonly number[],
+): number[] | null {
+  const a = J.map((row, i) => [...row, b[i]!])
 
   for (let c = 0; c < 4; c++) {
     let p = c
 
-    for (let r = c + 1; r < 4; r++) if (Math.abs((a[r] as number[])[c] as number) > Math.abs((a[p] as number[])[c] as number)) p = r
-    if (Math.abs((a[p] as number[])[c] as number) < 1e-12) return null
-    ;[a[p], a[c]] = [a[c] as number[], a[p] as number[]]
+    for (let r = c + 1; r < 4; r++) {
+      if (Math.abs(a[r]![c]!) > Math.abs(a[p]![c]!)) {
+        p = r
+      }
+    }
+
+    if (Math.abs(a[p]![c]!) < 1e-12) {
+      return null
+    }
+
+    ;[a[p], a[c]] = [a[c]!, a[p]!]
+
     for (let r = 0; r < 4; r++) {
-      if (r === c) continue
+      if (r === c) {
+        continue
+      }
 
-      const f = ((a[r] as number[])[c] as number) / ((a[c] as number[])[c] as number)
+      const f = a[r]![c]! / a[c]![c]!
 
-      for (let k = c; k < 5; k++) (a[r] as number[])[k]! -= f * ((a[c] as number[])[k] as number)
+      for (let k = c; k < 5; k++) {
+        a[r]![k]! -= f * a[c]![k]!
+      }
     }
   }
 
-  return [0, 1, 2, 3].map(i => ((a[i] as number[])[4] as number) / ((a[i] as number[])[i] as number))
+  return [0, 1, 2, 3].map(i => a[i]![4]! / a[i]![i]!)
 }
 
 // K modulo 2 pi D4*: (K - K') / 2 pi all integers, or all integers plus 1/2
-function sameClass(a: readonly number[], b: readonly number[]): boolean {
-  const d = a.map((x, k) => (x - (b[k] as number)) / (2 * Math.PI))
+function sameClass(
+  a: readonly number[],
+  b: readonly number[],
+): boolean {
+  const d = a.map((x, k) => (x - b[k]!) / (2 * Math.PI))
   const frac = (x: number): number => x - Math.round(x)
   const allInt = d.every(x => Math.abs(frac(x)) < 1e-7)
   const allHalf = d.every(x => Math.abs(frac(x + 0.5)) < 1e-7)
@@ -381,18 +503,32 @@ function sameClass(a: readonly number[], b: readonly number[]): boolean {
   return allInt || allHalf
 }
 
-export type Zero = { K: number[]; det: number; halfPeriod: boolean; wilson: number }
+export type Zero = {
+  K: number[]
+  det: number
+  halfPeriod: boolean
+  wilson: number
+}
 
 // W(K) = sum_r (1 - cos(K . r)), the Wilson count at a momentum
-export const wilsonCount = (K: readonly number[], roots: Roots = DOCK_ROOTS): number => roots.reduce((s, r) => s + 1 - Math.cos(dot(K, r)), 0)
+export const wilsonCount = (
+  K: readonly number[],
+  roots: Roots = DOCK_ROOTS,
+): number => roots.reduce((s, r) => s + 1 - Math.cos(dot(K, r)), 0)
 
 // every zero of s on the torus: grid minima of |s| on [0, 2 pi)^4 refined by Newton, kept when |s| < 1e-10, and
 // deduplicated modulo 2 pi D4*
-export function scanZeros(grid: number, roots: Roots = DOCK_ROOTS): { zeros: Zero[]; seeds: number } {
+export function scanZeros(
+  grid: number,
+  roots: Roots = DOCK_ROOTS,
+): { zeros: Zero[]; seeds: number } {
   const h = (2 * Math.PI) / grid
   const zeros: Zero[] = []
+
   let seeds = 0
-  const norm = (K: readonly number[]): number => Math.hypot(...sField(K, roots).s)
+
+  const norm = (K: readonly number[]): number =>
+    Math.hypot(...sField(K, roots).s)
   const at = (i: number[]): number[] => i.map(x => x * h)
 
   for (let a = 0; a < grid; a++) {
@@ -401,11 +537,14 @@ export function scanZeros(grid: number, roots: Roots = DOCK_ROOTS): { zeros: Zer
         for (let d = 0; d < grid; d++) {
           const idx = [a, b, c, d]
           const v = norm(at(idx))
+
           let isMin = true
 
           for (let k = 0; k < 4 && isMin; k++) {
             for (const step of [-1, 1]) {
-              const nb = idx.map((x, j) => (j === k ? (((x + step) % grid) + grid) % grid : x))
+              const nb = idx.map((x, j) =>
+                j === k ? (((x + step) % grid) + grid) % grid : x,
+              )
 
               if (norm(at(nb)) < v) {
                 isMin = false
@@ -414,7 +553,10 @@ export function scanZeros(grid: number, roots: Roots = DOCK_ROOTS): { zeros: Zer
             }
           }
 
-          if (!isMin) continue
+          if (!isMin) {
+            continue
+          }
+
           seeds++
 
           let K = at(idx)
@@ -422,22 +564,43 @@ export function scanZeros(grid: number, roots: Roots = DOCK_ROOTS): { zeros: Zer
           for (let it = 0; it < 60; it++) {
             const f = sField(K, roots)
 
-            if (Math.hypot(...f.s) < 1e-13) break
+            if (Math.hypot(...f.s) < 1e-13) {
+              break
+            }
 
             const dx = solve4(f.J, f.s)
 
-            if (!dx) break
-            K = K.map((x, k) => x - (dx[k] as number))
+            if (!dx) {
+              break
+            }
+
+            K = K.map((x, k) => x - dx[k]!)
           }
 
           const f = sField(K, roots)
 
-          if (Math.hypot(...f.s) > 1e-10) continue
-          if (zeros.some(z => sameClass(z.K, K))) continue
+          if (Math.hypot(...f.s) > 1e-10) {
+            continue
+          }
 
-          const isHalf = K.every(x => Math.abs(2 * x / Math.PI - Math.round(2 * x / Math.PI)) < 1e-8) && roots.every(r => Math.abs(Math.sin(dot(K, r))) < 1e-9)
+          if (zeros.some(z => sameClass(z.K, K))) {
+            continue
+          }
 
-          zeros.push({ K, det: floatDet4(f.J), halfPeriod: isHalf, wilson: wilsonCount(K, roots) })
+          const isHalf =
+            K.every(
+              x =>
+                Math.abs(
+                  (2 * x) / Math.PI - Math.round((2 * x) / Math.PI),
+                ) < 1e-8,
+            ) && roots.every(r => Math.abs(Math.sin(dot(K, r))) < 1e-9)
+
+          zeros.push({
+            K,
+            det: floatDet4(f.J),
+            halfPeriod: isHalf,
+            wilson: wilsonCount(K, roots),
+          })
         }
       }
     }
@@ -448,6 +611,14 @@ export function scanZeros(grid: number, roots: Roots = DOCK_ROOTS): { zeros: Zer
 
 // the second Chern number of a massive lattice Dirac operator with Dirac vector s and a mass m(K) at each zero of s:
 // (1/2) sum over zeros of sign(det ds/dK) sign(m) (the standard count; its size, not its sign convention, is read)
-export function chernFromZeros(zeros: readonly { det: number }[], masses: readonly number[]): number {
-  return zeros.reduce((s, z, i) => s + Math.sign(z.det) * Math.sign(masses[i] as number), 0) / 2
+export function chernFromZeros(
+  zeros: readonly { det: number }[],
+  masses: readonly number[],
+): number {
+  return (
+    zeros.reduce(
+      (s, z, i) => s + Math.sign(z.det) * Math.sign(masses[i]!),
+      0,
+    ) / 2
+  )
 }

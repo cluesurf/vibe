@@ -86,10 +86,24 @@ import {
   type FearKernels,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { doubledSwapPhase, exactFearKernels, exactWholeKernel } from '@/code/rule/fear-kernel-exact'
-import { departureChances, departureOf, kernelIsUnital, kernelKeepsWeight, reduceDeparture, type Departure } from '@/code/rule/calm-weave'
+import {
+  doubledSwapPhase,
+  exactFearKernels,
+  exactWholeKernel,
+} from '@/code/rule/fear-kernel-exact'
+import {
+  departureChances,
+  departureOf,
+  kernelIsUnital,
+  kernelKeepsWeight,
+  reduceDeparture,
+  type Departure,
+} from '@/code/rule/calm-weave'
 import { timesOmega } from '@/code/rule/signed-knot'
-import { foldRoundRobin, makeSteeredKnit } from '@/code/rule/steered-knit'
+import {
+  foldRoundRobin,
+  makeSteeredKnit,
+} from '@/code/rule/steered-knit'
 import {
   combinedBeat,
   combinedBeatBack,
@@ -104,8 +118,19 @@ import {
   type CombinedState,
 } from '@/code/rule/combined-knit'
 import { lineMomenta, momentumOf } from '@/code/rule/momentum-weave'
-import { acceptance, dressing, type Acceptance, type Dressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { characterizeKnit, committedNumbersReproduced, REFERENCE_KNITS, type Profile } from '@/code/measure/knit-characterization'
+import {
+  acceptance,
+  dressing,
+  type Acceptance,
+  type Dressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  characterizeKnit,
+  committedNumbersReproduced,
+  REFERENCE_KNITS,
+  type Profile,
+} from '@/code/measure/knit-characterization'
 import { denseKnitState } from '@/code/measure/steered-acceptance'
 import { vacuumCells } from '@/code/measure/lone-dressing'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
@@ -130,14 +155,47 @@ const VACUUM_BEATS = 2 * LONGEST_PERIOD
 type Config = { readonly name: string; readonly spec: CombinedKnitSpec }
 
 const CONFIGS: readonly Config[] = [
-  { name: 'H', spec: { base: HEAD_TURN_SPEC, fold: false, scatter: true, mirror: 23, steer: false } },
-  { name: 'HF', spec: { base: HEAD_TURN_SPEC, fold: true, scatter: true, mirror: 23, steer: false } },
-  { name: 'HFL', spec: { base: HEAD_TURN_SPEC, fold: true, scatter: true, mirror: 23, steer: 'lone' } },
+  {
+    name: 'H',
+    spec: {
+      base: HEAD_TURN_SPEC,
+      fold: false,
+      scatter: true,
+      mirror: 23,
+      steer: false,
+    },
+  },
+  {
+    name: 'HF',
+    spec: {
+      base: HEAD_TURN_SPEC,
+      fold: true,
+      scatter: true,
+      mirror: 23,
+      steer: false,
+    },
+  },
+  {
+    name: 'HFL',
+    spec: {
+      base: HEAD_TURN_SPEC,
+      fold: true,
+      scatter: true,
+      mirror: 23,
+      steer: 'lone',
+    },
+  },
 ]
 
-const ruleOf = (spec: CombinedKnitSpec): ScheduledRule => (opposite, forward) => combinedCollision({ spec, opposite, forward })
+const ruleOf =
+  (spec: CombinedKnitSpec): ScheduledRule =>
+  (opposite, forward) =>
+    combinedCollision({ spec, opposite, forward })
 
-function golden(slots: number, scale: number): { vibe: Int8Array; point: Int8Array } {
+function golden(
+  slots: number,
+  scale: number,
+): { vibe: Int8Array; point: Int8Array } {
   const vibe = new Int8Array(slots)
   const point = new Int8Array(slots)
 
@@ -162,17 +220,28 @@ const differ = (a: ArrayLike<number>, b: ArrayLike<number>): number => {
 }
 
 // the knit with its links replaced (a frame change, or flat links)
-const withLinks = (knit: CombinedKnit, links: Int16Array): CombinedKnit => ({ ...knit, weave: { ...knit.weave, links } })
+const withLinks = (
+  knit: CombinedKnit,
+  links: Int16Array,
+): CombinedKnit => ({ ...knit, weave: { ...knit.weave, links } })
 
-function frameOf(knit: CombinedKnit): { frame: number[]; links: Int16Array } {
+function frameOf(knit: CombinedKnit): {
+  frame: number[]
+  links: Int16Array
+} {
   const { mesh, moves, links } = knit.weave
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const gauged = new Int16Array(links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       gauged[x * 24 + d] = moves.compose(
-        moves.compose(frame[mesh.neighbour(x, d)] ?? moves.identity, links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[mesh.neighbour(x, d)] ?? moves.identity,
+          links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -187,11 +256,20 @@ function boxGates(spec: CombinedKnitSpec): Record<string, number> {
   const { mesh, moves, opposite } = knit.weave
   const slots = mesh.cellCount * 24
   const fill = golden(slots, 1.37)
-  const flux = spec.steer ? denseKnitState(makeSteeredKnit({ side: QSIDE, spec: scheduleOf(spec), steer: spec.steer })).flux : undefined
+  const flux = spec.steer
+    ? denseKnitState(
+        makeSteeredKnit({
+          side: QSIDE,
+          spec: scheduleOf(spec),
+          steer: spec.steer,
+        }),
+      ).flux
+    : undefined
   const start = combinedState(knit, { ...fill, flux })
   const none = new Uint8Array(slots)
   const all = new Uint8Array(slots).fill(1)
-  const charge = (s: CombinedState): number => s.vibe.reduce((a, b) => a + b, 0)
+  const charge = (s: CombinedState): number =>
+    s.vibe.reduce((a, b) => a + b, 0)
   const p0 = momentumOf(start.vibe).p
   const n0 = lineMomenta(start.vibe, opposite)
   const sum0 = n0.reduce((a, b) => a + b, 0)
@@ -209,35 +287,65 @@ function boxGates(spec: CombinedKnitSpec): Record<string, number> {
     leaks += combinedLeaks(knit, s, t)
     s = combinedBeat(knit, s, none, t).state
     open = combinedBeat(knit, open, all, t).state
-    openChanges += differ(s.vibe, open.vibe) + differ(s.token, open.token) + differ(s.flux, open.flux)
+    openChanges +=
+      differ(s.vibe, open.vibe) +
+      differ(s.token, open.token) +
+      differ(s.flux, open.flux)
     chargeKept = chargeKept && charge(s) === charge(start)
-    pDrift = Math.max(pDrift, ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))))
+    pDrift = Math.max(
+      pDrift,
+      ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))),
+    )
 
     const n = lineMomenta(s.vibe, opposite)
 
-    lineDrift = Math.max(lineDrift, ...n.map((x, k) => Math.abs(x - (n0[k] ?? 0))))
-    lineSumDrift = Math.max(lineSumDrift, Math.abs(n.reduce((a, b) => a + b, 0) - sum0))
+    lineDrift = Math.max(
+      lineDrift,
+      ...n.map((x, k) => Math.abs(x - (n0[k] ?? 0))),
+    )
+
+    lineSumDrift = Math.max(
+      lineSumDrift,
+      Math.abs(n.reduce((a, b) => a + b, 0) - sum0),
+    )
   }
 
   for (let t = BOX_BEATS - 1; t >= 0; t--) {
     s = combinedBeatBack(knit, s, none, t).state
   }
 
-  const reverses = differ(s.vibe, start.vibe) + differ(s.token, start.token) + differ(s.point, start.point) + differ(s.flux, start.flux) === 0
+  const reverses =
+    differ(s.vibe, start.vibe) +
+      differ(s.token, start.token) +
+      differ(s.point, start.point) +
+      differ(s.flux, start.flux) ===
+    0
 
   // the frame change
   const { frame, links } = frameOf(knit)
   const gauged = withLinks(knit, links)
-  const gaugeRoles = (state: CombinedState): Int8Array => Int8Array.from(rolesOf(state), (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0)
+  const gaugeRoles = (state: CombinedState): Int8Array =>
+    Int8Array.from(
+      rolesOf(state),
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    )
   const second = golden(slots, 2.11)
+
   let a = combinedState(knit, { ...second, flux })
-  let b = combinedState(gauged, { vibe: second.vibe, point: gaugeRoles(a), flux })
+  let b = combinedState(gauged, {
+    vibe: second.vibe,
+    point: gaugeRoles(a),
+    flux,
+  })
   let frameMismatch = 0
 
   for (let t = 0; t < 24; t++) {
     a = combinedBeat(knit, a, none, t).state
     b = combinedBeat(gauged, b, none, t).state
-    frameMismatch += differ(gaugeRoles(a), rolesOf(b)) + differ(a.vibe, b.vibe)
+    frameMismatch +=
+      differ(gaugeRoles(a), rolesOf(b)) + differ(a.vibe, b.vibe)
   }
 
   return {
@@ -253,15 +361,25 @@ function boxGates(spec: CombinedKnitSpec): Record<string, number> {
 }
 
 // the steered knit's vacuum period with its flux, and its dressing at side 7, run on the whole box
-function steeredBoxBattery(spec: CombinedKnitSpec): { period: number; vibePeriod: number; love: number[]; fear: number[] } {
+function steeredBoxBattery(spec: CombinedKnitSpec): {
+  period: number
+  vibePeriod: number
+  love: number[]
+  fear: number[]
+} {
   const vacKnit = makeCombinedKnit({ side: 7, spec })
   const slots7 = vacKnit.weave.mesh.cellCount * 24
   const none = new Uint8Array(slots7)
-  const empty = combinedState(vacKnit, { vibe: new Int8Array(slots7), point: new Int8Array(slots7) })
+  const empty = combinedState(vacKnit, {
+    vibe: new Int8Array(slots7),
+    point: new Int8Array(slots7),
+  })
   const states: CombinedState[] = [empty]
 
   for (let t = 0; t < VACUUM_BEATS; t++) {
-    states.push(combinedBeat(vacKnit, states[t] ?? empty, none, t).state)
+    states.push(
+      combinedBeat(vacKnit, states[t] ?? empty, none, t).state,
+    )
   }
 
   const periodOf = (withFlux: boolean): number => {
@@ -270,7 +388,9 @@ function steeredBoxBattery(spec: CombinedKnitSpec): { period: number; vibePeriod
         states.every(
           (s, t) =>
             t + p >= states.length ||
-            (differ(s.vibe, states[t + p]?.vibe ?? s.vibe) === 0 && (!withFlux || differ(s.flux, states[t + p]?.flux ?? s.flux) === 0)),
+            (differ(s.vibe, states[t + p]?.vibe ?? s.vibe) === 0 &&
+              (!withFlux ||
+                differ(s.flux, states[t + p]?.flux ?? s.flux) === 0)),
         )
       ) {
         return p
@@ -282,6 +402,7 @@ function steeredBoxBattery(spec: CombinedKnitSpec): { period: number; vibePeriod
 
   const middle = Math.floor(STEER_DRESSING_SIDE / 2)
   const center = middle * (1 + 7 + 49 + 343)
+
   const dressed = (tone: number): number[] => {
     const largest = [0, 0, 0, 0]
 
@@ -290,33 +411,54 @@ function steeredBoxBattery(spec: CombinedKnitSpec): { period: number; vibePeriod
 
       vibe[center * 24 + direction] = tone
 
-      let seeded = combinedState(vacKnit, { vibe, point: new Int8Array(slots7) })
+      let seeded = combinedState(vacKnit, {
+        vibe,
+        point: new Int8Array(slots7),
+      })
 
       for (let t = 0; t < STEER_DRESSING_BEATS; t++) {
         seeded = combinedBeat(vacKnit, seeded, none, t).state
 
         const p = Math.floor(t / 24)
 
-        largest[p] = Math.max(largest[p] ?? 0, differ(seeded.vibe, states[t + 1]?.vibe ?? seeded.vibe))
+        largest[p] = Math.max(
+          largest[p] ?? 0,
+          differ(seeded.vibe, states[t + 1]?.vibe ?? seeded.vibe),
+        )
       }
     }
 
     return largest
   }
 
-  return { period: periodOf(true), vibePeriod: periodOf(false), love: dressed(1), fear: dressed(-1) }
+  return {
+    period: periodOf(true),
+    vibePeriod: periodOf(false),
+    love: dressed(1),
+    fear: dressed(-1),
+  }
 }
 
 // the empty vacuum's period searched up to 72 beats over 216 (weave-acceptance's looks only up to 24); the
 // vacuum is the same in every dock, so one dock's collision history is the whole of it
 function longVacuumPeriod(spec: CombinedKnitSpec): number {
   const knit = makeCombinedKnit({ side: QSIDE, spec })
-  const forward = combinedCollision({ spec, opposite: knit.weave.opposite })
+  const forward = combinedCollision({
+    spec,
+    opposite: knit.weave.opposite,
+  })
   const cells = vacuumCells({ forward, beats: 3 * LONGEST_PERIOD })
-  const states = ['1'.repeat(24), ...cells.map(c => Array.from(c, x => x + 1).join(''))]
+  const states = [
+    '1'.repeat(24),
+    ...cells.map(c => Array.from(c, x => x + 1).join('')),
+  ]
 
   for (let p = 1; p <= LONGEST_PERIOD; p++) {
-    if (states.every((x, t) => t + p >= states.length || x === states[t + p])) {
+    if (
+      states.every(
+        (x, t) => t + p >= states.length || x === states[t + p],
+      )
+    ) {
       return p
     }
   }
@@ -325,13 +467,24 @@ function longVacuumPeriod(spec: CombinedKnitSpec): number {
 }
 
 // E-QTM-0109's helpers
-const readingOf = (i: number): number => Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)
+const readingOf = (i: number): number =>
+  Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)
 
-function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole {
+function basisWhole(
+  tokens: readonly number[],
+  digits: readonly number[],
+): Whole {
   const weight = new Array<bigint>(9 ** tokens.length).fill(0n)
 
   for (let i = 0; i < weight.length; i++) {
-    weight[i] = tokens.every((_, c) => Math.floor((Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3) === digits[c]) ? 1n : 0n
+    weight[i] = tokens.every(
+      (_, c) =>
+        Math.floor(
+          (Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3,
+        ) === digits[c],
+    )
+      ? 1n
+      : 0n
   }
 
   return { tokens, weight }
@@ -345,34 +498,77 @@ function dephase(whole: Whole): Whole {
   })
 
   // the frames are dropped, the own points kept (the comoving beat reads them, E-SPN-0063's dephasing)
-  return { tokens: whole.tokens, weight: whole.weight.map((_, i) => role[readingOf(i)] ?? 0n), ...(whole.own ? { own: whole.own } : {}) }
+  return {
+    tokens: whole.tokens,
+    weight: whole.weight.map((_, i) => role[readingOf(i)] ?? 0n),
+    ...(whole.own ? { own: whole.own } : {}),
+  }
 }
 
 const chance = (whole: Whole, reading: number): number =>
-  Number(whole.weight.reduce((s, w, i) => (readingOf(i) === reading ? s + w : s), 0n)) / Number(wholeUnits(whole))
+  Number(
+    whole.weight.reduce(
+      (s, w, i) => (readingOf(i) === reading ? s + w : s),
+      0n,
+    ),
+  ) / Number(wholeUnits(whole))
 
 const native = (whole: Whole): Whole => ({
   tokens: whole.tokens,
-  weight: whole.weight.map((_, i) => whole.weight[Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)] ?? 0n),
+  weight: whole.weight.map(
+    (_, i) =>
+      whole.weight[
+        Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
+      ] ?? 0n,
+  ),
 })
 
 type QuantumGates = Record<string, boolean>
 
 // E-QTM-0109's gates on one configuration, for the kernels given (the fear beat on or off)
-function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGates; metrics: Record<string, number> } {
+function quantum(
+  spec: CombinedKnitSpec,
+  mode: 'on' | 'off',
+): { gates: QuantumGates; metrics: Record<string, number> } {
   const knit = makeCombinedKnit({ side: QSIDE, spec })
   const { mesh, moves, opposite } = knit.weave
   const weave = knit.weave
   const slots = mesh.cellCount * 24
-  const flat = withLinks(knit, new Int16Array(slots).fill(moves.identity))
+  const flat = withLinks(
+    knit,
+    new Int16Array(slots).fill(moves.identity),
+  )
   // the kernels in exact Eisenstein integers, the phases as trits (E-FRC-0206; equal to fearKernels' tables)
-  const kernels = exactFearKernels({ like: mode === 'on' ? 1 : 0, unlike: mode === 'on' ? 1 : 0, likeExchanged: false })
-  const back = exactFearKernels({ like: mode === 'on' ? 2 : 0, unlike: mode === 'on' ? 2 : 0, likeExchanged: false })
-  const off = exactFearKernels({ like: 0, unlike: 0, likeExchanged: false })
-  const on = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+  const kernels = exactFearKernels({
+    like: mode === 'on' ? 1 : 0,
+    unlike: mode === 'on' ? 1 : 0,
+    likeExchanged: false,
+  })
+  const back = exactFearKernels({
+    like: mode === 'on' ? 2 : 0,
+    unlike: mode === 'on' ? 2 : 0,
+    likeExchanged: false,
+  })
+  const off = exactFearKernels({
+    like: 0,
+    unlike: 0,
+    likeExchanged: false,
+  })
+  const on = exactFearKernels({
+    like: 1,
+    unlike: 1,
+    likeExchanged: false,
+  })
   const swapExact = exactWholeKernel(doubledSwapPhase(1), 2)
-  const swapControl: FearKernels = { ...on, unlike: conjugateSecond(swapExact.kernel), unlikeDivisor: swapExact.divisor }
-  const side = Array.from({ length: 24 }, (_, d) => (d < (opposite[d] ?? d) ? 1 : -1))
+  const swapControl: FearKernels = {
+    ...on,
+    unlike: conjugateSecond(swapExact.kernel),
+    unlikeDivisor: swapExact.divisor,
+  }
+  const side = Array.from({ length: 24 }, (_, d) =>
+    d < (opposite[d] ?? d) ? 1 : -1,
+  )
+
   const openOf = (tokens: readonly number[]): Uint8Array => {
     const open = new Uint8Array(slots)
 
@@ -382,10 +578,21 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
 
     return open
   }
-  const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
+
+  const vacuum = {
+    vibe: new Int8Array(slots),
+    point: new Int8Array(slots),
+  }
   const matter = golden(slots, MATTER_SCALE)
-  const recordsOf = (background: { vibe: Int8Array; point: Int8Array }, k: CombinedKnit, open: Uint8Array, beats: number): BeatRecord[] => {
+
+  const recordsOf = (
+    background: { vibe: Int8Array; point: Int8Array },
+    k: CombinedKnit,
+    open: Uint8Array,
+    beats: number,
+  ): BeatRecord[] => {
     let state = combinedState(k, background)
+
     const out: BeatRecord[] = []
 
     for (let t = 0; t < beats; t++) {
@@ -404,7 +611,12 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
   for (let d = 0; d < 24 && vacuumPair.length === 0; d++) {
     const o = opposite[d] ?? d
 
-    if (o > d && recordsOf(vacuum, knit, openOf([d, o]), 24).some(r => r.meetings.length > 0)) {
+    if (
+      o > d &&
+      recordsOf(vacuum, knit, openOf([d, o]), 24).some(
+        r => r.meetings.length > 0,
+      )
+    ) {
       vacuumPair = [d, o]
     }
   }
@@ -421,29 +633,43 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     }
   }
 
-  const ranked = [...counts.entries()].sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1)).map(([k]) => k.split(',').map(Number))
+  const ranked = [...counts.entries()]
+    .sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))
+    .map(([k]) => k.split(',').map(Number))
   const matterPair = ranked[0] ?? [0, 1]
-  const signOfToken = (vibe: Int8Array, tk: number): number => (vibe[tk] ?? 0) || (side[tk % 24] ?? 1)
+  const signOfToken = (vibe: Int8Array, tk: number): number =>
+    (vibe[tk] ?? 0) || (side[tk % 24] ?? 1)
 
   // sign flips of every dock-0 token
   let dockFlips = 0
 
   {
-    const last = new Map<number, number>(Array.from({ length: 24 }, (_, tk) => [tk, signOfToken(matter.vibe, tk)]))
+    const last = new Map<number, number>(
+      Array.from({ length: 24 }, (_, tk) => [
+        tk,
+        signOfToken(matter.vibe, tk),
+      ]),
+    )
 
     for (const r of dockRecords) {
       r.meetings.forEach(([ta, tb], k) => {
         const [sa, sb] = r.signs?.[k] ?? [1, 1]
 
-        dockFlips += (last.get(ta) === sa ? 0 : 1) + (last.get(tb) === sb ? 0 : 1)
+        dockFlips +=
+          (last.get(ta) === sa ? 0 : 1) + (last.get(tb) === sb ? 0 : 1)
         last.set(ta, sa)
         last.set(tb, sb)
       })
     }
   }
 
-  const study = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[], start: Whole) => {
+  const study = (
+    background: { vibe: Int8Array; point: Int8Array },
+    tokens: number[],
+    start: Whole,
+  ) => {
     const records = recordsOf(background, knit, openOf(tokens), Q_BEATS)
+
     let whole: Whole = start
     let pure = true
     let fearsMax = 0n
@@ -451,18 +677,32 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     let top = wholeUnits(start)
 
     for (const record of records) {
-      whole = advanceWhole({ weave, whole, record, kernel4: [], color: kernels, fixed: false, forward: true })!
+      whole = advanceWhole({
+        weave,
+        whole,
+        record,
+        kernel4: [],
+        color: kernels,
+        fixed: false,
+        forward: true,
+      })!
 
       const units = wholeUnits(whole)
 
-      pure = pure && 81n * whole.weight.reduce((s, w) => s + w * w, 0n) === 9n * units * units
+      pure =
+        pure &&
+        81n * whole.weight.reduce((s, w) => s + w * w, 0n) ===
+          9n * units * units
       top = units > top ? units : top
 
       if (record.meetings.length > 0) {
         const { loves, fears } = wholeLovesAndFears(whole)
 
         fearsMax = fears > fearsMax ? fears : fearsMax
-        shareMax = Math.max(shareMax, Number(fears) / Number(loves + fears))
+        shareMax = Math.max(
+          shareMax,
+          Number(fears) / Number(loves + fears),
+        )
       }
     }
 
@@ -478,21 +718,45 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
       return k
     }
 
-    return { records, pure, fearsMax: Number(fearsMax), shareMax, twos: power(2n), threes: power(3n) }
+    return {
+      records,
+      pure,
+      fearsMax: Number(fearsMax),
+      shareMax,
+      twos: power(2n),
+      threes: power(3n),
+    }
   }
 
-  const vacuumStudy = study(vacuum, vacuumPair, basisWhole(vacuumPair, [0, 0]))
-  const matterStudy = study(matter, matterPair, basisWhole(matterPair, [0, 1]))
+  const vacuumStudy = study(
+    vacuum,
+    vacuumPair,
+    basisWhole(vacuumPair, [0, 0]),
+  )
+  const matterStudy = study(
+    matter,
+    matterPair,
+    basisWhole(matterPair, [0, 1]),
+  )
   // the grower is chosen with the fear beat on, so both modes study the same pair
   const growerPair = ranked
     .slice(0, 12)
     .map(pair => {
       const records = recordsOf(matter, knit, openOf(pair), Q_BEATS)
+
       let whole = basisWhole(pair, [0, 1])
       let top = wholeUnits(whole)
 
       for (const record of records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: [], color: on, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: [],
+          color: on,
+          fixed: false,
+          forward: true,
+        })!
         top = wholeUnits(whole) > top ? wholeUnits(whole) : top
       }
 
@@ -509,8 +773,15 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
 
       return { pair, score }
     })
-    .reduce((best, c) => (c.score > best.score ? c : best), { pair: matterPair, score: -1 }).pair
-  const growerStudy = study(matter, growerPair, basisWhole(growerPair, [0, 1]))
+    .reduce((best, c) => (c.score > best.score ? c : best), {
+      pair: matterPair,
+      score: -1,
+    }).pair
+  const growerStudy = study(
+    matter,
+    growerPair,
+    basisWhole(growerPair, [0, 1]),
+  )
 
   // reversal and love minus fear on the matter pair, fixed units
   let reverses = false
@@ -520,7 +791,13 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     const units = 9n * 4n ** 200n * 3n ** 200n
     const open = openOf(matterPair)
     const start = combinedState(knit, matter)
-    const whole0: Whole = { tokens: matterPair, weight: basisWhole(matterPair, [2, 0]).weight.map(w => w * (units / 9n)) }
+    const whole0: Whole = {
+      tokens: matterPair,
+      weight: basisWhole(matterPair, [2, 0]).weight.map(
+        w => w * (units / 9n),
+      ),
+    }
+
     let state = start
     let whole: Whole | null = whole0
 
@@ -528,15 +805,37 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
       const r = combinedBeat(knit, state, open, t)
 
       state = r.state
-      whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: [], color: kernels, fixed: true, forward: true }) : null
-      chargeKept = chargeKept && whole !== null && wholeUnits(whole) === units
+      whole = whole
+        ? advanceWhole({
+            weave,
+            whole,
+            record: r.record,
+            kernel4: [],
+            color: kernels,
+            fixed: true,
+            forward: true,
+          })
+        : null
+
+      chargeKept =
+        chargeKept && whole !== null && wholeUnits(whole) === units
     }
 
     for (let t = REVERSAL_BEATS - 1; t >= 0; t--) {
       const r = combinedBeatBack(knit, state, open, t)
 
       state = r.state
-      whole = whole ? advanceWhole({ weave, whole, record: r.record, kernel4: [], color: back, fixed: true, forward: false }) : null
+      whole = whole
+        ? advanceWhole({
+            weave,
+            whole,
+            record: r.record,
+            kernel4: [],
+            color: back,
+            fixed: true,
+            forward: false,
+          })
+        : null
     }
 
     reverses =
@@ -549,6 +848,7 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
   // the frame change on the vacuum and matter pairs
   const { frame, links: gaugeLinks } = frameOf(knit)
   const gauged = withLinks(knit, gaugeLinks)
+
   const transform = (state: CombinedState, whole: Whole): Whole => {
     const at = new Map<number, number>()
 
@@ -557,44 +857,110 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     let moved = whole
 
     whole.tokens.forEach((tk, c) => {
-      moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+      moved = carryCoordinate(
+        moved,
+        c,
+        moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [],
+      )
     })
 
     return moved
   }
-  const frameMismatch = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[], k: FearKernels, start: Whole): number => {
+
+  const frameMismatch = (
+    background: { vibe: Int8Array; point: Int8Array },
+    tokens: number[],
+    k: FearKernels,
+    start: Whole,
+  ): number => {
     const open = openOf(tokens)
+
     let a = { state: combinedState(knit, background), whole: start }
-    let b = { state: combinedState(gauged, background), whole: transform(a.state, start) }
+    let b = {
+      state: combinedState(gauged, background),
+      whole: transform(a.state, start),
+    }
     let mismatch = 0
 
     for (let t = 0; t < GAUGE_BEATS; t++) {
       const ra = combinedBeat(knit, a.state, open, t)
       const rb = combinedBeat(gauged, b.state, open, t)
 
-      a = { state: ra.state, whole: advanceWhole({ weave, whole: a.whole, record: ra.record, kernel4: [], color: k, fixed: false, forward: true })! }
-      b = { state: rb.state, whole: advanceWhole({ weave, whole: b.whole, record: rb.record, kernel4: [], color: k, fixed: false, forward: true })! }
+      a = {
+        state: ra.state,
+        whole: advanceWhole({
+          weave,
+          whole: a.whole,
+          record: ra.record,
+          kernel4: [],
+          color: k,
+          fixed: false,
+          forward: true,
+        })!,
+      }
+
+      b = {
+        state: rb.state,
+        whole: advanceWhole({
+          weave,
+          whole: b.whole,
+          record: rb.record,
+          kernel4: [],
+          color: k,
+          fixed: false,
+          forward: true,
+        })!,
+      }
 
       const expected = reduceWhole(transform(a.state, a.whole)).weight
       const actual = reduceWhole(b.whole).weight
 
-      mismatch += expected.reduce((n, w, i) => n + (w === actual[i] ? 0 : 1), 0)
+      mismatch += expected.reduce(
+        (n, w, i) => n + (w === actual[i] ? 0 : 1),
+        0,
+      )
     }
 
     return mismatch
   }
-  const frameVacuum = frameMismatch(vacuum, vacuumPair, kernels, basisWhole(vacuumPair, [0, 0]))
-  const frameMatter = frameMismatch(matter, matterPair, kernels, basisWhole(matterPair, [0, 1]))
-  const frameControl = frameMismatch(vacuum, vacuumPair, swapControl, basisWhole(vacuumPair, [0, 0]))
+
+  const frameVacuum = frameMismatch(
+    vacuum,
+    vacuumPair,
+    kernels,
+    basisWhole(vacuumPair, [0, 0]),
+  )
+  const frameMatter = frameMismatch(
+    matter,
+    matterPair,
+    kernels,
+    basisWhole(matterPair, [0, 1]),
+  )
+  const frameControl = frameMismatch(
+    vacuum,
+    vacuumPair,
+    swapControl,
+    basisWhole(vacuumPair, [0, 0]),
+  )
 
   // interference on flat links, CHSH on live links
   const flatRecords = recordsOf(vacuum, flat, openOf(vacuumPair), 60)
+
   const chances = (k: FearKernels, dephased: boolean): number[] => {
     let whole = basisWhole(vacuumPair, [0, 0])
+
     const out: number[] = []
 
     for (const record of flatRecords) {
-      whole = advanceWhole({ weave, whole, record, kernel4: [], color: k, fixed: false, forward: true })!
+      whole = advanceWhole({
+        weave,
+        whole,
+        record,
+        kernel4: [],
+        color: k,
+        fixed: false,
+        forward: true,
+      })!
 
       if (record.meetings.length > 0 && out.length < 3) {
         whole = dephased ? dephase(whole) : whole
@@ -604,84 +970,214 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
 
     return out
   }
+
   const quantumChances = chances(kernels, false)
   const standIn = chances(kernels, true)
   const fearOff = chances(off, false)
   const liveRecords = vacuumStudy.records
   const firstMeeting = liveRecords.findIndex(r => r.meetings.length > 0)
+
   const readState = (k: FearKernels, dephased: boolean): Whole => {
     let whole = basisWhole(vacuumPair, [0, 0])
 
-    for (let t = 0; t <= firstMeeting + 1 && t < liveRecords.length; t++) {
+    for (
+      let t = 0;
+      t <= firstMeeting + 1 && t < liveRecords.length;
+      t++
+    ) {
       const record = liveRecords[t]!
 
-      whole = advanceWhole({ weave, whole, record, kernel4: [], color: k, fixed: false, forward: true })!
-      whole = dephased && record.meetings.length > 0 ? dephase(whole) : whole
+      whole = advanceWhole({
+        weave,
+        whole,
+        record,
+        kernel4: [],
+        color: k,
+        fixed: false,
+        forward: true,
+      })!
+
+      whole =
+        dephased && record.meetings.length > 0 ? dephase(whole) : whole
     }
 
     return whole
   }
-  const bell = firstMeeting >= 0 ? roleChsh(roleDensity(native(readState(kernels, false)))) : 0
-  const bellStandIn = firstMeeting >= 0 ? roleChsh(roleDensity(native(readState(kernels, true)))) : 0
+
+  const bell =
+    firstMeeting >= 0
+      ? roleChsh(roleDensity(native(readState(kernels, false))))
+      : 0
+  const bellStandIn =
+    firstMeeting >= 0
+      ? roleChsh(roleDensity(native(readState(kernels, true))))
+      : 0
 
   // the calm-difference storage times omega^q
   const unital = [kernels, back].every(
-    k => kernelIsUnital(k.like, k.likeDivisor) && kernelKeepsWeight(k.like, k.likeDivisor) && kernelIsUnital(k.unlike, k.unlikeDivisor) && kernelKeepsWeight(k.unlike, k.unlikeDivisor),
+    k =>
+      kernelIsUnital(k.like, k.likeDivisor) &&
+      kernelKeepsWeight(k.like, k.likeDivisor) &&
+      kernelIsUnital(k.unlike, k.unlikeDivisor) &&
+      kernelKeepsWeight(k.unlike, k.unlikeDivisor),
   )
-  const storage = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[], start: Whole): { q: number; mismatches: number } => {
+
+  const storage = (
+    background: { vibe: Int8Array; point: Int8Array },
+    tokens: number[],
+    start: Whole,
+  ): { q: number; mismatches: number } => {
     const records = recordsOf(background, knit, openOf(tokens), Q_BEATS)
-    const q = tokens.reduce((s, tk) => s + signOfToken(background.vibe, tk), 0)
+    const q = tokens.reduce(
+      (s, tk) => s + signOfToken(background.vibe, tk),
+      0,
+    )
     const scale = 4n ** 200n * 3n ** 200n
     const d0 = departureOf(start)
+
     let plain: Whole = start
     let delta: Whole = { tokens, weight: d0.delta.map(x => x * scale) }
-    const stored0 = timesOmega(delta.weight, delta.weight.map(() => 0n), q)
+
+    const stored0 = timesOmega(
+      delta.weight,
+      delta.weight.map(() => 0n),
+      q,
+    )
+
     let re: Whole = { tokens, weight: stored0.re }
     let om: Whole = { tokens, weight: stored0.om }
+
     const units = d0.units * scale
+
     let mismatches = 0
 
     for (const record of records) {
-      plain = advanceWhole({ weave, whole: plain, record, kernel4: [], color: kernels, fixed: false, forward: true })!
-      delta = advanceWhole({ weave, whole: delta, record, kernel4: [], color: kernels, fixed: true, forward: true })!
-      re = advanceWhole({ weave, whole: re, record, kernel4: [], color: kernels, fixed: true, forward: true })!
-      om = advanceWhole({ weave, whole: om, record, kernel4: [], color: kernels, fixed: true, forward: true })!
+      plain = advanceWhole({
+        weave,
+        whole: plain,
+        record,
+        kernel4: [],
+        color: kernels,
+        fixed: false,
+        forward: true,
+      })!
+
+      delta = advanceWhole({
+        weave,
+        whole: delta,
+        record,
+        kernel4: [],
+        color: kernels,
+        fixed: true,
+        forward: true,
+      })!
+
+      re = advanceWhole({
+        weave,
+        whole: re,
+        record,
+        kernel4: [],
+        color: kernels,
+        fixed: true,
+        forward: true,
+      })!
+
+      om = advanceWhole({
+        weave,
+        whole: om,
+        record,
+        kernel4: [],
+        color: kernels,
+        fixed: true,
+        forward: true,
+      })!
 
       const read = timesOmega(re.weight, om.weight, -q)
-      const readsBack = read.om.every(x => x === 0n) && read.re.every((x, i) => x === delta.weight[i])
-      const direct: Departure = reduceDeparture({ tokens, delta: delta.weight, units })
+      const readsBack =
+        read.om.every(x => x === 0n) &&
+        read.re.every((x, i) => x === delta.weight[i])
+      const direct: Departure = reduceDeparture({
+        tokens,
+        delta: delta.weight,
+        units,
+      })
       const fromPlain = departureOf(plain)
-      const same = direct.units === fromPlain.units && direct.delta.every((x, i) => x === fromPlain.delta[i])
+      const same =
+        direct.units === fromPlain.units &&
+        direct.delta.every((x, i) => x === fromPlain.delta[i])
       const balanced = delta.weight.reduce((s, x) => s + x, 0n) === 0n
-      const purity = 81n * delta.weight.reduce((s, x) => s + x * x, 0n) === 8n * units * units
+      const purity =
+        81n * delta.weight.reduce((s, x) => s + x * x, 0n) ===
+        8n * units * units
       const c = departureChances(direct)
       const plainUnits = wholeUnits(plain)
-      const chancesSame = c.numerator.every((n, reading) => n * plainUnits === plain.weight.reduce((s, w, i) => (readingOf(i) === reading ? s + w : s), 0n) * c.denominator)
+      const chancesSame = c.numerator.every(
+        (n, reading) =>
+          n * plainUnits ===
+          plain.weight.reduce(
+            (s, w, i) => (readingOf(i) === reading ? s + w : s),
+            0n,
+          ) *
+            c.denominator,
+      )
 
-      mismatches += (readsBack ? 0 : 1) + (same ? 0 : 1) + (balanced ? 0 : 1) + (purity ? 0 : 1) + (chancesSame ? 0 : 1)
+      mismatches +=
+        (readsBack ? 0 : 1) +
+        (same ? 0 : 1) +
+        (balanced ? 0 : 1) +
+        (purity ? 0 : 1) +
+        (chancesSame ? 0 : 1)
     }
 
     return { q, mismatches }
   }
-  const storedVacuum = storage(vacuum, vacuumPair, basisWhole(vacuumPair, [0, 0]))
-  const storedMatter = storage(matter, matterPair, basisWhole(matterPair, [0, 1]))
-  const storedGrower = storage(matter, growerPair, basisWhole(growerPair, [0, 1]))
+
+  const storedVacuum = storage(
+    vacuum,
+    vacuumPair,
+    basisWhole(vacuumPair, [0, 0]),
+  )
+  const storedMatter = storage(
+    matter,
+    matterPair,
+    basisWhole(matterPair, [0, 1]),
+  )
+  const storedGrower = storage(
+    matter,
+    growerPair,
+    basisWhole(growerPair, [0, 1]),
+  )
 
   // the committed table's flips, the control
   const committedFlips = (() => {
     const w = makeColorWeave({ side: QSIDE, table: 'pair' })
+
     let lattice = makeLattice(matter)
-    const last = new Map<number, number>(Array.from({ length: 24 }, (_, tk) => [tk, signOfToken(matter.vibe, tk)]))
+
+    const last = new Map<number, number>(
+      Array.from({ length: 24 }, (_, tk) => [
+        tk,
+        signOfToken(matter.vibe, tk),
+      ]),
+    )
+
     let flips = 0
 
     for (let t = 0; t < SEARCH_BEATS; t++) {
-      const r = fearBeat({ weave: w, links: w.links, lattice, open: dock0, t })
+      const r = fearBeat({
+        weave: w,
+        links: w.links,
+        lattice,
+        open: dock0,
+        t,
+      })
 
       lattice = r.lattice
       r.record.meetings.forEach(([ta, tb], k) => {
         const [sa, sb] = r.record.signs?.[k] ?? [1, 1]
 
-        flips += (last.get(ta) === sa ? 0 : 1) + (last.get(tb) === sb ? 0 : 1)
+        flips +=
+          (last.get(ta) === sa ? 0 : 1) + (last.get(tb) === sb ? 0 : 1)
         last.set(ta, sa)
         last.set(tb, sb)
       })
@@ -690,7 +1186,8 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     return flips
   })()
 
-  const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
+  const exact = (x: number, y: number): boolean =>
+    Math.abs(x - y) < 1e-12
   const knots = [vacuumStudy, matterStudy, growerStudy]
   const gates: QuantumGates = {
     tokenSignsKept: dockFlips === 0,
@@ -703,13 +1200,20 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     frameCommutesMatter: frameMatter === 0,
     storageVacuum: storedVacuum.mismatches === 0,
     storageMatter: storedMatter.mismatches === 0,
-    storageGrower: storedGrower.mismatches === 0 && storedGrower.q !== 0,
+    storageGrower:
+      storedGrower.mismatches === 0 && storedGrower.q !== 0,
     kernelsUnital: unital,
-    interferenceBeyondStandIn: quantumChances.length === 3 && quantumChances.some((c, k) => !exact(c, standIn[k] ?? -1)),
+    interferenceBeyondStandIn:
+      quantumChances.length === 3 &&
+      quantumChances.some((c, k) => !exact(c, standIn[k] ?? -1)),
     chshAbove2: bell > 2 + 1e-6,
   }
   const controlsHold =
-    committedFlips > 0 && frameControl > 0 && fearOff.length === 3 && fearOff.every(c => c === 1) && bellStandIn <= 2 + 1e-9
+    committedFlips > 0 &&
+    frameControl > 0 &&
+    fearOff.length === 3 &&
+    fearOff.every(c => c === 1) &&
+    bellStandIn <= 2 + 1e-9
 
   return {
     gates,
@@ -749,119 +1253,192 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
 }
 
 // per period: prefixPeriod1 .. prefixPeriod4
-const periods = (prefix: string, xs: readonly number[]): Record<string, number> =>
+const periods = (
+  prefix: string,
+  xs: readonly number[],
+): Record<string, number> =>
   Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
 
-const flatten = (prefix: string, record: Record<string, number | boolean>): Record<string, number> =>
-  Object.fromEntries(Object.entries(record).map(([k, v]) => [`${prefix}_${k}`, typeof v === 'boolean' ? (v ? 1 : 0) : v]))
+const flatten = (
+  prefix: string,
+  record: Record<string, number | boolean>,
+): Record<string, number> =>
+  Object.fromEntries(
+    Object.entries(record).map(([k, v]) => [
+      `${prefix}_${k}`,
+      typeof v === 'boolean' ? (v ? 1 : 0) : v,
+    ]),
+  )
 
 export default experiment({
   id: 'gauge/combined-knit-battery',
   code: 'E-FRC-0159',
   title:
-    'the combined knit through every battery with the fear beat off and on and with and without the fold, fail at the default integer link start (E-MTH-0027) on its frame control alone, and pass on 5 of 9 starts of E-MTH-0028\'s family: on all 9 no gate fails only with the fear beat on and every quantum gate passes with it on (CHSH 2.55 on H, HF and HFL at the default start), so the fear beat works with the knit by the registered rule; each of the 4 failing starts is one where the vacuum pair makes no fear and the frame control (the swap phase at love-fear meetings) reads 0 in both the on and off columns, uninformative rather than a failure of the fear beat; on every start the base\'s own gates fail on a lone fear\'s first-period dressing (33 against 27), on the fold (5 vacuum line components, dressing 22,722 at side 9, vacuum period 72) and on lone steering (momentum drift 35), and the kick law stays lost',
+    "the combined knit through every battery with the fear beat off and on and with and without the fold, fail at the default integer link start (E-MTH-0027) on its frame control alone, and pass on 5 of 9 starts of E-MTH-0028's family: on all 9 no gate fails only with the fear beat on and every quantum gate passes with it on (CHSH 2.55 on H, HF and HFL at the default start), so the fear beat works with the knit by the registered rule; each of the 4 failing starts is one where the vacuum pair makes no fear and the frame control (the swap phase at love-fear meetings) reads 0 in both the on and off columns, uninformative rather than a failure of the fear beat; on every start the base's own gates fail on a lone fear's first-period dressing (33 against 27), on the fold (5 vacuum line components, dressing 22,722 at side 9, vacuum period 72) and on lone steering (momentum drift 35), and the kick law stays lost",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // the committed reference
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
     const committed = acceptance(committedRule)
-    const committedSides = SIDES.map(side => ({ side, love: dressing(committedRule, { side, tone: 1 }), fear: dressing(committedRule, { side, tone: -1 }) }))
+    const committedSides = SIDES.map(side => ({
+      side,
+      love: dressing(committedRule, { side, tone: 1 }),
+      fear: dressing(committedRule, { side, tone: -1 }),
+    }))
 
     log('committed')
 
     // classical gates per configuration (fear-independent: the classical layer never reads the whole, and
     // boxGates measures that per configuration as openingTokensChangesClassical)
-    const classical = CONFIGS.map(({ name, spec }): { name: string; gates: Record<string, boolean>; numbers: Record<string, number> } => {
-      const box = boxGates(spec)
+    const classical = CONFIGS.map(
+      ({
+        name,
+        spec,
+      }): {
+        name: string
+        gates: Record<string, boolean>
+        numbers: Record<string, number>
+      } => {
+        const box = boxGates(spec)
 
-      if (spec.steer) {
-        const steered = steeredBoxBattery(spec)
-        const side7 = committedSides.find(s => s.side === STEER_DRESSING_SIDE)
-        const dressedNoMore =
-          steered.love.every((x, p) => x <= (side7?.love.periodLargest[p] ?? 0)) && steered.fear.every((x, p) => x <= (side7?.fear.periodLargest[p] ?? 0))
+        if (spec.steer) {
+          const steered = steeredBoxBattery(spec)
+          const side7 = committedSides.find(
+            s => s.side === STEER_DRESSING_SIDE,
+          )
+          const dressedNoMore =
+            steered.love.every(
+              (x, p) => x <= (side7?.love.periodLargest[p] ?? 0),
+            ) &&
+            steered.fear.every(
+              (x, p) => x <= (side7?.fear.periodLargest[p] ?? 0),
+            )
+          const gates: Record<string, boolean> = {
+            boxReverses: box.boxReverses === 1,
+            boxChargeKept: box.boxChargeKept === 1,
+            noColorLeak: box.boxColorLeaks === 0,
+            frameCommutes: box.boxFrameMismatch === 0,
+            momentumKept: box.pDrift === 0,
+            lineMomentaExchanged: (box.lineMomentumDrift ?? 0) > 0,
+            vacuumPeriodic: steered.period > 0,
+            dressingSide7NoMore: dressedNoMore,
+          }
+
+          log(`classical ${name}`)
+
+          return {
+            name,
+            gates,
+            numbers: {
+              ...box,
+              vacuumPeriodWithFlux: steered.period,
+              vacuumPeriodVibes: steered.vibePeriod,
+              ...periods('side7Love', steered.love),
+              ...periods('side7Fear', steered.fear),
+            },
+          }
+        }
+
+        const rule = ruleOf(spec)
+        const battery: Acceptance = acceptance(rule)
+        const sides = SIDES.map(side => ({
+          side,
+          love: dressing(rule, { side, tone: 1 }),
+          fear: dressing(rule, { side, tone: -1 }),
+        }))
+        const noMore = (
+          a: Dressing,
+          b: Dressing | undefined,
+        ): boolean =>
+          a.periodLargest.every(
+            (x, p) => x <= (b?.periodLargest[p] ?? 0),
+          )
         const gates: Record<string, boolean> = {
+          reverses: battery.reverses || !committed.reverses,
+          chargeKept: battery.chargeKept || !committed.chargeKept,
+          cptAtMirrorPhase:
+            battery.cptPhase >= 0 || committed.cptPhase < 0,
+          vacuumPeriodic:
+            battery.vacuumPeriod > 0 || committed.vacuumPeriod <= 0,
+          vacuumComponentsNoMore:
+            battery.vacuumComponents <= committed.vacuumComponents,
+          denseComponentsNoMore:
+            battery.denseComponents <= committed.denseComponents,
+          superposition:
+            battery.additivityWorst < 1e-9 ||
+            committed.additivityWorst >= 1e-9,
+          wallsQuantized:
+            (battery.wallQuantized && battery.wallMax > 0) ||
+            !(committed.wallQuantized && committed.wallMax > 0),
+          loveDressingSide9: noMore(battery.love, committed.love),
+          fearDressingSide9: noMore(battery.fear, committed.fear),
+          ...Object.fromEntries(
+            sides.flatMap(s => {
+              const ref = committedSides.find(r => r.side === s.side)
+
+              return [
+                [
+                  `loveDressingSide${s.side}`,
+                  noMore(s.love, ref?.love),
+                ],
+                [
+                  `fearDressingSide${s.side}`,
+                  noMore(s.fear, ref?.fear),
+                ],
+              ]
+            }),
+          ),
           boxReverses: box.boxReverses === 1,
           boxChargeKept: box.boxChargeKept === 1,
           noColorLeak: box.boxColorLeaks === 0,
           frameCommutes: box.boxFrameMismatch === 0,
           momentumKept: box.pDrift === 0,
           lineMomentaExchanged: (box.lineMomentumDrift ?? 0) > 0,
-          vacuumPeriodic: steered.period > 0,
-          dressingSide7NoMore: dressedNoMore,
         }
 
         log(`classical ${name}`)
 
-        return { name, gates, numbers: { ...box, vacuumPeriodWithFlux: steered.period, vacuumPeriodVibes: steered.vibePeriod, ...periods('side7Love', steered.love), ...periods('side7Fear', steered.fear) } }
-      }
-
-      const rule = ruleOf(spec)
-      const battery: Acceptance = acceptance(rule)
-      const sides = SIDES.map(side => ({ side, love: dressing(rule, { side, tone: 1 }), fear: dressing(rule, { side, tone: -1 }) }))
-      const noMore = (a: Dressing, b: Dressing | undefined): boolean => a.periodLargest.every((x, p) => x <= (b?.periodLargest[p] ?? 0))
-      const gates: Record<string, boolean> = {
-        reverses: battery.reverses || !committed.reverses,
-        chargeKept: battery.chargeKept || !committed.chargeKept,
-        cptAtMirrorPhase: battery.cptPhase >= 0 || committed.cptPhase < 0,
-        vacuumPeriodic: battery.vacuumPeriod > 0 || committed.vacuumPeriod <= 0,
-        vacuumComponentsNoMore: battery.vacuumComponents <= committed.vacuumComponents,
-        denseComponentsNoMore: battery.denseComponents <= committed.denseComponents,
-        superposition: battery.additivityWorst < 1e-9 || committed.additivityWorst >= 1e-9,
-        wallsQuantized: (battery.wallQuantized && battery.wallMax > 0) || !(committed.wallQuantized && committed.wallMax > 0),
-        loveDressingSide9: noMore(battery.love, committed.love),
-        fearDressingSide9: noMore(battery.fear, committed.fear),
-        ...Object.fromEntries(
-          sides.flatMap(s => {
-            const ref = committedSides.find(r => r.side === s.side)
-
-            return [
-              [`loveDressingSide${s.side}`, noMore(s.love, ref?.love)],
-              [`fearDressingSide${s.side}`, noMore(s.fear, ref?.fear)],
-            ]
-          }),
-        ),
-        boxReverses: box.boxReverses === 1,
-        boxChargeKept: box.boxChargeKept === 1,
-        noColorLeak: box.boxColorLeaks === 0,
-        frameCommutes: box.boxFrameMismatch === 0,
-        momentumKept: box.pDrift === 0,
-        lineMomentaExchanged: (box.lineMomentumDrift ?? 0) > 0,
-      }
-
-      log(`classical ${name}`)
-
-      return {
-        name,
-        gates,
-        numbers: {
-          ...box,
-          reverses: battery.reverses ? 1 : 0,
-          cptMirrorPhase: battery.cptPhase,
-          vacuumPeriod: battery.vacuumPeriod,
-          vacuumPeriodUpTo72: longVacuumPeriod(spec),
-          vacuumComponents: battery.vacuumComponents,
-          denseComponents: battery.denseComponents,
-          additivityWorst: battery.additivityWorst,
-          wallQuantized: battery.wallQuantized ? 1 : 0,
-          wallSettledMax: battery.wallMax,
-          travellers: battery.travellers,
-          ...periods('side9Love', battery.love.periodLargest),
-          ...periods('side9Fear', battery.fear.periodLargest),
-          ...Object.fromEntries(
-            sides.flatMap(s => [
-              ...Object.entries(periods(`side${s.side}Love`, s.love.periodLargest)),
-              ...Object.entries(periods(`side${s.side}Fear`, s.fear.periodLargest)),
-            ]),
-          ),
-        },
-      }
-    })
+        return {
+          name,
+          gates,
+          numbers: {
+            ...box,
+            reverses: battery.reverses ? 1 : 0,
+            cptMirrorPhase: battery.cptPhase,
+            vacuumPeriod: battery.vacuumPeriod,
+            vacuumPeriodUpTo72: longVacuumPeriod(spec),
+            vacuumComponents: battery.vacuumComponents,
+            denseComponents: battery.denseComponents,
+            additivityWorst: battery.additivityWorst,
+            wallQuantized: battery.wallQuantized ? 1 : 0,
+            wallSettledMax: battery.wallMax,
+            travellers: battery.travellers,
+            ...periods('side9Love', battery.love.periodLargest),
+            ...periods('side9Fear', battery.fear.periodLargest),
+            ...Object.fromEntries(
+              sides.flatMap(s => [
+                ...Object.entries(
+                  periods(`side${s.side}Love`, s.love.periodLargest),
+                ),
+                ...Object.entries(
+                  periods(`side${s.side}Fear`, s.fear.periodLargest),
+                ),
+              ]),
+            ),
+          },
+        }
+      },
+    )
 
     // the quantum gates, fear beat off and on
     const quantumRuns = CONFIGS.map(({ name, spec }) => {
@@ -879,16 +1456,23 @@ export default experiment({
     // the characterization, reported
     const knits = [
       ...REFERENCE_KNITS,
-      ...CONFIGS.filter(c => !c.spec.steer).map(c => ({ name: c.name, schedule: scheduleOf(c.spec), rule: ruleOf(c.spec) })),
+      ...CONFIGS.filter(c => !c.spec.steer).map(c => ({
+        name: c.name,
+        schedule: scheduleOf(c.spec),
+        rule: ruleOf(c.spec),
+      })),
     ]
-    const profiles: { name: string; profile: Profile }[] = knits.map(k => {
-      const profile = characterizeKnit(k)
+    const profiles: { name: string; profile: Profile }[] = knits.map(
+      k => {
+        const profile = characterizeKnit(k)
 
-      log(`characterized ${k.name}`)
+        log(`characterized ${k.name}`)
 
-      return { name: k.name, profile }
-    })
-    const committedProfile = profiles.find(p => p.name === 'committed')?.profile ?? {}
+        return { name: k.name, profile }
+      },
+    )
+    const committedProfile =
+      profiles.find(p => p.name === 'committed')?.profile ?? {}
 
     // the adoption rule
     const failsOnlyOn: string[] = []
@@ -914,11 +1498,25 @@ export default experiment({
     }
 
     // the classical layer is the same with the fear beat on or off, measured per configuration
-    const classicalBlind = classical.every(c => (c.numbers.openingTokensChangesClassical ?? 1) === 0)
-    const fearBeatWorks = classicalBlind && failsOnlyOn.length === 0 && quantumOnFails.length === 0
+    const classicalBlind = classical.every(
+      c => (c.numbers.openingTokensChangesClassical ?? 1) === 0,
+    )
+    const fearBeatWorks =
+      classicalBlind &&
+      failsOnlyOn.length === 0 &&
+      quantumOnFails.length === 0
     const controls =
-      committedNumbersReproduced(committedProfile) && quantumRuns.every(r => r.on.metrics.controlsHold === 1 && r.off.metrics.controlsHold === 1)
-    const classicalFails = classical.flatMap(c => Object.entries(c.gates).filter(([, pass]) => !pass).map(([gate]) => `${c.name}:${gate}`))
+      committedNumbersReproduced(committedProfile) &&
+      quantumRuns.every(
+        r =>
+          r.on.metrics.controlsHold === 1 &&
+          r.off.metrics.controlsHold === 1,
+      )
+    const classicalFails = classical.flatMap(c =>
+      Object.entries(c.gates)
+        .filter(([, pass]) => !pass)
+        .map(([gate]) => `${c.name}:${gate}`),
+    )
 
     return verdict({
       status: controls && fearBeatWorks ? 'pass' : 'fail',
@@ -930,30 +1528,61 @@ export default experiment({
         gainedWithFearOn: gainedOn.length,
         classicalLayerBlindToFear: classicalBlind ? 1 : 0,
         classicalGateFailures: classicalFails.length,
-        ...Object.fromEntries(classical.flatMap(c => [...Object.entries(flatten(`${c.name}_gate`, c.gates)), ...Object.entries(flatten(c.name, c.numbers))])),
+        ...Object.fromEntries(
+          classical.flatMap(c => [
+            ...Object.entries(flatten(`${c.name}_gate`, c.gates)),
+            ...Object.entries(flatten(c.name, c.numbers)),
+          ]),
+        ),
         ...Object.fromEntries(
           quantumRuns.flatMap(r => [
             ...Object.entries(flatten(`${r.name}_on_gate`, r.on.gates)),
-            ...Object.entries(flatten(`${r.name}_off_gate`, r.off.gates)),
+            ...Object.entries(
+              flatten(`${r.name}_off_gate`, r.off.gates),
+            ),
             ...Object.entries(flatten(`${r.name}_on`, r.on.metrics)),
             ...Object.entries(flatten(`${r.name}_off`, r.off.metrics)),
           ]),
         ),
-        ...Object.fromEntries(profiles.filter(p => p.name === 'H' || p.name === 'HF').flatMap(p => Object.entries(flatten(p.name, p.profile)))),
+        ...Object.fromEntries(
+          profiles
+            .filter(p => p.name === 'H' || p.name === 'HF')
+            .flatMap(p => Object.entries(flatten(p.name, p.profile))),
+        ),
       },
       control: {
-        committedNumbersReproduced: committedNumbersReproduced(committedProfile) ? 1 : 0,
+        committedNumbersReproduced: committedNumbersReproduced(
+          committedProfile,
+        )
+          ? 1
+          : 0,
         ...periods('committedSide9Love', committed.love.periodLargest),
         ...periods('committedSide9Fear', committed.fear.periodLargest),
         ...Object.fromEntries(
           committedSides.flatMap(s => [
-            ...Object.entries(periods(`committedSide${s.side}Love`, s.love.periodLargest)),
-            ...Object.entries(periods(`committedSide${s.side}Fear`, s.fear.periodLargest)),
+            ...Object.entries(
+              periods(
+                `committedSide${s.side}Love`,
+                s.love.periodLargest,
+              ),
+            ),
+            ...Object.entries(
+              periods(
+                `committedSide${s.side}Fear`,
+                s.fear.periodLargest,
+              ),
+            ),
           ]),
         ),
-        ...Object.fromEntries(profiles.filter(p => p.name !== 'H' && p.name !== 'HF').flatMap(p => Object.entries(flatten(p.name, p.profile)))),
+        ...Object.fromEntries(
+          profiles
+            .filter(p => p.name !== 'H' && p.name !== 'HF')
+            .flatMap(p => Object.entries(flatten(p.name, p.profile))),
+        ),
       },
-      notes: "RERUN 2026-09-26 under the adopted comoving fear beat and the 2026-09-26 frame and phase-index conventions: status pass, every verdict the same; on HF the fears max 27,747,493,661 -> 25,616,991,761 and the fear share max 0.3074 -> 0.2996, the swap-at-love-fear control 1,303 -> 352 on H and 2,959 -> 1,760 on HF and HFL (still breaking the frame change), and the on column equals E-SPN-0063's comoving column on 132 of 132 shared metrics. " + (`L2, exact, no random numbers. Fails only with the fear beat on: ${failsOnlyOn.join(', ') || 'none'}. Quantum gates failing with it on: ${quantumOnFails.join(', ') || 'none'}. Gained with it on (fail off, pass on): ${gainedOn.join(', ') || 'none'}. The base's classical gate failures: ${classicalFails.join(', ') || 'none'}. The classical gates are the same with the fear beat on or off because the classical layer never reads the whole, measured here on every configuration (openingTokensChangesClassical 0 means opening every token changed no vibe, token or flux in 48 beats) and in E-FRC-0158. The fold is not chosen here: its choice waits on the isotropy measurements of E-RLT-0047 and E-RLT-0048. Steering reads the flux, so HFL has no dock-level collision: its gates are the box-level ones, its dressing is measured densely at side 7 only, and its CPT is E-FRC-0156's question (lone steering loses full-box CPT there). The kick law on the new base and the rest of the characterization are the H_ and HF_ metrics, beside the committed rule, A (chosen_) and B (runnerUp_) in the control block.`),
+      notes:
+        "RERUN 2026-09-26 under the adopted comoving fear beat and the 2026-09-26 frame and phase-index conventions: status pass, every verdict the same; on HF the fears max 27,747,493,661 -> 25,616,991,761 and the fear share max 0.3074 -> 0.2996, the swap-at-love-fear control 1,303 -> 352 on H and 2,959 -> 1,760 on HF and HFL (still breaking the frame change), and the on column equals E-SPN-0063's comoving column on 132 of 132 shared metrics. " +
+        `L2, exact, no random numbers. Fails only with the fear beat on: ${failsOnlyOn.join(', ') || 'none'}. Quantum gates failing with it on: ${quantumOnFails.join(', ') || 'none'}. Gained with it on (fail off, pass on): ${gainedOn.join(', ') || 'none'}. The base's classical gate failures: ${classicalFails.join(', ') || 'none'}. The classical gates are the same with the fear beat on or off because the classical layer never reads the whole, measured here on every configuration (openingTokensChangesClassical 0 means opening every token changed no vibe, token or flux in 48 beats) and in E-FRC-0158. The fold is not chosen here: its choice waits on the isotropy measurements of E-RLT-0047 and E-RLT-0048. Steering reads the flux, so HFL has no dock-level collision: its gates are the box-level ones, its dressing is measured densely at side 7 only, and its CPT is E-FRC-0156's question (lone steering loses full-box CPT there). The kick law on the new base and the rest of the characterization are the H_ and HF_ metrics, beside the committed rule, A (chosen_) and B (runnerUp_) in the control block.`,
     })
   },
 })

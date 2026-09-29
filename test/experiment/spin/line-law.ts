@@ -42,13 +42,36 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
-import { samePoints, streamInto, THRESHOLD_BORN, tritsApart } from '@/code/measure/doublet-locked-readings'
+import {
+  samePoints,
+  streamInto,
+  THRESHOLD_BORN,
+  tritsApart,
+} from '@/code/measure/doublet-locked-readings'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinPiece, pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { fullPathKey, keyedCoin, keyedMeet, keyedMix, keyedPairMix, keyedRunner, lineCharges, linesDiffering, meshLines, oldPathKey, pathOffset, type MeshLines, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedCoin,
+  keyedMeet,
+  keyedMix,
+  keyedPairMix,
+  keyedRunner,
+  lineCharges,
+  linesDiffering,
+  meshLines,
+  oldPathKey,
+  pathOffset,
+  type MeshLines,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 
 const LAW_SIDE = 8
 const LAW_BEATS = 48
@@ -57,50 +80,122 @@ const PAIR_SIDE = 16
 const PAIR_BEATS = 72
 const DEBUG_BEATS = 6
 const PROBE_DEBUG = [519, 1059, 1141]
-const PIECES = ['mix', 'coin', 'meet', 'pair', 'bounce', 'stream'] as const
+const PIECES = [
+  'mix',
+  'coin',
+  'meet',
+  'pair',
+  'bounce',
+  'stream',
+] as const
 
 type Piece = (typeof PIECES)[number]
 type Steps = Record<Piece, number>
 
 // one beat stepped piece by piece; every piece of one kind runs on every dock before the next (docks are disjoint, so
 // this is the rule's own dock-by-dock order); the lines each piece changes are added to `steps`, and per beat to `perBeat`
-function tracedBeat(input: { tables: LockedTables; a: Configuration; b: Configuration; key: PathKey; t: number; mix: 'pairs' | number; lines: MeshLines; steps: Steps; perBeat?: Steps[] }): void {
+function tracedBeat(input: {
+  tables: LockedTables
+  a: Configuration
+  b: Configuration
+  key: PathKey
+  t: number
+  mix: 'pairs' | number
+  lines: MeshLines
+  steps: Steps
+  perBeat?: Steps[]
+}): void {
   const { tables, a, b, key, t, mix, lines, steps } = input
-  const beat: Steps = { mix: 0, coin: 0, meet: 0, pair: 0, bounce: 0, stream: 0 }
-  const step = (name: Piece, run: () => void, from: Configuration, to: Configuration): void => {
+  const beat: Steps = {
+    mix: 0,
+    coin: 0,
+    meet: 0,
+    pair: 0,
+    bounce: 0,
+    stream: 0,
+  }
+
+  const step = (
+    name: Piece,
+    run: () => void,
+    from: Configuration,
+    to: Configuration,
+  ): void => {
     const before = lineCharges(lines, from).tone
 
     run()
     beat[name] += linesDiffering(before, lineCharges(lines, to).tone)
   }
 
-  step('mix', () => (mix === 'pairs' ? keyedPairMix(tables, a, key, t) : keyedMix(tables, a, key, t, mix)), a, a)
+  step(
+    'mix',
+    () =>
+      mix === 'pairs'
+        ? keyedPairMix(tables, a, key, t)
+        : keyedMix(tables, a, key, t, mix),
+    a,
+    a,
+  )
   step('coin', () => keyedCoin(tables, a, key, THRESHOLD_BORN, t), a, a)
   step('meet', () => keyedMeet(tables, a, key, THRESHOLD_BORN, t), a, a)
 
   for (const piece of collisionOrder('alternate', t)) {
-    if (piece === 'P') step('pair', () => {
-      for (let x = 0; x < tables.cells; x++) pairPiece('none', a, x)
-    }, a, a)
-    else step('bounce', () => {
-      for (let x = 0; x < tables.cells; x++) coinPiece(tables, a, x)
-    }, a, a)
+    if (piece === 'P') {
+      step(
+        'pair',
+        () => {
+          for (let x = 0; x < tables.cells; x++) {
+            pairPiece('none', a, x)
+          }
+        },
+        a,
+        a,
+      )
+    } else {
+      step(
+        'bounce',
+        () => {
+          for (let x = 0; x < tables.cells; x++) {
+            coinPiece(tables, a, x)
+          }
+        },
+        a,
+        a,
+      )
+    }
   }
 
   step('stream', () => streamInto(tables, a, b), a, b)
 
-  for (const p of PIECES) steps[p] += beat[p]
+  for (const p of PIECES) {
+    steps[p] += beat[p]
+  }
+
   input.perBeat?.push(beat)
 }
 
-const newSteps = (): Steps => ({ mix: 0, coin: 0, meet: 0, pair: 0, bounce: 0, stream: 0 })
+const newSteps = (): Steps => ({
+  mix: 0,
+  coin: 0,
+  meet: 0,
+  pair: 0,
+  bounce: 0,
+  stream: 0,
+})
 
 // the line law on side 8: lines whose tone (and directed tone) ever differs from beat 0
-function lawRun(tables: LockedTables, start: Configuration, lines: MeshLines, key: PathKey, mix: number): { tone: number; directed: number; firstBroken: number } {
+function lawRun(
+  tables: LockedTables,
+  start: Configuration,
+  lines: MeshLines,
+  key: PathKey,
+  mix: number,
+): { tone: number; directed: number; firstBroken: number } {
   const run = keyedRunner(tables, start, { key, mix })
   const first = lineCharges(lines, start)
   const tone = new Uint8Array(lines.count)
   const directed = new Uint8Array(lines.count)
+
   let firstBroken = -1
 
   for (let t = 0; t < LAW_BEATS; t++) {
@@ -111,17 +206,40 @@ function lawRun(tables: LockedTables, start: Configuration, lines: MeshLines, ke
     for (let k = 0; k < lines.count; k++) {
       if (now.tone[k] !== first.tone[k]) {
         tone[k] = 1
-        if (firstBroken < 0) firstBroken = t + 1
+
+        if (firstBroken < 0) {
+          firstBroken = t + 1
+        }
       }
-      if (now.directed[k] !== first.directed[k]) directed[k] = 1
+
+      if (now.directed[k] !== first.directed[k]) {
+        directed[k] = 1
+      }
     }
   }
 
-  return { tone: tone.reduce((s, x) => s + x, 0), directed: directed.reduce((s, x) => s + x, 0), firstBroken }
+  return {
+    tone: tone.reduce((s, x) => s + x, 0),
+    directed: directed.reduce((s, x) => s + x, 0),
+    firstBroken,
+  }
 }
 
 // the store-mixer run on one box: traced seeded run, the rule's own seeded run (instrument), the unseeded run (wake)
-function pairRun(side: number, beats: number, key: (cells: number) => PathKey, mix: 'pairs' | number, seeded: boolean): { steps: Steps; perBeat: Steps[]; broken: number; wake: number[]; same: boolean; lines: number } {
+function pairRun(
+  side: number,
+  beats: number,
+  key: (cells: number) => PathKey,
+  mix: 'pairs' | number,
+  seeded: boolean,
+): {
+  steps: Steps
+  perBeat: Steps[]
+  broken: number
+  wake: number[]
+  same: boolean
+  lines: number
+} {
   const center = centerOf(side)
   const f = contactFresh(side, 'pass', center)
   const tables = f.tables
@@ -141,6 +259,7 @@ function pairRun(side: number, beats: number, key: (cells: number) => PathKey, m
   const perBeat: Steps[] = []
   const first = lineCharges(lines, start).tone
   const wake: number[] = []
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let same = true
@@ -158,7 +277,14 @@ function pairRun(side: number, beats: number, key: (cells: number) => PathKey, m
     wake.push(tritsApart(a, plain.state()))
   }
 
-  return { steps, perBeat, broken: linesDiffering(first, lineCharges(lines, a).tone), wake, same, lines: lines.count }
+  return {
+    steps,
+    perBeat,
+    broken: linesDiffering(first, lineCharges(lines, a).tone),
+    wake,
+    same,
+    lines: lines.count,
+  }
 }
 
 export default experiment({
@@ -183,28 +309,76 @@ export default experiment({
     start.vibe[center * 24] = 1
     start.open[center * 24] = 1
 
-    const keys: PathKey[] = [...Array.from({ length: OFFSETS }, (_, k) => fullPathKey(pathOffset(k))), oldPathKey(f.cells)]
-    const law = keys.map(key => ({ key: key.name, none: lawRun(f.tables, start, lines, key, 0), g: lawRun(f.tables, start, lines, key, 4) }))
+    const keys: PathKey[] = [
+      ...Array.from({ length: OFFSETS }, (_, k) =>
+        fullPathKey(pathOffset(k)),
+      ),
+      oldPathKey(f.cells),
+    ]
+    const law = keys.map(key => ({
+      key: key.name,
+      none: lawRun(f.tables, start, lines, key, 0),
+      g: lawRun(f.tables, start, lines, key, 4),
+    }))
     const gL1 = law.every(r => r.none.tone === 0)
     const gL2 = law.every(r => r.g.tone > 0)
     const oldLaw = law[law.length - 1]!
 
     // ---- L3: the store mixer on side 16, full key offset 0 ----
-    const pairs = pairRun(PAIR_SIDE, PAIR_BEATS, () => fullPathKey(0), 'pairs', true)
-    const unmixed = pairRun(PAIR_SIDE, PAIR_BEATS, () => fullPathKey(0), 0, true)
-    const others = (s: Steps): number => s.coin + s.meet + s.pair + s.stream
-    const gL3 = pairs.steps.mix === 0 && others(pairs.steps) === 0 && pairs.steps.bounce > 0 && unmixed.steps.bounce === 0 && others(unmixed.steps) === 0
+    const pairs = pairRun(
+      PAIR_SIDE,
+      PAIR_BEATS,
+      () => fullPathKey(0),
+      'pairs',
+      true,
+    )
+    const unmixed = pairRun(
+      PAIR_SIDE,
+      PAIR_BEATS,
+      () => fullPathKey(0),
+      0,
+      true,
+    )
+    const others = (s: Steps): number =>
+      s.coin + s.meet + s.pair + s.stream
+    const gL3 =
+      pairs.steps.mix === 0 &&
+      others(pairs.steps) === 0 &&
+      pairs.steps.bounce > 0 &&
+      unmixed.steps.bounce === 0 &&
+      others(unmixed.steps) === 0
     const firstBounce = pairs.perBeat.findIndex(s => s.bounce > 0)
 
     // ---- L4 and the control: tmp/pair-mixer-debug's run on both keys ----
-    const debugOld = pairRun(LAW_SIDE, DEBUG_BEATS, cells => oldPathKey(cells), 'pairs', false)
-    const debugFull = pairRun(LAW_SIDE, DEBUG_BEATS, () => fullPathKey(0), 'pairs', false)
-    const onlyBounce = (r: { steps: Steps }): boolean => r.steps.mix === 0 && others(r.steps) === 0
+    const debugOld = pairRun(
+      LAW_SIDE,
+      DEBUG_BEATS,
+      cells => oldPathKey(cells),
+      'pairs',
+      false,
+    )
+    const debugFull = pairRun(
+      LAW_SIDE,
+      DEBUG_BEATS,
+      () => fullPathKey(0),
+      'pairs',
+      false,
+    )
+    const onlyBounce = (r: { steps: Steps }): boolean =>
+      r.steps.mix === 0 && others(r.steps) === 0
     const gL4 = onlyBounce(debugOld) && onlyBounce(debugFull)
-    const instrument = pairs.same && unmixed.same && debugOld.same && debugFull.same
+    const instrument =
+      pairs.same && unmixed.same && debugOld.same && debugFull.same
     const oldDebug = debugOld.perBeat.slice(3, 6).map(s => s.bounce)
-    const reproduced = oldDebug.every((v, i) => v === PROBE_DEBUG[i]) && oldLaw.g.tone === lines.count && oldLaw.none.tone === 0
-    const status = !(gL1 && gL2 && gL3 && gL4 && instrument) ? 'fail' : reproduced ? 'pass' : 'partial'
+    const reproduced =
+      oldDebug.every((v, i) => v === PROBE_DEBUG[i]) &&
+      oldLaw.g.tone === lines.count &&
+      oldLaw.none.tone === 0
+    const status = !(gL1 && gL2 && gL3 && gL4 && instrument)
+      ? 'fail'
+      : reproduced
+        ? 'pass'
+        : 'partial'
 
     for (const r of law) {
       const k = r.key === 'old' ? 'old' : r.key.replace('full+', 'full')
@@ -232,13 +406,20 @@ export default experiment({
       seconds: (Date.now() - t0) / 1000,
     })
 
-    const fmt = (s: Steps): string => PIECES.map(p => `${p} ${s[p]}`).join(', ')
+    const fmt = (s: Steps): string =>
+      PIECES.map(p => `${p} ${s[p]}`).join(', ')
 
     return verdict({
       status,
       claim: `the tone on every mesh line: with no mixer conserved on ${law.map(r => `${lines.count - r.none.tone}`).join('/')} of ${lines.count} lines (side ${LAW_SIDE}, ${LAW_BEATS} beats; full-key offsets then the old key); with G broken on ${law.map(r => r.g.tone).join('/')}; the store mixer (side ${PAIR_SIDE}, ${PAIR_BEATS} beats) breaks it on ${pairs.broken} of ${pairs.lines} lines, every break made by the collision's bounce piece (${fmt(pairs.steps)}; first at beat ${firstBounce + 1}), none by the mixing step itself; with no store mixer the bounce piece breaks none (${fmt(unmixed.steps)})`,
       metrics,
-      control: { oldDebugBeat3: oldDebug[0]!, oldDebugBeat4: oldDebug[1]!, oldDebugBeat5: oldDebug[2]!, oldGToneBroken: oldLaw.g.tone, oldNoneDirectedBroken: oldLaw.none.directed },
+      control: {
+        oldDebugBeat3: oldDebug[0]!,
+        oldDebugBeat4: oldDebug[1]!,
+        oldDebugBeat5: oldDebug[2]!,
+        oldGToneBroken: oldLaw.g.tone,
+        oldNoneDirectedBroken: oldLaw.none.directed,
+      },
       notes: `L2. L1 ${gL1}, L2 ${gL2}, L3 ${gL3}, L4 ${gL4}, instrument (piece by piece equals the rule's beat) ${instrument}, old-key counts reproduced ${reproduced}. Directed tone broken with no mixer: ${law.map(r => r.none.directed).join('/')} (the probe 1,153). Unseeded vacuum with the store mixer, lines changed per piece per beat, old key: ${debugOld.perBeat.map(fmt).join(' | ')}; full key: ${debugFull.perBeat.map(fmt).join(' | ')}. Store-mixer wake (trits apart from the unseeded run with the same mixer) per beat: ${pairs.wake.join(' ')}. Bounce-piece line changes per beat: ${pairs.perBeat.map(s => s.bounce).join(' ')}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

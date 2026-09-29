@@ -116,7 +116,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const metrics: Record<string, number> = {}
 
     // ---- T1 ----
@@ -127,9 +130,15 @@ export default experiment({
       const k = 2 * Math.PI * (weyl(s + 1, GOLDEN) - 0.5)
       const [a, b] = linePhases(k)
       const E = tokenBand(k)
-      const want = [wrap(Math.PI / 3 - E), wrap(Math.PI / 3 + E)].sort((x, y) => x - y)
+      const want = [wrap(Math.PI / 3 - E), wrap(Math.PI / 3 + E)].sort(
+        (x, y) => x - y,
+      )
 
-      t1Band = Math.max(t1Band, Math.abs(wrap(a - want[0]!)), Math.abs(wrap(b - want[1]!)))
+      t1Band = Math.max(
+        t1Band,
+        Math.abs(wrap(a - want[0]!)),
+        Math.abs(wrap(b - want[1]!)),
+      )
       t1Det = Math.max(t1Det, Math.abs(wrap(a + b - OMEGA_PHASE)))
     }
 
@@ -151,14 +160,20 @@ export default experiment({
     metrics.t1TopVelocity = vTop
     metrics.t1TopMomentum = kTop
 
-    const t1 = t1Band <= 1e-12 && t1Det <= 1e-12 && Math.abs(vTop - V_MAX) <= 1e-8 && Math.abs(kTop - Math.PI / 2) <= 1e-3
+    const t1 =
+      t1Band <= 1e-12 &&
+      t1Det <= 1e-12 &&
+      Math.abs(vTop - V_MAX) <= 1e-8 &&
+      Math.abs(kTop - Math.PI / 2) <= 1e-3
 
     log('t1')
 
     // ---- T2 ----
     const free = freeSumSet(64, 2)
     const edgeKs = [1e-3, 0.1, 1, 2, 3]
-    const edgeGaps = edgeKs.map(K => Math.abs(edgeByMaximum(K) - pairEdge(K)))
+    const edgeGaps = edgeKs.map(K =>
+      Math.abs(edgeByMaximum(K) - pairEdge(K)),
+    )
     const edgeSlope = pairEdge(1e-3) / 1e-3
 
     metrics.t2SumSetGap = free.gap
@@ -169,13 +184,21 @@ export default experiment({
     metrics.t2EdgeMaxGap = Math.max(...edgeGaps)
     metrics.t2EdgeSlope = edgeSlope
 
-    const t2 = free.gap <= 1e-10 && free.restMultiplicity === 128 && free.oppositeCount === 128 && Math.abs(free.edge - free.edgeClosed) <= 1e-10 && Math.max(...edgeGaps) <= 1e-10 && Math.abs(edgeSlope - 0.5) <= 1e-6
+    const t2 =
+      free.gap <= 1e-10 &&
+      free.restMultiplicity === 128 &&
+      free.oppositeCount === 128 &&
+      Math.abs(free.edge - free.edgeClosed) <= 1e-10 &&
+      Math.max(...edgeGaps) <= 1e-10 &&
+      Math.abs(edgeSlope - 0.5) <= 1e-6
 
     log('t2')
 
     // ---- T3 ----
     const comov = Array.from({ length: 17 }, (_, s) => {
-      const weights = Array.from({ length: 8 }, (_, r) => BigInt(Math.floor(7 * weyl(8 * s + r + 1, GOLDEN)) - 3))
+      const weights = Array.from({ length: 8 }, (_, r) =>
+        BigInt(Math.floor(7 * weyl(8 * s + r + 1, GOLDEN)) - 3),
+      )
 
       return comovingExact(2 + (s % 2), 16, weights)
     })
@@ -198,9 +221,23 @@ export default experiment({
       const j1 = Math.floor(2 * weyl(2 * s + 1, GOLDEN))
       const j2 = Math.floor(2 * weyl(2 * s + 2, SILVER))
 
-      return driftExactCheck({ ring: 16, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', cost: N, root: 2 * N * N }, [{ x: [x1, x1 + sep], j: [j1, j2], amp: [1, 0] }], 3, 10)
+      return driftExactCheck(
+        {
+          ring: 16,
+          kinds: ['love', 'fear'],
+          convention: 'C',
+          unlike: 'knit',
+          cost: N,
+          root: 2 * N * N,
+        },
+        [{ x: [x1, x1 + sep], j: [j1, j2], amp: [1, 0] }],
+        3,
+        10,
+      )
     })
-    const g = family.every(f => f.gap <= 1e-12 && f.norm && f.reverses && f.gauss)
+    const g = family.every(
+      f => f.gap <= 1e-12 && f.norm && f.reverses && f.gauss,
+    )
 
     metrics.gStarts = family.length
     metrics.gGapWorst = Math.max(...family.map(f => f.gap))
@@ -217,7 +254,12 @@ export default experiment({
       const M10 = 10 * N
       const rest6 = restCount(pairMatrix(M6, 0, N), 1e-9)
       const rest10 = restCount(pairMatrix(M10, 0, N), 1e-9)
-      const small = lightestBranch(M6, N, [0, 1e-3, 2e-3, 4e-3, 0.1], true)
+      const small = lightestBranch(
+        M6,
+        N,
+        [0, 1e-3, 2e-3, 4e-3, 0.1],
+        true,
+      )
       const big = lightestBranch(M10, N, [1e-3, 0.1], true)
       const grid = lightestBranch(
         M6,
@@ -225,10 +267,20 @@ export default experiment({
         Array.from({ length: 65 }, (_, i) => (Math.PI * i) / 64),
         false,
       )
-      const at = (K: number): (typeof small)[number] => small.find(p => p.K === K)!
-      const boxTheta = Math.max(Math.abs(wrap(at(1e-3).theta - big[0]!.theta)), Math.abs(wrap(at(0.1).theta - big[1]!.theta)))
-      const boxVelocity = Math.max(Math.abs(at(1e-3).velocity - big[0]!.velocity), Math.abs(at(0.1).velocity - big[1]!.velocity))
-      const residual = Math.max(...small.map(p => p.residual), ...big.map(p => p.residual))
+      const at = (K: number): (typeof small)[number] =>
+        small.find(p => p.K === K)!
+      const boxTheta = Math.max(
+        Math.abs(wrap(at(1e-3).theta - big[0]!.theta)),
+        Math.abs(wrap(at(0.1).theta - big[1]!.theta)),
+      )
+      const boxVelocity = Math.max(
+        Math.abs(at(1e-3).velocity - big[0]!.velocity),
+        Math.abs(at(0.1).velocity - big[1]!.velocity),
+      )
+      const residual = Math.max(
+        ...small.map(p => p.residual),
+        ...big.map(p => p.residual),
+      )
       const v1 = Math.abs(at(1e-3).velocity)
       const v2 = Math.abs(at(2e-3).velocity)
       const v4 = Math.abs(at(4e-3).velocity)
@@ -237,12 +289,50 @@ export default experiment({
 
       log(`D ${D}`)
 
-      return { D, N, rest6, rest10, small, big, grid, at, boxTheta, boxVelocity, residual, v1, v2, v4, top, gridResidual }
+      return {
+        D,
+        N,
+        rest6,
+        rest10,
+        small,
+        big,
+        grid,
+        at,
+        boxTheta,
+        boxVelocity,
+        residual,
+        v1,
+        v2,
+        v4,
+        top,
+        gridResidual,
+      }
     })
 
-    const b = rows.every(r => r.rest6.count === 3 && r.rest10.count === 5) && rows.filter(r => r.D >= 3).every(r => r.boxTheta <= 1e-9 && r.boxVelocity <= 1e-9 && r.residual <= 1e-10)
-    const h = rows.every(r => Math.abs(r.v1 - V_MAX) <= 0.05 * V_MAX && Math.abs(r.v2 - V_MAX) <= 0.05 * V_MAX)
-    const p4 = rows.every(r => (r.v1 <= 1e-12 && r.v2 <= 1e-12 && r.v4 <= 1e-12) || (r.v1 <= 0.005 && r.v2 / r.v1 >= 1.95 && r.v2 / r.v1 <= 2.05 && r.v4 / r.v2 >= 1.95 && r.v4 / r.v2 <= 2.05))
+    const b =
+      rows.every(r => r.rest6.count === 3 && r.rest10.count === 5) &&
+      rows
+        .filter(r => r.D >= 3)
+        .every(
+          r =>
+            r.boxTheta <= 1e-9 &&
+            r.boxVelocity <= 1e-9 &&
+            r.residual <= 1e-10,
+        )
+    const h = rows.every(
+      r =>
+        Math.abs(r.v1 - V_MAX) <= 0.05 * V_MAX &&
+        Math.abs(r.v2 - V_MAX) <= 0.05 * V_MAX,
+    )
+    const p4 = rows.every(
+      r =>
+        (r.v1 <= 1e-12 && r.v2 <= 1e-12 && r.v4 <= 1e-12) ||
+        (r.v1 <= 0.005 &&
+          r.v2 / r.v1 >= 1.95 &&
+          r.v2 / r.v1 <= 2.05 &&
+          r.v4 / r.v2 >= 1.95 &&
+          r.v4 / r.v2 <= 2.05),
+    )
 
     for (const r of rows) {
       metrics[`D${r.D}_rest6`] = r.rest6.count
@@ -270,9 +360,21 @@ export default experiment({
       metrics[`D${r.D}_meanString_Kpi`] = r.grid[64]!.meanString
     }
 
-    for (let D = 1; D <= 16; D++) metrics[`vmaxOverPhotonC_D${D}`] = V_MAX / photonC(D)
+    for (let D = 1; D <= 16; D++) {
+      metrics[`vmaxOverPhotonC_D${D}`] = V_MAX / photonC(D)
+    }
 
-    for (const [name, ok] of Object.entries({ T1: t1, T2: t2, T3: t3, G: g, B: b, H: h, P4: p4 })) metrics[`gate${name}`] = ok ? 1 : 0
+    for (const [name, ok] of Object.entries({
+      T1: t1,
+      T2: t2,
+      T3: t3,
+      G: g,
+      B: b,
+      H: h,
+      P4: p4,
+    })) {
+      metrics[`gate${name}`] = ok ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 

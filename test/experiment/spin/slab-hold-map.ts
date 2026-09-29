@@ -115,7 +115,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
 import { ritzLevels, type Ritz } from '@/code/measure/frame-meson'
 import {
   addSlab,
@@ -134,7 +139,15 @@ import {
   type SlabSpec,
   type SlabState,
 } from '@/code/measure/slab-holes'
-import { bagStep, freeStep, holdLevelBy, kleinMass, kleinPrediction, longestJointPath, tensorBy } from '@/code/measure/slab-hold-map'
+import {
+  bagStep,
+  freeStep,
+  holdLevelBy,
+  kleinMass,
+  kleinPrediction,
+  longestJointPath,
+  tensorBy,
+} from '@/code/measure/slab-hold-map'
 
 const CUT = 12
 const DS = [1, 2, 3, 6]
@@ -165,7 +178,14 @@ const NORM_SAME = 1e-10
 const ANTI_SAME = 1e-12
 
 type C = [number, number]
-type Point = { D: number; rate: number; hold: SlabHold; predicted: boolean; margin: number; exponent: number }
+type Point = {
+  D: number
+  rate: number
+  hold: SlabHold
+  predicted: boolean
+  margin: number
+  exponent: number
+}
 type Tensor = ReturnType<typeof slabTensor>
 
 const ritz = (c: readonly C[]): Ritz[] => ritzLevels(c)
@@ -181,14 +201,36 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const holdInput = { ritzBeats: RITZ_T, holdBeats: HOLD_BEATS, fidelity: FIDELITY, tail: TAIL, tailFrom: TAIL_FROM, ritz }
-    const base: SlabSpec = { holes: 3, axes: 2, cut: CUT, rate: 0, D: 3, cost: 'steiner', boundary: 'absorb' }
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const holdInput = {
+      ritzBeats: RITZ_T,
+      holdBeats: HOLD_BEATS,
+      fidelity: FIDELITY,
+      tail: TAIL,
+      tailFrom: TAIL_FROM,
+      ritz,
+    }
+    const base: SlabSpec = {
+      holes: 3,
+      axes: 2,
+      cut: CUT,
+      rate: 0,
+      D: 3,
+      cost: 'steiner',
+      boundary: 'absorb',
+    }
     const slab = slabSpace(base)
     const lineW = slabSpace({ ...base, axes: 1 })
-    const at = (space: SlabSpace, over: Partial<SlabSpec>): SlabSpace => ({ ...space, spec: { ...space.spec, ...over } })
+    const at = (
+      space: SlabSpace,
+      over: Partial<SlabSpec>,
+    ): SlabSpace => ({ ...space, spec: { ...space.spec, ...over } })
     const holds: SlabHold[] = []
     const keep = (h: SlabHold): SlabHold => (holds.push(h), h)
+
     const drop = (h: SlabHold): void => {
       h.vector = emptyState({ ...slab, configs: 0 })
     }
@@ -197,46 +239,98 @@ export default experiment({
     const points: Point[] = []
     const c1: Record<number, number> = {}
     const lineHeld: Record<number, SlabHold> = {}
+
     let placed316: SlabHold | undefined
     let cc: SlabHold | undefined
 
     for (const D of DS) {
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D, box: CUT, unit: 0 }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D,
+        box: CUT,
+        unit: 0,
+      }
       const basis = lineBasis(sector)
       const level = lineLightest(basis, wholeBasis(basis)).lightest
-      const entries = basis.configs.map((ts, i) => ({ ts, amp: [level.cre[i] as number, level.cim[i] as number] as C }))
-      const placed = (): SlabState => normalizedSlab(addSlab(placeLine(slab, 0, entries), placeLine(slab, 1, entries)))
+      const entries = basis.configs.map((ts, i) => ({
+        ts,
+        amp: [level.cre[i]!, level.cim[i]!] as C,
+      }))
+      const placed = (): SlabState =>
+        normalizedSlab(
+          addSlab(
+            placeLine(slab, 0, entries),
+            placeLine(slab, 1, entries),
+          ),
+        )
 
       // the one-line window's level and its curvature c1(D)
       const lw = at(lineW, { D })
-      const lh = keep(holdLevel(lw, normalizedSlab(placeLine(lw, 0, entries)), holdInput))
+      const lh = keep(
+        holdLevel(
+          lw,
+          normalizedSlab(placeLine(lw, 0, entries)),
+          holdInput,
+        ),
+      )
 
       lineHeld[D] = lh
-      c1[D] = richardsonCurvature(K => energyAtSlab(lw, [K, 0], lh.vector, CURVE_T, ritz), KAPPA_LINE).curvature
+      c1[D] = richardsonCurvature(
+        K => energyAtSlab(lw, [K, 0], lh.vector, CURVE_T, ritz),
+        KAPPA_LINE,
+      ).curvature
       log(`D ${D} level, line c1 ${c1[D]}`)
 
       let start = placed()
 
       for (const rate of RATES) {
-        const h = keep(holdLevel(at(slab, { D, rate }), start, holdInput))
+        const h = keep(
+          holdLevel(at(slab, { D, rate }), start, holdInput),
+        )
         const pr = kleinPrediction(D, rate, TAIL)
 
-        points.push({ D, rate, hold: h, predicted: pr.held, margin: pr.margin, exponent: pr.exponent })
+        points.push({
+          D,
+          rate,
+          hold: h,
+          predicted: pr.held,
+          margin: pr.margin,
+          exponent: pr.exponent,
+        })
         start = h.vector
-        log(`D ${D} rate ${rate}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail} E ${h.level.energy} weight ${h.level.weight}`)
+        log(
+          `D ${D} rate ${rate}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail} E ${h.level.energy} weight ${h.level.weight}`,
+        )
       }
 
       if (D === 3) {
-        placed316 = keep(holdLevel(at(slab, { D, rate: 1 / 16 }), placed(), holdInput))
+        placed316 = keep(
+          holdLevel(at(slab, { D, rate: 1 / 16 }), placed(), holdInput),
+        )
         drop(placed316)
-        cc = keep(holdLevel(at(slab, { D, rate: 0, cost: 'none' }), placed(), holdInput))
+        cc = keep(
+          holdLevel(
+            at(slab, { D, rate: 0, cost: 'none' }),
+            placed(),
+            holdInput,
+          ),
+        )
         drop(cc)
         log('D 3 checks')
       }
 
       // free the vectors no later step can read: only a held point with rate > 0 (a path candidate) and the bag's
       // starts are kept
-      for (const p of points) if (p.D === D && !(p.hold.held && p.rate > 0) && !(p.rate === BAG_INSIDE && BAG_DS.includes(D))) drop(p.hold)
+      for (const p of points) {
+        if (
+          p.D === D &&
+          !(p.hold.held && p.rate > 0) &&
+          !(p.rate === BAG_INSIDE && BAG_DS.includes(D))
+        ) {
+          drop(p.hold)
+        }
+      }
     }
 
     const heldPositive = points.filter(p => p.hold.held && p.rate > 0)
@@ -253,12 +347,23 @@ export default experiment({
       const fails = col.filter(p => !p.hold.held).map(p => 2 * p.D + 1)
       const holdsN = col.filter(p => p.hold.held).map(p => 2 * p.D + 1)
 
-      if (fails.length === 0 || holdsN.length === 0) continue
+      if (fails.length === 0 || holdsN.length === 0) {
+        continue
+      }
 
-      const lo = Math.max(...fails.filter(n => n < Math.min(...holdsN)), -Infinity)
+      const lo = Math.max(
+        ...fails.filter(n => n < Math.min(...holdsN)),
+        -Infinity,
+      )
       const hi = Math.min(...holdsN)
 
-      if (Number.isFinite(lo)) boundary.push({ rate, Nc: Math.sqrt(lo * hi), m: kleinMass(thetaOfRate(rate)) })
+      if (Number.isFinite(lo)) {
+        boundary.push({
+          rate,
+          Nc: Math.sqrt(lo * hi),
+          m: kleinMass(thetaOfRate(rate)),
+        })
+      }
     }
 
     let exponent = Number.NaN
@@ -270,7 +375,11 @@ export default experiment({
       const my = ys.reduce((a, b) => a + b, 0) / ys.length
       const sxx = xs.reduce((a, x) => a + (x - mx) ** 2, 0)
 
-      exponent = sxx > 0 ? xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] as number) - my), 0) / sxx : Number.NaN
+      exponent =
+        sxx > 0
+          ? xs.reduce((a, x, k) => a + (x - mx) * (ys[k]! - my), 0) /
+            sxx
+          : Number.NaN
     }
 
     log('M1')
@@ -279,23 +388,53 @@ export default experiment({
     const tensors = new Map<Point, Tensor>()
 
     for (const p of path) {
-      tensors.set(p, slabTensor(at(slab, { D: p.D, rate: p.rate }), p.hold.vector, KAPPA_SLAB, CURVE_T, ritz))
+      tensors.set(
+        p,
+        slabTensor(
+          at(slab, { D: p.D, rate: p.rate }),
+          p.hold.vector,
+          KAPPA_SLAB,
+          CURVE_T,
+          ritz,
+        ),
+      )
       log(`tensor D ${p.D} rate ${p.rate}`)
     }
 
     const passes = (t: Tensor, D: number): boolean => {
       const [a, b] = t.eigen as [number, number]
 
-      return a !== 0 && Math.sign(a) === Math.sign(b) && Math.abs(a) >= (CURVE_SHARE * Math.abs(c1[D] as number)) / 2 && Math.abs(b) >= (CURVE_SHARE * Math.abs(c1[D] as number)) / 2
+      return (
+        a !== 0 &&
+        Math.sign(a) === Math.sign(b) &&
+        Math.abs(a) >= (CURVE_SHARE * Math.abs(c1[D]!)) / 2 &&
+        Math.abs(b) >= (CURVE_SHARE * Math.abs(c1[D]!)) / 2
+      )
     }
-    const passing = path.filter(p => passes(tensors.get(p) as Tensor, p.D))
+
+    const passing = path.filter(p => passes(tensors.get(p)!, p.D))
     const M2 = path.length >= PATH_MIN && passing.length === path.length
-    const best = path.length ? path.reduce((a, b) => (b.hold.minFidelity > a.hold.minFidelity ? b : a)) : undefined
+    const best = path.length
+      ? path.reduce((a, b) =>
+          b.hold.minFidelity > a.hold.minFidelity ? b : a,
+        )
+      : undefined
     const bestTensor = best ? tensors.get(best) : undefined
-    const isotropy = bestTensor ? Math.min(...bestTensor.eigen.map(Math.abs)) / Math.max(...bestTensor.eigen.map(Math.abs)) : Number.NaN
+    const isotropy = bestTensor
+      ? Math.min(...bestTensor.eigen.map(Math.abs)) /
+        Math.max(...bestTensor.eigen.map(Math.abs))
+      : Number.NaN
 
     // the lone hole at each rate: tensor and energy
-    const loneSpace = slabSpace({ holes: 1, axes: 2, cut: 0, rate: 0, D: 3, cost: 'steiner', boundary: 'absorb' })
+    const loneSpace = slabSpace({
+      holes: 1,
+      axes: 2,
+      cut: 0,
+      rate: 0,
+      D: 3,
+      cost: 'steiner',
+      boundary: 'absorb',
+    })
     const loneRaw = emptyState(loneSpace)
 
     ;[1, 1, -1, -1].forEach((a, k) => (loneRaw.re[k] = a))
@@ -303,18 +442,42 @@ export default experiment({
     const loneStart = normalizedSlab(loneRaw)
     const loneAt = new Map<number, Tensor>()
 
-    for (const rate of [...RATES.filter(r => r > 0), WORKING]) loneAt.set(rate, slabTensor(at(loneSpace, { rate }), loneStart, LONE_KAPPA, RITZ_T, ritz))
+    for (const rate of [...RATES.filter(r => r > 0), WORKING]) {
+      loneAt.set(
+        rate,
+        slabTensor(
+          at(loneSpace, { rate }),
+          loneStart,
+          LONE_KAPPA,
+          RITZ_T,
+          ritz,
+        ),
+      )
+    }
 
-    const ratioOf = (t: Tensor): number => 1 / Math.abs((t.eigen[0]! + t.eigen[1]!) / 2) / Math.abs(t.energy)
-    const along = path.map(p => ({ p, ratio: ratioOf(tensors.get(p) as Tensor), lone: ratioOf(loneAt.get(p.rate) as Tensor) }))
-    const falls = along.every((x, k) => k === 0 || x.ratio < (along[k - 1] as { ratio: number }).ratio)
-    const nearer = along.length >= 2 && Math.abs(along[along.length - 1]!.ratio - along[along.length - 1]!.lone) < Math.abs(along[0]!.ratio - along[0]!.lone)
+    const ratioOf = (t: Tensor): number =>
+      1 / Math.abs((t.eigen[0]! + t.eigen[1]!) / 2) / Math.abs(t.energy)
+    const along = path.map(p => ({
+      p,
+      ratio: ratioOf(tensors.get(p)!),
+      lone: ratioOf(loneAt.get(p.rate)!),
+    }))
+    const falls = along.every(
+      (x, k) =>
+        k === 0 || x.ratio < (along[k - 1] as { ratio: number }).ratio,
+    )
+    const nearer =
+      along.length >= 2 &&
+      Math.abs(
+        along[along.length - 1]!.ratio - along[along.length - 1]!.lone,
+      ) < Math.abs(along[0]!.ratio - along[0]!.lone)
     const M3 = M2 && falls && nearer
 
     log('M2 M3')
 
     // ---- the bag, only if M2 fails ----
     const bag: { D: number; hold: SlabHold; tensor?: Tensor }[] = []
+
     let loneBagGap = Number.NaN
     let loneBagTensorGap = Number.NaN
     let bagSameGap = Number.NaN
@@ -322,71 +485,153 @@ export default experiment({
     if (!M2) {
       for (const D of BAG_DS) {
         const space = at(slab, { D })
-        const from = points.find(p => p.D === D && p.rate === BAG_INSIDE) as Point
-        const h = keep(holdLevelBy(space, bagStep(space, BAG_INSIDE, WORKING), from.hold.vector, holdInput))
-        const t = h.held ? tensorBy(bagStep(space, BAG_INSIDE, WORKING), h.vector, KAPPA_SLAB, CURVE_T, ritz) : undefined
+        const from = points.find(
+          p => p.D === D && p.rate === BAG_INSIDE,
+        )!
+        const h = keep(
+          holdLevelBy(
+            space,
+            bagStep(space, BAG_INSIDE, WORKING),
+            from.hold.vector,
+            holdInput,
+          ),
+        )
+        const t = h.held
+          ? tensorBy(
+              bagStep(space, BAG_INSIDE, WORKING),
+              h.vector,
+              KAPPA_SLAB,
+              CURVE_T,
+              ritz,
+            )
+          : undefined
 
         bag.push({ D, hold: h, tensor: t })
-        log(`bag D ${D}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail}`)
+        log(
+          `bag D ${D}: held ${h.held} min fidelity ${h.minFidelity} max tail ${h.maxTail}`,
+        )
       }
 
       // the lone hole under the bag and under the free mixer at the working rate
       const lw = at(loneSpace, { rate: WORKING })
       const bs = bagStep(lw, BAG_INSIDE, WORKING)
       const fs = freeStep(lw)
-      let a: SlabState = { re: Float64Array.from(loneStart.re), im: Float64Array.from(loneStart.im) }
-      let b: SlabState = { re: Float64Array.from(loneStart.re), im: Float64Array.from(loneStart.im) }
+
+      let a: SlabState = {
+        re: Float64Array.from(loneStart.re),
+        im: Float64Array.from(loneStart.im),
+      }
+      let b: SlabState = {
+        re: Float64Array.from(loneStart.re),
+        im: Float64Array.from(loneStart.im),
+      }
 
       loneBagGap = 0
+
       for (let t = 0; t < LONE_BEATS; t++) {
         a = bs([0.3, -0.2], a, { escaped: 0 })
         b = fs([0.3, -0.2], b, { escaped: 0 })
-        for (let k = 0; k < a.re.length; k++) loneBagGap = Math.max(loneBagGap, Math.abs((a.re[k] as number) - (b.re[k] as number)), Math.abs((a.im[k] as number) - (b.im[k] as number)))
+
+        for (let k = 0; k < a.re.length; k++) {
+          loneBagGap = Math.max(
+            loneBagGap,
+            Math.abs(a.re[k]! - b.re[k]!),
+            Math.abs(a.im[k]! - b.im[k]!),
+          )
+        }
       }
 
       const lt = tensorBy(bs, loneStart, LONE_KAPPA, RITZ_T, ritz)
-      const ft = loneAt.get(WORKING) as Tensor
+      const ft = loneAt.get(WORKING)!
 
-      loneBagTensorGap = Math.max(...lt.eigen.map((x, k) => Math.abs(x - (ft.eigen[k] as number))))
+      loneBagTensorGap = Math.max(
+        ...lt.eigen.map((x, k) => Math.abs(x - ft.eigen[k]!)),
+      )
       log('bag lone')
     }
 
     // the bag beat with inside = outside against slabBeat, one beat of a D 3 slab level (the rate 1/16 vector)
     {
       const space = at(slab, { D: 3, rate: 1 / 16 })
-      const v = (points.find(p => p.D === 3 && p.rate === 1 / 16) as Point).hold.vector
-      const a = bagStep(space, 1 / 16, 1 / 16)([0.1, 0.05], { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }, { escaped: 0 })
-      const b = slabBeat(space, [0.1, 0.05], { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }, { escaped: 0 })
+      const v = points.find(p => p.D === 3 && p.rate === 1 / 16)!.hold
+        .vector
+      const a = bagStep(space, 1 / 16, 1 / 16)(
+        [0.1, 0.05],
+        { re: Float64Array.from(v.re), im: Float64Array.from(v.im) },
+        { escaped: 0 },
+      )
+      const b = slabBeat(
+        space,
+        [0.1, 0.05],
+        { re: Float64Array.from(v.re), im: Float64Array.from(v.im) },
+        { escaped: 0 },
+      )
 
       bagSameGap = 0
-      for (let k = 0; k < a.re.length; k++) bagSameGap = Math.max(bagSameGap, Math.abs((a.re[k] as number) - (b.re[k] as number)), Math.abs((a.im[k] as number) - (b.im[k] as number)))
+
+      for (let k = 0; k < a.re.length; k++) {
+        bagSameGap = Math.max(
+          bagSameGap,
+          Math.abs(a.re[k]! - b.re[k]!),
+          Math.abs(a.im[k]! - b.im[k]!),
+        )
+      }
     }
 
     const bagHeld = bag.filter(x => x.hold.held)
     const B1 = bagHeld.length > 0
-    const B2 = bagHeld.some(x => x.tensor !== undefined && passes(x.tensor, x.D))
+    const B2 = bagHeld.some(
+      x => x.tensor !== undefined && passes(x.tensor, x.D),
+    )
     const B3 = loneBagGap === 0 && loneBagTensorGap <= 1e-12
     const B = !M2 && B1 && B2 && B3
 
     // ---- controls and checks ----
-    const r03 = points.find(p => p.D === 3 && p.rate === 0) as Point
-    const CR = r03.hold.held && Math.abs(r03.hold.level.energy - C0_ENERGY) <= C0_SAME
-    const ccHold = cc as SlabHold
-    const CC = Math.abs(ccHold.minFidelity - CN_FIDELITY) <= RECORD_SAME * CN_FIDELITY && Math.abs(ccHold.maxTail - CN_TAIL) <= RECORD_SAME * CN_TAIL
-    const p316 = placed316 as SlabHold
-    const placedGap = Math.abs(p316.minFidelity - PLACED_FIDELITY) / PLACED_FIDELITY
+    const r03 = points.find(p => p.D === 3 && p.rate === 0)!
+    const CR =
+      r03.hold.held &&
+      Math.abs(r03.hold.level.energy - C0_ENERGY) <= C0_SAME
+    const ccHold = cc!
+    const CC =
+      Math.abs(ccHold.minFidelity - CN_FIDELITY) <=
+        RECORD_SAME * CN_FIDELITY &&
+      Math.abs(ccHold.maxTail - CN_TAIL) <= RECORD_SAME * CN_TAIL
+    const p316 = placed316!
+    const placedGap =
+      Math.abs(p316.minFidelity - PLACED_FIDELITY) / PLACED_FIDELITY
     const normGap = Math.max(...holds.map(h => h.normGap))
     const antiGap = Math.max(...holds.map(h => h.antisymmetry))
-    const checked = normGap <= NORM_SAME && antiGap <= ANTI_SAME && placedGap <= RECORD_SAME && bagSameGap === 0
-    const status = !CR || !CC || !checked ? 'partial' : M1 && M2 && M3 ? 'pass' : 'fail'
+    const checked =
+      normGap <= NORM_SAME &&
+      antiGap <= ANTI_SAME &&
+      placedGap <= RECORD_SAME &&
+      bagSameGap === 0
+    const status =
+      !CR || !CC || !checked
+        ? 'partial'
+        : M1 && M2 && M3
+          ? 'pass'
+          : 'fail'
 
     // ---- report ----
-    const deg = (r: number): string => `${((thetaOfRate(r) * 180) / Math.PI).toFixed(2)}`
-    const rateName = (r: number): string => (r === 0 ? '0' : `1/${Math.round(1 / r)}`)
-    const tensorText = (t: Tensor | undefined): string => (t ? `[[${t.tensor.map(r => r.map(x => x.toFixed(6)).join(', ')).join('], [')}]] eigen ${t.eigen.map(x => x.toFixed(6)).join(', ')} E ${t.energy.toFixed(6)}` : 'not read')
-    const cellText = (p: Point): string => `D ${p.D} rate ${rateName(p.rate)} (${deg(p.rate)} deg): ${p.hold.held ? 'HELD' : 'not held'} (predicted ${p.predicted ? 'held' : 'not'}, exponent ${p.exponent.toFixed(3)}, ratio ${p.margin.toFixed(3)}${Math.abs(p.margin - 1) < KNIFE ? ', edge, not gated' : ''}) least fidelity ${p.hold.minFidelity.toFixed(5)} largest tail ${p.hold.maxTail.toExponential(2)} E ${p.hold.level.energy.toFixed(6)} start weight ${p.hold.level.weight.toFixed(4)} residual ${p.hold.level.residual.toExponential(2)} mean Steiner ${p.hold.meanSteiner.toFixed(3)} off one line ${p.hold.offLine.toFixed(4)}`
-    const heldMap = DS.map(D => `D ${D}: ${RATES.map(r => ((points.find(p => p.D === D && p.rate === r) as Point).hold.held ? 'H' : '-')).join('')}`).join(', ')
-    const predictedMap = DS.map(D => `D ${D}: ${RATES.map(r => ((points.find(p => p.D === D && p.rate === r) as Point).predicted ? 'H' : '-')).join('')}`).join(', ')
+    const deg = (r: number): string =>
+      `${((thetaOfRate(r) * 180) / Math.PI).toFixed(2)}`
+    const rateName = (r: number): string =>
+      r === 0 ? '0' : `1/${Math.round(1 / r)}`
+    const tensorText = (t: Tensor | undefined): string =>
+      t
+        ? `[[${t.tensor.map(r => r.map(x => x.toFixed(6)).join(', ')).join('], [')}]] eigen ${t.eigen.map(x => x.toFixed(6)).join(', ')} E ${t.energy.toFixed(6)}`
+        : 'not read'
+    const cellText = (p: Point): string =>
+      `D ${p.D} rate ${rateName(p.rate)} (${deg(p.rate)} deg): ${p.hold.held ? 'HELD' : 'not held'} (predicted ${p.predicted ? 'held' : 'not'}, exponent ${p.exponent.toFixed(3)}, ratio ${p.margin.toFixed(3)}${Math.abs(p.margin - 1) < KNIFE ? ', edge, not gated' : ''}) least fidelity ${p.hold.minFidelity.toFixed(5)} largest tail ${p.hold.maxTail.toExponential(2)} E ${p.hold.level.energy.toFixed(6)} start weight ${p.hold.level.weight.toFixed(4)} residual ${p.hold.level.residual.toExponential(2)} mean Steiner ${p.hold.meanSteiner.toFixed(3)} off one line ${p.hold.offLine.toFixed(4)}`
+    const heldMap = DS.map(
+      D =>
+        `D ${D}: ${RATES.map(r => (points.find(p => p.D === D && p.rate === r)!.hold.held ? 'H' : '-')).join('')}`,
+    ).join(', ')
+    const predictedMap = DS.map(
+      D =>
+        `D ${D}: ${RATES.map(r => (points.find(p => p.D === D && p.rate === r)!.predicted ? 'H' : '-')).join('')}`,
+    ).join(', ')
 
     const metrics: Record<string, number> = {
       M1: M1 ? 1 : 0,
@@ -426,23 +671,29 @@ export default experiment({
       metrics[`${key}MinFidelity`] = p.hold.minFidelity
       metrics[`${key}MaxTail`] = p.hold.maxTail
     }
-    for (const D of DS) metrics[`c1D${D}`] = c1[D] as number
+
+    for (const D of DS) {
+      metrics[`c1D${D}`] = c1[D]!
+    }
+
     for (const x of along) {
       const key = `path_D${x.p.D}r${rateName(x.p.rate).replace('/', '_')}`
-      const t = tensors.get(x.p) as Tensor
+      const t = tensors.get(x.p)!
 
-      metrics[`${key}EigenMin`] = t.eigen[0] as number
-      metrics[`${key}EigenMax`] = t.eigen[1] as number
+      metrics[`${key}EigenMin`] = t.eigen[0]!
+      metrics[`${key}EigenMax`] = t.eigen[1]!
       metrics[`${key}Ratio`] = x.ratio
       metrics[`${key}LoneRatio`] = x.lone
     }
+
     for (const x of bag) {
       metrics[`bagD${x.D}Held`] = x.hold.held ? 1 : 0
       metrics[`bagD${x.D}MinFidelity`] = x.hold.minFidelity
       metrics[`bagD${x.D}MaxTail`] = x.hold.maxTail
+
       if (x.tensor) {
-        metrics[`bagD${x.D}EigenMin`] = x.tensor.eigen[0] as number
-        metrics[`bagD${x.D}EigenMax`] = x.tensor.eigen[1] as number
+        metrics[`bagD${x.D}EigenMin`] = x.tensor.eigen[0]!
+        metrics[`bagD${x.D}EigenMax`] = x.tensor.eigen[1]!
       }
     }
 
@@ -450,7 +701,12 @@ export default experiment({
       status,
       claim: `three holes on the slab (w ${CUT}, Steiner string pi/N, N 3 5 7 13; mixer rates 0 to 1/4): held ${heldMap} against the Klein-gap prediction ${predictedMap} (M1 ${M1}, ${disagree.length} of ${gated.length} gated points disagree; boundary exponent ${Number.isNaN(exponent) ? 'not readable' : exponent.toFixed(3)} against -2); joint path ${path.map(p => `(${p.D}, ${rateName(p.rate)})`).join(' ') || 'none'} with ${passing.length} tensors passing (M2 ${M2}), best ${tensorText(bestTensor)} isotropy ${Number.isNaN(isotropy) ? 'not read' : isotropy.toFixed(4)}; m*/E_rest along it ${along.map(x => x.ratio.toFixed(3)).join(', ') || 'not read'} against the lone hole ${along.map(x => x.lone.toFixed(3)).join(', ') || '-'} (M3 ${M3}); bag inside ${rateName(BAG_INSIDE)} outside ${WORKING}: ${bag.map(x => `D ${x.D} ${x.hold.held ? 'held' : 'not held'} (fidelity ${x.hold.minFidelity.toFixed(4)}, tail ${x.hold.maxTail.toExponential(2)})`).join(', ') || 'not run'}, lone hole free ${B3} (B ${B}); CR ${CR}, CC ${CC}`,
       metrics,
-      control: { r03Energy: r03.hold.level.energy, ccMinFidelity: ccHold.minFidelity, ccMaxTail: ccHold.maxTail, placedMinFidelity: p316.minFidelity },
+      control: {
+        r03Energy: r03.hold.level.energy,
+        ccMinFidelity: ccHold.minFidelity,
+        ccMaxTail: ccHold.maxTail,
+        placedMinFidelity: p316.minFidelity,
+      },
       notes: `L2. Grid: ${points.map(cellText).join('; ')}. Line c1: ${DS.map(D => `D ${D} ${c1[D]} (line level held ${lineHeld[D]!.held}, tail ${lineHeld[D]!.maxTail.toExponential(2)})`).join(', ')}. Boundary: ${boundary.map(b => `rate ${rateName(b.rate)} N_c ${b.Nc.toFixed(3)} m ${b.m.toFixed(4)}`).join(', ') || 'no interior boundary'}. Path tensors: ${path.map(p => `(${p.D}, ${rateName(p.rate)}) ${tensorText(tensors.get(p))}`).join('; ') || 'none'}. Lone hole: ${[...loneAt.entries()].map(([r, t]) => `rate ${rateName(r)} ${tensorText(t)}`).join('; ')}. Bag: ${bag.map(x => `D ${x.D} held ${x.hold.held} fidelity ${x.hold.minFidelity} tail ${x.hold.maxTail} E ${x.hold.level.energy} weight ${x.hold.level.weight} residual ${x.hold.level.residual} mean Steiner ${x.hold.meanSteiner} tensor ${tensorText(x.tensor)}`).join('; ') || 'not run'}; lone under the bag: beat gap ${loneBagGap}, tensor gap ${loneBagTensorGap}. Checks: norm ${normGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}, placed (3, 1/16) least fidelity ${p316.minFidelity} (gap ${placedGap.toExponential(2)}), bag = free at equal rates ${bagSameGap}. CC: ${ccHold.minFidelity}, ${ccHold.maxTail}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

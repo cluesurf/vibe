@@ -62,8 +62,18 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, warpClock, type OpenMesh } from '@/code/rule/open-husk'
-import { newOpenRecord, rodFront, stackSpeeds, type OpenRecord, type RodFront } from '@/code/measure/open-husk'
+import {
+  openMesh,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  newOpenRecord,
+  rodFront,
+  stackSpeeds,
+  type OpenRecord,
+  type RodFront,
+} from '@/code/measure/open-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -73,12 +83,20 @@ const ROD = 8
 const UNITS = 1
 const HOP_AT = 32
 const WINDOW = 160
-const DISTANCES: readonly number[] = Array.from({ length: 23 }, (_, i) => i + 2)
+const DISTANCES: readonly number[] = Array.from(
+  { length: 23 },
+  (_, i) => i + 2,
+)
 const FIT: readonly number[] = DISTANCES.filter(d => d >= 4 && d <= 20)
 const TOLERANCE = 0.02
 const NEVER_FASTER = 1.02
 
-const exact = (record: OpenRecord, front: RodFront): boolean => record.gaussOff === 0 && record.wraps.fWraps + record.wraps.vWraps === 0 && record.restOff === 0 && record.reversed && front.reversed
+const exact = (record: OpenRecord, front: RodFront): boolean =>
+  record.gaussOff === 0 &&
+  record.wraps.fWraps + record.wraps.vWraps === 0 &&
+  record.restOff === 0 &&
+  record.reversed &&
+  front.reversed
 
 export default experiment({
   id: 'gravity/rod-front',
@@ -91,11 +109,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const rule = stepRule(DEPTH, LEVELS)
     const c = lightSpeed(DEPTH)
-    const spec = { rod: ROD, units: UNITS, hopAt: HOP_AT, window: WINDOW, distances: DISTANCES, fit: FIT }
-    const read = (mesh: OpenMesh): { front: RodFront; record: OpenRecord } => {
+    const spec = {
+      rod: ROD,
+      units: UNITS,
+      hopAt: HOP_AT,
+      window: WINDOW,
+      distances: DISTANCES,
+      fit: FIT,
+    }
+
+    const read = (
+      mesh: OpenMesh,
+    ): { front: RodFront; record: OpenRecord } => {
       const record = newOpenRecord()
 
       return { front: rodFront(mesh, rule, spec, record, c), record }
@@ -116,8 +145,13 @@ export default experiment({
 
     const ratio = (f: RodFront): number => f.speedThird / c
     const f1 = Math.abs(ratio(alone.front) - 1) <= TOLERANCE
-    const f2 = Math.abs(ratio(warped.front) - 1) <= TOLERANCE && ratio(warped.front) <= NEVER_FASTER
-    const f0 = exact(alone.record, alone.front) && exact(warped.record, warped.front) && exact(oneClock.record, oneClock.front)
+    const f2 =
+      Math.abs(ratio(warped.front) - 1) <= TOLERANCE &&
+      ratio(warped.front) <= NEVER_FASTER
+    const f0 =
+      exact(alone.record, alone.front) &&
+      exact(warped.record, warped.front) &&
+      exact(oneClock.record, oneClock.front)
     const status = f0 && f1 && f2 ? 'pass' : 'fail'
     const speeds = stackSpeeds(one.sides, 'clock')
     const speedsOne = stackSpeeds(one.sides, 'none')
@@ -141,10 +175,22 @@ export default experiment({
       oneClockOffset: oneClock.front.offset,
       zeroModeSpeedWarped: speeds.zeroMode,
       zeroModeSpeedOneClock: speedsOne.zeroMode,
-      gaussOff: alone.record.gaussOff + warped.record.gaussOff + oneClock.record.gaussOff,
-      gaussChecks: alone.record.gaussChecks + warped.record.gaussChecks + oneClock.record.gaussChecks,
-      wraps: [alone, warped, oneClock].reduce((t, r) => t + r.record.wraps.fWraps + r.record.wraps.vWraps, 0),
-      restOff: alone.record.restOff + warped.record.restOff + oneClock.record.restOff,
+      gaussOff:
+        alone.record.gaussOff +
+        warped.record.gaussOff +
+        oneClock.record.gaussOff,
+      gaussChecks:
+        alone.record.gaussChecks +
+        warped.record.gaussChecks +
+        oneClock.record.gaussChecks,
+      wraps: [alone, warped, oneClock].reduce(
+        (t, r) => t + r.record.wraps.fWraps + r.record.wraps.vWraps,
+        0,
+      ),
+      restOff:
+        alone.record.restOff +
+        warped.record.restOff +
+        oneClock.record.restOff,
       seconds: (Date.now() - started) / 1000,
     }
 
@@ -155,13 +201,17 @@ export default experiment({
       metrics[`warpedPlateau_d${d}`] = warped.front.plateau[i]!
     })
 
-    const times = (t: number[]): string => t.map(x => x.toFixed(2)).join(' ')
+    const times = (t: number[]): string =>
+      t.map(x => x.toFixed(2)).join(' ')
 
     return verdict({
       status,
       claim: `the time the change in depth behind a hopping rod reaches one third of the front's height (the Airy point, where a dispersive front's smear drops out) reads the side-${SIDE} husk alone's pull at ${f(ratio(alone.front))} c on d = ${FIT[0]} .. ${FIT[FIT.length - 1]} (half ${f(alone.front.speedHalf / c)} c, tenth ${f(alone.front.speedTenth / c)} c, the drift of a fixed fraction), the husk backed by ${LAYERS} shrinking layers with warped clocks at ${f(ratio(warped.front))} c (half ${f(warped.front.speedHalf / c)}, tenth ${f(warped.front.speedTenth / c)}; zero mode derived ${f(speeds.zeroMode)} c), and the one-clock stack, the control, at ${f(ratio(oneClock.front))} c (zero mode derived ${f(speedsOne.zeroMode)} c); Gauss off ${metrics.gaussOff} in ${metrics.gaussChecks}, ${metrics.wraps} wraps, ${metrics.restOff} remainders out of window, reversal ${f0}`,
       metrics,
-      control: { oneClockThirdRatio: ratio(oneClock.front), aloneThirdRatio: ratio(alone.front) },
+      control: {
+        oneClockThirdRatio: ratio(oneClock.front),
+        aloneThirdRatio: ratio(alone.front),
+      },
       notes: `L2. Gates F0 ${f0}, F1 ${f1} (${f(ratio(alone.front))} c), F2 ${f2} (${f(ratio(warped.front))} c). Third, beats after the hop, d = ${DISTANCES.join(' ')}: alone ${times(alone.front.third)}; warped ${times(warped.front.third)}; one clock ${times(oneClock.front.third)}; d / c ${DISTANCES.map(d => (d / c).toFixed(2)).join(' ')}. Offsets ${f(alone.front.offset)}, ${f(warped.front.offset)}, ${f(oneClock.front.offset)} beats. Plateau over the height: alone ${alone.front.plateau.map(x => x.toFixed(3)).join(' ')}; warped ${warped.front.plateau.map(x => x.toFixed(3)).join(' ')}; one clock ${oneClock.front.plateau.map(x => x.toFixed(3)).join(' ')}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

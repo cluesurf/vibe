@@ -100,11 +100,23 @@ import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { boxSteps, fullPathKey, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  boxSteps,
+  fullPathKey,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { parallelRun } from '@/code/measure/planon-lines'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { twoSinglesCensus } from '@/code/measure/bounce-mover'
-import { placeLoves, recruitCensus, starCrossings, starLines, starRun, type StarReading } from '@/code/measure/hub-star'
+import {
+  placeLoves,
+  recruitCensus,
+  starCrossings,
+  starLines,
+  starRun,
+  type StarReading,
+} from '@/code/measure/hub-star'
 import { d4BoxCoordinates } from '@/code/substrate/d4-box-integer'
 
 const TRIO = [
@@ -122,23 +134,38 @@ const CONTROL_FLOOR = 1e-3
 const FACTOR = 100
 const WAKE_AT = [8, 16, 32, 128]
 
-type Run = { side: number; contact: CollisionKind; path: number; crossings: number; reading: StarReading }
+type Run = {
+  side: number
+  contact: CollisionKind
+  path: number
+  crossings: number
+  reading: StarReading
+}
 
 const rankOf = (vectors: number[][]): number => {
   const rows = vectors.map(v => v.slice())
+
   let r = 0
 
   for (let c = 0; c < (rows[0]?.length ?? 0) && r < rows.length; c++) {
     const p = rows.findIndex((row, i) => i >= r && row[c] !== 0)
 
-    if (p < 0) continue
-    ;[rows[r], rows[p]] = [rows[p] as number[], rows[r] as number[]]
-    for (let i = 0; i < rows.length; i++) {
-      if (i === r) continue
-      const f = (rows[i] as number[])[c]! / (rows[r] as number[])[c]!
-
-      rows[i] = (rows[i] as number[]).map((x, k) => x - f * (rows[r] as number[])[k]!)
+    if (p < 0) {
+      continue
     }
+
+    ;[rows[r], rows[p]] = [rows[p]!, rows[r]!]
+
+    for (let i = 0; i < rows.length; i++) {
+      if (i === r) {
+        continue
+      }
+
+      const f = rows[i]![c]! / rows[r]![c]!
+
+      rows[i] = rows[i]!.map((x, k) => x - f * rows[r]![k]!)
+    }
+
     r++
   }
 
@@ -156,13 +183,19 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the censuses ----
     const two = recruitCensus(2, 'pass')
     const three = recruitCensus(3, 'pass')
     const reference = twoSinglesCensus()
-    const censusAgrees = two.docks === reference.docks && two.singlesLeft === reference.singlesLeft && two.recruitNew === reference.fullMoved
+    const censusAgrees =
+      two.docks === reference.docks &&
+      two.singlesLeft === reference.singlesLeft &&
+      two.recruitNew === reference.fullMoved
 
     log('censuses')
 
@@ -171,21 +204,58 @@ export default experiment({
       const X = centerOf(side)
       const f = contactFresh(side, contact, X)
       const lines = meshLines(f.tables)
-      const crossings = starCrossings(f.cells, lines, starLines(lines, [X]), [X]).length
+      const crossings = starCrossings(
+        f.cells,
+        lines,
+        starLines(lines, [X]),
+        [X],
+      ).length
 
       return { X, f, lines, crossings, vacuum: wordVacuum(f, f.store) }
     }
-    const runs: Run[] = []
-    const trioRun = (side: number, contact: CollisionKind, path: number): void => {
-      const s = setup(side, contact)
-      const start = placeLoves(s.vacuum, TRIO.map(slot => ({ dock: s.X, slot })))
-      const reading = starRun({ tables: s.f.tables, vacuum: s.vacuum, start, lines: s.lines, hub: [s.X], key: fullPathKey(pathOffset(path)), threshold: THRESHOLD_BORN, beats: BEATS, side })
 
-      runs.push({ side, contact, path, crossings: s.crossings, reading })
+    const runs: Run[] = []
+
+    const trioRun = (
+      side: number,
+      contact: CollisionKind,
+      path: number,
+    ): void => {
+      const s = setup(side, contact)
+      const start = placeLoves(
+        s.vacuum,
+        TRIO.map(slot => ({ dock: s.X, slot })),
+      )
+      const reading = starRun({
+        tables: s.f.tables,
+        vacuum: s.vacuum,
+        start,
+        lines: s.lines,
+        hub: [s.X],
+        key: fullPathKey(pathOffset(path)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        side,
+      })
+
+      runs.push({
+        side,
+        contact,
+        path,
+        crossings: s.crossings,
+        reading,
+      })
     }
 
-    for (const contact of CONTACTS) for (let k = 0; k < PATHS; k++) trioRun(SIDE, contact, k)
-    for (const side of OTHER_SIDES) trioRun(side, 'pass', 0)
+    for (const contact of CONTACTS) {
+      for (let k = 0; k < PATHS; k++) {
+        trioRun(SIDE, contact, k)
+      }
+    }
+
+    for (const side of OTHER_SIDES) {
+      trioRun(side, 'pass', 0)
+    }
 
     log('trio')
 
@@ -198,7 +268,12 @@ export default experiment({
     const vacuumSingles = all.reduce((a, r) => a + r.vacuumSingles, 0)
     const stepperDiffer = all.reduce((a, r) => a + r.stepperDiffer, 0)
     const crossings = runs.reduce((a, r) => a + r.crossings, 0)
-    const twoSingleEvents = all.reduce((a, r) => a + r.events.filter(e => e.singles === 2 && e.recruited > 0).length, 0)
+    const twoSingleEvents = all.reduce(
+      (a, r) =>
+        a +
+        r.events.filter(e => e.singles === 2 && e.recruited > 0).length,
+      0,
+    )
 
     // ---- H1, H2, H3 ----
     const offHubFraction = events === 0 ? 0 : offHub / events
@@ -206,13 +281,26 @@ export default experiment({
     const controlFraction = vacuumEvents === 0 ? 0 : 1
     const threshold = FACTOR * Math.max(controlFraction, CONTROL_FLOOR)
     const motion = offHubFraction > threshold
-    const proof = offStar === 0 && offHub === 0 && crossings === 0 && vacuumSingles === 0 && vacuumEvents === 0 && three.offDock === 0 && two.offDock === 0
+    const proof =
+      offStar === 0 &&
+      offHub === 0 &&
+      crossings === 0 &&
+      vacuumSingles === 0 &&
+      vacuumEvents === 0 &&
+      three.offDock === 0 &&
+      two.offDock === 0
     const H1 = motion || proof
     const offsets = runs.flatMap(r => {
       const X = centerOf(r.side)
       const o = d4BoxCoordinates({ cell: X, side: r.side })
 
-      return r.reading.events.filter(e => e.dock !== X).map(e => d4BoxCoordinates({ cell: e.dock, side: r.side }).map((v, k) => v - (o[k] as number)))
+      return r.reading.events
+        .filter(e => e.dock !== X)
+        .map(e =>
+          d4BoxCoordinates({ cell: e.dock, side: r.side }).map(
+            (v, k) => v - o[k]!,
+          ),
+        )
     })
     const offRank = offsets.length === 0 ? 0 : rankOf(offsets)
     const H2 = motion && offRank >= 2
@@ -220,18 +308,50 @@ export default experiment({
 
     // ---- CB: the trio without the vacuum ----
     const bare = setup(SIDE, 'pass')
-    const empty: Configuration = { ...bare.vacuum, vibe: new Int8Array(bare.vacuum.vibe.length), store: new Int8Array(bare.vacuum.store.length), sopen: new Uint8Array(bare.vacuum.sopen.length) }
-    const bareRun = starRun({ tables: bare.f.tables, vacuum: empty, start: placeLoves(empty, TRIO.map(slot => ({ dock: bare.X, slot }))), lines: bare.lines, hub: [bare.X], key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE })
-    const CB = bareRun.offStar === 0 && bareRun.offHub === 0 && bareRun.events.length > 0
+    const empty: Configuration = {
+      ...bare.vacuum,
+      vibe: new Int8Array(bare.vacuum.vibe.length),
+      store: new Int8Array(bare.vacuum.store.length),
+      sopen: new Uint8Array(bare.vacuum.sopen.length),
+    }
+    const bareRun = starRun({
+      tables: bare.f.tables,
+      vacuum: empty,
+      start: placeLoves(
+        empty,
+        TRIO.map(slot => ({ dock: bare.X, slot })),
+      ),
+      lines: bare.lines,
+      hub: [bare.X],
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: BEATS,
+      side: SIDE,
+    })
+    const CB =
+      bareRun.offStar === 0 &&
+      bareRun.offHub === 0 &&
+      bareRun.events.length > 0
 
     log('CB')
 
     // ---- CL: a lone love keeps its line ----
-    const slot = LINE_FIRSTS[0] as number
+    const slot = LINE_FIRSTS[0]!
     const love = CONTACTS.map(contact => {
       const s = setup(SIDE, contact)
 
-      return parallelRun({ tables: s.f.tables, vacuum: s.vacuum, start: placeLoves(s.vacuum, [{ dock: s.X, slot }]), lines: s.lines, set: [s.lines.lineOf[s.X * 24 + slot] as number], key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: LOVE_BEATS, steps: boxSteps(s.f.cells, SIDE, s.X), factor: false })
+      return parallelRun({
+        tables: s.f.tables,
+        vacuum: s.vacuum,
+        start: placeLoves(s.vacuum, [{ dock: s.X, slot }]),
+        lines: s.lines,
+        set: [s.lines.lineOf[s.X * 24 + slot]!],
+        key: fullPathKey(0),
+        threshold: THRESHOLD_BORN,
+        beats: LOVE_BEATS,
+        steps: boxSteps(s.f.cells, SIDE, s.X),
+        factor: false,
+      })
     })
     const CL = love.every(r => r.off === 0 && r.vacuumSingles === 0)
 
@@ -241,15 +361,17 @@ export default experiment({
     const CV = vacuumSingles === 0 && vacuumEvents === 0
 
     // ---- CP: two hubs ----
-    const Y = Math.floor((bare.f.tables.target[bare.X * 24 + (TRIO[0] as number)] as number) / 24)
+    const Y = Math.floor(
+      bare.f.tables.target[bare.X * 24 + TRIO[0]!]! / 24,
+    )
     const twoHub = starRun({
       tables: bare.f.tables,
       vacuum: bare.vacuum,
       start: placeLoves(bare.vacuum, [
-        { dock: bare.X, slot: TRIO[1] as number },
-        { dock: bare.X, slot: TRIO[0] as number },
-        { dock: Y, slot: TRIO[2] as number },
-        { dock: Y, slot: TRIO[0] as number },
+        { dock: bare.X, slot: TRIO[1]! },
+        { dock: bare.X, slot: TRIO[0]! },
+        { dock: Y, slot: TRIO[2]! },
+        { dock: Y, slot: TRIO[0]! },
       ]),
       lines: bare.lines,
       hub: [bare.X],
@@ -260,15 +382,28 @@ export default experiment({
     })
     const CP = twoHub.offStar > 0 && twoHub.offHub > 0
     const twoHubDocks = new Set(twoHub.events.map(e => e.dock)).size
-    const firstOffBeat = twoHub.events.find(e => e.dock !== bare.X)?.beat ?? -1
+    const firstOffBeat =
+      twoHub.events.find(e => e.dock !== bare.X)?.beat ?? -1
 
     log('CP')
 
     // ---- checks ----
-    const checks = { stepper: stepperDiffer === 0 && bareRun.stepperDiffer === 0 && twoHub.stepperDiffer === 0, census: censusAgrees, recruitment: recruited > 0 }
+    const checks = {
+      stepper:
+        stepperDiffer === 0 &&
+        bareRun.stepperDiffer === 0 &&
+        twoHub.stepperDiffer === 0,
+      census: censusAgrees,
+      recruitment: recruited > 0,
+    }
     const checked = Object.values(checks).every(Boolean)
     const controlled = CV && CB && CL && CP
-    const status = !checked || !controlled ? 'partial' : H1 && H3 && (H2 || (proof && !motion)) ? 'pass' : 'fail'
+    const status =
+      !checked || !controlled
+        ? 'partial'
+        : H1 && H3 && (H2 || (proof && !motion))
+          ? 'pass'
+          : 'fail'
 
     const metrics: Record<string, number> = {
       H1: H1 ? 1 : 0,
@@ -295,8 +430,10 @@ export default experiment({
       stepperDiffer,
       maxLinesTouched: Math.max(...all.map(r => r.linesTouched)),
       maxReach: Math.max(...all.map(r => r.reach)),
-      meanCentroidSpread: all.reduce((a, r) => a + r.centroidSpread, 0) / all.length,
-      meanOnStarLast: all.reduce((a, r) => a + r.onStarLast, 0) / all.length,
+      meanCentroidSpread:
+        all.reduce((a, r) => a + r.centroidSpread, 0) / all.length,
+      meanOnStarLast:
+        all.reduce((a, r) => a + r.onStarLast, 0) / all.length,
       maxOnStarPeak: Math.max(...all.map(r => r.onStarPeak)),
       census2Docks: two.docks,
       census2Fires: two.fires,
@@ -314,8 +451,8 @@ export default experiment({
       bareEvents: bareRun.events.length,
       bareOffStar: bareRun.offStar,
       bareOffHub: bareRun.offHub,
-      loveOffPass: (love[0] as (typeof love)[number]).off,
-      loveOffLone: (love[1] as (typeof love)[number]).off,
+      loveOffPass: love[0]!.off,
+      loveOffLone: love[1]!.off,
       twoHubOffStar: twoHub.offStar,
       twoHubOffHub: twoHub.offHub,
       twoHubEvents: twoHub.events.length,
@@ -325,17 +462,32 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
 
-    WAKE_AT.forEach(t => (metrics[`twoHubWake_${t}`] = twoHub.wake[t - 1] as number))
-    WAKE_AT.forEach(t => (metrics[`trioWake_${t}`] = (runs[0] as Run).reading.wake[t - 1] as number))
+    WAKE_AT.forEach(
+      t => (metrics[`twoHubWake_${t}`] = twoHub.wake[t - 1]!),
+    )
 
-    const perRun = runs.map(r => `${r.contact}/s${r.side}/p${r.path}: K ${r.reading.events.length} (off X ${r.reading.offHub}, recruited ${r.reading.recruited}), off-star ${r.reading.offStar}, star lines ${r.reading.linesTouched}, reach ${r.reading.reach}, on-star last ${r.reading.onStarLast}`).join('; ')
+    WAKE_AT.forEach(
+      t => (metrics[`trioWake_${t}`] = runs[0]!.reading.wake[t - 1]!),
+    )
+
+    const perRun = runs
+      .map(
+        r =>
+          `${r.contact}/s${r.side}/p${r.path}: K ${r.reading.events.length} (off X ${r.reading.offHub}, recruited ${r.reading.recruited}), off-star ${r.reading.offStar}, star lines ${r.reading.linesTouched}, reach ${r.reading.reach}, on-star last ${r.reading.onStarLast}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `three loves on (1,1,0,0), (1,0,1,0), (0,1,1,0) at a hub X in the working knit with its vacuum: over ${runs.length} runs K fires ${events} times, ${offHub} of them off X, and recruits ${recruited} vacuum pairs onto new lines, all through X; ${offStar} readings differ from the vacuum off the twelve lines through X (H1 ${H1} by ${motion ? 'motion' : proof ? 'the star theorem' : 'neither'}, H2 ${H2}, H3 ${H3}); the vacuum alone fires K ${vacuumEvents} times, the bare trio fires ${bareRun.events.length} times all at X, a lone love stays on its line; two hubs one root apart fire K off X ${twoHub.offHub} times on ${twoHubDocks} docks`,
       metrics,
-      control: { vacuumEvents, bareOffStar: bareRun.offStar, twoHubOffHub: twoHub.offHub, twoHubOffStar: twoHub.offStar },
-      notes: `L1. H1 ${H1} (motion ${motion}: off-X fraction ${offHubFraction} vs ${threshold}; proof ${proof}), H2 ${H2} (rank ${offRank}), H3 ${H3}; CV ${CV}, CB ${CB}, CL ${CL}, CP ${CP}; checks ${JSON.stringify(checks)}. Census, 2 singles: ${JSON.stringify(two)} (E-SPN-0118's twoSinglesCensus ${JSON.stringify(reference)}); 3 singles: ${JSON.stringify(three)}. Runs: ${perRun}. Two-singles K firings that recruited: ${twoSingleEvents}. Bare trio: K ${bareRun.events.length}, off-star ${bareRun.offStar}, off X ${bareRun.offHub}. Lone love: off ${love.map(r => r.off).join(', ')}, vacuum singles ${love.map(r => r.vacuumSingles).join(', ')}. Two hubs: K ${twoHub.events.length} on ${twoHubDocks} docks, first off X at beat ${firstOffBeat}, recruited ${twoHub.recruited}, wake ${WAKE_AT.map(t => `${t}:${twoHub.wake[t - 1]}`).join(' ')}; trio wake ${WAKE_AT.map(t => `${t}:${(runs[0] as Run).reading.wake[t - 1]}`).join(' ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        vacuumEvents,
+        bareOffStar: bareRun.offStar,
+        twoHubOffHub: twoHub.offHub,
+        twoHubOffStar: twoHub.offStar,
+      },
+      notes: `L1. H1 ${H1} (motion ${motion}: off-X fraction ${offHubFraction} vs ${threshold}; proof ${proof}), H2 ${H2} (rank ${offRank}), H3 ${H3}; CV ${CV}, CB ${CB}, CL ${CL}, CP ${CP}; checks ${JSON.stringify(checks)}. Census, 2 singles: ${JSON.stringify(two)} (E-SPN-0118's twoSinglesCensus ${JSON.stringify(reference)}); 3 singles: ${JSON.stringify(three)}. Runs: ${perRun}. Two-singles K firings that recruited: ${twoSingleEvents}. Bare trio: K ${bareRun.events.length}, off-star ${bareRun.offStar}, off X ${bareRun.offHub}. Lone love: off ${love.map(r => r.off).join(', ')}, vacuum singles ${love.map(r => r.vacuumSingles).join(', ')}. Two hubs: K ${twoHub.events.length} on ${twoHubDocks} docks, first off X at beat ${firstOffBeat}, recruited ${twoHub.recruited}, wake ${WAKE_AT.map(t => `${t}:${twoHub.wake[t - 1]}`).join(' ')}; trio wake ${WAKE_AT.map(t => `${t}:${runs[0]!.reading.wake[t - 1]}`).join(' ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

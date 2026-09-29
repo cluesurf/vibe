@@ -100,29 +100,55 @@ const MODULI = [3, 5, 7]
 const BEATS = 12
 const SAMPLED = 64
 
-const fearOn = (n: number): BeatSpec => ({ m: 6 * n, hop: 2 * n, electric: 1, magnetic: 1 })
-const clifford = (n: number): BeatSpec => ({ m: 6 * n, hop: 3 * n, electric: 6, magnetic: 6 })
+const fearOn = (n: number): BeatSpec => ({
+  m: 6 * n,
+  hop: 2 * n,
+  electric: 1,
+  magnetic: 1,
+})
+const clifford = (n: number): BeatSpec => ({
+  m: 6 * n,
+  hop: 3 * n,
+  electric: 6,
+  magnetic: 6,
+})
 
 // G_x of a full basis state, into `g`
-function gaussDigits(lattice: Lattice, n: number, d: Int32Array, g: Int32Array): void {
-  for (let x = 0; x < lattice.docks; x++) g[x] = d[x]!
+function gaussDigits(
+  lattice: Lattice,
+  n: number,
+  d: Int32Array,
+  g: Int32Array,
+): void {
+  for (let x = 0; x < lattice.docks; x++) {
+    g[x] = d[x]!
+  }
 
   lattice.links.forEach((l, k) => {
     g[l.from] = g[l.from]! + d[lattice.docks + k]!
     g[l.to] = g[l.to]! - d[lattice.docks + k]!
   })
 
-  for (let x = 0; x < lattice.docks; x++) g[x] = mod(g[x]!, n)
+  for (let x = 0; x < lattice.docks; x++) {
+    g[x] = mod(g[x]!, n)
+  }
 }
 
 // G1a: exhaustive over the full register space
-function exhaustiveGauss(full: Full): { violations: number; control: number } {
+function exhaustiveGauss(full: Full): {
+  violations: number
+  control: number
+} {
   const { lattice, n } = full
-  const moves = [...lattice.hops.map(l => fullHop(full, l)), ...lattice.plaquettes.map((_, p) => fullLoopShift(full, p))]
+  const moves = [
+    ...lattice.hops.map(l => fullHop(full, l)),
+    ...lattice.plaquettes.map((_, p) => fullLoopShift(full, p)),
+  ]
   const controls = lattice.hops.map(l => fullHop(full, l, false))
   const d = new Int32Array(full.registers)
   const g0 = new Int32Array(lattice.docks)
   const g1 = new Int32Array(lattice.docks)
+
   let violations = 0
   let control = 0
 
@@ -130,7 +156,11 @@ function exhaustiveGauss(full: Full): { violations: number; control: number } {
     full.digits(j, d)
     gaussDigits(lattice, n, d, g1)
 
-    for (let x = 0; x < lattice.docks; x++) if (g0[x] !== g1[x]) return true
+    for (let x = 0; x < lattice.docks; x++) {
+      if (g0[x] !== g1[x]) {
+        return true
+      }
+    }
 
     return false
   }
@@ -139,9 +169,17 @@ function exhaustiveGauss(full: Full): { violations: number; control: number } {
     full.digits(i, d)
     gaussDigits(lattice, n, d, g0)
 
-    for (const move of moves) if (differs(move(i))) violations++
+    for (const move of moves) {
+      if (differs(move(i))) {
+        violations++
+      }
+    }
 
-    for (const move of controls) if (differs(move(i))) control++
+    for (const move of controls) {
+      if (differs(move(i))) {
+        control++
+      }
+    }
   }
 
   return { violations, control }
@@ -153,21 +191,30 @@ function tupleOf(sector: Sector, i: number): number[] {
 
   t[sector.dock[i]!] = 1
 
-  for (let l = 0; l < sector.lattice.links.length; l++) t.push(sector.flux[i * sector.lattice.links.length + l]!)
+  for (let l = 0; l < sector.lattice.links.length; l++) {
+    t.push(sector.flux[i * sector.lattice.links.length + l]!)
+  }
 
   return t
 }
 
 // G1c: the midpoints of every support pair carry the sector's G
-function midpointsOff(lattice: Lattice, n: number, tuples: number[][]): number {
+function midpointsOff(
+  lattice: Lattice,
+  n: number,
+  tuples: number[][],
+): number {
   const half = (n + 1) / 2
   const g = new Int32Array(lattice.docks)
   const d = new Int32Array(lattice.docks + lattice.links.length)
+
   let off = 0
 
   for (let a = 0; a < tuples.length; a++) {
     for (let b = a; b < tuples.length; b++) {
-      for (let q = 0; q < d.length; q++) d[q] = mod((tuples[a]![q]! + tuples[b]![q]!) * half, n)
+      for (let q = 0; q < d.length; q++) {
+        d[q] = mod((tuples[a]![q]! + tuples[b]![q]!) * half, n)
+      }
 
       gaussDigits(lattice, n, d, g)
 
@@ -189,13 +236,27 @@ function starts(sector: Sector, m: number): Exact[] {
   for (let k = 1; picks.length < 4; k++) {
     const i = Math.floor(weyl(k) * sector.size)
 
-    if (!picks.includes(i)) picks.push(i)
+    if (!picks.includes(i)) {
+      picks.push(i)
+    }
   }
 
-  return [...picks.map(i => exactBasis(m, i)), exactFrom(m, picks.map(i => [i, 1n]))]
+  return [
+    ...picks.map(i => exactBasis(m, i)),
+    exactFrom(
+      m,
+      picks.map(i => [i, 1n]),
+    ),
+  ]
 }
 
-function displace(full: Full, m: number, v: Exact, a: readonly number[], b: readonly number[]): Exact {
+function displace(
+  full: Full,
+  m: number,
+  v: Exact,
+  a: readonly number[],
+  b: readonly number[],
+): Exact {
   const d = new Int32Array(full.registers)
   const out = new Map<number, bigint[]>()
   const unit = m / full.n
@@ -205,13 +266,19 @@ function displace(full: Full, m: number, v: Exact, a: readonly number[], b: read
 
     let phase = 0
 
-    for (let q = 0; q < full.registers; q++) phase += unit * b[q]! * d[q]!
+    for (let q = 0; q < full.registers; q++) {
+      phase += unit * b[q]! * d[q]!
+    }
 
     const shifted = new Array<bigint>(m).fill(0n)
 
-    for (let j = 0; j < m; j++) shifted[mod(j + phase, m)] = e[j]!
+    for (let j = 0; j < m; j++) {
+      shifted[mod(j + phase, m)] = e[j]!
+    }
 
-    for (let q = 0; q < full.registers; q++) d[q] = d[q]! + a[q]!
+    for (let q = 0; q < full.registers; q++) {
+      d[q] = d[q]! + a[q]!
+    }
 
     out.set(full.index(d), shifted)
   }
@@ -219,13 +286,20 @@ function displace(full: Full, m: number, v: Exact, a: readonly number[], b: read
   return { m, den: v.den, entries: out }
 }
 
-const applyAll = (steps: readonly Step[], v: Exact): Exact => reduce(steps.reduce((w, s) => applyExact(s, w), v))
+const applyAll = (steps: readonly Step[], v: Exact): Exact =>
+  reduce(steps.reduce((w, s) => applyExact(s, w), v))
 
 // G3: U D(v) U^dag against k D(S v), over basis states `js`; returns [mismatches, conjugates with more than one entry]
-function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: number | null): { mismatches: number; spread: number; checked: number } {
+function cliffordCheck(
+  full: Full,
+  spec: BeatSpec,
+  js: readonly number[],
+  k: number | null,
+): { mismatches: number; spread: number; checked: number } {
   const m = spec.m
   const U = fullBeat(full, spec)
   const Ud = inverseSteps(U)
+
   let mismatches = 0
   let spread = 0
   let checked = 0
@@ -241,9 +315,12 @@ function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: num
       a[q] = ga
       b[q] = gb
 
-      if (k !== null) classicalLightBeat(full.lattice, full.n, k, a, b)
+      if (k !== null) {
+        classicalLightBeat(full.lattice, full.n, k, a, b)
+      }
 
-      let first: { value: bigint[]; den: bigint; pred: number } | null = null
+      let first: { value: bigint[]; den: bigint; pred: number } | null =
+        null
 
       for (const j of js) {
         const g = new Array<number>(full.registers).fill(0)
@@ -252,7 +329,10 @@ function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: num
         g[q] = ga
         h[q] = gb
 
-        const w = applyAll(U, displace(full, m, applyAll(Ud, exactBasis(m, j)), g, h))
+        const w = applyAll(
+          U,
+          displace(full, m, applyAll(Ud, exactBasis(m, j)), g, h),
+        )
 
         checked++
 
@@ -262,7 +342,9 @@ function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: num
           continue
         }
 
-        if (k === null) continue
+        if (k === null) {
+          continue
+        }
 
         // prediction: D(S v) |j> = zeta^(pred) |target>
         const pred = displace(full, m, exactBasis(m, j), a, b)
@@ -274,10 +356,10 @@ function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: num
           continue
         }
 
-        const predPower = predValue!.findIndex(x => x !== 0n)
+        const predPower = predValue.findIndex(x => x !== 0n)
 
         if (first === null) {
-          first = { value: value!, den: w.den, pred: predPower }
+          first = { value: value, den: w.den, pred: predPower }
           continue
         }
 
@@ -286,14 +368,16 @@ function cliffordCheck(full: Full, spec: BeatSpec, js: readonly number[], k: num
         const right = new Array<bigint>(m).fill(0n)
 
         for (let t = 0; t < m; t++) {
-          left[mod(t + first.pred, m)] = value![t]! * first.den
+          left[mod(t + first.pred, m)] = value[t]! * first.den
           right[mod(t + predPower, m)] = first.value[t]! * w.den
         }
 
         const cl = canonical(left, m)
         const cr = canonical(right, m)
 
-        if (cl.some((x, t) => x !== cr[t])) mismatches++
+        if (cl.some((x, t) => x !== cr[t])) {
+          mismatches++
+        }
       }
     }
   }
@@ -308,16 +392,29 @@ function classicalPeriod(lattice: Lattice, n: number): number {
     const a = new Array<number>(R).fill(0)
     const b = new Array<number>(R).fill(0)
 
-    if (u < R) a[u] = 1
-    else b[u - R] = 1
+    if (u < R) {
+      a[u] = 1
+    } else {
+      b[u - R] = 1
+    }
 
     return { a, b, a0: [...a], b0: [...b] }
   })
 
   for (let t = 1; t <= 100000; t++) {
-    for (const v of vectors) classicalLightBeat(lattice, n, 1, v.a, v.b)
+    for (const v of vectors) {
+      classicalLightBeat(lattice, n, 1, v.a, v.b)
+    }
 
-    if (vectors.every(v => v.a.every((x, q) => x === v.a0[q]) && v.b.every((x, q) => x === v.b0[q]))) return t
+    if (
+      vectors.every(
+        v =>
+          v.a.every((x, q) => x === v.a0[q]) &&
+          v.b.every((x, q) => x === v.b0[q]),
+      )
+    ) {
+      return t
+    }
   }
 
   return -1
@@ -336,7 +433,15 @@ export default experiment({
     const metrics: Record<string, number> = {}
     const systems: { count: 1 | 2; n: number; sector: Sector }[] = []
 
-    for (const count of [1, 2] as const) for (const n of MODULI) systems.push({ count, n, sector: buildSector(squareLattice(count), n) })
+    for (const count of [1, 2] as const) {
+      for (const n of MODULI) {
+        systems.push({
+          count,
+          n,
+          sector: buildSector(squareLattice(count), n),
+        })
+      }
+    }
 
     // G1a
     let gaussViolations = 0
@@ -363,7 +468,9 @@ export default experiment({
     for (const { sector } of systems) {
       for (const l of sector.lattice.hops) {
         exits += sectorHop(sector, l).filter(j => j < 0).length
-        controlExits += sectorHop(sector, l, false).filter(j => j < 0).length
+        controlExits += sectorHop(sector, l, false).filter(
+          j => j < 0,
+        ).length
       }
     }
 
@@ -387,13 +494,24 @@ export default experiment({
           for (let t = 0; t < BEATS; t++) {
             v = runExact(steps, v)
 
-            if (name === 'fear') midpointOff += midpointsOff(sector.lattice, n, [...v.entries.keys()].map(i => tupleOf(sector, i)))
+            if (name === 'fear') {
+              midpointOff += midpointsOff(
+                sector.lattice,
+                n,
+                [...v.entries.keys()].map(i => tupleOf(sector, i)),
+              )
+            }
           }
 
-          largestDenBits = Math.max(largestDenBits, v.den.toString(2).length)
+          largestDenBits = Math.max(
+            largestDenBits,
+            v.den.toString(2).length,
+          )
           reversalRuns++
 
-          if (!exactEqual(runExact(back, v, BEATS), start)) reversalMismatches++
+          if (!exactEqual(runExact(back, v, BEATS), start)) {
+            reversalMismatches++
+          }
         }
       }
 
@@ -404,24 +522,49 @@ export default experiment({
     const full3 = fullSpace(squareLattice(1), 3)
     const spec3 = fearOn(3)
     const electric3 = fullElectric(full3)
-    const half3: Step = { kind: 'phase', exponent: i => -spec3.electric * electric3(i) }
+    const half3: Step = {
+      kind: 'phase',
+      exponent: i => -spec3.electric * electric3(i),
+    }
     const controlSteps: Step[] = [
-      ...full3.lattice.hops.map(l => ({ kind: 'hop', move: fullHop(full3, l, false), z: spec3.hop }) as Step),
+      ...full3.lattice.hops.map(
+        l =>
+          ({
+            kind: 'hop',
+            move: fullHop(full3, l, false),
+            z: spec3.hop,
+          }) as Step,
+      ),
       half3,
-      { kind: 'loop', shift: fullLoopShift(full3, 0), exponents: magneticExponents(3, spec3.magnetic), n: 3 },
+      {
+        kind: 'loop',
+        shift: fullLoopShift(full3, 0),
+        exponents: magneticExponents(3, spec3.magnetic),
+        n: 3,
+      },
       half3,
     ]
     const sector13 = systems[0]!.sector
-    const startTuple = tupleOf(sector13, starts(sector13, spec3.m).map(s => [...s.entries.keys()][0]!)[0]!)
-    let cv = { re: new Float64Array(full3.size), im: new Float64Array(full3.size) }
+    const startTuple = tupleOf(
+      sector13,
+      starts(sector13, spec3.m).map(s => [...s.entries.keys()][0]!)[0]!,
+    )
+
+    let cv = {
+      re: new Float64Array(full3.size),
+      im: new Float64Array(full3.size),
+    }
 
     cv.re[full3.index(startTuple)] = 1
 
     let controlOff = 0
+
     const dd = new Int32Array(full3.registers)
 
     for (let t = 0; t < 3; t++) {
-      for (const s of controlSteps) cv = applyFloat(s, cv, spec3.m)
+      for (const s of controlSteps) {
+        cv = applyFloat(s, cv, spec3.m)
+      }
 
       const support: number[][] = []
 
@@ -438,14 +581,28 @@ export default experiment({
     // G3
     const full5 = fullSpace(squareLattice(1), 5)
     const full23 = fullSpace(squareLattice(2), 3)
-    const sample = (full: Full): number[] => Array.from({ length: SAMPLED }, (_, k) => Math.floor(weyl(k + 1) * full.size))
+    const sample = (full: Full): number[] =>
+      Array.from({ length: SAMPLED }, (_, k) =>
+        Math.floor(weyl(k + 1) * full.size),
+      )
     const every3 = Array.from({ length: full3.size }, (_, j) => j)
     const g3a = cliffordCheck(full3, clifford(3), every3, 1)
     const g3b = cliffordCheck(full5, clifford(5), sample(full5), 1)
     const g3c = cliffordCheck(full23, clifford(3), sample(full23), 1)
-    const g3control = cliffordCheck(full3, { ...clifford(3), hop: 2 * 3 }, sample(full3), null)
-    const fractional = cliffordCheck(full3, { ...clifford(3), electric: 1, magnetic: 1 }, sample(full3), null)
-    const cliffordMismatches = g3a.mismatches + g3b.mismatches + g3c.mismatches
+    const g3control = cliffordCheck(
+      full3,
+      { ...clifford(3), hop: 2 * 3 },
+      sample(full3),
+      null,
+    )
+    const fractional = cliffordCheck(
+      full3,
+      { ...clifford(3), electric: 1, magnetic: 1 },
+      sample(full3),
+      null,
+    )
+    const cliffordMismatches =
+      g3a.mismatches + g3b.mismatches + g3c.mismatches
 
     Object.assign(metrics, {
       gaussViolations,
@@ -472,12 +629,20 @@ export default experiment({
     })
 
     const gates = {
-      G1: gaussViolations === 0 && gaussControl > 0 && exits === 0 && controlExits > 0 && midpointOff === 0 && controlOff > 0,
+      G1:
+        gaussViolations === 0 &&
+        gaussControl > 0 &&
+        exits === 0 &&
+        controlExits > 0 &&
+        midpointOff === 0 &&
+        controlOff > 0,
       G2: reversalMismatches === 0 && reversalRuns === 60,
       G3: cliffordMismatches === 0 && g3control.spread > 0,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
     const status = Object.values(gates).every(v => v) ? 'pass' : 'fail'
 
@@ -485,9 +650,14 @@ export default experiment({
       status,
       claim: `Z_N lattice QED on one and two husk squares (N = 3, 5, 7; sectors of ${systems.map(s => s.sector.size).join(', ')} states) with a STAND-IN nucleus and electron, exact over Z[zeta_6N]: every recorded hop and loop shift keeps Gauss on every full basis state (${gaussViolations} violations over 4 full spaces, the unrecorded hop ${gaussControl}), the recorded hops never leave the sector (${exits}; unrecorded ${controlExits}), every support pair's midpoint over 12 fear-on beats carries the sector's G (${midpointOff} off; unrecorded ${controlOff}), ${reversalRuns - reversalMismatches} of ${reversalRuns} runs return exactly after 12 beats back, and the Clifford beat (z = -1, w_N^(-e^2), w_N^(-B^2)) moves every generator displacement to one displacement equal to the classical integer light mod N with the recorded hop (${cliffordMismatches} mismatches of ${g3a.checked + g3b.checked + g3c.checked}; period ${metrics.classicalPeriodS1N3}, ${metrics.classicalPeriodS1N5}, ${metrics.classicalPeriodS1N7} beats on one square at N = 3, 5, 7), while the fear beat's hop spreads ${g3control.spread} of ${g3control.checked} and the fractional light (c = r = 1) spreads ${fractional.spread} of ${fractional.checked}: the physical coupling is not a per-history light`,
       metrics,
-      control: { gaussControl, sectorControlExits: controlExits, midpointControlOff: controlOff, fearHopSpread: g3control.spread },
+      control: {
+        gaussControl,
+        sectorControlExits: controlExits,
+        midpointControlOff: controlOff,
+        fearHopSpread: g3control.spread,
+      },
       notes:
-        'L2. FIRST RUN 2026-09-26 (tmp/frc0227.log), PASS in 33.7 s, no gate changed; FINAL RUN (tmp/frc0227-final.log) after a mechanical typecheck edit reproduces every number. Probes before the file: tmp/lqed-probe1.log (exact reversal on all six systems, floats within 1.6e-15, a first Clifford position check that disagreed with the hand map on 816 of 1,088 cases) and tmp/lqed-probe2.log (the single-step images: hop and electric exactly as derived, the magnetic sign opposite, because the label B of U_p\'s eigenvalue w^B is minus the Wigner conjugate); the classical map in code/rule/lattice-qed was written with the observed magnetic sign before this file. G1: 0 Gauss violations over the four full spaces (6,561 + 390,625 + 5,764,801 + 1,594,323 basis states, 9 or 12 moves each), the unrecorded hop 25,284,056; 0 sector exits (784 unrecorded); 0 of every support pair midpoint off over 12 fear-on beats from 5 starts on 6 systems (216 off with the unrecorded hop in 3 beats). G2: 60 of 60 runs back exactly (denominators up to 116 bits). G3: 107,664 conjugates, 0 mismatches against the classical integer light with the recorded hop; the fear beat\'s hop (z = w) makes 732 of 1,024 conjugates spread over several displacements, and the fractional light c = r = 1 (zeta_6N^(-e^2), the physical side of the coupling) 768 of 1,024. The classical map has period 36, 60, 42 on one square at N = 3, 5, 7 and 18 on two squares at N = 3: a finite-field cat map, not a slow oscillation, because the Clifford coupling is an integer. KEY: the quantum flow light is buildable exactly, reversible and Gauss-exact per history; its per-history (Clifford) limit is the unit-coupling light mod N, and the physical fractional coupling kappa = 2 / (2D + 1) exists only as fractional phases, which are not Clifford, so at the physical coupling the light moves no point to one point and no history carries a definite light (negative weight was not measured here).',
+        "L2. FIRST RUN 2026-09-26 (tmp/frc0227.log), PASS in 33.7 s, no gate changed; FINAL RUN (tmp/frc0227-final.log) after a mechanical typecheck edit reproduces every number. Probes before the file: tmp/lqed-probe1.log (exact reversal on all six systems, floats within 1.6e-15, a first Clifford position check that disagreed with the hand map on 816 of 1,088 cases) and tmp/lqed-probe2.log (the single-step images: hop and electric exactly as derived, the magnetic sign opposite, because the label B of U_p's eigenvalue w^B is minus the Wigner conjugate); the classical map in code/rule/lattice-qed was written with the observed magnetic sign before this file. G1: 0 Gauss violations over the four full spaces (6,561 + 390,625 + 5,764,801 + 1,594,323 basis states, 9 or 12 moves each), the unrecorded hop 25,284,056; 0 sector exits (784 unrecorded); 0 of every support pair midpoint off over 12 fear-on beats from 5 starts on 6 systems (216 off with the unrecorded hop in 3 beats). G2: 60 of 60 runs back exactly (denominators up to 116 bits). G3: 107,664 conjugates, 0 mismatches against the classical integer light with the recorded hop; the fear beat's hop (z = w) makes 732 of 1,024 conjugates spread over several displacements, and the fractional light c = r = 1 (zeta_6N^(-e^2), the physical side of the coupling) 768 of 1,024. The classical map has period 36, 60, 42 on one square at N = 3, 5, 7 and 18 on two squares at N = 3: a finite-field cat map, not a slow oscillation, because the Clifford coupling is an integer. KEY: the quantum flow light is buildable exactly, reversible and Gauss-exact per history; its per-history (Clifford) limit is the unit-coupling light mod N, and the physical fractional coupling kappa = 2 / (2D + 1) exists only as fractional phases, which are not Clifford, so at the physical coupling the light moves no point to one point and no history carries a definite light (negative weight was not measured here).",
     })
   },
 })

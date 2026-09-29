@@ -50,10 +50,24 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { makeStringGraph, type StringGraph } from '@/code/rule/string-graph'
+import {
+  makeStringGraph,
+  type StringGraph,
+} from '@/code/rule/string-graph'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
-import { linkAnimals, singletLevels } from '@/code/measure/string-levels'
-import { boxDisplacement, bulkLength, huskLength, makeBoxGeometry, runGas, singletPieces, type BoxGeometry } from '@/code/measure/nucleon-gas'
+import {
+  linkAnimals,
+  singletLevels,
+} from '@/code/measure/string-levels'
+import {
+  boxDisplacement,
+  bulkLength,
+  huskLength,
+  makeBoxGeometry,
+  runGas,
+  singletPieces,
+  type BoxGeometry,
+} from '@/code/measure/nucleon-gas'
 
 const SIDE = 9
 const MESONS = 16
@@ -79,7 +93,12 @@ type Reading = {
   bulkSpread: number
 }
 
-function readGas(input: { graph: StringGraph; geometry: BoxGeometry; fill: number; beats: number }): Reading {
+function readGas(input: {
+  graph: StringGraph
+  geometry: BoxGeometry
+  fill: number
+  beats: number
+}): Reading {
   const { graph, geometry, fill, beats } = input
   const mesonLevels = new Array<number>(8).fill(0)
   const baryonLevels = new Array<number>(8).fill(0)
@@ -106,7 +125,9 @@ function readGas(input: { graph: StringGraph; geometry: BoxGeometry; fill: numbe
           mesonLevels[level] = (mesonLevels[level] ?? 0) + 1
         }
 
-        const triple = (p.loves.length === 3 && p.fears.length === 0) || (p.loves.length === 0 && p.fears.length === 3)
+        const triple =
+          (p.loves.length === 3 && p.fears.length === 0) ||
+          (p.loves.length === 0 && p.fears.length === 3)
 
         if (triple) {
           baryonLevels[level] = (baryonLevels[level] ?? 0) + 1
@@ -140,7 +161,9 @@ function readGas(input: { graph: StringGraph; geometry: BoxGeometry; fill: numbe
   })
 
   return {
-    x: Math.exp(-unitDemonBeta({ meanDemon: out.meanDemon, capacity: CAPACITY })),
+    x: Math.exp(
+      -unitDemonBeta({ meanDemon: out.meanDemon, capacity: CAPACITY }),
+    ),
     exact: out.exact && out.agrees,
     mesonLevels,
     baryonLevels,
@@ -161,12 +184,30 @@ export default experiment({
   paper: false,
   run() {
     const animals = linkAnimals(LEVELS)
-    const meson = singletLevels({ boundary: 'meson', maxSize: LEVELS, animals }).map(l => l.count)
-    const baryon = singletLevels({ boundary: 'baryon', maxSize: LEVELS, animals }).map(l => l.count)
+    const meson = singletLevels({
+      boundary: 'meson',
+      maxSize: LEVELS,
+      animals,
+    }).map(l => l.count)
+    const baryon = singletLevels({
+      boundary: 'baryon',
+      maxSize: LEVELS,
+      animals,
+    }).map(l => l.count)
     const geometry = makeBoxGeometry(SIDE)
     const mesh = d4BoxMesh({ side: SIDE })
-    const graph = makeStringGraph({ mesh, mass: 4, tension: 1, capacity: CAPACITY })
-    const free = makeStringGraph({ mesh, mass: 4, tension: 0, capacity: CAPACITY })
+    const graph = makeStringGraph({
+      mesh,
+      mass: 4,
+      tension: 1,
+      capacity: CAPACITY,
+    })
+    const free = makeStringGraph({
+      mesh,
+      mass: 4,
+      tension: 0,
+      capacity: CAPACITY,
+    })
 
     const readings = FILLS.map(fill => {
       const r = readGas({ graph, geometry, fill, beats: BEATS })
@@ -184,13 +225,33 @@ export default experiment({
 
       return { fill, r, measured, predicted }
     })
-    const control = readGas({ graph: free, geometry, fill: FILLS[0] ?? 0, beats: CONTROL_BEATS })
+    const control = readGas({
+      graph: free,
+      geometry,
+      fill: FILLS[0] ?? 0,
+      beats: CONTROL_BEATS,
+    })
 
     const exact = readings.every(k => k.r.exact) && control.exact
-    const near = (a: number, b: number): boolean => Number.isFinite(a) && Math.abs(a / b - 1) < RATIO_TOLERANCE
-    const levels = readings.every(k => near(k.measured.meson2, k.predicted.meson2) && near(k.measured.meson3, k.predicted.meson3) && near(k.measured.baryon3, k.predicted.baryon3))
-    const binds = readings.every(k => k.r.heldShare >= HELD_SHARE && k.r.huskSpread < control.huskSpread / SPREAD_FACTOR)
-    const status = exact && levels && binds ? 'pass' : exact && binds ? 'partial' : 'fail'
+    const near = (a: number, b: number): boolean =>
+      Number.isFinite(a) && Math.abs(a / b - 1) < RATIO_TOLERANCE
+    const levels = readings.every(
+      k =>
+        near(k.measured.meson2, k.predicted.meson2) &&
+        near(k.measured.meson3, k.predicted.meson3) &&
+        near(k.measured.baryon3, k.predicted.baryon3),
+    )
+    const binds = readings.every(
+      k =>
+        k.r.heldShare >= HELD_SHARE &&
+        k.r.huskSpread < control.huskSpread / SPREAD_FACTOR,
+    )
+    const status =
+      exact && levels && binds
+        ? 'pass'
+        : exact && binds
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

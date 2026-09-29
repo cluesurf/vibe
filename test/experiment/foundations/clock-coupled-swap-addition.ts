@@ -138,8 +138,7 @@ export default experiment({
       }
     }
 
-    const chargeDrift =
-      charge(will) - charge({ mesh, data: start })
+    const chargeDrift = charge(will) - charge({ mesh, data: start })
 
     // 2. the bulk: a lone defect's magnitude under each rule over nine beats
     const bulkMagnitudes = (rule: Collision): number[] => {
@@ -198,7 +197,11 @@ export default experiment({
           state = growingBeat(state, rule, cell =>
             late.has(cell) ? t >= 1 : true,
           )
-          finals[which]!.push({ mesh, data: Int8Array.from(state.data) })
+
+          finals[which]!.push({
+            mesh,
+            data: Int8Array.from(state.data),
+          })
         }
       }
 
@@ -223,8 +226,7 @@ export default experiment({
 
     const legal = echoHamming === 0 && chargeDrift === 0
     const bareStable = bareBulk.every(m => Math.abs(m - ROOT3) < EXACT)
-    const compositeAmplifies =
-      Math.max(...compositeBulk) > 3 * ROOT3
+    const compositeAmplifies = Math.max(...compositeBulk) > 3 * ROOT3
     const bareStatic = bareWall.every(
       value => Math.abs(value - bareWall[0]!) < EXACT,
     )

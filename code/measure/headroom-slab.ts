@@ -23,15 +23,54 @@
 // DETERMINISM: every start is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule.
 
 import { arenaField } from '@/code/measure/depth-arena'
-import { makeSpanWork, runSpan, spanDockWeight, spanEnergy, spanPacket, spanSpeed, SPAN_LENS_WINDOW, SPAN_LEVELS, type SpanRun, type SpanWork } from '@/code/measure/depth-span'
+import {
+  makeSpanWork,
+  runSpan,
+  spanDockWeight,
+  spanEnergy,
+  spanPacket,
+  spanSpeed,
+  SPAN_LENS_WINDOW,
+  SPAN_LEVELS,
+  type SpanRun,
+  type SpanWork,
+} from '@/code/measure/depth-span'
 import { roomRestRate } from '@/code/measure/headroom-horizon'
-import { LENS_AMP, LENS_DETECTORS, LENS_HALF_WIDTH, LENS_LINE, LENS_SOURCE_X, RADION_DEPTH } from '@/code/measure/radion'
-import { dockAt, gaussViolations, halfMaxCentroid, noWraps, type Wraps } from '@/code/measure/varying-depth-light'
-import { copySpan, makeHeadroomSpanMedium, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack, spanFlux, type SpanMedium, type SpanState } from '@/code/rule/depth-span-light'
+import {
+  LENS_AMP,
+  LENS_DETECTORS,
+  LENS_HALF_WIDTH,
+  LENS_LINE,
+  LENS_SOURCE_X,
+  RADION_DEPTH,
+} from '@/code/measure/radion'
+import {
+  dockAt,
+  gaussViolations,
+  halfMaxCentroid,
+  noWraps,
+  type Wraps,
+} from '@/code/measure/varying-depth-light'
+import {
+  copySpan,
+  makeHeadroomSpanMedium,
+  makeSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+  spanFlux,
+  type SpanMedium,
+  type SpanState,
+} from '@/code/rule/depth-span-light'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
-function curlTReal(m: SpanMedium, x: Float64Array, out: Float64Array): void {
+function curlTReal(
+  m: SpanMedium,
+  x: Float64Array,
+  out: Float64Array,
+): void {
   const g = m.geometry
 
   out.fill(0)
@@ -39,17 +78,29 @@ function curlTReal(m: SpanMedium, x: Float64Array, out: Float64Array): void {
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    }
   }
 }
 
 // the kept energy I of the header, normalized by 1 / (4 R C)
-export function headroomEnergy(m: SpanMedium, s: SpanState, work: SpanWork): number {
+export function headroomEnergy(
+  m: SpanMedium,
+  s: SpanState,
+  work: SpanWork,
+): number {
   const rate = m.rate
 
-  if (!rate) throw new Error('headroomEnergy: the medium has no room rates (makeHeadroomSpanMedium)')
+  if (!rate) {
+    throw new Error(
+      'headroomEnergy: the medium has no room rates (makeHeadroomSpanMedium)',
+    )
+  }
 
   const g = m.geometry
   const levels = s.upper.length + 1
@@ -57,6 +108,7 @@ export function headroomEnergy(m: SpanMedium, s: SpanState, work: SpanWork): num
 
   for (let p = 0; p < g.triangles; p++) {
     const big = m.square[p]!
+
     let a = s.lag[p]! / big
     let b = s.counter[p]! / big
     let scale = big
@@ -85,6 +137,7 @@ export function headroomEnergy(m: SpanMedium, s: SpanState, work: SpanWork): num
 
   for (let p = 0; p < g.triangles; p++) {
     const nb = 4 * m.triDepth[p]!
+
     let raw = 0
     let rest = 0
     let step = 0
@@ -101,7 +154,10 @@ export function headroomEnergy(m: SpanMedium, s: SpanState, work: SpanWork): num
 
     const b0 = radix * (mod(raw + nb / 2, nb) - nb / 2) + rest
 
-    e += ((m.p * g.multiplicity[p]! * rate.tri[p]!) / m.square[p]!) * b0 * (b0 + step)
+    e +=
+      ((m.p * g.multiplicity[p]! * rate.tri[p]!) / m.square[p]!) *
+      b0 *
+      (b0 + step)
   }
 
   return e / (4 * radix * rate.base)
@@ -122,7 +178,13 @@ export type HeadroomRun = {
 
 // code/measure/depth-span runSpan's run with the headroom medium's kept energy: a packet forward `window` beats, the
 // detectors read after each beat, then back to the start bit for bit
-export function runHeadroom(m: SpanMedium, start: SpanState, detectors: readonly number[], window: number, every: number): HeadroomRun {
+export function runHeadroom(
+  m: SpanMedium,
+  start: SpanState,
+  detectors: readonly number[],
+  window: number,
+  every: number,
+): HeadroomRun {
   const t0 = Date.now()
   const levels = start.upper.length + 1
   const s = copySpan(start)
@@ -132,6 +194,7 @@ export function runHeadroom(m: SpanMedium, start: SpanState, detectors: readonly
   const trace = detectors.map(() => new Float64Array(window + 1))
   const energy = [headroomEnergy(m, s, work)]
   const unweighted = [spanEnergy(m, s, work)]
+
   let gauss = gaussViolations(m, s)
 
   for (let t = 1; t <= window; t++) {
@@ -147,7 +210,9 @@ export function runHeadroom(m: SpanMedium, start: SpanState, detectors: readonly
     }
   }
 
-  for (let t = 0; t < window; t++) spanBeatBack(m, s, scratch, levels)
+  for (let t = 0; t < window; t++) {
+    spanBeatBack(m, s, scratch, levels)
+  }
 
   return {
     arrival: trace.map(halfMaxCentroid),
@@ -176,7 +241,11 @@ export const SLAB_REST_BEATS = 8192
 // the field is shallower than D0): k = round(C q_top / q), q_top the ring's least count. The reference is the room at
 // D0, k0 = round(C q_top / q0), where E-GRV-0093's uniform run sat, so the slab's index over the reference is k0 / k,
 // E-GRV-0093's q / q0 to within the rounding, 1 / (2 k) (disclosed; every reading uses the rooms the medium holds)
-export const slabRoom = (depth: number, base: number, top: number): number => Math.round((base * top) / (2 * depth + 1))
+export const slabRoom = (
+  depth: number,
+  base: number,
+  top: number,
+): number => Math.round((base * top) / (2 * depth + 1))
 
 export type SlabInterval = { x: number; k: number }
 
@@ -207,8 +276,12 @@ export type HeadroomSlabSurvey = {
 
 let cache: HeadroomSlabSurvey | undefined
 
-export function headroomSlabSurvey(log?: (what: string) => void): HeadroomSlabSurvey {
-  if (cache) return cache
+export function headroomSlabSurvey(
+  log?: (what: string) => void,
+): HeadroomSlabSurvey {
+  if (cache) {
+    return cache
+  }
 
   const started = Date.now()
   const depth = arenaField().depth
@@ -223,31 +296,84 @@ export function headroomSlabSurvey(log?: (what: string) => void): HeadroomSlabSu
   const c0 = (spanSpeed(RADION_DEPTH) * reference) / SLAB_BASE
   const intervals: SlabInterval[] = []
 
-  for (let x = first; x < last; x++) intervals.push({ x, k: Math.min(room[x]!, room[x + 1]!) })
+  for (let x = first; x < last; x++) {
+    intervals.push({ x, k: Math.min(room[x]!, room[x + 1]!) })
+  }
 
   log?.(`field ${(Date.now() - started) / 1000}s`)
 
-  const flat = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, () => reference)
-  const slab = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, x => room[x]!)
-  const start = spanPacket(flat, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const flat = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    () => reference,
+  )
+  const slab = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    x => room[x]!,
+  )
+  const start = spanPacket(
+    flat,
+    SPAN_LEVELS,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => dockAt(flat, x, 0, 0))
-  const uniform = runHeadroom(flat, start, detectors, SPAN_LENS_WINDOW, SLAB_EVERY)
+  const uniform = runHeadroom(
+    flat,
+    start,
+    detectors,
+    SPAN_LENS_WINDOW,
+    SLAB_EVERY,
+  )
 
   log?.(`headroom uniform ${uniform.seconds}s`)
 
-  const lens = runHeadroom(slab, start, detectors, SPAN_LENS_WINDOW, SLAB_EVERY)
+  const lens = runHeadroom(
+    slab,
+    start,
+    detectors,
+    SPAN_LENS_WINDOW,
+    SLAB_EVERY,
+  )
 
   log?.(`headroom slab ${lens.seconds}s`)
 
   // the control, built exactly as code/measure/depth-span spanLensSurvey builds E-GRV-0093's lens run
   const m0 = makeSpanMedium(LENS_LINE, () => RADION_DEPTH)
   const mLens = makeSpanMedium(LENS_LINE, x => depth[x]!)
-  const control = runSpan(mLens, spanPacket(m0, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH), LENS_DETECTORS.map(x => dockAt(m0, x, 0, 0)), SPAN_LENS_WINDOW, SLAB_EVERY)
+  const control = runSpan(
+    mLens,
+    spanPacket(
+      m0,
+      SPAN_LEVELS,
+      LENS_SOURCE_X,
+      LENS_AMP,
+      LENS_HALF_WIDTH,
+    ),
+    LENS_DETECTORS.map(x => dockAt(m0, x, 0, 0)),
+    SPAN_LENS_WINDOW,
+    SLAB_EVERY,
+  )
 
   log?.(`control ${control.seconds}s`)
 
-  const rooms = [...new Set([reference, ...intervals.map(iv => iv.k)])].sort((a, b) => b - a)
-  const rest = rooms.map(k => roomRestRate(k, SLAB_BASE, RADION_DEPTH, SLAB_REST_TERM, SLAB_REST_AMP, SLAB_REST_BEATS))
+  const rooms = [
+    ...new Set([reference, ...intervals.map(iv => iv.k)]),
+  ].sort((a, b) => b - a)
+  const rest = rooms.map(k =>
+    roomRestRate(
+      k,
+      SLAB_BASE,
+      RADION_DEPTH,
+      SLAB_REST_TERM,
+      SLAB_REST_AMP,
+      SLAB_REST_BEATS,
+    ),
+  )
   const rateOf = (k: number): number => rest.find(r => r.k === k)!.rate
 
   log?.(`rest rates ${(Date.now() - started) / 1000}s`)
@@ -262,7 +388,8 @@ export function headroomSlabSurvey(log?: (what: string) => void): HeadroomSlabSu
     clockCount += Math.log(rateOf(reference) / rateOf(iv.k)) / c0
   }
 
-  const stepAt = (x: number): boolean => room[x]! !== room[(x + 1) % sx]!
+  const stepAt = (x: number): boolean =>
+    room[x]! !== room[(x + 1) % sx]!
 
   cache = {
     depth,
@@ -270,12 +397,18 @@ export function headroomSlabSurvey(log?: (what: string) => void): HeadroomSlabSu
     top,
     reference,
     steps: room.reduce((c, _, x) => c + (stepAt(x) ? 1 : 0), 0),
-    pathSteps: intervals.reduce((c, iv) => c + (stepAt(iv.x) ? 1 : 0), 0),
+    pathSteps: intervals.reduce(
+      (c, iv) => c + (stepAt(iv.x) ? 1 : 0),
+      0,
+    ),
     intervals,
     uniform,
     lens,
     control,
-    measuredDelay: lens.arrival[n]! - lens.arrival[0]! - (uniform.arrival[n]! - uniform.arrival[0]!),
+    measuredDelay:
+      lens.arrival[n]! -
+      lens.arrival[0]! -
+      (uniform.arrival[n]! - uniform.arrival[0]!),
     eikonalDelay,
     closedCount,
     clockCount,
@@ -291,21 +424,54 @@ export function headroomSlabSurvey(log?: (what: string) => void): HeadroomSlabSu
 // for a light at c0; the reference here runs at c0 k0 / C, so the slab's packet reached x = 120 at 3,593.7 of 3,600
 // beats and its half-maximum centroid there was cut short. This runs the reference and the slab again over the window
 // scaled by C / k0, the same distance in the reference light's own time, so the -x half still does not come round
-export type HeadroomSlabPost = { window: number; uniform: HeadroomRun; lens: HeadroomRun; measuredDelay: number; seconds: number }
+export type HeadroomSlabPost = {
+  window: number
+  uniform: HeadroomRun
+  lens: HeadroomRun
+  measuredDelay: number
+  seconds: number
+}
 
 let postCache: HeadroomSlabPost | undefined
 
-export function headroomSlabPost(s: HeadroomSlabSurvey, log?: (what: string) => void): HeadroomSlabPost {
-  if (postCache) return postCache
+export function headroomSlabPost(
+  s: HeadroomSlabSurvey,
+  log?: (what: string) => void,
+): HeadroomSlabPost {
+  if (postCache) {
+    return postCache
+  }
 
   const started = Date.now()
   const n = LENS_DETECTORS.length - 1
   const window = Math.ceil((SPAN_LENS_WINDOW * SLAB_BASE) / s.reference)
-  const flat = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, () => s.reference)
-  const slab = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, x => s.room[x]!)
-  const start = spanPacket(flat, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const flat = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    () => s.reference,
+  )
+  const slab = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    x => s.room[x]!,
+  )
+  const start = spanPacket(
+    flat,
+    SPAN_LEVELS,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => dockAt(flat, x, 0, 0))
-  const uniform = runHeadroom(flat, start, detectors, window, SLAB_EVERY)
+  const uniform = runHeadroom(
+    flat,
+    start,
+    detectors,
+    window,
+    SLAB_EVERY,
+  )
 
   log?.(`post uniform ${uniform.seconds}s`)
 
@@ -317,7 +483,10 @@ export function headroomSlabPost(s: HeadroomSlabSurvey, log?: (what: string) => 
     window,
     uniform,
     lens,
-    measuredDelay: lens.arrival[n]! - lens.arrival[0]! - (uniform.arrival[n]! - uniform.arrival[0]!),
+    measuredDelay:
+      lens.arrival[n]! -
+      lens.arrival[0]! -
+      (uniform.arrival[n]! - uniform.arrival[0]!),
     seconds: (Date.now() - started) / 1000,
   }
 

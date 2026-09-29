@@ -47,11 +47,26 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, twoWay, vacuumState, type ArrowBox } from '@/code/measure/second-law-husk'
-import { cloneReduced, type Reduced } from '@/code/measure/living-pair-kernel'
+import {
+  arrowBox,
+  twoWay,
+  vacuumState,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
+import {
+  cloneReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { GOLDEN } from '@/code/tool/weyl'
-import { differingLines, lineSlot, lineStore, meshLineMap, sameState, type MeshLineMap } from '@/code/measure/line-information'
+import {
+  differingLines,
+  lineSlot,
+  lineStore,
+  meshLineMap,
+  sameState,
+  type MeshLineMap,
+} from '@/code/measure/line-information'
 
 const SIDE = 8
 const BLOCK = 4
@@ -63,7 +78,12 @@ const ERROR_BEATS: readonly number[] = [0, 5, 11]
 const next = (v: number): number => (v === 1 ? -1 : v + 1)
 
 // the code state: the vacuum with the logical value on each code line's copy slot
-function encode(vac: Reduced, map: MeshLineMap, lines: readonly number[], v: number): Reduced {
+function encode(
+  vac: Reduced,
+  map: MeshLineMap,
+  lines: readonly number[],
+  v: number,
+): Reduced {
   const s = cloneReduced(vac)
 
   for (const id of lines) {
@@ -77,16 +97,22 @@ function encode(vac: Reduced, map: MeshLineMap, lines: readonly number[], v: num
 }
 
 // an error rewriting 3 trits of line id: two vibes (first and second slot) and one store trit, at Weyl positions
-function hurt(s: Reduced, map: MeshLineMap, id: number, salt: number): void {
-  const len = (map.docks[id] as number[]).length
-  const at = (j: number): number => Math.floor(((salt + j) * GOLDEN) % 1 * len)
+function hurt(
+  s: Reduced,
+  map: MeshLineMap,
+  id: number,
+  salt: number,
+): void {
+  const len = map.docks[id]!.length
+  const at = (j: number): number =>
+    Math.floor((((salt + j) * GOLDEN) % 1) * len)
   const a = lineSlot(map, id, at(1))
   const b = lineSlot(map, id, at(2), true)
   const c = lineStore(map, id, at(3))
 
-  s.vibe[a] = next(s.vibe[a] as number)
-  s.vibe[b] = next(s.vibe[b] as number)
-  s.store[c] = next(s.store[c] as number)
+  s.vibe[a] = next(s.vibe[a]!)
+  s.vibe[b] = next(s.vibe[b]!)
+  s.store[c] = next(s.store[c]!)
 }
 
 // the error-free code's states after each beat 1..T (the clean run, shared by every trial of one code)
@@ -104,49 +130,85 @@ function cleanTrack(box: ArrowBox, code: Reduced): Reduced[] {
 
 // run T beats with the error injected before beat tError on the given lines, pull back to 0, and read; the clean run
 // pulled back is the code itself (the beat is a bijection, checked by the instrument)
-function trial(box: ArrowBox, map: MeshLineMap, code: Reduced, clean: readonly Reduced[], lines: readonly number[], errored: readonly number[], tError: number, salt: number): { decoded: number; local: boolean } {
+function trial(
+  box: ArrowBox,
+  map: MeshLineMap,
+  code: Reduced,
+  clean: readonly Reduced[],
+  lines: readonly number[],
+  errored: readonly number[],
+  tError: number,
+  salt: number,
+): { decoded: number; local: boolean } {
   const hit = twoWay(box, code)
   const allowed = new Set(errored)
+
   let local = true
 
   for (let t = 0; t < BEATS; t++) {
-    if (t === tError) for (const [i, id] of errored.entries()) hurt(hit.state(), map, id, salt + 7 * i)
+    if (t === tError) {
+      for (const [i, id] of errored.entries()) {
+        hurt(hit.state(), map, id, salt + 7 * i)
+      }
+    }
 
     hit.forward()
 
-    if (t >= tError) for (const id of differingLines(map, clean[t] as Reduced, hit.state())) local = local && allowed.has(id)
+    if (t >= tError) {
+      for (const id of differingLines(map, clean[t]!, hit.state())) {
+        local = local && allowed.has(id)
+      }
+    }
   }
 
-  for (let t = 0; t < BEATS; t++) hit.backward()
+  for (let t = 0; t < BEATS; t++) {
+    hit.backward()
+  }
 
-  for (const id of differingLines(map, code, hit.state())) local = local && allowed.has(id)
+  for (const id of differingLines(map, code, hit.state())) {
+    local = local && allowed.has(id)
+  }
 
   return { decoded: majority(hit.state(), map, lines), local }
 }
 
 // the majority of the copies (ties read as NaN)
-function majority(s: Reduced, map: MeshLineMap, lines: readonly number[]): number {
+function majority(
+  s: Reduced,
+  map: MeshLineMap,
+  lines: readonly number[],
+): number {
   const votes = new Map<number, number>()
 
   for (const id of lines) {
-    const v = s.vibe[lineSlot(map, id, 0)] as number
+    const v = s.vibe[lineSlot(map, id, 0)]!
 
     votes.set(v, (votes.get(v) ?? 0) + 1)
   }
 
-  const [best, count] = [...votes.entries()].sort((a, b) => b[1] - a[1])[0] as [number, number]
+  const [best, count] = [...votes.entries()].sort(
+    (a, b) => b[1] - a[1],
+  )[0]!
 
   return count * 2 > lines.length ? best : NaN
 }
 
 // errors placed on e of the code's lines, every choice of e lines
 function subsets(lines: readonly number[], e: number): number[][] {
-  if (e === 0) return [[]]
-  if (lines.length < e) return []
+  if (e === 0) {
+    return [[]]
+  }
+
+  if (lines.length < e) {
+    return []
+  }
 
   const [head, ...rest] = lines as [number, ...number[]]
 
-  return [...subsets(rest, e - 1).map(s => [head, ...s]), ...subsets(rest, e)]
+  return [
+    ...subsets(rest, e - 1).map(s => [head, ...s]),
+    ...subsets(rest, e),
+  ]
 }
 
 export default experiment({
@@ -161,6 +223,7 @@ export default experiment({
   run() {
     const started = Date.now()
     const members = startFamily(16)
+
     let cases = 0
     let correct = 0
     let localCases = 0
@@ -182,8 +245,13 @@ export default experiment({
           // instrument: no error, forward and back
           const r = twoWay(box, code)
 
-          for (let t = 0; t < BEATS; t++) r.forward()
-          for (let t = 0; t < BEATS; t++) r.backward()
+          for (let t = 0; t < BEATS; t++) {
+            r.forward()
+          }
+
+          for (let t = 0; t < BEATS; t++) {
+            r.backward()
+          }
 
           returns = returns && sameState(r.state(), code)
 
@@ -192,11 +260,26 @@ export default experiment({
           for (let e = 1; 2 * e < n; e++) {
             for (const errored of subsets(lines, e)) {
               for (const tError of ERROR_BEATS) {
-                const out = trial(box, map, code, clean, lines, errored, tError, mi * 101 + tError)
+                const out = trial(
+                  box,
+                  map,
+                  code,
+                  clean,
+                  lines,
+                  errored,
+                  tError,
+                  mi * 101 + tError,
+                )
 
                 cases++
-                if (out.decoded === v) correct++
-                if (out.local) localCases++
+
+                if (out.decoded === v) {
+                  correct++
+                }
+
+                if (out.local) {
+                  localCases++
+                }
               }
             }
           }
@@ -205,15 +288,25 @@ export default experiment({
           const w = next(v)
           const hurtMajority = cloneReduced(code)
 
-          for (const id of lines.slice(0, (n + 1) / 2)) hurtMajority.vibe[lineSlot(map, id, 0)] = w
+          for (const id of lines.slice(0, (n + 1) / 2)) {
+            hurtMajority.vibe[lineSlot(map, id, 0)] = w
+          }
 
           const m = twoWay(box, hurtMajority)
 
-          for (let t = 0; t < BEATS; t++) m.forward()
-          for (let t = 0; t < BEATS; t++) m.backward()
+          for (let t = 0; t < BEATS; t++) {
+            m.forward()
+          }
+
+          for (let t = 0; t < BEATS; t++) {
+            m.backward()
+          }
 
           majorityCases++
-          if (majority(m.state(), map, lines) === w) majorityWrong++
+
+          if (majority(m.state(), map, lines) === w) {
+            majorityWrong++
+          }
         }
       }
     }
@@ -223,7 +316,8 @@ export default experiment({
     const D3 = majorityWrong === majorityCases
     const instrument = returns
     const C1 = D3
-    const status = !instrument || !C1 ? 'partial' : D1 && D2 && D3 ? 'pass' : 'fail'
+    const status =
+      !instrument || !C1 ? 'partial' : D1 && D2 && D3 ? 'pass' : 'fail'
     const flag = (b: boolean): number => (b ? 1 : 0)
     const metrics: Record<string, number> = {
       D1: flag(D1),

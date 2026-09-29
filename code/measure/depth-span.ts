@@ -15,18 +15,68 @@
 // DETERMINISM: every start is placed; nothing is drawn.
 
 import { logLogSlope } from '@/code/measure/regression'
-import { arenaField, fallRun, lightSurvey, restRate, REST_AMPS, REST_BEATS, REST_TERMS, FALL_AT, FALL_BEATS, FALL_WIDTH, type FallRun, type LightSurvey } from '@/code/measure/depth-arena'
-import { RADION_DEPTH, LENS_AMP, LENS_DETECTORS, LENS_HALF_WIDTH, LENS_LINE, LENS_SOURCE_X } from '@/code/measure/radion'
-import { AMP, HALF_WIDTH, LINE, SOURCE_X, dockAt, gaussViolations, halfMaxCentroid, noWraps, planarPacket, type Wraps } from '@/code/measure/varying-depth-light'
-import { copySpan, emptySpan, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack, spanFlux, spanRest, type SpanMedium, type SpanState } from '@/code/rule/depth-span-light'
+import {
+  arenaField,
+  fallRun,
+  lightSurvey,
+  restRate,
+  REST_AMPS,
+  REST_BEATS,
+  REST_TERMS,
+  FALL_AT,
+  FALL_BEATS,
+  FALL_WIDTH,
+  type FallRun,
+  type LightSurvey,
+} from '@/code/measure/depth-arena'
+import {
+  RADION_DEPTH,
+  LENS_AMP,
+  LENS_DETECTORS,
+  LENS_HALF_WIDTH,
+  LENS_LINE,
+  LENS_SOURCE_X,
+} from '@/code/measure/radion'
+import {
+  AMP,
+  HALF_WIDTH,
+  LINE,
+  SOURCE_X,
+  dockAt,
+  gaussViolations,
+  halfMaxCentroid,
+  noWraps,
+  planarPacket,
+  type Wraps,
+} from '@/code/measure/varying-depth-light'
+import {
+  copySpan,
+  emptySpan,
+  makeSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+  spanFlux,
+  spanRest,
+  type SpanMedium,
+  type SpanState,
+} from '@/code/rule/depth-span-light'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 // the spanned light's speed on a uniform depth: sqrt(2 kappa / 3) with kappa = 2 / q^2
-export const spanSpeed = (d: number): number => 2 / ((2 * d + 1) * Math.sqrt(3))
+export const spanSpeed = (d: number): number =>
+  2 / ((2 * d + 1) * Math.sqrt(3))
 
 // the start of a plane packet (code/measure/varying-depth-light planarPacket), every remainder and counter 0
-export function spanPacket(m: SpanMedium, levels: number, x0: number, amp: number, w: number): SpanState {
+export function spanPacket(
+  m: SpanMedium,
+  levels: number,
+  x0: number,
+  amp: number,
+  w: number,
+): SpanState {
   const s = emptySpan(m, levels)
 
   s.angle.set(planarPacket(m, x0, amp, w).angle)
@@ -35,7 +85,11 @@ export function spanPacket(m: SpanMedium, levels: number, x0: number, amp: numbe
 }
 
 // the sum over a dock's 9 out-links of the exact link angle (A + r / Q)^2
-export function spanDockWeight(m: SpanMedium, s: SpanState, dock: number): number {
+export function spanDockWeight(
+  m: SpanMedium,
+  s: SpanState,
+  dock: number,
+): number {
   let v = 0
 
   for (let h = 0; h < 9; h++) {
@@ -47,7 +101,13 @@ export function spanDockWeight(m: SpanMedium, s: SpanState, dock: number): numbe
   return v
 }
 
-export type SpanWork = { flux: Int32Array; now: Float64Array; next: Float64Array; ctNow: Float64Array; ctNext: Float64Array }
+export type SpanWork = {
+  flux: Int32Array
+  now: Float64Array
+  next: Float64Array
+  ctNow: Float64Array
+  ctNext: Float64Array
+}
 
 export const makeSpanWork = (m: SpanMedium): SpanWork => ({
   flux: new Int32Array(m.geometry.huskLinks),
@@ -57,7 +117,11 @@ export const makeSpanWork = (m: SpanMedium): SpanWork => ({
   ctNext: new Float64Array(m.geometry.huskLinks),
 })
 
-function curlTReal(m: SpanMedium, x: Float64Array, out: Float64Array): void {
+function curlTReal(
+  m: SpanMedium,
+  x: Float64Array,
+  out: Float64Array,
+): void {
   const g = m.geometry
 
   out.fill(0)
@@ -65,19 +129,28 @@ function curlTReal(m: SpanMedium, x: Float64Array, out: Float64Array): void {
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    }
   }
 }
 
 // the shadow invariant I of the header
-export function spanEnergy(m: SpanMedium, s: SpanState, work: SpanWork): number {
+export function spanEnergy(
+  m: SpanMedium,
+  s: SpanState,
+  work: SpanWork,
+): number {
   const g = m.geometry
   const levels = s.upper.length + 1
 
   for (let p = 0; p < g.triangles; p++) {
     const big = m.square[p]!
+
     let a = s.lag[p]! / big
     let b = s.counter[p]! / big
     let scale = big
@@ -106,6 +179,7 @@ export function spanEnergy(m: SpanMedium, s: SpanState, work: SpanWork): number 
 
   for (let p = 0; p < g.triangles; p++) {
     const nb = 4 * m.triDepth[p]!
+
     let raw = 0
     let rest = 0
     let step = 0
@@ -117,12 +191,16 @@ export function spanEnergy(m: SpanMedium, s: SpanState, work: SpanWork): number 
 
       raw += c * s.angle[l]!
       rest += (c * (s.remainder[l]! + work.ctNow[l]!)) / q
-      step += (c * (work.flux[l]! + work.ctNext[l]! - work.ctNow[l]!)) / q
+      step +=
+        (c * (work.flux[l]! + work.ctNext[l]! - work.ctNow[l]!)) / q
     }
 
     const b0 = mod(raw + nb / 2, nb) - nb / 2 + rest
 
-    e += ((m.p * g.multiplicity[p]!) / (4 * m.count[p]!)) * b0 * (b0 + step)
+    e +=
+      ((m.p * g.multiplicity[p]!) / (4 * m.count[p]!)) *
+      b0 *
+      (b0 + step)
   }
 
   return e
@@ -141,7 +219,14 @@ export type SpanRun = {
 
 // a packet forward `window` beats, the detectors read after each beat, then back to the start bit for bit; `read`
 // turns a detector's trace into its arrival (the half-maximum centroid unless given)
-export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly number[], window: number, every = 64, read: (trace: Float64Array) => number = halfMaxCentroid): SpanRun {
+export function runSpan(
+  m: SpanMedium,
+  start: SpanState,
+  detectors: readonly number[],
+  window: number,
+  every = 64,
+  read: (trace: Float64Array) => number = halfMaxCentroid,
+): SpanRun {
   const t0 = Date.now()
   const levels = start.upper.length + 1
   const s = copySpan(start)
@@ -150,6 +235,7 @@ export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly num
   const wraps = noWraps()
   const trace = detectors.map(() => new Float64Array(window + 1))
   const energy = [spanEnergy(m, s, work)]
+
   let gauss = gaussViolations(m, s)
 
   for (let t = 1; t <= window; t++) {
@@ -159,10 +245,14 @@ export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly num
     })
     gauss += gaussViolations(m, s)
 
-    if (t % every === 0) energy.push(spanEnergy(m, s, work))
+    if (t % every === 0) {
+      energy.push(spanEnergy(m, s, work))
+    }
   }
 
-  for (let t = 0; t < window; t++) spanBeatBack(m, s, scratch, levels)
+  for (let t = 0; t < window; t++) {
+    spanBeatBack(m, s, scratch, levels)
+  }
 
   return {
     arrival: trace.map(read),
@@ -175,13 +265,15 @@ export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly num
   }
 }
 
-export const energyDrift = (energy: readonly number[]): number => energy.reduce((a, v) => Math.max(a, Math.abs(v / energy[0]! - 1)), 0)
+export const energyDrift = (energy: readonly number[]): number =>
+  energy.reduce((a, v) => Math.max(a, Math.abs(v / energy[0]! - 1)), 0)
 
 // ---------------------------------------------------------------------------------------------------------
 // gauge covariance: the husk gauge map of E-FRC-0252 (axis angles move by 2 d eta, diagonals by d eta, so every
 // plaquette field is unchanged), with a small eta so no gauged angle reaches its window
 
-export const gaugeEta = (a: number, b: number, c: number): number => mod(3 * a + 5 * b + 7 * c + a * b, 3) - 1
+export const gaugeEta = (a: number, b: number, c: number): number =>
+  mod(3 * a + 5 * b + 7 * c + a * b, 3) - 1
 
 // a WIDE map, eta in -h .. h: axis angles move by up to 4h, so with h = D0 most gauged angles cross their window at
 // the start (the test that the rule's windows and field modulus agree, code/rule/depth-span-light, fixed resolution)
@@ -190,30 +282,59 @@ export const wideGaugeEta =
   (a: number, b: number, c: number): number =>
     mod(3 * a + 5 * b + 7 * c + a * b, 2 * h + 1) - h
 
-export function gaugeShift(m: SpanMedium, etaAt: (a: number, b: number, c: number) => number = gaugeEta): Int32Array {
+export function gaugeShift(
+  m: SpanMedium,
+  etaAt: (a: number, b: number, c: number) => number = gaugeEta,
+): Int32Array {
   const g = m.geometry
   const [sx, sy] = m.sides
-  const eta = (y: number): number => etaAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
+  const eta = (y: number): number =>
+    etaAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
 
-  return Int32Array.from({ length: g.huskLinks }, (_, l) => (l % 9 < 3 ? 2 : 1) * (eta(g.huskNeighbour[l]!) - eta(Math.floor(l / 9))))
+  return Int32Array.from(
+    { length: g.huskLinks },
+    (_, l) =>
+      (l % 9 < 3 ? 2 : 1) *
+      (eta(g.huskNeighbour[l]!) - eta(Math.floor(l / 9))),
+  )
 }
 
 // `crossed`: the links whose gauged start angle crossed its window (0 for the narrow map on a quiet start)
-export type GaugeReading = { plaquette: number; covariantBeats: number; beats: number; shifted: number; crossed: number }
+export type GaugeReading = {
+  plaquette: number
+  covariantBeats: number
+  beats: number
+  shifted: number
+  crossed: number
+}
 
 // the gauged and ungauged runs side by side: after every beat the gauged angles equal the ungauged plus the map
 // (wrapped), and every other array is equal
-export function gaugeReading(m: SpanMedium, start: SpanState, beats: number, etaAt: (a: number, b: number, c: number) => number = gaugeEta): GaugeReading {
+export function gaugeReading(
+  m: SpanMedium,
+  start: SpanState,
+  beats: number,
+  etaAt: (a: number, b: number, c: number) => number = gaugeEta,
+): GaugeReading {
   const g = m.geometry
   const levels = start.upper.length + 1
   const lambda = gaugeShift(m, etaAt)
-  const wrapped = (l: number, v: number): number => mod(v + m.linkWindow[l]! / 2, m.linkWindow[l]!) - m.linkWindow[l]! / 2
+  const wrapped = (l: number, v: number): number =>
+    mod(v + m.linkWindow[l]! / 2, m.linkWindow[l]!) -
+    m.linkWindow[l]! / 2
+
   let plaquette = 0
 
   for (let p = 0; p < g.triangles; p++) {
     let v = 0
 
-    for (let j = p * 3; j < p * 3 + 3; j++) v += g.triSigns[j]! * g.weight[g.triLinks[j]! % 9]! * lambda[g.triLinks[j]!]!
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      v +=
+        g.triSigns[j]! *
+        g.weight[g.triLinks[j]! % 9]! *
+        lambda[g.triLinks[j]!]!
+    }
+
     plaquette = Math.max(plaquette, Math.abs(v))
   }
 
@@ -225,25 +346,41 @@ export function gaugeReading(m: SpanMedium, start: SpanState, beats: number, eta
   for (let l = 0; l < g.huskLinks; l++) {
     b.angle[l] = wrapped(l, a.angle[l]! + lambda[l]!)
 
-    if (b.angle[l] !== a.angle[l]! + lambda[l]!) crossed++
+    if (b.angle[l] !== a.angle[l]! + lambda[l]!) {
+      crossed++
+    }
   }
 
   const sa = makeSpanScratch(m, levels)
   const sb = makeSpanScratch(m, levels)
+
   let covariantBeats = 0
 
   for (let t = 1; t <= beats; t++) {
     spanBeat(m, a, sa, levels)
     spanBeat(m, b, sb, levels)
 
-    const angles = a.angle.every((v, l) => b.angle[l] === wrapped(l, v + lambda[l]!))
+    const angles = a.angle.every(
+      (v, l) => b.angle[l] === wrapped(l, v + lambda[l]!),
+    )
     const ra = spanRest(a)
     const rb = spanRest(b)
 
-    if (angles && ra.every((x, j) => x.every((v, i) => v === rb[j]![i]))) covariantBeats++
+    if (
+      angles &&
+      ra.every((x, j) => x.every((v, i) => v === rb[j]![i]))
+    ) {
+      covariantBeats++
+    }
   }
 
-  return { plaquette, covariantBeats, beats, shifted: lambda.reduce((c, v) => c + (v === 0 ? 0 : 1), 0), crossed }
+  return {
+    plaquette,
+    covariantBeats,
+    beats,
+    shifted: lambda.reduce((c, v) => c + (v === 0 ? 0 : 1), 0),
+    crossed,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -254,17 +391,29 @@ export const SPAN_DEPTHS: readonly number[] = [16, 20, 24, 28]
 export const SPAN_NEAR = 60
 export const SPAN_FAR = 100
 // the window at depth D: the packet's front must pass the far detector, and the -x half must not come round
-export const spanWindow = (d: number): number => Math.ceil(80 / spanSpeed(d))
+export const spanWindow = (d: number): number =>
+  Math.ceil(80 / spanSpeed(d))
 export const GAUGE_BEATS = 256
 // the stability bound: the leapfrog is stable for kappa lambda_max <= 4, lambda_max = 16 on the husk (E-FRC-0250)
 export const HUSK_TOP = 16
 
-export type SpanSpeed = { depth: number; speed: number; closed: number; run: SpanRun }
+export type SpanSpeed = {
+  depth: number
+  speed: number
+  closed: number
+  run: SpanRun
+}
 
 export type SpanRuleSurvey = {
   speeds: SpanSpeed[]
   speedSlope: number
-  rest: { m: number; depth: number; rate: number; closed: number; reversed: boolean }[]
+  rest: {
+    m: number
+    depth: number
+    rate: number
+    closed: number
+    reversed: boolean
+  }[]
   restSlope: number[]
   uniformGauge: GaugeReading
   lensGauge: GaugeReading
@@ -277,40 +426,85 @@ export type SpanRuleSurvey = {
 
 let ruleCache: SpanRuleSurvey | undefined
 
-export function spanRuleSurvey(log?: (what: string) => void): SpanRuleSurvey {
-  if (ruleCache) return ruleCache
+export function spanRuleSurvey(
+  log?: (what: string) => void,
+): SpanRuleSurvey {
+  if (ruleCache) {
+    return ruleCache
+  }
 
   const started = Date.now()
   const speeds = SPAN_DEPTHS.map(depth => {
     const m = makeSpanMedium(LINE, () => depth)
-    const run = runSpan(m, spanPacket(m, SPAN_LEVELS, SOURCE_X, AMP, HALF_WIDTH), [dockAt(m, SPAN_NEAR, 0, 0), dockAt(m, SPAN_FAR, 0, 0)], spanWindow(depth))
+    const run = runSpan(
+      m,
+      spanPacket(m, SPAN_LEVELS, SOURCE_X, AMP, HALF_WIDTH),
+      [dockAt(m, SPAN_NEAR, 0, 0), dockAt(m, SPAN_FAR, 0, 0)],
+      spanWindow(depth),
+    )
 
     log?.(`speed D ${depth} ${run.seconds}s`)
 
-    return { depth, speed: (SPAN_FAR - SPAN_NEAR) / (run.arrival[1]! - run.arrival[0]!), closed: spanSpeed(depth), run }
+    return {
+      depth,
+      speed:
+        (SPAN_FAR - SPAN_NEAR) / (run.arrival[1]! - run.arrival[0]!),
+      closed: spanSpeed(depth),
+      run,
+    }
   })
   const qs = SPAN_DEPTHS.map(d => 2 * d + 1)
-  const rest = REST_TERMS.flatMap((m, i) => SPAN_DEPTHS.map(depth => ({ m, depth, ...restRate(depth, m, REST_AMPS[i]!, REST_BEATS, 'span') })))
+  const rest = REST_TERMS.flatMap((m, i) =>
+    SPAN_DEPTHS.map(depth => ({
+      m,
+      depth,
+      ...restRate(depth, m, REST_AMPS[i]!, REST_BEATS, 'span'),
+    })),
+  )
   const m16 = makeSpanMedium(LINE, () => SPAN_DEPTHS[0]!)
-  const uniformGauge = gaugeReading(m16, spanPacket(m16, SPAN_LEVELS, SOURCE_X, AMP, HALF_WIDTH), GAUGE_BEATS)
+  const uniformGauge = gaugeReading(
+    m16,
+    spanPacket(m16, SPAN_LEVELS, SOURCE_X, AMP, HALF_WIDTH),
+    GAUGE_BEATS,
+  )
   const field = arenaField()
   const mLens = makeSpanMedium(LENS_LINE, x => field.depth[x]!)
-  const lensGauge = gaugeReading(mLens, spanPacket(mLens, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH), GAUGE_BEATS)
+  const lensGauge = gaugeReading(
+    mLens,
+    spanPacket(
+      mLens,
+      SPAN_LEVELS,
+      LENS_SOURCE_X,
+      LENS_AMP,
+      LENS_HALF_WIDTH,
+    ),
+    GAUGE_BEATS,
+  )
 
   log?.(`gauge ${(Date.now() - started) / 1000}s`)
 
   const lens = spanLensSurvey(log)
+
   let stability = 0
 
-  for (const m of [m16, mLens, ...SPAN_DEPTHS.map(d => makeSpanMedium([16, 2, 2], () => d))]) {
+  for (const m of [
+    m16,
+    mLens,
+    ...SPAN_DEPTHS.map(d => makeSpanMedium([16, 2, 2], () => d)),
+  ]) {
     const g = m.geometry
 
     for (let p = 0; p < g.triangles; p++) {
       let low = Infinity
 
-      for (let j = p * 3; j < p * 3 + 3; j++) low = Math.min(low, m.span[g.triLinks[j]!]!)
+      for (let j = p * 3; j < p * 3 + 3; j++) {
+        low = Math.min(low, m.span[g.triLinks[j]!]!)
+      }
 
-      stability = Math.max(stability, ((2 * m.p) / (m.count[p]! * low)) * HUSK_TOP)
+      stability = Math.max(
+        stability,
+        ((2 * m.p) / (m.count[p]! * low)) * HUSK_TOP,
+      )
     }
   }
 
@@ -363,8 +557,12 @@ export type SpanLensSurvey = {
 
 let lensCache: SpanLensSurvey | undefined
 
-export function spanLensSurvey(log?: (what: string) => void): SpanLensSurvey {
-  if (lensCache) return lensCache
+export function spanLensSurvey(
+  log?: (what: string) => void,
+): SpanLensSurvey {
+  if (lensCache) {
+    return lensCache
+  }
 
   const started = Date.now()
   const field = arenaField()
@@ -374,6 +572,7 @@ export function spanLensSurvey(log?: (what: string) => void): SpanLensSurvey {
   const n = LENS_DETECTORS.length - 1
   const c0 = spanSpeed(RADION_DEPTH)
   const q0 = 2 * RADION_DEPTH + 1
+
   let eikonalDelay = 0
   let closedCountDelay = 0
 
@@ -384,7 +583,13 @@ export function spanLensSurvey(log?: (what: string) => void): SpanLensSurvey {
 
   const m0 = makeSpanMedium(LENS_LINE, () => RADION_DEPTH)
   const mLens = makeSpanMedium(LENS_LINE, x => depth[x]!)
-  const start = spanPacket(m0, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const start = spanPacket(
+    m0,
+    SPAN_LEVELS,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => dockAt(m0, x, 0, 0))
   const uniform = runSpan(m0, start, detectors, SPAN_LENS_WINDOW)
 
@@ -394,10 +599,24 @@ export function spanLensSurvey(log?: (what: string) => void): SpanLensSurvey {
 
   log?.(`span lens ${lens.seconds}s`)
 
-  const fall = REST_TERMS.map((m, i) => fallRun(x => depth[x]!, 'span', FALL_AT, m, REST_AMPS[i]!, FALL_WIDTH, FALL_BEATS))
-  const pullScale = fall.reduce((a, f) => a + f.g / f.gPredicted, 0) / fall.length
+  const fall = REST_TERMS.map((m, i) =>
+    fallRun(
+      x => depth[x]!,
+      'span',
+      FALL_AT,
+      m,
+      REST_AMPS[i]!,
+      FALL_WIDTH,
+      FALL_BEATS,
+    ),
+  )
+  const pullScale =
+    fall.reduce((a, f) => a + f.g / f.gPredicted, 0) / fall.length
   const arena = lightSurvey(log)
-  const measuredDelay = lens.arrival[n]! - lens.arrival[0]! - (uniform.arrival[n]! - uniform.arrival[0]!)
+  const measuredDelay =
+    lens.arrival[n]! -
+    lens.arrival[0]! -
+    (uniform.arrival[n]! - uniform.arrival[0]!)
 
   lensCache = {
     depth,

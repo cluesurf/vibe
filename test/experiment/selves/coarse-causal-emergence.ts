@@ -20,7 +20,10 @@ import {
   effectiveInformation,
   coarseGrainTpm,
 } from '@/code/coarse/causal-emergence'
-import { selfTrajectory, makeStream } from '@/code/coarse/self-trajectory'
+import {
+  selfTrajectory,
+  makeStream,
+} from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/coarse-causal-emergence',

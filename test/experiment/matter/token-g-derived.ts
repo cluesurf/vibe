@@ -56,7 +56,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { tokenG, twoStreamG, type TokenStep } from '@/code/measure/token-g-analytic'
+import {
+  tokenG,
+  twoStreamG,
+  type TokenStep,
+} from '@/code/measure/token-g-analytic'
 import { bandSignOf, landauG } from '@/code/measure/token-g-landau'
 import { type Step } from '@/code/rule/spinor-token'
 
@@ -68,7 +72,10 @@ const CLOSE = 1e-9
 const WITNESS = 0.02
 const SIDES = [96, 192]
 
-const asToken = (schedule: readonly Step[]): TokenStep[] => schedule.map(s => ({ axis: s === 'x' ? 'x' : s === 'y' ? 'y' : 'none' }))
+const asToken = (schedule: readonly Step[]): TokenStep[] =>
+  schedule.map(s => ({
+    axis: s === 'x' ? 'x' : s === 'y' ? 'y' : 'none',
+  }))
 
 export default experiment({
   id: 'matter/token-g-derived',
@@ -89,11 +96,30 @@ export default experiment({
 
       return { mu, general, closed }
     })
-    const saddleGeneral = tokenG({ schedule: tokenSteps, mu: Math.PI / 12 })
-    const saddleClosed = twoStreamG({ delta: Math.PI / 6, phi: (10 * Math.PI) / 12 })
-    const closedGap = Math.max(...rows.map(r => Math.abs(r.general.g - r.closed.g)))
-    const consistency = Math.max(...[...rows.map(r => r.general), saddleGeneral].flatMap(r => [r.firstOrder, r.antiHermitian, r.offDiagonal]))
-    const g1 = closedGap < CLOSE && rows.every(r => r.general.bowl) && !saddleGeneral.bowl && Number.isNaN(saddleClosed.g) && consistency < EXACT
+    const saddleGeneral = tokenG({
+      schedule: tokenSteps,
+      mu: Math.PI / 12,
+    })
+    const saddleClosed = twoStreamG({
+      delta: Math.PI / 6,
+      phi: (10 * Math.PI) / 12,
+    })
+    const closedGap = Math.max(
+      ...rows.map(r => Math.abs(r.general.g - r.closed.g)),
+    )
+    const consistency = Math.max(
+      ...[...rows.map(r => r.general), saddleGeneral].flatMap(r => [
+        r.firstOrder,
+        r.antiHermitian,
+        r.offDiagonal,
+      ]),
+    )
+    const g1 =
+      closedGap < CLOSE &&
+      rows.every(r => r.general.bowl) &&
+      !saddleGeneral.bowl &&
+      Number.isNaN(saddleClosed.g) &&
+      consistency < EXACT
 
     // G2: the model coin in closed form
     const model = rows[0]?.general
@@ -124,7 +150,12 @@ export default experiment({
             continue
           }
 
-          const schedule: TokenStep[] = Array.from({ length }, (_, k) => ({ axis: k === x ? 'x' : k === y ? 'y' : 'none' }))
+          const schedule: TokenStep[] = Array.from(
+            { length },
+            (_, k) => ({
+              axis: k === x ? 'x' : k === y ? 'y' : 'none',
+            }),
+          )
           const r = tokenG({ schedule, mu: MODEL_COIN })
 
           if (Math.abs(r.restGap) < CLOSE) {
@@ -143,22 +174,49 @@ export default experiment({
       }
     }
 
-    const g3 = twoStreamOther === 0 && twoStreamBowls > 0 && twoStreamSaddles > 0
+    const g3 =
+      twoStreamOther === 0 && twoStreamBowls > 0 && twoStreamSaddles > 0
 
     // G4: the Landau witness
-    const witnessCases: { name: string; schedule: readonly Step[]; mu: number }[] = [
+    const witnessCases: {
+      name: string
+      schedule: readonly Step[]
+      mu: number
+    }[] = [
       { name: 'tokenModel', schedule: TOKEN, mu: MODEL_COIN },
       { name: 'tokenPi20', schedule: TOKEN, mu: Math.PI / 20 },
       { name: 'tokenPi30', schedule: TOKEN, mu: Math.PI / 30 },
       { name: 'palindromeModel', schedule: PALINDROME, mu: MODEL_COIN },
     ]
     const witness = witnessCases.map(c => {
-      const analytic = tokenG({ schedule: asToken(c.schedule), mu: c.mu }).g
-      const sign = bandSignOf({ schedule: c.schedule, mode: 'locked', coinAngle: c.mu })
-      const readings = SIDES.map(side => landauG({ schedule: c.schedule, mode: 'locked', coinAngle: c.mu, side, sign }))
-      const zeroField = 2 * (readings[1]?.gLo ?? 0) - (readings[0]?.gLo ?? 0)
+      const analytic = tokenG({
+        schedule: asToken(c.schedule),
+        mu: c.mu,
+      }).g
+      const sign = bandSignOf({
+        schedule: c.schedule,
+        mode: 'locked',
+        coinAngle: c.mu,
+      })
+      const readings = SIDES.map(side =>
+        landauG({
+          schedule: c.schedule,
+          mode: 'locked',
+          coinAngle: c.mu,
+          side,
+          sign,
+        }),
+      )
+      const zeroField =
+        2 * (readings[1]?.gLo ?? 0) - (readings[0]?.gLo ?? 0)
 
-      return { ...c, analytic, readings, zeroField, miss: Math.abs(zeroField - analytic) }
+      return {
+        ...c,
+        analytic,
+        readings,
+        zeroField,
+        miss: Math.abs(zeroField - analytic),
+      }
     })
     const g4 = witness.every(w => w.miss < WITNESS)
 
@@ -170,8 +228,18 @@ export default experiment({
       metrics: {
         closedFormGap: closedGap,
         consistencyResidue: consistency,
-        ...Object.fromEntries(rows.map(r => [`analyticG_mu${(Math.PI / r.mu).toFixed(0)}`, Number(r.general.g.toFixed(9))])),
-        ...Object.fromEntries(rows.map(r => [`closedX_mu${(Math.PI / r.mu).toFixed(0)}`, Number(r.closed.x.toFixed(9))])),
+        ...Object.fromEntries(
+          rows.map(r => [
+            `analyticG_mu${(Math.PI / r.mu).toFixed(0)}`,
+            Number(r.general.g.toFixed(9)),
+          ]),
+        ),
+        ...Object.fromEntries(
+          rows.map(r => [
+            `closedX_mu${(Math.PI / r.mu).toFixed(0)}`,
+            Number(r.closed.x.toFixed(9)),
+          ]),
+        ),
         modelCoinG: model?.g ?? NaN,
         modelCoinCurvature: up?.a ?? NaN,
         modelCoinAnisotropic: up?.c ?? NaN,
@@ -187,7 +255,10 @@ export default experiment({
             [`${w.name}_analytic`, Number(w.analytic.toFixed(6))],
             [`${w.name}_zeroField`, Number(w.zeroField.toFixed(6))],
             [`${w.name}_miss`, Number(w.miss.toFixed(6))],
-            ...w.readings.map(r => [`${w.name}_L${r.side}_gLo`, Number(r.gLo.toFixed(6))]),
+            ...w.readings.map(r => [
+              `${w.name}_L${r.side}_gLo`,
+              Number(r.gLo.toFixed(6)),
+            ]),
           ]),
         ),
       },
@@ -196,7 +267,7 @@ export default experiment({
         saddleCoinClosedX: saddleClosed.x,
       },
       notes:
-        'L2, STAND-IN. The token\'s g = 4 is derived, not fitted: in the frame where the coins are moved to the front, the y stream is seen 2 mu = 120 degrees from the x stream, and the second-order Zeeman term collects the ordering commutator of the two copies (sin delta) besides the Dirac hop through the antiparticle band (kappa cos delta). At the model coin these are sqrt 3 / 2 and (-1/sqrt 3)(-1/2) = 1 / (2 sqrt 3), total 2 / sqrt 3 against a kinetic 1 / sqrt 3, twice the Dirac ratio. The three hypotheses of E-MTR-0015 all fail: the spin is a doublet (two ladders one whole spacing apart, E-MTR-0015\'s own sectors), the orbital coupling is the ordinary kappa (the cyclotron per unit field is 1 / sqrt 3 exactly, the value E-MTR-0015 and E-FRC-0176 approached from below at finite field), and the heavy coin enters only through kappa and delta. What the model coin does fix is the discreteness: with C^3 = 1, every one-x one-y schedule has X^2 in {4/3, 1/3}, so g = 4 or no bowl at all. The light coins approach 2 as g - 2 = 1/X^2 + ..., X = cos 3 mu / sin 5 mu for this token, which is why E-MTR-0015\'s witness read 2.10 and not 2. The same formula names the saddle that broke E-MTR-0015\'s estimator between pi/30 and pi/3 (pi/12: X = 0.73). E-MTR-0017 asks what makes g = 2 exactly.',
+        "L2, STAND-IN. The token's g = 4 is derived, not fitted: in the frame where the coins are moved to the front, the y stream is seen 2 mu = 120 degrees from the x stream, and the second-order Zeeman term collects the ordering commutator of the two copies (sin delta) besides the Dirac hop through the antiparticle band (kappa cos delta). At the model coin these are sqrt 3 / 2 and (-1/sqrt 3)(-1/2) = 1 / (2 sqrt 3), total 2 / sqrt 3 against a kinetic 1 / sqrt 3, twice the Dirac ratio. The three hypotheses of E-MTR-0015 all fail: the spin is a doublet (two ladders one whole spacing apart, E-MTR-0015's own sectors), the orbital coupling is the ordinary kappa (the cyclotron per unit field is 1 / sqrt 3 exactly, the value E-MTR-0015 and E-FRC-0176 approached from below at finite field), and the heavy coin enters only through kappa and delta. What the model coin does fix is the discreteness: with C^3 = 1, every one-x one-y schedule has X^2 in {4/3, 1/3}, so g = 4 or no bowl at all. The light coins approach 2 as g - 2 = 1/X^2 + ..., X = cos 3 mu / sin 5 mu for this token, which is why E-MTR-0015's witness read 2.10 and not 2. The same formula names the saddle that broke E-MTR-0015's estimator between pi/30 and pi/3 (pi/12: X = 0.73). E-MTR-0017 asks what makes g = 2 exactly.",
     })
   },
 })

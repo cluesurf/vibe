@@ -46,7 +46,12 @@
 // is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule; a unit of content added is a
 // scheduled event.
 
-import { HUSK_LATERAL, openRestLow, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
+import {
+  HUSK_LATERAL,
+  openRestLow,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import type { StepRule, StepTally } from '@/code/rule/step-depth'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -60,7 +65,11 @@ export type HorizonRule = StepRule & {
 }
 
 export function horizonRule(rule: StepRule, bulk: number): HorizonRule {
-  if (bulk % 2 !== 1) throw new Error('horizonRule: the bulk window is an odd count of whole steps')
+  if (bulk % 2 !== 1) {
+    throw new Error(
+      'horizonRule: the bulk window is an odd count of whole steps',
+    )
+  }
 
   const bulkSpan = bulk * rule.unit
 
@@ -68,63 +77,126 @@ export function horizonRule(rule: StepRule, bulk: number): HorizonRule {
 }
 
 // the horizon read from the lines: husk docks all of whose husk lateral links carry a line
-export function horizonOf(mesh: OpenMesh, line: Int8Array, out = new Uint8Array(mesh.huskDocks)): Uint8Array {
+export function horizonOf(
+  mesh: OpenMesh,
+  line: Int8Array,
+  out = new Uint8Array(mesh.huskDocks),
+): Uint8Array {
   const busy = new Int32Array(mesh.huskDocks)
 
   for (let l = 0; l < mesh.huskDocks * 9; l++) {
-    if (line[l] === 0) continue
+    if (line[l] === 0) {
+      continue
+    }
+
     busy[mesh.tail[l]!]!++
     busy[mesh.head[l]!]!++
   }
-  for (let y = 0; y < mesh.huskDocks; y++) out[y] = busy[y] === 18 ? 1 : 0
+
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    out[y] = busy[y] === 18 ? 1 : 0
+  }
 
   return out
 }
 
 // the event's horizon update: every saturated dock joins (the horizon only grows); returns the docks that joined, the
 // record that undoing the event clears (leaveHorizon)
-export function joinHorizon(mesh: OpenMesh, line: Int8Array, horizon: Uint8Array): number[] {
+export function joinHorizon(
+  mesh: OpenMesh,
+  line: Int8Array,
+  horizon: Uint8Array,
+): number[] {
   const saturated = horizonOf(mesh, line)
   const joined: number[] = []
 
-  for (let y = 0; y < mesh.huskDocks; y++) if (saturated[y] && !horizon[y]) (horizon[y] = 1), joined.push(y)
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    if (saturated[y] && !horizon[y]) {
+      ;((horizon[y] = 1), joined.push(y))
+    }
+  }
 
   return joined
 }
 
-export function leaveHorizon(horizon: Uint8Array, joined: readonly number[]): void {
-  for (const y of joined) horizon[y] = 0
+export function leaveHorizon(
+  horizon: Uint8Array,
+  joined: readonly number[],
+): void {
+  for (const y of joined) {
+    horizon[y] = 0
+  }
 }
 
 // a husk lateral link with an end on the horizon
-export const tornLink = (mesh: OpenMesh, horizon: Uint8Array, m: number): boolean => mesh.kind[m] === HUSK_LATERAL && (horizon[mesh.tail[m]!] === 1 || horizon[mesh.head[m]!] === 1)
+export const tornLink = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  m: number,
+): boolean =>
+  mesh.kind[m] === HUSK_LATERAL &&
+  (horizon[mesh.tail[m]!] === 1 || horizon[mesh.head[m]!] === 1)
 
 // the trit window on husk lateral links and on husk docks off the horizon; the bulk's everywhere else
-const linkTrit = (mesh: OpenMesh, m: number): boolean => mesh.kind[m] === HUSK_LATERAL
-const dockTrit = (mesh: OpenMesh, horizon: Uint8Array, y: number): boolean => y < mesh.huskDocks && horizon[y] === 0
+const linkTrit = (mesh: OpenMesh, m: number): boolean =>
+  mesh.kind[m] === HUSK_LATERAL
+const dockTrit = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  y: number,
+): boolean => y < mesh.huskDocks && horizon[y] === 0
 
-const wrapTrit = (rule: HorizonRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
-const wrapBulk = (rule: HorizonRule, v: number): number => mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
+const wrapTrit = (rule: HorizonRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
+const wrapBulk = (rule: HorizonRule, v: number): number =>
+  mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
 
-export type HorizonScratch = { divLine: Float64Array; divStep: Float64Array }
+export type HorizonScratch = {
+  divLine: Float64Array
+  divStep: Float64Array
+}
 
-export const horizonScratch = (mesh: OpenMesh): HorizonScratch => ({ divLine: new Float64Array(mesh.docks), divStep: new Float64Array(mesh.docks) })
+export const horizonScratch = (mesh: OpenMesh): HorizonScratch => ({
+  divLine: new Float64Array(mesh.docks),
+  divStep: new Float64Array(mesh.docks),
+})
 
-function divergence(mesh: OpenMesh, field: ArrayLike<number>, out: Float64Array): void {
+function divergence(
+  mesh: OpenMesh,
+  field: ArrayLike<number>,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let m = 0; m < mesh.links; m++) {
     const v = field[m]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     out[mesh.tail[m]!] = out[mesh.tail[m]!]! + v
-    if (mesh.head[m]! >= 0) out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+
+    if (mesh.head[m]! >= 0) {
+      out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+    }
   }
 }
 
 // one beat, in place, for the horizon `horizon` (fixed through the beat)
-export function horizonBeat(mesh: OpenMesh, rule: HorizonRule, s: OpenState, horizon: Uint8Array, scratch: HorizonScratch, tally?: StepTally): void {
-  if (mesh.lapse) throw new Error('horizonBeat: the lapse in the links is not carried here')
+export function horizonBeat(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  scratch: HorizonScratch,
+  tally?: StepTally,
+): void {
+  if (mesh.lapse) {
+    throw new Error(
+      'horizonBeat: the lapse in the links is not carried here',
+    )
+  }
 
   const { a, q, h, unit } = rule
   const inertia = mesh.inertia
@@ -135,39 +207,68 @@ export function horizonBeat(mesh: OpenMesh, rule: HorizonRule, s: OpenState, hor
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const w = floorDiv(x + s.rest[y]! + (inertia ? openRestLow(qy) : h), qy)
+    const w = floorDiv(
+      x + s.rest[y]! + (inertia ? openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! + w
 
     s.rest[y] = x + s.rest[y]! - qy * w
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.rate[y] !== raw) tally.vWraps++
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
+
+    if (tally && s.rate[y] !== raw) {
+      tally.vWraps++
+    }
   }
 
   const { tail, head, weight } = mesh
 
   for (let m = 0; m < mesh.links; m++) {
-    if (tornLink(mesh, horizon, m)) continue
+    if (tornLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! + weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! +
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = linkTrit(mesh, m) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.step[m] !== raw) tally.fWraps++
+    s.step[m] = linkTrit(mesh, m)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
+
+    if (tally && s.step[m] !== raw) {
+      tally.fWraps++
+    }
   }
 }
 
-export function horizonBeatBack(mesh: OpenMesh, rule: HorizonRule, s: OpenState, horizon: Uint8Array, scratch: HorizonScratch): void {
+export function horizonBeatBack(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  scratch: HorizonScratch,
+): void {
   const { a, q, h, unit } = rule
   const { tail, head, weight } = mesh
   const inertia = mesh.inertia
 
   for (let m = 0; m < mesh.links; m++) {
-    if (tornLink(mesh, horizon, m)) continue
+    if (tornLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! - weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! -
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = linkTrit(mesh, m) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.step[m] = linkTrit(mesh, m)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
   }
 
   divergence(mesh, s.line, scratch.divLine)
@@ -176,11 +277,16 @@ export function horizonBeatBack(mesh: OpenMesh, rule: HorizonRule, s: OpenState,
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const w = floorDiv(x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h), qy)
+    const w = floorDiv(
+      x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! - w
 
     s.rest[y] = s.rest[y]! - x + qy * w
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
   }
 }
 
@@ -198,44 +304,75 @@ export type HorizonDepth = {
 
 // which links are torn for a horizon (the torn husk's by default: a husk lateral link with EITHER end on it; the
 // continuous horizon of code/rule/wave-horizon tears only a link with BOTH ends on it)
-export type TornTest = (mesh: OpenMesh, horizon: Uint8Array, m: number) => boolean
+export type TornTest = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  m: number,
+) => boolean
 
-export function horizonDepth(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8Array, torn: TornTest = tornLink): HorizonDepth {
+export function horizonDepth(
+  mesh: OpenMesh,
+  step: ArrayLike<number>,
+  horizon: Uint8Array,
+  torn: TornTest = tornLink,
+): HorizonDepth {
   const twice = new Float64Array(mesh.docks)
   const seen = new Uint8Array(mesh.docks)
   const queue = new Int32Array(mesh.docks)
+
   let tail = 0
 
   seen[0] = 1
   queue[tail++] = 0
+
   for (let at = 0; at < tail; at++) {
     const y = queue[at]!
 
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 
-      if (torn(mesh, horizon, m)) continue
+      if (torn(mesh, horizon, m)) {
+        continue
+      }
 
       const out = mesh.incSign[j]! > 0
       const z = out ? mesh.head[m]! : mesh.tail[m]!
 
-      if (z < 0 || seen[z]) continue
+      if (z < 0 || seen[z]) {
+        continue
+      }
+
       seen[z] = 1
       // along an out-link x_head = x_tail - F / g; along an in-link x_tail = x_head + F / g
-      twice[z] = out ? twice[y]! - (2 / mesh.weight[m]!) * step[m]! : twice[y]! + (2 / mesh.weight[m]!) * step[m]!
+      twice[z] = out
+        ? twice[y]! - (2 / mesh.weight[m]!) * step[m]!
+        : twice[y]! + (2 / mesh.weight[m]!) * step[m]!
       queue[tail++] = z
     }
   }
 
-  if (tail !== mesh.docks) throw new Error('horizonDepth: the live links do not reach every dock')
+  if (tail !== mesh.docks) {
+    throw new Error(
+      'horizonDepth: the live links do not reach every dock',
+    )
+  }
 
   let curl = 0
   let checked = 0
 
   for (let m = 0; m < mesh.links; m++) {
-    if (torn(mesh, horizon, m) || mesh.head[m]! < 0) continue
+    if (torn(mesh, horizon, m) || mesh.head[m]! < 0) {
+      continue
+    }
+
     checked++
-    if (twice[mesh.tail[m]!]! - twice[mesh.head[m]!]! !== (2 / mesh.weight[m]!) * step[m]!) curl++
+
+    if (
+      twice[mesh.tail[m]!]! - twice[mesh.head[m]!]! !==
+      (2 / mesh.weight[m]!) * step[m]!
+    ) {
+      curl++
+    }
   }
 
   return { twice, curl, checked }

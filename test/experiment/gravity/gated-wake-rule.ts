@@ -43,11 +43,27 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, twoWay, vacuumState } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  twoWay,
+  vacuumState,
+} from '@/code/measure/second-law-husk'
 import { sameReduced } from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { ballDocks, crowdStart, dockEnergy, gatedTake, restState } from '@/code/measure/gated-take'
-import { WAKE_THRESHOLD, gatedWake, openEdgeSlots, shellCounts, wakeWait } from '@/code/measure/gated-wake'
+import {
+  ballDocks,
+  crowdStart,
+  dockEnergy,
+  gatedTake,
+  restState,
+} from '@/code/measure/gated-take'
+import {
+  WAKE_THRESHOLD,
+  gatedWake,
+  openEdgeSlots,
+  shellCounts,
+  wakeWait,
+} from '@/code/measure/gated-wake'
 
 export const WAKE_RULE = {
   side: 16,
@@ -59,7 +75,8 @@ export const WAKE_RULE = {
   full: 48,
 } as const
 
-const same = (a: Int32Array, b: Int32Array): boolean => a.length === b.length && a.every((v, i) => v === b[i])
+const same = (a: Int32Array, b: Int32Array): boolean =>
+  a.length === b.length && a.every((v, i) => v === b[i])
 
 export default experiment({
   id: 'gravity/gated-wake-rule',
@@ -77,7 +94,12 @@ export default experiment({
     const cells = S.side ** 4
     const zero = new Int32Array(cells)
     const plain = gatedWake(S.side, zero, 0)
-    const full = gatedWake(S.side, new Int32Array(cells).fill(wakeWait(S.full)), 0)
+    const full = gatedWake(
+      S.side,
+      new Int32Array(cells).fill(wakeWait(S.full)),
+      0,
+    )
+
     let g1 = true
     let g3 = true
     let g5 = true
@@ -87,33 +109,67 @@ export default experiment({
     let changedDocks = 0
     let maxOffset = 0
     let edge: number[] = []
+
     const memberNotes: string[] = []
 
     members.forEach((member, k) => {
       const box = withStart(member, () => arrowBox(S.side, 4))
-      const g = gatedTake(box, { name: 'none', top: 1, length: () => 1 })
+      const g = gatedTake(box, {
+        name: 'none',
+        top: 1,
+        length: () => 1,
+      })
       const source = g.source
       // G1: the stream is a permutation (gatedTake throws otherwise) covering every slot
       const covered = new Uint8Array(source.length)
 
-      for (const s of source) if (s >= 0) covered[s] = 1
-      if (!covered.every(v => v === 1)) g1 = false
+      for (const s of source) {
+        if (s >= 0) {
+          covered[s] = 1
+        }
+      }
+
+      if (!covered.every(v => v === 1)) {
+        g1 = false
+      }
 
       // G2 on the first member
-      if (k === 0) edge = Array.from({ length: S.edgeBeats + 1 }, (_, t) => openEdgeSlots(source, plain, t))
+      if (k === 0) {
+        edge = Array.from({ length: S.edgeBeats + 1 }, (_, t) =>
+          openEdgeSlots(source, plain, t),
+        )
+      }
 
       const vacuum = restState(vacuumState(box), box.cells)
       const ball = ballDocks(box, S.radius, S.crowdCenter)
-      const crowd = crowdStart(box, vacuum, { docks: ball, phase: k, sign: 1, counter: 0 })
-      const flip = crowdStart(box, vacuum, { docks: ball, phase: k, sign: -1, counter: 0 })
+      const crowd = crowdStart(box, vacuum, {
+        docks: ball,
+        phase: k,
+        sign: 1,
+        counter: 0,
+      })
+      const flip = crowdStart(box, vacuum, {
+        docks: ball,
+        phase: k,
+        sign: -1,
+        counter: 0,
+      })
 
       // G1: forward and back
       for (const start of [crowd, flip]) {
         const r = twoWay(box, start.s)
 
-        for (let t = 0; t < S.knitBeats; t++) r.forward()
-        for (let t = 0; t < S.knitBeats; t++) r.backward()
-        if (!sameReduced(r.state(), start.s) || r.time() !== 0) g1 = false
+        for (let t = 0; t < S.knitBeats; t++) {
+          r.forward()
+        }
+
+        for (let t = 0; t < S.knitBeats; t++) {
+          r.backward()
+        }
+
+        if (!sameReduced(r.state(), start.s) || r.time() !== 0) {
+          g1 = false
+        }
       }
 
       // G3: the vacuum's energies over the knit's beats, and the gated wake on them
@@ -122,48 +178,75 @@ export default experiment({
         const e0 = new Int32Array(cells)
 
         for (let t = 0; t <= S.knitBeats; t++) {
-          if (t > 0) r.forward()
+          if (t > 0) {
+            r.forward()
+          }
 
           for (let x = 0; x < cells; x++) {
             const e = dockEnergy(r.state(), x)
 
-            if (t === 0) e0[x] = wakeWait(e)
+            if (t === 0) {
+              e0[x] = wakeWait(e)
+            }
+
             vacuumMax = Math.max(vacuumMax, e)
           }
         }
 
-        if (!same(gatedWake(S.side, e0, 0), plain)) g3 = false
+        if (!same(gatedWake(S.side, e0, 0), plain)) {
+          g3 = false
+        }
       }
 
       // G5, G6
-      const wc = Int32Array.from({ length: cells }, (_, x) => wakeWait(dockEnergy(crowd.s, x)))
-      const wf = Int32Array.from({ length: cells }, (_, x) => wakeWait(dockEnergy(flip.s, x)))
+      const wc = Int32Array.from({ length: cells }, (_, x) =>
+        wakeWait(dockEnergy(crowd.s, x)),
+      )
+      const wf = Int32Array.from({ length: cells }, (_, x) =>
+        wakeWait(dockEnergy(flip.s, x)),
+      )
 
-      for (let x = 0; x < cells; x++) if (dockEnergy(crowd.s, x) !== dockEnergy(flip.s, x)) g5 = false
+      for (let x = 0; x < cells; x++) {
+        if (dockEnergy(crowd.s, x) !== dockEnergy(flip.s, x)) {
+          g5 = false
+        }
+      }
 
       const bc = gatedWake(S.side, wc, 0)
       const bf = gatedWake(S.side, wf, 0)
 
-      if (!same(bc, bf)) g5 = false
+      if (!same(bc, bf)) {
+        g5 = false
+      }
 
       crowdDocks = ball.reduce((u, v) => u + v, 0)
       changedDocks = 0
       maxOffset = 0
 
       for (let x = 0; x < cells; x++) {
-        const d = (bc[x] as number) - (plain[x] as number)
+        const d = bc[x]! - plain[x]!
 
-        if (d !== 0) changedDocks++
+        if (d !== 0) {
+          changedDocks++
+        }
+
         maxOffset = Math.max(maxOffset, d)
       }
 
-      if (changedDocks > 0) g6 = true
-      memberNotes.push(`${member.name} ${((Date.now() - started) / 1000).toFixed(0)}s`)
+      if (changedDocks > 0) {
+        g6 = true
+      }
+
+      memberNotes.push(
+        `${member.name} ${((Date.now() - started) / 1000).toFixed(0)}s`,
+      )
     })
 
     const g2 = edge.length === S.edgeBeats + 1 && edge.every(n => n > 0)
     const g3All = g3 && vacuumMax <= WAKE_THRESHOLD
-    const g4 = plain.every((b, x) => full[x] === (wakeWait(S.full) + 1) * b)
+    const g4 = plain.every(
+      (b, x) => full[x] === (wakeWait(S.full) + 1) * b,
+    )
     const gates = [g1, g2, g3All, g4, g5, g6]
     const status = gates.every(Boolean) ? 'pass' : 'fail'
     const shells = shellCounts(plain)
@@ -182,8 +265,12 @@ export default experiment({
         crowdDocks,
         changedDocks,
         maxBirthOffset: maxOffset,
-        ...Object.fromEntries(edge.map((n, t) => [`openEdgeSlots_t${t}`, n])),
-        ...Object.fromEntries(shells.slice(0, 8).map((n, t) => [`plainShell_${t}`, n])),
+        ...Object.fromEntries(
+          edge.map((n, t) => [`openEdgeSlots_t${t}`, n]),
+        ),
+        ...Object.fromEntries(
+          shells.slice(0, 8).map((n, t) => [`plainShell_${t}`, n]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

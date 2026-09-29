@@ -74,8 +74,31 @@ import { verdict } from '@/test/scaffold/verdict'
 import { linearFit } from '@/code/measure/regression'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 import { stepRule } from '@/code/rule/step-depth'
-import { emptyOpen, huskOnly, openBeat, openMesh, openScratch, placeOpenLines, warpClock, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
-import { greenSolve, huskDock, huskMaxStep, linkDistance, newOpenRecord, openContent, openEnergy, openHopRun, openStaticRun, stackSpeeds, type OpenHop, type OpenRecord } from '@/code/measure/open-husk'
+import {
+  emptyOpen,
+  huskOnly,
+  openBeat,
+  openMesh,
+  openScratch,
+  placeOpenLines,
+  warpClock,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
+import {
+  greenSolve,
+  huskDock,
+  huskMaxStep,
+  linkDistance,
+  newOpenRecord,
+  openContent,
+  openEnergy,
+  openHopRun,
+  openStaticRun,
+  stackSpeeds,
+  type OpenHop,
+  type OpenRecord,
+} from '@/code/measure/open-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -104,9 +127,21 @@ const ENERGY_LAYERS = 2
 const ENERGY_BEATS = 4096
 const ENERGY_EVERY = 64
 
-type Watch = { v: number; r: number; steps: number[]; lines: number[]; down: number; radial: number }
+type Watch = {
+  v: number
+  r: number
+  steps: number[]
+  lines: number[]
+  down: number
+  radial: number
+}
 
-const differs = (a: Watch, b: Watch): boolean => a.v !== b.v || a.r !== b.r || a.down !== b.down || a.steps.some((x, i) => x !== b.steps[i]) || a.lines.some((x, i) => x !== b.lines[i])
+const differs = (a: Watch, b: Watch): boolean =>
+  a.v !== b.v ||
+  a.r !== b.r ||
+  a.down !== b.down ||
+  a.steps.some((x, i) => x !== b.steps[i]) ||
+  a.lines.some((x, i) => x !== b.lines[i])
 
 const firstAt = (series: number[], share: number): number => {
   const top = Math.max(...series.map(Math.abs))
@@ -114,20 +149,45 @@ const firstAt = (series: number[], share: number): number => {
   return series.findIndex(x => Math.abs(x) >= top * share) + 1
 }
 
-const antipode = (side: number): number[] => [side / 2, side / 2, side / 2]
+const antipode = (side: number): number[] => [
+  side / 2,
+  side / 2,
+  side / 2,
+]
 
-type Front = { firstChange: number[]; cone: number[]; noInstant: boolean; inCone: boolean; half: number[]; quarter: number[]; tenth: number[]; speedHalf: number; speedQuarter: number; speedTenth: number }
+type Front = {
+  firstChange: number[]
+  cone: number[]
+  noInstant: boolean
+  inCone: boolean
+  half: number[]
+  quarter: number[]
+  tenth: number[]
+  speedHalf: number
+  speedQuarter: number
+  speedTenth: number
+}
 
 // E-GRV-0101's D2 reading on any mesh: two runs, one with the hop and one without, compared at (0, d, 0)
-function front(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRecord): Front {
+function front(
+  mesh: OpenMesh,
+  rule: ReturnType<typeof stepRule>,
+  record: OpenRecord,
+): Front {
   const allow = huskOnly(mesh)
-  const rho0 = openContent(mesh, [{ at: [0, 0, 0], units: SOURCE, to: antipode(HOP_SIDE) }])
+  const rho0 = openContent(mesh, [
+    { at: [0, 0, 0], units: SOURCE, to: antipode(HOP_SIDE) },
+  ])
   const docks = HOP_D.map(d => huskDock(mesh, [0, d, 0]))
-  const reach = linkDistance(mesh, [huskDock(mesh, [0, 0, 0]), huskDock(mesh, [1, 0, 0])])
+  const reach = linkDistance(mesh, [
+    huskDock(mesh, [0, 0, 0]),
+    huskDock(mesh, [1, 0, 0]),
+  ])
   const cone = docks.map(y => reach[y]!)
   const hasDown = mesh.sides.length > 1
   // the one vertical link of a husk dock (shrink: layer 0's verticals first, in dock order)
   const downOf = (y: number): number => mesh.docks * 9 + y
+
   const trace = (hops: OpenHop[]): Watch[][] => {
     const out: Watch[][] = []
 
@@ -139,13 +199,22 @@ function front(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRe
       HOP_AT + HOP_WINDOW,
       record,
       (t: number, s: OpenState): void => {
-        if (t <= HOP_AT) return
+        if (t <= HOP_AT) {
+          return
+        }
+
         out.push(
           docks.map(y => ({
             v: s.rate[y]!,
             r: s.rest[y]!,
-            steps: Array.from({ length: 9 }, (_, h) => s.step[y * 9 + h]!),
-            lines: Array.from({ length: 9 }, (_, h) => s.line[y * 9 + h]!),
+            steps: Array.from(
+              { length: 9 },
+              (_, h) => s.step[y * 9 + h]!,
+            ),
+            lines: Array.from(
+              { length: 9 },
+              (_, h) => s.line[y * 9 + h]!,
+            ),
             down: hasDown ? s.step[downOf(y)]! : 0,
             radial: s.step[y * 9 + 1]!,
           })),
@@ -156,21 +225,34 @@ function front(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRe
 
     return out
   }
+
   const traceA = trace([])
-  const traceB = trace([{ beat: HOP_AT, from: [0, 0, 0], to: [1, 0, 0], units: SOURCE }])
-  const firstChange = HOP_D.map((_, i) => traceA.findIndex((w, k) => differs(w[i]!, traceB[k]![i]!)) + 1)
-  const pulse = HOP_D.map((_, i) => traceA.map((w, k) => (traceB[k]![i]!.radial - w[i]!.radial) / rule.unit))
+  const traceB = trace([
+    { beat: HOP_AT, from: [0, 0, 0], to: [1, 0, 0], units: SOURCE },
+  ])
+  const firstChange = HOP_D.map(
+    (_, i) =>
+      traceA.findIndex((w, k) => differs(w[i]!, traceB[k]![i]!)) + 1,
+  )
+  const pulse = HOP_D.map((_, i) =>
+    traceA.map(
+      (w, k) => (traceB[k]![i]!.radial - w[i]!.radial) / rule.unit,
+    ),
+  )
   const half = pulse.map(p => firstAt(p, 0.5))
   const quarter = pulse.map(p => firstAt(p, 0.25))
   const tenth = pulse.map(p => firstAt(p, 0.1))
   const rhoD = HOP_D.map(d => Math.sqrt(0.25 + (d + 0.5) ** 2))
   const from = HOP_D.indexOf(FIT_FROM)
-  const speed = (t: number[]): number => 1 / linearFit({ xs: rhoD.slice(from), ys: t.slice(from) }).slope
+  const speed = (t: number[]): number =>
+    1 / linearFit({ xs: rhoD.slice(from), ys: t.slice(from) }).slope
 
   return {
     firstChange,
     cone,
-    noInstant: HOP_D.every((_, i) => !differs(traceA[0]![i]!, traceB[0]![i]!)),
+    noInstant: HOP_D.every(
+      (_, i) => !differs(traceA[0]![i]!, traceB[0]![i]!),
+    ),
     inCone: firstChange.every((k, i) => k === 0 || k >= cone[i]!),
     half,
     quarter,
@@ -194,29 +276,47 @@ export default experiment({
     const started = Date.now()
     const rule = stepRule(DEPTH, LEVELS)
     const c = lightSpeed(DEPTH)
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
 
     // D1
-    const longMesh = warpClock(openMesh(LONG_SIDE, LONG_LAYERS, 'shrink'))
+    const longMesh = warpClock(
+      openMesh(LONG_SIDE, LONG_LAYERS, 'shrink'),
+    )
     const longAllow = huskOnly(longMesh)
     const longRecord = newOpenRecord()
     const hops: OpenHop[] = []
 
-    for (let k = 1; k * LONG_EVERY < LONG_BEATS; k++) hops.push({ beat: k * LONG_EVERY, from: k % 2 === 1 ? [0, 0, 0] : [1, 0, 0], to: k % 2 === 1 ? [1, 0, 0] : [0, 0, 0], units: SOURCE })
+    for (let k = 1; k * LONG_EVERY < LONG_BEATS; k++) {
+      hops.push({
+        beat: k * LONG_EVERY,
+        from: k % 2 === 1 ? [0, 0, 0] : [1, 0, 0],
+        to: k % 2 === 1 ? [1, 0, 0] : [0, 0, 0],
+        units: SOURCE,
+      })
+    }
 
     const windowMax: number[] = []
     const windowShare: number[] = []
+
     let running = 0
+
     const longRun = openHopRun(
       longMesh,
       rule,
-      openContent(longMesh, [{ at: [0, 0, 0], units: SOURCE, to: antipode(LONG_SIDE) }]),
+      openContent(longMesh, [
+        { at: [0, 0, 0], units: SOURCE, to: antipode(LONG_SIDE) },
+      ]),
       hops,
       LONG_BEATS,
       longRecord,
       (t, s, rho) => {
-        if (t === 0) return
+        if (t === 0) {
+          return
+        }
+
         running = Math.max(running, huskMaxStep(longMesh, rule, s))
+
         if (t % LONG_EVERY === 0) {
           const en = openEnergy(longMesh, rule, s, rho)
 
@@ -228,7 +328,12 @@ export default experiment({
       longAllow,
     )
     const longWraps = longRecord.wraps.fWraps + longRecord.wraps.vWraps
-    const d1 = longRun.reversed && longRecord.gaussOff === 0 && longRecord.curl === 0 && longWraps === 0 && longRecord.restOff === 0
+    const d1 =
+      longRun.reversed &&
+      longRecord.gaussOff === 0 &&
+      longRecord.curl === 0 &&
+      longWraps === 0 &&
+      longRecord.restOff === 0
 
     log('long')
 
@@ -240,52 +345,126 @@ export default experiment({
     log('hop')
 
     const aloneRecord = newOpenRecord()
-    const alone = front(openMesh(HOP_SIDE, 0, 'shrink'), rule, aloneRecord)
+    const alone = front(
+      openMesh(HOP_SIDE, 0, 'shrink'),
+      rule,
+      aloneRecord,
+    )
 
     log('hop alone')
 
-    const atC = (v: number): boolean => Math.abs(v / c - 1) <= SPEED_TOLERANCE && v / c <= NEVER_FASTER
+    const atC = (v: number): boolean =>
+      Math.abs(v / c - 1) <= SPEED_TOLERANCE && v / c <= NEVER_FASTER
     const hopWraps = hopRecord.wraps.fWraps + hopRecord.wraps.vWraps
-    const d2 = stack.noInstant && stack.inCone && stack.firstChange.every(k => k > 0) && atC(stack.speedQuarter) && atC(stack.speedTenth) && hopRecord.reversed && hopRecord.gaussOff === 0 && hopWraps === 0 && hopRecord.restOff === 0
+    const d2 =
+      stack.noInstant &&
+      stack.inCone &&
+      stack.firstChange.every(k => k > 0) &&
+      atC(stack.speedQuarter) &&
+      atC(stack.speedTenth) &&
+      hopRecord.reversed &&
+      hopRecord.gaussOff === 0 &&
+      hopWraps === 0 &&
+      hopRecord.restOff === 0
     const speeds = stackSpeeds(mesh.sides, 'clock')
     const speedsOne = stackSpeeds(mesh.sides, 'none')
 
     // D3
-    const fallMesh = warpClock(openMesh(FALL_SIDE, FALL_LAYERS, 'shrink'))
+    const fallMesh = warpClock(
+      openMesh(FALL_SIDE, FALL_LAYERS, 'shrink'),
+    )
     const fallAllow = huskOnly(fallMesh)
     const fallRecord = newOpenRecord()
     const z = antipode(FALL_SIDE)
-    const run = (sources: { at: number[]; units: number }[]): number => openStaticRun(fallMesh, rule, openContent(fallMesh, sources.map(s => ({ ...s, to: z }))), STATIC_BEATS, fallRecord, fallAllow).energy
+    const run = (sources: { at: number[]; units: number }[]): number =>
+      openStaticRun(
+        fallMesh,
+        rule,
+        openContent(
+          fallMesh,
+          sources.map(s => ({ ...s, to: z })),
+        ),
+        STATIC_BEATS,
+        fallRecord,
+        fallAllow,
+      ).energy
     const eA = run([{ at: [0, 0, 0], units: SOURCE }])
     const fall = (units: number): number[] =>
       FALL_R.map(r => {
         const eB = run([{ at: [r, 0, 0], units }])
 
-        return run([{ at: [0, 0, 0], units: SOURCE }, { at: [r, 0, 0], units }]) - eA - eB
+        return (
+          run([
+            { at: [0, 0, 0], units: SOURCE },
+            { at: [r, 0, 0], units },
+          ]) -
+          eA -
+          eB
+        )
       })
     const light = fall(1)
     const heavy = fall(3)
-    const accel = (w: number[], units: number): number => -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!) / units
+    const accel = (w: number[], units: number): number =>
+      -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!) / units
     const aLight = accel(light, 1)
     const aHeavy = accel(heavy, 3)
-    const g = greenSolve(fallMesh, openContent(fallMesh, [{ at: [0, 0, 0], units: SOURCE, to: z }]))
-    const wLinear = FALL_R.map(r => -(Math.PI / DEPTH) * g.x[huskDock(fallMesh, [r, 0, 0])]!)
+    const g = greenSolve(
+      fallMesh,
+      openContent(fallMesh, [{ at: [0, 0, 0], units: SOURCE, to: z }]),
+    )
+    const wLinear = FALL_R.map(
+      r => -(Math.PI / DEPTH) * g.x[huskDock(fallMesh, [r, 0, 0])]!,
+    )
     const aWant = accel(wLinear, 1)
     const alike = Math.abs(aLight / aHeavy - 1)
-    const d3 = aLight < 0 && aHeavy < 0 && alike <= 1e-6 && Math.abs(aLight / aWant - 1) <= 1e-3 && Math.abs(aHeavy / aWant - 1) <= 1e-3 && fallRecord.reversed && fallRecord.gaussOff === 0 && fallRecord.wraps.fWraps + fallRecord.wraps.vWraps === 0 && fallRecord.restOff === 0
+    const d3 =
+      aLight < 0 &&
+      aHeavy < 0 &&
+      alike <= 1e-6 &&
+      Math.abs(aLight / aWant - 1) <= 1e-3 &&
+      Math.abs(aHeavy / aWant - 1) <= 1e-3 &&
+      fallRecord.reversed &&
+      fallRecord.gaussOff === 0 &&
+      fallRecord.wraps.fWraps + fallRecord.wraps.vWraps === 0 &&
+      fallRecord.restOff === 0
 
     log('fall')
 
     // D4
-    const eMesh = warpClock(openMesh(ENERGY_SIDE, ENERGY_LAYERS, 'shrink'))
-    const lumpRho = openContent(eMesh, [{ at: [2, 2, 2], units: SOURCE, to: [2 + ENERGY_SIDE / 2, 2 + ENERGY_SIDE / 2, 2 + ENERGY_SIDE / 2] }])
+    const eMesh = warpClock(
+      openMesh(ENERGY_SIDE, ENERGY_LAYERS, 'shrink'),
+    )
+    const lumpRho = openContent(eMesh, [
+      {
+        at: [2, 2, 2],
+        units: SOURCE,
+        to: [
+          2 + ENERGY_SIDE / 2,
+          2 + ENERGY_SIDE / 2,
+          2 + ENERGY_SIDE / 2,
+        ],
+      },
+    ])
     const eg = greenSolve(eMesh, lumpRho)
+
     let rx = 0
 
-    for (let y = 0; y < eMesh.docks; y++) rx += lumpRho[y]! * eg.x[y]!
+    for (let y = 0; y < eMesh.docks; y++) {
+      rx += lumpRho[y]! * eg.x[y]!
+    }
 
     const staticEnergy = -(Math.PI / DEPTH) * 0.5 * rx
-    const energyRun = (levels: number): { drift: number; leastFree: number; sourceGap: number; samples: number[]; share: number[]; wraps: number } => {
+
+    const energyRun = (
+      levels: number,
+    ): {
+      drift: number
+      leastFree: number
+      sourceGap: number
+      samples: number[]
+      share: number[]
+      wraps: number
+    } => {
       const r = stepRule(DEPTH, levels)
       const s = emptyOpen(eMesh)
       const sc = openScratch(eMesh)
@@ -295,28 +474,53 @@ export default experiment({
 
       const samples: number[] = []
       const share: number[] = []
+
       let leastFree = Infinity
       let sourceGap = 0
+
       const sample = (): void => {
         const en = openEnergy(eMesh, r, s, lumpRho)
 
         samples.push(en.energy)
         share.push(en.free > 0 ? en.huskFree / en.free : 0)
         leastFree = Math.min(leastFree, en.free)
-        sourceGap = Math.max(sourceGap, Math.abs(en.sourceFound - en.sourceLocal) / Math.max(1e-300, Math.abs(en.sourceLocal)))
+        sourceGap = Math.max(
+          sourceGap,
+          Math.abs(en.sourceFound - en.sourceLocal) /
+            Math.max(1e-300, Math.abs(en.sourceLocal)),
+        )
       }
 
       sample()
+
       for (let t = 1; t <= ENERGY_BEATS; t++) {
         openBeat(eMesh, r, s, sc, tally)
-        if (t % ENERGY_EVERY === 0) sample()
+
+        if (t % ENERGY_EVERY === 0) {
+          sample()
+        }
       }
 
-      return { drift: Math.max(...samples.map(x => Math.abs(x - samples[0]!))) / Math.abs(staticEnergy), leastFree, sourceGap, samples, share, wraps: tally.fWraps + tally.vWraps }
+      return {
+        drift:
+          Math.max(...samples.map(x => Math.abs(x - samples[0]!))) /
+          Math.abs(staticEnergy),
+        leastFree,
+        sourceGap,
+        samples,
+        share,
+        wraps: tally.fWraps + tally.vWraps,
+      }
     }
+
     const byLevel = [1, 2, 3].map(energyRun)
     const three = byLevel[2]!
-    const d4 = three.drift <= 1e-4 && byLevel[0]!.drift > byLevel[1]!.drift && byLevel[1]!.drift > three.drift && three.leastFree >= 0 && three.sourceGap <= 1e-9
+    const d4 =
+      three.drift <= 1e-4 &&
+      byLevel[0]!.drift > byLevel[1]!.drift &&
+      byLevel[1]!.drift > three.drift &&
+      three.leastFree >= 0 &&
+      three.sourceGap <= 1e-9
 
     log('energy')
 
@@ -363,7 +567,10 @@ export default experiment({
     }
 
     windowMax.forEach((v, i) => (metrics[`longWindowMax_${i + 1}`] = v))
-    windowShare.forEach((v, i) => (metrics[`longWindowHuskShare_${i + 1}`] = v))
+    windowShare.forEach(
+      (v, i) => (metrics[`longWindowHuskShare_${i + 1}`] = v),
+    )
+
     HOP_D.forEach((d, i) => {
       metrics[`hopFirstChange_d${d}`] = stack.firstChange[i]!
       metrics[`hopLinkCone_d${d}`] = stack.cone[i]!
@@ -373,6 +580,7 @@ export default experiment({
       metrics[`aloneQuarter_d${d}`] = alone.quarter[i]!
       metrics[`aloneTenth_d${d}`] = alone.tenth[i]!
     })
+
     byLevel.forEach((b, i) => {
       metrics[`energyDrift_L${i + 1}`] = b.drift
       metrics[`energyWraps_L${i + 1}`] = b.wraps
@@ -382,8 +590,19 @@ export default experiment({
       status,
       claim: `the bounded depth field on a husk backed by shrinking layers whose clocks are warped with their scale (a layer-k dock divides by Q 4^k), lines on the husk to an antipodal sink (D ${DEPTH}, ${LEVELS} digits): a content-4 source hopping ${hops.length} times over ${LONG_BEATS} beats on side ${LONG_SIDE} keeps Gauss on husk and bulk (${longRecord.gaussOff} off in ${longRecord.gaussChecks}), curl ${longRecord.curl}, ${longWraps} wraps, ${longRecord.restOff} remainders out of window, reversal ${longRun.reversed}, its largest husk step per 256 beats ${windowMax.map(v => v.toFixed(3)).join(', ')} with the husk holding ${windowShare.map(v => v.toFixed(3)).join(', ')} of the field energy; on side ${HOP_SIDE} after a hop nothing changes on the next beat at d = ${HOP_D.join(', ')} (${stack.noInstant ? 'none' : 'SOME'}), the first change ${stack.firstChange.join(', ')} beats after against the link cone ${stack.cone.join(', ')} (${stack.inCone ? 'inside' : 'OUTSIDE'}), the radial step's first 25 percent at ${stack.quarter.join(', ')} (${f(stack.speedQuarter / c)} c) and first 10 percent at ${stack.tenth.join(', ')} (${f(stack.speedTenth / c)} c), half maximum ${f(stack.speedHalf / c)} c, against the zero mode's derived ${f(speeds.zeroMode)} c (one clock ${f(speedsOne.zeroMode)} c, measured ${RECORDED_0101_TENTH} and ${RECORDED_0101_QUARTER} c) and the husk alone's ${f(alone.speedQuarter / c)} and ${f(alone.speedTenth / c)} c by the same method; a 1-love and a 3-fear lump fall at ${e(aLight)} and ${e(aHeavy)} per unit content (alike to ${e(alike)}, linear solve ${e(aWant)}, one clock ${RECORDED_0101_FALL}); energy of husk plus bulk drifts ${byLevel.map(b => e(b.drift)).join(', ')} of the static ${f(staticEnergy)} at 1 .. 3 digits over ${ENERGY_BEATS} beats`,
       metrics,
-      control: { aloneQuarterRatio: alone.speedQuarter / c, aloneTenthRatio: alone.speedTenth / c },
-      notes: `L2. Gates D1 ${d1}, D2 ${d2} (instant ${stack.noInstant}, cone ${stack.inCone}, quarter ${f(stack.speedQuarter / c)} c, tenth ${f(stack.speedTenth / c)} c, half ${f(stack.speedHalf / c)} c), D3 ${d3}, D4 ${d4}. Husk alone: quarter ${alone.quarter.join(' ')}, tenth ${alone.tenth.join(' ')}, half ${f(alone.speedHalf / c)} c, reversal ${aloneRecord.reversed}. Stack half maximum ${stack.half.join(' ')}. Layer speeds derived ${speeds.layer.map(f).join(' ')} c (one clock ${speedsOne.layer.map(f).join(' ')}). W at r = ${FALL_R.join(', ')}: light ${light.map(x => x.toExponential(8)).join(' ')}, heavy ${heavy.map(x => x.toExponential(8)).join(' ')}. Energy at 3 digits (every 512): ${three.samples.filter((_, i) => i % 8 === 0).map(x => x.toExponential(4)).join(' ')}; husk share ${three.share.filter((_, i) => i % 16 === 0).map(v => v.toFixed(3)).join(' ')}; least field part ${e(three.leastFree)}; found against local source ${e(three.sourceGap)}; wraps ${byLevel.map(b => b.wraps).join(', ')}. Hop runs wraps ${hopWraps}, reversal ${hopRecord.reversed}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+      control: {
+        aloneQuarterRatio: alone.speedQuarter / c,
+        aloneTenthRatio: alone.speedTenth / c,
+      },
+      notes: `L2. Gates D1 ${d1}, D2 ${d2} (instant ${stack.noInstant}, cone ${stack.inCone}, quarter ${f(stack.speedQuarter / c)} c, tenth ${f(stack.speedTenth / c)} c, half ${f(stack.speedHalf / c)} c), D3 ${d3}, D4 ${d4}. Husk alone: quarter ${alone.quarter.join(' ')}, tenth ${alone.tenth.join(' ')}, half ${f(alone.speedHalf / c)} c, reversal ${aloneRecord.reversed}. Stack half maximum ${stack.half.join(' ')}. Layer speeds derived ${speeds.layer.map(f).join(' ')} c (one clock ${speedsOne.layer.map(f).join(' ')}). W at r = ${FALL_R.join(', ')}: light ${light.map(x => x.toExponential(8)).join(' ')}, heavy ${heavy.map(x => x.toExponential(8)).join(' ')}. Energy at 3 digits (every 512): ${three.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.toExponential(4))
+        .join(' ')}; husk share ${three.share
+        .filter((_, i) => i % 16 === 0)
+        .map(v => v.toFixed(3))
+        .join(
+          ' ',
+        )}; least field part ${e(three.leastFree)}; found against local source ${e(three.sourceGap)}; wraps ${byLevel.map(b => b.wraps).join(', ')}. Hop runs wraps ${hopWraps}, reversal ${hopRecord.reversed}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

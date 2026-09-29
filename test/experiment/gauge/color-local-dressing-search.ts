@@ -63,15 +63,35 @@ import {
   stateKey,
   type ColorLocalSpec,
 } from '@/code/rule/color-local-weave'
-import { cptTableSweep, familySweep, SWEEPS, turnScheduleSweep, type FamilyMember } from '@/code/rule/color-local-family'
+import {
+  cptTableSweep,
+  familySweep,
+  SWEEPS,
+  turnScheduleSweep,
+  type FamilyMember,
+} from '@/code/rule/color-local-family'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { acceptance, lineComponents, passesAgainst, structuralAcceptance, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { loneDressing, neighbourTable, vacuumCells } from '@/code/measure/lone-dressing'
+import {
+  acceptance,
+  lineComponents,
+  passesAgainst,
+  structuralAcceptance,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  loneDressing,
+  neighbourTable,
+  vacuumCells,
+} from '@/code/measure/lone-dressing'
 import { pairLedger } from '@/code/measure/pair-ledger'
 import { collide, streamSourceTable } from '@/code/rule/lattice-gas'
 import { type VibeState } from '@/code/rule/vibe-weave'
 import { makeWill, type Will } from '@/code/tone/will'
-import { d4BoxCell, d4BoxDistance, d4BoxMesh } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxDistance,
+  d4BoxMesh,
+} from '@/code/substrate/d4-box'
 import { meshOpposites } from '@/code/tool/mesh'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
@@ -94,7 +114,10 @@ const LEAK_SAMPLES = [
   'tables-cpt:230000000023',
 ]
 
-const rule = (spec: ColorLocalSpec): ScheduledRule => (opposite, forward) => colorLocalCollision({ spec, opposite, forward })
+const rule =
+  (spec: ColorLocalSpec): ScheduledRule =>
+  (opposite, forward) =>
+    colorLocalCollision({ spec, opposite, forward })
 
 function denseRoles(slots: number, scale: number): VibeState {
   const vibe = new Int8Array(slots)
@@ -111,7 +134,10 @@ function denseRoles(slots: number, scale: number): VibeState {
 }
 
 // color leaks over 48 beats on a dense side-3 box, and whether running back restores the start
-function colorCheck(spec: ColorLocalSpec): { leaks: number; reverses: boolean } {
+function colorCheck(spec: ColorLocalSpec): {
+  leaks: number
+  reverses: boolean
+} {
   const weave = makeColorLocalWeave({ side: 3, spec })
   const start = denseRoles(weave.mesh.cellCount * 24, 1.37)
 
@@ -128,7 +154,9 @@ function colorCheck(spec: ColorLocalSpec): { leaks: number; reverses: boolean } 
   }
 
   const reverses =
-    s.vibe.every((v, i) => v === start.vibe[i]) && s.role.every((v, i) => v === start.role[i]) && s.flow.every((v, i) => v === start.flow[i])
+    s.vibe.every((v, i) => v === start.vibe[i]) &&
+    s.role.every((v, i) => v === start.role[i]) &&
+    s.flow.every((v, i) => v === start.flow[i])
 
   return { leaks, reverses }
 }
@@ -149,30 +177,70 @@ export default experiment({
     const center = d4BoxCell({ coordinates: [4, 4, 4, 4], side: SIDE })
 
     // part 1, the mechanism
-    const tables = [PAIR_TABLE, HOP_FREE_TABLES.bind ?? [], HOP_CONTROL_TABLES['hop-love'] ?? [], HOP_CONTROL_TABLES['hop-fear'] ?? []]
+    const tables = [
+      PAIR_TABLE,
+      HOP_FREE_TABLES.bind ?? [],
+      HOP_CONTROL_TABLES['hop-love'] ?? [],
+      HOP_CONTROL_TABLES['hop-fear'] ?? [],
+    ]
     const ledgerSpecs: Record<string, ColorLocalSpec> = {
       committed: colorLocalSpec({ tables, tableAt: [0] }),
       hopFree: colorLocalSpec({ tables, tableAt: [1] }),
       hopLoveOnly: colorLocalSpec({ tables, tableAt: [2] }),
       hopFearOnly: colorLocalSpec({ tables, tableAt: [3] }),
-      hopOnlyOnSwappingCouple: colorLocalSpec({ tables, tableAt: [1], swapTable: 0 }),
-      hopAllButSwappingCouple: colorLocalSpec({ tables, tableAt: [0], swapTable: 1 }),
+      hopOnlyOnSwappingCouple: colorLocalSpec({
+        tables,
+        tableAt: [1],
+        swapTable: 0,
+      }),
+      hopAllButSwappingCouple: colorLocalSpec({
+        tables,
+        tableAt: [0],
+        swapTable: 1,
+      }),
       noSwap: colorLocalSpec({ tables, tableAt: [1], swapAt: [-1] }),
       found: COLOR_TURN_SPEC,
     }
     const ledgers = Object.fromEntries(
       Object.entries(ledgerSpecs).map(([name, spec]) => [
         name,
-        pairLedger({ neighbours, tallied: tally => colorLocalCollision({ spec, opposite, tally }), cell: center, period: PERIOD, periods: PERIODS }),
+        pairLedger({
+          neighbours,
+          tallied: tally =>
+            colorLocalCollision({ spec, opposite, tally }),
+          cell: center,
+          period: PERIOD,
+          periods: PERIODS,
+        }),
       ]),
     )
     const ledger = (name: string): (typeof ledgers)[string] =>
-      ledgers[name] ?? { largest: [], netPairs: [], swaps: [], identity: false, vacuumEmpty: false, firstPeriodCells: new Set<number>() }
+      ledgers[name] ?? {
+        largest: [],
+        netPairs: [],
+        swaps: [],
+        identity: false,
+        vacuumEmpty: false,
+        firstPeriodCells: new Set<number>(),
+      }
 
-    const boxFarthest = Math.max(...Array.from({ length: mesh.cellCount }, (_, x) => d4BoxDistance({ a: x, b: center, side: SIDE })))
-    const farthest = (name: string): number => Math.max(...[...ledger(name).firstPeriodCells].map(x => d4BoxDistance({ a: x, b: center, side: SIDE })))
-    const identityEverywhere = Object.keys(ledgers).every(name => ledger(name).identity && ledger(name).vacuumEmpty)
-    const boxFilled = farthest('committed') === boxFarthest && farthest('hopFree') === boxFarthest
+    const boxFarthest = Math.max(
+      ...Array.from({ length: mesh.cellCount }, (_, x) =>
+        d4BoxDistance({ a: x, b: center, side: SIDE }),
+      ),
+    )
+    const farthest = (name: string): number =>
+      Math.max(
+        ...[...ledger(name).firstPeriodCells].map(x =>
+          d4BoxDistance({ a: x, b: center, side: SIDE }),
+        ),
+      )
+    const identityEverywhere = Object.keys(ledgers).every(
+      name => ledger(name).identity && ledger(name).vacuumEmpty,
+    )
+    const boxFilled =
+      farthest('committed') === boxFarthest &&
+      farthest('hopFree') === boxFarthest
 
     const plus = HOP_FREE_TABLES['swap-plus'] ?? []
     const reflectThenTranspose = Array.from({ length: 9 }, (_, k) => {
@@ -180,21 +248,42 @@ export default experiment({
       const committed = PAIR_TABLE[k] ?? [a, b]
       const composed = plus[stateKey(b, a)] ?? [b, a]
 
-      return committed[0] === composed[0] && committed[1] === composed[1]
+      return (
+        committed[0] === composed[0] && committed[1] === composed[1]
+      )
     }).every(Boolean)
 
-    const noSwapComponents = lineComponents(rule(ledgerSpecs.noSwap ?? COLOR_TURN_SPEC), false)
-    const noSwapBounded = Math.max(...ledger('noSwap').largest) <= NO_SWAP_BOUND && noSwapComponents === 12
+    const noSwapComponents = lineComponents(
+      rule(ledgerSpecs.noSwap ?? COLOR_TURN_SPEC),
+      false,
+    )
+    const noSwapBounded =
+      Math.max(...ledger('noSwap').largest) <= NO_SWAP_BOUND &&
+      noSwapComponents === 12
 
-    const hopControls = ['hopFree', 'hopLoveOnly', 'hopFearOnly', 'hopOnlyOnSwappingCouple', 'hopAllButSwappingCouple']
+    const hopControls = [
+      'hopFree',
+      'hopLoveOnly',
+      'hopFearOnly',
+      'hopOnlyOnSwappingCouple',
+      'hopAllButSwappingCouple',
+    ]
     const last = PERIODS - 1
-    const committedLeast = hopControls.every(name => (ledger('committed').largest[last] ?? 0) < (ledger(name).largest[last] ?? 0))
+    const committedLeast = hopControls.every(
+      name =>
+        (ledger('committed').largest[last] ?? 0) <
+        (ledger(name).largest[last] ?? 0),
+    )
 
     // the sparse dressing count against the dense difference, beat by beat, on the committed rule's worst
     // direction and on the hop-free table's
-    const sparseEqualsDense = (spec: ColorLocalSpec, direction: number): boolean => {
+    const sparseEqualsDense = (
+      spec: ColorLocalSpec,
+      direction: number,
+    ): boolean => {
       const forward = colorLocalCollision({ spec, opposite })
       const table = streamSourceTable(mesh)
+
       const step = (will: Will, collision: Collision): Will => {
         const out = new Int8Array(will.data.length)
 
@@ -227,48 +316,88 @@ export default experiment({
         dense.push(count)
       }
 
-      const sparse = loneDressing({ neighbours, forward, vacuum: vacuumCells({ forward, beats: BEATS }), cell: center, direction, beats: BEATS })
+      const sparse = loneDressing({
+        neighbours,
+        forward,
+        vacuum: vacuumCells({ forward, beats: BEATS }),
+        cell: center,
+        direction,
+        beats: BEATS,
+      })
 
       return sparse.every((b, t) => b.support === dense[t])
     }
+
     const dressingInstrumentExact =
-      sparseEqualsDense(ledgerSpecs.committed ?? COLOR_TURN_SPEC, 4) && sparseEqualsDense(ledgerSpecs.hopFree ?? COLOR_TURN_SPEC, 14)
+      sparseEqualsDense(ledgerSpecs.committed ?? COLOR_TURN_SPEC, 4) &&
+      sparseEqualsDense(ledgerSpecs.hopFree ?? COLOR_TURN_SPEC, 14)
 
     // part 2, the search, against the committed turning weave
-    const committedRule: ScheduledRule = (o, forward) => turningWeave({ opposite: o, forward, table: 'pair' })
+    const committedRule: ScheduledRule = (o, forward) =>
+      turningWeave({ opposite: o, forward, table: 'pair' })
     const reference = acceptance(committedRule)
-    const referencePassesItself = passesAgainst(reference, reference, { bothSigns: true })
-    const ratio = (love: readonly number[]): number => Math.max(...love.map((x, p) => x / (reference.love.periodLargest[p] ?? 1)))
+    const referencePassesItself = passesAgainst(reference, reference, {
+      bothSigns: true,
+    })
+    const ratio = (love: readonly number[]): number =>
+      Math.max(
+        ...love.map(
+          (x, p) => x / (reference.love.periodLargest[p] ?? 1),
+        ),
+      )
 
-    type Row = { id: string; love: number[]; full: boolean; failed: string }
+    type Row = {
+      id: string
+      love: number[]
+      full: boolean
+      failed: string
+    }
 
     const rows: Row[] = []
     const firstFailure = new Map<string, number>()
     const winners: string[] = []
     const bothSignWinners: string[] = []
 
-    const search = (members: readonly FamilyMember[], stage: string): void => {
+    const search = (
+      members: readonly FamilyMember[],
+      stage: string,
+    ): void => {
       for (const member of members) {
-        const result = structuralAcceptance(rule(member.spec), reference)
+        const result = structuralAcceptance(
+          rule(member.spec),
+          reference,
+        )
         const key = `${stage}_${result.failed ?? 'none'}`
 
         firstFailure.set(key, (firstFailure.get(key) ?? 0) + 1)
 
         if (result.love) {
-          rows.push({ id: member.id, love: result.love.periodLargest, full: result.love.overCapAt < 0, failed: result.failed ?? 'none' })
+          rows.push({
+            id: member.id,
+            love: result.love.periodLargest,
+            full: result.love.overCapAt < 0,
+            failed: result.failed ?? 'none',
+          })
         }
 
         if (!result.failed) {
           winners.push(member.id)
 
-          if (result.fear && result.fear.periodLargest.every((x, p) => x <= (reference.fear.periodLargest[p] ?? 0))) {
+          if (
+            result.fear?.periodLargest.every(
+              (x, p) => x <= (reference.fear.periodLargest[p] ?? 0),
+            )
+          ) {
             bothSignWinners.push(member.id)
           }
         }
       }
     }
 
-    const firstStage = [...SWEEPS.flatMap(sweep => familySweep(sweep)), ...cptTableSweep()]
+    const firstStage = [
+      ...SWEEPS.flatMap(sweep => familySweep(sweep)),
+      ...cptTableSweep(),
+    ]
 
     search(firstStage, 'first')
 
@@ -276,9 +405,14 @@ export default experiment({
     const firstRows = rows.filter(r => r.full)
     const closestTurn = firstRows
       .filter(r => r.id.startsWith('turn:') && r.id.endsWith(':mirror'))
-      .sort((a, b) => ratio(a.love) - ratio(b.love) || Number(a.id.split(':')[2]) - Number(b.id.split(':')[2]))[0]
+      .sort(
+        (a, b) =>
+          ratio(a.love) - ratio(b.love) ||
+          Number(a.id.split(':')[2]) - Number(b.id.split(':')[2]),
+      )[0]
     const turnIndex = Number(closestTurn?.id.split(':')[2] ?? -1)
-    const secondStage = turnIndex >= 0 ? turnScheduleSweep([turnIndex]) : []
+    const secondStage =
+      turnIndex >= 0 ? turnScheduleSweep([turnIndex]) : []
 
     search(secondStage, 'second')
 
@@ -288,22 +422,48 @@ export default experiment({
     const bindMatches =
       bindRow?.failed === 'dressing' &&
       ledger('hopFree').largest.length === HOP_FREE_DRESSING.length &&
-      ledger('hopFree').largest.every((x, p) => x === HOP_FREE_DRESSING[p])
+      ledger('hopFree').largest.every(
+        (x, p) => x === HOP_FREE_DRESSING[p],
+      )
     const foundAmongWinners = bothSignWinners.includes(FOUND_MEMBER)
 
     // local color, measured on a member of each first-stage sweep and on the found rule
-    const specs = new Map([...firstStage, ...secondStage].map(m => [m.id, m.spec]))
-    const samples = [...LEAK_SAMPLES.map(id => specs.get(id)), COLOR_TURN_SPEC].map(spec => (spec ? colorCheck(spec) : { leaks: -1, reverses: false }))
-    const committedColor = colorCheck(colorLocalSpec({ tables: [PAIR_TABLE] }))
-    const samplesLocal = samples.every(s => s.leaks === 0 && s.reverses) && committedColor.leaks > 0
+    const specs = new Map(
+      [...firstStage, ...secondStage].map(m => [m.id, m.spec]),
+    )
+    const samples = [
+      ...LEAK_SAMPLES.map(id => specs.get(id)),
+      COLOR_TURN_SPEC,
+    ].map(spec =>
+      spec ? colorCheck(spec) : { leaks: -1, reverses: false },
+    )
+    const committedColor = colorCheck(
+      colorLocalSpec({ tables: [PAIR_TABLE] }),
+    )
+    const samplesLocal =
+      samples.every(s => s.leaks === 0 && s.reverses) &&
+      committedColor.leaks > 0
 
-    const componentsExact = [colorLocalSpec({ tables: [PAIR_TABLE] }), COLOR_TURN_SPEC].every(spec =>
-      [false, true].every(withDense => lineComponents(rule(spec), withDense) === lineComponents(rule(spec), withDense, { dense: true })),
+    const componentsExact = [
+      colorLocalSpec({ tables: [PAIR_TABLE] }),
+      COLOR_TURN_SPEC,
+    ].every(spec =>
+      [false, true].every(
+        withDense =>
+          lineComponents(rule(spec), withDense) ===
+          lineComponents(rule(spec), withDense, { dense: true }),
+      ),
     )
 
     const measured = rows.filter(r => r.full)
-    const closestFirst = [...firstRows].sort((a, b) => ratio(a.love) - ratio(b.love))[0]
-    const smallestFirst = Array.from({ length: PERIODS }, (_, p) => Math.min(...firstRows.map(r => r.love[p] ?? Number.POSITIVE_INFINITY)))
+    const closestFirst = [...firstRows].sort(
+      (a, b) => ratio(a.love) - ratio(b.love),
+    )[0]
+    const smallestFirst = Array.from({ length: PERIODS }, (_, p) =>
+      Math.min(
+        ...firstRows.map(r => r.love[p] ?? Number.POSITIVE_INFINITY),
+      ),
+    )
 
     const ok =
       identityEverywhere &&
@@ -319,8 +479,13 @@ export default experiment({
       bothSignWinners.length > 0 &&
       foundAmongWinners
 
-    const perPeriod = (prefix: string, xs: readonly number[]): Record<string, number> =>
-      Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
+    const perPeriod = (
+      prefix: string,
+      xs: readonly number[],
+    ): Record<string, number> =>
+      Object.fromEntries(
+        xs.map((x, p) => [`${prefix}Period${p + 1}`, x]),
+      )
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -331,7 +496,9 @@ export default experiment({
         boxFarthest,
         committedFarthestPeriod1: farthest('committed'),
         hopFreeFarthestPeriod1: farthest('hopFree'),
-        committedIsReflectionThenTransposition: reflectThenTranspose ? 1 : 0,
+        committedIsReflectionThenTransposition: reflectThenTranspose
+          ? 1
+          : 0,
         dressingInstrumentExact: dressingInstrumentExact ? 1 : 0,
         ...perPeriod('committedNetPairs', ledger('committed').netPairs),
         ...perPeriod('committedSwaps', ledger('committed').swaps),
@@ -344,12 +511,22 @@ export default experiment({
         ...perPeriod('noSwapLove', ledger('noSwap').largest),
         noSwapVacuumComponents: noSwapComponents,
         firstStageMembers: firstStage.length,
-        ...Object.fromEntries([...SWEEPS.map(s => [`members_${s}`, familySweep(s).length]), ['members_tablesCpt', cptTableSweep().length]]),
-        ...Object.fromEntries([...firstFailure].map(([key, count]) => [`firstFailure_${key}`, count])),
+        ...Object.fromEntries([
+          ...SWEEPS.map(s => [`members_${s}`, familySweep(s).length]),
+          ['members_tablesCpt', cptTableSweep().length],
+        ]),
+        ...Object.fromEntries(
+          [...firstFailure].map(([key, count]) => [
+            `firstFailure_${key}`,
+            count,
+          ]),
+        ),
         firstStageWinners,
         firstStageDressingMeasured: firstRows.length,
         ...perPeriod('firstStageSmallestLove', smallestFirst),
-        firstStageClosestWorstRatio: closestFirst ? ratio(closestFirst.love) : -1,
+        firstStageClosestWorstRatio: closestFirst
+          ? ratio(closestFirst.love)
+          : -1,
         ...perPeriod('firstStageClosestLove', closestFirst?.love ?? []),
         secondStageTurn: turnIndex,
         secondStageMembers: secondStage.length,
@@ -364,10 +541,17 @@ export default experiment({
         ...perPeriod('committedFear', reference.fear.periodLargest),
         ...perPeriod('hopLoveOnlyLove', ledger('hopLoveOnly').largest),
         ...perPeriod('hopFearOnlyLove', ledger('hopFearOnly').largest),
-        ...perPeriod('hopOnlyOnSwappingCoupleLove', ledger('hopOnlyOnSwappingCouple').largest),
-        ...perPeriod('hopAllButSwappingCoupleLove', ledger('hopAllButSwappingCouple').largest),
+        ...perPeriod(
+          'hopOnlyOnSwappingCoupleLove',
+          ledger('hopOnlyOnSwappingCouple').largest,
+        ),
+        ...perPeriod(
+          'hopAllButSwappingCoupleLove',
+          ledger('hopAllButSwappingCouple').largest,
+        ),
         committedPassesItself: referencePassesItself ? 1 : 0,
-        hopFreeMemberFailsAtDressing: bindRow?.failed === 'dressing' ? 1 : 0,
+        hopFreeMemberFailsAtDressing:
+          bindRow?.failed === 'dressing' ? 1 : 0,
         committedColorLeaks: committedColor.leaks,
         sparseComponentsEqualDense: componentsExact ? 1 : 0,
       },

@@ -38,7 +38,10 @@
 // takes each value one dock along, writing the register as it goes.
 
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { FRAME_LINES, FRAME_OF_LINE } from '@/code/rule/coined-locked-knit'
+import {
+  FRAME_LINES,
+  FRAME_OF_LINE,
+} from '@/code/rule/coined-locked-knit'
 import { LINE_FIRSTS, LINE_OF } from '@/code/rule/isometric-knit'
 import { hermitianEigen } from '@/code/measure/quantum-ladder'
 
@@ -61,13 +64,17 @@ export type FrameSpec = {
 
 // the frame's axes as unit Cartesian vectors (a dock step), in FRAME_LINES order
 export function frameAxes(frame: number): number[][] {
-  return (FRAME_LINES[frame] as readonly number[]).map(l => (ROOTS[LINE_FIRSTS[l] as number] as number[]).map(x => x / Math.SQRT2))
+  return FRAME_LINES[frame]!.map(l =>
+    ROOTS[LINE_FIRSTS[l]!]!.map(x => x / Math.SQRT2),
+  )
 }
 
 // the frame axis of a mesh line class
-export const axisOfLine = (frame: number, l: number): number => (FRAME_LINES[frame] as readonly number[]).indexOf(l)
+export const axisOfLine = (frame: number, l: number): number =>
+  FRAME_LINES[frame]!.indexOf(l)
 
-export const lineFrame = (slot: number): number => FRAME_OF_LINE[LINE_OF[slot] as number] as number
+export const lineFrame = (slot: number): number =>
+  FRAME_OF_LINE[LINE_OF[slot]!]!
 
 // ---- the classes: (fear offset, register) with a block of 64 slot pairs ----
 
@@ -83,22 +90,41 @@ type Klass = {
   next: Int32Array | undefined
 }
 
-export type FrameSpace = { spec: FrameSpec; classes: Klass[]; index: Map<string, number> }
+export type FrameSpace = {
+  spec: FrameSpec
+  classes: Klass[]
+  index: Map<string, number>
+}
 
-export const frameSpace = (spec: FrameSpec): FrameSpace => ({ spec, classes: [], index: new Map() })
+export const frameSpace = (spec: FrameSpec): FrameSpace => ({
+  spec,
+  classes: [],
+  index: new Map(),
+})
 
 const linkCompare = (a: number[], b: number[]): number => {
-  for (let k = 0; k < 5; k++) if (a[k] !== b[k]) return (a[k] as number) - (b[k] as number)
+  for (let k = 0; k < 5; k++) {
+    if (a[k] !== b[k]) {
+      return a[k]! - b[k]!
+    }
+  }
 
   return 0
 }
 
 // the class of an offset and a register (a map "p0,p1,p2,p3,axis" -> trit), registered on first sight
-function classOf(space: FrameSpace, offset: readonly number[], register: Map<string, number>): number {
+function classOf(
+  space: FrameSpace,
+  offset: readonly number[],
+  register: Map<string, number>,
+): number {
   const entries: number[][] = []
 
   for (const [k, v] of register) {
-    if (v % 3 === 0) continue
+    if (v % 3 === 0) {
+      continue
+    }
+
     entries.push([...k.split(',').map(Number), ((v % 3) + 3) % 3])
   }
 
@@ -107,16 +133,21 @@ function classOf(space: FrameSpace, offset: readonly number[], register: Map<str
   const key = `${offset.join(',')}|${entries.map(e => e.join(',')).join(';')}`
   const found = space.index.get(key)
 
-  if (found !== undefined) return found
+  if (found !== undefined) {
+    return found
+  }
 
   const links = Int32Array.from(entries.flat())
   const alone = offset.some(x => x !== 0)
   // a link of the frame at a dock p: (p, a) or (p - e_a, a), for any axis a (every link here is a frame link)
   const touches = (p: readonly number[]): boolean =>
     entries.some(e => {
-      const a = e[4] as number
+      const a = e[4]!
 
-      return [0, 1, 2, 3].every(k => e[k] === p[k]) || [0, 1, 2, 3].every(k => e[k] === (p[k] as number) - (k === a ? 1 : 0))
+      return (
+        [0, 1, 2, 3].every(k => e[k] === p[k]) ||
+        [0, 1, 2, 3].every(k => e[k] === p[k]! - (k === a ? 1 : 0))
+      )
     })
   const klass: Klass = {
     key,
@@ -137,30 +168,48 @@ function classOf(space: FrameSpace, offset: readonly number[], register: Map<str
 const registerOf = (k: Klass): Map<string, number> => {
   const out = new Map<string, number>()
 
-  for (let i = 0; i < k.links.length; i += 6) out.set(`${k.links[i]},${k.links[i + 1]},${k.links[i + 2]},${k.links[i + 3]},${k.links[i + 4]}`, k.links[i + 5] as number)
+  for (let i = 0; i < k.links.length; i += 6) {
+    out.set(
+      `${k.links[i]},${k.links[i + 1]},${k.links[i + 2]},${k.links[i + 3]},${k.links[i + 4]}`,
+      k.links[i + 5]!,
+    )
+  }
 
   return out
 }
 
-const addTrit = (reg: Map<string, number>, p: readonly number[], a: number, v: number): void => {
+const addTrit = (
+  reg: Map<string, number>,
+  p: readonly number[],
+  a: number,
+  v: number,
+): void => {
   const k = `${p.join(',')},${a}`
   const x = ((((reg.get(k) ?? 0) + v) % 3) + 3) % 3
 
-  if (x === 0) reg.delete(k)
-  else reg.set(k, x)
+  if (x === 0) {
+    reg.delete(k)
+  } else {
+    reg.set(k, x)
+  }
 }
 
-const unit = (a: number, s: number): number[] => [0, 1, 2, 3].map(k => (k === a ? s : 0))
+const unit = (a: number, s: number): number[] =>
+  [0, 1, 2, 3].map(k => (k === a ? s : 0))
 
 // the target of class c's slot pair idx (love slot * 8 + fear slot), -1 past the cut; computed on first use (-2 unset)
 function nextOf(space: FrameSpace, c: number, idx: number): number {
-  const k = space.classes[c] as Klass
+  const k = space.classes[c]!
 
-  if (!k.next) k.next = new Int32Array(64).fill(-2)
+  if (!k.next) {
+    k.next = new Int32Array(64).fill(-2)
+  }
 
-  const known = k.next[idx] as number
+  const known = k.next[idx]!
 
-  if (known !== -2) return known
+  if (known !== -2) {
+    return known
+  }
 
   const sl = idx >> 3
   const sf = idx & 7
@@ -172,10 +221,22 @@ function nextOf(space: FrameSpace, c: number, idx: number): number {
   const fear = Array.from(k.offset)
 
   // the love (q = +1) from the origin, the fear (q = -1) from its offset
-  if (sgl > 0) addTrit(reg, [0, 0, 0, 0], al, -1)
-  else addTrit(reg, unit(al, -1), al, 1)
-  if (sgf > 0) addTrit(reg, fear, af, 1)
-  else addTrit(reg, fear.map((x, i) => x - (i === af ? 1 : 0)), af, -1)
+  if (sgl > 0) {
+    addTrit(reg, [0, 0, 0, 0], al, -1)
+  } else {
+    addTrit(reg, unit(al, -1), al, 1)
+  }
+
+  if (sgf > 0) {
+    addTrit(reg, fear, af, 1)
+  } else {
+    addTrit(
+      reg,
+      fear.map((x, i) => x - (i === af ? 1 : 0)),
+      af,
+      -1,
+    )
+  }
 
   let to = -1
 
@@ -186,13 +247,22 @@ function nextOf(space: FrameSpace, c: number, idx: number): number {
     for (const [key, v] of reg) {
       const q = key.split(',').map(Number)
 
-      shifted.set(`${q[0]! - (al === 0 ? sgl : 0)},${q[1]! - (al === 1 ? sgl : 0)},${q[2]! - (al === 2 ? sgl : 0)},${q[3]! - (al === 3 ? sgl : 0)},${q[4]}`, v)
+      shifted.set(
+        `${q[0]! - (al === 0 ? sgl : 0)},${q[1]! - (al === 1 ? sgl : 0)},${q[2]! - (al === 2 ? sgl : 0)},${q[3]! - (al === 3 ? sgl : 0)},${q[4]}`,
+        v,
+      )
     }
 
-    to = classOf(space, fear.map((x, i) => x + (i === af ? sgf : 0) - (i === al ? sgl : 0)), shifted)
+    to = classOf(
+      space,
+      fear.map(
+        (x, i) => x + (i === af ? sgf : 0) - (i === al ? sgl : 0),
+      ),
+      shifted,
+    )
   }
 
-  ;(space.classes[c] as Klass).next![idx] = to
+  space.classes[c]!.next![idx] = to
 
   return to
 }
@@ -202,29 +272,43 @@ function nextOf(space: FrameSpace, c: number, idx: number): number {
 // a state: class id -> 64 complex amplitudes, [re, im] interleaved, index 2 (love slot * 8 + fear slot)
 export type FrameState = Map<number, Float64Array>
 
-export function frameClass(space: FrameSpace, offset: readonly number[], register: Map<string, number>): number {
+export function frameClass(
+  space: FrameSpace,
+  offset: readonly number[],
+  register: Map<string, number>,
+): number {
   return classOf(space, offset, register)
 }
 
 export const weightOf = (s: FrameState): number => {
   let w = 0
 
-  for (const b of s.values()) for (let i = 0; i < BLOCK; i++) w += (b[i] as number) ** 2
+  for (const b of s.values()) {
+    for (let i = 0; i < BLOCK; i++) {
+      w += b[i]! ** 2
+    }
+  }
 
   return w
 }
 
-export function innerOf(u: FrameState, v: FrameState): [number, number] {
+export function innerOf(
+  u: FrameState,
+  v: FrameState,
+): [number, number] {
   let r = 0
   let i = 0
 
   for (const [c, a] of u) {
     const b = v.get(c)
 
-    if (!b) continue
+    if (!b) {
+      continue
+    }
+
     for (let k = 0; k < BLOCK; k += 2) {
-      r += (a[k] as number) * (b[k] as number) + (a[k + 1] as number) * (b[k + 1] as number)
-      i += (a[k] as number) * (b[k + 1] as number) - (a[k + 1] as number) * (b[k] as number)
+      r += a[k]! * b[k]! + a[k + 1]! * b[k + 1]!
+      i += a[k]! * b[k + 1]! - a[k + 1]! * b[k]!
     }
   }
 
@@ -232,7 +316,11 @@ export function innerOf(u: FrameState, v: FrameState): [number, number] {
 }
 
 // the mixer on the love's (side 0) or the fear's (side 1) slot index of a block
-function mixBlock(b: Float64Array, side: number, c: [number, number]): void {
+function mixBlock(
+  b: Float64Array,
+  side: number,
+  c: [number, number],
+): void {
   for (let o = 0; o < 8; o++) {
     let sr = 0
     let si = 0
@@ -240,8 +328,8 @@ function mixBlock(b: Float64Array, side: number, c: [number, number]): void {
     for (let s = 0; s < 8; s++) {
       const i = 2 * (side === 0 ? s * 8 + o : o * 8 + s)
 
-      sr += b[i] as number
-      si += b[i + 1] as number
+      sr += b[i]!
+      si += b[i + 1]!
     }
 
     const ar = c[0] * sr - c[1] * si
@@ -250,8 +338,8 @@ function mixBlock(b: Float64Array, side: number, c: [number, number]): void {
     for (let s = 0; s < 8; s++) {
       const i = 2 * (side === 0 ? s * 8 + o : o * 8 + s)
 
-      b[i] = (b[i] as number) + ar
-      b[i + 1] = (b[i + 1] as number) + ai
+      b[i] = b[i]! + ar
+      b[i + 1] = b[i + 1]! + ai
     }
   }
 }
@@ -260,16 +348,19 @@ function coinBlock(b: Float64Array, side: number): void {
   for (let o = 0; o < 8; o++) {
     for (let a = 0; a < 4; a++) {
       const i = 2 * (side === 0 ? 2 * a * 8 + o : o * 8 + 2 * a)
-      const j = 2 * (side === 0 ? (2 * a + 1) * 8 + o : o * 8 + 2 * a + 1)
-      const xr = b[i] as number
-      const xi = b[i + 1] as number
-      const yr = b[j] as number
-      const yi = b[j + 1] as number
+      const j =
+        2 * (side === 0 ? (2 * a + 1) * 8 + o : o * 8 + 2 * a + 1)
+      const xr = b[i]!
+      const xi = b[i + 1]!
+      const yr = b[j]!
+      const yi = b[j + 1]!
 
       b[i] = KEEP[0] * xr - KEEP[1] * xi + CROSS[0] * yr - CROSS[1] * yi
-      b[i + 1] = KEEP[0] * xi + KEEP[1] * xr + CROSS[0] * yi + CROSS[1] * yr
+      b[i + 1] =
+        KEEP[0] * xi + KEEP[1] * xr + CROSS[0] * yi + CROSS[1] * yr
       b[j] = CROSS[0] * xr - CROSS[1] * xi + KEEP[0] * yr - KEEP[1] * yi
-      b[j + 1] = CROSS[0] * xi + CROSS[1] * xr + KEEP[0] * yi + KEEP[1] * yr
+      b[j + 1] =
+        CROSS[0] * xi + CROSS[1] * xr + KEEP[0] * yi + KEEP[1] * yr
     }
   }
 }
@@ -277,35 +368,53 @@ function coinBlock(b: Float64Array, side: number): void {
 export type BeatTally = { escaped: number; dropped: number }
 
 // one beat at momentum K (Cartesian); returns the new state
-export function frameBeat(space: FrameSpace, K: readonly number[], s: FrameState, tally: BeatTally): FrameState {
+export function frameBeat(
+  space: FrameSpace,
+  K: readonly number[],
+  s: FrameState,
+  tally: BeatTally,
+): FrameState {
   const { spec } = space
   const N = 2 * spec.D + 1
   const theta = Math.acos(1 - spec.n / 2)
-  const mix: [number, number] = [(Math.cos(theta) - 1) / 8, Math.sin(theta) / 8]
+  const mix: [number, number] = [
+    (Math.cos(theta) - 1) / 8,
+    Math.sin(theta) / 8,
+  ]
   const axes = frameAxes(spec.frame)
   // the love's step phase for each of its 8 slots
-  const step: [number, number][] = Array.from({ length: 8 }, (_, sl) => {
-    const u = axes[sl >> 1] as number[]
-    const ph = -((sl & 1) === 0 ? 1 : -1) * u.reduce((x, v, k) => x + v * (K[k] as number), 0)
+  const step: [number, number][] = Array.from(
+    { length: 8 },
+    (_, sl) => {
+      const u = axes[sl >> 1]!
+      const ph =
+        -((sl & 1) === 0 ? 1 : -1) *
+        u.reduce((x, v, k) => x + v * K[k]!, 0)
 
-    return [Math.cos(ph), Math.sin(ph)]
-  })
+      return [Math.cos(ph), Math.sin(ph)]
+    },
+  )
   const out: FrameState = new Map()
 
   for (const [c, b0] of s) {
-    const k = space.classes[c] as Klass
+    const k = space.classes[c]!
     const b = Float64Array.from(b0)
 
-    if (spec.n > 0 && k.loveGated) mixBlock(b, 0, mix)
-    if (spec.n > 0 && k.fearGated) mixBlock(b, 1, mix)
+    if (spec.n > 0 && k.loveGated) {
+      mixBlock(b, 0, mix)
+    }
+
+    if (spec.n > 0 && k.fearGated) {
+      mixBlock(b, 1, mix)
+    }
 
     const th = (-Math.PI * k.costly) / N
     const cr = Math.cos(th)
     const ci = Math.sin(th)
 
     for (let i = 0; i < BLOCK; i += 2) {
-      const r = b[i] as number
-      const m = b[i + 1] as number
+      const r = b[i]!
+      const m = b[i + 1]!
 
       b[i] = r * cr - m * ci
       b[i + 1] = r * ci + m * cr
@@ -315,10 +424,12 @@ export function frameBeat(space: FrameSpace, K: readonly number[], s: FrameState
     coinBlock(b, 1)
 
     for (let idx = 0; idx < 64; idx++) {
-      const r = b[2 * idx] as number
-      const m = b[2 * idx + 1] as number
+      const r = b[2 * idx]!
+      const m = b[2 * idx + 1]!
 
-      if (r === 0 && m === 0) continue
+      if (r === 0 && m === 0) {
+        continue
+      }
 
       const to = nextOf(space, c, idx)
 
@@ -327,7 +438,8 @@ export function frameBeat(space: FrameSpace, K: readonly number[], s: FrameState
         continue
       }
 
-      const p = step[idx >> 3] as [number, number]
+      const p = step[idx >> 3]!
+
       let o = out.get(to)
 
       if (!o) {
@@ -335,15 +447,18 @@ export function frameBeat(space: FrameSpace, K: readonly number[], s: FrameState
         out.set(to, o)
       }
 
-      o[2 * idx] = (o[2 * idx] as number) + r * p[0] - m * p[1]
-      o[2 * idx + 1] = (o[2 * idx + 1] as number) + r * p[1] + m * p[0]
+      o[2 * idx] = o[2 * idx]! + r * p[0] - m * p[1]
+      o[2 * idx + 1] = o[2 * idx + 1]! + r * p[1] + m * p[0]
     }
   }
 
   for (const [c, b] of out) {
     let w = 0
 
-    for (let i = 0; i < BLOCK; i++) w += (b[i] as number) ** 2
+    for (let i = 0; i < BLOCK; i++) {
+      w += b[i]! ** 2
+    }
+
     if (w < spec.floor) {
       tally.dropped += w
       out.delete(c)
@@ -355,35 +470,65 @@ export function frameBeat(space: FrameSpace, K: readonly number[], s: FrameState
 
 // ---- readings ----
 
-export type Moments = { weight: number; tail: number; meanString: number; meanOffset: number; lines: number[]; bent: number }
+export type Moments = {
+  weight: number
+  tail: number
+  meanString: number
+  meanOffset: number
+  lines: number[]
+  bent: number
+}
 
 // weight; weight with at least `from` costly links or an offset of at least `from` dock steps (Euclidean, in docks);
 // the mean string and |offset|; the weight with both vibes on each frame axis; the weight with the two on different
 // axes or a register off one straight segment (a bent string)
-export function momentsOf(space: FrameSpace, s: FrameState, from: number): Moments {
-  const out: Moments = { weight: 0, tail: 0, meanString: 0, meanOffset: 0, lines: [0, 0, 0, 0], bent: 0 }
+export function momentsOf(
+  space: FrameSpace,
+  s: FrameState,
+  from: number,
+): Moments {
+  const out: Moments = {
+    weight: 0,
+    tail: 0,
+    meanString: 0,
+    meanOffset: 0,
+    lines: [0, 0, 0, 0],
+    bent: 0,
+  }
 
   for (const [c, b] of s) {
-    const k = space.classes[c] as Klass
+    const k = space.classes[c]!
     const r = Math.sqrt(k.offset.reduce((x, v) => x + v * v, 0))
     const axesUsed = new Set<number>()
 
-    for (let i = 0; i < k.links.length; i += 6) axesUsed.add(k.links[i + 4] as number)
+    for (let i = 0; i < k.links.length; i += 6) {
+      axesUsed.add(k.links[i + 4]!)
+    }
 
     for (let idx = 0; idx < 64; idx++) {
-      const w = (b[2 * idx] as number) ** 2 + (b[2 * idx + 1] as number) ** 2
+      const w = b[2 * idx]! ** 2 + b[2 * idx + 1]! ** 2
 
-      if (w === 0) continue
+      if (w === 0) {
+        continue
+      }
+
       out.weight += w
-      if (k.costly >= from || r >= from) out.tail += w
+
+      if (k.costly >= from || r >= from) {
+        out.tail += w
+      }
+
       out.meanString += w * k.costly
       out.meanOffset += w * r
 
       const al = idx >> 4
       const af = (idx & 7) >> 1
 
-      if (al === af && axesUsed.size <= 1) out.lines[al]! += w
-      else out.bent += w
+      if (al === af && axesUsed.size <= 1) {
+        out.lines[al]! += w
+      } else {
+        out.bent += w
+      }
     }
   }
 
@@ -400,12 +545,23 @@ export function momentsOf(space: FrameSpace, s: FrameState, from: number): Momen
 
 // ---- the level from the autocorrelation ----
 
-export type Ritz = { energy: number; weight: number; residual: number; coefficients: [number, number][] }
+export type Ritz = {
+  energy: number
+  weight: number
+  residual: number
+  coefficients: [number, number][]
+}
 
 // c(t) for t = 0 .. T and the tallies
-export function autocorrelation(space: FrameSpace, K: readonly number[], start: FrameState, T: number): { c: [number, number][]; tally: BeatTally } {
+export function autocorrelation(
+  space: FrameSpace,
+  K: readonly number[],
+  start: FrameState,
+  T: number,
+): { c: [number, number][]; tally: BeatTally } {
   const tally: BeatTally = { escaped: 0, dropped: 0 }
   const c: [number, number][] = [innerOf(start, start)]
+
   let s = start
 
   for (let t = 1; t <= T; t++) {
@@ -419,9 +575,13 @@ export function autocorrelation(space: FrameSpace, K: readonly number[], start: 
 const conj = (a: [number, number]): [number, number] => [a[0], -a[1]]
 
 // the Ritz levels of U on span{psi_0 .. psi_(M-1)}, M = floor(T/2), from c(0 .. T); rank cut `eps` on S
-export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] {
+export function ritzLevels(
+  c: readonly [number, number][],
+  eps = 1e-11,
+): Ritz[] {
   const M = Math.floor((c.length - 1) / 2)
-  const at = (tau: number): [number, number] => (tau >= 0 ? (c[tau] as [number, number]) : conj(c[-tau] as [number, number]))
+  const at = (tau: number): [number, number] =>
+    tau >= 0 ? c[tau]! : conj(c[-tau]!)
   const S = { re: new Float64Array(M * M), im: new Float64Array(M * M) }
   const A = { re: new Float64Array(M * M), im: new Float64Array(M * M) }
   const B = { re: new Float64Array(M * M), im: new Float64Array(M * M) }
@@ -444,24 +604,32 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
 
   const se = hermitianEigen(M, S.re, S.im, 1e-13)
   const top = Math.max(...se.values)
-  const keep = se.values.map((v, i) => ({ v, i })).filter(e => e.v > eps * top)
+  const keep = se.values
+    .map((v, i) => ({ v, i }))
+    .filter(e => e.v > eps * top)
   const r = keep.length
   // W = V Lambda^(-1/2), M x r
   const Wre = new Float64Array(M * r)
   const Wim = new Float64Array(M * r)
 
   keep.forEach((e, j) => {
-    const vec = se.vectors[e.i] as { re: Float64Array; im: Float64Array }
+    const vec = se.vectors[e.i] as {
+      re: Float64Array
+      im: Float64Array
+    }
     const f = 1 / Math.sqrt(e.v)
 
     for (let s = 0; s < M; s++) {
-      Wre[s * r + j] = (vec.re[s] as number) * f
-      Wim[s * r + j] = (vec.im[s] as number) * f
+      Wre[s * r + j] = vec.re[s]! * f
+      Wim[s * r + j] = vec.im[s]! * f
     }
   })
 
   // W^+ X W for a Hermitian X
-  const project = (X: { re: Float64Array; im: Float64Array }): { re: Float64Array; im: Float64Array } => {
+  const project = (X: {
+    re: Float64Array
+    im: Float64Array
+  }): { re: Float64Array; im: Float64Array } => {
     const XWre = new Float64Array(M * r)
     const XWim = new Float64Array(M * r)
 
@@ -471,10 +639,10 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
         let xi = 0
 
         for (let t = 0; t < M; t++) {
-          const ar = X.re[s * M + t] as number
-          const ai = X.im[s * M + t] as number
-          const br = Wre[t * r + j] as number
-          const bi = Wim[t * r + j] as number
+          const ar = X.re[s * M + t]!
+          const ai = X.im[s * M + t]!
+          const br = Wre[t * r + j]!
+          const bi = Wim[t * r + j]!
 
           xr += ar * br - ai * bi
           xi += ar * bi + ai * br
@@ -485,7 +653,10 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
       }
     }
 
-    const out = { re: new Float64Array(r * r), im: new Float64Array(r * r) }
+    const out = {
+      re: new Float64Array(r * r),
+      im: new Float64Array(r * r),
+    }
 
     for (let i = 0; i < r; i++) {
       for (let j = 0; j < r; j++) {
@@ -493,10 +664,10 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
         let xi = 0
 
         for (let s = 0; s < M; s++) {
-          const ar = Wre[s * r + i] as number
-          const ai = -(Wim[s * r + i] as number)
-          const br = XWre[s * r + j] as number
-          const bi = XWim[s * r + j] as number
+          const ar = Wre[s * r + i]!
+          const ai = -Wim[s * r + i]!
+          const br = XWre[s * r + j]!
+          const bi = XWim[s * r + j]!
 
           xr += ar * br - ai * bi
           xi += ar * bi + ai * br
@@ -516,7 +687,10 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
   // quantum-ladder unitaryEigen: E and its mirror 2 phi - E coincide only by accident. Each Ritz vector's energy is then
   // read from its own Rayleigh quotient of U, not from this combination
   const t = (Math.sqrt(5) - 1) / 2
-  const Cp = { re: Ap.re.map((v, i) => v + t * (Bp.re[i] as number)), im: Ap.im.map((v, i) => v + t * (Bp.im[i] as number)) }
+  const Cp = {
+    re: Ap.re.map((v, i) => v + t * Bp.re[i]!),
+    im: Ap.im.map((v, i) => v + t * Bp.im[i]!),
+  }
   const ae = hermitianEigen(r, Cp.re, Cp.im, 1e-13)
   const out: Ritz[] = []
 
@@ -530,22 +704,24 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
       let xi = 0
 
       for (let j = 0; j < r; j++) {
-        xr += (Wre[s * r + j] as number) * (y.re[j] as number) - (Wim[s * r + j] as number) * (y.im[j] as number)
-        xi += (Wre[s * r + j] as number) * (y.im[j] as number) + (Wim[s * r + j] as number) * (y.re[j] as number)
+        xr += Wre[s * r + j]! * y.re[j]! - Wim[s * r + j]! * y.im[j]!
+        xi += Wre[s * r + j]! * y.im[j]! + Wim[s * r + j]! * y.re[j]!
       }
 
       x.push([xr, xi])
     }
 
     // quadratic forms x^+ X x on the Toeplitz matrices
-    const form = (f: (tau: number) => [number, number]): [number, number] => {
+    const form = (
+      f: (tau: number) => [number, number],
+    ): [number, number] => {
       let qr = 0
       let qi = 0
 
       for (let s = 0; s < M; s++) {
         for (let t = 0; t < M; t++) {
-          const a = x[s] as [number, number]
-          const b = x[t] as [number, number]
+          const a = x[s]!
+          const b = x[t]!
           const z = f(t - s)
           // conj(a) z b
           const zr = z[0] * b[0] - z[1] * b[1]
@@ -564,13 +740,16 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
     const lam: [number, number] = [u1[0] / norm, u1[1] / norm]
     const energy = -Math.atan2(lam[1], lam[0])
     // |U v - lambda v|^2 = |Uv|^2 - |lambda|^2 |v|^2 for the Rayleigh lambda, |Uv|^2 = |v|^2 when U is unitary
-    const residual = Math.sqrt(Math.max(0, 1 - (lam[0] ** 2 + lam[1] ** 2)))
+    const residual = Math.sqrt(
+      Math.max(0, 1 - (lam[0] ** 2 + lam[1] ** 2)),
+    )
+
     // the start's weight on v: |<v|psi_0>|^2 / <v|v>, <v|psi_0> = sum_t conj(x_t) conj(c(t))
     let wr = 0
     let wi = 0
 
     for (let t = 0; t < M; t++) {
-      const a = x[t] as [number, number]
+      const a = x[t]!
       const z = conj(at(t))
 
       wr += a[0] * z[0] + a[1] * z[1]
@@ -578,20 +757,40 @@ export function ritzLevels(c: readonly [number, number][], eps = 1e-11): Ritz[] 
     }
 
     void mu
-    out.push({ energy, weight: (wr * wr + wi * wi) / (norm * (c[0] as [number, number])[0]), residual, coefficients: x.map(v => [v[0] / Math.sqrt(norm), v[1] / Math.sqrt(norm)] as [number, number]) })
+    out.push({
+      energy,
+      weight: (wr * wr + wi * wi) / (norm * c[0]![0]),
+      residual,
+      coefficients: x.map(
+        v =>
+          [v[0] / Math.sqrt(norm), v[1] / Math.sqrt(norm)] as [
+            number,
+            number,
+          ],
+      ),
+    })
   })
 
   return out
 }
 
 // v = sum_t x_t psi_t, normalized (a second pass of the evolution)
-export function levelVector(space: FrameSpace, K: readonly number[], start: FrameState, coefficients: readonly [number, number][]): FrameState {
+export function levelVector(
+  space: FrameSpace,
+  K: readonly number[],
+  start: FrameState,
+  coefficients: readonly [number, number][],
+): FrameState {
   const tally: BeatTally = { escaped: 0, dropped: 0 }
   const out: FrameState = new Map()
+
   let s = start
 
   coefficients.forEach((x, t) => {
-    if (t > 0) s = frameBeat(space, K, s, tally)
+    if (t > 0) {
+      s = frameBeat(space, K, s, tally)
+    }
+
     for (const [c, b] of s) {
       let o = out.get(c)
 
@@ -601,31 +800,54 @@ export function levelVector(space: FrameSpace, K: readonly number[], start: Fram
       }
 
       for (let i = 0; i < BLOCK; i += 2) {
-        o[i] = (o[i] as number) + x[0] * (b[i] as number) - x[1] * (b[i + 1] as number)
-        o[i + 1] = (o[i + 1] as number) + x[0] * (b[i + 1] as number) + x[1] * (b[i] as number)
+        o[i] = o[i]! + x[0] * b[i]! - x[1] * b[i + 1]!
+        o[i + 1] = o[i + 1]! + x[0] * b[i + 1]! + x[1] * b[i]!
       }
     }
   })
 
   const w = Math.sqrt(weightOf(out))
 
-  for (const b of out.values()) for (let i = 0; i < BLOCK; i++) b[i] = (b[i] as number) / w
+  for (const b of out.values()) {
+    for (let i = 0; i < BLOCK; i++) {
+      b[i] = b[i]! / w
+    }
+  }
 
   return out
 }
 
 // a state from amplitudes on (fear offset along one axis d, love slot, fear slot), the register the straight string
 // between them (trit 1 on links 0 .. d - 1 for d > 0, trit 2 on links d .. -1 for d < 0, as the stream writes it)
-export function lineState(space: FrameSpace, axis: number, entries: readonly { d: number; jl: number; jf: number; amp: [number, number] }[]): FrameState {
+export function lineState(
+  space: FrameSpace,
+  axis: number,
+  entries: readonly {
+    d: number
+    jl: number
+    jf: number
+    amp: [number, number]
+  }[],
+): FrameState {
   const out: FrameState = new Map()
 
   for (const e of entries) {
     const reg = new Map<string, number>()
 
-    if (e.d > 0) for (let k = 0; k < e.d; k++) reg.set(`${unit(axis, k).join(',')},${axis}`, 1)
-    if (e.d < 0) for (let k = e.d; k < 0; k++) reg.set(`${unit(axis, k).join(',')},${axis}`, 2)
+    if (e.d > 0) {
+      for (let k = 0; k < e.d; k++) {
+        reg.set(`${unit(axis, k).join(',')},${axis}`, 1)
+      }
+    }
+
+    if (e.d < 0) {
+      for (let k = e.d; k < 0; k++) {
+        reg.set(`${unit(axis, k).join(',')},${axis}`, 2)
+      }
+    }
 
     const c = classOf(space, unit(axis, e.d), reg)
+
     let o = out.get(c)
 
     if (!o) {
@@ -635,15 +857,21 @@ export function lineState(space: FrameSpace, axis: number, entries: readonly { d
 
     const idx = (2 * axis + e.jl) * 8 + 2 * axis + e.jf
 
-    o[2 * idx] = (o[2 * idx] as number) + e.amp[0]
-    o[2 * idx + 1] = (o[2 * idx + 1] as number) + e.amp[1]
+    o[2 * idx] = o[2 * idx]! + e.amp[0]
+    o[2 * idx + 1] = o[2 * idx + 1]! + e.amp[1]
   }
 
   return out
 }
 
-export function addStates(a: FrameState, b: FrameState, f = 1): FrameState {
-  const out: FrameState = new Map([...a].map(([c, x]) => [c, Float64Array.from(x)]))
+export function addStates(
+  a: FrameState,
+  b: FrameState,
+  f = 1,
+): FrameState {
+  const out: FrameState = new Map(
+    [...a].map(([c, x]) => [c, Float64Array.from(x)]),
+  )
 
   for (const [c, x] of b) {
     let o = out.get(c)
@@ -652,7 +880,10 @@ export function addStates(a: FrameState, b: FrameState, f = 1): FrameState {
       o = new Float64Array(BLOCK)
       out.set(c, o)
     }
-    for (let i = 0; i < BLOCK; i++) o[i] = (o[i] as number) + f * (x[i] as number)
+
+    for (let i = 0; i < BLOCK; i++) {
+      o[i] = o[i]! + f * x[i]!
+    }
   }
 
   return out

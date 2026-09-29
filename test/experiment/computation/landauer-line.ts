@@ -63,22 +63,51 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, twoWay, vacuumState, type ArrowBox } from '@/code/measure/second-law-husk'
-import { cloneReduced, type Reduced } from '@/code/measure/living-pair-kernel'
+import {
+  arrowBox,
+  twoWay,
+  vacuumState,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
+import {
+  cloneReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { coarseKey, differingLines, keyEntropy, lineSlot, meshLineMap, sameState, type MeshLineMap } from '@/code/measure/line-information'
+import {
+  coarseKey,
+  differingLines,
+  keyEntropy,
+  lineSlot,
+  meshLineMap,
+  sameState,
+  type MeshLineMap,
+} from '@/code/measure/line-information'
 
 const SIDE = 8
 const BLOCK = 4
 const BEATS = 24
 const VALUES: readonly number[] = [-1, 0, 1]
-const H_COARSE_ONE = -((1 / 3) * Math.log(1 / 3) + (2 / 3) * Math.log(2 / 3))
+const H_COARSE_ONE = -(
+  (1 / 3) * Math.log(1 / 3) +
+  (2 / 3) * Math.log(2 / 3)
+)
 const COARSE_TOLERANCE = 1e-12
 const SECOND_LINE = 40
-const REGISTER = 0 * 24 + (LINE_FIRSTS[0] as number)
+const REGISTER = 0 * 24 + LINE_FIRSTS[0]!
 
-type MemberReading = { distinct: boolean; oneLine: boolean; erasedAtOne: boolean; coarseAtOne: number; erasedBeats: boolean[]; coarse: number[]; returns: boolean; overwriteDistinct: boolean; secondLines: number }
+type MemberReading = {
+  distinct: boolean
+  oneLine: boolean
+  erasedAtOne: boolean
+  coarseAtOne: number
+  erasedBeats: boolean[]
+  coarse: number[]
+  returns: boolean
+  overwriteDistinct: boolean
+  secondLines: number
+}
 
 function startsOf(vac: Reduced, extra?: number): Reduced[] {
   return VALUES.map(v => {
@@ -100,27 +129,45 @@ function readMember(box: ArrowBox, map: MeshLineMap): MemberReading {
   const vac = vacuumState(box)
   const starts = startsOf(vac)
   const runs = starts.map(s => twoWay(box, s))
-  const registerLine = map.slotLine[REGISTER] as number
+  const registerLine = map.slotLine[REGISTER]!
+
   let distinct = true
   let oneLine = true
+
   const erasedBeats: boolean[] = []
   const coarse: number[] = []
 
   for (let t = 1; t <= BEATS; t++) {
-    for (const r of runs) r.forward()
+    for (const r of runs) {
+      r.forward()
+    }
 
     const st = runs.map(r => r.state())
 
-    distinct = distinct && !sameState(st[0]!, st[1]!) && !sameState(st[1]!, st[2]!) && !sameState(st[0]!, st[2]!)
+    distinct =
+      distinct &&
+      !sameState(st[0]!, st[1]!) &&
+      !sameState(st[1]!, st[2]!) &&
+      !sameState(st[0]!, st[2]!)
 
-    const lines = new Set([...differingLines(map, st[0]!, st[1]!), ...differingLines(map, st[1]!, st[2]!), ...differingLines(map, st[0]!, st[2]!)])
+    const lines = new Set([
+      ...differingLines(map, st[0]!, st[1]!),
+      ...differingLines(map, st[1]!, st[2]!),
+      ...differingLines(map, st[0]!, st[2]!),
+    ])
 
     oneLine = oneLine && lines.size === 1 && lines.has(registerLine)
-    erasedBeats.push(st.every(s => s.vibe[REGISTER] === st[0]!.vibe[REGISTER]))
+    erasedBeats.push(
+      st.every(s => s.vibe[REGISTER] === st[0]!.vibe[REGISTER]),
+    )
     coarse.push(keyEntropy(st.map(s => coarseKey(box, s))))
   }
 
-  for (let t = 0; t < BEATS; t++) for (const r of runs) r.backward()
+  for (let t = 0; t < BEATS; t++) {
+    for (const r of runs) {
+      r.backward()
+    }
+  }
 
   const returns = runs.every((r, i) => sameState(r.state(), starts[i]!))
 
@@ -132,26 +179,47 @@ function readMember(box: ArrowBox, map: MeshLineMap): MemberReading {
 
     return twoWay(box, o)
   })
+
   let overwriteDistinct = false
 
   for (let t = 1; t <= BEATS; t++) {
-    for (const r of over) r.forward()
+    for (const r of over) {
+      r.forward()
+    }
 
     const st = over.map(r => r.state())
 
-    overwriteDistinct = overwriteDistinct || !sameState(st[0]!, st[1]!) || !sameState(st[1]!, st[2]!)
+    overwriteDistinct =
+      overwriteDistinct ||
+      !sameState(st[0]!, st[1]!) ||
+      !sameState(st[1]!, st[2]!)
   }
 
   // C2: a second difference on another line
   const extra = lineSlot(map, SECOND_LINE, 3)
   const two = startsOf(vac, extra).map(s => twoWay(box, s))
 
-  for (const r of two) r.forward()
+  for (const r of two) {
+    r.forward()
+  }
 
   const s2 = two.map(r => r.state())
-  const secondLines = new Set([...differingLines(map, s2[0]!, s2[1]!), ...differingLines(map, s2[1]!, s2[2]!)]).size
+  const secondLines = new Set([
+    ...differingLines(map, s2[0]!, s2[1]!),
+    ...differingLines(map, s2[1]!, s2[2]!),
+  ]).size
 
-  return { distinct, oneLine, erasedAtOne: erasedBeats[0] as boolean, coarseAtOne: coarse[0] as number, erasedBeats, coarse, returns, overwriteDistinct, secondLines }
+  return {
+    distinct,
+    oneLine,
+    erasedAtOne: erasedBeats[0]!,
+    coarseAtOne: coarse[0]!,
+    erasedBeats,
+    coarse,
+    returns,
+    overwriteDistinct,
+    secondLines,
+  }
 }
 
 export default experiment({
@@ -175,15 +243,36 @@ export default experiment({
     const L1 = readings.every(r => r.distinct)
     const L2 = readings.every(r => r.oneLine)
     const L3 = readings.every(r => r.erasedAtOne)
-    const L4 = readings.every(r => Math.abs(r.coarseAtOne - H_COARSE_ONE) <= COARSE_TOLERANCE)
+    const L4 = readings.every(
+      r => Math.abs(r.coarseAtOne - H_COARSE_ONE) <= COARSE_TOLERANCE,
+    )
     const instrument = readings.every(r => r.returns)
     const C1 = readings.every(r => !r.overwriteDistinct)
     const C2 = readings.every(r => r.secondLines === 2)
     const controls = C1 && C2
-    const status = !instrument || !controls ? 'partial' : L1 && L2 && L3 && L4 ? 'pass' : 'fail'
-    const erasedShare = Array.from({ length: BEATS }, (_, t) => readings.filter(r => r.erasedBeats[t]).length / readings.length)
-    const coarseMean = readings.reduce((s, r) => s + r.coarse.reduce((a, b) => a + b, 0) / BEATS, 0) / readings.length
-    const fullBeats = Array.from({ length: BEATS }, (_, t) => readings.filter(r => Math.abs((r.coarse[t] as number) - Math.log(3)) < 1e-12).length)
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : L1 && L2 && L3 && L4
+          ? 'pass'
+          : 'fail'
+    const erasedShare = Array.from(
+      { length: BEATS },
+      (_, t) =>
+        readings.filter(r => r.erasedBeats[t]).length / readings.length,
+    )
+    const coarseMean =
+      readings.reduce(
+        (s, r) => s + r.coarse.reduce((a, b) => a + b, 0) / BEATS,
+        0,
+      ) / readings.length
+    const fullBeats = Array.from(
+      { length: BEATS },
+      (_, t) =>
+        readings.filter(
+          r => Math.abs(r.coarse[t]! - Math.log(3)) < 1e-12,
+        ).length,
+    )
     const flag = (b: boolean): number => (b ? 1 : 0)
     const metrics: Record<string, number> = {
       L1: flag(L1),
@@ -198,7 +287,8 @@ export default experiment({
       heatAtOne: Math.log(3) - (readings[0]?.coarseAtOne ?? NaN),
       coarseMean,
       heatMean: Math.log(3) - coarseMean,
-      erasedShareFirst6: erasedShare.slice(0, 6).reduce((a, b) => a + b, 0) / 6,
+      erasedShareFirst6:
+        erasedShare.slice(0, 6).reduce((a, b) => a + b, 0) / 6,
       erasedShareAll: erasedShare.reduce((a, b) => a + b, 0) / BEATS,
       seconds: (Date.now() - started) / 1000,
     }
@@ -207,7 +297,11 @@ export default experiment({
       status,
       claim: `on ${readings.length} link starts, side ${SIDE}: L1 ${L1} (three distinct configurations at every beat 1..${BEATS}); L2 ${L2} (the runs differ only on the register's line); L3 ${L3} (register erased at beat 1); L4 ${L4} (H_coarse at beat 1 ${(readings[0]?.coarseAtOne ?? NaN).toFixed(12)} against H(1/3, 2/3) ${H_COARSE_ONE.toFixed(12)}, so ${(Math.log(3) - H_COARSE_ONE).toFixed(6)} nats invisible to the coarse map); mean H_coarse over the beats ${coarseMean.toFixed(4)} (mean heat ${(Math.log(3) - coarseMean).toFixed(4)} nats); instrument ${instrument} (24 forward, 24 back, bit for bit); controls C1 ${C1} (the overwrite leaves one configuration), C2 ${C2} (a second difference reads two lines)`,
       metrics,
-      control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        instrument: flag(instrument),
+      },
       notes: `L1 and L2. Per beat, the share of starts whose register reads one value in all three runs: ${erasedShare.map(x => x.toFixed(2)).join(' ')}. Per beat, the starts where H_coarse reaches ln 3: ${fullBeats.join(' ')}. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

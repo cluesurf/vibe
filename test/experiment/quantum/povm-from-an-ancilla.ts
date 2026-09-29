@@ -47,7 +47,36 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { add, apply, coinGate, conj, dirOf, eq, gatesOnFamily, IDENTITY, isZero, label, lineOfTwo, m2, m2add, m2eq, m2isZero, m2mul, m2show, mul, norm, ONE, pointsOf, qw, show, weightWhere, ZERO, type M2, type Qw, type State } from '@/code/measure/rule-gates'
+import {
+  add,
+  apply,
+  coinGate,
+  conj,
+  dirOf,
+  eq,
+  gatesOnFamily,
+  IDENTITY,
+  isZero,
+  label,
+  lineOfTwo,
+  m2,
+  m2add,
+  m2eq,
+  m2isZero,
+  m2mul,
+  m2show,
+  mul,
+  norm,
+  ONE,
+  pointsOf,
+  qw,
+  show,
+  weightWhere,
+  ZERO,
+  type M2,
+  type Qw,
+  type State,
+} from '@/code/measure/rule-gates'
 
 const DIRS = ['R', 'L'] as const
 
@@ -60,10 +89,17 @@ function device(s: State): State {
   return apply(t, lineOfTwo(0, 2, 'R'))
 }
 
-const initial = (amps: Partial<Record<(typeof DIRS)[number], Qw>>, points: number[]): State => {
+const initial = (
+  amps: Partial<Record<(typeof DIRS)[number], Qw>>,
+  points: number[],
+): State => {
   const s: State = new Map()
 
-  for (const d of DIRS) if (amps[d] && !isZero(amps[d] as Qw)) s.set(label(d, points), amps[d] as Qw)
+  for (const d of DIRS) {
+    if (amps[d] && !isZero(amps[d])) {
+      s.set(label(d, points), amps[d])
+    }
+  }
 
   return s
 }
@@ -74,11 +110,17 @@ function effects(points: number[]): Map<string, M2> {
   const columns = DIRS.map(d => device(initial({ [d]: ONE }, points)))
   const outcomes = new Set<string>()
 
-  for (const c of columns) for (const l of c.keys()) outcomes.add(pointsOf(l).join(','))
+  for (const c of columns) {
+    for (const l of c.keys()) {
+      outcomes.add(pointsOf(l).join(','))
+    }
+  }
 
   for (const o of outcomes) {
-    const k = (d: number, final: string): Qw => (columns[d] as State).get(label(final, o.split(',').map(Number))) ?? ZERO
-    const entry = (e: number, d: number): Qw => DIRS.reduce((s, f) => add(s, mul(conj(k(e, f)), k(d, f))), ZERO)
+    const k = (d: number, final: string): Qw =>
+      columns[d]!.get(label(final, o.split(',').map(Number))) ?? ZERO
+    const entry = (e: number, d: number): Qw =>
+      DIRS.reduce((s, f) => add(s, mul(conj(k(e, f)), k(d, f))), ZERO)
 
     out.set(o, m2(entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)))
   }
@@ -90,7 +132,14 @@ function effects(points: number[]): Map<string, M2> {
 const expectation = (e: M2, psi: [Qw, Qw]): Qw => {
   let s = ZERO
 
-  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) s = add(s, mul(mul(conj(psi[i] as Qw), (e[i] as [Qw, Qw])[j] as Qw), psi[j] as Qw))
+  for (let i = 0; i < 2; i++) {
+    for (let j = 0; j < 2; j++) {
+      s = add(
+        s,
+        mul(mul(conj(psi[i]!), (e[i] as [Qw, Qw])[j]!), psi[j]!),
+      )
+    }
+  }
 
   return s
 }
@@ -99,29 +148,44 @@ const expectation = (e: M2, psi: [Qw, Qw]): Qw => {
 // divided out of the imaginary one), by exact Gaussian elimination
 function hermitianRank(list: M2[]): number {
   type F = { n: bigint; d: bigint }
-  const f = (n: bigint, d: bigint): F => (d < 0n ? { n: -n, d: -d } : { n, d })
+
+  const f = (n: bigint, d: bigint): F =>
+    d < 0n ? { n: -n, d: -d } : { n, d }
   const sub2 = (a: F, b: F): F => f(a.n * b.d - b.n * a.d, a.d * b.d)
   const mul2 = (a: F, b: F): F => f(a.n * b.n, a.d * b.d)
   const div2 = (a: F, b: F): F => f(a.n * b.d, a.d * b.n)
   const rows: F[][] = list.map(e => {
-    const rl = (e[0] as [Qw, Qw])[1] as Qw
+    const rl = (e[0] as [Qw, Qw])[1]
 
-    return [f(e[0][0].a, e[0][0].d), f(e[1][1].a, e[1][1].d), f(2n * rl.a - rl.b, 2n * rl.d), f(rl.b, 2n * rl.d)]
+    return [
+      f(e[0][0].a, e[0][0].d),
+      f(e[1][1].a, e[1][1].d),
+      f(2n * rl.a - rl.b, 2n * rl.d),
+      f(rl.b, 2n * rl.d),
+    ]
   })
+
   let rank = 0
 
   for (let c = 0; c < 4 && rank < rows.length; c++) {
-    const p = rows.findIndex((r, i) => i >= rank && (r[c] as F).n !== 0n)
+    const p = rows.findIndex((r, i) => i >= rank && r[c]!.n !== 0n)
 
-    if (p < 0) continue
-    ;[rows[rank], rows[p]] = [rows[p] as F[], rows[rank] as F[]]
+    if (p < 0) {
+      continue
+    }
+
+    ;[rows[rank], rows[p]] = [rows[p]!, rows[rank]!]
 
     for (let i = 0; i < rows.length; i++) {
-      if (i === rank || (rows[i] as F[])[c]!.n === 0n) continue
+      if (i === rank || rows[i]![c]!.n === 0n) {
+        continue
+      }
 
-      const factor = div2((rows[i] as F[])[c] as F, (rows[rank] as F[])[c] as F)
+      const factor = div2(rows[i]![c]!, rows[rank]![c]!)
 
-      rows[i] = (rows[i] as F[]).map((x, k) => sub2(x, mul2(factor, (rows[rank] as F[])[k] as F)))
+      rows[i] = rows[i]!.map((x, k) =>
+        sub2(x, mul2(factor, rows[rank]![k]!)),
+      )
     }
 
     rank++
@@ -144,13 +208,28 @@ export default experiment({
     const gates = gatesOnFamily()
     const e = effects([0, 1, 2])
     const list = [...e.entries()].filter(([, m]) => !m2isZero(m))
-    const total = list.reduce<M2>((s, [, m]) => m2add(s, m), m2(ZERO, ZERO, ZERO, ZERO))
+    const total = list.reduce<M2>(
+      (s, [, m]) => m2add(s, m),
+      m2(ZERO, ZERO, ZERO, ZERO),
+    )
     const m1 = m2eq(total, IDENTITY)
     const m2count = list.length >= 3
     const m3 = list.some(([, m]) => !m2eq(m2mul(m, m), m))
+
     let m4 = false
 
-    for (let i = 0; i < list.length && !m4; i++) for (let j = i + 1; j < list.length && !m4; j++) if (!m2eq(m2mul((list[i] as [string, M2])[1], (list[j] as [string, M2])[1]), m2mul((list[j] as [string, M2])[1], (list[i] as [string, M2])[1]))) m4 = true
+    for (let i = 0; i < list.length && !m4; i++) {
+      for (let j = i + 1; j < list.length && !m4; j++) {
+        if (
+          !m2eq(
+            m2mul(list[i]![1], list[j]![1]),
+            m2mul(list[j]![1], list[i]![1]),
+          )
+        ) {
+          m4 = true
+        }
+      }
+    }
 
     // M5: Born on the part
     const k = qw(1n, 1n, 2n)
@@ -163,20 +242,29 @@ export default experiment({
       { name: 'C|L>', psi: [x, k] },
       { name: 'C|R> w on L', psi: [k, mul(w, x)] },
     ]
+
     let m5 = true
+
     const bornNotes: string[] = []
 
     for (const input of inputs) {
-      const out = device(initial({ R: input.psi[0], L: input.psi[1] }, [0, 1, 2]))
+      const out = device(
+        initial({ R: input.psi[0], L: input.psi[1] }, [0, 1, 2]),
+      )
 
       for (const [o, eff] of list) {
-        const direct = weightWhere(out, l => pointsOf(l).join(',') === o)
+        const direct = weightWhere(
+          out,
+          l => pointsOf(l).join(',') === o,
+        )
         const predicted = expectation(eff, input.psi)
 
         m5 &&= eq(direct, predicted)
       }
 
-      bornNotes.push(`${input.name}: ${list.map(([o, eff]) => `${o} ${show(expectation(eff, input.psi))}`).join(' ')}`)
+      bornNotes.push(
+        `${input.name}: ${list.map(([o, eff]) => `${o} ${show(expectation(eff, input.psi))}`).join(' ')}`,
+      )
     }
 
     // M6: mixed from pure
@@ -189,7 +277,9 @@ export default experiment({
       let s = ZERO
 
       for (const [l, amp] of one) {
-        if (dirOf(l) !== a) continue
+        if (dirOf(l) !== a) {
+          continue
+        }
 
         const partner = one.get(label(b, pointsOf(l))) ?? ZERO
 
@@ -198,21 +288,55 @@ export default experiment({
 
       return s
     }
-    const r = m2(rho('R', 'R'), rho('R', 'L'), rho('L', 'R'), rho('L', 'L'))
-    const purity = add(add(norm(r[0][0]), norm(r[1][1])), add(norm(r[0][1]), norm(r[1][0])))
+
+    const r = m2(
+      rho('R', 'R'),
+      rho('R', 'L'),
+      rho('L', 'R'),
+      rho('L', 'L'),
+    )
+    const purity = add(
+      add(norm(r[0][0]), norm(r[1][1])),
+      add(norm(r[0][1]), norm(r[1][0])),
+    )
     const wholeNorm = weightWhere(one, () => true)
     const m6 = eq(purity, qw(46n, 0n, 64n)) && eq(wholeNorm, ONE)
 
     // C1: equal points record nothing
-    const plain = [...effects([0, 0, 0]).entries()].filter(([, m]) => !m2isZero(m))
-    const c1 = plain.length === 1 && m2eq((plain[0] as [string, M2])[1], IDENTITY)
+    const plain = [...effects([0, 0, 0]).entries()].filter(
+      ([, m]) => !m2isZero(m),
+    )
+    const c1 = plain.length === 1 && m2eq(plain[0]![1], IDENTITY)
 
     const rank = hermitianRank(list.map(([, m]) => m))
-    const g = { G0: gates.passing === gates.of, M1: m1, M2: m2count, M3: m3, M4: m4, M5: m5, M6: m6, C1: c1 }
-    const status = !g.G0 || !g.C1 ? 'fail' : Object.values(g).every(Boolean) ? 'partial' : 'fail'
-    const metrics: Record<string, number> = { startsReadingTheGates: gates.passing, starts: gates.of, outcomes: list.length, hermitianRank: rank, informationallyComplete: rank === 4 ? 1 : 0 }
+    const g = {
+      G0: gates.passing === gates.of,
+      M1: m1,
+      M2: m2count,
+      M3: m3,
+      M4: m4,
+      M5: m5,
+      M6: m6,
+      C1: c1,
+    }
+    const status =
+      !g.G0 || !g.C1
+        ? 'fail'
+        : Object.values(g).every(Boolean)
+          ? 'partial'
+          : 'fail'
+    const metrics: Record<string, number> = {
+      startsReadingTheGates: gates.passing,
+      starts: gates.of,
+      outcomes: list.length,
+      hermitianRank: rank,
+      informationallyComplete: rank === 4 ? 1 : 0,
+    }
 
-    for (const [key, v] of Object.entries(g)) metrics[`gate_${key}`] = v ? 1 : 0
+    for (const [key, v] of Object.entries(g)) {
+      metrics[`gate_${key}`] = v ? 1 : 0
+    }
+
     metrics.purity = Number(purity.a) / Number(purity.d)
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -223,7 +347,9 @@ export default experiment({
       control: { equalPointsOutcomes: plain.length },
       notes: `L2. Gates ${Object.entries(g)
         .map(([key, v]) => `${key} ${v}`)
-        .join(', ')}. Effects: ${list.map(([o, m]) => `${o} ${m2show(m)}`).join('; ')}. Born on the part (predicted = device): ${bornNotes.join(' | ')}. Reduced state after one coupling: ${m2show(r)}. The schedule is arranged (which arm meets which ancilla, and the coin between); every gate is the rule's. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+        .join(
+          ', ',
+        )}. Effects: ${list.map(([o, m]) => `${o} ${m2show(m)}`).join('; ')}. Born on the part (predicted = device): ${bornNotes.join(' | ')}. Reduced state after one coupling: ${m2show(r)}. The schedule is arranged (which arm meets which ancilla, and the coin between); every gate is the rule's. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

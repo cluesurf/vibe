@@ -31,12 +31,17 @@ const SIDE = 24
 // is the discreteness signature of relativity/discreteness-signature, not the propagating mode, so the claim
 // here is for wavelengths of six cells and up and shorter ones are dropped from the set.
 const wavelengthsFor = (side: number): number[] =>
-  [side, side / 2, side / 3, side / 4].map(Math.round).filter(w => w >= 6)
+  [side, side / 2, side / 3, side / 4]
+    .map(Math.round)
+    .filter(w => w >= 6)
 
 // the measured frequency omega(k) of a longitudinal momentum wave under a collision, read from the first
 // minimum of its amplitude trace (a half period). A propagating mode oscillates (a real first minimum), a
 // diffusive one decays. Returns omega, k, and the phase speed omega / k for each wavelength.
-function dispersion(collision: ReturnType<typeof headOnRotate>, side: number): {
+function dispersion(
+  collision: ReturnType<typeof headOnRotate>,
+  side: number,
+): {
   wavenumbers: number[]
   frequencies: number[]
   phaseSpeeds: number[]

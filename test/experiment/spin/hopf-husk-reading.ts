@@ -156,14 +156,36 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { ROOTS } from '@/code/measure/swap-sector'
-import { binaryIcosahedral, rootToDoubled, qmul } from '@/code/measure/hurwitz-gauge'
-import { rootReflection, composePermutations } from '@/code/measure/hyperbolic-lines'
-import { bandSlots, dockMatrix, rootTablesAgree, DOCK_ROOTS } from '@/code/measure/dock-mixer'
-import { eNorm, exactWalk, frameMatrix, frameRoots, matrixGap, ruleFrameMatrix } from '@/code/measure/frame-cone'
+import {
+  binaryIcosahedral,
+  rootToDoubled,
+  qmul,
+} from '@/code/measure/hurwitz-gauge'
+import {
+  rootReflection,
+  composePermutations,
+} from '@/code/measure/hyperbolic-lines'
+import {
+  bandSlots,
+  dockMatrix,
+  rootTablesAgree,
+  DOCK_ROOTS,
+} from '@/code/measure/dock-mixer'
+import {
+  eNorm,
+  exactWalk,
+  frameMatrix,
+  frameRoots,
+  matrixGap,
+  ruleFrameMatrix,
+} from '@/code/measure/frame-cone'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { lineFrame } from '@/code/measure/frame-meson'
-import { FRAME_OF_SLOT, FRAME_SLOTS } from '@/code/rule/coined-locked-knit'
+import {
+  FRAME_OF_SLOT,
+  FRAME_SLOTS,
+} from '@/code/rule/coined-locked-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { rootsD4 as labelRoots } from '@/code/algebra/group/root-system'
 import { labelledCoin } from '@/code/substrate/coxeter/label-transport'
@@ -190,9 +212,21 @@ import {
   type Reading,
 } from '@/code/measure/hopf-reading'
 
-export type HopfPlan = { skin: number; frameMomenta: number; dockMomenta: number; walkBeats: number; kappa: number }
+export type HopfPlan = {
+  skin: number
+  frameMomenta: number
+  dockMomenta: number
+  walkBeats: number
+  kappa: number
+}
 
-export const GATE_PLAN: HopfPlan = { skin: 3, frameMomenta: 1024, dockMomenta: 512, walkBeats: 8, kappa: 0.05 }
+export const GATE_PLAN: HopfPlan = {
+  skin: 3,
+  frameMomenta: 1024,
+  dockMomenta: 512,
+  walkBeats: 8,
+  kappa: 0.05,
+}
 
 const EXACT = 1e-12
 const MEASURED_SINGLET = 0.02
@@ -212,40 +246,83 @@ const TETRA = [
   [-1, -1, 1],
 ]
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 const key = (q: readonly number[]): string => q.join(',')
-const matMul3 = (a: number[][], b: number[][]): number[][] => [0, 1, 2].map(r => [0, 1, 2].map(c => [0, 1, 2].reduce((s, k) => s + (a[r]![k] as number) * (b[k]![c] as number), 0)))
-const det3 = (m: number[][]): number => m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) - m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) + m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!)
-const isIdentity3 = (m: number[][]): boolean => m.every((row, r) => row.every((x, c) => x === (r === c ? 1 : 0)))
+const matMul3 = (a: number[][], b: number[][]): number[][] =>
+  [0, 1, 2].map(r =>
+    [0, 1, 2].map(c =>
+      [0, 1, 2].reduce((s, k) => s + a[r]![k]! * b[k]![c]!, 0),
+    ),
+  )
+const det3 = (m: number[][]): number =>
+  m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
+  m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
+  m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!)
+const isIdentity3 = (m: number[][]): boolean =>
+  m.every((row, r) => row.every((x, c) => x === (r === c ? 1 : 0)))
 
 // frames = axes for a labelling of the slots by roots: how many of the three axes pull back to exactly one frame
-function framesAreAxes(labelled: readonly (readonly number[])[]): { axes: number; corners: boolean } {
+function framesAreAxes(labelled: readonly (readonly number[])[]): {
+  axes: number
+  corners: boolean
+} {
   const corner = labelled.map(r => hopfCorner(r))
-  const frames = FRAME_SLOTS.map(ss => [...ss].sort((a, b) => a - b).join(','))
+  const frames = FRAME_SLOTS.map(ss =>
+    [...ss].sort((a, b) => a - b).join(','),
+  )
+
   let axes = 0
 
   for (let a = 0; a < 3; a++) {
-    const pre = corner.map((c, d) => (c >= 0 && Math.floor(c / 2) === a ? d : -1)).filter(d => d >= 0)
+    const pre = corner
+      .map((c, d) => (c >= 0 && Math.floor(c / 2) === a ? d : -1))
+      .filter(d => d >= 0)
 
-    if (pre.length === 8 && frames.includes(pre.join(','))) axes++
+    if (pre.length === 8 && frames.includes(pre.join(','))) {
+      axes++
+    }
   }
 
   return { axes, corners: corner.every(c => c >= 0) }
 }
 
-type ReadStats = { name: string; family: Reading['family']; A2: number; A4: number; nullShare: number; spread: number; top: number[] }
+type ReadStats = {
+  name: string
+  family: Reading['family']
+  A2: number
+  A4: number
+  nullShare: number
+  spread: number
+  top: number[]
+}
 
-function readAll(readings: readonly Reading[], data: readonly { w: number; x: readonly number[] }[], withSupport: boolean): ReadStats[] {
+function readAll(
+  readings: readonly Reading[],
+  data: readonly { w: number; x: readonly number[] }[],
+  withSupport: boolean,
+): ReadStats[] {
   return readings.map(r => {
     const pts: Point3[] = data.map(p => ({ w: p.w, x: r.read(p.x) }))
     const m = readingMoments(pts)
-    const s = withSupport ? supportSpread(pts, SUPPORT_DIRECTIONS) : { top: [], spread: Number.NaN }
+    const s = withSupport
+      ? supportSpread(pts, SUPPORT_DIRECTIONS)
+      : { top: [], spread: Number.NaN }
 
-    return { name: r.name, family: r.family, A2: m.A2, A4: m.A4, nullShare: m.nullShare, spread: s.spread, top: s.top }
+    return {
+      name: r.name,
+      family: r.family,
+      A2: m.A2,
+      A4: m.A4,
+      nullShare: m.nullShare,
+      spread: s.spread,
+      top: s.top,
+    }
   })
 }
 
-const range = (xs: readonly number[]): string => `${Math.min(...xs).toFixed(6)}..${Math.max(...xs).toFixed(6)}`
+const range = (xs: readonly number[]): string =>
+  `${Math.min(...xs).toFixed(6)}..${Math.max(...xs).toFixed(6)}`
 
 export default experiment({
   id: 'spin/hopf-husk-reading',
@@ -263,41 +340,73 @@ export default experiment({
 
 export function hopfReadingRun(plan: HopfPlan) {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const f6 = (x: number): string => x.toFixed(6)
   const LR = labelRoots()
 
   // ---------------- H1: the algebra, exact ----------------
   const doubled = ROOTS.map(r => rootToDoubled(r))
   const corner = ROOTS.map(r => hopfCorner(r))
-  const perCorner = CORNERS.map((_, c) => corner.map((x, d) => (x === c ? d : -1)).filter(d => d >= 0))
+  const perCorner = CORNERS.map((_, c) =>
+    corner.map((x, d) => (x === c ? d : -1)).filter(d => d >= 0),
+  )
   const circles = perCorner.every(ds => {
-    if (ds.length !== 4) return false
+    if (ds.length !== 4) {
+      return false
+    }
 
-    const Q = doubled[ds[0] as number] as number[]
+    const Q = doubled[ds[0]!]!
     const Qi = qmul(Q, [0, 1, 0, 0])
-    const want = new Set([Q, Qi, Q.map(x => -x), Qi.map(x => -x)].map(key))
+    const want = new Set(
+      [Q, Qi, Q.map(x => -x), Qi.map(x => -x)].map(key),
+    )
 
-    return ds.every(d => want.has(key(doubled[d] as number[]))) && want.size === 4
+    return ds.every(d => want.has(key(doubled[d]!))) && want.size === 4
   })
   const fa = framesAreAxes(ROOTS)
-  const q8 = ROOTS.map((_, d) => d).filter(d => (doubled[d] as number[]).filter(x => x !== 0).length === 1)
+  const q8 = ROOTS.map((_, d) => d).filter(
+    d => doubled[d]!.filter(x => x !== 0).length === 1,
+  )
   const index = new Map(doubled.map((q, d) => [key(q), d]))
-  const cosets = new Set(ROOTS.map((_, d) => q8.map(e => index.get(key(qmul(doubled[d] as number[], doubled[e] as number[]).map(x => x / 2))) as number).sort((a, b) => a - b).join(',')))
-  const frameKeys = FRAME_SLOTS.map(ss => [...ss].sort((a, b) => a - b).join(','))
-  const cosetsAreFrames = cosets.size === 3 && [...cosets].every(c => frameKeys.includes(c))
+  const cosets = new Set(
+    ROOTS.map((_, d) =>
+      q8
+        .map(
+          e =>
+            index.get(
+              key(qmul(doubled[d]!, doubled[e]!).map(x => x / 2)),
+            )!,
+        )
+        .sort((a, b) => a - b)
+        .join(','),
+    ),
+  )
+  const frameKeys = FRAME_SLOTS.map(ss =>
+    [...ss].sort((a, b) => a - b).join(','),
+  )
+  const cosetsAreFrames =
+    cosets.size === 3 && [...cosets].every(c => frameKeys.includes(c))
   // lines = T
-  const rot = LINE_FIRSTS.map(f => rotationOfDoubled(doubled[f] as number[]))
+  const rot = LINE_FIRSTS.map(f => rotationOfDoubled(doubled[f]!))
   const rotKeys = new Set(rot.map(r => key(r.R.flat())))
+
   let homomorphism = true
 
   for (const f of LINE_FIRSTS) {
     for (const g of LINE_FIRSTS) {
-      const P = qmul(doubled[f] as number[], doubled[g] as number[]).map(x => x / 2)
+      const P = qmul(doubled[f]!, doubled[g]!).map(x => x / 2)
       const lhs = rotationOfDoubled(P).R
-      const rhs = matMul3(rotationOfDoubled(doubled[f] as number[]).R, rotationOfDoubled(doubled[g] as number[]).R)
+      const rhs = matMul3(
+        rotationOfDoubled(doubled[f]!).R,
+        rotationOfDoubled(doubled[g]!).R,
+      )
 
-      if (key(lhs.flat()) !== key(rhs.flat())) homomorphism = false
+      if (key(lhs.flat()) !== key(rhs.flat())) {
+        homomorphism = false
+      }
     }
   }
 
@@ -305,7 +414,10 @@ export function hopfReadingRun(plan: HopfPlan) {
     let m = r.R
 
     for (let n = 1; n <= 6; n++) {
-      if (isIdentity3(m)) return n
+      if (isIdentity3(m)) {
+        return n
+      }
+
       m = matMul3(m, r.R)
     }
 
@@ -313,9 +425,26 @@ export function hopfReadingRun(plan: HopfPlan) {
   })
   const census = [1, 2, 3].map(o => orders.filter(x => x === o).length)
   const tetraSet = new Set(TETRA.map(key))
-  const keepsTetra = rot.every(r => TETRA.every(v => tetraSet.has(key([0, 1, 2].map(i => dot(r.R[i] as number[], v))))))
-  const cornerIsColumn = LINE_FIRSTS.every((f, l) => [0, 1, 2].every(i => ((rot[l] as { R: number[][] }).R[i]![0] as number) === (CORNERS[corner[f] as number] as number[])[i]))
-  const linesAreT = rot.every(r => r.exact && det3(r.R) === 1) && rotKeys.size === 12 && homomorphism && census.join(',') === '1,3,8' && keepsTetra && cornerIsColumn
+  const keepsTetra = rot.every(r =>
+    TETRA.every(v =>
+      tetraSet.has(key([0, 1, 2].map(i => dot(r.R[i]!, v)))),
+    ),
+  )
+  const cornerIsColumn = LINE_FIRSTS.every((f, l) =>
+    [0, 1, 2].every(
+      i =>
+        (rot[l] as { R: number[][] }).R[i]![0]! ===
+        (CORNERS[corner[f]!] as number[])[i],
+    ),
+  )
+  const linesAreT =
+    rot.every(r => r.exact && det3(r.R) === 1) &&
+    rotKeys.size === 12 &&
+    homomorphism &&
+    census.join(',') === '1,3,8' &&
+    keepsTetra &&
+    cornerIsColumn
+
   // the differential
   let diffIntegral = true
   let diffRadial = true
@@ -323,31 +452,48 @@ export function hopfReadingRun(plan: HopfPlan) {
   let diffNorm = true
 
   for (let q = 0; q < 24; q++) {
-    const Q = doubled[q] as number[]
+    const Q = doubled[q]!
     const QI = qmul(Q, [0, 1, 0, 0])
-    const fiber = index.get(key(QI)) as number
+    const fiber = index.get(key(QI))!
 
     for (let y = 0; y < 24; y++) {
-      const Y = doubled[y] as number[]
+      const Y = doubled[y]!
       const N = doubledDifferential(Q, Y)
 
-      if (N.real !== 0 || N.imag.some(x => x % 4 !== 0)) diffIntegral = false
+      if (N.real !== 0 || N.imag.some(x => x % 4 !== 0)) {
+        diffIntegral = false
+      }
 
       const dh = N.imag.map(x => x / 4)
 
-      if (y === q && key(dh) !== key(doubledHopf(Q).imag.map(x => x / 2))) diffRadial = false
+      if (
+        y === q &&
+        key(dh) !== key(doubledHopf(Q).imag.map(x => x / 2))
+      ) {
+        diffRadial = false
+      }
 
       const zero = dh.every(x => x === 0)
       const onFiber = y === fiber || y === OPPOSITE[fiber]
 
-      if (zero !== onFiber) diffFiber = false
+      if (zero !== onFiber) {
+        diffFiber = false
+      }
+
       // |dh|^2 = |Y|^2 - (Y . QI)^2 / 4 (the doubled form of 4 (|y|^2 / 2 - <M y, q i>^2))
-      if (4 * dot(dh, dh) !== 4 * dot(Y, Y) - dot(Y, QI) ** 2) diffNorm = false
+      if (4 * dot(dh, dh) !== 4 * dot(Y, Y) - dot(Y, QI) ** 2) {
+        diffNorm = false
+      }
     }
   }
 
   // W(D4): every relabeling by the group generated by the root reflections keeps frames = axes
-  const group = new Map<string, Int32Array>([[key(Array.from({ length: 24 }, (_, d) => d)), Int32Array.from({ length: 24 }, (_, d) => d)]])
+  const group = new Map<string, Int32Array>([
+    [
+      key(Array.from({ length: 24 }, (_, d) => d)),
+      Int32Array.from({ length: 24 }, (_, d) => d),
+    ],
+  ])
   const gens = Array.from({ length: 24 }, (_, k) => rootReflection(k))
 
   for (const g of group.values()) {
@@ -355,28 +501,55 @@ export function hopfReadingRun(plan: HopfPlan) {
       const p = composePermutations(h, g)
       const k = key(Array.from(p))
 
-      if (!group.has(k)) group.set(k, p)
+      if (!group.has(k)) {
+        group.set(k, p)
+      }
     }
-    if (group.size > 2000) break
+
+    if (group.size > 2000) {
+      break
+    }
   }
 
-  const wd4Keeps = [...group.values()].filter(p => framesAreAxes(Array.from(p, d => LR[d] as number[])).axes === 3).length
-  const H1 = corner.every(c => c >= 0) && perCorner.every(ds => ds.length === 4) && circles && fa.axes === 3 && cosetsAreFrames && linesAreT && diffIntegral && diffRadial && diffFiber && diffNorm && group.size === 192 && wd4Keeps === 192
+  const wd4Keeps = [...group.values()].filter(
+    p => framesAreAxes(Array.from(p, d => LR[d]!)).axes === 3,
+  ).length
+  const H1 =
+    corner.every(c => c >= 0) &&
+    perCorner.every(ds => ds.length === 4) &&
+    circles &&
+    fa.axes === 3 &&
+    cosetsAreFrames &&
+    linesAreT &&
+    diffIntegral &&
+    diffRadial &&
+    diffFiber &&
+    diffNorm &&
+    group.size === 192 &&
+    wd4Keeps === 192
 
-  log(`H1 ${H1}: corners ${perCorner.map(ds => ds.length).join(',')}, circles ${circles}, frames=axes ${fa.axes}/3, cosets ${cosetsAreFrames}, T ${linesAreT} (orders ${census.join(',')}, homomorphism ${homomorphism}, tetra ${keepsTetra}, column ${cornerIsColumn}), differential ${diffIntegral}/${diffRadial}/${diffFiber}/${diffNorm}, W(D4) ${group.size} keeps ${wd4Keeps}`)
+  log(
+    `H1 ${H1}: corners ${perCorner.map(ds => ds.length).join(',')}, circles ${circles}, frames=axes ${fa.axes}/3, cosets ${cosetsAreFrames}, T ${linesAreT} (orders ${census.join(',')}, homomorphism ${homomorphism}, tetra ${keepsTetra}, column ${cornerIsColumn}), differential ${diffIntegral}/${diffRadial}/${diffFiber}/${diffNorm}, W(D4) ${group.size} keeps ${wd4Keeps}`,
+  )
 
   // C1: a Weyl relabeling breaks it
   const perm = weylPermutation({ size: 24, start: 1 })
   const scrambled = perm.map(d => ROOTS[d] as number[])
   const c1Read = framesAreAxes(scrambled)
-  const c1Lines = LINE_FIRSTS.filter(f => key((scrambled[f] as number[]).map(x => -x)) === key(scrambled[OPPOSITE[f] as number] as number[])).length
+  const c1Lines = LINE_FIRSTS.filter(
+    f =>
+      key(scrambled[f]!.map(x => -x)) === key(scrambled[OPPOSITE[f]!]!),
+  ).length
   const C1 = c1Read.axes < 3
 
-  log(`C1 ${C1}: scrambled frames=axes ${c1Read.axes}/3, lines kept antipodal ${c1Lines}/12`)
+  log(
+    `C1 ${C1}: scrambled frames=axes ${c1Read.axes}/3, lines kept antipodal ${c1Lines}/12`,
+  )
 
   // ---------------- H2: the true mesh ----------------
   const coin = labelledCoin()
   const layer = layerShadows(coin, plan.skin)
+
   let cuspsDual = 0
   let rootErr = 0
   let tiltAgree = 0
@@ -385,44 +558,66 @@ export function hopfReadingRun(plan: HopfPlan) {
   let agreeDocks = 0
   let axesNine = 0
   let signedCollisions = 0
+
   const mapKeys = new Set<string>()
   const directed: number[][] = []
   const globalFrameOfAxis = new Map<string, Set<number>>()
   const globalCornerOfDir = new Map<string, Set<number>>()
   const cuspTypes = new Map<string, number>()
-  const dirKey = (v: readonly number[]): string => v.map(x => (Math.abs(x) < 1e-9 ? 0 : x).toFixed(6)).join(',')
+  const dirKey = (v: readonly number[]): string =>
+    v.map(x => (Math.abs(x) < 1e-9 ? 0 : x).toFixed(6)).join(',')
+
   const axisKey = (v: readonly number[]): string => {
     const lead = v.findIndex(x => Math.abs(x) > 1e-9)
 
-    return dirKey((v[lead] as number) < 0 ? v.map(x => -x) : v)
+    return dirKey(v[lead]! < 0 ? v.map(x => -x) : v)
   }
 
   for (const dock of layer.docks) {
     const u = dock.cusp
 
-    if (isDualUnit(u)) cuspsDual++
-    cuspTypes.set(u.filter(x => Math.abs(x) > 1e-9).length === 1 ? 'e_i' : 'half', (cuspTypes.get(u.filter(x => Math.abs(x) > 1e-9).length === 1 ? 'e_i' : 'half') ?? 0) + 1)
+    if (isDualUnit(u)) {
+      cuspsDual++
+    }
+
+    cuspTypes.set(
+      u.filter(x => Math.abs(x) > 1e-9).length === 1 ? 'e_i' : 'half',
+      (cuspTypes.get(
+        u.filter(x => Math.abs(x) > 1e-9).length === 1 ? 'e_i' : 'half',
+      ) ?? 0) + 1,
+    )
     rootErr = Math.max(rootErr, dock.rootError)
 
     const g = dock.lines.map(l => {
-      const r = LR[l.slot] as number[]
-      const s = r.map((x, k) => x - dot(r, u) * (u[k] as number))
+      const r = LR[l.slot]!
+      const s = r.map((x, k) => x - dot(r, u) * u[k]!)
       const n = Math.hypot(...s)
 
       return s.map(x => x / n)
     })
 
     dock.lines.forEach((l, i) => {
-      const tilted = Math.abs(dot(LR[l.slot] as number[], u)) > 1e-9
+      const tilted = Math.abs(dot(LR[l.slot]!, u)) > 1e-9
 
-      if (tilted === (l.onLayer === 2)) tiltAgree++
-      dock.lines.forEach((m, j) => (gramWorst = Math.max(gramWorst, Math.abs(dot(l.direction, m.direction) - dot(g[i] as number[], g[j] as number[])))))
+      if (tilted === (l.onLayer === 2)) {
+        tiltAgree++
+      }
+
+      dock.lines.forEach(
+        (m, j) =>
+          (gramWorst = Math.max(
+            gramWorst,
+            Math.abs(dot(l.direction, m.direction) - dot(g[i]!, g[j]!)),
+          )),
+      )
     })
 
     // undirected axes and frames
     const axes: number[][] = []
     const axisOf = dock.lines.map(l => {
-      let a = axes.findIndex(b => Math.abs(Math.abs(dot(b, l.direction)) - 1) < 1e-9)
+      let a = axes.findIndex(
+        b => Math.abs(Math.abs(dot(b, l.direction)) - 1) < 1e-9,
+      )
 
       if (a < 0) {
         axes.push(l.direction)
@@ -431,17 +626,27 @@ export function hopfReadingRun(plan: HopfPlan) {
 
       return a
     })
-    const frameOf = dock.lines.map(l => FRAME_OF_SLOT[l.slot] as number)
-    const axisFrame = axes.map((_, a) => new Set(frameOf.filter((_, i) => axisOf[i] === a)))
+    const frameOf = dock.lines.map(l => FRAME_OF_SLOT[l.slot]!)
+    const axisFrame = axes.map(
+      (_, a) => new Set(frameOf.filter((_, i) => axisOf[i] === a)),
+    )
+
     let frameShape = true
+
     const frameAxis: number[] = []
 
     for (let F = 0; F < 3; F++) {
-      const mine = dock.lines.map((l, i) => ({ l, i })).filter(({ i }) => frameOf[i] === F)
+      const mine = dock.lines
+        .map((l, i) => ({ l, i }))
+        .filter(({ i }) => frameOf[i] === F)
       const tilted = mine.filter(({ l }) => l.onLayer === 2)
       const flat = mine.filter(({ l }) => l.onLayer !== 2)
 
-      if (tilted.length !== 2 || flat.length !== 2 || axisOf[tilted[0]!.i] !== axisOf[tilted[1]!.i]) {
+      if (
+        tilted.length !== 2 ||
+        flat.length !== 2 ||
+        axisOf[tilted[0]!.i] !== axisOf[tilted[1]!.i]
+      ) {
         frameShape = false
         frameAxis.push(-1)
         continue
@@ -451,114 +656,218 @@ export function hopfReadingRun(plan: HopfPlan) {
       const b = flat[0]!.l.direction
       const c = flat[1]!.l.direction
 
-      if (!(Math.abs(dot(a, b)) < 1e-9 && Math.abs(dot(a, c)) < 1e-9 && Math.abs(dot(b, c)) < 1e-9)) frameShape = false
-      frameAxis.push(a.reduce((m, x, k) => (Math.abs(x) > Math.abs(a[m] as number) ? k : m), 0))
+      if (
+        !(
+          Math.abs(dot(a, b)) < 1e-9 &&
+          Math.abs(dot(a, c)) < 1e-9 &&
+          Math.abs(dot(b, c)) < 1e-9
+        )
+      ) {
+        frameShape = false
+      }
+
+      frameAxis.push(
+        a.reduce(
+          (m, x, k) => (Math.abs(x) > Math.abs(a[m]!) ? k : m),
+          0,
+        ),
+      )
     }
 
-    if (axes.length === 9) axesNine++
-    if (axes.length === 9 && axisFrame.every(s => s.size === 1) && frameShape) refineDocks++
+    if (axes.length === 9) {
+      axesNine++
+    }
+
+    if (
+      axes.length === 9 &&
+      axisFrame.every(s => s.size === 1) &&
+      frameShape
+    ) {
+      refineDocks++
+    }
+
     mapKeys.add(frameAxis.join(','))
 
     // signed: over the 24 slots, directed shadow <-> corner
     const slots = dock.lines.flatMap(l => [
       { d: l.slot, dir: l.direction },
-      { d: OPPOSITE[l.slot] as number, dir: l.direction.map(x => -x) },
+      { d: OPPOSITE[l.slot]!, dir: l.direction.map(x => -x) },
     ])
     const cornersOfDir = new Map<string, Set<number>>()
     const dirsOfCorner = new Map<number, Set<string>>()
 
     for (const s of slots) {
-      const c = hopfCorner(LR[s.d] as number[])
+      const c = hopfCorner(LR[s.d]!)
       const k = dirKey(s.dir)
 
-      if (!cornersOfDir.has(k)) cornersOfDir.set(k, new Set())
+      if (!cornersOfDir.has(k)) {
+        cornersOfDir.set(k, new Set())
+      }
+
       cornersOfDir.get(k)!.add(c)
-      if (!dirsOfCorner.has(c)) dirsOfCorner.set(c, new Set())
+
+      if (!dirsOfCorner.has(c)) {
+        dirsOfCorner.set(c, new Set())
+      }
+
       dirsOfCorner.get(c)!.add(k)
-      if (!globalCornerOfDir.has(k)) globalCornerOfDir.set(k, new Set())
+
+      if (!globalCornerOfDir.has(k)) {
+        globalCornerOfDir.set(k, new Set())
+      }
+
       globalCornerOfDir.get(k)!.add(c)
-      if (!directed.some(v => dirKey(v) === k)) directed.push(s.dir)
+
+      if (!directed.some(v => dirKey(v) === k)) {
+        directed.push(s.dir)
+      }
     }
 
     dock.lines.forEach((l, i) => {
       const k = axisKey(l.direction)
 
-      if (!globalFrameOfAxis.has(k)) globalFrameOfAxis.set(k, new Set())
-      globalFrameOfAxis.get(k)!.add(frameOf[i] as number)
+      if (!globalFrameOfAxis.has(k)) {
+        globalFrameOfAxis.set(k, new Set())
+      }
+
+      globalFrameOfAxis.get(k)!.add(frameOf[i]!)
     })
 
-    const collisions = [...cornersOfDir.values()].filter(s => s.size > 1).length
+    const collisions = [...cornersOfDir.values()].filter(
+      s => s.size > 1,
+    ).length
 
     signedCollisions += collisions
-    if (collisions === 0 && [...dirsOfCorner.values()].every(s => s.size === 1)) agreeDocks++
+
+    if (
+      collisions === 0 &&
+      [...dirsOfCorner.values()].every(s => s.size === 1)
+    ) {
+      agreeDocks++
+    }
   }
 
   const nDocks = layer.docks.length
   const nLines = nDocks * 12
   const H2 = agreeDocks === nDocks
   const H2r = refineDocks === nDocks
-  const globalFrameFunction = [...globalFrameOfAxis.values()].every(s => s.size === 1)
-  const globalCornerFunction = [...globalCornerOfDir.values()].every(s => s.size === 1)
-  const I2 = cuspsDual === nDocks && rootErr < 1e-9 && tiltAgree === nLines && gramWorst <= GRAM && directed.length === 18 && layer.axesError < 1e-9
+  const globalFrameFunction = [...globalFrameOfAxis.values()].every(
+    s => s.size === 1,
+  )
+  const globalCornerFunction = [...globalCornerOfDir.values()].every(
+    s => s.size === 1,
+  )
+  const I2 =
+    cuspsDual === nDocks &&
+    rootErr < 1e-9 &&
+    tiltAgree === nLines &&
+    gramWorst <= GRAM &&
+    directed.length === 18 &&
+    layer.axesError < 1e-9
 
-  log(`H2 ${H2} (agree ${agreeDocks}/${nDocks}, signed collisions ${signedCollisions}); H2r ${H2r} (${refineDocks}/${nDocks}, 9 axes at ${axesNine}); H2g maps ${mapKeys.size} [${[...mapKeys].join(' | ')}], frame of chart axis global ${globalFrameFunction} (${globalFrameOfAxis.size} axes), corner of chart direction global ${globalCornerFunction}; I2 ${I2}: cusps dual ${cuspsDual}, types ${JSON.stringify([...cuspTypes])}, root error ${rootErr.toExponential(2)}, tilt ${tiltAgree}/${nLines}, Gram ${gramWorst.toExponential(2)}, directed ${directed.length}`)
+  log(
+    `H2 ${H2} (agree ${agreeDocks}/${nDocks}, signed collisions ${signedCollisions}); H2r ${H2r} (${refineDocks}/${nDocks}, 9 axes at ${axesNine}); H2g maps ${mapKeys.size} [${[...mapKeys].join(' | ')}], frame of chart axis global ${globalFrameFunction} (${globalFrameOfAxis.size} axes), corner of chart direction global ${globalCornerFunction}; I2 ${I2}: cusps dual ${cuspsDual}, types ${JSON.stringify([...cuspTypes])}, root error ${rootErr.toExponential(2)}, tilt ${tiltAgree}/${nLines}, Gram ${gramWorst.toExponential(2)}, directed ${directed.length}`,
+  )
 
   // ---------------- H3: the readings ----------------
-  const shadows = dualUnits().map(u => shadowReading(u, `shadow ${u.join(' ')}`))
+  const shadows = dualUnits().map(u =>
+    shadowReading(u, `shadow ${u.join(' ')}`),
+  )
   const box = shadowReading([0, 0, 0, 1], 'box')
   const hopf = hopfReading()
-  const hopfD = Array.from({ length: 24 }, (_, q) => hopfDifferentialReading(q))
+  const hopfD = Array.from({ length: 24 }, (_, q) =>
+    hopfDifferentialReading(q),
+  )
   const all: Reading[] = [...shadows, hopf, ...hopfD]
   const axesOk = [...shadows, box].every(r => r.axesOk)
   const B = rootIndex([1, 1, 0, 0])
   const F = lineFrame(B)
-  const frameSet = new Set(FRAME_SLOTS[F] as readonly number[])
+  const frameSet = new Set(FRAME_SLOTS[F])
   const uniform24 = ROOTS.map(r => ({ w: 1, x: r }))
-  const uniformFrame = [...frameSet].map(d => ({ w: 1, x: ROOTS[d] as number[] }))
+  const uniformFrame = [...frameSet].map(d => ({
+    w: 1,
+    x: ROOTS[d] as number[],
+  }))
   const r24 = readAll(all, uniform24, false)
   const rFrame = readAll(all, uniformFrame, false)
-  const qInFrame = (name: string): boolean => frameSet.has(Number(name.split(' ')[1]))
-  const near = (x: number, y: number, tol = EXACT): boolean => Math.abs(x - y) <= tol
-  const exact24 = r24.every(s => (s.family === 'hopf' ? near(s.A2, 0) && near(s.A4, 7 / 12) : near(s.A2, 0) && near(s.A4, 0) && near(s.nullShare, s.family === 'shadow' ? 0 : 1 / 12)))
+  const qInFrame = (name: string): boolean =>
+    frameSet.has(Number(name.split(' ')[1]))
+  const near = (x: number, y: number, tol = EXACT): boolean =>
+    Math.abs(x - y) <= tol
+  const exact24 = r24.every(s =>
+    s.family === 'hopf'
+      ? near(s.A2, 0) && near(s.A4, 7 / 12)
+      : near(s.A2, 0) &&
+        near(s.A4, 0) &&
+        near(s.nullShare, s.family === 'shadow' ? 0 : 1 / 12),
+  )
   const exactFrame = rFrame.every(s => {
-    if (s.family === 'hopf') return near(s.A2, 1) && near(s.A4, 1)
-    if (s.family === 'shadow') return near(s.A2, 0) && near(s.A4, 3 / 5)
+    if (s.family === 'hopf') {
+      return near(s.A2, 1) && near(s.A4, 1)
+    }
 
-    return qInFrame(s.name) ? near(s.A2, 0) && near(s.A4, 7 / 12) && near(s.nullShare, 1 / 4) : near(s.A2, 0) && near(s.A4, 7 / 27) && near(s.nullShare, 0)
+    if (s.family === 'shadow') {
+      return near(s.A2, 0) && near(s.A4, 3 / 5)
+    }
+
+    return qInFrame(s.name)
+      ? near(s.A2, 0) && near(s.A4, 7 / 12) && near(s.nullShare, 1 / 4)
+      : near(s.A2, 0) && near(s.A4, 7 / 27) && near(s.nullShare, 0)
   })
-  const wavePredicted: Record<Reading['family'], number[]> = { shadow: [1 / 2, 1 / 4, 1 / 4, 1 / 6], hopf: [2 / 3, 1 / 3, 0, 1 / 3], 'hopf-differential': [1 / 4, 1 / 2, 1 / 12, 1 / 6] }
+  const wavePredicted: Record<Reading['family'], number[]> = {
+    shadow: [1 / 2, 1 / 4, 1 / 4, 1 / 6],
+    hopf: [2 / 3, 1 / 3, 0, 1 / 3],
+    'hopf-differential': [1 / 4, 1 / 2, 1 / 12, 1 / 6],
+  }
   const waves = [...all, box].map(r => {
     const pts = uniform24.map(p => ({ w: 1, x: r.read(p.x) }))
 
-    return { name: r.name, family: r.family, frozen: WAVE_DIRECTIONS.map(d => frozenShare(pts, d.n)) }
+    return {
+      name: r.name,
+      family: r.family,
+      frozen: WAVE_DIRECTIONS.map(d => frozenShare(pts, d.n)),
+    }
   })
-  const exactWave = waves.every(w => w.frozen.every((x, i) => near(x, wavePredicted[w.family][i] as number)))
+  const exactWave = waves.every(w =>
+    w.frozen.every((x, i) => near(x, wavePredicted[w.family][i]!)),
+  )
 
-  log(`H3 exact: uniform 24 ${exact24}, uniform frame ${exactFrame}, waves ${exactWave}`)
+  log(
+    `H3 exact: uniform 24 ${exact24}, uniform frame ${exactFrame}, waves ${exactWave}`,
+  )
 
   // V singlet: the massless swap pair
   const Ps = dockMatrix(Math.PI, SWAP_N, true)
-  const dirs2I = binaryIcosahedral().quat as number[][]
+  const dirs2I = binaryIcosahedral().quat!
   const singletV: { w: number; x: number[] }[] = []
   const singletSlots = new Float64Array(24)
   const movingCounts = new Set<number>()
+
   let singletTop = 0
   let singletLow = Infinity
 
   for (const n of dirs2I) {
-    const b = bandSlots(Ps, DOCK_ROOTS, n.map(x => x * plan.kappa))
+    const b = bandSlots(
+      Ps,
+      DOCK_ROOTS,
+      n.map(x => x * plan.kappa),
+    )
+
     let moving = 0
 
     b.velocity.forEach((v, i) => {
       const s = Math.hypot(...v)
 
-      if (s <= 1e-6) return
+      if (s <= 1e-6) {
+        return
+      }
+
       moving++
       singletTop = Math.max(singletTop, s / C)
       singletLow = Math.min(singletLow, s / C)
       singletV.push({ w: 1, x: v })
 
-      const w = b.weight[i] as Float64Array
+      const w = b.weight[i]!
       const tot = w.reduce((a, x) => a + x, 0)
 
       w.forEach((x, q) => (singletSlots[q]! += x / tot))
@@ -566,47 +875,83 @@ export function hopfReadingRun(plan: HopfPlan) {
     movingCounts.add(moving)
   }
 
-  const singletR = readAll(all, ROOTS.map((r, q) => ({ w: singletSlots[q] as number, x: r })), false)
+  const singletR = readAll(
+    all,
+    ROOTS.map((r, q) => ({ w: singletSlots[q]!, x: r })),
+    false,
+  )
   const singletVS = readAll(all, singletV, false)
-  const measuredSinglet = singletR.every((s, i) => Math.abs(s.A2 - (r24[i] as ReadStats).A2) <= MEASURED_SINGLET && Math.abs(s.A4 - (r24[i] as ReadStats).A4) <= MEASURED_SINGLET)
+  const measuredSinglet = singletR.every(
+    (s, i) =>
+      Math.abs(s.A2 - r24[i]!.A2) <= MEASURED_SINGLET &&
+      Math.abs(s.A4 - r24[i]!.A4) <= MEASURED_SINGLET,
+  )
   const singletIso = singletVS.every(s => s.A2 <= ISO && s.A4 <= ISO)
 
-  log(`V singlet: ${singletV.length} moving band points, moving per K ${[...movingCounts].join(',')}, speed ${f6(singletLow)}..${f6(singletTop)} c; iso ${singletIso}; measured R ${measuredSinglet}`)
+  log(
+    `V singlet: ${singletV.length} moving band points, moving per K ${[...movingCounts].join(',')}, speed ${f6(singletLow)}..${f6(singletTop)} c; iso ${singletIso}; measured R ${measuredSinglet}`,
+  )
 
   // V frame: E-SPN-0136's F2 point
   const Pf = frameMatrix(WORKING, FRAME_N, true)
   const fRoots = frameRoots(F)
   const frameV: { w: number; x: number[] }[] = []
 
-  for (const K of weylMomenta(plan.frameMomenta)) for (const v of bandSlots(Pf, fRoots, K).velocity) frameV.push({ w: 1, x: v })
+  for (const K of weylMomenta(plan.frameMomenta)) {
+    for (const v of bandSlots(Pf, fRoots, K).velocity) {
+      frameV.push({ w: 1, x: v })
+    }
+  }
 
   const frameVS = readAll([...all, box], frameV, true)
   const frameAniso = frameVS.every(s => s.spread >= SPREAD)
-  const boxFrame = frameVS[frameVS.length - 1] as ReadStats
-  const boxE13 = (boxFrame.top[4] as number) / C
-  const boxE1 = (boxFrame.top[0] as number) / C
+  const boxFrame = frameVS[frameVS.length - 1]!
+  const boxE13 = boxFrame.top[4]! / C
+  const boxE1 = boxFrame.top[0]! / C
 
-  log(`V frame: ${frameV.length} points, aniso ${frameAniso}; box top ${boxFrame.top.map(x => f6(x / C)).join(' ')}`)
+  log(
+    `V frame: ${frameV.length} points, aniso ${frameAniso}; box top ${boxFrame.top.map(x => f6(x / C)).join(' ')}`,
+  )
 
-  const H3 = exact24 && exactFrame && exactWave && measuredSinglet && singletIso && frameAniso
+  const H3 =
+    exact24 &&
+    exactFrame &&
+    exactWave &&
+    measuredSinglet &&
+    singletIso &&
+    frameAniso
 
   // ---------------- H4 ----------------
   const agrees = (family: Reading['family']): boolean =>
-    singletVS.filter(s => s.family === family).every(s => s.A2 <= ISO && s.A4 <= ISO) &&
-    frameVS.filter(s => s.family === family).every(s => s.spread >= SPREAD || s.A4 >= ANISO) &&
-    waves.filter(w => w.family === family).every(w => Math.max(...w.frozen) - Math.min(...w.frozen) >= ANISO)
+    singletVS
+      .filter(s => s.family === family)
+      .every(s => s.A2 <= ISO && s.A4 <= ISO) &&
+    frameVS
+      .filter(s => s.family === family)
+      .every(s => s.spread >= SPREAD || s.A4 >= ANISO) &&
+    waves
+      .filter(w => w.family === family)
+      .every(
+        w => Math.max(...w.frozen) - Math.min(...w.frozen) >= ANISO,
+      )
   const agreeShadow = agrees('shadow')
   const agreeHopf = agrees('hopf')
   const agreeHopfD = agrees('hopf-differential')
   const H4 = agreeShadow !== agreeHopf
 
-  log(`H4 ${H4}: shadow ${agreeShadow}, hopf ${agreeHopf}, hopf-d ${agreeHopfD}`)
+  log(
+    `H4 ${H4}: shadow ${agreeShadow}, hopf ${agreeHopf}, hopf-d ${agreeHopfD}`,
+  )
 
   // ---------------- reported: dock mixer V, frame displacement D, the wave's frozen corners ----------------
   const Pd = dockMatrix(WORKING, DOCK_N, true)
   const dockV: { w: number; x: number[] }[] = []
 
-  for (const K of weylMomenta(plan.dockMomenta)) for (const v of bandSlots(Pd, DOCK_ROOTS, K).velocity) dockV.push({ w: 1, x: v })
+  for (const K of weylMomenta(plan.dockMomenta)) {
+    for (const v of bandSlots(Pd, DOCK_ROOTS, K).velocity) {
+      dockV.push({ w: 1, x: v })
+    }
+  }
 
   const dockVS = readAll([...all, box], dockV, true)
 
@@ -615,19 +960,26 @@ export function hopfReadingRun(plan: HopfPlan) {
   const Pr = ruleFrameMatrix(F, true)
   const ruleGap = matrixGap(Pr, frameMatrix(WORKING, 1, true))
   const disp = new Map<string, { v: number[]; w: number }>()
+
   let normsExact = true
 
   for (let s0 = 0; s0 < 8; s0++) {
     exactWalk(Pr, fRoots, s0, plan.walkBeats, (t, sites) => {
-      if (t !== plan.walkBeats) return
+      if (t !== plan.walkBeats) {
+        return
+      }
 
       let total = 0n
+
       const unit = 256n ** BigInt(t)
 
       for (const s of sites.values()) {
         let w = 0n
 
-        for (const a of s.amp) w += eNorm(a)
+        for (const a of s.amp) {
+          w += eNorm(a)
+        }
+
         total += w
 
         const k = s.v.join(',')
@@ -637,7 +989,9 @@ export function hopfReadingRun(plan: HopfPlan) {
         disp.set(k, o)
       }
 
-      if (total !== unit) normsExact = false
+      if (total !== unit) {
+        normsExact = false
+      }
     })
   }
 
@@ -655,27 +1009,65 @@ export function hopfReadingRun(plan: HopfPlan) {
     const hist = CORNER_NAMES.map(() => 0)
 
     ROOTS.forEach(r => {
-      if (dot(r, m) === 0) hist[hopfCorner(r)]!++
+      if (dot(r, m) === 0) {
+        hist[hopfCorner(r)]!++
+      }
     })
 
-    return `${m.join('')}: ${CORNER_NAMES.map((n, i) => (hist[i] ? `${n} x${hist[i]}` : '')).filter(Boolean).join(' ')}`
+    return `${m.join('')}: ${CORNER_NAMES.map((n, i) =>
+      hist[i] ? `${n} x${hist[i]}` : '',
+    )
+      .filter(Boolean)
+      .join(' ')}`
   })
 
   // ---------------- instrument and verdict ----------------
-  const I1 = rootTablesAgree() && ROOTS.every((r, d) => key(r) === key(LR[d] as number[])) && ruleGap <= EXACT && axesOk && normsExact
-  const Isinglet = movingCounts.size === 1 && movingCounts.has(2) && singletTop <= 0.5 * (1 + 1e-9) && singletLow >= 0.49
-  const Ibox = boxE13 >= 0.45 && boxE13 <= 0.5 + 1e-9 && boxE1 >= 0.65 && boxE1 <= 0.7072
+  const I1 =
+    rootTablesAgree() &&
+    ROOTS.every((r, d) => key(r) === key(LR[d]!)) &&
+    ruleGap <= EXACT &&
+    axesOk &&
+    normsExact
+  const Isinglet =
+    movingCounts.size === 1 &&
+    movingCounts.has(2) &&
+    singletTop <= 0.5 * (1 + 1e-9) &&
+    singletLow >= 0.49
+  const Ibox =
+    boxE13 >= 0.45 &&
+    boxE13 <= 0.5 + 1e-9 &&
+    boxE1 >= 0.65 &&
+    boxE1 <= 0.7072
   const instrument = I1 && I2 && Isinglet && Ibox
-  const status = !instrument || !C1 ? 'partial' : H1 && H2 && H3 && H4 ? 'pass' : 'fail'
-  const fam = (xs: readonly ReadStats[], family: Reading['family'], f: (s: ReadStats) => number): string => range(xs.filter(s => s.family === family).map(f))
-  const famLine = (label: string, xs: readonly ReadStats[], support: boolean): string =>
+  const status =
+    !instrument || !C1
+      ? 'partial'
+      : H1 && H2 && H3 && H4
+        ? 'pass'
+        : 'fail'
+  const fam = (
+    xs: readonly ReadStats[],
+    family: Reading['family'],
+    f: (s: ReadStats) => number,
+  ): string => range(xs.filter(s => s.family === family).map(f))
+  const famLine = (
+    label: string,
+    xs: readonly ReadStats[],
+    support: boolean,
+  ): string =>
     `${label}: shadow A2 ${fam(xs, 'shadow', s => s.A2)} A4 ${fam(xs, 'shadow', s => s.A4)}${support ? ` spread ${fam(xs, 'shadow', s => s.spread)}` : ''}; hopf A2 ${fam(xs, 'hopf', s => s.A2)} A4 ${fam(xs, 'hopf', s => s.A4)}${support ? ` spread ${fam(xs, 'hopf', s => s.spread)}` : ''}; hopf-d A2 ${fam(xs, 'hopf-differential', s => s.A2)} A4 ${fam(xs, 'hopf-differential', s => s.A4)} null ${fam(xs, 'hopf-differential', s => s.nullShare)}${support ? ` spread ${fam(xs, 'hopf-differential', s => s.spread)}` : ''}`
+
   const boxOf = (xs: readonly ReadStats[]): string => {
-    const s = xs.find(x => x.name === 'box') as ReadStats
+    const s = xs.find(x => x.name === 'box')!
 
     return `box A2 ${f6(s.A2)} A4 ${f6(s.A4)} spread ${f6(s.spread)}`
   }
-  const hopfTop = (xs: readonly ReadStats[]): string => (xs.find(x => x.family === 'hopf') as ReadStats).top.map(f6).join(' ')
+
+  const hopfTop = (xs: readonly ReadStats[]): string =>
+    xs
+      .find(x => x.family === 'hopf')!
+      .top.map(f6)
+      .join(' ')
   const metrics: Record<string, number> = {
     H1: H1 ? 1 : 0,
     H2: H2 ? 1 : 0,
@@ -714,6 +1106,17 @@ export function hopfReadingRun(plan: HopfPlan) {
     claim: `H1 ${H1} (24 roots on the 6 corners 4 each in circles {q, qi, -q, -qi}; frames = axes ${fa.axes}/3 = the Q8 cosets; lines = the 12 rotations of T; the differential kills exactly the fiber line; W(D4) keeps it on ${wd4Keeps}/${group.size}; a Weyl relabeling breaks it, ${c1Read.axes}/3); H2 ${H2} (signed corner and directed shadow agree at ${agreeDocks} of ${nDocks} layer docks, ${signedCollisions} directed shadows carry two corners); H2r ${H2r} (the 9 shadow axes refine the 3 Hopf axes at ${refineDocks} of ${nDocks} docks); H2g ${mapKeys.size} frame-to-axis maps over the docks, frame a function of the chart axis globally ${globalFrameFunction}; H3 ${H3} (exact rows ${exact24}/${exactFrame}/${exactWave}, measured singlet ${measuredSinglet}, V singlet isotropic ${singletIso}, V frame anisotropic ${frameAniso}); H4 ${H4} (agree with every measured case: shadow ${agreeShadow}, hopf ${agreeHopf}, hopf-d ${agreeHopfD}); C1 ${C1}; instrument ${instrument}`,
     metrics,
     control: { C1: C1 ? 1 : 0, instrument: instrument ? 1 : 0 },
-    notes: `L1 and L2. Cusp types over the layer docks ${JSON.stringify([...cuspTypes])}; frame -> chart axis maps ${[...mapKeys].join(' | ')}. ${famLine('R uniform 24', r24, false)}. ${famLine('R uniform frame', rFrame, false)}. ${famLine('R measured singlet', singletR, false)}. ${famLine('V singlet', singletVS, false)}. ${famLine('V frame', frameVS, true)}; ${boxOf(frameVS)}; box top ${boxFrame.top.map(x => f6(x / C)).join(' ')} c; hopf top ${hopfTop(frameVS)}. ${famLine('V dock (reported)', dockVS, true)}; ${boxOf(dockVS)}; hopf top ${hopfTop(dockVS)}. ${famLine(`D frame beat ${plan.walkBeats} (reported)`, dispS, true)}; ${boxOf(dispS)}. Waves (frozen share axis/face/body/generic): shadow ${waves.find(w => w.family === 'shadow')!.frozen.map(f6).join('/')}, hopf ${waves.find(w => w.family === 'hopf')!.frozen.map(f6).join('/')}, hopf-d ${waves.find(w => w.family === 'hopf-differential')!.frozen.map(f6).join('/')}. Box-wave frozen classes on the Hopf corners: ${frozenCorners.join('; ')}. Rule frame matrix gap ${ruleGap.toExponential(2)}; singlet speed ${f6(singletLow)}..${f6(singletTop)} c. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L1 and L2. Cusp types over the layer docks ${JSON.stringify([...cuspTypes])}; frame -> chart axis maps ${[...mapKeys].join(' | ')}. ${famLine('R uniform 24', r24, false)}. ${famLine('R uniform frame', rFrame, false)}. ${famLine('R measured singlet', singletR, false)}. ${famLine('V singlet', singletVS, false)}. ${famLine('V frame', frameVS, true)}; ${boxOf(frameVS)}; box top ${boxFrame.top.map(x => f6(x / C)).join(' ')} c; hopf top ${hopfTop(frameVS)}. ${famLine('V dock (reported)', dockVS, true)}; ${boxOf(dockVS)}; hopf top ${hopfTop(dockVS)}. ${famLine(`D frame beat ${plan.walkBeats} (reported)`, dispS, true)}; ${boxOf(dispS)}. Waves (frozen share axis/face/body/generic): shadow ${waves
+      .find(w => w.family === 'shadow')!
+      .frozen.map(f6)
+      .join('/')}, hopf ${waves
+      .find(w => w.family === 'hopf')!
+      .frozen.map(f6)
+      .join('/')}, hopf-d ${waves
+      .find(w => w.family === 'hopf-differential')!
+      .frozen.map(f6)
+      .join(
+        '/',
+      )}. Box-wave frozen classes on the Hopf corners: ${frozenCorners.join('; ')}. Rule frame matrix gap ${ruleGap.toExponential(2)}; singlet speed ${f6(singletLow)}..${f6(singletTop)} c. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

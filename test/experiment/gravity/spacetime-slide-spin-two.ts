@@ -95,49 +95,112 @@ import {
   slideGauge,
   type Offset,
 } from '@/code/measure/slide-invariant-operators'
-import { dyadicMod, multiplyMod, nullSpaceMod, primeBelow, rankMod } from '@/code/algebra/linear/modular-linear'
+import {
+  dyadicMod,
+  multiplyMod,
+  nullSpaceMod,
+  primeBelow,
+  rankMod,
+} from '@/code/algebra/linear/modular-linear'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const PRIMES = [primeBelow(2 ** 25), primeBelow(2 ** 24)]
 const GEOMETRY = classGeometry()
 const GROUP = classSymmetries(GEOMETRY, false)
-const SPAN_T = PLAIN_SLOTS.map((_, s) => GEOMETRY.span.map(row => row[s]!))
+const SPAN_T = PLAIN_SLOTS.map((_, s) =>
+  GEOMETRY.span.map(row => row[s]!),
+)
 const EXTRAS = extraBasis(GEOMETRY)
 const X = extraVectors(GEOMETRY)
-const UNIT12 = Array.from({ length: 12 }, (_, a) => Array.from({ length: 12 }, (__, b) => (a === b ? 1 : 0)))
+const UNIT12 = Array.from({ length: 12 }, (_, a) =>
+  Array.from({ length: 12 }, (__, b) => (a === b ? 1 : 0)),
+)
 const AUX = [...X.tilts, X.lapse]
 // the cross polarization along z (h_xy) on the depths
 const CROSS = SPAN_T[3]!
 const ORIGIN: Offset[] = [[0, 0, 0]]
 
-const toMod = (m: readonly (readonly number[])[], p: number): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
-const transposed = (m: readonly (readonly number[])[]): number[][] => (m.length === 0 ? [] : m[0]!.map((_, j) => m.map(row => row[j]!)))
+const toMod = (
+  m: readonly (readonly number[])[],
+  p: number,
+): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
+const transposed = (m: readonly (readonly number[])[]): number[][] =>
+  m.length === 0 ? [] : m[0]!.map((_, j) => m.map(row => row[j]!))
 const key3 = (r: readonly number[]): string => `${r[0]},${r[1]},${r[2]}`
 const one = (): number => 1
-const atOrigin = (r: Offset): boolean => r[0] === 0 && r[1] === 0 && r[2] === 0
+const atOrigin = (r: Offset): boolean =>
+  r[0] === 0 && r[1] === 0 && r[2] === 0
 
-type Variant = { name: string; slide: Slide; ranges: [Offset[], Offset[], Offset[]] }
+type Variant = {
+  name: string
+  slide: Slide
+  ranges: [Offset[], Offset[], Offset[]]
+}
 
-const TOWER: [Offset[], Offset[], Offset[]] = [ORIGIN, huskBall(1), huskBall(2)]
-const WIDE: [Offset[], Offset[], Offset[]] = [huskBall(1), huskBall(2), huskBall(2)]
+const TOWER: [Offset[], Offset[], Offset[]] = [
+  ORIGIN,
+  huskBall(1),
+  huskBall(2),
+]
+const WIDE: [Offset[], Offset[], Offset[]] = [
+  huskBall(1),
+  huskBall(2),
+  huskBall(2),
+]
 const LIGHT = { c: 1, shiftScale: 1, lapseScale: 1 }
 
 const VARIANTS: readonly Variant[] = [
-  { name: 'spacetime (primary)', slide: { kind: 'spacetime', ...LIGHT }, ranges: TOWER },
-  { name: 'static spatial (E-GRV-0138)', slide: { kind: 'static', ...LIGHT }, ranges: TOWER },
-  { name: 'spacetime, c 2, scales 2 and 1/2', slide: { kind: 'spacetime', c: 2, shiftScale: 2, lapseScale: 0.5 }, ranges: TOWER },
-  { name: 'spacetime, wide tower', slide: { kind: 'spacetime', ...LIGHT }, ranges: WIDE },
-  { name: 'foliation (no xi_0)', slide: { kind: 'foliation', ...LIGHT }, ranges: TOWER },
-  { name: 'xi_0 with no lapse slot', slide: { kind: 'no-lapse', ...LIGHT }, ranges: TOWER },
+  {
+    name: 'spacetime (primary)',
+    slide: { kind: 'spacetime', ...LIGHT },
+    ranges: TOWER,
+  },
+  {
+    name: 'static spatial (E-GRV-0138)',
+    slide: { kind: 'static', ...LIGHT },
+    ranges: TOWER,
+  },
+  {
+    name: 'spacetime, c 2, scales 2 and 1/2',
+    slide: { kind: 'spacetime', c: 2, shiftScale: 2, lapseScale: 0.5 },
+    ranges: TOWER,
+  },
+  {
+    name: 'spacetime, wide tower',
+    slide: { kind: 'spacetime', ...LIGHT },
+    ranges: WIDE,
+  },
+  {
+    name: 'foliation (no xi_0)',
+    slide: { kind: 'foliation', ...LIGHT },
+    ranges: TOWER,
+  },
+  {
+    name: 'xi_0 with no lapse slot',
+    slide: { kind: 'no-lapse', ...LIGHT },
+    ranges: TOWER,
+  },
 ]
 
 // the metric blocks (6 x 6 plain) the kinetic block is compared against: DeWitt |h|^2 - (tr h)^2, the |u|^4 weight,
 // and equal inertia per class
-const dewitt = PLAIN_SLOTS.map((_, s) => PLAIN_SLOTS.map((__, t) => (s === t ? (s < 3 ? 0 : 2) : s < 3 && t < 3 ? -1 : 0)))
+const dewitt = PLAIN_SLOTS.map((_, s) =>
+  PLAIN_SLOTS.map((__, t) =>
+    s === t ? (s < 3 ? 0 : 2) : s < 3 && t < 3 ? -1 : 0,
+  ),
+)
 const weightBlock = (w: (a: number) => number): number[][] =>
-  PLAIN_SLOTS.map((_, s) => PLAIN_SLOTS.map((__, t) => GEOMETRY.span.reduce((u, row, c) => u + w(c) * row[s]! * row[t]!, 0)))
-const REGGE = (a: number): number => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2
+  PLAIN_SLOTS.map((_, s) =>
+    PLAIN_SLOTS.map((__, t) =>
+      GEOMETRY.span.reduce(
+        (u, row, c) => u + w(c) * row[s]! * row[t]!,
+        0,
+      ),
+    ),
+  )
+const REGGE = (a: number): number =>
+  GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2
 const EQUAL = (): number => 1
 
 type Reads = {
@@ -184,22 +247,46 @@ function analyse(v: Variant, p: number): Reads {
   }
   const col = actionColumns(spaces)
   const W = col.width
-  const rows = toMod(slideRows(spaces, spacetimeSlide(GEOMETRY, v.slide), v.slide.kind), p)
+  const rows = toMod(
+    slideRows(spaces, spacetimeSlide(GEOMETRY, v.slide), v.slide.kind),
+    p,
+  )
   const basis = nullSpaceMod(rows, W, p)
   const basisT = transposed(basis)
   const dim = basis.length
-  const onFamily = (f: number[][]): number => (dim === 0 ? 0 : rankMod(multiplyMod(toMod(f, p), basisT, p), dim, p))
-  const M = (l: readonly (readonly number[])[], r: readonly (readonly number[])[], w: (x: Offset) => number, per: boolean, skip?: (x: Offset) => boolean): number[][] =>
+  const onFamily = (f: number[][]): number =>
+    dim === 0 ? 0 : rankMod(multiplyMod(toMod(f, p), basisT, p), dim, p)
+  const M = (
+    l: readonly (readonly number[])[],
+    r: readonly (readonly number[])[],
+    w: (x: Offset) => number,
+    per: boolean,
+    skip?: (x: Offset) => boolean,
+  ): number[][] =>
     sandwichRows(spaces.kinetic, col.kinetic, W, l, r, w, per, skip)
-  const N = (l: readonly (readonly number[])[], r: readonly (readonly number[])[], w: (x: Offset) => number, per: boolean, skip?: (x: Offset) => boolean): number[][] =>
+  const N = (
+    l: readonly (readonly number[])[],
+    r: readonly (readonly number[])[],
+    w: (x: Offset) => number,
+    per: boolean,
+    skip?: (x: Offset) => boolean,
+  ): number[][] =>
     sandwichRows(spaces.first, col.first, W, l, r, w, per, skip)
-  const K = (l: readonly (readonly number[])[], r: readonly (readonly number[])[], w: (x: Offset) => number, per: boolean, skip?: (x: Offset) => boolean): number[][] =>
+  const K = (
+    l: readonly (readonly number[])[],
+    r: readonly (readonly number[])[],
+    w: (x: Offset) => number,
+    per: boolean,
+    skip?: (x: Offset) => boolean,
+  ): number[][] =>
     sandwichRows(spaces.potential, col.potential, W, l, r, w, per, skip)
 
   // the metric kinetic block at p^0 (36 rows, s * 6 + t), and whether a target block is in the family's span of it
   const metricBlock = M(SPAN_T, SPAN_T, one, false)
-  const blockOnFamily = dim === 0 ? [] : multiplyMod(toMod(metricBlock, p), basisT, p)
+  const blockOnFamily =
+    dim === 0 ? [] : multiplyMod(toMod(metricBlock, p), basisT, p)
   const blockRank = dim === 0 ? 0 : rankMod(blockOnFamily, dim, p)
+
   const inSpan = (target: readonly (readonly number[])[]): boolean => {
     const columns = transposed(blockOnFamily)
     const t = target.flat().map(x => dyadicMod(x, p))
@@ -209,16 +296,27 @@ function analyse(v: Variant, p: number): Reads {
 
   // the sub-family whose M is diagonal per class (the rule's own per-register inertia), and its metric kinetic rank
   const allM = M(UNIT12, UNIT12, one, true)
-  const offDiagonal = allM.filter((_, i) => Math.floor((i % 144) / 12) !== i % 12)
+  const offDiagonal = allM.filter(
+    (_, i) => Math.floor((i % 144) / 12) !== i % 12,
+  )
+
   let diagonalMetricKinetic = 0
 
   if (dim > 0) {
-    const y = nullSpaceMod(multiplyMod(toMod(offDiagonal, p), basisT, p), dim, p)
+    const y = nullSpaceMod(
+      multiplyMod(toMod(offDiagonal, p), basisT, p),
+      dim,
+      p,
+    )
 
     if (y.length > 0) {
       const sub = multiplyMod(y, basis, p)
 
-      diagonalMetricKinetic = rankMod(multiplyMod(toMod(metricBlock, p), transposed(sub), p), sub.length, p)
+      diagonalMetricKinetic = rankMod(
+        multiplyMod(toMod(metricBlock, p), transposed(sub), p),
+        sub.length,
+        p,
+      )
     }
   }
 
@@ -230,19 +328,40 @@ function analyse(v: Variant, p: number): Reads {
 
   // E-GRV-0125's operator as potential-only parameters
   const eh = einsteinHilbertDepthKernel(GEOMETRY, p)
-  const index = new Map(spaces.potential.offsets.map((r, i) => [key3(r), i]))
+  const index = new Map(
+    spaces.potential.offsets.map((r, i) => [key3(r), i]),
+  )
+
   let ehOutside = 0
   let ehOrbitMismatch = 0
 
-  for (const [k, m] of eh) if (!index.has(k) && m.some(row => row.some(x => x !== 0))) ehOutside++
+  for (const [k, m] of eh) {
+    if (!index.has(k) && m.some(row => row.some(x => x !== 0))) {
+      ehOutside++
+    }
+  }
 
   const theta = new Array<number>(W).fill(0)
 
   spaces.potential.members.forEach((list, t) => {
     const [a0, b0, r0, sign0] = list[0]!
-    const value = ((eh.get(key3(spaces.potential.offsets[r0]!))?.[a0]![b0]! ?? 0) * sign0) % p
+    const value =
+      ((eh.get(key3(spaces.potential.offsets[r0]!))?.[a0]![b0]! ?? 0) *
+        sign0) %
+      p
 
-    for (const [a, b, r, sign] of list) if ((((eh.get(key3(spaces.potential.offsets[r]!))?.[a]![b]! ?? 0) * sign - value) % p) !== 0) ehOrbitMismatch++
+    for (const [a, b, r, sign] of list) {
+      if (
+        ((eh.get(key3(spaces.potential.offsets[r]!))?.[a]![b]! ?? 0) *
+          sign -
+          value) %
+          p !==
+        0
+      ) {
+        ehOrbitMismatch++
+      }
+    }
+
     theta[col.potential + t] = (value + p) % p
   })
 
@@ -269,7 +388,9 @@ function analyse(v: Variant, p: number): Reads {
     lapseConstraint: onFamily(K([X.lapse], SPAN_T, one, true)),
     lapseLapse: onFamily(K([X.lapse], [X.lapse], one, true)),
     doubletMass: onFamily(K(X.doublet, X.doublet, one, false)),
-    doubletDerivative: onFamily(K(X.doublet, X.doublet, one, true, atOrigin)),
+    doubletDerivative: onFamily(
+      K(X.doublet, X.doublet, one, true, atOrigin),
+    ),
     doubletCurvature: onFamily(K(X.doublet, SPAN_T, one, true)),
     extrasDerivative: onFamily(K(EXTRAS, EXTRAS, one, true, atOrigin)),
     crossMu: onFamily([mu]),
@@ -277,34 +398,75 @@ function analyse(v: Variant, p: number): Reads {
     crossTied: onFamily([tied]),
     crossMass: onFamily(K([CROSS], [CROSS], one, false)),
     crossFirstOrder: onFamily(N([CROSS], [CROSS], r => r[2], false)),
-    ehInFamily: rankMod(multiplyMod(rows, theta.map(x => [x]), p), 1, p) === 0,
+    ehInFamily:
+      rankMod(
+        multiplyMod(
+          rows,
+          theta.map(x => [x]),
+          p,
+        ),
+        1,
+        p,
+      ) === 0,
     ehOrbitMismatch,
     ehOutside,
   }
 }
 
 // E-GRV-0138's own route to its static family: the potential-only invariant count and its extras' derivative rank
-function reference(p: number): { invariant: number; extrasDerivative: number; parameters: number } {
+function reference(p: number): {
+  invariant: number
+  extrasDerivative: number
+  parameters: number
+} {
   const space = operatorSpace(huskBall(2), GROUP)
-  const rows = toMod(invarianceRows(space, slideGauge(GEOMETRY, 'central')), p)
+  const rows = toMod(
+    invarianceRows(space, slideGauge(GEOMETRY, 'central')),
+    p,
+  )
   const basis = nullSpaceMod(rows, space.members.length, p)
   const e = toMod(sandwichedKernel(space, EXTRAS, EXTRAS, atOrigin), p)
 
-  return { invariant: basis.length, extrasDerivative: rankMod(multiplyMod(e, transposed(basis), p), basis.length, p), parameters: space.members.length }
+  return {
+    invariant: basis.length,
+    extrasDerivative: rankMod(
+      multiplyMod(e, transposed(basis), p),
+      basis.length,
+      p,
+    ),
+    parameters: space.members.length,
+  }
 }
 
 // the TT polarizations' omega^2 / k^2 along an integer direction n (a, b integer and orthogonal to n and each other),
 // kinetic h . m . h with m a 6 x 6 plain block, potential h . Q(n) . h: returned as [potential, kinetic] pairs (dyadic)
-function ttPairs(m: readonly (readonly number[])[], n: readonly number[], a: readonly number[], b: readonly number[]): { plus: [number, number]; cross: [number, number] } {
+function ttPairs(
+  m: readonly (readonly number[])[],
+  n: readonly number[],
+  a: readonly number[],
+  b: readonly number[],
+): { plus: [number, number]; cross: [number, number] } {
   const aa = a.reduce((t, x) => t + x * x, 0)
   const bb = b.reduce((t, x) => t + x * x, 0)
-  const vec = (h: (i: number, j: number) => number): number[] => PLAIN_SLOTS.map(([i, j]) => h(i, j))
+  const vec = (h: (i: number, j: number) => number): number[] =>
+    PLAIN_SLOTS.map(([i, j]) => h(i, j))
   const plus = vec((i, j) => bb * a[i]! * a[j]! - aa * b[i]! * b[j]!)
   const cross = vec((i, j) => a[i]! * b[j]! + b[i]! * a[j]!)
   const q = einsteinHilbertForm(n)
-  const form = (f: readonly (readonly number[])[], h: readonly number[]): number => f.reduce((t, row, s) => t + h[s]! * row.reduce((u, x, j) => u + x * h[j]!, 0), 0)
+  const form = (
+    f: readonly (readonly number[])[],
+    h: readonly number[],
+  ): number =>
+    f.reduce(
+      (t, row, s) =>
+        t + h[s]! * row.reduce((u, x, j) => u + x * h[j]!, 0),
+      0,
+    )
 
-  return { plus: [form(q, plus), form(m, plus)], cross: [form(q, cross), form(m, cross)] }
+  return {
+    plus: [form(q, plus), form(m, plus)],
+    cross: [form(q, cross), form(m, cross)],
+  }
 }
 
 const DIRECTIONS = [
@@ -313,19 +475,41 @@ const DIRECTIONS = [
   { name: 'body', n: [1, 1, 1], a: [1, -1, 0], b: [1, 1, -2] },
 ]
 
-function speeds(m: readonly (readonly number[])[]): { equal: boolean; values: string[]; ratios: number[] } {
-  const reads = DIRECTIONS.map(d => ({ d, t: ttPairs(m, d.n, d.a, d.b), n2: d.n.reduce((s, x) => s + x * x, 0) }))
+function speeds(m: readonly (readonly number[])[]): {
+  equal: boolean
+  values: string[]
+  ratios: number[]
+} {
+  const reads = DIRECTIONS.map(d => ({
+    d,
+    t: ttPairs(m, d.n, d.a, d.b),
+    n2: d.n.reduce((s, x) => s + x * x, 0),
+  }))
 
   return {
-    equal: reads.every(({ t }) => t.plus[0] * t.cross[1] === t.cross[0] * t.plus[1]),
-    values: reads.map(({ d, t, n2 }) => `${d.name} plus ${t.plus[0] / t.plus[1] / n2} cross ${t.cross[0] / t.cross[1] / n2}`),
-    ratios: reads.map(({ t }) => t.cross[0] / t.cross[1] / (t.plus[0] / t.plus[1])),
+    equal: reads.every(
+      ({ t }) => t.plus[0] * t.cross[1] === t.cross[0] * t.plus[1],
+    ),
+    values: reads.map(
+      ({ d, t, n2 }) =>
+        `${d.name} plus ${t.plus[0] / t.plus[1] / n2} cross ${t.cross[0] / t.cross[1] / n2}`,
+    ),
+    ratios: reads.map(
+      ({ t }) => t.cross[0] / t.cross[1] / (t.plus[0] / t.plus[1]),
+    ),
   }
 }
 
 // the derivation's two checks: the depth flip's parity on the extras, and the 4d span map's rank and left kernel
-function derivation(p: number): { flipParity: boolean; span4Rank: number; span4Left: number; leftIsDoublet: boolean; leftInExtras: boolean } {
+function derivation(p: number): {
+  flipParity: boolean
+  span4Rank: number
+  span4Left: number
+  leftIsDoublet: boolean
+  leftInExtras: boolean
+} {
   const flip = classSymmetries(GEOMETRY, true).at(-1)!
+
   const moved = (v: readonly number[]): number[] => {
     const out = new Array<number>(12).fill(0)
 
@@ -333,14 +517,26 @@ function derivation(p: number): { flipParity: boolean; span4Rank: number; span4L
 
     return out
   }
-  const same = (u: readonly number[], v: readonly number[], s: number): boolean => u.every((x, a) => x === s * v[a]!)
-  const flipParity = X.tilts.every(t => same(moved(t), t, -1)) && same(moved(X.lapse), X.lapse, 1) && X.doublet.every(d => same(moved(d), d, 1))
+
+  const same = (
+    u: readonly number[],
+    v: readonly number[],
+    s: number,
+  ): boolean => u.every((x, a) => x === s * v[a]!)
+  const flipParity =
+    X.tilts.every(t => same(moved(t), t, -1)) &&
+    same(moved(X.lapse), X.lapse, 1) &&
+    X.doublet.every(d => same(moved(d), d, 1))
   const s4 = toMod(plainSpan4(GEOMETRY), p)
   const left = nullSpaceMod(transposed(s4), 12, p)
   const axis = GEOMETRY.roots.map(r => (r[3] === 0 ? 0 : 1))
   const diagonal = GEOMETRY.roots.map(r => (r[3] === 0 ? 1 : 0))
-  const probes = toMod([axis, diagonal, ...X.tilts, SPAN_T[3]!, SPAN_T[4]!, SPAN_T[5]!], p)
-  const dot = (u: readonly number[], v: readonly number[]): number => u.reduce((t, x, a) => (t + x * v[a]!) % p, 0)
+  const probes = toMod(
+    [axis, diagonal, ...X.tilts, SPAN_T[3]!, SPAN_T[4]!, SPAN_T[5]!],
+    p,
+  )
+  const dot = (u: readonly number[], v: readonly number[]): number =>
+    u.reduce((t, x, a) => (t + x * v[a]!) % p, 0)
 
   return {
     flipParity,
@@ -361,9 +557,16 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const table = VARIANTS.map(v => ({ v, reads: PRIMES.map(p => analyse(v, p)) }))
-    const agree = table.every(({ reads }) => JSON.stringify(reads[0]) === JSON.stringify(reads[1]))
-    const read = (name: string): Reads => table.find(t => t.v.name.startsWith(name))!.reads[0]!
+    const table = VARIANTS.map(v => ({
+      v,
+      reads: PRIMES.map(p => analyse(v, p)),
+    }))
+    const agree = table.every(
+      ({ reads }) =>
+        JSON.stringify(reads[0]) === JSON.stringify(reads[1]),
+    )
+    const read = (name: string): Reads =>
+      table.find(t => t.v.name.startsWith(name))!.reads[0]!
     const primary = read('spacetime (primary)')
     const still = read('static')
     const scaled = read('spacetime, c 2')
@@ -375,28 +578,63 @@ export default experiment({
     const regge = speeds(weightBlock(REGGE))
     const equal = speeds(weightBlock(EQUAL))
     const dw = speeds(dewitt)
-    const axisEqual = ttPairs(weightBlock(EQUAL), DIRECTIONS[0]!.n, DIRECTIONS[0]!.a, DIRECTIONS[0]!.b)
+    const axisEqual = ttPairs(
+      weightBlock(EQUAL),
+      DIRECTIONS[0]!.n,
+      DIRECTIONS[0]!.a,
+      DIRECTIONS[0]!.b,
+    )
     const reggeBlock = weightBlock(REGGE)
-    const reggeClaim = PLAIN_SLOTS.every(([i, j], s) => PLAIN_SLOTS.every((__, t) => reggeBlock[s]![t]! === (s === t ? (i === j ? 1.5 : 2) : s < 3 && t < 3 ? 0.5 : 0)))
+    const reggeClaim = PLAIN_SLOTS.every(([i, j], s) =>
+      PLAIN_SLOTS.every(
+        (__, t) =>
+          reggeBlock[s]![t]! ===
+          (s === t ? (i === j ? 1.5 : 2) : s < 3 && t < 3 ? 0.5 : 0),
+      ),
+    )
 
     const V1 = regge.equal && reggeClaim
-    const V2 = primary.tiltKinetic === 0 && primary.tiltFirstOrder === 0 && primary.metricKinetic > 0 && primary.shiftCoupling > 0
-    const V3 = primary.crossMu > 0 && primary.crossPair === 1 && primary.crossTied === 0
-    const lapseAuxiliary = primary.lapseKinetic === 0 && primary.auxFirstOrder === 0
-    const doubletAuxiliary = primary.doubletKinetic === 0 && primary.doubletFirstOrder === 0
+    const V2 =
+      primary.tiltKinetic === 0 &&
+      primary.tiltFirstOrder === 0 &&
+      primary.metricKinetic > 0 &&
+      primary.shiftCoupling > 0
+    const V3 =
+      primary.crossMu > 0 &&
+      primary.crossPair === 1 &&
+      primary.crossTied === 0
+    const lapseAuxiliary =
+      primary.lapseKinetic === 0 && primary.auxFirstOrder === 0
+    const doubletAuxiliary =
+      primary.doubletKinetic === 0 && primary.doubletFirstOrder === 0
     const V4 = lapseAuxiliary && doubletAuxiliary
-    const C1 = axisEqual.plus[0] * axisEqual.cross[1] !== axisEqual.cross[0] * axisEqual.plus[1] && 2 * axisEqual.cross[0] * axisEqual.plus[1] === 5 * axisEqual.plus[0] * axisEqual.cross[1]
+    const C1 =
+      axisEqual.plus[0] * axisEqual.cross[1] !==
+        axisEqual.cross[0] * axisEqual.plus[1] &&
+      2 * axisEqual.cross[0] * axisEqual.plus[1] ===
+        5 * axisEqual.plus[0] * axisEqual.cross[1]
     const C2 =
-      still.invariant - still.kinetic - still.first === ref[0]!.invariant &&
+      still.invariant - still.kinetic - still.first ===
+        ref[0]!.invariant &&
       still.potential === ref[0]!.parameters &&
       still.extrasDerivative === ref[0]!.extrasDerivative &&
       still.tiltKinetic > 0 &&
       still.equalInSpan &&
       still.reggeInSpan
-    const C3 = primary.ehInFamily && primary.ehOrbitMismatch === 0 && primary.ehOutside === 0
-    const refAgree = JSON.stringify(ref[0]) === JSON.stringify(ref[1]) && JSON.stringify(der[0]) === JSON.stringify(der[1])
+    const C3 =
+      primary.ehInFamily &&
+      primary.ehOrbitMismatch === 0 &&
+      primary.ehOutside === 0
+    const refAgree =
+      JSON.stringify(ref[0]) === JSON.stringify(ref[1]) &&
+      JSON.stringify(der[0]) === JSON.stringify(der[1])
     const controls = C1 && C2 && C3 && agree && refAgree
-    const status = V1 && V2 && V3 && V4 && controls ? 'pass' : V2 && controls ? 'partial' : 'fail'
+    const status =
+      V1 && V2 && V3 && V4 && controls
+        ? 'pass'
+        : V2 && controls
+          ? 'partial'
+          : 'fail'
     const row = (r: Reads): string =>
       `params M/N/K ${r.kinetic}/${r.first}/${r.potential} (N forced zero ${r.firstForcedZero}), invariant ${r.invariant}; metric kinetic rank ${r.metricKinetic} (DeWitt in span ${r.dewittInSpan}, |u|^4 ${r.reggeInSpan}, equal ${r.equalInSpan}; diagonal-M members' metric kinetic ${r.diagonalMetricKinetic}); tilts: M rows ${r.tiltKinetic}, N (tilt, aux) ${r.tiltFirstOrder}, shift coupling ${r.shiftCoupling}, gradient ${r.tiltGradient}; lapse: M rows ${r.lapseKinetic}, N aux block ${r.auxFirstOrder}, mass ${r.lapseMass}, constraint coupling ${r.lapseConstraint}, lapse-lapse ${r.lapseLapse}; doublet: M ${r.doubletKinetic}, N ${r.doubletFirstOrder}, mass ${r.doubletMass}, derivative ${r.doubletDerivative}, curvature coupling ${r.doubletCurvature}; extras derivative ${r.extrasDerivative}; cross: mu rank ${r.crossMu}, (mu, S2) rank ${r.crossPair}, S2 + 2c^2 mu rank ${r.crossTied}, mass ${r.crossMass}, first order ${r.crossFirstOrder}; EH in family ${r.ehInFamily} (orbit mismatches ${r.ehOrbitMismatch}, outside ${r.ehOutside})`
     const metrics: Record<string, number> = {
@@ -438,7 +676,12 @@ export default experiment({
       status,
       claim: `V1 ${V1}, V2 ${V2}, V3 ${V3}, V4 ${V4} (lapse auxiliary ${lapseAuxiliary}, doublet auxiliary ${doubletAuxiliary}); C1 ${C1}, C2 ${C2}, C3 ${C3}, primes agree ${agree && refAgree}. ${table.map(({ v, reads }) => `${v.name}: ${row(reads[0]!)}`).join(' | ')}`,
       metrics,
-      control: { equalAxisRatio: equal.ratios[0]!, staticTiltKinetic: still.tiltKinetic, referenceInvariant: ref[0]!.invariant, referenceExtrasDerivative: ref[0]!.extrasDerivative },
+      control: {
+        equalAxisRatio: equal.ratios[0]!,
+        staticTiltKinetic: still.tiltKinetic,
+        referenceInvariant: ref[0]!.invariant,
+        referenceExtrasDerivative: ref[0]!.extrasDerivative,
+      },
       notes: `primes ${PRIMES.join(', ')}. Derivation: depth flip odd on the tilts, even on L and the doublet ${der[0]!.flipParity}; the 4d span map has rank ${der[0]!.span4Rank} with a ${der[0]!.span4Left}-dimensional left kernel free of A1g, T1u and T2g parts ${der[0]!.leftIsDoublet} (inside the 3d extras ${der[0]!.leftInExtras}). E-GRV-0138's route: ${ref[0]!.parameters} parameters, ${ref[0]!.invariant} invariant, extras derivative ${ref[0]!.extrasDerivative}. |u|^4 block is |h|^2 + (tr h)^2 / 2 ${reggeClaim}. omega^2 / k^2 per unit form: |u|^4 ${regge.values.join('; ')}; equal inertia ${equal.values.join('; ')}; DeWitt ${dw.values.join('; ')} (equal ${dw.equal}).`,
     })
   },

@@ -14,16 +14,24 @@
 
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
-import { blockEnergy, type ArrowBox } from '@/code/measure/second-law-husk'
+import {
+  blockEnergy,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 /** For each root, the index l of its line pair (0 .. 11). */
-export const PAIR_OF_ROOT: readonly number[] = Array.from({ length: 24 }, (_, d) => {
-  const l = LINE_FIRSTS.indexOf(d)
+export const PAIR_OF_ROOT: readonly number[] = Array.from(
+  { length: 24 },
+  (_, d) => {
+    const l = LINE_FIRSTS.indexOf(d)
 
-  return l >= 0 ? l : LINE_SECONDS.indexOf(d)
-})
+    return l >= 0 ? l : LINE_SECONDS.indexOf(d)
+  },
+)
 
 export type MeshLineMap = {
   /** the line of each slot, cells * 24 */
@@ -45,19 +53,22 @@ export function meshLineMap(box: ArrowBox): MeshLineMap {
   const pair: number[] = []
 
   for (let l = 0; l < 12; l++) {
-    const f = LINE_FIRSTS[l] as number
+    const f = LINE_FIRSTS[l]!
 
     for (let x = 0; x < cells; x++) {
-      if ((onPair[x * 12 + l] as number) >= 0) continue
+      if (onPair[x * 12 + l]! >= 0) {
+        continue
+      }
 
       const id = docks.length
       const walk: number[] = []
+
       let y = x
 
       do {
         onPair[y * 12 + l] = id
         walk.push(y)
-        y = Math.floor((box.kernel.target[y * 24 + f] as number) / 24)
+        y = Math.floor(box.kernel.target[y * 24 + f]! / 24)
       } while (y !== x)
 
       docks.push(walk)
@@ -69,23 +80,42 @@ export function meshLineMap(box: ArrowBox): MeshLineMap {
   const storeLine = new Int32Array(cells * 12)
 
   for (let x = 0; x < cells; x++) {
-    for (let d = 0; d < 24; d++) slotLine[x * 24 + d] = onPair[x * 12 + (PAIR_OF_ROOT[d] as number)] as number
-    for (let l = 0; l < 12; l++) storeLine[x * 12 + l] = onPair[x * 12 + l] as number
+    for (let d = 0; d < 24; d++) {
+      slotLine[x * 24 + d] = onPair[x * 12 + PAIR_OF_ROOT[d]!]!
+    }
+
+    for (let l = 0; l < 12; l++) {
+      storeLine[x * 12 + l] = onPair[x * 12 + l]!
+    }
   }
 
   return { slotLine, storeLine, docks, pair, count: docks.length }
 }
 
 /** The lines on which two states differ (a vibe, a held vibe's point, a store trit, or a stored unit's point). */
-export function differingLines(map: MeshLineMap, a: Reduced, b: Reduced): Set<number> {
+export function differingLines(
+  map: MeshLineMap,
+  a: Reduced,
+  b: Reduced,
+): Set<number> {
   const out = new Set<number>()
 
   for (let i = 0; i < a.vibe.length; i++) {
-    if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])) out.add(map.slotLine[i] as number)
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+    ) {
+      out.add(map.slotLine[i]!)
+    }
   }
 
   for (let i = 0; i < a.store.length; i++) {
-    if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])) out.add(map.storeLine[i] as number)
+    if (
+      a.store[i] !== b.store[i] ||
+      (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])
+    ) {
+      out.add(map.storeLine[i]!)
+    }
   }
 
   return out
@@ -96,8 +126,23 @@ export function differingLines(map: MeshLineMap, a: Reduced, b: Reduced): Set<nu
  * stored unit equal. A point on an empty slot carries nothing (the inverse beat leaves it stale), so it is not read.
  */
 export function sameState(a: Reduced, b: Reduced): boolean {
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])) return false
-  for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])) return false
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+    ) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.store.length; i++) {
+    if (
+      a.store[i] !== b.store[i] ||
+      (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])
+    ) {
+      return false
+    }
+  }
 
   return true
 }
@@ -115,7 +160,9 @@ export function coarseKey(box: ArrowBox, s: Reduced): string {
 export function keyEntropy(keys: readonly string[]): number {
   const counts = new Map<string, number>()
 
-  for (const k of keys) counts.set(k, (counts.get(k) ?? 0) + 1)
+  for (const k of keys) {
+    counts.set(k, (counts.get(k) ?? 0) + 1)
+  }
 
   let h = 0
 
@@ -129,18 +176,27 @@ export function keyEntropy(keys: readonly string[]): number {
 }
 
 /** The slot of line `id` at position `k` along it: the dock k steps along, on the pair's first root (second when `back`). */
-export function lineSlot(map: MeshLineMap, id: number, k: number, back = false): number {
-  const docks = map.docks[id] as number[]
-  const x = docks[((k % docks.length) + docks.length) % docks.length] as number
-  const l = map.pair[id] as number
+export function lineSlot(
+  map: MeshLineMap,
+  id: number,
+  k: number,
+  back = false,
+): number {
+  const docks = map.docks[id]!
+  const x = docks[((k % docks.length) + docks.length) % docks.length]!
+  const l = map.pair[id]!
 
-  return x * 24 + ((back ? LINE_SECONDS[l] : LINE_FIRSTS[l]) as number)
+  return x * 24 + (back ? LINE_SECONDS[l] : LINE_FIRSTS[l])!
 }
 
 /** The store trit index of line `id` at position `k` along it. */
-export function lineStore(map: MeshLineMap, id: number, k: number): number {
-  const docks = map.docks[id] as number[]
-  const x = docks[((k % docks.length) + docks.length) % docks.length] as number
+export function lineStore(
+  map: MeshLineMap,
+  id: number,
+  k: number,
+): number {
+  const docks = map.docks[id]!
+  const x = docks[((k % docks.length) + docks.length) % docks.length]!
 
-  return x * 12 + (map.pair[id] as number)
+  return x * 12 + map.pair[id]!
 }

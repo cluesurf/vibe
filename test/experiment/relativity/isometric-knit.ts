@@ -58,23 +58,64 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { groupTable, forcedForms } from '@/code/measure/color-isotropy-bound'
-import { isometricKnit, lineMomentumCollision, lineMomentumRule, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  groupTable,
+  forcedForms,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  isometricKnit,
+  lineMomentumCollision,
+  lineMomentumRule,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { momentumRuleStabilizer } from '@/code/rule/conjugate-schedule'
-import { equivarianceDefect, lineMomentumLinearization, sampledLinearization } from '@/code/measure/line-momentum-linearization'
-import { dockAudit, kroneckerDockState, sparseDockStates } from '@/code/measure/dock-conservation'
-import { exponentsOf, readTransport, spectrumOf, type Exponent } from '@/code/measure/husk-transport-exponents'
-import { bulkDirections, huskDirections, invariantBasis } from '@/code/measure/husk-transport-order'
+import {
+  equivarianceDefect,
+  lineMomentumLinearization,
+  sampledLinearization,
+} from '@/code/measure/line-momentum-linearization'
+import {
+  dockAudit,
+  kroneckerDockState,
+  sparseDockStates,
+} from '@/code/measure/dock-conservation'
+import {
+  exponentsOf,
+  readTransport,
+  spectrumOf,
+  type Exponent,
+} from '@/code/measure/husk-transport-exponents'
+import {
+  bulkDirections,
+  huskDirections,
+  invariantBasis,
+} from '@/code/measure/husk-transport-order'
 import { symmetrize } from '@/code/measure/exact-linear-collision'
-import { CHARGE_CONJUGATION, symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
-import { dressing, travel, vacuumPeriod, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  CHARGE_CONJUGATION,
+  symmetryLedger,
+} from '@/code/measure/rule-symmetry-ledger'
+import {
+  dressing,
+  travel,
+  vacuumPeriod,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 
 const LADDER = [4, 8, 16, 32, 64, 128, 256]
 const FIT = 5
 const SAMPLES = 200_000
 const DENSE = 20_000
 
-type Reading = { husk: Record<string, Exponent>; bulk?: Record<string, Exponent>; invariants: number; unit: number; kc: number; means: Record<string, number>; axes: Record<string, number[]> }
+type Reading = {
+  husk: Record<string, Exponent>
+  bulk?: Record<string, Exponent>
+  invariants: number
+  unit: number
+  kc: number
+  means: Record<string, number>
+  axes: Record<string, number[]>
+}
 
 function transport(matrix: Float64Array, bulk: boolean): Reading {
   const matrices = [matrix]
@@ -82,11 +123,28 @@ function transport(matrix: Float64Array, bulk: boolean): Reading {
   const s = spectrumOf({ matrices, invariants })
   const kc = Math.sqrt(s.gap / s.dMax)
   const ks = LADDER.map(r => kc / r)
-  const husk = readTransport({ matrices, invariants, ks, directions: huskDirections(24), husk: true })
+  const husk = readTransport({
+    matrices,
+    invariants,
+    ks,
+    directions: huskDirections(24),
+    husk: true,
+  })
 
   return {
     husk: exponentsOf(husk, FIT),
-    bulk: bulk ? exponentsOf(readTransport({ matrices, invariants, ks, directions: bulkDirections(24), husk: false }), FIT) : undefined,
+    bulk: bulk
+      ? exponentsOf(
+          readTransport({
+            matrices,
+            invariants,
+            ks,
+            directions: bulkDirections(24),
+            husk: false,
+          }),
+          FIT,
+        )
+      : undefined,
     invariants: invariants.length,
     unit: s.unitEigenvalues,
     kc,
@@ -106,7 +164,9 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const permutations = weylF4DirectionPermutations({ directions: rootsD4() })
+    const permutations = weylF4DirectionPermutations({
+      directions: rootsD4(),
+    })
     const table = groupTable()
     const isometric = lineMomentumRule('isometric')
     const control = lineMomentumRule('first-mirror')
@@ -114,42 +174,89 @@ export default experiment({
 
     // X1: the counting machinery on the constant inversion
     const minus = Int32Array.from(OPPOSITE)
-    const inversion = lineMomentumLinearization({ rule: () => minus }).matrix
+    const inversion = lineMomentumLinearization({
+      rule: () => minus,
+    }).matrix
+
     let inversionWorst = 0
 
     for (let r = 0; r < 48; r++) {
       for (let c = 0; c < 48; c++) {
-        const expected = r >> 1 === OPPOSITE[c >> 1] && (r & 1) === (c & 1) ? 1 : 0
+        const expected =
+          r >> 1 === OPPOSITE[c >> 1] && (r & 1) === (c & 1) ? 1 : 0
 
-        inversionWorst = Math.max(inversionWorst, Math.abs((inversion[r * 48 + c] ?? 0) - expected))
+        inversionWorst = Math.max(
+          inversionWorst,
+          Math.abs((inversion[r * 48 + c] ?? 0) - expected),
+        )
       }
     }
 
     // X1: the exact matrices, the sampled estimate, equivariance
     const exact = lineMomentumLinearization({ rule: isometric })
     const controlExact = lineMomentumLinearization({ rule: control })
-    const sampled = sampledLinearization({ collision, samples: SAMPLES })
+    const sampled = sampledLinearization({
+      collision,
+      samples: SAMPLES,
+    })
+
     let sampledWorst = 0
 
-    for (let i = 0; i < 48 * 48; i++) sampledWorst = Math.max(sampledWorst, Math.abs((sampled[i] ?? 0) - (exact.matrix[i] ?? 0)))
+    for (let i = 0; i < 48 * 48; i++) {
+      sampledWorst = Math.max(
+        sampledWorst,
+        Math.abs((sampled[i] ?? 0) - (exact.matrix[i] ?? 0)),
+      )
+    }
 
     const defect = equivarianceDefect(exact.matrix, permutations)
-    const controlDefect = equivarianceDefect(controlExact.matrix, permutations)
-    const stabilizer = momentumRuleStabilizer({ rule: isometric, table }).length
-    const controlStabilizer = momentumRuleStabilizer({ rule: control, table }).length
+    const controlDefect = equivarianceDefect(
+      controlExact.matrix,
+      permutations,
+    )
+    const stabilizer = momentumRuleStabilizer({
+      rule: isometric,
+      table,
+    }).length
+    const controlStabilizer = momentumRuleStabilizer({
+      rule: control,
+      table,
+    }).length
 
     // X1: dock by dock
-    const states = [...sparseDockStates(), ...Array.from({ length: DENSE }, (_, m) => kroneckerDockState(m))]
+    const states = [
+      ...sparseDockStates(),
+      ...Array.from({ length: DENSE }, (_, m) => kroneckerDockState(m)),
+    ]
     const audit = dockAudit({ collision, inverse: collision, states })
     const controlCollision = lineMomentumCollision(control)
-    const controlAudit = dockAudit({ collision: controlCollision, inverse: controlCollision, states })
+    const controlAudit = dockAudit({
+      collision: controlCollision,
+      inverse: controlCollision,
+      states,
+    })
 
     // X1: the ledger
-    const ledger = symmetryLedger({ forward: () => collision, inverse: () => collision, period: 1, permutations, degree: 24, quickDense: 64, thoroughDense: 1024 })
+    const ledger = symmetryLedger({
+      forward: () => collision,
+      inverse: () => collision,
+      period: 1,
+      permutations,
+      degree: 24,
+      quickDense: 64,
+      thoroughDense: 1024,
+    })
     const glides = ledger.filter(e => e.kind === 'forward')
     const glideCoinMaps = new Set(glides.map(e => e.p)).size
-    const identity = permutations.findIndex(p => p.every((x, i) => x === i))
-    const cpt = ledger.some(e => e.kind === 'reversal' && e.p === identity && e.tau === CHARGE_CONJUGATION)
+    const identity = permutations.findIndex(p =>
+      p.every((x, i) => x === i),
+    )
+    const cpt = ledger.some(
+      e =>
+        e.kind === 'reversal' &&
+        e.p === identity &&
+        e.tau === CHARGE_CONJUGATION,
+    )
 
     const exact1 =
       inversionWorst < 1e-15 &&
@@ -168,9 +275,19 @@ export default experiment({
     // X2, X3, H: transport
     const knit = transport(exact.matrix, true)
     const first = transport(controlExact.matrix, true)
-    const averaged = transport(symmetrize(controlExact.matrix, permutations), false)
-    const within = (e: Exponent | undefined, target: number): boolean => e !== undefined && Math.abs(e.slope - target) <= 0.5
-    const controls = knit.invariants === 6 && knit.unit === 6 && first.invariants === 6 && first.unit === 6 && within(averaged.husk.charge, 4) && within(averaged.husk.trace, 4)
+    const averaged = transport(
+      symmetrize(controlExact.matrix, permutations),
+      false,
+    )
+    const within = (e: Exponent | undefined, target: number): boolean =>
+      e !== undefined && Math.abs(e.slope - target) <= 0.5
+    const controls =
+      knit.invariants === 6 &&
+      knit.unit === 6 &&
+      first.invariants === 6 &&
+      first.unit === 6 &&
+      within(averaged.husk.charge, 4) &&
+      within(averaged.husk.trace, 4)
     const fits = [knit, first].flatMap(r => Object.values(r.husk))
     const resolved = fits.every(f => f.error < 0.3)
     const hypothesis =
@@ -181,7 +298,10 @@ export default experiment({
       (first.husk.charge?.slope ?? 9) < 1
 
     // reported: color, the battery
-    const colorForms = forcedForms(table, table.permutations.map((_, i) => i)).length
+    const colorForms = forcedForms(
+      table,
+      table.permutations.map((_, i) => i),
+    ).length
     const rule: ScheduledRule = () => isometricKnit('isometric')
     const love = dressing(rule, { tone: 1, side: 9 })
     const fear = dressing(rule, { tone: -1, side: 9 })
@@ -218,44 +338,97 @@ export default experiment({
       vacuumPeriod: vacuum,
       travellers: moving.travellers,
       meanReach: moving.meanReach,
-      ...Object.fromEntries(love.periodLargest.map((x, p) => [`loveDressingPeriod${p + 1}`, x])),
-      ...Object.fromEntries(fear.periodLargest.map((x, p) => [`fearDressingPeriod${p + 1}`, x])),
+      ...Object.fromEntries(
+        love.periodLargest.map((x, p) => [
+          `loveDressingPeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        fear.periodLargest.map((x, p) => [
+          `fearDressingPeriod${p + 1}`,
+          x,
+        ]),
+      ),
     }
 
-    for (const [name, r] of Object.entries({ knit, firstMirror: first, averaged })) {
+    for (const [name, r] of Object.entries({
+      knit,
+      firstMirror: first,
+      averaged,
+    })) {
       metrics[`${name}Invariants`] = r.invariants
       metrics[`${name}UnitEigenvalues`] = r.unit
       metrics[`${name}Kc`] = r.kc
 
-      for (const [region, fitsOf] of Object.entries({ husk: r.husk, bulk: r.bulk ?? {} })) {
+      for (const [region, fitsOf] of Object.entries({
+        husk: r.husk,
+        bulk: r.bulk ?? {},
+      })) {
         for (const [q, e] of Object.entries(fitsOf)) {
-          metrics[`${name}_${region}_${q}_exponent`] = Number(e.slope.toFixed(4))
-          metrics[`${name}_${region}_${q}_error`] = Number(e.error.toFixed(4))
-          metrics[`${name}_${region}_${q}_anisotropyAtLargestK`] = e.atLargestK
-          metrics[`${name}_${region}_${q}_anisotropyAtSmallestK`] = e.atSmallestK
+          metrics[`${name}_${region}_${q}_exponent`] = Number(
+            e.slope.toFixed(4),
+          )
+
+          metrics[`${name}_${region}_${q}_error`] = Number(
+            e.error.toFixed(4),
+          )
+
+          metrics[`${name}_${region}_${q}_anisotropyAtLargestK`] =
+            e.atLargestK
+
+          metrics[`${name}_${region}_${q}_anisotropyAtSmallestK`] =
+            e.atSmallestK
         }
       }
 
-      for (const [q, v] of Object.entries(r.means)) if (Number.isFinite(v)) metrics[`${name}_husk_${q}_mean`] = v
+      for (const [q, v] of Object.entries(r.means)) {
+        if (Number.isFinite(v)) {
+          metrics[`${name}_husk_${q}_mean`] = v
+        }
+      }
 
-      for (const [q, vs] of Object.entries(r.axes)) vs.slice(0, 3).forEach((v, i) => (metrics[`${name}_huskAxis${i}_${q}`] = v))
+      for (const [q, vs] of Object.entries(r.axes)) {
+        vs.slice(0, 3).forEach(
+          (v, i) => (metrics[`${name}_huskAxis${i}_${q}`] = v),
+        )
+      }
     }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = exact1 && controls && resolved ? (hypothesis ? 'pass' : 'fail') : 'partial'
-    const list = (r: Reading): string => ['charge', 'trace', 'sound', 'shear'].map(q => `${q} ${r.husk[q]?.slope.toFixed(2)} +- ${r.husk[q]?.error.toFixed(2)}`).join(', ')
+    const status =
+      exact1 && controls && resolved
+        ? hypothesis
+          ? 'pass'
+          : 'fail'
+        : 'partial'
+    const list = (r: Reading): string =>
+      ['charge', 'trace', 'sound', 'shear']
+        .map(
+          q =>
+            `${q} ${r.husk[q]?.slope.toFixed(2)} +- ${r.husk[q]?.error.toFixed(2)}`,
+        )
+        .join(', ')
 
     return verdict({
       status,
       claim: `the isometric knit has W(F4) as its exact symmetry (the rule table kept by ${stabilizer} coin maps, the matrix by all to ${defect.toExponential(1)}, ${glideCoinMaps} glide coin maps), CPT ${cpt}, and is an exact involution keeping charge, count and P on ${audit.states} docks; husk exponents: ${list(knit)}; first-mirror control: ${list(first)}; W(F4)-averaged control charge ${averaged.husk.charge?.slope.toFixed(2)}, trace ${averaged.husk.trace?.slope.toFixed(2)}`,
       metrics,
       control: {
-        firstMirrorHuskChargeExponent: first.husk.charge?.slope ?? Number.NaN,
-        averagedHuskChargeExponent: averaged.husk.charge?.slope ?? Number.NaN,
-        averagedHuskTraceExponent: averaged.husk.trace?.slope ?? Number.NaN,
+        firstMirrorHuskChargeExponent:
+          first.husk.charge?.slope ?? Number.NaN,
+        averagedHuskChargeExponent:
+          averaged.husk.charge?.slope ?? Number.NaN,
+        averagedHuskTraceExponent:
+          averaged.husk.trace?.slope ?? Number.NaN,
       },
-      notes: `L2. Gates: X1 exact ${exact1}, X2 invariants and controls ${controls}, X3 resolved ${resolved}, H ${hypothesis}. First run recorded as is, nothing moved; a probe (tmp/iso-transport-probe.ts) had computed the three sets of exponents before this file was written, and the thresholds are E-RLT-0058's predictions and E-RLT-0059's windows, unchanged. The law comes by construction, and that is the point: the linearization commutes with every coin map (defect exactly 0 over the 1,152, every one of the 24 input slots counted on its own, none filled in by symmetry), so the period map obeys M(gk) = g M(k) g^-1 and every husk transport scalar is a W(F4)-invariant function of k, whose only quartic is |k|^4 (E-MTH-0008). What the measurement adds is that a real knit (a deterministic reversible bijection, not an averaged matrix) reaches it, with magnitudes: husk charge D ${knit.means.charge?.toFixed(3)}, shear rate ${knit.means.shear?.toFixed(3)}, sound speed ${knit.means.sound?.toFixed(3)} per beat (the first-mirror control's charge D ${first.husk.charge ? first.means.charge?.toFixed(3) : 'n/a'} splits ${first.axes.charge?.slice(0, 3).map(x => x.toFixed(3)).join(', ')} over the three husk axes), k_c ${knit.kc.toFixed(3)} against the combined knit's 0.0027 (E-RLT-0059): it scatters on ${(100 * exact.acting).toFixed(1)} percent of dock states, where the committed knit leaves two directions untouched. The shear stays k^2, as E-RLT-0058 predicted: W(F4) does not force the sixth-degree shear term. The control's sound exponent is 2.01, not 0: the leading sound speed is fixed by the kept count and momentum and the D4 velocity moments alone, isotropic for any collision; only its k^2 correction reads the collision. Cost, measured: exact local color (side sum changed on ${audit.sideSumChanges} of ${audit.states} docks, line momenta on ${audit.lineMomentumChanges}; W(F4) freezes all ${colorForms} line-momentum forms under exact color, E-RLT-0051); the clocking vacuum (count is exact, so the calm dock is fixed, vacuum period ${vacuum}); dressing (a lone vibe has P = r_d and count 1, which no other state shares, so it never scatters: support 1 in every period, ${moving.travellers} of 24 travel at the free speed, against the committed knit's 33, 160, 565, 1,508 and 12 of 24 from E-RLT-0051). What it keeps that the fork said could not be kept together: W(F4) isotropy and CPT. E-RLT-0048 to 0050 exclude this pair only for schedules of the couple architecture; a period-one whole-dock collision is outside them. Prior art: the four-dimensional FCHC lattice gas and its isometric collision rules (Frisch et al. 1987, Henon 1987), which use random choices among stabilizer elements; the covariant deterministic choice (-1 on the span of the orthogonal roots, Steinberg's theorem for the stabilizer) is what makes the symmetry exact here.`,
+      notes: `L2. Gates: X1 exact ${exact1}, X2 invariants and controls ${controls}, X3 resolved ${resolved}, H ${hypothesis}. First run recorded as is, nothing moved; a probe (tmp/iso-transport-probe.ts) had computed the three sets of exponents before this file was written, and the thresholds are E-RLT-0058's predictions and E-RLT-0059's windows, unchanged. The law comes by construction, and that is the point: the linearization commutes with every coin map (defect exactly 0 over the 1,152, every one of the 24 input slots counted on its own, none filled in by symmetry), so the period map obeys M(gk) = g M(k) g^-1 and every husk transport scalar is a W(F4)-invariant function of k, whose only quartic is |k|^4 (E-MTH-0008). What the measurement adds is that a real knit (a deterministic reversible bijection, not an averaged matrix) reaches it, with magnitudes: husk charge D ${knit.means.charge?.toFixed(3)}, shear rate ${knit.means.shear?.toFixed(3)}, sound speed ${knit.means.sound?.toFixed(3)} per beat (the first-mirror control's charge D ${first.husk.charge ? first.means.charge?.toFixed(3) : 'n/a'} splits ${first.axes.charge
+        ?.slice(0, 3)
+        .map(x => x.toFixed(3))
+        .join(
+          ', ',
+        )} over the three husk axes), k_c ${knit.kc.toFixed(3)} against the combined knit's 0.0027 (E-RLT-0059): it scatters on ${(100 * exact.acting).toFixed(1)} percent of dock states, where the committed knit leaves two directions untouched. The shear stays k^2, as E-RLT-0058 predicted: W(F4) does not force the sixth-degree shear term. The control's sound exponent is 2.01, not 0: the leading sound speed is fixed by the kept count and momentum and the D4 velocity moments alone, isotropic for any collision; only its k^2 correction reads the collision. Cost, measured: exact local color (side sum changed on ${audit.sideSumChanges} of ${audit.states} docks, line momenta on ${audit.lineMomentumChanges}; W(F4) freezes all ${colorForms} line-momentum forms under exact color, E-RLT-0051); the clocking vacuum (count is exact, so the calm dock is fixed, vacuum period ${vacuum}); dressing (a lone vibe has P = r_d and count 1, which no other state shares, so it never scatters: support 1 in every period, ${moving.travellers} of 24 travel at the free speed, against the committed knit's 33, 160, 565, 1,508 and 12 of 24 from E-RLT-0051). What it keeps that the fork said could not be kept together: W(F4) isotropy and CPT. E-RLT-0048 to 0050 exclude this pair only for schedules of the couple architecture; a period-one whole-dock collision is outside them. Prior art: the four-dimensional FCHC lattice gas and its isometric collision rules (Frisch et al. 1987, Henon 1987), which use random choices among stabilizer elements; the covariant deterministic choice (-1 on the span of the orthogonal roots, Steinberg's theorem for the stabilizer) is what makes the symmetry exact here.`,
     })
   },
 })

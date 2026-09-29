@@ -215,7 +215,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { d4Walk } from '@/code/measure/flux-plaquette'
 import { treeBeat, wordSpace } from '@/code/measure/link-flux'
-import { overEmpty, ringUnit, unitAngle, vibeDockExact, vibeShape } from '@/code/measure/swap-string'
+import {
+  overEmpty,
+  ringUnit,
+  unitAngle,
+  vibeDockExact,
+  vibeShape,
+} from '@/code/measure/swap-string'
 import { d4Ball } from '@/code/measure/swap-sector'
 import {
   binaryIcosahedral,
@@ -259,7 +265,12 @@ import {
   type TensionReading,
 } from '@/code/measure/gauge-window'
 
-const HARTUNG: Record<string, number> = { Q8: 1.15, '2T': 2.15, '2O': 3.2, '2I': 5.7 }
+const HARTUNG: Record<string, number> = {
+  Q8: 1.15,
+  '2T': 2.15,
+  '2O': 3.2,
+  '2I': 5.7,
+}
 // SU(2), Wilson action, hypercubic: a sqrt(sigma) against beta (Fingberg, Heller and Karsch 1993; Lucini and Teper 2001;
 // as recalled, about 5%)
 const SU2_TABLE: ScalingTable = [
@@ -285,21 +296,46 @@ const SCALAR_SAME = 1e-9
 const ORTHOGONAL = 1e-12
 const ISOTROPIC = 1e-12
 const WALK_SAME = 1e-13
-const RECORD = { y: { '2T': 0.4442, '2O': 0.6754, '2I': 1.3036 } as Record<string, number>, epsAxis: 0.737, epsDiagonal: 0.803 }
+const RECORD = {
+  y: { '2T': 0.4442, '2O': 0.6754, '2I': 1.3036 } as Record<
+    string,
+    number
+  >,
+  epsAxis: 0.737,
+  epsDiagonal: 0.803,
+}
 const RECORD_Y = 5e-5
 const RECORD_EPS = 5e-4
-const CENSUS = { links: 10, triangles: 20, squares: 9, perLink: [10, 8, 18] }
+const CENSUS = {
+  links: 10,
+  triangles: 20,
+  squares: 9,
+  perLink: [10, 8, 18],
+}
 const LIGHT: readonly [number, number] = [-1, 4]
 const ALPHA: readonly [number, number] = [1, 0]
 
-export type WindowPlan = { N: number; checkN: number; readN: number; xis: number[]; memberBeats: number }
+export type WindowPlan = {
+  N: number
+  checkN: number
+  readN: number
+  xis: number[]
+  memberBeats: number
+}
 
-export const GATE_PLAN: WindowPlan = { N: 16, checkN: 12, readN: 12, xis: [2, 4], memberBeats: 3 }
+export const GATE_PLAN: WindowPlan = {
+  N: 16,
+  checkN: 12,
+  readN: 12,
+  xis: [2, 4],
+  memberBeats: 3,
+}
 
 export default experiment({
   id: 'spin/icosian-husk-window',
   code: 'E-SPN-0153',
-  title: 'a 2I link register on the husk has a wide window before it freezes, but no exact register state the beat keeps can use it, fail (H3): the transfer matrix is out of reach (8.6e16 states on the thinnest slab), so freezing is read from the one-loop SU(2) branch against the frozen branch, calibrated on the hypercubic lattice (2I 5.40 against Monte Carlo 5.70, 2T and 2O at 15 and 10%); on the husk x beat (isotropic, 29 plaquettes a dock) 2I freezes at beta 2.818 with one-loop deficit 0.18, at a tadpole-matched hypercubic beta 9.77 (bare 10.9), where the tension is 1.6e-18 of its strong-coupling value; 2I characters lie in Z[phi], so the exact beat lives in Z[w, phi][1/210] with integer electric exponents and a two-unit magnetic phase; the flat register (tension exactly 0 in the flat sector for any group) keeps a link at 0.813 a beat and the E = 0 register keeps a face at 0.630, so neither is kept; the estimator loses validity toward the Hamiltonian limit (deficit 0.44 at xi 2); E-SPN-0152 reproduced, the trivial group has no window',
+  title:
+    'a 2I link register on the husk has a wide window before it freezes, but no exact register state the beat keeps can use it, fail (H3): the transfer matrix is out of reach (8.6e16 states on the thinnest slab), so freezing is read from the one-loop SU(2) branch against the frozen branch, calibrated on the hypercubic lattice (2I 5.40 against Monte Carlo 5.70, 2T and 2O at 15 and 10%); on the husk x beat (isotropic, 29 plaquettes a dock) 2I freezes at beta 2.818 with one-loop deficit 0.18, at a tadpole-matched hypercubic beta 9.77 (bare 10.9), where the tension is 1.6e-18 of its strong-coupling value; 2I characters lie in Z[phi], so the exact beat lives in Z[w, phi][1/210] with integer electric exponents and a two-unit magnetic phase; the flat register (tension exactly 0 in the flat sector for any group) keeps a link at 0.813 a beat and the E = 0 register keeps a face at 0.630, so neither is kept; the estimator loses validity toward the Hamiltonian limit (deficit 0.44 at xi 2); E-SPN-0152 reproduced, the trivial group has no window',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -309,24 +345,59 @@ export default experiment({
   },
 })
 
-type Criterion = { group: string; lattice: string; beta: number; valid: boolean; window: boolean; continuous: boolean; yes: boolean; betaW: number; reading: TensionReading | null; dilutePerLink: number }
+type Criterion = {
+  group: string
+  lattice: string
+  beta: number
+  valid: boolean
+  window: boolean
+  continuous: boolean
+  yes: boolean
+  betaW: number
+  reading: TensionReading | null
+  dilutePerLink: number
+}
 
 // the window criterion of the header, for group g on lattice L (G its zone data) against the hypercubic reference
-function criterion(g: GaugeGroup, L: GaugeLattice, G: GaussianData, ref: Reference): Criterion {
+function criterion(
+  g: GaugeGroup,
+  L: GaugeLattice,
+  G: GaussianData,
+  ref: Reference,
+): Criterion {
   const f = freezingPoint(g, L, G)
 
-  if (!f) return { group: g.name, lattice: L.name, beta: NaN, valid: false, window: false, continuous: false, yes: false, betaW: NaN, reading: null, dilutePerLink: NaN }
+  if (!f) {
+    return {
+      group: g.name,
+      lattice: L.name,
+      beta: NaN,
+      valid: false,
+      window: false,
+      continuous: false,
+      yes: false,
+      betaW: NaN,
+      reading: null,
+      dilutePerLink: NaN,
+    }
+  }
 
   const reading = tensionReading(L, G, ref, g, f.beta)
   const dilutePerLink = f.dilute / L.links.length
   const valid = reading.deficit <= DEFICIT && dilutePerLink <= DILUTE
-  const window = MATCH_ERROR * reading.ratioTI <= WINDOW && MATCH_ERROR * reading.ratioBare <= WINDOW
+  const window =
+    MATCH_ERROR * reading.ratioTI <= WINDOW &&
+    MATCH_ERROR * reading.ratioBare <= WINDOW
+
   let betaW = NaN
 
   for (let k = 1; k * GRID_STEP < f.beta; k++) {
     const b = k * GRID_STEP
 
-    if (plaquetteMeans(L, G, b).some(q => !(q > 0))) continue
+    if (plaquetteMeans(L, G, b).some(q => !(q > 0))) {
+      continue
+    }
+
     if (tensionReading(L, G, ref, g, b).ratioTI <= WINDOW) {
       betaW = b
       break
@@ -335,14 +406,36 @@ function criterion(g: GaugeGroup, L: GaugeLattice, G: GaussianData, ref: Referen
 
   let continuous = Number.isFinite(betaW)
 
-  for (let b = betaW; continuous && b < f.beta - GRID_STEP / 2; b += GRID_STEP) if (frozenBranch(g, L, b).value - gaussianBranch(G, b) >= 0) continuous = false
+  for (
+    let b = betaW;
+    continuous && b < f.beta - GRID_STEP / 2;
+    b += GRID_STEP
+  ) {
+    if (frozenBranch(g, L, b).value - gaussianBranch(G, b) >= 0) {
+      continuous = false
+    }
+  }
 
-  return { group: g.name, lattice: L.name, beta: f.beta, valid, window, continuous, yes: valid && window && continuous, betaW, reading, dilutePerLink }
+  return {
+    group: g.name,
+    lattice: L.name,
+    beta: f.beta,
+    valid,
+    window,
+    continuous,
+    yes: valid && window && continuous,
+    betaW,
+    reading,
+    dilutePerLink,
+  }
 }
 
 export function icosianWindowRun(plan: WindowPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const e2 = (x: number): string => x.toExponential(2)
   const f4 = (x: number): string => x.toFixed(4)
 
@@ -357,13 +450,29 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
   // ---------------- I1: census, continuum, zone sums ----------------
   const hc = hypercubicGauge(4)
   const husk = huskTimeGauge(1)
-  const kinds = { triangles: husk.plaquettes.filter(p => p.kind === 'triangle').length, squares: husk.plaquettes.filter(p => p.kind === 'temporal square').length }
-  const perLink = [...new Set(plaquettesPerLink(husk).count)].sort((a, b) => b - a)
-  const censusOk = husk.links.length === CENSUS.links && kinds.triangles === CENSUS.triangles && kinds.squares === CENSUS.squares && JSON.stringify(perLink) === JSON.stringify([...CENSUS.perLink].sort((a, b) => b - a))
+  const kinds = {
+    triangles: husk.plaquettes.filter(p => p.kind === 'triangle')
+      .length,
+    squares: husk.plaquettes.filter(p => p.kind === 'temporal square')
+      .length,
+  }
+  const perLink = [...new Set(plaquettesPerLink(husk).count)].sort(
+    (a, b) => b - a,
+  )
+  const censusOk =
+    husk.links.length === CENSUS.links &&
+    kinds.triangles === CENSUS.triangles &&
+    kinds.squares === CENSUS.squares &&
+    JSON.stringify(perLink) ===
+      JSON.stringify([...CENSUS.perLink].sort((a, b) => b - a))
   const iso = continuumTensor(husk)
-  const isoOk = iso.anisotropy <= ISOTROPIC && Math.abs(iso.kappa - Math.sqrt(15)) <= ISOTROPIC
+  const isoOk =
+    iso.anisotropy <= ISOTROPIC &&
+    Math.abs(iso.kappa - Math.sqrt(15)) <= ISOTROPIC
 
-  log(`census ${censusOk}: links ${husk.links.length}, ${JSON.stringify(kinds)}, per link ${perLink.join('/')}; continuum kappa ${iso.kappa} (sqrt15 ${Math.sqrt(15)}), anisotropy ${e2(iso.anisotropy)}`)
+  log(
+    `census ${censusOk}: links ${husk.links.length}, ${JSON.stringify(kinds)}, per link ${perLink.join('/')}; continuum kappa ${iso.kappa} (sqrt15 ${Math.sqrt(15)}), anisotropy ${e2(iso.anisotropy)}`,
+  )
 
   const Ghc = gaussianData(hc, plan.N)
   const GhcCheck = gaussianData(hc, plan.checkN)
@@ -388,74 +497,116 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
   scalar /= plan.N ** 4
 
   const zoneOk =
-    [Ghc, GhcCheck, Gh, GhCheck].every(G => G.failures === 0 && Math.abs(G.equipartition - (G.links - 1)) <= SUM_RULE) &&
+    [Ghc, GhcCheck, Gh, GhCheck].every(
+      G =>
+        G.failures === 0 &&
+        Math.abs(G.equipartition - (G.links - 1)) <= SUM_RULE,
+    ) &&
     Math.abs(Ghc.cL - GhcCheck.cL) <= CONVERGED &&
     Math.abs(Gh.cL - GhCheck.cL) <= CONVERGED &&
     Math.abs(Ghc.cL + 2 * scalar) <= SCALAR_SAME
   const I1 = censusOk && isoOk && zoneOk
 
-  log(`I1 ${I1}: hypercubic cL ${Ghc.cL} (N ${plan.checkN}: ${GhcCheck.cL}), -2 <ln k^2> ${-2 * scalar}; husk cL ${Gh.cL} (N ${plan.checkN}: ${GhCheck.cL}); equipartition ${[Ghc, Gh].map(G => `${G.equipartition} of ${G.links - 1}`).join(', ')}; least pivots ${e2(Ghc.leastPivot)}, ${e2(Gh.leastPivot)}; kappa_p husk ${[...new Set(Gh.kappaP.map(x => x.toFixed(5)))].join(' ')}`)
+  log(
+    `I1 ${I1}: hypercubic cL ${Ghc.cL} (N ${plan.checkN}: ${GhcCheck.cL}), -2 <ln k^2> ${-2 * scalar}; husk cL ${Gh.cL} (N ${plan.checkN}: ${GhCheck.cL}); equipartition ${[Ghc, Gh].map(G => `${G.equipartition} of ${G.links - 1}`).join(', ')}; least pivots ${e2(Ghc.leastPivot)}, ${e2(Gh.leastPivot)}; kappa_p husk ${[...new Set(Gh.kappaP.map(x => x.toFixed(5)))].join(' ')}`,
+  )
 
   // ---------------- I2: 2I's characters ----------------
   const chars = icosianCharacters(I2g)
-  const I2 = chars.dims.length === 9 && chars.orthogonality <= ORTHOGONAL && chars.integral
+  const I2 =
+    chars.dims.length === 9 &&
+    chars.orthogonality <= ORTHOGONAL &&
+    chars.integral
   const casimirs = cayleyCasimirs(I2g, chars, nearest(I2g))
 
-  log(`I2 ${I2}: 2I irreps ${chars.names.join(' ')}, orthogonality ${e2(chars.orthogonality)}, integral in Z[phi] ${chars.integral}; Cayley Casimirs ${casimirs.map(c => c.toFixed(4)).join(' ')}`)
+  log(
+    `I2 ${I2}: 2I irreps ${chars.names.join(' ')}, orthogonality ${e2(chars.orthogonality)}, integral in Z[phi] ${chars.integral}; Cayley Casimirs ${casimirs.map(c => c.toFixed(4)).join(' ')}`,
+  )
 
   // ---------------- the reference and I4 ----------------
   const ref: Reference = { lattice: hc, data: Ghc, table: SU2_TABLE }
   const gRef = (b: number): number => tadpoleCoupling(hc, Ghc, b).g2
-  const last = SU2_TABLE[SU2_TABLE.length - 1] as { beta: number; sqrtSigma: number }
-  const at25 = SU2_TABLE.find(r => r.beta === 2.5) as { beta: number; sqrtSigma: number }
-  const predicted25 = last.sqrtSigma * (twoLoop(gRef(2.5)) / twoLoop(gRef(last.beta)))
-  const I4 = Math.abs(predicted25 - at25.sqrtSigma) / at25.sqrtSigma <= SCALING
+  const last = SU2_TABLE[SU2_TABLE.length - 1] as {
+    beta: number
+    sqrtSigma: number
+  }
+  const at25 = SU2_TABLE.find(r => r.beta === 2.5) as {
+    beta: number
+    sqrtSigma: number
+  }
+  const predicted25 =
+    last.sqrtSigma * (twoLoop(gRef(2.5)) / twoLoop(gRef(last.beta)))
+  const I4 =
+    Math.abs(predicted25 - at25.sqrtSigma) / at25.sqrtSigma <= SCALING
 
-  log(`I4 ${I4}: two-loop g_TI from ${last.beta} predicts a sqrt(sigma)(2.5) ${f4(predicted25)} against ${at25.sqrtSigma} (${(100 * (predicted25 / at25.sqrtSigma - 1)).toFixed(1)}%); hypercubic sigma a^2 at 2.5 by the function ${hypercubicTension(SU2_TABLE, 2.5, gRef)}`)
+  log(
+    `I4 ${I4}: two-loop g_TI from ${last.beta} predicts a sqrt(sigma)(2.5) ${f4(predicted25)} against ${at25.sqrtSigma} (${(100 * (predicted25 / at25.sqrtSigma - 1)).toFixed(1)}%); hypercubic sigma a^2 at 2.5 by the function ${hypercubicTension(SU2_TABLE, 2.5, gRef)}`,
+  )
 
   // ---------------- H1, I3, C3: the hypercubic lattice ----------------
   const hcCrit = groups.map(g => criterion(g, hc, Ghc, ref))
-  const hcOf = (name: string): Criterion => hcCrit.find(c => c.group === name) as Criterion
-  const rel = (name: string): number => Math.abs(hcOf(name).beta - (HARTUNG[name] as number)) / (HARTUNG[name] as number)
+  const hcOf = (name: string): Criterion =>
+    hcCrit.find(c => c.group === name)!
+  const rel = (name: string): number =>
+    Math.abs(hcOf(name).beta - HARTUNG[name]!) / HARTUNG[name]!
   const H1 = rel('2I') <= CALIBRATION && hcOf('2I').yes
-  const I3 = rel('2T') <= CALIBRATION_OTHERS && rel('2O') <= CALIBRATION_OTHERS
+  const I3 =
+    rel('2T') <= CALIBRATION_OTHERS && rel('2O') <= CALIBRATION_OTHERS
   const C3 = !hcOf('Q8').yes && !hcOf('2T').yes
   const critText = (c: Criterion): string =>
     `${c.group} on ${c.lattice}: beta_f ${f4(c.beta)}, valid ${c.valid} (deficit ${c.reading ? f4(c.reading.deficit) : 'none'}, dilute a link ${f4(c.dilutePerLink)}), R_TI ${c.reading ? e2(c.reading.ratioTI) : 'none'} (matched beta ${c.reading ? f4(c.reading.matchTI) : 'none'}), R_bare ${c.reading ? e2(c.reading.ratioBare) : 'none'} (matched ${c.reading ? f4(c.reading.matchBare) : 'none'}), beta_w ${f4(c.betaW)}, continuous ${c.continuous}, window ${c.window}: ${c.yes ? 'YES' : 'no'}`
 
-  log(`H1 ${H1}, I3 ${I3}, C3 ${C3}: ${hcCrit.map(c => `${critText(c)} [Hartung ${HARTUNG[c.group]}, ${(100 * (c.beta / (HARTUNG[c.group] as number) - 1)).toFixed(1)}%]`).join('; ')}`)
+  log(
+    `H1 ${H1}, I3 ${I3}, C3 ${C3}: ${hcCrit.map(c => `${critText(c)} [Hartung ${HARTUNG[c.group]}, ${(100 * (c.beta / HARTUNG[c.group]! - 1)).toFixed(1)}%]`).join('; ')}`,
+  )
 
   // ---------------- H2: the husk ----------------
   const huskCrit = groups.map(g => criterion(g, husk, Gh, ref))
-  const h2i = huskCrit.find(c => c.group === '2I') as Criterion
+  const h2i = huskCrit.find(c => c.group === '2I')!
   const H2 = h2i.yes
 
   log(`H2 ${H2}: ${huskCrit.map(critText).join('; ')}`)
 
   // plaquettes at 2I's husk freezing point
-  const plaqF = Number.isFinite(h2i.beta) ? plaquetteMeans(husk, Gh, h2i.beta) : []
+  const plaqF = Number.isFinite(h2i.beta)
+    ? plaquetteMeans(husk, Gh, h2i.beta)
+    : []
   const qStar = plaqF.length ? Math.min(...plaqF) : NaN
 
-  log(`one-loop plaquettes at 2I's husk freezing ${[...new Set(plaqF.map(q => q.toFixed(4)))].join(' ')}; q* ${f4(qStar)}; reading ${JSON.stringify(h2i.reading)}`)
+  log(
+    `one-loop plaquettes at 2I's husk freezing ${[...new Set(plaqF.map(q => q.toFixed(4)))].join(' ')}; q* ${f4(qStar)}; reading ${JSON.stringify(h2i.reading)}`,
+  )
 
   // ---------------- C2: the trivial group ----------------
   const trivCrit = criterion(triv, husk, Gh, ref)
   const u = ringUnit(LIGHT[0], LIGHT[1])
   const shape = vibeShape(overEmpty(vibeDockExact(1, 0, u), u))
-  const table = Float64Array.from([shape.c[0], shape.c[1], shape.beta[0], shape.beta[1]])
+  const table = Float64Array.from([
+    shape.c[0],
+    shape.c[1],
+    shape.beta[0],
+    shape.beta[1],
+  ])
   const ws = wordSpace(plan.memberBeats)
+
   let wre = new Float64Array(ws.words * 24)
   let wim = new Float64Array(ws.words * 24)
 
-  for (let d = 0; d < 24; d++) wre[d] = 1 / Math.sqrt(24)
+  for (let d = 0; d < 24; d++) {
+    wre[d] = 1 / Math.sqrt(24)
+  }
 
   const ball = d4Ball(plan.memberBeats + 1)
+
   let dre = new Float64Array(ball.points.length * 24)
   let dim = new Float64Array(ball.points.length * 24)
 
-  for (let d = 0; d < 24; d++) dre[(ball.index.get('0,0,0,0') as number) * 24 + d] = 1 / Math.sqrt(24)
+  for (let d = 0; d < 24; d++) {
+    dre[ball.index.get('0,0,0,0')! * 24 + d] = 1 / Math.sqrt(24)
+  }
 
   let walkGap = 0
+
   const cache = new Map<string, number>()
 
   for (let t = 1; t <= plan.memberBeats; t++) {
@@ -476,9 +627,11 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
     for (let p = 0; p < ball.points.length; p++) {
       let s = 0
 
-      for (let d = 0; d < 24; d++) s += (dre[p * 24 + d] as number) ** 2 + (dim[p * 24 + d] as number) ** 2
+      for (let d = 0; d < 24; d++) {
+        s += dre[p * 24 + d]! ** 2 + dim[p * 24 + d]! ** 2
+      }
 
-      const k = (ball.points[p] as number[]).join(',')
+      const k = ball.points[p]!.join(',')
 
       walkGap = Math.max(walkGap, Math.abs((p1.P.get(k) ?? 0) - s))
     }
@@ -486,7 +639,9 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
 
   const C2 = !trivCrit.yes && walkGap <= WALK_SAME
 
-  log(`C2 ${C2}: ${critText(trivCrit)}; trivial member against the D4 walk ${e2(walkGap)}`)
+  log(
+    `C2 ${C2}: ${critText(trivCrit)}; trivial member against the D4 walk ${e2(walkGap)}`,
+  )
 
   // ---------------- C1: E-SPN-0152's Hamiltonian record on the husk ----------------
   const huskTri = triangleLattice('husk triangles', huskVectors())
@@ -494,45 +649,74 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
     const H = hamiltonianData(g)
     const f = hamiltonianFreezing(g, H, huskTri)
     const y = f ? f.y : NaN
-    const eps = huskTri.classes.map(c => 1 - stringSlope(H, huskTri.perimeter, c.perLink) * y * y)
+    const eps = huskTri.classes.map(
+      c => 1 - stringSlope(H, huskTri.perimeter, c.perLink) * y * y,
+    )
 
-    return { name: g.name, y, eps, perLink: huskTri.classes.map(c => c.perLink) }
+    return {
+      name: g.name,
+      y,
+      eps,
+      perLink: huskTri.classes.map(c => c.perLink),
+    }
   })
   const h2t = ham[0] as { y: number; eps: number[]; perLink: number[] }
   const axis = h2t.perLink.indexOf(8)
   const diag = h2t.perLink.indexOf(6)
   const C1 =
-    ham.every(r => Math.abs(r.y - (RECORD.y[r.name] as number)) <= RECORD_Y) && Math.abs((h2t.eps[axis] as number) - RECORD.epsAxis) <= RECORD_EPS && Math.abs((h2t.eps[diag] as number) - RECORD.epsDiagonal) <= RECORD_EPS
+    ham.every(r => Math.abs(r.y - RECORD.y[r.name]!) <= RECORD_Y) &&
+    Math.abs(h2t.eps[axis]! - RECORD.epsAxis) <= RECORD_EPS &&
+    Math.abs(h2t.eps[diag]! - RECORD.epsDiagonal) <= RECORD_EPS
 
-  log(`C1 ${C1}: ${ham.map(r => `${r.name} y_f ${f4(r.y)} eps ${r.eps.map(f4).join('/')} (per link ${r.perLink.join('/')})`).join('; ')}`)
+  log(
+    `C1 ${C1}: ${ham.map(r => `${r.name} y_f ${f4(r.y)} eps ${r.eps.map(f4).join('/')} (per link ${r.perLink.join('/')})`).join('; ')}`,
+  )
 
   // ---------------- H3: exact kept candidates ----------------
   const thetaE = unitAngle(u)
   const thetaM = unitAngle(ringUnit(ALPHA[0], ALPHA[1]))
   const n = chars.dims.map(d => d * d - 1)
-  const lambda = n.map(k => [Math.cos(k * thetaE), Math.sin(k * thetaE)] as [number, number])
+  const lambda = n.map(
+    k =>
+      [Math.cos(k * thetaE), Math.sin(k * thetaE)] as [number, number],
+  )
   const survival = flatSurvival(chars, I2g.order, lambda)
   const keptEmpty = emptyKeptWeight(I2g, thetaM)
   const flatKept = Math.abs(survival - 1) <= KEPT
   const emptyKept = Math.abs(keptEmpty - 1) <= KEPT
   // plaquettes: the flat register 1, the E = 0 register the Haar mean of q0
   const haarQ0 = I2g.q0.reduce((s, x) => s + x, 0) / I2g.order
-  const H3 = H2 && ((flatKept && 1 >= qStar) || (emptyKept && haarQ0 >= qStar))
+  const H3 =
+    H2 && ((flatKept && 1 >= qStar) || (emptyKept && haarQ0 >= qStar))
   const classes = conjugacyClasses(I2g)
   const face = faceFloquet(I2g, chars, classes, lambda, thetaM)
-  const order = face.q0.map((q, i) => ({ q, id: face.identity[i] as number, phase: face.phases[i] as number })).sort((a, b) => b.q - a.q)
+  const order = face.q0
+    .map((q, i) => ({
+      q,
+      id: face.identity[i]!,
+      phase: face.phases[i]!,
+    }))
+    .sort((a, b) => b.q - a.q)
 
-  log(`H3 ${H3}: flat survival a link ${survival.toFixed(12)} (kept ${flatKept}), E = 0 kept weight a face ${keptEmpty.toFixed(12)} (kept ${emptyKept}), Haar <q0> ${e2(haarQ0)}, q* ${f4(qStar)}; one face: F unitary to ${e2(face.unitarity)}, eigenvectors by <q0(h)> ${order.map(o => `${f4(o.q)} (h = 1 weight ${f4(o.id)})`).join(', ')}`)
+  log(
+    `H3 ${H3}: flat survival a link ${survival.toFixed(12)} (kept ${flatKept}), E = 0 kept weight a face ${keptEmpty.toFixed(12)} (kept ${emptyKept}), Haar <q0> ${e2(haarQ0)}, q* ${f4(qStar)}; one face: F unitary to ${e2(face.unitarity)}, eigenvectors by <q0(h)> ${order.map(o => `${f4(o.q)} (h = 1 weight ${f4(o.id)})`).join(', ')}`,
+  )
 
   // ---------------- READ: the anisotropic husk, the transfer-matrix count ----------------
   const xiReads = plan.xis.map(xi => {
     const L = huskTimeGauge(xi)
     const G = gaussianData(L, plan.readN)
 
-    return { xi, cL: G.cL, rows: [T2, I2g].map(g => criterion(g, L, G, ref)) }
+    return {
+      xi,
+      cL: G.cL,
+      rows: [T2, I2g].map(g => criterion(g, L, G, ref)),
+    }
   })
 
-  log(`READ xi: ${xiReads.map(x => `xi ${x.xi} (cL ${f4(x.cL)}): ${x.rows.map(critText).join('; ')}`).join(' | ')}`)
+  log(
+    `READ xi: ${xiReads.map(x => `xi ${x.xi} (cL ${f4(x.cL)}): ${x.rows.map(critText).join('; ')}`).join(' | ')}`,
+  )
 
   let count = 0n
   let count2 = 0n
@@ -547,13 +731,20 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
   count /= BigInt(I2g.order)
   count2 /= BigInt(I2g.order)
 
-  log(`READ transfer matrix: V = 1 slab ${count} states (${Number(count).toExponential(3)}), V = 2 ${Number(count2).toExponential(3)}`)
+  log(
+    `READ transfer matrix: V = 1 slab ${count} states (${Number(count).toExponential(3)}), V = 2 ${Number(count2).toExponential(3)}`,
+  )
 
   // ---------------- verdict ----------------
   const H4 = false
   const instrument = I1 && I2 && I3 && I4
   const controls = C1 && C2 && C3
-  const status = !instrument || !controls ? 'partial' : H1 && H2 && H3 && H4 ? 'pass' : 'fail'
+  const status =
+    !instrument || !controls
+      ? 'partial'
+      : H1 && H2 && H3 && H4
+        ? 'pass'
+        : 'fail'
   const r = h2i.reading
 
   return verdict({
@@ -579,7 +770,12 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
       emptyKept: keptEmpty,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: C1 ? 1 : 0, C2: C2 ? 1 : 0, C3: C3 ? 1 : 0, instrument: instrument ? 1 : 0 },
+    control: {
+      C1: C1 ? 1 : 0,
+      C2: C2 ? 1 : 0,
+      C3: C3 ? 1 : 0,
+      instrument: instrument ? 1 : 0,
+    },
     notes: `L2 and L1. Hypercubic: ${hcCrit.map(critText).join('; ')}. Husk x beat: ${huskCrit.map(critText).join('; ')}. Trivial: ${critText(trivCrit)}. xi reads: ${xiReads.map(x => `xi ${x.xi}: ${x.rows.map(critText).join('; ')}`).join(' | ')}. cL hypercubic ${Ghc.cL}, husk ${Gh.cL}. 2I Cayley Casimirs ${casimirs.map(c => c.toFixed(4)).join(' ')}. Hamiltonian record ${ham.map(h => `${h.name} ${f4(h.y)}`).join(', ')}. One face eigenvectors <q0> ${order.map(o => f4(o.q)).join(' ')}. Transfer matrix V = 1 ${count}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

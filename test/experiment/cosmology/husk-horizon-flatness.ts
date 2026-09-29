@@ -56,9 +56,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildHyperbolicBall, cuspLayer, labelledCoin } from '@/code/substrate/coxeter/label-transport'
+import {
+  buildHyperbolicBall,
+  cuspLayer,
+  labelledCoin,
+} from '@/code/substrate/coxeter/label-transport'
 import { CANONICAL_SHELLS } from '@/code/substrate/mesh-unfolding'
-import { countBoth, countMask, cubicBall, cubicShell, distancesFrom, huskDocks, pastMask } from '@/code/measure/husk-cosmology'
+import {
+  countBoth,
+  countMask,
+  cubicBall,
+  cubicShell,
+  distancesFrom,
+  huskDocks,
+  pastMask,
+} from '@/code/measure/husk-cosmology'
 
 const RADIUS = 4
 const SKIN = 8
@@ -73,82 +85,146 @@ export function huskHorizonRun() {
   // ---- F1, F2 ----
   const layerShells = new Array<number>(SKIN + 1).fill(0)
 
-  for (const s of layer.skin.values()) layerShells[s] = (layerShells[s] ?? 0) + 1
+  for (const s of layer.skin.values()) {
+    layerShells[s] = (layerShells[s] ?? 0) + 1
+  }
 
-  const f1 = layer.layerDegree.every(d => d === 6) && layerShells.every((n, s) => n === cubicShell(s)) && layer.levelSpread < 1e-9
+  const f1 =
+    layer.layerDegree.every(d => d === 6) &&
+    layerShells.every((n, s) => n === cubicShell(s)) &&
+    layer.levelSpread < 1e-9
   const bulkShells = new Array<number>(RADIUS + 1).fill(0)
 
-  for (const d of ball.distance) bulkShells[d] = (bulkShells[d] ?? 0) + 1
+  for (const d of ball.distance) {
+    bulkShells[d] = (bulkShells[d] ?? 0) + 1
+  }
 
   const f2 = bulkShells.every((n, r) => n === CANONICAL_SHELLS[r])
 
   // ---- H1: the seed's reach on the husk ----
   const docks = huskDocks({ ball, layer })
-  const seedEqualsSkin = docks.filter(h => ball.distance[h.cell] === h.skin).length
-  const reach = Array.from({ length: RADIUS + 1 }, (_, t) => docks.filter(h => (ball.distance[h.cell] as number) <= t).length)
-  const h1 = seedEqualsSkin === docks.length && docks.length === cubicBall(RADIUS) && reach.every((n, t) => n === cubicBall(t))
+  const seedEqualsSkin = docks.filter(
+    h => ball.distance[h.cell] === h.skin,
+  ).length
+  const reach = Array.from(
+    { length: RADIUS + 1 },
+    (_, t) => docks.filter(h => ball.distance[h.cell]! <= t).length,
+  )
+  const h1 =
+    seedEqualsSkin === docks.length &&
+    docks.length === cubicBall(RADIUS) &&
+    reach.every((n, t) => n === cubicBall(t))
 
   // ---- H2: every pair of reached husk docks shares a causal past ----
   const from = new Map<number, Int16Array>()
 
-  for (const h of docks) from.set(h.cell, distancesFrom({ ball, source: h.cell, limit: 2 * RADIUS }))
+  for (const h of docks) {
+    from.set(
+      h.cell,
+      distancesFrom({ ball, source: h.cell, limit: 2 * RADIUS }),
+    )
+  }
 
   const perBeat = Array.from({ length: RADIUS }, (_, i) => {
     const T = i + 1
-    const reached = docks.filter(h => (ball.distance[h.cell] as number) <= T)
-    const masks = reached.map(h => pastMask({ seed: ball.distance, from: from.get(h.cell) as Int16Array, beat: T }))
+    const reached = docks.filter(h => ball.distance[h.cell]! <= T)
+    const masks = reached.map(h =>
+      pastMask({
+        seed: ball.distance,
+        from: from.get(h.cell)!,
+        beat: T,
+      }),
+    )
+
     let pairs = 0
     let disjoint = 0
     let fewest = Infinity
     let fewestFraction = Infinity
-    const bySeparation = new Map<number, { fewest: number; fraction: number }>()
+
+    const bySeparation = new Map<
+      number,
+      { fewest: number; fraction: number }
+    >()
 
     for (let a = 0; a < reached.length; a++) {
-      const own = countMask(masks[a] as Uint8Array)
+      const own = countMask(masks[a]!)
 
       for (let b = a + 1; b < reached.length; b++) {
-        const shared = countBoth(masks[a] as Uint8Array, masks[b] as Uint8Array)
-        const separation = (from.get((reached[a] as { cell: number }).cell) as Int16Array)[(reached[b] as { cell: number }).cell] as number
+        const shared = countBoth(masks[a]!, masks[b]!)
+        const separation = from.get(
+          (reached[a] as { cell: number }).cell,
+        )![(reached[b] as { cell: number }).cell]!
         const fraction = shared / own
 
         pairs++
-        if (shared === 0) disjoint++
+
+        if (shared === 0) {
+          disjoint++
+        }
+
         fewest = Math.min(fewest, shared)
         fewestFraction = Math.min(fewestFraction, fraction)
 
-        const was = bySeparation.get(separation) ?? { fewest: Infinity, fraction: Infinity }
+        const was = bySeparation.get(separation) ?? {
+          fewest: Infinity,
+          fraction: Infinity,
+        }
 
-        bySeparation.set(separation, { fewest: Math.min(was.fewest, shared), fraction: Math.min(was.fraction, fraction) })
+        bySeparation.set(separation, {
+          fewest: Math.min(was.fewest, shared),
+          fraction: Math.min(was.fraction, fraction),
+        })
       }
     }
 
-    return { T, docks: reached.length, pairs, disjoint, fewest, fewestFraction, bySeparation }
+    return {
+      T,
+      docks: reached.length,
+      pairs,
+      disjoint,
+      fewest,
+      fewestFraction,
+      bySeparation,
+    }
   })
   const h2 = perBeat.every(b => b.disjoint === 0 && b.pairs > 0)
 
   // ---- C1: a start everywhere at once ----
   const near = docks.filter(h => h.skin <= CONTROL_SKIN)
   const everywhere = new Int32Array(ball.cells)
-  const controlMasks = near.map(h => pastMask({ seed: everywhere, from: from.get(h.cell) as Int16Array, beat: 1 }))
+  const controlMasks = near.map(h =>
+    pastMask({ seed: everywhere, from: from.get(h.cell)!, beat: 1 }),
+  )
+
   let controlPairs = 0
   let controlDisjoint = 0
   let controlAgree = 0
 
   for (let a = 0; a < near.length; a++) {
     for (let b = a + 1; b < near.length; b++) {
-      const shared = countBoth(controlMasks[a] as Uint8Array, controlMasks[b] as Uint8Array)
-      const separation = (from.get((near[a] as { cell: number }).cell) as Int16Array)[(near[b] as { cell: number }).cell] as number
+      const shared = countBoth(controlMasks[a]!, controlMasks[b]!)
+      const separation = from.get((near[a] as { cell: number }).cell)![
+        (near[b] as { cell: number }).cell
+      ]!
 
       controlPairs++
-      if (shared === 0) controlDisjoint++
-      if ((shared === 0) === separation > 2) controlAgree++
+
+      if (shared === 0) {
+        controlDisjoint++
+      }
+
+      if ((shared === 0) === separation > 2) {
+        controlAgree++
+      }
     }
   }
 
   const c1 = controlAgree === controlPairs && controlDisjoint > 0
   const status = f1 && f2 && h1 && h2 && c1 ? 'pass' : 'fail'
-  const last = perBeat[perBeat.length - 1] as (typeof perBeat)[number]
-  const separations = [...last.bySeparation.entries()].sort((p, q) => p[0] - q[0])
+  const last = perBeat[perBeat.length - 1]!
+  const separations = [...last.bySeparation.entries()].sort(
+    (p, q) => p[0] - q[0],
+  )
 
   return verdict({
     status,
@@ -164,7 +240,9 @@ export function huskHorizonRun() {
       huskDocksInBall: docks.length,
       seedEqualsSkin,
       ...Object.fromEntries(reach.map((n, t) => [`reachBeat${t}`, n])),
-      ...Object.fromEntries(perBeat.map(b => [`disjointPairsBeat${b.T}`, b.disjoint])),
+      ...Object.fromEntries(
+        perBeat.map(b => [`disjointPairsBeat${b.T}`, b.disjoint]),
+      ),
       sharedFewestBeat4: last.fewest,
       sharedFewestFractionBeat4: last.fewestFraction,
       controlPairs,
@@ -183,7 +261,7 @@ export default experiment({
   id: 'cosmology/husk-horizon-flatness',
   code: 'E-CSM-0058',
   title:
-    'the horizon and flatness problems read on the husk of the true {3,4,3,4} mesh, pass: the husk (the cusp layer of one ideal vertex) is flat by geometry, not tuning (833 cells to skin 8, degree 6, the cubic lattice\'s shells, one horosphere to 1.7e-12, inside a bulk growing 1, 24, 456, 8376, 153192); the seed\'s reach on it is exactly the cubic l1 ball (1, 7, 25, 63, 129 docks by beats 0 to 4), and at every beat every pair of reached husk docks shares a causal past, while a start everywhere at once leaves every pair farther apart than twice the elapsed time with none, so a single-seed start has no horizon problem and no flatness problem; the thermal uniformity of the reached docks and the expansion history are not read',
+    "the horizon and flatness problems read on the husk of the true {3,4,3,4} mesh, pass: the husk (the cusp layer of one ideal vertex) is flat by geometry, not tuning (833 cells to skin 8, degree 6, the cubic lattice's shells, one horosphere to 1.7e-12, inside a bulk growing 1, 24, 456, 8376, 153192); the seed's reach on it is exactly the cubic l1 ball (1, 7, 25, 63, 129 docks by beats 0 to 4), and at every beat every pair of reached husk docks shares a causal past, while a start everywhere at once leaves every pair farther apart than twice the elapsed time with none, so a single-seed start has no horizon problem and no flatness problem; the thermal uniformity of the reached docks and the expansion history are not read",
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L2',

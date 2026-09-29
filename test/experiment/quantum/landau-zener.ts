@@ -91,7 +91,9 @@ export default experiment({
       },
       // CONTROL: a massless walk (no gap) is fully diabatic at every force.
       control: {
-        masslessMinProbability: Number(Math.min(...masslessP).toFixed(4)),
+        masslessMinProbability: Number(
+          Math.min(...masslessP).toFixed(4),
+        ),
       },
       notes:
         'Landau-Zener from the coined Dirac walk band structure (code/measure/landau-zener): the diabatic probability is exp(-pi mass^2 / F) to ~5 percent at masses 0.2..0.3 (gap = substrate 2 mass), massless control fully diabatic (P = 1). L2, the semiclassical (continuum-force) limit of the walk under a force; the exact discrete stepping deviates at finite F.',

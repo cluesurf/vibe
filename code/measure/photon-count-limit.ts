@@ -23,13 +23,22 @@
 //   denominator's exponent per beat: a generic start, and starts projected exactly onto one eigenvalue
 //   (integer projectors, products of the other factors M - mu)
 
-import { emptyPhotonState, makePhotonRule, photonLatticeD4, type PhotonLattice } from '@/code/rule/photon-links'
+import {
+  emptyPhotonState,
+  makePhotonRule,
+  photonLatticeD4,
+  type PhotonLattice,
+} from '@/code/rule/photon-links'
 import { linearWaveEigenvalues } from '@/code/measure/photon-modes'
 import { centered } from '@/code/measure/photon-symbol'
 import type { Start } from '@/code/measure/photon-battery'
 
 // the spectrum of the curl-curl operator over every wave vector of the box
-export function boxSpectrum(side: number): { values: number[]; max: number; min: number } {
+export function boxSpectrum(side: number): {
+  values: number[]
+  max: number
+  min: number
+} {
   const lattice = photonLatticeD4({ side })
   const values: number[] = []
 
@@ -47,7 +56,10 @@ export function boxSpectrum(side: number): { values: number[]; max: number; min:
 }
 
 // M v = C^T (C v), exact, on bigint link vectors
-export function applyCurlCurl(lattice: PhotonLattice, v: readonly bigint[]): bigint[] {
+export function applyCurlCurl(
+  lattice: PhotonLattice,
+  v: readonly bigint[],
+): bigint[] {
   const size = lattice.plaquetteSize
   const out: bigint[] = Array.from({ length: lattice.links }, () => 0n)
 
@@ -55,7 +67,9 @@ export function applyCurlCurl(lattice: PhotonLattice, v: readonly bigint[]): big
     let b = 0n
 
     for (let j = 0; j < size; j++) {
-      b += BigInt(lattice.plaquetteSigns[o + j] ?? 0) * (v[lattice.plaquetteLinks[o + j] ?? 0] ?? 0n)
+      b +=
+        BigInt(lattice.plaquetteSigns[o + j] ?? 0) *
+        (v[lattice.plaquetteLinks[o + j] ?? 0] ?? 0n)
     }
 
     if (b === 0n) {
@@ -65,7 +79,8 @@ export function applyCurlCurl(lattice: PhotonLattice, v: readonly bigint[]): big
     for (let j = 0; j < size; j++) {
       const l = lattice.plaquetteLinks[o + j] ?? 0
 
-      out[l] = (out[l] ?? 0n) + BigInt(lattice.plaquetteSigns[o + j] ?? 0) * b
+      out[l] =
+        (out[l] ?? 0n) + BigInt(lattice.plaquetteSigns[o + j] ?? 0) * b
     }
   }
 
@@ -73,7 +88,11 @@ export function applyCurlCurl(lattice: PhotonLattice, v: readonly bigint[]): big
 }
 
 // the product of (M - mu) over mu in `factors`, applied to w
-export function applyFactors(lattice: PhotonLattice, factors: readonly number[], w: readonly bigint[]): bigint[] {
+export function applyFactors(
+  lattice: PhotonLattice,
+  factors: readonly number[],
+  w: readonly bigint[],
+): bigint[] {
   let v = [...w]
 
   for (const mu of factors) {
@@ -87,7 +106,11 @@ export function applyFactors(lattice: PhotonLattice, factors: readonly number[],
 
 // an integer test vector on the links from an integer Weyl sequence, entries in -8 .. 7
 export function testVector(links: number, salt: number): bigint[] {
-  return Array.from({ length: links }, (_, l) => BigInt((((l + 1 + 97 * salt) * 40503) & 65535) >> 12) - 8n)
+  return Array.from(
+    { length: links },
+    (_, l) =>
+      BigInt((((l + 1 + 97 * salt) * 40503) & 65535) >> 12) - 8n,
+  )
 }
 
 const isZero = (v: readonly bigint[]): boolean => v.every(x => x === 0n)
@@ -105,14 +128,26 @@ function twos(x: bigint): number {
   return n
 }
 
-export type ExactRun = { exponents: number[]; periodSix: boolean; static: boolean; final: { angle: bigint[]; flux: bigint[]; exponent: number } }
+export type ExactRun = {
+  exponents: number[]
+  periodSix: boolean
+  static: boolean
+  final: { angle: bigint[]; flux: bigint[]; exponent: number }
+}
 
 // The linear leapfrog at kappa = 2^-qBits in exact rationals: angle and flux are numerators over 2^exponent,
 // reduced every beat. exponents[t] is the denominator's exponent after beat t + 1.
-export function exactLeapfrog(lattice: PhotonLattice, qBits: number, angle0: readonly bigint[], flux0: readonly bigint[], beats: number): ExactRun {
+export function exactLeapfrog(
+  lattice: PhotonLattice,
+  qBits: number,
+  angle0: readonly bigint[],
+  flux0: readonly bigint[],
+  beats: number,
+): ExactRun {
   let angle = [...angle0]
   let flux = [...flux0]
   let exponent = 0
+
   const exponents: number[] = []
   const scale = 1n << BigInt(qBits)
 
@@ -152,7 +187,10 @@ export function exactLeapfrog(lattice: PhotonLattice, qBits: number, angle0: rea
 
     exponents.push(exponent)
 
-    const same = exponent === 0 && angle.every((a, l) => a === angle0[l]) && flux.every((e, l) => e === flux0[l])
+    const same =
+      exponent === 0 &&
+      angle.every((a, l) => a === angle0[l]) &&
+      flux.every((e, l) => e === flux0[l])
 
     if (t === 5) {
       periodSix = same
@@ -161,25 +199,48 @@ export function exactLeapfrog(lattice: PhotonLattice, qBits: number, angle0: rea
     unchanged = unchanged && same
   }
 
-  return { exponents, periodSix, static: unchanged, final: { angle, flux, exponent } }
+  return {
+    exponents,
+    periodSix,
+    static: unchanged,
+    final: { angle, flux, exponent },
+  }
 }
 
 // an integer start as bigint link vectors (angles centered from the N = 8192 starts of code/measure/photon-battery)
-export function startVectors(lattice: PhotonLattice, start: Start): { angle: bigint[]; flux: bigint[] } {
-  const base = makePhotonRule({ lattice, n: 8192, k: 80, capacity: 0, hop: false, charge: 1 })
+export function startVectors(
+  lattice: PhotonLattice,
+  start: Start,
+): { angle: bigint[]; flux: bigint[] } {
+  const base = makePhotonRule({
+    lattice,
+    n: 8192,
+    k: 80,
+    capacity: 0,
+    hop: false,
+    charge: 1,
+  })
   const s = emptyPhotonState(base)
 
   start(base, s)
 
-  return { angle: Array.from(s.angle, a => BigInt(centered(a, 8192))), flux: Array.from(s.flux, e => BigInt(e)) }
+  return {
+    angle: Array.from(s.angle, a => BigInt(centered(a, 8192))),
+    flux: Array.from(s.flux, e => BigInt(e)),
+  }
 }
 
 // the least-squares slope of y against t over [from, to)
-export function slope(y: readonly number[], from: number, to: number): number {
+export function slope(
+  y: readonly number[],
+  from: number,
+  to: number,
+): number {
   let st = 0
   let sy = 0
   let stt = 0
   let sty = 0
+
   const n = to - from
 
   for (let t = from; t < to; t++) {

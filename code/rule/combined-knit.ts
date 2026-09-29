@@ -32,10 +32,29 @@
 // set, B the base. Backward: G_t  S_(c - t)  B_t^-1  S_t  G_t. Then every slot streams, forward or back.
 
 import { type Collision } from '@/code/rule/collision'
-import { type ColorLocalSpec, invertTable, stateKey, type WireTable } from '@/code/rule/color-local-weave'
-import { HEAD_TURN_SPEC, scatterSchedule, type Scattering } from '@/code/rule/scatter-weave'
-import { foldRoundRobin, makeSteeredKnit, partitionAt, steerDock, type KnitSteer, type SteeredKnit } from '@/code/rule/steered-knit'
-import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  type ColorLocalSpec,
+  invertTable,
+  stateKey,
+  type WireTable,
+} from '@/code/rule/color-local-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type Scattering,
+} from '@/code/rule/scatter-weave'
+import {
+  foldRoundRobin,
+  makeSteeredKnit,
+  partitionAt,
+  steerDock,
+  type KnitSteer,
+  type SteeredKnit,
+} from '@/code/rule/steered-knit'
+import {
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
 
 export type CombinedKnitSpec = {
@@ -48,7 +67,13 @@ export type CombinedKnitSpec = {
   readonly steer: KnitSteer
 }
 
-export const COMBINED_DEFAULT: CombinedKnitSpec = { base: HEAD_TURN_SPEC, fold: false, scatter: true, mirror: 23, steer: false }
+export const COMBINED_DEFAULT: CombinedKnitSpec = {
+  base: HEAD_TURN_SPEC,
+  fold: false,
+  scatter: true,
+  mirror: 23,
+  steer: false,
+}
 
 // the base with the fold applied
 export function scheduleOf(spec: CombinedKnitSpec): ColorLocalSpec {
@@ -58,7 +83,10 @@ export function scheduleOf(spec: CombinedKnitSpec): ColorLocalSpec {
 type Built = {
   readonly schedule: ColorLocalSpec
   readonly lines: readonly (readonly [number, number])[]
-  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positions: readonly (readonly (readonly [
+    number,
+    number,
+  ])[])[]
   readonly forwardTables: readonly WireTable[]
   readonly inverseTables: readonly WireTable[]
   readonly fires: Uint8Array
@@ -66,12 +94,16 @@ type Built = {
   readonly opposite: readonly number[]
 }
 
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 const mod = (t: number, n: number): number => ((t % n) + n) % n
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 const weight = (v: number): number => (v !== 0 ? v : 1)
 
-function build(spec: CombinedKnitSpec, opposite: readonly number[]): Built {
+function build(
+  spec: CombinedKnitSpec,
+  opposite: readonly number[],
+): Built {
   const schedule = scheduleOf(spec)
   const lines: [number, number][] = []
 
@@ -83,27 +115,44 @@ function build(spec: CombinedKnitSpec, opposite: readonly number[]): Built {
     }
   }
 
-  const norm = (a: number, b: number): readonly [number, number] => (a < b ? [a, b] : [b, a])
+  const norm = (a: number, b: number): readonly [number, number] =>
+    a < b ? [a, b] : [b, a]
   const positions: (readonly [number, number])[][] = []
 
   let current = schedule.couplesZero.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 12; i++) {
     positions.push(current)
-    current = current.map(([a, b]) => norm(schedule.turn[a] ?? a, schedule.turn[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(schedule.turn[a] ?? a, schedule.turn[b] ?? b),
+    )
   }
 
   const fires = new Uint8Array(81)
 
   for (let l = 0; l < 9; l++) {
     for (let w = 0; w < 9; w++) {
-      fires[l * 9 + w] = schedule.swapWhen(l, w) || schedule.swapWhen(w, l) ? 1 : 0
+      fires[l * 9 + w] =
+        schedule.swapWhen(l, w) || schedule.swapWhen(w, l) ? 1 : 0
     }
   }
 
-  const sets = spec.scatter ? scatterSchedule().map((set: readonly Scattering[]) => Int32Array.from(set.flatMap(s => [...s]))) : []
+  const sets = spec.scatter
+    ? scatterSchedule().map((set: readonly Scattering[]) =>
+        Int32Array.from(set.flatMap(s => [...s])),
+      )
+    : []
 
-  return { schedule, lines, positions, forwardTables: schedule.tables, inverseTables: schedule.tables.map(invertTable), fires, sets, opposite }
+  return {
+    schedule,
+    lines,
+    positions,
+    forwardTables: schedule.tables,
+    inverseTables: schedule.tables.map(invertTable),
+    fires,
+    sets,
+    opposite,
+  }
 }
 
 // the per-dock working set: vibes, and optionally tokens, which open tokens they are, and where to record
@@ -136,7 +185,12 @@ function scatter(dock: Dock, built: Built, set: Int32Array): void {
   const { vibe, base } = dock
 
   for (let k = 0; k < set.length; k += 4) {
-    const [a = 0, b = 0, c = 0, e = 0] = [set[k], set[k + 1], set[k + 2], set[k + 3]]
+    const [a = 0, b = 0, c = 0, e = 0] = [
+      set[k],
+      set[k + 1],
+      set[k + 2],
+      set[k + 3],
+    ]
 
     if (
       vibe[base + (built.opposite[a] ?? 0)] !== 0 ||
@@ -151,8 +205,10 @@ function scatter(dock: Dock, built: Built, set: Int32Array): void {
     const v = base + b
     const w = base + c
     const x = base + e
-    const here = vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
-    const there = vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
+    const here =
+      vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
+    const there =
+      vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
 
     if (here || there) {
       swapSlots(dock, u, w)
@@ -161,10 +217,21 @@ function scatter(dock: Dock, built: Built, set: Int32Array): void {
   }
 }
 
-function exchange(dock: Dock, built: Built, line: readonly [number, number], wire: readonly [number, number]): void {
+function exchange(
+  dock: Dock,
+  built: Built,
+  line: readonly [number, number],
+  wire: readonly [number, number],
+): void {
   const { vibe, base } = dock
-  const l = stateKey(vibe[base + line[0]] ?? 0, vibe[base + line[1]] ?? 0)
-  const w = stateKey(vibe[base + wire[0]] ?? 0, vibe[base + wire[1]] ?? 0)
+  const l = stateKey(
+    vibe[base + line[0]] ?? 0,
+    vibe[base + line[1]] ?? 0,
+  )
+  const w = stateKey(
+    vibe[base + wire[0]] ?? 0,
+    vibe[base + wire[1]] ?? 0,
+  )
 
   if (built.fires[l * 9 + w] === 1) {
     swapSlots(dock, base + line[0], base + wire[0])
@@ -174,7 +241,13 @@ function exchange(dock: Dock, built: Built, line: readonly [number, number], wir
 
 // the wire's table; tokens exchanged where the first slot's weight changes sign; a meeting of two open
 // tokens recorded as fear-weave's collideCell records it
-function clock(dock: Dock, wire: readonly [number, number], table: WireTable, preimage: WireTable, forward: boolean): void {
+function clock(
+  dock: Dock,
+  wire: readonly [number, number],
+  table: WireTable,
+  preimage: WireTable,
+  forward: boolean,
+): void {
   const { vibe, token, open, base } = dock
   const i = base + wire[0]
   const j = base + wire[1]
@@ -195,9 +268,19 @@ function clock(dock: Dock, wire: readonly [number, number], table: WireTable, pr
   const ti = token[i] ?? 0
   const tj = token[j] ?? 0
 
-  if (open && before[0] !== 0 && before[1] !== 0 && open[ti] === 1 && open[tj] === 1) {
+  if (
+    open &&
+    before[0] !== 0 &&
+    before[1] !== 0 &&
+    open[ti] === 1 &&
+    open[tj] === 1
+  ) {
     dock.meetings.push([ti, tj])
-    dock.signs.push(forward || !exchanged ? [before[0] ?? 0, before[1] ?? 0] : [before[1] ?? 0, before[0] ?? 0])
+    dock.signs.push(
+      forward || !exchanged
+        ? [before[0] ?? 0, before[1] ?? 0]
+        : [before[1] ?? 0, before[0] ?? 0],
+    )
   }
 
   if (exchanged) {
@@ -206,7 +289,12 @@ function clock(dock: Dock, wire: readonly [number, number], table: WireTable, pr
   }
 }
 
-function baseCollide(dock: Dock, built: Built, t: number, forward: boolean): void {
+function baseCollide(
+  dock: Dock,
+  built: Built,
+  t: number,
+  forward: boolean,
+): void {
   const schedule = built.schedule
   const tables = forward ? built.forwardTables : built.inverseTables
   const tableIndex = at(schedule.tableAt, t)
@@ -215,7 +303,10 @@ function baseCollide(dock: Dock, built: Built, t: number, forward: boolean): voi
 
   for (let k = 0; k < couples.length; k++) {
     const index =
-      k === swapIndex && schedule.swapTable !== undefined ? schedule.swapTable : (tableIndex + (schedule.coupleTable?.[k] ?? 0)) % tables.length
+      k === swapIndex && schedule.swapTable !== undefined
+        ? schedule.swapTable
+        : (tableIndex + (schedule.coupleTable?.[k] ?? 0)) %
+          tables.length
     const table = tables[index] ?? []
     const preimage = built.inverseTables[index] ?? []
     const line = built.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
@@ -242,16 +333,35 @@ function baseCollide(dock: Dock, built: Built, t: number, forward: boolean): voi
 const SCRATCH_VIBE = new Int8Array(24)
 const SCRATCH_ROLE = new Int8Array(24)
 
-function steer(dock: Dock, knit: SteeredKnit, string: (d: number) => boolean, t: number, couples: readonly (readonly [number, number])[]): void {
+function steer(
+  dock: Dock,
+  knit: SteeredKnit,
+  string: (d: number) => boolean,
+  t: number,
+  couples: readonly (readonly [number, number])[],
+): void {
   for (let d = 0; d < 24; d++) {
     SCRATCH_VIBE[d] = dock.vibe[dock.base + d] ?? 0
     SCRATCH_ROLE[d] = d
   }
 
-  steerDock({ knit, slots: SCRATCH_VIBE, base: 0, string, t, role: SCRATCH_ROLE, couples })
+  steerDock({
+    knit,
+    slots: SCRATCH_VIBE,
+    base: 0,
+    string,
+    t,
+    role: SCRATCH_ROLE,
+    couples,
+  })
 
   const token = dock.token
-  const tokens = token ? Array.from({ length: 24 }, (_, d) => token[dock.base + (SCRATCH_ROLE[d] ?? d)] ?? 0) : undefined
+  const tokens = token
+    ? Array.from(
+        { length: 24 },
+        (_, d) => token[dock.base + (SCRATCH_ROLE[d] ?? d)] ?? 0,
+      )
+    : undefined
 
   for (let d = 0; d < 24; d++) {
     dock.vibe[dock.base + d] = SCRATCH_VIBE[d] ?? 0
@@ -273,26 +383,39 @@ function dockCollide(input: {
   const { knit, dock, t, forward, string, couples } = input
   const built = knit.built
   const n = built.sets.length
-  const first = n > 0 ? built.sets[mod(knit.spec.mirror - t, n)] : undefined
+  const first =
+    n > 0 ? built.sets[mod(knit.spec.mirror - t, n)] : undefined
   const last = n > 0 ? built.sets[mod(t, n)] : undefined
   const steering = knit.steered && knit.spec.steer && string && couples
 
   if (steering) {
-    steer(dock, knit.steered!, string, t, couples)
+    steer(dock, knit.steered, string, t, couples)
   }
 
   if (forward) {
-    if (first) scatter(dock, built, first)
+    if (first) {
+      scatter(dock, built, first)
+    }
+
     baseCollide(dock, built, t, true)
-    if (last) scatter(dock, built, last)
+
+    if (last) {
+      scatter(dock, built, last)
+    }
   } else {
-    if (last) scatter(dock, built, last)
+    if (last) {
+      scatter(dock, built, last)
+    }
+
     baseCollide(dock, built, t, false)
-    if (first) scatter(dock, built, first)
+
+    if (first) {
+      scatter(dock, built, first)
+    }
   }
 
   if (steering) {
-    steer(dock, knit.steered!, string, t, couples)
+    steer(dock, knit.steered, string, t, couples)
   }
 }
 
@@ -306,7 +429,10 @@ export type CombinedKnit = {
   readonly target: Int32Array
 }
 
-export function makeCombinedKnit(input: { side: number; spec: CombinedKnitSpec }): CombinedKnit {
+export function makeCombinedKnit(input: {
+  side: number
+  spec: CombinedKnitSpec
+}): CombinedKnit {
   const weave = makeColorWeave({ side: input.side, table: 'bind' })
   const target = new Int32Array(weave.mesh.cellCount * 24)
 
@@ -316,16 +442,34 @@ export function makeCombinedKnit(input: { side: number; spec: CombinedKnitSpec }
     }
   }
 
-  const steered = input.spec.steer ? makeSteeredKnit({ side: input.side, spec: scheduleOf(input.spec), steer: input.spec.steer }) : undefined
+  const steered = input.spec.steer
+    ? makeSteeredKnit({
+        side: input.side,
+        spec: scheduleOf(input.spec),
+        steer: input.spec.steer,
+      })
+    : undefined
 
-  return { spec: input.spec, built: build(input.spec, weave.opposite), weave, steered, target }
+  return {
+    spec: input.spec,
+    built: build(input.spec, weave.opposite),
+    weave,
+    steered,
+    target,
+  }
 }
 
 // the vibe collision of beat t, forward or inverse, for the lattice-gas engine and every dock-level
 // instrument. Steering reads the flux, which a dock collision cannot see, so it has none
-export function combinedCollision(input: { spec: CombinedKnitSpec; opposite: readonly number[]; forward?: boolean }): (t: number) => Collision {
+export function combinedCollision(input: {
+  spec: CombinedKnitSpec
+  opposite: readonly number[]
+  forward?: boolean
+}): (t: number) => Collision {
   if (input.spec.steer) {
-    throw new Error('a steered knit reads the flux: run it through combinedBeat')
+    throw new Error(
+      'a steered knit reads the flux: run it through combinedBeat',
+    )
   }
 
   const knit: CombinedKnit = {
@@ -338,7 +482,19 @@ export function combinedCollision(input: { spec: CombinedKnitSpec; opposite: rea
   const forward = input.forward ?? true
 
   return t => (slots, base) =>
-    dockCollide({ knit, dock: { vibe: slots, token: undefined, open: undefined, base, meetings: [], signs: [] }, t, forward })
+    dockCollide({
+      knit,
+      dock: {
+        vibe: slots,
+        token: undefined,
+        open: undefined,
+        base,
+        meetings: [],
+        signs: [],
+      },
+      t,
+      forward,
+    })
 }
 
 // the classical state: a vibe and a token at every slot, the classical role point of every token (the
@@ -350,25 +506,53 @@ export type CombinedState = {
   readonly flux: Int32Array
 }
 
-export function combinedState(knit: CombinedKnit, input: { vibe: Int8Array; point: Int8Array; flux?: Int32Array }): CombinedState {
+export function combinedState(
+  knit: CombinedKnit,
+  input: { vibe: Int8Array; point: Int8Array; flux?: Int32Array },
+): CombinedState {
   return {
     vibe: Int8Array.from(input.vibe),
     token: Int32Array.from({ length: input.vibe.length }, (_, i) => i),
     point: Int8Array.from(input.point),
-    flux: input.flux ? Int32Array.from(input.flux) : new Int32Array(knit.steered?.edges.length ?? 0),
+    flux: input.flux
+      ? Int32Array.from(input.flux)
+      : new Int32Array(knit.steered?.edges.length ?? 0),
   }
 }
 
-function collideAll(knit: CombinedKnit, state: { vibe: Int8Array; token: Int32Array; flux: Int32Array }, open: Uint8Array, t: number, forward: boolean): BeatRecord {
+function collideAll(
+  knit: CombinedKnit,
+  state: { vibe: Int8Array; token: Int32Array; flux: Int32Array },
+  open: Uint8Array,
+  t: number,
+  forward: boolean,
+): BeatRecord {
   const meetings: [number, number][] = []
   const signs: [number, number][] = []
   const steered = knit.steered
   const couples = steered ? partitionAt(steered.spec, t) : undefined
 
   for (let x = 0; x < knit.weave.mesh.cellCount; x++) {
-    const string = steered ? (d: number): boolean => mod3(state.flux[steered.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0 : undefined
+    const string = steered
+      ? (d: number): boolean =>
+          mod3(state.flux[steered.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
+      : undefined
 
-    dockCollide({ knit, dock: { vibe: state.vibe, token: state.token, open, base: x * 24, meetings, signs }, t, forward, string, couples })
+    dockCollide({
+      knit,
+      dock: {
+        vibe: state.vibe,
+        token: state.token,
+        open,
+        base: x * 24,
+        meetings,
+        signs,
+      },
+      t,
+      forward,
+      string,
+      couples,
+    })
   }
 
   return { meetings, crossings: [], signs }
@@ -376,12 +560,23 @@ function collideAll(knit: CombinedKnit, state: { vibe: Int8Array; token: Int32Ar
 
 // one beat forward: collide every dock, then stream vibes and tokens (moving each closed token's role point
 // by its link), and change each link's flux by what crossed it. Returns what the beat did to open tokens
-export function combinedBeat(knit: CombinedKnit, state: CombinedState, open: Uint8Array, t: number): { state: CombinedState; record: BeatRecord } {
+export function combinedBeat(
+  knit: CombinedKnit,
+  state: CombinedState,
+  open: Uint8Array,
+  t: number,
+): { state: CombinedState; record: BeatRecord } {
   const vibe = Int8Array.from(state.vibe)
   const token = Int32Array.from(state.token)
   const point = Int8Array.from(state.point)
   const flux = Int32Array.from(state.flux)
-  const collided = collideAll(knit, { vibe, token, flux }, open, t, true)
+  const collided = collideAll(
+    knit,
+    { vibe, token, flux },
+    open,
+    t,
+    true,
+  )
   const { moves, links } = knit.weave
   const streamedVibe = new Int8Array(vibe.length)
   const streamedToken = new Int32Array(token.length)
@@ -390,7 +585,10 @@ export function combinedBeat(knit: CombinedKnit, state: CombinedState, open: Uin
 
   if (steered) {
     steered.edges.forEach(([a, b, d], l) => {
-      flux[l] = (flux[l] ?? 0) + (vibe[b * 24 + (steered.opposite[d] ?? d)] ?? 0) - (vibe[a * 24 + d] ?? 0)
+      flux[l] =
+        (flux[l] ?? 0) +
+        (vibe[b * 24 + (steered.opposite[d] ?? d)] ?? 0) -
+        (vibe[a * 24 + d] ?? 0)
     })
   }
 
@@ -411,12 +609,21 @@ export function combinedBeat(knit: CombinedKnit, state: CombinedState, open: Uin
 
   return {
     state: { vibe: streamedVibe, token: streamedToken, point, flux },
-    record: { meetings: collided.meetings, crossings, signs: collided.signs },
+    record: {
+      meetings: collided.meetings,
+      crossings,
+      signs: collided.signs,
+    },
   }
 }
 
 // one beat backward, the exact inverse of combinedBeat at beat t
-export function combinedBeatBack(knit: CombinedKnit, state: CombinedState, open: Uint8Array, t: number): { state: CombinedState; record: BeatRecord } {
+export function combinedBeatBack(
+  knit: CombinedKnit,
+  state: CombinedState,
+  open: Uint8Array,
+  t: number,
+): { state: CombinedState; record: BeatRecord } {
   const { moves, links } = knit.weave
   const vibe = new Int8Array(state.vibe.length)
   const token = new Int32Array(state.token.length)
@@ -427,7 +634,8 @@ export function combinedBeatBack(knit: CombinedKnit, state: CombinedState, open:
   for (let s = 0; s < vibe.length; s++) {
     const from = knit.target[s] ?? 0
     const tk = state.token[from] ?? 0
-    const g = moves.inverse[links[s] ?? moves.identity] ?? moves.identity
+    const g =
+      moves.inverse[links[s] ?? moves.identity] ?? moves.identity
 
     vibe[s] = state.vibe[from] ?? 0
     token[s] = tk
@@ -443,13 +651,29 @@ export function combinedBeatBack(knit: CombinedKnit, state: CombinedState, open:
 
   if (steered) {
     steered.edges.forEach(([a, b, d], l) => {
-      flux[l] = (flux[l] ?? 0) - (vibe[b * 24 + (steered.opposite[d] ?? d)] ?? 0) + (vibe[a * 24 + d] ?? 0)
+      flux[l] =
+        (flux[l] ?? 0) -
+        (vibe[b * 24 + (steered.opposite[d] ?? d)] ?? 0) +
+        (vibe[a * 24 + d] ?? 0)
     })
   }
 
-  const collided = collideAll(knit, { vibe, token, flux }, open, t, false)
+  const collided = collideAll(
+    knit,
+    { vibe, token, flux },
+    open,
+    t,
+    false,
+  )
 
-  return { state: { vibe, token, point, flux }, record: { meetings: collided.meetings, crossings, signs: collided.signs } }
+  return {
+    state: { vibe, token, point, flux },
+    record: {
+      meetings: collided.meetings,
+      crossings,
+      signs: collided.signs,
+    },
+  }
 }
 
 // each slot's classical role point: the point of the token it holds
@@ -459,11 +683,18 @@ export function rolesOf(state: CombinedState): Int8Array {
 
 // how many docks the collision of beat t changes the color content of ([weight, x, y] mod 3, a calm slot
 // weighted by its side), with role points read through the tokens
-export function combinedLeaks(knit: CombinedKnit, state: CombinedState, t: number): number {
+export function combinedLeaks(
+  knit: CombinedKnit,
+  state: CombinedState,
+  t: number,
+): number {
   const vibe = Int8Array.from(state.vibe)
   const token = Int32Array.from(state.token)
   const flux = state.flux
-  const side = Array.from({ length: 24 }, (_, d) => (d < (knit.built.opposite[d] ?? d) ? 1 : -1))
+  const side = Array.from({ length: 24 }, (_, d) =>
+    d < (knit.built.opposite[d] ?? d) ? 1 : -1,
+  )
+
   const content = (x: number): string => {
     let w = 0
     let qx = 0
@@ -481,6 +712,7 @@ export function combinedLeaks(knit: CombinedKnit, state: CombinedState, t: numbe
 
     return `${mod3(w)},${mod3(qx)},${mod3(qy)}`
   }
+
   const steered = knit.steered
   const couples = steered ? partitionAt(steered.spec, t) : undefined
   const open = new Uint8Array(0)
@@ -489,9 +721,26 @@ export function combinedLeaks(knit: CombinedKnit, state: CombinedState, t: numbe
 
   for (let x = 0; x < knit.weave.mesh.cellCount; x++) {
     const before = content(x)
-    const string = steered ? (d: number): boolean => mod3(flux[steered.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0 : undefined
+    const string = steered
+      ? (d: number): boolean =>
+          mod3(flux[steered.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
+      : undefined
 
-    dockCollide({ knit, dock: { vibe, token, open, base: x * 24, meetings: [], signs: [] }, t, forward: true, string, couples })
+    dockCollide({
+      knit,
+      dock: {
+        vibe,
+        token,
+        open,
+        base: x * 24,
+        meetings: [],
+        signs: [],
+      },
+      t,
+      forward: true,
+      string,
+      couples,
+    })
     leaks += content(x) === before ? 0 : 1
   }
 

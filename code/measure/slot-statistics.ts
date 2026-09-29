@@ -36,7 +36,11 @@ export function massActionRatio(counts: readonly number[]): number {
 
 // a deterministic fill: slot i is love when frac((i + 1) g) < love, fear when below love + fear,
 // calm otherwise, with g the golden ratio conjugate
-export function goldenFill(input: { will: Will; love: number; fear: number }): void {
+export function goldenFill(input: {
+  will: Will
+  love: number
+  fear: number
+}): void {
   const { will, love, fear } = input
   const golden = (Math.sqrt(5) - 1) / 2
 

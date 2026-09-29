@@ -31,12 +31,27 @@
 //
 // NOTHING MOVES: the placement writes a start; the rule takes every value. The floats are measurement.
 
-import { lineReduced, type LineBasis, type LineLevel, type SubBasis } from '@/code/measure/coined-line-bloch'
+import {
+  lineReduced,
+  type LineBasis,
+  type LineLevel,
+  type SubBasis,
+} from '@/code/measure/coined-line-bloch'
 import { inverseIterate } from '@/code/measure/drift-cost-bloch'
 import { type Vec } from '@/code/measure/quantum-ladder'
-import { cloneConfiguration, mergeBranches, type Branch, type Configuration } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  mergeBranches,
+  type Branch,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
 import { type BoundState } from '@/code/rule/bound-line-pieces'
-import { eisenstein, eisensteinValue, type AxisRing, type PointLove } from '@/code/measure/held-cluster'
+import {
+  eisenstein,
+  eisensteinValue,
+  type AxisRing,
+  type PointLove,
+} from '@/code/measure/held-cluster'
 import { pointKeyOf, type CutState } from '@/code/measure/bound-line'
 import { type LineGauge } from '@/code/measure/permutation-meeting'
 
@@ -44,66 +59,132 @@ type C = [number, number]
 
 // ---- the band ----
 
-export type BandPoint = { K: number; energy: number; vector: Vec; residual: number; overlap: number }
+export type BandPoint = {
+  K: number
+  energy: number
+  vector: Vec
+  residual: number
+  overlap: number
+}
 
 // the level followed from K = 0 by inverse iteration in steps of at most `step`, read at each K of `ks` (increasing, the
 // first 0 or more): energy unwrapped by continuity, the vector in the configuration basis (whole basis), the least
 // consecutive overlap on the way
-export function followLevel(basis: LineBasis, sub: SubBasis, start: LineLevel, ks: readonly number[], step: number): BandPoint[] {
+export function followLevel(
+  basis: LineBasis,
+  sub: SubBasis,
+  start: LineLevel,
+  ks: readonly number[],
+  step: number,
+): BandPoint[] {
   const dim = sub.vectors.length
-  let prev: Vec = { re: Float64Array.from(start.cre), im: Float64Array.from(start.cim) }
+
+  let prev: Vec = {
+    re: Float64Array.from(start.cre),
+    im: Float64Array.from(start.cim),
+  }
   let K = 0
   let energy = start.unwrapped
   let leastOverlap = 1
   let residual = 0
+
   const out: BandPoint[] = []
 
-  if (dim !== basis.configs.length) throw new Error('moving-level: followLevel reads the whole basis')
+  if (dim !== basis.configs.length) {
+    throw new Error('moving-level: followLevel reads the whole basis')
+  }
 
   for (const target of ks) {
     while (K < target - 1e-15) {
       const next = Math.min(target, K + step)
       const it = inverseIterate(lineReduced(basis, sub, next), prev, 6)
+
       let r = 0
       let i = 0
       let n1 = 0
       let n2 = 0
 
       for (let a = 0; a < dim; a++) {
-        r += (prev.re[a] as number) * (it.vector.re[a] as number) + (prev.im[a] as number) * (it.vector.im[a] as number)
-        i += (prev.re[a] as number) * (it.vector.im[a] as number) - (prev.im[a] as number) * (it.vector.re[a] as number)
-        n1 += (prev.re[a] as number) ** 2 + (prev.im[a] as number) ** 2
-        n2 += (it.vector.re[a] as number) ** 2 + (it.vector.im[a] as number) ** 2
+        r +=
+          prev.re[a]! * it.vector.re[a]! +
+          prev.im[a]! * it.vector.im[a]!
+
+        i +=
+          prev.re[a]! * it.vector.im[a]! -
+          prev.im[a]! * it.vector.re[a]!
+        n1 += prev.re[a]! ** 2 + prev.im[a]! ** 2
+        n2 += it.vector.re[a]! ** 2 + it.vector.im[a]! ** 2
       }
 
-      leastOverlap = Math.min(leastOverlap, Math.hypot(r, i) / Math.sqrt(n1 * n2))
+      leastOverlap = Math.min(
+        leastOverlap,
+        Math.hypot(r, i) / Math.sqrt(n1 * n2),
+      )
       residual = Math.max(residual, it.residual)
-      energy = it.energy + 2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
+      energy =
+        it.energy +
+        2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
       prev = it.vector
       K = next
     }
 
-    out.push({ K, energy, vector: { re: Float64Array.from(prev.re), im: Float64Array.from(prev.im) }, residual, overlap: leastOverlap })
+    out.push({
+      K,
+      energy,
+      vector: {
+        re: Float64Array.from(prev.re),
+        im: Float64Array.from(prev.im),
+      },
+      residual,
+      overlap: leastOverlap,
+    })
   }
 
   return out
 }
 
 // the level's energy at K + d from its vector at K (one inverse iteration), unwrapped nearest E(K)
-function energyNear(basis: LineBasis, sub: SubBasis, at: BandPoint, K: number): number {
+function energyNear(
+  basis: LineBasis,
+  sub: SubBasis,
+  at: BandPoint,
+  K: number,
+): number {
   const it = inverseIterate(lineReduced(basis, sub, K), at.vector, 6)
 
-  return it.energy + 2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+  return (
+    it.energy +
+    2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+  )
 }
 
 // dE/dK at a band point, a symmetric difference of eigenvalues
-export function bandSlope(basis: LineBasis, sub: SubBasis, at: BandPoint, d: number): number {
-  return (energyNear(basis, sub, at, at.K + d) - energyNear(basis, sub, at, at.K - d)) / (2 * d)
+export function bandSlope(
+  basis: LineBasis,
+  sub: SubBasis,
+  at: BandPoint,
+  d: number,
+): number {
+  return (
+    (energyNear(basis, sub, at, at.K + d) -
+      energyNear(basis, sub, at, at.K - d)) /
+    (2 * d)
+  )
 }
 
 // E''(K) at a band point, a second difference of eigenvalues
-export function bandCurvature(basis: LineBasis, sub: SubBasis, at: BandPoint, d: number): number {
-  return (energyNear(basis, sub, at, at.K + d) + energyNear(basis, sub, at, at.K - d) - 2 * at.energy) / (d * d)
+export function bandCurvature(
+  basis: LineBasis,
+  sub: SubBasis,
+  at: BandPoint,
+  d: number,
+): number {
+  return (
+    (energyNear(basis, sub, at, at.K + d) +
+      energyNear(basis, sub, at, at.K - d) -
+      2 * at.energy) /
+    (d * d)
+  )
 }
 
 // ---- the cover and the boosted placement ----
@@ -113,15 +194,21 @@ export function pointOrbit(gauge: LineGauge): number[] {
   const orbit = [0]
 
   for (;;) {
-    const next = gauge.holonomy[orbit[orbit.length - 1] as number] as number
+    const next = gauge.holonomy[orbit[orbit.length - 1]!]!
 
-    if (next === 0) return orbit
+    if (next === 0) {
+      return orbit
+    }
+
     orbit.push(next)
   }
 }
 
 // the cut trit that keeps the string inside the cluster, anchored at ring position `anchor`
-export function tightCut(xs: readonly number[], anchor: number): number {
+export function tightCut(
+  xs: readonly number[],
+  anchor: number,
+): number {
   const below = xs.filter(x => x < anchor).length
 
   return (3 - (below % 3)) % 3
@@ -129,43 +216,62 @@ export function tightCut(xs: readonly number[], anchor: number): number {
 
 export type Entry = { ts: PointLove[]; c: number; a: bigint; b: bigint }
 
-export type Boosted = { entries: Entry[]; cover: number; dropped: number; weight: number }
+export type Boosted = {
+  entries: Entry[]
+  cover: number
+  dropped: number
+  weight: number
+}
 
 // the boosted level on a ring of `gauge.L`: sum over the cover's anchors Y of e^(iKY) phi(config), each love in the
 // cover's frame, normalized over the cover; configurations with two loves on one slot of the ring are dropped (their
 // weight reported), coincident ones added, then every amplitude rounded into Z[w] / 2^P. `anchors` keeps only those
 // anchors (a piece of the Bloch state, for an exact window small enough to run), each times its `envelope` weight when
 // one is given (a packet: the level at K under an envelope over the anchors, not normalized)
-export function blochEntries(gauge: LineGauge, basis: LineBasis, vector: Vec, K: number, P: number, anchors?: readonly number[], envelope?: readonly number[]): Boosted {
+export function blochEntries(
+  gauge: LineGauge,
+  basis: LineBasis,
+  vector: Vec,
+  K: number,
+  P: number,
+  anchors?: readonly number[],
+  envelope?: readonly number[],
+): Boosted {
   const L = gauge.L
   const orbit = pointOrbit(gauge)
   const cover = orbit.length * L
   const scale = 1 / Math.sqrt(cover)
   const acc = new Map<string, { ts: PointLove[]; c: number; amp: C }>()
+
   let dropped = 0
 
-  for (const [n, Y] of (anchors ?? [...Array(cover).keys()]).entries()) {
-    const g = envelope === undefined ? scale : (envelope[n] as number)
+  for (const [n, Y] of (
+    anchors ?? [...Array(cover).keys()]
+  ).entries()) {
+    const g = envelope === undefined ? scale : envelope[n]!
     const cos = Math.cos(K * Y) * g
     const sin = Math.sin(K * Y) * g
 
     basis.configs.forEach((config, i) => {
-      const zr = vector.re[i] as number
-      const zi = vector.im[i] as number
+      const zr = vector.re[i]!
+      const zi = vector.im[i]!
 
-      if (zr === 0 && zi === 0) return
+      if (zr === 0 && zi === 0) {
+        return
+      }
 
       const ts = config.map(t => {
         const y = Y + t.x
         const x = y % L
         const sheet = Math.floor(y / L) % orbit.length
 
-        return { x, j: t.j, p: (gauge.to[x] as number[])[orbit[sheet] as number] as number }
+        return { x, j: t.j, p: gauge.to[x]![orbit[sheet]!]! }
       })
       const amp: C = [zr * cos - zi * sin, zr * sin + zi * cos]
 
       if (new Set(ts.map(t => 2 * t.x + t.j)).size !== ts.length) {
         dropped += amp[0] ** 2 + amp[1] ** 2
+
         return
       }
 
@@ -176,18 +282,25 @@ export function blochEntries(gauge: LineGauge, basis: LineBasis, vector: Vec, K:
       const key = `${pointKeyOf(ts)}#${c}`
       const o = acc.get(key)
 
-      if (o) o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
-      else acc.set(key, { ts, c, amp })
+      if (o) {
+        o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
+      } else {
+        acc.set(key, { ts, c, amp })
+      }
     })
   }
 
   const entries: Entry[] = []
+
   let weight = 0
 
   for (const { ts, c, amp } of acc.values()) {
     const { a, b } = eisenstein(amp[0], amp[1], P)
 
-    if (a === 0n && b === 0n) continue
+    if (a === 0n && b === 0n) {
+      continue
+    }
+
     entries.push({ ts, c, a, b })
 
     const v = eisensteinValue(a, b, P)
@@ -199,7 +312,10 @@ export function blochEntries(gauge: LineGauge, basis: LineBasis, vector: Vec, K:
 }
 
 // the entries as the ring form's state
-export function cutStart(entries: readonly Entry[], P: number): CutState {
+export function cutStart(
+  entries: readonly Entry[],
+  P: number,
+): CutState {
   const out: CutState = new Map()
 
   for (const { ts, c, a, b } of entries) {
@@ -207,24 +323,38 @@ export function cutStart(entries: readonly Entry[], P: number): CutState {
     const v = eisensteinValue(a, b, P)
     const o = out.get(key)
 
-    if (o) o.amp = [o.amp[0] + v[0], o.amp[1] + v[1]]
-    else out.set(key, { ts: ts.map(t => ({ ...t })), c, amp: v })
+    if (o) {
+      o.amp = [o.amp[0] + v[0], o.amp[1] + v[1]]
+    } else {
+      out.set(key, { ts: ts.map(t => ({ ...t })), c, amp: v })
+    }
   }
 
   return out
 }
 
 // the entries as the exact rule's state on a base configuration: one slice per cut trit, clock count 0
-export function exactStart(base: Configuration, ring: AxisRing, entries: readonly Entry[], P: number): BoundState {
+export function exactStart(
+  base: Configuration,
+  ring: AxisRing,
+  entries: readonly Entry[],
+  P: number,
+): BoundState {
   const bySlice = new Map<number, Branch[]>()
 
   for (const { ts, c, a, b } of entries) {
     const conf = cloneConfiguration(base)
 
     for (const t of ts) {
-      const slot = (ring.docks[t.x] as number) * 24 + (t.j === 0 ? ring.first : ring.second)
+      const slot =
+        ring.docks[t.x]! * 24 + (t.j === 0 ? ring.first : ring.second)
 
-      if (conf.vibe[slot] !== 0) throw new Error('moving-level: a placed love lands on a held slot')
+      if (conf.vibe[slot] !== 0) {
+        throw new Error(
+          'moving-level: a placed love lands on a held slot',
+        )
+      }
+
       conf.vibe[slot] = 1
       conf.point[slot] = t.p
       conf.open[slot] = 1
@@ -238,7 +368,9 @@ export function exactStart(base: Configuration, ring: AxisRing, entries: readonl
 
   const out: BoundState = new Map()
 
-  for (const [c, list] of [...bySlice].sort((u, v) => u[0] - v[0])) out.set(`0,${c}`, { e: 0, c, branches: mergeBranches(list) })
+  for (const [c, list] of [...bySlice].sort((u, v) => u[0] - v[0])) {
+    out.set(`0,${c}`, { e: 0, c, branches: mergeBranches(list) })
+  }
 
   return out
 }
@@ -253,7 +385,10 @@ export function overlap(a: CutState, b: CutState): C {
   for (const [k, x] of a) {
     const y = b.get(k)
 
-    if (!y) continue
+    if (!y) {
+      continue
+    }
+
     re += x.amp[0] * y.amp[0] + x.amp[1] * y.amp[1]
     im += x.amp[0] * y.amp[1] - x.amp[1] * y.amp[0]
   }
@@ -264,7 +399,9 @@ export function overlap(a: CutState, b: CutState): C {
 export function weightOf(s: CutState): number {
   let w = 0
 
-  for (const { amp } of s.values()) w += amp[0] ** 2 + amp[1] ** 2
+  for (const { amp } of s.values()) {
+    w += amp[0] ** 2 + amp[1] ** 2
+  }
 
   return w
 }
@@ -286,15 +423,29 @@ export function transport(s: CutState): number {
 }
 
 // the sum of two ring-form states (a packet of two momenta), each scaled by `scale`
-export function sumStates(a: CutState, b: CutState, scale: number): CutState {
+export function sumStates(
+  a: CutState,
+  b: CutState,
+  scale: number,
+): CutState {
   const out: CutState = new Map()
 
   for (const s of [a, b]) {
     for (const [k, x] of s) {
       const o = out.get(k)
 
-      if (o) o.amp = [o.amp[0] + scale * x.amp[0], o.amp[1] + scale * x.amp[1]]
-      else out.set(k, { ts: x.ts, c: x.c, amp: [scale * x.amp[0], scale * x.amp[1]] })
+      if (o) {
+        o.amp = [
+          o.amp[0] + scale * x.amp[0],
+          o.amp[1] + scale * x.amp[1],
+        ]
+      } else {
+        out.set(k, {
+          ts: x.ts,
+          c: x.c,
+          amp: [scale * x.amp[0], scale * x.amp[1]],
+        })
+      }
     }
   }
 
@@ -304,6 +455,7 @@ export function sumStates(a: CutState, b: CutState, scale: number): CutState {
 // the angle of a ring density's first circular moment
 export function circularAngle(density: Float64Array): number {
   const L = density.length
+
   let c = 0
   let s = 0
 
@@ -317,7 +469,10 @@ export function circularAngle(density: Float64Array): number {
 
 // a ring density read at x + s for every x (s any real): the trigonometric interpolation of its Fourier series, the
 // Nyquist term (even L) taken as its cosine so the result stays real. Measurement: the co-moving frame's reading
-export function shiftRing(density: Float64Array, s: number): Float64Array {
+export function shiftRing(
+  density: Float64Array,
+  s: number,
+): Float64Array {
   const L = density.length
   const out = new Float64Array(L)
 
@@ -335,7 +490,10 @@ export function shiftRing(density: Float64Array, s: number): Float64Array {
     for (let x = 0; x < L; x++) {
       const th = (2 * Math.PI * q * (x + s)) / L
 
-      out[x]! += (both * (re * Math.cos(th) - (2 * q === L ? 0 : im * Math.sin(th)))) / L
+      out[x]! +=
+        (both *
+          (re * Math.cos(th) - (2 * q === L ? 0 : im * Math.sin(th)))) /
+        L
     }
   }
 
@@ -346,13 +504,17 @@ export function shiftRing(density: Float64Array, s: number): Float64Array {
 export function ringWidth(density: Float64Array): number {
   const L = density.length
   const center = ((circularAngle(density) * L) / (2 * Math.PI) + L) % L
+
   let m2 = 0
   let w = 0
 
   density.forEach((v, x) => {
     let d = (((x - center) % L) + L) % L
 
-    if (d > L / 2) d -= L
+    if (d > L / 2) {
+      d -= L
+    }
+
     m2 += v * d * d
     w += v
   })
@@ -370,7 +532,7 @@ export function unwrapAngles(angles: readonly number[]): number[] {
       continue
     }
 
-    const last = out[out.length - 1] as number
+    const last = out[out.length - 1]!
 
     out.push(a + 2 * Math.PI * Math.round((last - a) / (2 * Math.PI)))
   }
@@ -379,27 +541,48 @@ export function unwrapAngles(angles: readonly number[]): number[] {
 }
 
 // least squares y = a + b x
-export function lineFit(xs: readonly number[], ys: readonly number[]): { a: number; b: number } {
+export function lineFit(
+  xs: readonly number[],
+  ys: readonly number[],
+): { a: number; b: number } {
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const b = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const b =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - b * mx, b }
 }
 
 // ---- one boosted run of the ring form (E-SPN-0105, E-SPN-0106) ----
 
-export type BoostedRun = { K: number; fidelity: number[]; least: number; energy: number; velocity: number; angles: number[]; size: number }
+export type BoostedRun = {
+  K: number
+  fidelity: number[]
+  least: number
+  energy: number
+  velocity: number
+  angles: number[]
+  size: number
+}
 
 // `beats` beats of `step` from s0: the fidelity with the start at every beat (every key), the energy (minus the slope of
 // the start overlap's unwrapped phase, fitted linear over beats 0 .. beats), the transported centroid per beat, the
 // density's circular angle unwrapped, the largest state
-export function boostedRun(step: (s: CutState) => CutState, s0: CutState, K: number, beats: number, density: (s: CutState) => Float64Array): BoostedRun {
+export function boostedRun(
+  step: (s: CutState) => CutState,
+  s0: CutState,
+  K: number,
+  beats: number,
+  density: (s: CutState) => Float64Array,
+): BoostedRun {
   let s = s0
+
   const w0 = weightOf(s0)
   const fidelity: number[] = []
   const phases: number[] = [0]
   const angles: number[] = [circularAngle(density(s0))]
+
   let X = 0
   let size = s0.size
 
@@ -421,13 +604,25 @@ export function boostedRun(step: (s: CutState) => CutState, s0: CutState, K: num
     u,
   )
 
-  return { K, fidelity, least: Math.min(...fidelity), energy: -fit.b, velocity: X / beats, angles: unwrapAngles(angles), size }
+  return {
+    K,
+    fidelity,
+    least: Math.min(...fidelity),
+    energy: -fit.b,
+    velocity: X / beats,
+    angles: unwrapAngles(angles),
+    size,
+  }
 }
 
 // E(K) - E(0) = alpha K^2 + beta K^4, least squares over the nonzero K (the first point is K = 0): m* = 1 / (2 alpha)
-export function quarticMass(points: readonly { K: number; energy: number }[]): { mass: number; alpha: number; beta: number } {
+export function quarticMass(
+  points: readonly { K: number; energy: number }[],
+): { mass: number; alpha: number; beta: number } {
   const e0 = (points[0] as { energy: number }).energy
-  const rows = points.slice(1).map(r => ({ x2: r.K ** 2, x4: r.K ** 4, y: r.energy - e0 }))
+  const rows = points
+    .slice(1)
+    .map(r => ({ x2: r.K ** 2, x4: r.K ** 4, y: r.energy - e0 }))
   const s22 = rows.reduce((s, r) => s + r.x2 * r.x2, 0)
   const s24 = rows.reduce((s, r) => s + r.x2 * r.x4, 0)
   const s44 = rows.reduce((s, r) => s + r.x4 * r.x4, 0)
@@ -441,7 +636,10 @@ export function quarticMass(points: readonly { K: number; energy: number }[]): {
 }
 
 // least squares y = a + k / r
-export function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+export function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const f = lineFit(
     rs.map(r => 1 / r),
     ys,
@@ -458,7 +656,11 @@ export function inverseFit(rs: readonly number[], ys: readonly number[]): { a: n
 // the quasi-energies (minus the phase) are -pi/3 -+ eps. The band through E = 0 at K = 0 is E(K) = eps(K) - pi/3,
 // centered on -pi/3 with half-gap pi/3, curvature E''(0) = cot(pi/3) = 1/sqrt 3, so m* = tan(pi/3) = sqrt 3: the
 // lattice Dirac walk's m* = tan(m) for half-gap m (m* -> m, the relativistic value, only as m -> 0).
-export function loneBand(K: number): { energy: number; slope: number; vector: C[] } {
+export function loneBand(K: number): {
+  energy: number
+  slope: number
+  vector: C[]
+} {
   const eps = Math.acos(Math.cos(K) / 2)
   const energy = eps - Math.PI / 3
   const slope = Math.sin(K) / 2 / Math.sin(eps)
@@ -468,18 +670,32 @@ export function loneBand(K: number): { energy: number; slope: number; vector: C[
   const k0: C = [0.25, Math.sqrt(3) / 4]
   const c0: C = [0.75, -Math.sqrt(3) / 4]
   const eK: C = [Math.cos(K), -Math.sin(K)]
-  const cm = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+  const cm = (x: C, y: C): C => [
+    x[0] * y[0] - x[1] * y[1],
+    x[0] * y[1] + x[1] * y[0],
+  ]
   // a1 = (lambda - e^(-iK) k0) / (e^(-iK) c0) a0, with a0 = e^(-iK) c0: a1 = lambda - e^(-iK) k0
   const a0 = cm(eK, c0)
   const ek = cm(eK, k0)
   const a1: C = [lambda[0] - ek[0], lambda[1] - ek[1]]
   const n = Math.sqrt(a0[0] ** 2 + a0[1] ** 2 + a1[0] ** 2 + a1[1] ** 2)
 
-  return { energy, slope, vector: [[a0[0] / n, a0[1] / n], [a1[0] / n, a1[1] / n]] }
+  return {
+    energy,
+    slope,
+    vector: [
+      [a0[0] / n, a0[1] / n],
+      [a1[0] / n, a1[1] / n],
+    ],
+  }
 }
 
 // the lone love's Bloch state on the ring's cover (no cost: the cut trit stays 0 and is carried as 0)
-export function loneEntries(gauge: LineGauge, K: number, P: number): Entry[] {
+export function loneEntries(
+  gauge: LineGauge,
+  K: number,
+  P: number,
+): Entry[] {
   const L = gauge.L
   const orbit = pointOrbit(gauge)
   const cover = orbit.length * L
@@ -489,15 +705,19 @@ export function loneEntries(gauge: LineGauge, K: number, P: number): Entry[] {
 
   for (let Y = 0; Y < cover; Y++) {
     const x = Y % L
-    const p = (gauge.to[x] as number[])[orbit[Math.floor(Y / L) % orbit.length] as number] as number
+    const p = gauge.to[x]![orbit[Math.floor(Y / L) % orbit.length]!]!
 
     for (const j of [0, 1]) {
-      const z = vector[j] as C
-      const re = (z[0] * Math.cos(K * Y) - z[1] * Math.sin(K * Y)) * scale
-      const im = (z[0] * Math.sin(K * Y) + z[1] * Math.cos(K * Y)) * scale
+      const z = vector[j]!
+      const re =
+        (z[0] * Math.cos(K * Y) - z[1] * Math.sin(K * Y)) * scale
+      const im =
+        (z[0] * Math.sin(K * Y) + z[1] * Math.cos(K * Y)) * scale
       const { a, b } = eisenstein(re, im, P)
 
-      if (a !== 0n || b !== 0n) out.push({ ts: [{ x, j, p }], c: 0, a, b })
+      if (a !== 0n || b !== 0n) {
+        out.push({ ts: [{ x, j, p }], c: 0, a, b })
+      }
     }
   }
 

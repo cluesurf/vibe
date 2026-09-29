@@ -88,7 +88,9 @@ export function d4BoxDistance(input: {
 export function linearMapOf(
   permutation: readonly number[],
 ): number[][] | undefined {
-  return linearMapOfDoubled(permutation)?.map(row => row.map(x => x / 2))
+  return linearMapOfDoubled(permutation)?.map(row =>
+    row.map(x => x / 2),
+  )
 }
 
 // The permutation of cells a linear map of R^4 induces on the box, or undefined when some cell is not

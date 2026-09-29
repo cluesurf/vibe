@@ -182,13 +182,56 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { bandAt, dockMatrix, DOCK_ROOTS, eigenphases, wrap, type CMatrix } from '@/code/measure/dock-mixer'
-import { masslessPair, singletKinematics, singletLevel, weylMomenta } from '@/code/measure/singlet-kinematics'
-import { cycleMatrix, cycleMultiplets, cyclePhases, cycleSinglet, fastestCycleBand, ringAngle, type Eis } from '@/code/measure/swap-cone'
-import { covariantDock, covariantProjectors } from '@/code/measure/odd-phase'
+import {
+  bandAt,
+  dockMatrix,
+  DOCK_ROOTS,
+  eigenphases,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
+import {
+  masslessPair,
+  singletKinematics,
+  singletLevel,
+  weylMomenta,
+} from '@/code/measure/singlet-kinematics'
+import {
+  cycleMatrix,
+  cycleMultiplets,
+  cyclePhases,
+  cycleSinglet,
+  fastestCycleBand,
+  ringAngle,
+  type Eis,
+} from '@/code/measure/swap-cone'
+import {
+  covariantDock,
+  covariantProjectors,
+} from '@/code/measure/odd-phase'
 import { channelGap, pairChannels } from '@/code/measure/husk-meson'
-import { overEmpty, ringUnit, unitAngle, unitNormExact, vibeDockExact } from '@/code/measure/swap-string'
-import { clusterCensus, clusterMatrix, covariantPhases, cycleFlats, cycleMasslessPair, diracFamily, familyCensus, frameR, pairCensus, radialPaths, restFrame, twoBeatVacuum, type Census } from '@/code/measure/two-beat'
+import {
+  overEmpty,
+  ringUnit,
+  unitAngle,
+  unitNormExact,
+  vibeDockExact,
+} from '@/code/measure/swap-string'
+import {
+  clusterCensus,
+  clusterMatrix,
+  covariantPhases,
+  cycleFlats,
+  cycleMasslessPair,
+  diracFamily,
+  familyCensus,
+  frameR,
+  pairCensus,
+  radialPaths,
+  restFrame,
+  twoBeatVacuum,
+  type Census,
+} from '@/code/measure/two-beat'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 
 const C = Math.SQRT2
@@ -197,8 +240,17 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
-const SCAN_DIRS: readonly number[][] = [[1, 0, 0, 0], [s3, s3, s3, 0], GENERIC]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
+const SCAN_DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
 const RADII: readonly number[] = [1e-3, 1e-2, 0.1, 0.3, 1]
 const SCALES: readonly number[] = [0.1, 0.2, 0.3, 0.4, 0.5]
 // the light point, E-SPN-0148's lighter in-ring member; pi/6; the massless twin; the heavy member (E-SPN-0155); the
@@ -210,7 +262,15 @@ const HEAVY: readonly [number, number] = [1, 4]
 const OCTET: readonly [number, number] = [2, 0]
 // E-SPN-0143's recorded floats (tmp/univ-exp-run2.log) and its ring prime
 const PRIME: Eis = [3n, 1n]
-const REC = { mStar: 0.04677803444110118, topOverC: 0.48817847622126725, RStar: 1.0007300338253453, c0OverC: 0.5000000000011358, schedM: 0.26179938779914924, schedR: 1.1026577908486987, schedTopOverC: 0.4037221140226534 }
+const REC = {
+  mStar: 0.04677803444110118,
+  topOverC: 0.48817847622126725,
+  RStar: 1.0007300338253453,
+  c0OverC: 0.5000000000011358,
+  schedM: 0.26179938779914924,
+  schedR: 1.1026577908486987,
+  schedTopOverC: 0.4037221140226534,
+}
 const SWAP_N = 2 / 3
 const MATRIX_TOLERANCE = 1e-12
 const FLAT_TOLERANCE = 1e-8
@@ -231,9 +291,33 @@ const GRID = 4
 const GRID_OFFSET = [0.1, 0.2, 0.3, 0.4]
 const N_SECTOR = [1, 2, 9, 4, 8]
 
-export type TwoBeatPlan = { momenta: number; flatSample: number; censusSteps: number; scanSteps: number; family: number; cluster: number; clusterSteps: number; clusterP: number; vacuumBeats: number; vacuumSides: readonly number[]; checkMomenta: number }
+export type TwoBeatPlan = {
+  momenta: number
+  flatSample: number
+  censusSteps: number
+  scanSteps: number
+  family: number
+  cluster: number
+  clusterSteps: number
+  clusterP: number
+  vacuumBeats: number
+  vacuumSides: readonly number[]
+  checkMomenta: number
+}
 
-export const GATE_PLAN: TwoBeatPlan = { momenta: 4096, flatSample: 64, censusSteps: 600, scanSteps: 300, family: 16384, cluster: 1024, clusterSteps: 149, clusterP: 29.7, vacuumBeats: 128, vacuumSides: [4, 8], checkMomenta: 64 }
+export const GATE_PLAN: TwoBeatPlan = {
+  momenta: 4096,
+  flatSample: 64,
+  censusSteps: 600,
+  scanSteps: 300,
+  family: 16384,
+  cluster: 1024,
+  clusterSteps: 149,
+  clusterP: 29.7,
+  vacuumBeats: 128,
+  vacuumSides: [4, 8],
+  checkMomenta: 64,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 const R = DOCK_ROOTS
@@ -253,27 +337,39 @@ export default experiment({
 })
 
 // the Weyl points of the family (7 parameters: t2, t9, t8, a1, a2, a9, a8), additive recurrence on 1 / phi_8^k
-function familyPoints(count: number, M: number): { a: number[]; b: number[] }[] {
+function familyPoints(
+  count: number,
+  M: number,
+): { a: number[]; b: number[] }[] {
   let phi = 1.5
 
-  for (let i = 0; i < 64; i++) phi = phi - (phi ** 8 - phi - 1) / (8 * phi ** 7 - 1)
+  for (let i = 0; i < 64; i++) {
+    phi = phi - (phi ** 8 - phi - 1) / (8 * phi ** 7 - 1)
+  }
 
   const alpha = [1, 2, 3, 4, 5, 6, 7].map(k => 1 / phi ** k)
 
   return Array.from({ length: count }, (_, j) => {
-    const u = alpha.map(x => 2 * Math.PI * (((0.5 + (j + 1) * x) % 1) - 0.5))
-    const rho = [2 * M, u[0] as number, u[1] as number, 0, u[2] as number]
-    const a = [u[3] as number, u[4] as number, u[5] as number, 0, u[6] as number]
+    const u = alpha.map(
+      x => 2 * Math.PI * (((0.5 + (j + 1) * x) % 1) - 0.5),
+    )
+    const rho = [2 * M, u[0]!, u[1]!, 0, u[2]!]
+    const a = [u[3]!, u[4]!, u[5]!, 0, u[6]!]
 
-    return { a, b: rho.map((r, k) => r - (a[k] as number)) }
+    return { a, b: rho.map((r, k) => r - a[k]!) }
   })
 }
 
 // the Weyl points of the cluster scan (6 parameters: x2, x9, x8, c49, c98, c28), on 1 / phi_7^k
-function clusterPoints(count: number, pattern: number): { x: number[]; c: number[] }[] {
+function clusterPoints(
+  count: number,
+  pattern: number,
+): { x: number[]; c: number[] }[] {
   let phi = 1.5
 
-  for (let i = 0; i < 64; i++) phi = phi - (phi ** 7 - phi - 1) / (7 * phi ** 6 - 1)
+  for (let i = 0; i < 64; i++) {
+    phi = phi - (phi ** 7 - phi - 1) / (7 * phi ** 6 - 1)
+  }
 
   const alpha = [1, 2, 3, 4, 5, 6].map(k => 1 / phi ** k)
 
@@ -281,8 +377,13 @@ function clusterPoints(count: number, pattern: number): { x: number[]; c: number
     const u = alpha.map(a => (0.5 + (j + 1) * a) % 1)
 
     return {
-      x: [1, -6 + 12 * (u[0] as number), -6 + 12 * (u[1] as number), -1, -6 + 12 * (u[2] as number)],
-      c: [1, pattern & 1 ? 3 * (u[3] as number) : 0, pattern & 2 ? 3 * (u[4] as number) : 0, pattern & 4 ? 3 * (u[5] as number) : 0],
+      x: [1, -6 + 12 * u[0]!, -6 + 12 * u[1]!, -1, -6 + 12 * u[2]!],
+      c: [
+        1,
+        pattern & 1 ? 3 * u[3]! : 0,
+        pattern & 2 ? 3 * u[4]! : 0,
+        pattern & 4 ? 3 * u[5]! : 0,
+      ],
     }
   })
 }
@@ -293,11 +394,11 @@ function uncoin(P: CMatrix): CMatrix {
   const im = new Float64Array(576)
 
   for (let i = 0; i < 24; i++) {
-    const o = OPPOSITE[i] as number
+    const o = OPPOSITE[i]!
 
     for (let j = 0; j < 24; j++) {
-      re[i * 24 + j] = P.re[o * 24 + j] as number
-      im[i * 24 + j] = P.im[o * 24 + j] as number
+      re[i * 24 + j] = P.re[o * 24 + j]!
+      im[i * 24 + j] = P.im[o * 24 + j]!
     }
   }
 
@@ -305,8 +406,12 @@ function uncoin(P: CMatrix): CMatrix {
 }
 
 // T G2 T^dag G1 at K
-function conjugatedCycle(G1: CMatrix, G2: CMatrix, K: readonly number[]): CMatrix {
-  const ph = R.map(r => -r.reduce((s, x, k) => s + x * (K[k] as number), 0))
+function conjugatedCycle(
+  G1: CMatrix,
+  G2: CMatrix,
+  K: readonly number[],
+): CMatrix {
+  const ph = R.map(r => -r.reduce((s, x, k) => s + x * K[k]!, 0))
   const re = new Float64Array(576)
   const im = new Float64Array(576)
   // A = T G2 T^dag: A_ij = e^(i (ph_i - ph_j)) G2_ij
@@ -315,11 +420,11 @@ function conjugatedCycle(G1: CMatrix, G2: CMatrix, K: readonly number[]): CMatri
 
   for (let i = 0; i < 24; i++) {
     for (let j = 0; j < 24; j++) {
-      const t = (ph[i] as number) - (ph[j] as number)
+      const t = ph[i]! - ph[j]!
       const c = Math.cos(t)
       const s = Math.sin(t)
-      const gr = G2.re[i * 24 + j] as number
-      const gi = G2.im[i * 24 + j] as number
+      const gr = G2.re[i * 24 + j]!
+      const gi = G2.im[i * 24 + j]!
 
       Ar[i * 24 + j] = c * gr - s * gi
       Ai[i * 24 + j] = c * gi + s * gr
@@ -328,12 +433,12 @@ function conjugatedCycle(G1: CMatrix, G2: CMatrix, K: readonly number[]): CMatri
 
   for (let i = 0; i < 24; i++) {
     for (let k = 0; k < 24; k++) {
-      const ar = Ar[i * 24 + k] as number
-      const ai = Ai[i * 24 + k] as number
+      const ar = Ar[i * 24 + k]!
+      const ai = Ai[i * 24 + k]!
 
       for (let j = 0; j < 24; j++) {
-        const br = G1.re[k * 24 + j] as number
-        const bi = G1.im[k * 24 + j] as number
+        const br = G1.re[k * 24 + j]!
+        const bi = G1.im[k * 24 + j]!
 
         re[i * 24 + j]! += ar * br - ai * bi
         im[i * 24 + j]! += ar * bi + ai * br
@@ -345,10 +450,30 @@ function conjugatedCycle(G1: CMatrix, G2: CMatrix, K: readonly number[]): CMatri
 }
 
 // the zone mean of tr U and of the eigenvalue sum over a G^4 grid, against the derived constant term
-function bandSum(Ps: readonly CMatrix[], a: readonly number[], b: readonly number[]): { trace: number; sum: number } {
-  const sa = a.reduce<[number, number]>((s, x, k) => [s[0] + (N_SECTOR[k] as number) * Math.cos(x), s[1] + (N_SECTOR[k] as number) * Math.sin(x)], [0, 0])
-  const sb = b.reduce<[number, number]>((s, x, k) => [s[0] + (N_SECTOR[k] as number) * Math.cos(x), s[1] + (N_SECTOR[k] as number) * Math.sin(x)], [0, 0])
-  const want: [number, number] = [(sa[0] * sb[0] - sa[1] * sb[1]) / 24, (sa[0] * sb[1] + sa[1] * sb[0]) / 24]
+function bandSum(
+  Ps: readonly CMatrix[],
+  a: readonly number[],
+  b: readonly number[],
+): { trace: number; sum: number } {
+  const sa = a.reduce<[number, number]>(
+    (s, x, k) => [
+      s[0] + N_SECTOR[k]! * Math.cos(x),
+      s[1] + N_SECTOR[k]! * Math.sin(x),
+    ],
+    [0, 0],
+  )
+  const sb = b.reduce<[number, number]>(
+    (s, x, k) => [
+      s[0] + N_SECTOR[k]! * Math.cos(x),
+      s[1] + N_SECTOR[k]! * Math.sin(x),
+    ],
+    [0, 0],
+  )
+  const want: [number, number] = [
+    (sa[0] * sb[0] - sa[1] * sb[1]) / 24,
+    (sa[0] * sb[1] + sa[1] * sb[0]) / 24,
+  ]
+
   let tr: [number, number] = [0, 0]
   let ev: [number, number] = [0, 0]
   let n = 0
@@ -357,13 +482,18 @@ function bandSum(Ps: readonly CMatrix[], a: readonly number[], b: readonly numbe
     for (let i1 = 0; i1 < GRID; i1++) {
       for (let i2 = 0; i2 < GRID; i2++) {
         for (let i3 = 0; i3 < GRID; i3++) {
-          const K = [i0, i1, i2, i3].map((j, k) => (2 * Math.PI * j) / GRID + (GRID_OFFSET[k] as number))
+          const K = [i0, i1, i2, i3].map(
+            (j, k) => (2 * Math.PI * j) / GRID + GRID_OFFSET[k]!,
+          )
           const U = cycleMatrix(Ps, R, K)
           const e = complexEigenvalues({ re: U.re, im: U.im, n: 24 })
 
-          for (let d = 0; d < 24; d++) tr = [tr[0] + (U.re[d * 24 + d] as number), tr[1] + (U.im[d * 24 + d] as number)]
+          for (let d = 0; d < 24; d++) {
+            tr = [tr[0] + U.re[d * 24 + d]!, tr[1] + U.im[d * 24 + d]!]
+          }
+
           e.re.forEach((x, k) => {
-            ev = [ev[0] + x, ev[1] + (e.im[k] as number)]
+            ev = [ev[0] + x, ev[1] + e.im[k]!]
           })
           n++
         }
@@ -371,7 +501,10 @@ function bandSum(Ps: readonly CMatrix[], a: readonly number[], b: readonly numbe
     }
   }
 
-  return { trace: Math.hypot(tr[0] / n - want[0], tr[1] / n - want[1]), sum: Math.hypot(ev[0] / n - want[0], ev[1] / n - want[1]) }
+  return {
+    trace: Math.hypot(tr[0] / n - want[0], tr[1] / n - want[1]),
+    sum: Math.hypot(ev[0] / n - want[0], ev[1] / n - want[1]),
+  }
 }
 
 // the doubled one-beat's cycle phases against twice the one-beat's, matched greedily on the circle
@@ -379,14 +512,24 @@ function doubledGap(P: CMatrix, K: readonly number[]): number {
   const one = eigenphases(P, R, K).map(x => wrap(2 * x))
   const two = cyclePhases([P, P], R, K)
   const used = new Uint8Array(24)
+
   let worst = 0
 
   for (const x of two) {
     let best = -1
 
-    for (let j = 0; j < 24; j++) if (!used[j] && (best < 0 || Math.abs(wrap(x - (one[j] as number))) < Math.abs(wrap(x - (one[best] as number))))) best = j
+    for (let j = 0; j < 24; j++) {
+      if (
+        !used[j] &&
+        (best < 0 ||
+          Math.abs(wrap(x - one[j]!)) < Math.abs(wrap(x - one[best]!)))
+      ) {
+        best = j
+      }
+    }
+
     used[best] = 1
-    worst = Math.max(worst, Math.abs(wrap(x - (one[best] as number))))
+    worst = Math.max(worst, Math.abs(wrap(x - one[best]!)))
   }
 
   return worst
@@ -394,7 +537,10 @@ function doubledGap(P: CMatrix, K: readonly number[]): number {
 
 export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const p = covariantProjectors()
   const uL = ringUnit(LIGHT[0], LIGHT[1])
   const u6 = ringUnit(SIXTH[0], SIXTH[1])
@@ -412,7 +558,10 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
   const radial = DIRS.flatMap(u => RADII.map(r => u.map(x => x * r)))
   const weyl = weylMomenta(plan.momenta)
   const check = weylMomenta(plan.checkMomenta)
-  const candidate = (theta: number): CMatrix[] => [covariantDock(p, [theta, 0, 0, 0, 0]), covariantDock(p, [theta, 0, 0, 0, alpha])]
+  const candidate = (theta: number): CMatrix[] => [
+    covariantDock(p, [theta, 0, 0, 0, 0]),
+    covariantDock(p, [theta, 0, 0, 0, alpha]),
+  ]
   const PL = candidate(thetaL)
   const PZ = candidate(Math.PI)
   const censusPaths = radialPaths(DIRS, 3 * Math.PI, plan.censusSteps)
@@ -422,24 +571,35 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
   const star = ringAngle(PRIME, 3)
   const thetaStar = Math.PI + star.delta
   const P0 = dockMatrix(Math.PI, SWAP_N, true)
-  const c0 = masslessPair(P0, R, 13, DIRS[0] as number[], PAIR_KAPPA).c0
+  const c0 = masslessPair(P0, R, 13, DIRS[0]!, PAIR_KAPPA).c0
   const mainMomenta = [...weyl, ...radial]
   const sideMomenta = [...weyl.slice(0, 1024), ...radial]
+
   let starTop = 0
 
   for (const hole of [true, false]) {
     const P = dockMatrix(thetaStar, SWAP_N, hole)
 
-    for (const K of mainMomenta) starTop = Math.max(starTop, ...bandAt(P, R, K).velocity.map(x => Math.hypot(...x)))
+    for (const K of mainMomenta) {
+      starTop = Math.max(
+        starTop,
+        ...bandAt(P, R, K).velocity.map(x => Math.hypot(...x)),
+      )
+    }
   }
 
   const PS = dockMatrix(thetaStar, SWAP_N, true)
   const levelS = singletLevel(PS, R, 12)
-  const starR = (c0 * c0) / singletKinematics(PS, R, levelS, DIRS[0] as number[], SCALES).c2
-  const starCycleR = (c0 * c0) / cycleSinglet([PS], R, DIRS[0] as number[], SCALES).c2
-  const schedule = [dockMatrix(Math.PI, SWAP_N, true), dockMatrix((4 * Math.PI) / 3, SWAP_N, true)]
+  const starR =
+    (c0 * c0) / singletKinematics(PS, R, levelS, DIRS[0]!, SCALES).c2
+  const starCycleR =
+    (c0 * c0) / cycleSinglet([PS], R, DIRS[0]!, SCALES).c2
+  const schedule = [
+    dockMatrix(Math.PI, SWAP_N, true),
+    dockMatrix((4 * Math.PI) / 3, SWAP_N, true),
+  ]
   const schedTop = fastestCycleBand(schedule, R, sideMomenta).speed
-  const schedFit = cycleSinglet(schedule, R, DIRS[0] as number[], SCALES)
+  const schedFit = cycleSinglet(schedule, R, DIRS[0]!, SCALES)
   const c1 = {
     m: levelS.m,
     top: starTop / C,
@@ -450,30 +610,54 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
     schedR: (c0 * c0) / schedFit.c2,
     schedTop: schedTop / C,
   }
-  const C1 = c1.m === REC.mStar && c1.top === REC.topOverC && c1.R === REC.RStar && c1.cycleR === REC.RStar && c1.c0 === REC.c0OverC && c1.schedM === REC.schedM && c1.schedR === REC.schedR && c1.schedTop === REC.schedTopOverC
+  const C1 =
+    c1.m === REC.mStar &&
+    c1.top === REC.topOverC &&
+    c1.R === REC.RStar &&
+    c1.cycleR === REC.RStar &&
+    c1.c0 === REC.c0OverC &&
+    c1.schedM === REC.schedM &&
+    c1.schedR === REC.schedR &&
+    c1.schedTop === REC.schedTopOverC
 
   log('C1')
 
   // ---------------- I1, I2: the cycle identity and the band sum ----------------
   const fam = familyPoints(plan.family, 2 * mL)
-  const idSchedules: { name: string; a: number[]; b: number[] }[] = [{ name: 'candidate', a: [thetaL, 0, 0, 0, 0], b: [thetaL, 0, 0, 0, alpha] }, ...fam.slice(0, 3).map((x, i) => ({ name: `family ${i}`, ...x }))]
+  const idSchedules: { name: string; a: number[]; b: number[] }[] = [
+    {
+      name: 'candidate',
+      a: [thetaL, 0, 0, 0, 0],
+      b: [thetaL, 0, 0, 0, alpha],
+    },
+    ...fam.slice(0, 3).map((x, i) => ({ name: `family ${i}`, ...x })),
+  ]
+
   let identityGap = 0
+
   const sums = idSchedules.map(s => {
     const Ps = [covariantDock(p, s.a), covariantDock(p, s.b)]
-    const G1 = uncoin(Ps[0] as CMatrix)
-    const G2 = uncoin(Ps[1] as CMatrix)
+    const G1 = uncoin(Ps[0]!)
+    const G2 = uncoin(Ps[1]!)
 
     for (const K of check) {
       const A = cycleMatrix(Ps, R, K)
       const B = conjugatedCycle(G1, G2, K)
 
-      for (let i = 0; i < 576; i++) identityGap = Math.max(identityGap, Math.hypot((A.re[i] as number) - (B.re[i] as number), (A.im[i] as number) - (B.im[i] as number)))
+      for (let i = 0; i < 576; i++) {
+        identityGap = Math.max(
+          identityGap,
+          Math.hypot(A.re[i]! - B.re[i]!, A.im[i]! - B.im[i]!),
+        )
+      }
     }
 
     return { name: s.name, ...bandSum(Ps, s.a, s.b) }
   })
   const I1 = identityGap <= IDENTITY_TOLERANCE
-  const I2 = sums.every(s => s.trace <= TRACE_TOLERANCE && s.sum <= SUM_TOLERANCE)
+  const I2 = sums.every(
+    s => s.trace <= TRACE_TOLERANCE && s.sum <= SUM_TOLERANCE,
+  )
 
   log('I1 I2')
 
@@ -499,33 +683,65 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
     for (let b = 0; b < 4; b++) {
       for (let c = 0; c < 4; c++) {
         for (let e = 0; e < 4; e++) {
-          const sum = R.reduce((s, r) => s + (r[a] as number) * (r[b] as number) * (r[c] as number) * (r[e] as number), 0)
-          const want = 4 * ((a === b ? 1 : 0) * (c === e ? 1 : 0) + (a === c ? 1 : 0) * (b === e ? 1 : 0) + (a === e ? 1 : 0) * (b === c ? 1 : 0))
+          const sum = R.reduce(
+            (s, r) => s + r[a]! * r[b]! * r[c]! * r[e]!,
+            0,
+          )
+          const want =
+            4 *
+            ((a === b ? 1 : 0) * (c === e ? 1 : 0) +
+              (a === c ? 1 : 0) * (b === e ? 1 : 0) +
+              (a === e ? 1 : 0) * (b === c ? 1 : 0))
 
-          if (sum !== want) design = false
+          if (sum !== want) {
+            design = false
+          }
         }
       }
     }
   }
 
-  const blockOf = (c: readonly number[], u: readonly number[], w: readonly number[]): number => {
+  const blockOf = (
+    c: readonly number[],
+    u: readonly number[],
+    w: readonly number[],
+  ): number => {
     const A = clusterMatrix(p, [0, 0, 0, 0, 0], c, u)
-    const e = R.map(r => r.reduce((s, x, k) => s + x * (w[k] as number), 0) / Math.sqrt(12))
-    const Ae = A.map(row => row.reduce((s, x, j) => s + x * (e[j] as number), 0))
+    const e = R.map(
+      r => r.reduce((s, x, k) => s + x * w[k]!, 0) / Math.sqrt(12),
+    )
+    const Ae = A.map(row => row.reduce((s, x, j) => s + x * e[j]!, 0))
 
     return Ae.reduce((s, x) => s + x * x, 0)
   }
-  const unit = (w: readonly number[]): number[] => w.map(x => x / Math.hypot(...w))
+
+  const unit = (w: readonly number[]): number[] =>
+    w.map(x => x / Math.hypot(...w))
   const Kh = GENERIC
   // a direction perpendicular to the generic one
-  const perp = unit([0.52, -0.29, 0, 0.1].map((x, k) => x - (GENERIC[k] as number) * [0.52, -0.29, 0, 0.1].reduce((s, y, j) => s + y * (GENERIC[j] as number), 0)))
+  const perp = unit(
+    [0.52, -0.29, 0, 0.1].map(
+      (x, k) =>
+        x -
+        GENERIC[k]! *
+          [0.52, -0.29, 0, 0.1].reduce(
+            (s, y, j) => s + y * GENERIC[j]!,
+            0,
+          ),
+    ),
+  )
   const block = {
     oneL: blockOf([1, 0, 0, 0], Kh, Kh),
     oneT: blockOf([1, 0, 0, 0], Kh, perp),
     nineL: blockOf([0, 1, 0, 0], Kh, Kh),
     nineT: blockOf([0, 1, 0, 0], Kh, perp),
   }
-  const I5 = design && Math.abs(block.oneL - 0.5) <= MATRIX_TOLERANCE && Math.abs(block.oneT) <= MATRIX_TOLERANCE && Math.abs(block.nineL - 0.5) <= MATRIX_TOLERANCE && Math.abs(block.nineT - 1 / 3) <= MATRIX_TOLERANCE
+  const I5 =
+    design &&
+    Math.abs(block.oneL - 0.5) <= MATRIX_TOLERANCE &&
+    Math.abs(block.oneT) <= MATRIX_TOLERANCE &&
+    Math.abs(block.nineL - 0.5) <= MATRIX_TOLERANCE &&
+    Math.abs(block.nineT - 1 / 3) <= MATRIX_TOLERANCE
 
   log('I5')
 
@@ -544,22 +760,57 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
         const B = overEmpty(vibeDockExact(vibe, beat, u, v), u, v)
 
         for (let i = 0; i < 576; i++) {
-          ruleGap = Math.max(ruleGap, Math.hypot((A.re[i] as number) - ((models[0] as CMatrix).re[i] as number), (A.im[i] as number) - ((models[0] as CMatrix).im[i] as number)))
-          ruleGap = Math.max(ruleGap, Math.hypot((B.re[i] as number) - ((models[1] as CMatrix).re[i] as number), (B.im[i] as number) - ((models[1] as CMatrix).im[i] as number)))
+          ruleGap = Math.max(
+            ruleGap,
+            Math.hypot(
+              A.re[i]! - models[0]!.re[i]!,
+              A.im[i]! - models[0]!.im[i]!,
+            ),
+          )
+
+          ruleGap = Math.max(
+            ruleGap,
+            Math.hypot(
+              B.re[i]! - models[1]!.re[i]!,
+              B.im[i]! - models[1]!.im[i]!,
+            ),
+          )
         }
       }
     }
   }
 
-  const F1a = unitNormExact(uL) && unitNormExact(uZ) && unitNormExact(v) && ruleGap <= MATRIX_TOLERANCE
+  const F1a =
+    unitNormExact(uL) &&
+    unitNormExact(uZ) &&
+    unitNormExact(v) &&
+    ruleGap <= MATRIX_TOLERANCE
   const restL = covariantPhases(PL, p)
   const multiplets = cycleMultiplets(PL, R)
-  const sizes = multiplets.map(x => x.size).sort((a, b) => a - b).join('+')
-  const flats = cycleFlats(PL, check.slice(0, plan.flatSample), FLAT_TOLERANCE)
-  const flatAt = (phase: number): number => flats.filter(f => Math.abs(wrap(f.phase - phase)) <= FLAT_TOLERANCE).reduce((s, f) => s + f.count, 0)
-  const F1b = sizes === '1+8+15' && flats.length === 2 && flatAt(0) === 14 && flatAt(alpha) === 7
+  const sizes = multiplets
+    .map(x => x.size)
+    .sort((a, b) => a - b)
+    .join('+')
+  const flats = cycleFlats(
+    PL,
+    check.slice(0, plan.flatSample),
+    FLAT_TOLERANCE,
+  )
+  const flatAt = (phase: number): number =>
+    flats
+      .filter(f => Math.abs(wrap(f.phase - phase)) <= FLAT_TOLERANCE)
+      .reduce((s, f) => s + f.count, 0)
+  const F1b =
+    sizes === '1+8+15' &&
+    flats.length === 2 &&
+    flatAt(0) === 14 &&
+    flatAt(alpha) === 7
   const pairs = DIRS.map(u => cycleMasslessPair(PZ, 0, u, PAIR_KAPPA))
-  const F1c = pairs.every(x => Math.abs(x.gamma) / C_STAR <= GAMMA_TOLERANCE && Math.abs(x.c0 / C_STAR - 1) <= GAMMA_TOLERANCE)
+  const F1c = pairs.every(
+    x =>
+      Math.abs(x.gamma) / C_STAR <= GAMMA_TOLERANCE &&
+      Math.abs(x.c0 / C_STAR - 1) <= GAMMA_TOLERANCE,
+  )
 
   log('F1 a b c')
 
@@ -569,13 +820,21 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
 
   log('F1 d')
 
-  const frameL = restFrame(restL[0] as number, restL[3] as number, 2 * mL)
-  const fits = DIRS.map(u => frameR(PL, frameL, restL[0] as number, u, C_STAR, SCALES))
+  const frameL = restFrame(restL[0]!, restL[3]!, 2 * mL)
+  const fits = DIRS.map(u =>
+    frameR(PL, frameL, restL[0]!, u, C_STAR, SCALES),
+  )
   const tanL = Math.tan(mL) / mL
-  const isotropy = Math.max(...fits.map(x => Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1)))
-  const F1e = fits.every(x => Math.abs(x.R - tanL) <= R_EXACT) && isotropy <= ISOTROPY
+  const isotropy = Math.max(
+    ...fits.map(x =>
+      Math.abs(x.c2 / (fits[0] as { c2: number }).c2 - 1),
+    ),
+  )
+  const F1e =
+    fits.every(x => Math.abs(x.R - tanL) <= R_EXACT) &&
+    isotropy <= ISOTROPY
   const F1 = F1a && F1b && F1c && F1d && F1e
-  const octetEps = frameL.sign * -wrap((restL[4] as number) - frameL.mid)
+  const octetEps = frameL.sign * -wrap(restL[4]! - frameL.mid)
 
   log('F1 e')
 
@@ -584,18 +843,34 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
     { name: 'light', u: uL },
     { name: 'pi/6', u: u6 },
     { name: 'massless', u: uZ },
-  ].flatMap(x => [...plan.vacuumSides.map(side => ({ side, sea: 0 })), { side: 4, sea: 1 }].map(({ side, sea }) => ({ name: x.name, ...twoBeatVacuum(x.u, v, side, sea, plan.vacuumBeats) })))
-  const F2 = vacuum.every(x => x.exact && x.permutes === 0 && x.charged === 0)
+  ].flatMap(x =>
+    [
+      ...plan.vacuumSides.map(side => ({ side, sea: 0 })),
+      { side: 4, sea: 1 },
+    ].map(({ side, sea }) => ({
+      name: x.name,
+      ...twoBeatVacuum(x.u, v, side, sea, plan.vacuumBeats),
+    })),
+  )
+  const F2 = vacuum.every(
+    x => x.exact && x.permutes === 0 && x.charged === 0,
+  )
 
   log('F2')
 
   // ---------------- F3: the channels at the light point ----------------
-  const censusL = pairCensus(PL, frameL, censusPaths, weyl.slice(0, 256))
+  const censusL = pairCensus(
+    PL,
+    frameL,
+    censusPaths,
+    weyl.slice(0, 256),
+  )
   const F3a = censusL.Bstar >= WINDOW
 
   log('F3 a')
 
   const rWalk = tanL
+
   let familyValid = 0
   let familyOpen = 0
   let familyBest = 0
@@ -604,15 +879,26 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
   for (const s of fam) {
     const Ps = [covariantDock(p, s.a), covariantDock(p, s.b)]
     const f = restFrame(4 * mL, 0, 2 * mL)
-    const Rs = [SCAN_DIRS[0], SCAN_DIRS[2]].map(u => frameR(Ps, f, 4 * mL, u as number[], C_STAR, SCALES).R)
+    const Rs = [SCAN_DIRS[0], SCAN_DIRS[2]].map(
+      u => frameR(Ps, f, 4 * mL, u!, C_STAR, SCALES).R,
+    )
 
-    if (Rs.some(x => !(Math.abs(x / rWalk - 1) <= R_KEEP))) continue
+    if (Rs.some(x => !(Math.abs(x / rWalk - 1) <= R_KEEP))) {
+      continue
+    }
+
     familyValid++
-    familyRWorst = Math.max(familyRWorst, ...Rs.map(x => Math.abs(x / rWalk - 1)))
+    familyRWorst = Math.max(
+      familyRWorst,
+      ...Rs.map(x => Math.abs(x / rWalk - 1)),
+    )
 
     const c = pairCensus(Ps, f, scanPaths, [])
 
-    if (c.Bstar === 0) familyOpen++
+    if (c.Bstar === 0) {
+      familyOpen++
+    }
+
     familyBest = Math.max(familyBest, c.Bstar)
   }
 
@@ -633,11 +919,24 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
 
   for (let pattern = 0; pattern < 8; pattern++) {
     for (const q of clusterPoints(plan.cluster, pattern)) {
-      const r = clusterCensus(p, q.x, q.c, SCAN_DIRS, plan.clusterP, plan.clusterSteps)
+      const r = clusterCensus(
+        p,
+        q.x,
+        q.c,
+        SCAN_DIRS,
+        plan.clusterP,
+        plan.clusterSteps,
+      )
 
       clusterPoints_++
-      if (r.Bstar === 0) clusterOpen++
-      if (r.Bstar > clusterBest.Bstar) clusterBest = { Bstar: r.Bstar, x: q.x, c: q.c }
+
+      if (r.Bstar === 0) {
+        clusterOpen++
+      }
+
+      if (r.Bstar > clusterBest.Bstar) {
+        clusterBest = { Bstar: r.Bstar, x: q.x, c: q.c }
+      }
     }
   }
 
@@ -648,16 +947,45 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
   // ---------------- controls C2 to C5 ----------------
   const oneH = covariantDock(p, [thetaH, 0, 0, 0, 0])
   const restH = covariantPhases([oneH, oneH], p)
-  const censusH = pairCensus([oneH, oneH], restFrame(restH[0] as number, restH[3] as number, 2 * mH), censusPaths, weyl.slice(0, 256))
-  const heavyGap = Math.min(channelGap(2 * mH, pairChannels(mH), ['SS']).distance, channelGap(2 * mH + Math.PI, pairChannels(mH), ['SS']).distance)
-  const C2 = censusH.crossings === 0 && Math.abs(censusH.Bstar / 2 - heavyGap) <= C2_TOLERANCE
+  const censusH = pairCensus(
+    [oneH, oneH],
+    restFrame(restH[0]!, restH[3]!, 2 * mH),
+    censusPaths,
+    weyl.slice(0, 256),
+  )
+  const heavyGap = Math.min(
+    channelGap(2 * mH, pairChannels(mH), ['SS']).distance,
+    channelGap(2 * mH + Math.PI, pairChannels(mH), ['SS']).distance,
+  )
+  const C2 =
+    censusH.crossings === 0 &&
+    Math.abs(censusH.Bstar / 2 - heavyGap) <= C2_TOLERANCE
   const restD = covariantPhases([oneL, oneL], p)
-  const censusD = pairCensus([oneL, oneL], restFrame(restD[0] as number, restD[3] as number, 2 * mL), censusPaths, [])
+  const censusD = pairCensus(
+    [oneL, oneL],
+    restFrame(restD[0]!, restD[3]!, 2 * mL),
+    censusPaths,
+    [],
+  )
   const C3 = censusD.crossings > 0
   const dirac = diracFamily(SCAN_DIRS)
-  const diracCensus = familyCensus(dirac.B, dirac.As, plan.clusterP, plan.clusterSteps)
-  const C4 = diracCensus.crossings === 0 && Math.abs(diracCensus.Bstar - 2) <= DIRAC_TOLERANCE
-  const far = clusterCensus(p, [1, -1, -1, -1, -1], [1, 0, 0, 0], SCAN_DIRS, plan.clusterP, plan.clusterSteps)
+  const diracCensus = familyCensus(
+    dirac.B,
+    dirac.As,
+    plan.clusterP,
+    plan.clusterSteps,
+  )
+  const C4 =
+    diracCensus.crossings === 0 &&
+    Math.abs(diracCensus.Bstar - 2) <= DIRAC_TOLERANCE
+  const far = clusterCensus(
+    p,
+    [1, -1, -1, -1, -1],
+    [1, 0, 0, 0],
+    SCAN_DIRS,
+    plan.clusterP,
+    plan.clusterSteps,
+  )
   const step = plan.clusterP / plan.clusterSteps
   const C5 = far.crossings > 0 && Math.abs(far.first - 4) <= step
 
@@ -670,24 +998,53 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
     [0.2, 0.3],
     [0.5, -0.1],
   ].map(([b1, b2]) => {
-    const Ps = [covariantDock(p, [Math.PI, 0, b1 as number, 0, 0]), covariantDock(p, [Math.PI, 0, b2 as number, 0, 0])]
-    const r = cycleMasslessPair(Ps, 0, DIRS[0] as number[], PAIR_KAPPA)
+    const Ps = [
+      covariantDock(p, [Math.PI, 0, b1!, 0, 0]),
+      covariantDock(p, [Math.PI, 0, b2!, 0, 0]),
+    ]
+    const r = cycleMasslessPair(Ps, 0, DIRS[0]!, PAIR_KAPPA)
 
-    return { b1: b1 as number, b2: b2 as number, gamma: r.gamma / C_STAR, size: r.size, average: (1 / Math.tan((Math.PI + (b1 as number)) / 2) / 8 + 1 / Math.tan((Math.PI + (b2 as number)) / 2) / 8) / 2 / C_STAR }
+    return {
+      b1: b1!,
+      b2: b2!,
+      gamma: r.gamma / C_STAR,
+      size: r.size,
+      average:
+        (1 / Math.tan((Math.PI + b1!) / 2) / 8 +
+          1 / Math.tan((Math.PI + b2!) / 2) / 8) /
+        2 /
+        C_STAR,
+    }
   })
   const P6 = candidate(theta6)
   const rest6 = covariantPhases(P6, p)
-  const census6 = pairCensus(P6, restFrame(rest6[0] as number, rest6[3] as number, 2 * m6), censusPaths, [])
+  const census6 = pairCensus(
+    P6,
+    restFrame(rest6[0]!, rest6[3]!, 2 * m6),
+    censusPaths,
+    [],
+  )
   const one6 = covariantDock(p, [theta6, 0, 0, 0, 0])
   const rest6d = covariantPhases([one6, one6], p)
-  const census6d = pairCensus([one6, one6], restFrame(rest6d[0] as number, rest6d[3] as number, 2 * m6), censusPaths, [])
+  const census6d = pairCensus(
+    [one6, one6],
+    restFrame(rest6d[0]!, rest6d[3]!, 2 * m6),
+    censusPaths,
+    [],
+  )
 
   log('reads')
 
   const instrument = I1 && I2 && I3 && I4 && I5
   const controls = C1 && C2 && C3 && C4 && C5
-  const status = !instrument || !controls || censusPasses ? 'partial' : F1 && F2 && F3 && F4 ? 'pass' : 'fail'
-  const censusLine = (c: Census): string => `B* ${c.Bstar.toExponential(3)}, crossings ${c.crossings}, first crossing at |q| ${c.first.q.toFixed(4)} (pair eps ${c.first.pair.map(x => x.toFixed(4)).join(', ')}), nearest below at |q| ${Math.hypot(...c.at).toFixed(4)} (pair ${c.pair.map(x => x.toFixed(4)).join(', ')})`
+  const status =
+    !instrument || !controls || censusPasses
+      ? 'partial'
+      : F1 && F2 && F3 && F4
+        ? 'pass'
+        : 'fail'
+  const censusLine = (c: Census): string =>
+    `B* ${c.Bstar.toExponential(3)}, crossings ${c.crossings}, first crossing at |q| ${c.first.q.toFixed(4)} (pair eps ${c.first.pair.map(x => x.toFixed(4)).join(', ')}), nearest below at |q| ${Math.hypot(...c.at).toFixed(4)} (pair ${c.pair.map(x => x.toFixed(4)).join(', ')})`
 
   return verdict({
     status,
@@ -743,7 +1100,14 @@ export function swapTwoBeatRun(plan: TwoBeatPlan): Verdict {
       doubled,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), C4: flag(C4), C5: flag(C5), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      C4: flag(C4),
+      C5: flag(C5),
+      instrument: flag(instrument),
+    },
     notes: `L1 and L2. Units: light u = ringUnit(${LIGHT.join(', ')}) m ${mL.toFixed(6)}, pi/6 m ${m6.toFixed(6)}, heavy m ${mH.toFixed(6)}, v = ringUnit(${OCTET.join(', ')}) arg ${alpha.toFixed(6)}. C1: m ${c1.m}, top/c ${c1.top}, R ${c1.R}, cycle R ${c1.cycleR}, c0/c ${c1.c0}; schedule m ${c1.schedM}, R ${c1.schedR}, top/c ${c1.schedTop}. I1: identity gap ${identityGap.toExponential(2)}; I2: ${sums.map(s => `${s.name} trace ${s.trace.toExponential(1)} sum ${s.sum.toExponential(1)}`).join('; ')}; I3: doubled gap ${doubled.toExponential(2)}; I4: readers ${readers.map(x => x.toExponential(1)).join(' ')}; I5: design ${design}, Pi4 block c14 ${block.oneL.toFixed(12)} / ${block.oneT.toExponential(1)}, c49 ${block.nineL.toFixed(12)} / ${block.nineT.toFixed(12)}. F1: rule against model ${ruleGap.toExponential(2)}; rest ${restL.map(x => x.toFixed(6)).join(' ')}; multiplets ${multiplets.map(x => `${x.center.toFixed(6)}x${x.size}`).join(' ')}; octet eps ${octetEps.toFixed(6)} (window ${frameL.M.toFixed(6)} to ${(3 * frameL.M).toFixed(6)}); massless pair ${pairs.map(x => `size ${x.size} c0/c* ${(x.c0 / C_STAR).toFixed(10)} gamma/c* ${(x.gamma / C_STAR).toExponential(2)}`).join(', ')}; R - tan m/m ${fits.map(x => (x.R - tanL).toExponential(2)).join(' ')} (tan m/m ${tanL.toFixed(9)}), K^2 coefficients ${fits.map(x => x.c2.toFixed(12)).join(' ')}. F2: ${vacuum.map(x => `${x.name} side ${x.side} ${x.sea ? 'sea' : 'empty'} exact ${x.exact} permutes ${x.permutes} charged ${x.charged}`).join('; ')}. F3 (b): R kept worst ${familyRWorst.toExponential(2)}. N1: best ${clusterBest.Bstar.toExponential(3)} at x ${clusterBest.x.map(x => x.toFixed(3)).join(' ')} c ${clusterBest.c.map(x => x.toFixed(3)).join(' ')}. C2: heavy ${censusLine(censusH)}, B*/2 ${(censusH.Bstar / 2).toFixed(6)} against E-SPN-0155's ${heavyGap.toFixed(6)}. C3: light doubled ${censusLine(censusD)}. C4: Dirac B* ${diracCensus.Bstar}, crossings ${diracCensus.crossings}. C5: far first crossing p ${far.first.toFixed(4)} (step ${step.toFixed(4)}). R1 gamma/c* of Pi9 splits (b1, b2): ${gammaTable.map(g => `(${g.b1}, ${g.b2}) size ${g.size} gamma ${g.gamma.toExponential(3)} one-beat average ${g.average.toExponential(3)}`).join('; ')}. R2 pi/6: candidate ${censusLine(census6)}; doubled one-beat ${censusLine(census6d)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

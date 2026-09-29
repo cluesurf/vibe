@@ -63,13 +63,27 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { dockMatrix, DOCK_ROOTS } from '@/code/measure/dock-mixer'
-import { singletEps, singletLevel } from '@/code/measure/singlet-kinematics'
+import {
+  singletEps,
+  singletLevel,
+} from '@/code/measure/singlet-kinematics'
 import { ringAngle } from '@/code/measure/swap-cone'
-import { closedBand, collisionShell, husk, huskDirections, longWaveSpeed, type Band, type ShellReading } from '@/code/measure/husk-lorentz'
+import {
+  closedBand,
+  collisionShell,
+  husk,
+  huskDirections,
+  longWaveSpeed,
+  type Band,
+  type ShellReading,
+} from '@/code/measure/husk-lorentz'
 
 const SWAP_N = 2 / 3
 const M_STAR_REF = 0.046778
-const COLLISIONS: readonly (readonly [readonly number[], readonly number[]])[] = [
+const COLLISIONS: readonly (readonly [
+  readonly number[],
+  readonly number[],
+])[] = [
   [
     [0.02, 0, 0],
     [-0.02, 0, 0],
@@ -94,7 +108,13 @@ const CM_BOOST = 1e-15
 const HEAVY_FLOOR = 1e-3
 const GALILEAN_FLOOR = 1e-3
 
-type Point = { theta: number; m: number; rule: Band; closed: Band; cStar: number }
+type Point = {
+  theta: number
+  m: number
+  rule: Band
+  closed: Band
+  cStar: number
+}
 
 function pointAt(theta: number): Point {
   const P = dockMatrix(theta, SWAP_N, true)
@@ -102,13 +122,26 @@ function pointAt(theta: number): Point {
   const m = level.m
   const closed = closedBand(m)
 
-  return { theta, m, rule: K => singletEps(P, DOCK_ROOTS, level, K), closed, cStar: longWaveSpeed(closed, m, [1, 0, 0], 1e-3) }
+  return {
+    theta,
+    m,
+    rule: K => singletEps(P, DOCK_ROOTS, level, K),
+    closed,
+    cStar: longWaveSpeed(closed, m, [1, 0, 0], 1e-3),
+  }
 }
 
-const scaled = (p: Point, v: readonly number[]): number[] => v.map(x => (x * p.m) / M_STAR_REF)
+const scaled = (p: Point, v: readonly number[]): number[] =>
+  v.map(x => (x * p.m) / M_STAR_REF)
 
-function shells(p: Point, E: Band, dirs: readonly (readonly number[])[]): ShellReading[] {
-  return COLLISIONS.map(([a, b]) => collisionShell(E, p.m, p.cStar, scaled(p, a), scaled(p, b), dirs))
+function shells(
+  p: Point,
+  E: Band,
+  dirs: readonly (readonly number[])[],
+): ShellReading[] {
+  return COLLISIONS.map(([a, b]) =>
+    collisionShell(E, p.m, p.cStar, scaled(p, a), scaled(p, b), dirs),
+  )
 }
 
 export default experiment({
@@ -133,7 +166,9 @@ export default experiment({
     const B1 = rule.every(r => r.residual <= SHELL)
     const secondRule = shells(second, second.rule, dirs)
     const target = (second.m / chosen.m) ** 2
-    const ratios = rule.map((r, i) => (secondRule[i] as ShellReading).residual / r.residual)
+    const ratios = rule.map(
+      (r, i) => secondRule[i]!.residual / r.residual,
+    )
     const B2 = ratios.every(x => Math.abs(x / target - 1) <= LAW)
 
     // B3: the incoming momenta and every predicted outgoing one, well inside the zone
@@ -141,21 +176,35 @@ export default experiment({
     const B3 = farthest < Math.PI / 2
 
     // ---------------- instrument ----------------
-    const ruleClosed = Math.max(...rule.map((r, i) => Math.abs(r.residual - (closed[i] as ShellReading).residual)))
+    const ruleClosed = Math.max(
+      ...rule.map((r, i) => Math.abs(r.residual - closed[i]!.residual)),
+    )
     // the CM k* against the incoming momentum is the lattice defect itself (reported); the boost there must vanish
-    const cmGap = Math.abs((rule[0] as ShellReading).kStar - (0.02 * chosen.m) / M_STAR_REF)
-    const cmBoost = (rule[0] as ShellReading).boost
+    const cmGap = Math.abs(
+      rule[0]!.kStar - (0.02 * chosen.m) / M_STAR_REF,
+    )
+    const cmBoost = rule[0]!.boost
     const instrument = ruleClosed <= RULE_CLOSED && cmBoost <= CM_BOOST
 
     // ---------------- controls ----------------
     const heavyRule = shells(heavy, heavy.rule, dirs)
-    const C1 = (heavyRule[2] as ShellReading).residual > HEAVY_FLOOR
-    const galilean: Band = K => chosen.m + (chosen.cStar * chosen.cStar * ((K[0] as number) ** 2 + (K[1] as number) ** 2 + (K[2] as number) ** 2 + (K[3] as number) ** 2)) / (2 * chosen.m)
+    const C1 = heavyRule[2]!.residual > HEAVY_FLOOR
+    const galilean: Band = K =>
+      chosen.m +
+      (chosen.cStar *
+        chosen.cStar *
+        (K[0]! ** 2 + K[1]! ** 2 + K[2]! ** 2 + K[3]! ** 2)) /
+        (2 * chosen.m)
     const galileanShell = shells(chosen, galilean, dirs)
-    const C2 = (galileanShell[2] as ShellReading).residual > GALILEAN_FLOOR
+    const C2 = galileanShell[2]!.residual > GALILEAN_FLOOR
     const controls = C1 && C2
 
-    const status = !instrument || !controls ? 'partial' : B1 && B2 && B3 ? 'pass' : 'fail'
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : B1 && B2 && B3
+          ? 'pass'
+          : 'fail'
     const flag = (b: boolean): number => (b ? 1 : 0)
     const metrics: Record<string, number> = {
       B1: flag(B1),
@@ -166,11 +215,11 @@ export default experiment({
       C2: flag(C2),
       mStar: chosen.m,
       cStar: chosen.cStar,
-      residualCM: (rule[0] as ShellReading).residual,
-      residual035: (rule[1] as ShellReading).residual,
-      residual054: (rule[2] as ShellReading).residual,
-      residual083: (rule[3] as ShellReading).residual,
-      boostMax: (rule[3] as ShellReading).boost,
+      residualCM: rule[0]!.residual,
+      residual035: rule[1]!.residual,
+      residual054: rule[2]!.residual,
+      residual083: rule[3]!.residual,
+      boostMax: rule[3]!.boost,
       lawTarget: target,
       lawMin: Math.min(...ratios),
       lawMax: Math.max(...ratios),
@@ -178,17 +227,27 @@ export default experiment({
       ruleClosed,
       cmGap,
       cmBoost,
-      heavyResidual054: (heavyRule[2] as ShellReading).residual,
-      galileanResidual054: (galileanShell[2] as ShellReading).residual,
+      heavyResidual054: heavyRule[2]!.residual,
+      galileanResidual054: galileanShell[2]!.residual,
       seconds: (Date.now() - started) / 1000,
     }
-    const row = (xs: ShellReading[]): string => xs.map(r => `boost ${r.boost.toFixed(4)} sqrt s/2m ${(r.sqrtS / 2).toFixed(6)} k* ${r.kStar.toFixed(6)} residual ${r.residual.toExponential(3)}`).join('; ')
+    const row = (xs: ShellReading[]): string =>
+      xs
+        .map(
+          r =>
+            `boost ${r.boost.toFixed(4)} sqrt s/2m ${(r.sqrtS / 2).toFixed(6)} k* ${r.kStar.toFixed(6)} residual ${r.residual.toExponential(3)}`,
+        )
+        .join('; ')
 
     return verdict({
       status,
-      claim: `at m* ${chosen.m.toFixed(6)} (c* ${chosen.cStar.toFixed(9)}) on the rule's band, husk momenta: B1 ${B1} (residual at the boosted CM sphere ${rule.map(r => r.residual.toExponential(2)).join(', ')} at boosts ${rule.map(r => r.boost.toFixed(3)).join(', ')}); B2 ${B2} (k = 2 over chosen ${ratios.map(x => x.toFixed(4)).join(', ')} against ${target.toFixed(4)}); B3 ${B3} (largest |K . r| ${farthest.toFixed(4)} against pi/2); instrument ${instrument} (rule against closed ${ruleClosed.toExponential(2)}, CM boost ${cmBoost.toExponential(2)}; the CM k* read back relativistically is ${cmGap.toExponential(2)} from the incoming momentum, the lattice defect); controls C1 ${C1} (heavy ${(heavyRule[2] as ShellReading).residual.toExponential(2)}), C2 ${C2} (Galilean ${(galileanShell[2] as ShellReading).residual.toExponential(2)})`,
+      claim: `at m* ${chosen.m.toFixed(6)} (c* ${chosen.cStar.toFixed(9)}) on the rule's band, husk momenta: B1 ${B1} (residual at the boosted CM sphere ${rule.map(r => r.residual.toExponential(2)).join(', ')} at boosts ${rule.map(r => r.boost.toFixed(3)).join(', ')}); B2 ${B2} (k = 2 over chosen ${ratios.map(x => x.toFixed(4)).join(', ')} against ${target.toFixed(4)}); B3 ${B3} (largest |K . r| ${farthest.toFixed(4)} against pi/2); instrument ${instrument} (rule against closed ${ruleClosed.toExponential(2)}, CM boost ${cmBoost.toExponential(2)}; the CM k* read back relativistically is ${cmGap.toExponential(2)} from the incoming momentum, the lattice defect); controls C1 ${C1} (heavy ${heavyRule[2]!.residual.toExponential(2)}), C2 ${C2} (Galilean ${galileanShell[2]!.residual.toExponential(2)})`,
       metrics,
-      control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        instrument: flag(instrument),
+      },
       notes: `L1 and L2. B3 reads |K . r| ${rule.map(r => r.reach.toFixed(4)).join(', ')} per collision over p1, p2 and every predicted p3, p4. Chosen point: ${row(rule)}. k = 2 point (m ${second.m.toFixed(6)}): ${row(secondRule)}. Heavy point (m ${heavy.m.toFixed(6)}): ${row(heavyRule)}. Galilean band: ${row(galileanShell)}. Husk momenta ${husk([1, 0, 0]).join(',')} and ${dirs.length} CM directions. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

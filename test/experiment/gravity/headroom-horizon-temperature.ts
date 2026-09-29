@@ -107,8 +107,21 @@ import { lapseLinks, openMesh } from '@/code/rule/open-husk'
 import { stackModes } from '@/code/measure/open-husk'
 import { logLogSlope } from '@/code/measure/regression'
 import { restRate } from '@/code/measure/depth-arena'
-import { boxFreeExcess, lineCount, lineSpeed, radialMedium, unitProfile, type RadialLine } from '@/code/measure/horizon-temperature'
-import { LOCAL_LEVELS, LOCAL_SEPARATIONS, localAlpha, localUnits, pairReading } from '@/code/measure/local-alpha'
+import {
+  boxFreeExcess,
+  lineCount,
+  lineSpeed,
+  radialMedium,
+  unitProfile,
+  type RadialLine,
+} from '@/code/measure/horizon-temperature'
+import {
+  LOCAL_LEVELS,
+  LOCAL_SEPARATIONS,
+  localAlpha,
+  localUnits,
+  pairReading,
+} from '@/code/measure/local-alpha'
 import {
   chainSpeed,
   exponential,
@@ -177,8 +190,12 @@ type Horizon = {
   profile: ReturnType<typeof profileKappa>
 }
 
-const exact = (c: Chain): boolean => c.run.reversed && c.run.gauss === 0 && c.run.wraps.angle + c.run.wraps.field + c.run.wraps.potential === 0
-const spreadOf = (xs: readonly number[]): number => Math.max(...xs) / Math.min(...xs) - 1
+const exact = (c: Chain): boolean =>
+  c.run.reversed &&
+  c.run.gauss === 0 &&
+  c.run.wraps.angle + c.run.wraps.field + c.run.wraps.potential === 0
+const spreadOf = (xs: readonly number[]): number =>
+  Math.max(...xs) / Math.min(...xs) - 1
 
 export default experiment({
   id: 'gravity/headroom-horizon-temperature',
@@ -191,7 +208,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -203,18 +221,53 @@ export default experiment({
 
     log('profile')
 
-    const geometry = (rh: number): { inner: number; start: number; length: number; center: number; radii: number[] } => {
+    const geometry = (
+      rh: number,
+    ): {
+      inner: number
+      start: number
+      length: number
+      center: number
+      radii: number[]
+    } => {
       const inner = Math.ceil(rh)
       const start = inner + GAP
       const length = 2 * (start + WIDTH / 2 + 8)
 
-      return { inner, start, length, center: length / 2, radii: Array.from({ length: OUT + 2 }, (_, i) => Math.floor(rh) + i) }
+      return {
+        inner,
+        start,
+        length,
+        center: length / 2,
+        radii: Array.from(
+          { length: OUT + 2 },
+          (_, i) => Math.floor(rh) + i,
+        ),
+      }
     }
 
     // the flat line: full room everywhere, the smallest horizon's geometry
     const g0 = geometry(R_H[0]!)
-    const flatMedium = roomMedium({ length: g0.length, center: g0.center, resolution: D0, base: BASE, room: () => BASE })
-    const flat = roomChain(flatMedium, g0.center, smoothPacket(flatMedium, LEVELS, g0.center + g0.start, AMP, WIDTH), g0.radii, Math.ceil((SLACK * (GAP + WIDTH / 2)) / c0))
+    const flatMedium = roomMedium({
+      length: g0.length,
+      center: g0.center,
+      resolution: D0,
+      base: BASE,
+      room: () => BASE,
+    })
+    const flat = roomChain(
+      flatMedium,
+      g0.center,
+      smoothPacket(
+        flatMedium,
+        LEVELS,
+        g0.center + g0.start,
+        AMP,
+        WIDTH,
+      ),
+      g0.radii,
+      Math.ceil((SLACK * (GAP + WIDTH / 2)) / c0),
+    )
     const cFlat = chainSpeed(flat)
     const flatIvs = roomIntervals(flat, cFlat, SHARE)
     const flatWorst = Math.max(...flatIvs.map(iv => Math.abs(iv.lnz)))
@@ -225,15 +278,38 @@ export default experiment({
       const m = CAP / profile.at(rh)
       const room = roomOf(profile, m, CAP, BASE)
       const g = geometry(rh)
-      const window = Math.ceil(SLACK * stairTime(room, BASE, c0, g.inner, g.start + WIDTH / 2))
-      const med: SpanMedium = roomMedium({ length: g.length, center: g.center, resolution: D0, base: BASE, room })
-      const chain = roomChain(med, g.center, smoothPacket(med, LEVELS, g.center + g.start, AMP, WIDTH), g.radii, window)
+      const window = Math.ceil(
+        SLACK * stairTime(room, BASE, c0, g.inner, g.start + WIDTH / 2),
+      )
+      const med: SpanMedium = roomMedium({
+        length: g.length,
+        center: g.center,
+        resolution: D0,
+        base: BASE,
+        room,
+      })
+      const chain = roomChain(
+        med,
+        g.center,
+        smoothPacket(med, LEVELS, g.center + g.start, AMP, WIDTH),
+        g.radii,
+        window,
+      )
       const outside = g.radii.filter(r => r > rh)
-      const inside = roomChain(med, g.center, smoothPacket(med, LEVELS, g.center, AMP, INSIDE_WIDTH), outside, window)
+      const inside = roomChain(
+        med,
+        g.center,
+        smoothPacket(med, LEVELS, g.center, AMP, INSIDE_WIDTH),
+        outside,
+        window,
+      )
       const ivs = roomIntervals(chain, cFlat, SHARE)
+
       let first = g.inner
 
-      while (room(first) === 0) first++
+      while (room(first) === 0) {
+        first++
+      }
 
       log(`r_h ${rh}`)
 
@@ -245,7 +321,10 @@ export default experiment({
         chain,
         inside,
         ivs,
-        frozenWeight: g.radii.reduce((a, r, i) => (r <= rh ? a + chain.run.weight[i]! : a), 0),
+        frozenWeight: g.radii.reduce(
+          (a, r, i) => (r <= rh ? a + chain.run.weight[i]! : a),
+          0,
+        ),
         insideWeight: inside.run.weight.reduce((a, w) => a + w, 0),
         firstRoom: room(first),
         stairEfolds: -0.5 * Math.log(room(first) / BASE),
@@ -257,33 +336,76 @@ export default experiment({
 
     // K2: E-GRV-0120's rule on the smallest horizon's profile, the same packet, detectors and readings
     const h0 = horizons[0]!
-    const oldLine = (excessAt: (r: number) => number): RadialLine => ({ length: h0.length, center: g0.center, scale: OLD_SCALE, resolution: D0, excessAt })
-    const oldProfileLine = oldLine(r => (r < h0.rh ? CAP : Math.min(CAP, h0.m * profile.at(r))))
+    const oldLine = (excessAt: (r: number) => number): RadialLine => ({
+      length: h0.length,
+      center: g0.center,
+      scale: OLD_SCALE,
+      resolution: D0,
+      excessAt,
+    })
+    const oldProfileLine = oldLine(r =>
+      r < h0.rh ? CAP : Math.min(CAP, h0.m * profile.at(r)),
+    )
     const oldQ0 = lineCount(oldProfileLine)
-    const oldSlowest = (lineSpeed(oldProfileLine) * oldQ0) / (oldQ0 + 2 * Math.round(OLD_SCALE * CAP))
-    const oldWindow = Math.ceil((SLACK * (GAP + WIDTH / 2)) / oldSlowest)
+    const oldSlowest =
+      (lineSpeed(oldProfileLine) * oldQ0) /
+      (oldQ0 + 2 * Math.round(OLD_SCALE * CAP))
+    const oldWindow = Math.ceil(
+      (SLACK * (GAP + WIDTH / 2)) / oldSlowest,
+    )
     const oldMedium = radialMedium(oldProfileLine)
     const oldFlatMedium = radialMedium(oldLine(() => 0))
-    const oldFlat = roomChain(oldFlatMedium, g0.center, smoothPacket(oldFlatMedium, LEVELS, g0.center + g0.start, AMP, WIDTH), g0.radii, oldWindow)
+    const oldFlat = roomChain(
+      oldFlatMedium,
+      g0.center,
+      smoothPacket(
+        oldFlatMedium,
+        LEVELS,
+        g0.center + g0.start,
+        AMP,
+        WIDTH,
+      ),
+      g0.radii,
+      oldWindow,
+    )
     const oldCFlat = chainSpeed(oldFlat)
 
     log('old flat')
 
-    const oldChain = roomChain(oldMedium, g0.center, smoothPacket(oldMedium, LEVELS, g0.center + g0.start, AMP, WIDTH), g0.radii, oldWindow)
+    const oldChain = roomChain(
+      oldMedium,
+      g0.center,
+      smoothPacket(oldMedium, LEVELS, g0.center + g0.start, AMP, WIDTH),
+      g0.radii,
+      oldWindow,
+    )
     const oldOutside = g0.radii.filter(r => r > h0.rh)
-    const oldInside = roomChain(oldMedium, g0.center, smoothPacket(oldMedium, LEVELS, g0.center, AMP, INSIDE_WIDTH), oldOutside, oldWindow)
+    const oldInside = roomChain(
+      oldMedium,
+      g0.center,
+      smoothPacket(oldMedium, LEVELS, g0.center, AMP, INSIDE_WIDTH),
+      oldOutside,
+      oldWindow,
+    )
     const oldIvs = roomIntervals(oldChain, oldCFlat, SHARE)
     const oldExp = exponential(oldIvs, NEAR_ZONE)
-    const oldInsideWeight = oldInside.run.weight.reduce((a, w) => a + w, 0)
+    const oldInsideWeight = oldInside.run.weight.reduce(
+      (a, w) => a + w,
+      0,
+    )
 
     log('old rule')
 
     // H4: uniform rooms
-    const speeds = SPEED_ROOMS.map(k => uniformRoomSpeed(k, BASE, D0, LEVELS))
+    const speeds = SPEED_ROOMS.map(k =>
+      uniformRoomSpeed(k, BASE, D0, LEVELS),
+    )
 
     log('speeds')
 
-    const rests = SPEED_ROOMS.map(k => roomRestRate(k, BASE, D0, REST_TERM, REST_AMP, REST_BEATS))
+    const rests = SPEED_ROOMS.map(k =>
+      roomRestRate(k, BASE, D0, REST_TERM, REST_AMP, REST_BEATS),
+    )
     const hs = SPEED_ROOMS.map(k => k / BASE)
     const speedExponent = logLogSlope(
       hs,
@@ -294,45 +416,110 @@ export default experiment({
       rests.map(r => r.rate),
     )
     const bending = speedExponent / restExponent
-    const reductions = REDUCTION_ROOMS.map(k => reduction(k, BASE, D0, LEVELS))
+    const reductions = REDUCTION_ROOMS.map(k =>
+      reduction(k, BASE, D0, LEVELS),
+    )
     const matterEqual = REDUCTION_ROOMS.map(k => {
       const depth = reductionDepth(k, BASE, D0)
 
-      return roomRestRate(k, BASE, D0, REST_TERM, REST_AMP, REST_BEATS).rate === restRate(depth, REST_TERM, REST_AMP, REST_BEATS, 'span').rate
+      return (
+        roomRestRate(k, BASE, D0, REST_TERM, REST_AMP, REST_BEATS)
+          .rate ===
+        restRate(depth, REST_TERM, REST_AMP, REST_BEATS, 'span').rate
+      )
     })
 
     log('reductions')
 
-    const alphaDepths = ALPHA_ROOMS.map(k => reductionDepth(k, BASE, D0))
+    const alphaDepths = ALPHA_ROOMS.map(k =>
+      reductionDepth(k, BASE, D0),
+    )
     const alphas = alphaDepths.map(depth => {
       const units = localUnits('span', depth)
 
-      return LOCAL_SEPARATIONS.map(r => localAlpha(pairReading('span', depth, r, LOCAL_LEVELS, D0), units))
+      return LOCAL_SEPARATIONS.map(r =>
+        localAlpha(
+          pairReading('span', depth, r, LOCAL_LEVELS, D0),
+          units,
+        ),
+      )
     })
-    const alphaSpread = Math.max(...LOCAL_SEPARATIONS.map((_, j) => spreadOf(alphas.map(row => row[j]!.alphaLocal))))
-    const alphaExact = alphas.every(row => row.every(a => a.pair.reversed && a.pair.gauss === 0 && a.pair.wraps === 0 && a.units.reversed))
+    const alphaSpread = Math.max(
+      ...LOCAL_SEPARATIONS.map((_, j) =>
+        spreadOf(alphas.map(row => row[j]!.alphaLocal)),
+      ),
+    )
+    const alphaExact = alphas.every(row =>
+      row.every(
+        a =>
+          a.pair.reversed &&
+          a.pair.gauss === 0 &&
+          a.pair.wraps === 0 &&
+          a.units.reversed,
+      ),
+    )
 
     log('alpha')
 
     // THE GATES
     const e =
-      [flat, oldFlat, oldChain, oldInside, ...horizons.flatMap(h => [h.chain, h.inside])].every(exact) &&
-      speeds.every(s => s.run.reversed && s.run.gauss === 0 && s.run.wraps.angle + s.run.wraps.field + s.run.wraps.potential === 0) &&
+      [
+        flat,
+        oldFlat,
+        oldChain,
+        oldInside,
+        ...horizons.flatMap(h => [h.chain, h.inside]),
+      ].every(exact) &&
+      speeds.every(
+        s =>
+          s.run.reversed &&
+          s.run.gauss === 0 &&
+          s.run.wraps.angle +
+            s.run.wraps.field +
+            s.run.wraps.potential ===
+            0,
+      ) &&
       rests.every(r => r.reversed) &&
-      reductions.every(r => r.room.reversed && r.metric.reversed && r.room.gauss === 0 && r.room.wraps.angle + r.room.wraps.field + r.room.wraps.potential === 0) &&
+      reductions.every(
+        r =>
+          r.room.reversed &&
+          r.metric.reversed &&
+          r.room.gauss === 0 &&
+          r.room.wraps.angle +
+            r.room.wraps.field +
+            r.room.wraps.potential ===
+            0,
+      ) &&
       alphaExact
-    const h1 = horizons.every(h => h.frozenWeight === 0 && h.insideWeight === 0)
-    const h2Of = (x: ReturnType<typeof exponential>, kappa: number): boolean => x.count >= 3 && x.span >= H2_SPAN && Math.abs(x.rate / kappa - 1) <= H2_TOLERANCE
+    const h1 = horizons.every(
+      h => h.frozenWeight === 0 && h.insideWeight === 0,
+    )
+    const h2Of = (
+      x: ReturnType<typeof exponential>,
+      kappa: number,
+    ): boolean =>
+      x.count >= 3 &&
+      x.span >= H2_SPAN &&
+      Math.abs(x.rate / kappa - 1) <= H2_TOLERANCE
     const h2 = horizons.every(h => h2Of(h.exp, h.profile.kappa))
     const tm = horizons.map(h => h.light.temperature * h.m)
     const h3 = spreadOf(tm) <= H3_TOLERANCE
-    const reductionOk = reductions.every(r => r.arrivalOff <= REDUCTION_TOLERANCE && r.weightOff <= REDUCTION_TOLERANCE) && matterEqual.every(Boolean)
-    const h4 = Math.abs(bending / 2 - 1) <= BEND_TOLERANCE && alphaSpread <= ALPHA_FLAT && reductionOk
+    const reductionOk =
+      reductions.every(
+        r =>
+          r.arrivalOff <= REDUCTION_TOLERANCE &&
+          r.weightOff <= REDUCTION_TOLERANCE,
+      ) && matterEqual.every(Boolean)
+    const h4 =
+      Math.abs(bending / 2 - 1) <= BEND_TOLERANCE &&
+      alphaSpread <= ALPHA_FLAT &&
+      reductionOk
     const k1 = flatIvs.length > 0 && flatWorst <= FLAT_LNZ
     const oldH1 = oldInsideWeight === 0
     const oldH2 = h2Of(oldExp, h0.profile.kappa)
     const k2 = !oldH1 && !oldH2
-    const status = e && h1 && h2 && h3 && h4 && k1 && k2 ? 'pass' : 'fail'
+    const status =
+      e && h1 && h2 && h3 && h4 && k1 && k2 ? 'pass' : 'fail'
 
     horizons.forEach(h => {
       const key = `M${Math.round(h.m)}`
@@ -348,7 +535,8 @@ export default experiment({
       metrics[`${key}_nearRateOverKappa`] = h.exp.rate / h.profile.kappa
       metrics[`${key}_kappaProfile`] = h.profile.kappa
       metrics[`${key}_kappaLight`] = h.light.kappa
-      metrics[`${key}_TLightOverProfile`] = h.light.temperature / h.profile.temperature
+      metrics[`${key}_TLightOverProfile`] =
+        h.light.temperature / h.profile.temperature
       metrics[`${key}_TLightM`] = h.light.temperature * h.m
       metrics[`${key}_TProfileM`] = h.profile.temperature * h.m
       metrics[`${key}_lightRadius`] = h.light.radius
@@ -368,7 +556,9 @@ export default experiment({
     metrics.control_K1 = k1 ? 1 : 0
     metrics.control_K2 = k2 ? 1 : 0
     metrics.TMSpread = spreadOf(tm)
-    metrics.TProfileMSpread = spreadOf(horizons.map(h => h.profile.temperature * h.m))
+    metrics.TProfileMSpread = spreadOf(
+      horizons.map(h => h.profile.temperature * h.m),
+    )
     metrics.cFlat = cFlat
     metrics.c0 = c0
     metrics.flatWorst = flatWorst
@@ -391,16 +581,33 @@ export default experiment({
     metrics.gravityRatio = (2 * D0 + 1) / (2 * CAP)
     metrics.seconds = (Date.now() - started) / 1000
 
-    lines.push(`speeds ${speeds.map(s => `${s.k}:${s.speed.toExponential(6)}`).join(' ')}; rest rates ${rests.map(r => `${r.k}:${r.rate.toExponential(6)}`).join(' ')}`)
-    lines.push(`alpha_local ${alphas.map((row, i) => `D_m ${alphaDepths[i]}: ${row.map(a => a.alphaLocal.toExponential(9)).join(' ')}`).join('; ')}`)
-    lines.push(`E-GRV-0120's rule at r_h ${h0.rh}: inside packet's weight outside ${oldInsideWeight.toExponential(3)}, largest ln z ${oldExp.top.toFixed(4)}, near zone ${oldExp.count}; intervals ${oldIvs.map(iv => `${iv.mid}:${iv.f.toFixed(4)}`).join(' ')}`)
-    lines.push(`flat intervals ln z ${flatIvs.map(iv => iv.lnz.toExponential(2)).join(' ')}`)
+    lines.push(
+      `speeds ${speeds.map(s => `${s.k}:${s.speed.toExponential(6)}`).join(' ')}; rest rates ${rests.map(r => `${r.k}:${r.rate.toExponential(6)}`).join(' ')}`,
+    )
+
+    lines.push(
+      `alpha_local ${alphas.map((row, i) => `D_m ${alphaDepths[i]}: ${row.map(a => a.alphaLocal.toExponential(9)).join(' ')}`).join('; ')}`,
+    )
+
+    lines.push(
+      `E-GRV-0120's rule at r_h ${h0.rh}: inside packet's weight outside ${oldInsideWeight.toExponential(3)}, largest ln z ${oldExp.top.toFixed(4)}, near zone ${oldExp.count}; intervals ${oldIvs.map(iv => `${iv.mid}:${iv.f.toFixed(4)}`).join(' ')}`,
+    )
+
+    lines.push(
+      `flat intervals ln z ${flatIvs.map(iv => iv.lnz.toExponential(2)).join(' ')}`,
+    )
 
     return verdict({
       status,
       claim: `the room coupling (f = h = (CAP - e) / CAP, register C = ${BASE}) on the box-free profile at r_h = ${R_H.join(', ')}: trapped ${h1}; largest resolved ln z ${horizons.map(h => h.exp.top.toFixed(3)).join(', ')} (staircase ${horizons.map(h => h.stairEfolds.toFixed(3)).join(', ')}); near-zone spans ${horizons.map(h => h.exp.span.toFixed(3)).join(', ')} (gate ${H2_SPAN}); T_light M spread ${spreadOf(tm).toFixed(4)} (gate ${H3_TOLERANCE}); bending ${bending.toFixed(4)}, alpha spread ${alphaSpread.toExponential(2)}; flat ${flatWorst.toExponential(2)}; E-GRV-0120's rule inside weight ${oldInsideWeight.toExponential(2)}; exact ${e}`,
       metrics,
-      control: { k1: k1 ? 1 : 0, k2: k2 ? 1 : 0, flatWorst, oldInsideWeight, oldEfolds: oldExp.top },
+      control: {
+        k1: k1 ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        flatWorst,
+        oldInsideWeight,
+        oldEfolds: oldExp.top,
+      },
       notes: `L2. E ${e}, H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}, K1 ${k1}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

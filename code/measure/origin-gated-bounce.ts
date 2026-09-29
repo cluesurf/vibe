@@ -21,20 +21,51 @@
 // DETERMINISM: no random numbers; the key is integer arithmetic on (beat, dock, line, frame). NOTHING MOVES: every piece
 // hands a vibe, its point, its open bit and its origin to a slot, and the stream takes it one dock along.
 
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
-import { keyedCoin, keyedMeet, type MeshLines, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
+import {
+  keyedCoin,
+  keyedMeet,
+  type MeshLines,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { streamInto } from '@/code/measure/doublet-locked-readings'
 import { pairPiece } from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { recruitedAt, singlesAt, type KEvent } from '@/code/measure/hub-star'
+import {
+  recruitedAt,
+  singlesAt,
+  type KEvent,
+} from '@/code/measure/hub-star'
 import { writeFluxAfterStream } from '@/code/measure/two-hub-bound'
 import { newMixTally } from '@/code/measure/string-gated-mixer'
 import { storeLine } from '@/code/measure/planon-lines'
-import { cloneOrigins, EMPTY, MATTER_BORN, matterBorn, originMismatch, originMix, originsOf, singlesByOrigin, type OriginGate, type Origins } from '@/code/measure/origin-gated-mixer'
+import {
+  cloneOrigins,
+  EMPTY,
+  MATTER_BORN,
+  matterBorn,
+  originMismatch,
+  originMix,
+  originsOf,
+  singlesByOrigin,
+  type OriginGate,
+  type Origins,
+} from '@/code/measure/origin-gated-mixer'
 
-const SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const PERM = new Int32Array(24)
 const AGAIN = new Int32Array(24)
 const SV = new Int8Array(24)
@@ -49,133 +80,252 @@ export type KGate = 'matter' | 'none'
 // what the collision did, summed: K firings, B firings on docks of two or more singles (the docks the gate took from
 // K), and on those, singles B kept on their own line, moved to another single line of the dock (a swap), or moved onto
 // a line that held no single (a line left); `off` counts docks where the re-read gate or map disagreed after firing
-export type CollideTally = { k: number; bMulti: number; bKept: number; bSwapped: number; bLeft: number; refusedK: number; off: number }
+export type CollideTally = {
+  k: number
+  bMulti: number
+  bKept: number
+  bSwapped: number
+  bLeft: number
+  refusedK: number
+  off: number
+}
 
-export const newCollideTally = (): CollideTally => ({ k: 0, bMulti: 0, bKept: 0, bSwapped: 0, bLeft: 0, refusedK: 0, off: 0 })
+export const newCollideTally = (): CollideTally => ({
+  k: 0,
+  bMulti: 0,
+  bKept: 0,
+  bSwapped: 0,
+  bLeft: 0,
+  refusedK: 0,
+  off: 0,
+})
 
 // matter-born singles on dock x
-function matterSingles(c: Configuration, o: Origins, base: number): number {
+function matterSingles(
+  c: Configuration,
+  o: Origins,
+  base: number,
+): number {
   let n = 0
 
   for (let l = 0; l < 12; l++) {
-    const i = base + (LINE_FIRSTS[l] as number)
-    const j = base + (SECONDS[l] as number)
+    const i = base + LINE_FIRSTS[l]!
+    const j = base + SECONDS[l]!
     const hi = c.vibe[i] !== 0
 
-    if (hi === (c.vibe[j] !== 0)) continue
-    if (o.slot[hi ? i : j] === MATTER_BORN) n++
+    if (hi === (c.vibe[j] !== 0)) {
+      continue
+    }
+
+    if (o.slot[hi ? i : j] === MATTER_BORN) {
+      n++
+    }
   }
 
   return n
 }
 
 // B in its 'pass' form on any dock, written into out: 0 the identity, else the map's case
-function passBounce(vibe: Int8Array, base: number, out: Int32Array): number {
-  const kind = bouncePermutation(BOUNCE_TABLE, 'bounce', vibe, base, out)
+function passBounce(
+  vibe: Int8Array,
+  base: number,
+  out: Int32Array,
+): number {
+  const kind = bouncePermutation(
+    BOUNCE_TABLE,
+    'bounce',
+    vibe,
+    base,
+    out,
+  )
 
   if (kind === 0) {
-    for (let d = 0; d < 24; d++) out[d] = d
+    for (let d = 0; d < 24; d++) {
+      out[d] = d
+    }
   }
 
   let moved = false
 
   for (let d = 0; d < 24; d++) {
-    const e = OPPOSITE[d] as number
+    const e = OPPOSITE[d]!
 
-    if (vibe[base + d] !== 0 && vibe[base + d] === vibe[base + e]) out[d] = d
-    if (out[d] !== d) moved = true
+    if (vibe[base + d] !== 0 && vibe[base + d] === vibe[base + e]) {
+      out[d] = d
+    }
+
+    if (out[d] !== d) {
+      moved = true
+    }
   }
 
   return moved ? Math.max(1, kind) : 0
 }
 
 // the dock's map under the gate: 'K', 'B' or '' (the identity), written into out
-function gatedMap(c: Configuration, o: Origins, base: number, gate: KGate, out: Int32Array): { map: '' | 'K' | 'B'; singles: number; refused: boolean } {
+function gatedMap(
+  c: Configuration,
+  o: Origins,
+  base: number,
+  gate: KGate,
+  out: Int32Array,
+): { map: '' | 'K' | 'B'; singles: number; refused: boolean } {
   const singles = singlesAt(c, base / 24)
 
-  if (singles < 2) return { map: bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, out) === 0 ? '' : 'B', singles, refused: false }
+  if (singles < 2) {
+    return {
+      map:
+        bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, out) === 0
+          ? ''
+          : 'B',
+      singles,
+      refused: false,
+    }
+  }
 
   const useK = gate === 'none' || matterSingles(c, o, base) >= 2
 
-  if (useK) return { map: bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, out) === 0 ? '' : 'K', singles, refused: false }
+  if (useK) {
+    return {
+      map:
+        bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, out) === 0
+          ? ''
+          : 'K',
+      singles,
+      refused: false,
+    }
+  }
 
-  const k = bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, AGAIN) !== 0
+  const k =
+    bouncePermutation(BOUNCE_TABLE, 'pass', c.vibe, base, AGAIN) !== 0
 
-  return { map: passBounce(c.vibe, base, out) === 0 ? '' : 'B', singles, refused: k }
+  return {
+    map: passBounce(c.vibe, base, out) === 0 ? '' : 'B',
+    singles,
+    refused: k,
+  }
 }
 
 // the collision's bounce on dock x under the gate, origins carried; K firings recorded before K acts (as hub-star's
 // starBeat records them)
-export function gatedCollide(tables: LockedTables, c: Configuration, o: Origins, x: number, gate: KGate, tally: CollideTally, events: KEvent[], t: number): void {
+export function gatedCollide(
+  tables: LockedTables,
+  c: Configuration,
+  o: Origins,
+  x: number,
+  gate: KGate,
+  tally: CollideTally,
+  events: KEvent[],
+  t: number,
+): void {
   const base = x * 24
   const g = gatedMap(c, o, base, gate, PERM)
 
-  if (g.refused) tally.refusedK++
-  if (g.map === '') return
+  if (g.refused) {
+    tally.refusedK++
+  }
+
+  if (g.map === '') {
+    return
+  }
 
   if (g.map === 'K') {
     tally.k++
-    events.push({ beat: t, dock: x, singles: g.singles, recruited: recruitedAt(c.vibe, base, PERM) })
+    events.push({
+      beat: t,
+      dock: x,
+      singles: g.singles,
+      recruited: recruitedAt(c.vibe, base, PERM),
+    })
   } else if (g.singles >= 2) {
     tally.bMulti++
+
     for (let d = 0; d < 24; d++) {
-      if (c.vibe[base + d] === 0 || c.vibe[base + (OPPOSITE[d] as number)] !== 0) continue
+      if (c.vibe[base + d] === 0 || c.vibe[base + OPPOSITE[d]!] !== 0) {
+        continue
+      }
 
-      const to = PERM[d] as number
-      const lt = LINE_OF[to] as number
+      const to = PERM[d]!
+      const lt = LINE_OF[to]!
 
-      if (lt === LINE_OF[d]) tally.bKept++
-      else {
-        const f = LINE_FIRSTS[lt] as number
-        const single = (c.vibe[base + f] !== 0) !== (c.vibe[base + (OPPOSITE[f] as number)] !== 0)
+      if (lt === LINE_OF[d]) {
+        tally.bKept++
+      } else {
+        const f = LINE_FIRSTS[lt]!
+        const single =
+          (c.vibe[base + f] !== 0) !==
+          (c.vibe[base + OPPOSITE[f]!] !== 0)
 
-        if (single) tally.bSwapped++
-        else tally.bLeft++
+        if (single) {
+          tally.bSwapped++
+        } else {
+          tally.bLeft++
+        }
       }
     }
   }
 
   for (let d = 0; d < 24; d++) {
-    const to = PERM[d] as number
+    const to = PERM[d]!
 
-    SV[to] = c.vibe[base + d] as number
-    SP[to] = c.point[base + d] as number
-    SOPEN[to] = c.open[base + d] as number
-    SO[to] = o.slot[base + d] as number
+    SV[to] = c.vibe[base + d]!
+    SP[to] = c.point[base + d]!
+    SOPEN[to] = c.open[base + d]!
+    SO[to] = o.slot[base + d]!
   }
 
   for (let d = 0; d < 24; d++) {
-    c.vibe[base + d] = SV[d] as number
-    c.point[base + d] = SP[d] as number
-    c.open[base + d] = SOPEN[d] as number
-    o.slot[base + d] = SO[d] as number
+    c.vibe[base + d] = SV[d]!
+    c.point[base + d] = SP[d]!
+    c.open[base + d] = SOPEN[d]!
+    o.slot[base + d] = SO[d]!
   }
 
   // the gate kept: the same map read again, and an involution
   const first = Int32Array.from(PERM)
   const again = gatedMap(c, o, base, gate, PERM)
+
   let off = again.map !== g.map
 
-  for (let d = 0; d < 24 && !off; d++) if (PERM[d] !== first[d] || first[first[d] as number] !== d) off = true
-  if (off) tally.off++
+  for (let d = 0; d < 24 && !off; d++) {
+    if (PERM[d] !== first[d] || first[first[d]!] !== d) {
+      off = true
+    }
+  }
+
+  if (off) {
+    tally.off++
+  }
 }
 
 // ---- the other pieces, each E-SPN-0123's with the origin carried (code/measure/origin-gated-mixer) ----
 
-function originCoin(tables: LockedTables, c: Configuration, o: Origins, key: PathKey, threshold: number, t: number): void {
+function originCoin(
+  tables: LockedTables,
+  c: Configuration,
+  o: Origins,
+  key: PathKey,
+  threshold: number,
+  t: number,
+): void {
   const moves: number[] = []
 
   for (let x = 0; x < tables.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (SECONDS[l] as number)
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + SECONDS[l]!
       const hi = c.vibe[i] !== 0
 
-      if (hi === (c.vibe[j] !== 0)) continue
+      if (hi === (c.vibe[j] !== 0)) {
+        continue
+      }
 
       const from = hi ? i : j
 
-      if (!c.open[from] || !(key.line(t, x, l) < threshold)) continue
+      if (!c.open[from] || !(key.line(t, x, l) < threshold)) {
+        continue
+      }
+
       moves.push(from, hi ? j : i)
     }
   }
@@ -183,8 +333,8 @@ function originCoin(tables: LockedTables, c: Configuration, o: Origins, key: Pat
   keyedCoin(tables, c, key, threshold, t)
 
   for (let k = 0; k < moves.length; k += 2) {
-    o.slot[moves[k + 1] as number] = o.slot[moves[k] as number] as number
-    o.slot[moves[k] as number] = EMPTY
+    o.slot[moves[k + 1]!] = o.slot[moves[k]!]!
+    o.slot[moves[k]!] = EMPTY
   }
 }
 
@@ -192,41 +342,68 @@ function originPair(c: Configuration, o: Origins, x: number): void {
   const events: [number, number, number, number][] = []
 
   for (let l = 0; l < 12; l++) {
-    const i = x * 24 + (LINE_FIRSTS[l] as number)
-    const j = x * 24 + (SECONDS[l] as number)
-    const a = c.vibe[i] as number
-    const tau = c.store[x * 12 + l] as number
+    const i = x * 24 + LINE_FIRSTS[l]!
+    const j = x * 24 + SECONDS[l]!
+    const a = c.vibe[i]!
+    const tau = c.store[x * 12 + l]!
 
-    if (tau === 0 && a !== 0 && c.vibe[j] === -a) events.push([0, i, j, x * 12 + l])
-    else if (tau !== 0 && a === 0 && c.vibe[j] === 0) events.push([1, i, j, x * 12 + l])
+    if (tau === 0 && a !== 0 && c.vibe[j] === -a) {
+      events.push([0, i, j, x * 12 + l])
+    } else if (tau !== 0 && a === 0 && c.vibe[j] === 0) {
+      events.push([1, i, j, x * 12 + l])
+    }
   }
 
   pairPiece('none', c, x)
 
   for (const [make, i, j, s] of events) {
     if (make) {
-      const w = o.store[s] as number
+      const w = o.store[s]!
 
       o.slot[i] = Math.floor(w / 3)
       o.slot[j] = w % 3
       o.store[s] = 0
     } else {
-      o.store[s] = 3 * (o.slot[i] as number) + (o.slot[j] as number)
+      o.store[s] = 3 * o.slot[i]! + o.slot[j]!
       o.slot[i] = EMPTY
       o.slot[j] = EMPTY
     }
   }
 }
 
-function originStream(tables: LockedTables, a: Configuration, b: Configuration, oa: Origins, ob: Origins): void {
+function originStream(
+  tables: LockedTables,
+  a: Configuration,
+  b: Configuration,
+  oa: Origins,
+  ob: Origins,
+): void {
   streamInto(tables, a, b)
   ob.slot.fill(0)
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== 0) ob.slot[tables.target[i] as number] = oa.slot[i] as number
+
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (a.vibe[i] !== 0) {
+      ob.slot[tables.target[i]!] = oa.slot[i]!
+    }
+  }
+
   ob.store.set(oa.store)
 }
 
 // one beat of the working knit with the gated collision: coin, meeting, collision (veto 'none'), stream
-export function gatedBeat(tables: LockedTables, a: Configuration, b: Configuration, oa: Origins, ob: Origins, key: PathKey, threshold: number, t: number, gate: KGate, tally: CollideTally, events: KEvent[]): void {
+export function gatedBeat(
+  tables: LockedTables,
+  a: Configuration,
+  b: Configuration,
+  oa: Origins,
+  ob: Origins,
+  key: PathKey,
+  threshold: number,
+  t: number,
+  gate: KGate,
+  tally: CollideTally,
+  events: KEvent[],
+): void {
   originCoin(tables, a, oa, key, threshold, t)
   keyedMeet(tables, a, key, threshold, t)
 
@@ -234,8 +411,11 @@ export function gatedBeat(tables: LockedTables, a: Configuration, b: Configurati
 
   for (let x = 0; x < tables.cells; x++) {
     for (const piece of order) {
-      if (piece === 'P') originPair(a, oa, x)
-      else gatedCollide(tables, a, oa, x, gate, tally, events, t)
+      if (piece === 'P') {
+        originPair(a, oa, x)
+      } else {
+        gatedCollide(tables, a, oa, x, gate, tally, events, t)
+      }
     }
   }
 
@@ -274,11 +454,52 @@ export type GatedTrack = {
   vacuumLast: Configuration
 }
 
-const sameSlot = (p: Configuration, q: Configuration, i: number): boolean => p.vibe[i] === q.vibe[i] && (p.vibe[i] === 0 || (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
-const sameStore = (p: Configuration, q: Configuration, s: number): boolean => p.store[s] === q.store[s] && (p.store[s] === 0 || (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
+const sameSlot = (
+  p: Configuration,
+  q: Configuration,
+  i: number,
+): boolean =>
+  p.vibe[i] === q.vibe[i] &&
+  (p.vibe[i] === 0 ||
+    (p.point[i] === q.point[i] && p.open[i] === q.open[i]))
+const sameStore = (
+  p: Configuration,
+  q: Configuration,
+  s: number,
+): boolean =>
+  p.store[s] === q.store[s] &&
+  (p.store[s] === 0 ||
+    (p.spoint[s] === q.spoint[s] && p.sopen[s] === q.sopen[s]))
 
-export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration; start: Configuration; matter: readonly number[]; key: PathKey; threshold: number; beats: number; n: number; gate: OriginGate; kGate: KGate; lines: MeshLines; star?: Uint8Array }): GatedTrack {
-  const { tables, vacuum, start, matter, key, threshold, beats, n, gate, kGate, lines, star } = input
+export function gatedTrack(input: {
+  tables: LockedTables
+  vacuum: Configuration
+  start: Configuration
+  matter: readonly number[]
+  key: PathKey
+  threshold: number
+  beats: number
+  n: number
+  gate: OriginGate
+  kGate: KGate
+  lines: MeshLines
+  star?: Uint8Array
+}): GatedTrack {
+  const {
+    tables,
+    vacuum,
+    start,
+    matter,
+    key,
+    threshold,
+    beats,
+    n,
+    gate,
+    kGate,
+    lines,
+    star,
+  } = input
+
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let p = cloneConfiguration(vacuum)
@@ -287,6 +508,7 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
   let ob = cloneOrigins(oa)
   let op = originsOf(vacuum, [])
   let oq = cloneOrigins(op)
+
   const events: KEvent[] = []
   const vacuumEvents: KEvent[] = []
   const fired = new Uint8Array(tables.cells)
@@ -298,8 +520,10 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
   const vacuumCollide = newCollideTally()
   const touched = new Uint8Array(lines.count)
   const matterStart = matterBorn(oa)
+
   let firedCount = 0
   let seen = 0
+
   const out: GatedTrack = {
     wake: [],
     footprint: [],
@@ -334,14 +558,79 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
     const otwice = cloneOrigins(oa)
     const scratch = { ...newMixTally(), vacuumBornRefused: 0 }
 
-    originMix(tables, twice, otwice, flux, vacuumFlux, key, t, n, gate, scratch)
-    originMix(tables, twice, otwice, flux, vacuumFlux, key, t, n, gate, scratch)
-    for (let i = 0; i < a.vibe.length; i++) if (!sameSlot(a, twice, i) || oa.slot[i] !== otwice.slot[i]) out.reversalDiffer++
+    originMix(
+      tables,
+      twice,
+      otwice,
+      flux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      gate,
+      scratch,
+    )
+
+    originMix(
+      tables,
+      twice,
+      otwice,
+      flux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      gate,
+      scratch,
+    )
+
+    for (let i = 0; i < a.vibe.length; i++) {
+      if (!sameSlot(a, twice, i) || oa.slot[i] !== otwice.slot[i]) {
+        out.reversalDiffer++
+      }
+    }
 
     originMix(tables, a, oa, flux, vacuumFlux, key, t, n, gate, tally)
-    originMix(tables, p, op, vacuumFlux, vacuumFlux, key, t, n, gate, vacuumTally)
-    gatedBeat(tables, a, b, oa, ob, key, threshold, t, kGate, collide, events)
-    gatedBeat(tables, p, q, op, oq, key, threshold, t, kGate, vacuumCollide, vacuumEvents)
+    originMix(
+      tables,
+      p,
+      op,
+      vacuumFlux,
+      vacuumFlux,
+      key,
+      t,
+      n,
+      gate,
+      vacuumTally,
+    )
+
+    gatedBeat(
+      tables,
+      a,
+      b,
+      oa,
+      ob,
+      key,
+      threshold,
+      t,
+      kGate,
+      collide,
+      events,
+    )
+
+    gatedBeat(
+      tables,
+      p,
+      q,
+      op,
+      oq,
+      key,
+      threshold,
+      t,
+      kGate,
+      vacuumCollide,
+      vacuumEvents,
+    )
     ;[a, b] = [b, a]
     ;[p, q] = [q, p]
     ;[oa, ob] = [ob, oa]
@@ -353,7 +642,7 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
     out.vacuumMatter += matterBorn(op)
 
     for (; seen < events.length; seen++) {
-      const d = (events[seen] as KEvent).dock
+      const d = events[seen]!.dock
 
       if (!fired[d]) {
         fired[d] = 1
@@ -374,39 +663,59 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
       for (let d = 0; d < 24; d++) {
         const i = x * 24 + d
 
-        if (sameSlot(a, p, i)) continue
+        if (sameSlot(a, p, i)) {
+          continue
+        }
+
         here++
 
-        const L = lines.lineOf[i] as number
+        const L = lines.lineOf[i]!
 
         touched[L] = 1
-        if (star && !star[L]) out.offStar++
+
+        if (star && !star[L]) {
+          out.offStar++
+        }
       }
+
       for (let l = 0; l < 12; l++) {
         const s = x * 12 + l
 
-        if (sameStore(a, p, s)) continue
+        if (sameStore(a, p, s)) {
+          continue
+        }
+
         here++
 
         const L = storeLine(lines, s)
 
         touched[L] = 1
-        if (star && !star[L]) out.offStar++
+
+        if (star && !star[L]) {
+          out.offStar++
+        }
       }
+
       out.vacuumRunSingles += singlesAt(p, x)
 
       const s = singlesByOrigin(a, oa, x)
 
       ms += s.matter
       vs += s.vacuum
-      if (here === 0) continue
+
+      if (here === 0) {
+        continue
+      }
+
       wake += here
       docks++
     }
 
     let lineCount = 0
 
-    for (let L = 0; L < lines.count; L++) lineCount += touched[L] as number
+    for (let L = 0; L < lines.count; L++) {
+      lineCount += touched[L]!
+    }
 
     out.wake.push(wake)
     out.footprint.push(docks)
@@ -418,7 +727,10 @@ export function gatedTrack(input: { tables: LockedTables; vacuum: Configuration;
     out.refused.push(tally.vacuumBornRefused - r0)
   }
 
-  out.vacuumGated = vacuumTally.gated + vacuumTally.ungatedLone + vacuumTally.vacuumBornRefused
+  out.vacuumGated =
+    vacuumTally.gated +
+    vacuumTally.ungatedLone +
+    vacuumTally.vacuumBornRefused
   out.last = a
   out.lastOrigins = oa
   out.vacuumLast = p

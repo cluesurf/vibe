@@ -24,7 +24,10 @@
 // from-below account of the emergent i, complementary to the two-component walk derivation
 // (E-QTM-0046), not a new physical claim.
 
-import { type Matrix2 as Matrix, multiply2 as multiply } from '@/code/algebra/linear/matrix2'
+import {
+  type Matrix2 as Matrix,
+  multiply2 as multiply,
+} from '@/code/algebra/linear/matrix2'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

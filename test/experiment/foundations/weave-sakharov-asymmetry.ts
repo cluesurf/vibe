@@ -94,6 +94,7 @@ export default experiment({
 
         let matterSum = 0
         let wireSum = 0
+
         const matterByCouple = [0, 0, 0, 0, 0, 0]
 
         for (let i = 0; i < will.data.length; i++) {

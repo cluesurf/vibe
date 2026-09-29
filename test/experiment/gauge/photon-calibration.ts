@@ -91,7 +91,16 @@ import {
   type ModeFrequencies,
   type ModeVector,
 } from '@/code/measure/photon-modes'
-import { bulkModeOfHusk, columnSum, HUSK_VECTORS, huskCoulomb, huskEnergy, makeHusk, projectLinks, type Husk } from '@/code/measure/photon-husk'
+import {
+  bulkModeOfHusk,
+  columnSum,
+  HUSK_VECTORS,
+  huskCoulomb,
+  huskEnergy,
+  makeHusk,
+  projectLinks,
+  type Husk,
+} from '@/code/measure/photon-husk'
 import {
   centered,
   eigenvalues,
@@ -117,10 +126,12 @@ const WAVE_BEATS = 300
 const WINDOW_TARGET = 256
 const CHARGE = 64
 
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 const cut = leapfrogOmega(KAPPA, 12) / 2
 const q = (w: number): number => 4 * Math.sin(w / 2) ** 2
-const symmetricRound = (x: number): number => Math.sign(x) * Math.round(Math.abs(x))
+const symmetricRound = (x: number): number =>
+  Math.sign(x) * Math.round(Math.abs(x))
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
 
 type Vector = { re: Float64Array; im: Float64Array }
@@ -137,7 +148,10 @@ type Probe = {
   history: ModeVector[]
 }
 
-function makeProbe(lattice: PhotonLattice, n: readonly number[]): Probe {
+function makeProbe(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): Probe {
   const f = lattice.firsts.length
   const reader = modeReader(lattice, n)
 
@@ -162,7 +176,10 @@ function feed(p: Probe, v: ModeVector): void {
   p.last = v
   accumulate(p.lag0, v)
 
-  const past = p.history.length >= LAG ? p.history[p.history.length - LAG] : undefined
+  const past =
+    p.history.length >= LAG
+      ? p.history[p.history.length - LAG]
+      : undefined
 
   if (past) {
     accumulateCross(p.lag1, v, past)
@@ -175,12 +192,17 @@ function feed(p: Probe, v: ModeVector): void {
   }
 }
 
-function firstZero(series: readonly number[][], maxLag: number): number {
+function firstZero(
+  series: readonly number[][],
+  maxLag: number,
+): number {
   const r = (tau: number): number => {
     let sum = 0
 
     for (let t = 0; t + tau < series.length; t++) {
-      sum += (series[t + tau]?.[0] ?? 0) * (series[t]?.[0] ?? 0) + (series[t + tau]?.[1] ?? 0) * (series[t]?.[1] ?? 0)
+      sum +=
+        (series[t + tau]?.[0] ?? 0) * (series[t]?.[0] ?? 0) +
+        (series[t + tau]?.[1] ?? 0) * (series[t]?.[1] ?? 0)
     }
 
     return sum / Math.max(1, series.length - tau)
@@ -201,11 +223,16 @@ function firstZero(series: readonly number[][], maxLag: number): number {
   return Number.NaN
 }
 
-function lightBranches(at1: ModeFrequencies, at2: ModeFrequencies): number[] {
+function lightBranches(
+  at1: ModeFrequencies,
+  at2: ModeFrequencies,
+): number[] {
   return at1.omega.flatMap((w, i) => {
     const ratio = (at2.omega[i] ?? 0) / w
 
-    return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1] ? [i] : []
+    return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1]
+      ? [i]
+      : []
   })
 }
 
@@ -213,7 +240,12 @@ function hashedStart(rule: PhotonRule): PhotonState {
   const s = emptyPhotonState(rule)
   const target = (rule.k * rule.n) / (2 * Math.PI * BETA)
 
-  addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), 5.3)
+  addHashedCurl(
+    rule,
+    s,
+    Math.max(1, Math.round(Math.sqrt((3 * target) / 4))),
+    5.3,
+  )
 
   return s
 }
@@ -225,9 +257,20 @@ function linearRun(
   bulk: PhotonLattice,
   lattice: PhotonLattice,
   view: (flux: Float64Array) => ArrayLike<number>,
-  input: { settle: number; beats: number; modes: number[][]; track: readonly number[] },
+  input: {
+    settle: number
+    beats: number
+    modes: number[][]
+    track: readonly number[]
+  },
 ): Readings {
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const start = hashedStart(rule)
   const angle = new Float64Array(bulk.links)
   const flux = Float64Array.from(start.flux)
@@ -250,7 +293,10 @@ function linearRun(
       feed(p, v)
 
       if (i === 0) {
-        series.push([v.re.reduce((a, x, j) => a + x * (input.track[j] ?? 0), 0), v.im.reduce((a, x, j) => a + x * (input.track[j] ?? 0), 0)])
+        series.push([
+          v.re.reduce((a, x, j) => a + x * (input.track[j] ?? 0), 0),
+          v.im.reduce((a, x, j) => a + x * (input.track[j] ?? 0), 0),
+        ])
       }
     })
   }
@@ -258,14 +304,39 @@ function linearRun(
   return { probes, series }
 }
 
-function estimate(prefix: string, readings: Readings, exact: readonly number[], lambdas: readonly [number, number]): Record<string, number> {
+function estimate(
+  prefix: string,
+  readings: Readings,
+  exact: readonly number[],
+  lambdas: readonly [number, number],
+): Record<string, number> {
   const [p1, p2] = readings.probes as [Probe, Probe]
   const exactMean = mean(exact)
-  const out: Record<string, number> = { [`${prefix}ExactPhotonMean`]: exactMean }
+  const out: Record<string, number> = {
+    [`${prefix}ExactPhotonMean`]: exactMean,
+  }
 
   for (const [name, at1, at2] of [
-    ['Difference', modeFrequencies({ c0: p1.diff0, c1: p1.diff1, tolerance: 1e-9 }), modeFrequencies({ c0: p2.diff0, c1: p2.diff1, tolerance: 1e-9 })],
-    ['Lagged', modeFrequencies({ c0: p1.lag0, c1: p1.lag1, lag: LAG, tolerance: 1e-9 }), modeFrequencies({ c0: p2.lag0, c1: p2.lag1, lag: LAG, tolerance: 1e-9 })],
+    [
+      'Difference',
+      modeFrequencies({ c0: p1.diff0, c1: p1.diff1, tolerance: 1e-9 }),
+      modeFrequencies({ c0: p2.diff0, c1: p2.diff1, tolerance: 1e-9 }),
+    ],
+    [
+      'Lagged',
+      modeFrequencies({
+        c0: p1.lag0,
+        c1: p1.lag1,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+      modeFrequencies({
+        c0: p2.lag0,
+        c1: p2.lag1,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+    ],
   ] as const) {
     const light = lightBranches(at1, at2)
     const w1 = mean(light.map(i => at1.omega[i] ?? 0))
@@ -292,27 +363,66 @@ function estimate(prefix: string, readings: Readings, exact: readonly number[], 
   return out
 }
 
-function sectionA(bulk12: PhotonLattice, husk: Husk): Record<string, number> {
+function sectionA(
+  bulk12: PhotonLattice,
+  husk: Husk,
+): Record<string, number> {
   // E-FRC-0165's bulk protocol
   const bulk8 = photonLatticeD4({ side: 8 })
   const bulkModes = [
     [1, 0, 0, 0],
     [2, 0, 0, 0],
   ]
-  const bulkRun = linearRun(bulk8, bulk8, f => f, { settle: 500, beats: 3000, modes: bulkModes, track: bulk8.firsts.map(d => bulk8.vectors[d]?.[2] ?? 0) })
-  const bulkExact = eigenvalues(plaquetteWaveMatrix(bulk8, bulkModes[0] ?? [])).slice(1, 4).map(l => leapfrogOmega(KAPPA, l))
-  const bulkLambdas = [linearWaveEigenvalues(bulk8, bulkModes[0] ?? [])[1] ?? 0, linearWaveEigenvalues(bulk8, bulkModes[1] ?? [])[1] ?? 0] as const
+  const bulkRun = linearRun(bulk8, bulk8, f => f, {
+    settle: 500,
+    beats: 3000,
+    modes: bulkModes,
+    track: bulk8.firsts.map(d => bulk8.vectors[d]?.[2] ?? 0),
+  })
+  const bulkExact = eigenvalues(
+    plaquetteWaveMatrix(bulk8, bulkModes[0] ?? []),
+  )
+    .slice(1, 4)
+    .map(l => leapfrogOmega(KAPPA, l))
+  const bulkLambdas = [
+    linearWaveEigenvalues(bulk8, bulkModes[0] ?? [])[1] ?? 0,
+    linearWaveEigenvalues(bulk8, bulkModes[1] ?? [])[1] ?? 0,
+  ] as const
 
   // E-FRC-0169's husk protocol
   const huskModes = [
     [1, 0, 0],
     [2, 0, 0],
   ]
-  const huskRun = linearRun(bulk12, husk.lattice, f => projectLinks(husk, f), { settle: 300, beats: 2000, modes: huskModes, track: HUSK_VECTORS.map(u => u[2] ?? 0) })
-  const huskExact = eigenvalues(huskSymbol(husk, plaquetteWaveMatrix(bulk12, bulkModeOfHusk(huskModes[0] ?? []))).hermitian)
+  const huskRun = linearRun(
+    bulk12,
+    husk.lattice,
+    f => projectLinks(husk, f),
+    {
+      settle: 300,
+      beats: 2000,
+      modes: huskModes,
+      track: HUSK_VECTORS.map(u => u[2] ?? 0),
+    },
+  )
+  const huskExact = eigenvalues(
+    huskSymbol(
+      husk,
+      plaquetteWaveMatrix(bulk12, bulkModeOfHusk(huskModes[0] ?? [])),
+    ).hermitian,
+  )
     .slice(1, 3)
     .map(l => leapfrogOmega(KAPPA, l))
-  const huskLambdas = [linearWaveEigenvalues(bulk12, bulkModeOfHusk(huskModes[0] ?? []))[1] ?? 0, linearWaveEigenvalues(bulk12, bulkModeOfHusk(huskModes[1] ?? []))[1] ?? 0] as const
+  const huskLambdas = [
+    linearWaveEigenvalues(
+      bulk12,
+      bulkModeOfHusk(huskModes[0] ?? []),
+    )[1] ?? 0,
+    linearWaveEigenvalues(
+      bulk12,
+      bulkModeOfHusk(huskModes[1] ?? []),
+    )[1] ?? 0,
+  ] as const
 
   return {
     ...estimate('aBulk', bulkRun, bulkExact, bulkLambdas),
@@ -325,10 +435,23 @@ function sectionA(bulk12: PhotonLattice, husk: Husk): Record<string, number> {
 // B and C. plane waves
 
 // the phase of every bulk link for the bulk mode n: 2 pi n . c / side + k . r_a / 2
-function bulkPhase(bulk: PhotonLattice, n: readonly number[]): Float64Array {
+function bulkPhase(
+  bulk: PhotonLattice,
+  n: readonly number[],
+): Float64Array {
   const f = bulk.firsts.length
-  const k = bulk.wave.map(row => ((2 * Math.PI) / bulk.side) * row.reduce((s, w, j) => s + w * (n[j] ?? 0), 0))
-  const half = bulk.firsts.map(d => (bulk.vectors[d] ?? []).reduce((s, e, i) => s + e * (k[i] ?? 0), 0) / 2)
+  const k = bulk.wave.map(
+    row =>
+      ((2 * Math.PI) / bulk.side) *
+      row.reduce((s, w, j) => s + w * (n[j] ?? 0), 0),
+  )
+  const half = bulk.firsts.map(
+    d =>
+      (bulk.vectors[d] ?? []).reduce(
+        (s, e, i) => s + e * (k[i] ?? 0),
+        0,
+      ) / 2,
+  )
   const out = new Float64Array(bulk.links)
 
   for (let x = 0; x < bulk.cells; x++) {
@@ -356,11 +479,18 @@ function huskPhase(husk: Husk, m: readonly number[]): Float64Array {
 
   for (let x = 0; x < bulk.cells; x++) {
     const col = husk.column[x] ?? 0
-    const y = [col % side, Math.floor(col / side) % side, Math.floor(col / (side * side))]
+    const y = [
+      col % side,
+      Math.floor(col / side) % side,
+      Math.floor(col / (side * side)),
+    ]
 
     for (let a = 0; a < f; a++) {
       const u = HUSK_VECTORS[husk.shadow[a] ?? 0] ?? [0, 0, 0]
-      const s = (m[0] ?? 0) * (2 * (y[0] ?? 0) + (u[0] ?? 0)) + (m[1] ?? 0) * (2 * (y[1] ?? 0) + (u[1] ?? 0)) + (m[2] ?? 0) * (2 * (y[2] ?? 0) + (u[2] ?? 0))
+      const s =
+        (m[0] ?? 0) * (2 * (y[0] ?? 0) + (u[0] ?? 0)) +
+        (m[1] ?? 0) * (2 * (y[1] ?? 0) + (u[1] ?? 0)) +
+        (m[2] ?? 0) * (2 * (y[2] ?? 0) + (u[2] ?? 0))
 
       out[x * f + a] = (Math.PI * s) / side
     }
@@ -370,11 +500,21 @@ function huskPhase(husk: Husk, m: readonly number[]): Float64Array {
 }
 
 // the angles of a standing wave Re(v e^(i phase)) scaled so its largest unrounded plaquette |B| is `target`
-function launch(rule: PhotonRule, phase: Float64Array, v: Vector, target: number): { state: PhotonState; amplitude: number; peak: number } {
+function launch(
+  rule: PhotonRule,
+  phase: Float64Array,
+  v: Vector,
+  target: number,
+): { state: PhotonState; amplitude: number; peak: number } {
   const lattice = rule.lattice
   const f = lattice.firsts.length
   const size = lattice.plaquetteSize
-  const wave = Float64Array.from(phase, (phi, l) => (v.re[l % f] ?? 0) * Math.cos(phi) - (v.im[l % f] ?? 0) * Math.sin(phi))
+  const wave = Float64Array.from(
+    phase,
+    (phi, l) =>
+      (v.re[l % f] ?? 0) * Math.cos(phi) -
+      (v.im[l % f] ?? 0) * Math.sin(phi),
+  )
 
   let top = 0
 
@@ -382,7 +522,9 @@ function launch(rule: PhotonRule, phase: Float64Array, v: Vector, target: number
     let b = 0
 
     for (let j = 0; j < size; j++) {
-      b += (lattice.plaquetteSigns[p * size + j] ?? 0) * (wave[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+      b +=
+        (lattice.plaquetteSigns[p * size + j] ?? 0) *
+        (wave[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
     }
 
     top = Math.max(top, Math.abs(b))
@@ -392,13 +534,19 @@ function launch(rule: PhotonRule, phase: Float64Array, v: Vector, target: number
   const state = emptyPhotonState(rule)
 
   for (let l = 0; l < lattice.links; l++) {
-    state.angle[l] = modulo(symmetricRound(amplitude * (wave[l] ?? 0)), rule.n)
+    state.angle[l] = modulo(
+      symmetricRound(amplitude * (wave[l] ?? 0)),
+      rule.n,
+    )
   }
 
   let peak = 0
 
   for (let p = 0; p < lattice.plaquetteCount; p++) {
-    peak = Math.max(peak, Math.abs(centered(plaquetteField(rule, state.angle, p), rule.n)))
+    peak = Math.max(
+      peak,
+      Math.abs(centered(plaquetteField(rule, state.angle, p), rule.n)),
+    )
   }
 
   return { state, amplitude, peak }
@@ -422,7 +570,15 @@ function threePoint(series: readonly [number, number][]): number {
   return Math.acos(Math.max(-1, Math.min(1, num / den)))
 }
 
-type WaveReading = { omega: number; linearOmega: number; frozenBeats: number; stillBeats: number; huskMaxAbs: number; amplitude: number; peak: number }
+type WaveReading = {
+  omega: number
+  linearOmega: number
+  frozenBeats: number
+  stillBeats: number
+  huskMaxAbs: number
+  amplitude: number
+  peak: number
+}
 
 // run a launched wave through the rule and, from the same integer start, through the linear rule; read the
 // flux's projection x_t = conj(p) . (mode n of view(flux)) every beat
@@ -438,8 +594,14 @@ function runWave(input: {
   husk?: Husk
 }): WaveReading {
   const { rule } = input
-  const { state, amplitude, peak } = launch(rule, input.phase, input.v, input.target)
+  const { state, amplitude, peak } = launch(
+    rule,
+    input.phase,
+    input.v,
+    input.target,
+  )
   const reader = modeReader(input.readLattice, input.n)
+
   const project = (field: ArrayLike<number>): [number, number] => {
     const r = reader.read(input.view(field))
 
@@ -448,12 +610,18 @@ function runWave(input: {
 
     for (let a = 0; a < r.re.length; a++) {
       // conj(p_a) r_a
-      re += (input.p.re[a] ?? 0) * (r.re[a] ?? 0) + (input.p.im[a] ?? 0) * (r.im[a] ?? 0)
-      im += (input.p.re[a] ?? 0) * (r.im[a] ?? 0) - (input.p.im[a] ?? 0) * (r.re[a] ?? 0)
+      re +=
+        (input.p.re[a] ?? 0) * (r.re[a] ?? 0) +
+        (input.p.im[a] ?? 0) * (r.im[a] ?? 0)
+
+      im +=
+        (input.p.re[a] ?? 0) * (r.im[a] ?? 0) -
+        (input.p.im[a] ?? 0) * (r.re[a] ?? 0)
     }
 
     return [re, im]
   }
+
   const initial = Int32Array.from(state.angle)
   const series: [number, number][] = [[0, 0]]
 
@@ -468,7 +636,10 @@ function runWave(input: {
     stillBeats += state.angle.every((x, l) => x === initial[l]) ? 1 : 0
 
     if (input.husk) {
-      huskMaxAbs = Math.max(huskMaxAbs, ...Array.from(projectLinks(input.husk, state.flux), Math.abs))
+      huskMaxAbs = Math.max(
+        huskMaxAbs,
+        ...Array.from(projectLinks(input.husk, state.flux), Math.abs),
+      )
     }
   }
 
@@ -496,17 +667,32 @@ function runWave(input: {
 type Photon = { v: Vector; p: Vector; omega: number }
 
 // the depth-even photons (rank 1, 2 of the husk symbol) and the depth-odd photon at the husk mode m
-function huskPhotons(husk: Husk, m: readonly number[]): { even: Photon[]; odd: Photon } {
-  const symbol = huskSymbol(husk, plaquetteWaveMatrix(husk.bulk, bulkModeOfHusk(m)))
+function huskPhotons(
+  husk: Husk,
+  m: readonly number[],
+): { even: Photon[]; odd: Photon } {
+  const symbol = huskSymbol(
+    husk,
+    plaquetteWaveMatrix(husk.bulk, bulkModeOfHusk(m)),
+  )
+
   const toHusk = (v: Vector): Vector => {
     const re = new Float64Array(HUSK_VECTORS.length)
     const im = new Float64Array(HUSK_VECTORS.length)
 
-    v.re.forEach((x, a) => (re[husk.shadow[a] ?? 0] = (re[husk.shadow[a] ?? 0] ?? 0) + x))
-    v.im.forEach((x, a) => (im[husk.shadow[a] ?? 0] = (im[husk.shadow[a] ?? 0] ?? 0) + x))
+    v.re.forEach(
+      (x, a) =>
+        (re[husk.shadow[a] ?? 0] = (re[husk.shadow[a] ?? 0] ?? 0) + x),
+    )
+
+    v.im.forEach(
+      (x, a) =>
+        (im[husk.shadow[a] ?? 0] = (im[husk.shadow[a] ?? 0] ?? 0) + x),
+    )
 
     return { re, im }
   }
+
   const even = [1, 2].map(rank => {
     const e = eigenvector(symbol.hermitian, rank)
     const v = liftEven(husk, e.re, e.im)
@@ -517,18 +703,47 @@ function huskPhotons(husk: Husk, m: readonly number[]): { even: Photon[]; odd: P
   const v = liftOdd(husk, symbol.pairs, o.re, o.im)
 
   // the odd photon is read in the bulk, since its husk image is zero
-  return { even, odd: { v, p: v, omega: leapfrogOmega(KAPPA, o.value) } }
+  return {
+    even,
+    odd: { v, p: v, omega: leapfrogOmega(KAPPA, o.value) },
+  }
 }
 
-function huskWave(rule: PhotonRule, husk: Husk, m: readonly number[], photon: Photon, target: number): WaveReading {
-  return runWave({ rule, phase: huskPhase(husk, m), v: photon.v, target, readLattice: husk.lattice, n: m, p: photon.p, view: f => projectLinks(husk, f), husk })
+function huskWave(
+  rule: PhotonRule,
+  husk: Husk,
+  m: readonly number[],
+  photon: Photon,
+  target: number,
+): WaveReading {
+  return runWave({
+    rule,
+    phase: huskPhase(husk, m),
+    v: photon.v,
+    target,
+    readLattice: husk.lattice,
+    n: m,
+    p: photon.p,
+    view: f => projectLinks(husk, f),
+    husk,
+  })
 }
 
-function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number; okA1: number } {
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false })
+function sectionB(
+  bulk: PhotonLattice,
+  husk: Husk,
+): Record<string, number> & { ok: number; okA1: number } {
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const out: Record<string, number> = {}
   const m1 = [1, 0, 0]
   const at1 = huskPhotons(husk, m1)
+
   const record = (tag: string, w: WaveReading, exact: number): void => {
     out[`${tag}Omega`] = w.omega
     out[`${tag}OverSymbol`] = w.omega / exact - 1
@@ -542,9 +757,9 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
   // B1 the dead zone
   const dead = huskWave(rule, husk, m1, at1.even[0]!, 6)
 
-  out['bDeadPeak'] = dead.peak
-  out['bDeadFrozenBeats'] = dead.frozenBeats
-  out['bDeadStillBeats'] = dead.stillBeats
+  out.bDeadPeak = dead.peak
+  out.bDeadFrozenBeats = dead.frozenBeats
+  out.bDeadStillBeats = dead.stillBeats
 
   // B2 m1, the polarizations and the sweep
   const window: number[] = []
@@ -554,7 +769,10 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
 
     record(`bM1Even${i + 1}`, w, photon.omega)
     window.push(Math.abs(w.omega / photon.omega - 1))
-    linearWorst = Math.max(linearWorst, Math.abs(w.linearOmega / photon.omega - 1))
+    linearWorst = Math.max(
+      linearWorst,
+      Math.abs(w.linearOmega / photon.omega - 1),
+    )
   })
 
   const odd = runWave({
@@ -570,10 +788,13 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
   })
 
   record('bM1OddBulk', odd, at1.odd.omega)
-  linearWorst = Math.max(linearWorst, Math.abs(odd.linearOmega / at1.odd.omega - 1))
-  out['bM1OddHuskMaxAbs'] = odd.huskMaxAbs
-  out['bM1SymbolOmega'] = at1.even[0]?.omega ?? 0
-  out['bM1OddSymbolOmega'] = at1.odd.omega
+  linearWorst = Math.max(
+    linearWorst,
+    Math.abs(odd.linearOmega / at1.odd.omega - 1),
+  )
+  out.bM1OddHuskMaxAbs = odd.huskMaxAbs
+  out.bM1SymbolOmega = at1.even[0]?.omega ?? 0
+  out.bM1OddSymbolOmega = at1.odd.omega
 
   for (const target of [64, 1024]) {
     const w = huskWave(rule, husk, m1, at1.even[0]!, target)
@@ -594,7 +815,10 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
     record(tag, w, photon.omega)
     out[`${tag}SymbolOmega`] = photon.omega
     window.push(Math.abs(w.omega / photon.omega - 1))
-    linearWorst = Math.max(linearWorst, Math.abs(w.linearOmega / photon.omega - 1))
+    linearWorst = Math.max(
+      linearWorst,
+      Math.abs(w.linearOmega / photon.omega - 1),
+    )
   }
 
   // B4 the bulk, k along the depth
@@ -605,16 +829,28 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
   for (let rank = 1; rank <= 3; rank++) {
     const e = eigenvector(plaquetteWaveMatrix(bulk, depth), rank)
     const omega = leapfrogOmega(KAPPA, values[rank] ?? 0)
-    const w = runWave({ rule, phase, v: e, target: WINDOW_TARGET, readLattice: bulk, n: depth, p: e, view: f => f })
+    const w = runWave({
+      rule,
+      phase,
+      v: e,
+      target: WINDOW_TARGET,
+      readLattice: bulk,
+      n: depth,
+      p: e,
+      view: f => f,
+    })
 
     record(`bDepthPhoton${rank}`, w, omega)
     out[`bDepthPhoton${rank}SymbolOmega`] = omega
     window.push(Math.abs(w.omega / omega - 1))
-    linearWorst = Math.max(linearWorst, Math.abs(w.linearOmega / omega - 1))
+    linearWorst = Math.max(
+      linearWorst,
+      Math.abs(w.linearOmega / omega - 1),
+    )
   }
 
-  out['bLinearControlWorst'] = linearWorst
-  out['bWorstWindowError'] = Math.max(...window)
+  out.bLinearControlWorst = linearWorst
+  out.bWorstWindowError = Math.max(...window)
 
   const ok =
     dead.peak <= 8 &&
@@ -629,7 +865,11 @@ function sectionB(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
 
 // C. the linear force
 
-function invariant(rule: PhotonRule, flux: ArrayLike<number>, b: Float64Array): number {
+function invariant(
+  rule: PhotonRule,
+  flux: ArrayLike<number>,
+  b: Float64Array,
+): number {
   const { lattice } = rule
   const size = lattice.plaquetteSize
 
@@ -643,7 +883,9 @@ function invariant(rule: PhotonRule, flux: ArrayLike<number>, b: Float64Array): 
     let ce = 0
 
     for (let j = 0; j < size; j++) {
-      ce += (lattice.plaquetteSigns[p * size + j] ?? 0) * (flux[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+      ce +=
+        (lattice.plaquetteSigns[p * size + j] ?? 0) *
+        (flux[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
     }
 
     total += (b[p] ?? 0) * (b[p] ?? 0) + ce * (b[p] ?? 0)
@@ -652,7 +894,10 @@ function invariant(rule: PhotonRule, flux: ArrayLike<number>, b: Float64Array): 
   return total
 }
 
-function curlOf(lattice: PhotonLattice, field: ArrayLike<number>): Float64Array {
+function curlOf(
+  lattice: PhotonLattice,
+  field: ArrayLike<number>,
+): Float64Array {
   const size = lattice.plaquetteSize
   const out = new Float64Array(lattice.plaquetteCount)
 
@@ -660,7 +905,9 @@ function curlOf(lattice: PhotonLattice, field: ArrayLike<number>): Float64Array 
     let b = 0
 
     for (let j = 0; j < size; j++) {
-      b += (lattice.plaquetteSigns[p * size + j] ?? 0) * (field[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+      b +=
+        (lattice.plaquetteSigns[p * size + j] ?? 0) *
+        (field[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
     }
 
     out[p] = b
@@ -671,7 +918,11 @@ function curlOf(lattice: PhotonLattice, field: ArrayLike<number>): Float64Array 
 
 // the shadow energy of a rule, whatever its table: 1/2 E(-) . E(+) + the potential of the table, V(B) the sum
 // of the table from 0 (the discrete antiderivative, sum over 0 < j <= |B| of |f(j)|), and the temperature
-function shadow(rule: PhotonRule, s: PhotonState, potential: Float64Array): number {
+function shadow(
+  rule: PhotonRule,
+  s: PhotonState,
+  potential: Float64Array,
+): number {
   const kicked = lastKick(rule, s)
 
   let e = 0
@@ -693,13 +944,23 @@ function tablePotential(rule: PhotonRule): Float64Array {
   const up = new Float64Array(n / 2 + 1)
 
   for (let j = 1; j <= n / 2; j++) {
-    up[j] = (up[j - 1] ?? 0) + ((rule.force[j - 1] ?? 0) + (rule.force[j] ?? 0)) / 2
+    up[j] =
+      (up[j - 1] ?? 0) +
+      ((rule.force[j - 1] ?? 0) + (rule.force[j] ?? 0)) / 2
   }
 
-  return Float64Array.from({ length: n }, (_, b) => up[Math.abs(centered(b, n))] ?? 0)
+  return Float64Array.from(
+    { length: n },
+    (_, b) => up[Math.abs(centered(b, n))] ?? 0,
+  )
 }
 
-function heating(rule: PhotonRule): { drift: number; wraps: number; start: number; end: number } {
+function heating(rule: PhotonRule): {
+  drift: number
+  wraps: number
+  start: number
+  end: number
+} {
   const s = hashedStart(rule)
   const potential = tablePotential(rule)
   const samples: number[] = []
@@ -717,12 +978,17 @@ function heating(rule: PhotonRule): { drift: number; wraps: number; start: numbe
       let sum = 0
 
       for (let j = 0; j < size; j++) {
-        sum += (rule.lattice.plaquetteSigns[p * size + j] ?? 0) * (s.angle[rule.lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+        sum +=
+          (rule.lattice.plaquetteSigns[p * size + j] ?? 0) *
+          (s.angle[rule.lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
       }
 
       b[p] = centered(sum, rule.n)
 
-      if (t > 0 && Math.abs((b[p] ?? 0) - (previous[p] ?? 0)) > rule.n / 2) {
+      if (
+        t > 0 &&
+        Math.abs((b[p] ?? 0) - (previous[p] ?? 0)) > rule.n / 2
+      ) {
         wraps += 1
       }
     }
@@ -740,13 +1006,36 @@ function heating(rule: PhotonRule): { drift: number; wraps: number; start: numbe
   return { drift: (end - start) / mean(samples), wraps, start, end }
 }
 
-function sectionC(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number } {
+function sectionC(
+  bulk: PhotonLattice,
+  husk: Husk,
+): Record<string, number> & { ok: number } {
   const out: Record<string, number> = {}
 
   // C1 the exactly linear integer table, K' = 1
   const small = photonLatticeD4({ side: 6 })
-  const exact = withForce(makePhotonRule({ lattice: small, n: N, k: 0, capacity: 0, hop: false }), linearForceTable(N, 1))
-  const lambdaMax = Math.max(...Array.from({ length: 6 ** 4 }, (_, i) => Math.max(...eigenvalues(plaquetteWaveMatrix(small, [0, 1, 2, 3].map(j => Math.floor(i / 6 ** j) % 6))))))
+  const exact = withForce(
+    makePhotonRule({
+      lattice: small,
+      n: N,
+      k: 0,
+      capacity: 0,
+      hop: false,
+    }),
+    linearForceTable(N, 1),
+  )
+  const lambdaMax = Math.max(
+    ...Array.from({ length: 6 ** 4 }, (_, i) =>
+      Math.max(
+        ...eigenvalues(
+          plaquetteWaveMatrix(
+            small,
+            [0, 1, 2, 3].map(j => Math.floor(i / 6 ** j) % 6),
+          ),
+        ),
+      ),
+    ),
+  )
   const growth = leapfrogBlock(1, lambdaMax).growth
   const s = emptyPhotonState(exact)
   const unwrapped = new Float64Array(small.links)
@@ -783,65 +1072,132 @@ function sectionC(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
       lastRatio = norm / normBefore
       normBefore = norm
     } else {
-      const bc = Float64Array.from({ length: small.plaquetteCount }, (_, p) => centered(plaquetteField(exact, s.angle, p), N))
+      const bc = Float64Array.from(
+        { length: small.plaquetteCount },
+        (_, p) => centered(plaquetteField(exact, s.angle, p), N),
+      )
 
       brokenAfter = brokenAfter || invariant(exact, s.flux, bc) !== i0
     }
   }
 
-  out['cLambdaMaxSide6'] = lambdaMax
-  out['cExactLinearKappaLambdaMax'] = lambdaMax
-  out['cExactLinearGrowthPerBeat'] = growth
-  out['cExactLinearInvariant'] = i0
-  out['cExactLinearConservedBeforeWrap'] = conserved ? 1 : 0
-  out['cExactLinearFirstWrapBeat'] = wrap
-  out['cExactLinearNormRatioLastBeforeWrap'] = lastRatio
-  out['cExactLinearBrokenAfterWrap'] = brokenAfter ? 1 : 0
-  out['cSmallestIntegerKappaOverE164'] = 1 / KAPPA
+  out.cLambdaMaxSide6 = lambdaMax
+  out.cExactLinearKappaLambdaMax = lambdaMax
+  out.cExactLinearGrowthPerBeat = growth
+  out.cExactLinearInvariant = i0
+  out.cExactLinearConservedBeforeWrap = conserved ? 1 : 0
+  out.cExactLinearFirstWrapBeat = wrap
+  out.cExactLinearNormRatioLastBeforeWrap = lastRatio
+  out.cExactLinearBrokenAfterWrap = brokenAfter ? 1 : 0
+  out.cSmallestIntegerKappaOverE164 = 1 / KAPPA
 
   // C2 the rounded linear table, the same light
-  const rounded = withForce(makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false }), roundedLinearForceTable(N, KAPPA))
+  const rounded = withForce(
+    makePhotonRule({
+      lattice: bulk,
+      n: N,
+      k: K,
+      capacity: 0,
+      hop: false,
+    }),
+    roundedLinearForceTable(N, KAPPA),
+  )
   const photon = huskPhotons(husk, [1, 0, 0]).even[0]!
   const w = huskWave(rounded, husk, [1, 0, 0], photon, WINDOW_TARGET)
 
-  out['cRoundedM1Omega'] = w.omega
-  out['cRoundedM1OverSymbol'] = w.omega / photon.omega - 1
+  out.cRoundedM1Omega = w.omega
+  out.cRoundedM1OverSymbol = w.omega / photon.omega - 1
 
   // C3 heating on the D4 box side 8
   const bulk8 = photonLatticeD4({ side: 8 })
-  const sine = heating(makePhotonRule({ lattice: bulk8, n: N, k: K, capacity: 0, hop: false }))
-  const flat = heating(withForce(makePhotonRule({ lattice: bulk8, n: N, k: K, capacity: 0, hop: false }), roundedLinearForceTable(N, KAPPA)))
+  const sine = heating(
+    makePhotonRule({
+      lattice: bulk8,
+      n: N,
+      k: K,
+      capacity: 0,
+      hop: false,
+    }),
+  )
+  const flat = heating(
+    withForce(
+      makePhotonRule({
+        lattice: bulk8,
+        n: N,
+        k: K,
+        capacity: 0,
+        hop: false,
+      }),
+      roundedLinearForceTable(N, KAPPA),
+    ),
+  )
   const ratio = Math.abs(flat.drift) / Math.abs(sine.drift)
 
-  out['cSineShadowDrift'] = sine.drift
-  out['cSineWraps'] = sine.wraps
-  out['cSineShadowStart'] = sine.start
-  out['cRoundedShadowDrift'] = flat.drift
-  out['cRoundedWraps'] = flat.wraps
-  out['cRoundedShadowStart'] = flat.start
-  out['cDriftRatio'] = ratio
+  out.cSineShadowDrift = sine.drift
+  out.cSineWraps = sine.wraps
+  out.cSineShadowStart = sine.start
+  out.cRoundedShadowDrift = flat.drift
+  out.cRoundedWraps = flat.wraps
+  out.cRoundedShadowStart = flat.start
+  out.cDriftRatio = ratio
 
-  const ok = conserved && wrap >= 0 && wrap < 10 && brokenAfter && Math.abs(w.omega / photon.omega - 1) < 0.01 && ratio >= 0.5 && ratio <= 2
+  const ok =
+    conserved &&
+    wrap >= 0 &&
+    wrap < 10 &&
+    brokenAfter &&
+    Math.abs(w.omega / photon.omega - 1) < 0.01 &&
+    ratio >= 0.5 &&
+    ratio <= 2
 
   return { ...out, ok: ok ? 1 : 0 }
 }
 
 // D. the love and fear
 
-type Pair = { residual: number; residualLate: number; energy: number; coulomb: number; coreShare: number }
+type Pair = {
+  residual: number
+  residualLate: number
+  energy: number
+  coulomb: number
+  coreShare: number
+}
 
-function pairRun(bulk: PhotonLattice, husk: Husk, r: number, charge: number, linear: boolean): Pair {
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false, charge })
-  const root = (v: number[]): number => bulk.vectors.findIndex(x => x.every((y, i) => y === v[i]))
+function pairRun(
+  bulk: PhotonLattice,
+  husk: Husk,
+  r: number,
+  charge: number,
+  linear: boolean,
+): Pair {
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge,
+  })
+  const root = (v: number[]): number =>
+    bulk.vectors.findIndex(x => x.every((y, i) => y === v[i]))
   const up = root([1, 0, 0, 1])
   const down = root([1, 0, 0, -1])
   const s = emptyPhotonState(rule)
 
-  placePairAlong(rule, s, 0, Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)), 1)
+  placePairAlong(
+    rule,
+    s,
+    0,
+    Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)),
+    1,
+  )
 
   const stringFlux = projectLinks(husk, s.flux)
   const columns = columnSum(husk, s.vibe)
-  const coulomb = huskCoulomb(husk, Float64Array.from(columns, x => x * charge))
+  const coulomb = huskCoulomb(
+    husk,
+    Float64Array.from(columns, x => x * charge),
+  )
   const all = new Float64Array(stringFlux.length)
   const late = new Float64Array(stringFlux.length)
   const settle = 400
@@ -871,7 +1227,10 @@ function pairRun(bulk: PhotonLattice, husk: Husk, r: number, charge: number, lin
     }
   }
 
-  const norm = (g: (i: number) => number, keep: (i: number) => boolean = () => true): number => {
+  const norm = (
+    g: (i: number) => number,
+    keep: (i: number) => boolean = () => true,
+  ): number => {
     let sum = 0
 
     for (let i = 0; i < all.length; i++) {
@@ -880,22 +1239,44 @@ function pairRun(bulk: PhotonLattice, husk: Husk, r: number, charge: number, lin
 
     return Math.sqrt(sum)
   }
+
   const h = HUSK_VECTORS.length
-  const charged = new Set(Array.from(columns, (x, y) => (x !== 0 ? y : -1)).filter(y => y >= 0))
-  const core = (i: number): boolean => charged.has(Math.floor(i / h)) || charged.has(husk.lattice.neighbour[Math.floor(i / h) * husk.lattice.degree + 2 * (i % h)] ?? -1)
+  const charged = new Set(
+    Array.from(columns, (x, y) => (x !== 0 ? y : -1)).filter(
+      y => y >= 0,
+    ),
+  )
+  const core = (i: number): boolean =>
+    charged.has(Math.floor(i / h)) ||
+    charged.has(
+      husk.lattice.neighbour[
+        Math.floor(i / h) * husk.lattice.degree + 2 * (i % h)
+      ] ?? -1,
+    )
   const scale = norm(i => (stringFlux[i] ?? 0) - (coulomb.flux[i] ?? 0))
   const residual = norm(i => (all[i] ?? 0) - (coulomb.flux[i] ?? 0))
 
   return {
     residual: residual / scale,
-    residualLate: norm(i => (late[i] ?? 0) - (coulomb.flux[i] ?? 0)) / scale,
+    residualLate:
+      norm(i => (late[i] ?? 0) - (coulomb.flux[i] ?? 0)) / scale,
     energy: huskEnergy(all),
     coulomb: coulomb.energy,
-    coreShare: norm(i => (all[i] ?? 0) - (coulomb.flux[i] ?? 0), core) ** 2 / residual ** 2,
+    coreShare:
+      norm(i => (all[i] ?? 0) - (coulomb.flux[i] ?? 0), core) ** 2 /
+      residual ** 2,
   }
 }
 
-function sectionD(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number; okD1: number; okD2: number; okD3: number } {
+function sectionD(
+  bulk: PhotonLattice,
+  husk: Husk,
+): Record<string, number> & {
+  ok: number
+  okD1: number
+  okD2: number
+  okD3: number
+} {
   const out: Record<string, number> = {}
 
   let linearOk = true
@@ -917,7 +1298,9 @@ function sectionD(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
     out[`dR${r}IntegerCoreShare`] = int.coreShare
     out[`dR${r}Coulomb`] = int.coulomb
     linearOk = linearOk && lin.residual < 0.01
-    energyOk = energyOk && (r === 1 || Math.abs(int.energy / int.coulomb - 1) < 0.05)
+    energyOk =
+      energyOk &&
+      (r === 1 || Math.abs(int.energy / int.coulomb - 1) < 0.05)
     windowOk = windowOk && growth >= 1.2 && growth <= 1.7
   }
 
@@ -928,7 +1311,13 @@ function sectionD(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
     out[`dR1Charge${charge}IntegerResidualLate`] = int.residualLate
   }
 
-  return { ...out, okD1: linearOk ? 1 : 0, okD2: energyOk ? 1 : 0, okD3: windowOk ? 1 : 0, ok: linearOk && energyOk && windowOk ? 1 : 0 }
+  return {
+    ...out,
+    okD1: linearOk ? 1 : 0,
+    okD2: energyOk ? 1 : 0,
+    okD3: windowOk ? 1 : 0,
+    ok: linearOk && energyOk && windowOk ? 1 : 0,
+  }
 }
 
 export default experiment({
@@ -948,15 +1337,33 @@ export default experiment({
     const c = sectionC(bulk, husk)
     const d = sectionD(bulk, husk)
     const sections = [b.okA1, b.ok, c.ok, d.ok]
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => !key.startsWith('ok')))
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => !key.startsWith('ok')),
+      )
 
     return verdict({
-      status: sections.every(x => x === 1) ? 'pass' : sections.some(x => x === 1) ? 'partial' : 'fail',
+      status: sections.every(x => x === 1)
+        ? 'pass'
+        : sections.some(x => x === 1)
+          ? 'partial'
+          : 'fail',
       claim:
         "on the linear rule the estimators of E-FRC-0165 and E-FRC-0169 read the known photon with the biases reported; a coherent plane wave through the cold vacuum of the integer rule does not move below |B| = 8 and above it runs at the derived symbol's frequency within 1 percent on the bulk and the husk, where the depth-odd photon leaves no field and 2 polarizations remain; no integer slope makes the linear force stable, while the rounded linear force carries the same light and heats as the sine does; and the linear rule relaxes a love and a fear onto the husk lattice Green's function at every r, so the integer rule's residual is its own",
-      metrics: { ...strip(a), ...strip(b), ...strip(c), ...strip(d), sectionA1: b.okA1, sectionB: b.ok, sectionC: c.ok, sectionD1: d.okD1, sectionD2: d.okD2, sectionD3: d.okD3 },
+      metrics: {
+        ...strip(a),
+        ...strip(b),
+        ...strip(c),
+        ...strip(d),
+        sectionA1: b.okA1,
+        sectionB: b.ok,
+        sectionC: c.ok,
+        sectionD1: d.okD1,
+        sectionD2: d.okD2,
+        sectionD3: d.okD3,
+      },
       notes:
-        'L2, deterministic. Section A reports biases and has one gate (A1, the linear control). The E-FRC-0165 and E-FRC-0169 gate failures stand as recorded there; this experiment measures what caused them. First run, 2026-09-25, status fail, and every failure stands. (A) On the linear rule every estimator reads the known photon within 0.4 percent (husk: difference -0.05, lagged +0.32, zero crossing -0.10 percent; bulk +0.18, +0.04, +0.10), and the fitted m^2 is under 0.004 of its value at m1, so the estimators and the fit form are sound on a clean field and the E-FRC-0169 excess (lagged 0.1107 against 0.1055 bare and 0.1024 renormalized) is the hot integer field\'s. On one linear realization the branch count reads 1, not 3 or 2: degenerate polarizations excited by a single start span one direction. A1 fails at 2.1e-5 against 1e-9 because the husk projection used the Euclidean product where the husk branches are orthogonal in the 1 / w metric. The bulk controls are exact to 5e-14. (B) The dead zone holds (peak |B| 7, flux 0 and angles still on 300 of 300 beats), and the depth-odd photon leaves the husk field exactly 0 while running at -0.2 percent in the bulk. The integer rule\'s light is not the symbol\'s at target 256, though: +3.5 and +11.1 percent for the two husk polarizations at m1, +1.4, +2.0 and +0.1 percent at (2,0,0), (3,0,0) and (2,2,1), while the three bulk depth photons are within -0.25 percent. The m1 sweep gives +66 percent at target 64 and -1.4 percent at 1024: the rounding staircase stiffens a coherent wave (a plaquette just past the threshold, |B| = 9, gets force 1 where kappa B is 0.55) and the sine softens it at large amplitude. (C) The exactly linear integer table at K\' = 1 keeps its invariant I to the unit until the first wrap at beat 4 (norm ratio 10.8 per beat, symbol bound 13.9 from kappa lambda_max = 16) and loses it after, as predicted, and the rounded linear table heats as the sine does (shadow drift 1.61 against 1.60 percent over 2,000 beats, ratio 1.01, 0 wraps in either). But the rounded linear photon at m1 runs 5.8 percent fast, so C2 fails. (D) The linear rule leaves a residual of 0.013, 0.017, 0.021, 0.023 at r = 1 to 4, the same in the late window, with an energy excess growing as r^2 (1.0012 to 1.0157): the k = 0 harmonic flux the string carries, which the linear rule conserves and huskCoulomb leaves out, so D1 fails against a reference that lacks it. The integer rule\'s energy sits 11 to 13 percent above the lattice Coulomb energy (D2 fails), and halving the window raises its residual by 2.3 to 2.5, not by sqrt 2 (D3 fails): the leftover is a slowly moving field, not averaging noise. At r = 1 the residual times e is nearly constant (0.548 x 16 = 8.8, 0.132 x 64 = 8.5, 0.038 x 256 = 9.6), and under 1 percent of it sits on the links at the charges: a transverse field of fixed absolute size that the force threshold never removes, not the lattice core.',
+        "L2, deterministic. Section A reports biases and has one gate (A1, the linear control). The E-FRC-0165 and E-FRC-0169 gate failures stand as recorded there; this experiment measures what caused them. First run, 2026-09-25, status fail, and every failure stands. (A) On the linear rule every estimator reads the known photon within 0.4 percent (husk: difference -0.05, lagged +0.32, zero crossing -0.10 percent; bulk +0.18, +0.04, +0.10), and the fitted m^2 is under 0.004 of its value at m1, so the estimators and the fit form are sound on a clean field and the E-FRC-0169 excess (lagged 0.1107 against 0.1055 bare and 0.1024 renormalized) is the hot integer field's. On one linear realization the branch count reads 1, not 3 or 2: degenerate polarizations excited by a single start span one direction. A1 fails at 2.1e-5 against 1e-9 because the husk projection used the Euclidean product where the husk branches are orthogonal in the 1 / w metric. The bulk controls are exact to 5e-14. (B) The dead zone holds (peak |B| 7, flux 0 and angles still on 300 of 300 beats), and the depth-odd photon leaves the husk field exactly 0 while running at -0.2 percent in the bulk. The integer rule's light is not the symbol's at target 256, though: +3.5 and +11.1 percent for the two husk polarizations at m1, +1.4, +2.0 and +0.1 percent at (2,0,0), (3,0,0) and (2,2,1), while the three bulk depth photons are within -0.25 percent. The m1 sweep gives +66 percent at target 64 and -1.4 percent at 1024: the rounding staircase stiffens a coherent wave (a plaquette just past the threshold, |B| = 9, gets force 1 where kappa B is 0.55) and the sine softens it at large amplitude. (C) The exactly linear integer table at K' = 1 keeps its invariant I to the unit until the first wrap at beat 4 (norm ratio 10.8 per beat, symbol bound 13.9 from kappa lambda_max = 16) and loses it after, as predicted, and the rounded linear table heats as the sine does (shadow drift 1.61 against 1.60 percent over 2,000 beats, ratio 1.01, 0 wraps in either). But the rounded linear photon at m1 runs 5.8 percent fast, so C2 fails. (D) The linear rule leaves a residual of 0.013, 0.017, 0.021, 0.023 at r = 1 to 4, the same in the late window, with an energy excess growing as r^2 (1.0012 to 1.0157): the k = 0 harmonic flux the string carries, which the linear rule conserves and huskCoulomb leaves out, so D1 fails against a reference that lacks it. The integer rule's energy sits 11 to 13 percent above the lattice Coulomb energy (D2 fails), and halving the window raises its residual by 2.3 to 2.5, not by sqrt 2 (D3 fails): the leftover is a slowly moving field, not averaging noise. At r = 1 the residual times e is nearly constant (0.548 x 16 = 8.8, 0.132 x 64 = 8.5, 0.038 x 256 = 9.6), and under 1 percent of it sits on the links at the charges: a transverse field of fixed absolute size that the force threshold never removes, not the lattice core.",
     })
   },
 })

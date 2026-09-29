@@ -18,11 +18,23 @@
 // A RULE is given as one dock's collision on local arrays (24 vibes, 24 riding values, the dock's own data), the
 // stream's slot map, and the move a riding value takes when its slot is copied (a role point's grid move).
 
-import { collideBounce, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  collideBounce,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
-import { coldQuaternionCollide, type ColdQuaternionKnit } from '@/code/rule/cold-quaternion-knit'
+import {
+  coldQuaternionCollide,
+  type ColdQuaternionKnit,
+} from '@/code/rule/cold-quaternion-knit'
 import { type Collision } from '@/code/rule/collision'
-import { forest, join, rootOf, componentCount, type BoxHusk } from '@/code/measure/causal-components'
+import {
+  forest,
+  join,
+  rootOf,
+  componentCount,
+  type BoxHusk,
+} from '@/code/measure/causal-components'
 import { type Mesh } from '@/code/tool/mesh'
 
 export type DockRule = {
@@ -33,42 +45,77 @@ export type DockRule = {
   // slot i is copied into slot target[i]
   readonly target: Int32Array
   // the riding value's move when slot i is copied (identity when undefined)
-  readonly auxMove: ((slot: number, value: number) => number) | undefined
+  readonly auxMove:
+    | ((slot: number, value: number) => number)
+    | undefined
   // beat t's collision of one dock, in place
   collide(t: number, v: Int8Array, a: Int16Array, d: Int16Array): void
   // do two slot values (vibe, riding value) differ in anything the rule can ever read
   slotDiffers(v1: number, a1: number, v2: number, a2: number): boolean
   // do two docks' data differ in anything the rule can ever read (d1 at o1, d2 at o2)
-  dockDiffers(d1: Int16Array, o1: number, d2: Int16Array, o2: number): boolean
+  dockDiffers(
+    d1: Int16Array,
+    o1: number,
+    d2: Int16Array,
+    o2: number,
+  ): boolean
   // every other value dock state (v, a, d) can hold at one changed place, as edits of local copies
-  perturbations(v: Int8Array, a: Int16Array, d: Int16Array): Perturbation[]
+  perturbations(
+    v: Int8Array,
+    a: Int16Array,
+    d: Int16Array,
+  ): Perturbation[]
 }
 
 // one change of one dock's state: the vibe or riding value of a slot, or one or two dock fields
-export type Perturbation = { readonly kind: 'slot' | 'dock'; readonly index: number; readonly v: number; readonly a: number; readonly index2?: number; readonly a2?: number }
+export type Perturbation = {
+  readonly kind: 'slot' | 'dock'
+  readonly index: number
+  readonly v: number
+  readonly a: number
+  readonly index2?: number
+  readonly a2?: number
+}
 
-export function applyPerturbation(p: Perturbation, v: Int8Array, a: Int16Array, d: Int16Array): void {
+export function applyPerturbation(
+  p: Perturbation,
+  v: Int8Array,
+  a: Int16Array,
+  d: Int16Array,
+): void {
   if (p.kind === 'slot') {
     v[p.index] = p.v
     a[p.index] = p.a
   } else {
     d[p.index] = p.a
-    if (p.index2 !== undefined) d[p.index2] = p.a2 ?? 0
+
+    if (p.index2 !== undefined) {
+      d[p.index2] = p.a2 ?? 0
+    }
   }
 }
 
 export type State = { v: Int8Array; a: Int16Array; d: Int16Array }
 
 export function emptyState(rule: DockRule): State {
-  return { v: new Int8Array(rule.cells * 24), a: new Int16Array(rule.cells * 24), d: new Int16Array(rule.cells * rule.dockFields) }
+  return {
+    v: new Int8Array(rule.cells * 24),
+    a: new Int16Array(rule.cells * 24),
+    d: new Int16Array(rule.cells * rule.dockFields),
+  }
 }
 
 export function cloneState(s: State): State {
-  return { v: Int8Array.from(s.v), a: Int16Array.from(s.a), d: Int16Array.from(s.d) }
+  return {
+    v: Int8Array.from(s.v),
+    a: Int16Array.from(s.a),
+    d: Int16Array.from(s.d),
+  }
 }
 
 const LV = new Int8Array(24)
 const LA = new Int16Array(24)
+
 let LD = new Int16Array(64)
 
 // one beat of the whole state: collide every dock, then stream (every slot copied, calm included)
@@ -76,7 +123,9 @@ export function fullBeat(rule: DockRule, t: number, s: State): State {
   const post = cloneState(s)
   const f = rule.dockFields
 
-  if (LD.length < f) LD = new Int16Array(f)
+  if (LD.length < f) {
+    LD = new Int16Array(f)
+  }
 
   const ld = LD.subarray(0, f)
 
@@ -90,36 +139,56 @@ export function fullBeat(rule: DockRule, t: number, s: State): State {
     post.d.set(ld, x * f)
   }
 
-  const next: State = { v: new Int8Array(s.v.length), a: new Int16Array(s.a.length), d: Int16Array.from(post.d) }
+  const next: State = {
+    v: new Int8Array(s.v.length),
+    a: new Int16Array(s.a.length),
+    d: Int16Array.from(post.d),
+  }
 
   for (let i = 0; i < s.v.length; i++) {
-    const to = rule.target[i] as number
+    const to = rule.target[i]!
 
-    next.v[to] = post.v[i] as number
-    next.a[to] = rule.auxMove ? rule.auxMove(i, post.a[i] as number) : (post.a[i] as number)
+    next.v[to] = post.v[i]!
+    next.a[to] = rule.auxMove ? rule.auxMove(i, post.a[i]!) : post.a[i]!
   }
 
   return next
 }
 
 // the reference history: the state at the start of beats 0 .. beats
-export function referenceFrames(rule: DockRule, start: State, beats: number): State[] {
+export function referenceFrames(
+  rule: DockRule,
+  start: State,
+  beats: number,
+): State[] {
   const frames: State[] = [cloneState(start)]
 
-  for (let t = 0; t < beats; t++) frames.push(fullBeat(rule, t, frames[t] as State))
+  for (let t = 0; t < beats; t++) {
+    frames.push(fullBeat(rule, t, frames[t]!))
+  }
 
   return frames
 }
 
 // does dock x differ between two states
-export function dockStateDiffers(rule: DockRule, p: State, q: State, x: number): boolean {
+export function dockStateDiffers(
+  rule: DockRule,
+  p: State,
+  q: State,
+  x: number,
+): boolean {
   for (let d = 0; d < 24; d++) {
     const i = x * 24 + d
 
-    if (rule.slotDiffers(p.v[i] as number, p.a[i] as number, q.v[i] as number, q.a[i] as number)) return true
+    if (rule.slotDiffers(p.v[i]!, p.a[i]!, q.v[i]!, q.a[i]!)) {
+      return true
+    }
   }
 
-  return rule.dockFields > 0 && rule.dockDiffers(p.d, x * rule.dockFields, q.d, x * rule.dockFields)
+  return (
+    rule.dockFields > 0 &&
+    rule.dockDiffers(p.d, x * rule.dockFields, q.d, x * rule.dockFields)
+  )
 }
 
 // ---- the sparse lockstep ----
@@ -136,9 +205,16 @@ export type Cone = {
   readonly sets: number[][] | undefined
 }
 
-type Buffers = { v: Int8Array; a: Int16Array; d: Int16Array; stamp: Int32Array; list: Int32Array }
+type Buffers = {
+  v: Int8Array
+  a: Int16Array
+  d: Int16Array
+  stamp: Int32Array
+  list: Int32Array
+}
 
 const BUFFERS = new WeakMap<DockRule, [Buffers, Buffers]>()
+
 let EPOCH = 0
 
 function buffersOf(rule: DockRule): [Buffers, Buffers] {
@@ -162,32 +238,48 @@ function buffersOf(rule: DockRule): [Buffers, Buffers] {
 
 const RV = new Int8Array(24)
 const RA = new Int16Array(24)
+
 let RD = new Int16Array(64)
 
 // the cone of one change `p` of dock x0 at beat 0 over the reference frames (frames.length - 1 beats)
-export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: Perturbation, keepSets = false): Cone {
+export function coneOf(
+  rule: DockRule,
+  frames: readonly State[],
+  x0: number,
+  p: Perturbation,
+  keepSets = false,
+): Cone {
   const beats = frames.length - 1
   const f = rule.dockFields
   const firstAt = new Int32Array(rule.cells).fill(-1)
   const sizes = new Int32Array(beats + 1)
   const sets: number[][] | undefined = keepSets ? [] : undefined
+
   let [cur, next] = buffersOf(rule)
   let count = 1
 
-  if (RD.length < f) RD = new Int16Array(f)
-  if (LD.length < f) LD = new Int16Array(f)
+  if (RD.length < f) {
+    RD = new Int16Array(f)
+  }
+
+  if (LD.length < f) {
+    LD = new Int16Array(f)
+  }
 
   const ld = LD.subarray(0, f)
   const rd = RD.subarray(0, f)
   const cone: Cone = { firstAt, sizes, killed: 0, sets }
-  const f0 = frames[0] as State
+  const f0 = frames[0]!
 
   EPOCH++
   cur.stamp[x0] = EPOCH
   cur.list[0] = x0
   cur.v.set(f0.v.subarray(x0 * 24, x0 * 24 + 24), x0 * 24)
   cur.a.set(f0.a.subarray(x0 * 24, x0 * 24 + 24), x0 * 24)
-  if (f > 0) cur.d.set(f0.d.subarray(x0 * f, x0 * f + f), x0 * f)
+
+  if (f > 0) {
+    cur.d.set(f0.d.subarray(x0 * f, x0 * f + f), x0 * f)
+  }
 
   {
     const v = cur.v.subarray(x0 * 24, x0 * 24 + 24)
@@ -202,34 +294,45 @@ export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: 
   sets?.push([x0])
 
   for (let t = 0; t < beats; t++) {
-    const ref = frames[t] as State
-    const refNext = frames[t + 1] as State
+    const ref = frames[t]!
+    const refNext = frames[t + 1]!
     const epoch = ++EPOCH
+
     let nextCount = 0
 
     for (let k = 0; k < count; k++) {
-      const x = cur.list[k] as number
+      const x = cur.list[k]!
       const b24 = x * 24
 
       LV.set(cur.v.subarray(b24, b24 + 24))
       LA.set(cur.a.subarray(b24, b24 + 24))
-      if (f > 0) ld.set(cur.d.subarray(x * f, x * f + f))
+
+      if (f > 0) {
+        ld.set(cur.d.subarray(x * f, x * f + f))
+      }
+
       rule.collide(t, LV, LA, ld)
 
       RV.set(ref.v.subarray(b24, b24 + 24))
       RA.set(ref.a.subarray(b24, b24 + 24))
-      if (f > 0) rd.set(ref.d.subarray(x * f, x * f + f))
+
+      if (f > 0) {
+        rd.set(ref.d.subarray(x * f, x * f + f))
+      }
+
       rule.collide(t, RV, RA, rd)
 
       let any = false
 
       for (let d = 0; d < 24; d++) {
-        if (!rule.slotDiffers(LV[d] as number, LA[d] as number, RV[d] as number, RA[d] as number)) continue
+        if (!rule.slotDiffers(LV[d]!, LA[d]!, RV[d]!, RA[d]!)) {
+          continue
+        }
 
         any = true
 
         const i = b24 + d
-        const to = rule.target[i] as number
+        const to = rule.target[i]!
         const y = (to / 24) | 0
 
         if (next.stamp[y] !== epoch) {
@@ -237,11 +340,14 @@ export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: 
           next.list[nextCount++] = y
           next.v.set(refNext.v.subarray(y * 24, y * 24 + 24), y * 24)
           next.a.set(refNext.a.subarray(y * 24, y * 24 + 24), y * 24)
-          if (f > 0) next.d.set(refNext.d.subarray(y * f, y * f + f), y * f)
+
+          if (f > 0) {
+            next.d.set(refNext.d.subarray(y * f, y * f + f), y * f)
+          }
         }
 
-        next.v[to] = LV[d] as number
-        next.a[to] = rule.auxMove ? rule.auxMove(i, LA[d] as number) : (LA[d] as number)
+        next.v[to] = LV[d]!
+        next.a[to] = rule.auxMove ? rule.auxMove(i, LA[d]!) : LA[d]!
       }
 
       if (f > 0 && rule.dockDiffers(ld, 0, rd, 0)) {
@@ -257,18 +363,28 @@ export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: 
         next.d.set(ld, x * f)
       }
 
-      if (!any) cone.killed++
+      if (!any) {
+        cone.killed++
+      }
     }
 
     sizes[t + 1] = nextCount
 
     for (let k = 0; k < nextCount; k++) {
-      const y = next.list[k] as number
+      const y = next.list[k]!
 
-      if (firstAt[y] === -1) firstAt[y] = t + 1
+      if (firstAt[y] === -1) {
+        firstAt[y] = t + 1
+      }
     }
 
-    if (sets) sets.push(Array.from(next.list.subarray(0, nextCount)).sort((m, n) => m - n))
+    if (sets) {
+      sets.push(
+        Array.from(next.list.subarray(0, nextCount)).sort(
+          (m, n) => m - n,
+        ),
+      )
+    }
 
     const swap = cur
 
@@ -277,7 +393,10 @@ export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: 
     count = nextCount
 
     if (count === 0) {
-      for (let u = t + 2; u <= beats; u++) sets?.push([])
+      for (let u = t + 2; u <= beats; u++) {
+        sets?.push([])
+      }
+
       break
     }
   }
@@ -286,24 +405,41 @@ export function coneOf(rule: DockRule, frames: readonly State[], x0: number, p: 
 }
 
 // the same D_t by running the whole changed history (the check on the sparse lockstep)
-export function bruteDifferences(rule: DockRule, frames: readonly State[], x0: number, p: Perturbation): number[][] {
-  const s = cloneState(frames[0] as State)
+export function bruteDifferences(
+  rule: DockRule,
+  frames: readonly State[],
+  x0: number,
+  p: Perturbation,
+): number[][] {
+  const s = cloneState(frames[0]!)
   const f = rule.dockFields
 
-  applyPerturbation(p, s.v.subarray(x0 * 24, x0 * 24 + 24), s.a.subarray(x0 * 24, x0 * 24 + 24), s.d.subarray(x0 * f, x0 * f + f))
+  applyPerturbation(
+    p,
+    s.v.subarray(x0 * 24, x0 * 24 + 24),
+    s.a.subarray(x0 * 24, x0 * 24 + 24),
+    s.d.subarray(x0 * f, x0 * f + f),
+  )
 
   const sets: number[][] = []
+
   let state = s
 
   for (let t = 0; t < frames.length; t++) {
-    const ref = frames[t] as State
+    const ref = frames[t]!
     const set: number[] = []
 
-    for (let x = 0; x < rule.cells; x++) if (dockStateDiffers(rule, state, ref, x)) set.push(x)
+    for (let x = 0; x < rule.cells; x++) {
+      if (dockStateDiffers(rule, state, ref, x)) {
+        set.push(x)
+      }
+    }
 
     sets.push(set)
 
-    if (t < frames.length - 1) state = fullBeat(rule, t, state)
+    if (t < frames.length - 1) {
+      state = fullBeat(rule, t, state)
+    }
   }
 
   return sets
@@ -328,14 +464,25 @@ export type SeedCone = {
   readonly died: number
 }
 
-export function seedCone(rule: DockRule, husk: BoxHusk, frames: readonly State[], x0: number, filter?: (p: Perturbation) => boolean): SeedCone {
-  const f0 = frames[0] as State
+export function seedCone(
+  rule: DockRule,
+  husk: BoxHusk,
+  frames: readonly State[],
+  x0: number,
+  filter?: (p: Perturbation) => boolean,
+): SeedCone {
+  const f0 = frames[0]!
   const f = rule.dockFields
-  const all = rule.perturbations(f0.v.slice(x0 * 24, x0 * 24 + 24), f0.a.slice(x0 * 24, x0 * 24 + 24), f0.d.slice(x0 * f, x0 * f + f))
+  const all = rule.perturbations(
+    f0.v.slice(x0 * 24, x0 * 24 + 24),
+    f0.a.slice(x0 * 24, x0 * 24 + 24),
+    f0.d.slice(x0 * f, x0 * f + f),
+  )
   const list = filter ? all.filter(filter) : all
   const bulk = new Uint8Array(rule.cells)
   const top = new Uint8Array(husk.columns)
   const own = new Uint8Array(husk.columns)
+
   let smallestHusk = Number.POSITIVE_INFINITY
   let smallestBulk = Number.POSITIVE_INFINITY
   let emptyBeats = 0
@@ -344,18 +491,21 @@ export function seedCone(rule: DockRule, husk: BoxHusk, frames: readonly State[]
 
   for (const p of list) {
     const c = coneOf(rule, frames, x0, p)
+
     let b = 0
     let h = 0
 
     own.fill(0)
 
     for (let x = 0; x < rule.cells; x++) {
-      if (c.firstAt[x] === -1) continue
+      if (c.firstAt[x] === -1) {
+        continue
+      }
 
       b++
       bulk[x] = 1
 
-      const col = husk.column[x] as number
+      const col = husk.column[x]!
 
       if (!own[col]) {
         own[col] = 1
@@ -368,7 +518,9 @@ export function seedCone(rule: DockRule, husk: BoxHusk, frames: readonly State[]
     smallestHusk = Math.min(smallestHusk, h)
     smallestBulk = Math.min(smallestBulk, b)
 
-    for (let t = 0; t < c.sizes.length; t++) emptyBeats += c.sizes[t] === 0 ? 1 : 0
+    for (let t = 0; t < c.sizes.length; t++) {
+      emptyBeats += c.sizes[t] === 0 ? 1 : 0
+    }
 
     killed += c.killed
     died += c.sizes[c.sizes.length - 1] === 0 ? 1 : 0
@@ -394,7 +546,11 @@ export function seedCone(rule: DockRule, husk: BoxHusk, frames: readonly State[]
 // through a chain of one-beat ones. A dock already joined to all 24 docks its slots are copied into is skipped: no
 // change of it can add a join.
 
-export function unionReading(rule: DockRule, husk: BoxHusk, frames: readonly State[]): { bulk: number; husk: number; changesTried: number } {
+export function unionReading(
+  rule: DockRule,
+  husk: BoxHusk,
+  frames: readonly State[],
+): { bulk: number; husk: number; changesTried: number } {
   const bulk = forest(rule.cells)
   const f = rule.dockFields
   const ld = new Int16Array(Math.max(1, f))
@@ -404,23 +560,32 @@ export function unionReading(rule: DockRule, husk: BoxHusk, frames: readonly Sta
   const rv = new Int8Array(24)
   const ra = new Int16Array(24)
   const into = new Int32Array(24)
+
   let changesTried = 0
 
   for (let t = 0; t < frames.length - 1; t++) {
-    const s = frames[t] as State
+    const s = frames[t]!
 
     for (let x = 0; x < rule.cells; x++) {
-      for (let d = 0; d < 24; d++) into[d] = ((rule.target[x * 24 + d] as number) / 24) | 0
+      for (let d = 0; d < 24; d++) {
+        into[d] = (rule.target[x * 24 + d]! / 24) | 0
+      }
 
       const done = (): boolean => {
         const r = rootOf(bulk, x)
 
-        for (let d = 0; d < 24; d++) if (rootOf(bulk, into[d] as number) !== r) return false
+        for (let d = 0; d < 24; d++) {
+          if (rootOf(bulk, into[d]!) !== r) {
+            return false
+          }
+        }
 
         return true
       }
 
-      if (done()) continue
+      if (done()) {
+        continue
+      }
 
       const v0 = s.v.slice(x * 24, x * 24 + 24)
       const a0 = s.a.slice(x * 24, x * 24 + 24)
@@ -428,13 +593,21 @@ export function unionReading(rule: DockRule, husk: BoxHusk, frames: readonly Sta
 
       rv.set(v0)
       ra.set(a0)
-      if (f > 0) rd.set(d0)
+
+      if (f > 0) {
+        rd.set(d0)
+      }
+
       rule.collide(t, rv, ra, rd.subarray(0, f))
 
       for (const p of rule.perturbations(v0, a0, d0)) {
         lv.set(v0)
         la.set(a0)
-        if (f > 0) ld.set(d0)
+
+        if (f > 0) {
+          ld.set(d0)
+        }
+
         applyPerturbation(p, lv, la, ld)
         rule.collide(t, lv, la, ld.subarray(0, f))
         changesTried++
@@ -442,28 +615,43 @@ export function unionReading(rule: DockRule, husk: BoxHusk, frames: readonly Sta
         let joined = false
 
         for (let d = 0; d < 24; d++) {
-          if (rule.slotDiffers(lv[d] as number, la[d] as number, rv[d] as number, ra[d] as number)) {
-            join(bulk, x, into[d] as number)
+          if (rule.slotDiffers(lv[d]!, la[d]!, rv[d]!, ra[d]!)) {
+            join(bulk, x, into[d]!)
             joined = true
           }
         }
 
-        if (joined && done()) break
+        if (joined && done()) {
+          break
+        }
       }
     }
   }
 
   const top = forest(husk.columns)
 
-  for (let x = 0; x < rule.cells; x++) join(top, husk.column[x] as number, husk.column[rootOf(bulk, x)] as number)
+  for (let x = 0; x < rule.cells; x++) {
+    join(top, husk.column[x]!, husk.column[rootOf(bulk, x)]!)
+  }
 
-  return { bulk: componentCount(bulk), husk: componentCount(top), changesTried }
+  return {
+    bulk: componentCount(bulk),
+    husk: componentCount(top),
+    changesTried,
+  }
 }
 
 // ---- the cover count: seeds taken in order until their cones cover the husk ----
 
-export function coverCount(rule: DockRule, husk: BoxHusk, frames: readonly State[], first: number, limit: number): { seeds: number; covered: number; complete: boolean } {
+export function coverCount(
+  rule: DockRule,
+  husk: BoxHusk,
+  frames: readonly State[],
+  first: number,
+  limit: number,
+): { seeds: number; covered: number; complete: boolean } {
   const covered = new Uint8Array(husk.columns)
+
   let seeds = 0
   let x0 = first
 
@@ -472,28 +660,45 @@ export function coverCount(rule: DockRule, husk: BoxHusk, frames: readonly State
 
     seeds++
 
-    for (let k = 0; k < husk.columns; k++) covered[k] = (covered[k] as number) | (c.husk[k] as number)
+    for (let k = 0; k < husk.columns; k++) {
+      covered[k] = covered[k]! | c.husk[k]!
+    }
 
     let nextSeed = -1
 
-    for (let x = 0; x < rule.cells && nextSeed === -1; x++) if (!covered[husk.column[x] as number]) nextSeed = x
+    for (let x = 0; x < rule.cells && nextSeed === -1; x++) {
+      if (!covered[husk.column[x]!]) {
+        nextSeed = x
+      }
+    }
 
-    if (nextSeed === -1) return { seeds, covered: husk.columns, complete: true }
+    if (nextSeed === -1) {
+      return { seeds, covered: husk.columns, complete: true }
+    }
 
     x0 = nextSeed
   }
 
-  return { seeds, covered: covered.reduce((m, n) => m + n, 0), complete: false }
+  return {
+    seeds,
+    covered: covered.reduce((m, n) => m + n, 0),
+    complete: false,
+  }
 }
 
 // ---- the free star: the docks a lone value copied straight along each of the 24 roots visits, k = 0 .. beats ----
 
-export function freeStar(mesh: Mesh, husk: BoxHusk, x0: number, beats: number): { bulk: Uint8Array; huskCount: number; bulkCount: number } {
+export function freeStar(
+  mesh: Mesh,
+  husk: BoxHusk,
+  x0: number,
+  beats: number,
+): { bulk: Uint8Array; huskCount: number; bulkCount: number } {
   const bulk = new Uint8Array(mesh.cellCount)
   const top = new Uint8Array(husk.columns)
 
   bulk[x0] = 1
-  top[husk.column[x0] as number] = 1
+  top[husk.column[x0]!] = 1
 
   for (let d = 0; d < 24; d++) {
     let x = x0
@@ -501,11 +706,15 @@ export function freeStar(mesh: Mesh, husk: BoxHusk, x0: number, beats: number): 
     for (let k = 1; k <= beats; k++) {
       x = mesh.neighbour(x, d)
       bulk[x] = 1
-      top[husk.column[x] as number] = 1
+      top[husk.column[x]!] = 1
     }
   }
 
-  return { bulk, huskCount: top.reduce((m, n) => m + n, 0), bulkCount: bulk.reduce((m, n) => m + n, 0) }
+  return {
+    bulk,
+    huskCount: top.reduce((m, n) => m + n, 0),
+    bulkCount: bulk.reduce((m, n) => m + n, 0),
+  }
 }
 
 // ---- the rules ----
@@ -515,13 +724,24 @@ const TRITS = [-1, 0, 1]
 function vibeChanges(v: Int8Array, a: Int16Array): Perturbation[] {
   const out: Perturbation[] = []
 
-  for (let d = 0; d < 24; d++) for (const w of TRITS) if (w !== v[d]) out.push({ kind: 'slot', index: d, v: w, a: a[d] as number })
+  for (let d = 0; d < 24; d++) {
+    for (const w of TRITS) {
+      if (w !== v[d]) {
+        out.push({ kind: 'slot', index: d, v: w, a: a[d]! })
+      }
+    }
+  }
 
   return out
 }
 
 // a tone-only knit: one Collision per beat, slots carry nothing else
-export function toneRule(name: string, mesh: Mesh, target: Int32Array, forward: (t: number) => Collision): DockRule {
+export function toneRule(
+  name: string,
+  mesh: Mesh,
+  target: Int32Array,
+  forward: (t: number) => Collision,
+): DockRule {
   const scratch = new Int8Array(24)
 
   return {
@@ -544,45 +764,56 @@ export function toneRule(name: string, mesh: Mesh, target: Int32Array, forward: 
 // the hub vacuum's knit (code/measure/bounce-pair-kernel): per slot a vibe and its role point, per line a store trit
 // and its unit's point. A point is read only on a held slot or a held store, so a change there counts only then.
 export function hubRule(kernel: BounceKernel, name = 'hub'): DockRule {
-  const points = (kernel.move[0] as Int8Array).length
-  const s: Reduced = { vibe: new Int8Array(24), point: new Int8Array(24), store: new Int8Array(12), spoint: new Int8Array(12) }
+  const points = kernel.move[0]!.length
+  const s: Reduced = {
+    vibe: new Int8Array(24),
+    point: new Int8Array(24),
+    store: new Int8Array(12),
+    spoint: new Int8Array(12),
+  }
 
   return {
     name,
     cells: kernel.cells,
     dockFields: 24,
     target: kernel.target,
-    auxMove: (slot, value) => (kernel.move[slot] as Int8Array)[value] as number,
+    auxMove: (slot, value) => kernel.move[slot]![value]!,
     collide(t, v, a, d) {
       for (let k = 0; k < 24; k++) {
-        s.vibe[k] = v[k] as number
-        s.point[k] = a[k] as number
+        s.vibe[k] = v[k]!
+        s.point[k] = a[k]!
       }
 
       for (let l = 0; l < 12; l++) {
-        s.store[l] = d[l] as number
-        s.spoint[l] = d[12 + l] as number
+        s.store[l] = d[l]!
+        s.spoint[l] = d[12 + l]!
       }
 
       collideBounce(kernel, s, 0, t)
 
       for (let k = 0; k < 24; k++) {
-        v[k] = s.vibe[k] as number
-        a[k] = s.point[k] as number
+        v[k] = s.vibe[k]!
+        a[k] = s.point[k]!
       }
 
       for (let l = 0; l < 12; l++) {
-        d[l] = s.store[l] as number
-        d[12 + l] = s.spoint[l] as number
+        d[l] = s.store[l]!
+        d[12 + l] = s.spoint[l]!
       }
     },
-    slotDiffers: (v1, a1, v2, a2) => v1 !== v2 || (v1 !== 0 && a1 !== a2),
+    slotDiffers: (v1, a1, v2, a2) =>
+      v1 !== v2 || (v1 !== 0 && a1 !== a2),
     dockDiffers(d1, o1, d2, o2) {
       for (let l = 0; l < 12; l++) {
-        const s1 = d1[o1 + l] as number
+        const s1 = d1[o1 + l]!
 
-        if (s1 !== d2[o2 + l]) return true
-        if (s1 !== 0 && d1[o1 + 12 + l] !== d2[o2 + 12 + l]) return true
+        if (s1 !== d2[o2 + l]) {
+          return true
+        }
+
+        if (s1 !== 0 && d1[o1 + 12 + l] !== d2[o2 + 12 + l]) {
+          return true
+        }
       }
 
       return false
@@ -593,15 +824,45 @@ export function hubRule(kernel: BounceKernel, name = 'hub'): DockRule {
       const out: Perturbation[] = []
 
       for (let k = 0; k < 24; k++) {
-        if (v[k] !== 0) out.push({ kind: 'slot', index: k, v: 0, a: a[k] as number })
+        if (v[k] !== 0) {
+          out.push({ kind: 'slot', index: k, v: 0, a: a[k]! })
+        }
 
-        for (const w of [1, -1]) for (let p = 0; p < points; p++) if (!(w === v[k] && p === a[k])) out.push({ kind: 'slot', index: k, v: w, a: p })
+        for (const w of [1, -1]) {
+          for (let p = 0; p < points; p++) {
+            if (!(w === v[k] && p === a[k])) {
+              out.push({ kind: 'slot', index: k, v: w, a: p })
+            }
+          }
+        }
       }
 
       for (let l = 0; l < 12; l++) {
-        if (d[l] !== 0) out.push({ kind: 'dock', index: l, v: 0, a: 0, index2: 12 + l, a2: d[12 + l] as number })
+        if (d[l] !== 0) {
+          out.push({
+            kind: 'dock',
+            index: l,
+            v: 0,
+            a: 0,
+            index2: 12 + l,
+            a2: d[12 + l]!,
+          })
+        }
 
-        for (const w of [1, -1]) for (let p = 0; p < points; p++) if (!(w === d[l] && p === d[12 + l])) out.push({ kind: 'dock', index: l, v: 0, a: w, index2: 12 + l, a2: p })
+        for (const w of [1, -1]) {
+          for (let p = 0; p < points; p++) {
+            if (!(w === d[l] && p === d[12 + l])) {
+              out.push({
+                kind: 'dock',
+                index: l,
+                v: 0,
+                a: w,
+                index2: 12 + l,
+                a2: p,
+              })
+            }
+          }
+        }
       }
 
       return out
@@ -612,8 +873,19 @@ export function hubRule(kernel: BounceKernel, name = 'hub'): DockRule {
 // the cold quaternion knits (code/rule/cold-quaternion-knit, no labels): per slot a tone and its kinetic store (a
 // whole number, zero on calm), per dock six couple counters (whole numbers). A store or counter is changed by one unit
 // either way (they are unbounded, so "every other value" is taken as the nearest ones); a new tone carries store 0 or 1.
-export function coldRule(name: string, mesh: Mesh, target: Int32Array, knit: ColdQuaternionKnit): DockRule {
-  const arrays = { vibe: new Int8Array(24), store: new Int32Array(24), counter: new Int32Array(6), role: undefined, token: undefined }
+export function coldRule(
+  name: string,
+  mesh: Mesh,
+  target: Int32Array,
+  knit: ColdQuaternionKnit,
+): DockRule {
+  const arrays = {
+    vibe: new Int8Array(24),
+    store: new Int32Array(24),
+    counter: new Int32Array(6),
+    role: undefined,
+    token: undefined,
+  }
 
   return {
     name,
@@ -623,35 +895,45 @@ export function coldRule(name: string, mesh: Mesh, target: Int32Array, knit: Col
     auxMove: undefined,
     collide(_t, v, a, d) {
       for (let k = 0; k < 24; k++) {
-        arrays.vibe[k] = v[k] as number
-        arrays.store[k] = a[k] as number
+        arrays.vibe[k] = v[k]!
+        arrays.store[k] = a[k]!
       }
 
-      for (let c = 0; c < 6; c++) arrays.counter[c] = d[c] as number
+      for (let c = 0; c < 6; c++) {
+        arrays.counter[c] = d[c]!
+      }
 
       coldQuaternionCollide(knit, arrays, 0, true)
 
       for (let k = 0; k < 24; k++) {
-        v[k] = arrays.vibe[k] as number
+        v[k] = arrays.vibe[k]!
 
-        const st = arrays.store[k] as number
+        const st = arrays.store[k]!
 
-        if (st > 32767 || st < -32768) throw new Error('store outside 16 bits')
+        if (st > 32767 || st < -32768) {
+          throw new Error('store outside 16 bits')
+        }
 
         a[k] = st
       }
 
       for (let c = 0; c < 6; c++) {
-        const n = arrays.counter[c] as number
+        const n = arrays.counter[c]!
 
-        if (n > 32767 || n < -32768) throw new Error('counter outside 16 bits')
+        if (n > 32767 || n < -32768) {
+          throw new Error('counter outside 16 bits')
+        }
 
         d[c] = n
       }
     },
     slotDiffers: (v1, a1, v2, a2) => v1 !== v2 || a1 !== a2,
     dockDiffers(d1, o1, d2, o2) {
-      for (let c = 0; c < 6; c++) if (d1[o1 + c] !== d2[o2 + c]) return true
+      for (let c = 0; c < 6; c++) {
+        if (d1[o1 + c] !== d2[o2 + c]) {
+          return true
+        }
+      }
 
       return false
     },
@@ -659,21 +941,31 @@ export function coldRule(name: string, mesh: Mesh, target: Int32Array, knit: Col
       const out: Perturbation[] = []
 
       for (let k = 0; k < 24; k++) {
-        const s = a[k] as number
+        const s = a[k]!
 
         if (v[k] === 0) {
-          for (const w of [1, -1]) for (const st of [0, 1]) out.push({ kind: 'slot', index: k, v: w, a: st })
+          for (const w of [1, -1]) {
+            for (const st of [0, 1]) {
+              out.push({ kind: 'slot', index: k, v: w, a: st })
+            }
+          }
         } else {
           out.push({ kind: 'slot', index: k, v: 0, a: 0 })
-          out.push({ kind: 'slot', index: k, v: -(v[k] as number), a: s })
-          out.push({ kind: 'slot', index: k, v: v[k] as number, a: s + 1 })
-          if (s > 0) out.push({ kind: 'slot', index: k, v: v[k] as number, a: s - 1 })
+          out.push({ kind: 'slot', index: k, v: -v[k]!, a: s })
+          out.push({ kind: 'slot', index: k, v: v[k]!, a: s + 1 })
+
+          if (s > 0) {
+            out.push({ kind: 'slot', index: k, v: v[k]!, a: s - 1 })
+          }
         }
       }
 
       for (let c = 0; c < 6; c++) {
-        out.push({ kind: 'dock', index: c, v: 0, a: (d[c] as number) + 1 })
-        if ((d[c] as number) > 0) out.push({ kind: 'dock', index: c, v: 0, a: (d[c] as number) - 1 })
+        out.push({ kind: 'dock', index: c, v: 0, a: d[c]! + 1 })
+
+        if (d[c]! > 0) {
+          out.push({ kind: 'dock', index: c, v: 0, a: d[c]! - 1 })
+        }
       }
 
       return out
@@ -690,12 +982,18 @@ const wrap3 = (n: number): number => ((((n + 1) % 3) + 3) % 3) - 1
 export const linearMixing: Collision = (slots, base) => {
   let sum = 0
 
-  for (let d = 0; d < 24; d++) sum += slots[base + d] as number
+  for (let d = 0; d < 24; d++) {
+    sum += slots[base + d]!
+  }
 
-  for (let d = 0; d < 24; d++) slots[base + d] = wrap3((slots[base + d] as number) + sum)
+  for (let d = 0; d < 24; d++) {
+    slots[base + d] = wrap3(slots[base + d]! + sum)
+  }
 }
 
 // CONSTANT OVERWRITE: every slot becomes love, whatever it held. Not a bijection: it erases.
 export const constantLove: Collision = (slots, base) => {
-  for (let d = 0; d < 24; d++) slots[base + d] = 1
+  for (let d = 0; d < 24; d++) {
+    slots[base + d] = 1
+  }
 }

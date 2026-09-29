@@ -60,10 +60,21 @@
 import { type ColorWeave } from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { applyCoinMap, dockCoinMap, makePairKnit, type PairKnit } from '@/code/rule/pair-making-knit'
-import { cloneStoreState, transformStoreState, type TokenStoreState } from '@/code/rule/token-store-knit'
+import {
+  applyCoinMap,
+  dockCoinMap,
+  makePairKnit,
+  type PairKnit,
+} from '@/code/rule/pair-making-knit'
+import {
+  cloneStoreState,
+  transformStoreState,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 // 'alternate': P K on even beats, K P on odd beats (the rule). 'palindrome': P K P every beat (E-RLT-0067's
 // candidate, the control). 'first': P K every beat (the control without a motion reversal)
@@ -77,37 +88,66 @@ export type LivingKnit = {
   readonly veto: boolean
 }
 
-export function makeLivingKnit(weave: ColorWeave, schedule: LivingSchedule = 'alternate', veto = true): LivingKnit {
-  return { weave, knit: makePairKnit({ mesh: weave.mesh }), schedule, veto }
+export function makeLivingKnit(
+  weave: ColorWeave,
+  schedule: LivingSchedule = 'alternate',
+  veto = true,
+): LivingKnit {
+  return {
+    weave,
+    knit: makePairKnit({ mesh: weave.mesh }),
+    schedule,
+    veto,
+  }
 }
 
-export type LivingTally = { made: number; unmade: number; vetoed: number }
+export type LivingTally = {
+  made: number
+  unmade: number
+  vetoed: number
+}
 
 // the pair move on line l of dock x: store 'returned' (the unmade pair's tokens go into the line's two places, a
 // made pair takes them back) with the neutral veto (a pair is made or unmade only where its two tokens hold one point)
-function pairLine(veto: boolean, s: TokenStoreState, x: number, l: number, tally?: LivingTally): void {
-  const i = x * 24 + (LINE_FIRSTS[l] as number)
-  const j = x * 24 + (LINE_SECONDS[l] as number)
-  const a = s.vibe[i] as number
-  const b = s.vibe[j] as number
-  const tau = s.store[x * 12 + l] as number
+function pairLine(
+  veto: boolean,
+  s: TokenStoreState,
+  x: number,
+  l: number,
+  tally?: LivingTally,
+): void {
+  const i = x * 24 + LINE_FIRSTS[l]!
+  const j = x * 24 + LINE_SECONDS[l]!
+  const a = s.vibe[i]!
+  const b = s.vibe[j]!
+  const tau = s.store[x * 12 + l]!
+
   let make: boolean
 
   if (tau === 0) {
-    if (a === 0 || b !== -a) return
+    if (a === 0 || b !== -a) {
+      return
+    }
+
     make = false
   } else {
-    if (a !== 0 || b !== 0) return
+    if (a !== 0 || b !== 0) {
+      return
+    }
+
     make = true
   }
 
   const p0 = x * 24 + 2 * l
   const p1 = p0 + 1
-  const hi = make ? (s.place[p0] as number) : (s.token[i] as number)
-  const hj = make ? (s.place[p1] as number) : (s.token[j] as number)
+  const hi = make ? s.place[p0]! : s.token[i]!
+  const hj = make ? s.place[p1]! : s.token[j]!
 
   if (veto && s.point[hi] !== s.point[hj]) {
-    if (tally) tally.vetoed++
+    if (tally) {
+      tally.vetoed++
+    }
+
     return
   }
 
@@ -115,65 +155,110 @@ function pairLine(veto: boolean, s: TokenStoreState, x: number, l: number, tally
     s.vibe[i] = tau
     s.vibe[j] = -tau
     s.store[x * 12 + l] = 0
-    if (tally) tally.made++
+
+    if (tally) {
+      tally.made++
+    }
   } else {
     s.vibe[i] = 0
     s.vibe[j] = 0
     s.store[x * 12 + l] = a
-    if (tally) tally.unmade++
+
+    if (tally) {
+      tally.unmade++
+    }
   }
 
-  const ti = s.token[i] as number
-  const tj = s.token[j] as number
+  const ti = s.token[i]!
+  const tj = s.token[j]!
 
-  s.token[i] = s.place[p0] as number
-  s.token[j] = s.place[p1] as number
+  s.token[i] = s.place[p0]!
+  s.token[j] = s.place[p1]!
   s.place[p0] = ti
   s.place[p1] = tj
 }
 
-export function pairDock(k: LivingKnit, s: TokenStoreState, x: number, tally?: LivingTally): void {
-  for (let l = 0; l < 12; l++) pairLine(k.veto, s, x, l, tally)
+export function pairDock(
+  k: LivingKnit,
+  s: TokenStoreState,
+  x: number,
+  tally?: LivingTally,
+): void {
+  for (let l = 0; l < 12; l++) {
+    pairLine(k.veto, s, x, l, tally)
+  }
 }
 
-export function coinDock(k: LivingKnit, s: TokenStoreState, x: number): void {
+export function coinDock(
+  k: LivingKnit,
+  s: TokenStoreState,
+  x: number,
+): void {
   const w = dockCoinMap(k.knit.table, s.vibe, x * 24)
 
-  if (w) applyCoinMap(w, s.vibe, x * 24, s.token)
+  if (w) {
+    applyCoinMap(w, s.vibe, x * 24, s.token)
+  }
 }
 
 // the order of the pieces of beat t's collision, 'P' and 'K', in the order they act
-export function collisionOrder(schedule: LivingSchedule, t: number): readonly ('P' | 'K')[] {
-  if (schedule === 'palindrome') return ['P', 'K', 'P']
-  if (schedule === 'first') return ['P', 'K']
+export function collisionOrder(
+  schedule: LivingSchedule,
+  t: number,
+): readonly ('P' | 'K')[] {
+  if (schedule === 'palindrome') {
+    return ['P', 'K', 'P']
+  }
+
+  if (schedule === 'first') {
+    return ['P', 'K']
+  }
 
   return t % 2 === 0 ? ['P', 'K'] : ['K', 'P']
 }
 
 // beat t's collision on dock x, forward, or its inverse (the pieces in the other order, each its own inverse)
-export function livingCollide(k: LivingKnit, s: TokenStoreState, x: number, t: number, inverse = false, tally?: LivingTally): void {
+export function livingCollide(
+  k: LivingKnit,
+  s: TokenStoreState,
+  x: number,
+  t: number,
+  inverse = false,
+  tally?: LivingTally,
+): void {
   const order = collisionOrder(k.schedule, t)
   const pieces = inverse ? [...order].reverse() : order
 
   for (const piece of pieces) {
-    if (piece === 'P') pairDock(k, s, x, tally)
-    else coinDock(k, s, x)
+    if (piece === 'P') {
+      pairDock(k, s, x, tally)
+    } else {
+      coinDock(k, s, x)
+    }
   }
 }
 
 // the meetings of two open tokens: both slots of one line of a dock held, before the collision
-function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meetings: [number, number][], signs: [number, number][]): void {
+function meetingsOf(
+  s: TokenStoreState,
+  open: Uint8Array,
+  cells: number,
+  meetings: [number, number][],
+  signs: [number, number][],
+): void {
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (LINE_SECONDS[l] as number)
-      const a = s.vibe[i] as number
-      const b = s.vibe[j] as number
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + LINE_SECONDS[l]!
+      const a = s.vibe[i]!
+      const b = s.vibe[j]!
 
-      if (a === 0 || b === 0) continue
+      if (a === 0 || b === 0) {
+        continue
+      }
 
-      const ti = s.token[i] as number
-      const tj = s.token[j] as number
+      const ti = s.token[i]!
+      const tj = s.token[j]!
 
       if (open[ti] === 1 && open[tj] === 1) {
         meetings.push([ti, tj])
@@ -184,49 +269,70 @@ function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meeting
 }
 
 // the stream: every slot's vibe and token copied one dock along its root, each token's point moved by the link
-function stream(k: LivingKnit, s: TokenStoreState, open: Uint8Array, crossings: [number, number][]): TokenStoreState {
+function stream(
+  k: LivingKnit,
+  s: TokenStoreState,
+  open: Uint8Array,
+  crossings: [number, number][],
+): TokenStoreState {
   const { moves, links } = k.weave
   const vibe = new Int8Array(s.vibe.length)
   const token = new Int32Array(s.token.length)
 
   for (let slot = 0; slot < s.vibe.length; slot++) {
-    const tk = s.token[slot] as number
+    const tk = s.token[slot]!
     const g = links[slot] ?? moves.identity
-    const to = k.knit.target[slot] as number
+    const to = k.knit.target[slot]!
 
-    vibe[to] = s.vibe[slot] as number
+    vibe[to] = s.vibe[slot]!
     token[to] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
   return { ...s, vibe, token }
 }
 
 // the inverse stream
-function unstream(k: LivingKnit, s: TokenStoreState, open: Uint8Array, crossings: [number, number][]): TokenStoreState {
+function unstream(
+  k: LivingKnit,
+  s: TokenStoreState,
+  open: Uint8Array,
+  crossings: [number, number][],
+): TokenStoreState {
   const { moves, links } = k.weave
   const vibe = new Int8Array(s.vibe.length)
   const token = new Int32Array(s.token.length)
 
   for (let slot = 0; slot < vibe.length; slot++) {
-    const from = k.knit.target[slot] as number
-    const tk = s.token[from] as number
-    const g = moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+    const from = k.knit.target[slot]!
+    const tk = s.token[from]!
+    const g =
+      moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
 
-    vibe[slot] = s.vibe[from] as number
+    vibe[slot] = s.vibe[from]!
     token[slot] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
   return { ...s, vibe, token }
 }
 
 // beat t forward: meetings, collision, stream
-export function livingBeat(k: LivingKnit, state: TokenStoreState, open: Uint8Array, t: number, tally?: LivingTally): { state: TokenStoreState; record: BeatRecord } {
+export function livingBeat(
+  k: LivingKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+  t: number,
+  tally?: LivingTally,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const s = cloneStoreState(state)
   const meetings: [number, number][] = []
@@ -235,18 +341,30 @@ export function livingBeat(k: LivingKnit, state: TokenStoreState, open: Uint8Arr
 
   meetingsOf(s, open, cells, meetings, signs)
 
-  for (let x = 0; x < cells; x++) livingCollide(k, s, x, t, false, tally)
+  for (let x = 0; x < cells; x++) {
+    livingCollide(k, s, x, t, false, tally)
+  }
 
-  return { state: stream(k, s, open, crossings), record: { meetings, crossings, signs } }
+  return {
+    state: stream(k, s, open, crossings),
+    record: { meetings, crossings, signs },
+  }
 }
 
 // the exact inverse of beat t
-export function livingBeatBack(k: LivingKnit, state: TokenStoreState, open: Uint8Array, t: number): { state: TokenStoreState; record: BeatRecord } {
+export function livingBeatBack(
+  k: LivingKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+  t: number,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const crossings: [number, number][] = []
   const out = unstream(k, cloneStoreState(state), open, crossings)
 
-  for (let x = 0; x < cells; x++) livingCollide(k, out, x, t, true)
+  for (let x = 0; x < cells; x++) {
+    livingCollide(k, out, x, t, true)
+  }
 
   const meetings: [number, number][] = []
   const signs: [number, number][] = []
@@ -258,12 +376,21 @@ export function livingBeatBack(k: LivingKnit, state: TokenStoreState, open: Uint
 
 // the motion reversal T: R (the -1 coin map on every dock), then one stream ('alternate' and 'first'), or R then beat
 // t's collision ('palindrome', E-RLT-0067's C R)
-export function livingMotionReversal(k: LivingKnit, s: TokenStoreState, t: number): TokenStoreState {
-  const identityCells = Array.from({ length: k.weave.mesh.cellCount }, (_, x) => x)
+export function livingMotionReversal(
+  k: LivingKnit,
+  s: TokenStoreState,
+  t: number,
+): TokenStoreState {
+  const identityCells = Array.from(
+    { length: k.weave.mesh.cellCount },
+    (_, x) => x,
+  )
   const reversed = transformStoreState(s, identityCells, OPPOSITE)
 
   if (k.schedule === 'palindrome') {
-    for (let x = 0; x < k.weave.mesh.cellCount; x++) livingCollide(k, reversed, x, t)
+    for (let x = 0; x < k.weave.mesh.cellCount; x++) {
+      livingCollide(k, reversed, x, t)
+    }
 
     return reversed
   }
@@ -276,31 +403,58 @@ export function livingMotionReversal(k: LivingKnit, s: TokenStoreState, t: numbe
 // The separated point layout: one role point per line of every dock, chosen dock by dock (in dock order unless an
 // order is given) as the least point that breaks condition (A) with both neighbours along the line already chosen.
 // Always exists (two constraints, nine points)
-export function separatedLayout(weave: ColorWeave, order?: readonly number[]): Int8Array {
+export function separatedLayout(
+  weave: ColorWeave,
+  order?: readonly number[],
+): Int8Array {
   const { mesh, moves, links } = weave
   const cells = mesh.cellCount
   const layout = new Int8Array(cells * 12).fill(-1)
   const act = (g: number, p: number): number => moves.act[g]?.[p] ?? p
-  const inverseAct = (g: number, p: number): number => moves.act[moves.inverse[g] ?? moves.identity]?.[p] ?? p
+  const inverseAct = (g: number, p: number): number =>
+    moves.act[moves.inverse[g] ?? moves.identity]?.[p] ?? p
 
   for (let i = 0; i < cells; i++) {
-    const x = order ? (order[i] as number) : i
+    const x = order ? order[i]! : i
 
     for (let l = 0; l < 12; l++) {
-      const f = LINE_FIRSTS[l] as number
-      const s = LINE_SECONDS[l] as number
+      const f = LINE_FIRSTS[l]!
+      const s = LINE_SECONDS[l]!
       const up = mesh.neighbour(mesh.neighbour(x, f), f)
       const down = mesh.neighbour(mesh.neighbour(x, s), s)
       const forbidden = new Set<number>()
 
       // (A) at x: link(x, f) p(x) != link(up, s) p(up)
-      if (layout[up * 12 + l] !== -1) forbidden.add(inverseAct(links[x * 24 + f] ?? moves.identity, act(links[up * 24 + s] ?? moves.identity, layout[up * 12 + l] as number)))
+      if (layout[up * 12 + l] !== -1) {
+        forbidden.add(
+          inverseAct(
+            links[x * 24 + f] ?? moves.identity,
+            act(
+              links[up * 24 + s] ?? moves.identity,
+              layout[up * 12 + l]!,
+            ),
+          ),
+        )
+      }
+
       // (A) at down: link(down, f) p(down) != link(x, s) p(x)
-      if (layout[down * 12 + l] !== -1) forbidden.add(inverseAct(links[x * 24 + s] ?? moves.identity, act(links[down * 24 + f] ?? moves.identity, layout[down * 12 + l] as number)))
+      if (layout[down * 12 + l] !== -1) {
+        forbidden.add(
+          inverseAct(
+            links[x * 24 + s] ?? moves.identity,
+            act(
+              links[down * 24 + f] ?? moves.identity,
+              layout[down * 12 + l]!,
+            ),
+          ),
+        )
+      }
 
       let p = 0
 
-      while (forbidden.has(p)) p++
+      while (forbidden.has(p)) {
+        p++
+      }
 
       layout[x * 12 + l] = p
     }
@@ -310,17 +464,27 @@ export function separatedLayout(weave: ColorWeave, order?: readonly number[]): I
 }
 
 // the docks and lines where condition (A) fails for a layout (0 for a separated one)
-export function layoutViolations(weave: ColorWeave, layout: Int8Array): number {
+export function layoutViolations(
+  weave: ColorWeave,
+  layout: Int8Array,
+): number {
   const { mesh, moves, links } = weave
+
   let bad = 0
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let l = 0; l < 12; l++) {
-      const f = LINE_FIRSTS[l] as number
-      const s = LINE_SECONDS[l] as number
+      const f = LINE_FIRSTS[l]!
+      const s = LINE_SECONDS[l]!
       const up = mesh.neighbour(mesh.neighbour(x, f), f)
-      const left = moves.act[links[x * 24 + f] ?? moves.identity]?.[layout[x * 12 + l] as number]
-      const right = moves.act[links[up * 24 + s] ?? moves.identity]?.[layout[up * 12 + l] as number]
+      const left =
+        moves.act[links[x * 24 + f] ?? moves.identity]?.[
+          layout[x * 12 + l]!
+        ]
+      const right =
+        moves.act[links[up * 24 + s] ?? moves.identity]?.[
+          layout[up * 12 + l]!
+        ]
 
       bad += left === right ? 1 : 0
     }
@@ -332,20 +496,25 @@ export function layoutViolations(weave: ColorWeave, layout: Int8Array): number {
 // A full state on the weave: the given vibes and slot points, every line's store at tau with both place tokens at the
 // layout's point. Slot tokens 0 .. slots - 1, place tokens after them; labels unread (the vibes' signs, the stored
 // units' orientation)
-export function livingState(input: { vibe: Int8Array; point: Int8Array; tau: number; layout: Int8Array }): TokenStoreState {
+export function livingState(input: {
+  vibe: Int8Array
+  point: Int8Array
+  tau: number
+  layout: Int8Array
+}): TokenStoreState {
   const slots = input.vibe.length
   const cells = slots / 24
   const point = new Int8Array(slots * 2)
   const label = new Int8Array(slots * 2)
 
   for (let i = 0; i < slots; i++) {
-    point[i] = input.point[i] as number
-    label[i] = input.vibe[i] as number
+    point[i] = input.point[i]!
+    label[i] = input.vibe[i]!
   }
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const p = input.layout[x * 12 + l] as number
+      const p = input.layout[x * 12 + l]!
 
       point[slots + x * 24 + 2 * l] = p
       point[slots + x * 24 + 2 * l + 1] = p

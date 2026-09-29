@@ -73,7 +73,10 @@ function entropyRun(input: { side: number; collision: Collision }): {
   const BEATS = Math.round(2.5 * side)
   const start = orderedStart(side)
 
-  let will: Will = { mesh: start.mesh, data: Int8Array.from(start.data) }
+  let will: Will = {
+    mesh: start.mesh,
+    data: Int8Array.from(start.data),
+  }
   let previous = coarseEntropy(will)
 
   const initial = previous

@@ -80,15 +80,37 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
-import { defectSigmaLinks, fillSigmaDemons, makeSigmaLinks, sigmaBeat, sigmaEnergy, sigmaLine, type SigmaState } from '@/code/rule/sigma-links'
-import { copySigmaState, fastCoolSigmaLinks, fastSigmaBeat, makeSigmaTables } from '@/code/rule/sigma-fast'
-import { boxDisplacement, makeBoxGeometry } from '@/code/measure/nucleon-gas'
+import {
+  defectSigmaLinks,
+  fillSigmaDemons,
+  makeSigmaLinks,
+  sigmaBeat,
+  sigmaEnergy,
+  sigmaLine,
+  type SigmaState,
+} from '@/code/rule/sigma-links'
+import {
+  copySigmaState,
+  fastCoolSigmaLinks,
+  fastSigmaBeat,
+  makeSigmaTables,
+} from '@/code/rule/sigma-fast'
+import {
+  boxDisplacement,
+  makeBoxGeometry,
+} from '@/code/measure/nucleon-gas'
 
 const SIDE = 6
 const SCALE = 12
 const RATIO = -1.67 / 12
 const CAPACITY = 48
-const COOL = { drain: 100, cycles: 30, fill: 0.003, beats: 30, empties: 10 }
+const COOL = {
+  drain: 100,
+  cycles: 30,
+  fill: 0.003,
+  beats: 30,
+  empties: 10,
+}
 const FILL = 0.08
 const HASHES = [3.3, 4.7, 6.1]
 const SETTLE = 300
@@ -106,14 +128,21 @@ type Series = { mean: number; error: number }
 
 function series(blocks: number[]): Series {
   const m = blocks.reduce((a, b) => a + b, 0) / blocks.length
-  const sd = Math.sqrt(blocks.reduce((a, b) => a + (b - m) ** 2, 0) / (blocks.length - 1))
+  const sd = Math.sqrt(
+    blocks.reduce((a, b) => a + (b - m) ** 2, 0) / (blocks.length - 1),
+  )
 
   return { mean: m, error: sd / Math.sqrt(blocks.length) }
 }
 
 // the weighted slope of ln y against r over points with y above twice its error: the rate
-function rate(points: { r: number; value: Series }[]): { rate: number; points: number } {
-  const good = points.filter(p => p.value.mean > 2 * p.value.error && p.value.mean > 0)
+function rate(points: { r: number; value: Series }[]): {
+  rate: number
+  points: number
+} {
+  const good = points.filter(
+    p => p.value.mean > 2 * p.value.error && p.value.mean > 0,
+  )
 
   if (good.length < 2) {
     return { rate: Number.NaN, points: good.length }
@@ -126,7 +155,10 @@ function rate(points: { r: number; value: Series }[]): { rate: number; points: n
   const mx = x.reduce((a, v, k) => a + (w[k] ?? 0) * v, 0) / sw
   const my = y.reduce((a, v, k) => a + (w[k] ?? 0) * v, 0) / sw
   const slope =
-    x.reduce((a, v, k) => a + (w[k] ?? 0) * (v - mx) * ((y[k] ?? 0) - my), 0) / x.reduce((a, v, k) => a + (w[k] ?? 0) * (v - mx) ** 2, 0)
+    x.reduce(
+      (a, v, k) => a + (w[k] ?? 0) * (v - mx) * ((y[k] ?? 0) - my),
+      0,
+    ) / x.reduce((a, v, k) => a + (w[k] ?? 0) * (v - mx) ** 2, 0)
 
   return { rate: -slope, points: good.length }
 }
@@ -143,11 +175,24 @@ export default experiment({
   run() {
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
-    const rule = makeSigmaLinks({ side: SIDE, kappa: 12, tension: 0, capacity: CAPACITY, hop: false, roles: false, couple: 'center', scale: SCALE, ratio: RATIO, moves: 'wide' })
+    const rule = makeSigmaLinks({
+      side: SIDE,
+      kappa: 12,
+      tension: 0,
+      capacity: CAPACITY,
+      hop: false,
+      roles: false,
+      couple: 'center',
+      scale: SCALE,
+      ratio: RATIO,
+      moves: 'wide',
+    })
     const tables = makeSigmaTables(rule)
     const { cells, group } = rule
     const geometry = makeBoxGeometry(SIDE)
-    const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const starts = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
     const lineCount = starts.length
     const lineDocks = starts.map(x => {
       const docks: number[] = []
@@ -163,7 +208,9 @@ export default experiment({
     })
     const covered = new Int32Array(cells)
 
-    lineDocks.forEach(docks => docks.forEach(d => (covered[d] = (covered[d] ?? 0) + 1)))
+    lineDocks.forEach(docks =>
+      docks.forEach(d => (covered[d] = (covered[d] ?? 0) + 1)),
+    )
 
     const partition = covered.every(c => c === 1)
     const tauVector = roots[tau] ?? [0, 0, 0, 0]
@@ -171,13 +218,24 @@ export default experiment({
       Math.min(
         ...(lineDocks[b] ?? []).map(d => {
           const v = boxDisplacement(geometry, d, starts[a] ?? 0)
-          const along = v.reduce((s, x, k) => s + x * (tauVector[k] ?? 0), 0) / 2
+          const along =
+            v.reduce((s, x, k) => s + x * (tauVector[k] ?? 0), 0) / 2
 
-          return Math.hypot(...v.map((x, k) => x - along * (tauVector[k] ?? 0)))
+          return Math.hypot(
+            ...v.map((x, k) => x - along * (tauVector[k] ?? 0)),
+          )
         }),
       )
-    const distance: number[][] = starts.map((_, a) => starts.map((__, b) => (a === b ? 0 : Math.round(transverse(a, b) * SHELL_DIGITS) / SHELL_DIGITS)))
-    const shells = [...new Set(distance.flat().filter(r => r > 0))].sort((a, b) => a - b)
+    const distance: number[][] = starts.map((_, a) =>
+      starts.map((__, b) =>
+        a === b
+          ? 0
+          : Math.round(transverse(a, b) * SHELL_DIGITS) / SHELL_DIGITS,
+      ),
+    )
+    const shells = [
+      ...new Set(distance.flat().filter(r => r > 0)),
+    ].sort((a, b) => a - b)
     const pairsByShell = shells.map(r => {
       const pairs: number[] = []
 
@@ -195,7 +253,8 @@ export default experiment({
     const third = shells[2] ?? 0
     // close: the first or second shell. The transverse lattice of the tau lines is body-centered (8 lines at
     // sqrt(3/2), 6 at sqrt 2, tmp/frc0199-geometry-probe), so no three lines are mutually at the first shell
-    const isNear = (a: number, b: number): boolean => (distance[a]?.[b] ?? 99) <= second
+    const isNear = (a: number, b: number): boolean =>
+      (distance[a]?.[b] ?? 99) <= second
     // mutually close triples and quadruples
     const triangles: number[][] = []
     const quads: number[][] = []
@@ -228,7 +287,13 @@ export default experiment({
     for (let a = 0; a < lineCount; a++) {
       for (let b = 0; b < lineCount; b++) {
         for (let c = b + 1; c < lineCount; c++) {
-          if (b !== a && c !== a && isNear(a, b) && isNear(a, c) && distance[b]?.[c] === third) {
+          if (
+            b !== a &&
+            c !== a &&
+            isNear(a, b) &&
+            isNear(a, c) &&
+            distance[b]?.[c] === third
+          ) {
             stretched.push([a, b, c])
           }
         }
@@ -269,7 +334,11 @@ export default experiment({
     const polyakovs: number[] = []
 
     HASHES.forEach((hash, h) => {
-      const cooled = fastCoolSigmaLinks(tables, defectSigmaLinks(rule, 0.1, hash), COOL)
+      const cooled = fastCoolSigmaLinks(
+        tables,
+        defectSigmaLinks(rule, 0.1, hash),
+        COOL,
+      )
       const s = copySigmaState(cooled.state)
 
       fillSigmaDemons(rule, s, FILL)
@@ -278,14 +347,24 @@ export default experiment({
 
       if (h === 0) {
         let slow = copySigmaState(s)
+
         const fast = copySigmaState(s)
 
         for (let k = 0; k < KERNEL_CHECK_BEATS; k++) {
           slow = sigmaBeat(rule, slow, t + k).state
           fastSigmaBeat(tables, fast, t + k)
 
-          for (const key of ['vibe', 'role', 'links', 'demon', 'flux'] as const) {
-            slow[key].forEach((v, i) => (fastKernelMismatches += v === fast[key][i] ? 0 : 1))
+          for (const key of [
+            'vibe',
+            'role',
+            'links',
+            'demon',
+            'flux',
+          ] as const) {
+            slow[key].forEach(
+              (v, i) =>
+                (fastKernelMismatches += v === fast[key][i] ? 0 : 1),
+            )
           }
         }
       }
@@ -315,7 +394,12 @@ export default experiment({
         for (let k = 0; k < size; k++) {
           fastSigmaBeat(tables, s, t++)
           exact = exact && sigmaEnergy(rule, s) === e0
-          beta += unitDemonBeta({ meanDemon: demonMean(s), capacity: CAPACITY }) / (MEASURE * HASHES.length)
+          beta +=
+            unitDemonBeta({
+              meanDemon: demonMean(s),
+              capacity: CAPACITY,
+            }) /
+            (MEASURE * HASHES.length)
 
           let sr = 0
           let si = 0
@@ -343,11 +427,11 @@ export default experiment({
             let a2 = 0
 
             for (let p = 0; p < pairs.length; p += 2) {
-              const a = pairs[p] as number
-              const b = pairs[p + 1] as number
+              const a = pairs[p]!
+              const b = pairs[p + 1]!
 
-              a1 += ((re[a] as number) * (re[b] as number) + (im[a] as number) * (im[b] as number)) / 9
-              a2 += (meson[a] as number) * (meson[b] as number)
+              a1 += (re[a]! * re[b]! + im[a]! * im[b]!) / 9
+              a2 += meson[a]! * meson[b]!
             }
 
             g1[r] = (g1[r] ?? 0) + a1 / n / size
@@ -357,17 +441,29 @@ export default experiment({
           // Re of the product of three complex traces
           const triple = (list: number[][]): number =>
             list.reduce((acc, [a = 0, b = 0, c = 0]) => {
-              const xr = (re[a] as number) * (re[b] as number) - (im[a] as number) * (im[b] as number)
-              const xi = (re[a] as number) * (im[b] as number) + (im[a] as number) * (re[b] as number)
+              const xr = re[a]! * re[b]! - im[a]! * im[b]!
+              const xi = re[a]! * im[b]! + im[a]! * re[b]!
 
-              return acc + (xr * (re[c] as number) - xi * (im[c] as number)) / 27
+              return acc + (xr * re[c]! - xi * im[c]!) / 27
             }, 0) / Math.max(1, list.length)
 
           tri += triple(triangles) / size
           str += triple(stretched) / size
-          n3 += triangles.reduce((acc, [a = 0, b = 0, c = 0]) => acc + (meson[a] as number) * (meson[b] as number) * (meson[c] as number), 0) / Math.max(1, triangles.length) / size
+          n3 +=
+            triangles.reduce(
+              (acc, [a = 0, b = 0, c = 0]) =>
+                acc + meson[a]! * meson[b]! * meson[c]!,
+              0,
+            ) /
+            Math.max(1, triangles.length) /
+            size
+
           n4 +=
-            quads.reduce((acc, [a = 0, b = 0, c = 0, d = 0]) => acc + (meson[a] as number) * (meson[b] as number) * (meson[c] as number) * (meson[d] as number), 0) /
+            quads.reduce(
+              (acc, [a = 0, b = 0, c = 0, d = 0]) =>
+                acc + meson[a]! * meson[b]! * meson[c]! * meson[d]!,
+              0,
+            ) /
             Math.max(1, quads.length) /
             size
         }
@@ -389,34 +485,65 @@ export default experiment({
 
     const temperature = 1 / SIDE
     const mMean = series(mBlocks)
-    const g1 = shells.map((r, k) => ({ r, value: series(g1Blocks[k] ?? []) }))
+    const g1 = shells.map((r, k) => ({
+      r,
+      value: series(g1Blocks[k] ?? []),
+    }))
     // the connected residual per block, C = <MM> / <M>^2 - 1, with each block's own <M>
-    const residual = shells.map((r, k) => ({ r, value: series((mmBlocks[k] ?? []).map((v, b) => v / (mBlocks[b] ?? 1) ** 2 - 1)) }))
+    const residual = shells.map((r, k) => ({
+      r,
+      value: series(
+        (mmBlocks[k] ?? []).map(
+          (v, b) => v / (mBlocks[b] ?? 1) ** 2 - 1,
+        ),
+      ),
+    }))
     const m1 = rate(g1.filter(p => p.r > 0))
     const mR = rate(residual)
     const tri = series(triangleBlocks)
     const str = series(stretchedBlocks)
     // binding free energies of N nearest singlets: F_N = -T ln(<M..M> / <M>^N), per block then averaged
     const free = (blocks: number[], n: number): Series =>
-      series(blocks.map((v, b) => -temperature * Math.log(Math.max(1e-300, v) / (mBlocks[b] ?? 1) ** n)))
+      series(
+        blocks.map(
+          (v, b) =>
+            -temperature *
+            Math.log(Math.max(1e-300, v) / (mBlocks[b] ?? 1) ** n),
+        ),
+      )
     const f2 = free(mmBlocks[0] ?? [], 2)
     const f3 = free(n3Blocks, 3)
     const f4 = free(n4Blocks, 4)
     const nearestResidual = residual[0]?.value ?? { mean: 0, error: 1 }
     const predictedM1 = SIDE * CHI22_0167
 
-    const g0 = exact && fastKernelMismatches === 0 && partition && polyakovs.every(p => p < 0.05)
-    const tension = Math.abs(m1.rate / predictedM1 - 1) < TENSION_TOLERANCE
-    const attraction = nearestResidual.mean > SIGMAS * nearestResidual.error
-    const strings = Number.isFinite(mR.rate) && Math.abs(mR.rate / (2 * m1.rate) - 1) < STRING_TOLERANCE
+    const g0 =
+      exact &&
+      fastKernelMismatches === 0 &&
+      partition &&
+      polyakovs.every(p => p < 0.05)
+    const tension =
+      Math.abs(m1.rate / predictedM1 - 1) < TENSION_TOLERANCE
+    const attraction =
+      nearestResidual.mean > SIGMAS * nearestResidual.error
+    const strings =
+      Number.isFinite(mR.rate) &&
+      Math.abs(mR.rate / (2 * m1.rate) - 1) < STRING_TOLERANCE
     const baryon = tri.mean > SIGMAS * tri.error && tri.mean > str.mean
-    const saturation = quads.length > 0 && Math.abs(f4.mean / 4 / (f2.mean / 2) - 1) < SATURATION_TOLERANCE
-    const status = g0 && tension && attraction && strings && baryon && saturation ? 'pass' : g0 && tension && attraction && baryon ? 'partial' : 'fail'
+    const saturation =
+      quads.length > 0 &&
+      Math.abs(f4.mean / 4 / (f2.mean / 2) - 1) < SATURATION_TOLERANCE
+    const status =
+      g0 && tension && attraction && strings && baryon && saturation
+        ? 'pass'
+        : g0 && tension && attraction && baryon
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
       claim:
-        'on the confined point of the coupled Sigma(648) field, with the energy exact and every run confined, the static quark-antiquark rate matches the area law, two static color singlets (stand-in nucleons) attract with a residual carrying twice that rate, a static three-quark baryon is bound, and the binding free energy of four close singlets per singlet is within 30 percent of two\'s (substrate readings)',
+        "on the confined point of the coupled Sigma(648) field, with the energy exact and every run confined, the static quark-antiquark rate matches the area law, two static color singlets (stand-in nucleons) attract with a residual carrying twice that rate, a static three-quark baryon is bound, and the binding free energy of four close singlets per singlet is within 30 percent of two's (substrate readings)",
       metrics: Object.fromEntries<number>([
         ['g0', g0 ? 1 : 0],
         ['tensionGate', tension ? 1 : 0],
@@ -427,7 +554,10 @@ export default experiment({
         ['energyExact', exact ? 1 : 0],
         ['fastKernelMismatches', fastKernelMismatches],
         ['linesPartitionDocks', partition ? 1 : 0],
-        ...polyakovs.map((p, k): [string, number] => [`polyakovRun${k + 1}`, p]),
+        ...polyakovs.map((p, k): [string, number] => [
+          `polyakovRun${k + 1}`,
+          p,
+        ]),
         ['polyakovBlockMean', series(polyBlocks).mean],
         ['beta0', SCALE * beta],
         ['mesonOnOneLineMean', mMean.mean],
@@ -445,14 +575,28 @@ export default experiment({
           [`shell${k + 1}Residual`, residual[k]?.value.mean ?? 0],
           [`shell${k + 1}ResidualError`, residual[k]?.value.error ?? 0],
         ]),
-        ['nearestResidualFreeEnergy', -temperature * Math.log(1 + nearestResidual.mean)],
+        [
+          'nearestResidualFreeEnergy',
+          -temperature * Math.log(1 + nearestResidual.mean),
+        ],
         ['baryonNearestTriangle', tri.mean],
         ['baryonNearestTriangleError', tri.error],
         ['baryonStretched', str.mean],
         ['baryonStretchedError', str.error],
-        ['baryonFreeEnergyNearest', -temperature * Math.log(Math.max(1e-300, tri.mean))],
-        ['quarkAntiquarkFreeEnergyNearest', -temperature * Math.log(Math.max(1e-300, g1[0]?.value.mean ?? 0))],
-        ['baryonOverQuarkAntiquarkFreeEnergy', Math.log(Math.max(1e-300, tri.mean)) / Math.log(Math.max(1e-300, g1[0]?.value.mean ?? 0))],
+        [
+          'baryonFreeEnergyNearest',
+          -temperature * Math.log(Math.max(1e-300, tri.mean)),
+        ],
+        [
+          'quarkAntiquarkFreeEnergyNearest',
+          -temperature *
+            Math.log(Math.max(1e-300, g1[0]?.value.mean ?? 0)),
+        ],
+        [
+          'baryonOverQuarkAntiquarkFreeEnergy',
+          Math.log(Math.max(1e-300, tri.mean)) /
+            Math.log(Math.max(1e-300, g1[0]?.value.mean ?? 0)),
+        ],
         ['triangles', triangles.length],
         ['stretchedTriangles', stretched.length],
         ['quads', quads.length],
@@ -473,7 +617,7 @@ export default experiment({
         deltaLawBaryonOverMeson: 1.5,
       },
       notes:
-        'L2, exact integers in the rule, no random numbers: starts are the golden defect patterns of E-FRC-0166 and 0167, demon fills the golden pattern. Every number is a substrate reading of the Euclidean D4 box, transverse to tau, not the husk. The nucleons are stand-ins: zero-size static color singlets |Tr P|^2 and a static three-line baryon, with no spin, flavor or motion. A free energy here is -T ln of a line correlator with T = 1 / 6, the box\'s own tau length. Rates are weighted fits of ln against R over the shells where the value exceeds twice its error, with no power-law prefactor. The baryon ratio against the quark-antiquark free energy at the nearest separation is reported beside the Delta law\'s 3/2.',
+        "L2, exact integers in the rule, no random numbers: starts are the golden defect patterns of E-FRC-0166 and 0167, demon fills the golden pattern. Every number is a substrate reading of the Euclidean D4 box, transverse to tau, not the husk. The nucleons are stand-ins: zero-size static color singlets |Tr P|^2 and a static three-line baryon, with no spin, flavor or motion. A free energy here is -T ln of a line correlator with T = 1 / 6, the box's own tau length. Rates are weighted fits of ln against R over the shells where the value exceeds twice its error, with no power-law prefactor. The baryon ratio against the quark-antiquark free energy at the nearest separation is reported beside the Delta law's 3/2.",
     })
   },
 })

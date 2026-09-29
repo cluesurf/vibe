@@ -82,14 +82,31 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { primeBelow } from '@/code/algebra/linear/modular-linear'
 import { wrap } from '@/code/measure/dock-mixer'
-import { covariantDock, covariantProjectors } from '@/code/measure/odd-phase'
+import {
+  covariantDock,
+  covariantProjectors,
+} from '@/code/measure/odd-phase'
 import { weylMomenta } from '@/code/measure/singlet-kinematics'
 import { slideTied } from '@/code/measure/slide-speed'
 import { cycleBand } from '@/code/measure/swap-cone'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 import { cycleMasslessPair } from '@/code/measure/two-beat'
-import { partnerProjector48, REGISTER_ROOTS, registerPiece, scaled, singletProjector24, weylDirections } from '@/code/measure/spinor-register'
-import { captureOf, cliffordGap, inverseMod, partnerChecks, vectorShare, type Register } from '@/code/measure/register-graviton'
+import {
+  partnerProjector48,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+  weylDirections,
+} from '@/code/measure/spinor-register'
+import {
+  captureOf,
+  cliffordGap,
+  inverseMod,
+  partnerChecks,
+  vectorShare,
+  type Register,
+} from '@/code/measure/register-graviton'
 
 const C = Math.SQRT2
 const C_HALF = C / 2
@@ -98,7 +115,12 @@ const s2 = Math.SQRT1_2
 const s3 = 1 / Math.sqrt(3)
 const GENERIC_RAW = [0.29, 0.52, 0.8, 0]
 const GENERIC = GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW))
-const DIRS: readonly number[][] = [[1, 0, 0, 0], [s2, s2, 0, 0], [s3, s3, s3, 0], GENERIC]
+const DIRS: readonly number[][] = [
+  [1, 0, 0, 0],
+  [s2, s2, 0, 0],
+  [s3, s3, s3, 0],
+  GENERIC,
+]
 const RADII: readonly number[] = [1e-3, 1e-2, 0.1, 0.3, 1]
 const SPEED_TOLERANCE = 1e-6
 const REACH_TOLERANCE = 1e-5
@@ -109,9 +131,17 @@ const PAIR_KAPPA = 0.01
 const SLOT_TOLERANCE = 1e-9
 const REACH_K = 1e-3
 
-export type GravitonPlan = { momenta: number; directions: number; primes: number }
+export type GravitonPlan = {
+  momenta: number
+  directions: number
+  primes: number
+}
 
-export const GATE_PLAN: GravitonPlan = { momenta: 256, directions: 64, primes: 2 }
+export const GATE_PLAN: GravitonPlan = {
+  momenta: 256,
+  directions: 64,
+  primes: 2,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -119,7 +149,7 @@ export default experiment({
   id: 'gravity/register-graviton-speed',
   code: 'E-GRV-0145',
   title:
-    'under the Clifford register the graviton shares matter\'s one light speed, now c/4: every one of a member\'s 192 bands is the Dirac band (at most c/4, reaching c/4 massless) or flat, so the rule\'s largest group speed is c/4 and the full slide carried at c/4 ties the cross polarization to c/4 on both primes; the capture of a partner with no transverse state is 1/4 on the even register (8) and the whole algebra (16) alike, so no register keeps c/2 with a closed census, and the slot rule\'s c/2 is the slot rule\'s, not a second speed; the tie read at the wrong speed fails',
+    "under the Clifford register the graviton shares matter's one light speed, now c/4: every one of a member's 192 bands is the Dirac band (at most c/4, reaching c/4 massless) or flat, so the rule's largest group speed is c/4 and the full slide carried at c/4 ties the cross polarization to c/4 on both primes; the capture of a partner with no transverse state is 1/4 on the even register (8) and the whole algebra (16) alike, so no register keeps c/2 with a closed census, and the slot rule's c/2 is the slot rule's, not a second speed; the tie read at the wrong speed fails",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L1',
@@ -129,16 +159,27 @@ export default experiment({
   },
 })
 
-const unitValue = (angle: number): [number, number] => [Math.cos(angle), Math.sin(angle)]
+const unitValue = (angle: number): [number, number] => [
+  Math.cos(angle),
+  Math.sin(angle),
+]
 
 export function registerGravitonRun(plan: GravitonPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
   // ---------------- Y1, C1, C2: the slide's residues ----------------
-  const primes = [primeBelow(2 ** 25), primeBelow(2 ** 24)].slice(0, plan.primes)
+  const primes = [primeBelow(2 ** 25), primeBelow(2 ** 24)].slice(
+    0,
+    plan.primes,
+  )
   const quarter = primes.map(p => slideTied(inverseMod(4, p), p))
-  const wrongTie = primes.map(p => slideTied(inverseMod(4, p), p, inverseMod(2, p)))
+  const wrongTie = primes.map(p =>
+    slideTied(inverseMod(4, p), p, inverseMod(2, p)),
+  )
   const half = primes.map(p => slideTied((p + 1) / 2, p))
   const Y1 = quarter.every(s => s.speedAtC)
   const C1 = wrongTie.every(s => s.tied === 1)
@@ -149,14 +190,20 @@ export function registerGravitonRun(plan: GravitonPlan): Verdict {
   // ---------------- Y2: every band's speed ----------------
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
+
   const schedule = (angle: number) => {
     const [a, b] = unitValue(angle)
 
     return [registerPiece(qS, [a, b]), registerPiece(qD, [a, -b])]
   }
+
   const light = schedule(unitAngle(ringUnit(-1, 4)))
   const massless = schedule(unitAngle(ringUnit(0, 3)))
-  const momenta = [...weylMomenta(plan.momenta), ...DIRS.flatMap(u => RADII.map(r => u.map(x => x * r)))]
+  const momenta = [
+    ...weylMomenta(plan.momenta),
+    ...DIRS.flatMap(u => RADII.map(r => u.map(x => x * r))),
+  ]
+
   let topLight = 0
   let topMassless = 0
   let flatTop = 0
@@ -169,23 +216,37 @@ export function registerGravitonRun(plan: GravitonPlan): Verdict {
       const b = cycleBand(Ps, REGISTER_ROOTS, K)
 
       b.phase.forEach((ph, j) => {
-        const v = Math.hypot(...(b.velocity[j] as number[]))
+        const v = Math.hypot(...b.velocity[j]!)
 
-        if (Math.abs(wrap(ph)) <= FLAT_PHASE) flatTop = Math.max(flatTop, v)
-        if (which === 'light') topLight = Math.max(topLight, v)
-        else topMassless = Math.max(topMassless, v)
+        if (Math.abs(wrap(ph)) <= FLAT_PHASE) {
+          flatTop = Math.max(flatTop, v)
+        }
+
+        if (which === 'light') {
+          topLight = Math.max(topLight, v)
+        } else {
+          topMassless = Math.max(topMassless, v)
+        }
       })
     }
   }
 
   const reach = Math.min(
     ...DIRS.map(u => {
-      const b = cycleBand(massless, REGISTER_ROOTS, u.map(x => x * REACH_K))
+      const b = cycleBand(
+        massless,
+        REGISTER_ROOTS,
+        u.map(x => x * REACH_K),
+      )
 
       return Math.max(...b.velocity.map(v => Math.hypot(...v)))
     }),
   )
-  const Y2 = topLight <= C_QUARTER * (1 + SPEED_TOLERANCE) && topMassless <= C_QUARTER * (1 + SPEED_TOLERANCE) && flatTop <= FLAT_SPEED && reach >= C_QUARTER * (1 - REACH_TOLERANCE)
+  const Y2 =
+    topLight <= C_QUARTER * (1 + SPEED_TOLERANCE) &&
+    topMassless <= C_QUARTER * (1 + SPEED_TOLERANCE) &&
+    flatTop <= FLAT_SPEED &&
+    reach >= C_QUARTER * (1 - REACH_TOLERANCE)
 
   log('Y2')
 
@@ -205,23 +266,43 @@ export function registerGravitonRun(plan: GravitonPlan): Verdict {
       sides: Math.max(...caps.map(c => Math.max(c.sideS, c.sideD))),
     }
   })
-  const Y3 = reads.every(r => r.clifford === 0 && r.orthonormal <= EXACT && r.singlet <= EXACT && r.shareGap <= EXACT && r.sides <= EXACT)
-  const vector = Math.max(...dirs.map(u => Math.abs(vectorShare(u) - 1)))
+  const Y3 = reads.every(
+    r =>
+      r.clifford === 0 &&
+      r.orthonormal <= EXACT &&
+      r.singlet <= EXACT &&
+      r.shareGap <= EXACT &&
+      r.sides <= EXACT,
+  )
+  const vector = Math.max(
+    ...dirs.map(u => Math.abs(vectorShare(u) - 1)),
+  )
   const C4 = vector <= EXACT
 
   log('Y3 C4')
 
   // ---------------- C3: the slot rule at c/2 ----------------
-  const one = covariantDock(covariantProjectors(), [Math.PI, 0, 0, 0, 0])
-  const slotPairs = DIRS.map(u => cycleMasslessPair([one, one], 0, u, PAIR_KAPPA))
-  const C3 = slotPairs.every(x => Math.abs(x.c0 / C_HALF - 1) <= SLOT_TOLERANCE)
+  const one = covariantDock(covariantProjectors(), [
+    Math.PI,
+    0,
+    0,
+    0,
+    0,
+  ])
+  const slotPairs = DIRS.map(u =>
+    cycleMasslessPair([one, one], 0, u, PAIR_KAPPA),
+  )
+  const C3 = slotPairs.every(
+    x => Math.abs(x.c0 / C_HALF - 1) <= SLOT_TOLERANCE,
+  )
 
   log('C3')
 
   const hard = Y1 && Y2 && Y3
   const controls = C1 && C2 && C3 && C4
   const status = !hard ? 'fail' : !controls ? 'partial' : 'pass'
-  const tieLine = (s: ReturnType<typeof slideTied>): string => `mu ${s.mu} pair ${s.pair} tied ${s.tied} mixing ${s.decoupled} face ${s.faceMu}/${s.facePair}/${s.faceTied}/${s.faceDecoupled}`
+  const tieLine = (s: ReturnType<typeof slideTied>): string =>
+    `mu ${s.mu} pair ${s.pair} tied ${s.tied} mixing ${s.decoupled} face ${s.faceMu}/${s.facePair}/${s.faceTied}/${s.faceDecoupled}`
 
   return verdict({
     status,

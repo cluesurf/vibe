@@ -60,8 +60,18 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { addPoints } from '@/code/measure/frame-covariant-meeting'
-import { CONJUGATE_POINT, movePhaseCoordinate, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
+import {
+  CONJUGATE_POINT,
+  movePhaseCoordinate,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
 import { enumeratedChsh, gridLines } from '@/code/measure/bell-gates'
 import { LINES } from '@/code/measure/in-model-apparatus'
 import {
@@ -99,13 +109,16 @@ function aliceNet(weight: readonly bigint[]): bigint[] {
   return out
 }
 
-const greater = (a: { numerator: bigint; units: bigint }, b: { numerator: bigint; units: bigint }): boolean => a.numerator * b.units > b.numerator * a.units
+const greater = (
+  a: { numerator: bigint; units: bigint },
+  b: { numerator: bigint; units: bigint },
+): boolean => a.numerator * b.units > b.numerator * a.units
 
 export default experiment({
   id: 'quantum/bell-on-net-records',
   code: 'E-QTM-0143',
   title:
-    'Bell on net records: the net record counts of the two parties\' in-model apparatus are non-negative counts at every setting pair, local and non-signaling, with no setting dependence, and they violate CHSH up to 2.5298 on the comoving beat (62/27 on four histories), while the fear-off runs never pass 2: the violation is carried by signed hidden joint points under non-negative outcome statistics, the known negative-probability loophole',
+    "Bell on net records: the net record counts of the two parties' in-model apparatus are non-negative counts at every setting pair, local and non-signaling, with no setting dependence, and they violate CHSH up to 2.5298 on the comoving beat (62/27 on four histories), while the fear-off runs never pass 2: the violation is carried by signed hidden joint points under non-negative outcome statistics, the known negative-probability loophole",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -113,7 +126,8 @@ export default experiment({
   run() {
     const settings = inModelSettings(BEATS)
     const situ = situIndependence(SITU_BEATS)
-    const classesAt = (t: number): number => new Set(settingsAt(settings, t).map(l => LINES[l]!.c)).size
+    const classesAt = (t: number): number =>
+      new Set(settingsAt(settings, t).map(l => LINES[l]!.c)).size
     const { lines } = gridLines()
 
     // G5, the members
@@ -123,7 +137,8 @@ export default experiment({
       for (const sr of l.points) {
         for (const sf of l.points) {
           for (let x = 0; x < 9; x++) {
-            memberBad += recordLabel(li, x, sr, sf) === RECORD[li]![x] ? 0 : 1
+            memberBad +=
+              recordLabel(li, x, sr, sf) === RECORD[li]![x] ? 0 : 1
           }
         }
       }
@@ -148,11 +163,25 @@ export default experiment({
       runsNegative: 0,
       runsAbove2: 0,
     }
-    let best = { numerator: 0n, units: 1n, history: '', beat: -1, loves: 0n, fears: 0n }
+
+    let best = {
+      numerator: 0n,
+      units: 1n,
+      history: '',
+      beat: -1,
+      loves: 0n,
+      fears: 0n,
+    }
     let runsBest = { numerator: 0n, units: 1n }
+
     const perHistoryBest: Record<string, number> = {}
 
-    const examine = (hName: string, t: number, physical: Whole, offPhysical: Whole): void => {
+    const examine = (
+      hName: string,
+      t: number,
+      physical: Whole,
+      offPhysical: Whole,
+    ): void => {
       const weight = physical.weight
       const S = settingsAt(settings, t)
       const chsh = netChsh(weight, S)
@@ -163,11 +192,18 @@ export default experiment({
         const plain = enumeratedChsh(weight)
 
         counts.statesAllClasses++
-        counts.netVsPlainBad += chsh.numerator === plain.numerator && chsh.units === plain.units ? 0 : 1
+        counts.netVsPlainBad +=
+          chsh.numerator === plain.numerator &&
+          chsh.units === plain.units
+            ? 0
+            : 1
       }
 
       counts.statesAbove2 += chsh.numerator > 2n * chsh.units ? 1 : 0
-      perHistoryBest[`${hName}_chshNetMax`] = Math.max(perHistoryBest[`${hName}_chshNetMax`] ?? 0, Number(chsh.numerator) / Number(chsh.units))
+      perHistoryBest[`${hName}_chshNetMax`] = Math.max(
+        perHistoryBest[`${hName}_chshNetMax`] ?? 0,
+        Number(chsh.numerator) / Number(chsh.units),
+      )
 
       if (greater(chsh, best)) {
         const { loves, fears } = wholeLovesAndFears(physical)
@@ -187,37 +223,76 @@ export default experiment({
           counts.netNegative += n.filter(x => x < 0n).length
 
           // static: Alice's net marginal the same whatever Bob's setting, and Bob's whatever Alice's
-          const aliceMarginal = [0, 1, 2].map(alpha => (n[3 * alpha] ?? 0n) + (n[3 * alpha + 1] ?? 0n) + (n[3 * alpha + 2] ?? 0n))
+          const aliceMarginal = [0, 1, 2].map(
+            alpha =>
+              (n[3 * alpha] ?? 0n) +
+              (n[3 * alpha + 1] ?? 0n) +
+              (n[3 * alpha + 2] ?? 0n),
+          )
           const first = bobs[0]!
-          const firstMarginal = [0, 1, 2].map(alpha => (first[3 * alpha] ?? 0n) + (first[3 * alpha + 1] ?? 0n) + (first[3 * alpha + 2] ?? 0n))
-          const bobMarginal = [0, 1, 2].map(beta => (n[beta] ?? 0n) + (n[3 + beta] ?? 0n) + (n[6 + beta] ?? 0n))
+          const firstMarginal = [0, 1, 2].map(
+            alpha =>
+              (first[3 * alpha] ?? 0n) +
+              (first[3 * alpha + 1] ?? 0n) +
+              (first[3 * alpha + 2] ?? 0n),
+          )
+          const bobMarginal = [0, 1, 2].map(
+            beta =>
+              (n[beta] ?? 0n) +
+              (n[3 + beta] ?? 0n) +
+              (n[6 + beta] ?? 0n),
+          )
           const bobAlone = netTable(weight, lb, lb)
-          const bobAloneMarginal = [0, 1, 2].map(beta => (bobAlone[beta] ?? 0n) + (bobAlone[3 + beta] ?? 0n) + (bobAlone[6 + beta] ?? 0n))
+          const bobAloneMarginal = [0, 1, 2].map(
+            beta =>
+              (bobAlone[beta] ?? 0n) +
+              (bobAlone[3 + beta] ?? 0n) +
+              (bobAlone[6 + beta] ?? 0n),
+          )
 
           counts.staticChecks++
-          counts.staticBad += aliceMarginal.every((x, k) => x === firstMarginal[k]) && bobMarginal.every((x, k) => x === bobAloneMarginal[k]) ? 0 : 1
+          counts.staticBad +=
+            aliceMarginal.every((x, k) => x === firstMarginal[k]) &&
+            bobMarginal.every((x, k) => x === bobAloneMarginal[k])
+              ? 0
+              : 1
 
           // G5: Alice's net marginal through both parties' R, against her coordinate alone
           const la0 = LINES[la]!
           const lb0 = LINES[lb]!
-          const rec = recordedWhole(weight, { l: la, sr: la0.points[0] ?? 0, sf: la0.points[1] ?? 0 }, { l: lb, sr: lb0.points[0] ?? 0, sf: lb0.points[1] ?? 0 })
+          const rec = recordedWhole(
+            weight,
+            { l: la, sr: la0.points[0] ?? 0, sf: la0.points[1] ?? 0 },
+            { l: lb, sr: lb0.points[0] ?? 0, sf: lb0.points[1] ?? 0 },
+          )
           const viaRecord = [0n, 0n, 0n]
 
           for (let i = 0; i < 81; i++) {
             const alpha = Math.floor((rec.cells[i] ?? 0) / 3)
 
-            viaRecord[alpha] = (viaRecord[alpha] ?? 0n) + (weight[i] ?? 0n)
+            viaRecord[alpha] =
+              (viaRecord[alpha] ?? 0n) + (weight[i] ?? 0n)
           }
 
           counts.localChecks++
-          counts.localBad += viaRecord.every((x, alpha) => x === direct[3 * la + alpha]) ? 0 : 1
+          counts.localBad += viaRecord.every(
+            (x, alpha) => x === direct[3 * la + alpha],
+          )
+            ? 0
+            : 1
         }
       }
 
       // G6, the runs
       const runs = netChsh(offPhysical.weight, S)
 
-      counts.runsNegative += S.some(la => S.some(lb => netTable(offPhysical.weight, la, lb).some(x => x < 0n))) ? 1 : 0
+      counts.runsNegative += S.some(la =>
+        S.some(lb =>
+          netTable(offPhysical.weight, la, lb).some(x => x < 0n),
+        ),
+      )
+        ? 1
+        : 0
       counts.runsAbove2 += runs.numerator > 2n * runs.units ? 1 : 0
       runsBest = greater(runs, runsBest) ? runs : runsBest
     }
@@ -229,7 +304,10 @@ export default experiment({
 
       for (const a of lines) {
         for (const b of lines) {
-          const own = a.every(p => Math.floor(p / 3) === h.start[0]) && b.every(p => Math.floor(p / 3) === h.start[1])
+          const own =
+            a.every(p => Math.floor(p / 3) === h.start[0]) &&
+            b.every(p => Math.floor(p / 3) === h.start[1])
+
           let w = lineKnot(h.tokens, a, b)
           let o = lineKnot(h.tokens, a, b)
           let atReading: Whole | undefined
@@ -242,8 +320,16 @@ export default experiment({
               atReading = w
             }
 
-            if (t === reading || (own && (h.records[t]?.meetings.length ?? 0) > 0)) {
-              examine(h.name, t, physicalKnot(h, w), physicalKnot(off, o))
+            if (
+              t === reading ||
+              (own && (h.records[t]?.meetings.length ?? 0) > 0)
+            ) {
+              examine(
+                h.name,
+                t,
+                physicalKnot(h, w),
+                physicalKnot(off, o),
+              )
             }
           }
 
@@ -254,9 +340,14 @@ export default experiment({
 
           const baseline: bigint[][] = []
           const units: bigint[] = []
+
           let run = atReading
 
-          for (let t = reading + 1; t < Math.min(BEATS, after + 2); t++) {
+          for (
+            let t = reading + 1;
+            t < Math.min(BEATS, after + 2);
+            t++
+          ) {
             run = advanceKnot(h, run, h.records[t]!)
             baseline[t] = aliceNet(physicalKnot(h, run).weight)
             units[t] = run.weight.reduce((s, x) => s + x, 0n)
@@ -264,16 +355,31 @@ export default experiment({
 
           for (let v = 1; v < 9; v++) {
             const frame = atReading.frame?.[1] ?? 0
-            const stored = frame === -1 || (frame === 0 && h.conjugated) ? (CONJUGATE_POINT[v] ?? 0) : v
-            let moved = movePhaseCoordinate(atReading, 1, Array.from({ length: 9 }, (_, s) => addPoints(s, stored)))
+            const stored =
+              frame === -1 || (frame === 0 && h.conjugated)
+                ? (CONJUGATE_POINT[v] ?? 0)
+                : v
+
+            let moved = movePhaseCoordinate(
+              atReading,
+              1,
+              Array.from({ length: 9 }, (_, s) => addPoints(s, stored)),
+            )
             let changed = false
 
-            for (let t = reading + 1; t < Math.min(BEATS, after + 2); t++) {
+            for (
+              let t = reading + 1;
+              t < Math.min(BEATS, after + 2);
+              t++
+            ) {
               moved = advanceKnot(h, moved, h.records[t]!)
 
               const mine = aliceNet(physicalKnot(h, moved).weight)
               const u = moved.weight.reduce((s, x) => s + x, 0n)
-              const same = mine.every((x, k) => x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u)
+              const same = mine.every(
+                (x, k) =>
+                  x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u,
+              )
 
               if (t < after) {
                 counts.dynamicChecks++
@@ -287,15 +393,31 @@ export default experiment({
 
             // reading added after the first run: the same kick with Bob's own point left where it was (a
             // translation of the weights alone, not a frame change), to show the check can see an influence
-            let kicked: Whole = { ...movePhaseCoordinate(atReading, 1, Array.from({ length: 9 }, (_, s) => addPoints(s, stored))), own: atReading.own }
+            let kicked: Whole = {
+              ...movePhaseCoordinate(
+                atReading,
+                1,
+                Array.from({ length: 9 }, (_, s) =>
+                  addPoints(s, stored),
+                ),
+              ),
+              own: atReading.own,
+            }
             let kickedChanged = false
 
-            for (let t = reading + 1; t < Math.min(BEATS, after + 2); t++) {
+            for (
+              let t = reading + 1;
+              t < Math.min(BEATS, after + 2);
+              t++
+            ) {
               kicked = advanceKnot(h, kicked, h.records[t]!)
 
               const mine = aliceNet(physicalKnot(h, kicked).weight)
               const u = kicked.weight.reduce((s, x) => s + x, 0n)
-              const same = mine.every((x, k) => x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u)
+              const same = mine.every(
+                (x, k) =>
+                  x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u,
+              )
 
               if (t < after) {
                 counts.kickedBeforeContactBad += same ? 0 : 1
@@ -314,10 +436,20 @@ export default experiment({
     const gates = {
       I1: counts.states === 1222,
       G1: counts.netNegative === 0 && counts.settingPairs > 0,
-      G2: best.numerator * 27n === 62n * best.units && counts.netVsPlainBad === 0 && counts.statesAllClasses > 0,
-      G3: counts.staticBad === 0 && counts.dynamicBad === 0 && counts.dynamicChecks > 0 && counts.contactChanges > 0,
+      G2:
+        best.numerator * 27n === 62n * best.units &&
+        counts.netVsPlainBad === 0 &&
+        counts.statesAllClasses > 0,
+      G3:
+        counts.staticBad === 0 &&
+        counts.dynamicBad === 0 &&
+        counts.dynamicChecks > 0 &&
+        counts.contactChanges > 0,
       G4: situ.differences === 0 && situ.runs > 0,
-      G5: counts.localBad === 0 && memberBad === 0 && counts.localChecks > 0,
+      G5:
+        counts.localBad === 0 &&
+        memberBad === 0 &&
+        counts.localChecks > 0,
       G6: counts.runsNegative === 0 && counts.runsAbove2 === 0,
     }
     const ok = Object.values(gates).every(Boolean)
@@ -338,10 +470,18 @@ export default experiment({
         chshNetMaxLoves: Number(best.loves),
         chshNetMaxFears: Number(best.fears),
         // the signed-model bound CHSH <= 2 (L + F) / (L - F) at the best state
-        chshSignedBoundAtBest: (2 * Number(best.loves + best.fears)) / Number(best.loves - best.fears),
-        chshRunsMax: Number(runsBest.numerator) / Number(runsBest.units),
+        chshSignedBoundAtBest:
+          (2 * Number(best.loves + best.fears)) /
+          Number(best.loves - best.fears),
+        chshRunsMax:
+          Number(runsBest.numerator) / Number(runsBest.units),
         ...perHistoryBest,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes: `L2, exact BigInt wholes, no random numbers: apparatus starts, system starts and translations are enumerated. The best state is ${best.history} at beat ${best.beat}. The joint point is a local deterministic hidden variable (it fixes every record of every setting through each party's own coordinate), so a violation needs signed weight on it; the net tables are the four setting pairs' non-negative marginals of that signed measure, which by Fine's theorem have no non-negative joint distribution once CHSH passes 2.`,
     })

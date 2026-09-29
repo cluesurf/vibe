@@ -49,7 +49,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, blockEnergy, chargeOf, energyOf, lowEntropyStart, shannon, twoWay } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  blockEnergy,
+  chargeOf,
+  energyOf,
+  lowEntropyStart,
+  shannon,
+  twoWay,
+} from '@/code/measure/second-law-husk'
 import { sameReduced } from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { variance } from '@/code/measure/fluctuation-dissipation'
@@ -61,7 +69,18 @@ const BEATS = 400
 const LATE = 200
 const MEMBERS = 3
 
-type Run = { side: number; blocks: number; energy: number; d0: number; late: number; fano: number; predicted: number; t10: number; exact: boolean; returns: boolean | null }
+type Run = {
+  side: number
+  blocks: number
+  energy: number
+  d0: number
+  late: number
+  fano: number
+  predicted: number
+  t10: number
+  exact: boolean
+  returns: boolean | null
+}
 
 export function coarseEndRun() {
   const started = Date.now()
@@ -71,7 +90,11 @@ export function coarseEndRun() {
   for (const side of SIDES) {
     members.forEach((member, k) => {
       const box = withStart(member, () => arrowBox(side, BLOCK))
-      const start = lowEntropyStart(box, { blocks: [0], perDock: PER_DOCK, phase: k })
+      const start = lowEntropyStart(box, {
+        blocks: [0],
+        perDock: PER_DOCK,
+        phase: k,
+      })
       const r = twoWay(box, start)
       const e = new Float64Array(box.blocks)
       const lnB = Math.log(box.blocks)
@@ -79,6 +102,7 @@ export function coarseEndRun() {
       const charge = chargeOf(start)
       const deficit: number[] = []
       const lateBlocks: number[] = []
+
       let exact = true
 
       blockEnergy(box, start, e)
@@ -89,42 +113,67 @@ export function coarseEndRun() {
 
         const s = r.state()
 
-        exact = exact && energyOf(s) === energy && chargeOf(s) === charge
+        exact =
+          exact && energyOf(s) === energy && chargeOf(s) === charge
         blockEnergy(box, s, e)
         deficit.push(lnB - shannon(e))
 
-        if (t > BEATS - LATE) for (const v of e) lateBlocks.push(v)
+        if (t > BEATS - LATE) {
+          for (const v of e) {
+            lateBlocks.push(v)
+          }
+        }
       }
 
       let returns: boolean | null = null
 
       if (k === 0) {
-        for (let t = 0; t < BEATS; t++) r.backward()
+        for (let t = 0; t < BEATS; t++) {
+          r.backward()
+        }
 
         returns = sameReduced(r.state(), start) && r.time() === 0
       }
 
-      const d0 = deficit[0] as number
-      const late = deficit.slice(BEATS - LATE + 1).reduce((a, b) => a + b, 0) / LATE
+      const d0 = deficit[0]!
+      const late =
+        deficit.slice(BEATS - LATE + 1).reduce((a, b) => a + b, 0) /
+        LATE
       const { mean, variance: v } = variance(lateBlocks)
       const fano = v / mean
       const predicted = ((box.blocks - 1) * fano) / (2 * energy)
 
-      runs.push({ side, blocks: box.blocks, energy, d0, late, fano, predicted, t10: deficit.findIndex(x => x <= d0 / 10), exact, returns })
+      runs.push({
+        side,
+        blocks: box.blocks,
+        energy,
+        d0,
+        late,
+        fano,
+        predicted,
+        t10: deficit.findIndex(x => x <= d0 / 10),
+        exact,
+        returns,
+      })
     })
-    console.error(`side ${side} ${Math.round((Date.now() - started) / 1000)}s`)
+
+    console.error(
+      `side ${side} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   }
 
   const e1 = runs.every(r => r.exact && r.returns !== false)
   const e2 = runs.every(r => r.late <= 0.02 * r.d0)
-  const e3 = runs.every(r => r.late / r.predicted >= 0.8 && r.late / r.predicted <= 1.25)
+  const e3 = runs.every(
+    r => r.late / r.predicted >= 0.8 && r.late / r.predicted <= 1.25,
+  )
   const status = !e1 ? 'partial' : e2 && e3 ? 'pass' : 'fail'
   const bySide = SIDES.map(side => {
     const of = runs.filter(r => r.side === side)
 
     return {
       side,
-      blocks: (of[0] as Run).blocks,
+      blocks: of[0]!.blocks,
       ratio: of.map(r => r.late / r.predicted),
       fano: of.map(r => r.fano),
       t10: of.map(r => r.t10),
@@ -132,11 +181,22 @@ export function coarseEndRun() {
       d0: of.map(r => r.d0),
     }
   })
-  const range = (xs: number[], digits = 3): string => `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
+  const range = (xs: number[], digits = 3): string =>
+    `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
 
   return verdict({
     status,
-    claim: `on the adopted knit at sides ${SIDES.join(', ')} (${bySide.map(b => b.blocks).join(', ')} husk blocks, ${MEMBERS} starts each, ${BEATS} beats), the coarse entropy rises to its ceiling ln B and stays within the equilibrium fluctuation floor: the late deficit is ${bySide.map(b => `${range(b.late.map((l, i) => l / (b.d0[i] as number)), 5)} of its start at side ${b.side}`).join(', ')}, and ${range(runs.map(r => r.late / r.predicted))} of the predicted floor (B - 1) F / (2 E), with block Fano factors ${range(runs.map(r => r.fano))}; energy and charge exact and the start returned bit for bit; so a fixed box ends in a coarse heat death with fluctuations and exact recurrence, and a growing mesh, whose ceiling ln B rises without bound, has no coarse end state (argued, not run on a growing mesh)`,
+    claim: `on the adopted knit at sides ${SIDES.join(', ')} (${bySide.map(b => b.blocks).join(', ')} husk blocks, ${MEMBERS} starts each, ${BEATS} beats), the coarse entropy rises to its ceiling ln B and stays within the equilibrium fluctuation floor: the late deficit is ${bySide
+      .map(
+        b =>
+          `${range(
+            b.late.map((l, i) => l / b.d0[i]!),
+            5,
+          )} of its start at side ${b.side}`,
+      )
+      .join(
+        ', ',
+      )}, and ${range(runs.map(r => r.late / r.predicted))} of the predicted floor (B - 1) F / (2 E), with block Fano factors ${range(runs.map(r => r.fano))}; energy and charge exact and the start returned bit for bit; so a fixed box ends in a coarse heat death with fluctuations and exact recurrence, and a growing mesh, whose ceiling ln B rises without bound, has no coarse end state (argued, not run on a growing mesh)`,
     metrics: {
       gate_E1: e1 ? 1 : 0,
       gate_E2: e2 ? 1 : 0,
@@ -145,14 +205,34 @@ export function coarseEndRun() {
       floorRatioMax: Math.max(...runs.map(r => r.late / r.predicted)),
       fanoMin: Math.min(...runs.map(r => r.fano)),
       fanoMax: Math.max(...runs.map(r => r.fano)),
-      ...Object.fromEntries(bySide.map(b => [`tenfoldBeatMaxSide${b.side}`, Math.max(...b.t10)])),
-      ...Object.fromEntries(bySide.map(b => [`lateOverStartMaxSide${b.side}`, Math.max(...b.late.map((l, i) => l / (b.d0[i] as number)))])),
+      ...Object.fromEntries(
+        bySide.map(b => [
+          `tenfoldBeatMaxSide${b.side}`,
+          Math.max(...b.t10),
+        ]),
+      ),
+      ...Object.fromEntries(
+        bySide.map(b => [
+          `lateOverStartMaxSide${b.side}`,
+          Math.max(...b.late.map((l, i) => l / b.d0[i]!)),
+        ]),
+      ),
       seconds: (Date.now() - started) / 1000,
     },
     control: {
       floorPredictedIndependently: e3 ? 1 : 0,
     },
-    notes: `L2. Gates E1 ${e1}, E2 ${e2}, E3 ${e3}. Per side (blocks; start deficit; late / start; late / predicted floor; Fano; tenfold beat): ${bySide.map(b => `side ${b.side} (${b.blocks}): ${range(b.d0, 4)}; ${range(b.late.map((l, i) => l / (b.d0[i] as number)), 5)}; ${range(b.ratio)}; ${range(b.fano)}; ${b.t10.join(', ')}`).join('; ')}. The floor is set by the energy per block, not the box: (B - 1) F / (2 E) is about F / (2 E_b), so a mesh that grows with a fixed energy density keeps the same floor under a ceiling that rises as ln B. Exact recurrence on the side-4 box is E-FND-0146's (6 to over 524,288 beats). Not run: the adopted knit on a growing mesh, which it is not defined on. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+    notes: `L2. Gates E1 ${e1}, E2 ${e2}, E3 ${e3}. Per side (blocks; start deficit; late / start; late / predicted floor; Fano; tenfold beat): ${bySide
+      .map(
+        b =>
+          `side ${b.side} (${b.blocks}): ${range(b.d0, 4)}; ${range(
+            b.late.map((l, i) => l / b.d0[i]!),
+            5,
+          )}; ${range(b.ratio)}; ${range(b.fano)}; ${b.t10.join(', ')}`,
+      )
+      .join(
+        '; ',
+      )}. The floor is set by the energy per block, not the box: (B - 1) F / (2 E) is about F / (2 E_b), so a mesh that grows with a fixed energy density keeps the same floor under a ceiling that rises as ln B. Exact recurrence on the side-4 box is E-FND-0146's (6 to over 524,288 beats). Not run: the adopted knit on a growing mesh, which it is not defined on. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }
 
@@ -160,7 +240,7 @@ export default experiment({
   id: 'foundations/coarse-end-state',
   code: 'E-FND-0155',
   title:
-    'the end state, read on the husk, pass: on the adopted knit at sides 8, 12 and 16 (3 starts each, 400 beats) the coarse entropy rises to its ceiling ln B within 4 beats and stays at the equilibrium fluctuation floor predicted from the blocks\' own Fano factor (1.016 to 1.143 of it), so a fixed box ends in a coarse heat death with fluctuations and exact recurrence and never a fine one; on a growing mesh the ceiling rises without bound, so there is no coarse end state (argued from the fixed-box readings, not run on a growing mesh)',
+    "the end state, read on the husk, pass: on the adopted knit at sides 8, 12 and 16 (3 starts each, 400 beats) the coarse entropy rises to its ceiling ln B within 4 beats and stays at the equilibrium fluctuation floor predicted from the blocks' own Fano factor (1.016 to 1.143 of it), so a fixed box ends in a coarse heat death with fluctuations and exact recurrence and never a fine one; on a growing mesh the ceiling rises without bound, so there is no coarse end state (argued from the fixed-box readings, not run on a growing mesh)",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

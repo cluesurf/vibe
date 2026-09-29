@@ -106,11 +106,22 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { classicalOmega, type LadderSpec } from '@/code/rule/plaquette-ladder'
+import {
+  classicalOmega,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
 import type { Split } from '@/code/rule/loop-ring'
-import { oneQuantumBand, planck, thermalEnergy, unwrapped } from '@/code/measure/quantum-ladder'
+import {
+  oneQuantumBand,
+  planck,
+  thermalEnergy,
+  unwrapped,
+} from '@/code/measure/quantum-ladder'
 import { alphaOfRatio, staticShift } from '@/code/measure/split-coulomb'
-import { loopSplits, nearestRatio } from '@/code/measure/one-light-split'
+import {
+  loopSplits,
+  nearestRatio,
+} from '@/code/measure/one-light-split'
 import {
   alphaCoulomb,
   alphaGoldenRule,
@@ -146,24 +157,48 @@ const BALANCES: readonly (readonly [number, number])[] = [
 const PLANCK_BOXES = [17, 21, 25]
 const SHIFT_BOXES = [13, 17, 25]
 
-const specOf = (n: number, L: number, split: Split): LadderSpec => ({ n, plaquettes: L, root: split.root, drift: split.drift, force: split.force })
+const specOf = (n: number, L: number, split: Split): LadderSpec => ({
+  n,
+  plaquettes: L,
+  root: split.root,
+  drift: split.drift,
+  force: split.force,
+})
 
 /** The exact one-speed split at the ladder's balance: m = 4, c = 1, r = 3. */
-const rhoThree = (n: number): Split => loopSplits(n, 3, 16, 64).find(s => s.w === 4 && s.force === 3 * s.drift)!
+const rhoThree = (n: number): Split =>
+  loopSplits(n, 3, 16, 64).find(
+    s => s.w === 4 && s.force === 3 * s.drift,
+  )!
 
 /** The one-speed split nearest the husk's 3D balance 3/8. */
-const nearBalance3D = (n: number): Split => nearestRatio(loopSplits(n, 3, 16, 64), [3, 8])
+const nearBalance3D = (n: number): Split =>
+  nearestRatio(loopSplits(n, 3, 16, 64), [3, 8])
 
-function planckAt(spec: LadderSpec, x: number): { ratio: number; worstBand: number } {
+function planckAt(
+  spec: LadderSpec,
+  x: number,
+): { ratio: number; worstBand: number } {
   const { band, levels } = oneQuantumBand(spec)
   const { energies } = unwrapped(levels)
   const omegas = band.map(b => b.omega)
   const T = x * Math.min(...omegas)
+
   let worstBand = 0
 
-  for (const b of band) worstBand = Math.max(worstBand, Math.abs(b.omega - classicalOmega(KAPPA, b.k, 2)))
+  for (const b of band) {
+    worstBand = Math.max(
+      worstBand,
+      Math.abs(b.omega - classicalOmega(KAPPA, b.k, 2)),
+    )
+  }
 
-  return { ratio: thermalEnergy(energies, T) / omegas.reduce((acc, w) => acc + planck(w, T), 0), worstBand }
+  return {
+    ratio:
+      thermalEnergy(energies, T) /
+      omegas.reduce((acc, w) => acc + planck(w, T), 0),
+    worstBand,
+  }
 }
 
 export function lightSplitOriginRun(): Verdict {
@@ -180,7 +215,9 @@ export function lightSplitOriginRun(): Verdict {
     counts.huskTriangles === 20 &&
     counts.huskTriangleMultiplicity === 32
 
-  for (const [k, v] of Object.entries(counts)) metrics[`count_${k}`] = v
+  for (const [k, v] of Object.entries(counts)) {
+    metrics[`count_${k}`] = v
+  }
 
   // O2
   let o2 = true
@@ -211,7 +248,12 @@ export function lightSplitOriginRun(): Verdict {
     pellCount++
 
     // relative speed miss about 1 / (4 q^2): the first q with 4 q^2 > 1e18
-    if (registerFor1e18 === 0n && 4n * pair.q * pair.q > 1_000_000_000_000_000_000n) registerFor1e18 = split.m
+    if (
+      registerFor1e18 === 0n &&
+      4n * pair.q * pair.q > 1_000_000_000_000_000_000n
+    ) {
+      registerFor1e18 = split.m
+    }
   }
 
   let exactSpeed = 0
@@ -219,7 +261,11 @@ export function lightSplitOriginRun(): Verdict {
   for (let m = 1; m <= 1_000_000; m++) {
     const t0 = Math.round(m / (8 * Math.SQRT2))
 
-    for (const t of [t0 - 1, t0, t0 + 1]) if (t > 0 && 128 * t * t === m * m) exactSpeed++
+    for (const t of [t0 - 1, t0, t0 + 1]) {
+      if (t > 0 && 128 * t * t === m * m) {
+        exactSpeed++
+      }
+    }
   }
 
   o3 &&= exactSpeed === 0
@@ -231,7 +277,8 @@ export function lightSplitOriginRun(): Verdict {
     const pair = pellPairs(q).find(x => x.q === q)!
     const split = pellSplit(pair)
 
-    metrics[`pellMissSquared_q${q}`] = Number(split.missNum) / Number(split.missDen)
+    metrics[`pellMissSquared_q${q}`] =
+      Number(split.missNum) / Number(split.missDen)
     metrics[`pellRegister_q${q}`] = Number(split.m)
   }
 
@@ -257,7 +304,12 @@ export function lightSplitOriginRun(): Verdict {
     }
   }
 
-  for (const x of [0.25, 0.5]) metrics[`planckRho3_N25_T${x}`] = planckAt(specOf(25, 2, rhoThree(25)), x).ratio
+  for (const x of [0.25, 0.5]) {
+    metrics[`planckRho3_N25_T${x}`] = planckAt(
+      specOf(25, 2, rhoThree(25)),
+      x,
+    ).ratio
+  }
 
   // W2
   let w2 = true
@@ -268,7 +320,11 @@ export function lightSplitOriginRun(): Verdict {
     metrics[`shiftRatioRho3_N${n}`] = r.ratio
     metrics[`shiftS_N${n}`] = r.s
     metrics[`shiftOverlaps_N${n}`] = Math.min(r.overlap0, r.overlap1)
-    w2 &&= Math.abs(r.ratio - 1) < 1e-3 && r.overlap0 >= 0.5 && r.overlap1 >= 0.5 && Math.abs(r.s - 0.25) < 1e-12
+    w2 &&=
+      Math.abs(r.ratio - 1) < 1e-3 &&
+      r.overlap0 >= 0.5 &&
+      r.overlap1 >= 0.5 &&
+      Math.abs(r.s - 0.25) < 1e-12
   }
 
   // A1
@@ -279,7 +335,10 @@ export function lightSplitOriginRun(): Verdict {
     const n = 2 * d + 1
 
     a1 &&= alphaOfBalance(n, 3 / 8) === 1 / (6 * n)
-    a1Worst = Math.max(a1Worst, Math.abs(alphaOfRatio(d, 3 / 8) * 6 * n - 1))
+    a1Worst = Math.max(
+      a1Worst,
+      Math.abs(alphaOfRatio(d, 3 / 8) * 6 * n - 1),
+    )
   }
 
   a1 &&= a1Worst <= 4e-16
@@ -307,7 +366,9 @@ export function lightSplitOriginRun(): Verdict {
     for (let t = 1; 8 * t <= m; t++) {
       const gap = Math.abs((4 * t) / m - Math.SQRT2 / 4)
 
-      if (gap < near.gap) near = { t, m, gap }
+      if (gap < near.gap) {
+        near = { t, m, gap }
+      }
     }
   }
 
@@ -320,7 +381,14 @@ export function lightSplitOriginRun(): Verdict {
 
   for (const n of [9, 25, 101]) {
     for (const rho of [3, 3 / 8]) {
-      for (const kappa of [KAPPA, 3 / 8, 2 / n]) a3Worst = Math.max(a3Worst, Math.abs(alphaCoulomb(n, rho, kappa) / alphaOfBalance(n, rho) - 1))
+      for (const kappa of [KAPPA, 3 / 8, 2 / n]) {
+        a3Worst = Math.max(
+          a3Worst,
+          Math.abs(
+            alphaCoulomb(n, rho, kappa) / alphaOfBalance(n, rho) - 1,
+          ),
+        )
+      }
     }
   }
 
@@ -333,6 +401,7 @@ export function lightSplitOriginRun(): Verdict {
     rho3: n => alphaOfBalance(n, 3),
     rho3over8: n => alphaOfBalance(n, 3 / 8),
   }
+
   let p1 = true
 
   for (const [name, form] of Object.entries(forms)) {
@@ -350,25 +419,44 @@ export function lightSplitOriginRun(): Verdict {
     ['rho3', 3],
     ['rho3over8', 3 / 8],
   ] as const) {
-    const best = nearestDepth(n => alphaGoldenRule(n, rho), TARGET, MAX_DEPTH)
+    const best = nearestDepth(
+      n => alphaGoldenRule(n, rho),
+      TARGET,
+      MAX_DEPTH,
+    )
 
     metrics[`goldenNearestD_${name}`] = best.d
     metrics[`goldenNearestInverse_${name}`] = best.inverse
     metrics[`goldenNearestMiss_${name}`] = best.miss
-    metrics[`goldenOverCoulomb_${name}`] = alphaGoldenRule(25, rho) / alphaOfBalance(25, rho)
+    metrics[`goldenOverCoulomb_${name}`] =
+      alphaGoldenRule(25, rho) / alphaOfBalance(25, rho)
   }
 
-  const gates = { O1: o1, O2: o2, O3: o3, W1: w1, W2: w2, W3: w3, A1: a1, A2: a2, A3: a3, P1: p1 }
+  const gates = {
+    O1: o1,
+    O2: o2,
+    O3: o3,
+    W1: w1,
+    W2: w2,
+    W3: w3,
+    A1: a1,
+    A2: a2,
+    A3: a3,
+    P1: p1,
+  }
 
-  for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+  for (const [k, v] of Object.entries(gates)) {
+    metrics[`gate${k}`] = v ? 1 : 0
+  }
 
   metrics.seconds = (Date.now() - started) / 1000
 
-  const f = (x: number | undefined, digits = 6): string => (x ?? Number.NaN).toFixed(digits)
+  const f = (x: number | undefined, digits = 6): string =>
+    (x ?? Number.NaN).toFixed(digits)
 
   return verdict({
     status: Object.values(gates).every(Boolean) ? 'partial' : 'fail',
-    claim: `the light's split is fixed by E-FRC-0234's virial balance, rho = link columns over plaquette columns, a Planck criterion and not a symmetry (the rule runs at any split); the 3D count is 12/32 = 3/8 (bulk registers) or 9/20 (distinct husk columns); exact one speed (kappa = 3/16) at a balanced split needs rho / 3 to be a rational square, true for the ladder's 3 and for none of 3/8, 9/20, 3/5, 9/32, 2, so on the husk exact one speed and the balance cannot hold together; the balance meets one speed as a limit of the register, the Pell splits (8p, 3p, 16q) missing the squared speed by exactly 1/(2 q^2) (${pellCount} pairs to q = 1e9; a miss below 1e-18 needs m = ${metrics.registerForMiss1e18!.toExponential(2)}); alpha = sqrt(3 / (2 rho)) / (12 N) does not depend on kappa (to ${a3Worst.toExponential(1)}), so one speed leaves 1 / (6 (2D + 1)) unchanged at the balance, and no D to 10,000 puts 1/alpha within 1e-3 of 137.036 at rho = 3 (nearest D = ${metrics.nearestD_rho3}, ${f(metrics.nearestInverse_rho3, 3)}, miss ${f(metrics.nearestMiss_rho3, 4)}) or rho = 3/8 (D = ${metrics.nearestD_rho3over8}, ${f(metrics.nearestInverse_rho3over8, 3)}, miss ${f(metrics.nearestMiss_rho3over8, 4)}); on the ladder at kappa = 3/16 the rho = 3 split is the classical light to ${(metrics.bandWorstRho3 ?? 0).toExponential(1)}, shifts a stand-in charge by ${SHIFT_BOXES.map(n => f(metrics[`shiftRatioRho3_N${n}`], 6)).join(', ')} of (pi s / N) E*, and holds Planck at T = omega_min to ${PLANCK_BOXES.map(n => f(metrics[`planckRho3_N${n}`], 5)).join(', ')} against the near-3/8 split's ${PLANCK_BOXES.map(n => f(metrics[`planckNear3over8_N${n}`], 5)).join(', ')}`,
+    claim: `the light's split is fixed by E-FRC-0234's virial balance, rho = link columns over plaquette columns, a Planck criterion and not a symmetry (the rule runs at any split); the 3D count is 12/32 = 3/8 (bulk registers) or 9/20 (distinct husk columns); exact one speed (kappa = 3/16) at a balanced split needs rho / 3 to be a rational square, true for the ladder's 3 and for none of 3/8, 9/20, 3/5, 9/32, 2, so on the husk exact one speed and the balance cannot hold together; the balance meets one speed as a limit of the register, the Pell splits (8p, 3p, 16q) missing the squared speed by exactly 1/(2 q^2) (${pellCount} pairs to q = 1e9; a miss below 1e-18 needs m = ${metrics.registerForMiss1e18.toExponential(2)}); alpha = sqrt(3 / (2 rho)) / (12 N) does not depend on kappa (to ${a3Worst.toExponential(1)}), so one speed leaves 1 / (6 (2D + 1)) unchanged at the balance, and no D to 10,000 puts 1/alpha within 1e-3 of 137.036 at rho = 3 (nearest D = ${metrics.nearestD_rho3}, ${f(metrics.nearestInverse_rho3, 3)}, miss ${f(metrics.nearestMiss_rho3, 4)}) or rho = 3/8 (D = ${metrics.nearestD_rho3over8}, ${f(metrics.nearestInverse_rho3over8, 3)}, miss ${f(metrics.nearestMiss_rho3over8, 4)}); on the ladder at kappa = 3/16 the rho = 3 split is the classical light to ${(metrics.bandWorstRho3 ?? 0).toExponential(1)}, shifts a stand-in charge by ${SHIFT_BOXES.map(n => f(metrics[`shiftRatioRho3_N${n}`], 6)).join(', ')} of (pi s / N) E*, and holds Planck at T = omega_min to ${PLANCK_BOXES.map(n => f(metrics[`planckRho3_N${n}`], 5)).join(', ')} against the near-3/8 split's ${PLANCK_BOXES.map(n => f(metrics[`planckNear3over8_N${n}`], 5)).join(', ')}`,
     metrics,
     control: {
       oldFormWorst: a1Worst,

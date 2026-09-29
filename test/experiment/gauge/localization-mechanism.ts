@@ -51,7 +51,9 @@ export default experiment({
   run(context) {
     const scale = context.scale ?? 1
     // the hyperbolic {3,4,3,4} honeycomb and its growth rate
-    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
+    const addressing = buildAddressing({
+      maxCells: scaled(40000, scale),
+    })
     const hyperbolicNeighbors = addressing.graph.neighbors
     const hyperbolicCells = addressing.graph.cellCount
     const lambda = growthRatioFromShellCounts(

@@ -36,7 +36,12 @@ const SIDE = 7
 const BEATS = 12
 const EXACT = 1e-9
 
-type Seed = { cell: number; direction: number; value: number; beat?: number }
+type Seed = {
+  cell: number
+  direction: number
+  value: number
+  beat?: number
+}
 
 export default experiment({
   id: 'foundations/interactions-preserve-the-clock',

@@ -114,12 +114,34 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { boxSteps, fullPathKey, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  boxSteps,
+  fullPathKey,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
-import { placeLoves, starCrossings, starLines, starRun } from '@/code/measure/hub-star'
+import {
+  placeLoves,
+  starCrossings,
+  starLines,
+  starRun,
+} from '@/code/measure/hub-star'
 import { parallelRun } from '@/code/measure/planon-lines'
-import { lineDirections, offLine, placeVibes, twoHubTrack, type TwoHubTrack } from '@/code/measure/two-hub-bound'
-import { growthExponent, machTrack, periodicHubs, secondMomentAnisotropy, type MachTrack } from '@/code/measure/mach-background'
+import {
+  lineDirections,
+  offLine,
+  placeVibes,
+  twoHubTrack,
+  type TwoHubTrack,
+} from '@/code/measure/two-hub-bound'
+import {
+  growthExponent,
+  machTrack,
+  periodicHubs,
+  secondMomentAnisotropy,
+  type MachTrack,
+} from '@/code/measure/mach-background'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { d4BoxDistanceSquared } from '@/code/substrate/d4-box-integer'
@@ -148,17 +170,27 @@ const PROBE_CHARGE = 3
 const REPORT_AT = [16, 32, 64, 128]
 
 type Placement = { klass: number; dock: number; distance2: number }
-type ProbeRead = { background: string; placement: Placement; tracks: MachTrack[]; control: MachTrack[] }
+type ProbeRead = {
+  background: string
+  placement: Placement
+  tracks: MachTrack[]
+  control: MachTrack[]
+}
 
-const sub = (u: readonly number[], v: readonly number[]): number[] => u.map((x, k) => x - (v[k] as number))
+const sub = (u: readonly number[], v: readonly number[]): number[] =>
+  u.map((x, k) => x - v[k]!)
+
 const peakGrowth = (w: readonly number[]): number => {
   const early = Math.max(...w.slice(0, HALF))
   const late = Math.max(...w.slice(HALF, BEATS))
 
   return (late - early) / Math.max(1, early)
 }
+
 const sameTrack = (p: MachTrack, q: MachTrack): boolean =>
-  p.wake.every((v, t) => v === q.wake[t]) && p.offStar.every((v, t) => v === q.offStar[t]) && p.centroid.every((c, t) => c.every((v, k) => v === (q.centroid[t] as number[])[k]))
+  p.wake.every((v, t) => v === q.wake[t]) &&
+  p.offStar.every((v, t) => v === q.offStar[t]) &&
+  p.centroid.every((c, t) => c.every((v, k) => v === q.centroid[t]![k]))
 
 export default experiment({
   id: 'spin/mach-background',
@@ -171,7 +203,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the box, the vacuum, the backgrounds ----
     const X = centerOf(SIDE)
@@ -181,35 +216,109 @@ export default experiment({
     const dirs = lineDirections(f.tables, SIDE, X)
     const hubs = periodicHubs(SIDE, X, PERIOD)
     const wideHubs = periodicHubs(SIDE, X, WIDE_PERIOD)
-    const target = (x: number, slot: number): number => Math.floor((f.tables.target[x * 24 + slot] as number) / 24)
-    const trios = (docks: readonly number[]): Configuration => placeLoves(vacuum, docks.flatMap(h => TRIO.map(slot => ({ dock: h, slot }))))
+    const target = (x: number, slot: number): number =>
+      Math.floor(f.tables.target[x * 24 + slot]! / 24)
+    const trios = (docks: readonly number[]): Configuration =>
+      placeLoves(
+        vacuum,
+        docks.flatMap(h => TRIO.map(slot => ({ dock: h, slot }))),
+      )
     const mesonDocks = hubs.flatMap(h => [h, target(h, B)])
     const backgrounds = [
       { name: 'T4', start: trios(hubs), hubs, paths: PATHS },
-      { name: 'M4', start: placeVibes(vacuum, hubs.flatMap(h => [{ dock: h, slot: B, vibe: 1 }, { dock: target(h, B), slot: B, vibe: -1 }])), hubs: mesonDocks, paths: READ_PATHS },
-      { name: 'T8', start: trios(wideHubs), hubs: wideHubs, paths: READ_PATHS },
+      {
+        name: 'M4',
+        start: placeVibes(
+          vacuum,
+          hubs.flatMap(h => [
+            { dock: h, slot: B, vibe: 1 },
+            { dock: target(h, B), slot: B, vibe: -1 },
+          ]),
+        ),
+        hubs: mesonDocks,
+        paths: READ_PATHS,
+      },
+      {
+        name: 'T8',
+        start: trios(wideHubs),
+        hubs: wideHubs,
+        paths: READ_PATHS,
+      },
     ]
     const union = starLines(lines, hubs)
     const unionLines = union.reduce((s, v) => s + v, 0)
-    const unionCrossings = starCrossings(f.cells, lines, union, hubs).length
+    const unionCrossings = starCrossings(
+      f.cells,
+      lines,
+      union,
+      hubs,
+    ).length
 
     // ---- G1: each background alone, against the vacuum run ----
     const alone = backgrounds.map(g => ({
       name: g.name,
       hubs: g.hubs,
-      runs: Array.from({ length: g.paths }, (_, k): TwoHubTrack => twoHubTrack({ tables: f.tables, vacuum, start: g.start, hub: X, key: fullPathKey(pathOffset(k)), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE })),
+      runs: Array.from(
+        { length: g.paths },
+        (_, k): TwoHubTrack =>
+          twoHubTrack({
+            tables: f.tables,
+            vacuum,
+            start: g.start,
+            hub: X,
+            key: fullPathKey(pathOffset(k)),
+            threshold: THRESHOLD_BORN,
+            beats: BEATS,
+            side: SIDE,
+          }),
+      ),
     }))
-    const steady = (r: TwoHubTrack): boolean => peakGrowth(r.wake) < GROWTH_LIMIT && (r.footprint[BEATS - 1] as number) < BOX_SHARE * f.cells
+    const steady = (r: TwoHubTrack): boolean =>
+      peakGrowth(r.wake) < GROWTH_LIMIT &&
+      r.footprint[BEATS - 1]! < BOX_SHARE * f.cells
     const G1 = alone.every(g => g.runs.every(steady))
 
     log('backgrounds')
 
     // ---- CB ----
-    const offHubFirings = (g: (typeof alone)[number]): number => g.runs.reduce((n, r) => n + r.events.filter(e => !g.hubs.includes(e.dock)).length, 0)
-    const confinedT4 = starRun({ tables: f.tables, vacuum, start: (backgrounds[0] as (typeof backgrounds)[number]).start, lines, hub: hubs, key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE })
-    const mesonLines = [...new Set(hubs.map(h => lines.lineOf[h * 24 + B] as number))]
-    const confinedM4 = parallelRun({ tables: f.tables, vacuum, start: (backgrounds[1] as (typeof backgrounds)[number]).start, lines, set: mesonLines, key: fullPathKey(0), threshold: THRESHOLD_BORN, beats: BEATS, steps: boxSteps(f.cells, SIDE, X), factor: false })
-    const CB = offHubFirings(alone[0]!) === 0 && offHubFirings(alone[2]!) === 0 && confinedT4.offStar === 0 && confinedT4.offHub === 0 && confinedM4.off === 0
+    const offHubFirings = (g: (typeof alone)[number]): number =>
+      g.runs.reduce(
+        (n, r) =>
+          n + r.events.filter(e => !g.hubs.includes(e.dock)).length,
+        0,
+      )
+    const confinedT4 = starRun({
+      tables: f.tables,
+      vacuum,
+      start: backgrounds[0]!.start,
+      lines,
+      hub: hubs,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: BEATS,
+      side: SIDE,
+    })
+    const mesonLines = [
+      ...new Set(hubs.map(h => lines.lineOf[h * 24 + B]!)),
+    ]
+    const confinedM4 = parallelRun({
+      tables: f.tables,
+      vacuum,
+      start: backgrounds[1]!.start,
+      lines,
+      set: mesonLines,
+      key: fullPathKey(0),
+      threshold: THRESHOLD_BORN,
+      beats: BEATS,
+      steps: boxSteps(f.cells, SIDE, X),
+      factor: false,
+    })
+    const CB =
+      offHubFirings(alone[0]!) === 0 &&
+      offHubFirings(alone[2]!) === 0 &&
+      confinedT4.offStar === 0 &&
+      confinedT4.offHub === 0 &&
+      confinedM4.off === 0
 
     log('CB')
 
@@ -217,25 +326,63 @@ export default experiment({
     const classes = new Map<number, Placement>()
 
     for (let P = 0; P < f.cells; P++) {
-      if (hubs.includes(P)) continue
+      if (hubs.includes(P)) {
+        continue
+      }
 
-      const added = starCrossings(f.cells, lines, starLines(lines, [...hubs, P]), [...hubs, P]).length - unionCrossings
-      const shared = LINE_FIRSTS.filter(d => union[lines.lineOf[P * 24 + d] as number]).length
+      const added =
+        starCrossings(f.cells, lines, starLines(lines, [...hubs, P]), [
+          ...hubs,
+          P,
+        ]).length - unionCrossings
+      const shared = LINE_FIRSTS.filter(
+        d => union[lines.lineOf[P * 24 + d]!],
+      ).length
       const klass = added * 100 + shared
       const distance2 = d4BoxDistanceSquared({ a: X, b: P, side: SIDE })
       const best = classes.get(klass)
 
-      if (best === undefined || distance2 < best.distance2) classes.set(klass, { klass, dock: P, distance2 })
+      if (best === undefined || distance2 < best.distance2) {
+        classes.set(klass, { klass, dock: P, distance2 })
+      }
     }
 
-    const placements = [...classes.values()].sort((p, q) => p.klass - q.klass)
+    const placements = [...classes.values()].sort(
+      (p, q) => p.klass - q.klass,
+    )
 
     log('placements')
 
     // ---- the probe runs ----
-    const track = (background: Configuration, bgHubs: readonly number[], P: number, k: number): MachTrack =>
-      machTrack({ tables: f.tables, background, start: placeLoves(background, TRIO.map(slot => ({ dock: P, slot }))), lines, hubs: bgHubs, probe: P, key: fullPathKey(pathOffset(k)), threshold: THRESHOLD_BORN, beats: BEATS, side: SIDE })
-    const controls = new Map(placements.map(p => [p.dock, Array.from({ length: PATHS }, (_, k) => track(vacuum, [], p.dock, k))]))
+    const track = (
+      background: Configuration,
+      bgHubs: readonly number[],
+      P: number,
+      k: number,
+    ): MachTrack =>
+      machTrack({
+        tables: f.tables,
+        background,
+        start: placeLoves(
+          background,
+          TRIO.map(slot => ({ dock: P, slot })),
+        ),
+        lines,
+        hubs: bgHubs,
+        probe: P,
+        key: fullPathKey(pathOffset(k)),
+        threshold: THRESHOLD_BORN,
+        beats: BEATS,
+        side: SIDE,
+      })
+    const controls = new Map(
+      placements.map(p => [
+        p.dock,
+        Array.from({ length: PATHS }, (_, k) =>
+          track(vacuum, [], p.dock, k),
+        ),
+      ]),
+    )
     const reads: ProbeRead[] = []
     const skipped: string[] = []
 
@@ -246,53 +393,129 @@ export default experiment({
           continue
         }
 
-        reads.push({ background: g.name, placement: p, tracks: Array.from({ length: g.paths }, (_, k) => track(g.start, g.hubs, p.dock, k)), control: controls.get(p.dock) as MachTrack[] })
+        reads.push({
+          background: g.name,
+          placement: p,
+          tracks: Array.from({ length: g.paths }, (_, k) =>
+            track(g.start, g.hubs, p.dock, k),
+          ),
+          control: controls.get(p.dock)!,
+        })
       }
 
       log(`probes ${g.name}`)
     }
 
     // ---- G2, G3, G4 ----
-    const offTrack = (r: MachTrack): number[] => r.centroid.map(c => offLine(sub(c, r.centroid[0] as number[]), dirs))
-    const most = (rs: readonly MachTrack[]): number => Math.max(...rs.map(r => Math.max(...offTrack(r))))
-    const rmsOff = (rs: readonly MachTrack[]): number[] => Array.from({ length: BEATS }, (_, t) => Math.sqrt(rs.reduce((s, r) => s + (offTrack(r)[t] as number) ** 2, 0) / rs.length))
+    const offTrack = (r: MachTrack): number[] =>
+      r.centroid.map(c => offLine(sub(c, r.centroid[0]!), dirs))
+    const most = (rs: readonly MachTrack[]): number =>
+      Math.max(...rs.map(r => Math.max(...offTrack(r))))
+    const rmsOff = (rs: readonly MachTrack[]): number[] =>
+      Array.from({ length: BEATS }, (_, t) =>
+        Math.sqrt(
+          rs.reduce((s, r) => s + offTrack(r)[t]! ** 2, 0) / rs.length,
+        ),
+      )
     const graded = reads.map(r => {
       const reading = most(r.tracks)
       const controlReading = most(r.control.slice(0, r.tracks.length))
       const threshold = FACTOR * Math.max(controlReading, CONTROL_FLOOR)
-      const bounded = r.tracks.every(t => (t.footprint[BEATS - 1] as number) < BOX_SHARE * f.cells)
+      const bounded = r.tracks.every(
+        t => t.footprint[BEATS - 1]! < BOX_SHARE * f.cells,
+      )
       const moves = reading > threshold && bounded
       const exponent = growthExponent(rmsOff(r.tracks), FIT_FROM, BEATS)
-      const anisotropy = secondMomentAnisotropy(r.tracks.map(t => sub(t.centroid[BEATS - 1] as number[], t.centroid[0] as number[])))
+      const anisotropy = secondMomentAnisotropy(
+        r.tracks.map(t => sub(t.centroid[BEATS - 1]!, t.centroid[0]!)),
+      )
       const offHubDocks = Math.max(...r.tracks.map(t => t.offHubDocks))
-      const firstOff = Math.min(...r.tracks.map(t => t.offStar.findIndex(v => v > 0) + 1).map(v => (v === 0 ? BEATS + 1 : v)))
+      const firstOff = Math.min(
+        ...r.tracks
+          .map(t => t.offStar.findIndex(v => v > 0) + 1)
+          .map(v => (v === 0 ? BEATS + 1 : v)),
+      )
 
-      return { ...r, reading, controlReading, threshold, bounded, moves, exponent, anisotropy, offHubDocks, firstOff, footprint: r.tracks.map(t => t.footprint[BEATS - 1] as number) }
+      return {
+        ...r,
+        reading,
+        controlReading,
+        threshold,
+        bounded,
+        moves,
+        exponent,
+        anisotropy,
+        offHubDocks,
+        firstOff,
+        footprint: r.tracks.map(t => t.footprint[BEATS - 1]!),
+      }
     })
     const movers = graded.filter(r => r.moves)
     const G2 = G1 && movers.length > 0
     const G3 = G2 && movers.some(r => r.exponent >= BALLISTIC)
-    const G4 = G2 && movers.some(r => r.exponent >= BALLISTIC && r.anisotropy < ISOTROPY)
+    const G4 =
+      G2 &&
+      movers.some(
+        r => r.exponent >= BALLISTIC && r.anisotropy < ISOTROPY,
+      )
 
     // ---- CV, C0 ----
     const allControls = [...controls.values()].flat()
-    const CV = allControls.every(r => r.offStar.every(v => v === 0) && r.offHubEvents === 0)
+    const CV = allControls.every(
+      r => r.offStar.every(v => v === 0) && r.offHubEvents === 0,
+    )
     const empty = trios([])
     const uncrossed = placements.find(p => p.klass === 0)
-    const densityZero = uncrossed === undefined ? false : Array.from({ length: PATHS }, (_, k) => sameTrack(track(empty, [], uncrossed.dock, k), (controls.get(uncrossed.dock) as MachTrack[])[k] as MachTrack)).every(Boolean)
-    const uncrossedT4 = graded.find(r => r.background === 'T4' && r.placement.klass === 0)
-    const C0 = densityZero && uncrossedT4 !== undefined && uncrossedT4.tracks.every((t, k) => sameTrack(t, uncrossedT4.control[k] as MachTrack))
+    const densityZero =
+      uncrossed === undefined
+        ? false
+        : Array.from({ length: PATHS }, (_, k) =>
+            sameTrack(
+              track(empty, [], uncrossed.dock, k),
+              controls.get(uncrossed.dock)![k]!,
+            ),
+          ).every(Boolean)
+    const uncrossedT4 = graded.find(
+      r => r.background === 'T4' && r.placement.klass === 0,
+    )
+    const C0 =
+      densityZero &&
+      uncrossedT4 !== undefined &&
+      uncrossedT4.tracks.every((t, k) =>
+        sameTrack(t, uncrossedT4.control[k]!),
+      )
 
     // ---- checks ----
-    const everyTrack = [...allControls, ...graded.flatMap(r => r.tracks)]
-    const chargeKept = everyTrack.every(r => r.charge.every(q => q === PROBE_CHARGE))
-    const checks = { charge: chargeKept, unionCrossings: unionCrossings === 0, stepper: confinedT4.stepperDiffer === 0 }
+    const everyTrack = [
+      ...allControls,
+      ...graded.flatMap(r => r.tracks),
+    ]
+    const chargeKept = everyTrack.every(r =>
+      r.charge.every(q => q === PROBE_CHARGE),
+    )
+    const checks = {
+      charge: chargeKept,
+      unionCrossings: unionCrossings === 0,
+      stepper: confinedT4.stepperDiffer === 0,
+    }
     const checked = Object.values(checks).every(Boolean)
     const controlled = CV && CB && C0
-    const status = !checked || !controlled ? 'partial' : !G1 ? 'fail' : G2 && G3 && G4 ? 'pass' : 'fail'
+    const status =
+      !checked || !controlled
+        ? 'partial'
+        : !G1
+          ? 'fail'
+          : G2 && G3 && G4
+            ? 'pass'
+            : 'fail'
 
     // ---- read, not gated: how uniform the background's hubs are (T4's K firings per hub, over its terms) ----
-    const perHub = hubs.map(h => (alone[0] as (typeof alone)[number]).runs.reduce((n, r) => n + r.events.filter(e => e.dock === h).length, 0))
+    const perHub = hubs.map(h =>
+      alone[0]!.runs.reduce(
+        (n, r) => n + r.events.filter(e => e.dock === h).length,
+        0,
+      ),
+    )
 
     log('graded')
 
@@ -310,8 +533,12 @@ export default experiment({
       unionCrossings,
       placements: placements.length,
       movers: movers.length,
-      maxPeakGrowth: Math.max(...alone.flatMap(g => g.runs.map(r => peakGrowth(r.wake)))),
-      maxBackgroundFootprint: Math.max(...alone.flatMap(g => g.runs.map(r => r.footprint[BEATS - 1] as number))),
+      maxPeakGrowth: Math.max(
+        ...alone.flatMap(g => g.runs.map(r => peakGrowth(r.wake))),
+      ),
+      maxBackgroundFootprint: Math.max(
+        ...alone.flatMap(g => g.runs.map(r => r.footprint[BEATS - 1]!)),
+      ),
       t4OffHubFirings: offHubFirings(alone[0]!),
       t8OffHubFirings: offHubFirings(alone[2]!),
       m4OffLines: confinedM4.off,
@@ -323,7 +550,15 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
 
-    for (const g of alone) REPORT_AT.forEach(t => (metrics[`${g.name}Wake_${t}`] = Math.max(...g.runs.map(r => r.wake[t - 1] as number))))
+    for (const g of alone) {
+      REPORT_AT.forEach(
+        t =>
+          (metrics[`${g.name}Wake_${t}`] = Math.max(
+            ...g.runs.map(r => r.wake[t - 1]!),
+          )),
+      )
+    }
+
     for (const r of graded) {
       const tag = `${r.background}_${r.placement.klass}`
 
@@ -338,15 +573,27 @@ export default experiment({
     }
 
     const perPlacement = graded
-      .map(r => `${r.background} class ${r.placement.klass} (P ${r.placement.dock}, |P - X|^2 ${r.placement.distance2}): off-line ${r.reading.toFixed(2)} vs ${r.threshold.toFixed(1)}, footprint ${Math.min(...r.footprint)} to ${Math.max(...r.footprint)}, K off hubs on up to ${r.offHubDocks} docks, first off-star beat ${r.firstOff}, exponent ${r.exponent.toFixed(3)}, anisotropy ${r.anisotropy.toFixed(3)}${r.moves ? ', MOVES' : ''}`)
+      .map(
+        r =>
+          `${r.background} class ${r.placement.klass} (P ${r.placement.dock}, |P - X|^2 ${r.placement.distance2}): off-line ${r.reading.toFixed(2)} vs ${r.threshold.toFixed(1)}, footprint ${Math.min(...r.footprint)} to ${Math.max(...r.footprint)}, K off hubs on up to ${r.offHubDocks} docks, first off-star beat ${r.firstOff}, exponent ${r.exponent.toFixed(3)}, anisotropy ${r.anisotropy.toFixed(3)}${r.moves ? ', MOVES' : ''}`,
+      )
       .join('; ')
-    const aloneRead = alone.map(g => `${g.name}: peak growth ${Math.min(...g.runs.map(r => peakGrowth(r.wake))).toFixed(4)} to ${Math.max(...g.runs.map(r => peakGrowth(r.wake))).toFixed(4)}, wake ${REPORT_AT.map(t => Math.max(...g.runs.map(r => r.wake[t - 1] as number))).join('/')}, footprint ${Math.max(...g.runs.map(r => r.footprint[BEATS - 1] as number))}`).join('; ')
+    const aloneRead = alone
+      .map(
+        g =>
+          `${g.name}: peak growth ${Math.min(...g.runs.map(r => peakGrowth(r.wake))).toFixed(4)} to ${Math.max(...g.runs.map(r => peakGrowth(r.wake))).toFixed(4)}, wake ${REPORT_AT.map(t => Math.max(...g.runs.map(r => r.wake[t - 1]!))).join('/')}, footprint ${Math.max(...g.runs.map(r => r.footprint[BEATS - 1]!))}`,
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `a trio probe in a background of matter on the side-8 box (16 trios at X + 4 D4, 16 mesons, or one trio): the backgrounds alone are steady (G1 ${G1}); the union of the trio array's stars crosses at ${unionCrossings} docks off its hubs; ${movers.length} of ${graded.length} placements move off every line by 100 times the vacuum control with a bounded wake (G2 ${G2}, G3 ${G3}, G4 ${G4})`,
       metrics,
-      control: { maxControlOffLine: metrics.maxControlOffLine as number, t4OffHubFirings: metrics.t4OffHubFirings as number, t4OffUnion: confinedT4.offStar },
+      control: {
+        maxControlOffLine: metrics.maxControlOffLine!,
+        t4OffHubFirings: metrics.t4OffHubFirings!,
+        t4OffUnion: confinedT4.offStar,
+      },
       notes: `L1. G1 ${G1} (${aloneRead}); G2 ${G2}, G3 ${G3}, G4 ${G4}; CV ${CV}, CB ${CB}, C0 ${C0} (density zero ${densityZero}); checks ${JSON.stringify(checks)}. Union: ${unionLines} lines, ${unionCrossings} crossings off the hubs. T4 K firings per hub over ${PATHS} terms: ${perHub.join(',')}. Placements: ${perPlacement}. Skipped (probe on a background dock): ${skipped.join(', ') || 'none'}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

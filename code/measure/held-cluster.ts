@@ -17,12 +17,37 @@
 //
 // NOTHING MOVES: the placement writes a start; the rule takes every value. The floats are measurement.
 
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { cloneConfiguration, lockedNorm, mergeBranches, newTally, norm, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { coinedVetoBeat, coinedVetoBeatBack } from '@/code/rule/coined-locked-knit'
+import {
+  cloneConfiguration,
+  lockedNorm,
+  mergeBranches,
+  newTally,
+  norm,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  coinedVetoBeat,
+  coinedVetoBeatBack,
+} from '@/code/rule/coined-locked-knit'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { firstQuantized, lineImage, readingBloch, ringKey, type LineBasis, type RingState } from '@/code/measure/coined-line-bloch'
+import {
+  firstQuantized,
+  lineImage,
+  readingBloch,
+  ringKey,
+  type LineBasis,
+  type RingState,
+} from '@/code/measure/coined-line-bloch'
 import { quartetShare } from '@/code/measure/flux-store-bloch'
 import { dockEnergies } from '@/code/measure/energy-lines'
 import { boxHusk, type BoxHusk } from '@/code/measure/causal-components'
@@ -33,19 +58,34 @@ import { vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
 const ROOTS = rootsD4()
 
 // the axis line through `start` along root (1, 0, 0, 1): its docks in stream order, and its two slots
-export type AxisRing = { readonly docks: number[]; readonly first: number; readonly second: number; readonly position: Map<number, number> }
+export type AxisRing = {
+  readonly docks: number[]
+  readonly first: number
+  readonly second: number
+  readonly position: Map<number, number>
+}
 
-export function axisRing(tables: LockedTables, start: number): AxisRing {
-  const r = ROOTS.findIndex(v => v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 1)
-  const first = LINE_FIRSTS[LINE_OF[r] as number] as number
-  const second = OPPOSITE[first] as number
+export function axisRing(
+  tables: LockedTables,
+  start: number,
+): AxisRing {
+  const r = ROOTS.findIndex(
+    v => v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 1,
+  )
+  const first = LINE_FIRSTS[LINE_OF[r]!]!
+  const second = OPPOSITE[first]!
   const docks = [start]
   const position = new Map<number, number>([[start, 0]])
 
   for (;;) {
-    const next = Math.floor((tables.target[docks[docks.length - 1]! * 24 + first] as number) / 24)
+    const next = Math.floor(
+      tables.target[docks[docks.length - 1]! * 24 + first]! / 24,
+    )
 
-    if (next === start) break
+    if (next === start) {
+      break
+    }
+
     position.set(next, docks.length)
     docks.push(next)
   }
@@ -54,26 +94,43 @@ export function axisRing(tables: LockedTables, start: number): AxisRing {
 }
 
 // one relative configuration of the level: positions and labels (0 the first slot, 1 the second), and its amplitude
-export type Placed = { ts: readonly (readonly [number, number])[]; re: number; im: number }
+export type Placed = {
+  ts: readonly (readonly [number, number])[]
+  re: number
+  im: number
+}
 
 // the relative configurations that fit a ring of L (no two loves on one slot once taken mod L), and the weight of the
 // ones that do not (they are left out of the placement, a disclosed truncation)
-export function fitRing(placed: readonly Placed[], L: number): { kept: Placed[]; dropped: number } {
+export function fitRing(
+  placed: readonly Placed[],
+  L: number,
+): { kept: Placed[]; dropped: number } {
   const kept: Placed[] = []
+
   let dropped = 0
 
   for (const p of placed) {
-    const modes = new Set(p.ts.map(([x, j]) => 2 * (((x % L) + L) % L) + j))
+    const modes = new Set(
+      p.ts.map(([x, j]) => 2 * (((x % L) + L) % L) + j),
+    )
 
-    if (modes.size === p.ts.length) kept.push(p)
-    else dropped += p.re ** 2 + p.im ** 2
+    if (modes.size === p.ts.length) {
+      kept.push(p)
+    } else {
+      dropped += p.re ** 2 + p.im ** 2
+    }
   }
 
   return { kept, dropped }
 }
 
 // a float amplitude as an element of Z[w] over 2^P
-export function eisenstein(re: number, im: number, P: number): { a: bigint; b: bigint } {
+export function eisenstein(
+  re: number,
+  im: number,
+  P: number,
+): { a: bigint; b: bigint } {
   const scale = 2 ** P
   const b = Math.round((scale * im * 2) / Math.sqrt(3))
   const a = Math.round(scale * re + b / 2)
@@ -82,30 +139,52 @@ export function eisenstein(re: number, im: number, P: number): { a: bigint; b: b
 }
 
 // the float value of (a + b w) / 2^k
-export function eisensteinValue(a: bigint, b: bigint, k: number): [number, number] {
+export function eisensteinValue(
+  a: bigint,
+  b: bigint,
+  k: number,
+): [number, number] {
   const s = 2 ** k
 
-  return [(Number(a) - Number(b) / 2) / s, (Number(b) * Math.sqrt(3)) / 2 / s]
+  return [
+    (Number(a) - Number(b) / 2) / s,
+    (Number(b) * Math.sqrt(3)) / 2 / s,
+  ]
 }
 
 // the placed state on a configuration `base` (the vacuum, or an empty mesh): every relative configuration at `anchor`
 // + x (mod the ring), open loves of point 0, amplitude rounded into Z[w] / 2^P; coincident placements are added by the
 // rule's own merge
-export function placeExact(base: Configuration, ring: AxisRing, placed: readonly Placed[], anchor: number, P: number): LockedState {
+export function placeExact(
+  base: Configuration,
+  ring: AxisRing,
+  placed: readonly Placed[],
+  anchor: number,
+  P: number,
+): LockedState {
   const L = ring.docks.length
   const list: Branch[] = []
 
   for (const p of placed) {
     const { a, b } = eisenstein(p.re, p.im, P)
 
-    if (a === 0n && b === 0n) continue
+    if (a === 0n && b === 0n) {
+      continue
+    }
 
     const c = cloneConfiguration(base)
 
     for (const [x, j] of p.ts) {
-      const slot = (ring.docks[(((anchor + x) % L) + L) % L] as number) * 24 + (j === 0 ? ring.first : ring.second)
+      const slot =
+        ring.docks[(((anchor + x) % L) + L) % L]! * 24 +
+        (j === 0 ? ring.first : ring.second)
 
-      if (c.vibe[slot] !== 0) throw new Error('held-cluster: a placed love lands on a held slot')
+      if (c.vibe[slot] !== 0) {
+        throw new Error(
+          'held-cluster: a placed love lands on a held slot',
+        )
+      }
+
       c.vibe[slot] = 1
       c.point[slot] = 0
       c.open[slot] = 1
@@ -118,22 +197,41 @@ export function placeExact(base: Configuration, ring: AxisRing, placed: readonly
 }
 
 // the same placement in the ring form (floats), with the SAME rounded amplitudes, so the two starts are equal
-export function placeRing(L: number, placed: readonly Placed[], anchor: number, P: number): RingState {
+export function placeRing(
+  L: number,
+  placed: readonly Placed[],
+  anchor: number,
+  P: number,
+): RingState {
   const out: RingState = new Map()
 
   for (const p of placed) {
     const { a, b } = eisenstein(p.re, p.im, P)
 
-    if (a === 0n && b === 0n) continue
+    if (a === 0n && b === 0n) {
+      continue
+    }
 
     const [re, im] = eisensteinValue(a, b, P)
-    const ts = p.ts.map(([x, j]) => ({ x: (((anchor + x) % L) + L) % L, j, f: 0 }))
+    const ts = p.ts.map(([x, j]) => ({
+      x: (((anchor + x) % L) + L) % L,
+      j,
+      f: 0,
+    }))
     const key = ringKey(ts)
     const o = out.get(key)
 
-    if (o) out.set(key, { ts: o.ts, amp: [o.amp[0] + re, o.amp[1] + im] })
-    else {
-      const sorted = ts.slice().sort((u, v) => 2 * u.x + (u.j === 0 ? 1 : 0) - (2 * v.x + (v.j === 0 ? 1 : 0)))
+    if (o) {
+      out.set(key, { ts: o.ts, amp: [o.amp[0] + re, o.amp[1] + im] })
+    } else {
+      const sorted = ts
+        .slice()
+        .sort(
+          (u, v) =>
+            2 * u.x +
+            (u.j === 0 ? 1 : 0) -
+            (2 * v.x + (v.j === 0 ? 1 : 0)),
+        )
 
       out.set(key, { ts: sorted, amp: [re, im] })
     }
@@ -144,10 +242,19 @@ export function placeRing(L: number, placed: readonly Placed[], anchor: number, 
 
 // one beat of a superposed rule taken a few branches at a time and merged as it goes: the beat is linear, so this is
 // the same state as the beat on all branches at once, with at most `chunk` branches split at a time
-export function chunkedBeat(beat: (s: LockedState) => LockedState, s: LockedState, chunk: number): LockedState {
+export function chunkedBeat(
+  beat: (s: LockedState) => LockedState,
+  s: LockedState,
+  chunk: number,
+): LockedState {
   const acc: Branch[] = []
 
-  for (let i = 0; i < s.branches.length; i += chunk) for (const b of beat({ branches: s.branches.slice(i, i + chunk) }).branches) acc.push(b)
+  for (let i = 0; i < s.branches.length; i += chunk) {
+    for (const b of beat({ branches: s.branches.slice(i, i + chunk) })
+      .branches) {
+      acc.push(b)
+    }
+  }
 
   return { branches: mergeBranches(acc) }
 }
@@ -165,13 +272,19 @@ export type ExactReading = {
   columnExcess: Float64Array
 }
 
-export function readExact(s: LockedState, ring: AxisRing, vacuum: Configuration, husk: BoxHusk): ExactReading {
+export function readExact(
+  s: LockedState,
+  ring: AxisRing,
+  vacuum: Configuration,
+  husk: BoxHusk,
+): ExactReading {
   const probability = new Map<string, number>()
   const pointProbability = new Map<string, number>()
   const cells = vacuum.vibe.length / 24
   const columnExcess = new Float64Array(husk.columns)
   const ev = dockEnergies(vacuum, new Int32Array(cells))
   const eb = new Int32Array(cells)
+
   let leak = 0
   let disturbed = 0
   let disturbedWeight = 0
@@ -181,6 +294,7 @@ export function readExact(s: LockedState, ring: AxisRing, vacuum: Configuration,
     const w = Number(norm(b.a, b.b)) / 4 ** b.k
     const ts: { x: number; j: number; f: number }[] = []
     const ps: PointLove[] = []
+
     let off = false
     let differs = false
 
@@ -193,23 +307,45 @@ export function readExact(s: LockedState, ring: AxisRing, vacuum: Configuration,
         const x = ring.position.get(Math.floor(i / 24))
         const d = i % 24
 
-        if (x === undefined || (d !== ring.first && d !== ring.second)) off = true
-        else {
+        if (
+          x === undefined ||
+          (d !== ring.first && d !== ring.second)
+        ) {
+          off = true
+        } else {
           ts.push({ x, j: d === ring.first ? 0 : 1, f: 0 })
-          ps.push({ x, j: d === ring.first ? 0 : 1, p: b.point[i] as number })
+          ps.push({ x, j: d === ring.first ? 0 : 1, p: b.point[i]! })
         }
 
-        if (vacuum.vibe[i] !== 0) differs = true
+        if (vacuum.vibe[i] !== 0) {
+          differs = true
+        }
+
         continue
       }
 
-      if (b.vibe[i] !== vacuum.vibe[i] || b.open[i] !== vacuum.open[i] || (b.vibe[i] !== 0 && b.point[i] !== vacuum.point[i])) differs = true
+      if (
+        b.vibe[i] !== vacuum.vibe[i] ||
+        b.open[i] !== vacuum.open[i] ||
+        (b.vibe[i] !== 0 && b.point[i] !== vacuum.point[i])
+      ) {
+        differs = true
+      }
     }
 
-    for (let i = 0; i < b.store.length && !differs; i++) if (b.store[i] !== vacuum.store[i] || b.sopen[i] !== vacuum.sopen[i] || (b.store[i] !== 0 && b.spoint[i] !== vacuum.spoint[i])) differs = true
+    for (let i = 0; i < b.store.length && !differs; i++) {
+      if (
+        b.store[i] !== vacuum.store[i] ||
+        b.sopen[i] !== vacuum.sopen[i] ||
+        (b.store[i] !== 0 && b.spoint[i] !== vacuum.spoint[i])
+      ) {
+        differs = true
+      }
+    }
 
-    if (off) leak += w
-    else {
+    if (off) {
+      leak += w
+    } else {
       const key = ringKey(ts)
       const pk = pointKey(ps)
 
@@ -225,21 +361,44 @@ export function readExact(s: LockedState, ring: AxisRing, vacuum: Configuration,
     dockEnergies(b, eb)
 
     for (let x = 0; x < cells; x++) {
-      const d = (eb[x] as number) - (ev[x] as number)
+      const d = eb[x]! - ev[x]!
 
-      if (d !== 0) columnExcess[husk.column[x] as number]! += w * d
+      if (d !== 0) {
+        columnExcess[husk.column[x]!]! += w * d
+      }
     }
   }
 
-  return { probability, pointProbability, leak, disturbed, disturbedWeight, total, columnExcess }
+  return {
+    probability,
+    pointProbability,
+    leak,
+    disturbed,
+    disturbedWeight,
+    total,
+    columnExcess,
+  }
 }
 
 // the largest difference between an exact reading's configuration probabilities and a ring state's
-export function ringGap(p: Map<string, number>, ring: RingState): number {
+export function ringGap(
+  p: Map<string, number>,
+  ring: RingState,
+): number {
   let worst = 0
 
-  for (const [k, v] of ring) worst = Math.max(worst, Math.abs((p.get(k) ?? 0) - (v.amp[0] ** 2 + v.amp[1] ** 2)))
-  for (const [k, v] of p) if (!ring.has(k)) worst = Math.max(worst, v)
+  for (const [k, v] of ring) {
+    worst = Math.max(
+      worst,
+      Math.abs((p.get(k) ?? 0) - (v.amp[0] ** 2 + v.amp[1] ** 2)),
+    )
+  }
+
+  for (const [k, v] of p) {
+    if (!ring.has(k)) {
+      worst = Math.max(worst, v)
+    }
+  }
 
   return worst
 }
@@ -251,22 +410,33 @@ export function ringDensity(L: number, s: RingState): Float64Array {
   for (const { ts, amp } of s.values()) {
     const w = amp[0] ** 2 + amp[1] ** 2
 
-    for (const t of ts) out[t.x]! += w
+    for (const t of ts) {
+      out[t.x]! += w
+    }
   }
 
   return out
 }
 
 // the least arc about `center` on a ring of L holding `share` of a density, as a radius (0: the center alone)
-export function ringRadius(density: Float64Array, center: number, share: number): number {
+export function ringRadius(
+  density: Float64Array,
+  center: number,
+  share: number,
+): number {
   const L = density.length
   const total = density.reduce((s, v) => s + v, 0)
 
   for (let r = 0; r <= L / 2; r++) {
     let held = 0
 
-    for (let d = -r; d <= r; d++) held += density[(((center + d) % L) + L) % L] as number
-    if (held >= share * total - 1e-12) return r
+    for (let d = -r; d <= r; d++) {
+      held += density[(((center + d) % L) + L) % L]!
+    }
+
+    if (held >= share * total - 1e-12) {
+      return r
+    }
   }
 
   return L / 2
@@ -275,6 +445,7 @@ export function ringRadius(density: Float64Array, center: number, share: number)
 // the circular mean position of a density on a ring of L (its phase), and the least integer center
 export function ringCenter(density: Float64Array): number {
   const L = density.length
+
   let c = 0
   let s = 0
 
@@ -285,22 +456,26 @@ export function ringCenter(density: Float64Array): number {
 
   const phase = Math.atan2(s, c)
 
-  return (((phase * L) / (2 * Math.PI)) % L + L) % L
+  return ((((phase * L) / (2 * Math.PI)) % L) + L) % L
 }
 
 // the K = 0 part of a ring state in relative coordinates: every configuration anchored at its least position (valid
 // while every span is under L / 2), amplitudes summed over the anchor, keyed by the anchored configuration
-export function relativePart(L: number, s: RingState): Map<string, [number, number]> {
+export function relativePart(
+  L: number,
+  s: RingState,
+): Map<string, [number, number]> {
   const out = new Map<string, [number, number]>()
 
   for (const { ts, amp } of s.values()) {
     // the anchor: the position after the largest gap
     const xs = [...new Set(ts.map(t => t.x))].sort((a, b) => a - b)
-    let anchor = xs[0] as number
+
+    let anchor = xs[0]!
     let gap = -1
 
     xs.forEach((x, i) => {
-      const prev = xs[(i - 1 + xs.length) % xs.length] as number
+      const prev = xs[(i - 1 + xs.length) % xs.length]!
       const g = (((x - prev) % L) + L) % L || L
 
       if (g > gap) {
@@ -309,7 +484,11 @@ export function relativePart(L: number, s: RingState): Map<string, [number, numb
       }
     })
 
-    const rel = ts.map(t => ({ x: ((((t.x - anchor) % L) + L) % L), j: t.j, f: 0 }))
+    const rel = ts.map(t => ({
+      x: (((t.x - anchor) % L) + L) % L,
+      j: t.j,
+      f: 0,
+    }))
     const key = ringKey(rel)
     const o = out.get(key) ?? [0, 0]
 
@@ -333,14 +512,23 @@ export function relativePart(L: number, s: RingState): Map<string, [number, numb
 // that use it, and says nothing where they have not checked it.
 
 export type PointLove = { x: number; j: number; p: number }
-export type PointState = Map<string, { ts: PointLove[]; amp: [number, number] }>
+export type PointState = Map<
+  string,
+  { ts: PointLove[]; amp: [number, number] }
+>
 
 const SQ3 = Math.sqrt(3)
 const P_W: [number, number] = [-0.5, SQ3 / 2]
 const P_KEEP: [number, number] = [0.25, SQ3 / 4]
 const P_CROSS: [number, number] = [0.75, -SQ3 / 4]
 const P_EXCHANGE: [number, number] = [-0.75, SQ3 / 4]
-const cm = (x: [number, number], y: [number, number]): [number, number] => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cm = (
+  x: [number, number],
+  y: [number, number],
+): [number, number] => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 const modeOf = (t: PointLove): number => 2 * t.x + (t.j === 0 ? 1 : 0)
 
 export const pointKey = (ts: readonly PointLove[]): string =>
@@ -350,26 +538,44 @@ export const pointKey = (ts: readonly PointLove[]): string =>
     .map(t => `${t.x},${t.j},${t.p}`)
     .join('|')
 
-function addPoint(out: PointState, ts: PointLove[], amp: [number, number]): void {
+function addPoint(
+  out: PointState,
+  ts: PointLove[],
+  amp: [number, number],
+): void {
   const key = pointKey(ts)
   const o = out.get(key)
 
-  if (o) o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
-  else out.set(key, { ts, amp })
+  if (o) {
+    o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
+  } else {
+    out.set(key, { ts, amp })
+  }
 }
 
 // the placed state with every love at point 0 (the placement's)
-export function placePoints(L: number, placed: readonly Placed[], anchor: number, P: number): PointState {
+export function placePoints(
+  L: number,
+  placed: readonly Placed[],
+  anchor: number,
+  P: number,
+): PointState {
   const out: PointState = new Map()
 
   for (const p of placed) {
     const { a, b } = eisenstein(p.re, p.im, P)
 
-    if (a === 0n && b === 0n) continue
+    if (a === 0n && b === 0n) {
+      continue
+    }
 
     addPoint(
       out,
-      p.ts.map(([x, j]) => ({ x: (((anchor + x) % L) + L) % L, j, p: 0 })),
+      p.ts.map(([x, j]) => ({
+        x: (((anchor + x) % L) + L) % L,
+        j,
+        p: 0,
+      })),
       eisensteinValue(a, b, P),
     )
   }
@@ -377,22 +583,31 @@ export function placePoints(L: number, placed: readonly Placed[], anchor: number
   return out
 }
 
-export function pointBeat(tables: LockedTables, ring: AxisRing, state: PointState): PointState {
+export function pointBeat(
+  tables: LockedTables,
+  ring: AxisRing,
+  state: PointState,
+): PointState {
   const L = ring.docks.length
   const out: PointState = new Map()
 
   for (const { ts, amp } of state.values()) {
     // the coin and the meeting, dock by dock: the pieces each branch becomes
-    let pieces: { ts: PointLove[]; amp: [number, number] }[] = [{ ts: ts.map(t => ({ ...t })), amp }]
+    let pieces: { ts: PointLove[]; amp: [number, number] }[] = [
+      { ts: ts.map(t => ({ ...t })), amp },
+    ]
+
     const docks = [...new Set(ts.map(t => t.x))]
 
     for (const x of docks) {
-      const at = ts.map((t, i) => (t.x === x ? i : -1)).filter(i => i >= 0)
+      const at = ts
+        .map((t, i) => (t.x === x ? i : -1))
+        .filter(i => i >= 0)
       const next: typeof pieces = []
 
       for (const piece of pieces) {
         if (at.length === 1) {
-          const i = at[0] as number
+          const i = at[0]!
 
           next.push({ ts: piece.ts, amp: cm(piece.amp, P_KEEP) })
 
@@ -427,9 +642,14 @@ export function pointBeat(tables: LockedTables, ring: AxisRing, state: PointStat
 
     for (const piece of pieces) {
       const moved = piece.ts.map(t => {
-        const slot = (ring.docks[t.x] as number) * 24 + (t.j === 0 ? ring.first : ring.second)
+        const slot =
+          ring.docks[t.x]! * 24 + (t.j === 0 ? ring.first : ring.second)
 
-        return { x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L, j: t.j, p: tables.move[slot * 9 + t.p] as number }
+        return {
+          x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L,
+          j: t.j,
+          p: tables.move[slot * 9 + t.p]!,
+        }
       })
 
       addPoint(out, moved, piece.amp)
@@ -440,11 +660,24 @@ export function pointBeat(tables: LockedTables, ring: AxisRing, state: PointStat
 }
 
 // the largest difference between an exact reading's point-carrying probabilities and a point state's
-export function pointGap(p: Map<string, number>, s: PointState): number {
+export function pointGap(
+  p: Map<string, number>,
+  s: PointState,
+): number {
   let worst = 0
 
-  for (const [k, v] of s) worst = Math.max(worst, Math.abs((p.get(k) ?? 0) - (v.amp[0] ** 2 + v.amp[1] ** 2)))
-  for (const [k, v] of p) if (!s.has(k)) worst = Math.max(worst, v)
+  for (const [k, v] of s) {
+    worst = Math.max(
+      worst,
+      Math.abs((p.get(k) ?? 0) - (v.amp[0] ** 2 + v.amp[1] ** 2)),
+    )
+  }
+
+  for (const [k, v] of p) {
+    if (!s.has(k)) {
+      worst = Math.max(worst, v)
+    }
+  }
 
   return worst
 }
@@ -454,21 +687,29 @@ export function pointGap(p: Map<string, number>, s: PointState): number {
 export function pointDensity(L: number, s: PointState): Float64Array {
   const out = new Float64Array(L)
 
-  for (const { ts, amp } of s.values()) for (const t of ts) out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+  for (const { ts, amp } of s.values()) {
+    for (const t of ts) {
+      out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+    }
+  }
 
   return out
 }
 
-export function pointRelative(L: number, s: PointState): Map<string, Map<string, [number, number]>> {
+export function pointRelative(
+  L: number,
+  s: PointState,
+): Map<string, Map<string, [number, number]>> {
   const out = new Map<string, Map<string, [number, number]>>()
 
   for (const { ts, amp } of s.values()) {
     const xs = [...new Set(ts.map(t => t.x))].sort((a, b) => a - b)
-    let anchor = xs[0] as number
+
+    let anchor = xs[0]!
     let gap = -1
 
     xs.forEach((x, i) => {
-      const prev = xs[(i - 1 + xs.length) % xs.length] as number
+      const prev = xs[(i - 1 + xs.length) % xs.length]!
       const g = (((x - prev) % L) + L) % L || L
 
       if (g > gap) {
@@ -477,7 +718,9 @@ export function pointRelative(L: number, s: PointState): Map<string, Map<string,
       }
     })
 
-    const rel = ts.map(t => ({ x: (((t.x - anchor) % L) + L) % L, j: t.j, p: t.p })).sort((u, v) => modeOf(u) - modeOf(v))
+    const rel = ts
+      .map(t => ({ x: (((t.x - anchor) % L) + L) % L, j: t.j, p: t.p }))
+      .sort((u, v) => modeOf(u) - modeOf(v))
     const key = ringKey(rel.map(t => ({ x: t.x, j: t.j, f: 0 })))
     const points = rel.map(t => t.p).join(',')
     const m = out.get(key) ?? new Map<string, [number, number]>()
@@ -500,15 +743,37 @@ export function pointRelative(L: number, s: PointState): Map<string, Map<string,
 
 export type Relative = Map<string, Map<string, [number, number]>>
 
-export type BlochPacket = { step: () => void; density: () => Float64Array; relative: () => Relative }
+export type BlochPacket = {
+  step: () => void
+  density: () => Float64Array
+  relative: () => Relative
+}
 
-export function blochPacket(basis: LineBasis, L: number, cre: Float64Array, cim: Float64Array, withCost: boolean): BlochPacket {
+export function blochPacket(
+  basis: LineBasis,
+  L: number,
+  cre: Float64Array,
+  cim: Float64Array,
+  withCost: boolean,
+): BlochPacket {
   const dim = basis.configs.length
-  let phis = Array.from({ length: L }, () => ({ re: Float64Array.from(cre), im: Float64Array.from(cim) }))
+
+  let phis = Array.from({ length: L }, () => ({
+    re: Float64Array.from(cre),
+    im: Float64Array.from(cim),
+  }))
 
   return {
     step() {
-      phis = phis.map((phi, n) => lineImage(basis, (2 * Math.PI * n) / L, phi.re, phi.im, withCost))
+      phis = phis.map((phi, n) =>
+        lineImage(
+          basis,
+          (2 * Math.PI * n) / L,
+          phi.re,
+          phi.im,
+          withCost,
+        ),
+      )
     },
     density() {
       const out = new Float64Array(L)
@@ -520,8 +785,8 @@ export function blochPacket(basis: LineBasis, L: number, cre: Float64Array, cim:
 
           phis.forEach((phi, n) => {
             const th = (2 * Math.PI * n * X) / L
-            const zr = phi.re[c] as number
-            const zi = phi.im[c] as number
+            const zr = phi.re[c]!
+            const zi = phi.im[c]!
 
             re += zr * Math.cos(th) - zi * Math.sin(th)
             im += zr * Math.sin(th) + zi * Math.cos(th)
@@ -529,8 +794,13 @@ export function blochPacket(basis: LineBasis, L: number, cre: Float64Array, cim:
 
           const p = (re * re + im * im) / (L * L)
 
-          if (p === 0) continue
-          for (const t of basis.configs[c]!) out[(X + t.x) % L]! += p
+          if (p === 0) {
+            continue
+          }
+
+          for (const t of basis.configs[c]!) {
+            out[(X + t.x) % L]! += p
+          }
         }
       }
 
@@ -541,10 +811,12 @@ export function blochPacket(basis: LineBasis, L: number, cre: Float64Array, cim:
       const phi = phis[0]!
 
       basis.configs.forEach((ts, c) => {
-        const zr = phi.re[c] as number
-        const zi = phi.im[c] as number
+        const zr = phi.re[c]!
+        const zi = phi.im[c]!
 
-        if (zr !== 0 || zi !== 0) out.set(ringKey(ts), new Map([['', [zr, zi]]]))
+        if (zr !== 0 || zi !== 0) {
+          out.set(ringKey(ts), new Map([['', [zr, zi]]]))
+        }
       })
 
       return out
@@ -553,22 +825,40 @@ export function blochPacket(basis: LineBasis, L: number, cre: Float64Array, cim:
 }
 
 // a ring state's K = 0 part in the same shape (one point assignment, '')
-export const plainRelative = (L: number, s: RingState): Relative => new Map([...relativePart(L, s)].map(([k, z]) => [k, new Map([['', z]])]))
+export const plainRelative = (L: number, s: RingState): Relative =>
+  new Map(
+    [...relativePart(L, s)].map(([k, z]) => [k, new Map([['', z]])]),
+  )
 
-export type LevelReading = { fidelity: number; amplitude: [number, number]; share: number; weight: number; outside: number }
+export type LevelReading = {
+  fidelity: number
+  amplitude: [number, number]
+  share: number
+  weight: number
+  outside: number
+}
 
 // a K = 0 part read against a level of `basis` (its configuration vector): the fidelity sum_q |<v|phi_q>|^2 / (<v|v>
 // sum_q <phi_q|phi_q>) over the point assignments q (the occupation-reduced state's weight on the level), the summed
 // overlap sum_q <v|phi_q>, and (with `share`) the spin one half share of the part inside the basis's reading box, the
 // point assignments' shares weighted by their weights (the quartet share is a quadratic form, so this is the mixture's)
-export function levelReading(basis: LineBasis, vre: Float64Array, vim: Float64Array, part: Relative, share: boolean): LevelReading {
+export function levelReading(
+  basis: LineBasis,
+  vre: Float64Array,
+  vim: Float64Array,
+  part: Relative,
+  share: boolean,
+): LevelReading {
   const dim = basis.configs.length
   const byQ = new Map<string, { re: Float64Array; im: Float64Array }>()
+
   let weight = 0
   let outside = 0
   let vv = 0
 
-  for (let i = 0; i < dim; i++) vv += (vre[i] as number) ** 2 + (vim[i] as number) ** 2
+  for (let i = 0; i < dim; i++) {
+    vv += vre[i]! ** 2 + vim[i]! ** 2
+  }
 
   for (const [key, m] of part) {
     const i = basis.index.get(key)
@@ -600,6 +890,7 @@ export function levelReading(basis: LineBasis, vre: Float64Array, vim: Float64Ar
   let ai = 0
   let shareNum = 0
   let shareDen = 0
+
   const b = share ? readingBloch(basis.sector) : undefined
 
   for (const vq of byQ.values()) {
@@ -608,11 +899,11 @@ export function levelReading(basis: LineBasis, vre: Float64Array, vim: Float64Ar
     let w = 0
 
     for (let k = 0; k < dim; k++) {
-      const xr = vq.re[k] as number
-      const xi = vq.im[k] as number
+      const xr = vq.re[k]!
+      const xi = vq.im[k]!
 
-      r += (vre[k] as number) * xr + (vim[k] as number) * xi
-      i += (vre[k] as number) * xi - (vim[k] as number) * xr
+      r += vre[k]! * xr + vim[k]! * xi
+      i += vre[k]! * xi - vim[k]! * xr
       w += xr * xr + xi * xi
     }
 
@@ -621,33 +912,51 @@ export function levelReading(basis: LineBasis, vre: Float64Array, vim: Float64Ar
     ai += i
 
     if (b && w > 1e-14) {
-      shareNum += w * (1 - quartetShare(b, firstQuantized(basis, b, vq.re, vq.im)))
+      shareNum +=
+        w *
+        (1 - quartetShare(b, firstQuantized(basis, b, vq.re, vq.im)))
       shareDen += w
     }
   }
 
-  return { fidelity: fid / (vv * weight), amplitude: [ar, ai], share: shareDen > 0 ? shareNum / shareDen : Number.NaN, weight, outside }
+  return {
+    fidelity: fid / (vv * weight),
+    amplitude: [ar, ai],
+    share: shareDen > 0 ? shareNum / shareDen : Number.NaN,
+    weight,
+    outside,
+  }
 }
 
 // a level of a line basis as a placement (its nonzero amplitudes)
-export function levelPlacement(basis: LineBasis, cre: Float64Array, cim: Float64Array): Placed[] {
+export function levelPlacement(
+  basis: LineBasis,
+  cre: Float64Array,
+  cim: Float64Array,
+): Placed[] {
   const out: Placed[] = []
 
   basis.configs.forEach((ts, i) => {
-    const re = cre[i] as number
-    const im = cim[i] as number
+    const re = cre[i]!
+    const im = cim[i]!
 
-    if (re !== 0 || im !== 0) out.push({ ts: ts.map(t => [t.x, t.j] as const), re, im })
+    if (re !== 0 || im !== 0) {
+      out.push({ ts: ts.map(t => [t.x, t.j] as const), re, im })
+    }
   })
 
   return out
 }
 
 // a ring density put on the husk columns its docks cast
-export function ringColumns(husk: BoxHusk, ring: AxisRing, density: Float64Array): Float64Array {
+export function ringColumns(
+  husk: BoxHusk,
+  ring: AxisRing,
+  density: Float64Array,
+): Float64Array {
   const out = new Float64Array(husk.columns)
 
-  density.forEach((v, x) => (out[husk.column[ring.docks[x] as number] as number]! += v))
+  density.forEach((v, x) => (out[husk.column[ring.docks[x]!]!]! += v))
 
   return out
 }
@@ -655,11 +964,33 @@ export function ringColumns(husk: BoxHusk, ring: AxisRing, density: Float64Array
 // THE EXACT WINDOW: the placed level in the working vacuum (no veto, the pass contact, the coin, the vacuum's stored
 // pairs closed as E-RLT-0105's superposed runs) on a side-`side` box, run by the exact superposed rule for `beats` beats
 // (a few branches at a time), beside the vacuum's own run and the point-carrying ring form, then run back
-export type WindowBeat = { branches: number; normKept: boolean; leak: number; disturbed: number; pointGap: number; energyGap: number; splits: number }
+export type WindowBeat = {
+  branches: number
+  normKept: boolean
+  leak: number
+  disturbed: number
+  pointGap: number
+  energyGap: number
+  splits: number
+}
 
-export type ExactWindow = { side: number; L: number; dropped: number; startNorm: number; startBranches: number; beats: WindowBeat[]; reversed: boolean; seconds: number }
+export type ExactWindow = {
+  side: number
+  L: number
+  dropped: number
+  startNorm: number
+  startBranches: number
+  beats: WindowBeat[]
+  reversed: boolean
+  seconds: number
+}
 
-export function exactWindow(side: number, beats: number, placed: readonly Placed[], P: number): ExactWindow {
+export function exactWindow(
+  side: number,
+  beats: number,
+  placed: readonly Placed[],
+  P: number,
+): ExactWindow {
   const started = Date.now()
   const center = centerOf(side)
   const f = contactFresh(side, 'pass', center)
@@ -671,33 +1002,80 @@ export function exactWindow(side: number, beats: number, placed: readonly Placed
   const start = placeExact(vac, ring, fit.kept, 0, P)
   const n0 = lockedNorm(start)
   const tally = newTally()
+
   let s = start
-  let v: LockedState = { branches: [{ ...cloneConfiguration(vac), a: 1n, b: 0n, k: 0 }] }
+  let v: LockedState = {
+    branches: [{ ...cloneConfiguration(vac), a: 1n, b: 0n, k: 0 }],
+  }
   let ps = placePoints(L, fit.kept, 0, P)
+
   const out: WindowBeat[] = []
 
   for (let t = 0; t < beats; t++) {
-    s = chunkedBeat(x => coinedVetoBeat('none', f.tables, x, t, tally), s, 16)
+    s = chunkedBeat(
+      x => coinedVetoBeat('none', f.tables, x, t, tally),
+      s,
+      16,
+    )
     v = coinedVetoBeat('none', f.tables, v, t)
     ps = pointBeat(f.tables, ring, ps)
 
-    const r = readExact(s, ring, v.branches[0] as Branch, husk)
+    const r = readExact(s, ring, v.branches[0]!, husk)
     const n = lockedNorm(s)
     const expected = ringColumns(husk, ring, pointDensity(L, ps))
+
     let energyGap = 0
 
-    for (let c = 0; c < husk.columns; c++) energyGap = Math.max(energyGap, Math.abs((r.columnExcess[c] as number) - (expected[c] as number)))
+    for (let c = 0; c < husk.columns; c++) {
+      energyGap = Math.max(
+        energyGap,
+        Math.abs(r.columnExcess[c]! - expected[c]!),
+      )
+    }
 
-    out.push({ branches: s.branches.length, normKept: n.total * n0.unit === n0.total * n.unit, leak: r.leak, disturbed: r.disturbed + (v.branches.length === 1 ? 0 : 1), pointGap: pointGap(r.pointProbability, ps), energyGap, splits: tally.splitMeetings })
+    out.push({
+      branches: s.branches.length,
+      normKept: n.total * n0.unit === n0.total * n.unit,
+      leak: r.leak,
+      disturbed: r.disturbed + (v.branches.length === 1 ? 0 : 1),
+      pointGap: pointGap(r.pointProbability, ps),
+      energyGap,
+      splits: tally.splitMeetings,
+    })
   }
 
   let back = s
 
-  for (let t = beats - 1; t >= 0; t--) back = chunkedBeat(x => coinedVetoBeatBack('none', f.tables, x, t), back, 16)
+  for (let t = beats - 1; t >= 0; t--) {
+    back = chunkedBeat(
+      x => coinedVetoBeatBack('none', f.tables, x, t),
+      back,
+      16,
+    )
+  }
 
-  const reversed = back.branches.length === start.branches.length && start.branches.every(b => back.branches.some(c => c.a === b.a && c.b === b.b && c.k === b.k && sameConfiguration(c, b)))
+  const reversed =
+    back.branches.length === start.branches.length &&
+    start.branches.every(b =>
+      back.branches.some(
+        c =>
+          c.a === b.a &&
+          c.b === b.b &&
+          c.k === b.k &&
+          sameConfiguration(c, b),
+      ),
+    )
 
-  return { side, L, dropped: fit.dropped, startNorm: Number(n0.total) / Number(n0.unit), startBranches: start.branches.length, beats: out, reversed, seconds: (Date.now() - started) / 1000 }
+  return {
+    side,
+    L,
+    dropped: fit.dropped,
+    startNorm: Number(n0.total) / Number(n0.unit),
+    startBranches: start.branches.length,
+    beats: out,
+    reversed,
+    seconds: (Date.now() - started) / 1000,
+  }
 }
 
 // ---- one placed packet followed on a ring, beat by beat ----
@@ -733,9 +1111,33 @@ export function trackRun(input: {
   vim: Float64Array
   shareEvery: number
 }): Track {
-  const { L, beats, window, center, startDensity, step, density, relative, basis, vre, vim, shareEvery } = input
+  const {
+    L,
+    beats,
+    window,
+    center,
+    startDensity,
+    step,
+    density,
+    relative,
+    basis,
+    vre,
+    vim,
+    shareEvery,
+  } = input
   const c0 = ringCenter(startDensity)
-  const out: Track = { r90: [], drift: [], fidelity: [], share: [], energy: 0, densitySum: new Float64Array(L), windowSum: new Float64Array(L), r90Start: ringRadius(startDensity, center, 0.9), weight: 0 }
+  const out: Track = {
+    r90: [],
+    drift: [],
+    fidelity: [],
+    share: [],
+    energy: 0,
+    densitySum: new Float64Array(L),
+    windowSum: new Float64Array(L),
+    r90Start: ringRadius(startDensity, center, 0.9),
+    weight: 0,
+  }
+
   let prev = levelReading(basis, vre, vim, relative(), false)
   let phase = 0
 
@@ -745,19 +1147,31 @@ export function trackRun(input: {
     const d = density()
     const withShare = t % shareEvery === 0
     const lr = levelReading(basis, vre, vim, relative(), withShare)
+
     let drift = Math.abs(ringCenter(d) - c0)
 
     drift = Math.min(drift, L - drift)
-    phase += Math.atan2(prev.amplitude[0] * lr.amplitude[1] - prev.amplitude[1] * lr.amplitude[0], prev.amplitude[0] * lr.amplitude[0] + prev.amplitude[1] * lr.amplitude[1])
+    phase += Math.atan2(
+      prev.amplitude[0] * lr.amplitude[1] -
+        prev.amplitude[1] * lr.amplitude[0],
+      prev.amplitude[0] * lr.amplitude[0] +
+        prev.amplitude[1] * lr.amplitude[1],
+    )
     prev = lr
     out.r90.push(ringRadius(d, center, 0.9))
     out.drift.push(drift)
     out.fidelity.push(lr.fidelity)
-    if (withShare) out.share.push({ t, share: lr.share })
+
+    if (withShare) {
+      out.share.push({ t, share: lr.share })
+    }
 
     for (let x = 0; x < L; x++) {
-      out.densitySum[x]! += d[x] as number
-      if (t <= window) out.windowSum[x]! += d[x] as number
+      out.densitySum[x]! += d[x]!
+
+      if (t <= window) {
+        out.windowSum[x]! += d[x]!
+      }
     }
 
     out.weight = lr.weight

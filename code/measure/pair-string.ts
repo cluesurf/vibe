@@ -28,7 +28,12 @@
 // Nothing moves: a singlet is read afresh from each snapshot.
 
 import { d4BoxCell, d4BoxCoordinates } from '@/code/substrate/d4-box'
-import { graphEnergy, graphGaussHolds, type GraphState, type StringGraph } from '@/code/rule/string-graph'
+import {
+  graphEnergy,
+  graphGaussHolds,
+  type GraphState,
+  type StringGraph,
+} from '@/code/rule/string-graph'
 import {
   addTo,
   boxDisplacement,
@@ -53,13 +58,26 @@ import { SILVER } from '@/code/tool/weyl'
 // ---------------------------------------------------------------------------------------------------------
 // the exact duality with the field
 
-export type SmallGraph = { readonly docks: number; readonly links: readonly (readonly [number, number])[] }
+export type SmallGraph = {
+  readonly docks: number
+  readonly links: readonly (readonly [number, number])[]
+}
 
 // a polynomial in x and y with Eisenstein coefficients a + b omega, stored as [xDegree][yDegree] -> [a, b]
-export type Eisenstein2 = { readonly xs: number; readonly ys: number; readonly a: Float64Array; readonly b: Float64Array }
+export type Eisenstein2 = {
+  readonly xs: number
+  readonly ys: number
+  readonly a: Float64Array
+  readonly b: Float64Array
+}
 
 function eisenstein2(xs: number, ys: number): Eisenstein2 {
-  return { xs, ys, a: new Float64Array(xs * ys), b: new Float64Array(xs * ys) }
+  return {
+    xs,
+    ys,
+    a: new Float64Array(xs * ys),
+    b: new Float64Array(xs * ys),
+  }
 }
 
 // A dock of a charge pattern is either free (-1: its charge summed with weight y per charge) or static with the
@@ -69,7 +87,11 @@ export type Pattern = readonly number[]
 // The chain side: sum over Z3 fluxes of x^(paid links) y^(charged free docks), static docks constrained, times 3^V
 // (the Potts side carries 3^V), as integer polynomials. `table` is the count of fluxes by divergence vector and paid
 // links, computed once per graph.
-export type FluxTable = { readonly docks: number; readonly links: number; readonly counts: Float64Array }
+export type FluxTable = {
+  readonly docks: number
+  readonly links: number
+  readonly counts: Float64Array
+}
 
 export function fluxTable(graph: SmallGraph): FluxTable {
   const v = graph.docks
@@ -82,6 +104,7 @@ export function fluxTable(graph: SmallGraph): FluxTable {
   for (let index = 0; index < total; index++) {
     let rest = index
     let paid = 0
+
     const div = new Int8Array(v)
 
     for (let k = 0; k < l; k++) {
@@ -93,26 +116,29 @@ export function fluxTable(graph: SmallGraph): FluxTable {
       if (e !== 0) {
         paid++
 
-        const [i, j] = graph.links[k] as readonly [number, number]
+        const [i, j] = graph.links[k]!
 
-        div[i] = (((div[i] as number) + e) % 3) as number
-        div[j] = (((div[j] as number) - e + 3) % 3) as number
+        div[i] = (div[i]! + e) % 3
+        div[j] = (div[j]! - e + 3) % 3
       }
     }
 
     let key = 0
 
     for (let i = v - 1; i >= 0; i--) {
-      key = key * 3 + (div[i] as number)
+      key = key * 3 + div[i]!
     }
 
-    counts[key * (l + 1) + paid] = (counts[key * (l + 1) + paid] as number) + 1
+    counts[key * (l + 1) + paid] = counts[key * (l + 1) + paid]! + 1
   }
 
   return { docks: v, links: l, counts }
 }
 
-export function chainPolynomial(table: FluxTable, pattern: Pattern): Eisenstein2 {
+export function chainPolynomial(
+  table: FluxTable,
+  pattern: Pattern,
+): Eisenstein2 {
   const v = table.docks
   const l = table.links
   const out = eisenstein2(l + 1, v + 1)
@@ -128,7 +154,7 @@ export function chainPolynomial(table: FluxTable, pattern: Pattern): Eisenstein2
 
       rest = (rest - d) / 3
 
-      const p = pattern[i] as number
+      const p = pattern[i]!
 
       if (p >= 0) {
         ok = ok && d === p
@@ -142,10 +168,11 @@ export function chainPolynomial(table: FluxTable, pattern: Pattern): Eisenstein2
     }
 
     for (let paid = 0; paid <= l; paid++) {
-      const c = table.counts[key * (l + 1) + paid] as number
+      const c = table.counts[key * (l + 1) + paid]!
 
       if (c !== 0) {
-        out.a[paid * (v + 1) + charged] = (out.a[paid * (v + 1) + charged] as number) + scale * c
+        out.a[paid * (v + 1) + charged] =
+          out.a[paid * (v + 1) + charged]! + scale * c
       }
     }
   }
@@ -154,7 +181,10 @@ export function chainPolynomial(table: FluxTable, pattern: Pattern): Eisenstein2
 }
 
 // the Potts side: sum over theta of the link, field and insertion factors, exactly
-export function pottsPolynomial(graph: SmallGraph, pattern: Pattern): Eisenstein2 {
+export function pottsPolynomial(
+  graph: SmallGraph,
+  pattern: Pattern,
+): Eisenstein2 {
   const v = graph.docks
   const l = graph.links.length
   const out = eisenstein2(l + 1, v + 1)
@@ -183,8 +213,8 @@ export function pottsPolynomial(graph: SmallGraph, pattern: Pattern): Eisenstein
       const next = new Array<number>(linkPoly.length + 1).fill(0)
 
       linkPoly.forEach((p, k) => {
-        next[k] = (next[k] as number) + p
-        next[k + 1] = (next[k + 1] as number) + c * p
+        next[k] = next[k]! + p
+        next[k + 1] = next[k + 1]! + c * p
       })
       linkPoly = next
     }
@@ -194,31 +224,31 @@ export function pottsPolynomial(graph: SmallGraph, pattern: Pattern): Eisenstein
     let phase = 0
 
     for (let i = 0; i < v; i++) {
-      const p = pattern[i] as number
+      const p = pattern[i]!
 
       if (p < 0) {
         const c = theta[i] === 0 ? 2 : -1
         const next = new Array<number>(fieldPoly.length + 1).fill(0)
 
         fieldPoly.forEach((q, k) => {
-          next[k] = (next[k] as number) + q
-          next[k + 1] = (next[k + 1] as number) + c * q
+          next[k] = next[k]! + q
+          next[k + 1] = next[k + 1]! + c * q
         })
         fieldPoly = next
       } else {
-        phase = (phase + 3 * 3 - ((p * (theta[i] as number)) % 3)) % 3
+        phase = (phase + 3 * 3 - ((p * theta[i]!) % 3)) % 3
       }
     }
 
-    const [pa, pb] = power[phase] as [number, number]
+    const [pa, pb] = power[phase]!
 
     linkPoly.forEach((lp, xi) => {
       fieldPoly.forEach((fp, yi) => {
         const c = lp * fp
 
         if (c !== 0) {
-          out.a[xi * (v + 1) + yi] = (out.a[xi * (v + 1) + yi] as number) + c * pa
-          out.b[xi * (v + 1) + yi] = (out.b[xi * (v + 1) + yi] as number) + c * pb
+          out.a[xi * (v + 1) + yi] = out.a[xi * (v + 1) + yi]! + c * pa
+          out.b[xi * (v + 1) + yi] = out.b[xi * (v + 1) + yi]! + c * pb
         }
       })
     })
@@ -263,14 +293,14 @@ export function multiply3(a: Matrix3, b: Matrix3): Matrix3 {
 
   for (let i = 0; i < 3; i++) {
     for (let k = 0; k < 3; k++) {
-      const v = a[i * 3 + k] as number
+      const v = a[i * 3 + k]!
 
       if (v === 0) {
         continue
       }
 
       for (let j = 0; j < 3; j++) {
-        out[i * 3 + j] = (out[i * 3 + j] as number) + v * (b[k * 3 + j] as number)
+        out[i * 3 + j] = out[i * 3 + j]! + v * b[k * 3 + j]!
       }
     }
   }
@@ -281,9 +311,13 @@ export function multiply3(a: Matrix3, b: Matrix3): Matrix3 {
 // the eigenvalues of the free transfer matrix, largest first. T = A W with A symmetric (y off the diagonal) and
 // W = diag(1, x, x), so W^(1/2) A W^(1/2) is symmetric with the same spectrum; solved by the cubic's trigonometric
 // form
-export function transferEigenvalues(x: number, y: number): [number, number, number] {
+export function transferEigenvalues(
+  x: number,
+  y: number,
+): [number, number, number] {
   const w = [1, Math.sqrt(x), Math.sqrt(x)]
-  const s = (i: number, j: number): number => (i === j ? 1 : y) * (w[i] as number) * (w[j] as number)
+  const s = (i: number, j: number): number =>
+    (i === j ? 1 : y) * w[i]! * w[j]!
   const a11 = s(0, 0)
   const a22 = s(1, 1)
   const a33 = s(2, 2)
@@ -300,7 +334,10 @@ export function transferEigenvalues(x: number, y: number): [number, number, numb
   const b12 = a12 / p
   const b13 = a13 / p
   const b23 = a23 / p
-  const det = b11 * (b22 * b33 - b23 * b23) - b12 * (b12 * b33 - b23 * b13) + b13 * (b12 * b23 - b22 * b13)
+  const det =
+    b11 * (b22 * b33 - b23 * b23) -
+    b12 * (b12 * b33 - b23 * b13) +
+    b13 * (b12 * b23 - b22 * b13)
   const r = Math.max(-1, Math.min(1, det / 2))
   const phi = Math.acos(r) / 3
   const e1 = q + 2 * p * Math.cos(phi)
@@ -311,7 +348,11 @@ export function transferEigenvalues(x: number, y: number): [number, number, numb
 }
 
 // the left and right Perron vectors of the free transfer matrix, by power iteration (the matrix is positive)
-export function perron(t: Matrix3): { left: Float64Array; right: Float64Array; value: number } {
+export function perron(t: Matrix3): {
+  left: Float64Array
+  right: Float64Array
+  value: number
+} {
   let right = Float64Array.from([1, 1, 1])
   let left = Float64Array.from([1, 1, 1])
   let value = 0
@@ -322,8 +363,8 @@ export function perron(t: Matrix3): { left: Float64Array; right: Float64Array; v
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        r[i] = (r[i] as number) + (t[i * 3 + j] as number) * (right[j] as number)
-        l[j] = (l[j] as number) + (left[i] as number) * (t[i * 3 + j] as number)
+        r[i] = r[i]! + t[i * 3 + j]! * right[j]!
+        l[j] = l[j]! + left[i]! * t[i * 3 + j]!
       }
     }
 
@@ -340,7 +381,11 @@ export function perron(t: Matrix3): { left: Float64Array; right: Float64Array; v
 
 // The weight of a window of cells (each a free or a static cell) in the infinite line, relative to the vacuum:
 // <l| X |r> / (lambda0^(cells) <l|r>)
-export function windowWeight(input: { x: number; y: number; cells: readonly (number | 'free')[] }): number {
+export function windowWeight(input: {
+  x: number
+  y: number
+  cells: readonly (number | 'free')[]
+}): number {
   const { x, y, cells } = input
   const t = freeCell(x, y)
   const { left, right, value } = perron(t)
@@ -355,10 +400,10 @@ export function windowWeight(input: { x: number; y: number; cells: readonly (num
   let den = 0
 
   for (let i = 0; i < 3; i++) {
-    den += (left[i] as number) * (right[i] as number)
+    den += left[i]! * right[i]!
 
     for (let j = 0; j < 3; j++) {
-      num += (left[i] as number) * (m[i * 3 + j] as number) * (right[j] as number)
+      num += left[i]! * m[i * 3 + j]! * right[j]!
     }
   }
 
@@ -367,13 +412,36 @@ export function windowWeight(input: { x: number; y: number; cells: readonly (num
 
 // beta times the static potential between two static objects (lists of charges on consecutive cells) with `gap`
 // free cells between them: -ln(Z12 Z0 / (Z1 Z2)), every window of the same length
-export function staticPotential(input: { x: number; y: number; first: readonly number[]; second: readonly number[]; gap: number }): number {
+export function staticPotential(input: {
+  x: number
+  y: number
+  first: readonly number[]
+  second: readonly number[]
+  gap: number
+}): number {
   const { x, y, first, second, gap } = input
-  const free = (n: number): 'free'[] => new Array<'free'>(n).fill('free')
-  const both = windowWeight({ x, y, cells: [...first, ...free(gap), ...second] })
-  const none = windowWeight({ x, y, cells: free(first.length + gap + second.length) })
-  const one = windowWeight({ x, y, cells: [...first, ...free(gap + second.length)] })
-  const two = windowWeight({ x, y, cells: [...free(first.length + gap), ...second] })
+  const free = (n: number): 'free'[] =>
+    new Array<'free'>(n).fill('free')
+  const both = windowWeight({
+    x,
+    y,
+    cells: [...first, ...free(gap), ...second],
+  })
+  const none = windowWeight({
+    x,
+    y,
+    cells: free(first.length + gap + second.length),
+  })
+  const one = windowWeight({
+    x,
+    y,
+    cells: [...first, ...free(gap + second.length)],
+  })
+  const two = windowWeight({
+    x,
+    y,
+    cells: [...free(first.length + gap), ...second],
+  })
 
   return -Math.log((both * none) / (one * two))
 }
@@ -387,7 +455,12 @@ export type Rational = { readonly num: bigint; readonly den: bigint }
 
 type BigMatrix = bigint[]
 
-function bigFree(xNum: bigint, xDen: bigint, yNum: bigint, yDen: bigint): BigMatrix {
+function bigFree(
+  xNum: bigint,
+  xDen: bigint,
+  yNum: bigint,
+  yDen: bigint,
+): BigMatrix {
   const out: BigMatrix = []
 
   for (let e = 0; e < 3; e++) {
@@ -400,7 +473,11 @@ function bigFree(xNum: bigint, xDen: bigint, yNum: bigint, yDen: bigint): BigMat
   return out
 }
 
-function bigStatic(xNum: bigint, xDen: bigint, charge: number): BigMatrix {
+function bigStatic(
+  xNum: bigint,
+  xDen: bigint,
+  charge: number,
+): BigMatrix {
   const out: BigMatrix = new Array<bigint>(9).fill(0n)
 
   for (let e = 0; e < 3; e++) {
@@ -417,14 +494,14 @@ function bigMultiply(a: BigMatrix, b: BigMatrix): BigMatrix {
 
   for (let i = 0; i < 3; i++) {
     for (let k = 0; k < 3; k++) {
-      const v = a[i * 3 + k] as bigint
+      const v = a[i * 3 + k]!
 
       if (v === 0n) {
         continue
       }
 
       for (let j = 0; j < 3; j++) {
-        out[i * 3 + j] = (out[i * 3 + j] as bigint) + v * (b[k * 3 + j] as bigint)
+        out[i * 3 + j] = out[i * 3 + j]! + v * b[k * 3 + j]!
       }
     }
   }
@@ -444,6 +521,7 @@ export function exactConnected(input: {
   const free = bigFree(x.num, x.den, y.num, y.den)
   const window = first.length + gap + second.length
   const identity: BigMatrix = [1n, 0n, 0n, 0n, 1n, 0n, 0n, 0n, 1n]
+
   let rest = identity
 
   for (let i = 0; i < ring - window; i++) {
@@ -454,15 +532,20 @@ export function exactConnected(input: {
   // vector exactly and a window's weight is the (0, 0) entry of its product: the infinite line, exactly, with no ring.
   // With pairs the ring is used, and its winding sectors add (lambda1 / lambda0)^(ring - window)
   const line = y.num === 0n
+
   const z = (cells: readonly (number | 'free')[]): bigint => {
     let m = line ? identity : rest
 
     for (const c of cells) {
-      m = bigMultiply(m, c === 'free' ? free : bigStatic(x.num, x.den, c))
+      m = bigMultiply(
+        m,
+        c === 'free' ? free : bigStatic(x.num, x.den, c),
+      )
     }
 
-    return line ? (m[0] as bigint) : (m[0] as bigint) + (m[4] as bigint) + (m[8] as bigint)
+    return line ? m[0]! : m[0]! + m[4]! + m[8]!
   }
+
   const pad = (n: number): 'free'[] => new Array<'free'>(n).fill('free')
   const both = z([...first, ...pad(gap), ...second])
   const none = z(pad(window))
@@ -484,7 +567,11 @@ export function rationalValue(r: Rational): number {
   const shift = BigInt(Math.max(0, n.toString(2).length - 60))
   const dshift = BigInt(Math.max(0, d.toString(2).length - 60))
 
-  return sign * (Number(n >> shift) / Number(d >> dshift)) * 2 ** (Number(shift) - Number(dshift))
+  return (
+    sign *
+    (Number(n >> shift) / Number(d >> dshift)) *
+    2 ** (Number(shift) - Number(dshift))
+  )
 }
 
 // ln of a positive fraction, exactly enough for a rate
@@ -496,12 +583,19 @@ export function rationalLog(r: Rational): number {
   const ns = BigInt(Math.max(0, nb - 60))
   const ds = BigInt(Math.max(0, db - 60))
 
-  return Math.log(Number(n >> ns)) - Math.log(Number(d >> ds)) + (Number(ns) - Number(ds)) * Math.LN2
+  return (
+    Math.log(Number(n >> ns)) -
+    Math.log(Number(d >> ds)) +
+    (Number(ns) - Number(ds)) * Math.LN2
+  )
 }
 
 // the static baryon of the line, three loves on consecutive cells, as an exact matrix over the flux mod 3
 export function lineBaryon(x: Rational): BigMatrix {
-  return bigMultiply(bigMultiply(bigStatic(x.num, x.den, 1), bigStatic(x.num, x.den, 1)), bigStatic(x.num, x.den, 1))
+  return bigMultiply(
+    bigMultiply(bigStatic(x.num, x.den, 1), bigStatic(x.num, x.den, 1)),
+    bigStatic(x.num, x.den, 1),
+  )
 }
 
 // The line rule's OWN measure. Its pair move is (0, 0) -> (1, -1) on a link oriented rightward, so a pair is born with
@@ -512,7 +606,13 @@ export function lineBaryon(x: Rational): BigMatrix {
 // flux levels truncated at `levels`: the charge density, the paid fraction, and the chance per cell that a piece of
 // paid flux holding exactly one love and one fear, d cells apart with no charge between, starts there (both
 // orientations, from every level a = 0 mod 3).
-export function orderedLineMeasure(input: { x: number; y: number; levels: number; profile: number; gaps?: number }): {
+export function orderedLineMeasure(input: {
+  x: number
+  y: number
+  levels: number
+  profile: number
+  gaps?: number
+}): {
   lambda0: number
   charges: number
   paid: number
@@ -524,7 +624,11 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
   const t = new Float64Array(n * n)
 
   for (let e = 0; e < n; e++) {
-    for (let f = Math.max(0, e - 1); f <= Math.min(levels, e + 1); f++) {
+    for (
+      let f = Math.max(0, e - 1);
+      f <= Math.min(levels, e + 1);
+      f++
+    ) {
       t[e * n + f] = (e === f ? 1 : y) * (f % 3 === 0 ? 1 : x)
     }
   }
@@ -539,8 +643,8 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        r[i] = (r[i] as number) + (t[i * n + j] as number) * (right[j] as number)
-        l[j] = (l[j] as number) + (left[i] as number) * (t[i * n + j] as number)
+        r[i] = r[i]! + t[i * n + j]! * right[j]!
+        l[j] = l[j]! + left[i]! * t[i * n + j]!
       }
     }
 
@@ -552,16 +656,17 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
     left = l.map(v => v / nl)
   }
 
-  const lr = left.reduce((a, v, i) => a + v * (right[i] as number), 0)
+  const lr = left.reduce((a, v, i) => a + v * right[i]!, 0)
+
   let charges = 0
   let paid = 0
 
   for (let e = 0; e < n; e++) {
-    paid += e % 3 !== 0 ? ((left[e] as number) * (right[e] as number)) / lr : 0
+    paid += e % 3 !== 0 ? (left[e]! * right[e]!) / lr : 0
 
     for (let f = 0; f < n; f++) {
       if (e !== f) {
-        charges += ((left[e] as number) * (t[e * n + f] as number) * (right[f] as number)) / (value * lr)
+        charges += (left[e]! * t[e * n + f]! * right[f]!) / (value * lr)
       }
     }
   }
@@ -580,7 +685,9 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
         }
 
         // level a (unpaid), a charge to b, d - 1 calm cells at b, the opposite charge back to a
-        sum += ((left[a] as number) * y * x * x ** (d - 1) * y * (right[a] as number)) / (value ** (d + 1) * lr)
+        sum +=
+          (left[a]! * y * x * x ** (d - 1) * y * right[a]!) /
+          (value ** (d + 1) * lr)
       }
     }
 
@@ -602,16 +709,17 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
 
     return s
   }
+
   const times = (a: Float64Array, b: Float64Array): Float64Array => {
     const out = new Float64Array(n * n)
 
     for (let i = 0; i < n; i++) {
       for (let k = 0; k < n; k++) {
-        const v = a[i * n + k] as number
+        const v = a[i * n + k]!
 
         if (v !== 0) {
           for (let j = 0; j < n; j++) {
-            out[i * n + j] = (out[i * n + j] as number) + v * (b[k * n + j] as number)
+            out[i * n + j] = out[i * n + j]! + v * b[k * n + j]!
           }
         }
       }
@@ -619,6 +727,7 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
 
     return out
   }
+
   const weight = (cells: readonly (number | 'free')[]): number => {
     let m = new Float64Array(n * n)
 
@@ -634,21 +743,26 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        s += (left[i] as number) * (m[i * n + j] as number) * (right[j] as number)
+        s += left[i]! * m[i * n + j]! * right[j]!
       }
     }
 
     return s / (value ** cells.length * lr)
   }
-  const connected = Array.from({ length: (input.gaps ?? 0) + 1 }, (_, gap) => {
-    const pad = (k: number): 'free'[] => new Array<'free'>(k).fill('free')
-    const both = weight([1, -1, ...pad(gap), 1, -1])
-    const none = weight(pad(gap + 4))
-    const one = weight([1, -1, ...pad(gap + 2)])
-    const two = weight([...pad(gap + 2), 1, -1])
 
-    return (both * none) / (one * two) - 1
-  })
+  const connected = Array.from(
+    { length: (input.gaps ?? 0) + 1 },
+    (_, gap) => {
+      const pad = (k: number): 'free'[] =>
+        new Array<'free'>(k).fill('free')
+      const both = weight([1, -1, ...pad(gap), 1, -1])
+      const none = weight(pad(gap + 4))
+      const one = weight([1, -1, ...pad(gap + 2)])
+      const two = weight([...pad(gap + 2), 1, -1])
+
+      return (both * none) / (one * two) - 1
+    },
+  )
 
   return { lambda0: value, charges, paid, profile, connected }
 }
@@ -658,10 +772,18 @@ export function orderedLineMeasure(input: { x: number; y: number; levels: number
 
 // the number of shortest root paths from the origin to every D4 vector within graph distance `reach`, keyed by
 // the vector, by breadth-first layers
-export function shortestPaths(reach: number): Map<string, { vector: number[]; length: number; count: number }> {
+export function shortestPaths(
+  reach: number,
+): Map<string, { vector: number[]; length: number; count: number }> {
   const roots = rootsD4()
-  const out = new Map<string, { vector: number[]; length: number; count: number }>()
-  let layer = new Map<string, { vector: number[]; count: number }>([['0,0,0,0', { vector: [0, 0, 0, 0], count: 1 }]])
+  const out = new Map<
+    string,
+    { vector: number[]; length: number; count: number }
+  >()
+
+  let layer = new Map<string, { vector: number[]; count: number }>([
+    ['0,0,0,0', { vector: [0, 0, 0, 0], count: 1 }],
+  ])
 
   out.set('0,0,0,0', { vector: [0, 0, 0, 0], length: 0, count: 1 })
 
@@ -688,7 +810,11 @@ export function shortestPaths(reach: number): Map<string, { vector: number[]; le
     }
 
     for (const [key, entry] of next) {
-      out.set(key, { vector: entry.vector, length: n, count: entry.count })
+      out.set(key, {
+        vector: entry.vector,
+        length: n,
+        count: entry.count,
+      })
     }
 
     layer = next
@@ -701,7 +827,10 @@ export function shortestPaths(reach: number): Map<string, { vector: number[]; le
 // with n the fewest roots and N the shortest paths, per dock of each bulk shell, and column-summed per husk dock of
 // each husk shell (the husk drops the depth coordinate, code/measure/photon-husk). Returned as shells of (r, value,
 // count), the form code/measure/nucleon-gas ornsteinZernikeRate fits.
-export function leadingProfile(input: { x: number; reach: number }): { bulk: { r: number; value: number; count: number }[]; husk: { r: number; value: number; count: number }[] } {
+export function leadingProfile(input: { x: number; reach: number }): {
+  bulk: { r: number; value: number; count: number }[]
+  husk: { r: number; value: number; count: number }[]
+} {
   const paths = shortestPaths(input.reach)
   const bulk = new Map<number, { sum: number; count: number }>()
   const columns = new Map<string, { sum: number; key: number }>()
@@ -720,7 +849,13 @@ export function leadingProfile(input: { x: number; reach: number }): { bulk: { r
     bulk.set(bulkKey, b)
 
     const column = `${vector[0]},${vector[1]},${vector[2]}`
-    const c = columns.get(column) ?? { sum: 0, key: (vector[0] ?? 0) ** 2 + (vector[1] ?? 0) ** 2 + (vector[2] ?? 0) ** 2 }
+    const c = columns.get(column) ?? {
+      sum: 0,
+      key:
+        (vector[0] ?? 0) ** 2 +
+        (vector[1] ?? 0) ** 2 +
+        (vector[2] ?? 0) ** 2,
+    }
 
     c.sum += weight
     columns.set(column, c)
@@ -740,8 +875,16 @@ export function leadingProfile(input: { x: number; reach: number }): { bulk: { r
     husk.set(c.key, h)
   }
 
-  const shells = (m: Map<number, { sum: number; count: number }>): { r: number; value: number; count: number }[] =>
-    [...m.entries()].map(([key, s]) => ({ r: Math.sqrt(key), value: s.sum / s.count, count: s.count })).sort((a, b) => a.r - b.r)
+  const shells = (
+    m: Map<number, { sum: number; count: number }>,
+  ): { r: number; value: number; count: number }[] =>
+    [...m.entries()]
+      .map(([key, s]) => ({
+        r: Math.sqrt(key),
+        value: s.sum / s.count,
+        count: s.count,
+      }))
+      .sort((a, b) => a.r - b.r)
 
   return { bulk: shells(bulk), husk: shells(husk) }
 }
@@ -756,7 +899,10 @@ export type LinkTable = {
   readonly step: Int32Array
 }
 
-export function linkTable(graph: StringGraph, geometry: BoxGeometry): LinkTable {
+export function linkTable(
+  graph: StringGraph,
+  geometry: BoxGeometry,
+): LinkTable {
   const side = geometry.side
   const coordinates = new Int32Array(graph.links.length * 4)
   const step = new Int32Array(graph.links.length * 4)
@@ -777,26 +923,39 @@ export function linkTable(graph: StringGraph, geometry: BoxGeometry): LinkTable 
 
 // the squared bulk and husk lengths (times 4) of the midpoint displacement of two links, through the box's
 // minimal-image table: the same geometry as code/measure/nucleon-gas midpointDisplacement, without allocation
-export function midpointKeys(input: { table: LinkTable; geometry: BoxGeometry; first: number; second: number; out: Int32Array }): void {
+export function midpointKeys(input: {
+  table: LinkTable
+  geometry: BoxGeometry
+  first: number
+  second: number
+  out: Int32Array
+}): void {
   const { table, geometry, first, second, out } = input
   const side = table.side
+
   let index = 0
   let place = 1
 
   for (let k = 0; k < 4; k++) {
-    const d = (table.coordinates[second * 4 + k] as number) - (table.coordinates[first * 4 + k] as number)
+    const d =
+      table.coordinates[second * 4 + k]! -
+      table.coordinates[first * 4 + k]!
 
     index += (((d % side) + side) % side) * place
     place *= side
   }
 
-  const base = geometry.minimal[index] as readonly number[]
+  const base = geometry.minimal[index]!
+
   let bulk = 0
   let husk = 0
 
   for (let k = 0; k < 4; k++) {
     // doubled: 2 base + (s2 - s1)
-    const v = 2 * (base[k] as number) + (table.step[second * 4 + k] as number) - (table.step[first * 4 + k] as number)
+    const v =
+      2 * base[k]! +
+      table.step[second * 4 + k]! -
+      table.step[first * 4 + k]!
 
     bulk += v * v
     husk += k < 3 ? v * v : 0
@@ -808,20 +967,44 @@ export function midpointKeys(input: { table: LinkTable; geometry: BoxGeometry; f
 }
 
 // the dock index of a basis-coordinate difference, for dock-to-dock displacements
-export function dockDifference(input: { geometry: BoxGeometry; a: number; b: number }): readonly number[] {
+export function dockDifference(input: {
+  geometry: BoxGeometry
+  a: number
+  b: number
+}): readonly number[] {
   const { geometry, a, b } = input
   const ca = geometry.coordinates[a] ?? []
   const cb = geometry.coordinates[b] ?? []
 
-  return geometry.minimal[d4BoxCell({ coordinates: ca.map((x, k) => x - (cb[k] ?? 0)), side: geometry.side })] ?? []
+  return (
+    geometry.minimal[
+      d4BoxCell({
+        coordinates: ca.map((x, k) => x - (cb[k] ?? 0)),
+        side: geometry.side,
+      })
+    ] ?? []
+  )
 }
 
 // The compact singlets of one snapshot, from its pieces: mesons whose piece is one paid link between a love and a
 // fear (their link), and baryons whose piece is two paid links through three loves or three fears (their middle
 // dock, the dock the two links share)
-export type Compact = { readonly mesons: number[]; readonly baryons: number[]; readonly mesonDocks: number[][]; readonly baryonDocks: number[][] }
+export type Compact = {
+  readonly mesons: number[]
+  readonly baryons: number[]
+  readonly mesonDocks: number[][]
+  readonly baryonDocks: number[][]
+}
 
-export function compactSinglets(graph: StringGraph, pieces: readonly { loves: number[]; fears: number[]; links: number[]; paid: number }[]): Compact {
+export function compactSinglets(
+  graph: StringGraph,
+  pieces: readonly {
+    loves: number[]
+    fears: number[]
+    links: number[]
+    paid: number
+  }[],
+): Compact {
   const mesons: number[] = []
   const mesonDocks: number[][] = []
   const baryons: number[] = []
@@ -829,16 +1012,22 @@ export function compactSinglets(graph: StringGraph, pieces: readonly { loves: nu
 
   for (const p of pieces) {
     if (p.loves.length === 1 && p.fears.length === 1 && p.paid === 1) {
-      const l = p.links[0] as number
+      const l = p.links[0]!
 
       mesons.push(l)
-      mesonDocks.push([p.loves[0] as number, p.fears[0] as number])
-    } else if (p.paid === 2 && ((p.loves.length === 3 && p.fears.length === 0) || (p.fears.length === 3 && p.loves.length === 0))) {
-      const [a, b] = graph.links[p.links[0] as number] as readonly [number, number, number]
-      const [c, d] = graph.links[p.links[1] as number] as readonly [number, number, number]
+      mesonDocks.push([p.loves[0]!, p.fears[0]!])
+    } else if (
+      p.paid === 2 &&
+      ((p.loves.length === 3 && p.fears.length === 0) ||
+        (p.fears.length === 3 && p.loves.length === 0))
+    ) {
+      const [a, b] = graph.links[p.links[0]!]!
+      const [c, d] = graph.links[p.links[1]!]!
 
       baryons.push(a === c || a === d ? a : b)
-      baryonDocks.push(p.loves.length === 3 ? [...p.loves] : [...p.fears])
+      baryonDocks.push(
+        p.loves.length === 3 ? [...p.loves] : [...p.fears],
+      )
     }
   }
 
@@ -846,26 +1035,34 @@ export function compactSinglets(graph: StringGraph, pieces: readonly { loves: nu
 }
 
 // the squared bulk and husk lengths (times 4) from a dock to the midpoint of a link: doubled coordinates again
-export function dockLinkKeys(input: { table: LinkTable; geometry: BoxGeometry; dock: number; link: number; out: Int32Array }): void {
+export function dockLinkKeys(input: {
+  table: LinkTable
+  geometry: BoxGeometry
+  dock: number
+  link: number
+  out: Int32Array
+}): void {
   const { table, geometry, dock, link, out } = input
   const side = table.side
-  const c = geometry.coordinates[dock] as readonly number[]
+  const c = geometry.coordinates[dock]!
+
   let index = 0
   let place = 1
 
   for (let k = 0; k < 4; k++) {
-    const d = (table.coordinates[link * 4 + k] as number) - (c[k] as number)
+    const d = table.coordinates[link * 4 + k]! - c[k]!
 
     index += (((d % side) + side) % side) * place
     place *= side
   }
 
-  const base = geometry.minimal[index] as readonly number[]
+  const base = geometry.minimal[index]!
+
   let bulk = 0
   let husk = 0
 
   for (let k = 0; k < 4; k++) {
-    const v = 2 * (base[k] as number) + (table.step[link * 4 + k] as number)
+    const v = 2 * base[k]! + table.step[link * 4 + k]!
 
     bulk += v * v
     husk += k < 3 ? v * v : 0
@@ -891,22 +1088,41 @@ export function runPairGas(input: {
   beats: number
   every: number
   look: (state: GraphState, beat: number) => void
-}): { meanDemon: number; exact: boolean; agrees: boolean; startEnergy: number } {
-  const { graph, mesons, baryons, q, settle, beats, every, look } = input
+}): {
+  meanDemon: number
+  exact: boolean
+  agrees: boolean
+  startEnergy: number
+} {
+  const { graph, mesons, baryons, q, settle, beats, every, look } =
+    input
   const seeded = seedGas({ graph, mesons, baryons })
-  const weights = Array.from({ length: graph.capacity + 1 }, (_, d) => q ** d)
+  const weights = Array.from(
+    { length: graph.capacity + 1 },
+    (_, d) => q ** d,
+  )
   const total = weights.reduce((a, b) => a + b, 0)
-  const cumulative = weights.map((_, d) => weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total)
-  const demon = Int32Array.from({ length: graph.links.length }, (_, l) => {
-    const u = ((l + 1) * SILVER) % 1
+  const cumulative = weights.map(
+    (_, d) =>
+      weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total,
+  )
+  const demon = Int32Array.from(
+    { length: graph.links.length },
+    (_, l) => {
+      const u = ((l + 1) * SILVER) % 1
 
-    return cumulative.findIndex(c => u < c)
-  })
+      return cumulative.findIndex(c => u < c)
+    },
+  )
   const start: GraphState = { ...seeded, demon }
   const e0 = graphEnergy(graph, start)
   const agrees = fastBeatAgrees(graph, start, 40)
   const fast = makeFastGraph(graph)
-  const s: GraphState = { vibe: Int8Array.from(start.vibe), flux: Int32Array.from(start.flux), demon: Int32Array.from(start.demon) }
+  const s: GraphState = {
+    vibe: Int8Array.from(start.vibe),
+    flux: Int32Array.from(start.flux),
+    demon: Int32Array.from(start.demon),
+  }
 
   let exact = graphGaussHolds(graph, start)
   let demonSum = 0
@@ -917,13 +1133,16 @@ export function runPairGas(input: {
 
     if (t >= settle && (t - settle) % every === 0) {
       if (samples % 25 === 0) {
-        exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+        exact =
+          exact &&
+          graphEnergy(graph, s) === e0 &&
+          graphGaussHolds(graph, s)
       }
 
       let d = 0
 
       for (let l = 0; l < graph.links.length; l++) {
-        d += s.demon[l] as number
+        d += s.demon[l]!
       }
 
       demonSum += d / graph.links.length
@@ -932,9 +1151,15 @@ export function runPairGas(input: {
     }
   }
 
-  exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+  exact =
+    exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
 
-  return { meanDemon: demonSum / Math.max(1, samples), exact, agrees, startEnergy: e0 }
+  return {
+    meanDemon: demonSum / Math.max(1, samples),
+    exact,
+    agrees,
+    startEnergy: e0,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -970,7 +1195,11 @@ export type PairVacuum = {
   readonly fourOnePerRead: number
   readonly twoTwoPerRead: number
   // the love-fear displacement of every piece holding exactly one love and one fear
-  readonly profile: { bulk: LengthHistogram; husk: LengthHistogram; pieces: number }
+  readonly profile: {
+    bulk: LengthHistogram
+    husk: LengthHistogram
+    pieces: number
+  }
   readonly mesonPairs: { real: PairHistograms; mixed: PairHistograms }
   readonly baryonMeson: { real: PairHistograms; mixed: PairHistograms }
   readonly geometry: BoxGeometry
@@ -998,15 +1227,36 @@ export const PAIR_VACUUM = {
   lag: 250,
 } as const
 
-export function pairVacuumPair(): { paired: PairVacuum; control: PairVacuum } {
+export function pairVacuumPair(): {
+  paired: PairVacuum
+  control: PairVacuum
+} {
   const p = PAIR_VACUUM
-  const common = { side: p.side, mass: p.mass, tension: p.tension, q: p.q, mesons: p.mesons, baryons: p.baryons, settle: p.settle, beats: p.beats, every: p.every, lag: p.lag }
+  const common = {
+    side: p.side,
+    mass: p.mass,
+    tension: p.tension,
+    q: p.q,
+    mesons: p.mesons,
+    baryons: p.baryons,
+    settle: p.settle,
+    beats: p.beats,
+    every: p.every,
+    lag: p.lag,
+  }
 
-  return { paired: pairVacuumRun({ ...common, capacity: p.capacity }), control: pairVacuumRun({ ...common, capacity: p.controlCapacity }) }
+  return {
+    paired: pairVacuumRun({ ...common, capacity: p.capacity }),
+    control: pairVacuumRun({ ...common, capacity: p.controlCapacity }),
+  }
 }
 
 function histograms(): PairHistograms {
-  return { bulk: new Float64Array(KEYS), husk: new Float64Array(KEYS), norm: 0 }
+  return {
+    bulk: new Float64Array(KEYS),
+    husk: new Float64Array(KEYS),
+    norm: 0,
+  }
 }
 
 export function pairVacuumRun(input: {
@@ -1023,16 +1273,28 @@ export function pairVacuumRun(input: {
   lag: number
 }): PairVacuum {
   const { side, lag } = input
-  const graph = makeStringGraph({ mesh: d4BoxMesh({ side }), mass: input.mass, tension: input.tension, capacity: input.capacity })
+  const graph = makeStringGraph({
+    mesh: d4BoxMesh({ side }),
+    mass: input.mass,
+    tension: input.tension,
+    capacity: input.capacity,
+  })
   const geometry = makeBoxGeometry(side)
   const table = linkTable(graph, geometry)
   const keys = new Int32Array(2)
-  const profile = { bulk: new Map() as LengthHistogram, husk: new Map() as LengthHistogram, pieces: 0 }
+  const profile = {
+    bulk: new Map() as LengthHistogram,
+    husk: new Map() as LengthHistogram,
+    pieces: 0,
+  }
   const mesonPairs = { real: histograms(), mixed: histograms() }
   const baryonMeson = { real: histograms(), mixed: histograms() }
   // the ring of past reads: compact mesons (links and docks) and baryons (middle docks and docks)
   const past: Compact[] = []
-  const shares = (a: readonly number[], b: readonly number[]): boolean => a.some(d => b.includes(d))
+  const shares = (
+    a: readonly number[],
+    b: readonly number[],
+  ): boolean => a.some(d => b.includes(d))
 
   let reads = 0
   let charges = 0
@@ -1068,14 +1330,18 @@ export function pairVacuumRun(input: {
 
       for (const p of pieces) {
         if (p.loves.length === 1 && p.fears.length === 1) {
-          const v = boxDisplacement(geometry, p.fears[0] as number, p.loves[0] as number)
+          const v = boxDisplacement(geometry, p.fears[0]!, p.loves[0]!)
 
           addTo(profile.bulk, lengthKey(bulkLength(v) ** 2))
           addTo(profile.husk, lengthKey(huskLength(v) ** 2))
           profile.pieces++
         }
 
-        fourOne += (p.loves.length === 4 && p.fears.length === 1) || (p.loves.length === 1 && p.fears.length === 4) ? 1 : 0
+        fourOne +=
+          (p.loves.length === 4 && p.fears.length === 1) ||
+          (p.loves.length === 1 && p.fears.length === 4)
+            ? 1
+            : 0
         twoTwo += p.loves.length === 2 && p.fears.length === 2 ? 1 : 0
       }
 
@@ -1090,9 +1356,19 @@ export function pairVacuumRun(input: {
 
       for (let i = 0; i < n; i++) {
         for (let j = i + 1; j < n; j++) {
-          midpointKeys({ table, geometry, first: now.mesons[i] as number, second: now.mesons[j] as number, out: keys })
-          mesonPairs.real.bulk[keys[0] as number] = (mesonPairs.real.bulk[keys[0] as number] as number) + 1
-          mesonPairs.real.husk[keys[1] as number] = (mesonPairs.real.husk[keys[1] as number] as number) + 1
+          midpointKeys({
+            table,
+            geometry,
+            first: now.mesons[i]!,
+            second: now.mesons[j]!,
+            out: keys,
+          })
+
+          mesonPairs.real.bulk[keys[0]!] =
+            mesonPairs.real.bulk[keys[0]!]! + 1
+
+          mesonPairs.real.husk[keys[1]!] =
+            mesonPairs.real.husk[keys[1]!]! + 1
         }
       }
 
@@ -1102,39 +1378,63 @@ export function pairVacuumRun(input: {
       now.baryons.forEach(b => {
         for (const l of now.mesons) {
           dockLinkKeys({ table, geometry, dock: b, link: l, out: keys })
-          baryonMeson.real.bulk[keys[0] as number] = (baryonMeson.real.bulk[keys[0] as number] as number) + 1
-          baryonMeson.real.husk[keys[1] as number] = (baryonMeson.real.husk[keys[1] as number] as number) + 1
+          baryonMeson.real.bulk[keys[0]!] =
+            baryonMeson.real.bulk[keys[0]!]! + 1
+
+          baryonMeson.real.husk[keys[1]!] =
+            baryonMeson.real.husk[keys[1]!]! + 1
         }
       })
 
       // mixed: this read against the read `lag` earlier
       if (past.length === lag) {
-        const then = past.shift() as Compact
+        const then = past.shift()!
 
         mesonPairs.mixed.norm += n * then.mesons.length
-        baryonMeson.mixed.norm += now.baryons.length * then.mesons.length
+        baryonMeson.mixed.norm +=
+          now.baryons.length * then.mesons.length
 
         now.mesons.forEach((l, i) => {
           then.mesons.forEach((m, j) => {
-            if (shares(now.mesonDocks[i] as number[], then.mesonDocks[j] as number[])) {
+            if (shares(now.mesonDocks[i]!, then.mesonDocks[j]!)) {
               return
             }
 
-            midpointKeys({ table, geometry, first: l, second: m, out: keys })
-            mesonPairs.mixed.bulk[keys[0] as number] = (mesonPairs.mixed.bulk[keys[0] as number] as number) + 1
-            mesonPairs.mixed.husk[keys[1] as number] = (mesonPairs.mixed.husk[keys[1] as number] as number) + 1
+            midpointKeys({
+              table,
+              geometry,
+              first: l,
+              second: m,
+              out: keys,
+            })
+
+            mesonPairs.mixed.bulk[keys[0]!] =
+              mesonPairs.mixed.bulk[keys[0]!]! + 1
+
+            mesonPairs.mixed.husk[keys[1]!] =
+              mesonPairs.mixed.husk[keys[1]!]! + 1
           })
         })
 
         now.baryons.forEach((b, i) => {
           then.mesons.forEach((m, j) => {
-            if (shares(now.baryonDocks[i] as number[], then.mesonDocks[j] as number[])) {
+            if (shares(now.baryonDocks[i]!, then.mesonDocks[j]!)) {
               return
             }
 
-            dockLinkKeys({ table, geometry, dock: b, link: m, out: keys })
-            baryonMeson.mixed.bulk[keys[0] as number] = (baryonMeson.mixed.bulk[keys[0] as number] as number) + 1
-            baryonMeson.mixed.husk[keys[1] as number] = (baryonMeson.mixed.husk[keys[1] as number] as number) + 1
+            dockLinkKeys({
+              table,
+              geometry,
+              dock: b,
+              link: m,
+              out: keys,
+            })
+
+            baryonMeson.mixed.bulk[keys[0]!] =
+              baryonMeson.mixed.bulk[keys[0]!]! + 1
+
+            baryonMeson.mixed.husk[keys[1]!] =
+              baryonMeson.mixed.husk[keys[1]!]! + 1
           })
         })
       }
@@ -1142,7 +1442,10 @@ export function pairVacuumRun(input: {
       past.push(now)
     },
   })
-  const beta = unitDemonBeta({ meanDemon: out.meanDemon, capacity: input.capacity })
+  const beta = unitDemonBeta({
+    meanDemon: out.meanDemon,
+    capacity: input.capacity,
+  })
 
   return {
     beta,
@@ -1167,16 +1470,25 @@ export function pairVacuumRun(input: {
 }
 
 // One shell of g(R) - 1 from real and mixed histograms: the excess and its Poisson error
-export type Shell = { readonly r: number; readonly g: number; readonly sigma: number; readonly real: number; readonly mixed: number }
+export type Shell = {
+  readonly r: number
+  readonly g: number
+  readonly sigma: number
+  readonly real: number
+  readonly mixed: number
+}
 
-export function correlationShells(pair: { real: PairHistograms; mixed: PairHistograms }, which: 'bulk' | 'husk'): Shell[] {
+export function correlationShells(
+  pair: { real: PairHistograms; mixed: PairHistograms },
+  which: 'bulk' | 'husk',
+): Shell[] {
   const real = pair.real[which]
   const mixed = pair.mixed[which]
   const out: Shell[] = []
 
   for (let key = 1; key < KEYS; key++) {
-    const r = real[key] as number
-    const m = mixed[key] as number
+    const r = real[key]!
+    const m = mixed[key]!
 
     if (m <= 0) {
       continue

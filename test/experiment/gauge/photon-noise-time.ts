@@ -53,7 +53,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { controlMetrics, heatControls, hotHusk, sectionA, sectionBC, sectionE, sectionF, sectionH } from '@/code/measure/photon-battery'
+import {
+  controlMetrics,
+  heatControls,
+  hotHusk,
+  sectionA,
+  sectionBC,
+  sectionE,
+  sectionF,
+  sectionH,
+} from '@/code/measure/photon-battery'
 import { type ShapedForm } from '@/code/rule/photon-shaped'
 
 export const NOTCH = 1.3864440917966434
@@ -72,31 +81,65 @@ export default experiment({
     const controls = heatControls()
 
     Object.assign(metrics, controlMetrics(controls))
-    Object.assign(metrics, hotHusk('linear', 'd0Linear', { dither: 'zero', side: 8 }))
-    Object.assign(metrics, hotHusk('remainder', 'dRemainder', { dither: 'weyl', side: 8 }))
+    Object.assign(
+      metrics,
+      hotHusk('linear', 'd0Linear', { dither: 'zero', side: 8 }),
+    )
 
-    const d0 = Math.abs(metrics['d0LinearLaggedOverExact'] ?? 1) < 0.02 && Math.abs(metrics['d0LinearDirectOverExact'] ?? 1) < 0.02
+    Object.assign(
+      metrics,
+      hotHusk('remainder', 'dRemainder', { dither: 'weyl', side: 8 }),
+    )
 
-    metrics['gateD0'] = d0 ? 1 : 0
+    const d0 =
+      Math.abs(metrics.d0LinearLaggedOverExact ?? 1) < 0.02 &&
+      Math.abs(metrics.d0LinearDirectOverExact ?? 1) < 0.02
+
+    metrics.gateD0 = d0 ? 1 : 0
 
     const passes: Record<string, boolean> = {}
+
     let everyA = true
 
     for (const form of ['second', 'third', 'notch'] as ShapedForm[]) {
       const notch = form === 'notch' ? NOTCH : undefined
+
       const put = (r: Record<string, number>): void => {
         for (const [key, value] of Object.entries(r)) {
           metrics[`${form}.${key}`] = value
         }
       }
+
       const a = sectionA(form, notch)
-      const bc = sectionBC(form, { dither: 'weyl', other: 'zero', notch, bound: 1e-3 })
+      const bc = sectionBC(form, {
+        dither: 'weyl',
+        other: 'zero',
+        notch,
+        bound: 1e-3,
+      })
       const d = hotHusk(form, 'd', { dither: 'weyl', side: 8, notch })
-      const e = sectionE(form, { dither: 'weyl', other: 'zero', notch, floor: 1.4 })
+      const e = sectionE(form, {
+        dither: 'weyl',
+        other: 'zero',
+        notch,
+        floor: 1.4,
+      })
       const f = sectionF(form, { dither: 'weyl', notch }, controls)
       const h = sectionH(form, notch)
-      const okD = (d['dLaggedLightBranches'] ?? 0) >= 1 && Math.abs(d['dLaggedOverExact'] ?? 1) < 0.02 && Math.abs(d['dDirectOverExact'] ?? 1) < 0.02
-      const gates = { A: a.ok, B: bc.okB, C: bc.okC, D: okD ? 1 : 0, E1: e.okE1, E2: e.okE2, F1: f.okF1, F2: f.okF2 }
+      const okD =
+        (d.dLaggedLightBranches ?? 0) >= 1 &&
+        Math.abs(d.dLaggedOverExact ?? 1) < 0.02 &&
+        Math.abs(d.dDirectOverExact ?? 1) < 0.02
+      const gates = {
+        A: a.ok,
+        B: bc.okB,
+        C: bc.okC,
+        D: okD ? 1 : 0,
+        E1: e.okE1,
+        E2: e.okE2,
+        F1: f.okF1,
+        F2: f.okF2,
+      }
 
       put(a)
       put(bc)
@@ -123,8 +166,10 @@ export default experiment({
       control: {
         e164F1Growth: controls.t1.growth,
         remainderF1Growth: controls.c1.growth,
-        linearHuskLaggedOverExact: metrics['d0LinearLaggedOverExact'] ?? -1,
-        remainderHuskLaggedOverExact: metrics['dRemainderLaggedOverExact'] ?? -1,
+        linearHuskLaggedOverExact:
+          metrics.d0LinearLaggedOverExact ?? -1,
+        remainderHuskLaggedOverExact:
+          metrics.dRemainderLaggedOverExact ?? -1,
       },
       notes:
         "L2, exact integers, deterministic (golden Weyl carried starts, zero beside, hashed starts, no seeds). First run 2026-09-26 (tmp/frc0184.log), PARTIAL: every form passes A (0 pay failures over 536,870,912 pairs, 0 mismatches back, 0 Gauss violations, 0 frame mismatches) and H, none passes every gate. The heating PREDICTIONS of E-FRC-0183 hold on the clean protocol, F2 (hot start, no wraps): drift relative to E-FRC-0181's 0.0101 is 0.68 for (1 - z)^2 (predicted 0.66), 0.45 for (1 - z)^3 (predicted 0.46) and 0.004 for the notch (predicted 0.049, better than the white model). F1 is contaminated by the linear table's seam (2 to 6 wraps of B across N / 2 on the E-FRC-0164 start for every carried rule), so its growths (second 299, third 466, notch 238 against E-FRC-0164's 570) mix noise with seam kicks. Per form: SECOND fails B (1.9 percent at |B| 1), D (lagged +16.4, direct +1.9), E1 (2.31 units), F1 (299 > 285), passes C (8.9e-5) and F2 (0.43). THIRD fails B (6.3 percent), D (no light branch admitted), E1 (1.97 to 2.04 units), F1 (466), passes C (3.4e-4) and F2 (0.28). NOTCH (1 - 1.38644 z + z^2) passes A, C (worst 2.1e-4), E1 (0.85 to 0.88 flux units, against E-FRC-0181's 2.8), E2 (0.850 at e = 256 below 0.871 at e = 16, a 2.5 percent fall that is within the spread of a flat floor, so E2's pass is not evidence of a charge dependence), F1 (238, ratio 0.42) and F2 (ratio 0.0025), and fails only B (5.5 percent at |B| 1, 0.59 at 4, 7e-5 at 8) and D (lagged +3.2 percent with 2 light branches, direct +0.18). The notch is the best time-only shaping: it removes the massive-branch heating as predicted, and what it leaves on the photon branches (0.43 of first order's) and the flux dither still bias the small-wave and hot-field readings. The zero carried start is again much worse than the Weyl start for small waves (second 387 percent, third 639, notch 44 at |B| 1). Section D ran on side 8, not E-FRC-0181's side 12; there the linear control reads -0.05 percent and E-FRC-0181's rule +12.2 lagged, +2.6 direct.",

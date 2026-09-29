@@ -74,7 +74,9 @@ const SIDES = [9, 13]
 const FLOOR_MULTIPLE = 10
 const STREAMING_FLOOR = 0.04
 const GENERIC = [0.31, -0.74, 0.52, 0.29]
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
 
 export default experiment({
   id: 'relativity/scatter-block-symmetry',
@@ -88,24 +90,46 @@ export default experiment({
   run() {
     const roots = rootsD4()
     const opposite = meshOpposites(d4Mesh({ side: 5 }))
-    const permutations = weylF4DirectionPermutations({ directions: roots })
-    const matrices: Matrix4[] = permutations.map(p => linearMapOf(p) ?? [])
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
+    const matrices: Matrix4[] = permutations.map(
+      p => linearMapOf(p) ?? [],
+    )
     const samples = unitSamples(64)
     const spread = (group: readonly Matrix4[]): number =>
-      forcedIsotropySpread({ group, rank: 2, generic: GENERIC, samples })
+      forcedIsotropySpread({
+        group,
+        rank: 2,
+        generic: GENERIC,
+        samples,
+      })
+
     const traceOf = (p: readonly number[]): number => {
       const m = linearMapOf(p) ?? []
 
       return [0, 1, 2, 3].reduce((s, i) => s + (m[i]?.[i] ?? 0), 0)
     }
+
     const orderOf = (p: readonly number[]): number =>
       permutationOrder({ permutation: p })
     const sets = scatterSchedule('pair')
-    const spec: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror: MIRROR, sets }
+    const spec: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror: MIRROR,
+      sets,
+    }
     const forward = scatterCollision({ spec, opposite })
     const inverse = scatterCollision({ spec, opposite, forward: false })
-    const baseForward = colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite })
-    const baseInverse = colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite, forward: false })
+    const baseForward = colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite,
+    })
+    const baseInverse = colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite,
+      forward: false,
+    })
 
     // 1. the knit's own symmetry, tested also on states that make every scattering fire (the dense fills
     // alone almost never do: a scattering needs two lone tones going into two wholly calm lines)
@@ -120,11 +144,18 @@ export default experiment({
       thoroughDense: 512,
       extraStates: moveFiringStates({ moves: allMoves, degree: 24 }),
     })
-    const identityIndex = permutations.findIndex(p => p.every((x, i) => x === i))
-    const cpt = ledger.filter(
-      e => e.kind === 'reversal' && e.p === identityIndex && e.tau === CHARGE_CONJUGATION,
+    const identityIndex = permutations.findIndex(p =>
+      p.every((x, i) => x === i),
     )
-    const periodGroup = matrixGroupClosure(ledger.map(e => matrices[e.p] ?? []))
+    const cpt = ledger.filter(
+      e =>
+        e.kind === 'reversal' &&
+        e.p === identityIndex &&
+        e.tau === CHARGE_CONJUGATION,
+    )
+    const periodGroup = matrixGroupClosure(
+      ledger.map(e => matrices[e.p] ?? []),
+    )
     const periodSpread = spread(periodGroup)
 
     // 2. beat by beat, each beat tested on the states that fire its own scatterings
@@ -144,20 +175,25 @@ export default experiment({
         extraStates: moveFiringStates({ moves, degree: 24 }),
       }).filter(e => e.kind === 'forward')
     const beats = Array.from({ length: PERIOD }, (_, t) => {
-      const before = sets[(((MIRROR - t) % PERIOD) + PERIOD) % PERIOD] ?? []
+      const before =
+        sets[(((MIRROR - t) % PERIOD) + PERIOD) % PERIOD] ?? []
       const after = sets[t] ?? []
       const moves = [...before, ...after]
       const composite = stabilizerOf(forward(t), inverse(t), moves)
       const base = stabilizerOf(baseForward(t), baseInverse(t), moves)
       const baseKeys = new Set(base.map(e => `${e.p}:${e.tau}`))
       const keeps = (p: number): boolean =>
-        invariantScatterSets({ permutation: permutations[p] ?? [], sets: [before, after] })
-          .length === 2
+        invariantScatterSets({
+          permutation: permutations[p] ?? [],
+          sets: [before, after],
+        }).length === 2
 
       return {
         composite: composite.length,
         base: base.length,
-        insideBase: composite.every(e => baseKeys.has(`${e.p}:${e.tau}`)),
+        insideBase: composite.every(e =>
+          baseKeys.has(`${e.p}:${e.tau}`),
+        ),
         compositeKeepsSets: composite.every(e => keeps(e.p)),
         baseBreakingSets: base.filter(e => !keeps(e.p)).length,
       }
@@ -166,19 +202,23 @@ export default experiment({
     const compositeKeepsSets = beats.every(b => b.compositeKeepsSets)
 
     // 3. the architecture
-    const searches = (['headOn', 'headOnOrbit'] as const).map(relaxation => ({
-      relaxation,
-      ...periodGroupSearch({
+    const searches = (['headOn', 'headOnOrbit'] as const).map(
+      relaxation => ({
         relaxation,
-        permutations,
-        matrices,
-        opposite,
-        forcedSpread: spread,
-        traceOf,
-        orderOf,
+        ...periodGroupSearch({
+          relaxation,
+          permutations,
+          matrices,
+          opposite,
+          forcedSpread: spread,
+          traceOf,
+          orderOf,
+        }),
       }),
-    }))
-    const noneAnywhere = searches.every(s => s.palindromeGroups === 0 && s.glideGroups === 0)
+    )
+    const noneAnywhere = searches.every(
+      s => s.palindromeGroups === 0 && s.glideGroups === 0,
+    )
 
     // 4. the response
     const responses = SIDES.map(side => {
@@ -186,7 +226,10 @@ export default experiment({
       const records = chargeWaveResponse({
         mesh,
         side,
-        schedule: scatterCollision({ spec, opposite: meshOpposites(mesh) }),
+        schedule: scatterCollision({
+          spec,
+          opposite: meshOpposites(mesh),
+        }),
         directions: roots,
         modes: AXES,
         epsilon: 0.1,
@@ -202,7 +245,9 @@ export default experiment({
         ratio: parts.selfDual / parts.antiSelfDual,
       }
     })
-    const anisotropic = responses.every(r => r.anisotropy > FLOOR_MULTIPLE * STREAMING_FLOOR)
+    const anisotropic = responses.every(
+      r => r.anisotropy > FLOOR_MULTIPLE * STREAMING_FLOOR,
+    )
 
     const ok =
       cpt.length > 0 &&
@@ -215,7 +260,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the scatter knit keeps CPT and has a reducible period group, every beat\'s stabilizer (tested on states that fire its scatterings) lies inside its base beat\'s and keeps both of the beat\'s scatter sets, no irreducible period group exists for the head-on beat shape or its relaxation, and the response stays above 0.4 at sides 9 and 13',
+        "the scatter knit keeps CPT and has a reducible period group, every beat's stabilizer (tested on states that fire its scatterings) lies inside its base beat's and keeps both of the beat's scatter sets, no irreducible period group exists for the head-on beat shape or its relaxation, and the response stays above 0.4 at sides 9 and 13",
       metrics: {
         ledgerEntries: ledger.length,
         glides: ledger.filter(e => e.kind === 'forward').length,
@@ -224,23 +269,43 @@ export default experiment({
         periodGroupOrder: periodGroup.length,
         periodGroupForcedSpread: Number(periodSpread.toFixed(4)),
         largestBeatStabilizer: Math.max(...beats.map(b => b.composite)),
-        beatsWhereBlockRemovedSymmetry: beats.filter(b => b.composite < b.base).length,
-        baseSymmetriesTheBlockBreaks: beats.reduce((s, b) => s + b.baseBreakingSets, 0),
-        baseSymmetriesTheBlockRemoves: beats.reduce((s, b) => s + (b.base - b.composite), 0),
+        beatsWhereBlockRemovedSymmetry: beats.filter(
+          b => b.composite < b.base,
+        ).length,
+        baseSymmetriesTheBlockBreaks: beats.reduce(
+          (s, b) => s + b.baseBreakingSets,
+          0,
+        ),
+        baseSymmetriesTheBlockRemoves: beats.reduce(
+          (s, b) => s + (b.base - b.composite),
+          0,
+        ),
         ...Object.fromEntries(
           searches.flatMap(s => [
             [`${s.relaxation}Beats`, s.beats],
             [`${s.relaxation}Stabilizers`, s.stabilizers],
             [`${s.relaxation}LargestStabilizer`, s.largestStabilizer],
             [`${s.relaxation}Subgroups`, s.subgroups],
-            [`${s.relaxation}IrreduciblePalindromeGroups`, s.palindromeGroups],
-            [`${s.relaxation}IrreducibleGlideAndReversalGroups`, s.glideGroups],
+            [
+              `${s.relaxation}IrreduciblePalindromeGroups`,
+              s.palindromeGroups,
+            ],
+            [
+              `${s.relaxation}IrreducibleGlideAndReversalGroups`,
+              s.glideGroups,
+            ],
           ]),
         ),
         ...Object.fromEntries(
           responses.flatMap(r => [
-            [`anisotropySide${r.side}`, Number(r.anisotropy.toFixed(4))],
-            [`axisSpreadSide${r.side}`, Number(r.axisSpread.toFixed(4))],
+            [
+              `anisotropySide${r.side}`,
+              Number(r.anisotropy.toFixed(4)),
+            ],
+            [
+              `axisSpreadSide${r.side}`,
+              Number(r.axisSpread.toFixed(4)),
+            ],
             [`selfDualRatioSide${r.side}`, Number(r.ratio.toFixed(4))],
           ]),
         ),
@@ -250,7 +315,7 @@ export default experiment({
         baseLargestBeatStabilizer: Math.max(...beats.map(b => b.base)),
       },
       notes:
-        'L2. The two symmetries the combined knit keeps are the identity and the point inversion with charge conjugation (the head-on condition and the lone scattering condition both read the same with every line reversed and every tone negated); its reversals are CPT at the base\'s mirror phase. On four beats (6, 11, 12, 17) the head-on base alone keeps two more maps, an order-2 map the head-on swap admits and the committed swap does not, plain and with charge conjugation; both carry four of the beat\'s six scatterings to scatterings the knit never makes, and the block breaks them. A first version of this experiment tested the beats only on lone and dense states, on which the scatterings almost never fire, and read those two maps as kept: the ledger was blind to the block, and the states that fire each scattering (moveFiringStates) are what separate the two. The search shows no subgroup of any head-on beat stabilizer, even with free orientations and orbit swaps (stabilizers up to 16), extends to an irreducible period group with a CPT reversal. A composite symmetry that keeps neither part alone is outside the bound; on the actual knit every composite symmetry keeps both scatter sets. A differently designed block (one that replaces the couples instead of sitting on them) is outside this experiment.',
+        "L2. The two symmetries the combined knit keeps are the identity and the point inversion with charge conjugation (the head-on condition and the lone scattering condition both read the same with every line reversed and every tone negated); its reversals are CPT at the base's mirror phase. On four beats (6, 11, 12, 17) the head-on base alone keeps two more maps, an order-2 map the head-on swap admits and the committed swap does not, plain and with charge conjugation; both carry four of the beat's six scatterings to scatterings the knit never makes, and the block breaks them. A first version of this experiment tested the beats only on lone and dense states, on which the scatterings almost never fire, and read those two maps as kept: the ledger was blind to the block, and the states that fire each scattering (moveFiringStates) are what separate the two. The search shows no subgroup of any head-on beat stabilizer, even with free orientations and orbit swaps (stabilizers up to 16), extends to an irreducible period group with a CPT reversal. A composite symmetry that keeps neither part alone is outside the bound; on the actual knit every composite symmetry keeps both scatter sets. A differently designed block (one that replaces the couples instead of sitting on them) is outside this experiment.",
     })
   },
 })

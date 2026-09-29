@@ -95,9 +95,7 @@ export function meanChiralDisplacement(input: {
     let [u, d] = applyCoin(up, down, theta1 / 2)
 
     ;[u, d] = applyShift(u, d)
-
     ;[u, d] = applyCoin(u, d, theta2)
-
     ;[u, d] = applyShift(u, d)
     ;[u, d] = applyCoin(u, d, theta1 / 2)
     up = u

@@ -28,19 +28,29 @@ const trim = (p: BigPoly): BigPoly => {
 export const multiplyPoly = (p: BigPoly, q: BigPoly): BigPoly => {
   const out: bigint[] = Array(p.length + q.length - 1).fill(0n)
 
-  p.forEach((a, i) => q.forEach((c, j) => (out[i + j] = out[i + j]! + a * c)))
+  p.forEach((a, i) =>
+    q.forEach((c, j) => (out[i + j] = out[i + j]! + a * c)),
+  )
 
   return trim(out)
 }
 
-export const addPoly = (p: BigPoly, q: BigPoly): BigPoly => trim(Array.from({ length: Math.max(p.length, q.length) }, (_, i) => (p[i] ?? 0n) + (q[i] ?? 0n)))
+export const addPoly = (p: BigPoly, q: BigPoly): BigPoly =>
+  trim(
+    Array.from(
+      { length: Math.max(p.length, q.length) },
+      (_, i) => (p[i] ?? 0n) + (q[i] ?? 0n),
+    ),
+  )
 
 const scalePoly = (p: BigPoly, s: bigint): BigPoly => p.map(x => x * s)
 
 // z^d p(1/z)
-const reversePoly = (p: BigPoly, d: number): BigPoly => Array.from({ length: d + 1 }, (_, i) => p[d - i] ?? 0n)
+const reversePoly = (p: BigPoly, d: number): BigPoly =>
+  Array.from({ length: d + 1 }, (_, i) => p[d - i] ?? 0n)
 
-const gcd = (a: bigint, b: bigint): bigint => (b === 0n ? (a < 0n ? -a : a) : gcd(b, a % b))
+const gcd = (a: bigint, b: bigint): bigint =>
+  b === 0n ? (a < 0n ? -a : a) : gcd(b, a % b)
 
 const primitive = (p: BigPoly): BigPoly => {
   const c = p.reduce((g, x) => gcd(g, x), 0n) || 1n
@@ -53,6 +63,7 @@ const primitive = (p: BigPoly): BigPoly => {
 export function polyGcd(a0: BigPoly, b0: BigPoly): BigPoly {
   let a = primitive(trim(a0))
   let b = primitive(trim(b0))
+
   const isZero = (p: BigPoly): boolean => p.length === 1 && p[0] === 0n
 
   while (!isZero(b)) {
@@ -81,7 +92,10 @@ export function polyGcd(a0: BigPoly, b0: BigPoly): BigPoly {
 
 export function dividePoly(p: BigPoly, d: BigPoly): BigPoly {
   let r = trim([...p])
-  const q: bigint[] = Array(Math.max(1, r.length - d.length + 1)).fill(0n)
+
+  const q: bigint[] = Array(Math.max(1, r.length - d.length + 1)).fill(
+    0n,
+  )
 
   while (r.length >= d.length && !(r.length === 1 && r[0] === 0n)) {
     const shift = r.length - d.length
@@ -109,7 +123,12 @@ export function dividePoly(p: BigPoly, d: BigPoly): BigPoly {
 // the finite parabolic subgroup on `generators` of the Coxeter group with labels m: its Poincare polynomial
 // in z, each element counted by its number of `special` letters, or null when it has more than `limit`
 // elements (infinite, for the purpose here)
-export function parabolicPoincare(input: { labels: readonly (readonly number[])[]; generators: readonly number[]; special: number; limit?: number }): BigPoly | null {
+export function parabolicPoincare(input: {
+  labels: readonly (readonly number[])[]
+  generators: readonly number[]
+  special: number
+  limit?: number
+}): BigPoly | null {
   const { labels, generators, special } = input
   const limit = input.limit ?? 20000
   const n = generators.length
@@ -118,7 +137,10 @@ export function parabolicPoincare(input: { labels: readonly (readonly number[])[
     return [1n]
   }
 
-  const form = generators.map(i => generators.map(j => -Math.cos(Math.PI / labels[i]![j]!)))
+  const form = generators.map(i =>
+    generators.map(j => -Math.cos(Math.PI / labels[i]![j]!)),
+  )
+
   const reflect = (i: number, v: readonly number[]): number[] => {
     let dot = 0
 
@@ -128,10 +150,17 @@ export function parabolicPoincare(input: { labels: readonly (readonly number[])[
 
     return v.map((x, j) => x - (j === i ? 2 * dot : 0))
   }
-  const key = (element: readonly (readonly number[])[]): string => element.map(v => v.map(x => Math.round(x * 1e6)).join(',')).join(';')
-  const identity = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)))
+
+  const key = (element: readonly (readonly number[])[]): string =>
+    element
+      .map(v => v.map(x => Math.round(x * 1e6)).join(','))
+      .join(';')
+  const identity = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)),
+  )
   const seen = new Set<string>([key(identity)])
   const counts = new Map<number, bigint>([[0, 1n]])
+
   let frontier: [number[][], number][] = [[identity, 0]]
 
   // breadth by left multiplication: every first visit is along a reduced word, and every reduced word of an
@@ -171,7 +200,10 @@ export type ShellSeries = {
   readonly numerator: BigPoly
   readonly denominator: BigPoly
   // the finite parabolic subgroups used, with their weighted Poincare polynomials
-  readonly parabolics: readonly { generators: number[]; poincare: BigPoly }[]
+  readonly parabolics: readonly {
+    generators: number[]
+    poincare: BigPoly
+  }[]
   // the order of the cell stabilizer
   readonly stabilizer: bigint
   // the orbifold Euler characteristic of W, sum of (-1)^|J| / |W_J|, as a fraction
@@ -180,18 +212,24 @@ export type ShellSeries = {
 
 // the facet-shell series of the honeycomb whose Coxeter labels are `labels`, cells stabilized by every
 // generator but the last
-export function honeycombShellSeries(labels: readonly (readonly number[])[]): ShellSeries {
+export function honeycombShellSeries(
+  labels: readonly (readonly number[])[],
+): ShellSeries {
   const size = labels.length
   const special = size - 1
+
   let num: BigPoly = [0n]
   let den: BigPoly = [1n]
   let eulerNum = 0n
   let eulerDen = 1n
   let stabilizer = 0n
+
   const parabolics: { generators: number[]; poincare: BigPoly }[] = []
 
   for (let mask = 0; mask < 1 << size; mask++) {
-    const generators = Array.from({ length: size }, (_, i) => i).filter(i => (mask >> i) & 1)
+    const generators = Array.from({ length: size }, (_, i) => i).filter(
+      i => (mask >> i) & 1,
+    )
     const p = parabolicPoincare({ labels, generators, special })
 
     if (!p) {
@@ -208,7 +246,10 @@ export function honeycombShellSeries(labels: readonly (readonly number[])[]): Sh
     eulerNum = eulerNum * order + sign * eulerDen
     eulerDen = eulerDen * order
 
-    if (!generators.includes(special) && generators.length === size - 1) {
+    if (
+      !generators.includes(special) &&
+      generators.length === size - 1
+    ) {
       stabilizer = order
     }
   }
@@ -218,9 +259,12 @@ export function honeycombShellSeries(labels: readonly (readonly number[])[]): Sh
   const wNum = reversePoly(den, degree)
   const wDen = reversePoly(num, degree)
   const common = polyGcd(wNum, wDen)
+
   let numerator = dividePoly(wNum, common)
   let denominator = scalePoly(dividePoly(wDen, common), stabilizer)
-  const g = [...numerator, ...denominator].reduce((a, x) => gcd(a, x), 0n) || 1n
+
+  const g =
+    [...numerator, ...denominator].reduce((a, x) => gcd(a, x), 0n) || 1n
   const s = (denominator[0] ?? 1n) < 0n ? -1n : 1n
 
   numerator = numerator.map(x => (s * x) / g)
@@ -228,11 +272,21 @@ export function honeycombShellSeries(labels: readonly (readonly number[])[]): Sh
 
   const e = gcd(eulerNum, eulerDen) || 1n
 
-  return { numerator, denominator, parabolics, stabilizer, euler: [eulerNum / e, eulerDen / e] }
+  return {
+    numerator,
+    denominator,
+    parabolics,
+    stabilizer,
+    euler: [eulerNum / e, eulerDen / e],
+  }
 }
 
 // the first `count` coefficients of numerator / denominator, exact; throws if one is not an integer
-export function seriesCoefficients(numerator: BigPoly, denominator: BigPoly, count: number): bigint[] {
+export function seriesCoefficients(
+  numerator: BigPoly,
+  denominator: BigPoly,
+  count: number,
+): bigint[] {
   const out: bigint[] = []
   const lead = denominator[0]!
 
@@ -254,7 +308,10 @@ export function seriesCoefficients(numerator: BigPoly, denominator: BigPoly, cou
 }
 
 // the largest real root of a monic-up-to-sign polynomial by Newton from a seed
-export function newtonRoot(poly: readonly number[], seed: number): number {
+export function newtonRoot(
+  poly: readonly number[],
+  seed: number,
+): number {
   let x = seed
 
   for (let i = 0; i < 100; i++) {

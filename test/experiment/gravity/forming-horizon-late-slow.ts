@@ -110,12 +110,47 @@ import { verdict } from '@/test/scaffold/verdict'
 import { lapseLinks, openMesh } from '@/code/rule/open-husk'
 import { stackModes } from '@/code/measure/open-husk'
 import { linearFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
-import { profileKappa, roomSpeed, smoothPacket, stairTime } from '@/code/measure/headroom-horizon'
-import { gaussViolations, noWraps } from '@/code/measure/varying-depth-light'
-import { copySpan, makeHeadroomSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack } from '@/code/rule/depth-span-light'
-import { chainBeatBack, flatModes, kgNorm, makeBatch, makeUniformChain, outPacket, setChainRooms, setMediumRooms, splitFlat, weightShare, type ChainBatch, type Split } from '@/code/measure/headroom-bogoliubov'
-import { planckFit, powerLaw, type PlanckFit } from '@/code/measure/bogoliubov-spectrum'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
+import {
+  profileKappa,
+  roomSpeed,
+  smoothPacket,
+  stairTime,
+} from '@/code/measure/headroom-horizon'
+import {
+  gaussViolations,
+  noWraps,
+} from '@/code/measure/varying-depth-light'
+import {
+  copySpan,
+  makeHeadroomSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+} from '@/code/rule/depth-span-light'
+import {
+  chainBeatBack,
+  flatModes,
+  kgNorm,
+  makeBatch,
+  makeUniformChain,
+  outPacket,
+  setChainRooms,
+  setMediumRooms,
+  splitFlat,
+  weightShare,
+  type ChainBatch,
+  type Split,
+} from '@/code/measure/headroom-bogoliubov'
+import {
+  planckFit,
+  powerLaw,
+  type PlanckFit,
+} from '@/code/measure/bogoliubov-spectrum'
 
 const D0 = 2
 const CAP = 1.5
@@ -141,7 +176,10 @@ const MAX_CHUNKS = 4
 const ZONE_STOP = 1e-20
 const CONTROL_EXTRA = 6144
 // E-GRV-0132's recorded ratios at 4, 7, 10, 13 T (tmp/hawk-run1.log) and its 7-point Planck fit
-const E0132_RATIOS: readonly number[] = [3.6259633186510425e-2, 1.6507356493299305e-2, 9.636180884919424e-3, 6.508755411014019e-3]
+const E0132_RATIOS: readonly number[] = [
+  3.6259633186510425e-2, 1.6507356493299305e-2, 9.636180884919424e-3,
+  6.508755411014019e-3,
+]
 const E0132_PLANCK7 = 9.596341958490175
 const PLANCK_GUESS = 3
 const A1_SLOPE: readonly [number, number] = [-2.2, -0.8]
@@ -160,9 +198,29 @@ const REPLICA_WIDTH = 16
 const LEVELS = 3
 
 // error: the bound (2 sqrt(N- Z) + Z) / N- on the relative error of N- from the zone's share Z at the split
-type Column = { omega: number; split: Split; ratio: number; conservation: number; error: number }
-type Cell = { factor: number; delay: number; cols: Column[]; planck: PlanckFit; power: { exponent: number; residual: number } }
-type Run = { factor: number; tg: number; start: number; split: number; beats: number; quenches: number; zone: number }
+type Column = {
+  omega: number
+  split: Split
+  ratio: number
+  conservation: number
+  error: number
+}
+type Cell = {
+  factor: number
+  delay: number
+  cols: Column[]
+  planck: PlanckFit
+  power: { exponent: number; residual: number }
+}
+type Run = {
+  factor: number
+  tg: number
+  start: number
+  split: number
+  beats: number
+  quenches: number
+  zone: number
+}
 
 export default experiment({
   id: 'gravity/forming-horizon-late-slow',
@@ -175,7 +233,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -186,24 +245,33 @@ export default experiment({
     const pk = profileKappa(profile, RH, c0)
     const kappa = pk.kappa
     const T = kappa / (2 * Math.PI)
-    const unit = (r: number): number => profile.at(Math.max(r, profile.first))
+    const unit = (r: number): number =>
+      profile.at(Math.max(r, profile.first))
     const mFinal = CAP / profile.at(RH)
+
     const roomAt = (m: number, r: number): number => {
       const e = m * unit(r)
 
       return e >= CAP ? 0 : C - Math.floor((C * e) / CAP)
     }
+
     const finalRoom = (r: number): number => roomAt(mFinal, r)
     const inner = Math.ceil(RH)
+
     let flatFrom = inner
 
-    for (let r = inner; r < L / 2; r++) if (finalRoom(r) < C) flatFrom = r + 1
+    for (let r = inner; r < L / 2; r++) {
+      if (finalRoom(r) < C) {
+        flatFrom = r + 1
+      }
+    }
 
     const width = c0 / (SIGMA_T * T)
     const rc = Math.round(flatFrom + MARGIN * width)
     const stair = Math.round(stairTime(finalRoom, C, c0, inner, rc))
     const xc = L / 2
-    const dist = (x: number): number => Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
+    const dist = (x: number): number =>
+      Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
     const chain = makeUniformChain(L, D0, C)
     const modes = flatModes(chain)
     const lambdaTop = 2 * (1 - Math.cos(modes.top))
@@ -211,22 +279,37 @@ export default experiment({
     const windowBeats = Math.log(C) / (2 * kappa)
     const windowPeriods = (windowBeats * omegaC) / (2 * Math.PI)
 
-    log(`kappa ${kappa} T ${T} flat ${flatFrom} r_c ${rc} stair ${stair} omega_C ${omegaC / T} T, window ${windowBeats} beats = ${windowPeriods} periods at omega_C`)
+    log(
+      `kappa ${kappa} T ${T} flat ${flatFrom} r_c ${rc} stair ${stair} omega_C ${omegaC / T} T, window ${windowBeats} beats = ${windowPeriods} periods at omega_C`,
+    )
 
     const near: number[] = []
 
-    for (let x = 0; x < L; x++) if (dist(x) < flatFrom) near.push(x)
+    for (let x = 0; x < L; x++) {
+      if (dist(x) < flatFrom) {
+        near.push(x)
+      }
+    }
 
     const nearUnit = near.map(x => unit(dist(x)))
     const rooms = new Int32Array(L).fill(C)
     const inZone = (x: number): boolean => dist(x) < flatFrom
-    const zoneWeight = (b: ChainBatch, n: number): number => Math.max(...Array.from({ length: n }, (_, i) => weightShare(chain, b, 2 * i, 2 * i + 1, inZone)))
+    const zoneWeight = (b: ChainBatch, n: number): number =>
+      Math.max(
+        ...Array.from({ length: n }, (_, i) =>
+          weightShare(chain, b, 2 * i, 2 * i + 1, inZone),
+        ),
+      )
+
     // the zone's share of column i, split on its own: Z = its N+ + N-, the size of what the flat split may misread
     const zonePart = (b: ChainBatch, i: number): number => {
       const z = makeBatch(chain, 2)
 
       for (let l = 0; l < chain.links; l++) {
-        if (!inZone(Math.floor(l / 9))) continue
+        if (!inZone(Math.floor(l / 9))) {
+          continue
+        }
+
         for (let c = 0; c < 2; c++) {
           z.a[l * 2 + c] = b.a[l * b.width + 2 * i + c]!
           z.y[l * 2 + c] = b.y[l * b.width + 2 * i + c]!
@@ -237,17 +320,28 @@ export default experiment({
 
       return s.positive + s.negative
     }
-    const split = (b: ChainBatch, omegas: readonly number[]): Column[] =>
+
+    const split = (
+      b: ChainBatch,
+      omegas: readonly number[],
+    ): Column[] =>
       omegas.map((omega, i) => {
         const s = splitFlat(chain, modes, b, 2 * i, 2 * i + 1)
         const z = zonePart(b, i)
 
-        return { omega, split: s, ratio: s.negative / s.positive, conservation: Math.abs(s.positive - s.negative - 1), error: (2 * Math.sqrt(s.negative * z) + z) / s.negative }
+        return {
+          omega,
+          split: s,
+          ratio: s.negative / s.positive,
+          conservation: Math.abs(s.positive - s.negative - 1),
+          error: (2 * Math.sqrt(s.negative * z) + z) / s.negative,
+        }
       })
 
     // THE GRID: one batch per growth time, every delay of it in one pass
     const cells: Cell[] = []
     const runs: Run[] = []
+
     let outTail = 0
     let outNorm = 0
 
@@ -257,19 +351,44 @@ export default experiment({
       const delayBeats = delays.map(d => Math.round(d / kappa))
       const most = Math.max(...delayBeats)
       const start = tg + most + stair
-      const packets = delays.flatMap((_, j) => BAND.map(w => ({ j, omega: w * T, center: rc + c0 * (most - delayBeats[j]!) })))
+      const packets = delays.flatMap((_, j) =>
+        BAND.map(w => ({
+          j,
+          omega: w * T,
+          center: rc + c0 * (most - delayBeats[j]!),
+        })),
+      )
       const b = makeBatch(chain, 2 * packets.length)
 
-      packets.forEach((p, i) => outPacket(chain, modes, b, 2 * i, 2 * i + 1, p.omega, SIGMA_T * T, xc + p.center))
+      packets.forEach((p, i) =>
+        outPacket(
+          chain,
+          modes,
+          b,
+          2 * i,
+          2 * i + 1,
+          p.omega,
+          SIGMA_T * T,
+          xc + p.center,
+        ),
+      )
       outTail = Math.max(outTail, zoneWeight(b, packets.length))
-      outNorm = Math.max(outNorm, ...packets.map((_, i) => Math.abs(kgNorm(chain, b, 2 * i, 2 * i + 1) - 1)))
+      outNorm = Math.max(
+        outNorm,
+        ...packets.map((_, i) =>
+          Math.abs(kgNorm(chain, b, 2 * i, 2 * i + 1) - 1),
+        ),
+      )
 
       const massAt = (t: number): number => mFinal * Math.min(1, t / tg)
+
       let quenches = 0
       let t = start
+
       const back = (until: number): void => {
         for (; t > until; t--) {
           const m = massAt(t)
+
           let changed = false
 
           for (let i = 0; i < near.length; i++) {
@@ -282,7 +401,11 @@ export default experiment({
               changed = true
             }
           }
-          if (changed) quenches += setChainRooms(chain, x => rooms[x]!)
+
+          if (changed) {
+            quenches += setChainRooms(chain, x => rooms[x]!)
+          }
+
           chainBeatBack(chain, b)
         }
       }
@@ -291,16 +414,34 @@ export default experiment({
 
       let zone = zoneWeight(b, packets.length)
 
-      for (let n = 0; n < MAX_CHUNKS && zone > ZONE_STOP && t > 0; n++) {
+      for (
+        let n = 0;
+        n < MAX_CHUNKS && zone > ZONE_STOP && t > 0;
+        n++
+      ) {
         back(Math.max(0, t - CHUNK))
         zone = zoneWeight(b, packets.length)
       }
 
-      log(`x ${factor}: t_g ${tg}, run back ${start} -> ${t}, ${quenches} dock changes, zone weight at the split ${zone.toExponential(2)}`)
+      log(
+        `x ${factor}: t_g ${tg}, run back ${start} -> ${t}, ${quenches} dock changes, zone weight at the split ${zone.toExponential(2)}`,
+      )
 
-      const all = split(b, packets.map(p => p.omega))
+      const all = split(
+        b,
+        packets.map(p => p.omega),
+      )
 
-      runs.push({ factor, tg, start, split: t, beats: start - t, quenches, zone })
+      runs.push({
+        factor,
+        tg,
+        start,
+        split: t,
+        beats: start - t,
+        quenches,
+        zone,
+      })
+
       delays.forEach((delay, j) => {
         const cols = all.filter((_, i) => packets[i]!.j === j)
 
@@ -318,7 +459,10 @@ export default experiment({
             cols.map(c => c.ratio),
           ),
         })
-        log(`  x ${factor} delay ${delay} / kappa: ${cols.map(c => c.ratio.toExponential(3)).join(' ')}`)
+
+        log(
+          `  x ${factor} delay ${delay} / kappa: ${cols.map(c => c.ratio.toExponential(3)).join(' ')}`,
+        )
       })
 
       rooms.fill(C)
@@ -326,13 +470,28 @@ export default experiment({
     }
 
     // THE STATIC CONTROL: the final lump throughout, the 4 T packet at r_c, run back t_f + 6144 beats
-    for (const x of near) rooms[x] = finalRoom(dist(x))
+    for (const x of near) {
+      rooms[x] = finalRoom(dist(x))
+    }
+
     setChainRooms(chain, x => rooms[x]!)
 
     const still = makeBatch(chain, 2)
 
-    outPacket(chain, modes, still, 0, 1, BAND[0]! * T, SIGMA_T * T, xc + rc)
-    for (let t = TG + stair + CONTROL_EXTRA; t >= 1; t--) chainBeatBack(chain, still)
+    outPacket(
+      chain,
+      modes,
+      still,
+      0,
+      1,
+      BAND[0]! * T,
+      SIGMA_T * T,
+      xc + rc,
+    )
+
+    for (let t = TG + stair + CONTROL_EXTRA; t >= 1; t--) {
+      chainBeatBack(chain, still)
+    }
 
     const staticLeft = zoneWeight(still, 1)
 
@@ -341,24 +500,57 @@ export default experiment({
 
     const staticCol = split(still, [BAND[0]! * T])[0]!
 
-    log(`static: ${staticCol.ratio.toExponential(3)}, left in the zone ${staticLeft.toExponential(2)}`)
+    log(
+      `static: ${staticCol.ratio.toExponential(3)}, left in the zone ${staticLeft.toExponential(2)}`,
+    )
 
     // THE REPLICA: the integer rule through the x 1 schedule and the end of the x 16 schedule, forward and back
     const rcx = REPLICA / 2
-    const rdist = (x: number): number => Math.min(Math.abs(x - rcx), REPLICA - Math.abs(x - rcx))
-    const replica = (tg: number, from: number, to: number): { reversed: boolean; gauss: number; wraps: number; changes: number } => {
-      const repRoom = (t: number) => (x: number): number => roomAt(mFinal * Math.min(1, t / tg), rdist(x))
-      const rep = makeHeadroomSpanMedium([REPLICA, 2, 2], D0, C, repRoom(from))
-      const begin = smoothPacket(rep, LEVELS, rcx + REPLICA_AT, REPLICA_AMP, REPLICA_WIDTH)
+    const rdist = (x: number): number =>
+      Math.min(Math.abs(x - rcx), REPLICA - Math.abs(x - rcx))
+
+    const replica = (
+      tg: number,
+      from: number,
+      to: number,
+    ): {
+      reversed: boolean
+      gauss: number
+      wraps: number
+      changes: number
+    } => {
+      const repRoom =
+        (t: number) =>
+        (x: number): number =>
+          roomAt(mFinal * Math.min(1, t / tg), rdist(x))
+      const rep = makeHeadroomSpanMedium(
+        [REPLICA, 2, 2],
+        D0,
+        C,
+        repRoom(from),
+      )
+      const begin = smoothPacket(
+        rep,
+        LEVELS,
+        rcx + REPLICA_AT,
+        REPLICA_AMP,
+        REPLICA_WIDTH,
+      )
       const s = copySpan(begin)
       const scratch = makeSpanScratch(rep, LEVELS)
       const wraps = noWraps()
-      let last = Array.from({ length: REPLICA }, (_, x) => repRoom(from)(x)).join(',')
+
+      let last = Array.from({ length: REPLICA }, (_, x) =>
+        repRoom(from)(x),
+      ).join(',')
       let changes = 0
       let gauss = 0
+
       const set = (t: number): void => {
         const f = repRoom(t)
-        const key = Array.from({ length: REPLICA }, (_, x) => f(x)).join(',')
+        const key = Array.from({ length: REPLICA }, (_, x) =>
+          f(x),
+        ).join(',')
 
         if (key !== last) {
           setMediumRooms(rep, f)
@@ -372,47 +564,93 @@ export default experiment({
         spanBeat(rep, s, scratch, LEVELS, wraps)
         gauss += gaussViolations(rep, s)
       }
+
       for (let t = to; t > from; t--) {
         set(t)
         spanBeatBack(rep, s, scratch, LEVELS)
       }
 
-      return { reversed: sameSpan(s, begin), gauss, wraps: wraps.angle + wraps.field + wraps.potential, changes }
+      return {
+        reversed: sameSpan(s, begin),
+        gauss,
+        wraps: wraps.angle + wraps.field + wraps.potential,
+        changes,
+      }
     }
+
     const rep1 = replica(TG, 0, TG + REPLICA_TAIL)
     const tg16 = TG * FACTORS[FACTORS.length - 1]!
-    const rep16 = replica(tg16, tg16 - REPLICA_LEAD, tg16 + REPLICA_TAIL)
+    const rep16 = replica(
+      tg16,
+      tg16 - REPLICA_LEAD,
+      tg16 + REPLICA_TAIL,
+    )
 
-    log(`replica x 1: reversed ${rep1.reversed}, gauss ${rep1.gauss}, ${rep1.changes} room changes; x 16 end: reversed ${rep16.reversed}, gauss ${rep16.gauss}, ${rep16.changes} room changes`)
+    log(
+      `replica x 1: reversed ${rep1.reversed}, gauss ${rep1.gauss}, ${rep1.changes} room changes; x 16 end: reversed ${rep16.reversed}, gauss ${rep16.gauss}, ${rep16.changes} room changes`,
+    )
 
     // THE GATES
-    const cellAt = (factor: number, delay: number): Cell => cells.find(c => c.factor === factor && c.delay === delay)!
+    const cellAt = (factor: number, delay: number): Cell =>
+      cells.find(c => c.factor === factor && c.delay === delay)!
     const slopes = BAND.map((_, i) => {
       const xs = FACTORS.map(f => Math.log(TG * f))
       const ys = FACTORS.map(f => Math.log(cellAt(f, 0).cols[i]!.ratio))
 
       return linearFit({ xs, ys }).slope
     })
-    const falls = BAND.every((_, i) => FACTORS.slice(1).every((f, k) => cellAt(f, 0).cols[i]!.ratio < cellAt(FACTORS[k]!, 0).cols[i]!.ratio))
-    const a1 = falls && slopes.every(s => s >= A1_SLOPE[0] && s <= A1_SLOPE[1])
+    const falls = BAND.every((_, i) =>
+      FACTORS.slice(1).every(
+        (f, k) =>
+          cellAt(f, 0).cols[i]!.ratio <
+          cellAt(FACTORS[k]!, 0).cols[i]!.ratio,
+      ),
+    )
+    const a1 =
+      falls && slopes.every(s => s >= A1_SLOPE[0] && s <= A1_SLOPE[1])
     const slowLate = cellAt(tg16 / TG, LATE)
-    const a2Thermal = !slowLate.planck.edge && Math.abs(slowLate.planck.temperature / T - 1) <= A2_TOLERANCE
+    const a2Thermal =
+      !slowLate.planck.edge &&
+      Math.abs(slowLate.planck.temperature / T - 1) <= A2_TOLERANCE
     const a2Bound = windowPeriods < 1
     const a2 = a2Thermal || a2Bound
-    const lateRatios = [1, tg16 / TG].flatMap(f => BAND.map((_, i) => cellAt(f, LATE).cols[i]!.ratio / cellAt(f, 0).cols[i]!.ratio))
+    const lateRatios = [1, tg16 / TG].flatMap(f =>
+      BAND.map(
+        (_, i) =>
+          cellAt(f, LATE).cols[i]!.ratio / cellAt(f, 0).cols[i]!.ratio,
+      ),
+    )
     const d1 = lateRatios.every(r => r <= D1_BOUND)
-    const a3 = rep1.reversed && rep1.gauss === 0 && rep16.reversed && rep16.gauss === 0
+    const a3 =
+      rep1.reversed &&
+      rep1.gauss === 0 &&
+      rep16.reversed &&
+      rep16.gauss === 0
     const ref = cellAt(1, 0)
-    const refFit = planckFit(BAND.map(w => w * T), E0132_RATIOS, PLANCK_GUESS * T)
+    const refFit = planckFit(
+      BAND.map(w => w * T),
+      E0132_RATIOS,
+      PLANCK_GUESS * T,
+    )
     const r1 =
       !ref.planck.edge &&
-      Math.abs(ref.planck.temperature / refFit.temperature - 1) <= R1_TOLERANCE &&
-      ref.cols.every((c, i) => Math.abs(c.ratio / E0132_RATIOS[i]! - 1) <= R1_TOLERANCE)
+      Math.abs(ref.planck.temperature / refFit.temperature - 1) <=
+        R1_TOLERANCE &&
+      ref.cols.every(
+        (c, i) =>
+          Math.abs(c.ratio / E0132_RATIOS[i]! - 1) <= R1_TOLERANCE,
+      )
     const s1 = staticCol.ratio <= S1_BOUND
-    const k2 = cells.every(c => c.cols.every(col => col.conservation <= K2_BOUND)) && staticCol.conservation <= K2_BOUND
-    const worstError = Math.max(...cells.flatMap(c => c.cols.map(col => col.error)))
+    const k2 =
+      cells.every(c =>
+        c.cols.every(col => col.conservation <= K2_BOUND),
+      ) && staticCol.conservation <= K2_BOUND
+    const worstError = Math.max(
+      ...cells.flatMap(c => c.cols.map(col => col.error)),
+    )
     const k3 = worstError <= K3_BOUND
-    const status = a1 && a2 && d1 && a3 && r1 && s1 && k2 && k3 ? 'pass' : 'fail'
+    const status =
+      a1 && a2 && d1 && a3 && r1 && s1 && k2 && k3 ? 'pass' : 'fail'
 
     // REPORTED
     for (const r of runs) {
@@ -425,6 +663,7 @@ export default experiment({
       metrics[`${key}_quenches`] = r.quenches
       metrics[`${key}_zoneAtSplit`] = r.zone
     }
+
     for (const c of cells) {
       const key = `x${c.factor}_d${c.delay}`
 
@@ -433,20 +672,30 @@ export default experiment({
       metrics[`${key}_planckAtEdge`] = c.planck.edge ? 1 : 0
       metrics[`${key}_exponent`] = c.power.exponent
       metrics[`${key}_powerResidual`] = c.power.residual
+
       for (const col of c.cols) {
         const w = `${key}_w${(col.omega / T).toFixed(0)}`
 
         metrics[`${w}_ratio`] = col.ratio
-        metrics[`${w}_blueshift`] = col.split.negativeMeanOmega / col.omega
+        metrics[`${w}_blueshift`] =
+          col.split.negativeMeanOmega / col.omega
         metrics[`${w}_conservation`] = col.conservation
         metrics[`${w}_splitError`] = col.error
       }
+
       lines.push(
         `x ${c.factor} (t_g ${TG * c.factor}), delay ${c.delay} / kappa: |beta/alpha|^2 ${c.cols.map(col => `${(col.omega / T).toFixed(0)} T ${col.ratio.toExponential(3)} (blueshift ${(col.split.negativeMeanOmega / col.omega).toFixed(2)})`).join(', ')}; Planck T ${(c.planck.temperature / T).toFixed(3)} x kappa / 2 pi rms ${c.planck.residual.toFixed(3)}${c.planck.edge ? ' (at the edge)' : ''}; power law ${c.power.exponent.toFixed(3)} rms ${c.power.residual.toFixed(3)}`,
       )
     }
+
     BAND.forEach((w, i) => (metrics[`a1_slope_w${w}`] = slopes[i]!))
-    ;[1, tg16 / TG].forEach((f, k) => BAND.forEach((w, i) => (metrics[`d1_x${f}_w${w}`] = lateRatios[k * BAND.length + i]!)))
+    ;[1, tg16 / TG].forEach((f, k) =>
+      BAND.forEach(
+        (w, i) =>
+          (metrics[`d1_x${f}_w${w}`] =
+            lateRatios[k * BAND.length + i]!),
+      ),
+    )
 
     metrics.kappa = kappa
     metrics.T = T
@@ -473,7 +722,11 @@ export default experiment({
     metrics.r1_planck4 = ref.planck.temperature / T
     metrics.r1_planck4Record = refFit.temperature / T
     metrics.r1_planck7Record = E0132_PLANCK7
-    metrics.r1_worstRatio = Math.max(...ref.cols.map((c, i) => Math.abs(c.ratio / E0132_RATIOS[i]! - 1)))
+    metrics.r1_worstRatio = Math.max(
+      ...ref.cols.map((c, i) =>
+        Math.abs(c.ratio / E0132_RATIOS[i]! - 1),
+      ),
+    )
     metrics.staticRatio = staticCol.ratio
     metrics.staticLeftInZone = staticLeft
     metrics.staticConservation = staticCol.conservation
@@ -487,13 +740,19 @@ export default experiment({
     metrics.replica16_changes = rep16.changes
     metrics.seconds = (Date.now() - started) / 1000
 
-    const at4 = FACTORS.map(f => cellAt(f, 0).cols[0]!.ratio.toExponential(2)).join(', ')
+    const at4 = FACTORS.map(f =>
+      cellAt(f, 0).cols[0]!.ratio.toExponential(2),
+    ).join(', ')
 
     return verdict({
       status,
       claim: `C 25, r_h 12.5, out packets at ${BAND.join(', ')} T split by exact projection: at 4 T, |beta/alpha|^2 ${at4} at t_g x ${FACTORS.join(', ')}; slopes on ln t_g ${slopes.map(s => s.toFixed(2)).join(', ')}; read 48 / kappa late, ${lateRatios.map(r => r.toExponential(1)).join(', ')} of the prompt value (x 1 then x 16); slowest and latest Planck fit ${(slowLate.planck.temperature / T).toFixed(2)} x kappa / 2 pi; the window holds ${windowPeriods.toFixed(3)} of a period at omega_C; x 1 reproduces E-GRV-0132 to ${metrics.r1_worstRatio.toExponential(1)}; static ${staticCol.ratio.toExponential(1)}`,
       metrics,
-      control: { r1Worst: metrics.r1_worstRatio, staticRatio: staticCol.ratio, zoneWorst: Math.max(...runs.map(r => r.zone)) },
+      control: {
+        r1Worst: metrics.r1_worstRatio,
+        staticRatio: staticCol.ratio,
+        zoneWorst: Math.max(...runs.map(r => r.zone)),
+      },
       notes: `L2. A1 ${a1} (falls ${falls}, slopes ${slopes.map(s => s.toFixed(3)).join(', ')}), A2 ${a2} (thermal ${a2Thermal}, bound ${a2Bound}: ${windowPeriods.toFixed(4)} periods at omega_C ${(omegaC / T).toFixed(2)} T), D1 ${d1}, A3 ${a3}, R1 ${r1} (4-point ${(ref.planck.temperature / T).toFixed(3)} against the record's ${(refFit.temperature / T).toFixed(3)}), S1 ${s1}, K2 ${k2}, K3 ${k3} (worst split error bound ${worstError.toExponential(2)}).${runs.map(r => `x ${r.factor}: run back ${r.start} -> ${r.split}, ${r.quenches} dock changes, zone weight at the split ${r.zone.toExponential(2)}`).join('; ')}. ${lines.join('. ')}. Static lump ${staticCol.ratio.toExponential(2)}, left in the zone ${staticLeft.toExponential(2)}. Replica x 1: ${rep1.changes} room changes, reversed ${rep1.reversed}, ${rep1.gauss} Gauss violations, ${rep1.wraps} wraps; x 16 end: ${rep16.changes} room changes, reversed ${rep16.reversed}, ${rep16.gauss} Gauss violations, ${rep16.wraps} wraps.`,
     })
   },

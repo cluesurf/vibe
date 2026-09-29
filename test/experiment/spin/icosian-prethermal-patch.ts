@@ -180,7 +180,13 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { binaryIcosahedral, conjugacyClasses, quaternionEight, trivialGroup, type GaugeGroup } from '@/code/measure/hurwitz-gauge'
+import {
+  binaryIcosahedral,
+  conjugacyClasses,
+  quaternionEight,
+  trivialGroup,
+  type GaugeGroup,
+} from '@/code/measure/hurwitz-gauge'
 import { icosianCharacters } from '@/code/measure/gauge-window'
 import {
   applyLink,
@@ -260,9 +266,23 @@ const FREE_AT = 4
 const FREE_BEATS = 5
 const LANCZOS = 80
 
-export type PatchPlan = { ladder: number[]; couplings: number[]; crossBeats: number; freeBeats: number; gridTop: number; perDecade: number }
+export type PatchPlan = {
+  ladder: number[]
+  couplings: number[]
+  crossBeats: number
+  freeBeats: number
+  gridTop: number
+  perDecade: number
+}
 
-export const GATE_PLAN: PatchPlan = { ladder: LADDER, couplings: COUPLINGS, crossBeats: CROSS_BEATS, freeBeats: FREE_BEATS, gridTop: GRID_TOP, perDecade: PER_DECADE }
+export const GATE_PLAN: PatchPlan = {
+  ladder: LADDER,
+  couplings: COUPLINGS,
+  crossBeats: CROSS_BEATS,
+  freeBeats: FREE_BEATS,
+  gridTop: GRID_TOP,
+  perDecade: PER_DECADE,
+}
 
 export default experiment({
   id: 'spin/icosian-prethermal-patch',
@@ -278,9 +298,21 @@ export default experiment({
   },
 })
 
-type Built = { patch: Patch; reg: Register; sec: Sectors; model: SectorModel; basis: ElectricBasis }
+type Built = {
+  patch: Patch
+  reg: Register
+  sec: Sectors
+  model: SectorModel
+  basis: ElectricBasis
+}
 
-function build(g: GaugeGroup, patch: Patch, classes: number[][], eH: Float64Array, nB: Int32Array): Built {
+function build(
+  g: GaugeGroup,
+  patch: Patch,
+  classes: number[][],
+  eH: Float64Array,
+  nB: Int32Array,
+): Built {
   const reg = registerOf(g, patch, classes)
   const sec = sectorsOf(reg)
   const model = sectorModel(reg, sec, eH, nB)
@@ -289,23 +321,51 @@ function build(g: GaugeGroup, patch: Patch, classes: number[][], eH: Float64Arra
   return { patch, reg, sec, model, basis }
 }
 
-type Row = { inv: number; unit: SmallUnit; sv: Survival; residual: number; unitarity: number; clusters: number }
+type Row = {
+  inv: number
+  unit: SmallUnit
+  sv: Survival
+  residual: number
+  unitarity: number
+  clusters: number
+}
 
-function ladderRows(b: Built, gr: Ground, units: readonly SmallUnit[], r: number, grid: readonly number[]): Row[] {
+function ladderRows(
+  b: Built,
+  gr: Ground,
+  units: readonly SmallUnit[],
+  r: number,
+  grid: readonly number[],
+): Row[] {
   return units.map(unit => {
     const fl = floquetOf(b.model, b.basis, unit.theta, r)
     const sv = survivalOf(fl, gr, grid)
 
-    return { inv: 1 / unit.delta, unit, sv, residual: fl.residual, unitarity: fl.unitarity, clusters: fl.clusters }
+    return {
+      inv: 1 / unit.delta,
+      unit,
+      sv,
+      residual: fl.residual,
+      unitarity: fl.unitarity,
+      clusters: fl.clusters,
+    }
   })
 }
 
 // the sector state (electric basis, complex) after N dense beats, spread over the register
-function denseBeats(b: Built, theta: number, r: number, gr: Ground, N: number): { states: CVec[]; fidelity: number[] } {
+function denseBeats(
+  b: Built,
+  theta: number,
+  r: number,
+  gr: Ground,
+  N: number,
+): { states: CVec[]; fidelity: number[] } {
   const n = b.model.n
   const fl = floquetOf(b.model, b.basis, theta, r)
+
   let re = Float64Array.from(gr.psiE)
   let im = new Float64Array(n)
+
   const states: CVec[] = []
   const fidelity: number[] = []
 
@@ -318,11 +378,11 @@ function denseBeats(b: Built, theta: number, r: number, gr: Ground, N: number): 
       let si = 0
 
       for (let j = 0; j < n; j++) {
-        const a = fl.Fre[i * n + j] as number
-        const c = fl.Fim[i * n + j] as number
+        const a = fl.Fre[i * n + j]!
+        const c = fl.Fim[i * n + j]!
 
-        sr += a * (re[j] as number) - c * (im[j] as number)
-        si += a * (im[j] as number) + c * (re[j] as number)
+        sr += a * re[j]! - c * im[j]!
+        si += a * im[j]! + c * re[j]!
       }
 
       nr[i] = sr
@@ -336,8 +396,8 @@ function denseBeats(b: Built, theta: number, r: number, gr: Ground, N: number): 
     let oi = 0
 
     for (let i = 0; i < n; i++) {
-      or += (gr.psiE[i] as number) * (re[i] as number)
-      oi += (gr.psiE[i] as number) * (im[i] as number)
+      or += gr.psiE[i]! * re[i]!
+      oi += gr.psiE[i]! * im[i]!
     }
 
     fidelity.push(or * or + oi * oi)
@@ -351,8 +411,8 @@ function denseBeats(b: Built, theta: number, r: number, gr: Ground, N: number): 
       let c = 0
 
       for (let j = 0; j < n; j++) {
-        a += (b.basis.V[i * n + j] as number) * (re[j] as number)
-        c += (b.basis.V[i * n + j] as number) * (im[j] as number)
+        a += b.basis.V[i * n + j]! * re[j]!
+        c += b.basis.V[i * n + j]! * im[j]!
       }
 
       sr[i] = a
@@ -368,11 +428,19 @@ function denseBeats(b: Built, theta: number, r: number, gr: Ground, N: number): 
   return { states, fidelity }
 }
 
-const fmt = (x: number): string => (x === Infinity ? 'inf' : Number.isInteger(x) ? String(x) : x.toPrecision(4))
+const fmt = (x: number): string =>
+  x === Infinity
+    ? 'inf'
+    : Number.isInteger(x)
+      ? String(x)
+      : x.toPrecision(4)
 
 export function prethermalRun(plan: PatchPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const grid = beatGrid(plan.gridTop, plan.perDecade)
 
   // ---------------- the group and the exact algebra (K3a) ----------------
@@ -383,22 +451,41 @@ export function prethermalRun(plan: PatchPlan): Verdict {
   const eH = electricKernel(g, chars, nR)
   const nB = magneticExponents(g)
 
-  if (!nB) throw new Error('E-SPN-0154: 2I magnetic exponents not integral')
+  if (!nB) {
+    throw new Error('E-SPN-0154: 2I magnetic exponents not integral')
+  }
 
   const tet = build(g, huskTetrahedron(), classes, eH, nB)
   const exact = exactCharacterAlgebra(g, chars, tet.reg.classOf)
-  const units = smallAngleUnits(plan.ladder.map(x => 1 / x), K_MAX, UNIT_TOLERANCE)
+  const units = smallAngleUnits(
+    plan.ladder.map(x => 1 / x),
+    K_MAX,
+    UNIT_TOLERANCE,
+  )
   const unitsExact = units.every(u => u.exact)
-  const K3a = exact.integral && exact.classConstant && exact.completeness && exact.idempotents && unitsExact
+  const K3a =
+    exact.integral &&
+    exact.classConstant &&
+    exact.completeness &&
+    exact.idempotents &&
+    unitsExact
 
-  log(`K3a ${K3a}: ${JSON.stringify(exact)}; units exact ${unitsExact}: ${units.map(u => `1/${fmt(1 / u.target)} k ${u.k} j ${u.j} delta ${u.delta.toFixed(6)}`).join(', ')}`)
+  log(
+    `K3a ${K3a}: ${JSON.stringify(exact)}; units exact ${unitsExact}: ${units.map(u => `1/${fmt(1 / u.target)} k ${u.k} j ${u.j} delta ${u.delta.toFixed(6)}`).join(', ')}`,
+  )
 
   // ---------------- the patches and K3b ----------------
   const rho = build(g, huskRhombus(), classes, eH, nB)
   const tri = build(g, huskTriangle(), classes, eH, nB)
-  const K3b = [tet, rho, tri].every(b => b.model.rowsEqual && b.model.magneticConstant)
+  const K3b = [tet, rho, tri].every(
+    b => b.model.rowsEqual && b.model.magneticConstant,
+  )
 
-  for (const b of [tri, rho, tet]) log(`${b.patch.name}: husk ${b.patch.husk}, docks ${b.patch.docks.length}, links ${b.patch.links.length}, triangles ${b.patch.triangles.length}, loops ${b.reg.digits}, gauge-fixed ${b.reg.size}, Gauss sector ${b.sec.orbits}, automorphisms ${b.sec.automorphisms.length}, symmetric sector ${b.sec.n}; rows equal ${b.model.rowsEqual}, n_B constant ${b.model.magneticConstant}, H_E asymmetry ${b.model.asymmetry.toExponential(2)}, integer error ${b.basis.integerError.toExponential(2)}`)
+  for (const b of [tri, rho, tet]) {
+    log(
+      `${b.patch.name}: husk ${b.patch.husk}, docks ${b.patch.docks.length}, links ${b.patch.links.length}, triangles ${b.patch.triangles.length}, loops ${b.reg.digits}, gauge-fixed ${b.reg.size}, Gauss sector ${b.sec.orbits}, automorphisms ${b.sec.automorphisms.length}, symmetric sector ${b.sec.n}; rows equal ${b.model.rowsEqual}, n_B constant ${b.model.magneticConstant}, H_E asymmetry ${b.model.asymmetry.toExponential(2)}, integer error ${b.basis.integerError.toExponential(2)}`,
+    )
+  }
 
   // ---------------- the coupling rule and the ground states ----------------
   const walk4 = [[0, 1, 2, 3]]
@@ -406,111 +493,210 @@ export function prethermalRun(plan: PatchPlan): Verdict {
     const gr = groundOf(tet.model, tet.basis, r)
     const lanczos = gaussGround(tet.reg, tet.sec, eH, nB, r, LANCZOS)
 
-    return { r, gr, lanczos, plaquette: loopMean(tet.reg, tet.sec, gr.psi, tet.patch.triangles), loop4: loopMean(tet.reg, tet.sec, gr.psi, walk4) }
+    return {
+      r,
+      gr,
+      lanczos,
+      plaquette: loopMean(
+        tet.reg,
+        tet.sec,
+        gr.psi,
+        tet.patch.triangles,
+      ),
+      loop4: loopMean(tet.reg, tet.sec, gr.psi, walk4),
+    }
   })
-  const chosen = grounds.reduce((best, x) => (Math.abs(x.plaquette - Q_STAR) < Math.abs(best.plaquette - Q_STAR) ? x : best))
+  const chosen = grounds.reduce((best, x) =>
+    Math.abs(x.plaquette - Q_STAR) < Math.abs(best.plaquette - Q_STAR)
+      ? x
+      : best,
+  )
   const r = chosen.r
   const gr = chosen.gr
-  const groundSame = grounds.every(x => Math.abs(x.gr.E0 - x.lanczos) <= GROUND_SAME)
+  const groundSame = grounds.every(
+    x => Math.abs(x.gr.E0 - x.lanczos) <= GROUND_SAME,
+  )
 
-  log(`coupling rule: ${grounds.map(x => `r ${x.r}: E0 ${x.gr.E0.toFixed(6)} (Gauss-sector Lanczos ${x.lanczos.toFixed(6)}), gap ${(x.gr.E1 - x.gr.E0).toFixed(4)}, Einf ${x.gr.Einf.toFixed(3)}, W ${x.gr.spread.toFixed(2)}, <q0> triangle ${x.plaquette.toFixed(4)}, perimeter 4 ${x.loop4.toFixed(4)}`).join('; ')} -> r = ${r}`)
+  log(
+    `coupling rule: ${grounds.map(x => `r ${x.r}: E0 ${x.gr.E0.toFixed(6)} (Gauss-sector Lanczos ${x.lanczos.toFixed(6)}), gap ${(x.gr.E1 - x.gr.E0).toFixed(4)}, Einf ${x.gr.Einf.toFixed(3)}, W ${x.gr.spread.toFixed(2)}, <q0> triangle ${x.plaquette.toFixed(4)}, perimeter 4 ${x.loop4.toFixed(4)}`).join('; ')} -> r = ${r}`,
+  )
 
   // ---------------- the main ladder (K1, K2a, K3c) ----------------
   const rows = ladderRows(tet, gr, units, r, grid)
   const maxNR = Math.max(...nR)
   const maxNB = Math.max(...nB)
-  const perLinkFaces = Math.max(...tet.patch.links.map(([a, b]) => tet.patch.triangles.filter(t => t.includes(a) && t.includes(b)).length))
+  const perLinkFaces = Math.max(
+    ...tet.patch.links.map(
+      ([a, b]) =>
+        tet.patch.triangles.filter(t => t.includes(a) && t.includes(b))
+          .length,
+    ),
+  )
   const Jlo = Math.max(maxNR, r * maxNB)
   const Jhi = maxNR + perLinkFaces * r * maxNB
   const cLo = (KAPPA_LO * 2 * Math.PI) / Jhi
   const cHi = (KAPPA_HI * 2 * Math.PI) / Jlo
   const deltaW = (2 * Math.PI) / gr.spread
   const rowText = (w: Row): string =>
-    `1/delta ${w.inv.toFixed(2)} (k ${w.unit.k}): tau ${fmt(w.sv.tau)}, tau_E ${fmt(w.sv.tauEnergy)}, fbar ${w.sv.fidelityMean.toExponential(3)}, 1 - fbar ${(1 - w.sv.fidelityMean).toExponential(3)}, Qbar ${w.sv.absorbedMean.toExponential(3)}, f(10) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(10)] as number)}, f(1e3) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(1000)] as number)}, f(1e6) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(1000000)] as number)}, components ${w.sv.components}, least gap ${w.sv.leastGap.toExponential(2)}, residual ${w.residual.toExponential(1)}, |lambda| - 1 ${w.unitarity.toExponential(1)}`
+    `1/delta ${w.inv.toFixed(2)} (k ${w.unit.k}): tau ${fmt(w.sv.tau)}, tau_E ${fmt(w.sv.tauEnergy)}, fbar ${w.sv.fidelityMean.toExponential(3)}, 1 - fbar ${(1 - w.sv.fidelityMean).toExponential(3)}, Qbar ${w.sv.absorbedMean.toExponential(3)}, f(10) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(10)]!)}, f(1e3) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(1000)]!)}, f(1e6) ${fmt(w.sv.fidelity[w.sv.grid.indexOf(1000000)]!)}, components ${w.sv.components}, least gap ${w.sv.leastGap.toExponential(2)}, residual ${w.residual.toExponential(1)}, |lambda| - 1 ${w.unitarity.toExponential(1)}`
 
-  for (const w of rows) log(`tetrahedron r ${r}: ${rowText(w)}`)
+  for (const w of rows) {
+    log(`tetrahedron r ${r}: ${rowText(w)}`)
+  }
 
   const finite = rows.filter(w => w.sv.tau > 1 && w.sv.tau < Infinity)
-  const fit = finite.length >= 2 ? lineFit(finite.map(w => w.inv), finite.map(w => Math.log(w.sv.tau))) : null
-  const span = finite.length ? Math.max(...finite.map(w => w.inv)) / Math.min(...finite.map(w => w.inv)) : 0
-  const K1 = finite.length >= MIN_POINTS && span >= MIN_SPAN && !!fit && fit.worst <= FIT_MISS && fit.c >= cLo && fit.c <= cHi
+  const fit =
+    finite.length >= 2
+      ? lineFit(
+          finite.map(w => w.inv),
+          finite.map(w => Math.log(w.sv.tau)),
+        )
+      : null
+  const span = finite.length
+    ? Math.max(...finite.map(w => w.inv)) /
+      Math.min(...finite.map(w => w.inv))
+    : 0
+  const K1 =
+    finite.length >= MIN_POINTS &&
+    span >= MIN_SPAN &&
+    !!fit &&
+    fit.worst <= FIT_MISS &&
+    fit.c >= cLo &&
+    fit.c <= cHi
 
-  log(`K1 ${K1}: finite points ${finite.length} (1/delta ${finite.map(w => w.inv.toFixed(2)).join(', ')}), span ${span.toFixed(2)}, fit ${fit ? `c ${fit.c.toFixed(5)} a ${fit.a.toFixed(3)} worst miss ${fit.worst.toFixed(3)}` : 'none'} against [${cLo.toFixed(4)}, ${cHi.toFixed(4)}] (J ${Jlo} to ${Jhi}); delta_W ${deltaW.toFixed(5)} (1/delta_W ${(1 / deltaW).toFixed(1)})`)
+  log(
+    `K1 ${K1}: finite points ${finite.length} (1/delta ${finite.map(w => w.inv.toFixed(2)).join(', ')}), span ${span.toFixed(2)}, fit ${fit ? `c ${fit.c.toFixed(5)} a ${fit.a.toFixed(3)} worst miss ${fit.worst.toFixed(3)}` : 'none'} against [${cLo.toFixed(4)}, ${cHi.toFixed(4)}] (J ${Jlo} to ${Jhi}); delta_W ${deltaW.toFixed(5)} (1/delta_W ${(1 / deltaW).toFixed(1)})`,
+  )
 
   // the long-time leak, READ
-  const leakRows = rows.filter(w => 1 - w.sv.fidelityMean > 1e-12 && w.sv.tau === Infinity)
-  const leakFit = leakRows.length >= 2 ? lineFit(leakRows.map(w => w.inv), leakRows.map(w => Math.log(1 - w.sv.fidelityMean))) : null
+  const leakRows = rows.filter(
+    w => 1 - w.sv.fidelityMean > 1e-12 && w.sv.tau === Infinity,
+  )
+  const leakFit =
+    leakRows.length >= 2
+      ? lineFit(
+          leakRows.map(w => w.inv),
+          leakRows.map(w => Math.log(1 - w.sv.fidelityMean)),
+        )
+      : null
 
-  log(`READ leak on the kept side: ${leakRows.length} points, ln(1 - fbar) slope ${leakFit ? leakFit.c.toFixed(5) : 'none'} (predicted about -2c), worst miss ${leakFit ? leakFit.worst.toFixed(3) : 'none'}`)
+  log(
+    `READ leak on the kept side: ${leakRows.length} points, ln(1 - fbar) slope ${leakFit ? leakFit.c.toFixed(5) : 'none'} (predicted about -2c), worst miss ${leakFit ? leakFit.worst.toFixed(3) : 'none'}`,
+  )
 
   // ---------------- K2 ----------------
-  const strong = rows[plan.ladder.indexOf(STRONG)] as Row
-  const K2a = strong.sv.absorbedMean >= HEAT_LO && strong.sv.absorbedMean <= HEAT_HI && strong.sv.tau <= HEAT_TAU
+  const strong = rows[plan.ladder.indexOf(STRONG)]!
+  const K2a =
+    strong.sv.absorbedMean >= HEAT_LO &&
+    strong.sv.absorbedMean <= HEAT_HI &&
+    strong.sv.tau <= HEAT_TAU
   const triv = trivialGroup()
   const trivClasses = conjugacyClasses(triv)
-  const trivNB = magneticExponents(triv) as Int32Array
-  const tv = build(triv, huskTetrahedron(), trivClasses, cayleyKernel(triv), trivNB)
+  const trivNB = magneticExponents(triv)!
+  const tv = build(
+    triv,
+    huskTetrahedron(),
+    trivClasses,
+    cayleyKernel(triv),
+    trivNB,
+  )
   const tvGround = groundOf(tv.model, tv.basis, r)
   const tvF = floquetOf(tv.model, tv.basis, strong.unit.theta, r)
   const tvS = survivalOf(tvF, tvGround, grid)
-  const K2b = tv.model.n === 1 && tvF.Fre[0] === 1 && tvF.Fim[0] === 0 && tvS.fidelity.every(f => f === 1) && tvS.fidelityRun.every(f => f === 1)
+  const K2b =
+    tv.model.n === 1 &&
+    tvF.Fre[0] === 1 &&
+    tvF.Fim[0] === 0 &&
+    tvS.fidelity.every(f => f === 1) &&
+    tvS.fidelityRun.every(f => f === 1)
 
-  log(`K2a ${K2a}: strong beat Qbar ${strong.sv.absorbedMean.toFixed(4)}, tau ${fmt(strong.sv.tau)}; K2b ${K2b}: trivial sector n ${tv.model.n}, F ${tvF.Fre[0]} + ${tvF.Fim[0]} i, f always 1 ${tvS.fidelity.every(f => f === 1)}`)
+  log(
+    `K2a ${K2a}: strong beat Qbar ${strong.sv.absorbedMean.toFixed(4)}, tau ${fmt(strong.sv.tau)}; K2b ${K2b}: trivial sector n ${tv.model.n}, F ${tvF.Fre[0]} + ${tvF.Fim[0]} i, f always 1 ${tvS.fidelity.every(f => f === 1)}`,
+  )
 
   const commuting = COMMUTING_AT.map(inv => {
-    const unit = units[plan.ladder.indexOf(inv)] as SmallUnit
+    const unit = units[plan.ladder.indexOf(inv)]!
     const g0 = groundOf(tet.model, tet.basis, 0)
     const fl = floquetOf(tet.model, tet.basis, unit.theta, 0)
     const sv = survivalOf(fl, g0, grid)
 
     return { inv, least: Math.min(...sv.fidelity), tau: sv.tau }
   })
-  const K2c = commuting.every(c => c.least >= 1 - KEPT && c.tau === Infinity)
+  const K2c = commuting.every(
+    c => c.least >= 1 - KEPT && c.tau === Infinity,
+  )
   const K2 = K2a && K2b && K2c
 
-  log(`K2c ${K2c}: commuting beat ${commuting.map(c => `1/delta ${c.inv}: least f ${c.least.toFixed(14)}, tau ${fmt(c.tau)}`).join('; ')}`)
+  log(
+    `K2c ${K2c}: commuting beat ${commuting.map(c => `1/delta ${c.inv}: least f ${c.least.toFixed(14)}, tau ${fmt(c.tau)}`).join('; ')}`,
+  )
 
   // ---------------- K3c: measured exactness and the cross-checks ----------------
-  const integral = [tet, rho, tri].every(b => b.basis.integerError <= INTEGER && b.model.asymmetry <= SYMMETRIC)
-  const ladderExact = rows.every(w => w.unitarity <= UNITARY && w.residual <= EIGEN_RESIDUAL)
-  const crossUnit = units[plan.ladder.indexOf(CROSS_AT)] as SmallUnit
+  const integral = [tet, rho, tri].every(
+    b =>
+      b.basis.integerError <= INTEGER && b.model.asymmetry <= SYMMETRIC,
+  )
+  const ladderExact = rows.every(
+    w => w.unitarity <= UNITARY && w.residual <= EIGEN_RESIDUAL,
+  )
+  const crossUnit = units[plan.ladder.indexOf(CROSS_AT)]!
   const dense = denseBeats(tet, crossUnit.theta, r, gr, plan.crossBeats)
-  const crossSv = rows[plan.ladder.indexOf(CROSS_AT)] as Row
+  const crossSv = rows[plan.ladder.indexOf(CROSS_AT)]!
   const u = linkUnitary(g, eH, crossUnit.theta)
   const hBt = magneticTable(tet.reg, nB)
+
   let reg: CVec = sectorToRegister(tet.reg, tet.sec, gr.psi)
-  const reg0 = { re: Float64Array.from(reg.re), im: Float64Array.from(reg.im) }
+
+  const reg0 = {
+    re: Float64Array.from(reg.re),
+    im: Float64Array.from(reg.im),
+  }
   const e0Register = registerEnergy(tet.reg, eH, hBt, r, reg)
+
   let crossGap = 0
   let crossGauss = 0
   let crossFid = 0
 
   for (let t = 1; t <= plan.crossBeats; t++) {
     reg = registerBeat(tet.reg, u, hBt, crossUnit.theta, r, reg)
-    crossGap = Math.max(crossGap, cvecGap(reg, dense.states[t - 1] as CVec))
+    crossGap = Math.max(crossGap, cvecGap(reg, dense.states[t - 1]!))
     crossGauss = Math.max(crossGauss, conjugationDefect(tet.reg, reg))
 
     const [or, oi] = cvecInner(reg0, reg)
 
-    crossFid = Math.max(crossFid, Math.abs(or * or + oi * oi - (dense.fidelity[t - 1] as number)), Math.abs((dense.fidelity[t - 1] as number) - (crossSv.sv.fidelity[t - 1] as number)))
-    log(`cross beat ${t}: register vs sector ${cvecGap(reg, dense.states[t - 1] as CVec).toExponential(2)}, Gauss defect ${conjugationDefect(tet.reg, reg).toExponential(2)}, f ${(or * or + oi * oi).toFixed(12)} (dense ${(dense.fidelity[t - 1] as number).toFixed(12)}, Floquet ${(crossSv.sv.fidelity[t - 1] as number).toFixed(12)})`)
+    crossFid = Math.max(
+      crossFid,
+      Math.abs(or * or + oi * oi - dense.fidelity[t - 1]!),
+      Math.abs(dense.fidelity[t - 1]! - crossSv.sv.fidelity[t - 1]!),
+    )
+
+    log(
+      `cross beat ${t}: register vs sector ${cvecGap(reg, dense.states[t - 1]!).toExponential(2)}, Gauss defect ${conjugationDefect(tet.reg, reg).toExponential(2)}, f ${(or * or + oi * oi).toFixed(12)} (dense ${dense.fidelity[t - 1]!.toFixed(12)}, Floquet ${crossSv.sv.fidelity[t - 1]!.toFixed(12)})`,
+    )
   }
 
-  const crossOk = crossGap <= CROSS && crossGauss <= GAUSS && crossFid <= CROSS && Math.abs(e0Register - gr.E0) <= ENERGY_SAME
+  const crossOk =
+    crossGap <= CROSS &&
+    crossGauss <= GAUSS &&
+    crossFid <= CROSS &&
+    Math.abs(e0Register - gr.E0) <= ENERGY_SAME
 
-  log(`register energy of psi0 ${e0Register.toFixed(9)} against E0 ${gr.E0.toFixed(9)}; link unitary integer error ${u.integerError.toExponential(2)}`)
+  log(
+    `register energy of psi0 ${e0Register.toFixed(9)} against E0 ${gr.E0.toFixed(9)}; link unitary integer error ${u.integerError.toExponential(2)}`,
+  )
 
   // Q8, unfixed
   const q8 = quaternionEight()
   const q8Classes = conjugacyClasses(q8)
-  const q8NB = magneticExponents(q8) as Int32Array
+  const q8NB = magneticExponents(q8)!
   const q8eH = cayleyKernel(q8)
   const q8b = build(q8, huskTetrahedron(), q8Classes, q8eH, q8NB)
   const q8g = groundOf(q8b.model, q8b.basis, r)
-  const q8Unit = units[plan.ladder.indexOf(FREE_AT)] as SmallUnit
+  const q8Unit = units[plan.ladder.indexOf(FREE_AT)]!
   const q8u = linkUnitary(q8, q8eH, q8Unit.theta)
   const q8hB = magneticTable(q8b.reg, q8NB)
   const free = freeRegisterOf(q8, q8b.patch)
+
   let fixed: CVec = sectorToRegister(q8b.reg, q8b.sec, q8g.psi)
   let freeState = freeFromFixed(free, q8b.reg, fixed)
   let freeGauss = freeGaussDefect(free, freeState)
@@ -520,18 +706,28 @@ export function prethermalRun(plan: PatchPlan): Verdict {
     fixed = registerBeat(q8b.reg, q8u, q8hB, q8Unit.theta, r, fixed)
     freeState = freeBeat(free, q8u, q8NB, q8Unit.theta, r, freeState)
     freeGauss = Math.max(freeGauss, freeGaussDefect(free, freeState))
-    freeGap = Math.max(freeGap, cvecGap(fixedFromFree(free, q8b.reg, freeState), fixed))
+    freeGap = Math.max(
+      freeGap,
+      cvecGap(fixedFromFree(free, q8b.reg, freeState), fixed),
+    )
   }
 
-  const [q8o] = cvecInner(fixed, sectorToRegister(q8b.reg, q8b.sec, q8g.psi))
+  const [q8o] = cvecInner(
+    fixed,
+    sectorToRegister(q8b.reg, q8b.sec, q8g.psi),
+  )
   const freeOk = freeGauss <= GAUSS && freeGap <= FREE_SAME
 
-  log(`Q8 unfixed: ${free.size} configurations, sector n ${q8b.sec.n}, integer error ${Math.max(q8b.basis.integerError, q8u.integerError).toExponential(2)}, Gauss defect at every dock ${freeGauss.toExponential(2)}, unfixed vs fixed ${freeGap.toExponential(2)}, overlap after ${plan.freeBeats} beats ${q8o.toFixed(6)}`)
+  log(
+    `Q8 unfixed: ${free.size} configurations, sector n ${q8b.sec.n}, integer error ${Math.max(q8b.basis.integerError, q8u.integerError).toExponential(2)}, Gauss defect at every dock ${freeGauss.toExponential(2)}, unfixed vs fixed ${freeGap.toExponential(2)}, overlap after ${plan.freeBeats} beats ${q8o.toFixed(6)}`,
+  )
 
   const K3c = integral && groundSame && ladderExact && crossOk && freeOk
   const K3 = K3a && K3b && K3c
 
-  log(`K3 ${K3}: a ${K3a}, b ${K3b}, c ${K3c} (integral ${integral}, ground ${groundSame}, ladder ${ladderExact}, cross ${crossOk}: gap ${crossGap.toExponential(2)} Gauss ${crossGauss.toExponential(2)} fidelity ${crossFid.toExponential(2)}, unfixed ${freeOk})`)
+  log(
+    `K3 ${K3}: a ${K3a}, b ${K3b}, c ${K3c} (integral ${integral}, ground ${groundSame}, ladder ${ladderExact}, cross ${crossOk}: gap ${crossGap.toExponential(2)} Gauss ${crossGauss.toExponential(2)} fidelity ${crossFid.toExponential(2)}, unfixed ${freeOk})`,
+  )
 
   // ---------------- READ: the size trend, the couplings on the rhombus ----------------
   const reads: string[] = []
@@ -540,7 +736,9 @@ export function prethermalRun(plan: PatchPlan): Verdict {
     const g1 = groundOf(b.model, b.basis, r)
     const rr = ladderRows(b, g1, units, r, grid)
 
-    reads.push(`${b.patch.name} r ${r} (n ${b.sec.n}, W ${g1.spread.toFixed(1)}): ${rr.map(w => `${w.inv.toFixed(1)}: tau ${fmt(w.sv.tau)} fbar ${w.sv.fidelityMean.toExponential(2)} Qbar ${w.sv.absorbedMean.toExponential(2)}`).join('; ')}`)
+    reads.push(
+      `${b.patch.name} r ${r} (n ${b.sec.n}, W ${g1.spread.toFixed(1)}): ${rr.map(w => `${w.inv.toFixed(1)}: tau ${fmt(w.sv.tau)} fbar ${w.sv.fidelityMean.toExponential(2)} Qbar ${w.sv.absorbedMean.toExponential(2)}`).join('; ')}`,
+    )
     log(`READ ${reads[reads.length - 1]}`)
   }
 
@@ -548,19 +746,26 @@ export function prethermalRun(plan: PatchPlan): Verdict {
     const g1 = groundOf(rho.model, rho.basis, rc)
     const rr = ladderRows(rho, g1, units, rc, grid)
 
-    reads.push(`rhombus r ${rc}: ${rr.map(w => `${w.inv.toFixed(1)}: tau ${fmt(w.sv.tau)} fbar ${w.sv.fidelityMean.toExponential(2)}`).join('; ')}`)
+    reads.push(
+      `rhombus r ${rc}: ${rr.map(w => `${w.inv.toFixed(1)}: tau ${fmt(w.sv.tau)} fbar ${w.sv.fidelityMean.toExponential(2)}`).join('; ')}`,
+    )
     log(`READ ${reads[reads.length - 1]}`)
   }
 
   // K4 sizes: the Gauss sector of a 6-loop patch, sum over classes |C|^(loops - 1)... (1/|G|) sum_g |C(g)|^6
   let strip = 0n
 
-  for (const cl of classes) strip += BigInt(cl.length) * BigInt(g.order / cl.length) ** 6n
+  for (const cl of classes) {
+    strip += BigInt(cl.length) * BigInt(g.order / cl.length) ** 6n
+  }
+
   strip /= BigInt(g.order)
 
   const K4 = false
 
-  log(`K4 not decidable: the tetrahedron holds one pair separation; a 6-loop strip's Gauss sector ${strip} states`)
+  log(
+    `K4 not decidable: the tetrahedron holds one pair separation; a 6-loop strip's Gauss sector ${strip} states`,
+  )
 
   const status = !K2 || !K3 ? 'partial' : !K1 ? 'fail' : 'open'
 
@@ -585,7 +790,12 @@ export function prethermalRun(plan: PatchPlan): Verdict {
       freeGauss,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { K2a: K2a ? 1 : 0, K2b: K2b ? 1 : 0, K2c: K2c ? 1 : 0, K3: K3 ? 1 : 0 },
+    control: {
+      K2a: K2a ? 1 : 0,
+      K2b: K2b ? 1 : 0,
+      K2c: K2c ? 1 : 0,
+      K3: K3 ? 1 : 0,
+    },
     notes: `L2. Tetrahedron r ${r}: ${rows.map(rowText).join(' | ')}. ${reads.join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

@@ -104,17 +104,46 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { duplicateOpen, lapseLinks, openMesh, sameOpen, warpClock, type OpenState } from '@/code/rule/open-husk'
+import {
+  duplicateOpen,
+  lapseLinks,
+  openMesh,
+  sameOpen,
+  warpClock,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { horizonRule } from '@/code/rule/horizon-husk'
 import { stepRule } from '@/code/rule/step-depth'
-import { membraneForm, membranePlan } from '@/code/rule/membrane-horizon'
-import { stageForm, stagePlan, stageUnform, type StagePlan } from '@/code/rule/balanced-membrane'
+import {
+  membraneForm,
+  membranePlan,
+} from '@/code/rule/membrane-horizon'
+import {
+  stageForm,
+  stagePlan,
+  stageUnform,
+  type StagePlan,
+} from '@/code/rule/balanced-membrane'
 import { stackModes } from '@/code/measure/open-husk'
 import { logLogSlope, proportionalFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
 import { roomOf } from '@/code/measure/headroom-horizon'
-import { ask, cycleLine, genericStart, noSkip, roomHorizon, shiftStep, type Skip } from '@/code/measure/horizon-entropy'
-import { infallWitness, weylStep } from '@/code/measure/membrane-horizon'
+import {
+  ask,
+  cycleLine,
+  genericStart,
+  noSkip,
+  roomHorizon,
+  shiftStep,
+  type Skip,
+} from '@/code/measure/horizon-entropy'
+import {
+  infallWitness,
+  weylStep,
+} from '@/code/measure/membrane-horizon'
 import {
   applyFeed,
   ballStart,
@@ -142,7 +171,9 @@ const BASE = 243
 const SIDE = 48
 const LAYERS = 2
 const BEATS = 48
-const R_H: readonly number[] = [3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5]
+const R_H: readonly number[] = [
+  3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5,
+]
 const REVERSE_UP_TO = 12.5
 const FILLS: readonly number[] = [0, 0.5, 1, 1.25, 2]
 const BALL = 3.5
@@ -159,7 +190,8 @@ const OVER_STAGE = 8
 const OVER_FEED = 1.25
 const R2_GATE = 0.99
 
-const spreadOf = (xs: readonly number[]): number => Math.max(...xs) / Math.min(...xs) - 1
+const spreadOf = (xs: readonly number[]): number =>
+  Math.max(...xs) / Math.min(...xs) - 1
 
 export default experiment({
   id: 'gravity/balanced-membrane-growth',
@@ -172,7 +204,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -189,8 +222,13 @@ export default experiment({
     const empty = new Uint8Array(mesh.huskDocks)
     const lnSpan = Math.log(rule.span)
     const massAt = (r: number): number => CAP / profile.at(r)
-    const horizonAt = (r: number): Uint8Array => roomHorizon(mesh, center, roomOf(profile, massAt(r), CAP, BASE))
-    const formedCopy = (plan: StagePlan, s: OpenState): { s: OpenState; ok: boolean } => {
+    const horizonAt = (r: number): Uint8Array =>
+      roomHorizon(mesh, center, roomOf(profile, massAt(r), CAP, BASE))
+
+    const formedCopy = (
+      plan: StagePlan,
+      s: OpenState,
+    ): { s: OpenState; ok: boolean } => {
       const c = duplicateOpen(s)
 
       return { s: c, ok: stageForm(rule, plan, c).formed }
@@ -211,25 +249,65 @@ export default experiment({
       const filled = (fill: number, phase: number): OpenState => {
         const s = duplicateOpen(cleared)
 
-        applyFeed(rule, stageFeed(rule, plan, fill, capacity, phase), s, 1)
+        applyFeed(
+          rule,
+          stageFeed(rule, plan, fill, capacity, phase),
+          s,
+          1,
+        )
 
         return s
       }
-      const shallowCenter = [center[0]! + rh - 2.5, center[1]!, center[2]!]
+
+      const shallowCenter = [
+        center[0]! + rh - 2.5,
+        center[1]!,
+        center[2]!,
+      ]
       const starts = [
-        ...FILLS.map(fill => ({ name: `fill ${fill}`, start: filled(fill, 0) })),
+        ...FILLS.map(fill => ({
+          name: `fill ${fill}`,
+          start: filled(fill, 0),
+        })),
         { name: 'generic', start: base },
-        { name: 'ball', start: ballStart(mesh, rule, plan, base, center, BALL, 0) },
-        { name: 'shallow', start: ballStart(mesh, rule, plan, base, shallowCenter, SHALLOW, 0) },
+        {
+          name: 'ball',
+          start: ballStart(mesh, rule, plan, base, center, BALL, 0),
+        },
+        {
+          name: 'shallow',
+          start: ballStart(
+            mesh,
+            rule,
+            plan,
+            base,
+            shallowCenter,
+            SHALLOW,
+            0,
+          ),
+        },
       ]
       const scan = starts.map(c => {
         const w = stageWitness(rule, plan, c.start)
         const f = formedCopy(plan, c.start)
 
-        return { name: c.name, ok: f.ok, witness: w, agree: f.ok === w.fits, unchanged: f.ok || sameOpen(f.s, c.start), formedState: f.s, start: c.start }
+        return {
+          name: c.name,
+          ok: f.ok,
+          witness: w,
+          agree: f.ok === w.fits,
+          unchanged: f.ok || sameOpen(f.s, c.start),
+          formedState: f.s,
+          start: c.start,
+        }
       })
-      const byName = (name: string): (typeof scan)[number] => scan.find(c => c.name === name)!
-      const b1 = scan.every(c => c.agree && c.unchanged) && FILLS.filter(f => f <= 1).every(f => byName(`fill ${f}`).ok) && !byName('fill 2').ok && !byName('generic').ok
+      const byName = (name: string): (typeof scan)[number] =>
+        scan.find(c => c.name === name)!
+      const b1 =
+        scan.every(c => c.agree && c.unchanged) &&
+        FILLS.filter(f => f <= 1).every(f => byName(`fill ${f}`).ok) &&
+        !byName('fill 2').ok &&
+        !byName('generic').ok
 
       // B3 placed: fill 1 unformed, and W unformed and formed back
       let reversed = true
@@ -239,7 +317,10 @@ export default experiment({
         const f1 = byName('fill 1')
         const back = duplicateOpen(f1.formedState)
 
-        if (f1.ok) stageUnform(rule, plan, back)
+        if (f1.ok) {
+          stageUnform(rule, plan, back)
+        }
+
         reversed = f1.ok && sameOpen(back, f1.start)
 
         const w = duplicateOpen(cleared)
@@ -259,18 +340,46 @@ export default experiment({
       const ball = byName('ball')
       const mplan = membranePlan(mesh, horizon)
       const nearState = duplicateOpen(ball.start)
-      const nearFormed = membraneForm(mesh, rule, mplan, nearState).formed
+      const nearFormed = membraneForm(
+        mesh,
+        rule,
+        mplan,
+        nearState,
+      ).formed
       const nearWitness = infallWitness(rule, mplan, ball.start)
+
       let nearWorst = 0
 
-      nearWitness.nats.forEach((n, k) => (nearWorst = Math.max(nearWorst, n / nearWitness.capacity[k]!)))
+      nearWitness.nats.forEach(
+        (n, k) =>
+          (nearWorst = Math.max(
+            nearWorst,
+            n / nearWitness.capacity[k]!,
+          )),
+      )
 
       // drop the formed copies before the next horizon
-      const kept = scan.map(({ formedState: _f, start: _s, ...rest }) => rest)
+      const kept = scan.map(
+        ({ formedState: _f, start: _s, ...rest }) => rest,
+      )
 
       log(`placed r_h ${rh}`)
 
-      return { rh, m: massAt(rh), docks: horizon.reduce((t, v) => t + v, 0), tCut, capacity, items: plan.items.length, scan: kept, b1, reversed, onto, nearFormed, nearAgree: nearFormed === nearWitness.fits, nearWorst }
+      return {
+        rh,
+        m: massAt(rh),
+        docks: horizon.reduce((t, v) => t + v, 0),
+        tCut,
+        capacity,
+        items: plan.items.length,
+        scan: kept,
+        b1,
+        reversed,
+        onto,
+        nearFormed,
+        nearAgree: nearFormed === nearWitness.fits,
+        nearWorst,
+      }
     })
 
     // ---------------------------------------------------------------------------------------------------------
@@ -278,20 +387,58 @@ export default experiment({
 
     const radii: number[] = []
 
-    for (let r = GROW_FROM; r <= GROW_TO + 1e-9; r += GROW_STEP) radii.push(r)
+    for (let r = GROW_FROM; r <= GROW_TO + 1e-9; r += GROW_STEP) {
+      radii.push(r)
+    }
 
     const targets = radii.map(horizonAt)
-    const plans = targets.map((h, i) => stagePlan(mesh, i === 0 ? empty : targets[i - 1]!, h))
+    const plans = targets.map((h, i) =>
+      stagePlan(mesh, i === 0 ? empty : targets[i - 1]!, h),
+    )
     const cuts = plans.map(p => p.newCut.length)
-    const roomOfPlan = (p: StagePlan): number => Math.max(p.newCut.length - p.oldCut.length, 0) * lnSpan
+    const roomOfPlan = (p: StagePlan): number =>
+      Math.max(p.newCut.length - p.oldCut.length, 0) * lnSpan
     const quiet = quietStart(mesh, rule, center, QUIET)
     const noisy = quietStart(mesh, rule, center, NOISY)
-    const specOf = (feed?: (k: number, p: StagePlan) => Feed | null): GrowSpec => ({ targets, plans, between: BETWEEN, settle: SETTLE, pushed: true, feed })
+    const specOf = (
+      feed?: (k: number, p: StagePlan) => Feed | null,
+    ): GrowSpec => ({
+      targets,
+      plans,
+      between: BETWEEN,
+      settle: SETTLE,
+      pushed: true,
+      feed,
+    })
     const families = [
       { name: 'G0', start: quiet, spec: specOf() },
-      { name: 'G1', start: quiet, spec: specOf((k, p) => (k === 1 ? stageFeed(rule, p, 1, roomOfPlan(p), 0) : null)) },
-      { name: 'G2', start: quiet, spec: specOf((_, p) => stageFeed(rule, p, FEED, roomOfPlan(p), 7)) },
-      { name: 'GX', start: quiet, spec: specOf((k, p) => stageFeed(rule, p, k === OVER_STAGE ? OVER_FEED : FEED, roomOfPlan(p), 7)) },
+      {
+        name: 'G1',
+        start: quiet,
+        spec: specOf((k, p) =>
+          k === 1 ? stageFeed(rule, p, 1, roomOfPlan(p), 0) : null,
+        ),
+      },
+      {
+        name: 'G2',
+        start: quiet,
+        spec: specOf((_, p) =>
+          stageFeed(rule, p, FEED, roomOfPlan(p), 7),
+        ),
+      },
+      {
+        name: 'GX',
+        start: quiet,
+        spec: specOf((k, p) =>
+          stageFeed(
+            rule,
+            p,
+            k === OVER_STAGE ? OVER_FEED : FEED,
+            roomOfPlan(p),
+            7,
+          ),
+        ),
+      },
       { name: 'GN', start: noisy, spec: specOf() },
     ]
 
@@ -308,12 +455,20 @@ export default experiment({
 
       log(`grown ${fam.name}`)
 
-      return { name: fam.name, record: side.pushed, ticks: side.ticks, differ: side.differ, reversed }
+      return {
+        name: fam.name,
+        record: side.pushed,
+        ticks: side.ticks,
+        differ: side.differ,
+        reversed,
+      }
     })
 
     // B2: the torn registers at the end of each stage's beats, G0 G1 G2
     const at: TornValues[][] = []
+
     let g2Final: OpenState | null = null
+
     const ends: OpenState[] = []
 
     families.slice(0, 3).forEach((fam, i) => {
@@ -321,12 +476,21 @@ export default experiment({
       const values: TornValues[] = []
 
       grow(mesh, rule, s, fam.spec, (tick, st) => {
-        if (tick.beat !== BETWEEN) return
+        if (tick.beat !== BETWEEN) {
+          return
+        }
+
         values.push(tornValues(mesh, targets[tick.stage - 1]!, st))
-        if (i === 0) ends.push(duplicateOpen(st))
+
+        if (i === 0) {
+          ends.push(duplicateOpen(st))
+        }
       })
       at.push(values)
-      if (fam.name === 'G2') g2Final = s
+
+      if (fam.name === 'G2') {
+        g2Final = s
+      }
     })
 
     log('stage values')
@@ -344,15 +508,32 @@ export default experiment({
 
       const regrown = regrowStages(mesh, rule, s, families[0]!.spec, k)
 
-      return { values: tornValues(mesh, targets[i]!, w), onto: regrown && sameOpen(s, w) }
+      return {
+        values: tornValues(mesh, targets[i]!, w),
+        onto: regrown && sameOpen(s, w),
+      }
     })
 
     log('W unwound and grown again')
 
     const stages = radii.map((r, i) => {
-      const variety = tornVarietyOf(rule, [at[0]![i]!, at[1]![i]!, at[2]![i]!, wRows[i]!.values])
+      const variety = tornVarietyOf(rule, [
+        at[0]![i]!,
+        at[1]![i]!,
+        at[2]![i]!,
+        wRows[i]!.values,
+      ])
 
-      return { r, m: massAt(r), docks: targets[i]!.reduce((t, v) => t + v, 0), tCut: cuts[i]!, joined: plans[i]!.joined.length, items: plans[i]!.items.length, variety, s: variety.nats }
+      return {
+        r,
+        m: massAt(r),
+        docks: targets[i]!.reduce((t, v) => t + v, 0),
+        tCut: cuts[i]!,
+        joined: plans[i]!.joined.length,
+        items: plans[i]!.items.length,
+        variety,
+        s: variety.nats,
+      }
     })
 
     // X at the grown horizon, on G2's final state
@@ -360,21 +541,48 @@ export default experiment({
     const finalPlan = membranePlan(mesh, finalH)
     const skip: Skip = noSkip(mesh)
 
-    for (const l of finalPlan.cut) skip.step[l] = 1
-    for (const l of finalPlan.interior) (skip.step[l] = 1), (skip.line[l] = 1)
+    for (const l of finalPlan.cut) {
+      skip.step[l] = 1
+    }
+
+    for (const l of finalPlan.interior) {
+      ;((skip.step[l] = 1), (skip.line[l] = 1))
+    }
 
     const moveAll = (s: OpenState): void => {
-      for (const l of finalPlan.cut) s.step[l] = shiftStep(rule, s.step[l]!)
-      for (const l of finalPlan.interior) (s.step[l] = shiftStep(rule, s.step[l]!)), (s.line[l] = cycleLine(s.line[l]!))
+      for (const l of finalPlan.cut) {
+        s.step[l] = shiftStep(rule, s.step[l]!)
+      }
+
+      for (const l of finalPlan.interior) {
+        ;((s.step[l] = shiftStep(rule, s.step[l]!)),
+          (s.line[l] = cycleLine(s.line[l]!)))
+      }
     }
+
     const g2 = g2Final as OpenState | null
 
-    if (!g2) throw new Error('G2 did not run')
+    if (!g2) {
+      throw new Error('G2 did not run')
+    }
 
     const hidden = ask(mesh, rule, finalH, g2, moveAll, skip, BEATS)
     const cutLink = finalPlan.cut[0]!
-    const v1Skip: Skip = { ...skip, line: Uint8Array.from(skip.line, (v, l) => (l === cutLink ? 1 : v)) }
-    const v1 = ask(mesh, rule, finalH, g2, s => void (s.line[cutLink] = cycleLine(s.line[cutLink]!)), v1Skip, BEATS)
+    const v1Skip: Skip = {
+      ...skip,
+      line: Uint8Array.from(skip.line, (v, l) =>
+        l === cutLink ? 1 : v,
+      ),
+    }
+    const v1 = ask(
+      mesh,
+      rule,
+      finalH,
+      g2,
+      s => void (s.line[cutLink] = cycleLine(s.line[cutLink]!)),
+      v1Skip,
+      BEATS,
+    )
 
     log('asks')
 
@@ -383,14 +591,35 @@ export default experiment({
 
     const growthAgree = grown.every(g => g.record.agree.every(v => v))
     const b1 = placed.every(p => p.b1) && growthAgree
-    const allFormed = grown.slice(0, 3).every(g => g.record.formed.every(v => v))
-    const fit = proportionalFit({ xs: stages.map(s => s.tCut), ys: stages.map(s => s.s) })
-    const interiorVarying = stages.map(s => s.variety.interiorStep + s.variety.interiorLine)
-    const b2 = allFormed && interiorVarying.every(v => v === 0) && fit.r2 >= R2_GATE && hidden.first === 0 && hidden.kept && v1.first !== 0
-    const b3 = grown.every(g => g.reversed) && wRows.every(w => w.onto) && placed.every(p => p.reversed && p.onto)
+    const allFormed = grown
+      .slice(0, 3)
+      .every(g => g.record.formed.every(v => v))
+    const fit = proportionalFit({
+      xs: stages.map(s => s.tCut),
+      ys: stages.map(s => s.s),
+    })
+    const interiorVarying = stages.map(
+      s => s.variety.interiorStep + s.variety.interiorLine,
+    )
+    const b2 =
+      allFormed &&
+      interiorVarying.every(v => v === 0) &&
+      fit.r2 >= R2_GATE &&
+      hidden.first === 0 &&
+      hidden.kept &&
+      v1.first !== 0
+    const b3 =
+      grown.every(g => g.reversed) &&
+      wRows.every(w => w.onto) &&
+      placed.every(p => p.reversed && p.onto)
     const b4 = grown.every(g => g.differ === 0 && g.ticks > 0)
-    const ballFormedAt = placed.filter(p => p.scan.find(c => c.name === 'ball')!.ok)
-    const c1 = ballFormedAt.length > 0 && ballFormedAt.every(p => !p.nearFormed) && placed.every(p => p.nearAgree)
+    const ballFormedAt = placed.filter(
+      p => p.scan.find(c => c.name === 'ball')!.ok,
+    )
+    const c1 =
+      ballFormedAt.length > 0 &&
+      ballFormedAt.every(p => !p.nearFormed) &&
+      placed.every(p => p.nearAgree)
     const status = b1 && b2 && b3 && b4 && c1 ? 'pass' : 'fail'
 
     // ---------------------------------------------------------------------------------------------------------
@@ -403,18 +632,27 @@ export default experiment({
       p.scan.forEach(c => {
         const ratio = c.witness.counter / c.witness.capacity
 
-        if (c.ok) fitMax = Math.max(fitMax, ratio)
-        else overMin = Math.min(overMin, ratio)
+        if (c.ok) {
+          fitMax = Math.max(fitMax, ratio)
+        } else {
+          overMin = Math.min(overMin, ratio)
+        }
       }),
     )
+
     grown.forEach(g =>
       g.record.witness.forEach((w, i) => {
-        if (w.capacity === 0) return
+        if (w.capacity === 0) {
+          return
+        }
 
         const ratio = w.counter / w.capacity
 
-        if (g.record.formed[i]) fitMax = Math.max(fitMax, ratio)
-        else overMin = Math.min(overMin, ratio)
+        if (g.record.formed[i]) {
+          fitMax = Math.max(fitMax, ratio)
+        } else {
+          overMin = Math.min(overMin, ratio)
+        }
       }),
     )
 
@@ -435,7 +673,13 @@ export default experiment({
     const infallRatio = (name: string): string =>
       grown
         .find(g => g.name === name)!
-        .record.witness.map(w => (w.room > 0 ? (w.infall / w.room).toFixed(3) : w.infall > 0 ? 'inf' : '0'))
+        .record.witness.map(w =>
+          w.room > 0
+            ? (w.infall / w.room).toFixed(3)
+            : w.infall > 0
+              ? 'inf'
+              : '0',
+        )
         .join(' ')
 
     placed.forEach(p => {
@@ -452,7 +696,8 @@ export default experiment({
         const name = c.name.replace(' ', '').replace('.', 'p')
 
         metrics[`${key}_${name}_formed`] = c.ok ? 1 : 0
-        metrics[`${key}_${name}_overCapacity`] = c.witness.counter / c.witness.capacity
+        metrics[`${key}_${name}_overCapacity`] =
+          c.witness.counter / c.witness.capacity
       })
       metrics[`${key}_ball_nats`] = ball.witness.infall
       metrics[`${key}_nearest_ball_formed`] = p.nearFormed ? 1 : 0
@@ -461,6 +706,7 @@ export default experiment({
         `placed r_h ${p.rh} (M ${p.m.toFixed(1)}): |H| ${p.docks}, T_cut ${p.tCut}, ${p.items} items, capacity ${p.capacity.toFixed(0)} nats; ${p.scan.map(c => `${c.name} ${c.ok ? 'forms' : 'refused'} (witness ${c.witness.fits ? 'fits' : 'over'}, ${(c.witness.counter / c.witness.capacity).toFixed(6)} of capacity${c.unchanged ? '' : ', CHANGED'})`).join(', ')}; ball ${ball.witness.infall.toFixed(0)} nats, nearest-dock rule ${p.nearFormed ? 'forms' : 'refuses'} it (worst dock ${p.nearWorst.toFixed(2)} of its own); shallow ball ${shallow.witness.infall.toFixed(0)} nats; reversed ${p.reversed}, onto ${p.onto}`,
       )
     })
+
     stages.forEach((s, i) => {
       const key = `stage${i + 1}`
 
@@ -471,15 +717,25 @@ export default experiment({
       metrics[`${key}_interiorVarying`] = interiorVarying[i]!
       metrics[`${key}_cutVarying`] = s.variety.cut
       metrics[`${key}_Wonto`] = wRows[i]!.onto ? 1 : 0
-      lines.push(`stage ${i + 1} r ${s.r} (M ${s.m.toFixed(1)}): |H| ${s.docks} (${s.joined} joined, ${s.items} items), T_cut ${s.tCut}, S ${s.s.toFixed(1)} (cut digits varying ${s.variety.cut}, interior varying ${interiorVarying[i]}), S / T_cut ${(s.s / s.tCut).toFixed(4)}, W onto ${wRows[i]!.onto}`)
+      lines.push(
+        `stage ${i + 1} r ${s.r} (M ${s.m.toFixed(1)}): |H| ${s.docks} (${s.joined} joined, ${s.items} items), T_cut ${s.tCut}, S ${s.s.toFixed(1)} (cut digits varying ${s.variety.cut}, interior varying ${interiorVarying[i]}), S / T_cut ${(s.s / s.tCut).toFixed(4)}, W onto ${wRows[i]!.onto}`,
+      )
     })
+
     grown.forEach(g => {
-      metrics[`${g.name}_stagesFormed`] = g.record.formed.filter(v => v).length
-      metrics[`${g.name}_witnessAgree`] = g.record.agree.every(v => v) ? 1 : 0
+      metrics[`${g.name}_stagesFormed`] = g.record.formed.filter(
+        v => v,
+      ).length
+
+      metrics[`${g.name}_witnessAgree`] = g.record.agree.every(v => v)
+        ? 1
+        : 0
       metrics[`${g.name}_ticks`] = g.ticks
       metrics[`${g.name}_outsideDiffer`] = g.differ
       metrics[`${g.name}_reversed`] = g.reversed ? 1 : 0
-      lines.push(`${g.name}: formed ${g.record.formed.map(v => (v ? 1 : 0)).join('')}, witness agrees ${g.record.agree.every(v => v)}, infall over room by stage ${infallRatio(g.name)}; outside against the unpushed run differs on ${g.differ} of ${g.ticks} ticks; reversed ${g.reversed}`)
+      lines.push(
+        `${g.name}: formed ${g.record.formed.map(v => (v ? 1 : 0)).join('')}, witness agrees ${g.record.agree.every(v => v)}, infall over room by stage ${infallRatio(g.name)}; outside against the unpushed run differs on ${g.differ} of ${g.ticks} ticks; reversed ${g.reversed}`,
+      )
     })
 
     metrics.gate_B1 = b1 ? 1 : 0
@@ -497,7 +753,9 @@ export default experiment({
     metrics.hiddenKept = hidden.kept ? 1 : 0
     metrics.v1First = v1.first
     metrics.largestFitting = fitMax
-    metrics.smallestOverflowing = Number.isFinite(overMin) ? overMin : -1
+    metrics.smallestOverflowing = Number.isFinite(overMin)
+      ? overMin
+      : -1
     metrics.ballFormedHorizons = ballFormedAt.length
     metrics.GNHeldFrom = held('GN')[0] ?? 0
     metrics.GXHeldFrom = held('GX')[0] ?? 0
@@ -507,7 +765,10 @@ export default experiment({
       status,
       claim: `balanced membrane: placed at r_h ${R_H.join(', ')} every start agrees with the BigInt witness (${b1}), the largest fitting counter at ${fitMax.toFixed(7)} of capacity and the smallest refused at ${overMin.toFixed(7)}; the 3.5 ball forms at r_h ${ballFormedAt.map(p => p.rh).join(', ') || 'none'} where the nearest-dock rule refuses it ${ballFormedAt.every(p => !p.nearFormed)}; grown over ${stages.length} stages r ${GROW_FROM} .. ${GROW_TO}: interior varying ${interiorVarying.join(', ')}, S against T_cut R^2 ${fit.r2.toFixed(5)}, S / T_cut spread ${spreadOf(perCut).toFixed(4)}, exponent ${sExp.toFixed(3)} (T_cut ${cutExp.toFixed(3)}); reversal ${b3}; outside against the unpushed run ${grown.map(g => `${g.name} ${g.differ}`).join(', ')} differing ticks; GN held from stage ${held('GN')[0] ?? 'none'}, GX from ${held('GX')[0] ?? 'none'}`,
       metrics,
-      control: { c1: c1 ? 1 : 0, ballFormedHorizons: ballFormedAt.length },
+      control: {
+        c1: c1 ? 1 : 0,
+        ballFormedHorizons: ballFormedAt.length,
+      },
       notes: `L2. B1 ${b1}, B2 ${b2}, B3 ${b3}, B4 ${b4}, C1 ${c1}. Hidden at the grown horizon: first ${hidden.first}, kept ${hidden.kept}; V1 ${v1.first}. ${lines.join('. ')}.`,
     })
   },

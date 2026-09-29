@@ -69,8 +69,20 @@
 //
 // DETERMINISM: nothing is drawn. Every count is an exact rank, every factor an exact residue.
 
-import { addScaled, nullSpaceOfRows, parseMono, type Poly } from '@/code/algebra/jet-polynomial'
-import { inverseMod, mod, mulMod, nullSpaceMod, primeBelow, rankMod } from '@/code/algebra/linear/modular-linear'
+import {
+  addScaled,
+  nullSpaceOfRows,
+  parseMono,
+  type Poly,
+} from '@/code/algebra/jet-polynomial'
+import {
+  inverseMod,
+  mod,
+  mulMod,
+  nullSpaceMod,
+  primeBelow,
+  rankMod,
+} from '@/code/algebra/linear/modular-linear'
 import {
   type BulkAnsatz,
   bulkAnsatz,
@@ -94,16 +106,64 @@ const PRIMES = [primeBelow(2 ** 25), primeBelow(2 ** 24)]
 const FIVE = bulkFrame(5)
 const FOUR = bulkFrame(4)
 
-type Variant = { name: string; frame: BulkFrame; kind: BulkKind; scales: number[]; maxOrder: 1 | 2 }
+type Variant = {
+  name: string
+  frame: BulkFrame
+  kind: BulkKind
+  scales: number[]
+  maxOrder: 1 | 2
+}
 
 const VARIANTS: readonly Variant[] = [
-  { name: 'full', frame: FIVE, kind: 'full', scales: [1, 1, 1, 1, 1], maxOrder: 2 },
-  { name: 'full c 2 b 3', frame: FIVE, kind: 'full', scales: [2, 1, 1, 1, 3], maxOrder: 2 },
-  { name: 'husk', frame: FIVE, kind: 'husk', scales: [1, 1, 1, 1, 1], maxOrder: 2 },
-  { name: 'linear', frame: FIVE, kind: 'full', scales: [1, 1, 1, 1, 1], maxOrder: 1 },
-  { name: 'depth foliation', frame: FIVE, kind: 'depth-foliation', scales: [1, 1, 1, 1, 1], maxOrder: 2 },
-  { name: '4d full', frame: FOUR, kind: 'full', scales: [1, 1, 1, 1], maxOrder: 2 },
-  { name: '4d linear', frame: FOUR, kind: 'full', scales: [1, 1, 1, 1], maxOrder: 1 },
+  {
+    name: 'full',
+    frame: FIVE,
+    kind: 'full',
+    scales: [1, 1, 1, 1, 1],
+    maxOrder: 2,
+  },
+  {
+    name: 'full c 2 b 3',
+    frame: FIVE,
+    kind: 'full',
+    scales: [2, 1, 1, 1, 3],
+    maxOrder: 2,
+  },
+  {
+    name: 'husk',
+    frame: FIVE,
+    kind: 'husk',
+    scales: [1, 1, 1, 1, 1],
+    maxOrder: 2,
+  },
+  {
+    name: 'linear',
+    frame: FIVE,
+    kind: 'full',
+    scales: [1, 1, 1, 1, 1],
+    maxOrder: 1,
+  },
+  {
+    name: 'depth foliation',
+    frame: FIVE,
+    kind: 'depth-foliation',
+    scales: [1, 1, 1, 1, 1],
+    maxOrder: 2,
+  },
+  {
+    name: '4d full',
+    frame: FOUR,
+    kind: 'full',
+    scales: [1, 1, 1, 1],
+    maxOrder: 2,
+  },
+  {
+    name: '4d linear',
+    frame: FOUR,
+    kind: 'full',
+    scales: [1, 1, 1, 1],
+    maxOrder: 1,
+  },
 ]
 
 // a functional on the quadratic kernel: weighted kernel keys
@@ -141,7 +201,11 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
   const { frame } = v
   const ansatz = ANSATZ.get(frame)!
   const width = ansatz.columns.length
-  const ctx = bulkContext(frame, { kind: v.kind, scales: v.scales, p }, v.maxOrder)
+  const ctx = bulkContext(
+    frame,
+    { kind: v.kind, scales: v.scales, p },
+    v.maxOrder,
+  )
   const memo = new Map<string, Poly>()
   const rows = new Map<string, Map<number, number>>()
 
@@ -155,10 +219,15 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
         r = bulkMonomialRows(ctx, parseMono(key))
         memo.set(key, r)
       }
+
       addScaled(total, r, mod(coef, p), p)
     }
+
     for (const [rk, val] of total) {
-      if (!rows.has(rk)) rows.set(rk, new Map())
+      if (!rows.has(rk)) {
+        rows.set(rk, new Map())
+      }
+
       rows.get(rk)!.set(col, val)
     }
   })
@@ -166,7 +235,9 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
   const { basis } = nullSpaceOfRows(rows.values(), width, p)
   const dim = basis.length
   const kernels = ansatz.columns.map((column, col) => {
-    if (!ansatz.quadratic[col]) return new Map<string, number>()
+    if (!ansatz.quadratic[col]) {
+      return new Map<string, number>()
+    }
 
     const modded: Poly = new Map()
 
@@ -177,45 +248,103 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
   const members = basis.map(theta => {
     const out: Poly = new Map()
 
-    theta.forEach((x, col) => x !== 0 && kernels[col]!.size > 0 && addScaled(out, kernels[col]!, x, p))
+    theta.forEach(
+      (x, col) =>
+        x !== 0 &&
+        kernels[col]!.size > 0 &&
+        addScaled(out, kernels[col]!, x, p),
+    )
 
     return out
   })
-  const value = (f: Functional, m: Poly): number => f.reduce((t, [key, w]) => mod(t + mulMod(m.get(key) ?? 0, mod(w, p), p), p), 0)
-  const rank = (fs: readonly Functional[]): number => (dim === 0 || fs.length === 0 ? 0 : rankMod(fs.map(f => members.map(m => value(f, m))), dim, p))
+  const value = (f: Functional, m: Poly): number =>
+    f.reduce(
+      (t, [key, w]) =>
+        mod(t + mulMod(m.get(key) ?? 0, mod(w, p), p), p),
+      0,
+    )
+  const rank = (fs: readonly Functional[]): number =>
+    dim === 0 || fs.length === 0
+      ? 0
+      : rankMod(
+          fs.map(f => members.map(m => value(f, m))),
+          dim,
+          p,
+        )
   const one = (key: string): Functional => [[key, 1]]
   const fp = bulkKernel(frame, bulkFierzPauli(frame, v.scales, p), p)
-  const unitFp = bulkKernel(frame, bulkFierzPauli(frame, v.scales.map(() => 1), p), p)
-  const keys = [...new Set([...members.flatMap(m => [...m.keys()]), ...fp.keys(), ...unitFp.keys()])].sort()
+  const unitFp = bulkKernel(
+    frame,
+    bulkFierzPauli(
+      frame,
+      v.scales.map(() => 1),
+      p,
+    ),
+    p,
+  )
+  const keys = [
+    ...new Set([
+      ...members.flatMap(m => [...m.keys()]),
+      ...fp.keys(),
+      ...unitFp.keys(),
+    ]),
+  ].sort()
   const matrix = keys.map(key => members.map(m => m.get(key) ?? 0))
   const metricKernel = dim === 0 ? 0 : rankMod(matrix, dim, p)
-  const spanWith = (extra: Poly): boolean => rankMod(keys.map((key, i) => [...matrix[i]!, extra.get(key) ?? 0]), dim + 1, p) === metricKernel
+  const spanWith = (extra: Poly): boolean =>
+    rankMod(
+      keys.map((key, i) => [...matrix[i]!, extra.get(key) ?? 0]),
+      dim + 1,
+      p,
+    ) === metricKernel
 
   const five = frame.D === 5
-  const husk = frame.comps.flatMap(([m, n], f) => (m < 4 && n < 4 ? [f] : []))
+  const husk = frame.comps.flatMap(([m, n], f) =>
+    m < 4 && n < 4 ? [f] : [],
+  )
   const XY = frame.index(1, 2)
   const XX = frame.index(1, 1)
   const YY = frame.index(2, 2)
   const ww = (a: number, b: number): string => kernelKey(a, b, 4, 4)
   const huskPairs: [number, number][] = []
 
-  for (let i = 0; i < husk.length; i++) for (let j = i; j < husk.length; j++) huskPairs.push([husk[i]!, husk[j]!])
+  for (let i = 0; i < husk.length; i++) {
+    for (let j = i; j < husk.length; j++) {
+      huskPairs.push([husk[i]!, husk[j]!])
+    }
+  }
 
   const refXY = fp.get(five ? ww(XY, XY) : '') ?? 0
-  const depthBlock = five ? rank(huskPairs.map(([a, b]) => one(ww(a, b)))) : 0
+  const depthBlock = five
+    ? rank(huskPairs.map(([a, b]) => one(ww(a, b))))
+    : 0
   const depthResidual = five
     ? rank(
-        huskPairs.map(([a, b]): Functional => [
-          [ww(a, b), refXY],
-          [ww(XY, XY), -(fp.get(ww(a, b)) ?? 0)],
-        ]),
+        huskPairs.map(
+          ([a, b]): Functional => [
+            [ww(a, b), refXY],
+            [ww(XY, XY), -(fp.get(ww(a, b)) ?? 0)],
+          ],
+        ),
       )
     : 0
-  const lambda5Pair = five ? rank([one(ww(XY, XY)), one(ww(XX, YY))]) : 0
+  const lambda5Pair = five
+    ? rank([one(ww(XY, XY)), one(ww(XX, YY))])
+    : 0
   // lambda_5 = -q(xx, yy | ww) / q(xy, xy | ww), read on every member: -q(xx, yy) - q(xy, xy) = 0 on all of them
-  const lambda5IsOne = five && depthBlock > 0 && rank([[[ww(XX, YY), 1], [ww(XY, XY), 1]]]) === 0
+  const lambda5IsOne =
+    five &&
+    depthBlock > 0 &&
+    rank([
+      [
+        [ww(XX, YY), 1],
+        [ww(XY, XY), 1],
+      ],
+    ]) === 0
   const [c, b] = [v.scales[0]!, v.scales[frame.D - 1]!]
-  const depthPair = five ? rank([one(kernelKey(XY, XY, 0, 0)), one(ww(XY, XY))]) : 0
+  const depthPair = five
+    ? rank([one(kernelKey(XY, XY, 0, 0)), one(ww(XY, XY))])
+    : 0
   const depthTied = five
     ? rank([
         [
@@ -226,7 +355,10 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
     : 0
   const depth = new Set(depthFields(frame))
   const depthKeys = keys.filter(key => {
-    const [a, bb] = key.split('|')[0]!.split(',').map(Number) as [number, number]
+    const [a, bb] = key.split('|')[0]!.split(',').map(Number) as [
+      number,
+      number,
+    ]
 
     return depth.has(a) || depth.has(bb)
   })
@@ -246,21 +378,36 @@ function analyse(v: Variant, p: number, eomRank: number): Reads {
     depthPair,
     depthTied,
     depthCouplings: five ? rank(depthKeys.map(one)) : 0,
-    kernel: metricKernel === 1 ? members.find(m => m.size > 0) : undefined,
+    kernel:
+      metricKernel === 1 ? members.find(m => m.size > 0) : undefined,
     basisKernels: greedyBasis(members, keys, p),
   }
 }
 
 // members that each raise the rank of the kernels chosen so far
-function greedyBasis(members: readonly Poly[], keys: readonly string[], p: number): Poly[] {
+function greedyBasis(
+  members: readonly Poly[],
+  keys: readonly string[],
+  p: number,
+): Poly[] {
   const chosen: Poly[] = []
 
   for (const m of members) {
-    if (m.size === 0) continue
+    if (m.size === 0) {
+      continue
+    }
 
     const next = [...chosen, m]
 
-    if (rankMod(keys.map(key => next.map(n => n.get(key) ?? 0)), next.length, p) === next.length) chosen.push(m)
+    if (
+      rankMod(
+        keys.map(key => next.map(n => n.get(key) ?? 0)),
+        next.length,
+        p,
+      ) === next.length
+    ) {
+      chosen.push(m)
+    }
   }
 
   return chosen
@@ -274,9 +421,20 @@ function equationRank(frame: BulkFrame, p: number): number {
   ansatz.columns.forEach((column, col) => {
     const total: Poly = new Map()
 
-    for (const [key, coef] of column) addScaled(total, frame.space.equations(parseMono(key), p), mod(coef, p), p)
+    for (const [key, coef] of column) {
+      addScaled(
+        total,
+        frame.space.equations(parseMono(key), p),
+        mod(coef, p),
+        p,
+      )
+    }
+
     for (const [rk, val] of total) {
-      if (!rows.has(rk)) rows.set(rk, new Map())
+      if (!rows.has(rk)) {
+        rows.set(rk, new Map())
+      }
+
       rows.get(rk)!.set(col, val)
     }
   })
@@ -307,45 +465,96 @@ const MASSIVE: readonly [number, number][] = [
   [30, 1],
 ]
 
-function exchanges(kernel: Poly, scales: readonly number[], p: number): Exchange {
+function exchanges(
+  kernel: Poly,
+  scales: readonly number[],
+  p: number,
+): Exchange {
   const b = scales[4]!
   const binv = inverseMod(b, p)
   const at = (q: number, m: number): number[] => [0, q, 0, 0, m]
-  const physical2 = (q: number, m: number): number => mod(q * q + mulMod(mulMod(m * m, binv, p), binv, p), p)
-  const massive = MASSIVE.map(([q, m]) => kernelExchange(FIVE, kernel, at(q, m), scales, 1, p))
+  const physical2 = (q: number, m: number): number =>
+    mod(q * q + mulMod(mulMod(m * m, binv, p), binv, p), p)
+  const massive = MASSIVE.map(([q, m]) =>
+    kernelExchange(FIVE, kernel, at(q, m), scales, 1, p),
+  )
   const huskKernel = restrictKernel(FIVE, FOUR, kernel, p)
 
   return {
     massive: massive.map(e => e.factor),
-    massiveOtherGauge: MASSIVE.map(([q, m]) => kernelExchange(FIVE, kernel, at(q, m), scales, 2, p).factor),
-    massScaled: massive.map((e, i) => mulMod(e.staticW, physical2(...MASSIVE[i]!), p)),
-    zeroFull: [1, 2, 3].map(q => kernelExchange(FIVE, kernel, at(q, 0), scales, 1, p).factor),
-    zeroScaled: [1, 2, 3].map(q => mulMod(kernelExchange(FIVE, kernel, at(q, 0), scales, 1, p).staticW, q * q, p)),
-    zeroHusk: [1, 2, 3].map(q => kernelExchange(FOUR, huskKernel, [0, q, 0, 0], scales.slice(0, 4), 1, p).factor),
+    massiveOtherGauge: MASSIVE.map(
+      ([q, m]) =>
+        kernelExchange(FIVE, kernel, at(q, m), scales, 2, p).factor,
+    ),
+    massScaled: massive.map((e, i) =>
+      mulMod(e.staticW, physical2(...MASSIVE[i]!), p),
+    ),
+    zeroFull: [1, 2, 3].map(
+      q => kernelExchange(FIVE, kernel, at(q, 0), scales, 1, p).factor,
+    ),
+    zeroScaled: [1, 2, 3].map(q =>
+      mulMod(
+        kernelExchange(FIVE, kernel, at(q, 0), scales, 1, p).staticW,
+        q * q,
+        p,
+      ),
+    ),
+    zeroHusk: [1, 2, 3].map(
+      q =>
+        kernelExchange(
+          FOUR,
+          huskKernel,
+          [0, q, 0, 0],
+          scales.slice(0, 4),
+          1,
+          p,
+        ).factor,
+    ),
     twoThirds: mulMod(2, inverseMod(3, p), p),
     half: inverseMod(2, p),
   }
 }
 
 // B3: the kernel's null space and blocks at an off-shell 5-momentum
-type Spectrum = { nullity: number; depthProjection: number; graviphotonBlock: number; graviphotonMixing: number }
+type Spectrum = {
+  nullity: number
+  depthProjection: number
+  graviphotonBlock: number
+  graviphotonMixing: number
+}
 
-function spectrum(kernel: Poly, k: readonly number[], p: number): Spectrum {
+function spectrum(
+  kernel: Poly,
+  k: readonly number[],
+  p: number,
+): Spectrum {
   const M = kernelMatrix(FIVE, kernel, k, p)
   const nulls = nullSpaceMod(M, FIVE.F, p)
   const depth = depthFields(FIVE)
   const A = depth.filter(f => FIVE.comps[f]![0] < 4)
-  const others = Array.from({ length: FIVE.F }, (_, f) => f).filter(f => !A.includes(f))
+  const others = Array.from({ length: FIVE.F }, (_, f) => f).filter(
+    f => !A.includes(f),
+  )
 
   return {
     nullity: nulls.length,
-    depthProjection: nulls.length === 0 ? 0 : rankMod(nulls.map(v => depth.map(f => v[f]!)), depth.length, p),
+    depthProjection:
+      nulls.length === 0
+        ? 0
+        : rankMod(
+            nulls.map(v => depth.map(f => v[f]!)),
+            depth.length,
+            p,
+          ),
     graviphotonBlock: rankMod(
       A.map(a => A.map(bb => M[a]![bb]!)),
       A.length,
       p,
     ),
-    graviphotonMixing: A.reduce((t, a) => t + others.filter(o => M[a]![o] !== 0).length, 0),
+    graviphotonMixing: A.reduce(
+      (t, a) => t + others.filter(o => M[a]![o] !== 0).length,
+      0,
+    ),
   }
 }
 
@@ -366,8 +575,12 @@ export default experiment({
       [FIVE, PRIMES.map(p => equationRank(FIVE, p))],
       [FOUR, PRIMES.map(p => equationRank(FOUR, p))],
     ])
-    const table = VARIANTS.map(v => ({ v, reads: PRIMES.map((p, i) => analyse(v, p, eom.get(v.frame)![i]!)) }))
-    const read = (name: string, i = 0): Reads => table.find(t => t.v.name === name)!.reads[i]!
+    const table = VARIANTS.map(v => ({
+      v,
+      reads: PRIMES.map((p, i) => analyse(v, p, eom.get(v.frame)![i]!)),
+    }))
+    const read = (name: string, i = 0): Reads =>
+      table.find(t => t.v.name === name)!.reads[i]!
     const full = read('full')
     const scaled = read('full c 2 b 3')
     const husk = read('husk')
@@ -375,44 +588,77 @@ export default experiment({
     const foliation = read('depth foliation')
     const four = read('4d full')
     const fourLinear = read('4d linear')
-    const strip = (r: Reads): Omit<Reads, 'kernel' | 'basisKernels'> => {
+
+    const strip = (
+      r: Reads,
+    ): Omit<Reads, 'kernel' | 'basisKernels'> => {
       const { kernel: _k, basisKernels: _b, ...rest } = r
 
       return rest
     }
+
     // reported, gating nothing (added after the first run): under the husk-only slide the exchange is not fixed. The
     // 5d Fierz-Pauli kernel plus each basis member of that family, at (p, m) = (1, 1): how many distinct factors
     const p0 = PRIMES[0]!
-    const fp5 = bulkKernel(FIVE, bulkFierzPauli(FIVE, [1, 1, 1, 1, 1], p0), p0)
+    const fp5 = bulkKernel(
+      FIVE,
+      bulkFierzPauli(FIVE, [1, 1, 1, 1, 1], p0),
+      p0,
+    )
     const detuned = husk.basisKernels.map(member => {
       const sum: Poly = new Map()
 
       addScaled(sum, fp5, 1, p0)
       addScaled(sum, member, 1, p0)
+
       try {
-        return kernelExchange(FIVE, sum, [0, 1, 0, 0, 1], [1, 1, 1, 1, 1], 1, p0).factor
+        return kernelExchange(
+          FIVE,
+          sum,
+          [0, 1, 0, 0, 1],
+          [1, 1, 1, 1, 1],
+          1,
+          p0,
+        ).factor
       } catch {
         return -1
       }
     })
     const twoThirds0 = mulMod(2, inverseMod(3, p0), p0)
     const detunedDistinct = new Set(detuned.filter(f => f >= 0)).size
-    const detunedAtTwoThirds = detuned.filter(f => f === twoThirds0).length
+    const detunedAtTwoThirds = detuned.filter(
+      f => f === twoThirds0,
+    ).length
     const detunedSingular = detuned.filter(f => f < 0).length
-    const countsAgree = table.every(({ reads }) => JSON.stringify(strip(reads[0]!)) === JSON.stringify(strip(reads[1]!)))
+    const countsAgree = table.every(
+      ({ reads }) =>
+        JSON.stringify(strip(reads[0]!)) ===
+        JSON.stringify(strip(reads[1]!)),
+    )
 
     // B2 and B3 on the derived kernel, at each prime
     const perPrime = PRIMES.map((p, i) => {
       const kernel = read('full', i).kernel
       const kernelScaled = read('full c 2 b 3', i).kernel
 
-      if (!kernel || !kernelScaled) return undefined
+      if (!kernel || !kernelScaled) {
+        return undefined
+      }
 
-      const fourFp = bulkKernel(FOUR, bulkFierzPauli(FOUR, [1, 1, 1, 1], p), p)
+      const fourFp = bulkKernel(
+        FOUR,
+        bulkFierzPauli(FOUR, [1, 1, 1, 1], p),
+        p,
+      )
       const restricted = restrictKernel(FIVE, FOUR, kernel, p)
-      const keys = [...new Set([...restricted.keys(), ...fourFp.keys()])]
+      const keys = [
+        ...new Set([...restricted.keys(), ...fourFp.keys()]),
+      ]
       const stacked = rankMod(
-        keys.map(key => [restricted.get(key) ?? 0, fourFp.get(key) ?? 0]),
+        keys.map(key => [
+          restricted.get(key) ?? 0,
+          fourFp.get(key) ?? 0,
+        ]),
         2,
         p,
       )
@@ -434,22 +680,37 @@ export default experiment({
       e.massiveOtherGauge.every(f => f === e.twoThirds) &&
       e.massScaled.every(w => w === e.massScaled[0]) &&
       e.zeroScaled.every(w => w === e.zeroScaled[0])
-    const agree = countsAgree && ok && JSON.stringify(perPrime[0]!.massive) === JSON.stringify(perPrime[1]!.massive) && JSON.stringify(perPrime[0]!.zero) === JSON.stringify(perPrime[1]!.zero)
+    const agree =
+      countsAgree &&
+      ok &&
+      JSON.stringify(perPrime[0]!.massive) ===
+        JSON.stringify(perPrime[1]!.massive) &&
+      JSON.stringify(perPrime[0]!.zero) ===
+        JSON.stringify(perPrime[1]!.zero)
 
-    const B1 = full.metricKernel === 1 && full.fierzPauliInSpan && full.depthBlock === 1 && full.depthResidual === 0 && full.lambda5IsOne
-    const B2 = ok && perPrime.every(y => exchangeGood(y!.exchange) && exchangeGood(y!.exchangeScaled))
+    const B1 =
+      full.metricKernel === 1 &&
+      full.fierzPauliInSpan &&
+      full.depthBlock === 1 &&
+      full.depthResidual === 0 &&
+      full.lambda5IsOne
+    const B2 =
+      ok &&
+      perPrime.every(
+        y => exchangeGood(y.exchange) && exchangeGood(y.exchangeScaled),
+      )
     const B3 =
       ok &&
       perPrime.every(
         y =>
-          y!.massive.nullity === 5 &&
-          y!.massive.depthProjection === 5 &&
-          y!.zero.nullity === 5 &&
-          y!.zero.depthProjection === 1 &&
-          y!.zero.graviphotonBlock === 3 &&
-          y!.zero.graviphotonMixing === 0 &&
-          y!.exchange.zeroFull.every(f => f === y!.exchange.twoThirds) &&
-          y!.exchange.zeroHusk.every(f => f === y!.exchange.half),
+          y.massive.nullity === 5 &&
+          y.massive.depthProjection === 5 &&
+          y.zero.nullity === 5 &&
+          y.zero.depthProjection === 1 &&
+          y.zero.graviphotonBlock === 3 &&
+          y.zero.graviphotonMixing === 0 &&
+          y.exchange.zeroFull.every(f => f === y.exchange.twoThirds) &&
+          y.exchange.zeroHusk.every(f => f === y.exchange.half),
       )
     const C1 =
       four.metricKernel === 1 &&
@@ -457,11 +718,21 @@ export default experiment({
       four.genuine === 1 &&
       fourLinear.metricKernel === 2 &&
       ok &&
-      perPrime.every(y => y!.restrictedSize > 0 && y!.restrictedStacked === 1)
+      perPrime.every(
+        y => y.restrictedSize > 0 && y.restrictedStacked === 1,
+      )
     const C2 = husk.metricKernel >= 2
-    const C3 = scaled.metricKernel === 1 && scaled.fierzPauliInSpan && !scaled.unitFierzPauliInSpan
+    const C3 =
+      scaled.metricKernel === 1 &&
+      scaled.fierzPauliInSpan &&
+      !scaled.unitFierzPauliInSpan
     const controls = C1 && C2 && C3 && agree
-    const status = B1 && B2 && B3 && controls ? 'pass' : controls && B1 ? 'partial' : 'fail'
+    const status =
+      B1 && B2 && B3 && controls
+        ? 'pass'
+        : controls && B1
+          ? 'partial'
+          : 'fail'
     const row = (r: Reads): string =>
       `columns ${r.columns}, rows ${r.rows}, invariant ${r.invariant} (genuine ${r.genuine}); metric kernel rank ${r.metricKernel} (Fierz-Pauli in span ${r.fierzPauliInSpan}, unit-scale Fierz-Pauli ${r.unitFierzPauliInSpan}); w-w block ${r.depthBlock}, residual ${r.depthResidual}, lambda_5 pair ${r.lambda5Pair}, lambda_5 = 1 ${r.lambda5IsOne}; (mu, gamma_w) ${r.depthPair}, tied ${r.depthTied}; depth couplings ${r.depthCouplings}`
     const ex = x?.exchange
@@ -484,9 +755,15 @@ export default experiment({
         zeroDepthProjection: x?.zero.depthProjection ?? -1,
         graviphotonBlock: x?.zero.graviphotonBlock ?? -1,
         graviphotonMixing: x?.zero.graviphotonMixing ?? -1,
-        massiveAtTwoThirds: ex ? ex.massive.filter(f => f === ex.twoThirds).length : -1,
-        zeroFullAtTwoThirds: ex ? ex.zeroFull.filter(f => f === ex.twoThirds).length : -1,
-        zeroHuskAtHalf: ex ? ex.zeroHusk.filter(f => f === ex.half).length : -1,
+        massiveAtTwoThirds: ex
+          ? ex.massive.filter(f => f === ex.twoThirds).length
+          : -1,
+        zeroFullAtTwoThirds: ex
+          ? ex.zeroFull.filter(f => f === ex.twoThirds).length
+          : -1,
+        zeroHuskAtHalf: ex
+          ? ex.zeroHusk.filter(f => f === ex.half).length
+          : -1,
         huskMetricKernel: husk.metricKernel,
         huskLambda5Pair: husk.lambda5Pair,
         huskDepthPair: husk.depthPair,
@@ -501,7 +778,11 @@ export default experiment({
         huskDetunedAtTwoThirds: detunedAtTwoThirds,
         huskDetunedSingular: detunedSingular,
       },
-      control: { huskMetricKernel: husk.metricKernel, scaledUnitInSpan: scaled.unitFierzPauliInSpan ? 1 : 0, fourLinearMetricKernel: fourLinear.metricKernel },
+      control: {
+        huskMetricKernel: husk.metricKernel,
+        scaledUnitInSpan: scaled.unitFierzPauliInSpan ? 1 : 0,
+        fourLinearMetricKernel: fourLinear.metricKernel,
+      },
       notes: `primes ${PRIMES.join(', ')}. Euler-Lagrange rank 5d ${eom.get(FIVE)![0]}, 4d ${eom.get(FOUR)![0]}. Massive points (p, m) ${MASSIVE.map(([q, m]) => `(${q}, ${m})`).join(' ')}; off-shell momenta ${OFF_SHELL_MASSIVE.join(' ')} and ${OFF_SHELL_ZERO.join(' ')}. Residues at the first prime: 2/3 is ${ex?.twoThirds}, 1/2 is ${ex?.half}; massive factors ${ex?.massive.join(' ')}; zero-mode full ${ex?.zeroFull.join(' ')}, husk metric only ${ex?.zeroHusk.join(' ')}; W (p^2 + m^2) ${ex?.massScaled.join(' ')}; W p^2 at k_4 = 0 ${ex?.zeroScaled.join(' ')}. The 5d kernel restricted to the husk: ${x?.restrictedSize} keys, stacked with 4d Fierz-Pauli rank ${x?.restrictedStacked}.`,
     })
   },

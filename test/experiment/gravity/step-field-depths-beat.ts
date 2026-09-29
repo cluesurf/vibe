@@ -80,7 +80,13 @@ import {
   type ActionSpaces,
   type Slide,
 } from '@/code/measure/spacetime-slide'
-import { classGeometry, classSymmetries, huskBall, PLAIN_SLOTS, type Offset } from '@/code/measure/slide-invariant-operators'
+import {
+  classGeometry,
+  classSymmetries,
+  huskBall,
+  PLAIN_SLOTS,
+  type Offset,
+} from '@/code/measure/slide-invariant-operators'
 import {
   classMoments,
   classStepInertia,
@@ -97,21 +103,45 @@ import {
   type StepReading,
 } from '@/code/measure/step-field-depths'
 import { lightSpeedOf } from '@/code/measure/trit-hop-light'
-import { dyadicMod, multiplyMod, nullSpaceMod, primeBelow, rankMod } from '@/code/algebra/linear/modular-linear'
+import {
+  dyadicMod,
+  multiplyMod,
+  nullSpaceMod,
+  primeBelow,
+  rankMod,
+} from '@/code/algebra/linear/modular-linear'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const PRIMES = [primeBelow(2 ** 25), primeBelow(2 ** 24)]
 const GEOMETRY = classGeometry()
 const GROUP = classSymmetries(GEOMETRY, false)
-const SPAN_T = PLAIN_SLOTS.map((_, s) => GEOMETRY.span.map(row => row[s]!))
+const SPAN_T = PLAIN_SLOTS.map((_, s) =>
+  GEOMETRY.span.map(row => row[s]!),
+)
 const X = extraVectors(GEOMETRY)
-const UNIT12 = Array.from({ length: 12 }, (_, a) => Array.from({ length: 12 }, (__, b) => (a === b ? 1 : 0)))
+const UNIT12 = Array.from({ length: 12 }, (_, a) =>
+  Array.from({ length: 12 }, (__, b) => (a === b ? 1 : 0)),
+)
 const CROSS = SPAN_T[3]!
 const ORIGIN: Offset[] = [[0, 0, 0]]
-const TOWER: [Offset[], Offset[], Offset[]] = [ORIGIN, huskBall(1), huskBall(2)]
-const LIGHT: Slide = { kind: 'spacetime', c: 1, shiftScale: 1, lapseScale: 1 }
-const STATIC: Slide = { kind: 'static', c: 1, shiftScale: 1, lapseScale: 1 }
+const TOWER: [Offset[], Offset[], Offset[]] = [
+  ORIGIN,
+  huskBall(1),
+  huskBall(2),
+]
+const LIGHT: Slide = {
+  kind: 'spacetime',
+  c: 1,
+  shiftScale: 1,
+  lapseScale: 1,
+}
+const STATIC: Slide = {
+  kind: 'static',
+  c: 1,
+  shiftScale: 1,
+  lapseScale: 1,
+}
 const DEPTH = 1
 
 const DIRECTIONS = [
@@ -121,19 +151,34 @@ const DIRECTIONS = [
 ]
 
 const EQUAL = (): number => 1
-const REGGE = (a: number): number => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2
-const toMod = (m: readonly (readonly number[])[], p: number): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
-const transposed = (m: readonly (readonly number[])[]): number[][] => (m.length === 0 ? [] : m[0]!.map((_, j) => m.map(row => row[j]!)))
+const REGGE = (a: number): number =>
+  GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2
+const toMod = (
+  m: readonly (readonly number[])[],
+  p: number,
+): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
+const transposed = (m: readonly (readonly number[])[]): number[][] =>
+  m.length === 0 ? [] : m[0]!.map((_, j) => m.map(row => row[j]!))
 const one = (): number => 1
-const atOrigin = (r: Offset): boolean => r[0] === 0 && r[1] === 0 && r[2] === 0
-const n2 = (n: readonly number[]): number => n.reduce((t, x) => t + x * x, 0)
+const atOrigin = (r: Offset): boolean =>
+  r[0] === 0 && r[1] === 0 && r[2] === 0
+const n2 = (n: readonly number[]): number =>
+  n.reduce((t, x) => t + x * x, 0)
 
 // ---------------------------------------------------------------------------------------------------------
 // W1: the TT speed on the metric, as omega^2 / (c^2 k^2) = h P(n) h / (S(n) h T h), cross-multiplied exact
 
-type Speed = { direction: string; plus: [number, number]; cross: [number, number] }
+type Speed = {
+  direction: string
+  plus: [number, number]
+  cross: [number, number]
+}
 
-function ttSpeeds(scalar: StepKernel, potential: readonly KernelEntry[], weight: (a: number) => number): Speed[] {
+function ttSpeeds(
+  scalar: StepKernel,
+  potential: readonly KernelEntry[],
+  weight: (a: number) => number,
+): Speed[] {
   const t = stepKineticBlock(GEOMETRY, weight)
 
   return DIRECTIONS.map(d => {
@@ -141,54 +186,104 @@ function ttSpeeds(scalar: StepKernel, potential: readonly KernelEntry[], weight:
     const s = stepStiffness(scalar, d.n)
     const { plus, cross } = ttPolarizations(d.a, d.b)
 
-    return { direction: d.name, plus: [quadratic(p, plus), s * quadratic(t, plus)], cross: [quadratic(p, cross), s * quadratic(t, cross)] }
+    return {
+      direction: d.name,
+      plus: [quadratic(p, plus), s * quadratic(t, plus)],
+      cross: [quadratic(p, cross), s * quadratic(t, cross)],
+    }
   })
 }
 
-const atC = (speeds: readonly Speed[]): boolean => speeds.every(s => s.plus[0] === s.plus[1] && s.cross[0] === s.cross[1])
-const ratioText = (speeds: readonly Speed[]): string => speeds.map(s => `${s.direction} plus ${s.plus[0] / s.plus[1]} cross ${s.cross[0] / s.cross[1]}`).join('; ')
+const atC = (speeds: readonly Speed[]): boolean =>
+  speeds.every(
+    s => s.plus[0] === s.plus[1] && s.cross[0] === s.cross[1],
+  )
+const ratioText = (speeds: readonly Speed[]): string =>
+  speeds
+    .map(
+      s =>
+        `${s.direction} plus ${s.plus[0] / s.plus[1]} cross ${s.cross[0] / s.cross[1]}`,
+    )
+    .join('; ')
 
 // ---------------------------------------------------------------------------------------------------------
 // W3: the doublet's dispersion in the step form (omega^2 / (c^2 k^2) of the 2 x 2 projected problem, and its mass)
 
 // the doublet's k = 0 block (the mass, per unit kappa: omega^2(0) = kappa lambda), its inertia's determinant, the
 // least omega^2(0) / c^2, and omega^2 / (c^2 k^2) at long waves; a dock-scale gap is omega^2(0) >= c^2
-type Doublet = { mass: number[][]; inertia: number; gapOverC2: number; invariant: boolean; ratios: string[]; least: number }
+type Doublet = {
+  mass: number[][]
+  inertia: number
+  gapOverC2: number
+  invariant: boolean
+  ratios: string[]
+  least: number
+}
 
 // generalized eigenvalues of the 2 x 2 pair (p, g): det(p - lambda g) = 0
-function pairEigen(p: readonly (readonly number[])[], g: readonly (readonly number[])[]): [number, number] {
+function pairEigen(
+  p: readonly (readonly number[])[],
+  g: readonly (readonly number[])[],
+): [number, number] {
   const A = g[0]![0]! * g[1]![1]! - g[0]![1]! * g[1]![0]!
-  const B = -(p[0]![0]! * g[1]![1]! + p[1]![1]! * g[0]![0]! - p[0]![1]! * g[1]![0]! - p[1]![0]! * g[0]![1]!)
+  const B = -(
+    p[0]![0]! * g[1]![1]! +
+    p[1]![1]! * g[0]![0]! -
+    p[0]![1]! * g[1]![0]! -
+    p[1]![0]! * g[0]![1]!
+  )
   const C = p[0]![0]! * p[1]![1]! - p[0]![1]! * p[1]![0]!
   const root = Math.sqrt(Math.max(0, B * B - 4 * A * C))
 
   return [(-B - root) / (2 * A), (-B + root) / (2 * A)]
 }
 
-function doubletDispersion(scalar: StepKernel, potential: readonly KernelEntry[]): Doublet {
+function doubletDispersion(
+  scalar: StepKernel,
+  potential: readonly KernelEntry[],
+): Doublet {
   const d = X.doublet
-  const gram = d.map(u => d.map(v => u.reduce((t, x, a) => t + x * v[a]!, 0)))
+  const gram = d.map(u =>
+    d.map(v => u.reduce((t, x, a) => t + x * v[a]!, 0)),
+  )
   // the k = 0 block: sum_r K_aa(r) on the doublet
   const zero = new Array<number>(12).fill(0)
 
-  for (const k of potential) zero[k.a]! += k.value
+  for (const k of potential) {
+    zero[k.a]! += k.value
+  }
 
-  const mass = d.map(u => d.map(v => u.reduce((t, x, a) => t + x * zero[a]! * v[a]!, 0)))
-  const inertia = gram[0]![0]! * gram[1]![1]! - gram[0]![1]! * gram[1]![0]!
+  const mass = d.map(u =>
+    d.map(v => u.reduce((t, x, a) => t + x * zero[a]! * v[a]!, 0)),
+  )
+  const inertia =
+    gram[0]![0]! * gram[1]![1]! - gram[0]![1]! * gram[1]![0]!
   // omega^2(0) / c^2 = kappa lambda / (6 kappa) with c^2 = kappa S(axis) = 6 kappa
-  const gapOverC2 = pairEigen(mass, gram)[0] / stepStiffness(scalar, [0, 0, 1])
+  const gapOverC2 =
+    pairEigen(mass, gram)[0] / stepStiffness(scalar, [0, 0, 1])
+
   let invariant = true
   let least = Infinity
+
   const ratios = DIRECTIONS.map(dir => {
     const m = classMoments(potential, dir.n)
     const s = stepStiffness(scalar, dir.n)
-    const p = d.map(u => d.map(v => u.reduce((t, x, a) => t + x * m[a]! * v[a]!, 0) / s))
+    const p = d.map(u =>
+      d.map(v => u.reduce((t, x, a) => t + x * m[a]! * v[a]!, 0) / s),
+    )
     const [lo, hi] = pairEigen(p, gram)
     // is span(doublet) invariant under the class moments: m d_i in span(d)?
     const md = d.map(u => u.map((x, a) => x * m[a]!))
-    const spanRank = rankMod([...toMod(d, PRIMES[0]!), ...toMod(md, PRIMES[0]!)], 12, PRIMES[0]!)
+    const spanRank = rankMod(
+      [...toMod(d, PRIMES[0]!), ...toMod(md, PRIMES[0]!)],
+      12,
+      PRIMES[0]!,
+    )
 
-    if (spanRank !== 2) invariant = false
+    if (spanRank !== 2) {
+      invariant = false
+    }
+
     least = Math.min(least, lo)
 
     return `${dir.name} ${lo} and ${hi}`
@@ -200,21 +295,56 @@ function doubletDispersion(scalar: StepKernel, potential: readonly KernelEntry[]
 // ---------------------------------------------------------------------------------------------------------
 // C1 and the shift-symmetric members of E-GRV-0139's family
 
-type Family = { invariant: number; crossMu: number; crossPair: number; shiftSymmetric: number; symMetricKinetic: number; symCrossPair: number; symDoubletKinetic: number; symDoubletMass: number; symDoubletDerivative: number; symDoubletCurvature: number }
+type Family = {
+  invariant: number
+  crossMu: number
+  crossPair: number
+  shiftSymmetric: number
+  symMetricKinetic: number
+  symCrossPair: number
+  symDoubletKinetic: number
+  symDoubletMass: number
+  symDoubletDerivative: number
+  symDoubletCurvature: number
+}
 
 function family(p: number): Family {
-  const spaces: ActionSpaces = { kinetic: signedSpace(TOWER[0], GROUP, 1), first: signedSpace(TOWER[1], GROUP, -1), potential: signedSpace(TOWER[2], GROUP, 1) }
+  const spaces: ActionSpaces = {
+    kinetic: signedSpace(TOWER[0], GROUP, 1),
+    first: signedSpace(TOWER[1], GROUP, -1),
+    potential: signedSpace(TOWER[2], GROUP, 1),
+  }
   const col = actionColumns(spaces)
   const W = col.width
-  const rows = toMod(slideRows(spaces, spacetimeSlide(GEOMETRY, LIGHT), 'spacetime'), p)
-  const M = (l: readonly (readonly number[])[], r: readonly (readonly number[])[], per: boolean, skip?: (x: Offset) => boolean): number[][] => sandwichRows(spaces.kinetic, col.kinetic, W, l, r, one, per, skip)
-  const K = (l: readonly (readonly number[])[], r: readonly (readonly number[])[], w: (x: Offset) => number, per: boolean, skip?: (x: Offset) => boolean): number[][] =>
+  const rows = toMod(
+    slideRows(spaces, spacetimeSlide(GEOMETRY, LIGHT), 'spacetime'),
+    p,
+  )
+  const M = (
+    l: readonly (readonly number[])[],
+    r: readonly (readonly number[])[],
+    per: boolean,
+    skip?: (x: Offset) => boolean,
+  ): number[][] =>
+    sandwichRows(spaces.kinetic, col.kinetic, W, l, r, one, per, skip)
+  const K = (
+    l: readonly (readonly number[])[],
+    r: readonly (readonly number[])[],
+    w: (x: Offset) => number,
+    per: boolean,
+    skip?: (x: Offset) => boolean,
+  ): number[][] =>
     sandwichRows(spaces.potential, col.potential, W, l, r, w, per, skip)
+
   const on = (basis: number[][]) => {
     const bt = transposed(basis)
 
-    return (f: number[][]): number => (basis.length === 0 ? 0 : rankMod(multiplyMod(toMod(f, p), bt, p), basis.length, p))
+    return (f: number[][]): number =>
+      basis.length === 0
+        ? 0
+        : rankMod(multiplyMod(toMod(f, p), bt, p), basis.length, p)
   }
+
   const mu = M([CROSS], [CROSS], false)[0]!
   const s2 = K([CROSS], [CROSS], r => r[2] * r[2], false)[0]!
   const all = nullSpaceMod(rows, W, p)
@@ -233,7 +363,9 @@ function family(p: number): Family {
     symCrossPair: onSym([mu, s2]),
     symDoubletKinetic: onSym(M(X.doublet, X.doublet, true)),
     symDoubletMass: onSym(K(X.doublet, X.doublet, one, false)),
-    symDoubletDerivative: onSym(K(X.doublet, X.doublet, one, true, atOrigin)),
+    symDoubletDerivative: onSym(
+      K(X.doublet, X.doublet, one, true, atOrigin),
+    ),
     symDoubletCurvature: onSym(K(X.doublet, SPAN_T, one, true)),
   }
 }
@@ -245,15 +377,25 @@ function einsteinHilbertEntries(p: number): KernelEntry[] {
   for (const [k, m] of einsteinHilbertDepthKernel(GEOMETRY, p)) {
     const offset = k.split(',').map(Number) as unknown as Offset
 
-    m.forEach((row, a) => row.forEach((value, b) => value !== 0 && out.push({ a, b, offset, value })))
+    m.forEach((row, a) =>
+      row.forEach(
+        (value, b) => value !== 0 && out.push({ a, b, offset, value }),
+      ),
+    )
   }
 
   return out
 }
 
-const total = (r: ReturnType<typeof slideResidual>): number => Object.values(r).reduce((t, x) => t + x.spatial + x.time, 0)
+const total = (r: ReturnType<typeof slideResidual>): number =>
+  Object.values(r).reduce((t, x) => t + x.spatial + x.time, 0)
 const residualText = (r: ReturnType<typeof slideResidual>): string =>
-  (['3', '2', '1', '0'] as const).map(t => `omega^${t} ${r[t].spatial} from xi_i, ${r[t].time} from xi_0`).join('; ')
+  (['3', '2', '1', '0'] as const)
+    .map(
+      t =>
+        `omega^${t} ${r[t].spatial} from xi_i, ${r[t].time} from xi_0`,
+    )
+    .join('; ')
 
 export default experiment({
   id: 'gravity/step-field-depths-beat',
@@ -274,12 +416,25 @@ export default experiment({
         const light = lightSpeedOf(k.depth) ** 2
 
         // c^2 = (a / q) s / |n|^2 against the light's 4 / (3 (2D + 1)), cross-multiplied in integers
-        return { direction: d.name, s, six: s === 6 * n2(d.n), light: k.a * s * 3 * (2 * k.depth + 1) === 4 * k.q * n2(d.n), value: (k.a * s) / (k.q * n2(d.n)), lightValue: light }
+        return {
+          direction: d.name,
+          s,
+          six: s === 6 * n2(d.n),
+          light: k.a * s * 3 * (2 * k.depth + 1) === 4 * k.q * n2(d.n),
+          value: (k.a * s) / (k.q * n2(d.n)),
+          lightValue: light,
+        }
       }),
     )
-    const C2 = scalars.every(k => k.exact && k.reversed && k.kernel.size === 19) && cSquared.every(rows => rows.every(r => r.six && r.light))
+    const C2 =
+      scalars.every(
+        k => k.exact && k.reversed && k.kernel.size === 19,
+      ) && cSquared.every(rows => rows.every(r => r.six && r.light))
 
-    const potentials: Record<StepReading, KernelEntry[]> = { line: classStepPotential(GEOMETRY, scalar, 'line'), full: classStepPotential(GEOMETRY, scalar, 'full') }
+    const potentials: Record<StepReading, KernelEntry[]> = {
+      line: classStepPotential(GEOMETRY, scalar, 'line'),
+      full: classStepPotential(GEOMETRY, scalar, 'full'),
+    }
     const inertia = classStepInertia()
 
     // W1
@@ -301,14 +456,37 @@ export default experiment({
     const residuals = PRIMES.map(p => ({
       line: slideResidual(inertia, potentials.line, slide, true, p),
       full: slideResidual(inertia, potentials.full, slide, true, p),
-      lineStatic: slideResidual(inertia, potentials.line, stat, false, p),
-      eh: slideResidual([], einsteinHilbertEntries(p), slide, true, p, true),
-      ehStatic: slideResidual([], einsteinHilbertEntries(p), stat, false, p, true),
+      lineStatic: slideResidual(
+        inertia,
+        potentials.line,
+        stat,
+        false,
+        p,
+      ),
+      eh: slideResidual(
+        [],
+        einsteinHilbertEntries(p),
+        slide,
+        true,
+        p,
+        true,
+      ),
+      ehStatic: slideResidual(
+        [],
+        einsteinHilbertEntries(p),
+        stat,
+        false,
+        p,
+        true,
+      ),
     }))
     const res = residuals[0]!
     const W2 = total(res.line) === 0
     const noSlideRows = 0
-    const C3 = total(res.eh) === 0 && total(res.ehStatic) === 0 && noSlideRows === 0
+    const C3 =
+      total(res.eh) === 0 &&
+      total(res.ehStatic) === 0 &&
+      noSlideRows === 0
 
     // W3
     const lineDoublet = doubletDispersion(scalar, potentials.line)
@@ -320,10 +498,17 @@ export default experiment({
     const fam = fams[0]!
     const C1 = fam.crossMu > 0 && fam.crossPair === 2
 
-    const agree = JSON.stringify(fams[0]) === JSON.stringify(fams[1]) && JSON.stringify(residuals[0]) === JSON.stringify(residuals[1])
+    const agree =
+      JSON.stringify(fams[0]) === JSON.stringify(fams[1]) &&
+      JSON.stringify(residuals[0]) === JSON.stringify(residuals[1])
     const controls = C1 && C2 && C3 && agree
     const gates = [W1, W2, W3].filter(Boolean).length
-    const status = gates === 3 && controls ? 'pass' : gates > 0 && controls ? 'partial' : 'fail'
+    const status =
+      gates === 3 && controls
+        ? 'pass'
+        : gates > 0 && controls
+          ? 'partial'
+          : 'fail'
 
     const metrics: Record<string, number> = {
       w1: W1 ? 1 : 0,
@@ -357,7 +542,12 @@ export default experiment({
       status,
       claim: `W1 ${W1}, W2 ${W2}, W3 ${W3}; C1 ${C1}, C2 ${C2}, C3 ${C3}, primes agree ${agree}. LINE reading: TT omega^2 / (c^2 k^2) ${ratioText(lineSpeeds)} (|u|^4 weight: ${ratioText(lineRegge)}); the 12 decoupled class branches ${branches.join(' | ')}; slide residual rows ${residualText(res.line)}; static slide ${residualText(res.lineStatic)}; doublet mass block ${JSON.stringify(lineDoublet.mass)} (omega^2(0) / c^2 ${lineDoublet.gapOverC2}), inertia det ${lineDoublet.inertia}, invariant subspace ${lineDoublet.invariant}, omega^2 / (c^2 k^2) ${lineDoublet.ratios.join('; ')}. FULL reading (W1 circular): TT ${ratioText(fullSpeeds)} (|u|^4: ${ratioText(fullRegge)}); residual rows ${residualText(res.full)}; doublet ${fullDoublet.ratios.join('; ')} mass ${JSON.stringify(fullDoublet.mass)}. EH potential residual ${residualText(res.eh)}. Family: ${fam.invariant} invariant, cross (mu, S2) rank ${fam.crossPair}; with K(0) = 0 on every block ${fam.shiftSymmetric} members, metric kinetic rank ${fam.symMetricKinetic}, cross (mu, S2) rank ${fam.symCrossPair}, doublet kinetic ${fam.symDoubletKinetic}, mass ${fam.symDoubletMass}, derivative ${fam.symDoubletDerivative}, curvature coupling ${fam.symDoubletCurvature}`,
       metrics,
-      control: { familyCrossPair: fam.crossPair, stepCSquaredD1: cSquared[0]![0]!.value, stepCSquaredD2: cSquared[1]![0]!.value, ehResidualRows: total(res.eh) },
+      control: {
+        familyCrossPair: fam.crossPair,
+        stepCSquaredD1: cSquared[0]![0]!.value,
+        stepCSquaredD2: cSquared[1]![0]!.value,
+        ehResidualRows: total(res.eh),
+      },
       notes: `primes ${PRIMES.join(', ')}. Step kernel read from one beat (D = 1): ${[...scalar.kernel.values()].map(e => `${e.offset.join(',')}:${e.value}`).join(' ')}; exact ${scalar.exact}, reversed ${scalar.reversed}. c^2 per direction: ${cSquared.map((rows, i) => `D ${i + 1}: ${rows.map(r => `${r.direction} S ${r.s} c^2 ${r.value} light ${r.lightValue}`).join(', ')}`).join(' | ')}.`,
     })
   },

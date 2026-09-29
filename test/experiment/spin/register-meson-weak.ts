@@ -111,8 +111,22 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { wrap } from '@/code/measure/dock-mixer'
 import { cyclePhases } from '@/code/measure/swap-cone'
-import { ringUnit, unitAngle, radialWell, stringKappa } from '@/code/measure/swap-string'
-import { diracPhase, partnerProjector48, REGISTER_ROOTS, registerPiece, scaled, singletProjector24, structureVector, weylDirections } from '@/code/measure/spinor-register'
+import {
+  ringUnit,
+  unitAngle,
+  radialWell,
+  stringKappa,
+} from '@/code/measure/swap-string'
+import {
+  diracPhase,
+  partnerProjector48,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+  structureVector,
+  weylDirections,
+} from '@/code/measure/spinor-register'
 import {
   blockShares,
   clonePair,
@@ -182,9 +196,48 @@ export type Coupling = {
 }
 
 export const COUPLINGS: Coupling[] = [
-  { name: 'control', unit: [-9, 6], cap: 8, radius: 9, ell: 2.5, nrL: 30, filters: [64, 256, 1024], kFilter: 256, isotropy: false, witness: false, edge: 1e-6, control: true },
-  { name: 'middle', unit: [-6, 4], cap: 12, radius: 12, ell: 2.9, nrL: 60, filters: [64, 256, 512], kFilter: 256, isotropy: false, witness: true, edge: 1e-5, control: false },
-  { name: 'weakest', unit: [-3, 2], cap: 24, radius: 13, ell: 3.6, nrL: 60, filters: [64, 256, 512], kFilter: 256, isotropy: true, witness: true, edge: 1e-4, control: false },
+  {
+    name: 'control',
+    unit: [-9, 6],
+    cap: 8,
+    radius: 9,
+    ell: 2.5,
+    nrL: 30,
+    filters: [64, 256, 1024],
+    kFilter: 256,
+    isotropy: false,
+    witness: false,
+    edge: 1e-6,
+    control: true,
+  },
+  {
+    name: 'middle',
+    unit: [-6, 4],
+    cap: 12,
+    radius: 12,
+    ell: 2.9,
+    nrL: 60,
+    filters: [64, 256, 512],
+    kFilter: 256,
+    isotropy: false,
+    witness: true,
+    edge: 1e-5,
+    control: false,
+  },
+  {
+    name: 'weakest',
+    unit: [-3, 2],
+    cap: 24,
+    radius: 13,
+    ell: 3.6,
+    nrL: 60,
+    filters: [64, 256, 512],
+    kFilter: 256,
+    isotropy: true,
+    witness: true,
+    edge: 1e-4,
+    control: false,
+  },
 ]
 
 export type CouplingRead = {
@@ -218,10 +271,18 @@ export type CouplingRead = {
   seconds: number
 }
 
-const unitValue = (angle: number): [number, number] => [Math.cos(angle), Math.sin(angle)]
+const unitValue = (angle: number): [number, number] => [
+  Math.cos(angle),
+  Math.sin(angle),
+]
 
-function witnessStart(ballIndex: Map<string, number>, s: PairState, only: number): void {
-  const at = ballIndex.get('0,0,0,0') as number
+function witnessStart(
+  ballIndex: Map<string, number>,
+  s: PairState,
+  only: number,
+): void {
+  const at = ballIndex.get('0,0,0,0')!
+
   let w = 0.5
 
   for (let k = 0; k < only; k++) {
@@ -233,43 +294,83 @@ function witnessStart(ballIndex: Map<string, number>, s: PairState, only: number
 }
 
 // the member instrument, E-SPN-0162's I1 and I2
-export function memberInstrument(): { i1: number; RMember: number; tanOver: number; I1: boolean; I2: boolean } {
+export function memberInstrument(): {
+  i1: number
+  RMember: number
+  tanOver: number
+  I1: boolean
+  I2: boolean
+} {
   const theta = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u = unitValue(theta)
   const M0 = wrap(theta - Math.PI)
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
   const Ps = [registerPiece(qS, u), registerPiece(qD, [u[0], -u[1]])]
+
   const phasesOf = (K: readonly number[]): number[] => {
     const m = memberCycle(u, K)
     const e = complexEigenvalues({ re: m.re, im: m.im, n: 16 })
 
-    return e.re.map((x, i) => Math.atan2(e.im[i] as number, x)).sort((a, b) => a - b)
+    return e.re
+      .map((x, i) => Math.atan2(e.im[i]!, x))
+      .sort((a, b) => a - b)
   }
+
   let i1 = 0
 
-  for (const K of [[0, 0, 0, 0], [0.3, 0.1, -0.2, 0.05], [1.1, -0.7, 0.4, 0.9], [2.5, 0.3, 0.3, -1.2], [0.01, 0, 0, 0]]) {
+  for (const K of [
+    [0, 0, 0, 0],
+    [0.3, 0.1, -0.2, 0.05],
+    [1.1, -0.7, 0.4, 0.9],
+    [2.5, 0.3, 0.3, -1.2],
+    [0.01, 0, 0, 0],
+  ]) {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
-    const want = [...Array(8).fill(wrap(Math.PI + E)), ...Array(8).fill(wrap(Math.PI - E))].sort((a, b) => a - b)
+    const want = [
+      ...Array(8).fill(wrap(Math.PI + E)),
+      ...Array(8).fill(wrap(Math.PI - E)),
+    ].sort((a, b) => a - b)
     const full = cyclePhases(Ps, REGISTER_ROOTS, K)
       .filter(x => Math.abs(wrap(x)) > 1e-7)
       .sort((a, b) => a - b)
 
-    i1 = Math.max(i1, ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))), full.length === 16 ? Math.max(...full.map((x, i) => Math.abs(wrap(x - (ph[i] as number))))) : 99)
+    i1 = Math.max(
+      i1,
+      ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))),
+      full.length === 16
+        ? Math.max(...full.map((x, i) => Math.abs(wrap(x - ph[i]!))))
+        : 99,
+    )
   }
 
-  const sEps = (k: number): number => phasesOf([k, 0, 0, 0]).map(x => wrap(x - Math.PI)).reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
-  const aMember = (4 * ((sEps(0.01) - M0) / 0.01 ** 2) - (sEps(0.02) - M0) / 0.02 ** 2) / 3
+  const sEps = (k: number): number =>
+    phasesOf([k, 0, 0, 0])
+      .map(x => wrap(x - Math.PI))
+      .reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
+  const aMember =
+    (4 * ((sEps(0.01) - M0) / 0.01 ** 2) -
+      (sEps(0.02) - M0) / 0.02 ** 2) /
+    3
   const RMember = C_STAR2 / (2 * aMember * M0)
   const tanOver = Math.tan(M0 / 2) / (M0 / 2)
 
-  return { i1, RMember, tanOver, I1: i1 <= I1_TOLERANCE, I2: Math.abs(RMember - tanOver) <= I2_TOLERANCE }
+  return {
+    i1,
+    RMember,
+    tanOver,
+    I1: i1 <= I1_TOLERANCE,
+    I2: Math.abs(RMember - tanOver) <= I2_TOLERANCE,
+  }
 }
 
 // one string: the witness, the channels, the level, the hold and the inertia. The level and the K reads follow E-SPN-0162's
 // sequence exactly (so the control reproduces it bit for bit).
-export function readCoupling(c: Coupling, log: (what: string) => void = () => {}): CouplingRead {
+export function readCoupling(
+  c: Coupling,
+  log: (what: string) => void = () => {},
+): CouplingRead {
   const started = Date.now()
   const theta = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u = unitValue(theta)
@@ -303,7 +404,13 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
       const g = fullGap(full, two, want, kind === 'SS' ? Infinity : 2)
 
       witnessGap = Math.max(witnessGap, g.worst)
-      witnessOk = witnessOk && g.worst <= ENTRY && Math.abs(n1 / n0 - 1) <= NORM && (kind !== 'SS' || (Math.abs(g.weightA / g.weightB - 1) <= WEIGHT && Math.abs(g.weightB / n1 - 1) <= WEIGHT))
+      witnessOk =
+        witnessOk &&
+        g.worst <= ENTRY &&
+        Math.abs(n1 / n0 - 1) <= NORM &&
+        (kind !== 'SS' ||
+          (Math.abs(g.weightA / g.weightB - 1) <= WEIGHT &&
+            Math.abs(g.weightB / n1 - 1) <= WEIGHT))
       log(`${c.name} witness ${kind} gap ${g.worst.toExponential(2)}`)
     }
   }
@@ -317,12 +424,13 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
     c.nrL,
     12000,
   )
+
   let nrW = 0
   let nrMeanV = 0
 
   for (let i = 0; i < nr.u.length; i++) {
-    nrW += (nr.u[i] as number) ** 2 * tau * Math.min(kappa * (i + 1) * nr.h, c.cap)
-    nrMeanV += (nr.u[i] as number) ** 2 * kappa * (i + 1) * nr.h
+    nrW += nr.u[i]! ** 2 * tau * Math.min(kappa * (i + 1) * nr.h, c.cap)
+    nrMeanV += nr.u[i]! ** 2 * kappa * (i + 1) * nr.h
   }
 
   const nrT = nr.E - nrW
@@ -346,11 +454,14 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
     normalizePair(e0, v)
     read = readLevel(e0, v)
     phase = read.phase
-    log(`${c.name} filter ${S} phase ${phase} residual ${read.residual.toExponential(2)}`)
+    log(
+      `${c.name} filter ${S} phase ${phase} residual ${read.residual.toExponential(2)}`,
+    )
   }
 
   const EL = read.phase
   const lambdaAbs = Math.hypot(...read.lambda)
+
   let lost = 0
   let least = 1
 
@@ -365,23 +476,41 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
 
       least = Math.min(least, (fr * fr + fi * fi) / (n0 * n0))
     }
+
     lost = 1 - norm2(e0, s) / n0
   }
 
   const prof = profile(e0, v)
   const profTotal = prof.reduce((a, b) => a + b, 0)
-  const edge = (prof[c.radius] as number) / profTotal
+  const edge = prof[c.radius]! / profTotal
   const shares = blockShares(e0, v)
-  const held = lambdaAbs >= 1 - LAMBDA && read.residual <= RESIDUAL && Math.abs(lost) <= LOST && least >= 1 - FIDELITY && edge <= c.edge
+  const held =
+    lambdaAbs >= 1 - LAMBDA &&
+    read.residual <= RESIDUAL &&
+    Math.abs(lost) <= LOST &&
+    least >= 1 - FIDELITY &&
+    edge <= c.edge
 
-  log(`${c.name} hold lost ${lost.toExponential(2)} least ${least} edge ${edge.toExponential(2)}`)
+  log(
+    `${c.name} hold lost ${lost.toExponential(2)} least ${least} edge ${edge.toExponential(2)}`,
+  )
 
   // ---- H1: the channels at every separation ----
   let gMax = 0
 
-  for (const w of weylDirections(2000)) for (let k = 0.05; k < 3.2; k += 0.05) gMax = Math.max(gMax, Math.hypot(...structureVector(w.map(x => x * k))) / 2)
+  for (const w of weylDirections(2000)) {
+    for (let k = 0.05; k < 3.2; k += 0.05) {
+      gMax = Math.max(
+        gMax,
+        Math.hypot(...structureVector(w.map(x => x * k))) / 2,
+      )
+    }
+  }
 
-  const Smax = Math.acos(Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax)
+  const Smax = Math.acos(
+    Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax,
+  )
+
   const distance = (lo: number, hi: number): number => {
     let best = Infinity
 
@@ -393,6 +522,7 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
 
     return best
   }
+
   let margin = Infinity
   let marginAt = ''
 
@@ -408,7 +538,9 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
     ]
 
     for (const [name, lo, hi] of bands) {
-      if (name === 'SS' && V < c.cap) continue
+      if (name === 'SS' && V < c.cap) {
+        continue
+      }
 
       const d = distance(lo, hi)
 
@@ -430,7 +562,9 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
 
     return readLevel(e, f).phase
   }
+
   const base = eAt([0, 0, 0, 0])
+
   const coefficient = (d: number[]): number => {
     const e1 = eAt(d.map(x => x * KAPPA))
     const e2 = eAt(d.map(x => (x * KAPPA) / 2))
@@ -439,6 +573,7 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
 
     return (4 * a2 - a1) / 3
   }
+
   const aAxis = coefficient(AXIS)
 
   log(`${c.name} axis a ${aAxis}`)
@@ -484,8 +619,12 @@ export function readCoupling(c: Coupling, log: (what: string) => void = () => {}
 const flag = (b: boolean): number => (b ? 1 : 0)
 
 // the verdict from the three strings' reads (so the gate run can read the strings in parallel processes and combine)
-export function combine(reads: CouplingRead[], instrument: ReturnType<typeof memberInstrument>): Verdict {
-  const byName = (n: string): CouplingRead => reads.find(r => r.name === n) as CouplingRead
+export function combine(
+  reads: CouplingRead[],
+  instrument: ReturnType<typeof memberInstrument>,
+): Verdict {
+  const byName = (n: string): CouplingRead =>
+    reads.find(r => r.name === n)!
   const control = byName('control')
   const middle = byName('middle')
   const weakest = byName('weakest')
@@ -497,13 +636,23 @@ export function combine(reads: CouplingRead[], instrument: ReturnType<typeof mem
   const H4 = reads.every(r => Math.abs(r.R - 1) <= R_TOLERANCE)
   const T1 = weakest.R < middle.R && middle.R < control.R
   const C1 = control.EL === RECORDED.EL && control.R === RECORDED.R
-  const status = !(H0 && H1 && H2 && H3 && H4 && T1) ? 'fail' : !(instrument.I1 && instrument.I2 && C1) ? 'partial' : 'pass'
+  const status = !(H0 && H1 && H2 && H3 && H4 && T1)
+    ? 'fail'
+    : !(instrument.I1 && instrument.I2 && C1)
+      ? 'partial'
+      : 'pass'
 
   // the read fit: R - R_NR = A tau^p through the three strings (least squares in logs), and where the fit meets R = 1
-  const pts = reads.filter(r => r.R - r.nrR > 0).map(r => [Math.log(r.tau), Math.log(r.R - r.nrR)] as [number, number])
+  const pts = reads
+    .filter(r => r.R - r.nrR > 0)
+    .map(
+      r => [Math.log(r.tau), Math.log(r.R - r.nrR)] as [number, number],
+    )
   const mx = pts.reduce((s, p) => s + p[0], 0) / pts.length
   const my = pts.reduce((s, p) => s + p[1], 0) / pts.length
-  const p = pts.reduce((s, q) => s + (q[0] - mx) * (q[1] - my), 0) / pts.reduce((s, q) => s + (q[0] - mx) ** 2, 0)
+  const p =
+    pts.reduce((s, q) => s + (q[0] - mx) * (q[1] - my), 0) /
+    pts.reduce((s, q) => s + (q[0] - mx) ** 2, 0)
   const A = Math.exp(my - p * mx)
   // R_NR near the crossing: the weakest string's (it varies slowly), so tau* = ((1 - R_NR) / A)^(1 / p)
   const tauOne = Math.pow((1 - weakest.nrR) / A, 1 / p)
@@ -536,7 +685,10 @@ export function combine(reads: CouplingRead[], instrument: ReturnType<typeof mem
       tauOne,
       seconds: reads.reduce((s, r) => s + r.seconds, 0),
     },
-    control: { C1: flag(C1), instrument: flag(instrument.I1 && instrument.I2) },
+    control: {
+      C1: flag(C1),
+      instrument: flag(instrument.I1 && instrument.I2),
+    },
     notes: `L2. Block shares (S S, S D, D S, D D) and profiles: ${reads.map(r => `${r.name} ${r.shares.map(x => x.toFixed(4)).join(' ')}; profile ${r.profile.map(x => x.toExponential(1)).join(' ')}; NR mean V ${r.nrMeanV.toFixed(2)}`).join(' | ')}.`,
   })
 }

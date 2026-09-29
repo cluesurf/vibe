@@ -107,6 +107,7 @@ export default experiment({
     }
 
     const total = will.data.length
+
     let carriers = 0
     let mixing = 0
 

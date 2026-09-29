@@ -12,7 +12,12 @@
 // imported. The exact discrete-time stepping deviates at finite F (discreteness corrections); the clean
 // Landau-Zener law is the F -> 0 limit, which is what this measures.
 
-import { ComplexPair as Complex, pairAdd as cadd, pairMul as cmul, pairConj as cconj } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as Complex,
+  pairAdd as cadd,
+  pairMul as cmul,
+  pairConj as cconj,
+} from '@/code/algebra/linear/complex-pair'
 
 type Spinor = readonly [Complex, Complex]
 

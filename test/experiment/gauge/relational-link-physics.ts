@@ -137,24 +137,54 @@ const REVERSE_BEATS = 48
 const WAVE_SIDE = 12
 const WAVE_AMPLITUDE = [60, 45]
 
-const hash = (i: number, scale: number, range: number): number => Math.floor((((i + 1) * GOLDEN * scale) % 1) * range)
-const differ = (a: ArrayLike<number>, b: ArrayLike<number>): number => Array.from(a).filter((v, i) => v !== b[i]).length
-const sigmaFields = (s: SigmaState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+const hash = (i: number, scale: number, range: number): number =>
+  Math.floor((((i + 1) * GOLDEN * scale) % 1) * range)
+const differ = (a: ArrayLike<number>, b: ArrayLike<number>): number =>
+  Array.from(a).filter((v, i) => v !== b[i]).length
+const sigmaFields = (s: SigmaState): ArrayLike<number>[] => [
+  s.vibe,
+  s.role,
+  s.links,
+  s.demon,
+  s.flux,
+]
+
 const sigmaMismatch = (a: SigmaState, b: SigmaState): number => {
   const right = sigmaFields(b)
 
-  return sigmaFields(a).reduce((n, f, k) => n + differ(f, right[k] ?? []), 0)
+  return sigmaFields(a).reduce(
+    (n, f, k) => n + differ(f, right[k] ?? []),
+    0,
+  )
 }
-const portFields = (s: PortState): ArrayLike<number>[] => [s.vibe, s.role, s.ports, s.demon, s.counts]
+
+const portFields = (s: PortState): ArrayLike<number>[] => [
+  s.vibe,
+  s.role,
+  s.ports,
+  s.demon,
+  s.counts,
+]
+
 const portMismatch = (a: PortState, b: PortState): number => {
   const right = portFields(b)
 
-  return portFields(a).reduce((n, f, k) => n + differ(f, right[k] ?? []), 0)
+  return portFields(a).reduce(
+    (n, f, k) => n + differ(f, right[k] ?? []),
+    0,
+  )
 }
 
 // A. frame covariance on E-FRC-0154's rule and start
 function covariance(side: number): Record<string, number> {
-  const rule = makeSigmaLinks({ side, kappa: 3, tension: 3, capacity: 24, couple: 'center' })
+  const rule = makeSigmaLinks({
+    side,
+    kappa: 3,
+    tension: 3,
+    capacity: 24,
+    couple: 'center',
+  })
+
   const start = (scale: number): SigmaState => {
     const vibe = new Int8Array(rule.cells)
     const role = new Int8Array(rule.cells)
@@ -180,12 +210,15 @@ function covariance(side: number): Record<string, number> {
 
     for (let x = 0; x < rule.cells; x++) {
       for (const a of rule.firsts) {
-        demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * 25)
+        demon[x * 24 + a] = Math.floor(
+          (((x * 24 + a + 5) * GOLDEN * scale) % 1) * 25,
+        )
       }
     }
 
     return { vibe, role, links: hashedSigmaLinks(rule), demon, flux }
   }
+
   const anchor = (slot: number): number => hash(slot, 6.1, rule.order)
   const s0 = start(1.37)
   const p0 = portsFromState(rule, s0, anchor)
@@ -205,7 +238,10 @@ function covariance(side: number): Record<string, number> {
 
     ports = next.state
     loopDivergence += next.loopDivergence
-    derivedMismatches += sigmaMismatch(stateFromPorts(rule, ports), stored)
+    derivedMismatches += sigmaMismatch(
+      stateFromPorts(rule, ports),
+      stored,
+    )
     energyExact = energyExact && sigmaEnergy(rule, stored) === e0
     gauss += sigmaGaussViolations(rule, stored)
   }
@@ -219,7 +255,11 @@ function covariance(side: number): Record<string, number> {
     back = portBeatBack(rule, back, t)
   }
 
-  const restored = differ(back.ports, p0.ports) + differ(back.vibe, p0.vibe) + differ(back.role, p0.role) + differ(back.demon, p0.demon)
+  const restored =
+    differ(back.ports, p0.ports) +
+    differ(back.vibe, p0.vibe) +
+    differ(back.role, p0.role) +
+    differ(back.demon, p0.demon)
 
   // the counts come back up to one shift shared by the two ports of an edge
   let countShifts = 0
@@ -229,15 +269,26 @@ function covariance(side: number): Record<string, number> {
       const y = rule.neighbour[x * 24 + a] ?? 0
       const second = y * 24 + (rule.opposite[a] ?? a)
 
-      countShifts += (back.counts[x * 24 + a] ?? 0) - (p0.counts[x * 24 + a] ?? 0) === (back.counts[second] ?? 0) - (p0.counts[second] ?? 0) ? 0 : 1
+      countShifts +=
+        (back.counts[x * 24 + a] ?? 0) -
+          (p0.counts[x * 24 + a] ?? 0) ===
+        (back.counts[second] ?? 0) - (p0.counts[second] ?? 0)
+          ? 0
+          : 1
     }
   }
 
   const centers = centerElements(rule)
   const frames = [
-    Array.from({ length: rule.cells }, (_, x) => hash(x + 10, 5.9, rule.order)),
-    Array.from({ length: rule.cells }, (_, x) => centers[hash(x + 12, 4.3, 3)] ?? rule.identity),
+    Array.from({ length: rule.cells }, (_, x) =>
+      hash(x + 10, 5.9, rule.order),
+    ),
+    Array.from(
+      { length: rule.cells },
+      (_, x) => centers[hash(x + 12, 4.3, 3)] ?? rule.identity,
+    ),
   ]
+
   const covariant = (change: (s: PortState) => PortState): number => {
     let a = portsFromState(rule, start(2.33), anchor)
     let b = change(a)
@@ -251,17 +302,48 @@ function covariance(side: number): Record<string, number> {
 
     return n
   }
-  const frameMismatches = covariant(s => changePortFrame(rule, s, frames[0] ?? []))
-  const centerMismatches = covariant(s => changePortFrame(rule, s, frames[1] ?? []))
-  const middleMismatches = covariant(s => changePortMiddle(rule, s, (x, a) => hash(x * 24 + a + 7, 2.9, rule.order)))
+
+  const frameMismatches = covariant(s =>
+    changePortFrame(rule, s, frames[0] ?? []),
+  )
+  const centerMismatches = covariant(s =>
+    changePortFrame(rule, s, frames[1] ?? []),
+  )
+  const middleMismatches = covariant(s =>
+    changePortMiddle(rule, s, (x, a) =>
+      hash(x * 24 + a + 7, 2.9, rule.order),
+    ),
+  )
 
   // the dock form against the port form's start: triangles that are not the identity
-  const mesh = { cells: rule.cells, neighbour: rule.neighbour, opposite: rule.opposite, staples: rule.staples }
-  const table = { order: rule.order, product: rule.group.product, inverse: rule.group.inverse, identity: rule.identity }
-  const portHolonomy = triangleHolonomies({ mesh, frames: p0.ports, table })
+  const mesh = {
+    cells: rule.cells,
+    neighbour: rule.neighbour,
+    opposite: rule.opposite,
+    staples: rule.staples,
+  }
+  const table = {
+    order: rule.order,
+    product: rule.group.product,
+    inverse: rule.group.inverse,
+    identity: rule.identity,
+  }
+  const portHolonomy = triangleHolonomies({
+    mesh,
+    frames: p0.ports,
+    table,
+  })
   const dock = dockFormLinks(rule, s0.links)
-  const dockHolonomy = triangleHolonomies({ mesh, frames: Int16Array.from({ length: rule.cells * 24 }, (_, i) => dock.frames[Math.floor(i / 24)] ?? 0), table })
-  const nontrivial = (h: Float64Array): number => 1 - (h[rule.identity] ?? 0) / h.reduce((a, b) => a + b, 0)
+  const dockHolonomy = triangleHolonomies({
+    mesh,
+    frames: Int16Array.from(
+      { length: rule.cells * 24 },
+      (_, i) => dock.frames[Math.floor(i / 24)] ?? 0,
+    ),
+    table,
+  })
+  const nontrivial = (h: Float64Array): number =>
+    1 - (h[rule.identity] ?? 0) / h.reduce((a, b) => a + b, 0)
 
   return {
     derivedMismatches,
@@ -286,12 +368,29 @@ function stringAndLoops(): Record<string, number> {
   const roots = rootsD4()
   const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
   const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-  const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-  const make = (input: { kappa: number; tension: number; hop: boolean; roles: boolean; reflect?: boolean }): SigmaLinks =>
-    makeSigmaLinks({ side: STRING_SIDE, capacity: STRING_CAPACITY, ...input })
-  const plain = make({ kappa: STRING_KAPPA, tension: STRING_TENSION, hop: false, roles: true })
+  const back = (d: number): number =>
+    roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
+  const make = (input: {
+    kappa: number
+    tension: number
+    hop: boolean
+    roles: boolean
+    reflect?: boolean
+  }): SigmaLinks =>
+    makeSigmaLinks({
+      side: STRING_SIDE,
+      capacity: STRING_CAPACITY,
+      ...input,
+    })
+  const plain = make({
+    kappa: STRING_KAPPA,
+    tension: STRING_TENSION,
+    hop: false,
+    roles: true,
+  })
   const { cells, group } = plain
   const anchor = (slot: number): number => hash(slot, 6.1, plain.order)
+
   const walk = (x: number, d: number, n: number): number => {
     let c = x
 
@@ -301,7 +400,9 @@ function stringAndLoops(): Record<string, number> {
 
     return c
   }
-  const line = (x: number): number[] => Array.from({ length: STRING_SIDE }, (_, t) => walk(x, tau, t))
+
+  const line = (x: number): number[] =>
+    Array.from({ length: STRING_SIDE }, (_, t) => walk(x, tau, t))
   const rectangle = (r: number, h: number): number[] => [
     ...new Array<number>(r).fill(along),
     ...new Array<number>(h).fill(tau),
@@ -322,11 +423,18 @@ function stringAndLoops(): Record<string, number> {
     drained.demon.fill(0)
   }
 
-  let base: SigmaState = { ...drained, links: Int16Array.from(drained.links), flux: Int32Array.from(drained.flux), demon: new Int32Array(cells * 24) }
+  let base: SigmaState = {
+    ...drained,
+    links: Int16Array.from(drained.links),
+    flux: Int32Array.from(drained.flux),
+    demon: new Int32Array(cells * 24),
+  }
 
   for (let x = 0; x < cells; x++) {
     for (const a of plain.firsts) {
-      base.demon[x * 24 + a] = Math.floor(2 * MELTED.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5)
+      base.demon[x * 24 + a] = Math.floor(
+        2 * MELTED.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5,
+      )
     }
   }
 
@@ -350,7 +458,9 @@ function stringAndLoops(): Record<string, number> {
     [2, 2],
   ] as const
   const paths = sizes.map(([r, h]) => rectangle(r, h))
-  const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % STRING_SIDE === 0)
+  const starts = Array.from({ length: cells }, (_, x) => x).filter(
+    x => x % STRING_SIDE === 0,
+  )
   const samples: number[][] = []
 
   let stored = fresh()
@@ -372,7 +482,12 @@ function stringAndLoops(): Record<string, number> {
         let sum = 0
 
         for (let x = 0; x < cells; x++) {
-          sum += (group.trace[pathTransport(plain, derived.links, x, path)] ?? 0) / 3 / cells
+          sum +=
+            (group.trace[
+              pathTransport(plain, derived.links, x, path)
+            ] ?? 0) /
+            3 /
+            cells
         }
 
         return sum
@@ -391,14 +506,29 @@ function stringAndLoops(): Record<string, number> {
 
     re += sr / BEATS
     im += si / BEATS
-    demon += derived.demon.reduce((a, v) => a + v, 0) / (cells * plain.firsts.length) / BEATS
+    demon +=
+      derived.demon.reduce((a, v) => a + v, 0) /
+      (cells * plain.firsts.length) /
+      BEATS
   }
 
-  const mean = (xs: readonly number[][], k: number): number => xs.reduce((a, x) => a + (x[k] ?? 0), 0) / xs.length
-  const chi = jackknife({ samples, estimator: picked => -Math.log((mean(picked, 2) * mean(picked, 0)) / mean(picked, 1) ** 2), binSize: BIN })
+  const mean = (xs: readonly number[][], k: number): number =>
+    xs.reduce((a, x) => a + (x[k] ?? 0), 0) / xs.length
+  const chi = jackknife({
+    samples,
+    estimator: picked =>
+      -Math.log(
+        (mean(picked, 2) * mean(picked, 0)) / mean(picked, 1) ** 2,
+      ),
+    binSize: BIN,
+  })
 
   // B: the static lines
-  const pair = (rule: SigmaLinks, r: number, lockstep: boolean): { excess: number; exact: boolean; mismatches: number } => {
+  const pair = (
+    rule: SigmaLinks,
+    r: number,
+    lockstep: boolean,
+  ): { excess: number; exact: boolean; mismatches: number } => {
     const s0 = fresh()
     const y0 = walk(0, along, r)
 
@@ -427,8 +557,13 @@ function stringAndLoops(): Record<string, number> {
 
     for (let t = 0; t < BEATS; t++) {
       s = sigmaBeat(rule, s, t0 + t).state
-      exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
-      connected += connectedFluxString(rule, s.flux, sources) / STRING_SIDE / BEATS
+      exact =
+        exact &&
+        sigmaEnergy(rule, s) === e0 &&
+        sigmaGaussViolations(rule, s) === 0
+
+      connected +=
+        connectedFluxString(rule, s.flux, sources) / STRING_SIDE / BEATS
 
       if (lockstep) {
         p = portBeat(rule, p, t0 + t).state
@@ -439,45 +574,105 @@ function stringAndLoops(): Record<string, number> {
     return { excess: connected - r, exact, mismatches }
   }
 
-  const staticRule = make({ kappa: STRING_KAPPA, tension: STRING_TENSION, hop: false, roles: false })
-  const historyRule = make({ kappa: 0, tension: STRING_TENSION, hop: false, roles: false, reflect: false })
-  const historySlack = make({ kappa: 0, tension: 0, hop: false, roles: false, reflect: false })
+  const staticRule = make({
+    kappa: STRING_KAPPA,
+    tension: STRING_TENSION,
+    hop: false,
+    roles: false,
+  })
+  const historyRule = make({
+    kappa: 0,
+    tension: STRING_TENSION,
+    hop: false,
+    roles: false,
+    reflect: false,
+  })
+  const historySlack = make({
+    kappa: 0,
+    tension: 0,
+    hop: false,
+    roles: false,
+    reflect: false,
+  })
   const storedPairs = SEPARATIONS.map(r => pair(staticRule, r, true))
   const historyPairs = SEPARATIONS.map(r => pair(historyRule, r, false))
-  const slack = pair(historySlack, SEPARATIONS[SEPARATIONS.length - 1] ?? 4, false)
+  const slack = pair(
+    historySlack,
+    SEPARATIONS[SEPARATIONS.length - 1] ?? 4,
+    false,
+  )
   const rising = (xs: { excess: number }[]): boolean =>
-    xs.every((p, k) => k === 0 || p.excess + (SEPARATIONS[k] ?? 0) > (xs[k - 1]?.excess ?? 0) + (SEPARATIONS[k - 1] ?? 0))
+    xs.every(
+      (p, k) =>
+        k === 0 ||
+        p.excess + (SEPARATIONS[k] ?? 0) >
+          (xs[k - 1]?.excess ?? 0) + (SEPARATIONS[k - 1] ?? 0),
+    )
 
   return {
     fieldMismatches,
     polyakov: Math.hypot(re, im),
-    demonBeta: unitDemonBeta({ meanDemon: demon, capacity: STRING_CAPACITY }),
+    demonBeta: unitDemonBeta({
+      meanDemon: demon,
+      capacity: STRING_CAPACITY,
+    }),
     wilson11: mean(samples, 0),
     wilson12: mean(samples, 1),
     wilson22: mean(samples, 2),
     creutz22: Number.isFinite(chi.value) ? chi.value : -1,
     creutz22Error: Number.isFinite(chi.error) ? chi.error : -1,
-    creutz22Readable: Number.isFinite(chi.value) && mean(samples, 1) > 0 && mean(samples, 2) > 0 ? 1 : 0,
-    ...Object.fromEntries(storedPairs.map((p, k) => [`storedExcessR${SEPARATIONS[k]}`, p.excess])),
-    ...Object.fromEntries(storedPairs.map((p, k) => [`portMismatchesR${SEPARATIONS[k]}`, p.mismatches])),
-    ...Object.fromEntries(historyPairs.map((p, k) => [`historyExcessR${SEPARATIONS[k]}`, p.excess])),
+    creutz22Readable:
+      Number.isFinite(chi.value) &&
+      mean(samples, 1) > 0 &&
+      mean(samples, 2) > 0
+        ? 1
+        : 0,
+    ...Object.fromEntries(
+      storedPairs.map((p, k) => [
+        `storedExcessR${SEPARATIONS[k]}`,
+        p.excess,
+      ]),
+    ),
+    ...Object.fromEntries(
+      storedPairs.map((p, k) => [
+        `portMismatchesR${SEPARATIONS[k]}`,
+        p.mismatches,
+      ]),
+    ),
+    ...Object.fromEntries(
+      historyPairs.map((p, k) => [
+        `historyExcessR${SEPARATIONS[k]}`,
+        p.excess,
+      ]),
+    ),
     historySlackExcessR4: slack.excess,
     storedExact: storedPairs.every(p => p.exact) ? 1 : 0,
     historyExact: [...historyPairs, slack].every(p => p.exact) ? 1 : 0,
     storedRising: rising(storedPairs) ? 1 : 0,
     historyRising: rising(historyPairs) ? 1 : 0,
-    storedMatches0151: storedPairs.every((p, k) => Math.abs(p.excess - (PRINTED_EXCESS_0151[k] ?? 0)) < 0.006) ? 1 : 0,
+    storedMatches0151: storedPairs.every(
+      (p, k) =>
+        Math.abs(p.excess - (PRINTED_EXCESS_0151[k] ?? 0)) < 0.006,
+    )
+      ? 1
+      : 0,
   }
 }
 
 // D. light
-function lightStart(rule: PhotonRule, scale: number, angles: boolean): PhotonState {
+function lightStart(
+  rule: PhotonRule,
+  scale: number,
+  angles: boolean,
+): PhotonState {
   const { lattice } = rule
   const s = emptyPhotonState(rule)
 
   for (let x = 0; x < lattice.cells; x++) {
     const u = ((x + 1) * GOLDEN * scale) % 1
-    const d = Math.floor(((x + 2) * GOLDEN * scale * lattice.degree) % lattice.degree)
+    const d = Math.floor(
+      ((x + 2) * GOLDEN * scale * lattice.degree) % lattice.degree,
+    )
     const y = lattice.neighbour[x * lattice.degree + d] ?? 0
 
     if (u < 0.3 && s.vibe[x] === 0 && s.vibe[y] === 0 && x !== y) {
@@ -501,7 +696,12 @@ function lightStart(rule: PhotonRule, scale: number, angles: boolean): PhotonSta
 }
 
 function lightIdentity(lattice: PhotonLattice): Record<string, number> {
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: LIGHT_CAPACITY })
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: LIGHT_CAPACITY,
+  })
   const s = lightStart(rule, 1.37, false)
   const h = historyFromFlux(rule, s)
   const h0 = copyHistory(h)
@@ -512,7 +712,12 @@ function lightIdentity(lattice: PhotonLattice): Record<string, number> {
   const compare = (): number => {
     const { flux, angle } = historyFields(rule, h)
 
-    return differ(flux, s.flux) + differ(angle, s.angle) + differ(h.vibe, s.vibe) + differ(h.demon, s.demon)
+    return (
+      differ(flux, s.flux) +
+      differ(angle, s.angle) +
+      differ(h.vibe, s.vibe) +
+      differ(h.demon, s.demon)
+    )
   }
 
   mismatches += compare()
@@ -534,27 +739,56 @@ function lightIdentity(lattice: PhotonLattice): Record<string, number> {
     historyBeatBackInPlace(rule, r)
   }
 
-  const restored = differ(r.vibe, h0.vibe) + differ(r.count, h0.count) + differ(r.elapsed, h0.elapsed) + differ(r.demon, h0.demon)
+  const restored =
+    differ(r.vibe, h0.vibe) +
+    differ(r.count, h0.count) +
+    differ(r.elapsed, h0.elapsed) +
+    differ(r.demon, h0.demon)
 
-  return { mismatches, gauss, restored, anglesMoved: differ(historyFields(rule, h).angle, new Int32Array(lattice.links)) }
+  return {
+    mismatches,
+    gauss,
+    restored,
+    anglesMoved: differ(
+      historyFields(rule, h).angle,
+      new Int32Array(lattice.links),
+    ),
+  }
 }
 
-function lightGauge(lattice: PhotonLattice): { pureGauge: number; magnetic: number } {
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: LIGHT_CAPACITY })
+function lightGauge(lattice: PhotonLattice): {
+  pureGauge: number
+  magnetic: number
+} {
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: LIGHT_CAPACITY,
+  })
   const f = lattice.firsts.length
-  const chi = Array.from({ length: lattice.cells }, (_, x) => hash(x + 10, 5.9, N))
+  const chi = Array.from({ length: lattice.cells }, (_, x) =>
+    hash(x + 10, 5.9, N),
+  )
+
   const offset = (l: number): number => {
     const x = Math.floor(l / f)
-    const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[l % f] ?? 0)] ?? 0
+    const y =
+      lattice.neighbour[
+        x * lattice.degree + (lattice.firsts[l % f] ?? 0)
+      ] ?? 0
 
     return (chi[y] ?? 0) - (chi[x] ?? 0)
   }
+
   const plain = lightStart(rule, 1.37, false)
   const h = historyFromFlux(rule, plain)
   const gauged = copyPhotonState(plain)
   const magnetic = lightStart(rule, 1.37, true)
 
-  gauged.angle.forEach((_, l) => (gauged.angle[l] = (((offset(l) % N) + N) % N)))
+  gauged.angle.forEach(
+    (_, l) => (gauged.angle[l] = ((offset(l) % N) + N) % N),
+  )
 
   let pureGauge = 0
   let differs = 0
@@ -567,7 +801,10 @@ function lightGauge(lattice: PhotonLattice): { pureGauge: number; magnetic: numb
     const { flux, angle } = historyFields(rule, h)
 
     pureGauge += differ(flux, gauged.flux)
-    pureGauge += Array.from(angle).filter((a, l) => (((a + offset(l) - (gauged.angle[l] ?? 0)) % N) + N) % N !== 0).length
+    pureGauge += Array.from(angle).filter(
+      (a, l) =>
+        (((a + offset(l) - (gauged.angle[l] ?? 0)) % N) + N) % N !== 0,
+    ).length
     differs += differ(flux, magnetic.flux)
   }
 
@@ -575,7 +812,10 @@ function lightGauge(lattice: PhotonLattice): { pureGauge: number; magnetic: numb
 }
 
 // the frequency of a sampled series: the peak of |sum a(t) e^(-i omega t)|, refined by golden section
-function peakFrequency(series: readonly number[], guess: number): number {
+function peakFrequency(
+  series: readonly number[],
+  guess: number,
+): number {
   const power = (w: number): number => {
     let c = 0
     let s = 0
@@ -620,20 +860,42 @@ function peakFrequency(series: readonly number[], guess: number): number {
 
 function lightOnHusk(): Record<string, number> {
   const lattice = photonLatticeCubic({ side: WAVE_SIDE })
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: LIGHT_CAPACITY })
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: LIGHT_CAPACITY,
+  })
   const f = lattice.firsts.length
   const k = (2 * Math.PI) / WAVE_SIDE
-  const axis = (v: readonly number[]): number => lattice.firsts.findIndex(d => (lattice.vectors[d] ?? []).every((x, i) => x === (v[i] ?? 0)))
-  const [ex, ey, ez] = [axis([1, 0, 0]), axis([0, 1, 0]), axis([0, 0, 1])]
-  const xOf = (x: number): number => lattice.coordinates[x * lattice.dimension] ?? 0
+  const axis = (v: readonly number[]): number =>
+    lattice.firsts.findIndex(d =>
+      (lattice.vectors[d] ?? []).every((x, i) => x === (v[i] ?? 0)),
+    )
+  const [ex, ey, ez] = [
+    axis([1, 0, 0]),
+    axis([0, 1, 0]),
+    axis([0, 0, 1]),
+  ]
+  const xOf = (x: number): number =>
+    lattice.coordinates[x * lattice.dimension] ?? 0
   const flux = new Int32Array(lattice.links)
 
   for (let x = 0; x < lattice.cells; x++) {
-    flux[x * f + ey] = Math.round((WAVE_AMPLITUDE[0] ?? 0) * Math.cos(k * xOf(x)))
-    flux[x * f + ez] = Math.round((WAVE_AMPLITUDE[1] ?? 0) * Math.cos(k * xOf(x)))
+    flux[x * f + ey] = Math.round(
+      (WAVE_AMPLITUDE[0] ?? 0) * Math.cos(k * xOf(x)),
+    )
+
+    flux[x * f + ez] = Math.round(
+      (WAVE_AMPLITUDE[1] ?? 0) * Math.cos(k * xOf(x)),
+    )
   }
 
-  const h = historyFromFlux(rule, { vibe: new Int8Array(lattice.cells), flux, demon: new Int32Array(lattice.links) })
+  const h = historyFromFlux(rule, {
+    vibe: new Int8Array(lattice.cells),
+    flux,
+    demon: new Int32Array(lattice.links),
+  })
   const series: number[][] = [[], []]
 
   let longitudinal = 0
@@ -650,12 +912,20 @@ function lightOnHusk(): Record<string, number> {
 
       amplitude[0] = (amplitude[0] ?? 0) + (e[x * f + ey] ?? 0) * c
       amplitude[1] = (amplitude[1] ?? 0) + (e[x * f + ez] ?? 0) * c
-      longitudinal = Math.max(longitudinal, Math.abs(e[x * f + ex] ?? 0))
+      longitudinal = Math.max(
+        longitudinal,
+        Math.abs(e[x * f + ex] ?? 0),
+      )
     }
 
     series[0]?.push(amplitude[0] ?? 0)
     series[1]?.push(amplitude[1] ?? 0)
-    gauss += photonGaussViolations(rule, { vibe: h.vibe, angle: new Int32Array(lattice.links), flux: e, demon: h.demon })
+    gauss += photonGaussViolations(rule, {
+      vibe: h.vibe,
+      angle: new Int32Array(lattice.links),
+      flux: e,
+      demon: h.demon,
+    })
   }
 
   const kappa = (2 * Math.PI * K) / N
@@ -663,7 +933,15 @@ function lightOnHusk(): Record<string, number> {
   const omegaY = peakFrequency(series[0] ?? [], predicted)
   const omegaZ = peakFrequency(series[1] ?? [], predicted)
 
-  return { predicted, omegaY, omegaZ, ratioY: omegaY / predicted, ratioZ: omegaZ / predicted, longitudinal, gauss }
+  return {
+    predicted,
+    omegaY,
+    omegaZ,
+    ratioY: omegaY / predicted,
+    ratioZ: omegaZ / predicted,
+    longitudinal,
+    gauss,
+  }
 }
 
 export default experiment({
@@ -705,7 +983,8 @@ export default experiment({
       loops.historyRising === 1 &&
       SEPARATIONS.every(r => (loops[`historyExcessR${r}`] ?? 1) < 1) &&
       (loops.historySlackExcessR4 ?? 0) > 1
-    const c = loops.fieldMismatches === 0 && (loops.polyakov ?? 1) < 0.01
+    const c =
+      loops.fieldMismatches === 0 && (loops.polyakov ?? 1) < 0.01
     const d =
       bulk.mismatches === 0 &&
       bulk.gauss === 0 &&
@@ -719,15 +998,23 @@ export default experiment({
       Math.abs((wave.ratioZ ?? 0) - 1) < 0.02 &&
       wave.longitudinal === 0
 
-    const prefixed = (prefix: string, r: Record<string, number>): [string, number][] =>
-      Object.entries(r).map(([key, value]) => [`${prefix}${key[0]?.toUpperCase() ?? ''}${key.slice(1)}`, value])
+    const prefixed = (
+      prefix: string,
+      r: Record<string, number>,
+    ): [string, number][] =>
+      Object.entries(r).map(([key, value]) => [
+        `${prefix}${key[0]?.toUpperCase() ?? ''}${key.slice(1)}`,
+        value,
+      ])
 
     return verdict({
       status: a && b && c && d ? 'pass' : 'fail',
       claim:
         "in the port form (each slot a Sigma(648) frame that stays at its port, each link the relation of its two, each flux the difference of two counts) the coupled rule equals the stored one at every beat, reverses, and commutes with a frame change by all 648, by the center and at the middle of every edge, while one frame per dock leaves every triangle trivial; the melted flux string and the field's confinement readings are the stored rule's to the bit, and the string stays taut with no element read at all, from the flux's tension alone; the leapfrog's light runs with no stored angle, the angle the time integral of what crossed, equal to the stored rule from a zero or pure-gauge angle and not from a magnetic start, with 2 polarizations at the leapfrog frequency on the husk stand-in",
       metrics: Object.fromEntries([
-        ...cov.flatMap((r, k) => prefixed(`covarianceSide${COVARIANCE_SIDES[k]}`, r)),
+        ...cov.flatMap((r, k) =>
+          prefixed(`covarianceSide${COVARIANCE_SIDES[k]}`, r),
+        ),
         ...prefixed('string', loops),
         ...prefixed('lightBulkD4', bulk),
         ...prefixed('lightHuskStandIn', huskStandIn),
@@ -735,7 +1022,8 @@ export default experiment({
         ...prefixed('lightWave', wave),
       ]),
       control: {
-        dockFormNontrivialTrianglesSide4: cov[0]?.dockFormNontrivialTriangles ?? -1,
+        dockFormNontrivialTrianglesSide4:
+          cov[0]?.dockFormNontrivialTriangles ?? -1,
         dockFormLinksChangedSide4: cov[0]?.dockFormLinksChanged ?? -1,
         historyTensionZeroExcessR4: loops.historySlackExcessR4 ?? -1,
         lightMagneticStartFluxMismatches: gauge.magnetic,

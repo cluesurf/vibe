@@ -57,7 +57,28 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { add, apply, armPhase, coinGate, dirOf, eq, float, gatesOnFamily, isZero, label, lineOfTwo, norm, pointsOf, show, start, visibility, weightWhere, ZERO, type Qw, type State } from '@/code/measure/rule-gates'
+import {
+  add,
+  apply,
+  armPhase,
+  coinGate,
+  dirOf,
+  eq,
+  float,
+  gatesOnFamily,
+  isZero,
+  label,
+  lineOfTwo,
+  norm,
+  pointsOf,
+  show,
+  start,
+  visibility,
+  weightWhere,
+  ZERO,
+  type Qw,
+  type State,
+} from '@/code/measure/rule-gates'
 
 type Run = { withSecond: boolean; points: [number, number] }
 
@@ -69,14 +90,24 @@ function circuit(run: Run, j: number): State {
   s = apply(s, lineOfTwo(0, 1, 'R'))
   s = apply(s, armPhase('L', j))
   s = apply(s, coinGate)
-  if (run.withSecond) s = apply(s, lineOfTwo(0, 1, null))
+
+  if (run.withSecond) {
+    s = apply(s, lineOfTwo(0, 1, null))
+  }
 
   return s
 }
 
 // P(f, marker reading) for every phase: marker reading null means traced
 function pattern(run: Run, f: string, marker: string | null): Qw[] {
-  return [0, 1, 2].map(j => weightWhere(circuit(run, j), l => dirOf(l) === f && (marker === null || pointsOf(l).join('') === marker)))
+  return [0, 1, 2].map(j =>
+    weightWhere(
+      circuit(run, j),
+      l =>
+        dirOf(l) === f &&
+        (marker === null || pointsOf(l).join('') === marker),
+    ),
+  )
 }
 
 export default experiment({
@@ -105,7 +136,10 @@ export default experiment({
       const a = pattern(noMark, f, null)
       const b = pattern(noMarkSecond, f, null)
 
-      return a.every((x, j) => eq(x, b[j] as Qw)) && eq(visibility(b).v2, (v0[i] as { v2: Qw }).v2)
+      return (
+        a.every((x, j) => eq(x, b[j]!)) &&
+        eq(visibility(b).v2, (v0[i] as { v2: Qw }).v2)
+      )
     })
 
     // E2
@@ -115,10 +149,14 @@ export default experiment({
       const u = visibility(pattern(mark, f, null))
       const ten = visibility(pattern(mark, f, '10'))
       const one = visibility(pattern(mark, f, '01'))
-      const smaller = (u.v2.a * (v0[i] as { v2: Qw }).v2.d) < ((v0[i] as { v2: Qw }).v2.a * u.v2.d)
+      const smaller =
+        u.v2.a * (v0[i] as { v2: Qw }).v2.d <
+        (v0[i] as { v2: Qw }).v2.a * u.v2.d
 
       e2 &&= smaller && isZero(ten.v2)
-      notes.push(`f ${f}: V0^2 ${show((v0[i] as { v2: Qw }).v2)}, marked unconditioned V^2 ${show(u.v2)}, marked 01 ${show(one.v2)}, marked 10 ${show(ten.v2)}`)
+      notes.push(
+        `f ${f}: V0^2 ${show((v0[i] as { v2: Qw }).v2)}, marked unconditioned V^2 ${show(u.v2)}, marked 01 ${show(one.v2)}, marked 10 ${show(ten.v2)}`,
+      )
     })
 
     // E3
@@ -128,11 +166,28 @@ export default experiment({
       const parts = readings.map(r => ({ r, p: pattern(erase, f, r) }))
       const whole = pattern(erase, f, null)
       const vis = parts.map(x => visibility(x.p))
-      const sum = [0, 1, 2].map(j => add((parts[0] as { p: Qw[] }).p[j] as Qw, (parts[1] as { p: Qw[] }).p[j] as Qw))
-      const opposite = Math.abs(Math.abs((vis[0] as { phase: number }).phase - (vis[1] as { phase: number }).phase) - Math.PI) < 1e-9
+      const sum = [0, 1, 2].map(j =>
+        add(
+          (parts[0] as { p: Qw[] }).p[j]!,
+          (parts[1] as { p: Qw[] }).p[j]!,
+        ),
+      )
+      const opposite =
+        Math.abs(
+          Math.abs(
+            (vis[0] as { phase: number }).phase -
+              (vis[1] as { phase: number }).phase,
+          ) - Math.PI,
+        ) < 1e-9
 
-      e3 &&= vis.every(v => eq(v.v2, (v0[i] as { v2: Qw }).v2)) && opposite && sum.every((x, j) => eq(x, whole[j] as Qw))
-      notes.push(`erased f ${f}: 01 V^2 ${show((vis[0] as { v2: Qw }).v2)} phase ${(vis[0] as { phase: number }).phase.toFixed(6)}, 10 V^2 ${show((vis[1] as { v2: Qw }).v2)} phase ${(vis[1] as { phase: number }).phase.toFixed(6)}, P(01) by phase ${(parts[0] as { p: Qw[] }).p.map(show).join(' ')}, P(10) by phase ${(parts[1] as { p: Qw[] }).p.map(show).join(' ')}`)
+      e3 &&=
+        vis.every(v => eq(v.v2, (v0[i] as { v2: Qw }).v2)) &&
+        opposite &&
+        sum.every((x, j) => eq(x, whole[j]!))
+
+      notes.push(
+        `erased f ${f}: 01 V^2 ${show((vis[0] as { v2: Qw }).v2)} phase ${(vis[0] as { phase: number }).phase.toFixed(6)}, 10 V^2 ${show((vis[1] as { v2: Qw }).v2)} phase ${(vis[1] as { phase: number }).phase.toFixed(6)}, P(01) by phase ${(parts[0] as { p: Qw[] }).p.map(show).join(' ')}, P(10) by phase ${(parts[1] as { p: Qw[] }).p.map(show).join(' ')}`,
+      )
     })
 
     // E4
@@ -140,29 +195,58 @@ export default experiment({
       const a = pattern(mark, f, null)
       const b = pattern(erase, f, null)
 
-      return a.every((x, j) => eq(x, b[j] as Qw))
+      return a.every((x, j) => eq(x, b[j]!))
     })
 
     // E5
     let cube = start('-', [0, 1])
 
-    for (let n = 0; n < 3; n++) cube = apply(cube, lineOfTwo(0, 1, null))
+    for (let n = 0; n < 3; n++) {
+      cube = apply(cube, lineOfTwo(0, 1, null))
+    }
 
-    const e5 = cube.size === 1 && eq(cube.get(label('-', [0, 1])) ?? ZERO, { a: 1n, b: 0n, d: 1n })
+    const e5 =
+      cube.size === 1 &&
+      eq(cube.get(label('-', [0, 1])) ?? ZERO, { a: 1n, b: 0n, d: 1n })
 
-    const g = { G0: gates.passing === gates.of, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5 }
-    const status = !g.G0 || !g.E1 ? 'fail' : Object.values(g).every(Boolean) ? 'partial' : 'fail'
-    const metrics: Record<string, number> = { startsReadingTheGates: gates.passing, starts: gates.of }
+    const g = {
+      G0: gates.passing === gates.of,
+      E1: e1,
+      E2: e2,
+      E3: e3,
+      E4: e4,
+      E5: e5,
+    }
+    const status =
+      !g.G0 || !g.E1
+        ? 'fail'
+        : Object.values(g).every(Boolean)
+          ? 'partial'
+          : 'fail'
+    const metrics: Record<string, number> = {
+      startsReadingTheGates: gates.passing,
+      starts: gates.of,
+    }
 
-    for (const [k, v] of Object.entries(g)) metrics[`gate_${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(g)) {
+      metrics[`gate_${k}`] = v ? 1 : 0
+    }
 
     dirs.forEach((f, i) => {
       const read = (q: Qw): number => float(q).re
 
       metrics[`V0sq_${f}`] = read((v0[i] as { v2: Qw }).v2)
-      metrics[`markedVsq_${f}`] = read(visibility(pattern(mark, f, null)).v2)
-      metrics[`erased01Vsq_${f}`] = read(visibility(pattern(erase, f, '01')).v2)
-      metrics[`erased10Vsq_${f}`] = read(visibility(pattern(erase, f, '10')).v2)
+      metrics[`markedVsq_${f}`] = read(
+        visibility(pattern(mark, f, null)).v2,
+      )
+
+      metrics[`erased01Vsq_${f}`] = read(
+        visibility(pattern(erase, f, '01')).v2,
+      )
+
+      metrics[`erased10Vsq_${f}`] = read(
+        visibility(pattern(erase, f, '10')).v2,
+      )
     })
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -170,10 +254,15 @@ export default experiment({
       status,
       claim: `a quantum eraser from the working rule's own gates (read bit for bit on ${gates.passing} of ${gates.of} starts): a love's two arms, one shared with a second love, are marked by the meeting's point exchange, which drops the fringe's visibility^2 from ${metrics.V0sq_R?.toFixed(4)} to ${metrics.markedVsq_R?.toFixed(4)} (reading R); a SECOND meeting of the two, after the love's direction is read, erases the mark: each marker reading then shows the full visibility^2 ${metrics.erased01Vsq_R?.toFixed(4)} and ${metrics.erased10Vsq_R?.toFixed(4)}, as a fringe and an anti-fringe that sum to the washed-out pattern, while the love's own probabilities are exactly unchanged by the later choice; the marker gate is a cube root of the identity, (w U)^3 = I`,
       metrics,
-      control: { noMarkVsqR: metrics.V0sq_R as number, noMarkUnchangedBySecondMeeting: e1 ? 1 : 0 },
+      control: {
+        noMarkVsqR: metrics.V0sq_R!,
+        noMarkUnchangedBySecondMeeting: e1 ? 1 : 0,
+      },
       notes: `L2. Gates ${Object.entries(g)
         .map(([k, v]) => `${k} ${v}`)
-        .join(', ')}. Gates read: ${gates.read.join(' | ')}. ${notes.join('; ')}. The schedule is arranged (which arm meets B, and when the second meeting comes); every gate is the rule's. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+        .join(
+          ', ',
+        )}. Gates read: ${gates.read.join(' | ')}. ${notes.join('; ')}. The schedule is arranged (which arm meets B, and when the second meeting comes); every gate is the rule's. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

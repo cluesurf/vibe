@@ -31,7 +31,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { gaussHolds, stringBeat, stringBeatBack, stringEnergy, stringState, type StringLine, type StringState } from '@/code/rule/string-line'
+import {
+  gaussHolds,
+  stringBeat,
+  stringBeatBack,
+  stringEnergy,
+  stringState,
+  type StringLine,
+  type StringState,
+} from '@/code/rule/string-line'
 
 const CELLS = 256
 const BEATS = 6000
@@ -42,6 +50,7 @@ const ring = (a: number, b: number): number => {
 
   return Math.min(d, CELLS - d)
 }
+
 const unwrap = (x: number, reference: number): number => {
   let d = (x - reference) % CELLS
 
@@ -64,7 +73,10 @@ function cellsOf(s: StringState, sign: number): number[] {
 function center(cells: number[]): number {
   const reference = cells[0] ?? 0
 
-  return cells.reduce((a, c) => a + unwrap(c, reference), 0) / Math.max(1, cells.length)
+  return (
+    cells.reduce((a, c) => a + unwrap(c, reference), 0) /
+    Math.max(1, cells.length)
+  )
 }
 
 type Run = {
@@ -77,15 +89,28 @@ type Run = {
   chargesMax: number
 }
 
-function run(input: { tension: number; charges: [number, number][]; demon?: number }): Run {
-  const line: StringLine = { cells: CELLS, mass: 4, tension: input.tension, capacity: 4 }
+function run(input: {
+  tension: number
+  charges: [number, number][]
+  demon?: number
+}): Run {
+  const line: StringLine = {
+    cells: CELLS,
+    mass: 4,
+    tension: input.tension,
+    capacity: 4,
+  }
   const vibe = new Int8Array(CELLS)
 
   for (const [cell, v] of input.charges) {
     vibe[cell] = v
   }
 
-  const start = stringState({ line, vibe, demon: Int32Array.from({ length: CELLS }, () => input.demon ?? 1) })
+  const start = stringState({
+    line,
+    vibe,
+    demon: Int32Array.from({ length: CELLS }, () => input.demon ?? 1),
+  })
   const e0 = stringEnergy(line, start)
   const middle0 = center([...cellsOf(start, 1), ...cellsOf(start, -1)])
 
@@ -109,15 +134,22 @@ function run(input: { tension: number; charges: [number, number][]; demon?: numb
     const fearsAt = center(fears)
 
     chargesMax = Math.max(chargesMax, loves.length + fears.length)
+
     const gap = ring(lovesAt, fearsAt)
 
     gapSum += gap
     gapLow = Math.min(gapLow, gap)
     gapHigh = Math.max(gapHigh, gap)
-    spreadSum += Math.max(0, ...loves.map(a => Math.max(...loves.map(b => ring(a, b)))))
+    spreadSum += Math.max(
+      0,
+      ...loves.map(a => Math.max(...loves.map(b => ring(a, b)))),
+    )
 
     // the middle, followed continuously
-    const now = unwrap(center([lovesAt, unwrap(fearsAt, lovesAt)]), middle)
+    const now = unwrap(
+      center([lovesAt, unwrap(fearsAt, lovesAt)]),
+      middle,
+    )
 
     middle = now
     travel = Math.max(travel, Math.abs(middle - middle0))
@@ -130,9 +162,19 @@ function run(input: { tension: number; charges: [number, number][]; demon?: numb
   }
 
   const reverses =
-    back.vibe.every((v, i) => v === start.vibe[i]) && back.flux.every((v, i) => v === start.flux[i]) && back.demon.every((v, i) => v === start.demon[i])
+    back.vibe.every((v, i) => v === start.vibe[i]) &&
+    back.flux.every((v, i) => v === start.flux[i]) &&
+    back.demon.every((v, i) => v === start.demon[i])
 
-  return { exact, reverses, meanGap: gapSum / BEATS, gapRange: gapHigh - gapLow, travel, meanSpread: spreadSum / BEATS, chargesMax }
+  return {
+    exact,
+    reverses,
+    meanGap: gapSum / BEATS,
+    gapRange: gapHigh - gapLow,
+    travel,
+    meanSpread: spreadSum / BEATS,
+    chargesMax,
+  }
 }
 
 export default experiment({
@@ -162,7 +204,13 @@ export default experiment({
     const baryonBound = run({ tension: 1, charges: baryons })
     const baryonFree = run({ tension: 0, charges: baryons })
     const mesonHot = run({ tension: 1, charges: meson, demon: 2 })
-    const all = [mesonBound, mesonFree, baryonBound, baryonFree, mesonHot]
+    const all = [
+      mesonBound,
+      mesonFree,
+      baryonBound,
+      baryonFree,
+      mesonHot,
+    ]
 
     const ok =
       all.every(r => r.exact && r.reverses) &&
@@ -178,7 +226,9 @@ export default experiment({
       claim:
         "with Gauss's law and the energy exact and every run reversing to the bit, a meson's mean gap stays under 8 cells and under a quarter of the tensionless control's while it travels more than 10 cells, a baryon and an antibaryon travel more than 10 cells and their gap moves over a range of more than 10 (free), and a baryon's three loves spread less than half as much as without tension",
       metrics: {
-        exactAndReversible: all.every(r => r.exact && r.reverses) ? 1 : 0,
+        exactAndReversible: all.every(r => r.exact && r.reverses)
+          ? 1
+          : 0,
         mesonMeanGap: mesonBound.meanGap,
         mesonTravel: mesonBound.travel,
         mesonCharges: mesonBound.chargesMax,

@@ -111,44 +111,89 @@ import {
   type ReelSpec,
 } from '@/code/rule/reel-string-line'
 import { stepTable, type Vibe } from '@/code/rule/locked-token-line'
-import { antisymmetrizedReels, reelExactCheck } from '@/code/measure/reel-exact'
-import { reelStreamLine, type ReelBlochSpec } from '@/code/measure/reel-string-bloch'
+import {
+  antisymmetrizedReels,
+  reelExactCheck,
+} from '@/code/measure/reel-exact'
+import {
+  reelStreamLine,
+  type ReelBlochSpec,
+} from '@/code/measure/reel-string-bloch'
 import { unitRotations } from '@/code/measure/token-gates'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 const chargeOf = (k: Vibe): number => (k === 'love' ? 1 : -1)
-const ringDistance = (L: number, a: number, b: number): number => Math.min(mod(a - b, L), mod(b - a, L))
+const ringDistance = (L: number, a: number, b: number): number =>
+  Math.min(mod(a - b, L), mod(b - a, L))
 
 // ---- H1: every window predicate against every string length ----
-function windowTheorem(modulus: number, w: number): { predicates: number; violations: number; confineWithin: number; allowAll: number } {
+function windowTheorem(
+  modulus: number,
+  w: number,
+): {
+  predicates: number
+  violations: number
+  confineWithin: number
+  allowAll: number
+} {
   const R = 3 * w + 4
   const values = modulus ** w
+
   const windowCode = (f: readonly number[], at: number): number => {
     let c = 0
 
-    for (let i = 0; i < w; i++) c = c * modulus + (f[at + i] ?? 0)
+    for (let i = 0; i < w; i++) {
+      c = c * modulus + (f[at + i] ?? 0)
+    }
 
     return c
   }
+
   // every window a flux pattern shows, the line padded with w zero links each side
   const windowsOf = (f: readonly number[]): Set<number> => {
-    const padded = [...new Array<number>(w).fill(0), ...f, ...new Array<number>(w).fill(0)]
+    const padded = [
+      ...new Array<number>(w).fill(0),
+      ...f,
+      ...new Array<number>(w).fill(0),
+    ]
     const out = new Set<number>()
 
-    for (let at = 0; at + w <= padded.length; at++) out.add(windowCode(padded, at))
+    for (let at = 0; at + w <= padded.length; at++) {
+      out.add(windowCode(padded, at))
+    }
 
     return out
   }
-  const pairPatterns = [1, modulus - 1].map(q => Array.from({ length: R + 1 }, (_, r) => windowsOf(new Array<number>(r).fill(q))))
-  const threePatterns: Set<number>[][] = Array.from({ length: R + 1 }, (_, u) => Array.from({ length: R + 1 }, (_, v) => windowsOf([...new Array<number>(u).fill(1), ...new Array<number>(v).fill(2 % modulus)])))
+
+  const pairPatterns = [1, modulus - 1].map(q =>
+    Array.from({ length: R + 1 }, (_, r) =>
+      windowsOf(new Array<number>(r).fill(q)),
+    ),
+  )
+  const threePatterns: Set<number>[][] = Array.from(
+    { length: R + 1 },
+    (_, u) =>
+      Array.from({ length: R + 1 }, (_, v) =>
+        windowsOf([
+          ...new Array<number>(u).fill(1),
+          ...new Array<number>(v).fill(2 % modulus),
+        ]),
+      ),
+  )
+
   let violations = 0
   let confineWithin = 0
   let allowAll = 0
+
   const count = 2 ** values
 
   for (let p = 0; p < count; p++) {
     const allowed = (s: Set<number>): boolean => {
-      for (const c of s) if (((p >> c) & 1) === 0) return false
+      for (const c of s) {
+        if (((p >> c) & 1) === 0) {
+          return false
+        }
+      }
 
       return true
     }
@@ -156,21 +201,33 @@ function windowTheorem(modulus: number, w: number): { predicates: number; violat
     for (const pats of pairPatterns) {
       const beyond = pats.slice(w).map(allowed)
 
-      if (beyond.some(x => x !== beyond[0])) violations++
-      if (!beyond[0] && pats.slice(0, w).some(allowed)) confineWithin++
-      if (beyond[0]) allowAll++
+      if (beyond.some(x => x !== beyond[0])) {
+        violations++
+      }
+
+      if (!beyond[0] && pats.slice(0, w).some(allowed)) {
+        confineWithin++
+      }
+
+      if (beyond[0]) {
+        allowAll++
+      }
     }
 
     for (let v = 0; v <= R; v++) {
       const col = threePatterns.slice(w).map(row => allowed(row[v]!))
 
-      if (col.some(x => x !== col[0])) violations++
+      if (col.some(x => x !== col[0])) {
+        violations++
+      }
     }
 
     for (let u = 0; u <= R; u++) {
       const row = threePatterns[u]!.slice(w).map(allowed)
 
-      if (row.some(x => x !== row[0])) violations++
+      if (row.some(x => x !== row[0])) {
+        violations++
+      }
     }
   }
 
@@ -180,13 +237,26 @@ function windowTheorem(modulus: number, w: number): { predicates: number; violat
 // ---- reach sets (positions, flux and store, labels free) ----
 type Reached<T> = { states: T[]; maxString: number }
 
-function portReach(s: portStore.FluxStoreSpec): Reached<portStore.FluxRegisters> {
+function portReach(
+  s: portStore.FluxStoreSpec,
+): Reached<portStore.FluxRegisters> {
   const n = s.kinds.length
   const x0 = Math.floor(s.ring / 2)
-  const start = portStore.placedRegisters(s, new Array<number>(n).fill(x0), new Array<number>(n).fill(0))
-  const key = (r: portStore.FluxRegisters): number => portStore.encodeRegisters(s, { ...r, j: new Array<number>(n).fill(0) })
-  const seen = new Map<number, portStore.FluxRegisters>([[key(start), start]])
+  const start = portStore.placedRegisters(
+    s,
+    new Array<number>(n).fill(x0),
+    new Array<number>(n).fill(0),
+  )
+  const key = (r: portStore.FluxRegisters): number =>
+    portStore.encodeRegisters(s, {
+      ...r,
+      j: new Array<number>(n).fill(0),
+    })
+  const seen = new Map<number, portStore.FluxRegisters>([
+    [key(start), start],
+  ])
   const queue = [start]
+
   let maxString = 0
 
   while (queue.length > 0) {
@@ -195,7 +265,10 @@ function portReach(s: portStore.FluxStoreSpec): Reached<portStore.FluxRegisters>
     maxString = Math.max(maxString, portStore.stringCount(r.f))
 
     for (let c = 0; c < 2 ** n; c++) {
-      const out = portStore.streamRegisters(s, { ...r, j: Array.from({ length: n }, (_, t) => (c >> t) & 1) })
+      const out = portStore.streamRegisters(s, {
+        ...r,
+        j: Array.from({ length: n }, (_, t) => (c >> t) & 1),
+      })
       const k = key(out)
 
       if (!seen.has(k)) {
@@ -210,13 +283,23 @@ function portReach(s: portStore.FluxStoreSpec): Reached<portStore.FluxRegisters>
   return { states: [...seen.values()], maxString }
 }
 
-function reelReach(s: ReelSpec): Reached<ReelRegisters> & { unsplit: number; storeBroken: number; gaussBroken: number } {
+function reelReach(s: ReelSpec): Reached<ReelRegisters> & {
+  unsplit: number
+  storeBroken: number
+  gaussBroken: number
+} {
   const n = s.kinds.length
   const x0 = Math.floor(s.ring / 2)
-  const start = placedRegisters(s, new Array<number>(n).fill(x0), new Array<number>(n).fill(0))
-  const key = (g: ReelRegisters): number => encodeRegisters(s, { ...g, j: new Array<number>(n).fill(0) })
+  const start = placedRegisters(
+    s,
+    new Array<number>(n).fill(x0),
+    new Array<number>(n).fill(0),
+  )
+  const key = (g: ReelRegisters): number =>
+    encodeRegisters(s, { ...g, j: new Array<number>(n).fill(0) })
   const seen = new Map<number, ReelRegisters>([[key(start), start]])
   const queue = [start]
+
   let maxString = 0
   let unsplit = 0
   let storeBroken = 0
@@ -228,8 +311,13 @@ function reelReach(s: ReelSpec): Reached<ReelRegisters> & { unsplit: number; sto
 
     maxString = Math.max(maxString, l)
 
-    if (reelSum(g.r) + 2 * l !== 0) storeBroken++
-    if (!gaussHolds(s, g)) gaussBroken++
+    if (reelSum(g.r) + 2 * l !== 0) {
+      storeBroken++
+    }
+
+    if (!gaussHolds(s, g)) {
+      gaussBroken++
+    }
 
     for (let c = 0; c < 2 ** n; c++) {
       const j = Array.from({ length: n }, (_, t) => (c >> t) & 1)
@@ -248,24 +336,42 @@ function reelReach(s: ReelSpec): Reached<ReelRegisters> & { unsplit: number; sto
     }
   }
 
-  return { states: [...seen.values()], maxString, unsplit, storeBroken, gaussBroken }
+  return {
+    states: [...seen.values()],
+    maxString,
+    unsplit,
+    storeBroken,
+    gaussBroken,
+  }
 }
 
 // the groups whose change is not a whole number of half-links per member
 function unsplitGroups(s: ReelSpec, g: ReelRegisters): number {
-  const steps = g.j.map((lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!)
-  const crossing = steps.map((st, t) => (st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, s.ring) : -1))
+  const steps = g.j.map(
+    (lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!,
+  )
+  const crossing = steps.map((st, t) =>
+    st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, s.ring) : -1,
+  )
+
   let bad = 0
 
   for (const link of new Set(crossing.filter(c => c >= 0))) {
-    const group = crossing.map((c, t) => (c === link ? t : -1)).filter(t => t >= 0)
+    const group = crossing
+      .map((c, t) => (c === link ? t : -1))
+      .filter(t => t >= 0)
+
     let f = g.f[link]!
 
-    for (const u of group) f = mod(f - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    for (const u of group) {
+      f = mod(f - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    }
 
     const delta = (f === 0 ? 0 : 1) - (g.f[link] === 0 ? 0 : 1)
 
-    if ((2 * delta) % group.length !== 0) bad++
+    if ((2 * delta) % group.length !== 0) {
+      bad++
+    }
   }
 
   return bad
@@ -274,8 +380,12 @@ function unsplitGroups(s: ReelSpec, g: ReelRegisters): number {
 // ---- H2, H3: does a far token's register change another token's copy? ----
 type Locality = { witnesses: number; farthest: number; checked: number }
 
-function portLocality(s: portStore.FluxStoreSpec, states: readonly portStore.FluxRegisters[]): Locality {
+function portLocality(
+  s: portStore.FluxStoreSpec,
+  states: readonly portStore.FluxRegisters[],
+): Locality {
   const n = s.kinds.length
+
   let witnesses = 0
   let farthest = 0
   let checked = 0
@@ -289,7 +399,9 @@ function portLocality(s: portStore.FluxStoreSpec, states: readonly portStore.Flu
         for (let u = 0; u < n; u++) {
           const dist = ringDistance(s.ring, r.x[t]!, r.x[u]!)
 
-          if (u === t || dist < 2) continue
+          if (u === t || dist < 2) {
+            continue
+          }
 
           const j2 = j.slice()
 
@@ -310,16 +422,25 @@ function portLocality(s: portStore.FluxStoreSpec, states: readonly portStore.Flu
   return { witnesses, farthest, checked }
 }
 
-function reelLocality(s: ReelSpec, states: readonly ReelRegisters[], labels: readonly number[] = [0, 1]): Locality {
+function reelLocality(
+  s: ReelSpec,
+  states: readonly ReelRegisters[],
+  labels: readonly number[] = [0, 1],
+): Locality {
   const n = s.kinds.length
+
   let witnesses = 0
   let farthest = 0
   let checked = 0
+
   const L = labels.length
 
   for (const g of states) {
     for (let c = 0; c < L ** n; c++) {
-      const j = Array.from({ length: n }, (_, t) => labels[Math.floor(c / L ** t) % L]!)
+      const j = Array.from(
+        { length: n },
+        (_, t) => labels[Math.floor(c / L ** t) % L]!,
+      )
       const base = streamRegisters(s, { ...g, j })
 
       for (let t = 0; t < n; t++) {
@@ -328,11 +449,15 @@ function reelLocality(s: ReelSpec, states: readonly ReelRegisters[], labels: rea
         for (let u = 0; u < n; u++) {
           const dist = ringDistance(s.ring, g.x[t]!, g.x[u]!)
 
-          if (u === t || dist < 2) continue
+          if (u === t || dist < 2) {
+            continue
+          }
 
           for (const ju of labels) {
             for (let ru = -s.depth; ru <= s.depth; ru++) {
-              if (ju === j[u] && ru === g.r[u]) continue
+              if (ju === j[u] && ru === g.r[u]) {
+                continue
+              }
 
               const j2 = j.slice()
               const r2 = g.r.slice()
@@ -342,9 +467,15 @@ function reelLocality(s: ReelSpec, states: readonly ReelRegisters[], labels: rea
               checked++
 
               const other = streamRegisters(s, { ...g, j: j2, r: r2 })
-              const movedOther = other.x[t] !== g.x[t] || other.j[t] === j2[t]
+              const movedOther =
+                other.x[t] !== g.x[t] || other.j[t] === j2[t]
 
-              if (movedOther !== moved || other.x[t] !== base.x[t] || other.j[t] !== base.j[t] || other.r[t] !== base.r[t]) {
+              if (
+                movedOther !== moved ||
+                other.x[t] !== base.x[t] ||
+                other.j[t] !== base.j[t] ||
+                other.r[t] !== base.r[t]
+              ) {
                 witnesses++
                 farthest = Math.max(farthest, dist)
               }
@@ -366,17 +497,28 @@ function gaussSector(s: ReelSpec): ReelRegisters[] {
   const out: ReelRegisters[] = []
 
   for (let p = 0; p < L ** n; p++) {
-    const x = Array.from({ length: n }, (_, t) => Math.floor(p / L ** (n - 1 - t)) % L)
+    const x = Array.from(
+      { length: n },
+      (_, t) => Math.floor(p / L ** (n - 1 - t)) % L,
+    )
     const q = new Array<number>(L).fill(0)
 
     s.kinds.forEach((k, t) => {
       q[x[t]!] = q[x[t]!]! + chargeOf(k)
     })
 
-    if (mod(q.reduce((a, b) => a + b, 0), 3) !== 0) continue
+    if (
+      mod(
+        q.reduce((a, b) => a + b, 0),
+        3,
+      ) !== 0
+    ) {
+      continue
+    }
 
     for (let b = 0; b < 3; b++) {
       const f = new Array<number>(L)
+
       let cum = b
 
       for (let l = 0; l < L; l++) {
@@ -385,10 +527,16 @@ function gaussSector(s: ReelSpec): ReelRegisters[] {
       }
 
       for (let lab = 0; lab < 3 ** n; lab++) {
-        const j = Array.from({ length: n }, (_, t) => Math.floor(lab / 3 ** (n - 1 - t)) % 3)
+        const j = Array.from(
+          { length: n },
+          (_, t) => Math.floor(lab / 3 ** (n - 1 - t)) % 3,
+        )
 
         for (let rc = 0; rc < V ** n; rc++) {
-          const r = Array.from({ length: n }, (_, t) => (Math.floor(rc / V ** (n - 1 - t)) % V) - s.depth)
+          const r = Array.from(
+            { length: n },
+            (_, t) => (Math.floor(rc / V ** (n - 1 - t)) % V) - s.depth,
+          )
 
           out.push({ x, j, f, r })
         }
@@ -399,10 +547,18 @@ function gaussSector(s: ReelSpec): ReelRegisters[] {
   return out
 }
 
-function wholeSector(s: ReelSpec): { states: number; permutation: boolean; inverse: boolean; gaussBroken: number; storeBroken: number; unsplitStates: number } {
+function wholeSector(s: ReelSpec): {
+  states: number
+  permutation: boolean
+  inverse: boolean
+  gaussBroken: number
+  storeBroken: number
+  unsplitStates: number
+} {
   const states = gaussSector(s)
   const keys = new Set(states.map(g => encodeRegisters(s, g)))
   const images = new Set<number>()
+
   let inverse = true
   let gaussBroken = 0
   let storeBroken = 0
@@ -415,23 +571,56 @@ function wholeSector(s: ReelSpec): { states: number; permutation: boolean; inver
 
     images.add(j)
 
-    if (streamIndexBack(s, j) !== i) inverse = false
-    if (!gaussHolds(s, out)) gaussBroken++
-    if (reelSum(out.r) + 2 * stringCount(out.f) !== reelSum(g.r) + 2 * stringCount(g.f)) storeBroken++
-    if (unsplitGroups(s, g) > 0) unsplitStates++
+    if (streamIndexBack(s, j) !== i) {
+      inverse = false
+    }
+
+    if (!gaussHolds(s, out)) {
+      gaussBroken++
+    }
+
+    if (
+      reelSum(out.r) + 2 * stringCount(out.f) !==
+      reelSum(g.r) + 2 * stringCount(g.f)
+    ) {
+      storeBroken++
+    }
+
+    if (unsplitGroups(s, g) > 0) {
+      unsplitStates++
+    }
   }
 
-  const permutation = images.size === states.length && [...images].every(k => keys.has(k))
+  const permutation =
+    images.size === states.length && [...images].every(k => keys.has(k))
 
-  return { states: states.length, permutation, inverse, gaussBroken, storeBroken, unsplitStates }
+  return {
+    states: states.length,
+    permutation,
+    inverse,
+    gaussBroken,
+    storeBroken,
+    unsplitStates,
+  }
 }
 
 // ---- H7: the twirl over a husk line's stabilizer ----
 type C = [number, number]
 type M3c = { re: Float64Array; im: Float64Array }
 
-function lineLock(axis: number): { dimension: number; lineWorst: number; involutionGap: number; traceGap: number; units: number } {
-  const units = unitRotations().filter(u => Math.abs(Math.abs(u.rotation.matrix[3 * axis + axis]!) - 1) < 1e-9)
+function lineLock(axis: number): {
+  dimension: number
+  lineWorst: number
+  involutionGap: number
+  traceGap: number
+  units: number
+} {
+  const units = unitRotations().filter(
+    u =>
+      Math.abs(Math.abs(u.rotation.matrix[3 * axis + axis]!) - 1) <
+      1e-9,
+  )
+
   const rho = (spin: C[]): M3c => {
     const m: M3c = { re: new Float64Array(9), im: new Float64Array(9) }
 
@@ -446,6 +635,7 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
 
     return m
   }
+
   const mul = (a: M3c, b: M3c): M3c => {
     const re = new Float64Array(9)
     const im = new Float64Array(9)
@@ -453,14 +643,22 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
     for (let i = 0; i < 3; i++) {
       for (let k = 0; k < 3; k++) {
         for (let j = 0; j < 3; j++) {
-          re[i * 3 + j] = re[i * 3 + j]! + a.re[i * 3 + k]! * b.re[k * 3 + j]! - a.im[i * 3 + k]! * b.im[k * 3 + j]!
-          im[i * 3 + j] = im[i * 3 + j]! + a.re[i * 3 + k]! * b.im[k * 3 + j]! + a.im[i * 3 + k]! * b.re[k * 3 + j]!
+          re[i * 3 + j] =
+            re[i * 3 + j]! +
+            a.re[i * 3 + k]! * b.re[k * 3 + j]! -
+            a.im[i * 3 + k]! * b.im[k * 3 + j]!
+
+          im[i * 3 + j] =
+            im[i * 3 + j]! +
+            a.re[i * 3 + k]! * b.im[k * 3 + j]! +
+            a.im[i * 3 + k]! * b.re[k * 3 + j]!
         }
       }
     }
 
     return { re, im }
   }
+
   const dagger = (a: M3c): M3c => {
     const re = new Float64Array(9)
     const im = new Float64Array(9)
@@ -474,8 +672,12 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
 
     return { re, im }
   }
+
   const twirl = (x: M3c): M3c => {
-    const out: M3c = { re: new Float64Array(9), im: new Float64Array(9) }
+    const out: M3c = {
+      re: new Float64Array(9),
+      im: new Float64Array(9),
+    }
 
     for (const { rotation } of units) {
       const r = rho(rotation.spin as C[])
@@ -490,19 +692,31 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
 
     return out
   }
+
   const images: number[][] = []
   const mats: M3c[] = []
+
   let lineWorst = 0
 
   for (let e = 0; e < 9; e++) {
     for (const imaginary of [false, true]) {
-      const x: M3c = { re: new Float64Array(9), im: new Float64Array(9) }
+      const x: M3c = {
+        re: new Float64Array(9),
+        im: new Float64Array(9),
+      }
 
       ;(imaginary ? x.im : x.re)[e] = 1
 
       const y = twirl(x)
 
-      for (let i = 0; i < 9; i++) if (Math.floor(i / 3) === 2 || i % 3 === 2) lineWorst = Math.max(lineWorst, Math.hypot(y.re[i]!, y.im[i]!))
+      for (let i = 0; i < 9; i++) {
+        if (Math.floor(i / 3) === 2 || i % 3 === 2) {
+          lineWorst = Math.max(
+            lineWorst,
+            Math.hypot(y.re[i]!, y.im[i]!),
+          )
+        }
+      }
 
       images.push([...y.re, ...y.im])
       mats.push(y)
@@ -517,12 +731,16 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
     for (const b of basis) {
       const dot = w.reduce((s, x, i) => s + x * b[i]!, 0)
 
-      for (let i = 0; i < w.length; i++) w[i] = w[i]! - dot * b[i]!
+      for (let i = 0; i < w.length; i++) {
+        w[i] = w[i]! - dot * b[i]!
+      }
     }
 
     const nrm = Math.sqrt(w.reduce((s, x) => s + x * x, 0))
 
-    if (nrm > 1e-9) basis.push(w.map(x => x / nrm))
+    if (nrm > 1e-9) {
+      basis.push(w.map(x => x / nrm))
+    }
   }
 
   // the largest image: its doublet block's trace and square
@@ -530,7 +748,9 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
   let bestNorm = 0
 
   for (const m of mats) {
-    const nrm = m.re.reduce((s, x) => s + x * x, 0) + m.im.reduce((s, x) => s + x * x, 0)
+    const nrm =
+      m.re.reduce((s, x) => s + x * x, 0) +
+      m.im.reduce((s, x) => s + x * x, 0)
 
     if (nrm > bestNorm) {
       bestNorm = nrm
@@ -539,11 +759,24 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
   }
 
   const sq = mul(best, best)
-  const traceGap = Math.hypot(best.re[0]! + best.re[4]!, best.im[0]! + best.im[4]!)
+  const traceGap = Math.hypot(
+    best.re[0]! + best.re[4]!,
+    best.im[0]! + best.im[4]!,
+  )
   const lam: C = [sq.re[0]!, sq.im[0]!]
-  const involutionGap = Math.max(Math.hypot(sq.re[1]!, sq.im[1]!), Math.hypot(sq.re[3]!, sq.im[3]!), Math.hypot(sq.re[4]! - lam[0], sq.im[4]! - lam[1]))
+  const involutionGap = Math.max(
+    Math.hypot(sq.re[1]!, sq.im[1]!),
+    Math.hypot(sq.re[3]!, sq.im[3]!),
+    Math.hypot(sq.re[4]! - lam[0], sq.im[4]! - lam[1]),
+  )
 
-  return { dimension: basis.length / 2, lineWorst, involutionGap, traceGap, units: units.length }
+  return {
+    dimension: basis.length / 2,
+    lineWorst,
+    involutionGap,
+    traceGap,
+    units: units.length,
+  }
 }
 
 // ---- REPORTED after the first runs (disclosed): does three loves' centre travel? ----
@@ -555,16 +788,36 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
 // of a doublet is zero), so such images carry no amplitude and are skipped: the reach read is a superset of the
 // support. While l >= 1 an end changes only when its outermost link does, so this is also the flux-based rule.
 // The reels (E-SPN-0081's rule) are read beside it, three on a dock allowed as their flavor allows.
-function centreReach(kind: 'end-port' | 'reel', D: number, cap: number): { states: number; farthest: number; capped: boolean; conservedBroken: number } {
-  const spec: ReelBlochSpec = { kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: D, cost: 0, root: 3, labels: 2 }
+function centreReach(
+  kind: 'end-port' | 'reel',
+  D: number,
+  cap: number,
+): {
+  states: number
+  farthest: number
+  capped: boolean
+  conservedBroken: number
+} {
+  const spec: ReelBlochSpec = {
+    kinds: ['love', 'love', 'love'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: 0,
+    root: 3,
+    labels: 2,
+  }
   const key = (s: number[]): string => s.join(',')
   // positions, then the reels (per token) or the reserves (left, right, and an unused 0)
-  const start = kind === 'reel' ? [0, 0, 1, 0, -1, -1] : [0, 0, 1, 0, -1, 0]
+  const start =
+    kind === 'reel' ? [0, 0, 1, 0, -1, -1] : [0, 0, 1, 0, -1, 0]
   const seen = new Set<string>([key(start)])
   const queue = [start]
+
   let farthest = 0
   let capped = false
   let conservedBroken = 0
+
   const q0 = 0 - -1 - (0 + 1)
 
   while (queue.length > 0) {
@@ -573,6 +826,7 @@ function centreReach(kind: 'end-port' | 'reel', D: number, cap: number): { state
 
     for (let c = 0; c < 8; c++) {
       const j = [c & 1, (c >> 1) & 1, (c >> 2) & 1]
+
       let next: number[]
 
       if (kind === 'reel') {
@@ -582,17 +836,33 @@ function centreReach(kind: 'end-port' | 'reel', D: number, cap: number): { state
       } else {
         const y = x.map((v, t) => v + (j[t] === 0 ? 1 : -1))
 
-        if (y[0] === y[1] && y[1] === y[2]) continue
+        if (y[0] === y[1] && y[1] === y[2]) {
+          continue
+        }
 
         const rl = s[3]! + (Math.min(...y) - Math.min(...x))
         const rr = s[4]! - (Math.max(...y) - Math.max(...x))
 
-        next = rl < -D || rl > D || rr < -D || rr > D ? s.slice() : [...y, rl, rr, 0]
+        next =
+          rl < -D || rl > D || rr < -D || rr > D
+            ? s.slice()
+            : [...y, rl, rr, 0]
 
-        if (next[3]! - next[4]! - (Math.min(...next.slice(0, 3)) + Math.max(...next.slice(0, 3))) !== q0) conservedBroken++
+        if (
+          next[3]! -
+            next[4]! -
+            (Math.min(...next.slice(0, 3)) +
+              Math.max(...next.slice(0, 3))) !==
+          q0
+        ) {
+          conservedBroken++
+        }
       }
 
-      const centre = Math.abs(Math.min(...next.slice(0, 3)) + Math.max(...next.slice(0, 3))) / 2
+      const centre =
+        Math.abs(
+          Math.min(...next.slice(0, 3)) + Math.max(...next.slice(0, 3)),
+        ) / 2
 
       if (centre > cap) {
         capped = true
@@ -613,25 +883,54 @@ function centreReach(kind: 'end-port' | 'reel', D: number, cap: number): { state
   return { states: seen.size, farthest, capped, conservedBroken }
 }
 
-const reelSpec = (ring: number, kinds: Vibe[], depth: number, cost = false): ReelSpec => {
+const reelSpec = (
+  ring: number,
+  kinds: Vibe[],
+  depth: number,
+  cost = false,
+): ReelSpec => {
   const N = 2 * depth + 1
 
-  return { ring, kinds, convention: 'C', unlike: 'knit', depth, cost: cost ? N : 0, root: cost ? 2 * N * N : 3 }
+  return {
+    ring,
+    kinds,
+    convention: 'C',
+    unlike: 'knit',
+    depth,
+    cost: cost ? N : 0,
+    root: cost ? 2 * N * N : 3,
+  }
 }
 
-const portSpec = (ring: number, kinds: Vibe[], depth: number): portStore.FluxStoreSpec => ({ ring, kinds, convention: 'C', unlike: 'knit', depth, cost: 0, root: 3 })
+const portSpec = (
+  ring: number,
+  kinds: Vibe[],
+  depth: number,
+): portStore.FluxStoreSpec => ({
+  ring,
+  kinds,
+  convention: 'C',
+  unlike: 'knit',
+  depth,
+  cost: 0,
+  root: 3,
+})
 
 export default experiment({
   id: 'spin/string-held-at-ends',
   code: 'E-SPN-0081',
-  title: "where the string's store can live, a STAND-IN on locked tokens on a husk line: no bound on a link's own registers confines at a range (Gauss makes every string show the same windows), the port store's bounce reads the string's far end in the same beat, so a husk-local count must sit on the charges: each token's own column is its reel, the tokens crossing a link pay its change in equal half-links, and the rule is local, reversible, integer, Gauss exact and confines at a range set by the ends' columns (the pair 2 floor(D / 2), three loves floor(3D / 2), the gate's formula missed the pair); read after the runs, every local placement pays: on the tokens the count is a flavor (E-SPN-0082), at the end ports it pins the centre, between them it needs a stream of its own; the knit's own vibe is not a locked token (its positions are classical), and the lock is the unique covariant way to make it one",
+  title:
+    "where the string's store can live, a STAND-IN on locked tokens on a husk line: no bound on a link's own registers confines at a range (Gauss makes every string show the same windows), the port store's bounce reads the string's far end in the same beat, so a husk-local count must sit on the charges: each token's own column is its reel, the tokens crossing a link pay its change in equal half-links, and the rule is local, reversible, integer, Gauss exact and confines at a range set by the ends' columns (the pair 2 floor(D / 2), three loves floor(3D / 2), the gate's formula missed the pair); read after the runs, every local placement pays: on the tokens the count is a flavor (E-SPN-0082), at the end ports it pins the centre, between them it needs a stream of its own; the knit's own vibe is not a locked token (its positions are classical), and the lock is the unique covariant way to make it one",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- H1 ----
     const windows = [
@@ -645,76 +944,186 @@ export default experiment({
 
     // ---- H2 ----
     const portCases = [
-      ...[1, 2, 3, 4].map(D => ({ name: `pair D ${D}`, D, pair: true, spec: portSpec(4 * D + 3, ['love', 'fear'], D) })),
-      ...[1, 2, 3].map(D => ({ name: `three loves D ${D}`, D, pair: false, spec: portSpec(4 * D + 3, ['love', 'love', 'love'], D) })),
+      ...[1, 2, 3, 4].map(D => ({
+        name: `pair D ${D}`,
+        D,
+        pair: true,
+        spec: portSpec(4 * D + 3, ['love', 'fear'], D),
+      })),
+      ...[1, 2, 3].map(D => ({
+        name: `three loves D ${D}`,
+        D,
+        pair: false,
+        spec: portSpec(4 * D + 3, ['love', 'love', 'love'], D),
+      })),
     ]
     const portRows = portCases.map(c => {
       const reach = portReach(c.spec)
 
-      return { name: c.name, D: c.D, pair: c.pair, states: reach.states.length, maxString: reach.maxString, ...portLocality(c.spec, reach.states) }
+      return {
+        name: c.name,
+        D: c.D,
+        pair: c.pair,
+        states: reach.states.length,
+        maxString: reach.maxString,
+        ...portLocality(c.spec, reach.states),
+      }
     })
-    const h2 = portRows.every(r => r.witnesses > 0 && (!r.pair || r.farthest === 2 * r.D))
+    const h2 = portRows.every(
+      r => r.witnesses > 0 && (!r.pair || r.farthest === 2 * r.D),
+    )
 
     log('h2')
 
     // ---- H3, H5 ----
     const reelCases = [
-      ...[1, 2, 3, 4].map(D => ({ name: `pair D ${D}`, D, n: 2, spec: reelSpec(4 * D + 3, ['love', 'fear'], D) })),
-      ...[1, 2, 3].map(D => ({ name: `three loves D ${D}`, D, n: 3, spec: reelSpec(4 * D + 3, ['love', 'love', 'love'], D) })),
+      ...[1, 2, 3, 4].map(D => ({
+        name: `pair D ${D}`,
+        D,
+        n: 2,
+        spec: reelSpec(4 * D + 3, ['love', 'fear'], D),
+      })),
+      ...[1, 2, 3].map(D => ({
+        name: `three loves D ${D}`,
+        D,
+        n: 3,
+        spec: reelSpec(4 * D + 3, ['love', 'love', 'love'], D),
+      })),
     ]
     const reelRows = reelCases.map(c => {
       const reach = reelReach(c.spec)
 
       log(`reach ${c.name}`)
 
-      return { name: c.name, D: c.D, n: c.n, states: reach.states.length, maxString: reach.maxString, unsplit: reach.unsplit, storeBroken: reach.storeBroken, gaussBroken: reach.gaussBroken, ...reelLocality(c.spec, reach.states) }
+      return {
+        name: c.name,
+        D: c.D,
+        n: c.n,
+        states: reach.states.length,
+        maxString: reach.maxString,
+        unsplit: reach.unsplit,
+        storeBroken: reach.storeBroken,
+        gaussBroken: reach.gaussBroken,
+        ...reelLocality(c.spec, reach.states),
+      }
     })
     // the Gauss sector with labels left to the locality test, which runs every label
-    const unlabeled = (s: ReelSpec): ReelRegisters[] => gaussSector(s).filter(g => g.j.every(v => v === 0))
+    const unlabeled = (s: ReelSpec): ReelRegisters[] =>
+      gaussSector(s).filter(g => g.j.every(v => v === 0))
     const sectorLocality = [
-      { name: 'pair ring 5 D 1', ...reelLocality(reelSpec(5, ['love', 'fear'], 1), unlabeled(reelSpec(5, ['love', 'fear'], 1)), [0, 1, 2]) },
-      { name: 'three loves ring 4 D 1', ...reelLocality(reelSpec(4, ['love', 'love', 'love'], 1), unlabeled(reelSpec(4, ['love', 'love', 'love'], 1)), [0, 1, 2]) },
+      {
+        name: 'pair ring 5 D 1',
+        ...reelLocality(
+          reelSpec(5, ['love', 'fear'], 1),
+          unlabeled(reelSpec(5, ['love', 'fear'], 1)),
+          [0, 1, 2],
+        ),
+      },
+      {
+        name: 'three loves ring 4 D 1',
+        ...reelLocality(
+          reelSpec(4, ['love', 'love', 'love'], 1),
+          unlabeled(reelSpec(4, ['love', 'love', 'love'], 1)),
+          [0, 1, 2],
+        ),
+      },
     ]
-    const h3 = reelRows.every(r => r.witnesses === 0 && r.checked > 0) && sectorLocality.every(r => r.witnesses === 0 && r.checked > 0)
-    const h5 = reelRows.every(r => r.maxString === Math.floor((r.n * r.D) / 2) && r.storeBroken === 0 && r.gaussBroken === 0)
+    const h3 =
+      reelRows.every(r => r.witnesses === 0 && r.checked > 0) &&
+      sectorLocality.every(r => r.witnesses === 0 && r.checked > 0)
+    const h5 = reelRows.every(
+      r =>
+        r.maxString === Math.floor((r.n * r.D) / 2) &&
+        r.storeBroken === 0 &&
+        r.gaussBroken === 0,
+    )
 
     log('h3 h5')
 
     // ---- H4 ----
     const sectors = [
-      { name: 'pair ring 6 D 1', ...wholeSector(reelSpec(6, ['love', 'fear'], 1)) },
-      { name: 'pair ring 7 D 2', ...wholeSector(reelSpec(7, ['love', 'fear'], 2)) },
-      { name: 'three loves ring 4 D 1', ...wholeSector(reelSpec(4, ['love', 'love', 'love'], 1)) },
-      { name: 'three loves ring 5 D 2', ...wholeSector(reelSpec(5, ['love', 'love', 'love'], 2)) },
+      {
+        name: 'pair ring 6 D 1',
+        ...wholeSector(reelSpec(6, ['love', 'fear'], 1)),
+      },
+      {
+        name: 'pair ring 7 D 2',
+        ...wholeSector(reelSpec(7, ['love', 'fear'], 2)),
+      },
+      {
+        name: 'three loves ring 4 D 1',
+        ...wholeSector(reelSpec(4, ['love', 'love', 'love'], 1)),
+      },
+      {
+        name: 'three loves ring 5 D 2',
+        ...wholeSector(reelSpec(5, ['love', 'love', 'love'], 2)),
+      },
     ]
-    const h4 = sectors.every(w => w.permutation && w.inverse && w.gaussBroken === 0 && w.storeBroken === 0) && reelRows.every(r => r.unsplit === 0)
+    const h4 =
+      sectors.every(
+        w =>
+          w.permutation &&
+          w.inverse &&
+          w.gaussBroken === 0 &&
+          w.storeBroken === 0,
+      ) && reelRows.every(r => r.unsplit === 0)
 
     log('h4')
 
     // ---- H6 ----
-    const exactPair = reelExactCheck(reelSpec(9, ['love', 'fear'], 2, true), [{ x: [4, 4], j: [0, 1], r: [0, 0], amp: 1 }], 12)
-    const exactThree = reelExactCheck(reelSpec(7, ['love', 'love', 'love'], 1, true), antisymmetrizedReels({ x: [3, 3, 4], j: [0, 1, 0], r: [0, -1, -1] }), 6)
-    const exactOk = (e: typeof exactPair): boolean => e.gap < 1e-12 && e.norm && e.reverses && e.registersOk && e.merged === 0
+    const exactPair = reelExactCheck(
+      reelSpec(9, ['love', 'fear'], 2, true),
+      [{ x: [4, 4], j: [0, 1], r: [0, 0], amp: 1 }],
+      12,
+    )
+    const exactThree = reelExactCheck(
+      reelSpec(7, ['love', 'love', 'love'], 1, true),
+      antisymmetrizedReels({
+        x: [3, 3, 4],
+        j: [0, 1, 0],
+        r: [0, -1, -1],
+      }),
+      6,
+    )
+    const exactOk = (e: typeof exactPair): boolean =>
+      e.gap < 1e-12 &&
+      e.norm &&
+      e.reverses &&
+      e.registersOk &&
+      e.merged === 0
     const h6 = exactOk(exactPair) && exactOk(exactThree)
 
     log('h6')
 
     // ---- H7 ----
     const locks = [0, 1, 2].map(a => ({ axis: a, ...lineLock(a) }))
-    const h7 = locks.every(l => l.dimension === 1 && l.lineWorst < 1e-12 && l.involutionGap < 1e-12 && l.traceGap < 1e-12)
+    const h7 = locks.every(
+      l =>
+        l.dimension === 1 &&
+        l.lineWorst < 1e-12 &&
+        l.involutionGap < 1e-12 &&
+        l.traceGap < 1e-12,
+    )
 
     log('h7')
 
     // REPORTED after the first runs: the end-port store pins the centre, the reels do not
-    const centres = [1, 2, 3, 4].map(D => ({ D, endPort: centreReach('end-port', D, 40), reel: centreReach('reel', D, 40) }))
+    const centres = [1, 2, 3, 4].map(D => ({
+      D,
+      endPort: centreReach('end-port', D, 40),
+      reel: centreReach('reel', D, 40),
+    }))
 
     log('centres')
 
     const ok = h1 && h2 && h3 && h4 && h5 && h6 && h7
     const pairPort = portRows.filter(r => r.pair)
     // REPORTED after the first run: the range that holds (a lone end pays whole links from a half-link column)
-    const rangeOf = (n: number, D: number): number => (n === 2 ? 2 * Math.floor(D / 2) : Math.floor((3 * D) / 2))
-    const rangeHolds = reelRows.every(r => r.maxString === rangeOf(r.n, r.D))
+    const rangeOf = (n: number, D: number): number =>
+      n === 2 ? 2 * Math.floor(D / 2) : Math.floor((3 * D) / 2)
+    const rangeHolds = reelRows.every(
+      r => r.maxString === rangeOf(r.n, r.D),
+    )
     const informative = reelRows.filter(r => r.checked > 0)
 
     return verdict({
@@ -728,27 +1137,95 @@ export default experiment({
         gate_H5: h5 ? 1 : 0,
         gate_H6: h6 ? 1 : 0,
         gate_H7: h7 ? 1 : 0,
-        ...Object.fromEntries(windows.flatMap(w => [[`window_${w.name.replace(/ /g, '_')}_violations`, w.violations], [`window_${w.name.replace(/ /g, '_')}_confineWithin`, w.confineWithin]])),
-        ...Object.fromEntries(portRows.flatMap(r => [[`port_${r.name.replace(/ /g, '_')}_witnesses`, r.witnesses], [`port_${r.name.replace(/ /g, '_')}_farthest`, r.farthest], [`port_${r.name.replace(/ /g, '_')}_states`, r.states]])),
-        ...Object.fromEntries(reelRows.flatMap(r => [[`reel_${r.name.replace(/ /g, '_')}_witnesses`, r.witnesses], [`reel_${r.name.replace(/ /g, '_')}_maxString`, r.maxString], [`reel_${r.name.replace(/ /g, '_')}_states`, r.states], [`reel_${r.name.replace(/ /g, '_')}_unsplit`, r.unsplit]])),
-        ...Object.fromEntries(sectors.flatMap(w => [[`sector_${w.name.replace(/ /g, '_')}_states`, w.states], [`sector_${w.name.replace(/ /g, '_')}_unsplitStates`, w.unsplitStates]])),
+        ...Object.fromEntries(
+          windows.flatMap(w => [
+            [
+              `window_${w.name.replace(/ /g, '_')}_violations`,
+              w.violations,
+            ],
+            [
+              `window_${w.name.replace(/ /g, '_')}_confineWithin`,
+              w.confineWithin,
+            ],
+          ]),
+        ),
+        ...Object.fromEntries(
+          portRows.flatMap(r => [
+            [
+              `port_${r.name.replace(/ /g, '_')}_witnesses`,
+              r.witnesses,
+            ],
+            [`port_${r.name.replace(/ /g, '_')}_farthest`, r.farthest],
+            [`port_${r.name.replace(/ /g, '_')}_states`, r.states],
+          ]),
+        ),
+        ...Object.fromEntries(
+          reelRows.flatMap(r => [
+            [
+              `reel_${r.name.replace(/ /g, '_')}_witnesses`,
+              r.witnesses,
+            ],
+            [
+              `reel_${r.name.replace(/ /g, '_')}_maxString`,
+              r.maxString,
+            ],
+            [`reel_${r.name.replace(/ /g, '_')}_states`, r.states],
+            [`reel_${r.name.replace(/ /g, '_')}_unsplit`, r.unsplit],
+          ]),
+        ),
+        ...Object.fromEntries(
+          sectors.flatMap(w => [
+            [`sector_${w.name.replace(/ /g, '_')}_states`, w.states],
+            [
+              `sector_${w.name.replace(/ /g, '_')}_unsplitStates`,
+              w.unsplitStates,
+            ],
+          ]),
+        ),
         exactPairGap: exactPair.gap,
         exactThreeGap: exactThree.gap,
         exactPairBits: exactPair.bits,
         exactThreeBits: exactThree.bits,
         lineLockDimension: Math.max(...locks.map(l => l.dimension)),
         lineLockLineWorst: Math.max(...locks.map(l => l.lineWorst)),
-        lineLockInvolutionGap: Math.max(...locks.map(l => l.involutionGap)),
+        lineLockInvolutionGap: Math.max(
+          ...locks.map(l => l.involutionGap),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        ...Object.fromEntries(centres.flatMap(c => [[`endPort_D${c.D}_farthestCentre`, c.endPort.farthest], [`endPort_D${c.D}_capped`, c.endPort.capped ? 1 : 0], [`endPort_D${c.D}_conservedBroken`, c.endPort.conservedBroken], [`reel_D${c.D}_farthestCentre`, c.reel.farthest], [`reel_D${c.D}_capped`, c.reel.capped ? 1 : 0]])),
+        ...Object.fromEntries(
+          centres.flatMap(c => [
+            [`endPort_D${c.D}_farthestCentre`, c.endPort.farthest],
+            [`endPort_D${c.D}_capped`, c.endPort.capped ? 1 : 0],
+            [
+              `endPort_D${c.D}_conservedBroken`,
+              c.endPort.conservedBroken,
+            ],
+            [`reel_D${c.D}_farthestCentre`, c.reel.farthest],
+            [`reel_D${c.D}_capped`, c.reel.capped ? 1 : 0],
+          ]),
+        ),
         reportedRangeHolds: rangeHolds ? 1 : 0,
         reportedInformativeLocalityCases: informative.length,
-        reportedInformativeLocalityWitnesses: informative.reduce((a, r) => a + r.witnesses, 0),
-        ...Object.fromEntries(sectorLocality.map(r => [`sectorLocality_${r.name.replace(/ /g, '_')}_checked`, r.checked])),
-        portLocalityChecked: portRows.reduce((a, r) => a + r.checked, 0),
-        reelLocalityChecked: reelRows.reduce((a, r) => a + r.checked, 0),
+        reportedInformativeLocalityWitnesses: informative.reduce(
+          (a, r) => a + r.witnesses,
+          0,
+        ),
+        ...Object.fromEntries(
+          sectorLocality.map(r => [
+            `sectorLocality_${r.name.replace(/ /g, '_')}_checked`,
+            r.checked,
+          ]),
+        ),
+        portLocalityChecked: portRows.reduce(
+          (a, r) => a + r.checked,
+          0,
+        ),
+        reelLocalityChecked: reelRows.reduce(
+          (a, r) => a + r.checked,
+          0,
+        ),
       },
       notes: `L1 for theorems 1, 2, 4; the reel rule L2, a STAND-IN (locked tokens on one husk line). Gates H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}, H5 ${h5}, H6 ${h6}, H7 ${h7}. FIRST RUN (recorded, 5 s): fail on H3 and H5 with the same numbers as this run; no gate moved. H5's formula floor(nD/2) was wrong for the pair: a lone end pays a whole link (two half-links) from its column of 2D + 1 half-link values, so it pulls floor(D/2) links and the pair reaches 2 floor(D/2); three loves reach floor(3D/2) because two loves crossing together pay a half-link each. Reported after the run: that range holds on every case (${rangeHolds}). H3 failed only because at D = 1 no token is ever 2 docks from another (the pair never separates, three loves reach a span of 1: 0 checks); the ${informative.length} informative cases read ${informative.reduce((a, r) => a + r.witnesses, 0)} far changes that matter. Windows: ${windows.map(w => `${w.name} ${w.predicates} predicates, ${w.violations} violations, ${w.confineWithin} confine only inside the window, ${w.allowAll} allow every length (per orientation)`).join('; ')}. Port store (E-SPN-0075): ${portRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString}, ${r.witnesses} of ${r.checked} far label changes move another token's copy, farthest ${r.farthest}`).join('; ')}. Reel rule: ${reelRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString} (floor(nD/2) = ${Math.floor((r.n * r.D) / 2)}), ${r.witnesses} of ${r.checked} far changes matter, ${r.unsplit} unsplit groups, store broken ${r.storeBroken}, Gauss broken ${r.gaussBroken}`).join('; ')}; whole Gauss sectors: ${sectorLocality.map(r => `${r.name} ${r.witnesses} of ${r.checked}`).join(', ')}. Permutation: ${sectors.map(w => `${w.name} ${w.states} states, permutation ${w.permutation}, inverse ${w.inverse}, Gauss broken ${w.gaussBroken}, store broken ${w.storeBroken}, states with an unsplittable group ${w.unsplitStates} (these bounce; they are states whose flux wraps the ring)`).join('; ')}. Exact: pair ${JSON.stringify(exactPair)}, three loves ${JSON.stringify(exactThree)}. Line lock: ${locks.map(l => `axis ${l.axis}: ${l.units} units, dimension ${l.dimension}, line ${l.lineWorst.toExponential(1)}, involution ${l.involutionGap.toExponential(1)}, trace ${l.traceGap.toExponential(1)}`).join('; ')}. AFTER THE RUNS (added, disclosed, reported, not gated). E-SPN-0082 found the reel costs the spin one half: a per-token count of 3 or more values is a flavor, and Pauli no longer locks the role (three loves can share a dock). The other local placement was then read: the end-port store (each end's reserve at the string's end port, copied with the end, each end paying for its own moves, since a growing end cannot know in the same beat what the far end did) keeps r_L - r_R - (x_L + x_R) fixed while the string has a link, and three loves always have one (without a reel they never share a dock), so their centre is held within about D docks of where it started (every label sequence, from two loves on dock 0 and one on dock 1): ${centres.map(c => `D ${c.D}: end-port farthest centre ${c.endPort.farthest} (capped ${c.endPort.capped}, conservation broken ${c.endPort.conservedBroken}), reels ${c.reel.farthest}${c.reel.capped ? ' (reached the cap of 40)' : ''}`).join('; ')}. A love-fear pair escapes only through contact, where no end link changes. So every local placement pays: on the tokens, a flavor that lifts Pauli (E-SPN-0082); at the ends' ports, a pinned centre for the charge-one cluster (it cannot travel); in between, only a count carried along the string by a stream of its own, which is a new part. MEANING: stand-in (b) is removable only at one of those costs. The store does not need a port, and it cannot be dropped: Gauss makes the flux local and blind to length, so a local count is required, and it must sit within one dock of each growing end: on the charges, at the end ports, or carried between them. Built here: on the charges. Each token's own column is its reel, the ends trade string only through its length (the yo-yo), and every decision reads one link. The range is set by the columns under the ends: each end's column counts half-links (two identical tokens crossing together must share, so the unit is half a link), a lone end pays a whole link, and so the pair reaches 2 floor(D/2) and three loves floor(3D/2), where E-SPN-0075's one column of 2D + 1 whole-link values reached 2D. The halving is the price of locality with equal shares, and an odd D leaves a lone end one unusable half-link. Stand-in (a) is not removed, and cannot be by reading: the adopted knit's positions are classical in every history (its stream reads slots, the fear beat reads the classical record and writes none of it, E-SPN-0067), so its vibes cannot form a bound level; the one covariant rule that gives a vibe's position amplitudes from its role is the doublet lock, dimension 1 on a husk line's own stabilizer. The locked token is therefore the unique candidate, one named rule ("a vibe's copy direction is its role's doublet") from the knit, not a derivation from it. No background vacuum is used: the construction runs on a husk line with no knit vacuum, and the obstruction to (a) is a property of the stream and the fear beat on every vacuum, including the coset-union vacuum of E-RLT-0093.`,
     })

@@ -19,40 +19,65 @@
 import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
 
 const ROOTS = DOCK_ROOTS
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 export type Register = 'even' | 'whole'
 
-const ALL: readonly (readonly number[])[] = Array.from({ length: 16 }, (_, m) => [0, 1, 2, 3].filter(i => (m >> i) & 1))
+const ALL: readonly (readonly number[])[] = Array.from(
+  { length: 16 },
+  (_, m) => [0, 1, 2, 3].filter(i => (m >> i) & 1),
+)
 const EVEN_BLADES = ALL.filter(b => b.length % 2 === 0)
 const ODD_BLADES = ALL.filter(b => b.length % 2 === 1)
 const bladeKey = (b: readonly number[]): string => b.join(',')
 
-function wedge(i: number, B: readonly number[]): { sign: number; blade: number[] } | null {
-  if (B.includes(i)) return null
+function wedge(
+  i: number,
+  B: readonly number[],
+): { sign: number; blade: number[] } | null {
+  if (B.includes(i)) {
+    return null
+  }
 
-  return { sign: B.filter(x => x < i).length % 2 === 0 ? 1 : -1, blade: [...B, i].sort((a, b) => a - b) }
+  return {
+    sign: B.filter(x => x < i).length % 2 === 0 ? 1 : -1,
+    blade: [...B, i].sort((a, b) => a - b),
+  }
 }
 
-function contract(i: number, B: readonly number[]): { sign: number; blade: number[] } | null {
+function contract(
+  i: number,
+  B: readonly number[],
+): { sign: number; blade: number[] } | null {
   const at = B.indexOf(i)
 
-  return at < 0 ? null : { sign: at % 2 === 0 ? 1 : -1, blade: B.filter(x => x !== i) }
+  return at < 0
+    ? null
+    : { sign: at % 2 === 0 ? 1 : -1, blade: B.filter(x => x !== i) }
 }
 
 // gamma_i as [target row][source column]; the source blades are the register (even, or all), the targets the partner's
 // label space (odd, or all)
-export function cliffordMaps(reg: Register): { maps: number[][][]; size: number } {
+export function cliffordMaps(reg: Register): {
+  maps: number[][][]
+  size: number
+} {
   const source = reg === 'even' ? EVEN_BLADES : ALL
   const target = reg === 'even' ? ODD_BLADES : ALL
   const index = new Map(target.map((b, k) => [bladeKey(b), k]))
   const maps = [0, 1, 2, 3].map(i => {
-    const g = Array.from({ length: target.length }, () => Array<number>(source.length).fill(0))
+    const g = Array.from({ length: target.length }, () =>
+      Array<number>(source.length).fill(0),
+    )
 
     source.forEach((B, col) => {
       for (const t of [wedge(i, B), contract(i, B)]) {
-        if (!t) continue
-        ;(g[index.get(bladeKey(t.blade)) as number] as number[])[col]! += t.sign
+        if (!t) {
+          continue
+        }
+
+        g[index.get(bladeKey(t.blade))!]![col]! += t.sign
       }
     })
 
@@ -65,6 +90,7 @@ export function cliffordMaps(reg: Register): { maps: number[][][]; size: number 
 // the largest gap of gamma_i^T gamma_j + gamma_j^T gamma_i from 2 delta_ij (the Clifford relation)
 export function cliffordGap(reg: Register): number {
   const { maps, size } = cliffordMaps(reg)
+
   let gap = 0
 
   for (let i = 0; i < 4; i++) {
@@ -73,8 +99,16 @@ export function cliffordGap(reg: Register): number {
         for (let b = 0; b < size; b++) {
           let s = 0
 
-          for (let e = 0; e < size; e++) s += (((maps[i] as number[][])[e] as number[])[a] as number) * (((maps[j] as number[][])[e] as number[])[b] as number) + (((maps[j] as number[][])[e] as number[])[a] as number) * (((maps[i] as number[][])[e] as number[])[b] as number)
-          gap = Math.max(gap, Math.abs(s - (i === j && a === b ? 2 : 0)))
+          for (let e = 0; e < size; e++) {
+            s +=
+              maps[i]![e]![a]! * maps[j]![e]![b]! +
+              maps[j]![e]![a]! * maps[i]![e]![b]!
+          }
+
+          gap = Math.max(
+            gap,
+            Math.abs(s - (i === j && a === b ? 2 : 0)),
+          )
         }
       }
     }
@@ -83,14 +117,29 @@ export function cliffordGap(reg: Register): number {
   return gap
 }
 
-const gammaOf = (maps: readonly (readonly (readonly number[])[])[], r: readonly number[], size: number): number[][] =>
-  Array.from({ length: size }, (_, e) => Array.from({ length: size }, (_, k) => [0, 1, 2, 3].reduce((s, i) => s + (r[i] as number) * (((maps[i] as number[][])[e] as number[])[k] as number), 0)))
+const gammaOf = (
+  maps: readonly (readonly (readonly number[])[])[],
+  r: readonly number[],
+  size: number,
+): number[][] =>
+  Array.from({ length: size }, (_, e) =>
+    Array.from({ length: size }, (_, k) =>
+      [0, 1, 2, 3].reduce(
+        (s, i) => s + r[i]! * (maps[i] as number[][])[e]![k]!,
+        0,
+      ),
+    ),
+  )
 
 // the partner basis: orthonormality gap and its largest component on the singlet (the uniform slot mode)
-export function partnerChecks(reg: Register): { orthonormal: number; singlet: number } {
+export function partnerChecks(reg: Register): {
+  orthonormal: number
+  singlet: number
+} {
   const { maps, size } = cliffordMaps(reg)
   const f = 1 / (2 * Math.sqrt(12))
   const gs = ROOTS.map(r => gammaOf(maps, r, size))
+
   let orthonormal = 0
   let singlet = 0
 
@@ -98,10 +147,24 @@ export function partnerChecks(reg: Register): { orthonormal: number; singlet: nu
     for (let e2 = 0; e2 < size; e2++) {
       let s = 0
 
-      for (const g of gs) for (let k = 0; k < size; k++) s += f * f * ((g[e1] as number[])[k] as number) * ((g[e2] as number[])[k] as number)
-      orthonormal = Math.max(orthonormal, Math.abs(s - (e1 === e2 ? 1 : 0)))
+      for (const g of gs) {
+        for (let k = 0; k < size; k++) {
+          s += f * f * g[e1]![k]! * g[e2]![k]!
+        }
+      }
+
+      orthonormal = Math.max(
+        orthonormal,
+        Math.abs(s - (e1 === e2 ? 1 : 0)),
+      )
     }
-    for (let k = 0; k < size; k++) singlet = Math.max(singlet, Math.abs(gs.reduce((s, g) => s + ((g[e1] as number[])[k] as number), 0)))
+
+    for (let k = 0; k < size; k++) {
+      singlet = Math.max(
+        singlet,
+        Math.abs(gs.reduce((s, g) => s + g[e1]![k]!, 0)),
+      )
+    }
   }
 
   return { orthonormal, singlet }
@@ -109,28 +172,54 @@ export function partnerChecks(reg: Register): { orthonormal: number; singlet: nu
 
 export type Capture = { share: number; sideS: number; sideD: number }
 
-export function captureOf(reg: Register, u: readonly number[]): Capture {
+export function captureOf(
+  reg: Register,
+  u: readonly number[],
+): Capture {
   const { maps, size } = cliffordMaps(reg)
   const c0 = 1 / (2 * Math.sqrt(288))
-  const T = Array.from({ length: size }, () => Array<number>(size).fill(0))
+  const T = Array.from({ length: size }, () =>
+    Array<number>(size).fill(0),
+  )
+
   let full = 0
 
   ROOTS.forEach(r => {
     const w = dot(u, r)
     const g = gammaOf(maps, r, size)
 
-    for (let e = 0; e < size; e++) for (let k = 0; k < size; k++) (T[e] as number[])[k]! += c0 * w * ((g[e] as number[])[k] as number)
+    for (let e = 0; e < size; e++) {
+      for (let k = 0; k < size; k++) {
+        T[e]![k]! += c0 * w * g[e]![k]!
+      }
+    }
+
     full += (w * w * size) / 24
   })
 
   let captured = 0
 
-  for (const row of T) for (const x of row) captured += x * x
+  for (const row of T) {
+    for (const x of row) {
+      captured += x * x
+    }
+  }
 
-  const TtT = Array.from({ length: size }, (_, a) => Array.from({ length: size }, (_, b) => T.reduce((s, row) => s + (row[a] as number) * (row[b] as number), 0)))
-  const TTt = T.map(ra => T.map(rb => ra.reduce((s, x, k) => s + x * (rb[k] as number), 0)))
+  const TtT = Array.from({ length: size }, (_, a) =>
+    Array.from({ length: size }, (_, b) =>
+      T.reduce((s, row) => s + row[a]! * row[b]!, 0),
+    ),
+  )
+  const TTt = T.map(ra =>
+    T.map(rb => ra.reduce((s, x, k) => s + x * rb[k]!, 0)),
+  )
   const scale = captured / size
-  const off = (m: number[][]): number => Math.max(...m.flatMap((row, a) => row.map((x, b) => Math.abs(x - (a === b ? scale : 0)))))
+  const off = (m: number[][]): number =>
+    Math.max(
+      ...m.flatMap((row, a) =>
+        row.map((x, b) => Math.abs(x - (a === b ? scale : 0))),
+      ),
+    )
 
   return { share: captured / full, sideS: off(TtT), sideD: off(TTt) }
 }
@@ -143,10 +232,16 @@ export function vectorShare(u: readonly number[]): number {
   for (let i = 0; i < 4; i++) {
     let s = 0
 
-    for (const r of ROOTS) s += ((r[i] as number) * dot(u, r)) / Math.sqrt(12 * 24)
+    for (const r of ROOTS) {
+      s += (r[i]! * dot(u, r)) / Math.sqrt(12 * 24)
+    }
+
     captured += 8 * s * s
   }
-  for (const r of ROOTS) full += (8 * dot(u, r) ** 2) / 24
+
+  for (const r of ROOTS) {
+    full += (8 * dot(u, r) ** 2) / 24
+  }
 
   return captured / full
 }
@@ -156,10 +251,14 @@ export function inverseMod(n: number, p: number): number {
   let result = 1n
   let base = BigInt(n) % BigInt(p)
   let e = BigInt(p - 2)
+
   const P = BigInt(p)
 
   while (e > 0n) {
-    if (e & 1n) result = (result * base) % P
+    if (e & 1n) {
+      result = (result * base) % P
+    }
+
     base = (base * base) % P
     e >>= 1n
   }

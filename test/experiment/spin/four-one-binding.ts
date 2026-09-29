@@ -41,7 +41,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { gaussHolds, stringBeat, stringBeatBack, stringEnergy, stringState, type StringLine, type StringState } from '@/code/rule/string-line'
+import {
+  gaussHolds,
+  stringBeat,
+  stringBeatBack,
+  stringEnergy,
+  stringState,
+  type StringLine,
+  type StringState,
+} from '@/code/rule/string-line'
 
 const MASS = 4
 const TENSION = 1
@@ -52,24 +60,33 @@ const START = 120
 
 type Knot = { n: number; m: number }
 
-const isKnot = (k: Knot): boolean => (k.n - k.m) % 3 === 0 && k.n + k.m > 0
-const minimalKnots = (k: Knot): number => Math.min(k.n, k.m) + Math.abs(k.n - k.m) / 3
+const isKnot = (k: Knot): boolean =>
+  (k.n - k.m) % 3 === 0 && k.n + k.m > 0
+const minimalKnots = (k: Knot): number =>
+  Math.min(k.n, k.m) + Math.abs(k.n - k.m) / 3
 
 // the energy of a list of charges placed at cells on a quiet line (no demons)
-function lineEnergy(line: StringLine, placed: readonly [number, number][]): number {
+function lineEnergy(
+  line: StringLine,
+  placed: readonly [number, number][],
+): number {
   const vibe = new Int8Array(line.cells)
 
   for (const [cell, v] of placed) {
     vibe[cell] = v
   }
 
-  return stringEnergy(line, stringState({ line, vibe, demon: new Int32Array(line.cells) }))
+  return stringEnergy(
+    line,
+    stringState({ line, vibe, demon: new Int32Array(line.cells) }),
+  )
 }
 
 // the least energy of n loves and m fears placed anywhere in a window of n + m + 3 cells
 function leastEnergy(line: StringLine, k: Knot): number {
   const total = k.n + k.m
   const width = total + 3
+
   let best = Infinity
 
   for (let mask = 0; mask < 1 << width; mask++) {
@@ -96,7 +113,16 @@ function leastEnergy(line: StringLine, k: Knot): number {
         continue
       }
 
-      best = Math.min(best, lineEnergy(line, cells.map((c, i) => [c, (fears >> i) & 1 ? -1 : 1] as [number, number])))
+      best = Math.min(
+        best,
+        lineEnergy(
+          line,
+          cells.map(
+            (c, i) =>
+              [c, (fears >> i) & 1 ? -1 : 1] as [number, number],
+          ),
+        ),
+      )
     }
   }
 
@@ -130,26 +156,43 @@ type Run = {
 }
 
 function run(tension: number): Run {
-  const line: StringLine = { cells: RING, mass: MASS, tension, capacity: 4 }
+  const line: StringLine = {
+    cells: RING,
+    mass: MASS,
+    tension,
+    capacity: 4,
+  }
   const vibe = new Int8Array(RING)
   // the cluster and, half the ring away, its charge conjugate, so the ring's total is 0 and Gauss's law closes
   const cluster = [1, 1, 1, 1, -1]
-  const placed: [number, number][] = [...cluster.map((v, i) => [START + i, v] as [number, number]), ...cluster.map((v, i) => [START + RING / 2 + i, -v] as [number, number])]
+  const placed: [number, number][] = [
+    ...cluster.map((v, i) => [START + i, v] as [number, number]),
+    ...cluster.map(
+      (v, i) => [START + RING / 2 + i, -v] as [number, number],
+    ),
+  ]
   const signs = placed.map(([, v]) => v)
 
   for (const [cell, v] of placed) {
     vibe[cell] = v
   }
 
-  const start = stringState({ line, vibe, demon: Int32Array.from({ length: RING }, () => 1) })
+  const start = stringState({
+    line,
+    vibe,
+    demon: Int32Array.from({ length: RING }, () => 1),
+  })
   const e0 = stringEnergy(line, start)
+
   let s: StringState = start
   let exact = gaussHolds(line, start)
   let chargesKept = true
   let orderKept = true
+
   // every charge's position, unwrapped continuously; the charges keep their cyclic order (no two pass), so each
   // beat's occupied cells are matched to them by the rotation of the cyclic list that moves them least
   const positions = placed.map(([cell]) => cell)
+
   let mesonSum = 0
   let spreadSum = 0
   let knotGapLow = Infinity
@@ -159,7 +202,9 @@ function run(tension: number): Run {
     s = stringBeat(line, s, t)
     exact = exact && gaussHolds(line, s) && stringEnergy(line, s) === e0
 
-    const found = [...s.vibe].flatMap((v, cell) => (v !== 0 ? [{ cell, v }] : []))
+    const found = [...s.vibe].flatMap((v, cell) =>
+      v !== 0 ? [{ cell, v }] : [],
+    )
 
     chargesKept = chargesKept && found.length === positions.length
 
@@ -183,14 +228,23 @@ function run(tension: number): Run {
       }
 
       positions.forEach((p, k) => {
-        const c = found[(k + bestShift) % found.length] ?? { cell: 0, v: 0 }
+        const c = found[(k + bestShift) % found.length] ?? {
+          cell: 0,
+          v: 0,
+        }
 
         orderKept = orderKept && c.v === signs[k]
         positions[k] = unwrap(c.cell, p)
       })
     }
 
-    const [p0, p1, p2, p3, p4] = positions as [number, number, number, number, number]
+    const [p0, p1, p2, p3, p4] = positions as [
+      number,
+      number,
+      number,
+      number,
+      number,
+    ]
 
     mesonSum += p4 - p3
     spreadSum += p2 - p0
@@ -207,9 +261,21 @@ function run(tension: number): Run {
     back = stringBeatBack(line, back, t)
   }
 
-  const reverses = back.vibe.every((v, i) => v === start.vibe[i]) && back.flux.every((v, i) => v === start.flux[i]) && back.demon.every((v, i) => v === start.demon[i])
+  const reverses =
+    back.vibe.every((v, i) => v === start.vibe[i]) &&
+    back.flux.every((v, i) => v === start.flux[i]) &&
+    back.demon.every((v, i) => v === start.demon[i])
 
-  return { exact, reverses, chargesKept, orderKept, mesonGap: mesonSum / BEATS, tripleSpread: spreadSum / BEATS, knotGapLow, knotGapHigh }
+  return {
+    exact,
+    reverses,
+    chargesKept,
+    orderKept,
+    mesonGap: mesonSum / BEATS,
+    tripleSpread: spreadSum / BEATS,
+    knotGapLow,
+    knotGapHigh,
+  }
 }
 
 export default experiment({
@@ -222,7 +288,12 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const line: StringLine = { cells: WINDOW_CELLS, mass: MASS, tension: TENSION, capacity: 0 }
+    const line: StringLine = {
+      cells: WINDOW_CELLS,
+      mass: MASS,
+      tension: TENSION,
+      capacity: 0,
+    }
 
     // G1
     const knots: Knot[] = []
@@ -235,11 +306,16 @@ export default experiment({
       }
     }
 
-    const least = new Map(knots.map(k => [`${k.n},${k.m}`, leastEnergy(line, k)]))
-    const energyOf = (k: Knot): number => least.get(`${k.n},${k.m}`) ?? NaN
+    const least = new Map(
+      knots.map(k => [`${k.n},${k.m}`, leastEnergy(line, k)]),
+    )
+    const energyOf = (k: Knot): number =>
+      least.get(`${k.n},${k.m}`) ?? NaN
     const rows = knots.map(k => {
       const e = energyOf(k)
-      const formula = MASS * (k.n + k.m) + TENSION * (k.n + k.m - minimalKnots(k))
+      const formula =
+        MASS * (k.n + k.m) + TENSION * (k.n + k.m - minimalKnots(k))
+
       let bestSplit = Infinity
 
       for (let n1 = 0; n1 <= k.n; n1++) {
@@ -253,7 +329,13 @@ export default experiment({
         }
       }
 
-      return { ...k, e, formula, binding: Number.isFinite(bestSplit) ? e - bestSplit : NaN, composite: Number.isFinite(bestSplit) }
+      return {
+        ...k,
+        e,
+        formula,
+        binding: Number.isFinite(bestSplit) ? e - bestSplit : NaN,
+        composite: Number.isFinite(bestSplit),
+      }
     })
     const composite = rows.filter(r => r.composite)
     const minimal = rows.filter(r => !r.composite)
@@ -261,23 +343,52 @@ export default experiment({
       rows.every(r => Number.isInteger(r.e) && r.e === r.formula) &&
       composite.length === 8 &&
       composite.every(r => r.binding === 0) &&
-      minimal.map(r => `${r.n},${r.m}`).sort().join(' ') === '0,3 1,1 3,0'
+      minimal
+        .map(r => `${r.n},${r.m}`)
+        .sort()
+        .join(' ') === '0,3 1,1 3,0'
 
     // G2: split energies against the gap d, charges placed from cell 5
-    const splitEnergy = (left: readonly number[], right: readonly number[], d: number): number =>
-      lineEnergy(line, [...left.map((v, i) => [5 + i, v] as [number, number]), ...right.map((v, i) => [5 + left.length + d + i, v] as [number, number])])
-    const slopes = (left: readonly number[], right: readonly number[]): number[] =>
-      Array.from({ length: 8 }, (_, d) => splitEnergy(left, right, d + 1) - splitEnergy(left, right, d))
+    const splitEnergy = (
+      left: readonly number[],
+      right: readonly number[],
+      d: number,
+    ): number =>
+      lineEnergy(line, [
+        ...left.map((v, i) => [5 + i, v] as [number, number]),
+        ...right.map(
+          (v, i) => [5 + left.length + d + i, v] as [number, number],
+        ),
+      ])
+    const slopes = (
+      left: readonly number[],
+      right: readonly number[],
+    ): number[] =>
+      Array.from(
+        { length: 8 },
+        (_, d) =>
+          splitEnergy(left, right, d + 1) - splitEnergy(left, right, d),
+      )
+
     // a minimal knot's cheapest split at each d: over every cut of every ordering of its charges
     const minimalSlopes = (k: Knot): number[] => {
       const orderings = new Set<string>()
-      const charges = [...new Array<number>(k.n).fill(1), ...new Array<number>(k.m).fill(-1)]
+      const charges = [
+        ...new Array<number>(k.n).fill(1),
+        ...new Array<number>(k.m).fill(-1),
+      ]
+
       const permute = (rest: number[], prefix: number[]): void => {
         if (rest.length === 0) {
           orderings.add(prefix.join(','))
         }
 
-        rest.forEach((c, i) => permute([...rest.slice(0, i), ...rest.slice(i + 1)], [...prefix, c]))
+        rest.forEach((c, i) =>
+          permute(
+            [...rest.slice(0, i), ...rest.slice(i + 1)],
+            [...prefix, c],
+          ),
+        )
       }
 
       permute(charges, [])
@@ -289,18 +400,31 @@ export default experiment({
           const list = o.split(',').map(Number)
 
           for (let cut = 1; cut < list.length; cut++) {
-            best = Math.min(best, splitEnergy(list.slice(0, cut), list.slice(cut), d))
+            best = Math.min(
+              best,
+              splitEnergy(list.slice(0, cut), list.slice(cut), d),
+            )
           }
         }
 
         return best
       }
 
-      return Array.from({ length: 8 }, (_, d) => cheapest(d + 1) - cheapest(d))
+      return Array.from(
+        { length: 8 },
+        (_, d) => cheapest(d + 1) - cheapest(d),
+      )
     }
-    const confinedSlopes = [{ n: 1, m: 1 }, { n: 3, m: 0 }, { n: 0, m: 3 }].map(k => ({ k, slopes: minimalSlopes(k) }))
+
+    const confinedSlopes = [
+      { n: 1, m: 1 },
+      { n: 3, m: 0 },
+      { n: 0, m: 3 },
+    ].map(k => ({ k, slopes: minimalSlopes(k) }))
     const fallApartSlopes = slopes([1, 1, 1], [1, -1])
-    const g2 = confinedSlopes.every(c => c.slopes.every(s => s === TENSION)) && fallApartSlopes.every(s => s === 0)
+    const g2 =
+      confinedSlopes.every(c => c.slopes.every(s => s === TENSION)) &&
+      fallApartSlopes.every(s => s === 0)
 
     // G3, G4: the dynamics
     const bound = run(TENSION)
@@ -321,9 +445,21 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim: `least energies on the line (mass 4, tension 1): ${rows.map(r => `(${r.n}, ${r.m}) ${r.e}${r.composite ? ` binding ${r.binding}` : ' minimal'}`).join(', ')}, every one on the closed form 5 (n + m) - k; splitting a minimal knot costs ${confinedSlopes.map(c => `(${c.k.n}, ${c.k.m}) ${c.slopes.join('/')}`).join(', ')} per extra cell, and separating (3, 0) from (1, 1) costs ${fallApartSlopes.join('/')}; in the dynamics the ten charges (the cluster and its conjugate) stay ten and in order (${bound.chargesKept && bound.orderKept}), energy and Gauss exact and the run reversing (${bound.exact && bound.reverses}), the meson's mean gap is ${bound.mesonGap.toFixed(2)} cells (${free.mesonGap.toFixed(2)} without tension), the triple's mean spread ${bound.tripleSpread.toFixed(2)} (${free.tripleSpread.toFixed(2)}), and the triple-to-meson distance ranges over ${(bound.knotGapHigh - bound.knotGapLow).toFixed(2)} cells`,
       metrics: {
-        ...Object.fromEntries(rows.flatMap(r => [[`least_${r.n}_${r.m}`, r.e], ...(r.composite ? [[`binding_${r.n}_${r.m}`, r.binding]] : [])])),
+        ...Object.fromEntries(
+          rows.flatMap(r => [
+            [`least_${r.n}_${r.m}`, r.e],
+            ...(r.composite
+              ? [[`binding_${r.n}_${r.m}`, r.binding]]
+              : []),
+          ]),
+        ),
         compositeKnots: composite.length,
-        ...Object.fromEntries(confinedSlopes.map(c => [`confinedSlope_${c.k.n}_${c.k.m}`, Math.min(...c.slopes)])),
+        ...Object.fromEntries(
+          confinedSlopes.map(c => [
+            `confinedSlope_${c.k.n}_${c.k.m}`,
+            Math.min(...c.slopes),
+          ]),
+        ),
         fallApartSlopeMax: Math.max(...fallApartSlopes.map(Math.abs)),
         mesonMeanGap: bound.mesonGap,
         tripleMeanSpread: bound.tripleSpread,
@@ -337,7 +473,7 @@ export default experiment({
         freeKnotGapRange: free.knotGapHigh - free.knotGapLow,
       },
       notes:
-        'L2 (L1 for the exact energies). FIRST RUN, DISCLOSED, and this is the second: the first run failed three clauses, all harness errors, and the fixes are stated here. (1) G1 required 7 composite knots with n + m <= 7; there are 8 ((2, 2), (3, 3), (1, 4), (4, 1), (2, 5), (5, 2), (0, 6), (6, 0)), and all 8 read binding 0 on the first run, so the count in the gate was corrected to 8. (2) The first run put + + + + - alone on the ring, whose total charge 3 leaves Gauss\'s law unsatisfiable at the seam (the flux must rise by 3 around a closed ring), so the Gauss clause failed from beat 0; tmp/probe-string-net.ts confirmed the rule itself reversed exactly and kept five charges. The charge-conjugate cluster was added half the ring away, as E-FRC-0129 pairs its baryon with an antibaryon. (3) The first run tracked the charges by sorting positions unwrapped about their mean, which scrambled their identities once the meson had wandered 128 cells (the first run read a triple-to-meson range of 208 cells, a triple spread of 46 and a meson gap of 2.31, with the order flag false for that reason); the charges are now matched by the cyclic rotation that moves them least. The exact energies and slopes are unchanged by (2) and (3). The paid string binds a set only into its minimal knots, (1, 1), (3, 0) and (0, 3): it is confinement, not binding between knots. Four loves and a fear are a triple and a meson side by side, and neither the exact energies (binding exactly 0 against the split, at every separation) nor the dynamics (the two pieces wander apart while each holds) show any attraction between them. So the (4, 1) cluster that holds the natural spin one half (E-SPN-0060) is at best a threshold state of the string, degenerate with its own parts. The same holds on D4 for any energy built from vibe count plus a function of the link flux mod 3 that vanishes at 0, since a knot closes its flux there too; and the paid weave\'s own energy (tones plus counters) does not depend on position at all. Under the committed knit no knot of three even travels as one object (E-FRC-0171, E-SPN-0052). What would bind it has to be something the model does not have yet: an interaction between knots, which in QCD is the residual (Yukawa, E-FRC-0195) force, and which here would have to make the five-body spin one half lower than a triple plus a meson. The fall-apart channel is closed only at zero relative motion (E-SPN-0060), so even a small binding would leave the state unstable to an orbital split unless the binding beats the orbital cost.',
+        "L2 (L1 for the exact energies). FIRST RUN, DISCLOSED, and this is the second: the first run failed three clauses, all harness errors, and the fixes are stated here. (1) G1 required 7 composite knots with n + m <= 7; there are 8 ((2, 2), (3, 3), (1, 4), (4, 1), (2, 5), (5, 2), (0, 6), (6, 0)), and all 8 read binding 0 on the first run, so the count in the gate was corrected to 8. (2) The first run put + + + + - alone on the ring, whose total charge 3 leaves Gauss's law unsatisfiable at the seam (the flux must rise by 3 around a closed ring), so the Gauss clause failed from beat 0; tmp/probe-string-net.ts confirmed the rule itself reversed exactly and kept five charges. The charge-conjugate cluster was added half the ring away, as E-FRC-0129 pairs its baryon with an antibaryon. (3) The first run tracked the charges by sorting positions unwrapped about their mean, which scrambled their identities once the meson had wandered 128 cells (the first run read a triple-to-meson range of 208 cells, a triple spread of 46 and a meson gap of 2.31, with the order flag false for that reason); the charges are now matched by the cyclic rotation that moves them least. The exact energies and slopes are unchanged by (2) and (3). The paid string binds a set only into its minimal knots, (1, 1), (3, 0) and (0, 3): it is confinement, not binding between knots. Four loves and a fear are a triple and a meson side by side, and neither the exact energies (binding exactly 0 against the split, at every separation) nor the dynamics (the two pieces wander apart while each holds) show any attraction between them. So the (4, 1) cluster that holds the natural spin one half (E-SPN-0060) is at best a threshold state of the string, degenerate with its own parts. The same holds on D4 for any energy built from vibe count plus a function of the link flux mod 3 that vanishes at 0, since a knot closes its flux there too; and the paid weave's own energy (tones plus counters) does not depend on position at all. Under the committed knit no knot of three even travels as one object (E-FRC-0171, E-SPN-0052). What would bind it has to be something the model does not have yet: an interaction between knots, which in QCD is the residual (Yukawa, E-FRC-0195) force, and which here would have to make the five-body spin one half lower than a triple plus a meson. The fall-apart channel is closed only at zero relative motion (E-SPN-0060), so even a small binding would leave the state unstable to an orbital split unless the binding beats the orbital cost.",
     })
   },
 })

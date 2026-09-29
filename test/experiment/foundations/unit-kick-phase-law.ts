@@ -126,9 +126,7 @@ function study(input: {
       clockAmplitude(vacuum),
     )
 
-    if (
-      Math.abs(Math.sqrt(pairAbs2(difference)) - ROOT3) < 1e-9
-    ) {
+    if (Math.abs(Math.sqrt(pairAbs2(difference)) - ROOT3) < 1e-9) {
       phases.add(Math.round(phaseDegrees(difference)))
     }
   }
@@ -200,8 +198,7 @@ export default experiment({
       beats: 20,
     })
     const noAccumulation =
-      same(walls2.phases, [30, 150]) &&
-      same(walls3.phases, [30, 150])
+      same(walls2.phases, [30, 150]) && same(walls3.phases, [30, 150])
 
     // 4. the blind control: x walls, the same traveller, the single class exactly
     const blind = study({

@@ -18,7 +18,10 @@
 //
 // NOTHING MOVES: the stream copies values one dock along; this file only compares values.
 
-import { bounceRunner, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  bounceRunner,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
 
 export type WallReading = {
@@ -51,14 +54,26 @@ export type WallInput = {
   readonly edit?: (s: Reduced) => void
 }
 
-const startOf = (cells: number, store: Int8Array, layout: Int8Array): Reduced => ({ vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: Int8Array.from(store), spoint: Int8Array.from(layout) })
+const startOf = (
+  cells: number,
+  store: Int8Array,
+  layout: Int8Array,
+): Reduced => ({
+  vibe: new Int8Array(cells * 24),
+  point: new Int8Array(cells * 24),
+  store: Int8Array.from(store),
+  spoint: Int8Array.from(layout),
+})
 
-export function endDocks(kernel: BounceKernel, inside: Uint8Array): Uint8Array {
+export function endDocks(
+  kernel: BounceKernel,
+  inside: Uint8Array,
+): Uint8Array {
   const end = new Uint8Array(kernel.cells)
 
   for (let x = 0; x < kernel.cells; x++) {
     for (let d = 0; d < 24; d++) {
-      const y = ((kernel.target[x * 24 + d] as number) / 24) | 0
+      const y = (kernel.target[x * 24 + d]! / 24) | 0
 
       if (inside[x] !== inside[y]) {
         end[x] = 1
@@ -71,11 +86,26 @@ export function endDocks(kernel: BounceKernel, inside: Uint8Array): Uint8Array {
 }
 
 export function readWall(input: WallInput): WallReading {
-  const { kernel, layout, store, image, inside, column, columns, from, to, window } = input
+  const {
+    kernel,
+    layout,
+    store,
+    image,
+    inside,
+    column,
+    columns,
+    from,
+    to,
+    window,
+  } = input
   const cells = kernel.cells
   const planted = Int8Array.from(store)
 
-  for (let x = 0; x < cells; x++) if (inside[x]) planted.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+  for (let x = 0; x < cells; x++) {
+    if (inside[x]) {
+      planted.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+    }
+  }
 
   const p0 = startOf(cells, planted, layout)
 
@@ -87,15 +117,24 @@ export function readWall(input: WallInput): WallReading {
   const end = endDocks(kernel, inside)
   const notOwn = new Uint8Array(cells)
   const notOther = new Uint8Array(cells)
-  const out: { departing: number[]; outside: number[]; outsideColumns: number[]; grew: number[] } = { departing: [], outside: [], outsideColumns: [], grew: [] }
+  const out: {
+    departing: number[]
+    outside: number[]
+    outsideColumns: number[]
+    grew: number[]
+  } = { departing: [], outside: [], outsideColumns: [], grew: [] }
+
   let previous: Uint8Array | undefined
   let frozen = true
   let holdsOther = 0
   let holdsNeither = 0
   let windows = 0
+
   const scratch = new Uint8Array(columns)
 
-  if ((to - from) % window !== 0) throw new Error('the reading span must be whole windows')
+  if ((to - from) % window !== 0) {
+    throw new Error('the reading span must be whole windows')
+  }
 
   for (let t = 0; t < to; t++) {
     if (t >= from) {
@@ -111,21 +150,32 @@ export function readWall(input: WallInput): WallReading {
       for (let x = 0; x < cells; x++) {
         const own = inside[x] ? b : a
         const other = inside[x] ? a : b
-        let dOwn = notOwn[x] as number
-        let dOther = notOther[x] as number
+
+        let dOwn = notOwn[x]!
+        let dOther = notOther[x]!
 
         for (let d = 0; d < 24 && !(dOwn && dOther); d++) {
           const v = p.vibe[x * 24 + d]
 
-          if (v !== own.vibe[x * 24 + d]) dOwn = 1
-          if (v !== other.vibe[x * 24 + d]) dOther = 1
+          if (v !== own.vibe[x * 24 + d]) {
+            dOwn = 1
+          }
+
+          if (v !== other.vibe[x * 24 + d]) {
+            dOther = 1
+          }
         }
 
         for (let l = 0; l < 12 && !(dOwn && dOther); l++) {
           const v = p.store[x * 12 + l]
 
-          if (v !== own.store[x * 12 + l]) dOwn = 1
-          if (v !== other.store[x * 12 + l]) dOther = 1
+          if (v !== own.store[x * 12 + l]) {
+            dOwn = 1
+          }
+
+          if (v !== other.store[x * 12 + l]) {
+            dOther = 1
+          }
         }
 
         notOwn[x] = dOwn
@@ -144,24 +194,42 @@ export function readWall(input: WallInput): WallReading {
         holdsNeither = 0
 
         for (let x = 0; x < cells; x++) {
-          if (!notOwn[x]) continue
+          if (!notOwn[x]) {
+            continue
+          }
 
           n++
-          if (notOther[x]) holdsNeither++
-          else holdsOther++
+
+          if (notOther[x]) {
+            holdsNeither++
+          } else {
+            holdsOther++
+          }
+
           if (!end[x]) {
             outside++
-            scratch[column[x] as number] = 1
+            scratch[column[x]!] = 1
           }
-          if (previous && !previous[x]) grew++
+
+          if (previous && !previous[x]) {
+            grew++
+          }
         }
 
-        if (previous) for (let x = 0; x < cells && frozen; x++) frozen = previous[x] === notOwn[x]
+        if (previous) {
+          for (let x = 0; x < cells && frozen; x++) {
+            frozen = previous[x] === notOwn[x]
+          }
+        }
 
         out.departing.push(n)
         out.outside.push(outside)
         out.outsideColumns.push(scratch.reduce((s, v) => s + v, 0))
-        if (previous) out.grew.push(grew)
+
+        if (previous) {
+          out.grew.push(grew)
+        }
+
         previous = Uint8Array.from(notOwn)
       }
     }
@@ -173,9 +241,20 @@ export function readWall(input: WallInput): WallReading {
 
   let endCount = 0
 
-  for (let x = 0; x < cells; x++) endCount += end[x] as number
+  for (let x = 0; x < cells; x++) {
+    endCount += end[x]!
+  }
 
-  const passes = out.outside.every(v => v === 0) && out.grew.every(v => v === 0)
+  const passes =
+    out.outside.every(v => v === 0) && out.grew.every(v => v === 0)
 
-  return { windows, endDocks: endCount, ...out, holdsOther, holdsNeither, frozen, passes }
+  return {
+    windows,
+    endDocks: endCount,
+    ...out,
+    holdsOther,
+    holdsNeither,
+    frozen,
+    passes,
+  }
 }

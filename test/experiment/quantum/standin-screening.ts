@@ -29,13 +29,28 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { greenInfinite, indexOf, standinUnits } from '@/code/measure/standin-chemistry'
-import { ATOM_BOX, atom, centerOf, type Atom } from '@/code/measure/standin-atoms'
+import {
+  greenInfinite,
+  indexOf,
+  standinUnits,
+} from '@/code/measure/standin-chemistry'
+import {
+  ATOM_BOX,
+  atom,
+  centerOf,
+  type Atom,
+} from '@/code/measure/standin-atoms'
 
-const NATURE = { heliumTriplet: 1.1839, lithium: 1.259, sodium: 1.8437, potassium: 2.2593 }
+const NATURE = {
+  heliumTriplet: 1.1839,
+  lithium: 1.259,
+  sodium: 1.8437,
+  potassium: 2.2593,
+}
 const PROFILE_RADII = [1, 2, 3, 6, 9, 12]
 
-const zEffective = (a: Atom): number => a.outer.n * Math.sqrt(Math.max(0, a.ionization))
+const zEffective = (a: Atom): number =>
+  a.outer.n * Math.sqrt(Math.max(0, a.ionization))
 
 export default experiment({
   id: 'quantum/standin-screening',
@@ -48,11 +63,26 @@ export default experiment({
   paper: false,
   run() {
     const units = standinUnits(ATOM_BOX.a0)
-    const control = atom({ box: ATOM_BOX, z: 3, capacity: 2, field: 'none' })
+    const control = atom({
+      box: ATOM_BOX,
+      z: 3,
+      capacity: 2,
+      field: 'none',
+    })
     const heliumTriplet = atom({ box: ATOM_BOX, z: 2, capacity: 1 })
     const lithium = atom({ box: ATOM_BOX, z: 3, capacity: 2 })
-    const sodium = atom({ box: ATOM_BOX, z: 11, capacity: 2, start: lithium.scf.block })
-    const potassium = atom({ box: ATOM_BOX, z: 19, capacity: 2, start: sodium.scf.block })
+    const sodium = atom({
+      box: ATOM_BOX,
+      z: 11,
+      capacity: 2,
+      start: lithium.scf.block,
+    })
+    const potassium = atom({
+      box: ATOM_BOX,
+      z: 19,
+      capacity: 2,
+      start: sodium.scf.block,
+    })
     const measured = { heliumTriplet, lithium, sodium, potassium }
     const metrics: Record<string, number> = {}
     const center = centerOf(ATOM_BOX)
@@ -60,7 +90,8 @@ export default experiment({
     for (const [name, a] of Object.entries(measured)) {
       metrics[`${name}ZEffective`] = zEffective(a)
       metrics[`${name}Nature`] = NATURE[name as keyof typeof NATURE]
-      metrics[`${name}Ratio`] = zEffective(a) / NATURE[name as keyof typeof NATURE]
+      metrics[`${name}Ratio`] =
+        zEffective(a) / NATURE[name as keyof typeof NATURE]
       metrics[`${name}OuterN`] = a.outer.n
       metrics[`${name}OuterL`] = a.outer.l
       metrics[`${name}IonizationRydberg`] = a.ionization
@@ -69,17 +100,37 @@ export default experiment({
 
     // the screened potential of the sodium stand-in along +x
     for (const r of PROFILE_RADII) {
-      const v = sodium.scf.potential[indexOf(ATOM_BOX.side, [center[0] + r, center[1], center[2]])] ?? 0
+      const v =
+        sodium.scf.potential[
+          indexOf(ATOM_BOX.side, [center[0] + r, center[1], center[2]])
+        ] ?? 0
 
-      metrics[`sodiumScreenedChargeAtR${(r / ATOM_BOX.a0).toFixed(3)}`] = -v / (units.kappa * greenInfinite(r, 0, 0))
+      metrics[
+        `sodiumScreenedChargeAtR${(r / ATOM_BOX.a0).toFixed(3)}`
+      ] = -v / (units.kappa * greenInfinite(r, 0, 0))
     }
 
     const controlZ = zEffective(control)
-    const gate1 = Math.abs(controlZ / 3 - 1) < 0.1 && control.outer.n === 2
-    const gate2 = Object.values(measured).every(a => zEffective(a) > 1 && zEffective(a) < a.z)
-    const gate3 = Object.entries(measured).every(([name, a]) => Math.abs(zEffective(a) / NATURE[name as keyof typeof NATURE] - 1) < 0.15)
-    const gate4 = zEffective(lithium) < zEffective(sodium) && zEffective(sodium) < zEffective(potassium)
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const gate1 =
+      Math.abs(controlZ / 3 - 1) < 0.1 && control.outer.n === 2
+    const gate2 = Object.values(measured).every(
+      a => zEffective(a) > 1 && zEffective(a) < a.z,
+    )
+    const gate3 = Object.entries(measured).every(
+      ([name, a]) =>
+        Math.abs(
+          zEffective(a) / NATURE[name as keyof typeof NATURE] - 1,
+        ) < 0.15,
+    )
+    const gate4 =
+      zEffective(lithium) < zEffective(sodium) &&
+      zEffective(sodium) < zEffective(potassium)
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

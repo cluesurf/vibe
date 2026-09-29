@@ -14,7 +14,15 @@
 // The free symbol U(k) is the product of C then diag(e^(-i k_axis), e^(i k_axis)) over the substeps, and the
 // band through quasi-energy 0 at k = 0 bends as phase = (k Q k) / 2: its curvature Q is read off here.
 
-import { type Eisenstein, plus, times, turn, TWO_A, TWO_B, ZERO } from '@/code/rule/fear-walk'
+import {
+  type Eisenstein,
+  plus,
+  times,
+  turn,
+  TWO_A,
+  TWO_B,
+  ZERO,
+} from '@/code/rule/fear-walk'
 
 type Complex = [number, number]
 
@@ -50,12 +58,18 @@ export function uniformField(side: number, quanta: number): Field {
   return { side, thetaX, thetaY }
 }
 
-export type FloatWalk = { re: [Float64Array, Float64Array]; im: [Float64Array, Float64Array] }
+export type FloatWalk = {
+  re: [Float64Array, Float64Array]
+  im: [Float64Array, Float64Array]
+}
 
 export function emptyWalk(side: number): FloatWalk {
   const n = side * side
 
-  return { re: [new Float64Array(n), new Float64Array(n)], im: [new Float64Array(n), new Float64Array(n)] }
+  return {
+    re: [new Float64Array(n), new Float64Array(n)],
+    im: [new Float64Array(n), new Float64Array(n)],
+  }
 }
 
 function coin(w: FloatWalk): void {
@@ -74,7 +88,12 @@ function coin(w: FloatWalk): void {
   }
 }
 
-function stream(w: FloatWalk, field: Field, axis: 'x' | 'y', charge: number): void {
+function stream(
+  w: FloatWalk,
+  field: Field,
+  axis: 'x' | 'y',
+  charge: number,
+): void {
   const side = field.side
   const theta = axis === 'x' ? field.thetaX : field.thetaY
   const next: FloatWalk = emptyWalk(side)
@@ -82,16 +101,33 @@ function stream(w: FloatWalk, field: Field, axis: 'x' | 'y', charge: number): vo
   for (let y = 0; y < side; y++) {
     for (let x = 0; x < side; x++) {
       const i = x + side * y
-      const forward = axis === 'x' ? ((x + 1) % side) + side * y : x + side * ((y + 1) % side)
-      const back = axis === 'x' ? ((x - 1 + side) % side) + side * y : x + side * ((y - 1 + side) % side)
+      const forward =
+        axis === 'x'
+          ? ((x + 1) % side) + side * y
+          : x + side * ((y + 1) % side)
+      const back =
+        axis === 'x'
+          ? ((x - 1 + side) % side) + side * y
+          : x + side * ((y - 1 + side) % side)
       // slot 0 crosses the link i -> forward with e^(i q theta_i); slot 1 crosses the link back -> i backward
       const p = charge * (theta[i] ?? 0)
       const q = -charge * (theta[back] ?? 0)
 
-      next.re[0][forward] = (w.re[0][i] ?? 0) * Math.cos(p) - (w.im[0][i] ?? 0) * Math.sin(p)
-      next.im[0][forward] = (w.re[0][i] ?? 0) * Math.sin(p) + (w.im[0][i] ?? 0) * Math.cos(p)
-      next.re[1][back] = (w.re[1][i] ?? 0) * Math.cos(q) - (w.im[1][i] ?? 0) * Math.sin(q)
-      next.im[1][back] = (w.re[1][i] ?? 0) * Math.sin(q) + (w.im[1][i] ?? 0) * Math.cos(q)
+      next.re[0][forward] =
+        (w.re[0][i] ?? 0) * Math.cos(p) -
+        (w.im[0][i] ?? 0) * Math.sin(p)
+
+      next.im[0][forward] =
+        (w.re[0][i] ?? 0) * Math.sin(p) +
+        (w.im[0][i] ?? 0) * Math.cos(p)
+
+      next.re[1][back] =
+        (w.re[1][i] ?? 0) * Math.cos(q) -
+        (w.im[1][i] ?? 0) * Math.sin(q)
+
+      next.im[1][back] =
+        (w.re[1][i] ?? 0) * Math.sin(q) +
+        (w.im[1][i] ?? 0) * Math.cos(q)
     }
   }
 
@@ -102,7 +138,12 @@ function stream(w: FloatWalk, field: Field, axis: 'x' | 'y', charge: number): vo
 }
 
 // one beat, in place: for each axis of the order, the coin and then a stream along it
-export function chargedBeat(w: FloatWalk, field: Field, charge: number, order: Order): void {
+export function chargedBeat(
+  w: FloatWalk,
+  field: Field,
+  charge: number,
+  order: Order,
+): void {
   for (const axis of order) {
     coin(w)
     stream(w, field, axis, charge)
@@ -112,11 +153,23 @@ export function chargedBeat(w: FloatWalk, field: Field, charge: number, order: O
 export type ExactSlots = [Eisenstein[], Eisenstein[]]
 
 // the exact beat, the field given as thirds: kx[i], ky[i] with theta = 2 pi k / 3
-export function exactChargedBeat(side: number, slots: ExactSlots, kx: Int32Array, ky: Int32Array, charge: number, order: Order): ExactSlots {
+export function exactChargedBeat(
+  side: number,
+  slots: ExactSlots,
+  kx: Int32Array,
+  ky: Int32Array,
+  charge: number,
+  order: Order,
+): ExactSlots {
   const coinExact = (s: ExactSlots): ExactSlots => [
-    s[0].map((r, i) => plus(times(TWO_A, r), times(TWO_B, s[1][i] ?? ZERO))),
-    s[1].map((l, i) => plus(times(TWO_B, s[0][i] ?? ZERO), times(TWO_A, l))),
+    s[0].map((r, i) =>
+      plus(times(TWO_A, r), times(TWO_B, s[1][i] ?? ZERO)),
+    ),
+    s[1].map((l, i) =>
+      plus(times(TWO_B, s[0][i] ?? ZERO), times(TWO_A, l)),
+    ),
   ]
+
   const streamExact = (s: ExactSlots, axis: 'x' | 'y'): ExactSlots => {
     const k = axis === 'x' ? kx : ky
     const out: ExactSlots = [s[0].map(() => ZERO), s[1].map(() => ZERO)]
@@ -124,8 +177,14 @@ export function exactChargedBeat(side: number, slots: ExactSlots, kx: Int32Array
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
         const i = x + side * y
-        const forward = axis === 'x' ? ((x + 1) % side) + side * y : x + side * ((y + 1) % side)
-        const back = axis === 'x' ? ((x - 1 + side) % side) + side * y : x + side * ((y - 1 + side) % side)
+        const forward =
+          axis === 'x'
+            ? ((x + 1) % side) + side * y
+            : x + side * ((y + 1) % side)
+        const back =
+          axis === 'x'
+            ? ((x - 1 + side) % side) + side * y
+            : x + side * ((y - 1 + side) % side)
 
         out[0][forward] = turn(s[0][i] ?? ZERO, charge * (k[i] ?? 0))
         out[1][back] = turn(s[1][i] ?? ZERO, -charge * (k[back] ?? 0))
@@ -144,22 +203,45 @@ export function exactChargedBeat(side: number, slots: ExactSlots, kx: Int32Array
   return out
 }
 
-const mul = (p: Complex, q: Complex): Complex => [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0]]
-const add = (p: Complex, q: Complex): Complex => [p[0] + q[0], p[1] + q[1]]
+const mul = (p: Complex, q: Complex): Complex => [
+  p[0] * q[0] - p[1] * q[1],
+  p[0] * q[1] + p[1] * q[0],
+]
+const add = (p: Complex, q: Complex): Complex => [
+  p[0] + q[0],
+  p[1] + q[1],
+]
 const expi = (t: number): Complex => [Math.cos(t), Math.sin(t)]
 const matmul = (m: Complex[][], n: Complex[][]): Complex[][] =>
-  [0, 1].map(i => [0, 1].map(j => add(mul(m[i]?.[0] ?? [0, 0], n[0]?.[j] ?? [0, 0]), mul(m[i]?.[1] ?? [0, 0], n[1]?.[j] ?? [0, 0]))))
+  [0, 1].map(i =>
+    [0, 1].map(j =>
+      add(
+        mul(m[i]?.[0] ?? [0, 0], n[0]?.[j] ?? [0, 0]),
+        mul(m[i]?.[1] ?? [0, 0], n[1]?.[j] ?? [0, 0]),
+      ),
+    ),
+  )
 
 // the free symbol U(k) of one beat
-export function symbol(kx: number, ky: number, order: Order): Complex[][] {
+export function symbol(
+  kx: number,
+  ky: number,
+  order: Order,
+): Complex[][] {
   const coinMatrix: Complex[][] = [
     [A, B],
     [B, A],
   ]
 
   let u: Complex[][] = [
-    [[1, 0], [0, 0]],
-    [[0, 0], [1, 0]],
+    [
+      [1, 0],
+      [0, 0],
+    ],
+    [
+      [0, 0],
+      [1, 0],
+    ],
   ]
 
   for (const axis of order) {
@@ -178,10 +260,17 @@ export function symbol(kx: number, ky: number, order: Order): Complex[][] {
 }
 
 // the eigenphases of U(k), each in (-pi, pi]
-export function symbolPhases(kx: number, ky: number, order: Order): [number, number] {
+export function symbolPhases(
+  kx: number,
+  ky: number,
+  order: Order,
+): [number, number] {
   const u = symbol(kx, ky, order)
   const tr = add(u[0]?.[0] ?? [0, 0], u[1]?.[1] ?? [0, 0])
-  const det = add(mul(u[0]?.[0] ?? [0, 0], u[1]?.[1] ?? [0, 0]), mul([-1, 0], mul(u[0]?.[1] ?? [0, 0], u[1]?.[0] ?? [0, 0])))
+  const det = add(
+    mul(u[0]?.[0] ?? [0, 0], u[1]?.[1] ?? [0, 0]),
+    mul([-1, 0], mul(u[0]?.[1] ?? [0, 0], u[1]?.[0] ?? [0, 0])),
+  )
   const disc = add(mul(tr, tr), mul([-4, 0], det))
   const r = Math.sqrt(Math.hypot(disc[0], disc[1]))
   const phi = Math.atan2(disc[1], disc[0]) / 2
@@ -193,7 +282,12 @@ export function symbolPhases(kx: number, ky: number, order: Order): [number, num
 }
 
 // the eigenvector of U(k) for the eigenphase nearest `target`
-export function symbolVector(kx: number, ky: number, target: number, order: Order): { re: [number, number]; im: [number, number] } {
+export function symbolVector(
+  kx: number,
+  ky: number,
+  target: number,
+  order: Order,
+): { re: [number, number]; im: [number, number] } {
   const [p1, p2] = symbolPhases(kx, ky, order)
   const phase = Math.abs(p1 - target) < Math.abs(p2 - target) ? p1 : p2
   const u = symbol(kx, ky, order)
@@ -202,17 +296,24 @@ export function symbolVector(kx: number, ky: number, target: number, order: Orde
   const v1 = add(expi(phase), mul([-1, 0], u[0]?.[0] ?? [0, 0]))
   const norm = Math.hypot(v0[0], v0[1], v1[0], v1[1])
 
-  return { re: [v0[0] / norm, v1[0] / norm], im: [v0[1] / norm, v1[1] / norm] }
+  return {
+    re: [v0[0] / norm, v1[0] / norm],
+    im: [v0[1] / norm, v1[1] / norm],
+  }
 }
 
 // the curvature Q of the band through phase 0 at k = 0, phase = (k Q k) / 2, as [Qxx, Qyy, Qxy], and its
 // eigenvalues: a bowl when both have one sign, a saddle when they differ
-export function bandCurvature(order: Order, k = 1e-3): { q: [number, number, number]; eigen: [number, number] } {
+export function bandCurvature(
+  order: Order,
+  k = 1e-3,
+): { q: [number, number, number]; eigen: [number, number] } {
   const near = (kx: number, ky: number): number => {
     const p = symbolPhases(kx, ky, order)
 
     return Math.abs(p[0]) < Math.abs(p[1]) ? p[0] : p[1]
   }
+
   const qxx = (2 * near(k, 0)) / (k * k)
   const qyy = (2 * near(0, k)) / (k * k)
   const qxy = (near(k, k) - near(k, 0) - near(0, k)) / (k * k)
@@ -232,7 +333,11 @@ export function centroid(w: FloatWalk, side: number): [number, number] {
   for (let y = 0; y < side; y++) {
     for (let x = 0; x < side; x++) {
       const i = x + side * y
-      const p = (w.re[0][i] ?? 0) ** 2 + (w.im[0][i] ?? 0) ** 2 + (w.re[1][i] ?? 0) ** 2 + (w.im[1][i] ?? 0) ** 2
+      const p =
+        (w.re[0][i] ?? 0) ** 2 +
+        (w.im[0][i] ?? 0) ** 2 +
+        (w.re[1][i] ?? 0) ** 2 +
+        (w.im[1][i] ?? 0) ** 2
 
       cx += p * Math.cos((2 * Math.PI * x) / side)
       sx += p * Math.sin((2 * Math.PI * x) / side)
@@ -241,13 +346,23 @@ export function centroid(w: FloatWalk, side: number): [number, number] {
     }
   }
 
-  const wrap = (c: number, s: number): number => ((Math.atan2(s, c) / (2 * Math.PI)) * side + side) % side
+  const wrap = (c: number, s: number): number =>
+    ((Math.atan2(s, c) / (2 * Math.PI)) * side + side) % side
 
   return [wrap(cx, sx), wrap(cy, sy)]
 }
 
 // a Gaussian packet of width sigma at (x0, y0) with wave vector (kx, ky) on the band through phase `target`
-export function packet(input: { side: number; x0: number; y0: number; sigma: number; kx: number; ky: number; target: number; order: Order }): FloatWalk {
+export function packet(input: {
+  side: number
+  x0: number
+  y0: number
+  sigma: number
+  kx: number
+  ky: number
+  target: number
+  order: Order
+}): FloatWalk {
   const { side, x0, y0, sigma, kx, ky } = input
   const w = emptyWalk(side)
   const v = symbolVector(kx, ky, input.target, input.order)
@@ -285,18 +400,29 @@ export function packet(input: { side: number; x0: number; y0: number; sigma: num
 }
 
 export function copyWalk(w: FloatWalk): FloatWalk {
-  return { re: [Float64Array.from(w.re[0]), Float64Array.from(w.re[1])], im: [Float64Array.from(w.im[0]), Float64Array.from(w.im[1])] }
+  return {
+    re: [Float64Array.from(w.re[0]), Float64Array.from(w.re[1])],
+    im: [Float64Array.from(w.im[0]), Float64Array.from(w.im[1])],
+  }
 }
 
 // <a | b>
-export function overlapOf(a: FloatWalk, b: FloatWalk): [number, number] {
+export function overlapOf(
+  a: FloatWalk,
+  b: FloatWalk,
+): [number, number] {
   let re = 0
   let im = 0
 
   for (const s of [0, 1] as const) {
     for (let i = 0; i < a.re[s].length; i++) {
-      re += (a.re[s][i] ?? 0) * (b.re[s][i] ?? 0) + (a.im[s][i] ?? 0) * (b.im[s][i] ?? 0)
-      im += (a.re[s][i] ?? 0) * (b.im[s][i] ?? 0) - (a.im[s][i] ?? 0) * (b.re[s][i] ?? 0)
+      re +=
+        (a.re[s][i] ?? 0) * (b.re[s][i] ?? 0) +
+        (a.im[s][i] ?? 0) * (b.im[s][i] ?? 0)
+
+      im +=
+        (a.re[s][i] ?? 0) * (b.im[s][i] ?? 0) -
+        (a.im[s][i] ?? 0) * (b.re[s][i] ?? 0)
     }
   }
 

@@ -95,7 +95,15 @@ import { coinData } from '@/code/measure/varying-vacuum'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { startFamily } from '@/code/measure/start-ensemble'
 import { cell4 } from '@/code/measure/coset-walls'
-import { CASES, LATTICE_KEEPING, SIDE, readMember, type CaseName, type CoreReading, type MemberReading } from '@/code/measure/wall-core'
+import {
+  CASES,
+  LATTICE_KEEPING,
+  SIDE,
+  readMember,
+  type CaseName,
+  type CoreReading,
+  type MemberReading,
+} from '@/code/measure/wall-core'
 
 // E-RLT-0090's record of the strict departure docks over its 17 starts (min over starts and windows, max likewise)
 const RECORD: Record<CaseName, [number, number]> = {
@@ -107,11 +115,16 @@ const RECORD: Record<CaseName, [number, number]> = {
   '2r0': [432, 432],
 }
 
-const max = (xs: readonly number[]): number => (xs.length === 0 ? 0 : Math.max(...xs))
-const min = (xs: readonly number[]): number => (xs.length === 0 ? 0 : Math.min(...xs))
-const range = (xs: readonly number[]): string => (xs.length === 0 ? 'none' : `${min(xs)}..${max(xs)}`)
-const primePasses = (c: CoreReading): boolean => c.outside.every(v => v === 0) && c.grew.every(v => v === 0)
-const cPasses = (c: CoreReading): boolean => c.bulkDeparture.every(v => v === 0)
+const max = (xs: readonly number[]): number =>
+  xs.length === 0 ? 0 : Math.max(...xs)
+const min = (xs: readonly number[]): number =>
+  xs.length === 0 ? 0 : Math.min(...xs)
+const range = (xs: readonly number[]): string =>
+  xs.length === 0 ? 'none' : `${min(xs)}..${max(xs)}`
+const primePasses = (c: CoreReading): boolean =>
+  c.outside.every(v => v === 0) && c.grew.every(v => v === 0)
+const cPasses = (c: CoreReading): boolean =>
+  c.bulkDeparture.every(v => v === 0)
 
 export default experiment({
   id: 'relativity/wall-core',
@@ -129,20 +142,49 @@ export default experiment({
     const members = startFamily(16)
     const results: MemberReading[] = []
 
-    for (const member of members) results.push(readMember(coins, cell, member, member.name === 'integer+0'))
+    for (const member of members) {
+      results.push(
+        readMember(coins, cell, member, member.name === 'integer+0'),
+      )
+    }
 
-    const def = results[0] as MemberReading
-    const controls = def.controls as NonNullable<MemberReading['controls']>
-    const gateA = results.every(r => max(r.alone.departing) === 0 && max(r.alone.strictDocks) === 0 && r.alone.windows === 20)
-    const strictMin = (n: CaseName): number => min(results.map(r => min(r.cases[n].strictDocks)))
-    const strictMax = (n: CaseName): number => max(results.map(r => max(r.cases[n].strictDocks)))
-    const gateR = results.every(r => r.stepErrors === 0) && CASES.every(n => strictMin(n) === RECORD[n][0] && strictMax(n) === RECORD[n][1])
+    const def = results[0]!
+    const controls = def.controls!
+    const gateA = results.every(
+      r =>
+        max(r.alone.departing) === 0 &&
+        max(r.alone.strictDocks) === 0 &&
+        r.alone.windows === 20,
+    )
+    const strictMin = (n: CaseName): number =>
+      min(results.map(r => min(r.cases[n].strictDocks)))
+    const strictMax = (n: CaseName): number =>
+      max(results.map(r => max(r.cases[n].strictDocks)))
+    const gateR =
+      results.every(r => r.stepErrors === 0) &&
+      CASES.every(
+        n =>
+          strictMin(n) === RECORD[n][0] &&
+          strictMax(n) === RECORD[n][1],
+      )
     const gateK = CASES.every(n => controls[n].informative)
-    const primeOn = (n: CaseName): number => results.filter(r => primePasses(r.cases[n])).length
-    const cOn = (n: CaseName): number => results.filter(r => cPasses(r.cases[n])).length
-    const allSix = CASES.every(n => primeOn(n) === results.length && cOn(n) === results.length)
-    const fourHold = LATTICE_KEEPING.every(n => primeOn(n) === results.length && cOn(n) === results.length)
-    const status = !(gateA && gateR && gateK) ? 'partial' : allSix ? 'pass' : fourHold ? 'partial' : 'fail'
+    const primeOn = (n: CaseName): number =>
+      results.filter(r => primePasses(r.cases[n])).length
+    const cOn = (n: CaseName): number =>
+      results.filter(r => cPasses(r.cases[n])).length
+    const allSix = CASES.every(
+      n => primeOn(n) === results.length && cOn(n) === results.length,
+    )
+    const fourHold = LATTICE_KEEPING.every(
+      n => primeOn(n) === results.length && cOn(n) === results.length,
+    )
+    const status = !(gateA && gateR && gateK)
+      ? 'partial'
+      : allSix
+        ? 'pass'
+        : fourHold
+          ? 'partial'
+          : 'fail'
     const metrics: Record<string, number> = {
       gateA: gateA ? 1 : 0,
       gateR: gateR ? 1 : 0,
@@ -157,30 +199,42 @@ export default experiment({
       huskColumns: def.columns,
       docks: SIDE ** 4,
       stepErrorsMax: max(results.map(r => r.stepErrors)),
-      startsWithOtherLinks: results.slice(1).filter(r => r.links.some((v, i) => v !== def.links[i])).length,
+      startsWithOtherLinks: results
+        .slice(1)
+        .filter(r => r.links.some((v, i) => v !== def.links[i])).length,
     }
 
     for (const n of CASES) {
       const c = def.cases[n]
       const k = controls[n]
-      const over = (f: (c: CoreReading) => number): number[] => results.map(r => f(r.cases[n]))
+      const over = (f: (c: CoreReading) => number): number[] =>
+        results.map(r => f(r.cases[n]))
 
       metrics[`${n}_startsPrime`] = primeOn(n)
       metrics[`${n}_startsC`] = cOn(n)
       metrics[`${n}_idealWalls`] = c.idealWalls
       metrics[`${n}_endDocks`] = c.endDocks
       metrics[`${n}_endColumns`] = c.endColumns
-      metrics[`${n}_outsideColumnsMax`] = max(over(x => max(x.outsideColumns)))
-      metrics[`${n}_outsideColumnsMin`] = min(over(x => min(x.outsideColumns)))
+      metrics[`${n}_outsideColumnsMax`] = max(
+        over(x => max(x.outsideColumns)),
+      )
+
+      metrics[`${n}_outsideColumnsMin`] = min(
+        over(x => min(x.outsideColumns)),
+      )
       metrics[`${n}_outsideDocksMax`] = max(over(x => max(x.outside)))
       metrics[`${n}_outsideDocksMin`] = min(over(x => min(x.outside)))
       metrics[`${n}_departingMax`] = max(over(x => max(x.departing)))
       metrics[`${n}_departingMin`] = min(over(x => min(x.departing)))
       metrics[`${n}_grewMax`] = max(over(x => max(x.grew)))
-      metrics[`${n}_departingColumnsOutsideEndMax`] = max(over(x => max(x.departingColumnsOutsideEnd)))
+      metrics[`${n}_departingColumnsOutsideEndMax`] = max(
+        over(x => max(x.departingColumnsOutsideEnd)),
+      )
       metrics[`${n}_strictMin`] = strictMin(n)
       metrics[`${n}_strictMax`] = strictMax(n)
-      metrics[`${n}_bulkDepartureMax`] = max(over(x => max(x.bulkDeparture)))
+      metrics[`${n}_bulkDepartureMax`] = max(
+        over(x => max(x.bulkDeparture)),
+      )
       metrics[`${n}_bulkDocks`] = c.bulkDocks
       metrics[`${n}_coreDocks`] = c.core.docks
       metrics[`${n}_coreColumns`] = c.core.columns
@@ -199,15 +253,21 @@ export default experiment({
       metrics[`${n}_coreChanged`] = c.core.changed
       metrics[`${n}_edgeOnly`] = c.core.edgeOnly
       metrics[`${n}_edgeOnlyExact`] = c.core.edgeOnlyExact
-      metrics[`${n}_coreFingerprints`] = new Set(results.map(r => JSON.stringify(r.cases[n].core))).size
+      metrics[`${n}_coreFingerprints`] = new Set(
+        results.map(r => JSON.stringify(r.cases[n].core)),
+      ).size
       metrics[`${n}_K_informative`] = k.informative ? 1 : 0
       metrics[`${n}_K_oneAwayOutside`] = max(k.oneAway.outside)
       metrics[`${n}_K_deepOutside`] = max(k.deep.outside)
       metrics[`${n}_K_deepDistance`] = k.deepDistance
       metrics[`${n}_K_thickOutside`] = max(k.thick.outside)
       metrics[`${n}_K_growingGrew`] = max(k.growing.grew)
-      metrics[`${n}_K_growingHalfDeparting`] = k.growing.departing[0] ?? 0
-      metrics[`${n}_K_growingFromCleanGrew`] = max(k.growingFromClean.grew)
+      metrics[`${n}_K_growingHalfDeparting`] =
+        k.growing.departing[0] ?? 0
+
+      metrics[`${n}_K_growingFromCleanGrew`] = max(
+        k.growingFromClean.grew,
+      )
       metrics[`${n}_K_fullCoreDeparting`] = max(k.fullCore.departing)
     }
 
@@ -218,6 +278,7 @@ export default experiment({
 
       return `${n}: ideal ${c.idealWalls} wall edges, E ${c.endDocks} docks on ${c.endColumns} of ${def.columns} columns; departing ${range(c.departing)} docks, OUTSIDE E ${range(c.outsideColumns)} columns of ${def.columns} (husk) and ${range(c.outside)} docks of ${SIDE ** 4} (bulk), grew ${range(c.grew)}, shrank ${range(c.shrank)}; strict ${range(c.strictDocks)}, C bulk ${range(c.bulkDeparture)} of ${c.bulkDocks}; departing docks of E holding their own ground state ${k.edgeOnly} (${k.edgeOnlyExact} equal to it trit for trit); core ${k.docks} docks (${k.inside} inside, ${k.outside} outside) on ${k.columns} columns, at most ${k.columnMax} per column; core trits ${k.trits}: quiet ${k.quiet}, novel ${k.novel}, own ${k.own}, other ${k.other}, neither ${k.neither}; per dock differs from own ${k.ownDiffMin}..${k.ownDiffMax} and from other ${k.otherDiffMin}..${k.otherDiffMax} of 216 (vibes ${k.vibeOwnDiff} and stores ${k.storeOwnDiff} from own, vibes ${k.vibeOtherDiff} and stores ${k.storeOtherDiff} from other); stores equal own on ${k.storeEqualsOwn}, vibes equal own on ${k.vibeEqualsOwn} and other on ${k.vibeEqualsOther}; silent ${k.silent}; ${k.histories} distinct core histories; changed first to last window ${k.changed}`
     }
+
     const controlText = CASES.map(n => {
       const k = controls[n]
 

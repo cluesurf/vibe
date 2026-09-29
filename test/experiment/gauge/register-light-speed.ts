@@ -70,7 +70,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { HUSK_DIRECTIONS, gridTop, huskEigen, leapfrogGrowth, loopSplits, photonTopVelocity } from '@/code/measure/one-light-split'
+import {
+  HUSK_DIRECTIONS,
+  gridTop,
+  huskEigen,
+  leapfrogGrowth,
+  loopSplits,
+  photonTopVelocity,
+} from '@/code/measure/one-light-split'
 
 /** The register's one speed on the husk, in D4 coordinates per beat: c / 4 with c = sqrt 2 (E-SPN-0160). */
 const TARGET = Math.SQRT2 / 4
@@ -83,12 +90,19 @@ const LONG_WAVE = 1e-3
 const SPEED_TOLERANCE = 1e-6
 
 /** The long-wave speed sqrt(kappa lambda_1) / t and lambda_1, lambda_2 over |k|^2 along one direction. */
-function longWave(kappa: number, dir: readonly number[]): { speed: number; ratio1: number; ratio2: number } {
+function longWave(
+  kappa: number,
+  dir: readonly number[],
+): { speed: number; ratio1: number; ratio2: number } {
   const norm = Math.hypot(...dir)
   const v = huskEigen(dir.map(x => (x / norm) * LONG_WAVE)).values
   const t2 = LONG_WAVE * LONG_WAVE
 
-  return { speed: Math.sqrt(kappa * (v[1] ?? 0)) / LONG_WAVE, ratio1: (v[1] ?? 0) / t2, ratio2: (v[2] ?? 0) / t2 }
+  return {
+    speed: Math.sqrt(kappa * (v[1] ?? 0)) / LONG_WAVE,
+    ratio1: (v[1] ?? 0) / t2,
+    ratio2: (v[2] ?? 0) / t2,
+  }
 }
 
 export function registerLightSpeedRun(): Verdict {
@@ -102,7 +116,11 @@ export function registerLightSpeedRun(): Verdict {
   for (const dir of HUSK_DIRECTIONS) {
     const w = longWave(KAPPA, dir)
 
-    unitWorst = Math.max(unitWorst, Math.abs(w.ratio1 - 2 / 3), Math.abs(w.ratio2 - 2 / 3))
+    unitWorst = Math.max(
+      unitWorst,
+      Math.abs(w.ratio1 - 2 / 3),
+      Math.abs(w.ratio2 - 2 / 3),
+    )
   }
 
   u1 = unitWorst < 1e-6
@@ -114,7 +132,11 @@ export function registerLightSpeedRun(): Verdict {
   for (let d = 1; d <= 10000; d++) {
     const q = 2 * d + 1
 
-    for (let p = 1; p <= q; p++) if (32 * p === 3 * q) tritCount++
+    for (let p = 1; p <= q; p++) {
+      if (32 * p === 3 * q) {
+        tritCount++
+      }
+    }
   }
 
   const l1 = tritCount === 0
@@ -153,19 +175,23 @@ export function registerLightSpeedRun(): Verdict {
 
       const gap = Math.abs((4 * t) / m - TARGET)
 
-      if (gap < nearest.gap) nearest = { t, m, gap }
+      if (gap < nearest.gap) {
+        nearest = { t, m, gap }
+      }
     }
   }
 
   metrics.balanceNearestT = nearest.t
   metrics.balanceNearestM = nearest.m
   metrics.balanceNearestSpeed = (4 * nearest.t) / nearest.m
-  metrics.balanceNearestMissPercent = ((4 * nearest.t) / nearest.m / TARGET - 1) * 100
+  metrics.balanceNearestMissPercent =
+    ((4 * nearest.t) / nearest.m / TARGET - 1) * 100
 
   // L4
   const g16 = leapfrogGrowth(KAPPA * 16)
   const g12 = leapfrogGrowth(KAPPA * 12)
-  const l4 = KAPPA * 16 === 3 && KAPPA * 12 === 2.25 && g16 === 1 && g12 === 1
+  const l4 =
+    KAPPA * 16 === 3 && KAPPA * 12 === 2.25 && g16 === 1 && g12 === 1
 
   metrics.kappaLambdaTop = KAPPA * 16
   metrics.growthTop = g16
@@ -176,11 +202,16 @@ export function registerLightSpeedRun(): Verdict {
   let topVelocity = 0
 
   for (const dir of HUSK_DIRECTIONS) {
-    speedWorst = Math.max(speedWorst, Math.abs(longWave(KAPPA, dir).speed - TARGET))
+    speedWorst = Math.max(
+      speedWorst,
+      Math.abs(longWave(KAPPA, dir).speed - TARGET),
+    )
     topVelocity = Math.max(topVelocity, photonTopVelocity(KAPPA, dir))
   }
 
-  const l5 = speedWorst < SPEED_TOLERANCE && topVelocity <= TARGET * (1 + SPEED_TOLERANCE)
+  const l5 =
+    speedWorst < SPEED_TOLERANCE &&
+    topVelocity <= TARGET * (1 + SPEED_TOLERANCE)
 
   metrics.longWaveSpeedWorst = speedWorst
   metrics.topGroupVelocity = topVelocity
@@ -188,6 +219,7 @@ export function registerLightSpeedRun(): Verdict {
 
   // C1
   const husk = gridTop(16, 3)
+
   let topD4 = 0
   let topEdge = 0
 
@@ -196,7 +228,10 @@ export function registerLightSpeedRun(): Verdict {
     topEdge = Math.max(topEdge, photonTopVelocity(1 / 4, dir))
   }
 
-  const c1 = Math.abs(husk.top - 16) < 1e-9 && Math.abs(topD4 - 0.3849) < 1e-4 && Math.abs(topEdge - 0.40825) < 1e-4
+  const c1 =
+    Math.abs(husk.top - 16) < 1e-9 &&
+    Math.abs(topD4 - 0.3849) < 1e-4 &&
+    Math.abs(topEdge - 0.40825) < 1e-4
 
   metrics.huskTop = husk.top
   metrics.photonTopD4 = topD4
@@ -204,9 +239,17 @@ export function registerLightSpeedRun(): Verdict {
 
   // C2
   const kappa16 = 2 / 33
+
   let c2Worst = 0
 
-  for (const dir of HUSK_DIRECTIONS) c2Worst = Math.max(c2Worst, Math.abs(longWave(kappa16, dir).speed - Math.sqrt((2 * kappa16) / 3)))
+  for (const dir of HUSK_DIRECTIONS) {
+    c2Worst = Math.max(
+      c2Worst,
+      Math.abs(
+        longWave(kappa16, dir).speed - Math.sqrt((2 * kappa16) / 3),
+      ),
+    )
+  }
 
   const c2 = c2Worst < SPEED_TOLERANCE
 
@@ -215,7 +258,12 @@ export function registerLightSpeedRun(): Verdict {
   // C3
   let c3Worst = 0
 
-  for (const dir of HUSK_DIRECTIONS) c3Worst = Math.max(c3Worst, Math.abs(longWave(3 / 32, dir).speed - 0.25))
+  for (const dir of HUSK_DIRECTIONS) {
+    c3Worst = Math.max(
+      c3Worst,
+      Math.abs(longWave(3 / 32, dir).speed - 0.25),
+    )
+  }
 
   const c3 = c3Worst < SPEED_TOLERANCE && TARGET - 0.25 > 0.1
 
@@ -223,17 +271,32 @@ export function registerLightSpeedRun(): Verdict {
   metrics.quarterDockMiss = TARGET - 0.25
 
   // READ: the adopted relation kappa = 2 / (2D + 1), depths 3 to 7
-  for (let d = 3; d <= 7; d++) metrics[`adoptedMissPercentD${d}`] = (Math.sqrt(4 / (3 * (2 * d + 1))) / TARGET - 1) * 100
+  for (let d = 3; d <= 7; d++) {
+    metrics[`adoptedMissPercentD${d}`] =
+      (Math.sqrt(4 / (3 * (2 * d + 1))) / TARGET - 1) * 100
+  }
 
-  const gates = { U1: u1, L1: l1, L2: l2, L3: l3, L4: l4, L5: l5, C1: c1, C2: c2, C3: c3 }
+  const gates = {
+    U1: u1,
+    L1: l1,
+    L2: l2,
+    L3: l3,
+    L4: l4,
+    L5: l5,
+    C1: c1,
+    C2: c2,
+    C3: c3,
+  }
 
-  for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+  for (const [k, v] of Object.entries(gates)) {
+    metrics[`gate${k}`] = v ? 1 : 0
+  }
 
   metrics.seconds = (Date.now() - started) / 1000
 
   return verdict({
     status: Object.values(gates).every(Boolean) ? 'partial' : 'fail',
-    claim: `in D4 coordinates per beat the register's one speed is c / 4 = sqrt 2 / 4 = ${TARGET.toFixed(6)} (not 0.25: c is the root's length) and the husk light's is sqrt(2 kappa / 3) (lambda / |k|^2 = 2/3 to ${unitWorst.toExponential(1)} on 13 directions), so one speed is kappa = 3/16; the trit column light never has it (32 p = 3 (2D + 1), even against odd, 0 solutions to D = 10,000; nearest adopted depth D = 5 at ${metrics.adoptedMissPercentD5!.toFixed(2)} percent), the quantum loop light has it at every N (16 c r = 3 m^2, m = 4j, c r = 3 j^2; least m = 4, drifts 1 and 3; ${loopCount} splits over N = 5 .. 49) with the ladder's balance rho = 3 (s = 1/4, f = 3/4) but never with the husk's 3D balance rho = 3/8, whose speed 4t / m is rational (nearest ${metrics.balanceNearestSpeed!.toFixed(6)}, ${metrics.balanceNearestMissPercent!.toFixed(3)} percent, at m = ${nearest.m}); at kappa = 3/16 the husk light is stable (kappa lambda at most 3, growth 1), isotropic (long-wave speed sqrt 2 / 4 to ${speedWorst.toExponential(1)} on 13 directions) and its top group velocity is ${metrics.topOverTarget!.toFixed(7)} of sqrt 2 / 4, so the register's speed sits under the stable cap 1/sqrt 6 and the old refusal does not apply`,
+    claim: `in D4 coordinates per beat the register's one speed is c / 4 = sqrt 2 / 4 = ${TARGET.toFixed(6)} (not 0.25: c is the root's length) and the husk light's is sqrt(2 kappa / 3) (lambda / |k|^2 = 2/3 to ${unitWorst.toExponential(1)} on 13 directions), so one speed is kappa = 3/16; the trit column light never has it (32 p = 3 (2D + 1), even against odd, 0 solutions to D = 10,000; nearest adopted depth D = 5 at ${metrics.adoptedMissPercentD5!.toFixed(2)} percent), the quantum loop light has it at every N (16 c r = 3 m^2, m = 4j, c r = 3 j^2; least m = 4, drifts 1 and 3; ${loopCount} splits over N = 5 .. 49) with the ladder's balance rho = 3 (s = 1/4, f = 3/4) but never with the husk's 3D balance rho = 3/8, whose speed 4t / m is rational (nearest ${metrics.balanceNearestSpeed.toFixed(6)}, ${metrics.balanceNearestMissPercent.toFixed(3)} percent, at m = ${nearest.m}); at kappa = 3/16 the husk light is stable (kappa lambda at most 3, growth 1), isotropic (long-wave speed sqrt 2 / 4 to ${speedWorst.toExponential(1)} on 13 directions) and its top group velocity is ${metrics.topOverTarget.toFixed(7)} of sqrt 2 / 4, so the register's speed sits under the stable cap 1/sqrt 6 and the old refusal does not apply`,
     metrics,
     control: {
       huskTop: husk.top,

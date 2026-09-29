@@ -66,8 +66,19 @@ import {
   type GaugeKind,
   type Offset,
 } from '@/code/measure/slide-invariant-operators'
-import { constraintRows, ricciEvolution } from '@/code/measure/line-class-metric'
-import { dyadicMod, inverseMatrixMod, mod, multiplyMod, nullSpaceMod, primeBelow, rankMod } from '@/code/algebra/linear/modular-linear'
+import {
+  constraintRows,
+  ricciEvolution,
+} from '@/code/measure/line-class-metric'
+import {
+  dyadicMod,
+  inverseMatrixMod,
+  mod,
+  multiplyMod,
+  nullSpaceMod,
+  primeBelow,
+  rankMod,
+} from '@/code/algebra/linear/modular-linear'
 import { radionWeight } from '@/code/rule/trit-radion'
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
 import { experiment } from '@/test/scaffold/suite'
@@ -76,20 +87,50 @@ import { verdict } from '@/test/scaffold/verdict'
 const PRIMES = [primeBelow(2 ** 25), primeBelow(2 ** 24)]
 const GEOMETRY = classGeometry()
 // the span map's columns: row s is (A)_{., s}, so a sandwich with it is the metric block A^T C A
-const SPAN_T = PLAIN_SLOTS.map((_, s) => GEOMETRY.span.map(row => row[s]!))
+const SPAN_T = PLAIN_SLOTS.map((_, s) =>
+  GEOMETRY.span.map(row => row[s]!),
+)
 const EXTRAS = extraBasis(GEOMETRY)
 
 const key3 = (r: readonly number[]): string => `${r[0]},${r[1]},${r[2]}`
-const toMod = (m: readonly (readonly number[])[], p: number): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
+const toMod = (
+  m: readonly (readonly number[])[],
+  p: number,
+): number[][] => m.map(row => row.map(x => dyadicMod(x, p)))
 const stack = (...blocks: number[][][]): number[][] => blocks.flat()
 
-type Variant = { name: string; offsets: Offset[]; depthFlip: boolean; gauge: GaugeKind }
+type Variant = {
+  name: string
+  offsets: Offset[]
+  depthFlip: boolean
+  gauge: GaugeKind
+}
 
 const VARIANTS: readonly Variant[] = [
-  { name: 'primary (husk range 2, O_h, central)', offsets: huskBall(2), depthFlip: false, gauge: 'central' },
-  { name: 'own-link slide', offsets: huskBall(2), depthFlip: false, gauge: 'own' },
-  { name: 'cube |r_i| <= 2', offsets: chebyshevBall(2), depthFlip: false, gauge: 'central' },
-  { name: 'O_h x (w -> -w)', offsets: huskBall(2), depthFlip: true, gauge: 'central' },
+  {
+    name: 'primary (husk range 2, O_h, central)',
+    offsets: huskBall(2),
+    depthFlip: false,
+    gauge: 'central',
+  },
+  {
+    name: 'own-link slide',
+    offsets: huskBall(2),
+    depthFlip: false,
+    gauge: 'own',
+  },
+  {
+    name: 'cube |r_i| <= 2',
+    offsets: chebyshevBall(2),
+    depthFlip: false,
+    gauge: 'central',
+  },
+  {
+    name: 'O_h x (w -> -w)',
+    offsets: huskBall(2),
+    depthFlip: true,
+    gauge: 'central',
+  },
 ]
 
 type Counts = {
@@ -117,66 +158,150 @@ type Counts = {
 }
 
 // E-GRV-0125's Einstein-Hilbert operator on the 12 depths, K = A^+T Q(sin p) A^+, per offset, mod p
-function einsteinHilbertKernel(geometry: ClassGeometry, p: number): Map<string, number[][]> {
+function einsteinHilbertKernel(
+  geometry: ClassGeometry,
+  p: number,
+): Map<string, number[][]> {
   const a = toMod(geometry.span, p)
   const at = a[0]!.map((_, j) => a.map(row => row[j]!))
-  const plus = multiplyMod(inverseMatrixMod(multiplyMod(at, a, p), p), at, p)
+  const plus = multiplyMod(
+    inverseMatrixMod(multiplyMod(at, a, p), p),
+    at,
+    p,
+  )
   const plusT = plus[0]!.map((_, j) => plus.map(row => row[j]!))
   const out = new Map<string, number[][]>()
 
-  for (const [k, { value }] of centralSymbolKernel(q => einsteinHilbertForm(q))) out.set(k, multiplyMod(multiplyMod(plusT, toMod(value, p), p), plus, p))
+  for (const [k, { value }] of centralSymbolKernel(q =>
+    einsteinHilbertForm(q),
+  )) {
+    out.set(
+      k,
+      multiplyMod(multiplyMod(plusT, toMod(value, p), p), plus, p),
+    )
+  }
 
   return out
 }
 
 function analyse(v: Variant, p: number): Counts {
-  const space = operatorSpace(v.offsets, classSymmetries(GEOMETRY, v.depthFlip))
+  const space = operatorSpace(
+    v.offsets,
+    classSymmetries(GEOMETRY, v.depthFlip),
+  )
   const P = space.members.length
-  const rows = toMod(invarianceRows(space, slideGauge(GEOMETRY, v.gauge)), p)
+  const rows = toMod(
+    invarianceRows(space, slideGauge(GEOMETRY, v.gauge)),
+    p,
+  )
   const basis = nullSpaceMod(rows, P, p)
-  const basisT = basis.length > 0 ? basis[0]!.map((_, j) => basis.map(b => b[j]!)) : []
-  const onFamily = (m: number[][]): number => (basis.length === 0 ? 0 : rankMod(multiplyMod(toMod(m, p), basisT, p), basis.length, p))
+  const basisT =
+    basis.length > 0
+      ? basis[0]!.map((_, j) => basis.map(b => b[j]!))
+      : []
+  const onFamily = (m: number[][]): number =>
+    basis.length === 0
+      ? 0
+      : rankMod(multiplyMod(toMod(m, p), basisT, p), basis.length, p)
   const one = (): number => 1
-  const first = [0, 1, 2].map(i => (r: Offset): number => r[i]!)
-  const second = PLAIN_SLOTS.map(([i, j]) => (r: Offset): number => r[i]! * r[j]!)
-  const metric = (w: (r: Offset) => number): number[][] => sandwichedMoment(space, SPAN_T, SPAN_T, w)
+  const first = [0, 1, 2].map(
+    i =>
+      (r: Offset): number =>
+        r[i]!,
+  )
+  const second = PLAIN_SLOTS.map(
+    ([i, j]) =>
+      (r: Offset): number =>
+        r[i]! * r[j]!,
+  )
+  const metric = (w: (r: Offset) => number): number[][] =>
+    sandwichedMoment(space, SPAN_T, SPAN_T, w)
   const m0 = metric(one)
   const m1 = stack(...first.map(metric))
   const m2 = stack(...second.map(metric))
   const metricAll = sandwichedKernel(space, SPAN_T, SPAN_T, () => false)
   const e0 = sandwichedMoment(space, EXTRAS, EXTRAS, one)
-  const e2 = stack(...second.map(w => sandwichedMoment(space, EXTRAS, EXTRAS, w)))
-  const eDerivative = sandwichedKernel(space, EXTRAS, EXTRAS, r => r[0] === 0 && r[1] === 0 && r[2] === 0)
+  const e2 = stack(
+    ...second.map(w => sandwichedMoment(space, EXTRAS, EXTRAS, w)),
+  )
+  const eDerivative = sandwichedKernel(
+    space,
+    EXTRAS,
+    EXTRAS,
+    r => r[0] === 0 && r[1] === 0 && r[2] === 0,
+  )
   const c0 = sandwichedMoment(space, EXTRAS, SPAN_T, one)
-  const c2 = stack(...second.map(w => sandwichedMoment(space, EXTRAS, SPAN_T, w)))
+  const c2 = stack(
+    ...second.map(w => sandwichedMoment(space, EXTRAS, SPAN_T, w)),
+  )
   const cAll = sandwichedKernel(space, EXTRAS, SPAN_T, () => false)
 
   // E-GRV-0125's operator as orbit parameters
   const eh = einsteinHilbertKernel(GEOMETRY, p)
   const index = new Map(v.offsets.map((r, i) => [key3(r), i]))
+
   let ehOutside = 0
 
-  for (const [k, m] of eh) if (!index.has(k) && m.some(row => row.some(x => x !== 0))) ehOutside++
+  for (const [k, m] of eh) {
+    if (!index.has(k) && m.some(row => row.some(x => x !== 0))) {
+      ehOutside++
+    }
+  }
 
   let ehOrbitMismatch = 0
+
   const theta = space.members.map(list => {
     const [a0, b0, r0] = list[0]!
     const value = eh.get(key3(v.offsets[r0]!))?.[a0]![b0]! ?? 0
 
-    for (const [a, b, r] of list) if ((eh.get(key3(v.offsets[r]!))?.[a]![b]! ?? 0) !== value) ehOrbitMismatch++
+    for (const [a, b, r] of list) {
+      if ((eh.get(key3(v.offsets[r]!))?.[a]![b]! ?? 0) !== value) {
+        ehOrbitMismatch++
+      }
+    }
 
     return value
   })
-  const ehResidual = multiplyMod(rows, theta.map(x => [x]), p).filter(r => r[0] !== 0).length
+  const ehResidual = multiplyMod(
+    rows,
+    theta.map(x => [x]),
+    p,
+  ).filter(r => r[0] !== 0).length
   const ehInFamily = rankMod([...basis, theta], P, p) === basis.length
-  const m2Family = basis.length === 0 ? [] : multiplyMod(toMod(m2, p), basisT, p)
-  const m2Eh = multiplyMod(toMod(m2, p), theta.map(x => [x]), p).map(r => r[0]!)
+  const m2Family =
+    basis.length === 0 ? [] : multiplyMod(toMod(m2, p), basisT, p)
+  const m2Eh = multiplyMod(
+    toMod(m2, p),
+    theta.map(x => [x]),
+    p,
+  ).map(r => r[0]!)
   const leadingRank = onFamily(m2)
-  const ehLeadingInSpan = rankMod([...(m2Family.length > 0 ? m2Family[0]!.map((_, j) => m2Family.map(r => r[j]!)) : []), m2Eh], m2.length, p) === leadingRank
+  const ehLeadingInSpan =
+    rankMod(
+      [
+        ...(m2Family.length > 0
+          ? m2Family[0]!.map((_, j) => m2Family.map(r => r[j]!))
+          : []),
+        m2Eh,
+      ],
+      m2.length,
+      p,
+    ) === leadingRank
   // the free (no slide) family restricted to operators whose metric p^0 and p^1 vanish, so p^2 is their leading order
   const lowOrder = toMod(stack(m0, m1), p)
   const leadingFree = nullSpaceMod(lowOrder, P, p)
-  const freeLeading = leadingFree.length === 0 ? 0 : rankMod(multiplyMod(toMod(m2, p), leadingFree[0]!.map((_, j) => leadingFree.map(b => b[j]!)), p), leadingFree.length, p)
+  const freeLeading =
+    leadingFree.length === 0
+      ? 0
+      : rankMod(
+          multiplyMod(
+            toMod(m2, p),
+            leadingFree[0]!.map((_, j) => leadingFree.map(b => b[j]!)),
+            p,
+          ),
+          leadingFree.length,
+          p,
+        )
 
   return {
     offsets: v.offsets.length,
@@ -204,15 +329,27 @@ function analyse(v: Variant, p: number): Counts {
 }
 
 // the scalar-only control: every class reads one depth phi, K = k(r) J (J all ones), k cube-symmetric on the offsets
-function scalarOnly(p: number): { parameters: number; invariant: number; uniformTrace: number[]; ttOverlap: number } {
+function scalarOnly(p: number): {
+  parameters: number
+  invariant: number
+  uniformTrace: number[]
+  ttOverlap: number
+} {
   const offsets = huskBall(2)
   const group = classSymmetries(GEOMETRY, false)
   const orbitOf = new Map<string, number>()
+
   let count = 0
 
   for (const r of offsets) {
-    if (orbitOf.has(key3(r))) continue
-    for (const g of group) orbitOf.set(key3(g.offset(r)), count)
+    if (orbitOf.has(key3(r))) {
+      continue
+    }
+
+    for (const g of group) {
+      orbitOf.set(key3(g.offset(r)), count)
+    }
+
     count++
   }
 
@@ -226,18 +363,36 @@ function scalarOnly(p: number): { parameters: number; invariant: number; uniform
       for (const g of gauge) {
         const k = `${a},${g.component},${key3([r[0] + g.offset[0], r[1] + g.offset[1], r[2] + g.offset[2]])}`
 
-        if (!rows.has(k)) rows.set(k, new Array<number>(count).fill(0))
+        if (!rows.has(k)) {
+          rows.set(k, new Array<number>(count).fill(0))
+        }
+
         rows.get(k)![t]! += g.value
       }
     }
   }
 
-  const invariant = nullSpaceMod(toMod([...rows.values()], p), count, p).length
+  const invariant = nullSpaceMod(
+    toMod([...rows.values()], p),
+    count,
+    p,
+  ).length
   // 1^T A: the uniform mode's metric content, and its overlap with the two TT polarizations along z
-  const uniformTrace = PLAIN_SLOTS.map((_, s) => GEOMETRY.span.reduce((t, row) => t + row[s]!, 0))
+  const uniformTrace = PLAIN_SLOTS.map((_, s) =>
+    GEOMETRY.span.reduce((t, row) => t + row[s]!, 0),
+  )
   const plus = [1, -1, 0, 0, 0, 0]
   const cross = [0, 0, 0, 1, 0, 0]
-  const ttOverlap = Math.max(...[plus, cross].map(e => Math.abs(GEOMETRY.span.reduce((t, row) => t + row.reduce((u, x, s) => u + x * e[s]!, 0), 0))))
+  const ttOverlap = Math.max(
+    ...[plus, cross].map(e =>
+      Math.abs(
+        GEOMETRY.span.reduce(
+          (t, row) => t + row.reduce((u, x, s) => u + x * e[s]!, 0),
+          0,
+        ),
+      ),
+    ),
+  )
 
   return { parameters: count, invariant, uniformTrace, ttOverlap }
 }
@@ -247,6 +402,7 @@ function scalarOnly(p: number): { parameters: number; invariant: number; uniform
 function huskOperatorResidual(p: number, uniform: boolean): number {
   const gauge = slideGauge(GEOMETRY, 'central')
   const kernel = new Map<string, { r: number[]; w: number }>()
+
   let centre = 0
 
   TRIT_HUSK_VECTORS.forEach((u, h) => {
@@ -263,9 +419,14 @@ function huskOperatorResidual(p: number, uniform: boolean): number {
   for (const { r, w } of kernel.values()) {
     for (let a = 0; a < 12; a++) {
       for (let b = 0; b < 12; b++) {
-        if (!uniform && a !== b) continue
+        if (!uniform && a !== b) {
+          continue
+        }
+
         for (const g of gauge) {
-          if (g.class !== b) continue
+          if (g.class !== b) {
+            continue
+          }
 
           const k = `${a},${g.component},${key3([r[0]! + g.offset[0], r[1]! + g.offset[1], r[2]! + g.offset[2]])}`
 
@@ -275,43 +436,88 @@ function huskOperatorResidual(p: number, uniform: boolean): number {
     }
   }
 
-  return [...residual.values()].filter(x => dyadicMod(x, p) !== 0).length
+  return [...residual.values()].filter(x => dyadicMod(x, p) !== 0)
+    .length
 }
 
 // the TT kinetic and potential of the two polarizations along z under a per-class inertia weight, exact (dyadic)
-function polarizationSpeeds(weight: (a: number) => number): { plus: number; cross: number } {
-  const kinetic = (e: readonly number[]): number => GEOMETRY.span.reduce((t, row, a) => t + weight(a) * row.reduce((u, x, s) => u + x * e[s]!, 0) ** 2, 0)
+function polarizationSpeeds(weight: (a: number) => number): {
+  plus: number
+  cross: number
+} {
+  const kinetic = (e: readonly number[]): number =>
+    GEOMETRY.span.reduce(
+      (t, row, a) =>
+        t + weight(a) * row.reduce((u, x, s) => u + x * e[s]!, 0) ** 2,
+      0,
+    )
   const q = einsteinHilbertForm([0, 0, 1])
-  const potential = (e: readonly number[]): number => q.reduce((t, row, s) => t + e[s]! * row.reduce((u, x, j) => u + x * e[j]!, 0), 0)
+  const potential = (e: readonly number[]): number =>
+    q.reduce(
+      (t, row, s) =>
+        t + e[s]! * row.reduce((u, x, j) => u + x * e[j]!, 0),
+      0,
+    )
   const plus = [1, -1, 0, 0, 0, 0]
   const cross = [0, 0, 0, 1, 0, 0]
 
   // omega^2 / k^2 per unit normalization of the operator
-  return { plus: potential(plus) / kinetic(plus), cross: potential(cross) / kinetic(cross) }
+  return {
+    plus: potential(plus) / kinetic(plus),
+    cross: potential(cross) / kinetic(cross),
+  }
 }
 
 // is A^T W A an isotropic form a |h|^2 + b (tr h)^2 in plain coordinates (exact)
-function isotropicKinetic(weight: (a: number) => number): { isotropic: boolean; a: number; b: number } {
-  const m = PLAIN_SLOTS.map((_, s) => PLAIN_SLOTS.map((__, t) => GEOMETRY.span.reduce((u, row, c) => u + weight(c) * row[s]! * row[t]!, 0)))
+function isotropicKinetic(weight: (a: number) => number): {
+  isotropic: boolean
+  a: number
+  b: number
+} {
+  const m = PLAIN_SLOTS.map((_, s) =>
+    PLAIN_SLOTS.map((__, t) =>
+      GEOMETRY.span.reduce(
+        (u, row, c) => u + weight(c) * row[s]! * row[t]!,
+        0,
+      ),
+    ),
+  )
   const a = m[3]![3]! / 2
   const b = m[0]![1]!
-  const target = PLAIN_SLOTS.map(([i, j], s) => PLAIN_SLOTS.map((__, t) => (s === t ? (i === j ? a + b : 2 * a) : s < 3 && t < 3 ? b : 0)))
+  const target = PLAIN_SLOTS.map(([i, j], s) =>
+    PLAIN_SLOTS.map((__, t) =>
+      s === t ? (i === j ? a + b : 2 * a) : s < 3 && t < 3 ? b : 0,
+    ),
+  )
 
-  return { isotropic: m.every((row, s) => row.every((x, t) => x === target[s]![t]!)), a, b }
+  return {
+    isotropic: m.every((row, s) =>
+      row.every((x, t) => x === target[s]![t]!),
+    ),
+    a,
+    b,
+  }
 }
 
 // E-GRV-0125's evolution against the Einstein-Hilbert member, in its Frobenius-orthonormal vec coordinates:
 // Q's Hessian is 2 G (symmetric), 2 G = 2 R + delta (x) H, and W^-1 2 G = 2 R + delta (x) H / 2 with W the DeWitt
 // metric I - delta delta^T; the largest deviation over a few wavevectors (floating point)
-function evolutionTie(): { symmetric: number; einstein: number; dewitt: number } {
+function evolutionTie(): {
+  symmetric: number
+  einstein: number
+  dewitt: number
+} {
   const r2 = Math.SQRT2
   // plain = T vec
-  const T = PLAIN_SLOTS.map((_, s) => PLAIN_SLOTS.map((__, t) => (s === t ? (s < 3 ? 1 : 1 / r2) : 0)))
+  const T = PLAIN_SLOTS.map((_, s) =>
+    PLAIN_SLOTS.map((__, t) => (s === t ? (s < 3 ? 1 : 1 / r2) : 0)),
+  )
   const points = [
     [0.3, 0.1, -0.2],
     [0.05, 0.05, 0.05],
     [1.1, -0.7, 0.4],
   ]
+
   let symmetric = 0
   let einstein = 0
   let dewitt = 0
@@ -319,7 +525,17 @@ function evolutionTie(): { symmetric: number; einstein: number; dewitt: number }
   for (const p of points) {
     const q = p.map(Math.sin)
     const m = einsteinHilbertForm(q)
-    const g = T.map((_, s) => T.map((__, t) => T.reduce((u, row, i) => u + row[s]! * T.reduce((w, col, j) => w + m[i]![j]! * col[t]!, 0), 0)))
+    const g = T.map((_, s) =>
+      T.map((__, t) =>
+        T.reduce(
+          (u, row, i) =>
+            u +
+            row[s]! *
+              T.reduce((w, col, j) => w + m[i]![j]! * col[t]!, 0),
+          0,
+        ),
+      ),
+    )
     const ricci = ricciEvolution(q)
     const h = constraintRows(q)[0]!
     const delta = [1, 1, 1, 0, 0, 0]
@@ -327,11 +543,22 @@ function evolutionTie(): { symmetric: number; einstein: number; dewitt: number }
     for (let s = 0; s < 6; s++) {
       for (let t = 0; t < 6; t++) {
         symmetric = Math.max(symmetric, Math.abs(g[s]![t]! - g[t]![s]!))
-        einstein = Math.max(einstein, Math.abs(g[s]![t]! - ricci[s]![t]! - delta[s]! * h[t]!))
+        einstein = Math.max(
+          einstein,
+          Math.abs(g[s]![t]! - ricci[s]![t]! - delta[s]! * h[t]!),
+        )
 
         const trace = g[0]![t]! + g[1]![t]! + g[2]![t]!
 
-        dewitt = Math.max(dewitt, Math.abs(g[s]![t]! - (delta[s]! * trace) / 2 - ricci[s]![t]! - (delta[s]! * h[t]!) / 2))
+        dewitt = Math.max(
+          dewitt,
+          Math.abs(
+            g[s]![t]! -
+              (delta[s]! * trace) / 2 -
+              ricci[s]![t]! -
+              (delta[s]! * h[t]!) / 2,
+          ),
+        )
       }
     }
   }
@@ -349,30 +576,61 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const table = VARIANTS.map(v => ({ v, reads: PRIMES.map(p => analyse(v, p)) }))
-    const agree = table.every(({ reads }) => JSON.stringify(reads[0]) === JSON.stringify(reads[1]))
+    const table = VARIANTS.map(v => ({
+      v,
+      reads: PRIMES.map(p => analyse(v, p)),
+    }))
+    const agree = table.every(
+      ({ reads }) =>
+        JSON.stringify(reads[0]) === JSON.stringify(reads[1]),
+    )
     const primary = table[0]!.reads[0]!
     const scalar = PRIMES.map(scalarOnly)
     const huskI = PRIMES.map(p => huskOperatorResidual(p, false))
     const huskJ = PRIMES.map(p => huskOperatorResidual(p, true))
     const unit = polarizationSpeeds(() => 1)
-    const regge = polarizationSpeeds(a => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2)
+    const regge = polarizationSpeeds(
+      a => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2,
+    )
     const isoUnit = isotropicKinetic(() => 1)
-    const isoRegge = isotropicKinetic(a => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2)
+    const isoRegge = isotropicKinetic(
+      a => GEOMETRY.husk[a]!.reduce((t, x) => t + x * x, 0) ** 2,
+    )
     const tie = evolutionTie()
     const qz = einsteinHilbertForm([0, 0, 1])
     // the uniform mode d = 1 is h = 2 delta: its Einstein-Hilbert stiffness per k^2
     const twoDelta = [2, 2, 2, 0, 0, 0]
-    const uniformStiffness = qz.reduce((t, row, s) => t + twoDelta[s]! * row.reduce((u, x, j) => u + x * twoDelta[j]!, 0), 0)
+    const uniformStiffness = qz.reduce(
+      (t, row, s) =>
+        t +
+        twoDelta[s]! * row.reduce((u, x, j) => u + x * twoDelta[j]!, 0),
+      0,
+    )
 
-    const U1 = primary.metricP0 === 0 && primary.metricP1 === 0 && primary.metricP2 === 1 && primary.ehLeadingInSpan && primary.ehInFamily
+    const U1 =
+      primary.metricP0 === 0 &&
+      primary.metricP1 === 0 &&
+      primary.metricP2 === 1 &&
+      primary.ehLeadingInSpan &&
+      primary.ehInFamily
     const U2 = primary.extrasDerivative === 0
     const U3 = unit.plus === unit.cross && huskJ[0]! === 0
     const C1 = primary.freeMetricP2Leading > 1
-    const C2 = primary.ehInFamily && primary.ehResidual === 0 && primary.ehOrbitMismatch === 0 && primary.ehOutside === 0 && tie.einstein < 1e-12 && tie.dewitt < 1e-12
+    const C2 =
+      primary.ehInFamily &&
+      primary.ehResidual === 0 &&
+      primary.ehOrbitMismatch === 0 &&
+      primary.ehOutside === 0 &&
+      tie.einstein < 1e-12 &&
+      tie.dewitt < 1e-12
     const C3 = scalar[0]!.ttOverlap === 0
     const controls = C1 && C2 && C3 && agree
-    const status = U1 && U2 && U3 && controls ? 'pass' : U1 && controls ? 'partial' : 'fail'
+    const status =
+      U1 && U2 && U3 && controls
+        ? 'pass'
+        : U1 && controls
+          ? 'partial'
+          : 'fail'
     const row = (c: Counts): string =>
       `offsets ${c.offsets}, parameters ${c.parameters}, invariant ${c.invariant}; metric p^0/p^1/p^2 ranks ${c.metricP0}/${c.metricP1}/${c.metricP2} (all orders ${c.metricAll}), EH leading in span ${c.ehLeadingInSpan}, EH in family ${c.ehInFamily} (residual rows ${c.ehResidual}, orbit mismatches ${c.ehOrbitMismatch}, outside ${c.ehOutside}); extras mass ${c.extrasMass}, extras p^2 ${c.extrasP2}, extras any derivative ${c.extrasDerivative}; cross p^0/p^2/all ${c.crossP0}/${c.crossP2}/${c.crossAll}; extras-only members ${c.extrasOnly}; no slide: metric p^2 rank ${c.freeMetricP2}, ${c.freeMetricP2Leading} with p^2 leading`
     const metrics: Record<string, number> = {
@@ -409,7 +667,11 @@ export default experiment({
       status,
       claim: `U1 ${U1}, U2 ${U2}, U3 ${U3}; C1 ${C1}, C2 ${C2}, C3 ${C3}, primes agree ${agree}. ${table.map(({ v, reads }) => `${v.name}: ${row(reads[0]!)}`).join(' | ')}`,
       metrics,
-      control: { freeMetricP2Leading: primary.freeMetricP2Leading, ehInFamily: primary.ehInFamily ? 1 : 0, scalarTT: scalar[0]!.ttOverlap },
+      control: {
+        freeMetricP2Leading: primary.freeMetricP2Leading,
+        ehInFamily: primary.ehInFamily ? 1 : 0,
+        scalarTT: scalar[0]!.ttOverlap,
+      },
       notes: `primes ${PRIMES.join(', ')}. Scalar-only: ${scalar[0]!.parameters} cube-symmetric kernels, ${scalar[0]!.invariant} slide-invariant, 1^T A = [${scalar[0]!.uniformTrace.join(', ')}], TT overlap ${scalar[0]!.ttOverlap}. Husk operator lambda I leaves ${huskI[0]} invariance rows nonzero, lambda J ${huskJ[0]}. Kinetic M = I: omega^2 / k^2 plus ${unit.plus}, cross ${unit.cross} (ratio ${unit.cross / unit.plus}), isotropic ${isoUnit.isotropic}; weight |u|^4 (the register holding delta(l^2)): plus ${regge.plus}, cross ${regge.cross}, isotropic ${isoRegge.isotropic} (a ${isoRegge.a}, b ${isoRegge.b}). Uniform mode Einstein-Hilbert stiffness ${uniformStiffness} k^2. E-GRV-0125 tie: Hessian symmetric to ${tie.symmetric.toExponential(1)}, 2G - 2R - delta H ${tie.einstein.toExponential(1)}, W^-1 2G - 2R - delta H / 2 ${tie.dewitt.toExponential(1)}.`,
     })
   },

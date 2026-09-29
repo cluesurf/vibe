@@ -24,7 +24,10 @@
 // NO ROUNDING in the rule: integer beats and waits. Reals only in the readers. DETERMINISM: no draw anywhere.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { d4Coordinates, d4Vector } from '@/code/substrate/d4-box-integer'
+import {
+  d4Coordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box-integer'
 
 const ROOT_STEPS = rootsD4().map(d4Coordinates)
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
@@ -36,8 +39,13 @@ export function wakeWait(energy: number): number {
 }
 
 // the dock one root step along from dock x on the box of this side (the box index c1 + L c2 + L^2 c3 + L^3 c4)
-export function rootNeighbor(x: number, root: number, side: number): number {
-  const s = ROOT_STEPS[root] as number[]
+export function rootNeighbor(
+  x: number,
+  root: number,
+  side: number,
+): number {
+  const s = ROOT_STEPS[root]!
+
   let out = 0
   let rest = x
   let scale = 1
@@ -46,7 +54,7 @@ export function rootNeighbor(x: number, root: number, side: number): number {
     const c = rest % side
 
     rest = Math.floor(rest / side)
-    out += modulo(c + (s[k] as number), side) * scale
+    out += modulo(c + s[k]!, side) * scale
     scale *= side
   }
 
@@ -60,6 +68,7 @@ export function huskColumns(side: number): Int32Array {
 
   for (let x = 0; x < cells; x++) {
     let rest = x
+
     const c: number[] = []
 
     for (let k = 0; k < 4; k++) {
@@ -69,14 +78,21 @@ export function huskColumns(side: number): Int32Array {
 
     const v = d4Vector(c)
 
-    out[x] = modulo(v[0] as number, side) + side * modulo(v[1] as number, side) + side * side * modulo(v[2] as number, side)
+    out[x] =
+      modulo(v[0]!, side) +
+      side * modulo(v[1]!, side) +
+      side * side * modulo(v[2]!, side)
   }
 
   return out
 }
 
 // the gated wake: the birth beat of every dock, from `seed` born at 0, with each dock's wait (Dial's buckets, integers)
-export function gatedWake(side: number, wait: Int32Array, seed: number): Int32Array {
+export function gatedWake(
+  side: number,
+  wait: Int32Array,
+  seed: number,
+): Int32Array {
   const cells = side ** 4
   const born = new Int32Array(cells).fill(-1)
   const tentative = new Int32Array(cells).fill(0x7fffffff)
@@ -87,19 +103,25 @@ export function gatedWake(side: number, wait: Int32Array, seed: number): Int32Ar
   for (let b = 0; b < buckets.length; b++) {
     const list = buckets[b]
 
-    if (!list) continue
+    if (!list) {
+      continue
+    }
 
     for (const x of list) {
-      if (born[x] !== -1 || tentative[x] !== b) continue
+      if (born[x] !== -1 || tentative[x] !== b) {
+        continue
+      }
 
       born[x] = b
 
-      const open = b + 1 + (wait[x] as number)
+      const open = b + 1 + wait[x]!
 
       for (let r = 0; r < 24; r++) {
         const y = rootNeighbor(x, r, side)
 
-        if (born[y] !== -1 || (tentative[y] as number) <= open) continue
+        if (born[y] !== -1 || tentative[y]! <= open) {
+          continue
+        }
 
         tentative[y] = open
 
@@ -124,33 +146,50 @@ export function gatedWake(side: number, wait: Int32Array, seed: number): Int32Ar
 export function shellCounts(born: Int32Array): number[] {
   const out: number[] = []
 
-  for (const b of born) if (b >= 0) out[b] = (out[b] ?? 0) + 1
+  for (const b of born) {
+    if (b >= 0) {
+      out[b] = (out[b] ?? 0) + 1
+    }
+  }
 
   return Array.from(out, v => v ?? 0)
 }
 
 // the knit on a grown region: slots of a born dock whose stream source (the slot whose value the plain stream brings
 // here) lies in a dock not yet born at beat t. Zero only if the region is closed under the stream.
-export function openEdgeSlots(source: Int32Array, born: Int32Array, t: number): number {
+export function openEdgeSlots(
+  source: Int32Array,
+  born: Int32Array,
+  t: number,
+): number {
   let open = 0
 
   for (let slot = 0; slot < source.length; slot++) {
     const x = (slot / 24) | 0
-    const bx = born[x] as number
+    const bx = born[x]!
 
-    if (bx < 0 || bx > t) continue
+    if (bx < 0 || bx > t) {
+      continue
+    }
 
-    const y = ((source[slot] as number) / 24) | 0
-    const by = born[y] as number
+    const y = (source[slot]! / 24) | 0
+    const by = born[y]!
 
-    if (by < 0 || by > t) open++
+    if (by < 0 || by > t) {
+      open++
+    }
   }
 
   return open
 }
 
 // the husk ball of columns within `radius` of `center` (min image), at full depth: per dock 1 if in it
-export function huskBall(columns: Int32Array, side: number, radius: number, center: readonly number[]): Uint8Array {
+export function huskBall(
+  columns: Int32Array,
+  side: number,
+  radius: number,
+  center: readonly number[],
+): Uint8Array {
   const ring = (d: number): number => {
     const m = modulo(d, side)
 
@@ -158,8 +197,18 @@ export function huskBall(columns: Int32Array, side: number, radius: number, cent
   }
 
   return Uint8Array.from(columns, c => {
-    const p = [c % side, Math.floor(c / side) % side, Math.floor(c / (side * side))]
+    const p = [
+      c % side,
+      Math.floor(c / side) % side,
+      Math.floor(c / (side * side)),
+    ]
 
-    return p.reduce((acc, v, i) => acc + ring(v - (center[i] as number)) ** 2, 0) <= radius * radius ? 1 : 0
+    return p.reduce(
+      (acc, v, i) => acc + ring(v - center[i]!) ** 2,
+      0,
+    ) <=
+      radius * radius
+      ? 1
+      : 0
   })
 }

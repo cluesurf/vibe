@@ -22,34 +22,63 @@
 // In both, a stored unit's two vibes are one unit and always joined.
 // The relation is history: once joined, never unjoined. Components only merge.
 
-import { type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { type VetoKind } from '@/code/rule/occupation-veto-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { vetoPathReplay } from '@/code/measure/occupation-veto-readings'
-import { forest, join, rootOf, type BoxHusk } from '@/code/measure/causal-components'
+import {
+  forest,
+  join,
+  rootOf,
+  type BoxHusk,
+} from '@/code/measure/causal-components'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 // the vibes of a configuration, numbered: held slots in slot order, then each held store line's first-slot vibe and
 // second-slot vibe, in line order
 export function numberVibes(c: Configuration): { count: number } {
   let count = 0
 
-  for (let i = 0; i < c.vibe.length; i++) count += c.vibe[i] !== 0 ? 1 : 0
-  for (let l = 0; l < c.store.length; l++) count += c.store[l] !== 0 ? 2 : 0
+  for (let i = 0; i < c.vibe.length; i++) {
+    count += c.vibe[i] !== 0 ? 1 : 0
+  }
+
+  for (let l = 0; l < c.store.length; l++) {
+    count += c.store[l] !== 0 ? 2 : 0
+  }
 
   return { count }
 }
 
 // a copy of `c` whose open bits carry bit k of each vibe's number (every held slot and stored vibe, in numberVibes order)
 function planeOf(c: Configuration, k: number): Configuration {
-  const out: Configuration = { vibe: Int8Array.from(c.vibe), point: Int8Array.from(c.point), open: new Uint8Array(c.open.length), store: Int8Array.from(c.store), spoint: Int8Array.from(c.spoint), sopen: new Uint8Array(c.sopen.length) }
+  const out: Configuration = {
+    vibe: Int8Array.from(c.vibe),
+    point: Int8Array.from(c.point),
+    open: new Uint8Array(c.open.length),
+    store: Int8Array.from(c.store),
+    spoint: Int8Array.from(c.spoint),
+    sopen: new Uint8Array(c.sopen.length),
+  }
+
   let id = 0
 
-  for (let i = 0; i < c.vibe.length; i++) if (c.vibe[i] !== 0) out.open[i] = (id++ >> k) & 1
+  for (let i = 0; i < c.vibe.length; i++) {
+    if (c.vibe[i] !== 0) {
+      out.open[i] = (id++ >> k) & 1
+    }
+  }
 
   for (let l = 0; l < c.store.length; l++) {
-    if (c.store[l] === 0) continue
+    if (c.store[l] === 0) {
+      continue
+    }
 
     const a = (id++ >> k) & 1
     const b = (id++ >> k) & 1
@@ -61,30 +90,45 @@ function planeOf(c: Configuration, k: number): Configuration {
 }
 
 // the numbers read back from the planes: per slot (-1 if empty) and per store line, first and second (-1 if empty)
-type Reading = { slot: Int32Array; first: Int32Array; second: Int32Array }
+type Reading = {
+  slot: Int32Array
+  first: Int32Array
+  second: Int32Array
+}
 
-function readIds(plain: Configuration, planes: readonly Configuration[], into: Reading): void {
+function readIds(
+  plain: Configuration,
+  planes: readonly Configuration[],
+  into: Reading,
+): void {
   into.slot.fill(-1)
   into.first.fill(-1)
   into.second.fill(-1)
 
   for (let i = 0; i < plain.vibe.length; i++) {
-    if (plain.vibe[i] === 0) continue
+    if (plain.vibe[i] === 0) {
+      continue
+    }
 
     let id = 0
 
-    for (let k = 0; k < planes.length; k++) id |= ((planes[k]!.open[i] as number) & 1) << k
+    for (let k = 0; k < planes.length; k++) {
+      id |= (planes[k]!.open[i]! & 1) << k
+    }
+
     into.slot[i] = id
   }
 
   for (let l = 0; l < plain.store.length; l++) {
-    if (plain.store[l] === 0) continue
+    if (plain.store[l] === 0) {
+      continue
+    }
 
     let a = 0
     let b = 0
 
     for (let k = 0; k < planes.length; k++) {
-      const o = planes[k]!.sopen[l] as number
+      const o = planes[k]!.sopen[l]!
 
       a |= (o & 1) << k
       b |= ((o >> 1) & 1) << k
@@ -96,31 +140,59 @@ function readIds(plain: Configuration, planes: readonly Configuration[], into: R
 }
 
 // how many slots or store lines of a plane differ from the plain run in occupation (vibe trit or store trit)
-function occupationBreaks(plain: Configuration, plane: Configuration): number {
+function occupationBreaks(
+  plain: Configuration,
+  plane: Configuration,
+): number {
   let n = 0
 
-  for (let i = 0; i < plain.vibe.length; i++) n += plain.vibe[i] !== plane.vibe[i] ? 1 : 0
-  for (let l = 0; l < plain.store.length; l++) n += plain.store[l] !== plane.store[l] ? 1 : 0
+  for (let i = 0; i < plain.vibe.length; i++) {
+    n += plain.vibe[i] !== plane.vibe[i] ? 1 : 0
+  }
+
+  for (let l = 0; l < plain.store.length; l++) {
+    n += plain.store[l] !== plane.store[l] ? 1 : 0
+  }
 
   return n
 }
 
 // whether the numbers read are each of 0 .. count - 1 exactly once
-function isPermutation(r: Reading, count: number, seen: Uint8Array): boolean {
+function isPermutation(
+  r: Reading,
+  count: number,
+  seen: Uint8Array,
+): boolean {
   seen.fill(0)
 
   let n = 0
+
   const mark = (id: number): boolean => {
-    if (id < 0) return true
-    if (id >= count || seen[id]) return false
+    if (id < 0) {
+      return true
+    }
+
+    if (id >= count || seen[id]) {
+      return false
+    }
+
     seen[id] = 1
     n++
 
     return true
   }
 
-  for (let i = 0; i < r.slot.length; i++) if (!mark(r.slot[i] as number)) return false
-  for (let l = 0; l < r.first.length; l++) if (!mark(r.first[l] as number) || !mark(r.second[l] as number)) return false
+  for (let i = 0; i < r.slot.length; i++) {
+    if (!mark(r.slot[i]!)) {
+      return false
+    }
+  }
+
+  for (let l = 0; l < r.first.length; l++) {
+    if (!mark(r.first[l]!) || !mark(r.second[l]!)) {
+      return false
+    }
+  }
 
   return n === count
 }
@@ -139,17 +211,25 @@ export type Relation = {
 }
 
 function newRelation(count: number): Relation {
-  return { parent: forest(count), lastMerge: new Int32Array(count).fill(-1), components: [], largest: [], meetings: [] }
+  return {
+    parent: forest(count),
+    lastMerge: new Int32Array(count).fill(-1),
+    components: [],
+    largest: [],
+    meetings: [],
+  }
 }
 
 function meet(r: Relation, ids: readonly number[], t: number): void {
-  const a = ids[0] as number
+  const a = ids[0]!
 
   for (let k = 1; k < ids.length; k++) {
     const ra = rootOf(r.parent, a)
-    const rb = rootOf(r.parent, ids[k] as number)
+    const rb = rootOf(r.parent, ids[k]!)
 
-    if (ra === rb) continue
+    if (ra === rb) {
+      continue
+    }
 
     join(r.parent, ra, rb)
 
@@ -161,6 +241,7 @@ function meet(r: Relation, ids: readonly number[], t: number): void {
 
 function tally(r: Relation, count: number): void {
   const size = new Int32Array(count)
+
   let components = 0
   let largest = 0
 
@@ -171,9 +252,12 @@ function tally(r: Relation, count: number): void {
   }
 
   for (let i = 0; i < count; i++) {
-    if ((size[i] as number) === 0) continue
+    if (size[i]! === 0) {
+      continue
+    }
+
     components++
-    largest = Math.max(largest, size[i] as number)
+    largest = Math.max(largest, size[i]!)
   }
 
   r.components.push(components)
@@ -199,40 +283,76 @@ export type RelationRun = {
   readonly occupation: { vibe: Int8Array; store: Int8Array }[]
 }
 
-export function relationRun(input: { kind: VetoKind; tables: LockedTables; start: Configuration; threshold: number; coin: boolean; beats: number; keepMeetings?: boolean; track?: boolean }): RelationRun {
+export function relationRun(input: {
+  kind: VetoKind
+  tables: LockedTables
+  start: Configuration
+  threshold: number
+  coin: boolean
+  beats: number
+  keepMeetings?: boolean
+  track?: boolean
+}): RelationRun {
   const { kind, tables, start, threshold, coin, beats } = input
   const { count } = numberVibes(start)
   const bits = Math.max(1, Math.ceil(Math.log2(Math.max(2, count))))
   const plain = vetoPathReplay(kind, tables, start, threshold, coin)
-  const planes = Array.from({ length: bits }, (_, k) => vetoPathReplay(kind, tables, planeOf(start, k), threshold, coin))
+  const planes = Array.from({ length: bits }, (_, k) =>
+    vetoPathReplay(kind, tables, planeOf(start, k), threshold, coin),
+  )
   const cells = tables.cells
   const lines = cells * 12
-  const pre: Reading = { slot: new Int32Array(cells * 24), first: new Int32Array(lines), second: new Int32Array(lines) }
-  const post: Reading = { slot: new Int32Array(cells * 24), first: new Int32Array(lines), second: new Int32Array(lines) }
+  const pre: Reading = {
+    slot: new Int32Array(cells * 24),
+    first: new Int32Array(lines),
+    second: new Int32Array(lines),
+  }
+  const post: Reading = {
+    slot: new Int32Array(cells * 24),
+    first: new Int32Array(lines),
+    second: new Int32Array(lines),
+  }
   const seen = new Uint8Array(count)
   const broad = newRelation(count)
   const narrow = newRelation(count)
   const set: number[] = []
   const lineSet: number[] = []
+
   let breaks = 0
   let idBreaks = 0
+
   const positions: Int32Array[] = []
   const occupation: { vibe: Int8Array; store: Int8Array }[] = []
 
   const add = (list: number[], id: number): void => {
-    if (id >= 0 && !list.includes(id)) list.push(id)
+    if (id >= 0 && !list.includes(id)) {
+      list.push(id)
+    }
   }
 
   for (let t = 0; t < beats; t++) {
-    readIds(plain.state(), planes.map(p => p.state()), pre)
+    readIds(
+      plain.state(),
+      planes.map(p => p.state()),
+      pre,
+    )
     idBreaks += isPermutation(pre, count, seen) ? 0 : 1
 
     plain.collide(t)
-    for (const p of planes) p.collide(t)
 
-    for (const p of planes) breaks += occupationBreaks(plain.state(), p.state())
+    for (const p of planes) {
+      p.collide(t)
+    }
 
-    readIds(plain.state(), planes.map(p => p.state()), post)
+    for (const p of planes) {
+      breaks += occupationBreaks(plain.state(), p.state())
+    }
+
+    readIds(
+      plain.state(),
+      planes.map(p => p.state()),
+      post,
+    )
     idBreaks += isPermutation(post, count, seen) ? 0 : 1
 
     const bmeet: number[] = []
@@ -242,32 +362,39 @@ export function relationRun(input: { kind: VetoKind; tables: LockedTables; start
       set.length = 0
 
       for (let d = 0; d < 24; d++) {
-        add(set, pre.slot[x * 24 + d] as number)
-        add(set, post.slot[x * 24 + d] as number)
+        add(set, pre.slot[x * 24 + d]!)
+        add(set, post.slot[x * 24 + d]!)
       }
 
       for (let l = 0; l < 12; l++) {
         const line = x * 12 + l
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
-        const slotHeld = (pre.slot[i] as number) >= 0 || (pre.slot[j] as number) >= 0 || (post.slot[i] as number) >= 0 || (post.slot[j] as number) >= 0
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
+        const slotHeld =
+          pre.slot[i]! >= 0 ||
+          pre.slot[j]! >= 0 ||
+          post.slot[i]! >= 0 ||
+          post.slot[j]! >= 0
 
         lineSet.length = 0
-        add(lineSet, pre.slot[i] as number)
-        add(lineSet, pre.slot[j] as number)
-        add(lineSet, post.slot[i] as number)
-        add(lineSet, post.slot[j] as number)
+        add(lineSet, pre.slot[i]!)
+        add(lineSet, pre.slot[j]!)
+        add(lineSet, post.slot[i]!)
+        add(lineSet, post.slot[j]!)
 
         // a stored unit's two vibes are one unit, always
         for (const r of [pre, post]) {
-          const a = r.first[line] as number
-          const b = r.second[line] as number
+          const a = r.first[line]!
+          const b = r.second[line]!
 
           if (a >= 0) {
             meet(broad, [a, b], t)
             meet(narrow, [a, b], t)
 
-            if (input.keepMeetings && (r === pre || a !== pre.first[line])) {
+            if (
+              input.keepMeetings &&
+              (r === pre || a !== pre.first[line])
+            ) {
               bmeet.push(2, a, b)
               nmeet.push(2, a, b)
             }
@@ -284,13 +411,19 @@ export function relationRun(input: { kind: VetoKind; tables: LockedTables; start
 
         if (lineSet.length >= 2) {
           meet(narrow, lineSet, t)
-          if (input.keepMeetings) nmeet.push(lineSet.length, ...lineSet)
+
+          if (input.keepMeetings) {
+            nmeet.push(lineSet.length, ...lineSet)
+          }
         }
       }
 
       if (set.length >= 2) {
         meet(broad, set, t)
-        if (input.keepMeetings) bmeet.push(set.length, ...set)
+
+        if (input.keepMeetings) {
+          bmeet.push(set.length, ...set)
+        }
       }
     }
 
@@ -303,40 +436,78 @@ export function relationRun(input: { kind: VetoKind; tables: LockedTables; start
     tally(narrow, count)
 
     plain.stream(tables.target)
-    for (const p of planes) p.stream(tables.target)
+
+    for (const p of planes) {
+      p.stream(tables.target)
+    }
 
     if (input.track) {
-      readIds(plain.state(), planes.map(p => p.state()), pre)
+      readIds(
+        plain.state(),
+        planes.map(p => p.state()),
+        pre,
+      )
 
       const at = new Int32Array(count).fill(-1)
 
-      for (let i = 0; i < pre.slot.length; i++) if ((pre.slot[i] as number) >= 0) at[pre.slot[i] as number] = i
+      for (let i = 0; i < pre.slot.length; i++) {
+        if (pre.slot[i]! >= 0) {
+          at[pre.slot[i]!] = i
+        }
+      }
 
       for (let l = 0; l < pre.first.length; l++) {
-        if ((pre.first[l] as number) < 0) continue
-        at[pre.first[l] as number] = cells * 24 + l
-        at[pre.second[l] as number] = cells * 24 + l
+        if (pre.first[l]! < 0) {
+          continue
+        }
+
+        at[pre.first[l]!] = cells * 24 + l
+        at[pre.second[l]!] = cells * 24 + l
       }
 
       positions.push(at)
-      occupation.push({ vibe: Int8Array.from(plain.state().vibe), store: Int8Array.from(plain.state().store) })
+      occupation.push({
+        vibe: Int8Array.from(plain.state().vibe),
+        store: Int8Array.from(plain.state().store),
+      })
     }
   }
 
-  readIds(plain.state(), planes.map(p => p.state()), pre)
+  readIds(
+    plain.state(),
+    planes.map(p => p.state()),
+    pre,
+  )
   idBreaks += isPermutation(pre, count, seen) ? 0 : 1
 
   const dock = new Int32Array(count).fill(-1)
 
-  for (let i = 0; i < pre.slot.length; i++) if ((pre.slot[i] as number) >= 0) dock[pre.slot[i] as number] = (i / 24) | 0
-
-  for (let l = 0; l < pre.first.length; l++) {
-    if ((pre.first[l] as number) < 0) continue
-    dock[pre.first[l] as number] = (l / 12) | 0
-    dock[pre.second[l] as number] = (l / 12) | 0
+  for (let i = 0; i < pre.slot.length; i++) {
+    if (pre.slot[i]! >= 0) {
+      dock[pre.slot[i]!] = (i / 24) | 0
+    }
   }
 
-  return { count, bits, occupationBreaks: breaks, idBreaks, broad, narrow, dock, positions, occupation }
+  for (let l = 0; l < pre.first.length; l++) {
+    if (pre.first[l]! < 0) {
+      continue
+    }
+
+    dock[pre.first[l]!] = (l / 12) | 0
+    dock[pre.second[l]!] = (l / 12) | 0
+  }
+
+  return {
+    count,
+    bits,
+    occupationBreaks: breaks,
+    idBreaks,
+    broad,
+    narrow,
+    dock,
+    positions,
+    occupation,
+  }
 }
 
 // ---- the cut (E-SLF-0178): what one part's absence does to another part's trail ----
@@ -358,7 +529,14 @@ export function cutDifference(input: {
   const { tables, full } = input
   const beats = full.positions.length
   const cells = tables.cells
-  const c: Configuration = { vibe: Int8Array.from(input.start.vibe), point: Int8Array.from(input.start.point), open: Uint8Array.from(input.start.open), store: Int8Array.from(input.start.store), spoint: Int8Array.from(input.start.spoint), sopen: Uint8Array.from(input.start.sopen) }
+  const c: Configuration = {
+    vibe: Int8Array.from(input.start.vibe),
+    point: Int8Array.from(input.start.point),
+    open: Uint8Array.from(input.start.open),
+    store: Int8Array.from(input.start.store),
+    spoint: Int8Array.from(input.start.spoint),
+    sopen: Uint8Array.from(input.start.sopen),
+  }
 
   for (const s of input.removed.slots) {
     c.vibe[s] = 0
@@ -371,13 +549,23 @@ export function cutDifference(input: {
     c.sopen[l] = 0
   }
 
-  const run = vetoPathReplay(input.kind, tables, c, input.threshold, input.coin)
+  const run = vetoPathReplay(
+    input.kind,
+    tables,
+    c,
+    input.threshold,
+    input.coin,
+  )
+
   const differs = (at: number, t: number): boolean => {
     const occ = full.occupation[t]!
     const s = run.state()
 
-    return at < cells * 24 ? s.vibe[at] !== occ.vibe[at] : s.store[at - cells * 24] !== occ.store[at - cells * 24]
+    return at < cells * 24
+      ? s.vibe[at] !== occ.vibe[at]
+      : s.store[at - cells * 24] !== occ.store[at - cells * 24]
   }
+
   let moved = 0
   let leak = 0
 
@@ -387,9 +575,17 @@ export function cutDifference(input: {
 
     const at = full.positions[t]!
 
-    for (const v of input.watched) moved += differs(at[v] as number, t) ? 1 : 0
+    for (const v of input.watched) {
+      moved += differs(at[v]!, t) ? 1 : 0
+    }
 
-    if (t === beats - 1) for (let v = 0; v < full.count; v++) if (!input.inside.has(v) && differs(at[v] as number, t)) leak++
+    if (t === beats - 1) {
+      for (let v = 0; v < full.count; v++) {
+        if (!input.inside.has(v) && differs(at[v]!, t)) {
+          leak++
+        }
+      }
+    }
   }
 
   return { moved, leak }
@@ -397,7 +593,11 @@ export function cutDifference(input: {
 
 // ---- components at the end, and their reach on the husk ----
 
-export type Component = { readonly root: number; readonly members: number[]; readonly lastMerge: number }
+export type Component = {
+  readonly root: number
+  readonly members: number[]
+  readonly lastMerge: number
+}
 
 export function componentsOf(r: Relation, count: number): Component[] {
   const byRoot = new Map<number, number[]>()
@@ -406,11 +606,18 @@ export function componentsOf(r: Relation, count: number): Component[] {
     const root = rootOf(r.parent, i)
     const list = byRoot.get(root)
 
-    if (list) list.push(i)
-    else byRoot.set(root, [i])
+    if (list) {
+      list.push(i)
+    } else {
+      byRoot.set(root, [i])
+    }
   }
 
-  return [...byRoot.entries()].map(([root, members]) => ({ root, members, lastMerge: r.lastMerge[root] as number }))
+  return [...byRoot.entries()].map(([root, members]) => ({
+    root,
+    members,
+    lastMerge: r.lastMerge[root]!,
+  }))
 }
 
 const cyclic = (a: number, b: number, side: number): number => {
@@ -420,7 +627,11 @@ const cyclic = (a: number, b: number, side: number): number => {
 }
 
 // the husk coordinates of a column, and the cyclic L-infinity distance of two columns
-export function columnDistance(a: number, b: number, side: number): number {
+export function columnDistance(
+  a: number,
+  b: number,
+  side: number,
+): number {
   const ax = a % side
   const ay = Math.floor(a / side) % side
   const az = Math.floor(a / (side * side))
@@ -428,37 +639,68 @@ export function columnDistance(a: number, b: number, side: number): number {
   const by = Math.floor(b / side) % side
   const bz = Math.floor(b / (side * side))
 
-  return Math.max(cyclic(ax, bx, side), cyclic(ay, by, side), cyclic(az, bz, side))
+  return Math.max(
+    cyclic(ax, bx, side),
+    cyclic(ay, by, side),
+    cyclic(az, bz, side),
+  )
 }
 
 // the husk columns a set of vibes sits on, and their largest pairwise cyclic L-infinity distance
-export function huskSpread(members: readonly number[], dock: Int32Array, husk: BoxHusk): { columns: number; diameter: number } {
-  const columns = [...new Set(members.map(m => husk.column[dock[m] as number] as number))]
+export function huskSpread(
+  members: readonly number[],
+  dock: Int32Array,
+  husk: BoxHusk,
+): { columns: number; diameter: number } {
+  const columns = [...new Set(members.map(m => husk.column[dock[m]!]!))]
+
   let diameter = 0
 
-  for (let i = 0; i < columns.length; i++) for (let j = i + 1; j < columns.length; j++) diameter = Math.max(diameter, columnDistance(columns[i] as number, columns[j] as number, husk.side))
+  for (let i = 0; i < columns.length; i++) {
+    for (let j = i + 1; j < columns.length; j++) {
+      diameter = Math.max(
+        diameter,
+        columnDistance(columns[i]!, columns[j]!, husk.side),
+      )
+    }
+  }
 
   return { columns: columns.length, diameter }
 }
 
 // the relational eccentricity of a component, by a double sweep: hops through meetings (one hop = one meeting shared)
-export function relationalSweep(r: Relation, members: readonly number[], count: number): number {
-  if (members.length < 2) return 0
+export function relationalSweep(
+  r: Relation,
+  members: readonly number[],
+  count: number,
+): number {
+  if (members.length < 2) {
+    return 0
+  }
 
   const byVibe: number[][] = Array.from({ length: count }, () => [])
   const groups: number[][] = []
   const inside = new Uint8Array(count)
 
-  for (const m of members) inside[m] = 1
+  for (const m of members) {
+    inside[m] = 1
+  }
 
   for (const flat of r.meetings) {
     for (let k = 0; k < flat.length; ) {
-      const size = flat[k] as number
+      const size = flat[k]!
       const group = Array.from(flat.subarray(k + 1, k + 1 + size))
 
       k += size + 1
-      if (!inside[group[0] as number]) continue
-      for (const v of group) byVibe[v]!.push(groups.length)
+
+      if (!inside[group[0]!]) {
+        continue
+      }
+
+      for (const v of group) {
+        byVibe[v]!.push(groups.length)
+      }
+
       groups.push(group)
     }
   }
@@ -466,6 +708,7 @@ export function relationalSweep(r: Relation, members: readonly number[], count: 
   const bfs = (from: number): { far: number; depth: number } => {
     const dist = new Int32Array(count).fill(-1)
     const used = new Uint8Array(groups.length)
+
     let queue = [from]
     let depth = 0
     let far = from
@@ -477,10 +720,17 @@ export function relationalSweep(r: Relation, members: readonly number[], count: 
 
       for (const v of queue) {
         for (const g of byVibe[v]!) {
-          if (used[g]) continue
+          if (used[g]) {
+            continue
+          }
+
           used[g] = 1
+
           for (const w of groups[g]!) {
-            if (dist[w] !== -1) continue
+            if (dist[w] !== -1) {
+              continue
+            }
+
             dist[w] = depth + 1
             far = w
             next.push(w)
@@ -488,14 +738,17 @@ export function relationalSweep(r: Relation, members: readonly number[], count: 
         }
       }
 
-      if (next.length > 0) depth++
+      if (next.length > 0) {
+        depth++
+      }
+
       queue = next
     }
 
     return { far, depth }
   }
 
-  const first = bfs(members[0] as number)
+  const first = bfs(members[0]!)
 
   return bfs(first.far).depth
 }

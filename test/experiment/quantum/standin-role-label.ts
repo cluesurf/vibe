@@ -40,7 +40,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { BAND_TOP } from '@/code/measure/standin-chemistry'
-import { ATOM_BOX, atomSeries, isLocalMaximum } from '@/code/measure/standin-atoms'
+import {
+  ATOM_BOX,
+  atomSeries,
+  isLocalMaximum,
+} from '@/code/measure/standin-atoms'
 
 const ROLE_CAPACITY = 3
 const CHARGES = [1, 2, 3, 4, 14, 15, 16, 26, 27, 28]
@@ -51,7 +55,13 @@ function permutations(k: number): number[][] {
     return [[]]
   }
 
-  return permutations(k - 1).flatMap(p => Array.from({ length: k }, (_, i) => [...p.slice(0, i), k - 1, ...p.slice(i)]))
+  return permutations(k - 1).flatMap(p =>
+    Array.from({ length: k }, (_, i) => [
+      ...p.slice(0, i),
+      k - 1,
+      ...p.slice(i),
+    ]),
+  )
 }
 
 // the sign and the number of cycles of a permutation
@@ -96,7 +106,7 @@ export default experiment({
   id: 'quantum/standin-role-label',
   code: 'E-MTR-0012',
   title:
-    'the role as the electron\'s label, tested with stand-ins: a three-valued label lets three fermions share an orbital (the antisymmetric dimensions 3, 3, 1), and stand-in atoms on the husk filled three per orbital are read for their closures against nature\'s first, at Z = 2',
+    "the role as the electron's label, tested with stand-ins: a three-valued label lets three fermions share an orbital (the antisymmetric dimensions 3, 3, 1), and stand-in atoms on the husk filled three per orbital are read for their closures against nature's first, at Z = 2",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -104,8 +114,13 @@ export default experiment({
   run() {
     const spin = [1, 2, 3].map(k => antisymmetricDimension(2, k))
     const role = [1, 2, 3, 4].map(k => antisymmetricDimension(3, k))
-    const gate1 = spin.join(',') === '2,1,0' && role.join(',') === '3,3,1,0'
-    const rows = atomSeries({ box: ATOM_BOX, charges: CHARGES, capacity: ROLE_CAPACITY })
+    const gate1 =
+      spin.join(',') === '2,1,0' && role.join(',') === '3,3,1,0'
+    const rows = atomSeries({
+      box: ATOM_BOX,
+      charges: CHARGES,
+      capacity: ROLE_CAPACITY,
+    })
     const top = [2, 3, 15, 27].filter(z => isLocalMaximum(rows, z))
     const gate2 = [3, 15, 27].every(z => isLocalMaximum(rows, z))
     const gate3 = isLocalMaximum(rows, 2)
@@ -118,20 +133,24 @@ export default experiment({
       metrics[`roleZ${r.z}OuterN`] = r.outer.n
       metrics[`roleZ${r.z}OuterL`] = r.outer.l
       metrics[`roleZ${r.z}Converged`] = r.scf.converged ? 1 : 0
-      metrics[`roleZ${r.z}DeepestOverBandGap`] = -r.scf.deepest / BAND_TOP
+      metrics[`roleZ${r.z}DeepestOverBandGap`] =
+        -r.scf.deepest / BAND_TOP
     })
     top.forEach((z, i) => (metrics[`localMaximum${i + 1}`] = z))
 
     return verdict({
       status: gate3 ? 'open' : 'fail',
-      claim: `${gate3 ? 'the role keeps nature\'s first closure, and 10 and 18 are owed' : 'the role cannot be the electron\'s label'}: the antisymmetric states of k role labels number ${role.join(', ')} for k = 1 to 4 (spin: ${spin.join(', ')} for k = 1 to 3), so three stand-ins share an orbital, and of Z = 2, 3, 15, 27 the stand-in atoms filled three per orbital have ionization maxima at ${top.join(', ') || 'none'}, where nature's first closure is at 2`,
+      claim: `${gate3 ? "the role keeps nature's first closure, and 10 and 18 are owed" : "the role cannot be the electron's label"}: the antisymmetric states of k role labels number ${role.join(', ')} for k = 1 to 4 (spin: ${spin.join(', ')} for k = 1 to 3), so three stand-ins share an orbital, and of Z = 2, 3, 15, 27 the stand-in atoms filled three per orbital have ionization maxima at ${top.join(', ') || 'none'}, where nature's first closure is at 2`,
       metrics: {
         ...metrics,
         gateCount: gate1 ? 1 : 0,
         gateRoleShells: gate2 ? 1 : 0,
         gateNatureClosures: gate3 ? 1 : 0,
       },
-      control: { spinCapacity: spin.filter(v => v > 0).length, roleCapacity: role.filter(v => v > 0).length },
+      control: {
+        spinCapacity: spin.filter(v => v > 0).length,
+        roleCapacity: role.filter(v => v > 0).length,
+      },
       notes: `L1 for the label count, L2 for the atoms (stand-ins: charged fear-walk electrons, a fixed husk charge, alpha chosen through a0 = 3, Fermi-Amaldi mean field, Koopmans levels). Occupied shells three per orbital: ${rows.map(r => `Z ${r.z}: ${r.occupied.join(' ')}`).join('; ')}. A negative for the role as the electron's internal label: the electron needs a two-valued label the model has not produced (E-SPN-0044), which is the same missing double cover that blocks spin one half.`,
     })
   },

@@ -66,7 +66,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { chargePlacements, crossingSources, hiddenColumn, ladderComponents, lineGaussCount, loopCoefficients, portFarReach } from '@/code/measure/light-count'
+import {
+  chargePlacements,
+  crossingSources,
+  hiddenColumn,
+  ladderComponents,
+  lineGaussCount,
+  loopCoefficients,
+  portFarReach,
+} from '@/code/measure/light-count'
 import { inverseDepthSpec } from '@/code/rule/plaquette-ladder'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
@@ -74,14 +82,18 @@ const mod = (a: number, m: number): number => ((a % m) + m) % m
 export default experiment({
   id: 'spin/string-count-in-light',
   code: 'E-SPN-0084',
-  title: "can the string's count ride the light's own stream, pass (the answer is no, by theorems checked exhaustively): on a husk line Gauss leaves the light one winding number, so its only copy is the recorded hop; l has no continuity law (it is a length sourced at the charges); where the light streams (the ladder) its beat keeps only Gauss data and makes and unmakes l itself; E-SPN-0075's exact capacity reads 2D docks away; and a string link's column hides floor((D - 1) / 2) pairs, far short of the store",
+  title:
+    "can the string's count ride the light's own stream, pass (the answer is no, by theorems checked exhaustively): on a husk line Gauss leaves the light one winding number, so its only copy is the recorded hop; l has no continuity law (it is a length sourced at the charges); where the light streams (the ladder) its beat keeps only Gauss data and makes and unmakes l itself; E-SPN-0075's exact capacity reads 2D docks away; and a string link's column hides floor((D - 1) / 2) pairs, far short of the store",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- L1 ----
     const lineCases = [
@@ -97,11 +109,19 @@ export default experiment({
       for (const q of chargePlacements(c.L)) {
         placements++
 
-        const total = mod(q.reduce((a, b) => a + b, 0), c.N)
+        const total = mod(
+          q.reduce((a, b) => a + b, 0),
+          c.N,
+        )
         const want = total === 0 ? c.N : 0
 
-        if (total === 0) neutral++
-        if (lineGaussCount(c.L, c.N, q) !== want) exceptions++
+        if (total === 0) {
+          neutral++
+        }
+
+        if (lineGaussCount(c.L, c.N, q) !== want) {
+          exceptions++
+        }
       }
 
       return { ...c, placements, neutral, exceptions }
@@ -113,9 +133,18 @@ export default experiment({
     // ---- L2 ----
     const sources = [
       { name: 'pair', ...crossingSources(12, ['love', 'fear'], 6) },
-      { name: 'three loves', ...crossingSources(12, ['love', 'love', 'love'], 6) },
+      {
+        name: 'three loves',
+        ...crossingSources(12, ['love', 'love', 'love'], 6),
+      },
     ]
-    const l2 = sources.every(s => s.offCrossing === 0 && s.lChanged > 0 && s.lChangeRange[0] === -2 && s.lChangeRange[1] === 2)
+    const l2 = sources.every(
+      s =>
+        s.offCrossing === 0 &&
+        s.lChanged > 0 &&
+        s.lChangeRange[0] === -2 &&
+        s.lChangeRange[1] === 2,
+    )
 
     log('l2')
 
@@ -131,7 +160,12 @@ export default experiment({
 
       log(`l3 N ${c.N} squares ${c.squares}`)
 
-      return { ...c, D: (c.N - 1) / 2, ...comp, loopMin: Math.min(...g) }
+      return {
+        ...c,
+        D: (c.N - 1) / 2,
+        ...comp,
+        loopMin: Math.min(...g),
+      }
     })
     const l3 = ladders.every(
       r =>
@@ -147,8 +181,13 @@ export default experiment({
     )
 
     // ---- L4 ----
-    const ports = [1, 2, 3].map(D => ({ D, ...portFarReach(4 * D + 3, ['love', 'fear'], D) }))
-    const l4 = ports.every(p => p.witnesses > 0 && p.farthest === 2 * p.D)
+    const ports = [1, 2, 3].map(D => ({
+      D,
+      ...portFarReach(4 * D + 3, ['love', 'fear'], D),
+    }))
+    const l4 = ports.every(
+      p => p.witnesses > 0 && p.farthest === 2 * p.D,
+    )
 
     log('l4')
 
@@ -158,7 +197,9 @@ export default experiment({
 
       return { D, atOne: best[1]!, formula: Math.floor((D - 1) / 2) }
     })
-    const l5 = hidden.every(h => h.atOne === h.formula && h.atOne + 1 < 2 * h.D + 1)
+    const l5 = hidden.every(
+      h => h.atOne === h.formula && h.atOne + 1 < 2 * h.D + 1,
+    )
 
     const ok = l1 && l2 && l3 && l4 && l5
 
@@ -173,7 +214,19 @@ export default experiment({
         gate_L5: l5 ? 1 : 0,
         lineExceptions: lineRows.reduce((a, r) => a + r.exceptions, 0),
         linePlacements: lineRows.reduce((a, r) => a + r.placements, 0),
-        ...Object.fromEntries(sources.flatMap(s => [[`sources_${s.name.replace(/ /g, '_')}_states`, s.states], [`sources_${s.name.replace(/ /g, '_')}_offCrossing`, s.offCrossing], [`sources_${s.name.replace(/ /g, '_')}_lChanged`, s.lChanged]])),
+        ...Object.fromEntries(
+          sources.flatMap(s => [
+            [`sources_${s.name.replace(/ /g, '_')}_states`, s.states],
+            [
+              `sources_${s.name.replace(/ /g, '_')}_offCrossing`,
+              s.offCrossing,
+            ],
+            [
+              `sources_${s.name.replace(/ /g, '_')}_lChanged`,
+              s.lChanged,
+            ],
+          ]),
+        ),
         ...Object.fromEntries(
           ladders.flatMap(r => {
             const k = `ladder_N${r.N}_sq${r.squares}`
@@ -193,8 +246,16 @@ export default experiment({
             ]
           }),
         ),
-        ...Object.fromEntries(ports.flatMap(p => [[`port_D${p.D}_witnesses`, p.witnesses], [`port_D${p.D}_farthest`, p.farthest], [`port_D${p.D}_checked`, p.checked]])),
-        ...Object.fromEntries(hidden.map(h => [`hidden_D${h.D}_atOne`, h.atOne])),
+        ...Object.fromEntries(
+          ports.flatMap(p => [
+            [`port_D${p.D}_witnesses`, p.witnesses],
+            [`port_D${p.D}_farthest`, p.farthest],
+            [`port_D${p.D}_checked`, p.checked],
+          ]),
+        ),
+        ...Object.fromEntries(
+          hidden.map(h => [`hidden_D${h.D}_atOne`, h.atOne]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       notes: `L1, theorems checked exhaustively or exactly. Gates L1 ${l1}, L2 ${l2}, L3 ${l3}, L4 ${l4}, L5 ${l5}. Line (Theorem A): ${lineRows.map(r => `N ${r.N} L ${r.L}: ${r.placements} placements (${r.neutral} neutral mod N), ${r.exceptions} exceptions`).join('; ')}. Sources (Theorem B): ${sources.map(s => `${s.name}: ${s.states} states, ${s.offCrossing} off-crossing changes, l changed on ${s.lChanged}, change ${s.lChangeRange.join(' .. ')}`).join('; ')}. Ladder (Theorem C): ${ladders.map(r => `N ${r.N}, ${r.squares} squares: ${r.size} registers, ${r.components} components over ${r.gaussClasses} Gauss classes (${r.componentsPerClass.join('/')} per class), ${r.mixedComponents} mixed, l constant on ${r.constantLComponents}, vacuum piece ${r.vacuumSize} states reaching l = ${r.vacuumLMax}, kept entries >= ${r.smallestKept.toExponential(2)}, dropped <= ${r.largestDropped.toExponential(1)}, unitarity ${r.unitarity.toExponential(1)}, smallest loop coefficient ${r.loopMin.toExponential(2)}`).join('; ')}. Port store (Theorem D): ${ports.map(p => `D ${p.D}: ${p.states} reached, ${p.witnesses} of ${p.checked} far label changes move a copy, farthest ${p.farthest}`).join('; ')}. Hidden pairs at |sum| = 1: ${hidden.map(h => `D ${h.D} ${h.atOne}`).join(', ')}. MEANING: the candidate fails at every step. On a line there is no light stream (Gauss leaves one winding), so "the count moves with the light" can only mean "moves with the recorded hops", and the hops that change l are the string's two ends: that is the end-port store, which E-SPN-0085 builds (it keeps Pauli's lock and the range 2D, pins the charge-one cluster exactly, and its lightest level is not the natural spin one half). Where the light does stream (squares), it keeps no count at all: its support mixes every value of l inside each Gauss class, so a reserve on the light would be spent by the photon. l itself is a length, sourced at the charges, with no continuity law. So E-SPN-0081's trilemma is a theorem: a count that keeps Pauli and travels needs a stream of its own. What this is not: a statement about the knit's 3D husk light beyond the ladder (the ladder is the light's own rule on its smallest closed geometry; the argument, support components equal Gauss data, holds on any lattice whose loop shifts generate the cycle space, which the square lattice's do).`,

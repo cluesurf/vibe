@@ -26,12 +26,25 @@
 // Floating point, deterministic, no random numbers.
 
 import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
-import { displacementMatrix, phasePointMatrix } from '@/code/algebra/weil-representation'
-import { COIN_A, COIN_B, dockIndex, stepAxis, type Step } from '@/code/rule/spinor-token'
+import {
+  displacementMatrix,
+  phasePointMatrix,
+} from '@/code/algebra/weil-representation'
+import {
+  COIN_A,
+  COIN_B,
+  dockIndex,
+  stepAxis,
+  type Step,
+} from '@/code/rule/spinor-token'
 
 export type Law = 'comoving' | 'fixed'
 
-export type RoleWalker = { readonly side: number; re: Float64Array; im: Float64Array }
+export type RoleWalker = {
+  readonly side: number
+  re: Float64Array
+  im: Float64Array
+}
 
 type M3 = { re: Float64Array; im: Float64Array }
 
@@ -60,8 +73,15 @@ function mul3(a: M3, b: M3): M3 {
       const ai = a.im[i * 3 + k] ?? 0
 
       for (let j = 0; j < 3; j++) {
-        re[i * 3 + j] = (re[i * 3 + j] ?? 0) + ar * (b.re[k * 3 + j] ?? 0) - ai * (b.im[k * 3 + j] ?? 0)
-        im[i * 3 + j] = (im[i * 3 + j] ?? 0) + ar * (b.im[k * 3 + j] ?? 0) + ai * (b.re[k * 3 + j] ?? 0)
+        re[i * 3 + j] =
+          (re[i * 3 + j] ?? 0) +
+          ar * (b.re[k * 3 + j] ?? 0) -
+          ai * (b.im[k * 3 + j] ?? 0)
+
+        im[i * 3 + j] =
+          (im[i * 3 + j] ?? 0) +
+          ar * (b.im[k * 3 + j] ?? 0) +
+          ai * (b.re[k * 3 + j] ?? 0)
       }
     }
   }
@@ -83,7 +103,10 @@ export function dagger3(a: M3): M3 {
   return { re, im }
 }
 
-const fromComplex = (m: ComplexMatrix): M3 => ({ re: Float64Array.from(m.re), im: Float64Array.from(m.im) })
+const fromComplex = (m: ComplexMatrix): M3 => ({
+  re: Float64Array.from(m.re),
+  im: Float64Array.from(m.im),
+})
 
 // sigma_a (+) lambda in the basis (e0, e1, l), then written in the computational basis
 function originGenerator(axis: number, lambda: number): M3 {
@@ -107,7 +130,8 @@ function originGenerator(axis: number, lambda: number): M3 {
   return mul3(mul3(b, g), dagger3(b))
 }
 
-const phaseIndex = (a: number, b: number): number => 3 * (((a % 3) + 3) % 3) + (((b % 3) + 3) % 3)
+const phaseIndex = (a: number, b: number): number =>
+  3 * (((a % 3) + 3) % 3) + (((b % 3) + 3) % 3)
 
 export type RoleTables = {
   // per own point p: the projectors (1 + G_a(p)) / 2 and (1 - G_a(p)) / 2, a = 0, 1, 2, for each law
@@ -125,21 +149,49 @@ export type RoleTables = {
 }
 
 export function roleTables(lambda = 1): RoleTables {
-  const frames = Array.from({ length: 9 }, (_, p) => fromComplex(displacementMatrix(3, Math.floor(p / 3), p % 3)))
+  const frames = Array.from({ length: 9 }, (_, p) =>
+    fromComplex(displacementMatrix(3, Math.floor(p / 3), p % 3)),
+  )
   const origin = [0, 1, 2].map(a => originGenerator(a, lambda))
   const half = (g: M3, s: number): M3 => ({
     re: g.re.map((x, i) => (s * x + (i % 4 === 0 ? 1 : 0)) / 2),
     im: g.im.map(x => (s * x) / 2),
   })
   const projectors = (law: Law, s: number): M3[][] =>
-    frames.map(f => origin.map(g => half(law === 'comoving' ? mul3(mul3(f, g), dagger3(f)) : g, s)))
-  const doublet = Array.from({ length: 9 }, (_, p) => half(fromComplex(phasePointMatrix(3, Math.floor(p / 3), p % 3)), 1))
-  const moved = Array.from({ length: 9 }, (_, v) => Array.from({ length: 9 }, (__, p) => phaseIndex(Math.floor(p / 3) + Math.floor(v / 3), (p % 3) + (v % 3))))
-  const movedBack = Array.from({ length: 9 }, (_, v) => Array.from({ length: 9 }, (__, p) => phaseIndex(Math.floor(p / 3) - Math.floor(v / 3), (p % 3) - (v % 3))))
+    frames.map(f =>
+      origin.map(g =>
+        half(law === 'comoving' ? mul3(mul3(f, g), dagger3(f)) : g, s),
+      ),
+    )
+  const doublet = Array.from({ length: 9 }, (_, p) =>
+    half(fromComplex(phasePointMatrix(3, Math.floor(p / 3), p % 3)), 1),
+  )
+  const moved = Array.from({ length: 9 }, (_, v) =>
+    Array.from({ length: 9 }, (__, p) =>
+      phaseIndex(
+        Math.floor(p / 3) + Math.floor(v / 3),
+        (p % 3) + (v % 3),
+      ),
+    ),
+  )
+  const movedBack = Array.from({ length: 9 }, (_, v) =>
+    Array.from({ length: 9 }, (__, p) =>
+      phaseIndex(
+        Math.floor(p / 3) - Math.floor(v / 3),
+        (p % 3) - (v % 3),
+      ),
+    ),
+  )
 
   return {
-    plus: { comoving: projectors('comoving', 1), fixed: projectors('fixed', 1) },
-    minus: { comoving: projectors('comoving', -1), fixed: projectors('fixed', -1) },
+    plus: {
+      comoving: projectors('comoving', 1),
+      fixed: projectors('fixed', 1),
+    },
+    minus: {
+      comoving: projectors('comoving', -1),
+      fixed: projectors('fixed', -1),
+    },
     doublet,
     shift: frames,
     shiftBack: frames.map(dagger3),
@@ -150,10 +202,19 @@ export function roleTables(lambda = 1): RoleTables {
 }
 
 export function makeRoleWalker(side: number): RoleWalker {
-  return { side, re: new Float64Array(54 * side ** 3), im: new Float64Array(54 * side ** 3) }
+  return {
+    side,
+    re: new Float64Array(54 * side ** 3),
+    im: new Float64Array(54 * side ** 3),
+  }
 }
 
-export const roleIndex = (d: number, p: number, slot: number, r: number): number => ((d * 9 + p) * 2 + slot) * 3 + r
+export const roleIndex = (
+  d: number,
+  p: number,
+  slot: number,
+  r: number,
+): number => ((d * 9 + p) * 2 + slot) * 3 + r
 
 // v(d, a): the color translation on each husk link, from a golden Weyl sequence (all zero when `off`)
 export function colorField(side: number, off: boolean): Int8Array {
@@ -169,7 +230,17 @@ export function colorField(side: number, off: boolean): Int8Array {
 }
 
 // y = m x on a role 3-vector stored at offset o of (re, im), added into (outRe, outIm) at offset t with a phase
-function applyAdd(m: M3, re: Float64Array, im: Float64Array, o: number, outRe: Float64Array, outIm: Float64Array, t: number, c: number, s: number): number {
+function applyAdd(
+  m: M3,
+  re: Float64Array,
+  im: Float64Array,
+  o: number,
+  outRe: Float64Array,
+  outIm: Float64Array,
+  t: number,
+  c: number,
+  s: number,
+): number {
   let carried = 0
 
   for (let i = 0; i < 3; i++) {
@@ -226,10 +297,29 @@ export function beatRoleWalker(input: {
       const br = w.re[b] ?? 0
       const bi = w.im[b] ?? 0
 
-      w.re[a] = COIN_A[0] * ar - COIN_A[1] * ai + COIN_B[0] * br - COIN_B[1] * bi
-      w.im[a] = COIN_A[0] * ai + COIN_A[1] * ar + COIN_B[0] * bi + COIN_B[1] * br
-      w.re[b] = COIN_B[0] * ar - COIN_B[1] * ai + COIN_A[0] * br - COIN_A[1] * bi
-      w.im[b] = COIN_B[0] * ai + COIN_B[1] * ar + COIN_A[0] * bi + COIN_A[1] * br
+      w.re[a] =
+        COIN_A[0] * ar -
+        COIN_A[1] * ai +
+        COIN_B[0] * br -
+        COIN_B[1] * bi
+
+      w.im[a] =
+        COIN_A[0] * ai +
+        COIN_A[1] * ar +
+        COIN_B[0] * bi +
+        COIN_B[1] * br
+
+      w.re[b] =
+        COIN_B[0] * ar -
+        COIN_B[1] * ai +
+        COIN_A[0] * br -
+        COIN_A[1] * bi
+
+      w.im[b] =
+        COIN_B[0] * ai +
+        COIN_B[1] * ar +
+        COIN_A[0] * bi +
+        COIN_A[1] * br
     }
   }
 
@@ -243,13 +333,32 @@ export function beatRoleWalker(input: {
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
         const d = dockIndex(side, x, y, z)
-        const forward = dockIndex(side, x + (step3[0] ?? 0), y + (step3[1] ?? 0), z + (step3[2] ?? 0))
-        const back = dockIndex(side, x - (step3[0] ?? 0), y - (step3[1] ?? 0), z - (step3[2] ?? 0))
-        const forwardAngle = sign > 0 ? (theta?.[d] ?? 0) : -(theta?.[forward] ?? 0)
-        const backAngle = sign > 0 ? -(theta?.[back] ?? 0) : (theta?.[d] ?? 0)
+        const forward = dockIndex(
+          side,
+          x + (step3[0] ?? 0),
+          y + (step3[1] ?? 0),
+          z + (step3[2] ?? 0),
+        )
+        const back = dockIndex(
+          side,
+          x - (step3[0] ?? 0),
+          y - (step3[1] ?? 0),
+          z - (step3[2] ?? 0),
+        )
+        const forwardAngle =
+          sign > 0 ? (theta?.[d] ?? 0) : -(theta?.[forward] ?? 0)
+        const backAngle =
+          sign > 0 ? -(theta?.[back] ?? 0) : (theta?.[d] ?? 0)
         // the color translation each copy crosses, and whether it crosses its link forward
-        const forwardLink = sign > 0 ? { v: color[3 * d + axis] ?? 0, along: true } : { v: color[3 * forward + axis] ?? 0, along: false }
-        const backLink = sign > 0 ? { v: color[3 * back + axis] ?? 0, along: false } : { v: color[3 * d + axis] ?? 0, along: true }
+        const forwardLink =
+          sign > 0
+            ? { v: color[3 * d + axis] ?? 0, along: true }
+            : { v: color[3 * forward + axis] ?? 0, along: false }
+        const backLink =
+          sign > 0
+            ? { v: color[3 * back + axis] ?? 0, along: false }
+            : { v: color[3 * d + axis] ?? 0, along: true }
+
         let carriedForward = 0
         let carriedBack = 0
 
@@ -268,13 +377,27 @@ export function beatRoleWalker(input: {
                 continue
               }
 
-              const projector = depth ? undefined : ((isForward ? tau : -tau) > 0 ? tables.plus[law] : tables.minus[law])[p]?.[axis]
+              const projector = depth
+                ? undefined
+                : ((isForward ? tau : -tau) > 0
+                    ? tables.plus[law]
+                    : tables.minus[law])[p]?.[axis]
 
               SCRATCH.re.fill(0)
               SCRATCH.im.fill(0)
 
               if (projector) {
-                applyAdd(projector, w.re, w.im, o, SCRATCH.re, SCRATCH.im, 0, 1, 0)
+                applyAdd(
+                  projector,
+                  w.re,
+                  w.im,
+                  o,
+                  SCRATCH.re,
+                  SCRATCH.im,
+                  0,
+                  1,
+                  0,
+                )
               } else {
                 for (let r = 0; r < 3; r++) {
                   SCRATCH.re[r] = w.re[o + r] ?? 0
@@ -282,9 +405,25 @@ export function beatRoleWalker(input: {
                 }
               }
 
-              const shift = (link.along ? tables.shift : tables.shiftBack)[link.v] ?? tables.shift[0]!
-              const to = (link.along ? tables.moved : tables.movedBack)[link.v]?.[p] ?? p
-              const carried = applyAdd(shift, SCRATCH.re, SCRATCH.im, 0, nextRe, nextIm, roleIndex(target, to, slot, 0), Math.cos(q * angle), Math.sin(q * angle))
+              const shift =
+                (link.along ? tables.shift : tables.shiftBack)[
+                  link.v
+                ] ?? tables.shift[0]!
+              const to =
+                (link.along ? tables.moved : tables.movedBack)[
+                  link.v
+                ]?.[p] ?? p
+              const carried = applyAdd(
+                shift,
+                SCRATCH.re,
+                SCRATCH.im,
+                0,
+                nextRe,
+                nextIm,
+                roleIndex(target, to, slot, 0),
+                Math.cos(q * angle),
+                Math.sin(q * angle),
+              )
 
               if (isForward) {
                 carriedForward += carried
@@ -297,11 +436,17 @@ export function beatRoleWalker(input: {
 
         if (input.currents) {
           if (sign > 0) {
-            input.currents[3 * d + axis] = (input.currents[3 * d + axis] ?? 0) + carriedForward
-            input.currents[3 * back + axis] = (input.currents[3 * back + axis] ?? 0) - carriedBack
+            input.currents[3 * d + axis] =
+              (input.currents[3 * d + axis] ?? 0) + carriedForward
+
+            input.currents[3 * back + axis] =
+              (input.currents[3 * back + axis] ?? 0) - carriedBack
           } else {
-            input.currents[3 * forward + axis] = (input.currents[3 * forward + axis] ?? 0) - carriedForward
-            input.currents[3 * d + axis] = (input.currents[3 * d + axis] ?? 0) + carriedBack
+            input.currents[3 * forward + axis] =
+              (input.currents[3 * forward + axis] ?? 0) - carriedForward
+
+            input.currents[3 * d + axis] =
+              (input.currents[3 * d + axis] ?? 0) + carriedBack
           }
         }
       }
@@ -339,12 +484,30 @@ export function inverseBeatRoleWalker(input: {
     for (let y = 0; y < side; y++) {
       for (let x = 0; x < side; x++) {
         const d = dockIndex(side, x, y, z)
-        const forward = dockIndex(side, x + (step3[0] ?? 0), y + (step3[1] ?? 0), z + (step3[2] ?? 0))
-        const back = dockIndex(side, x - (step3[0] ?? 0), y - (step3[1] ?? 0), z - (step3[2] ?? 0))
-        const forwardAngle = sign > 0 ? (theta?.[d] ?? 0) : -(theta?.[forward] ?? 0)
-        const backAngle = sign > 0 ? -(theta?.[back] ?? 0) : (theta?.[d] ?? 0)
-        const forwardLink = sign > 0 ? { v: color[3 * d + axis] ?? 0, along: true } : { v: color[3 * forward + axis] ?? 0, along: false }
-        const backLink = sign > 0 ? { v: color[3 * back + axis] ?? 0, along: false } : { v: color[3 * d + axis] ?? 0, along: true }
+        const forward = dockIndex(
+          side,
+          x + (step3[0] ?? 0),
+          y + (step3[1] ?? 0),
+          z + (step3[2] ?? 0),
+        )
+        const back = dockIndex(
+          side,
+          x - (step3[0] ?? 0),
+          y - (step3[1] ?? 0),
+          z - (step3[2] ?? 0),
+        )
+        const forwardAngle =
+          sign > 0 ? (theta?.[d] ?? 0) : -(theta?.[forward] ?? 0)
+        const backAngle =
+          sign > 0 ? -(theta?.[back] ?? 0) : (theta?.[d] ?? 0)
+        const forwardLink =
+          sign > 0
+            ? { v: color[3 * d + axis] ?? 0, along: true }
+            : { v: color[3 * forward + axis] ?? 0, along: false }
+        const backLink =
+          sign > 0
+            ? { v: color[3 * back + axis] ?? 0, along: false }
+            : { v: color[3 * d + axis] ?? 0, along: true }
 
         for (let p = 0; p < 9; p++) {
           for (let slot = 0; slot < 2; slot++) {
@@ -358,22 +521,55 @@ export function inverseBeatRoleWalker(input: {
                 continue
               }
 
-              const to = (link.along ? tables.moved : tables.movedBack)[link.v]?.[p] ?? p
-              const undo = (link.along ? tables.shiftBack : tables.shift)[link.v] ?? tables.shift[0]!
+              const to =
+                (link.along ? tables.moved : tables.movedBack)[
+                  link.v
+                ]?.[p] ?? p
+              const undo =
+                (link.along ? tables.shiftBack : tables.shift)[
+                  link.v
+                ] ?? tables.shift[0]!
 
               SCRATCH.re.fill(0)
               SCRATCH.im.fill(0)
-              applyAdd(undo, w.re, w.im, roleIndex(source, to, slot, 0), SCRATCH.re, SCRATCH.im, 0, Math.cos(q * angle), -Math.sin(q * angle))
+              applyAdd(
+                undo,
+                w.re,
+                w.im,
+                roleIndex(source, to, slot, 0),
+                SCRATCH.re,
+                SCRATCH.im,
+                0,
+                Math.cos(q * angle),
+                -Math.sin(q * angle),
+              )
 
-              const projector = depth ? undefined : ((isForward ? tau : -tau) > 0 ? tables.plus[law] : tables.minus[law])[p]?.[axis]
+              const projector = depth
+                ? undefined
+                : ((isForward ? tau : -tau) > 0
+                    ? tables.plus[law]
+                    : tables.minus[law])[p]?.[axis]
               const o = roleIndex(d, p, slot, 0)
 
               if (projector) {
-                applyAdd(projector, SCRATCH.re, SCRATCH.im, 0, nextRe, nextIm, o, 1, 0)
+                applyAdd(
+                  projector,
+                  SCRATCH.re,
+                  SCRATCH.im,
+                  0,
+                  nextRe,
+                  nextIm,
+                  o,
+                  1,
+                  0,
+                )
               } else {
                 for (let r = 0; r < 3; r++) {
-                  nextRe[o + r] = (nextRe[o + r] ?? 0) + (SCRATCH.re[r] ?? 0)
-                  nextIm[o + r] = (nextIm[o + r] ?? 0) + (SCRATCH.im[r] ?? 0)
+                  nextRe[o + r] =
+                    (nextRe[o + r] ?? 0) + (SCRATCH.re[r] ?? 0)
+
+                  nextIm[o + r] =
+                    (nextIm[o + r] ?? 0) + (SCRATCH.im[r] ?? 0)
                 }
               }
             }
@@ -396,16 +592,38 @@ export function inverseBeatRoleWalker(input: {
       const br = w.re[b] ?? 0
       const bi = w.im[b] ?? 0
 
-      w.re[a] = COIN_A[0] * ar + COIN_A[1] * ai + COIN_B[0] * br + COIN_B[1] * bi
-      w.im[a] = COIN_A[0] * ai - COIN_A[1] * ar + COIN_B[0] * bi - COIN_B[1] * br
-      w.re[b] = COIN_B[0] * ar + COIN_B[1] * ai + COIN_A[0] * br + COIN_A[1] * bi
-      w.im[b] = COIN_B[0] * ai - COIN_B[1] * ar + COIN_A[0] * bi - COIN_A[1] * br
+      w.re[a] =
+        COIN_A[0] * ar +
+        COIN_A[1] * ai +
+        COIN_B[0] * br +
+        COIN_B[1] * bi
+
+      w.im[a] =
+        COIN_A[0] * ai -
+        COIN_A[1] * ar +
+        COIN_B[0] * bi -
+        COIN_B[1] * br
+
+      w.re[b] =
+        COIN_B[0] * ar +
+        COIN_B[1] * ai +
+        COIN_A[0] * br +
+        COIN_A[1] * bi
+
+      w.im[b] =
+        COIN_B[0] * ai -
+        COIN_B[1] * ar +
+        COIN_A[0] * bi -
+        COIN_A[1] * br
     }
   }
 }
 
 // the fermion number: the weight in the doublet about each amplitude's own point, and the total weight
-export function fermionNumber(w: RoleWalker, tables: RoleTables): { doublet: number; total: number } {
+export function fermionNumber(
+  w: RoleWalker,
+  tables: RoleTables,
+): { doublet: number; total: number } {
   let doublet = 0
   let total = 0
 
@@ -430,7 +648,8 @@ export function fermionNumber(w: RoleWalker, tables: RoleTables): { doublet: num
             const yi = w.im[o + j] ?? 0
 
             // conj(x_i) (m_ij y_j), real part
-            doublet += xr * (mr * yr - mi * yi) + xi * (mr * yi + mi * yr)
+            doublet +=
+              xr * (mr * yr - mi * yi) + xi * (mr * yi + mi * yr)
           }
         }
       }

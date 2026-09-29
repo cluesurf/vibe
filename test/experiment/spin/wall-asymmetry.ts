@@ -72,16 +72,32 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
-import { partnerProjector48, scaled, singletProjector24 } from '@/code/measure/spinor-register'
-import { sectorBasis, volumeRight } from '@/code/measure/chiral-register'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
+import {
+  partnerProjector48,
+  scaled,
+  singletProjector24,
+} from '@/code/measure/spinor-register'
+import {
+  sectorBasis,
+  volumeRight,
+} from '@/code/measure/chiral-register'
 import { halfPieces } from '@/code/measure/chiral-flow'
-import { wilsonSchedule, type HalfSet, type Slab } from '@/code/measure/wilson-register'
+import {
+  wilsonSchedule,
+  type HalfSet,
+  type Slab,
+} from '@/code/measure/wilson-register'
 import { wallFlow, type WallFlow } from '@/code/measure/wall-face'
 import { exchangeCount } from '@/code/measure/register-many-body'
 import { qwIsZero } from '@/code/measure/flavor-register'
 
 const HEAVY: readonly [number, number] = [-2, 5]
+
 // three exact flavor units whose Wilson walls keep the field gap above the flow window and whose flow search completes
 // (wa-probe3): the heavy unit itself (M 0.7605), ringUnit(6, 0) (M 0.8601) and ringUnit(0, 4) (M 1.0472)
 export const FLAVORS: readonly (readonly [number, number])[] = [
@@ -89,21 +105,35 @@ export const FLAVORS: readonly (readonly [number, number])[] = [
   [6, 0],
   [0, 4],
 ]
+
 // E-SPN-0168's recorded flow, qa 15, p 1, half 0 (its notes, tmp/wfc-exp-run1.log)
 const RECORDED_0168 =
   '0.013: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 0.406: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 0.798: ; 1.191: ; 1.584: ; 1.976: ; 2.369: ; 2.762: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 3.155: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 3.547: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 3.940: ; 4.333: ; 4.725: ; 5.118: ; 5.511: ; 5.903: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 6.296: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97'
 const WINDOW = 0.35
 const FL = 12
 
-export type AsymmetryPlan = { loopSteps: number; lanczosSteps: number; qa: number; flavors: readonly (readonly [number, number])[] }
+export type AsymmetryPlan = {
+  loopSteps: number
+  lanczosSteps: number
+  qa: number
+  flavors: readonly (readonly [number, number])[]
+}
 
-export const GATE_PLAN: AsymmetryPlan = { loopSteps: 16, lanczosSteps: 80, qa: 15, flavors: FLAVORS }
+export const GATE_PLAN: AsymmetryPlan = {
+  loopSteps: 16,
+  lanczosSteps: 80,
+  qa: 15,
+  flavors: FLAVORS,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
+
 const popcount = (x: number): number => {
   let c = 0
 
-  for (let y = x; y; y &= y - 1) c++
+  for (let y = x; y; y &= y - 1) {
+    c++
+  }
 
   return c
 }
@@ -122,43 +152,102 @@ export default experiment({
   },
 })
 
-const stepLine = (f: WallFlow): string => f.steps.map(st => `${st.k2.toFixed(3)}: ${st.levels.map(l => `${l.offset.toFixed(4)}/${l.wallA.toFixed(2)}`).join(' ')}`).join('; ')
+const stepLine = (f: WallFlow): string =>
+  f.steps
+    .map(
+      st =>
+        `${st.k2.toFixed(3)}: ${st.levels.map(l => `${l.offset.toFixed(4)}/${l.wallA.toFixed(2)}`).join(' ')}`,
+    )
+    .join('; ')
 
 export function wallAsymmetryRun(plan: AsymmetryPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
   const basis = sectorBasis(volumeRight())
-  const unitValue = (kj: readonly [number, number]): [number, number] => {
+
+  const unitValue = (
+    kj: readonly [number, number],
+  ): [number, number] => {
     const t = unitAngle(ringUnit(kj[0], kj[1]))
 
     return [Math.cos(t), Math.sin(t)]
   }
+
   const setsOf = (kj: readonly [number, number]): HalfSet[] => {
     const u = unitValue(kj)
 
-    return [{ pieces: halfPieces(wilsonSchedule(qS, qD, u, { wilson: false }) as CMatrix[], basis, 0).pieces }, { pieces: halfPieces(wilsonSchedule(qS, qD, u, { wilson: true }) as CMatrix[], basis, 0).pieces }]
+    return [
+      {
+        pieces: halfPieces(
+          wilsonSchedule(qS, qD, u, { wilson: false }),
+          basis,
+          0,
+        ).pieces,
+      },
+      {
+        pieces: halfPieces(
+          wilsonSchedule(qS, qD, u, { wilson: true }),
+          basis,
+          0,
+        ).pieces,
+      },
+    ]
   }
-  const slab = (p: number): Slab => ({ L: FL, qa: plan.qa, p, profile: Array.from({ length: FL }, (_, c) => (c < FL / 2 ? 1 : 0)) })
-  const flowDepths = new Set(Array.from({ length: FL / 2 }, (_, i) => (FL / 4 + i) % FL))
+
+  const slab = (p: number): Slab => ({
+    L: FL,
+    qa: plan.qa,
+    p,
+    profile: Array.from({ length: FL }, (_, c) => (c < FL / 2 ? 1 : 0)),
+  })
+  const flowDepths = new Set(
+    Array.from({ length: FL / 2 }, (_, i) => (FL / 4 + i) % FL),
+  )
+
   const flow = (kj: readonly [number, number], p: number): WallFlow => {
-    const f = wallFlow(slab(p), setsOf(kj), 0.02, 0.05, 0.013, plan.loopSteps, DOCK_ROOTS, flowDepths, WINDOW, plan.lanczosSteps, WINDOW)
+    const f = wallFlow(
+      slab(p),
+      setsOf(kj),
+      0.02,
+      0.05,
+      0.013,
+      plan.loopSteps,
+      DOCK_ROOTS,
+      flowDepths,
+      WINDOW,
+      plan.lanczosSteps,
+      WINDOW,
+    )
 
     log(`flow u ${kj.join(',')} p ${p}: A ${f.netA} B ${f.netB}`)
 
     return f
   }
-  const sound = (f: WallFlow): boolean => f.steps.every(st => st.complete && st.eigenResidual <= 1e-8)
+
+  const sound = (f: WallFlow): boolean =>
+    f.steps.every(st => st.complete && st.eigenResidual <= 1e-8)
 
   // ---------------- C1: E-SPN-0168's recorded flow ----------------
   const plus = flow(HEAVY, 1)
   const plusLine = stepLine(plus)
-  const C1 = plusLine === RECORDED_0168 && plus.netA === 4 && plus.netB === -4 && sound(plus)
+  const C1 =
+    plusLine === RECORDED_0168 &&
+    plus.netA === 4 &&
+    plus.netB === -4 &&
+    sound(plus)
 
   // ---------------- R1: the CP-conjugate winding ----------------
   const minus = flow(HEAVY, -1)
-  const sortLevels = (ls: readonly { offset: number; wallA: number }[]): { offset: number; wallA: number }[] => [...ls].sort((a, b) => a.offset - b.offset || a.wallA - b.wallA)
+  const sortLevels = (
+    ls: readonly { offset: number; wallA: number }[],
+  ): { offset: number; wallA: number }[] =>
+    [...ls].sort((a, b) => a.offset - b.offset || a.wallA - b.wallA)
+
   let offsetGap = 0
   let weightGap = 0
   let sameCounts = minus.steps.length === plus.steps.length
@@ -166,37 +255,68 @@ export function wallAsymmetryRun(plan: AsymmetryPlan): Verdict {
   minus.steps.forEach((st, t) => {
     const a = sortLevels(st.levels)
     // at p +1 the walls are exchanged, so the level order within a degenerate offset is by 1 - w
-    const b = sortLevels((plus.steps[t] as { levels: { offset: number; wallA: number }[] }).levels.map(l => ({ offset: l.offset, wallA: 1 - l.wallA })))
+    const b = sortLevels(
+      (
+        plus.steps[t] as { levels: { offset: number; wallA: number }[] }
+      ).levels.map(l => ({ offset: l.offset, wallA: 1 - l.wallA })),
+    )
 
     if (a.length !== b.length) {
       sameCounts = false
 
       return
     }
+
     a.forEach((x, i) => {
-      offsetGap = Math.max(offsetGap, Math.abs(x.offset - (b[i] as { offset: number }).offset))
-      weightGap = Math.max(weightGap, Math.abs(x.wallA - (b[i] as { wallA: number }).wallA))
+      offsetGap = Math.max(
+        offsetGap,
+        Math.abs(x.offset - (b[i] as { offset: number }).offset),
+      )
+
+      weightGap = Math.max(
+        weightGap,
+        Math.abs(x.wallA - (b[i] as { wallA: number }).wallA),
+      )
     })
   })
 
-  const R1 = minus.netA === -4 && minus.netB === 4 && sameCounts && offsetGap <= 1e-12 && weightGap <= 1e-9 && sound(minus)
+  const R1 =
+    minus.netA === -4 &&
+    minus.netB === 4 &&
+    sameCounts &&
+    offsetGap <= 1e-12 &&
+    weightGap <= 1e-9 &&
+    sound(minus)
 
   // ---------------- F1: three flavors ----------------
   // the heavy unit's flow is C1's (the same computation), not run twice
-  const flavorFlows = plan.flavors.map(kj => ({ kj, M: wrap(unitAngle(ringUnit(kj[0], kj[1])) - Math.PI), f: kj[0] === HEAVY[0] && kj[1] === HEAVY[1] ? plus : flow(kj, 1) }))
-  const F1 = flavorFlows.every(x => x.f.netA === 4 && x.f.netB === -4 && sound(x.f))
+  const flavorFlows = plan.flavors.map(kj => ({
+    kj,
+    M: wrap(unitAngle(ringUnit(kj[0], kj[1])) - Math.PI),
+    f: kj[0] === HEAVY[0] && kj[1] === HEAVY[1] ? plus : flow(kj, 1),
+  }))
+  const F1 = flavorFlows.every(
+    x => x.f.netA === 4 && x.f.netB === -4 && sound(x.f),
+  )
   const flavoredFaceA = flavorFlows.reduce((s, x) => s + x.f.netA, 0)
 
   // ---------------- V1: the vertex keeps member number ----------------
   const H = exchangeCount(4, 2)
+
   let crossNumber = 0
   let nonzero = 0
 
   H.forEach((row, i) =>
     row.forEach((x, j) => {
-      if (qwIsZero(x)) return
+      if (qwIsZero(x)) {
+        return
+      }
+
       nonzero++
-      if (popcount(i) !== popcount(j)) crossNumber++
+
+      if (popcount(i) !== popcount(j)) {
+        crossNumber++
+      }
     }),
   )
 

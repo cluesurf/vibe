@@ -31,7 +31,13 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { displacementOperators } from '@/code/measure/qutrit-clifford'
-import { operator, phasePointOperators, tensorOperators, multiplyOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  operator,
+  phasePointOperators,
+  tensorOperators,
+  multiplyOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { LABEL, LINES } from '@/code/measure/in-model-apparatus'
 
 const STEPS = 12
@@ -74,6 +80,7 @@ export default experiment({
 
       return out
     })
+
     const transform = (m: Operator): [Float64Array, Float64Array] => {
       const re = new Float64Array(729)
       const im = new Float64Array(729)
@@ -114,13 +121,25 @@ export default experiment({
       }
     }
 
-    const minus = (a: number, b: number): number => 3 * ((Math.floor(a / 3) - Math.floor(b / 3) + 3) % 3) + (((a % 3) - (b % 3) + 3) % 3)
+    const minus = (a: number, b: number): number =>
+      3 * ((Math.floor(a / 3) - Math.floor(b / 3) + 3) % 3) +
+      (((a % 3) - (b % 3) + 3) % 3)
+
     let offDiagonal = 0
 
     for (let x = 0; x < 729; x++) {
       for (let y = 0; y < 729; y++) {
-        if (Math.abs(k10re[x * 729 + y]!) + Math.abs(k10im[x * 729 + y]!) + Math.abs(k11[x * 729 + y]!) > 1e-12) {
-          const d = [minus(Math.floor(x / 81), Math.floor(y / 81)), minus(Math.floor(x / 9) % 9, Math.floor(y / 9) % 9), minus(x % 9, y % 9)]
+        if (
+          Math.abs(k10re[x * 729 + y]!) +
+            Math.abs(k10im[x * 729 + y]!) +
+            Math.abs(k11[x * 729 + y]!) >
+          1e-12
+        ) {
+          const d = [
+            minus(Math.floor(x / 81), Math.floor(y / 81)),
+            minus(Math.floor(x / 9) % 9, Math.floor(y / 9) % 9),
+            minus(x % 9, y % 9),
+          ]
 
           offDiagonal += d[0] === d[1] && d[1] === d[2] ? 0 : 1
         }
@@ -147,12 +166,20 @@ export default experiment({
     let exactMeasurements = 0
     let cases = 0
     let bestInfo = 0
+
     const manaAt: number[] = []
-    const coord = (x: number, slot: number): number => (slot === 0 ? Math.floor(x / 81) : slot === 1 ? Math.floor(x / 9) % 9 : x % 9)
+    const coord = (x: number, slot: number): number =>
+      slot === 0
+        ? Math.floor(x / 81)
+        : slot === 1
+          ? Math.floor(x / 9) % 9
+          : x % 9
 
     for (let step = 0; step < STEPS; step++) {
       const k = kernelAt((2 * Math.PI * step) / STEPS)
+
       let manaMax = 0
+
       const outs: Float64Array[] = []
 
       for (let a = 0; a < 12; a++) {
@@ -196,7 +223,9 @@ export default experiment({
         for (let li = 0; li < 12; li++) {
           for (let lj = 0; lj < 12; lj++) {
             for (let cl = 0; cl < 4; cl++) {
-              const classLines = LINES.map((l, idx) => (l.c === cl ? idx : -1)).filter(idx => idx >= 0)
+              const classLines = LINES.map((l, idx) =>
+                l.c === cl ? idx : -1,
+              ).filter(idx => idx >= 0)
 
               for (let t = 0; t < 3; t++) {
                 for (let r = 0; r < 3; r++) {
@@ -205,6 +234,7 @@ export default experiment({
                   }
 
                   const joint = new Float64Array(9)
+
                   let kept = true
 
                   for (const ls of classLines) {
@@ -214,9 +244,13 @@ export default experiment({
                     lines[i!] = li
                     lines[j!] = lj
 
-                    const out = outs[144 * lines[0]! + 12 * lines[1]! + lines[2]!]!
+                    const out =
+                      outs[
+                        144 * lines[0]! + 12 * lines[1]! + lines[2]!
+                      ]!
                     const sysLabels = [0, 0, 0]
-                    const lam = LABEL[9 * cl + (LINES[ls]!.points[0] ?? 0)] ?? 0
+                    const lam =
+                      LABEL[9 * cl + (LINES[ls]!.points[0] ?? 0)] ?? 0
 
                     for (let x = 0; x < 729; x++) {
                       const w = out[x]!
@@ -226,7 +260,8 @@ export default experiment({
                       }
 
                       const ks = LABEL[9 * cl + coord(x, t)] ?? 0
-                      const kr = 3 * lam + (LABEL[9 * cl + coord(x, r)] ?? 0)
+                      const kr =
+                        3 * lam + (LABEL[9 * cl + coord(x, r)] ?? 0)
 
                       sysLabels[ks] = (sysLabels[ks] ?? 0) + w
                       joint[kr] = (joint[kr] ?? 0) + w
@@ -239,7 +274,10 @@ export default experiment({
 
                   for (let a = 0; a < 3; a++) {
                     for (let b = 0; b < 3; b++) {
-                      const col = [0, 1, 2].reduce((sum, a2) => sum + joint[3 * a2 + b]! / 3, 0)
+                      const col = [0, 1, 2].reduce(
+                        (sum, a2) => sum + joint[3 * a2 + b]! / 3,
+                        0,
+                      )
                       const p = joint[3 * a + b]! / 3
 
                       if (p > 1e-12 && col > 1e-12) {
@@ -251,7 +289,12 @@ export default experiment({
                   bestInfo = Math.max(bestInfo, info)
                   cases++
 
-                  const copy = [0, 1, 2].every(a => [0, 1, 2].filter(b => Math.abs(joint[3 * a + b]!) > 1e-9).length === 1)
+                  const copy = [0, 1, 2].every(
+                    a =>
+                      [0, 1, 2].filter(
+                        b => Math.abs(joint[3 * a + b]!) > 1e-9,
+                      ).length === 1,
+                  )
 
                   exactMeasurements += kept && copy ? 1 : 0
                 }
@@ -262,11 +305,17 @@ export default experiment({
       }
     }
 
-    const symmetricBad = manaAt.filter((m, step) => step > 0 && Math.abs(m - (manaAt[STEPS - step] ?? 0)) > 1e-9).length
+    const symmetricBad = manaAt.filter(
+      (m, step) =>
+        step > 0 && Math.abs(m - (manaAt[STEPS - step] ?? 0)) > 1e-9,
+    ).length
     const gates = {
       G1: offDiagonal === 0,
       G2: exactMeasurements === 0 && cases > 0,
-      G3: Math.abs(manaAt[0] ?? 1) < 1e-9 && manaAt.every((m, step) => step === 0 || m > 1e-6) && symmetricBad === 0,
+      G3:
+        Math.abs(manaAt[0] ?? 1) < 1e-9 &&
+        manaAt.every((m, step) => step === 0 || m > 1e-6) &&
+        symmetricBad === 0,
     }
     const ok = Object.values(gates).every(Boolean)
 
@@ -279,8 +328,18 @@ export default experiment({
         exactMeasurements,
         bestInfoOverLog3: bestInfo / Math.log(3),
         symmetricBad,
-        ...Object.fromEntries(manaAt.map((m, step) => [`manaMax_step${step}_of_${STEPS}`, m])),
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          manaAt.map((m, step) => [
+            `manaMax_step${step}_of_${STEPS}`,
+            m,
+          ]),
+        ),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
         'L2, double precision on exact operators, no random numbers: all 1,728 line-product inputs and 12 angles enumerated. Gates written after the probe that read the same numbers (disclosed in the header), so partial at best. A three-love knot phase acts on a knot, which E-QTM-0135 found can never be the measured triple.',

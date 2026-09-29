@@ -15,8 +15,15 @@
 // stays), the swap condition, the palindrome, the couples at beat zero and the out-and-back walk are the
 // committed rule's. Roles ride as in code/rule/color-weave, so color stays exact cell by cell.
 
-import { BIND_MOVE_FORWARD, type Collision } from '@/code/rule/collision'
-import { colorLocalCollision, colorLocalSpec, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  BIND_MOVE_FORWARD,
+  type Collision,
+} from '@/code/rule/collision'
+import {
+  colorLocalCollision,
+  colorLocalSpec,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 
 // the turn, as a permutation of the 12 lines of the D4 box (index 100 of color-local-family's
 // turnElements: axes 0 and 1 swapped, axis 2 negated)
@@ -28,10 +35,20 @@ export const COLOR_TURN_SWAP_ORDER = [3, 0, 5, 2, 4, 1]
 export const COLOR_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
   tables: [BIND_MOVE_FORWARD],
   turn: COLOR_TURN,
-  swapAt: [...COLOR_TURN_SWAP_ORDER, ...[...COLOR_TURN_SWAP_ORDER].reverse()],
+  swapAt: [
+    ...COLOR_TURN_SWAP_ORDER,
+    ...[...COLOR_TURN_SWAP_ORDER].reverse(),
+  ],
 })
 
 // the collision of beat t, forward or its inverse, in the form turningWeave gives it
-export function colorTurnWeave(input: { opposite: readonly number[]; forward?: boolean }): (t: number) => Collision {
-  return colorLocalCollision({ spec: COLOR_TURN_SPEC, opposite: input.opposite, forward: input.forward })
+export function colorTurnWeave(input: {
+  opposite: readonly number[]
+  forward?: boolean
+}): (t: number) => Collision {
+  return colorLocalCollision({
+    spec: COLOR_TURN_SPEC,
+    opposite: input.opposite,
+    forward: input.forward,
+  })
 }

@@ -52,7 +52,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
 import { singletPhase, swapPhase } from '@/code/rule/fear-weave'
 import { wignerFunction } from '@/code/measure/qutrit-phase-space'
 import {
@@ -75,13 +79,22 @@ import {
 const EXACT = 1e-12
 const LOOSE = 1e-9
 const OMEGA_ANGLE = (2 * Math.PI) / 3
-const POINTS: readonly [number, number][] = Array.from({ length: 9 }, (_, k) => [Math.floor(k / 3), k % 3])
+const POINTS: readonly [number, number][] = Array.from(
+  { length: 9 },
+  (_, k) => [Math.floor(k / 3), k % 3],
+)
 
-const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number => matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
-const conjugateBy = (u: ComplexMatrix, m: ComplexMatrix): ComplexMatrix => complexMultiply(complexMultiply(u, m), daggerMatrix(u))
+const commutatorGap = (a: ComplexMatrix, b: ComplexMatrix): number =>
+  matrixDistance(complexMultiply(a, b), complexMultiply(b, a))
+const conjugateBy = (
+  u: ComplexMatrix,
+  m: ComplexMatrix,
+): ComplexMatrix =>
+  complexMultiply(complexMultiply(u, m), daggerMatrix(u))
 
 function orderOf(u: ComplexMatrix, limit: number): number {
   const identity = complexIdentity(u.n)
+
   let power = u
 
   for (let k = 1; k <= limit; k++) {
@@ -99,7 +112,7 @@ export default experiment({
   id: 'spin/role-parity-in-the-dynamics',
   code: 'E-SPN-0054',
   title:
-    'the role parity in the dynamics: the lift of the 2 pi turn in the link group Sigma(648) is -P, the group has no central -1, only the 24 point-fixing turns keep P while every translation carries it to the parity about the moved point, all 648 links are exactly covariant, and both fear-beat forms keep only the whole\'s sign P (x) P, trading it between the roles',
+    "the role parity in the dynamics: the lift of the 2 pi turn in the link group Sigma(648) is -P, the group has no central -1, only the 24 point-fixing turns keep P while every translation carries it to the parity about the moved point, all 648 links are exactly covariant, and both fear-beat forms keep only the whole's sign P (x) P, trading it between the roles",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -107,25 +120,29 @@ export default experiment({
   run() {
     const lift = weilLifts(3)[0]
     const identity = complexIdentity(3)
-    const s = lift ? liftOf(lift, [0, 2, 1, 0]) ?? identity : identity
-    const t = lift ? liftOf(lift, [1, 1, 0, 1]) ?? identity : identity
+    const s = lift ? (liftOf(lift, [0, 2, 1, 0]) ?? identity) : identity
+    const t = lift ? (liftOf(lift, [1, 1, 0, 1]) ?? identity) : identity
     const x = displacementMatrix(3, 1, 0)
     const z = displacementMatrix(3, 0, 1)
     const generators = [s, t, x, z]
     const sigma = closeGroup(generators, 5000) ?? []
     const parity = parityMatrix(3)
     const minusP = scaleMatrix(parity, [-1, 0])
-    const phasePoints = POINTS.map(([a, b]) => phasePointMatrix(3, a, b))
+    const phasePoints = POINTS.map(([a, b]) =>
+      phasePointMatrix(3, a, b),
+    )
 
     // the affine grid move of every element: linear part from its action on displacements, the point map from
     // its action on the phase-point operators
     let covarianceGap = 0
     let unmatchedImages = 0
     let affineFailures = 0
+
     const moves = sigma.map(u => {
       const linear = gridActionOf(u, 3)
       const images = phasePoints.map(a => {
         const moved = conjugateBy(u, a)
+
         let best = -1
         let bestGap = Infinity
 
@@ -149,36 +166,87 @@ export default experiment({
         affineFailures++
       } else {
         POINTS.forEach(([a, b], k) => {
-          const expected = [(linear[0] * a + linear[1] * b + origin[0]) % 3, (linear[2] * a + linear[3] * b + origin[1]) % 3]
+          const expected = [
+            (linear[0] * a + linear[1] * b + origin[0]) % 3,
+            (linear[2] * a + linear[3] * b + origin[1]) % 3,
+          ]
           const got = POINTS[images[k] ?? 0] ?? [-1, -1]
 
-          affineFailures += expected[0] === got[0] && expected[1] === got[1] ? 0 : 1
+          affineFailures +=
+            expected[0] === got[0] && expected[1] === got[1] ? 0 : 1
         })
       }
 
-      return { u, linear, translation: origin, key: `${(linear ?? []).join(',')}|${origin.join(',')}` }
+      return {
+        u,
+        linear,
+        translation: origin,
+        key: `${(linear ?? []).join(',')}|${origin.join(',')}`,
+      }
     })
-    const g4 = sigma.length === 648 && covarianceGap < EXACT && unmatchedImages === 0 && affineFailures === 0
+    const g4 =
+      sigma.length === 648 &&
+      covarianceGap < EXACT &&
+      unmatchedImages === 0 &&
+      affineFailures === 0
 
     // G1: over -I
-    const overMinusOne = moves.filter(m => m.linear && m.linear.join(',') === '2,0,0,2' && m.translation[0] === 0 && m.translation[1] === 0)
-    const minusOneGaps = overMinusOne.map(m => Math.min(...[0, 1, 2].map(k => matrixDistance(m.u, scaleMatrix(minusP, unitPhase(k / 3))))))
-    const minusOneOrders = overMinusOne.map(m => orderOf(m.u, 12)).sort((a, b) => a - b)
-    const parityDistance = Math.min(...sigma.map(u => matrixDistance(u, parity)))
-    const g1 = overMinusOne.length === 3 && minusOneGaps.every(g => g < EXACT) && minusOneOrders.join(',') === '2,6,6' && parityDistance > 0.5
+    const overMinusOne = moves.filter(
+      m =>
+        m.linear?.join(',') === '2,0,0,2' &&
+        m.translation[0] === 0 &&
+        m.translation[1] === 0,
+    )
+    const minusOneGaps = overMinusOne.map(m =>
+      Math.min(
+        ...[0, 1, 2].map(k =>
+          matrixDistance(m.u, scaleMatrix(minusP, unitPhase(k / 3))),
+        ),
+      ),
+    )
+    const minusOneOrders = overMinusOne
+      .map(m => orderOf(m.u, 12))
+      .sort((a, b) => a - b)
+    const parityDistance = Math.min(
+      ...sigma.map(u => matrixDistance(u, parity)),
+    )
+    const g1 =
+      overMinusOne.length === 3 &&
+      minusOneGaps.every(g => g < EXACT) &&
+      minusOneOrders.join(',') === '2,6,6' &&
+      parityDistance > 0.5
 
     // G2: the center
-    const central = sigma.filter(u => generators.every(g => commutatorGap(u, g) < LOOSE))
-    const centralScalars = central.filter(u => [0, 1, 2].some(k => matrixDistance(u, scaleMatrix(identity, unitPhase(k / 3))) < LOOSE)).length
-    const centralOrderTwo = central.filter(u => orderOf(u, 12) === 2).length
-    const g2 = central.length === 3 && centralScalars === 3 && centralOrderTwo === 0
+    const central = sigma.filter(u =>
+      generators.every(g => commutatorGap(u, g) < LOOSE),
+    )
+    const centralScalars = central.filter(u =>
+      [0, 1, 2].some(
+        k =>
+          matrixDistance(u, scaleMatrix(identity, unitPhase(k / 3))) <
+          LOOSE,
+      ),
+    ).length
+    const centralOrderTwo = central.filter(
+      u => orderOf(u, 12) === 2,
+    ).length
+    const g2 =
+      central.length === 3 &&
+      centralScalars === 3 &&
+      centralOrderTwo === 0
 
     // G3: which elements keep P
     const keepP = moves.filter(m => commutatorGap(m.u, parity) < LOOSE)
     const keepPMoves = new Set(keepP.map(m => m.key))
-    const keepPTranslated = keepP.filter(m => m.translation[0] !== 0 || m.translation[1] !== 0).length
+    const keepPTranslated = keepP.filter(
+      m => m.translation[0] !== 0 || m.translation[1] !== 0,
+    ).length
     const allMoves = new Set(moves.map(m => m.key)).size
-    const g3 = keepP.length === 72 && keepPMoves.size === 24 && keepPTranslated === 0 && allMoves === 216
+    const g3 =
+      keepP.length === 72 &&
+      keepPMoves.size === 24 &&
+      keepPTranslated === 0 &&
+      allMoves === 216
 
     // G5: the fear beat
     const swap = swapPhase(OMEGA_ANGLE) as ComplexMatrix
@@ -232,6 +300,7 @@ export default experiment({
 
       return (3 ** n - traceOf(turn)[0]) / 2
     })
+
     let selfSignGap = 0
     let otherSignGap = 0
     let classicalMinEigenBound = 0
@@ -252,10 +321,18 @@ export default experiment({
       const trace = traceOf(a)[0]
       const traceSquare = traceOf(complexMultiply(a, a))[0]
 
-      classicalMinEigenBound = Math.max(classicalMinEigenBound, Math.abs(trace - 1), Math.abs(traceSquare - 3))
+      classicalMinEigenBound = Math.max(
+        classicalMinEigenBound,
+        Math.abs(trace - 1),
+        Math.abs(traceSquare - 3),
+      )
     })
 
-    const g6 = spinorial.join(',') === '2,4,14,40' && selfSignGap < EXACT && otherSignGap < EXACT && classicalMinEigenBound < EXACT
+    const g6 =
+      spinorial.join(',') === '2,4,14,40' &&
+      selfSignGap < EXACT &&
+      otherSignGap < EXACT &&
+      classicalMinEigenBound < EXACT
 
     const ok = g1 && g2 && g3 && g4 && g5 && g6
 
@@ -267,12 +344,31 @@ export default experiment({
     // state |0> (no negative weight), so magic does not pick a parity sector either.
     const swapOnly = swapPhase(Math.PI) as ComplexMatrix
     const identity9 = complexIdentity(9)
-    const antisymmetric = scaleMatrix({ re: identity9.re.map((v, i) => v - (swapOnly.re[i] ?? 0)), im: identity9.im.map((v, i) => v - (swapOnly.im[i] ?? 0)), n: 9 }, [0.5, 0])
-    const symmetric = scaleMatrix({ re: identity9.re.map((v, i) => v + (swapOnly.re[i] ?? 0)), im: identity9.im.map((v, i) => v + (swapOnly.im[i] ?? 0)), n: 9 }, [0.5, 0])
+    const antisymmetric = scaleMatrix(
+      {
+        re: identity9.re.map((v, i) => v - (swapOnly.re[i] ?? 0)),
+        im: identity9.im.map((v, i) => v - (swapOnly.im[i] ?? 0)),
+        n: 9,
+      },
+      [0.5, 0],
+    )
+    const symmetric = scaleMatrix(
+      {
+        re: identity9.re.map((v, i) => v + (swapOnly.re[i] ?? 0)),
+        im: identity9.im.map((v, i) => v + (swapOnly.im[i] ?? 0)),
+        n: 9,
+      },
+      [0.5, 0],
+    )
     const antisymmetricDimension = traceOf(antisymmetric)[0]
-    const antisymmetricTwoPiTrace = traceOf(complexMultiply(antisymmetric, pp))[0]
-    const symmetricTwoPiTrace = traceOf(complexMultiply(symmetric, pp))[0]
-    const antisymmetricSpinorial = (antisymmetricDimension - antisymmetricTwoPiTrace) / 2
+    const antisymmetricTwoPiTrace = traceOf(
+      complexMultiply(antisymmetric, pp),
+    )[0]
+    const symmetricTwoPiTrace = traceOf(
+      complexMultiply(symmetric, pp),
+    )[0]
+    const antisymmetricSpinorial =
+      (antisymmetricDimension - antisymmetricTwoPiTrace) / 2
     // |12> - |21>: the parity of role 1 in its reduced state, <P (x) 1>
     const a12 = new Float64Array(9)
 
@@ -283,7 +379,8 @@ export default experiment({
 
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
-        roleParity += (a12[i] ?? 0) * (p1.re[i * 9 + j] ?? 0) * (a12[j] ?? 0)
+        roleParity +=
+          (a12[i] ?? 0) * (p1.re[i * 9 + j] ?? 0) * (a12[j] ?? 0)
       }
     }
 
@@ -308,11 +405,16 @@ export default experiment({
 
       return sum
     }
+
     const strangePairExchange = expect9(swapOnly, strangePair)
     const strangePairTwoPi = expect9(pp, strangePair)
-    const strangeTwoPi = -(strange.reduce((s, v, i) => s + v * (strange[(3 - i) % 3] ?? 0), 0))
+    const strangeTwoPi = -strange.reduce(
+      (s, v, i) => s + v * (strange[(3 - i) % 3] ?? 0),
+      0,
+    )
     // the least weight of |0> (even, a stabilizer state) and of the strange state (odd)
-    const leastWeight = (v: readonly number[]): number => Math.min(...wignerFunction({ re: [...v], im: [0, 0, 0] }))
+    const leastWeight = (v: readonly number[]): number =>
+      Math.min(...wignerFunction({ re: [...v], im: [0, 0, 0] }))
     const zeroStateLeast = leastWeight([1, 0, 0])
     const evenMagicLeast = leastWeight([0, Math.SQRT1_2, Math.SQRT1_2])
     const strangeLeast = leastWeight(strange)
@@ -324,7 +426,8 @@ export default experiment({
         linkGroupOrder: sigma.length,
         elementsOverMinusOne: overMinusOne.length,
         minusOneLiftGap: Math.max(...minusOneGaps),
-        minusOneLiftOrderTwo: minusOneOrders.filter(o => o === 2).length,
+        minusOneLiftOrderTwo: minusOneOrders.filter(o => o === 2)
+          .length,
         parityDistanceFromGroup: parityDistance,
         centralElements: central.length,
         centralScalars,
@@ -361,11 +464,15 @@ export default experiment({
         strangeLeastWeight: strangeLeast,
       },
       control: {
-        translationsKeepingParity: moves.filter(m => (m.translation[0] !== 0 || m.translation[1] !== 0) && commutatorGap(m.u, parity) < LOOSE).length,
+        translationsKeepingParity: moves.filter(
+          m =>
+            (m.translation[0] !== 0 || m.translation[1] !== 0) &&
+            commutatorGap(m.u, parity) < LOOSE,
+        ).length,
         conjugatePointOfOrigin: bar[0] ?? -1,
       },
       notes:
-        'L1, exact. Answers the parity lead: the lift of the 2 pi turn is P up to a global phase, and the determinant-1 group fixes that phase to -1 on the order-2 lift, so the even doublet takes -1 and the odd strange state +1 (the sign the lead guessed is inverted: the spinor is the even pair, not the odd line). As a conserved fermion number it fails in the link sector as built: (a) Sigma(648) has no central -1, so no operator every link commutes with can serve as (-1)^F; (b) only the 24 point-fixing turns keep the parity about a fixed point, and each of the 192 grid moves with a translation carries it to the parity about the translated point, which is the displaced parity A(x) = -R_x. What holds exactly is covariance: every link carries the 2 pi turn about x to the 2 pi turn about g x. So the sign is conserved only relative to a point the object carries with it, which is what a located particle would supply and a role, as a phase-space point, does not by itself. The fear beat keeps the whole\'s sign P (x) P exactly and trades it between the roles, the pattern of a conserved total fermion parity; but with the translations on the links the gate set is universal on SU(9) (E-QTM-0118), whose commutant is the scalars, so no two-role Z2 survives the full knit. A conserved fermion number from the role therefore needs either links without translations (the relational links of E-FRC-0174 are pure translations, so that knit is the opposite case) or a particle whose own point the parity is measured about. The classical reading gives the second for free and uselessly: a knit role at grid point p stands for A(p)/3, which reads -1 about its own point on every role, so it distinguishes nothing, and A(p)/3 is not a state. ADDED AFTER G1 TO G6 HAD RUN, reported and not gated, predictions written before the section ran and all met: are exchange -1, a 2 pi sign -1 and magic one subspace? No, on three counts. (1) The whole\'s 2 pi turn P (x) P is not definite on the antisymmetric two-role space: trace -1 on 3 dimensions, so 2 spinorial and 1 not, and the symmetric space holds 2 spinorial dimensions of 6. Exchange sign and 2 pi sign are independent. (2) In |12> - |21> each role has parity expectation 0, so an exchange -1 does not put either role in a definite parity sector. (3) Magic does not pick a sector: the odd line is the Strange state (least weight -1/3), but its 2 pi sign is +1, a boson; the even doublet holds the stabilizer state |0> (least weight 0) and magic states such as (|1> + |2>)/sqrt 2 (least weight -1/6). Strange x Strange, the only start that reaches the 8/25 fear-share ceiling (E-QTM-0121), is exchange-symmetric (+1) with 2 pi sign +1 on each role and on the pair. So on this role grid the most magic two-role state is a pair of bosons, and the three signs are three different things. The E-SPN-0047/0049 exchange -1 from the slot therefore cannot be tied to the knit through the role\'s parity. A spin-statistics link would have to come from the dynamics, for example a knit whose exchange of two tokens is itself a 2 pi turn of one, which no knit here has shown.',
+        "L1, exact. Answers the parity lead: the lift of the 2 pi turn is P up to a global phase, and the determinant-1 group fixes that phase to -1 on the order-2 lift, so the even doublet takes -1 and the odd strange state +1 (the sign the lead guessed is inverted: the spinor is the even pair, not the odd line). As a conserved fermion number it fails in the link sector as built: (a) Sigma(648) has no central -1, so no operator every link commutes with can serve as (-1)^F; (b) only the 24 point-fixing turns keep the parity about a fixed point, and each of the 192 grid moves with a translation carries it to the parity about the translated point, which is the displaced parity A(x) = -R_x. What holds exactly is covariance: every link carries the 2 pi turn about x to the 2 pi turn about g x. So the sign is conserved only relative to a point the object carries with it, which is what a located particle would supply and a role, as a phase-space point, does not by itself. The fear beat keeps the whole's sign P (x) P exactly and trades it between the roles, the pattern of a conserved total fermion parity; but with the translations on the links the gate set is universal on SU(9) (E-QTM-0118), whose commutant is the scalars, so no two-role Z2 survives the full knit. A conserved fermion number from the role therefore needs either links without translations (the relational links of E-FRC-0174 are pure translations, so that knit is the opposite case) or a particle whose own point the parity is measured about. The classical reading gives the second for free and uselessly: a knit role at grid point p stands for A(p)/3, which reads -1 about its own point on every role, so it distinguishes nothing, and A(p)/3 is not a state. ADDED AFTER G1 TO G6 HAD RUN, reported and not gated, predictions written before the section ran and all met: are exchange -1, a 2 pi sign -1 and magic one subspace? No, on three counts. (1) The whole's 2 pi turn P (x) P is not definite on the antisymmetric two-role space: trace -1 on 3 dimensions, so 2 spinorial and 1 not, and the symmetric space holds 2 spinorial dimensions of 6. Exchange sign and 2 pi sign are independent. (2) In |12> - |21> each role has parity expectation 0, so an exchange -1 does not put either role in a definite parity sector. (3) Magic does not pick a sector: the odd line is the Strange state (least weight -1/3), but its 2 pi sign is +1, a boson; the even doublet holds the stabilizer state |0> (least weight 0) and magic states such as (|1> + |2>)/sqrt 2 (least weight -1/6). Strange x Strange, the only start that reaches the 8/25 fear-share ceiling (E-QTM-0121), is exchange-symmetric (+1) with 2 pi sign +1 on each role and on the pair. So on this role grid the most magic two-role state is a pair of bosons, and the three signs are three different things. The E-SPN-0047/0049 exchange -1 from the slot therefore cannot be tied to the knit through the role's parity. A spin-statistics link would have to come from the dynamics, for example a knit whose exchange of two tokens is itself a 2 pi turn of one, which no knit here has shown.",
     })
   },
 })

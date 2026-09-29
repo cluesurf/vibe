@@ -16,16 +16,35 @@
 //
 // DETERMINISM: every start is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule.
 
-import { spanPacket, SPAN_LENS_WINDOW, SPAN_LEVELS } from '@/code/measure/depth-span'
-import { runHeadroom, SLAB_BASE, SLAB_EVERY, type HeadroomRun, type HeadroomSlabSurvey } from '@/code/measure/headroom-slab'
-import { LENS_AMP, LENS_DETECTORS, LENS_HALF_WIDTH, LENS_LINE, LENS_SOURCE_X, RADION_DEPTH } from '@/code/measure/radion'
+import {
+  spanPacket,
+  SPAN_LENS_WINDOW,
+  SPAN_LEVELS,
+} from '@/code/measure/depth-span'
+import {
+  runHeadroom,
+  SLAB_BASE,
+  SLAB_EVERY,
+  type HeadroomRun,
+  type HeadroomSlabSurvey,
+} from '@/code/measure/headroom-slab'
+import {
+  LENS_AMP,
+  LENS_DETECTORS,
+  LENS_HALF_WIDTH,
+  LENS_LINE,
+  LENS_SOURCE_X,
+  RADION_DEPTH,
+} from '@/code/measure/radion'
 import { dockAt } from '@/code/measure/varying-depth-light'
 import { makeHeadroomSpanMedium } from '@/code/rule/depth-span-light'
 
 export const SLAB_WINDOW_MARGIN = SLAB_EVERY
 
 // the rule, from the light's own speed: E-GRV-0093's window in the reference light's time, plus the margin
-export const slabWindow = (reference: number): number => Math.ceil((SPAN_LENS_WINDOW * SLAB_BASE) / reference) + SLAB_WINDOW_MARGIN
+export const slabWindow = (reference: number): number =>
+  Math.ceil((SPAN_LENS_WINDOW * SLAB_BASE) / reference) +
+  SLAB_WINDOW_MARGIN
 
 export type HeadroomSlabWindow = {
   window: number
@@ -40,19 +59,46 @@ export type HeadroomSlabWindow = {
 
 let cache: HeadroomSlabWindow | undefined
 
-export function headroomSlabWindow(s: HeadroomSlabSurvey, log?: (what: string) => void): HeadroomSlabWindow {
-  if (cache) return cache
+export function headroomSlabWindow(
+  s: HeadroomSlabSurvey,
+  log?: (what: string) => void,
+): HeadroomSlabWindow {
+  if (cache) {
+    return cache
+  }
 
   const started = Date.now()
   const n = LENS_DETECTORS.length - 1
   const [sx] = LENS_LINE
   const last = LENS_DETECTORS[n]!
   const window = slabWindow(s.reference)
-  const flat = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, () => s.reference)
-  const slab = makeHeadroomSpanMedium(LENS_LINE, RADION_DEPTH, SLAB_BASE, x => s.room[x]!)
-  const start = spanPacket(flat, SPAN_LEVELS, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const flat = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    () => s.reference,
+  )
+  const slab = makeHeadroomSpanMedium(
+    LENS_LINE,
+    RADION_DEPTH,
+    SLAB_BASE,
+    x => s.room[x]!,
+  )
+  const start = spanPacket(
+    flat,
+    SPAN_LEVELS,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => dockAt(flat, x, 0, 0))
-  const uniform = runHeadroom(flat, start, detectors, window, SLAB_EVERY)
+  const uniform = runHeadroom(
+    flat,
+    start,
+    detectors,
+    window,
+    SLAB_EVERY,
+  )
 
   log?.(`window ${window} uniform ${uniform.seconds}s`)
 
@@ -65,12 +111,14 @@ export function headroomSlabWindow(s: HeadroomSlabSurvey, log?: (what: string) =
   let wrapReference = 0
 
   for (let x = LENS_SOURCE_X - 1; x >= 0; x--) {
-    wrapSlab += s.reference / Math.min(s.room[x]!, s.room[(x + 1) % sx]!) / s.c0
+    wrapSlab +=
+      s.reference / Math.min(s.room[x]!, s.room[(x + 1) % sx]!) / s.c0
     wrapReference += 1 / s.c0
   }
 
   for (let x = sx - 1; x >= last; x--) {
-    wrapSlab += s.reference / Math.min(s.room[x]!, s.room[(x + 1) % sx]!) / s.c0
+    wrapSlab +=
+      s.reference / Math.min(s.room[x]!, s.room[(x + 1) % sx]!) / s.c0
     wrapReference += 1 / s.c0
   }
 
@@ -78,7 +126,10 @@ export function headroomSlabWindow(s: HeadroomSlabSurvey, log?: (what: string) =
     window,
     uniform,
     lens,
-    measuredDelay: lens.arrival[n]! - lens.arrival[0]! - (uniform.arrival[n]! - uniform.arrival[0]!),
+    measuredDelay:
+      lens.arrival[n]! -
+      lens.arrival[0]! -
+      (uniform.arrival[n]! - uniform.arrival[0]!),
     wrapSlab,
     wrapReference,
     seconds: (Date.now() - started) / 1000,

@@ -19,7 +19,9 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylCell } from '@/code/tool/weyl'
 
 const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const OPPOSITE = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 
 export type BoxSides = readonly [number, number, number, number]
 
@@ -39,7 +41,12 @@ export function boxMeshD4(sides: BoxSides): Mesh {
       const w = Math.floor(dock / (a * b * c)) % d
       const r = ROOTS[direction]!
 
-      return wrap(x + r[0]!, a) + a * (wrap(y + r[1]!, b) + b * (wrap(z + r[2]!, c) + c * wrap(w + r[3]!, d)))
+      return (
+        wrap(x + r[0]!, a) +
+        a *
+          (wrap(y + r[1]!, b) +
+            b * (wrap(z + r[2]!, c) + c * wrap(w + r[3]!, d)))
+      )
     },
     opposite(direction) {
       return OPPOSITE[direction] ?? direction
@@ -48,13 +55,22 @@ export function boxMeshD4(sides: BoxSides): Mesh {
 }
 
 // q . r mod L per dock, L the long side (every axis q spans has side L)
-export function boxSlabs(sides: BoxSides, wave: readonly number[], long: number): Int32Array {
+export function boxSlabs(
+  sides: BoxSides,
+  wave: readonly number[],
+  long: number,
+): Int32Array {
   const [a, b, c] = sides
   const count = sides[0] * sides[1] * sides[2] * sides[3]
   const out = new Int32Array(count)
 
   for (let dock = 0; dock < count; dock++) {
-    const r = [dock % a, Math.floor(dock / a) % b, Math.floor(dock / (a * b)) % c, Math.floor(dock / (a * b * c))]
+    const r = [
+      dock % a,
+      Math.floor(dock / a) % b,
+      Math.floor(dock / (a * b)) % c,
+      Math.floor(dock / (a * b * c)),
+    ]
     const s = r.reduce((sum, x, k) => sum + x * (wave[k] ?? 0), 0)
 
     out[dock] = ((s % long) + long) % long
@@ -63,10 +79,20 @@ export function boxSlabs(sides: BoxSides, wave: readonly number[], long: number)
   return out
 }
 
-export function boxWaveStart(input: { mesh: Mesh; slabs: Int32Array; long: number; momentum: readonly number[]; fill: number; bias: number; salt: number }): Will {
+export function boxWaveStart(input: {
+  mesh: Mesh
+  slabs: Int32Array
+  long: number
+  momentum: readonly number[]
+  fill: number
+  bias: number
+  salt: number
+}): Will {
   const { mesh, slabs, long, momentum, fill, bias, salt } = input
   const will = makeWill(mesh)
-  const along = ROOTS.map(r => r.reduce((s, x, k) => s + x * (momentum[k] ?? 0), 0))
+  const along = ROOTS.map(r =>
+    r.reduce((s, x, k) => s + x * (momentum[k] ?? 0), 0),
+  )
 
   for (let i = 0; i < will.data.length; i++) {
     if (weylCell(i, 1, salt) < fill) {
@@ -86,14 +112,18 @@ export function boxWaveStart(input: { mesh: Mesh; slabs: Int32Array; long: numbe
     const local = bias * Math.sin((2 * Math.PI * slabs[dock]!) / long)
 
     lines.forEach(([d, o], line) => {
-      if (along[d] === 0 || weylCell(dock, 3 + line, salt) >= Math.abs(local)) {
+      if (
+        along[d] === 0 ||
+        weylCell(dock, 3 + line, salt) >= Math.abs(local)
+      ) {
         return
       }
 
       const forward = along[d]! * local > 0 ? d : o
       const backward = forward === d ? o : d
 
-      will.data[dock * 24 + forward] = weylCell(dock, 20 + line, salt) < 0.5 ? -1 : 1
+      will.data[dock * 24 + forward] =
+        weylCell(dock, 20 + line, salt) < 0.5 ? -1 : 1
       will.data[dock * 24 + backward] = 0
     })
   }
@@ -102,14 +132,25 @@ export function boxWaveStart(input: { mesh: Mesh; slabs: Int32Array; long: numbe
 }
 
 // the mode amplitude of (P . a) on sin(2 pi q . r / L), P = sum |tone| root
-export function boxWaveAmplitude(input: { data: Int8Array; slabs: Int32Array; long: number; momentum: readonly number[] }): number {
+export function boxWaveAmplitude(input: {
+  data: Int8Array
+  slabs: Int32Array
+  long: number
+  momentum: readonly number[]
+}): number {
   const { data, slabs, long, momentum } = input
-  const along = Float64Array.from(ROOTS, r => r.reduce((s, x, k) => s + x * (momentum[k] ?? 0), 0))
-  const sines = Float64Array.from({ length: long }, (_, s) => Math.sin((2 * Math.PI * s) / long))
+  const along = Float64Array.from(ROOTS, r =>
+    r.reduce((s, x, k) => s + x * (momentum[k] ?? 0), 0),
+  )
+  const sines = Float64Array.from({ length: long }, (_, s) =>
+    Math.sin((2 * Math.PI * s) / long),
+  )
+
   let amplitude = 0
 
   for (let dock = 0; dock < slabs.length; dock++) {
     let p = 0
+
     const base = dock * 24
 
     for (let d = 0; d < 24; d++) {
@@ -126,18 +167,36 @@ export function boxWaveAmplitude(input: { data: Int8Array; slabs: Int32Array; lo
   return amplitude
 }
 
-export function boxWaveSeries(input: { will: Will; slabs: Int32Array; long: number; momentum: readonly number[]; collision: (t: number) => Collision; beats: number }): number[] {
+export function boxWaveSeries(input: {
+  will: Will
+  slabs: Int32Array
+  long: number
+  momentum: readonly number[]
+  collision: (t: number) => Collision
+  beats: number
+}): number[] {
   const { slabs, long, momentum, collision, beats } = input
   const mesh = input.will.mesh
   const table = streamSourceTable(mesh)
+
   let current: Will = { mesh, data: input.will.data.slice() }
   let scratch = makeWill(mesh)
-  const series = [boxWaveAmplitude({ data: current.data as Int8Array, slabs, long, momentum })]
+
+  const series = [
+    boxWaveAmplitude({ data: current.data, slabs, long, momentum }),
+  ]
 
   for (let t = 0; t < beats; t++) {
-    beatInto({ src: current, dst: scratch, table, collision: collision(t) })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table,
+      collision: collision(t),
+    })
     ;[current, scratch] = [scratch, current]
-    series.push(boxWaveAmplitude({ data: current.data as Int8Array, slabs, long, momentum }))
+    series.push(
+      boxWaveAmplitude({ data: current.data, slabs, long, momentum }),
+    )
   }
 
   return series

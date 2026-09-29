@@ -22,19 +22,36 @@
 
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { wrap, type CMatrix } from '@/code/measure/dock-mixer'
-import { MODES, matMul, type GroupElement } from '@/code/measure/spinor-register'
-import { cmulUnit, conjUnit, mixerPiece, slabReduced, type HalfSet, type Mixer, type Slab } from '@/code/measure/wilson-register'
+import {
+  MODES,
+  matMul,
+  type GroupElement,
+} from '@/code/measure/spinor-register'
+import {
+  cmulUnit,
+  conjUnit,
+  mixerPiece,
+  slabReduced,
+  type HalfSet,
+  type Mixer,
+  type Slab,
+} from '@/code/measure/wilson-register'
 import type { ChannelCount } from '@/code/measure/wall-face'
 
 type Roots = readonly (readonly number[])[]
 type C = readonly [number, number]
 
 /** Q_F = 1 - Q_S - Q_D (192 x 192). */
-export function farProjector(qS: Float64Array, qD: Float64Array): Float64Array {
+export function farProjector(
+  qS: Float64Array,
+  qD: Float64Array,
+): Float64Array {
   const n = MODES
   const q = new Float64Array(n * n)
 
-  for (let i = 0; i < n * n; i++) q[i] = (i % (n + 1) === 0 ? 1 : 0) - (qS[i] as number) - (qD[i] as number)
+  for (let i = 0; i < n * n; i++) {
+    q[i] = (i % (n + 1) === 0 ? 1 : 0) - qS[i]! - qD[i]!
+  }
 
   return q
 }
@@ -50,7 +67,13 @@ export type CenteredOptions = {
 
 // the two pieces; u the member's ring unit. With half, E-SPN-0166's one-half recipe: Q_S and Q_D keep their E-SPN-0160
 // units on the other half, and the extra units (Wilson and far) multiply them on the half's part only
-export function centeredSchedule(qS: Float64Array, qD: Float64Array, qF: Float64Array, u: C, options: CenteredOptions): CMatrix[] {
+export function centeredSchedule(
+  qS: Float64Array,
+  qD: Float64Array,
+  qF: Float64Array,
+  u: C,
+  options: CenteredOptions,
+): CMatrix[] {
   const one: C = [1, 0]
   const ubar = conjUnit(u)
   const v = options.v ?? one
@@ -79,8 +102,8 @@ export function centeredSchedule(qS: Float64Array, qD: Float64Array, qF: Float64
   const sH = matMul(qS, P)
   const dH = matMul(qD, P)
   const fH = matMul(qF, P)
-  const sOff = qS.map((x, i) => x - (sH[i] as number))
-  const dOff = qD.map((x, i) => x - (dH[i] as number))
+  const sOff = qS.map((x, i) => x - sH[i]!)
+  const dOff = qD.map((x, i) => x - dH[i]!)
   const beat1: Mixer[] = [
     { q: sOff, unit: u },
     { q: sH, unit: cmulUnit(u, wb) },
@@ -96,19 +119,23 @@ export function centeredSchedule(qS: Float64Array, qD: Float64Array, qF: Float64
     { q: fH, unit: w },
   ]
 
-  return [mixerPiece(beat1.filter(m => m.unit[0] !== 1 || m.unit[1] !== 0)), mixerPiece(beat2.filter(m => m.unit[0] !== 1 || m.unit[1] !== 0))]
+  return [
+    mixerPiece(beat1.filter(m => m.unit[0] !== 1 || m.unit[1] !== 0)),
+    mixerPiece(beat2.filter(m => m.unit[0] !== 1 || m.unit[1] !== 0)),
+  ]
 }
 
 // the largest |g P - P g| entry of a 192 piece under one W(F4) element g (slots permuted, register by minors): E-SPN-
 // 0168's covariance reading for a single element
 export function covarianceGap(P: CMatrix, g: GroupElement): number {
   const n = MODES
+
   let worst = 0
 
   for (let d = 0; d < 24; d++) {
     for (let e = 0; e < 24; e++) {
-      const sd = g.slots[d] as number
-      const se = g.slots[e] as number
+      const sd = g.slots[d]!
+      const se = g.slots[e]!
 
       for (let a = 0; a < 8; a++) {
         for (let c = 0; c < 8; c++) {
@@ -118,14 +145,15 @@ export function covarianceGap(P: CMatrix, g: GroupElement): number {
           let ri = 0
 
           for (let b = 0; b < 8; b++) {
-            const ga = (g.register[a] as number[])[b] as number
-            const gc = (g.register[b] as number[])[c] as number
+            const ga = g.register[a]![b]!
+            const gc = g.register[b]![c]!
 
-            lr += ga * (P.re[(d * 8 + b) * n + e * 8 + c] as number)
-            li += ga * (P.im[(d * 8 + b) * n + e * 8 + c] as number)
-            rr += (P.re[(sd * 8 + a) * n + se * 8 + b] as number) * gc
-            ri += (P.im[(sd * 8 + a) * n + se * 8 + b] as number) * gc
+            lr += ga * P.re[(d * 8 + b) * n + e * 8 + c]!
+            li += ga * P.im[(d * 8 + b) * n + e * 8 + c]!
+            rr += P.re[(sd * 8 + a) * n + se * 8 + b]! * gc
+            ri += P.im[(sd * 8 + a) * n + se * 8 + b]! * gc
           }
+
           worst = Math.max(worst, Math.abs(lr - rr), Math.abs(li - ri))
         }
       }
@@ -138,6 +166,7 @@ export function covarianceGap(P: CMatrix, g: GroupElement): number {
 // the largest |P P^dag - 1| entry of a 192 piece
 export function unitarityGap(P: CMatrix): number {
   const n = MODES
+
   let worst = 0
 
   for (let i = 0; i < n; i++) {
@@ -146,15 +175,20 @@ export function unitarityGap(P: CMatrix): number {
       let m = 0
 
       for (let k = 0; k < n; k++) {
-        const ar = P.re[i * n + k] as number
-        const ai = P.im[i * n + k] as number
-        const br = P.re[j * n + k] as number
-        const bi = P.im[j * n + k] as number
+        const ar = P.re[i * n + k]!
+        const ai = P.im[i * n + k]!
+        const br = P.re[j * n + k]!
+        const bi = P.im[j * n + k]!
 
         r += ar * br + ai * bi
         m += ai * br - ar * bi
       }
-      worst = Math.max(worst, Math.abs(r - (i === j ? 1 : 0)), Math.abs(m))
+
+      worst = Math.max(
+        worst,
+        Math.abs(r - (i === j ? 1 : 0)),
+        Math.abs(m),
+      )
     }
   }
 
@@ -162,29 +196,63 @@ export function unitarityGap(P: CMatrix): number {
 }
 
 /** The phase of the flats of a construction: 2 arg w (w in both beats). */
-export const flatPhase = (w: C | null): number => (w ? wrap(2 * Math.atan2(w[1], w[0])) : 0)
+export const flatPhase = (w: C | null): number =>
+  w ? wrap(2 * Math.atan2(w[1], w[0])) : 0
 
 // eps = -wrap(phase - pi) of every level of the slab at K: the reduced cycle's d levels, then (when flats) one flat at
 // the construction's flat phase
-export function slabEpsAt(s: Slab, sets: readonly HalfSet[], K: readonly number[], roots: Roots, sR: readonly (readonly number[])[], dR: readonly (readonly number[])[], flat: number | null): { eps: number[]; leak: number; d: number } {
+export function slabEpsAt(
+  s: Slab,
+  sets: readonly HalfSet[],
+  K: readonly number[],
+  roots: Roots,
+  sR: readonly (readonly number[])[],
+  dR: readonly (readonly number[])[],
+  flat: number | null,
+): { eps: number[]; leak: number; d: number } {
   const red = slabReduced(s, sets, K, roots, sR, dR)
   const e = complexEigenvalues({ re: red.U.re, im: red.U.im, n: red.d })
-  const eps = e.re.map((x, i) => -wrap(Math.atan2(e.im[i] as number, x) - Math.PI))
+  const eps = e.re.map(
+    (x, i) => -wrap(Math.atan2(e.im[i]!, x) - Math.PI),
+  )
 
-  if (flat !== null) eps.push(-wrap(flat - Math.PI))
+  if (flat !== null) {
+    eps.push(-wrap(flat - Math.PI))
+  }
 
   return { eps, leak: red.leak, d: red.d }
 }
 
-export type FarCensus = { M: number; Bstar: number; crossings: number; channels: ChannelCount; first: { q: number; pair: [number, number] }; levels: number; leak: number }
+export type FarCensus = {
+  M: number
+  Bstar: number
+  crossings: number
+  channels: ChannelCount
+  first: { q: number; pair: [number, number] }
+  levels: number
+  leak: number
+}
 
 // E-SPN-0168's wallCensus (bands tracked by greedy nearest matching along each path; each pair's room x = wrap(2M -
 // eps_a - eps_b) followed for a sign change; |x| >= 1 the wrap region, resetting the pair), with the flats at `flat` and
 // a level counted FAR when |eps| >= farCut
-export function farCensus(s: Slab, sets: readonly HalfSet[], M: number, paths: readonly (readonly (readonly number[])[])[], roots: Roots, sR: readonly (readonly number[])[], dR: readonly (readonly number[])[], flat: number, farCut: number, tol = 1e-9): FarCensus {
+export function farCensus(
+  s: Slab,
+  sets: readonly HalfSet[],
+  M: number,
+  paths: readonly (readonly (readonly number[])[])[],
+  roots: Roots,
+  sR: readonly (readonly number[])[],
+  dR: readonly (readonly number[])[],
+  flat: number,
+  farCut: number,
+  tol = 1e-9,
+): FarCensus {
   let Bstar = Math.PI
   let crossings = 0
+
   const channels: ChannelCount = { MM: 0, MF: 0, FF: 0 }
+
   let first: FarCensus['first'] = { q: Infinity, pair: [NaN, NaN] }
   let leak = 0
   let levels = 0
@@ -200,24 +268,36 @@ export function farCensus(s: Slab, sets: readonly HalfSet[], M: number, paths: r
 
       const raw = r.eps
       const N = raw.length
+
       let cur: number[]
 
       levels = N
-      if (!prev) cur = [...raw].sort((a, b) => a - b)
-      else {
+
+      if (!prev) {
+        cur = [...raw].sort((a, b) => a - b)
+      } else {
         const cand: { i: number; j: number; d: number }[] = []
 
-        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) cand.push({ i, j, d: Math.abs(wrap((raw[j] as number) - (prev[i] as number))) })
+        for (let i = 0; i < N; i++) {
+          for (let j = 0; j < N; j++) {
+            cand.push({ i, j, d: Math.abs(wrap(raw[j]! - prev[i]!)) })
+          }
+        }
+
         cand.sort((a, b) => a.d - b.d)
 
         const next = Array<number>(N).fill(NaN)
         const used = new Uint8Array(N)
 
         for (const c of cand) {
-          if (!Number.isNaN(next[c.i] as number) || used[c.j]) continue
-          next[c.i] = raw[c.j] as number
+          if (!Number.isNaN(next[c.i]!) || used[c.j]) {
+            continue
+          }
+
+          next[c.i] = raw[c.j]!
           used[c.j] = 1
         }
+
         cur = next
       }
 
@@ -225,36 +305,55 @@ export function farCensus(s: Slab, sets: readonly HalfSet[], M: number, paths: r
 
       for (let a = 0; a < N; a++) {
         for (let b = a; b < N; b++) {
-          const x = wrap(2 * M - (cur[a] as number) - (cur[b] as number))
+          const x = wrap(2 * M - cur[a]! - cur[b]!)
 
           d[a * N + b] = x
-          if (x > tol && x < Bstar) Bstar = x
+
+          if (x > tol && x < Bstar) {
+            Bstar = x
+          }
         }
       }
 
       if (last) {
         for (let a = 0; a < N; a++) {
           for (let b = a; b < N; b++) {
-            const y = d[a * N + b] as number
-            const x = last[a * N + b] as number
+            const y = d[a * N + b]!
+            const x = last[a * N + b]!
 
-            if (Math.abs(y) <= tol) continue
+            if (Math.abs(y) <= tol) {
+              continue
+            }
+
             if (Math.abs(y) >= 1) {
               d[a * N + b] = NaN
               continue
             }
-            if (!Number.isNaN(x) && Math.abs(x) > tol && x > 0 !== y > 0) {
+
+            if (
+              !Number.isNaN(x) &&
+              Math.abs(x) > tol &&
+              x > 0 !== y > 0
+            ) {
               crossings++
 
-              const far = (Math.abs(cur[a] as number) >= farCut ? 1 : 0) + (Math.abs(cur[b] as number) >= farCut ? 1 : 0)
+              const far =
+                (Math.abs(cur[a]!) >= farCut ? 1 : 0) +
+                (Math.abs(cur[b]!) >= farCut ? 1 : 0)
 
-              if (far === 0) channels.MM++
-              else if (far === 1) channels.MF++
-              else channels.FF++
+              if (far === 0) {
+                channels.MM++
+              } else if (far === 1) {
+                channels.MF++
+              } else {
+                channels.FF++
+              }
 
               const qr = Math.hypot(...q)
 
-              if (qr < first.q) first = { q: qr, pair: [cur[a] as number, cur[b] as number] }
+              if (qr < first.q) {
+                first = { q: qr, pair: [cur[a]!, cur[b]!] }
+              }
             }
           }
         }
@@ -265,5 +364,13 @@ export function farCensus(s: Slab, sets: readonly HalfSet[], M: number, paths: r
     }
   }
 
-  return { M, Bstar: crossings > 0 ? 0 : Bstar, crossings, channels, first, levels, leak }
+  return {
+    M,
+    Bstar: crossings > 0 ? 0 : Bstar,
+    crossings,
+    channels,
+    first,
+    levels,
+    leak,
+  }
 }

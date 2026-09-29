@@ -56,7 +56,15 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { meanError } from '@/code/measure/held-knot'
-import { CONFIGS, TIME, beatsPerMember, knotTimeSurvey, shellsOf, type Background, type Config } from '@/code/measure/knot-time'
+import {
+  CONFIGS,
+  TIME,
+  beatsPerMember,
+  knotTimeSurvey,
+  shellsOf,
+  type Background,
+  type Config,
+} from '@/code/measure/knot-time'
 
 export default experiment({
   id: 'gravity/knot-time-dilation',
@@ -69,50 +77,92 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = knotTimeSurvey(log)
     const S = TIME
     const shells = shellsOf(S.side)
     const columns = S.side ** 3
-    const ballShell = (c: number): boolean => (shells[c] as number) <= S.radius
+    const ballShell = (c: number): boolean => shells[c]! <= S.radius
 
     // T1
-    const p0s = members.map(m => m.period.none[0] as number)
-    const p0 = p0s[0] as number
-    const uniform = members.every(m => m.period.none.every(p => p === p0))
+    const p0s = members.map(m => m.period.none[0]!)
+    const p0 = p0s[0]!
+    const uniform = members.every(m =>
+      m.period.none.every(p => p === p0),
+    )
     const lockBeats = beatsPerMember(S) / CONFIGS.length
-    const g1 = p0 > 0 && uniform && members.every(m => m.exact && m.knotHeld && m.contentBlind && m.blindBeats === lockBeats)
+    const g1 =
+      p0 > 0 &&
+      uniform &&
+      members.every(
+        m =>
+          m.exact &&
+          m.knotHeld &&
+          m.contentBlind &&
+          m.blindBeats === lockBeats,
+      )
 
     // the clock per shell and configuration
-    type Tally = { atP0: number; longer: number; shorter: number; none: number; columns: number }
+    type Tally = {
+      atP0: number
+      longer: number
+      shorter: number
+      none: number
+      columns: number
+    }
+
     const tally = (c: Config, shell: number): Tally => {
-      const t: Tally = { atP0: 0, longer: 0, shorter: 0, none: 0, columns: 0 }
+      const t: Tally = {
+        atP0: 0,
+        longer: 0,
+        shorter: 0,
+        none: 0,
+        columns: 0,
+      }
 
       for (const m of members) {
         for (let x = 0; x < columns; x++) {
-          if (shells[x] !== shell) continue
+          if (shells[x] !== shell) {
+            continue
+          }
 
-          const p = m.period[c][x] as number
+          const p = m.period[c][x]!
 
           t.columns++
-          if (p === 0) t.none++
-          else if (p === p0) t.atP0++
-          else if (p > p0) t.longer++
-          else t.shorter++
+
+          if (p === 0) {
+            t.none++
+          } else if (p === p0) {
+            t.atP0++
+          } else if (p > p0) {
+            t.longer++
+          } else {
+            t.shorter++
+          }
         }
       }
 
       return t
     }
-    const phaseTally = (c: 'surface' | 'knot', shell: number): Record<string, number> => {
+
+    const phaseTally = (
+      c: 'surface' | 'knot',
+      shell: number,
+    ): Record<string, number> => {
       const out: Record<string, number> = {}
 
       for (const m of members) {
         for (let x = 0; x < columns; x++) {
-          if (shells[x] !== shell) continue
+          if (shells[x] !== shell) {
+            continue
+          }
 
-          const s = m.phase[c][x] as number
-          const key = s === -2 ? 'notP0' : s === -1 ? 'noShift' : `s${s}`
+          const s = m.phase[c][x]!
+          const key =
+            s === -2 ? 'notP0' : s === -1 ? 'noShift' : `s${s}`
 
           out[key] = (out[key] ?? 0) + 1
         }
@@ -126,19 +176,46 @@ export default experiment({
 
     for (const m of members) {
       for (let x = 0; x < columns; x++) {
-        if (ballShell(x)) continue
-        if ((m.period.knot[x] as number) > (m.period.surface[x] as number)) contentLonger++
+        if (ballShell(x)) {
+          continue
+        }
+
+        if (m.period.knot[x]! > m.period.surface[x]!) {
+          contentLonger++
+        }
       }
     }
 
-    const delay = (bg: Background, a: Config, b: Config, i: number): { mean: number; error: number } => meanError(members.map(m => (m.arrival[bg][a][i] as number) - (m.arrival[bg][b][i] as number)))
-    const contentDelay = (['vacuum', 'gas'] as const).flatMap(bg => S.impacts.map((_, i) => delay(bg, 'knot', 'surface', i)))
-    const g2 = contentLonger > 0 || contentDelay.some(d => d.mean > 0 && d.mean >= 3 * d.error)
+    const delay = (
+      bg: Background,
+      a: Config,
+      b: Config,
+      i: number,
+    ): { mean: number; error: number } =>
+      meanError(
+        members.map(m => m.arrival[bg][a][i]! - m.arrival[bg][b][i]!),
+      )
+    const contentDelay = (['vacuum', 'gas'] as const).flatMap(bg =>
+      S.impacts.map((_, i) => delay(bg, 'knot', 'surface', i)),
+    )
+    const g2 =
+      contentLonger > 0 ||
+      contentDelay.some(d => d.mean > 0 && d.mean >= 3 * d.error)
 
     // T3: the surface's delay in the gas at b = 3 .. 6
-    const clear = S.impacts.map((b, i) => ({ b, i })).filter(x => x.b > S.radius)
-    const surfaceGas = clear.map(x => delay('gas', 'surface', 'none', x.i))
-    const g3 = surfaceGas.every(d => d.mean > 0 && d.mean >= 3 * d.error) && surfaceGas.every((d, j) => j === 0 || d.mean <= (surfaceGas[j - 1] as { mean: number }).mean)
+    const clear = S.impacts
+      .map((b, i) => ({ b, i }))
+      .filter(x => x.b > S.radius)
+    const surfaceGas = clear.map(x =>
+      delay('gas', 'surface', 'none', x.i),
+    )
+    const g3 =
+      surfaceGas.every(d => d.mean > 0 && d.mean >= 3 * d.error) &&
+      surfaceGas.every(
+        (d, j) =>
+          j === 0 ||
+          d.mean <= (surfaceGas[j - 1] as { mean: number }).mean,
+      )
 
     // T4: the clock near and far, per member
     const g4 = members.every(m => {
@@ -147,27 +224,36 @@ export default experiment({
       let farKept = true
 
       for (let x = 0; x < columns; x++) {
-        const sh = shells[x] as number
-        const p = m.period.surface[x] as number
+        const sh = shells[x]!
+        const p = m.period.surface[x]!
 
         if (sh === 3) {
           near++
-          if (p > p0) nearLonger++
+
+          if (p > p0) {
+            nearLonger++
+          }
         }
 
-        if (sh >= 9 && sh <= 12 && p !== p0) farKept = false
+        if (sh >= 9 && sh <= 12 && p !== p0) {
+          farKept = false
+        }
       }
 
       return 2 * nearLonger > near && farKept
     })
     const status = !g1 ? 'partial' : g2 && g3 && g4 ? 'pass' : 'fail'
-    const f = (x: { mean: number; error: number }): string => `${x.mean.toFixed(3)} +- ${x.error.toFixed(3)}`
-    const arrivals = (bg: Background, c: Config, i: number): number[] => members.map(m => m.arrival[bg][c][i] as number)
+    const f = (x: { mean: number; error: number }): string =>
+      `${x.mean.toFixed(3)} +- ${x.error.toFixed(3)}`
+    const arrivals = (bg: Background, c: Config, i: number): number[] =>
+      members.map(m => m.arrival[bg][c][i]!)
+
     const spread = (xs: number[]): string => {
       const s = [...xs].sort((a, b) => a - b)
 
       return `${s[0]}/${s[Math.floor(s.length / 2)]}/${s[s.length - 1]}`
     }
+
     const metrics: Record<string, number> = {
       gate_T1: g1 ? 1 : 0,
       gate_T2: g2 ? 1 : 0,
@@ -187,11 +273,16 @@ export default experiment({
         metrics[`clock_${c}_r${sh}_longer`] = t.longer
         metrics[`clock_${c}_r${sh}_shorter`] = t.shorter
         metrics[`clock_${c}_r${sh}_none`] = t.none
-        clockNotes.push(`${c} r${sh}: ${t.atP0} at P0, ${t.longer} longer, ${t.shorter} shorter, ${t.none} none of ${t.columns}`)
+        clockNotes.push(
+          `${c} r${sh}: ${t.atP0} at P0, ${t.longer} longer, ${t.shorter} shorter, ${t.none} none of ${t.columns}`,
+        )
       }
     }
 
-    const phaseNotes = S.shells.map(sh => `r${sh} surface ${JSON.stringify(phaseTally('surface', sh))} knot ${JSON.stringify(phaseTally('knot', sh))}`)
+    const phaseNotes = S.shells.map(
+      sh =>
+        `r${sh} surface ${JSON.stringify(phaseTally('surface', sh))} knot ${JSON.stringify(phaseTally('knot', sh))}`,
+    )
     const arrivalNotes: string[] = []
 
     for (const bg of ['vacuum', 'gas'] as const) {
@@ -199,13 +290,34 @@ export default experiment({
         for (const c of CONFIGS) {
           const xs = arrivals(bg, c, i)
 
-          metrics[`arrival_${bg}_${c}_b${b}_mean`] = xs.reduce((u, v) => u + v, 0) / xs.length
+          metrics[`arrival_${bg}_${c}_b${b}_mean`] =
+            xs.reduce((u, v) => u + v, 0) / xs.length
         }
 
-        metrics[`delay_${bg}_surface_b${b}`] = delay(bg, 'surface', 'none', i).mean
-        metrics[`delayError_${bg}_surface_b${b}`] = delay(bg, 'surface', 'none', i).error
-        metrics[`delay_${bg}_content_b${b}`] = delay(bg, 'knot', 'surface', i).mean
-        arrivalNotes.push(`${bg} b${b}: none ${spread(arrivals(bg, 'none', i))}, surface ${spread(arrivals(bg, 'surface', i))}, knot ${spread(arrivals(bg, 'knot', i))} (min/median/max); delay surface-none ${f(delay(bg, 'surface', 'none', i))}, knot-surface ${f(delay(bg, 'knot', 'surface', i))}`)
+        metrics[`delay_${bg}_surface_b${b}`] = delay(
+          bg,
+          'surface',
+          'none',
+          i,
+        ).mean
+
+        metrics[`delayError_${bg}_surface_b${b}`] = delay(
+          bg,
+          'surface',
+          'none',
+          i,
+        ).error
+
+        metrics[`delay_${bg}_content_b${b}`] = delay(
+          bg,
+          'knot',
+          'surface',
+          i,
+        ).mean
+
+        arrivalNotes.push(
+          `${bg} b${b}: none ${spread(arrivals(bg, 'none', i))}, surface ${spread(arrivals(bg, 'surface', i))}, knot ${spread(arrivals(bg, 'knot', i))} (min/median/max); delay surface-none ${f(delay(bg, 'surface', 'none', i))}, knot-surface ${f(delay(bg, 'knot', 'surface', i))}`,
+        )
       })
     }
 

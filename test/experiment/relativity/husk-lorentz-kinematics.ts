@@ -79,9 +79,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { dockMatrix, DOCK_ROOTS } from '@/code/measure/dock-mixer'
-import { singletEps, singletLevel } from '@/code/measure/singlet-kinematics'
+import {
+  singletEps,
+  singletLevel,
+} from '@/code/measure/singlet-kinematics'
 import { ringAngle } from '@/code/measure/swap-cone'
-import { closedBand, husk, longWaveSpeed, lorentzReading, speedPeak, type Band, type LorentzReading } from '@/code/measure/husk-lorentz'
+import {
+  closedBand,
+  husk,
+  longWaveSpeed,
+  lorentzReading,
+  speedPeak,
+  type Band,
+  type LorentzReading,
+} from '@/code/measure/husk-lorentz'
 
 const SWAP_N = 2 / 3
 const H = 1e-4
@@ -111,7 +122,16 @@ const STEP_GAP = 1e-5
 const HEAVY_FLOOR = 2e-2
 const GALILEAN_FLOOR = 1e-2
 
-type Point = { name: string; theta: number; m: number; rule: Band; closed: Band; cStar: number; cRule: number; peaks: { k: number; v: number }[] }
+type Point = {
+  name: string
+  theta: number
+  m: number
+  rule: Band
+  closed: Band
+  cStar: number
+  cRule: number
+  peaks: { k: number; v: number }[]
+}
 
 function pointAt(name: string, theta: number): Point {
   const P = dockMatrix(theta, SWAP_N, true)
@@ -122,15 +142,47 @@ function pointAt(name: string, theta: number): Point {
   const cStar = longWaveSpeed(closed, m, DIRS[0] as number[], 1e-3)
   const cRule = longWaveSpeed(rule, m, DIRS[0] as number[], 1e-3)
 
-  return { name, theta, m, rule, closed, cStar, cRule, peaks: DIRS.map(u => speedPeak(closed, u, KMAX, H)) }
+  return {
+    name,
+    theta,
+    m,
+    rule,
+    closed,
+    cStar,
+    cRule,
+    peaks: DIRS.map(u => speedPeak(closed, u, KMAX, H)),
+  }
 }
 
 // the readings along every direction at every beta the band reaches
-function table(p: Point, E: Band, betas: readonly number[], h = H): LorentzReading[][] {
-  return DIRS.map((u, j) => betas.filter(b => b * p.cStar < (p.peaks[j] as { v: number }).v).map(b => lorentzReading(E, p.m, p.cStar, u, b, (p.peaks[j] as { k: number }).k, h)))
+function table(
+  p: Point,
+  E: Band,
+  betas: readonly number[],
+  h = H,
+): LorentzReading[][] {
+  return DIRS.map((u, j) =>
+    betas
+      .filter(b => b * p.cStar < (p.peaks[j] as { v: number }).v)
+      .map(b =>
+        lorentzReading(
+          E,
+          p.m,
+          p.cStar,
+          u,
+          b,
+          (p.peaks[j] as { k: number }).k,
+          h,
+        ),
+      ),
+  )
 }
 
-const within = (x: number, beta: number, t: { low: number; high: number }): boolean => Math.abs(x) <= (beta > 0.7 ? t.high : t.low)
+const within = (
+  x: number,
+  beta: number,
+  t: { low: number; high: number },
+): boolean => Math.abs(x) <= (beta > 0.7 ? t.high : t.low)
 
 export default experiment({
   id: 'relativity/husk-lorentz-kinematics',
@@ -143,8 +195,14 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const chosen = pointAt('chosen', Math.PI + ringAngle([3n, 1n], 3).delta)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const chosen = pointAt(
+      'chosen',
+      Math.PI + ringAngle([3n, 1n], 3).delta,
+    )
     const second = pointAt('k2', Math.PI + ringAngle([3n, 1n], 2).delta)
     const heavy = pointAt('heavy', (4 * Math.PI) / 3)
 
@@ -159,53 +217,108 @@ export default experiment({
 
     const flat = rule.flat()
     const A1 = flat.every(r => within(r.factor, r.beta, FACTOR))
-    const A2 = flat.every(r => within(r.contraction, r.beta, CONTRACTION))
-    const A3 = flat.every(r => within(r.simultaneity, r.beta, SIMULTANEITY))
+    const A2 = flat.every(r =>
+      within(r.contraction, r.beta, CONTRACTION),
+    )
+    const A3 = flat.every(r =>
+      within(r.simultaneity, r.beta, SIMULTANEITY),
+    )
     const spreadOf = (pick: (r: LorentzReading) => number): number =>
       Math.max(
         ...BETAS.map(b => {
-          const xs = rule.map(row => row.find(r => r.beta === b)).filter((r): r is LorentzReading => r !== undefined).map(pick)
+          const xs = rule
+            .map(row => row.find(r => r.beta === b))
+            .filter((r): r is LorentzReading => r !== undefined)
+            .map(pick)
 
           return xs.length ? Math.max(...xs) - Math.min(...xs) : 0
         }),
       )
-    const spread = Math.max(spreadOf(r => r.factor), spreadOf(r => r.contraction), spreadOf(r => r.simultaneity))
-    const transverseSplit = Math.max(...flat.map(r => r.transverseSplit))
+    const spread = Math.max(
+      spreadOf(r => r.factor),
+      spreadOf(r => r.contraction),
+      spreadOf(r => r.simultaneity),
+    )
+    const transverseSplit = Math.max(
+      ...flat.map(r => r.transverseSplit),
+    )
     const tilt = Math.max(...flat.map(r => r.tilt))
     const readsAll = rule.every(row => row.length === BETAS.length)
-    const A4 = readsAll && spread <= SPREAD && transverseSplit <= TRANSVERSE && tilt <= TILT
+    const A4 =
+      readsAll &&
+      spread <= SPREAD &&
+      transverseSplit <= TRANSVERSE &&
+      tilt <= TILT
 
     const secondRows = table(second, second.rule, LIMIT_BETAS)
     const lawTarget = (second.m / chosen.m) ** 2
     const ratios = LIMIT_BETAS.map((b, i) => {
-      const a = (rule[0] as LorentzReading[])[i] as LorentzReading
-      const c = (secondRows[0] as LorentzReading[])[i] as LorentzReading
+      const a = rule[0]![i]!
+      const c = secondRows[0]![i]!
 
       return { beta: b, ratio: c.contraction / a.contraction }
     })
-    const A5 = ratios.every(r => Math.abs(r.ratio / lawTarget - 1) <= LAW)
+    const A5 = ratios.every(
+      r => Math.abs(r.ratio / lawTarget - 1) <= LAW,
+    )
 
     log('light limit')
 
     // ---------------- instrument ----------------
-    const ruleClosed = Math.max(...flat.map((r, i) => {
-      const c = closed.flat()[i] as LorentzReading
+    const ruleClosed = Math.max(
+      ...flat.map((r, i) => {
+        const c = closed.flat()[i]!
 
-      return Math.max(Math.abs(r.factor - c.factor), Math.abs(r.contraction - c.contraction), Math.abs(r.simultaneity - c.simultaneity))
-    }))
+        return Math.max(
+          Math.abs(r.factor - c.factor),
+          Math.abs(r.contraction - c.contraction),
+          Math.abs(r.simultaneity - c.simultaneity),
+        )
+      }),
+    )
     const cStarGap = Math.abs(chosen.cRule - chosen.cStar)
-    const stepGap = Math.max(...flat.map((r, i) => {
-      const c = coarse.flat()[i] as LorentzReading
+    const stepGap = Math.max(
+      ...flat.map((r, i) => {
+        const c = coarse.flat()[i]!
 
-      return Math.max(Math.abs(r.factor - c.factor), Math.abs(r.contraction - c.contraction), Math.abs(r.simultaneity - c.simultaneity))
-    }))
-    const instrument = ruleClosed <= RULE_CLOSED && cStarGap <= C_STAR_GAP && stepGap <= STEP_GAP
+        return Math.max(
+          Math.abs(r.factor - c.factor),
+          Math.abs(r.contraction - c.contraction),
+          Math.abs(r.simultaneity - c.simultaneity),
+        )
+      }),
+    )
+    const instrument =
+      ruleClosed <= RULE_CLOSED &&
+      cStarGap <= C_STAR_GAP &&
+      stepGap <= STEP_GAP
 
     // ---------------- controls ----------------
-    const heavyHalf = lorentzReading(heavy.rule, heavy.m, heavy.cStar, DIRS[0] as number[], 0.5, (heavy.peaks[0] as { k: number }).k, H)
+    const heavyHalf = lorentzReading(
+      heavy.rule,
+      heavy.m,
+      heavy.cStar,
+      DIRS[0] as number[],
+      0.5,
+      (heavy.peaks[0] as { k: number }).k,
+      H,
+    )
     const C1 = Math.abs(heavyHalf.contraction) > HEAVY_FLOOR
-    const galilean: Band = K => chosen.m + (chosen.cStar * chosen.cStar * ((K[0] as number) ** 2 + (K[1] as number) ** 2 + (K[2] as number) ** 2 + (K[3] as number) ** 2)) / (2 * chosen.m)
-    const galileanHalf = lorentzReading(galilean, chosen.m, chosen.cStar, DIRS[0] as number[], 0.5, 1, H)
+    const galilean: Band = K =>
+      chosen.m +
+      (chosen.cStar *
+        chosen.cStar *
+        (K[0]! ** 2 + K[1]! ** 2 + K[2]! ** 2 + K[3]! ** 2)) /
+        (2 * chosen.m)
+    const galileanHalf = lorentzReading(
+      galilean,
+      chosen.m,
+      chosen.cStar,
+      DIRS[0] as number[],
+      0.5,
+      1,
+      H,
+    )
     const C2 = Math.abs(galileanHalf.factor) > GALILEAN_FLOOR
     const controls = C1 && C2
 
@@ -215,11 +328,29 @@ export default experiment({
     const heavyRows = table(heavy, heavy.rule, BETAS)
     const secondAll = table(second, second.rule, BETAS)
     const fmt = (rows: LorentzReading[][]): string =>
-      rows.map((row, j) => `${NAMES[j]}: ${row.map(r => `b ${r.beta} k ${r.k.toFixed(4)} F ${r.factor.toExponential(2)} L ${r.contraction.toExponential(2)} S ${r.simultaneity.toExponential(2)}`).join(', ')}`).join(' | ')
+      rows
+        .map(
+          (row, j) =>
+            `${NAMES[j]}: ${row.map(r => `b ${r.beta} k ${r.k.toFixed(4)} F ${r.factor.toExponential(2)} L ${r.contraction.toExponential(2)} S ${r.simultaneity.toExponential(2)}`).join(', ')}`,
+        )
+        .join(' | ')
 
-    const status = !instrument || !controls ? 'partial' : A1 && A2 && A3 && A4 && A5 ? 'pass' : 'fail'
+    const status =
+      !instrument || !controls
+        ? 'partial'
+        : A1 && A2 && A3 && A4 && A5
+          ? 'pass'
+          : 'fail'
     const flag = (b: boolean): number => (b ? 1 : 0)
-    const at = (beta: number, pick: (r: LorentzReading) => number): number => Math.max(...rule.map(row => Math.abs(pick(row.find(r => r.beta === beta) as LorentzReading))))
+    const at = (
+      beta: number,
+      pick: (r: LorentzReading) => number,
+    ): number =>
+      Math.max(
+        ...rule.map(row =>
+          Math.abs(pick(row.find(r => r.beta === beta)!)),
+        ),
+      )
     const metrics: Record<string, number> = {
       A1: flag(A1),
       A2: flag(A2),
@@ -258,7 +389,11 @@ export default experiment({
       status,
       claim: `at m* ${chosen.m.toFixed(6)} (c* ${chosen.cStar.toFixed(9)}, R ${(0.5 / (chosen.cStar * chosen.cStar)).toFixed(6)}), on the rule's band along the husk axis, face and body diagonals: A1 ${A1} (factor at 0.5 c* ${metrics.factorAtHalf?.toExponential(2)}, at 0.9 ${metrics.factorAtHigh?.toExponential(2)}); A2 ${A2} (contraction ${metrics.contractionAtHalf?.toExponential(2)}, ${metrics.contractionAtHigh?.toExponential(2)}); A3 ${A3} (simultaneity ${metrics.simultaneityAtHalf?.toExponential(2)}, ${metrics.simultaneityAtHigh?.toExponential(2)}); A4 ${A4} (spread ${spread.toExponential(2)}, transverse ${transverseSplit.toExponential(2)}, tilt ${tilt.toExponential(2)}); A5 ${A5} (contraction ratio k2 over chosen ${ratios.map(r => r.ratio.toFixed(4)).join(', ')} at beta ${LIMIT_BETAS.join(', ')}, against (m2/m*)^2 ${lawTarget.toFixed(4)}); husk top speed ${chosen.peaks.map(p => (p.v / chosen.cStar).toFixed(6)).join(', ')} c*; instrument ${instrument} (rule against closed ${ruleClosed.toExponential(2)}, c* ${cStarGap.toExponential(2)}, step ${stepGap.toExponential(2)}); controls C1 ${C1} (heavy contraction at 0.5 c* ${heavyHalf.contraction.toExponential(2)}), C2 ${C2} (Galilean factor at 0.5 c* ${galileanHalf.factor.toExponential(2)})`,
       metrics,
-      control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+      control: {
+        C1: flag(C1),
+        C2: flag(C2),
+        instrument: flag(instrument),
+      },
       notes: `L2. The chosen point, rule band: ${fmt(rule)}. The k = 2 point (m ${second.m.toFixed(6)}, c* ${second.cStar.toFixed(9)}): ${fmt(secondAll)}. The heavy point (m ${heavy.m.toFixed(6)}, c* ${heavy.cStar.toFixed(9)}, top ${heavy.peaks.map(p => (p.v / heavy.cStar).toFixed(4)).join(', ')} c*): ${fmt(heavyRows)}. Husk momenta K4 = 0 (${husk([1, 0, 0]).join(',')} is the axis). ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

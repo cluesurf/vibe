@@ -20,12 +20,28 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { TURN_POS_MIRROR, TURN_SWAP_ORDER } from '@/code/rule/collision'
-import { type ColorLocalSpec, colorLocalSpec, HOP_FREE_TABLES, keyState, TURNING_SCHEDULE } from '@/code/rule/color-local-weave'
+import {
+  type ColorLocalSpec,
+  colorLocalSpec,
+  HOP_FREE_TABLES,
+  keyState,
+  TURNING_SCHEDULE,
+} from '@/code/rule/color-local-weave'
 
-export type FamilyMember = { readonly id: string; readonly spec: ColorLocalSpec }
+export type FamilyMember = {
+  readonly id: string
+  readonly spec: ColorLocalSpec
+}
 
-export const TABLE_NAMES = ['bind', 'bind-reverse', 'swap-plus', 'swap-minus'] as const
-export const FAMILY_TABLES = TABLE_NAMES.map(n => HOP_FREE_TABLES[n] ?? [])
+export const TABLE_NAMES = [
+  'bind',
+  'bind-reverse',
+  'swap-plus',
+  'swap-minus',
+] as const
+export const FAMILY_TABLES = TABLE_NAMES.map(
+  n => HOP_FREE_TABLES[n] ?? [],
+)
 
 export const WALKS: Readonly<Record<string, readonly number[]>> = {
   mirror: TURN_POS_MIRROR,
@@ -38,11 +54,15 @@ const lone = (k: number): boolean => {
 
   return (a === 0) !== (b === 0)
 }
+
 const calm = (k: number): boolean => k === 4
 
-export const SWAP_CONDITIONS: Readonly<Record<string, (line: number, wire: number) => boolean>> = {
+export const SWAP_CONDITIONS: Readonly<
+  Record<string, (line: number, wire: number) => boolean>
+> = {
   'lone-away': TURNING_SCHEDULE.swapWhen,
-  'lone-first': (l, w) => keyState(l)[0] !== 0 && keyState(l)[1] === 0 && calm(w),
+  'lone-first': (l, w) =>
+    keyState(l)[0] !== 0 && keyState(l)[1] === 0 && calm(w),
   'lone-any': (l, w) => lone(l) && calm(w),
   charged: (l, w) => keyState(l)[0] + keyState(l)[1] !== 0 && calm(w),
   occupied: (l, w) => !calm(l) && calm(w),
@@ -51,10 +71,20 @@ export const SWAP_CONDITIONS: Readonly<Record<string, (line: number, wire: numbe
 }
 
 function permutations(xs: readonly number[]): number[][] {
-  return xs.length <= 1 ? [[...xs]] : xs.flatMap((x, i) => permutations([...xs.slice(0, i), ...xs.slice(i + 1)]).map(r => [x, ...r]))
+  return xs.length <= 1
+    ? [[...xs]]
+    : xs.flatMap((x, i) =>
+        permutations([...xs.slice(0, i), ...xs.slice(i + 1)]).map(r => [
+          x,
+          ...r,
+        ]),
+      )
 }
 
-const mirrored = (order: readonly number[]): number[] => [...order, ...[...order].reverse()]
+const mirrored = (order: readonly number[]): number[] => [
+  ...order,
+  ...[...order].reverse(),
+]
 
 // the 384 signed permutations of the four axes, as permutations of the 12 lines of the D4 box
 export function turnElements(): number[][] {
@@ -70,7 +100,8 @@ export function turnElements(): number[][] {
     }
   })
 
-  const lineOf = (d: number): number => lines.findIndex(([a, b]) => a === d || b === d)
+  const lineOf = (d: number): number =>
+    lines.findIndex(([a, b]) => a === d || b === d)
   const out: number[][] = []
 
   for (const axes of permutations([0, 1, 2, 3])) {
@@ -78,12 +109,19 @@ export function turnElements(): number[][] {
       const image = (r: readonly number[]): number[] => {
         const v = [0, 0, 0, 0]
 
-        axes.forEach((to, from) => (v[to] = (r[from] ?? 0) * ((signs >> from) & 1 ? -1 : 1)))
+        axes.forEach(
+          (to, from) =>
+            (v[to] = (r[from] ?? 0) * ((signs >> from) & 1 ? -1 : 1)),
+        )
 
         return v
       }
 
-      out.push(lines.map(([a]) => lineOf(index.get(image(roots[a] ?? []).join(',')) ?? 0)))
+      out.push(
+        lines.map(([a]) =>
+          lineOf(index.get(image(roots[a] ?? []).join(',')) ?? 0),
+        ),
+      )
     }
   }
 
@@ -95,7 +133,12 @@ function sequences(period: number): number[][] {
   const out: number[][] = []
 
   for (let n = 0; n < 4 ** period; n++) {
-    out.push(Array.from({ length: period }, (_, i) => Math.floor(n / 4 ** i) % 4))
+    out.push(
+      Array.from(
+        { length: period },
+        (_, i) => Math.floor(n / 4 ** i) % 4,
+      ),
+    )
   }
 
   return out
@@ -110,14 +153,20 @@ export function familySweep(sweep: string): FamilyMember[] {
 
     for (const period of [1, 2, 3, 4, 6, 8]) {
       for (const seq of sequences(period)) {
-        const expanded = Array.from({ length: 24 }, (_, t) => seq[t % period] ?? 0).join('')
+        const expanded = Array.from(
+          { length: 24 },
+          (_, t) => seq[t % period] ?? 0,
+        ).join('')
 
         if (seen.has(expanded)) {
           continue
         }
 
         seen.add(expanded)
-        out.push({ id: `tables:${seq.join('')}`, spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: seq }) })
+        out.push({
+          id: `tables:${seq.join('')}`,
+          spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: seq }),
+        })
       }
     }
 
@@ -130,7 +179,13 @@ export function familySweep(sweep: string): FamilyMember[] {
         [true, false].flatMap(palindrome =>
           Object.entries(WALKS).map(([walk, positionAt]) => ({
             id: `schedule:${name(ti)}:${order.join('')}:${palindrome ? 'palindrome' : 'once'}:${walk}`,
-            spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], swapAt: mirrored(order), palindrome, positionAt }),
+            spec: colorLocalSpec({
+              tables: FAMILY_TABLES,
+              tableAt: [ti],
+              swapAt: mirrored(order),
+              palindrome,
+              positionAt,
+            }),
           })),
         ),
       ),
@@ -144,7 +199,12 @@ export function familySweep(sweep: string): FamilyMember[] {
       turns.flatMap((turn, gi) =>
         ['mirror', 'cyclic'].map(walk => ({
           id: `turn:${name(ti)}:${gi}:${walk}`,
-          spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], turn, positionAt: WALKS[walk] ?? [0] }),
+          spec: colorLocalSpec({
+            tables: FAMILY_TABLES,
+            tableAt: [ti],
+            turn,
+            positionAt: WALKS[walk] ?? [0],
+          }),
         })),
       ),
     )
@@ -155,7 +215,12 @@ export function familySweep(sweep: string): FamilyMember[] {
       Object.entries(SWAP_CONDITIONS).flatMap(([condition, swapWhen]) =>
         [true, false].map(palindrome => ({
           id: `condition:${name(ti)}:${condition}:${palindrome ? 'palindrome' : 'once'}`,
-          spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], swapWhen, palindrome }),
+          spec: colorLocalSpec({
+            tables: FAMILY_TABLES,
+            tableAt: [ti],
+            swapWhen,
+            palindrome,
+          }),
         })),
       ),
     )
@@ -164,7 +229,11 @@ export function familySweep(sweep: string): FamilyMember[] {
   if (sweep === 'couple') {
     return sequences(6).map(coupleTable => ({
       id: `couple:${coupleTable.join('')}`,
-      spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [0], coupleTable }),
+      spec: colorLocalSpec({
+        tables: FAMILY_TABLES,
+        tableAt: [0],
+        coupleTable,
+      }),
     }))
   }
 
@@ -172,7 +241,12 @@ export function familySweep(sweep: string): FamilyMember[] {
     return FAMILY_TABLES.flatMap((_, ti) =>
       Object.entries(WALKS).map(([walk, positionAt]) => ({
         id: `none:${name(ti)}:${walk}`,
-        spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], swapAt: [-1], positionAt }),
+        spec: colorLocalSpec({
+          tables: FAMILY_TABLES,
+          tableAt: [ti],
+          swapAt: [-1],
+          positionAt,
+        }),
       })),
     )
   }
@@ -180,7 +254,14 @@ export function familySweep(sweep: string): FamilyMember[] {
   return []
 }
 
-export const SWEEPS = ['tables', 'schedule', 'turn', 'condition', 'couple', 'none'] as const
+export const SWEEPS = [
+  'tables',
+  'schedule',
+  'turn',
+  'condition',
+  'couple',
+  'none',
+] as const
 
 // The CPT partner of each table under negation with time reversal: the bind table and its reverse are
 // each their own (N T N is T's inverse), the two transpositions are each other's (N T N is the other
@@ -197,9 +278,14 @@ export function cptTableSequences(): number[][] {
   for (const period of [8, 12]) {
     for (const half of sequences(period / 2)) {
       const seq = Array.from({ length: period }, (_, t) =>
-        t < period / 2 ? (half[t] ?? 0) : (CPT_PARTNER[half[period - 1 - t] ?? 0] ?? 0),
+        t < period / 2
+          ? (half[t] ?? 0)
+          : (CPT_PARTNER[half[period - 1 - t] ?? 0] ?? 0),
       )
-      const expanded = Array.from({ length: 24 }, (_, t) => seq[t % period] ?? 0).join('')
+      const expanded = Array.from(
+        { length: 24 },
+        (_, t) => seq[t % period] ?? 0,
+      ).join('')
 
       if (!seen.has(expanded)) {
         seen.add(expanded)
@@ -219,22 +305,34 @@ export function cptTableSweep(): FamilyMember[] {
 }
 
 // for each given swap order (the digits of a schedule id), every CPT-paired table sequence
-export function scheduleTableSweep(orders: readonly string[]): FamilyMember[] {
+export function scheduleTableSweep(
+  orders: readonly string[],
+): FamilyMember[] {
   return orders.flatMap(text =>
     cptTableSequences().map(seq => ({
       id: `schedule-tables:${text}:${seq.join('')}`,
-      spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: seq, swapAt: mirrored(text.split('').map(Number)) }),
+      spec: colorLocalSpec({
+        tables: FAMILY_TABLES,
+        tableAt: seq,
+        swapAt: mirrored(text.split('').map(Number)),
+      }),
     })),
   )
 }
 
 // for each given table sequence (the digits of a tables id), every visiting order of the palindromic
 // swap on the out-and-back walk
-export function tableScheduleSweep(sequencesGiven: readonly string[]): FamilyMember[] {
+export function tableScheduleSweep(
+  sequencesGiven: readonly string[],
+): FamilyMember[] {
   return sequencesGiven.flatMap(text =>
     permutations(TURN_SWAP_ORDER).map(order => ({
       id: `table-schedule:${text}:${order.join('')}`,
-      spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: text.split('').map(Number), swapAt: mirrored(order) }),
+      spec: colorLocalSpec({
+        tables: FAMILY_TABLES,
+        tableAt: text.split('').map(Number),
+        swapAt: mirrored(order),
+      }),
     })),
   )
 }
@@ -243,14 +341,21 @@ export function tableScheduleSweep(sequencesGiven: readonly string[]): FamilyMem
 // the palindromic swap on the out-and-back walk, with the bind table and its reverse. A search passes
 // the turns whose single-freedom member cleared the interaction gates, so the two freedoms that matter
 // most are varied together there
-export function turnScheduleSweep(turnIndices: readonly number[]): FamilyMember[] {
+export function turnScheduleSweep(
+  turnIndices: readonly number[],
+): FamilyMember[] {
   const turns = turnElements()
 
   return turnIndices.flatMap(gi =>
     [0, 1].flatMap(ti =>
       permutations(TURN_SWAP_ORDER).map(order => ({
         id: `turn-schedule:${name(ti)}:${gi}:${order.join('')}`,
-        spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], turn: turns[gi] ?? [], swapAt: mirrored(order) }),
+        spec: colorLocalSpec({
+          tables: FAMILY_TABLES,
+          tableAt: [ti],
+          turn: turns[gi] ?? [],
+          swapAt: mirrored(order),
+        }),
       })),
     ),
   )

@@ -153,8 +153,24 @@ import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { staticR, darwinR } from '@/code/measure/darwin-exchange'
 import { wrap } from '@/code/measure/dock-mixer'
 import { infiniteGreenZero } from '@/code/measure/husk-coulomb'
-import { greenFar, huskGreenTable, type GreenTable } from '@/code/measure/husk-meson'
-import { blockShares, clonePair, inner, memberCycle, newPair, norm2, normalizePair, pairCycle, pairEngine, relBall, type PairState } from '@/code/measure/register-meson'
+import {
+  greenFar,
+  huskGreenTable,
+  type GreenTable,
+} from '@/code/measure/husk-meson'
+import {
+  blockShares,
+  clonePair,
+  inner,
+  memberCycle,
+  newPair,
+  norm2,
+  normalizePair,
+  pairCycle,
+  pairEngine,
+  relBall,
+  type PairState,
+} from '@/code/measure/register-meson'
 import {
   coulombCounts,
   coulombCycle,
@@ -176,7 +192,11 @@ import {
   siteWeights,
   type CoulombCount,
 } from '@/code/measure/register-coulomb'
-import { diracPhase, structureVector, weylDirections } from '@/code/measure/spinor-register'
+import {
+  diracPhase,
+  structureVector,
+  weylDirections,
+} from '@/code/measure/spinor-register'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 
 const LIGHT: readonly [number, number] = [-5, 1]
@@ -184,7 +204,10 @@ const UNIT: readonly [number, number] = [11, 5]
 const STRING: readonly [number, number] = [-9, 6]
 const C_STAR2 = 0.5
 const GENERIC_RAW = [0.29, 0.52, 0.8]
-const GENERIC = [...GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW)), 0]
+const GENERIC = [
+  ...GENERIC_RAW.map(x => x / Math.hypot(...GENERIC_RAW)),
+  0,
+]
 const DIRS: readonly number[][] = [[1, 0, 0, 0], GENERIC]
 const WITNESS_K: readonly number[][] = [
   [0, 0, 0, 0],
@@ -234,7 +257,20 @@ export type CoulombPlan = {
   gScan: number
 }
 
-export const GATE_PLAN: CoulombPlan = { main: 3.5, mainRadius: 16, double: 3, doubleRadius: 14, filters: [128, 512, 2048], kFilter: 256, hold: 64, witness: true, witnessCoord: 7, witnessFull: 6, sTorus: 64, gScan: 2000 }
+export const GATE_PLAN: CoulombPlan = {
+  main: 3.5,
+  mainRadius: 16,
+  double: 3,
+  doubleRadius: 14,
+  filters: [128, 512, 2048],
+  kFilter: 256,
+  hold: 64,
+  witness: true,
+  witnessCoord: 7,
+  witnessFull: 6,
+  sTorus: 64,
+  gScan: 2000,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -242,7 +278,7 @@ export default experiment({
   id: 'spin/register-coulomb-hold',
   code: 'E-SPN-0173',
   title:
-    'a light register pair held by the husk light\'s Coulomb pull binds like hydrogen but moves 8 to 16 times too heavily, fail (H2, H4, H5): two members at m 0.427 (below pi/6 and below the swap coin\'s leak at 0.62) carrying the Cl+(4) register, held by an integer-counted pair phase rho^(-n(y)), n = floor(alpha G(y) / theta), in the vector form (every sector moved alike, the S D and D S sectors through exact one-link projector pieces), on the husk quotient, exact in the 16 x 16 moving block (witnessed against the full 192 x 192 rule to 7e-17); every channel open at infinity is closed (D F at 0.41); the level binds within 6% of hydrogen (E_b 0.0948 against 0.0897) and holds 64 cycles with no leak, isotropic to 2e-6, but R = 8.46 against the static formula\'s 1.23, and 16.45 at the stronger a_B 3 (a clean isolated level, residual 1e-4); the Darwin exchange moves R by the derived 0.16, far short; the doubled coupling would put 5.0 rad a cycle at contact, which no pair phase can hold',
+    "a light register pair held by the husk light's Coulomb pull binds like hydrogen but moves 8 to 16 times too heavily, fail (H2, H4, H5): two members at m 0.427 (below pi/6 and below the swap coin's leak at 0.62) carrying the Cl+(4) register, held by an integer-counted pair phase rho^(-n(y)), n = floor(alpha G(y) / theta), in the vector form (every sector moved alike, the S D and D S sectors through exact one-link projector pieces), on the husk quotient, exact in the 16 x 16 moving block (witnessed against the full 192 x 192 rule to 7e-17); every channel open at infinity is closed (D F at 0.41); the level binds within 6% of hydrogen (E_b 0.0948 against 0.0897) and holds 64 cycles with no leak, isotropic to 2e-6, but R = 8.46 against the static formula's 1.23, and 16.45 at the stronger a_B 3 (a clean isolated level, residual 1e-4); the Darwin exchange moves R by the derived 0.16, far short; the doubled coupling would put 5.0 rad a cycle at contact, which no pair phase can hold",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -252,7 +288,10 @@ export default experiment({
   },
 })
 
-const unitValue = (angle: number): [number, number] => [Math.cos(angle), Math.sin(angle)]
+const unitValue = (angle: number): [number, number] => [
+  Math.cos(angle),
+  Math.sin(angle),
+]
 
 type Point = {
   aB: number
@@ -288,7 +327,10 @@ type Point = {
 
 export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const theta0 = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u = unitValue(theta0)
   const M0 = wrap(theta0 - Math.PI)
@@ -301,20 +343,35 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
     const c = memberCycle(u, K)
     const ev = complexEigenvalues({ re: c.re, im: c.im, n: 16 })
 
-    return ev.re.map((x, i) => Math.atan2(ev.im[i] as number, x)).sort((a, b) => a - b)
+    return ev.re
+      .map((x, i) => Math.atan2(ev.im[i]!, x))
+      .sort((a, b) => a - b)
   }
+
   let i1 = 0
 
   for (const K of I1_MOMENTA) {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
-    const want = [...Array(8).fill(wrap(Math.PI + E)), ...Array(8).fill(wrap(Math.PI - E))].sort((a, b) => a - b)
+    const want = [
+      ...Array(8).fill(wrap(Math.PI + E)),
+      ...Array(8).fill(wrap(Math.PI - E)),
+    ].sort((a, b) => a - b)
 
-    i1 = Math.max(i1, ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))))
+    i1 = Math.max(
+      i1,
+      ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))),
+    )
   }
 
-  const sEps = (k: number): number => phasesOf([k, 0, 0, 0]).map(x => wrap(x - Math.PI)).reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
-  const aMember = (4 * ((sEps(0.01) - M0) / 0.01 ** 2) - (sEps(0.02) - M0) / 0.02 ** 2) / 3
+  const sEps = (k: number): number =>
+    phasesOf([k, 0, 0, 0])
+      .map(x => wrap(x - Math.PI))
+      .reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
+  const aMember =
+    (4 * ((sEps(0.01) - M0) / 0.01 ** 2) -
+      (sEps(0.02) - M0) / 0.02 ** 2) /
+    3
   const RMember = C_STAR2 / (2 * aMember * M0)
   const I1 = i1 <= I1_TOLERANCE
   const I2 = Math.abs(RMember - tanOver) <= I2_TOLERANCE
@@ -331,7 +388,14 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
   log('green')
 
   // ---------------- H0: the witness on the quotient ----------------
-  const witness: { K: number[]; kind: string; gap: number; gapInner: number; weights: number[]; norms: number[] }[] = []
+  const witness: {
+    K: number[]
+    kind: string
+    gap: number
+    gapInner: number
+    weights: number[]
+    norms: number[]
+  }[] = []
 
   if (plan.witness) {
     const coord = huskRelBall(plan.witnessCoord)
@@ -344,7 +408,8 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
       for (const kind of ['SS', 'generic'] as const) {
         const e = coulombEngine(coord, u, K, cc, 'vector')
         const s = newPair(coord)
-        const at = coord.index.get('0,0,0,0') as number
+        const at = coord.index.get('0,0,0,0')!
+
         let w = 0.5
 
         for (let k = 0; k < (kind === 'SS' ? 64 : 256); k++) {
@@ -361,12 +426,25 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
         const n1 = norm2(e, s)
         const want = liftQ(coord, s, full, K)
-        const rule = fullRuleQ(full, u, K, Array.from(fc.counts, n => -theta * n), 'vector')
+        const rule = fullRuleQ(
+          full,
+          u,
+          K,
+          Array.from(fc.counts, n => -theta * n),
+          'vector',
+        )
         const two = fullBeatQ(rule, fullBeatQ(rule, before, 1), 2)
         const g = fullGapQ(full, two, want)
         const gIn = fullGapQ(full, two, want, plan.witnessFull - 3)
 
-        witness.push({ K: [...K], kind, gap: g.worst, gapInner: gIn.worst, weights: [g.weightA, g.weightB], norms: [n0, n1] })
+        witness.push({
+          K: [...K],
+          kind,
+          gap: g.worst,
+          gapInner: gIn.worst,
+          weights: [g.weightA, g.weightB],
+          norms: [n0, n1],
+        })
         log(`witness ${kind} ${K.join(',')}`)
       }
     }
@@ -374,13 +452,24 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
   const H0 =
     plan.witness &&
-    witness.every(w => (w.kind === 'SS' ? w.gap : w.gapInner) <= ENTRY && Math.abs((w.norms[1] as number) / (w.norms[0] as number) - 1) <= NORM) &&
-    witness.filter(w => w.kind === 'SS').every(w => Math.abs((w.weights[0] as number) / (w.weights[1] as number) - 1) <= WEIGHT)
+    witness.every(
+      w =>
+        (w.kind === 'SS' ? w.gap : w.gapInner) <= ENTRY &&
+        Math.abs(w.norms[1]! / w.norms[0]! - 1) <= NORM,
+    ) &&
+    witness
+      .filter(w => w.kind === 'SS')
+      .every(w => Math.abs(w.weights[0]! / w.weights[1]! - 1) <= WEIGHT)
 
   // ---------------- a coupling point: the level, the hold, the motion, S and R ----------------
-  const holdOf = (e: CoulombEngine, v: PairState, cycles: number): { lost: number; least: number } => {
+  const holdOf = (
+    e: CoulombEngine,
+    v: PairState,
+    cycles: number,
+  ): { lost: number; least: number } => {
     const s = clonePair(v)
     const n0 = norm2(e, v)
+
     let least = 1
 
     for (let c = 1; c <= cycles; c++) {
@@ -393,10 +482,21 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
     return { lost: 1 - norm2(e, s) / n0, least }
   }
-  const levelOf = (e: CoulombEngine, from: PairState, guess: number, filters: readonly number[]): { v: PairState; read: ReturnType<typeof coulombRead>; reads: number[] } => {
+
+  const levelOf = (
+    e: CoulombEngine,
+    from: PairState,
+    guess: number,
+    filters: readonly number[],
+  ): {
+    v: PairState
+    read: ReturnType<typeof coulombRead>
+    reads: number[]
+  } => {
     let v = from
     let phase = guess
     let read = coulombRead(e, from)
+
     const reads: number[] = []
 
     for (const S of filters) {
@@ -409,6 +509,7 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
     return { v, read, reads }
   }
+
   const pointAt = (aB: number, radius: number): Point => {
     const alpha = alphaOf(aB)
     const ball = huskRelBall(radius)
@@ -435,15 +536,22 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
       return coulombRead(ek, v).phase
     }
+
     const base = eAt([0, 0, 0, 0])
     const coefficients = DIRS.map(d => {
       const e1 = eAt(d.map(x => x * KAPPA))
       const e2 = eAt(d.map(x => (x * KAPPA) / 2))
 
-      return (4 * ((e2 - base) / (KAPPA / 2) ** 2) - (e1 - base) / KAPPA ** 2) / 3
+      return (
+        (4 * ((e2 - base) / (KAPPA / 2) ** 2) -
+          (e1 - base) / KAPPA ** 2) /
+        3
+      )
     })
-    const a0 = coefficients[0] as number
-    const isotropy = Math.max(...coefficients.map(a => Math.abs(a / a0 - 1)))
+    const a0 = coefficients[0]!
+    const isotropy = Math.max(
+      ...coefficients.map(a => Math.abs(a / a0 - 1)),
+    )
     const Rstatic = C_STAR2 / (2 * a0 * base)
 
     log(`motion a_B ${aB}: R ${Rstatic}`)
@@ -452,7 +560,8 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
     // per beat: the member's m and the binding E_b / 2 (the formulas are E-SPN-0155's, per beat)
     const Eb = 2 * M0 - EL
     const RformulaStatic = staticR(m, Eb / 2)
-    const darwinShift = (speed2: number): number => darwinR(m, Eb / 2, dS.S, speed2) - staticR(m, Eb / 2)
+    const darwinShift = (speed2: number): number =>
+      darwinR(m, Eb / 2, dS.S, speed2) - staticR(m, Eb / 2)
     const Rfull = Rstatic + darwinShift(1)
     const RfullD5 = Rstatic + darwinShift(1.03125)
 
@@ -492,22 +601,38 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
   }
 
   const main = pointAt(plan.main, plan.mainRadius)
-  const H2 = main.lambdaAbs >= 1 - LAMBDA && main.residual <= RESIDUAL && Math.abs(main.lost) <= LOST && main.least >= 1 - FIDELITY && main.edge <= EDGE
+  const H2 =
+    main.lambdaAbs >= 1 - LAMBDA &&
+    main.residual <= RESIDUAL &&
+    Math.abs(main.lost) <= LOST &&
+    main.least >= 1 - FIDELITY &&
+    main.edge <= EDGE
   const H3 = main.isotropy <= ISOTROPY
-  const H4 = Math.abs(main.Rstatic / main.RformulaStatic - 1) <= STATIC_BAND
+  const H4 =
+    Math.abs(main.Rstatic / main.RformulaStatic - 1) <= STATIC_BAND
   const H5 = Math.abs(main.Rfull - tanOver) <= FULL_BAND
 
   // ---------------- H1: the channels open at infinity ----------------
   let gMax = 0
 
-  for (const w of weylDirections(plan.gScan)) for (let k = 0.05; k < 3.2; k += 0.05) gMax = Math.max(gMax, Math.hypot(...structureVector(w.map(x => x * k))) / 2)
+  for (const w of weylDirections(plan.gScan)) {
+    for (let k = 0.05; k < 3.2; k += 0.05) {
+      gMax = Math.max(
+        gMax,
+        Math.hypot(...structureVector(w.map(x => x * k))) / 2,
+      )
+    }
+  }
 
-  const Smax = Math.acos(Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax)
+  const Smax = Math.acos(
+    Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax,
+  )
+
   // the S D band at the largest total K the run uses, on the husk slice: E_S(K/2 + q) - E_S(q - K/2) over a q grid
   let sdWidth = 0
 
   for (const w of weylDirections(400)) {
-    const q3 = [w[0] as number, w[1] as number, w[2] as number]
+    const q3 = [w[0]!, w[1]!, w[2]!]
     const n = Math.hypot(...q3)
 
     for (let k = 0; k <= 3.2; k += 0.1) {
@@ -515,7 +640,19 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
         const K = d.map(x => x * KAPPA)
         const q = [...q3.map(x => (x / n) * k), 0]
 
-        sdWidth = Math.max(sdWidth, Math.abs(diracPhase(q.map((x, i) => x + (K[i] as number) / 2), M0) - diracPhase(q.map((x, i) => x - (K[i] as number) / 2), M0)))
+        sdWidth = Math.max(
+          sdWidth,
+          Math.abs(
+            diracPhase(
+              q.map((x, i) => x + K[i]! / 2),
+              M0,
+            ) -
+              diracPhase(
+                q.map((x, i) => x - K[i]! / 2),
+                M0,
+              ),
+          ),
+        )
       }
     }
   }
@@ -531,7 +668,10 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
     return best
   }
-  const channelsOf = (E: number): { margin: number; at: string; bound: number } => {
+
+  const channelsOf = (
+    E: number,
+  ): { margin: number; at: string; bound: number } => {
     const bands: [string, number, number][] = [
       ['DD', -2 * Smax, -2 * M0],
       ['SD', -sdWidth, sdWidth],
@@ -539,6 +679,7 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
       ['DF', Math.PI - Smax, Math.PI - M0],
       ['FF', 2 * Math.PI, 2 * Math.PI],
     ]
+
     let margin = Infinity
     let at = ''
 
@@ -553,7 +694,9 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
     return { margin, at, bound: 2 * M0 - E }
   }
+
   const mainChannels = channelsOf(main.EL)
+
   // where the D D band, raised by alpha G(y) near contact, reaches the level (a local degeneracy, not a channel)
   const ddReach = (p: Point): number => {
     let reach = 0
@@ -564,19 +707,25 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
       const lo = -2 * Smax + lift
       const hi = -2 * M0 + lift
 
-      if (distance(p.EL, lo, hi) === 0) reach = r
+      if (distance(p.EL, lo, hi) === 0) {
+        reach = r
+      }
     }
 
     return reach
   }
-  const H1 = mainChannels.margin >= MARGIN && mainChannels.bound >= BOUND
+
+  const H1 =
+    mainChannels.margin >= MARGIN && mainChannels.bound >= BOUND
 
   log('H1')
 
   // ---------------- the doubled coupling ----------------
   const dbl = pointAt(plan.double, plan.doubleRadius)
   const doubleChannels = channelsOf(dbl.EL)
-  const H6 = Math.abs(main.Rfull - tanOver) < Math.abs(dbl.Rfull - tanOver) && main.Rstatic - tanOver < dbl.Rstatic - tanOver
+  const H6 =
+    Math.abs(main.Rfull - tanOver) < Math.abs(dbl.Rfull - tanOver) &&
+    main.Rstatic - tanOver < dbl.Rstatic - tanOver
 
   // ---------------- controls ----------------
   // C1: E-SPN-0162's string through setPairPhases equals the native engine bit for bit, three cycles, generic start
@@ -589,9 +738,13 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
     const native = pairEngine(ball, { u, tau, cap: 8, K })
     const mine = pairEngine(ball, { u, tau: 0, cap: 0, K })
 
-    setPairPhases(mine, Array.from(ball.V, V => tau * Math.min(V, 8)))
+    setPairPhases(
+      mine,
+      Array.from(ball.V, V => tau * Math.min(V, 8)),
+    )
 
     const a = newPair(ball)
+
     let w = 0.5
 
     for (let k = 0; k < 256; k++) {
@@ -608,12 +761,20 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
       pairCycle(mine, b)
     }
 
-    C1 = a.re.every((x, i) => x === b.re[i]) && a.im.every((x, i) => x === b.im[i])
+    C1 =
+      a.re.every((x, i) => x === b.re[i]) &&
+      a.im.every((x, i) => x === b.im[i])
   }
 
   // C2: the light off (alpha 0): from the main level, the free pair does not hold
   const ballFree = huskRelBall(plan.mainRadius)
-  const eFree = coulombEngine(ballFree, u, [0, 0, 0, 0], { ...main.count, counts: new Int32Array(main.count.counts.length) }, 'vector')
+  const eFree = coulombEngine(
+    ballFree,
+    u,
+    [0, 0, 0, 0],
+    { ...main.count, counts: new Int32Array(main.count.counts.length) },
+    'vector',
+  )
   const vFree = clonePair(main.v)
 
   normalizePair(eFree, vFree)
@@ -631,13 +792,24 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
   {
     const ball = huskRelBall(16)
-    const e = coulombEngine(ball, u, [0.31, -0.17, 0.52, 0], coulombCounts(ball, table, alphaOf(plan.main), theta), 'vector')
+    const e = coulombEngine(
+      ball,
+      u,
+      [0.31, -0.17, 0.52, 0],
+      coulombCounts(ball, table, alphaOf(plan.main), theta),
+      'vector',
+    )
+
     const gen = (seed: number): PairState => {
       const s = newPair(ball)
+
       let w = seed
 
       ball.points.forEach((p, i) => {
-        if (Math.hypot(p[0] as number, p[1] as number, p[2] as number) > 3) return
+        if (Math.hypot(p[0]!, p[1]!, p[2]!) > 3) {
+          return
+        }
+
         for (let k = 0; k < 256; k++) {
           w = (w + 0.6180339887498949) % 1
           s.re[i * 256 + k] = w - 0.5
@@ -648,6 +820,7 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
       return s
     }
+
     const a = gen(0.1)
     const b = gen(0.7)
 
@@ -659,21 +832,31 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
 
         for (let i = 0; i < ball.points.length; i++) {
           for (let k = 0; k < 64; k++) {
-            out.re[i * 256 + off + k] = p.re[i * 64 + k] as number
-            out.im[i * 256 + off + k] = p.im[i * 64 + k] as number
+            out.re[i * 256 + off + k] = p.re[i * 64 + k]!
+            out.im[i * 256 + off + k] = p.im[i * 64 + k]!
           }
         }
 
         return out
       }
+
       const x = inner(e, a, embed(b))
       const y = inner(e, embed(a), b)
       const scale = Math.sqrt(norm2(e, a) * norm2(e, b))
       const p1 = embed(a)
       const pp = embed(p1)
 
-      i3Adjoint = Math.max(i3Adjoint, Math.hypot(x[0] - y[0], x[1] - y[1]) / scale)
-      for (let i = 0; i < pp.re.length; i++) i3Idem = Math.max(i3Idem, Math.hypot((pp.re[i] as number) - (p1.re[i] as number), (pp.im[i] as number) - (p1.im[i] as number)))
+      i3Adjoint = Math.max(
+        i3Adjoint,
+        Math.hypot(x[0] - y[0], x[1] - y[1]) / scale,
+      )
+
+      for (let i = 0; i < pp.re.length; i++) {
+        i3Idem = Math.max(
+          i3Idem,
+          Math.hypot(pp.re[i]! - p1.re[i]!, pp.im[i]! - p1.im[i]!),
+        )
+      }
     }
 
     const s = clonePair(a)
@@ -683,14 +866,21 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
     i3Norm = Math.abs(norm2(e, s) / n0 - 1)
   }
 
-  const I3 = i3Adjoint <= I3_TOLERANCE && i3Idem <= I3_TOLERANCE && i3Norm <= I3_NORM
+  const I3 =
+    i3Adjoint <= I3_TOLERANCE &&
+    i3Idem <= I3_TOLERANCE &&
+    i3Norm <= I3_NORM
 
   log('controls')
 
   const instrument = I1 && I2 && I3
   const controls = C1 && C2 && C3
   const hard = H0 && H1 && H2 && H3 && H4 && H5 && H6
-  const status = !hard ? 'fail' : !instrument || !controls ? 'partial' : 'pass'
+  const status = !hard
+    ? 'fail'
+    : !instrument || !controls
+      ? 'partial'
+      : 'pass'
   const pointClaim = (p: Point): string =>
     `a_B ${p.aB} (alpha ${p.alpha.toFixed(3)}, ball ${p.radius}, ${p.sites} sites, count top ${p.count.top}, nearest threshold ${p.count.nearest.toExponential(2)}): E_L ${p.EL.toFixed(8)}, E_b ${p.Eb.toFixed(6)} (continuum ${p.EbContinuum.toFixed(6)}), |lambda| ${p.lambdaAbs.toFixed(10)}, residual ${p.residual.toExponential(2)} (after each filter ${p.reads.map(x => x.toExponential(2)).join(', ')}), lost ${p.lost.toExponential(2)} over ${plan.hold} cycles, least fidelity ${p.least.toFixed(10)}, edge ${p.edge.toExponential(2)}, mean r ${p.mean.toFixed(3)}, shares ${p.shares.map(x => x.toFixed(4)).join(' ')}, shells 0..7 ${p.shellsHead.map(x => x.toExponential(1)).join(' ')}, <G> ${p.meanG.toFixed(6)}; a ${p.coefficients.map(a => a.toFixed(10)).join(' ')} (isotropy ${p.isotropy.toExponential(2)}); R static ${p.Rstatic.toFixed(6)} against the formula ${p.RformulaStatic.toFixed(6)}; S ${p.S.toFixed(6)} (<k^2> ${p.meanK2.toFixed(5)}, wrapped ${p.wrapped.toExponential(2)}); R with the Darwin exchange ${p.Rfull.toFixed(6)} at one speed, ${p.RfullD5.toFixed(6)} on the D 5 column, against tan m / m ${tanOver.toFixed(6)}`
 
@@ -730,7 +920,12 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
       doubleS: dbl.S,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), C3: flag(C3), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      C3: flag(C3),
+      instrument: flag(instrument),
+    },
     notes: `L2. Light m ${m.toFixed(6)} (M0 ${M0.toFixed(6)}), the Coulomb count in steps of ringUnit(${UNIT.join(', ')}) (angle ${theta.toFixed(9)}), G(0) ${G0.toFixed(9)}, mu ${mu.toFixed(6)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

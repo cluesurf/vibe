@@ -11,7 +11,10 @@
 // Identical tokens (three loves) are restricted to the exchange-antisymmetric subspace: an antisymmetric phi obeys
 // phi(pi . c) = sgn(pi) e^(-i K d_pi(0)) phi(c), where (pi . c) puts token pi(t)'s position and label at t.
 
-import { type Convention, type Vibe } from '@/code/rule/locked-token-line'
+import {
+  type Convention,
+  type Vibe,
+} from '@/code/rule/locked-token-line'
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 
 export type BlochSpec = {
@@ -34,23 +37,37 @@ const SQ = Math.sqrt(3) / 2
 const OMEGA: C = [-0.5, SQ]
 const A: C = [0.25, SQ / 2]
 const B: C = [0.75, -SQ / 2]
-const cmul = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cmul = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 
-export const chargeOf = (kind: Vibe): number => (kind === 'love' ? 1 : -1)
+export const chargeOf = (kind: Vibe): number =>
+  kind === 'love' ? 1 : -1
 
 // the string count on the line: links between sorted positions whose cumulative center charge is nonzero mod 3
-export function lineString(xs: readonly number[], kinds: readonly Vibe[]): number {
+export function lineString(
+  xs: readonly number[],
+  kinds: readonly Vibe[],
+): number {
   const order = xs.map((x, t) => t).sort((a, b) => xs[a]! - xs[b]!)
+
   let cum = 0
   let l = 0
 
   for (let i = 0; i < order.length; i++) {
     cum += chargeOf(kinds[order[i]!]!)
 
-    if (i + 1 < order.length && ((cum % 3) + 3) % 3 !== 0) l += xs[order[i + 1]!]! - xs[order[i]!]!
+    if (i + 1 < order.length && ((cum % 3) + 3) % 3 !== 0) {
+      l += xs[order[i + 1]!]! - xs[order[i]!]!
+    }
   }
 
-  if (((cum % 3) + 3) % 3 !== 0) throw new Error('flux-store-bloch: the cluster is not a center singlet')
+  if (((cum % 3) + 3) % 3 !== 0) {
+    throw new Error(
+      'flux-store-bloch: the cluster is not a center singlet',
+    )
+  }
 
   return l
 }
@@ -78,6 +95,7 @@ export function blochSpace(spec: BlochSpec): Bloch {
   const strings: number[] = []
   const lookup = new Map<string, number>()
   const d = new Array<number>(n).fill(0)
+
   const walk = (t: number): void => {
     if (t === n) {
       const l = lineString(d, spec.kinds)
@@ -117,6 +135,7 @@ export function blochSpace(spec: BlochSpec): Bloch {
 
 const digitsOf = (r: number, n: number, q: number): number[] => {
   const out = new Array<number>(n)
+
   let c = r
 
   for (let t = n - 1; t >= 0; t--) {
@@ -127,7 +146,8 @@ const digitsOf = (r: number, n: number, q: number): number[] => {
   return out
 }
 
-const codeOf = (j: readonly number[], q: number): number => j.reduce((a, v) => a * q + v, 0)
+const codeOf = (j: readonly number[], q: number): number =>
+  j.reduce((a, v) => a * q + v, 0)
 
 export type Sparse = { idx: number[]; re: number[]; im: number[] }
 
@@ -138,8 +158,12 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
   const r0 = col % b.labelCount
   const d = b.configs[c]!
   const S = wallOf(spec)
+
   let vec = new Map<number, C>()
-  const t0 = (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) / spec.root
+
+  const t0 =
+    (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) /
+    spec.root
 
   vec.set(r0, [Math.cos(t0), Math.sin(t0)])
 
@@ -153,11 +177,15 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
   if (spec.meet !== false) {
     for (let a0 = 0; a0 < n; a0++) {
       for (let b0 = a0 + 1; b0 < n; b0++) {
-        if (d[a0] !== d[b0]) continue
+        if (d[a0] !== d[b0]) {
+          continue
+        }
 
         const like = spec.kinds[a0] === spec.kinds[b0]
 
-        if (!like && spec.unlike === 'knit') continue
+        if (!like && spec.unlike === 'knit') {
+          continue
+        }
 
         const next = new Map<number, C>()
 
@@ -170,7 +198,11 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
             sw[a0] = j[b0]!
             sw[b0] = j[a0]!
             addTo(next, r, cmul([(1 + OMEGA[0]) / 2, OMEGA[1] / 2], v))
-            addTo(next, codeOf(sw, q), cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v))
+            addTo(
+              next,
+              codeOf(sw, q),
+              cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v),
+            )
           } else {
             addTo(next, r, v)
 
@@ -180,7 +212,11 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
 
                 t[a0] = k
                 t[b0] = k
-                addTo(next, codeOf(t, q), cmul([(OMEGA[0] - 1) / 3, OMEGA[1] / 3], v))
+                addTo(
+                  next,
+                  codeOf(t, q),
+                  cmul([(OMEGA[0] - 1) / 3, OMEGA[1] / 3], v),
+                )
               }
             }
           }
@@ -217,10 +253,18 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
   const out: Sparse = { idx: [], re: [], im: [] }
 
   for (const [r, v] of vec) {
-    if (v[0] === 0 && v[1] === 0) continue
+    if (v[0] === 0 && v[1] === 0) {
+      continue
+    }
 
     const j = digitsOf(r, n, q)
-    const steps = j.map((lab, t) => (lab === 2 ? 0 : (spec.kinds[t] === 'fear' && spec.convention === 'Cprime' ? -1 : 1) * (lab === 0 ? 1 : -1)))
+    const steps = j.map((lab, t) =>
+      lab === 2
+        ? 0
+        : (spec.kinds[t] === 'fear' && spec.convention === 'Cprime'
+            ? -1
+            : 1) * (lab === 0 ? 1 : -1),
+    )
     const y = d.map((x, t) => x + steps[t]!)
     const l = lineString(y, spec.kinds)
 
@@ -236,9 +280,16 @@ export function blochColumn(b: Bloch, K: number, col: number): Sparse {
     const nd = y.map(x => x - y[0]!)
     const nc = b.configOf(nd)
 
-    if (nc < 0) throw new Error('flux-store-bloch: an allowed image left the configuration list')
+    if (nc < 0) {
+      throw new Error(
+        'flux-store-bloch: an allowed image left the configuration list',
+      )
+    }
 
-    const ph = cmul([Math.cos(-K * steps[0]!), Math.sin(-K * steps[0]!)], v)
+    const ph = cmul(
+      [Math.cos(-K * steps[0]!), Math.sin(-K * steps[0]!)],
+      v,
+    )
 
     out.idx.push(b.index(nc, r))
     out.re.push(ph[0])
@@ -261,7 +312,12 @@ const PERMS3 = [
 ]
 const SIGNS3 = [1, -1, -1, -1, 1, 1]
 
-export type Subspace = { vectors: Sparse[]; owner: Int32Array; coefficient: Float64Array; coefficientIm: Float64Array }
+export type Subspace = {
+  vectors: Sparse[]
+  owner: Int32Array
+  coefficient: Float64Array
+  coefficientIm: Float64Array
+}
 
 export function antisymmetricSubspace(b: Bloch, K: number): Subspace {
   const identical = b.spec.kinds.every(k => k === b.spec.kinds[0])
@@ -280,12 +336,18 @@ export function antisymmetricSubspace(b: Bloch, K: number): Subspace {
     return { vectors, owner, coefficient, coefficientIm }
   }
 
-  if (b.n !== 3) throw new Error('flux-store-bloch: antisymmetrizer written for three identical tokens')
+  if (b.n !== 3) {
+    throw new Error(
+      'flux-store-bloch: antisymmetrizer written for three identical tokens',
+    )
+  }
 
   const seen = new Uint8Array(b.size)
 
   for (let i = 0; i < b.size; i++) {
-    if (seen[i]) continue
+    if (seen[i]) {
+      continue
+    }
 
     const c = Math.floor(i / b.labelCount)
     const j = digitsOf(i % b.labelCount, b.n, b.q)
@@ -306,15 +368,21 @@ export function antisymmetricSubspace(b: Bloch, K: number): Subspace {
 
     let norm = 0
 
-    for (const v of acc.values()) norm += v[0] * v[0] + v[1] * v[1]
+    for (const v of acc.values()) {
+      norm += v[0] * v[0] + v[1] * v[1]
+    }
 
-    if (norm < 1e-18) continue
+    if (norm < 1e-18) {
+      continue
+    }
 
     const f = 1 / Math.sqrt(norm)
     const vec: Sparse = { idx: [], re: [], im: [] }
 
     for (const [at, v] of acc) {
-      if (v[0] * v[0] + v[1] * v[1] < 1e-24) continue
+      if (v[0] * v[0] + v[1] * v[1] < 1e-24) {
+        continue
+      }
 
       vec.idx.push(at)
       vec.re.push(v[0] * f)
@@ -330,13 +398,24 @@ export function antisymmetricSubspace(b: Bloch, K: number): Subspace {
   return { vectors, owner, coefficient, coefficientIm }
 }
 
-export type Reduced = { dim: number; re: Float64Array; im: Float64Array; leak: number; unitarity: number }
+export type Reduced = {
+  dim: number
+  re: Float64Array
+  im: Float64Array
+  leak: number
+  unitarity: number
+}
 
 // the beat restricted to the subspace: U_ab = <v_a | U | v_b>; leak = the largest weight of U v_b outside it
-export function reducedBeat(b: Bloch, sub: Subspace, K: number): Reduced {
+export function reducedBeat(
+  b: Bloch,
+  sub: Subspace,
+  K: number,
+): Reduced {
   const dim = sub.vectors.length
   const re = new Float64Array(dim * dim)
   const im = new Float64Array(dim * dim)
+
   let leak = 0
   let unitarity = 0
 
@@ -363,7 +442,9 @@ export function reducedBeat(b: Bloch, sub: Subspace, K: number): Reduced {
 
       const a = sub.owner[o]!
 
-      if (a < 0) continue
+      if (a < 0) {
+        continue
+      }
 
       // conj(coefficient) * w
       const cr = sub.coefficient[o]!
@@ -373,7 +454,9 @@ export function reducedBeat(b: Bloch, sub: Subspace, K: number): Reduced {
       im[a * dim + col] = im[a * dim + col]! + cr * w[1] - ci * w[0]
     }
 
-    for (let a = 0; a < dim; a++) inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    for (let a = 0; a < dim; a++) {
+      inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    }
 
     leak = Math.max(leak, total - inside)
     unitarity = Math.max(unitarity, Math.abs(total - 1))
@@ -385,17 +468,26 @@ export function reducedBeat(b: Bloch, sub: Subspace, K: number): Reduced {
 export type Level = { energy: number; vector: Vec }
 
 // the spectrum: E = -phase, in (-pi, pi]; vectors in the full (distinguishable) basis
-export function levels(b: Bloch, sub: Subspace, red: Reduced): { levels: Level[]; residual: number } {
+export function levels(
+  b: Bloch,
+  sub: Subspace,
+  red: Reduced,
+): { levels: Level[]; residual: number } {
   const eig = unitaryEigen(red.dim, red.re, red.im)
   const out: Level[] = eig.phases.map((ph, k) => {
     const c = eig.vectors[k]!
-    const v = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+    const v = {
+      re: new Float64Array(b.size),
+      im: new Float64Array(b.size),
+    }
 
     sub.vectors.forEach((bv, a) => {
       const cr = c.re[a]!
       const ci = c.im[a]!
 
-      if (cr === 0 && ci === 0) return
+      if (cr === 0 && ci === 0) {
+        return
+      }
 
       bv.idx.forEach((i, m) => {
         v.re[i] = v.re[i]! + cr * bv.re[m]! - ci * bv.im[m]!
@@ -405,8 +497,13 @@ export function levels(b: Bloch, sub: Subspace, red: Reduced): { levels: Level[]
 
     let e = -ph
 
-    while (e <= -Math.PI) e += 2 * Math.PI
-    while (e > Math.PI) e -= 2 * Math.PI
+    while (e <= -Math.PI) {
+      e += 2 * Math.PI
+    }
+
+    while (e > Math.PI) {
+      e -= 2 * Math.PI
+    }
 
     return { energy: e, vector: v }
   })
@@ -417,10 +514,20 @@ export function levels(b: Bloch, sub: Subspace, red: Reduced): { levels: Level[]
 // the level whose quasi-energy is nearest, around the circle, to the free band bottom E = 0: NOT the adopted
 // definition (a disclosed probe found it picks a wrapped long-string level; see lightestUnwrapped), kept as the
 // naive reading the experiments report beside it
-export function nearestBandBottom(ls: readonly Level[]): { level: Level; rank: number; next: number } {
-  const sorted = ls.map((l, k) => ({ k, a: Math.abs(l.energy) })).sort((x, y) => x.a - y.a)
+export function nearestBandBottom(ls: readonly Level[]): {
+  level: Level
+  rank: number
+  next: number
+} {
+  const sorted = ls
+    .map((l, k) => ({ k, a: Math.abs(l.energy) }))
+    .sort((x, y) => x.a - y.a)
 
-  return { level: ls[sorted[0]!.k]!, rank: sorted[0]!.k, next: sorted[1]?.a ?? Number.NaN }
+  return {
+    level: ls[sorted[0]!.k]!,
+    rank: sorted[0]!.k,
+    next: sorted[1]?.a ?? Number.NaN,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -429,13 +536,18 @@ export function nearestBandBottom(ls: readonly Level[]): { level: Level; rank: n
 export function weightOf(v: Vec): number {
   let s = 0
 
-  for (let i = 0; i < v.re.length; i++) s += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   return s
 }
 
 // the mean string count <l> and the rms of l
-export function stringMoments(b: Bloch, v: Vec): { mean: number; rms: number; max: number } {
+export function stringMoments(
+  b: Bloch,
+  v: Vec,
+): { mean: number; rms: number; max: number } {
   let w = 0
   let m1 = 0
   let m2 = 0
@@ -444,7 +556,9 @@ export function stringMoments(b: Bloch, v: Vec): { mean: number; rms: number; ma
   for (let i = 0; i < b.size; i++) {
     const p = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (p === 0) continue
+    if (p === 0) {
+      continue
+    }
 
     const l = b.strings[Math.floor(i / b.labelCount)]!
 
@@ -452,7 +566,9 @@ export function stringMoments(b: Bloch, v: Vec): { mean: number; rms: number; ma
     m1 += p * l
     m2 += p * l * l
 
-    if (p > 1e-12) max = Math.max(max, l)
+    if (p > 1e-12) {
+      max = Math.max(max, l)
+    }
   }
 
   return { mean: m1 / w, rms: Math.sqrt(m2 / w), max }
@@ -460,14 +576,18 @@ export function stringMoments(b: Bloch, v: Vec): { mean: number; rms: number; ma
 
 // weight with any token on the line (label 2)
 export function lineShare(b: Bloch, v: Vec): number {
-  if (b.q === 2) return 0
+  if (b.q === 2) {
+    return 0
+  }
 
   let s = 0
 
   for (let i = 0; i < b.size; i++) {
     const j = digitsOf(i % b.labelCount, b.n, b.q)
 
-    if (j.includes(2)) s += v.re[i]! ** 2 + v.im[i]! ** 2
+    if (j.includes(2)) {
+      s += v.re[i]! ** 2 + v.im[i]! ** 2
+    }
   }
 
   return s / weightOf(v)
@@ -481,11 +601,18 @@ export function quartetShare(b: Bloch, v: Vec): number {
   for (let c = 0; c < b.configs.length; c++) {
     for (let r = 0; r < b.labelCount; r++) {
       const j = digitsOf(r, b.n, b.q)
+
       let sr = 0
       let si = 0
 
       for (const p of PERMS3) {
-        const k = b.index(c, codeOf(p.map(t => j[t]!), b.q))
+        const k = b.index(
+          c,
+          codeOf(
+            p.map(t => j[t]!),
+            b.q,
+          ),
+        )
 
         sr += v.re[k]! / 6
         si += v.im[k]! / 6
@@ -505,9 +632,16 @@ export function quartetShare(b: Bloch, v: Vec): number {
 // doubler of a particle in B at k + pi (U(k + pi) = -U(k), so E_A(k) = E_B(k + pi) + pi and two such pis cancel).
 // The PARTICLE SECTOR is the even counts. The kinetic energy reads each token as that particle: E_B(k) in B and
 // E_B(k + pi) in A, each in [0, pi / 3].
-export type BranchReading = { counts: number[]; even: number; kinetic: number }
+export type BranchReading = {
+  counts: number[]
+  even: number
+  kinetic: number
+}
 
-export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
+export function branchReader(
+  b: Bloch,
+  L: number,
+): (v: Vec) => BranchReading {
   const { n, q } = b
   const P = L ** n
   const R = b.labelCount
@@ -516,8 +650,11 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 
   for (let k = 0; k < L; k++) {
     for (let x = 0; x < L; x++) {
-      cosT[k * L + x] = Math.cos((-2 * Math.PI * ((k * x) % L)) / L) / Math.sqrt(L)
-      sinT[k * L + x] = Math.sin((-2 * Math.PI * ((k * x) % L)) / L) / Math.sqrt(L)
+      cosT[k * L + x] =
+        Math.cos((-2 * Math.PI * ((k * x) % L)) / L) / Math.sqrt(L)
+
+      sinT[k * L + x] =
+        Math.sin((-2 * Math.PI * ((k * x) % L)) / L) / Math.sqrt(L)
     }
   }
 
@@ -543,9 +680,15 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
   }
 
   // the particle-branch vector and energy of one token at momentum k (U(k) = S(k) C)
-  const branch = (t: number, k: number): { vec: C[]; energy: number } => {
-    const backward = b.spec.kinds[t] === 'fear' && b.spec.convention === 'Cprime'
-    const s0: C = backward ? [Math.cos(k), Math.sin(k)] : [Math.cos(-k), Math.sin(-k)]
+  const branch = (
+    t: number,
+    k: number,
+  ): { vec: C[]; energy: number } => {
+    const backward =
+      b.spec.kinds[t] === 'fear' && b.spec.convention === 'Cprime'
+    const s0: C = backward
+      ? [Math.cos(k), Math.sin(k)]
+      : [Math.cos(-k), Math.sin(-k)]
     const s1: C = [s0[0], -s0[1]]
     const m = [cmul(s0, A), cmul(s0, B), cmul(s1, B), cmul(s1, A)]
     const tr: C = [m[0]![0] + m[3]![0], m[0]![1] + m[3]![1]]
@@ -556,13 +699,20 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
     const disc: C = [t2[0] - 4 * det[0], t2[1] - 4 * det[1]]
     const md = Math.hypot(disc[0], disc[1])
     const ag = Math.atan2(disc[1], disc[0])
-    const root: C = [Math.sqrt(md) * Math.cos(ag / 2), Math.sqrt(md) * Math.sin(ag / 2)]
+    const root: C = [
+      Math.sqrt(md) * Math.cos(ag / 2),
+      Math.sqrt(md) * Math.sin(ag / 2),
+    ]
     const candidates: C[] = [
       [(tr[0] + root[0]) / 2, (tr[1] + root[1]) / 2],
       [(tr[0] - root[0]) / 2, (tr[1] - root[1]) / 2],
     ]
     const energyOf = (l: C): number => -Math.atan2(l[1], l[0])
-    const lam = candidates.find(l => energyOf(l) > -1e-9 && energyOf(l) < Math.PI / 3 + 1e-9) ?? candidates[0]!
+    const lam =
+      candidates.find(
+        l => energyOf(l) > -1e-9 && energyOf(l) < Math.PI / 3 + 1e-9,
+      ) ?? candidates[0]!
+
     let e0: C = m[1]!
     let e1: C = [lam[0] - m[0]![0], lam[1] - m[0]![1]]
 
@@ -571,7 +721,9 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
       e1 = m[2]!
     }
 
-    const nrm = Math.sqrt(e0[0] ** 2 + e0[1] ** 2 + e1[0] ** 2 + e1[1] ** 2)
+    const nrm = Math.sqrt(
+      e0[0] ** 2 + e0[1] ** 2 + e1[0] ** 2 + e1[1] ** 2,
+    )
 
     return {
       vec: [
@@ -581,12 +733,15 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
       energy: Math.max(0, energyOf(lam)),
     }
   }
+
   // per token and momentum: [B vector, A vector] (A the orthogonal complement in the doublet), padded for label 2
   const vecs: C[][][][] = []
   const energies: number[][][] = []
 
   b.spec.kinds.forEach((_, t) => {
-    const rows = Array.from({ length: L }, (_, k) => branch(t, (2 * Math.PI * k) / L))
+    const rows = Array.from({ length: L }, (_, k) =>
+      branch(t, (2 * Math.PI * k) / L),
+    )
 
     vecs.push(
       rows.map(r => {
@@ -604,7 +759,10 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
         return [vb, va]
       }),
     )
-    energies.push(rows.map((r, k) => [r.energy, rows[(k + L / 2) % L]!.energy]))
+
+    energies.push(
+      rows.map((r, k) => [r.energy, rows[(k + L / 2) % L]!.energy]),
+    )
   })
 
   const re = new Float64Array(P * R)
@@ -621,7 +779,9 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
     for (let p = 0; p < P; p++) {
       const ci = configAt[p]!
 
-      if (ci < 0) continue
+      if (ci < 0) {
+        continue
+      }
 
       for (let r = 0; r < R; r++) {
         re[p * R + r] = v.re[b.index(ci, r)]!
@@ -633,7 +793,9 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
       const stride = L ** (n - 1 - t)
 
       for (let base = 0; base < P; base++) {
-        if (Math.floor(base / stride) % L !== 0) continue
+        if (Math.floor(base / stride) % L !== 0) {
+          continue
+        }
 
         for (let r = 0; r < R; r++) {
           for (let k = 0; k < L; k++) {
@@ -662,6 +824,7 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
     }
 
     const counts = new Array<number>(n + 1).fill(0)
+
     let total = 0
     let kinetic = 0
 
@@ -675,11 +838,15 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 
       let here = 0
 
-      for (let r = 0; r < R; r++) here += re[p * R + r]! ** 2 + im[p * R + r]! ** 2
+      for (let r = 0; r < R; r++) {
+        here += re[p * R + r]! ** 2 + im[p * R + r]! ** 2
+      }
 
       total += here
 
-      if (here < 1e-30) continue
+      if (here < 1e-30) {
+        continue
+      }
 
       for (let a = 0; a < 2 ** n; a++) {
         let ar = 0
@@ -696,6 +863,7 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 
         for (let r = 0; r < R; r++) {
           const j = labels[r]!
+
           let w: C = [1, 0]
 
           for (let t = 0; t < n; t++) {
@@ -719,7 +887,11 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 
     const norm = counts.map(x => x / total)
 
-    return { counts: norm, even: norm.reduce((s, x, k) => s + (k % 2 === 0 ? x : 0), 0), kinetic: kinetic / total }
+    return {
+      counts: norm,
+      even: norm.reduce((s, x, k) => s + (k % 2 === 0 ? x : 0), 0),
+      kinetic: kinetic / total,
+    }
   }
 }
 
@@ -728,7 +900,16 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 // representative of E mod 2 pi nearest to its reference energy E_ref = (its kinetic energy read as particles) +
 // (2 pi c / M) <l> (its string's cost). Only levels of the particle sector count (weight at least 1/2 on an even
 // number of antiparticle-branch tokens). The lightest is the particle-sector level of least unwrapped energy.
-export type LightReading = { level: Level; unwrapped: number; reference: number; reading: BranchReading; nextUnwrapped: number; particleLevels: number; worstOffset: number; compactestMean: number }
+export type LightReading = {
+  level: Level
+  unwrapped: number
+  reference: number
+  reading: BranchReading
+  nextUnwrapped: number
+  particleLevels: number
+  worstOffset: number
+  compactestMean: number
+}
 
 // the meetings' energy: each meeting is 1 off one eigenspace and omega on it (like vibes: the exchange-antisymmetric
 // pair; a love and a fear on one dock under 'dock': the singlet Phi), read at its principal value -2 pi / 3 times
@@ -736,21 +917,28 @@ export type LightReading = { level: Level; unwrapped: number; reference: number;
 export function contactEnergy(b: Bloch, v: Vec): number {
   const { n, q, spec } = b
 
-  if (spec.meet === false) return 0
+  if (spec.meet === false) {
+    return 0
+  }
 
   let e = 0
+
   const total = weightOf(v)
 
   for (let a = 0; a < n; a++) {
     for (let c = a + 1; c < n; c++) {
       const like = spec.kinds[a] === spec.kinds[c]
 
-      if (!like && spec.unlike === 'knit') continue
+      if (!like && spec.unlike === 'knit') {
+        continue
+      }
 
       for (let ci = 0; ci < b.configs.length; ci++) {
         const d = b.configs[ci]!
 
-        if (d[a] !== d[c]) continue
+        if (d[a] !== d[c]) {
+          continue
+        }
 
         for (let r = 0; r < b.labelCount; r++) {
           const j = digitsOf(r, n, q)
@@ -767,7 +955,7 @@ export function contactEnergy(b: Bloch, v: Vec): number {
             const xr = (v.re[i1]! - v.re[i2]!) / 2
             const xi = (v.im[i1]! - v.im[i2]!) / 2
 
-            e += (-2 * Math.PI) / 3 * (xr * xr + xi * xi)
+            e += ((-2 * Math.PI) / 3) * (xr * xr + xi * xi)
           } else if (j[a] === 0 && j[c] === 0) {
             // the singlet on (a, c) with the other labels fixed: sum_k psi(k k) / sqrt 3
             let sr = 0
@@ -785,7 +973,7 @@ export function contactEnergy(b: Bloch, v: Vec): number {
               si += v.im[i]!
             }
 
-            e += (-2 * Math.PI) / 3 * ((sr * sr + si * si) / 3)
+            e += ((-2 * Math.PI) / 3) * ((sr * sr + si * si) / 3)
           }
         }
       }
@@ -795,26 +983,44 @@ export function contactEnergy(b: Bloch, v: Vec): number {
   return e / total
 }
 
-export function lightestUnwrapped(b: Bloch, ls: readonly Level[], L: number): LightReading {
+export function lightestUnwrapped(
+  b: Bloch,
+  ls: readonly Level[],
+  L: number,
+): LightReading {
   const read = branchReader(b, L)
   const sigma = (2 * Math.PI * b.spec.cost) / b.spec.root
-  const rows: { k: number; unwrapped: number; reference: number; reading: BranchReading; mean: number }[] = []
+  const rows: {
+    k: number
+    unwrapped: number
+    reference: number
+    reading: BranchReading
+    mean: number
+  }[] = []
+
   let worstOffset = 0
 
   ls.forEach((lv, k) => {
     const reading = read(lv.vector)
 
-    if (reading.even < 0.5) return
+    if (reading.even < 0.5) {
+      return
+    }
 
     const mean = stringMoments(b, lv.vector).mean
-    const reference = reading.kinetic + sigma * mean + contactEnergy(b, lv.vector)
-    const unwrapped = lv.energy + 2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
+    const reference =
+      reading.kinetic + sigma * mean + contactEnergy(b, lv.vector)
+    const unwrapped =
+      lv.energy +
+      2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
 
     worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))
     rows.push({ k, unwrapped, reference, reading, mean })
   })
 
-  if (rows.length === 0) throw new Error('flux-store-bloch: no particle-sector level')
+  if (rows.length === 0) {
+    throw new Error('flux-store-bloch: no particle-sector level')
+  }
 
   rows.sort((x, y) => x.unwrapped - y.unwrapped)
 
@@ -846,11 +1052,28 @@ export function overlap(u: Vec, v: Vec): number {
 }
 
 // the full spectrum and lightest level at one momentum
-export function spectrumAt(spec: BlochSpec, K: number): { bloch: Bloch; dim: number; leak: number; unitarity: number; residual: number; all: Level[] } {
+export function spectrumAt(
+  spec: BlochSpec,
+  K: number,
+): {
+  bloch: Bloch
+  dim: number
+  leak: number
+  unitarity: number
+  residual: number
+  all: Level[]
+} {
   const b = blochSpace(spec)
   const sub = antisymmetricSubspace(b, K)
   const red = reducedBeat(b, sub, K)
   const ls = levels(b, sub, red)
 
-  return { bloch: b, dim: red.dim, leak: red.leak, unitarity: red.unitarity, residual: ls.residual, all: ls.levels }
+  return {
+    bloch: b,
+    dim: red.dim,
+    leak: red.leak,
+    unitarity: red.unitarity,
+    residual: ls.residual,
+    all: ls.levels,
+  }
 }

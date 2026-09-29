@@ -30,13 +30,31 @@
 // Reals appear only in the readers. DETERMINISM: no random number anywhere; the start family only. NOTHING MOVES: each
 // slot takes its neighbor's value, and a label records which value was taken where.
 
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { cloneConfiguration, lockedState, newTally, sameConfiguration, streamConfiguration, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { pairPiece, vetoBeat, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  cloneConfiguration,
+  lockedState,
+  newTally,
+  sameConfiguration,
+  streamConfiguration,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  pairPiece,
+  vetoBeat,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 export type Labeled = {
   c: Configuration
@@ -49,20 +67,41 @@ export type Labeled = {
 
 // label every vibe of a configuration with no open vibe: stored halves first (line order), then slots (slot order)
 export function labelConfiguration(c: Configuration): Labeled {
-  for (let i = 0; i < c.open.length; i++) if (c.open[i]) throw new Error('shared-history: an open vibe; the reading is written for the classical (closed) vacuum')
-  for (let i = 0; i < c.sopen.length; i++) if (c.sopen[i]) throw new Error('shared-history: an open stored pair; the reading is written for the classical (closed) vacuum')
+  for (let i = 0; i < c.open.length; i++) {
+    if (c.open[i]) {
+      throw new Error(
+        'shared-history: an open vibe; the reading is written for the classical (closed) vacuum',
+      )
+    }
+  }
+
+  for (let i = 0; i < c.sopen.length; i++) {
+    if (c.sopen[i]) {
+      throw new Error(
+        'shared-history: an open stored pair; the reading is written for the classical (closed) vacuum',
+      )
+    }
+  }
 
   const slotLabel = new Int32Array(c.vibe.length).fill(-1)
   const storeLabel = new Int32Array(c.store.length * 2).fill(-1)
+
   let n = 0
 
   for (let l = 0; l < c.store.length; l++) {
-    if (c.store[l] === 0) continue
+    if (c.store[l] === 0) {
+      continue
+    }
+
     storeLabel[2 * l] = n++
     storeLabel[2 * l + 1] = n++
   }
 
-  for (let s = 0; s < c.vibe.length; s++) if (c.vibe[s] !== 0) slotLabel[s] = n++
+  for (let s = 0; s < c.vibe.length; s++) {
+    if (c.vibe[s] !== 0) {
+      slotLabel[s] = n++
+    }
+  }
 
   return { c: cloneConfiguration(c), slotLabel, storeLabel, labels: n }
 }
@@ -79,15 +118,19 @@ export function labelDocks(h: Labeled): Int32Array {
   const at = new Int32Array(h.labels).fill(-1)
 
   for (let s = 0; s < h.slotLabel.length; s++) {
-    const u = h.slotLabel[s] as number
+    const u = h.slotLabel[s]!
 
-    if (u >= 0) at[u] = (s / 24) | 0
+    if (u >= 0) {
+      at[u] = (s / 24) | 0
+    }
   }
 
   for (let k = 0; k < h.storeLabel.length; k++) {
-    const u = h.storeLabel[k] as number
+    const u = h.storeLabel[k]!
 
-    if (u >= 0) at[u] = (k / 24) | 0
+    if (u >= 0) {
+      at[u] = (k / 24) | 0
+    }
   }
 
   return at
@@ -98,21 +141,33 @@ export function labelsSound(h: Labeled): boolean {
   const seen = new Uint8Array(h.labels)
 
   for (let s = 0; s < h.slotLabel.length; s++) {
-    const u = h.slotLabel[s] as number
+    const u = h.slotLabel[s]!
 
-    if ((u >= 0) !== (h.c.vibe[s] !== 0)) return false
+    if (u >= 0 !== (h.c.vibe[s] !== 0)) {
+      return false
+    }
+
     if (u >= 0) {
-      if (seen[u]) return false
+      if (seen[u]) {
+        return false
+      }
+
       seen[u] = 1
     }
   }
 
   for (let k = 0; k < h.storeLabel.length; k++) {
-    const u = h.storeLabel[k] as number
+    const u = h.storeLabel[k]!
 
-    if ((u >= 0) !== (h.c.store[(k / 2) | 0] !== 0)) return false
+    if (u >= 0 !== (h.c.store[(k / 2) | 0] !== 0)) {
+      return false
+    }
+
     if (u >= 0) {
-      if (seen[u]) return false
+      if (seen[u]) {
+        return false
+      }
+
       seen[u] = 1
     }
   }
@@ -123,7 +178,13 @@ export function labelsSound(h: Labeled): boolean {
 // one beat of the rule on the labeled configuration: the collision (the pieces in the rule's order, pairPiece the
 // rule's own, the coin piece the rule's own permutation), then the stream (the rule's own). `meet(x, labels)` receives,
 // per dock with two or more, the labels in its slots before or after the collision.
-export function labeledBeat(kind: VetoKind, t: LockedTables, h: Labeled, beat: number, meet: (x: number, labels: number[]) => void): void {
+export function labeledBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  h: Labeled,
+  beat: number,
+  meet: (x: number, labels: number[]) => void,
+): void {
   const c = h.c
   const order = collisionOrder('alternate', beat)
   const present: number[] = []
@@ -133,65 +194,84 @@ export function labeledBeat(kind: VetoKind, t: LockedTables, h: Labeled, beat: n
     const lineBase = x * 12
 
     present.length = 0
-    for (let d = 0; d < 24; d++) {
-      const u = h.slotLabel[base + d] as number
 
-      if (u >= 0) present.push(u)
+    for (let d = 0; d < 24; d++) {
+      const u = h.slotLabel[base + d]!
+
+      if (u >= 0) {
+        present.push(u)
+      }
     }
 
     for (const piece of order) {
       if (piece === 'P') {
-        for (let l = 0; l < 12; l++) BEFORE_STORE[l] = c.store[lineBase + l] as number
+        for (let l = 0; l < 12; l++) {
+          BEFORE_STORE[l] = c.store[lineBase + l]!
+        }
 
         pairPiece(kind, c, x)
 
         for (let l = 0; l < 12; l++) {
-          const before = BEFORE_STORE[l] as number
-          const after = c.store[lineBase + l] as number
-          const i = base + (LINE_FIRSTS[l] as number)
-          const j = base + (LINE_SECONDS[l] as number)
+          const before = BEFORE_STORE[l]!
+          const after = c.store[lineBase + l]!
+          const i = base + LINE_FIRSTS[l]!
+          const j = base + LINE_SECONDS[l]!
           const L = lineBase + l
 
           if (before === 0 && after !== 0) {
-            h.storeLabel[2 * L] = h.slotLabel[i] as number
-            h.storeLabel[2 * L + 1] = h.slotLabel[j] as number
+            h.storeLabel[2 * L] = h.slotLabel[i]!
+            h.storeLabel[2 * L + 1] = h.slotLabel[j]!
             h.slotLabel[i] = -1
             h.slotLabel[j] = -1
           } else if (before !== 0 && after === 0) {
-            h.slotLabel[i] = h.storeLabel[2 * L] as number
-            h.slotLabel[j] = h.storeLabel[2 * L + 1] as number
+            h.slotLabel[i] = h.storeLabel[2 * L]!
+            h.slotLabel[j] = h.storeLabel[2 * L + 1]!
             h.storeLabel[2 * L] = -1
             h.storeLabel[2 * L + 1] = -1
           }
         }
       } else {
-        if (bouncePermutation(BOUNCE_TABLE, t.collision, c.vibe, base, PERM) === 0) continue
-
-        for (let d = 0; d < 24; d++) {
-          const to = PERM[d] as number
-
-          SV[to] = c.vibe[base + d] as number
-          SP[to] = c.point[base + d] as number
-          SO[to] = c.open[base + d] as number
-          SL[to] = h.slotLabel[base + d] as number
+        if (
+          bouncePermutation(
+            BOUNCE_TABLE,
+            t.collision,
+            c.vibe,
+            base,
+            PERM,
+          ) === 0
+        ) {
+          continue
         }
 
         for (let d = 0; d < 24; d++) {
-          c.vibe[base + d] = SV[d] as number
-          c.point[base + d] = SP[d] as number
-          c.open[base + d] = SO[d] as number
-          h.slotLabel[base + d] = SL[d] as number
+          const to = PERM[d]!
+
+          SV[to] = c.vibe[base + d]!
+          SP[to] = c.point[base + d]!
+          SO[to] = c.open[base + d]!
+          SL[to] = h.slotLabel[base + d]!
+        }
+
+        for (let d = 0; d < 24; d++) {
+          c.vibe[base + d] = SV[d]!
+          c.point[base + d] = SP[d]!
+          c.open[base + d] = SO[d]!
+          h.slotLabel[base + d] = SL[d]!
         }
       }
     }
 
     for (let d = 0; d < 24; d++) {
-      const u = h.slotLabel[base + d] as number
+      const u = h.slotLabel[base + d]!
 
-      if (u >= 0 && !present.includes(u)) present.push(u)
+      if (u >= 0 && !present.includes(u)) {
+        present.push(u)
+      }
     }
 
-    if (present.length >= 2) meet(x, present.slice())
+    if (present.length >= 2) {
+      meet(x, present.slice())
+    }
   }
 
   streamConfiguration(t, c, false)
@@ -199,9 +279,11 @@ export function labeledBeat(kind: VetoKind, t: LockedTables, h: Labeled, beat: n
   const next = new Int32Array(h.slotLabel.length).fill(-1)
 
   for (let s = 0; s < next.length; s++) {
-    const u = h.slotLabel[s] as number
+    const u = h.slotLabel[s]!
 
-    if (u >= 0) next[t.target[s] as number] = u
+    if (u >= 0) {
+      next[t.target[s]!] = u
+    }
   }
 
   h.slotLabel = next
@@ -240,6 +322,7 @@ export function historyRun(input: {
   const last = Math.max(...input.reads)
   const at: Int32Array[] = []
   const firstPass: Configuration[] = []
+
   let h = labelConfiguration(input.start)
   let state: LockedState = lockedState(input.start)
   let matchesRule = true
@@ -248,7 +331,10 @@ export function historyRun(input: {
   for (let t = 0; t < last; t++) {
     labeledBeat(input.kind, input.tables, h, t, () => {})
     state = vetoBeat(input.kind, input.tables, state, t, newTally())
-    matchesRule = matchesRule && state.branches.length === 1 && sameConfiguration(state.branches[0]!, h.c)
+    matchesRule =
+      matchesRule &&
+      state.branches.length === 1 &&
+      sameConfiguration(state.branches[0]!, h.c)
     sound = sound && labelsSound(h)
 
     const k = input.reads.indexOf(t + 1)
@@ -256,7 +342,7 @@ export function historyRun(input: {
     if (k >= 0) {
       const docks = labelDocks(h)
 
-      at[k] = Int32Array.from(docks, x => input.column[x] as number)
+      at[k] = Int32Array.from(docks, x => input.column[x]!)
       firstPass[k] = cloneConfiguration(h.c)
       input.onRead?.(k, at[k])
     }
@@ -266,36 +352,52 @@ export function historyRun(input: {
 
   const meetings = input.reads.map(() => 0)
   const orderedPairs = input.reads.map(() => 0)
+
   let repeatable = true
 
   for (let t = 0; t < last; t++) {
     const open: number[] = []
 
     input.reads.forEach((T, k) => {
-      if (t >= T - input.window && t < T) open.push(k)
+      if (t >= T - input.window && t < T) {
+        open.push(k)
+      }
     })
 
     labeledBeat(input.kind, input.tables, h, t, (x, labels) => {
       for (const k of open) {
-        const col = at[k] as Int32Array
+        const col = at[k]!
 
         meetings[k]!++
         orderedPairs[k]! += labels.length * (labels.length - 1)
 
         for (let i = 0; i < labels.length; i++) {
-          const a = col[labels[i] as number] as number
+          const a = col[labels[i]!]!
 
-          for (let j = 0; j < labels.length; j++) if (i !== j) input.visit(k, a, col[labels[j] as number] as number)
+          for (let j = 0; j < labels.length; j++) {
+            if (i !== j) {
+              input.visit(k, a, col[labels[j]!]!)
+            }
+          }
         }
       }
     })
 
     const k = input.reads.indexOf(t + 1)
 
-    if (k >= 0) repeatable = repeatable && sameConfiguration(firstPass[k]!, h.c)
+    if (k >= 0) {
+      repeatable = repeatable && sameConfiguration(firstPass[k]!, h.c)
+    }
   }
 
-  return { matchesRule, sound, repeatable, labels: h.labels, meetings, orderedPairs }
+  return {
+    matchesRule,
+    sound,
+    repeatable,
+    labels: h.labels,
+    meetings,
+    orderedPairs,
+  }
 }
 
 // ---- the husk torus: minimal-image displacements as indices ----
@@ -313,22 +415,38 @@ export function torus(side: number): Torus {
   const columns = side ** 3
   const mod = (v: number): number => ((v % side) + side) % side
   const half = (v: number): number => (v > side / 2 ? v - side : v)
-  const vector = Array.from({ length: columns }, (_, i) => Int32Array.from([half(i % side), half(((i / side) | 0) % side), half((i / (side * side)) | 0)]))
+  const vector = Array.from({ length: columns }, (_, i) =>
+    Int32Array.from([
+      half(i % side),
+      half(((i / side) | 0) % side),
+      half((i / (side * side)) | 0),
+    ]),
+  )
 
   return {
     side,
     columns,
     vector,
-    delta: (a, b) => mod((b % side) - (a % side)) + side * mod((((b / side) | 0) % side) - (((a / side) | 0) % side)) + side * side * mod(((b / (side * side)) | 0) - ((a / (side * side)) | 0)),
+    delta: (a, b) =>
+      mod((b % side) - (a % side)) +
+      side *
+        mod((((b / side) | 0) % side) - (((a / side) | 0) % side)) +
+      side *
+        side *
+        mod(((b / (side * side)) | 0) - ((a / (side * side)) | 0)),
   }
 }
 
 // hops from displacement 0 to every displacement on the torus with the given step set (-1 where unreached)
-export function hopDistances(t: Torus, steps: readonly number[]): Int32Array {
+export function hopDistances(
+  t: Torus,
+  steps: readonly number[],
+): Int32Array {
   const hops = new Int32Array(t.columns).fill(-1)
-  const vec = steps.map(s => t.vector[s] as Int32Array)
+  const vec = steps.map(s => t.vector[s]!)
   const s = t.side
   const mod = (v: number): number => ((v % s) + s) % s
+
   let front = [0]
 
   hops[0] = 0
@@ -342,7 +460,8 @@ export function hopDistances(t: Torus, steps: readonly number[]): Int32Array {
       const z = (i / (s * s)) | 0
 
       for (const v of vec) {
-        const j = mod(x + (v[0] as number)) + s * mod(y + (v[1] as number)) + s * s * mod(z + (v[2] as number))
+        const j =
+          mod(x + v[0]!) + s * mod(y + v[1]!) + s * s * mod(z + v[2]!)
 
         if (hops[j] === -1) {
           hops[j] = d

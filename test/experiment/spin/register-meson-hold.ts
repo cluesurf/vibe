@@ -160,8 +160,22 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { wrap } from '@/code/measure/dock-mixer'
 import { cyclePhases } from '@/code/measure/swap-cone'
-import { ringUnit, unitAngle, radialWell, stringKappa } from '@/code/measure/swap-string'
-import { diracPhase, partnerProjector48, REGISTER_ROOTS, registerPiece, scaled, singletProjector24, structureVector, weylDirections } from '@/code/measure/spinor-register'
+import {
+  ringUnit,
+  unitAngle,
+  radialWell,
+  stringKappa,
+} from '@/code/measure/swap-string'
+import {
+  diracPhase,
+  partnerProjector48,
+  REGISTER_ROOTS,
+  registerPiece,
+  scaled,
+  singletProjector24,
+  structureVector,
+  weylDirections,
+} from '@/code/measure/spinor-register'
 import {
   blockShares,
   clonePair,
@@ -193,6 +207,7 @@ const DIRS: readonly number[][] = [[1, 0, 0, 0], GENERIC]
 
 void s2
 void s3
+
 const WITNESS_K: readonly number[][] = [
   [0, 0, 0, 0],
   [0.31, -0.17, 0.52, 0.08],
@@ -220,9 +235,23 @@ const HOLD_CYCLES = 64
 const V_SCAN = 40
 const ELL = 2.5
 
-export type HoldPlan = { radius: number; witness: boolean; filters: readonly number[]; kFilter: number; hold: number; gScan: number }
+export type HoldPlan = {
+  radius: number
+  witness: boolean
+  filters: readonly number[]
+  kFilter: number
+  hold: number
+  gScan: number
+}
 
-export const GATE_PLAN: HoldPlan = { radius: 9, witness: true, filters: [64, 256, 1024], kFilter: 256, hold: HOLD_CYCLES, gScan: 2000 }
+export const GATE_PLAN: HoldPlan = {
+  radius: 9,
+  witness: true,
+  filters: [64, 256, 1024],
+  kFilter: 256,
+  hold: HOLD_CYCLES,
+  gScan: 2000,
+}
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
@@ -230,7 +259,7 @@ export default experiment({
   id: 'spin/register-meson-hold',
   code: 'E-SPN-0162',
   title:
-    'a light register meson holds exactly but is 35 times too heavy, fail (H4): two members at m 0.190126 carrying the Cl+(4) register, bound by a string on the pair\'s singlet sector alone (u^2 rho^min(V, 8) on S S, its conjugate on D D), evolve exactly inside the 16 x 16 moving block (witnessed against the full 192 x 192 rule to 1e-16, where E-SPN-0147\'s member mass string is off by 7.7e-4 and couples the flats); every channel is closed at every separation, the cap closing the D D ladder that an uncapped string would meet at V 9.4, so the pair is bound in a finite well and not confined; the level at eps 1.978945 (NR 2.005) holds 128 beats with the norm kept to 8e-10 and fidelity 1 - 4e-10, isotropic to 5e-7, but R = 34.65 (NR 0.69): in this strong-coupling lattice regime the bound pair\'s centre moves 90 times less readily than two free members',
+    "a light register meson holds exactly but is 35 times too heavy, fail (H4): two members at m 0.190126 carrying the Cl+(4) register, bound by a string on the pair's singlet sector alone (u^2 rho^min(V, 8) on S S, its conjugate on D D), evolve exactly inside the 16 x 16 moving block (witnessed against the full 192 x 192 rule to 1e-16, where E-SPN-0147's member mass string is off by 7.7e-4 and couples the flats); every channel is closed at every separation, the cap closing the D D ladder that an uncapped string would meet at V 9.4, so the pair is bound in a finite well and not confined; the level at eps 1.978945 (NR 2.005) holds 128 beats with the norm kept to 8e-10 and fidelity 1 - 4e-10, isotropic to 5e-7, but R = 34.65 (NR 0.69): in this strong-coupling lattice regime the bound pair's centre moves 90 times less readily than two free members",
 
   category: 'spin',
   substrates: ['3434'],
@@ -241,11 +270,19 @@ export default experiment({
   },
 })
 
-const unitValue = (angle: number): [number, number] => [Math.cos(angle), Math.sin(angle)]
+const unitValue = (angle: number): [number, number] => [
+  Math.cos(angle),
+  Math.sin(angle),
+]
 
 // the weyl-sequence generic start at y = 0 (every block, or S (x) S only)
-function witnessStart(ballIndex: Map<string, number>, s: PairState, only: number): void {
-  const at = ballIndex.get('0,0,0,0') as number
+function witnessStart(
+  ballIndex: Map<string, number>,
+  s: PairState,
+  only: number,
+): void {
+  const at = ballIndex.get('0,0,0,0')!
+
   let w = 0.5
 
   for (let k = 0; k < only; k++) {
@@ -258,7 +295,10 @@ function witnessStart(ballIndex: Map<string, number>, s: PairState, only: number
 
 export function registerMesonHoldRun(plan: HoldPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const theta = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u = unitValue(theta)
   const M0 = wrap(theta - Math.PI)
@@ -268,27 +308,55 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
   const qS = scaled(singletProjector24(), 24)
   const qD = scaled(partnerProjector48(), 48)
   const Ps = [registerPiece(qS, u), registerPiece(qD, [u[0], -u[1]])]
-  const phasesOf = (K: readonly number[], w: [number, number] = u): number[] => {
+
+  const phasesOf = (
+    K: readonly number[],
+    w: [number, number] = u,
+  ): number[] => {
     const m = memberCycle(w, K)
     const e = complexEigenvalues({ re: m.re, im: m.im, n: 16 })
 
-    return e.re.map((x, i) => Math.atan2(e.im[i] as number, x)).sort((a, b) => a - b)
+    return e.re
+      .map((x, i) => Math.atan2(e.im[i]!, x))
+      .sort((a, b) => a - b)
   }
+
   let i1 = 0
 
-  for (const K of [[0, 0, 0, 0], [0.3, 0.1, -0.2, 0.05], [1.1, -0.7, 0.4, 0.9], [2.5, 0.3, 0.3, -1.2], [0.01, 0, 0, 0]]) {
+  for (const K of [
+    [0, 0, 0, 0],
+    [0.3, 0.1, -0.2, 0.05],
+    [1.1, -0.7, 0.4, 0.9],
+    [2.5, 0.3, 0.3, -1.2],
+    [0.01, 0, 0, 0],
+  ]) {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
-    const want = [...Array(8).fill(wrap(Math.PI + E)), ...Array(8).fill(wrap(Math.PI - E))].sort((a, b) => a - b)
+    const want = [
+      ...Array(8).fill(wrap(Math.PI + E)),
+      ...Array(8).fill(wrap(Math.PI - E)),
+    ].sort((a, b) => a - b)
     const full = cyclePhases(Ps, REGISTER_ROOTS, K)
       .filter(x => Math.abs(wrap(x)) > 1e-7)
       .sort((a, b) => a - b)
 
-    i1 = Math.max(i1, ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))), full.length === 16 ? Math.max(...full.map((x, i) => Math.abs(wrap(x - (ph[i] as number))))) : 99)
+    i1 = Math.max(
+      i1,
+      ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))),
+      full.length === 16
+        ? Math.max(...full.map((x, i) => Math.abs(wrap(x - ph[i]!))))
+        : 99,
+    )
   }
 
-  const sEps = (k: number): number => phasesOf([k, 0, 0, 0]).map(x => wrap(x - Math.PI)).reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
-  const aMember = (4 * ((sEps(0.01) - M0) / 0.01 ** 2) - (sEps(0.02) - M0) / 0.02 ** 2) / 3
+  const sEps = (k: number): number =>
+    phasesOf([k, 0, 0, 0])
+      .map(x => wrap(x - Math.PI))
+      .reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
+  const aMember =
+    (4 * ((sEps(0.01) - M0) / 0.01 ** 2) -
+      (sEps(0.02) - M0) / 0.02 ** 2) /
+    3
   const RMember = C_STAR2 / (2 * aMember * M0)
   const tanOver = Math.tan(M0 / 2) / (M0 / 2)
   const I1 = i1 <= I1_TOLERANCE
@@ -297,7 +365,14 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
   log('I1 I2')
 
   // ---------------- H0, C2: the witness ----------------
-  const witness: { K: number[]; kind: string; gap: number; weights: number[]; norms: number[] }[] = []
+  const witness: {
+    K: number[]
+    kind: string
+    gap: number
+    weights: number[]
+    norms: number[]
+  }[] = []
+
   let memberGap = 0
 
   if (plan.witness) {
@@ -314,7 +389,10 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
         const n0 = norm2(e, s)
         const before = lift(coord, s, full, K)
-        const memberBefore = kind === 'SS' && K === WITNESS_K[0] ? lift(coord, s, full, K) : null
+        const memberBefore =
+          kind === 'SS' && K === WITNESS_K[0]
+            ? lift(coord, s, full, K)
+            : null
 
         pairCycle(e, s)
 
@@ -324,13 +402,25 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
         const two = fullBeat(rule, fullBeat(rule, before, 1), 2)
         const g = fullGap(full, two, want, kind === 'SS' ? Infinity : 2)
 
-        witness.push({ K: [...K], kind, gap: g.worst, weights: [g.weightA, g.weightB], norms: [n0, n1] })
+        witness.push({
+          K: [...K],
+          kind,
+          gap: g.worst,
+          weights: [g.weightA, g.weightB],
+          norms: [n0, n1],
+        })
+
         if (memberBefore) {
           const memberRule = fullRule(full, { ...params, member: true })
-          const m2 = fullBeat(memberRule, fullBeat(memberRule, memberBefore, 1), 2)
+          const m2 = fullBeat(
+            memberRule,
+            fullBeat(memberRule, memberBefore, 1),
+            2,
+          )
 
           memberGap = fullGap(full, m2, want).worst
         }
+
         log(`witness ${kind} ${K.join(',')}`)
       }
     }
@@ -338,8 +428,18 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
   const H0 =
     plan.witness &&
-    witness.every(w => w.gap <= ENTRY && Math.abs((w.norms[1] as number) / (w.norms[0] as number) - 1) <= NORM) &&
-    witness.filter(w => w.kind === 'SS').every(w => Math.abs((w.weights[0] as number) / (w.weights[1] as number) - 1) <= WEIGHT && Math.abs((w.weights[1] as number) / (w.norms[1] as number) - 1) <= WEIGHT)
+    witness.every(
+      w =>
+        w.gap <= ENTRY &&
+        Math.abs(w.norms[1]! / w.norms[0]! - 1) <= NORM,
+    ) &&
+    witness
+      .filter(w => w.kind === 'SS')
+      .every(
+        w =>
+          Math.abs(w.weights[0]! / w.weights[1]! - 1) <= WEIGHT &&
+          Math.abs(w.weights[1]! / w.norms[1]! - 1) <= WEIGHT,
+      )
   const C2 = plan.witness && memberGap > MEMBER_GAP
 
   // ---------------- the NR prediction ----------------
@@ -351,9 +451,12 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
     30,
     12000,
   )
+
   let nrW = 0
 
-  for (let i = 0; i < nr.u.length; i++) nrW += (nr.u[i] as number) ** 2 * tau * Math.min(kappa * (i + 1) * nr.h, CAP)
+  for (let i = 0; i < nr.u.length; i++) {
+    nrW += nr.u[i]! ** 2 * tau * Math.min(kappa * (i + 1) * nr.h, CAP)
+  }
 
   const nrT = nr.E - nrW
   const nrEL = 2 * M0 + nr.E
@@ -367,7 +470,12 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
   normalizePair(e0, start)
 
-  const buildLevel = (e: typeof e0, from: PairState, guess: number, filters: readonly number[]): { v: PairState; read: ReturnType<typeof readLevel> } => {
+  const buildLevel = (
+    e: typeof e0,
+    from: PairState,
+    guess: number,
+    filters: readonly number[],
+  ): { v: PairState; read: ReturnType<typeof readLevel> } => {
     let v = from
     let phase = guess
     let read = readLevel(e, from)
@@ -381,15 +489,20 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
     return { v, read }
   }
+
   const level = buildLevel(e0, start, nrEL, plan.filters)
   const EL = level.read.phase
   const lambdaAbs = Math.hypot(...level.read.lambda)
 
   log(`level ${EL}`)
 
-  const hold = (e: typeof e0, v: PairState): { lost: number; least: number } => {
+  const hold = (
+    e: typeof e0,
+    v: PairState,
+  ): { lost: number; least: number } => {
     const s = clonePair(v)
     const n0 = norm2(e, v)
+
     let least = 1
 
     for (let c = 1; c <= plan.hold; c++) {
@@ -402,21 +515,37 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
     return { lost: 1 - norm2(e, s) / n0, least }
   }
+
   const held = hold(e0, level.v)
   const prof = profile(e0, level.v)
   const profTotal = prof.reduce((a, b) => a + b, 0)
-  const edge = (prof[plan.radius] as number) / profTotal
+  const edge = prof[plan.radius]! / profTotal
   const shares = blockShares(e0, level.v)
-  const H2 = lambdaAbs >= 1 - LAMBDA && level.read.residual <= RESIDUAL && Math.abs(held.lost) <= LOST && held.least >= 1 - FIDELITY && edge <= EDGE
+  const H2 =
+    lambdaAbs >= 1 - LAMBDA &&
+    level.read.residual <= RESIDUAL &&
+    Math.abs(held.lost) <= LOST &&
+    held.least >= 1 - FIDELITY &&
+    edge <= EDGE
 
   log('H2')
 
   // ---------------- H1: the channels at every separation ----------------
   let gMax = 0
 
-  for (const w of weylDirections(plan.gScan)) for (let k = 0.05; k < 3.2; k += 0.05) gMax = Math.max(gMax, Math.hypot(...structureVector(w.map(x => x * k))) / 2)
+  for (const w of weylDirections(plan.gScan)) {
+    for (let k = 0.05; k < 3.2; k += 0.05) {
+      gMax = Math.max(
+        gMax,
+        Math.hypot(...structureVector(w.map(x => x * k))) / 2,
+      )
+    }
+  }
 
-  const Smax = Math.acos(Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax)
+  const Smax = Math.acos(
+    Math.cos(M0) - 2 * Math.cos(M0 / 2) ** 2 * gMax * gMax,
+  )
+
   const distance = (lo: number, hi: number): number => {
     // the distance of E_L from the band [lo, hi] mod 2 pi (0 if inside)
     let best = Infinity
@@ -429,6 +558,7 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
     return best
   }
+
   let margin = Infinity
   let marginAt = ''
 
@@ -446,7 +576,9 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
     for (const [name, lo, hi] of bands) {
       // below the cap the S S band is the well itself (allowed in the core, forbidden past the turning point), not a
       // channel to infinity; it is one only where it stays for good, at V at or past the cap
-      if (name === 'SS' && V < CAP) continue
+      if (name === 'SS' && V < CAP) {
+        continue
+      }
 
       const d = distance(lo, hi)
 
@@ -471,6 +603,7 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
     return readLevel(e, v).phase
   }
+
   const base = eAt([0, 0, 0, 0])
   const coefficients = DIRS.map(d => {
     const e1 = eAt(d.map(x => x * KAPPA))
@@ -480,8 +613,10 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
     return (4 * a2 - a1) / 3
   })
-  const a0 = coefficients[0] as number
-  const isotropy = Math.max(...coefficients.map(a => Math.abs(a / a0 - 1)))
+  const a0 = coefficients[0]!
+  const isotropy = Math.max(
+    ...coefficients.map(a => Math.abs(a / a0 - 1)),
+  )
   const R = C_STAR2 / (2 * a0 * base)
   const H3 = isotropy <= ISOTROPY
   const H4 = Math.abs(R - 1) <= R_TOLERANCE
@@ -491,16 +626,21 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
 
   // ---------------- C1: no string ----------------
   const eFree = pairEngine(ball, { ...params0, tau: 0 })
-  const free = buildLevel(eFree, start, EL, [plan.filters[0] as number])
+  const free = buildLevel(eFree, start, EL, [plan.filters[0]!])
   const heldFree = hold(eFree, free.v)
-  const C1 = Math.abs(heldFree.lost) > LOST || heldFree.least < 1 - FIDELITY
+  const C1 =
+    Math.abs(heldFree.lost) > LOST || heldFree.least < 1 - FIDELITY
 
   log('C1')
 
   const instrument = I1 && I2
   const controls = C1 && C2
   const hard = H0 && H1 && H2 && H3 && H4
-  const status = !(H0 && H1 && H2 && H3 && H4) ? 'fail' : !instrument || !controls ? 'partial' : 'pass'
+  const status = !(H0 && H1 && H2 && H3 && H4)
+    ? 'fail'
+    : !instrument || !controls
+      ? 'partial'
+      : 'pass'
 
   void hard
 
@@ -531,10 +671,14 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
       nrEL,
       speedAt04: vAt,
       memberGap,
-      shareSS: shares[0] as number,
+      shareSS: shares[0]!,
       seconds: (Date.now() - started) / 1000,
     },
-    control: { C1: flag(C1), C2: flag(C2), instrument: flag(instrument) },
+    control: {
+      C1: flag(C1),
+      C2: flag(C2),
+      instrument: flag(instrument),
+    },
     notes: `L2. Light m ${(M0 / 2).toFixed(6)} (M0 ${M0.toFixed(6)}), string angle ${tau.toFixed(6)} a unit of V, cap ${CAP}, ball ${plan.radius} (${ball.points.length} sites). Level: block shares S S ${shares.map(x => x.toFixed(4)).join(' ')} (S S, S D, D S, D D), profile ${prof.map(x => (x / profTotal).toExponential(1)).join(' ')}. NR: E_b ${nr.E.toFixed(4)}, T ${nrT.toFixed(4)}, W ${nrW.toFixed(4)}. Speed at |K| 0.4 (axis, a beat) ${vAt.toFixed(6)} (c/4 = ${(Math.SQRT2 / 4).toFixed(6)}). g max ${gMax.toFixed(6)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
   })
 }

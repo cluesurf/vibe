@@ -39,11 +39,30 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
-import { coldBeat, makeColdWeave, type ColdState, type ColdWeave } from '@/code/rule/cold-weave'
+import {
+  coldBeat,
+  makeColdWeave,
+  type ColdState,
+  type ColdWeave,
+} from '@/code/rule/cold-weave'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { depthMismatch, depthShift, huskClass, makeHuskTally, periodicFill, sampleHusk, stateCharge, stateEnergy, type HuskClass } from '@/code/measure/husk-bath'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  depthMismatch,
+  depthShift,
+  huskClass,
+  makeHuskTally,
+  periodicFill,
+  sampleHusk,
+  stateCharge,
+  stateEnergy,
+  type HuskClass,
+} from '@/code/measure/husk-bath'
 
 const SIDE = 9
 const BEATS = 1500
@@ -51,19 +70,40 @@ const FROM = 1000
 const EVERY = 5
 
 function coldSpec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
-type Run = { classes: HuskClass[]; offSector: number; offShift1: number; halfBeat: number; energyExact: boolean; chargeExact: boolean; finalOffShift1: number }
+type Run = {
+  classes: HuskClass[]
+  offSector: number
+  offShift1: number
+  halfBeat: number
+  energyExact: boolean
+  chargeExact: boolean
+  finalOffShift1: number
+}
 
 function run(weave: ColdWeave, start: ColdState, period: number): Run {
   let s = start
+
   const e0 = stateEnergy(s)
   const q0 = stateCharge(s)
   const tally = makeHuskTally(SIDE)
   const slots = s.vibe.length + s.demon.length
+
   let offSector = 0
   let offShift1 = 0
   let halfBeat = -1
@@ -113,7 +153,10 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const weave = makeColdWeave({ mesh: d4Mesh({ side: SIDE }), spec: coldSpec() })
+    const weave = makeColdWeave({
+      mesh: d4Mesh({ side: SIDE }),
+      spec: coldSpec(),
+    })
 
     // G1
     let s = periodicFill({ side: SIDE, period: 0 })
@@ -127,27 +170,72 @@ export default experiment({
     for (let t = 20; t < 26; t++) {
       const a = depthShift(coldBeat(weave, s, t), SIDE, 1)
       const b = coldBeat(weave, depthShift(s, SIDE, 1), t)
-      const same = a.vibe.every((v, i) => v === b.vibe[i]) && a.store.every((v, i) => v === b.store[i]) && a.demon.every((v, i) => v === b.demon[i])
+      const same =
+        a.vibe.every((v, i) => v === b.vibe[i]) &&
+        a.store.every((v, i) => v === b.store[i]) &&
+        a.demon.every((v, i) => v === b.demon[i])
 
       commuteFailures += same ? 0 : 1
       s = coldBeat(weave, s, t)
     }
 
-    const uniform = run(weave, periodicFill({ side: SIDE, period: 1 }), 1)
-    const period3 = run(weave, periodicFill({ side: SIDE, period: 3 }), 3)
-    const spread = run(weave, periodicFill({ side: SIDE, period: 0 }), 0)
-    const seeded = run(weave, periodicFill({ side: SIDE, period: 1, seed: true }), 0)
+    const uniform = run(
+      weave,
+      periodicFill({ side: SIDE, period: 1 }),
+      1,
+    )
+    const period3 = run(
+      weave,
+      periodicFill({ side: SIDE, period: 3 }),
+      3,
+    )
+    const spread = run(
+      weave,
+      periodicFill({ side: SIDE, period: 0 }),
+      0,
+    )
+    const seeded = run(
+      weave,
+      periodicFill({ side: SIDE, period: 1, seed: true }),
+      0,
+    )
     const slots = s.vibe.length + s.demon.length
-    const ratio = (r: Run, c: number): number => (r.classes[c]?.fano ?? 0) / (r.classes[c]?.fermi ?? 1)
+    const ratio = (r: Run, c: number): number =>
+      (r.classes[c]?.fano ?? 0) / (r.classes[c]?.fermi ?? 1)
 
     const g1 = commuteFailures === 0
-    const g2 = uniform.offSector === 0 && period3.offSector === 0 && period3.offShift1 > 0
-    const g3 = [0, 1].every(c => Math.abs(ratio(uniform, c) / 9 - 1) <= 0.05 && Math.abs(ratio(period3, c) / 3 - 1) <= 0.05 && Math.abs((spread.classes[c]?.fano ?? 0) - (spread.classes[c]?.fermi ?? 0)) <= 0.05)
-    const g4 = seeded.finalOffShift1 > slots / 2 && [0, 1].every(c => Math.abs((seeded.classes[c]?.fano ?? 0) - (seeded.classes[c]?.fermi ?? 0)) <= 0.05)
-    const g5 = [uniform, period3, spread, seeded].every(r => r.energyExact && r.chargeExact)
+    const g2 =
+      uniform.offSector === 0 &&
+      period3.offSector === 0 &&
+      period3.offShift1 > 0
+    const g3 = [0, 1].every(
+      c =>
+        Math.abs(ratio(uniform, c) / 9 - 1) <= 0.05 &&
+        Math.abs(ratio(period3, c) / 3 - 1) <= 0.05 &&
+        Math.abs(
+          (spread.classes[c]?.fano ?? 0) -
+            (spread.classes[c]?.fermi ?? 0),
+        ) <= 0.05,
+    )
+    const g4 =
+      seeded.finalOffShift1 > slots / 2 &&
+      [0, 1].every(
+        c =>
+          Math.abs(
+            (seeded.classes[c]?.fano ?? 0) -
+              (seeded.classes[c]?.fermi ?? 0),
+          ) <= 0.05,
+      )
+    const g5 = [uniform, period3, spread, seeded].every(
+      r => r.energyExact && r.chargeExact,
+    )
     const gates = { G1: g1, G2: g2, G3: g3, G4: g4, G5: g5 }
     const ok = Object.values(gates).every(Boolean)
-    const metrics: Record<string, number> = { commuteFailures, slotsAndCounters: slots, closedSectors: [1, 3, 9].length }
+    const metrics: Record<string, number> = {
+      commuteFailures,
+      slotsAndCounters: slots,
+      closedSectors: [1, 3, 9].length,
+    }
 
     for (const [name, r] of [
       ['uniform', uniform],
@@ -159,10 +247,17 @@ export default experiment({
         const x = r.classes[c]!
 
         metrics[`${name}_${label}Fano`] = Number(x.fano.toPrecision(6))
-        metrics[`${name}_${label}FermiDirac`] = Number(x.fermi.toPrecision(6))
-        metrics[`${name}_${label}FanoOverFermi`] = Number((x.fano / x.fermi).toPrecision(6))
+        metrics[`${name}_${label}FermiDirac`] = Number(
+          x.fermi.toPrecision(6),
+        )
+
+        metrics[`${name}_${label}FanoOverFermi`] = Number(
+          (x.fano / x.fermi).toPrecision(6),
+        )
         metrics[`${name}_${label}Fill`] = Number(x.fill.toPrecision(6))
-        metrics[`${name}_${label}TvBinomial`] = Number(x.tvBinomial.toPrecision(4))
+        metrics[`${name}_${label}TvBinomial`] = Number(
+          x.tvBinomial.toPrecision(4),
+        )
       })
       metrics[`${name}_maxOffOwnSector`] = r.offSector
       metrics[`${name}_maxOffDepthStep`] = r.offShift1
@@ -176,9 +271,17 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the cold weave commutes with the depth step exactly, so the side-9 gas has three closed sectors (depth period 1, 3 and 9): a period-m fill stays in its sector and its husk Fano factor settles at (9 / m) times the Fermi-Dirac value, and one flipped slot, content at every depth momentum, carries the depth-uniform fill out of the husk sector to the Fermi-Dirac value',
-      metrics: { ...metrics, ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])) },
+      metrics: {
+        ...metrics,
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
+      },
       notes:
-        'L2. FIRST RUN (2026-09-26, 119 s), gates as fixed: G1, G2, G3, G5 pass, G4 fails, status fail. THE SECTORS HOLD AS DERIVED: the beat commutes with the depth step on every slot, store and counter (0 failures in 6 beats); the depth-uniform fill never leaves period 1 and the period-3 fill never leaves period 3 (0 slots off at every sampled beat) though 118,000 slots differ from their one-step image; and the husk Fano factor over its Fermi-Dirac value is 8.94 and 9.00 for period 1 (predicted 9), 2.96 and 2.98 for period 3 (predicted 3), 0.991 for the spread fill (predicted 1). So each closed sector relaxes INSIDE itself to the exclusive-slot equilibrium of an m-layer gas, counted 9 / m times by the column sum. G4 FAILS ON ITS OWN THRESHOLD, NOT ON RELAXATION: the seeded run (one slot of the depth-uniform fill flipped) reaches Fano 0.503 and 0.504 against Fermi-Dirac 0.511 and 0.510 (passing that half) and ends with 116,958 of 236,196 slots and counters off their depth-step image, but the gate asked for more than half, and the equilibrium itself sits below half: the spread fill ends at 116,515 (49.3 percent), the seeded one at 49.5 percent. The threshold was set without estimating the equilibrium mismatch, which for a fill near 0.49 per slot with three store levels is just under one half. For the same reason the reported beat at which the mismatch passes half is -1 in every run, so the seeded run\'s relaxation time was not measured here (it had relaxed by beat 1,000). What this settles: a single flipped slot, which has content at every depth momentum, is enough to take the gas out of the husk sector, and the husk sector (k4 = 0 alone) cannot relax to the husk\'s own equilibrium because it is 9 copies of one 3D gas. The count of closed sectors is the number of divisors of the depth side (3 on side 9); a linear rule would conserve every k4 separately (9).',
+        "L2. FIRST RUN (2026-09-26, 119 s), gates as fixed: G1, G2, G3, G5 pass, G4 fails, status fail. THE SECTORS HOLD AS DERIVED: the beat commutes with the depth step on every slot, store and counter (0 failures in 6 beats); the depth-uniform fill never leaves period 1 and the period-3 fill never leaves period 3 (0 slots off at every sampled beat) though 118,000 slots differ from their one-step image; and the husk Fano factor over its Fermi-Dirac value is 8.94 and 9.00 for period 1 (predicted 9), 2.96 and 2.98 for period 3 (predicted 3), 0.991 for the spread fill (predicted 1). So each closed sector relaxes INSIDE itself to the exclusive-slot equilibrium of an m-layer gas, counted 9 / m times by the column sum. G4 FAILS ON ITS OWN THRESHOLD, NOT ON RELAXATION: the seeded run (one slot of the depth-uniform fill flipped) reaches Fano 0.503 and 0.504 against Fermi-Dirac 0.511 and 0.510 (passing that half) and ends with 116,958 of 236,196 slots and counters off their depth-step image, but the gate asked for more than half, and the equilibrium itself sits below half: the spread fill ends at 116,515 (49.3 percent), the seeded one at 49.5 percent. The threshold was set without estimating the equilibrium mismatch, which for a fill near 0.49 per slot with three store levels is just under one half. For the same reason the reported beat at which the mismatch passes half is -1 in every run, so the seeded run's relaxation time was not measured here (it had relaxed by beat 1,000). What this settles: a single flipped slot, which has content at every depth momentum, is enough to take the gas out of the husk sector, and the husk sector (k4 = 0 alone) cannot relax to the husk's own equilibrium because it is 9 copies of one 3D gas. The count of closed sectors is the number of divisors of the depth side (3 on side 9); a linear rule would conserve every k4 separately (9).",
     })
   },
 })

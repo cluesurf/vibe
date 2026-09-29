@@ -70,6 +70,7 @@ export default experiment({
     ): { re: number[]; im: number[] } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const re: number[] = []
       const im: number[] = []
 

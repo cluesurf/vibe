@@ -28,41 +28,83 @@
 // the exact checks run in double arithmetic without rounding (every value below 2^30). Floats elsewhere, as measurement.
 
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { DOCK_ROOTS, wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import {
+  DOCK_ROOTS,
+  wrap,
+  type CMatrix,
+} from '@/code/measure/dock-mixer'
 import { cyclePhases } from '@/code/measure/swap-cone'
 import { polynomialAtZero } from '@/code/measure/singlet-kinematics'
-import { type Census, type FamilyCensus, type Frame, type HMat } from '@/code/measure/two-beat'
+import {
+  type Census,
+  type FamilyCensus,
+  type Frame,
+  type HMat,
+} from '@/code/measure/two-beat'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 
 type Roots = readonly (readonly number[])[]
 
 const SLOTS = 24
 const REG = 8
+
 export const MODES = SLOTS * REG
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * b[k]!, 0)
 
 // ---- the register: blades of wedge V, V = R^4 ----
 
-export const EVEN: readonly (readonly number[])[] = [[], [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3], [0, 1, 2, 3]]
-export const ODD: readonly (readonly number[])[] = [[0], [1], [2], [3], [0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]]
+export const EVEN: readonly (readonly number[])[] = [
+  [],
+  [0, 1],
+  [0, 2],
+  [0, 3],
+  [1, 2],
+  [1, 3],
+  [2, 3],
+  [0, 1, 2, 3],
+]
+export const ODD: readonly (readonly number[])[] = [
+  [0],
+  [1],
+  [2],
+  [3],
+  [0, 1, 2],
+  [0, 1, 3],
+  [0, 2, 3],
+  [1, 2, 3],
+]
 
 const bladeKey = (b: readonly number[]): string => b.join(',')
 
 // e_i ^ e_B: the sign (-1)^(elements of B below i) and the sorted blade, or null when i is in B
-function wedge(i: number, B: readonly number[]): { sign: number; blade: number[] } | null {
-  if (B.includes(i)) return null
+function wedge(
+  i: number,
+  B: readonly number[],
+): { sign: number; blade: number[] } | null {
+  if (B.includes(i)) {
+    return null
+  }
 
   const below = B.filter(x => x < i).length
 
-  return { sign: below % 2 === 0 ? 1 : -1, blade: [...B, i].sort((a, b) => a - b) }
+  return {
+    sign: below % 2 === 0 ? 1 : -1,
+    blade: [...B, i].sort((a, b) => a - b),
+  }
 }
 
 // iota_i e_B: the sign (-1)^(position of i in B) and B without i, or null when i is not in B
-function contract(i: number, B: readonly number[]): { sign: number; blade: number[] } | null {
+function contract(
+  i: number,
+  B: readonly number[],
+): { sign: number; blade: number[] } | null {
   const at = B.indexOf(i)
 
-  if (at < 0) return null
+  if (at < 0) {
+    return null
+  }
 
   return { sign: at % 2 === 0 ? 1 : -1, blade: B.filter(x => x !== i) }
 }
@@ -72,12 +114,17 @@ export function gammaMatrices(): number[][][] {
   const oddIndex = new Map(ODD.map((b, k) => [bladeKey(b), k]))
 
   return [0, 1, 2, 3].map(i => {
-    const g = Array.from({ length: REG }, () => Array<number>(REG).fill(0))
+    const g = Array.from({ length: REG }, () =>
+      Array<number>(REG).fill(0),
+    )
 
     EVEN.forEach((B, col) => {
       for (const t of [wedge(i, B), contract(i, B)]) {
-        if (!t) continue
-        ;(g[oddIndex.get(bladeKey(t.blade)) as number] as number[])[col]! += t.sign
+        if (!t) {
+          continue
+        }
+
+        g[oddIndex.get(bladeKey(t.blade))!]![col]! += t.sign
       }
     })
 
@@ -87,13 +134,22 @@ export function gammaMatrices(): number[][][] {
 
 // ---- the projectors (row-major 192 x 192, index slot * 8 + register) ----
 
-export const REGISTER_ROOTS: Roots = Array.from({ length: MODES }, (_, i) => DOCK_ROOTS[Math.floor(i / REG)] as readonly number[])
+export const REGISTER_ROOTS: Roots = Array.from(
+  { length: MODES },
+  (_, i) => DOCK_ROOTS[Math.floor(i / REG)]!,
+)
 
 // 24 Q_S: delta of the registers (every slot pair)
 export function singletProjector24(): Float64Array {
   const q = new Float64Array(MODES * MODES)
 
-  for (let d = 0; d < SLOTS; d++) for (let e = 0; e < SLOTS; e++) for (let a = 0; a < REG; a++) q[(d * REG + a) * MODES + e * REG + a] = 1
+  for (let d = 0; d < SLOTS; d++) {
+    for (let e = 0; e < SLOTS; e++) {
+      for (let a = 0; a < REG; a++) {
+        q[(d * REG + a) * MODES + e * REG + a] = 1
+      }
+    }
+  }
 
   return q
 }
@@ -103,7 +159,16 @@ export function singletProjector24(): Float64Array {
 export function partnerProjector48(): Float64Array {
   const g = gammaMatrices()
   const gg = Array.from({ length: 4 }, (_, i) =>
-    Array.from({ length: 4 }, (_, j) => Array.from({ length: REG }, (_, a) => Array.from({ length: REG }, (_, b) => (g[i] as number[][]).reduce((s, row, eta) => s + (row[a] as number) * (((g[j] as number[][])[eta] as number[])[b] as number), 0)))),
+    Array.from({ length: 4 }, (_, j) =>
+      Array.from({ length: REG }, (_, a) =>
+        Array.from({ length: REG }, (_, b) =>
+          g[i]!.reduce(
+            (s, row, eta) => s + row[a]! * g[j]![eta]![b]!,
+            0,
+          ),
+        ),
+      ),
+    ),
   )
   const q = new Float64Array(MODES * MODES)
   const R = DOCK_ROOTS
@@ -114,7 +179,15 @@ export function partnerProjector48(): Float64Array {
         for (let b = 0; b < REG; b++) {
           let s = 0
 
-          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) s += ((R[d] as number[])[i] as number) * ((R[e] as number[])[j] as number) * (((((gg[i] as number[][][])[j] as number[][])[a] as number[])[b] as number))
+          for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+              s +=
+                (R[d] as number[])[i]! *
+                (R[e] as number[])[j]! *
+                gg[i]![j]![a]![b]!
+            }
+          }
+
           q[(d * REG + a) * MODES + e * REG + b] = s
         }
       }
@@ -128,35 +201,63 @@ export function partnerProjector48(): Float64Array {
 export function vectorProjector12(): Float64Array {
   const q = new Float64Array(MODES * MODES)
 
-  for (let d = 0; d < SLOTS; d++) for (let e = 0; e < SLOTS; e++) for (let a = 0; a < REG; a++) q[(d * REG + a) * MODES + e * REG + a] = dot(DOCK_ROOTS[d] as number[], DOCK_ROOTS[e] as number[])
+  for (let d = 0; d < SLOTS; d++) {
+    for (let e = 0; e < SLOTS; e++) {
+      for (let a = 0; a < REG; a++) {
+        q[(d * REG + a) * MODES + e * REG + a] = dot(
+          DOCK_ROOTS[d] as number[],
+          DOCK_ROOTS[e] as number[],
+        )
+      }
+    }
+  }
 
   return q
 }
 
-export const scaled = (q: Float64Array, by: number): Float64Array => q.map(x => x / by)
+export const scaled = (q: Float64Array, by: number): Float64Array =>
+  q.map(x => x / by)
 
 // the exact product of two scaled 192 x 192 matrices (integers and dyadics: no rounding below 2^53)
-export function matMul(a: Float64Array, b: Float64Array, n = MODES): Float64Array {
+export function matMul(
+  a: Float64Array,
+  b: Float64Array,
+  n = MODES,
+): Float64Array {
   const o = new Float64Array(n * n)
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const x = a[i * n + k] as number
+      const x = a[i * n + k]!
 
-      if (x === 0) continue
-      for (let j = 0; j < n; j++) o[i * n + j]! += x * (b[k * n + j] as number)
+      if (x === 0) {
+        continue
+      }
+
+      for (let j = 0; j < n; j++) {
+        o[i * n + j]! += x * b[k * n + j]!
+      }
     }
   }
 
   return o
 }
 
-export const sameMatrix = (a: Float64Array, b: Float64Array): boolean => a.every((x, i) => x === b[i])
-export const trace = (a: Float64Array, n = MODES): number => Array.from({ length: n }, (_, i) => a[i * n + i] as number).reduce((s, x) => s + x, 0)
+export const sameMatrix = (a: Float64Array, b: Float64Array): boolean =>
+  a.every((x, i) => x === b[i])
+export const trace = (a: Float64Array, n = MODES): number =>
+  Array.from({ length: n }, (_, i) => a[i * n + i]!).reduce(
+    (s, x) => s + x,
+    0,
+  )
 
 // ---- W(F4) ----
 
-export type GroupElement = { matrix: number[][]; slots: Int32Array; register: number[][] }
+export type GroupElement = {
+  matrix: number[][]
+  slots: Int32Array
+  register: number[][]
+}
 
 // the four simple roots of F4 (long e2 - e3, e3 - e4; short e4, (e1 - e2 - e3 - e4) / 2)
 const F4_SIMPLE: readonly number[][] = [
@@ -169,15 +270,37 @@ const F4_SIMPLE: readonly number[][] = [
 const reflection = (a: readonly number[]): number[][] => {
   const n = dot(a, a)
 
-  return [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - (2 * (a[i] as number) * (a[j] as number)) / n))
+  return [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - (2 * a[i]! * a[j]!) / n),
+  )
 }
 
-const mul4 = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number[][] => [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => [0, 1, 2, 3].reduce((s, k) => s + ((a[i] as number[])[k] as number) * ((b[k] as number[])[j] as number), 0)))
+const mul4 = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): number[][] =>
+  [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(j =>
+      [0, 1, 2, 3].reduce(
+        (s, k) => s + (a[i] as number[])[k]! * (b[k] as number[])[j]!,
+        0,
+      ),
+    ),
+  )
 
 // the determinant of the minor of g on rows `rows` and columns `cols` (sizes 0, 2, 4)
-function minor(g: readonly (readonly number[])[], rows: readonly number[], cols: readonly number[]): number {
-  if (rows.length === 0) return 1
-  if (rows.length === 1) return (g[rows[0] as number] as number[])[cols[0] as number] as number
+function minor(
+  g: readonly (readonly number[])[],
+  rows: readonly number[],
+  cols: readonly number[],
+): number {
+  if (rows.length === 0) {
+    return 1
+  }
+
+  if (rows.length === 1) {
+    return (g[rows[0]!] as number[])[cols[0]!]!
+  }
 
   let s = 0
 
@@ -188,23 +311,33 @@ function minor(g: readonly (readonly number[])[], rows: readonly number[], cols:
       cols.filter((_, j) => j !== k),
     )
 
-    s += (k % 2 === 0 ? 1 : -1) * ((g[rows[0] as number] as number[])[c] as number) * sub
+    s += (k % 2 === 0 ? 1 : -1) * (g[rows[0]!] as number[])[c]! * sub
   })
 
   return s
 }
 
 // the action on the even forms: g e_B = sum_B' det(g[B', B]) e_B'
-export const evenAction = (g: readonly (readonly number[])[]): number[][] => EVEN.map(Bp => EVEN.map(B => (Bp.length === B.length ? minor(g, Bp, B) : 0)))
+export const evenAction = (
+  g: readonly (readonly number[])[],
+): number[][] =>
+  EVEN.map(Bp =>
+    EVEN.map(B => (Bp.length === B.length ? minor(g, Bp, B) : 0)),
+  )
 
 export function f4Group(): GroupElement[] {
   const gens = F4_SIMPLE.map(reflection)
-  const key = (m: readonly (readonly number[])[]): string => m.map(r => r.map(x => Math.round(2 * x)).join(',')).join(';')
+  const key = (m: readonly (readonly number[])[]): string =>
+    m.map(r => r.map(x => Math.round(2 * x)).join(',')).join(';')
   const seen = new Map<string, number[][]>()
-  const I: number[][] = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
+  const I: number[][] = [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(j => (i === j ? 1 : 0)),
+  )
+
   let frontier = [I]
 
   seen.set(key(I), I)
+
   while (frontier.length > 0) {
     const next: number[][][] = []
 
@@ -229,7 +362,9 @@ export function f4Group(): GroupElement[] {
     const slots = new Int32Array(SLOTS)
 
     DOCK_ROOTS.forEach((r, d) => {
-      const image = [0, 1, 2, 3].map(i => (matrix[i] as number[]).reduce((s, x, k) => s + x * (r[k] as number), 0))
+      const image = [0, 1, 2, 3].map(i =>
+        matrix[i]!.reduce((s, x, k) => s + x * r[k]!, 0),
+      )
 
       slots[d] = rootIndex.get(image.join(',')) ?? -1
     })
@@ -239,30 +374,42 @@ export function f4Group(): GroupElement[] {
 }
 
 // g Q = Q g exactly, g acting on (slot d, register b) as (slots[d], register[a][b])
-export function commutesExactly(g: GroupElement, q: Float64Array): boolean {
+export function commutesExactly(
+  g: GroupElement,
+  q: Float64Array,
+): boolean {
   const n = MODES
 
   // g maps (d, b) to (slots[d], a) with weight register[a][b]; compare (g Q) and (Q g) at every entry ((slots[d], a),
   // (e, c)): (g Q) there is sum_b register[a][b] Q[(d, b), (e, c)], (Q g) there is sum_b Q[(slots[d], a), (slots[e],
   // b)] register[b][c]
   for (let d = 0; d < SLOTS; d++) {
-    const sd = g.slots[d] as number
+    const sd = g.slots[d]!
 
     for (let e = 0; e < SLOTS; e++) {
-      const se = g.slots[e] as number
+      const se = g.slots[e]!
 
       for (let a = 0; a < REG; a++) {
         for (let c = 0; c < REG; c++) {
           // left: (g Q)[(sd, a), (e, c)] = sum_b reg[a][b] Q[(d, b), (e, c)]
           let left = 0
 
-          for (let b = 0; b < REG; b++) left += ((g.register[a] as number[])[b] as number) * (q[(d * REG + b) * n + e * REG + c] as number)
+          for (let b = 0; b < REG; b++) {
+            left +=
+              g.register[a]![b]! * q[(d * REG + b) * n + e * REG + c]!
+          }
 
           // right: (Q g)[(sd, a), (e, c)] = sum_b Q[(sd, a), (se, b)] reg[b][c]
           let right = 0
 
-          for (let b = 0; b < REG; b++) right += (q[(sd * REG + a) * n + se * REG + b] as number) * ((g.register[b] as number[])[c] as number)
-          if (left !== right) return false
+          for (let b = 0; b < REG; b++) {
+            right +=
+              q[(sd * REG + a) * n + se * REG + b]! * g.register[b]![c]!
+          }
+
+          if (left !== right) {
+            return false
+          }
         }
       }
     }
@@ -275,16 +422,19 @@ export function commutesExactly(g: GroupElement, q: Float64Array): boolean {
 
 // P = X (1 + (u - 1) Q), row-major [to][from]; X sends slot d to its opposite and keeps the register (-1 acts on the
 // even forms as the identity)
-export function registerPiece(q: Float64Array, u: readonly [number, number]): CMatrix {
+export function registerPiece(
+  q: Float64Array,
+  u: readonly [number, number],
+): CMatrix {
   const n = MODES
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
   for (let i = 0; i < n; i++) {
-    const from = (OPPOSITE[Math.floor(i / REG)] as number) * REG + (i % REG)
+    const from = OPPOSITE[Math.floor(i / REG)]! * REG + (i % REG)
 
     for (let j = 0; j < n; j++) {
-      const x = q[from * n + j] as number
+      const x = q[from * n + j]!
 
       re[i * n + j] = (from === j ? 1 : 0) + (u[0] - 1) * x
       im[i * n + j] = u[1] * x
@@ -301,7 +451,9 @@ export function structureVector(K: readonly number[]): number[] {
   for (const r of DOCK_ROOTS) {
     const x = Math.sin(dot(K, r))
 
-    for (let k = 0; k < 4; k++) s[k]! += (r[k] as number) * x
+    for (let k = 0; k < 4; k++) {
+      s[k]! += r[k]! * x
+    }
   }
 
   return s.map(x => x / Math.sqrt(288))
@@ -324,25 +476,41 @@ export function diracSpeed(K: readonly number[], M: number): number {
     const c = Math.cos(dot(K, r)) / Math.sqrt(288)
     const rs = dot(r, s)
 
-    for (let k = 0; k < 4; k++) grad[k]! += (r[k] as number) * rs * c
+    for (let k = 0; k < 4; k++) {
+      grad[k]! += r[k]! * rs * c
+    }
   }
 
   const E = diracPhase(K, M)
   const kap = 2 * Math.cos(M / 2) ** 2
   const sinE = Math.sin(E)
 
-  if (sinE < 1e-12) return 0
+  if (sinE < 1e-12) {
+    return 0
+  }
 
   return (kap * Math.hypot(...grad)) / 2 / sinE / 2
 }
 
 // ---- the generic readers (code/measure/two-beat's, with the root table an argument) ----
 
-export const epsOfN = (Ps: readonly CMatrix[], f: Frame, q: readonly number[], roots: Roots): number[] => cyclePhases(Ps, roots, q).map(ph => f.sign * -wrap(ph - f.mid))
+export const epsOfN = (
+  Ps: readonly CMatrix[],
+  f: Frame,
+  q: readonly number[],
+  roots: Roots,
+): number[] =>
+  cyclePhases(Ps, roots, q).map(ph => f.sign * -wrap(ph - f.mid))
 
-export function trackedEpsN(Ps: readonly CMatrix[], f: Frame, path: readonly (readonly number[])[], roots: Roots): number[][] {
+export function trackedEpsN(
+  Ps: readonly CMatrix[],
+  f: Frame,
+  path: readonly (readonly number[])[],
+  roots: Roots,
+): number[][] {
   const N = roots.length
   const out: number[][] = []
+
   let prev: number[] | null = null
 
   for (const q of path) {
@@ -356,15 +524,23 @@ export function trackedEpsN(Ps: readonly CMatrix[], f: Frame, path: readonly (re
 
     const cand: { i: number; j: number; d: number }[] = []
 
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) cand.push({ i, j, d: Math.abs(wrap((raw[j] as number) - (prev[i] as number))) })
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        cand.push({ i, j, d: Math.abs(wrap(raw[j]! - prev[i]!)) })
+      }
+    }
+
     cand.sort((a, b) => a.d - b.d)
 
     const next = Array<number>(N).fill(NaN)
     const used = new Uint8Array(N)
 
     for (const c of cand) {
-      if (!Number.isNaN(next[c.i] as number) || used[c.j]) continue
-      next[c.i] = raw[c.j] as number
+      if (!Number.isNaN(next[c.i]!) || used[c.j]) {
+        continue
+      }
+
+      next[c.i] = raw[c.j]!
       used[c.j] = 1
     }
 
@@ -375,25 +551,38 @@ export function trackedEpsN(Ps: readonly CMatrix[], f: Frame, path: readonly (re
   return out
 }
 
-export function pairCensusN(Ps: readonly CMatrix[], f: Frame, paths: readonly (readonly (readonly number[])[])[], extra: readonly (readonly number[])[], roots: Roots, tol = 1e-9): Census {
+export function pairCensusN(
+  Ps: readonly CMatrix[],
+  f: Frame,
+  paths: readonly (readonly (readonly number[])[])[],
+  extra: readonly (readonly number[])[],
+  roots: Roots,
+  tol = 1e-9,
+): Census {
   const N = roots.length
+
   let Bstar = Math.PI
   let at: number[] = []
   let pair: [number, number] = [NaN, NaN]
   let crossings = 0
   let first: Census['first'] = { q: Infinity, pair: [NaN, NaN] }
-  const see = (eps: readonly number[], q: readonly number[]): Float64Array => {
+
+  const see = (
+    eps: readonly number[],
+    q: readonly number[],
+  ): Float64Array => {
     const d = new Float64Array(N * N)
 
     for (let a = 0; a < N; a++) {
       for (let b = a; b < N; b++) {
-        const x = wrap(2 * f.M - (eps[a] as number) - (eps[b] as number))
+        const x = wrap(2 * f.M - eps[a]! - eps[b]!)
 
         d[a * N + b] = x
+
         if (x > tol && x < Bstar) {
           Bstar = x
           at = [...q]
-          pair = [eps[a] as number, eps[b] as number]
+          pair = [eps[a]!, eps[b]!]
         }
       }
     }
@@ -406,52 +595,89 @@ export function pairCensusN(Ps: readonly CMatrix[], f: Frame, paths: readonly (r
     const last = new Float64Array(N * N).fill(NaN)
 
     bands.forEach((eps, s) => {
-      const d = see(eps, path[s] as readonly number[])
+      const d = see(eps, path[s]!)
 
       for (let a = 0; a < N; a++) {
         for (let b = a; b < N; b++) {
-          const y = d[a * N + b] as number
-          const x = last[a * N + b] as number
+          const y = d[a * N + b]!
+          const x = last[a * N + b]!
 
-          if (Math.abs(y) <= tol) continue
+          if (Math.abs(y) <= tol) {
+            continue
+          }
+
           if (Math.abs(y) >= 1) {
             last[a * N + b] = NaN
             continue
           }
+
           if (!Number.isNaN(x) && x > 0 !== y > 0) {
             crossings++
 
-            const r = Math.hypot(...(path[s] as readonly number[]))
+            const r = Math.hypot(...path[s]!)
 
-            if (r < first.q) first = { q: r, pair: [eps[a] as number, eps[b] as number] }
+            if (r < first.q) {
+              first = { q: r, pair: [eps[a]!, eps[b]!] }
+            }
           }
+
           last[a * N + b] = y
         }
       }
     })
   }
 
-  for (const q of extra) see(epsOfN(Ps, f, q, roots), q)
+  for (const q of extra) {
+    see(epsOfN(Ps, f, q, roots), q)
+  }
 
-  return { M: f.M, Bstar: crossings > 0 ? 0 : Bstar, crossings, at, pair, first }
+  return {
+    M: f.M,
+    Bstar: crossings > 0 ? 0 : Bstar,
+    crossings,
+    at,
+    pair,
+    first,
+  }
 }
 
-export function cycleFlatsN(Ps: readonly CMatrix[], momenta: readonly (readonly number[])[], tol: number, roots: Roots): { phase: number; count: number }[] {
+export function cycleFlatsN(
+  Ps: readonly CMatrix[],
+  momenta: readonly (readonly number[])[],
+  tol: number,
+  roots: Roots,
+): { phase: number; count: number }[] {
   const phs = momenta.map(K => cyclePhases(Ps, roots, K))
   const out: { phase: number; count: number }[] = []
 
-  for (const p of [...(phs[0] as number[])].sort((a, b) => a - b)) {
-    if (out.some(o => Math.abs(wrap(o.phase - p)) <= tol)) continue
+  for (const p of [...phs[0]!].sort((a, b) => a - b)) {
+    if (out.some(o => Math.abs(wrap(o.phase - p)) <= tol)) {
+      continue
+    }
 
-    const count = Math.min(...phs.map(ph => ph.filter(x => Math.abs(wrap(x - p)) <= tol).length))
+    const count = Math.min(
+      ...phs.map(
+        ph => ph.filter(x => Math.abs(wrap(x - p)) <= tol).length,
+      ),
+    )
 
-    if (count > 0) out.push({ phase: p, count })
+    if (count > 0) {
+      out.push({ phase: p, count })
+    }
   }
 
   return out
 }
 
-export function frameRN(Ps: readonly CMatrix[], f: Frame, sPhase: number, u: readonly number[], cStar: number, scales: readonly number[], roots: Roots): { m: number; c2: number; R: number } {
+export function frameRN(
+  Ps: readonly CMatrix[],
+  f: Frame,
+  sPhase: number,
+  u: readonly number[],
+  cStar: number,
+  scales: readonly number[],
+  roots: Roots,
+): { m: number; c2: number; R: number } {
   const beats = Ps.length
   const m = f.M / beats
   const xs = scales.map(s => s * s)
@@ -461,7 +687,9 @@ export function frameRN(Ps: readonly CMatrix[], f: Frame, sPhase: number, u: rea
       Ps,
       roots,
       u.map(x => x * K),
-    ).reduce((b, ph) => (Math.abs(wrap(ph - sPhase)) < Math.abs(wrap(b - sPhase)) ? ph : b))
+    ).reduce((b, ph) =>
+      Math.abs(wrap(ph - sPhase)) < Math.abs(wrap(b - sPhase)) ? ph : b,
+    )
     const e = (f.sign * -wrap(near - f.mid)) / beats
 
     return (e * e - m * m) / (K * K)
@@ -471,10 +699,18 @@ export function frameRN(Ps: readonly CMatrix[], f: Frame, sPhase: number, u: rea
   return { m, c2, R: (cStar * cStar) / c2 }
 }
 
-export function cycleMasslessPairN(Ps: readonly CMatrix[], rest: number, u: readonly number[], kappa: number, roots: Roots, tol = 1e-9): { c0: number; gamma: number; size: number } {
+export function cycleMasslessPairN(
+  Ps: readonly CMatrix[],
+  rest: number,
+  u: readonly number[],
+  kappa: number,
+  roots: Roots,
+  tol = 1e-9,
+): { c0: number; gamma: number; size: number } {
   const beats = Ps.length
   const at0 = cyclePhases(Ps, roots, [0, 0, 0, 0])
   const size = at0.filter(ph => Math.abs(wrap(ph - rest)) <= tol).length
+
   const read = (k: number): { c: number; g: number } => {
     const ph = cyclePhases(
       Ps,
@@ -489,8 +725,12 @@ export function cycleMasslessPairN(Ps: readonly CMatrix[], rest: number, u: read
     const top = Math.max(...e)
     const bottom = Math.min(...e)
 
-    return { c: (top - bottom) / (2 * k), g: (top + bottom) / (2 * k * k) }
+    return {
+      c: (top - bottom) / (2 * k),
+      g: (top + bottom) / (2 * k * k),
+    }
   }
+
   const a = read(kappa)
   const b = read(kappa / 2)
 
@@ -498,7 +738,14 @@ export function cycleMasslessPairN(Ps: readonly CMatrix[], rest: number, u: read
 }
 
 // code/measure/two-beat familyCensus with the size an argument
-export function familyCensusN(B: HMat, As: readonly HMat[], P: number, n: number, N: number, tol = 1e-9): FamilyCensus {
+export function familyCensusN(
+  B: HMat,
+  As: readonly HMat[],
+  P: number,
+  n: number,
+  N: number,
+  tol = 1e-9,
+): FamilyCensus {
   let Bstar = Infinity
   let crossings = 0
   let pair: [number, number] = [NaN, NaN]
@@ -514,34 +761,47 @@ export function familyCensusN(B: HMat, As: readonly HMat[], P: number, n: number
       const im = new Float64Array(N * N)
 
       for (let i = 0; i < N * N; i++) {
-        re[i] = (B.re[i] as number) + s * (A.re[i] as number)
-        im[i] = (B.im[i] as number) + s * (A.im[i] as number)
+        re[i] = B.re[i]! + s * A.re[i]!
+        im[i] = B.im[i]! + s * A.im[i]!
       }
 
-      const e = [...complexEigenvalues({ re, im, n: N }).re].sort((a, b) => a - b)
+      const e = [...complexEigenvalues({ re, im, n: N }).re].sort(
+        (a, b) => a - b,
+      )
 
       for (let a = 0; a < N; a++) {
         for (let b = a; b < N; b++) {
-          const y = 2 - (e[a] as number) - (e[b] as number)
-          const w = last[a * N + b] as number
+          const y = 2 - e[a]! - e[b]!
+          const w = last[a * N + b]!
 
           if (y > tol && y < Bstar) {
             Bstar = y
-            pair = [e[a] as number, e[b] as number]
+            pair = [e[a]!, e[b]!]
             at = s
           }
-          if (Math.abs(y) <= tol) continue
+
+          if (Math.abs(y) <= tol) {
+            continue
+          }
+
           if (!Number.isNaN(w) && w > 0 !== y > 0) {
             crossings++
             first = Math.min(first, s)
           }
+
           last[a * N + b] = y
         }
       }
     }
   }
 
-  return { Bstar: crossings > 0 ? 0 : Bstar, crossings, pair, at, first }
+  return {
+    Bstar: crossings > 0 ? 0 : Bstar,
+    crossings,
+    pair,
+    at,
+    first,
+  }
 }
 
 // ---- the continuum cluster of a register sector pair ----
@@ -551,17 +811,19 @@ export function rangeBasis(q: Float64Array, n = MODES): number[][] {
   const out: number[][] = []
 
   for (let j = 0; j < n; j++) {
-    let v = Array.from({ length: n }, (_, i) => q[i * n + j] as number)
+    let v = Array.from({ length: n }, (_, i) => q[i * n + j]!)
 
     for (const e of out) {
       const c = dot(v, e)
 
-      v = v.map((x, i) => x - c * (e[i] as number))
+      v = v.map((x, i) => x - c * e[i]!)
     }
 
     const norm = Math.hypot(...v)
 
-    if (norm > 1e-9) out.push(v.map(x => x / norm))
+    if (norm > 1e-9) {
+      out.push(v.map(x => x / norm))
+    }
   }
 
   return out
@@ -570,26 +832,41 @@ export function rangeBasis(q: Float64Array, n = MODES): number[][] {
 // THE CLUSTER FAMILY of a singlet sector S (resting at +1) and a partner sector D (at -1): B = diag(+1, -1) and, along
 // each direction u, A_u = the first-order stream X_u = diag(u . r) in the basis S then D, scaled by `speed` (its
 // singular values times speed are |u| for a Clifford partner). H(p) = B + p A_u
-export function clusterFamily(S: readonly number[][], D: readonly number[][], dirs: readonly (readonly number[])[], speed: number): { B: HMat; As: HMat[]; n: number } {
+export function clusterFamily(
+  S: readonly number[][],
+  D: readonly number[][],
+  dirs: readonly (readonly number[])[],
+  speed: number,
+): { B: HMat; As: HMat[]; n: number } {
   const basis = [...S, ...D]
   const n = basis.length
-  const B: HMat = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const B: HMat = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   basis.forEach((_, i) => {
     B.re[i * n + i] = i < S.length ? 1 : -1
   })
 
   const As = dirs.map(u => {
-    const A: HMat = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+    const A: HMat = {
+      re: new Float64Array(n * n),
+      im: new Float64Array(n * n),
+    }
     const w = REGISTER_ROOTS.map(r => dot(u, r))
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        const bi = basis[i] as number[]
-        const bj = basis[j] as number[]
+        const bi = basis[i]!
+        const bj = basis[j]!
+
         let s = 0
 
-        for (let k = 0; k < MODES; k++) s += (bi[k] as number) * (w[k] as number) * (bj[k] as number)
+        for (let k = 0; k < MODES; k++) {
+          s += bi[k]! * w[k]! * bj[k]!
+        }
+
         A.re[i * n + j] = s * speed
       }
     }
@@ -603,31 +880,44 @@ export function clusterFamily(S: readonly number[][], D: readonly number[][], di
 // the capture of the stream by a partner sector: for each unit direction u, |Q_D X_u Q_S|^2 against |X_u Q_S|^2 on the
 // singlet sector, and how far Q_S X_u Q_D X_u Q_S is from a multiple of Q_S (the Clifford condition, S side) and
 // Q_D X_u Q_S X_u Q_D from a multiple of Q_D (D side)
-export function capture(qS: Float64Array, qD: Float64Array, u: readonly number[]): { share: number; sideS: number; sideD: number } {
+export function capture(
+  qS: Float64Array,
+  qD: Float64Array,
+  u: readonly number[],
+): { share: number; sideS: number; sideD: number } {
   const n = MODES
   const w = REGISTER_ROOTS.map(r => dot(u, r))
   // T = Q_D X Q_S
-  const XQS = qS.map((x, i) => x * (w[Math.floor(i / n)] as number))
+  const XQS = qS.map((x, i) => x * w[Math.floor(i / n)]!)
   const T = matMul(qD, XQS)
   const Tt = new Float64Array(n * n)
 
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) Tt[j * n + i] = T[i * n + j] as number
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      Tt[j * n + i] = T[i * n + j]!
+    }
+  }
 
   const TtT = matMul(Tt, T)
   const TTt = matMul(T, Tt)
   const XQSt = new Float64Array(n * n)
 
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) XQSt[j * n + i] = XQS[i * n + j] as number
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      XQSt[j * n + i] = XQS[i * n + j]!
+    }
+  }
 
   const full = matMul(XQSt, XQS)
   const rS = trace(TtT) / trace(qS)
   const rD = trace(TTt) / trace(qD)
+
   let sideS = 0
   let sideD = 0
 
   for (let i = 0; i < n * n; i++) {
-    sideS = Math.max(sideS, Math.abs((TtT[i] as number) - rS * (qS[i] as number)))
-    sideD = Math.max(sideD, Math.abs((TTt[i] as number) - rD * (qD[i] as number)))
+    sideS = Math.max(sideS, Math.abs(TtT[i]! - rS * qS[i]!))
+    sideD = Math.max(sideD, Math.abs(TTt[i]! - rD * qD[i]!))
   }
 
   return { share: trace(TtT) / trace(full), sideS, sideD }
@@ -637,7 +927,9 @@ export function capture(qS: Float64Array, qD: Float64Array, u: readonly number[]
 export function weylDirections(count: number): number[][] {
   let phi = 1.5
 
-  for (let i = 0; i < 64; i++) phi = phi - (phi ** 5 - phi - 1) / (5 * phi ** 4 - 1)
+  for (let i = 0; i < 64; i++) {
+    phi = phi - (phi ** 5 - phi - 1) / (5 * phi ** 4 - 1)
+  }
 
   const alpha = [1, 2, 3, 4].map(k => 1 / phi ** k)
 
