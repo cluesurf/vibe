@@ -99,7 +99,7 @@ function betaOf(wr: number, wi: number, phi: number): [number, number] {
   return [w2r * c - w2i * s - 2 * wr + 1, w2r * s + w2i * c - 2 * wi]
 }
 
-// THE TRUE DOCKS. T D_y's content sits on the neighbours y + r_d of its label with weight |E_d eta|^2, and sum_d r_d
+// THE TRUE DOCKS. T D_y's content sits on the neighbors y + r_d of its label with weight |E_d eta|^2, and sum_d r_d
 // E_d^T E_d = 0 (the roots come in +- pairs and E_(-d) = -E_d), so its charge centroid IS the label: placing the pull at
 // the true dock changes nothing at first order. What it changes is the second moment: the S D pair's charge separation
 // is y + r_d (one stencil), the D D pair's y + r_d - r_e (two), and the pull a pair of spread charges feels is the mean

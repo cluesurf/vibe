@@ -1,5 +1,114 @@
 // DOES SPLITTING THE PULL AROUND THE STREAM MAKE THE HELD REGISTER PAIR MOVE WITH INERTIA EQUAL TO ITS ENERGY?
-// (E-SPN-XXXX). HEADER_PLACEHOLDER
+// (E-SPN-XXXX). E-SPN-0173 held a light register pair (m 0.427) with the husk light's Coulomb pull and read R = 8.46
+// against the static formula's 1.23 at a_B 3.5, 16.45 against 1.31 at a_B 3. Its reading of the cause: a member moves
+// only by passing to its partner T D, one link away, so every center-of-mass step crosses the pull's gradient, a
+// first-order splitting error that a symmetric (Strang) split of the pull around the stream would remove. This file
+// derives what that error is, builds the split (code/measure/register-coulomb-split), and measures R with it.
+//
+// DERIVED BEFORE ANY RUN (per cycle of two beats; a pair's eps its cycle phase; the member unit u = ringUnit(-5, 1)).
+// 1. WHERE THE FIRST-ORDER ERROR IS, AND WHY IT CANNOT MAKE THE EXCESS. E-SPN-0173's cycle is U = P_DS P_SD M2' P_DD
+//    M1 P_SS: the S S pull with beat 1's mixer, the D D pull with beat 2's, then the two cross pieces. P_SS commutes with
+//    M1 (both are functions of Q_S (x) 1 and 1 (x) Q_S, the phase diagonal in the orthonormal S_x), P_DD with M2', and
+//    beat 1's piece is exactly M1 P_SS (its Q_S (x) Q_S coefficient (u - 1)^2 + u^2 (e^(i phi) - 1) is register-meson's
+//    beta). So P_SS U = V K P_SS with V = P_SS P_DS P_SD P_DD the whole pull and K = M2' M1 the free cycle: U is the
+//    factored cycle V K, conjugated. Write V = e^(-i Phi) and K = e^(-i H). Then
+//        V K = exp(-i (Phi + H) - (1/2) [Phi, H] + third order)
+//    and the first-order term is the [V, K] the reading named: [Phi, H] = -i (v1 - v2) . grad Phi on the relative
+//    dock, odd in the members' velocities, of size alpha |grad G| v, about alpha / a_B^3 a cycle. But it is exactly the
+//    generator of a conjugation: e^(-i Phi / 2) (Phi + H) e^(i Phi / 2) = Phi + H - (i / 2) [Phi, H] + O(Phi^2 H), so
+//        V K = e^(-i Phi / 2) exp(-i (Phi + H) + second order) e^(i Phi / 2),
+//    and it moves no eigenphase, at any K. (Equivalently, <[Phi, H + Phi]> = 0 in any eigenstate: the virial
+//    identity.) ITS PREDICTION FOR THE R EXCESS IS ZERO, of either sign, at every alpha and a_B. The measured excess is
+//    not small and not first order: R minus the formula is 7.23 at a_B 3.5 and 15.15 at a_B 3, a power a_B^-4.8 (the
+//    ratio R / formula - 1, 5.90 and 11.57, a_B^-4.4), the scaling of a contact term alpha |psi(0)|^2 ~ a_B^-4, which
+//    lives where the pull is 2.5 rad a cycle, not in the gentle gradient a hydrogenic pair mostly sees (0.03 rad a link
+//    at its mean radius 5).
+// 2. THE STRANG SPLIT, AND WHAT IT CAN CHANGE. Every piece at half the phase (the count n in steps of the square-root
+//    unit rho^(1/2), so two halves are rho^(-n) exactly), placed before and after the free cycle: U_s = V_h K V_h =
+//    V_h^(-1) (V_h^2 K) V_h, conjugate to V_h^2 K. So the split's spectrum differs from the unsplit one ONLY as V_h^2
+//    differs from V, the commutators of the four pieces among themselves (P_SS and P_DD share no sector, but Q_S and Q_D'
+//    overlap through C(K), so these commutators are K-dependent and can move R). They are second order in the pull and
+//    not small at contact: the remainder of the split is O([Phi_a, Phi_b]) and O([Phi, [Phi, H]]), which at 2.5 rad a
+//    cycle at contact is not a small correction. Every piece is a sector-projector phase, so W (x) W stays exact, the
+//    projectors are unchanged (covariant), the member band is untouched (with the light off the split cycle IS the free
+//    cycle, bit for bit: C2), and no piece reaches the flats (the census closed). THE SPLIT CANNOT REMOVE A FIRST-ORDER
+//    ERROR, because the first-order term is a similarity already. PREDICTED: it moves R by the pieces' commutator, a
+//    fraction of R (the probes: -2% to -17%), and leaves the excess of order 7.
+// 3. THE TRUE DOCK, AND WHETHER IT IS THE SPLIT. T D_y's content sits on y + r_d with weight |E_d eta|^2, and
+//    sum_d r_d E_d^T E_d = 0 (the roots come in +- pairs and E_(-d) = -E_d): the D content's charge centroid IS its
+//    label, so placing the pull at the true dock changes nothing at first order. It changes the second moment: the S D
+//    pair's charge separation is y + r_d (one root stencil), the D D pair's y + r_d - r_e (two), and the pull on a spread
+//    charge is the mean of G over them. G is the Green's function of the root Laplacian, so the one-stencil mean equals G
+//    at every dock but contact and the two-stencil mean at every dock beyond one link: the true-dock pull is E-SPN-0173's
+//    with a softer core in the D sectors (19 sites re-counted, the contact count 414 -> 87 at a_B 3.5). It is NOT the
+//    split: the split reorders the pull in time, the true dock resamples it in space, and neither touches the first
+//    order. PREDICTED: a core-sized change of R, of either sign.
+// 4. THE CONTINUUM TARGET (E-SPN-0155, E-SPN-0169, as E-SPN-0173 point 5): R_static = (2 tan m + (5/3) E_b) / (2 m - E_b)
+//    per beat at the level's own E_b, and R_full = R_static - (8/3) E_b S / (2 m - E_b), whose limit is tan m / m = 1.0656.
+//    The formula's own neglected terms are O((E_b / 2 m)^2), about 1%, so the 10% band below is set by the lattice, not
+//    by the formula.
+// 5. THE REACH. a_B 8 needs a ball of radius ~29 (R / a_B 3.6), ~102,000 sites and about 45 s a split cycle on this
+//    engine: out of reach here. The symmetry-reduced engine (spin/register-coulomb-weak, E-SPN-0175) reads the unsplit
+//    pull there, and by point 2 the split differs from it only by the pieces' commutator, which falls as alpha^2.
+//
+// GATES, fixed before the gate run (GATE_PLAN: m 0.427029; seven points, each a coupling, a ball and a placement of the
+// pull: a_B 3.5 on radius 12 split, unsplit and at the true docks; a_B 3 on radius 10 split and unsplit, these five with
+// filters 128, 512, 1024; a_B 5 on radius 14 split and unsplit with filters 128, 512; K filter 128 throughout; hold 64
+// cycles; the witness coordinate ball 7, full ball 6). Every comparison the gates make between the split and the unsplit
+// pull is on one ball with one filter schedule, so the ball's truncation (R / a_B 3.4, 3.3 and 2.8) is common to both
+// and E-SPN-0173's own numbers (radius 16 and 14, filters to 2048, K filter 256) are not compared with.
+//  H0 THE WITNESS: (a) the free cycle against the full 192 x 192 rule's two beats (the pieces, the swap coin, the stream,
+//     every shift reduced to the quotient) with every phase zero; (b) the two in-beat pull pieces at half the phase (P_SS
+//     then P_DD) against the full rule's two beats with the mixer 1, T X P_DD T X P_SS on the lift against T X T X on the
+//     lift of the coordinates' result. Each at K = 0 and (0.31, -0.17, 0.52, 0), an S S start at y = 0 over the whole full
+//     ball and a generic start within the full ball's radius less 3: entries 1e-12, the coordinate norm kept to 1e-12, S S
+//     weights equal to 1e-10. (The cross pieces are checked as exact projectors by E-SPN-0173's I3, unchanged here.)
+//  H1 THE HOLD at the split main level: |lambda| >= 1 - 1e-6, residual <= 1e-3, over 64 cycles the norm's change at most
+//     1e-3, fidelity at least 1 - 1e-2, the outermost shell at most 1e-5 of the weight.
+//  H2 ISOTROPY: the split main level's K^2 coefficient along the axis and a generic husk direction within 1e-3.
+//  H3 THE STATIC R: the split main level's R_static = c*^2 / (2 a E_L) within 10% of the formula at its own E_b.
+//  H4 R WITH THE DARWIN EXCHANGE: the split main level's R_full within 0.05 of tan m / m.
+//  H5 THE TREND: the split excess |R_static / formula - 1| falls from a_B 3 to 3.5 to 5.
+//  H6 THE SPLIT REMOVES THE ERROR (the hypothesis this file tests): at every coupling the split excess over the formula
+//     at most half the unsplit's, R_s - formula <= (R_c - formula) / 2.
+// INSTRUMENT (a failure makes the verdict partial). I1 the member coordinates' 16 phases equal the Dirac band at 5
+//  momenta to 1e-12. I2 the member R equals tan m / m to 1e-6, and P_SS U s against V K P_SS s (point 1's conjugacy) to
+//  1e-12 relative, a generic start within radius 3 of a radius-8 ball. I3 the split cycle keeps the Gram norm to 1e-11
+//  over one cycle (a start within radius 3 of a radius-14 ball). I4 the D content's centroid below 1e-15 and its smeared
+//  pull equal to G beyond one link to 1e-12 (point 3).
+// CONTROLS (a failure makes the verdict partial). C1 THE UNSPLIT PULL IS E-SPN-0173'S: the 'coulomb' form against
+//  register-coulomb's coulombCycle bit for bit, three cycles, a generic start filling a radius-6 ball. C2 THE LIGHT OFF:
+//  the split cycle with every count zero is the free cycle bit for bit (free members). C3 THE TRANSVERSE EXCHANGE OFF:
+//  darwinR at S = 0 equals staticR exactly.
+// READ, gating nothing: the true-dock R at a_B 3.5, each level's pieces' commutator |V_h^2 v - V v|, E_b against the
+//  continuum, shares, shells, S.
+// PREDICTED: H0 and H2 hold; H1 FAILS or sits at the edge (E-SPN-0173's main level failed it at 1.5e-3); H3 and H4 FAIL
+//  (R of order 8 at a_B 3.5); H5 holds; H6 FAILS (the split moves R by a fraction). VERDICT PREDICTED: FAIL.
+//
+// PROBES BEFORE THE GATE RUN, disclosed. tmp/rcs-probe1.log (a_B 3.5, ball 8, filters 64 and 256, K filter 128): P_SS U
+//  against V K P_SS 1.1e-15; the split with the light off equals the free cycle bit for bit; |V_h^2 x - V x| / max|x|
+//  8.9e-2 on the hydrogenic start and 9.8e-2 on a generic one; 0.44, 0.65 and 0.96 s a cycle unsplit, factored and split
+//  (under load); R static 26.69 unsplit, 26.16 factored (the same spectrum, a different filtered mixture), 27.00 split,
+//  against the formula 1.26 (the ball truncated). tmp/rcs-probe2.log: the D content's centroid 6.9e-18; the one- and
+//  two-stencil means of G equal G to 8e-15 beyond one link, 0.79 off at contact and 0.28 at one link (two stencils).
+//  tmp/rcs-probe3.log (the true docks, ball 8, as probe 1): the S D count at contact 414 -> 87, 18 more D D sites
+//  re-counted; R static 31.42 against 1.25. tmp/rcs-smoke.log (every code path on a radius-6 ball, filters 16 and 32,
+//  gating nothing): split against unsplit R 8.01 / 9.63 (a_B 3.5), 2.88 / 3.22 (3), 2.01 / 2.08 (5), the pieces'
+//  commutator on the levels 0.009 to 0.044, the true docks 9.26. It found two defects in the gates as first written,
+//  fixed before the gate run: I3 read the split norm on a radius-8 ball, where one split cycle (up to eight links) reaches
+//  the edge (6.3e-11), so it reads a radius-14 ball; the smoke's witness at coordinate 5 / full 4 reads the edge (4e-3,
+//  norms to 6e-9) as E-SPN-0173's probe did, which is why the gate witnesses at 7 / 6. These probes set the prediction.
+//  A FIRST GATE START WAS STOPPED on its cost, not its numbers: planned on balls 14, 12 and 18 with filters to 2048 and K
+//  filter 256, it ran at 7.2 s a split cycle on the radius-12 ball (the machine shared with four other gate processes),
+//  about 13 hours for its longest point. Its witness part finished (tmp/rcs-part-parts.json, kept: the witness, the
+//  instrument and C1, C2 do not depend on the points) and one point had read one filter (a_B 3, split, filter 128: E
+//  1.5730, residual 3.5e-2). Nothing else was seen. The plan above is the one restarted, with smaller balls and filters.
+//
+// Depth L2 (a two-body quantum walk of register members on the husk quotient with an integer-counted Coulomb phase split
+// around the free cycle, in the exact coordinates of its invariant block, witnessed piece by piece against the full
+// rule). DETERMINISM: no random numbers; placed starts, filtered levels, Weyl values. NOTHING MOVES: the pieces hand
+// values between slots and register components of one dock, the stream takes each slot's value one dock along, the pull
+// is a phase on the pair's sectors.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -60,13 +169,13 @@ export type SplitPlan = { points: readonly SplitPoint[]; hold: number; witnessCo
 
 export const GATE_PLAN: SplitPlan = {
   points: [
-    { name: 'main-strang', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'strang', dock: false },
-    { name: 'main-coulomb', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: false },
-    { name: 'main-dock', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: true },
-    { name: 'strong-strang', aB: 3, radius: 12, filters: [128, 512, 2048], kFilter: 256, form: 'strang', dock: false },
-    { name: 'strong-coulomb', aB: 3, radius: 12, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: false },
-    { name: 'weak-strang', aB: 5, radius: 18, filters: [128, 512], kFilter: 128, form: 'strang', dock: false },
-    { name: 'weak-coulomb', aB: 5, radius: 18, filters: [128, 512], kFilter: 128, form: 'coulomb', dock: false },
+    { name: 'main-strang', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'strang', dock: false },
+    { name: 'main-coulomb', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: false },
+    { name: 'main-dock', aB: 3.5, radius: 12, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: true },
+    { name: 'strong-strang', aB: 3, radius: 10, filters: [128, 512, 1024], kFilter: 128, form: 'strang', dock: false },
+    { name: 'strong-coulomb', aB: 3, radius: 10, filters: [128, 512, 1024], kFilter: 128, form: 'coulomb', dock: false },
+    { name: 'weak-strang', aB: 5, radius: 14, filters: [128, 512], kFilter: 128, form: 'strang', dock: false },
+    { name: 'weak-coulomb', aB: 5, radius: 14, filters: [128, 512], kFilter: 128, form: 'coulomb', dock: false },
   ],
   hold: 64,
   witnessCoord: 7,
