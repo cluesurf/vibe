@@ -117,7 +117,6 @@ import {
 import {
   bandCurvature,
   followLevel,
-  type BandPoint,
 } from '@/code/measure/moving-level'
 import {
   FREE_UNIT,

@@ -307,12 +307,12 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 function chargeRegister(c: Configuration): number {
   let r = 0
 
-  for (let i = 0; i < c.vibe.length; i++) {
-    r += c.vibe[i] === 0 ? 1 : c.vibe[i]! < 0 ? 4 : 0
+  for (const v of c.vibe) {
+    r += v === 0 ? 1 : v < 0 ? 4 : 0
   }
 
-  for (let i = 0; i < c.store.length; i++) {
-    if (c.store[i] !== 0) {
+  for (const x of c.store) {
+    if (x !== 0) {
       r += 2
     }
   }

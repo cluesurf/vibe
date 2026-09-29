@@ -137,8 +137,8 @@ function inside(
   let norm = 0
   let projected = 0
 
-  for (let i = 0; i < v.length; i++) {
-    norm += v[i]! ** 2
+  for (const x of v) {
+    norm += x ** 2
   }
 
   for (const b of basis) {
@@ -316,9 +316,9 @@ function melt(
 
     dock.push(dockOrder(s.store))
 
-    for (let i = 0; i < s.store.length; i++) {
-      m += s.store[i]! * (t % 2 === 0 ? 1 : -1)
-      f += s.store[i] !== 0 ? 1 : 0
+    for (const x of s.store) {
+      m += x * (t % 2 === 0 ? 1 : -1)
+      f += x !== 0 ? 1 : 0
     }
 
     order.push(m / s.store.length)

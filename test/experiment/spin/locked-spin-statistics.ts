@@ -301,10 +301,10 @@ export default experiment({
         }),
       })),
     ]
-    const allowed = {
+    const allowed: Record<3 | 4, readonly string[]> = {
       3: ['[2,1]', '[1,1,1]'],
       4: ['[2,2]', '[2,1,1]', '[1,1,1,1]'],
-    } as const
+    }
     const lowestAllowed = rings.map(r => {
       const list = allowed[r.n as 3 | 4].map(k => ({
         k,
@@ -354,7 +354,7 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `the model's 2 pi turn is -P (gap ${central.gap.toExponential(1)}), and on every doublet-basis product vector of (1, 1), (2, 0), (3, 0), (4, 1) the cluster's 2 pi turn is (-1)^N with N the doublet count (worst ${Math.max(...identities.map(i => i.gap)).toExponential(1)}, ${identities.reduce((s, i) => s + i.vectors, 0)} vectors); unlocked, the (3, 0) determinant holds ${weightText(det30[0]?.weights ?? new Map())} (one love on the line) and the (4, 1) [2,1,1] ground holds ${ground41.map(ch => `${ch.spin}: ${weightText(ch.weights)}`).join('; ')}, so E-SPN-0067's mismatch is the line count, and in every channel the odd-N weight is 1 exactly when the 2 pi sign is -1; one locked role is ${oneRole.map(s => s.spin).join(', ')}, and locked, (3, 0) holds ${text(locked[0]!.entries)} and (4, 1) holds ${text(locked[1]!.entries)}, every entry spinorial; the locked Pauli ground is space ${grounds[0]![0]![0]?.space} with ${names(grounds[0]![0]![0]!)} for (3, 0) in one and three dimensions, and for (4, 1) space ${grounds[0]![1]![0]?.space} with ${names(grounds[0]![1]![0]!)} in one dimension and a tie of ${tie.map(g => `space ${g.space} (${names(g)})`).join(' and ')} in the oscillator shell; on the ring the lowest allowed irrep is [2,1] and [2,2] at every coupling (smallest gap ${Math.min(...lowestAllowed.map(r => r.gap)).toFixed(4)}); locked to the line instead, every entry has 2 pi sign +1`,
+      claim: `the model's 2 pi turn is -P (gap ${central.gap.toExponential(1)}), and on every doublet-basis product vector of (1, 1), (2, 0), (3, 0), (4, 1) the cluster's 2 pi turn is (-1)^N with N the doublet count (worst ${Math.max(...identities.map(i => i.gap)).toExponential(1)}, ${identities.reduce((s, i) => s + i.vectors, 0)} vectors); unlocked, the (3, 0) determinant holds ${weightText(det30[0]?.weights ?? new Map<number, number>())} (one love on the line) and the (4, 1) [2,1,1] ground holds ${ground41.map(ch => `${ch.spin}: ${weightText(ch.weights)}`).join('; ')}, so E-SPN-0067's mismatch is the line count, and in every channel the odd-N weight is 1 exactly when the 2 pi sign is -1; one locked role is ${oneRole.map(s => s.spin).join(', ')}, and locked, (3, 0) holds ${text(locked[0]!.entries)} and (4, 1) holds ${text(locked[1]!.entries)}, every entry spinorial; the locked Pauli ground is space ${grounds[0]![0]![0]?.space} with ${names(grounds[0]![0]![0]!)} for (3, 0) in one and three dimensions, and for (4, 1) space ${grounds[0]![1]![0]?.space} with ${names(grounds[0]![1]![0]!)} in one dimension and a tie of ${tie.map(g => `space ${g.space} (${names(g)})`).join(' and ')} in the oscillator shell; on the ring the lowest allowed irrep is [2,1] and [2,2] at every coupling (smallest gap ${Math.min(...lowestAllowed.map(r => r.gap)).toFixed(4)}); locked to the line instead, every entry has 2 pi sign +1`,
       metrics: {
         gate_G1: g1 ? 1 : 0,
         gate_G2: g2 ? 1 : 0,

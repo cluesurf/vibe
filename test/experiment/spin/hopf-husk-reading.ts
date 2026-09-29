@@ -433,7 +433,7 @@ export function hopfReadingRun(plan: HopfPlan) {
   const cornerIsColumn = LINE_FIRSTS.every((f, l) =>
     [0, 1, 2].every(
       i =>
-        (rot[l] as { R: number[][] }).R[i]![0]! ===
+        (rot[l] as { R: number[][] }).R[i]![0] ===
         (CORNERS[corner[f]!] as number[])[i],
     ),
   )

@@ -333,8 +333,8 @@ export function registerMesonHoldRun(plan: HoldPlan): Verdict {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
     const want = [
-      ...Array(8).fill(wrap(Math.PI + E)),
-      ...Array(8).fill(wrap(Math.PI - E)),
+      ...new Array<number>(8).fill(wrap(Math.PI + E)),
+      ...new Array<number>(8).fill(wrap(Math.PI - E)),
     ].sort((a, b) => a - b)
     const full = cyclePhases(Ps, REGISTER_ROOTS, K)
       .filter(x => Math.abs(wrap(x)) > 1e-7)

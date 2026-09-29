@@ -36,7 +36,6 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
 import {
   applyToCluster,
   binaryTetrahedralCharacters,

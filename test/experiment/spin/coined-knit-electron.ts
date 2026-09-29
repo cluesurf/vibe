@@ -128,14 +128,12 @@ import {
   boxSpec,
   build,
   lightestStreaming,
-  lightN,
 } from '@/code/measure/drift-cost-bloch'
 import { quartetShare } from '@/code/measure/flux-store-bloch'
 import { unitaryEigen } from '@/code/measure/quantum-ladder'
 
 const ROOTS = rootsD4()
 const D = 3
-const N = lightN(D)
 const THREE = ['love', 'love', 'love'] as const
 const FERMION = { fermion: true }
 const NATIVE = { fermion: false }

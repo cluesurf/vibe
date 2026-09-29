@@ -215,7 +215,7 @@ export default experiment({
         twoPiSignGap: sign.gap,
         orderSixTurns: sign.orderSix,
         ...Object.fromEntries(
-          readings.flatMap(r => [
+          readings.flatMap((r): [string, number][] => [
             [`${r.name}_restGap`, r.restGap],
             [`${r.name}_hessianXX`, r.hessian[0]?.[0] ?? 0],
             [`${r.name}_hessianYY`, r.hessian[1]?.[1] ?? 0],
@@ -229,7 +229,7 @@ export default experiment({
             [`${r.name}_fastestPerBeat`, r.fastest],
             [`${r.name}_fastestOverPhoton`, r.fastest / PHOTON_SPEED],
             [`${r.name}_bandTurnMismatch`, r.turnMismatch],
-            ...r.planes.flatMap(p => [
+            ...r.planes.flatMap((p): [string, number][] => [
               [`${r.name}_g_${p.plane}`, p.g],
               [`${r.name}_bowl_${p.plane}`, p.bowl ? 1 : 0],
             ]),

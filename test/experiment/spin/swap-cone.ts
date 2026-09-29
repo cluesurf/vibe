@@ -153,11 +153,8 @@ import {
   dockMatrix,
   DOCK_ROOTS,
   eigenphases,
-  multipletsOf,
   velocityGap,
   wrap,
-  type CMatrix,
-  type Multiplet,
 } from '@/code/measure/dock-mixer'
 import {
   fastestBand,

@@ -182,7 +182,6 @@ import {
   mergeBranches,
   norm,
   sameConfiguration,
-  type Branch,
   type LockedState,
 } from '@/code/rule/doublet-locked-knit'
 import { OPPOSITE } from '@/code/rule/isometric-knit'

@@ -300,8 +300,8 @@ function seaHoles(c: Configuration): number {
     }
   }
 
-  for (let s = 0; s < c.store.length; s++) {
-    if (c.store[s] !== 0) {
+  for (const x of c.store) {
+    if (x !== 0) {
       return -1
     }
   }

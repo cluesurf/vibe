@@ -126,10 +126,7 @@ import {
 } from '@/code/measure/full-key-paths'
 import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
-import {
-  mixTrack,
-  type MixTrack,
-} from '@/code/measure/string-gated-mixer'
+import { mixTrack } from '@/code/measure/string-gated-mixer'
 import {
   originTrack,
   type OriginGate,

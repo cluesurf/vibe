@@ -446,10 +446,10 @@ export default experiment({
       claim: `least energies on the line (mass 4, tension 1): ${rows.map(r => `(${r.n}, ${r.m}) ${r.e}${r.composite ? ` binding ${r.binding}` : ' minimal'}`).join(', ')}, every one on the closed form 5 (n + m) - k; splitting a minimal knot costs ${confinedSlopes.map(c => `(${c.k.n}, ${c.k.m}) ${c.slopes.join('/')}`).join(', ')} per extra cell, and separating (3, 0) from (1, 1) costs ${fallApartSlopes.join('/')}; in the dynamics the ten charges (the cluster and its conjugate) stay ten and in order (${bound.chargesKept && bound.orderKept}), energy and Gauss exact and the run reversing (${bound.exact && bound.reverses}), the meson's mean gap is ${bound.mesonGap.toFixed(2)} cells (${free.mesonGap.toFixed(2)} without tension), the triple's mean spread ${bound.tripleSpread.toFixed(2)} (${free.tripleSpread.toFixed(2)}), and the triple-to-meson distance ranges over ${(bound.knotGapHigh - bound.knotGapLow).toFixed(2)} cells`,
       metrics: {
         ...Object.fromEntries(
-          rows.flatMap(r => [
+          rows.flatMap((r): [string, number][] => [
             [`least_${r.n}_${r.m}`, r.e],
             ...(r.composite
-              ? [[`binding_${r.n}_${r.m}`, r.binding]]
+              ? [[`binding_${r.n}_${r.m}`, r.binding] as [string, number]]
               : []),
           ]),
         ),

@@ -414,6 +414,7 @@ function transport(): {
     metrics[`husk_${q}_exponent5`] = five[q]?.slope ?? Number.NaN
     metrics[`husk_${q}_error5`] = five[q]?.error ?? Number.NaN
     metrics[`husk_${q}_mean`] = reading.means[q] ?? Number.NaN
+
     ;(reading.series[q] ?? []).forEach((a, rung) => {
       metrics[`husk_${q}_anisotropy_rung${LADDER[rung]}`] = a
     })

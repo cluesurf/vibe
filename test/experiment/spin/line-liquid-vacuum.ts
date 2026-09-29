@@ -108,10 +108,7 @@ import {
 import { starBeat, type KEvent } from '@/code/measure/hub-star'
 import { weylF4 } from '@/code/measure/covariant-coin'
 import { FRAME_LINES } from '@/code/rule/coined-locked-knit'
-import {
-  cloneConfiguration,
-  type Configuration,
-} from '@/code/rule/doublet-locked-knit'
+import { cloneConfiguration } from '@/code/rule/doublet-locked-knit'
 import {
   liquidBeat,
   liquidDistance,
@@ -123,11 +120,9 @@ import {
   newLiquidTally,
   termOnBox,
   termSingles,
-  type LiquidLattice,
   type LiquidReading,
   type LiquidSpec,
   type LiquidState,
-  type LiquidTerm,
 } from '@/code/measure/line-liquid'
 
 const SIDE = 8

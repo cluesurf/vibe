@@ -878,7 +878,7 @@ export function wilsonWallRun(plan: WilsonPlan): Verdict {
   })
   const reduced = [
     ...e1.re.map((x, i) => Math.atan2(e1.im[i]!, x)),
-    ...Array(96 - red1.d).fill(0),
+    ...new Array<number>(96 - red1.d).fill(0),
   ].sort((a, b) => a - b)
   const full = [
     ...halfPhases(halfH[1]!.pieces as CMatrix[], { q: 1, p: 0 }, Kc),

@@ -472,12 +472,12 @@ export default experiment({
         reductionLineWeight: fermion.line,
         reductionGapBoson: boson.gap,
         ...Object.fromEntries(
-          trimer.flatMap((s, i) => [
-            ...s.values.map((v, k) => [
+          trimer.flatMap((s, i): [string, number][] => [
+            ...s.values.map((v, k): [string, number] => [
               `start${i}_compactRing${SIZES[k]}`,
               v,
             ]),
-            ...s.free.map((v, k) => [
+            ...s.free.map((v, k): [string, number] => [
               `start${i}_compactNoMeetingRing${SIZES[k]}`,
               v,
             ]),

@@ -377,14 +377,6 @@ export default experiment({
       },
       [0.5, 0],
     )
-    const odd: ComplexMatrix = scaleMatrix(
-      {
-        re: identity.re.map((x, i) => x - (parity.re[i] ?? 0)),
-        im: new Float64Array(9),
-        n: 3,
-      },
-      [0.5, 0],
-    )
     const minusP = scaleMatrix(parity, [-1, 0])
     const evenDimension = traceOf(even)[0]
     const evenSign =

@@ -589,9 +589,7 @@ export default experiment({
               p.every((o, t) => sameBytes(o, seeded[0]![t]!)),
             )
 
-            if (!reference[contact]) {
-              reference[contact] = vac[0]!
-            }
+            reference[contact] ??= vac[0]!
 
             const acrossStarts = vac[0]!.every((o, t) =>
               sameBytes(o, reference[contact]![t]!),

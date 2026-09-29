@@ -200,12 +200,12 @@ export function paidRoleBeatBack(
 export function paidEnergy(state: PaidState): number {
   let e = 0
 
-  for (let i = 0; i < state.vibe.length; i++) {
-    e += Math.abs(state.vibe[i] ?? 0)
+  for (const vibe of state.vibe) {
+    e += Math.abs(vibe)
   }
 
-  for (let i = 0; i < state.demon.length; i++) {
-    e += state.demon[i] ?? 0
+  for (const demon of state.demon) {
+    e += demon
   }
 
   return e

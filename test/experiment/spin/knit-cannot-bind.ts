@@ -117,14 +117,14 @@ export default experiment({
     const energyOf = (s: Reduced): number => {
       let e = 0
 
-      for (let i = 0; i < s.vibe.length; i++) {
-        if (s.vibe[i] !== 0) {
+      for (const v of s.vibe) {
+        if (v !== 0) {
           e++
         }
       }
 
-      for (let i = 0; i < s.store.length; i++) {
-        e += 2 * Math.abs(s.store[i]!)
+      for (const x of s.store) {
+        e += 2 * Math.abs(x)
       }
 
       return e

@@ -247,7 +247,6 @@ import {
   watchLevel,
   type MesonEngine,
   type MesonState,
-  type VibeShape,
 } from '@/code/measure/swap-string'
 
 const C = Math.SQRT2

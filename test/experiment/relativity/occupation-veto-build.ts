@@ -84,7 +84,6 @@ import {
   lockedBeat,
   lockedState,
   mergeBranches,
-  newTally,
   type Branch,
   type Configuration,
   type LockedState,

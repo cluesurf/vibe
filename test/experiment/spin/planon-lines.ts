@@ -120,7 +120,6 @@ import {
   lineClasses,
   lineMembers,
   parallelRun,
-  singleLines,
   toneExcess,
   type ParallelReading,
 } from '@/code/measure/planon-lines'

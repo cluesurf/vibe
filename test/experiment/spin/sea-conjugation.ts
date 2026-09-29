@@ -228,8 +228,6 @@ const num = (x: QW): number => qwValue(x)[0]
 const same = (a: readonly QW[], b: readonly QW[]): boolean =>
   a.length === b.length && a.every((x, t) => qwIsZero(qwSub(x, b[t]!)))
 const neg = (a: readonly QW[]): QW[] => a.map(x => qwSub(QW_ZERO, x))
-const add = (a: readonly QW[], b: readonly QW[]): QW[] =>
-  a.map((x, t) => qwAdd(x, b[t]!))
 const sub = (a: readonly QW[], b: readonly QW[]): QW[] =>
   a.map((x, t) => qwSub(x, b[t]!))
 const zeros = (a: readonly QW[]): boolean => a.every(qwIsZero)
@@ -600,9 +598,7 @@ export function seaConjugationRun(plan: SeaPlan): Verdict {
         continue
       }
 
-      if (lambda === null) {
-        lambda = qwMul(a, qwInv(b))
-      }
+      lambda ??= qwMul(a, qwInv(b))
 
       if (!qwIsZero(qwSub(a, qwMul(lambda, b)))) {
         I1 = false

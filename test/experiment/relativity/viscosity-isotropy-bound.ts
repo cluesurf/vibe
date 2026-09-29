@@ -186,8 +186,8 @@ export default experiment({
       overgroups.set(q.group.join(','), q.group)
     }
 
-    for (let head = 0; head < queue.length; head++) {
-      const { group, gens } = queue[head] ?? { group: [], gens: [] }
+    // for-of reads the queue's length on every step, so it visits the groups pushed below too
+    for (const { group, gens } of queue) {
       const inside = new Set(group)
 
       for (const h of all) {

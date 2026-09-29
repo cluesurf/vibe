@@ -225,7 +225,6 @@ import {
   watchLevel,
   type MesonEngine,
   type MesonState,
-  type VibeShape,
 } from '@/code/measure/swap-string'
 
 const C_STAR = Math.SQRT2 / 2
@@ -1125,7 +1124,7 @@ export function swapOddPhaseRun(plan: OddPhasePlan): Verdict {
     log('R3')
   }
 
-  const W4 = lightOn !== null && lightOn.holds
+  const W4 = lightOn?.holds ?? false
   const instrument = I0 && I1 && I2 && I3 && I4 && I5
   const controls = C1 && C2
   const status =

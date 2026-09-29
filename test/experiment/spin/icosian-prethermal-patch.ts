@@ -189,7 +189,6 @@ import {
 } from '@/code/measure/hurwitz-gauge'
 import { icosianCharacters } from '@/code/measure/gauge-window'
 import {
-  applyLink,
   beatGrid,
   cayleyKernel,
   conjugationDefect,

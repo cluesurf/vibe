@@ -669,8 +669,8 @@ function dressing(knit: ColdQuaternionKnit): {
               support += s.vibe[i] !== 0 || s.store[i] !== 0 ? 1 : 0
             }
 
-            for (let i = 0; i < s.counter.length; i++) {
-              support += s.counter[i] !== 0 ? 1 : 0
+            for (const c of s.counter) {
+              support += c !== 0 ? 1 : 0
             }
 
             largest = Math.max(largest, support)

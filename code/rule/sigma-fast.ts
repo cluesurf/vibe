@@ -637,8 +637,8 @@ export function fastSigmaBeat(
 
   if (rule.hop) {
     for (let x = 0; x < cells; x++) {
-      for (let k = 0; k < firsts.length; k++) {
-        hop(tb, state, x, firsts[k]!, onHop)
+      for (const a of firsts) {
+        hop(tb, state, x, a, onHop)
       }
     }
   }
@@ -648,9 +648,7 @@ export function fastSigmaBeat(
   old.set(state.demon)
 
   for (let x = 0; x < cells; x++) {
-    for (let k = 0; k < firsts.length; k++) {
-      const a = firsts[k]!
-
+    for (const a of firsts) {
       state.demon[rule.neighbour[x * DEGREE + a]! * DEGREE + a] =
         old[x * DEGREE + a]!
     }
@@ -667,9 +665,7 @@ export function fastFieldEnergy(
   let total = 0
 
   for (let x = 0; x < tb.rule.cells; x++) {
-    for (let k = 0; k < tb.firsts.length; k++) {
-      const a = tb.firsts[k]!
-
+    for (const a of tb.firsts) {
       total += triangleEnergy(tb, links, x, a, links[x * DEGREE + a]!)
     }
   }

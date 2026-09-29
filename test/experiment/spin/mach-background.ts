@@ -480,10 +480,10 @@ export default experiment({
     )
     const C0 =
       densityZero &&
-      uncrossedT4 !== undefined &&
-      uncrossedT4.tracks.every((t, k) =>
+      (uncrossedT4?.tracks.every((t, k) =>
         sameTrack(t, uncrossedT4.control[k]!),
-      )
+      ) ??
+        false)
 
     // ---- checks ----
     const everyTrack = [

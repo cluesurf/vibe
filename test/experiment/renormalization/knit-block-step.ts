@@ -230,7 +230,7 @@ function runKernels(
         if (before && after) {
           lefts.forEach((_, q) =>
             accumulateKernel(
-              sums[q]?.[BLOCKS.indexOf(b)]!,
+              sums[q]![BLOCKS.indexOf(b)]!,
               before[q]!,
               after[q]!,
               SIDE / b,
@@ -357,8 +357,8 @@ export default experiment({
 
     KERNEL_FIELDS.forEach(([name], q) => {
       BLOCKS.forEach((b, s) => {
-        const m = knit.kernels[q]?.[s]!
-        const p = predicted[q]?.[s]!
+        const m = knit.kernels[q]![s]!
+        const p = predicted[q]![s]!
         const mc = coefficientsOf(m)
         const pc = coefficientsOf(p)
         const me = errorsOf(m)
@@ -423,9 +423,9 @@ export default experiment({
       let selfB = 0
 
       KERNEL_FIELDS.forEach((_, q) => {
-        const ka = coefficientsOf(knit.kernels[q]?.[s]!)
-        const kb = coefficientsOf(replicate.kernels[q]?.[s]!)
-        const kp = coefficientsOf(predicted[q]?.[s]!)
+        const ka = coefficientsOf(knit.kernels[q]![s]!)
+        const kb = coefficientsOf(replicate.kernels[q]![s]!)
+        const kp = coefficientsOf(predicted[q]![s]!)
 
         ka.forEach((v, i) => {
           spread += (v - (kb[i] ?? 0)) ** 2 / 2
@@ -457,7 +457,7 @@ export default experiment({
     )
 
     const distance = (s: number): number => {
-      const pc = coefficientsOf(predicted[0]?.[s]!)
+      const pc = coefficientsOf(predicted[0]![s]!)
       const fc = coefficientsOf(fixedPoints[0]!)
 
       return Math.max(...pc.map((v, i) => Math.abs(v - (fc[i] ?? 0))))
@@ -465,7 +465,7 @@ export default experiment({
 
     const streamingZero = KERNEL_FIELDS.every((_, q) =>
       BLOCKS.every((_, s) => {
-        const k = streaming.kernels[q]?.[s]!
+        const k = streaming.kernels[q]![s]!
         const crossError = Math.sqrt(
           k.selfError ** 2 +
             4 *

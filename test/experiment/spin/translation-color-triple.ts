@@ -50,8 +50,6 @@ import {
 import { singletPhase, swapPhase } from '@/code/rule/fear-weave'
 import {
   closeGroup,
-  conjugateMatrix,
-  daggerMatrix,
   displacementMatrix,
   gridOrder,
   kronecker,

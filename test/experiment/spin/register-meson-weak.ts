@@ -329,8 +329,8 @@ export function memberInstrument(): {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
     const want = [
-      ...Array(8).fill(wrap(Math.PI + E)),
-      ...Array(8).fill(wrap(Math.PI - E)),
+      ...new Array<number>(8).fill(wrap(Math.PI + E)),
+      ...new Array<number>(8).fill(wrap(Math.PI - E)),
     ].sort((a, b) => a - b)
     const full = cyclePhases(Ps, REGISTER_ROOTS, K)
       .filter(x => Math.abs(wrap(x)) > 1e-7)
@@ -369,7 +369,7 @@ export function memberInstrument(): {
 // sequence exactly (so the control reproduces it bit for bit).
 export function readCoupling(
   c: Coupling,
-  log: (what: string) => void = () => {},
+  log: (what: string) => void = () => undefined,
 ): CouplingRead {
   const started = Date.now()
   const theta = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))

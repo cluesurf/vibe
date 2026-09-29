@@ -68,8 +68,6 @@ export function makeMatter(input: {
     momentum?: number[]
   }[]
 }): KineticMatter {
-  const n = input.charges.length
-
   return {
     mass: input.mass,
     charge: Int8Array.from(input.charges, c => c.charge),

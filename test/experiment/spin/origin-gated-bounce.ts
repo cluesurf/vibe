@@ -155,10 +155,7 @@ import { rootIndex } from '@/code/measure/crossing-lines'
 import { placeVibes } from '@/code/measure/two-hub-bound'
 import { placeLoves, starLines } from '@/code/measure/hub-star'
 import { storeLine } from '@/code/measure/planon-lines'
-import {
-  originTrack,
-  type OriginTrack,
-} from '@/code/measure/origin-gated-mixer'
+import { originTrack } from '@/code/measure/origin-gated-mixer'
 import {
   gatedTrack,
   type GatedTrack,

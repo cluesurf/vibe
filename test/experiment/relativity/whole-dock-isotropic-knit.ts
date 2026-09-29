@@ -59,7 +59,6 @@ import {
 } from '@/code/rule/quaternion-knit'
 import {
   CHARGE_CONJUGATION,
-  denseCellStates,
   moveFiringStates,
   symmetryLedger,
 } from '@/code/measure/rule-symmetry-ledger'

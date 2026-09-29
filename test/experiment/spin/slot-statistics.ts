@@ -504,6 +504,7 @@ export default experiment({
       metrics[`${name}BulkFill`] = round(fill)
       metrics[`${name}BulkEmpty`] = round(r.empty)
       metrics[`${name}MaxwellBoltzmannEmpty`] = round(Math.exp(-fill))
+
       ;['love', 'fear'].forEach((charge, k) => {
         const l = ladder(r.level[k]!)
 

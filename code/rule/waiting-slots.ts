@@ -592,8 +592,8 @@ export function waitingEnergy(
 ): number {
   let total = 0
 
-  for (let i = 0; i < state.vibe.length; i++) {
-    total += state.vibe[i] !== 0 ? rule.mass : 0
+  for (const vibe of state.vibe) {
+    total += vibe !== 0 ? rule.mass : 0
   }
 
   for (let l = 0; l < rule.edges.length; l++) {

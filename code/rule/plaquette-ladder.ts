@@ -694,6 +694,7 @@ export function thermometer(v: number, depth: number): Int8Array {
 export const columnSum = (t: ArrayLike<number>): number => {
   let s = 0
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- t is ArrayLike, which is not iterable
   for (let d = 0; d < t.length; d++) {
     s += t[d]!
   }

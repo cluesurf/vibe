@@ -134,8 +134,8 @@ function inside(
   let norm = 0
   let projected = 0
 
-  for (let i = 0; i < v.length; i++) {
-    norm += v[i]! ** 2
+  for (const x of v) {
+    norm += x ** 2
   }
 
   for (const b of basis) {

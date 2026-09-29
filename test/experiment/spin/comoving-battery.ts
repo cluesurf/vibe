@@ -1324,7 +1324,8 @@ export default experiment({
           r.comoving.pureGaugeDifferences,
           r.comoving.controlMismatches,
         ]),
-        (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+        (_: string, v: unknown): unknown =>
+          typeof v === 'bigint' ? v.toString() : v,
       )
     const deterministic = digest(first) === digest(second)
     const { runs, classical } = first

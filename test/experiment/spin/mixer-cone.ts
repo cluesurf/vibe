@@ -203,7 +203,6 @@ export default experiment({
     const startQ = ss.indexOf(B)
     const keyOf = (path: number): PathKey =>
       fullPathKey(pathOffset(path))
-    const lineDir = HUSK.find(h => h.name === 'e12')!.u
 
     // ---------------- instrument ----------------
     const Ph = ruleFrameMatrix(F, true)

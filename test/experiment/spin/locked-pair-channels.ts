@@ -280,7 +280,7 @@ export default experiment({
 
       for (let j1 = 0; j1 < 2; j1++) {
         for (let j2 = 0; j2 < 2; j2++) {
-          if (s1[j1]! === -s2[j2]!) {
+          if (s1[j1] === -s2[j2]!) {
             out.push([j1, j2])
           }
         }

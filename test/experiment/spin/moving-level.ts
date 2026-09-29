@@ -127,7 +127,6 @@ import {
   pointOrbit,
   quarticMass,
   sumStates,
-  type BandPoint,
   type BoostedRun,
 } from '@/code/measure/moving-level'
 

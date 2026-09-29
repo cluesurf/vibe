@@ -75,8 +75,9 @@ function patternImage(g: readonly number[], pattern: number): number {
   for (let l = 0; l < 12; l++) {
     const s = (pattern >> l) & 1 ? -1 : 1
     const e = g[LINE_FIRSTS[l]!]!
+    const side = SIDE[e]!
 
-    if (s * SIDE[e]! === -1) {
+    if (s * side === -1) {
       out |= 1 << LINE_OF[e]!
     }
   }

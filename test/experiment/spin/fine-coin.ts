@@ -139,7 +139,6 @@ import {
   loneBand,
   pointOrbit,
   quarticMass,
-  type BandPoint,
   type BoostedRun,
   type Entry,
 } from '@/code/measure/moving-level'

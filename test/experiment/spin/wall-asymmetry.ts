@@ -72,11 +72,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
-import {
-  DOCK_ROOTS,
-  wrap,
-  type CMatrix,
-} from '@/code/measure/dock-mixer'
+import { DOCK_ROOTS, wrap } from '@/code/measure/dock-mixer'
 import {
   partnerProjector48,
   scaled,

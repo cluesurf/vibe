@@ -354,8 +354,8 @@ export function registerCoulombHoldRun(plan: CoulombPlan): Verdict {
     const ph = phasesOf(K)
     const E = diracPhase(K, M0)
     const want = [
-      ...Array(8).fill(wrap(Math.PI + E)),
-      ...Array(8).fill(wrap(Math.PI - E)),
+      ...new Array<number>(8).fill(wrap(Math.PI + E)),
+      ...new Array<number>(8).fill(wrap(Math.PI - E)),
     ].sort((a, b) => a - b)
 
     i1 = Math.max(

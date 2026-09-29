@@ -551,8 +551,8 @@ export default experiment({
       claim:
         'no start of the cold weave puts two vibes in one slot and every start returns exactly; on the fear ring the two-vibe walk under the one-vibe-per-slot rule keeps its norm on every start for 1 to 4 beats only with chi = -1, the shared-dock norm is |1 - 3 chi|^2 / 16 exactly, the +1 norm plus the free bosons in-one-slot weight is exactly 1, generic unitary coins select chi = -1 alone while classical permutation coins accept every phase, and the fear beat returns the fermion pair, each antisymmetric state and the boson pair unchanged with same-role chances 0, 0 and 1/2',
       metrics,
-      control: Object.fromEntries([
-        ...UNITS.map(chi => [
+      control: Object.fromEntries<number>([
+        ...UNITS.map((chi): [string, number] => [
           `permutationCoin${UNIT_NAMES[chi]}WorstDeparture`,
           worst(coins.permutation, chi, Math.max, 0),
         ]),
