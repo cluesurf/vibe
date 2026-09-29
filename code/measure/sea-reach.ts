@@ -25,6 +25,7 @@
 // DETERMINISM: no random numbers; the primes are found by a fixed search. EXACT: everything mod p is integer arithmetic
 // below 2^53 (p < 2^25, so a product and a sum stay below 2^51).
 
+import { mod, powMod } from '@/code/algebra/linear/modular-linear'
 import { type RingUnit } from '@/code/rule/swap-mixer'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import { d4BoxMesh } from '@/code/substrate/d4-box-integer'
@@ -47,26 +48,6 @@ const isPrime = (n: number): boolean => {
   }
 
   return true
-}
-
-const mod = (a: number, p: number): number => ((a % p) + p) % p
-
-// x^e mod p by squaring (every intermediate below p^2 < 2^50)
-export function powMod(x: number, e: number, p: number): number {
-  let r = 1
-  let b = mod(x, p)
-  let k = e
-
-  while (k > 0) {
-    if (k & 1) {
-      r = (r * b) % p
-    }
-
-    b = (b * b) % p
-    k = Math.floor(k / 2)
-  }
-
-  return r
 }
 
 export const invMod = (x: number, p: number): number =>
