@@ -5,7 +5,8 @@
 //
 //   linkField       a static field: every link a group element as a 2 x 2 matrix, chosen by a Weyl stream (the
 //                   trivial field, a Weyl field over a group's elements, a pure gauge h(x + r) h(x)^-1 from a Weyl
-//                   choice of h per dock, and the central field -1 on every link)
+//                   choice of h per dock, the central field -1 on every link, and a dilute field: a share of the
+//                   links on the elements nearest the identity, the rest the identity)
 //   averagedHop     T = (1/24) sum_d S_g(d) restricted to the uniform slot mode: the cN x cN Hermitian matrix
 //                   <z_x c| S_g X |z_y c'> (X keeps the uniform vector), whose spectrum lies in [-1, 1]
 //   flatCount       THE COUNT. With A = c X (I + beta J) (code/measure/swap-string vibeShape, J the uniform
@@ -128,7 +129,7 @@ export function linkField(L: number, group: GroupName, kind: FieldKind, offset =
   const near = nearestElements(elements)
   const link: SU2[] = Array(cells * N)
   const pick = (n: number): SU2 => elements[Math.floor(weyl(n, offset) * elements.length) % elements.length] as SU2
-  const dilute = (n: number): SU2 => (weyl(n, offset) < density ? (near[Math.floor(weyl(n, offset + 0.37) * near.length) % near.length] as SU2) : IDENTITY)
+  const dilute = (n: number): SU2 => (near.length > 0 && weyl(n, offset) < density ? (near[Math.floor(weyl(n, offset + 0.37) * near.length) % near.length] as SU2) : IDENTITY)
   const gauge: SU2[] = Array.from({ length: cells }, (_, x) => pick(7919 + x))
   let n = 0
 
@@ -139,7 +140,7 @@ export function linkField(L: number, group: GroupName, kind: FieldKind, offset =
 
       if (back < x * N + d) continue
 
-      const g = kind === 'trivial' ? IDENTITY : kind === 'minus' ? MINUS : kind === 'weyl' ? pick(n++) : su2Mul(gauge[to] as SU2, su2Dagger(gauge[x] as SU2))
+      const g = kind === 'trivial' ? IDENTITY : kind === 'minus' ? MINUS : kind === 'weyl' ? pick(n++) : kind === 'dilute' ? dilute(n++) : su2Mul(gauge[to] as SU2, su2Dagger(gauge[x] as SU2))
 
       link[x * N + d] = g
       link[back] = su2Dagger(g)
