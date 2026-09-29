@@ -144,6 +144,33 @@
 // edge clauses from 1e-6 and 1e-8 to 1e-4 and 1e-6 (the rule's level is more extended than the model the first values
 // were read from), the filter lengths, and the cube, and made C3's prediction a failure.
 //
+// FIRST RUN (tmp/coul-exp-run1.log, 20,143 s, exit 0): PARTIAL, on the instrument alone (I5's FFT clause). Every other
+// clause came out as predicted: C1, C2, C4 and C5 hold, C3 and C6 fail, every control holds.
+//  C1 holds: the main level a_c 3.5, E 1.68602536 (open model 1.66677892), |lambda2| 0.9999999932, residual 1.54e-8;
+//     window 0.999998, fidelity 0.999998, absorbed 1.75e-6, edge 2.00e-8; binding 0.02812, singlet share 0.978, stores
+//     5.1e-5, mean radius 6.57; R 1.41465 (open model 1.54690, hard core read 1.41728).
+//  C2 holds: the K^2 coefficient 0.1048161 on the axis, face, body and a generic direction, isotropic to 4.3e-8.
+//  C3 fails, as predicted: a_c 2.5 does NOT hold (E 4.642914, fidelity 0.749, share 0.006, stores 0.321, R -131.8: the
+//     contact map carries it off, not a hydrogenic level); a_c 3 holds (E 1.676554, fidelity 1.000000, absorbed 1.3e-7,
+//     share 0.971, R 1.436549, against the open model's 1.83894 and the hard core's 1.43971); a_c 3.5 holds (R 1.41465).
+//     R falls toward R_walk 1.347262 (tan m / m) along the held points, and is 1% from the open model nowhere.
+//  C4 holds: the top Hellmann-Feynman speed 0.313728 c* (K 1.2 on the face).
+//  C5 holds: 10 vacua (D4 sides 4 and 8 empty, D4 love sea, quotient empty and love sea, at both units) one branch,
+//     exact amplitude, no charge.
+//  C6 fails, as predicted: the light member (m = pi/6) at a_c 4 leaks, window 0.405, fidelity 0.369, absorbed 0.49, edge
+//     3.1e-2, singlet share 0.0001, mean radius 32.9: the flat-band channel open at infinity (point 6).
+//  I1, I3, I4, I6, I7 hold: I3 3,456 starts a unit, worst 2.3e-16, 0 differ, 0 inexact, 0 stray; I4 entries 0.0, sums
+//     5.7e-14; the model calibration 3.6e-15. I5 FAILS on its FFT clause: the table against the direct mode sums 7.95e-11
+//     against the 1e-11 set (the face 2.77e-10 and 24 pi r G - 1 at r 6 to 20, 1.23e-4, hold). The Green's function is
+//     good to 8e-11, far below anything the levels read, but the clause was fixed before the run and it stands, so the
+//     verdict is partial.
+//  K1 holds (potential off: fidelity 0.18, no level), K2 holds (repulsive: fidelity 0.41, no level), K3 holds (the mixed
+//     start's fidelity 0.995 fails the clause, so H sees a beat).
+// Reading: a static Coulomb pull binds the HEAVY swap-coin pair into an isotropic, freely moving, exactly held level with
+// R 1.41 to 1.44 (above R_walk 1.347, the static stand-in's (5/3) E_b excess), and cannot hold the light member, whose
+// level sits in a flat-band channel open at infinity. The register (E-SPN-0160) closes that channel; the Darwin term
+// (E-SPN-0169) removes most of the static excess from this very level.
+//
 // Depth L2: a two-body quantum walk on the husk lattice with a stated static Coulomb potential, the rule's own dock
 // pieces read exactly and checked against the rule on a box. DETERMINISM: no random numbers; placed starts, filtered
 // levels, Weyl momenta. NOTHING MOVES: the pieces hand values between slots of one dock, the stream takes each slot's
@@ -464,7 +491,8 @@ function predict(member: Member, aC: number, table: GreenTable, plan: CoulombPla
 export default experiment({
   id: 'spin/husk-coulomb-meson',
   code: 'E-SPN-0155',
-  title: 'a love and a fear bound by the husk Coulomb law on the swap-coin rule (the static stand-in): not yet run',
+  title:
+    'a love and a fear bound by the husk Coulomb law on the swap-coin rule (the static stand-in), partial on the instrument (the Green table 8e-11 against 1e-11): heavy members bind into an exactly held, isotropic level that moves (R 1.41 to 1.44 against tan m / m 1.347), the tightest point collapses onto contact, and the light member leaks through the flat-band channel open at infinity',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

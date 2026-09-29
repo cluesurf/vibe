@@ -1,4 +1,4 @@
-// HOW FAR DOES A STATIC STRING GET? THE REGISTER MESON'S INERTIA AT WEAK COUPLING (E-SPN-PENDING). E-SPN-0162 bound a light
+// HOW FAR DOES A STATIC STRING GET? THE REGISTER MESON'S INERTIA AT WEAK COUPLING (E-SPN-0174). E-SPN-0162 bound a light
 // register meson exactly for the first time (members at m 0.190126, the singlet-pair string u^2 rho^min(V, cap) on S S and
 // its conjugate on D D, the pair evolving exactly inside the 16 x 16 moving block), and it held, isotropic, but with
 // R = 34.652263 against the NR model's 0.6941: its string step (tau = 0.280668 a unit of V) is comparable to the member's
@@ -75,6 +75,31 @@
 //  0.79, 0.79), the member instrument 1.8e-15 and 1.012226137, and R 7.21, 2.66, 2.17 at the three strings (monotone,
 //  unconverged on a radius-5 ball whose edge holds 3 to 42% of the level). The control does not reproduce E-SPN-0162 on
 //  that plan, as it must not (a different ball and filters); on the gate plan it runs E-SPN-0162's exact sequence.
+//
+// FIRST RUN (three processes, one a string, combined by the verdict function; tmp/rmw-gate-control.log,
+//  rmw-gate-middle.log, rmw-gate-weakest.log, combined in tmp/rmw-exp-run1.log; 38,246 s of process time): FAIL on H4, as
+//  predicted, and on H2 at the middle string (the residual), not predicted. T1 holds: R FALLS MONOTONICALLY, 34.65, 13.47,
+//  1.433. No gate moved and none was rerun.
+//  - C1: E-SPN-0162 reproduced bit for bit, E_L 1.9789453403525277 and R 34.65226307820285 (=== the recorded values).
+//  - H0: the witness at the two new strings 1.3e-16 and 9.7e-17 (weights equal, norm kept).
+//  - H1: least margins 0.570 (middle, D F at V 0) and 0.802 (weakest, S D at V 0); the uncapped D D crossing would sit at
+//    V* 15.4 and 35.8, past the caps.
+//  - H2: middle E_L 1.734035 (NR 1.7106), |lambda| 1 - 3.2e-6, RESIDUAL 2.53e-3 AGAINST 1e-3 (FAIL: the 512 filter does
+//    not isolate the level at this width), norm kept to 4e-13, least fidelity 0.975, edge 7.8e-9. Weakest E_L 1.259214
+//    (NR 1.3590), residual 5.1e-4, norm kept to 5e-10, least fidelity 0.9991, edge 9.2e-7: holds.
+//  - H3: the weakest string's K^2 coefficient 0.1385302337 (axis) and 0.1385302421 (generic), isotropic to 6.1e-8.
+//  - H4 FAILS at every string, as predicted: R = 34.652263 (tau 0.2807), 13.467074 (tau 0.1871; the level's residual
+//    2.5e-3, so this R carries some admixture), 1.433171 (tau 0.0936), against R_NR 0.6941, 0.7277, 0.7866. The excess
+//    R / R_NR - 1 falls 48.9, 17.5, 0.82.
+//  - READ: the fit R - R_NR = A tau^p through the three gives p = 3.68 (A 4445) and meets R = 1 at tau 0.067, between
+//    the ring's angles 0.0600 and 0.0875 (unmeasured there; three points and a steep power, so the crossing is a rough
+//    extrapolation). Block shares S S 0.917, 0.759, 0.851; the weakest level's profile peaks at V 3 (0.31) and falls to
+//    9.2e-7 at the edge.
+//  - WHAT IT MEANS. E-SPN-0162's R = 35 was the strong-coupling lattice regime, as read there: at a string a third as
+//    strong the bound pair's centre moves 24 times more readily and R is 1.43, within 44% of 1. A static string gets there
+//    only by falling THROUGH 1 at one tuned coupling on its way to the continuum's R_NR (about 0.79 at tau 0.094, rising
+//    toward tan m / m = 1.012 as tau -> 0 but from below), so R = 1 at a single tau is a tuning, not a law. Inertia equal
+//    to energy at every coupling still needs a field that carries its own momentum.
 //
 // Depth L2 (a two-body quantum walk of register members on the D4 mesh, in the exact coordinates of its invariant block,
 // witnessed against the full rule). DETERMINISM: no random numbers; the start is placed, every level filtered, Weyl values
@@ -531,8 +556,9 @@ export function registerMesonWeakRun(plan: WeakPlan): Verdict {
 
 export default experiment({
   id: 'spin/register-meson-weak',
-  code: 'E-SPN-PENDING',
-  title: 'the register meson at weaker strings: how far a static string gets toward R = 1 (pending the gate run)',
+  code: 'E-SPN-0174',
+  title:
+    "the register meson's inertia falls with the string, fail (H4, and H2 at the middle string): at string angles 0.2807, 0.1871 and 0.0936 a unit of V, with the well depth held at 2.245, the light register meson (m 0.190126) reads R = 34.65, 13.47 and 1.433, a monotone fall (E-SPN-0162 reproduced bit for bit at the first), against the continuum NR model's 0.69, 0.73 and 0.79; the weakest level holds (norm kept to 5e-10, fidelity 0.9991) and moves isotropically (6e-8), witnessed against the full rule at 1e-16, with every channel closed; a static string reaches R = 1 only by passing through it at one tuned coupling (a fit gives tau 0.067), not as a law",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
