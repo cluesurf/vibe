@@ -101,3 +101,50 @@ move. The file is the same apart from the title and the recorded first-run parag
 - Notes changed outside this repo: `remaining-pieces.md` (a new section before "A coincidence worth testing"),
   `open.md` (FND-07), `solutions.md` (§1, the answer), `everything.md` (the superposition row adds E-QTM-0163, and the
   Tsirelson row gets a note, no status change).
+
+## OPEN-MOT-01: the Coulomb pull split around the stream (E-SPN-0176)
+
+### What changed
+
+- `code/measure/register-coulomb-split.ts`: E-SPN-0173's pull taken out of the beats as one operator. It has the two
+  in-beat pieces (P_SS, P_DD) with the mixer set to 1, and the whole pull V in the order that makes "free cycle, then V"
+  E-SPN-0173's cycle conjugated. There are three placements: 'coulomb' (E-SPN-0173's cycle, untouched), 'factored' (V K)
+  and 'strang' (V_h K V_h, every piece at half the phase). `dockCounts` puts each sector's pull at its members' true
+  docks.
+- `test/experiment/spin/register-coulomb-split.ts` (E-SPN-0176), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count (1,521 rows, spin 180, L2 1,145).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Fail on H1, H3, H4, H5 and H6, as predicted. H0, H2, the instrument and every control hold.
+
+- **The first-order [V, K] error is exactly a conjugation of the cycle, so it never moved R.** P_SS U = V K P_SS to
+  1.1e-15. So the split can change R only through the pull pieces' own commutators.
+- **Split against unsplit, one ball and one filter schedule each:** R 11.55 against 12.98 (a_B 3), 10.79 against 10.25
+  (a_B 3.5), 15.05 against 15.31 (a_B 5), with formulas of 1.31, 1.23 and 1.15. The change is −11%, +5% and −2%, and it
+  falls with the commutator (2.3e-2 to 8.8e-4). H6 (split removes half the excess) fails at every coupling.
+- **The true dock is the label.** The D content's centroid is exactly its label (6.9e-18). Its pull equals G beyond one
+  link to 8e-15 and differs only at the core. It reads R 11.92.
+- **Witness:** the free cycle and the half-phase pull pieces against the full 192×192 rule, 3e-17 to 1.1e-16. The unsplit
+  form is E-SPN-0173's cycle bit for bit. With the light off, the split is the free cycle bit for bit.
+- **H5 is not a clean read.** The a_B 5 point is on a radius-14 ball (2.8 a_B) with a 512-cycle filter, residual 9e-3.
+
+### How it was tested
+
+The gate run was made in the open-pieces worktree before the move (the points in five parallel processes, the longest
+15,908 s). Logs and part files: `tmp/rcs-exp-run1.log`, `tmp/rcs-gate-*.log`, `tmp/rcs-part-*.json`, the probes
+`tmp/rcs-probe1.log` to `tmp/rcs-probe3.log`, the smoke `tmp/rcs-smoke.log`. The engine is byte-identical to the one
+run. The experiment file differs only in two sentences that pointed at the weak-pull experiment by a code it does not
+hold here. In next-pieces, after the move (`tmp/rcs-checks-next.log`): `tsc -p tsconfig.check.json` exit 0,
+`test/catalog.ts` 1,521 experiments, `task/check-labels.ts` (1 contradicted 3434 label, not from this item, 20 held for
+review), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` (0 problems).
+
+### Status and follow-ups
+
+- OPEN-MOT-01 stays open. Where the pull is placed does not cause the R excess: it is a second-order core term (about
+  a_B^−4.8 on E-SPN-0173's balls). What remains is the weak pull, spin/register-coulomb-weak's symmetry-reduced engine
+  at a_B 6, 8 and 12.
+- That file claims E-SPN-0175, which `register-sea` holds in this worktree. Its owner needs to renumber it at
+  registration. E-SPN-0176 is taken by this item.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0173's), `open.md` (MOT-01: a ladder
+  row, the result, and the closing route).

@@ -63,6 +63,21 @@
 //  flat share, point 6) and the root sum sum_d r_d |psi_d|^2 over 6 cycles on side 6 (point 4).
 // Verdict: fail if A1 to A5 fail; partial if a control or the instrument fails; pass otherwise.
 //
+// SMOKE RUN BEFORE THE GATE RUN, disclosed (no gate moved after it): tmp/bc-sea-smoke.log, side 4 only, every code path,
+//  every gate and control held (full cover at cycles 3 and 2).
+//
+// FIRST RUN (tmp/bc-sea-gate-run1.log, 96 s): PASS, as predicted. Rerun after the field helpers moved to
+//  code/algebra/linear/modular-linear (tmp/bc-sea-gate-run2.log): the same numbers. No gate moved.
+//  - A1: every (cell, line) pair covered, mod p1 = 33554383: E-SPN-0160 by cycle 3 on side 4 (3,072 pairs, 256 cells)
+//    and side 6 (15,552, 1,296 cells); the chiral Wilson variant by cycle 2 (side 4) and 3 (side 6). Cycle 1 reaches 552
+//    pairs on 157 cells (side 4) and 564 on 169 (side 6).
+//  - A2: the reach is 2, 4, 6 root steps after cycles 1, 2, 3: the cone of point 3, attained. A3 and A4 exact at both
+//    primes (p2 = 33554371). A5: ranks 8, 8, 4, 4, both determinant products 1.
+//  - C1: the start alone at every cycle. C2: 1 line, on 2 cells. I1: float and residue supports agree.
+//  - Read: the weight left on the start dock after 6 cycles is 0.842 (E-SPN-0160) and 0.850 (chiral Wilson), swinging
+//    0.82 to 0.96: most of a one-slot disturbance sits in the flat bands (point 6). The root sum along the start's root
+//    runs 0.70, 0.91, 0.84, 0.76, 0.95, 0.72 while every translation commutes exactly: it is not the conserved momentum.
+//
 // DETERMINISM: no random numbers; fixed starts and a fixed prime search. EXACT: mod p (code/measure/sea-reach) and in
 // Eisenstein integers; floats only for I1 and the reads. NOTHING MOVES: a mixer hands a value to another slot of the same
 // dock, and the stream takes each slot's value one dock along its root.

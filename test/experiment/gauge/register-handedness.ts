@@ -60,6 +60,16 @@
 // the 192 modes (every R(e_B) commutes with every q, gaps 0; L(e_B) fails on 48 Q_D with gap 4; 576 lifts with kernel 1,
 // norm 2.2e-16, L = rho R to 1.2e-16, the untwisted commutator 4.4e-16; the pi turn's lift e_01, L^2 = -1, rho^2 = +1).
 //
+// FIRST RUN (tmp/bc-hand-gate-run1.log, 192 s): PASS, as predicted. No gate moved.
+//  - P1: the chiral slab's faces read +2.000000 and -2.000000, all from half 0 (half 1 reads 0 and 0, with 0 in-gap
+//    levels against 8); the mirror rule reads -2.000000 and +2.000000, all from half 1.
+//  - P2: the chiral projectors keep 576 of 576 rotations and 0 of 576 reflections; Q_S and Q_D keep all 1,152.
+//  - P3: 576 lifts, each a null space of dimension 1, s s~ = 1 to 2.2e-16, L(s) = rho(g) R(s) to 1.2e-16, the untwisted
+//    action commutes with every q to 4.4e-16; the pi turn lifts to e_01, L(e_01)^2 = -1 and rho(g)^2 = +1 exactly.
+//  - P4 exact. P5: CPT to 2.2e-15 and 1.8e-15 on the two halves.
+//  - C1: the symmetric slab's faces 0 and 0 (each half +-2, opposite). C2: every left bivector fails on 48 Q_D (gap 4).
+//    I1: E-SPN-0166's two chiralities bit for bit.
+//
 // DETERMINISM: no random numbers. EXACT: the projectors, J, the group and the blade multiplications are integer or dyadic
 // matrices; the spin lifts and the spectra are floats, as measurement. NOTHING MOVES: the mixers act on a dock's own
 // slots and register, and the stream takes each slot's value one dock along.

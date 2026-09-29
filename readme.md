@@ -1002,13 +1002,13 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,520 rows in 18 categories**:
+strongest first. It holds **1,521 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1520 |                 53 |             1144 |           309 |          14 |                   604 |
+|  1521 |                 53 |             1145 |           309 |          14 |                   604 |
 
-The largest categories are gauge (265), spin (179), selves (177),
+The largest categories are gauge (265), spin (180), selves (177),
 quantum (172), foundations (156), gravity (142) and relativity (112). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them

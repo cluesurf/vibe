@@ -83,6 +83,21 @@
 //  two W (x) W starts and at 1.0000 from F (x) W; the dock contact moves it to 0.34 and 0.60 (W (x) W) and to 1.15 then
 //  0.985 (F (x) W: it pushes holes both ways); the member string moves it by 6e-3 to 9e-3 (W (x) W) and 1.3e-3 (F (x) W).
 //  A two-cycle smoke of this file (tmp/rs-smoke) exercised every code path before the gate run.
+//
+// FIRST RUN (tmp/spn-sea-gate.log, 1,351 s): PASS, as predicted. No gate moved and none was rerun.
+//  - R: every toy identity exact on 256 Fock states, the exchange image at all five (R, F), 72 literal minors of the real
+//    pieces (38 nonzero) within 3.6e-13.
+//  - V: X even, the stream even on L 4, 6, 8, u^8 conj(u)^8 = 1.
+//  - F: the rule keeps N_F within 3.5e-14 and 3.3e-14 of 0 (two W (x) W starts) and within 1.1e-13 of 1 (F (x) W) at
+//    cycles 1 to 64.
+//  - K: 4,718,592 two-hole configurations, least occupancy 6, K 0, store 0.
+//  - Instrument: sector piece against pieceAt 3.1e-16, W rank 16 at 128 momenta (accepted 0.375, rejected 4.9e-16),
+//    Parseval and norm within 4.1e-12.
+//  - Controls: the dock contact moves N_F by 0.339, 0.687 and 0.154; the member string by 8.6e-3, 8.4e-3 and 1.3e-3;
+//    members on an empty mesh put up to 0.217 on K's trigger; the register-0 sea reaches 24 rows under beat 1 and 144
+//    under beat 2.
+//  - Read: the hole pair sits at contact up to 0.20 to 0.42 of its weight, 0.18 to 0.39 on two different lines (where a
+//    hole-relative K would fire). A raw string's Hartree phase a beat: 0.577 (L 4), -1.900 (L 6), 0.106 (L 8).
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -177,7 +192,7 @@ export default experiment({
   id: 'spin/register-sea',
   code: 'E-SPN-0175',
   title:
-    'the many-body register rule run with the sea present (pending the gate run)',
+    "the many-body register rule run with the sea present, pass: the sea is run exactly through its holes (Jacobi and particle-hole checked on every Fock state of an exact toy and on 72 literal complementary minors of the real 192-mode pieces, worst 3.6e-13), a pair piece must be counted from the sea or its Hartree phase makes the hole's mass depend on the box, the full sea is one branch with a unit amplitude every beat, two holes interacting through the sector string and the sector contact keep the 176 flat modes exactly decoupled for 64 cycles on the L = 4 torus (N_F within 1.2e-13 of 0 from two moving starts and of 1 from a frozen-plus-moving start), and K and the store never fire (least slot occupancy 6 over all 4,718,592 two-hole configurations: the register's capacity blocks them); E-SPN-0163's register exchange placed as a dock contact releases flat weight (N_F to 0.69) and E-SPN-0147's member string leaks 8.6e-3, so only sector pieces keep the flats",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
