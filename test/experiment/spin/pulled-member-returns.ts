@@ -62,6 +62,23 @@
 //  was stopped there, before the V0 = 7 dynamics and the free pair, to free the machine for the gate run, so R3's
 //  thresholds are predictions, not fits.
 //
+// FIRST RUN (tmp/bc-pulled-gate-run1.log, 1,210 s): FAIL on R3, the free pair. No gate moved and none was rerun.
+//  - With the string: V0 = 5, knot weight 8.4e-3 at cycle 0, late mean 0.252, norm after 1.00014; V0 = 6, 2.4e-8 at 0,
+//    late mean 0.077, norm 1.0024. The mean length stays at 4.6 to 5.0 and 5.8 to 6.1. R1 and R2 hold.
+//  - FREE (tau = 0): V0 = 5, late mean 0.302, norm 0.99991; V0 = 6, late mean 0.313, norm 0.99993, the mean length
+//    swinging 5.0 to 6.2. The free pair does NOT leave the radius-8 ball in 64 cycles, and it fills the knot region
+//    MORE than the bound one. R3 fails on both clauses.
+//  - I1: one cycle of the compact start keeps the norm to 5.5e-13 and 2.2e-14. The filtered level reads 1.9283, residual
+//    3.2e-2, knot share 0.963; |c_b|^2 2.5e-2 (V0 5) and 1.4e-3 (V0 6).
+//  WHAT IT MEANS (read after the run). Point 3 was wrong: a light register member at m 0.190126 is slow for most
+//  momenta (the Dirac band is narrow, 0.458 a cycle, and flat near the 72 zeros of s(K)), so in 64 cycles a free pair
+//  set at length 5 or 6 spreads over the ball, inward as much as outward, and never reaches the edge. The string does
+//  not pull the pair in: at this strength it Wannier-Stark localizes it at the length it was set (point 5), which keeps
+//  it OUT of the knot region more than the free pair is. So on this ball and this time this test cannot tell a part that
+//  comes back from a part that merely has not left, and the constraint is not shown. A test with teeth needs the weak
+//  string (tau 0.0936) where the continuum's turning point exists, a ball large enough that a free pair leaves it, and
+//  cycles enough for it to do so: E-SPN-0174's radius 13 and more.
+//
 // DETERMINISM: no random numbers. FLOATS: measurement on exact pieces (code/measure/register-meson). NOTHING MOVES: the
 // pieces hand values between slots and register components of one dock, and the stream takes each slot's value one dock
 // along.
@@ -127,7 +144,7 @@ export default experiment({
   id: 'spin/pulled-member-returns',
   code: 'E-SPN-0177',
   title:
-    'a register member pulled from its partner comes back: on the register rule a member walks in every direction, and with E-SPN-0162 singlet-pair string a pair set at rest at string length 6 around a knot of size 4 has its knot-region weight rise from where the pull left it and stay, held by the bound level, while with no string the same pull leaves; the string is capped, so the well is finite and a pair pulled past it with enough energy separates, and uncapped it meets the D D ladder at V* 9.37, so coming back from any distance and holding exactly still pull against each other',
+    'a register pair pulled apart does not show a part coming back, fail (R3, the free control): with E-SPN-0162 singlet-pair string a pair set at rest at string length 5 or 6 keeps its norm (1.0001, 1.0024) and its knot-region weight rises from 8.4e-3 and 2.4e-8 to late means 0.25 and 0.08, but with no string the same pull also stays in the radius-8 ball for 64 cycles (norm 0.9999) and fills the knot region more (0.30, 0.31), because a light register member is slow over most of its narrow band; the string at this strength Wannier-Stark localizes the pair at its pulled length rather than pulling it in, so the test cannot tell a part that comes back from one that has not left, and needs the weak string on a ball a free pair can leave',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

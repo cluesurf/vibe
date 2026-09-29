@@ -237,7 +237,11 @@ Wilson wall where a hand is needed.
 - **E-FRC-0268, fail as derived.** The rule keeps SU(2)₊ × SU(2)₋ (right multiplications, one on each half) exactly,
   internal to spin. The full sea keeps it too (every generator traceless on 192 modes). The chiral face's 8 light
   levels (±1.22e-4) all lie in the Wilson half, as doublets of one hand.
-- **E-SPN-0177:** pending.
+- **E-SPN-0177, fail on R3 (the free control).** With E-SPN-0162's string a pair set at length 5 or 6 stays (norm
+  1.0001, 1.0024) and its knot weight rises to late means 0.25 and 0.08. But with no string it also stays 64 cycles on
+  the radius-8 ball (norm 0.9999) and fills the knot region more (0.30, 0.31): a light register member is slow, and
+  the string at this strength Stark-localizes the pair instead of pulling it in. The return is not shown. The level
+  filter was not converged on radius 8 (phase 1.928, residual 3.2e-2), disclosed, and the level is a read only.
 
 ### How it was tested
 
@@ -247,8 +251,19 @@ All in next-pieces, one process at a time where the machine allowed. Gate runs: 
 Probes: `tmp/bc-sea-smoke.log`, `tmp/bc-sym-probe.log`, `tmp/bc-return-probe1.log` (stopped early, disclosed in the
 header). Checks: `node_modules/.bin/tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts`,
 `task/check-labels.ts` (1 contradicted label and 20 for review, none from this item), `task/check-coverage.ts` (0
-unknown, 0 mismatches), `test/result.ts check` (0 problems).
+unknown, 0 mismatches), `test/result.ts check` (0 problems). `pnpm rerun` reproduced E-FND-0157 and E-FRC-0267.
 
 ### Status and follow-ups
 
-- pending.
+- Constraints page (`mesh/site/clue.surf/home/site/tool/vibe/constraints.ts`, edited in the mesh tree):
+  universality on the vacuum and handedness move broken → variant; SU(2) by the vacuum and the pulled part stay broken
+  with new reasons; momentum and spin one half cite the register results. That makes 24 hold, 16 variant, 2 broken, 4
+  open. The new codes print "not yet registered" until make:vibe runs from a branch that holds them.
+- No rule is shown to break none of the 46. The Higgs row fails on the register rule (nothing breaks SU(2)₊, and only
+  an energy ledger could select a breaking sea), the pulled part needs the weak-string test on a larger ball, and
+  about 18 rows are unread on the register rule because it carries no roles, fear beat or Σ(648) links.
+- Real tension, recorded: a rising string (a return from any distance, confinement) meets the D D ladder, while the
+  capped string that holds exactly does not confine (E-SPN-0161, 0162).
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "The four broken constraints, worked", before
+  "A coincidence worth testing", and "Order of work" steps 5 and 7), `open.md` (FND-12, FND-14, the new FND-15, WKF-01,
+  WKF-03, CPA-01), `everything.md` (the parity, Higgs and one-rule rows' text, no status change), `solutions.md` (§8).
