@@ -148,3 +148,107 @@ review), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts che
   registration. E-SPN-0176 is taken by this item.
 - Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0173's), `open.md` (MOT-01: a ladder
   row, the result, and the closing route).
+
+## OPEN-FND-02: the many-body register rule run with the sea present (E-SPN-0175)
+
+### What changed
+
+- `code/measure/register-sea.ts`: the D4 torus (relative moves, shortest-image string length, Bloch momenta), a two-hole
+  engine on the full 192 x 192 slot-and-register space with no reduction (the member mixers, the sector string and the
+  sector contact in one sector piece, the swap coin and the stream), the moving blocks W(q) = range(U(q) - 1) at every
+  torus momentum, the flat count N_F by a Fourier transform over the relative docks, projected contact starts, and the
+  lifted K and store triggers counted over every two-hole configuration.
+- `code/measure/register-meson.ts`: `betaOf`, `partnerBasis` and `pieceAt` exported (no other change). The new sector
+  piece is checked against `pieceAt` in the experiment.
+- `test/experiment/spin/register-sea.ts` (E-SPN-0175), with its rows in `test/registry.csv`, `test/experiment/all.ts`,
+  the regenerated `test/catalog.csv` and the readme count (1,525 rows, spin 181, foundations 157, gauge 267, L2 1,149).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Pass, as predicted. Every gate, the instrument and every control hold on the first run (1,351 s).
+
+- **R, the sea map, exact.** On every Fock state of an 8-mode toy: Xi Gamma(P) Xi^-1 = det P Gamma(conj P), sector
+  pair phases map to hole counts, raw counts add a one-body Hartree phase, and the register exchange's image is
+  O + (R F^2 - R^2 F) / 2 + (R - F) N at five (R, F). Literally on the real 192-mode pieces: 72 complementary minors of
+  size 189 to 191 (38 nonzero) match Jacobi within 3.6e-13.
+- **V.** X even, the stream even on L 4, 6, 8, u^8 conj(u)^8 = 1: the full sea is one branch. A sea with one member a
+  slot in register 0 is kept by beat 1 (24 rows) and branched by beat 2 (144).
+- **F, the flats.** Two holes on the L = 4 torus, 64 cycles: N_F within 3.5e-14 and 3.3e-14 of 0 from two moving
+  starts, within 1.1e-13 of 1 with one hole frozen, while up to 0.2 to 0.4 of the weight sits at contact.
+- **K.** 4,718,592 two-hole configurations: least slot occupancy 6, K 0, store 0.
+- **Controls.** E-SPN-0163's register exchange as a plain dock contact moves N_F by 0.339, 0.687 and 0.154.
+  E-SPN-0147's member string moves it by 8.6e-3, 8.4e-3 and 1.3e-3. Two members on an empty mesh put 0.217 on K's
+  trigger.
+- **Read.** A raw (not sea-counted) string's Hartree phase is 0.577, -1.900 and 0.106 a beat on L 4, 6, 8, so the hole
+  mass would depend on the box. A hole-relative K would fire on 0.18 to 0.39 of the weight at its peak.
+
+### How it was tested
+
+Probes in the experiment/register-many-body worktree (`tmp/rs-probe1.ts` to `rs-probe3.ts`, `rs-smoke.ts`), before the
+move. The gate run here: `test/rerun.ts E-SPN-0175`, log `tmp/spn-sea-gate.log`. Checks here, log
+`tmp/spn-sea-checks.log`: `test/catalog.ts` (1,525), `tsc -p tsconfig.check.json` exit 0, `task/check-labels.ts`,
+`task/check-coverage.ts`, `test/result.ts check`.
+
+### Status and follow-ups
+
+- OPEN-FND-02 ticked with proof, under two conditions the run found: every pair piece acts inside the beat's sector,
+  and it is counted from the sea.
+- Limits: K is lifted by occupancy (a hole-relative lift would fire). One tone, one flavor in the runs, two holes.
+- `spin/register-coulomb-weak.ts` also declares E-SPN-0175 but is not registered. This item holds 0175 in the registry,
+  so that file needs the next free code when it is registered.
+- /vibe/physics/vacuum still says the rule is "not written".
+- Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0163's, and "Order of work" step
+  3), `open.md` (FND-02 ticked, "Next up" item 2, disagreement 7), `everything.md` (the "one rule" and "Pauli exclusion"
+  rows' text, no status change).
+
+## The four broken constraints (E-FND-0157, E-FRC-0267, E-FRC-0268, E-SPN-0177)
+
+The constraints page listed 4 of 46 as broken: a disturbance of the vacuum reaching every line, a part pulled from a
+knot coming back, handedness at long wavelength, and SU(2) broken by the vacuum and not the knit. Each was diagnosed on
+the knit and worked on the register rule (the candidate rule with the Cl⁺(4) register, not adopted), with the chiral
+Wilson wall where a hand is needed.
+
+### What changed
+
+- `code/measure/sea-reach.ts`: the register rule on a periodic D4 box, one member at a time, mod p. The map
+  Z[ω][1/42] → F_p is a ring map, so a nonzero residue proves a nonzero amplitude. Line cover, translation, exact
+  inverse beats, and a float twin for the instrument.
+- `code/measure/register-symmetry.ts`: Clifford products on the 16 blades, left and right multiplication on the
+  register, the spin lift of a W(F4) rotation, and the commutator gap of a register map with a piece.
+- `code/measure/pulled-pair.ts`: a pair set at string length V0 at rest (a shell start), and the knot-region weight.
+- `code/measure/chiral-register.ts`: `clifford` exported, no other change.
+- `test/experiment/foundations/sea-reach.ts` (E-FND-0157), `test/experiment/gauge/register-handedness.ts` (E-FRC-0267),
+  `test/experiment/gauge/register-internal-su2.ts` (E-FRC-0268), `test/experiment/spin/pulled-member-returns.ts`
+  (E-SPN-0177), with rows in `test/registry.csv`, the barrel and the regenerated catalog.
+- `research/problem.ts`: OP-16's unknown and source cite the register results.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+- **E-FND-0157, pass.** A one-slot start reaches all 12 lines of every dock by cycle 3 on boxes of 256 and 1,296 docks,
+  proved mod p, on the register rule and its chiral Wilson variant. Cone of 2 root steps a cycle, exact reversal, every
+  translation commutes (crystal momentum kept), the full sea one branch. No mixer: the start returns. A mixer inside
+  one line: 1 line. Read: 0.84 of a one-slot start's weight stays on its dock (flat bands), and the root sum is not
+  conserved (a velocity on a quantum walk).
+- **E-FRC-0267, pass.** Face chirality at k = 0: +2 and −2, the mirror rule −2 and +2, the symmetric slab 0 and 0. The
+  chiral pieces keep 576 of 576 rotations and 0 of 576 reflections. Every piece commutes with the right
+  multiplications, so the untwisted rotation L(s) = ρ(g)R(s) is exact (4.4e-16 over 576 rotations), and a turn by π
+  lifts to e₀₁ with L(e₀₁)² = −1: spin one half, while the lattice's own action by minors reads integer spin. Charge per
+  half exact, CPT 2.2e-15.
+- **E-FRC-0268, fail as derived.** The rule keeps SU(2)₊ × SU(2)₋ (right multiplications, one on each half) exactly,
+  internal to spin. The full sea keeps it too (every generator traceless on 192 modes). The chiral face's 8 light
+  levels (±1.22e-4) all lie in the Wilson half, as doublets of one hand.
+- **E-SPN-0177:** pending.
+
+### How it was tested
+
+All in next-pieces, one process at a time where the machine allowed. Gate runs: `tmp/bc-sea-gate-run1.log` (96 s, and
+`run2` after a helper moved to `code/algebra/linear/modular-linear`, the same numbers), `tmp/bc-hand-gate-run1.log`
+(192 s), `tmp/bc-su2-gate-run1.log` (6 s, and `pnpm rerun E-FRC-0268` reproduced it), `tmp/bc-pulled-gate-run1.log`.
+Probes: `tmp/bc-sea-smoke.log`, `tmp/bc-sym-probe.log`, `tmp/bc-return-probe1.log` (stopped early, disclosed in the
+header). Checks: `node_modules/.bin/tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts`,
+`task/check-labels.ts` (1 contradicted label and 20 for review, none from this item), `task/check-coverage.ts` (0
+unknown, 0 mismatches), `test/result.ts check` (0 problems).
+
+### Status and follow-ups
+
+- pending.

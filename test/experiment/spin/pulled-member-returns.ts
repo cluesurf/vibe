@@ -30,18 +30,37 @@
 //    keeps rising meets that ladder (E-SPN-0161). So "comes back from any distance" and "holds exactly" pull against each
 //    other on this rule: a real tension, measured in E-SPN-0161 and E-SPN-0162, not removed here.
 //
-// PREDICTED: R1 to R3 hold at the pulls where |c_b|^2 W_b exceeds the starting knot weight; the level reads as E-SPN-0162's.
+// 5. THE REGIME (from probe 1, a reading, not a derivation). At this string the force per unit of V (0.281 a cycle) is
+//    comparable to the relative band width (twice a member's 0.458, about 0.92), E-SPN-0162's strong-coupling lattice
+//    regime. There a pair in a sloped well is Wannier-Stark localized: a pair set at one length breathes, its spread
+//    swinging over about width / force = 3.3 and back while its mean length stays where it was put, rather than falling
+//    to the bottom as in the continuum. So the pulled pair swings back into the knot's region and out again, and does not
+//    settle. A weak string (E-SPN-0174's 0.0936, radius 13) is where the continuum's fall would show; it is not run here.
 //
-// GATES, fixed before the gate run (after probe 1, disclosed below).
+// PREDICTED: R1 to R3 hold at both pulls; the level and |c_b|^2 are read.
+//
+// GATES, fixed before the gate run (after probe 1, disclosed below; the first gate plan leaned on the filtered level,
+// which the probe showed is not converged at a 128-cycle filter on radius 8, so the level became a read).
 //  R1 IT COMES BACK. With the string, from each pull V0 in the plan, the mean knot-region weight W(V <= 4) over cycles 33
 //     to 64 is at least RETURN_RATIO times its value at cycle 0.
-//  R2 THE BOUND PART STAYS. That mean is at least 0.9 |c_b|^2 W_b(V <= 4), the level's share of the pull (point 2).
-//  R3 THE FREE PAIR DOES NOT COME BACK. With tau = 0, from the same pulls, the same mean is at most 0.1 of the string's and
-//     below its own value at cycle 0.
-// INSTRUMENT (a failure makes the verdict partial). I1 the level, filtered from E-SPN-0162's start at its phase, reads a
-//  phase within 0.02 of E-SPN-0162's 1.978945 with residual at most 2e-2 (a smaller ball, radius 8 against 9).
-// READ, gating nothing: |c_b|^2, the knot weight and the mean string length every 4 cycles, the norm the edge absorbs.
+//  R2 THE PAIR STAYS. With the string, the Gram norm after 64 cycles is at least 0.99 (the ball's edge absorbs, so a pair
+//     that separates loses norm).
+//  R3 THE FREE PAIR DOES NOT. With tau = 0, from the same pulls, the late mean knot weight is at most 0.1 of the string's,
+//     and the norm after 64 cycles is at most 0.5.
+// INSTRUMENT (a failure makes the verdict partial). I1 one cycle of a compact start (sStart with ell 1, 1e-10 in amplitude
+//  at the ball's edge) keeps the Gram norm to 1e-10 in both engines.
+// READ, gating nothing: the filtered level (phase, residual), |c_b|^2 against it, the knot weight and the mean string
+//  length every 4 cycles.
 // Verdict: fail if R1, R2 or R3 fails; partial if the instrument fails; pass otherwise.
+//
+// PROBE BEFORE THE GATE RUN, disclosed: tmp/bc-return-probe1.log, radius 8, the same engine. A 128-cycle filter from
+//  sStart(2.5) at 1.979 read phase 1.928 with residual 0.032 and a profile peaked at V = 3 (0.43) and 4 (0.35): not the
+//  converged level, so the level became a read and R2 no longer uses it. From the pull at V0 = 6 with the string: the
+//  knot weight 2.4e-8 at cycle 0, then 0.02 to 0.155 every 4 cycles to cycle 64, the mean length 5.76 to 6.06, the Gram
+//  norm 1.0000 to 1.0024; |c_b|^2 against the filtered vector 1.4e-3. At V0 = 7, |c_b|^2 1.9e-4 and the knot weight at
+//  cycle 0 2e-17. The gate plan (pulls 5 and 6, R2 on the norm, R3 on the free pair's norm) was fixed then. The probe
+//  was stopped there, before the V0 = 7 dynamics and the free pair, to free the machine for the gate run, so R3's
+//  thresholds are predictions, not fits.
 //
 // DETERMINISM: no random numbers. FLOATS: measurement on exact pieces (code/measure/register-meson). NOTHING MOVES: the
 // pieces hand values between slots and register components of one dock, and the stream takes each slot's value one dock
@@ -76,12 +95,13 @@ const STRING: readonly [number, number] = [-9, 6]
 const CAP = 8
 const KNOT = 4
 const E_L_0162 = 1.978945
-const LEVEL_PHASE_TOLERANCE = 0.02
-const LEVEL_RESIDUAL = 2e-2
 const SHELL_WIDTH = 0.7
 const START_ELL = 2.5
-const STAY_SHARE = 0.9
+const KEPT_NORM = 0.99
+const FREE_NORM = 0.5
 const FREE_SHARE = 0.1
+const FIRST_CYCLE_NORM = 1e-10
+const COMPACT_ELL = 1
 
 export type PulledPlan = {
   radius: number
@@ -94,7 +114,7 @@ export type PulledPlan = {
 
 export const GATE_PLAN: PulledPlan = {
   radius: 8,
-  pulls: [6],
+  pulls: [5, 6],
   cycles: 64,
   lateFrom: 33,
   filter: 128,
@@ -130,7 +150,8 @@ type Trace = {
   share: number
   floor: number
   every4: string[]
-  normLost: number
+  normAfter: number
+  firstCycleGap: number
 }
 
 export function pulledMemberRun(plan: PulledPlan): Verdict {
@@ -164,9 +185,6 @@ export function pulledMemberRun(plan: PulledPlan): Verdict {
   const lpTotal = lp.reduce((a, x) => a + x, 0)
   const levelKnot =
     lp.slice(0, KNOT + 1).reduce((a, x) => a + x, 0) / lpTotal
-  const I1 =
-    Math.abs(read.phase - E_L_0162) <= LEVEL_PHASE_TOLERANCE &&
-    read.residual <= LEVEL_RESIDUAL
 
   log('level')
 
@@ -184,9 +202,14 @@ export function pulledMemberRun(plan: PulledPlan): Verdict {
     const every4: string[] = []
 
     let late = 0
+    let firstCycleGap = 0
 
     for (let t = 1; t <= plan.cycles; t++) {
       pairCycle(e, x)
+
+      if (t === 1) {
+        firstCycleGap = Math.abs(norm2(e, x) - 1)
+      }
 
       const w = weightWithin(e, x, KNOT, reference)
 
@@ -208,7 +231,8 @@ export function pulledMemberRun(plan: PulledPlan): Verdict {
       share,
       floor: share * levelKnot,
       every4,
-      normLost: 1 - norm2(e, x),
+      normAfter: norm2(e, x),
+      firstCycleGap,
     }
   }
 
@@ -221,17 +245,28 @@ export function pulledMemberRun(plan: PulledPlan): Verdict {
   log('free')
 
   const R1 = bound.every(b => b.late >= plan.returnRatio * b.start)
-  const R2 = bound.every(b => b.late >= STAY_SHARE * b.floor)
+  const R2 = bound.every(b => b.normAfter >= KEPT_NORM)
   const R3 = loose.every(
-    (l, i) => l.late <= FREE_SHARE * bound[i]!.late && l.late < l.start,
+    (l, i) =>
+      l.late <= FREE_SHARE * bound[i]!.late && l.normAfter <= FREE_NORM,
   )
+  // I1: one cycle of a compact start (exp(-V^1.5), 1e-10 in amplitude at the ball's edge) keeps the Gram norm
+  const unitarity = [withString, free].map(e => {
+    const s = sStart(ball, COMPACT_ELL)
+
+    normalizePair(e, s)
+    pairCycle(e, s)
+
+    return Math.abs(norm2(e, s) - 1)
+  })
+  const I1 = unitarity.every(g => g <= FIRST_CYCLE_NORM)
   const status = !(R1 && R2 && R3) ? 'fail' : !I1 ? 'partial' : 'pass'
   const line = (t: Trace): string =>
-    `V0 ${t.V0}: knot weight at 0 ${t.start.toExponential(3)}, late mean ${t.late.toExponential(3)}, |c_b|^2 ${t.share.toExponential(3)}, floor ${t.floor.toExponential(3)}, norm lost ${t.normLost.toExponential(2)}; every 4 cycles (weight/mean V) ${t.every4.join(' ')}`
+    `V0 ${t.V0}: knot weight at 0 ${t.start.toExponential(3)}, late mean ${t.late.toExponential(3)}, |c_b|^2 ${t.share.toExponential(3)} (floor ${t.floor.toExponential(3)}), norm after ${t.normAfter.toFixed(6)}, first-cycle norm gap ${t.firstCycleGap.toExponential(1)}; every 4 cycles (weight/mean V) ${t.every4.join(' ')}`
 
   return verdict({
     status,
-    claim: `R1 ${R1} R2 ${R2} R3 ${R3}; with the string: ${bound.map(line).join('; ')}; free: ${loose.map(line).join('; ')}; instrument I1 ${I1} (level phase ${read.phase.toFixed(6)}, residual ${read.residual.toExponential(2)}, knot share ${levelKnot.toFixed(4)})`,
+    claim: `R1 ${R1} R2 ${R2} R3 ${R3}; with the string: ${bound.map(line).join('; ')}; free: ${loose.map(line).join('; ')}; instrument I1 ${I1} (norm gaps ${unitarity.map(g => g.toExponential(1)).join(', ')}); read, the filtered level: phase ${read.phase.toFixed(6)} (E-SPN-0162 ${E_L_0162} on radius 9), residual ${read.residual.toExponential(2)}, knot share ${levelKnot.toFixed(4)}`,
     metrics: {
       R1: flag(R1),
       R2: flag(R2),
