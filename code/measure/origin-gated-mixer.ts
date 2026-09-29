@@ -624,13 +624,9 @@ export function originTrack(input: {
     )
     originBeat(tables, a, b, oa, ob, key, threshold, t, events)
     originBeat(tables, p, q, op, oq, key, threshold, t, vacuumEvents)
-
     ;[a, b] = [b, a]
-
     ;[p, q] = [q, p]
-
     ;[oa, ob] = [ob, oa]
-
     ;[op, oq] = [oq, op]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)

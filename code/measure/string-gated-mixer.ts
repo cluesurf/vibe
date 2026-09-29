@@ -346,9 +346,7 @@ export function mixTrack(input: {
     )
     starBeat(tables, a, b, key, threshold, t, events)
     starBeat(tables, p, q, key, threshold, t, vacuumEvents)
-
     ;[a, b] = [b, a]
-
     ;[p, q] = [q, p]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)

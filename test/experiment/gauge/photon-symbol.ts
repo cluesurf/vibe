@@ -637,12 +637,10 @@ function sectionD(): Record<string, number> & { ok: number } {
     out[`dAxisR${i + 1}PairEnergyContinuum`] =
       (green[0] ?? 0) - 1 / (24 * Math.PI * (i + 1))
   })
-
   ;[1, 2, 3].forEach(
     (r, i) =>
       (out[`dFaceR${r}Deviation`] = deviation(1 + axis.length + i)),
   )
-
   ;[1, 2].forEach(
     (r, i) =>
       (out[`dBodyR${r}Deviation`] = deviation(1 + axis.length + 3 + i)),

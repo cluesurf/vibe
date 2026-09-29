@@ -315,7 +315,10 @@ function runLump(
 
     if (horizon[y]) {
       horizonDocks++
-      horizonRadius = Math.max(horizonRadius, huskDistance(mesh, y, CENTER))
+      horizonRadius = Math.max(
+        horizonRadius,
+        huskDistance(mesh, y, CENTER),
+      )
     } else if (rho[y]! > 0) {
       contentOutside = Math.max(contentOutside, rho[y]!)
     }

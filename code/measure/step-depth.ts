@@ -263,7 +263,10 @@ function observe(
   record: StepRecord,
 ): void {
   for (const step of s.step) {
-    record.maxStep = Math.max(record.maxStep, Math.abs(step) / rule.unit)
+    record.maxStep = Math.max(
+      record.maxStep,
+      Math.abs(step) / rule.unit,
+    )
   }
 
   for (let y = 0; y < s.rate.length; y++) {

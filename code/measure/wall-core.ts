@@ -785,8 +785,7 @@ export function readCore(input: {
   const ideal = readWindow(m, box, ownTypes, assigned)
   const end = endDocksOf(box, ideal.wallEdges)
   const dist = distanceToInterface(box, assigned)
-  const isBulk = (x: number): boolean =>
-    dist[x] === -1 || dist[x]! >= 3
+  const isBulk = (x: number): boolean => dist[x] === -1 || dist[x]! >= 3
   const endColumn = new Uint8Array(mc.columns)
 
   let endDocks = 0

@@ -157,9 +157,7 @@ export function machTrack(input: {
   for (let t = 0; t < beats; t++) {
     starBeat(tables, a, b, key, threshold, t, events)
     starBeat(tables, p, q, key, threshold, t, backgroundEvents)
-
     ;[a, b] = [b, a]
-
     ;[p, q] = [q, p]
 
     for (; seen < events.length; seen++) {

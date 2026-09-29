@@ -398,7 +398,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     mW.every(x => x >= 0n) &&
     mWplus.every(x => x >= 0n) &&
     firstDiff === PSEUDO_DEGREE &&
-    (mWplus[PSEUDO_DEGREE]! - mW[PSEUDO_DEGREE]!) === 1n &&
+    mWplus[PSEUDO_DEGREE]! - mW[PSEUDO_DEGREE]! === 1n &&
     mW[2] === 1n &&
     mW[4] === 1n &&
     mWplus[2] === 1n &&
@@ -437,7 +437,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     unitNormExact(uZ) &&
     four.every(integer) &&
     four.every((x, i) => idem(x, scales[i]!)) &&
-    four.every((x, i) => (trace(x) / scales[i]!) === 4) &&
+    four.every((x, i) => trace(x) / scales[i]! === 4) &&
     zero(S48p, S48m) &&
     zero(S48p, D96p) &&
     zero(S48p, D96m) &&

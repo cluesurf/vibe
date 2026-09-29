@@ -228,7 +228,7 @@ export default experiment({
                   [
                     `faceSpreadSide${r.side}`,
                     Number(r.faceSpread.toFixed(4)),
-                  ],
+                  ] as [string, number],
                 ]
               : []),
           ]),

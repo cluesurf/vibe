@@ -305,9 +305,10 @@ const differing = (
   return n
 }
 
-const allZero = (a: Iterable<number>): boolean => {
-  for (const v of a) {
-    if (v !== 0) {
+const allZero = (a: ArrayLike<number>): boolean => {
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- an ArrayLike is not iterable
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== 0) {
       return false
     }
   }

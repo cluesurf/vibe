@@ -449,7 +449,12 @@ export default experiment({
           rows.flatMap((r): [string, number][] => [
             [`least_${r.n}_${r.m}`, r.e],
             ...(r.composite
-              ? [[`binding_${r.n}_${r.m}`, r.binding] as [string, number]]
+              ? [
+                  [`binding_${r.n}_${r.m}`, r.binding] as [
+                    string,
+                    number,
+                  ],
+                ]
               : []),
           ]),
         ),

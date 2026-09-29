@@ -364,7 +364,8 @@ export default experiment({
 
     // G4: the swap history as an Eisenstein word
     const clifford = cliffordTable()
-    const elementOf = (perm: readonly number[]) => clifford.elementOf(perm)
+    const elementOf = (perm: readonly number[]) =>
+      clifford.elementOf(perm)
     const translation = (v: number) => clifford.translation(v)
 
     const wordOf = (comoving: boolean): State9 => {
@@ -610,7 +611,6 @@ export default experiment({
     metrics.wordFixedFrameWeightGap = wordFixed.gap
     metrics.wordInvariantsEqual =
       wordComoving.same && wordFixed.same ? 1 : 0
-
     ;[
       ['quoted2p3094', nullSwap],
       ['quoted2p3613', nullColor],

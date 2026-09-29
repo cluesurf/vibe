@@ -114,10 +114,7 @@ import {
   blochColumn,
   branchReader,
 } from '@/code/measure/flux-store-bloch'
-import {
-  bandCurvature,
-  followLevel,
-} from '@/code/measure/moving-level'
+import { bandCurvature, followLevel } from '@/code/measure/moving-level'
 import {
   FREE_UNIT,
   followPair,

@@ -631,13 +631,9 @@ export function gatedTrack(input: {
       vacuumCollide,
       vacuumEvents,
     )
-
     ;[a, b] = [b, a]
-
     ;[p, q] = [q, p]
-
     ;[oa, ob] = [ob, oa]
-
     ;[op, oq] = [oq, op]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)

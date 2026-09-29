@@ -446,7 +446,6 @@ function sectionS(): {
 
   out.s2Golden = golden
   out.s2SpontaneousOverGolden = (rates[0] ?? 0) / golden
-
   ;[1, 2, 4].forEach(
     (n, i) =>
       (out[`s2_n${n}_overNPlusOne`] =

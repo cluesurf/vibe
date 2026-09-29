@@ -249,8 +249,7 @@ export default experiment({
           }
 
           row.equalSurvival += survival.every(
-            ([on, u]) =>
-              on * survival[0]![1] === survival[0]![0] * u,
+            ([on, u]) => on * survival[0]![1] === survival[0]![0] * u,
           )
             ? 1
             : 0

@@ -404,7 +404,7 @@ export default experiment({
 
     // 4. the orbit knit from the first candidate
     const first = glideGroups[0]
-    const g =permutations[first?.g ?? 0] ?? []
+    const g = permutations[first?.g ?? 0] ?? []
     const pair = bestBeatPair({
       beats: coverage[0]?.beats ?? [],
       glide: g,
@@ -610,7 +610,7 @@ export default experiment({
             [`${r.name}LargestBeatStabilizer`, r.largestBeatStabilizer],
             [`${r.name}VacuumPeriod`, r.vacuumPeriod],
             [`${r.name}Arrow`, Number(r.arrow.toFixed(4))],
-            ...r.responses.flatMap((x, k) => [
+            ...r.responses.flatMap((x, k): [string, number][] => [
               [
                 `${r.name}AnisotropySide${SIDES[k]}`,
                 Number(x.anisotropy.toFixed(4)),

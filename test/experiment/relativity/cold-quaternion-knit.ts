@@ -1948,7 +1948,6 @@ export default experiment({
     Object.entries(g10items).forEach(
       ([k, v]) => (metrics[`battery_${k}`] = v ? 1 : 0),
     )
-
     ;[g1, g2, g3, g4, g5, g6, g7, g8, g9, g10].forEach(
       (g, i) => (metrics[`gate${i + 1}`] = g ? 1 : 0),
     )

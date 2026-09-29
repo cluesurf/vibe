@@ -93,9 +93,9 @@ export function polyGcd(a0: BigPoly, b0: BigPoly): BigPoly {
 export function dividePoly(p: BigPoly, d: BigPoly): BigPoly {
   let r = trim([...p])
 
-  const q = new Array<bigint>(Math.max(1, r.length - d.length + 1)).fill(
-    0n,
-  )
+  const q = new Array<bigint>(
+    Math.max(1, r.length - d.length + 1),
+  ).fill(0n)
 
   while (r.length >= d.length && !(r.length === 1 && r[0] === 0n)) {
     const shift = r.length - d.length

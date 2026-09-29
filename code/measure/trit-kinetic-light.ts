@@ -553,7 +553,8 @@ export function runKinetic(input: {
 
     for (const key of ['dock', 'offset', 'momentum'] as const) {
       m[key].forEach(
-        (v: number, j: number) => (back += v === saved.m[key][j] ? 0 : 1),
+        (v: number, j: number) =>
+          (back += v === saved.m[key][j] ? 0 : 1),
       )
     }
   }
