@@ -52,7 +52,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { exactBasis, exactEqual, exactFrom, inverseSteps, reduce, runExact, type Exact } from '@/code/rule/lattice-qed'
+import {
+  exactBasis,
+  exactEqual,
+  exactFrom,
+  inverseSteps,
+  reduce,
+  runExact,
+  type Exact,
+} from '@/code/rule/lattice-qed'
 import {
   classicalVelocity,
   columnSum,
@@ -104,15 +112,27 @@ function startsOf(size: number, m: number): Exact[] {
   for (let k = 1; picks.length < 3; k++) {
     const i = Math.floor(weyl(k) * size)
 
-    if (!picks.includes(i)) picks.push(i)
+    if (!picks.includes(i)) {
+      picks.push(i)
+    }
   }
 
-  return [...picks.map(i => exactBasis(m, i)), exactFrom(m, picks.map((i, j) => [i, BigInt(j + 1)]))]
+  return [
+    ...picks.map(i => exactBasis(m, i)),
+    exactFrom(
+      m,
+      picks.map((i, j) => [i, BigInt(j + 1)]),
+    ),
+  ]
 }
 
 // the sector result mapped into full-space indices
 function embedExact(v: Exact, embed: (i: number) => number): Exact {
-  return { m: v.m, den: v.den, entries: new Map([...v.entries].map(([i, e]) => [embed(i), e])) }
+  return {
+    m: v.m,
+    den: v.den,
+    entries: new Map([...v.entries].map(([i, e]) => [embed(i), e])),
+  }
 }
 
 export default experiment({
@@ -129,16 +149,21 @@ export default experiment({
 
     // S1: the band
     let s1 = true
+
     const velocities: string[] = []
 
     for (const [n, L] of BAND_BOXES) {
       const spec = inverseDepthSpec(n, L, 'drift')
       const { band, residual } = oneQuantumBand(spec)
+
       let worst = 0
       let overlap = 1
 
       for (const b of band) {
-        worst = Math.max(worst, Math.abs(b.omega - b.classical) / b.classical)
+        worst = Math.max(
+          worst,
+          Math.abs(b.omega - b.classical) / b.classical,
+        )
         overlap = Math.min(overlap, b.overlap)
       }
 
@@ -146,18 +171,29 @@ export default experiment({
       metrics[`bandOverlapN${n}L${L}`] = overlap
       metrics[`eigenResidualN${n}L${L}`] = residual
 
-      if (n >= 13) s1 &&= worst <= 1e-3
-      if (n >= 21) s1 &&= worst <= 1e-4
-      if (n >= 17 && L === 2) s1 &&= overlap >= 0.99
+      if (n >= 13) {
+        s1 &&= worst <= 1e-3
+      }
+
+      if (n >= 21) {
+        s1 &&= worst <= 1e-4
+      }
+
+      if (n >= 17 && L === 2) {
+        s1 &&= overlap >= 0.99
+      }
 
       if (L === 3) {
         const { kappa } = splitOf(spec)
         const slope = (band[1]!.omega - band[0]!.omega) / band[1]!.k
-        const classicalSlope = (band[1]!.classical - band[0]!.classical) / band[1]!.k
+        const classicalSlope =
+          (band[1]!.classical - band[0]!.classical) / band[1]!.k
 
         metrics[`bandSlopeN${n}`] = slope
         metrics[`classicalSlopeN${n}`] = classicalSlope
-        velocities.push(`${slope.toFixed(5)} against ${classicalSlope.toFixed(5)} at N = ${n} (v_g peak ${classicalVelocity(kappa, Math.PI / 2, 3).toFixed(4)})`)
+        velocities.push(
+          `${slope.toFixed(5)} against ${classicalSlope.toFixed(5)} at N = ${n} (v_g peak ${classicalVelocity(kappa, Math.PI / 2, 3).toFixed(4)})`,
+        )
       }
     }
 
@@ -166,16 +202,26 @@ export default experiment({
 
     for (const [n, L] of CONTROL_BOXES) {
       const { band } = oneQuantumBand(inverseDepthSpec(n, L, 'force'))
+
       let worst = 0
 
-      for (const b of band) worst = Math.max(worst, Math.abs(b.omega - b.classical) / b.classical)
+      for (const b of band) {
+        worst = Math.max(
+          worst,
+          Math.abs(b.omega - b.classical) / b.classical,
+        )
+      }
 
       metrics[`controlBandErrorN${n}L${L}`] = worst
       s2 &&= worst > 10 * metrics[`bandErrorN${n}L${L}`]!
     }
 
     // S3: a quantum that travels
-    const travelSpec = inverseDepthSpec(TRAVEL.n, TRAVEL.plaquettes, 'drift')
+    const travelSpec = inverseDepthSpec(
+      TRAVEL.n,
+      TRAVEL.plaquettes,
+      'drift',
+    )
     const kernel = ladderKernel(travelSpec)
     const vac = ladderVacuum(kernel)
     const table = squareElectricTable(travelSpec)
@@ -188,20 +234,26 @@ export default experiment({
 
     unit.re[0] = 1
 
-    const z = W({ re: new Float64Array(L6), im: new Float64Array(L6) }, unit)
+    const z = W(
+      { re: new Float64Array(L6), im: new Float64Array(L6) },
+      unit,
+    )
     const classicalNorm = z.m.re[0]!
     const antipode = L6 / 2
+
     let worstDifference = 0
     let peak = 0
     let arrivalQuantum = 0
     let arrivalClassical = 0
     let bestQuantum = -1
     let bestClassical = -1
+
     const totals: number[] = []
 
     for (let t = 0; t <= TRAVEL.beats; t++) {
       const eq = squareEnergies(kernel, table, psi)
       const ec = classicalSquareEnergies(travelSpec, z.B, z.m)
+
       let total = 0
 
       for (let p = 0; p < L6; p++) {
@@ -240,7 +292,9 @@ export default experiment({
     metrics.travelExcessStart = totals[0]!
     metrics.travelExcessEnd = totals[totals.length - 1]!
 
-    const s3 = Math.abs(arrivalQuantum - arrivalClassical) <= 1 && worstDifference <= 0.05 * peak
+    const s3 =
+      Math.abs(arrivalQuantum - arrivalClassical) <= 1 &&
+      worstDifference <= 0.05 * peak
 
     // S4: Gauss on the full register space, with the STAND-IN charge
     let s4 = true
@@ -248,36 +302,54 @@ export default experiment({
     for (const n of GAUSS_NS) {
       const spec = inverseDepthSpec(n, 2, 'drift', 1)
       const full = fullLadder(spec)
+
       let violations = 0
       let controlBroken = 0
 
       for (let i = 0; i < full.size; i++) {
         const g = full.gauss(i).join(',')
 
-        if (full.gauss(full.hopMove(true)(i)).join(',') !== g) violations++
+        if (full.gauss(full.hopMove(true)(i)).join(',') !== g) {
+          violations++
+        }
 
-        for (let p = 0; p < 2; p++) if (full.gauss(full.loopShift(p)(i)).join(',') !== g) violations++
+        for (let p = 0; p < 2; p++) {
+          if (full.gauss(full.loopShift(p)(i)).join(',') !== g) {
+            violations++
+          }
+        }
 
-        if (full.gauss(full.hopMove(false)(i)).join(',') !== g) controlBroken++
+        if (full.gauss(full.hopMove(false)(i)).join(',') !== g) {
+          controlBroken++
+        }
       }
 
       // the sector against the full space, exact
       const sectorSteps = ladderSteps(spec)
       const fullSteps = full.steps(true)
+
       let mismatches = 0
       let sectorGauss = 0
 
-      for (let s = 0; s < ladderSize(spec); s++) if (full.gauss(full.embed(s)).some(v => v !== 0)) sectorGauss++
+      for (let s = 0; s < ladderSize(spec); s++) {
+        if (full.gauss(full.embed(s)).some(v => v !== 0)) {
+          sectorGauss++
+        }
+      }
+
+      const embed = (s: number): number => full.embed(s)
 
       for (const start of startsOf(ladderSize(spec), spec.root)) {
         let a = start
-        let b = embedExact(start, full.embed)
+        let b = embedExact(start, embed)
 
         for (let t = 0; t < EXACT_BEATS; t++) {
           a = runExact(sectorSteps, a)
           b = runExact(fullSteps, b)
 
-          if (!exactEqual(embedExact(a, full.embed), b)) mismatches++
+          if (!exactEqual(embedExact(a, embed), b)) {
+            mismatches++
+          }
         }
       }
 
@@ -286,7 +358,11 @@ export default experiment({
       metrics[`unrecordedBrokenN${n}`] = controlBroken
       metrics[`sectorGaussOffN${n}`] = sectorGauss
       metrics[`sectorFullMismatchesN${n}`] = mismatches
-      s4 &&= violations === 0 && controlBroken === full.size && sectorGauss === 0 && mismatches === 0
+      s4 &&=
+        violations === 0 &&
+        controlBroken === full.size &&
+        sectorGauss === 0 &&
+        mismatches === 0
     }
 
     // S5: reversible and exact
@@ -305,7 +381,9 @@ export default experiment({
         const there = runExact(steps, start, REVERSE_BEATS)
         const again = runExact(back, there, REVERSE_BEATS)
 
-        if (!exactEqual(reduce(again), reduce(start))) reverseMismatches++
+        if (!exactEqual(reduce(again), reduce(start))) {
+          reverseMismatches++
+        }
       }
     }
 
@@ -323,21 +401,33 @@ export default experiment({
       for (let v = -D; v <= D; v++) {
         const col = thermometer(v, D)
 
-        if (columnSum(col) !== v) liftFailures++
+        if (columnSum(col) !== v) {
+          liftFailures++
+        }
 
         seen.add(Array.from(col).join(''))
 
         const next = v === D ? -D : v + 1
         const nextCol = thermometer(next, D)
+
         let changed = 0
 
-        for (let d = 0; d < D; d++) if (col[d] !== nextCol[d]) changed++
+        for (let d = 0; d < D; d++) {
+          if (col[d] !== nextCol[d]) {
+            changed++
+          }
+        }
 
-        if (v === D) wraps += changed === D || D === 0 ? 1 : 0
-        else if (changed !== 1) liftFailures++
+        if (v === D) {
+          wraps += changed === D || D === 0 ? 1 : 0
+        } else if (changed !== 1) {
+          liftFailures++
+        }
       }
 
-      if (seen.size !== 2 * D + 1) liftFailures++
+      if (seen.size !== 2 * D + 1) {
+        liftFailures++
+      }
     }
 
     metrics.thermometerFailures = liftFailures
@@ -345,9 +435,15 @@ export default experiment({
 
     const gates = { S1: s1, S2: s2, S3: s3, S4: s4, S5: s5 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : s1 && s4 && s5 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : s1 && s4 && s5
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,

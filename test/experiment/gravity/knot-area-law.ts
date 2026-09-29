@@ -77,13 +77,37 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { schmidtWeights, vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
+import {
+  schmidtWeights,
+  vacuumConfiguration,
+} from '@/code/measure/doublet-locked-readings'
 import { boxHusk } from '@/code/measure/causal-components'
 import { linearFit } from '@/code/measure/regression'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { lockedState, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedState,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
-import { componentEntropy, componentsOf, digitOf, huskRegionFamily, KNOT_ENTROPY, knotNetwork, networkBeat, networkBeatBack, networkNormExact, networkReturned, regionEntropy, sameAsBranches, tokenDocks, type HuskRegion, type KnotNetwork } from '@/code/measure/knot-network'
+import {
+  componentEntropy,
+  componentsOf,
+  digitOf,
+  huskRegionFamily,
+  KNOT_ENTROPY,
+  knotNetwork,
+  networkBeat,
+  networkBeatBack,
+  networkNormExact,
+  networkReturned,
+  regionEntropy,
+  sameAsBranches,
+  tokenDocks,
+  type HuskRegion,
+  type KnotNetwork,
+} from '@/code/measure/knot-network'
 
 const SIDE = 8
 const KNOT_SIDES = [8, 12, 16] as const
@@ -94,54 +118,128 @@ const MASKED_BEATS = 36
 const SOLVER_COMPONENTS = 30
 const STARTS = 2
 
-type Reading = { region: HuskRegion; S: number; cut: number; knots: number }
+type Reading = {
+  region: HuskRegion
+  S: number
+  cut: number
+  knots: number
+}
 
-function readRegions(net: KnotNetwork, column: Int32Array, regions: readonly HuskRegion[]): Reading[] {
+function readRegions(
+  net: KnotNetwork,
+  column: Int32Array,
+  regions: readonly HuskRegion[],
+): Reading[] {
   const docks = tokenDocks(net)
   const cache = new Map<number, { entropy: number; rows: number }>()
 
   return regions.map(region => {
-    const e = regionEntropy(net, t => region.inside[column[docks[t] as number] as number] === 1, cache)
+    const e = regionEntropy(
+      net,
+      t => region.inside[column[docks[t]!]!] === 1,
+      cache,
+    )
 
     return { region, S: e.entropy, cut: e.cut, knots: e.knots }
   })
 }
 
-const vacuumNet = (side: number): { net: KnotNetwork; column: Int32Array; tables: LockedTables; start: Configuration } => {
+const vacuumNet = (
+  side: number,
+): {
+  net: KnotNetwork
+  column: Int32Array
+  tables: LockedTables
+  start: Configuration
+} => {
   const f = contactFresh(side, 'pass')
   const start = toWords(vacuumConfiguration(f, 'all'))
 
-  return { net: knotNetwork('none', f.tables, start), column: boxHusk(f.weave.mesh, side).column, tables: f.tables, start }
+  return {
+    net: knotNetwork('none', f.tables, start),
+    column: boxHusk(f.weave.mesh, side).column,
+    tables: f.tables,
+    start,
+  }
 }
 
-const slabFlat = (rows: readonly Reading[], side: number, axis: number): { values: number[]; flat: boolean } => {
-  const values = rows.filter(r => r.region.name.startsWith(`slab${axis}-`) && Number(r.region.name.split('-')[1]) >= 2).map(r => r.S)
+const slabFlat = (
+  rows: readonly Reading[],
+  side: number,
+  axis: number,
+): { values: number[]; flat: boolean } => {
+  const values = rows
+    .filter(
+      r =>
+        r.region.name.startsWith(`slab${axis}-`) &&
+        Number(r.region.name.split('-')[1]) >= 2,
+    )
+    .map(r => r.S)
 
-  return { values, flat: values.every(v => Math.abs(v - (values[0] as number)) <= 1e-9 * Math.max(1, Math.abs(values[0] as number))) && values.length === side / 2 - 1 }
+  return {
+    values,
+    flat:
+      values.every(
+        v =>
+          Math.abs(v - values[0]!) <=
+          1e-9 * Math.max(1, Math.abs(values[0]!)),
+      ) && values.length === side / 2 - 1,
+  }
 }
 
 // A0 on one side: the knot phase at beat 2
-function knotPhase(side: number): { exact: boolean; flat: boolean; eta1: number; knotsPerPlaquette: number; halfOpen: number } {
+function knotPhase(side: number): {
+  exact: boolean
+  flat: boolean
+  eta1: number
+  knotsPerPlaquette: number
+  halfOpen: number
+} {
   const { net, column } = vacuumNet(side)
 
-  for (let t = 0; t <= KNOT_BEAT; t++) networkBeat(net)
+  for (let t = 0; t <= KNOT_BEAT; t++) {
+    networkBeat(net)
+  }
 
   const rows = readRegions(net, column, huskRegionFamily(side))
-  const exact = rows.every(r => r.cut === r.knots && Math.abs(r.S - r.knots * KNOT_ENTROPY) <= 1e-9)
+  const exact = rows.every(
+    r =>
+      r.cut === r.knots &&
+      Math.abs(r.S - r.knots * KNOT_ENTROPY) <= 1e-9,
+  )
   const flats = [0, 1, 2].map(axis => slabFlat(rows, side, axis))
-  const slab = rows.find(r => r.region.name === 'slab0-2') as Reading
+  const slab = rows.find(r => r.region.name === 'slab0-2')!
 
-  return { exact, flat: flats.every(f => f.flat), eta1: slab.S / slab.region.area, knotsPerPlaquette: slab.knots / slab.region.area, halfOpen: net.tally.halfOpen }
+  return {
+    exact,
+    flat: flats.every(f => f.flat),
+    eta1: slab.S / slab.region.area,
+    knotsPerPlaquette: slab.knots / slab.region.area,
+    halfOpen: net.tally.halfOpen,
+  }
 }
 
-type Equilibrium = { mean: number[]; area: ReturnType<typeof linearFit>; volume: ReturnType<typeof linearFit>; normExact: boolean; returned: boolean; halfOpen: number; largest: number; branchesMax: number; series: string[]; slabs: string }
+type Equilibrium = {
+  mean: number[]
+  area: ReturnType<typeof linearFit>
+  volume: ReturnType<typeof linearFit>
+  normExact: boolean
+  returned: boolean
+  halfOpen: number
+  largest: number
+  branchesMax: number
+  series: string[]
+  slabs: string
+}
 
 // A1, A2 and part of A3 on one start: the equilibrium mean, the fits, the norm at every reading, the reversal
 function equilibrium(regions: readonly HuskRegion[]): Equilibrium {
   const { net, column, tables, start } = vacuumNet(SIDE)
   const sums = new Array<number>(regions.length).fill(0)
+
   let normExact = true
   let count = 0
+
   const series: string[] = []
 
   for (let t = 0; t < BEATS; t++) {
@@ -151,14 +249,25 @@ function equilibrium(regions: readonly HuskRegion[]): Equilibrium {
       const rows = readRegions(net, column, regions)
 
       rows.forEach((r, i) => {
-        sums[i] = (sums[i] as number) + r.S
+        sums[i] = sums[i]! + r.S
       })
       count++
       normExact = normExact && networkNormExact(net)
     } else if (t % 6 === 2) {
-      const rows = readRegions(net, column, regions.filter(r => r.name === 'slab0-2' || r.name === 'slab0-4' || r.name === 'cube000-4'))
+      const rows = readRegions(
+        net,
+        column,
+        regions.filter(
+          r =>
+            r.name === 'slab0-2' ||
+            r.name === 'slab0-4' ||
+            r.name === 'cube000-4',
+        ),
+      )
 
-      series.push(`beat ${t}: ${rows.map(r => `${r.region.name} ${r.S.toFixed(1)}`).join(', ')}`)
+      series.push(
+        `beat ${t}: ${rows.map(r => `${r.region.name} ${r.S.toFixed(1)}`).join(', ')}`,
+      )
     }
   }
 
@@ -169,12 +278,39 @@ function equilibrium(regions: readonly HuskRegion[]): Equilibrium {
   const branchesMax = net.tally.branchesMax
   const halfOpen = net.tally.halfOpen
 
-  for (let t = 0; t < BEATS; t++) networkBeatBack(net)
+  for (let t = 0; t < BEATS; t++) {
+    networkBeatBack(net)
+  }
 
-  const returned = networkReturned(net, knotNetwork('none', tables, start))
-  const slabs = [0, 1, 2].map(axis => regions.map((r, i) => (r.name.startsWith(`slab${axis}-`) ? `${r.name} ${(mean[i] as number).toFixed(1)}` : '')).filter(Boolean).join(', ')).join('; ')
+  const returned = networkReturned(
+    net,
+    knotNetwork('none', tables, start),
+  )
+  const slabs = [0, 1, 2]
+    .map(axis =>
+      regions
+        .map((r, i) =>
+          r.name.startsWith(`slab${axis}-`)
+            ? `${r.name} ${mean[i]!.toFixed(1)}`
+            : '',
+        )
+        .filter(Boolean)
+        .join(', '),
+    )
+    .join('; ')
 
-  return { mean, area, volume, normExact, returned, halfOpen, largest, branchesMax, series, slabs }
+  return {
+    mean,
+    area,
+    volume,
+    normExact,
+    returned,
+    halfOpen,
+    largest,
+    branchesMax,
+    series,
+    slabs,
+  }
 }
 
 // A3: the network against the rule's superposed beat on a masked start (the two stored units of the first knot)
@@ -182,17 +318,26 @@ function maskedAgreement(): { agree: number; branchesLast: number } {
   const { net: probe, tables } = vacuumNet(SIDE)
   const lineOf = new Map<number, number>()
 
-  for (let h = 0; h < probe.storeToken.length; h++) if ((probe.storeToken[h] as number) >= 0) lineOf.set(probe.storeToken[h] as number, h >> 1)
+  for (let h = 0; h < probe.storeToken.length; h++) {
+    if (probe.storeToken[h]! >= 0) {
+      lineOf.set(probe.storeToken[h]!, h >> 1)
+    }
+  }
 
-  for (let t = 0; t <= KNOT_BEAT; t++) networkBeat(probe)
+  for (let t = 0; t <= KNOT_BEAT; t++) {
+    networkBeat(probe)
+  }
 
   const first = componentsOf(probe).find(c => c.members.length === 2)
   const f = contactFresh(SIDE, 'pass')
   const masked = toWords(vacuumConfiguration(f, 'none'))
 
-  for (const t of first?.members ?? []) masked.sopen[lineOf.get(t) as number] = 3
+  for (const t of first?.members ?? []) {
+    masked.sopen[lineOf.get(t)!] = 3
+  }
 
   const net = knotNetwork('none', tables, masked)
+
   let rule: LockedState = lockedState(masked)
   let agree = 0
 
@@ -209,31 +354,54 @@ function maskedAgreement(): { agree: number; branchesLast: number } {
 // solver runs on the 2n real form of the inside side, too slow for the saturated rings' two-and-two cuts)
 function solverAgreement(net: KnotNetwork, inside: number): number {
   let worst = 0
-  const members = (mask: number): number => mask.toString(2).split('').filter(b => b === '1').length
+
+  const members = (mask: number): number =>
+    mask
+      .toString(2)
+      .split('')
+      .filter(b => b === '1').length
 
   for (const c of componentsOf(net)
     .filter(x => x.members.length > 1)
     .slice(0, SOLVER_COMPONENTS)) {
     for (let mask = 1; mask < (1 << c.members.length) - 1; mask++) {
-      if (members(mask) > inside) continue
+      if (members(mask) > inside) {
+        continue
+      }
 
       const rIndex = new Map<number, number>()
       const cIndex = new Map<number, number>()
-      const key = (code: number, want: number): number => c.members.reduce((acc, _, i) => (((mask >> i) & 1) === want ? acc * 9 + digitOf(code, i) : acc), 0)
+      const key = (code: number, want: number): number =>
+        c.members.reduce(
+          (acc, _, i) =>
+            ((mask >> i) & 1) === want
+              ? acc * 9 + digitOf(code, i)
+              : acc,
+          0,
+        )
 
       for (const code of c.codes) {
-        if (!rIndex.has(key(code, 1))) rIndex.set(key(code, 1), rIndex.size)
-        if (!cIndex.has(key(code, 0))) cIndex.set(key(code, 0), cIndex.size)
+        if (!rIndex.has(key(code, 1))) {
+          rIndex.set(key(code, 1), rIndex.size)
+        }
+
+        if (!cIndex.has(key(code, 0))) {
+          cIndex.set(key(code, 0), cIndex.size)
+        }
       }
 
-      const re = Array.from({ length: rIndex.size }, () => new Array<number>(cIndex.size).fill(0))
-      const im = Array.from({ length: rIndex.size }, () => new Array<number>(cIndex.size).fill(0))
+      const re = Array.from({ length: rIndex.size }, () =>
+        new Array<number>(cIndex.size).fill(0),
+      )
+      const im = Array.from({ length: rIndex.size }, () =>
+        new Array<number>(cIndex.size).fill(0),
+      )
 
       c.codes.forEach((code, i) => {
-        const x = Number(c.a[i] as bigint) * 2 ** -c.k
-        const y = Number(c.b[i] as bigint) * 2 ** -c.k
-        const r = rIndex.get(key(code, 1)) as number
-        const q = cIndex.get(key(code, 0)) as number
+        const x = Number(c.a[i]!) * 2 ** -c.k
+        const y = Number(c.b[i]!) * 2 ** -c.k
+        const r = rIndex.get(key(code, 1))!
+        const q = cIndex.get(key(code, 0))!
 
         re[r]![q]! += x - y / 2
         im[r]![q]! += (y * Math.sqrt(3)) / 2
@@ -241,8 +409,16 @@ function solverAgreement(net: KnotNetwork, inside: number): number {
 
       let slow = 0
 
-      for (const l of schmidtWeights(re, im)) if (l > 1e-15) slow -= l * Math.log(l)
-      worst = Math.max(worst, Math.abs(componentEntropy(c, mask).entropy - slow))
+      for (const l of schmidtWeights(re, im)) {
+        if (l > 1e-15) {
+          slow -= l * Math.log(l)
+        }
+      }
+
+      worst = Math.max(
+        worst,
+        Math.abs(componentEntropy(c, mask).entropy - slow),
+      )
     }
   }
 
@@ -260,26 +436,36 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
     const regions = huskRegionFamily(SIDE)
 
     // A0
-    const knots = withStart(family[0]!, () => KNOT_SIDES.map(side => ({ side, ...knotPhase(side) })))
+    const knots = withStart(family[0]!, () =>
+      KNOT_SIDES.map(side => ({ side, ...knotPhase(side) })),
+    )
     const eta1 = knots[0]!.eta1
-    const a0 = knots.every(k => k.exact && k.flat && Math.abs(k.eta1 / eta1 - 1) <= 1e-9)
+    const a0 = knots.every(
+      k => k.exact && k.flat && Math.abs(k.eta1 / eta1 - 1) <= 1e-9,
+    )
 
     log('A0')
 
     // A1, A2, and the instrument per start
-    const perStart = family.slice(0, STARTS).map(member => withStart(member, () => {
-      const e = equilibrium(regions)
+    const perStart = family.slice(0, STARTS).map(member =>
+      withStart(member, () => {
+        const e = equilibrium(regions)
 
-      log(`equilibrium ${member.name}`)
+        log(`equilibrium ${member.name}`)
 
-      return { name: member.name, ...e }
-    }))
-    const rms = (fit: { residual: number }): number => Math.sqrt(fit.residual / regions.length)
+        return { name: member.name, ...e }
+      }),
+    )
+    const rms = (fit: { residual: number }): number =>
+      Math.sqrt(fit.residual / regions.length)
     const a1 = perStart.every(p => rms(p.area) < rms(p.volume))
     const a2 = perStart.every(p => p.area.r2 >= 0.9 && p.area.slope > 0)
 
@@ -288,16 +474,26 @@ export default experiment({
     // every mask at beat 5 (at most 12 rows on side 8), the one-member masks at the last beat (saturated rings)
     const solverWorst = withStart(family[0]!, () => {
       const { net } = vacuumNet(SIDE)
+
       let worst = 0
 
       for (let t = 0; t < BEATS; t++) {
         networkBeat(net)
-        if (t === 5) worst = Math.max(worst, solverAgreement(net, SIDE))
+
+        if (t === 5) {
+          worst = Math.max(worst, solverAgreement(net, SIDE))
+        }
       }
 
       return Math.max(worst, solverAgreement(net, 1))
     })
-    const a3 = knots.every(k => k.halfOpen === 0) && perStart.every(p => p.halfOpen === 0 && p.normExact && p.returned) && masked.agree === MASKED_BEATS && solverWorst <= 1e-9
+    const a3 =
+      knots.every(k => k.halfOpen === 0) &&
+      perStart.every(
+        p => p.halfOpen === 0 && p.normExact && p.returned,
+      ) &&
+      masked.agree === MASKED_BEATS &&
+      solverWorst <= 1e-9
 
     log('A3')
 
@@ -347,8 +543,11 @@ export default experiment({
       status,
       claim: `knot phase (beat ${KNOT_BEAT}, sides ${KNOT_SIDES.join(', ')}): S = cut knots x s_k exactly ${knots.map(k => k.exact).join('/')}, equal-area slabs flat ${knots.map(k => k.flat).join('/')}, eta_1 = ${f4(eta1)} nats per husk plaquette (${f4(knots[0]!.knotsPerPlaquette)} knots per plaquette x ${f4(KNOT_ENTROPY)}), G_1 = 1 / (4 eta_1) = ${f4(g1)} husk steps squared; equilibrium (side ${SIDE}, mean of beats ${EQUILIBRIUM[0]} .. ${EQUILIBRIUM[1]}, ${regions.length} regions): ${perStart.map(p => `${p.name} area fit eta ${f4(p.area.slope)} (c ${f4(p.area.intercept)}, rms ${f4(rms(p.area))}, r2 ${f4(p.area.r2)}) against volume fit v ${f4(p.volume.slope)} (c ${f4(p.volume.intercept)}, rms ${f4(rms(p.volume))}, r2 ${f4(p.volume.r2)})`).join('; ')}; G from the equilibrium slope ${f4(gEq)}; instrument ${a3}`,
       metrics,
-      control: { volumeRms: rms(first.volume), areaRms: rms(first.area) },
-      notes: `L2. Gates A0 ${a0}, A1 ${a1}, A2 ${a2}, A3 ${a3}. Knot phase per side: ${knots.map(k => `side ${k.side} exact ${k.exact}, flat ${k.flat}, eta_1 ${k.eta1}, half-open lines ${k.halfOpen}`).join('; ')}. Per start: ${perStart.map(p => `${p.name}: norm exact ${p.normExact}, returned ${p.returned}, half-open lines ${p.halfOpen}, largest component ${p.largest} tokens, most terms ${p.branchesMax}; equilibrium slabs ${p.slabs}; series ${p.series.join(' | ')}; region means ${regions.map((r, i) => `${r.name} (A ${r.area}, V ${r.volume}) ${(p.mean[i] as number).toFixed(1)}`).join(', ')}`).join('. ')}. Masked start against coinedVetoBeat: ${masked.agree} of ${MASKED_BEATS} beats, ${masked.branchesLast} terms at the last. Solver against Jacobi: ${solverWorst.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        volumeRms: rms(first.volume),
+        areaRms: rms(first.area),
+      },
+      notes: `L2. Gates A0 ${a0}, A1 ${a1}, A2 ${a2}, A3 ${a3}. Knot phase per side: ${knots.map(k => `side ${k.side} exact ${k.exact}, flat ${k.flat}, eta_1 ${k.eta1}, half-open lines ${k.halfOpen}`).join('; ')}. Per start: ${perStart.map(p => `${p.name}: norm exact ${p.normExact}, returned ${p.returned}, half-open lines ${p.halfOpen}, largest component ${p.largest} tokens, most terms ${p.branchesMax}; equilibrium slabs ${p.slabs}; series ${p.series.join(' | ')}; region means ${regions.map((r, i) => `${r.name} (A ${r.area}, V ${r.volume}) ${p.mean[i]!.toFixed(1)}`).join(', ')}`).join('. ')}. Masked start against coinedVetoBeat: ${masked.agree} of ${MASKED_BEATS} beats, ${masked.branchesLast} terms at the last. Solver against Jacobi: ${solverWorst.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

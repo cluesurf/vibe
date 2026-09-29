@@ -37,18 +37,27 @@ export type StringState = {
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
-export function stringEnergy(line: StringLine, state: StringState): number {
+export function stringEnergy(
+  line: StringLine,
+  state: StringState,
+): number {
   let total = 0
 
   for (let i = 0; i < line.cells; i++) {
-    total += (mod3(state.flux[i] ?? 0) !== 0 ? line.tension : 0) + (state.demon[i] ?? 0) + (state.vibe[i] !== 0 ? line.mass : 0)
+    total +=
+      (mod3(state.flux[i] ?? 0) !== 0 ? line.tension : 0) +
+      (state.demon[i] ?? 0) +
+      (state.vibe[i] !== 0 ? line.mass : 0)
   }
 
   return total
 }
 
 // Gauss's law at every cell
-export function gaussHolds(line: StringLine, state: StringState): boolean {
+export function gaussHolds(
+  line: StringLine,
+  state: StringState,
+): boolean {
   for (let i = 0; i < line.cells; i++) {
     const left = state.flux[(i - 1 + line.cells) % line.cells] ?? 0
 
@@ -61,7 +70,11 @@ export function gaussHolds(line: StringLine, state: StringState): boolean {
 }
 
 // one half-step on the links of one parity, in place: an involution
-function halfStep(line: StringLine, state: StringState, parity: number): number {
+function halfStep(
+  line: StringLine,
+  state: StringState,
+  parity: number,
+): number {
   const { vibe, flux, demon } = state
 
   let moves = 0
@@ -89,7 +102,10 @@ function halfStep(line: StringLine, state: StringState, parity: number): number 
     }
 
     const e = flux[i] ?? 0
-    const cost = (mod3(e + change) !== 0 ? line.tension : 0) - (mod3(e) !== 0 ? line.tension : 0) + massChange
+    const cost =
+      (mod3(e + change) !== 0 ? line.tension : 0) -
+      (mod3(e) !== 0 ? line.tension : 0) +
+      massChange
     const d = (demon[i] ?? 0) - cost
 
     if (d < 0 || d > line.capacity) {
@@ -107,16 +123,29 @@ function halfStep(line: StringLine, state: StringState, parity: number): number 
 }
 
 // demons stream one link, right on even beats and left on odd, or the reverse
-function streamDemons(line: StringLine, demon: Int32Array, right: boolean): void {
+function streamDemons(
+  line: StringLine,
+  demon: Int32Array,
+  right: boolean,
+): void {
   const copy = Int32Array.from(demon)
 
   for (let i = 0; i < line.cells; i++) {
-    demon[(i + (right ? 1 : line.cells - 1)) % line.cells] = copy[i] ?? 0
+    demon[(i + (right ? 1 : line.cells - 1)) % line.cells] =
+      copy[i] ?? 0
   }
 }
 
-export function stringBeat(line: StringLine, state: StringState, t: number): StringState {
-  const next = { vibe: Int8Array.from(state.vibe), flux: Int32Array.from(state.flux), demon: Int32Array.from(state.demon) }
+export function stringBeat(
+  line: StringLine,
+  state: StringState,
+  t: number,
+): StringState {
+  const next = {
+    vibe: Int8Array.from(state.vibe),
+    flux: Int32Array.from(state.flux),
+    demon: Int32Array.from(state.demon),
+  }
 
   halfStep(line, next, 0)
   halfStep(line, next, 1)
@@ -125,8 +154,16 @@ export function stringBeat(line: StringLine, state: StringState, t: number): Str
   return next
 }
 
-export function stringBeatBack(line: StringLine, state: StringState, t: number): StringState {
-  const next = { vibe: Int8Array.from(state.vibe), flux: Int32Array.from(state.flux), demon: Int32Array.from(state.demon) }
+export function stringBeatBack(
+  line: StringLine,
+  state: StringState,
+  t: number,
+): StringState {
+  const next = {
+    vibe: Int8Array.from(state.vibe),
+    flux: Int32Array.from(state.flux),
+    demon: Int32Array.from(state.demon),
+  }
 
   streamDemons(line, next.demon, t % 2 !== 0)
   halfStep(line, next, 1)
@@ -136,7 +173,11 @@ export function stringBeatBack(line: StringLine, state: StringState, t: number):
 }
 
 // a state with the given vibes, the flux solving Gauss's law with E = 0 left of the first charge, and demons
-export function stringState(input: { line: StringLine; vibe: Int8Array; demon: Int32Array }): StringState {
+export function stringState(input: {
+  line: StringLine
+  vibe: Int8Array
+  demon: Int32Array
+}): StringState {
   const { line, vibe, demon } = input
   const flux = new Int32Array(line.cells)
 
@@ -147,5 +188,9 @@ export function stringState(input: { line: StringLine; vibe: Int8Array; demon: I
     flux[i] = e
   }
 
-  return { vibe: Int8Array.from(vibe), flux, demon: Int32Array.from(demon) }
+  return {
+    vibe: Int8Array.from(vibe),
+    flux,
+    demon: Int32Array.from(demon),
+  }
 }

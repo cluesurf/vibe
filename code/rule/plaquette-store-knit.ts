@@ -50,13 +50,35 @@
 // NOTHING MOVES: the store takes the four values of its two lines and gives them back; the stream takes each slot's
 // value one dock along.
 
-import { cloneConfiguration, newTally, type Configuration, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
-import { coinPiece, pairPiece, pairWord, wordFirst, wordSecond, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  cloneConfiguration,
+  newTally,
+  type Configuration,
+  type LockedTables,
+  type LockedTally,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  coinPiece,
+  pairPiece,
+  pairWord,
+  wordFirst,
+  wordSecond,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
-import { FRAME_LINES, FRAME_OF_LINE } from '@/code/rule/coined-locked-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  FRAME_LINES,
+  FRAME_OF_LINE,
+} from '@/code/rule/coined-locked-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f]!,
+)
 
 // the six line pairs of a frame, as places in FRAME_LINES[f]
 export const FRAME_PAIRS: readonly (readonly [number, number])[] = [
@@ -78,99 +100,158 @@ export type PlaquetteConfiguration = Configuration & {
 }
 
 // the line piece's counts (made: a line store released, unmade: a pair stored) and the units'
-export type PlaquetteTally = LockedTally & { plaquettesMade: number; plaquettesUnmade: number }
-
-export const newPlaquetteTally = (): PlaquetteTally => ({ ...newTally(), plaquettesMade: 0, plaquettesUnmade: 0 })
-
-// a configuration with empty plaquette registers
-export function withPlaquettes(c: Configuration): PlaquetteConfiguration {
-  const docks = c.vibe.length / 24
-
-  return { ...cloneConfiguration(c), punit: new Int8Array(docks * 3), pword: new Int16Array(docks * 3), popen: new Uint8Array(docks * 3) }
+export type PlaquetteTally = LockedTally & {
+  plaquettesMade: number
+  plaquettesUnmade: number
 }
 
-export function clonePlaquettes(c: PlaquetteConfiguration): PlaquetteConfiguration {
-  return { ...cloneConfiguration(c), punit: Int8Array.from(c.punit), pword: Int16Array.from(c.pword), popen: Uint8Array.from(c.popen) }
+export const newPlaquetteTally = (): PlaquetteTally => ({
+  ...newTally(),
+  plaquettesMade: 0,
+  plaquettesUnmade: 0,
+})
+
+// a configuration with empty plaquette registers
+export function withPlaquettes(
+  c: Configuration,
+): PlaquetteConfiguration {
+  const docks = c.vibe.length / 24
+
+  return {
+    ...cloneConfiguration(c),
+    punit: new Int8Array(docks * 3),
+    pword: new Int16Array(docks * 3),
+    popen: new Uint8Array(docks * 3),
+  }
+}
+
+export function clonePlaquettes(
+  c: PlaquetteConfiguration,
+): PlaquetteConfiguration {
+  return {
+    ...cloneConfiguration(c),
+    punit: Int8Array.from(c.punit),
+    pword: Int16Array.from(c.pword),
+    popen: Uint8Array.from(c.popen),
+  }
 }
 
 // a unit's two lines and orientations
-export function unitLines(frame: number, unit: number): { i: number; j: number; ti: number; tj: number } {
+export function unitLines(
+  frame: number,
+  unit: number,
+): { i: number; j: number; ti: number; tj: number } {
   const code = unit - 1
-  const [pi, pj] = FRAME_PAIRS[code >> 2] as readonly [number, number]
-  const ls = FRAME_LINES[frame] as readonly number[]
+  const [pi, pj] = FRAME_PAIRS[code >> 2]!
+  const ls = FRAME_LINES[frame]!
 
-  return { i: ls[pi] as number, j: ls[pj] as number, ti: code & 1 ? -1 : 1, tj: code & 2 ? -1 : 1 }
+  return {
+    i: ls[pi]!,
+    j: ls[pj]!,
+    ti: code & 1 ? -1 : 1,
+    tj: code & 2 ? -1 : 1,
+  }
 }
 
 // a line of dock x holding a love and a fear on its two slots with an empty line store (the line piece's unmake case)
 function loveFearLine(c: Configuration, x: number, l: number): boolean {
-  const a = c.vibe[x * 24 + (LINE_FIRSTS[l] as number)] as number
+  const a = c.vibe[x * 24 + LINE_FIRSTS[l]!]!
 
-  return a !== 0 && c.vibe[x * 24 + (LINE_SECONDS[l] as number)] === -a && c.store[x * 12 + l] === 0
+  return (
+    a !== 0 &&
+    c.vibe[x * 24 + LINE_SECONDS[l]!] === -a &&
+    c.store[x * 12 + l] === 0
+  )
 }
 
-const lineEmpty = (c: Configuration, x: number, l: number): boolean => c.vibe[x * 24 + (LINE_FIRSTS[l] as number)] === 0 && c.vibe[x * 24 + (LINE_SECONDS[l] as number)] === 0 && c.store[x * 12 + l] === 0
+const lineEmpty = (c: Configuration, x: number, l: number): boolean =>
+  c.vibe[x * 24 + LINE_FIRSTS[l]!] === 0 &&
+  c.vibe[x * 24 + LINE_SECONDS[l]!] === 0 &&
+  c.store[x * 12 + l] === 0
 
 // Q on dock x: every frame made or released (an involution, design choices 2 and 3)
-export function plaquettePiece(c: PlaquetteConfiguration, x: number, tally?: PlaquetteTally): void {
+export function plaquettePiece(
+  c: PlaquetteConfiguration,
+  x: number,
+  tally?: PlaquetteTally,
+): void {
   for (let f = 0; f < 3; f++) {
     const at = x * 3 + f
-    const ls = FRAME_LINES[f] as readonly number[]
+    const ls = FRAME_LINES[f]!
+
     let pairs = 0
     let first = -1
     let second = -1
 
     for (let p = 0; p < 4; p++) {
-      if (!loveFearLine(c, x, ls[p] as number)) continue
+      if (!loveFearLine(c, x, ls[p]!)) {
+        continue
+      }
+
       pairs++
-      if (first < 0) first = p
-      else second = p
+
+      if (first < 0) {
+        first = p
+      } else {
+        second = p
+      }
     }
 
-    const unit = c.punit[at] as number
+    const unit = c.punit[at]!
 
     if (unit === 0) {
-      if (pairs !== 2) continue
+      if (pairs !== 2) {
+        continue
+      }
 
-      const k = FRAME_PAIRS.findIndex(([a, b]) => a === first && b === second)
+      const k = FRAME_PAIRS.findIndex(
+        ([a, b]) => a === first && b === second,
+      )
       const words: number[] = []
       const opens: number[] = []
       const taus: number[] = []
 
       for (const p of [first, second]) {
-        const l = ls[p] as number
-        const s = x * 24 + (LINE_FIRSTS[l] as number)
-        const q = x * 24 + (LINE_SECONDS[l] as number)
+        const l = ls[p]!
+        const s = x * 24 + LINE_FIRSTS[l]!
+        const q = x * 24 + LINE_SECONDS[l]!
 
-        taus.push(c.vibe[s] as number)
-        words.push(pairWord(c.point[s] as number, c.point[q] as number))
-        opens.push((c.open[s] as number) | ((c.open[q] as number) << 1))
+        taus.push(c.vibe[s]!)
+        words.push(pairWord(c.point[s]!, c.point[q]!))
+        opens.push(c.open[s]! | (c.open[q]! << 1))
         c.vibe[s] = 0
         c.vibe[q] = 0
         c.open[s] = 0
         c.open[q] = 0
       }
 
-      c.punit[at] = 1 + 4 * k + ((taus[0] as number) < 0 ? 1 : 0) + ((taus[1] as number) < 0 ? 2 : 0)
-      c.pword[at] = 81 * (words[0] as number) + (words[1] as number)
-      c.popen[at] = (opens[0] as number) | ((opens[1] as number) << 2)
-      if (tally) tally.plaquettesUnmade++
+      c.punit[at] =
+        1 + 4 * k + (taus[0]! < 0 ? 1 : 0) + (taus[1]! < 0 ? 2 : 0)
+      c.pword[at] = 81 * words[0]! + words[1]!
+      c.popen[at] = opens[0]! | (opens[1]! << 2)
+
+      if (tally) {
+        tally.plaquettesUnmade++
+      }
+
       continue
     }
 
     const { i, j, ti, tj } = unitLines(f, unit)
 
-    if (pairs !== 0 || !lineEmpty(c, x, i) || !lineEmpty(c, x, j)) continue
+    if (pairs !== 0 || !lineEmpty(c, x, i) || !lineEmpty(c, x, j)) {
+      continue
+    }
 
-    const word = c.pword[at] as number
-    const open = c.popen[at] as number
+    const word = c.pword[at]!
+    const open = c.popen[at]!
 
     for (const [l, tau, w, o] of [
       [i, ti, Math.floor(word / 81), open & 3],
       [j, tj, word % 81, (open >> 2) & 3],
     ] as const) {
-      const s = x * 24 + (LINE_FIRSTS[l] as number)
-      const q = x * 24 + (LINE_SECONDS[l] as number)
+      const s = x * 24 + LINE_FIRSTS[l]!
+      const q = x * 24 + LINE_SECONDS[l]!
 
       c.vibe[s] = tau
       c.vibe[q] = -tau
@@ -183,30 +264,50 @@ export function plaquettePiece(c: PlaquetteConfiguration, x: number, tally?: Pla
     c.punit[at] = 0
     c.pword[at] = 0
     c.popen[at] = 0
-    if (tally) tally.plaquettesMade++
+
+    if (tally) {
+      tally.plaquettesMade++
+    }
   }
 }
 
 // the collision's pieces at beat t (design choice 5): Q P K on even beats, K P Q on odd beats; `plaquettes` false gives
 // the working vacuum's P K / K P
-export function plaquetteSchedule(beat: number, plaquettes = true): readonly ('P' | 'Q' | 'K')[] {
+export function plaquetteSchedule(
+  beat: number,
+  plaquettes = true,
+): readonly ('P' | 'Q' | 'K')[] {
   const order = collisionOrder('alternate', beat)
 
-  if (!plaquettes) return order
+  if (!plaquettes) {
+    return order
+  }
 
   return beat % 2 === 0 ? ['Q', ...order] : [...order, 'Q']
 }
 
-export function collidePlaquette(tables: LockedTables, c: PlaquetteConfiguration, beat: number, inverse: boolean, tally?: PlaquetteTally, plaquettes = true, kind: VetoKind = 'none'): void {
+export function collidePlaquette(
+  tables: LockedTables,
+  c: PlaquetteConfiguration,
+  beat: number,
+  inverse: boolean,
+  tally?: PlaquetteTally,
+  plaquettes = true,
+  kind: VetoKind = 'none',
+): void {
   const order = plaquetteSchedule(beat, plaquettes)
   const pieces = inverse ? [...order].reverse() : order
   const count = inverse ? undefined : tally
 
   for (let x = 0; x < tables.cells; x++) {
     for (const piece of pieces) {
-      if (piece === 'P') pairPiece(kind, c, x, count)
-      else if (piece === 'Q') plaquettePiece(c, x, count)
-      else coinPiece(tables, c, x)
+      if (piece === 'P') {
+        pairPiece(kind, c, x, count)
+      } else if (piece === 'Q') {
+        plaquettePiece(c, x, count)
+      } else {
+        coinPiece(tables, c, x)
+      }
     }
   }
 }
@@ -214,38 +315,99 @@ export function collidePlaquette(tables: LockedTables, c: PlaquetteConfiguration
 // ---- comparing and mapping configurations ----
 
 // every slot, line store and unit, with points and words where held
-export function samePlaquettes(a: PlaquetteConfiguration, b: PlaquetteConfiguration): boolean {
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && (a.point[i] !== b.point[i] || a.open[i] !== b.open[i]))) return false
-  for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i]))) return false
-  for (let i = 0; i < a.punit.length; i++) if (a.punit[i] !== b.punit[i] || (a.punit[i] !== 0 && (a.pword[i] !== b.pword[i] || a.popen[i] !== b.popen[i]))) return false
+export function samePlaquettes(
+  a: PlaquetteConfiguration,
+  b: PlaquetteConfiguration,
+): boolean {
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 &&
+        (a.point[i] !== b.point[i] || a.open[i] !== b.open[i]))
+    ) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.store.length; i++) {
+    if (
+      a.store[i] !== b.store[i] ||
+      (a.store[i] !== 0 &&
+        (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i]))
+    ) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.punit.length; i++) {
+    if (
+      a.punit[i] !== b.punit[i] ||
+      (a.punit[i] !== 0 &&
+        (a.pword[i] !== b.pword[i] || a.popen[i] !== b.popen[i]))
+    ) {
+      return false
+    }
+  }
 
   return true
 }
 
 // the occupation only (vibe trits, line store trits, unit codes)
-export function sameOccupationPlaquettes(a: PlaquetteConfiguration, b: PlaquetteConfiguration): boolean {
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i]) return false
-  for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i]) return false
-  for (let i = 0; i < a.punit.length; i++) if (a.punit[i] !== b.punit[i]) return false
+export function sameOccupationPlaquettes(
+  a: PlaquetteConfiguration,
+  b: PlaquetteConfiguration,
+): boolean {
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (a.vibe[i] !== b.vibe[i]) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.store.length; i++) {
+    if (a.store[i] !== b.store[i]) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < a.punit.length; i++) {
+    if (a.punit[i] !== b.punit[i]) {
+      return false
+    }
+  }
 
   return true
 }
 
 // charge conjugation: every vibe and store trit negated, and each unit's two orientations; points and words kept
-export function conjugatePlaquettes(c: PlaquetteConfiguration): PlaquetteConfiguration {
+export function conjugatePlaquettes(
+  c: PlaquetteConfiguration,
+): PlaquetteConfiguration {
   const out = clonePlaquettes(c)
 
-  for (let i = 0; i < out.vibe.length; i++) out.vibe[i] = -(c.vibe[i] as number)
-  for (let i = 0; i < out.store.length; i++) out.store[i] = -(c.store[i] as number)
+  for (let i = 0; i < out.vibe.length; i++) {
+    out.vibe[i] = -c.vibe[i]!
+  }
+
+  for (let i = 0; i < out.store.length; i++) {
+    out.store[i] = -c.store[i]!
+  }
+
   // tau negates on both lines: bits 0 and 1 of unit - 1 flip
-  for (let i = 0; i < out.punit.length; i++) if (c.punit[i] !== 0) out.punit[i] = 1 + (((c.punit[i] as number) - 1) ^ 3)
+  for (let i = 0; i < out.punit.length; i++) {
+    if (c.punit[i] !== 0) {
+      out.punit[i] = 1 + ((c.punit[i]! - 1) ^ 3)
+    }
+  }
 
   return out
 }
 
 // ---- one dock on its own (the collision reads and writes one dock only) ----
 
-export function plaquetteDockOf(c: PlaquetteConfiguration, x: number): PlaquetteConfiguration {
+export function plaquetteDockOf(
+  c: PlaquetteConfiguration,
+  x: number,
+): PlaquetteConfiguration {
   return {
     vibe: c.vibe.slice(x * 24, x * 24 + 24),
     point: c.point.slice(x * 24, x * 24 + 24),
@@ -262,67 +424,112 @@ export function plaquetteDockOf(c: PlaquetteConfiguration, x: number): Plaquette
 export function plaquetteDockKey(c: PlaquetteConfiguration): string {
   const parts: number[] = []
 
-  for (let d = 0; d < 24; d++) parts.push(c.vibe[d] === 0 ? 0 : (c.vibe[d] as number) * 32 + (c.point[d] as number) * 2 + (c.open[d] as number))
-  for (let l = 0; l < 12; l++) parts.push(c.store[l] === 0 ? 0 : (c.store[l] as number) * 1024 + (c.spoint[l] as number) * 4 + (c.sopen[l] as number))
-  for (let f = 0; f < 3; f++) parts.push(c.punit[f] === 0 ? 0 : ((c.punit[f] as number) * 8192 + (c.pword[f] as number)) * 16 + (c.popen[f] as number))
+  for (let d = 0; d < 24; d++) {
+    parts.push(
+      c.vibe[d] === 0
+        ? 0
+        : c.vibe[d]! * 32 + c.point[d]! * 2 + c.open[d]!,
+    )
+  }
+
+  for (let l = 0; l < 12; l++) {
+    parts.push(
+      c.store[l] === 0
+        ? 0
+        : c.store[l]! * 1024 + c.spoint[l]! * 4 + c.sopen[l]!,
+    )
+  }
+
+  for (let f = 0; f < 3; f++) {
+    parts.push(
+      c.punit[f] === 0
+        ? 0
+        : (c.punit[f]! * 8192 + c.pword[f]!) * 16 + c.popen[f]!,
+    )
+  }
 
   return parts.join(',')
 }
 
-const SLOT_SIDE: readonly number[] = LINE_OF.map((l, d) => (LINE_FIRSTS[l] === d ? 0 : 1))
+const SLOT_SIDE: readonly number[] = LINE_OF.map((l, d) =>
+  LINE_FIRSTS[l] === d ? 0 : 1,
+)
 
 // a coin map g (a permutation of the 24 slots) on a one-dock configuration: slots and line stores as
 // code/measure/occupation-veto-readings slotMapDock, and each unit to the unit of its two image lines, each line's tau,
 // word and open bits read from the other side where g turns that line, the two lines put in the image frame's order
-export function slotMapPlaquetteDock(c: PlaquetteConfiguration, g: readonly number[]): PlaquetteConfiguration {
-  const out: PlaquetteConfiguration = { vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12), punit: new Int8Array(3), pword: new Int16Array(3), popen: new Uint8Array(3) }
+export function slotMapPlaquetteDock(
+  c: PlaquetteConfiguration,
+  g: readonly number[],
+): PlaquetteConfiguration {
+  const out: PlaquetteConfiguration = {
+    vibe: new Int8Array(24),
+    point: new Int8Array(24),
+    open: new Uint8Array(24),
+    store: new Int8Array(12),
+    spoint: new Int8Array(12),
+    sopen: new Uint8Array(12),
+    punit: new Int8Array(3),
+    pword: new Int16Array(3),
+    popen: new Uint8Array(3),
+  }
   const flipWord = (w: number): number => 9 * (w % 9) + ((w / 9) | 0)
   const flipOpen = (o: number): number => ((o & 1) << 1) | (o >> 1)
 
   for (let d = 0; d < 24; d++) {
-    const e = g[d] as number
+    const e = g[d]!
 
-    out.vibe[e] = c.vibe[d] as number
-    out.point[e] = c.point[d] as number
-    out.open[e] = c.open[d] as number
+    out.vibe[e] = c.vibe[d]!
+    out.point[e] = c.point[d]!
+    out.open[e] = c.open[d]!
   }
 
   for (let l = 0; l < 12; l++) {
-    const e = g[LINE_FIRSTS[l] as number] as number
-    const m = LINE_OF[e] as number
+    const e = g[LINE_FIRSTS[l]!]!
+    const m = LINE_OF[e]!
     const flipped = SLOT_SIDE[e] === 1
 
-    out.store[m] = flipped ? -(c.store[l] as number) : (c.store[l] as number)
-    out.spoint[m] = flipped ? flipWord(c.spoint[l] as number) : (c.spoint[l] as number)
-    out.sopen[m] = flipped ? flipOpen(c.sopen[l] as number) : (c.sopen[l] as number)
+    out.store[m] = flipped ? -c.store[l]! : c.store[l]!
+    out.spoint[m] = flipped ? flipWord(c.spoint[l]!) : c.spoint[l]!
+    out.sopen[m] = flipped ? flipOpen(c.sopen[l]!) : c.sopen[l]!
   }
 
   for (let f = 0; f < 3; f++) {
-    const unit = c.punit[f] as number
+    const unit = c.punit[f]!
 
-    if (unit === 0) continue
+    if (unit === 0) {
+      continue
+    }
 
     const { i, j, ti, tj } = unitLines(f, unit)
-    const word = c.pword[f] as number
-    const open = c.popen[f] as number
+    const word = c.pword[f]!
+    const open = c.popen[f]!
     const halves = [
       { l: i, tau: ti, w: Math.floor(word / 81), o: open & 3 },
       { l: j, tau: tj, w: word % 81, o: (open >> 2) & 3 },
     ].map(h => {
-      const e = g[LINE_FIRSTS[h.l] as number] as number
+      const e = g[LINE_FIRSTS[h.l]!]!
       const flipped = SLOT_SIDE[e] === 1
 
-      return { l: LINE_OF[e] as number, tau: flipped ? -h.tau : h.tau, w: flipped ? flipWord(h.w) : h.w, o: flipped ? flipOpen(h.o) : h.o }
+      return {
+        l: LINE_OF[e]!,
+        tau: flipped ? -h.tau : h.tau,
+        w: flipped ? flipWord(h.w) : h.w,
+        o: flipped ? flipOpen(h.o) : h.o,
+      }
     })
-    const frame = FRAME_OF_LINE[halves[0]!.l] as number
-    const ls = FRAME_LINES[frame] as readonly number[]
+    const frame = FRAME_OF_LINE[halves[0]!.l]!
+    const ls = FRAME_LINES[frame]!
 
     halves.sort((p, q) => ls.indexOf(p.l) - ls.indexOf(q.l))
 
     const [hi, hj] = halves as [(typeof halves)[0], (typeof halves)[0]]
-    const k = FRAME_PAIRS.findIndex(([a, b]) => a === ls.indexOf(hi.l) && b === ls.indexOf(hj.l))
+    const k = FRAME_PAIRS.findIndex(
+      ([a, b]) => a === ls.indexOf(hi.l) && b === ls.indexOf(hj.l),
+    )
 
-    out.punit[frame] = 1 + 4 * k + (hi.tau < 0 ? 1 : 0) + (hj.tau < 0 ? 2 : 0)
+    out.punit[frame] =
+      1 + 4 * k + (hi.tau < 0 ? 1 : 0) + (hj.tau < 0 ? 2 : 0)
     out.pword[frame] = 81 * hi.w + hj.w
     out.popen[frame] = hi.o | (hj.o << 2)
   }
@@ -331,10 +538,23 @@ export function slotMapPlaquetteDock(c: PlaquetteConfiguration, g: readonly numb
 }
 
 // the collision of beat `beat` (or its inverse) on a one-dock configuration, a fresh copy
-export function collidePlaquetteDock(tables: LockedTables, c: PlaquetteConfiguration, beat: number, inverse: boolean, plaquettes = true): PlaquetteConfiguration {
+export function collidePlaquetteDock(
+  tables: LockedTables,
+  c: PlaquetteConfiguration,
+  beat: number,
+  inverse: boolean,
+  plaquettes = true,
+): PlaquetteConfiguration {
   const out = clonePlaquettes(c)
 
-  collidePlaquette({ ...tables, cells: 1 }, out, beat, inverse, undefined, plaquettes)
+  collidePlaquette(
+    { ...tables, cells: 1 },
+    out,
+    beat,
+    inverse,
+    undefined,
+    plaquettes,
+  )
 
   return out
 }

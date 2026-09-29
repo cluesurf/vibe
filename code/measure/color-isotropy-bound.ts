@@ -22,7 +22,10 @@
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { linearMapOf } from '@/code/substrate/d4-box'
-import { forcedIsotropySpread, unitSamples } from '@/code/measure/coarse-modes'
+import {
+  forcedIsotropySpread,
+  unitSamples,
+} from '@/code/measure/coarse-modes'
 
 export type GroupTable = {
   readonly permutations: readonly (readonly number[])[]
@@ -41,7 +44,9 @@ const GENERIC = [0.31, -0.74, 0.52, 0.29]
 
 export function groupTable(): GroupTable {
   const roots = rootsD4()
-  const permutations = weylF4DirectionPermutations({ directions: roots })
+  const permutations = weylF4DirectionPermutations({
+    directions: roots,
+  })
   const n = permutations.length
   const key = (p: readonly number[]): string => p.join(',')
   const index = new Map(permutations.map((p, i) => [key(p), i]))
@@ -51,15 +56,23 @@ export function groupTable(): GroupTable {
     for (let b = 0; b < n; b++) {
       const pa = permutations[a] ?? []
 
-      multiply[a * n + b] = index.get(key((permutations[b] ?? []).map(d => pa[d] ?? 0))) ?? -1
+      multiply[a * n + b] =
+        index.get(key((permutations[b] ?? []).map(d => pa[d] ?? 0))) ??
+        -1
     }
   }
 
-  const opposite = roots.map(r => roots.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+  const opposite = roots.map(r =>
+    roots.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+  )
   const identity = index.get(key(roots.map((_, i) => i))) ?? 0
   const minus = index.get(key(opposite)) ?? -1
   const inverse = Array.from({ length: n }, (_, a) => {
-    for (let b = 0; b < n; b++) if (multiply[a * n + b] === identity) return b
+    for (let b = 0; b < n; b++) {
+      if (multiply[a * n + b] === identity) {
+        return b
+      }
+    }
 
     return -1
   })
@@ -88,11 +101,20 @@ export function groupTable(): GroupTable {
     side,
     lineOf,
     firsts,
-    spread: members => forcedIsotropySpread({ group: members.map(i => matrices[i] ?? []), rank: 2, generic: GENERIC, samples }),
+    spread: members =>
+      forcedIsotropySpread({
+        group: members.map(i => matrices[i] ?? []),
+        rank: 2,
+        generic: GENERIC,
+        samples,
+      }),
   }
 }
 
-export function closure(table: GroupTable, gens: readonly number[]): number[] {
+export function closure(
+  table: GroupTable,
+  gens: readonly number[],
+): number[] {
   const n = table.permutations.length
   const seen = new Set<number>([table.identity])
   const queue = [table.identity]
@@ -114,9 +136,12 @@ export function closure(table: GroupTable, gens: readonly number[]): number[] {
 }
 
 // row echelon basis
-export function rowBasis(rows: readonly (readonly number[])[]): number[][] {
+export function rowBasis(
+  rows: readonly (readonly number[])[],
+): number[][] {
   const m = rows.map(r => [...r])
   const cols = m[0]?.length ?? 0
+
   let r = 0
 
   for (let c = 0; c < cols && r < m.length; c++) {
@@ -129,7 +154,9 @@ export function rowBasis(rows: readonly (readonly number[])[]): number[][] {
       }
     }
 
-    if (pivot < 0) continue
+    if (pivot < 0) {
+      continue
+    }
 
     const tmp = m[r] ?? []
 
@@ -141,11 +168,15 @@ export function rowBasis(rows: readonly (readonly number[])[]): number[][] {
     m[r] = (m[r] ?? []).map(x => x / lead)
 
     for (let i = 0; i < m.length; i++) {
-      if (i === r) continue
+      if (i === r) {
+        continue
+      }
 
       const f = m[i]?.[c] ?? 0
 
-      if (Math.abs(f) > 1e-12) m[i] = (m[i] ?? []).map((x, k) => x - f * (m[r]?.[k] ?? 0))
+      if (Math.abs(f) > 1e-12) {
+        m[i] = (m[i] ?? []).map((x, k) => x - f * (m[r]?.[k] ?? 0))
+      }
     }
 
     r++
@@ -155,31 +186,46 @@ export function rowBasis(rows: readonly (readonly number[])[]): number[][] {
 }
 
 // D o x as a form on the line momenta
-export const sideImage = (table: GroupTable, x: number): number[] => table.firsts.map(d => table.side[table.permutations[x]?.[d] ?? 0] ?? 0)
+export const sideImage = (table: GroupTable, x: number): number[] =>
+  table.firsts.map(
+    d => table.side[table.permutations[x]?.[d] ?? 0] ?? 0,
+  )
 
 export const momentumRows = (table: GroupTable): number[][] => {
   const roots = rootsD4()
 
-  return [0, 1, 2, 3].map(k => table.firsts.map(d => roots[d]?.[k] ?? 0))
+  return [0, 1, 2, 3].map(k =>
+    table.firsts.map(d => roots[d]?.[k] ?? 0),
+  )
 }
 
 // a basis of the forced forms of a group: P and D o g
-export function forcedForms(table: GroupTable, group: readonly number[]): number[][] {
+export function forcedForms(
+  table: GroupTable,
+  group: readonly number[],
+): number[][] {
   const distinct = new Map<string, number[]>()
 
-  for (const x of group) distinct.set(sideImage(table, x).join(','), sideImage(table, x))
+  for (const x of group) {
+    distinct.set(sideImage(table, x).join(','), sideImage(table, x))
+  }
 
   return rowBasis([...momentumRows(table), ...distinct.values()])
 }
 
 // every half-set (a sign on each line against index orientation): its signed stabilizer and whether that
 // acts irreducibly
-export function sideStabilizerCensus(table: GroupTable): { irreducible: number; largest: number } {
+export function sideStabilizerCensus(table: GroupTable): {
+  irreducible: number
+  largest: number
+} {
   let irreducible = 0
   let largest = 0
 
   for (let m = 0; m < 4096; m++) {
-    const s = table.side.map((x, d) => ((m >> (table.lineOf[d] ?? 0)) & 1 ? -x : x))
+    const s = table.side.map((x, d) =>
+      (m >> (table.lineOf[d] ?? 0)) & 1 ? -x : x,
+    )
     const stab: number[] = []
 
     table.permutations.forEach((p, g) => {
@@ -193,29 +239,48 @@ export function sideStabilizerCensus(table: GroupTable): { irreducible: number; 
         minus = minus && image === -(s[d] ?? 0)
       }
 
-      if (plus || minus) stab.push(g)
+      if (plus || minus) {
+        stab.push(g)
+      }
     })
 
     largest = Math.max(largest, stab.length)
 
-    if (table.spread(stab) < 1e-9) irreducible++
+    if (table.spread(stab) < 1e-9) {
+      irreducible++
+    }
   }
 
   return { irreducible, largest }
 }
 
-const composeForm = (table: GroupTable, f: readonly number[], g: number): number[] =>
+const composeForm = (
+  table: GroupTable,
+  f: readonly number[],
+  g: number,
+): number[] =>
   table.firsts.map(d => {
     const e = table.permutations[g]?.[d] ?? 0
 
     return (table.side[e] ?? 1) * (f[table.lineOf[e] ?? 0] ?? 0)
   })
 
-function stabilizerOf(table: GroupTable, basis: readonly number[][]): number[] {
+function stabilizerOf(
+  table: GroupTable,
+  basis: readonly number[][],
+): number[] {
   const out: number[] = []
 
   for (let g = 0; g < table.permutations.length; g++) {
-    if (basis.every(f => rowBasis([...basis, composeForm(table, f, g)]).length === basis.length)) out.push(g)
+    if (
+      basis.every(
+        f =>
+          rowBasis([...basis, composeForm(table, f, g)]).length ===
+          basis.length,
+      )
+    ) {
+      out.push(g)
+    }
   }
 
   return out
@@ -224,39 +289,66 @@ function stabilizerOf(table: GroupTable, basis: readonly number[][]): number[] {
 function imagesOfD(table: GroupTable): number[][] {
   const orbit = new Map<string, number[]>()
 
-  for (let x = 0; x < table.permutations.length; x++) orbit.set(sideImage(table, x).join(','), sideImage(table, x))
+  for (let x = 0; x < table.permutations.length; x++) {
+    orbit.set(sideImage(table, x).join(','), sideImage(table, x))
+  }
 
   return [...orbit.values()]
 }
 
-const keyOf = (basis: readonly number[][]): string => basis.map(r => r.map(x => Math.round(x * 1e6) / 1e6).join(',')).join(';')
+const keyOf = (basis: readonly number[][]): string =>
+  basis
+    .map(r => r.map(x => Math.round(x * 1e6) / 1e6).join(','))
+    .join(';')
 
 // every subspace of dimension at most 7 spanned by P, D and two images of D, and how many have an
 // irreducible stabilizer (0 proves every irreducible group forces at least 8 forms)
-export function forcedRankBound(table: GroupTable): { images: number; subspaces: number; irreducible: number } {
+export function forcedRankBound(table: GroupTable): {
+  images: number
+  subspaces: number
+  irreducible: number
+} {
   const vectors = imagesOfD(table)
-  const base = rowBasis([...momentumRows(table), table.firsts.map(() => 1)])
+  const base = rowBasis([
+    ...momentumRows(table),
+    table.firsts.map(() => 1),
+  ])
   const subspaces = new Map<string, number[][]>()
 
   for (let i = 0; i < vectors.length; i++) {
     for (let j = i; j < vectors.length; j++) {
-      const basis = rowBasis([...base, vectors[i] ?? [], vectors[j] ?? []])
+      const basis = rowBasis([
+        ...base,
+        vectors[i] ?? [],
+        vectors[j] ?? [],
+      ])
 
-      if (basis.length <= 7) subspaces.set(keyOf(basis), basis)
+      if (basis.length <= 7) {
+        subspaces.set(keyOf(basis), basis)
+      }
     }
   }
 
   let irreducible = 0
 
   for (const basis of subspaces.values()) {
-    if (table.spread(stabilizerOf(table, basis)) < 1e-9) irreducible++
+    if (table.spread(stabilizerOf(table, basis)) < 1e-9) {
+      irreducible++
+    }
   }
 
-  return { images: vectors.length, subspaces: subspaces.size, irreducible }
+  return {
+    images: vectors.length,
+    subspaces: subspaces.size,
+    irreducible,
+  }
 }
 
 // the tone twists of a group: homomorphisms to +-1, constant on cosets of its squares and commutators
-export function twists(table: GroupTable, group: readonly number[]): Map<number, number>[] {
+export function twists(
+  table: GroupTable,
+  group: readonly number[],
+): Map<number, number>[] {
   const n = table.permutations.length
   const gens: number[] = []
 
@@ -264,22 +356,36 @@ export function twists(table: GroupTable, group: readonly number[]): Map<number,
     gens.push(table.multiply[a * n + a] ?? 0)
 
     for (const b of group) {
-      gens.push(table.multiply[(table.multiply[(table.multiply[a * n + b] ?? 0) * n + (table.inverse[a] ?? 0)] ?? 0) * n + (table.inverse[b] ?? 0)] ?? 0)
+      gens.push(
+        table.multiply[
+          (table.multiply[
+            (table.multiply[a * n + b] ?? 0) * n +
+              (table.inverse[a] ?? 0)
+          ] ?? 0) *
+            n +
+            (table.inverse[b] ?? 0)
+        ] ?? 0,
+      )
     }
   }
 
   const kernel = new Set(closure(table, [...new Set(gens)]))
   const basis: number[] = []
+
   let span = new Set(kernel)
 
   for (const a of group) {
-    if (span.has(a)) continue
+    if (span.has(a)) {
+      continue
+    }
 
     basis.push(a)
 
     const next = new Set(span)
 
-    for (const x of span) next.add(table.multiply[a * n + x] ?? 0)
+    for (const x of span) {
+      next.add(table.multiply[a * n + x] ?? 0)
+    }
 
     span = next
   }
@@ -289,7 +395,9 @@ export function twists(table: GroupTable, group: readonly number[]): Map<number,
   for (let mask = 0; mask < 1 << basis.length; mask++) {
     const tau = new Map<number, number>()
 
-    for (const x of kernel) tau.set(x, 1)
+    for (const x of kernel) {
+      tau.set(x, 1)
+    }
 
     basis.forEach((b, i) => {
       const sign = (mask >> i) & 1 ? -1 : 1
@@ -297,7 +405,9 @@ export function twists(table: GroupTable, group: readonly number[]): Map<number,
       for (const [x, v] of [...tau]) {
         const y = table.multiply[b * n + x] ?? 0
 
-        if (!tau.has(y)) tau.set(y, v * sign)
+        if (!tau.has(y)) {
+          tau.set(y, v * sign)
+        }
       }
     })
 
@@ -308,10 +418,15 @@ export function twists(table: GroupTable, group: readonly number[]): Map<number,
 }
 
 // every subgroup of a group, by adjoining one element at a time
-export function subgroupsOf(table: GroupTable, host: readonly number[]): number[][] {
+export function subgroupsOf(
+  table: GroupTable,
+  host: readonly number[],
+): number[][] {
   const found = new Map<string, number[]>()
   const trivial = closure(table, [])
-  const queue: { group: number[]; gens: number[] }[] = [{ group: trivial, gens: [] }]
+  const queue: { group: number[]; gens: number[] }[] = [
+    { group: trivial, gens: [] },
+  ]
 
   found.set(trivial.join(','), trivial)
 
@@ -320,7 +435,9 @@ export function subgroupsOf(table: GroupTable, host: readonly number[]): number[
     const inside = new Set(group)
 
     for (const h of host) {
-      if (inside.has(h)) continue
+      if (inside.has(h)) {
+        continue
+      }
 
       const next = closure(table, [...gens, h])
       const id = next.join(',')
@@ -337,44 +454,71 @@ export function subgroupsOf(table: GroupTable, host: readonly number[]): number[
 
 // every irreducible group of forced rank 8: the subgroups of the irreducible stabilizers of the
 // dimension-8 spaces spanned by P, D and three images of D
-export function leastRankGroups(table: GroupTable): { spaces: number; hosts: number[]; groups: number[][] } {
+export function leastRankGroups(table: GroupTable): {
+  spaces: number
+  hosts: number[]
+  groups: number[][]
+} {
   const vectors = imagesOfD(table)
-  const base = rowBasis([...momentumRows(table), table.firsts.map(() => 1)])
+  const base = rowBasis([
+    ...momentumRows(table),
+    table.firsts.map(() => 1),
+  ])
   const spaces = new Map<string, number[][]>()
 
   for (let i = 0; i < vectors.length; i++) {
     const bi = rowBasis([...base, vectors[i] ?? []])
 
-    if (bi.length !== 6) continue
+    if (bi.length !== 6) {
+      continue
+    }
 
     for (let j = i + 1; j < vectors.length; j++) {
       const bj = rowBasis([...bi, vectors[j] ?? []])
 
-      if (bj.length !== 7) continue
+      if (bj.length !== 7) {
+        continue
+      }
 
       for (let k = j + 1; k < vectors.length; k++) {
         const bk = rowBasis([...bj, vectors[k] ?? []])
 
-        if (bk.length === 8) spaces.set(keyOf(bk), bk)
+        if (bk.length === 8) {
+          spaces.set(keyOf(bk), bk)
+        }
       }
     }
   }
 
-  const hosts = [...spaces.values()].map(b => stabilizerOf(table, b)).filter(s => table.spread(s) < 1e-9)
+  const hosts = [...spaces.values()]
+    .map(b => stabilizerOf(table, b))
+    .filter(s => table.spread(s) < 1e-9)
   const groups = new Map<string, number[]>()
 
   for (const host of hosts) {
     for (const g of subgroupsOf(table, host)) {
-      if (table.spread(g) < 1e-9 && forcedForms(table, g).length === 8) groups.set(g.join(','), g)
+      if (
+        table.spread(g) < 1e-9 &&
+        forcedForms(table, g).length === 8
+      ) {
+        groups.set(g.join(','), g)
+      }
     }
   }
 
-  return { spaces: spaces.size, hosts: hosts.map(h => h.length), groups: [...groups.values()] }
+  return {
+    spaces: spaces.size,
+    hosts: hosts.map(h => h.length),
+    groups: [...groups.values()],
+  }
 }
 
-function* orientedPartitions(rest: readonly number[]): Generator<[number, number][]> {
+function* orientedPartitions(
+  rest: readonly number[],
+): Generator<[number, number][]> {
   if (rest.length === 0) {
     yield []
+
     return
   }
 
@@ -393,14 +537,26 @@ function* orientedPartitions(rest: readonly number[]): Generator<[number, number
 
 // how many oriented couple partitions [plus line, minus line] a group keeps under a twist: g carries a
 // couple's plus line to a plus line when its twist is +1 and to a minus line when it is -1
-export function keptCouplePartitions(table: GroupTable, group: readonly number[], tau: ReadonlyMap<number, number>, limit = Infinity): number {
-  const lineImage = (x: number, l: number): number => table.lineOf[table.permutations[x]?.[table.firsts[l] ?? 0] ?? 0] ?? 0
+export function keptCouplePartitions(
+  table: GroupTable,
+  group: readonly number[],
+  tau: ReadonlyMap<number, number>,
+  limit = Infinity,
+): number {
+  const lineImage = (x: number, l: number): number =>
+    table.lineOf[table.permutations[x]?.[table.firsts[l] ?? 0] ?? 0] ??
+    0
+
   let kept = 0
 
-  for (const part of orientedPartitions(Array.from({ length: 12 }, (_, l) => l))) {
+  for (const part of orientedPartitions(
+    Array.from({ length: 12 }, (_, l) => l),
+  )) {
     const plusOf = new Array<number>(12).fill(-1)
 
-    for (const [p, m] of part) plusOf[p] = m
+    for (const [p, m] of part) {
+      plusOf[p] = m
+    }
 
     const ok = group.every(x => {
       const t = tau.get(x) ?? 1
@@ -413,7 +569,9 @@ export function keptCouplePartitions(table: GroupTable, group: readonly number[]
       })
     })
 
-    if (ok && ++kept >= limit) return kept
+    if (ok && ++kept >= limit) {
+      return kept
+    }
   }
 
   return kept

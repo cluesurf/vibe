@@ -31,7 +31,10 @@
 //
 // Floats, as measurement: a stand-in, not the exact rule. DETERMINISM: no random numbers; starts are placed.
 
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
 import { LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
@@ -63,33 +66,54 @@ export type CrossState = Map<string, Amp>
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const rootIndex = (r: readonly number[]): number => ROOTS.findIndex(o => o.every((x, k) => x === r[k]))
+export const rootIndex = (r: readonly number[]): number =>
+  ROOTS.findIndex(o => o.every((x, k) => x === r[k]))
 
 export function slotOf(spec: CrossSpec, b: Body): number {
-  const first = spec.roots[b.line] as number
+  const first = spec.roots[b.line]!
 
-  return b.j === 0 ? first : (OPPOSITE[first] as number)
+  return b.j === 0 ? first : OPPOSITE[first]!
 }
 
-function bodyOfSlot(spec: CrossSpec, d: number): { line: number; j: number } {
+function bodyOfSlot(
+  spec: CrossSpec,
+  d: number,
+): { line: number; j: number } {
   for (let line = 0; line < 2; line++) {
-    const first = spec.roots[line] as number
+    const first = spec.roots[line]!
 
-    if (d === first) return { line, j: 0 }
-    if (d === OPPOSITE[first]) return { line, j: 1 }
+    if (d === first) {
+      return { line, j: 0 }
+    }
+
+    if (d === OPPOSITE[first]) {
+      return { line, j: 1 }
+    }
   }
 
-  throw new Error('crossing-lines: the contact sent a vibe off both lines')
+  throw new Error(
+    'crossing-lines: the contact sent a vibe off both lines',
+  )
 }
 
-export function encode(bodies: readonly Body[], flux: readonly number[]): string {
+export function encode(
+  bodies: readonly Body[],
+  flux: readonly number[],
+): string {
   return `${bodies.map(b => `${b.line}.${b.p}.${b.j}`).join(',')}|${flux.join('')}`
 }
 
-export function decode(key: string): { bodies: Body[]; flux: number[] } {
+export function decode(key: string): {
+  bodies: Body[]
+  flux: number[]
+} {
   const [b, f] = key.split('|') as [string, string]
   const bodies = b.split(',').map(t => {
-    const [line, p, j] = t.split('.').map(Number) as [number, number, number]
+    const [line, p, j] = t.split('.').map(Number) as [
+      number,
+      number,
+      number,
+    ]
 
     return { line, p, j }
   })
@@ -98,26 +122,51 @@ export function decode(key: string): { bodies: Body[]; flux: number[] } {
 }
 
 // the string's length: the links holding a nonzero trit (what the cost reads)
-export const stringLength = (flux: readonly number[]): number => flux.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
+export const stringLength = (flux: readonly number[]): number =>
+  flux.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
 // Gauss on the figure eight: at a dock off X, f_out - f_in = its charge on its ring; at X the two rings' net outflow
 // is the charge there (both vibes' and the anchor's)
-export function gaussHolds(spec: CrossSpec, bodies: readonly Body[], flux: readonly number[]): boolean {
+export function gaussHolds(
+  spec: CrossSpec,
+  bodies: readonly Body[],
+  flux: readonly number[],
+): boolean {
   const { L } = spec
-  const charge = (line: number, p: number): number => bodies.reduce((a, b, i) => a + (b.p === p && (p === 0 || b.line === line) ? (spec.charges[i] as number) : 0), 0)
+  const charge = (line: number, p: number): number =>
+    bodies.reduce(
+      (a, b, i) =>
+        a +
+        (b.p === p && (p === 0 || b.line === line)
+          ? spec.charges[i]!
+          : 0),
+      0,
+    )
 
   for (let line = 0; line < 2; line++) {
     for (let p = 1; p < L; p++) {
-      if (mod((flux[line * L + p] as number) - (flux[line * L + p - 1] as number) - charge(line, p), 3) !== 0) return false
+      if (
+        mod(
+          flux[line * L + p]! -
+            flux[line * L + p - 1]! -
+            charge(line, p),
+          3,
+        ) !== 0
+      ) {
+        return false
+      }
     }
   }
 
-  const out = (flux[0] as number) - (flux[L - 1] as number) + (flux[L] as number) - (flux[2 * L - 1] as number)
+  const out = flux[0]! - flux[L - 1]! + flux[L]! - flux[2 * L - 1]!
 
   return mod(out - charge(0, 0) - (spec.anchor ?? 0), 3) === 0
 }
 
-const cmul = (a: Amp, b: Amp): Amp => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: Amp, b: Amp): Amp => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 
 function add(out: CrossState, key: string, a: Amp): void {
   const o = out.get(key)
@@ -125,34 +174,46 @@ function add(out: CrossState, key: string, a: Amp): void {
   if (o) {
     o[0] += a[0]
     o[1] += a[1]
-  } else out.set(key, [a[0], a[1]])
+  } else {
+    out.set(key, [a[0], a[1]])
+  }
 }
 
 // the contact's slot images for the vibes at X (identity when fewer than one is there), read from the table
 function contactAt(spec: CrossSpec, bodies: readonly Body[]): Body[] {
-  if (spec.contact === 'off') return bodies.map(b => ({ ...b }))
+  if (spec.contact === 'off') {
+    return bodies.map(b => ({ ...b }))
+  }
 
   const at = bodies.map((b, i) => ({ b, i })).filter(t => t.b.p === 0)
 
-  if (at.length === 0) return bodies.map(b => ({ ...b }))
+  if (at.length === 0) {
+    return bodies.map(b => ({ ...b }))
+  }
 
   const vibe = new Int8Array(24)
 
   for (const t of at) {
     const d = slotOf(spec, t.b)
 
-    if (vibe[d] !== 0) throw new Error('crossing-lines: two vibes on one slot at X')
-    vibe[d] = spec.charges[t.i] as number
+    if (vibe[d] !== 0) {
+      throw new Error('crossing-lines: two vibes on one slot at X')
+    }
+
+    vibe[d] = spec.charges[t.i]!
   }
 
   const perm = new Int32Array(24)
-  const moved = bouncePermutation(BOUNCE_TABLE, 'pass', vibe, 0, perm) !== 0
+  const moved =
+    bouncePermutation(BOUNCE_TABLE, 'pass', vibe, 0, perm) !== 0
   const out = bodies.map(b => ({ ...b }))
 
-  if (!moved) return out
+  if (!moved) {
+    return out
+  }
 
   for (const t of at) {
-    const image = bodyOfSlot(spec, perm[slotOf(spec, t.b)] as number)
+    const image = bodyOfSlot(spec, perm[slotOf(spec, t.b)]!)
 
     out[t.i] = { line: image.line, p: 0, j: image.j }
   }
@@ -168,11 +229,14 @@ export function crossBeat(spec: CrossSpec, s: CrossState): CrossState {
 
   for (const [key, a0] of s) {
     const { bodies, flux } = decode(key)
-    const phase = spec.cost ? (-Math.PI * stringLength(flux)) / (CROSS_CLOCK / 2) : 0
+    const phase = spec.cost
+      ? (-Math.PI * stringLength(flux)) / (CROSS_CLOCK / 2)
+      : 0
     const a = cmul(a0, [Math.cos(phase), Math.sin(phase)])
 
     for (let mask = 0; mask < 1 << n; mask++) {
       let amp: Amp = a
+
       const coined = bodies.map((b, i) => {
         const flip = ((mask >> i) & 1) === 1
 
@@ -183,15 +247,18 @@ export function crossBeat(spec: CrossSpec, s: CrossState): CrossState {
       const hit = contactAt(spec, coined)
       const f = flux.slice()
       const moved = hit.map((b, i) => {
-        const q = spec.charges[i] as number
+        const q = spec.charges[i]!
 
         if (b.j === 0) {
-          f[b.line * L + b.p] = mod((f[b.line * L + b.p] as number) - q, 3)
+          f[b.line * L + b.p] = mod(f[b.line * L + b.p]! - q, 3)
 
           return { ...b, p: mod(b.p + 1, L) }
         }
 
-        f[b.line * L + mod(b.p - 1, L)] = mod((f[b.line * L + mod(b.p - 1, L)] as number) + q, 3)
+        f[b.line * L + mod(b.p - 1, L)] = mod(
+          f[b.line * L + mod(b.p - 1, L)]! + q,
+          3,
+        )
 
         return { ...b, p: mod(b.p - 1, L) }
       })
@@ -222,7 +289,9 @@ export function prune(s: CrossState, floor: number): number {
 export function weightOf(s: CrossState): number {
   let w = 0
 
-  for (const a of s.values()) w += a[0] ** 2 + a[1] ** 2
+  for (const a of s.values()) {
+    w += a[0] ** 2 + a[1] ** 2
+  }
 
   return w
 }
@@ -234,7 +303,10 @@ export function overlapOf(a: CrossState, b: CrossState): Amp {
   for (const [k, x] of a) {
     const y = b.get(k)
 
-    if (!y) continue
+    if (!y) {
+      continue
+    }
+
     r += x[0] * y[0] + x[1] * y[1]
     i += x[0] * y[1] - x[1] * y[0]
   }
@@ -243,16 +315,24 @@ export function overlapOf(a: CrossState, b: CrossState): Amp {
 }
 
 // the signed position along a ring (the nearer way round from X)
-export const signedPosition = (L: number, p: number): number => (p <= L / 2 ? p : p - L)
+export const signedPosition = (L: number, p: number): number =>
+  p <= L / 2 ? p : p - L
 
 // the unit direction of each line in the 4d root frame (a root has length sqrt 2; a dock step is one unit)
-export const lineDirection = (spec: CrossSpec, line: number): number[] => (ROOTS[spec.roots[line] as number] as number[]).map(x => x / Math.SQRT2)
+export const lineDirection = (
+  spec: CrossSpec,
+  line: number,
+): number[] => ROOTS[spec.roots[line]!]!.map(x => x / Math.SQRT2)
 
 // weight on strings longer than `n` links
 export function tailWeight(s: CrossState, n: number): number {
   let w = 0
 
-  for (const [k, a] of s) if (stringLength(decode(k).flux) > n) w += a[0] ** 2 + a[1] ** 2
+  for (const [k, a] of s) {
+    if (stringLength(decode(k).flux) > n) {
+      w += a[0] ** 2 + a[1] ** 2
+    }
+  }
 
   return w
 }
@@ -260,7 +340,9 @@ export function tailWeight(s: CrossState, n: number): number {
 // the centroid of the vibes (mean of their positions, docks along each line's direction), a 4d vector
 export function centroid(spec: CrossSpec, s: CrossState): number[] {
   const out = [0, 0, 0, 0]
+
   let total = 0
+
   const dirs = [lineDirection(spec, 0), lineDirection(spec, 1)]
 
   for (const [k, a] of s) {
@@ -268,10 +350,13 @@ export function centroid(spec: CrossSpec, s: CrossState): number[] {
     const { bodies } = decode(k)
 
     total += w
+
     for (const b of bodies) {
       const x = signedPosition(spec.L, b.p)
 
-      for (let c = 0; c < 4; c++) out[c] = (out[c] as number) + (w * x * ((dirs[b.line] as number[])[c] as number)) / bodies.length
+      for (let c = 0; c < 4; c++) {
+        out[c] = out[c]! + (w * x * dirs[b.line]![c]!) / bodies.length
+      }
     }
   }
 
@@ -279,12 +364,19 @@ export function centroid(spec: CrossSpec, s: CrossState): number[] {
 }
 
 // e^(i sum_v k_line(v) x(v)) on every configuration: each vibe takes the momentum of its line
-export function boost(spec: CrossSpec, s: CrossState, k: readonly [number, number]): CrossState {
+export function boost(
+  spec: CrossSpec,
+  s: CrossState,
+  k: readonly [number, number],
+): CrossState {
   const out: CrossState = new Map()
 
   for (const [key, a] of s) {
     const { bodies } = decode(key)
-    const phase = bodies.reduce((acc, b) => acc + (k[b.line] as number) * signedPosition(spec.L, b.p), 0)
+    const phase = bodies.reduce(
+      (acc, b) => acc + k[b.line]! * signedPosition(spec.L, b.p),
+      0,
+    )
 
     out.set(key, cmul(a, [Math.cos(phase), Math.sin(phase)]))
   }
@@ -294,17 +386,26 @@ export function boost(spec: CrossSpec, s: CrossState, k: readonly [number, numbe
 
 // the flux of vibes made at X and copied out to their positions along their own lines (the stream's record, step by
 // step): the string runs from X along each line to its vibe
-export function walkedFlux(spec: CrossSpec, bodies: readonly Body[]): number[] {
+export function walkedFlux(
+  spec: CrossSpec,
+  bodies: readonly Body[],
+): number[] {
   const { L } = spec
   const f = new Array<number>(2 * L).fill(0)
 
   bodies.forEach((b, i) => {
-    const q = spec.charges[i] as number
+    const q = spec.charges[i]!
     const x = signedPosition(L, b.p)
 
     for (let s = 0; s < Math.abs(x); s++) {
-      if (x > 0) f[b.line * L + s] = mod((f[b.line * L + s] as number) - q, 3)
-      else f[b.line * L + mod(-s - 1, L)] = mod((f[b.line * L + mod(-s - 1, L)] as number) + q, 3)
+      if (x > 0) {
+        f[b.line * L + s] = mod(f[b.line * L + s]! - q, 3)
+      } else {
+        f[b.line * L + mod(-s - 1, L)] = mod(
+          f[b.line * L + mod(-s - 1, L)]! + q,
+          3,
+        )
+      }
     }
   })
 
@@ -313,12 +414,21 @@ export function walkedFlux(spec: CrossSpec, bodies: readonly Body[]): number[] {
 
 // a placed packet: every vibe v on line lines[v] at signed positions -radius .. radius with amplitude
 // envelope(x) e^(i k_v x) times the slot spinor spinors[v], the flux walked out from X; normalized
-export function placedPacket(spec: CrossSpec, lines: readonly number[], radius: number, envelope: (x: number) => number, k: readonly number[], spinors: readonly (readonly [Amp, Amp])[]): CrossState {
+export function placedPacket(
+  spec: CrossSpec,
+  lines: readonly number[],
+  radius: number,
+  envelope: (x: number) => number,
+  k: readonly number[],
+  spinors: readonly (readonly [Amp, Amp])[],
+): CrossState {
   const out: CrossState = new Map()
   const n = lines.length
   const xs: number[] = []
 
-  for (let x = -radius; x <= radius; x++) xs.push(x)
+  for (let x = -radius; x <= radius; x++) {
+    xs.push(x)
+  }
 
   const choose = (v: number, acc: Body[], amp: Amp): void => {
     if (v === n) {
@@ -330,11 +440,18 @@ export function placedPacket(spec: CrossSpec, lines: readonly number[], radius: 
     for (const x of xs) {
       for (const j of [0, 1]) {
         const e = envelope(x)
-        const ph = (k[v] as number) * x
-        const sp = (spinors[v] as readonly [Amp, Amp])[j] as Amp
-        const a = cmul(cmul(amp, [e * Math.cos(ph), e * Math.sin(ph)]), sp)
+        const ph = k[v]! * x
+        const sp = spinors[v]![j]!
+        const a = cmul(
+          cmul(amp, [e * Math.cos(ph), e * Math.sin(ph)]),
+          sp,
+        )
 
-        choose(v + 1, [...acc, { line: lines[v] as number, p: mod(x, spec.L), j }], a)
+        choose(
+          v + 1,
+          [...acc, { line: lines[v]!, p: mod(x, spec.L), j }],
+          a,
+        )
       }
     }
   }
@@ -351,17 +468,33 @@ export function placedPacket(spec: CrossSpec, lines: readonly number[], radius: 
   return out
 }
 
-export type CrossRun = { fidelity: number[]; overlap: Amp[]; tail: number[]; centroid: number[][]; dropped: number; norm: number; size: number }
+export type CrossRun = {
+  fidelity: number[]
+  overlap: Amp[]
+  tail: number[]
+  centroid: number[][]
+  dropped: number
+  norm: number
+  size: number
+}
 
 // `beats` beats from `start`, read every beat: fidelity with the start, weight on strings past `n`, the centroid;
 // entries under `floor` are dropped every beat and the dropped weight summed
-export function runCross(spec: CrossSpec, start: CrossState, beats: number, n: number, floor: number): CrossRun {
+export function runCross(
+  spec: CrossSpec,
+  start: CrossState,
+  beats: number,
+  n: number,
+  floor: number,
+): CrossRun {
   let s = new Map([...start].map(([k, a]) => [k, [a[0], a[1]] as Amp]))
+
   const w0 = weightOf(start)
   const fidelity: number[] = []
   const overlap: Amp[] = [[1, 0]]
   const tail: number[] = []
   const track: number[][] = [centroid(spec, s)]
+
   let dropped = 0
   let size = s.size
 
@@ -378,15 +511,27 @@ export function runCross(spec: CrossSpec, start: CrossState, beats: number, n: n
     track.push(centroid(spec, s))
   }
 
-  return { fidelity, overlap, tail, centroid: track, dropped, norm: weightOf(s) / w0, size }
+  return {
+    fidelity,
+    overlap,
+    tail,
+    centroid: track,
+    dropped,
+    norm: weightOf(s) / w0,
+    size,
+  }
 }
 
 // THE ENERGY A STATE SITS AT, read from its own run: the autocorrelation A(t) = <psi, U^t psi> (t = 0 .. T) under a
 // Hann window, S(E) = |sum_t w(t) A(t) e^(i E t)|^2 (U = e^(-iH), so a level at E peaks at E), searched on a grid of
 // `grid` points and refined by a parabola through the peak's neighbors. `share`: the weight of the largest peak's
 // main lobe (+- 4 pi / T) in the summed spectrum. A state that is one level peaks once with share near 1.
-export function spectralPeak(overlap: readonly Amp[], grid = 4096): { energy: number; share: number } {
+export function spectralPeak(
+  overlap: readonly Amp[],
+  grid = 4096,
+): { energy: number; share: number } {
   const T = overlap.length - 1
+
   const S = (E: number): number => {
     let r = 0
     let i = 0
@@ -402,32 +547,42 @@ export function spectralPeak(overlap: readonly Amp[], grid = 4096): { energy: nu
 
     return r * r + i * i
   }
+
   const values: number[] = []
 
-  for (let g = 0; g < grid; g++) values.push(S(-Math.PI + (2 * Math.PI * g) / grid))
+  for (let g = 0; g < grid; g++) {
+    values.push(S(-Math.PI + (2 * Math.PI * g) / grid))
+  }
 
   let best = 0
 
   values.forEach((v, g) => {
-    if (v > (values[best] as number)) best = g
+    if (v > values[best]!) {
+      best = g
+    }
   })
 
   const h = (2 * Math.PI) / grid
-  const y0 = values[mod(best - 1, grid)] as number
-  const y1 = values[best] as number
-  const y2 = values[mod(best + 1, grid)] as number
-  const shift = y0 - 2 * y1 + y2 === 0 ? 0 : (0.5 * (y0 - y2)) / (y0 - 2 * y1 + y2)
+  const y0 = values[mod(best - 1, grid)]!
+  const y1 = values[best]!
+  const y2 = values[mod(best + 1, grid)]!
+  const shift =
+    y0 - 2 * y1 + y2 === 0 ? 0 : (0.5 * (y0 - y2)) / (y0 - 2 * y1 + y2)
   const energy = -Math.PI + h * (best + shift)
   // the Hann window's main lobe: two bins either side
   const half = Math.round((4 * Math.PI) / (T + 1) / h)
+
   let near = 0
   let total = 0
 
   values.forEach((v, g) => {
     total += v
+
     const d = Math.min(mod(g - best, grid), mod(best - g, grid))
 
-    if (d <= half) near += v
+    if (d <= half) {
+      near += v
+    }
   })
 
   return { energy, share: near / total }
@@ -435,7 +590,10 @@ export function spectralPeak(overlap: readonly Amp[], grid = 4096): { energy: nu
 
 // the state with the two lines exchanged: every vibe moved to the other line at the same position and slot label, and
 // the two rings' fluxes exchanged (the relabeling that the figure eight's two identical rings allow)
-export function exchangeLines(spec: CrossSpec, s: CrossState): CrossState {
+export function exchangeLines(
+  spec: CrossSpec,
+  s: CrossState,
+): CrossState {
   const { L } = spec
   const out: CrossState = new Map()
 
@@ -456,7 +614,10 @@ export function exchangeLines(spec: CrossSpec, s: CrossState): CrossState {
 
 // a one-vibe state of a love on line 0 carried to a fear on line 1: the same amplitudes, the vibe on the other line and
 // its ring's flux moved to the other ring and negated (charge conjugation with the lines exchanged)
-export function conjugateOther(spec: CrossSpec, s: CrossState): CrossState {
+export function conjugateOther(
+  spec: CrossSpec,
+  s: CrossState,
+): CrossState {
   const { L } = spec
   const out: CrossState = new Map()
 
@@ -467,6 +628,7 @@ export function conjugateOther(spec: CrossSpec, s: CrossState): CrossState {
     flux.forEach((v, i) => {
       f[mod(i + L, 2 * L)] = mod(-v, 3)
     })
+
     out.set(
       encode(
         bodies.map(b => ({ ...b, line: 1 - b.line })),
@@ -488,9 +650,12 @@ export const lineClasses = (): number[][] => {
   const out: number[][] = []
 
   ROOTS.forEach((r, d) => {
-    const l = LINE_OF[d] as number
+    const l = LINE_OF[d]!
 
-    if (seen.has(l)) return
+    if (seen.has(l)) {
+      return
+    }
+
     seen.add(l)
     out.push(r.map(x => x / Math.SQRT2))
   })
@@ -499,36 +664,61 @@ export const lineClasses = (): number[][] => {
 }
 
 // sum over the twelve lines of (n . u)^m
-export const designSum = (n: readonly number[], m: number): number => lineClasses().reduce((a, u) => a + u.reduce((s, x, c) => s + x * (n[c] as number), 0) ** m, 0)
+export const designSum = (n: readonly number[], m: number): number =>
+  lineClasses().reduce(
+    (a, u) => a + u.reduce((s, x, c) => s + x * n[c]!, 0) ** m,
+    0,
+  )
 
 // a state spread equally over the twelve line classes, each branch a one-line composite of band `band` carrying the
 // momentum K n projected on its line: the mean energy, the mean velocity (4d) and the branches' rms velocity spread
-export function classAverage(n: readonly number[], K: number, band: (k: number) => { energy: number; slope: number }): { energy: number; velocity: number[]; spread: number } {
+export function classAverage(
+  n: readonly number[],
+  K: number,
+  band: (k: number) => { energy: number; slope: number },
+): { energy: number; velocity: number[]; spread: number } {
   const lines = lineClasses()
+
   let energy = 0
+
   const velocity = [0, 0, 0, 0]
   const vs: number[][] = []
 
   for (const u of lines) {
-    const k = K * u.reduce((s, x, c) => s + x * (n[c] as number), 0)
+    const k = K * u.reduce((s, x, c) => s + x * n[c]!, 0)
     const b = band(k)
     const v = u.map(x => x * b.slope)
 
     energy += b.energy / lines.length
-    v.forEach((x, c) => (velocity[c] = (velocity[c] as number) + x / lines.length))
+    v.forEach((x, c) => (velocity[c] = velocity[c]! + x / lines.length))
     vs.push(v)
   }
 
-  const spread = Math.sqrt(vs.reduce((a, v) => a + v.reduce((s, x, c) => s + (x - (velocity[c] as number)) ** 2, 0), 0) / vs.length)
+  const spread = Math.sqrt(
+    vs.reduce(
+      (a, v) =>
+        a + v.reduce((s, x, c) => s + (x - velocity[c]!) ** 2, 0),
+      0,
+    ) / vs.length,
+  )
 
   return { energy, velocity, spread }
 }
 
-export function sumStates(a: CrossState, b: CrossState, sign: number): CrossState {
+export function sumStates(
+  a: CrossState,
+  b: CrossState,
+  sign: number,
+): CrossState {
   const out: CrossState = new Map()
 
-  for (const [k, x] of a) add(out, k, x)
-  for (const [k, x] of b) add(out, k, [sign * x[0], sign * x[1]])
+  for (const [k, x] of a) {
+    add(out, k, x)
+  }
+
+  for (const [k, x] of b) {
+    add(out, k, [sign * x[0], sign * x[1]])
+  }
 
   const w = Math.sqrt(weightOf(out))
 
@@ -542,24 +732,41 @@ export function sumStates(a: CrossState, b: CrossState, sign: number): CrossStat
 
 // the least-squares velocity of a centroid track (docks a beat, 4d), and its two components on the lines' directions
 // (v = alpha u0 + beta u1, solved on the pair's Gram matrix)
-export function trackVelocity(spec: CrossSpec, track: readonly number[][]): { velocity: number[]; alpha: number; beta: number; reach: number } {
+export function trackVelocity(
+  spec: CrossSpec,
+  track: readonly number[][],
+): { velocity: number[]; alpha: number; beta: number; reach: number } {
   const T = track.length
   const tm = (T - 1) / 2
+
   let den = 0
 
-  for (let t = 0; t < T; t++) den += (t - tm) ** 2
+  for (let t = 0; t < T; t++) {
+    den += (t - tm) ** 2
+  }
 
-  const velocity = [0, 1, 2, 3].map(c => track.reduce((a, x, t) => a + (t - tm) * ((x[c] as number) - ((track[0] as number[])[c] as number)), 0) / den)
+  const velocity = [0, 1, 2, 3].map(
+    c =>
+      track.reduce(
+        (a, x, t) => a + (t - tm) * (x[c]! - track[0]![c]!),
+        0,
+      ) / den,
+  )
   const u0 = lineDirection(spec, 0)
   const u1 = lineDirection(spec, 1)
-  const d = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
+  const d = (a: readonly number[], b: readonly number[]): number =>
+    a.reduce((s, x, k) => s + x * b[k]!, 0)
   const g = d(u0, u1)
   const p0 = d(velocity, u0)
   const p1 = d(velocity, u1)
   const det = 1 - g * g
   const alpha = Math.abs(det) < 1e-12 ? p0 : (p0 - g * p1) / det
   const beta = Math.abs(det) < 1e-12 ? 0 : (p1 - g * p0) / det
-  const reach = Math.max(...track.map(x => Math.sqrt(x.reduce((a, v, c) => a + (v - ((track[0] as number[])[c] as number)) ** 2, 0))))
+  const reach = Math.max(
+    ...track.map(x =>
+      Math.sqrt(x.reduce((a, v, c) => a + (v - track[0]![c]!) ** 2, 0)),
+    ),
+  )
 
   return { velocity, alpha, beta, reach }
 }
@@ -567,33 +774,50 @@ export function trackVelocity(spec: CrossSpec, track: readonly number[][]): { ve
 // ---------------------------------------------------------------------------------------------------------
 // the one-vibe problem: one vibe on its line, the string's other end a static charge at X
 
-export type OneBody = { spec: CrossSpec; keys: string[]; index: Map<string, number>; re: Float64Array; im: Float64Array }
+export type OneBody = {
+  spec: CrossSpec
+  keys: string[]
+  index: Map<string, number>
+  re: Float64Array
+  im: Float64Array
+}
 
 // the configurations the beat reaches from the vibe at X on either slot with no flux, and the beat as a dense matrix
 export function oneBody(spec: CrossSpec, line: number): OneBody {
-  if (spec.charges.length !== 1) throw new Error('crossing-lines: oneBody takes one vibe')
+  if (spec.charges.length !== 1) {
+    throw new Error('crossing-lines: oneBody takes one vibe')
+  }
 
   const zero = new Array<number>(2 * spec.L).fill(0)
   const keys: string[] = []
   const index = new Map<string, number>()
   const queue: string[] = []
+
   const visit = (k: string): void => {
-    if (index.has(k)) return
+    if (index.has(k)) {
+      return
+    }
+
     index.set(k, keys.length)
     keys.push(k)
     queue.push(k)
   }
 
-  for (const j of [0, 1]) visit(encode([{ line, p: 0, j }], zero))
+  for (const j of [0, 1]) {
+    visit(encode([{ line, p: 0, j }], zero))
+  }
 
   const images: CrossState[] = []
 
   while (queue.length > 0) {
-    const k = queue.shift() as string
+    const k = queue.shift()!
     const image = crossBeat(spec, new Map([[k, [1, 0]]]))
 
-    images[index.get(k) as number] = image
-    for (const t of image.keys()) visit(t)
+    images[index.get(k)!] = image
+
+    for (const t of image.keys()) {
+      visit(t)
+    }
   }
 
   const n = keys.length
@@ -602,7 +826,7 @@ export function oneBody(spec: CrossSpec, line: number): OneBody {
 
   images.forEach((image, col) => {
     for (const [t, a] of image) {
-      const row = index.get(t) as number
+      const row = index.get(t)!
 
       re[row * n + col] = a[0]
       im[row * n + col] = a[1]
@@ -612,10 +836,18 @@ export function oneBody(spec: CrossSpec, line: number): OneBody {
   return { spec, keys, index, re, im }
 }
 
-export type OneLevel = { energy: number; vector: Vec; meanString: number; tail: number }
+export type OneLevel = {
+  energy: number
+  vector: Vec
+  meanString: number
+  tail: number
+}
 
 // the one-vibe levels (energy = minus the phase per beat), each with its mean string length and its weight past `n`
-export function oneLevels(o: OneBody, n: number): { levels: OneLevel[]; residual: number } {
+export function oneLevels(
+  o: OneBody,
+  n: number,
+): { levels: OneLevel[]; residual: number } {
   const size = o.keys.length
   const e = unitaryEigen(size, o.re, o.im)
   const strings = o.keys.map(k => stringLength(decode(k).flux))
@@ -624,19 +856,23 @@ export function oneLevels(o: OneBody, n: number): { levels: OneLevel[]; residual
     let tail = 0
 
     for (let c = 0; c < size; c++) {
-      const w = (v.re[c] as number) ** 2 + (v.im[c] as number) ** 2
+      const w = v.re[c]! ** 2 + v.im[c]! ** 2
 
-      mean += w * (strings[c] as number)
-      if ((strings[c] as number) > n) tail += w
+      mean += w * strings[c]!
+
+      if (strings[c]! > n) {
+        tail += w
+      }
     }
 
-    return { energy: -(e.phases[i] as number), vector: v, meanString: mean, tail }
+    return { energy: -e.phases[i]!, vector: v, meanString: mean, tail }
   })
 
   return { levels, residual: e.residual }
 }
 
-export const levelState = (o: OneBody, v: Vec): CrossState => new Map(o.keys.map((k, c) => [k, [v.re[c] as number, v.im[c] as number] as Amp]))
+export const levelState = (o: OneBody, v: Vec): CrossState =>
+  new Map(o.keys.map((k, c) => [k, [v.re[c]!, v.im[c]!] as Amp]))
 
 // the product of two one-vibe states (vibe 0 on line 0, vibe 1 on line 1, fluxes on disjoint rings) as a two-vibe state
 export function productState(a: CrossState, b: CrossState): CrossState {
@@ -651,7 +887,7 @@ export function productState(a: CrossState, b: CrossState): CrossState {
       out.set(
         encode(
           [...da.bodies, ...db.bodies],
-          da.flux.map((f, i) => mod(f + (db.flux[i] as number), 3)),
+          da.flux.map((f, i) => mod(f + db.flux[i]!, 3)),
         ),
         cmul(x, y),
       )
@@ -662,18 +898,25 @@ export function productState(a: CrossState, b: CrossState): CrossState {
 }
 
 // |<u, B_k v>|^2 over the one-vibe levels u, for the boost B_k of one vibe by k
-export function levelWeights(o: OneBody, levels: readonly OneLevel[], v: Vec, k: number): number[] {
+export function levelWeights(
+  o: OneBody,
+  levels: readonly OneLevel[],
+  v: Vec,
+  k: number,
+): number[] {
   const size = o.keys.length
-  const phase = o.keys.map(key => k * signedPosition(o.spec.L, (decode(key).bodies[0] as Body).p))
+  const phase = o.keys.map(
+    key => k * signedPosition(o.spec.L, decode(key).bodies[0]!.p),
+  )
   const bre = new Float64Array(size)
   const bim = new Float64Array(size)
 
   for (let c = 0; c < size; c++) {
-    const cs = Math.cos(phase[c] as number)
-    const sn = Math.sin(phase[c] as number)
+    const cs = Math.cos(phase[c]!)
+    const sn = Math.sin(phase[c]!)
 
-    bre[c] = (v.re[c] as number) * cs - (v.im[c] as number) * sn
-    bim[c] = (v.re[c] as number) * sn + (v.im[c] as number) * cs
+    bre[c] = v.re[c]! * cs - v.im[c]! * sn
+    bim[c] = v.re[c]! * sn + v.im[c]! * cs
   }
 
   return levels.map(l => {
@@ -681,8 +924,8 @@ export function levelWeights(o: OneBody, levels: readonly OneLevel[], v: Vec, k:
     let i = 0
 
     for (let c = 0; c < size; c++) {
-      r += (l.vector.re[c] as number) * (bre[c] as number) + (l.vector.im[c] as number) * (bim[c] as number)
-      i += (l.vector.re[c] as number) * (bim[c] as number) - (l.vector.im[c] as number) * (bre[c] as number)
+      r += l.vector.re[c]! * bre[c]! + l.vector.im[c]! * bim[c]!
+      i += l.vector.re[c]! * bim[c]! - l.vector.im[c]! * bre[c]!
     }
 
     return r * r + i * i
@@ -690,12 +933,17 @@ export function levelWeights(o: OneBody, levels: readonly OneLevel[], v: Vec, k:
 }
 
 // the Gauss-consistent flux assignments of a small figure eight, counted by brute force (the Z_3 obstruction)
-export function gaussCount(spec: CrossSpec, bodies: readonly Body[]): number {
+export function gaussCount(
+  spec: CrossSpec,
+  bodies: readonly Body[],
+): number {
   const links = 2 * spec.L
+
   let count = 0
 
   for (let x = 0; x < 3 ** links; x++) {
     const f: number[] = []
+
     let r = x
 
     for (let l = 0; l < links; l++) {
@@ -703,33 +951,45 @@ export function gaussCount(spec: CrossSpec, bodies: readonly Body[]): number {
       r = Math.floor(r / 3)
     }
 
-    if (gaussHolds(spec, bodies, f)) count++
+    if (gaussHolds(spec, bodies, f)) {
+      count++
+    }
   }
 
   return count
 }
 
 // the slot fates at a crossing dock: for every ordered pair of slots on two different lines, the contact's images
-export function crossingCensus(kinds: readonly [number, number]): Map<string, number> {
+export function crossingCensus(
+  kinds: readonly [number, number],
+): Map<string, number> {
   const tally = new Map<string, number>()
   const perm = new Int32Array(24)
 
   for (let d1 = 0; d1 < 24; d1++) {
     for (let d2 = 0; d2 < 24; d2++) {
-      if (LINE_OF[d1] === LINE_OF[d2]) continue
+      if (LINE_OF[d1] === LINE_OF[d2]) {
+        continue
+      }
 
       const vibe = new Int8Array(24)
 
       vibe[d1] = kinds[0]
       vibe[d2] = kinds[1]
 
-      const moved = bouncePermutation(BOUNCE_TABLE, 'pass', vibe, 0, perm) !== 0
-      const i1 = moved ? (perm[d1] as number) : d1
-      const i2 = moved ? (perm[d2] as number) : d2
-      const r1 = ROOTS[d1] as number[]
-      const r2 = ROOTS[d2] as number[]
-      const dot = r1.reduce((s, x, k) => s + x * (r2[k] as number), 0)
-      const fate = i1 === d1 && i2 === d2 ? 'keep' : i1 === d2 && i2 === d1 ? 'swap' : 'other'
+      const moved =
+        bouncePermutation(BOUNCE_TABLE, 'pass', vibe, 0, perm) !== 0
+      const i1 = moved ? perm[d1]! : d1
+      const i2 = moved ? perm[d2]! : d2
+      const r1 = ROOTS[d1]!
+      const r2 = ROOTS[d2]!
+      const dot = r1.reduce((s, x, k) => s + x * r2[k]!, 0)
+      const fate =
+        i1 === d1 && i2 === d2
+          ? 'keep'
+          : i1 === d2 && i2 === d1
+            ? 'swap'
+            : 'other'
       const key = `${dot}:${fate}`
 
       tally.set(key, (tally.get(key) ?? 0) + 1)

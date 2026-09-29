@@ -56,14 +56,28 @@ export function quantumField(input?: { n?: number }): {
   const rng = makeWeyl({ start: 7 })
 
   for (let b = 0; b < 80; b++) {
-    conservingEdgeSweep({ tone: vac, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
+    conservingEdgeSweep({
+      tone: vac,
+      eu: eu,
+      ev: ev,
+      moved,
+      rng: rng,
+      arrow: ARROW,
+    })
   }
 
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
 
-  conservingEdgeSweep({ tone: vac, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
+  conservingEdgeSweep({
+    tone: vac,
+    eu: eu,
+    ev: ev,
+    moved,
+    rng: rng,
+    arrow: ARROW,
+  })
 
   let changed = 0
 
@@ -143,11 +157,25 @@ export function quantumField(input?: { n?: number }): {
   const rp = makeWeyl({ start: 99 })
 
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweep({ tone: base, eu: eu, ev: ev, moved, rng: rb, arrow: ARROW })
+    conservingEdgeSweep({
+      tone: base,
+      eu: eu,
+      ev: ev,
+      moved,
+      rng: rb,
+      arrow: ARROW,
+    })
   }
 
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweep({ tone: pert, eu: eu, ev: ev, moved, rng: rp, arrow: ARROW })
+    conservingEdgeSweep({
+      tone: pert,
+      eu: eu,
+      ev: ev,
+      moved,
+      rng: rp,
+      arrow: ARROW,
+    })
   }
 
   let front = 0

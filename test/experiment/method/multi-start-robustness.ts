@@ -86,24 +86,43 @@ const RECORDED: Record<string, readonly [string, string]> = {
   'E-SPN-0063': ['fail', 'pass'],
 }
 
-const FLIPPERS: readonly Experiment[] = [fearTurnWeave, fearWitness, calmIsTheOneWhole, bellValuesExact, coldQuaternionFearBeat, comovingBattery]
+const FLIPPERS: readonly Experiment[] = [
+  fearTurnWeave,
+  fearWitness,
+  calmIsTheOneWhole,
+  bellValuesExact,
+  coldQuaternionFearBeat,
+  comovingBattery,
+]
 
 function runMember(member: StartMember, run: () => Verdict): MemberRun {
   const result = withStart(member, run)
 
-  return { member: member.name, status: result.status, metrics: result.metrics, control: result.control ?? {} }
+  return {
+    member: member.name,
+    status: result.status,
+    metrics: result.metrics,
+    control: result.control ?? {},
+  }
 }
 
 // the default start is the committed one: a default weave equals one built with the committed start named
 function committedRestored(): boolean {
   const def = makeVibeWeave({ side: 3 }).links
-  const named = makeVibeWeave({ side: 3, start: (slot, count) => linkStart(slot, count) }).links
+  const named = makeVibeWeave({
+    side: 3,
+    start: (slot, count) => linkStart(slot, count),
+  }).links
 
   return def.every((g, i) => g === named[i])
 }
 
 // the rung of a reading-beat CHSH value on E-QTM-0140's ladder
-function rung(value: number | undefined, middle: number, top: number): string {
+function rung(
+  value: number | undefined,
+  middle: number,
+  top: number,
+): string {
   if (value === undefined) {
     return 'missing'
   }
@@ -129,10 +148,12 @@ function rung(value: number | undefined, middle: number, top: number): string {
 
 const SWAP_MIDDLE = 4 / Math.sqrt(3)
 const SWAP_TOP = Math.sqrt(7)
-const COLOR_MIDDLE = (8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * Math.sqrt(15)) / 9
+const COLOR_MIDDLE =
+  (8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * Math.sqrt(15)) / 9
 const COLOR_TOP = (2 + 4 * Math.sqrt(2)) / 3
 
-const count = (xs: readonly string[], x: string): number => xs.filter(y => y === x).length
+const count = (xs: readonly string[], x: string): number =>
+  xs.filter(y => y === x).length
 
 export default experiment({
   id: 'method/multi-start-robustness',
@@ -145,7 +166,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(OFFSETS)
 
     // G3: the family
@@ -155,23 +179,34 @@ export default experiment({
     for (const side of [3, 5, 7, 9, 11]) {
       for (let i = 0; i < side ** 4 * 24; i++) {
         goldenChecks += 1
-        goldenMismatches += goldenLinkStart(i, 216) === goldenLinkStartFloat(i, 216) ? 0 : 1
+        goldenMismatches +=
+          goldenLinkStart(i, 216) === goldenLinkStartFloat(i, 216)
+            ? 0
+            : 1
       }
     }
 
     let zeroMismatches = 0
 
     for (let i = 0; i < 65536; i++) {
-      zeroMismatches += linkStart(i, 216, 0) === linkStart(i, 216) ? 0 : 1
+      zeroMismatches +=
+        linkStart(i, 216, 0) === linkStart(i, 216) ? 0 : 1
     }
 
-    const tables = family.map(m => makeVibeWeave({ side: 3, start: m.start }))
+    const tables = family.map(m =>
+      makeVibeWeave({ side: 3, start: m.start }),
+    )
+
     let identicalPairs = 0
     let inverseFailures = 0
 
     for (let a = 0; a < tables.length; a++) {
       for (let b = a + 1; b < tables.length; b++) {
-        identicalPairs += tables[a]?.links.every((g, i) => g === tables[b]?.links[i]) ? 1 : 0
+        identicalPairs += tables[a]?.links.every(
+          (g, i) => g === tables[b]?.links[i],
+        )
+          ? 1
+          : 0
       }
 
       const w = tables[a]
@@ -179,33 +214,68 @@ export default experiment({
       if (w) {
         for (let x = 0; x < w.mesh.cellCount; x++) {
           for (let d = 0; d < 24; d++) {
-            const back = w.links[w.mesh.neighbour(x, d) * 24 + (w.opposite[d] ?? d)] ?? -1
+            const back =
+              w.links[
+                w.mesh.neighbour(x, d) * 24 + (w.opposite[d] ?? d)
+              ] ?? -1
 
-            inverseFailures += w.moves.compose(w.links[x * 24 + d] ?? -1, back) === w.moves.identity ? 0 : 1
+            inverseFailures +=
+              w.moves.compose(w.links[x * 24 + d] ?? -1, back) ===
+              w.moves.identity
+                ? 0
+                : 1
           }
         }
       }
     }
 
-    const g3 = goldenMismatches === 0 && zeroMismatches === 0 && identicalPairs === 0 && inverseFailures === 0
+    const g3 =
+      goldenMismatches === 0 &&
+      zeroMismatches === 0 &&
+      identicalPairs === 0 &&
+      inverseFailures === 0
 
     // G1: the planted control
     const firstMove = (m: StartMember): number => m.start(0, 216)
     const secondMove = (m: StartMember): number => m.start(1, 216)
-    const blind = family.map(m => runMember(m, () => verdict({ status: 'pass', claim: '', metrics: { gate_blind: 1, value: 7 } })))
+    const blind = family.map(m =>
+      runMember(m, () =>
+        verdict({
+          status: 'pass',
+          claim: '',
+          metrics: { gate_blind: 1, value: 7 },
+        }),
+      ),
+    )
     const blindFractions = passFractions(blind)
-    const blindOk = blindFractions.every(f => f.pass === f.of && f.of === family.length) && distribution(blind.map(r => r.metrics['value'] ?? 0)).distinct === 1
+    const blindOk =
+      blindFractions.every(
+        f => f.pass === f.of && f.of === family.length,
+      ) &&
+      distribution(blind.map(r => r.metrics.value ?? 0)).distinct === 1
     const sensitive = family.map(m =>
       runMember(m, () => {
-        const even = (makeVibeWeave({ side: 3 }).links[0] ?? 1) % 2 === 0
+        const even =
+          (makeVibeWeave({ side: 3 }).links[0] ?? 1) % 2 === 0
 
-        return verdict({ status: even ? 'pass' : 'fail', claim: '', metrics: { gate_even: even ? 1 : 0 } })
+        return verdict({
+          status: even ? 'pass' : 'fail',
+          claim: '',
+          metrics: { gate_even: even ? 1 : 0 },
+        })
       }),
     )
-    const expectedEven = family.filter(m => firstMove(m) % 2 === 0).map(m => m.name)
-    const sensitivePass = sensitive.filter(r => r.status === 'pass').map(r => r.member)
+    const expectedEven = family
+      .filter(m => firstMove(m) % 2 === 0)
+      .map(m => m.name)
+    const sensitivePass = sensitive
+      .filter(r => r.status === 'pass')
+      .map(r => r.member)
     const sensitiveOk =
-      sensitivePass.join(',') === expectedEven.join(',') && expectedEven.length > 0 && expectedEven.length < family.length && passFractions(sensitive)[1]?.pass === expectedEven.length
+      sensitivePass.join(',') === expectedEven.join(',') &&
+      expectedEven.length > 0 &&
+      expectedEven.length < family.length &&
+      passFractions(sensitive)[1]?.pass === expectedEven.length
     const planted = family.map(m =>
       runMember(m, () => {
         const links = makeVibeWeave({ side: 3 }).links
@@ -215,17 +285,46 @@ export default experiment({
         return verdict({
           status: 'pass',
           claim: '',
-          metrics: { new_gate_a: adoptedFails ? 0 : 1, new_gate_b: 1, new_control: controlReads },
-          control: { old_gate_a: 1, old_gate_b: 1, old_control: controlReads },
+          metrics: {
+            new_gate_a: adoptedFails ? 0 : 1,
+            new_gate_b: 1,
+            new_control: controlReads,
+          },
+          control: {
+            old_gate_a: 1,
+            old_gate_b: 1,
+            old_control: controlReads,
+          },
         })
       }),
     )
-    const expectedCaught = family.filter(m => firstMove(m) % 3 === 0).map(m => m.name)
-    const caught = planted.filter(r => addedFailures(r, 'new_gate_', 'old_gate_').added.includes('a')).map(r => r.member)
-    const wrongCaught = planted.filter(r => addedFailures(r, 'new_gate_', 'old_gate_').added.some(g => g !== 'a')).length
-    const expectedUninformative = family.filter(m => secondMove(m) % 2 === 0).map(m => m.name)
-    const uninformative = planted.filter(r => readKey(r, 'new_control') === 0 && readKey(r, 'old_control') === 0).map(r => r.member)
-    const pairedOk = caught.join(',') === expectedCaught.join(',') && wrongCaught === 0 && uninformative.join(',') === expectedUninformative.join(',')
+    const expectedCaught = family
+      .filter(m => firstMove(m) % 3 === 0)
+      .map(m => m.name)
+    const caught = planted
+      .filter(r =>
+        addedFailures(r, 'new_gate_', 'old_gate_').added.includes('a'),
+      )
+      .map(r => r.member)
+    const wrongCaught = planted.filter(r =>
+      addedFailures(r, 'new_gate_', 'old_gate_').added.some(
+        g => g !== 'a',
+      ),
+    ).length
+    const expectedUninformative = family
+      .filter(m => secondMove(m) % 2 === 0)
+      .map(m => m.name)
+    const uninformative = planted
+      .filter(
+        r =>
+          readKey(r, 'new_control') === 0 &&
+          readKey(r, 'old_control') === 0,
+      )
+      .map(r => r.member)
+    const pairedOk =
+      caught.join(',') === expectedCaught.join(',') &&
+      wrongCaught === 0 &&
+      uninformative.join(',') === expectedUninformative.join(',')
     const restoredOk = committedRestored()
     const g1 = blindOk && sensitiveOk && pairedOk && restoredOk
 
@@ -244,44 +343,117 @@ export default experiment({
     const restoredAfter = committedRestored()
 
     // G2: reproduction of E-MTH-0027's statuses
-    const reproduced = Object.entries(RECORDED).filter(([code, [integer, golden]]) => {
-      const runs = ensemble.get(code) ?? []
+    const reproduced = Object.entries(RECORDED).filter(
+      ([code, [integer, golden]]) => {
+        const runs = ensemble.get(code) ?? []
 
-      return runs.find(r => r.member === 'integer+0')?.status === integer && runs.find(r => r.member === 'golden')?.status === golden
-    }).length
+        return (
+          runs.find(r => r.member === 'integer+0')?.status ===
+            integer &&
+          runs.find(r => r.member === 'golden')?.status === golden
+        )
+      },
+    ).length
     const g2 = reproduced === Object.keys(RECORDED).length
 
     // G4: the adoptions, paired, on E-SPN-0063
     const battery = ensemble.get('E-SPN-0063') ?? []
     const perMember = battery.map(run => {
-      const fear = CONFIGS.flatMap(c => addedFailures(run, `${c}_comoving_gate_`, `${c}_off_gate_`).added.map(g => `${c}:${g}`))
-      const comoving = CONFIGS.flatMap(c => addedFailures(run, `${c}_comoving_gate_`, `${c}_on_gate_`).added.map(g => `${c}:${g}`))
-      const gainedOverFixed = CONFIGS.flatMap(c => addedFailures(run, `${c}_comoving_gate_`, `${c}_on_gate_`).gained.map(g => `${c}:${g}`))
+      const fear = CONFIGS.flatMap(c =>
+        addedFailures(
+          run,
+          `${c}_comoving_gate_`,
+          `${c}_off_gate_`,
+        ).added.map(g => `${c}:${g}`),
+      )
+      const comoving = CONFIGS.flatMap(c =>
+        addedFailures(
+          run,
+          `${c}_comoving_gate_`,
+          `${c}_on_gate_`,
+        ).added.map(g => `${c}:${g}`),
+      )
+      const gainedOverFixed = CONFIGS.flatMap(c =>
+        addedFailures(
+          run,
+          `${c}_comoving_gate_`,
+          `${c}_on_gate_`,
+        ).gained.map(g => `${c}:${g}`),
+      )
       const comovingFails = CONFIGS.flatMap(c =>
         Object.keys(run.metrics)
-          .filter(k => k.startsWith(`${c}_comoving_gate_`) && run.metrics[k] === 0)
+          .filter(
+            k =>
+              k.startsWith(`${c}_comoving_gate_`) &&
+              run.metrics[k] === 0,
+          )
           .map(k => `${c}:${k.slice(`${c}_comoving_gate_`.length)}`),
       )
       const fixedFails = CONFIGS.flatMap(c =>
         Object.keys(run.control)
-          .filter(k => k.startsWith(`${c}_on_gate_`) && run.control[k] === 0)
+          .filter(
+            k => k.startsWith(`${c}_on_gate_`) && run.control[k] === 0,
+          )
           .map(k => `${c}:${k.slice(`${c}_on_gate_`.length)}`),
       )
-      const informative = CONFIGS.every(c => (readKey(run, `${c}_comoving_frameMismatchSwapAtLoveFear`) ?? 0) > 0 && (readKey(run, `${c}_on_frameMismatchSwapAtLoveFear`) ?? 0) > 0)
-      const controlsHold = CONFIGS.every(c => readKey(run, `${c}_comoving_controlsHold`) === 1 && readKey(run, `${c}_on_controlsHold`) === 1)
-      const vacuumFear = CONFIGS.every(c => (readKey(run, `${c}_comoving_fearsMaxVacuum`) ?? 0) > 0)
+      const informative = CONFIGS.every(
+        c =>
+          (readKey(run, `${c}_comoving_frameMismatchSwapAtLoveFear`) ??
+            0) > 0 &&
+          (readKey(run, `${c}_on_frameMismatchSwapAtLoveFear`) ?? 0) >
+            0,
+      )
+      const controlsHold = CONFIGS.every(
+        c =>
+          readKey(run, `${c}_comoving_controlsHold`) === 1 &&
+          readKey(run, `${c}_on_controlsHold`) === 1,
+      )
+      const vacuumFear = CONFIGS.every(
+        c => (readKey(run, `${c}_comoving_fearsMaxVacuum`) ?? 0) > 0,
+      )
 
-      return { member: run.member, status: run.status, fear, comoving, gainedOverFixed, comovingFails, fixedFails, informative, controlsHold, vacuumFear }
+      return {
+        member: run.member,
+        status: run.status,
+        fear,
+        comoving,
+        gainedOverFixed,
+        comovingFails,
+        fixedFails,
+        informative,
+        controlsHold,
+        vacuumFear,
+      }
     })
-    const informativeMembers = perMember.filter(m => m.informative).length
+    const informativeMembers = perMember.filter(
+      m => m.informative,
+    ).length
     const fearAdds = perMember.filter(m => m.fear.length > 0).length
-    const comovingAdds = perMember.filter(m => m.comoving.length > 0).length
-    const g4 = battery.length === family.length && fearAdds === 0 && comovingAdds === 0 && informativeMembers >= INFORMATIVE_NEEDED
+    const comovingAdds = perMember.filter(
+      m => m.comoving.length > 0,
+    ).length
+    const g4 =
+      battery.length === family.length &&
+      fearAdds === 0 &&
+      comovingAdds === 0 &&
+      informativeMembers >= INFORMATIVE_NEEDED
 
     // reported: the Bell ladder on E-QTM-0140
     const bell = ensemble.get('E-QTM-0140') ?? []
-    const swapRungs = bell.map(r => rung(readKey(r, 'swapComoving_chshExactValue'), SWAP_MIDDLE, SWAP_TOP))
-    const colorRungs = bell.map(r => rung(readKey(r, 'colorComoving_chshExactValue'), COLOR_MIDDLE, COLOR_TOP))
+    const swapRungs = bell.map(r =>
+      rung(
+        readKey(r, 'swapComoving_chshExactValue'),
+        SWAP_MIDDLE,
+        SWAP_TOP,
+      ),
+    )
+    const colorRungs = bell.map(r =>
+      rung(
+        readKey(r, 'colorComoving_chshExactValue'),
+        COLOR_MIDDLE,
+        COLOR_TOP,
+      ),
+    )
 
     // reported: per flipper pass fractions, and the distributions of the key metrics
     const metrics: Record<string, number> = {
@@ -305,17 +477,31 @@ export default experiment({
       vacuumFearMembers: perMember.filter(m => m.vacuumFear).length,
       membersWhereFearBeatAddsFailure: fearAdds,
       membersWhereComovingAddsFailure: comovingAdds,
-      membersWhereComovingGainsOverFixed: perMember.filter(m => m.gainedOverFixed.length > 0).length,
-      membersWithEveryComovingGatePassing: perMember.filter(m => m.comovingFails.length === 0).length,
-      membersWithEveryFixedGatePassing: perMember.filter(m => m.fixedFails.length === 0).length,
+      membersWhereComovingGainsOverFixed: perMember.filter(
+        m => m.gainedOverFixed.length > 0,
+      ).length,
+      membersWithEveryComovingGatePassing: perMember.filter(
+        m => m.comovingFails.length === 0,
+      ).length,
+      membersWithEveryFixedGatePassing: perMember.filter(
+        m => m.fixedFails.length === 0,
+      ).length,
       swapRungTwo: count(swapRungs, 'two'),
       swapRungMiddle: count(swapRungs, 'middle'),
       swapRungTop: count(swapRungs, 'top'),
-      swapRungOther: swapRungs.length - count(swapRungs, 'two') - count(swapRungs, 'middle') - count(swapRungs, 'top'),
+      swapRungOther:
+        swapRungs.length -
+        count(swapRungs, 'two') -
+        count(swapRungs, 'middle') -
+        count(swapRungs, 'top'),
       colorRungTwo: count(colorRungs, 'two'),
       colorRungMiddle: count(colorRungs, 'middle'),
       colorRungTop: count(colorRungs, 'top'),
-      colorRungOther: colorRungs.length - count(colorRungs, 'two') - count(colorRungs, 'middle') - count(colorRungs, 'top'),
+      colorRungOther:
+        colorRungs.length -
+        count(colorRungs, 'two') -
+        count(colorRungs, 'middle') -
+        count(colorRungs, 'top'),
       gateG1: g1 ? 1 : 0,
       gateG2: g2 ? 1 : 0,
       gateG3: g3 ? 1 : 0,
@@ -330,14 +516,34 @@ export default experiment({
 
       const statuses = runs.map(r => r.status)
 
-      fractionLines.push(`${code}: pass ${count(statuses, 'pass')}, partial ${count(statuses, 'partial')}, fail ${count(statuses, 'fail')} of ${runs.length} (${runs.map(r => `${r.member} ${r.status}`).join(', ')})`)
+      fractionLines.push(
+        `${code}: pass ${count(statuses, 'pass')}, partial ${count(statuses, 'partial')}, fail ${count(statuses, 'fail')} of ${runs.length} (${runs.map(r => `${r.member} ${r.status}`).join(', ')})`,
+      )
     }
 
     const KEY_METRICS: Record<string, readonly string[]> = {
-      'E-SPN-0063': CONFIGS.flatMap(c => [`${c}_comoving_fearsMaxVacuum`, `${c}_comoving_fearShareMax`, `${c}_comoving_chsh`, `${c}_comoving_frameMismatchSwapAtLoveFear`, `${c}_on_frameMismatchSwapAtLoveFear`]),
-      'E-QTM-0140': ['swapComoving_chshExactValue', 'colorComoving_chshExactValue'],
-      'E-QTM-0109': ['vacuumFearsMax', 'matterFearsMax', 'control.frameMismatchSwapAtLoveFear'],
-      'E-RLT-0055': ['pairFearsMax', 'matterFearsMax', 'chsh', 'control.frameMismatchSwapAtLoveFear'],
+      'E-SPN-0063': CONFIGS.flatMap(c => [
+        `${c}_comoving_fearsMaxVacuum`,
+        `${c}_comoving_fearShareMax`,
+        `${c}_comoving_chsh`,
+        `${c}_comoving_frameMismatchSwapAtLoveFear`,
+        `${c}_on_frameMismatchSwapAtLoveFear`,
+      ]),
+      'E-QTM-0140': [
+        'swapComoving_chshExactValue',
+        'colorComoving_chshExactValue',
+      ],
+      'E-QTM-0109': [
+        'vacuumFearsMax',
+        'matterFearsMax',
+        'control.frameMismatchSwapAtLoveFear',
+      ],
+      'E-RLT-0055': [
+        'pairFearsMax',
+        'matterFearsMax',
+        'chsh',
+        'control.frameMismatchSwapAtLoveFear',
+      ],
       'E-QTM-0100': ['chshFearBeat', 'colorChsh', 'growerChshMax'],
       'E-QTM-0105': ['chshFromDeparture', 'loveMaxWholesPairs'],
     }
@@ -348,7 +554,9 @@ export default experiment({
 
       for (const key of keys) {
         const plain = key.replace(/^control\./, '')
-        const values = runs.map(r => readKey(r, plain)).filter((v): v is number => v !== undefined)
+        const values = runs
+          .map(r => readKey(r, plain))
+          .filter((v): v is number => v !== undefined)
 
         if (values.length === 0) {
           continue
@@ -359,7 +567,9 @@ export default experiment({
         metrics[`${code}_${plain}_min`] = d.min
         metrics[`${code}_${plain}_median`] = d.median
         metrics[`${code}_${plain}_max`] = d.max
-        distributionLines.push(`${code} ${plain}: min ${Number(d.min.toPrecision(6))}, median ${Number(d.median.toPrecision(6))}, max ${Number(d.max.toPrecision(6))}, ${d.distinct} distinct`)
+        distributionLines.push(
+          `${code} ${plain}: min ${Number(d.min.toPrecision(6))}, median ${Number(d.median.toPrecision(6))}, max ${Number(d.max.toPrecision(6))}, ${d.distinct} distinct`,
+        )
       }
     }
 
@@ -371,7 +581,19 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `over ${family.length} deterministic link starts, the comoving fear beat adds a quantum-gate failure against the fear-off column on ${fearAdds} and against the fixed-frame column on ${comovingAdds} (E-SPN-0063, H, HF and HFL, paired on the same start), with the frame control informative on ${informativeMembers}; the six light flippers pass on ${[...ensemble.entries()].map(([code, runs]) => `${code} ${count(runs.map(r => r.status), 'pass')}`).join(', ')} of ${family.length}; E-QTM-0140's reading-beat CHSH sits on the swap ladder at 2 / middle / top ${count(swapRungs, 'two')} / ${count(swapRungs, 'middle')} / ${count(swapRungs, 'top')} and the color ladder ${count(colorRungs, 'two')} / ${count(colorRungs, 'middle')} / ${count(colorRungs, 'top')}; the planted control caught ${caught.length} of ${expectedCaught.length} planted added failures and flagged ${uninformative.length} of ${expectedUninformative.length} uninformative members`,
+      claim: `over ${family.length} deterministic link starts, the comoving fear beat adds a quantum-gate failure against the fear-off column on ${fearAdds} and against the fixed-frame column on ${comovingAdds} (E-SPN-0063, H, HF and HFL, paired on the same start), with the frame control informative on ${informativeMembers}; the six light flippers pass on ${[
+        ...ensemble.entries(),
+      ]
+        .map(
+          ([code, runs]) =>
+            `${code} ${count(
+              runs.map(r => r.status),
+              'pass',
+            )}`,
+        )
+        .join(
+          ', ',
+        )} of ${family.length}; E-QTM-0140's reading-beat CHSH sits on the swap ladder at 2 / middle / top ${count(swapRungs, 'two')} / ${count(swapRungs, 'middle')} / ${count(swapRungs, 'top')} and the color ladder ${count(colorRungs, 'two')} / ${count(colorRungs, 'middle')} / ${count(colorRungs, 'top')}; the planted control caught ${caught.length} of ${expectedCaught.length} planted added failures and flagged ${uninformative.length} of ${expectedUninformative.length} uninformative members`,
       metrics,
       control: {
         plantedSensitivePassed: sensitivePass.length,

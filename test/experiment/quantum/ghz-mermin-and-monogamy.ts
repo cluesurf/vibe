@@ -59,12 +59,34 @@ import {
   type FearKernels,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { classicalRecords, productWhole, weylBackground } from '@/code/measure/knit-magic'
-import { cosetLabels, lagrangians, marginalOf, phaseSpace, pointOfTrits, productWeights } from '@/code/measure/stabilizer-contexts'
-import { concurrenceBounds, densityOf, merminSeeSaw, partialTrace, type Hermitian3 } from '@/code/measure/knot-entanglement'
+import {
+  classicalRecords,
+  productWhole,
+  weylBackground,
+} from '@/code/measure/knit-magic'
+import {
+  cosetLabels,
+  lagrangians,
+  marginalOf,
+  phaseSpace,
+  pointOfTrits,
+  productWeights,
+} from '@/code/measure/stabilizer-contexts'
+import {
+  concurrenceBounds,
+  densityOf,
+  merminSeeSaw,
+  partialTrace,
+  type Hermitian3,
+} from '@/code/measure/knot-entanglement'
 import { roleChsh } from '@/code/measure/role-bell'
 import { displacementOperators } from '@/code/measure/qutrit-clifford'
-import { operator, phasePointOperators, tensorOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  operator,
+  phasePointOperators,
+  tensorOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { GOLDEN, weyl } from '@/code/tool/weyl'
 
@@ -77,18 +99,28 @@ const MATTER_SCALE = 2.11
 const MERMIN_STARTS = 12
 const MERMIN_STEPS = 200
 
-const units = (w: readonly bigint[]): bigint => w.reduce((a, b) => a + b, 0n)
-const basis = (j: number): bigint[] => Array.from({ length: 9 }, (_, q) => (Math.floor(q / 3) === j ? 1n : 0n))
+const units = (w: readonly bigint[]): bigint =>
+  w.reduce((a, b) => a + b, 0n)
+const basis = (j: number): bigint[] =>
+  Array.from({ length: 9 }, (_, q) =>
+    Math.floor(q / 3) === j ? 1n : 0n,
+  )
 
 // a density matrix from a pure vector
-function pureDensity(re: readonly number[], im: readonly number[]): Operator {
+function pureDensity(
+  re: readonly number[],
+  im: readonly number[],
+): Operator {
   const n = re.length
   const out = operator(n)
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      out.re[i * n + j] = (re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0)
-      out.im[i * n + j] = (im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0)
+      out.re[i * n + j] =
+        (re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0)
+
+      out.im[i * n + j] =
+        (im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0)
     }
   }
 
@@ -99,7 +131,11 @@ function pureDensity(re: readonly number[], im: readonly number[]): Operator {
 function merminStarts(count: number): Hermitian3[][] {
   return Array.from({ length: count }, (_, s) =>
     Array.from({ length: 6 }, (__, o) => {
-      const h: Hermitian3 = { re: new Float64Array(9), im: new Float64Array(9) }
+      const h: Hermitian3 = {
+        re: new Float64Array(9),
+        im: new Float64Array(9),
+      }
+
       let k = 1 + 54 * s + 9 * o
 
       for (let i = 0; i < 3; i++) {
@@ -125,20 +161,27 @@ export default experiment({
   id: 'quantum/ghz-mermin-and-monogamy',
   code: 'E-QTM-0153',
   title:
-    'GHZ, Mermin and monogamy on three knots: reading one role of each of three love-fear pairs on the GHZ coset leaves a GHZ knot on the other three for all 27 outcomes, but its weights are non-negative, so with the model\'s own readings every one of its 26 perfect correlations is met by 27 local assignments and GHZ\'s argument does not go through for qutrits, while two-outcome observables outside those readings give Mermin 10/3 > 2; CKW holds on the GHZ knot and fails on the antisymmetric stand-in (Ou 2007), and is read with certified bounds on the knit\'s own triples',
+    "GHZ, Mermin and monogamy on three knots: reading one role of each of three love-fear pairs on the GHZ coset leaves a GHZ knot on the other three for all 27 outcomes, but its weights are non-negative, so with the model's own readings every one of its 26 perfect correlations is met by 27 local assignments and GHZ's argument does not go through for qutrits, while two-outcome observables outside those readings give Mermin 10/3 > 2; CKW holds on the GHZ knot and fails on the antisymmetric stand-in (Ou 2007), and is read with certified bounds on the knit's own triples",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const three = phaseSpace(3)
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) as FearKernels
-    const colorOff = fearKernels({ like: Math.PI, unlike: 0 }) as FearKernels
+    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA })!
+    const colorOff = fearKernels({ like: Math.PI, unlike: 0 })!
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const kOff = meetingKernel(swapPhase(Math.PI)) ?? []
 
     // G1 the GHZ knot from three love-fear pairs and one reading
-    const met = meetWhole({ whole: productWhole([0, 1], ['basis0', 'basis0']), a: 0, b: 1, kernel4: colorOn.unlike, divisor: colorOn.unlikeDivisor, fixed: false }) as Whole
+    const met = meetWhole({
+      whole: productWhole([0, 1], ['basis0', 'basis0']),
+      a: 0,
+      b: 1,
+      kernel4: colorOn.unlike,
+      divisor: colorOn.unlikeDivisor,
+      fixed: false,
+    })!
     const pair = physicalWhole({ ...met, frame: [1, -1] }).weight
     const six = productWeights(pair, productWeights(pair, pair))
     const ghzCoset: number[] = []
@@ -154,7 +197,9 @@ export default experiment({
     ghzCoset.sort((x, y) => x - y)
 
     const ghzKey = ghzCoset.join(',')
-    const ghzIsLagrangian = lagrangians(three).some(l => l.join(',') === ghzKey)
+    const ghzIsLagrangian = lagrangians(three).some(
+      l => l.join(',') === ghzKey,
+    )
     const labels = cosetLabels(three, ghzCoset)
     const outcomes = new Map<number, bigint[]>()
 
@@ -163,9 +208,11 @@ export default experiment({
         return
       }
 
-      const digit = (r: number): number => Math.floor(i / 9 ** (5 - r)) % 9
+      const digit = (r: number): number =>
+        Math.floor(i / 9 ** (5 - r)) % 9
       const c = labels[81 * digit(1) + 9 * digit(3) + digit(5)] ?? 0
       const kept = 81 * digit(0) + 9 * digit(2) + digit(4)
+
       let row = outcomes.get(c)
 
       if (!row) {
@@ -177,16 +224,25 @@ export default experiment({
     })
 
     const total = units(six)
+
     let ghzOutcomes = 0
 
     const isGhz = (w: readonly bigint[]): boolean => {
       const n = units(w)
-      const support = w.map((x, i) => (x !== 0n ? i : -1)).filter(i => i >= 0)
+      const support = w
+        .map((x, i) => (x !== 0n ? i : -1))
+        .filter(i => i >= 0)
       const equal = support.every(i => w[i] === w[support[0] ?? 0])
       const x0 = support[0] ?? 0
-      const diffs = support.map(x => three.add[x * 729 + (three.neg[x0] ?? 0)] ?? 0)
-      const isotropic = diffs.every(u => diffs.every(v => three.form[u * 729 + v] === 0))
-      const uniform = [0, 1, 2].every(keep => marginalOf(w, 3, [keep]).every(x => x * 9n === n))
+      const diffs = support.map(
+        x => three.add[x * 729 + (three.neg[x0] ?? 0)] ?? 0,
+      )
+      const isotropic = diffs.every(u =>
+        diffs.every(v => three.form[u * 729 + v] === 0),
+      )
+      const uniform = [0, 1, 2].every(keep =>
+        marginalOf(w, 3, [keep]).every(x => x * 9n === n),
+      )
 
       return support.length === 27 && equal && isotropic && uniform
     }
@@ -195,7 +251,7 @@ export default experiment({
       ghzOutcomes += units(w) * 27n === total && isGhz(w) ? 1 : 0
     }
 
-    const ghz = outcomes.values().next().value as bigint[]
+    const ghz = outcomes.values().next().value!
 
     // G2 its perfect correlations and the local assignments that meet them
     const points1 = phasePointOperators(1)
@@ -209,8 +265,17 @@ export default experiment({
 
         for (let i = 0; i < 3; i++) {
           for (let k = 0; k < 3; k++) {
-            re += (points1[p]!.re[i * 3 + k] ?? 0) * (d1[q]!.re[k * 3 + i] ?? 0) - (points1[p]!.im[i * 3 + k] ?? 0) * (d1[q]!.im[k * 3 + i] ?? 0)
-            im += (points1[p]!.re[i * 3 + k] ?? 0) * (d1[q]!.im[k * 3 + i] ?? 0) + (points1[p]!.im[i * 3 + k] ?? 0) * (d1[q]!.re[k * 3 + i] ?? 0)
+            re +=
+              (points1[p]!.re[i * 3 + k] ?? 0) *
+                (d1[q]!.re[k * 3 + i] ?? 0) -
+              (points1[p]!.im[i * 3 + k] ?? 0) *
+                (d1[q]!.im[k * 3 + i] ?? 0)
+
+            im +=
+              (points1[p]!.re[i * 3 + k] ?? 0) *
+                (d1[q]!.im[k * 3 + i] ?? 0) +
+              (points1[p]!.im[i * 3 + k] ?? 0) *
+                (d1[q]!.re[k * 3 + i] ?? 0)
           }
         }
 
@@ -234,10 +299,15 @@ export default experiment({
 
       return [re, im]
     }
+
     const n = Number(units(ghz))
-    const support = ghz.map((x, i) => (x !== 0n ? i : -1)).filter(i => i >= 0)
+    const support = ghz
+      .map((x, i) => (x !== 0n ? i : -1))
+      .filter(i => i >= 0)
     const x0 = support[0] ?? 0
-    const stabilizers = support.map(x => three.add[x * 729 + (three.neg[x0] ?? 0)] ?? 0).filter(v => v !== 0)
+    const stabilizers = support
+      .map(x => three.add[x * 729 + (three.neg[x0] ?? 0)] ?? 0)
+      .filter(v => v !== 0)
     const expectations = stabilizers.map(v => {
       let re = 0
       let im = 0
@@ -253,8 +323,13 @@ export default experiment({
 
       return [re, im] as [number, number]
     })
-    const perfect = expectations.every(([re, im]) => Math.abs(Math.hypot(re, im) - 1) < 1e-12)
-    const threeParty = stabilizers.filter(v => [0, 1, 2].every(r => Math.floor(v / 9 ** (2 - r)) % 9 !== 0)).length
+    const perfect = expectations.every(
+      ([re, im]) => Math.abs(Math.hypot(re, im) - 1) < 1e-12,
+    )
+    const threeParty = stabilizers.filter(v =>
+      [0, 1, 2].every(r => Math.floor(v / 9 ** (2 - r)) % 9 !== 0),
+    ).length
+
     let consistentAssignments = 0
 
     for (let x = 0; x < 729; x++) {
@@ -293,16 +368,33 @@ export default experiment({
 
       return s
     }
-    const triple = (a: Operator, b: Operator, c: Operator): Operator => tensorOperators(tensorOperators(a, b), c)
-    const qubitValues = [triple(X2, X2, X2), triple(X2, Y2, Y2), triple(Y2, X2, Y2), triple(Y2, Y2, X2)].map(o => Math.round(expect8(o)))
+
+    const triple = (a: Operator, b: Operator, c: Operator): Operator =>
+      tensorOperators(tensorOperators(a, b), c)
+    const qubitValues = [
+      triple(X2, X2, X2),
+      triple(X2, Y2, Y2),
+      triple(Y2, X2, Y2),
+      triple(Y2, Y2, X2),
+    ].map(o => Math.round(expect8(o)))
+
     let qubitAssignments = 0
 
     for (let mask = 0; mask < 64; mask++) {
       const x = (r: number): number => ((mask >> r) & 1 ? -1 : 1)
       const y = (r: number): number => ((mask >> (3 + r)) & 1 ? -1 : 1)
-      const predicted = [x(0) * x(1) * x(2), x(0) * y(1) * y(2), y(0) * x(1) * y(2), y(0) * y(1) * x(2)]
+      const predicted = [
+        x(0) * x(1) * x(2),
+        x(0) * y(1) * y(2),
+        y(0) * x(1) * y(2),
+        y(0) * y(1) * x(2),
+      ]
 
-      qubitAssignments += predicted.every((p, k) => p === qubitValues[k]) ? 1 : 0
+      qubitAssignments += predicted.every(
+        (p, k) => p === qubitValues[k],
+      )
+        ? 1
+        : 0
     }
 
     // G3 Mermin
@@ -312,13 +404,18 @@ export default experiment({
     embedded[0] = Math.SQRT1_2
     embedded[13] = Math.SQRT1_2
 
-    const merminQubit = merminSeeSaw(pureDensity(embedded, new Array<number>(27).fill(0)), starts, MERMIN_STEPS)
+    const merminQubit = merminSeeSaw(
+      pureDensity(embedded, new Array<number>(27).fill(0)),
+      starts,
+      MERMIN_STEPS,
+    )
     const ghzDensity = densityOf(ghz, 3)
     const merminGhz = merminSeeSaw(ghzDensity, starts, MERMIN_STEPS)
 
     // G4 CKW on the GHZ knot and the antisymmetric stand-in
     const tauOf = (rho: Operator): number => {
       const a = partialTrace(rho, 3, [0])
+
       let purity = 0
 
       for (let i = 0; i < 9; i++) {
@@ -327,10 +424,12 @@ export default experiment({
 
       return 2 * (1 - purity)
     }
+
     const ghzAB = concurrenceBounds(partialTrace(ghzDensity, 3, [0, 1]))
     const ghzAC = concurrenceBounds(partialTrace(ghzDensity, 3, [0, 2]))
     const ghzTau = tauOf(ghzDensity)
-    const ghzCkwHolds = ghzAB.upper ** 2 + ghzAC.upper ** 2 <= ghzTau + 1e-12
+    const ghzCkwHolds =
+      ghzAB.upper ** 2 + ghzAC.upper ** 2 <= ghzTau + 1e-12
     const antisymmetric = new Array<number>(27).fill(0)
 
     for (const [i, j, k, s] of [
@@ -344,17 +443,41 @@ export default experiment({
       antisymmetric[9 * i + 3 * j + k] = s / Math.sqrt(6)
     }
 
-    const standIn = pureDensity(antisymmetric, new Array<number>(27).fill(0))
-    const standInAB = concurrenceBounds(partialTrace(standIn, 3, [0, 1]))
-    const standInAC = concurrenceBounds(partialTrace(standIn, 3, [0, 2]))
+    const standIn = pureDensity(
+      antisymmetric,
+      new Array<number>(27).fill(0),
+    )
+    const standInAB = concurrenceBounds(
+      partialTrace(standIn, 3, [0, 1]),
+    )
+    const standInAC = concurrenceBounds(
+      partialTrace(standIn, 3, [0, 2]),
+    )
     const standInTau = tauOf(standIn)
-    const standInFails = standInAB.exact === 1 && standInAC.exact === 1 && 2 > standInTau + 1e-12
+    const standInFails =
+      standInAB.exact === 1 &&
+      standInAC.exact === 1 &&
+      2 > standInTau + 1e-12
 
     // the knit's matter triple, and its readings over the start family
-    const tally = { readings: 0, held: 0, violated: 0, undecided: 0, bothChsh: 0, largestChshPair: 0, largestSquares: 0, largestMerminFear: 0, largestMerminOff: 0, fearReadings: 0 }
+    const tally = {
+      readings: 0,
+      held: 0,
+      violated: 0,
+      undecided: 0,
+      bothChsh: 0,
+      largestChshPair: 0,
+      largestSquares: 0,
+      largestMerminFear: 0,
+      largestMerminOff: 0,
+      fearReadings: 0,
+    }
+
     let tripleName = ''
 
-    const findTriple = (records: readonly BeatRecord[]): Triple | null => {
+    const findTriple = (
+      records: readonly BeatRecord[],
+    ): Triple | null => {
       const count = new Map<string, number>()
 
       for (const r of records) {
@@ -370,7 +493,11 @@ export default experiment({
       for (let a = 0; a < 24; a++) {
         for (let b = a + 1; b < 24; b++) {
           for (let c = b + 1; c < 24; c++) {
-            const m = [count.get(`${a},${b}`), count.get(`${a},${c}`), count.get(`${b},${c}`)]
+            const m = [
+              count.get(`${a},${b}`),
+              count.get(`${a},${c}`),
+              count.get(`${b},${c}`),
+            ]
 
             if (m.every(x => (x ?? 0) > 0)) {
               const total = m.reduce((s: number, x) => s + (x ?? 0), 0)
@@ -389,7 +516,13 @@ export default experiment({
     const readTriples = (beats: number, mermin: boolean): void => {
       const weave = makeColorWeave({ side: 3, table: 'pair' })
       const slots = weave.mesh.cellCount * 24
-      const records = classicalRecords({ weave, links: weave.links, background: weylBackground({ slots, scale: MATTER_SCALE }), open: Array.from({ length: 24 }, (_, d) => d), beats })
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background: weylBackground({ slots, scale: MATTER_SCALE }),
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats,
+      })
       const found = findTriple(records)
 
       if (!found) {
@@ -398,7 +531,9 @@ export default experiment({
 
       const inTriple = (t: number): boolean => found.tokens.includes(t)
       const mine: BeatRecord[] = records.map(r => {
-        const keep = r.meetings.map(([x, y]) => inTriple(x) && inTriple(y))
+        const keep = r.meetings.map(
+          ([x, y]) => inTriple(x) && inTriple(y),
+        )
 
         return {
           meetings: r.meetings.filter((_, k) => keep[k]),
@@ -409,7 +544,11 @@ export default experiment({
 
       tripleName = found.tokens.join('-')
 
-      const laws: { fear: boolean; kernel4: readonly (readonly number[])[]; color?: FearKernels }[] = [
+      const laws: {
+        fear: boolean
+        kernel4: readonly (readonly number[])[]
+        color?: FearKernels
+      }[] = [
         { fear: true, kernel4: kThird },
         { fear: true, kernel4: [], color: colorOn },
         { fear: false, kernel4: kOff },
@@ -417,16 +556,32 @@ export default experiment({
       ]
 
       for (const law of laws) {
-        let whole: Whole = { tokens: found.tokens, weight: productWeights(basis(0), productWeights(basis(1), basis(2))) }
+        let whole: Whole = {
+          tokens: found.tokens,
+          weight: productWeights(
+            basis(0),
+            productWeights(basis(1), basis(2)),
+          ),
+        }
 
         for (let t = 0; t < mine.length; t++) {
-          whole = advanceWhole({ weave, whole, record: mine[t]!, kernel4: law.kernel4, color: law.color, fixed: false, forward: true }) as Whole
+          whole = advanceWhole({
+            weave,
+            whole,
+            record: mine[t]!,
+            kernel4: law.kernel4,
+            color: law.color,
+            fixed: false,
+            forward: true,
+          })!
 
           if ((t + 1) % SAMPLE !== 0) {
             continue
           }
 
-          const weight = law.color ? physicalWhole(whole).weight : whole.weight
+          const weight = law.color
+            ? physicalWhole(whole).weight
+            : whole.weight
           const rho = densityOf(weight, 3)
           const fear = weight.some(w => w < 0n)
 
@@ -442,26 +597,49 @@ export default experiment({
             tally.readings++
             tally.fearReadings += fear ? 1 : 0
 
-            if ((bAB.exact ?? bAB.lower) ** 2 + (bAC.exact ?? bAC.lower) ** 2 > tau + 1e-9) {
+            if (
+              (bAB.exact ?? bAB.lower) ** 2 +
+                (bAC.exact ?? bAC.lower) ** 2 >
+              tau + 1e-9
+            ) {
               tally.violated++
-            } else if ((bAB.exact ?? bAB.upper) ** 2 + (bAC.exact ?? bAC.upper) ** 2 <= tau + 1e-9) {
+            } else if (
+              (bAB.exact ?? bAB.upper) ** 2 +
+                (bAC.exact ?? bAC.upper) ** 2 <=
+              tau + 1e-9
+            ) {
               tally.held++
             } else {
               tally.undecided++
             }
 
-            tally.bothChsh += chshAB > 2 + 1e-9 && chshAC > 2 + 1e-9 ? 1 : 0
-            tally.largestChshPair = Math.max(tally.largestChshPair, Math.min(chshAB, chshAC))
-            tally.largestSquares = Math.max(tally.largestSquares, chshAB ** 2 + chshAC ** 2)
+            tally.bothChsh +=
+              chshAB > 2 + 1e-9 && chshAC > 2 + 1e-9 ? 1 : 0
+
+            tally.largestChshPair = Math.max(
+              tally.largestChshPair,
+              Math.min(chshAB, chshAC),
+            )
+
+            tally.largestSquares = Math.max(
+              tally.largestSquares,
+              chshAB ** 2 + chshAC ** 2,
+            )
           }
 
           if (mermin && (t + 1) % MERMIN_SAMPLE === 0) {
             const m = merminSeeSaw(rho, starts, MERMIN_STEPS)
 
             if (law.fear) {
-              tally.largestMerminFear = Math.max(tally.largestMerminFear, m)
+              tally.largestMerminFear = Math.max(
+                tally.largestMerminFear,
+                m,
+              )
             } else {
-              tally.largestMerminOff = Math.max(tally.largestMerminOff, m)
+              tally.largestMerminOff = Math.max(
+                tally.largestMerminOff,
+                m,
+              )
             }
           }
         }
@@ -479,16 +657,26 @@ export default experiment({
     const ghzChshAB = roleChsh(partialTrace(ghzDensity, 3, [0, 1]))
     const ghzChshAC = roleChsh(partialTrace(ghzDensity, 3, [0, 2]))
 
-    const g1 = ghzIsLagrangian && outcomes.size === 27 && ghzOutcomes === 27
-    const g2 = perfect && stabilizers.length === 26 && consistentAssignments === 27 && qubitAssignments === 0
-    const g3 = merminQubit >= 4 - 1e-6 && merminGhz >= 10 / 3 - 1e-6 && tally.largestMerminOff <= 2 + 1e-9
+    const g1 =
+      ghzIsLagrangian && outcomes.size === 27 && ghzOutcomes === 27
+    const g2 =
+      perfect &&
+      stabilizers.length === 26 &&
+      consistentAssignments === 27 &&
+      qubitAssignments === 0
+    const g3 =
+      merminQubit >= 4 - 1e-6 &&
+      merminGhz >= 10 / 3 - 1e-6 &&
+      tally.largestMerminOff <= 2 + 1e-9
     const g4 = ghzCkwHolds && standInFails && tally.violated === 0
-    const g5 = tally.bothChsh === 0 && !(ghzChshAB > 2 + 1e-9 && ghzChshAC > 2 + 1e-9)
+    const g5 =
+      tally.bothChsh === 0 &&
+      !(ghzChshAB > 2 + 1e-9 && ghzChshAC > 2 + 1e-9)
 
     return verdict({
       status: g1 && g2 && g3 && g4 && g5 ? 'pass' : 'fail',
       claim:
-        'the model\'s reading of one role of each of three love-fear pairs on the GHZ coset leaves a GHZ knot for all 27 outcomes; its weights are non-negative, so its 26 perfect correlations under the model\'s readings are met by 27 local assignments and GHZ\'s contradiction does not arise for qutrits, while two-outcome observables outside those readings reach Mermin 10/3 or more; CKW holds on the GHZ knot, fails exactly on the antisymmetric stand-in, and is never certified broken on the knit\'s triples, and no role violates CHSH with both partners',
+        "the model's reading of one role of each of three love-fear pairs on the GHZ coset leaves a GHZ knot for all 27 outcomes; its weights are non-negative, so its 26 perfect correlations under the model's readings are met by 27 local assignments and GHZ's contradiction does not arise for qutrits, while two-outcome observables outside those readings reach Mermin 10/3 or more; CKW holds on the GHZ knot, fails exactly on the antisymmetric stand-in, and is never certified broken on the knit's triples, and no role violates CHSH with both partners",
       metrics: {
         gateGhzMade: g1 ? 1 : 0,
         gateNoGhzContradiction: g2 ? 1 : 0,
@@ -527,9 +715,10 @@ export default experiment({
         standInAntisymmetricAB: standInAB.antisymmetric ? 1 : 0,
         standInLowerBoundAB: standInAB.lower,
       },
-      notes: `knit triple (matter, dock 0): tokens ${tripleName}; ${family.length} starts, ${FAMILY_BEATS} beats on all but the committed start (${BEATS}), read every ${SAMPLE} beats, Mermin every ${MERMIN_SAMPLE} beats on the committed start. ` +
+      notes:
+        `knit triple (matter, dock 0): tokens ${tripleName}; ${family.length} starts, ${FAMILY_BEATS} beats on all but the committed start (${BEATS}), read every ${SAMPLE} beats, Mermin every ${MERMIN_SAMPLE} beats on the committed start. ` +
         'FIRST RUN 2026-09-26: fail on G5 alone, a wrong prediction. On 115 of 480 knit-triple readings one role violates CHSH with BOTH partners at once (the smaller of the two up to 2.195, far past 2), and CHSH_AB^2 + CHSH_AC^2 reaches 11.11, past the qubit Toner-Verstraete bound 8. Each pair is maximized with its own settings for the shared role (as E-QTM-0111 reads CHSH), and a qutrit role has room for two different two-level blocks, so the qubit bound does not carry over; the no-signaling bound CHSH_AB + CHSH_AC <= 4 with SHARED settings was not tested and stands. The gate stays as written. G1 to G4 passed: CKW held on 103 readings, was undecided on 377 (the bounds are loose) and certified broken on 0. ' +
-        'L2. The antisymmetric state is a STAND-IN, a textbook state the model has not been shown to make; it is here only to show the CKW reader can return a violation. The GHZ knot has no fear, and that is why the model\'s readings cannot contradict it: its weights are the local model. The Mermin values come from two-outcome observables that are not the model\'s readings, as E-QTM-0111 read CHSH.',
+        "L2. The antisymmetric state is a STAND-IN, a textbook state the model has not been shown to make; it is here only to show the CKW reader can return a violation. The GHZ knot has no fear, and that is why the model's readings cannot contradict it: its weights are the local model. The Mermin values come from two-outcome observables that are not the model's readings, as E-QTM-0111 read CHSH.",
     })
   },
 })

@@ -47,36 +47,91 @@ function clusters(values: readonly number[]): LadderCluster[] {
 }
 
 // the rest gap per period, |2 N mu| folded into [0, pi]
-export function restGapOf(input: { schedule: readonly Step[]; coinAngle: number }): number {
-  const raw = (2 * input.coinAngle * input.schedule.length) % (2 * Math.PI)
+export function restGapOf(input: {
+  schedule: readonly Step[]
+  coinAngle: number
+}): number {
+  const raw =
+    (2 * input.coinAngle * input.schedule.length) % (2 * Math.PI)
 
   return Math.min(raw, 2 * Math.PI - raw)
 }
 
 // the side the particle band curves to: the sign of the phase nearest 0 in the free walk at a small k_y
-export function bandSignOf(input: { schedule: readonly Step[]; mode: Mode; coinAngle: number }): number {
-  const { phases } = sectorPhases({ side: 8, schedule: input.schedule, mode: input.mode, field: 0, charge: 1, ky: 0.02, coinAngle: input.coinAngle }, 1)
-  const nearest = phases.reduce((best, p) => (Math.abs(p) < Math.abs(best) ? p : best), Infinity)
+export function bandSignOf(input: {
+  schedule: readonly Step[]
+  mode: Mode
+  coinAngle: number
+}): number {
+  const { phases } = sectorPhases(
+    {
+      side: 8,
+      schedule: input.schedule,
+      mode: input.mode,
+      field: 0,
+      charge: 1,
+      ky: 0.02,
+      coinAngle: input.coinAngle,
+    },
+    1,
+  )
+  const nearest = phases.reduce(
+    (best, p) => (Math.abs(p) < Math.abs(best) ? p : best),
+    Infinity,
+  )
 
   return Math.sign(nearest)
 }
 
-export function landauG(input: { schedule: readonly Step[]; mode: Mode; coinAngle: number; side: number; sign: number }): LandauG {
+export function landauG(input: {
+  schedule: readonly Step[]
+  mode: Mode
+  coinAngle: number
+  side: number
+  sign: number
+}): LandauG {
   const { schedule, mode, coinAngle, side, sign } = input
   const field = (2 * Math.PI) / side
   const window = restGapOf({ schedule, coinAngle }) / 2
-  const sector = (s: 1 | -1): { levels: LadderCluster[]; leak: number } => {
-    const { phases, leak } = sectorPhases({ side, schedule, mode, field, charge: 1, ky: 0, coinAngle }, s)
 
-    return { levels: clusters(phases.map(p => sign * p).filter(e => Math.abs(e) < window)), leak }
+  const sector = (
+    s: 1 | -1,
+  ): { levels: LadderCluster[]; leak: number } => {
+    const { phases, leak } = sectorPhases(
+      { side, schedule, mode, field, charge: 1, ky: 0, coinAngle },
+      s,
+    )
+
+    return {
+      levels: clusters(
+        phases.map(p => sign * p).filter(e => Math.abs(e) < window),
+      ),
+      leak,
+    }
   }
+
   const plus = sector(1)
   const minus = sector(-1)
-  const e0 = [plus.levels[0]?.level ?? NaN, minus.levels[0]?.level ?? NaN]
-  const spacing = [(plus.levels[1]?.level ?? NaN) - (plus.levels[0]?.level ?? NaN), (minus.levels[1]?.level ?? NaN) - (minus.levels[0]?.level ?? NaN)]
+  const e0 = [
+    plus.levels[0]?.level ?? NaN,
+    minus.levels[0]?.level ?? NaN,
+  ]
+  const spacing = [
+    (plus.levels[1]?.level ?? NaN) - (plus.levels[0]?.level ?? NaN),
+    (minus.levels[1]?.level ?? NaN) - (minus.levels[0]?.level ?? NaN),
+  ]
   const omega = ((spacing[0] ?? 0) + (spacing[1] ?? 0)) / 2
   const lo = Math.min(e0[0] ?? 0, e0[1] ?? 0)
   const hi = Math.max(e0[0] ?? 0, e0[1] ?? 0)
 
-  return { side, field, up: plus.levels.slice(0, 6), down: minus.levels.slice(0, 6), leak: Math.max(plus.leak, minus.leak), omega, gLo: 2 - (4 * lo) / omega, gHi: (4 * hi) / omega - 2 }
+  return {
+    side,
+    field,
+    up: plus.levels.slice(0, 6),
+    down: minus.levels.slice(0, 6),
+    leak: Math.max(plus.leak, minus.leak),
+    omega,
+    gLo: 2 - (4 * lo) / omega,
+    gHi: (4 * hi) / omega - 2,
+  }
 }

@@ -30,7 +30,10 @@ import { makeWill, type Will } from '@/code/tone/will'
 import { type Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylPoint } from '@/code/tool/weyl-point'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import {
   type ComplexMatrix,
   complexApply,
@@ -40,10 +43,18 @@ import {
   complexLogNearIdentity,
   complexMultiply,
 } from '@/code/algebra/linear/complex-matrix'
-import { SLOT_STATES, densityProfile, periodMap, reducedCoordinates, reducedSiteCount, type ReducedLattice } from '@/code/coarse/knit-boltzmann'
+import {
+  SLOT_STATES,
+  densityProfile,
+  periodMap,
+  reducedCoordinates,
+  reducedSiteCount,
+  type ReducedLattice,
+} from '@/code/coarse/knit-boltzmann'
 
 const ROOTS = rootsD4()
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 export type Hydrodynamics = {
   readonly names: readonly string[]
@@ -55,19 +66,38 @@ export type Hydrodynamics = {
 }
 
 // T = (L X) Lambda (L X)^-1 at the wave vector k0 * direction, and its logarithm per beat
-function slowGenerator(matrices: readonly Float64Array[], wave: readonly number[], lefts: readonly Float64Array[]): ComplexMatrix {
+function slowGenerator(
+  matrices: readonly Float64Array[],
+  wave: readonly number[],
+  lefts: readonly Float64Array[],
+): ComplexMatrix {
   const n = SLOT_STATES
   const m = lefts.length
   const period = matrices.length
   const map = periodMap({ matrices, wave })
   const ev = complexEigenvalues({ re: map.re, im: map.im, n })
-  const order = ev.re.map((re, i) => ({ re, im: ev.im[i] ?? 0 })).sort((a, b) => Math.hypot(b.re, b.im) - Math.hypot(a.re, a.im))
+  const order = ev.re
+    .map((re, i) => ({ re, im: ev.im[i] ?? 0 }))
+    .sort((a, b) => Math.hypot(b.re, b.im) - Math.hypot(a.re, a.im))
   const slow = order.slice(0, m)
-  const lx: ComplexMatrix = { re: new Float64Array(m * m), im: new Float64Array(m * m), n: m }
-  const lambda: ComplexMatrix = { re: new Float64Array(m * m), im: new Float64Array(m * m), n: m }
+  const lx: ComplexMatrix = {
+    re: new Float64Array(m * m),
+    im: new Float64Array(m * m),
+    n: m,
+  }
+  const lambda: ComplexMatrix = {
+    re: new Float64Array(m * m),
+    im: new Float64Array(m * m),
+    n: m,
+  }
 
   slow.forEach((value, i) => {
-    const x = complexEigenvector({ re: map.re, im: map.im, n, value: [value.re, value.im] })
+    const x = complexEigenvector({
+      re: map.re,
+      im: map.im,
+      n,
+      value: [value.re, value.im],
+    })
 
     lefts.forEach((left, q) => {
       let sr = 0
@@ -86,7 +116,10 @@ function slowGenerator(matrices: readonly Float64Array[], wave: readonly number[
     lambda.im[i * m + i] = value.im
   })
 
-  const t = complexMultiply(complexMultiply(lx, lambda), complexInverse(lx))
+  const t = complexMultiply(
+    complexMultiply(lx, lambda),
+    complexInverse(lx),
+  )
   const log = complexLogNearIdentity(t)
 
   return complexCombine(log, [1 / period, 0], log, [0, 0])
@@ -99,11 +132,21 @@ export function hydrodynamicGenerator(input: {
   densities: Record<string, Float64Array>
 }): Hydrodynamics {
   const names = Object.keys(input.densities)
-  const lefts = names.map(name => input.densities[name] ?? new Float64Array(SLOT_STATES))
+  const lefts = names.map(
+    name => input.densities[name] ?? new Float64Array(SLOT_STATES),
+  )
   const size = Math.hypot(...input.direction)
   const unit = input.direction.map(x => x / size)
-  const plus = slowGenerator(input.matrices, unit.map(x => x * input.k0), lefts)
-  const minus = slowGenerator(input.matrices, unit.map(x => -x * input.k0), lefts)
+  const plus = slowGenerator(
+    input.matrices,
+    unit.map(x => x * input.k0),
+    lefts,
+  )
+  const minus = slowGenerator(
+    input.matrices,
+    unit.map(x => -x * input.k0),
+    lefts,
+  )
   const k0 = input.k0
 
   // D = -(H+ + H-) / (2 k0^2), C = (H+ - H-) i / (2 k0)
@@ -111,21 +154,38 @@ export function hydrodynamicGenerator(input: {
     names,
     lefts,
     direction: unit,
-    transport: complexCombine(plus, [-1 / (2 * k0 * k0), 0], minus, [-1 / (2 * k0 * k0), 0]),
-    flux: complexCombine(plus, [0, 1 / (2 * k0)], minus, [0, -1 / (2 * k0)]),
+    transport: complexCombine(plus, [-1 / (2 * k0 * k0), 0], minus, [
+      -1 / (2 * k0 * k0),
+      0,
+    ]),
+    flux: complexCombine(plus, [0, 1 / (2 * k0)], minus, [
+      0,
+      -1 / (2 * k0),
+    ]),
   }
 }
 
 // H(k) = -i k C - k^2 D
-export function generatorAt(h: Hydrodynamics, k: number): ComplexMatrix {
+export function generatorAt(
+  h: Hydrodynamics,
+  k: number,
+): ComplexMatrix {
   return complexCombine(h.flux, [0, -k], h.transport, [-k * k, 0])
 }
 
 // e^{t H(k)} z
-export function hydrodynamicEvolve(h: Hydrodynamics, k: number, t: number, z: { re: ArrayLike<number>; im: ArrayLike<number> }): { re: Float64Array; im: Float64Array } {
+export function hydrodynamicEvolve(
+  h: Hydrodynamics,
+  k: number,
+  t: number,
+  z: { re: ArrayLike<number>; im: ArrayLike<number> },
+): { re: Float64Array; im: Float64Array } {
   const g = generatorAt(h, k)
 
-  return complexApply(complexExp(complexCombine(g, [t, 0], g, [0, 0])), z)
+  return complexApply(
+    complexExp(complexCombine(g, [t, 0], g, [0, 0])),
+    z,
+  )
 }
 
 // The complex amplitude z of each density on one wave of a reduced lattice: rho = Re(z e^{i phi}) with
@@ -145,7 +205,9 @@ export function waveAmplitudes(input: {
     const rho = densityProfile(field, left)
 
     for (let s = 0; s < sites; s++) {
-      const phi = (2 * Math.PI * dot(wave, reducedCoordinates(lattice, s))) / lattice.side
+      const phi =
+        (2 * Math.PI * dot(wave, reducedCoordinates(lattice, s))) /
+        lattice.side
 
       re[q] = (re[q] ?? 0) + (rho[s] ?? 0) * Math.cos(phi)
       im[q] = (im[q] ?? 0) - (rho[s] ?? 0) * Math.sin(phi)
@@ -172,7 +234,8 @@ export function momentumFieldStart(input: {
 
   for (let i = 0; i < will.data.length; i++) {
     if (weylPoint({ start: salt, index: i, slot: 0 }) < fill) {
-      will.data[i] = weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
+      will.data[i] =
+        weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
     }
   }
 
@@ -183,8 +246,11 @@ export function momentumFieldStart(input: {
       r[k] = Math.floor(dock / side ** k) % side
     }
 
-    const coords = lattice.axes.map(axis => (((dot(axis, r) % side) + side) % side))
+    const coords = lattice.axes.map(
+      axis => ((dot(axis, r) % side) + side) % side,
+    )
     const g = field(coords)
+
     let line = 0
 
     for (let d = 0; d < 24; d++) {
@@ -196,11 +262,18 @@ export function momentumFieldStart(input: {
 
       const w = dot(ROOTS[d] ?? [], g)
 
-      if (w !== 0 && weylPoint({ start: salt, index: dock, slot: 2 + line }) < Math.min(1, Math.abs(w))) {
+      if (
+        w !== 0 &&
+        weylPoint({ start: salt, index: dock, slot: 2 + line }) <
+          Math.min(1, Math.abs(w))
+      ) {
         const forward = w > 0 ? d : o
         const backward = forward === d ? o : d
 
-        will.data[dock * 24 + forward] = weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5 ? -1 : 1
+        will.data[dock * 24 + forward] =
+          weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5
+            ? -1
+            : 1
         will.data[dock * 24 + backward] = 0
       }
 
@@ -260,7 +333,10 @@ export function momentumFieldExpectation(input: {
 
 // the projection of density profiles on a pattern: sum over densities and sites of profile times pattern,
 // over the pattern's own square
-export function patternAmplitude(field: Float64Array, pattern: readonly { left: Float64Array; shape: Float64Array }[]): number {
+export function patternAmplitude(
+  field: Float64Array,
+  pattern: readonly { left: Float64Array; shape: Float64Array }[],
+): number {
   let num = 0
   let den = 0
 

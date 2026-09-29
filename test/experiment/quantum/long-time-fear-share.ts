@@ -32,9 +32,25 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { advanceWhole, fearKernels, meetingKernel, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
-import { classicalRecords, meetingPairs, pairRecords, vacuumBackground, weylBackground } from '@/code/measure/knit-magic'
-import { gridWeights, phasePointOperators } from '@/code/measure/grid-weights'
+import {
+  advanceWhole,
+  fearKernels,
+  meetingKernel,
+  swapPhase,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  classicalRecords,
+  meetingPairs,
+  pairRecords,
+  vacuumBackground,
+  weylBackground,
+} from '@/code/measure/knit-magic'
+import {
+  gridWeights,
+  phasePointOperators,
+} from '@/code/measure/grid-weights'
 import { weylUnitVector } from '@/code/tool/weyl'
 
 const OMEGA = (2 * Math.PI) / 3
@@ -57,12 +73,25 @@ function oneRoleStates(): bigint[][] {
     const seen = new Set<string>()
 
     for (let p = 0; p < 9; p++) {
-      const line = [0, 1, 2].map(t => 3 * ((Math.floor(p / 3) + t * da) % 3) + ((p % 3) + t * db) % 3).sort((x, y) => x - y)
+      const line = [0, 1, 2]
+        .map(
+          t =>
+            3 * ((Math.floor(p / 3) + t * da) % 3) +
+            (((p % 3) + t * db) % 3),
+        )
+        .sort((x, y) => x - y)
       const key = line.join(',')
 
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
+
       seen.add(key)
-      out.push(Array.from({ length: 9 }, (_, q) => (line.includes(q) ? 1n : 0n)))
+      out.push(
+        Array.from({ length: 9 }, (_, q) =>
+          line.includes(q) ? 1n : 0n,
+        ),
+      )
     }
   }
 
@@ -79,13 +108,14 @@ const shareOf = (w: Whole): number => {
   return Number(fears) / Number(loves + fears)
 }
 
-const binOf = (f: number): number => Math.min(BINS - 1, Math.floor((f / (1 / 3)) * BINS))
+const binOf = (f: number): number =>
+  Math.min(BINS - 1, Math.floor((f / (1 / 3)) * BINS))
 
 export default experiment({
   id: 'quantum/long-time-fear-share',
   code: 'E-QTM-0126',
   title:
-    'the long-time fear share of the knit\'s two-role wholes, over all 441 products of the 21 one-role pure states as starts and every meeting pair of a dock, against the Haar-typical two-qutrit state computed from deterministic directions: does the fear beat scramble a pair of roles to a typical state',
+    "the long-time fear share of the knit's two-role wholes, over all 441 products of the 21 one-role pure states as starts and every meeting pair of a dock, against the Haar-typical two-qutrit state computed from deterministic directions: does the fear beat scramble a pair of roles to a typical state",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -94,12 +124,17 @@ export default experiment({
     // the Haar reference
     const points2 = phasePointOperators(2)
     const haarHistogram = new Array<number>(BINS).fill(0)
+
     let haarSum = 0
     let haarMax = 0
 
     for (let k = 0; k < HAAR_STATES; k++) {
       const v = weylUnitVector({ dimension: 18, start: 90000 + k })
-      const w = gridWeights({ re: Array.from(v.slice(0, 9)), im: Array.from(v.slice(9, 18)), points: points2 })
+      const w = gridWeights({
+        re: Array.from(v.slice(0, 9)),
+        im: Array.from(v.slice(9, 18)),
+        points: points2,
+      })
       const s = w.reduce((t, x) => t + Math.abs(x), 0)
       const f = (1 - 1 / s) / 2
 
@@ -117,20 +152,36 @@ export default experiment({
     const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA })!
     const ones = oneRoleStates()
     const tally = ['swap', 'color'].map(() => ({
-      busy: { sum: 0, count: 0, histogram: new Array<number>(BINS).fill(0) },
+      busy: {
+        sum: 0,
+        count: 0,
+        histogram: new Array<number>(BINS).fill(0),
+      },
       quiet: { sum: 0, count: 0 },
       max: 0,
       startMax: 0,
     }))
+
     let busyPairs = 0
     let quietPairs = 0
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: 2.11 })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: Array.from({ length: 24 }, (_, d) => d), beats: BEATS })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: 2.11 }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
-        const early = mine.slice(0, LONG_FROM).reduce((n, r) => n + r.meetings.length, 0)
+        const early = mine
+          .slice(0, LONG_FROM)
+          .reduce((n, r) => n + r.meetings.length, 0)
         const busy = early >= MIN_MEETINGS
 
         busyPairs += busy ? 1 : 0
@@ -138,10 +189,14 @@ export default experiment({
 
         for (const u of ones) {
           for (const v of ones) {
-            const start: Whole = { tokens: [a, b], weight: u.flatMap(x => v.map(y => x * y)) }
+            const start: Whole = {
+              tokens: [a, b],
+              weight: u.flatMap(x => v.map(y => x * y)),
+            }
 
             for (const li of [0, 1]) {
               const t = tally[li]!
+
               let whole: Whole = start
 
               t.startMax = Math.max(t.startMax, shareOf(start))
@@ -157,7 +212,9 @@ export default experiment({
                   forward: true,
                 })!
 
-                if (beat < LONG_FROM) return
+                if (beat < LONG_FROM) {
+                  return
+                }
 
                 const f = shareOf(whole)
 
@@ -166,7 +223,8 @@ export default experiment({
                 if (busy) {
                   t.busy.sum += f
                   t.busy.count++
-                  t.busy.histogram[binOf(f)] = (t.busy.histogram[binOf(f)] ?? 0) + 1
+                  t.busy.histogram[binOf(f)] =
+                    (t.busy.histogram[binOf(f)] ?? 0) + 1
                 } else {
                   t.quiet.sum += f
                   t.quiet.count++
@@ -178,12 +236,21 @@ export default experiment({
       }
     }
 
-    const mean = (x: { sum: number; count: number }): number => (x.count > 0 ? x.sum / x.count : Number.NaN)
+    const mean = (x: { sum: number; count: number }): number =>
+      x.count > 0 ? x.sum / x.count : Number.NaN
+
     const tv = (h: readonly number[]): number => {
       const n = h.reduce((s, x) => s + x, 0)
 
-      return h.reduce((s, x, i) => s + Math.abs(x / n - (haarHistogram[i] ?? 0) / HAAR_STATES), 0) / 2
+      return (
+        h.reduce(
+          (s, x, i) =>
+            s + Math.abs(x / n - (haarHistogram[i] ?? 0) / HAAR_STATES),
+          0,
+        ) / 2
+      )
     }
+
     const swap = tally[0]!
     const color = tally[1]!
     const p1 = Math.abs(haarMean - 0.297) <= 0.003
@@ -209,9 +276,21 @@ export default experiment({
         colorQuietMean: mean(color.quiet),
         colorMax: color.max,
         startMaxShare: swap.startMax,
-        ...Object.fromEntries(haarHistogram.map((x, i) => [`haarBin${i}`, x / HAAR_STATES])),
-        ...Object.fromEntries(swap.busy.histogram.map((x, i) => [`swapBin${i}`, x / Math.max(1, swap.busy.count)])),
-        ...Object.fromEntries(color.busy.histogram.map((x, i) => [`colorBin${i}`, x / Math.max(1, color.busy.count)])),
+        ...Object.fromEntries(
+          haarHistogram.map((x, i) => [`haarBin${i}`, x / HAAR_STATES]),
+        ),
+        ...Object.fromEntries(
+          swap.busy.histogram.map((x, i) => [
+            `swapBin${i}`,
+            x / Math.max(1, swap.busy.count),
+          ]),
+        ),
+        ...Object.fromEntries(
+          color.busy.histogram.map((x, i) => [
+            `colorBin${i}`,
+            x / Math.max(1, color.busy.count),
+          ]),
+        ),
         predictionP1: p1 ? 1 : 0,
         predictionP2: p2 ? 1 : 0,
         predictionP3: p3 ? 1 : 0,
@@ -221,7 +300,8 @@ export default experiment({
         conjecturedCeiling: 8 / 25,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; busy means 0.2794 -> 0.2748 (swap) and 0.2515 -> 0.2457 (color), quiet means 0.2601 -> 0.2587 and 0.2505 -> 0.2499, the histogram bins moved. " + ('L2. Bins are tenths of 1/3 in fear share. A long-time whole is every beat from 240 to 479 of every run, so wholes in one run are correlated; the means are of wholes, not of independent draws, and no error bar is claimed. The quiet pairs are reported to show what the cut does, since a pair that seldom meets keeps most of its start. First run, 2026-09-26 (904 s beside other jobs; the 200 s estimate was optimistic): pass, gates unchanged. Haar mean 0.2967 (the roadmap\'s 0.297 holds). Only 8 of 28 pairs meet 20 times before beat 240. On them the swap law\'s long-time mean is 0.2794, 0.017 below Haar, P2 passing with room, but its histogram is not Haar\'s (total variation 0.17): 1.6 percent of its long-time wholes sit at zero fear (stabilizer-like) and a tail runs down through the lower bins, where Haar puts 99.8 percent in the top three. The color law with frames is further off (mean 0.2515, total variation 0.49, 4.8 percent at zero fear): its love-fear meetings use the singlet phase, which scrambles less. So the fear beat drives a pair toward a typical state on average, not to the Haar distribution, within 480 beats.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; busy means 0.2794 -> 0.2748 (swap) and 0.2515 -> 0.2457 (color), quiet means 0.2601 -> 0.2587 and 0.2505 -> 0.2499, the histogram bins moved. ' +
+        "L2. Bins are tenths of 1/3 in fear share. A long-time whole is every beat from 240 to 479 of every run, so wholes in one run are correlated; the means are of wholes, not of independent draws, and no error bar is claimed. The quiet pairs are reported to show what the cut does, since a pair that seldom meets keeps most of its start. First run, 2026-09-26 (904 s beside other jobs; the 200 s estimate was optimistic): pass, gates unchanged. Haar mean 0.2967 (the roadmap's 0.297 holds). Only 8 of 28 pairs meet 20 times before beat 240. On them the swap law's long-time mean is 0.2794, 0.017 below Haar, P2 passing with room, but its histogram is not Haar's (total variation 0.17): 1.6 percent of its long-time wholes sit at zero fear (stabilizer-like) and a tail runs down through the lower bins, where Haar puts 99.8 percent in the top three. The color law with frames is further off (mean 0.2515, total variation 0.49, 4.8 percent at zero fear): its love-fear meetings use the singlet phase, which scrambles less. So the fear beat drives a pair toward a typical state on average, not to the Haar distribution, within 480 beats.",
     })
   },
 })

@@ -37,7 +37,11 @@
 // counted. DETERMINISM: nothing is drawn. NOTHING MOVES: each register takes its new value by the rule.
 
 import { VERTICAL, type OpenMesh } from '@/code/rule/open-husk'
-import { huskFaces, type PlaquetteRule, type PlaquetteTally } from '@/code/rule/line-plaquette'
+import {
+  huskFaces,
+  type PlaquetteRule,
+  type PlaquetteTally,
+} from '@/code/rule/line-plaquette'
 import { radionMesh } from '@/code/rule/trit-radion'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -63,7 +67,9 @@ export type StackFaces = {
 
 // the stack's faces (a stack of no layers gives line-plaquette's husk faces, in the same order)
 export function stackFaces(mesh: OpenMesh): StackFaces {
-  if (mesh.growth !== 'shrink' || mesh.lapse || mesh.inertia) throw new Error('stackFaces: the one-clock shrinking stack only')
+  if (mesh.growth !== 'shrink' || mesh.lapse || mesh.inertia) {
+    throw new Error('stackFaces: the one-clock shrinking stack only')
+  }
 
   const K = mesh.sides.length - 1
   const links: number[] = []
@@ -72,11 +78,18 @@ export function stackFaces(mesh: OpenMesh): StackFaces {
   const dock: number[] = []
   const kind: number[] = []
   const layer: number[] = []
-  const push = (ls: readonly (readonly [number, number])[], y: number, k: number, what: number): void => {
+
+  const push = (
+    ls: readonly (readonly [number, number])[],
+    y: number,
+    k: number,
+    what: number,
+  ): void => {
     for (const [l, s] of ls) {
       links.push(l)
       signs.push(s)
     }
+
     start.push(links.length)
     dock.push(y)
     kind.push(what)
@@ -92,7 +105,10 @@ export function stackFaces(mesh: OpenMesh): StackFaces {
     for (let q = 0; q < f.count; q++) {
       const ls: [number, number][] = []
 
-      for (let j = 0; j < 3; j++) ls.push([base * 9 + f.link[q * 3 + j]!, f.sign[q * 3 + j]!])
+      for (let j = 0; j < 3; j++) {
+        ls.push([base * 9 + f.link[q * 3 + j]!, f.sign[q * 3 + j]!])
+      }
+
       push(ls, base + f.dock[q]!, k, k === 0 ? FACE_HUSK : FACE_LAYER)
     }
   }
@@ -100,23 +116,41 @@ export function stackFaces(mesh: OpenMesh): StackFaces {
   // each dock's vertical link (a shrinking stack: one down-link a dock above the deepest layer)
   const down = new Int32Array(mesh.docks).fill(-1)
 
-  for (let m = 0; m < mesh.links; m++) if (mesh.kind[m] === VERTICAL) down[mesh.tail[m]!] = m
+  for (let m = 0; m < mesh.links; m++) {
+    if (mesh.kind[m] === VERTICAL) {
+      down[mesh.tail[m]!] = m
+    }
+  }
 
   // the one link between two docks of one layer, with the sense it is taken from `from` to `to`
   const between = (from: number, to: number): [number, number] => {
     const found: [number, number][] = []
 
     for (let h = 0; h < 9; h++) {
-      if (mesh.head[from * 9 + h] === to) found.push([from * 9 + h, 1])
-      if (mesh.head[to * 9 + h] === from) found.push([to * 9 + h, -1])
+      if (mesh.head[from * 9 + h] === to) {
+        found.push([from * 9 + h, 1])
+      }
+
+      if (mesh.head[to * 9 + h] === from) {
+        found.push([to * 9 + h, -1])
+      }
     }
-    if (found.length !== 1) throw new Error(`stackFaces: ${found.length} links between ${from} and ${to}`)
+
+    if (found.length !== 1) {
+      throw new Error(
+        `stackFaces: ${found.length} links between ${from} and ${to}`,
+      )
+    }
 
     return found[0]!
   }
 
   for (let k = 0; k < K; k++) {
-    for (let y = mesh.offset[k]!; y < mesh.offset[k]! + mesh.sides[k]! ** 3; y++) {
+    for (
+      let y = mesh.offset[k]!;
+      y < mesh.offset[k]! + mesh.sides[k]! ** 3;
+      y++
+    ) {
       for (let h = 0; h < 9; h++) {
         const m = y * 9 + h
         const z = mesh.head[m]!
@@ -129,7 +163,10 @@ export function stackFaces(mesh: OpenMesh): StackFaces {
           [vz, 1],
         ]
 
-        if (pz !== py) ls.push(between(pz, py))
+        if (pz !== py) {
+          ls.push(between(pz, py))
+        }
+
         ls.push([vy, -1])
         push(ls, y, k, FACE_VERTICAL)
       }
@@ -149,52 +186,118 @@ export function stackFaces(mesh: OpenMesh): StackFaces {
 }
 
 // out = C M E, the circulation of M E around every face
-export function stackFaceCurl(faces: StackFaces, line: ArrayLike<number>, out: Float64Array): void {
+export function stackFaceCurl(
+  faces: StackFaces,
+  line: ArrayLike<number>,
+  out: Float64Array,
+): void {
   const { start, link, sign, metric } = faces
 
   for (let f = 0; f < faces.count; f++) {
     let c = 0
 
-    for (let j = start[f]!; j < start[f + 1]!; j++) c += sign[j]! * metric[link[j]!]! * line[link[j]!]!
+    for (let j = start[f]!; j < start[f + 1]!; j++) {
+      c += sign[j]! * metric[link[j]!]! * line[link[j]!]!
+    }
+
     out[f] = c
   }
 }
 
 // out += C^T B: each face takes its value once around its boundary
-export function addStackBoundary(faces: StackFaces, face: ArrayLike<number>, out: Float64Array): void {
+export function addStackBoundary(
+  faces: StackFaces,
+  face: ArrayLike<number>,
+  out: Float64Array,
+): void {
   const { start, link, sign } = faces
 
   for (let f = 0; f < faces.count; f++) {
     const b = face[f]!
 
-    if (b === 0) continue
-    for (let j = start[f]!; j < start[f + 1]!; j++) out[link[j]!] = out[link[j]!]! + sign[j]! * b
+    if (b === 0) {
+      continue
+    }
+
+    for (let j = start[f]!; j < start[f + 1]!; j++) {
+      out[link[j]!] = out[link[j]!]! + sign[j]! * b
+    }
   }
 }
 
-export type StackPlaquetteState = { readonly line: Float64Array; readonly face: Float64Array; readonly rest: Float64Array }
+export type StackPlaquetteState = {
+  readonly line: Float64Array
+  readonly face: Float64Array
+  readonly rest: Float64Array
+}
 
-export const emptyStackPlaquette = (mesh: OpenMesh, faces: StackFaces): StackPlaquetteState => ({ line: new Float64Array(mesh.links), face: new Float64Array(faces.count), rest: new Float64Array(faces.count) })
+export const emptyStackPlaquette = (
+  mesh: OpenMesh,
+  faces: StackFaces,
+): StackPlaquetteState => ({
+  line: new Float64Array(mesh.links),
+  face: new Float64Array(faces.count),
+  rest: new Float64Array(faces.count),
+})
 
-export const duplicateStackPlaquette = (s: StackPlaquetteState): StackPlaquetteState => ({ line: Float64Array.from(s.line), face: Float64Array.from(s.face), rest: Float64Array.from(s.rest) })
+export const duplicateStackPlaquette = (
+  s: StackPlaquetteState,
+): StackPlaquetteState => ({
+  line: Float64Array.from(s.line),
+  face: Float64Array.from(s.face),
+  rest: Float64Array.from(s.rest),
+})
 
-const sameArray = (a: ArrayLike<number>, b: ArrayLike<number>): boolean => {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+const sameArray = (
+  a: ArrayLike<number>,
+  b: ArrayLike<number>,
+): boolean => {
+  if (a.length !== b.length) {
+    return false
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false
+    }
+  }
 
   return true
 }
 
-export const sameStackPlaquette = (a: StackPlaquetteState, b: StackPlaquetteState): boolean => sameArray(a.line, b.line) && sameArray(a.face, b.face) && sameArray(a.rest, b.rest)
+export const sameStackPlaquette = (
+  a: StackPlaquetteState,
+  b: StackPlaquetteState,
+): boolean =>
+  sameArray(a.line, b.line) &&
+  sameArray(a.face, b.face) &&
+  sameArray(a.rest, b.rest)
 
-const wrapInto = (rule: PlaquetteRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
+const wrapInto = (rule: PlaquetteRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
 
-export type StackPlaquetteScratch = { sum: Float64Array; curl: Float64Array }
+export type StackPlaquetteScratch = {
+  sum: Float64Array
+  curl: Float64Array
+}
 
-export const stackPlaquetteScratch = (mesh: OpenMesh, faces: StackFaces): StackPlaquetteScratch => ({ sum: new Float64Array(mesh.links), curl: new Float64Array(faces.count) })
+export const stackPlaquetteScratch = (
+  mesh: OpenMesh,
+  faces: StackFaces,
+): StackPlaquetteScratch => ({
+  sum: new Float64Array(mesh.links),
+  curl: new Float64Array(faces.count),
+})
 
 // one beat in place; `drag` is whole register units per stack link (zero off the husk)
-export function stackPlaquetteBeat(faces: StackFaces, rule: PlaquetteRule, s: StackPlaquetteState, drag: ArrayLike<number>, scratch: StackPlaquetteScratch, tally: PlaquetteTally): void {
+export function stackPlaquetteBeat(
+  faces: StackFaces,
+  rule: PlaquetteRule,
+  s: StackPlaquetteState,
+  drag: ArrayLike<number>,
+  scratch: StackPlaquetteScratch,
+  tally: PlaquetteTally,
+): void {
   const { sum, curl } = scratch
 
   sum.fill(0)
@@ -204,7 +307,10 @@ export function stackPlaquetteBeat(faces: StackFaces, rule: PlaquetteRule, s: St
     const raw = s.line[l]! + drag[l]! + sum[l]!
 
     s.line[l] = wrapInto(rule, raw)
-    if (s.line[l] !== raw) tally.lineWraps++
+
+    if (s.line[l] !== raw) {
+      tally.lineWraps++
+    }
   }
 
   stackFaceCurl(faces, s.line, curl)
@@ -216,12 +322,21 @@ export function stackPlaquetteBeat(faces: StackFaces, rule: PlaquetteRule, s: St
 
     s.rest[f] = x + s.rest[f]! - rule.q * w
     s.face[f] = wrapInto(rule, raw)
-    if (s.face[f] !== raw) tally.faceWraps++
+
+    if (s.face[f] !== raw) {
+      tally.faceWraps++
+    }
   }
 }
 
 // the inverse of stackPlaquetteBeat with the same drag
-export function stackPlaquetteBeatBack(faces: StackFaces, rule: PlaquetteRule, s: StackPlaquetteState, drag: ArrayLike<number>, scratch: StackPlaquetteScratch): void {
+export function stackPlaquetteBeatBack(
+  faces: StackFaces,
+  rule: PlaquetteRule,
+  s: StackPlaquetteState,
+  drag: ArrayLike<number>,
+  scratch: StackPlaquetteScratch,
+): void {
   const { sum, curl } = scratch
 
   stackFaceCurl(faces, s.line, curl)
@@ -236,5 +351,8 @@ export function stackPlaquetteBeatBack(faces: StackFaces, rule: PlaquetteRule, s
 
   sum.fill(0)
   addStackBoundary(faces, s.face, sum)
-  for (let l = 0; l < s.line.length; l++) s.line[l] = wrapInto(rule, s.line[l]! - drag[l]! - sum[l]!)
+
+  for (let l = 0; l < s.line.length; l++) {
+    s.line[l] = wrapInto(rule, s.line[l]! - drag[l]! - sum[l]!)
+  }
 }

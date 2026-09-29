@@ -70,15 +70,36 @@ const BARYON_STARTS = [
   [0, 3, 12, 21, 6, 17],
 ]
 const MESON = { signs: [1, -1], fluxes: [1] }
-const BARYONS = { signs: [1, 1, 1, -1, -1, -1], fluxes: [1, 2, 3, 2, 1] }
+const BARYONS = {
+  signs: [1, 1, 1, -1, -1, -1],
+  fluxes: [1, 2, 3, 2, 1],
+}
 
-type Run = { exact: boolean; reverses: boolean; meanGap: number; meanSpread: number; travel: number }
+type Run = {
+  exact: boolean
+  reverses: boolean
+  meanGap: number
+  meanSpread: number
+  travel: number
+}
 
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
-const mean = (ps: number[][]): number[] => [0, 1, 2, 3].map(i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length)
-const average = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const mean = (ps: number[][]): number[] =>
+  [0, 1, 2, 3].map(
+    i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length,
+  )
+const average = (xs: number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
-function run(input: { rule: ReflectingSlots; fill: number; signs: number[]; fluxes: number[]; slots: number[]; reverse: boolean }): Run {
+function run(input: {
+  rule: ReflectingSlots
+  fill: number
+  signs: number[]
+  fluxes: number[]
+  slots: number[]
+  reverse: boolean
+}): Run {
   const { rule, fill, signs, fluxes, slots } = input
   const roots = rootsD4()
   const docks = [Math.floor(rule.mesh.cellCount / 2)]
@@ -96,8 +117,16 @@ function run(input: { rule: ReflectingSlots; fill: number; signs: number[]; flux
     start.sign[slot] = signs[k] ?? 0
     start.tag[slot] = k + 1
   })
-  fluxes.forEach((e, k) => (start.flux[rule.edgeAt[(docks[k] ?? 0) * 24] ?? 0] = e))
-  start.demon.set(Int32Array.from({ length: start.demon.length }, (_, l) => (((l + 1) * GOLDEN) % 1 < fill ? 1 : 0)))
+
+  fluxes.forEach(
+    (e, k) => (start.flux[rule.edgeAt[(docks[k] ?? 0) * 24] ?? 0] = e),
+  )
+
+  start.demon.set(
+    Int32Array.from({ length: start.demon.length }, (_, l) =>
+      ((l + 1) * GOLDEN) % 1 < fill ? 1 : 0,
+    ),
+  )
 
   const at = docks.map((_, k) => (roots[0] ?? []).map(x => x * k))
   const origin = mean(at)
@@ -112,15 +141,26 @@ function run(input: { rule: ReflectingSlots; fill: number; signs: number[]; flux
 
   for (let t = 0; t < BEATS; t++) {
     s = reflectBeat(rule, s, t)
-    exact = exact && reflectEnergy(rule, s) === e0 && reflectGaussHolds(rule, start, s) && s.demon.every(x => x >= 0)
+    exact =
+      exact &&
+      reflectEnergy(rule, s) === e0 &&
+      reflectGaussHolds(rule, start, s) &&
+      s.demon.every(x => x >= 0)
 
-    const next = signs.map((_, k) => Math.floor(s.tag.indexOf(k + 1) / 24))
+    const next = signs.map((_, k) =>
+      Math.floor(s.tag.indexOf(k + 1) / 24),
+    )
 
     next.forEach((x, k) => {
       if (x !== now[k]) {
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => rule.neighbour[(now[k] ?? 0) * 24 + i] === x) ?? -1
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => rule.neighbour[(now[k] ?? 0) * 24 + i] === x,
+          ) ?? -1
 
-        at[k] = (at[k] ?? []).map((v, i) => v + (roots[d]?.[i] ?? Number.NaN))
+        at[k] = (at[k] ?? []).map(
+          (v, i) => v + (roots[d]?.[i] ?? Number.NaN),
+        )
       }
     })
     now = next
@@ -129,7 +169,9 @@ function run(input: { rule: ReflectingSlots; fill: number; signs: number[]; flux
     const fears = at.filter((_, k) => (signs[k] ?? 0) < 0)
 
     gapSum += dist(mean(loves), mean(fears))
-    spreadSum += Math.max(...loves.map(p => Math.max(...loves.map(q => dist(p, q)))))
+    spreadSum += Math.max(
+      ...loves.map(p => Math.max(...loves.map(q => dist(p, q)))),
+    )
     travel = Math.max(travel, dist(mean(at), origin))
   }
 
@@ -148,14 +190,40 @@ function run(input: { rule: ReflectingSlots; fill: number; signs: number[]; flux
       s.demon.every((v, i) => v === start.demon[i])
   }
 
-  return { exact, reverses, meanGap: gapSum / BEATS, meanSpread: spreadSum / BEATS, travel }
+  return {
+    exact,
+    reverses,
+    meanGap: gapSum / BEATS,
+    meanSpread: spreadSum / BEATS,
+    travel,
+  }
 }
 
 // the meson and baryon means over the fixed starts, at one fill
-function over(rule: ReflectingSlots, fill: number, reverseFirst: boolean): { meson: Run[]; baryon: Run[] } {
+function over(
+  rule: ReflectingSlots,
+  fill: number,
+  reverseFirst: boolean,
+): { meson: Run[]; baryon: Run[] } {
   return {
-    meson: MESON_STARTS.map((slots, k) => run({ rule, fill, ...MESON, slots, reverse: reverseFirst && k === 0 })),
-    baryon: BARYON_STARTS.map((slots, k) => run({ rule, fill, ...BARYONS, slots, reverse: reverseFirst && k === 0 })),
+    meson: MESON_STARTS.map((slots, k) =>
+      run({
+        rule,
+        fill,
+        ...MESON,
+        slots,
+        reverse: reverseFirst && k === 0,
+      }),
+    ),
+    baryon: BARYON_STARTS.map((slots, k) =>
+      run({
+        rule,
+        fill,
+        ...BARYONS,
+        slots,
+        reverse: reverseFirst && k === 0,
+      }),
+    ),
   }
 }
 
@@ -163,36 +231,76 @@ export default experiment({
   id: 'gauge/knit-binding',
   code: 'E-FRC-0153',
   title:
-    "moving binding on a schedule a knit could adopt: with lone steering on the round robin folded into the 24-beat palindrome, a meson and a baryon bind when cold and melt as the demons warm, averaged over fixed starting headings against a no-tension control and E-FRC-0131, with string-led demons, faster demons and differ steering tried and none closing the gap",
+    'moving binding on a schedule a knit could adopt: with lone steering on the round robin folded into the 24-beat palindrome, a meson and a baryon bind when cold and melt as the demons warm, averaged over fixed starting headings against a no-tension control and E-FRC-0131, with string-led demons, faster demons and differ steering tried and none closing the gap',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const shape = { side: SIDE, mass: 4, turn: false }
-    const bound = makeReflectingSlots({ ...shape, tension: 1, ...STEER })
+    const bound = makeReflectingSlots({
+      ...shape,
+      tension: 1,
+      ...STEER,
+    })
     const free = makeReflectingSlots({ ...shape, tension: 0, ...STEER })
     const cold = FILLS[0] ?? 0.02
 
-    const scan = FILLS.map(fill => ({ fill, ...over(bound, fill, true) }))
+    const scan = FILLS.map(fill => ({
+      fill,
+      ...over(bound, fill, true),
+    }))
     const control = over(free, cold, true)
     const alternatives = {
-      cyclicRoundRobin: makeReflectingSlots({ ...shape, tension: 1, steer: 'round-robin', steerWhen: 'slot' }),
-      stringLed: makeReflectingSlots({ ...shape, tension: 1, ...STEER, stringLead: true }),
-      twoLinkDemons: makeReflectingSlots({ ...shape, tension: 1, ...STEER, demonSpeed: 2 }),
-      differSteering: makeReflectingSlots({ ...shape, tension: 1, steer: 'folded', steerWhen: 'differ' }),
+      cyclicRoundRobin: makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        steer: 'round-robin',
+        steerWhen: 'slot',
+      }),
+      stringLed: makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        ...STEER,
+        stringLead: true,
+      }),
+      twoLinkDemons: makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        ...STEER,
+        demonSpeed: 2,
+      }),
+      differSteering: makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        steer: 'folded',
+        steerWhen: 'differ',
+      }),
     }
-    const tried = Object.entries(alternatives).map(([name, rule]) => ({ name, ...over(rule, cold, false) }))
+    const tried = Object.entries(alternatives).map(([name, rule]) => ({
+      name,
+      ...over(rule, cold, false),
+    }))
 
-    const gap = (runs: Run[]): number => average(runs.map(r => r.meanGap))
-    const travel = (runs: Run[]): number => average(runs.map(r => r.travel))
-    const spread = (runs: Run[]): number => average(runs.map(r => r.meanSpread))
+    const gap = (runs: Run[]): number =>
+      average(runs.map(r => r.meanGap))
+    const travel = (runs: Run[]): number =>
+      average(runs.map(r => r.travel))
+    const spread = (runs: Run[]): number =>
+      average(runs.map(r => r.meanSpread))
     const coldest = scan[0]!
     const hottest = scan[scan.length - 1]!
     const gaps = scan.map(s => gap(s.meson))
-    const all = [...scan.flatMap(s => [...s.meson, ...s.baryon]), ...control.meson, ...control.baryon, ...tried.flatMap(t => [...t.meson, ...t.baryon])]
+    const all = [
+      ...scan.flatMap(s => [...s.meson, ...s.baryon]),
+      ...control.meson,
+      ...control.baryon,
+      ...tried.flatMap(t => [...t.meson, ...t.baryon]),
+    ]
     const exact = all.every(r => r.exact && r.reverses)
-    const monotone = gaps.every((g, i) => i === 0 || g > (gaps[i - 1] ?? Infinity))
+    const monotone = gaps.every(
+      (g, i) => i === 0 || g > (gaps[i - 1] ?? Infinity),
+    )
 
     const ok =
       exact &&
@@ -222,7 +330,9 @@ export default experiment({
             [`baryonAntibaryonGapFill${key(s.fill)}`, gap(s.baryon)],
           ]),
         ),
-        coldMesonStartsTravellingOver17: coldest.meson.filter(r => r.travel > 17).length,
+        coldMesonStartsTravellingOver17: coldest.meson.filter(
+          r => r.travel > 17,
+        ).length,
         mesonStarts: MESON_STARTS.length,
         baryonStarts: BARYON_STARTS.length,
       },
@@ -240,7 +350,7 @@ export default experiment({
         ),
       },
       notes:
-        "L2, exact integers, no random numbers. Distances in D4 units (a root has length sqrt 2), unwrapped hop by hop. For comparison, E-FRC-0131 recorded at its coldest fill a meson gap of 1.72 travelling 34 against 122 with no tension, and a baryon spread of 2.7 against 228, melting between the fills 0.05 and 0.1; E-FRC-0147 (the cyclic round robin, one start) read 1.87 travelling 13 and a spread of 10.8. Lone and slot steering are the same rule for a meson, whose members never share a line. The rule here is the one E-FRC-0152 found a knit could carry; the acceptance battery on that schedule is not run.",
+        'L2, exact integers, no random numbers. Distances in D4 units (a root has length sqrt 2), unwrapped hop by hop. For comparison, E-FRC-0131 recorded at its coldest fill a meson gap of 1.72 travelling 34 against 122 with no tension, and a baryon spread of 2.7 against 228, melting between the fills 0.05 and 0.1; E-FRC-0147 (the cyclic round robin, one start) read 1.87 travelling 13 and a spread of 10.8. Lone and slot steering are the same rule for a meson, whose members never share a line. The rule here is the one E-FRC-0152 found a knit could carry; the acceptance battery on that schedule is not run.',
     })
   },
 })

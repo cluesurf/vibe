@@ -55,6 +55,9 @@ export function phaseDegrees(a: ComplexPair): number {
 }
 
 // the relative phase of two amplitudes folded into [0, 360) degrees
-export function relativeDegrees(a: ComplexPair, b: ComplexPair): number {
+export function relativeDegrees(
+  a: ComplexPair,
+  b: ComplexPair,
+): number {
   return (((phaseDegrees(a) - phaseDegrees(b)) % 360) + 360) % 360
 }

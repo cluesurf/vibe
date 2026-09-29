@@ -69,12 +69,40 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP } from '@/code/measure/doublet-locked-readings'
+import {
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+} from '@/code/measure/doublet-locked-readings'
 import { centerOf } from '@/code/measure/wall-reading'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { fullPathKey, meshLines, weylDocks } from '@/code/measure/full-key-paths'
-import { clonePlaquettes, collidePlaquetteDock, conjugatePlaquettes, newPlaquetteTally, plaquetteDockKey, plaquetteDockOf, plaquettePiece, sameOccupationPlaquettes, samePlaquettes, slotMapPlaquetteDock, withPlaquettes, type PlaquetteConfiguration } from '@/code/rule/plaquette-store-knit'
-import { dockMomentum, plaquetteLaws, plaquetteLineCharges, plaquetteRunner, plaquetteTritsApart, unitsAsLineStores } from '@/code/measure/plaquette-readings'
+import {
+  fullPathKey,
+  meshLines,
+  weylDocks,
+} from '@/code/measure/full-key-paths'
+import {
+  clonePlaquettes,
+  collidePlaquetteDock,
+  conjugatePlaquettes,
+  newPlaquetteTally,
+  plaquetteDockKey,
+  plaquetteDockOf,
+  plaquettePiece,
+  sameOccupationPlaquettes,
+  samePlaquettes,
+  slotMapPlaquetteDock,
+  withPlaquettes,
+  type PlaquetteConfiguration,
+} from '@/code/rule/plaquette-store-knit'
+import {
+  dockMomentum,
+  plaquetteLaws,
+  plaquetteLineCharges,
+  plaquetteRunner,
+  plaquetteTritsApart,
+  unitsAsLineStores,
+} from '@/code/measure/plaquette-readings'
 
 const SIDE = 8
 const BEATS = 96
@@ -82,7 +110,10 @@ const COVARIANCE_BEATS = 24
 const WAKE_BOUND = 64
 const KEY = fullPathKey(0)
 
-type Start = { name: string; place: (s: PlaquetteConfiguration, cells: number) => void }
+type Start = {
+  name: string
+  place: (s: PlaquetteConfiguration, cells: number) => void
+}
 
 const pair = (s: PlaquetteConfiguration, x: number): void => {
   s.vibe[x * 24 + 6] = 1
@@ -93,13 +124,38 @@ const pair = (s: PlaquetteConfiguration, x: number): void => {
 
 const STARTS: readonly Start[] = [
   { name: 'vacuum', place: () => undefined },
-  { name: 'lone love', place: s => ((s.vibe[centerOf(SIDE) * 24] = 1), (s.open[centerOf(SIDE) * 24] = 1)) },
-  { name: 'lone fear', place: s => ((s.vibe[centerOf(SIDE) * 24] = -1), (s.open[centerOf(SIDE) * 24] = 1)) },
+  {
+    name: 'lone love',
+    place: s => (
+      (s.vibe[centerOf(SIDE) * 24] = 1),
+      (s.open[centerOf(SIDE) * 24] = 1)
+    ),
+  },
+  {
+    name: 'lone fear',
+    place: s => (
+      (s.vibe[centerOf(SIDE) * 24] = -1),
+      (s.open[centerOf(SIDE) * 24] = 1)
+    ),
+  },
   { name: '6+8 pair', place: s => pair(s, centerOf(SIDE)) },
-  { name: '8 pairs', place: (s, cells) => weylDocks(cells, 8).forEach(x => pair(s, x)) },
+  {
+    name: '8 pairs',
+    place: (s, cells) => weylDocks(cells, 8).forEach(x => pair(s, x)),
+  },
 ]
 
-type RuleReading = { reversed: boolean; lawBreaks: number; momentumBreaks: number; totalMomentumBreaks: number; cBreaks: number; involution: number; dockInverse: number; unitsMade: number; unitsReleased: number }
+type RuleReading = {
+  reversed: boolean
+  lawBreaks: number
+  momentumBreaks: number
+  totalMomentumBreaks: number
+  cBreaks: number
+  involution: number
+  dockInverse: number
+  unitsMade: number
+  unitsReleased: number
+}
 
 export default experiment({
   id: 'relativity/plaquette-store-vacuum',
@@ -112,13 +168,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const f = contactFresh(SIDE, 'pass')
     const tables = f.tables
     const cells = tables.cells
     const vacuum = withPlaquettes(wordVacuum(f, f.store))
     const lines = meshLines(tables)
     const perms = groupTable().permutations
+
     const startOf = (s: Start): PlaquetteConfiguration => {
       const c = withPlaquettes(vacuum)
 
@@ -133,7 +193,17 @@ export default experiment({
     for (const s of STARTS) {
       const start = startOf(s)
       const laws0 = plaquetteLaws(start)
-      const out: RuleReading = { reversed: false, lawBreaks: 0, momentumBreaks: 0, totalMomentumBreaks: 0, cBreaks: 0, involution: 0, dockInverse: 0, unitsMade: 0, unitsReleased: 0 }
+      const out: RuleReading = {
+        reversed: false,
+        lawBreaks: 0,
+        momentumBreaks: 0,
+        totalMomentumBreaks: 0,
+        cBreaks: 0,
+        involution: 0,
+        dockInverse: 0,
+        unitsMade: 0,
+        unitsReleased: 0,
+      }
       const before: string[] = new Array<string>(cells)
       const tally = newPlaquetteTally()
       const run = plaquetteRunner(tables, start, {
@@ -150,12 +220,27 @@ export default experiment({
               plaquettePiece(twice, 0)
               plaquettePiece(twice, 0)
               out.involution += samePlaquettes(twice, d) ? 0 : 1
-              out.dockInverse += samePlaquettes(collidePlaquetteDock(tables, collidePlaquetteDock(tables, d, t, false), t, true), d) ? 0 : 1
-            } else if (dockMomentum(c, x) !== before[x]) out.momentumBreaks++
+              out.dockInverse += samePlaquettes(
+                collidePlaquetteDock(
+                  tables,
+                  collidePlaquetteDock(tables, d, t, false),
+                  t,
+                  true,
+                ),
+                d,
+              )
+                ? 0
+                : 1
+            } else if (dockMomentum(c, x) !== before[x]) {
+              out.momentumBreaks++
+            }
           }
         },
       })
-      const conj = plaquetteRunner(tables, conjugatePlaquettes(start), { key: KEY, threshold: THRESHOLD_BORN })
+      const conj = plaquetteRunner(tables, conjugatePlaquettes(start), {
+        key: KEY,
+        threshold: THRESHOLD_BORN,
+      })
 
       for (let t = 0; t < BEATS; t++) {
         run.beat(tally)
@@ -163,12 +248,25 @@ export default experiment({
 
         const laws = plaquetteLaws(run.state())
 
-        out.lawBreaks += laws.charge !== laws0.charge || laws.count !== laws0.count ? 1 : 0
-        out.totalMomentumBreaks += laws.momentum !== laws0.momentum ? 1 : 0
-        out.cBreaks += samePlaquettes(conjugatePlaquettes(run.state()), conj.state()) ? 0 : 1
+        out.lawBreaks +=
+          laws.charge !== laws0.charge || laws.count !== laws0.count
+            ? 1
+            : 0
+
+        out.totalMomentumBreaks +=
+          laws.momentum !== laws0.momentum ? 1 : 0
+
+        out.cBreaks += samePlaquettes(
+          conjugatePlaquettes(run.state()),
+          conj.state(),
+        )
+          ? 0
+          : 1
       }
 
-      for (let t = 0; t < BEATS; t++) run.back()
+      for (let t = 0; t < BEATS; t++) {
+        run.back()
+      }
 
       out.reversed = samePlaquettes(run.state(), start)
       out.unitsMade = tally.plaquettesUnmade
@@ -178,14 +276,19 @@ export default experiment({
     }
 
     // covariance on the docks where Q can act, keep path, 24 beats of every start
-    const distinct = new Map<string, { dock: PlaquetteConfiguration; beat: number }>()
+    const distinct = new Map<
+      string,
+      { dock: PlaquetteConfiguration; beat: number }
+    >()
 
     for (const s of STARTS) {
       const run = plaquetteRunner(tables, startOf(s), {
         key: KEY,
         threshold: THRESHOLD_KEEP,
         watch: (c, t, after) => {
-          if (after) return
+          if (after) {
+            return
+          }
 
           for (let x = 0; x < cells; x++) {
             const d = plaquetteDockOf(c, x)
@@ -193,13 +296,21 @@ export default experiment({
 
             plaquettePiece(q, 0)
 
-            if (d.punit.every(u => u === 0) && samePlaquettes(q, d)) continue
-            distinct.set(`${t % 2}|${plaquetteDockKey(d)}`, { dock: d, beat: t })
+            if (d.punit.every(u => u === 0) && samePlaquettes(q, d)) {
+              continue
+            }
+
+            distinct.set(`${t % 2}|${plaquetteDockKey(d)}`, {
+              dock: d,
+              beat: t,
+            })
           }
         },
       })
 
-      for (let t = 0; t < COVARIANCE_BEATS; t++) run.beat()
+      for (let t = 0; t < COVARIANCE_BEATS; t++) {
+        run.beat()
+      }
     }
 
     let covariance = 0
@@ -208,14 +319,50 @@ export default experiment({
     for (const { dock, beat } of distinct.values()) {
       const r = collidePlaquetteDock(tables, dock, beat, false)
 
-      for (const g of perms) covariance += plaquetteDockKey(collidePlaquetteDock(tables, slotMapPlaquetteDock(dock, g), beat, false)) === plaquetteDockKey(slotMapPlaquetteDock(r, g)) ? 0 : 1
-      conjugation += plaquetteDockKey(collidePlaquetteDock(tables, conjugatePlaquettes(dock), beat, false)) === plaquetteDockKey(conjugatePlaquettes(r)) ? 0 : 1
+      for (const g of perms) {
+        covariance +=
+          plaquetteDockKey(
+            collidePlaquetteDock(
+              tables,
+              slotMapPlaquetteDock(dock, g),
+              beat,
+              false,
+            ),
+          ) === plaquetteDockKey(slotMapPlaquetteDock(r, g))
+            ? 0
+            : 1
+      }
+
+      conjugation +=
+        plaquetteDockKey(
+          collidePlaquetteDock(
+            tables,
+            conjugatePlaquettes(dock),
+            beat,
+            false,
+          ),
+        ) === plaquetteDockKey(conjugatePlaquettes(r))
+          ? 0
+          : 1
     }
 
     log(`covariance ${distinct.size} docks`)
 
     const ruleAll = Object.values(rule)
-    const v1 = ruleAll.every(r => r.reversed && r.lawBreaks === 0 && r.momentumBreaks === 0 && r.cBreaks === 0 && r.involution === 0 && r.dockInverse === 0) && rule.vacuum!.totalMomentumBreaks === 0 && covariance === 0 && conjugation === 0 && distinct.size > 0
+    const v1 =
+      ruleAll.every(
+        r =>
+          r.reversed &&
+          r.lawBreaks === 0 &&
+          r.momentumBreaks === 0 &&
+          r.cBreaks === 0 &&
+          r.involution === 0 &&
+          r.dockInverse === 0,
+      ) &&
+      rule.vacuum!.totalMomentumBreaks === 0 &&
+      covariance === 0 &&
+      conjugation === 0 &&
+      distinct.size > 0
 
     // ---- V2 ----
     const paths: [string, number][] = [
@@ -224,11 +371,19 @@ export default experiment({
       ['exchange', THRESHOLD_EXCHANGE],
     ]
     const vacuumPaths = paths.map(([name, threshold]) => {
-      const run = plaquetteRunner(tables, vacuum, { key: KEY, threshold })
-      const line = plaquetteRunner(tables, vacuum, { key: KEY, threshold, plaquettes: false })
+      const run = plaquetteRunner(tables, vacuum, {
+        key: KEY,
+        threshold,
+      })
+      const line = plaquetteRunner(tables, vacuum, {
+        key: KEY,
+        threshold,
+        plaquettes: false,
+      })
       const back: number[] = []
       const made: number[] = []
       const released: number[] = []
+
       let relabelDiffer = 0
       let conflicts = 0
 
@@ -239,7 +394,10 @@ export default experiment({
         line.beat()
         made.push(tally.plaquettesUnmade)
         released.push(tally.plaquettesMade)
-        if (sameOccupationPlaquettes(run.state(), vacuum)) back.push(t + 1)
+
+        if (sameOccupationPlaquettes(run.state(), vacuum)) {
+          back.push(t + 1)
+        }
 
         const read = unitsAsLineStores(run.state())
 
@@ -248,59 +406,159 @@ export default experiment({
       }
 
       const period = back[0] ?? -1
-      const periodic = period > 0 && back.length === Math.floor(BEATS / period) && back.every((b, k) => b === period * (k + 1))
-      const perPeriod = period > 0 ? Array.from({ length: Math.floor(BEATS / period) }, (_, k) => made.slice(k * period, (k + 1) * period).reduce((a, b) => a + b, 0)) : []
-      const balanced = period > 0 && perPeriod.every((m, k) => m === released.slice(k * period, (k + 1) * period).reduce((a, b) => a + b, 0))
-      const madeBeats = made.map((m, t) => (m > 0 ? t : -1)).filter(t => t >= 0 && t < 24)
+      const periodic =
+        period > 0 &&
+        back.length === Math.floor(BEATS / period) &&
+        back.every((b, k) => b === period * (k + 1))
+      const perPeriod =
+        period > 0
+          ? Array.from({ length: Math.floor(BEATS / period) }, (_, k) =>
+              made
+                .slice(k * period, (k + 1) * period)
+                .reduce((a, b) => a + b, 0),
+            )
+          : []
+      const balanced =
+        period > 0 &&
+        perPeriod.every(
+          (m, k) =>
+            m ===
+            released
+              .slice(k * period, (k + 1) * period)
+              .reduce((a, b) => a + b, 0),
+        )
+      const madeBeats = made
+        .map((m, t) => (m > 0 ? t : -1))
+        .filter(t => t >= 0 && t < 24)
 
-      return { name, period, periodic, perPeriod, balanced, madeBeats, relabelDiffer, conflicts, made: made.reduce((a, b) => a + b, 0) }
+      return {
+        name,
+        period,
+        periodic,
+        perPeriod,
+        balanced,
+        madeBeats,
+        relabelDiffer,
+        conflicts,
+        made: made.reduce((a, b) => a + b, 0),
+      }
     })
-    const v2 = vacuumPaths.every(p => p.periodic && p.balanced && p.made > 0)
+    const v2 = vacuumPaths.every(
+      p => p.periodic && p.balanced && p.made > 0,
+    )
 
     log('V2')
 
     // ---- V3, V4 ----
-    type Wake = { name: string; worst: number; worstLine: number; toneBroken: number; countBroken: number; toneBrokenLine: number; countBrokenLine: number; relabelDiffer: number; wakeSeries: number[] }
-    const wakes: Wake[] = STARTS.filter(s => s.name !== 'vacuum').map(s => {
-      const start = startOf(s)
-      const readOne = (plaquettes: boolean): { worst: number; series: number[]; tone: number; count: number; states: PlaquetteConfiguration[] } => {
-        const run = plaquetteRunner(tables, start, { key: KEY, threshold: THRESHOLD_BORN, plaquettes })
-        const vac = plaquetteRunner(tables, vacuum, { key: KEY, threshold: THRESHOLD_BORN, plaquettes })
-        const q0 = plaquetteLineCharges(lines.lineOf, lines.count, start)
-        const tone = new Uint8Array(lines.count)
-        const count = new Uint8Array(lines.count)
-        const series: number[] = []
-        const states: PlaquetteConfiguration[] = []
-        let worst = 0
+    type Wake = {
+      name: string
+      worst: number
+      worstLine: number
+      toneBroken: number
+      countBroken: number
+      toneBrokenLine: number
+      countBrokenLine: number
+      relabelDiffer: number
+      wakeSeries: number[]
+    }
 
-        for (let t = 0; t < BEATS; t++) {
-          run.beat()
-          vac.beat()
+    const wakes: Wake[] = STARTS.filter(s => s.name !== 'vacuum').map(
+      s => {
+        const start = startOf(s)
 
-          const w = plaquetteTritsApart(run.state(), vac.state())
+        const readOne = (
+          plaquettes: boolean,
+        ): {
+          worst: number
+          series: number[]
+          tone: number
+          count: number
+          states: PlaquetteConfiguration[]
+        } => {
+          const run = plaquetteRunner(tables, start, {
+            key: KEY,
+            threshold: THRESHOLD_BORN,
+            plaquettes,
+          })
+          const vac = plaquetteRunner(tables, vacuum, {
+            key: KEY,
+            threshold: THRESHOLD_BORN,
+            plaquettes,
+          })
+          const q0 = plaquetteLineCharges(
+            lines.lineOf,
+            lines.count,
+            start,
+          )
+          const tone = new Uint8Array(lines.count)
+          const count = new Uint8Array(lines.count)
+          const series: number[] = []
+          const states: PlaquetteConfiguration[] = []
 
-          worst = Math.max(worst, w)
-          series.push(w)
-          states.push(clonePlaquettes(run.state()))
+          let worst = 0
 
-          const q = plaquetteLineCharges(lines.lineOf, lines.count, run.state())
+          for (let t = 0; t < BEATS; t++) {
+            run.beat()
+            vac.beat()
 
-          for (let k = 0; k < lines.count; k++) {
-            if (q.tone[k] !== q0.tone[k]) tone[k] = 1
-            if (q.count[k] !== q0.count[k]) count[k] = 1
+            const w = plaquetteTritsApart(run.state(), vac.state())
+
+            worst = Math.max(worst, w)
+            series.push(w)
+            states.push(clonePlaquettes(run.state()))
+
+            const q = plaquetteLineCharges(
+              lines.lineOf,
+              lines.count,
+              run.state(),
+            )
+
+            for (let k = 0; k < lines.count; k++) {
+              if (q.tone[k] !== q0.tone[k]) {
+                tone[k] = 1
+              }
+
+              if (q.count[k] !== q0.count[k]) {
+                count[k] = 1
+              }
+            }
+          }
+
+          return {
+            worst,
+            series,
+            tone: tone.reduce((a, b) => a + b, 0),
+            count: count.reduce((a, b) => a + b, 0),
+            states,
           }
         }
 
-        return { worst, series, tone: tone.reduce((a, b) => a + b, 0), count: count.reduce((a, b) => a + b, 0), states }
-      }
-      const on = readOne(true)
-      const off = readOne(false)
-      const relabelDiffer = on.states.reduce((n, c, t) => n + (samePlaquettes(unitsAsLineStores(c).out, off.states[t] as PlaquetteConfiguration) ? 0 : 1), 0)
+        const on = readOne(true)
+        const off = readOne(false)
+        const relabelDiffer = on.states.reduce(
+          (n, c, t) =>
+            n +
+            (samePlaquettes(unitsAsLineStores(c).out, off.states[t]!)
+              ? 0
+              : 1),
+          0,
+        )
 
-      log(`V3/V4 ${s.name}`)
+        log(`V3/V4 ${s.name}`)
 
-      return { name: s.name, worst: on.worst, worstLine: off.worst, toneBroken: on.tone, countBroken: on.count, toneBrokenLine: off.tone, countBrokenLine: off.count, relabelDiffer, wakeSeries: on.series.filter((_, t) => t % 8 === 7) }
-    })
+        return {
+          name: s.name,
+          worst: on.worst,
+          worstLine: off.worst,
+          toneBroken: on.tone,
+          countBroken: on.count,
+          toneBrokenLine: off.tone,
+          countBrokenLine: off.count,
+          relabelDiffer,
+          wakeSeries: on.series.filter((_, t) => t % 8 === 7),
+        }
+      },
+    )
     const lone = wakes.filter(w => w.name.startsWith('lone'))
     const v3 = lone.every(w => w.worst <= WAKE_BOUND)
     const v4 = wakes.some(w => w.toneBroken > 0)
@@ -354,8 +612,20 @@ export default experiment({
       status,
       claim: `V1 the rule ${v1} (reversed on ${ruleAll.filter(r => r.reversed).length} of ${ruleAll.length} starts over ${BEATS} beats, law breaks ${ruleAll.reduce((a, r) => a + r.lawBreaks, 0)}, dock momentum breaks across the collision ${ruleAll.reduce((a, r) => a + r.momentumBreaks, 0)}, C breaks ${ruleAll.reduce((a, r) => a + r.cBreaks, 0)}, Q not an involution on ${ruleAll.reduce((a, r) => a + r.involution, 0)} docks, collision not reversed on ${ruleAll.reduce((a, r) => a + r.dockInverse, 0)}, covariance ${covariance} and C ${conjugation} off over ${distinct.size} distinct Q docks x ${perms.length} maps); V2 a vacuum ${v2} (${vacuumPaths.map(p => `${p.name}: period ${p.period}, units made ${p.made} (${p.perPeriod[0] ?? 0} a period, at beats ${p.madeBeats.join(', ')}), balanced ${p.balanced}`).join('; ')}); V3 lone quiet ${v3} (${lone.map(w => `${w.name} worst wake ${w.worst}, line rule ${w.worstLine}`).join('; ')}, bound ${WAKE_BOUND}); V4 lines joined ${v4} (mesh-line tone broken ${wakes.map(w => `${w.name} ${w.toneBroken}`).join(', ')} of ${lines.count}; line count broken ${wakes.map(w => `${w.name} ${w.countBroken}`).join(', ')}, the line rule ${wakes.map(w => `${w.countBrokenLine}`).join(', ')}); read as its two line stores, the plaquette vacuum differs from the line vacuum on ${vacuumPaths.map(p => `${p.relabelDiffer}`).join(', ')} of ${BEATS} beats (keep, Born, exchange), and the seeded runs on ${wakes.map(w => `${w.name} ${w.relabelDiffer}`).join(', ')}`,
       metrics,
-      control: { lineRuleWakeLove: wakes[0]!.worstLine, lineRuleToneBroken: wakes.reduce((a, w) => a + w.toneBrokenLine, 0) },
-      notes: `L2. Gates V1 ${v1}, V2 ${v2}, V3 ${v3}, V4 ${v4}. Rule per start: ${Object.entries(rule).map(([n, r]) => `${n}: ${JSON.stringify(r)}`).join('; ')}. Vacuum per path: ${vacuumPaths.map(p => `${p.name}: period ${p.period}, periodic ${p.periodic}, per period ${p.perPeriod.join('/')}, relabel differs ${p.relabelDiffer}, conflicts ${p.conflicts}`).join('; ')}. Wakes every 8 beats: ${wakes.map(w => `${w.name} ${w.wakeSeries.join(' ')}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        lineRuleWakeLove: wakes[0]!.worstLine,
+        lineRuleToneBroken: wakes.reduce(
+          (a, w) => a + w.toneBrokenLine,
+          0,
+        ),
+      },
+      notes: `L2. Gates V1 ${v1}, V2 ${v2}, V3 ${v3}, V4 ${v4}. Rule per start: ${Object.entries(
+        rule,
+      )
+        .map(([n, r]) => `${n}: ${JSON.stringify(r)}`)
+        .join(
+          '; ',
+        )}. Vacuum per path: ${vacuumPaths.map(p => `${p.name}: period ${p.period}, periodic ${p.periodic}, per period ${p.perPeriod.join('/')}, relabel differs ${p.relabelDiffer}, conflicts ${p.conflicts}`).join('; ')}. Wakes every 8 beats: ${wakes.map(w => `${w.name} ${w.wakeSeries.join(' ')}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

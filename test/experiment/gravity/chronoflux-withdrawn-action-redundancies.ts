@@ -128,7 +128,10 @@ export default experiment({
     }
 
     // the control: a constraint-violating flow, H^2 varying with position, no constant rescale matches
-    const varying = solve(x => 1 + 2 * Math.sin((2 * Math.PI * x) / SITES) ** 2, 1)
+    const varying = solve(
+      x => 1 + 2 * Math.sin((2 * Math.PI * x) / SITES) ** 2,
+      1,
+    )
 
     let bestConstantGap = Infinity
 
@@ -161,7 +164,9 @@ export default experiment({
         "on ten thousand random unit-timelike flow fields the withdrawn action's potential term stays below 1e-12 (the floating-point projection of an identity) while on unconstrained fields it never falls below 1e-4, and the non-minimal gauge factor at three couplings gives a charge field identical to the rescaled minimal one to machine precision while a position-dependent (constraint-violating) factor admits no constant rescaling within one percent, so the potential is redundant with the Lagrange multiplier and the non-minimal coupling is unobservable exactly as the recovered document implies",
       metrics: {
         samples: SAMPLES,
-        worstOnShellPotentialTerm: Number(worstOnShell.toExponential(2)),
+        worstOnShellPotentialTerm: Number(
+          worstOnShell.toExponential(2),
+        ),
         worstRescaleGap: Number(worstRescaleGap.toExponential(2)),
         gammasTried: gammas.length,
       },

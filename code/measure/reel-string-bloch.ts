@@ -12,7 +12,10 @@
 // k_0 = K - sum k_t, so the ring's Fourier transform reduces to one sum over d; it equals the ring reading of
 // flux-store-bloch on any ring with L > 2 S).
 
-import { type Convention, type Vibe } from '@/code/rule/locked-token-line'
+import {
+  type Convention,
+  type Vibe,
+} from '@/code/rule/locked-token-line'
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 import { lineString } from '@/code/measure/flux-store-bloch'
 
@@ -33,12 +36,16 @@ const SQ = Math.sqrt(3) / 2
 const OMEGA: C = [-0.5, SQ]
 const A: C = [0.25, SQ / 2]
 const B: C = [0.75, -SQ / 2]
-const cmul = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cmul = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 const chargeOf = (kind: Vibe): number => (kind === 'love' ? 1 : -1)
 const mod3 = (a: number): number => ((a % 3) + 3) % 3
 
 // the largest span the reels allow: sum r = -2 l, every r >= -D
-export const maxSpan = (s: ReelBlochSpec): number => Math.floor((s.kinds.length * s.depth) / 2)
+export const maxSpan = (s: ReelBlochSpec): number =>
+  Math.floor((s.kinds.length * s.depth) / 2)
 
 export type ReelBloch = {
   readonly spec: ReelBlochSpec
@@ -65,19 +72,32 @@ export function reelBlochSpace(spec: ReelBlochSpec): ReelBloch {
   const reels: number[][] = []
   const strings: number[] = []
   const lookup = new Map<number, number>()
-  const keyOf = (d: readonly number[], r: readonly number[]): number => {
+
+  const keyOf = (
+    d: readonly number[],
+    r: readonly number[],
+  ): number => {
     let k = 0
 
-    for (let t = 1; t < n; t++) k = k * W + (d[t]! + S)
-    for (let t = 0; t < n; t++) k = k * V + (r[t]! + D)
+    for (let t = 1; t < n; t++) {
+      k = k * W + (d[t]! + S)
+    }
+
+    for (let t = 0; t < n; t++) {
+      k = k * V + (r[t]! + D)
+    }
 
     return k
   }
+
   const d = new Array<number>(n).fill(0)
   const r = new Array<number>(n).fill(0)
+
   const walkReels = (t: number, need: number, l: number): void => {
     if (t === n) {
-      if (need !== 0) return
+      if (need !== 0) {
+        return
+      }
 
       lookup.set(keyOf(d, r), positions.length)
       positions.push(d.slice())
@@ -92,16 +112,21 @@ export function reelBlochSpace(spec: ReelBlochSpec): ReelBloch {
       walkReels(t + 1, need - v, l)
     }
   }
+
   const walkPositions = (t: number): void => {
     if (t === n) {
       const lo = Math.min(...d)
       const hi = Math.max(...d)
 
-      if (hi - lo > S) return
+      if (hi - lo > S) {
+        return
+      }
 
       const l = lineString(d, spec.kinds)
 
-      if (2 * l > n * D) return
+      if (2 * l > n * D) {
+        return
+      }
 
       walkReels(0, -2 * l, l)
 
@@ -130,7 +155,11 @@ export function reelBlochSpace(spec: ReelBlochSpec): ReelBloch {
     size: positions.length * labelCount,
     index: (c, lab) => c * labelCount + lab,
     configOf: (dd, rr) => {
-      for (let t = 1; t < n; t++) if (Math.abs(dd[t]!) > S) return -1
+      for (let t = 1; t < n; t++) {
+        if (Math.abs(dd[t]!) > S) {
+          return -1
+        }
+      }
 
       return lookup.get(keyOf(dd, rr)) ?? -1
     },
@@ -139,6 +168,7 @@ export function reelBlochSpace(spec: ReelBlochSpec): ReelBloch {
 
 const digitsOf = (code: number, n: number, q: number): number[] => {
   const out = new Array<number>(n)
+
   let c = code
 
   for (let t = n - 1; t >= 0; t--) {
@@ -149,57 +179,88 @@ const digitsOf = (code: number, n: number, q: number): number[] => {
   return out
 }
 
-const codeOf = (j: readonly number[], q: number): number => j.reduce((a, v) => a * q + v, 0)
+const codeOf = (j: readonly number[], q: number): number =>
+  j.reduce((a, v) => a * q + v, 0)
 
 export type Sparse = { idx: number[]; re: number[]; im: number[] }
 
-const stepOf = (spec: ReelBlochSpec, t: number, lab: number): number => (lab === 2 ? 0 : (spec.kinds[t] === 'fear' && spec.convention === 'Cprime' ? -1 : 1) * (lab === 0 ? 1 : -1))
+const stepOf = (spec: ReelBlochSpec, t: number, lab: number): number =>
+  lab === 2
+    ? 0
+    : (spec.kinds[t] === 'fear' && spec.convention === 'Cprime'
+        ? -1
+        : 1) * (lab === 0 ? 1 : -1)
 
 // the stream with the per-link groups on the line: returns the new positions, reels and labels
-export function reelStreamLine(spec: ReelBlochSpec, d: readonly number[], r: readonly number[], j: readonly number[]): { y: number[]; r: number[]; j: number[]; moved: boolean[] } {
+export function reelStreamLine(
+  spec: ReelBlochSpec,
+  d: readonly number[],
+  r: readonly number[],
+  j: readonly number[],
+): { y: number[]; r: number[]; j: number[]; moved: boolean[] } {
   const n = spec.kinds.length
   const D = spec.depth
   const steps = j.map((lab, t) => stepOf(spec, t, lab))
-  const crossing = steps.map((st, t) => (st === 1 ? d[t]! : st === -1 ? d[t]! - 1 : Number.NaN))
+  const crossing = steps.map((st, t) =>
+    st === 1 ? d[t]! : st === -1 ? d[t]! - 1 : Number.NaN,
+  )
   const y = d.slice()
   const nr = r.slice()
   const nj = j.slice()
   const moved = new Array<boolean>(n).fill(false)
   const done = new Array<boolean>(n).fill(false)
+
   // the Gauss flux on link x (dock x to x + 1), none at infinity
   const fluxAt = (x: number): number => {
     let c = 0
 
-    for (let u = 0; u < n; u++) if (d[u]! <= x) c += chargeOf(spec.kinds[u]!)
+    for (let u = 0; u < n; u++) {
+      if (d[u]! <= x) {
+        c += chargeOf(spec.kinds[u]!)
+      }
+    }
 
     return mod3(c)
   }
 
   for (let t = 0; t < n; t++) {
-    if (done[t] || Number.isNaN(crossing[t]!)) continue
+    if (done[t] || Number.isNaN(crossing[t]!)) {
+      continue
+    }
 
     const link = crossing[t]!
     const group: number[] = []
 
-    for (let u = 0; u < n; u++) if (crossing[u] === link) group.push(u)
+    for (let u = 0; u < n; u++) {
+      if (crossing[u] === link) {
+        group.push(u)
+      }
+    }
 
     group.forEach(u => {
       done[u] = true
     })
 
     const f = fluxAt(link)
+
     let fNew = f
 
-    for (const u of group) fNew = mod3(fNew - steps[u]! * chargeOf(spec.kinds[u]!))
+    for (const u of group) {
+      fNew = mod3(fNew - steps[u]! * chargeOf(spec.kinds[u]!))
+    }
 
     const delta = (fNew === 0 ? 0 : 1) - (f === 0 ? 0 : 1)
     const k = group.length
     const whole = (2 * delta) % k === 0
     const share = whole ? (2 * delta) / k : 0
-    const fits = whole && group.every(u => r[u]! - share >= -D && r[u]! - share <= D)
+    const fits =
+      whole &&
+      group.every(u => r[u]! - share >= -D && r[u]! - share <= D)
 
     if (!fits) {
-      for (const u of group) nj[u] = j[u] === 2 ? 2 : 1 - j[u]!
+      for (const u of group) {
+        nj[u] = j[u] === 2 ? 2 : 1 - j[u]!
+      }
 
       continue
     }
@@ -215,13 +276,21 @@ export function reelStreamLine(spec: ReelBlochSpec, d: readonly number[], r: rea
 }
 
 // the image of one basis vector under one beat
-export function reelBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
+export function reelBlochColumn(
+  b: ReelBloch,
+  K: number,
+  col: number,
+): Sparse {
   const { spec, n, q } = b
   const c = Math.floor(col / b.labelCount)
   const d = b.positions[c]!
+
   // keyed by the full index (configuration, labels): the like meeting's swap exchanges reels as well
   let vec = new Map<number, C>()
-  const t0 = (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) / spec.root
+
+  const t0 =
+    (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) /
+    spec.root
 
   vec.set(col, [Math.cos(t0), Math.sin(t0)])
 
@@ -234,11 +303,15 @@ export function reelBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
   if (spec.meet !== false) {
     for (let a0 = 0; a0 < n; a0++) {
       for (let b0 = a0 + 1; b0 < n; b0++) {
-        if (d[a0] !== d[b0]) continue
+        if (d[a0] !== d[b0]) {
+          continue
+        }
 
         const like = spec.kinds[a0] === spec.kinds[b0]
 
-        if (!like && spec.unlike === 'knit') continue
+        if (!like && spec.unlike === 'knit') {
+          continue
+        }
 
         const next = new Map<number, C>()
 
@@ -255,8 +328,17 @@ export function reelBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
             sw[b0] = j[a0]!
             sr[a0] = b.reels[kc]![b0]!
             sr[b0] = b.reels[kc]![a0]!
-            addTo(next, key, cmul([(1 + OMEGA[0]) / 2, OMEGA[1] / 2], v))
-            addTo(next, b.index(b.configOf(d, sr), codeOf(sw, q)), cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v))
+            addTo(
+              next,
+              key,
+              cmul([(1 + OMEGA[0]) / 2, OMEGA[1] / 2], v),
+            )
+
+            addTo(
+              next,
+              b.index(b.configOf(d, sr), codeOf(sw, q)),
+              cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v),
+            )
           } else {
             addTo(next, key, v)
 
@@ -266,7 +348,11 @@ export function reelBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
 
                 t[a0] = k
                 t[b0] = k
-                addTo(next, b.index(kc, codeOf(t, q)), cmul([(OMEGA[0] - 1) / 3, OMEGA[1] / 3], v))
+                addTo(
+                  next,
+                  b.index(kc, codeOf(t, q)),
+                  cmul([(OMEGA[0] - 1) / 3, OMEGA[1] / 3], v),
+                )
               }
             }
           }
@@ -302,14 +388,25 @@ export function reelBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
   const out: Sparse = { idx: [], re: [], im: [] }
 
   for (const [key, v] of vec) {
-    if (v[0] === 0 && v[1] === 0) continue
+    if (v[0] === 0 && v[1] === 0) {
+      continue
+    }
 
     const j = digitsOf(key % b.labelCount, n, q)
-    const s = reelStreamLine(spec, d, b.reels[Math.floor(key / b.labelCount)]!, j)
+    const s = reelStreamLine(
+      spec,
+      d,
+      b.reels[Math.floor(key / b.labelCount)]!,
+      j,
+    )
     const nd = s.y.map(x => x - s.y[0]!)
     const nc = b.configOf(nd, s.r)
 
-    if (nc < 0) throw new Error('reel-string-bloch: an image left the configuration list')
+    if (nc < 0) {
+      throw new Error(
+        'reel-string-bloch: an image left the configuration list',
+      )
+    }
 
     const shift = s.y[0]! - d[0]!
     const ph = cmul([Math.cos(-K * shift), Math.sin(-K * shift)], v)
@@ -335,7 +432,12 @@ const PERMS3 = [
 ]
 const SIGNS3 = [1, -1, -1, -1, 1, 1]
 
-export type Subspace = { vectors: Sparse[]; owner: Int32Array; coefficient: Float64Array; coefficientIm: Float64Array }
+export type Subspace = {
+  vectors: Sparse[]
+  owner: Int32Array
+  coefficient: Float64Array
+  coefficientIm: Float64Array
+}
 
 export function reelSubspace(b: ReelBloch, K: number): Subspace {
   const identical = b.spec.kinds.every(k => k === b.spec.kinds[0])
@@ -354,12 +456,18 @@ export function reelSubspace(b: ReelBloch, K: number): Subspace {
     return { vectors, owner, coefficient, coefficientIm }
   }
 
-  if (b.n !== 3) throw new Error('reel-string-bloch: antisymmetrizer written for three identical tokens')
+  if (b.n !== 3) {
+    throw new Error(
+      'reel-string-bloch: antisymmetrizer written for three identical tokens',
+    )
+  }
 
   const seen = new Uint8Array(b.size)
 
   for (let i = 0; i < b.size; i++) {
-    if (seen[i]) continue
+    if (seen[i]) {
+      continue
+    }
 
     const c = Math.floor(i / b.labelCount)
     const j = digitsOf(i % b.labelCount, b.n, b.q)
@@ -382,15 +490,21 @@ export function reelSubspace(b: ReelBloch, K: number): Subspace {
 
     let norm = 0
 
-    for (const v of acc.values()) norm += v[0] * v[0] + v[1] * v[1]
+    for (const v of acc.values()) {
+      norm += v[0] * v[0] + v[1] * v[1]
+    }
 
-    if (norm < 1e-18) continue
+    if (norm < 1e-18) {
+      continue
+    }
 
     const f = 1 / Math.sqrt(norm)
     const vec: Sparse = { idx: [], re: [], im: [] }
 
     for (const [at, v] of acc) {
-      if (v[0] * v[0] + v[1] * v[1] < 1e-24) continue
+      if (v[0] * v[0] + v[1] * v[1] < 1e-24) {
+        continue
+      }
 
       vec.idx.push(at)
       vec.re.push(v[0] * f)
@@ -406,12 +520,23 @@ export function reelSubspace(b: ReelBloch, K: number): Subspace {
   return { vectors, owner, coefficient, coefficientIm }
 }
 
-export type Reduced = { dim: number; re: Float64Array; im: Float64Array; leak: number; unitarity: number }
+export type Reduced = {
+  dim: number
+  re: Float64Array
+  im: Float64Array
+  leak: number
+  unitarity: number
+}
 
-export function reelReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced {
+export function reelReducedBeat(
+  b: ReelBloch,
+  sub: Subspace,
+  K: number,
+): Reduced {
   const dim = sub.vectors.length
   const re = new Float64Array(dim * dim)
   const im = new Float64Array(dim * dim)
+
   let leak = 0
   let unitarity = 0
 
@@ -438,7 +563,9 @@ export function reelReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced
 
       const a = sub.owner[o]!
 
-      if (a < 0) continue
+      if (a < 0) {
+        continue
+      }
 
       const cr = sub.coefficient[o]!
       const ci = sub.coefficientIm[o]!
@@ -447,7 +574,9 @@ export function reelReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced
       im[a * dim + col] = im[a * dim + col]! + cr * w[1] - ci * w[0]
     }
 
-    for (let a = 0; a < dim; a++) inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    for (let a = 0; a < dim; a++) {
+      inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    }
 
     leak = Math.max(leak, total - inside)
     unitarity = Math.max(unitarity, Math.abs(total - 1))
@@ -458,17 +587,26 @@ export function reelReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced
 
 export type Level = { energy: number; vector: Vec }
 
-export function reelLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels: Level[]; residual: number } {
+export function reelLevels(
+  b: ReelBloch,
+  sub: Subspace,
+  red: Reduced,
+): { levels: Level[]; residual: number } {
   const eig = unitaryEigen(red.dim, red.re, red.im)
   const out: Level[] = eig.phases.map((ph, k) => {
     const c = eig.vectors[k]!
-    const v = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+    const v = {
+      re: new Float64Array(b.size),
+      im: new Float64Array(b.size),
+    }
 
     sub.vectors.forEach((bv, a) => {
       const cr = c.re[a]!
       const ci = c.im[a]!
 
-      if (cr === 0 && ci === 0) return
+      if (cr === 0 && ci === 0) {
+        return
+      }
 
       bv.idx.forEach((i, m) => {
         v.re[i] = v.re[i]! + cr * bv.re[m]! - ci * bv.im[m]!
@@ -478,8 +616,13 @@ export function reelLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels:
 
     let e = -ph
 
-    while (e <= -Math.PI) e += 2 * Math.PI
-    while (e > Math.PI) e -= 2 * Math.PI
+    while (e <= -Math.PI) {
+      e += 2 * Math.PI
+    }
+
+    while (e > Math.PI) {
+      e -= 2 * Math.PI
+    }
 
     return { energy: e, vector: v }
   })
@@ -487,13 +630,30 @@ export function reelLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels:
   return { levels: out, residual: eig.residual }
 }
 
-export function reelSpectrumAt(spec: ReelBlochSpec, K: number): { bloch: ReelBloch; dim: number; leak: number; unitarity: number; residual: number; all: Level[] } {
+export function reelSpectrumAt(
+  spec: ReelBlochSpec,
+  K: number,
+): {
+  bloch: ReelBloch
+  dim: number
+  leak: number
+  unitarity: number
+  residual: number
+  all: Level[]
+} {
   const b = reelBlochSpace(spec)
   const sub = reelSubspace(b, K)
   const red = reelReducedBeat(b, sub, K)
   const ls = reelLevels(b, sub, red)
 
-  return { bloch: b, dim: red.dim, leak: red.leak, unitarity: red.unitarity, residual: ls.residual, all: ls.levels }
+  return {
+    bloch: b,
+    dim: red.dim,
+    leak: red.leak,
+    unitarity: red.unitarity,
+    residual: ls.residual,
+    all: ls.levels,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -502,12 +662,17 @@ export function reelSpectrumAt(spec: ReelBlochSpec, K: number): { bloch: ReelBlo
 export function weightOf(v: Vec): number {
   let s = 0
 
-  for (let i = 0; i < v.re.length; i++) s += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   return s
 }
 
-export function reelStringMoments(b: ReelBloch, v: Vec): { mean: number; max: number } {
+export function reelStringMoments(
+  b: ReelBloch,
+  v: Vec,
+): { mean: number; max: number } {
   let w = 0
   let m1 = 0
   let max = 0
@@ -515,14 +680,18 @@ export function reelStringMoments(b: ReelBloch, v: Vec): { mean: number; max: nu
   for (let i = 0; i < b.size; i++) {
     const p = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (p === 0) continue
+    if (p === 0) {
+      continue
+    }
 
     const l = b.strings[Math.floor(i / b.labelCount)]!
 
     w += p
     m1 += p * l
 
-    if (p > 1e-12) max = Math.max(max, l)
+    if (p > 1e-12) {
+      max = Math.max(max, l)
+    }
   }
 
   return { mean: m1 / w, max }
@@ -535,11 +704,18 @@ export function reelQuartetShare(b: ReelBloch, v: Vec): number {
   for (let c = 0; c < b.positions.length; c++) {
     for (let lab = 0; lab < b.labelCount; lab++) {
       const j = digitsOf(lab, b.n, b.q)
+
       let sr = 0
       let si = 0
 
       for (const p of PERMS3) {
-        const k = b.index(c, codeOf(p.map(t => j[t]!), b.q))
+        const k = b.index(
+          c,
+          codeOf(
+            p.map(t => j[t]!),
+            b.q,
+          ),
+        )
 
         sr += v.re[k]! / 6
         si += v.im[k]! / 6
@@ -557,7 +733,9 @@ export function reelQuartetShare(b: ReelBloch, v: Vec): number {
 export function reelContactEnergy(b: ReelBloch, v: Vec): number {
   const { n, q, spec } = b
 
-  if (spec.meet === false) return 0
+  if (spec.meet === false) {
+    return 0
+  }
 
   let e = 0
 
@@ -565,12 +743,16 @@ export function reelContactEnergy(b: ReelBloch, v: Vec): number {
     for (let c = a + 1; c < n; c++) {
       const like = spec.kinds[a] === spec.kinds[c]
 
-      if (!like && spec.unlike === 'knit') continue
+      if (!like && spec.unlike === 'knit') {
+        continue
+      }
 
       for (let ci = 0; ci < b.positions.length; ci++) {
         const d = b.positions[ci]!
 
-        if (d[a] !== d[c]) continue
+        if (d[a] !== d[c]) {
+          continue
+        }
 
         for (let lab = 0; lab < b.labelCount; lab++) {
           const j = digitsOf(lab, n, q)
@@ -617,7 +799,10 @@ export function reelContactEnergy(b: ReelBloch, v: Vec): number {
 }
 
 // the weight of a level by how many like tokens share a dock: [none share, exactly one pair, all three on one dock]
-export function dockSharing(b: ReelBloch, v: Vec): { apart: number; pair: number; triple: number } {
+export function dockSharing(
+  b: ReelBloch,
+  v: Vec,
+): { apart: number; pair: number; triple: number } {
   let apart = 0
   let pair = 0
   let triple = 0
@@ -625,16 +810,29 @@ export function dockSharing(b: ReelBloch, v: Vec): { apart: number; pair: number
   for (let i = 0; i < b.size; i++) {
     const p = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (p === 0) continue
+    if (p === 0) {
+      continue
+    }
 
     const d = b.positions[Math.floor(i / b.labelCount)]!
+
     let shared = 0
 
-    for (let a = 0; a < d.length; a++) for (let c = a + 1; c < d.length; c++) if (d[a] === d[c]) shared++
+    for (let a = 0; a < d.length; a++) {
+      for (let c = a + 1; c < d.length; c++) {
+        if (d[a] === d[c]) {
+          shared++
+        }
+      }
+    }
 
-    if (shared === 0) apart += p
-    else if (shared === 1) pair += p
-    else triple += p
+    if (shared === 0) {
+      apart += p
+    } else if (shared === 1) {
+      pair += p
+    } else {
+      triple += p
+    }
   }
 
   const w = apart + pair + triple
@@ -650,9 +848,16 @@ export function dockContactEnergy(b: ReelBloch, v: Vec): number {
 }
 
 // the particle-branch vector and energy of one token at momentum k (U(k) = S(k) C), as flux-store-bloch
-function branch(spec: ReelBlochSpec, t: number, k: number): { vec: C[]; energy: number } {
-  const backward = spec.kinds[t] === 'fear' && spec.convention === 'Cprime'
-  const s0: C = backward ? [Math.cos(k), Math.sin(k)] : [Math.cos(-k), Math.sin(-k)]
+function branch(
+  spec: ReelBlochSpec,
+  t: number,
+  k: number,
+): { vec: C[]; energy: number } {
+  const backward =
+    spec.kinds[t] === 'fear' && spec.convention === 'Cprime'
+  const s0: C = backward
+    ? [Math.cos(k), Math.sin(k)]
+    : [Math.cos(-k), Math.sin(-k)]
   const s1: C = [s0[0], -s0[1]]
   const m = [cmul(s0, A), cmul(s0, B), cmul(s1, B), cmul(s1, A)]
   const tr: C = [m[0]![0] + m[3]![0], m[0]![1] + m[3]![1]]
@@ -663,13 +868,20 @@ function branch(spec: ReelBlochSpec, t: number, k: number): { vec: C[]; energy: 
   const disc: C = [t2[0] - 4 * det[0], t2[1] - 4 * det[1]]
   const md = Math.hypot(disc[0], disc[1])
   const ag = Math.atan2(disc[1], disc[0])
-  const root: C = [Math.sqrt(md) * Math.cos(ag / 2), Math.sqrt(md) * Math.sin(ag / 2)]
+  const root: C = [
+    Math.sqrt(md) * Math.cos(ag / 2),
+    Math.sqrt(md) * Math.sin(ag / 2),
+  ]
   const candidates: C[] = [
     [(tr[0] + root[0]) / 2, (tr[1] + root[1]) / 2],
     [(tr[0] - root[0]) / 2, (tr[1] - root[1]) / 2],
   ]
   const energyOf = (l: C): number => -Math.atan2(l[1], l[0])
-  const lam = candidates.find(l => energyOf(l) > -1e-9 && energyOf(l) < Math.PI / 3 + 1e-9) ?? candidates[0]!
+  const lam =
+    candidates.find(
+      l => energyOf(l) > -1e-9 && energyOf(l) < Math.PI / 3 + 1e-9,
+    ) ?? candidates[0]!
+
   let e0: C = m[1]!
   let e1: C = [lam[0] - m[0]![0], lam[1] - m[0]![1]]
 
@@ -678,7 +890,9 @@ function branch(spec: ReelBlochSpec, t: number, k: number): { vec: C[]; energy: 
     e1 = m[2]!
   }
 
-  const nrm = Math.sqrt(e0[0] ** 2 + e0[1] ** 2 + e1[0] ** 2 + e1[1] ** 2)
+  const nrm = Math.sqrt(
+    e0[0] ** 2 + e0[1] ** 2 + e1[0] ** 2 + e1[1] ** 2,
+  )
 
   return {
     vec: [
@@ -689,16 +903,27 @@ function branch(spec: ReelBlochSpec, t: number, k: number): { vec: C[]; energy: 
   }
 }
 
-export type BranchReading = { counts: number[]; even: number; kinetic: number }
+export type BranchReading = {
+  counts: number[]
+  even: number
+  kinetic: number
+}
 
 // THE BRANCH READER at K = 0 on a momentum grid of L (L > 2 S): each token's momentum k_t = 2 pi m_t / L for t >= 1,
 // k_0 = -sum k_t; the amplitude at those momenta is sum over configurations of phi(d, r, j) e^(-i sum k_t d_t), the
 // reels spectators; each token read in its particle branch B at k or antiparticle branch A (the doubler of B at
 // k + pi), as flux-store-bloch branchReader
-export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchReading {
+export function reelBranchReader(
+  b: ReelBloch,
+  L: number,
+): (v: Vec) => BranchReading {
   const { n, q, spec } = b
 
-  if (L <= 2 * b.span) throw new Error('reel-string-bloch: the momentum grid aliases the relative coordinates')
+  if (L <= 2 * b.span) {
+    throw new Error(
+      'reel-string-bloch: the momentum grid aliases the relative coordinates',
+    )
+  }
 
   const R = b.labelCount
   const tables = spec.kinds.map((_, t) =>
@@ -720,7 +945,10 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
   )
 
   spec.kinds.forEach((_, t) => {
-    for (let m = 0; m < L; m++) tables[t]![m]!.energies[1] = tables[t]![(m + L / 2) % L]!.energies[0]!
+    for (let m = 0; m < L; m++) {
+      tables[t]![m]!.energies[1] =
+        tables[t]![(m + L / 2) % L]!.energies[0]!
+    }
   })
 
   // reel tuples as spectators: group configurations by reel tuple
@@ -730,21 +958,30 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
   b.reels.forEach((r, c) => {
     const key = r.join(',')
 
-    if (!reelKey.has(key)) reelKey.set(key, reelKey.size)
+    if (!reelKey.has(key)) {
+      reelKey.set(key, reelKey.size)
+    }
 
     reelOf[c] = reelKey.get(key)!
   })
 
   const reelCount = reelKey.size
-  const labels = Array.from({ length: R }, (_, lab) => digitsOf(lab, n, q))
+  const labels = Array.from({ length: R }, (_, lab) =>
+    digitsOf(lab, n, q),
+  )
   const tuples = L ** (n - 1)
   const cosT = new Float64Array(L * (2 * b.span + 1))
   const sinT = new Float64Array(L * (2 * b.span + 1))
 
   for (let m = 0; m < L; m++) {
     for (let x = -b.span; x <= b.span; x++) {
-      cosT[m * (2 * b.span + 1) + x + b.span] = Math.cos((-2 * Math.PI * m * x) / L)
-      sinT[m * (2 * b.span + 1) + x + b.span] = Math.sin((-2 * Math.PI * m * x) / L)
+      cosT[m * (2 * b.span + 1) + x + b.span] = Math.cos(
+        (-2 * Math.PI * m * x) / L,
+      )
+
+      sinT[m * (2 * b.span + 1) + x + b.span] = Math.sin(
+        (-2 * Math.PI * m * x) / L,
+      )
     }
   }
 
@@ -760,6 +997,7 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
 
   return (v: Vec): BranchReading => {
     const counts = new Array<number>(n + 1).fill(0)
+
     let total = 0
     let kinetic = 0
 
@@ -773,12 +1011,13 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
         sum += ms[t]!
       }
 
-      ms[0] = (((-sum) % L) + L) % L
+      ms[0] = ((-sum % L) + L) % L
       ampR.fill(0)
       ampI.fill(0)
 
       for (let ci = 0; ci < b.positions.length; ci++) {
         const d = b.positions[ci]!
+
         let pr = 1
         let pi = 0
 
@@ -799,7 +1038,9 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
           const xr = v.re[i]!
           const xi = v.im[i]!
 
-          if (xr === 0 && xi === 0) continue
+          if (xr === 0 && xi === 0) {
+            continue
+          }
 
           ampR[base + lab] = ampR[base + lab]! + xr * pr - xi * pi
           ampI[base + lab] = ampI[base + lab]! + xr * pi + xi * pr
@@ -823,6 +1064,7 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
 
         for (let lab = 0; lab < R; lab++) {
           const j = labels[lab]!
+
           let w: C = [1, 0]
 
           for (let t = 0; t < n; t++) {
@@ -839,11 +1081,15 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
       for (let rc = 0; rc < reelCount; rc++) {
         let here = 0
 
-        for (let lab = 0; lab < R; lab++) here += ampR[rc * R + lab]! ** 2 + ampI[rc * R + lab]! ** 2
+        for (let lab = 0; lab < R; lab++) {
+          here += ampR[rc * R + lab]! ** 2 + ampI[rc * R + lab]! ** 2
+        }
 
         total += here
 
-        if (here < 1e-30) continue
+        if (here < 1e-30) {
+          continue
+        }
 
         for (let a = 0; a < AN; a++) {
           let ar = 0
@@ -869,35 +1115,65 @@ export function reelBranchReader(b: ReelBloch, L: number): (v: Vec) => BranchRea
 
     const norm = counts.map(x => x / total)
 
-    return { counts: norm, even: norm.reduce((s, x, k) => s + (k % 2 === 0 ? x : 0), 0), kinetic: kinetic / total }
+    return {
+      counts: norm,
+      even: norm.reduce((s, x, k) => s + (k % 2 === 0 ? x : 0), 0),
+      kinetic: kinetic / total,
+    }
   }
 }
 
-export type LightReading = { level: Level; unwrapped: number; reference: number; reading: BranchReading; nextUnwrapped: number; particleLevels: number; worstOffset: number }
+export type LightReading = {
+  level: Level
+  unwrapped: number
+  reference: number
+  reading: BranchReading
+  nextUnwrapped: number
+  particleLevels: number
+  worstOffset: number
+}
 
 // THE LIGHTEST LEVEL, E-SPN-0076's definition unchanged: each particle-sector level's E unwrapped to the
 // representative nearest its reference energy (kinetic as particles + the string's cost + the meetings' energy);
 // the lightest is the least
-export function reelLightest(b: ReelBloch, ls: readonly Level[], L: number, contact: (b: ReelBloch, v: Vec) => number = reelContactEnergy): LightReading {
+export function reelLightest(
+  b: ReelBloch,
+  ls: readonly Level[],
+  L: number,
+  contact: (b: ReelBloch, v: Vec) => number = reelContactEnergy,
+): LightReading {
   const read = reelBranchReader(b, L)
   const sigma = (2 * Math.PI * b.spec.cost) / b.spec.root
-  const rows: { k: number; unwrapped: number; reference: number; reading: BranchReading }[] = []
+  const rows: {
+    k: number
+    unwrapped: number
+    reference: number
+    reading: BranchReading
+  }[] = []
+
   let worstOffset = 0
 
   ls.forEach((lv, k) => {
     const reading = read(lv.vector)
 
-    if (reading.even < 0.5) return
+    if (reading.even < 0.5) {
+      return
+    }
 
     const mean = reelStringMoments(b, lv.vector).mean
-    const reference = reading.kinetic + sigma * mean + contact(b, lv.vector)
-    const unwrapped = lv.energy + 2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
+    const reference =
+      reading.kinetic + sigma * mean + contact(b, lv.vector)
+    const unwrapped =
+      lv.energy +
+      2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
 
     worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))
     rows.push({ k, unwrapped, reference, reading })
   })
 
-  if (rows.length === 0) throw new Error('reel-string-bloch: no particle-sector level')
+  if (rows.length === 0) {
+    throw new Error('reel-string-bloch: no particle-sector level')
+  }
 
   rows.sort((x, y) => x.unwrapped - y.unwrapped)
 
@@ -927,7 +1203,10 @@ export function reelOverlap(u: Vec, v: Vec): number {
 }
 
 // the reel sum's spread in a level: the weight-mean of |r_t| per token (how much of the columns a level uses)
-export function reelUse(b: ReelBloch, v: Vec): { meanAbs: number; atEdge: number } {
+export function reelUse(
+  b: ReelBloch,
+  v: Vec,
+): { meanAbs: number; atEdge: number } {
   let w = 0
   let m = 0
   let edge = 0
@@ -935,14 +1214,18 @@ export function reelUse(b: ReelBloch, v: Vec): { meanAbs: number; atEdge: number
   for (let i = 0; i < b.size; i++) {
     const p = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (p === 0) continue
+    if (p === 0) {
+      continue
+    }
 
     const r = b.reels[Math.floor(i / b.labelCount)]!
 
     w += p
     m += (p * r.reduce((a, x) => a + Math.abs(x), 0)) / r.length
 
-    if (r.some(x => Math.abs(x) === b.spec.depth)) edge += p
+    if (r.some(x => Math.abs(x) === b.spec.depth)) {
+      edge += p
+    }
   }
 
   return { meanAbs: m / w, atEdge: edge / w }

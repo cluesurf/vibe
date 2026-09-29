@@ -11,7 +11,10 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = process.cwd()
-const note = readFileSync(join(root, 'note', 'experiment', 'quantum-coverage.md'), 'utf8')
+const note = readFileSync(
+  join(root, 'note', 'experiment', 'quantum-coverage.md'),
+  'utf8',
+)
 const catalog = readFileSync(join(root, 'test', 'catalog.csv'), 'utf8')
   .trim()
   .split('\n')
@@ -28,7 +31,8 @@ for (const row of catalog) {
 }
 
 // a code mention: "QTM-0056" or "E-QTM-0056", optionally followed by a slug and then "(L2" or ", L2"
-const MENTION = /\b(?:E-)?([A-Z]{3})-(\d{4})\b([^()\n|]*)(?:\((L[0-3])|,\s*(L[0-3]))?/g
+const MENTION =
+  /\b(?:E-)?([A-Z]{3})-(\d{4})\b([^()\n|]*)(?:\((L[0-3])|,\s*(L[0-3]))?/g
 
 let mentions = 0
 let unknown = 0
@@ -44,14 +48,18 @@ for (const match of note.matchAll(MENTION)) {
 
   if (!actual) {
     unknown++
-    console.log(`  unknown   ${code}  named in the coverage note, not in the catalog`)
+    console.log(
+      `  unknown   ${code}  named in the coverage note, not in the catalog`,
+    )
 
     continue
   }
 
   if (stated && stated !== actual) {
     mismatched++
-    console.log(`  depth     ${code}  note says ${stated}, catalog says ${actual}`)
+    console.log(
+      `  depth     ${code}  note says ${stated}, catalog says ${actual}`,
+    )
   }
 }
 

@@ -55,14 +55,17 @@ function start(rule: MatterLinks, scale: number): MatterState {
     const u = ((x + 1) * GOLDEN * scale) % 1
 
     vibe[x] = u < 0.2 ? -1 : u < 0.4 ? 1 : 0
-    role[x] = vibe[x] !== 0 ? Math.floor(((x + 3) * GOLDEN * scale * 9) % 9) : 0
+    role[x] =
+      vibe[x] !== 0 ? Math.floor(((x + 3) * GOLDEN * scale * 9) % 9) : 0
   }
 
   const demon = new Int32Array(rule.cells * 24)
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1))
+      demon[x * 24 + a] = Math.floor(
+        (((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1),
+      )
     }
   }
 
@@ -97,7 +100,8 @@ type Run = {
 function run(rule: MatterLinks, scale: number): Run {
   const s0 = start(rule, scale)
   const e0 = totalEnergy(rule, s0)
-  const count = (s: MatterState, v: number): number => s.vibe.filter(x => x === v).length
+  const count = (s: MatterState, v: number): number =>
+    s.vibe.filter(x => x === v).length
   const moves = { links: 0, felt: 0, roles: 0, hops: 0 }
 
   let s = s0
@@ -118,14 +122,18 @@ function run(rule: MatterLinks, scale: number): Run {
 
     energyExact = energyExact && e === e0
     drift = Math.max(drift, Math.abs(e - e0))
-    loveFearExact = loveFearExact && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    loveFearExact =
+      loveFearExact &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
   }
 
   let linksChanged = 0
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      linksChanged += s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
+      linksChanged +=
+        s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
     }
   }
 
@@ -139,7 +147,9 @@ function run(rule: MatterLinks, scale: number): Run {
   const reverses = same(s, s0)
 
   // a change of role frame in every cell
-  const frame = Array.from({ length: rule.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order))
+  const frame = Array.from({ length: rule.cells }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order),
+  )
 
   let a = start(rule, scale * 1.7)
   let b = changeFrame(rule, a, frame)
@@ -175,12 +185,33 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const rule = makeMatterLinks({ side: SIDE, kappa: KAPPA, capacity: CAPACITY })
-    const blind = makeMatterLinks({ side: SIDE, kappa: KAPPA, capacity: CAPACITY, feel: false })
-    const bare = makeMatterLinks({ side: SIDE, kappa: KAPPA, capacity: CAPACITY, transport: false })
+    const rule = makeMatterLinks({
+      side: SIDE,
+      kappa: KAPPA,
+      capacity: CAPACITY,
+    })
+    const blind = makeMatterLinks({
+      side: SIDE,
+      kappa: KAPPA,
+      capacity: CAPACITY,
+      feel: false,
+    })
+    const bare = makeMatterLinks({
+      side: SIDE,
+      kappa: KAPPA,
+      capacity: CAPACITY,
+      transport: false,
+    })
 
     const main = run(rule, 1.37)
-    const larger = run(makeMatterLinks({ side: LARGER_SIDE, kappa: KAPPA, capacity: CAPACITY }), 1.37)
+    const larger = run(
+      makeMatterLinks({
+        side: LARGER_SIDE,
+        kappa: KAPPA,
+        capacity: CAPACITY,
+      }),
+      1.37,
+    )
     const blindRun = run(blind, 1.37)
     const bareRun = run(bare, 1.37)
 

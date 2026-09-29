@@ -60,11 +60,17 @@
 // the vibe's, moved by the link's grid move as it is copied).
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { bouncePermutation, BOUNCE_TABLE, type CollisionKind } from '@/code/rule/bounce-pair-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+  type CollisionKind,
+} from '@/code/rule/bounce-pair-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 export type LockedTables = {
   readonly cells: number
@@ -79,7 +85,12 @@ export type LockedTables = {
 }
 
 // the rule's tables from a weave (the kernel's, with the inverse stream added); `links` replaces the weave's links
-export function lockedTables(weave: ColorWeave, collision: CollisionKind = 'lone', links?: Int16Array, veto = true): LockedTables {
+export function lockedTables(
+  weave: ColorWeave,
+  collision: CollisionKind = 'lone',
+  links?: Int16Array,
+  veto = true,
+): LockedTables {
   const cells = weave.mesh.cellCount
   const slots = cells * 24
   const target = new Int32Array(slots)
@@ -94,16 +105,16 @@ export function lockedTables(weave: ColorWeave, collision: CollisionKind = 'lone
       const slot = x * 24 + d
       const to = weave.mesh.neighbour(x, d) * 24 + d
       const g = use[slot] ?? identity
-      const forward = act[g] as Int8Array
-      const reverse = act[inverse[g] ?? identity] as Int8Array
+      const forward = act[g]!
+      const reverse = act[inverse[g] ?? identity]!
 
       target[slot] = to
       source[to] = slot
 
       for (let p = 0; p < 9; p++) {
-        move[slot * 9 + p] = forward[p] as number
+        move[slot * 9 + p] = forward[p]!
         // the vibe now at `to` came through slot's link: undo it
-        back[to * 9 + p] = reverse[p] as number
+        back[to * 9 + p] = reverse[p]!
       }
     }
   }
@@ -125,15 +136,39 @@ export type Branch = Configuration & { a: bigint; b: bigint; k: number }
 
 export type LockedState = { branches: Branch[] }
 
-export type LockedTally = { likeMeetings: number; splitMeetings: number; phaseMeetings: number; unlikeMeetings: number; made: number; unmade: number; vetoed: number; merged: number }
+export type LockedTally = {
+  likeMeetings: number
+  splitMeetings: number
+  phaseMeetings: number
+  unlikeMeetings: number
+  made: number
+  unmade: number
+  vetoed: number
+  merged: number
+}
 
-export const newTally = (): LockedTally => ({ likeMeetings: 0, splitMeetings: 0, phaseMeetings: 0, unlikeMeetings: 0, made: 0, unmade: 0, vetoed: 0, merged: 0 })
+export const newTally = (): LockedTally => ({
+  likeMeetings: 0,
+  splitMeetings: 0,
+  phaseMeetings: 0,
+  unlikeMeetings: 0,
+  made: 0,
+  unmade: 0,
+  vetoed: 0,
+  merged: 0,
+})
 
 // ---- Eisenstein arithmetic: (x + y w)(u + v w), w^2 = -1 - w ----
-const mulA = (x: bigint, y: bigint, u: bigint, v: bigint): bigint => x * u - y * v
-const mulB = (x: bigint, y: bigint, u: bigint, v: bigint): bigint => x * v + y * u - y * v
+const mulA = (x: bigint, y: bigint, u: bigint, v: bigint): bigint =>
+  x * u - y * v
+const mulB = (x: bigint, y: bigint, u: bigint, v: bigint): bigint =>
+  x * v + y * u - y * v
 
-export function times(br: { a: bigint; b: bigint }, u: bigint, v: bigint): void {
+export function times(
+  br: { a: bigint; b: bigint },
+  u: bigint,
+  v: bigint,
+): void {
   const a = mulA(br.a, br.b, u, v)
   const b = mulB(br.a, br.b, u, v)
 
@@ -141,7 +176,8 @@ export function times(br: { a: bigint; b: bigint }, u: bigint, v: bigint): void 
   br.b = b
 }
 
-export const norm = (a: bigint, b: bigint): bigint => a * a - a * b + b * b
+export const norm = (a: bigint, b: bigint): bigint =>
+  a * a - a * b + b * b
 
 // the meeting's coefficients (numerators over 2, except the phase, which is exact): forward and adjoint
 //   keep       (1 + w) / 2        adjoint (1 + w^2) / 2 = -w / 2
@@ -161,14 +197,28 @@ const PHASE: readonly [bigint, bigint][] = [
 ]
 
 export function cloneConfiguration(c: Configuration): Configuration {
-  return { vibe: Int8Array.from(c.vibe), point: Int8Array.from(c.point), open: Uint8Array.from(c.open), store: Int8Array.from(c.store), spoint: Int8Array.from(c.spoint), sopen: Uint8Array.from(c.sopen) }
+  return {
+    vibe: Int8Array.from(c.vibe),
+    point: Int8Array.from(c.point),
+    open: Uint8Array.from(c.open),
+    store: Int8Array.from(c.store),
+    spoint: Int8Array.from(c.spoint),
+    sopen: Uint8Array.from(c.sopen),
+  }
 }
 
-const cloneBranch = (b: Branch): Branch => ({ ...cloneConfiguration(b), a: b.a, b: b.b, k: b.k })
+const cloneBranch = (b: Branch): Branch => ({
+  ...cloneConfiguration(b),
+  a: b.a,
+  b: b.b,
+  k: b.k,
+})
 
 // a classical configuration with amplitude 1
 export function lockedState(c: Configuration): LockedState {
-  return { branches: [{ ...cloneConfiguration(c), a: 1n, b: 0n, k: 0 }] }
+  return {
+    branches: [{ ...cloneConfiguration(c), a: 1n, b: 0n, k: 0 }],
+  }
 }
 
 // ---- the meetings ----
@@ -176,22 +226,31 @@ export function lockedState(c: Configuration): LockedState {
 type Meeting = { i: number; j: number; same: boolean }
 
 // the meetings of two open vibes on one line (before the collision); like ones returned, unlike ones counted
-function meetingsOf(c: Configuration, cells: number, tally?: LockedTally): Meeting[] {
+function meetingsOf(
+  c: Configuration,
+  cells: number,
+  tally?: LockedTally,
+): Meeting[] {
   const out: Meeting[] = []
 
   for (let x = 0; x < cells; x++) {
     const base = x * 24
 
     for (let l = 0; l < 12; l++) {
-      const i = base + (LINE_FIRSTS[l] as number)
-      const j = base + (LINE_SECONDS[l] as number)
-      const vi = c.vibe[i] as number
-      const vj = c.vibe[j] as number
+      const i = base + LINE_FIRSTS[l]!
+      const j = base + LINE_SECONDS[l]!
+      const vi = c.vibe[i]!
+      const vj = c.vibe[j]!
 
-      if (vi === 0 || vj === 0 || !c.open[i] || !c.open[j]) continue
+      if (vi === 0 || vj === 0 || !c.open[i] || !c.open[j]) {
+        continue
+      }
 
       if (vi !== vj) {
-        if (tally) tally.unlikeMeetings++
+        if (tally) {
+          tally.unlikeMeetings++
+        }
+
         continue
       }
 
@@ -206,27 +265,49 @@ function meetingsOf(c: Configuration, cells: number, tally?: LockedTally): Meeti
 // runs this file is used for
 export const SPLIT_LIMIT = 16
 
-function meetBranch(br: Branch, cells: number, adjoint: boolean, tally?: LockedTally): Branch[] {
+function meetBranch(
+  br: Branch,
+  cells: number,
+  adjoint: boolean,
+  tally?: LockedTally,
+): Branch[] {
   const meetings = meetingsOf(br, cells, tally)
   const side = adjoint ? 1 : 0
-  const [pu, pv] = PHASE[side] as [bigint, bigint]
+  const [pu, pv] = PHASE[side]!
   const split: Meeting[] = []
 
   for (const m of meetings) {
-    if (tally) tally.likeMeetings++
+    if (tally) {
+      tally.likeMeetings++
+    }
 
     if (m.same) {
       times(br, pu, pv)
-      if (tally) tally.phaseMeetings++
-    } else split.push(m)
+
+      if (tally) {
+        tally.phaseMeetings++
+      }
+    } else {
+      split.push(m)
+    }
   }
 
-  if (split.length === 0) return [br]
-  if (split.length > SPLIT_LIMIT) throw new Error(`a branch meets at ${split.length} unequal-point like meetings in one beat, over the guard ${SPLIT_LIMIT}`)
-  if (tally) tally.splitMeetings += split.length
+  if (split.length === 0) {
+    return [br]
+  }
 
-  const [ku, kv] = KEEP[side] as [bigint, bigint]
-  const [eu, ev] = EXCHANGE[side] as [bigint, bigint]
+  if (split.length > SPLIT_LIMIT) {
+    throw new Error(
+      `a branch meets at ${split.length} unequal-point like meetings in one beat, over the guard ${SPLIT_LIMIT}`,
+    )
+  }
+
+  if (tally) {
+    tally.splitMeetings += split.length
+  }
+
+  const [ku, kv] = KEEP[side]!
+  const [eu, ev] = EXCHANGE[side]!
   const out: Branch[] = []
 
   for (let mask = 0; mask < 1 << split.length; mask++) {
@@ -234,12 +315,14 @@ function meetBranch(br: Branch, cells: number, adjoint: boolean, tally?: LockedT
 
     split.forEach((m, n) => {
       if ((mask >> n) & 1) {
-        const p = b.point[m.i] as number
+        const p = b.point[m.i]!
 
-        b.point[m.i] = b.point[m.j] as number
+        b.point[m.i] = b.point[m.j]!
         b.point[m.j] = p
         times(b, eu, ev)
-      } else times(b, ku, kv)
+      } else {
+        times(b, ku, kv)
+      }
     })
 
     b.k += split.length
@@ -251,36 +334,49 @@ function meetBranch(br: Branch, cells: number, adjoint: boolean, tally?: LockedT
 
 // ---- the collision: the pair move and the coin piece, the old knit's, with the open mask riding along ----
 
-function pairPiece(t: LockedTables, c: Configuration, x: number, tally?: LockedTally): void {
+function pairPiece(
+  t: LockedTables,
+  c: Configuration,
+  x: number,
+  tally?: LockedTally,
+): void {
   const base = x * 24
   const lineBase = x * 12
 
   for (let l = 0; l < 12; l++) {
-    const i = base + (LINE_FIRSTS[l] as number)
-    const j = base + (LINE_SECONDS[l] as number)
-    const a = c.vibe[i] as number
-    const b = c.vibe[j] as number
-    const tau = c.store[lineBase + l] as number
+    const i = base + LINE_FIRSTS[l]!
+    const j = base + LINE_SECONDS[l]!
+    const a = c.vibe[i]!
+    const b = c.vibe[j]!
+    const tau = c.store[lineBase + l]!
 
     if (tau === 0) {
-      if (a === 0 || b !== -a) continue
+      if (a === 0 || b !== -a) {
+        continue
+      }
 
       if (t.veto && c.point[i] !== c.point[j]) {
-        if (tally) tally.vetoed++
+        if (tally) {
+          tally.vetoed++
+        }
+
         continue
       }
 
       c.vibe[i] = 0
       c.vibe[j] = 0
       c.store[lineBase + l] = a
-      c.spoint[lineBase + l] = c.point[i] as number
+      c.spoint[lineBase + l] = c.point[i]!
       c.sopen[lineBase + l] = (c.open[i] ? 1 : 0) | (c.open[j] ? 2 : 0)
       c.open[i] = 0
       c.open[j] = 0
-      if (tally) tally.unmade++
+
+      if (tally) {
+        tally.unmade++
+      }
     } else if (a === 0 && b === 0) {
-      const p = c.spoint[lineBase + l] as number
-      const o = c.sopen[lineBase + l] as number
+      const p = c.spoint[lineBase + l]!
+      const o = c.sopen[lineBase + l]!
 
       c.vibe[i] = tau
       c.vibe[j] = -tau
@@ -290,7 +386,10 @@ function pairPiece(t: LockedTables, c: Configuration, x: number, tally?: LockedT
       c.open[j] = (o >> 1) & 1
       c.store[lineBase + l] = 0
       c.sopen[lineBase + l] = 0
-      if (tally) tally.made++
+
+      if (tally) {
+        tally.made++
+      }
     }
   }
 }
@@ -302,55 +401,78 @@ const SO = new Uint8Array(24)
 
 function coinPiece(t: LockedTables, c: Configuration, x: number): void {
   const base = x * 24
-  const kind = bouncePermutation(BOUNCE_TABLE, t.collision, c.vibe, base, PERM)
+  const kind = bouncePermutation(
+    BOUNCE_TABLE,
+    t.collision,
+    c.vibe,
+    base,
+    PERM,
+  )
 
-  if (kind === 0) return
-
-  for (let d = 0; d < 24; d++) {
-    const to = PERM[d] as number
-
-    SV[to] = c.vibe[base + d] as number
-    SP[to] = c.point[base + d] as number
-    SO[to] = c.open[base + d] as number
+  if (kind === 0) {
+    return
   }
 
   for (let d = 0; d < 24; d++) {
-    c.vibe[base + d] = SV[d] as number
-    c.point[base + d] = SP[d] as number
-    c.open[base + d] = SO[d] as number
+    const to = PERM[d]!
+
+    SV[to] = c.vibe[base + d]!
+    SP[to] = c.point[base + d]!
+    SO[to] = c.open[base + d]!
+  }
+
+  for (let d = 0; d < 24; d++) {
+    c.vibe[base + d] = SV[d]!
+    c.point[base + d] = SP[d]!
+    c.open[base + d] = SO[d]!
   }
 }
 
-export function collideConfiguration(t: LockedTables, c: Configuration, beat: number, inverse: boolean, tally?: LockedTally): void {
+export function collideConfiguration(
+  t: LockedTables,
+  c: Configuration,
+  beat: number,
+  inverse: boolean,
+  tally?: LockedTally,
+): void {
   const order = collisionOrder('alternate', beat)
   const pieces = inverse ? [...order].reverse() : order
 
   for (let x = 0; x < t.cells; x++) {
     for (const piece of pieces) {
-      if (piece === 'P') pairPiece(t, c, x, inverse ? undefined : tally)
-      else coinPiece(t, c, x)
+      if (piece === 'P') {
+        pairPiece(t, c, x, inverse ? undefined : tally)
+      } else {
+        coinPiece(t, c, x)
+      }
     }
   }
 }
 
 // ---- the stream (the lock's copy: the first slot forward, the second back, nothing rests) ----
 
-export function streamConfiguration(t: LockedTables, c: Configuration, inverse: boolean): void {
+export function streamConfiguration(
+  t: LockedTables,
+  c: Configuration,
+  inverse: boolean,
+): void {
   const vibe = new Int8Array(c.vibe.length)
   const point = new Int8Array(c.point.length)
   const open = new Uint8Array(c.open.length)
 
   for (let slot = 0; slot < vibe.length; slot++) {
-    const v = c.vibe[slot] as number
+    const v = c.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    const to = (inverse ? t.source[slot] : t.target[slot]) as number
-    const p = c.point[slot] as number
+    const to = (inverse ? t.source[slot] : t.target[slot])!
+    const p = c.point[slot]!
 
     vibe[to] = v
-    point[to] = (inverse ? t.back[slot * 9 + p] : t.move[slot * 9 + p]) as number
-    open[to] = c.open[slot] as number
+    point[to] = (inverse ? t.back[slot * 9 + p] : t.move[slot * 9 + p])!
+    open[to] = c.open[slot]!
   }
 
   c.vibe = vibe
@@ -370,47 +492,72 @@ function hashOf(c: Configuration): string {
   }
 
   for (let i = 0; i < c.vibe.length; i++) {
-    const v = c.vibe[i] as number
+    const v = c.vibe[i]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     mix(i)
     mix(i >> 8)
     mix(i >> 16)
     mix(v)
-    mix(c.point[i] as number)
-    mix(c.open[i] as number)
+    mix(c.point[i]!)
+    mix(c.open[i]!)
   }
 
   mix(255)
 
   for (let i = 0; i < c.store.length; i++) {
-    const v = c.store[i] as number
+    const v = c.store[i]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     mix(i)
     mix(i >> 8)
     mix(i >> 16)
     mix(v)
-    mix(c.spoint[i] as number)
-    mix(c.sopen[i] as number)
+    mix(c.spoint[i]!)
+    mix(c.sopen[i]!)
   }
 
   return `${h1}:${h2}`
 }
 
-export function sameConfiguration(a: Configuration, b: Configuration): boolean {
+export function sameConfiguration(
+  a: Configuration,
+  b: Configuration,
+): boolean {
   for (let i = 0; i < a.vibe.length; i++) {
-    const v = a.vibe[i] as number
+    const v = a.vibe[i]!
 
-    if (v !== b.vibe[i]) return false
-    if (v !== 0 && (a.point[i] !== b.point[i] || a.open[i] !== b.open[i])) return false
+    if (v !== b.vibe[i]) {
+      return false
+    }
+
+    if (
+      v !== 0 &&
+      (a.point[i] !== b.point[i] || a.open[i] !== b.open[i])
+    ) {
+      return false
+    }
   }
 
   for (let i = 0; i < a.store.length; i++) {
-    const v = a.store[i] as number
+    const v = a.store[i]!
 
-    if (v !== b.store[i]) return false
-    if (v !== 0 && (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i])) return false
+    if (v !== b.store[i]) {
+      return false
+    }
+
+    if (
+      v !== 0 &&
+      (a.spoint[i] !== b.spoint[i] || a.sopen[i] !== b.sopen[i])
+    ) {
+      return false
+    }
   }
 
   return true
@@ -424,9 +571,12 @@ function reduceBranch(b: Branch): void {
   }
 }
 
-export function mergeBranches(list: Branch[], tally?: LockedTally): Branch[] {
+export function mergeBranches(
+  list: Branch[],
+  tally?: LockedTally,
+): Branch[] {
   if (list.length === 1) {
-    reduceBranch(list[0] as Branch)
+    reduceBranch(list[0]!)
 
     return list
   }
@@ -440,13 +590,19 @@ export function mergeBranches(list: Branch[], tally?: LockedTally): Branch[] {
     const twin = bucket?.find(o => sameConfiguration(o, b))
 
     if (!twin) {
-      if (bucket) bucket.push(b)
-      else buckets.set(key, [b])
+      if (bucket) {
+        bucket.push(b)
+      } else {
+        buckets.set(key, [b])
+      }
+
       out.push(b)
       continue
     }
 
-    if (tally) tally.merged++
+    if (tally) {
+      tally.merged++
+    }
 
     const k = Math.max(twin.k, b.k)
     const s1 = 1n << BigInt(k - twin.k)
@@ -466,11 +622,21 @@ export function mergeBranches(list: Branch[], tally?: LockedTally): Branch[] {
 
 // ---- one beat, and its exact inverse ----
 
-export function lockedBeat(t: LockedTables, s: LockedState, beat: number, tally?: LockedTally): LockedState {
+export function lockedBeat(
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+): LockedState {
   const next: Branch[] = []
 
   for (const br of s.branches) {
-    for (const b of meetBranch(cloneBranch(br), t.cells, false, tally)) {
+    for (const b of meetBranch(
+      cloneBranch(br),
+      t.cells,
+      false,
+      tally,
+    )) {
       collideConfiguration(t, b, beat, false, tally)
       streamConfiguration(t, b, false)
       next.push(b)
@@ -480,7 +646,11 @@ export function lockedBeat(t: LockedTables, s: LockedState, beat: number, tally?
   return { branches: mergeBranches(next, tally) }
 }
 
-export function lockedBeatBack(t: LockedTables, s: LockedState, beat: number): LockedState {
+export function lockedBeatBack(
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+): LockedState {
   const next: Branch[] = []
 
   for (const br of s.branches) {
@@ -495,11 +665,17 @@ export function lockedBeatBack(t: LockedTables, s: LockedState, beat: number): L
 }
 
 // sum over branches of N(a + b w) 4^(K - k), and 4^K: equal exactly when the state is normalized
-export function lockedNorm(s: LockedState): { total: bigint; unit: bigint } {
+export function lockedNorm(s: LockedState): {
+  total: bigint
+  unit: bigint
+} {
   const K = Math.max(0, ...s.branches.map(b => b.k))
+
   let total = 0n
 
-  for (const b of s.branches) total += norm(b.a, b.b) * (1n << BigInt(2 * (K - b.k)))
+  for (const b of s.branches) {
+    total += norm(b.a, b.b) * (1n << BigInt(2 * (K - b.k)))
+  }
 
   return { total, unit: 1n << BigInt(2 * K) }
 }
@@ -512,9 +688,18 @@ export const LINE_STEP: readonly [number, number, number] = [1, -1, 0]
 // the locked meeting on two labels (first-quantized: distinguishable tokens, as code/rule/locked-token-line holds
 // them), times its scale: like vibes 2U = (1 + w) + (1 - w) SWAP on every label pair; a love and a fear under C with
 // the knit's meeting, 1. Returns the terms (j1', j2', a, b)
-export function lineMeeting(like: boolean, j1: number, j2: number): [number, number, bigint, bigint][] {
-  if (!like) return [[j1, j2, 1n, 0n]]
-  if (j1 === j2) return [[j1, j2, 2n, 0n]]
+export function lineMeeting(
+  like: boolean,
+  j1: number,
+  j2: number,
+): [number, number, bigint, bigint][] {
+  if (!like) {
+    return [[j1, j2, 1n, 0n]]
+  }
+
+  if (j1 === j2) {
+    return [[j1, j2, 2n, 0n]]
+  }
 
   return [
     [j1, j2, 1n, 1n],

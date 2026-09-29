@@ -60,7 +60,6 @@ const APPROACH_MEETINGS = 20000
 const JOINT_MEETINGS = 20
 const CONTROL_MEETINGS = 100
 const MEAN_FIELD_STEPS = 400
-const STAY = 0.25
 const MOVE = 0.75
 
 // the population map, exact: p as numerators over a common denominator; x = xn / xd
@@ -74,8 +73,14 @@ function mapExact(p: bigint[], xn: bigint, xd: bigint): bigint[] {
     const leave = (k < n - 1 ? xn : 0n) + (k > 0 ? xd : 0n)
 
     out[k] = p[k]! * (4n * s - 3n * leave)
-    if (k > 0) out[k] = out[k]! + 3n * xn * p[k - 1]!
-    if (k < n - 1) out[k] = out[k]! + 3n * xd * p[k + 1]!
+
+    if (k > 0) {
+      out[k] = out[k]! + 3n * xn * p[k - 1]!
+    }
+
+    if (k < n - 1) {
+      out[k] = out[k]! + 3n * xd * p[k + 1]!
+    }
   }
 
   return out
@@ -88,9 +93,16 @@ function mapFloat(p: Float64Array, x: number): Float64Array {
   const out = new Float64Array(n)
 
   for (let k = 0; k < n; k++) {
-    out[k] = p[k]! * (1 - MOVE * ((k < n - 1 ? p1 : 0) + (k > 0 ? p0 : 0)))
-    if (k > 0) out[k] = out[k]! + MOVE * p1 * p[k - 1]!
-    if (k < n - 1) out[k] = out[k]! + MOVE * p0 * p[k + 1]!
+    out[k] =
+      p[k]! * (1 - MOVE * ((k < n - 1 ? p1 : 0) + (k > 0 ? p0 : 0)))
+
+    if (k > 0) {
+      out[k] = out[k]! + MOVE * p1 * p[k - 1]!
+    }
+
+    if (k < n - 1) {
+      out[k] = out[k]! + MOVE * p0 * p[k + 1]!
+    }
   }
 
   return out
@@ -98,7 +110,12 @@ function mapFloat(p: Float64Array, x: number): Float64Array {
 
 // the joint evolution of emitter (levels 0, 1) and an n-level register: rho on 2n x 2n, index e n + k; each meeting
 // starts from the thermal emitter times the mode's reduced state and applies the block unitary
-function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n: number, weight: [number, number, number, number]): { re: Float64Array; im: Float64Array } {
+function jointMeeting(
+  mode: { re: Float64Array; im: Float64Array },
+  x: number,
+  n: number,
+  weight: [number, number, number, number],
+): { re: Float64Array; im: Float64Array } {
   const size = 2 * n
   const p1 = x / (1 + x)
   const p0 = 1 / (1 + x)
@@ -108,8 +125,11 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
   for (let e = 0; e < 2; e++) {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        re[(e * n + i) * size + e * n + j] = (e === 1 ? p1 : p0) * mode.re[i * n + j]!
-        im[(e * n + i) * size + e * n + j] = (e === 1 ? p1 : p0) * mode.im[i * n + j]!
+        re[(e * n + i) * size + e * n + j] =
+          (e === 1 ? p1 : p0) * mode.re[i * n + j]!
+
+        im[(e * n + i) * size + e * n + j] =
+          (e === 1 ? p1 : p0) * mode.im[i * n + j]!
       }
     }
   }
@@ -119,7 +139,9 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
   const ure = new Float64Array(size * size)
   const uim = new Float64Array(size * size)
 
-  for (let s = 0; s < size; s++) ure[s * size + s] = 1
+  for (let s = 0; s < size; s++) {
+    ure[s * size + s] = 1
+  }
 
   for (let k = 0; k < n - 1; k++) {
     const u = 1 * n + k
@@ -145,8 +167,13 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
       let si = 0
 
       for (let k = 0; k < size; k++) {
-        sr += ure[i * size + k]! * re[k * size + j]! - uim[i * size + k]! * im[k * size + j]!
-        si += ure[i * size + k]! * im[k * size + j]! + uim[i * size + k]! * re[k * size + j]!
+        sr +=
+          ure[i * size + k]! * re[k * size + j]! -
+          uim[i * size + k]! * im[k * size + j]!
+
+        si +=
+          ure[i * size + k]! * im[k * size + j]! +
+          uim[i * size + k]! * re[k * size + j]!
       }
 
       tre[i * size + j] = sr
@@ -154,7 +181,10 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
     }
   }
 
-  const out = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const out = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
@@ -163,8 +193,13 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
 
       for (let k = 0; k < size; k++) {
         // (T U^dagger)_ij = sum_k T_ik conj(U_jk)
-        sr += tre[i * size + k]! * ure[j * size + k]! + tim[i * size + k]! * uim[j * size + k]!
-        si += tim[i * size + k]! * ure[j * size + k]! - tre[i * size + k]! * uim[j * size + k]!
+        sr +=
+          tre[i * size + k]! * ure[j * size + k]! +
+          tim[i * size + k]! * uim[j * size + k]!
+
+        si +=
+          tim[i * size + k]! * ure[j * size + k]! -
+          tre[i * size + k]! * uim[j * size + k]!
       }
 
       // trace the emitter: i = e n + a, j = e n + b
@@ -172,8 +207,11 @@ function jointMeeting(mode: { re: Float64Array; im: Float64Array }, x: number, n
       const ej = Math.floor(j / n)
 
       if (ei === ej) {
-        out.re[(i % n) * n + (j % n)] = out.re[(i % n) * n + (j % n)]! + sr
-        out.im[(i % n) * n + (j % n)] = out.im[(i % n) * n + (j % n)]! + si
+        out.re[(i % n) * n + (j % n)] =
+          out.re[(i % n) * n + (j % n)]! + sr
+
+        out.im[(i % n) * n + (j % n)] =
+          out.im[(i % n) * n + (j % n)]! + si
       }
     }
   }
@@ -207,7 +245,10 @@ function generator(n: number): Float64Array {
 
 // -i [g, y] for n x n complex g, y
 function commutator(g: Pair, y: Pair, n: number): Pair {
-  const out: Pair = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const out: Pair = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -215,8 +256,17 @@ function commutator(g: Pair, y: Pair, n: number): Pair {
       let ci = 0
 
       for (let k = 0; k < n; k++) {
-        cr += g.re[i * n + k]! * y.re[k * n + j]! - g.im[i * n + k]! * y.im[k * n + j]! - (y.re[i * n + k]! * g.re[k * n + j]! - y.im[i * n + k]! * g.im[k * n + j]!)
-        ci += g.re[i * n + k]! * y.im[k * n + j]! + g.im[i * n + k]! * y.re[k * n + j]! - (y.re[i * n + k]! * g.im[k * n + j]! + y.im[i * n + k]! * g.re[k * n + j]!)
+        cr +=
+          g.re[i * n + k]! * y.re[k * n + j]! -
+          g.im[i * n + k]! * y.im[k * n + j]! -
+          (y.re[i * n + k]! * g.re[k * n + j]! -
+            y.im[i * n + k]! * g.im[k * n + j]!)
+
+        ci +=
+          g.re[i * n + k]! * y.im[k * n + j]! +
+          g.im[i * n + k]! * y.re[k * n + j]! -
+          (y.re[i * n + k]! * g.im[k * n + j]! +
+            y.im[i * n + k]! * g.re[k * n + j]!)
       }
 
       out.re[i * n + j] = ci
@@ -227,14 +277,29 @@ function commutator(g: Pair, y: Pair, n: number): Pair {
   return out
 }
 
-const shift = (y: Pair, a: number, d: Pair): Pair => ({ re: y.re.map((v, i) => v + a * d.re[i]!), im: y.im.map((v, i) => v + a * d.im[i]!) })
+const shift = (y: Pair, a: number, d: Pair): Pair => ({
+  re: y.re.map((v, i) => v + a * d.re[i]!),
+  im: y.im.map((v, i) => v + a * d.im[i]!),
+})
 
-function meanFieldMeeting(mode: Pair, emitter: Pair, n: number, h: Float64Array): Pair {
+function meanFieldMeeting(
+  mode: Pair,
+  emitter: Pair,
+  n: number,
+  h: Float64Array,
+): Pair {
   const size = 2 * n
   const step = 1 / MEAN_FIELD_STEPS
+
   const fields = (a: Pair, m: Pair): [Pair, Pair] => {
-    const hm: Pair = { re: new Float64Array(n * n), im: new Float64Array(n * n) }
-    const ha: Pair = { re: new Float64Array(4), im: new Float64Array(4) }
+    const hm: Pair = {
+      re: new Float64Array(n * n),
+      im: new Float64Array(n * n),
+    }
+    const ha: Pair = {
+      re: new Float64Array(4),
+      im: new Float64Array(4),
+    }
 
     for (let e = 0; e < 2; e++) {
       for (let f = 0; f < 2; f++) {
@@ -242,7 +307,9 @@ function meanFieldMeeting(mode: Pair, emitter: Pair, n: number, h: Float64Array)
           for (let l = 0; l < n; l++) {
             const x = h[(e * n + k) * size + f * n + l]!
 
-            if (x === 0) continue
+            if (x === 0) {
+              continue
+            }
 
             // H_M(k, l) += H((e,k),(f,l)) rho_A(f, e); H_A(e, f) += H((e,k),(f,l)) rho_M(l, k)
             hm.re[k * n + l] = hm.re[k * n + l]! + x * a.re[f * 2 + e]!
@@ -262,18 +329,34 @@ function meanFieldMeeting(mode: Pair, emitter: Pair, n: number, h: Float64Array)
 
   for (let s = 0; s < MEAN_FIELD_STEPS; s++) {
     const [a1, m1] = fields(a, m)
-    const [a2, m2] = fields(shift(a, step / 2, a1), shift(m, step / 2, m1))
-    const [a3, m3] = fields(shift(a, step / 2, a2), shift(m, step / 2, m2))
+    const [a2, m2] = fields(
+      shift(a, step / 2, a1),
+      shift(m, step / 2, m1),
+    )
+    const [a3, m3] = fields(
+      shift(a, step / 2, a2),
+      shift(m, step / 2, m2),
+    )
     const [a4, m4] = fields(shift(a, step, a3), shift(m, step, m3))
 
-    a = shift(shift(shift(shift(a, step / 6, a1), step / 3, a2), step / 3, a3), step / 6, a4)
-    m = shift(shift(shift(shift(m, step / 6, m1), step / 3, m2), step / 3, m3), step / 6, m4)
+    a = shift(
+      shift(shift(shift(a, step / 6, a1), step / 3, a2), step / 3, a3),
+      step / 6,
+      a4,
+    )
+
+    m = shift(
+      shift(shift(shift(m, step / 6, m1), step / 3, m2), step / 3, m3),
+      step / 6,
+      m4,
+    )
   }
 
   return m
 }
 
-const diagonalOf = (m: Pair, n: number): Float64Array => Float64Array.from({ length: n }, (_, k) => m.re[k * n + k]!)
+const diagonalOf = (m: Pair, n: number): Float64Array =>
+  Float64Array.from({ length: n }, (_, k) => m.re[k * n + k]!)
 
 const meanOf = (p: ArrayLike<number>): number => {
   let s = 0
@@ -298,6 +381,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let fixedMismatch = 0
     let jointError = 0
     let beWorst = 0
@@ -305,9 +389,15 @@ export default experiment({
     let planckWorst = 0
     let frozenOk = true
     let controlMax = 0
+
     const w = (2 * Math.PI) / 3
     // U = ((1 + w)/2) 1 + ((1 - w)/2) X on each block
-    const weight: [number, number, number, number] = [(1 + Math.cos(w)) / 2, Math.sin(w) / 2, (1 - Math.cos(w)) / 2, -Math.sin(w) / 2]
+    const weight: [number, number, number, number] = [
+      (1 + Math.cos(w)) / 2,
+      Math.sin(w) / 2,
+      (1 - Math.cos(w)) / 2,
+      -Math.sin(w) / 2,
+    ]
     const h = generator(SMALL)
 
     for (const [a, b] of TEMPERATURES) {
@@ -316,14 +406,23 @@ export default experiment({
       const xd = BigInt(b)
 
       // P1: the geometric state x^n is a fixed point: numerators xn^k xd^(N-1-k)
-      const geometric = Array.from({ length: LADDER }, (_, k) => xn ** BigInt(k) * xd ** BigInt(LADDER - 1 - k))
+      const geometric = Array.from(
+        { length: LADDER },
+        (_, k) => xn ** BigInt(k) * xd ** BigInt(LADDER - 1 - k),
+      )
       const image = mapExact(geometric, xn, xd)
       const scale = 4n * (xn + xd)
 
-      image.forEach((v, k) => (fixedMismatch += v === geometric[k]! * scale ? 0 : 1))
+      image.forEach(
+        (v, k) =>
+          (fixedMismatch += v === geometric[k]! * scale ? 0 : 1),
+      )
 
       // P1: the map against the joint evolution
-      let mode = { re: new Float64Array(SMALL * SMALL), im: new Float64Array(SMALL * SMALL) }
+      let mode = {
+        re: new Float64Array(SMALL * SMALL),
+        im: new Float64Array(SMALL * SMALL),
+      }
       let pops = new Float64Array(SMALL)
 
       mode.re[0] = 1
@@ -333,7 +432,12 @@ export default experiment({
         mode = jointMeeting(mode, x, SMALL, weight)
         pops = mapFloat(pops, x)
 
-        for (let k = 0; k < SMALL; k++) jointError = Math.max(jointError, Math.abs(mode.re[k * SMALL + k]! - pops[k]!))
+        for (let k = 0; k < SMALL; k++) {
+          jointError = Math.max(
+            jointError,
+            Math.abs(mode.re[k * SMALL + k]! - pops[k]!),
+          )
+        }
       }
 
       // P2: the exact stationary mean, and the approach
@@ -347,11 +451,14 @@ export default experiment({
 
       const exactMean = Number((top * 10n ** 15n) / bottom) / 1e15
       const be = x / (1 - x)
+
       let p = new Float64Array(LADDER)
 
       p[0] = 1
 
-      for (let t = 0; t < APPROACH_MEETINGS; t++) p = mapFloat(p, x)
+      for (let t = 0; t < APPROACH_MEETINGS; t++) {
+        p = mapFloat(p, x)
+      }
 
       const reached = meanOf(p)
       const omegaOverT = Math.log(b / a)
@@ -368,16 +475,35 @@ export default experiment({
 
       if (x <= 0.75) {
         beWorst = Math.max(beWorst, Math.abs(exactMean / be - 1))
-        approachWorst = Math.max(approachWorst, Math.abs(reached / exactMean - 1))
-        planckWorst = Math.max(planckWorst, Math.abs(energy / planck - 1))
+        approachWorst = Math.max(
+          approachWorst,
+          Math.abs(reached / exactMean - 1),
+        )
+
+        planckWorst = Math.max(
+          planckWorst,
+          Math.abs(energy / planck - 1),
+        )
       }
 
-      if (x <= 0.25 && !(energy < 0.5)) frozenOk = false
+      if (x <= 0.25 && !(energy < 0.5)) {
+        frozenOk = false
+      }
 
       // P4: the controls from the vacuum, a thermal emitter each meeting
-      const thermal: Pair = { re: Float64Array.from([1 / (1 + x), 0, 0, x / (1 + x)]), im: new Float64Array(4) }
-      let meanField: Pair = { re: new Float64Array(SMALL * SMALL), im: new Float64Array(SMALL * SMALL) }
-      let fearOff = { re: new Float64Array(SMALL * SMALL), im: new Float64Array(SMALL * SMALL) }
+      const thermal: Pair = {
+        re: Float64Array.from([1 / (1 + x), 0, 0, x / (1 + x)]),
+        im: new Float64Array(4),
+      }
+
+      let meanField: Pair = {
+        re: new Float64Array(SMALL * SMALL),
+        im: new Float64Array(SMALL * SMALL),
+      }
+      let fearOff = {
+        re: new Float64Array(SMALL * SMALL),
+        im: new Float64Array(SMALL * SMALL),
+      }
 
       meanField.re[0] = 1
       fearOff.re[0] = 1
@@ -387,15 +513,32 @@ export default experiment({
         fearOff = jointMeeting(fearOff, x, SMALL, [1, 0, 0, 0])
       }
 
-      controlMax = Math.max(controlMax, meanOf(diagonalOf(meanField, SMALL)), meanOf(diagonalOf(fearOff, SMALL)))
+      controlMax = Math.max(
+        controlMax,
+        meanOf(diagonalOf(meanField, SMALL)),
+        meanOf(diagonalOf(fearOff, SMALL)),
+      )
     }
 
     // the control's own control: the same mean-field code with COHERENT emitters (|0> + |1>)/sqrt 2 makes light
-    let coherent: Pair = { re: new Float64Array(SMALL * SMALL), im: new Float64Array(SMALL * SMALL) }
+    let coherent: Pair = {
+      re: new Float64Array(SMALL * SMALL),
+      im: new Float64Array(SMALL * SMALL),
+    }
 
     coherent.re[0] = 1
 
-    for (let t = 0; t < 10; t++) coherent = meanFieldMeeting(coherent, { re: Float64Array.from([0.5, 0.5, 0.5, 0.5]), im: new Float64Array(4) }, SMALL, h)
+    for (let t = 0; t < 10; t++) {
+      coherent = meanFieldMeeting(
+        coherent,
+        {
+          re: Float64Array.from([0.5, 0.5, 0.5, 0.5]),
+          im: new Float64Array(4),
+        },
+        SMALL,
+        h,
+      )
+    }
 
     metrics.meanFieldCoherentMean = meanOf(diagonalOf(coherent, SMALL))
 
@@ -405,10 +548,19 @@ export default experiment({
     for (const m of [1, 2, 4, 16, 64]) {
       const y = Math.exp(-omegaOverT / m)
 
-      metrics[`stepOverM${m}EnergyOverT`] = (omegaOverT / m) * (y / (1 - y))
+      metrics[`stepOverM${m}EnergyOverT`] =
+        (omegaOverT / m) * (y / (1 - y))
     }
 
-    Object.assign(metrics, { fixedMismatch, jointError, beWorst, approachWorst, planckWorst, frozen: frozenOk ? 1 : 0, controlMax })
+    Object.assign(metrics, {
+      fixedMismatch,
+      jointError,
+      beWorst,
+      approachWorst,
+      planckWorst,
+      frozen: frozenOk ? 1 : 0,
+      controlMax,
+    })
 
     const gates = {
       P1: fixedMismatch === 0 && jointError <= 1e-12,
@@ -417,9 +569,15 @@ export default experiment({
       P4: controlMax === 0,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.P1 && gates.P4 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.P1 && gates.P4
+        ? 'partial'
+        : 'fail'
     const e = (x: number): string => x.toExponential(2)
 
     return verdict({

@@ -82,7 +82,10 @@ import {
 import { pureChshExact } from '@/code/measure/pure-chsh'
 import { singletPhase, swapPhase } from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { phasePointOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 
 const OMEGA = (2 * Math.PI) / 3
 const TSIRELSON = 2 * Math.SQRT2
@@ -90,7 +93,11 @@ const DEPTH = 3
 
 // the float complex matrix of an exact 3 x 3
 function floatOf(m: Mat3): Operator {
-  const o: Operator = { n: 3, re: new Float64Array(9), im: new Float64Array(9) }
+  const o: Operator = {
+    n: 3,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
   const scale = 3 ** m.den3
 
   m.num.forEach((x, i) => {
@@ -104,7 +111,11 @@ function floatOf(m: Mat3): Operator {
 }
 
 function mul3(a: Operator, b: Operator, n: number): Operator {
-  const o: Operator = { n, re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const o: Operator = {
+    n,
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -112,8 +123,13 @@ function mul3(a: Operator, b: Operator, n: number): Operator {
       let im = 0
 
       for (let k = 0; k < n; k++) {
-        re += (a.re[i * n + k] ?? 0) * (b.re[k * n + j] ?? 0) - (a.im[i * n + k] ?? 0) * (b.im[k * n + j] ?? 0)
-        im += (a.re[i * n + k] ?? 0) * (b.im[k * n + j] ?? 0) + (a.im[i * n + k] ?? 0) * (b.re[k * n + j] ?? 0)
+        re +=
+          (a.re[i * n + k] ?? 0) * (b.re[k * n + j] ?? 0) -
+          (a.im[i * n + k] ?? 0) * (b.im[k * n + j] ?? 0)
+
+        im +=
+          (a.re[i * n + k] ?? 0) * (b.im[k * n + j] ?? 0) +
+          (a.im[i * n + k] ?? 0) * (b.re[k * n + j] ?? 0)
       }
 
       o.re[i * n + j] = re
@@ -125,7 +141,11 @@ function mul3(a: Operator, b: Operator, n: number): Operator {
 }
 
 function adjoint(a: Operator, n: number): Operator {
-  const o: Operator = { n, re: new Float64Array(n * n), im: new Float64Array(n * n) }
+  const o: Operator = {
+    n,
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -141,7 +161,11 @@ function distance(a: Operator, b: Operator): number {
   let d = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    d = Math.max(d, Math.abs((a.re[i] ?? 0) - (b.re[i] ?? 0)), Math.abs((a.im[i] ?? 0) - (b.im[i] ?? 0)))
+    d = Math.max(
+      d,
+      Math.abs((a.re[i] ?? 0) - (b.re[i] ?? 0)),
+      Math.abs((a.im[i] ?? 0) - (b.im[i] ?? 0)),
+    )
   }
 
   return d
@@ -149,10 +173,17 @@ function distance(a: Operator, b: Operator): number {
 
 // the exact two-role gate as a float 9 x 9, by its action on the basis
 function gateFloat(apply: (s: State9) => State9): Operator {
-  const o: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+  const o: Operator = {
+    n: 9,
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   for (let c = 0; c < 9; c++) {
-    const num = Array.from({ length: 9 }, (_, i) => (i === c ? [1, 0] : [0, 0]) as [number, number])
+    const num = Array.from(
+      { length: 9 },
+      (_, i) => (i === c ? [1, 0] : [0, 0]) as [number, number],
+    )
     const s = apply({ num, k2: 0, m3: 0 })
     const scale = 2 ** s.k2 * 3 ** s.m3
 
@@ -167,15 +198,26 @@ function gateFloat(apply: (s: State9) => State9): Operator {
   return o
 }
 
-type Level = { states: number; best: number; halfHalf: number; twoInDenominator: number }
+type Level = {
+  states: number
+  best: number
+  halfHalf: number
+  twoInDenominator: number
+}
 
-function enumerate(meet: (s: State9) => State9, group: readonly Mat3[], starts: readonly State9[]): Level[] {
+function enumerate(
+  meet: (s: State9) => State9,
+  group: readonly Mat3[],
+  starts: readonly State9[],
+): Level[] {
   const levels: Level[] = []
   const seen = new Set<string>()
+
   let frontier: State9[] = []
 
   for (let depth = 1; depth <= DEPTH; depth++) {
     const level: State9[] = []
+
     const add = (s: State9): void => {
       const key = stateKey(s)
 
@@ -210,10 +252,23 @@ function enumerate(meet: (s: State9) => State9, group: readonly Mat3[], starts: 
 
       halfHalf += inv.e3Num === 0n && 4n * inv.e2Num === d4 ? 1 : 0
       twoInDenominator += s.k2 > 0 ? 1 : 0
-      best = Math.max(best, pureChshExact(schmidtWeights(Number(inv.e2Num) / Number(d4), Number(inv.e3Num) / Number(d4 * d2))))
+      best = Math.max(
+        best,
+        pureChshExact(
+          schmidtWeights(
+            Number(inv.e2Num) / Number(d4),
+            Number(inv.e3Num) / Number(d4 * d2),
+          ),
+        ),
+      )
     }
 
-    levels.push({ states: level.length, best, halfHalf, twoInDenominator })
+    levels.push({
+      states: level.length,
+      best,
+      halfHalf,
+      twoInDenominator,
+    })
     frontier = level
   }
 
@@ -224,7 +279,7 @@ export default experiment({
   id: 'quantum/one-ring-behind-the-limits',
   code: 'E-QTM-0131',
   title:
-    'one ring behind the limits, partial: every amplitude of every word of link moves and meetings is in Z[omega][1/6], and since 2 is inert in Z[omega] no single amplitude has |x|^2 = 1/2, so no word makes a 50:50 split or a fine-grained full Hong-Ou-Mandel dip, and a love-fear knot (whose ring is Z[omega][1/3]) can never reach CHSH = 2 sqrt 2; but like meetings bring the 2 in, and three of them reach Tsirelson\'s bound exactly',
+    "one ring behind the limits, partial: every amplitude of every word of link moves and meetings is in Z[omega][1/6], and since 2 is inert in Z[omega] no single amplitude has |x|^2 = 1/2, so no word makes a 50:50 split or a fine-grained full Hong-Ou-Mandel dip, and a love-fear knot (whose ring is Z[omega][1/3]) can never reach CHSH = 2 sqrt 2; but like meetings bring the 2 in, and three of them reach Tsirelson's bound exactly",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',
@@ -232,39 +287,59 @@ export default experiment({
   run() {
     // G1, the generators
     const group = cliffordGroup()
-    const identity: Operator = { n: 3, re: Float64Array.from([1, 0, 0, 0, 1, 0, 0, 0, 1]), im: new Float64Array(9) }
-    const unitaryWorst = Math.max(...group.map(g => distance(mul3(floatOf(g), adjoint(floatOf(g), 3), 3), identity)))
+    const identity: Operator = {
+      n: 3,
+      re: Float64Array.from([1, 0, 0, 0, 1, 0, 0, 0, 1]),
+      im: new Float64Array(9),
+    }
+    const unitaryWorst = Math.max(
+      ...group.map(g =>
+        distance(mul3(floatOf(g), adjoint(floatOf(g), 3), 3), identity),
+      ),
+    )
     const maxDen3 = Math.max(...group.map(g => g.den3))
     const points = phasePointOperators(1)
     const moves = gridMoves()
     const tables = new Set(moves.act.map(t => Array.from(t).join('')))
     // phase-point index 3a + b; the grid index p = x + 3y read two ways: (x, y) = (b, a) or (a, b)
-    const conventions = [(q: number): number => q, (q: number): number => 3 * (q % 3) + Math.floor(q / 3)]
-    const matched = conventions.map(conv =>
-      group.filter(g => {
-        const u = floatOf(g)
-        const ud = adjoint(u, 3)
-        const perm: number[] = []
+    const conventions = [
+      (q: number): number => q,
+      (q: number): number => 3 * (q % 3) + Math.floor(q / 3),
+    ]
+    const matched = conventions.map(
+      conv =>
+        group.filter(g => {
+          const u = floatOf(g)
+          const ud = adjoint(u, 3)
+          const perm: number[] = []
 
-        for (let x = 0; x < 9; x++) {
-          const moved = mul3(mul3(u, points[x]!, 3), ud, 3)
-          const y = points.findIndex(p => distance(p, moved) < 1e-9)
+          for (let x = 0; x < 9; x++) {
+            const moved = mul3(mul3(u, points[x]!, 3), ud, 3)
+            const y = points.findIndex(p => distance(p, moved) < 1e-9)
 
-          perm.push(y)
-        }
+            perm.push(y)
+          }
 
-        if (perm.some(y => y < 0)) {
-          return false
-        }
+          if (perm.some(y => y < 0)) {
+            return false
+          }
 
-        const table = Array.from({ length: 9 }, (_, p) => conv(perm[conv(p)] ?? 0))
+          const table = Array.from({ length: 9 }, (_, p) =>
+            conv(perm[conv(p)] ?? 0),
+          )
 
-        return tables.has(table.join(''))
-      }).length,
+          return tables.has(table.join(''))
+        }).length,
     )
     const gridMatch = Math.max(...matched)
-    const swapGap = distance(gateFloat(applySwapPhase), swapPhase(OMEGA))
-    const singletGap = distance(gateFloat(applySingletPhase), singletPhase(OMEGA))
+    const swapGap = distance(
+      gateFloat(applySwapPhase),
+      swapPhase(OMEGA),
+    )
+    const singletGap = distance(
+      gateFloat(applySingletPhase),
+      singletPhase(OMEGA),
+    )
     // the line coin's float form against its exact entries (2a = 1 + w, 2b = 1 - w)
     const a = eisValue([1, 1], 2)
     const b = eisValue([1, -1], 2)
@@ -274,7 +349,14 @@ export default experiment({
       Math.abs(b[0] - (1 - Math.cos(OMEGA)) / 2),
       Math.abs(b[1] + Math.sin(OMEGA) / 2),
     )
-    const g1 = group.length === 216 && unitaryWorst <= 1e-12 && maxDen3 <= 1 && gridMatch === 216 && swapGap <= 1e-12 && singletGap <= 1e-12 && coinGap <= 1e-12
+    const g1 =
+      group.length === 216 &&
+      unitaryWorst <= 1e-12 &&
+      maxDen3 <= 1 &&
+      gridMatch === 216 &&
+      swapGap <= 1e-12 &&
+      singletGap <= 1e-12 &&
+      coinGap <= 1e-12
 
     // G2, 2 is inert
     let oddTwo = 0
@@ -316,18 +398,24 @@ export default experiment({
       { width: 3, beats: 5 },
       { width: 4, beats: 4 },
     ].map(c => ({ ...c, ...lineWordHom({ ...c, starts }) }))
-    const g3 = homRuns.every(r => r.fineDips === 0 && r.bestVisibility <= 3 / 5 + 1e-12)
+    const g3 = homRuns.every(
+      r => r.fineDips === 0 && r.bestVisibility <= 3 / 5 + 1e-12,
+    )
 
     // G4, G5: the words
     const stab = stabilizerStates(group)
     const productStarts = stab.map(t => productState(stab[0]!, t))
     const loveFear = enumerate(applySingletPhase, group, productStarts)
     const like = enumerate(applySwapPhase, group, productStarts)
-    const g4 = loveFear.every(l => l.halfHalf === 0 && l.twoInDenominator === 0)
+    const g4 = loveFear.every(
+      l => l.halfHalf === 0 && l.twoInDenominator === 0,
+    )
     const g5 = like.every(l => l.halfHalf === 0)
 
     // G6, rings where 2 is not inert: norm forms a^2 + b^2 (Z[i]) and a^2 + ab + 2 b^2 (Z[(1 + sqrt -7) / 2])
-    const hasOddTwo = (form: (x: number, y: number) => number): boolean => {
+    const hasOddTwo = (
+      form: (x: number, y: number) => number,
+    ): boolean => {
       for (let x = -4; x <= 4; x++) {
         for (let y = -4; y <= 4; y++) {
           const n = form(x, y)
@@ -340,6 +428,7 @@ export default experiment({
 
       return false
     }
+
     const gaussian = hasOddTwo((x, y) => x * x + y * y)
     const sqrtMinus7 = hasOddTwo((x, y) => x * x + x * y + 2 * y * y)
     const eisenstein = hasOddTwo((x, y) => x * x - x * y + y * y)
@@ -368,26 +457,40 @@ export default experiment({
       metrics[`${tag}_coarseDips`] = r.coarseDips
       metrics[`${tag}_bestVisibility`] = r.bestVisibility
     })
-    ;[
+
+    const families: [string, Level[]][] = [
       ['like', like],
       ['loveFear', loveFear],
-    ].forEach(([name, levels]) => {
-      ;(levels as Level[]).forEach((l, k) => {
+    ]
+
+    families.forEach(([name, levels]) => {
+      levels.forEach((l, k) => {
         metrics[`${name}_meetings${k + 1}_states`] = l.states
         metrics[`${name}_meetings${k + 1}_bestChsh`] = l.best
-        metrics[`${name}_meetings${k + 1}_gapToTsirelson`] = TSIRELSON - l.best
+        metrics[`${name}_meetings${k + 1}_gapToTsirelson`] =
+          TSIRELSON - l.best
         metrics[`${name}_meetings${k + 1}_halfHalfStates`] = l.halfHalf
-        metrics[`${name}_meetings${k + 1}_twoInDenominator`] = l.twoInDenominator
+        metrics[`${name}_meetings${k + 1}_twoInDenominator`] =
+          l.twoInDenominator
       })
     })
 
     return verdict({
       status,
       claim:
-        'the model\'s generators have every entry in Z[omega][1/6] (links in Z[omega][1/3], like meetings bring the 1/2, love-fear meetings only 1/3), 2 is inert in Z[omega], so no single amplitude of any word has |x|^2 = 1/2: no 50:50 split and no fine-grained full Hong-Ou-Mandel dip in any combination of modes (line words to width 4 never pass visibility 3/5), and a love-fear knot never reaches CHSH = 2 sqrt 2 (its Schmidt weights lie in Z[1/3]) while approaching it (gap 0.28, 0.047, 0.003 at one, two, three meetings); but the ring argument does not bind like pairs, and three swap-phase meetings reach Schmidt (1/2, 1/2, 0) and CHSH = 2 sqrt 2 exactly, so the hypothesis holds for splitters and love-fear knots and fails for like knots',
+        "the model's generators have every entry in Z[omega][1/6] (links in Z[omega][1/3], like meetings bring the 1/2, love-fear meetings only 1/3), 2 is inert in Z[omega], so no single amplitude of any word has |x|^2 = 1/2: no 50:50 split and no fine-grained full Hong-Ou-Mandel dip in any combination of modes (line words to width 4 never pass visibility 3/5), and a love-fear knot never reaches CHSH = 2 sqrt 2 (its Schmidt weights lie in Z[1/3]) while approaching it (gap 0.28, 0.047, 0.003 at one, two, three meetings); but the ring argument does not bind like pairs, and three swap-phase meetings reach Schmidt (1/2, 1/2, 0) and CHSH = 2 sqrt 2 exactly, so the hypothesis holds for splitters and love-fear knots and fails for like knots",
       metrics: {
         ...metrics,
-        ...Object.fromEntries(Object.entries({ G1: g1, G2: g2, G3: g3, G4: g4, G5: g5, G6: g6 }).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries({
+            G1: g1,
+            G2: g2,
+            G3: g3,
+            G4: g4,
+            G5: g5,
+            G6: g6,
+          }).map(([k, v]) => [`gate_${k}`, v ? 1 : 0]),
+        ),
       },
       control: {
         gaussianRingHasNormTwiceOdd: gaussian ? 1 : 0,

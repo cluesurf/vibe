@@ -64,8 +64,24 @@ import {
   type Lattice,
   type Whole,
 } from '@/code/rule/fear-weave'
-import { conjugateKernel, conjugateMove, departureChances, departureOf, wholeOfDeparture, type Departure } from '@/code/rule/calm-weave'
-import { advanceKnot, knotOf, knotTotal, mergeKnots, mirrorKnot, readKnot, type KnotRule, type SignedKnot } from '@/code/rule/signed-knot'
+import {
+  conjugateKernel,
+  conjugateMove,
+  departureChances,
+  departureOf,
+  wholeOfDeparture,
+  type Departure,
+} from '@/code/rule/calm-weave'
+import {
+  advanceKnot,
+  knotOf,
+  knotTotal,
+  mergeKnots,
+  mirrorKnot,
+  readKnot,
+  type KnotRule,
+  type SignedKnot,
+} from '@/code/rule/signed-knot'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
@@ -77,11 +93,19 @@ const REVERSAL_BEATS = 96
 const VACUUM_PAIR = [4, 7]
 const GROWER_PAIR = [4, 20]
 
-function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole {
+function basisWhole(
+  tokens: readonly number[],
+  digits: readonly number[],
+): Whole {
   const weight = new Array<bigint>(9 ** tokens.length).fill(0n)
 
   for (let i = 0; i < weight.length; i++) {
-    const on = tokens.every((_, c) => Math.floor((Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3) === digits[c])
+    const on = tokens.every(
+      (_, c) =>
+        Math.floor(
+          (Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3,
+        ) === digits[c],
+    )
 
     weight[i] = on ? 1n : 0n
   }
@@ -89,15 +113,22 @@ function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole
   return { tokens, weight }
 }
 
-const sameWeights = (a: readonly bigint[], b: readonly bigint[]): boolean => a.length === b.length && a.every((w, i) => w === b[i])
+const sameWeights = (
+  a: readonly bigint[],
+  b: readonly bigint[],
+): boolean => a.length === b.length && a.every((w, i) => w === b[i])
 const sameKnot = (a: SignedKnot, b: SignedKnot): boolean =>
-  a.units === b.units && a.sign === b.sign && a.charge === b.charge && sameWeights(a.re, b.re) && sameWeights(a.om, b.om)
+  a.units === b.units &&
+  a.sign === b.sign &&
+  a.charge === b.charge &&
+  sameWeights(a.re, b.re) &&
+  sameWeights(a.om, b.om)
 
 export default experiment({
   id: 'quantum/charge-as-the-sign',
   code: 'E-QTM-0106',
   title:
-    'the charge as the knot\'s sign: a love-knot carrying +1 and its mirror fear-knot -1 on top of the departure from calm keeps love = fear in every knot and in the universe, reads every chance, reverses and keeps charge conjugation, but its additive ledger breaks at the first meeting of two knots, because joined knots multiply what they carry; the cube-root center phase omega^q is the factor that survives',
+    "the charge as the knot's sign: a love-knot carrying +1 and its mirror fear-knot -1 on top of the departure from calm keeps love = fear in every knot and in the universe, reads every chance, reverses and keeps charge conjugation, but its additive ledger breaks at the first meeting of two knots, because joined knots multiply what they carry; the cube-root center phase omega^q is the factor that survives",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -110,6 +141,7 @@ export default experiment({
     const flatLinks = new Int16Array(slots).fill(moves.identity)
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const kThirdBack = meetingKernel(swapPhase(-OMEGA)) ?? []
+
     const openOf = (tokens: readonly number[]): Uint8Array => {
       const open = new Uint8Array(slots)
 
@@ -119,18 +151,33 @@ export default experiment({
 
       return open
     }
-    const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
-    const matter = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
+
+    const vacuum = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
+    const matter = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
 
     for (let i = 0; i < slots; i++) {
       const u = ((i + 1) * GOLDEN * MATTER_SCALE) % 1
 
       matter.vibe[i] = u < 0.3 ? -1 : u < 0.6 ? 0 : 1
-      matter.point[i] = Math.floor(((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9)
+      matter.point[i] = Math.floor(
+        ((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9,
+      )
     }
 
-    const run = (background: typeof vacuum, links: Int16Array, open: Uint8Array, beats: number): { records: BeatRecord[]; lattices: Lattice[] } => {
+    const run = (
+      background: typeof vacuum,
+      links: Int16Array,
+      open: Uint8Array,
+      beats: number,
+    ): { records: BeatRecord[]; lattices: Lattice[] } => {
       let lattice = makeLattice(background)
+
       const records: BeatRecord[] = []
       const lattices: Lattice[] = [lattice]
 
@@ -145,8 +192,10 @@ export default experiment({
       return { records, lattices }
     }
 
-    const vibeOfToken = (lattice: Lattice, token: number): number => lattice.vibe[lattice.token.indexOf(token)] ?? 0
-    const single = (token: number, digit: number): Departure => departureOf(basisWhole([token], [digit]))
+    const vibeOfToken = (lattice: Lattice, token: number): number =>
+      lattice.vibe[lattice.token.indexOf(token)] ?? 0
+    const single = (token: number, digit: number): Departure =>
+      departureOf(basisWhole([token], [digit]))
 
     // the two-knot universe, beat by beat, under one rule
     type Universe = {
@@ -173,16 +222,40 @@ export default experiment({
       joinBeat: number
       beats: number
     }
-    const universe = (background: typeof vacuum, links: Int16Array, pair: number[], rule: KnotRule, beats: number): Universe => {
+
+    const universe = (
+      background: typeof vacuum,
+      links: Int16Array,
+      pair: number[],
+      rule: KnotRule,
+      beats: number,
+    ): Universe => {
       const open = openOf(pair)
       const { records, lattices } = run(background, links, open, beats)
       const firstMeeting = records.findIndex(r => r.meetings.length > 0)
-      const signs = pair.map(tk => Math.sign(vibeOfToken(lattices[Math.max(0, firstMeeting)]!, tk)))
-      let knots: SignedKnot[] = pair.map((tk, i) => knotOf({ departure: single(tk, i), rule, sign: signs[i] ?? 0, charge: signs[i] ?? 0 }))
+      const signs = pair.map(tk =>
+        Math.sign(
+          vibeOfToken(lattices[Math.max(0, firstMeeting)]!, tk),
+        ),
+      )
+
+      let knots: SignedKnot[] = pair.map((tk, i) =>
+        knotOf({
+          departure: single(tk, i),
+          rule,
+          sign: signs[i] ?? 0,
+          charge: signs[i] ?? 0,
+        }),
+      )
       let whole: Whole = basisWhole(pair, [0, 1])
+
       // the product of every knot's factor: the sign, or omega to the charge mod 3
       const factorProduct = (list: SignedKnot[]): string =>
-        rule === 'sign' ? `${list.reduce((p, k) => p * k.sign, 1)}` : rule === 'center' ? `${list.reduce((p, k) => (((p + k.charge) % 3) + 3) % 3, 0)}` : '1'
+        rule === 'sign'
+          ? `${list.reduce((p, k) => p * k.sign, 1)}`
+          : rule === 'center'
+            ? `${list.reduce((p, k) => (((p + k.charge) % 3) + 3) % 3, 0)}`
+            : '1'
       const out: Universe = {
         signs,
         firstMeetingBeat: firstMeeting,
@@ -209,7 +282,11 @@ export default experiment({
       }
       const sorted = (list: SignedKnot[]): string =>
         list
-          .map(k => [...k.re, ...k.om].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join(','))
+          .map(k =>
+            [...k.re, ...k.om]
+              .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+              .join(','),
+          )
           .join('|')
 
       records.forEach((record, t) => {
@@ -227,11 +304,15 @@ export default experiment({
             out.chargeBefore = knots.reduce((s, k) => s + k.charge, 0)
             out.factorProductBefore = factorProduct(knots)
             out.readFaults += joined ? 0 : 1
-            knots = joined ? [...knots.filter(k => k !== ka && k !== kb), joined] : knots
+            knots = joined
+              ? [...knots.filter(k => k !== ka && k !== kb), joined]
+              : knots
             out.ledgerAfter = knots.reduce((s, k) => s + k.sign, 0)
             out.chargeAfter = knots.reduce((s, k) => s + k.charge, 0)
             out.factorProductAfter = factorProduct(knots)
-            out.ledgerKeptAtJoin = out.ledgerKeptAtJoin && out.ledgerBefore === out.ledgerAfter
+            out.ledgerKeptAtJoin =
+              out.ledgerKeptAtJoin &&
+              out.ledgerBefore === out.ledgerAfter
             out.joinBeat = t
           }
         }
@@ -239,8 +320,27 @@ export default experiment({
         const before = sorted(knots)
         const meetingsInside = record.meetings.length
 
-        knots = knots.map(k => advanceKnot({ weave, knot: k, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!)
-        whole = advanceWhole({ weave, whole, record, kernel4: kThird, fixed: false, forward: true })!
+        knots = knots.map(
+          k =>
+            advanceKnot({
+              weave,
+              knot: k,
+              record,
+              kernel: kThird,
+              divisor: 4,
+              fixed: false,
+              forward: true,
+            })!,
+        )
+
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kThird,
+          fixed: false,
+          forward: true,
+        })!
 
         if (meetingsInside === 0) {
           out.permuteFaults += sorted(knots) === before ? 0 : 1
@@ -252,8 +352,13 @@ export default experiment({
           const total = knotTotal(k)
           const read = readKnot(k)
 
-          universeTotal = { re: universeTotal.re + total.re, om: universeTotal.om + total.om }
-          out.balancedKnots = out.balancedKnots && total.re === 0n && total.om === 0n
+          universeTotal = {
+            re: universeTotal.re + total.re,
+            om: universeTotal.om + total.om,
+          }
+
+          out.balancedKnots =
+            out.balancedKnots && total.re === 0n && total.om === 0n
 
           if (!read) {
             out.readFaults++
@@ -262,26 +367,57 @@ export default experiment({
 
           const c = departureChances(read)
 
-          out.chanceFaults += c.numerator.reduce((a, b) => a + b, 0n) === c.denominator && c.numerator.every(n => n >= 0n && n <= c.denominator) ? 0 : 1
+          out.chanceFaults +=
+            c.numerator.reduce((a, b) => a + b, 0n) === c.denominator &&
+            c.numerator.every(n => n >= 0n && n <= c.denominator)
+              ? 0
+              : 1
 
           if (k.tokens.length === 2) {
-            out.readMismatches += sameWeights(wholeOfDeparture(read).weight, reduceWhole(whole).weight) ? 0 : 1
-            out.pure = out.pure && 81n * read.delta.reduce((s, x) => s + x * x, 0n) === 8n * read.units * read.units
+            out.readMismatches += sameWeights(
+              wholeOfDeparture(read).weight,
+              reduceWhole(whole).weight,
+            )
+              ? 0
+              : 1
+
+            out.pure =
+              out.pure &&
+              81n * read.delta.reduce((s, x) => s + x * x, 0n) ===
+                8n * read.units * read.units
           }
 
           const mirrored = readKnot(mirrorKnot(k))
           const mc = mirrored ? departureChances(mirrored) : null
 
-          out.mirrorReadFaults += mc && sameWeights(mc.numerator, c.numerator) && mc.denominator === c.denominator ? 0 : 1
+          out.mirrorReadFaults +=
+            mc &&
+            sameWeights(mc.numerator, c.numerator) &&
+            mc.denominator === c.denominator
+              ? 0
+              : 1
         }
 
-        out.balancedUniverse = out.balancedUniverse && universeTotal.re === 0n && universeTotal.om === 0n
+        out.balancedUniverse =
+          out.balancedUniverse &&
+          universeTotal.re === 0n &&
+          universeTotal.om === 0n
 
         const lattice = lattices[t + 1]!
-        const latticeCharge = pair.reduce((s, tk) => s + vibeOfToken(lattice, tk), 0)
+        const latticeCharge = pair.reduce(
+          (s, tk) => s + vibeOfToken(lattice, tk),
+          0,
+        )
 
-        out.ledgerEqualsLatticeBeats += knots.reduce((s, k) => s + k.sign, 0) === latticeCharge ? 1 : 0
-        out.chargeEqualsLatticeBeats += knots.reduce((s, k) => s + k.charge, 0) === latticeCharge ? 1 : 0
+        out.ledgerEqualsLatticeBeats +=
+          knots.reduce((s, k) => s + k.sign, 0) === latticeCharge
+            ? 1
+            : 0
+
+        out.chargeEqualsLatticeBeats +=
+          knots.reduce((s, k) => s + k.charge, 0) === latticeCharge
+            ? 1
+            : 0
       })
 
       out.joined = knots.length === 1 ? knots[0]! : null
@@ -290,31 +426,53 @@ export default experiment({
     }
 
     const rules: KnotRule[] = ['sign', 'center', 'label']
-    const vacuumRuns = Object.fromEntries(rules.map(rule => [rule, universe(vacuum, liveLinks, VACUUM_PAIR, rule, BEATS)])) as Record<KnotRule, Universe>
-    const growerRuns = Object.fromEntries(rules.map(rule => [rule, universe(matter, liveLinks, GROWER_PAIR, rule, BEATS)])) as Record<KnotRule, Universe>
+    const vacuumRuns = Object.fromEntries(
+      rules.map(rule => [
+        rule,
+        universe(vacuum, liveLinks, VACUUM_PAIR, rule, BEATS),
+      ]),
+    ) as Record<KnotRule, Universe>
+    const growerRuns = Object.fromEntries(
+      rules.map(rule => [
+        rule,
+        universe(matter, liveLinks, GROWER_PAIR, rule, BEATS),
+      ]),
+    ) as Record<KnotRule, Universe>
 
     // creation from calm: calm holds no knot, ledger 0, factor product 1; the pair made from calm
     const vacuumSigns = vacuumRuns.sign.signs
-    const creationAdditive = vacuumSigns.reduce((a, b) => a + b, 0) === 0
+    const creationAdditive =
+      vacuumSigns.reduce((a, b) => a + b, 0) === 0
     const creationProduct = vacuumSigns.reduce((a, b) => a * b, 1) === 1
-    const creationCenter = vacuumSigns.reduce((a, b) => (((a + b) % 3) + 3) % 3, 0) === 0
+    const creationCenter =
+      vacuumSigns.reduce((a, b) => (((a + b) % 3) + 3) % 3, 0) === 0
 
     // the joint sign by addition: can the joined knot be read?
     const additiveJointSign = vacuumSigns.reduce((a, b) => a + b, 0)
-    const additiveJointReadable = additiveJointSign === 1 || additiveJointSign === -1
+    const additiveJointReadable =
+      additiveJointSign === 1 || additiveJointSign === -1
 
     // option 2: the sign on the fear weave's own storage, weights sum to the sign
     const option2 = (() => {
       const sa = vacuumSigns[0] ?? 0
       const sb = vacuumSigns[1] ?? 0
       const ledgerBefore = sa + sb
-      const a = basisWhole([VACUUM_PAIR[0] ?? 0], [0]).weight.map(w => BigInt(sa) * w)
-      const b = basisWhole([VACUUM_PAIR[1] ?? 0], [1]).weight.map(w => BigInt(sb) * w)
+      const a = basisWhole([VACUUM_PAIR[0] ?? 0], [0]).weight.map(
+        w => BigInt(sa) * w,
+      )
+      const b = basisWhole([VACUUM_PAIR[1] ?? 0], [1]).weight.map(
+        w => BigInt(sb) * w,
+      )
       const joint = a.flatMap(x => b.map(y => x * y))
       const unitsA = 3n
       const unitsB = 3n
 
-      return { ledgerBefore, ledgerAfter: Number(joint.reduce((s, w) => s + w, 0n)) / Number(unitsA * unitsB) }
+      return {
+        ledgerBefore,
+        ledgerAfter:
+          Number(joint.reduce((s, w) => s + w, 0n)) /
+          Number(unitsA * unitsB),
+      }
     })()
 
     // 7. reversal of the joined sign knot, fixed units, from the join
@@ -324,41 +482,111 @@ export default experiment({
     {
       const open = openOf(VACUUM_PAIR)
       const joinBeat = vacuumRuns.sign.joinBeat
-      const early = universe(vacuum, liveLinks, VACUUM_PAIR, 'sign', joinBeat + 1)
-      let lattice = run(vacuum, liveLinks, open, joinBeat + 1).lattices[joinBeat + 1]!
+      const early = universe(
+        vacuum,
+        liveLinks,
+        VACUUM_PAIR,
+        'sign',
+        joinBeat + 1,
+      )
+
+      let lattice = run(vacuum, liveLinks, open, joinBeat + 1).lattices[
+        joinBeat + 1
+      ]!
+
       const start = lattice
       const big = 4n ** 200n
       const joined = early.joined!
-      const first: SignedKnot = { ...joined, re: joined.re.map(x => x * big), om: joined.om.map(x => x * big), units: joined.units * big }
+      const first: SignedKnot = {
+        ...joined,
+        re: joined.re.map(x => x * big),
+        om: joined.om.map(x => x * big),
+        units: joined.units * big,
+      }
+
       let knot: SignedKnot | null = first
 
-      for (let t = joinBeat + 1; t < joinBeat + 1 + REVERSAL_BEATS; t++) {
-        const r = fearBeat({ weave, links: liveLinks, lattice, open, t })
+      for (
+        let t = joinBeat + 1;
+        t < joinBeat + 1 + REVERSAL_BEATS;
+        t++
+      ) {
+        const r = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
         reversalMeetings += r.record.meetings.length
-        knot = knot ? advanceKnot({ weave, knot, record: r.record, kernel: kThird, divisor: 4, fixed: true, forward: true }) : null
+        knot = knot
+          ? advanceKnot({
+              weave,
+              knot,
+              record: r.record,
+              kernel: kThird,
+              divisor: 4,
+              fixed: true,
+              forward: true,
+            })
+          : null
       }
 
       for (let t = joinBeat + REVERSAL_BEATS; t > joinBeat; t--) {
-        const r = fearBeatBack({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeatBack({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        knot = knot ? advanceKnot({ weave, knot, record: r.record, kernel: kThirdBack, divisor: 4, fixed: true, forward: false }) : null
+        knot = knot
+          ? advanceKnot({
+              weave,
+              knot,
+              record: r.record,
+              kernel: kThirdBack,
+              divisor: 4,
+              fixed: true,
+              forward: false,
+            })
+          : null
       }
 
-      reverses = knot !== null && sameKnot(knot, first) && lattice.token.every((v, i) => v === start.token[i]) && lattice.vibe.every((v, i) => v === start.vibe[i])
+      reverses =
+        knot !== null &&
+        sameKnot(knot, first) &&
+        lattice.token.every((v, i) => v === start.token[i]) &&
+        lattice.vibe.every((v, i) => v === start.vibe[i])
     }
 
     // 8. a mirror on the same tokens: the pair knot and its mirror, the mirror run by the conjugate rule and
     // by the same rule
     const mirrorStudy = (() => {
-      const { records } = run(vacuum, liveLinks, openOf(VACUUM_PAIR), BEATS)
-      let knot = knotOf({ departure: departureOf(basisWhole(VACUUM_PAIR, [0, 1])), rule: 'sign', sign: 1, charge: 1 })
+      const { records } = run(
+        vacuum,
+        liveLinks,
+        openOf(VACUUM_PAIR),
+        BEATS,
+      )
+
+      let knot = knotOf({
+        departure: departureOf(basisWhole(VACUUM_PAIR, [0, 1])),
+        rule: 'sign',
+        sign: 1,
+        charge: 1,
+      })
       let conj = mirrorKnot(knot)
       let same = conj
+
       const kConj = conjugateKernel(kThird)
-      const conjMove = (g: number): number[] => conjugateMove(moves.act[g] ?? [])
+      const conjMove = (g: number): number[] =>
+        conjugateMove(moves.act[g] ?? [])
+
       let conjFaults = 0
       let sameFirstFault = -1
       let totalNonzeroStart = -1
@@ -367,26 +595,78 @@ export default experiment({
 
       {
         const w = basisWhole(VACUUM_PAIR, [0, 1]).weight
-        const c = mirrorKnot(knotOf({ departure: { tokens: VACUUM_PAIR, delta: w, units: 9n }, rule: 'sign', sign: 1, charge: 1 }))
+        const c = mirrorKnot(
+          knotOf({
+            departure: { tokens: VACUUM_PAIR, delta: w, units: 9n },
+            rule: 'sign',
+            sign: 1,
+            charge: 1,
+          }),
+        )
 
-        wholeTotalNonzeroStart = w.filter((x, i) => x + (c.re[i] ?? 0n) !== 0n).length
+        wholeTotalNonzeroStart = w.filter(
+          (x, i) => x + (c.re[i] ?? 0n) !== 0n,
+        ).length
       }
 
       records.forEach((record, t) => {
-        const nonzero = knot.re.filter((x, i) => x * conj.units + (conj.re[i] ?? 0n) * knot.units !== 0n).length
+        const nonzero = knot.re.filter(
+          (x, i) =>
+            x * conj.units + (conj.re[i] ?? 0n) * knot.units !== 0n,
+        ).length
 
-        totalNonzeroStart = totalNonzeroStart < 0 ? nonzero : totalNonzeroStart
+        totalNonzeroStart =
+          totalNonzeroStart < 0 ? nonzero : totalNonzeroStart
         totalNonzeroMax = Math.max(totalNonzeroMax, nonzero)
-        knot = advanceKnot({ weave, knot, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!
-        conj = advanceKnot({ weave, knot: conj, record, kernel: kConj, divisor: 4, fixed: false, forward: true, moveOf: conjMove })!
-        same = advanceKnot({ weave, knot: same, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!
+        knot = advanceKnot({
+          weave,
+          knot,
+          record,
+          kernel: kThird,
+          divisor: 4,
+          fixed: false,
+          forward: true,
+        })!
+
+        conj = advanceKnot({
+          weave,
+          knot: conj,
+          record,
+          kernel: kConj,
+          divisor: 4,
+          fixed: false,
+          forward: true,
+          moveOf: conjMove,
+        })!
+
+        same = advanceKnot({
+          weave,
+          knot: same,
+          record,
+          kernel: kThird,
+          divisor: 4,
+          fixed: false,
+          forward: true,
+        })!
         conjFaults += sameKnot(conj, mirrorKnot(knot)) ? 0 : 1
-        sameFirstFault = sameFirstFault >= 0 || sameKnot(same, mirrorKnot(knot)) ? sameFirstFault : t
+        sameFirstFault =
+          sameFirstFault >= 0 || sameKnot(same, mirrorKnot(knot))
+            ? sameFirstFault
+            : t
       })
 
-      const commuting = moves.act.filter(p => conjugateMove(p).every((x, i) => x === p[i])).length
+      const commuting = moves.act.filter(p =>
+        conjugateMove(p).every((x, i) => x === p[i]),
+      ).length
 
-      return { conjFaults, sameFirstFault, totalNonzeroStart, totalNonzeroMax, wholeTotalNonzeroStart, commuting }
+      return {
+        conjFaults,
+        sameFirstFault,
+        totalNonzeroStart,
+        totalNonzeroMax,
+        wholeTotalNonzeroStart,
+        commuting,
+      }
     })()
 
     // 9. the measured results, from the sign rule's knots
@@ -397,29 +677,63 @@ export default experiment({
       const open = openOf(VACUUM_PAIR)
       const { records, lattices } = run(vacuum, flatLinks, open, 60)
       const firstMeeting = records.findIndex(r => r.meetings.length > 0)
-      const signs = VACUUM_PAIR.map(tk => Math.sign(vibeOfToken(lattices[Math.max(0, firstMeeting)]!, tk)))
-      let knots: SignedKnot[] = VACUUM_PAIR.map((tk, i) => knotOf({ departure: single(tk, i), rule: 'sign', sign: signs[i] ?? 0, charge: signs[i] ?? 0 }))
+      const signs = VACUUM_PAIR.map(tk =>
+        Math.sign(
+          vibeOfToken(lattices[Math.max(0, firstMeeting)]!, tk),
+        ),
+      )
+
+      let knots: SignedKnot[] = VACUUM_PAIR.map((tk, i) =>
+        knotOf({
+          departure: single(tk, i),
+          rule: 'sign',
+          sign: signs[i] ?? 0,
+          charge: signs[i] ?? 0,
+        }),
+      )
 
       for (const record of records) {
         if (record.meetings.length > 0 && knots.length === 2) {
           knots = [mergeKnots(knots[0]!, knots[1]!)!]
         }
 
-        knots = knots.map(k => advanceKnot({ weave, knot: k, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!)
+        knots = knots.map(
+          k =>
+            advanceKnot({
+              weave,
+              knot: k,
+              record,
+              kernel: kThird,
+              divisor: 4,
+              fixed: false,
+              forward: true,
+            })!,
+        )
 
         if (record.meetings.length > 0 && interference.length < 3) {
           const c = departureChances(readKnot(knots[0]!)!)
 
-          interference.push(Number(c.numerator[3] ?? 0n) / Number(c.denominator))
+          interference.push(
+            Number(c.numerator[3] ?? 0n) / Number(c.denominator),
+          )
         }
       }
     }
 
-    const bellRun = universe(vacuum, liveLinks, VACUUM_PAIR, 'sign', vacuumRuns.sign.firstMeetingBeat + 2)
+    const bellRun = universe(
+      vacuum,
+      liveLinks,
+      VACUUM_PAIR,
+      'sign',
+      vacuumRuns.sign.firstMeetingBeat + 2,
+    )
     const bellRead = bellRun.joined ? readKnot(bellRun.joined) : null
-    const bell = bellRead ? roleChsh(roleDensity(wholeOfDeparture(bellRead))) : -1
+    const bell = bellRead
+      ? roleChsh(roleDensity(wholeOfDeparture(bellRead)))
+      : -1
 
-    const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
+    const exact = (x: number, y: number): boolean =>
+      Math.abs(x - y) < 1e-12
     const gatesOf = (u: Universe): boolean =>
       u.joinBeat >= 0 &&
       u.ledgerKeptAtJoin &&
@@ -444,11 +758,31 @@ export default experiment({
       exact(interference[2] ?? 0, 1) &&
       Math.abs(bell - Math.sqrt(7)) < 1e-6
     // the center rule on the same gates, its additive ledger being the charge (the exponent)
-    const centerOk = [vacuumRuns.center, growerRuns.center].every(
-      u => u.joinBeat >= 0 && u.chargeBefore === u.chargeAfter && u.factorProductBefore === u.factorProductAfter && u.readFaults === 0 && u.readMismatches === 0 && u.balancedKnots && u.balancedUniverse && u.chanceFaults === 0 && u.pure && u.mirrorReadFaults === 0,
-    ) && creationCenter
+    const centerOk =
+      [vacuumRuns.center, growerRuns.center].every(
+        u =>
+          u.joinBeat >= 0 &&
+          u.chargeBefore === u.chargeAfter &&
+          u.factorProductBefore === u.factorProductAfter &&
+          u.readFaults === 0 &&
+          u.readMismatches === 0 &&
+          u.balancedKnots &&
+          u.balancedUniverse &&
+          u.chanceFaults === 0 &&
+          u.pure &&
+          u.mirrorReadFaults === 0,
+      ) && creationCenter
     const labelOk = [vacuumRuns.label, growerRuns.label].every(
-      u => u.joinBeat >= 0 && u.chargeBefore === u.chargeAfter && u.readFaults === 0 && u.readMismatches === 0 && u.balancedKnots && u.balancedUniverse && u.chanceFaults === 0 && u.pure && u.mirrorReadFaults === 0,
+      u =>
+        u.joinBeat >= 0 &&
+        u.chargeBefore === u.chargeAfter &&
+        u.readFaults === 0 &&
+        u.readMismatches === 0 &&
+        u.balancedKnots &&
+        u.balancedUniverse &&
+        u.chanceFaults === 0 &&
+        u.pure &&
+        u.mirrorReadFaults === 0,
     )
 
     const v = vacuumRuns.sign
@@ -478,8 +812,10 @@ export default experiment({
         additiveJointReadable: additiveJointReadable ? 1 : 0,
         signReadFaults: v.readFaults + g.readFaults,
         signReadMismatches: v.readMismatches + g.readMismatches,
-        signLoveEqualsFearInKnots: v.balancedKnots && g.balancedKnots ? 1 : 0,
-        signLoveEqualsFearInUniverse: v.balancedUniverse && g.balancedUniverse ? 1 : 0,
+        signLoveEqualsFearInKnots:
+          v.balancedKnots && g.balancedKnots ? 1 : 0,
+        signLoveEqualsFearInUniverse:
+          v.balancedUniverse && g.balancedUniverse ? 1 : 0,
         signChanceFaults: v.chanceFaults + g.chanceFaults,
         signPure: v.pure && g.pure ? 1 : 0,
         signPermuteFaults: v.permuteFaults + g.permuteFaults,
@@ -501,14 +837,17 @@ export default experiment({
         gridMovesCommutingWithC: mirrorStudy.commuting,
         knotPlusMirrorNonzeroPointsStart: mirrorStudy.totalNonzeroStart,
         knotPlusMirrorNonzeroPointsMax: mirrorStudy.totalNonzeroMax,
-        wholePlusMirrorNonzeroPointsStart: mirrorStudy.wholeTotalNonzeroStart,
+        wholePlusMirrorNonzeroPointsStart:
+          mirrorStudy.wholeTotalNonzeroStart,
         option2WeightLedgerBeforeJoin: option2.ledgerBefore,
         option2WeightLedgerAfterJoin: option2.ledgerAfter,
         centerRulePasses: centerOk ? 1 : 0,
         centerChargeBeforeJoinVacuum: vacuumRuns.center.chargeBefore,
         centerChargeAfterJoinVacuum: vacuumRuns.center.chargeAfter,
         centerCreationFactorProductIsOne: creationCenter ? 1 : 0,
-        centerReadMismatches: vacuumRuns.center.readMismatches + growerRuns.center.readMismatches,
+        centerReadMismatches:
+          vacuumRuns.center.readMismatches +
+          growerRuns.center.readMismatches,
         labelRulePasses: labelOk ? 1 : 0,
       },
       control: {
@@ -516,7 +855,8 @@ export default experiment({
         growerSignLedgerIsAlsoBroken: g.ledgerKeptAtJoin ? 0 : 1,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat and calm-weave's conjugateMove fix (C read on the GRID index, CONJUGATE_GRID): status fail as before; mirrorConjugateRuleFaults 480 -> 0 (the conjugateMove fix, not the comoving beat), knotPlusMirrorNonzeroPointsMax 81 -> 72. " + ('L2, exact BigInt weights (Eisenstein integers for the center rule), no random numbers. The first run failed gate 1 as predicted in the header and the failure stands. Why it cannot be fixed within the sign rule: a factor f that must divide out of a joined knot is f_ab = f_a f_b, and the empty universe (calm) carries 1, so a pair from calm has f_love f_fear = 1, which a +1 love and a -1 fear break (their product is -1) and which the additive rule keeps only by giving the joint knot a sign of 0, which cannot be divided out. A factor that is both multiplicative and gives love and fear conjugate values is a character of the charge: omega^q, with omega omega^2 = 1. Its additive ledger is the exponent q, which equals the vibe charge the knot\'s tokens carry on 480 of 480 beats for the pair made from calm and on 199 of 480 for the grower pair, whose tokens trade vibes with the matter around them (the sign ledger: 6 of 480 and 100 of 480). None of the factors changes a single chance: every reading is the departure of E-QTM-0105, so the sign and the phase are bookkeeping, not dynamics. A mirror on the same tokens stays the mirror only under the conjugate rule (kernel seen through C, which is the -2 pi / 3 kernel, and moves C g C): run by the knot\'s own rule it is broken at beat 0, since only 6 of the 216 grid moves commute with C. A knot and its mirror summed on shared tokens start at 0 on every point for |0>|1>, so the universe total alone cannot hold the state.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat and calm-weave's conjugateMove fix (C read on the GRID index, CONJUGATE_GRID): status fail as before; mirrorConjugateRuleFaults 480 -> 0 (the conjugateMove fix, not the comoving beat), knotPlusMirrorNonzeroPointsMax 81 -> 72. " +
+        "L2, exact BigInt weights (Eisenstein integers for the center rule), no random numbers. The first run failed gate 1 as predicted in the header and the failure stands. Why it cannot be fixed within the sign rule: a factor f that must divide out of a joined knot is f_ab = f_a f_b, and the empty universe (calm) carries 1, so a pair from calm has f_love f_fear = 1, which a +1 love and a -1 fear break (their product is -1) and which the additive rule keeps only by giving the joint knot a sign of 0, which cannot be divided out. A factor that is both multiplicative and gives love and fear conjugate values is a character of the charge: omega^q, with omega omega^2 = 1. Its additive ledger is the exponent q, which equals the vibe charge the knot's tokens carry on 480 of 480 beats for the pair made from calm and on 199 of 480 for the grower pair, whose tokens trade vibes with the matter around them (the sign ledger: 6 of 480 and 100 of 480). None of the factors changes a single chance: every reading is the departure of E-QTM-0105, so the sign and the phase are bookkeeping, not dynamics. A mirror on the same tokens stays the mirror only under the conjugate rule (kernel seen through C, which is the -2 pi / 3 kernel, and moves C g C): run by the knot's own rule it is broken at beat 0, since only 6 of the 216 grid moves commute with C. A knot and its mirror summed on shared tokens start at 0 on every point for |0>|1>, so the universe total alone cannot hold the state.",
     })
   },
 })

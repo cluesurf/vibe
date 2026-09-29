@@ -110,7 +110,14 @@ export function reflectionPositivity(input?: { n?: number }): {
   }
 
   for (let t = 0; t < 60; t++) {
-    conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
+    conservingEdgeSweep({
+      tone: tone,
+      eu: eu,
+      ev: ev,
+      moved,
+      rng: rng,
+      arrow: ARROW,
+    })
   }
 
   const T = 8000
@@ -118,7 +125,14 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   for (let t = 0; t < T; t++) {
     series[t] = obs(tone)
-    conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
+    conservingEdgeSweep({
+      tone: tone,
+      eu: eu,
+      ev: ev,
+      moved,
+      rng: rng,
+      arrow: ARROW,
+    })
   }
 
   const m = 6

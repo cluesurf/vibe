@@ -35,14 +35,19 @@ export type WaveGeometry = {
 }
 
 const ROOTS = rootsD4()
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 function position(dock: number, side: number): number[] {
   return [0, 1, 2, 3].map(k => Math.floor(dock / side ** k) % side)
 }
 
 // the slab of a dock, q . r mod L
-export function slabOf(dock: number, side: number, wave: readonly number[]): number {
+export function slabOf(
+  dock: number,
+  side: number,
+  wave: readonly number[],
+): number {
   const s = dot(wave, position(dock, side))
 
   return ((s % side) + side) % side
@@ -62,7 +67,8 @@ export function momentumWaveStart(input: {
 
   for (let i = 0; i < will.data.length; i++) {
     if (weylPoint({ start: salt, index: i, slot: 0 }) < fill) {
-      will.data[i] = weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
+      will.data[i] =
+        weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
     }
   }
 
@@ -76,20 +82,31 @@ export function momentumWaveStart(input: {
     }
   }
 
-  for (let dock = 0; dock <mesh.cellCount; dock++) {
-    const local = bias * Math.sin((2 * Math.PI * mode * slabOf(dock, side, geometry.wave)) / side)
+  for (let dock = 0; dock < mesh.cellCount; dock++) {
+    const local =
+      bias *
+      Math.sin(
+        (2 * Math.PI * mode * slabOf(dock, side, geometry.wave)) / side,
+      )
 
     lines.forEach(([d, o], line) => {
       const along = dot(ROOTS[d] ?? [], geometry.momentum)
 
-      if (along === 0 || weylPoint({ start: salt, index: dock, slot: 2 + line }) >= Math.abs(local)) {
+      if (
+        along === 0 ||
+        weylPoint({ start: salt, index: dock, slot: 2 + line }) >=
+          Math.abs(local)
+      ) {
         return
       }
 
       const forward = along * local > 0 ? d : o
       const backward = forward === d ? o : d
 
-      will.data[dock * 24 + forward] = weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5 ? -1 : 1
+      will.data[dock * 24 + forward] =
+        weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5
+          ? -1
+          : 1
       will.data[dock * 24 + backward] = 0
     })
   }
@@ -98,14 +115,21 @@ export function momentumWaveStart(input: {
 }
 
 // the mode amplitude of (P . a) on sin(2 pi m (q . r) / L)
-export function momentumWaveAmplitude(input: { will: Will; side: number; geometry: WaveGeometry; mode: number }): number {
+export function momentumWaveAmplitude(input: {
+  will: Will
+  side: number
+  geometry: WaveGeometry
+  mode: number
+}): number {
   const { will, side, geometry, mode } = input
   const along = ROOTS.map(r => dot(r, geometry.momentum))
-  const sines = Array.from({ length: side }, (_, s) => Math.sin((2 * Math.PI * mode * s) / side))
+  const sines = Array.from({ length: side }, (_, s) =>
+    Math.sin((2 * Math.PI * mode * s) / side),
+  )
 
   let amplitude = 0
 
-  for (let dock = 0; dock <will.mesh.cellCount; dock++) {
+  for (let dock = 0; dock < will.mesh.cellCount; dock++) {
     let p = 0
 
     for (let d = 0; d < 24; d++) {
@@ -119,16 +143,24 @@ export function momentumWaveAmplitude(input: { will: Will; side: number; geometr
 }
 
 // the (P . a) per slab carried on lines perpendicular to q, the invariant of a line-keeping rule
-export function perpendicularSlabs(input: { will: Will; side: number; geometry: WaveGeometry }): number[] {
+export function perpendicularSlabs(input: {
+  will: Will
+  side: number
+  geometry: WaveGeometry
+}): number[] {
   const { will, side, geometry } = input
-  const weight = ROOTS.map(r => (dot(r, geometry.wave) === 0 ? dot(r, geometry.momentum) : 0))
+  const weight = ROOTS.map(r =>
+    dot(r, geometry.wave) === 0 ? dot(r, geometry.momentum) : 0,
+  )
   const slabs = new Array<number>(side).fill(0)
 
-  for (let dock = 0; dock <will.mesh.cellCount; dock++) {
+  for (let dock = 0; dock < will.mesh.cellCount; dock++) {
     const s = slabOf(dock, side, geometry.wave)
 
     for (let d = 0; d < 24; d++) {
-      slabs[s] = (slabs[s] ?? 0) + Math.abs(will.data[dock * 24 + d] ?? 0) * (weight[d] ?? 0)
+      slabs[s] =
+        (slabs[s] ?? 0) +
+        Math.abs(will.data[dock * 24 + d] ?? 0) * (weight[d] ?? 0)
     }
   }
 
@@ -139,7 +171,11 @@ export function perpendicularSlabs(input: { will: Will; side: number; geometry: 
 // (0, pi] and gamma over [0, gammaMax] on fine grids with a, b and c solved by least squares at each point
 // (the smallest omega, pi / 400, stands for a pure decay). Returns the best omega and gamma and the r2 of that fit. Unlike
 // a running-mean split this has no window, so an oscillation slower than the mesh period is not removed.
-export function dampedCosineFit(input: { series: readonly number[]; gammaMax?: number; from?: number }): { omega: number; gamma: number; r2: number } {
+export function dampedCosineFit(input: {
+  series: readonly number[]
+  gammaMax?: number
+  from?: number
+}): { omega: number; gamma: number; r2: number } {
   const from = input.from ?? 0
   const ys = input.series.slice(from)
   const ts = ys.map((_, i) => i + from)
@@ -156,15 +192,28 @@ export function dampedCosineFit(input: { series: readonly number[]; gammaMax?: n
 
       return [e * Math.cos(omega * t), e * Math.sin(omega * t), 1]
     })
-    const m = [0, 1, 2].map(i => [0, 1, 2].map(j => basis.reduce((s, row) => s + (row[i] ?? 0) * (row[j] ?? 0), 0)))
-    const v = [0, 1, 2].map(i => basis.reduce((s, row, n) => s + (row[i] ?? 0) * (ys[n] ?? 0), 0))
+    const m = [0, 1, 2].map(i =>
+      [0, 1, 2].map(j =>
+        basis.reduce((s, row) => s + (row[i] ?? 0) * (row[j] ?? 0), 0),
+      ),
+    )
+    const v = [0, 1, 2].map(i =>
+      basis.reduce((s, row, n) => s + (row[i] ?? 0) * (ys[n] ?? 0), 0),
+    )
     const solution = solve3(m, v)
 
     if (!solution) {
       return
     }
 
-    const residual = basis.reduce((s, row, n) => s + ((ys[n] ?? 0) - row.reduce((a, x, i) => a + x * (solution[i] ?? 0), 0)) ** 2, 0)
+    const residual = basis.reduce(
+      (s, row, n) =>
+        s +
+        ((ys[n] ?? 0) -
+          row.reduce((a, x, i) => a + x * (solution[i] ?? 0), 0)) **
+          2,
+      0,
+    )
     const r2 = 1 - residual / total
 
     if (r2 > best.r2) {
@@ -204,7 +253,9 @@ function solve3(m: number[][], v: number[]): number[] | undefined {
     let p = c
 
     for (let r = c + 1; r < 3; r++) {
-      if (Math.abs(a[r]?.[c] ?? 0) > Math.abs(a[p]?.[c] ?? 0)) p = r
+      if (Math.abs(a[r]?.[c] ?? 0) > Math.abs(a[p]?.[c] ?? 0)) {
+        p = r
+      }
     }
 
     if (Math.abs(a[p]?.[c] ?? 0) < 1e-12) {
@@ -241,12 +292,21 @@ export function momentumWaveSeries(input: {
   let current: Will = { mesh, data: input.will.data.slice() }
   let scratch = makeWill(mesh)
 
-  const series = [momentumWaveAmplitude({ will: current, side, geometry, mode })]
+  const series = [
+    momentumWaveAmplitude({ will: current, side, geometry, mode }),
+  ]
 
   for (let t = 0; t < beats; t++) {
-    beatInto({ src: current, dst: scratch, table, collision: collision(t) })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table,
+      collision: collision(t),
+    })
     ;[current, scratch] = [scratch, current]
-    series.push(momentumWaveAmplitude({ will: current, side, geometry, mode }))
+    series.push(
+      momentumWaveAmplitude({ will: current, side, geometry, mode }),
+    )
   }
 
   return { series, final: current }

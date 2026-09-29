@@ -40,7 +40,9 @@ export default experiment({
       })
       const snell = Math.asin((NEAR * Math.sin(radians(deg))) / FAR)
 
-      return crossed ? Math.abs(degrees(outgoing) - degrees(snell)) : 999
+      return crossed
+        ? Math.abs(degrees(outgoing) - degrees(snell))
+        : 999
     })
 
     // the critical angle, dense to rare, bisected to a hundredth of a degree

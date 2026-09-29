@@ -109,13 +109,22 @@ export type FredkinState = {
   readonly carried: readonly Int32Array[]
 }
 
-export function makeCountRule(input: { lattice: PhotonLattice; form: CountForm; nBits: number; qBits: number; digits?: number; charge?: number }): CountRule {
+export function makeCountRule(input: {
+  lattice: PhotonLattice
+  form: CountForm
+  nBits: number
+  qBits: number
+  digits?: number
+  charge?: number
+}): CountRule {
   const { lattice, form, nBits, qBits } = input
   const digits = form === 'wave' ? (input.digits ?? 4) : 1
   const sBits = digits * qBits
 
   if (nBits < 2 || nBits > 20 || qBits < 1 || sBits > 20) {
-    throw new Error(`photon-count: nBits ${nBits}, qBits ${qBits}, digits ${digits} out of range`)
+    throw new Error(
+      `photon-count: nBits ${nBits}, qBits ${qBits}, digits ${digits} out of range`,
+    )
   }
 
   return {
@@ -145,21 +154,36 @@ export function emptyCountState(rule: CountRule): CountState {
     angle: new Int32Array(rule.lattice.links),
     flux: new Int32Array(rule.lattice.links),
     counter: new Int32Array(count),
-    carried: rule.form === 'wave' ? [new Int32Array(count), new Int32Array(count)] : [],
+    carried:
+      rule.form === 'wave'
+        ? [new Int32Array(count), new Int32Array(count)]
+        : [],
   }
 }
 
 export function copyCountState(s: CountState): CountState {
-  return { vibe: Int8Array.from(s.vibe), angle: Int32Array.from(s.angle), flux: Int32Array.from(s.flux), counter: Int32Array.from(s.counter), carried: s.carried.map(c => Int32Array.from(c)) }
+  return {
+    vibe: Int8Array.from(s.vibe),
+    angle: Int32Array.from(s.angle),
+    flux: Int32Array.from(s.flux),
+    counter: Int32Array.from(s.counter),
+    carried: s.carried.map(c => Int32Array.from(c)),
+  }
 }
 
 // the Fredkin state of a leapfrog state: previous = A_t, current = A_t + E_t mod N
-export function fredkinOf(rule: CountRule, s: CountState): FredkinState {
+export function fredkinOf(
+  rule: CountRule,
+  s: CountState,
+): FredkinState {
   const mask = rule.n - 1
 
   return {
     vibe: Int8Array.from(s.vibe),
-    current: Int32Array.from(s.angle, (a, l) => (a + (s.flux[l] as number)) & mask),
+    current: Int32Array.from(
+      s.angle,
+      (a, l) => (a + s.flux[l]!) & mask,
+    ),
     previous: Int32Array.from(s.angle),
     counter: Int32Array.from(s.counter),
     carried: s.carried.map(c => Int32Array.from(c)),
@@ -174,7 +198,11 @@ export function centeredCount(rule: CountRule, b: number): number {
 }
 
 // w = C^T u on the links, u on the plaquettes
-function curlTransposeInto(lattice: PhotonLattice, u: Int32Array, out: Int32Array): void {
+function curlTransposeInto(
+  lattice: PhotonLattice,
+  u: Int32Array,
+  out: Int32Array,
+): void {
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
   const signs = lattice.plaquetteSigns
@@ -182,16 +210,16 @@ function curlTransposeInto(lattice: PhotonLattice, u: Int32Array, out: Int32Arra
   out.fill(0)
 
   for (let p = 0, o = 0; p < lattice.plaquetteCount; p++, o += size) {
-    const v = u[p] as number
+    const v = u[p]!
 
     if (v === 0) {
       continue
     }
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
+      const l = links[o + j]!
 
-      out[l] = (out[l] as number) + (signs[o + j] as number) * v
+      out[l] = out[l]! + signs[o + j]! * v
     }
   }
 }
@@ -199,7 +227,13 @@ function curlTransposeInto(lattice: PhotonLattice, u: Int32Array, out: Int32Arra
 // The counters' step on every plaquette, from the angles `angle` (which it does not change): forward
 // (sign 1) the kick f is paid and the counters advance, backward (sign -1) the counters are restored and
 // the f the forward step paid is recovered. f is written to rule.paid.
-export function payCounters(rule: CountRule, angle: Int32Array, counter: Int32Array, carried: readonly Int32Array[], sign: number): void {
+export function payCounters(
+  rule: CountRule,
+  angle: Int32Array,
+  counter: Int32Array,
+  carried: readonly Int32Array[],
+  sign: number,
+): void {
   const { lattice, qBits, sBits, paid } = rule
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
@@ -212,18 +246,18 @@ export function payCounters(rule: CountRule, angle: Int32Array, counter: Int32Ar
       let b = 0
 
       for (let j = 0; j < size; j++) {
-        b += (signs[o + j] as number) * (angle[links[o + j] as number] as number)
+        b += signs[o + j]! * angle[links[o + j]!]!
       }
 
       b = (b << shift) >> shift
 
       if (sign > 0) {
-        const x = (counter[p] as number) + b
+        const x = counter[p]! + b
 
         paid[p] = x >> qBits
         counter[p] = x & qMask
       } else {
-        const r = ((counter[p] as number) - b) & qMask
+        const r = (counter[p]! - b) & qMask
 
         paid[p] = (r + b) >> qBits
         counter[p] = r
@@ -235,8 +269,8 @@ export function payCounters(rule: CountRule, angle: Int32Array, counter: Int32Ar
 
   // the wave form. Forward the state holds D_(t-1), D_(t-2) in carried[0], carried[1]; backward it holds
   // D_t, D_(t-1). The spatial term reads D_(t-1) either way
-  const newer = carried[0] as Int32Array
-  const older = carried[1] as Int32Array
+  const newer = carried[0]!
+  const older = carried[1]!
   const previous = sign > 0 ? newer : older
   const w = rule.spread
   const out = rule.fresh
@@ -249,28 +283,28 @@ export function payCounters(rule: CountRule, angle: Int32Array, counter: Int32Ar
     let spreadSum = 0
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
-      const s = signs[o + j] as number
+      const l = links[o + j]!
+      const s = signs[o + j]!
 
-      b += s * (angle[l] as number)
-      spreadSum += s * (w[l] as number)
+      b += s * angle[l]!
+      spreadSum += s * w[l]!
     }
 
     b = (b << shift) >> shift
 
     if (sign > 0) {
-      const y = spreadSum + (counter[p] as number)
+      const y = spreadSum + counter[p]!
       const v = y >> qBits
-      const x = (b << lift) - 2 * (newer[p] as number) + (older[p] as number) + v
+      const x = (b << lift) - 2 * newer[p]! + older[p]! + v
       const f = -(-x >> sBits)
 
       counter[p] = y & qMask
       out[p] = (f << sBits) - x
       paid[p] = f
     } else {
-      const r = ((counter[p] as number) - spreadSum) & qMask
+      const r = (counter[p]! - spreadSum) & qMask
       const v = (spreadSum + r) >> qBits
-      const total = (b << lift) - 2 * (older[p] as number) + v + (newer[p] as number)
+      const total = (b << lift) - 2 * older[p]! + v + newer[p]!
       const f = -(-total >> sBits)
 
       counter[p] = r
@@ -293,19 +327,23 @@ function drift(rule: CountRule, s: CountState, sign: number): void {
   const mask = rule.n - 1
 
   for (let l = 0; l < angle.length; l++) {
-    angle[l] = ((angle[l] as number) + sign * (flux[l] as number)) & mask
+    angle[l] = (angle[l]! + sign * flux[l]!) & mask
   }
 }
 
 // E <- E - sign C^T paid
-function applyKick(rule: CountRule, flux: Int32Array, sign: number): void {
+function applyKick(
+  rule: CountRule,
+  flux: Int32Array,
+  sign: number,
+): void {
   const { lattice, paid } = rule
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
   const signs = lattice.plaquetteSigns
 
   for (let p = 0, o = 0; p < lattice.plaquetteCount; p++, o += size) {
-    const f = paid[p] as number
+    const f = paid[p]!
 
     if (f === 0) {
       continue
@@ -314,9 +352,9 @@ function applyKick(rule: CountRule, flux: Int32Array, sign: number): void {
     const g = sign * f
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
+      const l = links[o + j]!
 
-      flux[l] = (flux[l] as number) - (signs[o + j] as number) * g
+      flux[l] = flux[l]! - signs[o + j]! * g
     }
   }
 }
@@ -329,14 +367,20 @@ export function countBeatInPlace(rule: CountRule, s: CountState): void {
 }
 
 // the inverse of one beat, in place: the kick backward, then the drift backward
-export function countBeatBackInPlace(rule: CountRule, s: CountState): void {
+export function countBeatBackInPlace(
+  rule: CountRule,
+  s: CountState,
+): void {
   payCounters(rule, s.angle, s.counter, s.carried, -1)
   applyKick(rule, s.flux, -1)
   drift(rule, s, -1)
 }
 
 // Fredkin's beat, in place: A_(t+1) = 2 A_t - A_(t-1) - C^T f(A_t) mod N
-export function fredkinBeatInPlace(rule: CountRule, s: FredkinState): void {
+export function fredkinBeatInPlace(
+  rule: CountRule,
+  s: FredkinState,
+): void {
   const mask = rule.n - 1
   const kick = rule.kick
 
@@ -345,9 +389,9 @@ export function fredkinBeatInPlace(rule: CountRule, s: FredkinState): void {
   applyKick(rule, kick, 1)
 
   for (let l = 0; l < kick.length; l++) {
-    const a = s.current[l] as number
+    const a = s.current[l]!
 
-    rule.next[l] = (2 * a - (s.previous[l] as number) + (kick[l] as number)) & mask
+    rule.next[l] = (2 * a - s.previous[l]! + kick[l]!) & mask
     s.previous[l] = a
   }
 
@@ -356,7 +400,10 @@ export function fredkinBeatInPlace(rule: CountRule, s: FredkinState): void {
 
 // Fredkin's beat backward, in place: the same formula with the two layers exchanged,
 // A_(t-1) = 2 A_t - A_(t+1) - C^T f(A_t), the counters restored from A_t = previous
-export function fredkinBeatBackInPlace(rule: CountRule, s: FredkinState): void {
+export function fredkinBeatBackInPlace(
+  rule: CountRule,
+  s: FredkinState,
+): void {
   const mask = rule.n - 1
   const kick = rule.kick
 
@@ -365,9 +412,9 @@ export function fredkinBeatBackInPlace(rule: CountRule, s: FredkinState): void {
   applyKick(rule, kick, 1)
 
   for (let l = 0; l < kick.length; l++) {
-    const a = s.previous[l] as number
+    const a = s.previous[l]!
 
-    rule.next[l] = (2 * a - (s.current[l] as number) + (kick[l] as number)) & mask
+    rule.next[l] = (2 * a - s.current[l]! + kick[l]!) & mask
     s.current[l] = a
   }
 
@@ -376,7 +423,12 @@ export function fredkinBeatBackInPlace(rule: CountRule, s: FredkinState): void {
 
 // Gauss's law: the number of docks whose outgoing flux differs from charge * vibe (exactly, for the leapfrog
 // state; mod N for a Fredkin state, whose flux current - previous lives mod N)
-export function countGaussViolations(rule: CountRule, vibe: Int8Array, flux: ArrayLike<number>, modular: boolean): number {
+export function countGaussViolations(
+  rule: CountRule,
+  vibe: Int8Array,
+  flux: ArrayLike<number>,
+  modular: boolean,
+): number {
   const { lattice } = rule
   const f = lattice.firsts.length
   const divergence = new Int32Array(lattice.cells)
@@ -384,21 +436,26 @@ export function countGaussViolations(rule: CountRule, vibe: Int8Array, flux: Arr
 
   for (let x = 0; x < lattice.cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] as number)] as number
-      const e = flux[x * f + k] as number
+      const y =
+        lattice.neighbour[x * lattice.degree + lattice.firsts[k]!]!
+      const e = flux[x * f + k]!
 
-      divergence[x] = (divergence[x] as number) + e
-      divergence[y] = (divergence[y] as number) - e
+      divergence[x] = divergence[x]! + e
+      divergence[y] = divergence[y]! - e
     }
   }
 
   let violations = 0
 
   for (let x = 0; x < lattice.cells; x++) {
-    const want = rule.charge * (vibe[x] as number)
-    const have = divergence[x] as number
+    const want = rule.charge * vibe[x]!
+    const have = divergence[x]!
 
-    violations += (modular ? ((have - want) & mask) === 0 : have === want) ? 0 : 1
+    violations += (
+      modular ? ((have - want) & mask) === 0 : have === want
+    )
+      ? 0
+      : 1
   }
 
   return violations

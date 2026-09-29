@@ -69,7 +69,9 @@ export default experiment({
   run(context) {
     const scale = context.scale ?? 1
     // the derived geometric growth rate lambda and the marginal floor lambda^(1/2)
-    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
+    const addressing = buildAddressing({
+      maxCells: scaled(40000, scale),
+    })
     const lambda = growthRatioFromShellCounts(
       shellCountsFromGraph({
         neighbors: addressing.graph.neighbors,

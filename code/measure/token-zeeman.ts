@@ -15,7 +15,11 @@
 // block and projected back, O(L^2) per block, then complexEigenvalues on a 2L x 2L matrix.
 
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { stepGenerator, type Mode, type Step } from '@/code/rule/spinor-token'
+import {
+  stepGenerator,
+  type Mode,
+  type Step,
+} from '@/code/rule/spinor-token'
 
 export type ZeemanInput = {
   side: number
@@ -50,7 +54,15 @@ function coinOf(mu: number): { re: Float64Array; im: Float64Array } {
 }
 
 // the projectors (1 +- Gamma) / 2 of a step, as re and im arrays
-function projectorsOf(step: Step, mode: Mode): { plusRe: Float64Array; plusIm: Float64Array; minusRe: Float64Array; minusIm: Float64Array } {
+function projectorsOf(
+  step: Step,
+  mode: Mode,
+): {
+  plusRe: Float64Array
+  plusIm: Float64Array
+  minusRe: Float64Array
+  minusIm: Float64Array
+} {
   const gamma = stepGenerator(step, mode)
   const plusRe = new Float64Array(16)
   const plusIm = new Float64Array(16)
@@ -71,7 +83,18 @@ function projectorsOf(step: Step, mode: Mode): { plusRe: Float64Array; plusIm: F
 }
 
 // dest[4x..4x+3] (+)= M src[4x..4x+3] for a 4 x 4 complex M
-function apply4(mRe: Float64Array, mIm: Float64Array, srcRe: Float64Array, srcIm: Float64Array, at: number, outRe: Float64Array, outIm: Float64Array, to: number, phaseRe: number, phaseIm: number): void {
+function apply4(
+  mRe: Float64Array,
+  mIm: Float64Array,
+  srcRe: Float64Array,
+  srcIm: Float64Array,
+  at: number,
+  outRe: Float64Array,
+  outIm: Float64Array,
+  to: number,
+  phaseRe: number,
+  phaseIm: number,
+): void {
   for (let i = 0; i < 4; i++) {
     let re = 0
     let im = 0
@@ -92,7 +115,13 @@ function apply4(mRe: Float64Array, mIm: Float64Array, srcRe: Float64Array, srcIm
 }
 
 // one period on a chain vector, in place through two scratch buffers
-function period(input: ZeemanInput, re: Float64Array, im: Float64Array, scratchRe: Float64Array, scratchIm: Float64Array): void {
+function period(
+  input: ZeemanInput,
+  re: Float64Array,
+  im: Float64Array,
+  scratchRe: Float64Array,
+  scratchIm: Float64Array,
+): void {
   const { side, schedule, mode, field, charge, ky } = input
   const coin = coinOf(input.coinAngle)
 
@@ -101,7 +130,18 @@ function period(input: ZeemanInput, re: Float64Array, im: Float64Array, scratchR
     scratchIm.fill(0)
 
     for (let x = 0; x < side; x++) {
-      apply4(coin.re, coin.im, re, im, 4 * x, scratchRe, scratchIm, 4 * x, 1, 0)
+      apply4(
+        coin.re,
+        coin.im,
+        re,
+        im,
+        4 * x,
+        scratchRe,
+        scratchIm,
+        4 * x,
+        1,
+        0,
+      )
     }
 
     if (step === 'z' || step === 'up' || step === 'down') {
@@ -117,13 +157,59 @@ function period(input: ZeemanInput, re: Float64Array, im: Float64Array, scratchR
 
     for (let x = 0; x < side; x++) {
       if (step === 'x') {
-        apply4(p.plusRe, p.plusIm, scratchRe, scratchIm, 4 * x, re, im, 4 * ((x + 1) % side), 1, 0)
-        apply4(p.minusRe, p.minusIm, scratchRe, scratchIm, 4 * x, re, im, 4 * ((x - 1 + side) % side), 1, 0)
+        apply4(
+          p.plusRe,
+          p.plusIm,
+          scratchRe,
+          scratchIm,
+          4 * x,
+          re,
+          im,
+          4 * ((x + 1) % side),
+          1,
+          0,
+        )
+
+        apply4(
+          p.minusRe,
+          p.minusIm,
+          scratchRe,
+          scratchIm,
+          4 * x,
+          re,
+          im,
+          4 * ((x - 1 + side) % side),
+          1,
+          0,
+        )
       } else {
         const angle = charge * field * x - ky
 
-        apply4(p.plusRe, p.plusIm, scratchRe, scratchIm, 4 * x, re, im, 4 * x, Math.cos(angle), Math.sin(angle))
-        apply4(p.minusRe, p.minusIm, scratchRe, scratchIm, 4 * x, re, im, 4 * x, Math.cos(angle), -Math.sin(angle))
+        apply4(
+          p.plusRe,
+          p.plusIm,
+          scratchRe,
+          scratchIm,
+          4 * x,
+          re,
+          im,
+          4 * x,
+          Math.cos(angle),
+          Math.sin(angle),
+        )
+
+        apply4(
+          p.minusRe,
+          p.minusIm,
+          scratchRe,
+          scratchIm,
+          4 * x,
+          re,
+          im,
+          4 * x,
+          Math.cos(angle),
+          -Math.sin(angle),
+        )
       }
     }
   }
@@ -160,7 +246,10 @@ function sectorBasis(mode: Mode, sector: 1 | -1): number[][] {
 
 // The period restricted to one sector, as a dense 2L x 2L matrix, plus the norm of what leaks to the other
 // sector (zero when S commutes).
-export function sectorOperator(input: ZeemanInput, sector: 1 | -1): { re: Float64Array; im: Float64Array; n: number; leak: number } {
+export function sectorOperator(
+  input: ZeemanInput,
+  sector: 1 | -1,
+): { re: Float64Array; im: Float64Array; n: number; leak: number } {
   const side = input.side
   const n = 2 * side
   const own = sectorBasis(input.mode, sector)
@@ -171,6 +260,7 @@ export function sectorOperator(input: ZeemanInput, sector: 1 | -1): { re: Float6
   const vIm = new Float64Array(4 * side)
   const sRe = new Float64Array(4 * side)
   const sIm = new Float64Array(4 * side)
+
   let leak = 0
 
   for (let col = 0; col < n; col++) {
@@ -211,9 +301,15 @@ export function sectorOperator(input: ZeemanInput, sector: 1 | -1): { re: Float6
 }
 
 // the phases per period of one sector, in (-pi, pi]
-export function sectorPhases(input: ZeemanInput, sector: 1 | -1): { phases: number[]; leak: number } {
+export function sectorPhases(
+  input: ZeemanInput,
+  sector: 1 | -1,
+): { phases: number[]; leak: number } {
   const u = sectorOperator(input, sector)
   const e = complexEigenvalues({ re: u.re, im: u.im, n: u.n })
 
-  return { phases: e.re.map((r, i) => Math.atan2(e.im[i] ?? 0, r)), leak: u.leak }
+  return {
+    phases: e.re.map((r, i) => Math.atan2(e.im[i] ?? 0, r)),
+    leak: u.leak,
+  }
 }

@@ -67,17 +67,56 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { cloneStoreState, sameStoreState, storeCharge, storeEnergy, transformLinks, transformStoreState, type TokenStoreState } from '@/code/rule/token-store-knit'
-import { livingBeat, livingBeatBack, livingCollide, livingMotionReversal, makeLivingKnit, separatedLayout, type LivingKnit, type LivingSchedule } from '@/code/rule/living-pair-knit'
+import {
+  cloneStoreState,
+  sameStoreState,
+  storeCharge,
+  storeEnergy,
+  transformLinks,
+  transformStoreState,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
+import {
+  livingBeat,
+  livingBeatBack,
+  livingCollide,
+  livingMotionReversal,
+  makeLivingKnit,
+  separatedLayout,
+  type LivingKnit,
+  type LivingSchedule,
+} from '@/code/rule/living-pair-knit'
 import { makeLivingKernel } from '@/code/measure/living-pair-kernel'
 import { goldenFill } from '@/code/measure/candidate-kernel'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { boxCellMap, d4BoxCell, d4BoxCoordinates, linearMapOf } from '@/code/substrate/d4-box'
+import {
+  boxCellMap,
+  d4BoxCell,
+  d4BoxCoordinates,
+  linearMapOf,
+} from '@/code/substrate/d4-box'
 import { weyl, SILVER } from '@/code/tool/weyl'
-import { angleClass, boxStore, ONE_LINE, patternOf, sparseConditions, sparseLivingState, vacuumCycle, wakeSeries, type StorePattern } from '@/code/measure/sparse-living-vacuum'
-import { additivityWorst, dressing, walls } from '@/code/measure/sparse-living-battery'
+import {
+  angleClass,
+  boxStore,
+  ONE_LINE,
+  patternOf,
+  sparseConditions,
+  sparseLivingState,
+  vacuumCycle,
+  wakeSeries,
+  type StorePattern,
+} from '@/code/measure/sparse-living-vacuum'
+import {
+  additivityWorst,
+  dressing,
+  walls,
+} from '@/code/measure/sparse-living-battery'
 
 const ROOTS = rootsD4()
 const SIDE_LENGTH = 3
@@ -91,8 +130,20 @@ const tokens = slots * 2
 const layout = separatedLayout(weave)
 const oneStore = boxStore(cells, ONE_LINE)
 
-const sparseStart = (scale: number): TokenStoreState => sparseLivingState({ ...goldenFill(slots, scale), store: oneStore, layout })
-const sparseVacuum = (): TokenStoreState => sparseLivingState({ vibe: new Int8Array(slots), point: new Int8Array(slots), store: oneStore, layout })
+const sparseStart = (scale: number): TokenStoreState =>
+  sparseLivingState({
+    ...goldenFill(slots, scale),
+    store: oneStore,
+    layout,
+  })
+const sparseVacuum = (): TokenStoreState =>
+  sparseLivingState({
+    vibe: new Int8Array(slots),
+    point: new Int8Array(slots),
+    store: oneStore,
+    layout,
+  })
+
 const loneLove = (): TokenStoreState => {
   const s = sparseVacuum()
 
@@ -100,30 +151,61 @@ const loneLove = (): TokenStoreState => {
 
   return s
 }
-const starts = (): TokenStoreState[] => [sparseStart(1.37), sparseStart(2.11), loneLove()]
 
-function run(k: LivingKnit, s: TokenStoreState, beats: number, open?: Uint8Array): TokenStoreState {
+const starts = (): TokenStoreState[] => [
+  sparseStart(1.37),
+  sparseStart(2.11),
+  loneLove(),
+]
+
+function run(
+  k: LivingKnit,
+  s: TokenStoreState,
+  beats: number,
+  open?: Uint8Array,
+): TokenStoreState {
   const o = open ?? new Uint8Array(s.point.length)
+
   let x = s
 
-  for (let t = 0; t < beats; t++) x = livingBeat(k, x, o, t).state
+  for (let t = 0; t < beats; t++) {
+    x = livingBeat(k, x, o, t).state
+  }
 
   return x
 }
 
 // G0
-function conditionScan(): { uniformExact: number; tried: number; disagreements: number; nonUniformExact: number; failing: number; sublatticeZ: number } {
+function conditionScan(): {
+  uniformExact: number
+  tried: number
+  disagreements: number
+  nonUniformExact: number
+  failing: number
+  sublatticeZ: number
+} {
   const kernel = makeLivingKernel(weave)
-  const flatWeave: ColorWeave = { ...weave, links: new Int16Array(slots).fill(weave.moves.identity) }
+  const flatWeave: ColorWeave = {
+    ...weave,
+    links: new Int16Array(slots).fill(weave.moves.identity),
+  }
   const flatKernel = makeLivingKernel(flatWeave)
   const zeroLayout = new Int8Array(cells * 12)
+
   let uniformExact = 0
   let tried = 0
   let disagreements = 0
   let nonUniformExact = 0
   let failing = 0
   let sublatticeZ = 0
-  const check = (w: ColorWeave, k: typeof kernel, store: Int8Array, lay: Int8Array, uniform: boolean): boolean => {
+
+  const check = (
+    w: ColorWeave,
+    k: typeof kernel,
+    store: Int8Array,
+    lay: Int8Array,
+    uniform: boolean,
+  ): boolean => {
     const c = sparseConditions(w, store, lay)
     const cycle = vacuumCycle(k, store, lay, c.bothLines)
     const predicted = c.momentumDocks === 0 && c.vetoFailures === 0
@@ -132,28 +214,50 @@ function conditionScan(): { uniformExact: number; tried: number; disagreements: 
     disagreements += predicted === cycle.exact ? 0 : 1
     failing += cycle.exact ? 0 : 1
 
-    if (!uniform && cycle.exact) nonUniformExact++
+    if (!uniform && cycle.exact) {
+      nonUniformExact++
+    }
 
     return cycle.exact
   }
 
   for (let mask = 1; mask < 4096; mask++) {
-    const lines = Array.from({ length: 12 }, (_, l) => l).filter(l => (mask >> l) & 1)
+    const lines = Array.from({ length: 12 }, (_, l) => l).filter(
+      l => (mask >> l) & 1,
+    )
 
-    uniformExact += check(weave, kernel, boxStore(cells, patternOf(lines)), layout, true) ? 1 : 0
+    uniformExact += check(
+      weave,
+      kernel,
+      boxStore(cells, patternOf(lines)),
+      layout,
+      true,
+    )
+      ? 1
+      : 0
   }
 
-  const coords = Array.from({ length: cells }, (_, x) => d4BoxCoordinates({ cell: x, side: SIDE_LENGTH }))
+  const coords = Array.from({ length: cells }, (_, x) =>
+    d4BoxCoordinates({ cell: x, side: SIDE_LENGTH }),
+  )
 
   for (let l = 0; l < 12; l++) {
-    const step = d4BoxCoordinates({ cell: weave.mesh.neighbour(0, LINE_FIRSTS[l] as number), side: SIDE_LENGTH })
+    const step = d4BoxCoordinates({
+      cell: weave.mesh.neighbour(0, LINE_FIRSTS[l]!),
+      side: SIDE_LENGTH,
+    })
 
     for (let a = 1; a < 81; a++) {
       const form = [0, 1, 2, 3].map(k => Math.floor(a / 3 ** k) % 3)
-      const on = (c: number[]): boolean => form.reduce((s, f, k) => s + f * (c[k] ?? 0), 0) % 3 === 0
+      const on = (c: number[]): boolean =>
+        form.reduce((s, f, k) => s + f * (c[k] ?? 0), 0) % 3 === 0
       const store = new Int8Array(cells * 12)
 
-      for (let x = 0; x < cells; x++) if (on(coords[x] as number[])) store[x * 12 + l] = 1
+      for (let x = 0; x < cells; x++) {
+        if (on(coords[x]!)) {
+          store[x * 12 + l] = 1
+        }
+      }
 
       sublatticeZ += on(step) ? 1 : 0
       check(weave, kernel, store, layout, false)
@@ -161,22 +265,50 @@ function conditionScan(): { uniformExact: number; tried: number; disagreements: 
   }
 
   for (let n = 0; n < 120; n++) {
-    const density = [1 / 12, 1 / 4, 1 / 2][n % 3] as number
+    const density = [1 / 12, 1 / 4, 1 / 2][n % 3]!
     const store = new Int8Array(cells * 12)
 
-    for (let i = 0; i < store.length; i++) store[i] = weyl(n * store.length + i + 1, SILVER) < density ? 1 : 0
+    for (let i = 0; i < store.length; i++) {
+      store[i] =
+        weyl(n * store.length + i + 1, SILVER) < density ? 1 : 0
+    }
 
     check(weave, kernel, store, layout, false)
   }
 
-  for (let l = 0; l < 12; l++) check(flatWeave, flatKernel, boxStore(cells, patternOf([l])), zeroLayout, false)
+  for (let l = 0; l < 12; l++) {
+    check(
+      flatWeave,
+      flatKernel,
+      boxStore(cells, patternOf([l])),
+      zeroLayout,
+      false,
+    )
+  }
 
-  return { uniformExact, tried, disagreements, nonUniformExact, failing, sublatticeZ }
+  return {
+    uniformExact,
+    tried,
+    disagreements,
+    nonUniformExact,
+    failing,
+    sublatticeZ,
+  }
 }
 
 // G1
-function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures: number; dockSamples: number; boxAutomorphisms: number; boxFailures: number; stateStabilizer: number; lineStabilizer: number } {
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+function covariance(k: LivingKnit): {
+  coinFailures: number
+  conjugationFailures: number
+  dockSamples: number
+  boxAutomorphisms: number
+  boxFailures: number
+  stateStabilizer: number
+  lineStabilizer: number
+} {
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
   const samples: TokenStoreState[] = []
 
   for (const [start, beats] of [
@@ -209,15 +341,20 @@ function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures:
         const cx = cloneStoreState(x)
 
         livingCollide(k, cx, 0, t)
-        bad += sameStoreState(gx, transformStoreState(cx, [0], g, sign)) ? 0 : 1
+        bad += sameStoreState(gx, transformStoreState(cx, [0], g, sign))
+          ? 0
+          : 1
       }
     }
 
     return bad
   }
+
   let coinFailures = 0
 
-  for (const g of permutations) coinFailures += failures(g, 1)
+  for (const g of permutations) {
+    coinFailures += failures(g, 1)
+  }
 
   const conjugationFailures = failures(
     Array.from({ length: 24 }, (_, d) => d),
@@ -226,6 +363,7 @@ function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures:
   const boxStart = run(k, sparseStart(2.11), 3)
   const vacuum = sparseVacuum()
   const none = new Uint8Array(tokens)
+
   let boxAutomorphisms = 0
   let boxFailures = 0
   let stateStabilizer = 0
@@ -233,99 +371,201 @@ function covariance(k: LivingKnit): { coinFailures: number; conjugationFailures:
 
   for (const g of permutations) {
     const matrix = linearMapOf(g)
-    const cellMap = matrix ? boxCellMap({ matrix, side: SIDE_LENGTH }) : undefined
+    const cellMap = matrix
+      ? boxCellMap({ matrix, side: SIDE_LENGTH })
+      : undefined
 
-    if (!cellMap) continue
+    if (!cellMap) {
+      continue
+    }
 
     boxAutomorphisms++
 
-    const kg: LivingKnit = { ...k, weave: { ...weave, links: transformLinks(weave.links, cellMap, g) } }
+    const kg: LivingKnit = {
+      ...k,
+      weave: {
+        ...weave,
+        links: transformLinks(weave.links, cellMap, g),
+      },
+    }
 
     for (const t of [0, 1]) {
-      const lhs = livingBeat(kg, transformStoreState(boxStart, cellMap, g), none, t).state
-      const rhs = transformStoreState(livingBeat(k, boxStart, none, t).state, cellMap, g)
+      const lhs = livingBeat(
+        kg,
+        transformStoreState(boxStart, cellMap, g),
+        none,
+        t,
+      ).state
+      const rhs = transformStoreState(
+        livingBeat(k, boxStart, none, t).state,
+        cellMap,
+        g,
+      )
 
       boxFailures += sameStoreState(lhs, rhs) ? 0 : 1
     }
 
     const image = transformStoreState(vacuum, cellMap, g).store
 
-    stateStabilizer += image.every((v, i) => v === vacuum.store[i]) ? 1 : 0
-    lineStabilizer += image.every((v, i) => Math.abs(v) === Math.abs(vacuum.store[i] as number)) ? 1 : 0
+    stateStabilizer += image.every((v, i) => v === vacuum.store[i])
+      ? 1
+      : 0
+
+    lineStabilizer += image.every(
+      (v, i) => Math.abs(v) === Math.abs(vacuum.store[i]!),
+    )
+      ? 1
+      : 0
   }
 
-  return { coinFailures, conjugationFailures, dockSamples: samples.length, boxAutomorphisms, boxFailures, stateStabilizer, lineStabilizer }
+  return {
+    coinFailures,
+    conjugationFailures,
+    dockSamples: samples.length,
+    boxAutomorphisms,
+    boxFailures,
+    stateStabilizer,
+    lineStabilizer,
+  }
 }
 
 // G2
-function reversal(schedule: LivingSchedule): { reverses: boolean; motionFailures: number; cptFailures: number } {
+function reversal(schedule: LivingSchedule): {
+  reverses: boolean
+  motionFailures: number
+  cptFailures: number
+} {
   const k = makeLivingKnit(weave, schedule)
   const none = new Uint8Array(tokens)
+
   let reverses = true
 
   for (const start of starts()) {
     let s = start
 
-    for (let t = 0; t < 96; t++) s = livingBeat(k, s, none, t).state
-    for (let t = 95; t >= 0; t--) s = livingBeatBack(k, s, none, t).state
+    for (let t = 0; t < 96; t++) {
+      s = livingBeat(k, s, none, t).state
+    }
+
+    for (let t = 95; t >= 0; t--) {
+      s = livingBeatBack(k, s, none, t).state
+    }
 
     reverses = reverses && sameStoreState(s, start)
   }
 
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
+
   let inversionCells: number[] = []
 
   for (const g of permutations) {
-    if (!g.every((image, d) => image === OPPOSITE[d])) continue
+    if (!g.every((image, d) => image === OPPOSITE[d])) {
+      continue
+    }
 
     const matrix = linearMapOf(g)
 
-    inversionCells = matrix ? (boxCellMap({ matrix, side: SIDE_LENGTH }) ?? []) : []
+    inversionCells = matrix
+      ? (boxCellMap({ matrix, side: SIDE_LENGTH }) ?? [])
+      : []
   }
 
-  const kp: LivingKnit = { ...k, weave: { ...weave, links: transformLinks(weave.links, inversionCells, OPPOSITE) } }
+  const kp: LivingKnit = {
+    ...k,
+    weave: {
+      ...weave,
+      links: transformLinks(weave.links, inversionCells, OPPOSITE),
+    },
+  }
+
   let motionFailures = 0
   let cptFailures = 0
 
   for (const x of starts()) {
     for (const t of [0, 1]) {
-      const lhs = livingMotionReversal(k, livingBeat(k, x, none, t).state, t)
-      const rhs = livingBeatBack(k, livingMotionReversal(k, x, t + 1), none, t + 1).state
+      const lhs = livingMotionReversal(
+        k,
+        livingBeat(k, x, none, t).state,
+        t,
+      )
+      const rhs = livingBeatBack(
+        k,
+        livingMotionReversal(k, x, t + 1),
+        none,
+        t + 1,
+      ).state
 
       motionFailures += sameStoreState(lhs, rhs) ? 0 : 1
 
       const m = transformStoreState(x, inversionCells, OPPOSITE, -1)
-      const y = livingBeat(kp, livingMotionReversal(kp, m, t), none, t).state
-      const undone = transformStoreState(livingMotionReversal(kp, y, t + 1), inversionCells, OPPOSITE, -1)
+      const y = livingBeat(
+        kp,
+        livingMotionReversal(kp, m, t),
+        none,
+        t,
+      ).state
+      const undone = transformStoreState(
+        livingMotionReversal(kp, y, t + 1),
+        inversionCells,
+        OPPOSITE,
+        -1,
+      )
 
-      cptFailures += sameStoreState(undone, livingBeatBack(k, x, none, t + 1).state) ? 0 : 1
+      cptFailures += sameStoreState(
+        undone,
+        livingBeatBack(k, x, none, t + 1).state,
+      )
+        ? 0
+        : 1
     }
   }
 
-  return { reverses, motionFailures, cptFailures: inversionCells.length === cells ? cptFailures : -1 }
+  return {
+    reverses,
+    motionFailures,
+    cptFailures: inversionCells.length === cells ? cptFailures : -1,
+  }
 }
 
 // G3
-function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; meetings: number } {
+function laws(k: LivingKnit): {
+  exact: boolean
+  leaks: number
+  flips: number
+  meetings: number
+} {
   const none = new Uint8Array(tokens)
+
   const momentum = (st: TokenStoreState): number[] => {
     const p = [0, 0, 0, 0]
 
-    for (let i = 0; i < st.vibe.length; i++) if (st.vibe[i] !== 0) (ROOTS[i % 24] as number[]).forEach((v, c) => (p[c] = (p[c] as number) + v))
+    for (let i = 0; i < st.vibe.length; i++) {
+      if (st.vibe[i] !== 0) {
+        ROOTS[i % 24]!.forEach((v, c) => (p[c] = p[c]! + v))
+      }
+    }
 
     return p
   }
+
   let exact = true
 
   for (const start of [sparseStart(1.37), loneLove()]) {
     let s = start
+
     const q0 = storeCharge(s)
     const e0 = storeEnergy(s)
     const p0 = momentum(s)
 
     for (let t = 0; t < 96; t++) {
       s = livingBeat(k, s, none, t).state
-      exact = exact && storeCharge(s) === q0 && storeEnergy(s) === e0 && momentum(s).every((v, c) => v === p0[c])
+      exact =
+        exact &&
+        storeCharge(s) === q0 &&
+        storeEnergy(s) === e0 &&
+        momentum(s).every((v, c) => v === p0[c])
     }
   }
 
@@ -335,11 +575,13 @@ function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; me
     let qy = 0
 
     for (let d = 0; d < 24; d++) {
-      const v = s.vibe[x * 24 + d] as number
+      const v = s.vibe[x * 24 + d]!
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
 
-      const p = s.point[s.token[x * 24 + d] as number] as number
+      const p = s.point[s.token[x * 24 + d]!]!
 
       w += v
       qx += v * (p % 3)
@@ -350,6 +592,7 @@ function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; me
 
     return m(w) * 9 + m(qx) * 3 + m(qy)
   }
+
   let s = sparseStart(1.37)
   let leaks = 0
 
@@ -368,6 +611,7 @@ function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; me
 
   const all = new Uint8Array(tokens).fill(1)
   const last = new Int8Array(tokens)
+
   let flips = 0
   let meetings = 0
 
@@ -379,7 +623,9 @@ function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; me
     r.record.meetings.forEach(([a, b], m) => {
       const [sa, sb] = r.record.signs?.[m] ?? [1, 1]
 
-      flips += (last[a] !== 0 && last[a] !== sa ? 1 : 0) + (last[b] !== 0 && last[b] !== sb ? 1 : 0)
+      flips +=
+        (last[a] !== 0 && last[a] !== sa ? 1 : 0) +
+        (last[b] !== 0 && last[b] !== sb ? 1 : 0)
       last[a] = sa
       last[b] = sb
       meetings++
@@ -391,8 +637,12 @@ function laws(k: LivingKnit): { exact: boolean; leaks: number; flips: number; me
 }
 
 // G4
-function partnerMeetings(k: LivingKnit, beats: number): { partner: number; across: number; stray: number } {
+function partnerMeetings(
+  k: LivingKnit,
+  beats: number,
+): { partner: number; across: number; stray: number } {
   const all = new Uint8Array(tokens).fill(1)
+
   let s = sparseVacuum()
   let partner = 0
   let across = 0
@@ -402,11 +652,18 @@ function partnerMeetings(k: LivingKnit, beats: number): { partner: number; acros
     const r = livingBeat(k, s, all, t)
 
     for (const [a, b] of r.record.meetings) {
-      const own = a >= slots && b >= slots && Math.floor((a - slots) / 2) === Math.floor((b - slots) / 2)
+      const own =
+        a >= slots &&
+        b >= slots &&
+        Math.floor((a - slots) / 2) === Math.floor((b - slots) / 2)
 
-      if (t % 3 === 2 && own) partner++
-      else if (t % 3 === 1 && !own) across++
-      else stray++
+      if (t % 3 === 2 && own) {
+        partner++
+      } else if (t % 3 === 1 && !own) {
+        across++
+      } else {
+        stray++
+      }
     }
 
     s = r.state
@@ -415,14 +672,21 @@ function partnerMeetings(k: LivingKnit, beats: number): { partner: number; acros
   return { partner, across, stray }
 }
 
-function vacuumPair(k: LivingKnit): { pair: number[]; kind: number; meetings: number } {
+function vacuumPair(k: LivingKnit): {
+  pair: number[]
+  kind: number
+  meetings: number
+} {
   const openOf = (pair: number[]): Uint8Array => {
     const o = new Uint8Array(tokens)
 
-    for (const t of pair) o[t] = 1
+    for (const t of pair) {
+      o[t] = 1
+    }
 
     return o
   }
+
   const meetingsIn = (pair: number[], beats: number): number => {
     let s = sparseVacuum()
     let n = 0
@@ -439,24 +703,52 @@ function vacuumPair(k: LivingKnit): { pair: number[]; kind: number; meetings: nu
 
   for (let kind = 0; kind < 2; kind++) {
     for (let l = 0; l < 12; l++) {
-      const f = LINE_FIRSTS[l] as number
-      const pair = kind === 0 ? [f, OPPOSITE[f] as number] : [slots + 2 * l, slots + 2 * l + 1]
+      const f = LINE_FIRSTS[l]!
+      const pair =
+        kind === 0
+          ? [f, OPPOSITE[f]!]
+          : [slots + 2 * l, slots + 2 * l + 1]
 
-      if (meetingsIn(pair, 24) > 0) return { pair, kind, meetings: meetingsIn(pair, 480) }
+      if (meetingsIn(pair, 24) > 0) {
+        return { pair, kind, meetings: meetingsIn(pair, 480) }
+      }
     }
   }
 
   return { pair: [], kind: -1, meetings: 0 }
 }
 
-function sideVacuum(side: number, pattern: StorePattern): { violations: number; momentumDocks: number; exact: boolean; period: number; tallies: string } {
-  const w = side === SIDE_LENGTH ? weave : makeColorWeave({ side, table: 'bind' })
+function sideVacuum(
+  side: number,
+  pattern: StorePattern,
+): {
+  violations: number
+  momentumDocks: number
+  exact: boolean
+  period: number
+  tallies: string
+} {
+  const w =
+    side === SIDE_LENGTH
+      ? weave
+      : makeColorWeave({ side, table: 'bind' })
   const lay = side === SIDE_LENGTH ? layout : separatedLayout(w)
   const store = boxStore(w.mesh.cellCount, pattern)
   const c = sparseConditions(w, store, lay)
-  const cycle = vacuumCycle(makeLivingKernel(w), store, lay, c.bothLines)
+  const cycle = vacuumCycle(
+    makeLivingKernel(w),
+    store,
+    lay,
+    c.bothLines,
+  )
 
-  return { violations: c.vetoFailures, momentumDocks: c.momentumDocks, exact: cycle.exact, period: cycle.period, tallies: cycle.tallies }
+  return {
+    violations: c.vetoFailures,
+    momentumDocks: c.momentumDocks,
+    exact: cycle.exact,
+    period: cycle.period,
+    tallies: cycle.tallies,
+  }
 }
 
 // the wake per period by the angle class of the lone love's direction against line 0
@@ -487,7 +779,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const k = makeLivingKnit(weave)
     const scan = conditionScan()
 
@@ -502,7 +797,10 @@ export default experiment({
 
     log('G2 G3')
 
-    const boxes = [3, 5, 7, 9].map(side => ({ side, ...sideVacuum(side, ONE_LINE) }))
+    const boxes = [3, 5, 7, 9].map(side => ({
+      side,
+      ...sideVacuum(side, ONE_LINE),
+    }))
     const partners = partnerMeetings(k, 24)
     const pair = vacuumPair(k)
 
@@ -521,46 +819,92 @@ export default experiment({
     log('G6')
 
     // readings
-    const r0 = ROOTS[LINE_FIRSTS[0] as number] as number[]
-    const ortho = LINE_FIRSTS.findIndex(f => (ROOTS[f] as number[]).reduce((s, x, i) => s + x * (r0[i] ?? 0), 0) === 0)
+    const r0 = ROOTS[LINE_FIRSTS[0]!]!
+    const ortho = LINE_FIRSTS.findIndex(
+      f => ROOTS[f]!.reduce((s, x, i) => s + x * (r0[i] ?? 0), 0) === 0,
+    )
     const twoLines = patternOf([0, ortho])
     const love9Two = dressing(twoLines, 9, 1)
-    const lineWalls = Array.from({ length: 12 }, (_, l) => walls(patternOf([l])))
+    const lineWalls = Array.from({ length: 12 }, (_, l) =>
+      walls(patternOf([l])),
+    )
     const classes = wakeByClass(love9)
     // added after the first run: the 60-degree and along wakes per beat on side 17 (no wrap for the first beats)
     const w17 = makeColorWeave({ side: 17, table: 'bind' })
     const k17 = makeLivingKernel(w17)
     const center17 = d4BoxCell({ coordinates: [8, 8, 8, 8], side: 17 })
-    const sixty = Array.from({ length: 24 }, (_, e) => e).find(e => angleClass(e, 0) === 1) as number
-    const alongLine = Array.from({ length: 24 }, (_, e) => e).find(e => angleClass(e, 0) === 2) as number
-    const wake17 = wakeSeries(k17, boxStore(w17.mesh.cellCount, ONE_LINE), separatedLayout(w17), center17 * 24 + sixty, 1, 40)
-    const along17 = wakeSeries(k17, boxStore(w17.mesh.cellCount, ONE_LINE), separatedLayout(w17), center17 * 24 + alongLine, 1, 40)
+    const sixty = Array.from({ length: 24 }, (_, e) => e).find(
+      e => angleClass(e, 0) === 1,
+    )!
+    const alongLine = Array.from({ length: 24 }, (_, e) => e).find(
+      e => angleClass(e, 0) === 2,
+    )!
+    const wake17 = wakeSeries(
+      k17,
+      boxStore(w17.mesh.cellCount, ONE_LINE),
+      separatedLayout(w17),
+      center17 * 24 + sixty,
+      1,
+      40,
+    )
+    const along17 = wakeSeries(
+      k17,
+      boxStore(w17.mesh.cellCount, ONE_LINE),
+      separatedLayout(w17),
+      center17 * 24 + alongLine,
+      1,
+      40,
+    )
     const saturation = [
       [7, love7.periodLargest[3] ?? 0],
       [9, love9.periodLargest[3] ?? 0],
       [11, love11.periodLargest[3] ?? 0],
-    ].map(([side, v]) => (v as number) / ((side as number) * (side as number)))
+    ].map(([side, v]) => v! / (side! * side!))
 
     log('readings')
 
     const units = cells
-    const g0 = scan.uniformExact === 4095 && scan.disagreements === 0 && scan.nonUniformExact > 0 && scan.failing > 0
-    const g1 = cov.coinFailures === 0 && cov.conjugationFailures === 0 && cov.boxAutomorphisms === 1152 && cov.boxFailures === 0
-    const g2 = rev.reverses && rev.motionFailures === 0 && rev.cptFailures === 0
-    const g3 = law.exact && law.leaks === 0 && law.flips === 0 && law.meetings > 0
+    const g0 =
+      scan.uniformExact === 4095 &&
+      scan.disagreements === 0 &&
+      scan.nonUniformExact > 0 &&
+      scan.failing > 0
+    const g1 =
+      cov.coinFailures === 0 &&
+      cov.conjugationFailures === 0 &&
+      cov.boxAutomorphisms === 1152 &&
+      cov.boxFailures === 0
+    const g2 =
+      rev.reverses && rev.motionFailures === 0 && rev.cptFailures === 0
+    const g3 =
+      law.exact &&
+      law.leaks === 0 &&
+      law.flips === 0 &&
+      law.meetings > 0
     const g4 =
-      boxes.every(b => b.violations === 0 && b.momentumDocks === 0 && b.exact) &&
+      boxes.every(
+        b => b.violations === 0 && b.momentumDocks === 0 && b.exact,
+      ) &&
       partners.partner === 8 * units &&
       partners.across === 8 * units &&
       partners.stray === 0 &&
       pair.pair.length === 2 &&
       pair.meetings >= 150
-    const loveUnder = love9.periodLargest.every((x, p) => x <= (COMMITTED_LOVE_9[p] ?? 0))
-    const bounded = [love9, fear9].every(d => (d.periodLargest[3] ?? 0) <= 1.5 * (d.periodLargest[1] ?? 0))
+    const loveUnder = love9.periodLargest.every(
+      (x, p) => x <= (COMMITTED_LOVE_9[p] ?? 0),
+    )
+    const bounded = [love9, fear9].every(
+      d => (d.periodLargest[3] ?? 0) <= 1.5 * (d.periodLargest[1] ?? 0),
+    )
     const g5 = loveUnder && bounded
-    const g6 = additivity < 1e-9 && wall.quantized && wall.settledMax > 0
+    const g6 =
+      additivity < 1e-9 && wall.quantized && wall.settledMax > 0
     const instruments = g0 && g1 && g2 && g3
-    const status = instruments ? (g4 && g5 && g6 ? 'pass' : 'fail') : 'partial'
+    const status = instruments
+      ? g4 && g5 && g6
+        ? 'pass'
+        : 'fail'
+      : 'partial'
     const per = (xs: readonly number[]): string => xs.join(', ')
     const seconds = (Date.now() - started) / 1000
     const metrics: Record<string, number> = {
@@ -584,12 +928,14 @@ export default experiment({
       heldColorLeaks: law.leaks,
       signFlips: law.flips,
       allOpenMeetings: law.meetings,
-      ...Object.fromEntries(boxes.flatMap(b => [
-        [`side${b.side}_vetoViolations`, b.violations],
-        [`side${b.side}_momentumDocks`, b.momentumDocks],
-        [`side${b.side}_period`, b.period],
-        [`side${b.side}_exact`, b.exact ? 1 : 0],
-      ])),
+      ...Object.fromEntries(
+        boxes.flatMap(b => [
+          [`side${b.side}_vetoViolations`, b.violations],
+          [`side${b.side}_momentumDocks`, b.momentumDocks],
+          [`side${b.side}_period`, b.period],
+          [`side${b.side}_exact`, b.exact ? 1 : 0],
+        ]),
+      ),
       partnerMeetings: partners.partner,
       acrossMeetings: partners.across,
       strayMeetings: partners.stray,
@@ -597,13 +943,47 @@ export default experiment({
       vacuumPairFirst: pair.pair[0] ?? -1,
       vacuumPairSecond: pair.pair[1] ?? -1,
       vacuumPairMeetings480: pair.meetings,
-      ...Object.fromEntries(love9.periodLargest.map((x, p) => [`side9LovePeriod${p + 1}`, x])),
-      ...Object.fromEntries(fear9.periodLargest.map((x, p) => [`side9FearPeriod${p + 1}`, x])),
-      ...Object.fromEntries(love9.periodLargestVibes.map((x, p) => [`side9LoveVibesPeriod${p + 1}`, x])),
-      ...Object.fromEntries(love7.periodLargest.map((x, p) => [`side7LovePeriod${p + 1}`, x])),
-      ...Object.fromEntries(love11.periodLargest.map((x, p) => [`side11LovePeriod${p + 1}`, x])),
-      ...Object.fromEntries(love9Two.periodLargest.map((x, p) => [`twoLinesSide9LovePeriod${p + 1}`, x])),
-      ...Object.fromEntries(classes.flatMap((xs, c) => xs.map((x, p) => [`side9LoveClass${c}Period${p + 1}`, x]))),
+      ...Object.fromEntries(
+        love9.periodLargest.map((x, p) => [
+          `side9LovePeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        fear9.periodLargest.map((x, p) => [
+          `side9FearPeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        love9.periodLargestVibes.map((x, p) => [
+          `side9LoveVibesPeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        love7.periodLargest.map((x, p) => [
+          `side7LovePeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        love11.periodLargest.map((x, p) => [
+          `side11LovePeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        love9Two.periodLargest.map((x, p) => [
+          `twoLinesSide9LovePeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        classes.flatMap((xs, c) =>
+          xs.map((x, p) => [`side9LoveClass${c}Period${p + 1}`, x]),
+        ),
+      ),
       protectedSpecies: love9.protectedSpecies,
       straightLoves: love9.straight,
       straightFears: fear9.straight,
@@ -611,11 +991,22 @@ export default experiment({
       wallQuantized: wall.quantized ? 1 : 0,
       wallSettledMax: wall.settledMax,
       wallSettledMaxVibes: wall.settledMaxVibes,
-      linesWithQuantizedWall: lineWalls.filter(w => w.quantized && w.settledMax > 0).length,
-      ...Object.fromEntries(lineWalls.map((w, l) => [`line${l}_wallSettledMax`, w.quantized ? w.settledMax : -w.settledMax])),
+      linesWithQuantizedWall: lineWalls.filter(
+        w => w.quantized && w.settledMax > 0,
+      ).length,
+      ...Object.fromEntries(
+        lineWalls.map((w, l) => [
+          `line${l}_wallSettledMax`,
+          w.quantized ? w.settledMax : -w.settledMax,
+        ]),
+      ),
       orthogonalLine: ortho,
-      ...Object.fromEntries(wake17.map((v, t) => [`side17SixtyWakeBeat${t + 1}`, v])),
-      ...Object.fromEntries(along17.map((v, t) => [`side17AlongWakeBeat${t + 1}`, v])),
+      ...Object.fromEntries(
+        wake17.map((v, t) => [`side17SixtyWakeBeat${t + 1}`, v]),
+      ),
+      ...Object.fromEntries(
+        along17.map((v, t) => [`side17AlongWakeBeat${t + 1}`, v]),
+      ),
       saturationOverSideSquared7: saturation[0] ?? 0,
       saturationOverSideSquared9: saturation[1] ?? 0,
       saturationOverSideSquared11: saturation[2] ?? 0,
@@ -626,7 +1017,11 @@ export default experiment({
       status,
       claim: `on the living-pair knit a hot vacuum storing one line per dock runs the exact period-6 cycle (sides 3 to 9: ${boxes.map(b => b.period).join(', ')}; made, refused, unmade per beat ${boxes[0]?.tallies}) under the derived condition (Z) (zero beat-1 momentum at every dock) with the veto's (A) (${scan.disagreements} disagreements over ${scan.tried} patterns, ${scan.uniformExact} of 4,095 uniform line sets exact), keeps W(F4) as a rule (${cov.coinFailures} failures over 1,152 coin maps, ${cov.boxFailures} over ${cov.boxAutomorphisms} box automorphisms) while the state keeps ${cov.stateStabilizer} of them, C, reversal, motion reversal (${rev.motionFailures}) and CPT (${rev.cptFailures}), and its vacuum pairs meet (${pair.meetings} in 480 beats); a lone love's largest wake per period on side 9 is ${per(love9.periodLargest)} trits (committed 33, 160, 565, 1,508; orthogonal ${per(classes[0] ?? [])}, 60 degrees ${per(classes[1] ?? [])}, along ${per(classes[2] ?? [])}), the fear's ${per(fear9.periodLargest)}; superposition ${additivity.toExponential(2)}, walls ${wall.quantized ? 'quantized' : 'not quantized'} (${wall.settledMax} trits)`,
       metrics,
-      control: { committedSide9LovePeriod1: COMMITTED_LOVE_9[0] ?? 0, committedSide9LovePeriod4: COMMITTED_LOVE_9[3] ?? 0, committedSide9FearPeriod1: COMMITTED_FEAR_9[0] ?? 0 },
+      control: {
+        committedSide9LovePeriod1: COMMITTED_LOVE_9[0] ?? 0,
+        committedSide9LovePeriod4: COMMITTED_LOVE_9[3] ?? 0,
+        committedSide9FearPeriod1: COMMITTED_FEAR_9[0] ?? 0,
+      },
       notes: `L2. Gates: G0 ${g0}, G1 ${g1}, G2 ${g2}, G3 ${g3}, G4 ${g4}, G5 ${g5} (love under the committed ${loveUnder}, bounded ${bounded}), G6 ${g6}. Condition scan: ${scan.tried} patterns, ${scan.failing} not exact, ${scan.nonUniformExact} non-uniform exact, ${scan.sublatticeZ} of 960 sublattice patterns meet (Z). The state's stabilizer: ${cov.stateStabilizer} coin maps keep the oriented store, ${cov.lineStabilizer} keep the stored line. Wake on side 9 by angle to the line (per period): orthogonal ${per(classes[0] ?? [])}, 60 degrees ${per(classes[1] ?? [])}, along ${per(classes[2] ?? [])}; love in vibes ${per(love9.periodLargestVibes)}; side 7 love ${per(love7.periodLargest)} (committed 33, 131, 420, 1,204); side 11 love ${per(love11.periodLargest)} (committed 33, 209, 755, 2,241); fear side 9 ${per(fear9.periodLargest)} (committed 27, 163, 581, 1,501). Two orthogonal lines (0 and ${ortho}): side-9 love ${per(love9Two.periodLargest)}. Walls per line (settled trits, negative when not quantized): ${lineWalls.map(w => (w.quantized ? w.settledMax : -w.settledMax)).join(', ')}. ADDED AFTER THE FIRST RUN (a reading): the 60-degree wake per beat on side 17, ${wake17.join(' ')}; along the line, ${along17.join(' ')}; the fourth-period wake over L^2 on sides 7, 9, 11: ${saturation.map(v => v.toFixed(2)).join(', ')}. The wake fills a plane of docks until the torus stops it: it is not a bounded dressing. ${seconds.toFixed(1)} s.`,
     })
   },

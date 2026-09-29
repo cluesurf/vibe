@@ -28,7 +28,11 @@ import {
   type PhotonRule,
   type PhotonState,
 } from '@/code/rule/photon-links'
-import { emptyRemainderState, makeRemainderRule, remainderBeatInPlace } from '@/code/rule/photon-remainder'
+import {
+  emptyRemainderState,
+  makeRemainderRule,
+  remainderBeatInPlace,
+} from '@/code/rule/photon-remainder'
 import {
   copyShapedState,
   emptyShapedState,
@@ -55,9 +59,29 @@ import {
   type ModeFrequencies,
   type ModeVector,
 } from '@/code/measure/photon-modes'
-import { bulkModeOfHusk, columnSum, HUSK_VECTORS, huskCoulomb, huskEnergy, makeHusk, projectLinks, type Husk } from '@/code/measure/photon-husk'
-import { centered, makeLinearLeapfrog } from '@/code/measure/photon-symbol'
-import { autocorrelationFirstZero, huskPhase, huskPhotons, launchWave, modeProjector, threePoint, type Photon } from '@/code/measure/photon-wave'
+import {
+  bulkModeOfHusk,
+  columnSum,
+  HUSK_VECTORS,
+  huskCoulomb,
+  huskEnergy,
+  makeHusk,
+  projectLinks,
+  type Husk,
+} from '@/code/measure/photon-husk'
+import {
+  centered,
+  makeLinearLeapfrog,
+} from '@/code/measure/photon-symbol'
+import {
+  autocorrelationFirstZero,
+  huskPhase,
+  huskPhotons,
+  launchWave,
+  modeProjector,
+  threePoint,
+  type Photon,
+} from '@/code/measure/photon-wave'
 import { GOLDEN } from '@/code/tool/weyl'
 
 export const N = 8192
@@ -65,12 +89,14 @@ export const K = 80
 export const Q = 65536
 export const KAPPA = Math.round(((2 * Math.PI * K) / N) * Q) / Q
 export const E164_KAPPA = (2 * Math.PI * K) / N
+
 const BETA = 3
 const LAG = 3
 const DOUBLING = [1.6, 2.1] as const
 const WAVE_BEATS = 300
 
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
 const q2 = (w: number): number => 4 * Math.sin(w / 2) ** 2
 
@@ -88,15 +114,40 @@ export type Stepper = {
 
 export type Start = (base: PhotonRule, state: PhotonState) => void
 
-const viewOf = (s: { vibe: Int8Array; angle: Int32Array; flux: Int32Array }): PhotonState => ({ vibe: s.vibe, angle: s.angle, flux: s.flux, demon: new Int32Array(s.flux.length) })
+const viewOf = (s: {
+  vibe: Int8Array
+  angle: Int32Array
+  flux: Int32Array
+}): PhotonState => ({
+  vibe: s.vibe,
+  angle: s.angle,
+  flux: s.flux,
+  demon: new Int32Array(s.flux.length),
+})
 
 // a stepper of any kind from an integer start on the lattice
-export function build(kind: Kind, lattice: PhotonLattice, input: { start: Start; charge?: number; dither?: 'zero' | 'weyl'; notch?: number }): Stepper {
+export function build(
+  kind: Kind,
+  lattice: PhotonLattice,
+  input: {
+    start: Start
+    charge?: number
+    dither?: 'zero' | 'weyl'
+    notch?: number
+  },
+): Stepper {
   const charge = input.charge ?? 1
   const dither = input.dither ?? 'weyl'
 
   if (kind === 'e164' || kind === 'linear') {
-    const base = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false, charge })
+    const base = makePhotonRule({
+      lattice,
+      n: N,
+      k: K,
+      capacity: 0,
+      hop: false,
+      charge,
+    })
     const s = emptyPhotonState(base)
 
     input.start(base, s)
@@ -104,7 +155,12 @@ export function build(kind: Kind, lattice: PhotonLattice, input: { start: Start;
     if (kind === 'e164') {
       let t = 0
 
-      return { flux: s.flux, angle: s.angle, base, beat: () => void photonBeatInPlace(base, s, t++) }
+      return {
+        flux: s.flux,
+        angle: s.angle,
+        base,
+        beat: () => void photonBeatInPlace(base, s, t++),
+      }
     }
 
     const angle = Float64Array.from(s.angle, x => centered(x, N))
@@ -115,15 +171,35 @@ export function build(kind: Kind, lattice: PhotonLattice, input: { start: Start;
   }
 
   if (kind === 'remainder') {
-    const rule = makeRemainderRule({ lattice, n: N, k: K, q: Q, form: 'linear', charge })
+    const rule = makeRemainderRule({
+      lattice,
+      n: N,
+      k: K,
+      q: Q,
+      form: 'linear',
+      charge,
+    })
     const s = emptyRemainderState(rule, dither)
 
     input.start(rule.base, viewOf(s))
 
-    return { flux: s.flux, angle: s.angle, base: rule.base, beat: () => remainderBeatInPlace(rule, s) }
+    return {
+      flux: s.flux,
+      angle: s.angle,
+      base: rule.base,
+      beat: () => remainderBeatInPlace(rule, s),
+    }
   }
 
-  const rule = makeShapedRule({ lattice, n: N, k: K, q: Q, form: kind, charge, notch: input.notch })
+  const rule = makeShapedRule({
+    lattice,
+    n: N,
+    k: K,
+    q: Q,
+    form: kind,
+    charge,
+    notch: input.notch,
+  })
   const s = emptyShapedState(rule, dither)
 
   input.start(rule.base, viewOf(s))
@@ -134,7 +210,8 @@ export function build(kind: Kind, lattice: PhotonLattice, input: { start: Start;
     base: rule.base,
     shaped: { rule, state: s },
     beat: () => shapedBeatInPlace(rule, s),
-    shadowFlux: kind === 'wave' ? () => waveShadow(rule, s).flux : undefined,
+    shadowFlux:
+      kind === 'wave' ? () => waveShadow(rule, s).flux : undefined,
   }
 }
 
@@ -167,10 +244,18 @@ export const start164: Start = (rule, s) => {
 export const hotStart: Start = (rule, s) => {
   const target = (rule.k * rule.n) / (2 * Math.PI * BETA)
 
-  addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), 5.3)
+  addHashedCurl(
+    rule,
+    s,
+    Math.max(1, Math.round(Math.sqrt((3 * target) / 4))),
+    5.3,
+  )
 }
 
-const differing = (a: ArrayLike<number>, b: ArrayLike<number>): number => {
+const differing = (
+  a: ArrayLike<number>,
+  b: ArrayLike<number>,
+): number => {
   let n = 0
 
   for (let i = 0; i < a.length; i++) {
@@ -185,14 +270,17 @@ const differing = (a: ArrayLike<number>, b: ArrayLike<number>): number => {
 // A1: the pay arithmetic, exhaustively. For every table value p centered(B), B in 0 .. N - 1, and every
 // value 0 .. q - 1 of the carried integer the kick drops, with the other carried terms a golden Weyl offset
 // per B: forward f and U_t, then backward from U_t, f and the dropped value both recovered and U_t in [0, q)
-export function exhaustivePay(last: 1 | -1): { checked: number; failures: number } {
+export function exhaustivePay(last: 1 | -1): {
+  checked: number
+  failures: number
+} {
   const p = Math.round(KAPPA * Q)
 
   let failures = 0
   let checked = 0
 
   for (let b = 0; b < N; b++) {
-    const offset = Math.floor(((b + 1) * GOLDEN) % 1 * 8 * Q) - 4 * Q
+    const offset = Math.floor((((b + 1) * GOLDEN) % 1) * 8 * Q) - 4 * Q
     const y = p * centered(b, N) + offset
 
     for (let dropped = 0; dropped < Q; dropped++) {
@@ -203,7 +291,12 @@ export function exhaustivePay(last: 1 | -1): { checked: number; failures: number
 
       checked += 1
 
-      if (next < 0 || next >= Q || back !== f || recovered !== dropped) {
+      if (
+        next < 0 ||
+        next >= Q ||
+        back !== f ||
+        recovered !== dropped
+      ) {
         failures += 1
       }
     }
@@ -212,13 +305,23 @@ export function exhaustivePay(last: 1 | -1): { checked: number; failures: number
   return { checked, failures }
 }
 
-export function sectionA(kind: ShapedForm, notch?: number): Record<string, number> & { ok: number } {
+export function sectionA(
+  kind: ShapedForm,
+  notch?: number,
+): Record<string, number> & { ok: number } {
   const out: Record<string, number> = {}
-  const last = (makeShapedRule({ lattice: photonLatticeD4({ side: 2 }), n: N, k: K, q: Q, form: kind, notch }).taps.at(-1) ?? 1) as 1 | -1
+  const last = (makeShapedRule({
+    lattice: photonLatticeD4({ side: 2 }),
+    n: N,
+    k: K,
+    q: Q,
+    form: kind,
+    notch,
+  }).taps.at(-1) ?? 1) as 1 | -1
   const pay = exhaustivePay(last)
 
-  out['a1Checked'] = pay.checked
-  out['a1Failures'] = pay.failures
+  out.a1Checked = pay.checked
+  out.a1Failures = pay.failures
 
   let restored = true
   let gauss = 0
@@ -231,7 +334,14 @@ export function sectionA(kind: ShapedForm, notch?: number): Record<string, numbe
     const lattice = photonLatticeD4({ side })
 
     for (const dither of ['weyl', 'zero'] as const) {
-      const rule = makeShapedRule({ lattice, n: N, k: K, q: Q, form: kind, notch })
+      const rule = makeShapedRule({
+        lattice,
+        n: N,
+        k: K,
+        q: Q,
+        form: kind,
+        notch,
+      })
       const s = emptyShapedState(rule, dither)
 
       start164(rule.base, viewOf(s))
@@ -249,43 +359,85 @@ export function sectionA(kind: ShapedForm, notch?: number): Record<string, numbe
         shapedBeatBackInPlace(rule, s)
       }
 
-      let mismatches = differing(s.angle, s0.angle) + differing(s.flux, s0.flux) + differing(s.vibe, s0.vibe)
+      let mismatches =
+        differing(s.angle, s0.angle) +
+        differing(s.flux, s0.flux) +
+        differing(s.vibe, s0.vibe)
 
-      s.carried.forEach((c, j) => (mismatches += differing(c, s0.carried[j]!)))
+      s.carried.forEach(
+        (c, j) => (mismatches += differing(c, s0.carried[j]!)),
+      )
       out[`a2Side${side}${dither}Mismatches`] = mismatches
       out[`a2Side${side}${dither}AnglesMoved`] = moved
       restored = restored && mismatches === 0 && moved > 0
 
       if (dither === 'weyl') {
-        const chi = Array.from({ length: lattice.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N))
+        const chi = Array.from({ length: lattice.cells }, (_, x) =>
+          Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N),
+        )
         const a = copyShapedState(s0)
-        const b = { ...copyShapedState(s0), angle: changePhotonFrame(rule.base, viewOf(s0), chi).angle }
+        const b = {
+          ...copyShapedState(s0),
+          angle: changePhotonFrame(rule.base, viewOf(s0), chi).angle,
+        }
 
         for (let t = 0; t < 48; t++) {
           shapedBeatInPlace(rule, a)
           shapedBeatInPlace(rule, b)
-          frame += differing(changePhotonFrame(rule.base, viewOf(a), chi).angle, b.angle) + differing(a.flux, b.flux)
-          a.carried.forEach((c, j) => (frame += differing(c, b.carried[j]!)))
+          frame +=
+            differing(
+              changePhotonFrame(rule.base, viewOf(a), chi).angle,
+              b.angle,
+            ) + differing(a.flux, b.flux)
+
+          a.carried.forEach(
+            (c, j) => (frame += differing(c, b.carried[j]!)),
+          )
         }
       }
     }
   }
 
-  out['a2Restored'] = restored ? 1 : 0
-  out['a3GaussViolations'] = gauss
-  out['a3FrameMismatches'] = frame
+  out.a2Restored = restored ? 1 : 0
+  out.a3GaussViolations = gauss
+  out.a3FrameMismatches = frame
 
-  return { ...out, ok: pay.failures === 0 && restored && gauss === 0 && frame === 0 ? 1 : 0 }
+  return {
+    ...out,
+    ok:
+      pay.failures === 0 && restored && gauss === 0 && frame === 0
+        ? 1
+        : 0,
+  }
 }
 
 // B and C. coherent husk waves
 
 type Reading = { omega: number; shadowOmega: number; peak: number }
 
-function wave(kind: Kind, bulk: PhotonLattice, husk: Husk, m: readonly number[], photon: Photon, target: number, dither: 'zero' | 'weyl', notch?: number): Reading {
-  const launch = launchWave({ lattice: bulk, n: N, phase: huskPhase(husk, m), v: photon.v, target })
+function wave(
+  kind: Kind,
+  bulk: PhotonLattice,
+  husk: Husk,
+  m: readonly number[],
+  photon: Photon,
+  target: number,
+  dither: 'zero' | 'weyl',
+  notch?: number,
+): Reading {
+  const launch = launchWave({
+    lattice: bulk,
+    n: N,
+    phase: huskPhase(husk, m),
+    v: photon.v,
+    target,
+  })
   const projector = modeProjector(husk.lattice, m, photon.read)
-  const stepper = build(kind, bulk, { start: (_, s) => s.angle.set(launch.angle), dither, notch })
+  const stepper = build(kind, bulk, {
+    start: (_, s) => s.angle.set(launch.angle),
+    dither,
+    notch,
+  })
   const series: [number, number][] = [[0, 0]]
   const shadow: [number, number][] = [[0, 0]]
 
@@ -298,10 +450,22 @@ function wave(kind: Kind, bulk: PhotonLattice, husk: Husk, m: readonly number[],
     }
   }
 
-  return { omega: threePoint(series), shadowOmega: stepper.shadowFlux ? threePoint(shadow) : Number.NaN, peak: launch.peak }
+  return {
+    omega: threePoint(series),
+    shadowOmega: stepper.shadowFlux ? threePoint(shadow) : Number.NaN,
+    peak: launch.peak,
+  }
 }
 
-export function sectionBC(kind: Kind, input: { dither: 'zero' | 'weyl'; other: 'zero' | 'weyl'; notch?: number; bound: number }): Record<string, number> & { okB: number; okC: number } {
+export function sectionBC(
+  kind: Kind,
+  input: {
+    dither: 'zero' | 'weyl'
+    other: 'zero' | 'weyl'
+    notch?: number
+    bound: number
+  },
+): Record<string, number> & { okB: number; okC: number } {
   const out: Record<string, number> = {}
   const bulk = photonLatticeD4({ side: 8 })
   const husk = makeHusk(bulk)
@@ -311,7 +475,16 @@ export function sectionBC(kind: Kind, input: { dither: 'zero' | 'weyl'; other: '
   let worstB = 0
 
   for (let target = 1; target <= 8; target++) {
-    const r = wave(kind, bulk, husk, [1, 0, 0], m1[0]!, target, input.dither, input.notch)
+    const r = wave(
+      kind,
+      bulk,
+      husk,
+      [1, 0, 0],
+      m1[0]!,
+      target,
+      input.dither,
+      input.notch,
+    )
     const error = r.omega / m1[0]!.omega - 1
 
     out[`bTarget${target}Peak`] = r.peak
@@ -319,17 +492,30 @@ export function sectionBC(kind: Kind, input: { dither: 'zero' | 'weyl'; other: '
     worstB = Math.max(worstB, Math.abs(error))
 
     if (Number.isFinite(r.shadowOmega)) {
-      out[`bTarget${target}ShadowOverSymbol`] = r.shadowOmega / m1[0]!.omega - 1
+      out[`bTarget${target}ShadowOverSymbol`] =
+        r.shadowOmega / m1[0]!.omega - 1
     }
 
     if (target === 1 || target === 4 || target === 8) {
-      out[`bTarget${target}${input.other}DitherOverSymbol`] = wave(kind, bulk, husk, [1, 0, 0], m1[0]!, target, input.other, input.notch).omega / m1[0]!.omega - 1
+      out[`bTarget${target}${input.other}DitherOverSymbol`] =
+        wave(
+          kind,
+          bulk,
+          husk,
+          [1, 0, 0],
+          m1[0]!,
+          target,
+          input.other,
+          input.notch,
+        ).omega /
+          m1[0]!.omega -
+        1
     }
 
     okB = okB && Math.abs(error) < input.bound
   }
 
-  out['bWorst'] = worstB
+  out.bWorst = worstB
 
   let okC = true
   let worstC = 0
@@ -341,28 +527,42 @@ export function sectionBC(kind: Kind, input: { dither: 'zero' | 'weyl'; other: '
     [3, 0, 0],
     [2, 2, 1],
   ]) {
-    const photons = m[0] === 1 && m[1] === 0 ? m1 : huskPhotons(husk, m, KAPPA)
+    const photons =
+      m[0] === 1 && m[1] === 0 ? m1 : huskPhotons(husk, m, KAPPA)
 
     photons.forEach((photon, i) => {
       for (const target of [16, 64, 256, 1024]) {
-        const r = wave(kind, bulk, husk, m, photon, target, input.dither, input.notch)
+        const r = wave(
+          kind,
+          bulk,
+          husk,
+          m,
+          photon,
+          target,
+          input.dither,
+          input.notch,
+        )
         const error = r.omega / photon.omega - 1
 
-        out[`cM${m.join('')}Even${i + 1}Target${target}OverSymbol`] = error
+        out[`cM${m.join('')}Even${i + 1}Target${target}OverSymbol`] =
+          error
         worstC = Math.max(worstC, Math.abs(error))
         okC = okC && Math.abs(error) < input.bound
 
         if (Number.isFinite(r.shadowOmega)) {
-          worstShadow = Math.max(worstShadow, Math.abs(r.shadowOmega / photon.omega - 1))
+          worstShadow = Math.max(
+            worstShadow,
+            Math.abs(r.shadowOmega / photon.omega - 1),
+          )
         }
       }
     })
   }
 
-  out['cWorst'] = worstC
+  out.cWorst = worstC
 
   if (worstShadow > 0) {
-    out['cShadowWorst'] = worstShadow
+    out.cShadowWorst = worstShadow
   }
 
   return { ...out, okB: okB ? 1 : 0, okC: okC ? 1 : 0 }
@@ -370,13 +570,32 @@ export function sectionBC(kind: Kind, input: { dither: 'zero' | 'weyl'; other: '
 
 // D. the hot field
 
-type Probe = { read: (field: ArrayLike<number>) => ModeVector; diff0: Correlator; diff1: Correlator; last: ModeVector | undefined; lag0: Correlator; lag1: Correlator; history: ModeVector[] }
+type Probe = {
+  read: (field: ArrayLike<number>) => ModeVector
+  diff0: Correlator
+  diff1: Correlator
+  last: ModeVector | undefined
+  lag0: Correlator
+  lag1: Correlator
+  history: ModeVector[]
+}
 
-function makeProbe(lattice: PhotonLattice, n: readonly number[]): Probe {
+function makeProbe(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): Probe {
   const f = lattice.firsts.length
   const reader = modeReader(lattice, n)
 
-  return { read: field => reader.read(field), diff0: makeCorrelator(f), diff1: makeCorrelator(f), last: undefined, lag0: makeCorrelator(f), lag1: makeCorrelator(f), history: [] }
+  return {
+    read: field => reader.read(field),
+    diff0: makeCorrelator(f),
+    diff1: makeCorrelator(f),
+    last: undefined,
+    lag0: makeCorrelator(f),
+    lag1: makeCorrelator(f),
+    history: [],
+  }
 }
 
 function feed(p: Probe, v: ModeVector): void {
@@ -388,7 +607,10 @@ function feed(p: Probe, v: ModeVector): void {
   p.last = v
   accumulate(p.lag0, v)
 
-  const past = p.history.length >= LAG ? p.history[p.history.length - LAG] : undefined
+  const past =
+    p.history.length >= LAG
+      ? p.history[p.history.length - LAG]
+      : undefined
 
   if (past) {
     accumulateCross(p.lag1, v, past)
@@ -401,29 +623,64 @@ function feed(p: Probe, v: ModeVector): void {
   }
 }
 
-function estimate(prefix: string, probes: Probe[], series: number[][], exact: number, lambdas: readonly [number, number]): Record<string, number> {
+function estimate(
+  prefix: string,
+  probes: Probe[],
+  series: number[][],
+  exact: number,
+  lambdas: readonly [number, number],
+): Record<string, number> {
   const [p1, p2] = probes as [Probe, Probe]
   const cut = leapfrogOmega(KAPPA, 12) / 2
   const out: Record<string, number> = {}
 
   for (const [name, at1, at2] of [
-    ['Difference', modeFrequencies({ c0: p1.diff0, c1: p1.diff1, tolerance: 1e-9 }), modeFrequencies({ c0: p2.diff0, c1: p2.diff1, tolerance: 1e-9 })],
-    ['Lagged', modeFrequencies({ c0: p1.lag0, c1: p1.lag1, lag: LAG, tolerance: 1e-9 }), modeFrequencies({ c0: p2.lag0, c1: p2.lag1, lag: LAG, tolerance: 1e-9 })],
+    [
+      'Difference',
+      modeFrequencies({ c0: p1.diff0, c1: p1.diff1, tolerance: 1e-9 }),
+      modeFrequencies({ c0: p2.diff0, c1: p2.diff1, tolerance: 1e-9 }),
+    ],
+    [
+      'Lagged',
+      modeFrequencies({
+        c0: p1.lag0,
+        c1: p1.lag1,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+      modeFrequencies({
+        c0: p2.lag0,
+        c1: p2.lag1,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+    ],
   ] as [string, ModeFrequencies, ModeFrequencies][]) {
     const light = at1.omega.flatMap((w, i) => {
       const ratio = (at2.omega[i] ?? 0) / w
 
-      return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1] ? [i] : []
+      return w < cut && ratio >= DOUBLING[0] && ratio <= DOUBLING[1]
+        ? [i]
+        : []
     })
-    const w1 = light.length > 0 ? mean(light.map(i => at1.omega[i] ?? 0)) : Number.NaN
-    const w2 = light.length > 0 ? mean(light.map(i => at2.omega[i] ?? 0)) : Number.NaN
+    const w1 =
+      light.length > 0
+        ? mean(light.map(i => at1.omega[i] ?? 0))
+        : Number.NaN
+    const w2 =
+      light.length > 0
+        ? mean(light.map(i => at2.omega[i] ?? 0))
+        : Number.NaN
     const slope = (q2(w2) - q2(w1)) / (lambdas[1] - lambdas[0])
 
     out[`${prefix}${name}LightBranches`] = light.length
     out[`${prefix}${name}Branches`] = at1.omega.length
     out[`${prefix}${name}OverExact`] = w1 / exact - 1
-    out[`${prefix}${name}LowestOverExact`] = (at1.omega[0] ?? 0) / exact - 1
-    out[`${prefix}${name}MassSquaredOverM1`] = (q2(w1) - slope * lambdas[0]) / q2(w1)
+    out[`${prefix}${name}LowestOverExact`] =
+      (at1.omega[0] ?? 0) / exact - 1
+
+    out[`${prefix}${name}MassSquaredOverM1`] =
+      (q2(w1) - slope * lambdas[0]) / q2(w1)
   }
 
   const tau0 = autocorrelationFirstZero(series, 80)
@@ -433,7 +690,11 @@ function estimate(prefix: string, probes: Probe[], series: number[][], exact: nu
   return out
 }
 
-export function hotHusk(kind: Kind, prefix: string, input: { notch?: number; dither: 'zero' | 'weyl'; side: number }): Record<string, number> {
+export function hotHusk(
+  kind: Kind,
+  prefix: string,
+  input: { notch?: number; dither: 'zero' | 'weyl'; side: number },
+): Record<string, number> {
   const bulk = photonLatticeD4({ side: input.side })
   const husk = makeHusk(bulk)
   const modes = [
@@ -441,16 +702,28 @@ export function hotHusk(kind: Kind, prefix: string, input: { notch?: number; dit
     [2, 0, 0],
   ]
   const track = HUSK_VECTORS.map(u => u[2] ?? 0)
-  const exact = mean(huskPhotons(husk, [1, 0, 0], KAPPA).map(p => p.omega))
-  const lambdas = [linearWaveEigenvalues(bulk, bulkModeOfHusk([1, 0, 0]))[1] ?? 0, linearWaveEigenvalues(bulk, bulkModeOfHusk([2, 0, 0]))[1] ?? 0] as const
-  const stepper = build(kind, bulk, { start: hotStart, dither: input.dither, notch: input.notch })
+  const exact = mean(
+    huskPhotons(husk, [1, 0, 0], KAPPA).map(p => p.omega),
+  )
+  const lambdas = [
+    linearWaveEigenvalues(bulk, bulkModeOfHusk([1, 0, 0]))[1] ?? 0,
+    linearWaveEigenvalues(bulk, bulkModeOfHusk([2, 0, 0]))[1] ?? 0,
+  ] as const
+  const stepper = build(kind, bulk, {
+    start: hotStart,
+    dither: input.dither,
+    notch: input.notch,
+  })
   const probes = modes.map(n => makeProbe(husk.lattice, n))
   const shadowProbes = modes.map(n => makeProbe(husk.lattice, n))
   const series: number[][] = []
   const shadowSeries: number[][] = []
   const settle = 300
   const beats = 2000
-  const trackOf = (v: ModeVector): number[] => [v.re.reduce((a, x, j) => a + x * (track[j] ?? 0), 0), v.im.reduce((a, x, j) => a + x * (track[j] ?? 0), 0)]
+  const trackOf = (v: ModeVector): number[] => [
+    v.re.reduce((a, x, j) => a + x * (track[j] ?? 0), 0),
+    v.im.reduce((a, x, j) => a + x * (track[j] ?? 0), 0),
+  ]
 
   for (let t = 0; t < settle + beats; t++) {
     stepper.beat()
@@ -486,25 +759,55 @@ export function hotHusk(kind: Kind, prefix: string, input: { notch?: number; dit
 
   return {
     ...estimate(prefix, probes, series, exact, lambdas),
-    ...(stepper.shadowFlux ? estimate(`${prefix}Shadow`, shadowProbes, shadowSeries, exact, lambdas) : {}),
+    ...(stepper.shadowFlux
+      ? estimate(
+          `${prefix}Shadow`,
+          shadowProbes,
+          shadowSeries,
+          exact,
+          lambdas,
+        )
+      : {}),
     [`${prefix}ExactOmega`]: exact,
   }
 }
 
 // E. the love and fear at r = 1
 
-type PairField = { all: Float64Array; shadow: Float64Array | undefined; stringFlux: Float64Array; coulomb: { flux: Float64Array; energy: number } }
+type PairField = {
+  all: Float64Array
+  shadow: Float64Array | undefined
+  stringFlux: Float64Array
+  coulomb: { flux: Float64Array; energy: number }
+}
 
-function pairRun(kind: Kind, bulk: PhotonLattice, husk: Husk, charge: number, input: { dither: 'zero' | 'weyl'; notch?: number }): PairField {
-  const base = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false, charge })
-  const root = (v: number[]): number => bulk.vectors.findIndex(x => x.every((y, i) => y === v[i]))
+function pairRun(
+  kind: Kind,
+  bulk: PhotonLattice,
+  husk: Husk,
+  charge: number,
+  input: { dither: 'zero' | 'weyl'; notch?: number },
+): PairField {
+  const base = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge,
+  })
+  const root = (v: number[]): number =>
+    bulk.vectors.findIndex(x => x.every((y, i) => y === v[i]))
   const up = root([1, 0, 0, 1])
   const ps = emptyPhotonState(base)
 
   placePairAlong(base, ps, 0, [up], 1)
 
   const stringFlux = projectLinks(husk, ps.flux)
-  const coulomb = huskCoulomb(husk, Float64Array.from(columnSum(husk, ps.vibe), x => x * charge))
+  const coulomb = huskCoulomb(
+    husk,
+    Float64Array.from(columnSum(husk, ps.vibe), x => x * charge),
+  )
   const stepper = build(kind, bulk, {
     start: (_, s) => {
       s.vibe.set(ps.vibe)
@@ -516,7 +819,9 @@ function pairRun(kind: Kind, bulk: PhotonLattice, husk: Husk, charge: number, in
     notch: input.notch,
   })
   const all = new Float64Array(stringFlux.length)
-  const shadow = stepper.shadowFlux ? new Float64Array(stringFlux.length) : undefined
+  const shadow = stepper.shadowFlux
+    ? new Float64Array(stringFlux.length)
+    : undefined
   const settle = 400
   const beats = 4000
 
@@ -543,7 +848,10 @@ function pairRun(kind: Kind, bulk: PhotonLattice, husk: Husk, charge: number, in
   return { all, shadow, stringFlux, coulomb }
 }
 
-const distance = (a: ArrayLike<number>, b: (i: number) => number): number => {
+const distance = (
+  a: ArrayLike<number>,
+  b: (i: number) => number,
+): number => {
   let sum = 0
 
   for (let i = 0; i < a.length; i++) {
@@ -553,44 +861,82 @@ const distance = (a: ArrayLike<number>, b: (i: number) => number): number => {
   return Math.sqrt(sum)
 }
 
-export function sectionE(kind: Kind, input: { dither: 'zero' | 'weyl'; other: 'zero' | 'weyl'; notch?: number; floor: number }): Record<string, number> & { ok: number; okE1: number; okE2: number } {
+export function sectionE(
+  kind: Kind,
+  input: {
+    dither: 'zero' | 'weyl'
+    other: 'zero' | 'weyl'
+    notch?: number
+    floor: number
+  },
+): Record<string, number> & { ok: number; okE1: number; okE2: number } {
   const out: Record<string, number> = {}
   const bulk = photonLatticeD4({ side: 8 })
   const husk = makeHusk(bulk)
   const reference = 64
-  const linear = pairRun('linear', bulk, husk, reference, { dither: 'zero' })
+  const linear = pairRun('linear', bulk, husk, reference, {
+    dither: 'zero',
+  })
 
   let ok = true
 
-  const read = (tag: string, field: PairField, charge: number): number => {
+  const read = (
+    tag: string,
+    field: PairField,
+    charge: number,
+  ): number => {
     const scale = charge / reference
-    const denominator = distance(field.stringFlux, i => field.coulomb.flux[i] ?? 0)
-    const x = distance(field.all, i => scale * (linear.all[i] ?? 0)) / denominator
+    const denominator = distance(
+      field.stringFlux,
+      i => field.coulomb.flux[i] ?? 0,
+    )
+    const x =
+      distance(field.all, i => scale * (linear.all[i] ?? 0)) /
+      denominator
 
     out[`${tag}FromLinear`] = x
     out[`${tag}FromLinearTimesCharge`] = x * charge
-    out[`${tag}EnergyOverLinear`] = huskEnergy(field.all) / (scale * scale * huskEnergy(linear.all))
+    out[`${tag}EnergyOverLinear`] =
+      huskEnergy(field.all) / (scale * scale * huskEnergy(linear.all))
 
     if (field.shadow) {
-      out[`${tag}ShadowFromLinearTimesCharge`] = (distance(field.shadow, i => scale * (linear.all[i] ?? 0)) / denominator) * charge
+      out[`${tag}ShadowFromLinearTimesCharge`] =
+        (distance(field.shadow, i => scale * (linear.all[i] ?? 0)) /
+          denominator) *
+        charge
     }
 
     return x
   }
 
   for (const charge of [16, 64, 256]) {
-    const x = read(`eCharge${charge}`, pairRun(kind, bulk, husk, charge, input), charge)
+    const x = read(
+      `eCharge${charge}`,
+      pairRun(kind, bulk, husk, charge, input),
+      charge,
+    )
 
     ok = ok && x * charge < input.floor
   }
 
-  read(`eCharge64${input.other}Dither`, pairRun(kind, bulk, husk, 64, { ...input, dither: input.other }), 64)
+  read(
+    `eCharge64${input.other}Dither`,
+    pairRun(kind, bulk, husk, 64, { ...input, dither: input.other }),
+    64,
+  )
 
-  const falling = (out['eCharge256FromLinearTimesCharge'] ?? 0) < (out['eCharge16FromLinearTimesCharge'] ?? 0)
+  const falling =
+    (out.eCharge256FromLinearTimesCharge ?? 0) <
+    (out.eCharge16FromLinearTimesCharge ?? 0)
 
-  out['eFalling'] = falling ? 1 : 0
+  out.eFalling = falling ? 1 : 0
 
-  return { ...out, okE1: ok ? 1 : 0, okE2: falling ? 1 : 0, ok: ok && falling ? 1 : 0 }
+  return {
+    ...out,
+    okE1: ok ? 1 : 0,
+    okE2: falling ? 1 : 0,
+    ok: ok && falling ? 1 : 0,
+  }
 }
 
 // F. heating
@@ -599,11 +945,21 @@ function potentialTable(kind: Kind): Float64Array {
   return Float64Array.from({ length: N }, (_, b) => {
     const c = centered(b, N)
 
-    return kind === 'e164' ? ((K * N) / (2 * Math.PI)) * (1 - Math.cos((2 * Math.PI * b) / N)) : (KAPPA * c * c) / 2
+    return kind === 'e164'
+      ? ((K * N) / (2 * Math.PI)) *
+          (1 - Math.cos((2 * Math.PI * b) / N))
+      : (KAPPA * c * c) / 2
   })
 }
 
-function shadowSeries(stepper: Stepper, potential: Float64Array, beats: number, every: number, from: number, husk: Husk | undefined): { shadow: number[]; wraps: number; huskEnergy: number[] } {
+function shadowSeries(
+  stepper: Stepper,
+  potential: Float64Array,
+  beats: number,
+  every: number,
+  from: number,
+  husk: Husk | undefined,
+): { shadow: number[]; wraps: number; huskEnergy: number[] } {
   const base = stepper.base
   const plaquettes = base.lattice.plaquetteCount
   const shadow: number[] = []
@@ -655,38 +1011,91 @@ function shadowSeries(stepper: Stepper, potential: Float64Array, beats: number, 
   return { shadow, wraps, huskEnergy: huskEnergies }
 }
 
-export function heatF1(kind: Kind, input: { notch?: number; dither: 'zero' | 'weyl' }): { growth: number; largestMove: number; wraps: number; huskGrowth: number } {
+export function heatF1(
+  kind: Kind,
+  input: { notch?: number; dither: 'zero' | 'weyl' },
+): {
+  growth: number
+  largestMove: number
+  wraps: number
+  huskGrowth: number
+} {
   const lattice = photonLatticeD4({ side: 4 })
   const husk = makeHusk(lattice)
-  const stepper = build(kind, lattice, { start: start164, dither: input.dither, notch: input.notch })
-  const { shadow, wraps, huskEnergy: he } = shadowSeries(stepper, potentialTable(kind), 2000, 1, 0, husk)
+  const stepper = build(kind, lattice, {
+    start: start164,
+    dither: input.dither,
+    notch: input.notch,
+  })
+  const {
+    shadow,
+    wraps,
+    huskEnergy: he,
+  } = shadowSeries(stepper, potentialTable(kind), 2000, 1, 0, husk)
   const first = shadow[0] ?? 1
   const window = 200
 
   return {
-    growth: (mean(shadow.slice(-window)) - mean(shadow.slice(0, window))) / (shadow.length - window),
-    largestMove: Math.max(...shadow.map(e => Math.abs(e - first) / first)),
+    growth:
+      (mean(shadow.slice(-window)) - mean(shadow.slice(0, window))) /
+      (shadow.length - window),
+    largestMove: Math.max(
+      ...shadow.map(e => Math.abs(e - first) / first),
+    ),
     wraps,
-    huskGrowth: (mean(he.slice(-window)) - mean(he.slice(0, window))) / (he.length - window),
+    huskGrowth:
+      (mean(he.slice(-window)) - mean(he.slice(0, window))) /
+      (he.length - window),
   }
 }
 
-export function heatF2(kind: Kind, input: { notch?: number; dither: 'zero' | 'weyl' }): { drift: number; wraps: number } {
+export function heatF2(
+  kind: Kind,
+  input: { notch?: number; dither: 'zero' | 'weyl' },
+): { drift: number; wraps: number } {
   const lattice = photonLatticeD4({ side: 8 })
-  const stepper = build(kind, lattice, { start: hotStart, dither: input.dither, notch: input.notch })
-  const { shadow, wraps } = shadowSeries(stepper, potentialTable(kind), 2500, 10, 500, undefined)
+  const stepper = build(kind, lattice, {
+    start: hotStart,
+    dither: input.dither,
+    notch: input.notch,
+  })
+  const { shadow, wraps } = shadowSeries(
+    stepper,
+    potentialTable(kind),
+    2500,
+    10,
+    500,
+    undefined,
+  )
 
-  return { drift: (mean(shadow.slice(-20)) - mean(shadow.slice(0, 20))) / mean(shadow), wraps }
+  return {
+    drift:
+      (mean(shadow.slice(-20)) - mean(shadow.slice(0, 20))) /
+      mean(shadow),
+    wraps,
+  }
 }
 
-export type HeatControls = { t1: ReturnType<typeof heatF1>; c1: ReturnType<typeof heatF1>; t2: ReturnType<typeof heatF2>; c2: ReturnType<typeof heatF2> }
+export type HeatControls = {
+  t1: ReturnType<typeof heatF1>
+  c1: ReturnType<typeof heatF1>
+  t2: ReturnType<typeof heatF2>
+  c2: ReturnType<typeof heatF2>
+}
 
 // the E-FRC-0164 table rule and the E-FRC-0181 first-order remainder on both heating protocols, run once
 export function heatControls(): HeatControls {
-  return { t1: heatF1('e164', { dither: 'weyl' }), c1: heatF1('remainder', { dither: 'weyl' }), t2: heatF2('e164', { dither: 'weyl' }), c2: heatF2('remainder', { dither: 'weyl' }) }
+  return {
+    t1: heatF1('e164', { dither: 'weyl' }),
+    c1: heatF1('remainder', { dither: 'weyl' }),
+    t2: heatF2('e164', { dither: 'weyl' }),
+    c2: heatF2('remainder', { dither: 'weyl' }),
+  }
 }
 
-export function controlMetrics(c: HeatControls): Record<string, number> {
+export function controlMetrics(
+  c: HeatControls,
+): Record<string, number> {
   return {
     f1E164Growth: c.t1.growth,
     f1E164Wraps: c.t1.wraps,
@@ -701,26 +1110,35 @@ export function controlMetrics(c: HeatControls): Record<string, number> {
   }
 }
 
-export function sectionF(kind: Kind, input: { notch?: number; dither: 'zero' | 'weyl' }, controls: HeatControls): Record<string, number> & { ok: number; okF1: number; okF2: number } {
+export function sectionF(
+  kind: Kind,
+  input: { notch?: number; dither: 'zero' | 'weyl' },
+  controls: HeatControls,
+): Record<string, number> & { ok: number; okF1: number; okF2: number } {
   const out: Record<string, number> = {}
   const r1 = heatF1(kind, input)
   const t1 = controls.t1
   const r2 = heatF2(kind, input)
   const t2 = controls.t2
 
-  out['f1Growth'] = r1.growth
-  out['f1LargestMove'] = r1.largestMove
-  out['f1Wraps'] = r1.wraps
-  out['f1HuskGrowth'] = r1.huskGrowth
-  out['f1GrowthOverE164'] = r1.growth / t1.growth
-  out['f2Drift'] = r2.drift
-  out['f2Wraps'] = r2.wraps
-  out['f2DriftRatio'] = Math.abs(r2.drift) / Math.abs(t2.drift)
+  out.f1Growth = r1.growth
+  out.f1LargestMove = r1.largestMove
+  out.f1Wraps = r1.wraps
+  out.f1HuskGrowth = r1.huskGrowth
+  out.f1GrowthOverE164 = r1.growth / t1.growth
+  out.f2Drift = r2.drift
+  out.f2Wraps = r2.wraps
+  out.f2DriftRatio = Math.abs(r2.drift) / Math.abs(t2.drift)
 
   const okF1 = r1.growth <= 0.5 * t1.growth
   const okF2 = Math.abs(r2.drift) <= 0.5 * Math.abs(t2.drift)
 
-  return { ...out, okF1: okF1 ? 1 : 0, okF2: okF2 ? 1 : 0, ok: okF1 && okF2 ? 1 : 0 }
+  return {
+    ...out,
+    okF1: okF1 ? 1 : 0,
+    okF2: okF2 ? 1 : 0,
+    ok: okF1 && okF2 ? 1 : 0,
+  }
 }
 
 // S. the wave form's shadow against the linear leapfrog from the same integer start (zero carried start)
@@ -748,8 +1166,15 @@ export function sectionS(): Record<string, number> {
       const flux = shaped.shadowFlux!()
 
       for (let l = 0; l < flux.length; l++) {
-        worst = Math.max(worst, Math.abs((flux[l] ?? 0) - (linear.flux[l] ?? 0)))
-        worstDither = Math.max(worstDither, Math.abs((flux[l] ?? 0) - (shaped.flux[l] ?? 0)))
+        worst = Math.max(
+          worst,
+          Math.abs((flux[l] ?? 0) - (linear.flux[l] ?? 0)),
+        )
+
+        worstDither = Math.max(
+          worstDither,
+          Math.abs((flux[l] ?? 0) - (shaped.flux[l] ?? 0)),
+        )
       }
 
       if (t % 50 === 0) {
@@ -783,9 +1208,19 @@ export function sectionS(): Record<string, number> {
 // flux the stream copied, and the carried integers are recomputed from those angles and their own start by
 // the rule's own arithmetic on a scratch state that holds no flux of its own
 
-export function sectionH(kind: ShapedForm, notch?: number): Record<string, number> & { ok: number } {
+export function sectionH(
+  kind: ShapedForm,
+  notch?: number,
+): Record<string, number> & { ok: number } {
   const lattice = photonLatticeD4({ side: 4 })
-  const rule = makeShapedRule({ lattice, n: N, k: K, q: Q, form: kind, notch })
+  const rule = makeShapedRule({
+    lattice,
+    n: N,
+    k: K,
+    q: Q,
+    form: kind,
+    notch,
+  })
   const s = emptyShapedState(rule, 'weyl')
 
   start164(rule.base, viewOf(s))
@@ -807,8 +1242,15 @@ export function sectionH(kind: ShapedForm, notch?: number): Record<string, numbe
     scratch.angle.set(history)
     scratch.flux.fill(0)
     shapedBeatInPlace(rule, scratch)
-    scratch.carried.forEach((c, j) => (carriedMismatches += differing(c, s.carried[j]!)))
+    scratch.carried.forEach(
+      (c, j) => (carriedMismatches += differing(c, s.carried[j]!)),
+    )
   }
 
-  return { hAngleMismatches: angleMismatches, hCarriedMismatches: carriedMismatches, hChecked: 500 * lattice.plaquetteCount * rule.taps.length, ok: angleMismatches === 0 && carriedMismatches === 0 ? 1 : 0 }
+  return {
+    hAngleMismatches: angleMismatches,
+    hCarriedMismatches: carriedMismatches,
+    hChecked: 500 * lattice.plaquetteCount * rule.taps.length,
+    ok: angleMismatches === 0 && carriedMismatches === 0 ? 1 : 0,
+  }
 }

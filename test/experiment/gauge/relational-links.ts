@@ -66,7 +66,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { colorBeat, makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  colorBeat,
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import {
   actsFreely,
   centerCocycle,
@@ -91,7 +95,8 @@ const KNIT_SIDE = 5
 const KNIT_BEATS = 6
 const FRAME_BEATS = 24
 
-const hash = (i: number, scale: number, range: number): number => Math.floor((((i + 1) * GOLDEN * scale) % 1) * range)
+const hash = (i: number, scale: number, range: number): number =>
+  Math.floor((((i + 1) * GOLDEN * scale) % 1) * range)
 
 export default experiment({
   id: 'gauge/relational-links',
@@ -107,38 +112,89 @@ export default experiment({
     const grid = gridTable(moves)
     const all = Array.from({ length: grid.order }, (_, g) => g)
     const turns = all.filter(g => moves.act[g]?.[0] === 0)
-    const shifts = all.filter(g => Array.from({ length: 9 }, (_, p) => p).every(p => {
-      const s = moves.act[g]?.[0] ?? 0
+    const shifts = all.filter(g =>
+      Array.from({ length: 9 }, (_, p) => p).every(p => {
+        const s = moves.act[g]?.[0] ?? 0
 
-      return moves.act[g]?.[p] === ((p % 3) + (s % 3)) % 3 + 3 * ((Math.floor(p / 3) + Math.floor(s / 3)) % 3)
-    }))
-    const shiftTo = (p: number): number => shifts.find(g => moves.act[g]?.[0] === p) ?? grid.identity
+        return (
+          moves.act[g]?.[p] ===
+          (((p % 3) + (s % 3)) % 3) +
+            3 * ((Math.floor(p / 3) + Math.floor(s / 3)) % 3)
+        )
+      }),
+    )
+    const shiftTo = (p: number): number =>
+      shifts.find(g => moves.act[g]?.[0] === p) ?? grid.identity
 
     // A1: the census
-    const points: SlotAction = { table: grid, points: 9, act: (g, p) => moves.act[g]?.[p] ?? 0 }
-    const pointsWithVibe: SlotAction = { table: grid, points: 27, act: (g, p) => (moves.act[g]?.[p % 9] ?? 0) + 9 * Math.floor(p / 9) }
-    const torsor216: SlotAction = { table: grid, points: grid.order, act: (g, f) => times(grid, g, f) }
-    const sigma = makeSigmaLinks({ side: 3, kappa: 0, tension: 0, capacity: 1 })
-    const sigmaTable: GroupTable = { order: sigma.order, product: sigma.group.product, inverse: sigma.group.inverse, identity: sigma.identity }
-    const torsor648: SlotAction = { table: sigmaTable, points: sigma.order, act: (g, f) => times(sigmaTable, g, f) }
+    const points: SlotAction = {
+      table: grid,
+      points: 9,
+      act: (g, p) => moves.act[g]?.[p] ?? 0,
+    }
+    const pointsWithVibe: SlotAction = {
+      table: grid,
+      points: 27,
+      act: (g, p) =>
+        (moves.act[g]?.[p % 9] ?? 0) + 9 * Math.floor(p / 9),
+    }
+    const torsor216: SlotAction = {
+      table: grid,
+      points: grid.order,
+      act: (g, f) => times(grid, g, f),
+    }
+    const sigma = makeSigmaLinks({
+      side: 3,
+      kappa: 0,
+      tension: 0,
+      capacity: 1,
+    })
+    const sigmaTable: GroupTable = {
+      order: sigma.order,
+      product: sigma.group.product,
+      inverse: sigma.group.inverse,
+      identity: sigma.identity,
+    }
+    const torsor648: SlotAction = {
+      table: sigmaTable,
+      points: sigma.order,
+      act: (g, f) => times(sigmaTable, g, f),
+    }
     const census = {
       pointsFull: relationCensus({ action: points, gauged: all }),
       pointsTurns: relationCensus({ action: points, gauged: turns }),
       pointsShifts: relationCensus({ action: points, gauged: shifts }),
-      pointsVibeFull: relationCensus({ action: pointsWithVibe, gauged: all }),
-      pointsVibeShifts: relationCensus({ action: pointsWithVibe, gauged: shifts }),
+      pointsVibeFull: relationCensus({
+        action: pointsWithVibe,
+        gauged: all,
+      }),
+      pointsVibeShifts: relationCensus({
+        action: pointsWithVibe,
+        gauged: shifts,
+      }),
       torsor216: relationCensus({ action: torsor216, gauged: all }),
-      torsor648: relationCensus({ action: torsor648, gauged: Array.from({ length: sigma.order }, (_, g) => g) }),
+      torsor648: relationCensus({
+        action: torsor648,
+        gauged: Array.from({ length: sigma.order }, (_, g) => g),
+      }),
     }
 
     // A2: local translations with one global turn: c must commute with all 24 turns
-    const centralizer = all.filter(c => turns.every(l => times(grid, c, l) === times(grid, l, c)))
+    const centralizer = all.filter(c =>
+      turns.every(l => times(grid, c, l) === times(grid, l, c)),
+    )
     const reachable = new Set<number>()
 
     for (let p = 0; p < 9; p++) {
       for (let q = 0; q < 9; q++) {
         for (const c of centralizer) {
-          reachable.add(times(grid, shiftTo(q), times(grid, c, grid.inverse[shiftTo(p)] ?? 0)))
+          reachable.add(
+            times(
+              grid,
+              shiftTo(q),
+              times(grid, c, grid.inverse[shiftTo(p)] ?? 0),
+            ),
+          )
         }
       }
     }
@@ -155,36 +211,96 @@ export default experiment({
     const cocycle = centerCocycle(sigma)
 
     // B1: curvature from fills on the side-4 box
-    const box = makeSigmaLinks({ side: FILL_SIDE, kappa: 0, tension: 0, capacity: 1 })
-    const mesh: TriangleMesh = { cells: box.cells, neighbour: box.neighbour, opposite: box.opposite, staples: box.staples }
+    const box = makeSigmaLinks({
+      side: FILL_SIDE,
+      kappa: 0,
+      tension: 0,
+      capacity: 1,
+    })
+    const mesh: TriangleMesh = {
+      cells: box.cells,
+      neighbour: box.neighbour,
+      opposite: box.opposite,
+      staples: box.staples,
+    }
     const slots = box.cells * 24
-    const pointFill = Int16Array.from({ length: slots }, (_, i) => shiftTo(hash(i, 3.3, 9)))
-    const pointDock = Int16Array.from({ length: slots }, (_, i) => shiftTo(hash(Math.floor(i / 24), 3.3, 9)))
-    const frameFill = Int16Array.from({ length: slots }, (_, i) => hash(i, 4.1, grid.order))
-    const sigmaFill = Int16Array.from({ length: slots }, (_, i) => hash(i, 5.7, sigma.order))
-    const sigmaDock = Int16Array.from({ length: slots }, (_, i) => hash(Math.floor(i / 24), 5.7, sigma.order))
-    const trivialShare = (h: Float64Array, table: GroupTable): number => (h[table.identity] ?? 0) / h.reduce((a, b) => a + b, 0)
-    const meanTrace = (h: Float64Array): number => h.reduce((a, n, g) => a + n * ((sigma.group.trace[g] ?? 0) / 3), 0) / h.reduce((a, b) => a + b, 0)
+    const pointFill = Int16Array.from({ length: slots }, (_, i) =>
+      shiftTo(hash(i, 3.3, 9)),
+    )
+    const pointDock = Int16Array.from({ length: slots }, (_, i) =>
+      shiftTo(hash(Math.floor(i / 24), 3.3, 9)),
+    )
+    const frameFill = Int16Array.from({ length: slots }, (_, i) =>
+      hash(i, 4.1, grid.order),
+    )
+    const sigmaFill = Int16Array.from({ length: slots }, (_, i) =>
+      hash(i, 5.7, sigma.order),
+    )
+    const sigmaDock = Int16Array.from({ length: slots }, (_, i) =>
+      hash(Math.floor(i / 24), 5.7, sigma.order),
+    )
+    const trivialShare = (h: Float64Array, table: GroupTable): number =>
+      (h[table.identity] ?? 0) / h.reduce((a, b) => a + b, 0)
+    const meanTrace = (h: Float64Array): number =>
+      h.reduce(
+        (a, n, g) => a + n * ((sigma.group.trace[g] ?? 0) / 3),
+        0,
+      ) / h.reduce((a, b) => a + b, 0)
+
     // total variation from uniform over the given support
-    const variation = (h: Float64Array, support: readonly number[]): number => {
+    const variation = (
+      h: Float64Array,
+      support: readonly number[],
+    ): number => {
       const total = h.reduce((a, b) => a + b, 0)
       const inside = new Set(support)
 
       return (
         0.5 *
-        h.reduce((a, n, g) => a + Math.abs(n / total - (inside.has(g) ? 1 / support.length : 0)), 0)
+        h.reduce(
+          (a, n, g) =>
+            a +
+            Math.abs(
+              n / total - (inside.has(g) ? 1 / support.length : 0),
+            ),
+          0,
+        )
       )
     }
 
-    const pointHolonomy = triangleHolonomies({ mesh, frames: pointFill, table: grid })
-    const pointDockHolonomy = triangleHolonomies({ mesh, frames: pointDock, table: grid })
-    const frameHolonomy = triangleHolonomies({ mesh, frames: frameFill, table: grid })
-    const sigmaHolonomy = triangleHolonomies({ mesh, frames: sigmaFill, table: sigmaTable })
-    const sigmaDockHolonomy = triangleHolonomies({ mesh, frames: sigmaDock, table: sigmaTable })
-    const nonShift = pointHolonomy.reduce((a, n, g) => a + (shifts.includes(g) ? 0 : n), 0)
+    const pointHolonomy = triangleHolonomies({
+      mesh,
+      frames: pointFill,
+      table: grid,
+    })
+    const pointDockHolonomy = triangleHolonomies({
+      mesh,
+      frames: pointDock,
+      table: grid,
+    })
+    const frameHolonomy = triangleHolonomies({
+      mesh,
+      frames: frameFill,
+      table: grid,
+    })
+    const sigmaHolonomy = triangleHolonomies({
+      mesh,
+      frames: sigmaFill,
+      table: sigmaTable,
+    })
+    const sigmaDockHolonomy = triangleHolonomies({
+      mesh,
+      frames: sigmaDock,
+      table: sigmaTable,
+    })
+    const nonShift = pointHolonomy.reduce(
+      (a, n, g) => a + (shifts.includes(g) ? 0 : n),
+      0,
+    )
 
     // the role points of the color weave after 24 beats from a dense start, as a fill
     const fillWeave = makeColorWeave({ side: FILL_SIDE })
+
     const dense = (weave: ColorWeave, scale: number): VibeState => {
       const n = weave.mesh.cellCount * 24
       const vibe = new Int8Array(n)
@@ -206,12 +322,21 @@ export default experiment({
       evolved = colorBeat(fillWeave, evolved, t)
     }
 
-    const weaveHolonomy = triangleHolonomies({ mesh, frames: Int16Array.from(evolved.role, p => shiftTo(p)), table: grid })
+    const weaveHolonomy = triangleHolonomies({
+      mesh,
+      frames: Int16Array.from(evolved.role, p => shiftTo(p)),
+      table: grid,
+    })
 
     // B2: the knit
     const weave = makeColorWeave({ side: KNIT_SIDE })
     const start = dense(weave, 1.37)
-    const run = (beat: (s: VibeState, t: number) => VibeState, s0: VibeState, beats: number): VibeState => {
+
+    const run = (
+      beat: (s: VibeState, t: number) => VibeState,
+      s0: VibeState,
+      beats: number,
+    ): VibeState => {
       let s = s0
 
       for (let t = 0; t < beats; t++) {
@@ -220,9 +345,15 @@ export default experiment({
 
       return s
     }
-    const stored = (s: VibeState, t: number): VibeState => colorBeat(weave, s, t)
-    const relational = (s: VibeState, t: number): VibeState => relationalColorBeat(weave, s, t)
-    const spread = (beat: (s: VibeState, t: number) => VibeState): { left: number; docks: number; farthest: number } => {
+
+    const stored = (s: VibeState, t: number): VibeState =>
+      colorBeat(weave, s, t)
+    const relational = (s: VibeState, t: number): VibeState =>
+      relationalColorBeat(weave, s, t)
+
+    const spread = (
+      beat: (s: VibeState, t: number) => VibeState,
+    ): { left: number; docks: number; farthest: number } => {
       let left = 0
       let docks = 0
       let farthest = 0
@@ -233,7 +364,11 @@ export default experiment({
 
           role[d] = p
 
-          return run(beat, { vibe: start.vibe, role, flow: start.flow }, KNIT_BEATS)
+          return run(
+            beat,
+            { vibe: start.vibe, role, flow: start.flow },
+            KNIT_BEATS,
+          )
         })
         const differ = new Set<number>()
 
@@ -245,7 +380,12 @@ export default experiment({
           })
         }
 
-        const reach = Math.max(0, ...[...differ].map(x => d4BoxDistance({ a: 0, b: x, side: KNIT_SIDE })))
+        const reach = Math.max(
+          0,
+          ...[...differ].map(x =>
+            d4BoxDistance({ a: 0, b: x, side: KNIT_SIDE }),
+          ),
+        )
 
         left += reach > 0 ? 1 : 0
         docks += differ.size / 24
@@ -254,24 +394,38 @@ export default experiment({
 
       return { left, docks, farthest }
     }
+
     const storedSpread = spread(stored)
     const relationalSpread = spread(relational)
 
     // frame covariance, a frame of the 216 in every dock
     const { mesh: knitMesh } = weave
-    const frame = Array.from({ length: knitMesh.cellCount }, (_, x) => hash(x + 10, 5.9, grid.order))
+    const frame = Array.from({ length: knitMesh.cellCount }, (_, x) =>
+      hash(x + 10, 5.9, grid.order),
+    )
     const turnRoles = (s: VibeState): VibeState => ({
       ...s,
-      role: Int8Array.from(s.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? 0]?.[p] ?? 0),
+      role: Int8Array.from(
+        s.role,
+        (p, i) => moves.act[frame[Math.floor(i / 24)] ?? 0]?.[p] ?? 0,
+      ),
     })
     const turnLinks = (links: Int16Array): Int16Array =>
       Int16Array.from(links, (u, i) => {
         const x = Math.floor(i / 24)
         const y = knitMesh.neighbour(x, i % 24)
 
-        return times(grid, times(grid, frame[y] ?? 0, u), grid.inverse[frame[x] ?? 0] ?? 0)
+        return times(
+          grid,
+          times(grid, frame[y] ?? 0, u),
+          grid.inverse[frame[x] ?? 0] ?? 0,
+        )
       })
-    const mismatches = (beatA: (s: VibeState, t: number) => VibeState, beatB: (s: VibeState, t: number) => VibeState): number => {
+
+    const mismatches = (
+      beatA: (s: VibeState, t: number) => VibeState,
+      beatB: (s: VibeState, t: number) => VibeState,
+    ): number => {
       let a = dense(weave, 2.11)
       let b = turnRoles(a)
       let n = 0
@@ -287,9 +441,12 @@ export default experiment({
 
       return n
     }
+
     const turned = { ...weave, links: turnLinks(weave.links) }
     const relationalFrame = mismatches(relational, relational)
-    const storedFrame = mismatches(stored, (s, t) => colorBeat(turned, s, t))
+    const storedFrame = mismatches(stored, (s, t) =>
+      colorBeat(turned, s, t),
+    )
     const withoutLinks = mismatches(stored, stored)
 
     // a torsor riding the vibe: the transported frame U F_p with U = F_q F_p^-1 is F_q, for every pair
@@ -313,8 +470,13 @@ export default experiment({
       census.torsor648.covariant &&
       census.torsor648.values === sigma.order
     const a3 = Math.max(...freeOrders) <= 9 && translationsFree
-    const a4 = direction.leftDistinct === 1 && direction.rightDistinct === 1 && direction.central && direction.involution
-    const a5 = cocycle.fewestMismatches > 0 && cocycle.torsorMismatches === 0
+    const a4 =
+      direction.leftDistinct === 1 &&
+      direction.rightDistinct === 1 &&
+      direction.central &&
+      direction.involution
+    const a5 =
+      cocycle.fewestMismatches > 0 && cocycle.torsorMismatches === 0
     const b1 =
       Math.abs(trivialShare(weaveHolonomy, grid) - 1 / 9) < 0.01 &&
       Math.abs(meanTrace(sigmaHolonomy)) < 0.02 &&
@@ -327,7 +489,10 @@ export default experiment({
       storedFrame === 0 &&
       withoutLinks > 0
 
-    const row = (name: string, c: typeof census.pointsFull): [string, number][] => [
+    const row = (
+      name: string,
+      c: typeof census.pointsFull,
+    ): [string, number][] => [
       [`${name}SlotOrbits`, c.slotOrbits],
       [`${name}PairOrbits`, c.pairOrbits],
       [`${name}PairOrbitsWithValue`, c.pairOrbitsWithValue],
@@ -345,7 +510,10 @@ export default experiment({
         ...row('rolePointsUnderTurns24', census.pointsTurns),
         ...row('rolePointsUnderTranslations9', census.pointsShifts),
         ...row('rolePointsWithVibeUnderAll216', census.pointsVibeFull),
-        ...row('rolePointsWithVibeUnderTranslations9', census.pointsVibeShifts),
+        ...row(
+          'rolePointsWithVibeUnderTranslations9',
+          census.pointsVibeShifts,
+        ),
         ...row('torsor216', census.torsor216),
         ...row('torsor648', census.torsor648),
         ['globalTurnCentralizer', centralizer.length],
@@ -365,18 +533,42 @@ export default experiment({
         ['centerFewestMismatches', cocycle.fewestMismatches],
         ['centerMostMismatches', cocycle.mostMismatches],
         ['centerTriplesWithLocalCenter', cocycle.triplesWithCenter],
-        ['centerFewestMismatchesWithLocalCenter', cocycle.fewestMismatchesWithCenter],
+        [
+          'centerFewestMismatchesWithLocalCenter',
+          cocycle.fewestMismatchesWithCenter,
+        ],
         ['centerTorsorMismatches', cocycle.torsorMismatches],
         ['pointFillTrivialShare', trivialShare(pointHolonomy, grid)],
-        ['pointFillVariationFromUniform9', variation(pointHolonomy, shifts)],
+        [
+          'pointFillVariationFromUniform9',
+          variation(pointHolonomy, shifts),
+        ],
         ['pointFillNonTranslationHolonomies', nonShift],
         ['frame216FillTrivialShare', trivialShare(frameHolonomy, grid)],
-        ['frame216FillVariationFromUniform', variation(frameHolonomy, all)],
-        ['sigmaFillTrivialShare', trivialShare(sigmaHolonomy, sigmaTable)],
+        [
+          'frame216FillVariationFromUniform',
+          variation(frameHolonomy, all),
+        ],
+        [
+          'sigmaFillTrivialShare',
+          trivialShare(sigmaHolonomy, sigmaTable),
+        ],
         ['sigmaFillMeanReTrace', meanTrace(sigmaHolonomy)],
-        ['sigmaFillVariationFromUniform', variation(sigmaHolonomy, Array.from({ length: sigma.order }, (_, g) => g))],
-        ['colorWeaveRolesTrivialShare', trivialShare(weaveHolonomy, grid)],
-        ['colorWeaveRolesVariationFromUniform9', variation(weaveHolonomy, shifts)],
+        [
+          'sigmaFillVariationFromUniform',
+          variation(
+            sigmaHolonomy,
+            Array.from({ length: sigma.order }, (_, g) => g),
+          ),
+        ],
+        [
+          'colorWeaveRolesTrivialShare',
+          trivialShare(weaveHolonomy, grid),
+        ],
+        [
+          'colorWeaveRolesVariationFromUniform9',
+          variation(weaveHolonomy, shifts),
+        ],
         ['triangleStarts', pointHolonomy.reduce((a, b) => a + b, 0)],
         ['relationalSlotsWhosePointLeavesDock', relationalSpread.left],
         ['relationalMeanDocksDiffering', relationalSpread.docks],
@@ -391,7 +583,10 @@ export default experiment({
       ]),
       control: {
         pointDockTrivialShare: trivialShare(pointDockHolonomy, grid),
-        sigmaDockTrivialShare: trivialShare(sigmaDockHolonomy, sigmaTable),
+        sigmaDockTrivialShare: trivialShare(
+          sigmaDockHolonomy,
+          sigmaTable,
+        ),
         sigmaDockMeanReTrace: meanTrace(sigmaDockHolonomy),
         rolesWithoutLinksFrameMismatches: withoutLinks,
       },

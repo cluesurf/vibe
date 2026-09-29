@@ -101,17 +101,53 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { duplicateOpen, lapseLinks, openMesh, sameOpen, warpClock, HUSK_LATERAL, type OpenState } from '@/code/rule/open-husk'
+import {
+  duplicateOpen,
+  lapseLinks,
+  openMesh,
+  sameOpen,
+  warpClock,
+  HUSK_LATERAL,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { horizonRule } from '@/code/rule/horizon-husk'
 import { stepRule } from '@/code/rule/step-depth'
-import { countBeat, countBeatBack, countScratch } from '@/code/rule/count-horizon'
-import { membraneForm, membranePlan, membraneUnform, type MembranePlan } from '@/code/rule/membrane-horizon'
+import {
+  countBeat,
+  countBeatBack,
+  countScratch,
+} from '@/code/rule/count-horizon'
+import {
+  membraneForm,
+  membranePlan,
+  membraneUnform,
+  type MembranePlan,
+} from '@/code/rule/membrane-horizon'
 import { stackModes } from '@/code/measure/open-husk'
 import { logLogSlope, proportionalFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
 import { roomOf } from '@/code/measure/headroom-horizon'
-import { ask, cycleLine, genericStart, noSkip, roomHorizon, shiftStep, type Skip } from '@/code/measure/horizon-entropy'
-import { ballInfall, fillStart, infallWitness, tornVariety, varietyCount, weylCounters, type Witness } from '@/code/measure/membrane-horizon'
+import {
+  ask,
+  cycleLine,
+  genericStart,
+  noSkip,
+  roomHorizon,
+  shiftStep,
+  type Skip,
+} from '@/code/measure/horizon-entropy'
+import {
+  ballInfall,
+  fillStart,
+  infallWitness,
+  tornVariety,
+  varietyCount,
+  weylCounters,
+  type Witness,
+} from '@/code/measure/membrane-horizon'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -121,14 +157,17 @@ const BASE = 243
 const SIDE = 48
 const LAYERS = 2
 const BEATS = 48
-const R_H: readonly number[] = [3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5]
+const R_H: readonly number[] = [
+  3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5,
+]
 const FILLS: readonly number[] = [0, 0.5, 1, 1.25, 2]
 const BALL = 3.5
 const R2_GATE = 0.99
 const AREA_SPREAD = 0.1
 const FORMULA_OFF = 1e-12
 
-const spreadOf = (xs: readonly number[]): number => Math.max(...xs) / Math.min(...xs) - 1
+const spreadOf = (xs: readonly number[]): number =>
+  Math.max(...xs) / Math.min(...xs) - 1
 
 export default experiment({
   id: 'gravity/membrane-horizon-entropy',
@@ -141,7 +180,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -159,19 +199,42 @@ export default experiment({
     const lnSpan = Math.log(rule.span)
     const scratch = countScratch(mesh)
 
-    const run = (s: OpenState, horizon: Uint8Array, beats: number, back = false): void => {
-      for (let t = 0; t < beats; t++) (back ? countBeatBack : countBeat)(mesh, rule, s, horizon, scratch)
+    const run = (
+      s: OpenState,
+      horizon: Uint8Array,
+      beats: number,
+      back = false,
+    ): void => {
+      for (let t = 0; t < beats; t++) {
+        ;(back ? countBeatBack : countBeat)(
+          mesh,
+          rule,
+          s,
+          horizon,
+          scratch,
+        )
+      }
     }
 
     // form on a copy: the formed state and whether the rule formed it
-    const formed = (plan: MembranePlan, start: OpenState): { s: OpenState; ok: boolean } => {
+    const formed = (
+      plan: MembranePlan,
+      start: OpenState,
+    ): { s: OpenState; ok: boolean } => {
       const s = duplicateOpen(start)
 
       return { s, ok: membraneForm(mesh, rule, plan, s).formed }
     }
 
     // the most any dock's infall fills its capacity, and the share of docks that overflow
-    const where = (w: Witness): { worst: number; share: number; fitMax: number; overMin: number } => {
+    const where = (
+      w: Witness,
+    ): {
+      worst: number
+      share: number
+      fitMax: number
+      overMin: number
+    } => {
       let worst = 0
       let over = 0
       let fitMax = 0
@@ -181,8 +244,10 @@ export default experiment({
         const ratio = n / w.capacity[k]!
 
         worst = Math.max(worst, ratio)
-        if (w.dockFits[k]) fitMax = Math.max(fitMax, ratio)
-        else {
+
+        if (w.dockFits[k]) {
+          fitMax = Math.max(fitMax, ratio)
+        } else {
           over++
           overMin = Math.min(overMin, ratio)
         }
@@ -194,7 +259,11 @@ export default experiment({
     const rows = R_H.map(rh => {
       const m = CAP / profile.at(rh)
       const ku = rh * profile.at(rh)
-      const horizon = roomHorizon(mesh, center, roomOf(profile, m, CAP, BASE))
+      const horizon = roomHorizon(
+        mesh,
+        center,
+        roomOf(profile, m, CAP, BASE),
+      )
       const plan = membranePlan(mesh, horizon)
       const tCut = plan.cut.length
       const tInt = plan.interior.length
@@ -202,21 +271,38 @@ export default experiment({
       // the registers the tear takes: every counter digit, every interior step and line
       const skip: Skip = noSkip(mesh)
 
-      for (const l of plan.cut) skip.step[l] = 1
-      for (const l of plan.interior) (skip.step[l] = 1), (skip.line[l] = 1)
+      for (const l of plan.cut) {
+        skip.step[l] = 1
+      }
+
+      for (const l of plan.interior) {
+        skip.step[l] = 1
+        skip.line[l] = 1
+      }
 
       const moveAll = (s: OpenState): void => {
-        for (const l of plan.cut) s.step[l] = shiftStep(rule, s.step[l]!)
-        for (const l of plan.interior) (s.step[l] = shiftStep(rule, s.step[l]!)), (s.line[l] = cycleLine(s.line[l]!))
+        for (const l of plan.cut) {
+          s.step[l] = shiftStep(rule, s.step[l]!)
+        }
+
+        for (const l of plan.interior) {
+          s.step[l] = shiftStep(rule, s.step[l]!)
+          s.line[l] = cycleLine(s.line[l]!)
+        }
       }
 
       // the family
-      const p = [fillStart(rule, plan, base, 0, 0), fillStart(rule, plan, base, 1, 0), fillStart(rule, plan, base, 1, 7)]
+      const p = [
+        fillStart(rule, plan, base, 0, 0),
+        fillStart(rule, plan, base, 1, 0),
+        fillStart(rule, plan, base, 1, 7),
+      ]
       const pForm = p.map(start => formed(plan, start))
       const familyFormed = pForm.every(f => f.ok)
 
       // A4 and the states for the count: form, BEATS beats (kept), BEATS back, unform
       const after: OpenState[] = []
+
       let reversed = true
 
       pForm.forEach((f, i) => {
@@ -248,27 +334,92 @@ export default experiment({
 
       const variety = tornVariety(plan, after)
       const sPush = varietyCount(rule, variety)
-      const interiorVarying = variety.interiorSteps + variety.interiorLines
+      const interiorVarying =
+        variety.interiorSteps + variety.interiorLines
 
       log(`r_h ${rh} family`)
 
       // X on the formed P1
       const start = pForm[1]!.s
-      const hidden = ask(mesh, rule, horizon, start, moveAll, skip, BEATS)
+      const hidden = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        moveAll,
+        skip,
+        BEATS,
+      )
       const cut = plan.cut[0]!
-      const v1Skip: Skip = { ...skip, line: Uint8Array.from(skip.line, (v, l) => (l === cut ? 1 : v)) }
-      const v1 = ask(mesh, rule, horizon, start, s => void (s.line[cut] = cycleLine(s.line[cut]!)), v1Skip, BEATS)
-      const outsideDock = horizon[mesh.tail[cut]!] ? mesh.head[cut]! : mesh.tail[cut]!
+      const v1Skip: Skip = {
+        ...skip,
+        line: Uint8Array.from(skip.line, (v, l) => (l === cut ? 1 : v)),
+      }
+      const v1 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.line[cut] = cycleLine(s.line[cut]!)),
+        v1Skip,
+        BEATS,
+      )
+      const outsideDock = horizon[mesh.tail[cut]!]
+        ? mesh.head[cut]!
+        : mesh.tail[cut]!
+
       let live = -1
 
-      for (let l = 0; l < mesh.links && live < 0; l++) if (mesh.kind[l] === HUSK_LATERAL && !skip.step[l] && (mesh.tail[l] === outsideDock || mesh.head[l] === outsideDock)) live = l
+      for (let l = 0; l < mesh.links && live < 0; l++) {
+        if (
+          mesh.kind[l] === HUSK_LATERAL &&
+          !skip.step[l] &&
+          (mesh.tail[l] === outsideDock || mesh.head[l] === outsideDock)
+        ) {
+          live = l
+        }
+      }
 
-      const v2Skip: Skip = { ...skip, step: Uint8Array.from(skip.step, (v, l) => (l === live ? 1 : v)) }
-      const v2 = ask(mesh, rule, horizon, start, s => void (s.step[live] = shiftStep(rule, s.step[live]!)), v2Skip, BEATS)
+      const v2Skip: Skip = {
+        ...skip,
+        step: Uint8Array.from(skip.step, (v, l) =>
+          l === live ? 1 : v,
+        ),
+      }
+      const v2 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.step[live] = shiftStep(rule, s.step[live]!)),
+        v2Skip,
+        BEATS,
+      )
       const inside = horizon.indexOf(1)
-      const v3Skip: Skip = { ...skip, dock: Uint8Array.from(skip.dock, (v, y) => (y === inside ? 1 : v)) }
-      const v3 = ask(mesh, rule, horizon, start, s => void (s.rate[inside] = s.rate[inside]! + 1), v3Skip, BEATS)
-      const outside = ask(mesh, rule, horizon, start, s => membraneUnform(rule, plan, s), skip, BEATS)
+      const v3Skip: Skip = {
+        ...skip,
+        dock: Uint8Array.from(skip.dock, (v, y) =>
+          y === inside ? 1 : v,
+        ),
+      }
+      const v3 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.rate[inside] = s.rate[inside]! + 1),
+        v3Skip,
+        BEATS,
+      )
+      const outside = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => membraneUnform(rule, plan, s),
+        skip,
+        BEATS,
+      )
       const c2 = ask(mesh, rule, empty, start, moveAll, skip, BEATS)
 
       log(`r_h ${rh} asks`)
@@ -282,18 +433,41 @@ export default experiment({
       run(g1, horizon, BEATS)
 
       const sHold = varietyCount(rule, tornVariety(plan, [g0, g1]))
-      const formula = 9 * plan.docks * Math.log(3 * rule.span) + (tCut * (Math.log(rule.span) - Math.log(3))) / 2
+      const formula =
+        9 * plan.docks * Math.log(3 * rule.span) +
+        (tCut * (Math.log(rule.span) - Math.log(3))) / 2
 
       // A3: the fills, the generic infall and the ball
-      const scan = [...FILLS.map(fill => ({ name: `fill ${fill}`, fill, start: fillStart(rule, plan, base, fill, 0) })), { name: 'generic', fill: NaN, start: base }, { name: 'ball', fill: NaN, start: ballInfall(mesh, rule, plan, base, center, BALL, 0) }].map(c => {
+      const scan = [
+        ...FILLS.map(fill => ({
+          name: `fill ${fill}`,
+          fill,
+          start: fillStart(rule, plan, base, fill, 0),
+        })),
+        { name: 'generic', fill: NaN, start: base },
+        {
+          name: 'ball',
+          fill: NaN,
+          start: ballInfall(mesh, rule, plan, base, center, BALL, 0),
+        },
+      ].map(c => {
         const witness = infallWitness(rule, plan, c.start)
         const f = formed(plan, c.start)
         const unchanged = f.ok || sameOpen(f.s, c.start)
         const total = witness.nats.reduce((t, v) => t + v, 0)
 
-        return { ...c, witness, ok: f.ok, agree: f.ok === witness.fits, unchanged, total, where: where(witness) }
+        return {
+          ...c,
+          witness,
+          ok: f.ok,
+          agree: f.ok === witness.fits,
+          unchanged,
+          total,
+          where: where(witness),
+        }
       })
-      const byName = (name: string): (typeof scan)[number] => scan.find(c => c.name === name)!
+      const byName = (name: string): (typeof scan)[number] =>
+        scan.find(c => c.name === name)!
       const a3 =
         scan.every(c => c.agree && c.unchanged) &&
         FILLS.filter(f => f <= 1).every(f => byName(`fill ${f}`).ok) &&
@@ -331,21 +505,39 @@ export default experiment({
     })
 
     const seen = (a: { first: number }): boolean => a.first !== 0
-    const x = rows.every(r => r.hidden.first === 0 && r.hidden.kept && seen(r.v1) && seen(r.v2) && seen(r.v3) && r.outside.first === 0)
+    const x = rows.every(
+      r =>
+        r.hidden.first === 0 &&
+        r.hidden.kept &&
+        seen(r.v1) &&
+        seen(r.v2) &&
+        seen(r.v3) &&
+        r.outside.first === 0,
+    )
     const cuts = rows.map(r => r.tCut)
     const docks = rows.map(r => r.plan.docks)
     const pushed = rows.map(r => r.sPush)
     const a1Fit = proportionalFit({ xs: cuts, ys: pushed })
     const perCut = rows.map(r => r.sPush / r.tCut)
-    const a1 = rows.every(r => r.familyFormed) && a1Fit.r2 >= R2_GATE && spreadOf(perCut) <= AREA_SPREAD
+    const a1 =
+      rows.every(r => r.familyFormed) &&
+      a1Fit.r2 >= R2_GATE &&
+      spreadOf(perCut) <= AREA_SPREAD
     const a2 = rows.every(r => r.interiorVarying === 0)
     const a3 = rows.every(r => r.a3)
     const a4 = rows.every(r => r.reversed && r.onto)
-    const holdFit = proportionalFit({ xs: docks, ys: rows.map(r => r.sHold) })
+    const holdFit = proportionalFit({
+      xs: docks,
+      ys: rows.map(r => r.sHold),
+    })
     const holdPerCut = rows.map(r => r.sHold / r.tCut)
-    const c1 = rows.every(r => r.formulaOff <= FORMULA_OFF) && holdFit.r2 >= R2_GATE && spreadOf(holdPerCut) > AREA_SPREAD
+    const c1 =
+      rows.every(r => r.formulaOff <= FORMULA_OFF) &&
+      holdFit.r2 >= R2_GATE &&
+      spreadOf(holdPerCut) > AREA_SPREAD
     const c2 = rows.every(r => seen(r.c2))
-    const status = x && a1 && a2 && a3 && a4 && c1 && c2 ? 'pass' : 'fail'
+    const status =
+      x && a1 && a2 && a3 && a4 && c1 && c2 ? 'pass' : 'fail'
     const rhs = rows.map(r => r.rh)
     const sExp = logLogSlope([...rhs], [...pushed])
     const cutExp = logLogSlope([...rhs], [...cuts])
@@ -353,7 +545,9 @@ export default experiment({
       [...rhs],
       rows.map(r => r.sHold),
     )
-    const ballFormed = rows.filter(r => r.scan.find(c => c.name === 'ball')!.ok).map(r => r.rh)
+    const ballFormed = rows
+      .filter(r => r.scan.find(c => c.name === 'ball')!.ok)
+      .map(r => r.rh)
 
     rows.forEach(r => {
       const key = `rh${r.rh}`
@@ -362,7 +556,10 @@ export default experiment({
       const needCut = (r.inverse4G * r.area) / r.tCut
       const needDock = (r.inverse4G * r.area) / surface
       const scanText = r.scan
-        .map(c => `${c.name} ${c.ok ? 'forms' : 'refused'} (witness ${c.witness.fits ? 'fits' : 'over'}, infall ${c.total.toFixed(0)} of ${(r.tCut * lnSpan).toFixed(0)} nats, worst dock ${c.where.worst.toFixed(3)}, largest fitting dock ${c.where.fitMax.toFixed(4)}, smallest overflowing ${c.where.overMin.toFixed(4)}, docks over ${(100 * c.where.share).toFixed(1)} percent)`)
+        .map(
+          c =>
+            `${c.name} ${c.ok ? 'forms' : 'refused'} (witness ${c.witness.fits ? 'fits' : 'over'}, infall ${c.total.toFixed(0)} of ${(r.tCut * lnSpan).toFixed(0)} nats, worst dock ${c.where.worst.toFixed(3)}, largest fitting dock ${c.where.fitMax.toFixed(4)}, smallest overflowing ${c.where.overMin.toFixed(4)}, docks over ${(100 * c.where.share).toFixed(1)} percent)`,
+        )
         .join(', ')
 
       metrics[`${key}_mass`] = r.m
@@ -383,15 +580,19 @@ export default experiment({
       metrics[`${key}_GImplied`] = 1 / (4 * sigma)
       metrics[`${key}_natsPerCutNeeded`] = needCut
       metrics[`${key}_natsPerSurfaceDockNeeded`] = needDock
-      metrics[`${key}_natsPerSurfaceDockHeld`] = (r.tCut * lnSpan) / surface
+      metrics[`${key}_natsPerSurfaceDockHeld`] =
+        (r.tCut * lnSpan) / surface
+
       r.scan.forEach(c => {
         const name = c.name.replace(' ', '').replace('.', 'p')
 
         metrics[`${key}_${name}_formed`] = c.ok ? 1 : 0
-        metrics[`${key}_${name}_infallOverCapacity`] = c.total / (r.tCut * lnSpan)
+        metrics[`${key}_${name}_infallOverCapacity`] =
+          c.total / (r.tCut * lnSpan)
         metrics[`${key}_${name}_worstDock`] = c.where.worst
         metrics[`${key}_${name}_docksOver`] = c.where.share
       })
+
       lines.push(
         `r_h ${r.rh} (M ${r.m.toFixed(1)}, k_u ${r.ku.toFixed(5)}): |H| ${r.plan.docks}, surface docks ${surface}, T_int ${r.tInt}, T_cut ${r.tCut}; family formed ${r.familyFormed}; S ${r.sPush.toFixed(1)} (cut digits varying ${r.variety.cutSteps} of ${r.tCut}, interior varying ${r.interiorVarying}), per cut ${(r.sPush / r.tCut).toFixed(4)}; hold S ${r.sHold.toFixed(1)} (closed form off ${r.formulaOff.toExponential(1)}), per cut ${(r.sHold / r.tCut).toFixed(3)}; per 4 pi r^2 ${sigma.toFixed(2)} against 1/4G ${r.inverse4G.toFixed(2)} (ratio ${(sigma / r.inverse4G).toFixed(3)}), G implied ${(1 / (4 * sigma)).toExponential(3)}, Bekenstein needs ${needCut.toFixed(2)} nats a cut link (holds ${lnSpan.toFixed(2)}) and ${needDock.toFixed(2)} a surface dock (holds ${((r.tCut * lnSpan) / surface).toFixed(2)}); hidden first ${r.hidden.first} kept ${r.hidden.kept}, V1 ${r.v1.first}, V2 ${r.v2.first}, V3 ${r.v3.first}, outside vs unformed ${r.outside.first}, no horizon ${r.c2.first}; reversed ${r.reversed}, onto ${r.onto}; scan: ${scanText}`,
       )
@@ -412,8 +613,17 @@ export default experiment({
     metrics.SExponent = sExp
     metrics.cutExponent = cutExp
     metrics.holdExponent = holdExp
-    metrics.A3LargestFittingDock = Math.max(...rows.flatMap(r => r.scan.map(c => c.where.fitMax)))
-    metrics.A3SmallestOverflowingDock = Math.min(...rows.flatMap(r => r.scan.map(c => (Number.isFinite(c.where.overMin) ? c.where.overMin : 1e9))))
+    metrics.A3LargestFittingDock = Math.max(
+      ...rows.flatMap(r => r.scan.map(c => c.where.fitMax)),
+    )
+
+    metrics.A3SmallestOverflowingDock = Math.min(
+      ...rows.flatMap(r =>
+        r.scan.map(c =>
+          Number.isFinite(c.where.overMin) ? c.where.overMin : 1e9,
+        ),
+      ),
+    )
     metrics.lnSpan = lnSpan
     metrics.ballFormedCount = ballFormed.length
     metrics.seconds = (Date.now() - started) / 1000
@@ -422,7 +632,12 @@ export default experiment({
       status,
       claim: `membrane tear at r_h = ${R_H.join(', ')}: S against T_cut R^2 ${a1Fit.r2.toFixed(5)}, S / T_cut spread ${spreadOf(perCut).toFixed(4)} (gate ${AREA_SPREAD}), exponent ${sExp.toFixed(3)} (T_cut ${cutExp.toFixed(3)}); interior registers varying ${rows.map(r => r.interiorVarying).join(', ')}; capacity agrees with the witness ${a3}; reversal ${a4}; hold control R^2 ${holdFit.r2.toFixed(5)} against |H|, spread ${spreadOf(holdPerCut).toFixed(3)}, exponent ${holdExp.toFixed(3)}; ball infall formed at ${ballFormed.length ? ballFormed.join(', ') : 'none'}`,
       metrics,
-      control: { c1: c1 ? 1 : 0, c2: c2 ? 1 : 0, holdR2: holdFit.r2, holdSpread: spreadOf(holdPerCut) },
+      control: {
+        c1: c1 ? 1 : 0,
+        c2: c2 ? 1 : 0,
+        holdR2: holdFit.r2,
+        holdSpread: spreadOf(holdPerCut),
+      },
       notes: `L2. X ${x}, A1 ${a1}, A2 ${a2}, A3 ${a3}, A4 ${a4}, C1 ${c1}, C2 ${c2}. ${lines.join('. ')}.`,
     })
   },

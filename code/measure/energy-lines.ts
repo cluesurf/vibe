@@ -20,13 +20,29 @@
 // NOTHING MOVES: the lines are read off the values the stream took (a held slot after the stream is one crossing of the
 // link it came through); the rule itself is code/measure/full-key-paths' keyed path, unchanged. Exact integers.
 
-import { cloneConfiguration, streamConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  cloneConfiguration,
+  streamConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { collideVeto } from '@/code/rule/occupation-veto-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { streamInto, THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
-import { keyedCoin, keyedMeet, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  streamInto,
+  THRESHOLD_BORN,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  keyedCoin,
+  keyedMeet,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { type BoxHusk } from '@/code/measure/causal-components'
 import { coulombFlux } from '@/code/measure/trit-hop-light'
 import { huskGeometry } from '@/code/rule/trit-husk'
@@ -37,7 +53,11 @@ import { huskDistances } from '@/code/measure/plaquette-readings'
 const ROOTS = rootsD4()
 
 // the bulk links of a D4 box: per link (x * 12 + l) its head dock, and per dock and line the link that ends at it
-export type BulkLinks = { readonly cells: number; readonly head: Int32Array; readonly tailOfIn: Int32Array }
+export type BulkLinks = {
+  readonly cells: number
+  readonly head: Int32Array
+  readonly tailOfIn: Int32Array
+}
 
 export function bulkLinks(tables: LockedTables): BulkLinks {
   const cells = tables.cells
@@ -46,11 +66,13 @@ export function bulkLinks(tables: LockedTables): BulkLinks {
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const f = LINE_FIRSTS[l] as number
+      const f = LINE_FIRSTS[l]!
 
-      head[x * 12 + l] = Math.floor((tables.target[x * 24 + f] as number) / 24)
+      head[x * 12 + l] = Math.floor(tables.target[x * 24 + f]! / 24)
       // the dock whose line-l link ends at x: x - r, where the second slot of x streams to
-      tailOfIn[x * 12 + l] = Math.floor((tables.target[x * 24 + (OPPOSITE[f] as number)] as number) / 24)
+      tailOfIn[x * 12 + l] = Math.floor(
+        tables.target[x * 24 + OPPOSITE[f]!]! / 24,
+      )
     }
   }
 
@@ -58,64 +80,112 @@ export function bulkLinks(tables: LockedTables): BulkLinks {
 }
 
 // the dock energy e(x) = held slots + 2 stored pairs (`storeWeight` 1 is the control: a store counted as one)
-export function dockEnergies(c: Configuration, out: Int32Array, storeWeight = 2): Int32Array {
+export function dockEnergies(
+  c: Configuration,
+  out: Int32Array,
+  storeWeight = 2,
+): Int32Array {
   out.fill(0)
 
-  for (let i = 0; i < c.vibe.length; i++) if (c.vibe[i] !== 0) out[Math.floor(i / 24)]!++
-  for (let s = 0; s < c.store.length; s++) if (c.store[s] !== 0) out[Math.floor(s / 12)]! += storeWeight
+  for (let i = 0; i < c.vibe.length; i++) {
+    if (c.vibe[i] !== 0) {
+      out[Math.floor(i / 24)]!++
+    }
+  }
+
+  for (let s = 0; s < c.store.length; s++) {
+    if (c.store[s] !== 0) {
+      out[Math.floor(s / 12)]! += storeWeight
+    }
+  }
 
   return out
 }
 
 // out = div L (out minus in) per dock
-export function lineDivergence(links: BulkLinks, line: Int32Array, out: Int32Array): Int32Array {
+export function lineDivergence(
+  links: BulkLinks,
+  line: Int32Array,
+  out: Int32Array,
+): Int32Array {
   out.fill(0)
 
   for (let k = 0; k < line.length; k++) {
-    const v = line[k] as number
+    const v = line[k]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     out[Math.floor(k / 12)]! += v
-    out[links.head[k] as number]! -= v
+    out[links.head[k]!]! -= v
   }
 
   return out
 }
 
 // b = div L - e per dock, the Gauss invariant a run must keep (`storeWeight` as dockEnergies)
-export function gaussBackground(links: BulkLinks, line: Int32Array, c: Configuration, storeWeight = 2): Int32Array {
+export function gaussBackground(
+  links: BulkLinks,
+  line: Int32Array,
+  c: Configuration,
+  storeWeight = 2,
+): Int32Array {
   const div = lineDivergence(links, line, new Int32Array(links.cells))
   const e = dockEnergies(c, new Int32Array(links.cells), storeWeight)
 
-  return Int32Array.from(div, (v, x) => v - (e[x] as number))
+  return Int32Array.from(div, (v, x) => v - e[x]!)
 }
 
 // the drag of one beat, read on the state just after the stream: sense -1 applies it (forward), +1 removes it
-export function dragLines(tables: LockedTables, after: Configuration, line: Int32Array, sense: -1 | 1): void {
+export function dragLines(
+  tables: LockedTables,
+  after: Configuration,
+  line: Int32Array,
+  sense: -1 | 1,
+): void {
   for (let i = 0; i < after.vibe.length; i++) {
-    if (after.vibe[i] === 0) continue
+    if (after.vibe[i] === 0) {
+      continue
+    }
 
     const d = i % 24
-    const l = LINE_OF[d] as number
+    const l = LINE_OF[d]!
 
     if (d === LINE_FIRSTS[l]) {
       // forward across the link of the dock it came from
-      const from = Math.floor((tables.source[i] as number) / 24)
+      const from = Math.floor(tables.source[i]! / 24)
 
       line[from * 12 + l]! += sense
-    } else line[Math.floor(i / 24) * 12 + l]! -= sense
+    } else {
+      line[Math.floor(i / 24) * 12 + l]! -= sense
+    }
   }
 }
 
 // THE KEYED PATH WITH ITS LINES: code/measure/full-key-paths keyedRunner's beat (no mixer, the coin, the meeting, the
 // collision with veto 'none', the stream) with the lines dragged, and the exact inverse beat (unstream, the collision's
 // inverse, the meeting and the coin, each its own inverse at one beat: plaquette-readings' back)
-export type LineRunner = { state: () => Configuration; line: Int32Array; time: () => number; beat: () => void; back: () => void }
+export type LineRunner = {
+  state: () => Configuration
+  line: Int32Array
+  time: () => number
+  beat: () => void
+  back: () => void
+}
 
-export function lineRunner(tables: LockedTables, start: Configuration, startLine: Int32Array, key: PathKey, threshold = THRESHOLD_BORN): LineRunner {
+export function lineRunner(
+  tables: LockedTables,
+  start: Configuration,
+  startLine: Int32Array,
+  key: PathKey,
+  threshold = THRESHOLD_BORN,
+): LineRunner {
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
+
   const line = Int32Array.from(startLine)
+
   let t = 0
 
   return {
@@ -150,9 +220,16 @@ export function lineRunner(tables: LockedTables, start: Configuration, startLine
 // THE BEAT-0 LINES of a seeded lump: `units` unit lines from dock `from` to dock `to`, each along a shortest path of
 // bulk links that still has room for one more unit (|L| <= 1 after it, so the placed lines are trits). Returns the links
 // used. Placed once, at beat 0; nothing is placed after
-export function routeUnits(links: BulkLinks, line: Int32Array, from: number, to: number, units: number): number {
+export function routeUnits(
+  links: BulkLinks,
+  line: Int32Array,
+  from: number,
+  to: number,
+  units: number,
+): number {
   const prev = new Int32Array(links.cells)
   const queue = new Int32Array(links.cells)
+
   let used = 0
 
   for (let u = 0; u < units; u++) {
@@ -164,34 +241,41 @@ export function routeUnits(links: BulkLinks, line: Int32Array, from: number, to:
     queue[tail++] = from
 
     for (let head = 0; head < tail && prev[to] === -2; head++) {
-      const x = queue[head] as number
+      const x = queue[head]!
 
       for (let l = 0; l < 12; l++) {
         // forward along x's own link (the line rises), or backward along the link that ends at x (the line falls)
         const fk = x * 12 + l
-        const bk = (links.tailOfIn[x * 12 + l] as number) * 12 + l
+        const bk = links.tailOfIn[x * 12 + l]! * 12 + l
         const steps: [number, number, number][] = [
-          [fk, 1, links.head[fk] as number],
-          [bk, -1, links.tailOfIn[x * 12 + l] as number],
+          [fk, 1, links.head[fk]!],
+          [bk, -1, links.tailOfIn[x * 12 + l]!],
         ]
 
         for (const [k, s, y] of steps) {
-          if (Math.abs((line[k] as number) + s) > 1 || prev[y] !== -2) continue
+          if (Math.abs(line[k]! + s) > 1 || prev[y] !== -2) {
+            continue
+          }
+
           prev[y] = k * 2 + (s > 0 ? 0 : 1)
           queue[tail++] = y
         }
       }
     }
 
-    if (prev[to] === -2) throw new Error(`routeUnits: unit ${u} of ${units} cannot be routed`)
+    if (prev[to] === -2) {
+      throw new Error(
+        `routeUnits: unit ${u} of ${units} cannot be routed`,
+      )
+    }
 
     for (let y = to; y !== from; ) {
-      const k = Math.floor((prev[y] as number) / 2)
-      const s = (prev[y] as number) % 2 === 0 ? 1 : -1
+      const k = Math.floor(prev[y]! / 2)
+      const s = prev[y]! % 2 === 0 ? 1 : -1
 
       line[k]! += s
       used++
-      y = s > 0 ? Math.floor(k / 12) : (links.head[k] as number)
+      y = s > 0 ? Math.floor(k / 12) : links.head[k]!
     }
   }
 
@@ -202,7 +286,11 @@ export function routeUnits(links: BulkLinks, line: Int32Array, from: number, to:
 
 // every bulk link's husk link (column y, direction h: y * 9 + h) and orientation: the link's first root casts +/- a
 // husk vector; cast backward, the husk link runs from the head's column
-export type HuskCast = { readonly columns: number; readonly link: Int32Array; readonly sign: Int8Array }
+export type HuskCast = {
+  readonly columns: number
+  readonly link: Int32Array
+  readonly sign: Int8Array
+}
 
 export function huskCast(links: BulkLinks, husk: BoxHusk): HuskCast {
   const link = new Int32Array(links.cells * 12)
@@ -210,16 +298,20 @@ export function huskCast(links: BulkLinks, husk: BoxHusk): HuskCast {
 
   for (let x = 0; x < links.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const r = ROOTS[LINE_FIRSTS[l] as number] as number[]
+      const r = ROOTS[LINE_FIRSTS[l]!]!
       const k = x * 12 + l
-      const plus = TRIT_HUSK_VECTORS.findIndex(u => u.every((v, j) => v === r[j]))
-      const minus = TRIT_HUSK_VECTORS.findIndex(u => u.every((v, j) => v === -(r[j] as number)))
+      const plus = TRIT_HUSK_VECTORS.findIndex(u =>
+        u.every((v, j) => v === r[j]),
+      )
+      const minus = TRIT_HUSK_VECTORS.findIndex(u =>
+        u.every((v, j) => v === -r[j]!),
+      )
 
       if (plus >= 0) {
-        link[k] = (husk.column[x] as number) * 9 + plus
+        link[k] = husk.column[x]! * 9 + plus
         sign[k] = 1
       } else {
-        link[k] = (husk.column[links.head[k] as number] as number) * 9 + minus
+        link[k] = husk.column[links.head[k]!]! * 9 + minus
         sign[k] = -1
       }
     }
@@ -229,11 +321,18 @@ export function huskCast(links: BulkLinks, husk: BoxHusk): HuskCast {
 }
 
 // the husk flux: per husk link, the column sum of the bulk lines over it, added into `out`
-export function addHuskFlux(cast: HuskCast, line: Int32Array, out: Float64Array, weight = 1): void {
+export function addHuskFlux(
+  cast: HuskCast,
+  line: Int32Array,
+  out: Float64Array,
+  weight = 1,
+): void {
   for (let k = 0; k < line.length; k++) {
-    const v = line[k] as number
+    const v = line[k]!
 
-    if (v !== 0) out[cast.link[k] as number]! += weight * (cast.sign[k] as number) * v
+    if (v !== 0) {
+      out[cast.link[k]!]! += weight * cast.sign[k]! * v
+    }
   }
 }
 
@@ -242,9 +341,15 @@ export function addHuskFlux(cast: HuskCast, line: Int32Array, out: Float64Array,
 // since no flux on a closed husk has a net divergence), by code/measure/trit-hop-light coulombFlux, and the depth x found
 // by summing F / g along paths (code/rule/step-depth stepDepth, which returns 2x). A measurement: floats, never read by
 // the rule
-export function staticDepth(side: number, rho: Float64Array): { flux: Float64Array; depth: Float64Array } {
+export function staticDepth(
+  side: number,
+  rho: Float64Array,
+): { flux: Float64Array; depth: Float64Array } {
   const mean = rho.reduce((s, v) => s + v, 0) / rho.length
-  const flux = coulombFlux(huskGeometry(side), Float64Array.from(rho, v => v - mean))
+  const flux = coulombFlux(
+    huskGeometry(side),
+    Float64Array.from(rho, v => v - mean),
+  )
   const found = stepDepth(radionMesh([side, side, side]), flux)
 
   return { flux, depth: Float64Array.from(found.twice, v => v / 2) }
@@ -252,21 +357,34 @@ export function staticDepth(side: number, rho: Float64Array): { flux: Float64Arr
 
 // the mean of a per-column field over each shell of husk distance from one column (code/measure/plaquette-readings
 // huskDistances), shells 0 .. the largest
-export function shellMeans(side: number, from: number, field: Float64Array): number[] {
+export function shellMeans(
+  side: number,
+  from: number,
+  field: Float64Array,
+): number[] {
   const dist = huskDistances(side, from)
   const top = Math.max(...dist)
   const sum = new Float64Array(top + 1)
   const n = new Float64Array(top + 1)
 
   for (let c = 0; c < field.length; c++) {
-    sum[dist[c] as number]! += field[c] as number
-    n[dist[c] as number]! += 1
+    sum[dist[c]!]! += field[c]!
+    n[dist[c]!]! += 1
   }
 
   return [...sum].map((s, r) => (n[r]! > 0 ? s / n[r]! : Number.NaN))
 }
 
 // the column sums of a per-dock field, added into `out`
-export function addColumns(husk: BoxHusk, field: Int32Array, out: Float64Array, weight = 1): void {
-  for (let x = 0; x < field.length; x++) if (field[x] !== 0) out[husk.column[x] as number]! += weight * (field[x] as number)
+export function addColumns(
+  husk: BoxHusk,
+  field: Int32Array,
+  out: Float64Array,
+  weight = 1,
+): void {
+  for (let x = 0; x < field.length; x++) {
+    if (field[x] !== 0) {
+      out[husk.column[x]!]! += weight * field[x]!
+    }
+  }
 }

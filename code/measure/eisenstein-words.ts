@@ -27,7 +27,10 @@ function guard(x: number): number {
 
 // (a + b w)(c + d w) = ac - bd + (ad + bc - bd) w
 export function eisMul(x: Eis, y: Eis): Eis {
-  return [guard(x[0] * y[0] - x[1] * y[1]), guard(x[0] * y[1] + x[1] * y[0] - x[1] * y[1])]
+  return [
+    guard(x[0] * y[0] - x[1] * y[1]),
+    guard(x[0] * y[1] + x[1] * y[0] - x[1] * y[1]),
+  ]
 }
 
 // conj(a + b w) = a + b w^2 = (a - b) - b w
@@ -89,7 +92,10 @@ function reduceMat3(m: Mat3): Mat3 {
 
 // a key for a matrix up to a global unit
 function mat3Key(m: Mat3): string {
-  const keys = UNITS.map(u => `${m.den3}|${m.num.map(x => eisMul(x, u).join(',')).join(';')}`)
+  const keys = UNITS.map(
+    u =>
+      `${m.den3}|${m.num.map(x => eisMul(x, u).join(',')).join(';')}`,
+  )
 
   return keys.sort()[0]!
 }
@@ -102,9 +108,18 @@ const powW = (j: number): Eis => [ONE, W, W2][((j % 3) + 3) % 3]!
 
 // the local Clifford group on one role, mod the six units: 216 elements (E-QTM-0117)
 export function cliffordGroup(): Mat3[] {
-  const x: Mat3 = { num: [ZERO, ZERO, ONE, ONE, ZERO, ZERO, ZERO, ONE, ZERO], den3: 0 }
-  const z: Mat3 = { num: [ONE, ZERO, ZERO, ZERO, W, ZERO, ZERO, ZERO, W2], den3: 0 }
-  const s: Mat3 = { num: [ONE, ZERO, ZERO, ZERO, ONE, ZERO, ZERO, ZERO, W], den3: 0 }
+  const x: Mat3 = {
+    num: [ZERO, ZERO, ONE, ONE, ZERO, ZERO, ZERO, ONE, ZERO],
+    den3: 0,
+  }
+  const z: Mat3 = {
+    num: [ONE, ZERO, ZERO, ZERO, W, ZERO, ZERO, ZERO, W2],
+    den3: 0,
+  }
+  const s: Mat3 = {
+    num: [ONE, ZERO, ZERO, ZERO, ONE, ZERO, ZERO, ZERO, W],
+    den3: 0,
+  }
   // F = -omega^(jk) (1 + 2 omega) / 3
   const lambda: Eis = [1, 2]
   const f: Mat3 = {
@@ -117,7 +132,11 @@ export function cliffordGroup(): Mat3[] {
   }
   const gens = [x, z, s, f]
   const seen = new Map<string, Mat3>()
-  const id: Mat3 = { num: [ONE, ZERO, ZERO, ZERO, ONE, ZERO, ZERO, ZERO, ONE], den3: 0 }
+  const id: Mat3 = {
+    num: [ONE, ZERO, ZERO, ZERO, ONE, ZERO, ZERO, ZERO, ONE],
+    den3: 0,
+  }
+
   let frontier = [id]
 
   seen.set(mat3Key(id), id)
@@ -146,7 +165,7 @@ export function cliffordGroup(): Mat3[] {
 // the complex value of a matrix entry, for checks against the floating kernels
 export function eisValue(x: Eis, scale: number): [number, number] {
   // a + b w, w = -1/2 + i sqrt3/2
-  return [(x[0] - x[1] / 2) / scale, ((x[1] * Math.sqrt(3)) / 2) / scale]
+  return [(x[0] - x[1] / 2) / scale, (x[1] * Math.sqrt(3)) / 2 / scale]
 }
 
 // A two-role state: nine amplitudes num_(3i + j) / (2^k2 3^m3)
@@ -233,10 +252,12 @@ export function applySingletPhase(s: State9): State9 {
   }
 
   const add = eisMul([-1, 1], trace)
-  const num = s.num.map((x, i) => {
+  const num = s.num.map((x, i): Eis => {
     const three: Eis = [guard(3 * x[0]), guard(3 * x[1])]
 
-    return (i % 4 === 0 ? [guard(three[0] + add[0]), guard(three[1] + add[1])] : three) as Eis
+    return i % 4 === 0
+      ? [guard(three[0] + add[0]), guard(three[1] + add[1])]
+      : three
   })
 
   return reduceState({ num, k2: s.k2, m3: s.m3 + 1 })
@@ -244,10 +265,16 @@ export function applySingletPhase(s: State9): State9 {
 
 // the reduced density's characteristic data as exact rationals over the common scale D = 2^k 3^m:
 //   trace = sum N(num) / D^2 (must be 1), e2 = sum N(2 x 2 minors) / D^4, e3 = N(det) / D^6
-export function schmidtInvariants(s: State9): { scale: bigint; normSum: bigint; e2Num: bigint; e3Num: bigint } {
+export function schmidtInvariants(s: State9): {
+  scale: bigint
+  normSum: bigint
+  e2Num: bigint
+  e3Num: bigint
+} {
   const re = s.num.map(x => BigInt(x[0]))
   const im = s.num.map(x => BigInt(x[1]))
   const scale = 2n ** BigInt(s.k2) * 3n ** BigInt(s.m3)
+
   let normSum = 0n
 
   for (let i = 0; i < 9; i++) {
@@ -255,8 +282,18 @@ export function schmidtInvariants(s: State9): { scale: bigint; normSum: bigint; 
   }
 
   // Eisenstein bigint product
-  const mul = (a: [bigint, bigint], b: [bigint, bigint]): [bigint, bigint] => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0] - a[1] * b[1]]
-  const at = (i: number, j: number): [bigint, bigint] => [re[3 * i + j]!, im[3 * i + j]!]
+  const mul = (
+    a: [bigint, bigint],
+    b: [bigint, bigint],
+  ): [bigint, bigint] => [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0] - a[1] * b[1],
+  ]
+  const at = (i: number, j: number): [bigint, bigint] => [
+    re[3 * i + j]!,
+    im[3 * i + j]!,
+  ]
+
   let e2Num = 0n
 
   for (const [r1, r2] of [
@@ -285,6 +322,7 @@ export function schmidtInvariants(s: State9): { scale: bigint; normSum: bigint; 
 
     return [p[0] - q[0], p[1] - q[1]]
   }
+
   let det: [bigint, bigint] = [0n, 0n]
 
   for (let c = 0; c < 3; c++) {
@@ -310,7 +348,7 @@ export function schmidtWeights(e2: number, e3: number): number[] {
     roots.push(r + 1 / 3, r + 1 / 3, r + 1 / 3)
   } else {
     const m = 2 * Math.sqrt(Math.max(0, -p / 3))
-    const arg = Math.max(-1, Math.min(1, ((3 * q) / (p * m)) ))
+    const arg = Math.max(-1, Math.min(1, (3 * q) / (p * m)))
     const theta = Math.acos(arg) / 3
 
     for (let k = 0; k < 3; k++) {
@@ -322,12 +360,17 @@ export function schmidtWeights(e2: number, e3: number): number[] {
 }
 
 // the twelve stabilizer states of one role, as Eisenstein columns with a common 3-power (the images of |0>)
-export function stabilizerStates(group: readonly Mat3[]): { num: Eis[]; den3: number }[] {
+export function stabilizerStates(
+  group: readonly Mat3[],
+): { num: Eis[]; den3: number }[] {
   const seen = new Map<string, { num: Eis[]; den3: number }>()
 
   for (const g of group) {
     const col = { num: [g.num[0]!, g.num[3]!, g.num[6]!], den3: g.den3 }
-    const key = UNITS.map(u => `${col.den3}|${col.num.map(x => eisMul(x, u).join(',')).join(';')}`).sort()[0]!
+    const key = UNITS.map(
+      u =>
+        `${col.den3}|${col.num.map(x => eisMul(x, u).join(',')).join(';')}`,
+    ).sort()[0]!
 
     if (!seen.has(key)) {
       seen.set(key, col)
@@ -348,23 +391,44 @@ export function stabilizerStates(group: readonly Mat3[]): { num: Eis[]; den3: nu
 //   coarse dip: the output modes split into two groups with no bosonic weight across them and some
 //     distinguishable weight across: exactly when every active mode has |w_j| = |u_j| and w_j / u_j is one of
 //     two opposite values r, -r, both present (derived in E-QTM-0131)
-export type LineHom = { runs: number; fineDips: number; coarseDips: number; bestVisibility: number; coarseExample: string }
+export type LineHom = {
+  runs: number
+  fineDips: number
+  coarseDips: number
+  bestVisibility: number
+  coarseExample: string
+}
 
-export function lineWordHom(input: { width: number; beats: number; starts: readonly (readonly [number, number])[] }): LineHom {
+export function lineWordHom(input: {
+  width: number
+  beats: number
+  starts: readonly (readonly [number, number])[]
+}): LineHom {
   const { width, beats } = input
   const off = beats + 1
   const span = width + 2 * beats + 2
   const modes = 2 * span
   const A: Eis = [1, 1]
   const B: Eis = [1, -1]
-  const out: LineHom = { runs: 0, fineDips: 0, coarseDips: 0, bestVisibility: 0, coarseExample: '' }
+  const out: LineHom = {
+    runs: 0,
+    fineDips: 0,
+    coarseDips: 0,
+    bestVisibility: 0,
+    coarseExample: '',
+  }
   const ampA = new Float64Array(2 * modes)
   const ampB = new Float64Array(2 * modes)
   const next = new Float64Array(2 * modes)
 
-  const run = (word: number, start: number, amp: Float64Array): number => {
+  const run = (
+    word: number,
+    start: number,
+    amp: Float64Array,
+  ): number => {
     amp.fill(0)
     amp[2 * start] = 1
+
     let k = 0
 
     for (let t = 0; t < beats; t++) {
@@ -379,8 +443,14 @@ export function lineWordHom(input: { width: number; beats: number; starts: reado
           if ((row >> x) & 1) {
             const r = 2 * (x + off)
             const l = r + 1
-            const rv: Eis = [(amp[2 * r] ?? 0) / 2, (amp[2 * r + 1] ?? 0) / 2]
-            const lv: Eis = [(amp[2 * l] ?? 0) / 2, (amp[2 * l + 1] ?? 0) / 2]
+            const rv: Eis = [
+              (amp[2 * r] ?? 0) / 2,
+              (amp[2 * r + 1] ?? 0) / 2,
+            ]
+            const lv: Eis = [
+              (amp[2 * l] ?? 0) / 2,
+              (amp[2 * l + 1] ?? 0) / 2,
+            ]
             const ar = eisMul(A, rv)
             const bl = eisMul(B, lv)
             const br = eisMul(B, rv)
@@ -461,7 +531,10 @@ export function lineWordHom(input: { width: number; beats: number; starts: reado
       }
 
       if (dist > 0) {
-        out.bestVisibility = Math.max(out.bestVisibility, 1 - boson / dist)
+        out.bestVisibility = Math.max(
+          out.bestVisibility,
+          1 - boson / dist,
+        )
       }
 
       // coarse: |w_j| = |u_j| and w_j conj(u_j) / N(u_j) in {r, -r}, both signs present
@@ -486,8 +559,12 @@ export function lineWordHom(input: { width: number; beats: number; starts: reado
           continue
         }
 
-        const same = c[0] * ratioNorm === ratio[0] * nu && c[1] * ratioNorm === ratio[1] * nu
-        const flip = c[0] * ratioNorm === -ratio[0] * nu && c[1] * ratioNorm === -ratio[1] * nu
+        const same =
+          c[0] * ratioNorm === ratio[0] * nu &&
+          c[1] * ratioNorm === ratio[1] * nu
+        const flip =
+          c[0] * ratioNorm === -ratio[0] * nu &&
+          c[1] * ratioNorm === -ratio[1] * nu
 
         if (!same && !flip) {
           ok = false
@@ -499,7 +576,9 @@ export function lineWordHom(input: { width: number; beats: number; starts: reado
 
       if (ok && opposite > 0) {
         out.coarseDips++
-        out.coarseExample = out.coarseExample || `word ${word}, start ${xa}, separation ${sep}`
+        out.coarseExample =
+          out.coarseExample ||
+          `word ${word}, start ${xa}, separation ${sep}`
       }
     }
   }
@@ -508,7 +587,10 @@ export function lineWordHom(input: { width: number; beats: number; starts: reado
 }
 
 // |a> (x) |b> as a State9 (both stabilizer columns)
-export function productState(a: { num: Eis[]; den3: number }, b: { num: Eis[]; den3: number }): State9 {
+export function productState(
+  a: { num: Eis[]; den3: number },
+  b: { num: Eis[]; den3: number },
+): State9 {
   const num: Eis[] = []
 
   for (let i = 0; i < 3; i++) {

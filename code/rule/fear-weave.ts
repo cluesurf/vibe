@@ -76,7 +76,10 @@ import {
   type Operator,
 } from '@/code/measure/grid-weights'
 
-const SWAP_MIRROR = [...TURN_SWAP_ORDER, ...[...TURN_SWAP_ORDER].reverse()]
+const SWAP_MIRROR = [
+  ...TURN_SWAP_ORDER,
+  ...[...TURN_SWAP_ORDER].reverse(),
+]
 const NEIGHBOURS = new WeakMap<object, Int32Array>()
 
 // the slot each slot streams into, computed once per mesh
@@ -99,7 +102,9 @@ function streamTarget(weave: ColorWeave): Int32Array {
 
   return table
 }
-const TABLE_KEY = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
+
+const TABLE_KEY = (a: number, b: number): number =>
+  (a + 1) * 3 + (b + 1)
 
 // the classical layer: a vibe and a token at every slot, and the classical role point of every token
 export type Lattice = {
@@ -136,7 +141,10 @@ export function makeLattice(input: {
 // knits keep like pairs in place).
 export type Knit = {
   readonly lines: readonly (readonly [number, number])[]
-  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positions: readonly (readonly (readonly [
+    number,
+    number,
+  ])[])[]
   readonly positionAt: readonly number[]
   readonly swapAt: readonly number[]
   readonly forward: readonly (readonly [number, number])[]
@@ -146,17 +154,20 @@ export type Knit = {
   readonly exchange: 'meeting' | 'first-sign'
 }
 
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 
 // the color weave's knit: the committed turning schedule, the weave's table, exchange at meetings
 export function colorWeaveKnit(weave: ColorWeave): Knit {
   const fires = new Uint8Array(81)
-  const lone = (k: number): boolean => Math.floor(k / 3) === 1 && k % 3 !== 1
+  const lone = (k: number): boolean =>
+    Math.floor(k / 3) === 1 && k % 3 !== 1
   const empty = (k: number): boolean => k === 4
 
   for (let l = 0; l < 9; l++) {
     for (let w = 0; w < 9; w++) {
-      fires[l * 9 + w] = (lone(l) && empty(w)) || (lone(w) && empty(l)) ? 1 : 0
+      fires[l * 9 + w] =
+        (lone(l) && empty(w)) || (lone(w) && empty(l)) ? 1 : 0
     }
   }
 
@@ -194,13 +205,17 @@ export function colorLocalKnit(input: {
     }
   }
 
-  const norm = (a: number, b: number): readonly [number, number] => (a < b ? [a, b] : [b, a])
+  const norm = (a: number, b: number): readonly [number, number] =>
+    a < b ? [a, b] : [b, a]
   const positions: (readonly [number, number])[][] = []
+
   let current = input.couplesZero.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 12; i++) {
     positions.push(current)
-    current = current.map(([a, b]) => norm(input.turn[a] ?? a, input.turn[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(input.turn[a] ?? a, input.turn[b] ?? b),
+    )
   }
 
   const inverse = new Array<[number, number]>(9)
@@ -208,18 +223,31 @@ export function colorLocalKnit(input: {
   for (let k = 0; k < 9; k++) {
     const out = input.table[k] ?? [0, 0]
 
-    inverse[TABLE_KEY(out[0], out[1])] = [Math.floor(k / 3) - 1, (k % 3) - 1]
+    inverse[TABLE_KEY(out[0], out[1])] = [
+      Math.floor(k / 3) - 1,
+      (k % 3) - 1,
+    ]
   }
 
   const fires = new Uint8Array(81)
 
   for (let l = 0; l < 9; l++) {
     for (let w = 0; w < 9; w++) {
-      fires[l * 9 + w] = input.swapWhen(l, w) || input.swapWhen(w, l) ? 1 : 0
+      fires[l * 9 + w] =
+        input.swapWhen(l, w) || input.swapWhen(w, l) ? 1 : 0
     }
   }
 
-  return { lines, positions, positionAt: input.positionAt, swapAt: input.swapAt, forward: input.table, inverse, fires, exchange: 'first-sign' }
+  return {
+    lines,
+    positions,
+    positionAt: input.positionAt,
+    swapAt: input.swapAt,
+    forward: input.table,
+    inverse,
+    fires,
+    exchange: 'first-sign',
+  }
 }
 
 function collideCell(input: {
@@ -233,7 +261,8 @@ function collideCell(input: {
   meetings: [number, number][]
   signs: [number, number][]
 }): void {
-  const { knit, vibe, token, open, base, t, forward, meetings, signs } = input
+  const { knit, vibe, token, open, base, t, forward, meetings, signs } =
+    input
   const table = forward ? knit.forward : knit.inverse
   const preimage = knit.inverse
   const couples = knit.positions[at(knit.positionAt, t)] ?? []
@@ -270,7 +299,9 @@ function collideCell(input: {
       const a = vibe[i] ?? 0
       const b = vibe[j] ?? 0
       const image = table[TABLE_KEY(a, b)] ?? [a, b]
-      const before = forward ? [a, b] : (preimage[TABLE_KEY(a, b)] ?? [a, b])
+      const before = forward
+        ? [a, b]
+        : (preimage[TABLE_KEY(a, b)] ?? [a, b])
 
       vibe[i] = image[0]
       vibe[j] = image[1]
@@ -279,14 +310,25 @@ function collideCell(input: {
       const after0 = forward ? (image[0] ?? 0) : a
       const weight = (v: number): number => (v !== 0 ? v : 1)
       const exchanged =
-        knit.exchange === 'meeting' ? before[0] !== 0 && before[1] !== 0 : weight(before[0] ?? 0) !== weight(after0)
+        knit.exchange === 'meeting'
+          ? before[0] !== 0 && before[1] !== 0
+          : weight(before[0] ?? 0) !== weight(after0)
       const ti = token[i] ?? 0
       const tj = token[j] ?? 0
 
-      if (before[0] !== 0 && before[1] !== 0 && open[ti] === 1 && open[tj] === 1) {
+      if (
+        before[0] !== 0 &&
+        before[1] !== 0 &&
+        open[ti] === 1 &&
+        open[tj] === 1
+      ) {
         meetings.push([ti, tj])
         // going back, when the forward step exchanged the tokens, ti held the second slot's vibe before it
-        signs.push(forward || !exchanged ? [before[0] ?? 0, before[1] ?? 0] : [before[1] ?? 0, before[0] ?? 0])
+        signs.push(
+          forward || !exchanged
+            ? [before[0] ?? 0, before[1] ?? 0]
+            : [before[1] ?? 0, before[0] ?? 0],
+        )
       }
 
       if (exchanged) {
@@ -339,7 +381,17 @@ export function fearBeat(input: {
   const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ knit, vibe, token, open, base: x * 24, t, forward: true, meetings, signs })
+    collideCell({
+      knit,
+      vibe,
+      token,
+      open,
+      base: x * 24,
+      t,
+      forward: true,
+      meetings,
+      signs,
+    })
   }
 
   const moved = new Int32Array(token.length)
@@ -393,7 +445,8 @@ export function fearBeatBack(input: {
       const slot = x * 24 + d
       const from = target[slot] ?? 0
       const tk = lattice.token[from] ?? 0
-      const g = moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+      const g =
+        moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
 
       token[slot] = tk
       vibe[slot] = lattice.vibe[from] ?? 0
@@ -410,10 +463,23 @@ export function fearBeatBack(input: {
   const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ knit, vibe, token, open, base: x * 24, t, forward: false, meetings, signs })
+    collideCell({
+      knit,
+      vibe,
+      token,
+      open,
+      base: x * 24,
+      t,
+      forward: false,
+      meetings,
+      signs,
+    })
   }
 
-  return { lattice: { vibe, token, point }, record: { meetings, crossings, signs } }
+  return {
+    lattice: { vibe, token, point },
+    record: { meetings, crossings, signs },
+  }
 }
 
 // the whole: open tokens (coordinate order, most significant first) and loves minus fears at each of
@@ -441,7 +507,10 @@ export function wholeUnits(whole: Whole): bigint {
   return whole.weight.reduce((a, b) => a + b, 0n)
 }
 
-export function wholeLovesAndFears(whole: Whole): { loves: bigint; fears: bigint } {
+export function wholeLovesAndFears(whole: Whole): {
+  loves: bigint
+  fears: bigint
+} {
   let loves = 0n
   let fears = 0n
 
@@ -471,7 +540,9 @@ function gcd(a: bigint, b: bigint): bigint {
 export function reduceWhole(whole: Whole): Whole {
   const g = whole.weight.reduce((a, b) => gcd(a, b), 0n)
 
-  return g > 1n ? { ...whole, weight: whole.weight.map(w => w / g) } : whole
+  return g > 1n
+    ? { ...whole, weight: whole.weight.map(w => w / g) }
+    : whole
 }
 
 // THE TWO INDEXINGS OF THE NINE ROLE POINTS, one convention (fixed 2026-09-26, E-QTM-0124). A whole's weights
@@ -481,7 +552,10 @@ export function reduceWhole(whole: Whole): Whole {
 // the phase index through that identification. Until 2026-09-26 it applied the grid table to the phase
 // index directly, so every link acted by its transpose T g T (T: (a, b) -> (b, a)): still a Clifford move,
 // since T reverses the symplectic form twice, but not the element sigma-links assigns the link.
-export const GRID_OF_PHASE: readonly number[] = Array.from({ length: 9 }, (_, q) => Math.floor(q / 3) + 3 * (q % 3))
+export const GRID_OF_PHASE: readonly number[] = Array.from(
+  { length: 9 },
+  (_, q) => Math.floor(q / 3) + 3 * (q % 3),
+)
 
 // a grid move (a table on a + 3 b) as a permutation of the phase index 3 a + b
 export function phaseMove(grid: ArrayLike<number>): number[] {
@@ -491,7 +565,11 @@ export function phaseMove(grid: ArrayLike<number>): number[] {
 // move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b). The weights only: an
 // OPERATION on the role (a kick, a reading's reflection, an apparatus's translation) leaves the own point where
 // it is. A move of the FRAME carries the own point with it: carryPhaseCoordinate
-export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
+export function movePhaseCoordinate(
+  whole: Whole,
+  coordinate: number,
+  perm: ArrayLike<number>,
+): Whole {
   const k = whole.tokens.length
   const stride = 9 ** (k - 1 - coordinate)
   const out = new Array<bigint>(whole.weight.length).fill(0n)
@@ -510,9 +588,15 @@ export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: Arra
 // streams through a link), what a frame rewrite does (the coordinate reflected into its token's new frame), and
 // what a change of frame at a dock does. The own point is the role point the comoving fear beat reads a meeting
 // about; a whole without own points gets them, every other one at the origin
-export function carryPhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
+export function carryPhaseCoordinate(
+  whole: Whole,
+  coordinate: number,
+  perm: ArrayLike<number>,
+): Whole {
   const moved = movePhaseCoordinate(whole, coordinate, perm)
-  const own = whole.own ? [...whole.own] : new Array<number>(whole.tokens.length).fill(0)
+  const own = whole.own
+    ? [...whole.own]
+    : new Array<number>(whole.tokens.length).fill(0)
   const p = own[coordinate] ?? 0
 
   own[coordinate] = perm[p] ?? p
@@ -521,12 +605,20 @@ export function carryPhaseCoordinate(whole: Whole, coordinate: number, perm: Arr
 }
 
 // move one coordinate of the whole by a GRID move (a table on the grid index a + 3 b, as weave.moves.act)
-export function moveCoordinate(whole: Whole, coordinate: number, grid: ArrayLike<number>): Whole {
+export function moveCoordinate(
+  whole: Whole,
+  coordinate: number,
+  grid: ArrayLike<number>,
+): Whole {
   return movePhaseCoordinate(whole, coordinate, phaseMove(grid))
 }
 
 // a GRID move of one coordinate and its own point (see carryPhaseCoordinate): a crossing, or a frame change
-export function carryCoordinate(whole: Whole, coordinate: number, grid: ArrayLike<number>): Whole {
+export function carryCoordinate(
+  whole: Whole,
+  coordinate: number,
+  grid: ArrayLike<number>,
+): Whole {
   return carryPhaseCoordinate(whole, coordinate, phasePermOf(grid))
 }
 
@@ -559,13 +651,23 @@ export function phaseMinus(p: number, v: number): number {
 // two coordinates' own frames: K'(x, y; x0, y0) = K(x - pa, y - pb; x0 - pa, y0 - pb). Translating a coordinate is
 // conjugating it by a displacement, a Clifford move, so K' has the same divisor, is still unital and
 // weight-keeping, and its inverse is the inverse kernel translated the same way (E-SPN-0062)
-export function translatedKernel(kernel: readonly (readonly number[])[], pa: number, pb: number): number[][] {
+export function translatedKernel(
+  kernel: readonly (readonly number[])[],
+  pa: number,
+  pb: number,
+): number[][] {
   return Array.from({ length: 81 }, (_, r) => {
     const rx = phaseMinus(Math.floor(r / 9), pa)
     const ry = phaseMinus(r % 9, pb)
     const row = kernel[9 * rx + ry] ?? []
 
-    return Array.from({ length: 81 }, (__, c) => row[9 * phaseMinus(Math.floor(c / 9), pa) + phaseMinus(c % 9, pb)] ?? 0)
+    return Array.from(
+      { length: 81 },
+      (__, c) =>
+        row[
+          9 * phaseMinus(Math.floor(c / 9), pa) + phaseMinus(c % 9, pb)
+        ] ?? 0,
+    )
   })
 }
 
@@ -573,7 +675,11 @@ export function translatedKernel(kernel: readonly (readonly number[])[], pa: num
 // the origin
 const TRANSLATED = new WeakMap<object, (number[][] | undefined)[]>()
 
-export function translatedOf(kernel: readonly (readonly number[])[], pa: number, pb: number): readonly (readonly number[])[] {
+export function translatedOf(
+  kernel: readonly (readonly number[])[],
+  pa: number,
+  pb: number,
+): readonly (readonly number[])[] {
   if (pa === 0 && pb === 0) {
     return kernel
   }
@@ -641,6 +747,7 @@ export function meetWhole(input: {
 
     for (let r = 0; r < 81; r++) {
       let m = 0n
+
       const row = k4[r] ?? []
 
       for (let c = 0; c < 81; c++) {
@@ -699,7 +806,11 @@ export function advanceWhole(input: {
   kernelOf?: (
     ta: number,
     tb: number,
-  ) => { kernel: readonly (readonly number[])[]; divisor: number; order: readonly [number, number] }
+  ) => {
+    kernel: readonly (readonly number[])[]
+    divisor: number
+    order: readonly [number, number]
+  }
   // the color mode: the kernel chosen by the vibes each meeting recorded, like or love-fear. Every
   // coordinate is then read in the color weave's convention, a fear's conjugate role at the reflected point
   color?: FearKernels
@@ -712,14 +823,23 @@ export function advanceWhole(input: {
   const { weave, record, fixed, forward, color } = input
   const comoving = input.comoving !== false
   const signs = record.signs ?? []
+
   // a kernel read about the two coordinates' own points, as the whole holds them at the meeting (every crossing
   // and frame rewrite carries its coordinate's own point, carryPhaseCoordinate)
-  const about = (kernel: readonly (readonly number[])[], c0: number, c1: number): readonly (readonly number[])[] => {
-    const own = (whole as Whole | null)?.own
+  const about = (
+    kernel: readonly (readonly number[])[],
+    c0: number,
+    c1: number,
+  ): readonly (readonly number[])[] => {
+    const own = whole?.own
 
-    return comoving && own ? translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0) : kernel
+    return comoving && own
+      ? translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0)
+      : kernel
   }
+
   let meetingIndex = 0
+
   const kernelOf =
     input.kernelOf ??
     (color
@@ -727,8 +847,19 @@ export function advanceWhole(input: {
           const [sa, sb] = signs[meetingIndex++] ?? [1, 1]
 
           return sa === sb
-            ? { kernel: color.like, divisor: color.likeDivisor, order: [ta, tb] as const }
-            : { kernel: color.unlike, divisor: color.unlikeDivisor, order: (sa > 0 ? [ta, tb] : [tb, ta]) as readonly [number, number] }
+            ? {
+                kernel: color.like,
+                divisor: color.likeDivisor,
+                order: [ta, tb] as const,
+              }
+            : {
+                kernel: color.unlike,
+                divisor: color.unlikeDivisor,
+                order: (sa > 0 ? [ta, tb] : [tb, ta]) as readonly [
+                  number,
+                  number,
+                ],
+              }
         }
       : undefined)
   const { kernel4 } = input
@@ -746,20 +877,26 @@ export function advanceWhole(input: {
   // yet takes the frame of its first meeting as it stands. Going back, each meeting restores the frames it
   // replaced, from the whole's per-coordinate trail.
   const frames = (): { frame: number[]; trail: number[][] } => {
-    const w = whole as Whole
+    const w = whole!
     const k = w.tokens.length
 
     return {
       frame: w.frame ? [...w.frame] : new Array<number>(k).fill(0),
-      trail: w.trail ? w.trail.map(t => [...t]) : Array.from({ length: k }, () => []),
+      trail: w.trail
+        ? w.trail.map(t => [...t])
+        : Array.from({ length: k }, () => []),
     }
   }
 
-  const reframe = (c: number, to: number, state: { frame: number[] }): void => {
+  const reframe = (
+    c: number,
+    to: number,
+    state: { frame: number[] },
+  ): void => {
     const from = state.frame[c] ?? 0
 
     if (from !== 0 && to !== 0 && from !== to) {
-      whole = carryPhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
+      whole = carryPhaseCoordinate(whole!, c, CONJUGATE_POINT)
     }
 
     state.frame[c] = to
@@ -784,11 +921,11 @@ export function advanceWhole(input: {
           reframe(cb, sb, state)
         }
 
-        const chosen = (kernelOf as NonNullable<typeof kernelOf>)(ta, tb)
+        const chosen = kernelOf!(ta, tb)
         const c0 = coordinate.get(chosen.order[0]) ?? 0
         const c1 = coordinate.get(chosen.order[1]) ?? 0
         const met: Whole | null = meetWhole({
-          whole: whole as Whole,
+          whole: whole,
           a: c0,
           b: c1,
           kernel4: about(chosen.kernel, c0, c1),
@@ -807,7 +944,7 @@ export function advanceWhole(input: {
           reframe(cb, state.trail[cb]?.pop() ?? 0, state)
         }
 
-        whole = { ...(whole as Whole), frame: state.frame, trail: state.trail }
+        whole = { ...whole, frame: state.frame, trail: state.trail }
         continue
       }
 
@@ -826,7 +963,13 @@ export function advanceWhole(input: {
         const ca = coordinate.get(ta) ?? 0
         const cb = coordinate.get(tb) ?? 0
 
-        whole = meetWhole({ whole, a: ca, b: cb, kernel4: about(kernel4, ca, cb), fixed })
+        whole = meetWhole({
+          whole,
+          a: ca,
+          b: cb,
+          kernel4: about(kernel4, ca, cb),
+          fixed,
+        })
       }
     }
   }
@@ -872,13 +1015,27 @@ export type FearKernels = {
 // likeExchanged: whether the knit exchanges the tokens of a like meeting (the color weave does, a
 // 'first-sign' knit does not); the turn acts on the slots, so the tokens see SWAP U or U. On a knit that
 // does not exchange them the fear beat off is like = 0, not pi
-export function fearKernels(input: { like: number; unlike: number; likeExchanged?: boolean }): FearKernels | null {
+export function fearKernels(input: {
+  like: number
+  unlike: number
+  likeExchanged?: boolean
+}): FearKernels | null {
   const u = swapPhase(input.like)
-  const like = wholeKernel((input.likeExchanged ?? true) ? multiplyOperators(exchangeOperator(), u) : u, 1000)
+  const like = wholeKernel(
+    (input.likeExchanged ?? true)
+      ? multiplyOperators(exchangeOperator(), u)
+      : u,
+    1000,
+  )
   const unlike = wholeKernel(singletPhase(input.unlike), 1000)
 
   return like && unlike
-    ? { like: like.kernel, likeDivisor: like.divisor, unlike: conjugateSecond(unlike.kernel), unlikeDivisor: unlike.divisor }
+    ? {
+        like: like.kernel,
+        likeDivisor: like.divisor,
+        unlike: conjugateSecond(unlike.kernel),
+        unlikeDivisor: unlike.divisor,
+      }
     : null
 }
 
@@ -895,7 +1052,8 @@ export function swapPhase(phi: number): Operator {
 
       u.re[row * 9 + row] = (u.re[row * 9 + row] ?? 0) + (1 + c) / 2
       u.im[row * 9 + row] = (u.im[row * 9 + row] ?? 0) + s / 2
-      u.re[row * 9 + swapped] = (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
+      u.re[row * 9 + swapped] =
+        (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
       u.im[row * 9 + swapped] = (u.im[row * 9 + swapped] ?? 0) - s / 2
     }
   }
@@ -915,7 +1073,9 @@ export function twoRolePoints(): Operator[] {
 export function wignerKernel(u: Operator): number[][] {
   const points = twoRolePoints()
   const ud = adjointOperator(u)
-  const moved = points.map(a => multiplyOperators(multiplyOperators(u, a), ud))
+  const moved = points.map(a =>
+    multiplyOperators(multiplyOperators(u, a), ud),
+  )
 
   return points.map(ax =>
     moved.map(m => {
@@ -980,11 +1140,17 @@ export function singletPhase(phi: number): Operator {
 
 // the grid point a fear's conjugate role is stored at: (a, b) -> (a, -b), since A(a, b)* = A(a, -b). Stored
 // this way, a fear's point moves by the same grid move as a love's, which is the color weave's convention
-export const CONJUGATE_POINT: readonly number[] = Array.from({ length: 9 }, (_, p) => 3 * Math.floor(p / 3) + ((3 - (p % 3)) % 3))
+export const CONJUGATE_POINT: readonly number[] = Array.from(
+  { length: 9 },
+  (_, p) => 3 * Math.floor(p / 3) + ((3 - (p % 3)) % 3),
+)
 
 // the same reflection (a, b) -> (a, -b) as a table on the GRID index a + 3 b, for a mover that takes grid
 // moves (moveCoordinate, calm-weave's conjugateMove): C g C in grid terms is CONJUGATE_GRID g CONJUGATE_GRID
-export const CONJUGATE_GRID: readonly number[] = Array.from({ length: 9 }, (_, g) => (g % 3) + 3 * ((3 - Math.floor(g / 3)) % 3))
+export const CONJUGATE_GRID: readonly number[] = Array.from(
+  { length: 9 },
+  (_, g) => (g % 3) + 3 * ((3 - Math.floor(g / 3)) % 3),
+)
 
 // the whole in the love frame on every coordinate: each coordinate a color-mode meeting left in a fear's
 // frame reflected back, so the weights are the Wigner function of the roles themselves, in whole units. A
@@ -1002,20 +1168,37 @@ export function physicalWhole(whole: Whole): Whole {
 }
 
 // a kernel on (love, fear) with the fear's coordinate in the color weave's convention
-export function conjugateSecond(kernel: readonly (readonly number[])[]): number[][] {
-  const map = (i: number): number => Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
+export function conjugateSecond(
+  kernel: readonly (readonly number[])[],
+): number[][] {
+  const map = (i: number): number =>
+    Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
 
-  return Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => kernel[map(r)]?.[map(c)] ?? 0))
+  return Array.from({ length: 81 }, (_, r) =>
+    Array.from(
+      { length: 81 },
+      (__, c) => kernel[map(r)]?.[map(c)] ?? 0,
+    ),
+  )
 }
 
 // D K in whole numbers with the smallest D up to a limit, or null
-export function wholeKernel(u: Operator, limit: number): { divisor: number; kernel: number[][] } | null {
+export function wholeKernel(
+  u: Operator,
+  limit: number,
+): { divisor: number; kernel: number[][] } | null {
   const k = wignerKernel(u)
 
   for (let d = 1; d <= limit; d++) {
     const scaled = k.map(row => row.map(x => Math.round(d * x)))
 
-    if (k.every((row, r) => row.every((x, c) => Math.abs(d * x - (scaled[r]?.[c] ?? 0)) < 1e-9))) {
+    if (
+      k.every((row, r) =>
+        row.every(
+          (x, c) => Math.abs(d * x - (scaled[r]?.[c] ?? 0)) < 1e-9,
+        ),
+      )
+    ) {
       return { divisor: d, kernel: scaled }
     }
   }
@@ -1027,7 +1210,9 @@ export function wholeKernel(u: Operator, limit: number): { divisor: number; kern
 export function quarterKernel(u: Operator): number[][] | null {
   const k = wignerKernel(u)
   const k4 = k.map(row => row.map(x => Math.round(4 * x)))
-  const exact = k.every((row, r) => row.every((x, c) => Math.abs(4 * x - (k4[r]?.[c] ?? 0)) < 1e-9))
+  const exact = k.every((row, r) =>
+    row.every((x, c) => Math.abs(4 * x - (k4[r]?.[c] ?? 0)) < 1e-9),
+  )
 
   return exact ? k4 : null
 }

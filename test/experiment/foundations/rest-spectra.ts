@@ -46,10 +46,7 @@ export default experiment({
 
       seeded.data[center * 24 + dir] = 1
 
-      const series = new Map<
-        number,
-        { re: number[]; im: number[] }
-      >()
+      const series = new Map<number, { re: number[]; im: number[] }>()
 
       for (let t = 0; t < BEATS; t++) {
         vacuum = beat(vacuum, rule(t % 24))
@@ -106,6 +103,7 @@ export default experiment({
 
     const ladderDirs = [21, 22]
     const broadbandDirs = [20, 23]
+
     let ladderExact = 0
     let broadbandConfirmed = 0
 

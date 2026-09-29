@@ -89,11 +89,24 @@ type FieldRun = {
   loops: { w11: number; w12: number; w22: number }
 }
 
-type LinesRun = { exact: boolean; matched: number; lineN: number; perLine: number[]; links: Int16Array }
+type LinesRun = {
+  exact: boolean
+  matched: number
+  lineN: number
+  perLine: number[]
+  links: Int16Array
+}
 
-type MesonRun = { exact: boolean; adjacent: number; matchedWhenAdjacent: number; meanGap: number; hops: number }
+type MesonRun = {
+  exact: boolean
+  adjacent: number
+  matchedWhenAdjacent: number
+  meanGap: number
+  hops: number
+}
 
-const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+const mean = (xs: number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / xs.length
 
 export default experiment({
   id: 'gauge/matter-shapes-the-field',
@@ -108,7 +121,12 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const make = (input: { kappa: number; hop: boolean; roles: boolean }): MatterLinks => makeMatterLinks({ side: SIDE, capacity: CAPACITY, ...input })
+    const make = (input: {
+      kappa: number
+      hop: boolean
+      roles: boolean
+    }): MatterLinks =>
+      makeMatterLinks({ side: SIDE, capacity: CAPACITY, ...input })
     const plain = make({ kappa: KAPPA, hop: false, roles: true })
     const { cells } = plain
     const triangles = (cells * 12 * 8) / 3
@@ -123,7 +141,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const demonMean = (s: MatterState): number => {
       let sum = 0
@@ -138,19 +157,33 @@ export default experiment({
     }
 
     // the drained field, shared by both branches
-    let drained: MatterState = { vibe: new Int8Array(cells), role: new Int8Array(cells), links: hashedLinks(plain), demon: new Int32Array(cells * 24) }
+    let drained: MatterState = {
+      vibe: new Int8Array(cells),
+      role: new Int8Array(cells),
+      links: hashedLinks(plain),
+      demon: new Int32Array(cells * 24),
+    }
 
     for (let k = 0; k < DRAIN; k++) {
       drained = matterBeat(plain, drained, k).state
       drained.demon.fill(0)
     }
 
-    const branch = (input: { fill: number; settle: number }): Branch => {
-      let s: MatterState = { ...drained, links: Int16Array.from(drained.links), demon: new Int32Array(cells * 24) }
+    const branch = (input: {
+      fill: number
+      settle: number
+    }): Branch => {
+      let s: MatterState = {
+        ...drained,
+        links: Int16Array.from(drained.links),
+        demon: new Int32Array(cells * 24),
+      }
 
       for (let x = 0; x < cells; x++) {
         for (const a of plain.firsts) {
-          s.demon[x * 24 + a] = Math.floor(2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5)
+          s.demon[x * 24 + a] = Math.floor(
+            2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5,
+          )
         }
       }
 
@@ -162,7 +195,12 @@ export default experiment({
     }
 
     // the transport round a rectangle r along s by h along tau, from x
-    const rectangle = (links: Int16Array, x: number, r: number, h: number): number => {
+    const rectangle = (
+      links: Int16Array,
+      x: number,
+      r: number,
+      h: number,
+    ): number => {
       const back = (d: number): number => plain.opposite[d] ?? d
       const dirs = [
         ...new Array<number>(r).fill(along),
@@ -175,7 +213,8 @@ export default experiment({
       let c = x
 
       for (const d of dirs) {
-        g = plain.compose[(links[c * 24 + d] ?? 0) * plain.order + g] ?? 0
+        g =
+          plain.compose[(links[c * 24 + d] ?? 0) * plain.order + g] ?? 0
         c = plain.neighbour[c * 24 + d] ?? 0
       }
 
@@ -197,11 +236,25 @@ export default experiment({
         const n = new Float64Array(cells)
 
         for (let x = 0; x < cells; x++) {
-          n[x] = fixedPoints(plain, lineTransport(plain, s.links, x, tau))
+          n[x] = fixedPoints(
+            plain,
+            lineTransport(plain, s.links, x, tau),
+          )
           bulkN += n[x]! / cells / BEATS
-          loops.w11 += (fixedPoints(plain, rectangle(s.links, x, 1, 1)) - 1) / cells / BEATS
-          loops.w12 += (fixedPoints(plain, rectangle(s.links, x, 1, 2)) - 1) / cells / BEATS
-          loops.w22 += (fixedPoints(plain, rectangle(s.links, x, 2, 2)) - 1) / cells / BEATS
+          loops.w11 +=
+            (fixedPoints(plain, rectangle(s.links, x, 1, 1)) - 1) /
+            cells /
+            BEATS
+
+          loops.w12 +=
+            (fixedPoints(plain, rectangle(s.links, x, 1, 2)) - 1) /
+            cells /
+            BEATS
+
+          loops.w22 +=
+            (fixedPoints(plain, rectangle(s.links, x, 2, 2)) - 1) /
+            cells /
+            BEATS
         }
 
         for (let r = 0; r < SIDE; r++) {
@@ -228,7 +281,12 @@ export default experiment({
     }
 
     // static source lines through `starts`, signs `signs`, role points hashed
-    const lines = (b: Branch, rule: MatterLinks, starts: number[], signs: number[]): LinesRun => {
+    const lines = (
+      b: Branch,
+      rule: MatterLinks,
+      starts: number[],
+      signs: number[],
+    ): LinesRun => {
       const vibe = new Int8Array(cells)
       const role = new Int8Array(cells)
 
@@ -239,7 +297,12 @@ export default experiment({
         }),
       )
 
-      let s: MatterState = { vibe, role, links: Int16Array.from(b.base.links), demon: Int32Array.from(b.base.demon) }
+      let s: MatterState = {
+        vibe,
+        role,
+        links: Int16Array.from(b.base.links),
+        demon: Int32Array.from(b.base.demon),
+      }
 
       const e0 = totalEnergy(rule, s)
       const perLine = starts.map(() => 0)
@@ -253,11 +316,20 @@ export default experiment({
         exact = exact && totalEnergy(rule, s) === e0
 
         starts.forEach((x, k) => {
-          lineN += fixedPoints(rule, lineTransport(rule, s.links, x, tau)) / starts.length / BEATS
+          lineN +=
+            fixedPoints(rule, lineTransport(rule, s.links, x, tau)) /
+            starts.length /
+            BEATS
 
           for (const c of line(x)) {
-            perLine[k] = (perLine[k] ?? 0) + linkLevel(rule, s.links, c, tau) / SIDE / BEATS
-            matched += vibe[c] !== 0 && carries(rule, s, c, tau) ? 1 / (SIDE * starts.length * BEATS) : 0
+            perLine[k] =
+              (perLine[k] ?? 0) +
+              linkLevel(rule, s.links, c, tau) / SIDE / BEATS
+
+            matched +=
+              vibe[c] !== 0 && carries(rule, s, c, tau)
+                ? 1 / (SIDE * starts.length * BEATS)
+                : 0
           }
         })
       }
@@ -274,9 +346,15 @@ export default experiment({
       vibe[x0] = 1
       vibe[y0] = -1
       role[x0] = 4
-      role[y0] = rule.act[(b.base.links[x0 * 24 + along] ?? 0) * 9 + 4] ?? 0
+      role[y0] =
+        rule.act[(b.base.links[x0 * 24 + along] ?? 0) * 9 + 4] ?? 0
 
-      let s: MatterState = { vibe, role, links: Int16Array.from(b.base.links), demon: Int32Array.from(b.base.demon) }
+      let s: MatterState = {
+        vibe,
+        role,
+        links: Int16Array.from(b.base.links),
+        demon: Int32Array.from(b.base.demon),
+      }
 
       const e0 = totalEnergy(rule, s)
 
@@ -298,7 +376,9 @@ export default experiment({
         s.vibe.forEach((v, x) => (v !== 0 ? at.push(x) : undefined))
 
         const [a, c] = [at[0] ?? 0, at[1] ?? 0]
-        const d = Array.from({ length: 24 }, (_, k) => k).find(k => rule.neighbour[a * 24 + k] === c)
+        const d = Array.from({ length: 24 }, (_, k) => k).find(
+          k => rule.neighbour[a * 24 + k] === c,
+        )
 
         gap += d4BoxDistance({ a, b: c, side: SIDE }) / BEATS
 
@@ -308,7 +388,13 @@ export default experiment({
         }
       }
 
-      return { exact, adjacent: adjacent / BEATS, matchedWhenAdjacent: adjacent > 0 ? matched / adjacent : 0, meanGap: gap, hops }
+      return {
+        exact,
+        adjacent: adjacent / BEATS,
+        matchedWhenAdjacent: adjacent > 0 ? matched / adjacent : 0,
+        meanGap: gap,
+        hops,
+      }
     }
 
     // the 27 lines through cells of time 0 with every other coordinate even
@@ -325,42 +411,117 @@ export default experiment({
     const frozen = make({ kappa: KAPPA, hop: false, roles: false })
     const invisible = make({ kappa: 0, hop: false, roles: false })
     const hopping = make({ kappa: KAPPA, hop: true, roles: true })
-    const hoppingFrozen = make({ kappa: KAPPA, hop: true, roles: false })
+    const hoppingFrozen = make({
+      kappa: KAPPA,
+      hop: true,
+      roles: false,
+    })
     const hoppingFree = make({ kappa: 0, hop: true, roles: true })
 
     const measure = (b: Branch) => {
       const field = fieldAlone(b)
-      const none = lines(b, frozen, starts, starts.map(() => 0))
-      const sourced = lines(b, frozen, starts, starts.map(() => 1))
-      const control = lines(b, invisible, starts, starts.map(() => 1))
-      const dent = sourced.perLine.map((l, k) => l - (none.perLine[k] ?? 0))
+      const none = lines(
+        b,
+        frozen,
+        starts,
+        starts.map(() => 0),
+      )
+      const sourced = lines(
+        b,
+        frozen,
+        starts,
+        starts.map(() => 1),
+      )
+      const control = lines(
+        b,
+        invisible,
+        starts,
+        starts.map(() => 1),
+      )
+      const dent = sourced.perLine.map(
+        (l, k) => l - (none.perLine[k] ?? 0),
+      )
       const dentMean = mean(dent)
-      const dentError = Math.sqrt(dent.reduce((a, v) => a + (v - dentMean) ** 2, 0) / (dent.length - 1) / dent.length)
-      const identical = control.links.every((v, i) => v === none.links[i]) ? 1 : 0
-      const pairs = SEPARATIONS.map(r => lines(b, frozen, [0, walk(0, along, r)], [1, -1]))
-      const mesons = { bound: meson(b, hopping), frozen: meson(b, hoppingFrozen), free: meson(b, hoppingFree) }
-      const chi = field.loops.w22 > 0 && field.loops.w12 > 0 ? -Math.log((field.loops.w22 * field.loops.w11) / field.loops.w12 ** 2) : Number.NaN
+      const dentError = Math.sqrt(
+        dent.reduce((a, v) => a + (v - dentMean) ** 2, 0) /
+          (dent.length - 1) /
+          dent.length,
+      )
+      const identical = control.links.every(
+        (v, i) => v === none.links[i],
+      )
+        ? 1
+        : 0
+      const pairs = SEPARATIONS.map(r =>
+        lines(b, frozen, [0, walk(0, along, r)], [1, -1]),
+      )
+      const mesons = {
+        bound: meson(b, hopping),
+        frozen: meson(b, hoppingFrozen),
+        free: meson(b, hoppingFree),
+      }
+      const chi =
+        field.loops.w22 > 0 && field.loops.w12 > 0
+          ? -Math.log(
+              (field.loops.w22 * field.loops.w11) /
+                field.loops.w12 ** 2,
+            )
+          : Number.NaN
 
-      return { field, none, sourced, control, dentMean, dentError, identical, pairs, mesons, chi }
+      return {
+        field,
+        none,
+        sourced,
+        control,
+        dentMean,
+        dentError,
+        identical,
+        pairs,
+        mesons,
+        chi,
+      }
     }
 
     const melted = measure(branch(MELTED))
     const cold = measure(branch(COLD))
     const both = [melted, cold]
 
-    const exact = both.every(m => [m.none, m.sourced, m.control, ...m.pairs].every(r => r.exact) && Object.values(m.mesons).every(r => r.exact))
+    const exact = both.every(
+      m =>
+        [m.none, m.sourced, m.control, ...m.pairs].every(
+          r => r.exact,
+        ) && Object.values(m.mesons).every(r => r.exact),
+    )
 
     const ok =
       exact &&
-      both.every(m => m.sourced.matched > 0.5 && m.control.matched < 0.2 && m.sourced.lineN > m.none.lineN && m.identical === 1) &&
+      both.every(
+        m =>
+          m.sourced.matched > 0.5 &&
+          m.control.matched < 0.2 &&
+          m.sourced.lineN > m.none.lineN &&
+          m.identical === 1,
+      ) &&
       melted.dentMean > 2 * melted.dentError &&
-      both.every(m => m.mesons.bound.adjacent > 3 * m.mesons.free.adjacent && m.mesons.frozen.matchedWhenAdjacent > 0.5)
+      both.every(
+        m =>
+          m.mesons.bound.adjacent > 3 * m.mesons.free.adjacent &&
+          m.mesons.frozen.matchedWhenAdjacent > 0.5,
+      )
 
-    const report = (label: string, m: typeof melted): Record<string, number> => ({
+    const report = (
+      label: string,
+      m: typeof melted,
+    ): Record<string, number> => ({
       [`${label}Level`]: m.field.level,
       [`${label}DemonBeta`]: m.field.beta,
       [`${label}PolyakovCount`]: m.field.bulkN,
-      ...Object.fromEntries(SEPARATIONS.map(r => [`${label}PolyakovCorrelator${r}`, m.field.correlator[r] ?? 0])),
+      ...Object.fromEntries(
+        SEPARATIONS.map(r => [
+          `${label}PolyakovCorrelator${r}`,
+          m.field.correlator[r] ?? 0,
+        ]),
+      ),
       [`${label}RoleLoop11`]: m.field.loops.w11,
       [`${label}RoleLoop12`]: m.field.loops.w12,
       [`${label}RoleLoop22`]: m.field.loops.w22,
@@ -377,9 +538,11 @@ export default experiment({
         ]),
       ),
       [`${label}MesonAdjacent`]: m.mesons.bound.adjacent,
-      [`${label}MesonCarriesWhenAdjacent`]: m.mesons.bound.matchedWhenAdjacent,
+      [`${label}MesonCarriesWhenAdjacent`]:
+        m.mesons.bound.matchedWhenAdjacent,
       [`${label}MesonFrozenRolesAdjacent`]: m.mesons.frozen.adjacent,
-      [`${label}MesonFrozenRolesCarriesWhenAdjacent`]: m.mesons.frozen.matchedWhenAdjacent,
+      [`${label}MesonFrozenRolesCarriesWhenAdjacent`]:
+        m.mesons.frozen.matchedWhenAdjacent,
       [`${label}MesonMeanGap`]: m.mesons.bound.meanGap,
       [`${label}MesonHopsPerBeat`]: m.mesons.bound.hops / BEATS,
     })
@@ -388,7 +551,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'on both branches, with the energy exact on every beat, the links alone make static source lines carry their role points more than half the time (under 0.2 with kappa 0, whose field stays bit-identical to the run without matter) and raise the Polyakov count on the lines, on the melted branch at a positive cost in the triangles round the source links, and a meson with kappa is adjacent more than 3 times as often as without, its link carrying its color more than half the time when adjacent even with role points frozen',
-      metrics: { energyExact: exact ? 1 : 0, ...report('melted', melted), ...report('cold', cold) },
+      metrics: {
+        energyExact: exact ? 1 : 0,
+        ...report('melted', melted),
+        ...report('cold', cold),
+      },
       control: {
         meltedKappaZeroCarry: melted.control.matched,
         coldKappaZeroCarry: cold.control.matched,

@@ -21,7 +21,10 @@
 // anisotropy stays finite as k goes to 0 (the leading tensor itself is anisotropic), 2 or 4 when it falls.
 
 import { periodMap } from '@/code/coarse/knit-boltzmann'
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
@@ -31,18 +34,27 @@ const N = 48
 
 // An orthonormal basis of the left vectors kept by every matrix (l A_t = l), by Gaussian elimination on the
 // stacked (A_t - I)^T with a relative pivot floor. Exact rational matrices give exact rank.
-export function invariantBasis(matrices: readonly Float64Array[], floor = 1e-9): Float64Array[] {
+export function invariantBasis(
+  matrices: readonly Float64Array[],
+  floor = 1e-9,
+): Float64Array[] {
   // rows: for each t and each column c, the equation sum_r l_r (A_t[r][c] - delta) = 0
   const rows: Float64Array[] = []
 
   for (const a of matrices) {
     for (let c = 0; c < N; c++) {
-      rows.push(Float64Array.from({ length: N }, (_, r) => (a[r * N + c] ?? 0) - (r === c ? 1 : 0)))
+      rows.push(
+        Float64Array.from(
+          { length: N },
+          (_, r) => (a[r * N + c] ?? 0) - (r === c ? 1 : 0),
+        ),
+      )
     }
   }
 
   // row-reduce
   const pivots: number[] = []
+
   let rank = 0
 
   for (let col = 0; col < N && rank < rows.length; col++) {
@@ -70,16 +82,22 @@ export function invariantBasis(matrices: readonly Float64Array[], floor = 1e-9):
     const pivot = rows[rank] ?? new Float64Array(N)
     const p = pivot[col] ?? 1
 
-    for (let j = 0; j < N; j++) pivot[j] = (pivot[j] ?? 0) / p
+    for (let j = 0; j < N; j++) {
+      pivot[j] = (pivot[j] ?? 0) / p
+    }
 
     for (let i = 0; i < rows.length; i++) {
-      if (i === rank) continue
+      if (i === rank) {
+        continue
+      }
 
       const row = rows[i] ?? new Float64Array(N)
       const f = row[col] ?? 0
 
       if (f !== 0) {
-        for (let j = 0; j < N; j++) row[j] = (row[j] ?? 0) - f * (pivot[j] ?? 0)
+        for (let j = 0; j < N; j++) {
+          row[j] = (row[j] ?? 0) - f * (pivot[j] ?? 0)
+        }
       }
     }
 
@@ -88,7 +106,9 @@ export function invariantBasis(matrices: readonly Float64Array[], floor = 1e-9):
   }
 
   // null space: one vector per free column
-  const free = Array.from({ length: N }, (_, i) => i).filter(i => !pivots.includes(i))
+  const free = Array.from({ length: N }, (_, i) => i).filter(
+    i => !pivots.includes(i),
+  )
   const basis = free.map(f => {
     const v = new Float64Array(N)
 
@@ -103,7 +123,10 @@ export function invariantBasis(matrices: readonly Float64Array[], floor = 1e-9):
   return orthonormalize(basis)
 }
 
-export function orthonormalize(vectors: readonly Float64Array[], floor = 1e-10): Float64Array[] {
+export function orthonormalize(
+  vectors: readonly Float64Array[],
+  floor = 1e-10,
+): Float64Array[] {
   const out: Float64Array[] = []
 
   for (const v of vectors) {
@@ -112,17 +135,26 @@ export function orthonormalize(vectors: readonly Float64Array[], floor = 1e-10):
     for (const u of out) {
       let s = 0
 
-      for (let i = 0; i < w.length; i++) s += (u[i] ?? 0) * (w[i] ?? 0)
-      for (let i = 0; i < w.length; i++) w[i] = (w[i] ?? 0) - s * (u[i] ?? 0)
+      for (let i = 0; i < w.length; i++) {
+        s += (u[i] ?? 0) * (w[i] ?? 0)
+      }
+
+      for (let i = 0; i < w.length; i++) {
+        w[i] = (w[i] ?? 0) - s * (u[i] ?? 0)
+      }
     }
 
     let norm = 0
 
-    for (let i = 0; i < w.length; i++) norm += (w[i] ?? 0) ** 2
+    for (let i = 0; i < w.length; i++) {
+      norm += (w[i] ?? 0) ** 2
+    }
 
     norm = Math.sqrt(norm)
 
-    if (norm > floor) out.push(w.map(x => x / norm))
+    if (norm > floor) {
+      out.push(w.map(x => x / norm))
+    }
   }
 
   return out
@@ -130,19 +162,26 @@ export function orthonormalize(vectors: readonly Float64Array[], floor = 1e-10):
 
 // the dimension of the span of `inner` inside the span of `outer` (both orthonormal lists): how many of the
 // named densities are exact invariants
-export function spanInside(inner: readonly Float64Array[], outer: readonly Float64Array[]): number {
+export function spanInside(
+  inner: readonly Float64Array[],
+  outer: readonly Float64Array[],
+): number {
   let kept = 0
 
   for (const v of inner) {
     let norm = 0
     let projected = 0
 
-    for (let i = 0; i < v.length; i++) norm += (v[i] ?? 0) ** 2
+    for (let i = 0; i < v.length; i++) {
+      norm += (v[i] ?? 0) ** 2
+    }
 
     for (const u of outer) {
       let s = 0
 
-      for (let i = 0; i < v.length; i++) s += (u[i] ?? 0) * (v[i] ?? 0)
+      for (let i = 0; i < v.length; i++) {
+        s += (u[i] ?? 0) * (v[i] ?? 0)
+      }
 
       projected += s * s
     }
@@ -154,11 +193,22 @@ export function spanInside(inner: readonly Float64Array[], outer: readonly Float
 }
 
 // the named one-body densities as left vectors
-export const CHARGE: Float64Array = Float64Array.from({ length: N }, (_, i) => (i % 2 === 0 ? 1 : -1))
-export const COUNT: Float64Array = Float64Array.from({ length: N }, () => 1)
+export const CHARGE: Float64Array = Float64Array.from(
+  { length: N },
+  (_, i) => (i % 2 === 0 ? 1 : -1),
+)
+export const COUNT: Float64Array = Float64Array.from(
+  { length: N },
+  () => 1,
+)
 
 export function momentumAlong(u: readonly number[]): Float64Array {
-  return Float64Array.from({ length: N }, (_, i) => (ROOTS[Math.floor(i / 2)] ?? []).reduce((s, x, k) => s + x * (u[k] ?? 0), 0))
+  return Float64Array.from({ length: N }, (_, i) =>
+    (ROOTS[Math.floor(i / 2)] ?? []).reduce(
+      (s, x, k) => s + x * (u[k] ?? 0),
+      0,
+    ),
+  )
 }
 
 // ---- the slow modes at one wave vector ----
@@ -175,7 +225,11 @@ export type Mode = {
 // Named families for a direction u (unit 4-vector): the invariant space split into charge, the momentum
 // along u, the momentum across u inside the husk (x4 = 0), the depth momentum (if u lies in the husk) and
 // the rest of the invariants (other). For a bulk direction, across-u is every momentum direction across u.
-export function familiesFor(input: { u: readonly number[]; invariants: readonly Float64Array[]; husk: boolean }): Record<string, Float64Array[]> {
+export function familiesFor(input: {
+  u: readonly number[]
+  invariants: readonly Float64Array[]
+  husk: boolean
+}): Record<string, Float64Array[]> {
   const { u, invariants, husk } = input
   const across: Float64Array[] = []
   const basis4 = [
@@ -199,15 +253,21 @@ export function familiesFor(input: { u: readonly number[]; invariants: readonly 
     for (const a of acrossVectors) {
       const s = w.reduce((acc, x, k) => acc + x * (a[k] ?? 0), 0)
 
-      for (let k = 0; k < 4; k++) w[k] = (w[k] ?? 0) - s * (a[k] ?? 0)
+      for (let k = 0; k < 4; k++) {
+        w[k] = (w[k] ?? 0) - s * (a[k] ?? 0)
+      }
     }
 
     const norm = Math.hypot(...w)
 
-    if (norm > 1e-9) acrossVectors.push(w.map(x => x / norm))
+    if (norm > 1e-9) {
+      acrossVectors.push(w.map(x => x / norm))
+    }
   }
 
-  for (const a of acrossVectors) across.push(momentumAlong(a))
+  for (const a of acrossVectors) {
+    across.push(momentumAlong(a))
+  }
 
   const named: [string, Float64Array[]][] = [
     ['charge', [CHARGE]],
@@ -215,7 +275,9 @@ export function familiesFor(input: { u: readonly number[]; invariants: readonly 
     ['shear', across],
   ]
 
-  if (husk) named.push(['depth', [momentumAlong([0, 0, 0, 1])]])
+  if (husk) {
+    named.push(['depth', [momentumAlong([0, 0, 0, 1])]])
+  }
 
   // restrict each named family to its part inside the invariant space, then orthonormalize in order
   const project = (v: Float64Array): Float64Array => {
@@ -224,12 +286,18 @@ export function familiesFor(input: { u: readonly number[]; invariants: readonly 
     for (const b of invariants) {
       let s = 0
 
-      for (let i = 0; i < N; i++) s += (b[i] ?? 0) * (v[i] ?? 0)
-      for (let i = 0; i < N; i++) out[i] = (out[i] ?? 0) + s * (b[i] ?? 0)
+      for (let i = 0; i < N; i++) {
+        s += (b[i] ?? 0) * (v[i] ?? 0)
+      }
+
+      for (let i = 0; i < N; i++) {
+        out[i] = (out[i] ?? 0) + s * (b[i] ?? 0)
+      }
     }
 
     return out
   }
+
   const ordered: Float64Array[] = []
   const labels: string[] = []
 
@@ -275,13 +343,25 @@ export function slowModesAt(input: {
   const period = input.matrices.length
   const map = periodMap({ matrices: input.matrices, wave: input.wave })
   const ev = complexEigenvalues({ re: map.re, im: map.im, n: N })
-  const order = ev.re.map((_, i) => i).sort((a, b) => Math.hypot(ev.re[b] ?? 0, ev.im[b] ?? 0) - Math.hypot(ev.re[a] ?? 0, ev.im[a] ?? 0))
+  const order = ev.re
+    .map((_, i) => i)
+    .sort(
+      (a, b) =>
+        Math.hypot(ev.re[b] ?? 0, ev.im[b] ?? 0) -
+        Math.hypot(ev.re[a] ?? 0, ev.im[a] ?? 0),
+    )
 
   return order.slice(0, input.count).map(i => {
     const re = ev.re[i] ?? 0
     const im = ev.im[i] ?? 0
-    const x = complexEigenvector({ re: map.re, im: map.im, n: N, value: [re, im] })
+    const x = complexEigenvector({
+      re: map.re,
+      im: map.im,
+      n: N,
+      value: [re, im],
+    })
     const weights: Record<string, number> = {}
+
     let total = 0
 
     for (const [name, list] of Object.entries(input.families)) {
@@ -303,7 +383,10 @@ export function slowModesAt(input: {
       total += w
     }
 
-    const [family, weight] = Object.entries(weights).reduce((best, e) => (e[1] > best[1] ? e : best), ['none', -1] as [string, number])
+    const [family, weight] = Object.entries(weights).reduce(
+      (best, e) => (e[1] > best[1] ? e : best),
+      ['none', -1] as [string, number],
+    )
 
     return {
       gamma: -Math.log(Math.hypot(re, im)) / period,
@@ -388,7 +471,12 @@ export function bulkDirections(extra: number): number[][] {
     const r1 = Math.sqrt(u)
     const r2 = Math.sqrt(1 - u)
 
-    out.push([r1 * Math.cos(p), r1 * Math.sin(p), r2 * Math.cos(q), r2 * Math.sin(q)])
+    out.push([
+      r1 * Math.cos(p),
+      r1 * Math.sin(p),
+      r2 * Math.cos(q),
+      r2 * Math.sin(q),
+    ])
   }
 
   return out.map(v => {
@@ -406,15 +494,22 @@ export function spread(values: readonly number[]): number {
 }
 
 // the log-log slope of ys against xs with its standard error (ordinary least squares)
-export function logSlope(xs: readonly number[], ys: readonly number[]): { slope: number; error: number } {
+export function logSlope(
+  xs: readonly number[],
+  ys: readonly number[],
+): { slope: number; error: number } {
   const x = xs.map(Math.log)
   const y = ys.map(v => Math.log(Math.max(v, 1e-300)))
   const n = x.length
   const mx = x.reduce((s, v) => s + v, 0) / n
   const my = y.reduce((s, v) => s + v, 0) / n
   const sxx = x.reduce((s, v) => s + (v - mx) ** 2, 0)
-  const slope = x.reduce((s, v, i) => s + (v - mx) * ((y[i] ?? 0) - my), 0) / sxx
-  const residual = y.reduce((s, v, i) => s + (v - my - slope * ((x[i] ?? 0) - mx)) ** 2, 0)
+  const slope =
+    x.reduce((s, v, i) => s + (v - mx) * ((y[i] ?? 0) - my), 0) / sxx
+  const residual = y.reduce(
+    (s, v, i) => s + (v - my - slope * ((x[i] ?? 0) - mx)) ** 2,
+    0,
+  )
   const error = n > 2 ? Math.sqrt(residual / (n - 2) / sxx) : Number.NaN
 
   return { slope, error }

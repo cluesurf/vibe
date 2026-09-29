@@ -186,7 +186,6 @@ function matInv(m: Mat, n: number, p: number): Mat {
           a[piv * n + j]!,
           a[col * n + j]!,
         ]
-
         ;[inv[col * n + j], inv[piv * n + j]] = [
           inv[piv * n + j]!,
           inv[col * n + j]!,

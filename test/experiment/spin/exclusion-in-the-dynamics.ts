@@ -49,12 +49,25 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4BoxCell, d4BoxMesh } from '@/code/substrate/d4-box'
-import { coldBeat, coldBeatBack, makeColdWeave, type ColdState } from '@/code/rule/cold-weave'
+import {
+  coldBeat,
+  coldBeatBack,
+  makeColdWeave,
+  type ColdState,
+} from '@/code/rule/cold-weave'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 import { weylUnitary } from '@/code/tool/weyl'
-import { fearKernels, meetWhole, type Whole } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  meetWhole,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import {
   bunchedNorm,
   composeColumns,
@@ -72,23 +85,61 @@ const RING_DOCKS = 7
 const BEATS = [1, 2, 3, 4]
 // the six units of Z[omega]: 1, omega, omega^2 and their negatives (codes of unitOf)
 const UNITS = [1, 2, 3, -1, -2, -3]
-const UNIT_NAMES: Record<number, string> = { 1: 'plusOne', 2: 'omega', 3: 'omegaSquared', [-1]: 'minusOne', [-2]: 'minusOmega', [-3]: 'minusOmegaSquared' }
-const UNIT_ANGLE: Record<number, number> = { 1: 0, 2: (2 * Math.PI) / 3, 3: (4 * Math.PI) / 3, [-1]: Math.PI, [-2]: Math.PI + (2 * Math.PI) / 3, [-3]: Math.PI + (4 * Math.PI) / 3 }
-const PREDICTED_SAME_DOCK: Record<number, number> = { 1: 4, 2: 13, 3: 13, [-1]: 16, [-2]: 7, [-3]: 7 }
+const UNIT_NAMES: Record<number, string> = {
+  1: 'plusOne',
+  2: 'omega',
+  3: 'omegaSquared',
+  [-1]: 'minusOne',
+  [-2]: 'minusOmega',
+  [-3]: 'minusOmegaSquared',
+}
+const UNIT_ANGLE: Record<number, number> = {
+  1: 0,
+  2: (2 * Math.PI) / 3,
+  3: (4 * Math.PI) / 3,
+  [-1]: Math.PI,
+  [-2]: Math.PI + (2 * Math.PI) / 3,
+  [-3]: Math.PI + (4 * Math.PI) / 3,
+}
+const PREDICTED_SAME_DOCK: Record<number, number> = {
+  1: 4,
+  2: 13,
+  3: 13,
+  [-1]: 16,
+  [-2]: 7,
+  [-3]: 7,
+}
 
 // the E-FLD-0032 cold weave's spec, as fluids/cold-vacuum builds it
 function coldSpec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
-function knitRuns(): { starts: number; outside: number; returned: number; meetings: number } {
+function knitRuns(): {
+  starts: number
+  outside: number
+  returned: number
+  meetings: number
+} {
   const side = 5
   const mesh = d4BoxMesh({ side })
   const weave = makeColdWeave({ mesh, spec: coldSpec() })
   const m = d4BoxCell({ coordinates: [2, 2, 2, 2], side })
   const n = mesh.cellCount * 24
+
   let starts = 0
   let outside = 0
   let returned = 0
@@ -98,12 +149,18 @@ function knitRuns(): { starts: number; outside: number; returned: number; meetin
     for (let e = d + 1; e < 24; e++) {
       for (let phase = 0; phase < 24; phase++) {
         for (const store of [0, 1]) {
-          const start: ColdState = { vibe: new Int8Array(n), store: new Int32Array(n), demon: new Int32Array(mesh.cellCount * 12) }
+          const start: ColdState = {
+            vibe: new Int8Array(n),
+            store: new Int32Array(n),
+            demon: new Int32Array(mesh.cellCount * 12),
+          }
 
           start.vibe[mesh.neighbour(m, mesh.opposite(d)) * 24 + d] = 1
-          start.store[mesh.neighbour(m, mesh.opposite(d)) * 24 + d] = store
+          start.store[mesh.neighbour(m, mesh.opposite(d)) * 24 + d] =
+            store
           start.vibe[mesh.neighbour(m, mesh.opposite(e)) * 24 + e] = 1
-          start.store[mesh.neighbour(m, mesh.opposite(e)) * 24 + e] = store
+          start.store[mesh.neighbour(m, mesh.opposite(e)) * 24 + e] =
+            store
 
           let s = start
 
@@ -119,7 +176,11 @@ function knitRuns(): { starts: number; outside: number; returned: number; meetin
             }
 
             // after the first beat both loves sit in dock m: they meet there
-            if (t === 0 && s.vibe[m * 24 + d] === 1 && s.vibe[m * 24 + e] === 1) {
+            if (
+              t === 0 &&
+              s.vibe[m * 24 + d] === 1 &&
+              s.vibe[m * 24 + e] === 1
+            ) {
               meetings++
             }
           }
@@ -128,7 +189,10 @@ function knitRuns(): { starts: number; outside: number; returned: number; meetin
             s = coldBeatBack(weave, s, phase + t)
           }
 
-          const same = s.vibe.every((v, i) => v === start.vibe[i]) && s.store.every((v, i) => v === start.store[i]) && s.demon.every(v => v === 0)
+          const same =
+            s.vibe.every((v, i) => v === start.vibe[i]) &&
+            s.store.every((v, i) => v === start.store[i]) &&
+            s.demon.every(v => v === 0)
 
           starts++
           returned += same ? 1 : 0
@@ -143,8 +207,16 @@ function knitRuns(): { starts: number; outside: number; returned: number; meetin
 function ringTheorem() {
   const slots = 2 * RING_DOCKS
   const one = ringColumns(RING_DOCKS)
+
   let columns = one
-  const rows: { t: number; chi: number; exact: number; sameDock: number }[] = []
+
+  const rows: {
+    t: number
+    chi: number
+    exact: number
+    sameDock: number
+  }[] = []
+
   let identityHolds = true
   let identityChecks = 0
 
@@ -164,19 +236,28 @@ function ringTheorem() {
 
     for (const p of parts) {
       identityChecks++
-      identityHolds = identityHolds && pairNorm(p, 1) + bunchedNorm(p) === full
+      identityHolds =
+        identityHolds && pairNorm(p, 1) + bunchedNorm(p) === full
     }
 
     for (const chi of UNITS) {
       const exact = parts.filter(p => pairNorm(p, chi) === full).length
       // the same-dock start: slots 0 and 1 of dock 0
-      const sameDock = pairNorm(pairParts({ columns, s1: 0, s2: 1, slots }), chi)
+      const sameDock = pairNorm(
+        pairParts({ columns, s1: 0, s2: 1, slots }),
+        chi,
+      )
 
       rows.push({ t, chi, exact, sameDock })
     }
   }
 
-  return { rows, starts: (slots * (slots - 1)) / 2, identityHolds, identityChecks }
+  return {
+    rows,
+    starts: (slots * (slots - 1)) / 2,
+    identityHolds,
+    identityChecks,
+  }
 }
 
 function coinScan() {
@@ -185,15 +266,28 @@ function coinScan() {
     [1, 2, 3, 4].map(start => {
       const u = weylUnitary({ dimension: k, start: 1000 * k + start })
 
-      return Object.fromEntries(UNITS.map(chi => [chi, denseCoinPairDeparture({ re: u.re, im: u.im, theta: UNIT_ANGLE[chi] ?? 0 })])) as Record<number, number>
+      return Object.fromEntries(
+        UNITS.map(chi => [
+          chi,
+          denseCoinPairDeparture({
+            re: u.re,
+            im: u.im,
+            theta: UNIT_ANGLE[chi] ?? 0,
+          }),
+        ]),
+      ) as Record<number, number>
     }),
   )
   // permutation coins: slot s -> slot (s + shift) mod k with phase omega^(s mod 3), the classical knit's
   // moves carrying a phase
   const permutation = sizes.flatMap(k =>
     [1, 2].map(shift => {
-      const re = Array.from({ length: k }, () => new Array<number>(k).fill(0))
-      const im = Array.from({ length: k }, () => new Array<number>(k).fill(0))
+      const re = Array.from({ length: k }, () =>
+        new Array<number>(k).fill(0),
+      )
+      const im = Array.from({ length: k }, () =>
+        new Array<number>(k).fill(0),
+      )
 
       for (let s = 0; s < k; s++) {
         const angle = ((2 * Math.PI) / 3) * (s % 3)
@@ -204,7 +298,16 @@ function coinScan() {
         rowIm[s] = Math.sin(angle)
       }
 
-      return Object.fromEntries(UNITS.map(chi => [chi, denseCoinPairDeparture({ re, im, theta: UNIT_ANGLE[chi] ?? 0 })])) as Record<number, number>
+      return Object.fromEntries(
+        UNITS.map(chi => [
+          chi,
+          denseCoinPairDeparture({
+            re,
+            im,
+            theta: UNIT_ANGLE[chi] ?? 0,
+          }),
+        ]),
+      ) as Record<number, number>
     }),
   )
 
@@ -215,18 +318,28 @@ function coinScan() {
 function sameRole(whole: Whole): Fraction {
   return [0, 1, 2]
     .map(i => roleChance(whole, i, i))
-    .reduce((sum, p) => fraction(sum.num * p.den + p.num * sum.den, sum.den * p.den), fraction(0n, 1n))
+    .reduce(
+      (sum, p) =>
+        fraction(sum.num * p.den + p.num * sum.den, sum.den * p.den),
+      fraction(0n, 1n),
+    )
 }
 
 function roleMeetings() {
-  const kernels = fearKernels({ like: (2 * Math.PI) / 3, unlike: (2 * Math.PI) / 3 })
+  const kernels = fearKernels({
+    like: (2 * Math.PI) / 3,
+    unlike: (2 * Math.PI) / 3,
+  })
 
   if (!kernels) {
     throw new Error('no fear kernels')
   }
 
   const r = Math.SQRT1_2
-  const basis = (entries: readonly (readonly [number, number])[]): number[] => {
+
+  const basis = (
+    entries: readonly (readonly [number, number])[],
+  ): number[] => {
     const a = new Array<number>(9).fill(0)
 
     for (const [index, value] of entries) {
@@ -235,18 +348,37 @@ function roleMeetings() {
 
     return a
   }
+
   const anti = [
-    basis([[1, r], [3, -r]]),
-    basis([[2, r], [6, -r]]),
-    basis([[5, r], [7, -r]]),
+    basis([
+      [1, r],
+      [3, -r],
+    ]),
+    basis([
+      [2, r],
+      [6, -r],
+    ]),
+    basis([
+      [5, r],
+      [7, -r],
+    ]),
   ]
   const sym = [
     basis([[0, 1]]),
     basis([[4, 1]]),
     basis([[8, 1]]),
-    basis([[1, r], [3, r]]),
-    basis([[2, r], [6, r]]),
-    basis([[5, r], [7, r]]),
+    basis([
+      [1, r],
+      [3, r],
+    ]),
+    basis([
+      [2, r],
+      [6, r],
+    ]),
+    basis([
+      [5, r],
+      [7, r],
+    ]),
   ]
   const cases = [
     { name: 'fermionPair', states: anti },
@@ -257,12 +389,20 @@ function roleMeetings() {
   return cases.map(c => {
     const { whole, units } = twoRoleWhole(c.states)
     const start = sameRole(whole)
+
     let current: Whole = whole
     let unchanged = true
     let sameRoleZeroEvery = true
 
     for (let m = 0; m < 6; m++) {
-      const next = meetWhole({ whole: current, a: 0, b: 1, kernel4: kernels.like, divisor: kernels.likeDivisor, fixed: false })
+      const next = meetWhole({
+        whole: current,
+        a: 0,
+        b: 1,
+        kernel4: kernels.like,
+        divisor: kernels.likeDivisor,
+        fixed: false,
+      })
 
       if (!next) {
         unchanged = false
@@ -272,7 +412,11 @@ function roleMeetings() {
       // compare as distributions: reduce both by their totals
       const total = next.weight.reduce((a, b) => a + b, 0n)
 
-      unchanged = unchanged && next.weight.every((w, i) => w * units === (whole.weight[i] ?? 0n) * total)
+      unchanged =
+        unchanged &&
+        next.weight.every(
+          (w, i) => w * units === (whole.weight[i] ?? 0n) * total,
+        )
 
       const p = sameRole(next)
 
@@ -280,10 +424,22 @@ function roleMeetings() {
       current = next
     }
 
-    const loves = whole.weight.filter(w => w > 0n).reduce((a, b) => a + b, 0n)
-    const fears = -whole.weight.filter(w => w < 0n).reduce((a, b) => a + b, 0n)
+    const loves = whole.weight
+      .filter(w => w > 0n)
+      .reduce((a, b) => a + b, 0n)
+    const fears = -whole.weight
+      .filter(w => w < 0n)
+      .reduce((a, b) => a + b, 0n)
 
-    return { name: c.name, units, loves, fears, unchanged, sameRoleStart: Number(start.num) / Number(start.den), sameRoleZeroEvery }
+    return {
+      name: c.name,
+      units,
+      loves,
+      fears,
+      unchanged,
+      sameRoleStart: Number(start.num) / Number(start.den),
+      sameRoleZeroEvery,
+    }
   })
 }
 
@@ -304,13 +460,43 @@ export default experiment({
 
     const g1 = knit.outside === 0 && knit.returned === knit.starts
     const g2 =
-      BEATS.every(t => ring.rows.find(r => r.t === t && r.chi === -1)?.exact === ring.starts) &&
-      BEATS.every(t => UNITS.filter(chi => chi !== -1).every(chi => (ring.rows.find(r => r.t === t && r.chi === chi)?.exact ?? ring.starts) < ring.starts)) &&
-      UNITS.every(chi => ring.rows.find(r => r.t === 1 && r.chi === chi)?.sameDock === PREDICTED_SAME_DOCK[chi])
+      BEATS.every(
+        t =>
+          ring.rows.find(r => r.t === t && r.chi === -1)?.exact ===
+          ring.starts,
+      ) &&
+      BEATS.every(t =>
+        UNITS.filter(chi => chi !== -1).every(
+          chi =>
+            (ring.rows.find(r => r.t === t && r.chi === chi)?.exact ??
+              ring.starts) < ring.starts,
+        ),
+      ) &&
+      UNITS.every(
+        chi =>
+          ring.rows.find(r => r.t === 1 && r.chi === chi)?.sameDock ===
+          PREDICTED_SAME_DOCK[chi],
+      )
     const g3 = ring.identityHolds
-    const g4 = coins.generic.every(c => (c[-1] ?? 1) < 1e-12 && UNITS.filter(chi => chi !== -1).every(chi => (c[chi] ?? 0) > 1e-3))
-    const c1 = coins.permutation.every(c => UNITS.every(chi => (c[chi] ?? 1) < 1e-12))
-    const g5 = roles.every(r => r.unchanged) && roles.filter(r => r.name !== 'bosonPair').every(r => r.sameRoleZeroEvery && r.sameRoleStart === 0) && Math.abs((roles.find(r => r.name === 'bosonPair')?.sameRoleStart ?? 0) - 0.5) < 1e-12
+    const g4 = coins.generic.every(
+      c =>
+        (c[-1] ?? 1) < 1e-12 &&
+        UNITS.filter(chi => chi !== -1).every(
+          chi => (c[chi] ?? 0) > 1e-3,
+        ),
+    )
+    const c1 = coins.permutation.every(c =>
+      UNITS.every(chi => (c[chi] ?? 1) < 1e-12),
+    )
+    const g5 =
+      roles.every(r => r.unchanged) &&
+      roles
+        .filter(r => r.name !== 'bosonPair')
+        .every(r => r.sameRoleZeroEvery && r.sameRoleStart === 0) &&
+      Math.abs(
+        (roles.find(r => r.name === 'bosonPair')?.sameRoleStart ?? 0) -
+          0.5,
+      ) < 1e-12
     const ok = g1 && g2 && g3 && g4 && c1 && g5
 
     const metrics: Record<string, number> = {
@@ -323,20 +509,36 @@ export default experiment({
     }
 
     for (const row of ring.rows) {
-      metrics[`ringT${row.t}${UNIT_NAMES[row.chi]}ExactStarts`] = row.exact
+      metrics[`ringT${row.t}${UNIT_NAMES[row.chi]}ExactStarts`] =
+        row.exact
 
       if (row.t === 1) {
-        metrics[`sameDockNormSixteenths${UNIT_NAMES[row.chi]}`] = row.sameDock
+        metrics[`sameDockNormSixteenths${UNIT_NAMES[row.chi]}`] =
+          row.sameDock
       }
     }
 
-    const worst = (list: Record<number, number>[], chi: number, pick: (a: number, b: number) => number, start: number): number =>
+    const worst = (
+      list: Record<number, number>[],
+      chi: number,
+      pick: (a: number, b: number) => number,
+      start: number,
+    ): number =>
       list.reduce((acc, c) => pick(acc, c[chi] ?? start), start)
 
-    metrics.genericMinusOneWorstDeparture = worst(coins.generic, -1, Math.max, 0)
+    metrics.genericMinusOneWorstDeparture = worst(
+      coins.generic,
+      -1,
+      Math.max,
+      0,
+    )
+
     UNITS.filter(chi => chi !== -1).forEach(chi => {
-      metrics[`generic${UNIT_NAMES[chi]}SmallestDeparture`] = Number(worst(coins.generic, chi, Math.min, 99).toFixed(6))
+      metrics[`generic${UNIT_NAMES[chi]}SmallestDeparture`] = Number(
+        worst(coins.generic, chi, Math.min, 99).toFixed(6),
+      )
     })
+
     roles.forEach(r => {
       metrics[`${r.name}Units`] = Number(r.units)
       metrics[`${r.name}Fears`] = Number(r.fears)
@@ -349,8 +551,11 @@ export default experiment({
       claim:
         'no start of the cold weave puts two vibes in one slot and every start returns exactly; on the fear ring the two-vibe walk under the one-vibe-per-slot rule keeps its norm on every start for 1 to 4 beats only with chi = -1, the shared-dock norm is |1 - 3 chi|^2 / 16 exactly, the +1 norm plus the free bosons in-one-slot weight is exactly 1, generic unitary coins select chi = -1 alone while classical permutation coins accept every phase, and the fear beat returns the fermion pair, each antisymmetric state and the boson pair unchanged with same-role chances 0, 0 and 1/2',
       metrics,
-      control: Object.fromEntries([
-        ...UNITS.map(chi => [`permutationCoin${UNIT_NAMES[chi]}WorstDeparture`, worst(coins.permutation, chi, Math.max, 0)]),
+      control: Object.fromEntries<number>([
+        ...UNITS.map((chi): [string, number] => [
+          `permutationCoin${UNIT_NAMES[chi]}WorstDeparture`,
+          worst(coins.permutation, chi, Math.max, 0),
+        ]),
         ['g1Knit', g1 ? 1 : 0],
         ['g2RingTheorem', g2 ? 1 : 0],
         ['g3SymmetricSquare', g3 ? 1 : 0],

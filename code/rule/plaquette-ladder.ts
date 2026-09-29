@@ -46,26 +46,40 @@ export type LadderSpec = {
 
 // kappa = 2 / N with the two splits the experiments compare: `drift` carries the 2/N (c = 2, r = N: s = 2/N, f = 1)
 // or `force` carries it (c = N, r = 2: s = 1, f = 2/N, the classical light's own split, E-FRC-0207)
-export function inverseDepthSpec(n: number, plaquettes: number, carrier: 'drift' | 'force', hop?: number): LadderSpec {
+export function inverseDepthSpec(
+  n: number,
+  plaquettes: number,
+  carrier: 'drift' | 'force',
+  hop?: number,
+): LadderSpec {
   const root = 2 * n * n
   const [drift, force] = carrier === 'drift' ? [2, n] : [n, 2]
 
-  return hop === undefined ? { n, plaquettes, root, drift, force } : { n, plaquettes, root, drift, force, hop }
+  return hop === undefined
+    ? { n, plaquettes, root, drift, force }
+    : { n, plaquettes, root, drift, force, hop }
 }
 
-export const splitOf = (spec: LadderSpec): { s: number; f: number; kappa: number } => {
+export const splitOf = (
+  spec: LadderSpec,
+): { s: number; f: number; kappa: number } => {
   const s = (2 * spec.n * spec.drift) / spec.root
   const f = (2 * spec.n * spec.force) / spec.root
 
   return { s, f, kappa: s * f }
 }
 
-export const ladderSize = (spec: LadderSpec): number => (spec.hop === undefined ? 1 : 2) * spec.n ** spec.plaquettes
+export const ladderSize = (spec: LadderSpec): number =>
+  (spec.hop === undefined ? 1 : 2) * spec.n ** spec.plaquettes
 
 // the loop values m_p and the charge position x of an index
-export function digitsOf(spec: LadderSpec, i: number): { x: number; m: number[] } {
+export function digitsOf(
+  spec: LadderSpec,
+  i: number,
+): { x: number; m: number[] } {
   const { n, plaquettes: L } = spec
   const m = new Array<number>(L)
+
   let rest = i
 
   for (let p = 0; p < L; p++) {
@@ -104,17 +118,29 @@ export function electricOf(spec: LadderSpec, i: number): number {
 export function ladderSteps(spec: LadderSpec): Step[] {
   const { n, plaquettes: L } = spec
   const size = ladderSize(spec)
-  const electric = Int32Array.from({ length: size }, (_, i) => electricOf(spec, i))
-  const exponents = Array.from({ length: n }, (_, B) => -spec.force * bal(B, n) ** 2)
+  const electric = Int32Array.from({ length: size }, (_, i) =>
+    electricOf(spec, i),
+  )
+  const exponents = Array.from(
+    { length: n },
+    (_, B) => -spec.force * bal(B, n) ** 2,
+  )
   const steps: Step[] = []
 
   if (spec.hop !== undefined) {
     const half = n ** L
 
-    steps.push({ kind: 'hop', move: i => (i < half ? i + half : i - half), z: spec.hop })
+    steps.push({
+      kind: 'hop',
+      move: i => (i < half ? i + half : i - half),
+      z: spec.hop,
+    })
   }
 
-  steps.push({ kind: 'phase', exponent: i => -spec.drift * electric[i]! })
+  steps.push({
+    kind: 'phase',
+    exponent: i => -spec.drift * electric[i]!,
+  })
 
   for (let p = 0; p < L; p++) {
     const stride = n ** p
@@ -157,14 +183,22 @@ export function fullLadder(spec: LadderSpec): FullLadder {
   // link l: [tail dock, head dock]; docks b_p = p, t_p = L + p
   const ends: [number, number][] = []
 
-  for (let p = 0; p < L; p++) ends.push([p, (p + 1) % L])
+  for (let p = 0; p < L; p++) {
+    ends.push([p, (p + 1) % L])
+  }
 
-  for (let p = 0; p < L; p++) ends.push([L + p, L + ((p + 1) % L)])
+  for (let p = 0; p < L; p++) {
+    ends.push([L + p, L + ((p + 1) % L)])
+  }
 
-  for (let p = 0; p < L; p++) ends.push([p, L + p])
+  for (let p = 0; p < L; p++) {
+    ends.push([p, L + p])
+  }
 
-  const digit = (i: number, l: number): number => Math.floor((i % flux) / n ** l) % n
-  const withDigit = (i: number, l: number, value: number): number => i + (mod(value, n) - digit(i, l)) * n ** l
+  const digit = (i: number, l: number): number =>
+    Math.floor((i % flux) / n ** l) % n
+  const withDigit = (i: number, l: number, value: number): number =>
+    i + (mod(value, n) - digit(i, l)) * n ** l
 
   const gauss = (i: number): number[] => {
     const x = Math.floor(i / flux)
@@ -186,50 +220,72 @@ export function fullLadder(spec: LadderSpec): FullLadder {
   const embed = (s: number): number => {
     const { x } = digitsOf(spec, s)
     const e = fluxesOf(spec, s)
+
     let i = x * flux
 
-    for (let l = 0; l < links; l++) i += e[l]! * n ** l
+    for (let l = 0; l < links; l++) {
+      i += e[l]! * n ** l
+    }
 
     return i
   }
 
-  const hopMove = (recorded: boolean) => (i: number): number => {
-    const x = Math.floor(i / flux)
-    const moved = x === 0 ? i + flux : i - flux
+  const hopMove =
+    (recorded: boolean) =>
+    (i: number): number => {
+      const x = Math.floor(i / flux)
+      const moved = x === 0 ? i + flux : i - flux
 
-    return recorded ? withDigit(moved, 2 * L, digit(i, 2 * L) + (x === 0 ? 1 : -1)) : moved
-  }
-
-  // square p: bottom rail p (+), rung p + 1 (+), top rail p (-), rung p (-)
-  const loopShift = (p: number) => (i: number): number => {
-    let j = withDigit(i, p, digit(i, p) + 1)
-
-    j = withDigit(j, L + p, digit(j, L + p) - 1)
-
-    if (L > 1) {
-      j = withDigit(j, 2 * L + ((p + 1) % L), digit(j, 2 * L + ((p + 1) % L)) + 1)
-      j = withDigit(j, 2 * L + p, digit(j, 2 * L + p) - 1)
+      return recorded
+        ? withDigit(moved, 2 * L, digit(i, 2 * L) + (x === 0 ? 1 : -1))
+        : moved
     }
 
-    return j
-  }
+  // square p: bottom rail p (+), rung p + 1 (+), top rail p (-), rung p (-)
+  const loopShift =
+    (p: number) =>
+    (i: number): number => {
+      let j = withDigit(i, p, digit(i, p) + 1)
+
+      j = withDigit(j, L + p, digit(j, L + p) - 1)
+
+      if (L > 1) {
+        j = withDigit(
+          j,
+          2 * L + ((p + 1) % L),
+          digit(j, 2 * L + ((p + 1) % L)) + 1,
+        )
+        j = withDigit(j, 2 * L + p, digit(j, 2 * L + p) - 1)
+      }
+
+      return j
+    }
 
   const steps = (recorded: boolean): Step[] => {
-    const exponents = Array.from({ length: n }, (_, B) => -spec.force * bal(B, n) ** 2)
-    const out: Step[] = [{ kind: 'hop', move: hopMove(recorded), z: spec.hop ?? 0 }]
+    const exponents = Array.from(
+      { length: n },
+      (_, B) => -spec.force * bal(B, n) ** 2,
+    )
+    const out: Step[] = [
+      { kind: 'hop', move: hopMove(recorded), z: spec.hop ?? 0 },
+    ]
 
     out.push({
       kind: 'phase',
       exponent: i => {
         let s = 0
 
-        for (let l = 0; l < links; l++) s += bal(digit(i, l), n) ** 2
+        for (let l = 0; l < links; l++) {
+          s += bal(digit(i, l), n) ** 2
+        }
 
         return -spec.drift * s
       },
     })
 
-    for (let p = 0; p < L; p++) out.push({ kind: 'loop', shift: loopShift(p), exponents, n })
+    for (let p = 0; p < L; p++) {
+      out.push({ kind: 'loop', shift: loopShift(p), exponents, n })
+    }
 
     return out
   }
@@ -256,7 +312,10 @@ export type LadderKernel = {
 }
 
 // `forceOff`: the CONTROL with the plaquette (force) step left out, a light whose loops only the drift reads
-export function ladderKernel(spec: LadderSpec, options: { forceOff?: boolean } = {}): LadderKernel {
+export function ladderKernel(
+  spec: LadderSpec,
+  options: { forceOff?: boolean } = {},
+): LadderKernel {
   const { n, plaquettes: L, root } = spec
   const size = ladderSize(spec)
   const half = n ** L
@@ -266,7 +325,9 @@ export function ladderKernel(spec: LadderSpec, options: { forceOff?: boolean } =
   const forceIm = new Float64Array(half)
 
   for (let i = 0; i < size; i++) {
-    const t = (-2 * Math.PI * ((spec.drift * electricOf(spec, i)) % root)) / root
+    const t =
+      (-2 * Math.PI * ((spec.drift * electricOf(spec, i)) % root)) /
+      root
 
     driftRe[i] = Math.cos(t)
     driftIm[i] = Math.sin(t)
@@ -281,7 +342,9 @@ export function ladderKernel(spec: LadderSpec, options: { forceOff?: boolean } =
       rest = Math.floor(rest / n)
     }
 
-    const t = options.forceOff ? 0 : (-2 * Math.PI * ((spec.force * e) % root)) / root
+    const t = options.forceOff
+      ? 0
+      : (-2 * Math.PI * ((spec.force * e) % root)) / root
 
     forceRe[i] = Math.cos(t)
     forceIm[i] = Math.sin(t)
@@ -300,8 +363,14 @@ export function ladderKernel(spec: LadderSpec, options: { forceOff?: boolean } =
   }
 
   const z = ((spec.hop ?? 0) * 2 * Math.PI) / root
-  const hopA: [number, number] = [(1 + Math.cos(z)) / 2, Math.sin(z) / 2]
-  const hopB: [number, number] = [(1 - Math.cos(z)) / 2, -Math.sin(z) / 2]
+  const hopA: [number, number] = [
+    (1 + Math.cos(z)) / 2,
+    Math.sin(z) / 2,
+  ]
+  const hopB: [number, number] = [
+    (1 - Math.cos(z)) / 2,
+    -Math.sin(z) / 2,
+  ]
 
   return {
     spec,
@@ -320,7 +389,14 @@ export function ladderKernel(spec: LadderSpec, options: { forceOff?: boolean } =
 }
 
 // the DFT (sign -1: flux to angle) or its inverse on digit p of every index, in place, over one block of `half`
-function transformDigit(k: LadderKernel, re: Float64Array, im: Float64Array, offset: number, p: number, inverse: boolean): void {
+function transformDigit(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+  offset: number,
+  p: number,
+  inverse: boolean,
+): void {
   const n = k.spec.n
   const half = n ** k.spec.plaquettes
   const stride = n ** p
@@ -329,7 +405,9 @@ function transformDigit(k: LadderKernel, re: Float64Array, im: Float64Array, off
   const sign = inverse ? -1 : 1
 
   for (let base = 0; base < half; base++) {
-    if (Math.floor(base / stride) % n !== 0) continue
+    if (Math.floor(base / stride) % n !== 0) {
+      continue
+    }
 
     for (let b = 0; b < n; b++) {
       let ar = 0
@@ -356,30 +434,46 @@ function transformDigit(k: LadderKernel, re: Float64Array, im: Float64Array, off
 }
 
 // a vector in the angle basis of every square (the forward transform on each digit), a copy
-export function toAngleBasis(k: LadderKernel, re: Float64Array, im: Float64Array): { re: Float64Array; im: Float64Array } {
+export function toAngleBasis(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+): { re: Float64Array; im: Float64Array } {
   const half = k.spec.n ** k.spec.plaquettes
   const out = { re: Float64Array.from(re), im: Float64Array.from(im) }
 
   for (let offset = 0; offset < k.size; offset += half) {
-    for (let p = 0; p < k.spec.plaquettes; p++) transformDigit(k, out.re, out.im, offset, p, false)
+    for (let p = 0; p < k.spec.plaquettes; p++) {
+      transformDigit(k, out.re, out.im, offset, p, false)
+    }
   }
 
   return out
 }
 
-export function fromAngleBasis(k: LadderKernel, re: Float64Array, im: Float64Array): { re: Float64Array; im: Float64Array } {
+export function fromAngleBasis(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+): { re: Float64Array; im: Float64Array } {
   const half = k.spec.n ** k.spec.plaquettes
   const out = { re: Float64Array.from(re), im: Float64Array.from(im) }
 
   for (let offset = 0; offset < k.size; offset += half) {
-    for (let p = 0; p < k.spec.plaquettes; p++) transformDigit(k, out.re, out.im, offset, p, true)
+    for (let p = 0; p < k.spec.plaquettes; p++) {
+      transformDigit(k, out.re, out.im, offset, p, true)
+    }
   }
 
   return out
 }
 
 // one beat in place: hop, drift, force
-export function ladderBeat(k: LadderKernel, re: Float64Array, im: Float64Array): void {
+export function ladderBeat(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   const { n, plaquettes: L } = k.spec
   const half = n ** L
 
@@ -409,7 +503,9 @@ export function ladderBeat(k: LadderKernel, re: Float64Array, im: Float64Array):
   }
 
   for (let offset = 0; offset < k.size; offset += half) {
-    for (let p = 0; p < L; p++) transformDigit(k, re, im, offset, p, false)
+    for (let p = 0; p < L; p++) {
+      transformDigit(k, re, im, offset, p, false)
+    }
 
     for (let i = 0; i < half; i++) {
       const j = offset + i
@@ -420,17 +516,25 @@ export function ladderBeat(k: LadderKernel, re: Float64Array, im: Float64Array):
       im[j] = xr * k.forceIm[i]! + xi * k.forceRe[i]!
     }
 
-    for (let p = 0; p < L; p++) transformDigit(k, re, im, offset, p, true)
+    for (let p = 0; p < L; p++) {
+      transformDigit(k, re, im, offset, p, true)
+    }
   }
 }
 
 // the inverse beat in place (measurement: two-sided spectral filters): force^-1, drift^-1, hop^-1
-export function ladderInverseBeat(k: LadderKernel, re: Float64Array, im: Float64Array): void {
+export function ladderInverseBeat(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   const { n, plaquettes: L } = k.spec
   const half = n ** L
 
   for (let offset = 0; offset < k.size; offset += half) {
-    for (let p = 0; p < L; p++) transformDigit(k, re, im, offset, p, false)
+    for (let p = 0; p < L; p++) {
+      transformDigit(k, re, im, offset, p, false)
+    }
 
     for (let i = 0; i < half; i++) {
       const j = offset + i
@@ -441,7 +545,9 @@ export function ladderInverseBeat(k: LadderKernel, re: Float64Array, im: Float64
       im[j] = -xr * k.forceIm[i]! + xi * k.forceRe[i]!
     }
 
-    for (let p = 0; p < L; p++) transformDigit(k, re, im, offset, p, true)
+    for (let p = 0; p < L; p++) {
+      transformDigit(k, re, im, offset, p, true)
+    }
   }
 
   for (let i = 0; i < k.size; i++) {
@@ -473,19 +579,27 @@ export function ladderInverseBeat(k: LadderKernel, re: Float64Array, im: Float64
 
 // the energies each beat approximates (units of radians per beat): the drift's (2 pi c / M) sum bal(e)^2 and the
 // force's (2 pi r / M) sum bal(B)^2, the second read in the angle basis
-export function ladderEnergies(k: LadderKernel, re: Float64Array, im: Float64Array): { electric: number; magnetic: number; perSquare: Float64Array } {
+export function ladderEnergies(
+  k: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+): { electric: number; magnetic: number; perSquare: Float64Array } {
   const { n, plaquettes: L, root } = k.spec
   const half = n ** L
   const perSquare = new Float64Array(L)
+
   let electric = 0
   let magnetic = 0
+
   const wr = Float64Array.from(re)
   const wi = Float64Array.from(im)
 
   for (let i = 0; i < k.size; i++) {
     const w = re[i]! ** 2 + im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     const e = fluxesOf(k.spec, i)
 
@@ -493,46 +607,74 @@ export function ladderEnergies(k: LadderKernel, re: Float64Array, im: Float64Arr
 
     // each square takes its two rails and half of each of its rungs
     for (let p = 0; p < L; p++) {
-      const own = bal(e[p]!, n) ** 2 + bal(e[L + p]!, n) ** 2 + (bal(e[2 * L + p]!, n) ** 2 + bal(e[2 * L + ((p + 1) % L)]!, n) ** 2) / 2
+      const own =
+        bal(e[p]!, n) ** 2 +
+        bal(e[L + p]!, n) ** 2 +
+        (bal(e[2 * L + p]!, n) ** 2 +
+          bal(e[2 * L + ((p + 1) % L)]!, n) ** 2) /
+          2
 
-      perSquare[p] = perSquare[p]! + (w * own * 2 * Math.PI * k.spec.drift) / root
+      perSquare[p] =
+        perSquare[p]! + (w * own * 2 * Math.PI * k.spec.drift) / root
     }
   }
 
   for (let offset = 0; offset < k.size; offset += half) {
-    for (let p = 0; p < L; p++) transformDigit(k, wr, wi, offset, p, false)
+    for (let p = 0; p < L; p++) {
+      transformDigit(k, wr, wi, offset, p, false)
+    }
 
     for (let i = 0; i < half; i++) {
       const w = wr[offset + i]! ** 2 + wi[offset + i]! ** 2
+
       let rest = i
 
       for (let p = 0; p < L; p++) {
         const b2 = bal(rest % n, n) ** 2
 
         magnetic += w * b2
-        perSquare[p] = perSquare[p]! + (w * b2 * 2 * Math.PI * k.spec.force) / root
+        perSquare[p] =
+          perSquare[p]! + (w * b2 * 2 * Math.PI * k.spec.force) / root
         rest = Math.floor(rest / n)
       }
     }
   }
 
-  return { electric: (electric * 2 * Math.PI * k.spec.drift) / root, magnetic: (magnetic * 2 * Math.PI * k.spec.force) / root, perSquare }
+  return {
+    electric: (electric * 2 * Math.PI * k.spec.drift) / root,
+    magnetic: (magnetic * 2 * Math.PI * k.spec.force) / root,
+    perSquare,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // the classical light on the same ladder (the E~ leapfrog's symbol, E-FRC-0179 / 0185 / 0207)
 
-export const curlCurl = (k: number, plaquettes: number): number => (plaquettes === 1 ? 2 : 4 - 2 * Math.cos(k))
+export const curlCurl = (k: number, plaquettes: number): number =>
+  plaquettes === 1 ? 2 : 4 - 2 * Math.cos(k)
 
-export function classicalOmega(kappa: number, k: number, plaquettes: number): number {
+export function classicalOmega(
+  kappa: number,
+  k: number,
+  plaquettes: number,
+): number {
   return Math.acos(1 - (kappa * curlCurl(k, plaquettes)) / 2)
 }
 
 // group velocity d omega / dk in squares per beat
-export function classicalVelocity(kappa: number, k: number, plaquettes: number): number {
-  if (plaquettes === 1) return 0
+export function classicalVelocity(
+  kappa: number,
+  k: number,
+  plaquettes: number,
+): number {
+  if (plaquettes === 1) {
+    return 0
+  }
 
-  return (kappa * Math.sin(k)) / Math.sin(classicalOmega(kappa, k, plaquettes))
+  return (
+    (kappa * Math.sin(k)) /
+    Math.sin(classicalOmega(kappa, k, plaquettes))
+  )
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -542,7 +684,9 @@ export function thermometer(v: number, depth: number): Int8Array {
   const t = new Int8Array(depth)
   const s = Math.sign(v)
 
-  for (let d = 0; d < Math.abs(v); d++) t[d] = s
+  for (let d = 0; d < Math.abs(v); d++) {
+    t[d] = s
+  }
 
   return t
 }
@@ -550,7 +694,10 @@ export function thermometer(v: number, depth: number): Int8Array {
 export const columnSum = (t: ArrayLike<number>): number => {
   let s = 0
 
-  for (let d = 0; d < t.length; d++) s += t[d]!
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- t is ArrayLike, which is not iterable
+  for (let d = 0; d < t.length; d++) {
+    s += t[d]!
+  }
 
   return s
 }

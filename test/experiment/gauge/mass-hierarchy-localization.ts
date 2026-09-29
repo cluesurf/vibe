@@ -60,7 +60,9 @@ export default experiment({
   run(context) {
     const scale = context.scale ?? 1
     // the derived geometric growth rate lambda from the {3,4,3,4} cell-shell counts
-    const addressing = buildAddressing({ maxCells: scaled(60000, scale) })
+    const addressing = buildAddressing({
+      maxCells: scaled(60000, scale),
+    })
     const shellCounts = shellCountsFromGraph({
       neighbors: addressing.graph.neighbors,
       cellCount: addressing.graph.cellCount,

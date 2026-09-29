@@ -49,11 +49,17 @@
 import { makeComplexMatrix } from '@/code/algebra/linear/dense'
 import { HUSK_VECTORS, HUSK_WEIGHTS } from '@/code/measure/photon-husk'
 import { hermitianEigen } from '@/code/measure/photon-modes'
-import { plus, times, turn, type Eisenstein } from '@/code/rule/fear-walk'
+import {
+  plus,
+  times,
+  turn,
+  type Eisenstein,
+} from '@/code/rule/fear-walk'
 
 // omega and 1 - omega as complex numbers
 export const OMEGA_RE = -0.5
 export const OMEGA_IM = Math.sqrt(3) / 2
+
 const REST_RE = 1.5
 const REST_IM = -Math.sqrt(3) / 2
 
@@ -78,7 +84,12 @@ export function husk18(): SlotSet {
     }
   })
 
-  return { name: 'husk18', dimension: 3, directions, s: Float64Array.from(s) }
+  return {
+    name: 'husk18',
+    dimension: 3,
+    directions,
+    s: Float64Array.from(s),
+  }
 }
 
 // the 24 D4 roots +-e_i +-e_j, each slot streaming along its shadow on the husk (the bulk at k4 = 0)
@@ -99,7 +110,12 @@ export function depth24(): SlotSet {
     }
   }
 
-  return { name: 'depth24', dimension: 3, directions, s: new Float64Array(24).fill(1 / Math.sqrt(24)) }
+  return {
+    name: 'depth24',
+    dimension: 3,
+    directions,
+    s: new Float64Array(24).fill(1 / Math.sqrt(24)),
+  }
 }
 
 // the 24 D4 roots in the bulk itself, four dimensions
@@ -120,7 +136,12 @@ export function bulk24(): SlotSet {
     }
   }
 
-  return { name: 'bulk24', dimension: 4, directions, s: new Float64Array(24).fill(1 / Math.sqrt(24)) }
+  return {
+    name: 'bulk24',
+    dimension: 4,
+    directions,
+    s: new Float64Array(24).fill(1 / Math.sqrt(24)),
+  }
 }
 
 // the plain cubic control: the 6 axis directions, equal weights, no diagonals
@@ -142,13 +163,24 @@ export function cubic6(): SlotSet {
 
 // the fear walk's own line: two slots, one each way
 export function line2(): SlotSet {
-  return { name: 'line2', dimension: 1, directions: [[1], [-1]], s: new Float64Array(2).fill(1 / Math.sqrt(2)) }
+  return {
+    name: 'line2',
+    dimension: 1,
+    directions: [[1], [-1]],
+    s: new Float64Array(2).fill(1 / Math.sqrt(2)),
+  }
 }
 
 // the derived mass m* = sqrt 3 N / mu, mu from sum_d r_d r_d^T = mu I (checked isotropic)
-export function derivedMass(slots: SlotSet): { mass: number; secondMoment: number; anisotropy: number } {
+export function derivedMass(slots: SlotSet): {
+  mass: number
+  secondMoment: number
+  anisotropy: number
+} {
   const n = slots.dimension
-  const m = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const m = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
   for (const r of slots.directions) {
     for (let i = 0; i < n; i++) {
@@ -159,19 +191,30 @@ export function derivedMass(slots: SlotSet): { mass: number; secondMoment: numbe
   }
 
   const mu = m.reduce((s, row, i) => s + (row[i] ?? 0), 0) / n
+
   let anisotropy = 0
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      anisotropy = Math.max(anisotropy, Math.abs((m[i]?.[j] ?? 0) - (i === j ? mu : 0)) / mu)
+      anisotropy = Math.max(
+        anisotropy,
+        Math.abs((m[i]?.[j] ?? 0) - (i === j ? mu : 0)) / mu,
+      )
     }
   }
 
-  return { mass: (Math.sqrt(3) * slots.directions.length) / mu, secondMoment: mu, anisotropy }
+  return {
+    mass: (Math.sqrt(3) * slots.directions.length) / mu,
+    secondMoment: mu,
+    anisotropy,
+  }
 }
 
 // The free symbol U(k) = S(k) C as a dense complex matrix, S_dd = e^(-i k . r_d)
-export function freeSymbol(slots: SlotSet, k: readonly number[]): { re: Float64Array; im: Float64Array } {
+export function freeSymbol(
+  slots: SlotSet,
+  k: readonly number[],
+): { re: Float64Array; im: Float64Array } {
   const n = slots.directions.length
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
@@ -201,7 +244,14 @@ export function freeSymbol(slots: SlotSet, k: readonly number[]): { re: Float64A
 // two phases fold onto one cosine
 const FOLD_SHIFT = 0.371
 
-export function unitaryPhases(u: { re: Float64Array; im: Float64Array }, n: number): { phases: number[]; vectorsRe: Float64Array; vectorsIm: Float64Array } {
+export function unitaryPhases(
+  u: { re: Float64Array; im: Float64Array },
+  n: number,
+): {
+  phases: number[]
+  vectorsRe: Float64Array
+  vectorsIm: Float64Array
+} {
   const h = makeComplexMatrix({ rows: n, cols: n })
   const c = Math.cos(FOLD_SHIFT)
   const s = Math.sin(FOLD_SHIFT)
@@ -251,14 +301,19 @@ export function unitaryPhases(u: { re: Float64Array; im: Float64Array }, n: numb
 }
 
 // E(k) of the particle band, the band through eigenvalue 1 at k = 0, E = -phase (U = e^(-i E))
-export function particleEnergy(slots: SlotSet, k: readonly number[]): number {
+export function particleEnergy(
+  slots: SlotSet,
+  k: readonly number[],
+): number {
   const n = slots.directions.length
   const { phases } = unitaryPhases(freeSymbol(slots, k), n)
-  const near = phases.reduce((best, p) => (Math.abs(p) < Math.abs(best) ? p : best), Math.PI)
+  const near = phases.reduce(
+    (best, p) => (Math.abs(p) < Math.abs(best) ? p : best),
+    Math.PI,
+  )
 
   return -near
 }
-
 
 // ---------------------------------------------------------------------------------------------------------
 // The walk on a torus of side L (a cube of L^dimension docks), in floats. A state is one flat array, dock
@@ -282,6 +337,7 @@ export function makeTorus(slots: SlotSet, side: number): Torus {
   for (let i = 0; i < docks; i++) {
     for (let d = 0; d < n; d++) {
       const r = slots.directions[d] ?? []
+
       let rest = i
       let target = 0
       let stride = 1
@@ -304,6 +360,7 @@ export function makeTorus(slots: SlotSet, side: number): Torus {
 // the coordinates of a dock relative to the center dock (side / 2 in every axis), in [-side/2, side/2)
 export function offset(torus: Torus, dock: number): number[] {
   const out: number[] = []
+
   let rest = dock
 
   for (let a = 0; a < torus.slots.dimension; a++) {
@@ -316,6 +373,7 @@ export function offset(torus: Torus, dock: number): number[] {
 
 export function centerDock(torus: Torus): number {
   const h = Math.floor(torus.side / 2)
+
   let dock = 0
   let stride = 1
 
@@ -334,22 +392,38 @@ export function emptyWalkOn(torus: Torus): Walk {
 }
 
 // the per-dock phase e^(-i V) of a potential V, V in radians per beat
-export type Phase = { readonly cos: Float64Array; readonly sin: Float64Array }
+export type Phase = {
+  readonly cos: Float64Array
+  readonly sin: Float64Array
+}
 
 export function phaseOf(potential: ArrayLike<number>): Phase {
   return {
-    cos: Float64Array.from({ length: potential.length }, (_, i) => Math.cos(potential[i] ?? 0)),
-    sin: Float64Array.from({ length: potential.length }, (_, i) => -Math.sin(potential[i] ?? 0)),
+    cos: Float64Array.from({ length: potential.length }, (_, i) =>
+      Math.cos(potential[i] ?? 0),
+    ),
+    sin: Float64Array.from(
+      { length: potential.length },
+      (_, i) => -Math.sin(potential[i] ?? 0),
+    ),
   }
 }
 
 export function zeroPhase(docks: number): Phase {
-  return { cos: new Float64Array(docks).fill(1), sin: new Float64Array(docks) }
+  return {
+    cos: new Float64Array(docks).fill(1),
+    sin: new Float64Array(docks),
+  }
 }
 
 // One beat, from `w` into `out`: the coin at every dock, the stream copies slot d one dock along its direction,
 // then the potential's phase at the dock it was copied to
-export function beat(torus: Torus, w: Walk, out: Walk, phase: Phase): void {
+export function beat(
+  torus: Torus,
+  w: Walk,
+  out: Walk,
+  phase: Phase,
+): void {
   const n = torus.n
   const s = torus.slots.s
   const next = torus.next
@@ -359,6 +433,7 @@ export function beat(torus: Torus, w: Walk, out: Walk, phase: Phase): void {
 
   for (let i = 0; i < docks; i++) {
     const base = 2 * i * n
+
     let fr = 0
     let fi = 0
 
@@ -424,9 +499,13 @@ export function scaleWalk(w: Walk, factor: number): void {
 }
 
 // a state f(x) s: the scalar field on every dock times the slot vector s, normalized
-export function scalarState(torus: Torus, field: (x: readonly number[]) => [number, number]): Walk {
+export function scalarState(
+  torus: Torus,
+  field: (x: readonly number[]) => [number, number],
+): Walk {
   const w = emptyWalkOn(torus)
   const n = torus.n
+
   let norm = 0
 
   for (let i = 0; i < torus.docks; i++) {
@@ -446,9 +525,14 @@ export function scalarState(torus: Torus, field: (x: readonly number[]) => [numb
 }
 
 // a state f(x) e_d on one slot d: a token that starts in one direction
-export function slotState(torus: Torus, slot: number, field: (x: readonly number[]) => [number, number]): Walk {
+export function slotState(
+  torus: Torus,
+  slot: number,
+  field: (x: readonly number[]) => [number, number],
+): Walk {
   const w = emptyWalkOn(torus)
   const n = torus.n
+
   let norm = 0
 
   for (let i = 0; i < torus.docks; i++) {
@@ -469,6 +553,7 @@ export function slotState(torus: Torus, slot: number, field: (x: readonly number
 export function meanPosition(torus: Torus, w: Walk): number[] {
   const rho = density(torus, w)
   const out = new Array<number>(torus.slots.dimension).fill(0)
+
   let total = 0
 
   for (let i = 0; i < torus.docks; i++) {
@@ -490,9 +575,16 @@ export function meanPosition(torus: Torus, w: Walk): number[] {
 
 export type ExactWalk = Eisenstein[]
 
-export function exactBeat(torus: Torus, w: ExactWalk, thirds?: Int32Array): ExactWalk {
+export function exactBeat(
+  torus: Torus,
+  w: ExactWalk,
+  thirds?: Int32Array,
+): ExactWalk {
   const n = torus.n
-  const out: ExactWalk = new Array<Eisenstein>(torus.docks * n).fill([0n, 0n])
+  const out: ExactWalk = new Array<Eisenstein>(torus.docks * n).fill([
+    0n,
+    0n,
+  ])
   const oneMinusOmega: Eisenstein = [1n, -1n]
   const omegaTimesN: Eisenstein = [0n, BigInt(n)]
 
@@ -507,7 +599,10 @@ export function exactBeat(torus: Torus, w: ExactWalk, thirds?: Int32Array): Exac
 
     for (let d = 0; d < n; d++) {
       const j = torus.next[i * n + d]!
-      const value = plus(times(omegaTimesN, w[i * n + d] ?? [0n, 0n]), shared)
+      const value = plus(
+        times(omegaTimesN, w[i * n + d] ?? [0n, 0n]),
+        shared,
+      )
 
       out[j * n + d] = thirds ? turn(value, -(thirds[j] ?? 0)) : value
     }
@@ -522,20 +617,27 @@ export function exactBeat(torus: Torus, w: ExactWalk, thirds?: Int32Array): Exac
 // by conjugate gradients, the same equation huskCoulomb solves (E-FRC-0179)
 export function huskGreenTorus(n: number): Float64Array {
   const cells = n ** 3
-  const idx = (a: number, b: number, c: number): number => (((a % n) + n) % n) + n * ((((b % n) + n) % n) + n * (((c % n) + n) % n))
+  const idx = (a: number, b: number, c: number): number =>
+    (((a % n) + n) % n) +
+    n * ((((b % n) + n) % n) + n * (((c % n) + n) % n))
   const neighbours: Int32Array[] = HUSK_VECTORS.map(u => {
     const out = new Int32Array(cells)
 
     for (let c = 0; c < n; c++) {
       for (let b = 0; b < n; b++) {
         for (let a = 0; a < n; a++) {
-          out[idx(a, b, c)] = idx(a + (u[0] ?? 0), b + (u[1] ?? 0), c + (u[2] ?? 0))
+          out[idx(a, b, c)] = idx(
+            a + (u[0] ?? 0),
+            b + (u[1] ?? 0),
+            c + (u[2] ?? 0),
+          )
         }
       }
     }
 
     return out
   })
+
   const apply = (v: Float64Array, out: Float64Array): void => {
     out.fill(0)
 
@@ -552,6 +654,7 @@ export function huskGreenTorus(n: number): Float64Array {
       }
     }
   }
+
   const b = new Float64Array(cells).fill(-1 / cells)
 
   b[0] = (b[0] ?? 0) + 1
@@ -560,6 +663,7 @@ export function huskGreenTorus(n: number): Float64Array {
   const r = Float64Array.from(b)
   const p = Float64Array.from(r)
   const ap = new Float64Array(cells)
+
   const dot = (u: Float64Array, v: Float64Array): number => {
     let s = 0
 
@@ -608,18 +712,28 @@ export type Green = {
 export function huskGreen(side: number, big: number): Green {
   const g = huskGreenTorus(big)
   const cells = big ** 3
+
   const at = (x: number, y: number, z: number): number => {
-    const i = ((x % big) + big) % big + big * ((((y % big) + big) % big) + big * (((z % big) + big) % big))
+    const i =
+      (((x % big) + big) % big) +
+      big *
+        ((((y % big) + big) % big) + big * (((z % big) + big) % big))
 
     return (g[i] ?? 0) - (x * x + y * y + z * z) / (36 * cells)
   }
+
   let sum = 0
   let count = 0
+
   const tail: [number, number][] = []
 
   for (let z = -Math.floor(big / 4); z <= Math.floor(big / 4); z++) {
     for (let y = -Math.floor(big / 4); y <= Math.floor(big / 4); y++) {
-      for (let x = -Math.floor(big / 4); x <= Math.floor(big / 4); x++) {
+      for (
+        let x = -Math.floor(big / 4);
+        x <= Math.floor(big / 4);
+        x++
+      ) {
         const r = Math.hypot(x, y, z)
 
         if (r >= 6 && r <= big / 4) {
@@ -634,14 +748,20 @@ export function huskGreen(side: number, big: number): Green {
   }
 
   const constant = sum / count
-  const tailMisfit = Math.sqrt(tail.reduce((s, [r, v]) => s + ((v - constant) * 24 * Math.PI * r - 1) ** 2, 0) / tail.length)
+  const tailMisfit = Math.sqrt(
+    tail.reduce(
+      (s, [r, v]) => s + ((v - constant) * 24 * Math.PI * r - 1) ** 2,
+      0,
+    ) / tail.length,
+  )
   const values = new Float64Array(side ** 3)
   const h = Math.floor(side / 2)
 
   for (let c = 0; c < side; c++) {
     for (let b = 0; b < side; b++) {
       for (let a = 0; a < side; a++) {
-        values[a + side * (b + side * c)] = at(a - h, b - h, c - h) - constant
+        values[a + side * (b + side * c)] =
+          at(a - h, b - h, c - h) - constant
       }
     }
   }
@@ -650,7 +770,10 @@ export function huskGreen(side: number, big: number): Green {
 }
 
 // the Coulomb potential of a source at the torus center with coupling alpha (far field -alpha / r)
-export function coulombPotential(green: Green, alpha: number): Float64Array {
+export function coulombPotential(
+  green: Green,
+  alpha: number,
+): Float64Array {
   return Float64Array.from(green.values, v => -24 * Math.PI * alpha * v)
 }
 
@@ -660,9 +783,15 @@ export function coulombPotential(green: Green, alpha: number): Float64Array {
 
 export type Series = { re: Float64Array; im: Float64Array }
 
-export function autocorrelation(torus: Torus, start: Walk, beats: number, phase: Phase): Series {
+export function autocorrelation(
+  torus: Torus,
+  start: Walk,
+  beats: number,
+  phase: Phase,
+): Series {
   const re = new Float64Array(beats)
   const im = new Float64Array(beats)
+
   let w = Float64Array.from(start)
   let spare = emptyWalkOn(torus)
 
@@ -679,9 +808,14 @@ export function autocorrelation(torus: Torus, start: Walk, beats: number, phase:
 }
 
 // the power of c(t) at energy E with a Gaussian window of width sigma beats centered on the run's middle
-export function spectrumAt(c: Series, energy: number, sigma: number): number {
+export function spectrumAt(
+  c: Series,
+  energy: number,
+  sigma: number,
+): number {
   const n = c.re.length
   const mid = (n - 1) / 2
+
   let re = 0
   let im = 0
 
@@ -699,7 +833,14 @@ export function spectrumAt(c: Series, energy: number, sigma: number): number {
 
 // the local maxima of the power over [from, to] on a grid, above `floor` of the largest there, refined by a
 // parabola in log power
-export function spectralPeaks(c: Series, from: number, to: number, step: number, sigma: number, floor: number): { energy: number; power: number }[] {
+export function spectralPeaks(
+  c: Series,
+  from: number,
+  to: number,
+  step: number,
+  sigma: number,
+  floor: number,
+): { energy: number; power: number }[] {
   const grid: number[] = []
   const power: number[] = []
 
@@ -720,25 +861,41 @@ export function spectralPeaks(c: Series, from: number, to: number, step: number,
       const cc = Math.log(power[i + 1]!)
       const shift = (0.5 * (a - cc)) / (a - 2 * b + cc)
 
-      out.push({ energy: grid[i]! + (Number.isFinite(shift) ? shift * step : 0), power: p })
+      out.push({
+        energy: grid[i]! + (Number.isFinite(shift) ? shift * step : 0),
+        power: p,
+      })
     }
   }
 
   return out
 }
 
-export type RitzPair = { energy: number; residual: number; vector: Walk }
+export type RitzPair = {
+  energy: number
+  residual: number
+  vector: Walk
+}
 
 // Rayleigh-Ritz in the span of filtered vectors psi_j = sum_t w(t) e^(i E_j t) U^t start, for the target
 // energies E_j. The small problem is Hermitian: Im(U) = (U - U^dagger) / 2i has eigenvalue -sin E on every
 // eigenvector, monotone for |E| < pi / 2. Each Ritz energy is then read from the Rayleigh quotient of U, with
 // the residual |U v - e^(-i E) v| of its normalized vector: the honest measure of whether it is an eigenvector
-export function ritzEnergies(torus: Torus, start: Walk, targets: readonly number[], beats: number, sigma: number, phase: Phase): RitzPair[] {
+export function ritzEnergies(
+  torus: Torus,
+  start: Walk,
+  targets: readonly number[],
+  beats: number,
+  sigma: number,
+  phase: Phase,
+): RitzPair[] {
   const m = targets.length
   const size = start.length
   const filtered = targets.map(() => new Float64Array(size))
+
   let w = Float64Array.from(start)
   let spare = emptyWalkOn(torus)
+
   const mid = (beats - 1) / 2
 
   for (let t = 0; t < beats; t++) {
@@ -788,7 +945,9 @@ export function ritzEnergies(torus: Torus, start: Walk, targets: readonly number
   // an orthonormal basis of the span: B = V diag(1 / sqrt l) over the Gram eigenvalues above 1e-10 of the top
   const g = hermitianEigen(gram)
   const top = Math.max(...Array.from(g.values))
-  const keep = Array.from({ length: m }, (_, c) => c).filter(c => g.values[c]! > 1e-10 * top)
+  const keep = Array.from({ length: m }, (_, c) => c).filter(
+    c => g.values[c]! > 1e-10 * top,
+  )
   const k = keep.length
   const bRe = new Float64Array(m * k)
   const bIm = new Float64Array(m * k)
@@ -867,6 +1026,7 @@ export function ritzEnergies(torus: Torus, start: Walk, targets: readonly number
     const energy = -Math.atan2(ui / nn, ur / nn)
     const lr = Math.cos(energy)
     const li = -Math.sin(energy)
+
     let res = 0
 
     for (let x = 0; x < size; x += 2) {
@@ -884,8 +1044,12 @@ export function ritzEnergies(torus: Torus, start: Walk, targets: readonly number
 }
 
 // the mean distance of a state's chance from the torus center, and its mean square
-export function radialMoments(torus: Torus, w: Walk): { meanR: number; meanR2: number } {
+export function radialMoments(
+  torus: Torus,
+  w: Walk,
+): { meanR: number; meanR2: number } {
   const rho = density(torus, w)
+
   let total = 0
   let r1 = 0
   let r2 = 0
@@ -902,7 +1066,12 @@ export function radialMoments(torus: Torus, w: Walk): { meanR: number; meanR2: n
 }
 
 // |<v | U^t v>| for t up to `beats`: how much of a state is still itself, the survival of a level
-export function survival(torus: Torus, v: Walk, beats: number, phase: Phase): Float64Array {
+export function survival(
+  torus: Torus,
+  v: Walk,
+  beats: number,
+  phase: Phase,
+): Float64Array {
   const c = autocorrelation(torus, v, beats, phase)
 
   return Float64Array.from(c.re, (x, t) => Math.hypot(x, c.im[t]!))

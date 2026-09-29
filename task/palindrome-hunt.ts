@@ -305,7 +305,10 @@ export function linePermutations(input: {
     }
 
     for (let i = 0; i < rest.length; i++) {
-      build([...acc, rest[i]!], rest.filter((_, j) => j !== i))
+      build(
+        [...acc, rest[i]!],
+        rest.filter((_, j) => j !== i),
+      )
     }
   }
 
@@ -315,7 +318,12 @@ export function linePermutations(input: {
 
   for (const p of perms4) {
     for (let m = 0; m < 16; m++) {
-      const s = [m & 1 ? -1 : 1, m & 2 ? -1 : 1, m & 4 ? -1 : 1, m & 8 ? -1 : 1]
+      const s = [
+        m & 1 ? -1 : 1,
+        m & 2 ? -1 : 1,
+        m & 4 ? -1 : 1,
+        m & 8 ? -1 : 1,
+      ]
       const linePerm = new Array<number>(lines.length).fill(-1)
 
       for (let l = 0; l < lines.length; l++) {

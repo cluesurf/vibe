@@ -43,7 +43,15 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { curlCurl } from '@/code/rule/plaquette-ladder'
-import { HUSK_DIRECTIONS, gridTop, huskEigen, leapfrogGrowth, loopSplits, photonTopVelocity, tritSolutions } from '@/code/measure/one-light-split'
+import {
+  HUSK_DIRECTIONS,
+  gridTop,
+  huskEigen,
+  leapfrogGrowth,
+  loopSplits,
+  photonTopVelocity,
+  tritSolutions,
+} from '@/code/measure/one-light-split'
 
 export default experiment({
   id: 'gauge/one-light-split',
@@ -99,10 +107,14 @@ export default experiment({
       l2 &&= splits.length > 0
       l2 &&= splits.every(s => s.w % 4 === 0)
       l2 &&= splits.some(s => 8 * s.force === 3 * s.drift)
-      l2 &&= splits.every(s => s.force !== 3 * s.drift && s.force !== 2 * s.drift)
+      l2 &&= splits.every(
+        s => s.force !== 3 * s.drift && s.force !== 2 * s.drift,
+      )
     }
 
-    const balanced = loopSplits(25, 3, 8, 64).find(s => 8 * s.force === 3 * s.drift)!
+    const balanced = loopSplits(25, 3, 8, 64).find(
+      s => 8 * s.force === 3 * s.drift,
+    )!
 
     metrics.loopSplitsN5to49 = loopCount
     metrics.balancedM = balanced.w
@@ -117,7 +129,11 @@ export default experiment({
     const atZero = huskEigen([0, 0, 0]).values
     const twelves = atZero.filter(v => Math.abs(v - 12) < 1e-9).length
     const corner = huskEigen([Math.PI, 0, Math.PI]).values
-    const l3 = Math.abs(husk.top - 16) < 1e-9 && husk.intertwining < 1e-12 && bulk.top <= 16 + 1e-9 && twelves === 6
+    const l3 =
+      Math.abs(husk.top - 16) < 1e-9 &&
+      husk.intertwining < 1e-12 &&
+      bulk.top <= 16 + 1e-9 &&
+      twelves === 6
 
     metrics.huskTop = husk.top
     metrics.huskTopAt0 = husk.at[0] ?? 0
@@ -134,7 +150,10 @@ export default experiment({
     const g16 = leapfrogGrowth(KAPPA * 16)
     const g12 = leapfrogGrowth(KAPPA * 12)
     const gEdge = leapfrogGrowth(kappaStable * 16)
-    const l4 = Math.abs(g16 - (2 + Math.sqrt(3))) < 1e-12 && Math.abs(g12 - 2) < 1e-12 && gEdge === 1
+    const l4 =
+      Math.abs(g16 - (2 + Math.sqrt(3))) < 1e-12 &&
+      Math.abs(g12 - 2) < 1e-12 &&
+      gEdge === 1
 
     metrics.growthTop = g16
     metrics.growthMassiveZero = g12
@@ -180,9 +199,14 @@ export default experiment({
     // C2: kappa lambda_max = 32 / (2D + 1) <= 4 in integers: 32 <= 4 (2D + 1)
     const unstable: number[] = []
 
-    for (let d = 1; d <= 64; d++) if (32 > 4 * (2 * d + 1)) unstable.push(d)
+    for (let d = 1; d <= 64; d++) {
+      if (32 > 4 * (2 * d + 1)) {
+        unstable.push(d)
+      }
+    }
 
-    const c2 = unstable.length === 3 && unstable[0] === 1 && unstable[2] === 3
+    const c2 =
+      unstable.length === 3 && unstable[0] === 1 && unstable[2] === 3
 
     metrics.unstableDepths = unstable.length
     metrics.lightSpeedAtD4 = Math.sqrt(4 / 27)
@@ -190,7 +214,8 @@ export default experiment({
     // C3
     const ladderTop = KAPPA * curlCurl(Math.PI, 2)
     const ringTop = KAPPA * 4
-    const c3 = ladderTop <= 4 && ringTop <= 4 && leapfrogGrowth(ladderTop) === 1
+    const c3 =
+      ladderTop <= 4 && ringTop <= 4 && leapfrogGrowth(ladderTop) === 1
 
     metrics.ladderTopKappaK = ladderTop
     metrics.ringTopKappaK = ringTop
@@ -202,25 +227,40 @@ export default experiment({
     ] as const) {
       let best = 0
 
-      for (const dir of HUSK_DIRECTIONS) best = Math.max(best, photonTopVelocity(kappa, dir))
+      for (const dir of HUSK_DIRECTIONS) {
+        best = Math.max(best, photonTopVelocity(kappa, dir))
+      }
 
       metrics[`photonTopGroupVelocity_${tag}`] = best
     }
 
     // the alpha forms at c = 1/2 (N = 2D + 1): s / (12 N c) = s / (6 N), 1 / (6 N) at s = 1
-    for (const d of [4, 16, 49]) metrics[`inverseAlphaAtHalf_s1_D${d}`] = 6 * (2 * d + 1)
+    for (const d of [4, 16, 49]) {
+      metrics[`inverseAlphaAtHalf_s1_D${d}`] = 6 * (2 * d + 1)
+    }
 
     metrics.inverseAlphaWrongForm_s1 = 32
 
-    const gates = { L1: l1, L2: l2, L3: l3, L4: l4, L5: l5, C1: c1, C2: c2, C3: c3 }
+    const gates = {
+      L1: l1,
+      L2: l2,
+      L3: l3,
+      L4: l4,
+      L5: l5,
+      C1: c1,
+      C2: c2,
+      C3: c3,
+    }
 
-    for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(gates)) {
+      metrics[`gate${k}`] = v ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
     return verdict({
       status: Object.values(gates).every(Boolean) ? 'pass' : 'fail',
-      claim: `c = 1/2 is kappa = 3/8 at any split; the trit column light has no (p, D) there (nearest ${nearestGap.toExponential(2)} off at p = ${nearestP}, D = ${nearestD}), the loop light has it at every N (the balanced 3D split m = ${balanced.w}, c = ${balanced.drift}, r = ${balanced.force}: s = 1, f = 3/8); but the husk curl-curl tops at ${husk.top.toFixed(12)} (bulk ${bulk.top.toFixed(12)}), so a husk light is stable only at kappa <= 1/4 and c <= ${metrics.lightSpeedStableMax!.toFixed(6)}, and at kappa = 3/8 its massive branches grow ${g12.toFixed(6)} and ${g16.toFixed(6)} per beat; under kappa = 2 / (2D + 1) the depths D = ${unstable.join(', ')} are unstable, and matter's 1/2 is ${metrics.matterOverLightAtEdge!.toFixed(4)} times the fastest stable long-wave light; the photon's top group velocity is ${metrics.photonTopGroupVelocity_D4!.toFixed(4)} at D = 4 and ${metrics.photonTopGroupVelocity_edge!.toFixed(4)} at kappa = 1/4`,
+      claim: `c = 1/2 is kappa = 3/8 at any split; the trit column light has no (p, D) there (nearest ${nearestGap.toExponential(2)} off at p = ${nearestP}, D = ${nearestD}), the loop light has it at every N (the balanced 3D split m = ${balanced.w}, c = ${balanced.drift}, r = ${balanced.force}: s = 1, f = 3/8); but the husk curl-curl tops at ${husk.top.toFixed(12)} (bulk ${bulk.top.toFixed(12)}), so a husk light is stable only at kappa <= 1/4 and c <= ${metrics.lightSpeedStableMax.toFixed(6)}, and at kappa = 3/8 its massive branches grow ${g12.toFixed(6)} and ${g16.toFixed(6)} per beat; under kappa = 2 / (2D + 1) the depths D = ${unstable.join(', ')} are unstable, and matter's 1/2 is ${metrics.matterOverLightAtEdge.toFixed(4)} times the fastest stable long-wave light; the photon's top group velocity is ${metrics.photonTopGroupVelocity_D4!.toFixed(4)} at D = 4 and ${metrics.photonTopGroupVelocity_edge!.toFixed(4)} at kappa = 1/4`,
       metrics,
       control: {
         depthRelationMinGap: minGap,

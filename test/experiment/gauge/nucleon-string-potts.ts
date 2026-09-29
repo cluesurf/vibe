@@ -72,9 +72,23 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
 import { makeStringGraph } from '@/code/rule/string-graph'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
-import { chainSums, exactDuality, pottsSum, type SmallGraph } from '@/code/measure/string-potts'
-import { linkAnimals, singletLevels } from '@/code/measure/string-levels'
-import { boxDisplacement, bulkLength, makeBoxGeometry, runGas, singletPieces } from '@/code/measure/nucleon-gas'
+import {
+  chainSums,
+  exactDuality,
+  pottsSum,
+  type SmallGraph,
+} from '@/code/measure/string-potts'
+import {
+  linkAnimals,
+  singletLevels,
+} from '@/code/measure/string-levels'
+import {
+  boxDisplacement,
+  bulkLength,
+  makeBoxGeometry,
+  runGas,
+  singletPieces,
+} from '@/code/measure/nucleon-gas'
 
 const PATCH = [
   [0, 0, 0, 0],
@@ -95,14 +109,29 @@ const DUALITY_TOLERANCE = 1e-12
 const GAP_TOLERANCE = 0.1
 
 // perfect matchings of loves to fears over adjacent pairs, by brute force over permutations
-function matchings(loves: number[], fears: number[], adjacent: (a: number, b: number) => boolean): number {
+function matchings(
+  loves: number[],
+  fears: number[],
+  adjacent: (a: number, b: number) => boolean,
+): number {
   if (loves.length === 0) {
     return 1
   }
 
   const [first, ...rest] = loves
 
-  return fears.reduce((sum, f, k) => sum + (adjacent(first ?? 0, f) ? matchings(rest, fears.filter((_, j) => j !== k), adjacent) : 0), 0)
+  return fears.reduce(
+    (sum, f, k) =>
+      sum +
+      (adjacent(first ?? 0, f)
+        ? matchings(
+            rest,
+            fears.filter((_, j) => j !== k),
+            adjacent,
+          )
+        : 0),
+    0,
+  )
 }
 
 export default experiment({
@@ -116,7 +145,8 @@ export default experiment({
   paper: false,
   run() {
     const roots = rootsD4()
-    const isRoot = (v: number[]): boolean => roots.some(r => r.every((x, i) => x === v[i]))
+    const isRoot = (v: number[]): boolean =>
+      roots.some(r => r.every((x, i) => x === v[i]))
     const links: [number, number][] = []
 
     PATCH.forEach((a, i) =>
@@ -128,7 +158,10 @@ export default experiment({
     )
 
     const patch: SmallGraph = { docks: PATCH.length, links }
-    const adjacent = (a: number, b: number): boolean => links.some(([p, q]) => (p === a && q === b) || (p === b && q === a))
+    const adjacent = (a: number, b: number): boolean =>
+      links.some(
+        ([p, q]) => (p === a && q === b) || (p === b && q === a),
+      )
 
     // 1. the duality
     let dualityWorst = 0
@@ -138,7 +171,11 @@ export default experiment({
     for (const x of XS) {
       const sums = chainSums(patch, x)
       const vacuum = sums.get('0'.repeat(PATCH.length))?.weight ?? 1
-      const pottsVacuum = pottsSum(patch, x, new Array<number>(PATCH.length).fill(0)).re
+      const pottsVacuum = pottsSum(
+        patch,
+        x,
+        new Array<number>(PATCH.length).fill(0),
+      ).re
 
       for (const [key, entry] of sums) {
         const rho = key.split('').map(Number)
@@ -146,8 +183,15 @@ export default experiment({
         const left = entry.weight / vacuum
         const right = potts.re / pottsVacuum
 
-        dualityWorst = Math.max(dualityWorst, Math.abs(left - right) / Math.max(Math.abs(left), 1e-300))
-        imaginaryWorst = Math.max(imaginaryWorst, Math.abs(potts.im) / Math.abs(pottsVacuum))
+        dualityWorst = Math.max(
+          dualityWorst,
+          Math.abs(left - right) / Math.max(Math.abs(left), 1e-300),
+        )
+
+        imaginaryWorst = Math.max(
+          imaginaryWorst,
+          Math.abs(potts.im) / Math.abs(pottsVacuum),
+        )
         patterns += 1
       }
     }
@@ -176,24 +220,47 @@ export default experiment({
 
         if (loves.length === 2 && entry.least === 2) {
           identityCases += 1
-          identityHolds = identityHolds && entry.atLeast === matchings(loves, fears, adjacent)
+          identityHolds =
+            identityHolds &&
+            entry.atLeast === matchings(loves, fears, adjacent)
         }
       }
 
-      if (fears.length === 0 && loves.length > 0 && loves.length % 3 === 0) {
+      if (
+        fears.length === 0 &&
+        loves.length > 0 &&
+        loves.length % 3 === 0
+      ) {
         baryonPatterns += 1
-        baryonBoundHolds = baryonBoundHolds && entry.least >= (2 * loves.length) / 3
+        baryonBoundHolds =
+          baryonBoundHolds && entry.least >= (2 * loves.length) / 3
       }
     }
 
     // 4. the levels
     const animals = linkAnimals(LEVELS)
-    const meson = singletLevels({ boundary: 'meson', maxSize: LEVELS, animals })
-    const baryon = singletLevels({ boundary: 'baryon', maxSize: LEVELS, animals })
-    const handCounts = meson[0]?.count === 24 && meson[1]?.count === 24 * 23 && baryon[1]?.count === 24 * 23 + (24 * 23) / 2
+    const meson = singletLevels({
+      boundary: 'meson',
+      maxSize: LEVELS,
+      animals,
+    })
+    const baryon = singletLevels({
+      boundary: 'baryon',
+      maxSize: LEVELS,
+      animals,
+    })
+    const handCounts =
+      meson[0]?.count === 24 &&
+      meson[1]?.count === 24 * 23 &&
+      baryon[1]?.count === 24 * 23 + (24 * 23) / 2
 
     // 5. the meson's mean love-fear distance: measured, then predicted from the levels at the measured x
-    const graph = makeStringGraph({ mesh: d4BoxMesh({ side: GAP_SIDE }), mass: 4, tension: 1, capacity: CAPACITY })
+    const graph = makeStringGraph({
+      mesh: d4BoxMesh({ side: GAP_SIDE }),
+      mass: 4,
+      tension: 1,
+      capacity: CAPACITY,
+    })
     const geometry = makeBoxGeometry(GAP_SIDE)
 
     let distanceSum = 0
@@ -210,19 +277,28 @@ export default experiment({
       look: state => {
         for (const p of singletPieces(graph, state)) {
           if (p.loves.length === 1 && p.fears.length === 1) {
-            distanceSum += bulkLength(boxDisplacement(geometry, p.fears[0] ?? 0, p.loves[0] ?? 0))
+            distanceSum += bulkLength(
+              boxDisplacement(
+                geometry,
+                p.fears[0] ?? 0,
+                p.loves[0] ?? 0,
+              ),
+            )
             samples += 1
           }
         }
       },
     })
     const measured = distanceSum / Math.max(1, samples)
-    const x = Math.exp(-unitDemonBeta({ meanDemon: out.meanDemon, capacity: CAPACITY }))
+    const x = Math.exp(
+      -unitDemonBeta({ meanDemon: out.meanDemon, capacity: CAPACITY }),
+    )
     const weights = meson.map((l, k) => l.count * x ** (k + 1))
     const means = meson.map(l => l.distanceSum / l.count)
     // the tail past the last counted level: its weights continue the last ratio geometrically and its mean
     // distance the last step linearly, summed to convergence
-    const ratio = (weights[LEVELS - 1] ?? 0) / (weights[LEVELS - 2] ?? 1)
+    const ratio =
+      (weights[LEVELS - 1] ?? 0) / (weights[LEVELS - 2] ?? 1)
     const step = (means[LEVELS - 1] ?? 0) - (means[LEVELS - 2] ?? 0)
 
     let top = weights.reduce((a, w, k) => a + w * (means[k] ?? 0), 0)
@@ -238,10 +314,15 @@ export default experiment({
     }
 
     const predicted = top / bottom
-    const truncated = weights.reduce((a, wt, k) => a + wt * (means[k] ?? 0), 0) / weights.reduce((a, wt) => a + wt, 0)
+    const truncated =
+      weights.reduce((a, wt, k) => a + wt * (means[k] ?? 0), 0) /
+      weights.reduce((a, wt) => a + wt, 0)
 
     // the gate reads the exact check: 0 mismatched coefficients is a relative error of 0, under 1e-12
-    const dualityHolds = exact.mismatches === 0 && exact.imaginaryMismatches === 0 && exact.patterns > 0
+    const dualityHolds =
+      exact.mismatches === 0 &&
+      exact.imaginaryMismatches === 0 &&
+      exact.patterns > 0
     const ok =
       dualityHolds &&
       mesonBoundHolds &&
@@ -265,18 +346,45 @@ export default experiment({
         dualityExactPatterns: exact.patterns,
         dualityExactCoefficientMismatches: exact.mismatches,
         dualityExactImaginaryMismatches: exact.imaginaryMismatches,
-        floatWithinTolerance: dualityWorst < DUALITY_TOLERANCE && imaginaryWorst < DUALITY_TOLERANCE ? 1 : 0,
+        floatWithinTolerance:
+          dualityWorst < DUALITY_TOLERANCE &&
+          imaginaryWorst < DUALITY_TOLERANCE
+            ? 1
+            : 0,
         mesonBoundHolds: mesonBoundHolds ? 1 : 0,
         mesonPatterns,
         baryonBoundHolds: baryonBoundHolds ? 1 : 0,
         baryonPatterns,
         idealGasIdentityHolds: identityHolds ? 1 : 0,
         idealGasIdentityCases: identityCases,
-        ...Object.fromEntries(meson.map((l, k) => [`mesonOmega${k + 1}`, l.count])),
-        ...Object.fromEntries(meson.map((l, k) => [`mesonMeanDistanceLevel${k + 1}`, l.distanceSum / l.count])),
-        ...Object.fromEntries(meson.map((l, k) => [`mesonMeanHuskDistanceLevel${k + 1}`, l.huskSum / l.count])),
-        ...Object.fromEntries(baryon.slice(1).map((l, k) => [`baryonOmega${k + 2}`, l.count])),
-        ...Object.fromEntries(baryon.slice(1).map((l, k) => [`baryonMeanSpreadLevel${k + 2}`, l.distanceSum / l.count])),
+        ...Object.fromEntries(
+          meson.map((l, k) => [`mesonOmega${k + 1}`, l.count]),
+        ),
+        ...Object.fromEntries(
+          meson.map((l, k) => [
+            `mesonMeanDistanceLevel${k + 1}`,
+            l.distanceSum / l.count,
+          ]),
+        ),
+        ...Object.fromEntries(
+          meson.map((l, k) => [
+            `mesonMeanHuskDistanceLevel${k + 1}`,
+            l.huskSum / l.count,
+          ]),
+        ),
+        ...Object.fromEntries(
+          baryon
+            .slice(1)
+            .map((l, k) => [`baryonOmega${k + 2}`, l.count]),
+        ),
+        ...Object.fromEntries(
+          baryon
+            .slice(1)
+            .map((l, k) => [
+              `baryonMeanSpreadLevel${k + 2}`,
+              l.distanceSum / l.count,
+            ]),
+        ),
         measuredX: x,
         levelRatioAtLastLevel: ratio,
         predictedMeanDistance: predicted,

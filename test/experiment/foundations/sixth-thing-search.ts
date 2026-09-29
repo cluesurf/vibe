@@ -31,7 +31,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites, shellDistances } from '@/code/tool/mesh'
 import { makeWill, Will, charge } from '@/code/tone/will'
-import { Collision, PAIR_FORWARD, pairCollision } from '@/code/rule/collision'
+import {
+  Collision,
+  PAIR_FORWARD,
+  pairCollision,
+} from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import {
   clockAmplitude,
@@ -51,7 +55,9 @@ const EXACT = 1e-9
 const pairKey = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 
 // the couples of a mesh: (matter line, clock wire) pairs, the search family's split
-function couplesOf(mesh: ReturnType<typeof d4Mesh>): [[number, number], [number, number]][] {
+function couplesOf(
+  mesh: ReturnType<typeof d4Mesh>,
+): [[number, number], [number, number]][] {
   const opposite = meshOpposites(mesh)
   const lines: [number, number][] = []
 
@@ -76,7 +82,8 @@ function couplesOf(mesh: ReturnType<typeof d4Mesh>): [[number, number], [number,
 // the marked pair (a symmetric condition, so the swap is an involution), then run the wire clock
 function parkRule(mesh: ReturnType<typeof d4Mesh>): Collision {
   const couples = couplesOf(mesh)
-  const lone = (a: number, b: number): boolean => (a === 0) !== (b === 0)
+  const lone = (a: number, b: number): boolean =>
+    (a === 0) !== (b === 0)
   const marked = (a: number, b: number): boolean => a === 1 && b === -1
 
   return (slots, base) => {
@@ -111,7 +118,13 @@ function trace(input: {
   mesh: ReturnType<typeof d4Mesh>
   rule: Collision
   beats: number
-}): { magnitudes: number[]; phases: number[]; reaches: number[]; supports: number[]; charge: number } {
+}): {
+  magnitudes: number[]
+  phases: number[]
+  reaches: number[]
+  supports: number[]
+  charge: number
+} {
   const { mesh, rule, beats } = input
   const centre = Math.floor(mesh.cellCount / 2)
   const distance = shellDistances(mesh, centre)
@@ -155,7 +168,13 @@ function trace(input: {
     supports.push(cells.size)
   }
 
-  return { magnitudes, phases, reaches, supports, charge: charge(seeded) }
+  return {
+    magnitudes,
+    phases,
+    reaches,
+    supports,
+    charge: charge(seeded),
+  }
 }
 
 export default experiment({
@@ -203,7 +222,10 @@ export default experiment({
           sliceExactMagnitude++
         }
 
-        sliceBestDistance = Math.max(sliceBestDistance, score.maxDistance)
+        sliceBestDistance = Math.max(
+          sliceBestDistance,
+          score.maxDistance,
+        )
       }
     }
 

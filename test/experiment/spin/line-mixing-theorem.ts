@@ -76,7 +76,16 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { LINE_OF } from '@/code/rule/isometric-knit'
-import { dockOrbitals, eConj, eEq, eMul, eZero, UNITS, weylF4, type Eis } from '@/code/measure/covariant-coin'
+import {
+  dockOrbitals,
+  eConj,
+  eEq,
+  eMul,
+  eZero,
+  UNITS,
+  weylF4,
+  type Eis,
+} from '@/code/measure/covariant-coin'
 import {
   checkEigenspaces,
   covarianceFailures,
@@ -99,10 +108,19 @@ import {
   type Dyadic,
   type EisMatrix,
 } from '@/code/measure/line-mixing'
-import { FRAME_OF_SLOT, mixBranch } from '@/code/rule/coined-locked-knit'
+import {
+  FRAME_OF_SLOT,
+  mixBranch,
+} from '@/code/rule/coined-locked-knit'
 import { type Branch } from '@/code/rule/doublet-locked-knit'
 
-const OPP = Array.from({ length: 24 }, (_, d) => Array.from({ length: 24 }, (__, e) => e).find(e => innerOf(d, e) === -2) as number)
+const OPP = Array.from(
+  { length: 24 },
+  (_, d) =>
+    Array.from({ length: 24 }, (__, e) => e).find(
+      e => innerOf(d, e) === -2,
+    )!,
+)
 
 // a one-dock branch holding vibes (love, open, point 0) on the given slots
 function dock(slots: readonly number[], stores = false): Branch {
@@ -114,18 +132,36 @@ function dock(slots: readonly number[], stores = false): Branch {
     open[s] = 1
   }
 
-  return { vibe, point: new Int8Array(24), open, store: stores ? new Int8Array(12).fill(1) : new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12), a: 1n, b: 0n, k: 0 }
+  return {
+    vibe,
+    point: new Int8Array(24),
+    open,
+    store: stores ? new Int8Array(12).fill(1) : new Int8Array(12),
+    spoint: new Int8Array(12),
+    sopen: new Uint8Array(12),
+    a: 1n,
+    b: 0n,
+    k: 0,
+  }
 }
 
 // a branch's occupied slots and its amplitude times 2^8, as a key
-const slotsOf = (b: Branch): number[] => Array.from(b.vibe, (v, i) => (v !== 0 ? i : -1)).filter(i => i >= 0)
-const amp8 = (b: Branch): string => `${b.a * (1n << BigInt(8 - b.k))},${b.b * (1n << BigInt(8 - b.k))}`
-const imageKey = (bs: readonly Branch[], g?: readonly number[]): string =>
+const slotsOf = (b: Branch): number[] =>
+  Array.from(b.vibe, (v, i) => (v !== 0 ? i : -1)).filter(i => i >= 0)
+const amp8 = (b: Branch): string =>
+  `${b.a * (1n << BigInt(8 - b.k))},${b.b * (1n << BigInt(8 - b.k))}`
+const imageKey = (
+  bs: readonly Branch[],
+  g?: readonly number[],
+): string =>
   bs
-    .map(b => `${slotsOf(b)
-      .map(s => (g ? (g[s] as number) : s))
-      .sort((p, q) => p - q)
-      .join('.')}:${amp8(b)}`)
+    .map(
+      b =>
+        `${slotsOf(b)
+          .map(s => (g ? g[s]! : s))
+          .sort((p, q) => p - q)
+          .join('.')}:${amp8(b)}`,
+    )
     .sort()
     .join('|')
 
@@ -146,49 +182,108 @@ export default experiment({
     const gens = generatorsOf(group)
     const orbitsByGenerators = pairOrbits(gens.generators)
     const burnside = dockOrbitals(group).burnside
-    const h1 = group.length === 1152 && gens.closes === 1152 && orbitsByGenerators === 5 && burnside === 5 && INNERS.length === 5
+    const h1 =
+      group.length === 1152 &&
+      gens.closes === 1152 &&
+      orbitsByGenerators === 5 &&
+      burnside === 5 &&
+      INNERS.length === 5
 
     // ---- H2 ----
-    const offLine = ORBITALS.map(A => A.some((row, d) => row.some((v, e) => v === 1 && LINE_OF[d] !== LINE_OF[e])))
+    const offLine = ORBITALS.map(A =>
+      A.some((row, d) =>
+        row.some((v, e) => v === 1 && LINE_OF[d] !== LINE_OF[e]),
+      ),
+    )
     const mixingInners = INNERS.filter((_, k) => offLine[k])
-    const h2 = mixingInners.length === 3 && [1, 0, -1].every(v => mixingInners.includes(v as (typeof INNERS)[number]))
+    const h2 =
+      mixingInners.length === 3 &&
+      [1, 0, -1].every(v =>
+        mixingInners.includes(v as (typeof INNERS)[number]),
+      )
 
     // ---- H3 ----
     const perms = covariantPermutations()
-    const h3 = perms.length === 2 && perms.some(p => p.length === 1 && p[0] === 2) && perms.some(p => p.length === 1 && p[0] === -2)
+    const h3 =
+      perms.length === 2 &&
+      perms.some(p => p.length === 1 && p[0] === 2) &&
+      perms.some(p => p.length === 1 && p[0] === -2)
 
     // ---- H4 ----
     const eig = checkEigenspaces()
-    const h4 = eig.idempotent.every(Boolean) && eig.orthogonal && eig.complete && eig.eigenvalues && eig.traces.join(',') === '1,2,9,4,8'
+    const h4 =
+      eig.idempotent.every(Boolean) &&
+      eig.orthogonal &&
+      eig.complete &&
+      eig.eigenvalues &&
+      eig.traces.join(',') === '1,2,9,4,8'
 
     // ---- H5 ----
     const ring = ringUnitaries()
     const us = ring.unitaries
     const mixing = us.filter(u => u.lineMixing)
-    const tiedPairs = us.filter(u => eEq(u.mu[0] as Eis, u.mu[1] as Eis) && eEq(u.mu[3] as Eis, u.mu[4] as Eis)).length
+    const tiedPairs = us.filter(
+      u => eEq(u.mu[0]!, u.mu[1]!) && eEq(u.mu[3]!, u.mu[4]!),
+    ).length
     // up to the global phase: fix mu_3 (the even rest) to 1
     const classes = us.filter(u => u.units[2] === 0)
+
     let unitaryCount = 0
     let covariantCount = 0
 
     for (const u of us) {
       const m = ringMatrix(u.coefficients)
 
-      if (isUnitary(m)) unitaryCount++
-      if (covarianceFailures(group, (d, e) => (m.entries[d] as Eis[])[e] as Eis) === 0) covariantCount++
+      if (isUnitary(m)) {
+        unitaryCount++
+      }
+
+      if (
+        covarianceFailures(group, (d, e) => m.entries[d]![e]!) === 0
+      ) {
+        covariantCount++
+      }
     }
 
-    const h5 = ring.tried === 7776 && us.length === 216 && us.filter(u => u.reachesInnerOne).length === 0 && mixing.length === 180 && us.length - mixing.length === 36 && tiedPairs === 216 && classes.length === 36 && classes.filter(u => u.lineMixing).length === 30 && unitaryCount === 216 && covariantCount === 216
+    const h5 =
+      ring.tried === 7776 &&
+      us.length === 216 &&
+      us.filter(u => u.reachesInnerOne).length === 0 &&
+      mixing.length === 180 &&
+      us.length - mixing.length === 36 &&
+      tiedPairs === 216 &&
+      classes.length === 36 &&
+      classes.filter(u => u.lineMixing).length === 30 &&
+      unitaryCount === 216 &&
+      covariantCount === 216
 
     // ---- H6 ----
     const phases = UNITS.filter(u => u.sixths !== 0).map(u => {
       const mu = framePhaseMu(u.value)
-      const coefficients = [0, 1, 2, 3, 4].map(k => ringCoefficient(mu, k)) as Dyadic[]
+      const coefficients = [0, 1, 2, 3, 4].map(k =>
+        ringCoefficient(mu, k),
+      ) as Dyadic[]
       const m = ringMatrix(coefficients)
       const square = multiplyEis(m, m)
-      const identity: EisMatrix = { entries: Array.from({ length: 24 }, (_, i) => Array.from({ length: 24 }, (__, j) => [i === j ? 1 : 0, 0] as Eis)), p: 0 }
+      const identity: EisMatrix = {
+        entries: Array.from({ length: 24 }, (_, i) =>
+          Array.from(
+            { length: 24 },
+            (__, j) => [i === j ? 1 : 0, 0] as Eis,
+          ),
+        ),
+        p: 0,
+      }
 
-      return { name: u.name, alpha: u.value, coefficients, matrix: m, real: coefficients.every(c => c.num[1] === 0), involution: sameEis(square, identity), denominator: Math.max(...coefficients.map(c => c.p)) }
+      return {
+        name: u.name,
+        alpha: u.value,
+        coefficients,
+        matrix: m,
+        real: coefficients.every(c => c.num[1] === 0),
+        involution: sameEis(square, identity),
+        denominator: Math.max(...coefficients.map(c => c.p)),
+      }
     })
     const reals = phases.filter(p => p.real)
     const involutions = phases.filter(p => p.involution)
@@ -201,26 +296,59 @@ export default experiment({
       [0, 0],
       [-1, 2],
     ]
-    const gCoefficientsRight = G.coefficients.every((c, k) => (eZero(c.num) ? gWant[k]![0] === 0 : c.num[0] === gWant[k]![0] && c.num[1] === 0 && c.p === gWant[k]![1]))
+    const gCoefficientsRight = G.coefficients.every((c, k) =>
+      eZero(c.num)
+        ? gWant[k]![0] === 0
+        : c.num[0] === gWant[k]![0] &&
+          c.num[1] === 0 &&
+          c.p === gWant[k]![1],
+    )
+
     // G on e_r - e_-r, every line
     let fixesMinus = true
 
     for (let d = 0; d < 24; d++) {
-      const e = OPP[d] as number
+      const e = OPP[d]!
 
       for (let i = 0; i < 24; i++) {
-        const gi = G.matrix.entries[i] as Eis[]
-        const v: Eis = [(gi[d] as Eis)[0] - (gi[e] as Eis)[0], (gi[d] as Eis)[1] - (gi[e] as Eis)[1]]
+        const gi = G.matrix.entries[i]!
+        const v: Eis = [gi[d]![0] - gi[e]![0], gi[d]![1] - gi[e]![1]]
         const want = (i === d ? 1 : i === e ? -1 : 0) * 2 ** G.matrix.p
 
-        if (!eEq(v, [want, 0])) fixesMinus = false
+        if (!eEq(v, [want, 0])) {
+          fixesMinus = false
+        }
       }
     }
 
     // the coin 2C on the dock: (1 + w) on the diagonal, (1 - w) at the opposite slot, 0 elsewhere
-    const coin: EisMatrix = { entries: Array.from({ length: 24 }, (_, i) => Array.from({ length: 24 }, (__, j) => (i === j ? ([1, 1] as Eis) : j === OPP[i] ? ([1, -1] as Eis) : ([0, 0] as Eis)))), p: 1 }
-    const commutesCoin = sameEis(multiplyEis(G.matrix, coin), multiplyEis(coin, G.matrix))
-    const h6 = phases.length === 5 && reals.length === 1 && involutions.length === 1 && reals[0] === G && involutions[0] === G && G.denominator === least && phases.filter(p => p.denominator === least).length === 1 && gCoefficientsRight && fixesMinus && commutesCoin
+    const coin: EisMatrix = {
+      entries: Array.from({ length: 24 }, (_, i) =>
+        Array.from({ length: 24 }, (__, j) =>
+          i === j
+            ? ([1, 1] as Eis)
+            : j === OPP[i]
+              ? ([1, -1] as Eis)
+              : ([0, 0] as Eis),
+        ),
+      ),
+      p: 1,
+    }
+    const commutesCoin = sameEis(
+      multiplyEis(G.matrix, coin),
+      multiplyEis(coin, G.matrix),
+    )
+    const h6 =
+      phases.length === 5 &&
+      reals.length === 1 &&
+      involutions.length === 1 &&
+      reals[0] === G &&
+      involutions[0] === G &&
+      G.denominator === least &&
+      phases.filter(p => p.denominator === least).length === 1 &&
+      gCoefficientsRight &&
+      fixesMinus &&
+      commutesCoin
 
     // ---- H7: the rule's piece ----
     let columnsRight = 0
@@ -228,17 +356,30 @@ export default experiment({
 
     for (let s = 0; s < 24; s++) {
       const out = mixBranch(1, dock([s]))
+
       let right = out.length === 8
 
       for (const b of out) {
         const [to] = slotsOf(b)
-        const want = to === s ? 3 : FRAME_OF_SLOT[to as number] === FRAME_OF_SLOT[s] ? -1 : 0
-        const g4 = (G.matrix.entries[to as number] as Eis[])[s] as Eis
+        const want =
+          to === s
+            ? 3
+            : FRAME_OF_SLOT[to!] === FRAME_OF_SLOT[s]
+              ? -1
+              : 0
+        const g4 = G.matrix.entries[to!]![s]!
 
-        right = right && b.b === 0n && b.a * 4n === BigInt(want) * (1n << BigInt(b.k)) && g4[1] === 0 && g4[0] * 4 === want * 2 ** G.matrix.p
+        right =
+          right &&
+          b.b === 0n &&
+          b.a * 4n === BigInt(want) * (1n << BigInt(b.k)) &&
+          g4[1] === 0 &&
+          g4[0] * 4 === want * 2 ** G.matrix.p
       }
 
-      if (right) columnsRight++
+      if (right) {
+        columnsRight++
+      }
 
       // twice, merged by configuration
       const twice = new Map<string, bigint>()
@@ -247,60 +388,120 @@ export default experiment({
         for (const c of mixBranch(1, b)) {
           const key = slotsOf(c).join('.')
 
-          twice.set(key, (twice.get(key) ?? 0n) + c.a * (1n << BigInt(8 - c.k)))
+          twice.set(
+            key,
+            (twice.get(key) ?? 0n) + c.a * (1n << BigInt(8 - c.k)),
+          )
         }
       }
 
       const nonzero = [...twice].filter(([, v]) => v !== 0n)
 
-      if (nonzero.length === 1 && nonzero[0]![0] === String(s) && nonzero[0]![1] === 256n) involutive++
+      if (
+        nonzero.length === 1 &&
+        nonzero[0]![0] === String(s) &&
+        nonzero[0]![1] === 256n
+      ) {
+        involutive++
+      }
     }
 
     const docks: number[][] = []
 
-    for (let s = 0; s < 24; s++) docks.push([s])
-    for (let s = 0; s < 24; s++) for (let t = s + 1; t < 24; t++) docks.push([s, t])
+    for (let s = 0; s < 24; s++) {
+      docks.push([s])
+    }
+
+    for (let s = 0; s < 24; s++) {
+      for (let t = s + 1; t < 24; t++) {
+        docks.push([s, t])
+      }
+    }
 
     let covariantDocks = 0
 
     for (const slots of docks) {
       const mixed = mixBranch(1, dock(slots))
+
       let ok = true
 
       for (const g of gens.generators) {
-        if (!ok) break
-        ok = imageKey(mixed, g) === imageKey(mixBranch(1, dock(slots.map(s => g[s] as number))))
+        if (!ok) {
+          break
+        }
+
+        ok =
+          imageKey(mixed, g) ===
+          imageKey(mixBranch(1, dock(slots.map(s => g[s]!))))
       }
 
-      if (ok) covariantDocks++
+      if (ok) {
+        covariantDocks++
+      }
     }
 
-    const sameFrame = docks.filter(d => d.length === 2 && FRAME_OF_SLOT[d[0]!] === FRAME_OF_SLOT[d[1]!])
+    const sameFrame = docks.filter(
+      d =>
+        d.length === 2 && FRAME_OF_SLOT[d[0]!] === FRAME_OF_SLOT[d[1]!],
+    )
     const untouched = sameFrame.filter(d => {
       const out = mixBranch(1, dock(d))
 
-      return out.length === 1 && out[0]!.a === 1n && out[0]!.b === 0n && out[0]!.k === 0 && slotsOf(out[0]!).join('.') === d.join('.')
+      return (
+        out.length === 1 &&
+        out[0]!.a === 1n &&
+        out[0]!.b === 0n &&
+        out[0]!.k === 0 &&
+        slotsOf(out[0]!).join('.') === d.join('.')
+      )
     }).length
+
     let storesKept = 0
 
-    for (let s = 0; s < 24; s++) if (mixBranch(1, dock([s], true)).every(b => b.store.every(v => v === 1))) storesKept++
+    for (let s = 0; s < 24; s++) {
+      if (
+        mixBranch(1, dock([s], true)).every(b =>
+          b.store.every(v => v === 1),
+        )
+      ) {
+        storesKept++
+      }
+    }
 
-    const h7 = columnsRight === 24 && involutive === 24 && covariantDocks === docks.length && docks.length === 300 && sameFrame.length === 84 && untouched === 84 && storesKept === 24
+    const h7 =
+      columnsRight === 24 &&
+      involutive === 24 &&
+      covariantDocks === docks.length &&
+      docks.length === 300 &&
+      sameFrame.length === 84 &&
+      untouched === 84 &&
+      storesKept === 24
 
     // ---- H8: controls ----
     // (a) the reflection through e_r + e_s
     const r = 0
-    const s = Array.from({ length: 24 }, (_, e) => e).find(e => innerOf(r, e) === 0) as number
-    const house = (d: number, e: number): Eis => [(d === e ? 1 : 0) - ((d === r || d === s) && (e === r || e === s) ? 1 : 0), 0]
+    const s = Array.from({ length: 24 }, (_, e) => e).find(
+      e => innerOf(r, e) === 0,
+    )!
+    const house = (d: number, e: number): Eis => [
+      (d === e ? 1 : 0) -
+        ((d === r || d === s) && (e === r || e === s) ? 1 : 0),
+      0,
+    ]
+
     let houseOrthogonal = true
 
     for (let i = 0; i < 24; i++) {
       for (let j = 0; j < 24; j++) {
         let v = 0
 
-        for (let k = 0; k < 24; k++) v += house(i, k)[0] * house(j, k)[0]
+        for (let k = 0; k < 24; k++) {
+          v += house(i, k)[0] * house(j, k)[0]
+        }
 
-        if (v !== (i === j ? 1 : 0)) houseOrthogonal = false
+        if (v !== (i === j ? 1 : 0)) {
+          houseOrthogonal = false
+        }
       }
     }
 
@@ -310,21 +511,31 @@ export default experiment({
 
     // (b) I - 2 E_contrast
     const e1 = scaledIdempotent(1)
-    const contrast = (d: number, e: number): Eis => [(d === e ? 576 : 0) - 2 * ((e1[d] as number[])[e] as number), 0]
+    const contrast = (d: number, e: number): Eis => [
+      (d === e ? 576 : 0) - 2 * e1[d]![e]!,
+      0,
+    ]
+
     let contrastOrthogonal = true
 
     for (let i = 0; i < 24; i++) {
       for (let j = 0; j < 24; j++) {
         let v = 0
 
-        for (let k = 0; k < 24; k++) v += contrast(i, k)[0] * contrast(j, k)[0]
+        for (let k = 0; k < 24; k++) {
+          v += contrast(i, k)[0] * contrast(j, k)[0]
+        }
 
-        if (v !== (i === j ? 576 * 576 : 0)) contrastOrthogonal = false
+        if (v !== (i === j ? 576 * 576 : 0)) {
+          contrastOrthogonal = false
+        }
       }
     }
 
     const contrastFailures = covarianceFailures(group, contrast)
-    const innerOnePair = Array.from({ length: 24 }, (_, e) => e).find(e => innerOf(0, e) === 1) as number
+    const innerOnePair = Array.from({ length: 24 }, (_, e) => e).find(
+      e => innerOf(0, e) === 1,
+    )!
     const contrastReaches = contrast(0, innerOnePair)[0] !== 0
     const contrastMu: Eis[] = [
       [1, 0],
@@ -333,8 +544,14 @@ export default experiment({
       [1, 0],
       [1, 0],
     ]
-    const contrastOutOfRing = [0, 1, 2, 3, 4].some(k => ringCoefficient(contrastMu, k) === undefined)
-    const c8b = contrastFailures === 0 && contrastOrthogonal && contrastReaches && contrastOutOfRing
+    const contrastOutOfRing = [0, 1, 2, 3, 4].some(
+      k => ringCoefficient(contrastMu, k) === undefined,
+    )
+    const c8b =
+      contrastFailures === 0 &&
+      contrastOrthogonal &&
+      contrastReaches &&
+      contrastOutOfRing
 
     // (c) the second-quantized lift on a full line
     const fullKept = mixing.filter(u => {
@@ -348,11 +565,19 @@ export default experiment({
     const h8 = c8a && c8b && c8c
 
     const ok = h1 && h2 && h3 && h4 && h5 && h6 && h7 && h8
-    const fmt = (c: Dyadic): string => (eZero(c.num) ? '0' : `${c.num[1] === 0 ? c.num[0] : `(${c.num[0]} + ${c.num[1]}w)`}/${2 ** c.p}`)
+    const fmt = (c: Dyadic): string =>
+      eZero(c.num)
+        ? '0'
+        : `${c.num[1] === 0 ? c.num[0] : `(${c.num[0]} + ${c.num[1]}w)`}/${2 ** c.p}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `W(F4) (${group.length}, generated by ${gens.generators.length}) has a ${orbitsByGenerators}-dimensional dock commutant (Burnside ${burnside}); ${mixingInners.length} orbitals take a slot off its line (inner ${mixingInners.join(', ')}), so there are 3 independent line-mixing covariant maps, and the only covariant permutations are ${perms.map(p => (p[0] === 2 ? 'I' : 'R')).join(' and ')}: no permutation mixes lines; the table's five idempotents are exact (traces ${eig.traces.join(', ')}); of ${ring.tried.toLocaleString('en-US')} unit choices ${us.length} give unitaries in Z[w][1/2] (all unitary and covariant, 0 failures), ${us.filter(u => u.reachesInnerOne).length} reach inner +-1, ${mixing.length} mix lines through A0 alone (${classes.filter(u => u.lineMixing).length} classes up to phase, beside the ${classes.filter(u => !u.lineMixing).length} lock-keeping coins): a vibe can leave its line only for the orthogonal lines of its frame; the line mixing is one sixth root on each frame's uniform vector, and its one real involution G = (${G.coefficients.map(fmt).join(', ')}) on (I, A1, A0, A-1, R) (the Grover diffusion on each frame, denominator ${2 ** G.denominator}, the others ${phases.filter(p => p !== G).map(p => 2 ** p.denominator).join(', ')}) fixes e_r - e_-r and commutes with 2C; the rule's mixBranch is G on ${columnsRight} of 24 columns, an involution, covariant on ${covariantDocks} of ${docks.length} docks, and leaves ${untouched} of ${sameFrame.length} two-vibe frames and every store alone; controls: a non-covariant reflection fails on ${houseFailures} of 1,152 elements, I - 2E_contrast is covariant and reaches inner +-1 but needs 1/3, and the second-quantized lift keeps a full line for ${fullKept} of ${mixing.length} (G: |det|^2 = ${eNorm(gDet)}/${16 ** G.matrix.p})`,
+      claim: `W(F4) (${group.length}, generated by ${gens.generators.length}) has a ${orbitsByGenerators}-dimensional dock commutant (Burnside ${burnside}); ${mixingInners.length} orbitals take a slot off its line (inner ${mixingInners.join(', ')}), so there are 3 independent line-mixing covariant maps, and the only covariant permutations are ${perms.map(p => (p[0] === 2 ? 'I' : 'R')).join(' and ')}: no permutation mixes lines; the table's five idempotents are exact (traces ${eig.traces.join(', ')}); of ${ring.tried.toLocaleString('en-US')} unit choices ${us.length} give unitaries in Z[w][1/2] (all unitary and covariant, 0 failures), ${us.filter(u => u.reachesInnerOne).length} reach inner +-1, ${mixing.length} mix lines through A0 alone (${classes.filter(u => u.lineMixing).length} classes up to phase, beside the ${classes.filter(u => !u.lineMixing).length} lock-keeping coins): a vibe can leave its line only for the orthogonal lines of its frame; the line mixing is one sixth root on each frame's uniform vector, and its one real involution G = (${G.coefficients.map(fmt).join(', ')}) on (I, A1, A0, A-1, R) (the Grover diffusion on each frame, denominator ${2 ** G.denominator}, the others ${phases
+        .filter(p => p !== G)
+        .map(p => 2 ** p.denominator)
+        .join(
+          ', ',
+        )}) fixes e_r - e_-r and commutes with 2C; the rule's mixBranch is G on ${columnsRight} of 24 columns, an involution, covariant on ${covariantDocks} of ${docks.length} docks, and leaves ${untouched} of ${sameFrame.length} two-vibe frames and every store alone; controls: a non-covariant reflection fails on ${houseFailures} of 1,152 elements, I - 2E_contrast is covariant and reaches inner +-1 but needs 1/3, and the second-quantized lift keeps a full line for ${fullKept} of ${mixing.length} (G: |det|^2 = ${eNorm(gDet)}/${16 ** G.matrix.p})`,
       metrics: {
         gate_H1: h1 ? 1 : 0,
         gate_H2: h2 ? 1 : 0,
@@ -373,7 +598,8 @@ export default experiment({
         ringReachingInnerOne: us.filter(u => u.reachesInnerOne).length,
         ringLineMixing: mixing.length,
         ringClassesUpToPhase: classes.length,
-        ringMixingClassesUpToPhase: classes.filter(u => u.lineMixing).length,
+        ringMixingClassesUpToPhase: classes.filter(u => u.lineMixing)
+          .length,
         ringUnitaryChecked: unitaryCount,
         ringCovariantChecked: covariantCount,
         framePhasesReal: reals.length,

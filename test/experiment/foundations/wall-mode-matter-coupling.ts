@@ -126,8 +126,7 @@ export default experiment({
       joint: jointOffPath,
     })
 
-    const firstMismatch =
-      POKE_BEAT + series.findIndex(m => m > 0)
+    const firstMismatch = POKE_BEAT + series.findIndex(m => m > 0)
     // the front leaves x = 12 at the poke and moves at a column per three beats, and the defect's
     // line neighbourhood extends to x = 8, so arrival is expected near beat 9 + 3 * (12 - 8 - 1)
     const preEncounterClean = series

@@ -53,7 +53,11 @@
 // by the rule.
 
 import type { HuskLightState } from '@/code/rule/trit-column'
-import { makeMedium, type Medium, type Wraps } from '@/code/measure/varying-depth-light'
+import {
+  makeMedium,
+  type Medium,
+  type Wraps,
+} from '@/code/measure/varying-depth-light'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
@@ -66,13 +70,27 @@ export type SpanMedium = Medium & {
   readonly square: Int32Array
   // the HEADROOM rates (makeHeadroomSpanMedium): per link and per triangle, the metric register's remaining room in
   // counts of `base`. Absent on every other medium, where the beat is unchanged bit for bit
-  readonly rate?: { readonly link: Int32Array; readonly tri: Int32Array; readonly base: number }
+  readonly rate?: {
+    readonly link: Int32Array
+    readonly tri: Int32Array
+    readonly base: number
+  }
 }
 
-export function makeSpanMedium(sides: readonly [number, number, number], depthAt: (x: number, y: number, z: number) => number, p = 1): SpanMedium {
+export function makeSpanMedium(
+  sides: readonly [number, number, number],
+  depthAt: (x: number, y: number, z: number) => number,
+  p = 1,
+): SpanMedium {
   const base = makeMedium(sides, depthAt, p)
   const g = base.geometry
-  const span = Int32Array.from({ length: g.huskLinks }, (_, l) => base.dockDepth[Math.floor(l / 9)]! + base.dockDepth[g.huskNeighbour[l]!]! + 1)
+  const span = Int32Array.from(
+    { length: g.huskLinks },
+    (_, l) =>
+      base.dockDepth[Math.floor(l / 9)]! +
+      base.dockDepth[g.huskNeighbour[l]!]! +
+      1,
+  )
   const count = Int32Array.from(base.triDepth, d => 2 * d + 1)
   const square = Int32Array.from(count, q => q * q)
 
@@ -111,15 +129,33 @@ export type MetricSpanMedium = SpanMedium & {
   readonly metricDepth: Int32Array
 }
 
-export function makeMetricSpanMedium(sides: readonly [number, number, number], resolution: number, metricAt: (x: number, y: number, z: number) => number, p = 1): MetricSpanMedium {
+export function makeMetricSpanMedium(
+  sides: readonly [number, number, number],
+  resolution: number,
+  metricAt: (x: number, y: number, z: number) => number,
+  p = 1,
+): MetricSpanMedium {
   const base = makeMedium(sides, () => resolution, p)
   const metric = makeMedium(sides, metricAt, p, base.geometry)
   const g = base.geometry
-  const span = Int32Array.from({ length: g.huskLinks }, (_, l) => metric.dockDepth[Math.floor(l / 9)]! + metric.dockDepth[g.huskNeighbour[l]!]! + 1)
+  const span = Int32Array.from(
+    { length: g.huskLinks },
+    (_, l) =>
+      metric.dockDepth[Math.floor(l / 9)]! +
+      metric.dockDepth[g.huskNeighbour[l]!]! +
+      1,
+  )
   const count = Int32Array.from(metric.triDepth, d => 2 * d + 1)
   const square = Int32Array.from(count, q => q * q)
 
-  return { ...base, span, count, square, resolution, metricDepth: metric.dockDepth }
+  return {
+    ...base,
+    span,
+    count,
+    square,
+    resolution,
+    metricDepth: metric.dockDepth,
+  }
 }
 
 // THE HEADROOM LIGHT (test/experiment/gravity/headroom-horizon-temperature). The metric register holds the found
@@ -146,7 +182,13 @@ export function makeMetricSpanMedium(sides: readonly [number, number, number], r
 // window is the fixed resolution's, each step inverts given its divisor alone).
 // Magnitudes: M = (q0 C)^2 must stay under 2^31 / 4 for the potential's window, and the spatial terms reach
 // |C_i| k_l k_P times a few, held exactly in doubles while M C^2 stays far under 2^53 (checked at construction).
-export function makeHeadroomSpanMedium(sides: readonly [number, number, number], resolution: number, base: number, roomAt: (x: number, y: number, z: number) => number, p = 1): SpanMedium {
+export function makeHeadroomSpanMedium(
+  sides: readonly [number, number, number],
+  resolution: number,
+  base: number,
+  roomAt: (x: number, y: number, z: number) => number,
+  p = 1,
+): SpanMedium {
   const m = makeMedium(sides, () => resolution, p)
   const g = m.geometry
   const [sx, sy] = sides
@@ -154,26 +196,50 @@ export function makeHeadroomSpanMedium(sides: readonly [number, number, number],
   const radix = q0 * base
   const big = radix * radix
 
-  if (!Number.isInteger(base) || base < 1 || base % 2 === 0) throw new Error('makeHeadroomSpanMedium: the base is an odd whole count')
-  if (big * 4 >= 2 ** 31 || big * base * base * 64 >= 2 ** 53) throw new Error('makeHeadroomSpanMedium: the base is too large for exact integers')
+  if (!Number.isInteger(base) || base < 1 || base % 2 === 0) {
+    throw new Error(
+      'makeHeadroomSpanMedium: the base is an odd whole count',
+    )
+  }
+
+  if (big * 4 >= 2 ** 31 || big * base * base * 64 >= 2 ** 53) {
+    throw new Error(
+      'makeHeadroomSpanMedium: the base is too large for exact integers',
+    )
+  }
 
   const dock = new Int32Array(g.huskDocks)
 
   for (let y = 0; y < g.huskDocks; y++) {
-    const k = roomAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
+    const k = roomAt(
+      y % sx,
+      Math.floor(y / sx) % sy,
+      Math.floor(y / (sx * sy)),
+    )
 
-    if (!Number.isInteger(k) || k < 0 || k > base) throw new Error(`makeHeadroomSpanMedium: room ${k} outside 0 .. ${base}`)
+    if (!Number.isInteger(k) || k < 0 || k > base) {
+      throw new Error(
+        `makeHeadroomSpanMedium: room ${k} outside 0 .. ${base}`,
+      )
+    }
+
     dock[y] = k
   }
 
-  const link = Int32Array.from({ length: g.huskLinks }, (_, l) => Math.min(dock[Math.floor(l / 9)]!, dock[g.huskNeighbour[l]!]!))
+  const link = Int32Array.from({ length: g.huskLinks }, (_, l) =>
+    Math.min(dock[Math.floor(l / 9)]!, dock[g.huskNeighbour[l]!]!),
+  )
   const tri = Int32Array.from({ length: g.triangles }, (_, t) => {
     let k = base
 
     for (let j = t * 3; j < t * 3 + 3; j++) {
       const l = g.triLinks[j]!
 
-      k = Math.min(k, dock[Math.floor(l / 9)]!, dock[g.huskNeighbour[l]!]!)
+      k = Math.min(
+        k,
+        dock[Math.floor(l / 9)]!,
+        dock[g.huskNeighbour[l]!]!,
+      )
     }
 
     return k
@@ -207,7 +273,10 @@ export function emptySpan(m: SpanMedium, levels: number): SpanState {
     spatial: new Int32Array(n),
     string: new Int32Array(g.huskLinks),
     upper: Array.from({ length: levels - 1 }, () => new Int32Array(n)),
-    upperLag: Array.from({ length: levels - 1 }, () => new Int32Array(n)),
+    upperLag: Array.from(
+      { length: levels - 1 },
+      () => new Int32Array(n),
+    ),
     remainder: new Int32Array(g.huskLinks),
   }
 }
@@ -227,27 +296,58 @@ export function copySpan(s: SpanState): SpanState {
 }
 
 // every array of the state but the angle, for comparisons
-export const spanRest = (s: SpanState): Int32Array[] => [s.potential, s.counter, s.lag, s.spatial, s.string, s.remainder, ...s.upper, ...s.upperLag]
+export const spanRest = (s: SpanState): Int32Array[] => [
+  s.potential,
+  s.counter,
+  s.lag,
+  s.spatial,
+  s.string,
+  s.remainder,
+  ...s.upper,
+  ...s.upperLag,
+]
 
-export const sameSpan = (a: SpanState, b: SpanState): boolean => a.angle.every((v, i) => v === b.angle[i]) && spanRest(a).every((x, j) => x.every((v, i) => v === spanRest(b)[j]![i]))
+export const sameSpan = (a: SpanState, b: SpanState): boolean =>
+  a.angle.every((v, i) => v === b.angle[i]) &&
+  spanRest(a).every((x, j) =>
+    x.every((v, i) => v === spanRest(b)[j]![i]),
+  )
 
 // the numerators, curls and spatial terms are held in doubles: whole numbers, exact under 2^53 (the headroom medium's
 // spatial terms pass 2^31)
-export type SpanScratch = { flux: Int32Array; numerator: Float64Array; curl: Float64Array[]; spatial: Float64Array[] }
+export type SpanScratch = {
+  flux: Int32Array
+  numerator: Float64Array
+  curl: Float64Array[]
+  spatial: Float64Array[]
+}
 
-export function makeSpanScratch(m: SpanMedium, levels: number): SpanScratch {
+export function makeSpanScratch(
+  m: SpanMedium,
+  levels: number,
+): SpanScratch {
   const g = m.geometry
 
   return {
     flux: new Int32Array(g.huskLinks),
     numerator: new Float64Array(g.triangles),
-    curl: Array.from({ length: levels }, () => new Float64Array(g.huskLinks)),
-    spatial: Array.from({ length: levels }, () => new Float64Array(g.triangles)),
+    curl: Array.from(
+      { length: levels },
+      () => new Float64Array(g.huskLinks),
+    ),
+    spatial: Array.from(
+      { length: levels },
+      () => new Float64Array(g.triangles),
+    ),
   }
 }
 
 // out = S - C^T U
-export function spanFlux(m: SpanMedium, s: SpanState, out: Int32Array): void {
+export function spanFlux(
+  m: SpanMedium,
+  s: SpanState,
+  out: Int32Array,
+): void {
   const g = m.geometry
 
   out.set(s.string)
@@ -255,20 +355,32 @@ export function spanFlux(m: SpanMedium, s: SpanState, out: Int32Array): void {
   for (let p = 0; p < g.triangles; p++) {
     const u = s.potential[p]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! - g.triSigns[j]! * u
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! - g.triSigns[j]! * u
+    }
   }
 }
 
-function curlWeighted(m: SpanMedium, x: ArrayLike<number>, p: number): number {
+function curlWeighted(
+  m: SpanMedium,
+  x: ArrayLike<number>,
+  p: number,
+): number {
   const g = m.geometry
   const b = p * 3
   const l0 = g.triLinks[b]!
   const l1 = g.triLinks[b + 1]!
   const l2 = g.triLinks[b + 2]!
 
-  return g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! + g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! + g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  return (
+    g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! +
+    g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! +
+    g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  )
 }
 
 function curlT(m: SpanMedium, x: Int32Array, out: Float64Array): void {
@@ -279,15 +391,26 @@ function curlT(m: SpanMedium, x: Int32Array, out: Float64Array): void {
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * v
+    }
   }
 }
 
 // the kick's numerator N_P = n_P p (q_P centered(C W A)_P + (C W r)_P), and the spatial terms of every level from
 // the given counters (the counters now on the way forward, the lags on the way back)
-function numerators(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: number, which: 'now' | 'lag', wraps?: Wraps): void {
+function numerators(
+  m: SpanMedium,
+  s: SpanState,
+  scratch: SpanScratch,
+  levels: number,
+  which: 'now' | 'lag',
+  wraps?: Wraps,
+): void {
   const g = m.geometry
   const pp = m.p
   const rate = m.rate
@@ -297,28 +420,60 @@ function numerators(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: n
     const raw = curlWeighted(m, s.angle, p)
     const b = mod(raw + nb / 2, nb) - nb / 2
 
-    if (wraps && b !== raw) wraps.field++
-    scratch.numerator[p] = g.multiplicity[p]! * pp * (m.count[p]! * b + curlWeighted(m, s.remainder, p)) * (rate ? rate.tri[p]! : 1)
+    if (wraps && b !== raw) {
+      wraps.field++
+    }
+
+    scratch.numerator[p] =
+      g.multiplicity[p]! *
+      pp *
+      (m.count[p]! * b + curlWeighted(m, s.remainder, p)) *
+      (rate ? rate.tri[p]! : 1)
   }
 
   for (let i = 1; i <= levels; i++) {
-    const c = which === 'now' ? (i === 1 ? s.counter : s.upper[i - 2]!) : i === 1 ? s.lag : s.upperLag[i - 2]!
+    const c =
+      which === 'now'
+        ? i === 1
+          ? s.counter
+          : s.upper[i - 2]!
+        : i === 1
+          ? s.lag
+          : s.upperLag[i - 2]!
     const curl = scratch.curl[i - 1]!
     const out = scratch.spatial[i - 1]!
 
     curlT(m, c, curl)
 
-    if (rate) for (let l = 0; l < g.huskLinks; l++) curl[l] = curl[l]! * rate.link[l]!
+    if (rate) {
+      for (let l = 0; l < g.huskLinks; l++) {
+        curl[l] = curl[l]! * rate.link[l]!
+      }
+    }
 
-    for (let p = 0; p < g.triangles; p++) out[p] = g.multiplicity[p]! * pp * curlWeighted(m, curl, p) * (rate ? rate.tri[p]! : 1)
+    for (let p = 0; p < g.triangles; p++) {
+      out[p] =
+        g.multiplicity[p]! *
+        pp *
+        curlWeighted(m, curl, p) *
+        (rate ? rate.tri[p]! : 1)
+    }
   }
 }
 
-const levelNow = (s: SpanState, i: number): Int32Array => (i === 1 ? s.counter : s.upper[i - 2]!)
-const levelLag = (s: SpanState, i: number): Int32Array => (i === 1 ? s.lag : s.upperLag[i - 2]!)
+const levelNow = (s: SpanState, i: number): Int32Array =>
+  i === 1 ? s.counter : s.upper[i - 2]!
+const levelLag = (s: SpanState, i: number): Int32Array =>
+  i === 1 ? s.lag : s.upperLag[i - 2]!
 
 // one beat, in place
-export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: number, wraps?: Wraps): void {
+export function spanBeat(
+  m: SpanMedium,
+  s: SpanState,
+  scratch: SpanScratch,
+  levels: number,
+  wraps?: Wraps,
+): void {
   const g = m.geometry
 
   spanFlux(m, s, scratch.flux)
@@ -328,18 +483,25 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
   // the link step: A2 = Q A + r takes the flux whole (on the headroom medium, k_l times the flux)
   for (let l = 0; l < g.huskLinks; l++) {
     const q = m.span[l]!
-    const y = s.remainder[l]! + (rate ? rate.link[l]! * scratch.flux[l]! : scratch.flux[l]!)
+    const y =
+      s.remainder[l]! +
+      (rate ? rate.link[l]! * scratch.flux[l]! : scratch.flux[l]!)
     const c = floorDiv(y + (q >> 1), q)
 
     s.remainder[l] = y - q * c
 
-    if (c === 0) continue
+    if (c === 0) {
+      continue
+    }
 
     const n = m.linkWindow[l]!
     const raw = s.angle[l]! + c
     const v = mod(raw + n / 2, n) - n / 2
 
-    if (wraps && v !== raw) wraps.angle++
+    if (wraps && v !== raw) {
+      wraps.angle++
+    }
+
     s.angle[l] = v
   }
 
@@ -349,6 +511,7 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
     const big = m.square[p]!
     const h = (big - 1) / 2
     const top = scratch.spatial[levels - 1]![p]!
+
     let w = floorDiv(top + s.spatial[p]! + h, big)
 
     s.spatial[p] = top + s.spatial[p]! - big * w
@@ -356,7 +519,8 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
     for (let i = levels; i >= 2; i--) {
       const now = levelNow(s, i)
       const lag = levelLag(s, i)
-      const rest = scratch.spatial[i - 2]![p]! - 2 * now[p]! + lag[p]! + w
+      const rest =
+        scratch.spatial[i - 2]![p]! - 2 * now[p]! + lag[p]! + w
       const v = floorDiv(rest + h, big)
 
       lag[p] = now[p]!
@@ -364,7 +528,8 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
       w = v
     }
 
-    const rest = scratch.numerator[p]! - 2 * s.counter[p]! + s.lag[p]! + w
+    const rest =
+      scratch.numerator[p]! - 2 * s.counter[p]! + s.lag[p]! + w
     const k = floorDiv(rest + h, big)
 
     s.lag[p] = s.counter[p]!
@@ -374,13 +539,21 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
     const raw = s.potential[p]! + k
     const u = mod(raw + window, 2 * window + 1) - window
 
-    if (wraps && u !== raw) wraps.potential++
+    if (wraps && u !== raw) {
+      wraps.potential++
+    }
+
     s.potential[p] = u
   }
 }
 
 // the inverse beat
-export function spanBeatBack(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: number): void {
+export function spanBeatBack(
+  m: SpanMedium,
+  s: SpanState,
+  scratch: SpanScratch,
+  levels: number,
+): void {
   const g = m.geometry
 
   numerators(m, s, scratch, levels, 'lag')
@@ -390,6 +563,7 @@ export function spanBeatBack(m: SpanMedium, s: SpanState, scratch: SpanScratch, 
     const h = (big - 1) / 2
     const top = scratch.spatial[levels - 1]![p]!
     const r = s.spatial[p]!
+
     let w = floorDiv(top - r + h, big)
 
     s.spatial[p] = r - top + big * w
@@ -413,7 +587,8 @@ export function spanBeatBack(m: SpanMedium, s: SpanState, scratch: SpanScratch, 
 
     const window = g.multiplicity[p]! * h
 
-    s.potential[p] = mod(s.potential[p]! - k + window, 2 * window + 1) - window
+    s.potential[p] =
+      mod(s.potential[p]! - k + window, 2 * window + 1) - window
   }
 
   spanFlux(m, s, scratch.flux)
@@ -428,7 +603,9 @@ export function spanBeatBack(m: SpanMedium, s: SpanState, scratch: SpanScratch, 
 
     s.remainder[l] = after + q * c - e
 
-    if (c === 0) continue
+    if (c === 0) {
+      continue
+    }
 
     const n = m.linkWindow[l]!
 

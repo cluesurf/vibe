@@ -47,7 +47,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { oneColumnLevels, torusCycles, shadowOf, type FieldCycle } from '@/code/measure/knit-cluster-field'
+import {
+  oneColumnLevels,
+  torusCycles,
+  shadowOf,
+  type FieldCycle,
+} from '@/code/measure/knit-cluster-field'
 import { spinHalfShares } from '@/code/measure/knit-love-cluster'
 import { relabel } from '@/code/measure/g-two-census'
 import { bandSignOf, landauG } from '@/code/measure/token-g-landau'
@@ -63,22 +68,33 @@ const MODEL_COIN = Math.PI / 3
 const FORCED = 'z00x00y00y00x00z'
 
 // E-SPN-0080's plane reading of a word: a -> x, b -> y, the third axis -> z, a filler -> a depth beat
-function planeSteps(word: string, plane: readonly [number, number]): Step[] {
+function planeSteps(
+  word: string,
+  plane: readonly [number, number],
+): Step[] {
   const image: [string, string, string] = ['', '', '']
 
   image[plane[0]] = 'x'
   image[plane[1]] = 'y'
   image[3 - plane[0] - plane[1]] = 'z'
 
-  return Array.from(relabel(word, image), (ch): Step => (ch === '0' ? 'up' : (ch as Step)))
+  return Array.from(
+    relabel(word, image),
+    (ch): Step => (ch === '0' ? 'up' : (ch as Step)),
+  )
 }
 
 const grouped = (keys: readonly string[]): string => {
   const g = new Map<string, number>()
 
-  for (const k of keys) g.set(k, (g.get(k) ?? 0) + 1)
+  for (const k of keys) {
+    g.set(k, (g.get(k) ?? 0) + 1)
+  }
 
-  return [...g].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} x ${k}`).join('; ')
+  return [...g]
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, n]) => `${n} x ${k}`)
+    .join('; ')
 }
 
 const lengths = (cs: readonly FieldCycle[]): string =>
@@ -90,7 +106,8 @@ const lengths = (cs: readonly FieldCycle[]): string =>
 export default experiment({
   id: 'spin/knit-cluster-landau',
   code: 'E-SPN-0089',
-  title: "g on the knit's own lightest charge-one cluster (three loves in one husk column): its Landau levels in a uniform field read from the light's columns, and the g they imply, against the slot-steered lock's g_spin = 0",
+  title:
+    "g on the knit's own lightest charge-one cluster (three loves in one husk column): its Landau levels in a uniform field read from the light's columns, and the g they imply, against the slot-steered lock's g_spin = 0",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -99,29 +116,101 @@ export default experiment({
     const started = Date.now()
     const family = oneColumnLevels(DEPTH, 96)
     const rows = family.levels.map(level => {
-      const byField = FIELDS.map(b => ({ b, cycles: torusCycles(level.start, DEPTH, LH, LZ, b) }))
-      const spin = spinHalfShares(level.start, level.period, DEPTH, new Array<number>(level.period).fill(0))
+      const byField = FIELDS.map(b => ({
+        b,
+        cycles: torusCycles(level.start, DEPTH, LH, LZ, b),
+      }))
+      const spin = spinHalfShares(
+        level.start,
+        level.period,
+        DEPTH,
+        new Array<number>(level.period).fill(0),
+      )
 
-      return { level, byField, spin, moves: byField[0]!.cycles.some(c => c.inPlane), shadow: shadowOf(level.start.d[0]!) }
+      return {
+        level,
+        byField,
+        spin,
+        moves: byField[0]!.cycles.some(c => c.inPlane),
+        shadow: shadowOf(level.start.d[0]!),
+      }
     })
 
-    const localized = FIELDS.map(b => rows.reduce((s, r) => s + r.byField.find(f => f.b === b)!.cycles.filter(c => c.inPlane && c.extent1 < LH && c.extent2 < LH).length, 0))
-    const inPlaneCycles = FIELDS.map(b => rows.reduce((s, r) => s + r.byField.find(f => f.b === b)!.cycles.filter(c => c.inPlane).length, 0))
+    const localized = FIELDS.map(b =>
+      rows.reduce(
+        (s, r) =>
+          s +
+          r.byField
+            .find(f => f.b === b)!
+            .cycles.filter(
+              c => c.inPlane && c.extent1 < LH && c.extent2 < LH,
+            ).length,
+        0,
+      ),
+    )
+    const inPlaneCycles = FIELDS.map(b =>
+      rows.reduce(
+        (s, r) =>
+          s +
+          r.byField.find(f => f.b === b)!.cycles.filter(c => c.inPlane)
+            .length,
+        0,
+      ),
+    )
     const z1 = localized[1]! > 0 && localized[2]! > 0
     const z2 = false
-    const sameLengths = rows.every(r => r.byField.every(f => lengths(f.cycles) === lengths(r.byField[0]!.cycles)))
-    const staticCycles = rows.flatMap(r => r.byField.flatMap(f => f.cycles.filter(c => !c.inPlane)))
-    const staticShift = staticCycles.filter(c => c.exponent !== 0).length
-    const z3 = sameLengths && staticCycles.length > 0 && staticShift === 0
+    const sameLengths = rows.every(r =>
+      r.byField.every(
+        f => lengths(f.cycles) === lengths(r.byField[0]!.cycles),
+      ),
+    )
+    const staticCycles = rows.flatMap(r =>
+      r.byField.flatMap(f => f.cycles.filter(c => !c.inPlane)),
+    )
+    const staticShift = staticCycles.filter(
+      c => c.exponent !== 0,
+    ).length
+    const z3 =
+      sameLengths && staticCycles.length > 0 && staticShift === 0
 
     // the holonomies the field gives in-plane movers (their Aharonov-Bohm phases), per b
-    const holonomies = FIELDS.map(b => new Set(rows.flatMap(r => r.byField.find(f => f.b === b)!.cycles.filter(c => c.inPlane).map(c => c.exponent))).size)
-    const extents = [...new Set(rows.flatMap(r => r.byField.flatMap(f => f.cycles.filter(c => c.inPlane).map(c => `${c.extent1}x${c.extent2}`))))]
+    const holonomies = FIELDS.map(
+      b =>
+        new Set(
+          rows.flatMap(r =>
+            r.byField
+              .find(f => f.b === b)!
+              .cycles.filter(c => c.inPlane)
+              .map(c => c.exponent),
+          ),
+        ).size,
+    )
+    const extents = [
+      ...new Set(
+        rows.flatMap(r =>
+          r.byField.flatMap(f =>
+            f.cycles
+              .filter(c => c.inPlane)
+              .map(c => `${c.extent1}x${c.extent2}`),
+          ),
+        ),
+      ),
+    ]
 
     // ---- control ----
     const schedule = planeSteps(FORCED, [0, 1])
-    const sign = bandSignOf({ schedule, mode: 'locked', coinAngle: MODEL_COIN })
-    const control = landauG({ schedule, mode: 'locked', coinAngle: MODEL_COIN, side: 48, sign })
+    const sign = bandSignOf({
+      schedule,
+      mode: 'locked',
+      coinAngle: MODEL_COIN,
+    })
+    const control = landauG({
+      schedule,
+      mode: 'locked',
+      coinAngle: MODEL_COIN,
+      side: 48,
+      sign,
+    })
     const c = Math.abs(control.gLo - 2) < 1e-6
 
     const ok = z1 && z2 && z3 && c
@@ -139,7 +228,13 @@ export default experiment({
         starts: family.starts,
         leave: family.leave,
         movingLevels: rows.filter(r => r.moves).length,
-        ...Object.fromEntries(FIELDS.flatMap((b, i) => [[`b${b}_inPlaneCycles`, inPlaneCycles[i]!], [`b${b}_localized`, localized[i]!], [`b${b}_holonomies`, holonomies[i]!]])),
+        ...Object.fromEntries(
+          FIELDS.flatMap((b, i) => [
+            [`b${b}_inPlaneCycles`, inPlaneCycles[i]!],
+            [`b${b}_localized`, localized[i]!],
+            [`b${b}_holonomies`, holonomies[i]!],
+          ]),
+        ),
         staticCycles: staticCycles.length / FIELDS.length,
         staticShifted: staticShift,
         spinHalfMin: Math.min(...spinAll),

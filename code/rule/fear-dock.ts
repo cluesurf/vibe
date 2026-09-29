@@ -20,13 +20,27 @@
 //
 // Local line state index: (a + 1) * 3 + (b + 1), a the line's first slot, b its second.
 
-import { type Eisenstein, TWO, TWO_A, TWO_A_BAR, TWO_B, TWO_B_BAR, ZERO, norm, plus, times } from '@/code/rule/fear-walk'
+import {
+  type Eisenstein,
+  TWO,
+  TWO_A,
+  TWO_A_BAR,
+  TWO_B,
+  TWO_B_BAR,
+  ZERO,
+  norm,
+  plus,
+  times,
+} from '@/code/rule/fear-walk'
 import { type Knit } from '@/code/rule/fear-weave'
 
 export type ClockKind = 'pair' | 'bind'
 export type DockMode = 'fear' | 'committed'
 
-const stateOf = (k: number): [number, number] => [Math.floor(k / 3) - 1, (k % 3) - 1]
+const stateOf = (k: number): [number, number] => [
+  Math.floor(k / 3) - 1,
+  (k % 3) - 1,
+]
 const keyOf = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 const SWAPPED = Array.from({ length: 9 }, (_, k) => {
   const [a, b] = stateOf(k)
@@ -34,23 +48,37 @@ const SWAPPED = Array.from({ length: 9 }, (_, k) => {
   return keyOf(b, a)
 })
 // K: calm <-> (1, -1)
-const CREATE = Array.from({ length: 9 }, (_, k) => (k === keyOf(0, 0) ? keyOf(1, -1) : k === keyOf(1, -1) ? keyOf(0, 0) : k))
+const CREATE = Array.from({ length: 9 }, (_, k) =>
+  k === keyOf(0, 0)
+    ? keyOf(1, -1)
+    : k === keyOf(1, -1)
+      ? keyOf(0, 0)
+      : k,
+)
 
 // the 9 x 9 line step, as lists of (to, from, weight): forward K U_E, backward U_E^dagger K, every weight
 // doubled so that each step adds one halving
-export function lineStep(kind: ClockKind, mode: DockMode, forward: boolean): { to: number; from: number; w: Eisenstein }[] {
+export function lineStep(
+  kind: ClockKind,
+  mode: DockMode,
+  forward: boolean,
+): { to: number; from: number; w: Eisenstein }[] {
   const out: { to: number; from: number; w: Eisenstein }[] = []
+
   const inE = (k: number): boolean => {
     const [a, b] = stateOf(k)
 
     return kind === 'pair' || (a !== 0 && b !== 0)
   }
+
   const keep = mode === 'committed' ? ZERO : forward ? TWO_A : TWO_A_BAR
-  const exchange = mode === 'committed' ? TWO : forward ? TWO_B : TWO_B_BAR
+  const exchange =
+    mode === 'committed' ? TWO : forward ? TWO_B : TWO_B_BAR
 
   for (let from = 0; from < 9; from++) {
     const k = forward ? from : (CREATE[from] ?? from)
-    const finish = (x: number): number => (forward ? (CREATE[x] ?? x) : x)
+    const finish = (x: number): number =>
+      forward ? (CREATE[x] ?? x) : x
 
     if (!inE(k) || SWAPPED[k] === k) {
       out.push({ to: finish(k), from, w: TWO })
@@ -76,9 +104,14 @@ export type DockState = {
 }
 
 const POW9 = Array.from({ length: 13 }, (_, i) => 9 ** i)
-const digit = (key: number, i: number): number => Math.floor(key / (POW9[i] ?? 1)) % 9
+const digit = (key: number, i: number): number =>
+  Math.floor(key / (POW9[i] ?? 1)) % 9
 
-function addTo(map: Map<number, Eisenstein>, key: number, w: Eisenstein): void {
+function addTo(
+  map: Map<number, Eisenstein>,
+  key: number,
+  w: Eisenstein,
+): void {
   const next = plus(map.get(key) ?? ZERO, w)
 
   if (next[0] === 0n && next[1] === 0n) {
@@ -89,23 +122,46 @@ function addTo(map: Map<number, Eisenstein>, key: number, w: Eisenstein): void {
 }
 
 const unit: Eisenstein = [1n, 0n]
-const calmVector = (): Eisenstein[] => Array.from({ length: 9 }, (_, k) => (k === keyOf(0, 0) ? unit : ZERO))
+const calmVector = (): Eisenstein[] =>
+  Array.from({ length: 9 }, (_, k) => (k === keyOf(0, 0) ? unit : ZERO))
 
 // the vacuum, or the vacuum with a love (+1) or fear (-1) on one slot
-export function dockStart(lines: readonly (readonly [number, number])[], seed?: { slot: number; vibe: number }): DockState {
+export function dockStart(
+  lines: readonly (readonly [number, number])[],
+  seed?: { slot: number; vibe: number },
+): DockState {
   const free = lines.map(() => calmVector())
 
   if (!seed) {
-    return { touched: [], joint: new Map([[0, unit]]), free, halvings: 0 }
+    return {
+      touched: [],
+      joint: new Map([[0, unit]]),
+      free,
+      halvings: 0,
+    }
   }
 
-  const line = lines.findIndex(l => l[0] === seed.slot || l[1] === seed.slot)
-  const local = lines[line]?.[0] === seed.slot ? keyOf(seed.vibe, 0) : keyOf(0, seed.vibe)
+  const line = lines.findIndex(
+    l => l[0] === seed.slot || l[1] === seed.slot,
+  )
+  const local =
+    lines[line]?.[0] === seed.slot
+      ? keyOf(seed.vibe, 0)
+      : keyOf(0, seed.vibe)
 
-  return { touched: [line], joint: new Map([[local, unit]]), free, halvings: 0 }
+  return {
+    touched: [line],
+    joint: new Map([[local, unit]]),
+    free,
+    halvings: 0,
+  }
 }
 
-function stepLine(state: DockState, line: number, step: { to: number; from: number; w: Eisenstein }[]): DockState {
+function stepLine(
+  state: DockState,
+  line: number,
+  step: { to: number; from: number; w: Eisenstein }[],
+): DockState {
   const at = state.touched.indexOf(line)
 
   if (at < 0) {
@@ -120,11 +176,17 @@ function stepLine(state: DockState, line: number, step: { to: number; from: numb
       }
     }
 
-    return { ...state, free: state.free.map((f, l) => (l === line ? out : f)), halvings: state.halvings + 1 }
+    return {
+      ...state,
+      free: state.free.map((f, l) => (l === line ? out : f)),
+      halvings: state.halvings + 1,
+    }
   }
 
   const joint = new Map<number, Eisenstein>()
-  const byFrom = Array.from({ length: 9 }, (_, from) => step.filter(s => s.from === from))
+  const byFrom = Array.from({ length: 9 }, (_, from) =>
+    step.filter(s => s.from === from),
+  )
 
   for (const [key, z] of state.joint) {
     const local = digit(key, at)
@@ -152,14 +214,26 @@ function touch(state: DockState, line: number): DockState {
     })
   }
 
-  return { touched: [...state.touched, line], joint, free: state.free.map((f, l) => (l === line ? calmVector() : f)), halvings: state.halvings }
+  return {
+    touched: [...state.touched, line],
+    joint,
+    free: state.free.map((f, l) => (l === line ? calmVector() : f)),
+    halvings: state.halvings,
+  }
 }
 
 // the palindromic swap of a couple: the two lines trade contents where the knit's condition fires. Only a
 // touched line can hold a lone charge, so a swap with an untouched line first touches it when some pair of
 // their local states would fire
-function swapCouple(state: DockState, knit: Knit, lineIndex: number, wireIndex: number): DockState {
-  const fires = (l: number, w: number): boolean => knit.fires[l * 9 + w] === 1
+function swapCouple(
+  state: DockState,
+  knit: Knit,
+  lineIndex: number,
+  wireIndex: number,
+): DockState {
+  const fires = (l: number, w: number): boolean =>
+    knit.fires[l * 9 + w] === 1
+
   let s = state
 
   for (const [a, b] of [
@@ -169,7 +243,15 @@ function swapCouple(state: DockState, knit: Knit, lineIndex: number, wireIndex: 
     if (s.touched.includes(a) && !s.touched.includes(b)) {
       const at = s.touched.indexOf(a)
       const v = s.free[b] ?? calmVector()
-      const could = [...s.joint.keys()].some(key => v.some((c, k) => (c[0] !== 0n || c[1] !== 0n) && (a === lineIndex ? fires(digit(key, at), k) : fires(k, digit(key, at)))))
+      const could = [...s.joint.keys()].some(key =>
+        v.some(
+          (c, k) =>
+            (c[0] !== 0n || c[1] !== 0n) &&
+            (a === lineIndex
+              ? fires(digit(key, at), k)
+              : fires(k, digit(key, at))),
+        ),
+      )
 
       if (could) {
         s = touch(s, b)
@@ -190,19 +272,34 @@ function swapCouple(state: DockState, knit: Knit, lineIndex: number, wireIndex: 
     const l = digit(key, li)
     const w = digit(key, wi)
 
-    addTo(joint, fires(l, w) ? key + (w - l) * (POW9[li] ?? 1) + (l - w) * (POW9[wi] ?? 1) : key, z)
+    addTo(
+      joint,
+      fires(l, w)
+        ? key + (w - l) * (POW9[li] ?? 1) + (l - w) * (POW9[wi] ?? 1)
+        : key,
+      z,
+    )
   }
 
   return { ...s, joint }
 }
 
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 
 // one beat of the dock (it streams into itself), forward or its inverse
-export function dockReducedBeat(state: DockState, knit: Knit, kind: ClockKind, mode: DockMode, t: number, forward: boolean): DockState {
+export function dockReducedBeat(
+  state: DockState,
+  knit: Knit,
+  kind: ClockKind,
+  mode: DockMode,
+  t: number,
+  forward: boolean,
+): DockState {
   const couples = knit.positions[at(knit.positionAt, t)] ?? []
   const swapIndex = at(knit.swapAt, t)
   const step = lineStep(kind, mode, forward)
+
   let s = state
 
   for (let k = 0; k < couples.length; k++) {
@@ -225,8 +322,22 @@ function reduceDock(state: DockState): DockState {
   let s = state
 
   // a halving can be taken out of the joint map or out of any one untouched line; take them from the map
-  while (s.halvings > 0 && [...s.joint.values()].every(z => z[0] % 2n === 0n && z[1] % 2n === 0n)) {
-    s = { ...s, joint: new Map([...s.joint].map(([k, z]) => [k, [z[0] / 2n, z[1] / 2n] as Eisenstein])), halvings: s.halvings - 1 }
+  while (
+    s.halvings > 0 &&
+    [...s.joint.values()].every(
+      z => z[0] % 2n === 0n && z[1] % 2n === 0n,
+    )
+  ) {
+    s = {
+      ...s,
+      joint: new Map(
+        [...s.joint].map(([k, z]) => [
+          k,
+          [z[0] / 2n, z[1] / 2n] as Eisenstein,
+        ]),
+      ),
+      halvings: s.halvings - 1,
+    }
   }
 
   for (let l = 0; l < s.free.length; l++) {
@@ -234,8 +345,19 @@ function reduceDock(state: DockState): DockState {
       continue
     }
 
-    while (s.halvings > 0 && (s.free[l] ?? []).every(z => z[0] % 2n === 0n && z[1] % 2n === 0n)) {
-      s = { ...s, free: s.free.map((v, i) => (i === l ? v.map(z => [z[0] / 2n, z[1] / 2n] as Eisenstein) : v)), halvings: s.halvings - 1 }
+    while (
+      s.halvings > 0 &&
+      (s.free[l] ?? []).every(z => z[0] % 2n === 0n && z[1] % 2n === 0n)
+    ) {
+      s = {
+        ...s,
+        free: s.free.map((v, i) =>
+          i === l
+            ? v.map(z => [z[0] / 2n, z[1] / 2n] as Eisenstein)
+            : v,
+        ),
+        halvings: s.halvings - 1,
+      }
     }
   }
 
@@ -243,7 +365,10 @@ function reduceDock(state: DockState): DockState {
 }
 
 // the joint map over the given lines (touched lines first, then the rest in order), a full expansion
-export function expandDock(state: DockState, lines: readonly number[]): Map<number, Eisenstein> {
+export function expandDock(
+  state: DockState,
+  lines: readonly number[],
+): Map<number, Eisenstein> {
   let s = state
 
   for (const l of lines) {
@@ -286,14 +411,26 @@ export function dockNorm(state: DockState): bigint {
 }
 
 // the expected vibe on every slot, sum q |amplitude|^2, over 4^halvings
-export function dockProfile(state: DockState, lines: readonly (readonly [number, number])[], slots: number): bigint[] {
+export function dockProfile(
+  state: DockState,
+  lines: readonly (readonly [number, number])[],
+  slots: number,
+): bigint[] {
   const out = new Array<bigint>(slots).fill(0n)
-  const freeNorm = state.free.map((v, l) => (state.touched.includes(l) ? 1n : v.reduce((s, z) => s + norm(z), 0n)))
-  const jointNorm = [...state.joint.values()].reduce((s, z) => s + norm(z), 0n)
+  const freeNorm = state.free.map((v, l) =>
+    state.touched.includes(l)
+      ? 1n
+      : v.reduce((s, z) => s + norm(z), 0n),
+  )
+  const jointNorm = [...state.joint.values()].reduce(
+    (s, z) => s + norm(z),
+    0n,
+  )
   const allFree = freeNorm.reduce((a, b) => a * b, 1n)
 
   lines.forEach(([first, second], l) => {
     const at2 = state.touched.indexOf(l)
+
     let q0 = 0n
     let q1 = 0n
 
@@ -330,7 +467,12 @@ export function dockProfile(state: DockState, lines: readonly (readonly [number,
 
 // twice the real part of sum over configurations of conj(A) B q_s, the two states expanded on the union of
 // their touched lines, the untouched lines equal in both (they ran the same clocks from calm)
-export function dockCross(a: DockState, b: DockState, lines: readonly (readonly [number, number])[], slots: number): bigint[] {
+export function dockCross(
+  a: DockState,
+  b: DockState,
+  lines: readonly (readonly [number, number])[],
+  slots: number,
+): bigint[] {
   const union = [...new Set([...a.touched, ...b.touched])]
   const h = Math.max(a.halvings, b.halvings)
   const ea = expandDock(a, union)
@@ -340,7 +482,8 @@ export function dockCross(a: DockState, b: DockState, lines: readonly (readonly 
   const out = new Array<bigint>(slots).fill(0n)
   // conj(z) w for Eisenstein integers; conj(m + n omega) = (m - n) - n omega; twice the real part of
   // m + n omega is 2 m - n
-  const conjTimes = (z: Eisenstein, w: Eisenstein): Eisenstein => times([z[0] - z[1], -z[1]], w)
+  const conjTimes = (z: Eisenstein, w: Eisenstein): Eisenstein =>
+    times([z[0] - z[1], -z[1]], w)
   const twiceReal = (z: Eisenstein): bigint => 2n * z[0] - z[1]
   // outside the union each line is a free vector in both states: its overlap, and its overlap weighted by
   // each of its two slots' vibes
@@ -368,7 +511,10 @@ export function dockCross(a: DockState, b: DockState, lines: readonly (readonly 
 
   // over the union's configurations: the overlap, and the overlap weighted by each union slot's vibe
   let unionOverlap: Eisenstein = ZERO
-  const unionVibe = new Map<number, [Eisenstein, Eisenstein]>(union.map(l => [l, [ZERO, ZERO]]))
+
+  const unionVibe = new Map<number, [Eisenstein, Eisenstein]>(
+    union.map(l => [l, [ZERO, ZERO]]),
+  )
 
   for (const [key, za0] of ea) {
     const zb0 = eb.get(key)
@@ -377,18 +523,30 @@ export function dockCross(a: DockState, b: DockState, lines: readonly (readonly 
       continue
     }
 
-    const c = conjTimes([za0[0] * sa, za0[1] * sa], [zb0[0] * sb, zb0[1] * sb])
+    const c = conjTimes(
+      [za0[0] * sa, za0[1] * sa],
+      [zb0[0] * sb, zb0[1] * sb],
+    )
 
     unionOverlap = plus(unionOverlap, c)
     union.forEach((l, i) => {
       const [x, y] = stateOf(digit(key, i))
       const q = unionVibe.get(l) ?? [ZERO, ZERO]
 
-      unionVibe.set(l, [plus(q[0], [BigInt(x) * c[0], BigInt(x) * c[1]]), plus(q[1], [BigInt(y) * c[0], BigInt(y) * c[1]])])
+      unionVibe.set(l, [
+        plus(q[0], [BigInt(x) * c[0], BigInt(x) * c[1]]),
+        plus(q[1], [BigInt(y) * c[0], BigInt(y) * c[1]]),
+      ])
     })
   }
 
-  const productOver = (skip: number): Eisenstein => rest.filter(m => m !== skip).reduce((acc, m) => times(acc, restOverlap.get(m) ?? ZERO), [1n, 0n] as Eisenstein)
+  const productOver = (skip: number): Eisenstein =>
+    rest
+      .filter(m => m !== skip)
+      .reduce((acc, m) => times(acc, restOverlap.get(m) ?? ZERO), [
+        1n,
+        0n,
+      ] as Eisenstein)
 
   for (const l of union) {
     const q = unionVibe.get(l) ?? [ZERO, ZERO]

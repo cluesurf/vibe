@@ -54,7 +54,9 @@ function divides(value: number, divisor: number): number | undefined {
 
 // adj(B) v, an integer vector for an integer v
 function adjugateTimes(vector: readonly number[]): number[] {
-  return D4_ADJUGATE.map(row => row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0))
+  return D4_ADJUGATE.map(row =>
+    row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0),
+  )
 }
 
 // the basis coordinates of a D4 vector: adj(B) v / 2, exact. A vector outside D4 is refused.
@@ -63,7 +65,9 @@ export function d4Coordinates(vector: readonly number[]): number[] {
     const c = divides(n, D4_DETERMINANT)
 
     if (c === undefined) {
-      throw new Error(`d4Coordinates: (${vector.join(', ')}) is not a D4 lattice vector`)
+      throw new Error(
+        `d4Coordinates: (${vector.join(', ')}) is not a D4 lattice vector`,
+      )
     }
 
     return c
@@ -112,12 +116,16 @@ export function d4BoxDistanceSquared(input: {
   const ca = d4BoxCoordinates({ cell: a, side })
   const cb = d4BoxCoordinates({ cell: b, side })
   const half = Math.floor(side / 2)
-  const raw = ca.map((x, k) => modulo(x - (cb[k] ?? 0) + half, side) - half)
+  const raw = ca.map(
+    (x, k) => modulo(x - (cb[k] ?? 0) + half, side) - half,
+  )
 
   let best = -1
 
   for (let shift = 0; shift < 81; shift++) {
-    const s = [0, 1, 2, 3].map(k => (Math.floor(shift / 3 ** k) % 3) - 1)
+    const s = [0, 1, 2, 3].map(
+      k => (Math.floor(shift / 3 ** k) % 3) - 1,
+    )
     const vector = d4Vector(raw.map((x, k) => x + side * (s[k] ?? 0)))
     const squared = vector.reduce((sum, x) => sum + x * x, 0)
 
@@ -167,7 +175,8 @@ export function linearMapOfDoubled(
   const doubled = [0, 1, 2, 3].map(i =>
     [0, 1, 2, 3].map(j =>
       images.reduce(
-        (sum, image, k) => sum + (image[i] ?? 0) * (D4_ADJUGATE[k]?.[j] ?? 0),
+        (sum, image, k) =>
+          sum + (image[i] ?? 0) * (D4_ADJUGATE[k]?.[j] ?? 0),
         0,
       ),
     ),

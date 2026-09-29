@@ -74,9 +74,20 @@ import {
 } from '@/code/measure/knit-magic'
 import { generateGroup } from '@/code/dynamics/finite-gauge'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
-import { phasePoint, phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
+import {
+  phasePoint,
+  phaseSpaceAction,
+} from '@/code/measure/qutrit-phase-space'
 import { phasePointOperators } from '@/code/measure/grid-weights'
-import { conjugate, hermitianSpectrum, innerProduct, mana, manaOfCounts, operatorFrom3, operatorFromWigner } from '@/code/measure/qutrit-clifford'
+import {
+  conjugate,
+  hermitianSpectrum,
+  innerProduct,
+  mana,
+  manaOfCounts,
+  operatorFrom3,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
 
 const OMEGA = (2 * Math.PI) / 3
 const SIDE = 3
@@ -88,7 +99,8 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
   ['strange', 'strange'],
 ]
 
-const sortedKey = (w: readonly bigint[]): string => [...w].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join(',')
+const sortedKey = (w: readonly bigint[]): string =>
+  [...w].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join(',')
 
 function manaOfWhole(whole: Whole): number {
   return manaOfCounts(wholeLovesAndFears(whole))
@@ -109,13 +121,23 @@ export default experiment({
     const links = weave.links
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const kOff = meetingKernel(swapPhase(Math.PI)) ?? []
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
-    const colorOff = fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
+    const colorOn =
+      fearKernels({ like: OMEGA, unlike: OMEGA }) ?? undefined
+    const colorOff =
+      fearKernels({ like: Math.PI, unlike: 0 }) ?? undefined
     const dock0 = Array.from({ length: 24 }, (_, d) => d)
-    const backgrounds = [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]
+    const backgrounds = [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]
     const points2 = phasePointOperators(2)
 
-    type Law = { name: string; kernel4: readonly (readonly number[])[]; color?: typeof colorOn }
+    type Law = {
+      name: string
+      kernel4: readonly (readonly number[])[]
+      color?: typeof colorOn
+    }
+
     const laws: Law[] = [
       { name: 'swap', kernel4: kThird },
       { name: 'color', kernel4: [], color: colorOn },
@@ -126,9 +148,32 @@ export default experiment({
     ]
 
     const tally = {
-      swap: { beats: 0, meetingFree: 0, withMoves: 0, changed: 0, up: 0, down: 0, same: 0, maxMana: 0, maxShare: 0, runs: 0 },
-      color: { beats: 0, meetingFree: 0, withMoves: 0, changed: 0, up: 0, down: 0, same: 0, maxMana: 0, maxShare: 0, runs: 0 },
+      swap: {
+        beats: 0,
+        meetingFree: 0,
+        withMoves: 0,
+        changed: 0,
+        up: 0,
+        down: 0,
+        same: 0,
+        maxMana: 0,
+        maxShare: 0,
+        runs: 0,
+      },
+      color: {
+        beats: 0,
+        meetingFree: 0,
+        withMoves: 0,
+        changed: 0,
+        up: 0,
+        down: 0,
+        same: 0,
+        maxMana: 0,
+        maxShare: 0,
+        runs: 0,
+      },
     }
+
     let offChanged = 0
     let offBeats = 0
     let gridMoveChanges = 0
@@ -136,10 +181,17 @@ export default experiment({
     let pureWholes = 0
     let swapFinals = 0
     let pairsTotal = 0
+
     const finals: Whole[] = []
 
     for (const background of backgrounds) {
-      const records = classicalRecords({ weave, links, background, open: dock0, beats: BEATS })
+      const records = classicalRecords({
+        weave,
+        links,
+        background,
+        open: dock0,
+        beats: BEATS,
+      })
       const pairs = meetingPairs(records)
 
       pairsTotal += pairs.length
@@ -152,7 +204,14 @@ export default experiment({
 
           for (const law of laws) {
             const t = tally[law.name as 'swap' | 'color']
-            const steps = runWhole({ weave, start: startWhole, records: mine, kernel4: law.kernel4, color: law.color })
+            const steps = runWhole({
+              weave,
+              start: startWhole,
+              records: mine,
+              kernel4: law.kernel4,
+              color: law.color,
+            })
+
             let before = startWhole
             let beforeMana = manaOfWhole(startWhole)
 
@@ -175,7 +234,11 @@ export default experiment({
                 // compare after dividing out the grain: reduceWhole may rescale at a meeting only
                 const scaleBefore = wholeUnits(before)
                 const scaleAfter = wholeUnits(after)
-                const same = scaleBefore === scaleAfter ? sortedKey(before.weight) === sortedKey(after.weight) : false
+                const same =
+                  scaleBefore === scaleAfter
+                    ? sortedKey(before.weight) ===
+                      sortedKey(after.weight)
+                    : false
 
                 t.changed += same ? 0 : 1
               } else {
@@ -203,10 +266,16 @@ export default experiment({
 
             for (let c = 0; c < 2; c++) {
               for (const table of weave.moves.act) {
-                const moved = wholeLovesAndFears(moveCoordinate(last, c, table))
+                const moved = wholeLovesAndFears(
+                  moveCoordinate(last, c, table),
+                )
 
                 gridMoveChecks++
-                gridMoveChanges += moved.loves === counts.loves && moved.fears === counts.fears ? 0 : 1
+                gridMoveChanges +=
+                  moved.loves === counts.loves &&
+                  moved.fears === counts.fears
+                    ? 0
+                    : 1
               }
             }
 
@@ -220,19 +289,29 @@ export default experiment({
               )
               const spectrum = hermitianSpectrum(rho)
               const top = spectrum[spectrum.length - 1] ?? 0
-              const rest = Math.max(...spectrum.slice(0, -1).map(Math.abs))
+              const rest = Math.max(
+                ...spectrum.slice(0, -1).map(Math.abs),
+              )
 
-              pureWholes += Math.abs(top - 1) < 1e-9 && rest < 1e-9 ? 1 : 0
+              pureWholes +=
+                Math.abs(top - 1) < 1e-9 && rest < 1e-9 ? 1 : 0
             }
           }
 
           for (const law of offLaws) {
-            const steps = runWhole({ weave, start: startWhole, records: mine, kernel4: law.kernel4, color: law.color })
+            const steps = runWhole({
+              weave,
+              start: startWhole,
+              records: mine,
+              kernel4: law.kernel4,
+              color: law.color,
+            })
             const m0 = manaOfWhole(startWhole)
 
             for (const step of steps) {
               offBeats++
-              offChanged += Math.abs(manaOfWhole(step.whole) - m0) > 1e-12 ? 1 : 0
+              offChanged +=
+                Math.abs(manaOfWhole(step.whole) - m0) > 1e-12 ? 1 : 0
             }
           }
         }
@@ -240,12 +319,22 @@ export default experiment({
     }
 
     // the non-Clifford control: a one-role Wigner kernel of an element of Sigma(1080) that is not classical
-    const sigma1080 = generateGroup({ generators: SU3_SUBGROUPS.sigma1080.generators, limit: 4000 })
-    const g = sigma1080.matrices.find(m => phaseSpaceAction({ unitary: m }) === undefined)
+    const sigma1080 = generateGroup({
+      generators: SU3_SUBGROUPS.sigma1080.generators,
+      limit: 4000,
+    })
+    const g = sigma1080.matrices.find(
+      m => phaseSpaceAction({ unitary: m }) === undefined,
+    )
     const gOp = operatorFrom3(g ?? new Float64Array(18))
-    const onePoints = [0, 1, 2].flatMap(a => [0, 1, 2].map(b => operatorFrom3(phasePoint(a, b))))
+    const onePoints = [0, 1, 2].flatMap(a =>
+      [0, 1, 2].map(b => operatorFrom3(phasePoint(a, b))),
+    )
     // K(x, y) = Tr(A(x) g A(y) g^dagger) / 3
-    const kernel = onePoints.map(ax => onePoints.map(ay => innerProduct(ax, conjugate(gOp, ay))[0] / 3))
+    const kernel = onePoints.map(ax =>
+      onePoints.map(ay => innerProduct(ax, conjugate(gOp, ay))[0] / 3),
+    )
+
     let controlChanged = 0
 
     for (const whole of finals) {
@@ -319,7 +408,8 @@ export default experiment({
         nonCliffordControlChanged: controlChanged,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; swap meetings raising, lowering and keeping mana 1,042, 1,025, 315 -> 779, 717, 886, color meetings 609, 590, 1,183 -> 435, 430, 1,517 (more meetings keep mana, as the comoving kernel is the model's wherever the two own points agree). " + ('L2, exact integers (BigInt) for every weight; mana compared in floating point to 1e-12 only at meetings and in the controls. Mana = ln((L + F) / (L - F)) = -ln(1 - 2 f) is an identity for a whole, so the fear share and mana are one number; a pure two-role whole has sum W^2 = 1/9, which bounds sum |W| by 3 (Cauchy-Schwarz), mana by ln 3 and the fear share by 1/3 (E-QTM-0099, E-FRC-0122). Histories: every pair of dock-0 tokens that meets in 480 beats, in the vacuum and in a golden-ratio matter fill, each from three product starts.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; swap meetings raising, lowering and keeping mana 1,042, 1,025, 315 -> 779, 717, 886, color meetings 609, 590, 1,183 -> 435, 430, 1,517 (more meetings keep mana, as the comoving kernel is the model's wherever the two own points agree). " +
+        'L2, exact integers (BigInt) for every weight; mana compared in floating point to 1e-12 only at meetings and in the controls. Mana = ln((L + F) / (L - F)) = -ln(1 - 2 f) is an identity for a whole, so the fear share and mana are one number; a pure two-role whole has sum W^2 = 1/9, which bounds sum |W| by 3 (Cauchy-Schwarz), mana by ln 3 and the fear share by 1/3 (E-QTM-0099, E-FRC-0122). Histories: every pair of dock-0 tokens that meets in 480 beats, in the vacuum and in a golden-ratio matter fill, each from three product starts.',
     })
   },
 })

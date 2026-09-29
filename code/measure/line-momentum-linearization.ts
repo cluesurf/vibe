@@ -25,7 +25,13 @@
 // the independent second method.
 
 import { type Collision } from '@/code/rule/collision'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE, type LineMomentumRule } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  SIDE,
+  type LineMomentumRule,
+} from '@/code/rule/isometric-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weyl } from '@/code/tool/weyl'
 
@@ -75,8 +81,12 @@ function lineJointNumerator(n: number, a: number, b: number): number {
   return a === CALM && b !== CALM ? 1 : 0
 }
 
-export function lineMomentumLinearization(input: { rule: LineMomentumRule; columns?: readonly number[] }): LineMomentumLinearization {
-  const columns = input.columns ?? Array.from({ length: 24 }, (_, d) => d)
+export function lineMomentumLinearization(input: {
+  rule: LineMomentumRule
+  columns?: readonly number[]
+}): LineMomentumLinearization {
+  const columns =
+    input.columns ?? Array.from({ length: 24 }, (_, d) => d)
   // delta[((d * 24 + e) * 3 + a) * 2 + b]: the count change P(x_d = a, C(x)_e = b) - P(x_d = a, x_e = b), times 3^24
   const delta = new Float64Array(24 * 24 * 3 * 2)
   const n = new Int8Array(12)
@@ -84,23 +94,39 @@ export function lineMomentumLinearization(input: { rule: LineMomentumRule; colum
   const inverse = new Int32Array(24)
   const numerator = new Float64Array(24 * 3)
   const denominator = new Float64Array(24)
+
   let acting = 0
   let actingVectors = 0
 
   // the joint count of (x_d = a, x_f = b) given n, times count(n)
-  const joint = (d: number, f: number, a: number, b: number, count: number): number => {
+  const joint = (
+    d: number,
+    f: number,
+    a: number,
+    b: number,
+    count: number,
+  ): number => {
     if (f === d) {
-      return a === b ? (count / (denominator[d] ?? 1)) * (numerator[d * 3 + a] ?? 0) : 0
+      return a === b
+        ? (count / (denominator[d] ?? 1)) * (numerator[d * 3 + a] ?? 0)
+        : 0
     }
 
     if (f === OPPOSITE[d]) {
       const first = SIDE[d] === 1 ? a : b
       const second = SIDE[d] === 1 ? b : a
 
-      return (count / (denominator[d] ?? 1)) * lineJointNumerator(n[LINE_OF[d] ?? 0] ?? 0, first, second)
+      return (
+        (count / (denominator[d] ?? 1)) *
+        lineJointNumerator(n[LINE_OF[d] ?? 0] ?? 0, first, second)
+      )
     }
 
-    return (count / ((denominator[d] ?? 1) * (denominator[f] ?? 1))) * (numerator[d * 3 + a] ?? 0) * (numerator[f * 3 + b] ?? 0)
+    return (
+      (count / ((denominator[d] ?? 1) * (denominator[f] ?? 1))) *
+      (numerator[d * 3 + a] ?? 0) *
+      (numerator[f * 3 + b] ?? 0)
+    )
   }
 
   for (let code = 0; code < 3 ** 12; code++) {
@@ -153,20 +179,27 @@ export function lineMomentumLinearization(input: { rule: LineMomentumRule; colum
 
       denominator[s] = line === 0 ? 5 : 2
 
-      for (let v = 0; v < 3; v++) numerator[s * 3 + v] = slotNumerator(line, SIDE[s] ?? 1, v)
+      for (let v = 0; v < 3; v++) {
+        numerator[s * 3 + v] = slotNumerator(line, SIDE[s] ?? 1, v)
+      }
     }
 
     for (const d of columns) {
       for (let e = 0; e < 24; e++) {
         const f = inverse[e] ?? e
 
-        if (f === e) continue
+        if (f === e) {
+          continue
+        }
 
         for (let a = 0; a < 3; a++) {
           for (let b = 0; b < 2; b++) {
             const index = ((d * 24 + e) * 3 + a) * 2 + b
 
-            delta[index] = (delta[index] ?? 0) + joint(d, f, a, b, count) - joint(d, e, a, b, count)
+            delta[index] =
+              (delta[index] ?? 0) +
+              joint(d, f, a, b, count) -
+              joint(d, e, a, b, count)
           }
         }
       }
@@ -175,15 +208,21 @@ export function lineMomentumLinearization(input: { rule: LineMomentumRule; colum
 
   const matrix = new Float64Array(48 * 48)
 
-  for (let i = 0; i < 48; i++) matrix[i * 48 + i] = 1
+  for (let i = 0; i < 48; i++) {
+    matrix[i * 48 + i] = 1
+  }
 
   for (const d of columns) {
     for (let e = 0; e < 24; e++) {
       for (const a of [LOVE, FEAR]) {
         for (const b of [LOVE, FEAR]) {
-          const change = (delta[((d * 24 + e) * 3 + a) * 2 + b] ?? 0) - (delta[((d * 24 + e) * 3 + CALM) * 2 + b] ?? 0)
+          const change =
+            (delta[((d * 24 + e) * 3 + a) * 2 + b] ?? 0) -
+            (delta[((d * 24 + e) * 3 + CALM) * 2 + b] ?? 0)
 
-          matrix[(e * 2 + b) * 48 + d * 2 + a] = (matrix[(e * 2 + b) * 48 + d * 2 + a] ?? 0) + (3 * change) / TOTAL
+          matrix[(e * 2 + b) * 48 + d * 2 + a] =
+            (matrix[(e * 2 + b) * 48 + d * 2 + a] ?? 0) +
+            (3 * change) / TOTAL
         }
       }
     }
@@ -195,16 +234,25 @@ export function lineMomentumLinearization(input: { rule: LineMomentumRule; colum
 // the first 24 primes: slot d of a sampled dock state reads the Weyl orbit of frac(sqrt(q_d)), so the 24
 // slots of sample m are one point of a 24-dimensional Kronecker sequence (equidistributed on the 24-cube by
 // Besicovitch and Kronecker), never neighbors of one rotation, which would correlate adjacent slots
-const SLOT_PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89]
+const SLOT_PRIMES = [
+  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61,
+  67, 71, 73, 79, 83, 89,
+]
 
 // A sampled estimate of the same matrix from the collision function: `samples` dock states, each slot fear,
 // calm or love by thirds of its own Weyl orbit, the joint frequencies counted.
-export function sampledLinearization(input: { collision: Collision; samples: number }): Float64Array {
+export function sampledLinearization(input: {
+  collision: Collision
+  samples: number
+}): Float64Array {
   const counts = new Float64Array(24 * 3 * 24 * 2)
   const state = new Int8Array(24)
   const before = new Int8Array(24)
-  const index = (v: number): number => (v === 1 ? LOVE : v === -1 ? FEAR : CALM)
-  const rates = SLOT_PRIMES.map(q => Math.sqrt(q) - Math.floor(Math.sqrt(q)))
+  const index = (v: number): number =>
+    v === 1 ? LOVE : v === -1 ? FEAR : CALM
+  const rates = SLOT_PRIMES.map(
+    q => Math.sqrt(q) - Math.floor(Math.sqrt(q)),
+  )
 
   for (let m = 0; m < input.samples; m++) {
     for (let d = 0; d < 24; d++) {
@@ -222,7 +270,9 @@ export function sampledLinearization(input: { collision: Collision; samples: num
       for (let e = 0; e < 24; e++) {
         const out = state[e] ?? 0
 
-        if (out === 0) continue
+        if (out === 0) {
+          continue
+        }
 
         const cell = ((d * 3 + a) * 24 + e) * 2 + (out === 1 ? 0 : 1)
 
@@ -237,8 +287,12 @@ export function sampledLinearization(input: { collision: Collision; samples: num
     for (let e = 0; e < 24; e++) {
       for (const a of [LOVE, FEAR]) {
         for (const b of [0, 1]) {
-          const joint = (counts[((d * 3 + a) * 24 + e) * 2 + b] ?? 0) / input.samples
-          const calm = (counts[((d * 3 + CALM) * 24 + e) * 2 + b] ?? 0) / input.samples
+          const joint =
+            (counts[((d * 3 + a) * 24 + e) * 2 + b] ?? 0) /
+            input.samples
+          const calm =
+            (counts[((d * 3 + CALM) * 24 + e) * 2 + b] ?? 0) /
+            input.samples
 
           matrix[(e * 2 + b) * 48 + d * 2 + a] = 3 * (joint - calm)
         }
@@ -250,7 +304,10 @@ export function sampledLinearization(input: { collision: Collision; samples: num
 }
 
 // the largest change of a matrix under conjugation by the slot permutations (0 when it commutes with all)
-export function equivarianceDefect(matrix: Float64Array, permutations: readonly (readonly number[])[]): number {
+export function equivarianceDefect(
+  matrix: Float64Array,
+  permutations: readonly (readonly number[])[],
+): number {
   let worst = 0
 
   for (const g of permutations) {
@@ -260,7 +317,12 @@ export function equivarianceDefect(matrix: Float64Array, permutations: readonly 
       for (let c = 0; c < 48; c++) {
         const pc = (g[c >> 1] ?? 0) * 2 + (c & 1)
 
-        worst = Math.max(worst, Math.abs((matrix[pr * 48 + pc] ?? 0) - (matrix[r * 48 + c] ?? 0)))
+        worst = Math.max(
+          worst,
+          Math.abs(
+            (matrix[pr * 48 + pc] ?? 0) - (matrix[r * 48 + c] ?? 0),
+          ),
+        )
       }
     }
   }

@@ -25,19 +25,37 @@
 // MATTER. A matter copy is a copy of a slot whose value differs from the unseeded vacuum's at the same slot and beat:
 // the part of the history the seed changed. The matter-only count joins docks through matter copies alone.
 
-import { collideBounce, makeBounceKernel, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, type Reduced } from '@/code/measure/living-pair-kernel'
-import { coinData, orientedHubStore } from '@/code/measure/varying-vacuum'
+import {
+  collideBounce,
+  makeBounceKernel,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  cloneReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  coinData,
+  orientedHubStore,
+} from '@/code/measure/varying-vacuum'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { coldQuaternionCollideAll, type ColdQuaternionLattice, type ColdQuaternionState } from '@/code/rule/cold-quaternion-knit'
+import {
+  coldQuaternionCollideAll,
+  type ColdQuaternionLattice,
+  type ColdQuaternionState,
+} from '@/code/rule/cold-quaternion-knit'
 import { collide } from '@/code/rule/lattice-gas'
 import { type Collision } from '@/code/rule/collision'
-import { d4BoxCoordinates, d4Coordinates, d4Vector } from '@/code/substrate/d4-box'
+import {
+  d4BoxCoordinates,
+  d4Coordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box'
 import { type Mesh } from '@/code/tool/mesh'
 
 const modulo = (v: number, n: number): number => ((v % n) + n) % n
@@ -52,8 +70,8 @@ export function rootOf(p: Int32Array, x: number): number {
   let r = x
 
   while (p[r] !== r) {
-    p[r] = p[p[r] as number] as number
-    r = p[r] as number
+    p[r] = p[p[r]!]!
+    r = p[r]!
   }
 
   return r
@@ -63,13 +81,17 @@ export function join(p: Int32Array, a: number, b: number): void {
   const ra = rootOf(p, a)
   const rb = rootOf(p, b)
 
-  if (ra !== rb) p[ra < rb ? rb : ra] = ra < rb ? ra : rb
+  if (ra !== rb) {
+    p[ra < rb ? rb : ra] = ra < rb ? ra : rb
+  }
 }
 
 export function componentCount(p: Int32Array): number {
   let n = 0
 
-  for (let i = 0; i < p.length; i++) n += rootOf(p, i) === i ? 1 : 0
+  for (let i = 0; i < p.length; i++) {
+    n += rootOf(p, i) === i ? 1 : 0
+  }
 
   return n
 }
@@ -86,7 +108,9 @@ export function componentSizes(p: Int32Array): [number, number][] {
 
   const histogram = new Map<number, number>()
 
-  for (const s of size.values()) histogram.set(s, (histogram.get(s) ?? 0) + 1)
+  for (const s of size.values()) {
+    histogram.set(s, (histogram.get(s) ?? 0) + 1)
+  }
 
   return [...histogram.entries()].sort((a, b) => a[0] - b[0])
 }
@@ -108,24 +132,34 @@ export type BoxHusk = {
 export function boxHusk(mesh: Mesh, side: number): BoxHusk {
   const roots = rootsD4()
   const cells = mesh.cellCount
-  const vectors = Array.from({ length: cells }, (_, x) => d4Vector(d4BoxCoordinates({ cell: x, side })))
+  const vectors = Array.from({ length: cells }, (_, x) =>
+    d4Vector(d4BoxCoordinates({ cell: x, side })),
+  )
   const column = new Int32Array(cells)
   const first = new Int32Array(cells)
+
   let stepErrors = 0
 
   for (let x = 0; x < cells; x++) {
-    const v = vectors[x] as number[]
+    const v = vectors[x]!
 
-    column[x] = modulo(v[0] ?? 0, side) + side * modulo(v[1] ?? 0, side) + side * side * modulo(v[2] ?? 0, side)
+    column[x] =
+      modulo(v[0] ?? 0, side) +
+      side * modulo(v[1] ?? 0, side) +
+      side * side * modulo(v[2] ?? 0, side)
     first[x] = modulo(v[0] ?? 0, side)
 
     for (let d = 0; d < 24; d++) {
-      const w = vectors[mesh.neighbour(x, d)] as number[]
-      const r = roots[d] as number[]
+      const w = vectors[mesh.neighbour(x, d)]!
+      const r = roots[d]!
 
       // a difference in the periods side * D4: every coordinate a multiple of side, and side * D4 coordinates
-      const diff = [0, 1, 2, 3].map(k => (w[k] ?? 0) - (v[k] ?? 0) - (r[k] ?? 0))
-      const inPeriods = diff.every(c => modulo(c, side) === 0) && d4Coordinates(diff).every(c => modulo(c, side) === 0)
+      const diff = [0, 1, 2, 3].map(
+        k => (w[k] ?? 0) - (v[k] ?? 0) - (r[k] ?? 0),
+      )
+      const inPeriods =
+        diff.every(c => modulo(c, side) === 0) &&
+        d4Coordinates(diff).every(c => modulo(c, side) === 0)
 
       stepErrors += inPeriods ? 0 : 1
     }
@@ -138,7 +172,11 @@ export function boxHusk(mesh: Mesh, side: number): BoxHusk {
 export function streamTarget(mesh: Mesh): Int32Array {
   const target = new Int32Array(mesh.cellCount * 24)
 
-  for (let x = 0; x < mesh.cellCount; x++) for (let d = 0; d < 24; d++) target[x * 24 + d] = mesh.neighbour(x, d) * 24 + d
+  for (let x = 0; x < mesh.cellCount; x++) {
+    for (let d = 0; d < 24; d++) {
+      target[x * 24 + d] = mesh.neighbour(x, d) * 24 + d
+    }
+  }
 
   return target
 }
@@ -146,15 +184,22 @@ export function streamTarget(mesh: Mesh): Int32Array {
 // A PLANTED CUT: the box split into two halves by the husk coordinate v0 (v0 mod side below side / 2, or not), and
 // every slot whose stream would cross between halves copied instead into the opposite slot of its own dock (a
 // reflecting wall). Still a bijection of slots, and no copy crosses. Each column lies wholly in one half.
-export function cutTarget(mesh: Mesh, husk: BoxHusk, target: Int32Array): Int32Array {
-  const half = (x: number): number => ((husk.first[x] as number) < Math.floor(husk.side / 2) ? 0 : 1)
+export function cutTarget(
+  mesh: Mesh,
+  husk: BoxHusk,
+  target: Int32Array,
+): Int32Array {
+  const half = (x: number): number =>
+    husk.first[x]! < Math.floor(husk.side / 2) ? 0 : 1
   const out = Int32Array.from(target)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
-      const y = Math.floor((target[x * 24 + d] as number) / 24)
+      const y = Math.floor(target[x * 24 + d]! / 24)
 
-      if (half(x) !== half(y)) out[x * 24 + d] = x * 24 + mesh.opposite(d)
+      if (half(x) !== half(y)) {
+        out[x * 24 + d] = x * 24 + mesh.opposite(d)
+      }
     }
   }
 
@@ -162,18 +207,23 @@ export function cutTarget(mesh: Mesh, husk: BoxHusk, target: Int32Array): Int32A
 }
 
 // the every-copy reading: calm counted, so every slot's stream is a copy
-export function everyCopyCounts(husk: BoxHusk, target: Int32Array): { bulk: number; husk: number } {
+export function everyCopyCounts(
+  husk: BoxHusk,
+  target: Int32Array,
+): { bulk: number; husk: number } {
   const bulk = forest(husk.cells)
   const top = forest(husk.columns)
 
   for (let i = 0; i < target.length; i++) {
     const x = Math.floor(i / 24)
-    const y = Math.floor((target[i] as number) / 24)
+    const y = Math.floor(target[i]! / 24)
 
-    if (x === y) continue
+    if (x === y) {
+      continue
+    }
 
     join(bulk, x, y)
-    join(top, husk.column[x] as number, husk.column[y] as number)
+    join(top, husk.column[x]!, husk.column[y]!)
   }
 
   return { bulk: componentCount(bulk), husk: componentCount(top) }
@@ -196,10 +246,15 @@ export type CausalLog = {
   beats: number
 }
 
-export function causalLog(husk: BoxHusk, input: { seedDock?: number; keepMasks?: boolean } = {}): CausalLog {
+export function causalLog(
+  husk: BoxHusk,
+  input: { seedDock?: number; keepMasks?: boolean } = {},
+): CausalLog {
   const reachedAt = new Int32Array(husk.cells).fill(-1)
 
-  if (input.seedDock !== undefined) reachedAt[input.seedDock] = 0
+  if (input.seedDock !== undefined) {
+    reachedAt[input.seedDock] = 0
+  }
 
   return {
     husk,
@@ -233,43 +288,57 @@ export function recordCopies(
   NEW_REACH.length = 0
 
   for (let i = 0; i < target.length; i++) {
-    const v = vibes[i] as number
-    const c = carried ? (carried[i] as number) : 0
+    const v = vibes[i]!
+    const c = carried ? carried[i]! : 0
 
     // a calm slot copies no content (a slot the seed emptied is a difference, but no copy)
-    if (v === 0 && c === 0) continue
+    if (v === 0 && c === 0) {
+      continue
+    }
 
-    const to = target[i] as number
+    const to = target[i]!
     const x = (i / 24) | 0
     const y = (to / 24) | 0
 
-    if (mask) mask[y] = (mask[y] as number) | (1 << (to % 24))
+    if (mask) {
+      mask[y] = mask[y]! | (1 << (to % 24))
+    }
 
-    if (x === y) continue
+    if (x === y) {
+      continue
+    }
 
     log.copies++
     join(log.bulk, x, y)
-    join(log.top, column[x] as number, column[y] as number)
+    join(log.top, column[x]!, column[y]!)
 
-    const at = log.reachedAt[x] as number
+    const at = log.reachedAt[x]!
 
-    if (at !== -1 && at <= t && log.reachedAt[y] === -1) NEW_REACH.push(y)
+    if (at !== -1 && at <= t && log.reachedAt[y] === -1) {
+      NEW_REACH.push(y)
+    }
 
     if (reference) {
-      const rv = reference.vibes[i] as number
-      const rc = reference.carried ? (reference.carried[i] as number) : 0
+      const rv = reference.vibes[i]!
+      const rc = reference.carried ? reference.carried[i]! : 0
 
       if (rv !== v || rc !== c) {
         log.matterCopies++
         join(log.matterBulk, x, y)
-        join(log.matterTop, column[x] as number, column[y] as number)
+        join(log.matterTop, column[x]!, column[y]!)
       }
     }
   }
 
-  for (const y of NEW_REACH) if (log.reachedAt[y] === -1) log.reachedAt[y] = t + 1
+  for (const y of NEW_REACH) {
+    if (log.reachedAt[y] === -1) {
+      log.reachedAt[y] = t + 1
+    }
+  }
 
-  if (log.masks && mask) log.masks.push(mask)
+  if (log.masks && mask) {
+    log.masks.push(mask)
+  }
 
   log.beats++
 }
@@ -287,12 +356,13 @@ export type CausalCounts = {
 
 export function causalCounts(log: CausalLog): CausalCounts {
   const columns = new Uint8Array(log.husk.columns)
+
   let reachedBulk = 0
 
   for (let x = 0; x < log.husk.cells; x++) {
     if (log.reachedAt[x] !== -1) {
       reachedBulk++
-      columns[log.husk.column[x] as number] = 1
+      columns[log.husk.column[x]!] = 1
     }
   }
 
@@ -312,21 +382,34 @@ export function causalCounts(log: CausalLog): CausalCounts {
 export function inverseTarget(target: Int32Array): Int32Array {
   const inverse = new Int32Array(target.length).fill(-1)
 
-  for (let i = 0; i < target.length; i++) inverse[target[i] as number] = i
+  for (let i = 0; i < target.length; i++) {
+    inverse[target[i]!] = i
+  }
 
   return inverse
 }
 
 // the docks dock y's new value was copied from at a logged beat (the per-beat record the gate is built on),
 // distinct, its own dock included when a reflected slot copied within it
-export function copySources(log: CausalLog, inverse: Int32Array, beat: number, y: number): number[] {
+export function copySources(
+  log: CausalLog,
+  inverse: Int32Array,
+  beat: number,
+  y: number,
+): number[] {
   const mask = log.masks?.[beat]
 
-  if (!mask) return []
+  if (!mask) {
+    return []
+  }
 
   const source = new Set<number>()
 
-  for (let d = 0; d < 24; d++) if (((mask[y] as number) >> d) & 1) source.add(Math.floor((inverse[y * 24 + d] as number) / 24))
+  for (let d = 0; d < 24; d++) {
+    if ((mask[y]! >> d) & 1) {
+      source.add(Math.floor(inverse[y * 24 + d]! / 24))
+    }
+  }
 
   return [...source]
 }
@@ -351,23 +434,55 @@ export type Replay = {
 // builds the weave under whatever start is current, and is otherwise hubSetup line for line)
 let COINS: ReturnType<typeof coinData> | undefined
 
-export type HubFresh = { readonly kernel: BounceKernel; readonly store: Int8Array; readonly layout: Int8Array; readonly cells: number; readonly side: number; readonly mesh: Mesh }
+export type HubFresh = {
+  readonly kernel: BounceKernel
+  readonly store: Int8Array
+  readonly layout: Int8Array
+  readonly cells: number
+  readonly side: number
+  readonly mesh: Mesh
+}
 
-export function hubFresh(side: number, kind: CollisionKind, anchor = 0): HubFresh {
+export function hubFresh(
+  side: number,
+  kind: CollisionKind,
+  anchor = 0,
+): HubFresh {
   COINS ??= coinData(groupTable())
 
-  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
-  const hub = d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number))
+  const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
+  const hub = d4BoxCoordinates({ cell: anchor, side }).map(
+    (v, k) => v - r0[k]!,
+  )
   const weave = makeColorWeave({ side, table: 'bind' })
 
-  return { kernel: makeBounceKernel(weave, kind), store: orientedHubStore(COINS, side, hub), layout: separatedLayout(weave), cells: weave.mesh.cellCount, side, mesh: weave.mesh }
+  return {
+    kernel: makeBounceKernel(weave, kind),
+    store: orientedHubStore(COINS, side, hub),
+    layout: separatedLayout(weave),
+    cells: weave.mesh.cellCount,
+    side,
+    mesh: weave.mesh,
+  }
 }
 
-export function hubVacuum(h: { cells: number; store: Int8Array; layout: Int8Array }): Reduced {
-  return { vibe: new Int8Array(h.cells * 24), point: new Int8Array(h.cells * 24), store: Int8Array.from(h.store), spoint: Int8Array.from(h.layout) }
+export function hubVacuum(h: {
+  cells: number
+  store: Int8Array
+  layout: Int8Array
+}): Reduced {
+  return {
+    vibe: new Int8Array(h.cells * 24),
+    point: new Int8Array(h.cells * 24),
+    store: Int8Array.from(h.store),
+    spoint: Int8Array.from(h.layout),
+  }
 }
 
-export function hubReplay(k: BounceKernel, start: Reduced): Replay & { state: () => Reduced } {
+export function hubReplay(
+  k: BounceKernel,
+  start: Reduced,
+): Replay & { state: () => Reduced } {
   let a = cloneReduced(start)
   let b = cloneReduced(start)
 
@@ -375,7 +490,9 @@ export function hubReplay(k: BounceKernel, start: Reduced): Replay & { state: ()
     cells: k.cells,
     state: () => a,
     collide(t) {
-      for (let x = 0; x < k.cells; x++) collideBounce(k, a, x, t)
+      for (let x = 0; x < k.cells; x++) {
+        collideBounce(k, a, x, t)
+      }
     },
     vibes: () => a.vibe,
     carried: () => undefined,
@@ -383,14 +500,16 @@ export function hubReplay(k: BounceKernel, start: Reduced): Replay & { state: ()
       b.vibe.fill(0)
 
       for (let slot = 0; slot < a.vibe.length; slot++) {
-        const v = a.vibe[slot] as number
+        const v = a.vibe[slot]!
 
-        if (v === 0) continue
+        if (v === 0) {
+          continue
+        }
 
-        const to = target[slot] as number
+        const to = target[slot]!
 
         b.vibe[to] = v
-        b.point[to] = (k.move[slot] as Int8Array)[a.point[slot] as number] as number
+        b.point[to] = k.move[slot]![a.point[slot]!]!
       }
 
       b.store.set(a.store)
@@ -405,13 +524,14 @@ export function hubReplay(k: BounceKernel, start: Reduced): Replay & { state: ()
       const out = new Int32Array(a.vibe.length * 2 + a.store.length * 2)
 
       for (let i = 0; i < a.vibe.length; i++) {
-        out[i] = a.vibe[i] as number
-        out[a.vibe.length + i] = a.vibe[i] !== 0 ? (a.point[i] as number) : 0
+        out[i] = a.vibe[i]!
+        out[a.vibe.length + i] = a.vibe[i] !== 0 ? a.point[i]! : 0
       }
 
       for (let i = 0; i < a.store.length; i++) {
-        out[2 * a.vibe.length + i] = a.store[i] as number
-        out[2 * a.vibe.length + a.store.length + i] = a.store[i] !== 0 ? (a.spoint[i] as number) : 0
+        out[2 * a.vibe.length + i] = a.store[i]!
+        out[2 * a.vibe.length + a.store.length + i] =
+          a.store[i] !== 0 ? a.spoint[i]! : 0
       }
 
       return out
@@ -420,8 +540,15 @@ export function hubReplay(k: BounceKernel, start: Reduced): Replay & { state: ()
 }
 
 // the cold quaternion knits (E-RLT-0054, 0056, 0057)
-export function coldReplay(lattice: ColdQuaternionLattice, start: ColdQuaternionState): Replay & { state: () => ColdQuaternionState } {
-  let s: ColdQuaternionState = { vibe: Int8Array.from(start.vibe), store: Int32Array.from(start.store), counter: Int32Array.from(start.counter) }
+export function coldReplay(
+  lattice: ColdQuaternionLattice,
+  start: ColdQuaternionState,
+): Replay & { state: () => ColdQuaternionState } {
+  let s: ColdQuaternionState = {
+    vibe: Int8Array.from(start.vibe),
+    store: Int32Array.from(start.store),
+    counter: Int32Array.from(start.counter),
+  }
 
   return {
     cells: lattice.mesh.cellCount,
@@ -436,10 +563,10 @@ export function coldReplay(lattice: ColdQuaternionLattice, start: ColdQuaternion
       const store = new Int32Array(s.store.length)
 
       for (let i = 0; i < s.vibe.length; i++) {
-        const to = target[i] as number
+        const to = target[i]!
 
-        vibe[to] = s.vibe[i] as number
-        store[to] = s.store[i] as number
+        vibe[to] = s.vibe[i]!
+        store[to] = s.store[i]!
       }
 
       s = { vibe, store, counter: s.counter }
@@ -451,7 +578,11 @@ export function coldReplay(lattice: ColdQuaternionLattice, start: ColdQuaternion
 }
 
 // a tone-only knit of code/rule/lattice-gas (the committed turning weave, the combined knit)
-export function toneReplay(mesh: Mesh, forward: (t: number) => Collision, start: Int8Array): Replay & { data: () => Int8Array } {
+export function toneReplay(
+  mesh: Mesh,
+  forward: (t: number) => Collision,
+  start: Int8Array,
+): Replay & { data: () => Int8Array } {
   let will = { mesh, data: Int8Array.from(start) }
 
   return {
@@ -465,7 +596,9 @@ export function toneReplay(mesh: Mesh, forward: (t: number) => Collision, start:
     stream(target) {
       const out = new Int8Array(will.data.length)
 
-      for (let i = 0; i < out.length; i++) out[target[i] as number] = will.data[i] as number
+      for (let i = 0; i < out.length; i++) {
+        out[target[i]!] = will.data[i]!
+      }
 
       will = { mesh, data: out }
     },
@@ -496,7 +629,10 @@ export function causalRun(input: {
   keepMasks?: boolean
   onBeat?: (t: number) => void
 }): CausalRun {
-  const log = causalLog(input.husk, { seedDock: input.seedDock, keepMasks: input.keepMasks })
+  const log = causalLog(input.husk, {
+    seedDock: input.seedDock,
+    keepMasks: input.keepMasks,
+  })
   const frames: { vibes: Int8Array; carried?: Int32Array }[] = []
 
   for (let t = 0; t < input.beats; t++) {
@@ -505,9 +641,20 @@ export function causalRun(input: {
     const vibes = input.replay.vibes()
     const carried = input.replay.carried()
 
-    recordCopies(log, input.target, vibes, carried, input.reference?.[t])
+    recordCopies(
+      log,
+      input.target,
+      vibes,
+      carried,
+      input.reference?.[t],
+    )
 
-    if (input.keepFrames) frames.push({ vibes: Int8Array.from(vibes), carried: carried ? Int32Array.from(carried) : undefined })
+    if (input.keepFrames) {
+      frames.push({
+        vibes: Int8Array.from(vibes),
+        carried: carried ? Int32Array.from(carried) : undefined,
+      })
+    }
 
     input.replay.stream(input.target)
     input.onBeat?.(t)

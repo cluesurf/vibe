@@ -41,7 +41,10 @@ export function pointTrits(index: number, roles: number): Int8Array {
   return out
 }
 
-export function pointOfTrits(trits: ArrayLike<number>, roles: number): number {
+export function pointOfTrits(
+  trits: ArrayLike<number>,
+  roles: number,
+): number {
   let index = 0
 
   for (let r = 0; r < roles; r++) {
@@ -63,7 +66,9 @@ export function phaseSpace(roles: number): Space {
   }
 
   const points = 9 ** roles
-  const trits = Array.from({ length: points }, (_, i) => pointTrits(i, roles))
+  const trits = Array.from({ length: points }, (_, i) =>
+    pointTrits(i, roles),
+  )
   const add = new Int32Array(points * points)
   const form = new Int8Array(points * points)
   const neg = new Int32Array(points)
@@ -72,14 +77,20 @@ export function phaseSpace(roles: number): Space {
   for (let x = 0; x < points; x++) {
     const tx = trits[x] ?? new Int8Array(0)
 
-    neg[x] = pointOfTrits(Array.from(tx, t => -t), roles)
+    neg[x] = pointOfTrits(
+      Array.from(tx, t => -t),
+      roles,
+    )
 
     for (let y = 0; y < points; y++) {
       const ty = trits[y] ?? new Int8Array(0)
+
       let f = 0
 
       for (let r = 0; r < roles; r++) {
-        f += (tx[2 * r] ?? 0) * (ty[2 * r + 1] ?? 0) - (tx[2 * r + 1] ?? 0) * (ty[2 * r] ?? 0)
+        f +=
+          (tx[2 * r] ?? 0) * (ty[2 * r + 1] ?? 0) -
+          (tx[2 * r + 1] ?? 0) * (ty[2 * r] ?? 0)
       }
 
       for (let c = 0; c < 2 * roles; c++) {
@@ -99,8 +110,12 @@ export function phaseSpace(roles: number): Space {
 }
 
 // every isotropic subspace of the given dimension, as its sorted member points (the origin first)
-export function isotropicSubspaces(space: Space, dimension: number): number[][] {
+export function isotropicSubspaces(
+  space: Space,
+  dimension: number,
+): number[][] {
   const { points, add, form } = space
+
   let level: number[][] = [[0]]
 
   for (let d = 0; d < dimension; d++) {
@@ -115,7 +130,10 @@ export function isotropicSubspaces(space: Space, dimension: number): number[][] 
       }
 
       for (let v = 1; v < points; v++) {
-        if (inSet[v] === 1 || members.some(m => form[m * points + v] !== 0)) {
+        if (
+          inSet[v] === 1 ||
+          members.some(m => form[m * points + v] !== 0)
+        ) {
           continue
         }
 
@@ -124,7 +142,11 @@ export function isotropicSubspaces(space: Space, dimension: number): number[][] 
         const v2 = add[v * points + v] ?? 0
 
         for (const m of members) {
-          span.push(m, add[m * points + v] ?? 0, add[m * points + v2] ?? 0)
+          span.push(
+            m,
+            add[m * points + v] ?? 0,
+            add[m * points + v2] ?? 0,
+          )
         }
 
         span.sort((x, y) => x - y)
@@ -150,7 +172,10 @@ export function lagrangians(space: Space): number[][] {
 }
 
 // the coset label of every point for a subspace: the smallest point of its coset
-export function cosetLabels(space: Space, subspace: readonly number[]): Int32Array {
+export function cosetLabels(
+  space: Space,
+  subspace: readonly number[],
+): Int32Array {
   const { points, add } = space
   const label = new Int32Array(points)
 
@@ -170,7 +195,10 @@ export function cosetLabels(space: Space, subspace: readonly number[]): Int32Arr
 }
 
 // the sum of the weights over each coset, keyed by the coset's label
-export function cosetSums(weight: readonly bigint[], labels: Int32Array): Map<number, bigint> {
+export function cosetSums(
+  weight: readonly bigint[],
+  labels: Int32Array,
+): Map<number, bigint> {
   const out = new Map<number, bigint>()
 
   weight.forEach((w, x) => {
@@ -192,7 +220,9 @@ export function readRoles(input: {
   inOutcome: (readPoint: number) => boolean
 }): bigint[] {
   const { weight, roles, read } = input
-  const kept = Array.from({ length: roles }, (_, r) => r).filter(r => !read.includes(r))
+  const kept = Array.from({ length: roles }, (_, r) => r).filter(
+    r => !read.includes(r),
+  )
   const out = new Array<bigint>(9 ** kept.length).fill(0n)
 
   weight.forEach((w, i) => {
@@ -200,7 +230,8 @@ export function readRoles(input: {
       return
     }
 
-    const digit = (r: number): number => Math.floor(i / 9 ** (roles - 1 - r)) % 9
+    const digit = (r: number): number =>
+      Math.floor(i / 9 ** (roles - 1 - r)) % 9
     const readPoint = read.reduce((acc, r) => acc * 9 + digit(r), 0)
 
     if (!input.inOutcome(readPoint)) {
@@ -216,14 +247,23 @@ export function readRoles(input: {
 }
 
 // the marginal of the listed roles (every other role summed out)
-export function marginalOf(weight: readonly bigint[], roles: number, keep: readonly number[]): bigint[] {
-  const read = Array.from({ length: roles }, (_, r) => r).filter(r => !keep.includes(r))
+export function marginalOf(
+  weight: readonly bigint[],
+  roles: number,
+  keep: readonly number[],
+): bigint[] {
+  const read = Array.from({ length: roles }, (_, r) => r).filter(
+    r => !keep.includes(r),
+  )
 
   return readRoles({ weight, roles, read, inOutcome: () => true })
 }
 
 // the product of two wholes' weights, the first most significant
-export function productWeights(a: readonly bigint[], b: readonly bigint[]): bigint[] {
+export function productWeights(
+  a: readonly bigint[],
+  b: readonly bigint[],
+): bigint[] {
   const out: bigint[] = []
 
   for (const x of a) {
@@ -236,7 +276,12 @@ export function productWeights(a: readonly bigint[], b: readonly bigint[]): bigi
 }
 
 // move one role of a whole by a permutation of its 9 phase points
-export function permuteRole(weight: readonly bigint[], roles: number, role: number, perm: ArrayLike<number>): bigint[] {
+export function permuteRole(
+  weight: readonly bigint[],
+  roles: number,
+  role: number,
+  perm: ArrayLike<number>,
+): bigint[] {
   const stride = 9 ** (roles - 1 - role)
   const out = new Array<bigint>(weight.length).fill(0n)
 
@@ -253,6 +298,7 @@ export function permuteRole(weight: readonly bigint[], roles: number, role: numb
 export function rankMod3(rows: readonly (readonly number[])[]): number {
   const m = rows.map(r => r.map(x => ((x % 3) + 3) % 3))
   const cols = m[0]?.length ?? 0
+
   let rank = 0
 
   for (let c = 0; c < cols && rank < m.length; c++) {
@@ -286,7 +332,7 @@ export function rankMod3(rows: readonly (readonly number[])[]): number {
 
       if (r !== rank && f !== 0) {
         for (let j = 0; j < cols; j++) {
-          row[j] = (((row[j] ?? 0) - f * (swap[j] ?? 0)) % 3 + 3) % 3
+          row[j] = ((((row[j] ?? 0) - f * (swap[j] ?? 0)) % 3) + 3) % 3
         }
       }
     }
@@ -302,10 +348,15 @@ export function rankMod3(rows: readonly (readonly number[])[]): number {
 // displacements multiply without a phase in the symmetric convention. Written on one representative per line
 // through the origin (f(2 v) = 2 f(v)), the constraints are linear over F3. Returns the number of unknowns, the
 // rank, and so the dimension of the solution space: 3^dimension assignments in all.
-export function assignmentSpace(space: Space): { unknowns: number; rank: number; dimension: number } {
+export function assignmentSpace(space: Space): {
+  unknowns: number
+  rank: number
+  dimension: number
+} {
   const { points, add } = space
   const rep = new Int32Array(points).fill(-1)
   const scale = new Int8Array(points)
+
   let unknowns = 0
 
   for (let v = 1; v < points; v++) {

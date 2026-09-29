@@ -38,7 +38,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { DifferenceOverflow, makeDifferenceEngine, type DifferenceEngine } from '@/code/compute/difference-engine'
+import {
+  DifferenceOverflow,
+  makeDifferenceEngine,
+  type DifferenceEngine,
+} from '@/code/compute/difference-engine'
 import {
   blobSeed,
   boxRun,
@@ -61,7 +65,12 @@ const SURVEY_CAP = 1 << 20
 
 const now = (): number => performance.now()
 
-function seeded(forward: (t: number) => Collision, seed: Seed, side?: number, maxDocks?: number): DifferenceEngine {
+function seeded(
+  forward: (t: number) => Collision,
+  seed: Seed,
+  side?: number,
+  maxDocks?: number,
+): DifferenceEngine {
   const engine = makeDifferenceEngine({ forward, side, maxDocks })
 
   for (const dock of seed.docks) {
@@ -72,7 +81,11 @@ function seeded(forward: (t: number) => Collision, seed: Seed, side?: number, ma
 }
 
 // the engine's full box state, laid out as the dense run's data
-function expand(engine: DifferenceEngine, side: number, center: readonly number[]): Int8Array {
+function expand(
+  engine: DifferenceEngine,
+  side: number,
+  center: readonly number[],
+): Int8Array {
   const vac = engine.vacuum(engine.beat())
   const out = new Int8Array(side ** 4 * 24)
 
@@ -81,7 +94,10 @@ function expand(engine: DifferenceEngine, side: number, center: readonly number[
   }
 
   engine.forEach((coords, state) => {
-    const cell = d4BoxCell({ coordinates: coords.map((x, k) => x + (center[k] ?? 0)), side })
+    const cell = d4BoxCell({
+      coordinates: coords.map((x, k) => x + (center[k] ?? 0)),
+      side,
+    })
 
     out.set(state, cell * 24)
   })
@@ -100,11 +116,17 @@ const differ = (a: Int8Array, b: Int8Array): number => {
 }
 
 // 1. box mode against brute force
-function boxExactness(name: KnitName, seed: Seed, side: number, beats: number): number {
+function boxExactness(
+  name: KnitName,
+  seed: Seed,
+  side: number,
+  beats: number,
+): number {
   const forward = knitForward(name)
   const center = [0, 0, 0, 0]
   const dense = boxRun({ forward, side, seed, center })
   const engine = seeded(forward, seed, side)
+
   let mismatches = 0
 
   for (let t = 0; t < beats; t++) {
@@ -116,16 +138,28 @@ function boxExactness(name: KnitName, seed: Seed, side: number, beats: number): 
   return mismatches
 }
 
-function vacuumExactness(name: KnitName, side: number, beats: number): number {
+function vacuumExactness(
+  name: KnitName,
+  side: number,
+  beats: number,
+): number {
   const forward = knitForward(name)
-  const dense = boxRun({ forward, side, seed: { name: 'empty', docks: [] }, center: [0, 0, 0, 0] })
+  const dense = boxRun({
+    forward,
+    side,
+    seed: { name: 'empty', docks: [] },
+    center: [0, 0, 0, 0],
+  })
   const engine = makeDifferenceEngine({ forward, side })
+
   let mismatches = 0
 
   for (let t = 0; t < beats; t++) {
     dense.step()
     engine.step()
-    mismatches += differ(dense.data(), expand(engine, side, [0, 0, 0, 0])) + engine.support().docks
+    mismatches +=
+      differ(dense.data(), expand(engine, side, [0, 0, 0, 0])) +
+      engine.support().docks
   }
 
   return mismatches
@@ -142,16 +176,24 @@ const spanOf = (engine: DifferenceEngine): number => {
     })
   })
 
-  return engine.support().docks === 0 ? 0 : Math.max(...hi.map((x, k) => x - (lo[k] ?? 0)))
+  return engine.support().docks === 0
+    ? 0
+    : Math.max(...hi.map((x, k) => x - (lo[k] ?? 0)))
 }
 
 // 2. unbounded against brute force while no wrap can matter
-function unboundedExactness(name: KnitName, seed: Seed, side: number, limit: number): { mismatches: number; beats: number } {
+function unboundedExactness(
+  name: KnitName,
+  seed: Seed,
+  side: number,
+  limit: number,
+): { mismatches: number; beats: number } {
   const forward = knitForward(name)
   const middle = Math.floor(side / 2)
   const center = [middle, middle, middle, middle]
   const dense = boxRun({ forward, side, seed, center })
   const engine = seeded(forward, seed)
+
   let mismatches = 0
   let beats = 0
 
@@ -173,8 +215,17 @@ function unboundedExactness(name: KnitName, seed: Seed, side: number, limit: num
 }
 
 // 3. brute force's time per dock per beat on a box
-function bruteNsPerDock(name: KnitName, side: number, beats: number): number {
-  const dense = boxRun({ forward: knitForward(name), side, seed: loneSeed(4, 1), center: [0, 0, 0, 0] })
+function bruteNsPerDock(
+  name: KnitName,
+  side: number,
+  beats: number,
+): number {
+  const dense = boxRun({
+    forward: knitForward(name),
+    side,
+    seed: loneSeed(4, 1),
+    center: [0, 0, 0, 0],
+  })
 
   dense.step()
 
@@ -200,11 +251,18 @@ type Growth = {
 }
 
 // 4. a seed followed on the unbounded lattice, the largest support per period and exact recurrence
-function grow(name: KnitName, seed: Seed, periods: number, cap: number, side?: number): Growth {
+function grow(
+  name: KnitName,
+  seed: Seed,
+  periods: number,
+  cap: number,
+  side?: number,
+): Growth {
   const engine = seeded(knitForward(name), seed, side, cap)
   const seen = new Map<string, { beat: number; anchor: number[] }>()
   const largest: number[] = []
   const start = now()
+
   let recurAt = -1
   let recurShift: number[] = []
   let overflowAt = -1
@@ -226,7 +284,9 @@ function grow(name: KnitName, seed: Seed, periods: number, cap: number, side?: n
 
         if (before) {
           recurAt = before.beat
-          recurShift = sig.anchor.map((x, k) => x - (before.anchor[k] ?? 0))
+          recurShift = sig.anchor.map(
+            (x, k) => x - (before.anchor[k] ?? 0),
+          )
         } else {
           seen.set(sig.key, { beat: engine.beat(), anchor: sig.anchor })
         }
@@ -242,7 +302,10 @@ function grow(name: KnitName, seed: Seed, periods: number, cap: number, side?: n
 
   const n = largest.length
   const exponent =
-    n >= 8 && (largest[3] ?? 0) > 0 ? Math.log((largest[n - 1] ?? 1) / (largest[3] ?? 1)) / Math.log(n / 4) : 0
+    n >= 8 && (largest[3] ?? 0) > 0
+      ? Math.log((largest[n - 1] ?? 1) / (largest[3] ?? 1)) /
+        Math.log(n / 4)
+      : 0
 
   return {
     name: seed.name,
@@ -251,13 +314,17 @@ function grow(name: KnitName, seed: Seed, periods: number, cap: number, side?: n
     recurShift,
     exponent,
     overflowAt,
-    reach: side === undefined && overflowAt < 0 ? engine.reach([0, 0, 0, 0]) : -1,
+    reach:
+      side === undefined && overflowAt < 0
+        ? engine.reach([0, 0, 0, 0])
+        : -1,
     finalDocks: overflowAt < 0 ? engine.support().docks : -1,
     seconds: (now() - start) / 1000,
   }
 }
 
-const round = (x: number, digits = 3): number => Number(x.toFixed(digits))
+const round = (x: number, digits = 3): number =>
+  Number(x.toFixed(digits))
 
 export default experiment({
   id: 'computation/difference-engine',
@@ -271,21 +338,34 @@ export default experiment({
   run() {
     // 1
     const boxLove = Object.fromEntries(
-      KNITS.map(name => [name, Array.from({ length: 24 }, (_, d) => boxExactness(name, loneSeed(d, 1), 5, 48)).reduce((a, b) => a + b, 0)]),
+      KNITS.map(name => [
+        name,
+        Array.from({ length: 24 }, (_, d) =>
+          boxExactness(name, loneSeed(d, 1), 5, 48),
+        ).reduce((a, b) => a + b, 0),
+      ]),
     ) as Record<KnitName, number>
     const boxOthers = Object.fromEntries(
       KNITS.map(name => [
         name,
-        [loneSeed(4, -1), MESON_SEED, KNOT_SEED, blobSeed(2)].map(seed => boxExactness(name, seed, 7, 72)).reduce((a, b) => a + b, 0),
+        [loneSeed(4, -1), MESON_SEED, KNOT_SEED, blobSeed(2)]
+          .map(seed => boxExactness(name, seed, 7, 72))
+          .reduce((a, b) => a + b, 0),
       ]),
     ) as Record<KnitName, number>
-    const vacuumBox = Object.fromEntries(KNITS.map(name => [name, vacuumExactness(name, 7, 72)])) as Record<KnitName, number>
+    const vacuumBox = Object.fromEntries(
+      KNITS.map(name => [name, vacuumExactness(name, 7, 72)]),
+    ) as Record<KnitName, number>
 
     // the vacuum's first return to empty and its return with the schedule
     const vacuumReturn = Object.fromEntries(
       KNITS.map(name => {
-        const engine = makeDifferenceEngine({ forward: knitForward(name) })
-        const empty = (t: number): boolean => engine.vacuum(t).every(x => x === 0)
+        const engine = makeDifferenceEngine({
+          forward: knitForward(name),
+        })
+        const empty = (t: number): boolean =>
+          engine.vacuum(t).every(x => x === 0)
+
         let first = 0
 
         for (let t = 1; t <= 240 && first === 0; t++) {
@@ -294,7 +374,11 @@ export default experiment({
 
         let withSchedule = 0
 
-        for (let t = KNIT_PERIOD; t <= 240 && withSchedule === 0; t += KNIT_PERIOD) {
+        for (
+          let t = KNIT_PERIOD;
+          t <= 240 && withSchedule === 0;
+          t += KNIT_PERIOD
+        ) {
           withSchedule = empty(t) ? t : 0
         }
 
@@ -304,11 +388,22 @@ export default experiment({
 
     // 2
     const unbounded = KNITS.flatMap(name =>
-      [MESON_SEED, KNOT_SEED, loneSeed(4, 1), blobSeed(1)].map(seed => ({ name, seed: seed.name, ...unboundedExactness(name, seed, 17, 40) })),
+      [MESON_SEED, KNOT_SEED, loneSeed(4, 1), blobSeed(1)].map(
+        seed => ({
+          name,
+          seed: seed.name,
+          ...unboundedExactness(name, seed, 17, 40),
+        }),
+      ),
     )
 
     // 3
-    const cost: { beat: number; docks: number; ns: number; span: number }[] = []
+    const cost: {
+      beat: number
+      docks: number
+      ns: number
+      span: number
+    }[] = []
 
     {
       const engine = seeded(knitForward('committed'), loneSeed(4, 1))
@@ -322,45 +417,95 @@ export default experiment({
         const ms = now() - start
 
         if ((t + 1) % 8 === 0) {
-          cost.push({ beat: t + 1, docks, ns: (ms * 1e6) / Math.max(1, docks), span: spanOf(engine) })
+          cost.push({
+            beat: t + 1,
+            docks,
+            ns: (ms * 1e6) / Math.max(1, docks),
+            span: spanOf(engine),
+          })
         }
       }
     }
 
-    const brute = Object.fromEntries([7, 9, 11, 13].map(side => [side, bruteNsPerDock('committed', side, side < 11 ? 12 : 4)])) as Record<number, number>
+    const brute = Object.fromEntries(
+      [7, 9, 11, 13].map(side => [
+        side,
+        bruteNsPerDock('committed', side, side < 11 ? 12 : 4),
+      ]),
+    ) as Record<number, number>
     const bruteNs = Math.min(...Object.values(brute))
-    const window = cost.filter(c => c.docks >= 100 && c.docks <= 1e5 + 5e4)
+    const window = cost.filter(
+      c => c.docks >= 100 && c.docks <= 1e5 + 5e4,
+    )
     const engineNs = window.map(c => c.ns)
     const costSpread = Math.max(...engineNs) / Math.min(...engineNs)
-    const last = cost[cost.length - 1] ?? { beat: 0, docks: 1, ns: 1, span: 0 }
+    const last = cost[cost.length - 1] ?? {
+      beat: 0,
+      docks: 1,
+      ns: 1,
+      span: 0,
+    }
     const fitSide = last.span + 3
-    const speedupAtEnd = (fitSide ** 4 * bruteNs) / (last.docks * last.ns)
+    const speedupAtEnd =
+      (fitSide ** 4 * bruteNs) / (last.docks * last.ns)
 
     // 4
     const survey = KNITS.map(name => {
-      const loves = Array.from({ length: 24 }, (_, d) => grow(name, loneSeed(d, 1), SCALE_PERIODS, SURVEY_CAP))
-      const fears = Array.from({ length: 24 }, (_, d) => grow(name, loneSeed(d, -1), SCALE_PERIODS, SURVEY_CAP))
-      const composites = [MESON_SEED, KNOT_SEED, blobSeed(2)].map(seed => grow(name, seed, SCALE_PERIODS, SURVEY_CAP))
+      const loves = Array.from({ length: 24 }, (_, d) =>
+        grow(name, loneSeed(d, 1), SCALE_PERIODS, SURVEY_CAP),
+      )
+      const fears = Array.from({ length: 24 }, (_, d) =>
+        grow(name, loneSeed(d, -1), SCALE_PERIODS, SURVEY_CAP),
+      )
+      const composites = [MESON_SEED, KNOT_SEED, blobSeed(2)].map(
+        seed => grow(name, seed, SCALE_PERIODS, SURVEY_CAP),
+      )
 
       return { name, loves, fears, composites }
     })
 
     const fastest = survey.map(s => {
       const all = [...s.loves, ...s.fears]
-      const top = all.reduce((a, b) => ((b.largest[SCALE_PERIODS - 1] ?? 0) > (a.largest[SCALE_PERIODS - 1] ?? 0) ? b : a))
+      const top = all.reduce((a, b) =>
+        (b.largest[SCALE_PERIODS - 1] ?? 0) >
+        (a.largest[SCALE_PERIODS - 1] ?? 0)
+          ? b
+          : a,
+      )
       const tone = top.name.startsWith('love') ? 1 : -1
       const direction = Number(top.name.replace(/^(love|fear)/, ''))
-      const extended = grow(s.name, loneSeed(direction, tone), EXTEND_PERIODS, EXTEND_CAP)
-      const boxed = grow(s.name, loneSeed(direction, tone), SCALE_PERIODS, EXTEND_CAP, 9)
+      const extended = grow(
+        s.name,
+        loneSeed(direction, tone),
+        EXTEND_PERIODS,
+        EXTEND_CAP,
+      )
+      const boxed = grow(
+        s.name,
+        loneSeed(direction, tone),
+        SCALE_PERIODS,
+        EXTEND_CAP,
+        9,
+      )
 
       return { name: s.name, seed: top.name, extended, boxed }
     })
 
-    const travellers = (list: Growth[]): number => list.filter(g => g.recurAt >= 0).length
-    const errorsFree = survey.every(s => [...s.loves, ...s.fears, ...s.composites].every(g => g.largest.length > 0))
+    const travellers = (list: Growth[]): number =>
+      list.filter(g => g.recurAt >= 0).length
+    const errorsFree = survey.every(s =>
+      [...s.loves, ...s.fears, ...s.composites].every(
+        g => g.largest.length > 0,
+      ),
+    )
 
     const ok =
-      KNITS.every(name => boxLove[name] === 0 && boxOthers[name] === 0 && vacuumBox[name] === 0) &&
+      KNITS.every(
+        name =>
+          boxLove[name] === 0 &&
+          boxOthers[name] === 0 &&
+          vacuumBox[name] === 0,
+      ) &&
       unbounded.every(u => u.mismatches === 0 && u.beats >= 2) &&
       costSpread < 4 &&
       errorsFree
@@ -370,10 +515,14 @@ export default experiment({
 
     for (const name of KNITS) {
       metrics[`${name}BoxLoneLoveMismatchesSide5`] = boxLove[name]
-      metrics[`${name}BoxFearMesonKnotBlobMismatchesSide7`] = boxOthers[name]
+      metrics[`${name}BoxFearMesonKnotBlobMismatchesSide7`] =
+        boxOthers[name]
       metrics[`${name}VacuumBoxMismatches`] = vacuumBox[name]
-      metrics[`${name}VacuumFirstEmptyReturn`] = vacuumReturn[name].first
-      metrics[`${name}VacuumEmptyReturnWithSchedule`] = vacuumReturn[name].withSchedule
+      metrics[`${name}VacuumFirstEmptyReturn`] =
+        vacuumReturn[name].first
+
+      metrics[`${name}VacuumEmptyReturnWithSchedule`] =
+        vacuumReturn[name].withSchedule
     }
 
     for (const u of unbounded) {
@@ -395,28 +544,47 @@ export default experiment({
       metrics[`bruteNsPerDockSide${side}`] = round(ns, 0)
     }
 
-    metrics.speedupAtBeat192AgainstSmallestUnwrappedBox = round(speedupAtEnd, 0)
+    metrics.speedupAtBeat192AgainstSmallestUnwrappedBox = round(
+      speedupAtEnd,
+      0,
+    )
     metrics.smallestUnwrappedBoxSideAtBeat192 = fitSide
 
     for (const s of survey) {
-      for (const [label, list] of [['Love', s.loves], ['Fear', s.fears]] as const) {
+      for (const [label, list] of [
+        ['Love', s.loves],
+        ['Fear', s.fears],
+      ] as const) {
         metrics[`${s.name}${label}Travellers`] = travellers(list)
-        metrics[`${s.name}${label}LargestAtPeriod8Max`] = Math.max(...list.map(g => g.largest[SCALE_PERIODS - 1] ?? 0))
-        metrics[`${s.name}${label}LargestAtPeriod8Median`] = [...list.map(g => g.largest[SCALE_PERIODS - 1] ?? 0)].sort((a, b) => a - b)[12] ?? 0
-        metrics[`${s.name}${label}ExponentMax`] = round(Math.max(...list.map(g => g.exponent)), 2)
+        metrics[`${s.name}${label}LargestAtPeriod8Max`] = Math.max(
+          ...list.map(g => g.largest[SCALE_PERIODS - 1] ?? 0),
+        )
+
+        metrics[`${s.name}${label}LargestAtPeriod8Median`] =
+          [...list.map(g => g.largest[SCALE_PERIODS - 1] ?? 0)].sort(
+            (a, b) => a - b,
+          )[12] ?? 0
+
+        metrics[`${s.name}${label}ExponentMax`] = round(
+          Math.max(...list.map(g => g.exponent)),
+          2,
+        )
 
         for (const g of list) {
           if (g.recurAt >= 0) {
             control[`${s.name}_${g.name}_RecursFromBeat`] = g.recurAt
-            control[`${s.name}_${g.name}_Docks`] = g.largest[g.largest.length - 1] ?? 0
+            control[`${s.name}_${g.name}_Docks`] =
+              g.largest[g.largest.length - 1] ?? 0
           } else {
-            control[`${s.name}_${g.name}_LargestPeriod8`] = g.largest[SCALE_PERIODS - 1] ?? 0
+            control[`${s.name}_${g.name}_LargestPeriod8`] =
+              g.largest[SCALE_PERIODS - 1] ?? 0
           }
         }
       }
 
       for (const g of s.composites) {
-        metrics[`${s.name}_${g.name}_LargestLastPeriod`] = g.largest[g.largest.length - 1] ?? 0
+        metrics[`${s.name}_${g.name}_LargestLastPeriod`] =
+          g.largest[g.largest.length - 1] ?? 0
         metrics[`${s.name}_${g.name}_PeriodsRun`] = g.largest.length
         metrics[`${s.name}_${g.name}_OverflowBeat`] = g.overflowAt
         metrics[`${s.name}_${g.name}_Exponent`] = round(g.exponent, 2)
@@ -430,15 +598,27 @@ export default experiment({
     }
 
     for (const f of fastest) {
-      metrics[`${f.name}FastestSeed_${f.seed}_Periods`] = f.extended.largest.length
-      metrics[`${f.name}FastestSeed_${f.seed}_LastLargest`] = f.extended.largest[f.extended.largest.length - 1] ?? 0
-      metrics[`${f.name}FastestSeed_${f.seed}_OverflowBeat`] = f.extended.overflowAt
-      metrics[`${f.name}FastestSeed_${f.seed}_Seconds`] = round(f.extended.seconds, 1)
-      metrics[`${f.name}FastestSeed_${f.seed}_Side9BoxLargestPeriod8`] = f.boxed.largest[SCALE_PERIODS - 1] ?? 0
+      metrics[`${f.name}FastestSeed_${f.seed}_Periods`] =
+        f.extended.largest.length
+
+      metrics[`${f.name}FastestSeed_${f.seed}_LastLargest`] =
+        f.extended.largest[f.extended.largest.length - 1] ?? 0
+
+      metrics[`${f.name}FastestSeed_${f.seed}_OverflowBeat`] =
+        f.extended.overflowAt
+
+      metrics[`${f.name}FastestSeed_${f.seed}_Seconds`] = round(
+        f.extended.seconds,
+        1,
+      )
+
+      metrics[`${f.name}FastestSeed_${f.seed}_Side9BoxLargestPeriod8`] =
+        f.boxed.largest[SCALE_PERIODS - 1] ?? 0
 
       f.extended.largest.forEach((x, p) => {
         control[`${f.name}Fastest_${f.seed}_Period${p + 1}`] = x
       })
+
       f.boxed.largest.forEach((x, p) => {
         control[`${f.name}Fastest_${f.seed}_Side9Period${p + 1}`] = x
       })
@@ -451,7 +631,7 @@ export default experiment({
       metrics,
       control,
       notes:
-        'L2, exact integers, no random numbers. The vacuum is computed from empty for every beat and never assumed periodic; the empty-return numbers are measured. Speedup: brute force on the smallest box holding the disturbance unwrapped (side = the support span in basis coordinates + 3) at brute force\'s best measured ns per dock, over the engine\'s ns per differing dock at that beat; brute force at that side is not run, its time is extrapolated from its flat per-dock cost. A support recurring exactly up to a shift after whole periods is a travelling particle forever (the rule and vacuum repeat), recorded as the beat it first recurs to; the signature is taken only while under 20,000 docks. The growth exponent is log(largest in period 8 / largest in period 4) / log 2. The side-9 box numbers are the same seed with the engine in box mode, i.e. the E-FRC-0125 instrument, which the box caps at 6,561 docks. The dressing probes in tmp/cmp-probe-survey were seen before these gates were written. The first run failed item 2 on two counts, both in the comparison, not the engine (box mode passed everywhere): it read each box dock at the representative of its coordinates nearest the centre, which misplaces a disturbance that has drifted off centre, so it now folds the unbounded docks into the box; and it gated at least 20 unbounded beats per seed, which no spreading seed can give on a box brute force can run (a root moves a basis coordinate by up to 2 per beat), so the gate was lowered to 2 after that run and the long runs rest on E-CMP-0016. A cost-per-dock note: the engine\'s ns per differing dock is about brute force\'s ns per dock, since both are the dock collision; the win is only in how many docks are touched.',
+        "L2, exact integers, no random numbers. The vacuum is computed from empty for every beat and never assumed periodic; the empty-return numbers are measured. Speedup: brute force on the smallest box holding the disturbance unwrapped (side = the support span in basis coordinates + 3) at brute force's best measured ns per dock, over the engine's ns per differing dock at that beat; brute force at that side is not run, its time is extrapolated from its flat per-dock cost. A support recurring exactly up to a shift after whole periods is a travelling particle forever (the rule and vacuum repeat), recorded as the beat it first recurs to; the signature is taken only while under 20,000 docks. The growth exponent is log(largest in period 8 / largest in period 4) / log 2. The side-9 box numbers are the same seed with the engine in box mode, i.e. the E-FRC-0125 instrument, which the box caps at 6,561 docks. The dressing probes in tmp/cmp-probe-survey were seen before these gates were written. The first run failed item 2 on two counts, both in the comparison, not the engine (box mode passed everywhere): it read each box dock at the representative of its coordinates nearest the centre, which misplaces a disturbance that has drifted off centre, so it now folds the unbounded docks into the box; and it gated at least 20 unbounded beats per seed, which no spreading seed can give on a box brute force can run (a root moves a basis coordinate by up to 2 per beat), so the gate was lowered to 2 after that run and the long runs rest on E-CMP-0016. A cost-per-dock note: the engine's ns per differing dock is about brute force's ns per dock, since both are the dock collision; the win is only in how many docks are touched.",
     })
   },
 })

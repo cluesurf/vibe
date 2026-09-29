@@ -142,7 +142,15 @@ export function evolution(input?: { M?: number }): {
   const rng = makeWeyl({ start: 0 })
   const target = randomBalanced(M, rng)
   const sel = evolve(true, M, P, G, mu, target, makeWeyl({ start: 0 }))
-  const drift = evolve(false, M, P, G, mu, target, makeWeyl({ start: 0 }))
+  const drift = evolve(
+    false,
+    M,
+    P,
+    G,
+    mu,
+    target,
+    makeWeyl({ start: 0 }),
+  )
 
   const startMean = sel.meanByGen[0]!
   const selectedFinal = sel.meanByGen[sel.meanByGen.length - 1]!

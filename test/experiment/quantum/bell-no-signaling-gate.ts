@@ -51,9 +51,28 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { advanceWhole, meetWhole, moveCoordinate, wholeLovesAndFears, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot, type KnotHistory } from '@/code/measure/knot-histories'
-import { alternatingChsh, enumeratedChsh, gridLines, marginal, marginalCounts, meetingObservables } from '@/code/measure/bell-gates'
+import {
+  advanceWhole,
+  meetWhole,
+  moveCoordinate,
+  wholeLovesAndFears,
+  type BeatRecord,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+  type KnotHistory,
+} from '@/code/measure/knot-histories'
+import {
+  alternatingChsh,
+  enumeratedChsh,
+  gridLines,
+  marginalCounts,
+  meetingObservables,
+} from '@/code/measure/bell-gates'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 
 const BEATS = 480
@@ -61,14 +80,25 @@ const ANCILLA = -1
 
 // the kernels a history's knot meets through, as { kernel, divisor } on (first, second), with a love-fear
 // kernel in both orders
-function kernelsOf(history: KnotHistory): { kernel: number[][]; divisor: number }[] {
+function kernelsOf(
+  history: KnotHistory,
+): { kernel: number[][]; divisor: number }[] {
   if (history.kernels.mode === 'swap') {
     return [{ kernel: history.kernels.kernel4, divisor: 4 }]
   }
 
-  const { like, likeDivisor, unlike, unlikeDivisor } = history.kernels.color
+  const { like, likeDivisor, unlike, unlikeDivisor } =
+    history.kernels.color
   const flip = (k: readonly (readonly number[])[]): number[][] =>
-    Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => k[(r % 9) * 9 + Math.floor(r / 9)]?.[(c % 9) * 9 + Math.floor(c / 9)] ?? 0))
+    Array.from({ length: 81 }, (_, r) =>
+      Array.from(
+        { length: 81 },
+        (__, c) =>
+          k[(r % 9) * 9 + Math.floor(r / 9)]?.[
+            (c % 9) * 9 + Math.floor(c / 9)
+          ] ?? 0,
+      ),
+    )
 
   return [
     { kernel: like.map(r => [...r]), divisor: likeDivisor },
@@ -78,7 +108,10 @@ function kernelsOf(history: KnotHistory): { kernel: number[][]; divisor: number 
 }
 
 // the first beat at or after `from` where the pair meets
-const nextMeeting = (records: readonly BeatRecord[], from: number): number => {
+const nextMeeting = (
+  records: readonly BeatRecord[],
+  from: number,
+): number => {
   for (let t = from; t < records.length; t++) {
     if ((records[t]?.meetings.length ?? 0) > 0) {
       return t
@@ -88,8 +121,14 @@ const nextMeeting = (records: readonly BeatRecord[], from: number): number => {
   return records.length
 }
 
-const same = (a: readonly bigint[], ua: bigint, b: readonly bigint[], ub: bigint): boolean => a.every((x, i) => x * ub === (b[i] ?? 0n) * ua)
-const unitsOf = (w: Whole): bigint => w.weight.reduce((s, x) => s + x, 0n)
+const same = (
+  a: readonly bigint[],
+  ua: bigint,
+  b: readonly bigint[],
+  ub: bigint,
+): boolean => a.every((x, i) => x * ub === (b[i] ?? 0n) * ua)
+const unitsOf = (w: Whole): bigint =>
+  w.weight.reduce((s, x) => s + x, 0n)
 
 // Alice's marginal of a knot of 2 or 3 tokens, Alice the first coordinate
 function aliceMarginal(w: Whole): bigint[] {
@@ -109,7 +148,7 @@ export default experiment({
   id: 'quantum/bell-no-signaling-gate',
   code: 'E-QTM-0111',
   title:
-    'no signaling on every Bell experiment of the fear beat: over 144 starts and every beat, no setting of one party, a grid move or a meeting with its own ancilla, moves the other party\'s counts before the two tokens meet again, while a kernel acting across the gap does; at the model\'s own settings (grid move, then read the role) the reading states stay at CHSH 2, and later knots pass it only by their fears, up to 62/27 = 2.296 as a signed count',
+    "no signaling on every Bell experiment of the fear beat: over 144 starts and every beat, no setting of one party, a grid move or a meeting with its own ancilla, moves the other party's counts before the two tokens meet again, while a kernel acting across the gap does; at the model's own settings (grid move, then read the role) the reading states stay at CHSH 2, and later knots pass it only by their fears, up to 62/27 = 2.296 as a signed count",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -118,6 +157,7 @@ export default experiment({
     const histories = bellHistories(BEATS)
     const { lines } = gridLines()
     const moves = histories[0]!.weave.moves
+
     let staticChecks = 0
     let staticMismatch = 0
     let gridChecks = 0
@@ -127,14 +167,22 @@ export default experiment({
     let contactChanges = 0
     let plainMax = Number.NEGATIVE_INFINITY
     let plainMaxAllStarts = Number.NEGATIVE_INFINITY
+
     const perHistory: Record<string, number> = {}
+
     let controlAll = true
 
     for (const h of histories) {
       const first = nextMeeting(h.records, 0)
       const reading = first + 1
       const after = nextMeeting(h.records, reading + 1)
-      const run = (start: Whole, from: number, to: number, visit: (w: Whole, t: number) => void): Whole => {
+
+      const run = (
+        start: Whole,
+        from: number,
+        to: number,
+        visit: (w: Whole, t: number) => void,
+      ): Whole => {
         let w = start
 
         for (let t = from; t < to && t < h.records.length; t++) {
@@ -144,18 +192,27 @@ export default experiment({
 
         return w
       }
+
       let controlStarts = 0
       let historyGrid = 0
       let historyContact = 0
       let historyPlainMax = Number.NEGATIVE_INFINITY
       let historyPlainAbove = 0
       let historyOwnMeetings = 0
-      let historyPlainBest = { value: Number.NEGATIVE_INFINITY, numerator: 0, units: 0, beat: -1, fears: 0 }
+      let historyPlainBest = {
+        value: Number.NEGATIVE_INFINITY,
+        numerator: 0,
+        units: 0,
+        beat: -1,
+        fears: 0,
+      }
 
       for (const a of lines) {
         for (const b of lines) {
           const start = lineKnot(h.tokens, a, b)
-          const own = a.every(p => Math.floor(p / 3) === h.start[0]) && b.every(p => Math.floor(p / 3) === h.start[1])
+          const own =
+            a.every(p => Math.floor(p / 3) === h.start[0]) &&
+            b.every(p => Math.floor(p / 3) === h.start[1])
           const trail: Whole[] = []
 
           // G1 over the whole history, and the plain CHSH value at every beat after a meeting (own start)
@@ -169,7 +226,11 @@ export default experiment({
 
               for (const mine of counts) {
                 staticChecks++
-                staticMismatch += mine.every(o => o.every((c, k) => c === mine[0]?.[k])) ? 0 : 1
+                staticMismatch += mine.every(o =>
+                  o.every((c, k) => c === mine[0]?.[k]),
+                )
+                  ? 0
+                  : 1
               }
             }
 
@@ -182,34 +243,57 @@ export default experiment({
               historyOwnMeetings++
 
               if (e.value > historyPlainBest.value) {
-                historyPlainBest = { value: e.value, numerator: Number(e.numerator), units: Number(e.units), beat: t, fears: Number(wholeLovesAndFears(p).fears) }
+                historyPlainBest = {
+                  value: e.value,
+                  numerator: Number(e.numerator),
+                  units: Number(e.units),
+                  beat: t,
+                  fears: Number(wholeLovesAndFears(p).fears),
+                }
               }
             }
           })
 
           const atReading = trail[reading] ?? start
 
-          plainMaxAllStarts = Math.max(plainMaxAllStarts, enumeratedChsh(physicalKnot(h, atReading).weight).value)
+          plainMaxAllStarts = Math.max(
+            plainMaxAllStarts,
+            enumeratedChsh(physicalKnot(h, atReading).weight).value,
+          )
 
           // G2 and G4: each of Bob's 216 grid moves at the reading beat
-          const baseline = trail.map(w => ({ m: aliceMarginal(physicalKnot(h, w)), u: unitsOf(w) }))
+          const baseline = trail.map(w => ({
+            m: aliceMarginal(physicalKnot(h, w)),
+            u: unitsOf(w),
+          }))
 
-          for (let g = 0; g < moves.act.length; g++) {
-            const moved = moveCoordinate(atReading, 1, moves.act[g] ?? [])
+          for (const act of moves.act) {
+            const moved = moveCoordinate(atReading, 1, act ?? [])
+
             let changedAfterContact = false
 
-            run(moved, reading + 1, Math.min(BEATS, after + 2), (w, t) => {
-              const m = aliceMarginal(physicalKnot(h, w))
-              const ok = same(m, unitsOf(w), baseline[t]?.m ?? [], baseline[t]?.u ?? 1n)
+            run(
+              moved,
+              reading + 1,
+              Math.min(BEATS, after + 2),
+              (w, t) => {
+                const m = aliceMarginal(physicalKnot(h, w))
+                const ok = same(
+                  m,
+                  unitsOf(w),
+                  baseline[t]?.m ?? [],
+                  baseline[t]?.u ?? 1n,
+                )
 
-              if (t < after) {
-                gridChecks++
-                gridMismatch += ok ? 0 : 1
-                historyGrid += ok ? 0 : 1
-              } else if (!ok) {
-                changedAfterContact = true
-              }
-            })
+                if (t < after) {
+                  gridChecks++
+                  gridMismatch += ok ? 0 : 1
+                  historyGrid += ok ? 0 : 1
+                } else if (!ok) {
+                  changedAfterContact = true
+                }
+              },
+            )
 
             contactChanges += changedAfterContact ? 1 : 0
             historyContact += changedAfterContact ? 1 : 0
@@ -217,9 +301,24 @@ export default experiment({
 
           // G5: the like kernel across the gap at the reading beat
           const kernel = kernelsOf(h)[0]!
-          const across = meetWhole({ whole: atReading, a: 0, b: 1, kernel4: kernel.kernel, divisor: kernel.divisor, fixed: false })
+          const across = meetWhole({
+            whole: atReading,
+            a: 0,
+            b: 1,
+            kernel4: kernel.kernel,
+            divisor: kernel.divisor,
+            fixed: false,
+          })
 
-          if (across && !same(aliceMarginal(physicalKnot(h, across)), unitsOf(across), baseline[reading]?.m ?? [], baseline[reading]?.u ?? 1n)) {
+          if (
+            across &&
+            !same(
+              aliceMarginal(physicalKnot(h, across)),
+              unitsOf(across),
+              baseline[reading]?.m ?? [],
+              baseline[reading]?.u ?? 1n,
+            )
+          ) {
             controlStarts++
           }
 
@@ -229,9 +328,20 @@ export default experiment({
               for (const line of lines) {
                 const three: Whole = {
                   tokens: [...h.tokens, ANCILLA],
-                  weight: Array.from({ length: 729 }, (_, i) => (line.includes(i % 9) ? (atReading.weight[Math.floor(i / 9)] ?? 0n) : 0n)),
+                  weight: Array.from({ length: 729 }, (_, i) =>
+                    line.includes(i % 9)
+                      ? (atReading.weight[Math.floor(i / 9)] ?? 0n)
+                      : 0n,
+                  ),
                 }
-                const met = meetWhole({ whole: three, a: 1, b: 2, kernel4: k, divisor, fixed: false })
+                const met = meetWhole({
+                  whole: three,
+                  a: 1,
+                  b: 2,
+                  kernel4: k,
+                  divisor,
+                  fixed: false,
+                })
 
                 if (!met) {
                   meetingMismatch++
@@ -243,12 +353,34 @@ export default experiment({
                 for (let t = reading + 1; t < after && t < BEATS; t++) {
                   w =
                     h.kernels.mode === 'swap'
-                      ? advanceWhole({ weave: h.weave, whole: w, record: h.records[t]!, kernel4: h.kernels.kernel4, fixed: false, forward: true })!
-                      : advanceWhole({ weave: h.weave, whole: w, record: h.records[t]!, kernel4: [], color: h.kernels.color, fixed: false, forward: true })!
+                      ? advanceWhole({
+                          weave: h.weave,
+                          whole: w,
+                          record: h.records[t]!,
+                          kernel4: h.kernels.kernel4,
+                          fixed: false,
+                          forward: true,
+                        })!
+                      : advanceWhole({
+                          weave: h.weave,
+                          whole: w,
+                          record: h.records[t]!,
+                          kernel4: [],
+                          color: h.kernels.color,
+                          fixed: false,
+                          forward: true,
+                        })!
 
                   // Alice's marginal in the physical convention: Alice is the first token, never conjugated
                   meetingChecks++
-                  meetingMismatch += same(aliceMarginal(w), unitsOf(w), baseline[t]?.m ?? [], baseline[t]?.u ?? 1n) ? 0 : 1
+                  meetingMismatch += same(
+                    aliceMarginal(w),
+                    unitsOf(w),
+                    baseline[t]?.m ?? [],
+                    baseline[t]?.u ?? 1n,
+                  )
+                    ? 0
+                    : 1
                 }
               }
             }
@@ -272,23 +404,38 @@ export default experiment({
       const physical = physicalKnot(h, own)
       const units = Number(unitsOf(physical))
       const observables = meetingObservables(kernelsOf(h))
-      const oneMeeting = alternatingChsh({ weight: physical.weight.map(x => Number(x) / units), alice: observables, bob: observables })
+      const oneMeeting = alternatingChsh({
+        weight: physical.weight.map(x => Number(x) / units),
+        alice: observables,
+        bob: observables,
+      })
 
       perHistory[`${h.name}_firstMeeting`] = first
       perHistory[`${h.name}_nextMeeting`] = after
-      perHistory[`${h.name}_fearsAtReading`] = Number(wholeLovesAndFears(physical).fears)
-      perHistory[`${h.name}_chshSeeSaw`] = roleChsh(roleDensity(physical))
-      perHistory[`${h.name}_chshPlainSettings`] = enumeratedChsh(physical.weight).value
+      perHistory[`${h.name}_fearsAtReading`] = Number(
+        wholeLovesAndFears(physical).fears,
+      )
+
+      perHistory[`${h.name}_chshSeeSaw`] = roleChsh(
+        roleDensity(physical),
+      )
+
+      perHistory[`${h.name}_chshPlainSettings`] = enumeratedChsh(
+        physical.weight,
+      ).value
       perHistory[`${h.name}_chshOneLocalMeeting`] = oneMeeting.value
       perHistory[`${h.name}_chshPlainMaxOverHistory`] = historyPlainMax
-      perHistory[`${h.name}_chshPlainMaxNumerator`] = historyPlainBest.numerator
+      perHistory[`${h.name}_chshPlainMaxNumerator`] =
+        historyPlainBest.numerator
       perHistory[`${h.name}_chshPlainMaxUnits`] = historyPlainBest.units
       perHistory[`${h.name}_chshPlainMaxBeat`] = historyPlainBest.beat
       perHistory[`${h.name}_chshPlainMaxFears`] = historyPlainBest.fears
-      perHistory[`${h.name}_meetingsAbove2AtPlainSettings`] = historyPlainAbove
+      perHistory[`${h.name}_meetingsAbove2AtPlainSettings`] =
+        historyPlainAbove
       perHistory[`${h.name}_ownStartMeetings`] = historyOwnMeetings
       perHistory[`${h.name}_gridMismatchBeforeContact`] = historyGrid
-      perHistory[`${h.name}_settingsChangingAliceAfterContact`] = historyContact
+      perHistory[`${h.name}_settingsChangingAliceAfterContact`] =
+        historyContact
       perHistory[`${h.name}_signalingControlStarts`] = controlStarts
     }
 
@@ -304,7 +451,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'on the six Bell histories (E-QTM-0100 swap and color, E-QTM-0109, E-FRC-0159 H and HF, E-RLT-0055) and all 144 line-product starts, no party\'s setting, a grid move or a meeting with its own ancilla, changes the other party\'s counts at any beat before the two tokens meet again, while a kernel acting across the gap does in every history; at the reading beats the knots read exactly 2 at the model\'s own settings, so the reported violations there need measurements outside them, while after more meetings the knots of E-QTM-0109, E-FRC-0159 and E-RLT-0055 pass 2 at the model\'s own settings, carried by fear (a non-negative knot at these settings is a local hidden-variable model and reads at most 2)',
+        "on the six Bell histories (E-QTM-0100 swap and color, E-QTM-0109, E-FRC-0159 H and HF, E-RLT-0055) and all 144 line-product starts, no party's setting, a grid move or a meeting with its own ancilla, changes the other party's counts at any beat before the two tokens meet again, while a kernel acting across the gap does in every history; at the reading beats the knots read exactly 2 at the model's own settings, so the reported violations there need measurements outside them, while after more meetings the knots of E-QTM-0109, E-FRC-0159 and E-RLT-0055 pass 2 at the model's own settings, carried by fear (a non-negative knot at these settings is a local hidden-variable model and reads at most 2)",
       metrics: {
         staticChecks,
         staticMismatch,
@@ -316,13 +463,19 @@ export default experiment({
         chshPlainMaxOwnStartEveryMeeting: plainMax,
         chshPlainMaxAllStartsAtReading: plainMaxAllStarts,
         ...perHistory,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         signalingControlEveryHistory: controlAll ? 1 : 0,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the largest plain CHSH over the own starts 2.2963 -> 2.5298 (rlt0055, beat 57 -> 78), meetings above 2 at the plain settings on rlt0055 43 -> 85, every no-signaling count unchanged. " + ('L2, exact BigInt knots, no random numbers: starts are the 144 products of grid lines, settings the 216 grid moves and the 12 x kernels one-meeting ancillas. Superdeterminism does not arise: the classical layer never reads the knot (fearBeat, combinedBeat and the cold beat take no whole), so every setting is independent of every start by construction, and the settings here are chosen outside the knit. The plain-settings CHSH is exact; the one-meeting value is a lower bound (alternating maximization from the 676 plain pairs).'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the largest plain CHSH over the own starts 2.2963 -> 2.5298 (rlt0055, beat 57 -> 78), meetings above 2 at the plain settings on rlt0055 43 -> 85, every no-signaling count unchanged. ' +
+        'L2, exact BigInt knots, no random numbers: starts are the 144 products of grid lines, settings the 216 grid moves and the 12 x kernels one-meeting ancillas. Superdeterminism does not arise: the classical layer never reads the knot (fearBeat, combinedBeat and the cold beat take no whole), so every setting is independent of every start by construction, and the settings here are chosen outside the knit. The plain-settings CHSH is exact; the one-meeting value is a lower bound (alternating maximization from the 676 plain pairs).',
     })
   },
 })

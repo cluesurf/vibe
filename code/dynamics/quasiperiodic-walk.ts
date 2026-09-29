@@ -38,7 +38,8 @@ export function quasiperiodicWalkSpread(input: {
 
   const { cosMass, sinMass } = massProfile({
     size,
-    massAt: x => mass + lambda * Math.cos(2 * Math.PI * GOLDEN * (x - x0)),
+    massAt: x =>
+      mass + lambda * Math.cos(2 * Math.PI * GOLDEN * (x - x0)),
   })
 
   for (let t = 0; t < steps; t++) {

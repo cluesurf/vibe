@@ -32,10 +32,54 @@
 // the rule.
 
 import { logLogSlope, quadraticFit } from '@/code/measure/regression'
-import { halfLevelCount, newTally, RADION_DEPTH, RADION_LEVELS, rhoOf, staticRun, LENS_AMP, LENS_BEATS, LENS_DETECTORS, LENS_HALF_WIDTH, LENS_LINE, LENS_SHEET, LENS_SOURCE_X, LENS_WINDOW, type Source } from '@/code/measure/radion'
-import { AMP, dockAt, HALF_WIDTH, halfMaxCentroid, LINE, LINE_WINDOW, lightSpeed, makeMedium, planarPacket, runPacket, SOURCE_X, type Run } from '@/code/measure/varying-depth-light'
-import { clockWaveBeat, clockWaveBeatBack, clockWaveFrom, clockWaveRule, emptyClockWave, sameClockWave, type ClockWaveRule, type ClockWaveState, type WaveForm } from '@/code/rule/depth-clock-wave'
-import { radionMesh, radionRule, radionWeight, type RadionMesh } from '@/code/rule/trit-radion'
+import {
+  halfLevelCount,
+  newTally,
+  RADION_DEPTH,
+  RADION_LEVELS,
+  rhoOf,
+  staticRun,
+  LENS_AMP,
+  LENS_BEATS,
+  LENS_DETECTORS,
+  LENS_HALF_WIDTH,
+  LENS_LINE,
+  LENS_SHEET,
+  LENS_SOURCE_X,
+  LENS_WINDOW,
+  type Source,
+} from '@/code/measure/radion'
+import {
+  AMP,
+  dockAt,
+  HALF_WIDTH,
+  halfMaxCentroid,
+  LINE,
+  LINE_WINDOW,
+  lightSpeed,
+  makeMedium,
+  planarPacket,
+  runPacket,
+  SOURCE_X,
+  type Run,
+} from '@/code/measure/varying-depth-light'
+import {
+  clockWaveBeat,
+  clockWaveBeatBack,
+  clockWaveFrom,
+  clockWaveRule,
+  emptyClockWave,
+  sameClockWave,
+  type ClockWaveRule,
+  type ClockWaveState,
+  type WaveForm,
+} from '@/code/rule/depth-clock-wave'
+import {
+  radionMesh,
+  radionRule,
+  radionWeight,
+  type RadionMesh,
+} from '@/code/rule/trit-radion'
 
 const Q0 = 2 * RADION_DEPTH + 1
 const wrap = (x: number, n: number): number => ((x % n) + n) % n
@@ -43,25 +87,51 @@ const wrap = (x: number, n: number): number => ((x % n) + n) % n
 // ---------------------------------------------------------------------------------------------------------
 // the field
 
-export type ArenaField = { content: number; field: number[]; depth: number[]; reversed: boolean }
+export type ArenaField = {
+  content: number
+  field: number[]
+  depth: number[]
+  reversed: boolean
+}
 
 let fieldCache: ArenaField | undefined
 
 export function arenaField(): ArenaField {
-  if (fieldCache) return fieldCache
+  if (fieldCache) {
+    return fieldCache
+  }
 
   const content = 1
   const mesh = radionMesh(LENS_LINE)
   const [sx, sy, sz] = LENS_LINE
   const sources: Source[] = []
 
-  for (let z = 0; z < sz; z++) for (let y = 0; y < sy; y++) sources.push({ at: [LENS_SHEET, y, z], to: [LENS_SHEET + sx / 2, y, z], units: content })
+  for (let z = 0; z < sz; z++) {
+    for (let y = 0; y < sy; y++) {
+      sources.push({
+        at: [LENS_SHEET, y, z],
+        to: [LENS_SHEET + sx / 2, y, z],
+        units: content,
+      })
+    }
+  }
 
   const tally = newTally()
-  const run = staticRun(mesh, radionRule(RADION_DEPTH, RADION_LEVELS), rhoOf(mesh, sources), LENS_BEATS, tally)
+  const run = staticRun(
+    mesh,
+    radionRule(RADION_DEPTH, RADION_LEVELS),
+    rhoOf(mesh, sources),
+    LENS_BEATS,
+    tally,
+  )
   const field = Array.from({ length: sx }, (_, x) => run.mean[x]!)
 
-  fieldCache = { content, field, depth: field.map(v => RADION_DEPTH + halfLevelCount(v)), reversed: tally.reversed }
+  fieldCache = {
+    content,
+    field,
+    depth: field.map(v => RADION_DEPTH + halfLevelCount(v)),
+    reversed: tally.reversed,
+  }
 
   return fieldCache
 }
@@ -70,17 +140,29 @@ export function arenaField(): ArenaField {
 // the wave's readers
 
 // the leapfrog energy density of each dock on the state's last two beats (the link term shared half and half)
-export function clockWaveDensity(mesh: RadionMesh, rule: ClockWaveRule, s: ClockWaveState): Float64Array {
+export function clockWaveDensity(
+  mesh: RadionMesh,
+  rule: ClockWaveRule,
+  s: ClockWaveState,
+): Float64Array {
   const e = new Float64Array(mesh.docks)
 
   for (let y = 0; y < mesh.docks; y++) {
     const v = s.now[y]! - s.lag[y]!
 
-    e[y] = e[y]! + (rule.inertia[y]! * v * v) / 2 + (rule.rest[y]! * s.now[y]! * s.lag[y]!) / 2
+    e[y] =
+      e[y]! +
+      (rule.inertia[y]! * v * v) / 2 +
+      (rule.rest[y]! * s.now[y]! * s.lag[y]!) / 2
 
     for (let h = 0; h < 9; h++) {
       const z = mesh.neighbour[y * 9 + h]!
-      const link = (rule.a * radionWeight(h) * (s.now[y]! - s.now[z]!) * (s.lag[y]! - s.lag[z]!)) / 4
+      const link =
+        (rule.a *
+          radionWeight(h) *
+          (s.now[y]! - s.now[z]!) *
+          (s.lag[y]! - s.lag[z]!)) /
+        4
 
       e[y] = e[y]! + link
       e[z] = e[z]! + link
@@ -91,7 +173,12 @@ export function clockWaveDensity(mesh: RadionMesh, rule: ClockWaveRule, s: Clock
 }
 
 // a bump at rest: X = floor(amp (w^2 - d^2)^2 / w^4) for |x - x0| < w, uniform in y and z, the lag equal
-export function restingLump(mesh: RadionMesh, x0: number, amp: number, w: number): ClockWaveState {
+export function restingLump(
+  mesh: RadionMesh,
+  x0: number,
+  amp: number,
+  w: number,
+): ClockWaveState {
   const s = emptyClockWave(mesh)
   const sx = mesh.sides[0]
   const w4 = w ** 4
@@ -128,13 +215,28 @@ export type FallRun = {
   reversed: boolean
 }
 
-export function fallRun(depthOf: (x: number) => number, form: WaveForm, x0: number, m: number, amp: number, w: number, beats: number): FallRun {
+export function fallRun(
+  depthOf: (x: number) => number,
+  form: WaveForm,
+  x0: number,
+  m: number,
+  amp: number,
+  w: number,
+  beats: number,
+): FallRun {
   const mesh = radionMesh(LENS_LINE)
   const sx = LENS_LINE[0]
-  const rule = clockWaveRule(mesh, y => depthOf(y % sx), m, form, RADION_DEPTH)
+  const rule = clockWaveRule(
+    mesh,
+    y => depthOf(y % sx),
+    m,
+    form,
+    RADION_DEPTH,
+  )
   const start = restingLump(mesh, x0, amp, w)
   const s = clockWaveFrom(start)
   const lap = new Int32Array(mesh.docks)
+
   const centroidOf = (e: Float64Array): number => {
     let ex = 0
     let es = 0
@@ -146,14 +248,19 @@ export function fallRun(depthOf: (x: number) => number, form: WaveForm, x0: numb
 
     return ex / es
   }
-  const total = (e: Float64Array): number => e.reduce((a, v) => a + v, 0)
+
+  const total = (e: Float64Array): number =>
+    e.reduce((a, v) => a + v, 0)
   const e0 = clockWaveDensity(mesh, rule, s)
   const centroid = [centroidOf(e0)]
+
   let eLast = total(e0)
 
   // the prediction from the depth map (uniform in y and z): u_0 and Q per x
   const inertiaAt = (x: number): number => rule.inertia[wrap(x, sx)]!
-  const u0 = (x: number): number => rule.rest[wrap(x, sx)]! / (4 * inertiaAt(x))
+  const u0 = (x: number): number =>
+    rule.rest[wrap(x, sx)]! / (4 * inertiaAt(x))
+
   let gw = 0
   let gc = 0
   let wsum = 0
@@ -177,9 +284,14 @@ export function fallRun(depthOf: (x: number) => number, form: WaveForm, x0: numb
     eLast = total(e)
   }
 
-  for (let t = 0; t < beats; t++) clockWaveBeatBack(mesh, rule, s, lap)
+  for (let t = 0; t < beats; t++) {
+    clockWaveBeatBack(mesh, rule, s, lap)
+  }
 
-  const fit = quadraticFit({ xs: centroid.map((_, t) => t), ys: centroid })
+  const fit = quadraticFit({
+    xs: centroid.map((_, t) => t),
+    ys: centroid,
+  })
 
   return {
     form,
@@ -197,14 +309,32 @@ export function fallRun(depthOf: (x: number) => number, form: WaveForm, x0: numb
   }
 }
 
-export type WaveArrival = { arrival: number[]; weight: number[]; reversed: boolean }
+export type WaveArrival = {
+  arrival: number[]
+  weight: number[]
+  reversed: boolean
+}
 
 // a massless bump of a form, at rest at x0, read at the detector docks by the half-maximum centroid of its energy
 // density (the -x half is kept out of the window by the caller's sizes)
-export function waveArrival(depthOf: (x: number) => number, form: WaveForm, x0: number, amp: number, w: number, detectors: readonly number[], window: number): WaveArrival {
+export function waveArrival(
+  depthOf: (x: number) => number,
+  form: WaveForm,
+  x0: number,
+  amp: number,
+  w: number,
+  detectors: readonly number[],
+  window: number,
+): WaveArrival {
   const mesh = radionMesh(LENS_LINE)
   const sx = LENS_LINE[0]
-  const rule = clockWaveRule(mesh, y => depthOf(y % sx), 0, form, RADION_DEPTH)
+  const rule = clockWaveRule(
+    mesh,
+    y => depthOf(y % sx),
+    0,
+    form,
+    RADION_DEPTH,
+  )
   const start = restingLump(mesh, x0, amp, w)
   const s = clockWaveFrom(start)
   const lap = new Int32Array(mesh.docks)
@@ -220,24 +350,44 @@ export function waveArrival(depthOf: (x: number) => number, form: WaveForm, x0: 
     })
   }
 
-  for (let t = 0; t < window; t++) clockWaveBeatBack(mesh, rule, s, lap)
+  for (let t = 0; t < window; t++) {
+    clockWaveBeatBack(mesh, rule, s, lap)
+  }
 
-  return { arrival: trace.map(halfMaxCentroid), weight: trace.map(r => r.reduce((a, v) => a + v, 0)), reversed: sameClockWave(s, start) }
+  return {
+    arrival: trace.map(halfMaxCentroid),
+    weight: trace.map(r => r.reduce((a, v) => a + v, 0)),
+    reversed: sameClockWave(s, start),
+  }
 }
 
 // the rest rate of the uniform lump at one depth: the clock form (or the span form, whose closed rate is the same) on
 // a small box with every dock equal, the upward zero
 // crossings of X (placed linearly between beats) over `beats`, and 2 pi over their mean spacing; and the reversal
-export function restRate(depth: number, m: number, amp: number, beats: number, form: WaveForm = 'clock'): { rate: number; closed: number; reversed: boolean } {
+export function restRate(
+  depth: number,
+  m: number,
+  amp: number,
+  beats: number,
+  form: WaveForm = 'clock',
+): { rate: number; closed: number; reversed: boolean } {
   const mesh = radionMesh([4, 2, 2])
   const rule = clockWaveRule(mesh, () => depth, m, form, RADION_DEPTH)
 
-  return { ...ruleRestRate(mesh, rule, amp, beats), closed: Math.acos(1 - m / (2 * 9 * (2 * depth + 1))) }
+  return {
+    ...ruleRestRate(mesh, rule, amp, beats),
+    closed: Math.acos(1 - m / (2 * 9 * (2 * depth + 1))),
+  }
 }
 
 // the rest rate of a uniform lump under any wave rule on a small uniform mesh: upward zero crossings of X at dock 0
 // (placed linearly between beats), 2 pi over their mean spacing; and the reversal, bit for bit
-export function ruleRestRate(mesh: RadionMesh, rule: ClockWaveRule, amp: number, beats: number): { rate: number; reversed: boolean } {
+export function ruleRestRate(
+  mesh: RadionMesh,
+  rule: ClockWaveRule,
+  amp: number,
+  beats: number,
+): { rate: number; reversed: boolean } {
   const s = emptyClockWave(mesh)
 
   s.now.fill(amp)
@@ -246,6 +396,7 @@ export function ruleRestRate(mesh: RadionMesh, rule: ClockWaveRule, amp: number,
   const start = clockWaveFrom(s)
   const lap = new Int32Array(mesh.docks)
   const ups: number[] = []
+
   let before = s.now[0]!
 
   for (let t = 1; t <= beats; t++) {
@@ -253,15 +404,23 @@ export function ruleRestRate(mesh: RadionMesh, rule: ClockWaveRule, amp: number,
 
     const now = s.now[0]!
 
-    if (before < 0 && now >= 0) ups.push(t - 1 + -before / (now - before))
+    if (before < 0 && now >= 0) {
+      ups.push(t - 1 + -before / (now - before))
+    }
+
     before = now
   }
 
-  for (let t = 0; t < beats; t++) clockWaveBeatBack(mesh, rule, s, lap)
+  for (let t = 0; t < beats; t++) {
+    clockWaveBeatBack(mesh, rule, s, lap)
+  }
 
   const period = (ups[ups.length - 1]! - ups[0]!) / (ups.length - 1)
 
-  return { rate: (2 * Math.PI) / period, reversed: sameClockWave(s, start) }
+  return {
+    rate: (2 * Math.PI) / period,
+    reversed: sameClockWave(s, start),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -279,9 +438,20 @@ export const MIRROR_AT = 48
 export const FALL_WIDTH = 24
 export const FALL_BEATS = 480
 
-export type LightSpeed = { depth: number; speed: number; closed: number; run: Run }
+export type LightSpeed = {
+  depth: number
+  speed: number
+  closed: number
+  run: Run
+}
 
-export type RestReading = { m: number; depth: number; rate: number; closed: number; reversed: boolean }
+export type RestReading = {
+  m: number
+  depth: number
+  rate: number
+  closed: number
+  reversed: boolean
+}
 
 export type PredictionSurvey = {
   light: LightSpeed[]
@@ -298,19 +468,39 @@ export type PredictionSurvey = {
 
 let predictionCache: PredictionSurvey | undefined
 
-export function predictionSurvey(log?: (what: string) => void): PredictionSurvey {
-  if (predictionCache) return predictionCache
+export function predictionSurvey(
+  log?: (what: string) => void,
+): PredictionSurvey {
+  if (predictionCache) {
+    return predictionCache
+  }
 
   const started = Date.now()
   const light = LIGHT_DEPTHS.map(depth => {
     const m = makeMedium(LINE, () => depth)
-    const run = runPacket(m, planarPacket(m, SOURCE_X, AMP, HALF_WIDTH), [dockAt(m, 60, 0, 0), dockAt(m, 100, 0, 0)], LINE_WINDOW)
+    const run = runPacket(
+      m,
+      planarPacket(m, SOURCE_X, AMP, HALF_WIDTH),
+      [dockAt(m, 60, 0, 0), dockAt(m, 100, 0, 0)],
+      LINE_WINDOW,
+    )
 
     log?.(`light D ${depth} ${(Date.now() - started) / 1000}s`)
 
-    return { depth, speed: 40 / (run.arrival[1]! - run.arrival[0]!), closed: lightSpeed(depth), run }
+    return {
+      depth,
+      speed: 40 / (run.arrival[1]! - run.arrival[0]!),
+      closed: lightSpeed(depth),
+      run,
+    }
   })
-  const rest = REST_TERMS.flatMap((m, i) => LIGHT_DEPTHS.map(depth => ({ m, depth, ...restRate(depth, m, REST_AMPS[i]!, REST_BEATS) })))
+  const rest = REST_TERMS.flatMap((m, i) =>
+    LIGHT_DEPTHS.map(depth => ({
+      m,
+      depth,
+      ...restRate(depth, m, REST_AMPS[i]!, REST_BEATS),
+    })),
+  )
   const qs = LIGHT_DEPTHS.map(d => 2 * d + 1)
   const lightSlope = logLogSlope(
     qs,
@@ -327,14 +517,59 @@ export function predictionSurvey(log?: (what: string) => void): PredictionSurvey
 
   log?.(`field ${(Date.now() - started) / 1000}s`)
 
-  const fall = REST_TERMS.map((m, i) => fallRun(depthOf, 'clock', FALL_AT, m, REST_AMPS[i]!, FALL_WIDTH, FALL_BEATS))
-  const uniform = fallRun(() => RADION_DEPTH, 'clock', FALL_AT, REST_TERMS[1]!, REST_AMPS[1]!, FALL_WIDTH, FALL_BEATS)
-  const column = fallRun(depthOf, 'column', FALL_AT, COLUMN_TERM, REST_AMPS[1]!, FALL_WIDTH, FALL_BEATS)
-  const mirror = fallRun(depthOf, 'clock', MIRROR_AT, REST_TERMS[1]!, REST_AMPS[1]!, FALL_WIDTH, FALL_BEATS)
+  const fall = REST_TERMS.map((m, i) =>
+    fallRun(
+      depthOf,
+      'clock',
+      FALL_AT,
+      m,
+      REST_AMPS[i]!,
+      FALL_WIDTH,
+      FALL_BEATS,
+    ),
+  )
+  const uniform = fallRun(
+    () => RADION_DEPTH,
+    'clock',
+    FALL_AT,
+    REST_TERMS[1]!,
+    REST_AMPS[1]!,
+    FALL_WIDTH,
+    FALL_BEATS,
+  )
+  const column = fallRun(
+    depthOf,
+    'column',
+    FALL_AT,
+    COLUMN_TERM,
+    REST_AMPS[1]!,
+    FALL_WIDTH,
+    FALL_BEATS,
+  )
+  const mirror = fallRun(
+    depthOf,
+    'clock',
+    MIRROR_AT,
+    REST_TERMS[1]!,
+    REST_AMPS[1]!,
+    FALL_WIDTH,
+    FALL_BEATS,
+  )
 
   log?.(`fall ${(Date.now() - started) / 1000}s`)
 
-  predictionCache = { light, rest, lightSlope, restSlope, field, fall, uniform, column, mirror, seconds: (Date.now() - started) / 1000 }
+  predictionCache = {
+    light,
+    rest,
+    lightSlope,
+    restSlope,
+    field,
+    fall,
+    uniform,
+    column,
+    mirror,
+    seconds: (Date.now() - started) / 1000,
+  }
 
   return predictionCache
 }
@@ -363,12 +598,22 @@ export type FactorReading = {
   uniformArrivals: number[]
 }
 
-export type LightSurvey = { field: ArenaField; husk: FactorReading; clock: FactorReading; metric: FactorReading; huskU0: Run; huskLens: Run; seconds: number }
+export type LightSurvey = {
+  field: ArenaField
+  husk: FactorReading
+  clock: FactorReading
+  metric: FactorReading
+  huskU0: Run
+  huskLens: Run
+  seconds: number
+}
 
 let lightCache: LightSurvey | undefined
 
 export function lightSurvey(log?: (what: string) => void): LightSurvey {
-  if (lightCache) return lightCache
+  if (lightCache) {
+    return lightCache
+  }
 
   const started = Date.now()
   const field = arenaField()
@@ -379,12 +624,30 @@ export function lightSurvey(log?: (what: string) => void): LightSurvey {
   const n = LENS_DETECTORS.length - 1
 
   // the lump's pull in a form, and the closed count sum (n_N - 1) / c0 with ln N = -(1/2) ln(q / q0)
-  const falls = (form: WaveForm): { fall: FallRun[]; pullScale: number } => {
-    const fall = REST_TERMS.map((m, i) => fallRun(depthOf, form, FALL_AT, m, REST_AMPS[i]!, FALL_WIDTH, FALL_BEATS))
+  const falls = (
+    form: WaveForm,
+  ): { fall: FallRun[]; pullScale: number } => {
+    const fall = REST_TERMS.map((m, i) =>
+      fallRun(
+        depthOf,
+        form,
+        FALL_AT,
+        m,
+        REST_AMPS[i]!,
+        FALL_WIDTH,
+        FALL_BEATS,
+      ),
+    )
 
-    return { fall, pullScale: fall.reduce((a, f) => a + f.g / f.gPredicted, 0) / fall.length }
+    return {
+      fall,
+      pullScale:
+        fall.reduce((a, f) => a + f.g / f.gPredicted, 0) / fall.length,
+    }
   }
+
   let closedCountDelay = 0
+
   const index = { husk: 0, clock: 0, metric: 0 }
 
   for (let x = first; x < last; x++) {
@@ -396,7 +659,15 @@ export function lightSurvey(log?: (what: string) => void): LightSurvey {
     index.metric += (s - 1) / c0
   }
 
-  const reading = (light: 'husk' | WaveForm, measuredDelay: number, eikonalDelay: number, pull: { fall: FallRun[]; pullScale: number }, reversed: boolean, arrivals: number[], uniformArrivals: number[]): FactorReading => ({
+  const reading = (
+    light: 'husk' | WaveForm,
+    measuredDelay: number,
+    eikonalDelay: number,
+    pull: { fall: FallRun[]; pullScale: number },
+    reversed: boolean,
+    arrivals: number[],
+    uniformArrivals: number[],
+  ): FactorReading => ({
     light,
     measuredDelay,
     eikonalDelay,
@@ -413,7 +684,12 @@ export function lightSurvey(log?: (what: string) => void): LightSurvey {
 
   // the husk light, against the clock form's lump
   const m0 = makeMedium(LENS_LINE, () => RADION_DEPTH)
-  const start = planarPacket(m0, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const start = planarPacket(
+    m0,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => dockAt(m0, x, 0, 0))
   const huskU0 = runPacket(m0, start, detectors, LENS_WINDOW)
   const huskLens = runPacket(
@@ -426,15 +702,56 @@ export function lightSurvey(log?: (what: string) => void): LightSurvey {
 
   log?.(`husk ${(Date.now() - started) / 1000}s`)
 
-  const husk = reading('husk', huskLens.arrival[n]! - huskLens.arrival[0]! - (huskU0.arrival[n]! - huskU0.arrival[0]!), index.husk, clockPull, huskU0.reversed && huskLens.reversed && huskU0.gauss === 0 && huskLens.gauss === 0, huskLens.arrival, huskU0.arrival)
+  const husk = reading(
+    'husk',
+    huskLens.arrival[n]! -
+      huskLens.arrival[0]! -
+      (huskU0.arrival[n]! - huskU0.arrival[0]!),
+    index.husk,
+    clockPull,
+    huskU0.reversed &&
+      huskLens.reversed &&
+      huskU0.gauss === 0 &&
+      huskLens.gauss === 0,
+    huskLens.arrival,
+    huskU0.arrival,
+  )
 
   // each form's own massless wave, against its own lump
-  const formReading = (form: WaveForm, pull: { fall: FallRun[]; pullScale: number }): FactorReading => {
-    const u = waveArrival(() => RADION_DEPTH, form, LENS_SOURCE_X, WAVE_AMP, WAVE_WIDTH, LENS_DETECTORS, LENS_WINDOW)
-    const l = waveArrival(depthOf, form, LENS_SOURCE_X, WAVE_AMP, WAVE_WIDTH, LENS_DETECTORS, LENS_WINDOW)
+  const formReading = (
+    form: WaveForm,
+    pull: { fall: FallRun[]; pullScale: number },
+  ): FactorReading => {
+    const u = waveArrival(
+      () => RADION_DEPTH,
+      form,
+      LENS_SOURCE_X,
+      WAVE_AMP,
+      WAVE_WIDTH,
+      LENS_DETECTORS,
+      LENS_WINDOW,
+    )
+    const l = waveArrival(
+      depthOf,
+      form,
+      LENS_SOURCE_X,
+      WAVE_AMP,
+      WAVE_WIDTH,
+      LENS_DETECTORS,
+      LENS_WINDOW,
+    )
 
-    return reading(form, l.arrival[n]! - l.arrival[0]! - (u.arrival[n]! - u.arrival[0]!), form === 'metric' ? index.metric : index.clock, pull, u.reversed && l.reversed, l.arrival, u.arrival)
+    return reading(
+      form,
+      l.arrival[n]! - l.arrival[0]! - (u.arrival[n]! - u.arrival[0]!),
+      form === 'metric' ? index.metric : index.clock,
+      pull,
+      u.reversed && l.reversed,
+      l.arrival,
+      u.arrival,
+    )
   }
+
   const clock = formReading('clock', clockPull)
 
   log?.(`clock ${(Date.now() - started) / 1000}s`)
@@ -443,7 +760,15 @@ export function lightSurvey(log?: (what: string) => void): LightSurvey {
 
   log?.(`metric ${(Date.now() - started) / 1000}s`)
 
-  lightCache = { field, husk, clock, metric, huskU0, huskLens, seconds: (Date.now() - started) / 1000 }
+  lightCache = {
+    field,
+    husk,
+    clock,
+    metric,
+    huskU0,
+    huskLens,
+    seconds: (Date.now() - started) / 1000,
+  }
 
   return lightCache
 }

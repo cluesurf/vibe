@@ -24,9 +24,17 @@
 // 1) for the axes, (2, 0, 0, 0) for the half vectors), so the C-even medium can couple no physical mode to a staggered
 // one at any k: E-RLT-0094's 3e-12.
 
-import { type CellOps, type CellSymmetry, actOn } from '@/code/measure/symmetry-transport'
+import {
+  type CellOps,
+  type CellSymmetry,
+  actOn,
+} from '@/code/measure/symmetry-transport'
 import { pairIndexPermutation } from '@/code/measure/pair-knit-linearization'
-import { translate, type BoxMaps, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  translate,
+  type BoxMaps,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 
 const N = 72
 
@@ -40,11 +48,13 @@ export type EvenOddSplit = {
 // a 72 x 72 dock matrix (row = output, column = input) split by charge conjugation
 export function evenOddSplit(m: Float64Array): EvenOddSplit {
   let evenOutOddIn = 0
+
   const evenBlock = new Float64Array(36 * 36)
 
   for (let p = 0; p < 36; p++) {
     for (let q = 0; q < 36; q++) {
-      const rowSum = (c: number): number => (m[2 * p * N + c] as number) + (m[(2 * p + 1) * N + c] as number)
+      const rowSum = (c: number): number =>
+        m[2 * p * N + c]! + m[(2 * p + 1) * N + c]!
       const odd = (rowSum(2 * q) - rowSum(2 * q + 1)) / 2
       const even = (rowSum(2 * q) + rowSum(2 * q + 1)) / 2
 
@@ -61,7 +71,7 @@ export function evenPart(v: Float64Array): Float64Array {
   const out = new Float64Array(v.length)
 
   for (let i = 0; i < v.length; i += 2) {
-    const m = ((v[i] as number) + (v[i + 1] as number)) / 2
+    const m = (v[i]! + v[i + 1]!) / 2
 
     out[i] = m
     out[i + 1] = m
@@ -71,19 +81,24 @@ export function evenPart(v: Float64Array): Float64Array {
 }
 
 // the largest |D E M0 v - E M0 D v| / |v| over C-even vectors v (the C-even quotient's commutation defect)
-export function evenCommutationDefect(ops: CellOps, g: CellSymmetry, vectors: readonly Float64Array[]): number {
+export function evenCommutationDefect(
+  ops: CellOps,
+  g: CellSymmetry,
+  vectors: readonly Float64Array[],
+): number {
   let worst = 0
 
   for (const raw of vectors) {
     const v = evenPart(raw)
     const a = actOn(g, evenPart(ops.period(v)))
     const b = evenPart(ops.period(actOn(g, v)))
+
     let r = 0
     let n = 0
 
     for (let i = 0; i < a.length; i++) {
-      r = Math.max(r, Math.abs((a[i] as number) - (b[i] as number)))
-      n = Math.max(n, Math.abs(v[i] as number))
+      r = Math.max(r, Math.abs(a[i]! - b[i]!))
+      n = Math.max(n, Math.abs(v[i]!))
     }
 
     worst = Math.max(worst, r / n)
@@ -93,18 +108,23 @@ export function evenCommutationDefect(ops: CellOps, g: CellSymmetry, vectors: re
 }
 
 // the full medium's commutation defect (as symmetry-transport commutationDefect)
-export function fullCommutationDefect(ops: CellOps, g: CellSymmetry, vectors: readonly Float64Array[]): number {
+export function fullCommutationDefect(
+  ops: CellOps,
+  g: CellSymmetry,
+  vectors: readonly Float64Array[],
+): number {
   let worst = 0
 
   for (const v of vectors) {
     const a = actOn(g, ops.period(v))
     const b = ops.period(actOn(g, v))
+
     let r = 0
     let n = 0
 
     for (let i = 0; i < a.length; i++) {
-      r = Math.max(r, Math.abs((a[i] as number) - (b[i] as number)))
-      n = Math.max(n, Math.abs(v[i] as number))
+      r = Math.max(r, Math.abs(a[i]! - b[i]!))
+      n = Math.max(n, Math.abs(v[i]!))
     }
 
     worst = Math.max(worst, r / n)
@@ -114,26 +134,48 @@ export function fullCommutationDefect(ops: CellOps, g: CellSymmetry, vectors: re
 }
 
 // the affine element x -> g x + t (t a cell of the box, as a translation), with charge conjugation when c = -1
-export function affineSymmetry(coins: CoinData, box: BoxMaps, g: number, t: number, c: number): CellSymmetry {
-  const lin = box.linear[g] as Int32Array
+export function affineSymmetry(
+  coins: CoinData,
+  box: BoxMaps,
+  g: number,
+  t: number,
+  c: number,
+): CellSymmetry {
+  const lin = box.linear[g]!
   const tv = box.coords[t] as number[]
-  const map = Int32Array.from({ length: box.cells }, (_, x) => translate(box, lin[x] as number, tv))
-  const base = pairIndexPermutation(coins.table.permutations[g] as number[])
+  const map = Int32Array.from({ length: box.cells }, (_, x) =>
+    translate(box, lin[x]!, tv),
+  )
+  const base = pairIndexPermutation(
+    coins.table.permutations[g] as number[],
+  )
 
-  return { map, index: c === 1 ? base : Int32Array.from(base, v => v ^ 1), matrix: [] }
+  return {
+    map,
+    index: c === 1 ? base : Int32Array.from(base, v => v ^ 1),
+    matrix: [],
+  }
 }
 
 // right cosets g K of a subgroup K of W(F4) (K given as members): the representative of each, and each element's coset
-export function rightCosets(coins: CoinData, K: readonly number[]): { reps: number[]; coset: Int32Array } {
+export function rightCosets(
+  coins: CoinData,
+  K: readonly number[],
+): { reps: number[]; coset: Int32Array } {
   const n = coins.table.permutations.length
   const coset = new Int32Array(n).fill(-1)
   const reps: number[] = []
 
   for (let g = 0; g < n; g++) {
-    if (coset[g] !== -1) continue
+    if (coset[g] !== -1) {
+      continue
+    }
 
     reps.push(g)
-    for (const k of K) coset[coins.table.multiply[g * n + k] as number] = reps.length - 1
+
+    for (const k of K) {
+      coset[coins.table.multiply[g * n + k]!] = reps.length - 1
+    }
   }
 
   return { reps, coset }
@@ -153,10 +195,19 @@ export type AffineGroupReading = {
 // Every affine element (g, t, c) of the side-4 cell tested against a medium (full or its C-even quotient), on right-
 // coset representatives of K, a group of point elements (t = 0, c = +1) already known to commute: membership is
 // constant on g K because (g, t, c) (k, 0, +1) = (g k, t, c).
-export function affineGroup(input: { coins: CoinData; box: BoxMaps; K: readonly number[]; defect: (g: CellSymmetry) => number; charges: readonly number[]; tolerance: number; log?: (s: string) => void }): AffineGroupReading {
+export function affineGroup(input: {
+  coins: CoinData
+  box: BoxMaps
+  K: readonly number[]
+  defect: (g: CellSymmetry) => number
+  charges: readonly number[]
+  tolerance: number
+  log?: (s: string) => void
+}): AffineGroupReading {
   const { coins, box, K, defect, charges, tolerance } = input
   const { reps, coset } = rightCosets(coins, K)
   const passing: { g: number; t: number; c: number }[] = []
+
   let tested = 0
   let worstPassing = 0
   let leastFailing = Number.POSITIVE_INFINITY
@@ -171,7 +222,9 @@ export function affineGroup(input: { coins: CoinData; box: BoxMaps; K: readonly 
         if (d < tolerance) {
           passing.push({ g, t, c })
           worstPassing = Math.max(worstPassing, d)
-        } else leastFailing = Math.min(leastFailing, d)
+        } else {
+          leastFailing = Math.min(leastFailing, d)
+        }
       }
     }
 
@@ -183,8 +236,20 @@ export function affineGroup(input: { coins: CoinData; box: BoxMaps; K: readonly 
 
   for (const p of passing) {
     translations.add(p.t)
-    for (let g = 0; g < coset.length; g++) if (coset[g] === coset[p.g]) linear.add(g)
+
+    for (let g = 0; g < coset.length; g++) {
+      if (coset[g] === coset[p.g]) {
+        linear.add(g)
+      }
+    }
   }
 
-  return { passing, tested, worstPassing, leastFailing, linear: [...linear].sort((a, b) => a - b), translations: [...translations].sort((a, b) => a - b) }
+  return {
+    passing,
+    tested,
+    worstPassing,
+    leastFailing,
+    linear: [...linear].sort((a, b) => a - b),
+    translations: [...translations].sort((a, b) => a - b),
+  }
 }

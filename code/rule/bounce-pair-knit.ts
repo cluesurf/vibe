@@ -53,18 +53,39 @@
 
 import { type ColorWeave } from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
-import { isometricTable, LINE_FIRSTS, LINE_OF, momentumKey, OPPOSITE, type MomentumTable } from '@/code/rule/isometric-knit'
-import { makePairKnit, type PairKnit } from '@/code/rule/pair-making-knit'
-import { collisionOrder, pairDock, type LivingSchedule, type LivingTally } from '@/code/rule/living-pair-knit'
+import {
+  isometricTable,
+  LINE_FIRSTS,
+  LINE_OF,
+  momentumKey,
+  OPPOSITE,
+  type MomentumTable,
+} from '@/code/rule/isometric-knit'
+import {
+  makePairKnit,
+  type PairKnit,
+} from '@/code/rule/pair-making-knit'
+import {
+  collisionOrder,
+  pairDock,
+  type LivingSchedule,
+  type LivingTally,
+} from '@/code/rule/living-pair-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { cloneStoreState, transformStoreState, type TokenStoreState } from '@/code/rule/token-store-knit'
+import {
+  cloneStoreState,
+  transformStoreState,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
 
 const ROOTS = rootsD4()
 const R0 = Int32Array.from(ROOTS, r => r[0] ?? 0)
 const R1 = Int32Array.from(ROOTS, r => r[1] ?? 0)
 const R2 = Int32Array.from(ROOTS, r => r[2] ?? 0)
 const R3 = Int32Array.from(ROOTS, r => r[3] ?? 0)
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 const LINE_OF_SLOT = Int32Array.from(LINE_OF)
 const OPPOSITE_SLOT = Int32Array.from(OPPOSITE)
 
@@ -79,7 +100,13 @@ export type CollisionKind = 'bounce' | 'lone' | 'isometric' | 'pass'
 // The dock permutation of B (or of K) for the dock's occupation (vibe[base .. base + 23], read as held or not),
 // written into `out` (out[d] is the slot slot d is copied to). Returns 0 when the permutation is the identity, 1 when
 // the isometric map acts on the non-full lines (w keeps F, or K), 2 when only the full lines turn (w does not keep F)
-export function bouncePermutation(table: MomentumTable, kind: CollisionKind, vibe: Int8Array, base: number, out: Int32Array): number {
+export function bouncePermutation(
+  table: MomentumTable,
+  kind: CollisionKind,
+  vibe: Int8Array,
+  base: number,
+  out: Int32Array,
+): number {
   let p0 = 0
   let p1 = 0
   let p2 = 0
@@ -88,33 +115,41 @@ export function bouncePermutation(table: MomentumTable, kind: CollisionKind, vib
   let singles = 0
 
   for (let l = 0; l < 12; l++) {
-    const f = LINE_FIRSTS[l] as number
-    const s = LINE_SECONDS[l] as number
+    const f = LINE_FIRSTS[l]!
+    const s = LINE_SECONDS[l]!
     const a = vibe[base + f] !== 0
     const b = vibe[base + s] !== 0
 
-    if (a && b) full |= 1 << l
-    else if (a) {
+    if (a && b) {
+      full |= 1 << l
+    } else if (a) {
       singles++
-      p0 += R0[f] as number
-      p1 += R1[f] as number
-      p2 += R2[f] as number
-      p3 += R3[f] as number
+      p0 += R0[f]!
+      p1 += R1[f]!
+      p2 += R2[f]!
+      p3 += R3[f]!
     } else if (b) {
       singles++
-      p0 += R0[s] as number
-      p1 += R1[s] as number
-      p2 += R2[s] as number
-      p3 += R3[s] as number
+      p0 += R0[s]!
+      p1 += R1[s]!
+      p2 += R2[s]!
+      p3 += R3[s]!
     }
   }
 
   const w = table[momentumKey([p0, p1, p2, p3])]
 
-  if (kind === 'isometric' || ((kind === 'lone' || kind === 'pass') && singles > 1)) {
-    if (!w) return 0
+  if (
+    kind === 'isometric' ||
+    ((kind === 'lone' || kind === 'pass') && singles > 1)
+  ) {
+    if (!w) {
+      return 0
+    }
 
-    for (let d = 0; d < 24; d++) out[d] = w[d] as number
+    for (let d = 0; d < 24; d++) {
+      out[d] = w[d]!
+    }
 
     return 1
   }
@@ -123,17 +158,30 @@ export function bouncePermutation(table: MomentumTable, kind: CollisionKind, vib
 
   if (w) {
     for (let l = 0; l < 12 && keeps; l++) {
-      if ((full >> l) & 1) keeps = ((full >> (LINE_OF_SLOT[w[LINE_FIRSTS[l] as number] as number] as number)) & 1) === 1
+      if ((full >> l) & 1) {
+        keeps = ((full >> LINE_OF_SLOT[w[LINE_FIRSTS[l]!]!]!) & 1) === 1
+      }
     }
   }
 
-  if (full === 0 && !w) return 0
+  if (full === 0 && !w) {
+    return 0
+  }
 
   for (let d = 0; d < 24; d++) {
-    const l = LINE_OF_SLOT[d] as number
-    const passes = kind === 'pass' && vibe[base + d] === vibe[base + (OPPOSITE_SLOT[d] as number)]
+    const l = LINE_OF_SLOT[d]!
+    const passes =
+      kind === 'pass' &&
+      vibe[base + d] === vibe[base + OPPOSITE_SLOT[d]!]
 
-    out[d] = (full >> l) & 1 ? (passes ? d : (OPPOSITE_SLOT[d] as number)) : w && keeps ? (w[d] as number) : d
+    out[d] =
+      (full >> l) & 1
+        ? passes
+          ? d
+          : OPPOSITE_SLOT[d]!
+        : w && keeps
+          ? w[d]!
+          : d
   }
 
   return w && keeps ? 1 : 2
@@ -147,8 +195,19 @@ export type BounceKnit = {
   readonly collision: CollisionKind
 }
 
-export function makeBounceKnit(weave: ColorWeave, schedule: LivingSchedule = 'alternate', veto = true, collision: CollisionKind = 'bounce'): BounceKnit {
-  return { weave, knit: makePairKnit({ mesh: weave.mesh }), schedule, veto, collision }
+export function makeBounceKnit(
+  weave: ColorWeave,
+  schedule: LivingSchedule = 'alternate',
+  veto = true,
+  collision: CollisionKind = 'bounce',
+): BounceKnit {
+  return {
+    weave,
+    knit: makePairKnit({ mesh: weave.mesh }),
+    schedule,
+    veto,
+    collision,
+  }
 }
 
 const PERM = new Int32Array(24)
@@ -156,49 +215,79 @@ const SCRATCH_V = new Int8Array(24)
 const SCRATCH_T = new Int32Array(24)
 
 // B (or K) on dock x, the tokens riding along
-export function bounceDock(k: BounceKnit, s: TokenStoreState, x: number): number {
+export function bounceDock(
+  k: BounceKnit,
+  s: TokenStoreState,
+  x: number,
+): number {
   const base = x * 24
-  const kind = bouncePermutation(k.knit.table, k.collision, s.vibe, base, PERM)
+  const kind = bouncePermutation(
+    k.knit.table,
+    k.collision,
+    s.vibe,
+    base,
+    PERM,
+  )
 
-  if (kind === 0) return 0
-
-  for (let d = 0; d < 24; d++) {
-    SCRATCH_V[PERM[d] as number] = s.vibe[base + d] as number
-    SCRATCH_T[PERM[d] as number] = s.token[base + d] as number
+  if (kind === 0) {
+    return 0
   }
 
   for (let d = 0; d < 24; d++) {
-    s.vibe[base + d] = SCRATCH_V[d] as number
-    s.token[base + d] = SCRATCH_T[d] as number
+    SCRATCH_V[PERM[d]!] = s.vibe[base + d]!
+    SCRATCH_T[PERM[d]!] = s.token[base + d]!
+  }
+
+  for (let d = 0; d < 24; d++) {
+    s.vibe[base + d] = SCRATCH_V[d]!
+    s.token[base + d] = SCRATCH_T[d]!
   }
 
   return kind
 }
 
 // beat t's collision on dock x, forward, or its inverse (the pieces in the other order, each its own inverse)
-export function bounceCollide(k: BounceKnit, s: TokenStoreState, x: number, t: number, inverse = false, tally?: LivingTally): void {
+export function bounceCollide(
+  k: BounceKnit,
+  s: TokenStoreState,
+  x: number,
+  t: number,
+  inverse = false,
+  tally?: LivingTally,
+): void {
   const order = collisionOrder(k.schedule, t)
   const pieces = inverse ? [...order].reverse() : order
 
   for (const piece of pieces) {
-    if (piece === 'P') pairDock(k, s, x, tally)
-    else bounceDock(k, s, x)
+    if (piece === 'P') {
+      pairDock(k, s, x, tally)
+    } else {
+      bounceDock(k, s, x)
+    }
   }
 }
 
 // the meetings of two open tokens: both slots of one line of a dock held, before the collision
-function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meetings: [number, number][], signs: [number, number][]): void {
+function meetingsOf(
+  s: TokenStoreState,
+  open: Uint8Array,
+  cells: number,
+  meetings: [number, number][],
+  signs: [number, number][],
+): void {
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (LINE_SECONDS[l] as number)
-      const a = s.vibe[i] as number
-      const b = s.vibe[j] as number
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + LINE_SECONDS[l]!
+      const a = s.vibe[i]!
+      const b = s.vibe[j]!
 
-      if (a === 0 || b === 0) continue
+      if (a === 0 || b === 0) {
+        continue
+      }
 
-      const ti = s.token[i] as number
-      const tj = s.token[j] as number
+      const ti = s.token[i]!
+      const tj = s.token[j]!
 
       if (open[ti] === 1 && open[tj] === 1) {
         meetings.push([ti, tj])
@@ -209,48 +298,69 @@ function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meeting
 }
 
 // the stream: every slot's vibe and token copied one dock along its root, each token's point moved by the link
-function stream(k: BounceKnit, s: TokenStoreState, open: Uint8Array, crossings: [number, number][]): TokenStoreState {
+function stream(
+  k: BounceKnit,
+  s: TokenStoreState,
+  open: Uint8Array,
+  crossings: [number, number][],
+): TokenStoreState {
   const { moves, links } = k.weave
   const vibe = new Int8Array(s.vibe.length)
   const token = new Int32Array(s.token.length)
 
   for (let slot = 0; slot < s.vibe.length; slot++) {
-    const tk = s.token[slot] as number
+    const tk = s.token[slot]!
     const g = links[slot] ?? moves.identity
-    const to = k.knit.target[slot] as number
+    const to = k.knit.target[slot]!
 
-    vibe[to] = s.vibe[slot] as number
+    vibe[to] = s.vibe[slot]!
     token[to] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
   return { ...s, vibe, token }
 }
 
-function unstream(k: BounceKnit, s: TokenStoreState, open: Uint8Array, crossings: [number, number][]): TokenStoreState {
+function unstream(
+  k: BounceKnit,
+  s: TokenStoreState,
+  open: Uint8Array,
+  crossings: [number, number][],
+): TokenStoreState {
   const { moves, links } = k.weave
   const vibe = new Int8Array(s.vibe.length)
   const token = new Int32Array(s.token.length)
 
   for (let slot = 0; slot < vibe.length; slot++) {
-    const from = k.knit.target[slot] as number
-    const tk = s.token[from] as number
-    const g = moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+    const from = k.knit.target[slot]!
+    const tk = s.token[from]!
+    const g =
+      moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
 
-    vibe[slot] = s.vibe[from] as number
+    vibe[slot] = s.vibe[from]!
     token[slot] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
   return { ...s, vibe, token }
 }
 
 // beat t forward: meetings, collision, stream
-export function bounceBeat(k: BounceKnit, state: TokenStoreState, open: Uint8Array, t: number, tally?: LivingTally): { state: TokenStoreState; record: BeatRecord } {
+export function bounceBeat(
+  k: BounceKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+  t: number,
+  tally?: LivingTally,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const s = cloneStoreState(state)
   const meetings: [number, number][] = []
@@ -259,18 +369,30 @@ export function bounceBeat(k: BounceKnit, state: TokenStoreState, open: Uint8Arr
 
   meetingsOf(s, open, cells, meetings, signs)
 
-  for (let x = 0; x < cells; x++) bounceCollide(k, s, x, t, false, tally)
+  for (let x = 0; x < cells; x++) {
+    bounceCollide(k, s, x, t, false, tally)
+  }
 
-  return { state: stream(k, s, open, crossings), record: { meetings, crossings, signs } }
+  return {
+    state: stream(k, s, open, crossings),
+    record: { meetings, crossings, signs },
+  }
 }
 
 // the exact inverse of beat t
-export function bounceBeatBack(k: BounceKnit, state: TokenStoreState, open: Uint8Array, t: number): { state: TokenStoreState; record: BeatRecord } {
+export function bounceBeatBack(
+  k: BounceKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+  t: number,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const crossings: [number, number][] = []
   const out = unstream(k, cloneStoreState(state), open, crossings)
 
-  for (let x = 0; x < cells; x++) bounceCollide(k, out, x, t, true)
+  for (let x = 0; x < cells; x++) {
+    bounceCollide(k, out, x, t, true)
+  }
 
   const meetings: [number, number][] = []
   const signs: [number, number][] = []
@@ -281,12 +403,21 @@ export function bounceBeatBack(k: BounceKnit, state: TokenStoreState, open: Uint
 }
 
 // the motion reversal T = S R ('alternate' and 'first'), or R then beat t's collision ('palindrome')
-export function bounceMotionReversal(k: BounceKnit, s: TokenStoreState, t: number): TokenStoreState {
-  const identityCells = Array.from({ length: k.weave.mesh.cellCount }, (_, x) => x)
+export function bounceMotionReversal(
+  k: BounceKnit,
+  s: TokenStoreState,
+  t: number,
+): TokenStoreState {
+  const identityCells = Array.from(
+    { length: k.weave.mesh.cellCount },
+    (_, x) => x,
+  )
   const reversed = transformStoreState(s, identityCells, OPPOSITE)
 
   if (k.schedule === 'palindrome') {
-    for (let x = 0; x < k.weave.mesh.cellCount; x++) bounceCollide(k, reversed, x, t)
+    for (let x = 0; x < k.weave.mesh.cellCount; x++) {
+      bounceCollide(k, reversed, x, t)
+    }
 
     return reversed
   }

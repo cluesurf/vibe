@@ -84,8 +84,23 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lightN } from '@/code/measure/drift-cost-bloch'
 import { meson, pairLevels } from '@/code/measure/string-binding'
-import { bandCurvature, followBand, loneTopVelocity, nrSeed, pairBand, readBand, settle, type BandLevel } from '@/code/measure/meson-band'
-import { bandMetric, followHeld, scaledStep, type BandMetric, type HeldTrack } from '@/code/measure/meson-scaled-step'
+import {
+  bandCurvature,
+  followBand,
+  loneTopVelocity,
+  nrSeed,
+  pairBand,
+  readBand,
+  settle,
+  type BandLevel,
+} from '@/code/measure/meson-band'
+import {
+  bandMetric,
+  followHeld,
+  scaledStep,
+  type BandMetric,
+  type HeldTrack,
+} from '@/code/measure/meson-scaled-step'
 
 const TAIL = 1e-3
 const EVEN = 0.5
@@ -105,7 +120,13 @@ const V_AGREE = 0.01
 const SAME = 1e-9
 const REL = 1e-6
 const UNITARY = 1e-12
-const STATED_PATH: Record<number, number> = { 1: 6, 2: 26, 4: 100, 8: 404, 16: 1612 }
+const STATED_PATH: Record<number, number> = {
+  1: 6,
+  2: 26,
+  4: 100,
+  8: 404,
+  16: 1612,
+}
 const RECORDED: Record<number, { energy: number; total: number }> = {
   1: { energy: 0.3188654375223234, total: 1.7929929817785346 },
   2: { energy: 0.19314564649226765, total: 1.1123371136062274 },
@@ -113,7 +134,10 @@ const RECORDED: Record<number, { energy: number; total: number }> = {
   8: { energy: 0.05213891233226967, total: 1.0061989649820842 },
   16: { energy: 0.026185373288082, total: 1.0026312481889854 },
 }
-const RECORDED_VELOCITY: Record<number, number> = { 1: 0.35354294409152126, 2: 0.8086259683792514 }
+const RECORDED_VELOCITY: Record<number, number> = {
+  1: 0.35354294409152126,
+  2: 0.8086259683792514,
+}
 
 type Point = {
   n: number
@@ -162,7 +186,9 @@ function levelAt(n: number, D: number): BandLevel {
   const m = meson(D, boxOf(D), n)
 
   if (DENSE_FINES.includes(n)) {
-    const e0 = pairLevels(m).levels.filter(l => l.parity === 0).sort((a, b) => a.unwrapped - b.unwrapped)[0]!
+    const e0 = pairLevels(m)
+      .levels.filter(l => l.parity === 0)
+      .sort((a, b) => a.unwrapped - b.unwrapped)[0]!
 
     return readBand(m, e0.block, e0.energy, 0)
   }
@@ -181,15 +207,21 @@ function readPoint(level: BandLevel, n: number): Point {
   const broke = track.findIndex((t, s) => s > 0 && t.overlap < HOLD)
   const last = broke === -1 ? track.length - 1 : broke - 1
   const bandHeld = broke === -1 || track[broke - 1]!.K >= kHold - 1e-12
+
   let least = 1
 
-  for (let s = 1; s < track.length; s++) if (track[s - 1]!.K < kHold - 1e-12) least = Math.min(least, track[s]!.overlap)
+  for (let s = 1; s < track.length; s++) {
+    if (track[s - 1]!.K < kHold - 1e-12) {
+      least = Math.min(least, track[s]!.overlap)
+    }
+  }
 
   let top = 0
   let topAt = 0
 
   for (let s = 1; s < last; s++) {
-    const v = Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) / (2 * step)
+    const v =
+      Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) / (2 * step)
 
     if (v > top) {
       top = v
@@ -197,7 +229,13 @@ function readPoint(level: BandLevel, n: number): Point {
     }
   }
 
-  const at = { K: 0, energy: level.unwrapped, overlap: 1, residual: level.residual, vector: level.block }
+  const at = {
+    K: 0,
+    energy: level.unwrapped,
+    overlap: 1,
+    residual: level.residual,
+    vector: level.block,
+  }
   const mass = 1 / bandCurvature(m, at, CURVE_FRAC * eRest)
   const massOld = 1 / bandCurvature(m, at, OLD_CURVE)
   const held = level.even >= EVEN && level.tailN <= TAIL && bandHeld
@@ -217,7 +255,10 @@ function readPoint(level: BandLevel, n: number): Point {
     kHold,
     least,
     brokeAt: broke === -1 ? -1 : track[broke]!.K,
-    firstRatio: track.length > 1 ? (1 - track[1]!.overlap) / ((metric.metric * step * step) / 2) : 0,
+    firstRatio:
+      track.length > 1
+        ? (1 - track[1]!.overlap) / ((metric.metric * step * step) / 2)
+        : 0,
     mass,
     massOld,
     eRest,
@@ -250,7 +291,8 @@ export default experiment({
     const f3 = (x: number): string => x.toFixed(3)
     const f4 = (x: number): string => x.toFixed(4)
     const e2 = (x: number): string => x.toExponential(2)
-    const log = (s: string): void => console.error(`${s}; at ${secs()} s`)
+    const log = (s: string): void =>
+      console.error(`${s}; at ${secs()} s`)
     const show = (p: Point): string =>
       `n ${p.n} D ${p.D} (box ${p.box}): ${p.held ? 'held' : 'NOT held'} E ${f4(p.energy)} tail ${e2(p.tail)} span ${f3(p.mean)} even ${f3(p.even)} g ${f3(p.metric.metric)} (Var(d) ${f3(p.metric.varianceD)}, g_B ${f3(p.metric.spin)}) step pi/${f3(Math.PI / p.step)} K_hold ${f4(p.kHold)} least ${f4(p.least)}${p.brokeAt >= 0 ? ` breaks at K ${f4(p.brokeAt)}` : ''} first-step loss/predicted ${f3(p.firstRatio)} m* ${f4(p.mass)} E_rest ${f4(p.eRest)} m*/E_rest ${f4(p.total)} (1e-2: ${f4(p.totalOld)}) top ${f4(p.top)} at K ${f3(p.topAt)} held to K ${f3(p.heldTo)} cos m ${f4(p.cosM)} residual ${e2(p.residual)}`
 
@@ -258,7 +300,9 @@ export default experiment({
     const path = FINES.map(n => ({ n, D: PATH_K * derivedD(n) }))
     const pathAsStated = path.every(p => p.D === STATED_PATH[p.n])
 
-    log(`path ${path.map(p => `(${p.n}, ${p.D})`).join(', ')}; as stated ${pathAsStated}`)
+    log(
+      `path ${path.map(p => `(${p.n}, ${p.D})`).join(', ')}; as stated ${pathAsStated}`,
+    )
 
     const points: Point[] = []
 
@@ -272,25 +316,41 @@ export default experiment({
     // K1
     const K1 = points.every(p => p.held)
     // K2
-    const falls = points.every((p, i) => i === 0 || p.total < points[i - 1]!.total)
+    const falls = points.every(
+      (p, i) => i === 0 || p.total < points[i - 1]!.total,
+    )
     const lastTotal = points[points.length - 1]!.total
     const K2 = K1 && falls && Math.abs(lastTotal - 1) <= TOTAL_TOL
     // K3
-    const rises = points.every((p, i) => i === 0 || p.top > points[i - 1]!.top)
-    const nearLone = points.every(p => Math.abs(p.top / p.cosM - 1) <= V_TOL)
+    const rises = points.every(
+      (p, i) => i === 0 || p.top > points[i - 1]!.top,
+    )
+    const nearLone = points.every(
+      p => Math.abs(p.top / p.cosM - 1) <= V_TOL,
+    )
     const K3 = K1 && rises && nearLone
 
     // ---- controls ----
     // C1: E-SPN-0113 at the path points
     const c1Rows = points.map(p => {
       const r = RECORDED[p.n]!
-      const ok = Math.abs(p.energy - r.energy) <= SAME && Math.abs(p.totalOld / r.total - 1) <= REL
+      const ok =
+        Math.abs(p.energy - r.energy) <= SAME &&
+        Math.abs(p.totalOld / r.total - 1) <= REL
 
-      return { n: p.n, D: p.D, energy: p.energy, totalOld: p.totalOld, ok }
+      return {
+        n: p.n,
+        D: p.D,
+        energy: p.energy,
+        totalOld: p.totalOld,
+        ok,
+      }
     })
     const c1 = c1Rows.every(r => r.ok)
 
-    log(`C1 ${c1Rows.map(r => `n ${r.n} D ${r.D}: E ${r.energy} m*/E_rest ${r.totalOld} ${r.ok}`).join('; ')}`)
+    log(
+      `C1 ${c1Rows.map(r => `n ${r.n} D ${r.D}: E ${r.energy} m*/E_rest ${r.totalOld} ${r.ok}`).join('; ')}`,
+    )
 
     // C2: no cost
     const free = points.map(p => {
@@ -299,16 +359,28 @@ export default experiment({
       if (DENSE_FINES.includes(p.n)) {
         const levels = pairLevels(m, false).levels
 
-        return { n: p.n, D: p.D, inside: levels.filter(l => l.tailN <= TAIL).length, least: Math.min(...levels.map(l => l.tailN)) }
+        return {
+          n: p.n,
+          D: p.D,
+          inside: levels.filter(l => l.tailN <= TAIL).length,
+          least: Math.min(...levels.map(l => l.tailN)),
+        }
       }
 
       const l = settle(m, nrSeed(m), undefined, false)
 
-      return { n: p.n, D: p.D, inside: l.tailN <= TAIL ? 1 : 0, least: l.tailN }
+      return {
+        n: p.n,
+        D: p.D,
+        inside: l.tailN <= TAIL ? 1 : 0,
+        least: l.tailN,
+      }
     })
     const c2 = free.every(f => f.inside === 0)
 
-    log(`C2 ${free.map(f => `n ${f.n} D ${f.D} inside ${f.inside} least tail ${e2(f.least)}`).join(', ')}: ${c2}`)
+    log(
+      `C2 ${free.map(f => `n ${f.n} D ${f.D} inside ${f.inside} least tail ${e2(f.least)}`).join(', ')}: ${c2}`,
+    )
 
     // C3: the scaled step against pi/64 at n = 1, 2
     const c3Rows = points
@@ -319,15 +391,31 @@ export default experiment({
         const now = followBand(m, p.level, [0, p.kHold], p.step)
         const oldHeld = old[old.length - 1]!.overlap >= HOLD
         const nowHeld = now[now.length - 1]!.overlap >= HOLD
-        const gap = Math.abs(old[old.length - 1]!.energy - now[now.length - 1]!.energy)
+        const gap = Math.abs(
+          old[old.length - 1]!.energy - now[now.length - 1]!.energy,
+        )
         const vGap = Math.abs(p.top / RECORDED_VELOCITY[p.n]! - 1)
-        const ok = oldHeld === nowHeld && (!oldHeld || gap <= SAME) && vGap <= V_AGREE
+        const ok =
+          oldHeld === nowHeld &&
+          (!oldHeld || gap <= SAME) &&
+          vGap <= V_AGREE
 
-        return { n: p.n, oldHeld, nowHeld, oldLeast: old[old.length - 1]!.overlap, nowLeast: now[now.length - 1]!.overlap, gap, vGap, ok }
+        return {
+          n: p.n,
+          oldHeld,
+          nowHeld,
+          oldLeast: old[old.length - 1]!.overlap,
+          nowLeast: now[now.length - 1]!.overlap,
+          gap,
+          vGap,
+          ok,
+        }
       })
     const c3 = c3Rows.every(r => r.ok)
 
-    log(`C3 ${c3Rows.map(r => `n ${r.n}: pi/64 held ${r.oldHeld} (${f4(r.oldLeast)}), scaled held ${r.nowHeld} (${f4(r.nowLeast)}), E(K_hold) gap ${e2(r.gap)}, top vs E-SPN-0113 ${e2(r.vGap)} ${r.ok}`).join('; ')}`)
+    log(
+      `C3 ${c3Rows.map(r => `n ${r.n}: pi/64 held ${r.oldHeld} (${f4(r.oldLeast)}), scaled held ${r.nowHeld} (${f4(r.nowLeast)}), E(K_hold) gap ${e2(r.gap)}, top vs E-SPN-0113 ${e2(r.vGap)} ${r.ok}`).join('; ')}`,
+    )
 
     // C4: instruments
     const leak = Math.max(...points.map(p => p.leak))
@@ -337,7 +425,11 @@ export default experiment({
     log(`C4 leak ${e2(leak)} unitarity ${e2(unitarity)}: ${c4}`)
 
     const control = c1 && c2 && c3 && c4 && pathAsStated
-    const status = !control ? 'partial' : K1 && K2 && K3 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : K1 && K2 && K3
+        ? 'pass'
+        : 'fail'
     const metrics: Record<string, number> = {
       K1: K1 ? 1 : 0,
       K2: K2 ? 1 : 0,
@@ -382,7 +474,11 @@ export default experiment({
       metrics[`${k}_lone`] = p.lone
       metrics[`${k}_residual`] = p.residual
     }
-    for (const f of free) metrics[`free_n${f.n}_D${f.D}_least`] = f.least
+
+    for (const f of free) {
+      metrics[`free_n${f.n}_D${f.D}_least`] = f.least
+    }
+
     for (const r of c3Rows) {
       metrics[`c3_n${r.n}_gap`] = r.gap
       metrics[`c3_n${r.n}_vGap`] = r.vGap
@@ -392,9 +488,21 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `${points.map(show).join('; ')}. K1 ${g(K1)}${K1 ? '' : ` (not held: ${points.filter(p => !p.held).map(p => `n ${p.n}`).join(', ')})`}; K2 ${g(K2)} (total ${points.map(p => f4(p.total)).join(', ')}); K3 ${g(K3)} (top ${points.map(p => f4(p.top)).join(', ')} against cos m ${points.map(p => f4(p.cosM)).join(', ')}). Controls: C1 ${c1}, C2 ${c2}, C3 ${c3}, C4 ${c4}`,
+      claim: `${points.map(show).join('; ')}. K1 ${g(K1)}${
+        K1
+          ? ''
+          : ` (not held: ${points
+              .filter(p => !p.held)
+              .map(p => `n ${p.n}`)
+              .join(', ')})`
+      }; K2 ${g(K2)} (total ${points.map(p => f4(p.total)).join(', ')}); K3 ${g(K3)} (top ${points.map(p => f4(p.top)).join(', ')} against cos m ${points.map(p => f4(p.cosM)).join(', ')}). Controls: C1 ${c1}, C2 ${c2}, C3 ${c3}, C4 ${c4}`,
       metrics,
-      control: { C1: c1 ? 1 : 0, C2: c2 ? 1 : 0, C3: c3 ? 1 : 0, C4: c4 ? 1 : 0 },
+      control: {
+        C1: c1 ? 1 : 0,
+        C2: c2 ? 1 : 0,
+        C3: c3 ? 1 : 0,
+        C4: c4 ? 1 : 0,
+      },
       notes: `L2. Steps ${points.map(p => `n ${p.n} pi/${f3(Math.PI / p.step)}`).join(', ')}. ${secs()} s.`,
     })
   },

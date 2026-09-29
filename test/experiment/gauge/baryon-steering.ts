@@ -63,14 +63,28 @@ const BARYON_STARTS = [
   [0, 3, 12, 21, 6, 17],
 ]
 const MESON = { signs: [1, -1], fluxes: [1] }
-const BARYONS = { signs: [1, 1, 1, -1, -1, -1], fluxes: [1, 2, 3, 2, 1] }
+const BARYONS = {
+  signs: [1, 1, 1, -1, -1, -1],
+  fluxes: [1, 2, 3, 2, 1],
+}
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
-const mean = (ps: number[][]): number[] => [0, 1, 2, 3].map(i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length)
-const average = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const mean = (ps: number[][]): number[] =>
+  [0, 1, 2, 3].map(
+    i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length,
+  )
+const average = (xs: number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
-function start(rule: ReflectingSlots, fill: number, signs: number[], fluxes: number[], slots: number[]): { state: ReflectingState; docks: number[] } {
+function start(
+  rule: ReflectingSlots,
+  fill: number,
+  signs: number[],
+  fluxes: number[],
+  slots: number[],
+): { state: ReflectingState; docks: number[] } {
   const docks = [Math.floor(rule.mesh.cellCount / 2)]
 
   for (let k = 1; k < signs.length; k++) {
@@ -86,15 +100,34 @@ function start(rule: ReflectingSlots, fill: number, signs: number[], fluxes: num
     state.sign[i] = signs[k] ?? 0
     state.tag[i] = k + 1
   })
-  fluxes.forEach((e, k) => (state.flux[rule.edgeAt[(docks[k] ?? 0) * 24] ?? 0] = e))
-  state.demon.set(Int32Array.from({ length: state.demon.length }, (_, l) => (((l + 1) * GOLDEN) % 1 < fill ? 1 : 0)))
+
+  fluxes.forEach(
+    (e, k) => (state.flux[rule.edgeAt[(docks[k] ?? 0) * 24] ?? 0] = e),
+  )
+
+  state.demon.set(
+    Int32Array.from({ length: state.demon.length }, (_, l) =>
+      ((l + 1) * GOLDEN) % 1 < fill ? 1 : 0,
+    ),
+  )
 
   return { state, docks }
 }
 
-type Run = { exact: boolean; meanGap: number; meanSpread: number; travel: number }
+type Run = {
+  exact: boolean
+  meanGap: number
+  meanSpread: number
+  travel: number
+}
 
-function run(rule: ReflectingSlots, fill: number, signs: number[], fluxes: number[], slots: number[]): Run {
+function run(
+  rule: ReflectingSlots,
+  fill: number,
+  signs: number[],
+  fluxes: number[],
+  slots: number[],
+): Run {
   const roots = rootsD4()
   const { state, docks } = start(rule, fill, signs, fluxes, slots)
   const at = docks.map((_, k) => (roots[0] ?? []).map(x => x * k))
@@ -110,15 +143,26 @@ function run(rule: ReflectingSlots, fill: number, signs: number[], fluxes: numbe
 
   for (let t = 0; t < BEATS; t++) {
     s = reflectBeat(rule, s, t)
-    exact = exact && reflectEnergy(rule, s) === e0 && reflectGaussHolds(rule, state, s) && s.demon.every(x => x >= 0)
+    exact =
+      exact &&
+      reflectEnergy(rule, s) === e0 &&
+      reflectGaussHolds(rule, state, s) &&
+      s.demon.every(x => x >= 0)
 
-    const next = signs.map((_, k) => Math.floor(s.tag.indexOf(k + 1) / 24))
+    const next = signs.map((_, k) =>
+      Math.floor(s.tag.indexOf(k + 1) / 24),
+    )
 
     next.forEach((x, k) => {
       if (x !== now[k]) {
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => rule.neighbour[(now[k] ?? 0) * 24 + i] === x) ?? -1
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => rule.neighbour[(now[k] ?? 0) * 24 + i] === x,
+          ) ?? -1
 
-        at[k] = (at[k] ?? []).map((v, i) => v + (roots[d]?.[i] ?? Number.NaN))
+        at[k] = (at[k] ?? []).map(
+          (v, i) => v + (roots[d]?.[i] ?? Number.NaN),
+        )
       }
     })
     now = next
@@ -127,33 +171,60 @@ function run(rule: ReflectingSlots, fill: number, signs: number[], fluxes: numbe
     const fears = at.filter((_, k) => (signs[k] ?? 0) < 0)
 
     gapSum += dist(mean(loves), mean(fears))
-    spreadSum += Math.max(...loves.map(p => Math.max(...loves.map(q => dist(p, q)))))
+    spreadSum += Math.max(
+      ...loves.map(p => Math.max(...loves.map(q => dist(p, q)))),
+    )
     travel = Math.max(travel, dist(mean(at), origin))
   }
 
-  return { exact, meanGap: gapSum / BEATS, meanSpread: spreadSum / BEATS, travel }
+  return {
+    exact,
+    meanGap: gapSum / BEATS,
+    meanSpread: spreadSum / BEATS,
+    travel,
+  }
 }
 
 // the mechanism tally on side 5, cold, lone steering
 function mechanism(): Record<string, number> {
-  const rule = makeReflectingSlots({ side: 5, mass: 4, tension: 1, turn: false, steer: 'folded', steerWhen: 'lone' })
+  const rule = makeReflectingSlots({
+    side: 5,
+    mass: 4,
+    tension: 1,
+    turn: false,
+    steer: 'folded',
+    steerWhen: 'lone',
+  })
   const tally: Record<string, number> = {}
   const add = (k: string): void => void (tally[k] = (tally[k] ?? 0) + 1)
+
   const linkOf = (x: number, d: number): number => {
     const o = rule.opposite[d] ?? d
 
-    return d < o ? (rule.edgeAt[x * 24 + d] ?? 0) : (rule.edgeAt[(rule.neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0)
+    return d < o
+      ? (rule.edgeAt[x * 24 + d] ?? 0)
+      : (rule.edgeAt[(rule.neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0)
   }
-  const strings = (s: ReflectingState, x: number): number => Array.from({ length: 24 }, (_, d) => d).filter(d => mod3(s.flux[linkOf(x, d)] ?? 0) !== 0).length
+
+  const strings = (s: ReflectingState, x: number): number =>
+    Array.from({ length: 24 }, (_, d) => d).filter(
+      d => mod3(s.flux[linkOf(x, d)] ?? 0) !== 0,
+    ).length
 
   for (const slots of BARYON_STARTS) {
-    let s = copyReflectingState(start(rule, COLD, BARYONS.signs, BARYONS.fluxes, slots).state)
+    let s = copyReflectingState(
+      start(rule, COLD, BARYONS.signs, BARYONS.fluxes, slots).state,
+    )
 
     for (let t = 0; t < BEATS; t++) {
-      const before = [1, 2, 3].map(k => Math.floor(s.tag.indexOf(k) / 24))
+      const before = [1, 2, 3].map(k =>
+        Math.floor(s.tag.indexOf(k) / 24),
+      )
       const counts = before.map(x => Math.min(2, strings(s, x)))
       const next = reflectBeat(rule, s, t)
-      const after = [1, 2, 3].map(k => Math.floor(next.tag.indexOf(k) / 24))
+      const after = [1, 2, 3].map(k =>
+        Math.floor(next.tag.indexOf(k) / 24),
+      )
 
       before.forEach((x, k) => {
         const y = after[k] ?? x
@@ -165,11 +236,16 @@ function mechanism(): Record<string, number> {
           return
         }
 
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => rule.neighbour[x * 24 + i] === y) ?? 0
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => rule.neighbour[x * 24 + i] === y,
+          ) ?? 0
         const was = mod3(s.flux[linkOf(x, d)] ?? 0) !== 0
         const is = mod3(next.flux[linkOf(x, d)] ?? 0) !== 0
 
-        add(`${key}${was && !is ? 'Shortened' : !was && is ? 'Stretched' : was && is ? 'Along' : 'Free'}`)
+        add(
+          `${key}${was && !is ? 'Shortened' : !was && is ? 'Stretched' : was && is ? 'Along' : 'Free'}`,
+        )
       })
 
       if (after[0] === after[1] && after[1] === after[2]) {
@@ -206,21 +282,46 @@ export default experiment({
   paper: false,
   run() {
     const tally = mechanism()
-    const shape = { side: SIDE, mass: 4, turn: false, steer: 'folded' as const }
+    const shape = {
+      side: SIDE,
+      mass: 4,
+      turn: false,
+      steer: 'folded' as const,
+    }
     const candidates = CANDIDATES.map(when => {
-      const rule = makeReflectingSlots({ ...shape, tension: 1, steerWhen: when })
+      const rule = makeReflectingSlots({
+        ...shape,
+        tension: 1,
+        steerWhen: when,
+      })
 
       return {
         when,
-        meson: MESON_STARTS.map(slots => run(rule, COLD, MESON.signs, MESON.fluxes, slots)),
-        baryon: BARYON_STARTS.map(slots => run(rule, COLD, BARYONS.signs, BARYONS.fluxes, slots)),
+        meson: MESON_STARTS.map(slots =>
+          run(rule, COLD, MESON.signs, MESON.fluxes, slots),
+        ),
+        baryon: BARYON_STARTS.map(slots =>
+          run(rule, COLD, BARYONS.signs, BARYONS.fluxes, slots),
+        ),
       }
     })
-    const free = makeReflectingSlots({ ...shape, tension: 0, steerWhen: 'lone' })
-    const controlMeson = MESON_STARTS.map(slots => run(free, COLD, MESON.signs, MESON.fluxes, slots))
-    const controlBaryon = BARYON_STARTS.map(slots => run(free, COLD, BARYONS.signs, BARYONS.fluxes, slots))
+    const free = makeReflectingSlots({
+      ...shape,
+      tension: 0,
+      steerWhen: 'lone',
+    })
+    const controlMeson = MESON_STARTS.map(slots =>
+      run(free, COLD, MESON.signs, MESON.fluxes, slots),
+    )
+    const controlBaryon = BARYON_STARTS.map(slots =>
+      run(free, COLD, BARYONS.signs, BARYONS.fluxes, slots),
+    )
 
-    const exact = [...candidates.flatMap(c => [...c.meson, ...c.baryon]), ...controlMeson, ...controlBaryon].every(r => r.exact)
+    const exact = [
+      ...candidates.flatMap(c => [...c.meson, ...c.baryon]),
+      ...controlMeson,
+      ...controlBaryon,
+    ].every(r => r.exact)
     const closes = candidates.filter(
       c =>
         c.when !== 'lone' &&
@@ -240,18 +341,39 @@ export default experiment({
         candidatesClosingTheGap: closes.length,
         ...Object.fromEntries(
           candidates.flatMap(c => [
-            [`${c.when}ColdBaryonSpread`, average(c.baryon.map(r => r.meanSpread))],
-            [`${c.when}ColdBaryonTravel`, average(c.baryon.map(r => r.travel))],
-            [`${c.when}ColdMesonGap`, average(c.meson.map(r => r.meanGap))],
-            [`${c.when}ColdMesonTravel`, average(c.meson.map(r => r.travel))],
+            [
+              `${c.when}ColdBaryonSpread`,
+              average(c.baryon.map(r => r.meanSpread)),
+            ],
+            [
+              `${c.when}ColdBaryonTravel`,
+              average(c.baryon.map(r => r.travel)),
+            ],
+            [
+              `${c.when}ColdMesonGap`,
+              average(c.meson.map(r => r.meanGap)),
+            ],
+            [
+              `${c.when}ColdMesonTravel`,
+              average(c.meson.map(r => r.travel)),
+            ],
           ]),
         ),
-        ...Object.fromEntries(Object.entries(tally).map(([k, v]) => [`mechanism${k.charAt(0).toUpperCase()}${k.slice(1)}`, v])),
+        ...Object.fromEntries(
+          Object.entries(tally).map(([k, v]) => [
+            `mechanism${k.charAt(0).toUpperCase()}${k.slice(1)}`,
+            v,
+          ]),
+        ),
       },
       control: {
-        tensionlessBaryonSpread: average(controlBaryon.map(r => r.meanSpread)),
+        tensionlessBaryonSpread: average(
+          controlBaryon.map(r => r.meanSpread),
+        ),
         tensionlessMesonGap: average(controlMeson.map(r => r.meanGap)),
-        tensionlessMesonTravel: average(controlMeson.map(r => r.travel)),
+        tensionlessMesonTravel: average(
+          controlMeson.map(r => r.travel),
+        ),
       },
       notes:
         "L2, exact integers, no random numbers. For comparison E-FRC-0131's cold baryon spread was 2.7 and E-FRC-0153's 8.1. The baryon is a chain, not a Y: with whole-number flux and Gauss's law, three strings can meet at an empty dock only as 1, 1 and -2, and the start has none; the junction count says how often one forms. A love crossing a link whose flux is 1 or 2 without making it a multiple of 3 moves along its string at no cost, so the middle member of the chain feels no pull toward either neighbor. Every steering condition here is an involution, so it turns a charge off a marked direction exactly when it would turn one onto it. Two results are identities, not findings: stretch steering is lone steering (a crossing makes a new string exactly where there was none, since a flux of 0 plus or minus 1 is never a multiple of 3), and for the meson retract steering gives lone's numbers. The mechanism tally (side 5, cold, lone): a member with two strings at its dock stayed 418 times and moved 36 (24 along a string, 9 shortening one, 3 stretching), a member with one stayed 1,889 and moved 112; the three loves shared one dock on 167 beats and an empty junction dock appeared on 102 dock-beats. The trade seen across E-FRC-0153, 0156 and here: steering that reads string per slot lets the meson walk and leaves the baryon loose; steering that reads it per line holds the baryon and keeps CPT but stops both from travelling.",

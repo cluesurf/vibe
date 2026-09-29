@@ -179,12 +179,18 @@ export default experiment({
       claim:
         'a packet built from the positive band of the walk dispersion cos E = cos m cos k follows the Ehrenfest trajectory, the centroid advancing each step by the group velocity averaged over its own momentum distribution at the midpoint momentum plus the shift of the band Berry connection, to under a billionth of a cell when free and under a hundredth of a cell under a slow constant force over sixty cells of travel, with the mean momentum equal to k0 - F t to machine precision, while a force of 0.8 per step leaves less than seventy percent of the weight in the band and the centroid five cells off the classical path, and the equal-chirality rest seed of the first probe, twenty-one percent negative-energy, lags the classical path by more than ten cells',
       metrics: {
-        freePositionError: Number(free.maxPositionError.toExponential(3)),
+        freePositionError: Number(
+          free.maxPositionError.toExponential(3),
+        ),
         slowPositionError: Number(slow.maxPositionError.toFixed(4)),
-        slowMomentumError: Number(slow.maxMomentumError.toExponential(3)),
+        slowMomentumError: Number(
+          slow.maxMomentumError.toExponential(3),
+        ),
         slowTravelled: Number(slow.travelled.toFixed(3)),
         slowPositiveBand: Number(slow.positiveBandEnd.toFixed(6)),
-        slowZenerLeak: Number((1 - slow.positiveBandEnd).toExponential(2)),
+        slowZenerLeak: Number(
+          (1 - slow.positiveBandEnd).toExponential(2),
+        ),
       },
       // CONTROL: a fast force (Landau-Zener leakage into the negative band) and the mixed-band rest seed both leave the classical trajectory
       control: {

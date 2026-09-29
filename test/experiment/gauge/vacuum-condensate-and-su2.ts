@@ -55,7 +55,7 @@ export default experiment({
   id: 'gauge/vacuum-condensate-and-su2',
   code: 'E-FRC-0143',
   title:
-    'the committed rule has a Higgs-like vacuum without a Higgs mechanism: of the 9! reversible maps of two vibes exactly 2 respect SU(2) (identity and swap) and every block of the rule respects only the charge U(1), so the arrow breaks SU(2) explicitly; the vacuum is a condensate of period 24 that occupies 10 of 12 lines and leaves one plane empty at every one of 24 birth phases and is carried to itself by the rule\'s reversal, so nothing is broken spontaneously; and the only exactly free lone tones are the 2 leading directions of that empty plane',
+    "the committed rule has a Higgs-like vacuum without a Higgs mechanism: of the 9! reversible maps of two vibes exactly 2 respect SU(2) (identity and swap) and every block of the rule respects only the charge U(1), so the arrow breaks SU(2) explicitly; the vacuum is a condensate of period 24 that occupies 10 of 12 lines and leaves one plane empty at every one of 24 birth phases and is carried to itself by the rule's reversal, so nothing is broken spontaneously; and the only exactly free lone tones are the 2 leading directions of that empty plane",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -99,7 +99,9 @@ export default experiment({
     const pairTable = identity.map(x => {
       const left = toneAt(x, 0)
       const right = toneAt(x, 1)
-      const [a, b] = PAIR_FORWARD[(left + 1) * 3 + (right + 1)] ?? [0, 0]
+      const [a, b] = PAIR_FORWARD[(left + 1) * 3 + (right + 1)] ?? [
+        0, 0,
+      ]
 
       return a + 1 + (b + 1) * 3
     })
@@ -119,6 +121,7 @@ export default experiment({
     const opposite = meshOpposites(d4Mesh({ side: 5 }))
     const schedule = turningWeave({ opposite })
     const probes = probeConfigurations({ degree: 24 })
+
     let blocks = 0
     let blocksChargeOnly = 0
 
@@ -153,15 +156,19 @@ export default experiment({
       beats: 2 * PERIOD,
       degree: 24,
     })
-    const same = (a: Int8Array | undefined, b: Int8Array | undefined): boolean =>
-      !!a && !!b && a.every((x, k) => x === b[k])
+    const same = (
+      a: Int8Array | undefined,
+      b: Int8Array | undefined,
+    ): boolean => !!a && !!b && a.every((x, k) => x === b[k])
     const period =
       [1, 2, 3, 4, 6, 8, 12, 24].find(p =>
         Array.from({ length: PERIOD }, (_, t) => t).every(t =>
           same(vacuum[t], vacuum[t + p]),
         ),
       ) ?? -1
-    const chargeZero = vacuum.every(v => v.reduce((s, x) => s + x, 0) === 0)
+    const chargeZero = vacuum.every(
+      v => v.reduce((s, x) => s + x, 0) === 0,
+    )
     const lines: [number, number][] = []
 
     for (let d = 0; d < 24; d++) {
@@ -184,35 +191,44 @@ export default experiment({
         degree: 24,
       }),
     ).filter(
-      trajectory => emptyLinesOf(trajectory).join(',') === emptyLines.join(','),
+      trajectory =>
+        emptyLinesOf(trajectory).join(',') === emptyLines.join(','),
     ).length
     // the reversal carries the condensate to itself: v_t = -v_(m - t) for every t
-    const mirrorPhases = Array.from({ length: PERIOD }, (_, m) => m).filter(
-      m =>
-        Array.from({ length: PERIOD }, (_, t) => t).every(t => {
-          const a = vacuum[t]
-          const b = vacuum[(((m - t) % PERIOD) + PERIOD) % PERIOD]
+    const mirrorPhases = Array.from(
+      { length: PERIOD },
+      (_, m) => m,
+    ).filter(m =>
+      Array.from({ length: PERIOD }, (_, t) => t).every(t => {
+        const a = vacuum[t]
+        const b = vacuum[(((m - t) % PERIOD) + PERIOD) % PERIOD]
 
-          return !!a && !!b && a.every((x, k) => x === -(b[k] ?? 0))
-        }),
+        return !!a && !!b && a.every((x, k) => x === -(b[k] ?? 0))
+      }),
     )
-    const occupiedBeats = lines.map(([a, b]) =>
-      vacuum
-        .slice(0, PERIOD)
-        .filter(v => v[a] !== 0 || v[b] !== 0).length,
+    const occupiedBeats = lines.map(
+      ([a, b]) =>
+        vacuum.slice(0, PERIOD).filter(v => v[a] !== 0 || v[b] !== 0)
+          .length,
     )
     // the empty plane as a two-form, split into its su(2)_L and su(2)_R halves
     const roots = rootsD4()
-    const planeRoots = emptyLines.map(l => roots[lines[l]?.[0] ?? 0] ?? [])
+    const planeRoots = emptyLines.map(
+      l => roots[lines[l]?.[0] ?? 0] ?? [],
+    )
+
     const unit = (v: readonly number[]): number[] => {
       const n = Math.hypot(...v)
 
       return v.map(x => x / n)
     }
+
     const u = unit(planeRoots[0] ?? [1, 0, 0, 0])
     const w = unit(planeRoots[1] ?? [0, 1, 0, 0])
     const plane = [0, 1, 2, 3].map(i =>
-      [0, 1, 2, 3].map(j => (u[i] ?? 0) * (w[j] ?? 0) - (w[i] ?? 0) * (u[j] ?? 0)),
+      [0, 1, 2, 3].map(
+        j => (u[i] ?? 0) * (w[j] ?? 0) - (w[i] ?? 0) * (u[j] ?? 0),
+      ),
     )
     const planeSplit = selfDualSplit(plane)
 
@@ -255,7 +271,9 @@ export default experiment({
     }
 
     const emptyDirections = emptyLines.flatMap(l => lines[l] ?? [])
-    const freeOnEmpty = free.filter(d => emptyDirections.includes(d)).length
+    const freeOnEmpty = free.filter(d =>
+      emptyDirections.includes(d),
+    ).length
 
     const ok =
       identityDimension === 3 &&

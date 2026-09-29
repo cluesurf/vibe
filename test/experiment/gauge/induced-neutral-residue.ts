@@ -66,24 +66,39 @@ const SIGNS: readonly [number, number][] = [
 ]
 
 // Jacobi eigenvalues and vectors of a small symmetric matrix (measurement)
-function eigenSymmetric(a0: number[][]): { values: number[]; vectors: number[][] } {
+function eigenSymmetric(a0: number[][]): {
+  values: number[]
+  vectors: number[][]
+} {
   const n = a0.length
   const a = a0.map(r => r.slice())
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
+  )
 
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
 
-    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i]![j]! ** 2
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        off += a[i]![j]! ** 2
+      }
+    }
 
-    if (off < 1e-40) break
+    if (off < 1e-40) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
-        if (Math.abs(a[p]![q]!) < 1e-300) continue
+        if (Math.abs(a[p]![q]!) < 1e-300) {
+          continue
+        }
 
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -114,7 +129,10 @@ function eigenSymmetric(a0: number[][]): { values: number[]; vectors: number[][]
     }
   }
 
-  return { values: a.map((r, i) => r[i]!), vectors: Array.from({ length: n }, (_, j) => v.map(r => r[j]!)) }
+  return {
+    values: a.map((r, i) => r[i]!),
+    vectors: Array.from({ length: n }, (_, j) => v.map(r => r[j]!)),
+  }
 }
 
 function slope(xs: number[], ys: number[]): number {
@@ -122,6 +140,7 @@ function slope(xs: number[], ys: number[]): number {
   const ly = ys.map(Math.log)
   const mx = lx.reduce((a, b) => a + b, 0) / lx.length
   const my = ly.reduce((a, b) => a + b, 0) / ly.length
+
   let num = 0
   let den = 0
 
@@ -145,14 +164,35 @@ export default experiment({
   run() {
     const started = Date.now()
     const distances = Array.from({ length: 16 }, (_, d) => d)
-    const green = infiniteGreenDifferences('husk', 64, distances.map(d => [d, 0, 0]))
+    const green = infiniteGreenDifferences(
+      'husk',
+      64,
+      distances.map(d => [d, 0, 0]),
+    )
     const V = (d: number): number => green.value[Math.abs(d)]!
     const scale = Math.PI / DEPTH
     // the cross energy of lump 1 (f1 at 0, -f1 at s1) and lump 2 (f2 at r, -f2 at r + s2)
-    const cross = (f1: number, f2: number, s1: number, s2: number, r: number): number =>
-      -scale * (f1 * f2 * V(r) - f1 * f2 * V(r + s2) - f1 * f2 * V(r - s1) + f1 * f2 * V(r + s2 - s1))
+    const cross = (
+      f1: number,
+      f2: number,
+      s1: number,
+      s2: number,
+      r: number,
+    ): number =>
+      -scale *
+      (f1 * f2 * V(r) -
+        f1 * f2 * V(r + s2) -
+        f1 * f2 * V(r - s1) +
+        f1 * f2 * V(r + s2 - s1))
+
     let worstResidual = 0
-    const W = (f1: number, f2: number, r: number, t: number): number => {
+
+    const W = (
+      f1: number,
+      f2: number,
+      r: number,
+      t: number,
+    ): number => {
       // basis (s1, s2): (+,+), (+,-), (-,+), (-,-)
       const states: [number, number][] = [
         [1, 1],
@@ -162,14 +202,18 @@ export default experiment({
       ]
       const h = states.map((a, i) =>
         states.map((b, j) => {
-          if (i === j) return cross(f1, f2, a[0], a[1], r)
+          if (i === j) {
+            return cross(f1, f2, a[0], a[1], r)
+          }
 
-          const flips = (a[0] !== b[0] ? 1 : 0) + (a[1] !== b[1] ? 1 : 0)
+          const flips =
+            (a[0] !== b[0] ? 1 : 0) + (a[1] !== b[1] ? 1 : 0)
 
           return flips === 1 ? -t : 0
         }),
       )
       const { values, vectors } = eigenSymmetric(h)
+
       let k = 0
 
       values.forEach((v, i) => (k = v < values[k]! ? i : k))
@@ -179,32 +223,59 @@ export default experiment({
       for (let i = 0; i < 4; i++) {
         const hv = h[i]!.reduce((a, x, j) => a + x * vec[j]!, 0)
 
-        worstResidual = Math.max(worstResidual, Math.abs(hv - values[k]! * vec[i]!))
+        worstResidual = Math.max(
+          worstResidual,
+          Math.abs(hv - values[k]! * vec[i]!),
+        )
       }
 
       return values[k]! + 2 * t
     }
-    const blindOf = (g: (f1: number, f2: number) => number): number => SIGNS.reduce((a, [f1, f2]) => a + g(f1, f2), 0) / 4
-    const fixedBlind = RS.map(r => blindOf((f1, f2) => cross(f1, f2, 1, 1, r)))
+
+    const blindOf = (g: (f1: number, f2: number) => number): number =>
+      SIGNS.reduce((a, [f1, f2]) => a + g(f1, f2), 0) / 4
+    const fixedBlind = RS.map(r =>
+      blindOf((f1, f2) => cross(f1, f2, 1, 1, r)),
+    )
     const B = RS.map(r => blindOf((f1, f2) => W(f1, f2, r, T)))
-    const oddShare = RS.map((r, i) => Math.max(...SIGNS.map(([f1, f2]) => Math.abs(W(f1, f2, r, T) - B[i]!))) / Math.abs(B[i]!))
+    const oddShare = RS.map(
+      (r, i) =>
+        Math.max(
+          ...SIGNS.map(([f1, f2]) => Math.abs(W(f1, f2, r, T) - B[i]!)),
+        ) / Math.abs(B[i]!),
+    )
     const degenerate = RS.map(r =>
       blindOf((f1, f2) =>
         Math.min(...SIGNS.map(([s1, s2]) => cross(f1, f2, s1, s2, r))),
       ),
     )
     // second order: the dipole-dipole coupling K is the s1 s2 part of V_cross
-    const K = RS.map(r => SIGNS.reduce((a, [s1, s2]) => a + s1 * s2 * cross(1, 1, s1, s2, r), 0) / 4)
+    const K = RS.map(
+      r =>
+        SIGNS.reduce(
+          (a, [s1, s2]) => a + s1 * s2 * cross(1, 1, s1, s2, r),
+          0,
+        ) / 4,
+    )
     const pt2 = K.map(k => -(k * k) / (4 * T))
-    const g1 = fixedBlind.every(x => Math.abs(x) < 1e-15) && worstResidual < 1e-14
-    const g2 = B.every(x => x < 0) && B.every((x, i) => i === 0 || x > B[i - 1]!)
-    const far = RS.map((r, i) => [r, B[i]!] as const).filter(([r]) => r >= 6)
-    const slopeFar = slope(far.map(([r]) => r), far.map(([, b]) => Math.abs(b)))
+    const g1 =
+      fixedBlind.every(x => Math.abs(x) < 1e-15) &&
+      worstResidual < 1e-14
+    const g2 =
+      B.every(x => x < 0) && B.every((x, i) => i === 0 || x > B[i - 1]!)
+    const far = RS.map((r, i) => [r, B[i]!] as const).filter(
+      ([r]) => r >= 6,
+    )
+    const slopeFar = slope(
+      far.map(([r]) => r),
+      far.map(([, b]) => Math.abs(b)),
+    )
     const slopeAll = slope(RS, B.map(Math.abs))
     const g3 = slopeFar >= -1.2 && slopeFar <= -0.8
     const status = !g1 ? 'partial' : g2 && g3 ? 'pass' : 'fail'
     const degenerateSlope = slope(RS, degenerate.map(Math.abs))
-    const list = (xs: number[], d = 3): string => xs.map(x => x.toExponential(d)).join(', ')
+    const list = (xs: number[], d = 3): string =>
+      xs.map(x => x.toExponential(d)).join(', ')
     const metrics: Record<string, number> = {
       gate_V1: g1 ? 1 : 0,
       gate_V2: g2 ? 1 : 0,
@@ -215,12 +286,20 @@ export default experiment({
       slopeAll,
       degenerateSlope,
       worstOddShare: Math.max(...oddShare),
-      greenImageChange: Math.max(...distances.map((_, i) => Math.abs(green.large[i]! - green.small[i]!))),
+      greenImageChange: Math.max(
+        ...distances.map((_, i) =>
+          Math.abs(green.large[i]! - green.small[i]!),
+        ),
+      ),
     }
 
     // readings added after the first run (tmp/frc0253-run1.log), gates unchanged: each sign pattern, and the
     // first-order part the odd share comes from, the s-averaged cross energy (the lumps' mean charge distributions)
-    const firstOrder = RS.map(r => SIGNS.reduce((a, [s1, s2]) => a + cross(1, 1, s1, s2, r), 0) / 4)
+    const firstOrder = RS.map(
+      r =>
+        SIGNS.reduce((a, [s1, s2]) => a + cross(1, 1, s1, s2, r), 0) /
+        4,
+    )
 
     RS.forEach((r, i) => {
       metrics[`W_pp_r${r}`] = W(1, 1, r, T)
@@ -241,7 +320,10 @@ export default experiment({
       status,
       claim: `two neutral two-level lumps on the husk x axis reading the light's static form (D 32, tunneling 2 pi / 1024): the charge-blind part of their interaction is ${list(B)} at r = 4 .. 12, falling as r^${slopeFar.toFixed(2)} over 6 .. 12 (r^${slopeAll.toFixed(2)} over 4 .. 12); fixed lumps give a charge-blind part of at most ${metrics.worstFixedBlind!.toExponential(1)}; degenerate lumps (t = 0) ${list(degenerate)}, r^${degenerateSlope.toFixed(2)}`,
       metrics,
-      control: { fixedBlind: metrics.worstFixedBlind!, degenerateSlope },
+      control: {
+        fixedBlind: metrics.worstFixedBlind!,
+        degenerateSlope,
+      },
       notes: `L1 (V1), L2 (V2, V3). Gates V1 ${g1}, V2 ${g2}, V3 ${g3}. Per r = 4 .. 12: B r^6 ${RS.map((r, i) => (B[i]! * r ** 6).toExponential(4)).join(', ')}; second-order -K^2 / (4 t) ${list(pt2)}; the four sign patterns' largest departure from B, as a share of |B|: ${oddShare.map(x => x.toExponential(2)).join(', ')}; the Green's difference's change between the two tori at most ${metrics.greenImageChange!.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },

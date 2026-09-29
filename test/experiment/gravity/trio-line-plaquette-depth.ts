@@ -121,13 +121,55 @@ import { d4BoxCell } from '@/code/substrate/d4-box-integer'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { huskFaces, plaquetteRule } from '@/code/rule/line-plaquette'
 import { huskDistances } from '@/code/measure/plaquette-readings'
-import { addHuskFlux, bulkLinks, huskCast, lineRunner, routeUnits } from '@/code/measure/energy-lines'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, fitRing, levelPlacement, ringCenter, ringColumns } from '@/code/measure/held-cluster'
+import {
+  addHuskFlux,
+  bulkLinks,
+  huskCast,
+  lineRunner,
+  routeUnits,
+} from '@/code/measure/energy-lines'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  ringCenter,
+  ringColumns,
+} from '@/code/measure/held-cluster'
 import type { PieceOptions } from '@/code/measure/bound-line'
-import { lineGauge, placeCutFramed } from '@/code/measure/permutation-meeting'
-import { depthReading, readSectors, ringHuskFlux, ringLinks, sectorBeat, sectorDensity, type DepthReading, type Sectors } from '@/code/measure/trio-energy-lines'
-import { armScratch, ballGauss, curlEnergy, expectedString, feedArm, fieldSplit, lineShare, plaquetteArm, reverseArm, wholeLines, type PlaquetteArm } from '@/code/measure/line-plaquette'
+import {
+  lineGauge,
+  placeCutFramed,
+} from '@/code/measure/permutation-meeting'
+import {
+  depthReading,
+  readSectors,
+  ringHuskFlux,
+  ringLinks,
+  sectorBeat,
+  sectorDensity,
+  type DepthReading,
+  type Sectors,
+} from '@/code/measure/trio-energy-lines'
+import {
+  armScratch,
+  ballGauss,
+  curlEnergy,
+  expectedString,
+  feedArm,
+  fieldSplit,
+  lineShare,
+  plaquetteArm,
+  reverseArm,
+  wholeLines,
+  type PlaquetteArm,
+} from '@/code/measure/line-plaquette'
 
 const BOX = 12
 const P = 40
@@ -167,7 +209,13 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
     const placed = levelPlacement(basis, level.cre, level.cim)
@@ -184,16 +232,33 @@ export default experiment({
     const fit = fitRing(placed, L)
     const links = ringLinks(f.tables, ring)
     const cast = huskCast(bulkLinks(f.tables), husk)
-    const c0 = Math.round(ringCenter(blochPacket(basis, L, level.cre, level.cim, true).density())) % L
-    const col = husk.column[ring.docks[c0] as number] as number
+    const c0 =
+      Math.round(
+        ringCenter(
+          blochPacket(basis, L, level.cre, level.cim, true).density(),
+        ),
+      ) % L
+    const col = husk.column[ring.docks[c0]!]!
     const sink = (c0 + L / 2) % L
-    const sinkCol = husk.column[ring.docks[sink] as number] as number
+    const sinkCol = husk.column[ring.docks[sink]!]!
     const dist = huskDistances(SIDE, col)
-    const onLine = new Set<number>(Array.from(links.bulk, b => cast.link[b] as number))
-    const options: PieceOptions = { cost: true, sign: true, unit: 0, flat: false }
-    let sectors: Sectors = new Map([[0, placeCutFramed(gauge, fit.kept, P, 'parallel')]])
+    const onLine = new Set<number>(
+      Array.from(links.bulk, b => cast.link[b]!),
+    )
+    const options: PieceOptions = {
+      cost: true,
+      sign: true,
+      unit: 0,
+      flat: false,
+    }
+
+    let sectors: Sectors = new Map([
+      [0, placeCutFramed(gauge, fit.kept, P, 'parallel')],
+    ])
+
     const r0 = readSectors(L, sink, sectors, false)
     const lines = Float64Array.from(r0.gauss)
+
     const toHusk = (ringField: Float64Array): Float64Array => {
       const out = new Float64Array(husk.columns * 9)
 
@@ -206,44 +271,92 @@ export default experiment({
     const rule3 = plaquetteRule(A, Q, LEVELS, WHOLE_MOD3)
     const moving = plaquetteArm(mesh, faces, rule, toHusk(lines), true)
     const bare = plaquetteArm(mesh, faces, rule, toHusk(lines), false)
-    const mod3 = plaquetteArm(mesh, faces, rule3, toHusk(expectedString(L, sink, sectors)), true)
+    const mod3 = plaquetteArm(
+      mesh,
+      faces,
+      rule3,
+      toHusk(expectedString(L, sink, sectors)),
+      true,
+    )
     const scratch = armScratch(mesh, faces)
     const arms: [string, PlaquetteArm][] = [
       ['moving', moving],
       ['bare', bare],
       ['mod3', mod3],
     ]
-    const sums = new Map(arms.map(([n]) => [n, { s64: new Float64Array(husk.columns * 9), s128: new Float64Array(husk.columns * 9) }]))
+    const sums = new Map(
+      arms.map(([n]) => [
+        n,
+        {
+          s64: new Float64Array(husk.columns * 9),
+          s128: new Float64Array(husk.columns * 9),
+        },
+      ]),
+    )
     const curlNow = new Float64Array(faces.count)
     const curlPrev = new Float64Array(faces.count)
     const curlMean = new Float64Array(faces.count)
     const sumDensity64 = new Float64Array(L)
+
     let movingLargestLine = 0
     let movingLargestTurn = 0
+
     const inBall = (c: Float64Array): number => {
       let s = 0
 
-      for (let q = 0; q < faces.count; q++) if ((dist[faces.dock[q] as number] as number) <= P3_RADIUS) s += (c[q] as number) ** 2
+      for (let q = 0; q < faces.count; q++) {
+        if (dist[faces.dock[q]!]! <= P3_RADIUS) {
+          s += c[q]! ** 2
+        }
+      }
 
       return s
     }
-    const e0 = curlEnergy(faces, wholeLines(moving), dist, P3_RADIUS, curlPrev)
-    const e30 = curlEnergy(faces, wholeLines(mod3), dist, P3_RADIUS, new Float64Array(faces.count))
+
+    const e0 = curlEnergy(
+      faces,
+      wholeLines(moving),
+      dist,
+      P3_RADIUS,
+      curlPrev,
+    )
+    const e30 = curlEnergy(
+      faces,
+      wholeLines(mod3),
+      dist,
+      P3_RADIUS,
+      new Float64Array(faces.count),
+    )
     const p3Base = e0.inside
+
     let p3Late = 0
     let p3LateBeat = 0
     let p3Beats = 0
     let p1BallGap = 0
     let p1BallRel = 0
     let p1BallOff = 0
+
     const timeline: string[] = []
+
     const report = (t: number): void => {
       const wm = wholeLines(moving)
       const w3 = wholeLines(mod3)
       const sm = fieldSplit(mesh, SIDE, wm, dist, P3_RADIUS)
       const s3 = fieldSplit(mesh, SIDE, w3, dist, P3_RADIUS)
-      const cm = curlEnergy(faces, wm, dist, P3_RADIUS, new Float64Array(faces.count))
-      const c3 = curlEnergy(faces, w3, dist, P3_RADIUS, new Float64Array(faces.count))
+      const cm = curlEnergy(
+        faces,
+        wm,
+        dist,
+        P3_RADIUS,
+        new Float64Array(faces.count),
+      )
+      const c3 = curlEnergy(
+        faces,
+        w3,
+        dist,
+        P3_RADIUS,
+        new Float64Array(faces.count),
+      )
       const lm = lineShare(wm, onLine)
       const l3 = lineShare(w3, onLine)
 
@@ -259,27 +372,57 @@ export default experiment({
 
       const r = readSectors(L, sink, sectors, true)
 
-      for (let k = 0; k < L; k++) lines[k]! += r.drag[k] as number
+      for (let k = 0; k < L; k++) {
+        lines[k]! += r.drag[k]!
+      }
 
       const target = toHusk(lines)
 
       feedArm(mesh, faces, moving, target, scratch)
       feedArm(mesh, faces, bare, target, scratch)
-      feedArm(mesh, faces, mod3, toHusk(expectedString(L, sink, sectors)), scratch)
+      feedArm(
+        mesh,
+        faces,
+        mod3,
+        toHusk(expectedString(L, sink, sectors)),
+        scratch,
+      )
 
       // P1's balls
       const dens = sectorDensity(L, sectors)
       const content = ringColumns(husk, ring, dens)
 
-      if (t <= WINDOW) for (let x = 0; x < L; x++) sumDensity64[x]! += dens[x] as number
+      if (t <= WINDOW) {
+        for (let x = 0; x < L; x++) {
+          sumDensity64[x]! += dens[x]!
+        }
+      }
+
       content[sinkCol]! -= 3
 
       const wm = wholeLines(moving)
 
-      for (const v of wm) movingLargestLine = Math.max(movingLargestLine, Math.abs(v))
-      for (const v of moving.state.face) movingLargestTurn = Math.max(movingLargestTurn, Math.abs(v) / rule.unit)
+      for (const v of wm) {
+        movingLargestLine = Math.max(movingLargestLine, Math.abs(v))
+      }
 
-      const bg =ballGauss(mesh, wm, content, dist, sinkCol, BALL_TOP, P1_RELATIVE, P1_FLOOR)
+      for (const v of moving.state.face) {
+        movingLargestTurn = Math.max(
+          movingLargestTurn,
+          Math.abs(v) / rule.unit,
+        )
+      }
+
+      const bg = ballGauss(
+        mesh,
+        wm,
+        content,
+        dist,
+        sinkCol,
+        BALL_TOP,
+        P1_RELATIVE,
+        P1_FLOOR,
+      )
 
       p1BallGap = Math.max(p1BallGap, bg.gap)
       p1BallRel = Math.max(p1BallRel, bg.relative)
@@ -287,12 +430,17 @@ export default experiment({
 
       // P3: the two-beat mean's curl near the source
       curlEnergy(faces, wm, dist, P3_RADIUS, curlNow)
-      for (let q = 0; q < faces.count; q++) curlMean[q] = ((curlNow[q] as number) + (curlPrev[q] as number)) / 2
+
+      for (let q = 0; q < faces.count; q++) {
+        curlMean[q] = (curlNow[q]! + curlPrev[q]!) / 2
+      }
+
       if (t >= P3_FROM) {
         p3Late += inBall(curlMean)
         p3LateBeat += inBall(curlNow)
         p3Beats++
       }
+
       curlPrev.set(curlNow)
 
       for (const [n, arm] of arms) {
@@ -300,24 +448,58 @@ export default experiment({
         const s = sums.get(n)!
 
         for (let l = 0; l < w.length; l++) {
-          if (t <= WINDOW) s.s64[l]! += w[l] as number
-          s.s128[l]! += w[l] as number
+          if (t <= WINDOW) {
+            s.s64[l]! += w[l]!
+          }
+
+          s.s128[l]! += w[l]!
         }
       }
 
-      if (REPORT.includes(t)) report(t)
+      if (REPORT.includes(t)) {
+        report(t)
+      }
     }
 
-    const avg = (n: string, beats: number): Float64Array => Float64Array.from(beats === WINDOW ? sums.get(n)!.s64 : sums.get(n)!.s128, v => v / beats)
-    const readM64 = depthReading(SIDE, col, avg('moving', WINDOW), REF, FIT_R)
-    const readM128 = depthReading(SIDE, col, avg('moving', BEATS), REF, FIT_R)
-    const readB64 = depthReading(SIDE, col, avg('bare', WINDOW), REF, FIT_R)
-    const read364 = depthReading(SIDE, col, avg('mod3', WINDOW), REF, FIT_R)
+    const avg = (n: string, beats: number): Float64Array =>
+      Float64Array.from(
+        beats === WINDOW ? sums.get(n)!.s64 : sums.get(n)!.s128,
+        v => v / beats,
+      )
+    const readM64 = depthReading(
+      SIDE,
+      col,
+      avg('moving', WINDOW),
+      REF,
+      FIT_R,
+    )
+    const readM128 = depthReading(
+      SIDE,
+      col,
+      avg('moving', BEATS),
+      REF,
+      FIT_R,
+    )
+    const readB64 = depthReading(
+      SIDE,
+      col,
+      avg('bare', WINDOW),
+      REF,
+      FIT_R,
+    )
+    const read364 = depthReading(
+      SIDE,
+      col,
+      avg('mod3', WINDOW),
+      REF,
+      FIT_R,
+    )
     const avgLine = lineShare(avg('moving', WINDOW), onLine)
     const avgLine3 = lineShare(avg('mod3', WINDOW), onLine)
     const energy = sumDensity64.reduce((s, v) => s + v, 0) / WINDOW
     const target = (TARGET_K * energy) / 3
-    const within = (d: DepthReading, k: number): boolean => Math.abs(d.k / k - 1) <= G2_TOLERANCE
+    const within = (d: DepthReading, k: number): boolean =>
+      Math.abs(d.k / k - 1) <= G2_TOLERANCE
 
     // ---- CONTROL-: E-GRV-0107's seeded pair, its dragged lines in the bulk, with the move ----
     const anti = d4BoxCell({ coordinates: [0, 0, 0, 0], side: SIDE })
@@ -335,8 +517,14 @@ export default experiment({
     routeUnits(blinks, placedLines, center, anti, PAIR_ENERGY)
 
     const key = fullPathKey(pathOffset(0))
-    const va = lineRunner(f.tables, vacuum, new Int32Array(f.cells * 12), key)
+    const va = lineRunner(
+      f.tables,
+      vacuum,
+      new Int32Array(f.cells * 12),
+      key,
+    )
     const sb = lineRunner(f.tables, seeded, placedLines, key)
+
     const pairField = (): Float64Array => {
       const out = new Float64Array(husk.columns * 9)
 
@@ -345,9 +533,11 @@ export default experiment({
 
       return out
     }
+
     const pairStart = pairField()
     const pair = plaquetteArm(mesh, faces, rule, pairStart, true)
     const pairSum = new Float64Array(husk.columns * 9)
+
     let pairLargestTarget = 0
 
     for (let t = 1; t <= WINDOW; t++) {
@@ -356,34 +546,59 @@ export default experiment({
 
       const pf = pairField()
 
-      for (const v of pf) pairLargestTarget = Math.max(pairLargestTarget, Math.abs(v))
+      for (const v of pf) {
+        pairLargestTarget = Math.max(pairLargestTarget, Math.abs(v))
+      }
+
       feedArm(mesh, faces, pair, pf, scratch)
 
       const w = wholeLines(pair)
 
-      for (let l = 0; l < w.length; l++) pairSum[l]! += (w[l] as number) / WINDOW
+      for (let l = 0; l < w.length; l++) {
+        pairSum[l]! += w[l]! / WINDOW
+      }
     }
 
-    const pairCol = husk.column[center] as number
+    const pairCol = husk.column[center]!
     const readPair = depthReading(SIDE, pairCol, pairSum, REF, FIT_R)
     const controlMinus = !within(readPair, (TARGET_K * PAIR_ENERGY) / 3)
-    const control0 = Math.abs(readB64.k / BARE_K_0127 - 1) <= BARE_TOLERANCE
+    const control0 =
+      Math.abs(readB64.k / BARE_K_0127 - 1) <= BARE_TOLERANCE
 
     // ---- P4: every arm back to its start ----
-    const reversed = { moving: reverseArm(faces, moving, scratch), bare: reverseArm(faces, bare, scratch), mod3: reverseArm(faces, mod3, scratch), pair: reverseArm(faces, pair, scratch) }
+    const reversed = {
+      moving: reverseArm(faces, moving, scratch),
+      bare: reverseArm(faces, bare, scratch),
+      mod3: reverseArm(faces, mod3, scratch),
+      pair: reverseArm(faces, pair, scratch),
+    }
     const integerArms = [moving, bare, pair]
-    const wraps = integerArms.reduce((s, a) => s + a.tally.lineWraps + a.tally.faceWraps, 0)
+    const wraps = integerArms.reduce(
+      (s, a) => s + a.tally.lineWraps + a.tally.faceWraps,
+      0,
+    )
     const mod3Wraps = mod3.tally.lineWraps + mod3.tally.faceWraps
 
     // ---- the gates ----
-    const gaussOff = integerArms.reduce((s, a) => s + a.gaussOff, 0) + mod3.gaussOffWindow
+    const gaussOff =
+      integerArms.reduce((s, a) => s + a.gaussOff, 0) +
+      mod3.gaussOffWindow
     const p1 = gaussOff === 0 && p1BallOff === 0
     const p2 = within(readM64, target)
     const p3Mean = p3Late / p3Beats
     const p3PerBeat = p3LateBeat / p3Beats
     const p3 = p3Mean <= P3_RATIO * p3Base
-    const p4 = reversed.moving && reversed.bare && reversed.mod3 && reversed.pair && wraps === 0
-    const status = !(control0 && controlMinus) ? 'partial' : p1 && p2 && p3 && p4 ? 'pass' : 'fail'
+    const p4 =
+      reversed.moving &&
+      reversed.bare &&
+      reversed.mod3 &&
+      reversed.pair &&
+      wraps === 0
+    const status = !(control0 && controlMinus)
+      ? 'partial'
+      : p1 && p2 && p3 && p4
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const metrics: Record<string, number> = {
       gate_P1: p1 ? 1 : 0,
@@ -436,13 +651,13 @@ export default experiment({
       avgOffMaxMod3: avgLine3.offMax,
       c0,
       sink,
-      sinkDistance: dist[sinkCol] as number,
+      sinkDistance: dist[sinkCol]!,
       seconds: (Date.now() - started) / 1000,
     }
 
     for (let q = 0; q <= REF; q++) {
-      metrics[`moving64_r${q}`] = readM64.profile[q] as number
-      metrics[`mod3_64_r${q}`] = read364.profile[q] as number
+      metrics[`moving64_r${q}`] = readM64.profile[q]!
+      metrics[`mod3_64_r${q}`] = read364.profile[q]!
     }
 
     return verdict({

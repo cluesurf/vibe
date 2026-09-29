@@ -695,8 +695,16 @@ export function hashedTone(size: number, salt: number): Int8Array {
 // values are still a rotation (a Kronecker fill, as before): neighboring edges are not independent draws.
 export const HASHED_SWEEP_START = 2 ** 20
 
-export function hashedSweepValue(edge: number, beat: number, decision: number): number {
-  return weylPoint({ start: HASHED_SWEEP_START + beat, index: edge, slot: decision })
+export function hashedSweepValue(
+  edge: number,
+  beat: number,
+  decision: number,
+): number {
+  return weylPoint({
+    start: HASHED_SWEEP_START + beat,
+    index: edge,
+    slot: decision,
+  })
 }
 
 // One beat of the conserving perception rule using the position-indexed Kronecker value

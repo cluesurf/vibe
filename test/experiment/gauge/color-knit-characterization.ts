@@ -51,22 +51,41 @@ export default experiment({
   paper: false,
   run() {
     const committedAsSpec = committedSpecIsTurningWeave()
-    const profiles = REFERENCE_KNITS.map(c => ({ name: c.name, profile: characterizeKnit(c) }))
-    const of = (name: string): Profile => profiles.find(p => p.name === name)?.profile ?? {}
+    const profiles = REFERENCE_KNITS.map(c => ({
+      name: c.name,
+      profile: characterizeKnit(c),
+    }))
+    const of = (name: string): Profile =>
+      profiles.find(p => p.name === name)?.profile ?? {}
     const committed = of('committed')
     const chosen = of('chosen')
     const runnerUp = of('runnerUp')
-    const controlsHold = committedAsSpec && committedNumbersReproduced(committed)
-    const changed = Object.keys(chosen).filter(key => chosen[key] !== committed[key])
+    const controlsHold =
+      committedAsSpec && committedNumbersReproduced(committed)
+    const changed = Object.keys(chosen).filter(
+      key => chosen[key] !== committed[key],
+    )
 
     return verdict({
       status: controlsHold ? 'pass' : 'fail',
       claim: `the generalized instruments give back the committed knit's own numbers, and against them the chosen color-local knit differs in ${changed.length} of ${Object.keys(chosen).length} measured quantities, every one printed beside the committed value, with the runner-up printed as a third column`,
-      metrics: Object.fromEntries(Object.entries(chosen).map(([k, v]) => [`chosen_${k}`, v])),
+      metrics: Object.fromEntries(
+        Object.entries(chosen).map(([k, v]) => [`chosen_${k}`, v]),
+      ),
       control: {
         committedWrittenAsSpecIsTurningWeave: committedAsSpec ? 1 : 0,
-        ...Object.fromEntries(Object.entries(committed).map(([k, v]) => [`committed_${k}`, v])),
-        ...Object.fromEntries(Object.entries(runnerUp).map(([k, v]) => [`runnerUp_${k}`, v])),
+        ...Object.fromEntries(
+          Object.entries(committed).map(([k, v]) => [
+            `committed_${k}`,
+            v,
+          ]),
+        ),
+        ...Object.fromEntries(
+          Object.entries(runnerUp).map(([k, v]) => [
+            `runnerUp_${k}`,
+            v,
+          ]),
+        ),
       },
       notes: `L2, exact, no random numbers. Changed against the committed knit: ${changed.join(', ')}. Regime codes for direction 0: 0 blind, 1 a kick of one clock unit, 2 absorbing, 3 other. Sector sizes are the component sizes written as digits, largest first. The kick law is generalized from direction 0 to every species the rule keeps at support 1 for 26 beats, with the slab across each species' path and the phase compared with the same species' free run, so its counts are over (species, offset) pairs. The travel count at full speed takes a reach of exactly 6 sqrt 2 in 6 beats. The characterization is reported, not gated: whether a change is better is the user's decision.`,
     })

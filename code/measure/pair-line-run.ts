@@ -14,15 +14,32 @@
 // - the lowest integer flux read (below 0 only if charges pass one another)
 // Nothing moves: a pattern is read afresh from each snapshot.
 
-import { pairLineBeat, pairLineBeatBack, pairLineEnergy, pairLineGauss, type PairLine, type PairLineState } from '@/code/rule/pair-line'
+import {
+  pairLineBeat,
+  pairLineBeatBack,
+  pairLineEnergy,
+  pairLineGauss,
+  type PairLine,
+  type PairLineState,
+} from '@/code/rule/pair-line'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
-import { freeCell, perron, staticPotential, transferEigenvalues } from '@/code/measure/pair-string'
+import {
+  freeCell,
+  perron,
+  staticPotential,
+  transferEigenvalues,
+} from '@/code/measure/pair-string'
 
 // The mod-3 measure's predictions at x, y (E-FRC-0189's formulas, from the free cell's Perron vectors): the charge
 // density, the paid fraction, the meson profile at d = 1 .. profile, ln(lambda0 / x) (the profile's rate),
 // ln(lambda0 / lambda1) (one-meson exchange), and the static mesons' connected ratio C(gap) for the same and the
 // flipped orientation (code/measure/pair-string staticPotential: C = e^(-beta V) - 1)
-export function modThreePredictions(input: { x: number; y: number; profile: number; gaps: number }): {
+export function modThreePredictions(input: {
+  x: number
+  y: number
+  profile: number
+  gaps: number
+}): {
   charges: number
   paid: number
   profile: number[]
@@ -34,25 +51,35 @@ export function modThreePredictions(input: { x: number; y: number; profile: numb
   const { x, y } = input
   const t = freeCell(x, y)
   const { left, right, value } = perron(t)
-  const lr = [0, 1, 2].reduce((a, e) => a + (left[e] as number) * (right[e] as number), 0)
+  const lr = [0, 1, 2].reduce((a, e) => a + left[e]! * right[e]!, 0)
+
   let charges = 0
 
   for (let e = 0; e < 3; e++) {
     for (let f = 0; f < 3; f++) {
       if (e !== f) {
-        charges += ((left[e] as number) * (t[e * 3 + f] as number) * (right[f] as number)) / (value * lr)
+        charges += (left[e]! * t[e * 3 + f]! * right[f]!) / (value * lr)
       }
     }
   }
 
   const [l0, l1] = transferEigenvalues(x, y)
   const connected = (second: number[]): number[] =>
-    Array.from({ length: input.gaps + 1 }, (_, gap) => Math.expm1(-staticPotential({ x, y, first: [1, -1], second, gap })))
+    Array.from({ length: input.gaps + 1 }, (_, gap) =>
+      Math.expm1(
+        -staticPotential({ x, y, first: [1, -1], second, gap }),
+      ),
+    )
 
   return {
     charges,
-    paid: [1, 2].reduce((a, e) => a + (left[e] as number) * (right[e] as number), 0) / lr,
-    profile: Array.from({ length: input.profile + 1 }, (_, d) => (d === 0 ? 0 : (2 * (left[0] as number) * (y * x) * x ** (d - 1) * y * (right[0] as number)) / (value ** (d + 1) * lr))),
+    paid: [1, 2].reduce((a, e) => a + left[e]! * right[e]!, 0) / lr,
+    profile: Array.from({ length: input.profile + 1 }, (_, d) =>
+      d === 0
+        ? 0
+        : (2 * left[0]! * (y * x) * x ** (d - 1) * y * right[0]!) /
+          (value ** (d + 1) * lr),
+    ),
     profileRate: Math.log(value / x),
     exchangeRate: Math.log(l0 / Math.abs(l1)),
     same: connected([1, -1]),
@@ -104,15 +131,25 @@ export function pairLineStart(setup: PairLineSetup): PairLineState {
   const { cells, capacity, q, seeds } = setup
   const weights = Array.from({ length: capacity + 1 }, (_, d) => q ** d)
   const total = weights.reduce((a, b) => a + b, 0)
-  const cumulative = weights.map((_, d) => weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total)
-  const demon = Int32Array.from({ length: cells }, (_, i) => cumulative.findIndex(c => ((i + 1) * SILVER) % 1 < c))
+  const cumulative = weights.map(
+    (_, d) =>
+      weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total,
+  )
+  const demon = Int32Array.from({ length: cells }, (_, i) =>
+    cumulative.findIndex(c => ((i + 1) * SILVER) % 1 < c),
+  )
   const vibe = new Int8Array(cells)
   const flux = new Int32Array(cells)
 
   for (let k = 0; k < seeds; k++) {
     let i = Math.floor((((k + 1) * GOLDEN) % 1) * cells)
 
-    while (vibe[i] !== 0 || vibe[(i + 1) % cells] !== 0 || vibe[(i + 2) % cells] !== 0 || vibe[(i - 1 + cells) % cells] !== 0) {
+    while (
+      vibe[i] !== 0 ||
+      vibe[(i + 1) % cells] !== 0 ||
+      vibe[(i + 2) % cells] !== 0 ||
+      vibe[(i - 1 + cells) % cells] !== 0
+    ) {
       i = (i + 1) % cells
     }
 
@@ -124,27 +161,43 @@ export function pairLineStart(setup: PairLineSetup): PairLineState {
   return { vibe, flux, demon }
 }
 
-export function pairLineRun(input: { setup: PairLineSetup; both: boolean; reverseCheck?: number }): PairLineRun {
+export function pairLineRun(input: {
+  setup: PairLineSetup
+  both: boolean
+  reverseCheck?: number
+}): PairLineRun {
   const { setup, both } = input
   const { cells, gaps } = setup
-  const line: PairLine = { cells, mass: setup.mass, tension: setup.tension, capacity: setup.capacity }
+  const line: PairLine = {
+    cells,
+    mass: setup.mass,
+    tension: setup.tension,
+    capacity: setup.capacity,
+  }
   const start = pairLineStart(setup)
-  const s: PairLineState = { vibe: Int8Array.from(start.vibe), flux: Int32Array.from(start.flux), demon: Int32Array.from(start.demon) }
+  const s: PairLineState = {
+    vibe: Int8Array.from(start.vibe),
+    flux: Int32Array.from(start.flux),
+    demon: Int32Array.from(start.demon),
+  }
   const scratch = new Int32Array(cells)
   const e0 = pairLineEnergy(line, s)
   const readsTotal = Math.floor(setup.beats / setup.every)
   const perBatch = Math.ceil(readsTotal / setup.batches)
-  const batches: PairLineBatch[] = Array.from({ length: setup.batches }, () => ({
-    reads: 0,
-    demon: 0,
-    charges: 0,
-    paid: 0,
-    profile: new Float64Array(setup.profile + 1),
-    same: new Float64Array(gaps + 1),
-    flipped: new Float64Array(gaps + 1),
-    sameReference: 0,
-    flippedReference: 0,
-  }))
+  const batches: PairLineBatch[] = Array.from(
+    { length: setup.batches },
+    () => ({
+      reads: 0,
+      demon: 0,
+      charges: 0,
+      paid: 0,
+      profile: new Float64Array(setup.profile + 1),
+      same: new Float64Array(gaps + 1),
+      flipped: new Float64Array(gaps + 1),
+      sameReference: 0,
+      flippedReference: 0,
+    }),
+  )
   const plus = new Int32Array(cells)
   const minus = new Int32Array(cells)
 
@@ -159,7 +212,11 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
   let reverses = true
 
   if (input.reverseCheck) {
-    const r: PairLineState = { vibe: Int8Array.from(start.vibe), flux: Int32Array.from(start.flux), demon: Int32Array.from(start.demon) }
+    const r: PairLineState = {
+      vibe: Int8Array.from(start.vibe),
+      flux: Int32Array.from(start.flux),
+      demon: Int32Array.from(start.demon),
+    }
 
     for (let t = 0; t < input.reverseCheck; t++) {
       pairLineBeat(line, r, t, both, scratch)
@@ -169,7 +226,10 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
       pairLineBeatBack(line, r, t, both, scratch)
     }
 
-    reverses = r.vibe.every((v, i) => v === start.vibe[i]) && r.flux.every((v, i) => v === start.flux[i]) && r.demon.every((v, i) => v === start.demon[i])
+    reverses =
+      r.vibe.every((v, i) => v === start.vibe[i]) &&
+      r.flux.every((v, i) => v === start.flux[i]) &&
+      r.demon.every((v, i) => v === start.demon[i])
   }
 
   for (let t = 0; t < setup.settle + setup.beats; t++) {
@@ -179,10 +239,16 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
       continue
     }
 
-    const batch = batches[Math.min(setup.batches - 1, Math.floor(reads / perBatch))] as PairLineBatch
+    const batch =
+      batches[
+        Math.min(setup.batches - 1, Math.floor(reads / perBatch))
+      ]!
 
     if (reads % 64 === 0) {
-      exact = exact && pairLineEnergy(line, s) === e0 && pairLineGauss(line, s)
+      exact =
+        exact &&
+        pairLineEnergy(line, s) === e0 &&
+        pairLineGauss(line, s)
     }
 
     let here = 0
@@ -190,17 +256,17 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
     let nm = 0
 
     for (let i = 0; i < cells; i++) {
-      const v = s.vibe[i] as number
-      const e = s.flux[i] as number
+      const v = s.vibe[i]!
+      const e = s.flux[i]!
 
-      batch.demon += s.demon[i] as number
+      batch.demon += s.demon[i]!
       here += v !== 0 ? 1 : 0
       batch.paid += mod3(e) !== 0 ? 1 : 0
       lowest = e < lowest ? e : lowest
       highest = e > highest ? e : highest
 
       if (v !== 0) {
-        const w = s.vibe[i + 1 === cells ? 0 : i + 1] as number
+        const w = s.vibe[i + 1 === cells ? 0 : i + 1]!
 
         if (w === -v) {
           if (v > 0) {
@@ -218,17 +284,17 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
 
     // the static-meson correlation: love-left with love-left, and love-left with fear-left
     for (let k = 0; k < np; k++) {
-      const i = plus[k] as number
+      const i = plus[k]!
 
       for (let gap = 0; gap <= gaps; gap++) {
         const j = (i + 2 + gap) % cells
-        const a = s.vibe[j] as number
-        const b = s.vibe[j + 1 === cells ? 0 : j + 1] as number
+        const a = s.vibe[j]!
+        const b = s.vibe[j + 1 === cells ? 0 : j + 1]!
 
         if (a === 1 && b === -1) {
-          batch.same[gap] = (batch.same[gap] as number) + 1
+          batch.same[gap] = batch.same[gap]! + 1
         } else if (a === -1 && b === 1) {
-          batch.flipped[gap] = (batch.flipped[gap] as number) + 1
+          batch.flipped[gap] = batch.flipped[gap]! + 1
         }
       }
     }
@@ -240,22 +306,31 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
     // the meson profile (E-FRC-0189): an unpaid link, a charge, d paid links with no charge between, the opposite
     // charge, an unpaid link
     for (let i = 0; i < cells; i++) {
-      const q = s.vibe[i] as number
+      const q = s.vibe[i]!
 
-      if (q === 0 || mod3(s.flux[(i - 1 + cells) % cells] as number) !== 0) {
+      if (q === 0 || mod3(s.flux[(i - 1 + cells) % cells]!) !== 0) {
         continue
       }
 
       let d = 1
 
-      while (d <= setup.profile + 1 && s.vibe[(i + d) % cells] === 0 && mod3(s.flux[(i + d - 1) % cells] as number) !== 0) {
+      while (
+        d <= setup.profile + 1 &&
+        s.vibe[(i + d) % cells] === 0 &&
+        mod3(s.flux[(i + d - 1) % cells]!) !== 0
+      ) {
         d++
       }
 
       const end = (i + d) % cells
 
-      if (d <= setup.profile && s.vibe[end] === -q && mod3(s.flux[(i + d - 1) % cells] as number) !== 0 && mod3(s.flux[end] as number) === 0) {
-        batch.profile[d] = (batch.profile[d] as number) + 1
+      if (
+        d <= setup.profile &&
+        s.vibe[end] === -q &&
+        mod3(s.flux[(i + d - 1) % cells]!) !== 0 &&
+        mod3(s.flux[end]!) === 0
+      ) {
+        batch.profile[d] = batch.profile[d]! + 1
       }
     }
 
@@ -263,7 +338,16 @@ export function pairLineRun(input: { setup: PairLineSetup; both: boolean; revers
     reads++
   }
 
-  exact = exact && pairLineEnergy(line, s) === e0 && pairLineGauss(line, s)
+  exact =
+    exact && pairLineEnergy(line, s) === e0 && pairLineGauss(line, s)
 
-  return { exact, reverses, lowestFlux: lowest, highestFlux: highest, fewestCharges: fewest, mostCharges: most, batches }
+  return {
+    exact,
+    reverses,
+    lowestFlux: lowest,
+    highestFlux: highest,
+    fewestCharges: fewest,
+    mostCharges: most,
+    batches,
+  }
 }

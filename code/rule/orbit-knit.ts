@@ -23,7 +23,11 @@
 // 10,395 matchings and 64 role choices, keeping the beats whose swap edges, carried round by g over a
 // period, connect all twelve lines.
 
-import { Collision, PAIR_FORWARD, PAIR_INVERSE } from '@/code/rule/collision'
+import {
+  Collision,
+  PAIR_FORWARD,
+  PAIR_INVERSE,
+} from '@/code/rule/collision'
 import { conjugateCollision } from '@/code/measure/rule-symmetry-ledger'
 
 export type OrbitBeat = {
@@ -42,7 +46,9 @@ export type OrbitBeat = {
 
 type Tone = -1 | 0 | 1
 
-export function linesOf(opposite: readonly number[]): [number, number][] {
+export function linesOf(
+  opposite: readonly number[],
+): [number, number][] {
   const lines: [number, number][] = []
 
   for (let d = 0; d < opposite.length; d++) {
@@ -61,11 +67,13 @@ export function orbitBeatCollision(input: {
 }): Collision {
   const { beat, opposite } = input
   const table = (input.forward ?? true) ? PAIR_FORWARD : PAIR_INVERSE
+
   const slotsOf = (line: number): [number, number] => {
     const first = beat.lead[line] ?? 0
 
     return [first, opposite[first] ?? first]
   }
+
   const plan = beat.couples.map(([matter, wire], c) => ({
     m: slotsOf(matter),
     w: slotsOf(wire),
@@ -94,6 +102,7 @@ export function orbitBeatCollision(input: {
           slots[base + w[1]] = a1
         }
       }
+
       const clock = (): void => {
         const a = (slots[base + w[0]] ?? 0) as Tone
         const b = (slots[base + w[1]] ?? 0) as Tone
@@ -138,7 +147,11 @@ export function orbitKnit(input: {
     ? input.beat
     : [input.beat as OrbitBeat]
   const bases = beats.map(beat =>
-    orbitBeatCollision({ beat, opposite: input.opposite, forward: input.forward }),
+    orbitBeatCollision({
+      beat,
+      opposite: input.opposite,
+      forward: input.forward,
+    }),
   )
   const s = bases.length
   const collisions = Array.from({ length: input.period }, (_, t) =>
@@ -173,6 +186,7 @@ export function carriedStructure(input: {
   return beats.map(beat => {
     const pairs = new Set<number>()
     const swapEdges: [number, number][] = []
+
     let power = glide.map((_, i) => i)
 
     for (let u = 0; u < powers; u++) {
@@ -202,7 +216,10 @@ export function bestBeatPair(input: {
   powers: number
 }): { first: OrbitBeat; second: OrbitBeat; pairs: number } | undefined {
   const carried = carriedStructure(input)
-  let best: { first: OrbitBeat; second: OrbitBeat; pairs: number } | undefined
+
+  let best:
+    | { first: OrbitBeat; second: OrbitBeat; pairs: number }
+    | undefined
 
   for (let i = 0; i < carried.length; i++) {
     for (let j = i; j < carried.length; j++) {
@@ -217,7 +234,10 @@ export function bestBeatPair(input: {
         parent[find(a)] = find(b)
       }
 
-      if (new Set(Array.from({ length: 12 }, (_, l) => find(l))).size !== 1) {
+      if (
+        new Set(Array.from({ length: 12 }, (_, l) => find(l))).size !==
+        1
+      ) {
         continue
       }
 
@@ -228,8 +248,8 @@ export function bestBeatPair(input: {
 
       if (!best || pairs > best.pairs) {
         best = {
-          first: input.beats[i] as OrbitBeat,
-          second: input.beats[j] as OrbitBeat,
+          first: input.beats[i]!,
+          second: input.beats[j]!,
           pairs,
         }
       }
@@ -324,7 +344,8 @@ export function beatSymmetries(input: {
 
   tested.forEach(index => {
     const p = permutations[index] ?? []
-    const image = (l: number): number => lineOf[p[lines[l]?.[0] ?? 0] ?? 0] ?? 0
+    const image = (l: number): number =>
+      lineOf[p[lines[l]?.[0] ?? 0] ?? 0] ?? 0
 
     for (const eta of [1, -1]) {
       if (eta === -1 && beat.condition !== 'headOn') {
@@ -334,7 +355,10 @@ export function beatSymmetries(input: {
       const keeps = beat.couples.every(([m, w], c) => {
         const target = coupleOf.get(`${image(m)}/${image(w)}`)
 
-        return target !== undefined && (beat.swaps[target] ?? false) === (beat.swaps[c] ?? false)
+        return (
+          target !== undefined &&
+          (beat.swaps[target] ?? false) === (beat.swaps[c] ?? false)
+        )
       })
 
       if (!keeps) {
@@ -381,11 +405,15 @@ export function structuralCandidates(input: {
 
   return permutations
     .map((p, index) => {
-      const image = (l: number): number => lineOf[p[lines[l]?.[0] ?? 0] ?? 0] ?? 0
+      const image = (l: number): number =>
+        lineOf[p[lines[l]?.[0] ?? 0] ?? 0] ?? 0
       const keeps = beat.couples.every(([m, w], c) => {
         const target = coupleOf.get(`${image(m)}/${image(w)}`)
 
-        return target !== undefined && (beat.swaps[target] ?? false) === (beat.swaps[c] ?? false)
+        return (
+          target !== undefined &&
+          (beat.swaps[target] ?? false) === (beat.swaps[c] ?? false)
+        )
       })
 
       return keeps ? index : -1
@@ -412,6 +440,7 @@ export function admissibleStabilizers(input: {
   const glide = opposite.map((_, i) => i)
   const found = new Map<string, [number, number][]>()
   const structure = new Map<string, number[]>()
+
   let beats = 0
 
   for (const r of representatives) {
@@ -429,16 +458,30 @@ export function admissibleStabilizers(input: {
       beats += list.length
 
       for (const beat of list) {
-        const key = beat.couples.map(([m, w], c) => `${m}/${w}${beat.swaps[c] ? 's' : ''}`).join(' ')
+        const key = beat.couples
+          .map(([m, w], c) => `${m}/${w}${beat.swaps[c] ? 's' : ''}`)
+          .join(' ')
         const candidates =
-          structure.get(key) ?? structuralCandidates({ beat, permutations, opposite })
+          structure.get(key) ??
+          structuralCandidates({ beat, permutations, opposite })
 
         structure.set(key, candidates)
 
-        const s = beatSymmetries({ beat, permutations, opposite, candidates })
+        const s = beatSymmetries({
+          beat,
+          permutations,
+          opposite,
+          candidates,
+        })
 
         if (s.length > 1) {
-          found.set(s.map(([i, e]) => `${i}:${e}`).sort().join(','), s)
+          found.set(
+            s
+              .map(([i, e]) => `${i}:${e}`)
+              .sort()
+              .join(','),
+            s,
+          )
         }
       }
     }
@@ -471,7 +514,10 @@ export function orbitKnitPeriod(input: {
   maxPeriod?: number
   states: readonly Int8Array[]
 }): number {
-  const base = orbitBeatCollision({ beat: input.beat, opposite: input.opposite })
+  const base = orbitBeatCollision({
+    beat: input.beat,
+    opposite: input.opposite,
+  })
   const a = new Int8Array(input.opposite.length)
   const b = new Int8Array(input.opposite.length)
 
@@ -555,6 +601,7 @@ export function orbitBeatFor(input: {
   })
   // the k-orbits of lines, for flipping orientations orbit by orbit
   const orbitOf = new Array<number>(lines.length).fill(-1)
+
   let orbitCount = 0
 
   for (let l = 0; l < lines.length; l++) {
@@ -577,7 +624,11 @@ export function orbitBeatFor(input: {
   // orientation; under 'loneAway' it does
   const swapNeedsOrientation = condition === 'loneAway'
   const matchings: [number, number][][] = []
-  const build = (rest: readonly number[], acc: [number, number][]): void => {
+
+  const build = (
+    rest: readonly number[],
+    acc: [number, number][],
+  ): void => {
     if (rest.length === 0) {
       matchings.push(acc)
 
@@ -609,7 +660,9 @@ export function orbitBeatFor(input: {
       partner[b] = a
     }
 
-    if (!m.every(([a, b]) => partner[lineImage(k, a)] === lineImage(k, b))) {
+    if (
+      !m.every(([a, b]) => partner[lineImage(k, a)] === lineImage(k, b))
+    ) {
       continue
     }
 
@@ -641,6 +694,7 @@ export function orbitBeatFor(input: {
         }
 
         const swapWires = new Set<number>()
+
         let w = wires[seed] ?? 0
 
         do {
@@ -679,6 +733,7 @@ export function orbitBeatFor(input: {
         const parent = Array.from({ length: lines.length }, (_, i) => i)
         const find = (x: number): number =>
           parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
+
         let power = glide.map((_, i) => i)
 
         for (let t = 0; t < 24; t++) {
@@ -702,7 +757,9 @@ export function orbitBeatFor(input: {
         // every orientation choice asked for: each set bit flips a whole k-orbit of lines
         for (let flip = 0; flip < flipChoices; flip++) {
           const lead = carriedLead.map((root, l) =>
-            (flip >> (orbitOf[l] ?? 0)) & 1 ? (opposite[root] ?? root) : root,
+            (flip >> (orbitOf[l] ?? 0)) & 1
+              ? (opposite[root] ?? root)
+              : root,
           )
 
           out.push({

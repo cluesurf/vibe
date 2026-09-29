@@ -20,10 +20,11 @@ import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { Collision, headOnRotate } from '@/code/rule/collision'
 import { sortingCollision } from '@/code/control/conserving-irreversible-collision'
 
-function pairImages(input: {
-  degree: number
-  collision: Collision
-}): { states: number; distinctImages: number; changed: number } {
+function pairImages(input: { degree: number; collision: Collision }): {
+  states: number
+  distinctImages: number
+  changed: number
+} {
   const { degree, collision } = input
   const images = new Set<string>()
 
@@ -81,7 +82,8 @@ export default experiment({
       collision: sortingCollision,
     })
 
-    const pairMapIsPermutation = momentum.distinctImages === momentum.states
+    const pairMapIsPermutation =
+      momentum.distinctImages === momentum.states
     const somethingHappens = momentum.changed > 0
     const controlMerges = sorting.distinctImages < sorting.states
 

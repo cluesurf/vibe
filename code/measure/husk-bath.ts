@@ -22,7 +22,11 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
-import { coldDockCollide, type ColdState, type ColdWeave } from '@/code/rule/cold-weave'
+import {
+  coldDockCollide,
+  type ColdState,
+  type ColdWeave,
+} from '@/code/rule/cold-weave'
 
 const ROOTS = rootsD4()
 
@@ -31,6 +35,7 @@ export const HUSK_KEYS: string[] = []
 export const HUSK_OF = Int32Array.from(
   ROOTS.map(r => {
     const key = `${r[0]},${r[1]},${r[2]}`
+
     let h = HUSK_KEYS.indexOf(key)
 
     if (h < 0) {
@@ -41,14 +46,17 @@ export const HUSK_OF = Int32Array.from(
     return h
   }),
 )
-export const HUSK_SLOTS = HUSK_KEYS.map((_, h) => Array.from(HUSK_OF).filter(x => x === h).length)
+export const HUSK_SLOTS = HUSK_KEYS.map(
+  (_, h) => Array.from(HUSK_OF).filter(x => x === h).length,
+)
 
 // the Perron root of x^3 - 21 x^2 + 51 x - 23 (E-MTH-0007), by Newton from 18
 export function coxeterWarp(): number {
   let x = 18
 
   for (let k = 0; k < 60; k++) {
-    x -= (x ** 3 - 21 * x ** 2 + 51 * x - 23) / (3 * x ** 2 - 42 * x + 51)
+    x -=
+      (x ** 3 - 21 * x ** 2 + 51 * x - 23) / (3 * x ** 2 - 42 * x + 51)
   }
 
   return x
@@ -56,7 +64,11 @@ export function coxeterWarp(): number {
 
 // a fill of depth period `period` (0 for one draw per slot, the spread fill), density 0.4, stores 0 to 2, by
 // the golden and silver sequences; `seed` flips one slot of dock 0 (a love of store 0 put there, or removed)
-export function periodicFill(input: { side: number; period: number; seed?: boolean }): ColdState {
+export function periodicFill(input: {
+  side: number
+  period: number
+  seed?: boolean
+}): ColdState {
   const { side, period } = input
   const columns = side ** 3
   const n = side ** 4 * 24
@@ -83,15 +95,23 @@ export function periodicFill(input: { side: number; period: number; seed?: boole
 }
 
 // slots (vibe or store) and line counters that differ from their image under w -> w + shift
-export function depthMismatch(state: ColdState, side: number, shift: number): number {
+export function depthMismatch(
+  state: ColdState,
+  side: number,
+  shift: number,
+): number {
   const stride = side ** 3 * 24
   const n = state.vibe.length
+
   let count = 0
 
   for (let i = 0; i < n; i++) {
     const j = (i + shift * stride) % n
 
-    if (state.vibe[i] !== state.vibe[j] || state.store[i] !== state.store[j]) {
+    if (
+      state.vibe[i] !== state.vibe[j] ||
+      state.store[i] !== state.store[j]
+    ) {
       count++
     }
   }
@@ -109,7 +129,11 @@ export function depthMismatch(state: ColdState, side: number, shift: number): nu
 }
 
 // the state moved by w -> w + shift
-export function depthShift(state: ColdState, side: number, shift: number): ColdState {
+export function depthShift(
+  state: ColdState,
+  side: number,
+  shift: number,
+): ColdState {
   const stride = side ** 3 * 24
   const dstride = side ** 3 * 12
   const n = state.vibe.length
@@ -132,8 +156,15 @@ export function depthShift(state: ColdState, side: number, shift: number): ColdS
 
 // the layer clocks: fires[j * period + t mod period] would need a period; instead the Bresenham test
 // floor((t + 1) r) > floor(t r), exact in doubles for the beats used here
-export function layerRates(side: number, lambda: number, s: number): number[] {
-  return Array.from({ length: side }, (_, w) => lambda ** (-s * Math.min(w, side - w)))
+export function layerRates(
+  side: number,
+  lambda: number,
+  s: number,
+): number[] {
+  return Array.from(
+    { length: side },
+    (_, w) => lambda ** (-s * Math.min(w, side - w)),
+  )
 }
 
 export function layerFires(rate: number, t: number): boolean {
@@ -141,10 +172,21 @@ export function layerFires(rate: number, t: number): boolean {
 }
 
 // one beat of the cold weave with each layer's collisions on its own clock, in place
-export function warpedBeatInPlace(weave: ColdWeave, state: { vibe: Int8Array; store: Int32Array; demon: Int32Array }, t: number, rates: readonly number[], scratch: { vibe: Int8Array; store: Int32Array }): void {
+export function warpedBeatInPlace(
+  weave: ColdWeave,
+  state: { vibe: Int8Array; store: Int32Array; demon: Int32Array },
+  t: number,
+  rates: readonly number[],
+  scratch: { vibe: Int8Array; store: Int32Array },
+): void {
   const side = Math.round(weave.mesh.cellCount ** 0.25)
   const volume = side ** 3
-  const a = { vibe: state.vibe, store: state.store, demon: state.demon, role: undefined }
+  const a = {
+    vibe: state.vibe,
+    store: state.store,
+    demon: state.demon,
+    role: undefined,
+  }
   const fires = rates.map(r => layerFires(r, t))
 
   for (let x = 0; x < weave.mesh.cellCount; x++) {
@@ -167,7 +209,14 @@ export function warpedBeatInPlace(weave: ColdWeave, state: { vibe: Int8Array; st
 }
 
 // a tally of husk mode counts: per-mode sums for the Fano factor, and per-class histograms
-export type HuskTally = { side: number; sum: Float64Array; square: Float64Array; histogram: Float64Array[]; samples: number; counts: Int32Array }
+export type HuskTally = {
+  side: number
+  sum: Float64Array
+  square: Float64Array
+  histogram: Float64Array[]
+  samples: number
+  counts: Int32Array
+}
 
 export function makeHuskTally(side: number): HuskTally {
   const modes = side ** 3 * HUSK_KEYS.length
@@ -176,7 +225,10 @@ export function makeHuskTally(side: number): HuskTally {
     side,
     sum: new Float64Array(modes),
     square: new Float64Array(modes),
-    histogram: [new Float64Array(2 * side + 1), new Float64Array(side + 1)],
+    histogram: [
+      new Float64Array(2 * side + 1),
+      new Float64Array(side + 1),
+    ],
     samples: 0,
     counts: new Int32Array(modes),
   }
@@ -190,7 +242,8 @@ export function sampleHusk(tally: HuskTally, vibe: Int8Array): void {
 
   for (let i = 0; i < vibe.length; i++) {
     if (vibe[i] !== 0) {
-      const mode = (((i / 24) | 0) % columns) * k + (HUSK_OF[i % 24] ?? 0)
+      const mode =
+        (((i / 24) | 0) % columns) * k + (HUSK_OF[i % 24] ?? 0)
 
       tally.counts[mode] = (tally.counts[mode] ?? 0) + 1
     }
@@ -209,7 +262,15 @@ export function sampleHusk(tally: HuskTally, vibe: Int8Array): void {
 }
 
 // class readings: 0 axis, 1 diagonal. fano = mean over modes of var / mean, fermi = 1 - n / g
-export type HuskClass = { fano: number; fermi: number; fill: number; g: number; tvBinomial: number; tvPoisson: number; tvNegativeBinomial: number }
+export type HuskClass = {
+  fano: number
+  fermi: number
+  fill: number
+  g: number
+  tvBinomial: number
+  tvPoisson: number
+  tvNegativeBinomial: number
+}
 
 function logChoose(n: number, k: number): number {
   let x = 0
@@ -231,8 +292,12 @@ function logFactorial(k: number): number {
   return x
 }
 
-function totalVariation(measured: Float64Array, model: (k: number) => number): number {
+function totalVariation(
+  measured: Float64Array,
+  model: (k: number) => number,
+): number {
   const total = measured.reduce((a, b) => a + b, 0)
+
   let tv = 0
   let mass = 0
 
@@ -249,6 +314,7 @@ function totalVariation(measured: Float64Array, model: (k: number) => number): n
 export function huskClass(tally: HuskTally, c: number): HuskClass {
   const k = HUSK_KEYS.length
   const g = c === 0 ? 2 * tally.side : tally.side
+
   let fano = 0
   let fill = 0
   let modes = 0
@@ -264,7 +330,8 @@ export function huskClass(tally: HuskTally, c: number): HuskClass {
       continue
     }
 
-    fano += ((tally.square[m] ?? 0) / tally.samples - mean * mean) / mean
+    fano +=
+      ((tally.square[m] ?? 0) / tally.samples - mean * mean) / mean
     fill += mean / g
     modes++
   }
@@ -281,9 +348,21 @@ export function huskClass(tally: HuskTally, c: number): HuskClass {
     fermi: 1 - fill,
     fill,
     g,
-    tvBinomial: totalVariation(h, x => Math.exp(logChoose(g, x) + x * Math.log(fill) + (g - x) * Math.log(1 - fill))),
-    tvPoisson: totalVariation(h, x => Math.exp(-mean + x * Math.log(mean) - logFactorial(x))),
-    tvNegativeBinomial: totalVariation(h, x => Math.exp(logChoose(g + x - 1, x) + g * Math.log(1 - q) + x * Math.log(q))),
+    tvBinomial: totalVariation(h, x =>
+      Math.exp(
+        logChoose(g, x) +
+          x * Math.log(fill) +
+          (g - x) * Math.log(1 - fill),
+      ),
+    ),
+    tvPoisson: totalVariation(h, x =>
+      Math.exp(-mean + x * Math.log(mean) - logFactorial(x)),
+    ),
+    tvNegativeBinomial: totalVariation(h, x =>
+      Math.exp(
+        logChoose(g + x - 1, x) + g * Math.log(1 - q) + x * Math.log(q),
+      ),
+    ),
   }
 }
 
@@ -296,8 +375,8 @@ export function stateEnergy(state: ColdState): number {
     }
   }
 
-  for (let i = 0; i < state.demon.length; i++) {
-    e += state.demon[i] ?? 0
+  for (const x of state.demon) {
+    e += x
   }
 
   return e
@@ -306,8 +385,8 @@ export function stateEnergy(state: ColdState): number {
 export function stateCharge(state: ColdState): number {
   let q = 0
 
-  for (let i = 0; i < state.vibe.length; i++) {
-    q += state.vibe[i] ?? 0
+  for (const x of state.vibe) {
+    q += x
   }
 
   return q

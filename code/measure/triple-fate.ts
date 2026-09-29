@@ -22,11 +22,21 @@
 // which the knit conserves, so a seed of love minus fear 3 keeps a husk charge of one whole.
 
 import { type Collision } from '@/code/rule/collision'
-import { DifferenceOverflow, makeDifferenceEngine, ROOT_STEPS } from '@/code/compute/difference-engine'
+import {
+  DifferenceOverflow,
+  makeDifferenceEngine,
+  ROOT_STEPS,
+} from '@/code/compute/difference-engine'
 import { d4Vector } from '@/code/substrate/d4-box'
 
 export type Fate = {
-  readonly cls: 'particle' | 'split' | 'bound' | 'dressing' | 'gone' | 'vacuum'
+  readonly cls:
+    | 'particle'
+    | 'split'
+    | 'bound'
+    | 'dressing'
+    | 'gone'
+    | 'vacuum'
   // bulk speed |shift| / beats / sqrt 2 (1 is a vibe streaming along a root), and the husk speed |husk shift| /
   // beats (a root casts a husk step of length 1 or sqrt 2); -1 unless a particle
   readonly bulkSpeed: number
@@ -43,8 +53,15 @@ export type Fate = {
 }
 
 // the least T, a multiple of `schedule`, with the vacuum's dock state at beat T equal to that at beat 0
-export function vacuumPeriod(input: { forward: (t: number) => Collision; schedule: number; limit: number }): number {
-  const engine = makeDifferenceEngine({ forward: input.forward, maxDocks: 16 })
+export function vacuumPeriod(input: {
+  forward: (t: number) => Collision
+  schedule: number
+  limit: number
+}): number {
+  const engine = makeDifferenceEngine({
+    forward: input.forward,
+    maxDocks: 16,
+  })
   const start = engine.vacuum(0)
 
   for (let t = input.schedule; t <= input.limit; t += input.schedule) {
@@ -59,9 +76,12 @@ export function vacuumPeriod(input: { forward: (t: number) => Collision; schedul
 }
 
 // connected pieces of a set of docks, two docks joined when one root apart
-export function pieceCount(coords: readonly (readonly number[])[]): number {
+export function pieceCount(
+  coords: readonly (readonly number[])[],
+): number {
   const key = (c: readonly number[]): string => c.join(',')
   const left = new Set(coords.map(key))
+
   let count = 0
 
   for (const c of coords) {
@@ -105,12 +125,19 @@ export function followSeed(input: {
 
   const seen = new Map<string, { beat: number; anchor: number[] }>()
   const docks: number[] = []
+
   let everDiffered = engine.support().slots > 0
 
-  const reading = (): { coords: number[][]; huskDocks: number; charge: number } => {
+  const reading = (): {
+    coords: number[][]
+    huskDocks: number
+    charge: number
+  } => {
     const coords: number[][] = []
     const columns = new Set<string>()
+
     let charge = 0
+
     const vacuum = engine.vacuum(engine.beat())
 
     engine.forEach((c, s) => {
@@ -140,13 +167,22 @@ export function followSeed(input: {
 
     if (before) {
       const beats = engine.beat() - before.beat
-      const shift = d4Vector(sig.anchor.map((x, k) => x - (before.anchor[k] ?? 0)))
+      const shift = d4Vector(
+        sig.anchor.map((x, k) => x - (before.anchor[k] ?? 0)),
+      )
       const r = reading()
 
       return {
         cls: 'particle',
-        bulkSpeed: Number((Math.hypot(...shift) / beats / Math.SQRT2).toFixed(6)),
-        huskSpeed: Number((Math.hypot(shift[0] ?? 0, shift[1] ?? 0, shift[2] ?? 0) / beats).toFixed(6)),
+        bulkSpeed: Number(
+          (Math.hypot(...shift) / beats / Math.SQRT2).toFixed(6),
+        ),
+        huskSpeed: Number(
+          (
+            Math.hypot(shift[0] ?? 0, shift[1] ?? 0, shift[2] ?? 0) /
+            beats
+          ).toFixed(6),
+        ),
         recurEvery: beats,
         docks,
         slots: s.slots,
@@ -185,12 +221,29 @@ export function followSeed(input: {
       throw error
     }
 
-    return { cls: 'dressing', bulkSpeed: -1, huskSpeed: -1, recurEvery: -1, docks, slots: -1, pieces: -1, huskDocks: -1, charge: Number.NaN }
+    return {
+      cls: 'dressing',
+      bulkSpeed: -1,
+      huskSpeed: -1,
+      recurEvery: -1,
+      docks,
+      slots: -1,
+      pieces: -1,
+      huskDocks: -1,
+      charge: Number.NaN,
+    }
   }
 
   const s = engine.support()
   const r = reading()
-  const base = { bulkSpeed: -1, huskSpeed: -1, recurEvery: -1, docks, huskDocks: r.huskDocks, charge: r.charge }
+  const base = {
+    bulkSpeed: -1,
+    huskSpeed: -1,
+    recurEvery: -1,
+    docks,
+    huskDocks: r.huskDocks,
+    charge: r.charge,
+  }
 
   if (!everDiffered) {
     return { ...base, cls: 'vacuum', slots: 0, pieces: 0 }
@@ -208,5 +261,10 @@ export function followSeed(input: {
     return { ...base, cls: 'dressing', slots: s.slots, pieces: count }
   }
 
-  return { ...base, cls: count >= 2 ? 'split' : 'bound', slots: s.slots, pieces: count }
+  return {
+    ...base,
+    cls: count >= 2 ? 'split' : 'bound',
+    slots: s.slots,
+    pieces: count,
+  }
 }

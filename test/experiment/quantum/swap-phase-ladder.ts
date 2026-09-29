@@ -29,10 +29,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { generateGroup } from '@/code/dynamics/finite-gauge'
-import { QUTRIT_T, SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
+import {
+  QUTRIT_T,
+  SU3_SUBGROUPS,
+} from '@/code/algebra/group/su3-subgroups'
 import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
 import { swapPhase, wignerKernel } from '@/code/rule/fear-weave'
-import { adjointOperator, identityOperator, multiplyOperators, operator, tensorOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  adjointOperator,
+  identityOperator,
+  multiplyOperators,
+  operator,
+  tensorOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 
 const OMEGA = (2 * Math.PI) / 3
 const BEAM = 500
@@ -83,13 +93,20 @@ class TopScores {
     for (;;) {
       const l = 2 * i + 1
       const r = l + 1
+
       let m = i
 
-      if (l < this.size && (this.score[l] ?? 0) < (this.score[m] ?? 0)) {
+      if (
+        l < this.size &&
+        (this.score[l] ?? 0) < (this.score[m] ?? 0)
+      ) {
         m = l
       }
 
-      if (r < this.size && (this.score[r] ?? 0) < (this.score[m] ?? 0)) {
+      if (
+        r < this.size &&
+        (this.score[r] ?? 0) < (this.score[m] ?? 0)
+      ) {
         m = r
       }
 
@@ -113,7 +130,10 @@ class TopScores {
   }
 
   sorted(): { score: number; id: number }[] {
-    return Array.from({ length: this.size }, (_, i) => ({ score: this.score[i] ?? 0, id: this.id[i] ?? 0 })).sort((a, b) => b.score - a.score || a.id - b.id)
+    return Array.from({ length: this.size }, (_, i) => ({
+      score: this.score[i] ?? 0,
+      id: this.id[i] ?? 0,
+    })).sort((a, b) => b.score - a.score || a.id - b.id)
   }
 }
 
@@ -136,7 +156,10 @@ function phaseKey(a: Operator): string {
   const parts: number[] = []
 
   for (let i = 0; i < a.n * a.n; i++) {
-    parts.push(Math.round(((a.re[i] ?? 0) * c - (a.im[i] ?? 0) * s) * 1e6) || 0, Math.round(((a.re[i] ?? 0) * s + (a.im[i] ?? 0) * c) * 1e6) || 0)
+    parts.push(
+      Math.round(((a.re[i] ?? 0) * c - (a.im[i] ?? 0) * s) * 1e6) || 0,
+      Math.round(((a.re[i] ?? 0) * s + (a.im[i] ?? 0) * c) * 1e6) || 0,
+    )
   }
 
   return parts.join(',')
@@ -152,7 +175,10 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const group = generateGroup({ generators: SU3_SUBGROUPS.sigma648.generators, limit: 4000 })
+    const group = generateGroup({
+      generators: SU3_SUBGROUPS.sigma648.generators,
+      limit: 4000,
+    })
     const seen = new Set<string>()
     const clifford: Operator[] = []
 
@@ -197,7 +223,12 @@ export default experiment({
 
     const climb = (target: Operator, skipIdentity: boolean) => {
       const xd = adjointOperator(target)
-      let prefixes: Operator[] = clifford.flatMap(c => [multiplyOperators(tensorOperators(c, one), u), multiplyOperators(tensorOperators(c, one), ud)])
+
+      let prefixes: Operator[] = clifford.flatMap(c => [
+        multiplyOperators(tensorOperators(c, one), u),
+        multiplyOperators(tensorOperators(c, one), ud),
+      ])
+
       const levels: { distance: number; word: Operator }[] = []
       const q = new Float64Array(18)
 
@@ -222,8 +253,13 @@ export default experiment({
                     const zr = z.re[at] ?? 0
                     const zi = z.im[at] ?? 0
 
-                    q[2 * (i2 * 3 + j2)] = (q[2 * (i2 * 3 + j2)] ?? 0) + ar * zr - ai * zi
-                    q[2 * (i2 * 3 + j2) + 1] = (q[2 * (i2 * 3 + j2) + 1] ?? 0) + ar * zi + ai * zr
+                    q[2 * (i2 * 3 + j2)] =
+                      (q[2 * (i2 * 3 + j2)] ?? 0) + ar * zr - ai * zi
+
+                    q[2 * (i2 * 3 + j2) + 1] =
+                      (q[2 * (i2 * 3 + j2) + 1] ?? 0) +
+                      ar * zi +
+                      ai * zr
                   }
                 }
               }
@@ -259,13 +295,17 @@ export default experiment({
 
         const kept: Operator[] = []
         const keys = new Set<string>()
+
         let best: { distance: number; word: Operator } | undefined
 
         for (const { score, id } of top.sorted()) {
           const b = id % n
           const a = Math.floor(id / n) % n
           const pi = Math.floor(id / (n * n))
-          const word = multiplyOperators(prefixes[pi] ?? u, tensorOperators(clifford[a] ?? one, clifford[b] ?? one))
+          const word = multiplyOperators(
+            prefixes[pi] ?? u,
+            tensorOperators(clifford[a] ?? one, clifford[b] ?? one),
+          )
           const key = phaseKey(word)
 
           if (keys.has(key)) {
@@ -273,7 +313,10 @@ export default experiment({
           }
 
           keys.add(key)
-          best = best ?? { distance: Math.sqrt(Math.max(0, 1 - score / 9)), word }
+          best = best ?? {
+            distance: Math.sqrt(Math.max(0, 1 - score / 9)),
+            word,
+          }
           kept.push(word)
 
           if (kept.length >= BEAM) {
@@ -282,20 +325,30 @@ export default experiment({
         }
 
         levels.push(best ?? { distance: 1, word: u })
-        prefixes = kept.flatMap(w => [multiplyOperators(w, u), multiplyOperators(w, ud)])
+        prefixes = kept.flatMap(w => [
+          multiplyOperators(w, u),
+          multiplyOperators(w, ud),
+        ])
       }
 
       return levels
     }
 
-    const grain = (word: Operator): { power: number; negative: number } => {
+    const grain = (
+      word: Operator,
+    ): { power: number; negative: number } => {
       const k = wignerKernel(word)
+
       let power = -1
 
       for (let p = 0; p <= 2 * LEVELS + 2 && power < 0; p++) {
         const s = 2 ** p
 
-        power = k.every(row => row.every(x => Math.abs(s * x - Math.round(s * x)) < 1e-7)) ? p : -1
+        power = k.every(row =>
+          row.every(x => Math.abs(s * x - Math.round(s * x)) < 1e-7),
+        )
+          ? p
+          : -1
       }
 
       return { power, negative: k.flat().filter(x => x < -1e-9).length }
@@ -318,13 +371,35 @@ export default experiment({
       claim:
         'the beam reproduces the exhaustive one-swap-phase distances and the two-swap-phase step, but misses the two-swap-phase approach to T (0.497 found against the exhaustive 0.395, a word that is classical after cancellation), a failed gate that stands; the best words found come closer to T than any classical element first with 4 swap phases (0.362, grain 2^8) and then 6 (0.348, grain 2^12), the smallest step reaches sqrt(1/8) = 0.354 at 4, and each swap phase in a best word costs a factor 4 of grain up to 6',
       metrics: {
-        ...Object.fromEntries(toT.map((l, i) => [`distanceToTWith${i + 1}`, l.distance])),
-        ...Object.fromEntries(toOne.map((l, i) => [`smallestStepWith${i + 1}`, l.distance])),
-        ...Object.fromEntries(grainT.map((g, i) => [`grainPowerOf2TWord${i + 1}`, g.power])),
-        ...Object.fromEntries(grainT.map((g, i) => [`negativeEntriesTWord${i + 1}`, g.negative])),
-        ...Object.fromEntries(grainOne.map((g, i) => [`grainPowerOf2StepWord${i + 1}`, g.power])),
-        ...Object.fromEntries(grainOne.map((g, i) => [`negativeEntriesStepWord${i + 1}`, g.negative])),
-        firstLevelBelowClassicalT: toT.findIndex(l => l.distance < classicalT - 1e-9) + 1,
+        ...Object.fromEntries(
+          toT.map((l, i) => [`distanceToTWith${i + 1}`, l.distance]),
+        ),
+        ...Object.fromEntries(
+          toOne.map((l, i) => [`smallestStepWith${i + 1}`, l.distance]),
+        ),
+        ...Object.fromEntries(
+          grainT.map((g, i) => [`grainPowerOf2TWord${i + 1}`, g.power]),
+        ),
+        ...Object.fromEntries(
+          grainT.map((g, i) => [
+            `negativeEntriesTWord${i + 1}`,
+            g.negative,
+          ]),
+        ),
+        ...Object.fromEntries(
+          grainOne.map((g, i) => [
+            `grainPowerOf2StepWord${i + 1}`,
+            g.power,
+          ]),
+        ),
+        ...Object.fromEntries(
+          grainOne.map((g, i) => [
+            `negativeEntriesStepWord${i + 1}`,
+            g.negative,
+          ]),
+        ),
+        firstLevelBelowClassicalT:
+          toT.findIndex(l => l.distance < classicalT - 1e-9) + 1,
       },
       control: {
         classicalDistanceToT: classicalT,

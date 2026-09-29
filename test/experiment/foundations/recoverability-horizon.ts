@@ -94,8 +94,7 @@ export default experiment({
       for (let d = 0; d < degree; d++) {
         const held = will.data[CELL_A * degree + d]!
 
-        will.data[CELL_A * degree + d] =
-          will.data[CELL_B * degree + d]!
+        will.data[CELL_A * degree + d] = will.data[CELL_B * degree + d]!
         will.data[CELL_B * degree + d] = held
       }
 
@@ -159,11 +158,14 @@ export default experiment({
     const allWithinOneBeat = nonDegenerate.every(r => r.firstBeat === 1)
 
     // and the hidden case really was hidden to begin with, at the scales where the cells share a block
-    const someScaleHidTheDifference = nonDegenerate.some(r => r.sameBlock)
+    const someScaleHidTheDifference = nonDegenerate.some(
+      r => r.sameBlock,
+    )
 
     // CONTROL: the degenerate scale must return never, proving the measure can report that
     const degenerateNeverDistinguishes =
-      degenerate.length > 0 && degenerate.every(r => r.firstBeat === null)
+      degenerate.length > 0 &&
+      degenerate.every(r => r.firstBeat === null)
 
     const noIntermediateHorizon =
       everyNonDegenerateDistinguishes && allWithinOneBeat
@@ -190,7 +192,9 @@ export default experiment({
         noIntermediateHorizon: noIntermediateHorizon ? 1 : 0,
       },
       control: {
-        degenerateNeverDistinguishes: degenerateNeverDistinguishes ? 1 : 0,
+        degenerateNeverDistinguishes: degenerateNeverDistinguishes
+          ? 1
+          : 0,
         degenerateRegionCount: degenerate[0]?.regionCount ?? -1,
         fineStatesDiffer: fineStatesDiffer ? 1 : 0,
         someScaleHidTheDifference: someScaleHidTheDifference ? 1 : 0,

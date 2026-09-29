@@ -39,13 +39,33 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { dominantAngularFrequency } from '@/code/measure/dominant-frequency'
 import { refineTone } from '@/code/measure/stand-in-atom'
-import { beat, emptyWalkOn, freeSymbol, husk18, line2, makeTorus, meanPosition, scalarState, slotState, unitaryPhases, zeroPhase, type Torus, type Walk } from '@/code/measure/stand-in-hydrogen'
+import {
+  beat,
+  emptyWalkOn,
+  freeSymbol,
+  husk18,
+  line2,
+  makeTorus,
+  meanPosition,
+  scalarState,
+  slotState,
+  unitaryPhases,
+  zeroPhase,
+  type Torus,
+  type Walk,
+} from '@/code/measure/stand-in-hydrogen'
 
 // the velocity series along axis 0
-function velocities(torus: Torus, start: Walk, beats: number): number[] {
+function velocities(
+  torus: Torus,
+  start: Walk,
+  beats: number,
+): number[] {
   const phase = zeroPhase(torus.docks)
+
   let w = Float64Array.from(start)
   let spare = emptyWalkOn(torus)
+
   const xs: number[] = []
 
   for (let t = 0; t <= beats; t++) {
@@ -72,6 +92,7 @@ function bandPacket(torus: Torus, k: number, sigma: number): Walk {
   const column = Math.abs(u.phases[0]!) < Math.abs(u.phases[1]!) ? 0 : 1
   const w = emptyWalkOn(torus)
   const h = torus.side / 2
+
   let norm = 0
 
   for (let x = 0; x < torus.side; x++) {
@@ -109,6 +130,7 @@ export default experiment({
     const metrics: Record<string, number> = {}
     const line = makeTorus(line2(), 8192)
     const carriers = [0, 0.5, 1, 1.5]
+
     let gate1 = true
     let omega0 = 0
 
@@ -151,27 +173,62 @@ export default experiment({
         512,
       ),
     )
-    const bandLineSeries = velocities(line, bandPacket(line, 0.5, 256), 512)
-    const bandLine = refineTone(bandLineSeries, slotLine.omega - 1e-3, slotLine.omega + 1e-3)
+    const bandLineSeries = velocities(
+      line,
+      bandPacket(line, 0.5, 256),
+      512,
+    )
+    const bandLine = refineTone(
+      bandLineSeries,
+      slotLine.omega - 1e-3,
+      slotLine.omega + 1e-3,
+    )
 
-    metrics.line_controlAmplitudeRatio = bandLine.amplitude / slotLine.amplitude
+    metrics.line_controlAmplitudeRatio =
+      bandLine.amplitude / slotLine.amplitude
 
     // second run: a 64^3 torus and 40 beats, so the packet (speed near 0.8) never reaches the seam, and the
     // tone searched in the predicted band [1.9, 2.3] rather than at the strongest bin (see the notes)
     const husk = makeTorus(husk18(), 64)
-    const huskSeries = velocities(husk, slotState(husk, 0, x => [Math.exp(-(x[0]! ** 2 + x[1]! ** 2 + x[2]! ** 2) / (2 * 16)), 0]), 40)
+    const huskSeries = velocities(
+      husk,
+      slotState(husk, 0, x => [
+        Math.exp(-(x[0]! ** 2 + x[1]! ** 2 + x[2]! ** 2) / (2 * 16)),
+        0,
+      ]),
+      40,
+    )
     const huskSlot = refineTone(huskSeries, 1.9, 2.3)
-    const huskBandSeries = velocities(husk, scalarState(husk, x => [Math.exp(-(x[0]! ** 2 + x[1]! ** 2 + x[2]! ** 2) / (2 * 16)), 0]), 40)
-    const huskBand = refineTone(huskBandSeries, huskSlot.omega - 1e-3, huskSlot.omega + 1e-3)
+    const huskBandSeries = velocities(
+      husk,
+      scalarState(husk, x => [
+        Math.exp(-(x[0]! ** 2 + x[1]! ** 2 + x[2]! ** 2) / (2 * 16)),
+        0,
+      ]),
+      40,
+    )
+    const huskBand = refineTone(
+      huskBandSeries,
+      huskSlot.omega - 1e-3,
+      huskSlot.omega + 1e-3,
+    )
 
     metrics.husk_omega = huskSlot.omega
-    metrics.husk_relativeMiss = Math.abs(huskSlot.omega / ((2 * Math.PI) / 3) - 1)
+    metrics.husk_relativeMiss = Math.abs(
+      huskSlot.omega / ((2 * Math.PI) / 3) - 1,
+    )
     metrics.husk_amplitude = huskSlot.amplitude
-    metrics.husk_controlAmplitudeRatio = huskBand.amplitude / huskSlot.amplitude
+    metrics.husk_controlAmplitudeRatio =
+      huskBand.amplitude / huskSlot.amplitude
 
     const gate3 = metrics.husk_relativeMiss <= 1e-3
     const gate4 = metrics.line_controlAmplitudeRatio < 1e-3
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
@@ -184,7 +241,7 @@ export default experiment({
         gateOneBandControl: gate4 ? 1 : 0,
       },
       notes:
-        'L2. The token is the stand-in charge\'s walk; the band-projected stand-in of E-MTR-0001 holds one band by construction and so cannot tremble. The center of the token moves and trembles; no vibe moves, the stream copies each slot value one dock along. The husk token is the D4 token at k4 = 0 (depth24 = husk18), so the bulk token trembles at the same 2 pi / 3. FIRST RUN (2026-09-26), status partial: the line law and the chord passed (2.094400 against 2.094395, chord 1.732053); the husk tone read 0.197756 and the line control 1.1e-3 against its 1e-3 gate. A diagnostic probe (tmp/atom-zb-probe.ts) traced the husk reading to the harness, not the token: on the 32^3 torus the width-4 packet moves at about 0.75 per beat and wraps the torus every 32 beats, and meanPosition has no wrap correction, so the strongest tone was the wrap (2 pi / 32 = 0.196); the 2 pi / 3 tone was present at 2.106 with amplitude 0.078. SECOND RUN: 64^3 torus, 40 beats, the husk tone searched in the predicted band [1.9, 2.3] (a change of method, disclosed); the gates are unchanged. SECOND RUN result, status partial: the husk token trembles at 2.046 (2.3 percent below 2 pi / 3, against a 1e-3 gate; 40 beats resolve a tone only to about 2 pi / 40 and the token\'s 17 other bands spread off k = 0, so this is a resolution limit and a multi-band tone, not a measured shift), and the line control stays at 1.1e-3 against 1e-3: a knife-edge gate that failed. The one-band start on the husk trembles 1.3e-4 as much.',
+        "L2. The token is the stand-in charge's walk; the band-projected stand-in of E-MTR-0001 holds one band by construction and so cannot tremble. The center of the token moves and trembles; no vibe moves, the stream copies each slot value one dock along. The husk token is the D4 token at k4 = 0 (depth24 = husk18), so the bulk token trembles at the same 2 pi / 3. FIRST RUN (2026-09-26), status partial: the line law and the chord passed (2.094400 against 2.094395, chord 1.732053); the husk tone read 0.197756 and the line control 1.1e-3 against its 1e-3 gate. A diagnostic probe (tmp/atom-zb-probe.ts) traced the husk reading to the harness, not the token: on the 32^3 torus the width-4 packet moves at about 0.75 per beat and wraps the torus every 32 beats, and meanPosition has no wrap correction, so the strongest tone was the wrap (2 pi / 32 = 0.196); the 2 pi / 3 tone was present at 2.106 with amplitude 0.078. SECOND RUN: 64^3 torus, 40 beats, the husk tone searched in the predicted band [1.9, 2.3] (a change of method, disclosed); the gates are unchanged. SECOND RUN result, status partial: the husk token trembles at 2.046 (2.3 percent below 2 pi / 3, against a 1e-3 gate; 40 beats resolve a tone only to about 2 pi / 40 and the token's 17 other bands spread off k = 0, so this is a resolution limit and a multi-band tone, not a measured shift), and the line control stays at 1.1e-3 against 1e-3: a knife-edge gate that failed. The one-band start on the husk trembles 1.3e-4 as much.",
     })
   },
 })

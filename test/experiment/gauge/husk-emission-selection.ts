@@ -29,15 +29,43 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { huskSymbolizer, readHuskStencil, sphereGrid } from '@/code/measure/husk-emission'
-import { bandGradient, currentAmplitude, goldenRuleCurrents, transitionCurrent, type VectorAmplitude } from '@/code/measure/stand-in-light'
-import { HUSK_ATOM, OH, ROWS, character, coulombBox, irrepWeight, lowestLevels, makeAtom, multipletBasis, type Atom, type Irrep, type Row } from '@/code/measure/stand-in-atom'
+import {
+  huskSymbolizer,
+  readHuskStencil,
+  sphereGrid,
+} from '@/code/measure/husk-emission'
+import {
+  bandGradient,
+  currentAmplitude,
+  goldenRuleCurrents,
+  transitionCurrent,
+  type VectorAmplitude,
+} from '@/code/measure/stand-in-light'
+import {
+  HUSK_ATOM,
+  OH,
+  ROWS,
+  character,
+  coulombBox,
+  irrepWeight,
+  lowestLevels,
+  makeAtom,
+  multipletBasis,
+  type Atom,
+  type Irrep,
+  type Row,
+} from '@/code/measure/stand-in-atom'
 
 const SIDE = 64
 const A = 3
 const FIELD = 1e-4
 
-type Level = { readonly name: string; readonly irrep: Irrep; readonly energy: number; readonly vector: Float64Array }
+type Level = {
+  readonly name: string
+  readonly irrep: Irrep
+  readonly energy: number
+  readonly vector: Float64Array
+}
 
 // the multiplicity of f in i x T1u
 function allowed(i: Irrep, f: Irrep): boolean {
@@ -51,21 +79,37 @@ function allowed(i: Irrep, f: Irrep): boolean {
 }
 
 // the full and dipole rates of upper -> each vector of `lower`
-function rates(input: { atom: Atom; upper: Float64Array; lower: Float64Array[]; omega: number; symbol: ReturnType<typeof huskSymbolizer>; grid: ReturnType<typeof sphereGrid> }): { full: number; dipole: number } {
+function rates(input: {
+  atom: Atom
+  upper: Float64Array
+  lower: Float64Array[]
+  omega: number
+  symbol: ReturnType<typeof huskSymbolizer>
+  grid: ReturnType<typeof sphereGrid>
+}): { full: number; dipole: number } {
   const { atom, upper, lower, omega, symbol, grid } = input
   const gradient = bandGradient(atom)
   const full: ((k: readonly number[]) => VectorAmplitude)[] = []
   const dipole: ((k: readonly number[]) => VectorAmplitude)[] = []
 
   for (const f of lower) {
-    const amplitude = currentAmplitude(SIDE, transitionCurrent(atom, gradient, f, upper))
+    const amplitude = currentAmplitude(
+      SIDE,
+      transitionCurrent(atom, gradient, f, upper),
+    )
     const zero = amplitude([0, 0, 0])
 
     full.push(amplitude)
     dipole.push(() => zero)
   }
 
-  const r = goldenRuleCurrents({ symbol, currents: [...full, ...dipole], omega, grid, lift: 6 }).rates
+  const r = goldenRuleCurrents({
+    symbol,
+    currents: [...full, ...dipole],
+    omega,
+    grid,
+    lift: 6,
+  }).rates
 
   return {
     full: r.slice(0, lower.length).reduce((s, v) => s + v, 0),
@@ -89,20 +133,43 @@ export default experiment({
     const grid = sphereGrid(16, 32)
     const atom = makeAtom({ kind: HUSK_ATOM, side: SIDE, a: A })
     const levels: Level[] = []
-    const add = (irrep: Irrep, names: string[]): void => {
-      const lv = lowestLevels({ atom, row: ROWS[irrep]!, count: names.length })
 
-      names.forEach((name, i) => levels.push({ name, irrep, energy: lv.values[i]!, vector: lv.vectors[i]! }))
+    const add = (irrep: Irrep, names: string[]): void => {
+      const lv = lowestLevels({
+        atom,
+        row: ROWS[irrep]!,
+        count: names.length,
+      })
+
+      names.forEach((name, i) =>
+        levels.push({
+          name,
+          irrep,
+          energy: lv.values[i]!,
+          vector: lv.vectors[i]!,
+        }),
+      )
     }
 
     add('A1g', ['1s', '2s', '3s'])
     add('T1u', ['2p', '3p'])
     add('Eg', ['3dEg'])
     add('T2g', ['3dT2g'])
-    levels.forEach(l => (metrics[`E_${l.name}_OverRy`] = l.energy / atom.rydberg))
+    levels.forEach(
+      l => (metrics[`E_${l.name}_OverRy`] = l.energy / atom.rydberg),
+    )
 
-    const bases = new Map(levels.map(l => [l.name, multipletBasis(l.vector, SIDE)]))
-    const table: { from: string; to: string; allowed: boolean; full: number; dipole: number; zeroToZero: boolean }[] = []
+    const bases = new Map(
+      levels.map(l => [l.name, multipletBasis(l.vector, SIDE)]),
+    )
+    const table: {
+      from: string
+      to: string
+      allowed: boolean
+      full: number
+      dipole: number
+      zeroToZero: boolean
+    }[] = []
 
     for (const upper of levels) {
       for (const lower of levels) {
@@ -110,13 +177,30 @@ export default experiment({
           continue
         }
 
-        const r = rates({ atom, upper: upper.vector, lower: bases.get(lower.name)!, omega: upper.energy - lower.energy, symbol, grid })
+        const r = rates({
+          atom,
+          upper: upper.vector,
+          lower: bases.get(lower.name)!,
+          omega: upper.energy - lower.energy,
+          symbol,
+          grid,
+        })
 
-        table.push({ from: upper.name, to: lower.name, allowed: allowed(upper.irrep, lower.irrep), full: r.full, dipole: r.dipole, zeroToZero: upper.irrep === 'A1g' && lower.irrep === 'A1g' })
+        table.push({
+          from: upper.name,
+          to: lower.name,
+          allowed: allowed(upper.irrep, lower.irrep),
+          full: r.full,
+          dipole: r.dipole,
+          zeroToZero: upper.irrep === 'A1g' && lower.irrep === 'A1g',
+        })
       }
     }
 
-    const reference = table.find(t => t.from === '2p' && t.to === '1s')!.full
+    const reference = table.find(
+      t => t.from === '2p' && t.to === '1s',
+    )!.full
+
     let gate1 = true
     let gate2 = true
 
@@ -125,12 +209,15 @@ export default experiment({
 
       metrics[`${key}_allowed`] = t.allowed ? 1 : 0
       metrics[`${key}_fullOverReference`] = t.full / reference
-      metrics[`${key}_fullOverDipole`] = t.dipole > 0 ? t.full / t.dipole : 0
+      metrics[`${key}_fullOverDipole`] =
+        t.dipole > 0 ? t.full / t.dipole : 0
 
       if (t.allowed) {
-        gate1 = gate1 && t.full > 0 && Math.abs(t.full / t.dipole - 1) <= 0.1
+        gate1 =
+          gate1 && t.full > 0 && Math.abs(t.full / t.dipole - 1) <= 0.1
       } else {
-        gate2 = gate2 && t.full / reference < (t.zeroToZero ? 1e-4 : 1e-2)
+        gate2 =
+          gate2 && t.full / reference < (t.zeroToZero ? 1e-4 : 1e-2)
       }
     }
 
@@ -140,15 +227,33 @@ export default experiment({
     for (let z = 0; z < SIDE; z++) {
       for (let y = 0; y < SIDE; y++) {
         for (let x = 0; x < SIDE; x++) {
-          starkPotential[x + SIDE * (y + SIDE * z)] = starkPotential[x + SIDE * (y + SIDE * z)]! + FIELD * (x - SIDE / 2)
+          starkPotential[x + SIDE * (y + SIDE * z)] =
+            starkPotential[x + SIDE * (y + SIDE * z)]! +
+            FIELD * (x - SIDE / 2)
         }
       }
     }
 
-    const stark = makeAtom({ kind: HUSK_ATOM, side: SIDE, a: A, potential: starkPotential })
-    const starkRow: Row = { irrep: 'A1g', parity: [0, 1, 1], permutation: { kind: 'swap', axes: [1, 2], sign: 1 }, angular: x => 1 + 0.3 * x }
-    const starkLevels = lowestLevels({ atom: stark, row: starkRow, count: 3 })
-    const weights = starkLevels.vectors.map(v => irrepWeight('A1g', v, SIDE))
+    const stark = makeAtom({
+      kind: HUSK_ATOM,
+      side: SIDE,
+      a: A,
+      potential: starkPotential,
+    })
+    const starkRow: Row = {
+      irrep: 'A1g',
+      parity: [0, 1, 1],
+      permutation: { kind: 'swap', axes: [1, 2], sign: 1 },
+      angular: x => 1 + 0.3 * x,
+    }
+    const starkLevels = lowestLevels({
+      atom: stark,
+      row: starkRow,
+      count: 3,
+    })
+    const weights = starkLevels.vectors.map(v =>
+      irrepWeight('A1g', v, SIDE),
+    )
     const twoS = weights[1]! >= weights[2]! ? 1 : 2
     const starkRate = rates({
       atom: stark,
@@ -163,9 +268,16 @@ export default experiment({
     metrics.stark_twoSToGroundOverReference = starkRate / reference
 
     const gate3 = starkRate / reference > 1e-2
-    const status = gate1 && gate2 && gate3 ? 'pass' : gate1 && gate3 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3
+        ? 'pass'
+        : gate1 && gate3
+          ? 'partial'
+          : 'fail'
     const forbidden = table.filter(t => !t.allowed)
-    const worstForbidden = Math.max(...forbidden.map(t => t.full / reference))
+    const worstForbidden = Math.max(
+      ...forbidden.map(t => t.full / reference),
+    )
 
     return verdict({
       status,

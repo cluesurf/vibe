@@ -54,7 +54,10 @@ export type ShapedState = HuskLightState & {
 
 export type ShapedOptions = { levels: number; cyclic: boolean }
 
-export function emptyShaped(geometry: HuskGeometry, levels: number): ShapedState {
+export function emptyShaped(
+  geometry: HuskGeometry,
+  levels: number,
+): ShapedState {
   const n = geometry.triangles
 
   return {
@@ -65,7 +68,10 @@ export function emptyShaped(geometry: HuskGeometry, levels: number): ShapedState
     spatial: new Int32Array(n),
     string: new Int32Array(geometry.huskLinks),
     upper: Array.from({ length: levels - 1 }, () => new Int32Array(n)),
-    upperLag: Array.from({ length: levels - 1 }, () => new Int32Array(n)),
+    upperLag: Array.from(
+      { length: levels - 1 },
+      () => new Int32Array(n),
+    ),
   }
 }
 
@@ -84,28 +90,59 @@ export function copyShaped(s: ShapedState): ShapedState {
 
 // every array of a shaped state, for comparisons
 export function shapedArrays(s: ShapedState): Int32Array[] {
-  return [s.angle, s.potential, s.counter, s.lag, s.spatial, s.string, ...s.upper, ...s.upperLag]
+  return [
+    s.angle,
+    s.potential,
+    s.counter,
+    s.lag,
+    s.spatial,
+    s.string,
+    ...s.upper,
+    ...s.upperLag,
+  ]
 }
 
 // scratch for one engine, allocated once
-export type ShapedScratch = { flux: Int32Array; field: Int32Array; curl: Int32Array[]; s: Int32Array[] }
+export type ShapedScratch = {
+  flux: Int32Array
+  field: Int32Array
+  curl: Int32Array[]
+  s: Int32Array[]
+}
 
-export function makeShapedScratch(geometry: HuskGeometry, levels: number): ShapedScratch {
+export function makeShapedScratch(
+  geometry: HuskGeometry,
+  levels: number,
+): ShapedScratch {
   return {
     flux: new Int32Array(geometry.huskLinks),
     field: new Int32Array(geometry.triangles),
-    curl: Array.from({ length: levels }, () => new Int32Array(geometry.huskLinks)),
-    s: Array.from({ length: levels }, () => new Int32Array(geometry.triangles)),
+    curl: Array.from(
+      { length: levels },
+      () => new Int32Array(geometry.huskLinks),
+    ),
+    s: Array.from(
+      { length: levels },
+      () => new Int32Array(geometry.triangles),
+    ),
   }
 }
 
-function curlWeighted(g: HuskGeometry, x: Int32Array, p: number): number {
+function curlWeighted(
+  g: HuskGeometry,
+  x: Int32Array,
+  p: number,
+): number {
   const b = p * 3
   const l0 = g.triLinks[b]!
   const l1 = g.triLinks[b + 1]!
   const l2 = g.triLinks[b + 2]!
 
-  return g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! + g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! + g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  return (
+    g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! +
+    g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! +
+    g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  )
 }
 
 // out = C^T x
@@ -115,7 +152,9 @@ function curlT(g: HuskGeometry, x: Int32Array, out: Int32Array): void {
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const b = p * 3
 
@@ -128,7 +167,12 @@ function curlT(g: HuskGeometry, x: Int32Array, out: Int32Array): void {
 }
 
 // out = S - C^T U, centered mod q when the potential is cyclic
-export function shapedFlux(engine: HuskEngine, s: HuskLightState, cyclic: boolean, out: Int32Array): void {
+export function shapedFlux(
+  engine: HuskEngine,
+  s: HuskLightState,
+  cyclic: boolean,
+  out: Int32Array,
+): void {
   const g = engine.geometry
 
   out.set(s.string)
@@ -136,7 +180,9 @@ export function shapedFlux(engine: HuskEngine, s: HuskLightState, cyclic: boolea
   for (let p = 0; p < g.triangles; p++) {
     const u = s.potential[p]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     const b = p * 3
 
@@ -151,26 +197,43 @@ export function shapedFlux(engine: HuskEngine, s: HuskLightState, cyclic: boolea
     const q = engine.q
     const h = engine.depth
 
-    for (let l = 0; l < g.huskLinks; l++) out[l] = mod(out[l]! + h, q) - h
+    for (let l = 0; l < g.huskLinks; l++) {
+      out[l] = mod(out[l]! + h, q) - h
+    }
   }
 }
 
-function fields(engine: HuskEngine, s: ShapedState, out: Int32Array): void {
+function fields(
+  engine: HuskEngine,
+  s: ShapedState,
+  out: Int32Array,
+): void {
   const g = engine.geometry
   const nb = engine.nb
   const half = nb / 2
 
-  for (let p = 0; p < g.triangles; p++) out[p] = mod(curlWeighted(g, s.angle, p) + half, nb) - half
+  for (let p = 0; p < g.triangles; p++) {
+    out[p] = mod(curlWeighted(g, s.angle, p) + half, nb) - half
+  }
 }
 
 // the level-i counters (i = 1 .. L) at time t, in the state as it stands
-const levelNow = (s: ShapedState, i: number): Int32Array => (i === 1 ? s.counter : s.upper[i - 2]!)
-const levelLag = (s: ShapedState, i: number): Int32Array => (i === 1 ? s.lag : s.upperLag[i - 2]!)
+const levelNow = (s: ShapedState, i: number): Int32Array =>
+  i === 1 ? s.counter : s.upper[i - 2]!
+const levelLag = (s: ShapedState, i: number): Int32Array =>
+  i === 1 ? s.lag : s.upperLag[i - 2]!
 
-function potentialWrap(engine: HuskEngine, cyclic: boolean, n: number, u: number): number {
+function potentialWrap(
+  engine: HuskEngine,
+  cyclic: boolean,
+  n: number,
+  u: number,
+): number {
   const h = engine.depth
 
-  if (cyclic) return mod(u + h, engine.q) - h
+  if (cyclic) {
+    return mod(u + h, engine.q) - h
+  }
 
   const w = n * h
 
@@ -178,7 +241,12 @@ function potentialWrap(engine: HuskEngine, cyclic: boolean, n: number, u: number
 }
 
 // one beat, in place
-export function shapedBeat(engine: HuskEngine, s: ShapedState, scratch: ShapedScratch, options: ShapedOptions): void {
+export function shapedBeat(
+  engine: HuskEngine,
+  s: ShapedState,
+  scratch: ShapedScratch,
+  options: ShapedOptions,
+): void {
   const g = engine.geometry
   const { depth: h, p: pp, q } = engine
   const levels = options.levels
@@ -200,12 +268,15 @@ export function shapedBeat(engine: HuskEngine, s: ShapedState, scratch: ShapedSc
 
     curlT(g, levelNow(s, i), curl)
 
-    for (let p = 0; p < g.triangles; p++) out[p] = g.multiplicity[p]! * pp * curlWeighted(g, curl, p)
+    for (let p = 0; p < g.triangles; p++) {
+      out[p] = g.multiplicity[p]! * pp * curlWeighted(g, curl, p)
+    }
   }
 
   for (let p = 0; p < g.triangles; p++) {
     // the last level: a first-order carry of s_L / q
     const top = scratch.s[levels - 1]![p]!
+
     let w = floorDiv(top + s.spatial[p]! + h, q)
 
     s.spatial[p] = top + s.spatial[p]! - q * w
@@ -224,17 +295,28 @@ export function shapedBeat(engine: HuskEngine, s: ShapedState, scratch: ShapedSc
 
     // level 1: the kick
     const n = g.multiplicity[p]!
-    const rest = n * pp * scratch.field[p]! - 2 * s.counter[p]! + s.lag[p]! + w
+    const rest =
+      n * pp * scratch.field[p]! - 2 * s.counter[p]! + s.lag[p]! + w
     const k = floorDiv(rest + h, q)
 
     s.lag[p] = s.counter[p]!
     s.counter[p] = q * k - rest
-    s.potential[p] = potentialWrap(engine, options.cyclic, n, s.potential[p]! + k)
+    s.potential[p] = potentialWrap(
+      engine,
+      options.cyclic,
+      n,
+      s.potential[p]! + k,
+    )
   }
 }
 
 // the inverse of shapedBeat
-export function shapedBeatBack(engine: HuskEngine, s: ShapedState, scratch: ShapedScratch, options: ShapedOptions): void {
+export function shapedBeatBack(
+  engine: HuskEngine,
+  s: ShapedState,
+  scratch: ShapedScratch,
+  options: ShapedOptions,
+): void {
   const g = engine.geometry
   const { depth: h, p: pp, q } = engine
   const levels = options.levels
@@ -248,12 +330,15 @@ export function shapedBeatBack(engine: HuskEngine, s: ShapedState, scratch: Shap
 
     curlT(g, levelLag(s, i), curl)
 
-    for (let p = 0; p < g.triangles; p++) out[p] = g.multiplicity[p]! * pp * curlWeighted(g, curl, p)
+    for (let p = 0; p < g.triangles; p++) {
+      out[p] = g.multiplicity[p]! * pp * curlWeighted(g, curl, p)
+    }
   }
 
   for (let p = 0; p < g.triangles; p++) {
     const top = scratch.s[levels - 1]![p]!
     const r = s.spatial[p]!
+
     let w = floorDiv(top - r + h, q)
 
     s.spatial[p] = r - top + q * w
@@ -270,12 +355,18 @@ export function shapedBeatBack(engine: HuskEngine, s: ShapedState, scratch: Shap
     }
 
     const n = g.multiplicity[p]!
-    const y = s.counter[p]! + n * pp * scratch.field[p]! - 2 * s.lag[p]! + w
+    const y =
+      s.counter[p]! + n * pp * scratch.field[p]! - 2 * s.lag[p]! + w
     const k = floorDiv(y + h, q)
 
     s.counter[p] = s.lag[p]!
     s.lag[p] = q * k - y
-    s.potential[p] = potentialWrap(engine, options.cyclic, n, s.potential[p]! - k)
+    s.potential[p] = potentialWrap(
+      engine,
+      options.cyclic,
+      n,
+      s.potential[p]! - k,
+    )
   }
 
   shapedFlux(engine, s, options.cyclic, scratch.flux)

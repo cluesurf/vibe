@@ -61,16 +61,29 @@ const EXCHANGES = 4
 const MELTED_FILLS = [0.35, 0.3]
 const ORDERED_FILL = 0.25
 
-type Sample = { w11: number; w12: number; w22: number; re: number; im: number; adjoint: number; plaquette: number }
+type Sample = {
+  w11: number
+  w12: number
+  w22: number
+  re: number
+  im: number
+  adjoint: number
+  plaquette: number
+}
 
 // fundamental and adjoint Polyakov loops along the last axis, averaged over the spatial volume
-function polyakov(lattice: FiniteGaugeLattice): { re: number; im: number; adjoint: number } {
+function polyakov(lattice: FiniteGaugeLattice): {
+  re: number
+  im: number
+  adjoint: number
+} {
   const { group, geometry, links } = lattice
   const { dim, sites, up, lengths } = geometry
   const time = dim - 1
   const nt = lengths[time] ?? 1
   const spatial = sites / nt
   const traceRe = (g: number): number => group.trace[g] ?? 0
+
   const traceIm = (g: number): number => {
     const m = group.matrices[g]
 
@@ -87,7 +100,10 @@ function polyakov(lattice: FiniteGaugeLattice): { re: number; im: number; adjoin
     let current = site
 
     for (let t = 0; t < nt; t++) {
-      product = group.product[product * group.order + (links[current * dim + time] ?? 0)] ?? 0
+      product =
+        group.product[
+          product * group.order + (links[current * dim + time] ?? 0)
+        ] ?? 0
       current = up[current * dim + time] ?? 0
     }
 
@@ -99,7 +115,11 @@ function polyakov(lattice: FiniteGaugeLattice): { re: number; im: number; adjoin
     adjoint += (tr * tr + ti * ti - 1) / 8
   }
 
-  return { re: re / spatial, im: im / spatial, adjoint: adjoint / spatial }
+  return {
+    re: re / spatial,
+    im: im / spatial,
+    adjoint: adjoint / spatial,
+  }
 }
 
 function measure(lattice: FiniteGaugeLattice): Sample {
@@ -125,7 +145,8 @@ type Summary = {
 }
 
 function summarize(samples: Sample[]): Summary {
-  const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+  const mean = (xs: number[]): number =>
+    xs.reduce((a, b) => a + b, 0) / xs.length
   const chi = jackknife({
     samples: samples.map((_, i) => i),
     estimator: picked => {
@@ -141,21 +162,36 @@ function summarize(samples: Sample[]): Summary {
 
   return {
     chi,
-    fundamental: Math.hypot(mean(samples.map(s => s.re)), mean(samples.map(s => s.im))),
+    fundamental: Math.hypot(
+      mean(samples.map(s => s.re)),
+      mean(samples.map(s => s.im)),
+    ),
     adjoint: mean(samples.map(s => s.adjoint)),
     plaquette: mean(samples.map(s => s.plaquette)),
   }
 }
 
-function automaton(group: FiniteGroup, levels: Int32Array, capacity: number, fill: number): Summary & { beta: number; drift: number } {
-  const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'cold', rng: makeWeyl({ start: 1 }) })
+function automaton(
+  group: FiniteGroup,
+  levels: Int32Array,
+  capacity: number,
+  fill: number,
+): Summary & { beta: number; drift: number } {
+  const lattice = makeFiniteGaugeLattice({
+    group,
+    lengths: LENGTHS,
+    start: 'cold',
+    rng: makeWeyl({ start: 1 }),
+  })
   const demons = new Int32Array(lattice.links.length)
 
   for (let i = 0; i < demons.length; i++) {
     demons[i] = (i * GOLDEN) % 1 < fill ? capacity : 0
   }
 
-  const total = (): number => quantizedEnergy({ lattice, levels }) + demons.reduce((a, b) => a + b, 0)
+  const total = (): number =>
+    quantizedEnergy({ lattice, levels }) +
+    demons.reduce((a, b) => a + b, 0)
   const e0 = total()
   const samples: Sample[] = []
 
@@ -177,14 +213,27 @@ function automaton(group: FiniteGroup, levels: Int32Array, capacity: number, fil
 
   return {
     ...summarize(samples),
-    beta: unitDemonBeta({ meanDemon: demonSum / samples.length, capacity }),
+    beta: unitDemonBeta({
+      meanDemon: demonSum / samples.length,
+      capacity,
+    }),
     drift: Math.abs(total() - e0),
   }
 }
 
-function heatbath(group: FiniteGroup, levels: Int32Array, beta: number, seed: number): Summary {
+function heatbath(
+  group: FiniteGroup,
+  levels: Int32Array,
+  beta: number,
+  seed: number,
+): Summary {
   const rng = makeWeyl({ start: seed })
-  const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'hot', rng })
+  const lattice = makeFiniteGaugeLattice({
+    group,
+    lengths: LENGTHS,
+    start: 'hot',
+    rng,
+  })
   const samples: Sample[] = []
 
   for (let sweep = 0; sweep < SWEEPS; sweep++) {
@@ -208,15 +257,23 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const group = generateGroup({ generators: [...SU3_SUBGROUPS.sigma648.generators] })
+    const group = generateGroup({
+      generators: [...SU3_SUBGROUPS.sigma648.generators],
+    })
     const levels = actionLevels({ group, scale: SCALE })
-    const lowest = Math.min(...Array.from(levels).filter(level => level > 0))
+    const lowest = Math.min(
+      ...Array.from(levels).filter(level => level > 0),
+    )
     const capacity = 6 * lowest + 6
 
     const melted = MELTED_FILLS.map((fill, k) => {
       const run = automaton(group, levels, capacity, fill)
 
-      return { fill, run, reference: heatbath(group, levels, run.beta, 91 + k) }
+      return {
+        fill,
+        run,
+        reference: heatbath(group, levels, run.beta, 91 + k),
+      }
     })
     const ordered = automaton(group, levels, capacity, ORDERED_FILL)
     const orderedReference = heatbath(group, levels, ordered.beta, 99)
@@ -224,7 +281,11 @@ export default experiment({
     const ok =
       melted.every(({ run }) => run.drift === 0) &&
       ordered.drift === 0 &&
-      melted.every(({ run, reference }) => run.chi.value > 3 * run.chi.error && Math.abs(run.chi.value - reference.chi.value) < 0.1) &&
+      melted.every(
+        ({ run, reference }) =>
+          run.chi.value > 3 * run.chi.error &&
+          Math.abs(run.chi.value - reference.chi.value) < 0.1,
+      ) &&
       melted.every(({ run }) => run.fundamental < 0.01) &&
       ordered.fundamental > 0.1
 
@@ -248,7 +309,9 @@ export default experiment({
         orderedPlaquette: ordered.plaquette,
         orderedPolyakov: ordered.fundamental,
         orderedAdjointPolyakov: ordered.adjoint,
-        energyDrift: melted.reduce((a, { run }) => a + run.drift, 0) + ordered.drift,
+        energyDrift:
+          melted.reduce((a, { run }) => a + run.drift, 0) +
+          ordered.drift,
       },
       control: {
         ...Object.fromEntries(

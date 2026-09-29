@@ -77,13 +77,15 @@ function dense(): Will {
 function loneLove(): Will {
   const will = makeWill(MESH)
 
-  will.data[d4BoxCell({ coordinates: [2, 2, 2, 2], side: SIDE }) * 24 + 5] = 1
+  will.data[
+    d4BoxCell({ coordinates: [2, 2, 2, 2], side: SIDE }) * 24 + 5
+  ] = 1
 
   return will
 }
 
-const size = (v: readonly number[]): number => v.reduce((s, x) => s + Math.abs(x), 0)
-const drift = (a: readonly number[], b: readonly number[]): number => Math.max(...a.map((x, k) => Math.abs(x - (b[k] ?? 0))))
+const drift = (a: readonly number[], b: readonly number[]): number =>
+  Math.max(...a.map((x, k) => Math.abs(x - (b[k] ?? 0))))
 
 // run a member with its ledger, checking that the booked change closes on every beat
 function booked(spec: MomentumWeaveSpec, start: Will) {
@@ -105,12 +107,24 @@ function booked(spec: MomentumWeaveSpec, start: Will) {
     will = beat(will, run(t))
 
     const after = momentumOf(will.data)
-    const change = [0, 1, 2, 3].map(axis => [...ledger].reduce((s, [k, v]) => s + (v.p[axis] ?? 0) - (earlier.get(k)?.[axis] ?? 0), 0))
+    const change = [0, 1, 2, 3].map(axis =>
+      [...ledger].reduce(
+        (s, [k, v]) =>
+          s + (v.p[axis] ?? 0) - (earlier.get(k)?.[axis] ?? 0),
+        0,
+      ),
+    )
 
-    closes = closes && change.every((x, axis) => x === (after.p[axis] ?? 0) - (before.p[axis] ?? 0))
+    closes =
+      closes &&
+      change.every(
+        (x, axis) => x === (after.p[axis] ?? 0) - (before.p[axis] ?? 0),
+      )
     pDrift = Math.max(pDrift, drift(after.p, first.p))
     jDrift = Math.max(jDrift, drift(after.j, first.j))
-    lineSums.push(lineMomenta(will.data, OPPOSITE).reduce((s, x) => s + x, 0))
+    lineSums.push(
+      lineMomenta(will.data, OPPOSITE).reduce((s, x) => s + x, 0),
+    )
 
     if (t === PERIOD - 1) {
       periodP = after.p
@@ -125,17 +139,27 @@ function booked(spec: MomentumWeaveSpec, start: Will) {
     pDrift,
     jDrift,
     periodDrift: drift(last.p, periodP),
-    lineSumDrift: Math.max(...lineSums.map(x => Math.abs(x - (lineSums[0] ?? 0)))),
+    lineSumDrift: Math.max(
+      ...lineSums.map(x => Math.abs(x - (lineSums[0] ?? 0))),
+    ),
   }
 }
 
-const entry = (ledger: Ledger, piece: string) => ledger.get(piece) ?? { count: 0, moved: 0, p: [0, 0, 0, 0], j: [0, 0, 0, 0], pSize: 0, jSize: 0 }
+const entry = (ledger: Ledger, piece: string) =>
+  ledger.get(piece) ?? {
+    count: 0,
+    moved: 0,
+    p: [0, 0, 0, 0],
+    j: [0, 0, 0, 0],
+    pSize: 0,
+    jSize: 0,
+  }
 
 export default experiment({
   id: 'fluids/momentum-ledger',
   code: 'E-FLD-0021',
   title:
-    'the committed rule breaks the particle momentum in exactly two places, the hop of a lone tone on a wire (a reversal, 2 roots per act, 96 percent of the broken momentum on a dense state) and the palindromic exchange (a turn of a lone tone between the couple\'s lines), while the create, flip and annihilate of the pair clock move no particle momentum and all of the charge current; no residue of either momentum survives (the Smith form of every possible change leaves only charge parity), and removing the hop leaves one exact line invariant, the sum of the twelve line momenta',
+    "the committed rule breaks the particle momentum in exactly two places, the hop of a lone tone on a wire (a reversal, 2 roots per act, 96 percent of the broken momentum on a dense state) and the palindromic exchange (a turn of a lone tone between the couple's lines), while the create, flip and annihilate of the pair clock move no particle momentum and all of the charge current; no residue of either momentum survives (the Smith form of every possible change leaves only charge parity), and removing the hop leaves one exact line invariant, the sum of the twelve line momenta",
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -144,7 +168,10 @@ export default experiment({
     // the spec form is the committed rule (and its bind form), bit for bit
     const identical = (['pair', 'bind'] as const).map(table => {
       const reference = turningWeave({ opposite: OPPOSITE, table })
-      const mine = momentumWeave({ spec: table === 'pair' ? COMMITTED_SPEC : BIND_SPEC, opposite: OPPOSITE })
+      const mine = momentumWeave({
+        spec: table === 'pair' ? COMMITTED_SPEC : BIND_SPEC,
+        opposite: OPPOSITE,
+      })
 
       let a = dense()
       let b = dense()
@@ -166,28 +193,56 @@ export default experiment({
     const control = booked(MOMENTUM_WEAVE, dense())
 
     const pieces = [...committed.ledger.keys()].sort()
-    const movingP = pieces.filter(k => entry(committed.ledger, k).pSize > 0)
+    const movingP = pieces.filter(
+      k => entry(committed.ledger, k).pSize > 0,
+    )
     const cellBeats = MESH.cellCount * BEATS
-    const totalP = pieces.reduce((s, k) => s + entry(committed.ledger, k).pSize, 0)
-    const hopP = entry(committed.ledger, 'bare:hop').pSize + entry(committed.ledger, 'swap:hop').pSize
-    const pairPieces = pieces.filter(k => PAIR_PIECES.some(p => k.endsWith(`:${p}`)))
-    const pairKeepsP = pairPieces.every(k => entry(committed.ledger, k).pSize === 0)
-    const pairMovesJ = pairPieces.every(k => entry(committed.ledger, k).jSize > 0)
+    const totalP = pieces.reduce(
+      (s, k) => s + entry(committed.ledger, k).pSize,
+      0,
+    )
+    const hopP =
+      entry(committed.ledger, 'bare:hop').pSize +
+      entry(committed.ledger, 'swap:hop').pSize
+    const pairPieces = pieces.filter(k =>
+      PAIR_PIECES.some(p => k.endsWith(`:${p}`)),
+    )
+    const pairKeepsP = pairPieces.every(
+      k => entry(committed.ledger, k).pSize === 0,
+    )
+    const pairMovesJ = pairPieces.every(
+      k => entry(committed.ledger, k).jSize > 0,
+    )
     // every hop moves exactly two roots (L1 size 4), a reversal of one unit mover
-    const hopIsReversal = ['bare:hop', 'swap:hop'].every(k => entry(committed.ledger, k).pSize === 4 * entry(committed.ledger, k).count)
+    const hopIsReversal = ['bare:hop', 'swap:hop'].every(
+      k =>
+        entry(committed.ledger, k).pSize ===
+        4 * entry(committed.ledger, k).count,
+    )
     // the momentum weave's table moves no P, and its two exchanges move P out and back in equal measure:
     // an exchange that fires on a lone tone always fires again after the clock, so their net is zero
     const controlOut = entry(control.ledger, 'swap:out')
     const controlBack = entry(control.ledger, 'swap:back')
     const controlZero =
-      [...control.ledger.entries()].every(([k, e]) => k.startsWith('swap:out') || k.startsWith('swap:back') || e.pSize === 0) &&
+      [...control.ledger.entries()].every(
+        ([k, e]) =>
+          k.startsWith('swap:out') ||
+          k.startsWith('swap:back') ||
+          e.pSize === 0,
+      ) &&
       controlOut.pSize === controlBack.pSize &&
-      controlOut.p.every((x, axis) => x + (controlBack.p[axis] ?? 0) === 0)
+      controlOut.p.every(
+        (x, axis) => x + (controlBack.p[axis] ?? 0) === 0,
+      )
 
     // which quantities could be kept at all
     const d4 = latticeQuotient(rootsD4(), 4)
     const lineRoot = rootsD4().filter((_, d) => d < (OPPOSITE[d] ?? d))
-    const toVector = (row: number[]): number[] => [0, 1, 2, 3].map(axis => row.reduce((s, n, L) => s + n * (lineRoot[L]?.[axis] ?? 0), 0))
+    const toVector = (row: number[]): number[] =>
+      [0, 1, 2, 3].map(axis =>
+        row.reduce((s, n, L) => s + n * (lineRoot[L]?.[axis] ?? 0), 0),
+      )
+
     const analysis = (spec: MomentumWeaveSpec) => {
       const pRows = coupleChanges(spec, lineMomentum)
       const jRows = coupleChanges(spec, lineCurrent)
@@ -197,12 +252,18 @@ export default experiment({
         pVector: latticeQuotient(pRows.map(toVector), 4),
         jLine: latticeQuotient(jRows, 12),
         jVector: latticeQuotient(jRows.map(toVector), 4),
-        allOnesKept: pRows.every(r => r.reduce((s, x) => s + x, 0) === 0),
+        allOnesKept: pRows.every(
+          r => r.reduce((s, x) => s + x, 0) === 0,
+        ),
       }
     }
+
     const committedQ = analysis(COMMITTED_SPEC)
     const bindQ = analysis(BIND_SPEC)
-    const sameAs = (q: { rank: number; torsion: number[] }, r: { rank: number; torsion: number[] }): boolean =>
+    const sameAs = (
+      q: { rank: number; torsion: number[] },
+      r: { rank: number; torsion: number[] },
+    ): boolean =>
       q.rank === r.rank && q.torsion.join(',') === r.torsion.join(',')
     // the committed rule keeps no residue of P or J beyond what every D4 vector already has (the index-2
     // parity of D4 in Z^4), and in line space nothing beyond one Z_2, which is the parity of the tone
@@ -273,11 +334,18 @@ export default experiment({
         vacuumCurrentDrift: vacuum.jDrift,
         loneLoveMomentumDrift: lone.pDrift,
         committedLineRank: committedQ.pLine.rank,
-        committedLineTorsion: committedQ.pLine.torsion.reduce((s, x) => s * x, 1),
+        committedLineTorsion: committedQ.pLine.torsion.reduce(
+          (s, x) => s * x,
+          1,
+        ),
         committedVectorRank: committedQ.pVector.rank,
-        committedVectorTorsion: committedQ.pVector.torsion.reduce((s, x) => s * x, 1),
+        committedVectorTorsion: committedQ.pVector.torsion.reduce(
+          (s, x) => s * x,
+          1,
+        ),
         committedCurrentLineRank: committedQ.jLine.rank,
-        committedCurrentVectorTorsion: committedQ.jVector.torsion.reduce((s, x) => s * x, 1),
+        committedCurrentVectorTorsion:
+          committedQ.jVector.torsion.reduce((s, x) => s * x, 1),
         d4IndexInZ4: d4.torsion.reduce((s, x) => s * x, 1),
         bindLineRank: bindQ.pLine.rank,
         bindLineFree: bindQ.pLine.free,
@@ -290,14 +358,17 @@ export default experiment({
       control: {
         momentumWeaveMomentumDrift: control.pDrift,
         momentumWeaveTableMomentum: [...control.ledger.entries()]
-          .filter(([k]) => !k.startsWith('swap:out') && !k.startsWith('swap:back'))
+          .filter(
+            ([k]) =>
+              !k.startsWith('swap:out') && !k.startsWith('swap:back'),
+          )
           .reduce((s, [, e]) => s + e.pSize, 0),
         momentumWeaveExchangeOutSize: controlOut.pSize,
         momentumWeaveExchangeBackSize: controlBack.pSize,
         momentumWeaveCurrentDrift: control.jDrift,
       },
       notes:
-        'L2, exact integers, no random numbers. Units: a P or J size is the L1 norm of the booked 4-vector change (a reversed unit mover on a root moves 4). The ledger decomposes the collision; streaming moves nothing. The create-flip-annihilate cycle of the pair clock makes and unmakes a love and a fear moving head on along one line, which carries no particle momentum (the two movers cancel) and charge current 2 roots, so it is the whole of the charge current\'s change in the vacuum and none of the particle momentum\'s. The hop turns a lone tone around on its line and is where most particle momentum goes. The palindromic exchange turns a lone tone from one line of the couple to the other (with the hop inside it, from the line\'s away slot to the wire\'s first slot), a change of direction by 60 or 120 degrees. The lattice analysis is exact over every couple state, every couple and every beat of a period: the committed rule leaves no exact linear or residue invariant of P or J beyond charge parity, so there is no lattice momentum mod a sublattice and no coarser conserved momentum to find. Without the hop (the bind table) exactly one line invariant appears, the sum of the twelve line momenta (tones moving in the twelve first directions minus tones moving in the twelve second ones), which is not a component of P. E-FLD-0022 asks which rules of the family keep P, and E-FLD-0023 runs the acceptance battery on the one it selects.',
+        "L2, exact integers, no random numbers. Units: a P or J size is the L1 norm of the booked 4-vector change (a reversed unit mover on a root moves 4). The ledger decomposes the collision; streaming moves nothing. The create-flip-annihilate cycle of the pair clock makes and unmakes a love and a fear moving head on along one line, which carries no particle momentum (the two movers cancel) and charge current 2 roots, so it is the whole of the charge current's change in the vacuum and none of the particle momentum's. The hop turns a lone tone around on its line and is where most particle momentum goes. The palindromic exchange turns a lone tone from one line of the couple to the other (with the hop inside it, from the line's away slot to the wire's first slot), a change of direction by 60 or 120 degrees. The lattice analysis is exact over every couple state, every couple and every beat of a period: the committed rule leaves no exact linear or residue invariant of P or J beyond charge parity, so there is no lattice momentum mod a sublattice and no coarser conserved momentum to find. Without the hop (the bind table) exactly one line invariant appears, the sum of the twelve line momenta (tones moving in the twelve first directions minus tones moving in the twelve second ones), which is not a component of P. E-FLD-0022 asks which rules of the family keep P, and E-FLD-0023 runs the acceptance battery on the one it selects.",
     })
   },
 })

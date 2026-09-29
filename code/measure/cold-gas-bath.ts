@@ -11,9 +11,15 @@
 // which keeps its own inline copy; the numbers agree by construction (same fill, same knit, same side).
 // No random numbers: golden and silver Weyl sequences only.
 
-import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
-import { COLD_FIRSTS, COLD_OPPOSITE } from '@/code/rule/cold-quaternion-knit'
+import {
+  COLD_FIRSTS,
+  COLD_OPPOSITE,
+} from '@/code/rule/cold-quaternion-knit'
 import { coldRecords, coldStart } from '@/code/measure/knot-histories'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
@@ -50,7 +56,13 @@ export function coldPair(): [number, number] {
     vibe[d] = 1
     vibe[o] = -1
 
-    if (coldRecords({ start: coldStart(vibe, new Int8Array(slots)), tokens: [d, o], beats: 24 }).records.some(r => r.meetings.length > 0)) {
+    if (
+      coldRecords({
+        start: coldStart(vibe, new Int8Array(slots)),
+        tokens: [d, o],
+        beats: 24,
+      }).records.some(r => r.meetings.length > 0)
+    ) {
       PAIR = [d, o]
 
       return PAIR
@@ -72,7 +84,12 @@ export function coldGas(input: { f: number; beats: number }): ColdGas {
   const point = new Int8Array(slots)
 
   for (let i = 0; i < slots; i++) {
-    vibe[i] = frac((i + 1) * GOLDEN) < f ? (frac((i + 1) * SILVER) < 0.5 ? 1 : -1) : 0
+    vibe[i] =
+      frac((i + 1) * GOLDEN) < f
+        ? frac((i + 1) * SILVER) < 0.5
+          ? 1
+          : -1
+        : 0
     point[i] = Math.floor(9 * frac((i + 3) * GOLDEN))
   }
 
@@ -82,7 +99,11 @@ export function coldGas(input: { f: number; beats: number }): ColdGas {
   point[pb] = 0
 
   const all = Array.from({ length: slots }, (_, i) => i)
-  const { records } = coldRecords({ start: coldStart(vibe, point), tokens: all, beats })
+  const { records } = coldRecords({
+    start: coldStart(vibe, point),
+    tokens: all,
+    beats,
+  })
 
   return { weave, pair: [pa, pb], point, vibe, records }
 }

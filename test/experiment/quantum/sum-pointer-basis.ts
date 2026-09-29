@@ -83,10 +83,26 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { carryCoordinate, carryPhaseCoordinate, CONJUGATE_POINT, fearKernels, meetWhole, translatedOf, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import {
+  carryCoordinate,
+  carryPhaseCoordinate,
+  CONJUGATE_POINT,
+  fearKernels,
+  meetWhole,
+  translatedOf,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { lineKnot } from '@/code/measure/knot-histories'
 import { coldGas, type ColdGas } from '@/code/measure/cold-gas-bath'
-import { LINE_CLASSES, marginalOne, openToken, permuteTwo, sumPermutation, traceOut } from '@/code/measure/sum-record'
+import {
+  LINE_CLASSES,
+  marginalOne,
+  openToken,
+  permuteTwo,
+  sumPermutation,
+  traceOut,
+} from '@/code/measure/sum-record'
 
 const BEATS = 480
 const DENSITIES = [0, 1 / 32, 1 / 16, 1 / 8, 1 / 4]
@@ -96,28 +112,48 @@ const TILT_LINE_0 = [0, 3, 6]
 
 type Orientation = 'system' | 'record'
 
-const unitsOf = (w: Whole): bigint => w.weight.reduce((s, x) => s + x, 0n)
-const roleShares = (m: readonly bigint[]): bigint[] => [0, 1, 2].map(a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n))
+const unitsOf = (w: Whole): bigint =>
+  w.weight.reduce((s, x) => s + x, 0n)
+const roleShares = (m: readonly bigint[]): bigint[] =>
+  [0, 1, 2].map(
+    a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n),
+  )
+
 const purityOf = (w: Whole): number => {
   const u = Number(unitsOf(w))
 
-  return 3 ** w.tokens.length * w.weight.reduce((s, x) => s + (Number(x) / u) ** 2, 0)
+  return (
+    3 ** w.tokens.length *
+    w.weight.reduce((s, x) => s + (Number(x) / u) ** 2, 0)
+  )
 }
+
 // the role-basis off-diagonal weight of one token, Tr(rho_off^2) = 3 sum (W - P / 3)^2, exact as a ratio
-const offDiagonal = (m: readonly bigint[]): { num: bigint; den: bigint } => {
+const offDiagonal = (
+  m: readonly bigint[],
+): { num: bigint; den: bigint } => {
   const p = roleShares(m)
   const u = m.reduce((s, x) => s + x, 0n)
   // (W - P/3) in units of u / 3: 3 W - P
-  const num = m.reduce((s, x, i) => s + (3n * x - (p[Math.floor(i / 3)] ?? 0n)) ** 2n, 0n)
+  const num = m.reduce(
+    (s, x, i) => s + (3n * x - (p[Math.floor(i / 3)] ?? 0n)) ** 2n,
+    0n,
+  )
 
   return { num: 3n * num, den: 9n * u * u }
 }
-const ratio = (r: { num: bigint; den: bigint }): number => Number((r.num * 10n ** 15n) / r.den) / 1e15
+
+const ratio = (r: { num: bigint; den: bigint }): number =>
+  Number((r.num * 10n ** 15n) / r.den) / 1e15
+
 const manaOf = (w: Whole): number => {
   const { loves, fears } = wholeLovesAndFears(w)
 
-  return Math.log(Number(((loves + fears) * 10n ** 15n) / (loves - fears)) / 1e15)
+  return Math.log(
+    Number(((loves + fears) * 10n ** 15n) / (loves - fears)) / 1e15,
+  )
 }
+
 const key = (w: Whole): string => {
   const u = unitsOf(w)
 
@@ -144,16 +180,29 @@ type RunResult = {
   linkRoleChanges: number
 }
 
-function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; orientation: Orientation; flat: boolean }): RunResult {
+function runBath(input: {
+  gas: ColdGas
+  keep: readonly number[]
+  start: Whole
+  orientation: Orientation
+  flat: boolean
+}): RunResult {
   const { gas, keep, start, orientation, flat } = input
   const sum = sumPermutation()
-  const kernels = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
+  const kernels = fearKernels({
+    like: OMEGA,
+    unlike: OMEGA,
+    likeExchanged: false,
+  })!
   const coordinate = new Map(keep.map((t, i) => [t, i]))
   const hidden = Int8Array.from(gas.point)
+
   let whole = start
+
   // each kept coordinate's frame, the sign it is written in (E-QTM-0123): 0 until its first meeting, then
   // the sign it met with; a coordinate whose token meets with the other sign is reflected first
   const frame = new Array<number>(keep.length).fill(0)
+
   const align = (c: number, sign: number): void => {
     if ((frame[c] ?? 0) !== 0 && frame[c] !== sign) {
       whole = carryPhaseCoordinate(whole, c, CONJUGATE_POINT)
@@ -161,6 +210,7 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
 
     frame[c] = sign
   }
+
   const out: RunResult = {
     final: start,
     gasMeetings: 0,
@@ -190,13 +240,28 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
 
         const before = manaOf(whole)
 
-        out.firstOwn = out.firstOwn ?? { beat: t, purity: purityOf(whole) }
+        out.firstOwn = out.firstOwn ?? {
+          beat: t,
+          purity: purityOf(whole),
+        }
 
         // the comoving fear beat (adopted 2026-09-26): each kernel read about the two coordinates' own points
         const [c0, c1] = sa === sb || sa > 0 ? [ca, cb] : [cb, ca]
-        const kernel = translatedOf(sa === sb ? kernels.like : kernels.unlike, whole.own?.[c0] ?? 0, whole.own?.[c1] ?? 0)
+        const kernel = translatedOf(
+          sa === sb ? kernels.like : kernels.unlike,
+          whole.own?.[c0] ?? 0,
+          whole.own?.[c1] ?? 0,
+        )
 
-        whole = meetWhole({ whole, a: c0, b: c1, kernel4: kernel, divisor: sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor, fixed: false })!
+        whole = meetWhole({
+          whole,
+          a: c0,
+          b: c1,
+          kernel4: kernel,
+          divisor:
+            sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor,
+          fixed: false,
+        })!
         out.manaAtOwn += manaOf(whole) - before
         out.ownMeetings++
 
@@ -207,7 +272,7 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
         return
       }
 
-      const c = (ca ?? cb) as number
+      const c = (ca ?? cb)!
       const other = ca !== undefined ? tb : ta
 
       align(c, ca !== undefined ? sa : sb)
@@ -216,18 +281,34 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
       const k = whole.tokens.length
       // the hidden point is a grid index x + 3 y with x the role (fear-weave's GRID_OF_PHASE, E-QTM-0124)
       const role = (hidden[other] ?? 0) % 3
-      const opened = openToken(whole, -1, [3 * role, 3 * role + 1, 3 * role + 2])
-      const met = control ? permuteTwo(opened, c, k, sum) : permuteTwo(opened, k, c, sum)
+      const opened = openToken(whole, -1, [
+        3 * role,
+        3 * role + 1,
+        3 * role + 2,
+      ])
+      const met = control
+        ? permuteTwo(opened, c, k, sum)
+        : permuteTwo(opened, k, c, sum)
       const lf0 = wholeLovesAndFears(opened)
       const lf1 = wholeLovesAndFears(met)
       const controlCoordinate = control ? c : k
-      const roleKept =
-        roleShares(marginalOne(opened, controlCoordinate)).every((x, a) => x === roleShares(marginalOne(met, controlCoordinate))[a])
+      const roleKept = roleShares(
+        marginalOne(opened, controlCoordinate),
+      ).every(
+        (x, a) =>
+          x === roleShares(marginalOne(met, controlCoordinate))[a],
+      )
       const traced = traceOut(met, k)
       const manaMet = manaOf(met)
       const manaTraced = manaOf(traced)
 
-      out.ledgerBad += lf0.loves === lf1.loves && lf0.fears === lf1.fears && Math.abs(manaOf(opened) - manaMet) < 1e-12 && roleKept ? 0 : 1
+      out.ledgerBad +=
+        lf0.loves === lf1.loves &&
+        lf0.fears === lf1.fears &&
+        Math.abs(manaOf(opened) - manaMet) < 1e-12 &&
+        roleKept
+          ? 0
+          : 1
       out.ledgerBad += manaTraced > manaMet + 1e-12 ? 1 : 0
       out.manaAtTraces += manaTraced - manaMet
       out.gasMeetings++
@@ -239,7 +320,8 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
     })
 
     for (const [tk, g] of record.crossings) {
-      const act = gas.weave.moves.act[flat ? gas.weave.moves.identity : g] ?? []
+      const act =
+        gas.weave.moves.act[flat ? gas.weave.moves.identity : g] ?? []
       const c = coordinate.get(tk)
 
       if (c === undefined) {
@@ -250,8 +332,14 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
 
         // a crossing carries the coordinate's own point with its weights (the comoving beat, 2026-09-26)
         whole = carryCoordinate(whole, c, act)
-        out.ledgerBad += Math.abs(manaOf(whole) - before) > 1e-12 ? 1 : 0
-        out.linkRoleChanges += roleShares(marginalOne(whole, c)).every((x, a) => x === rolesBefore[a]) ? 0 : 1
+        out.ledgerBad +=
+          Math.abs(manaOf(whole) - before) > 1e-12 ? 1 : 0
+
+        out.linkRoleChanges += roleShares(marginalOne(whole, c)).every(
+          (x, a) => x === rolesBefore[a],
+        )
+          ? 0
+          : 1
       }
     }
 
@@ -279,16 +367,30 @@ export default experiment({
   paper: false,
   run() {
     const sum = sumPermutation()
-    const lines = LINE_CLASSES.flatMap(c => c.lines.map(line => ({ c: c.name, line })))
+    const lines = LINE_CLASSES.flatMap(c =>
+      c.lines.map(line => ({ c: c.name, line })),
+    )
 
     // G2: the per-meeting channel
     let channelBad = 0
 
     for (const s of lines) {
       for (const b of lines) {
-        const token: Whole = { tokens: [0], weight: Array.from({ length: 9 }, (_, p) => (s.line.includes(p) ? 1n : 0n)) }
-        const before = offDiagonal(marginalOne(openToken(token, -1, b.line), 0))
-        const after = offDiagonal(marginalOne(permuteTwo(openToken(token, -1, b.line), 0, 1, sum), 0))
+        const token: Whole = {
+          tokens: [0],
+          weight: Array.from({ length: 9 }, (_, p) =>
+            s.line.includes(p) ? 1n : 0n,
+          ),
+        }
+        const before = offDiagonal(
+          marginalOne(openToken(token, -1, b.line), 0),
+        )
+        const after = offDiagonal(
+          marginalOne(
+            permuteTwo(openToken(token, -1, b.line), 0, 1, sum),
+            0,
+          ),
+        )
         const erased = after.num === 0n
         const kept = after.num * before.den === before.num * after.den
 
@@ -297,6 +399,7 @@ export default experiment({
     }
 
     const per: Record<string, number> = {}
+
     let ledgerBad = 0
     let sticks = true
     let pointer = { ok: false, distinct: -1 }
@@ -305,25 +408,46 @@ export default experiment({
       const gas = coldGas({ f, beats: BEATS })
       const [pa] = gas.pair
       const tag = `f${Math.round(f * 64)}of64`
-      const tiltStart: Whole = { tokens: [pa], weight: Array.from({ length: 9 }, (_, p) => (TILT_LINE_0.includes(p) ? 1n : 0n)) }
+      const tiltStart: Whole = {
+        tokens: [pa],
+        weight: Array.from({ length: 9 }, (_, p) =>
+          TILT_LINE_0.includes(p) ? 1n : 0n,
+        ),
+      }
 
       for (const flat of [true, false]) {
-        const r = runBath({ gas, keep: [pa], start: tiltStart, orientation: 'system', flat })
+        const r = runBath({
+          gas,
+          keep: [pa],
+          start: tiltStart,
+          orientation: 'system',
+          flat,
+        })
         const name = `${tag}_${flat ? 'flat' : 'live'}`
 
         ledgerBad += r.ledgerBad
         per[`${name}_gasMeetings`] = r.gasMeetings
         per[`${name}_partnerMeetings`] = r.partnerMeetings
         per[`${name}_firstGasBeat`] = r.firstGasBeat
-        per[`${name}_offDiagonalFinal`] = ratio(r.off[r.off.length - 1] ?? { num: 0n, den: 1n })
+        per[`${name}_offDiagonalFinal`] = ratio(
+          r.off[r.off.length - 1] ?? { num: 0n, den: 1n },
+        )
         per[`${name}_purityFinal`] = r.purity[r.purity.length - 1] ?? -1
-        per[`${name}_beatsWithRoleCoherenceAfterFirstMeeting`] = r.firstGasBeat < 0 ? 0 : r.off.slice(r.firstGasBeat).filter(o => o.num !== 0n).length
+        per[`${name}_beatsWithRoleCoherenceAfterFirstMeeting`] =
+          r.firstGasBeat < 0
+            ? 0
+            : r.off.slice(r.firstGasBeat).filter(o => o.num !== 0n)
+                .length
         per[`${name}_linkRoleChanges`] = r.linkRoleChanges
 
         if (flat && r.gasMeetings > 0) {
           sticks =
             sticks &&
-            r.off.every((o, t) => (t >= r.firstGasBeat ? o.num === 0n : o.num * 3n === 2n * o.den))
+            r.off.every((o, t) =>
+              t >= r.firstGasBeat
+                ? o.num === 0n
+                : o.num * 3n === 2n * o.den,
+            )
         }
       }
 
@@ -331,17 +455,35 @@ export default experiment({
       if (f === POINTER_DENSITY) {
         for (const orientation of ['system', 'record'] as const) {
           for (const flat of [true, false]) {
-            const runs = lines.map(l => runBath({ gas, keep: [pa], start: { tokens: [pa], weight: Array.from({ length: 9 }, (_, p) => (l.line.includes(p) ? 1n : 0n)) }, orientation, flat }))
+            const runs = lines.map(l =>
+              runBath({
+                gas,
+                keep: [pa],
+                start: {
+                  tokens: [pa],
+                  weight: Array.from({ length: 9 }, (_, p) =>
+                    l.line.includes(p) ? 1n : 0n,
+                  ),
+                },
+                orientation,
+                flat,
+              }),
+            )
             const name = `pointer_${orientation}_${flat ? 'flat' : 'live'}`
             const distinct = new Set(runs.map(r => key(r.final))).size
 
             runs.forEach(r => {
               ledgerBad += r.ledgerBad
             })
+
             LINE_CLASSES.forEach((c, k) => {
               const family = runs.slice(3 * k, 3 * k + 3)
 
-              per[`${name}_${c.name}MeanFinalPurity`] = family.reduce((s, r) => s + (r.purity[r.purity.length - 1] ?? 0), 0) / 3
+              per[`${name}_${c.name}MeanFinalPurity`] =
+                family.reduce(
+                  (s, r) => s + (r.purity[r.purity.length - 1] ?? 0),
+                  0,
+                ) / 3
             })
             per[`${name}_distinctFinalWholes`] = distinct
             per[`${name}_gasMeetings`] = runs[0]?.gasMeetings ?? -1
@@ -355,8 +497,18 @@ export default experiment({
               pointer = {
                 ok:
                   (runs[0]?.gasMeetings ?? 0) >= 5 &&
-                  roleStarts.every(r => Math.abs((r.purity[r.purity.length - 1] ?? 0) - 1) < 1e-12) &&
-                  others.every(r => Math.abs((r.purity[r.purity.length - 1] ?? 0) - 1 / 3) < 1e-12) &&
+                  roleStarts.every(
+                    r =>
+                      Math.abs(
+                        (r.purity[r.purity.length - 1] ?? 0) - 1,
+                      ) < 1e-12,
+                  ) &&
+                  others.every(
+                    r =>
+                      Math.abs(
+                        (r.purity[r.purity.length - 1] ?? 0) - 1 / 3,
+                      ) < 1e-12,
+                  ) &&
                   distinct === 4,
                 distinct,
               }
@@ -367,20 +519,33 @@ export default experiment({
 
       // the love-fear pair with SUM gas and its own fear beat, live links (E-QTM-0114's pair)
       if (f === 0 || f >= 1 / 16) {
-        const r = runBath({ gas, keep: [...gas.pair], start: lineKnot([...gas.pair], [0, 1, 2], [0, 1, 2]), orientation: 'system', flat: false })
+        const r = runBath({
+          gas,
+          keep: [...gas.pair],
+          start: lineKnot([...gas.pair], [0, 1, 2], [0, 1, 2]),
+          orientation: 'system',
+          flat: false,
+        })
 
         ledgerBad += r.ledgerBad
         per[`pair_${tag}_gasMeetings`] = r.gasMeetings
         per[`pair_${tag}_ownMeetings`] = r.ownMeetings
         per[`pair_${tag}_firstGasBeat`] = r.firstGasBeat
         per[`pair_${tag}_firstOwnMeetingBeat`] = r.firstOwn?.beat ?? -1
-        per[`pair_${tag}_purityBeforeFirstOwnMeeting`] = r.firstOwn?.purity ?? -1
+        per[`pair_${tag}_purityBeforeFirstOwnMeeting`] =
+          r.firstOwn?.purity ?? -1
         per[`pair_${tag}_manaMax`] = Math.max(...r.mana)
-        per[`pair_${tag}_manaLate`] = r.mana.slice(-48).reduce((a, b) => a + b, 0) / 48
+        per[`pair_${tag}_manaLate`] =
+          r.mana.slice(-48).reduce((a, b) => a + b, 0) / 48
         per[`pair_${tag}_manaMadeAtOwnMeetings`] = r.manaAtOwn
         per[`pair_${tag}_manaLostAtTraces`] = r.manaAtTraces
-        per[`pair_${tag}_purityFinal`] = r.purity[r.purity.length - 1] ?? -1
-        per[`pair_${tag}_lastBeatWithMana`] = r.mana.reduce((last, m, t) => (m > 1e-12 ? t : last), -1)
+        per[`pair_${tag}_purityFinal`] =
+          r.purity[r.purity.length - 1] ?? -1
+
+        per[`pair_${tag}_lastBeatWithMana`] = r.mana.reduce(
+          (last, m, t) => (m > 1e-12 ? t : last),
+          -1,
+        )
       }
     }
 
@@ -395,16 +560,22 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'a SUM meeting with a bath token on a role line erases a token\'s role coherence completely (144 of 144 line pairs: role, diagonal and antidiagonal bath lines erase, tilt bath lines keep), so the rate is the SUM meeting rate; in the cold vacuum gas on flat links the 3 role starts stay exactly pure and the 9 others end at exactly 1/3 after 69 meetings, 4 distinct wholes where the fear-beat gas left 1, with either orientation of the SUM, since the bath token\'s line class sets the basis; live links rotate the role axis dock to dock and every start ends mixed; SUM never changes mana, and with a SUM gas the love-fear pair makes none at all (mana 0 on every beat at f = 1/16 to 1/4, against 0.66 isolated)',
+        "a SUM meeting with a bath token on a role line erases a token's role coherence completely (144 of 144 line pairs: role, diagonal and antidiagonal bath lines erase, tilt bath lines keep), so the rate is the SUM meeting rate; in the cold vacuum gas on flat links the 3 role starts stay exactly pure and the 9 others end at exactly 1/3 after 69 meetings, 4 distinct wholes where the fear-beat gas left 1, with either orientation of the SUM, since the bath token's line class sets the basis; live links rotate the role axis dock to dock and every start ends mixed; SUM never changes mana, and with a SUM gas the love-fear pair makes none at all (mana 0 on every beat at f = 1/16 to 1/4, against 0.66 isolated)",
       metrics: {
         channelCases: lines.length * lines.length,
         channelBad,
         ledgerBad,
         ...per,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the own points, crossings and frame rewrites carrying them; the gas meeting is SUM and is unchanged): status pass as before; the isolated pair's mana max 0.9856 -> 1.0170, late mana 0.6603 -> 0.6144. " + ('L2, exact BigInt wholes, golden and silver Weyl fills (code/measure/cold-gas-bath, E-QTM-0114\'s environment), no random numbers. The gas token is opened on its role line at a SUM and traced at once (the collision model); its classical point is not updated. A fear of the pair is stored at the reflected point (color mode), so a SUM on it acts on the conjugate representation: it still reads the role.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the own points, crossings and frame rewrites carrying them; the gas meeting is SUM and is unchanged): status pass as before; the isolated pair's mana max 0.9856 -> 1.0170, late mana 0.6603 -> 0.6144. " +
+        "L2, exact BigInt wholes, golden and silver Weyl fills (code/measure/cold-gas-bath, E-QTM-0114's environment), no random numbers. The gas token is opened on its role line at a SUM and traced at once (the collision model); its classical point is not updated. A fear of the pair is stored at the reflected point (color mode), so a SUM on it acts on the conjugate representation: it still reads the role.",
     })
   },
 })

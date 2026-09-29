@@ -50,6 +50,7 @@ export default experiment({
 
     const entropyOf = (w: Will): number => {
       const perColumn = new Array<number>(SIDE).fill(0)
+
       let total = 0
 
       for (let i = 0; i < w.data.length; i++) {
@@ -73,6 +74,7 @@ export default experiment({
     }
 
     let will: Will = { mesh, data: Int8Array.from(start.data) }
+
     const series: number[] = [entropyOf(will)]
 
     for (let t = 0; t < BEATS; t++) {

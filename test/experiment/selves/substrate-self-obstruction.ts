@@ -21,7 +21,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, shellDistances, type Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  d4Mesh,
+  shellDistances,
+  type Mesh,
+  meshOpposites,
+} from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import {
   pairCollision,

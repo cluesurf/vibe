@@ -21,38 +21,92 @@
 // starts at E_long + E_harmonic and the shadow angle at zero, a static solution of the linear leapfrog.
 
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { coulombFlux, dockAt, energyMask } from '@/code/measure/trit-hop-light'
-import { makeShadowScratch, shadowReading } from '@/code/measure/trit-shaped-light'
-import { addCurrent, huskGeometry as huskGeometryOf, makeHuskEngine, type HuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedFlux, type ShapedOptions, type ShapedState } from '@/code/rule/trit-husk-shaped'
-import { copyMatter, kineticBeat, kineticBeatBack, makeFieldScratch, type KineticMatter, type KineticTally } from '@/code/rule/trit-kinetic'
+import {
+  coulombFlux,
+  dockAt,
+  energyMask,
+} from '@/code/measure/trit-hop-light'
+import {
+  makeShadowScratch,
+  shadowReading,
+} from '@/code/measure/trit-shaped-light'
+import {
+  addCurrent,
+  huskGeometry as huskGeometryOf,
+  makeHuskEngine,
+  type HuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedFlux,
+  type ShapedOptions,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
+import {
+  copyMatter,
+  kineticBeat,
+  kineticBeatBack,
+  makeFieldScratch,
+  type KineticMatter,
+  type KineticTally,
+} from '@/code/rule/trit-kinetic'
 
 const G = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 // the harmonic flux e0 g_l (u_l . n) on every link, as a real field (for the relaxed start)
-export function uniformFlux(g: HuskGeometry, e0: number, axis: number): Float64Array {
+export function uniformFlux(
+  g: HuskGeometry,
+  e0: number,
+  axis: number,
+): Float64Array {
   const out = new Float64Array(g.huskLinks)
 
-  for (let l = 0; l < g.huskLinks; l++) out[l] = e0 * (G[l % 9] ?? 1) * ((TRIT_HUSK_VECTORS[l % 9] ?? [])[axis] ?? 0)
+  for (let l = 0; l < g.huskLinks; l++) {
+    out[l] =
+      e0 *
+      (G[l % 9] ?? 1) *
+      ((TRIT_HUSK_VECTORS[l % 9] ?? [])[axis] ?? 0)
+  }
 
   return out
 }
 
 // the same field written into the strings
-export function addUniformField(s: ShapedState, g: HuskGeometry, e0: number, axis: number): void {
+export function addUniformField(
+  s: ShapedState,
+  g: HuskGeometry,
+  e0: number,
+  axis: number,
+): void {
   const f = uniformFlux(g, e0, axis)
 
-  for (let l = 0; l < g.huskLinks; l++) s.string[l] = (s.string[l] ?? 0) + (f[l] ?? 0)
+  for (let l = 0; l < g.huskLinks; l++) {
+    s.string[l] = (s.string[l] ?? 0) + (f[l] ?? 0)
+  }
 }
 
 // the Landau-gauge angles of a uniform field along z with circulation beta per (x, y) square
-export function setLandauAngles(s: ShapedState, g: HuskGeometry, depth: number, beta: number): void {
-  if (beta % 4 !== 0 || (beta * g.side) % (4 * depth) !== 0) throw new Error('beta must be a multiple of 4 with beta L a multiple of 4 D')
+export function setLandauAngles(
+  s: ShapedState,
+  g: HuskGeometry,
+  depth: number,
+  beta: number,
+): void {
+  if (beta % 4 !== 0 || (beta * g.side) % (4 * depth) !== 0) {
+    throw new Error(
+      'beta must be a multiple of 4 with beta L a multiple of 4 D',
+    )
+  }
 
   const axis = 4 * depth
   const diag = 2 * depth
-  const wrap = (v: number, n: number): number => mod(v + n / 2, n) - n / 2
+  const wrap = (v: number, n: number): number =>
+    mod(v + n / 2, n) - n / 2
 
   for (let y = 0; y < g.huskDocks; y++) {
     const x = y % g.side
@@ -66,17 +120,28 @@ export function setLandauAngles(s: ShapedState, g: HuskGeometry, depth: number, 
 }
 
 // a string from dock a to dock b along x, then y, then z (the charge at a is +charge, at b -charge)
-export function addStringPath(s: ShapedState, g: HuskGeometry, from: number[], to: number[], charge: number): void {
+export function addStringPath(
+  s: ShapedState,
+  g: HuskGeometry,
+  from: number[],
+  to: number[],
+  charge: number,
+): void {
   const at = [...from]
   const side = g.side
 
   for (let axis = 0; axis < 3; axis++) {
-    let d = mod((to[axis] ?? 0) - (at[axis] ?? 0) + side / 2, side) - side / 2
+    let d =
+      mod((to[axis] ?? 0) - (at[axis] ?? 0) + side / 2, side) - side / 2
+
     const step = d > 0 ? 1 : -1
 
     while (d !== 0) {
-      const tail = step > 0 ? [...at] : at.map((v, i) => (i === axis ? v - 1 : v))
-      const link = dockAt(side, tail[0] ?? 0, tail[1] ?? 0, tail[2] ?? 0) * 9 + axis
+      const tail =
+        step > 0 ? [...at] : at.map((v, i) => (i === axis ? v - 1 : v))
+      const link =
+        dockAt(side, tail[0] ?? 0, tail[1] ?? 0, tail[2] ?? 0) * 9 +
+        axis
 
       // a string carries outflow from the + end: S_l = +charge along the step direction
       addCurrent(s, link, -step * charge)
@@ -89,14 +154,26 @@ export function addStringPath(s: ShapedState, g: HuskGeometry, from: number[], t
 // C W C^T u = C W t, conjugate gradients over the triangles: the leftover t - C^T u then has no curl under the
 // light's weights (C W (t - C^T u) = 0), which is what keeps B at zero. An unweighted solve leaves a curl the
 // light turns into a growing B (found in tmp/force-probe2.log, fixed before any gated run)
-export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
+export function solvePotential(
+  g: HuskGeometry,
+  t: Float64Array,
+): Float64Array {
   const n = g.triangles
   const weight = (l: number): number => 2 / (G[l % 9] ?? 1)
-  const apply = (u: Float64Array, out: Float64Array, work: Float64Array): void => {
+
+  const apply = (
+    u: Float64Array,
+    out: Float64Array,
+    work: Float64Array,
+  ): void => {
     work.fill(0)
 
     for (let p = 0; p < n; p++) {
-      for (let j = 0; j < 3; j++) work[g.triLinks[p * 3 + j] ?? 0] = (work[g.triLinks[p * 3 + j] ?? 0] ?? 0) + (g.triSigns[p * 3 + j] ?? 0) * (u[p] ?? 0)
+      for (let j = 0; j < 3; j++) {
+        work[g.triLinks[p * 3 + j] ?? 0] =
+          (work[g.triLinks[p * 3 + j] ?? 0] ?? 0) +
+          (g.triSigns[p * 3 + j] ?? 0) * (u[p] ?? 0)
+      }
     }
 
     for (let p = 0; p < n; p++) {
@@ -111,6 +188,7 @@ export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
       out[p] = v
     }
   }
+
   const b = new Float64Array(n)
 
   for (let p = 0; p < n; p++) {
@@ -130,7 +208,9 @@ export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
   const d = Float64Array.from(r)
   const ad = new Float64Array(n)
   const work = new Float64Array(g.huskLinks)
+
   let rr = r.reduce((s, v) => s + v * v, 0)
+
   const stop = rr * 1e-26
 
   for (let it = 0; it < 5000 && rr > stop; it++) {
@@ -145,7 +225,9 @@ export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
 
     const next = r.reduce((s, v) => s + v * v, 0)
 
-    for (let i = 0; i < n; i++) d[i] = (r[i] ?? 0) + (next / rr) * (d[i] ?? 0)
+    for (let i = 0; i < n; i++) {
+      d[i] = (r[i] ?? 0) + (next / rr) * (d[i] ?? 0)
+    }
 
     rr = next
   }
@@ -154,11 +236,19 @@ export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
 }
 
 // the charge density of the matter on the husk docks
-export function chargeDensity(g: HuskGeometry, m: KineticMatter): Float64Array {
+export function chargeDensity(
+  g: HuskGeometry,
+  m: KineticMatter,
+): Float64Array {
   const rho = new Float64Array(g.huskDocks)
 
   for (let k = 0; k < m.charge.length; k++) {
-    const y = dockAt(g.side, m.dock[k * 3] ?? 0, m.dock[k * 3 + 1] ?? 0, m.dock[k * 3 + 2] ?? 0)
+    const y = dockAt(
+      g.side,
+      m.dock[k * 3] ?? 0,
+      m.dock[k * 3 + 1] ?? 0,
+      m.dock[k * 3 + 2] ?? 0,
+    )
 
     rho[y] = (rho[y] ?? 0) + (m.charge[k] ?? 0)
   }
@@ -171,44 +261,67 @@ export function chargeDensity(g: HuskGeometry, m: KineticMatter): Float64Array {
 // largest |S - C^T u - E_long - harmonic| left after the solve (the strings' own harmonic part, which no
 // potential can remove: a string between two charges winds net flux d / V around the torus, Ewald's surface
 // term) and the static field S - C^T u the start holds
-export function relaxStart(engine: HuskEngine, s: ShapedState, m: KineticMatter, harmonic?: Float64Array): { residual: number; field: Float64Array } {
+export function relaxStart(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  harmonic?: Float64Array,
+): { residual: number; field: Float64Array } {
   const g = engine.geometry
   const q = engine.q
   const levels = 1 + s.upper.length
   const long = coulombFlux(g, chargeDensity(g, m))
   const t = new Float64Array(g.huskLinks)
 
-  for (let l = 0; l < g.huskLinks; l++) t[l] = (s.string[l] ?? 0) - (long[l] ?? 0) - (harmonic?.[l] ?? 0)
+  for (let l = 0; l < g.huskLinks; l++) {
+    t[l] = (s.string[l] ?? 0) - (long[l] ?? 0) - (harmonic?.[l] ?? 0)
+  }
 
   const u = solvePotential(g, t)
+
   let residual = 0
+
   const curl = new Float64Array(g.huskLinks)
 
   for (let p = 0; p < g.triangles; p++) {
-    for (let j = 0; j < 3; j++) curl[g.triLinks[p * 3 + j] ?? 0] = (curl[g.triLinks[p * 3 + j] ?? 0] ?? 0) + (g.triSigns[p * 3 + j] ?? 0) * (u[p] ?? 0)
+    for (let j = 0; j < 3; j++) {
+      curl[g.triLinks[p * 3 + j] ?? 0] =
+        (curl[g.triLinks[p * 3 + j] ?? 0] ?? 0) +
+        (g.triSigns[p * 3 + j] ?? 0) * (u[p] ?? 0)
+    }
   }
 
   const field = new Float64Array(g.huskLinks)
 
   for (let l = 0; l < g.huskLinks; l++) {
-    residual = Math.max(residual, Math.abs((t[l] ?? 0) - (curl[l] ?? 0)))
+    residual = Math.max(
+      residual,
+      Math.abs((t[l] ?? 0) - (curl[l] ?? 0)),
+    )
     field[l] = (s.string[l] ?? 0) - (curl[l] ?? 0)
   }
 
   for (let p = 0; p < g.triangles; p++) {
     const whole = Math.round(u[p] ?? 0)
+
     let rest = (whole - (u[p] ?? 0)) * q
 
     s.potential[p] = whole
     s.lag[p] = 0
 
-    const c1 = Math.max(-engine.depth, Math.min(engine.depth, Math.round(rest)))
+    const c1 = Math.max(
+      -engine.depth,
+      Math.min(engine.depth, Math.round(rest)),
+    )
 
     s.counter[p] = c1
     rest = (rest - c1) * q
 
     for (let i = 0; i < levels - 1; i++) {
-      const c = Math.max(-engine.depth, Math.min(engine.depth, Math.round(rest)))
+      const c = Math.max(
+        -engine.depth,
+        Math.min(engine.depth, Math.round(rest)),
+      )
 
       s.upper[i]![p] = c
       s.upperLag[i]![p] = 0
@@ -222,28 +335,49 @@ export function relaxStart(engine: HuskEngine, s: ShapedState, m: KineticMatter,
 }
 
 // the kinetic energy, in the light's units (pi / D at hbar = 1, per beat): p v / 2 with p = K pi / (4 D q^L)
-export function kineticEnergy(engine: HuskEngine, m: KineticMatter, levels: number): number {
+export function kineticEnergy(
+  engine: HuskEngine,
+  m: KineticMatter,
+  levels: number,
+): number {
   const unit = Math.PI / (4 * engine.depth * engine.q ** levels)
+
   let e = 0
 
   for (let k = 0; k < m.charge.length; k++) {
-    if (!m.moving[k]) continue
+    if (!m.moving[k]) {
+      continue
+    }
 
-    for (let i = 0; i < 3; i++) e += (unit * (m.momentum[k * 3 + i] ?? 0) ** 2) / (2 * m.mass)
+    for (let i = 0; i < 3; i++) {
+      e += (unit * (m.momentum[k * 3 + i] ?? 0) ** 2) / (2 * m.mass)
+    }
   }
 
   return e
 }
 
 // the physical mass pi M / (4 D q^L) (energy beats^2 per dock^2)
-export const physicalMass = (engine: HuskEngine, mass: number, levels: number): number => (Math.PI * mass) / (4 * engine.depth * engine.q ** levels)
+export const physicalMass = (
+  engine: HuskEngine,
+  mass: number,
+  levels: number,
+): number => (Math.PI * mass) / (4 * engine.depth * engine.q ** levels)
 
 // a charge's position in docks, unwrapped against the previous reading
-export function unwrappedPosition(g: HuskGeometry, m: KineticMatter, k: number, previous?: number[]): number[] {
+export function unwrappedPosition(
+  g: HuskGeometry,
+  m: KineticMatter,
+  k: number,
+  previous?: number[],
+): number[] {
   return [0, 1, 2].map(i => {
-    const x = (m.dock[k * 3 + i] ?? 0) + (m.offset[k * 3 + i] ?? 0) / m.mass
+    const x =
+      (m.dock[k * 3 + i] ?? 0) + (m.offset[k * 3 + i] ?? 0) / m.mass
 
-    if (!previous) return x
+    if (!previous) {
+      return x
+    }
 
     const p = previous[i] ?? 0
 
@@ -254,23 +388,47 @@ export function unwrappedPosition(g: HuskGeometry, m: KineticMatter, k: number, 
 // the static lattice force on charge k, in K units per beat: e q^L (E_+ + E_-) on its two links along each
 // axis, of a given real field (the relaxed start's static field), or of the Coulomb flux alone (the force the
 // rule would read from an exact shadow)
-export function staticForce(engine: HuskEngine, m: KineticMatter, k: number, levels: number, given?: Float64Array): number[] {
+export function staticForce(
+  engine: HuskEngine,
+  m: KineticMatter,
+  k: number,
+  levels: number,
+  given?: Float64Array,
+): number[] {
   const g = engine.geometry
   const long = given ?? coulombFlux(g, chargeDensity(g, m))
   const side = g.side
-  const y = [m.dock[k * 3] ?? 0, m.dock[k * 3 + 1] ?? 0, m.dock[k * 3 + 2] ?? 0]
+  const y = [
+    m.dock[k * 3] ?? 0,
+    m.dock[k * 3 + 1] ?? 0,
+    m.dock[k * 3 + 2] ?? 0,
+  ]
   const scale = engine.q ** levels * (m.charge[k] ?? 0)
 
   return [0, 1, 2].map(i => {
     const here = dockAt(side, y[0] ?? 0, y[1] ?? 0, y[2] ?? 0) * 9 + i
-    const back = dockAt(side, (y[0] ?? 0) - (i === 0 ? 1 : 0), (y[1] ?? 0) - (i === 1 ? 1 : 0), (y[2] ?? 0) - (i === 2 ? 1 : 0)) * 9 + i
+    const back =
+      dockAt(
+        side,
+        (y[0] ?? 0) - (i === 0 ? 1 : 0),
+        (y[1] ?? 0) - (i === 1 ? 1 : 0),
+        (y[2] ?? 0) - (i === 2 ? 1 : 0),
+      ) *
+        9 +
+      i
 
     return scale * ((long[here] ?? 0) + (long[back] ?? 0))
   })
 }
 
 // husk docks where the divergence of the rule's flux (centered when cyclic) is not the matter's charge
-export function huskGaussFailures(engine: HuskEngine, s: ShapedState, m: KineticMatter, cyclic: boolean, flux: Int32Array): number {
+export function huskGaussFailures(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  cyclic: boolean,
+  flux: Int32Array,
+): number {
   const g = engine.geometry
   const rho = chargeDensity(g, m)
   const div = new Float64Array(g.huskDocks)
@@ -287,7 +445,9 @@ export function huskGaussFailures(engine: HuskEngine, s: ShapedState, m: Kinetic
 
   let bad = 0
 
-  for (let y = 0; y < g.huskDocks; y++) bad += div[y] === rho[y] ? 0 : 1
+  for (let y = 0; y < g.huskDocks; y++) {
+    bad += div[y] === rho[y] ? 0 : 1
+  }
 
   return bad
 }
@@ -334,23 +494,39 @@ export function runKinetic(input: {
   const flux = new Int32Array(g.huskLinks)
   const tally: KineticTally = { crossings: 0 }
   const count = m.charge.length
-  let last = Array.from({ length: count }, (_, k) => unwrappedPosition(g, m, k))
+
+  let last = Array.from({ length: count }, (_, k) =>
+    unwrappedPosition(g, m, k),
+  )
+
   const positions: number[][][] = [last.map(p => [...p])]
-  const momenta: number[][][] = [Array.from({ length: count }, (_, k) => [0, 1, 2].map(i => m.momentum[k * 3 + i] ?? 0))]
+  const momenta: number[][][] = [
+    Array.from({ length: count }, (_, k) =>
+      [0, 1, 2].map(i => m.momentum[k * 3 + i] ?? 0),
+    ),
+  ]
   const light = [shadowReading(e, s, options, all, reading)]
   const kinetic = [kineticEnergy(e, m, options.levels)]
+
   let gaussFailures = huskGaussFailures(e, s, m, options.cyclic, flux)
   let saved: { s: ShapedState; m: KineticMatter } | undefined
+
   const started = Date.now()
 
   for (let t = 0; t < beats; t++) {
-    if (t === beats - reverse) saved = { s: copyShaped(s), m: copyMatter(m) }
+    if (t === beats - reverse) {
+      saved = { s: copyShaped(s), m: copyMatter(m) }
+    }
 
     kineticBeat(e, s, m, options, scratch, f, tally)
 
     last = last.map((p, k) => unwrappedPosition(g, m, k, p))
     positions.push(last.map(p => [...p]))
-    momenta.push(Array.from({ length: count }, (_, k) => [0, 1, 2].map(i => m.momentum[k * 3 + i] ?? 0)))
+    momenta.push(
+      Array.from({ length: count }, (_, k) =>
+        [0, 1, 2].map(i => m.momentum[k * 3 + i] ?? 0),
+      ),
+    )
     gaussFailures += huskGaussFailures(e, s, m, options.cyclic, flux)
 
     if ((t + 1) % every === 0) {
@@ -360,20 +536,41 @@ export function runKinetic(input: {
   }
 
   const msPerBeat = (Date.now() - started) / Math.max(1, beats)
+
   let back = 0
 
-  for (let t = 0; t < reverse; t++) kineticBeatBack(e, s, m, options, scratch, f)
+  for (let t = 0; t < reverse; t++) {
+    kineticBeatBack(e, s, m, options, scratch, f)
+  }
 
   if (saved) {
     const a = shapedArrays(s)
     const b = shapedArrays(saved.s)
 
-    a.forEach((arr, i) => arr.forEach((v, j) => (back += v === (b[i]?.[j] ?? 0) ? 0 : 1)))
+    a.forEach((arr, i) =>
+      arr.forEach((v, j) => (back += v === (b[i]?.[j] ?? 0) ? 0 : 1)),
+    )
 
-    for (const key of ['dock', 'offset', 'momentum'] as const) m[key].forEach((v, j) => (back += v === saved!.m[key][j] ? 0 : 1))
+    for (const key of ['dock', 'offset', 'momentum'] as const) {
+      m[key].forEach(
+        (v: number, j: number) =>
+          (back += v === saved.m[key][j] ? 0 : 1),
+      )
+    }
   }
 
-  return { positions, momenta, light, kinetic, gaussFailures, crossings: tally.crossings, back, residual, field, msPerBeat }
+  return {
+    positions,
+    momenta,
+    light,
+    kinetic,
+    gaussFailures,
+    crossings: tally.crossings,
+    back,
+    residual,
+    field,
+    msPerBeat,
+  }
 }
 
 const GEOMETRIES = new Map<number, HuskGeometry>()
@@ -381,7 +578,9 @@ const GEOMETRIES = new Map<number, HuskGeometry>()
 function huskGeometryCache(side: number): HuskGeometry {
   const known = GEOMETRIES.get(side)
 
-  if (known) return known
+  if (known) {
+    return known
+  }
 
   const g = huskGeometryOf(side)
 

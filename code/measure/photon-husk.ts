@@ -31,8 +31,14 @@
 // warp factor. That is not modeled here.
 
 import { makeComplexMatrix } from '@/code/algebra/linear/dense'
-import { buildPhotonLattice, type PhotonLattice } from '@/code/rule/photon-links'
-import { hermitianEigen, plaquetteWaveMatrix } from '@/code/measure/photon-modes'
+import {
+  buildPhotonLattice,
+  type PhotonLattice,
+} from '@/code/rule/photon-links'
+import {
+  hermitianEigen,
+  plaquetteWaveMatrix,
+} from '@/code/measure/photon-modes'
 import { d4Vector, d4BoxCoordinates } from '@/code/substrate/d4-box'
 import { type Mesh } from '@/code/tool/mesh'
 
@@ -50,7 +56,9 @@ export const HUSK_VECTORS: readonly (readonly number[])[] = [
 ]
 
 // how many bulk links per column dock cast each husk direction
-export const HUSK_WEIGHTS: readonly number[] = [2, 2, 2, 1, 1, 1, 1, 1, 1]
+export const HUSK_WEIGHTS: readonly number[] = [
+  2, 2, 2, 1, 1, 1, 1, 1, 1,
+]
 
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -73,7 +81,8 @@ export type Husk = {
 export function makeHusk(bulk: PhotonLattice): Husk {
   const side = bulk.side
   const f = bulk.firsts.length
-  const vector = (x: number): number[] => d4Vector(d4BoxCoordinates({ cell: x, side }))
+  const vector = (x: number): number[] =>
+    d4Vector(d4BoxCoordinates({ cell: x, side }))
   const column = new Int32Array(bulk.cells)
   const depth = new Int32Array(bulk.cells)
   const along = new Int32Array(bulk.cells)
@@ -81,7 +90,10 @@ export function makeHusk(bulk: PhotonLattice): Husk {
   for (let x = 0; x < bulk.cells; x++) {
     const v = vector(x)
 
-    column[x] = modulo(v[0] ?? 0, side) + side * modulo(v[1] ?? 0, side) + side * side * modulo(v[2] ?? 0, side)
+    column[x] =
+      modulo(v[0] ?? 0, side) +
+      side * modulo(v[1] ?? 0, side) +
+      side * side * modulo(v[2] ?? 0, side)
     depth[x] = modulo(v[3] ?? 0, 2 * side)
   }
 
@@ -89,7 +101,11 @@ export function makeHusk(bulk: PhotonLattice): Husk {
   for (let x = 0; x < bulk.cells; x++) {
     const c = d4BoxCoordinates({ cell: x, side })
 
-    along[x] = modulo((c[0] ?? 0), side) + side * modulo(c[1] ?? 0, side) + side * side * modulo((c[2] ?? 0) - 1, side) + side ** 3 * modulo((c[3] ?? 0) + 1, side)
+    along[x] =
+      modulo(c[0] ?? 0, side) +
+      side * modulo(c[1] ?? 0, side) +
+      side * side * modulo((c[2] ?? 0) - 1, side) +
+      side ** 3 * modulo((c[3] ?? 0) + 1, side)
   }
 
   const shadow = Int32Array.from(bulk.firsts, d => {
@@ -98,7 +114,9 @@ export function makeHusk(bulk: PhotonLattice): Husk {
     const h = HUSK_VECTORS.findIndex(u => u.every((x, i) => x === s[i]))
 
     if (h < 0) {
-      throw new Error(`root ${r.join(',')} casts no husk direction with orientation +1`)
+      throw new Error(
+        `root ${r.join(',')} casts no husk direction with orientation +1`,
+      )
     }
 
     return h
@@ -108,14 +126,19 @@ export function makeHusk(bulk: PhotonLattice): Husk {
 
   for (let x = 0; x < bulk.cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = bulk.neighbour[x * bulk.degree + (bulk.firsts[k] ?? 0)] ?? 0
+      const y =
+        bulk.neighbour[x * bulk.degree + (bulk.firsts[k] ?? 0)] ?? 0
 
-      sheet[x * f + k] = (depth[x] ?? 0) <= 1 && (depth[y] ?? 0) <= 1 ? 1 : 0
+      sheet[x * f + k] =
+        (depth[x] ?? 0) <= 1 && (depth[y] ?? 0) <= 1 ? 1 : 0
     }
   }
 
   const huskCells = side ** 3
-  const at = (a: number, b: number, c: number): number => modulo(a, side) + side * modulo(b, side) + side * side * modulo(c, side)
+  const at = (a: number, b: number, c: number): number =>
+    modulo(a, side) +
+    side * modulo(b, side) +
+    side * side * modulo(c, side)
   const mesh: Mesh = {
     id: `husk-${side}`,
     degree: 2 * HUSK_VECTORS.length,
@@ -127,7 +150,11 @@ export function makeHusk(bulk: PhotonLattice): Husk {
       const b = Math.floor(cell / side) % side
       const c = Math.floor(cell / (side * side))
 
-      return at(a + s * (u[0] ?? 0), b + s * (u[1] ?? 0), c + s * (u[2] ?? 0))
+      return at(
+        a + s * (u[0] ?? 0),
+        b + s * (u[1] ?? 0),
+        c + s * (u[2] ?? 0),
+      )
     },
     opposite(direction) {
       return direction % 2 === 0 ? direction + 1 : direction - 1
@@ -138,8 +165,16 @@ export function makeHusk(bulk: PhotonLattice): Husk {
     side,
     dimension: 3,
     mesh,
-    vectors: Array.from({ length: mesh.degree }, (_, d) => (HUSK_VECTORS[Math.floor(d / 2)] ?? [0, 0, 0]).map(x => (d % 2 === 0 ? x : -x))),
-    coordinates: cell => [cell % side, Math.floor(cell / side) % side, Math.floor(cell / (side * side))],
+    vectors: Array.from({ length: mesh.degree }, (_, d) =>
+      (HUSK_VECTORS[Math.floor(d / 2)] ?? [0, 0, 0]).map(x =>
+        d % 2 === 0 ? x : -x,
+      ),
+    ),
+    coordinates: cell => [
+      cell % side,
+      Math.floor(cell / side) % side,
+      Math.floor(cell / (side * side)),
+    ],
     wave: [
       [1, 0, 0],
       [0, 1, 0],
@@ -153,7 +188,10 @@ export function makeHusk(bulk: PhotonLattice): Husk {
 
 // the projection of a bulk link field onto the husk: each husk link the sum of the bulk links between its
 // two columns
-export function projectLinks(husk: Husk, field: ArrayLike<number>): Float64Array {
+export function projectLinks(
+  husk: Husk,
+  field: ArrayLike<number>,
+): Float64Array {
   const f = husk.bulk.firsts.length
   const h = HUSK_VECTORS.length
   const out = new Float64Array(husk.side ** 3 * h)
@@ -186,26 +224,41 @@ export function huskLayers(husk: Husk): Int32Array {
   }
 
   return Int32Array.from({ length: husk.bulk.cells }, (_, x) => {
-    const m = modulo(((husk.depth[x] ?? 0) - (sheetDepth[husk.column[x] ?? 0] ?? 0)) / 2, side)
+    const m = modulo(
+      ((husk.depth[x] ?? 0) - (sheetDepth[husk.column[x] ?? 0] ?? 0)) /
+        2,
+      side,
+    )
 
     return Math.min(m, side - m)
   })
 }
 
-export function warpWeights(husk: Husk, lambda: number, s: number): Float64Array {
+export function warpWeights(
+  husk: Husk,
+  lambda: number,
+  s: number,
+): Float64Array {
   const layers = huskLayers(husk)
   const f = husk.bulk.firsts.length
 
   return Float64Array.from({ length: husk.bulk.links }, (_, l) => {
     const x = Math.floor(l / f)
-    const y = husk.bulk.neighbour[x * husk.bulk.degree + (husk.bulk.firsts[l % f] ?? 0)] ?? 0
+    const y =
+      husk.bulk.neighbour[
+        x * husk.bulk.degree + (husk.bulk.firsts[l % f] ?? 0)
+      ] ?? 0
 
     return lambda ** (-s * Math.min(layers[x] ?? 0, layers[y] ?? 0))
   })
 }
 
 // the column sum with each bulk link weighed
-export function projectLinksWeighted(husk: Husk, field: ArrayLike<number>, weight: ArrayLike<number>): Float64Array {
+export function projectLinksWeighted(
+  husk: Husk,
+  field: ArrayLike<number>,
+  weight: ArrayLike<number>,
+): Float64Array {
   const f = husk.bulk.firsts.length
   const h = HUSK_VECTORS.length
   const out = new Float64Array(husk.side ** 3 * h)
@@ -214,19 +267,27 @@ export function projectLinksWeighted(husk: Husk, field: ArrayLike<number>, weigh
     const x = Math.floor(l / f)
     const target = (husk.column[x] ?? 0) * h + (husk.shadow[l % f] ?? 0)
 
-    out[target] = (out[target] ?? 0) + (weight[l] ?? 0) * (field[l] ?? 0)
+    out[target] =
+      (out[target] ?? 0) + (weight[l] ?? 0) * (field[l] ?? 0)
   }
 
   return out
 }
 
 // the projection of the angles, mod N
-export function projectAngles(husk: Husk, angle: ArrayLike<number>, n: number): Int32Array {
+export function projectAngles(
+  husk: Husk,
+  angle: ArrayLike<number>,
+  n: number,
+): Int32Array {
   return Int32Array.from(projectLinks(husk, angle), v => modulo(v, n))
 }
 
 // the restriction to the sheet x4 in {0, 1}: each husk link the one bulk link of the sheet that casts it
-export function restrictLinks(husk: Husk, field: ArrayLike<number>): Float64Array {
+export function restrictLinks(
+  husk: Husk,
+  field: ArrayLike<number>,
+): Float64Array {
   const f = husk.bulk.firsts.length
   const h = HUSK_VECTORS.length
   const out = new Float64Array(husk.side ** 3 * h)
@@ -235,7 +296,8 @@ export function restrictLinks(husk: Husk, field: ArrayLike<number>): Float64Arra
     if (husk.sheet[l] === 1) {
       const x = Math.floor(l / f)
 
-      out[(husk.column[x] ?? 0) * h + (husk.shadow[l % f] ?? 0)] = field[l] ?? 0
+      out[(husk.column[x] ?? 0) * h + (husk.shadow[l % f] ?? 0)] =
+        field[l] ?? 0
     }
   }
 
@@ -243,18 +305,25 @@ export function restrictLinks(husk: Husk, field: ArrayLike<number>): Float64Arra
 }
 
 // the sum of a dock field over each column
-export function columnSum(husk: Husk, field: ArrayLike<number>): Float64Array {
+export function columnSum(
+  husk: Husk,
+  field: ArrayLike<number>,
+): Float64Array {
   const out = new Float64Array(husk.side ** 3)
 
   for (let x = 0; x < husk.bulk.cells; x++) {
-    out[husk.column[x] ?? 0] = (out[husk.column[x] ?? 0] ?? 0) + (field[x] ?? 0)
+    out[husk.column[x] ?? 0] =
+      (out[husk.column[x] ?? 0] ?? 0) + (field[x] ?? 0)
   }
 
   return out
 }
 
 // the divergence of a husk link field at every husk dock
-export function huskDivergence(husk: Husk, flux: ArrayLike<number>): Float64Array {
+export function huskDivergence(
+  husk: Husk,
+  flux: ArrayLike<number>,
+): Float64Array {
   const { lattice } = husk
   const h = HUSK_VECTORS.length
   const out = new Float64Array(lattice.cells)
@@ -273,20 +342,30 @@ export function huskDivergence(husk: Husk, flux: ArrayLike<number>): Float64Arra
 }
 
 // husk docks where the divergence is not the charge
-export function huskGaussViolations(husk: Husk, flux: ArrayLike<number>, charge: ArrayLike<number>): number {
+export function huskGaussViolations(
+  husk: Husk,
+  flux: ArrayLike<number>,
+  charge: ArrayLike<number>,
+): number {
   const div = huskDivergence(husk, flux)
 
   let violations = 0
 
   for (let y = 0; y < div.length; y++) {
-    violations += Math.abs((div[y] ?? 0) - (charge[y] ?? 0)) > 1e-9 ? 1 : 0
+    violations +=
+      Math.abs((div[y] ?? 0) - (charge[y] ?? 0)) > 1e-9 ? 1 : 0
   }
 
   return violations
 }
 
 // the husk frame change a bulk frame change induces: angle + w_h (X_z - X_y) on each husk link y -> z, mod N
-export function changeHuskFrame(husk: Husk, angle: ArrayLike<number>, frame: ArrayLike<number>, n: number): Int32Array {
+export function changeHuskFrame(
+  husk: Husk,
+  angle: ArrayLike<number>,
+  frame: ArrayLike<number>,
+  n: number,
+): Int32Array {
   const { lattice } = husk
   const h = HUSK_VECTORS.length
   const out = new Int32Array(lattice.cells * h)
@@ -295,7 +374,11 @@ export function changeHuskFrame(husk: Husk, angle: ArrayLike<number>, frame: Arr
     for (let k = 0; k < h; k++) {
       const z = lattice.neighbour[y * lattice.degree + 2 * k] ?? 0
 
-      out[y * h + k] = modulo((angle[y * h + k] ?? 0) + (HUSK_WEIGHTS[k] ?? 0) * ((frame[z] ?? 0) - (frame[y] ?? 0)), n)
+      out[y * h + k] = modulo(
+        (angle[y * h + k] ?? 0) +
+          (HUSK_WEIGHTS[k] ?? 0) * ((frame[z] ?? 0) - (frame[y] ?? 0)),
+        n,
+      )
     }
   }
 
@@ -304,10 +387,14 @@ export function changeHuskFrame(husk: Husk, angle: ArrayLike<number>, frame: Arr
 
 // the husk's own Coulomb flux for column charges q: w_h (phi_y - phi_z) on each husk link y -> z, with the
 // weighted Laplacian (weights HUSK_WEIGHTS) of phi equal to q; and its energy 1/2 sum E^2 / w
-export function huskCoulomb(husk: Husk, charge: ArrayLike<number>): { flux: Float64Array; energy: number } {
+export function huskCoulomb(
+  husk: Husk,
+  charge: ArrayLike<number>,
+): { flux: Float64Array; energy: number } {
   const { lattice } = husk
   const h = HUSK_VECTORS.length
   const cells = lattice.cells
+
   const apply = (v: Float64Array, out: Float64Array): void => {
     out.fill(0)
 
@@ -321,17 +408,26 @@ export function huskCoulomb(husk: Husk, charge: ArrayLike<number>): { flux: Floa
       }
     }
   }
-  const b = Float64Array.from({ length: cells }, (_, y) => charge[y] ?? 0)
+
+  const b = Float64Array.from(
+    { length: cells },
+    (_, y) => charge[y] ?? 0,
+  )
   const mean = b.reduce((s, v) => s + v, 0) / cells
   const phi = new Float64Array(cells)
   const r = Float64Array.from(b, v => v - mean)
   const p = Float64Array.from(r)
   const ap = new Float64Array(cells)
-  const dot = (u: Float64Array, v: Float64Array): number => u.reduce((s, x, i) => s + x * (v[i] ?? 0), 0)
+  const dot = (u: Float64Array, v: Float64Array): number =>
+    u.reduce((s, x, i) => s + x * (v[i] ?? 0), 0)
 
   let rr = dot(r, r)
 
-  for (let it = 0; it < 10 * cells && rr > 1e-26 * Math.max(1, dot(b, b)); it++) {
+  for (
+    let it = 0;
+    it < 10 * cells && rr > 1e-26 * Math.max(1, dot(b, b));
+    it++
+  ) {
     apply(p, ap)
 
     const alpha = rr / dot(p, ap)
@@ -401,30 +497,60 @@ export type Survival = {
 
 // which bulk polarizations the projection keeps, at the husk wave vector m: the bulk curl-curl eigenvectors
 // at (m, 0), mapped by the projection matrix (each bulk link direction to its husk direction, weight 1)
-export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival {
+export function polarizationSurvival(
+  husk: Husk,
+  m: readonly number[],
+): Survival {
   const bulk = husk.bulk
   const f = bulk.firsts.length
   const h = HUSK_VECTORS.length
-  const eig = hermitianEigen(plaquetteWaveMatrix(bulk, bulkModeOfHusk(m)))
-  const order = Array.from(eig.values, (v, i) => [v, i] as const).sort((a, b) => a[0] - b[0])
+  const eig = hermitianEigen(
+    plaquetteWaveMatrix(bulk, bulkModeOfHusk(m)),
+  )
+  const order = Array.from(eig.values, (v, i) => [v, i] as const).sort(
+    (a, b) => a[0] - b[0],
+  )
   const column = (i: number): [Float64Array, Float64Array] => [
-    Float64Array.from({ length: f }, (_, a) => eig.vectorsRe[a * f + i] ?? 0),
-    Float64Array.from({ length: f }, (_, a) => eig.vectorsIm[a * f + i] ?? 0),
+    Float64Array.from(
+      { length: f },
+      (_, a) => eig.vectorsRe[a * f + i] ?? 0,
+    ),
+    Float64Array.from(
+      { length: f },
+      (_, a) => eig.vectorsIm[a * f + i] ?? 0,
+    ),
   ]
-  const project = ([re, im]: [Float64Array, Float64Array]): [Float64Array, Float64Array] => {
+
+  const project = ([re, im]: [Float64Array, Float64Array]): [
+    Float64Array,
+    Float64Array,
+  ] => {
     const pr = new Float64Array(h)
     const pi = new Float64Array(h)
 
     for (let a = 0; a < f; a++) {
-      pr[husk.shadow[a] ?? 0] = (pr[husk.shadow[a] ?? 0] ?? 0) + (re[a] ?? 0)
-      pi[husk.shadow[a] ?? 0] = (pi[husk.shadow[a] ?? 0] ?? 0) + (im[a] ?? 0)
+      pr[husk.shadow[a] ?? 0] =
+        (pr[husk.shadow[a] ?? 0] ?? 0) + (re[a] ?? 0)
+
+      pi[husk.shadow[a] ?? 0] =
+        (pi[husk.shadow[a] ?? 0] ?? 0) + (im[a] ?? 0)
     }
 
     return [pr, pi]
   }
-  const gram = (vectors: [Float64Array, Float64Array][]): { values: number[]; vectorsRe: Float64Array; vectorsIm: Float64Array } => {
+
+  const gram = (
+    vectors: [Float64Array, Float64Array][],
+  ): {
+    values: number[]
+    vectorsRe: Float64Array
+    vectorsIm: Float64Array
+  } => {
     const projected = vectors.map(project)
-    const g = makeComplexMatrix({ rows: vectors.length, cols: vectors.length })
+    const g = makeComplexMatrix({
+      rows: vectors.length,
+      cols: vectors.length,
+    })
 
     projected.forEach(([ar, ai], i) =>
       projected.forEach(([br, bi], j) => {
@@ -433,8 +559,11 @@ export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival
 
         for (let k = 0; k < h; k++) {
           // conj(a) . b
-          re += (ar[k] ?? 0) * (br[k] ?? 0) + (ai[k] ?? 0) * (bi[k] ?? 0)
-          im += (ar[k] ?? 0) * (bi[k] ?? 0) - (ai[k] ?? 0) * (br[k] ?? 0)
+          re +=
+            (ar[k] ?? 0) * (br[k] ?? 0) + (ai[k] ?? 0) * (bi[k] ?? 0)
+
+          im +=
+            (ar[k] ?? 0) * (bi[k] ?? 0) - (ai[k] ?? 0) * (br[k] ?? 0)
         }
 
         g.re[i * vectors.length + j] = re
@@ -444,7 +573,11 @@ export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival
 
     const e = hermitianEigen(g)
 
-    return { values: Array.from(e.values), vectorsRe: e.vectorsRe, vectorsIm: e.vectorsIm }
+    return {
+      values: Array.from(e.values),
+      vectorsRe: e.vectorsRe,
+      vectorsIm: e.vectorsIm,
+    }
   }
 
   const photons = order.slice(1, 4).map(([, i]) => column(i))
@@ -459,8 +592,11 @@ export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival
     const ci = g.vectorsIm[j * photons.length + smallest] ?? 0
 
     for (let a = 0; a < f; a++) {
-      killedRe[a] = (killedRe[a] ?? 0) + cr * (re[a] ?? 0) - ci * (im[a] ?? 0)
-      killedIm[a] = (killedIm[a] ?? 0) + cr * (im[a] ?? 0) + ci * (re[a] ?? 0)
+      killedRe[a] =
+        (killedRe[a] ?? 0) + cr * (re[a] ?? 0) - ci * (im[a] ?? 0)
+
+      killedIm[a] =
+        (killedIm[a] ?? 0) + cr * (im[a] ?? 0) + ci * (re[a] ?? 0)
     }
   })
 
@@ -469,7 +605,9 @@ export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival
     const r = bulk.vectors[d] ?? []
     const image = [r[0] ?? 0, r[1] ?? 0, r[2] ?? 0, -(r[3] ?? 0)]
 
-    return bulk.firsts.findIndex(e => (bulk.vectors[e] ?? []).every((x, i) => x === image[i]))
+    return bulk.firsts.findIndex(e =>
+      (bulk.vectors[e] ?? []).every((x, i) => x === image[i]),
+    )
   })
 
   let norm = 0
@@ -479,7 +617,9 @@ export function polarizationSurvival(husk: Husk, m: readonly number[]): Survival
     const b = mirror[a] ?? a
 
     norm += (killedRe[a] ?? 0) ** 2 + (killedIm[a] ?? 0) ** 2
-    odd += (((killedRe[a] ?? 0) - (killedRe[b] ?? 0)) / 2) ** 2 + (((killedIm[a] ?? 0) - (killedIm[b] ?? 0)) / 2) ** 2
+    odd +=
+      (((killedRe[a] ?? 0) - (killedRe[b] ?? 0)) / 2) ** 2 +
+      (((killedIm[a] ?? 0) - (killedIm[b] ?? 0)) / 2) ** 2
   }
 
   const depth = bulk.firsts.map(d => bulk.vectors[d]?.[3] ?? 0)

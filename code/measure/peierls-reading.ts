@@ -4,22 +4,52 @@
 //
 // DETERMINISM: every start is placed; nothing is drawn.
 
-import { copyWalk, makeWalk, normTrace, probabilities, sameWalk, walkBeat, walkBeatBack } from '@/code/rule/husk-peierls-walk'
+import {
+  copyWalk,
+  makeWalk,
+  normTrace,
+  probabilities,
+  sameWalk,
+  walkBeat,
+  walkBeatBack,
+} from '@/code/rule/husk-peierls-walk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
-const binomial = (n: number, k: number): number => (k < 0 || k > n ? 0 : k === 0 ? 1 : (binomial(n, k - 1) * (n - k + 1)) / k)
+const binomial = (n: number, k: number): number =>
+  k < 0 || k > n
+    ? 0
+    : k === 0
+      ? 1
+      : (binomial(n, k - 1) * (n - k + 1)) / k
 
 // the ring, the light's depth (angles cycle mod 4D), the walk's root of unity, and the packet's binomial order
-export type PeierlsSetting = { side: number; depth: number; order: number; pack: number }
+export type PeierlsSetting = {
+  side: number
+  depth: number
+  order: number
+  pack: number
+}
 
 // a binomial packet C(pack, x - r + pack / 2), real and at rest, centered at r on the ring
-export const packetAt = (w: PeierlsSetting, r: number): number[] => Array.from({ length: w.side }, (_, x) => binomial(w.pack, mod(x - r + w.pack / 2 + w.side / 2, w.side) - w.side / 2))
+export const packetAt = (w: PeierlsSetting, r: number): number[] =>
+  Array.from({ length: w.side }, (_, x) =>
+    binomial(
+      w.pack,
+      mod(x - r + w.pack / 2 + w.side / 2, w.side) - w.side / 2,
+    ),
+  )
 
 // the centroid relative to r, on the ring
-export function ringCentroid(w: PeierlsSetting, p: ArrayLike<number>, r: number): number {
+export function ringCentroid(
+  w: PeierlsSetting,
+  p: ArrayLike<number>,
+  r: number,
+): number {
   let c = 0
 
-  for (let x = 0; x < w.side; x++) c += p[x]! * (mod(x - r + w.side / 2, w.side) - w.side / 2)
+  for (let x = 0; x < w.side; x++) {
+    c += p[x]! * (mod(x - r + w.side / 2, w.side) - w.side / 2)
+  }
 
   return c
 }
@@ -27,22 +57,40 @@ export function ringCentroid(w: PeierlsSetting, p: ArrayLike<number>, r: number)
 // the exact walk of charge q from the packet at r over the recorded angles (one row per beat): its centroid move,
 // whether its norm trace is 4^hops times the start's, and (with `back`) whether it runs back to exactly 4^hops times
 // its start
-export function exactWalkRun(w: PeierlsSetting, r: number, q: number, angles: readonly Int32Array[], back = false): { move: number; normOk: boolean; backOk: boolean } {
+export function exactWalkRun(
+  w: PeierlsSetting,
+  r: number,
+  q: number,
+  angles: readonly Int32Array[],
+  back = false,
+): { move: number; normOk: boolean; backOk: boolean } {
   const beats = angles.length
-  const walk = makeWalk({ order: w.order, depth: w.depth, sites: w.side, start: packetAt(w, r) })
+  const walk = makeWalk({
+    order: w.order,
+    depth: w.depth,
+    sites: w.side,
+    start: packetAt(w, r),
+  })
   const first = copyWalk(walk)
   const norm0 = normTrace(walk)
 
-  for (let t = 0; t < beats; t++) walkBeat(walk, angles[t]!, q)
+  for (let t = 0; t < beats; t++) {
+    walkBeat(walk, angles[t]!, q)
+  }
 
   const normOk = normTrace(walk) === norm0 * 4n ** BigInt(beats * 2)
-  const move = ringCentroid(w, probabilities(walk), r) - ringCentroid(w, probabilities(first), r)
+  const move =
+    ringCentroid(w, probabilities(walk), r) -
+    ringCentroid(w, probabilities(first), r)
+
   let backOk = true
 
   if (back) {
     const v = copyWalk(walk)
 
-    for (let t = beats - 1; t >= 0; t--) walkBeatBack(v, angles[t]!, q)
+    for (let t = beats - 1; t >= 0; t--) {
+      walkBeatBack(v, angles[t]!, q)
+    }
 
     backOk = sameWalk(v, first, 4n ** BigInt(beats * 2))
   }
@@ -51,7 +99,13 @@ export function exactWalkRun(w: PeierlsSetting, r: number, q: number, angles: re
 }
 
 // the same walk in doubles, reading real angles angle(t, x) on the link x -> x + 1 at beat t
-export function floatWalkRun(w: PeierlsSetting, r: number, q: number, beats: number, angle: (t: number, x: number) => number): number {
+export function floatWalkRun(
+  w: PeierlsSetting,
+  r: number,
+  q: number,
+  beats: number,
+  angle: (t: number, x: number) => number,
+): number {
   const side = w.side
   const re = Float64Array.from(packetAt(w, r))
   const im = new Float64Array(side)
@@ -84,7 +138,17 @@ export function floatWalkRun(w: PeierlsSetting, r: number, q: number, beats: num
     }
   }
 
-  const p = Float64Array.from(re, (v, i) => (v * v + im[i]! * im[i]!) / total)
+  const p = Float64Array.from(
+    re,
+    (v, i) => (v * v + im[i]! * im[i]!) / total,
+  )
 
-  return ringCentroid(w, p, r) - ringCentroid(w, Float64Array.from(p0, v => v / total), r)
+  return (
+    ringCentroid(w, p, r) -
+    ringCentroid(
+      w,
+      Float64Array.from(p0, v => v / total),
+      r,
+    )
+  )
 }

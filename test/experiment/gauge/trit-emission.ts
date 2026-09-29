@@ -56,9 +56,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { HUSK_KAPPA, goldenRule, hermitianHuskSymbol, huskSymbolizer, readHuskStencil, sphereGrid } from '@/code/measure/husk-emission'
+import {
+  HUSK_KAPPA,
+  goldenRule,
+  hermitianHuskSymbol,
+  huskSymbolizer,
+  readHuskStencil,
+  sphereGrid,
+} from '@/code/measure/husk-emission'
 import { HUSK_WEIGHTS } from '@/code/measure/photon-husk'
-import { dimerAmplitude, emit, huskPhotonModes } from '@/code/measure/stand-in-light'
+import {
+  dimerAmplitude,
+  emit,
+  huskPhotonModes,
+} from '@/code/measure/stand-in-light'
 import { STAND_IN_MASS } from '@/code/measure/stand-in-atom'
 import { sortedEigen } from '@/code/measure/trit-column-light'
 import {
@@ -80,11 +91,21 @@ import {
   transverseSquare,
   huskGreenDifference,
 } from '@/code/measure/trit-hop-light'
-import { addCurrent, emptyHusk, fastBeat, huskGeometry, makeHuskEngine } from '@/code/rule/trit-husk'
+import {
+  addCurrent,
+  emptyHusk,
+  fastBeat,
+  huskGeometry,
+  makeHuskEngine,
+} from '@/code/rule/trit-husk'
 
 const DEPTHS = [11, 16, 32, 64]
 
-function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: number): number {
+function decayRate(
+  times: ArrayLike<number>,
+  values: ArrayLike<number>,
+  from: number,
+): number {
   const xs: number[] = []
   const ys: number[] = []
 
@@ -98,7 +119,10 @@ function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: nu
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
 
-  return -xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] ?? 0) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  return (
+    -xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] ?? 0) - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  )
 }
 
 function sectionR(): { metrics: Record<string, number>; ok: boolean } {
@@ -112,28 +136,60 @@ function sectionR(): { metrics: Record<string, number>; ok: boolean } {
   // the trit rule's own symbol against E-FRC-0179's
   let symbolGap = 0
 
-  for (const n of [[1, 0, 0], [1, 1, 0], [1, 2, 3]]) {
+  for (const n of [
+    [1, 0, 0],
+    [1, 1, 0],
+    [1, 2, 3],
+  ]) {
     const k = n.map(x => x * tau)
     const a = sortedEigen(geometrySymbol(tiled, k)).values
     const b = sortedEigen(hermitianHuskSymbol(stencil, k)).values
 
-    a.forEach((v, i) => (symbolGap = Math.max(symbolGap, Math.abs(v - (b[i] ?? 0)))))
+    a.forEach(
+      (v, i) =>
+        (symbolGap = Math.max(symbolGap, Math.abs(v - (b[i] ?? 0)))),
+    )
   }
 
   out.symbolGap = symbolGap
 
   const rate = (kappa: number, omega: number): number =>
-    goldenRule({ symbol, couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: omega / (2 * (HUSK_WEIGHTS[0] ?? 2)) }]], omega, grid, kappa }).rates[0] ?? 0
-  const continuum = (kappa: number, omega: number): number => (omega ** 3 * 0.25) / (18 * Math.PI * Math.sqrt((2 * kappa) / 3) ** 3)
+    goldenRule({
+      symbol,
+      couplings: [
+        [
+          {
+            x: [0, 0, 0],
+            h: 0,
+            re: 0,
+            im: omega / (2 * (HUSK_WEIGHTS[0] ?? 2)),
+          },
+        ],
+      ],
+      omega,
+      grid,
+      kappa,
+    }).rates[0] ?? 0
+  const continuum = (kappa: number, omega: number): number =>
+    (omega ** 3 * 0.25) /
+    (18 * Math.PI * Math.sqrt((2 * kappa) / 3) ** 3)
 
   let ok = symbolGap < 1e-12
 
-  for (const [name, kappa] of [...DEPTHS.map(d => [`D${d}`, kappaOf(d)] as const), ['committed', HUSK_KAPPA] as const]) {
+  for (const [name, kappa] of [
+    ...DEPTHS.map(d => [`D${d}`, kappaOf(d)] as const),
+    ['committed', HUSK_KAPPA] as const,
+  ]) {
     const rates = [0.01, 0.02, 0.04].map(w => rate(kappa, w))
 
-    ;[0.01, 0.02, 0.04].forEach((w, i) => (out[`r_${name}_w${w}_ratio`] = (rates[i] ?? 0) / continuum(kappa, w)))
+    ;[0.01, 0.02, 0.04].forEach(
+      (w, i) =>
+        (out[`r_${name}_w${w}_ratio`] =
+          (rates[i] ?? 0) / continuum(kappa, w)),
+    )
 
-    const slope = Math.log((rates[2] ?? 1) / (rates[0] ?? 1)) / Math.log(4)
+    const slope =
+      Math.log((rates[2] ?? 1) / (rates[0] ?? 1)) / Math.log(4)
 
     out[`r_${name}_slope`] = slope
 
@@ -142,7 +198,10 @@ function sectionR(): { metrics: Record<string, number>; ok: boolean } {
 
       // the trit light's own rate, in its canonical units: times pi / D
       out[`r_${name}_tritRateAt001`] = ((rates[0] ?? 0) * Math.PI) / d
-      ok = ok && Math.abs((out[`r_${name}_w0.01_ratio`] ?? 0) - 1) <= 0.01 && Math.abs(slope - 3) <= 0.05
+      ok =
+        ok &&
+        Math.abs((out[`r_${name}_w0.01_ratio`] ?? 0) - 1) <= 0.01 &&
+        Math.abs(slope - 3) <= 0.05
     }
   }
 
@@ -165,12 +224,17 @@ function sectionH(): { metrics: Record<string, number>; ok: boolean } {
     out[`h_ka${ka}_closedOverQuadrature`] = closed / quad
     out[`h_ka${ka}_transverseOverDipole`] = r
     out[`h_ka${ka}_predicted`] = retardationFactor(ka)
-    worst = Math.max(worst, Math.abs(closed / quad - 1), Math.abs(r / retardationFactor(ka) - 1))
+    worst = Math.max(
+      worst,
+      Math.abs(closed / quad - 1),
+      Math.abs(r / retardationFactor(ka) - 1),
+    )
   }
 
   out.hClosedFormWorst = worst
 
   let ok = worst < 1e-9
+
   const m = STAND_IN_MASS
 
   for (const d of DEPTHS) {
@@ -226,10 +290,12 @@ function sectionM(): { metrics: Record<string, number>; ok: boolean } {
     const engine = makeHuskEngine(g, d)
     const s = emptyHusk(engine)
     const lin = emptyLinear(g)
+
     let hops = 0
 
     for (let t = 0; t < beats; t++) {
-      const j = t % period === 0 ? 1 : t % period === period / 2 ? -1 : 0
+      const j =
+        t % period === 0 ? 1 : t % period === period / 2 ? -1 : 0
 
       if (j !== 0) {
         addCurrent(s, center * 9, j)
@@ -254,7 +320,9 @@ function sectionM(): { metrics: Record<string, number>; ok: boolean } {
     let rest = 0
 
     for (let l = 0; l < g.huskLinks; l++) {
-      if (!far.links[l]) continue
+      if (!far.links[l]) {
+        continue
+      }
 
       const w = 1 / (l % 9 < 3 ? 2 : 1)
       const x = shadowE[l] ?? 0
@@ -278,62 +346,116 @@ function sectionM(): { metrics: Record<string, number>; ok: boolean } {
 
     // the transverse self-energy of one axis hop: (pi / D) 1/2 (1/g - 2 (G(0) - G(e1))), the energy a hop puts
     // into the transverse field (on the side-32 torus)
-    const transverse = (Math.PI / d) * 0.5 * (0.5 - 2 * huskGreenDifference(side, [1, 0, 0]))
+    const transverse =
+      (Math.PI / d) *
+      0.5 *
+      (0.5 - 2 * huskGreenDifference(side, [1, 0, 0]))
 
     out[`m_D${d}_transverseSelfEnergyPerHop`] = transverse
-    out[`m_D${d}_linearFarOverHopsTimesTransverse`] = linFar / (hops * transverse)
+    out[`m_D${d}_linearFarOverHopsTimesTransverse`] =
+      linFar / (hops * transverse)
 
-    if (d >= 32) ok = ok && Math.abs(gain - 1) <= 0.05
+    if (d >= 32) {
+      ok = ok && Math.abs(gain - 1) <= 0.05
+    }
   }
 
   return { metrics: out, ok }
 }
 
-function sectionS(): { metrics: Record<string, number>; ok1: boolean; ok2: boolean; ok3: boolean } {
+function sectionS(): {
+  metrics: Record<string, number>
+  ok1: boolean
+  ok2: boolean
+  ok3: boolean
+} {
   const out: Record<string, number> = {}
   const g = huskGeometry(16)
   const engine = makeHuskEngine(g, 16)
   const k = [(2 * Math.PI) / 16, (4 * Math.PI) / 16, 0]
+
   let ok1 = true
 
   for (const peak of [1, 2, 4, 8, 16]) {
     let rel = Number.NaN
 
     try {
-      rel = fastWave(engine, g, k, 1, peak, 400, s => fastBeat(engine, s)).relative
+      rel = fastWave(engine, g, k, 1, peak, 400, s =>
+        fastBeat(engine, s),
+      ).relative
     } catch {
       rel = Number.NaN
     }
 
     out[`s1_peak${peak}_relative`] = Number.isFinite(rel) ? rel : -1
 
-    if (peak >= 4) ok1 = ok1 && Number.isFinite(rel) && Math.abs(rel) < 1e-4
+    if (peak >= 4) {
+      ok1 = ok1 && Number.isFinite(rel) && Math.abs(rel) < 1e-4
+    }
   }
 
   // (n + 1) at D = 32
   const stencil = readHuskStencil(8)
   const kappa = kappaOf(32)
   const omega0 = 0.1
-  const unit = goldenRule({ symbol: huskSymbolizer(stencil), couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: 1 }]], omega: omega0, grid: sphereGrid(24, 48), kappa }).rates[0] ?? 0
+  const unit =
+    goldenRule({
+      symbol: huskSymbolizer(stencil),
+      couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: 1 }]],
+      omega: omega0,
+      grid: sphereGrid(24, 48),
+      kappa,
+    }).rates[0] ?? 0
   const f = Math.sqrt(omega0 / 50 / unit)
   const golden = unit * f * f
-  const modes = huskPhotonModes({ stencil, side: 40, kappa, amplitude: dimerAmplitude(0, f) })
-  const band = Float64Array.from(modes.omega, w => (Math.abs(w - omega0) < 30 * golden ? 1 : 0))
+  const modes = huskPhotonModes({
+    stencil,
+    side: 40,
+    kappa,
+    amplitude: dimerAmplitude(0, f),
+  })
+  const band = Float64Array.from(modes.omega, w =>
+    Math.abs(w - omega0) < 30 * golden ? 1 : 0,
+  )
   const beats = Math.ceil(0.6 / golden)
   const rates = [0, 1, 2, 4].map(n => {
-    const run = emit({ modes, omega0, beats, dt: 0.25, every: 1, occupation: Float64Array.from(band, b => b * n) })
+    const run = emit({
+      modes,
+      omega0,
+      beats,
+      dt: 0.25,
+      every: 1,
+      occupation: Float64Array.from(band, b => b * n),
+    })
 
     return decayRate(run.times, run.excited, beats / 20)
   })
-  const blocked = emit({ modes, omega0, beats, dt: 0.25, every: 1, occupation: Float64Array.from(band, b => -b) })
-  const blockedRate = decayRate(blocked.times, blocked.excited, beats / 20)
+  const blocked = emit({
+    modes,
+    omega0,
+    beats,
+    dt: 0.25,
+    every: 1,
+    occupation: Float64Array.from(band, b => -b),
+  })
+  const blockedRate = decayRate(
+    blocked.times,
+    blocked.excited,
+    beats / 20,
+  )
 
   out.s2Golden = golden
   out.s2SpontaneousOverGolden = (rates[0] ?? 0) / golden
-  ;[1, 2, 4].forEach((n, i) => (out[`s2_n${n}_overNPlusOne`] = (rates[i + 1] ?? 0) / ((rates[0] ?? 1) * (n + 1))))
+  ;[1, 2, 4].forEach(
+    (n, i) =>
+      (out[`s2_n${n}_overNPlusOne`] =
+        (rates[i + 1] ?? 0) / ((rates[0] ?? 1) * (n + 1))),
+  )
   out.s3HardCoreOverSpontaneous = blockedRate / (rates[0] ?? 1)
 
-  const ok2 = [1, 2, 4].every(n => Math.abs((out[`s2_n${n}_overNPlusOne`] ?? 0) - 1) <= 0.03)
+  const ok2 = [1, 2, 4].every(
+    n => Math.abs((out[`s2_n${n}_overNPlusOne`] ?? 0) - 1) <= 0.03,
+  )
   const ok3 = (out.s3HardCoreOverSpontaneous ?? 1) < 0.2
 
   return { metrics: out, ok1, ok2, ok3 }
@@ -343,7 +465,7 @@ export default experiment({
   id: 'gauge/trit-emission',
   code: 'E-FRC-0211',
   title:
-    'emission on trits: in the trit-column light a stand-in dimer decays at the husk dipole rate at every depth, the stand-in hydrogen at the coupling the depth sets (alpha about 1/77 at D = 16) sits deep in the dipole regime, its full-current rate (1 + alpha^2 / 16)^-4 of the dipole rate, a moving trit charge radiates the linear light\'s coherent field, and stimulated emission goes as n + 1',
+    "emission on trits: in the trit-column light a stand-in dimer decays at the husk dipole rate at every depth, the stand-in hydrogen at the coupling the depth sets (alpha about 1/77 at D = 16) sits deep in the dipole regime, its full-current rate (1 + alpha^2 / 16)^-4 of the dipole rate, a moving trit charge radiates the linear light's coherent field, and stimulated emission goes as n + 1",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -353,12 +475,30 @@ export default experiment({
     const h = sectionH()
     const m = sectionM()
     const s = sectionS()
-    const metrics: Record<string, number> = { ...r.metrics, ...h.metrics, ...m.metrics, ...s.metrics }
-    const gates = { R: r.ok, H: h.ok, M: m.ok, S1: s.ok1, S2: s.ok2, S3: s.ok3 }
+    const metrics: Record<string, number> = {
+      ...r.metrics,
+      ...h.metrics,
+      ...m.metrics,
+      ...s.metrics,
+    }
+    const gates = {
+      R: r.ok,
+      H: h.ok,
+      M: m.ok,
+      S1: s.ok1,
+      S2: s.ok2,
+      S3: s.ok3,
+    }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(x => x) ? 'pass' : gates.R && gates.H ? 'partial' : 'fail'
+    const status = Object.values(gates).every(x => x)
+      ? 'pass'
+      : gates.R && gates.H
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,
@@ -369,7 +509,7 @@ export default experiment({
         e0190RetardationOnly: metrics.h_e0190_retardationOnly ?? 0,
       },
       notes:
-        'L2, STAND-IN emitters except in M. FIRST RUN 2026-09-26 (tmp/frc0211.log, 333 s), FAIL: R and M fail, no gate moved. R: the rule\'s tiled symbol equals E-FRC-0179\'s to 2.4e-14; the dimer ratio at omega 0.01 is 1.0004, 1.0033, 1.0130, 1.0050 at D = 11, 16, 32, 64 (committed kappa 1.0046), slopes 3.002, 3.001, 2.995, 3.005: the omega^3 law holds at every depth, but D = 32 misses the 1 percent gate by 0.3 percent; the other omegas scatter by the same size (0.996 to 1.013) with no trend in D or omega, the ray-quadrature error E-FRC-0190 already saw on a coarser grid, so the gate was a knife edge a second time. In trit units the rate is these times pi / D. H: the closed form matches the quadrature to 5e-14 at k a = 0.3, 1, 3 (transverse over dipole 0.8548, 0.2297, 0.0016, each equal to (1 + 4 (k a)^2 / 9)^-4), and the stand-in hydrogen at the depth-set coupling has a = 152, 222, 443, 887 docks, k a = 3 alpha / 8 = 0.0059 to 0.0024, full-current rate 1 - 6.2e-5 to 1 - 1.0e-5 of the dipole rate: DEEP IN THE DIPOLE REGIME at every depth, as predicted (lifetime 2.6e11 beats at D = 11, 1.0e12 at D = 16). E-FRC-0190\'s own regime (k a 0.43) gives 0.73 from retardation alone, its lattice atom 0.43. M, THE MOVING TRIT CHARGE, FAILS AND IS THE FINDING: a trit charge hopping forth and back (10 hops, 120 beats, side 32) in the integer rule does not radiate the linear light\'s field at the depths tried. The shadow flux beyond radius 5 has coherent gain 0.88, 0.21, 0.54, 0.56 against the linear field at D = 16, 32, 64, 128 and an incoherent remainder 94, 16, 2.6, 2.2 times the signal; the integer rule\'s total energy is 61, 15, 1.6, 1.05 times the linear rule\'s. The cause: one unit of flux dropped on one link is a field whose transverse part is fractional everywhere but at the link (the transverse self-energy per hop is 0.041 at D = 16), below the integer rule\'s resolution, and the integer rule heats after it (the likely mechanism is the counters\' carries, not isolated here) (a single impulse probe: shadow energy 0.05 to 30 in 120 beats at D = 16 on side 16, 0.012 to 0.05 at D = 64). The heating falls steeply with depth, so a single charge radiates cleanly only when the column is deep (the energy ratio reaches 1.05 at D = 128), which is where alpha is small. A wave of the integer rule is clean at every depth (S1: within 4.3e-6 of the symbol at peaks 1 to 16), so the heating comes with the impulse\'s broadband content (every branch up to the band top at once), not with small amplitude as such; which branch carries it is not yet measured. The far-energy readings are not comparable across D (the front has reached radius 5 to 17 depending on c), reported only. S: the (n + 1) law holds on the trit light\'s modes at D = 32 (2.017, 3.045, 5.134 times spontaneous, within 0.9, 1.5, 2.7 percent), hard-core modes block it (-0.005), spontaneous over golden 0.970. OWED: the M failure is the next problem for moving matter, a charge whose hop is spread over the column (a thermometer front of vibes, not one trit) or a smoother current, and a rerun of R on a finer ray grid.',
+        "L2, STAND-IN emitters except in M. FIRST RUN 2026-09-26 (tmp/frc0211.log, 333 s), FAIL: R and M fail, no gate moved. R: the rule's tiled symbol equals E-FRC-0179's to 2.4e-14; the dimer ratio at omega 0.01 is 1.0004, 1.0033, 1.0130, 1.0050 at D = 11, 16, 32, 64 (committed kappa 1.0046), slopes 3.002, 3.001, 2.995, 3.005: the omega^3 law holds at every depth, but D = 32 misses the 1 percent gate by 0.3 percent; the other omegas scatter by the same size (0.996 to 1.013) with no trend in D or omega, the ray-quadrature error E-FRC-0190 already saw on a coarser grid, so the gate was a knife edge a second time. In trit units the rate is these times pi / D. H: the closed form matches the quadrature to 5e-14 at k a = 0.3, 1, 3 (transverse over dipole 0.8548, 0.2297, 0.0016, each equal to (1 + 4 (k a)^2 / 9)^-4), and the stand-in hydrogen at the depth-set coupling has a = 152, 222, 443, 887 docks, k a = 3 alpha / 8 = 0.0059 to 0.0024, full-current rate 1 - 6.2e-5 to 1 - 1.0e-5 of the dipole rate: DEEP IN THE DIPOLE REGIME at every depth, as predicted (lifetime 2.6e11 beats at D = 11, 1.0e12 at D = 16). E-FRC-0190's own regime (k a 0.43) gives 0.73 from retardation alone, its lattice atom 0.43. M, THE MOVING TRIT CHARGE, FAILS AND IS THE FINDING: a trit charge hopping forth and back (10 hops, 120 beats, side 32) in the integer rule does not radiate the linear light's field at the depths tried. The shadow flux beyond radius 5 has coherent gain 0.88, 0.21, 0.54, 0.56 against the linear field at D = 16, 32, 64, 128 and an incoherent remainder 94, 16, 2.6, 2.2 times the signal; the integer rule's total energy is 61, 15, 1.6, 1.05 times the linear rule's. The cause: one unit of flux dropped on one link is a field whose transverse part is fractional everywhere but at the link (the transverse self-energy per hop is 0.041 at D = 16), below the integer rule's resolution, and the integer rule heats after it (the likely mechanism is the counters' carries, not isolated here) (a single impulse probe: shadow energy 0.05 to 30 in 120 beats at D = 16 on side 16, 0.012 to 0.05 at D = 64). The heating falls steeply with depth, so a single charge radiates cleanly only when the column is deep (the energy ratio reaches 1.05 at D = 128), which is where alpha is small. A wave of the integer rule is clean at every depth (S1: within 4.3e-6 of the symbol at peaks 1 to 16), so the heating comes with the impulse's broadband content (every branch up to the band top at once), not with small amplitude as such; which branch carries it is not yet measured. The far-energy readings are not comparable across D (the front has reached radius 5 to 17 depending on c), reported only. S: the (n + 1) law holds on the trit light's modes at D = 32 (2.017, 3.045, 5.134 times spontaneous, within 0.9, 1.5, 2.7 percent), hard-core modes block it (-0.005), spontaneous over golden 0.970. OWED: the M failure is the next problem for moving matter, a charge whose hop is spread over the column (a thermometer front of vibes, not one trit) or a smoother current, and a rerun of R on a finer ray grid.",
     })
   },
 })

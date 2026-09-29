@@ -30,7 +30,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { LUMP_COLUMN, SINK_COLUMN } from '@/code/measure/even-field'
-import { heatRun, longitudinalOf, lumpStart, type HeatRun } from '@/code/measure/husk-heating'
+import {
+  heatRun,
+  longitudinalOf,
+  lumpStart,
+  type HeatRun,
+} from '@/code/measure/husk-heating'
 
 const SIDE = 8
 const CONTENT = 4
@@ -40,19 +45,42 @@ const DEPTHS = [16, 64] as const
 const CARRIED = 3
 const RECORDED = { start: 9.2694, end: 490.17 }
 
-type LumpRun = { depth: number; levels: number; longitudinal: number; transverse: number[]; run: HeatRun }
-
-function lumpRun(depth: number, levels: number): LumpRun {
-  const p = lumpStart(SIDE, depth, [{ at: LUMP_COLUMN, to: SINK_COLUMN, units: CONTENT }])
-  const longitudinal = longitudinalOf(p.medium, p.start, false)
-  const run = heatRun({ medium: p.medium, start: p.start, levels, cyclic: false, beats: BEATS, every: EVERY })
-
-  return { depth, levels, longitudinal, transverse: run.samples.map(x => x.invariant - longitudinal), run }
+type LumpRun = {
+  depth: number
+  levels: number
+  longitudinal: number
+  transverse: number[]
+  run: HeatRun
 }
 
-const growthOf = (r: LumpRun): number => Math.max(...r.transverse) / r.transverse[0]!
+function lumpRun(depth: number, levels: number): LumpRun {
+  const p = lumpStart(SIDE, depth, [
+    { at: LUMP_COLUMN, to: SINK_COLUMN, units: CONTENT },
+  ])
+  const longitudinal = longitudinalOf(p.medium, p.start, false)
+  const run = heatRun({
+    medium: p.medium,
+    start: p.start,
+    levels,
+    cyclic: false,
+    beats: BEATS,
+    every: EVERY,
+  })
+
+  return {
+    depth,
+    levels,
+    longitudinal,
+    transverse: run.samples.map(x => x.invariant - longitudinal),
+    run,
+  }
+}
+
+const growthOf = (r: LumpRun): number =>
+  Math.max(...r.transverse) / r.transverse[0]!
 const leastOf = (r: LumpRun): number => Math.min(...r.transverse)
-const endOf = (r: LumpRun): number => r.transverse[r.transverse.length - 1]!
+const endOf = (r: LumpRun): number =>
+  r.transverse[r.transverse.length - 1]!
 
 export default experiment({
   id: 'gravity/even-fall-carried',
@@ -65,13 +93,24 @@ export default experiment({
   paper: false,
   run() {
     const t0 = Date.now()
-    const runs = DEPTHS.flatMap(d => [lumpRun(d, 1), lumpRun(d, CARRIED)])
+    const runs = DEPTHS.flatMap(d => [
+      lumpRun(d, 1),
+      lumpRun(d, CARRIED),
+    ])
     const carried = runs.filter(r => r.levels === CARRIED)
     const control = runs.find(r => r.depth === 16 && r.levels === 1)!
-    const instrument = runs.every(r => r.run.gauss === 0 && r.run.reversed)
+    const instrument = runs.every(
+      r => r.run.gauss === 0 && r.run.reversed,
+    )
     const gate = carried.every(r => leastOf(r) >= 0 && growthOf(r) <= 2)
-    const reproduced = Math.abs(control.transverse[0]! - RECORDED.start) < 1e-3 && Math.abs(endOf(control) - RECORDED.end) < 1e-2
-    const status = !reproduced ? 'partial' : gate && instrument ? 'pass' : 'fail'
+    const reproduced =
+      Math.abs(control.transverse[0]! - RECORDED.start) < 1e-3 &&
+      Math.abs(endOf(control) - RECORDED.end) < 1e-2
+    const status = !reproduced
+      ? 'partial'
+      : gate && instrument
+        ? 'pass'
+        : 'fail'
     const metrics: Record<string, number> = {
       gate_F3: gate ? 1 : 0,
       instrument: instrument ? 1 : 0,
@@ -92,7 +131,8 @@ export default experiment({
       metrics[`${k}_fieldWraps`] = r.run.wraps.field
     }
 
-    const describe = (r: LumpRun): string => `D ${r.depth}, ${r.levels} level${r.levels > 1 ? 's' : ''}: U_T ${r.transverse[0]!.toFixed(4)} to ${endOf(r).toFixed(4)}, growth ${growthOf(r).toFixed(4)}`
+    const describe = (r: LumpRun): string =>
+      `D ${r.depth}, ${r.levels} level${r.levels > 1 ? 's' : ''}: U_T ${r.transverse[0]!.toFixed(4)} to ${endOf(r).toFixed(4)}, growth ${growthOf(r).toFixed(4)}`
 
     return verdict({
       status,

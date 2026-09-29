@@ -20,19 +20,48 @@
 //
 // Floating linear algebra on matrices of size 2 to 4, exact integer vectors for the roots. Nothing random.
 
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
-import { daggerMatrix, displacementMatrix, gridOrder, matrixDistance, phasePointMatrix, weilLifts, type GridMatrix } from '@/code/algebra/weil-representation'
-import { internalFrom, type Complex, type Substep, type TokenStep } from '@/code/measure/moving-exclusion'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
+import {
+  daggerMatrix,
+  displacementMatrix,
+  gridOrder,
+  matrixDistance,
+  phasePointMatrix,
+  weilLifts,
+  type GridMatrix,
+} from '@/code/algebra/weil-representation'
+import {
+  internalFrom,
+  type Complex,
+  type Substep,
+  type TokenStep,
+} from '@/code/measure/moving-exclusion'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { binaryTetrahedralGroup, vectorAction, type Quaternion } from '@/code/algebra/binary-tetrahedral'
+import {
+  binaryTetrahedralGroup,
+  vectorAction,
+  type Quaternion,
+} from '@/code/algebra/binary-tetrahedral'
 
-const add = (a: ComplexMatrix, b: ComplexMatrix, s = 1): ComplexMatrix => ({
+const add = (
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+  s = 1,
+): ComplexMatrix => ({
   n: a.n,
-  re: Float64Array.from(a.re, (x, i) => x + s * (b.re[i] as number)),
-  im: Float64Array.from(a.im, (x, i) => x + s * (b.im[i] as number)),
+  re: Float64Array.from(a.re, (x, i) => x + s * b.re[i]!),
+  im: Float64Array.from(a.im, (x, i) => x + s * b.im[i]!),
 })
 
-const scale = (a: ComplexMatrix, s: number): ComplexMatrix => ({ n: a.n, re: Float64Array.from(a.re, x => x * s), im: Float64Array.from(a.im, x => x * s) })
+const scale = (a: ComplexMatrix, s: number): ComplexMatrix => ({
+  n: a.n,
+  re: Float64Array.from(a.re, x => x * s),
+  im: Float64Array.from(a.im, x => x * s),
+})
 
 // ---------------------------------------------------------------------------------------------------------
 // 1. the role's end projectors
@@ -46,19 +75,37 @@ export type RoleEnds = {
 
 // the eigenprojector of a unitary u (3 x 3) for eigenvalue lambda, as a polynomial in u: the product over the other
 // eigenvalues mu of (u - mu) / (lambda - mu)
-function eigenprojector(u: ComplexMatrix, lambda: Complex, others: readonly Complex[]): ComplexMatrix {
+function eigenprojector(
+  u: ComplexMatrix,
+  lambda: Complex,
+  others: readonly Complex[],
+): ComplexMatrix {
   let out = complexIdentity(u.n)
 
   for (const mu of others) {
-    const shifted = add(u, { n: u.n, re: complexIdentity(u.n).re.map(x => x * mu[0]), im: complexIdentity(u.n).re.map(x => x * mu[1]) }, -1)
+    const shifted = add(
+      u,
+      {
+        n: u.n,
+        re: complexIdentity(u.n).re.map(x => x * mu[0]),
+        im: complexIdentity(u.n).re.map(x => x * mu[1]),
+      },
+      -1,
+    )
     const dr = lambda[0] - mu[0]
     const di = lambda[1] - mu[1]
     const d2 = dr * dr + di * di
     // divide by (lambda - mu): multiply by conj / |.|^2
     const factor: ComplexMatrix = {
       n: u.n,
-      re: Float64Array.from(shifted.re, (x, i) => (x * dr + (shifted.im[i] as number) * di) / d2),
-      im: Float64Array.from(shifted.im, (x, i) => (x * dr - (shifted.re[i] as number) * di) / d2),
+      re: Float64Array.from(
+        shifted.re,
+        (x, i) => (x * dr + shifted.im[i]! * di) / d2,
+      ),
+      im: Float64Array.from(
+        shifted.im,
+        (x, i) => (x * dr - shifted.re[i]! * di) / d2,
+      ),
     }
 
     out = complexMultiply(out, factor)
@@ -75,13 +122,20 @@ export function roleEnds(): RoleEnds {
   }
 
   // the three order-4 subgroups of Q8: one representative each
-  const orderFour = lift.elements.filter(e => gridOrder(3, e.grid) === 4)
+  const orderFour = lift.elements.filter(
+    e => gridOrder(3, e.grid) === 4,
+  )
   const reps: ComplexMatrix[] = []
   const grids: GridMatrix[] = []
 
   for (const e of orderFour) {
     const inverse = grids.some(g => {
-      const product = [(g[0] * e.grid[0] + g[1] * e.grid[2]) % 3, (g[0] * e.grid[1] + g[1] * e.grid[3]) % 3, (g[2] * e.grid[0] + g[3] * e.grid[2]) % 3, (g[2] * e.grid[1] + g[3] * e.grid[3]) % 3]
+      const product = [
+        (g[0] * e.grid[0] + g[1] * e.grid[2]) % 3,
+        (g[0] * e.grid[1] + g[1] * e.grid[3]) % 3,
+        (g[2] * e.grid[0] + g[3] * e.grid[2]) % 3,
+        (g[2] * e.grid[1] + g[3] * e.grid[3]) % 3,
+      ]
 
       return product.join(',') === '1,0,0,1'
     })
@@ -95,7 +149,10 @@ export function roleEnds(): RoleEnds {
   const plusI: Complex = [0, 1]
   const minusI: Complex = [0, -1]
   const one: Complex = [1, 0]
-  const origin = reps.map(u => [eigenprojector(u, plusI, [minusI, one]), eigenprojector(u, minusI, [plusI, one])])
+  const origin = reps.map(u => [
+    eigenprojector(u, plusI, [minusI, one]),
+    eigenprojector(u, minusI, [plusI, one]),
+  ])
   const projector: ComplexMatrix[][][] = []
   const doublet: ComplexMatrix[] = []
 
@@ -104,8 +161,18 @@ export function roleEnds(): RoleEnds {
       const d = displacementMatrix(3, a1, a2)
       const dd = daggerMatrix(d)
 
-      projector.push(origin.map(pair => pair.map(p => complexMultiply(complexMultiply(d, p), dd))))
-      doublet.push(scale(add(complexIdentity(3), phasePointMatrix(3, a1, a2)), 0.5))
+      projector.push(
+        origin.map(pair =>
+          pair.map(p => complexMultiply(complexMultiply(d, p), dd)),
+        ),
+      )
+
+      doublet.push(
+        scale(
+          add(complexIdentity(3), phasePointMatrix(3, a1, a2)),
+          0.5,
+        ),
+      )
     }
   }
 
@@ -131,7 +198,10 @@ export function roleEndCovariance(ends: RoleEnds): RoleCovariance {
     throw new Error('no Weil lift for p = 3')
   }
 
-  const minusI = lift.elements.find(e => e.grid.join(',') === '2,0,0,2')?.unitary as ComplexMatrix
+  const minusI = lift.elements.find(
+    e => e.grid.join(',') === '2,0,0,2',
+  )!.unitary
+
   let carried = 0
   let checks = 0
   let sumToDoublet = 0
@@ -141,22 +211,34 @@ export function roleEndCovariance(ends: RoleEnds): RoleCovariance {
 
   for (let x = 0; x < 9; x++) {
     const d = displacementMatrix(3, Math.floor(x / 3), x % 3)
-    const turn = complexMultiply(complexMultiply(d, minusI), daggerMatrix(d))
+    const turn = complexMultiply(
+      complexMultiply(d, minusI),
+      daggerMatrix(d),
+    )
 
     for (let a = 0; a < 3; a++) {
-      const [p, m] = (ends.projector[x] as ComplexMatrix[][])[a] as ComplexMatrix[]
+      const [p, m] = ends.projector[x]![a]!
 
-      sumToDoublet = Math.max(sumToDoublet, matrixDistance(add(p as ComplexMatrix, m as ComplexMatrix), ends.doublet[x] as ComplexMatrix))
+      sumToDoublet = Math.max(
+        sumToDoublet,
+        matrixDistance(add(p!, m!), ends.doublet[x]!),
+      )
 
       for (const pi of [p, m] as ComplexMatrix[]) {
         let trace = 0
 
         for (let i = 0; i < 3; i++) {
-          trace += pi.re[4 * i] as number
+          trace += pi.re[4 * i]!
         }
 
         rankOne = Math.max(rankOne, Math.abs(trace - 1))
-        twoPiSign = Math.max(twoPiSign, matrixDistance(complexMultiply(complexMultiply(pi, turn), pi), scale(pi, -1)))
+        twoPiSign = Math.max(
+          twoPiSign,
+          matrixDistance(
+            complexMultiply(complexMultiply(pi, turn), pi),
+            scale(pi, -1),
+          ),
+        )
       }
     }
   }
@@ -173,20 +255,26 @@ export function roleEndCovariance(ends: RoleEnds): RoleCovariance {
         for (let x = 0; x < 9; x++) {
           const x1 = Math.floor(x / 3)
           const x2 = x % 3
-          const y = 3 * ((m0 * x1 + m1 * x2 + v1) % 3) + ((m2 * x1 + m3 * x2 + v2) % 3)
-          const targets = (ends.projector[y] as ComplexMatrix[][]).flat()
+          const y =
+            3 * ((m0 * x1 + m1 * x2 + v1) % 3) +
+            ((m2 * x1 + m3 * x2 + v2) % 3)
+          const targets = ends.projector[y]!.flat()
 
           for (let a = 0; a < 3; a++) {
-            const images = ((ends.projector[x] as ComplexMatrix[][])[a] as ComplexMatrix[]).map(pi => complexMultiply(complexMultiply(u, pi), ud))
-            const found = images.map(img => targets.findIndex(t => matrixDistance(img, t) < 1e-9))
+            const images = ends.projector[x]![a]!.map(pi =>
+              complexMultiply(complexMultiply(u, pi), ud),
+            )
+            const found = images.map(img =>
+              targets.findIndex(t => matrixDistance(img, t) < 1e-9),
+            )
 
             images.forEach((_, s) => {
               checks++
-              carried += (found[s] as number) >= 0 ? 1 : 0
+              carried += found[s]! >= 0 ? 1 : 0
             })
 
             // the + line of axis a lands on the - line of some axis: the move exchanges the ends
-            swaps += (found[0] as number) >= 0 && (found[0] as number) % 2 === 1 ? 1 : 0
+            swaps += found[0]! >= 0 && found[0]! % 2 === 1 ? 1 : 0
           }
         }
       }
@@ -223,51 +311,83 @@ const PAULI: Record<'x' | 'y' | 'z', Complex[]> = {
 // the substeps of the doublet-only token: copy along +a where sigma_a = +1, along -a where -1, no coin (a coin
 // commuting with the doublet's turns is a scalar, which the kept space cannot see). Every substep is checked with
 // the slot rule, P+ x P+ + P- x P-, which with rank-one P+- is the component rule too
-export function weylSubsteps(schedule: readonly TokenStep[]): Substep[] {
+export function weylSubsteps(
+  schedule: readonly TokenStep[],
+): Substep[] {
   return schedule.map(step => {
     const axis = step === 'x' ? 0 : step === 'y' ? 1 : 2
-    const sigma = PAULI[step === 'x' || step === 'y' || step === 'z' ? step : 'z']
+    const sigma =
+      PAULI[step === 'x' || step === 'y' || step === 'z' ? step : 'z']
     const identity: Complex[] = [
       [1, 0],
       [0, 0],
       [0, 0],
       [1, 0],
     ]
-    const plus: Complex[] = identity.map((v, i) => [(v[0] + (sigma[i] as Complex)[0]) / 2, (v[1] + (sigma[i] as Complex)[1]) / 2])
-    const minus: Complex[] = identity.map((v, i) => [(v[0] - (sigma[i] as Complex)[0]) / 2, (v[1] - (sigma[i] as Complex)[1]) / 2])
+    const plus: Complex[] = identity.map((v, i) => [
+      (v[0] + sigma[i]![0]) / 2,
+      (v[1] + sigma[i]![1]) / 2,
+    ])
+    const minus: Complex[] = identity.map((v, i) => [
+      (v[0] - sigma[i]![0]) / 2,
+      (v[1] - sigma[i]![1]) / 2,
+    ])
 
-    return { axis, coin: internalFrom(2, identity), plus: internalFrom(2, plus), minus: internalFrom(2, minus), checked: true }
+    return {
+      axis,
+      coin: internalFrom(2, identity),
+      plus: internalFrom(2, plus),
+      minus: internalFrom(2, minus),
+      checked: true,
+    }
   })
 }
 
 // the eigenphases of the doublet-only token's symbol at wave vector k: U(k) = product of (cos k_a - i sin k_a sigma_a)
-export function weylBand(schedule: readonly TokenStep[], k: readonly number[]): [number, number] {
+export function weylBand(
+  schedule: readonly TokenStep[],
+  k: readonly number[],
+): [number, number] {
   let u: ComplexMatrix = complexIdentity(2)
 
   for (const step of schedule) {
     const a = step === 'x' ? 0 : step === 'y' ? 1 : 2
-    const sigma = PAULI[step === 'x' || step === 'y' || step === 'z' ? step : 'z']
+    const sigma =
+      PAULI[step === 'x' || step === 'y' || step === 'z' ? step : 'z']
     const c = Math.cos(k[a] ?? 0)
     const s = Math.sin(k[a] ?? 0)
     const m: ComplexMatrix = {
       n: 2,
-      re: Float64Array.from([0, 1, 2, 3], i => (i % 3 === 0 ? c : 0) + s * (sigma[i] as Complex)[1]),
-      im: Float64Array.from([0, 1, 2, 3], i => -s * (sigma[i] as Complex)[0]),
+      re: Float64Array.from(
+        [0, 1, 2, 3],
+        i => (i % 3 === 0 ? c : 0) + s * sigma[i]![1],
+      ),
+      im: Float64Array.from([0, 1, 2, 3], i => -s * sigma[i]![0]),
     }
 
     u = complexMultiply(m, u)
   }
 
   // eigenvalues of a 2 x 2 unitary: tr / 2 +- sqrt((tr / 2)^2 - det)
-  const tr: Complex = [(u.re[0] as number) + (u.re[3] as number), (u.im[0] as number) + (u.im[3] as number)]
+  const tr: Complex = [u.re[0]! + u.re[3]!, u.im[0]! + u.im[3]!]
   const det: Complex = [
-    (u.re[0] as number) * (u.re[3] as number) - (u.im[0] as number) * (u.im[3] as number) - ((u.re[1] as number) * (u.re[2] as number) - (u.im[1] as number) * (u.im[2] as number)),
-    (u.re[0] as number) * (u.im[3] as number) + (u.im[0] as number) * (u.re[3] as number) - ((u.re[1] as number) * (u.im[2] as number) + (u.im[1] as number) * (u.re[2] as number)),
+    u.re[0]! * u.re[3]! -
+      u.im[0]! * u.im[3]! -
+      (u.re[1]! * u.re[2]! - u.im[1]! * u.im[2]!),
+    u.re[0]! * u.im[3]! +
+      u.im[0]! * u.re[3]! -
+      (u.re[1]! * u.im[2]! + u.im[1]! * u.re[2]!),
   ]
   const h: Complex = [tr[0] / 2, tr[1] / 2]
-  const disc: Complex = [h[0] * h[0] - h[1] * h[1] - det[0], 2 * h[0] * h[1] - det[1]]
+  const disc: Complex = [
+    h[0] * h[0] - h[1] * h[1] - det[0],
+    2 * h[0] * h[1] - det[1],
+  ]
   const r = Math.hypot(disc[0], disc[1])
-  const root: Complex = [Math.sqrt((r + disc[0]) / 2), Math.sign(disc[1] || 1) * Math.sqrt(Math.max(0, (r - disc[0]) / 2))]
+  const root: Complex = [
+    Math.sqrt((r + disc[0]) / 2),
+    Math.sign(disc[1] || 1) * Math.sqrt(Math.max(0, (r - disc[0]) / 2)),
+  ]
   const e1 = Math.atan2(h[1] + root[1], h[0] + root[0])
   const e2 = Math.atan2(h[1] - root[1], h[0] - root[0])
 
@@ -278,7 +398,9 @@ export function weylBand(schedule: readonly TokenStep[], k: readonly number[]): 
 // 3. anticommutants
 
 // the dimension (over the reals, divided by 2 for a complex space) of {X : X G + G X = 0 for every G in the set}
-export function anticommutantDimension(generators: readonly ComplexMatrix[]): number {
+export function anticommutantDimension(
+  generators: readonly ComplexMatrix[],
+): number {
   const n = generators[0]?.n ?? 0
   const unknowns = 2 * n * n
   const rows: number[][] = []
@@ -291,21 +413,23 @@ export function anticommutantDimension(generators: readonly ComplexMatrix[]): nu
         const im = new Array<number>(unknowns).fill(0)
 
         for (let k = 0; k < n; k++) {
-          const gr = g.re[k * n + j] as number
-          const gi = g.im[k * n + j] as number
-          // X_ik G_kj: (A + iB)(gr + i gi)
-          re[i * n + k] = (re[i * n + k] as number) + gr
-          re[n * n + i * n + k] = (re[n * n + i * n + k] as number) - gi
-          im[i * n + k] = (im[i * n + k] as number) + gi
-          im[n * n + i * n + k] = (im[n * n + i * n + k] as number) + gr
+          const gr = g.re[k * n + j]!
+          const gi = g.im[k * n + j]!
 
-          const hr = g.re[i * n + k] as number
-          const hi = g.im[i * n + k] as number
+          // X_ik G_kj: (A + iB)(gr + i gi)
+          re[i * n + k] = re[i * n + k]! + gr
+          re[n * n + i * n + k] = re[n * n + i * n + k]! - gi
+          im[i * n + k] = im[i * n + k]! + gi
+          im[n * n + i * n + k] = im[n * n + i * n + k]! + gr
+
+          const hr = g.re[i * n + k]!
+          const hi = g.im[i * n + k]!
+
           // G_ik X_kj
-          re[k * n + j] = (re[k * n + j] as number) + hr
-          re[n * n + k * n + j] = (re[n * n + k * n + j] as number) - hi
-          im[k * n + j] = (im[k * n + j] as number) + hi
-          im[n * n + k * n + j] = (im[n * n + k * n + j] as number) + hr
+          re[k * n + j] = re[k * n + j]! + hr
+          re[n * n + k * n + j] = re[n * n + k * n + j]! - hi
+          im[k * n + j] = im[k * n + j]! + hi
+          im[n * n + k * n + j] = im[n * n + k * n + j]! + hr
         }
 
         rows.push(re, im)
@@ -318,6 +442,7 @@ export function anticommutantDimension(generators: readonly ComplexMatrix[]): nu
 
 function rank(rows: number[][], columns: number): number {
   const m = rows.map(r => [...r])
+
   let r = 0
 
   for (let c = 0; c < columns && r < m.length; c++) {
@@ -325,8 +450,8 @@ function rank(rows: number[][], columns: number): number {
     let best = 1e-10
 
     for (let i = r; i < m.length; i++) {
-      if (Math.abs((m[i] as number[])[c] as number) > best) {
-        best = Math.abs((m[i] as number[])[c] as number)
+      if (Math.abs(m[i]![c]!) > best) {
+        best = Math.abs(m[i]![c]!)
         pivot = i
       }
     }
@@ -335,20 +460,20 @@ function rank(rows: number[][], columns: number): number {
       continue
     }
 
-    ;[m[r], m[pivot]] = [m[pivot] as number[], m[r] as number[]]
+    ;[m[r], m[pivot]] = [m[pivot]!, m[r]!]
 
-    const row = m[r] as number[]
+    const row = m[r]!
 
     for (let i = 0; i < m.length; i++) {
       if (i === r) {
         continue
       }
 
-      const f = ((m[i] as number[])[c] as number) / (row[c] as number)
+      const f = m[i]![c]! / row[c]!
 
       if (f !== 0) {
         for (let k = c; k < columns; k++) {
-          ;(m[i] as number[])[k] = ((m[i] as number[])[k] as number) - f * (row[k] as number)
+          m[i]![k] = m[i]![k]! - f * row[k]!
         }
       }
     }
@@ -361,7 +486,11 @@ function rank(rows: number[][], columns: number): number {
 
 // the four-component token's copy generators tau_z sigma_a and its mass term tau_x (code/rule/spinor-token), 4 x 4,
 // index 2 tau + sigma
-export function diracGenerators(): { gammas: ComplexMatrix[]; mass: ComplexMatrix; chirality: ComplexMatrix } {
+export function diracGenerators(): {
+  gammas: ComplexMatrix[]
+  mass: ComplexMatrix
+  chirality: ComplexMatrix
+} {
   const kron = (t: Complex[], s: Complex[]): ComplexMatrix => {
     const re = new Float64Array(16)
     const im = new Float64Array(16)
@@ -370,11 +499,14 @@ export function diracGenerators(): { gammas: ComplexMatrix[]; mass: ComplexMatri
       for (let b = 0; b < 2; b++) {
         for (let c = 0; c < 2; c++) {
           for (let d = 0; d < 2; d++) {
-            const x = t[a * 2 + b] as Complex
-            const y = s[c * 2 + d] as Complex
+            const x = t[a * 2 + b]!
+            const y = s[c * 2 + d]!
 
-            re[(2 * a + c) * 4 + (2 * b + d)] = x[0] * y[0] - x[1] * y[1]
-            im[(2 * a + c) * 4 + (2 * b + d)] = x[0] * y[1] + x[1] * y[0]
+            re[(2 * a + c) * 4 + (2 * b + d)] =
+              x[0] * y[0] - x[1] * y[1]
+
+            im[(2 * a + c) * 4 + (2 * b + d)] =
+              x[0] * y[1] + x[1] * y[0]
           }
         }
       }
@@ -382,22 +514,39 @@ export function diracGenerators(): { gammas: ComplexMatrix[]; mass: ComplexMatri
 
     return { n: 4, re, im }
   }
+
   const one: Complex[] = [
     [1, 0],
     [0, 0],
     [0, 0],
     [1, 0],
   ]
-  const gammas = (['x', 'y', 'z'] as const).map(a => kron(PAULI.z, PAULI[a]))
+  const gammas = (['x', 'y', 'z'] as const).map(a =>
+    kron(PAULI.z, PAULI[a]),
+  )
   // chirality = -i Gamma_x Gamma_y Gamma_z
-  const product = complexMultiply(complexMultiply(gammas[0] as ComplexMatrix, gammas[1] as ComplexMatrix), gammas[2] as ComplexMatrix)
-  const chirality: ComplexMatrix = { n: 4, re: Float64Array.from(product.im), im: Float64Array.from(product.re, x => -x) }
+  const product = complexMultiply(
+    complexMultiply(gammas[0]!, gammas[1]!),
+    gammas[2]!,
+  )
+  const chirality: ComplexMatrix = {
+    n: 4,
+    re: Float64Array.from(product.im),
+    im: Float64Array.from(product.re, x => -x),
+  }
 
   return { gammas, mass: kron(PAULI.x, one), chirality }
 }
 
-export function commutes(a: ComplexMatrix, b: ComplexMatrix, sign: 1 | -1): number {
-  return matrixDistance(complexMultiply(a, b), scale(complexMultiply(b, a), sign))
+export function commutes(
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+  sign: 1 | -1,
+): number {
+  return matrixDistance(
+    complexMultiply(a, b),
+    scale(complexMultiply(b, a), sign),
+  )
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -417,7 +566,11 @@ export function huskShadows(): Map<string, number[][]> {
 }
 
 // the root of component (tau, s) of axis a under the bulk reading: tau (s e_a + e4), tau = +1 for index 0
-export function componentRoot(tau: number, s: number, a: number): number[] {
+export function componentRoot(
+  tau: number,
+  s: number,
+  a: number,
+): number[] {
   const r = [0, 0, 0, tau]
 
   r[a] = tau * s
@@ -430,20 +583,29 @@ export function componentRoot(tau: number, s: number, a: number): number[] {
 export function spinLift(q: Quaternion): ComplexMatrix {
   const [w, x, y, z] = q
 
-  return { n: 2, re: Float64Array.from([w, -y, y, w]), im: Float64Array.from([-z, -x, -x, z]) }
+  return {
+    n: 2,
+    re: Float64Array.from([w, -y, y, w]),
+    im: Float64Array.from([-z, -x, -x, z]),
+  }
 }
 
 // the component projector |tau><tau| (x) (1 + s sigma_a) / 2 on the four-component token (index 2 tau + sigma)
-export function componentProjector(tau: number, s: number, a: number): ComplexMatrix {
-  const sigma = PAULI[(['x', 'y', 'z'] as const)[a] as 'x' | 'y' | 'z']
+export function componentProjector(
+  tau: number,
+  s: number,
+  a: number,
+): ComplexMatrix {
+  const sigma = PAULI[(['x', 'y', 'z'] as const)[a]!]
   const t = tau > 0 ? 0 : 1
   const re = new Float64Array(16)
   const im = new Float64Array(16)
 
   for (let i = 0; i < 2; i++) {
     for (let j = 0; j < 2; j++) {
-      re[(2 * t + i) * 4 + (2 * t + j)] = ((i === j ? 1 : 0) + s * (sigma[i * 2 + j] as Complex)[0]) / 2
-      im[(2 * t + i) * 4 + (2 * t + j)] = (s * (sigma[i * 2 + j] as Complex)[1]) / 2
+      re[(2 * t + i) * 4 + (2 * t + j)] =
+        ((i === j ? 1 : 0) + s * sigma[i * 2 + j]![0]) / 2
+      im[(2 * t + i) * 4 + (2 * t + j)] = (s * sigma[i * 2 + j]![1]) / 2
     }
   }
 
@@ -466,7 +628,12 @@ export type ComponentCovariance = {
 
 export function componentCovariance(): ComponentCovariance {
   const units = binaryTetrahedralGroup()
-  const components: { tau: number; s: number; a: number; p: ComplexMatrix }[] = []
+  const components: {
+    tau: number
+    s: number
+    a: number
+    p: ComplexMatrix
+  }[] = []
 
   for (const tau of [1, -1]) {
     for (const s of [1, -1]) {
@@ -480,7 +647,9 @@ export function componentCovariance(): ComponentCovariance {
   let rootsAgree = 0
   let checks = 0
   let properSigned = 0
+
   const distinct = new Set<string>()
+
   let twoPi = 0
 
   for (const q of units) {
@@ -493,13 +662,23 @@ export function componentCovariance(): ComponentCovariance {
 
       e[b + 1] = 1
 
-      return vectorAction(q, e).slice(1).map(v => Math.round(v))
+      return vectorAction(q, e)
+        .slice(1)
+        .map(v => Math.round(v))
     })
-    const signed = rotation.every(col => col.filter(v => v !== 0).length === 1)
+    const signed = rotation.every(
+      col => col.filter(v => v !== 0).length === 1,
+    )
     const det =
-      (rotation[0]?.[0] ?? 0) * ((rotation[1]?.[1] ?? 0) * (rotation[2]?.[2] ?? 0) - (rotation[2]?.[1] ?? 0) * (rotation[1]?.[2] ?? 0)) -
-      (rotation[1]?.[0] ?? 0) * ((rotation[0]?.[1] ?? 0) * (rotation[2]?.[2] ?? 0) - (rotation[2]?.[1] ?? 0) * (rotation[0]?.[2] ?? 0)) +
-      (rotation[2]?.[0] ?? 0) * ((rotation[0]?.[1] ?? 0) * (rotation[1]?.[2] ?? 0) - (rotation[1]?.[1] ?? 0) * (rotation[0]?.[2] ?? 0))
+      (rotation[0]?.[0] ?? 0) *
+        ((rotation[1]?.[1] ?? 0) * (rotation[2]?.[2] ?? 0) -
+          (rotation[2]?.[1] ?? 0) * (rotation[1]?.[2] ?? 0)) -
+      (rotation[1]?.[0] ?? 0) *
+        ((rotation[0]?.[1] ?? 0) * (rotation[2]?.[2] ?? 0) -
+          (rotation[2]?.[1] ?? 0) * (rotation[0]?.[2] ?? 0)) +
+      (rotation[2]?.[0] ?? 0) *
+        ((rotation[0]?.[1] ?? 0) * (rotation[1]?.[2] ?? 0) -
+          (rotation[1]?.[1] ?? 0) * (rotation[0]?.[2] ?? 0))
 
     properSigned += signed && det === 1 ? 1 : 0
     distinct.add(rotation.flat().join(','))
@@ -510,7 +689,9 @@ export function componentCovariance(): ComponentCovariance {
 
     for (const c of components) {
       const image = complexMultiply(complexMultiply(u4, c.p), u4d)
-      const target = components.find(d => matrixDistance(d.p, image) < 1e-12)
+      const target = components.find(
+        d => matrixDistance(d.p, image) < 1e-12,
+      )
 
       checks++
 
@@ -521,13 +702,29 @@ export function componentCovariance(): ComponentCovariance {
       monomial++
 
       const root = componentRoot(c.tau, c.s, c.a)
-      const moved = [0, 1, 2].map(i => [0, 1, 2].reduce((sum, b) => sum + (rotation[b]?.[i] ?? 0) * (root[b] ?? 0), 0))
+      const moved = [0, 1, 2].map(i =>
+        [0, 1, 2].reduce(
+          (sum, b) => sum + (rotation[b]?.[i] ?? 0) * (root[b] ?? 0),
+          0,
+        ),
+      )
 
-      rootsAgree += [...moved, root[3]].join(',') === componentRoot(target.tau, target.s, target.a).join(',') ? 1 : 0
+      rootsAgree +=
+        [...moved, root[3]].join(',') ===
+        componentRoot(target.tau, target.s, target.a).join(',')
+          ? 1
+          : 0
     }
   }
 
-  return { monomial, rootsAgree, checks, properSigned, distinct: distinct.size, twoPi }
+  return {
+    monomial,
+    rootsAgree,
+    checks,
+    properSigned,
+    distinct: distinct.size,
+    twoPi,
+  }
 }
 
 function kronIdentity2(u: ComplexMatrix): ComplexMatrix {
@@ -537,8 +734,8 @@ function kronIdentity2(u: ComplexMatrix): ComplexMatrix {
   for (let t = 0; t < 2; t++) {
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 2; j++) {
-        re[(2 * t + i) * 4 + (2 * t + j)] = u.re[i * 2 + j] as number
-        im[(2 * t + i) * 4 + (2 * t + j)] = u.im[i * 2 + j] as number
+        re[(2 * t + i) * 4 + (2 * t + j)] = u.re[i * 2 + j]!
+        im[(2 * t + i) * 4 + (2 * t + j)] = u.im[i * 2 + j]!
       }
     }
   }
@@ -549,7 +746,10 @@ function kronIdentity2(u: ComplexMatrix): ComplexMatrix {
 // a pair of four-component tokens both in one uniform k = 0 orbital, the slot part in the coin eigenvector
 // tau_x = sign for each, the spin part the singlet (label 'singlet') or the triplet's m = 0 member ('triplet'), as a
 // 16-vector (index 4 first + second)
-export function orbitalPair(sign: 1 | -1, spin: 'singlet' | 'triplet'): { re: Float64Array; im: Float64Array } {
+export function orbitalPair(
+  sign: 1 | -1,
+  spin: 'singlet' | 'triplet',
+): { re: Float64Array; im: Float64Array } {
   const re = new Float64Array(16)
   const im = new Float64Array(16)
   const slot = [Math.SQRT1_2, sign * Math.SQRT1_2]
@@ -559,9 +759,15 @@ export function orbitalPair(sign: 1 | -1, spin: 'singlet' | 'triplet'): { re: Fl
     for (let j = 0; j < 4; j++) {
       const si = i % 2
       const sj = j % 2
-      const label = si === 0 && sj === 1 ? Math.SQRT1_2 : si === 1 && sj === 0 ? other * Math.SQRT1_2 : 0
+      const label =
+        si === 0 && sj === 1
+          ? Math.SQRT1_2
+          : si === 1 && sj === 0
+            ? other * Math.SQRT1_2
+            : 0
 
-      re[i * 4 + j] = (slot[Math.floor(i / 2)] as number) * (slot[Math.floor(j / 2)] as number) * label
+      re[i * 4 + j] =
+        slot[Math.floor(i / 2)]! * slot[Math.floor(j / 2)]! * label
     }
   }
 

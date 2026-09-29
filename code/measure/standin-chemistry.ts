@@ -59,6 +59,7 @@ import { weylUnitVector } from '@/code/tool/weyl'
 export const STANDIN_MASS = Math.sqrt(3)
 // the stand-in band's top, and the gap to the walk's other band at k = 0
 export const BAND_TOP = (2 * Math.PI) / 3
+
 // the cubic Madelung constant of point charges in a neutralizing background
 const MADELUNG = 2.837297479
 // the torus the infinite Green's function is read from, and the radius past which the continuum is used
@@ -81,7 +82,12 @@ export type Units = {
 export function standinUnits(a0: number): Units {
   const alpha = 1 / (STANDIN_MASS * a0)
 
-  return { a0, alpha, kappa: 24 * Math.PI * alpha, rydberg: (STANDIN_MASS * alpha * alpha) / 2 }
+  return {
+    a0,
+    alpha,
+    kappa: 24 * Math.PI * alpha,
+    rydberg: (STANDIN_MASS * alpha * alpha) / 2,
+  }
 }
 
 // the one-dimensional fear walk's band through quasi-energy 0
@@ -96,7 +102,13 @@ export function standinBand(k: readonly number[]): number {
   for (let h = 0; h < HUSK_VECTORS.length; h++) {
     const u = HUSK_VECTORS[h] ?? [0, 0, 0]
 
-    sum += (HUSK_WEIGHTS[h] ?? 0) * fearBand((u[0] ?? 0) * (k[0] ?? 0) + (u[1] ?? 0) * (k[1] ?? 0) + (u[2] ?? 0) * (k[2] ?? 0))
+    sum +=
+      (HUSK_WEIGHTS[h] ?? 0) *
+      fearBand(
+        (u[0] ?? 0) * (k[0] ?? 0) +
+          (u[1] ?? 0) * (k[1] ?? 0) +
+          (u[2] ?? 0) * (k[2] ?? 0),
+      )
   }
 
   return sum / HUSK_SECOND_MOMENT
@@ -105,7 +117,14 @@ export function standinBand(k: readonly number[]): number {
 // ---------------------------------------------------------------------------------------------------------
 // the FFT: radix 2, in place, on cubic grids
 
-type Plan = { readonly n: number; readonly reverse: Uint32Array; readonly cos: Float64Array; readonly sin: Float64Array; readonly lineRe: Float64Array; readonly lineIm: Float64Array }
+type Plan = {
+  readonly n: number
+  readonly reverse: Uint32Array
+  readonly cos: Float64Array
+  readonly sin: Float64Array
+  readonly lineRe: Float64Array
+  readonly lineIm: Float64Array
+}
 
 const PLANS = new Map<number, Plan>()
 
@@ -136,8 +155,12 @@ function planOf(n: number): Plan {
   const plan: Plan = {
     n,
     reverse,
-    cos: Float64Array.from({ length: n / 2 }, (_, j) => Math.cos((2 * Math.PI * j) / n)),
-    sin: Float64Array.from({ length: n / 2 }, (_, j) => Math.sin((2 * Math.PI * j) / n)),
+    cos: Float64Array.from({ length: n / 2 }, (_, j) =>
+      Math.cos((2 * Math.PI * j) / n),
+    ),
+    sin: Float64Array.from({ length: n / 2 }, (_, j) =>
+      Math.sin((2 * Math.PI * j) / n),
+    ),
     lineRe: new Float64Array(n),
     lineIm: new Float64Array(n),
   }
@@ -196,7 +219,12 @@ function fft1(re: Float64Array, im: Float64Array, plan: Plan): void {
 }
 
 // the 3D DFT of a side^3 grid (index x + side (y + side z)); the inverse carries the 1 / side^3
-export function fft3(re: Float64Array, im: Float64Array, side: number, inverse: boolean): void {
+export function fft3(
+  re: Float64Array,
+  im: Float64Array,
+  side: number,
+  inverse: boolean,
+): void {
   const plan = planOf(side)
   const n = side
   const size = n * n * n
@@ -217,7 +245,10 @@ export function fft3(re: Float64Array, im: Float64Array, side: number, inverse: 
   for (const stride of [n, n * n]) {
     for (let outer = 0; outer < n * n; outer++) {
       // the lines along this axis start at every index whose coordinate on it is 0
-      const base = stride === n ? (outer % n) + n * n * Math.floor(outer / n) : outer
+      const base =
+        stride === n
+          ? (outer % n) + n * n * Math.floor(outer / n)
+          : outer
 
       for (let i = 0; i < n; i++) {
         lr[i] = re[base + i * stride]!
@@ -261,7 +292,8 @@ export function torusGreen(side: number): Float64Array {
           continue
         }
 
-        re[a + side * (b + side * c)] = 1 / huskLaplacianSymbol([a * step, b * step, c * step])
+        re[a + side * (b + side * c)] =
+          1 / huskLaplacianSymbol([a * step, b * step, c * step])
       }
     }
   }
@@ -272,7 +304,11 @@ export function torusGreen(side: number): Float64Array {
 }
 
 // G on the infinite husk at the displacement (dx, dy, dz)
-export function greenInfinite(dx: number, dy: number, dz: number): number {
+export function greenInfinite(
+  dx: number,
+  dy: number,
+  dz: number,
+): number {
   const r = Math.hypot(dx, dy, dz)
 
   if (r > BLEND) {
@@ -284,7 +320,11 @@ export function greenInfinite(dx: number, dy: number, dz: number): number {
   const m = TORUS
   const wrap = (x: number): number => ((x % m) + m) % m
 
-  return (TORUS_GREEN[wrap(dx) + m * (wrap(dy) + m * wrap(dz))] ?? 0) + MADELUNG / (24 * Math.PI * m) - (r * r) / (36 * m ** 3)
+  return (
+    (TORUS_GREEN[wrap(dx) + m * (wrap(dy) + m * wrap(dz))] ?? 0) +
+    MADELUNG / (24 * Math.PI * m) -
+    (r * r) / (36 * m ** 3)
+  )
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -315,12 +355,22 @@ export function makeGrid(side: number): Grid {
   for (let c = 0; c < side; c++) {
     for (let b = 0; b < side; b++) {
       for (let a = 0; a < side; a++) {
-        kinetic[a + side * (b + side * c)] = standinBand([a * step, b * step, c * step])
+        kinetic[a + side * (b + side * c)] = standinBand([
+          a * step,
+          b * step,
+          c * step,
+        ])
       }
     }
   }
 
-  const grid = { side, size, kinetic, re: new Float64Array(size), im: new Float64Array(size) }
+  const grid = {
+    side,
+    size,
+    kinetic,
+    re: new Float64Array(size),
+    im: new Float64Array(size),
+  }
 
   GRIDS.set(side, grid)
 
@@ -329,20 +379,34 @@ export function makeGrid(side: number): Grid {
 
 export type Point = readonly [number, number, number]
 
-export const indexOf = (side: number, p: Point): number => p[0] + side * (p[1] + side * p[2])
+export const indexOf = (side: number, p: Point): number =>
+  p[0] + side * (p[1] + side * p[2])
 
 // the minimum-image displacement from p to the dock i
-function displacement(side: number, i: number, p: Point): [number, number, number] {
+function displacement(
+  side: number,
+  i: number,
+  p: Point,
+): [number, number, number] {
   const half = side / 2
-  const wrap = (d: number): number => (d >= half ? d - side : d < -half ? d + side : d)
+  const wrap = (d: number): number =>
+    d >= half ? d - side : d < -half ? d + side : d
 
-  return [wrap((i % side) - p[0]), wrap((Math.floor(i / side) % side) - p[1]), wrap(Math.floor(i / (side * side)) - p[2])]
+  return [
+    wrap((i % side) - p[0]),
+    wrap((Math.floor(i / side) % side) - p[1]),
+    wrap(Math.floor(i / (side * side)) - p[2]),
+  ]
 }
 
 export type Nucleus = { readonly at: Point; readonly charge: number }
 
 // the potential energy of a stand-in electron (charge -1) in the field of the nuclei
-export function externalPotential(input: { grid: Grid; units: Units; nuclei: readonly Nucleus[] }): Float64Array {
+export function externalPotential(input: {
+  grid: Grid
+  units: Units
+  nuclei: readonly Nucleus[]
+}): Float64Array {
   const { grid, units, nuclei } = input
   const v = new Float64Array(grid.size)
 
@@ -361,12 +425,22 @@ export function externalPotential(input: { grid: Grid; units: Units; nuclei: rea
   return v
 }
 
-export function nuclearRepulsion(units: Units, nuclei: readonly Nucleus[]): number {
+export function nuclearRepulsion(
+  units: Units,
+  nuclei: readonly Nucleus[],
+): number {
   let sum = 0
 
   nuclei.forEach((a, i) =>
     nuclei.slice(i + 1).forEach(b => {
-      sum += a.charge * b.charge * greenInfinite(a.at[0] - b.at[0], a.at[1] - b.at[1], a.at[2] - b.at[2])
+      sum +=
+        a.charge *
+        b.charge *
+        greenInfinite(
+          a.at[0] - b.at[0],
+          a.at[1] - b.at[1],
+          a.at[2] - b.at[2],
+        )
     }),
   )
 
@@ -375,7 +449,13 @@ export function nuclearRepulsion(units: Units, nuclei: readonly Nucleus[]): numb
 
 // T x and T y for two real vectors at once, packed as the real and imaginary parts of one complex field (T(k)
 // is real and even, so it keeps them apart)
-function kineticPair(grid: Grid, x: Float64Array, y: Float64Array | undefined, outX: Float64Array, outY: Float64Array | undefined): void {
+function kineticPair(
+  grid: Grid,
+  x: Float64Array,
+  y: Float64Array | undefined,
+  outX: Float64Array,
+  outY: Float64Array | undefined,
+): void {
   const { re, im, kinetic, side } = grid
 
   re.set(x)
@@ -402,11 +482,21 @@ function kineticPair(grid: Grid, x: Float64Array, y: Float64Array | undefined, o
 }
 
 // H v for every vector of a block
-export function applyHamiltonian(grid: Grid, potential: Float64Array, block: readonly Float64Array[]): Float64Array[] {
+export function applyHamiltonian(
+  grid: Grid,
+  potential: Float64Array,
+  block: readonly Float64Array[],
+): Float64Array[] {
   const out = block.map(() => new Float64Array(grid.size))
 
   for (let j = 0; j < block.length; j += 2) {
-    kineticPair(grid, block[j] ?? new Float64Array(grid.size), block[j + 1], out[j] ?? new Float64Array(grid.size), out[j + 1])
+    kineticPair(
+      grid,
+      block[j] ?? new Float64Array(grid.size),
+      block[j + 1],
+      out[j] ?? new Float64Array(grid.size),
+      out[j + 1],
+    )
   }
 
   block.forEach((v, j) => {
@@ -452,6 +542,7 @@ export function minOf(a: ArrayLike<number>): number {
 
 export function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
+
   const n = Math.min(a.length, b.length)
 
   for (let i = 0; i < n; i++) {
@@ -473,7 +564,11 @@ function axpy(y: Float64Array, c: number, x: Float64Array): void {
 // ---------------------------------------------------------------------------------------------------------
 // the eigensolver
 
-function orthonormalize(block: Float64Array[], fresh: (j: number) => Float64Array, project?: (v: Float64Array) => void): void {
+function orthonormalize(
+  block: Float64Array[],
+  fresh: (j: number) => Float64Array,
+  project?: (v: Float64Array) => void,
+): void {
   for (let j = 0; j < block.length; j++) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const v = block[j] ?? new Float64Array(0)
@@ -505,21 +600,40 @@ function orthonormalize(block: Float64Array[], fresh: (j: number) => Float64Arra
   }
 }
 
-function rayleighRitz(grid: Grid, potential: Float64Array, block: Float64Array[]): { block: Float64Array[]; applied: Float64Array[]; values: number[] } {
+function rayleighRitz(
+  grid: Grid,
+  potential: Float64Array,
+  block: Float64Array[],
+): {
+  block: Float64Array[]
+  applied: Float64Array[]
+  values: number[]
+} {
   const b = block.length
   const applied = applyHamiltonian(grid, potential, block)
   const data = new Float64Array(b * b)
 
   for (let i = 0; i < b; i++) {
     for (let j = i; j < b; j++) {
-      const s = (dot(block[i] ?? new Float64Array(0), applied[j] ?? new Float64Array(0)) + dot(block[j] ?? new Float64Array(0), applied[i] ?? new Float64Array(0))) / 2
+      const s =
+        (dot(
+          block[i] ?? new Float64Array(0),
+          applied[j] ?? new Float64Array(0),
+        ) +
+          dot(
+            block[j] ?? new Float64Array(0),
+            applied[i] ?? new Float64Array(0),
+          )) /
+        2
 
       data[i * b + j] = s
       data[j * b + i] = s
     }
   }
 
-  const eig = eigSymmetric({ matrix: { form: 'dense', rows: b, cols: b, data } })
+  const eig = eigSymmetric({
+    matrix: { form: 'dense', rows: b, cols: b, data },
+  })
   const rotate = (vs: Float64Array[]): Float64Array[] =>
     Array.from({ length: b }, (_, j) => {
       const out = new Float64Array(grid.size)
@@ -535,7 +649,11 @@ function rayleighRitz(grid: Grid, potential: Float64Array, block: Float64Array[]
       return out
     })
 
-  return { block: rotate(block), applied: rotate(applied), values: Array.from(eig.values) }
+  return {
+    block: rotate(block),
+    applied: rotate(applied),
+    values: Array.from(eig.values),
+  }
 }
 
 export type States = {
@@ -566,10 +684,15 @@ export function lowestStates(input: {
   const tolerance = input.tolerance ?? 1e-7
   const maxIterations = input.maxIterations ?? 200
   const degree = input.degree ?? 10
-  const fresh = (j: number): Float64Array => weylUnitVector({ dimension: grid.size, start: j + 1 })
+  const fresh = (j: number): Float64Array =>
+    weylUnitVector({ dimension: grid.size, start: j + 1 })
   const top = maxOf(potential) + BAND_TOP + 1e-9
 
-  let block = Array.from({ length: b }, (_, j) => (input.start?.[j] ? Float64Array.from(input.start[j] ?? []) : fresh(j)))
+  let block = Array.from({ length: b }, (_, j) =>
+    input.start?.[j]
+      ? Float64Array.from(input.start[j] ?? [])
+      : fresh(j),
+  )
 
   block.forEach(v => input.project?.(v))
   orthonormalize(block, fresh, input.project)
@@ -593,7 +716,10 @@ export function lowestStates(input: {
       return Math.sqrt(s)
     })
 
-    if (residuals.every(r => r < tolerance) || iterations === maxIterations) {
+    if (
+      residuals.every(r => r < tolerance) ||
+      iterations === maxIterations
+    ) {
       break
     }
 
@@ -655,7 +781,13 @@ export function lowestStates(input: {
 // ---------------------------------------------------------------------------------------------------------
 // the open-boundary Poisson solve (Hockney)
 
-export type Poisson = { readonly side: number; readonly big: number; readonly kernel: Float64Array; readonly re: Float64Array; readonly im: Float64Array }
+export type Poisson = {
+  readonly side: number
+  readonly big: number
+  readonly kernel: Float64Array
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
 const POISSONS = new Map<number, Poisson>()
 
@@ -674,14 +806,24 @@ export function makePoisson(side: number): Poisson {
   for (let c = 0; c < big; c++) {
     for (let b = 0; b < big; b++) {
       for (let a = 0; a < big; a++) {
-        re[a + big * (b + big * c)] = greenInfinite(signed(a), signed(b), signed(c))
+        re[a + big * (b + big * c)] = greenInfinite(
+          signed(a),
+          signed(b),
+          signed(c),
+        )
       }
     }
   }
 
   fft3(re, im, big, false)
 
-  const poisson = { side, big, kernel: Float64Array.from(re), re: new Float64Array(big ** 3), im: new Float64Array(big ** 3) }
+  const poisson = {
+    side,
+    big,
+    kernel: Float64Array.from(re),
+    re: new Float64Array(big ** 3),
+    im: new Float64Array(big ** 3),
+  }
 
   POISSONS.set(side, poisson)
 
@@ -689,7 +831,11 @@ export function makePoisson(side: number): Poisson {
 }
 
 // phi = G * rho for one or two densities at once (without the coupling kappa)
-export function solvePoisson(poisson: Poisson, a: Float64Array, b?: Float64Array): [Float64Array, Float64Array | undefined] {
+export function solvePoisson(
+  poisson: Poisson,
+  a: Float64Array,
+  b?: Float64Array,
+): [Float64Array, Float64Array | undefined] {
   const { side, big, re, im, kernel } = poisson
 
   re.fill(0)
@@ -744,7 +890,12 @@ export type MeanField = 'none' | 'hartree' | 'fermi-amaldi'
 
 // the occupations: `electrons` stand-ins into the levels in order, `capacity` per orbital, an exactly or
 // nearly degenerate group (within `tolerance`) sharing what reaches it equally
-export function occupy(values: readonly number[], electrons: number, capacity: number, tolerance: number): number[] {
+export function occupy(
+  values: readonly number[],
+  electrons: number,
+  capacity: number,
+  tolerance: number,
+): number[] {
   const occupations = values.map(() => 0)
 
   let left = electrons
@@ -752,12 +903,17 @@ export function occupy(values: readonly number[], electrons: number, capacity: n
 
   while (left > 1e-12) {
     if (i >= values.length) {
-      throw new Error(`${electrons} stand-ins do not fit in ${values.length} orbitals of capacity ${capacity}`)
+      throw new Error(
+        `${electrons} stand-ins do not fit in ${values.length} orbitals of capacity ${capacity}`,
+      )
     }
 
     let k = i + 1
 
-    while (k < values.length && Math.abs((values[k] ?? 0) - (values[k - 1] ?? 0)) < tolerance) {
+    while (
+      k < values.length &&
+      Math.abs((values[k] ?? 0) - (values[k - 1] ?? 0)) < tolerance
+    ) {
       k++
     }
 
@@ -812,19 +968,28 @@ export function selfConsistent(input: {
   tolerance?: number
   degenerate?: number
 }): Scf {
-  const { grid, poisson, units, nuclei, electrons, capacity, field } = input
+  const { grid, poisson, units, nuclei, electrons, capacity, field } =
+    input
   const external = externalPotential({ grid, units, nuclei })
   const nuclear = nuclearRepulsion(units, nuclei)
-  const count = Math.ceil(electrons / capacity - 1e-9) + (input.spare ?? 4)
+  const count =
+    Math.ceil(electrons / capacity - 1e-9) + (input.spare ?? 4)
   const buffer = input.buffer ?? 4
-  const scale = field === 'none' ? 0 : field === 'hartree' ? 1 : (electrons - 1) / electrons
+  const scale =
+    field === 'none'
+      ? 0
+      : field === 'hartree'
+        ? 1
+        : (electrons - 1) / electrons
   const tolerance = input.tolerance ?? 1e-6
   const maxCycles = input.maxCycles ?? 40
   const degenerate = input.degenerate ?? 1e-6
   const mix = 0.4
   const history: { input: Float64Array; residual: Float64Array }[] = []
 
-  let block: Float64Array[] | undefined = input.start ? input.start.map(v => Float64Array.from(v)) : undefined
+  let block: Float64Array[] | undefined = input.start
+    ? input.start.map(v => Float64Array.from(v))
+    : undefined
   let density = new Float64Array(grid.size)
   let potential = Float64Array.from(external)
   let states: States | undefined
@@ -834,7 +999,10 @@ export function selfConsistent(input: {
   let converged = false
 
   // the first density, from the start orbitals if given
-  const densityOf = (vectors: readonly Float64Array[], occ: readonly number[]): Float64Array => {
+  const densityOf = (
+    vectors: readonly Float64Array[],
+    occ: readonly number[],
+  ): Float64Array => {
     const n = new Float64Array(grid.size)
 
     occ.forEach((f, j) => {
@@ -865,23 +1033,55 @@ export function selfConsistent(input: {
   }
 
   if (scale !== 0 && block) {
-    const warm = lowestStates({ grid, potential: external, count, extra: buffer, start: block, maxIterations: 0 })
+    const warm = lowestStates({
+      grid,
+      potential: external,
+      count,
+      extra: buffer,
+      start: block,
+      maxIterations: 0,
+    })
 
-    density = densityOf(warm.vectors, occupy(warm.values.slice(0, count), electrons, capacity, degenerate))
+    density = densityOf(
+      warm.vectors,
+      occupy(
+        warm.values.slice(0, count),
+        electrons,
+        capacity,
+        degenerate,
+      ),
+    )
   }
 
   for (cycles = 1; cycles <= maxCycles; cycles++) {
     potential = meanField(density)
-    states = lowestStates({ grid, potential, count, extra: buffer, start: block, maxIterations: scale === 0 ? 400 : 3, degree: 8, tolerance: 1e-6 })
+    states = lowestStates({
+      grid,
+      potential,
+      count,
+      extra: buffer,
+      start: block,
+      maxIterations: scale === 0 ? 400 : 3,
+      degree: 8,
+      tolerance: 1e-6,
+    })
     block = states.vectors
-    occupations = occupy(states.values.slice(0, count), electrons, capacity, degenerate)
+    occupations = occupy(
+      states.values.slice(0, count),
+      electrons,
+      capacity,
+      degenerate,
+    )
 
     const out = densityOf(states.vectors, occupations)
     const r = Float64Array.from(out, (x, k) => x - (density[k] ?? 0))
 
     residual = r.reduce((s, x) => s + Math.abs(x), 0) / electrons
 
-    if (scale === 0 || (residual < tolerance && states.residuals.every(x => x < 1e-6))) {
+    if (
+      scale === 0 ||
+      (residual < tolerance && states.residuals.every(x => x < 1e-6))
+    ) {
       converged = true
       density = out
       break
@@ -896,9 +1096,17 @@ export function selfConsistent(input: {
 
     const m = history.length
     const a: number[][] = Array.from({ length: m + 1 }, (_, i) =>
-      Array.from({ length: m + 1 }, (_, j) => (i < m && j < m ? dot(history[i]?.residual ?? r, history[j]?.residual ?? r) : i === m && j === m ? 0 : 1)),
+      Array.from({ length: m + 1 }, (_, j) =>
+        i < m && j < m
+          ? dot(history[i]?.residual ?? r, history[j]?.residual ?? r)
+          : i === m && j === m
+            ? 0
+            : 1,
+      ),
     )
-    const rhs = Array.from({ length: m + 1 }, (_, i) => (i === m ? 1 : 0))
+    const rhs = Array.from({ length: m + 1 }, (_, i) =>
+      i === m ? 1 : 0,
+    )
     const c = solveSmall(a, rhs).slice(0, m)
     const next = new Float64Array(grid.size)
 
@@ -907,7 +1115,9 @@ export function selfConsistent(input: {
 
       if (h) {
         for (let k = 0; k < grid.size; k++) {
-          next[k] = (next[k] ?? 0) + w * ((h.input[k] ?? 0) + mix * (h.residual[k] ?? 0))
+          next[k] =
+            (next[k] ?? 0) +
+            w * ((h.input[k] ?? 0) + mix * (h.residual[k] ?? 0))
         }
       }
     })
@@ -921,11 +1131,27 @@ export function selfConsistent(input: {
 
   // a tight final solve in the last potential
   potential = meanField(density)
-  states = lowestStates({ grid, potential, count, extra: buffer, start: block, tolerance: 1e-7 })
-  occupations = occupy(states.values.slice(0, count), electrons, capacity, degenerate)
+  states = lowestStates({
+    grid,
+    potential,
+    count,
+    extra: buffer,
+    start: block,
+    tolerance: 1e-7,
+  })
+
+  occupations = occupy(
+    states.values.slice(0, count),
+    electrons,
+    capacity,
+    degenerate,
+  )
 
   const final = densityOf(states.vectors, occupations)
-  const [phi] = scale !== 0 ? solvePoisson(poisson, final) : [new Float64Array(grid.size)]
+  const [phi] =
+    scale !== 0
+      ? solvePoisson(poisson, final)
+      : [new Float64Array(grid.size)]
   const hartree = (scale * units.kappa * dot(final, phi)) / 2
 
   let oneBody = 0
@@ -934,7 +1160,13 @@ export function selfConsistent(input: {
     const v = states?.vectors[j] ?? new Float64Array(0)
 
     if (f > 0) {
-      oneBody += f * (kineticEnergy(grid, v) + dot(external, Float64Array.from(v, x => x * x)))
+      oneBody +=
+        f *
+        (kineticEnergy(grid, v) +
+          dot(
+            external,
+            Float64Array.from(v, x => x * x),
+          ))
     }
   })
 
@@ -956,7 +1188,10 @@ export function selfConsistent(input: {
 }
 
 // Gaussian elimination with partial pivoting on a small dense system
-export function solveSmall(matrix: number[][], rhs: number[]): number[] {
+export function solveSmall(
+  matrix: number[][],
+  rhs: number[],
+): number[] {
   const n = rhs.length
   const a = matrix.map((row, i) => [...row, rhs[i] ?? 0])
 
@@ -995,7 +1230,10 @@ export function solveSmall(matrix: number[][], rhs: number[]): number[] {
     }
   }
 
-  return Array.from({ length: n }, (_, i) => (a[i]?.[n] ?? 0) / (a[i]?.[i] || 1))
+  return Array.from(
+    { length: n },
+    (_, i) => (a[i]?.[n] ?? 0) / (a[i]?.[i] || 1),
+  )
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -1003,7 +1241,11 @@ export function solveSmall(matrix: number[][], rhs: number[]): number[] {
 
 // (ij|kl) = kappa sum_x sum_y phi_i(x) phi_j(x) G(x - y) phi_k(y) phi_l(y) for every i <= j, k <= l, as a
 // K^4 table with all eight symmetries filled
-export function pairIntegrals(poisson: Poisson, orbitals: readonly Float64Array[], kappa: number): Float64Array {
+export function pairIntegrals(
+  poisson: Poisson,
+  orbitals: readonly Float64Array[],
+  kappa: number,
+): Float64Array {
   const k = orbitals.length
   const size = orbitals[0]?.length ?? 0
   const pairs: [number, number][] = []
@@ -1018,12 +1260,19 @@ export function pairIntegrals(poisson: Poisson, orbitals: readonly Float64Array[
     const a = orbitals[i] ?? new Float64Array(0)
     const b = orbitals[j] ?? new Float64Array(0)
 
-    return Float64Array.from({ length: size }, (_, x) => (a[x] ?? 0) * (b[x] ?? 0))
+    return Float64Array.from(
+      { length: size },
+      (_, x) => (a[x] ?? 0) * (b[x] ?? 0),
+    )
   })
   const potentials: Float64Array[] = []
 
   for (let p = 0; p < densities.length; p += 2) {
-    const [a, b] = solvePoisson(poisson, densities[p] ?? new Float64Array(size), densities[p + 1])
+    const [a, b] = solvePoisson(
+      poisson,
+      densities[p] ?? new Float64Array(size),
+      densities[p + 1],
+    )
 
     potentials.push(a)
 
@@ -1040,7 +1289,17 @@ export function pairIntegrals(poisson: Poisson, orbitals: readonly Float64Array[
         return
       }
 
-      const value = (kappa * (dot(densities[q] ?? new Float64Array(0), potentials[p] ?? new Float64Array(0)) + dot(densities[p] ?? new Float64Array(0), potentials[q] ?? new Float64Array(0)))) / 2
+      const value =
+        (kappa *
+          (dot(
+            densities[q] ?? new Float64Array(0),
+            potentials[p] ?? new Float64Array(0),
+          ) +
+            dot(
+              densities[p] ?? new Float64Array(0),
+              potentials[q] ?? new Float64Array(0),
+            ))) /
+        2
 
       for (const [a, b] of [
         [i, j],
@@ -1062,7 +1321,14 @@ export function pairIntegrals(poisson: Poisson, orbitals: readonly Float64Array[
 
 // the exact Hartree-Fock energy of the determinant of `orbitals` (each once, one kind of stand-in):
 // sum h_ii + 1/2 sum_ij [(ii|jj) - (ij|ij)] + nuclear, an upper bound on the fermion ground state
-export function hartreeFockEnergy(input: { grid: Grid; poisson: Poisson; units: Units; external: Float64Array; nuclear: number; orbitals: readonly Float64Array[] }): {
+export function hartreeFockEnergy(input: {
+  grid: Grid
+  poisson: Poisson
+  units: Units
+  external: Float64Array
+  nuclear: number
+  orbitals: readonly Float64Array[]
+}): {
   oneBody: number
   hartree: number
   exchange: number
@@ -1074,7 +1340,12 @@ export function hartreeFockEnergy(input: { grid: Grid; poisson: Poisson; units: 
   let oneBody = 0
 
   for (const v of orbitals) {
-    oneBody += kineticEnergy(grid, v) + dot(external, Float64Array.from(v, x => x * x))
+    oneBody +=
+      kineticEnergy(grid, v) +
+      dot(
+        external,
+        Float64Array.from(v, x => x * x),
+      )
   }
 
   const table = pairIntegrals(poisson, orbitals, units.kappa)
@@ -1089,14 +1360,23 @@ export function hartreeFockEnergy(input: { grid: Grid; poisson: Poisson; units: 
     }
   }
 
-  return { oneBody, hartree, exchange, total: oneBody + hartree + exchange + input.nuclear }
+  return {
+    oneBody,
+    hartree,
+    exchange,
+    total: oneBody + hartree + exchange + input.nuclear,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // two stand-ins in a basis of K orbitals: the full two-body Hamiltonian, and its symmetric and antisymmetric
 // spatial sectors
 
-export function twoBodySpectrum(input: { oneBody: readonly number[]; integrals: Float64Array; k: number }): {
+export function twoBodySpectrum(input: {
+  oneBody: readonly number[]
+  integrals: Float64Array
+  k: number
+}): {
   distinguishable: number[]
   symmetric: number[]
   antisymmetric: number[]
@@ -1133,23 +1413,43 @@ export function twoBodySpectrum(input: { oneBody: readonly number[]; integrals: 
 
     const m = basis.length
     const data = new Float64Array(m * m)
-    const norm = ([a, b]: [number, number]): number => (a === b ? 0.5 : 1 / Math.SQRT2)
+    const norm = ([a, b]: [number, number]): number =>
+      a === b ? 0.5 : 1 / Math.SQRT2
 
     basis.forEach((p, i) =>
       basis.forEach((q, j) => {
         const [a, b] = p
         const [c, e] = q
-        const at = (x: number, y: number, z: number, w: number): number => full[(x * k + y) * d + (z * k + w)] ?? 0
+        const at = (
+          x: number,
+          y: number,
+          z: number,
+          w: number,
+        ): number => full[(x * k + y) * d + (z * k + w)] ?? 0
 
-        data[i * m + j] = norm(p) * norm(q) * (at(a, b, c, e) + sign * at(a, b, e, c) + sign * at(b, a, c, e) + at(b, a, e, c))
+        data[i * m + j] =
+          norm(p) *
+          norm(q) *
+          (at(a, b, c, e) +
+            sign * at(a, b, e, c) +
+            sign * at(b, a, c, e) +
+            at(b, a, e, c))
       }),
     )
 
-    return Array.from(eigSymmetric({ matrix: { form: 'dense', rows: m, cols: m, data } }).values)
+    return Array.from(
+      eigSymmetric({
+        matrix: { form: 'dense', rows: m, cols: m, data },
+      }).values,
+    )
   }
 
   return {
-    distinguishable: Array.from(eigSymmetric({ matrix: { form: 'dense', rows: d, cols: d, data: full } }).values),
+    distinguishable: Array.from(
+      eigSymmetric({
+        matrix: { form: 'dense', rows: d, cols: d, data: full },
+      }).values,
+    ),
     symmetric: sector(1),
     antisymmetric: sector(-1),
   }
@@ -1158,10 +1458,16 @@ export function twoBodySpectrum(input: { oneBody: readonly number[]; integrals: 
 // ---------------------------------------------------------------------------------------------------------
 // the character of an orbital about a nucleus
 
-const SHELLS = new Map<string, { shell: Int32Array; counts: number[] }>()
+const SHELLS = new Map<
+  string,
+  { shell: Int32Array; counts: number[] }
+>()
 
 // every dock's shell |x - c|^2 about the center (minimum image)
-function shellsOf(side: number, center: Point): { shell: Int32Array; counts: number[] } {
+function shellsOf(
+  side: number,
+  center: Point,
+): { shell: Int32Array; counts: number[] } {
   const key = `${side}:${center.join(',')}`
   const cached = SHELLS.get(key)
 
@@ -1197,7 +1503,11 @@ export type Character = {
   readonly radius: number
 }
 
-export function orbitalCharacter(side: number, center: Point, v: Float64Array): Character {
+export function orbitalCharacter(
+  side: number,
+  center: Point,
+  v: Float64Array,
+): Character {
   const { shell, counts } = shellsOf(side, center)
   const sums: number[] = []
 
@@ -1226,5 +1536,9 @@ export function orbitalCharacter(side: number, center: Point, v: Float64Array): 
     average += (sum * sum) / (counts[s] ?? 1)
   })
 
-  return { parity: parity / norm, sFraction: average / norm, radius: radius / norm }
+  return {
+    parity: parity / norm,
+    sFraction: average / norm,
+    radius: radius / norm,
+  }
 }

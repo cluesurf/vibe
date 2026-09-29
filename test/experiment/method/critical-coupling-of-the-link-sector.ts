@@ -44,8 +44,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { addHashedCurl, emptyPhotonState, magneticSum, makePhotonRule, photonBeatInPlace, photonLatticeD4 } from '@/code/rule/photon-links'
-import { bulkMonopoles, d4Tetrahedra } from '@/code/measure/photon-magnetism'
+import {
+  addHashedCurl,
+  emptyPhotonState,
+  magneticSum,
+  makePhotonRule,
+  photonBeatInPlace,
+  photonLatticeD4,
+} from '@/code/rule/photon-links'
+import {
+  bulkMonopoles,
+  d4Tetrahedra,
+} from '@/code/measure/photon-magnetism'
 import { d4PlaquetteForm } from '@/code/measure/coupling-candidates'
 
 const N = 8192
@@ -54,23 +64,43 @@ const SETTLE = 800
 const BEATS = 2000
 const EVERY = 20
 const THRESHOLD = 0.02
-const TARGETS = [0.35, 0.45, 0.475, 0.5, 0.525, 0.55, 0.575, 0.6, 0.625, 0.65, 0.675, 0.7, 0.725, 0.75, 0.775, 0.8, 1.0]
+const TARGETS = [
+  0.35, 0.45, 0.475, 0.5, 0.525, 0.55, 0.575, 0.6, 0.625, 0.65, 0.675,
+  0.7, 0.725, 0.75, 0.775, 0.8, 1.0,
+]
 const HYPERCUBIC_BETA_C = 1.0111331
 
-type Point = { target: number; beta: number; cos: number; monopoles: number }
+type Point = {
+  target: number
+  beta: number
+  cos: number
+  monopoles: number
+}
 
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
 function sweep(side: number): Point[] {
   const lattice = photonLatticeD4({ side })
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const tetrahedra = d4Tetrahedra(lattice)
 
   return TARGETS.map(target => {
     const s = emptyPhotonState(rule)
     const t0 = (K * N) / (2 * Math.PI * target)
 
-    addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * t0) / 4))), 5.3)
+    addHashedCurl(
+      rule,
+      s,
+      Math.max(1, Math.round(Math.sqrt((3 * t0) / 4))),
+      5.3,
+    )
 
     const temps: number[] = []
     const cos: number[] = []
@@ -83,25 +113,41 @@ function sweep(side: number): Point[] {
         continue
       }
 
-      temps.push(s.flux.reduce((a, b) => a + b * b, 0) / (lattice.links - lattice.cells + 1))
+      temps.push(
+        s.flux.reduce((a, b) => a + b * b, 0) /
+          (lattice.links - lattice.cells + 1),
+      )
       cos.push(magneticSum(rule, s.angle).meanCos)
-      mono.push(bulkMonopoles(tetrahedra, s.angle, N) / tetrahedra.count)
+      mono.push(
+        bulkMonopoles(tetrahedra, s.angle, N) / tetrahedra.count,
+      )
     }
 
-    return { target, beta: (K * N) / (2 * Math.PI * mean(temps)), cos: mean(cos), monopoles: mean(mono) }
+    return {
+      target,
+      beta: (K * N) / (2 * Math.PI * mean(temps)),
+      cos: mean(cos),
+      monopoles: mean(mono),
+    }
   }).sort((a, b) => a.beta - b.beta)
 }
 
 // E1: the crossing of THRESHOLD at the largest beta, and the beta gap of its pair
-function crossing(points: readonly Point[]): { beta: number; gap: number } | undefined {
+function crossing(
+  points: readonly Point[],
+): { beta: number; gap: number } | undefined {
   for (let i = points.length - 1; i > 0; i--) {
     const lo = points[i - 1]!
     const hi = points[i]!
 
     if (lo.monopoles >= THRESHOLD && hi.monopoles < THRESHOLD) {
-      const f = (lo.monopoles - THRESHOLD) / (lo.monopoles - hi.monopoles)
+      const f =
+        (lo.monopoles - THRESHOLD) / (lo.monopoles - hi.monopoles)
 
-      return { beta: lo.beta + f * (hi.beta - lo.beta), gap: hi.beta - lo.beta }
+      return {
+        beta: lo.beta + f * (hi.beta - lo.beta),
+        gap: hi.beta - lo.beta,
+      }
     }
   }
 
@@ -138,16 +184,28 @@ export default experiment({
   paper: false,
   run() {
     const form = d4PlaquetteForm()
-    const formExact = form.length === 6 && form.every((row, u) => row.every((x, v) => Math.abs(x - (u === v ? 4 : 0)) < 1e-12))
+    const formExact =
+      form.length === 6 &&
+      form.every((row, u) =>
+        row.every((x, v) => Math.abs(x - (u === v ? 4 : 0)) < 1e-12),
+      )
     const four = sweep(4)
     const six = sweep(6)
-    const inside = (ps: readonly Point[]): boolean => ps[0]!.monopoles > 0.05 && ps[ps.length - 1]!.monopoles < 0.01
+    const inside = (ps: readonly Point[]): boolean =>
+      ps[0]!.monopoles > 0.05 && ps[ps.length - 1]!.monopoles < 0.01
     const e14 = crossing(four)
     const e16 = crossing(six)
     const e2 = steepest(six)
-    const located = e14 !== undefined && e16 !== undefined && Math.abs(e16.beta - e14.beta) < 0.05
+    const located =
+      e14 !== undefined &&
+      e16 !== undefined &&
+      Math.abs(e16.beta - e14.beta) < 0.05
     const betaC = e16?.beta ?? Number.NaN
-    const u = Math.max(Math.abs(betaC - e2), Math.abs(betaC - (e14?.beta ?? Number.NaN)), (e16?.gap ?? Number.NaN) / 2)
+    const u = Math.max(
+      Math.abs(betaC - e2),
+      Math.abs(betaC - (e14?.beta ?? Number.NaN)),
+      (e16?.gap ?? Number.NaN) / 2,
+    )
     const metrics: Record<string, number> = {
       plaquetteFormDiagonal: form[0]?.[0] ?? Number.NaN,
       betaCritical: betaC,
@@ -165,7 +223,9 @@ export default experiment({
       ps.forEach((p, i) => {
         metrics[`side${side}Point${i}Beta`] = Number(p.beta.toFixed(4))
         metrics[`side${side}Point${i}Cos`] = Number(p.cos.toFixed(4))
-        metrics[`side${side}Point${i}Monopoles`] = Number(p.monopoles.toFixed(5))
+        metrics[`side${side}Point${i}Monopoles`] = Number(
+          p.monopoles.toFixed(5),
+        )
       })
     }
 
@@ -174,7 +234,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the thermal D4 bulk of the leapfrog link sector is a 4D Euclidean compact U(1) with 1 / e^2 = 2 beta (the root-pair plaquette form is exactly 4 I), and its Coulomb-to-confined transition, located on the rule itself by the monopole density on sides 4 and 6, fixes a bulk critical coupling alpha_c = 1 / (8 pi beta_c); the number depends on the lattice and the action, so it is the model\'s critical coupling, not a universal one',
+        "the thermal D4 bulk of the leapfrog link sector is a 4D Euclidean compact U(1) with 1 / e^2 = 2 beta (the root-pair plaquette form is exactly 4 I), and its Coulomb-to-confined transition, located on the rule itself by the monopole density on sides 4 and 6, fixes a bulk critical coupling alpha_c = 1 / (8 pi beta_c); the number depends on the lattice and the action, so it is the model's critical coupling, not a universal one",
       metrics,
       control: {
         hypercubicWilsonBetaCritical: HYPERCUBIC_BETA_C,
@@ -185,7 +245,7 @@ export default experiment({
         sideSixCoulombMonopoles: six[six.length - 1]!.monopoles,
       },
       notes:
-        'L2, bulk (the substrate). Deterministic: ordered starts with the rule\'s hashed curl, no seed. beta is measured from the flux by equipartition, as in E-FRC-0173, so the points land where the microcanonical run puts them, not on the targets. The hypercubic value beside it is a literature stand-in for a husk transition the model has not measured, not a model number. First run, 2026-09-25, pass (970 s): the plaquette form is 4 I to 3e-15; beta_c = 0.6355 on side 6 (E1), 0.6304 on side 4, 0.6153 by the steepest cos, so u = 0.0211, set by half the gap of the crossing pair (0.594 to 0.637): on side 6 the ordered starts piled up above beta 0.59, one point on the confined side, so the edge is resolved only to that gap. alpha_c^-1 = 8 pi beta_c = 15.97 +- 0.53 (bulk), against 12.71 for the hypercubic stand-in: the same compact U(1) on another lattice with another action has another critical coupling, which is the non-universality that keeps a critical point from fixing alpha by itself. Monopoles 0.150 and 0.087 per tetrahedron at the lowest beta, 1e-5 and 0 at the highest.',
+        "L2, bulk (the substrate). Deterministic: ordered starts with the rule's hashed curl, no seed. beta is measured from the flux by equipartition, as in E-FRC-0173, so the points land where the microcanonical run puts them, not on the targets. The hypercubic value beside it is a literature stand-in for a husk transition the model has not measured, not a model number. First run, 2026-09-25, pass (970 s): the plaquette form is 4 I to 3e-15; beta_c = 0.6355 on side 6 (E1), 0.6304 on side 4, 0.6153 by the steepest cos, so u = 0.0211, set by half the gap of the crossing pair (0.594 to 0.637): on side 6 the ordered starts piled up above beta 0.59, one point on the confined side, so the edge is resolved only to that gap. alpha_c^-1 = 8 pi beta_c = 15.97 +- 0.53 (bulk), against 12.71 for the hypercubic stand-in: the same compact U(1) on another lattice with another action has another critical coupling, which is the non-universality that keeps a critical point from fixing alpha by itself. Monopoles 0.150 and 0.087 per tetrahedron at the lowest beta, 1e-5 and 0 at the highest.",
     })
   },
 })

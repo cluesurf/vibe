@@ -73,9 +73,27 @@ import { verdict } from '@/test/scaffold/verdict'
 import { lapseLinks, openMesh } from '@/code/rule/open-husk'
 import { stackModes } from '@/code/measure/open-husk'
 import { linearFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
-import { profileKappa, roomSpeed, stairTime } from '@/code/measure/headroom-horizon'
-import { chainBeatBack, flatModes, kgNorm, makeBatch, makeUniformChain, outPacket, setChainRooms, splitFlat, weightShare, type Split } from '@/code/measure/headroom-bogoliubov'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
+import {
+  profileKappa,
+  roomSpeed,
+  stairTime,
+} from '@/code/measure/headroom-horizon'
+import {
+  chainBeatBack,
+  flatModes,
+  kgNorm,
+  makeBatch,
+  makeUniformChain,
+  outPacket,
+  setChainRooms,
+  splitFlat,
+  weightShare,
+  type Split,
+} from '@/code/measure/headroom-bogoliubov'
 import { planckFit, powerLaw } from '@/code/measure/bogoliubov-spectrum'
 
 const D0 = 2
@@ -93,7 +111,11 @@ const BAND: readonly number[] = [4, 7, 10, 13]
 const BAND7: readonly number[] = [4, 5.5, 7, 8.5, 10, 11.5, 13]
 const CONTROL: readonly number[] = [4]
 // E-GRV-0132's recorded run (tmp/hawk-run1.log): the seven ratios at BAND7 and the Planck fit's T / (kappa / 2 pi)
-const E0132_RATIOS: readonly number[] = [3.6259633186510425e-2, 2.340534787872972e-2, 1.6507356493299305e-2, 1.2445648754580402e-2, 9.636180884919424e-3, 7.815572003964093e-3, 6.508755411014019e-3]
+const E0132_RATIOS: readonly number[] = [
+  3.6259633186510425e-2, 2.340534787872972e-2, 1.6507356493299305e-2,
+  1.2445648754580402e-2, 9.636180884919424e-3, 7.815572003964093e-3,
+  6.508755411014019e-3,
+]
 const E0132_PLANCK = 9.596341958490175
 const H3_TOLERANCE = 0.3
 const R1_TOLERANCE = 0.01
@@ -103,7 +125,12 @@ const K2_BOUND = 1e-9
 // the gates that read it
 const PLANCK_GUESS = 3
 
-type Column = { omega: number; split: Split; ratio: number; conservation: number }
+type Column = {
+  omega: number
+  split: Split
+  ratio: number
+  conservation: number
+}
 type Size = {
   C: number
   rh: number
@@ -139,7 +166,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -148,9 +176,18 @@ export default experiment({
     const profile = unitProfile(boxFreeExcess(mesh, sm), sm)
     const c0 = roomSpeed(D0)
     const kappaRef = profileKappa(profile, REFERENCE_RH, c0).kappa
-    const unit = (r: number): number => profile.at(Math.max(r, profile.first))
+    const unit = (r: number): number =>
+      profile.at(Math.max(r, profile.first))
     const sizes: Size[] = []
-    let ref7: { planck: number; residual: number; ratios: number[]; edge: boolean } | undefined
+
+    let ref7:
+      | {
+          planck: number
+          residual: number
+          ratios: number[]
+          edge: boolean
+        }
+      | undefined
 
     for (const C of SIZES) {
       const rh = C / 2
@@ -158,37 +195,58 @@ export default experiment({
       const pk = profileKappa(profile, rh, c0)
       const T = pk.kappa / (2 * Math.PI)
       const tg = Math.round((REFERENCE_TG * kappaRef) / pk.kappa)
+
       const roomAt = (m: number, r: number): number => {
         const e = m * unit(r)
 
         return e >= CAP ? 0 : C - Math.floor((C * e) / CAP)
       }
+
       const finalRoom = (r: number): number => roomAt(mFinal, r)
+
       let flatFrom = Math.ceil(rh)
 
-      for (let r = Math.ceil(rh); r < 200000; r++) if (finalRoom(r) < C) flatFrom = r + 1
+      for (let r = Math.ceil(rh); r < 200000; r++) {
+        if (finalRoom(r) < C) {
+          flatFrom = r + 1
+        }
+      }
 
       const width = c0 / (SIGMA_T * T)
       const rc = Math.round(flatFrom + MARGIN * width)
       const inner = Math.ceil(rh)
       const tf = tg + Math.round(stairTime(finalRoom, C, c0, inner, rc))
-      const L = pow2AtLeast(Math.max(rc + MARGIN * width + flatFrom, c0 * tg + MARGIN * width + flatFrom))
+      const L = pow2AtLeast(
+        Math.max(
+          rc + MARGIN * width + flatFrom,
+          c0 * tg + MARGIN * width + flatFrom,
+        ),
+      )
       const massAt = (t: number): number => mFinal * Math.min(1, t / tg)
 
-      log(`C ${C}: r_h ${rh} M ${mFinal.toFixed(2)} kappa ${pk.kappa.toExponential(4)} T ${T.toExponential(4)} t_g ${tg} flat ${flatFrom} r_c ${rc} t_f ${tf} L ${L}`)
+      log(
+        `C ${C}: r_h ${rh} M ${mFinal.toFixed(2)} kappa ${pk.kappa.toExponential(4)} T ${T.toExponential(4)} t_g ${tg} flat ${flatFrom} r_c ${rc} t_f ${tf} L ${L}`,
+      )
 
       const xc = L / 2
-      const dist = (x: number): number => Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
+      const dist = (x: number): number =>
+        Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
       const chain = makeUniformChain(L, D0, C)
       const modes = flatModes(chain)
       const near: number[] = []
 
-      for (let x = 0; x < L; x++) if (dist(x) < flatFrom) near.push(x)
+      for (let x = 0; x < L; x++) {
+        if (dist(x) < flatFrom) {
+          near.push(x)
+        }
+      }
 
       const nearUnit = near.map(x => unit(dist(x)))
       const rooms = new Int32Array(L).fill(C)
+
       const roomsAt = (t: number): boolean => {
         const m = massAt(t)
+
         let changed = false
 
         for (let i = 0; i < near.length; i++) {
@@ -204,18 +262,32 @@ export default experiment({
 
         return changed
       }
-      const runBack = (b: ReturnType<typeof makeBatch>, grow: boolean, beats: number): number => {
+
+      const runBack = (
+        b: ReturnType<typeof makeBatch>,
+        grow: boolean,
+        beats: number,
+      ): number => {
         let quenches = 0
 
         if (!grow) {
-          for (const x of near) rooms[x] = finalRoom(dist(x))
+          for (const x of near) {
+            rooms[x] = finalRoom(dist(x))
+          }
+
           setChainRooms(chain, x => rooms[x]!)
         }
 
         for (let t = beats; t >= 1; t--) {
-          if (grow && roomsAt(t)) quenches += setChainRooms(chain, x => rooms[x]!)
+          if (grow && roomsAt(t)) {
+            quenches += setChainRooms(chain, x => rooms[x]!)
+          }
+
           chainBeatBack(chain, b)
-          if (t % 20000 === 0) log(`  C ${C} back at ${t}`)
+
+          if (t % 20000 === 0) {
+            log(`  C ${C} back at ${t}`)
+          }
         }
 
         rooms.fill(C)
@@ -223,11 +295,20 @@ export default experiment({
 
         return quenches
       }
-      const split = (b: ReturnType<typeof makeBatch>, omegas: readonly number[]): Column[] =>
+
+      const split = (
+        b: ReturnType<typeof makeBatch>,
+        omegas: readonly number[],
+      ): Column[] =>
         omegas.map((omega, i) => {
           const s = splitFlat(chain, modes, b, 2 * i, 2 * i + 1)
 
-          return { omega, split: s, ratio: s.negative / s.positive, conservation: Math.abs(s.positive - s.negative - 1) }
+          return {
+            omega,
+            split: s,
+            ratio: s.negative / s.positive,
+            conservation: Math.abs(s.positive - s.negative - 1),
+          }
         })
 
       // THE GROWTH
@@ -235,13 +316,40 @@ export default experiment({
       const omegas = band.map(w => w * T)
       const grow = makeBatch(chain, 2 * omegas.length)
 
-      omegas.forEach((w, i) => outPacket(chain, modes, grow, 2 * i, 2 * i + 1, w, SIGMA_T * T, xc + rc))
+      omegas.forEach((w, i) =>
+        outPacket(
+          chain,
+          modes,
+          grow,
+          2 * i,
+          2 * i + 1,
+          w,
+          SIGMA_T * T,
+          xc + rc,
+        ),
+      )
 
-      const outTail = Math.max(...omegas.map((_, i) => weightShare(chain, grow, 2 * i, 2 * i + 1, x => dist(x) < flatFrom)))
-      const outNorm = Math.max(...omegas.map((_, i) => Math.abs(kgNorm(chain, grow, 2 * i, 2 * i + 1) - 1)))
+      const outTail = Math.max(
+        ...omegas.map((_, i) =>
+          weightShare(
+            chain,
+            grow,
+            2 * i,
+            2 * i + 1,
+            x => dist(x) < flatFrom,
+          ),
+        ),
+      )
+      const outNorm = Math.max(
+        ...omegas.map((_, i) =>
+          Math.abs(kgNorm(chain, grow, 2 * i, 2 * i + 1) - 1),
+        ),
+      )
       const quenches = runBack(grow, true, tf)
       const all = split(grow, omegas)
-      const cols = all.filter(c => BAND.some(w => Math.abs(c.omega - w * T) < 1e-12 * T))
+      const cols = all.filter(c =>
+        BAND.some(w => Math.abs(c.omega - w * T) < 1e-12 * T),
+      )
       const planck = planckFit(
         cols.map(c => c.omega),
         cols.map(c => c.ratio),
@@ -259,10 +367,17 @@ export default experiment({
           PLANCK_GUESS * T,
         )
 
-        ref7 = { planck: f7.temperature / T, residual: f7.residual, ratios: all.map(c => c.ratio), edge: f7.edge }
+        ref7 = {
+          planck: f7.temperature / T,
+          residual: f7.residual,
+          ratios: all.map(c => c.ratio),
+          edge: f7.edge,
+        }
       }
 
-      log(`C ${C} growth: ${quenches} dock changes, ratios ${cols.map(c => c.ratio.toExponential(3)).join(' ')}, Planck ${(planck.temperature / T).toFixed(3)} rms ${planck.residual.toFixed(3)}, p ${power.exponent.toFixed(3)}`)
+      log(
+        `C ${C} growth: ${quenches} dock changes, ratios ${cols.map(c => c.ratio.toExponential(3)).join(' ')}, Planck ${(planck.temperature / T).toFixed(3)} rms ${planck.residual.toFixed(3)}, p ${power.exponent.toFixed(3)}`,
+      )
 
       // THE STATIC CONTROL
       let staticRatio = NaN
@@ -273,15 +388,44 @@ export default experiment({
         const cw = CONTROL.map(w => w * T)
         const still = makeBatch(chain, 2 * cw.length)
 
-        cw.forEach((w, i) => outPacket(chain, modes, still, 2 * i, 2 * i + 1, w, SIGMA_T * T, xc + rc))
-        runBack(still, false, tf + Math.round((CONTROL_EXTRA * rh) / REFERENCE_RH))
-        staticLeft = Math.max(...cw.map((_, i) => weightShare(chain, still, 2 * i, 2 * i + 1, x => dist(x) < flatFrom)))
+        cw.forEach((w, i) =>
+          outPacket(
+            chain,
+            modes,
+            still,
+            2 * i,
+            2 * i + 1,
+            w,
+            SIGMA_T * T,
+            xc + rc,
+          ),
+        )
+
+        runBack(
+          still,
+          false,
+          tf + Math.round((CONTROL_EXTRA * rh) / REFERENCE_RH),
+        )
+
+        staticLeft = Math.max(
+          ...cw.map((_, i) =>
+            weightShare(
+              chain,
+              still,
+              2 * i,
+              2 * i + 1,
+              x => dist(x) < flatFrom,
+            ),
+          ),
+        )
 
         const sc = split(still, cw)
 
         staticRatio = Math.max(...sc.map(c => c.ratio))
         staticConservation = Math.max(...sc.map(c => c.conservation))
-        log(`C ${C} static: ${staticRatio.toExponential(3)}, left in the zone ${staticLeft.toExponential(2)}`)
+        log(
+          `C ${C} static: ${staticRatio.toExponential(3)}, left in the zone ${staticLeft.toExponential(2)}`,
+        )
       }
 
       sizes.push({
@@ -299,7 +443,11 @@ export default experiment({
         cols: all,
         outTail,
         outNorm,
-        planck: { temperature: planck.temperature / T, residual: planck.residual, edge: planck.edge },
+        planck: {
+          temperature: planck.temperature / T,
+          residual: planck.residual,
+          edge: planck.edge,
+        },
         power,
         staticRatio,
         staticLeft,
@@ -310,23 +458,41 @@ export default experiment({
     // THE GATES
     const steps = sizes.slice(1).map((s, i) => [sizes[i]!, s] as const)
     const noEdge = sizes.every(s => !s.planck.edge)
-    const h1 = noEdge && steps.every(([a, b]) => b.planck.temperature < a.planck.temperature)
-    const steeper = steps.every(([a, b]) => b.power.exponent < a.power.exponent)
-    const tighter = steps.every(([a, b]) => b.planck.residual < a.planck.residual)
+    const h1 =
+      noEdge &&
+      steps.every(
+        ([a, b]) => b.planck.temperature < a.planck.temperature,
+      )
+    const steeper = steps.every(
+      ([a, b]) => b.power.exponent < a.power.exponent,
+    )
+    const tighter = steps.every(
+      ([a, b]) => b.planck.residual < a.planck.residual,
+    )
     const h2 = steeper || tighter
-    const logLine = linearFit({ xs: sizes.map(s => s.x), ys: sizes.map(s => Math.log(s.planck.temperature)) })
+    const logLine = linearFit({
+      xs: sizes.map(s => s.x),
+      ys: sizes.map(s => Math.log(s.planck.temperature)),
+    })
     const atOne = Math.exp(logLine.intercept + logLine.slope)
     const h3 = noEdge && Math.abs(atOne - 1) <= H3_TOLERANCE
-    const plainLine = linearFit({ xs: sizes.map(s => s.x), ys: sizes.map(s => s.planck.temperature) })
+    const plainLine = linearFit({
+      xs: sizes.map(s => s.x),
+      ys: sizes.map(s => s.planck.temperature),
+    })
     const plainAtOne = plainLine.intercept + plainLine.slope
     const logZero = -logLine.intercept / logLine.slope
     const r1 =
       ref7 !== undefined &&
       !ref7.edge &&
       Math.abs(ref7.planck / E0132_PLANCK - 1) <= R1_TOLERANCE &&
-      ref7.ratios.every((r, i) => Math.abs(r / E0132_RATIOS[i]! - 1) <= R1_TOLERANCE)
+      ref7.ratios.every(
+        (r, i) => Math.abs(r / E0132_RATIOS[i]! - 1) <= R1_TOLERANCE,
+      )
     const statics = sizes.filter(s => STATIC.includes(s.C))
-    const s1 = statics.length === STATIC.length && statics.every(s => s.staticRatio <= S1_BOUND)
+    const s1 =
+      statics.length === STATIC.length &&
+      statics.every(s => s.staticRatio <= S1_BOUND)
     const k2 =
       sizes.every(s => s.cols.every(c => c.conservation <= K2_BOUND)) &&
       statics.every(s => s.staticConservation <= K2_BOUND)
@@ -352,6 +518,7 @@ export default experiment({
       metrics[`${key}_powerResidual`] = s.power.residual
       metrics[`${key}_outTail`] = s.outTail
       metrics[`${key}_outNormError`] = s.outNorm
+
       for (const c of s.cols) {
         const w = `${key}_w${(c.omega / s.T).toFixed(2)}`
 
@@ -359,16 +526,25 @@ export default experiment({
         metrics[`${w}_blueshift`] = c.split.negativeMeanOmega / c.omega
         metrics[`${w}_conservation`] = c.conservation
       }
+
       if (STATIC.includes(s.C)) {
         metrics[`${key}_staticRatio`] = s.staticRatio
         metrics[`${key}_staticLeftInZone`] = s.staticLeft
         metrics[`${key}_staticConservation`] = s.staticConservation
       }
+
       lines.push(
         `C ${s.C} (x ${s.x.toFixed(3)}, r_h ${s.rh}, L ${s.L}, t_g ${s.tg}, ${s.quenches} dock changes): |beta/alpha|^2 ${s.cols
-          .filter(c => BAND.some(w => Math.abs(c.omega - w * s.T) < 1e-12 * s.T))
-          .map(c => `${(c.omega / s.T).toFixed(0)} T ${c.ratio.toExponential(3)} (blueshift ${(c.split.negativeMeanOmega / c.omega).toFixed(2)})`)
-          .join(', ')}; Planck T ${s.planck.temperature.toFixed(3)} x kappa / 2 pi rms ${s.planck.residual.toFixed(3)}; power law ${s.power.exponent.toFixed(3)} rms ${s.power.residual.toFixed(3)}${STATIC.includes(s.C) ? `; static ${s.staticRatio.toExponential(2)}, left in the zone ${s.staticLeft.toExponential(2)}` : ''}`,
+          .filter(c =>
+            BAND.some(w => Math.abs(c.omega - w * s.T) < 1e-12 * s.T),
+          )
+          .map(
+            c =>
+              `${(c.omega / s.T).toFixed(0)} T ${c.ratio.toExponential(3)} (blueshift ${(c.split.negativeMeanOmega / c.omega).toFixed(2)})`,
+          )
+          .join(
+            ', ',
+          )}; Planck T ${s.planck.temperature.toFixed(3)} x kappa / 2 pi rms ${s.planck.residual.toFixed(3)}; power law ${s.power.exponent.toFixed(3)} rms ${s.power.residual.toFixed(3)}${STATIC.includes(s.C) ? `; static ${s.staticRatio.toExponential(2)}, left in the zone ${s.staticLeft.toExponential(2)}` : ''}`,
       )
     }
 
@@ -388,16 +564,27 @@ export default experiment({
     metrics.h3_logZeroAt = logZero
     metrics.r1_planck7 = ref7?.planck ?? NaN
     metrics.r1_residual7 = ref7?.residual ?? NaN
-    metrics.r1_worstRatio = ref7 ? Math.max(...ref7.ratios.map((r, i) => Math.abs(r / E0132_RATIOS[i]! - 1))) : NaN
+    metrics.r1_worstRatio = ref7
+      ? Math.max(
+          ...ref7.ratios.map((r, i) =>
+            Math.abs(r / E0132_RATIOS[i]! - 1),
+          ),
+        )
+      : NaN
     metrics.seconds = (Date.now() - started) / 1000
 
-    const table = sizes.map(s => `${s.C}: ${s.planck.temperature.toFixed(2)}`).join(', ')
+    const table = sizes
+      .map(s => `${s.C}: ${s.planck.temperature.toFixed(2)}`)
+      .join(', ')
 
     return verdict({
       status,
       claim: `a lump grown to r_h = C / 2 at t_g kappa = ${(REFERENCE_TG * kappaRef).toFixed(1)}, out packets at ${BAND.join(', ')} T back to the flat vacuum: Planck T / (kappa / 2 pi) by C ${table}; power-law exponent ${sizes.map(s => s.power.exponent.toFixed(2)).join(', ')}; ln(T_fit / T) on ln C / 4 pi reaches ${atOne.toFixed(2)} at 1; C 25's 7-point fit ${ref7?.planck.toFixed(3)} against E-GRV-0132's ${E0132_PLANCK.toFixed(3)}; static lump ${statics.map(s => s.staticRatio.toExponential(1)).join(', ')}`,
       metrics,
-      control: { r1Planck7: ref7?.planck ?? NaN, staticWorst: Math.max(...statics.map(s => s.staticRatio)) },
+      control: {
+        r1Planck7: ref7?.planck ?? NaN,
+        staticWorst: Math.max(...statics.map(s => s.staticRatio)),
+      },
       notes: `L2. H1 ${h1}, H2 ${h2} (steeper ${steeper}, rms falling ${tighter}), H3 ${h3} (log line ${logLine.intercept.toFixed(3)} + ${logLine.slope.toFixed(3)} x, R^2 ${logLine.r2.toFixed(4)}, ${atOne.toFixed(3)} at x = 1; the plain line gives ${plainAtOne.toFixed(3)}; the log line reaches 1 at x ${logZero.toFixed(3)}), R1 ${r1}, S1 ${s1}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

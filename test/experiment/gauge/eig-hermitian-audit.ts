@@ -25,8 +25,14 @@
 //
 // Depth L1: linear algebra and the free lattice Dirac spectrum.
 
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
-import { eigHermitian, hermitianMatrixSign } from '@/code/algebra/linear/eig-hermitian'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
+import {
+  eigHermitian,
+  hermitianMatrixSign,
+} from '@/code/algebra/linear/eig-hermitian'
 import { hermitianEigen } from '@/code/measure/photon-modes'
 import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
@@ -44,7 +50,9 @@ function degenerateMatrix(): ComplexMatrix {
     [-0.2, 0.5],
     [0.1, 0.45],
   ]
-  const norm = Math.sqrt(u.reduce((s, [a = 0, b = 0]) => s + a * a + b * b, 0))
+  const norm = Math.sqrt(
+    u.reduce((s, [a = 0, b = 0]) => s + a * a + b * b, 0),
+  )
   const m = makeComplexMatrix({ rows: N, cols: N })
 
   for (let i = 0; i < N; i++) {
@@ -52,7 +60,8 @@ function degenerateMatrix(): ComplexMatrix {
       const [ar = 0, ai = 0] = u[i] ?? []
       const [br = 0, bi = 0] = u[j] ?? []
 
-      m.re[i * N + j] = (i === j ? 1 : 0) + (ar * br + ai * bi) / (norm * norm)
+      m.re[i * N + j] =
+        (i === j ? 1 : 0) + (ar * br + ai * bi) / (norm * norm)
       m.im[i * N + j] = (ai * br - ar * bi) / (norm * norm)
     }
   }
@@ -60,7 +69,10 @@ function degenerateMatrix(): ComplexMatrix {
   return m
 }
 
-function largestOverlap(e: { vectorsRe: Float64Array; vectorsIm: Float64Array }): number {
+function largestOverlap(e: {
+  vectorsRe: Float64Array
+  vectorsIm: Float64Array
+}): number {
   let worst = 0
 
   for (let a = 0; a < N; a++) {
@@ -86,7 +98,15 @@ function largestOverlap(e: { vectorsRe: Float64Array; vectorsIm: Float64Array })
 }
 
 // sum sign(lambda) |v><v| from an eigen decomposition, and the largest entry of its square minus I
-function signSquaredError(e: { values: Float64Array; vectorsRe: Float64Array; vectorsIm: Float64Array } | ComplexMatrix): number {
+function signSquaredError(
+  e:
+    | {
+        values: Float64Array
+        vectorsRe: Float64Array
+        vectorsIm: Float64Array
+      }
+    | ComplexMatrix,
+): number {
   const s =
     'form' in e
       ? e
@@ -103,8 +123,11 @@ function signSquaredError(e: { values: Float64Array; vectorsRe: Float64Array; ve
                 const br = e.vectorsRe[b * N + i] ?? 0
                 const bi = e.vectorsIm[b * N + i] ?? 0
 
-                out.re[a * N + b] = (out.re[a * N + b] ?? 0) + sign * (ar * br + ai * bi)
-                out.im[a * N + b] = (out.im[a * N + b] ?? 0) + sign * (ai * br - ar * bi)
+                out.re[a * N + b] =
+                  (out.re[a * N + b] ?? 0) + sign * (ar * br + ai * bi)
+
+                out.im[a * N + b] =
+                  (out.im[a * N + b] ?? 0) + sign * (ai * br - ar * bi)
               }
             }
           }
@@ -120,8 +143,13 @@ function signSquaredError(e: { values: Float64Array; vectorsRe: Float64Array; ve
       let im = 0
 
       for (let k = 0; k < N; k++) {
-        re += (s.re[i * N + k] ?? 0) * (s.re[k * N + j] ?? 0) - (s.im[i * N + k] ?? 0) * (s.im[k * N + j] ?? 0)
-        im += (s.re[i * N + k] ?? 0) * (s.im[k * N + j] ?? 0) + (s.im[i * N + k] ?? 0) * (s.re[k * N + j] ?? 0)
+        re +=
+          (s.re[i * N + k] ?? 0) * (s.re[k * N + j] ?? 0) -
+          (s.im[i * N + k] ?? 0) * (s.im[k * N + j] ?? 0)
+
+        im +=
+          (s.re[i * N + k] ?? 0) * (s.im[k * N + j] ?? 0) +
+          (s.im[i * N + k] ?? 0) * (s.re[k * N + j] ?? 0)
       }
 
       worst = Math.max(worst, Math.hypot(re - (i === j ? 1 : 0), im))
@@ -146,11 +174,23 @@ export default experiment({
     const fixed = hermitianEigen(m)
     const shippedOverlap = largestOverlap(shipped)
     const fixedOverlap = largestOverlap(fixed)
-    const shippedSign = signSquaredError(hermitianMatrixSign({ matrix: m }))
+    const shippedSign = signSquaredError(
+      hermitianMatrixSign({ matrix: m }),
+    )
     const fixedSign = signSquaredError(fixed)
     // disorder 0 makes every link the identity, so the stream is read and its values multiplied by zero
-    const u1Free = chiralCondensateSignal({ length: 5, disorder: 0, configs: 1, rng: makeWeyl({ start: 500 }) }).nearZeroDensity
-    const su2Free = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeWeyl({ start: 700 }) }).nearZeroDensity
+    const u1Free = chiralCondensateSignal({
+      length: 5,
+      disorder: 0,
+      configs: 1,
+      rng: makeWeyl({ start: 500 }),
+    }).nearZeroDensity
+    const su2Free = chiralCondensateSignalSU2({
+      length: 3,
+      disorder: 0,
+      configs: 1,
+      rng: makeWeyl({ start: 700 }),
+    }).nearZeroDensity
     const u1Exact = 2 / (2 * 5 * 5)
     const su2Exact = 4 / (4 * 3 * 3)
     const ok =

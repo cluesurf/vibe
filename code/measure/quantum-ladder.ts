@@ -30,7 +30,10 @@ import { GOLDEN, SILVER } from '@/code/tool/weyl'
 // ---------------------------------------------------------------------------------------------------------
 // real symmetric eigen (a is n*n row-major, overwritten): values ascending, vectors as columns
 
-export function symmetricEigen(n: number, a: Float64Array): { values: Float64Array; vectors: Float64Array } {
+export function symmetricEigen(
+  n: number,
+  a: Float64Array,
+): { values: Float64Array; vectors: Float64Array } {
   // tred2, 1-based loops over the 0-based row-major a: element (i, j) is a[(i - 1) * n + j - 1]
   const d = new Float64Array(n + 1)
   const e = new Float64Array(n + 1)
@@ -38,14 +41,18 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
   for (let i = n; i >= 2; i--) {
     const l = i - 1
     const ri = (i - 1) * n - 1
+
     let h = 0
     let scale = 0
 
     if (l > 1) {
-      for (let k = 1; k <= l; k++) scale += Math.abs(a[ri + k]!)
+      for (let k = 1; k <= l; k++) {
+        scale += Math.abs(a[ri + k]!)
+      }
 
-      if (scale === 0) e[i] = a[ri + l]!
-      else {
+      if (scale === 0) {
+        e[i] = a[ri + l]!
+      } else {
         for (let k = 1; k <= l; k++) {
           const x = a[ri + k]! / scale
 
@@ -67,9 +74,13 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
           a[rj + i] = a[ri + j]! / h
           g = 0
 
-          for (let k = 1; k <= j; k++) g += a[rj + k]! * a[ri + k]!
+          for (let k = 1; k <= j; k++) {
+            g += a[rj + k]! * a[ri + k]!
+          }
 
-          for (let k = j + 1; k <= l; k++) g += a[(k - 1) * n + j - 1]! * a[ri + k]!
+          for (let k = j + 1; k <= l; k++) {
+            g += a[(k - 1) * n + j - 1]! * a[ri + k]!
+          }
 
           e[j] = g / h
           f += e[j]! * a[ri + j]!
@@ -84,10 +95,14 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
           g = e[j]! - hh * f
           e[j] = g
 
-          for (let k = 1; k <= j; k++) a[rj + k] = a[rj + k]! - (f * e[k]! + g * a[ri + k]!)
+          for (let k = 1; k <= j; k++) {
+            a[rj + k] = a[rj + k]! - (f * e[k]! + g * a[ri + k]!)
+          }
         }
       }
-    } else e[i] = a[ri + l]!
+    } else {
+      e[i] = a[ri + l]!
+    }
 
     d[i] = h
   }
@@ -106,7 +121,9 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
       for (let j = 1; j <= l; j++) {
         let g = 0
 
-        for (let k = 1; k <= l; k++) g += a[ri + k]! * a[(k - 1) * n + j - 1]!
+        for (let k = 1; k <= l; k++) {
+          g += a[ri + k]! * a[(k - 1) * n + j - 1]!
+        }
 
         col[j] = g
       }
@@ -115,7 +132,9 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
         const rk = (k - 1) * n - 1
         const aki = a[rk + i]!
 
-        for (let j = 1; j <= l; j++) a[rk + j] = a[rk + j]! - col[j]! * aki
+        for (let j = 1; j <= l; j++) {
+          a[rk + j] = a[rk + j]! - col[j]! * aki
+        }
       }
     }
 
@@ -131,10 +150,16 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
   // z[i][k] = a[k][i]
   const z = new Float64Array(n * n)
 
-  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) z[c * n + r] = a[r * n + c]!
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      z[c * n + r] = a[r * n + c]!
+    }
+  }
 
   // tqli
-  for (let i = 2; i <= n; i++) e[i - 1] = e[i]!
+  for (let i = 2; i <= n; i++) {
+    e[i - 1] = e[i]!
+  }
 
   e[n] = 0
 
@@ -146,16 +171,23 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
       for (m = l; m <= n - 1; m++) {
         const dd = Math.abs(d[m]!) + Math.abs(d[m + 1]!)
 
-        if (Math.abs(e[m]!) <= Number.EPSILON * dd) break
+        if (Math.abs(e[m]!) <= Number.EPSILON * dd) {
+          break
+        }
       }
 
       if (m !== l) {
-        if (iter++ === 60) throw new Error('quantum-ladder: tqli did not converge')
+        if (iter++ === 60) {
+          throw new Error('quantum-ladder: tqli did not converge')
+        }
 
         let g = (d[l + 1]! - d[l]!) / (2 * e[l]!)
         let r = Math.hypot(g, 1)
 
-        g = d[m]! - d[l]! + e[l]! / (g + (g >= 0 ? Math.abs(r) : -Math.abs(r)))
+        g =
+          d[m]! -
+          d[l]! +
+          e[l]! / (g + (g >= 0 ? Math.abs(r) : -Math.abs(r)))
 
         let s = 1
         let c = 1
@@ -198,7 +230,9 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
           }
         }
 
-        if (broke && i >= l) continue
+        if (broke && i >= l) {
+          continue
+        }
 
         d[l] = d[l]! - p
         e[l] = g
@@ -207,12 +241,16 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
     } while (m !== l)
   }
 
-  const order = Array.from({ length: n }, (_, i) => i).sort((x, y) => d[x + 1]! - d[y + 1]!)
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (x, y) => d[x + 1]! - d[y + 1]!,
+  )
   const values = Float64Array.from(order, i => d[i + 1]!)
   const vectors = new Float64Array(n * n)
 
   order.forEach((c, j) => {
-    for (let r = 0; r < n; r++) vectors[r * n + j] = z[c * n + r]!
+    for (let r = 0; r < n; r++) {
+      vectors[r * n + j] = z[c * n + r]!
+    }
   })
 
   return { values, vectors }
@@ -223,9 +261,15 @@ export function symmetricEigen(n: number, a: Float64Array): { values: Float64Arr
 
 export type Vec = { re: Float64Array; im: Float64Array }
 
-export function hermitianEigen(n: number, re: Float64Array, im: Float64Array, tolerance = 1e-9): { values: number[]; vectors: Vec[] } {
+export function hermitianEigen(
+  n: number,
+  re: Float64Array,
+  im: Float64Array,
+  tolerance = 1e-9,
+): { values: number[]; vectors: Vec[] } {
   const m = 2 * n
   const a = new Float64Array(m * m)
+
   let scale = 0
 
   for (let i = 0; i < n; i++) {
@@ -244,14 +288,22 @@ export function hermitianEigen(n: number, re: Float64Array, im: Float64Array, to
   const { values, vectors } = symmetricEigen(m, a)
   const outValues: number[] = []
   const outVectors: Vec[] = []
+
   let start = 0
 
   while (start < m) {
     let end = start + 1
 
-    while (end < m && values[end]! - values[end - 1]! <= tolerance * Math.max(1, scale)) end++
+    while (
+      end < m &&
+      values[end]! - values[end - 1]! <= tolerance * Math.max(1, scale)
+    ) {
+      end++
+    }
 
-    if ((end - start) % 2 === 1 && end < m) end++
+    if ((end - start) % 2 === 1 && end < m) {
+      end++
+    }
 
     const count = (end - start) >> 1
     const candidates: Vec[] = []
@@ -272,6 +324,7 @@ export function hermitianEigen(n: number, re: Float64Array, im: Float64Array, to
     for (let j = 0; j < count; j++) {
       let best = -1
       let bestNorm = -1
+
       const residuals = candidates.map(v => orthogonalize(v, basis))
 
       residuals.forEach((v, i) => {
@@ -307,7 +360,9 @@ export function hermitianEigen(n: number, re: Float64Array, im: Float64Array, to
 const normOf = (v: Vec): number => {
   let s = 0
 
-  for (let i = 0; i < v.re.length; i++) s += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   return s
 }
@@ -350,9 +405,19 @@ function orthogonalize(v: Vec, basis: readonly Vec[]): Vec {
 // ---------------------------------------------------------------------------------------------------------
 // unitary eigen: phases eps (U v = e^(i eps) v) and vectors, with the largest residual
 
-export type UnitaryEigen = { phases: number[]; vectors: Vec[]; residual: number }
+export type UnitaryEigen = {
+  phases: number[]
+  vectors: Vec[]
+  residual: number
+}
 
-export function unitaryEigen(n: number, ure: Float64Array, uim: Float64Array, t = GOLDEN, depth = 0): UnitaryEigen {
+export function unitaryEigen(
+  n: number,
+  ure: Float64Array,
+  uim: Float64Array,
+  t = GOLDEN,
+  depth = 0,
+): UnitaryEigen {
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
@@ -372,13 +437,16 @@ export function unitaryEigen(n: number, ure: Float64Array, uim: Float64Array, t 
   const h = hermitianEigen(n, re, im)
   const phases: number[] = []
   const vectors: Vec[] = []
+
   let residual = 0
   let start = 0
 
   while (start < n) {
     let end = start + 1
 
-    while (end < n && h.values[end]! - h.values[end - 1]! <= 1e-7) end++
+    while (end < n && h.values[end]! - h.values[end - 1]! <= 1e-7) {
+      end++
+    }
 
     const block = h.vectors.slice(start, end)
 
@@ -387,10 +455,13 @@ export function unitaryEigen(n: number, ure: Float64Array, uim: Float64Array, t 
         const uv = applyDense(n, ure, uim, v)
         const [lr, li] = inner(v, uv)
         const phase = Math.atan2(li, lr)
+
         let r2 = 0
 
         for (let k = 0; k < n; k++) {
-          r2 += (uv.re[k]! - (lr * v.re[k]! - li * v.im[k]!)) ** 2 + (uv.im[k]! - (lr * v.im[k]! + li * v.re[k]!)) ** 2
+          r2 +=
+            (uv.re[k]! - (lr * v.re[k]! - li * v.im[k]!)) ** 2 +
+            (uv.im[k]! - (lr * v.im[k]! + li * v.re[k]!)) ** 2
         }
 
         residual = Math.max(residual, Math.sqrt(r2))
@@ -420,17 +491,27 @@ export function unitaryEigen(n: number, ure: Float64Array, uim: Float64Array, t 
 
         for (let a = 0; a < k; a++) {
           for (let x = 0; x < n; x++) {
-            v.re[x] = v.re[x]! + c.re[a]! * block[a]!.re[x]! - c.im[a]! * block[a]!.im[x]!
-            v.im[x] = v.im[x]! + c.re[a]! * block[a]!.im[x]! + c.im[a]! * block[a]!.re[x]!
+            v.re[x] =
+              v.re[x]! +
+              c.re[a]! * block[a]!.re[x]! -
+              c.im[a]! * block[a]!.im[x]!
+
+            v.im[x] =
+              v.im[x]! +
+              c.re[a]! * block[a]!.im[x]! +
+              c.im[a]! * block[a]!.re[x]!
           }
         }
 
         const uv = applyDense(n, ure, uim, v)
         const [lr, li] = inner(v, uv)
+
         let r2 = 0
 
         for (let x = 0; x < n; x++) {
-          r2 += (uv.re[x]! - (lr * v.re[x]! - li * v.im[x]!)) ** 2 + (uv.im[x]! - (lr * v.im[x]! + li * v.re[x]!)) ** 2
+          r2 +=
+            (uv.re[x]! - (lr * v.re[x]! - li * v.im[x]!)) ** 2 +
+            (uv.im[x]! - (lr * v.im[x]! + li * v.re[x]!)) ** 2
         }
 
         residual = Math.max(residual, Math.sqrt(r2))
@@ -445,7 +526,12 @@ export function unitaryEigen(n: number, ure: Float64Array, uim: Float64Array, t 
   return { phases, vectors, residual }
 }
 
-export function applyDense(n: number, re: Float64Array, im: Float64Array, v: Vec): Vec {
+export function applyDense(
+  n: number,
+  re: Float64Array,
+  im: Float64Array,
+  v: Vec,
+): Vec {
   const out = { re: new Float64Array(n), im: new Float64Array(n) }
 
   for (let i = 0; i < n; i++) {
@@ -477,9 +563,12 @@ export type Sectors = {
 export function translate(spec: LadderSpec, i: number): number {
   const { n, plaquettes: L } = spec
   const { m } = digitsOf(spec, i)
+
   let out = 0
 
-  for (let p = L - 1; p >= 0; p--) out = out * n + m[(p - 1 + L) % L]!
+  for (let p = L - 1; p >= 0; p--) {
+    out = out * n + m[(p - 1 + L) % L]!
+  }
 
   return out
 }
@@ -491,7 +580,9 @@ export function sectorsOf(spec: LadderSpec): Sectors {
   const length = new Int32Array(size)
 
   for (let i = 0; i < size; i++) {
-    if (rep[i] !== -1) continue
+    if (rep[i] !== -1) {
+      continue
+    }
 
     let j = i
     let t = 0
@@ -510,22 +601,38 @@ export function sectorsOf(spec: LadderSpec): Sectors {
 }
 
 // the basis of momentum q (k = 2 pi q / L): representatives whose orbit admits it
-export function sectorBasis(spec: LadderSpec, sectors: Sectors, q: number): number[] {
+export function sectorBasis(
+  spec: LadderSpec,
+  sectors: Sectors,
+  q: number,
+): number[] {
   const L = spec.plaquettes
   const out: number[] = []
 
-  for (let i = 0; i < sectors.size; i++) if (sectors.rep[i] === i && (q * sectors.length[i]!) % L === 0) out.push(i)
+  for (let i = 0; i < sectors.size; i++) {
+    if (sectors.rep[i] === i && (q * sectors.length[i]!) % L === 0) {
+      out.push(i)
+    }
+  }
 
   return out
 }
 
 // the full-space vector of basis state (r, q): (1/sqrt len) sum_j e^(-i k j) |T^j r>
-export function sectorState(spec: LadderSpec, sectors: Sectors, r: number, q: number, re: Float64Array, im: Float64Array): void {
+export function sectorState(
+  spec: LadderSpec,
+  sectors: Sectors,
+  r: number,
+  q: number,
+  re: Float64Array,
+  im: Float64Array,
+): void {
   re.fill(0)
   im.fill(0)
 
   const len = sectors.length[r]!
   const k = (2 * Math.PI * q) / spec.plaquettes
+
   let j = r
 
   for (let t = 0; t < len; t++) {
@@ -536,15 +643,27 @@ export function sectorState(spec: LadderSpec, sectors: Sectors, r: number, q: nu
 }
 
 // coefficients of a full-space vector on the sector basis
-export function sectorProject(spec: LadderSpec, sectors: Sectors, basis: readonly number[], q: number, re: Float64Array, im: Float64Array): Vec {
+export function sectorProject(
+  spec: LadderSpec,
+  sectors: Sectors,
+  basis: readonly number[],
+  q: number,
+  re: Float64Array,
+  im: Float64Array,
+): Vec {
   const position = new Map(basis.map((r, a) => [r, a]))
-  const out = { re: new Float64Array(basis.length), im: new Float64Array(basis.length) }
+  const out = {
+    re: new Float64Array(basis.length),
+    im: new Float64Array(basis.length),
+  }
   const k = (2 * Math.PI * q) / spec.plaquettes
 
   for (let i = 0; i < sectors.size; i++) {
     const a = position.get(sectors.rep[i]!)
 
-    if (a === undefined) continue
+    if (a === undefined) {
+      continue
+    }
 
     const len = sectors.length[sectors.rep[i]!]!
     const t = sectors.step[i]!
@@ -560,7 +679,12 @@ export function sectorProject(spec: LadderSpec, sectors: Sectors, basis: readonl
 }
 
 // the beat's block in sector q, dense row-major
-export function sectorBlock(kernel: LadderKernel, sectors: Sectors, basis: readonly number[], q: number): { re: Float64Array; im: Float64Array } {
+export function sectorBlock(
+  kernel: LadderKernel,
+  sectors: Sectors,
+  basis: readonly number[],
+  q: number,
+): { re: Float64Array; im: Float64Array } {
   const d = basis.length
   const re = new Float64Array(d * d)
   const im = new Float64Array(d * d)
@@ -583,7 +707,13 @@ export function sectorBlock(kernel: LadderKernel, sectors: Sectors, basis: reado
 }
 
 // a sector vector back in the full space
-export function sectorToFull(spec: LadderSpec, sectors: Sectors, basis: readonly number[], q: number, v: Vec): { re: Float64Array; im: Float64Array } {
+export function sectorToFull(
+  spec: LadderSpec,
+  sectors: Sectors,
+  basis: readonly number[],
+  q: number,
+  v: Vec,
+): { re: Float64Array; im: Float64Array } {
   const re = new Float64Array(sectors.size)
   const im = new Float64Array(sectors.size)
   const tr = new Float64Array(sectors.size)
@@ -593,7 +723,9 @@ export function sectorToFull(spec: LadderSpec, sectors: Sectors, basis: readonly
     sectorState(spec, sectors, r, q, tr, ti)
 
     for (let i = 0; i < sectors.size; i++) {
-      if (tr[i] === 0 && ti[i] === 0) continue
+      if (tr[i] === 0 && ti[i] === 0) {
+        continue
+      }
 
       re[i] = re[i]! + v.re[a]! * tr[i]! - v.im[a]! * ti[i]!
       im[i] = im[i]! + v.re[a]! * ti[i]! + v.im[a]! * tr[i]!
@@ -606,12 +738,21 @@ export function sectorToFull(spec: LadderSpec, sectors: Sectors, basis: readonly
 // ---------------------------------------------------------------------------------------------------------
 // the whole spectrum of the light alone: every eigenstate's quasi-energy, momentum and generator energy
 
-export type Level = { q: number; phase: number; energy: number; vector: Vec }
+export type Level = {
+  q: number
+  phase: number
+  energy: number
+  vector: Vec
+}
 
-export function ladderSpectrum(spec: LadderSpec, energyOf: (full: { re: Float64Array; im: Float64Array }) => number): { levels: Level[]; residual: number } {
+export function ladderSpectrum(
+  spec: LadderSpec,
+  energyOf: (full: { re: Float64Array; im: Float64Array }) => number,
+): { levels: Level[]; residual: number } {
   const kernel = ladderKernel(spec)
   const sectors = sectorsOf(spec)
   const levels: Level[] = []
+
   let residual = 0
 
   for (let q = 0; q < spec.plaquettes; q++) {
@@ -623,7 +764,12 @@ export function ladderSpectrum(spec: LadderSpec, energyOf: (full: { re: Float64A
     eig.vectors.forEach((v, j) => {
       const full = sectorToFull(spec, sectors, basis, q, v)
 
-      levels.push({ q, phase: eig.phases[j]!, energy: energyOf(full), vector: v })
+      levels.push({
+        q,
+        phase: eig.phases[j]!,
+        energy: energyOf(full),
+        vector: v,
+      })
     })
   }
 
@@ -632,17 +778,23 @@ export function ladderSpectrum(spec: LadderSpec, energyOf: (full: { re: Float64A
 
 // the unwrapped energy of each level above the vacuum: (eps_vac - eps) mod 2 pi, plus the whole turns that bring
 // it nearest the generator's energy difference (U = e^(-i H), so a level's energy is minus its phase)
-export function unwrapped(levels: readonly Level[]): { vacuum: number; energies: number[] } {
+export function unwrapped(levels: readonly Level[]): {
+  vacuum: number
+  energies: number[]
+} {
   let vacuum = 0
 
   levels.forEach((l, i) => {
-    if (l.energy < levels[vacuum]!.energy) vacuum = i
+    if (l.energy < levels[vacuum]!.energy) {
+      vacuum = i
+    }
   })
 
   const e0 = levels[vacuum]!.phase
   const h0 = levels[vacuum]!.energy
   const energies = levels.map(l => {
-    const base = (((e0 - l.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const base =
+      (((e0 - l.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
     const turns = Math.round((l.energy - h0 - base) / (2 * Math.PI))
 
     return base + 2 * Math.PI * turns
@@ -658,7 +810,13 @@ export function unwrapped(levels: readonly Level[]): { vacuum: number; energies:
 // omega_k exactly in the harmonic regime. B is the square's angle (U_p = w^B), m its loop, both read balanced.
 // `crossSign` flips the cross term's sign (a check of the angle convention).
 
-export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Array, crossSign = 1, debug?: number[][]): number {
+export function modeEnergy(
+  kernel: LadderKernel,
+  re: Float64Array,
+  im: Float64Array,
+  crossSign = 1,
+  debug?: number[][],
+): number {
   const { n, plaquettes: L } = kernel.spec
   const { s, f, kappa } = splitOf(kernel.spec)
   const size = n ** L
@@ -671,6 +829,7 @@ export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Ar
   for (let i = 0; i < size; i++) {
     const wa = angle.re[i]! ** 2 + angle.im[i]! ** 2
     const wm = re[i]! ** 2 + im[i]! ** 2
+
     let rest = i
 
     for (let p = 0; p < L; p++) {
@@ -708,7 +867,9 @@ export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Ar
         const m = bal(rest % n, n)
 
         // Re conj(B_p psi)_i m_q psi_i
-        cBm[p * L + q] = cBm[p * L + q]! + m * (back.re[i]! * re[i]! + back.im[i]! * im[i]!)
+        cBm[p * L + q] =
+          cBm[p * L + q]! +
+          m * (back.re[i]! * re[i]! + back.im[i]! * im[i]!)
         rest = Math.floor(rest / n)
       }
     }
@@ -720,6 +881,7 @@ export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Ar
     const k = (2 * Math.PI * j) / L
     const K = curlCurl(k, L)
     const omega = Math.acos(1 - (kappa * K) / 2)
+
     let xBB = 0
     let xmm = 0
     let xBm = 0
@@ -734,9 +896,13 @@ export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Ar
       }
     }
 
-    if (debug) debug.push([xBB, xBm, xmm, (n * Math.sin(omega)) / (2 * Math.PI)])
+    if (debug) {
+      debug.push([xBB, xBm, xmm, (n * Math.sin(omega)) / (2 * Math.PI)])
+    }
 
-    total += (omega / Math.sin(omega)) * (f * xBB + crossSign * f * s * K * xBm + s * K * xmm)
+    total +=
+      (omega / Math.sin(omega)) *
+      (f * xBB + crossSign * f * s * K * xBm + s * K * xmm)
   }
 
   return (Math.PI / n) * total
@@ -747,23 +913,45 @@ export function modeEnergy(kernel: LadderKernel, re: Float64Array, im: Float64Ar
 // m_k |vac> (in the harmonic reading a linear field acting on the vacuum makes exactly one quantum), its energy
 // above the vacuum (the phase difference mod 2 pi), the overlap, and the classical symbol's omega(k)
 
-export type BandPoint = { q: number; k: number; omega: number; classical: number; overlap: number }
+export type BandPoint = {
+  q: number
+  k: number
+  omega: number
+  classical: number
+  overlap: number
+}
 
-export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: Level[]; vacuum: number; residual: number } {
+export function oneQuantumBand(spec: LadderSpec): {
+  band: BandPoint[]
+  levels: Level[]
+  vacuum: number
+  residual: number
+} {
   const kernel = ladderKernel(spec)
   const { kappa } = splitOf(spec)
   const L = spec.plaquettes
   const n = spec.n
   const sectors = sectorsOf(spec)
-  const { levels, residual } = ladderSpectrum(spec, full => modeEnergy(kernel, full.re, full.im))
+  const { levels, residual } = ladderSpectrum(spec, full =>
+    modeEnergy(kernel, full.re, full.im),
+  )
+
   // the vacuum: the lowest invariant energy among the translation-invariant states
   let vacuum = levels.findIndex(l => l.q === 0)
 
   levels.forEach((l, i) => {
-    if (l.q === 0 && l.energy < levels[vacuum]!.energy) vacuum = i
+    if (l.q === 0 && l.energy < levels[vacuum]!.energy) {
+      vacuum = i
+    }
   })
 
-  const vfull = sectorToFull(spec, sectors, sectorBasis(spec, sectors, 0), 0, levels[vacuum]!.vector)
+  const vfull = sectorToFull(
+    spec,
+    sectors,
+    sectorBasis(spec, sectors, 0),
+    0,
+    levels[vacuum]!.vector,
+  )
   const band: BandPoint[] = []
 
   for (let q = 0; q < L; q++) {
@@ -790,15 +978,20 @@ export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: L
 
     const basis = sectorBasis(spec, sectors, q)
     const t = sectorProject(spec, sectors, basis, q, tr, ti)
+
     let norm = 0
 
-    for (let a = 0; a < basis.length; a++) norm += t.re[a]! ** 2 + t.im[a]! ** 2
+    for (let a = 0; a < basis.length; a++) {
+      norm += t.re[a]! ** 2 + t.im[a]! ** 2
+    }
 
     let best = -1
     let bestWeight = 0
 
     levels.forEach((l, i) => {
-      if (l.q !== q || i === vacuum) return
+      if (l.q !== q || i === vacuum) {
+        return
+      }
 
       const [r, s] = inner(l.vector, t)
       const w = (r * r + s * s) / norm
@@ -809,9 +1002,21 @@ export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: L
       }
     })
 
-    const omega = best < 0 ? Number.NaN : (((levels[vacuum]!.phase - levels[best]!.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const omega =
+      best < 0
+        ? Number.NaN
+        : (((levels[vacuum]!.phase - levels[best]!.phase) %
+            (2 * Math.PI)) +
+            2 * Math.PI) %
+          (2 * Math.PI)
 
-    band.push({ q, k, omega, classical: classicalOmega(kappa, k, L), overlap: bestWeight })
+    band.push({
+      q,
+      k,
+      omega,
+      classical: classicalOmega(kappa, k, L),
+      overlap: bestWeight,
+    })
   }
 
   return { band, levels, vacuum, residual }
@@ -822,12 +1027,17 @@ export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: L
 
 export type Field = { re: Float64Array; im: Float64Array }
 
-export const copyField = (v: Field): Field => ({ re: Float64Array.from(v.re), im: Float64Array.from(v.im) })
+export const copyField = (v: Field): Field => ({
+  re: Float64Array.from(v.re),
+  im: Float64Array.from(v.im),
+})
 
 export function normalize(v: Field): number {
   let s = 0
 
-  for (let i = 0; i < v.re.length; i++) s += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   const norm = Math.sqrt(s)
 
@@ -844,7 +1054,10 @@ export function innerField(u: Field, v: Field): [number, number] {
 }
 
 // the phase of <v|U|v> and the residual |U v - e^(i phase) v| for a normalized v
-export function beatPhase(kernel: LadderKernel, v: Field): { phase: number; residual: number } {
+export function beatPhase(
+  kernel: LadderKernel,
+  v: Field,
+): { phase: number; residual: number } {
   const w = copyField(v)
 
   ladderBeat(kernel, w.re, w.im)
@@ -853,9 +1066,14 @@ export function beatPhase(kernel: LadderKernel, v: Field): { phase: number; resi
   const phase = Math.atan2(i, r)
   const c = Math.cos(phase)
   const s = Math.sin(phase)
+
   let res = 0
 
-  for (let k = 0; k < v.re.length; k++) res += (w.re[k]! - (c * v.re[k]! - s * v.im[k]!)) ** 2 + (w.im[k]! - (c * v.im[k]! + s * v.re[k]!)) ** 2
+  for (let k = 0; k < v.re.length; k++) {
+    res +=
+      (w.re[k]! - (c * v.re[k]! - s * v.im[k]!)) ** 2 +
+      (w.im[k]! - (c * v.im[k]! + s * v.re[k]!)) ** 2
+  }
 
   return { phase, residual: Math.sqrt(res) }
 }
@@ -863,20 +1081,38 @@ export function beatPhase(kernel: LadderKernel, v: Field): { phase: number; resi
 // h(H - E0) v, h the indicator of [a, b] (relative energies, radians per beat) smoothed by a Gaussian of width
 // sigma, as the two-sided Fourier sum sum_j h_j e^(-i j E0) U^(-j) (U = e^(-i H)), cut where the Gaussian
 // factor falls below 1e-13
-export function spectralFilter(kernel: LadderKernel, v: Field, e0: number, a: number, b: number, sigma: number): Field {
+export function spectralFilter(
+  kernel: LadderKernel,
+  v: Field,
+  e0: number,
+  a: number,
+  b: number,
+  sigma: number,
+): Field {
   const T = Math.ceil(Math.sqrt(2 * 30) / sigma)
+
   const coefficient = (j: number): [number, number] => {
     const damp = Math.exp(-(sigma * sigma * j * j) / 2)
 
-    if (j === 0) return [((b - a) / (2 * Math.PI)) * damp, 0]
+    if (j === 0) {
+      return [((b - a) / (2 * Math.PI)) * damp, 0]
+    }
 
     // (e^(-i j a) - e^(-i j b)) / (2 pi i j)
     const xr = Math.cos(j * a) - Math.cos(j * b)
     const xi = -Math.sin(j * a) + Math.sin(j * b)
 
-    return [(xi / (2 * Math.PI * j)) * damp, (-xr / (2 * Math.PI * j)) * damp]
+    return [
+      (xi / (2 * Math.PI * j)) * damp,
+      (-xr / (2 * Math.PI * j)) * damp,
+    ]
   }
-  const acc = { re: new Float64Array(v.re.length), im: new Float64Array(v.re.length) }
+
+  const acc = {
+    re: new Float64Array(v.re.length),
+    im: new Float64Array(v.re.length),
+  }
+
   const add = (w: Field, cr: number, ci: number): void => {
     for (let k = 0; k < w.re.length; k++) {
       acc.re[k] = acc.re[k]! + cr * w.re[k]! - ci * w.im[k]!
@@ -891,8 +1127,11 @@ export function spectralFilter(kernel: LadderKernel, v: Field, e0: number, a: nu
 
     for (let j = 1; j <= T; j++) {
       // direction 1: U^(-j) with coefficient h_j e^(-i j E0); direction -1: U^j with h_(-j) e^(i j E0)
-      if (direction === 1) ladderInverseBeat(kernel, w.re, w.im)
-      else ladderBeat(kernel, w.re, w.im)
+      if (direction === 1) {
+        ladderInverseBeat(kernel, w.re, w.im)
+      } else {
+        ladderBeat(kernel, w.re, w.im)
+      }
 
       const [hr, hi] = coefficient(direction * j)
       const t = -direction * j * e0
@@ -909,10 +1148,20 @@ export function spectralFilter(kernel: LadderKernel, v: Field, e0: number, a: nu
 // the product trial: every square's register in the ground state of one register with on-site stiffness 4 (a
 // square's two rails and its share of two rungs), found exactly on the one-register rule
 export function productTrial(spec: LadderSpec): Field {
-  const single: LadderSpec = { n: spec.n, plaquettes: 1, root: spec.root, drift: 2 * spec.drift, force: spec.force }
+  const single: LadderSpec = {
+    n: spec.n,
+    plaquettes: 1,
+    root: spec.root,
+    drift: 2 * spec.drift,
+    force: spec.force,
+  }
   const kernel = ladderKernel(single)
-  const { levels } = ladderSpectrum(single, full => modeEnergy(kernel, full.re, full.im))
-  const ground = levels.reduce((best, l) => (l.energy < best.energy ? l : best)).vector
+  const { levels } = ladderSpectrum(single, full =>
+    modeEnergy(kernel, full.re, full.im),
+  )
+  const ground = levels.reduce((best, l) =>
+    l.energy < best.energy ? l : best,
+  ).vector
   const n = spec.n
   const L = spec.plaquettes
   const size = n ** L
@@ -945,20 +1194,36 @@ export function productTrial(spec: LadderSpec): Field {
 
 // the light's vacuum on a box too large to diagonalize: the product trial filtered twice to relative energies
 // within half the lowest photon energy of the vacuum's
-export function ladderVacuum(kernel: LadderKernel, passes = 2): { vacuum: Field; phase: number; residual: number; sigma: number } {
+export function ladderVacuum(
+  kernel: LadderKernel,
+  passes = 2,
+): { vacuum: Field; phase: number; residual: number; sigma: number } {
   const { kappa } = splitOf(kernel.spec)
   const omegaMin = classicalOmega(kappa, 0, kernel.spec.plaquettes)
   const sigma = omegaMin / 8
+
   let v = productTrial(kernel.spec)
   let phase = beatPhase(kernel, v).phase
 
   for (let pass = 0; pass < passes; pass++) {
-    v = spectralFilter(kernel, v, -phase, -omegaMin / 2, omegaMin / 2, sigma)
+    v = spectralFilter(
+      kernel,
+      v,
+      -phase,
+      -omegaMin / 2,
+      omegaMin / 2,
+      sigma,
+    )
     normalize(v)
     phase = beatPhase(kernel, v).phase
   }
 
-  return { vacuum: v, phase, residual: beatPhase(kernel, v).residual, sigma }
+  return {
+    vacuum: v,
+    phase,
+    residual: beatPhase(kernel, v).residual,
+    sigma,
+  }
 }
 
 // per square: the drift's energy (its two rails and half of each rung) and the force's (its angle), radians per beat
@@ -971,7 +1236,12 @@ export function squareElectricTable(spec: LadderSpec): Float32Array {
     const e = fluxesOf(spec, i)
 
     for (let p = 0; p < L; p++) {
-      const own = bal(e[p]!, n) ** 2 + bal(e[L + p]!, n) ** 2 + (bal(e[2 * L + p]!, n) ** 2 + bal(e[2 * L + ((p + 1) % L)]!, n) ** 2) / 2
+      const own =
+        bal(e[p]!, n) ** 2 +
+        bal(e[L + p]!, n) ** 2 +
+        (bal(e[2 * L + p]!, n) ** 2 +
+          bal(e[2 * L + ((p + 1) % L)]!, n) ** 2) /
+          2
 
       out[i * L + p] = (2 * Math.PI * drift * own) / root
     }
@@ -980,7 +1250,11 @@ export function squareElectricTable(spec: LadderSpec): Float32Array {
   return out
 }
 
-export function squareEnergies(kernel: LadderKernel, table: Float32Array, v: Field): Float64Array {
+export function squareEnergies(
+  kernel: LadderKernel,
+  table: Float32Array,
+  v: Field,
+): Float64Array {
   const { n, plaquettes: L, root, force } = kernel.spec
   const out = new Float64Array(L)
   const half = n ** L
@@ -988,9 +1262,13 @@ export function squareEnergies(kernel: LadderKernel, table: Float32Array, v: Fie
   for (let i = 0; i < kernel.size; i++) {
     const w = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
-    for (let p = 0; p < L; p++) out[p] = out[p]! + w * table[i * L + p]!
+    for (let p = 0; p < L; p++) {
+      out[p] = out[p]! + w * table[i * L + p]!
+    }
   }
 
   const angle = toAngleBasis(kernel, v.re, v.im)
@@ -998,12 +1276,16 @@ export function squareEnergies(kernel: LadderKernel, table: Float32Array, v: Fie
   for (let i = 0; i < kernel.size; i++) {
     const w = angle.re[i]! ** 2 + angle.im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     let rest = i % half
 
     for (let p = 0; p < L; p++) {
-      out[p] = out[p]! + (w * 2 * Math.PI * force * bal(rest % n, n) ** 2) / root
+      out[p] =
+        out[p]! +
+        (w * 2 * Math.PI * force * bal(rest % n, n) ** 2) / root
       rest = Math.floor(rest / n)
     }
   }
@@ -1012,7 +1294,11 @@ export function squareEnergies(kernel: LadderKernel, table: Float32Array, v: Fie
 }
 
 // m_p |v> (the balanced loop value of square p times the state)
-export function loopTimes(spec: LadderSpec, p: number, v: Field): Field {
+export function loopTimes(
+  spec: LadderSpec,
+  p: number,
+  v: Field,
+): Field {
   const n = spec.n
   const stride = n ** p
   const out = copyField(v)
@@ -1050,7 +1336,11 @@ export function ladderMatrixK(L: number): Float64Array {
 }
 
 // one classical beat on a complex (B, m): B += s K m, then m -= f B
-export function classicalBeat(spec: LadderSpec, B: Field, m: Field): void {
+export function classicalBeat(
+  spec: LadderSpec,
+  B: Field,
+  m: Field,
+): void {
   const L = spec.plaquettes
   const { s, f } = splitOf(spec)
   const K = ladderMatrixK(L)
@@ -1058,18 +1348,28 @@ export function classicalBeat(spec: LadderSpec, B: Field, m: Field): void {
   for (const part of ['re', 'im'] as const) {
     const Km = new Float64Array(L)
 
-    for (let p = 0; p < L; p++) for (let q = 0; q < L; q++) Km[p] = Km[p]! + K[p * L + q]! * m[part][q]!
+    for (let p = 0; p < L; p++) {
+      for (let q = 0; q < L; q++) {
+        Km[p] = Km[p]! + K[p * L + q]! * m[part][q]!
+      }
+    }
 
-    for (let p = 0; p < L; p++) B[part][p] = B[part][p]! + s * Km[p]!
+    for (let p = 0; p < L; p++) {
+      B[part][p] = B[part][p]! + s * Km[p]!
+    }
 
-    for (let p = 0; p < L; p++) m[part][p] = m[part][p]! - f * B[part][p]!
+    for (let p = 0; p < L; p++) {
+      m[part][p] = m[part][p]! - f * B[part][p]!
+    }
   }
 }
 
 // W = Gamma + (i hbar / 2) J with hbar = N / (2 pi), [B_p, m_q] = i hbar delta_pq, and per mode
 // Gamma_k = (hbar / 2) sin(omega_k) S_k^-1 with S_k = [[f, f s K / 2], [f s K / 2, s K]]; returned as the
 // function c -> W c on (B, m) index order
-export function harmonicTwoPoint(spec: LadderSpec): (cB: Field, cm: Field) => { B: Field; m: Field } {
+export function harmonicTwoPoint(
+  spec: LadderSpec,
+): (cB: Field, cm: Field) => { B: Field; m: Field } {
   const L = spec.plaquettes
   const { s, f, kappa } = splitOf(spec)
   const hbar = spec.n / (2 * Math.PI)
@@ -1103,8 +1403,15 @@ export function harmonicTwoPoint(spec: LadderSpec): (cB: Field, cm: Field) => { 
         const d = (((p - q) % L) + L) % L
 
         for (const part of ['re', 'im'] as const) {
-          B[part][p] = B[part][p]! + gBB[d]! * cB[part][q]! + gBm[d]! * cm[part][q]!
-          m[part][p] = m[part][p]! + gBm[d]! * cB[part][q]! + gmm[d]! * cm[part][q]!
+          B[part][p] =
+            B[part][p]! +
+            gBB[d]! * cB[part][q]! +
+            gBm[d]! * cm[part][q]!
+
+          m[part][p] =
+            m[part][p]! +
+            gBm[d]! * cB[part][q]! +
+            gmm[d]! * cm[part][q]!
         }
       }
 
@@ -1120,7 +1427,11 @@ export function harmonicTwoPoint(spec: LadderSpec): (cB: Field, cm: Field) => { 
 }
 
 // the per-square energy density of a complex classical (B, m), the quadratic forms the quantum reading uses
-export function classicalSquareEnergies(spec: LadderSpec, B: Field, m: Field): Float64Array {
+export function classicalSquareEnergies(
+  spec: LadderSpec,
+  B: Field,
+  m: Field,
+): Float64Array {
   const L = spec.plaquettes
   const out = new Float64Array(L)
   const abs2 = (re: number, im: number): number => re * re + im * im
@@ -1128,11 +1439,21 @@ export function classicalSquareEnergies(spec: LadderSpec, B: Field, m: Field): F
   for (let p = 0; p < L; p++) {
     const l = (p - 1 + L) % L
     const r = (p + 1) % L
+
     let e = 2 * abs2(m.re[p]!, m.im[p]!)
 
-    if (L > 1) e += (abs2(m.re[l]! - m.re[p]!, m.im[l]! - m.im[p]!) + abs2(m.re[p]! - m.re[r]!, m.im[p]! - m.im[r]!)) / 2
+    if (L > 1) {
+      e +=
+        (abs2(m.re[l]! - m.re[p]!, m.im[l]! - m.im[p]!) +
+          abs2(m.re[p]! - m.re[r]!, m.im[p]! - m.im[r]!)) /
+        2
+    }
 
-    out[p] = (2 * Math.PI * (spec.drift * e + spec.force * abs2(B.re[p]!, B.im[p]!))) / spec.root
+    out[p] =
+      (2 *
+        Math.PI *
+        (spec.drift * e + spec.force * abs2(B.re[p]!, B.im[p]!))) /
+      spec.root
   }
 
   return out
@@ -1142,7 +1463,12 @@ export function classicalSquareEnergies(spec: LadderSpec, B: Field, m: Field): F
 // the STAND-IN atom on rung 0: its bare beat diag(1, zeta^-c) V(z) on (x = 0, x = 1), its two states, gap and
 // dipole <g|x|e>
 
-export type AtomBare = { gap: number; ground: [number, number, number, number]; excited: [number, number, number, number]; dipole: number }
+export type AtomBare = {
+  gap: number
+  ground: [number, number, number, number]
+  excited: [number, number, number, number]
+  dipole: number
+}
 
 export function atomBare(spec: LadderSpec): AtomBare {
   const z = ((spec.hop ?? 0) * 2 * Math.PI) / spec.root
@@ -1152,14 +1478,27 @@ export function atomBare(spec: LadderSpec): AtomBare {
   const ai = Math.sin(z) / 2
   const br = (1 - Math.cos(z)) / 2
   const bi = -Math.sin(z) / 2
-  const re = new Float64Array([ar, br, Math.cos(t) * br - Math.sin(t) * bi, Math.cos(t) * ar - Math.sin(t) * ai])
-  const im = new Float64Array([ai, bi, Math.sin(t) * br + Math.cos(t) * bi, Math.sin(t) * ar + Math.cos(t) * ai])
+  const re = new Float64Array([
+    ar,
+    br,
+    Math.cos(t) * br - Math.sin(t) * bi,
+    Math.cos(t) * ar - Math.sin(t) * ai,
+  ])
+  const im = new Float64Array([
+    ai,
+    bi,
+    Math.sin(t) * br + Math.cos(t) * bi,
+    Math.sin(t) * ar + Math.cos(t) * ai,
+  ])
   const eig = unitaryEigen(2, re, im)
   // energy = -phase; the excited state has the larger energy in (-pi, pi]
   const [i0, i1] = -eig.phases[0]! > -eig.phases[1]! ? [1, 0] : [0, 1]
   const g = eig.vectors[i0]!
   const e = eig.vectors[i1]!
-  const gap = (((eig.phases[i0]! - eig.phases[i1]!) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+  const gap =
+    (((eig.phases[i0]! - eig.phases[i1]!) % (2 * Math.PI)) +
+      2 * Math.PI) %
+    (2 * Math.PI)
   // <g|x|e> = conj(g_1) e_1
   const dr = g.re[1]! * e.re[1]! + g.im[1]! * e.im[1]!
   const di = g.re[1]! * e.im[1]! - g.im[1]! * e.re[1]!
@@ -1173,9 +1512,15 @@ export function atomBare(spec: LadderSpec): AtomBare {
 }
 
 // the atom state times a light state, on the index x N^L + i
-export function atomTimes(state: readonly [number, number, number, number], light: Field): Field {
+export function atomTimes(
+  state: readonly [number, number, number, number],
+  light: Field,
+): Field {
   const half = light.re.length
-  const out = { re: new Float64Array(2 * half), im: new Float64Array(2 * half) }
+  const out = {
+    re: new Float64Array(2 * half),
+    im: new Float64Array(2 * half),
+  }
 
   for (let x = 0; x < 2; x++) {
     const cr = state[2 * x]!
@@ -1191,14 +1536,26 @@ export function atomTimes(state: readonly [number, number, number, number], ligh
 }
 
 // the probability that the atom is in `state`: sum over light indices of |<state| v_(., i)>|^2
-export function atomPopulation(state: readonly [number, number, number, number], v: Field): number {
+export function atomPopulation(
+  state: readonly [number, number, number, number],
+  v: Field,
+): number {
   const half = v.re.length / 2
+
   let p = 0
 
   for (let i = 0; i < half; i++) {
     // conj(s0) v0 + conj(s1) v1
-    const r = state[0] * v.re[i]! + state[1] * v.im[i]! + state[2] * v.re[half + i]! + state[3] * v.im[half + i]!
-    const s = state[0] * v.im[i]! - state[1] * v.re[i]! + state[2] * v.im[half + i]! - state[3] * v.re[half + i]!
+    const r =
+      state[0] * v.re[i]! +
+      state[1] * v.im[i]! +
+      state[2] * v.re[half + i]! +
+      state[3] * v.im[half + i]!
+    const s =
+      state[0] * v.im[i]! -
+      state[1] * v.re[i]! +
+      state[2] * v.im[half + i]! -
+      state[3] * v.re[half + i]!
 
     p += r * r + s * s
   }
@@ -1210,14 +1567,25 @@ export function atomPopulation(state: readonly [number, number, number, number],
 // R = m_(L-1) - m_0, the coupling per beat g x R (g = 4 pi c / M), |<1_k|R|0>|^2 summed over directions
 // (4 sin^2(k/2) / L) (hbar/2) f / sin(omega_k), and the ladder's density of states 1 / v_g:
 // Gamma = (2 N / pi) g^2 |d|^2 f sin^2(k*/2) / (kappa sin k*), omega(k*) = the atom's gap
-export function goldenRule(spec: LadderSpec, gap: number, dipole: number): { rate: number; k: number; velocity: number } {
+export function goldenRule(
+  spec: LadderSpec,
+  gap: number,
+  dipole: number,
+): { rate: number; k: number; velocity: number } {
   const { f, kappa } = splitOf(spec)
   const K = (2 - 2 * Math.cos(gap)) / kappa
   const k = Math.acos((4 - K) / 2)
   const g = (4 * Math.PI * spec.drift) / spec.root
 
   return {
-    rate: ((2 * spec.n) / Math.PI) * g * g * dipole * dipole * f * (Math.sin(k / 2) ** 2 / (kappa * Math.sin(k))),
+    rate:
+      ((2 * spec.n) / Math.PI) *
+      g *
+      g *
+      dipole *
+      dipole *
+      f *
+      (Math.sin(k / 2) ** 2 / (kappa * Math.sin(k))),
     k,
     velocity: (kappa * Math.sin(k)) / Math.sin(gap),
   }
@@ -1227,7 +1595,13 @@ export function goldenRule(spec: LadderSpec, gap: number, dipole: number): { rat
 // band, the classical symbol's omega_j, and the rung's matrix elements |r_j|^2 = (4 sin^2(k_j/2) / ring)
 // (hbar/2) f / sin omega_j), stepped as the rule steps: the coupling g d (sigma+ R- + h.c.) as one exact rotation
 // per beat, then the free phases. Returns P_e(t) for t = 0 .. beats (measurement; the harmonic reading, not the rule)
-export function singleExcitationDecay(spec: LadderSpec, gap: number, dipole: number, ring: number, beats: number): Float64Array {
+export function singleExcitationDecay(
+  spec: LadderSpec,
+  gap: number,
+  dipole: number,
+  ring: number,
+  beats: number,
+): Float64Array {
   const { f, kappa } = splitOf(spec)
   const hbar = spec.n / (2 * Math.PI)
   const g = (4 * Math.PI * spec.drift) / spec.root
@@ -1238,26 +1612,36 @@ export function singleExcitationDecay(spec: LadderSpec, gap: number, dipole: num
     const k = (2 * Math.PI * j) / ring
 
     omegas[j] = classicalOmega(kappa, k, Math.max(ring, 2))
-    r[j] = Math.sqrt(((4 * Math.sin(k / 2) ** 2) / ring) * (hbar / 2) * (f / Math.sin(omegas[j]!)))
+    r[j] = Math.sqrt(
+      ((4 * Math.sin(k / 2) ** 2) / ring) *
+        (hbar / 2) *
+        (f / Math.sin(omegas[j]!)),
+    )
   }
 
   let rNorm = 0
 
-  for (let j = 0; j < ring; j++) rNorm += r[j]! ** 2
+  for (let j = 0; j < ring; j++) {
+    rNorm += r[j]! ** 2
+  }
 
   rNorm = Math.sqrt(rNorm)
 
   const theta = g * dipole * rNorm
   const out = new Float64Array(beats + 1)
+
   let er = 1
   let ei = 0
+
   const br = new Float64Array(ring)
   const bi = new Float64Array(ring)
 
   for (let t = 0; t <= beats; t++) {
     out[t] = er * er + ei * ei
 
-    if (t === beats) break
+    if (t === beats) {
+      break
+    }
 
     // coupling: in the plane {|e>, |rhat>}: e' = cos(theta) e - i sin(theta) <rhat|b>, b' = b + (cos(theta) - 1)
     // rhat <rhat|b> - i sin(theta) rhat e
@@ -1306,8 +1690,12 @@ export function singleExcitationDecay(spec: LadderSpec, gap: number, dipole: num
 // thermal sums
 
 // mean energy of a spectrum (energies above the vacuum) at temperature T
-export function thermalEnergy(energies: readonly number[], T: number): number {
+export function thermalEnergy(
+  energies: readonly number[],
+  T: number,
+): number {
   const lowest = Math.min(...energies)
+
   let z = 0
   let e = 0
 
@@ -1322,9 +1710,14 @@ export function thermalEnergy(energies: readonly number[], T: number): number {
 }
 
 // Planck's mean energy of one mode above its zero point, and the same ladder cut at R rungs (n = 0 .. R - 1)
-export const planck = (omega: number, T: number): number => omega / Math.expm1(omega / T)
+export const planck = (omega: number, T: number): number =>
+  omega / Math.expm1(omega / T)
 
-export function planckTruncated(omega: number, T: number, rungs: number): number {
+export function planckTruncated(
+  omega: number,
+  T: number,
+  rungs: number,
+): number {
   const x = Math.exp(-omega / T)
 
   return omega * (x / (1 - x) - (rungs * x ** rungs) / (1 - x ** rungs))
@@ -1334,7 +1727,12 @@ export function planckTruncated(omega: number, T: number, rungs: number): number
 // the column's phase square and the Bohr-Sommerfeld bound: the leapfrog (B, m) -> (B + s K m, m - f B') keeps
 // Q = f B^2 + f s K B m + s K m^2; the largest ellipse Q <= q inside |B|, |m| <= N/2 holds area/N states
 
-export function ellipseStates(n: number, s: number, f: number, K: number): number {
+export function ellipseStates(
+  n: number,
+  s: number,
+  f: number,
+  K: number,
+): number {
   const kappa = s * f
   const det = kappa * K * (1 - (kappa * K) / 4)
 

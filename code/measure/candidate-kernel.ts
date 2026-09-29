@@ -16,14 +16,25 @@
 // NO ROUNDING, NO CONTINUITY: permutations of trits, integer points moved by grid-move tables.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { LINE_FIRSTS, momentumKey, OPPOSITE, type MomentumTable } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  momentumKey,
+  OPPOSITE,
+  type MomentumTable,
+} from '@/code/rule/isometric-knit'
 import { isometricTable } from '@/code/rule/isometric-knit'
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { storeBeat, type TokenStoreKnit, type TokenStoreState } from '@/code/rule/token-store-knit'
+import {
+  storeBeat,
+  type TokenStoreKnit,
+  type TokenStoreState,
+} from '@/code/rule/token-store-knit'
 import { makePairKnit } from '@/code/rule/pair-making-knit'
 
 const ROOTS = rootsD4()
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 const R0 = Int32Array.from(ROOTS, r => r[0] ?? 0)
 const R1 = Int32Array.from(ROOTS, r => r[1] ?? 0)
 const R2 = Int32Array.from(ROOTS, r => r[2] ?? 0)
@@ -47,7 +58,10 @@ export type Kernel = {
 }
 
 // the kernel on a color weave's box and links (links may be replaced, for a frame change or flat links)
-export function makeKernel(weave: ColorWeave, links?: Int16Array): Kernel {
+export function makeKernel(
+  weave: ColorWeave,
+  links?: Int16Array,
+): Kernel {
   const cells = weave.mesh.cellCount
   const target = new Int32Array(cells * 24)
   const use = links ?? weave.links
@@ -58,7 +72,7 @@ export function makeKernel(weave: ColorWeave, links?: Int16Array): Kernel {
       const slot = x * 24 + d
 
       target[slot] = weave.mesh.neighbour(x, d) * 24 + d
-      move.push(weave.moves.act[use[slot] ?? weave.moves.identity] as Int8Array)
+      move.push(weave.moves.act[use[slot] ?? weave.moves.identity]!)
     }
   }
 
@@ -66,7 +80,12 @@ export function makeKernel(weave: ColorWeave, links?: Int16Array): Kernel {
 }
 
 export function cloneReduced(s: Reduced): Reduced {
-  return { vibe: Int8Array.from(s.vibe), point: Int8Array.from(s.point), store: Int8Array.from(s.store), spoint: Int8Array.from(s.spoint) }
+  return {
+    vibe: Int8Array.from(s.vibe),
+    point: Int8Array.from(s.point),
+    store: Int8Array.from(s.store),
+    spoint: Int8Array.from(s.spoint),
+  }
 }
 
 // the reduced state of a full token-store state
@@ -75,27 +94,54 @@ export function reducedOf(s: TokenStoreState): Reduced {
   const point = new Int8Array(s.vibe.length)
   const spoint = new Int8Array(s.store.length)
 
-  for (let i = 0; i < s.vibe.length; i++) point[i] = s.vibe[i] !== 0 ? (s.point[s.token[i] as number] as number) : 0
-
-  for (let x = 0; x < cells; x++) {
-    for (let l = 0; l < 12; l++) spoint[x * 12 + l] = s.store[x * 12 + l] !== 0 ? (s.point[s.place[x * 24 + 2 * l] as number] as number) : 0
+  for (let i = 0; i < s.vibe.length; i++) {
+    point[i] = s.vibe[i] !== 0 ? s.point[s.token[i]!]! : 0
   }
 
-  return { vibe: Int8Array.from(s.vibe), point, store: Int8Array.from(s.store), spoint }
+  for (let x = 0; x < cells; x++) {
+    for (let l = 0; l < 12; l++) {
+      spoint[x * 12 + l] =
+        s.store[x * 12 + l] !== 0
+          ? s.point[s.place[x * 24 + 2 * l]!]!
+          : 0
+    }
+  }
+
+  return {
+    vibe: Int8Array.from(s.vibe),
+    point,
+    store: Int8Array.from(s.store),
+    spoint,
+  }
 }
 
 // whether two reduced states agree on every datum the classical layer reads
 export function sameReduced(a: Reduced, b: Reduced): boolean {
-  if (a.vibe.length !== b.vibe.length || a.store.length !== b.store.length) return false
+  if (
+    a.vibe.length !== b.vibe.length ||
+    a.store.length !== b.store.length
+  ) {
+    return false
+  }
 
   for (let i = 0; i < a.vibe.length; i++) {
-    if (a.vibe[i] !== b.vibe[i]) return false
-    if (a.vibe[i] !== 0 && a.point[i] !== b.point[i]) return false
+    if (a.vibe[i] !== b.vibe[i]) {
+      return false
+    }
+
+    if (a.vibe[i] !== 0 && a.point[i] !== b.point[i]) {
+      return false
+    }
   }
 
   for (let i = 0; i < a.store.length; i++) {
-    if (a.store[i] !== b.store[i]) return false
-    if (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i]) return false
+    if (a.store[i] !== b.store[i]) {
+      return false
+    }
+
+    if (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i]) {
+      return false
+    }
   }
 
   return true
@@ -112,41 +158,58 @@ function pairMove(s: Reduced, x: number, tally?: Tally): void {
   const lineBase = x * 12
 
   for (let l = 0; l < 12; l++) {
-    const i = base + (LINE_FIRSTS[l] as number)
-    const j = base + (LINE_SECONDS[l] as number)
-    const a = s.vibe[i] as number
-    const b = s.vibe[j] as number
-    const tau = s.store[lineBase + l] as number
+    const i = base + LINE_FIRSTS[l]!
+    const j = base + LINE_SECONDS[l]!
+    const a = s.vibe[i]!
+    const b = s.vibe[j]!
+    const tau = s.store[lineBase + l]!
 
     if (tau === 0) {
-      if (a === 0 || b !== -a) continue
+      if (a === 0 || b !== -a) {
+        continue
+      }
 
       if (s.point[i] !== s.point[j]) {
-        if (tally) tally.vetoed++
+        if (tally) {
+          tally.vetoed++
+        }
+
         continue
       }
 
       s.vibe[i] = 0
       s.vibe[j] = 0
       s.store[lineBase + l] = a
-      s.spoint[lineBase + l] = s.point[i] as number
-      if (tally) tally.unmade++
+      s.spoint[lineBase + l] = s.point[i]!
+
+      if (tally) {
+        tally.unmade++
+      }
     } else if (a === 0 && b === 0) {
-      const p = s.spoint[lineBase + l] as number
+      const p = s.spoint[lineBase + l]!
 
       s.vibe[i] = tau
       s.vibe[j] = -tau
       s.point[i] = p
       s.point[j] = p
       s.store[lineBase + l] = 0
-      if (tally) tally.made++
+
+      if (tally) {
+        tally.made++
+      }
     }
   }
 }
 
 // the dock collision P K P
-export function collideDock(k: Kernel, s: Reduced, x: number, tally?: Tally): void {
+export function collideDock(
+  k: Kernel,
+  s: Reduced,
+  x: number,
+  tally?: Tally,
+): void {
   const base = x * 24
+
   let held = false
 
   for (let d = 0; d < 24; d++) {
@@ -158,7 +221,10 @@ export function collideDock(k: Kernel, s: Reduced, x: number, tally?: Tally): vo
 
   if (!held) {
     // the calm dock's collision: every stored unit comes out, turns round and goes back, the store negated
-    for (let l = 0; l < 12; l++) s.store[x * 12 + l] = -(s.store[x * 12 + l] as number)
+    for (let l = 0; l < 12; l++) {
+      s.store[x * 12 + l] = -s.store[x * 12 + l]!
+    }
+
     return
   }
 
@@ -171,10 +237,10 @@ export function collideDock(k: Kernel, s: Reduced, x: number, tally?: Tally): vo
 
   for (let d = 0; d < 24; d++) {
     if (s.vibe[base + d] !== 0) {
-      p0 += R0[d] as number
-      p1 += R1[d] as number
-      p2 += R2[d] as number
-      p3 += R3[d] as number
+      p0 += R0[d]!
+      p1 += R1[d]!
+      p2 += R2[d]!
+      p3 += R3[d]!
     }
   }
 
@@ -182,13 +248,13 @@ export function collideDock(k: Kernel, s: Reduced, x: number, tally?: Tally): vo
 
   if (w) {
     for (let d = 0; d < 24; d++) {
-      SCRATCH_V[w[d] as number] = s.vibe[base + d] as number
-      SCRATCH_P[w[d] as number] = s.point[base + d] as number
+      SCRATCH_V[w[d]!] = s.vibe[base + d]!
+      SCRATCH_P[w[d]!] = s.point[base + d]!
     }
 
     for (let d = 0; d < 24; d++) {
-      s.vibe[base + d] = SCRATCH_V[d] as number
-      s.point[base + d] = SCRATCH_P[d] as number
+      s.vibe[base + d] = SCRATCH_V[d]!
+      s.point[base + d] = SCRATCH_P[d]!
     }
   }
 
@@ -196,20 +262,29 @@ export function collideDock(k: Kernel, s: Reduced, x: number, tally?: Tally): vo
 }
 
 // one beat in place: collide every dock, then stream (a held slot's point moved by its link)
-export function kernelBeat(k: Kernel, s: Reduced, next: Reduced, tally?: Tally): void {
-  for (let x = 0; x < k.cells; x++) collideDock(k, s, x, tally)
+export function kernelBeat(
+  k: Kernel,
+  s: Reduced,
+  next: Reduced,
+  tally?: Tally,
+): void {
+  for (let x = 0; x < k.cells; x++) {
+    collideDock(k, s, x, tally)
+  }
 
   next.vibe.fill(0)
 
   for (let slot = 0; slot < s.vibe.length; slot++) {
-    const v = s.vibe[slot] as number
+    const v = s.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    const to = k.target[slot] as number
+    const to = k.target[slot]!
 
     next.vibe[to] = v
-    next.point[to] = (k.move[slot] as Int8Array)[s.point[slot] as number] as number
+    next.point[to] = k.move[slot]![s.point[slot]!]!
   }
 
   next.store.set(s.store)
@@ -217,7 +292,10 @@ export function kernelBeat(k: Kernel, s: Reduced, next: Reduced, tally?: Tally):
 }
 
 // a runner that keeps two buffers and swaps them
-export function makeRunner(k: Kernel, start: Reduced): { state: () => Reduced; beat: (tally?: Tally) => void } {
+export function makeRunner(
+  k: Kernel,
+  start: Reduced,
+): { state: () => Reduced; beat: (tally?: Tally) => void } {
   let a = cloneReduced(start)
   let b = cloneReduced(start)
 
@@ -225,6 +303,7 @@ export function makeRunner(k: Kernel, start: Reduced): { state: () => Reduced; b
     state: () => a,
     beat: (tally?: Tally) => {
       kernelBeat(k, a, b, tally)
+
       const t = a
 
       a = b
@@ -237,7 +316,10 @@ const GOLDEN_FILL = (Math.sqrt(5) - 1) / 2
 
 // E-FRC-0159's golden fill (combined-knit-battery's golden()): fear, calm, love by thirds-ish (0.3, 0.3, 0.4) and a
 // point per slot, each from the golden rotation at the given scale
-export function goldenFill(slots: number, scale: number): { vibe: Int8Array; point: Int8Array } {
+export function goldenFill(
+  slots: number,
+  scale: number,
+): { vibe: Int8Array; point: Int8Array } {
   const vibe = new Int8Array(slots)
   const point = new Int8Array(slots)
 
@@ -254,15 +336,19 @@ export function goldenFill(slots: number, scale: number): { vibe: Int8Array; poi
 // A full token-store state from vibes, their points and one store value on every line: slot tokens 0..24 cells - 1
 // at the given points, place tokens after them, a line's two place tokens at one point ((x * 12 + l) * 5 mod 9, the
 // same as vacuumState's), labels the vibes' signs (unread by 'returned-neutral')
-export function fullState(input: { vibe: Int8Array; point: Int8Array; tau: number }): TokenStoreState {
+export function fullState(input: {
+  vibe: Int8Array
+  point: Int8Array
+  tau: number
+}): TokenStoreState {
   const slots = input.vibe.length
   const cells = slots / 24
   const point = new Int8Array(slots * 2)
   const label = new Int8Array(slots * 2)
 
   for (let i = 0; i < slots; i++) {
-    point[i] = input.point[i] as number
-    label[i] = input.vibe[i] as number
+    point[i] = input.point[i]!
+    label[i] = input.vibe[i]!
   }
 
   for (let x = 0; x < cells; x++) {
@@ -289,12 +375,26 @@ export function fullState(input: { vibe: Int8Array; point: Int8Array; tau: numbe
 // The bit-for-bit check of this kernel against the rule: a full token-store state run by storeBeat
 // ('returned-neutral') and its reduced state run by the kernel, compared on every beat. Returns the beats that
 // disagree and the pairs made, unmade and vetoed (so the check is known to exercise the veto)
-export function kernelAgreement(input: { weave: ColorWeave; start: TokenStoreState; beats: number }): { mismatches: number; made: number; unmade: number; vetoed: number } {
-  const knit: TokenStoreKnit = { weave: input.weave, knit: makePairKnit({ mesh: input.weave.mesh }), variant: 'returned-neutral' }
+export function kernelAgreement(input: {
+  weave: ColorWeave
+  start: TokenStoreState
+  beats: number
+}): {
+  mismatches: number
+  made: number
+  unmade: number
+  vetoed: number
+} {
+  const knit: TokenStoreKnit = {
+    weave: input.weave,
+    knit: makePairKnit({ mesh: input.weave.mesh }),
+    variant: 'returned-neutral',
+  }
   const kernel = makeKernel(input.weave)
   const run = makeRunner(kernel, reducedOf(input.start))
   const none = new Uint8Array(input.start.point.length)
   const tally: Tally = { made: 0, unmade: 0, vetoed: 0 }
+
   let full = input.start
   let mismatches = 0
 
@@ -309,16 +409,28 @@ export function kernelAgreement(input: { weave: ColorWeave; start: TokenStoreSta
 
 // the empty box with every store at `tau` (the hot vacuum at +1, the cold at 0), stored points p(line)
 export function vacuumState(cells: number, tau: number): Reduced {
-  const spoint = Int8Array.from({ length: cells * 12 }, (_, i) => (i * 5) % 9)
+  const spoint = Int8Array.from(
+    { length: cells * 12 },
+    (_, i) => (i * 5) % 9,
+  )
 
-  return { vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: new Int8Array(cells * 12).fill(tau), spoint }
+  return {
+    vibe: new Int8Array(cells * 24),
+    point: new Int8Array(cells * 24),
+    store: new Int8Array(cells * 12).fill(tau),
+    spoint,
+  }
 }
 
 // the trits (vibes and stores) where two reduced states differ, and the vibes alone
-export function tritDifference(a: Reduced, b: Reduced): { trits: number; vibes: number; docks: number } {
+export function tritDifference(
+  a: Reduced,
+  b: Reduced,
+): { trits: number; vibes: number; docks: number } {
   let vibes = 0
   let stores = 0
   let docks = 0
+
   const cells = a.store.length / 12
 
   for (let x = 0; x < cells; x++) {

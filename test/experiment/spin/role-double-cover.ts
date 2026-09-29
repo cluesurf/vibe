@@ -64,9 +64,22 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weyl, GOLDEN, SILVER } from '@/code/tool/weyl'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { binaryTetrahedralGroup, quaternionConjugate, quaternionMultiply, type Quaternion } from '@/code/algebra/binary-tetrahedral'
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
-import { phasePoint, wignerFunction, PHASE_POINTS } from '@/code/measure/qutrit-phase-space'
+import {
+  binaryTetrahedralGroup,
+  quaternionConjugate,
+  quaternionMultiply,
+  type Quaternion,
+} from '@/code/algebra/binary-tetrahedral'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
+import {
+  phasePoint,
+  wignerFunction,
+  PHASE_POINTS,
+} from '@/code/measure/qutrit-phase-space'
 import {
   centralScalar,
   closeGroup,
@@ -92,7 +105,13 @@ const EXACT = 1e-12
 const LOOSE = 1e-9
 
 // the natural (spin one half) character of 2T = SL(2, 3), by element order
-const SPIN_HALF: Record<number, number> = { 1: 2, 2: -2, 3: -1, 4: 0, 6: 1 }
+const SPIN_HALF: Record<number, number> = {
+  1: 2,
+  2: -2,
+  3: -1,
+  4: 0,
+  6: 1,
+}
 
 type State = { re: number[]; im: number[] }
 
@@ -114,8 +133,12 @@ function expectation(m: ComplexMatrix, psi: State): [number, number] {
       const ar = m.re[i * m.n + j] ?? 0
       const ai = m.im[i * m.n + j] ?? 0
       // conj(psi_i) M_ij psi_j
-      const pr = (psi.re[i] ?? 0) * (psi.re[j] ?? 0) + (psi.im[i] ?? 0) * (psi.im[j] ?? 0)
-      const pi = (psi.re[i] ?? 0) * (psi.im[j] ?? 0) - (psi.im[i] ?? 0) * (psi.re[j] ?? 0)
+      const pr =
+        (psi.re[i] ?? 0) * (psi.re[j] ?? 0) +
+        (psi.im[i] ?? 0) * (psi.im[j] ?? 0)
+      const pi =
+        (psi.re[i] ?? 0) * (psi.im[j] ?? 0) -
+        (psi.im[i] ?? 0) * (psi.re[j] ?? 0)
 
       re += ar * pr - ai * pi
       im += ar * pi + ai * pr
@@ -166,8 +189,14 @@ function averageOf(group: readonly ComplexMatrix[]): ComplexMatrix {
 }
 
 // rank and 2 pi sign on the range of a projector: [trace, trace of projector times the turn]
-function knotReading(projector: ComplexMatrix, turn: ComplexMatrix): { rank: number; signTrace: number } {
-  return { rank: traceOf(projector)[0], signTrace: traceOf(complexMultiply(projector, turn))[0] }
+function knotReading(
+  projector: ComplexMatrix,
+  turn: ComplexMatrix,
+): { rank: number; signTrace: number } {
+  return {
+    rank: traceOf(projector)[0],
+    signTrace: traceOf(complexMultiply(projector, turn))[0],
+  }
 }
 
 function huskReading(): {
@@ -183,43 +212,70 @@ function huskReading(): {
   const units = binaryTetrahedralGroup()
   const k: Quaternion = [0, 0, 0, 1]
   const kBar = quaternionConjugate(k)
-  const rootKey = (v: readonly number[]): string => v.map(x => Math.round(x)).join(',')
+  const rootKey = (v: readonly number[]): string =>
+    v.map(x => Math.round(x)).join(',')
   const rootSet = new Set(roots.map(rootKey))
   // x -> q (x k-bar) q-bar k: the conjugation by q with the depth e4 moved to the real axis and back
   const act = (q: Quaternion, x: Quaternion): Quaternion =>
-    quaternionMultiply(quaternionMultiply(quaternionMultiply(q, quaternionMultiply(x, kBar)), quaternionConjugate(q)), k)
+    quaternionMultiply(
+      quaternionMultiply(
+        quaternionMultiply(q, quaternionMultiply(x, kBar)),
+        quaternionConjugate(q),
+      ),
+      k,
+    )
   const restriction = (q: Quaternion): number[] =>
     [0, 1, 2].flatMap(j => {
       const e: Quaternion = [0, 0, 0, 0]
 
       e[j] = 1
 
-      return act(q, e).slice(0, 3).map(x => Math.round(x * 1e9) / 1e9 + 0)
+      return act(q, e)
+        .slice(0, 3)
+        .map(x => Math.round(x * 1e9) / 1e9 + 0)
     })
   const det3 = (m: readonly number[]): number =>
-    (m[0] ?? 0) * ((m[4] ?? 0) * (m[8] ?? 0) - (m[5] ?? 0) * (m[7] ?? 0)) -
-    (m[1] ?? 0) * ((m[3] ?? 0) * (m[8] ?? 0) - (m[5] ?? 0) * (m[6] ?? 0)) +
-    (m[2] ?? 0) * ((m[3] ?? 0) * (m[7] ?? 0) - (m[4] ?? 0) * (m[6] ?? 0))
+    (m[0] ?? 0) *
+      ((m[4] ?? 0) * (m[8] ?? 0) - (m[5] ?? 0) * (m[7] ?? 0)) -
+    (m[1] ?? 0) *
+      ((m[3] ?? 0) * (m[8] ?? 0) - (m[5] ?? 0) * (m[6] ?? 0)) +
+    (m[2] ?? 0) *
+      ((m[3] ?? 0) * (m[7] ?? 0) - (m[4] ?? 0) * (m[6] ?? 0))
   const identityKey = [1, 0, 0, 0, 1, 0, 0, 0, 1].join(',')
+
   let permuteRoots = 0
   let fixDepth = 0
   let properRotations = 0
   let orderSixToOrderThree = 0
   let kernel = 0
+
   const rotations = new Set<string>()
 
   for (const q of units) {
     const images = roots.map(r => rootKey(act(q, r as Quaternion)))
 
-    permuteRoots += new Set(images).size === 24 && images.every(i => rootSet.has(i)) ? 1 : 0
+    permuteRoots +=
+      new Set(images).size === 24 && images.every(i => rootSet.has(i))
+        ? 1
+        : 0
 
     const depth = act(q, [0, 0, 0, 1])
 
-    fixDepth += Math.hypot(depth[0], depth[1], depth[2], depth[3] - 1) < LOOSE ? 1 : 0
+    fixDepth +=
+      Math.hypot(depth[0], depth[1], depth[2], depth[3] - 1) < LOOSE
+        ? 1
+        : 0
 
     const m = restriction(q)
     // a signed permutation: every row one entry of size 1
-    const signed = [0, 1, 2].every(i => [0, 1, 2].filter(j => Math.abs(m[3 * j + i] ?? 0) > 0.5).length === 1 && [0, 1, 2].every(j => [0, 1].includes(Math.abs(m[3 * j + i] ?? 0))))
+    const signed = [0, 1, 2].every(
+      i =>
+        [0, 1, 2].filter(j => Math.abs(m[3 * j + i] ?? 0) > 0.5)
+          .length === 1 &&
+        [0, 1, 2].every(j =>
+          [0, 1].includes(Math.abs(m[3 * j + i] ?? 0)),
+        ),
+    )
 
     properRotations += signed && Math.abs(det3(m) - 1) < LOOSE ? 1 : 0
     rotations.add(m.join(','))
@@ -243,7 +299,15 @@ function huskReading(): {
 
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
-            next.push(Math.round([0, 1, 2].reduce((s, l) => s + (r[3 * i + l] ?? 0) * (m[3 * l + j] ?? 0), 0)))
+            next.push(
+              Math.round(
+                [0, 1, 2].reduce(
+                  (s, l) =>
+                    s + (r[3 * i + l] ?? 0) * (m[3 * l + j] ?? 0),
+                  0,
+                ),
+              ),
+            )
           }
         }
 
@@ -258,17 +322,27 @@ function huskReading(): {
   const leftFixesDepth = units.filter(q => {
     const image = quaternionMultiply(q, [0, 0, 0, 1])
 
-    return Math.hypot(image[0], image[1], image[2], image[3] - 1) < LOOSE
+    return (
+      Math.hypot(image[0], image[1], image[2], image[3] - 1) < LOOSE
+    )
   }).length
 
-  return { permuteRoots, fixDepth, distinctRotations: rotations.size, kernel, orderSixToOrderThree, properRotations, leftFixesDepth }
+  return {
+    permuteRoots,
+    fixDepth,
+    distinctRotations: rotations.size,
+    kernel,
+    orderSixToOrderThree,
+    properRotations,
+    leftFixesDepth,
+  }
 }
 
 export default experiment({
   id: 'spin/role-double-cover',
   code: 'E-SPN-0051',
   title:
-    'the double cover is already in the role: every linear lift of the role grid\'s SL(2,3) sends the 2 pi turn to -P, -1 on a parity-even doublet, with the Legendre law (-1/p) P confirmed at five primes; the 2 pi turn about each grid point is minus the model\'s phase-point operator, so every signed weight is W(x) = -<R_x>/3; the husk\'s tetrahedral turns lift to it through the depth-fixing conjugations; and no knot can carry it, because the 2 pi turn lies in the commutator subgroup',
+    "the double cover is already in the role: every linear lift of the role grid's SL(2,3) sends the 2 pi turn to -P, -1 on a parity-even doublet, with the Legendre law (-1/p) P confirmed at five primes; the 2 pi turn about each grid point is minus the model's phase-point operator, so every signed weight is W(x) = -<R_x>/3; the husk's tetrahedral turns lift to it through the depth-fixing conjugations; and no knot can carry it, because the 2 pi turn lies in the commutator subgroup",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -279,7 +353,12 @@ export default experiment({
       const lifts = weilLifts(p)
       const scalars = lifts.map(centralScalar)
       const expected = legendre(-1, p)
-      const agree = scalars.filter(c => c !== undefined && Math.abs(c[0] - expected) < LOOSE && Math.abs(c[1]) < LOOSE).length
+      const agree = scalars.filter(
+        c =>
+          c !== undefined &&
+          Math.abs(c[0] - expected) < LOOSE &&
+          Math.abs(c[1]) < LOOSE,
+      ).length
 
       return { p, lifts, count: lifts.length, expected, agree }
     })
@@ -290,11 +369,18 @@ export default experiment({
     const lifts3: readonly WeilLift[] = byPrime[0]?.lifts ?? []
     const parity = parityMatrix(3)
     const identity = complexIdentity(3)
-    const even: ComplexMatrix = scaleMatrix({ re: identity.re.map((x, i) => x + (parity.re[i] ?? 0)), im: new Float64Array(9), n: 3 }, [0.5, 0])
-    const odd: ComplexMatrix = scaleMatrix({ re: identity.re.map((x, i) => x - (parity.re[i] ?? 0)), im: new Float64Array(9), n: 3 }, [0.5, 0])
+    const even: ComplexMatrix = scaleMatrix(
+      {
+        re: identity.re.map((x, i) => x + (parity.re[i] ?? 0)),
+        im: new Float64Array(9),
+        n: 3,
+      },
+      [0.5, 0],
+    )
     const minusP = scaleMatrix(parity, [-1, 0])
     const evenDimension = traceOf(even)[0]
-    const evenSign = traceOf(complexMultiply(minusP, even))[0] / evenDimension
+    const evenSign =
+      traceOf(complexMultiply(minusP, even))[0] / evenDimension
     const characterRows = lifts3.map(lift => {
       let normSquared = 0
       let natural = true
@@ -303,12 +389,19 @@ export default experiment({
         const [cr, ci] = traceOf(complexMultiply(e.unitary, even))
 
         normSquared += cr * cr + ci * ci
-        natural = natural && Math.abs(cr - (SPIN_HALF[gridOrder(3, e.grid)] ?? 99)) < LOOSE && Math.abs(ci) < LOOSE
+        natural =
+          natural &&
+          Math.abs(cr - (SPIN_HALF[gridOrder(3, e.grid)] ?? 99)) <
+            LOOSE &&
+          Math.abs(ci) < LOOSE
       }
 
       return { normSquared, natural }
     })
-    const strange: State = { re: [0, Math.SQRT1_2, -Math.SQRT1_2], im: [0, 0, 0] }
+    const strange: State = {
+      re: [0, Math.SQRT1_2, -Math.SQRT1_2],
+      im: [0, 0, 0],
+    }
     const strangeWeightAtOrigin = wignerFunction(strange)[0] ?? 0
     const g3 =
       Math.abs(evenDimension - 2) < LOOSE &&
@@ -327,7 +420,11 @@ export default experiment({
         }
 
         orderSix++
-        loopGap = Math.max(loopGap, matrixDistance(power(e.unitary, 3), minusP), matrixDistance(power(e.unitary, 6), identity))
+        loopGap = Math.max(
+          loopGap,
+          matrixDistance(power(e.unitary, 3), minusP),
+          matrixDistance(power(e.unitary, 6), identity),
+        )
       }
     }
 
@@ -335,16 +432,30 @@ export default experiment({
 
     // G5: the fear identity
     const lift = lifts3[0]
-    const turn = lift ? liftOf(lift, [2, 0, 0, 2]) ?? identity : identity
+    const turn = lift
+      ? (liftOf(lift, [2, 0, 0, 2]) ?? identity)
+      : identity
+
     let pointGap = 0
+
     const turnsAbout = PHASE_POINTS.map(([a, b]) => {
       const d = displacementMatrix(3, a, b)
-      const about = complexMultiply(complexMultiply(d, turn), daggerMatrix(d))
+      const about = complexMultiply(
+        complexMultiply(d, turn),
+        daggerMatrix(d),
+      )
 
-      pointGap = Math.max(pointGap, matrixDistance(about, scaleMatrix(modelPhasePoint(a, b), [-1, 0])))
+      pointGap = Math.max(
+        pointGap,
+        matrixDistance(
+          about,
+          scaleMatrix(modelPhasePoint(a, b), [-1, 0]),
+        ),
+      )
 
       return about
     })
+
     let weightGap = 0
 
     for (let n = 0; n < STATES; n++) {
@@ -352,34 +463,61 @@ export default experiment({
       const w = wignerFunction(psi)
 
       turnsAbout.forEach((r, x) => {
-        weightGap = Math.max(weightGap, Math.abs((w[x] ?? 0) + expectation(r, psi)[0] / 3), Math.abs(expectation(r, psi)[1]))
+        weightGap = Math.max(
+          weightGap,
+          Math.abs((w[x] ?? 0) + expectation(r, psi)[0] / 3),
+          Math.abs(expectation(r, psi)[1]),
+        )
       })
     }
 
     const g5 = pointGap < EXACT * 10 && weightGap < EXACT
 
     // G6: the interferometer, bright chance (1 + Re <psi| lift(h)^3 |psi>) / 2 with h of order 6
-    const orderSixElement = lift?.elements.find(e => gridOrder(3, e.grid) === 6)?.unitary ?? identity
+    const orderSixElement =
+      lift?.elements.find(e => gridOrder(3, e.grid) === 6)?.unitary ??
+      identity
     const loop = power(orderSixElement, 3)
+
     let doubletBright = 0
 
     for (let n = 0; n < STATES; n++) {
       const psi = weylState(n)
       // project onto the even doublet: (psi + P psi) / 2, then normalize
-      const re = [psi.re[0] ?? 0, ((psi.re[1] ?? 0) + (psi.re[2] ?? 0)) / 2, ((psi.re[1] ?? 0) + (psi.re[2] ?? 0)) / 2]
-      const im = [psi.im[0] ?? 0, ((psi.im[1] ?? 0) + (psi.im[2] ?? 0)) / 2, ((psi.im[1] ?? 0) + (psi.im[2] ?? 0)) / 2]
+      const re = [
+        psi.re[0] ?? 0,
+        ((psi.re[1] ?? 0) + (psi.re[2] ?? 0)) / 2,
+        ((psi.re[1] ?? 0) + (psi.re[2] ?? 0)) / 2,
+      ]
+      const im = [
+        psi.im[0] ?? 0,
+        ((psi.im[1] ?? 0) + (psi.im[2] ?? 0)) / 2,
+        ((psi.im[1] ?? 0) + (psi.im[2] ?? 0)) / 2,
+      ]
       const norm = Math.hypot(...re, ...im)
-      const doublet = { re: re.map(x => x / norm), im: im.map(x => x / norm) }
+      const doublet = {
+        re: re.map(x => x / norm),
+        im: im.map(x => x / norm),
+      }
 
-      doubletBright = Math.max(doubletBright, Math.abs((1 + expectation(loop, doublet)[0]) / 2))
+      doubletBright = Math.max(
+        doubletBright,
+        Math.abs((1 + expectation(loop, doublet)[0]) / 2),
+      )
     }
 
     const strangeBright = (1 + expectation(loop, strange)[0]) / 2
     // the unpolarized role: weight 1/9 on every point, so the bright chance from the weights is (1 - 3/9) / 2
-    const mixedWeightAtOrigin = traceOf(scaleMatrix(modelPhasePoint(0, 0), [1 / 9, 0]))[0]
+    const mixedWeightAtOrigin = traceOf(
+      scaleMatrix(modelPhasePoint(0, 0), [1 / 9, 0]),
+    )[0]
     const mixedBrightFromWeights = (1 - 3 * mixedWeightAtOrigin) / 2
     const mixedBrightDirect = (1 + traceOf(loop)[0] / 3) / 2
-    const g6 = doubletBright < EXACT && Math.abs(strangeBright - 1) < EXACT && Math.abs(mixedBrightFromWeights - mixedBrightDirect) < EXACT && Math.abs(mixedBrightDirect - 1 / 3) < EXACT
+    const g6 =
+      doubletBright < EXACT &&
+      Math.abs(strangeBright - 1) < EXACT &&
+      Math.abs(mixedBrightFromWeights - mixedBrightDirect) < EXACT &&
+      Math.abs(mixedBrightDirect - 1 / 3) < EXACT
 
     // G7: the husk
     const husk = huskReading()
@@ -393,8 +531,12 @@ export default experiment({
       husk.leftFixesDepth === 1
 
     // G8: knots. The lifted single-role Clifford group (turns and translations, with its scalars)
-    const liftS = lift ? liftOf(lift, [0, 2, 1, 0]) ?? identity : identity
-    const liftT = lift ? liftOf(lift, [1, 1, 0, 1]) ?? identity : identity
+    const liftS = lift
+      ? (liftOf(lift, [0, 2, 1, 0]) ?? identity)
+      : identity
+    const liftT = lift
+      ? (liftOf(lift, [1, 1, 0, 1]) ?? identity)
+      : identity
     const x = displacementMatrix(3, 1, 0)
     const z = displacementMatrix(3, 0, 1)
     const clifford = closeGroup([liftS, liftT, x, z], 5000) ?? []
@@ -404,22 +546,42 @@ export default experiment({
       const gDagger = daggerMatrix(g)
 
       for (const h of clifford) {
-        const c = complexMultiply(complexMultiply(g, h), complexMultiply(gDagger, daggerMatrix(h)))
+        const c = complexMultiply(
+          complexMultiply(g, h),
+          complexMultiply(gDagger, daggerMatrix(h)),
+        )
 
         commutators.set(keyOf(c), c)
       }
     }
 
     const derived = closeGroup([...commutators.values()], 5000) ?? []
-    const turnInDerived = derived.some(h => [0, 1, 2].some(k => matrixDistance(h, scaleMatrix(minusP, unitPhase(k / 3))) < LOOSE))
-    const triple = (m: ComplexMatrix): ComplexMatrix => kronecker(kronecker(m, m), m)
+    const turnInDerived = derived.some(h =>
+      [0, 1, 2].some(
+        k =>
+          matrixDistance(h, scaleMatrix(minusP, unitPhase(k / 3))) <
+          LOOSE,
+      ),
+    )
+    const triple = (m: ComplexMatrix): ComplexMatrix =>
+      kronecker(kronecker(m, m), m)
     const tripleTurn = triple(minusP)
-    const tripleKnots = knotReading(averageOf(derived.map(triple)), tripleTurn)
+    const tripleKnots = knotReading(
+      averageOf(derived.map(triple)),
+      tripleTurn,
+    )
     const mesonTurn = kronecker(minusP, conjugateMatrix(minusP))
-    const mesonKnots = knotReading(averageOf(derived.map(h => kronecker(h, conjugateMatrix(h)))), mesonTurn)
+    const mesonKnots = knotReading(
+      averageOf(derived.map(h => kronecker(h, conjugateMatrix(h)))),
+      mesonTurn,
+    )
     const translations = closeGroup([x, z], 5000) ?? []
-    const translationKnots = knotReading(averageOf(translations.map(triple)), tripleTurn)
-    const translationSpinors = (translationKnots.rank - translationKnots.signTrace) / 2
+    const translationKnots = knotReading(
+      averageOf(translations.map(triple)),
+      tripleTurn,
+    )
+    const translationSpinors =
+      (translationKnots.rank - translationKnots.signTrace) / 2
     const singleSpinors = (3 - traceOf(minusP)[0]) / 2
     const tripleSpinors = (27 - traceOf(tripleTurn)[0]) / 2
     const g8 =
@@ -440,11 +602,20 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim: `lifts ${byPrime.map(b => `${b.count} at p = ${b.p}`).join(', ')}, each sending the 2 pi turn to (-1/p) P (${byPrime.map(b => `${b.agree} of ${b.count}`).join(', ')} agree); at p = 3 the turn is -1 on a ${evenDimension}-dimensional even doublet, natural spin one half in ${characterRows.filter(r => r.natural).length} of 3 lifts, a 120 degree turn cubed is -P on all ${orderSix} order-6 elements, the 2 pi turn about each point is minus the model's phase-point operator (gap ${pointGap.toExponential(1)}) so W(x) = -<R_x>/3 (gap ${weightGap.toExponential(1)}), an interferometer with a 2 pi arm is dark for every doublet state and bright for the strange (fear) state; the 24 depth-fixing conjugations give ${husk.distinctRotations} husk cube rotations with kernel ${husk.kernel}; and the 2 pi turn lies in the commutator subgroup (${turnInDerived}), so every knot of three roles (rank ${tripleKnots.rank.toFixed(0)}) and of a role and antirole (rank ${mesonKnots.rank.toFixed(0)}) has sign +1, while translations alone leave ${translationSpinors.toFixed(0)} spinorial knots of ${translationKnots.rank.toFixed(0)}`,
       metrics: {
-        ...Object.fromEntries(byPrime.flatMap(b => [[`liftsAtP${b.p}`, b.count], [`centralScalarAgreesLegendreAtP${b.p}`, b.agree], [`legendreMinusOneAtP${b.p}`, b.expected]])),
+        ...Object.fromEntries(
+          byPrime.flatMap(b => [
+            [`liftsAtP${b.p}`, b.count],
+            [`centralScalarAgreesLegendreAtP${b.p}`, b.agree],
+            [`legendreMinusOneAtP${b.p}`, b.expected],
+          ]),
+        ),
         evenDoubletDimension: evenDimension,
         evenDoubletTwoPiSign: evenSign,
-        liftsWithNaturalSpinHalfDoublet: characterRows.filter(r => r.natural).length,
-        doubletCharacterNormSquared: characterRows[0]?.normSquared ?? -1,
+        liftsWithNaturalSpinHalfDoublet: characterRows.filter(
+          r => r.natural,
+        ).length,
+        doubletCharacterNormSquared:
+          characterRows[0]?.normSquared ?? -1,
         strangeStateWeightAtOrigin: strangeWeightAtOrigin,
         orderSixElementsChecked: orderSix,
         turnLoopGap: loopGap,
@@ -470,16 +641,24 @@ export default experiment({
       },
       control: {
         slotLeftMultiplicationsFixingDepth: husk.leftFixesDepth,
-        translationOnlyTripleKnotRank: Number(translationKnots.rank.toFixed(9)),
-        translationOnlyTripleSpinorialKnots: Number(translationSpinors.toFixed(9)),
+        translationOnlyTripleKnotRank: Number(
+          translationKnots.rank.toFixed(9),
+        ),
+        translationOnlyTripleSpinorialKnots: Number(
+          translationSpinors.toFixed(9),
+        ),
       },
       notes:
-        'L1. The Weil representation is standard (Weil 1964; for the qutrit Clifford group, Gross 2006, Appleby 2005), and the displaced parity as the Wigner operator is Royer 1977; what is new here is only where they sit in the model: the role grid\'s own turn group is the double cover, its 2 pi turn is forced to -P by the commutator argument, and that operator is minus the phase-point operator the fear weight is defined by. Consequences, stated as structure and not as a derivation of the electron: (1) a spinor in this model can only be a ROLE degree of freedom, because the husk\'s turns reach the slots only through conjugation, where -1 acts trivially, and left multiplication (the slot torsor of E-SPN-0044) does not fix the depth; (2) the spinor is the parity-even doublet of one role, and the parity-odd singlet is the strange state, the maximal fear at its point, so the fear and the spin sign are one operator read at one point; (3) a knot is invariant under every frame change up to a phase, the 2 pi turn is a product of commutators, so every knot is a boson. If the role is both the color and the spin, a color-neutral knot (a lepton-like triple of three loves on a grid line, or a meson) cannot be spin one half. A charged spin one half lepton therefore needs color and spin to be different threes, for example color from the arrangement three of E-FRC-0170 with the spin in the roles, or a colored object that is not a knot. This is a fork for the model, not a result of the knit, which moves roles only as classical grid points and runs no amplitudes (E-FND-0080).',
+        "L1. The Weil representation is standard (Weil 1964; for the qutrit Clifford group, Gross 2006, Appleby 2005), and the displaced parity as the Wigner operator is Royer 1977; what is new here is only where they sit in the model: the role grid's own turn group is the double cover, its 2 pi turn is forced to -P by the commutator argument, and that operator is minus the phase-point operator the fear weight is defined by. Consequences, stated as structure and not as a derivation of the electron: (1) a spinor in this model can only be a ROLE degree of freedom, because the husk's turns reach the slots only through conjugation, where -1 acts trivially, and left multiplication (the slot torsor of E-SPN-0044) does not fix the depth; (2) the spinor is the parity-even doublet of one role, and the parity-odd singlet is the strange state, the maximal fear at its point, so the fear and the spin sign are one operator read at one point; (3) a knot is invariant under every frame change up to a phase, the 2 pi turn is a product of commutators, so every knot is a boson. If the role is both the color and the spin, a color-neutral knot (a lepton-like triple of three loves on a grid line, or a meson) cannot be spin one half. A charged spin one half lepton therefore needs color and spin to be different threes, for example color from the arrangement three of E-FRC-0170 with the spin in the roles, or a colored object that is not a knot. This is a fork for the model, not a result of the knit, which moves roles only as classical grid points and runs no amplitudes (E-FND-0080).",
     })
   },
 })
 
 // a key equal for numerically equal matrices
 function keyOf(m: ComplexMatrix): string {
-  return Array.from(m.re, (v, i) => `${(Math.round(v * 1e6) / 1e6 + 0).toFixed(6)}:${(Math.round((m.im[i] ?? 0) * 1e6) / 1e6 + 0).toFixed(6)}`).join(',')
+  return Array.from(
+    m.re,
+    (v, i) =>
+      `${(Math.round(v * 1e6) / 1e6 + 0).toFixed(6)}:${(Math.round((m.im[i] ?? 0) * 1e6) / 1e6 + 0).toFixed(6)}`,
+  ).join(',')
 }

@@ -20,18 +20,38 @@
 // phase cannot do to a classical path. The eigenvectors of a phase-weighted permutation are its cycles, uniform in
 // weight along each, so the in-plane extent of every level is its cycle's, at every b.
 
-import { clusterBeat, cloneCluster, huskSpan, makeCluster, matchAnchor, startCodes, SHADOW_DIR, SHADOW_SIGN, type Cluster } from '@/code/measure/knit-love-cluster'
+import {
+  clusterBeat,
+  cloneCluster,
+  huskSpan,
+  makeCluster,
+  matchAnchor,
+  startCodes,
+  SHADOW_DIR,
+  SHADOW_SIGN,
+  type Cluster,
+} from '@/code/measure/knit-love-cluster'
 import { HUSK_VECTORS } from '@/code/measure/photon-husk'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const shadowOf = (d: number): number[] => HUSK_VECTORS[SHADOW_DIR[d]!]!.map(x => x * SHADOW_SIGN[d]!)
+export const shadowOf = (d: number): number[] =>
+  HUSK_VECTORS[SHADOW_DIR[d]!]!.map(x => x * SHADOW_SIGN[d]!)
 
-export type ColumnLevel = { start: Cluster; period: number; key: string; shadows: string }
+export type ColumnLevel = {
+  start: Cluster
+  period: number
+  key: string
+  shadows: string
+}
 
 // every level whose three loves stay in one husk column, at column depth L (x4 mod 2L)
-export function oneColumnLevels(depth: number, tmax: number): { levels: ColumnLevel[]; starts: number; leave: number } {
+export function oneColumnLevels(
+  depth: number,
+  tmax: number,
+): { levels: ColumnLevel[]; starts: number; leave: number } {
   const seen = new Map<string, ColumnLevel>()
+
   let starts = 0
   let leave = 0
 
@@ -41,21 +61,40 @@ export function oneColumnLevels(depth: number, tmax: number): { levels: ColumnLe
         for (let d1 = 0; d1 < 24; d1++) {
           for (let d2 = 0; d2 < 24; d2++) {
             // love 0 at depth 0; distinct slots where two share a dock
-            if (z1 === 0 && d1 === d0) continue
-            if (z2 === 0 && d2 === d0) continue
-            if (z1 === z2 && d1 === d2) continue
+            if (z1 === 0 && d1 === d0) {
+              continue
+            }
+
+            if (z2 === 0 && d2 === d0) {
+              continue
+            }
+
+            if (z1 === z2 && d1 === d2) {
+              continue
+            }
 
             starts++
 
-            const start = makeCluster([[0, 0, 0, 0], [0, 0, 0, z1], [0, 0, 0, z2]], [d0, d1, d2], depth)
+            const start = makeCluster(
+              [
+                [0, 0, 0, 0],
+                [0, 0, 0, z1],
+                [0, 0, 0, z2],
+              ],
+              [d0, d1, d2],
+              depth,
+            )
             const c = cloneCluster(start)
             const want = startCodes(start, depth)
+
             let period = 0
 
             for (let t = 1; t <= tmax; t++) {
               clusterBeat(c, depth)
 
-              if (huskSpan(c) !== 0) break
+              if (huskSpan(c) !== 0) {
+                break
+              }
 
               if (matchAnchor(c, want, depth) >= 0) {
                 period = t
@@ -70,25 +109,42 @@ export function oneColumnLevels(depth: number, tmax: number): { levels: ColumnLe
 
             // the cycle's name: its least class key
             const p = cloneCluster(start)
+
             let key = ''
+
             const shadows = new Set<string>()
 
             for (let t = 0; t < period; t++) {
               // the class key: depths relative to each love in turn (mod 2L), the least over anchors and over the cycle
               for (let a = 0; a < 3; a++) {
                 const rel = [0, 1, 2]
-                  .map(v => `${String(mod(p.x[4 * v + 3]! - p.x[4 * a + 3]!, 2 * depth)).padStart(3, '0')},${String(p.d[v]).padStart(2, '0')}`)
+                  .map(
+                    v =>
+                      `${String(mod(p.x[4 * v + 3]! - p.x[4 * a + 3]!, 2 * depth)).padStart(3, '0')},${String(p.d[v]).padStart(2, '0')}`,
+                  )
                   .sort()
                   .join('|')
 
-                if (key === '' || rel < key) key = rel
+                if (key === '' || rel < key) {
+                  key = rel
+                }
               }
 
-              for (let v = 0; v < 3; v++) shadows.add(shadowOf(p.d[v]!).join(','))
+              for (let v = 0; v < 3; v++) {
+                shadows.add(shadowOf(p.d[v]!).join(','))
+              }
+
               clusterBeat(p, depth)
             }
 
-            if (!seen.has(key)) seen.set(key, { start, period, key, shadows: [...shadows].join(' ') })
+            if (!seen.has(key)) {
+              seen.set(key, {
+                start,
+                period,
+                key,
+                shadows: [...shadows].join(' '),
+              })
+            }
           }
         }
       }
@@ -98,16 +154,32 @@ export function oneColumnLevels(depth: number, tmax: number): { levels: ColumnLe
   return { levels: [...seen.values()], starts, leave }
 }
 
-export type FieldCycle = { length: number; exponent: number; extent1: number; extent2: number; inPlane: boolean }
+export type FieldCycle = {
+  length: number
+  exponent: number
+  extent1: number
+  extent2: number
+  inPlane: boolean
+}
 
 // the cycles of the occupation map over every torus translate of a level, with each cycle's field holonomy exponent
 // (mod 2 LH, of zeta_(2 LH)) and its in-plane extent
-export function torusCycles(start: Cluster, depth: number, LH: number, LZ: number, b: number): FieldCycle[] {
+export function torusCycles(
+  start: Cluster,
+  depth: number,
+  LH: number,
+  LZ: number,
+  b: number,
+): FieldCycle[] {
   const keyOf = (c: Cluster): string =>
     [0, 1, 2]
-      .map(v => `${mod(c.x[4 * v]!, LH)},${mod(c.x[4 * v + 1]!, LH)},${mod(c.x[4 * v + 2]!, LZ)},${c.x[4 * v + 3]},${c.d[v]}`)
+      .map(
+        v =>
+          `${mod(c.x[4 * v]!, LH)},${mod(c.x[4 * v + 1]!, LH)},${mod(c.x[4 * v + 2]!, LZ)},${c.x[4 * v + 3]},${c.d[v]}`,
+      )
       .sort()
       .join('|')
+
   const reduce = (c: Cluster): void => {
     for (let v = 0; v < 3; v++) {
       c.x[4 * v] = mod(c.x[4 * v]!, LH)
@@ -115,6 +187,7 @@ export function torusCycles(start: Cluster, depth: number, LH: number, LZ: numbe
       c.x[4 * v + 2] = mod(c.x[4 * v + 2]!, LZ)
     }
   }
+
   const visited = new Set<string>()
   const out: FieldCycle[] = []
 
@@ -122,7 +195,9 @@ export function torusCycles(start: Cluster, depth: number, LH: number, LZ: numbe
     for (let a2 = 0; a2 < LH; a2++) {
       for (let a3 = 0; a3 < LZ; a3++) {
         for (let a4 = 0; a4 < 2 * depth; a4++) {
-          if (mod(a1 + a2 + a3 + a4, 2) !== 0) continue
+          if (mod(a1 + a2 + a3 + a4, 2) !== 0) {
+            continue
+          }
 
           const c = cloneCluster(start)
 
@@ -137,12 +212,16 @@ export function torusCycles(start: Cluster, depth: number, LH: number, LZ: numbe
 
           const first = keyOf(c)
 
-          if (visited.has(first)) continue
+          if (visited.has(first)) {
+            continue
+          }
 
           let length = 0
           let exponent = 0
+
           const x1s = new Set<number>()
           const x2s = new Set<number>()
+
           let inPlane = false
           let key = first
 
@@ -163,19 +242,34 @@ export function torusCycles(start: Cluster, depth: number, LH: number, LZ: numbe
               const s1 = c.x[4 * v]! - probe.x[4 * v]!
               const s2 = c.x[4 * v + 1]! - probe.x[4 * v + 1]!
 
-              if (s1 !== 0 || s2 !== 0) inPlane = true
+              if (s1 !== 0 || s2 !== 0) {
+                inPlane = true
+              }
 
-              exponent = mod(exponent + b * s2 * (2 * probe.x[4 * v]! + s1), 2 * LH)
+              exponent = mod(
+                exponent + b * s2 * (2 * probe.x[4 * v]! + s1),
+                2 * LH,
+              )
             }
 
             reduce(c)
             length++
             key = keyOf(c)
 
-            if (length > 1_000_000) throw new Error('knit-cluster-field: a cycle did not close')
+            if (length > 1_000_000) {
+              throw new Error(
+                'knit-cluster-field: a cycle did not close',
+              )
+            }
           } while (key !== first)
 
-          out.push({ length, exponent, extent1: x1s.size, extent2: x2s.size, inPlane })
+          out.push({
+            length,
+            exponent,
+            extent1: x1s.size,
+            extent2: x2s.size,
+            inPlane,
+          })
         }
       }
     }

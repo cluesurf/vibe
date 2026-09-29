@@ -40,12 +40,25 @@ export type PeierlsWalk = {
   hops: number
 }
 
-export function makeWalk(input: { order: number; depth: number; sites: number; start: readonly number[] }): PeierlsWalk {
+export function makeWalk(input: {
+  order: number
+  depth: number
+  sites: number
+  start: readonly number[]
+}): PeierlsWalk {
   const { order, depth, sites } = input
 
-  if (order % (4 * depth) !== 0) throw new Error('the order must be a multiple of 4D')
-  if ((order & (order - 1)) !== 0) throw new Error('the order must be a power of two')
-  if (sites % 2 !== 0) throw new Error('the line must have an even number of docks')
+  if (order % (4 * depth) !== 0) {
+    throw new Error('the order must be a multiple of 4D')
+  }
+
+  if ((order & (order - 1)) !== 0) {
+    throw new Error('the order must be a power of two')
+  }
+
+  if (sites % 2 !== 0) {
+    throw new Error('the line must have an even number of docks')
+  }
 
   const half = order / 2
   const amp: bigint[] = new Array<bigint>(sites * half).fill(0n)
@@ -62,7 +75,15 @@ export function copyWalk(w: PeierlsWalk): PeierlsWalk {
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 // out[at + j] += sign * zeta^k * a[from + j], over one element
-function addRotated(out: bigint[], at: number, a: bigint[], from: number, k: number, sign: 1 | -1, half: number): void {
+function addRotated(
+  out: bigint[],
+  at: number,
+  a: bigint[],
+  from: number,
+  k: number,
+  sign: 1 | -1,
+  half: number,
+): void {
   const order = 2 * half
   const r = mod(k, order)
   const flip = r >= half
@@ -71,7 +92,9 @@ function addRotated(out: bigint[], at: number, a: bigint[], from: number, k: num
   for (let j = 0; j < half; j++) {
     const c = a[from + j]!
 
-    if (c === 0n) continue
+    if (c === 0n) {
+      continue
+    }
 
     let t = j + s
     let neg = flip
@@ -81,13 +104,19 @@ function addRotated(out: bigint[], at: number, a: bigint[], from: number, k: num
       neg = !neg
     }
 
-    out[at + t] = neg === (sign < 0) ? out[at + t]! + c : out[at + t]! - c
+    out[at + t] = neg === sign < 0 ? out[at + t]! + c : out[at + t]! - c
   }
 }
 
 // one substep on the links of one parity: `angles[x]` is A on the link x -> x + 1, `q` the charge, `dir` +1 for the
 // hop and -1 for its inverse
-function substep(w: PeierlsWalk, parity: number, angles: ArrayLike<number>, q: number, dir: 1 | -1): void {
+function substep(
+  w: PeierlsWalk,
+  parity: number,
+  angles: ArrayLike<number>,
+  q: number,
+  dir: 1 | -1,
+): void {
   const { half, sites, step } = w
   const next: bigint[] = new Array<bigint>(sites * half).fill(0n)
   const s: 1 | -1 = dir
@@ -110,18 +139,28 @@ function substep(w: PeierlsWalk, parity: number, angles: ArrayLike<number>, q: n
     addRotated(next, ay, w.amp, ax, -1 - ph, s === 1 ? -1 : 1, half)
   }
 
-  for (let i = 0; i < next.length; i++) w.amp[i] = next[i]!
+  for (let i = 0; i < next.length; i++) {
+    w.amp[i] = next[i]!
+  }
 }
 
 // one beat: the even links, then the odd links, reading the same angles
-export function walkBeat(w: PeierlsWalk, angles: ArrayLike<number>, q: number): void {
+export function walkBeat(
+  w: PeierlsWalk,
+  angles: ArrayLike<number>,
+  q: number,
+): void {
   substep(w, 0, angles, q, 1)
   substep(w, 1, angles, q, 1)
   w.hops += 2
 }
 
 // the inverse of walkBeat with the same angles: psi~ comes back multiplied by 4 per substep undone (2 V^-1 2 V = 4)
-export function walkBeatBack(w: PeierlsWalk, angles: ArrayLike<number>, q: number): void {
+export function walkBeatBack(
+  w: PeierlsWalk,
+  angles: ArrayLike<number>,
+  q: number,
+): void {
   substep(w, 1, angles, q, -1)
   substep(w, 0, angles, q, -1)
   w.hops += 2
@@ -132,23 +171,49 @@ export function walkBeatBack(w: PeierlsWalk, angles: ArrayLike<number>, q: numbe
 export function normTrace(w: PeierlsWalk): bigint {
   let s = 0n
 
-  for (const c of w.amp) s += c * c
+  for (const c of w.amp) {
+    s += c * c
+  }
 
   return s
 }
 
 // the gauge map: psi_x -> zeta_(4D)^(-q c(x)) psi_x, in place
-export function gaugeWalk(w: PeierlsWalk, c: ArrayLike<number>, q: number): void {
+export function gaugeWalk(
+  w: PeierlsWalk,
+  c: ArrayLike<number>,
+  q: number,
+): void {
   const { half, sites, step } = w
   const next: bigint[] = new Array<bigint>(sites * half).fill(0n)
 
-  for (let x = 0; x < sites; x++) addRotated(next, x * half, w.amp, x * half, -step * q * (c[x] ?? 0), 1, half)
+  for (let x = 0; x < sites; x++) {
+    addRotated(
+      next,
+      x * half,
+      w.amp,
+      x * half,
+      -step * q * (c[x] ?? 0),
+      1,
+      half,
+    )
+  }
 
-  for (let i = 0; i < next.length; i++) w.amp[i] = next[i]!
+  for (let i = 0; i < next.length; i++) {
+    w.amp[i] = next[i]!
+  }
 }
 
-export function sameWalk(a: PeierlsWalk, b: PeierlsWalk, scaleB = 1n): boolean {
-  for (let i = 0; i < a.amp.length; i++) if (a.amp[i] !== b.amp[i]! * scaleB) return false
+export function sameWalk(
+  a: PeierlsWalk,
+  b: PeierlsWalk,
+  scaleB = 1n,
+): boolean {
+  for (let i = 0; i < a.amp.length; i++) {
+    if (a.amp[i] !== b.amp[i]! * scaleB) {
+      return false
+    }
+  }
 
   return true
 }
@@ -156,18 +221,26 @@ export function sameWalk(a: PeierlsWalk, b: PeierlsWalk, scaleB = 1n): boolean {
 // measurement only: the probabilities |psi_x|^2 / sum, from the coefficients shifted to doubles
 export function probabilities(w: PeierlsWalk): Float64Array {
   const { half, sites, order } = w
+
   let bits = 0
 
   for (const c of w.amp) {
     const b = (c < 0n ? -c : c).toString(2).length
 
-    if (b > bits) bits = b
+    if (b > bits) {
+      bits = b
+    }
   }
 
   const shift = BigInt(Math.max(0, bits - 60))
-  const cos = Float64Array.from({ length: half }, (_, j) => Math.cos((2 * Math.PI * j) / order))
-  const sin = Float64Array.from({ length: half }, (_, j) => Math.sin((2 * Math.PI * j) / order))
+  const cos = Float64Array.from({ length: half }, (_, j) =>
+    Math.cos((2 * Math.PI * j) / order),
+  )
+  const sin = Float64Array.from({ length: half }, (_, j) =>
+    Math.sin((2 * Math.PI * j) / order),
+  )
   const p = new Float64Array(sites)
+
   let total = 0
 
   for (let x = 0; x < sites; x++) {
@@ -177,7 +250,9 @@ export function probabilities(w: PeierlsWalk): Float64Array {
     for (let j = 0; j < half; j++) {
       const c = w.amp[x * half + j]!
 
-      if (c === 0n) continue
+      if (c === 0n) {
+        continue
+      }
 
       const v = Number(c >> shift)
 
@@ -189,7 +264,9 @@ export function probabilities(w: PeierlsWalk): Float64Array {
     total += p[x]!
   }
 
-  for (let x = 0; x < sites; x++) p[x] = p[x]! / total
+  for (let x = 0; x < sites; x++) {
+    p[x] = p[x]! / total
+  }
 
   return p
 }

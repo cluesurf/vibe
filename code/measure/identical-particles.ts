@@ -25,7 +25,13 @@
 // Weights here are pairs of plain numbers when they stay safe integers (checked, never rounded), and
 // bigints where they can grow.
 
-import { type Eisenstein, norm as eisensteinNorm, plus as eisensteinPlus, times as eisensteinTimes, turn } from '@/code/rule/fear-walk'
+import {
+  type Eisenstein,
+  norm as eisensteinNorm,
+  plus as eisensteinPlus,
+  times as eisensteinTimes,
+  turn,
+} from '@/code/rule/fear-walk'
 import { twoRolePoints, type Whole } from '@/code/rule/fear-weave'
 import { gridWeights } from '@/code/measure/grid-weights'
 
@@ -63,10 +69,30 @@ export type LineCoin = {
 
 // the swap phase at phi = 2 pi / 3 (the fear coin), at pi / 2 (the balanced splitter, in Z[i]), and its two
 // classical ends: phi = pi, the committed table's hop, and phi = 0, the bind table's stay
-export const FEAR_LINE_COIN: LineCoin = { name: 'fear', ring: EISENSTEIN, keep: [1n, 1n], reverse: [1n, -1n] }
-export const BALANCED_LINE_COIN: LineCoin = { name: 'balanced', ring: GAUSSIAN, keep: [1n, 1n], reverse: [1n, -1n] }
-export const HOP_LINE_COIN: LineCoin = { name: 'hop', ring: EISENSTEIN, keep: [0n, 0n], reverse: [2n, 0n] }
-export const STAY_LINE_COIN: LineCoin = { name: 'stay', ring: EISENSTEIN, keep: [2n, 0n], reverse: [0n, 0n] }
+export const FEAR_LINE_COIN: LineCoin = {
+  name: 'fear',
+  ring: EISENSTEIN,
+  keep: [1n, 1n],
+  reverse: [1n, -1n],
+}
+export const BALANCED_LINE_COIN: LineCoin = {
+  name: 'balanced',
+  ring: GAUSSIAN,
+  keep: [1n, 1n],
+  reverse: [1n, -1n],
+}
+export const HOP_LINE_COIN: LineCoin = {
+  name: 'hop',
+  ring: EISENSTEIN,
+  keep: [0n, 0n],
+  reverse: [2n, 0n],
+}
+export const STAY_LINE_COIN: LineCoin = {
+  name: 'stay',
+  ring: EISENSTEIN,
+  keep: [2n, 0n],
+  reverse: [0n, 0n],
+}
 
 // an exact fraction
 export type Fraction = { readonly num: bigint; readonly den: bigint }
@@ -97,17 +123,30 @@ function gcd(a: bigint, b: bigint): bigint {
 }
 
 // A sparse one-vibe map: for each source slot, its targets and weights (all over one common scale)
-export type Columns = readonly (readonly (readonly [number, Eisenstein])[])[]
+export type Columns = readonly (readonly (readonly [
+  number,
+  Eisenstein,
+])[])[]
 
 // One beat of the splitter line: docks 0 .. docks - 1, slot 2 x (moving right) and 2 x + 1 (moving left);
 // the coin acts at dock `splitter` only, every other dock streams its slots on (the stay coin, 2 over 2).
 // The line is open: a weight streamed past either end is lost, so callers keep the packets inside
-export function splitterColumns(input: { docks: number; splitter: number; coin: LineCoin }): Columns {
+export function splitterColumns(input: {
+  docks: number
+  splitter: number
+  coin: LineCoin
+}): Columns {
   const { docks, splitter, coin } = input
   const out: (readonly [number, Eisenstein])[][] = []
   const right = (x: number): number => 2 * x
   const left = (x: number): number => 2 * x + 1
-  const add = (list: (readonly [number, Eisenstein])[], slot: number, x: number, weight: Eisenstein): void => {
+
+  const add = (
+    list: (readonly [number, Eisenstein])[],
+    slot: number,
+    x: number,
+    weight: Eisenstein,
+  ): void => {
     if (x >= 0 && x < docks && (weight[0] !== 0n || weight[1] !== 0n)) {
       list.push([slot, weight])
     }
@@ -137,8 +176,14 @@ export function splitterColumns(input: { docks: number; splitter: number; coin: 
 }
 
 // apply a one-vibe map to a weight vector
-export function applyColumns(ring: Ring, columns: Columns, state: readonly Eisenstein[]): Eisenstein[] {
-  const out: Eisenstein[] = new Array<Eisenstein>(state.length).fill(ZERO)
+export function applyColumns(
+  ring: Ring,
+  columns: Columns,
+  state: readonly Eisenstein[],
+): Eisenstein[] {
+  const out: Eisenstein[] = new Array<Eisenstein>(state.length).fill(
+    ZERO,
+  )
 
   state.forEach((w, s) => {
     if (w[0] === 0n && w[1] === 0n) {
@@ -163,9 +208,17 @@ export type HongOuMandel = {
   readonly distinguishable: Fraction
   // the closed form, from the coin alone: P_dist = p^2 + (1 - p)^2 and P = P_dist -+ 2 p (1 - p) I^2, with
   // p = |a|^2 and I the overlap of the two packets' arrival profiles
-  readonly predicted: { readonly boson: Fraction; readonly fermion: Fraction; readonly distinguishable: Fraction }
+  readonly predicted: {
+    readonly boson: Fraction
+    readonly fermion: Fraction
+    readonly distinguishable: Fraction
+  }
   // the slot: the hard-core two-vibe walk M_chi from the product start, its final norm and coincidence
-  readonly hardCore: readonly { readonly chi: number; readonly norm: Fraction; readonly coincidence: Fraction }[]
+  readonly hardCore: readonly {
+    readonly chi: number
+    readonly norm: Fraction
+    readonly coincidence: Fraction
+  }[]
   readonly overlap: Fraction
 }
 
@@ -210,6 +263,7 @@ export function hongOuMandel(input: {
   const slots = 2 * docks
   const columns = splitterColumns({ docks, splitter, coin })
   const ring = coin.ring
+
   let a: Eisenstein[] = new Array<Eisenstein>(slots).fill(ZERO)
   let b: Eisenstein[] = new Array<Eisenstein>(slots).fill(ZERO)
 
@@ -239,8 +293,18 @@ export function hongOuMandel(input: {
 
     return 'none'
   }
-  const occupied = [...Array(slots).keys()].filter(s => a[s]?.[0] !== 0n || a[s]?.[1] !== 0n || b[s]?.[0] !== 0n || b[s]?.[1] !== 0n)
-  const tally = (sign: number): { across: Fraction; same: Fraction } => {
+
+  const occupied = [...Array(slots).keys()].filter(
+    s =>
+      a[s]?.[0] !== 0n ||
+      a[s]?.[1] !== 0n ||
+      b[s]?.[0] !== 0n ||
+      b[s]?.[1] !== 0n,
+  )
+
+  const tally = (
+    sign: number,
+  ): { across: Fraction; same: Fraction } => {
     let across = 0n
     let same = 0n
     let total = 0n
@@ -249,7 +313,13 @@ export function hongOuMandel(input: {
       for (const s2 of occupied) {
         const direct = ring.mul(a[s1] ?? ZERO, b[s2] ?? ZERO)
         const swapped = ring.mul(b[s1] ?? ZERO, a[s2] ?? ZERO)
-        const amp = sign === 0 ? direct : ring.add(direct, sign > 0 ? swapped : [-swapped[0], -swapped[1]])
+        const amp =
+          sign === 0
+            ? direct
+            : ring.add(
+                direct,
+                sign > 0 ? swapped : [-swapped[0], -swapped[1]],
+              )
         const n = ring.norm(amp)
         const s1Side = side(s1)
         const s2Side = side(s2)
@@ -260,19 +330,28 @@ export function hongOuMandel(input: {
           same += n
         }
 
-        if (s1Side !== 'none' && s2Side !== 'none' && s1Side !== s2Side) {
+        if (
+          s1Side !== 'none' &&
+          s2Side !== 'none' &&
+          s1Side !== s2Side
+        ) {
           across += n
         }
       }
     }
 
-    return { across: fraction(across, total), same: fraction(same, total) }
+    return {
+      across: fraction(across, total),
+      same: fraction(same, total),
+    }
   }
+
   const coincidence = (sign: number): Fraction => tally(sign).across
 
   // the closed form
   const p = fraction(ring.norm(coin.keep), 4n)
   const energy = envelope.reduce((sum, e) => sum + e * e, 0n)
+
   let lag = 0n
 
   for (let v = 0; v < width; v++) {
@@ -282,24 +361,40 @@ export function hongOuMandel(input: {
   const overlap = fraction(lag, energy)
   const q = { num: p.den - p.num, den: p.den }
   const pDist = fraction(p.num * p.num + q.num * q.num, p.den * p.den)
-  const cross = fraction(2n * p.num * q.num * overlap.num * overlap.num, p.den * p.den * overlap.den * overlap.den)
-  const minus = fraction(pDist.num * cross.den - cross.num * pDist.den, pDist.den * cross.den)
-  const plus = fraction(pDist.num * cross.den + cross.num * pDist.den, pDist.den * cross.den)
+  const cross = fraction(
+    2n * p.num * q.num * overlap.num * overlap.num,
+    p.den * p.den * overlap.den * overlap.den,
+  )
+  const minus = fraction(
+    pDist.num * cross.den - cross.num * pDist.den,
+    pDist.den * cross.den,
+  )
+  const plus = fraction(
+    pDist.num * cross.den + cross.num * pDist.den,
+    pDist.den * cross.den,
+  )
 
   const hardCore = (input.chis ?? []).map(chi => {
     const phase = unitOf(ring, chi)
+
     // the start: A's slots all have lower indices than B's, so each pair {sA, sB} is already ordered
     let config = new Map<number, Eisenstein>()
 
     start.a.forEach((wa, sa) => {
       start.b.forEach((wb, sb) => {
-        if ((wa[0] !== 0n || wa[1] !== 0n) && (wb[0] !== 0n || wb[1] !== 0n)) {
+        if (
+          (wa[0] !== 0n || wa[1] !== 0n) &&
+          (wb[0] !== 0n || wb[1] !== 0n)
+        ) {
           config.set(sa * slots + sb, ring.mul(wa, wb))
         }
       })
     })
 
-    const startNorm = [...config.values()].reduce((sum, w) => sum + ring.norm(w), 0n)
+    const startNorm = [...config.values()].reduce(
+      (sum, w) => sum + ring.norm(w),
+      0n,
+    )
 
     for (let t = 0; t < beats; t++) {
       config = pairStep({ ring, columns, config, slots, chi: phase })
@@ -315,7 +410,11 @@ export function hongOuMandel(input: {
 
       total += n
 
-      if (side(s1) !== 'none' && side(s2) !== 'none' && side(s1) !== side(s2)) {
+      if (
+        side(s1) !== 'none' &&
+        side(s2) !== 'none' &&
+        side(s1) !== side(s2)
+      ) {
         across += n
       }
     })
@@ -323,7 +422,11 @@ export function hongOuMandel(input: {
     // each beat scales every pair weight by 4, so the norm by 16
     const scale = 16n ** BigInt(beats)
 
-    return { chi, norm: fraction(total, startNorm * scale), coincidence: fraction(across, startNorm * scale) }
+    return {
+      chi,
+      norm: fraction(total, startNorm * scale),
+      coincidence: fraction(across, startNorm * scale),
+    }
   })
 
   return {
@@ -348,6 +451,7 @@ export function pairStep(input: {
 }): Map<number, Eisenstein> {
   const { ring, columns, config, slots, chi } = input
   const out = new Map<number, Eisenstein>()
+
   const add = (key: number, w: Eisenstein): void => {
     out.set(key, ring.add(out.get(key) ?? ZERO, w))
   }
@@ -385,17 +489,41 @@ export function pairStep(input: {
 // The direct and exchanged parts of one start pair's column of M_chi: D(t1, t2) = U(t1, s1) U(t2, s2) and
 // X(t1, t2) = U(t2, s1) U(t1, s2) for t1 < t2, so the column is D + chi X; the dropped both-in-one-slot
 // weight is B(t) = U(t, s1) U(t, s2). Plain safe-integer Eisenstein pairs
-export type PairParts = { direct: Map<number, [number, number]>; exchanged: Map<number, [number, number]>; bunched: Map<number, [number, number]> }
+export type PairParts = {
+  direct: Map<number, [number, number]>
+  exchanged: Map<number, [number, number]>
+  bunched: Map<number, [number, number]>
+}
 
-const eTimes = (p: readonly [number, number], q: readonly [number, number]): [number, number] => [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0] - p[1] * q[1]]
-const eNorm = (p: readonly [number, number]): number => p[0] * p[0] - p[0] * p[1] + p[1] * p[1]
+const eTimes = (
+  p: readonly [number, number],
+  q: readonly [number, number],
+): [number, number] => [
+  p[0] * q[0] - p[1] * q[1],
+  p[0] * q[1] + p[1] * q[0] - p[1] * q[1],
+]
+const eNorm = (p: readonly [number, number]): number =>
+  p[0] * p[0] - p[0] * p[1] + p[1] * p[1]
 
-export function pairParts(input: { columns: readonly (readonly (readonly [number, readonly [number, number]])[])[]; s1: number; s2: number; slots: number }): PairParts {
+export function pairParts(input: {
+  columns: readonly (readonly (readonly [
+    number,
+    readonly [number, number],
+  ])[])[]
+  s1: number
+  s2: number
+  slots: number
+}): PairParts {
   const { columns, s1, s2, slots } = input
   const direct = new Map<number, [number, number]>()
   const exchanged = new Map<number, [number, number]>()
   const bunched = new Map<number, [number, number]>()
-  const add = (map: Map<number, [number, number]>, key: number, w: [number, number]): void => {
+
+  const add = (
+    map: Map<number, [number, number]>,
+    key: number,
+    w: [number, number],
+  ): void => {
     const old = map.get(key) ?? [0, 0]
 
     map.set(key, [old[0] + w[0], old[1] + w[1]])
@@ -423,6 +551,7 @@ export function pairParts(input: { columns: readonly (readonly (readonly [number
 export function pairNorm(parts: PairParts, chi: number): number {
   const k = Math.abs(chi) === 1 ? 0 : Math.abs(chi) - 1
   const sign = chi < 0 ? -1 : 1
+
   const rotate = (p: readonly [number, number]): [number, number] => {
     let out: [number, number] = [p[0], p[1]]
 
@@ -432,8 +561,13 @@ export function pairNorm(parts: PairParts, chi: number): number {
 
     return [sign * out[0], sign * out[1]]
   }
+
   let total = 0
-  const keys = new Set([...parts.direct.keys(), ...parts.exchanged.keys()])
+
+  const keys = new Set([
+    ...parts.direct.keys(),
+    ...parts.exchanged.keys(),
+  ])
 
   for (const key of keys) {
     const d = parts.direct.get(key) ?? [0, 0]
@@ -464,7 +598,9 @@ export function bunchedNorm(parts: PairParts): number {
 
 // The fear walk's one-beat columns on a ring of `docks` docks (walkBeat's convention), as plain integers
 // over 2: slot 2 x moves right, 2 x + 1 left; the coin [keep, reverse] = [1 + omega, 1 - omega]
-export function ringColumns(docks: number): [number, [number, number]][][] {
+export function ringColumns(
+  docks: number,
+): [number, [number, number]][][] {
   const keep: [number, number] = [1, 1]
   const reverse: [number, number] = [1, -1]
   const out: [number, [number, number]][][] = []
@@ -477,6 +613,7 @@ export function ringColumns(docks: number): [number, [number, number]][][] {
       [2 * r, keep],
       [2 * l + 1, reverse],
     ])
+
     out.push([
       [2 * r, reverse],
       [2 * l + 1, keep],
@@ -488,8 +625,14 @@ export function ringColumns(docks: number): [number, [number, number]][][] {
 
 // compose plain-integer columns: (second after first)
 export function composeColumns(
-  first: readonly (readonly (readonly [number, readonly [number, number]])[])[],
-  second: readonly (readonly (readonly [number, readonly [number, number]])[])[],
+  first: readonly (readonly (readonly [
+    number,
+    readonly [number, number],
+  ])[])[],
+  second: readonly (readonly (readonly [
+    number,
+    readonly [number, number],
+  ])[])[],
 ): [number, [number, number]][][] {
   return first.map(column => {
     const acc = new Map<number, [number, number]>()
@@ -503,24 +646,35 @@ export function composeColumns(
       }
     }
 
-    return [...acc.entries()].filter(([, w]) => w[0] !== 0 || w[1] !== 0)
+    return [...acc.entries()].filter(
+      ([, w]) => w[0] !== 0 || w[1] !== 0,
+    )
   })
 }
 
 // The 3D husk fear walk: an L^3 torus, two slots per dock (0 forward, 1 back along the current axis), a beat
 // the coin then a stream along each axis of the order; the palindrome x y z z y x by default. Plain integer
 // columns over 2^(order length)
-export function huskWalkColumns(input: { side: number; order?: readonly number[] }): [number, [number, number]][][] {
+export function huskWalkColumns(input: {
+  side: number
+  order?: readonly number[]
+}): [number, [number, number]][][] {
   const side = input.side
   const order = input.order ?? [0, 1, 2, 2, 1, 0]
   const docks = side ** 3
-  const step = (x: number, axis: number, by: number): number => {
-    const c = [x % side, Math.floor(x / side) % side, Math.floor(x / (side * side))]
 
-    c[axis] = (((c[axis] ?? 0) + by) % side + side) % side
+  const step = (x: number, axis: number, by: number): number => {
+    const c = [
+      x % side,
+      Math.floor(x / side) % side,
+      Math.floor(x / (side * side)),
+    ]
+
+    c[axis] = ((((c[axis] ?? 0) + by) % side) + side) % side
 
     return (c[0] ?? 0) + side * (c[1] ?? 0) + side * side * (c[2] ?? 0)
   }
+
   const substep = (axis: number): [number, [number, number]][][] => {
     const out: [number, [number, number]][][] = []
 
@@ -532,6 +686,7 @@ export function huskWalkColumns(input: { side: number; order?: readonly number[]
         [2 * f, [1, 1]],
         [2 * b + 1, [1, -1]],
       ])
+
       out.push([
         [2 * f, [1, -1]],
         [2 * b + 1, [1, 1]],
@@ -552,11 +707,16 @@ export function huskWalkColumns(input: { side: number; order?: readonly number[]
 
 // A dense complex k x k coin's two-vibe column norms for M_chi, chi = e^(i theta), over every start pair,
 // and the largest departure from 1 (the Gram check for chi = -1 is in pairGramDeparture)
-export function denseCoinPairDeparture(input: { re: readonly (readonly number[])[]; im: readonly (readonly number[])[]; theta: number }): number {
+export function denseCoinPairDeparture(input: {
+  re: readonly (readonly number[])[]
+  im: readonly (readonly number[])[]
+  theta: number
+}): number {
   const { re, im, theta } = input
   const k = re.length
   const cr = Math.cos(theta)
   const ci = Math.sin(theta)
+
   let worst = 0
 
   // U(t, s) = re[t][s] + i im[t][s]
@@ -566,8 +726,18 @@ export function denseCoinPairDeparture(input: { re: readonly (readonly number[])
 
       for (let t1 = 0; t1 < k; t1++) {
         for (let t2 = t1 + 1; t2 < k; t2++) {
-          const [dr, di] = cmul(re[t1]?.[s1] ?? 0, im[t1]?.[s1] ?? 0, re[t2]?.[s2] ?? 0, im[t2]?.[s2] ?? 0)
-          const [xr0, xi0] = cmul(re[t2]?.[s1] ?? 0, im[t2]?.[s1] ?? 0, re[t1]?.[s2] ?? 0, im[t1]?.[s2] ?? 0)
+          const [dr, di] = cmul(
+            re[t1]?.[s1] ?? 0,
+            im[t1]?.[s1] ?? 0,
+            re[t2]?.[s2] ?? 0,
+            im[t2]?.[s2] ?? 0,
+          )
+          const [xr0, xi0] = cmul(
+            re[t2]?.[s1] ?? 0,
+            im[t2]?.[s1] ?? 0,
+            re[t1]?.[s2] ?? 0,
+            im[t1]?.[s2] ?? 0,
+          )
           const [xr, xi] = cmul(cr, ci, xr0, xi0)
 
           total += (dr + xr) ** 2 + (di + xi) ** 2
@@ -581,18 +751,30 @@ export function denseCoinPairDeparture(input: { re: readonly (readonly number[])
   return worst
 }
 
-function cmul(a: number, b: number, c: number, d: number): [number, number] {
+function cmul(
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+): [number, number] {
   return [a * c - b * d, a * d + b * c]
 }
 
 // A two-token whole (code/rule/fear-weave) for the uniform mixture of real pure two-role states, each
 // given by its 9 amplitudes on |3 i + j>, in the fewest whole units, with the fear weave's own phase points
-export function twoRoleWhole(states: readonly (readonly number[])[]): { whole: Whole; units: bigint } {
+export function twoRoleWhole(states: readonly (readonly number[])[]): {
+  whole: Whole
+  units: bigint
+} {
   const points = twoRolePoints()
   const sum = new Array<number>(81).fill(0)
 
   for (const amplitude of states) {
-    const w = gridWeights({ re: [...amplitude], im: new Array<number>(9).fill(0), points })
+    const w = gridWeights({
+      re: [...amplitude],
+      im: new Array<number>(9).fill(0),
+      points,
+    })
 
     w.forEach((x, i) => {
       sum[i] = (sum[i] ?? 0) + x / states.length
@@ -601,7 +783,13 @@ export function twoRoleWhole(states: readonly (readonly number[])[]): { whole: W
 
   for (let n = 1; n <= 10000; n++) {
     if (sum.every(x => Math.abs(n * x - Math.round(n * x)) < 1e-9)) {
-      return { whole: { tokens: [0, 1], weight: sum.map(x => BigInt(Math.round(n * x))) }, units: BigInt(n) }
+      return {
+        whole: {
+          tokens: [0, 1],
+          weight: sum.map(x => BigInt(Math.round(n * x))),
+        },
+        units: BigInt(n),
+      }
     }
   }
 
@@ -610,12 +798,21 @@ export function twoRoleWhole(states: readonly (readonly number[])[]): { whole: W
 
 // the exact chance that the first token holds role i and the second role j: 9 sum_x W(x) W_ij(x), with
 // W_ij the weights of the basis product |i j>, which are ninths
-export function roleChance(whole: Whole, i: number, j: number): Fraction {
+export function roleChance(
+  whole: Whole,
+  i: number,
+  j: number,
+): Fraction {
   const amplitude = new Array<number>(9).fill(0)
 
   amplitude[3 * i + j] = 1
 
-  const w = gridWeights({ re: amplitude, im: new Array<number>(9).fill(0), points: twoRolePoints() })
+  const w = gridWeights({
+    re: amplitude,
+    im: new Array<number>(9).fill(0),
+    points: twoRolePoints(),
+  })
+
   let num = 0n
 
   w.forEach((x, p) => {
@@ -628,5 +825,8 @@ export function roleChance(whole: Whole, i: number, j: number): Fraction {
     num += BigInt(nine) * (whole.weight[p] ?? 0n)
   })
 
-  return fraction(num, whole.weight.reduce((a, b) => a + b, 0n))
+  return fraction(
+    num,
+    whole.weight.reduce((a, b) => a + b, 0n),
+  )
 }

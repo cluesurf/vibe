@@ -62,8 +62,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { applyKernel, cubicPhaseKernel, stabilizerLines, sumKernel, swapPhaseKernel, type Kernel } from '@/code/rule/light-register-kernels'
-import { cliffordLevel, displacementOperators } from '@/code/measure/qutrit-clifford'
+import {
+  applyKernel,
+  cubicPhaseKernel,
+  stabilizerLines,
+  sumKernel,
+  swapPhaseKernel,
+  type Kernel,
+} from '@/code/rule/light-register-kernels'
+import {
+  cliffordLevel,
+  displacementOperators,
+} from '@/code/measure/qutrit-clifford'
 import { operator } from '@/code/measure/grid-weights'
 import {
   applyExchange,
@@ -128,7 +138,9 @@ function ringBeat(r: Registers, s: State, coupling: Coupling): State {
       const sy = balanced(digitOf(r, i, 0), r.dims[0]!)
       const sz = balanced(digitOf(r, i, 1), r.dims[1]!)
 
-      return (sy * sy * digitOf(r, i, 3) + sz * sz * digitOf(r, i, 2)) / 3
+      return (
+        (sy * sy * digitOf(r, i, 3) + sz * sz * digitOf(r, i, 2)) / 3
+      )
     })
   } else if (coupling === 'swap') {
     x = applySwapPhase(r, x, 0, 3, 1)
@@ -139,24 +151,37 @@ function ringBeat(r: Registers, s: State, coupling: Coupling): State {
 }
 
 // Gauss at the two docks of a basis index or a point's positions (flow dimension d, slots read balanced)
-function gaussOf(dims: readonly number[], position: (q: number) => number): [number, number] {
+function gaussOf(
+  dims: readonly number[],
+  position: (q: number) => number,
+): [number, number] {
   const d = dims[2]!
   const sy = balanced(position(0), dims[0]!)
   const sz = balanced(position(1), dims[1]!)
   const fyz = position(2)
   const fzy = position(3)
 
-  return [(((fyz - fzy + sy) % d) + d) % d, (((fzy - fyz + sz) % d) + d) % d]
+  return [
+    (((fyz - fzy + sy) % d) + d) % d,
+    (((fzy - fyz + sz) % d) + d) % d,
+  ]
 }
 
-function sectorStart(r: Registers, sector: [number, number], salt: number): State {
+function sectorStart(
+  r: Registers,
+  sector: [number, number],
+  salt: number,
+): State {
   const s = emptyState(r)
+
   let k = 0
 
   for (let i = 0; i < r.size; i++) {
     const g = gaussOf(r.dims, q => digitOf(r, i, q))
 
-    if (g[0] !== sector[0] || g[1] !== sector[1]) continue
+    if (g[0] !== sector[0] || g[1] !== sector[1]) {
+      continue
+    }
 
     const phase = 2 * Math.PI * (((salt + k) * GOLDEN) % 1)
     const radius = 0.5 + (((salt + k) * SILVER) % 1)
@@ -170,31 +195,48 @@ function sectorStart(r: Registers, sector: [number, number], salt: number): Stat
 }
 
 // points of nonzero weight off the sector
-function offSector(r: Registers, s: State, sector: [number, number], positions: Int32Array): number {
+function offSector(
+  r: Registers,
+  s: State,
+  sector: [number, number],
+  positions: Int32Array,
+): number {
   const { w } = wigner(r, densityOf(s))
   const count = r.dims.length
+
   let off = 0
 
   for (let x = 0; x < w.length; x++) {
-    if (Math.abs(w[x]!) <= WEIGHT_FLOOR) continue
+    if (Math.abs(w[x]!) <= WEIGHT_FLOOR) {
+      continue
+    }
 
     const g = gaussOf(r.dims, q => positions[x * count + q]!)
 
-    if (g[0] !== sector[0] || g[1] !== sector[1]) off++
+    if (g[0] !== sector[0] || g[1] !== sector[1]) {
+      off++
+    }
   }
 
   return off
 }
 
-function gaussRun(coupling: Coupling, flowDimension: number, beats: number, sectors: [number, number][]): { off: number; offStart: number; leak: number } {
+function gaussRun(
+  coupling: Coupling,
+  flowDimension: number,
+  beats: number,
+  sectors: [number, number][],
+): { off: number; offStart: number; leak: number } {
   const r = registers([3, 3, flowDimension, flowDimension])
   const positions = pointPositions(r)
+
   let off = 0
   let offStart = 0
   let leak = 0
 
   sectors.forEach((sector, n) => {
     let s = sectorStart(r, sector, 7 * n + 1)
+
     const inside = (i: number): boolean => {
       const g = gaussOf(r.dims, q => digitOf(r, i, q))
 
@@ -206,7 +248,10 @@ function gaussRun(coupling: Coupling, flowDimension: number, beats: number, sect
     for (let t = 0; t < beats; t++) {
       s = ringBeat(r, s, coupling)
       off += offSector(r, s, sector, positions)
-      leak = Math.max(leak, weightOutside(s, i => inside(i)))
+      leak = Math.max(
+        leak,
+        weightOutside(s, i => inside(i)),
+      )
     }
   })
 
@@ -227,6 +272,7 @@ export default experiment({
   run() {
     // G1: SUM's kernel
     const sum = sumKernel(1)
+
     let g1Mismatch = 0
 
     for (let y = 0; y < 81; y++) {
@@ -234,17 +280,23 @@ export default experiment({
       const p = Math.floor(y / 9) % 3
       const a = Math.floor(y / 3) % 3
       const b = y % 3
-      const image = 9 * (3 * v + ((p - b + 3) % 3)) + 3 * ((a + v) % 3) + b
+      const image =
+        9 * (3 * v + ((p - b + 3) % 3)) + 3 * ((a + v) % 3) + b
 
-      for (let x = 0; x < 81; x++) g1Mismatch += sum.kernel[x]![y] === (x === image ? sum.divisor : 0) ? 0 : 1
+      for (let x = 0; x < 81; x++) {
+        g1Mismatch +=
+          sum.kernel[x]![y] === (x === image ? sum.divisor : 0) ? 0 : 1
+      }
     }
 
     // G2: the fear-off ring against the integer record
     const ring = registers([3, 3, 3, 3])
+
     let g2Mismatch = 0
 
     for (let i = 0; i < 81; i++) {
       const digits = [0, 1, 2, 3].map(q => digitOf(ring, i, q))
+
       let s = emptyState(ring)
 
       s.re[i] = 1
@@ -260,7 +312,9 @@ export default experiment({
         fzy += sz
         ;[sy, sz] = [sz, sy]
 
-        const at = [...s.re.keys()].filter(j => s.re[j]! ** 2 + s.im[j]! ** 2 > 0.5)
+        const at = [...s.re.keys()].filter(
+          j => s.re[j]! ** 2 + s.im[j]! ** 2 > 0.5,
+        )
 
         if (at.length !== 1) {
           g2Mismatch++
@@ -283,18 +337,29 @@ export default experiment({
     const swap = swapPhaseKernel(1)
     const two = registers([3, 3])
     const lines = stabilizerLines()
-    const products = lines.flatMap(x => lines.map(y => x.flatMap(u => y.map(t => u * t))))
+    const products = lines.flatMap(x =>
+      lines.map(y => x.flatMap(u => y.map(t => u * t))),
+    )
     const family: number[][] = [
       ...products.map(w => w.map(u => u / 9)),
-      ...Array.from({ length: WEYL_STATES }, (_, n) => Array.from(wigner(two, densityOf(weylState(9, 11 * n + 3))).w)),
+      ...Array.from({ length: WEYL_STATES }, (_, n) =>
+        Array.from(wigner(two, densityOf(weylState(9, 11 * n + 3))).w),
+      ),
     ]
+
     let g3Least = Infinity
 
     for (const k of [cubic, swap]) {
       for (const w of family) {
-        const out = Float64Array.from(applyKernel(k, w), x => x / k.divisor)
+        const out = Float64Array.from(
+          applyKernel(k, w),
+          x => x / k.divisor,
+        )
 
-        g3Least = Math.min(g3Least, smallestEigenvalue(densityFromWigner(two, out)))
+        g3Least = Math.min(
+          g3Least,
+          smallestEigenvalue(densityFromWigner(two, out)),
+        )
       }
     }
 
@@ -318,17 +383,27 @@ export default experiment({
 
           return normalize(s)
         }),
-        ...Array.from({ length: WEYL_STATES }, (_, n) => weylState(d, 5 * n + 2)),
+        ...Array.from({ length: WEYL_STATES }, (_, n) =>
+          weylState(d, 5 * n + 2),
+        ),
       ]
+
       let least = Infinity
 
       for (const s of starts) {
         const { w } = wigner(r, densityOf(s))
         const out = new Float64Array(w.length)
 
-        for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) out[a * d + ((((b + f(a)) % d) + d) % d)] = w[a * d + b]!
+        for (let a = 0; a < d; a++) {
+          for (let b = 0; b < d; b++) {
+            out[a * d + ((((b + f(a)) % d) + d) % d)] = w[a * d + b]!
+          }
+        }
 
-        least = Math.min(least, smallestEigenvalue(densityFromWigner(r, out)))
+        least = Math.min(
+          least,
+          smallestEigenvalue(densityFromWigner(r, out)),
+        )
       }
 
       return least
@@ -345,9 +420,12 @@ export default experiment({
         for (let j = 0; j < 81; j++) {
           let s = 0
 
-          for (let k = 0; k < 81; k++) s += back.kernel[i]![k]! * forward.kernel[k]![j]!
+          for (let k = 0; k < 81; k++) {
+            s += back.kernel[i]![k]! * forward.kernel[k]![j]!
+          }
 
-          bad += s === (i === j ? forward.divisor * back.divisor : 0) ? 0 : 1
+          bad +=
+            s === (i === j ? forward.divisor * back.divisor : 0) ? 0 : 1
         }
       }
 
@@ -355,10 +433,14 @@ export default experiment({
     }
 
     const g4 =
-      identityDefect(sum, sumKernel(-1)) + identityDefect(cubic, cubicPhaseKernel(-1)) + identityDefect(swap, swapPhaseKernel(2))
+      identityDefect(sum, sumKernel(-1)) +
+      identityDefect(cubic, cubicPhaseKernel(-1)) +
+      identityDefect(swap, swapPhaseKernel(2))
 
     // G5: Gauss per history
-    const sectors: [number, number][] = [0, 1, 2].flatMap(g => [0, 1, 2].map(h => [g, h] as [number, number]))
+    const sectors: [number, number][] = [0, 1, 2].flatMap(g =>
+      [0, 1, 2].map(h => [g, h] as [number, number]),
+    )
     const gaussSum = gaussRun('none', 3, RING_BEATS, sectors)
     const gaussCubic = gaussRun('cubic', 3, RING_BEATS, sectors)
     const gaussSwap = gaussRun('swap', 3, RING_BEATS, sectors)
@@ -373,7 +455,12 @@ export default experiment({
       products.reduce((n, w) => {
         const out = applyKernel(k, w)
 
-        return n + (out.reduce((s, x) => s + Math.abs(x), 0) === 9 * k.divisor ? 0 : 1)
+        return (
+          n +
+          (out.reduce((s, x) => s + Math.abs(x), 0) === 9 * k.divisor
+            ? 0
+            : 1)
+        )
       }, 0)
 
     const manaSum = manaChanges(sum)
@@ -384,8 +471,11 @@ export default experiment({
     strange.re[3] = Math.SQRT1_2
     strange.re[6] = -Math.SQRT1_2
 
-    const linkNegative = (s: State): number => negativeWeight(marginal(two, wigner(two, densityOf(s)).w, [1]).w)
-    const afterSwap = linkNegative(applySwapPhase(two, strange, 0, 1, 1))
+    const linkNegative = (s: State): number =>
+      negativeWeight(marginal(two, wigner(two, densityOf(s)).w, [1]).w)
+    const afterSwap = linkNegative(
+      applySwapPhase(two, strange, 0, 1, 1),
+    )
     const afterSum = linkNegative(applySum(two, strange, 0, 1))
 
     // reported: Clifford levels
@@ -411,7 +501,11 @@ export default experiment({
       backAction.im[v * 4] = Math.sin(t)
     }
 
-    const backActionLevel = cliffordLevel(backAction, displacementOperators(1), 3)
+    const backActionLevel = cliffordLevel(
+      backAction,
+      displacementOperators(1),
+      3,
+    )
 
     const metrics: Record<string, number> = {
       sumDivisor: sum.divisor,
@@ -447,20 +541,42 @@ export default experiment({
       G2: g2Mismatch === 0,
       G3: g3Least >= -1e-12 && kickSquare < -1e-6 && kickCarry < -1e-6,
       G4: g4 === 0,
-      G5: gaussSum.off === 0 && gaussCubic.off === 0 && gaussSwap.off > 0 && gaussSwap.leak > 0 && gaussMixed.offStart > 0 && gaussMixed.leak < 1e-20,
-      G6: manaSum === 0 && manaCubic > 0 && manaSwap > 0 && afterSwap > 1e-9 && afterSum < 1e-12,
+      G5:
+        gaussSum.off === 0 &&
+        gaussCubic.off === 0 &&
+        gaussSwap.off > 0 &&
+        gaussSwap.leak > 0 &&
+        gaussMixed.offStart > 0 &&
+        gaussMixed.leak < 1e-20,
+      G6:
+        manaSum === 0 &&
+        manaCubic > 0 &&
+        manaSwap > 0 &&
+        afterSwap > 1e-9 &&
+        afterSum < 1e-12,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.G1 && gates.G3 && gates.G4 && gates.G5 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.G1 && gates.G3 && gates.G4 && gates.G5
+        ? 'partial'
+        : 'fail'
     const e = (x: number): string => x.toExponential(2)
 
     return verdict({
       status,
       claim: `the flow update SUM is the permutation (v, p, a, b) -> (v, p - b, a + v, b) on all 81 joint points (${g1Mismatch} mismatches): each history records its vibe and the link's angle b kicks the vibe; fear off it is the current light (${g2Mismatch} mismatches over 81 starts x ${RECORD_BEATS} beats); Gauss holds in every history under SUM (${gaussSum.off} points off) and SUM + w^(v^2 a) (${gaussCubic.off}), fails under the swap phase on (vibe, link) (${gaussSwap.off} points off, leak ${e(gaussSwap.leak)}) and, with flows mod 9 and trit charges, in ${gaussMixed.offStart} histories of the start with the operator exact (leak ${e(gaussMixed.leak)}); w^(v^2 a) is level ${cubicLevel} and moves mana on ${manaCubic} of 144 stabilizer starts (SUM ${manaSum}, swap phase ${manaSwap}); a nonlinear per-history kick leaves the state space (smallest eigenvalue ${e(kickSquare)} for a^2, ${e(kickCarry)} for the carry), the exact kernels do not (${e(g3Least)}), and reverse exactly (${g4} defects)`,
       metrics,
-      control: { kickSquareLeast: kickSquare, kickCarryLeast: kickCarry, gaussSwapOff: gaussSwap.off, manaChangesSum: manaSum },
+      control: {
+        kickSquareLeast: kickSquare,
+        kickCarryLeast: kickCarry,
+        gaussSwapOff: gaussSwap.off,
+        manaChangesSum: manaSum,
+      },
       notes:
         'L2, candidate couplings, not the committed knit. FIRST RUN 2026-09-26 (tmp/frc0223.log, 1.1 s), PASS, no gate moved; a refactor moving the kernels to code/rule/light-register-kernels reproduced every number (tmp/frc0223-refactor.log) and added the reading gaussSumOffStart (0). SUM is the permutation (v, p, a, b) -> (v, p - b, a + v, b), divisor 1: each history records its vibe, and the link angle b kicks the vibe conjugate, the back-action a single classical light has no room for. Gauss per history: 0 of the nonzero points leave the sector over 9 sectors x 4 ring beats under SUM and under SUM + w^(v^2 a); the swap phase on (slot, link) puts 52,308 points off and leaks 0.897 of the weight; flows mod 9 with trit slots put 26,244 points off at the START while leaking 0 weight (the operator keeps Gauss, the histories do not: the half unit). w^(v^2 a) is level 3 (divisor 3) and moves mana on 81 of 144 stabilizer products (SUM 0, swap phase 132, divisor 4); one swap-phase meeting from the Strange vibe leaves the link negative weight 1/6 exactly as derived, SUM leaves none. The per-history kicks a^2 and the carry floor(a~/2) send states to operators with smallest eigenvalue -0.293 and -0.466: a light run history by history with the shaped light carry is no quantum map. The mixed-modulus back-action diag(1, zeta9, zeta9^-1) is level 3, the qutrit T class. The Gauss theorem is proved in the header; the ring counts are its check.',
     })

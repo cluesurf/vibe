@@ -65,7 +65,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, chargeOf, energyOf, twoWay, vacuumState, type ArrowBox } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  chargeOf,
+  energyOf,
+  twoWay,
+  vacuumState,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
 import { sameReduced } from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { GOLDEN } from '@/code/tool/weyl'
@@ -123,6 +130,7 @@ export default experiment({
     const S = REVERSIBLE
     const law = occupancyLaw(S.threshold)
     const members = startFamily(S.offsets)
+
     let r1 = true
     let r1Beats = 0
     let r1Returns = 0
@@ -163,21 +171,36 @@ export default experiment({
         const n = counterStep(c, L, law.top)
 
         seen.add(n)
-        if (counterStepBack(n, L, law.top) !== c) r1 = false
+
+        if (counterStepBack(n, L, law.top) !== c) {
+          r1 = false
+        }
       }
 
-      if (seen.size !== law.top) r1 = false
+      if (seen.size !== law.top) {
+        r1 = false
+      }
     }
 
     // R7: the theorem on the counter
     for (let L = 1; L <= law.top; L++) {
       const cs = Array.from({ length: law.top }, (_, c) => c)
+
       let rest = 0
 
       for (let t = 0; t < S.theoremBeats; t++) {
-        if (cs.filter(c => c === 0).length !== 1) r7 = false
-        if ((rest === 0) !== (t % L === 0)) r7 = false
-        for (let i = 0; i < cs.length; i++) cs[i] = counterStep(cs[i] as number, L, law.top)
+        if (cs.filter(c => c === 0).length !== 1) {
+          r7 = false
+        }
+
+        if ((rest === 0) !== (t % L === 0)) {
+          r7 = false
+        }
+
+        for (let i = 0; i < cs.length; i++) {
+          cs[i] = counterStep(cs[i]!, L, law.top)
+        }
+
         rest = counterStep(rest, L, law.top)
       }
     }
@@ -188,13 +211,23 @@ export default experiment({
       for (let t = 0; t < S.theoremBeats; t++) {
         const L = 1 + Math.floor(law.top * frac((t + 1) * GOLDEN))
 
-        if (cs.filter(c => c === 0).length !== 1) r7 = false
-        for (let i = 0; i < cs.length; i++) cs[i] = counterStep(cs[i] as number, L, law.top)
+        if (cs.filter(c => c === 0).length !== 1) {
+          r7 = false
+        }
+
+        for (let i = 0; i < cs.length; i++) {
+          cs[i] = counterStep(cs[i]!, L, law.top)
+        }
       }
     }
 
     // run a start forward, checking every beat's inverse and the conservation, then back to the start
-    const reversible = (box: ArrowBox, useLaw: GateLaw, start: GatedState, watch?: { docks: Uint8Array }): void => {
+    const reversible = (
+      box: ArrowBox,
+      useLaw: GateLaw,
+      start: GatedState,
+      watch?: { docks: Uint8Array },
+    ): void => {
       const g = gatedTake(box, useLaw)
       const r = gatedRunner(g, start)
       const e0 = energyOf(start.s)
@@ -215,16 +248,26 @@ export default experiment({
         const after = r.state()
 
         gatedBeatBack(g, after, tmp)
-        if (!sameGated(tmp, before)) r1 = false
+
+        if (!sameGated(tmp, before)) {
+          r1 = false
+        }
+
         r1Beats++
-        if (energyOf(after.s) !== e0 || chargeOf(after.s) !== q0) r2 = false
+
+        if (energyOf(after.s) !== e0 || chargeOf(after.s) !== q0) {
+          r2 = false
+        }
 
         if (watch) {
           r5Upper += tally.upper
 
           for (let x = 0; x < box.cells; x++) {
             if (before.counter[x] !== 0) {
-              if (watch.docks[x]) r5CrowdDockBeats++
+              if (watch.docks[x]) {
+                r5CrowdDockBeats++
+              }
+
               continue
             }
 
@@ -233,9 +276,12 @@ export default experiment({
               r5CrowdDockBeats++
             }
 
-            if ((lastTake[x] as number) >= 0) {
+            if (lastTake[x]! >= 0) {
               r5Intervals++
-              if (t - (lastTake[x] as number) !== lastL[x]) r5Violations++
+
+              if (t - lastTake[x]! !== lastL[x]) {
+                r5Violations++
+              }
             }
 
             lastTake[x] = t
@@ -244,37 +290,63 @@ export default experiment({
         }
       }
 
-      for (let t = 0; t < S.beats; t++) r.backward()
+      for (let t = 0; t < S.beats; t++) {
+        r.backward()
+      }
 
-      if (sameGated(r.state(), start) && r.time() === 0) r1Returns++
-      else r1 = false
+      if (sameGated(r.state(), start) && r.time() === 0) {
+        r1Returns++
+      } else {
+        r1 = false
+      }
     }
 
     // the gated run against the old knit: gated beat t equals old beat oldTime(t)
-    const againstOld = (box: ArrowBox, useLaw: GateLaw, start: GatedState, beats: number, oldTime: (t: number) => number): { same: boolean; maxEnergy: number } => {
+    const againstOld = (
+      box: ArrowBox,
+      useLaw: GateLaw,
+      start: GatedState,
+      beats: number,
+      oldTime: (t: number) => number,
+    ): { same: boolean; maxEnergy: number } => {
       const g = gatedTake(box, useLaw)
       const r = gatedRunner(g, start)
       const old = twoWay(box, start.s)
+
       let same = true
       let maxEnergy = 0
 
       for (let t = 1; t <= beats; t++) {
         r.forward()
-        while (old.time() < oldTime(t)) old.forward()
-        if (!sameReduced(r.state().s, old.state())) same = false
-        for (let x = 0; x < box.cells; x++) maxEnergy = Math.max(maxEnergy, dockEnergy(r.state().s, x))
+
+        while (old.time() < oldTime(t)) {
+          old.forward()
+        }
+
+        if (!sameReduced(r.state().s, old.state())) {
+          same = false
+        }
+
+        for (let x = 0; x < box.cells; x++) {
+          maxEnergy = Math.max(maxEnergy, dockEnergy(r.state().s, x))
+        }
       }
 
       return { same, maxEnergy }
     }
 
     // the covariance of a transform T: run(T s) against T(run s), both rules
-    const covariant = (box: ArrowBox, start: GatedState, T: (g: GatedState) => GatedState): { gated: boolean; old: boolean } => {
+    const covariant = (
+      box: ArrowBox,
+      start: GatedState,
+      T: (g: GatedState) => GatedState,
+    ): { gated: boolean; old: boolean } => {
       const g = gatedTake(box, law)
       const a = gatedRunner(g, start)
       const b = gatedRunner(g, T(start))
       const oa = twoWay(box, start.s)
       const ob = twoWay(box, T(restState(start.s, box.cells)).s)
+
       let gated = true
       let old = true
 
@@ -283,8 +355,20 @@ export default experiment({
         b.forward()
         oa.forward()
         ob.forward()
-        if (!sameGated(T(a.state()), b.state())) gated = false
-        if (!sameReduced(T(restState(oa.state(), box.cells)).s, ob.state())) old = false
+
+        if (!sameGated(T(a.state()), b.state())) {
+          gated = false
+        }
+
+        if (
+          !sameReduced(
+            T(restState(oa.state(), box.cells)).s,
+            ob.state(),
+          )
+        ) {
+          old = false
+        }
+
         r4Beats++
       }
 
@@ -299,14 +383,40 @@ export default experiment({
       const ball = ballDocks(box, S.radius, [0, 0, 0])
       const all = new Uint8Array(box.cells).fill(1)
       const outside = Uint8Array.from(ball, v => 1 - v)
-      const crowd = crowdStart(box, vacuum, { docks: ball, phase: k, sign: 1, counter: 0 })
-      const crowdFlip = crowdStart(box, vacuum, { docks: ball, phase: k, sign: -1, counter: 0 })
-      const gas = gasFill(box, vacuum, { perDock: S.gasPerDock, phase: k })
-      const crowdGas = gasFill(box, crowd, { perDock: S.gasPerDock, phase: k, only: outside })
-      const torus = crowdStart(box, vacuum, { docks: all, phase: k, sign: 1, counter: 0 })
+      const crowd = crowdStart(box, vacuum, {
+        docks: ball,
+        phase: k,
+        sign: 1,
+        counter: 0,
+      })
+      const crowdFlip = crowdStart(box, vacuum, {
+        docks: ball,
+        phase: k,
+        sign: -1,
+        counter: 0,
+      })
+      const gas = gasFill(box, vacuum, {
+        perDock: S.gasPerDock,
+        phase: k,
+      })
+      const crowdGas = gasFill(box, crowd, {
+        perDock: S.gasPerDock,
+        phase: k,
+        only: outside,
+      })
+      const torus = crowdStart(box, vacuum, {
+        docks: all,
+        phase: k,
+        sign: 1,
+        counter: 0,
+      })
       const scrambled = cloneGated(crowdGas)
 
-      for (let x = 0; x < box.cells; x++) scrambled.counter[x] = Math.floor(law.top * frac((x + 1) * GOLDEN + k * 0.5))
+      for (let x = 0; x < box.cells; x++) {
+        scrambled.counter[x] = Math.floor(
+          law.top * frac((x + 1) * GOLDEN + k * 0.5),
+        )
+      }
 
       // R1, R2 (and R5 on the rest-start crowd)
       reversible(box, law, vacuum)
@@ -328,7 +438,13 @@ export default experiment({
 
       {
         const L = law.length(48)
-        const o = againstOld(box, law, torus, L * S.torusBlocks, t => Math.floor((t - 1) / L) + 1)
+        const o = againstOld(
+          box,
+          law,
+          torus,
+          L * S.torusBlocks,
+          t => Math.floor((t - 1) / L) + 1,
+        )
 
         r3Torus = r3Torus && o.same
         r3TorusBeats += L * S.torusBlocks
@@ -336,7 +452,13 @@ export default experiment({
 
       {
         const L = S.constant
-        const o = againstOld(box, constantLaw(L), vacuum, S.beats, t => Math.floor((t - 1) / L) + 1)
+        const o = againstOld(
+          box,
+          constantLaw(L),
+          vacuum,
+          S.beats,
+          t => Math.floor((t - 1) / L) + 1,
+        )
 
         r3Constant = r3Constant && o.same
         r3ConstantBeats += S.beats
@@ -352,11 +474,22 @@ export default experiment({
 
       // R4: the translation on the identity-link box (a crowd off center in a gas)
       {
-        const idBox = withStart(member, () => arrowBox(S.side, 4, 'union', 'lone', true))
+        const idBox = withStart(member, () =>
+          arrowBox(S.side, 4, 'union', 'lone', true),
+        )
         const idVacuum = restState(vacuumState(idBox), idBox.cells)
         const idBall = ballDocks(idBox, S.radius, [1, 2, 3])
-        const idCrowd = crowdStart(idBox, idVacuum, { docks: idBall, phase: k, sign: 1, counter: 0 })
-        const idStart = gasFill(idBox, idCrowd, { perDock: S.gasPerDock, phase: k, only: Uint8Array.from(idBall, v => 1 - v) })
+        const idCrowd = crowdStart(idBox, idVacuum, {
+          docks: idBall,
+          phase: k,
+          sign: 1,
+          counter: 0,
+        })
+        const idStart = gasFill(idBox, idCrowd, {
+          perDock: S.gasPerDock,
+          phase: k,
+          only: Uint8Array.from(idBall, v => 1 - v),
+        })
         const c = covariant(idBox, idStart, g => translate(idBox, g))
 
         r4Shift = r4Shift && c.gated
@@ -368,21 +501,37 @@ export default experiment({
         const old = twoWay(box, vacuum.s)
 
         for (let t = 0; t <= 12; t++) {
-          if (t > 0) old.forward()
+          if (t > 0) {
+            old.forward()
+          }
 
           for (let x = 0; x < box.cells; x++) {
             let filled = 0
 
-            for (let d = 0; d < 24; d++) if (old.state().vibe[x * 24 + d] !== 0) filled++
+            for (let d = 0; d < 24; d++) {
+              if (old.state().vibe[x * 24 + d] !== 0) {
+                filled++
+              }
+            }
+
             r8MaxFilled = Math.max(r8MaxFilled, filled)
-            if (filled === 24) r8Full++
+
+            if (filled === 24) {
+              r8Full++
+            }
+
             r8DockBeats++
-            r8MaxEnergy = Math.max(r8MaxEnergy, dockEnergy(old.state(), x))
+            r8MaxEnergy = Math.max(
+              r8MaxEnergy,
+              dockEnergy(old.state(), x),
+            )
           }
         }
       }
 
-      memberNotes.push(`${member.name} ${((Date.now() - started) / 1000).toFixed(0)}s`)
+      memberNotes.push(
+        `${member.name} ${((Date.now() - started) / 1000).toFixed(0)}s`,
+      )
     })
 
     // R3 at the larger side (the vacuum and the gas, first member)
@@ -390,7 +539,10 @@ export default experiment({
       const box = withStart(members[0]!, () => arrowBox(S.checkSide, 4))
       const vacuum = restState(vacuumState(box), box.cells)
 
-      for (const start of [vacuum, gasFill(box, vacuum, { perDock: S.gasPerDock, phase: 0 })]) {
+      for (const start of [
+        vacuum,
+        gasFill(box, vacuum, { perDock: S.gasPerDock, phase: 0 }),
+      ]) {
         const o = againstOld(box, law, start, 24, t => t)
 
         r3Plain = r3Plain && o.same
@@ -410,7 +562,7 @@ export default experiment({
       const x = 100
       const d = 0
       const slot = x * 24 + d
-      const y = ((box.kernel.target[slot] as number) / 24) | 0
+      const y = (box.kernel.target[slot]! / 24) | 0
       // N1
       const takes = new Uint8Array(box.cells).fill(1)
 
@@ -437,11 +589,11 @@ export default experiment({
       p1.s.point[z] = p
 
       const p2 = cloneGated(empty)
-      const src = g.source[z] as number
+      const src = g.source[z]!
       const xs = (src / 24) | 0
 
       p2.s.vibe[src] = 1
-      p2.s.point[src] = (box.inverseMove[src] as Int8Array)[p] as number
+      p2.s.point[src] = box.inverseMove[src]![p]!
       uncollide(box, p2.s, xs, 0)
       p2.counter[xs] = 1
       p2.counter[y] = 48
@@ -452,9 +604,14 @@ export default experiment({
       r6N2 = !sameGated(p1, p2) && sameGated(j1, j2)
     }
 
-    const r3 = r3Plain && r3Torus && r3Constant && r3MaxEnergy <= S.threshold
+    const r3 =
+      r3Plain && r3Torus && r3Constant && r3MaxEnergy <= S.threshold
     const r4 = r4Charge && r4Shift
-    const r5 = r5Violations === 0 && r5Upper === 0 && r5Intervals > 0 && 2 * r5CrowdActive < r5CrowdDockBeats
+    const r5 =
+      r5Violations === 0 &&
+      r5Upper === 0 &&
+      r5Intervals > 0 &&
+      2 * r5CrowdActive < r5CrowdDockBeats
     const r6 = r6N1 && r6N2 && r6N1ChargeLost !== 0
     const r8 = r8MaxFilled === 24 && r8MaxEnergy <= 24
     const gates = [r1, r2, r3, r4, r5, r6, r7, r8]

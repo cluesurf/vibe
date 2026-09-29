@@ -18,7 +18,13 @@
 // Exact: weights are BigInt; a number is compared as a rational, cross-multiplied. Deterministic.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { GRID_OF_PHASE, phaseMinus, translatedKernel, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
+import {
+  GRID_OF_PHASE,
+  phaseMinus,
+  translatedKernel,
+  type BeatRecord,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { roleWeights, type RoleState } from '@/code/measure/knit-magic'
 import { GOLDEN, weyl } from '@/code/tool/weyl'
 
@@ -31,11 +37,18 @@ export { phaseMinus, translatedKernel }
 export function roleWeightsAt(state: RoleState, p: number): bigint[] {
   const base = roleWeights(state)
 
-  return Array.from({ length: 9 }, (_, q) => base[phaseMinus(q, p)] ?? 0n)
+  return Array.from(
+    { length: 9 },
+    (_, q) => base[phaseMinus(q, p)] ?? 0n,
+  )
 }
 
 // the product whole of two role states at their own phase points
-export function productWholeAt(input: { tokens: readonly [number, number]; states: readonly [RoleState, RoleState]; points: readonly [number, number] }): Whole {
+export function productWholeAt(input: {
+  tokens: readonly [number, number]
+  states: readonly [RoleState, RoleState]
+  points: readonly [number, number]
+}): Whole {
   const first = roleWeightsAt(input.states[0], input.points[0])
   const second = roleWeightsAt(input.states[1], input.points[1])
   const weight: bigint[] = []
@@ -50,11 +63,18 @@ export function productWholeAt(input: { tokens: readonly [number, number]; state
 }
 
 // a two-token whole's marginal weight of one coordinate at a phase point
-export function marginalAt(whole: Whole, coordinate: 0 | 1, p: number): bigint {
+export function marginalAt(
+  whole: Whole,
+  coordinate: 0 | 1,
+  p: number,
+): bigint {
   let sum = 0n
 
   for (let k = 0; k < 9; k++) {
-    sum += (coordinate === 0 ? whole.weight[p * 9 + k] : whole.weight[k * 9 + p]) ?? 0n
+    sum +=
+      (coordinate === 0
+        ? whole.weight[p * 9 + k]
+        : whole.weight[k * 9 + p]) ?? 0n
   }
 
   return sum
@@ -69,18 +89,29 @@ export type ComovingReading = {
   joint: bigint
 }
 
-export function readComoving(whole: Whole, points: readonly [number, number]): ComovingReading {
+export function readComoving(
+  whole: Whole,
+  points: readonly [number, number],
+): ComovingReading {
   const units = whole.weight.reduce((a, b) => a + b, 0n)
 
   return {
     units,
-    own: [marginalAt(whole, 0, points[0]), marginalAt(whole, 1, points[1])],
+    own: [
+      marginalAt(whole, 0, points[0]),
+      marginalAt(whole, 1, points[1]),
+    ],
     joint: whole.weight[points[0] * 9 + points[1]] ?? 0n,
   }
 }
 
 // a / u == b / v, exactly
-export const sameRatio = (a: bigint, u: bigint, b: bigint, v: bigint): boolean => a * v === b * u
+export const sameRatio = (
+  a: bigint,
+  u: bigint,
+  b: bigint,
+  v: bigint,
+): boolean => a * v === b * u
 
 // Each token's grid point beat by beat along a pair's records: the points each meeting of beat t sees (before
 // that beat's crossings) and the points after the beat. `start` holds the grid points of the pair's two tokens.
@@ -123,14 +154,20 @@ export const phaseOfGrid = (g: number): number => GRID_OF_PHASE[g] ?? 0
 export function pureGaugeLinks(weave: ColorWeave): Int16Array {
   const { mesh, moves } = weave
   const count = moves.act.length
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor(weyl(x + 1, GOLDEN) * count) % count)
+  const frame = Array.from(
+    { length: mesh.cellCount },
+    (_, x) => Math.floor(weyl(x + 1, GOLDEN) * count) % count,
+  )
   const links = new Int16Array(mesh.cellCount * 24)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       const y = mesh.neighbour(x, d)
 
-      links[x * 24 + d] = moves.compose(frame[y] ?? 0, moves.inverse[frame[x] ?? 0] ?? moves.identity)
+      links[x * 24 + d] = moves.compose(
+        frame[y] ?? 0,
+        moves.inverse[frame[x] ?? 0] ?? moves.identity,
+      )
     }
   }
 

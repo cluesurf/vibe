@@ -34,7 +34,11 @@ import { BIND_MOVE_FORWARD } from '@/code/rule/collision'
 import { makeWill, type Will } from '@/code/tone/will'
 import { d4BoxCell, d4BoxMesh } from '@/code/substrate/d4-box'
 import { meshOpposites } from '@/code/tool/mesh'
-import { acceptance, type Acceptance, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  acceptance,
+  type Acceptance,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import {
   colorLocalBeat,
   colorLocalBeatBack,
@@ -64,8 +68,15 @@ const ruleOf =
   (opposite, forward) =>
     momentumWeave({ spec, opposite, forward })
 
-const colorSpecOf = (spec: MomentumWeaveSpec, table: typeof PAIR_TABLE): ColorLocalSpec =>
-  colorLocalSpec({ tables: [table], swapWhen: (l, w) => spec.fires[l * 9 + w] === 1, palindrome: spec.palindrome })
+const colorSpecOf = (
+  spec: MomentumWeaveSpec,
+  table: typeof PAIR_TABLE,
+): ColorLocalSpec =>
+  colorLocalSpec({
+    tables: [table],
+    swapWhen: (l, w) => spec.fires[l * 9 + w] === 1,
+    palindrome: spec.palindrome,
+  })
 
 function dense(mesh: ReturnType<typeof d4BoxMesh>): Will {
   const will = makeWill(mesh)
@@ -80,7 +91,10 @@ function dense(mesh: ReturnType<typeof d4BoxMesh>): Will {
 }
 
 // the largest drift of P and of any line momentum over BEATS beats
-function momentumDrift(spec: MomentumWeaveSpec, start: Will): { p: number; line: number } {
+function momentumDrift(
+  spec: MomentumWeaveSpec,
+  start: Will,
+): { p: number; line: number } {
   const opposite = meshOpposites(start.mesh)
   const run = momentumWeave({ spec, opposite })
   const p0 = momentumOf(start.data).p
@@ -92,18 +106,36 @@ function momentumDrift(spec: MomentumWeaveSpec, start: Will): { p: number; line:
 
   for (let t = 0; t < BEATS; t++) {
     will = beat(will, run(t))
-    p = Math.max(p, ...momentumOf(will.data).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))))
-    line = Math.max(line, ...lineMomenta(will.data, opposite).map((x, L) => Math.abs(x - (n0[L] ?? 0))))
+    p = Math.max(
+      p,
+      ...momentumOf(will.data).p.map((x, k) =>
+        Math.abs(x - (p0[k] ?? 0)),
+      ),
+    )
+
+    line = Math.max(
+      line,
+      ...lineMomenta(will.data, opposite).map((x, L) =>
+        Math.abs(x - (n0[L] ?? 0)),
+      ),
+    )
   }
 
   return { p, line }
 }
 
 // color leaks over BEATS beats on a dense side-3 box with roles, and whether running back restores it
-function colorCheck(spec: ColorLocalSpec): { leaks: number; reverses: boolean } {
+function colorCheck(spec: ColorLocalSpec): {
+  leaks: number
+  reverses: boolean
+} {
   const weave = makeColorLocalWeave({ side: 3, spec })
   const slots = weave.mesh.cellCount * 24
-  const start: VibeState = { vibe: new Int8Array(slots), role: new Int8Array(slots), flow: new Int32Array(slots) }
+  const start: VibeState = {
+    vibe: new Int8Array(slots),
+    role: new Int8Array(slots),
+    flow: new Int32Array(slots),
+  }
 
   for (let i = 0; i < slots; i++) {
     const u = ((i + 1) * GOLDEN * 1.37) % 1
@@ -127,11 +159,16 @@ function colorCheck(spec: ColorLocalSpec): { leaks: number; reverses: boolean } 
   return {
     leaks,
     reverses:
-      s.vibe.every((v, i) => v === start.vibe[i]) && s.role.every((v, i) => v === start.role[i]) && s.flow.every((v, i) => v === start.flow[i]),
+      s.vibe.every((v, i) => v === start.vibe[i]) &&
+      s.role.every((v, i) => v === start.role[i]) &&
+      s.flow.every((v, i) => v === start.flow[i]),
   }
 }
 
-const flat = (prefix: string, a: Acceptance): Record<string, number> => ({
+const flat = (
+  prefix: string,
+  a: Acceptance,
+): Record<string, number> => ({
   [`${prefix}Reverses`]: a.reverses ? 1 : 0,
   [`${prefix}ChargeKept`]: a.chargeKept ? 1 : 0,
   [`${prefix}CptMirrorPhase`]: a.cptPhase,
@@ -144,8 +181,18 @@ const flat = (prefix: string, a: Acceptance): Record<string, number> => ({
   [`${prefix}Travellers`]: a.travellers,
   [`${prefix}MeanReach`]: a.meanReach,
   [`${prefix}ProtectedSpecies`]: a.love.protectedSpecies,
-  ...Object.fromEntries(a.love.periodLargest.map((x, p) => [`${prefix}LoveSupportPeriod${p + 1}`, x])),
-  ...Object.fromEntries(a.fear.periodLargest.map((x, p) => [`${prefix}FearSupportPeriod${p + 1}`, x])),
+  ...Object.fromEntries(
+    a.love.periodLargest.map((x, p) => [
+      `${prefix}LoveSupportPeriod${p + 1}`,
+      x,
+    ]),
+  ),
+  ...Object.fromEntries(
+    a.fear.periodLargest.map((x, p) => [
+      `${prefix}FearSupportPeriod${p + 1}`,
+      x,
+    ]),
+  ),
 })
 
 export default experiment({
@@ -162,7 +209,10 @@ export default experiment({
     const mesh = d4BoxMesh({ side: SIDE })
     const opposite = meshOpposites(mesh)
     const mine = momentumWeave({ spec: MOMENTUM_WEAVE, opposite })
-    const theirs = colorLocalCollision({ spec: colorSpecOf(MOMENTUM_WEAVE, BIND_MOVE_FORWARD), opposite })
+    const theirs = colorLocalCollision({
+      spec: colorSpecOf(MOMENTUM_WEAVE, BIND_MOVE_FORWARD),
+      opposite,
+    })
 
     let a = dense(mesh)
     let b = dense(mesh)
@@ -180,19 +230,27 @@ export default experiment({
     const lone = (): Will => {
       const will = makeWill(mesh)
 
-      will.data[d4BoxCell({ coordinates: [2, 2, 2, 2], side: SIDE }) * 24 + 5] = 1
+      will.data[
+        d4BoxCell({ coordinates: [2, 2, 2, 2], side: SIDE }) * 24 + 5
+      ] = 1
 
       return will
     }
+
     const weaveDense = momentumDrift(MOMENTUM_WEAVE, dense(mesh))
     const weaveLone = momentumDrift(MOMENTUM_WEAVE, lone())
     const committedDense = momentumDrift(COMMITTED_SPEC, dense(mesh))
     const committedLone = momentumDrift(COMMITTED_SPEC, lone())
 
-    const color = colorCheck(colorSpecOf(MOMENTUM_WEAVE, BIND_MOVE_FORWARD))
-    const colorControl = colorCheck(colorSpecOf(COMMITTED_SPEC, PAIR_TABLE))
+    const color = colorCheck(
+      colorSpecOf(MOMENTUM_WEAVE, BIND_MOVE_FORWARD),
+    )
+    const colorControl = colorCheck(
+      colorSpecOf(COMMITTED_SPEC, PAIR_TABLE),
+    )
 
-    const atLeast = (ok: boolean, reference: boolean): boolean => ok || !reference
+    const atLeast = (ok: boolean, reference: boolean): boolean =>
+      ok || !reference
     const structural =
       atLeast(weave.reverses, committed.reverses) &&
       atLeast(weave.chargeKept, committed.chargeKept) &&
@@ -200,15 +258,34 @@ export default experiment({
       atLeast(weave.vacuumPeriod > 0, committed.vacuumPeriod > 0) &&
       weave.vacuumComponents <= committed.vacuumComponents &&
       weave.denseComponents <= committed.denseComponents &&
-      atLeast(weave.additivityWorst < 1e-9, committed.additivityWorst < 1e-9) &&
-      atLeast(weave.wallQuantized && weave.wallMax > 0, committed.wallQuantized && committed.wallMax > 0) &&
+      atLeast(
+        weave.additivityWorst < 1e-9,
+        committed.additivityWorst < 1e-9,
+      ) &&
+      atLeast(
+        weave.wallQuantized && weave.wallMax > 0,
+        committed.wallQuantized && committed.wallMax > 0,
+      ) &&
       weave.travellers >= committed.travellers
-    const momentumExact = weaveDense.p === 0 && weaveDense.line === 0 && weaveLone.p === 0 && weaveLone.line === 0
+    const momentumExact =
+      weaveDense.p === 0 &&
+      weaveDense.line === 0 &&
+      weaveLone.p === 0 &&
+      weaveLone.line === 0
     const controlBreaks = committedDense.p > 0 && committedLone.p > 0
-    const colorExact = color.leaks === 0 && color.reverses && colorControl.leaks > 0
-    const dressedMore = weave.love.periodLargest.some((x, p) => x > (committed.love.periodLargest[p] ?? 0))
+    const colorExact =
+      color.leaks === 0 && color.reverses && colorControl.leaks > 0
+    const dressedMore = weave.love.periodLargest.some(
+      (x, p) => x > (committed.love.periodLargest[p] ?? 0),
+    )
 
-    const ok = identical && structural && momentumExact && controlBreaks && colorExact && dressedMore
+    const ok =
+      identical &&
+      structural &&
+      momentumExact &&
+      controlBreaks &&
+      colorExact &&
+      dressedMore
 
     return verdict({
       status: ok ? 'pass' : 'fail',

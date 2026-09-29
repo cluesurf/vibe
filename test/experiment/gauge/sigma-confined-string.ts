@@ -94,14 +94,26 @@ import {
   type SigmaLinks,
   type SigmaState,
 } from '@/code/rule/sigma-links'
-import { fastCoolSigmaLinks, fastFieldEnergy, fastSigmaBeat, makeSigmaTables, type SigmaTables } from '@/code/rule/sigma-fast'
+import {
+  fastCoolSigmaLinks,
+  fastFieldEnergy,
+  fastSigmaBeat,
+  makeSigmaTables,
+  type SigmaTables,
+} from '@/code/rule/sigma-fast'
 
 const SIDE = 6
 const SCALE = 12
 const RATIO = -1.67 / 12
 const KAPPA = 12
 const CAPACITY = 48
-const COOL = { drain: 100, cycles: 30, fill: 0.003, beats: 30, empties: 10 }
+const COOL = {
+  drain: 100,
+  cycles: 30,
+  fill: 0.003,
+  beats: 30,
+  empties: 10,
+}
 const REGISTERED_FILL = 0.08
 const TRANSITION_FILL = 0.04
 // the fills added after the first run, reported and not gated
@@ -116,21 +128,34 @@ const MESON_BEATS = 600
 const SEPARATIONS = [1, 2, 3]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-type Loops = { w11: number; w12: number; w22: number; w23: number; w33: number }
+type Loops = {
+  w11: number
+  w12: number
+  w22: number
+  w23: number
+  w33: number
+}
 
-const creutz = (a: number, b: number, c: number): number => -Math.log((c * a) / (b * b))
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const creutz = (a: number, b: number, c: number): number =>
+  -Math.log((c * a) / (b * b))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
 function slope(xs: number[], ys: number[]): number {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-  return xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  return (
+    xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  )
 }
 
 function stats(xs: number[]): { mean: number; error: number } {
   const m = xs.reduce((a, b) => a + b, 0) / xs.length
-  const sd = Math.sqrt(xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1))
+  const sd = Math.sqrt(
+    xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1),
+  )
 
   return { mean: m, error: sd / Math.sqrt(xs.length) }
 }
@@ -148,10 +173,31 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-    const make = (input: { hop: boolean; roles: boolean; kappa: number; couple: 'none' | 'center' }): SigmaLinks =>
-      makeSigmaLinks({ side: SIDE, tension: 0, capacity: CAPACITY, scale: SCALE, ratio: RATIO, moves: 'wide', ...input })
-    const rule = make({ hop: false, roles: false, kappa: KAPPA, couple: 'center' })
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
+    const make = (input: {
+      hop: boolean
+      roles: boolean
+      kappa: number
+      couple: 'none' | 'center'
+    }): SigmaLinks =>
+      makeSigmaLinks({
+        side: SIDE,
+        tension: 0,
+        capacity: CAPACITY,
+        scale: SCALE,
+        ratio: RATIO,
+        moves: 'wide',
+        ...input,
+      })
+    const rule = make({
+      hop: false,
+      roles: false,
+      kappa: KAPPA,
+      couple: 'center',
+    })
     const tables = makeSigmaTables(rule)
     const { cells, group } = rule
     const triangles = (cells * 12 * 8) / 3
@@ -166,7 +212,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const rectangle = (r: number, h: number): number[] => [
       ...new Array<number>(r).fill(along),
@@ -182,7 +229,9 @@ export default experiment({
       ['w33', 3, 3],
     ]
     const paths = sizes.map(([, r, h]) => rectangle(r, h))
-    const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const starts = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
 
     const demonMean = (s: SigmaState): number => {
       let sum = 0
@@ -204,7 +253,13 @@ export default experiment({
       flux: Int32Array.from(s.flux),
     })
 
-    const cooled = HASHES.map(hash => fastCoolSigmaLinks(tables, defectSigmaLinks(rule, 0.1, hash), COOL))
+    const cooled = HASHES.map(hash =>
+      fastCoolSigmaLinks(
+        tables,
+        defectSigmaLinks(rule, 0.1, hash),
+        COOL,
+      ),
+    )
 
     // the fast kernel against sigmaBeat on this run's own field: every array, every beat
     let fastKernelMismatches = 0
@@ -220,13 +275,25 @@ export default experiment({
         slow = sigmaBeat(rule, slow, cooled[0]!.beats + k).state
         fastSigmaBeat(tables, fast, cooled[0]!.beats + k)
 
-        for (const key of ['vibe', 'role', 'links', 'demon', 'flux'] as const) {
-          slow[key].forEach((v, i) => (fastKernelMismatches += v === fast[key][i] ? 0 : 1))
+        for (const key of [
+          'vibe',
+          'role',
+          'links',
+          'demon',
+          'flux',
+        ] as const) {
+          slow[key].forEach(
+            (v: number, i: number) =>
+              (fastKernelMismatches += v === fast[key][i] ? 0 : 1),
+          )
         }
       }
     }
 
-    const point = (base: { state: SigmaState; beats: number }, fill: number) => {
+    const point = (
+      base: { state: SigmaState; beats: number },
+      fill: number,
+    ) => {
       const s = copyState(base.state)
 
       fillSigmaDemons(rule, s, fill)
@@ -253,7 +320,16 @@ export default experiment({
         exact = exact && sigmaEnergy(rule, s) === e0
 
         for (let x = 0; x < cells; x++) {
-          sizes.forEach(([key], j) => (loops[key] += (group.trace[pathTransport(rule, s.links, x, paths[j] ?? [])] ?? 0) / 3 / cells / MEASURE))
+          sizes.forEach(
+            ([key], j) =>
+              (loops[key] +=
+                (group.trace[
+                  pathTransport(rule, s.links, x, paths[j] ?? [])
+                ] ?? 0) /
+                3 /
+                cells /
+                MEASURE),
+          )
         }
 
         let sr = 0
@@ -272,7 +348,10 @@ export default experiment({
         demon += demonMean(s) / MEASURE
       }
 
-      const beta = unitDemonBeta({ meanDemon: demon, capacity: CAPACITY })
+      const beta = unitDemonBeta({
+        meanDemon: demon,
+        capacity: CAPACITY,
+      })
 
       return {
         exact,
@@ -290,8 +369,12 @@ export default experiment({
 
     const registered = cooled.map(base => point(base, REGISTERED_FILL))
     const transition = cooled.map(base => point(base, TRANSITION_FILL))
-    const branch = BRANCH_FILLS.map(fill => ({ fill, runs: cooled.map(base => point(base, fill)) }))
-    const meanOf = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+    const branch = BRANCH_FILLS.map(fill => ({
+      fill,
+      runs: cooled.map(base => point(base, fill)),
+    }))
+    const meanOf = (xs: number[]): number =>
+      xs.reduce((a, b) => a + b, 0) / xs.length
     const allPoints = [
       { fill: REGISTERED_FILL, runs: registered },
       { fill: TRANSITION_FILL, runs: transition },
@@ -303,19 +386,32 @@ export default experiment({
       deconfined: p.runs.every(r => r.polyakov > 0.1),
       chi22: meanOf(p.runs.map(r => r.chi22)),
     }))
-    const branchPick = allPoints.filter(p => BRANCH_FILLS.includes(p.fill) && p.confined).sort((a, b) => b.beta0 - a.beta0)[0]
-    const bracketConfined = Math.max(-1, ...allPoints.filter(p => p.confined).map(p => p.beta0))
-    const bracketDeconfined = Math.min(99, ...allPoints.filter(p => p.deconfined).map(p => p.beta0))
+    const branchPick = allPoints
+      .filter(p => BRANCH_FILLS.includes(p.fill) && p.confined)
+      .sort((a, b) => b.beta0 - a.beta0)[0]
+    const bracketConfined = Math.max(
+      -1,
+      ...allPoints.filter(p => p.confined).map(p => p.beta0),
+    )
+    const bracketDeconfined = Math.min(
+      99,
+      ...allPoints.filter(p => p.deconfined).map(p => p.beta0),
+    )
     const chi22 = stats(registered.map(r => r.chi22))
     const chi33 = stats(registered.map(r => r.chi33))
     const chi22Transition = stats(transition.map(r => r.chi22))
     const first = registered[0]!
 
     const twist = (st: SigmaState, x: number, d: number): void => {
-      const g = group.product[rule.omega * group.order + (st.links[x * 24 + d] ?? 0)] ?? 0
+      const g =
+        group.product[
+          rule.omega * group.order + (st.links[x * 24 + d] ?? 0)
+        ] ?? 0
 
       st.links[x * 24 + d] = g
-      st.links[(rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)] = group.inverse[g] ?? 0
+      st.links[
+        (rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)
+      ] = group.inverse[g] ?? 0
       addSigmaFlux(rule, st.flux, x, d, 1)
     }
 
@@ -349,7 +445,10 @@ export default experiment({
 
       for (let k = 0; k < BEATS; k++) {
         fastSigmaBeat(tables, s, first.start + k)
-        exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, s) === e0 &&
+          sigmaGaussViolations(rule, s) === 0
         field += fastFieldEnergy(tables, s.links) / BEATS
       }
 
@@ -370,7 +469,10 @@ export default experiment({
       st.vibe[x0] = 1
       st.vibe[y0] = -1
       st.role[x0] = 4
-      st.role[y0] = mover.act[(mover.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4] ?? 0
+      st.role[y0] =
+        mover.act[
+          (mover.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4
+        ] ?? 0
 
       if (mover.couple === 'center') {
         twist(st, x0, along)
@@ -402,7 +504,10 @@ export default experiment({
 
       for (let k = 0; k < MESON_BEATS; k++) {
         fastSigmaBeat(moverTables, s, first.start + k, onHop)
-        exact = exact && sigmaEnergy(mover, s) === e0 && sigmaGaussViolations(mover, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(mover, s) === e0 &&
+          sigmaGaussViolations(mover, s) === 0
 
         const [love, fear] = charges
 
@@ -413,22 +518,35 @@ export default experiment({
       return { exact, meanGap: gap, travel }
     }
 
-    const bound = meson(make({ hop: true, roles: true, kappa: KAPPA, couple: 'center' }))
-    const free = meson(make({ hop: true, roles: true, kappa: 0, couple: 'none' }))
+    const bound = meson(
+      make({ hop: true, roles: true, kappa: KAPPA, couple: 'center' }),
+    )
+    const free = meson(
+      make({ hop: true, roles: true, kappa: 0, couple: 'none' }),
+    )
 
     const exact =
-      [...registered, ...transition].every(r => r.exact) && reference.exact && pairs.every(p => p.exact) && bound.exact && free.exact
+      [...registered, ...transition].every(r => r.exact) &&
+      reference.exact &&
+      pairs.every(p => p.exact) &&
+      bound.exact &&
+      free.exact
 
     const ok =
       exact &&
       registered.every(r => r.polyakov < 0.05) &&
       chi22.mean > 3 * chi22.error &&
-      potential.every((v, k) => k === 0 || v > (potential[k - 1] ?? 0)) &&
+      potential.every(
+        (v, k) => k === 0 || v > (potential[k - 1] ?? 0),
+      ) &&
       Math.abs(tension - chi22.mean) < 0.3 * Math.abs(chi22.mean) &&
       bound.meanGap < free.meanGap / 10 &&
       bound.travel > 5
 
-    const report = (label: string, runs: typeof registered): [string, number][] =>
+    const report = (
+      label: string,
+      runs: typeof registered,
+    ): [string, number][] =>
       runs.flatMap((r, k): [string, number][] => [
         [`${label}${k + 1}Beta0`, r.beta0],
         [`${label}${k + 1}Level`, r.level],
@@ -455,21 +573,35 @@ export default experiment({
         ['transitionCreutz22Mean', chi22Transition.mean],
         ['transitionCreutz22Error', chi22Transition.error],
         ['sigmaOverTc2', TRANSITION_NT ** 2 * chi22Transition.mean],
-        ['sigmaOverTc2Error', TRANSITION_NT ** 2 * chi22Transition.error],
+        [
+          'sigmaOverTc2Error',
+          TRANSITION_NT ** 2 * chi22Transition.error,
+        ],
         ...report('registered', registered),
         ...report('transition', transition),
-        ...SEPARATIONS.map((r, k): [string, number] => [`fieldEnergyAboveVacuumPerSliceR${r}`, potential[k] ?? 0]),
+        ...SEPARATIONS.map((r, k): [string, number] => [
+          `fieldEnergyAboveVacuumPerSliceR${r}`,
+          potential[k] ?? 0,
+        ]),
         ['fieldSlope', sigma],
         ['fieldSlopeTimesBeta', tension],
         ['mesonMeanGap', bound.meanGap],
         ['mesonTravel', bound.travel],
         // added after the first run, reported and not gated
         ['fastKernelMismatches', fastKernelMismatches],
-        ...branch.flatMap(p => report(`branch${String(p.fill).replace('.', '_')}Run`, p.runs)),
+        ...branch.flatMap(p =>
+          report(
+            `branch${String(p.fill).replace('.', '_')}Run`,
+            p.runs,
+          ),
+        ),
         ['confinedBranchFill', branchPick?.fill ?? -1],
         ['confinedBranchBeta0', branchPick?.beta0 ?? -1],
         ['confinedBranchCreutz22', branchPick?.chi22 ?? -1],
-        ['sigmaOverTcSquaredConfinedBranch', branchPick ? TRANSITION_NT ** 2 * branchPick.chi22 : -1],
+        [
+          'sigmaOverTcSquaredConfinedBranch',
+          branchPick ? TRANSITION_NT ** 2 * branchPick.chi22 : -1,
+        ],
         ['side6LargestConfinedBeta0', bracketConfined],
         ['side6SmallestDeconfinedBeta0', bracketDeconfined],
       ]),
@@ -477,11 +609,12 @@ export default experiment({
         freeMesonMeanGap: free.meanGap,
         freeMesonTravel: free.travel,
         su3SigmaOverTc2At0103: TRANSITION_NT ** 2 * 0.378,
-        sigma648HypercubicSigmaOverTc2At0103: TRANSITION_NT ** 2 * 0.375,
+        sigma648HypercubicSigmaOverTc2At0103:
+          TRANSITION_NT ** 2 * 0.375,
         confinementCreutz0126: 1.41,
       },
       notes:
-        "L2, exact integers, no random numbers in the rule. sigma / T_c^2 = N_t^2 chi(2,2) uses chi(2,2) as sigma a^2 at the N_t = 4 transition coupling, read on a side-6 box where that coupling is confined, the comparison E-FRC-0103 made, with the same caveat that a 2 x 2 Creutz ratio carries short-distance corrections. The errors are across three starts sharing one rule and one fill. V is an energy above the no-source run, not a free energy.",
+        'L2, exact integers, no random numbers in the rule. sigma / T_c^2 = N_t^2 chi(2,2) uses chi(2,2) as sigma a^2 at the N_t = 4 transition coupling, read on a side-6 box where that coupling is confined, the comparison E-FRC-0103 made, with the same caveat that a 2 x 2 Creutz ratio carries short-distance corrections. The errors are across three starts sharing one rule and one fill. V is an energy above the no-source run, not a free energy.',
     })
   },
 })

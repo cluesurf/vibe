@@ -22,51 +22,73 @@
 // that every two lines are coupled once in 11 beats.
 
 import { type Collision } from '@/code/rule/collision'
-import { colorLocalCollision, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  colorLocalCollision,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 import { type Mesh } from '@/code/tool/mesh'
 import { d4BoxMesh } from '@/code/substrate/d4-box-integer'
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 
 // the circle-method rotation: lines 0 to 10 cycled by one, line 11 fixed
 export const ROUND_ROBIN_TURN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 11]
 
 // the round robin's first matching: line 0 with 11, and 0 + k with 0 - k (mod 11) for k = 1 to 5
-export const ROUND_ROBIN_ZERO: readonly (readonly [number, number])[] = [
-  [0, 11],
-  [1, 10],
-  [2, 9],
-  [3, 8],
-  [4, 7],
-  [5, 6],
-]
+export const ROUND_ROBIN_ZERO: readonly (readonly [number, number])[] =
+  [
+    [0, 11],
+    [1, 10],
+    [2, 9],
+    [3, 8],
+    [4, 7],
+    [5, 6],
+  ]
 
 // the walk out over 12 powers of the turn and back: a palindrome of period 24
-export const FOLDED_WALK = [...Array.from({ length: 12 }, (_, k) => k), ...Array.from({ length: 12 }, (_, k) => 11 - k)]
+export const FOLDED_WALK = [
+  ...Array.from({ length: 12 }, (_, k) => k),
+  ...Array.from({ length: 12 }, (_, k) => 11 - k),
+]
 
 // a spec's schedule with the round robin folded into it: its tables and swap order, the round robin's
 // couples, turn and folded walk
 export function foldRoundRobin(spec: ColorLocalSpec): ColorLocalSpec {
-  return { ...spec, couplesZero: ROUND_ROBIN_ZERO, turn: ROUND_ROBIN_TURN, positionAt: FOLDED_WALK }
+  return {
+    ...spec,
+    couplesZero: ROUND_ROBIN_ZERO,
+    turn: ROUND_ROBIN_TURN,
+    positionAt: FOLDED_WALK,
+  }
 }
 
 // the partition of the 12 lines a spec uses at beat t, each couple sorted as the knit sorts it
-export function partitionAt(spec: ColorLocalSpec, t: number): (readonly [number, number])[] {
-  const norm = (a: number, b: number): [number, number] => (a < b ? [a, b] : [b, a])
+export function partitionAt(
+  spec: ColorLocalSpec,
+  t: number,
+): (readonly [number, number])[] {
+  const norm = (a: number, b: number): [number, number] =>
+    a < b ? [a, b] : [b, a]
   const power = at(spec.positionAt, t)
 
   let current = spec.couplesZero.map(([a, b]) => norm(a, b))
 
   for (let k = 0; k < power; k++) {
-    current = current.map(([a, b]) => norm(spec.turn[a] ?? a, spec.turn[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(spec.turn[a] ?? a, spec.turn[b] ?? b),
+    )
   }
 
   return current
 }
 
 // how many of the 66 pairs of lines the spec couples at some beat of a period
-export function couplesCovered(spec: ColorLocalSpec, period: number): number {
+export function couplesCovered(
+  spec: ColorLocalSpec,
+  period: number,
+): number {
   const seen = new Set<number>()
 
   for (let t = 0; t < period; t++) {
@@ -104,9 +126,15 @@ export type KnitState = {
 // 'either' is 'lone' read on either slot pair of the two lines, which reversal also leaves alone
 export type KnitSteer = false | 'slot' | 'lone' | 'line' | 'either'
 
-export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; steer: KnitSteer }): SteeredKnit {
+export function makeSteeredKnit(input: {
+  side: number
+  spec: ColorLocalSpec
+  steer: KnitSteer
+}): SteeredKnit {
   const mesh = d4BoxMesh({ side: input.side })
-  const opposite = Array.from({ length: 24 }, (_, d) => mesh.opposite(d))
+  const opposite = Array.from({ length: 24 }, (_, d) =>
+    mesh.opposite(d),
+  )
   const lines: [number, number][] = []
 
   for (let d = 0; d < 24; d++) {
@@ -141,7 +169,10 @@ export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; ste
     for (let d = 0; d < 24; d++) {
       const o = opposite[d] ?? d
 
-      edgeOf[x * 24 + d] = d < o ? (edgeAt[x * 24 + d] ?? 0) : (edgeAt[(neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0)
+      edgeOf[x * 24 + d] =
+        d < o
+          ? (edgeAt[x * 24 + d] ?? 0)
+          : (edgeAt[(neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0)
     }
   }
 
@@ -155,7 +186,11 @@ export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; ste
     edges,
     edgeOf,
     forward: colorLocalCollision({ spec: input.spec, opposite }),
-    backward: colorLocalCollision({ spec: input.spec, opposite, forward: false }),
+    backward: colorLocalCollision({
+      spec: input.spec,
+      opposite,
+      forward: false,
+    }),
   }
 }
 
@@ -175,6 +210,7 @@ export function steerDock(input: {
   couples?: readonly (readonly [number, number])[]
 }): void {
   const { knit, slots, base, string, t, role } = input
+
   const swap = (i: number, j: number): void => {
     const v = slots[base + i] ?? 0
 
@@ -193,12 +229,25 @@ export function steerDock(input: {
     const a = knit.lines[p] ?? [0, 0]
     const b = knit.lines[q] ?? [0, 0]
 
-    if (knit.steer === 'lone' || knit.steer === 'line' || knit.steer === 'either') {
-      const charged = [a[0], a[1], b[0], b[1]].filter(d => slots[base + d] !== 0)
+    if (
+      knit.steer === 'lone' ||
+      knit.steer === 'line' ||
+      knit.steer === 'either'
+    ) {
+      const charged = [a[0], a[1], b[0], b[1]].filter(
+        d => slots[base + d] !== 0,
+      )
       const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
-      const count = (l: readonly [number, number]): number => (string(l[0]) ? 1 : 0) + (string(l[1]) ? 1 : 0)
-      const pair = (k: number): boolean => string(a[k] ?? 0) !== string(b[k] ?? 0)
-      const differ = knit.steer === 'lone' ? pair(s) : knit.steer === 'line' ? count(a) !== count(b) : pair(0) || pair(1)
+      const count = (l: readonly [number, number]): number =>
+        (string(l[0]) ? 1 : 0) + (string(l[1]) ? 1 : 0)
+      const pair = (k: number): boolean =>
+        string(a[k] ?? 0) !== string(b[k] ?? 0)
+      const differ =
+        knit.steer === 'lone'
+          ? pair(s)
+          : knit.steer === 'line'
+            ? count(a) !== count(b)
+            : pair(0) || pair(1)
 
       if (charged.length === 1 && differ) {
         swap(a[0], b[0])
@@ -209,7 +258,10 @@ export function steerDock(input: {
     }
 
     for (const s of [0, 1] as const) {
-      if ((slots[base + a[s]] !== 0) !== (slots[base + b[s]] !== 0) && string(a[s]) !== string(b[s])) {
+      if (
+        (slots[base + a[s]] !== 0) !== (slots[base + b[s]] !== 0) &&
+        string(a[s]) !== string(b[s])
+      ) {
         swap(a[s], b[s])
       }
     }
@@ -240,24 +292,45 @@ export function knitDock(input: {
 }
 
 // the collision of every dock at beat t, in place, forward or back
-export function knitCollide(knit: SteeredKnit, state: KnitState, t: number, forward: boolean): void {
+export function knitCollide(
+  knit: SteeredKnit,
+  state: KnitState,
+  t: number,
+  forward: boolean,
+): void {
   const couples = partitionAt(knit.spec, t)
 
   for (let x = 0; x < knit.mesh.cellCount; x++) {
-    const string = (d: number): boolean => mod3(state.flux[knit.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
+    const string = (d: number): boolean =>
+      mod3(state.flux[knit.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
 
-    knitDock({ knit, slots: state.vibe, base: x * 24, string, t, forward, couples })
+    knitDock({
+      knit,
+      slots: state.vibe,
+      base: x * 24,
+      string,
+      t,
+      forward,
+      couples,
+    })
   }
 }
 
 // the stream, forward or back: every slot moves one link, and each link's flux changes by what crossed it
-export function knitStream(knit: SteeredKnit, state: KnitState, forward: boolean): KnitState {
+export function knitStream(
+  knit: SteeredKnit,
+  state: KnitState,
+  forward: boolean,
+): KnitState {
   const vibe = new Int8Array(state.vibe.length)
   const flux = Int32Array.from(state.flux)
 
   if (forward) {
     knit.edges.forEach(([a, b, d], l) => {
-      flux[l] = (flux[l] ?? 0) + (state.vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) - (state.vibe[a * 24 + d] ?? 0)
+      flux[l] =
+        (flux[l] ?? 0) +
+        (state.vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) -
+        (state.vibe[a * 24 + d] ?? 0)
     })
   }
 
@@ -275,22 +348,36 @@ export function knitStream(knit: SteeredKnit, state: KnitState, forward: boolean
 
   if (!forward) {
     knit.edges.forEach(([a, b, d], l) => {
-      flux[l] = (flux[l] ?? 0) - (vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) + (vibe[a * 24 + d] ?? 0)
+      flux[l] =
+        (flux[l] ?? 0) -
+        (vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) +
+        (vibe[a * 24 + d] ?? 0)
     })
   }
 
   return { vibe, flux }
 }
 
-export function knitBeat(knit: SteeredKnit, state: KnitState, t: number): KnitState {
-  const work = { vibe: Int8Array.from(state.vibe), flux: Int32Array.from(state.flux) }
+export function knitBeat(
+  knit: SteeredKnit,
+  state: KnitState,
+  t: number,
+): KnitState {
+  const work = {
+    vibe: Int8Array.from(state.vibe),
+    flux: Int32Array.from(state.flux),
+  }
 
   knitCollide(knit, work, t, true)
 
   return knitStream(knit, work, true)
 }
 
-export function knitBeatBack(knit: SteeredKnit, state: KnitState, t: number): KnitState {
+export function knitBeatBack(
+  knit: SteeredKnit,
+  state: KnitState,
+  t: number,
+): KnitState {
   const work = knitStream(knit, state, false)
 
   knitCollide(knit, work, t, false)

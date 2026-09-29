@@ -148,7 +148,11 @@ function slab(input: { birth: number; beats: number }): {
     }
   }
 
-  return { entered, maxSupport, phases: [...phases].sort((a, b) => a - b) }
+  return {
+    entered,
+    maxSupport,
+    phases: [...phases].sort((a, b) => a - b),
+  }
 }
 
 export default experiment({
@@ -201,7 +205,8 @@ export default experiment({
       }
     }
 
-    const chargeDrift = charge(will) - charge({ mesh: echoMesh, data: start })
+    const chargeDrift =
+      charge(will) - charge({ mesh: echoMesh, data: start })
 
     // 2. the particle at two sizes, with unions and the husk projection
     let particleClean = true
@@ -299,7 +304,9 @@ export default experiment({
         unionGap = Math.max(
           unionGap,
           Math.sqrt(
-            pairAbs2(pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d))),
+            pairAbs2(
+              pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d)),
+            ),
           ),
         )
       }

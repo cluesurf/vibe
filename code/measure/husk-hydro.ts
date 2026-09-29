@@ -19,7 +19,10 @@
 import { type Mesh, d4Mesh } from '@/code/tool/mesh'
 import { type Collision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { dampedCosineFit, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  dampedCosineFit,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 import { decayRateFit } from '@/code/measure/shear-mode'
 import { linearFit } from '@/code/measure/regression'
 import { collide, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -47,7 +50,10 @@ export type GasSystem<S> = {
   }
 }
 
-export function coldGas(name: string, knit: () => ColdQuaternionKnit): GasSystem<ColdQuaternionState> {
+export function coldGas(
+  name: string,
+  knit: () => ColdQuaternionKnit,
+): GasSystem<ColdQuaternionState> {
   return {
     name,
     make: side => {
@@ -66,7 +72,10 @@ export function coldGas(name: string, knit: () => ColdQuaternionKnit): GasSystem
 }
 
 // a tone-only knit (a schedule of dock collisions); its energy is the tone count, reported, not kept
-export function toneGas(name: string, schedule: (side: number) => (t: number) => Collision): GasSystem<Int8Array> {
+export function toneGas(
+  name: string,
+  schedule: (side: number) => (t: number) => Collision,
+): GasSystem<Int8Array> {
   return {
     name,
     make: side => {
@@ -84,7 +93,9 @@ export function toneGas(name: string, schedule: (side: number) => (t: number) =>
 
           const out = new Int8Array(s.length)
 
-          for (let i = 0; i < out.length; i++) out[i] = will.data[table[i] ?? 0] ?? 0
+          for (let i = 0; i < out.length; i++) {
+            out[i] = will.data[table[i] ?? 0] ?? 0
+          }
 
           return out
         },
@@ -95,10 +106,16 @@ export function toneGas(name: string, schedule: (side: number) => (t: number) =>
   }
 }
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 // the husk amplitude: column sums of P . a, against sin(2 pi m (k . r) / L), r the column's three coordinates
-export function huskAmplitude(vibe: ArrayLike<number>, side: number, geometry: WaveGeometry, mode: number): number {
+export function huskAmplitude(
+  vibe: ArrayLike<number>,
+  side: number,
+  geometry: WaveGeometry,
+  mode: number,
+): number {
   const along = ROOTS.map(r => dot(r, geometry.momentum))
   const columns = new Float64Array(side ** 3)
   const docks = side ** 4
@@ -106,7 +123,9 @@ export function huskAmplitude(vibe: ArrayLike<number>, side: number, geometry: W
   for (let x = 0; x < docks; x++) {
     let p = 0
 
-    for (let d = 0; d < 24; d++) p += Math.abs(vibe[x * 24 + d] ?? 0) * (along[d] ?? 0)
+    for (let d = 0; d < 24; d++) {
+      p += Math.abs(vibe[x * 24 + d] ?? 0) * (along[d] ?? 0)
+    }
 
     columns[x % side ** 3] = (columns[x % side ** 3] ?? 0) + p
   }
@@ -114,8 +133,17 @@ export function huskAmplitude(vibe: ArrayLike<number>, side: number, geometry: W
   let amplitude = 0
 
   for (let c = 0; c < side ** 3; c++) {
-    const r = [c % side, Math.floor(c / side) % side, Math.floor(c / side ** 2)]
-    const phase = (2 * Math.PI * mode * (((dot(geometry.wave, r) % side) + side) % side)) / side
+    const r = [
+      c % side,
+      Math.floor(c / side) % side,
+      Math.floor(c / side ** 2),
+    ]
+    const phase =
+      (2 *
+        Math.PI *
+        mode *
+        (((dot(geometry.wave, r) % side) + side) % side)) /
+      side
 
     amplitude += (columns[c] ?? 0) * Math.sin(phase)
   }
@@ -124,18 +152,34 @@ export function huskAmplitude(vibe: ArrayLike<number>, side: number, geometry: W
 }
 
 // the bulk amplitude of code/measure/momentum-transport, on d4Mesh's integer torus
-export function bulkAmplitude(vibe: ArrayLike<number>, side: number, geometry: WaveGeometry, mode: number): number {
+export function bulkAmplitude(
+  vibe: ArrayLike<number>,
+  side: number,
+  geometry: WaveGeometry,
+  mode: number,
+): number {
   const along = ROOTS.map(r => dot(r, geometry.momentum))
+
   let amplitude = 0
 
   for (let x = 0; x < side ** 4; x++) {
     let p = 0
 
-    for (let d = 0; d < 24; d++) p += Math.abs(vibe[x * 24 + d] ?? 0) * (along[d] ?? 0)
+    for (let d = 0; d < 24; d++) {
+      p += Math.abs(vibe[x * 24 + d] ?? 0) * (along[d] ?? 0)
+    }
 
     const r = [0, 1, 2, 3].map(k => Math.floor(x / side ** k) % side)
 
-    amplitude += p * Math.sin((2 * Math.PI * mode * (((dot(geometry.wave, r) % side) + side) % side)) / side)
+    amplitude +=
+      p *
+      Math.sin(
+        (2 *
+          Math.PI *
+          mode *
+          (((dot(geometry.wave, r) % side) + side) % side)) /
+          side,
+      )
   }
 
   return amplitude
@@ -146,7 +190,8 @@ export function bulkAmplitude(vibe: ArrayLike<number>, side: number, geometry: W
 // choice, and sampled states come from the repo's Kronecker stream.
 const ALPHAS = [2, 3, 5, 7].map(p => Math.sqrt(p) % 1)
 
-const weylAt = (n: number, kind: number): number => weylPoint(n + 1, ALPHAS[kind % ALPHAS.length] ?? SILVER)
+const weylAt = (n: number, kind: number): number =>
+  weylPoint(n + 1, ALPHAS[kind % ALPHAS.length] ?? SILVER)
 
 // a deterministic stream for sampling states: makeWeyl's stream at `start`
 export function weylStream(start: number): () => number {
@@ -158,12 +203,21 @@ export function weylStream(start: number): () => number {
 // code/measure/momentum-transport momentumWaveStart with its hash replaced by Weyl sequences: a background
 // of tones of both signs at the given fill, plus lone carriers on lines with a component along a, placed where
 // the Weyl value is under |bias sin(2 pi m (q . r) / L)| and pointed along the sign of the bias
-export function weylWaveStart(input: { mesh: Mesh; side: number; geometry: WaveGeometry; mode: number; fill: number; bias: number }): Int8Array {
+export function weylWaveStart(input: {
+  mesh: Mesh
+  side: number
+  geometry: WaveGeometry
+  mode: number
+  fill: number
+  bias: number
+}): Int8Array {
   const { mesh, side, geometry, mode, fill, bias } = input
   const data = new Int8Array(mesh.cellCount * 24)
 
   for (let i = 0; i < data.length; i++) {
-    if (weylAt(i, 0) < fill) data[i] = weylAt(i, 1) < 0.5 ? -1 : 1
+    if (weylAt(i, 0) < fill) {
+      data[i] = weylAt(i, 1) < 0.5 ? -1 : 1
+    }
   }
 
   const lines: [number, number][] = []
@@ -171,17 +225,29 @@ export function weylWaveStart(input: { mesh: Mesh; side: number; geometry: WaveG
   for (let d = 0; d < 24; d++) {
     const o = mesh.opposite(d)
 
-    if (d < o) lines.push([d, o])
+    if (d < o) {
+      lines.push([d, o])
+    }
   }
 
   for (let x = 0; x < mesh.cellCount; x++) {
     const r = [0, 1, 2, 3].map(k => Math.floor(x / side ** k) % side)
-    const local = bias * Math.sin((2 * Math.PI * mode * (((dot(geometry.wave, r) % side) + side) % side)) / side)
+    const local =
+      bias *
+      Math.sin(
+        (2 *
+          Math.PI *
+          mode *
+          (((dot(geometry.wave, r) % side) + side) % side)) /
+          side,
+      )
 
     lines.forEach(([d, o], line) => {
       const along = dot(ROOTS[d] ?? [], geometry.momentum)
 
-      if (along === 0 || weylAt(x * 12 + line, 2) >= Math.abs(local)) return
+      if (along === 0 || weylAt(x * 12 + line, 2) >= Math.abs(local)) {
+        return
+      }
 
       const forward = along * local > 0 ? d : o
 
@@ -193,16 +259,45 @@ export function weylWaveStart(input: { mesh: Mesh; side: number; geometry: WaveG
   return data
 }
 
-export type WaveRun = { side: number; mode: number; k: number; series: number[]; energyExact: boolean; huskEqualsBulk: boolean }
+export type WaveRun = {
+  side: number
+  mode: number
+  k: number
+  series: number[]
+  energyExact: boolean
+  huskEqualsBulk: boolean
+}
 
 // one wave run (fill 0.2, bias 0.4 as E-FLD-0032, Weyl-placed), read in the husk when the geometry lies in it
-export function waveRun<S>(system: GasSystem<S>, side: number, geometry: WaveGeometry, beats: number, mode = 1): WaveRun {
+export function waveRun<S>(
+  system: GasSystem<S>,
+  side: number,
+  geometry: WaveGeometry,
+  beats: number,
+  mode = 1,
+): WaveRun {
   const gas = system.make(side)
-  let s = gas.start(weylWaveStart({ mesh: gas.mesh, side, geometry, mode, fill: 0.2, bias: 0.4 }))
+
+  let s = gas.start(
+    weylWaveStart({
+      mesh: gas.mesh,
+      side,
+      geometry,
+      mode,
+      fill: 0.2,
+      bias: 0.4,
+    }),
+  )
+
   const e0 = gas.energy(s)
-  const inHusk = (geometry.momentum[3] ?? 0) === 0 && (geometry.wave[3] ?? 0) === 0
-  const read = (v: ArrayLike<number>): number => (inHusk ? huskAmplitude(v, side, geometry, mode) : bulkAmplitude(v, side, geometry, mode))
+  const inHusk =
+    (geometry.momentum[3] ?? 0) === 0 && (geometry.wave[3] ?? 0) === 0
+  const read = (v: ArrayLike<number>): number =>
+    inHusk
+      ? huskAmplitude(v, side, geometry, mode)
+      : bulkAmplitude(v, side, geometry, mode)
   const series = [read(gas.vibe(s))]
+
   let huskEqualsBulk = true
 
   for (let t = 0; t < beats; t++) {
@@ -211,65 +306,123 @@ export function waveRun<S>(system: GasSystem<S>, side: number, geometry: WaveGeo
     const v = gas.vibe(s)
     const a = read(v)
 
-    if (inHusk && t % 20 === 0) huskEqualsBulk = huskEqualsBulk && Math.abs(a - bulkAmplitude(v, side, geometry, mode)) < 1e-6 * (1 + Math.abs(a))
+    if (inHusk && t % 20 === 0) {
+      huskEqualsBulk =
+        huskEqualsBulk &&
+        Math.abs(a - bulkAmplitude(v, side, geometry, mode)) <
+          1e-6 * (1 + Math.abs(a))
+    }
 
     series.push(a)
   }
 
-  return { side, mode, k: (2 * Math.PI * mode * Math.hypot(...geometry.wave)) / side, series, energyExact: gas.energy(s) === e0, huskEqualsBulk }
+  return {
+    side,
+    mode,
+    k: (2 * Math.PI * mode * Math.hypot(...geometry.wave)) / side,
+    series,
+    energyExact: gas.energy(s) === e0,
+    huskEqualsBulk,
+  }
 }
 
-export type ShearReading = { nu: number; gamma: number; r2: number; left: number } & WaveRun
-export type SoundReading = { speed: number; gamma: number; r2: number; oscillates: boolean } & WaveRun
+export type ShearReading = {
+  nu: number
+  gamma: number
+  r2: number
+  left: number
+} & WaveRun
+export type SoundReading = {
+  speed: number
+  gamma: number
+  r2: number
+  oscillates: boolean
+} & WaveRun
 
-export function shearRun<S>(system: GasSystem<S>, side: number, geometry: WaveGeometry, mode = 1): ShearReading {
+export function shearRun<S>(
+  system: GasSystem<S>,
+  side: number,
+  geometry: WaveGeometry,
+  mode = 1,
+): ShearReading {
   const w = waveRun(system, side, geometry, 60, mode)
   const fit = decayRateFit({ series: w.series })
 
-  return { ...w, nu: fit.gamma / (w.k * w.k), gamma: fit.gamma, r2: fit.r2, left: (w.series[w.series.length - 1] ?? 0) / (w.series[0] || 1) }
+  return {
+    ...w,
+    nu: fit.gamma / (w.k * w.k),
+    gamma: fit.gamma,
+    r2: fit.r2,
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a zero first reading falls back to 1 too, so the ratio never divides by zero
+    left: (w.series[w.series.length - 1] ?? 0) / (w.series[0] || 1),
+  }
 }
 
-export function soundRun<S>(system: GasSystem<S>, side: number, geometry: WaveGeometry): SoundReading {
+export function soundRun<S>(
+  system: GasSystem<S>,
+  side: number,
+  geometry: WaveGeometry,
+): SoundReading {
   const w = waveRun(system, side, geometry, 144)
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a zero first reading falls back to 1 too, so the scale never divides by zero
   const s0 = w.series[0] || 1
   const fit = dampedCosineFit({ series: w.series.map(x => x / s0) })
 
-  return { ...w, speed: fit.omega / w.k, gamma: fit.gamma, r2: fit.r2, oscillates: fit.omega > fit.gamma && fit.r2 > 0.9 }
+  return {
+    ...w,
+    speed: fit.omega / w.k,
+    gamma: fit.gamma,
+    r2: fit.r2,
+    oscillates: fit.omega > fit.gamma && fit.r2 > 0.9,
+  }
 }
 
 // in-husk shear orientations (momentum, wave), depth along the fourth axis
-export const HUSK_SHEARS: readonly (readonly [string, WaveGeometry])[] = [
-  ['axes01', { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }],
-  ['axes12', { momentum: [0, 1, 0, 0], wave: [0, 0, 1, 0] }],
-  ['axes20', { momentum: [0, 0, 1, 0], wave: [1, 0, 0, 0] }],
-  ['axes10', { momentum: [0, 1, 0, 0], wave: [1, 0, 0, 0] }],
-  ['diagonal01', { momentum: [1, 1, 0, 0], wave: [1, -1, 0, 0] }],
-  ['diagonal12', { momentum: [0, 1, 1, 0], wave: [0, 1, -1, 0] }],
-]
+export const HUSK_SHEARS: readonly (readonly [string, WaveGeometry])[] =
+  [
+    ['axes01', { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }],
+    ['axes12', { momentum: [0, 1, 0, 0], wave: [0, 0, 1, 0] }],
+    ['axes20', { momentum: [0, 0, 1, 0], wave: [1, 0, 0, 0] }],
+    ['axes10', { momentum: [0, 1, 0, 0], wave: [1, 0, 0, 0] }],
+    ['diagonal01', { momentum: [1, 1, 0, 0], wave: [1, -1, 0, 0] }],
+    ['diagonal12', { momentum: [0, 1, 1, 0], wave: [0, 1, -1, 0] }],
+  ]
 
 // bulk-only shear orientations (one of the two vectors along the depth)
-export const BULK_SHEARS: readonly (readonly [string, WaveGeometry])[] = [
-  ['axes23', { momentum: [0, 0, 1, 0], wave: [0, 0, 0, 1] }],
-  ['axes30', { momentum: [0, 0, 0, 1], wave: [1, 0, 0, 0] }],
-  ['diagonal23', { momentum: [0, 0, 1, 1], wave: [0, 0, 1, -1] }],
-]
+export const BULK_SHEARS: readonly (readonly [string, WaveGeometry])[] =
+  [
+    ['axes23', { momentum: [0, 0, 1, 0], wave: [0, 0, 0, 1] }],
+    ['axes30', { momentum: [0, 0, 0, 1], wave: [1, 0, 0, 0] }],
+    ['diagonal23', { momentum: [0, 0, 1, 1], wave: [0, 0, 1, -1] }],
+  ]
 
-export const HUSK_SOUNDS: readonly (readonly [string, WaveGeometry])[] = [
-  ['axis0', { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }],
-  ['axis1', { momentum: [0, 1, 0, 0], wave: [0, 1, 0, 0] }],
-  ['axis2', { momentum: [0, 0, 1, 0], wave: [0, 0, 1, 0] }],
-  ['diagonal01', { momentum: [1, 1, 0, 0], wave: [1, 1, 0, 0] }],
-]
+export const HUSK_SOUNDS: readonly (readonly [string, WaveGeometry])[] =
+  [
+    ['axis0', { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }],
+    ['axis1', { momentum: [0, 1, 0, 0], wave: [0, 1, 0, 0] }],
+    ['axis2', { momentum: [0, 0, 1, 0], wave: [0, 0, 1, 0] }],
+    ['diagonal01', { momentum: [1, 1, 0, 0], wave: [1, 1, 0, 0] }],
+  ]
 
 const SIDES = [12, 16, 20, 24]
 
 export type HydroBattery = {
   // per husk orientation, the shear at L = 12, 16, 20, 24: nu, r2, fraction left, and the law's verdict
-  readonly husk: { name: string; runs: ShearReading[]; nuSpread: number; exponent: number; law: boolean }[]
+  readonly husk: {
+    name: string
+    runs: ShearReading[]
+    nuSpread: number
+    exponent: number
+    law: boolean
+  }[]
   // bulk-only orientations at L = 16
   readonly bulk: { name: string; run: ShearReading }[]
   // sound along the husk directions at L = 16, 20, 24, speed extrapolated to k = 0 in k^2
-  readonly sound: { name: string; runs: SoundReading[]; speedAtZero: number }[]
+  readonly sound: {
+    name: string
+    runs: SoundReading[]
+    speedAtZero: number
+  }[]
   // spread of nu over the husk orientations at L = 16, or the first size run (max over min; infinite if any
   // is not positive)
   readonly huskNuSpread: number
@@ -280,41 +433,86 @@ export type HydroBattery = {
 
 // sides: the shear sizes (default 12, 16, 20, 24; the second one, 16 by default, is the isotropy size);
 // soundSides: the sound sizes (default 16, 20, 24)
-export function hydroBattery<S>(system: GasSystem<S>, input: { sides?: readonly number[]; soundSides?: readonly number[] } = {}): HydroBattery {
+export function hydroBattery<S>(
+  system: GasSystem<S>,
+  input: {
+    sides?: readonly number[]
+    soundSides?: readonly number[]
+  } = {},
+): HydroBattery {
   const sides = input.sides ?? SIDES
   const soundSides = input.soundSides ?? [16, 20, 24]
   const husk = HUSK_SHEARS.map(([name, geometry]) => {
     const runs = sides.map(side => shearRun(system, side, geometry))
     const nus = runs.map(r => r.nu)
-    const nuSpread = Math.min(...nus) > 0 ? Math.max(...nus) / Math.min(...nus) : Number.POSITIVE_INFINITY
-    const slope = runs.length > 1 ? linearFit({ xs: runs.map(r => Math.log(r.k)), ys: runs.map(r => Math.log(Math.max(1e-12, r.gamma))) }).slope : Number.NaN
-    const law = runs.length > 1 && nuSpread <= 1.1 && runs.every(r => r.r2 > 0.99) && Math.abs(slope - 2) <= 0.2
+    const nuSpread =
+      Math.min(...nus) > 0
+        ? Math.max(...nus) / Math.min(...nus)
+        : Number.POSITIVE_INFINITY
+    const slope =
+      runs.length > 1
+        ? linearFit({
+            xs: runs.map(r => Math.log(r.k)),
+            ys: runs.map(r => Math.log(Math.max(1e-12, r.gamma))),
+          }).slope
+        : Number.NaN
+    const law =
+      runs.length > 1 &&
+      nuSpread <= 1.1 &&
+      runs.every(r => r.r2 > 0.99) &&
+      Math.abs(slope - 2) <= 0.2
 
     return { name, runs, nuSpread, exponent: slope, law }
   })
-  const bulk = BULK_SHEARS.map(([name, geometry]) => ({ name, run: shearRun(system, 16, geometry) }))
+  const bulk = BULK_SHEARS.map(([name, geometry]) => ({
+    name,
+    run: shearRun(system, 16, geometry),
+  }))
   const sound = HUSK_SOUNDS.map(([name, geometry]) => {
-    const runs = soundSides.map(side => soundRun(system, side, geometry))
-    const fit = runs.length > 1 ? linearFit({ xs: runs.map(r => r.k * r.k), ys: runs.map(r => r.speed) }).intercept : Number.NaN
+    const runs = soundSides.map(side =>
+      soundRun(system, side, geometry),
+    )
+    const fit =
+      runs.length > 1
+        ? linearFit({
+            xs: runs.map(r => r.k * r.k),
+            ys: runs.map(r => r.speed),
+          }).intercept
+        : Number.NaN
 
     return { name, runs, speedAtZero: fit }
   })
-  const at16 = husk.map(h => h.runs[sides.indexOf(16)]?.nu ?? h.runs[0]?.nu ?? 0)
+  const at16 = husk.map(
+    h => h.runs[sides.indexOf(16)]?.nu ?? h.runs[0]?.nu ?? 0,
+  )
   const speeds = sound.map(s => s.runs[0]?.speed ?? 0)
 
   return {
     husk,
     bulk,
     sound,
-    huskNuSpread: Math.min(...at16) > 0 ? Math.max(...at16) / Math.min(...at16) : Number.POSITIVE_INFINITY,
+    huskNuSpread:
+      Math.min(...at16) > 0
+        ? Math.max(...at16) / Math.min(...at16)
+        : Number.POSITIVE_INFINITY,
     huskSpeedSpread: Math.max(...speeds) / Math.min(...speeds),
-    energyExact: [...husk.flatMap(h => h.runs), ...bulk.map(b => b.run), ...sound.flatMap(s => s.runs)].every(r => r.energyExact),
-    huskEqualsBulk: [...husk.flatMap(h => h.runs), ...sound.flatMap(s => s.runs)].every(r => r.huskEqualsBulk),
+    energyExact: [
+      ...husk.flatMap(h => h.runs),
+      ...bulk.map(b => b.run),
+      ...sound.flatMap(s => s.runs),
+    ].every(r => r.energyExact),
+    huskEqualsBulk: [
+      ...husk.flatMap(h => h.runs),
+      ...sound.flatMap(s => s.runs),
+    ].every(r => r.huskEqualsBulk),
   }
 }
 
 // the battery flattened to metrics under a prefix
-export function hydroMetrics(prefix: string, b: HydroBattery): Record<string, number> {
+export function hydroMetrics(
+  prefix: string,
+  b: HydroBattery,
+): Record<string, number> {
   const out: Record<string, number> = {}
 
   for (const h of b.husk) {
@@ -337,7 +535,8 @@ export function hydroMetrics(prefix: string, b: HydroBattery): Record<string, nu
   for (const s of b.sound) {
     s.runs.forEach(r => {
       out[`${prefix}HuskSound_${s.name}_L${r.side}_speed`] = r.speed
-      out[`${prefix}HuskSound_${s.name}_L${r.side}_oscillates`] = r.oscillates ? 1 : 0
+      out[`${prefix}HuskSound_${s.name}_L${r.side}_oscillates`] =
+        r.oscillates ? 1 : 0
     })
     out[`${prefix}HuskSound_${s.name}_speedAtZeroK`] = s.speedAtZero
   }
@@ -345,15 +544,21 @@ export function hydroMetrics(prefix: string, b: HydroBattery): Record<string, nu
   out[`${prefix}HuskNuSpreadL16`] = b.huskNuSpread
   out[`${prefix}HuskSpeedSpreadL16`] = b.huskSpeedSpread
   out[`${prefix}EnergyExactEveryRun`] = b.energyExact ? 1 : 0
-  out[`${prefix}HuskEqualsBulkForInHuskWaves`] = b.huskEqualsBulk ? 1 : 0
+  out[`${prefix}HuskEqualsBulkForInHuskWaves`] = b.huskEqualsBulk
+    ? 1
+    : 0
 
   return out
 }
 
 // the husk direction (0..8: three axes, then six face diagonals) each line casts, depth the fourth axis
 export const HUSK_DIRECTION_OF_LINE: readonly number[] = (() => {
-  const opposite = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
-  const firsts = ROOTS.map((_, d) => d).filter(d => d < (opposite[d] ?? d))
+  const opposite = ROOTS.map(r =>
+    ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+  )
+  const firsts = ROOTS.map((_, d) => d).filter(
+    d => d < (opposite[d] ?? d),
+  )
   const keys: string[] = []
 
   return firsts.map(d => {
@@ -363,19 +568,38 @@ export const HUSK_DIRECTION_OF_LINE: readonly number[] = (() => {
     const k = s.map(x => x * lead).join(',')
     const axis = (r[3] ?? 0) !== 0
 
-    if (!keys.includes(k)) keys.push(k)
+    if (!keys.includes(k)) {
+      keys.push(k)
+    }
 
-    return axis ? s.findIndex(x => x !== 0) : 3 + keys.filter(x => x.split(',').filter(y => y !== '0').length === 2).indexOf(k)
+    return axis
+      ? s.findIndex(x => x !== 0)
+      : 3 +
+          keys
+            .filter(
+              x => x.split(',').filter(y => y !== '0').length === 2,
+            )
+            .indexOf(k)
   })
 })()
 
 // the line sectors of a cold knit, as code/measure/weave-acceptance reads them for a tone-only one: side-5 box,
 // every direction of the center flipped, 24 beats, the lines where the flipped run differs in a tone or a
 // store, joined with the flipped line; on the empty vacuum or on the dense background of that instrument
-export function coldLineSectors(knit: ColdQuaternionKnit, dense: boolean, boxMesh: Mesh): number[][] {
+export function coldLineSectors(
+  knit: ColdQuaternionKnit,
+  dense: boolean,
+  boxMesh: Mesh,
+): number[][] {
   const lattice = makeColdQuaternionLattice(boxMesh, knit)
-  const opposite = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
-  const lineOf = ROOTS.map((_, d) => ROOTS.map((__, e) => e).filter(e => e < (opposite[e] ?? e)).indexOf(Math.min(d, opposite[d] ?? d)))
+  const opposite = ROOTS.map(r =>
+    ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+  )
+  const lineOf = ROOTS.map((_, d) =>
+    ROOTS.map((__, e) => e)
+      .filter(e => e < (opposite[e] ?? e))
+      .indexOf(Math.min(d, opposite[d] ?? d)),
+  )
   const center = 2 * (1 + 5 + 25 + 125)
   const background = emptyColdState(boxMesh)
   const golden = (Math.sqrt(5) - 1) / 2
@@ -389,12 +613,18 @@ export function coldLineSectors(knit: ColdQuaternionKnit, dense: boolean, boxMes
   }
 
   const parent = Array.from({ length: 12 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
-  const copy = (s: ColdQuaternionState): ColdQuaternionState => ({ vibe: Int8Array.from(s.vibe), store: Int32Array.from(s.store), counter: Int32Array.from(s.counter) })
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
+  const copy = (s: ColdQuaternionState): ColdQuaternionState => ({
+    vibe: Int8Array.from(s.vibe),
+    store: Int32Array.from(s.store),
+    counter: Int32Array.from(s.counter),
+  })
 
   for (let direction = 0; direction < 24; direction++) {
     let a = copy(background)
     let b = copy(background)
+
     const slot = center * 24 + direction
     const touched = new Set<number>()
 
@@ -405,29 +635,40 @@ export function coldLineSectors(knit: ColdQuaternionKnit, dense: boolean, boxMes
       b = coldQuaternionBeat(lattice, b)
 
       for (let i = 0; i < a.vibe.length; i++) {
-        if (a.vibe[i] !== b.vibe[i] || a.store[i] !== b.store[i]) touched.add(lineOf[i % 24] ?? 0)
+        if (a.vibe[i] !== b.vibe[i] || a.store[i] !== b.store[i]) {
+          touched.add(lineOf[i % 24] ?? 0)
+        }
       }
     }
 
-    for (const line of touched) parent[find(line)] = find(lineOf[direction] ?? 0)
+    for (const line of touched) {
+      parent[find(line)] = find(lineOf[direction] ?? 0)
+    }
   }
 
   const sectors = new Map<number, number[]>()
 
-  for (let l = 0; l < 12; l++) sectors.set(find(l), [...(sectors.get(find(l)) ?? []), l])
+  for (let l = 0; l < 12; l++) {
+    sectors.set(find(l), [...(sectors.get(find(l)) ?? []), l])
+  }
 
   return [...sectors.values()]
 }
 
 // husk components from bulk line sectors (unions of lines): lines casting one husk direction are one
-export function huskComponents(sectors: readonly (readonly number[])[]): number {
+export function huskComponents(
+  sectors: readonly (readonly number[])[],
+): number {
   const parent = Array.from({ length: 9 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
 
   for (const s of sectors) {
     const first = HUSK_DIRECTION_OF_LINE[s[0] ?? 0] ?? 0
 
-    for (const l of s) parent[find(HUSK_DIRECTION_OF_LINE[l] ?? 0)] = find(first)
+    for (const l of s) {
+      parent[find(HUSK_DIRECTION_OF_LINE[l] ?? 0)] = find(first)
+    }
   }
 
   return new Set(Array.from({ length: 9 }, (_, i) => find(i))).size

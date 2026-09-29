@@ -37,7 +37,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { HUSK_ATOM, ROWS, bandGrid, kindBandGrid, lowestLevels, makeAtom, radial } from '@/code/measure/stand-in-atom'
+import {
+  HUSK_ATOM,
+  ROWS,
+  bandGrid,
+  kindBandGrid,
+  lowestLevels,
+  makeAtom,
+  radial,
+} from '@/code/measure/stand-in-atom'
 import { husk18 } from '@/code/measure/stand-in-hydrogen'
 
 const RADII = [2, 3, 4, 6, 8]
@@ -58,7 +66,9 @@ export default experiment({
       const level = lowestLevels({ atom, row: ROWS.A1g!, count: 1 })
       const e = level.values[0]! / atom.rydberg
       const r = radial(64, level.vectors[0]!)
-      const floor = atom.potential.reduce((m, v) => Math.min(m, v), Infinity) / atom.rydberg
+      const floor =
+        atom.potential.reduce((m, v) => Math.min(m, v), Infinity) /
+        atom.rydberg
       const source = level.vectors[0]![32 + 64 * (32 + 64 * 32)]! ** 2
 
       metrics[`a${a}_E1sOverRy`] = e
@@ -76,13 +86,19 @@ export default experiment({
       const mx = lx.reduce((s, v) => s + v, 0) / lx.length
       const my = ly.reduce((s, v) => s + v, 0) / ly.length
 
-      return -lx.reduce((s, v, i) => s + (v - mx) * (ly[i]! - my), 0) / lx.reduce((s, v) => s + (v - mx) ** 2, 0)
+      return (
+        -lx.reduce((s, v, i) => s + (v - mx) * (ly[i]! - my), 0) /
+        lx.reduce((s, v) => s + (v - mx) ** 2, 0)
+      )
     })()
     const small = makeAtom({ kind: HUSK_ATOM, side: 32, a: 4 })
-    const e32 = lowestLevels({ atom: small, row: ROWS.A1g!, count: 1 }).values[0]! / small.rydberg
+    const e32 =
+      lowestLevels({ atom: small, row: ROWS.A1g!, count: 1 })
+        .values[0]! / small.rydberg
     const e64 = rows.find(r => r.a === 4)!.e
     const token = bandGrid(husk18(), 32)
     const standIn = kindBandGrid(HUSK_ATOM, 32)
+
     let tokenMin = Infinity
     let belowZero = 0
 
@@ -96,15 +112,27 @@ export default experiment({
     metrics.boxDifference = Math.abs(e32 / e64 - 1)
     metrics.tokenBandMinimum = tokenMin
     metrics.tokenZoneShareBelowZero = belowZero / token.length
-    metrics.standInBandMinimum = standIn.reduce((m, v) => Math.min(m, v), Infinity)
+    metrics.standInBandMinimum = standIn.reduce(
+      (m, v) => Math.min(m, v),
+      Infinity,
+    )
 
     const gate1 = rows.every(r => r.e > r.floor)
-    const gate2Order = rows.every((r, i) => i === 0 || r.miss < rows[i - 1]!.miss) && rows[rows.length - 1]!.miss < 0.05
+    const gate2Order =
+      rows.every((r, i) => i === 0 || r.miss < rows[i - 1]!.miss) &&
+      rows[rows.length - 1]!.miss < 0.05
     const gate2 = gate2Order && exponent >= 2
-    const gate3 = Math.abs(rows[rows.length - 1]!.r / (1.5 * 8) - 1) <= 0.05
+    const gate3 =
+      Math.abs(rows[rows.length - 1]!.r / (1.5 * 8) - 1) <= 0.05
     const gate4 = metrics.boxDifference <= 1e-4
-    const gate5 = tokenMin < -0.5 && Math.abs(metrics.standInBandMinimum) < 1e-12
-    const status = gate1 && gate2 && gate3 && gate4 && gate5 ? 'pass' : gate1 && gate2Order && gate3 && gate4 && gate5 ? 'partial' : 'fail'
+    const gate5 =
+      tokenMin < -0.5 && Math.abs(metrics.standInBandMinimum) < 1e-12
+    const status =
+      gate1 && gate2 && gate3 && gate4 && gate5
+        ? 'pass'
+        : gate1 && gate2Order && gate3 && gate4 && gate5
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

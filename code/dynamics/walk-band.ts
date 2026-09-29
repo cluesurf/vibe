@@ -116,7 +116,10 @@ function momentumAmplitudes(walk: CoinedWalk): {
     for (let x = 0; x < size; x++) {
       const phase = pairFromPhase(-k * x)
 
-      r = pairAdd(r, pairMul(phase, [walk.rightRe[x]!, walk.rightIm[x]!]))
+      r = pairAdd(
+        r,
+        pairMul(phase, [walk.rightRe[x]!, walk.rightIm[x]!]),
+      )
       l = pairAdd(l, pairMul(phase, [walk.leftRe[x]!, walk.leftIm[x]!]))
     }
 
@@ -262,8 +265,14 @@ export function walkBerryConnection(k: number, mass: number): number {
   const u = walkPositiveBandSpinor(k, mass)
   const plus = walkPositiveBandSpinor(k + delta, mass)
   const minus = walkPositiveBandSpinor(k - delta, mass)
-  const dRight = pairScale(pairSub(plus.right, minus.right), 1 / (2 * delta))
-  const dLeft = pairScale(pairSub(plus.left, minus.left), 1 / (2 * delta))
+  const dRight = pairScale(
+    pairSub(plus.right, minus.right),
+    1 / (2 * delta),
+  )
+  const dLeft = pairScale(
+    pairSub(plus.left, minus.left),
+    1 / (2 * delta),
+  )
   const inner = pairAdd(
     pairMul([u.right[0], -u.right[1]], dRight),
     pairMul([u.left[0], -u.left[1]], dLeft),

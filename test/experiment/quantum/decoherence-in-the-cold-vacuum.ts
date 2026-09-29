@@ -87,10 +87,27 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { carryCoordinate, carryPhaseCoordinate, CONJUGATE_POINT, fearKernels, GRID_OF_PHASE, meetWhole, translatedOf, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import {
+  carryCoordinate,
+  carryPhaseCoordinate,
+  CONJUGATE_POINT,
+  fearKernels,
+  GRID_OF_PHASE,
+  meetWhole,
+  translatedOf,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { COLD_FIRSTS, COLD_OPPOSITE } from '@/code/rule/cold-quaternion-knit'
-import { coldRecords, coldStart, lineKnot } from '@/code/measure/knot-histories'
+import {
+  COLD_FIRSTS,
+  COLD_OPPOSITE,
+} from '@/code/rule/cold-quaternion-knit'
+import {
+  coldRecords,
+  coldStart,
+  lineKnot,
+} from '@/code/measure/knot-histories'
 import { gridLines } from '@/code/measure/bell-gates'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
@@ -100,12 +117,17 @@ const POINTER_DENSITY = 1 / 8
 const OMEGA = (2 * Math.PI) / 3
 
 const frac = (x: number): number => x - Math.floor(x)
-const unitsOf = (w: Whole): bigint => w.weight.reduce((s, x) => s + x, 0n)
+const unitsOf = (w: Whole): bigint =>
+  w.weight.reduce((s, x) => s + x, 0n)
+
 // Tr rho^2 = 3^k sum W^2 for k tokens, W the weights over the units
 const purityOf = (w: Whole): number => {
   const u = Number(unitsOf(w))
 
-  return 3 ** w.tokens.length * w.weight.reduce((s, x) => s + (Number(x) / u) ** 2, 0)
+  return (
+    3 ** w.tokens.length *
+    w.weight.reduce((s, x) => s + (Number(x) / u) ** 2, 0)
+  )
 }
 
 // least-squares slope of y against x
@@ -115,7 +137,9 @@ function slope(xs: readonly number[], ys: readonly number[]): number {
   const my = ys.reduce((a, b) => a + b, 0) / n
   const d = xs.reduce((s, x) => s + (x - mx) ** 2, 0)
 
-  return d > 0 ? xs.reduce((s, x, i) => s + (x - mx) * ((ys[i] ?? 0) - my), 0) / d : 0
+  return d > 0
+    ? xs.reduce((s, x, i) => s + (x - mx) * ((ys[i] ?? 0) - my), 0) / d
+    : 0
 }
 
 // open a gas token on its role line as coordinate `extra` of the knot, meet it with coordinate c, trace it out
@@ -135,20 +159,38 @@ function gasMeeting(input: {
   const own = [...(whole.own ?? new Array<number>(k).fill(0)), gasOwn]
   const opened: Whole = {
     tokens: [...whole.tokens, -1],
-    weight: Array.from({ length: whole.weight.length * 9 }, (_, i) => (line.includes(i % 9) ? (whole.weight[Math.floor(i / 9)] ?? 0n) : 0n)),
+    weight: Array.from({ length: whole.weight.length * 9 }, (_, i) =>
+      line.includes(i % 9)
+        ? (whole.weight[Math.floor(i / 9)] ?? 0n)
+        : 0n,
+    ),
     own,
   }
   const [c0, c1] = loveFirst ? [c, k] : [k, c]
   // the comoving fear beat (adopted 2026-09-26): the kernel read about the two tokens' own points
   const read = translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0)
-  const met = meetWhole({ whole: opened, a: c0, b: c1, kernel4: read, divisor, fixed: false })!
+  const met = meetWhole({
+    whole: opened,
+    a: c0,
+    b: c1,
+    kernel4: read,
+    divisor,
+    fixed: false,
+  })!
   const traced = new Array<bigint>(whole.weight.length).fill(0n)
 
   met.weight.forEach((x, i) => {
     traced[Math.floor(i / 9)] = (traced[Math.floor(i / 9)] ?? 0n) + x
   })
 
-  return { traced: { tokens: whole.tokens, weight: traced, own: own.slice(0, k) }, met }
+  return {
+    traced: {
+      tokens: whole.tokens,
+      weight: traced,
+      own: own.slice(0, k),
+    },
+    met,
+  }
 }
 
 // mana, the sum-negativity magic monotone (Veitch, Mousavian, Gottesman and Emerson 2014): ln sum |W| over a
@@ -158,7 +200,9 @@ const manaOf = (w: Whole): number => {
   const { loves, fears } = wholeLovesAndFears(w)
 
   // the ratio in bigints first, so knots with large units still read exactly to 1e-15
-  return Math.log(Number(((loves + fears) * 10n ** 15n) / (loves - fears)) / 1e15)
+  return Math.log(
+    Number(((loves + fears) * 10n ** 15n) / (loves - fears)) / 1e15,
+  )
 }
 
 export default experiment({
@@ -173,7 +217,11 @@ export default experiment({
   run() {
     const weave = makeColorWeave({ side: 3, table: 'bind' })
     const slots = weave.mesh.cellCount * 24
-    const kernels = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
+    const kernels = fearKernels({
+      like: OMEGA,
+      unlike: OMEGA,
+      likeExchanged: false,
+    })!
     const allOpen = Array.from({ length: slots }, (_, i) => i)
     // the love-fear pair of E-RLT-0055 (its first line of dock 0 whose love and fear meet)
     const pairLine = (() => {
@@ -185,7 +233,13 @@ export default experiment({
         vibe[d] = 1
         vibe[o] = -1
 
-        if (coldRecords({ start: coldStart(vibe, new Int8Array(slots)), tokens: [d, o], beats: 24 }).records.some(r => r.meetings.length > 0)) {
+        if (
+          coldRecords({
+            start: coldStart(vibe, new Int8Array(slots)),
+            tokens: [d, o],
+            beats: 24,
+          }).records.some(r => r.meetings.length > 0)
+        ) {
           return [d, o]
         }
       }
@@ -193,12 +247,18 @@ export default experiment({
       return [0, 1]
     })()
     const [pa, pb] = pairLine as [number, number]
+
     const fill = (f: number): { vibe: Int8Array; point: Int8Array } => {
       const vibe = new Int8Array(slots)
       const point = new Int8Array(slots)
 
       for (let i = 0; i < slots; i++) {
-        vibe[i] = frac((i + 1) * GOLDEN) < f ? (frac((i + 1) * SILVER) < 0.5 ? 1 : -1) : 0
+        vibe[i] =
+          frac((i + 1) * GOLDEN) < f
+            ? frac((i + 1) * SILVER) < 0.5
+              ? 1
+              : -1
+            : 0
         point[i] = Math.floor(9 * frac((i + 3) * GOLDEN))
       }
 
@@ -211,29 +271,49 @@ export default experiment({
     }
 
     // one run: the pair (or a single token) through the knit's record with gas meetings opened and traced
-    const study = (f: number, start: Whole, keep: readonly number[]) => {
+    const study = (
+      f: number,
+      start: Whole,
+      keep: readonly number[],
+    ) => {
       const { vibe, point } = fill(f)
-      const { records } = coldRecords({ start: coldStart(vibe, point), tokens: allOpen, beats: BEATS })
+      const { records } = coldRecords({
+        start: coldStart(vibe, point),
+        tokens: allOpen,
+        beats: BEATS,
+      })
       const coordinate = new Map(keep.map((t, i) => [t, i]))
       const hidden = Int8Array.from(point)
       const met = new Map<number, number>()
+
       let whole = start
       let gas = 0
       let repeats = 0
       let rewrites = 0
       let instrumentBad = 0
+
       const purity: number[] = []
       const fearShare: number[] = []
       const mana: number[] = []
       // the mana ledger by step kind: the pair's own meetings, the gas meeting's kernel, the trace, the links
-      const ledger = { own: 0, gasKernel: 0, trace: 0, links: 0, traceRaises: 0, linkChanges: 0 }
+      const ledger = {
+        own: 0,
+        gasKernel: 0,
+        trace: 0,
+        links: 0,
+        traceRaises: 0,
+        linkChanges: 0,
+      }
 
       // each kept coordinate's frame, the color mode's (E-QTM-0123): before a meeting a coordinate whose token
       // now carries the other sign is rewritten in the new frame (reflected), the role unchanged. A reflection
       // permutes the weights, so it moves neither mana nor purity
       const frame = keep.map(() => 0)
+
       const reframe = (c: number | undefined, s: number): void => {
-        if (c === undefined) return
+        if (c === undefined) {
+          return
+        }
 
         if ((frame[c] ?? 0) !== 0 && frame[c] !== s) {
           whole = carryPhaseCoordinate(whole, c, CONJUGATE_POINT)
@@ -257,9 +337,21 @@ export default experiment({
 
             // the comoving fear beat (adopted 2026-09-26): each kernel read about the two coordinates' own points
             const [c0, c1] = sa === sb || sa > 0 ? [ca, cb] : [cb, ca]
-            const kernel = translatedOf(sa === sb ? kernels.like : kernels.unlike, whole.own?.[c0] ?? 0, whole.own?.[c1] ?? 0)
+            const kernel = translatedOf(
+              sa === sb ? kernels.like : kernels.unlike,
+              whole.own?.[c0] ?? 0,
+              whole.own?.[c1] ?? 0,
+            )
 
-            whole = meetWhole({ whole, a: c0, b: c1, kernel4: kernel, divisor: sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor, fixed: false })!
+            whole = meetWhole({
+              whole,
+              a: c0,
+              b: c1,
+              kernel4: kernel,
+              divisor:
+                sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor,
+              fixed: false,
+            })!
             ledger.own += manaOf(whole) - before
           } else if (ca !== undefined || cb !== undefined) {
             const mine = ca !== undefined ? ta : tb
@@ -278,9 +370,13 @@ export default experiment({
               c: coordinate.get(mine) ?? 0,
               // the gas token's classical point is a GRID index (x + 3 y, the knit's classical layer); its role is
               // the phase point's first coordinate a = x, read through GRID_OF_PHASE (E-QTM-0124)
-              role: Math.floor((GRID_OF_PHASE[hidden[other] ?? 0] ?? 0) / 3),
+              role: Math.floor(
+                (GRID_OF_PHASE[hidden[other] ?? 0] ?? 0) / 3,
+              ),
               kernel: like ? kernels.like : kernels.unlike,
-              divisor: like ? kernels.likeDivisor : kernels.unlikeDivisor,
+              divisor: like
+                ? kernels.likeDivisor
+                : kernels.unlikeDivisor,
               loveFirst: like || mySign > 0,
               gasOwn: GRID_OF_PHASE[hidden[other] ?? 0] ?? 0,
             })
@@ -308,7 +404,8 @@ export default experiment({
               const after = manaOf(whole)
 
               ledger.links += after - before
-              ledger.linkChanges += Math.abs(after - before) > 1e-12 ? 1 : 0
+              ledger.linkChanges +=
+                Math.abs(after - before) > 1e-12 ? 1 : 0
             }
           } else {
             hidden[tk] = act[hidden[tk] ?? 0] ?? 0
@@ -318,30 +415,59 @@ export default experiment({
         const p = purityOf(whole)
         const { loves, fears } = wholeLovesAndFears(whole)
 
-        instrumentBad += p <= 1 + 1e-12 && p >= 1 / 9 ** (keep.length / 2) - 1e-12 && unitsOf(whole) > 0n ? 0 : 1
+        instrumentBad +=
+          p <= 1 + 1e-12 &&
+          p >= 1 / 9 ** (keep.length / 2) - 1e-12 &&
+          unitsOf(whole) > 0n
+            ? 0
+            : 1
         purity.push(p)
-        fearShare.push(Number((fears * 10n ** 15n) / (loves + fears)) / 1e15)
+        fearShare.push(
+          Number((fears * 10n ** 15n) / (loves + fears)) / 1e15,
+        )
         mana.push(manaOf(whole))
       }
 
-      return { gas, repeats, rewrites, purity, fearShare, mana, ledger, instrumentBad, final: whole }
+      return {
+        gas,
+        repeats,
+        rewrites,
+        purity,
+        fearShare,
+        mana,
+        ledger,
+        instrumentBad,
+        final: whole,
+      }
     }
 
     const pairStart = lineKnot(pairLine, [0, 1, 2], [0, 1, 2])
     const per: Record<string, number> = {}
+
     let isolationOk = false
     let instrumentOk = true
     let decoheres = true
+
     const ratios: number[] = []
+
     let manaTheorem = true
-    const manaLates: { f: number; late: number; gas: number; lastMana: number }[] = []
+
+    const manaLates: {
+      f: number
+      late: number
+      gas: number
+      lastMana: number
+    }[] = []
 
     for (const f of DENSITIES) {
       const s = study(f, pairStart, pairLine)
       const beats = s.purity.map((_, t) => t + 1)
-      const excess = s.purity.map(p => Math.log(Math.max(p - 1 / 9, 1e-300)))
+      const excess = s.purity.map(p =>
+        Math.log(Math.max(p - 1 / 9, 1e-300)),
+      )
       const rate = -slope(beats, excess)
-      const late = s.fearShare.slice(-48).reduce((a, b) => a + b, 0) / 48
+      const late =
+        s.fearShare.slice(-48).reduce((a, b) => a + b, 0) / 48
       const tag = `f${Math.round(f * 64)}of64`
 
       per[`${tag}_gasMeetings`] = s.gas
@@ -356,7 +482,10 @@ export default experiment({
       per[`${tag}_fearShareLate`] = late
 
       const manaLate = s.mana.slice(-48).reduce((a, b) => a + b, 0) / 48
-      const lastMana = s.mana.reduce((last, m, t) => (m > 1e-12 ? t : last), -1)
+      const lastMana = s.mana.reduce(
+        (last, m, t) => (m > 1e-12 ? t : last),
+        -1,
+      )
 
       per[`${tag}_manaMax`] = Math.max(...s.mana)
       per[`${tag}_manaLate`] = manaLate
@@ -365,14 +494,19 @@ export default experiment({
       per[`${tag}_manaMadeAtGasKernels`] = s.ledger.gasKernel
       per[`${tag}_manaLostAtTraces`] = s.ledger.trace
       per[`${tag}_manaChangedAtLinks`] = s.ledger.links
-      manaTheorem = manaTheorem && s.ledger.traceRaises === 0 && s.ledger.linkChanges === 0
+      manaTheorem =
+        manaTheorem &&
+        s.ledger.traceRaises === 0 &&
+        s.ledger.linkChanges === 0
       manaLates.push({ f, late: manaLate, gas: s.gas, lastMana })
       instrumentOk = instrumentOk && s.instrumentBad === 0
 
       if (f === 0) {
-        isolationOk = s.gas === 0 && s.purity.every(p => Math.abs(p - 1) < 1e-12)
+        isolationOk =
+          s.gas === 0 && s.purity.every(p => Math.abs(p - 1) < 1e-12)
       } else if (s.gas >= 5) {
-        decoheres = decoheres && (s.purity[s.purity.length - 1] ?? 1) < 1 - 1e-12
+        decoheres =
+          decoheres && (s.purity[s.purity.length - 1] ?? 1) < 1 - 1e-12
         ratios.push(rate / (s.gas / BEATS))
         per[`${tag}_ratePerGasMeeting`] = rate / (s.gas / BEATS)
       }
@@ -380,34 +514,79 @@ export default experiment({
 
     // the pointer basis: a single token on each of the 12 lines, through the gas meetings at f = 1/8
     const { families } = gridLines()
-    const familyRuns = families.map(family => family.map(line => study(POINTER_DENSITY, { tokens: [pa], weight: Array.from({ length: 9 }, (_, p) => (line.includes(p) ? 1n : 0n)) }, [pa])))
-    const familyPurity = familyRuns.map(runs => runs.map(r => r.purity.slice(-1)[0] ?? -1))
+    const familyRuns = families.map(family =>
+      family.map(line =>
+        study(
+          POINTER_DENSITY,
+          {
+            tokens: [pa],
+            weight: Array.from({ length: 9 }, (_, p) =>
+              line.includes(p) ? 1n : 0n,
+            ),
+          },
+          [pa],
+        ),
+      ),
+    )
+    const familyPurity = familyRuns.map(runs =>
+      runs.map(r => r.purity.slice(-1)[0] ?? -1),
+    )
     // a reading added after the first run: how many different final wholes the 12 line starts end in, the
     // weights scaled to a common size, and how many gas meetings the single token had
     const finals = familyRuns.flat().map(r => {
       const u = unitsOf(r.final)
 
-      return r.final.weight.map(x => Number((x * 10n ** 30n) / u) / 1e30)
+      return r.final.weight.map(
+        x => Number((x * 10n ** 30n) / u) / 1e30,
+      )
     })
 
-    per.pointerDistinctFinalWholes = new Set(finals.map(f => f.join(','))).size
-    per.pointerLargestWeightDifference = Math.max(...finals.map(f => Math.max(...f.map((x, i) => Math.abs(x - (finals[0]?.[i] ?? 0))))))
+    per.pointerDistinctFinalWholes = new Set(
+      finals.map(f => f.join(',')),
+    ).size
+
+    per.pointerLargestWeightDifference = Math.max(
+      ...finals.map(f =>
+        Math.max(
+          ...f.map((x, i) => Math.abs(x - (finals[0]?.[i] ?? 0))),
+        ),
+      ),
+    )
     per.pointerGasMeetings = familyRuns[0]?.[0]?.gas ?? -1
 
     familyPurity.forEach((ps, k) => {
       const family = families[k] ?? []
       const runs = familyRuns[k] ?? []
 
-      per[`pointerFamily${k}_meanManaMax`] = runs.reduce((a, r) => a + Math.max(...r.mana), 0) / Math.max(runs.length, 1)
-      per[`pointerFamily${k}_meanFinalMana`] = runs.reduce((a, r) => a + (r.mana.slice(-1)[0] ?? 0), 0) / Math.max(runs.length, 1)
+      per[`pointerFamily${k}_meanManaMax`] =
+        runs.reduce((a, r) => a + Math.max(...r.mana), 0) /
+        Math.max(runs.length, 1)
 
-      per[`pointerFamily${k}_isRole`] = family.every(l => l.every(p => Math.floor(p / 3) === Math.floor((l[0] ?? 0) / 3))) ? 1 : 0
-      per[`pointerFamily${k}_isTilt`] = family.every(l => l.every(p => p % 3 === (l[0] ?? 0) % 3)) ? 1 : 0
-      per[`pointerFamily${k}_meanFinalPurity`] = ps.reduce((a, b) => a + b, 0) / ps.length
+      per[`pointerFamily${k}_meanFinalMana`] =
+        runs.reduce((a, r) => a + (r.mana.slice(-1)[0] ?? 0), 0) /
+        Math.max(runs.length, 1)
+
+      per[`pointerFamily${k}_isRole`] = family.every(l =>
+        l.every(p => Math.floor(p / 3) === Math.floor((l[0] ?? 0) / 3)),
+      )
+        ? 1
+        : 0
+
+      per[`pointerFamily${k}_isTilt`] = family.every(l =>
+        l.every(p => p % 3 === (l[0] ?? 0) % 3),
+      )
+        ? 1
+        : 0
+
+      per[`pointerFamily${k}_meanFinalPurity`] =
+        ps.reduce((a, b) => a + b, 0) / ps.length
       per[`pointerFamily${k}_minFinalPurity`] = Math.min(...ps)
     })
 
-    const spread = ratios.length >= 2 ? Math.max(...ratios) / Math.min(...ratios) : Number.POSITIVE_INFINITY
+    const spread =
+      ratios.length >= 2
+        ? Math.max(...ratios) / Math.min(...ratios)
+        : Number.POSITIVE_INFINITY
     const gates = {
       G1: isolationOk,
       G2: instrumentOk,
@@ -419,12 +598,21 @@ export default experiment({
         const isolated = manaLates.find(m => m.f === 0)?.late ?? 0
         const coupled = manaLates.filter(m => m.f > 0 && m.gas >= 5)
 
-        return coupled.length > 0 && coupled.every(m => m.late < isolated)
+        return (
+          coupled.length > 0 && coupled.every(m => m.late < isolated)
+        )
       })(),
       G7: (() => {
-        const densest = manaLates.find(m => m.f === DENSITIES[DENSITIES.length - 1])
+        const densest = manaLates.find(
+          m => m.f === DENSITIES[DENSITIES.length - 1],
+        )
 
-        return densest !== undefined && densest.gas >= 5 && densest.lastMana >= 0 && densest.lastMana < BEATS - 48
+        return (
+          densest !== undefined &&
+          densest.gas >= 5 &&
+          densest.lastMana >= 0 &&
+          densest.lastMana < BEATS - 48
+        )
       })(),
     }
     const ok = Object.values(gates).every(Boolean)
@@ -432,16 +620,22 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the love-fear pair of E-RLT-0055 in the cold vacuum meets no gas and stays exactly pure, with mana 0.66 late; in a golden gas of lone vibes, each gas meeting opened and traced, its purity falls but not at a rate set by the meeting rate (at f = 1/4 it rises again), mana falls to 0.19 to 0.25 and never dies, because every gas meeting is itself a magic gate on a fresh stabilizer token (+70.2 made at gas kernels against -70.1 lost at traces at f = 1/16, links exactly 0, no trace ever raises it), and no pointer basis is selected: after 69 gas meetings all 12 grid-line starts end in one whole, identical at double precision, since the fear beat is a partial swap with the gas token that replaces the token\'s state rather than dephasing it',
+        "the love-fear pair of E-RLT-0055 in the cold vacuum meets no gas and stays exactly pure, with mana 0.66 late; in a golden gas of lone vibes, each gas meeting opened and traced, its purity falls but not at a rate set by the meeting rate (at f = 1/4 it rises again), mana falls to 0.19 to 0.25 and never dies, because every gas meeting is itself a magic gate on a fresh stabilizer token (+70.2 made at gas kernels against -70.1 lost at traces at f = 1/16, links exactly 0, no trace ever raises it), and no pointer basis is selected: after 69 gas meetings all 12 grid-line starts end in one whole, identical at double precision, since the fear beat is a partial swap with the gas token that replaces the token's state rather than dephasing it",
       metrics: {
         pairFirst: pa,
         pairSecond: pb,
         rateRatioSpread: spread,
         ...per,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the two own points, a gas meeting about the kept token's own point and the gas token's classical point, crossings and frame rewrites carrying the own points): status fail as before, and G6 (magic decays) now FAILS: at f = 1/16 the late mana is 0.632 against the isolated pair's 0.614 (it was 0.188), the final purity 0.338 -> 0.996, gas kernels make 15.7 of mana where they made 70.2; the pointer families still end in one whole (final purity 0.780 -> 0.836). " + ('L2, exact BigInt knots, golden and silver Weyl fills, no random numbers. Mana is the sum-negativity monotone ln((L + F) / (L - F)), the fear share read as magic (E-QTM-0119), ledgered by step kind. The gas is opened only at its meetings with the pair and traced at once (the collision model), since a closed token cannot entangle in the fear weave: that is the approximation, and repeat meetings with one gas token are counted. The fear share is reported, not gated: the pair\'s own meetings move it too, so its decay is not a clean decoherence signal.'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the two own points, a gas meeting about the kept token's own point and the gas token's classical point, crossings and frame rewrites carrying the own points): status fail as before, and G6 (magic decays) now FAILS: at f = 1/16 the late mana is 0.632 against the isolated pair's 0.614 (it was 0.188), the final purity 0.338 -> 0.996, gas kernels make 15.7 of mana where they made 70.2; the pointer families still end in one whole (final purity 0.780 -> 0.836). " +
+        "L2, exact BigInt knots, golden and silver Weyl fills, no random numbers. Mana is the sum-negativity monotone ln((L + F) / (L - F)), the fear share read as magic (E-QTM-0119), ledgered by step kind. The gas is opened only at its meetings with the pair and traced at once (the collision model), since a closed token cannot entangle in the fear weave: that is the approximation, and repeat meetings with one gas token are counted. The fear share is reported, not gated: the pair's own meetings move it too, so its decay is not a clean decoherence signal.",
     })
   },
 })

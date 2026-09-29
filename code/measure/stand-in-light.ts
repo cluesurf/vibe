@@ -35,30 +35,56 @@
 // omega^3. The husk exponent is the physical one.
 
 import { hermitianEigen } from '@/code/measure/photon-modes'
-import { curlSymbol, plaquetteShapes } from '@/code/measure/photon-symbol'
+import {
+  curlSymbol,
+  plaquetteShapes,
+} from '@/code/measure/photon-symbol'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 import { HUSK_VECTORS, HUSK_WEIGHTS } from '@/code/measure/photon-husk'
-import { HUSK_KAPPA, H, eigenSmall, leapfrogMu, readHuskStencil, hermitianHuskSymbol, type HuskStencil, type RayGrid, type Symbolizer } from '@/code/measure/husk-emission'
+import {
+  HUSK_KAPPA,
+  H,
+  eigenSmall,
+  leapfrogMu,
+  readHuskStencil,
+  hermitianHuskSymbol,
+  type HuskStencil,
+  type RayGrid,
+  type Symbolizer,
+} from '@/code/measure/husk-emission'
 import { fft3 } from '@/code/measure/standin-chemistry'
 import { fearBand, type Atom } from '@/code/measure/stand-in-atom'
 
 // a complex 3-vector (or 4-vector) amplitude as parallel re and im arrays
-export type VectorAmplitude = { readonly re: number[]; readonly im: number[] }
+export type VectorAmplitude = {
+  readonly re: number[]
+  readonly im: number[]
+}
 
 // ---------------------------------------------------------------------------------------------------------
 // the golden rule with a Cartesian current amplitude
 
 // the emission amplitude into photon column `column` of the eigen decomposition at k, from a Cartesian
 // current amplitude J(k) lifted uniformly onto the links
-export function liftedModeAmplitude(input: { symbol: Symbolizer; k: readonly number[]; current: VectorAmplitude; ure: ArrayLike<number>; uim: ArrayLike<number>; column: number; lift: number }): [number, number] {
+export function liftedModeAmplitude(input: {
+  symbol: Symbolizer
+  k: readonly number[]
+  current: VectorAmplitude
+  ure: ArrayLike<number>
+  uim: ArrayLike<number>
+  column: number
+  lift: number
+}): [number, number] {
   const { symbol, k, current, ure, uim, column, lift } = input
   const n = symbol.size
+
   let re = 0
   let im = 0
 
   for (let h = 0; h < n; h++) {
     const v = symbol.vector(h)
     const w = symbol.weight(h)
+
     let proj = 0
     let projIm = 0
     let half = 0
@@ -114,14 +140,27 @@ export function goldenRuleCurrents(input: {
   const target = leapfrogMu(kappa, omega)
   const d = symbol.dimension
   const rates = currents.map(() => 0)
+
   let crossings = 0
   let multiple = 0
-  const muAt = (r: readonly number[], s: number, b: number): number => eigenSmall(symbol.matrix(r.map(x => x * s)), false).values[b] ?? 0
+
+  const muAt = (r: readonly number[], s: number, b: number): number =>
+    eigenSmall(symbol.matrix(r.map(x => x * s)), false).values[b] ?? 0
 
   grid.directions.forEach((r, ray) => {
-    const top = input.cap ? Math.min(symbol.exit(r), (input.cap.factor * omega) / input.cap.c0) : symbol.exit(r)
+    const top = input.cap
+      ? Math.min(
+          symbol.exit(r),
+          (input.cap.factor * omega) / input.cap.c0,
+        )
+      : symbol.exit(r)
     const step = top / scan
-    const table = Array.from({ length: scan + 1 }, (_, i) => (i === 0 ? null : eigenSmall(symbol.matrix(r.map(x => x * i * step)), false).values))
+    const table = Array.from({ length: scan + 1 }, (_, i) =>
+      i === 0
+        ? null
+        : eigenSmall(symbol.matrix(r.map(x => x * i * step)), false)
+            .values,
+    )
 
     for (let b = symbol.first; b < symbol.first + symbol.photons; b++) {
       let previous = -target
@@ -134,13 +173,14 @@ export function goldenRuleCurrents(input: {
           found += 1
 
           const rising = previous < 0
+
           let lo = (i - 1) * step
           let hi = i * step
 
           for (let it = 0; it < 60 && hi - lo > 1e-15 * hi; it++) {
             const mid = (lo + hi) / 2
 
-            if ((muAt(r, mid, b) < target) === rising) {
+            if (muAt(r, mid, b) < target === rising) {
               lo = mid
             } else {
               hi = mid
@@ -149,19 +189,33 @@ export function goldenRuleCurrents(input: {
 
           const s = (lo + hi) / 2
           const h = 1e-6 * s
-          const slope = (muAt(r, s + h, b) - muAt(r, s - h, b)) / (2 * h)
+          const slope =
+            (muAt(r, s + h, b) - muAt(r, s - h, b)) / (2 * h)
           const domega = (kappa / (2 * Math.sin(omega))) * slope
           const k = r.map(x => x * s)
           const e = hermitianEigen(symbol.matrix(k))
           // hermitianEigen's columns in ascending order of value
-          const order = Array.from(e.values, (_, j) => j).sort((p, q) => e.values[p]! - e.values[q]!)
+          const order = Array.from(e.values, (_, j) => j).sort(
+            (p, q) => e.values[p]! - e.values[q]!,
+          )
           const column = order[b]!
-          const measure = ((grid.weights[ray] ?? 0) * s ** (d - 1)) / Math.abs(domega)
+          const measure =
+            ((grid.weights[ray] ?? 0) * s ** (d - 1)) / Math.abs(domega)
 
           currents.forEach((current, c) => {
-            const [gr, gi] = liftedModeAmplitude({ symbol, k, current: current(k), ure: e.vectorsRe, uim: e.vectorsIm, column, lift })
+            const [gr, gi] = liftedModeAmplitude({
+              symbol,
+              k,
+              current: current(k),
+              ure: e.vectorsRe,
+              uim: e.vectorsIm,
+              column,
+              lift,
+            })
 
-            rates[c] = rates[c]! + (measure * (gr * gr + gi * gi)) / (2 * Math.sin(omega))
+            rates[c] =
+              rates[c]! +
+              (measure * (gr * gr + gi * gi)) / (2 * Math.sin(omega))
           })
           crossings += 1
         }
@@ -209,7 +263,8 @@ export function bandGradient(atom: Atom): Float64Array[] {
   const side = atom.side
   const step = (2 * Math.PI) / side
   const out = [0, 1, 2].map(() => new Float64Array(side ** 3))
-  const slope = (q: number): number => Math.sin(q) / Math.sqrt(4 - Math.cos(q) ** 2)
+  const slope = (q: number): number =>
+    Math.sin(q) / Math.sqrt(4 - Math.cos(q) ** 2)
 
   for (let z = 0; z < side; z++) {
     for (let y = 0; y < side; y++) {
@@ -220,7 +275,9 @@ export function bandGradient(atom: Atom): Float64Array[] {
         if (atom.kind.lattice === 'husk') {
           for (let h = 0; h < HUSK_VECTORS.length; h++) {
             const u = HUSK_VECTORS[h]!
-            const s = ((HUSK_WEIGHTS[h] ?? 0) / 6) * slope(u[0]! * k[0]! + u[1]! * k[1]! + u[2]! * k[2]!)
+            const s =
+              ((HUSK_WEIGHTS[h] ?? 0) / 6) *
+              slope(u[0]! * k[0]! + u[1]! * k[1]! + u[2]! * k[2]!)
 
             for (let a = 0; a < 3; a++) {
               out[a]![i] = out[a]![i]! + s * u[a]!
@@ -239,7 +296,11 @@ export function bandGradient(atom: Atom): Float64Array[] {
 }
 
 // f with v psi = i f for a real psi (v psi is purely imaginary: grad T is odd and real), one axis
-export function velocityImage(atom: Atom, gradient: Float64Array, psi: Float64Array): Float64Array {
+export function velocityImage(
+  atom: Atom,
+  gradient: Float64Array,
+  psi: Float64Array,
+): Float64Array {
   const { re, im, side } = atom
 
   re.set(psi)
@@ -259,18 +320,30 @@ export function velocityImage(atom: Atom, gradient: Float64Array, psi: Float64Ar
 
 // the transition current density J_ge(x) = i (q / 2) (psi_g f_e - f_g psi_e) for real states, as three real
 // arrays C_a with J_a = i C_a
-export function transitionCurrent(atom: Atom, gradient: Float64Array[], g: Float64Array, e: Float64Array, charge = 1): Float64Array[] {
+export function transitionCurrent(
+  atom: Atom,
+  gradient: Float64Array[],
+  g: Float64Array,
+  e: Float64Array,
+  charge = 1,
+): Float64Array[] {
   return gradient.map(grad => {
     const fe = velocityImage(atom, grad, e)
     const fg = velocityImage(atom, grad, g)
 
-    return Float64Array.from(g, (x, i) => (charge / 2) * (x * fe[i]! - fg[i]! * e[i]!))
+    return Float64Array.from(
+      g,
+      (x, i) => (charge / 2) * (x * fe[i]! - fg[i]! * e[i]!),
+    )
   })
 }
 
 // the current's Fourier amplitude J(k) = sum_x J(x) e^(-i k . (x - center)), exact, as a separable sum: the
 // phase factors along each axis are tabled once per k and the x sum is taken first
-export function currentAmplitude(side: number, current: Float64Array[]): (k: readonly number[]) => VectorAmplitude {
+export function currentAmplitude(
+  side: number,
+  current: Float64Array[],
+): (k: readonly number[]) => VectorAmplitude {
   const h = side / 2
   const tr = [0, 1, 2].map(() => new Float64Array(side))
   const ti = [0, 1, 2].map(() => new Float64Array(side))
@@ -293,6 +366,7 @@ export function currentAmplitude(side: number, current: Float64Array[]): (k: rea
       for (let yz = 0; yz < side * side; yz++) {
         let sr = 0
         let si = 0
+
         const base = yz * side
 
         for (let x = 0; x < side; x++) {
@@ -347,7 +421,17 @@ export type PhotonModes = {
 
 // every photon mode (k, b) of the side^3 husk torus with its coupling to a link-current emitter:
 // g = amplitude / sqrt(2 V sin omega), amplitude from `amplitude(k, ure, uim, column)`
-export function huskPhotonModes(input: { stencil: HuskStencil; side: number; kappa?: number; amplitude: (k: readonly number[], ure: ArrayLike<number>, uim: ArrayLike<number>, column: number) => [number, number] }): PhotonModes {
+export function huskPhotonModes(input: {
+  stencil: HuskStencil
+  side: number
+  kappa?: number
+  amplitude: (
+    k: readonly number[],
+    ure: ArrayLike<number>,
+    uim: ArrayLike<number>,
+    column: number,
+  ) => [number, number]
+}): PhotonModes {
   const { stencil, side } = input
   const kappa = input.kappa ?? HUSK_KAPPA
   const volume = side ** 3
@@ -366,13 +450,24 @@ export function huskPhotonModes(input: { stencil: HuskStencil; side: number; kap
 
         const k = [signed(x) * step, signed(y) * step, signed(z) * step]
         const e = hermitianEigen(hermitianHuskSymbol(stencil, k))
-        const order = Array.from(e.values, (_, j) => j).sort((p, q) => e.values[p]! - e.values[q]!)
+        const order = Array.from(e.values, (_, j) => j).sort(
+          (p, q) => e.values[p]! - e.values[q]!,
+        )
 
         for (let b = 1; b <= 2; b++) {
           const column = order[b]!
           const mu = e.values[column] ?? 0
-          const w = 2 * Math.asin(Math.min(1, Math.sqrt(kappa * Math.max(0, mu)) / 2))
-          const [ar, ai] = input.amplitude(k, e.vectorsRe, e.vectorsIm, column)
+          const w =
+            2 *
+            Math.asin(
+              Math.min(1, Math.sqrt(kappa * Math.max(0, mu)) / 2),
+            )
+          const [ar, ai] = input.amplitude(
+            k,
+            e.vectorsRe,
+            e.vectorsIm,
+            column,
+          )
           const f = 1 / Math.sqrt(2 * volume * Math.sin(w))
 
           omega.push(w)
@@ -383,11 +478,24 @@ export function huskPhotonModes(input: { stencil: HuskStencil; side: number; kap
     }
   }
 
-  return { omega: Float64Array.from(omega), gRe: Float64Array.from(gRe), gIm: Float64Array.from(gIm), side }
+  return {
+    omega: Float64Array.from(omega),
+    gRe: Float64Array.from(gRe),
+    gIm: Float64Array.from(gIm),
+    side,
+  }
 }
 
 // the dimer's amplitude on one link (x = 0, direction h): F sqrt(w) conj(u_h) e^(-i k . u_h / 2), F = i f
-export function dimerAmplitude(h: number, f: number): (k: readonly number[], ure: ArrayLike<number>, uim: ArrayLike<number>, column: number) => [number, number] {
+export function dimerAmplitude(
+  h: number,
+  f: number,
+): (
+  k: readonly number[],
+  ure: ArrayLike<number>,
+  uim: ArrayLike<number>,
+  column: number,
+) => [number, number] {
   const u = HUSK_VECTORS[h]!
   const w = HUSK_WEIGHTS[h]!
 
@@ -422,16 +530,36 @@ export type Emission = {
 // in the frame rotating at omega0, by classical RK4 at step dt (beats), from c = 1 or from a given state.
 // `occupation` multiplies each mode's coupling by sqrt(n_j + 1) (emission into a mode holding n_j photons in the
 // one-flip sector) when given
-export function emit(input: { modes: PhotonModes; omega0: number; beats: number; dt: number; every: number; occupation?: Float64Array; start?: { c: [number, number]; bRe: Float64Array; bIm: Float64Array } }): Emission {
+export function emit(input: {
+  modes: PhotonModes
+  omega0: number
+  beats: number
+  dt: number
+  every: number
+  occupation?: Float64Array
+  start?: { c: [number, number]; bRe: Float64Array; bIm: Float64Array }
+}): Emission {
   const { modes, omega0, beats, dt, every } = input
   const n = modes.omega.length
   const detune = Float64Array.from(modes.omega, w => w - omega0)
-  const gr = Float64Array.from(modes.gRe, (g, j) => g * Math.sqrt((input.occupation?.[j] ?? 0) + 1))
-  const gi = Float64Array.from(modes.gIm, (g, j) => g * Math.sqrt((input.occupation?.[j] ?? 0) + 1))
+  const gr = Float64Array.from(
+    modes.gRe,
+    (g, j) => g * Math.sqrt((input.occupation?.[j] ?? 0) + 1),
+  )
+  const gi = Float64Array.from(
+    modes.gIm,
+    (g, j) => g * Math.sqrt((input.occupation?.[j] ?? 0) + 1),
+  )
+
   let cr = input.start?.c[0] ?? 1
   let ci = input.start?.c[1] ?? 0
-  const br = input.start ? Float64Array.from(input.start.bRe) : new Float64Array(n)
-  const bi = input.start ? Float64Array.from(input.start.bIm) : new Float64Array(n)
+
+  const br = input.start
+    ? Float64Array.from(input.start.bRe)
+    : new Float64Array(n)
+  const bi = input.start
+    ? Float64Array.from(input.start.bIm)
+    : new Float64Array(n)
   const kbr = [0, 1, 2, 3].map(() => new Float64Array(n))
   const kbi = [0, 1, 2, 3].map(() => new Float64Array(n))
   const kcr = [0, 0, 0, 0]
@@ -441,12 +569,22 @@ export function emit(input: { modes: PhotonModes; omega0: number; beats: number;
   const steps = Math.round(beats / dt)
   const excited: number[] = []
   const times: number[] = []
-  const norm0 = cr * cr + ci * ci + br.reduce((s, x, j) => s + x * x + bi[j]! * bi[j]!, 0)
+  const norm0 =
+    cr * cr +
+    ci * ci +
+    br.reduce((s, x, j) => s + x * x + bi[j]! * bi[j]!, 0)
 
   // derivatives at (c, b): c' = -i sum g b, b' = -i detune b - i g* c
-  const derive = (ccr: number, cci: number, bbr: Float64Array, bbi: Float64Array, stage: number): void => {
+  const derive = (
+    ccr: number,
+    cci: number,
+    bbr: Float64Array,
+    bbi: Float64Array,
+    stage: number,
+  ): void => {
     let sr = 0
     let si = 0
+
     const outr = kbr[stage]!
     const outi = kbi[stage]!
 
@@ -457,6 +595,7 @@ export function emit(input: { modes: PhotonModes; omega0: number; beats: number;
       // g b
       sr += gr[j]! * xr - gi[j]! * xi
       si += gr[j]! * xi + gi[j]! * xr
+
       // -i (detune b + conj(g) c)
       const yr = detune[j]! * xr + (gr[j]! * ccr + gi[j]! * cci)
       const yi = detune[j]! * xi + (gr[j]! * cci - gi[j]! * ccr)
@@ -495,21 +634,49 @@ export function emit(input: { modes: PhotonModes; omega0: number; beats: number;
         tbi[j] = bi[j]! + factor * pbi[j]!
       }
 
-      derive(cr + factor * kcr[stage - 1]!, ci + factor * kci[stage - 1]!, tbr, tbi, stage)
+      derive(
+        cr + factor * kcr[stage - 1]!,
+        ci + factor * kci[stage - 1]!,
+        tbr,
+        tbi,
+        stage,
+      )
     }
 
     for (let j = 0; j < n; j++) {
-      br[j] = br[j]! + (dt / 6) * (kbr[0]![j]! + 2 * kbr[1]![j]! + 2 * kbr[2]![j]! + kbr[3]![j]!)
-      bi[j] = bi[j]! + (dt / 6) * (kbi[0]![j]! + 2 * kbi[1]![j]! + 2 * kbi[2]![j]! + kbi[3]![j]!)
+      br[j] =
+        br[j]! +
+        (dt / 6) *
+          (kbr[0]![j]! +
+            2 * kbr[1]![j]! +
+            2 * kbr[2]![j]! +
+            kbr[3]![j]!)
+
+      bi[j] =
+        bi[j]! +
+        (dt / 6) *
+          (kbi[0]![j]! +
+            2 * kbi[1]![j]! +
+            2 * kbi[2]![j]! +
+            kbi[3]![j]!)
     }
 
     cr += (dt / 6) * (kcr[0]! + 2 * kcr[1]! + 2 * kcr[2]! + kcr[3]!)
     ci += (dt / 6) * (kci[0]! + 2 * kci[1]! + 2 * kci[2]! + kci[3]!)
   }
 
-  const norm1 = cr * cr + ci * ci + br.reduce((s, x, j) => s + x * x + bi[j]! * bi[j]!, 0)
+  const norm1 =
+    cr * cr +
+    ci * ci +
+    br.reduce((s, x, j) => s + x * x + bi[j]! * bi[j]!, 0)
 
-  return { excited: Float64Array.from(excited), times: Float64Array.from(times), bRe: br, bIm: bi, normDrift: Math.abs(norm1 - norm0) }
+  return {
+    excited: Float64Array.from(excited),
+    times: Float64Array.from(times),
+    bRe: br,
+    bIm: bi,
+    normDrift: Math.abs(norm1 - norm0),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -523,7 +690,11 @@ export type RealSpace = {
   readonly kappa: number
 }
 
-export function makeRealSpace(stencil: HuskStencil, side: number, kappa = HUSK_KAPPA): RealSpace {
+export function makeRealSpace(
+  stencil: HuskStencil,
+  side: number,
+  kappa = HUSK_KAPPA,
+): RealSpace {
   const docks = side ** 3
   const targets = stencil.entries.map(entry => {
     const t = new Int32Array(docks)
@@ -531,9 +702,12 @@ export function makeRealSpace(stencil: HuskStencil, side: number, kappa = HUSK_K
     for (let z = 0; z < side; z++) {
       for (let y = 0; y < side; y++) {
         for (let x = 0; x < side; x++) {
-          const w = (c: number, s: number): number => (((c + s) % side) + side) % side
+          const w = (c: number, s: number): number =>
+            (((c + s) % side) + side) % side
 
-          t[x + side * (y + side * z)] = w(x, entry.shift[0]) + side * (w(y, entry.shift[1]) + side * w(z, entry.shift[2]))
+          t[x + side * (y + side * z)] =
+            w(x, entry.shift[0]) +
+            side * (w(y, entry.shift[1]) + side * w(z, entry.shift[2]))
         }
       }
     }
@@ -545,7 +719,11 @@ export function makeRealSpace(stencil: HuskStencil, side: number, kappa = HUSK_K
 }
 
 // (M_h a) into out
-export function applyHuskCurl(space: RealSpace, a: Float64Array, out: Float64Array): void {
+export function applyHuskCurl(
+  space: RealSpace,
+  a: Float64Array,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   const docks = space.side ** 3
@@ -557,13 +735,17 @@ export function applyHuskCurl(space: RealSpace, a: Float64Array, out: Float64Arr
     const value = entry.value
 
     for (let x = 0; x < docks; x++) {
-      out[t[x]! * H + to] = out[t[x]! * H + to]! + value * a[x * H + from]!
+      out[t[x]! * H + to] =
+        out[t[x]! * H + to]! + value * a[x * H + from]!
     }
   })
 }
 
 // the divergence of a husk link field (outflow sum, E-FRC-0168's convention)
-export function linkDivergence(side: number, e: Float64Array): Float64Array {
+export function linkDivergence(
+  side: number,
+  e: Float64Array,
+): Float64Array {
   const docks = side ** 3
   const out = new Float64Array(docks)
 
@@ -574,7 +756,11 @@ export function linkDivergence(side: number, e: Float64Array): Float64Array {
 
         for (let h = 0; h < H; h++) {
           const u = HUSK_VECTORS[h]!
-          const j = ((x + u[0]! + side) % side) + side * (((y + u[1]! + side) % side) + side * ((z + u[2]! + side) % side))
+          const j =
+            ((x + u[0]! + side) % side) +
+            side *
+              (((y + u[1]! + side) % side) +
+                side * ((z + u[2]! + side) % side))
           const v = e[i * H + h]!
 
           out[i] = out[i]! + v

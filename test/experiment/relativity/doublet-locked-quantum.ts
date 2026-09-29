@@ -69,38 +69,103 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { advanceWhole, physicalWhole, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import {
+  advanceWhole,
+  physicalWhole,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
-import { quantum, type VaryingVacuum } from '@/code/measure/bounce-battery'
+import {
+  quantum,
+  type VaryingVacuum,
+} from '@/code/measure/bounce-battery'
 import { baseHub, storeOfKind } from '@/code/measure/dense-hub'
-import { bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { hubVacuum } from '@/code/measure/causal-components'
-import { lagrangians, phaseSpace, cosetLabels } from '@/code/measure/stabilizer-contexts'
+import {
+  lagrangians,
+  phaseSpace,
+  cosetLabels,
+} from '@/code/measure/stabilizer-contexts'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { lockedBeat, lockedBeatBack, lockedNorm, lockedState, lockedTables, newTally, norm, sameConfiguration, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { idRun, lockedFresh, lockStates, orderFourGrids, overlap, registerKnot, sameOccupation, samePoints, stabilizerStates, vacuumConfiguration, wignerOf, SILVER_RATE, type LockedFresh } from '@/code/measure/doublet-locked-readings'
+import {
+  lockedBeat,
+  lockedBeatBack,
+  lockedNorm,
+  lockedState,
+  lockedTables,
+  newTally,
+  norm,
+  sameConfiguration,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  idRun,
+  lockedFresh,
+  lockStates,
+  orderFourGrids,
+  overlap,
+  registerKnot,
+  sameOccupation,
+  samePoints,
+  stabilizerStates,
+  vacuumConfiguration,
+  wignerOf,
+  SILVER_RATE,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
 
 const SIDE = 4
 const BEATS = 48
 const SEARCH = 12
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const SQRT3 = Math.sqrt(3)
 const LOCK_W = (1 - SQRT3) / 12
 const FEAR_MASS = (SQRT3 - 1) / 3
 const FEAR_SHARE = FEAR_MASS / (1 + 2 * FEAR_MASS)
 const MANA = Math.log(1 + 2 * FEAR_MASS)
-const UNION: VaryingVacuum = { key: 'union', collision: 'lone', store: (side, anchor) => storeOfKind('union', side, baseHub(side, anchor)) }
+const UNION: VaryingVacuum = {
+  key: 'union',
+  collision: 'lone',
+  store: (side, anchor) =>
+    storeOfKind('union', side, baseHub(side, anchor)),
+}
 
-const basisWhole = (tokens: number[]): Whole => ({ tokens, weight: Array.from({ length: 81 }, (_, i) => (Math.floor(Math.floor(i / 9) / 3) === 0 && Math.floor((i % 9) / 3) === 0 ? 1n : 0n)) })
+const basisWhole = (tokens: number[]): Whole => ({
+  tokens,
+  weight: Array.from({ length: 81 }, (_, i) =>
+    Math.floor(Math.floor(i / 9) / 3) === 0 &&
+    Math.floor((i % 9) / 3) === 0
+      ? 1n
+      : 0n,
+  ),
+})
 
 // the first meeting of two named vibes of the wanted kind within SEARCH beats
-function findPair(f: LockedFresh, like: boolean): [number, number] | undefined {
+function findPair(
+  f: LockedFresh,
+  like: boolean,
+): [number, number] | undefined {
   const all = new Map<number, [number, number]>()
 
-  for (let line = 0; line < f.store.length; line++) if (f.store[line] !== 0) all.set(line, [2 * line, 2 * line + 1])
+  for (let line = 0; line < f.store.length; line++) {
+    if (f.store[line] !== 0) {
+      all.set(line, [2 * line, 2 * line + 1])
+    }
+  }
 
-  const r = idRun(f.tables, f.weave, vacuumConfiguration(f, 'none'), all)
+  const r = idRun(
+    f.tables,
+    f.weave,
+    vacuumConfiguration(f, 'none'),
+    all,
+  )
 
   for (let t = 0; t < SEARCH; t++) {
     const c = r.state()
@@ -108,14 +173,22 @@ function findPair(f: LockedFresh, like: boolean): [number, number] | undefined {
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
-        const vi = c.vibe[i] as number
-        const vj = c.vibe[j] as number
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
+        const vi = c.vibe[i]!
+        const vj = c.vibe[j]!
 
-        if (vi === 0 || vj === 0 || (ids[i] as number) < 0 || (ids[j] as number) < 0) continue
-        if (like && vi === vj && c.point[i] !== c.point[j]) return [ids[i] as number, ids[j] as number]
-        if (!like && vi !== vj) return [ids[i] as number, ids[j] as number]
+        if (vi === 0 || vj === 0 || ids[i]! < 0 || ids[j]! < 0) {
+          continue
+        }
+
+        if (like && vi === vj && c.point[i] !== c.point[j]) {
+          return [ids[i]!, ids[j]!]
+        }
+
+        if (!like && vi !== vj) {
+          return [ids[i]!, ids[j]!]
+        }
       }
     }
 
@@ -125,17 +198,30 @@ function findPair(f: LockedFresh, like: boolean): [number, number] | undefined {
   return undefined
 }
 
-const openStart = (f: LockedFresh, pick: readonly number[]): Configuration => {
+const openStart = (
+  f: LockedFresh,
+  pick: readonly number[],
+): Configuration => {
   const s = vacuumConfiguration(f, 'none')
 
-  for (const id of pick) s.sopen[id >> 1] = (s.sopen[id >> 1] as number) | (1 << (id & 1))
+  for (const id of pick) {
+    s.sopen[id >> 1] = s.sopen[id >> 1]! | (1 << (id & 1))
+  }
 
   return s
 }
 
 // the old whole on the two tokens along the old history: CHSH at the first meeting beat, the largest fear share, and
 // the final whole with the fear beat on and off
-function oldWhole(f: LockedFresh, pick: [number, number]): { chsh: number; share: number; differsFromOff: boolean; meetings: number } {
+function oldWhole(
+  f: LockedFresh,
+  pick: [number, number],
+): {
+  chsh: number
+  share: number
+  differsFromOff: boolean
+  meetings: number
+} {
   const named = new Map<number, [number, number]>()
 
   for (const id of pick) {
@@ -146,9 +232,23 @@ function oldWhole(f: LockedFresh, pick: [number, number]): { chsh: number; share
     named.set(line, prev)
   }
 
-  const run = idRun(f.tables, f.weave, vacuumConfiguration(f, 'none'), named)
-  const on = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
-  const off = exactFearKernels({ like: 0, unlike: 0, likeExchanged: false })
+  const run = idRun(
+    f.tables,
+    f.weave,
+    vacuumConfiguration(f, 'none'),
+    named,
+  )
+  const on = exactFearKernels({
+    like: 1,
+    unlike: 1,
+    likeExchanged: false,
+  })
+  const off = exactFearKernels({
+    like: 0,
+    unlike: 0,
+    likeExchanged: false,
+  })
+
   let a: Whole = basisWhole([...pick])
   let b: Whole = basisWhole([...pick])
   let chsh = 0
@@ -159,8 +259,25 @@ function oldWhole(f: LockedFresh, pick: [number, number]): { chsh: number; share
   for (let t = 0; t < BEATS; t++) {
     const record = run.beat()
 
-    a = advanceWhole({ weave: f.weave, whole: a, record, kernel4: [], color: on, fixed: false, forward: true }) as Whole
-    b = advanceWhole({ weave: f.weave, whole: b, record, kernel4: [], color: off, fixed: false, forward: true }) as Whole
+    a = advanceWhole({
+      weave: f.weave,
+      whole: a,
+      record,
+      kernel4: [],
+      color: on,
+      fixed: false,
+      forward: true,
+    })!
+
+    b = advanceWhole({
+      weave: f.weave,
+      whole: b,
+      record,
+      kernel4: [],
+      color: off,
+      fixed: false,
+      forward: true,
+    })!
     meetings += record.meetings.length
 
     if (first < 0 && record.meetings.length > 0) {
@@ -177,7 +294,9 @@ function oldWhole(f: LockedFresh, pick: [number, number]): { chsh: number; share
   const pb = physicalWhole(b)
   const ua = pa.weight.reduce((s, w) => s + w, 0n)
   const ub = pb.weight.reduce((s, w) => s + w, 0n)
-  const differsFromOff = pa.weight.some((w, i) => w * ub !== (pb.weight[i] as bigint) * ua)
+  const differsFromOff = pa.weight.some(
+    (w, i) => w * ub !== pb.weight[i]! * ua,
+  )
 
   return { chsh, share, differsFromOff, meetings }
 }
@@ -193,30 +312,46 @@ type Study = {
   chargeKept: boolean
   interference: { readings: string[]; differs: boolean }
   gauge: number
-  old?: { chsh: number; share: number; differsFromOff: boolean; meetings: number }
+  old?: {
+    chsh: number
+    share: number
+    differsFromOff: boolean
+    meetings: number
+  }
 }
 
 function charge(c: Configuration): number {
   let q = 0
 
-  for (const v of c.vibe) q += v
+  for (const v of c.vibe) {
+    q += v
+  }
 
   return q
 }
 
 // a frame change: a grid move h per dock; links g on slot (x, d) become h_y g h_x^-1, points p -> h_x(p)
-function gauged(f: LockedFresh): { tables: ReturnType<typeof lockedTables>; h: Int16Array } {
+function gauged(f: LockedFresh): {
+  tables: ReturnType<typeof lockedTables>
+  h: Int16Array
+} {
   const { moves } = f.weave
-  const h = Int16Array.from({ length: f.cells }, (_, x) => (((x + 1) * SILVER_RATE) % 65536) % moves.act.length)
+  const h = Int16Array.from(
+    { length: f.cells },
+    (_, x) => (((x + 1) * SILVER_RATE) % 65536) % moves.act.length,
+  )
   const links = new Int16Array(f.cells * 24)
 
   for (let x = 0; x < f.cells; x++) {
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
-      const y = ((f.tables.target[slot] as number) / 24) | 0
+      const y = (f.tables.target[slot]! / 24) | 0
       const g = f.weave.links[slot] ?? moves.identity
 
-      links[slot] = moves.compose(h[y] as number, moves.compose(g, moves.inverse[h[x] as number] as number))
+      links[slot] = moves.compose(
+        h[y]!,
+        moves.compose(g, moves.inverse[h[x]!]!),
+      )
     }
   }
 
@@ -226,17 +361,35 @@ function gauged(f: LockedFresh): { tables: ReturnType<typeof lockedTables>; h: I
 function runStudy(f: LockedFresh, like: boolean): Study {
   const pick = findPair(f, like)
 
-  if (!pick) return { found: false, splits: 0, branchesMax: 0, normExact: false, reversed: false, occupations: 0, chargeKept: false, interference: { readings: [], differs: false }, gauge: -1 }
+  if (!pick) {
+    return {
+      found: false,
+      splits: 0,
+      branchesMax: 0,
+      normExact: false,
+      reversed: false,
+      occupations: 0,
+      chargeKept: false,
+      interference: { readings: [], differs: false },
+      gauge: -1,
+    }
+  }
 
   const start = openStart(f, pick)
   const tally = newTally()
-  const oldRun = bounceRunner(makeBounceKernel(f.weave, 'lone'), hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }))
+  const oldRun = bounceRunner(
+    makeBounceKernel(f.weave, 'lone'),
+    hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }),
+  )
   const q0 = charge(start)
   const { tables: gt, h } = gauged(f)
   const act = f.weave.moves.act
   const gStart = openStart(f, pick)
 
-  for (let line = 0; line < gStart.spoint.length; line++) gStart.spoint[line] = (act[h[(line / 12) | 0] as number] as Int8Array)[gStart.spoint[line] as number] as number
+  for (let line = 0; line < gStart.spoint.length; line++) {
+    gStart.spoint[line] =
+      act[h[(line / 12) | 0]!]![gStart.spoint[line]!]!
+  }
 
   let s: LockedState = lockedState(start)
   let g: LockedState = lockedState(gStart)
@@ -246,7 +399,9 @@ function runStudy(f: LockedFresh, like: boolean): Study {
   let chargeKept = true
   let keepMeetings = 0
   let gauge = 0
+
   const readings: string[] = []
+
   let differs = false
 
   let cumulative = 0
@@ -255,16 +410,33 @@ function runStudy(f: LockedFresh, like: boolean): Study {
     const before = tally.splitMeetings
     // the old history's term before this beat, and the unequal-point like meetings of the open pair on it
     const pre = oldRun.state()
-    const twinPre = s.branches.find(b => samePoints(b, { ...b, vibe: pre.vibe, point: pre.point, store: pre.store, spoint: pre.spoint }))
+    const twinPre = s.branches.find(b =>
+      samePoints(b, {
+        ...b,
+        vibe: pre.vibe,
+        point: pre.point,
+        store: pre.store,
+        spoint: pre.spoint,
+      }),
+    )
+
     let onKeep = 0
 
     if (twinPre) {
       for (let x = 0; x < f.cells; x++) {
         for (let l = 0; l < 12; l++) {
-          const i = x * 24 + (LINE_FIRSTS[l] as number)
-          const j = x * 24 + (LINE_SECONDS[l] as number)
+          const i = x * 24 + LINE_FIRSTS[l]!
+          const j = x * 24 + LINE_SECONDS[l]!
 
-          if (twinPre.vibe[i] !== 0 && twinPre.vibe[i] === twinPre.vibe[j] && twinPre.open[i] && twinPre.open[j] && twinPre.point[i] !== twinPre.point[j]) onKeep++
+          if (
+            twinPre.vibe[i] !== 0 &&
+            twinPre.vibe[i] === twinPre.vibe[j] &&
+            twinPre.open[i] &&
+            twinPre.open[j] &&
+            twinPre.point[i] !== twinPre.point[j]
+          ) {
+            onKeep++
+          }
         }
       }
     }
@@ -277,22 +449,42 @@ function runStudy(f: LockedFresh, like: boolean): Study {
 
     normExact = normExact && n.total === n.unit
     branchesMax = Math.max(branchesMax, s.branches.length)
-    for (const b of s.branches) chargeKept = chargeKept && charge(b) === q0
+
+    for (const b of s.branches) {
+      chargeKept = chargeKept && charge(b) === q0
+    }
 
     if (!knot && tally.splitMeetings > before) {
       const b0 = s.branches[0]!
       const open: number[] = []
 
-      for (let i = 0; i < b0.open.length; i++) if (b0.open[i]) open.push(i)
+      for (let i = 0; i < b0.open.length; i++) {
+        if (b0.open[i]) {
+          open.push(i)
+        }
+      }
 
-      const k = open.length === 2 ? registerKnot(s, open[0]!, open[1]!) : undefined
+      const k =
+        open.length === 2
+          ? registerKnot(s, open[0]!, open[1]!)
+          : undefined
 
-      if (k) knot = { weights: k.weights, chsh: k.chsh }
+      if (k) {
+        knot = { weights: k.weights, chsh: k.chsh }
+      }
     }
 
     // the old history's term: its weight after each of the first three meetings on it
     const oldState = oldRun.state()
-    const twin = s.branches.find(b => samePoints(b, { ...b, vibe: oldState.vibe, point: oldState.point, store: oldState.store, spoint: oldState.spoint }))
+    const twin = s.branches.find(b =>
+      samePoints(b, {
+        ...b,
+        vibe: oldState.vibe,
+        point: oldState.point,
+        store: oldState.store,
+        spoint: oldState.spoint,
+      }),
+    )
 
     if (onKeep > 0 && keepMeetings < 3) {
       keepMeetings++
@@ -304,54 +496,124 @@ function runStudy(f: LockedFresh, like: boolean): Study {
       const coherent = w * (1n << BigInt(2 * cumulative))
       const dephased = 1n << BigInt(2 * k)
 
-      readings.push(`beat ${t}, m ${cumulative}: ${twin ? `${w}/4^${k}` : 'absent'}`)
-      if (!twin || coherent !== dephased) differs = true
+      readings.push(
+        `beat ${t}, m ${cumulative}: ${twin ? `${w}/4^${k}` : 'absent'}`,
+      )
+
+      if (!twin || coherent !== dephased) {
+        differs = true
+      }
     }
 
     // gauge: every term of the gauged run is the image of a term here
     const image = (b: Configuration): Configuration => {
-      const c = { ...b, point: Int8Array.from(b.point), spoint: Int8Array.from(b.spoint) }
+      const c = {
+        ...b,
+        point: Int8Array.from(b.point),
+        spoint: Int8Array.from(b.spoint),
+      }
 
-      for (let i = 0; i < c.point.length; i++) if (c.vibe[i] !== 0) c.point[i] = (act[h[(i / 24) | 0] as number] as Int8Array)[c.point[i] as number] as number
-      for (let i = 0; i < c.spoint.length; i++) if (c.store[i] !== 0) c.spoint[i] = (act[h[(i / 12) | 0] as number] as Int8Array)[c.spoint[i] as number] as number
+      for (let i = 0; i < c.point.length; i++) {
+        if (c.vibe[i] !== 0) {
+          c.point[i] = act[h[(i / 24) | 0]!]![c.point[i]!]!
+        }
+      }
+
+      for (let i = 0; i < c.spoint.length; i++) {
+        if (c.store[i] !== 0) {
+          c.spoint[i] = act[h[(i / 12) | 0]!]![c.spoint[i]!]!
+        }
+      }
 
       return c
     }
 
-    if (g.branches.length !== s.branches.length) gauge++
-    else {
+    if (g.branches.length !== s.branches.length) {
+      gauge++
+    } else {
       for (const b of s.branches) {
         const im = image(b)
         const match = g.branches.find(o => sameConfiguration(o, im))
 
-        if (!match || match.a !== b.a || match.b !== b.b || match.k !== b.k) gauge++
+        if (
+          !match ||
+          match.a !== b.a ||
+          match.b !== b.b ||
+          match.k !== b.k
+        ) {
+          gauge++
+        }
       }
     }
   }
 
   const occupations: Configuration[] = []
 
-  for (const b of s.branches) if (!occupations.some(o => sameOccupation(o, b))) occupations.push(b)
+  for (const b of s.branches) {
+    if (!occupations.some(o => sameOccupation(o, b))) {
+      occupations.push(b)
+    }
+  }
 
   let back = s
 
-  for (let t = BEATS - 1; t >= 0; t--) back = lockedBeatBack(f.tables, back, t)
+  for (let t = BEATS - 1; t >= 0; t--) {
+    back = lockedBeatBack(f.tables, back, t)
+  }
 
   const b0 = back.branches[0]
-  const reversed = back.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && samePoints(b0, start)
+  const reversed =
+    back.branches.length === 1 &&
+    !!b0 &&
+    b0.a === 1n &&
+    b0.b === 0n &&
+    b0.k === 0 &&
+    samePoints(b0, start)
 
-  return { found: true, splits: tally.splitMeetings, branchesMax, normExact, reversed, occupations: occupations.length, knot, chargeKept, interference: { readings, differs }, gauge, old: oldWhole(f, pick) }
+  return {
+    found: true,
+    splits: tally.splitMeetings,
+    branchesMax,
+    normExact,
+    reversed,
+    occupations: occupations.length,
+    knot,
+    chargeKept,
+    interference: { readings, differs },
+    gauge,
+    old: oldWhole(f, pick),
+  }
 }
 
 // Q5: the role facts
-function roleFacts(): { stabilizers: number; doublet: number; overlapWorst: number; lockW: boolean; leakWorst: number; identityWorst: number; violating: number[]; negative: number[] } {
+function roleFacts(): {
+  stabilizers: number
+  doublet: number
+  overlapWorst: number
+  lockW: boolean
+  leakWorst: number
+  identityWorst: number
+  violating: number[]
+  negative: number[]
+} {
   const { all, doublet } = stabilizerStates()
+
   let overlapWorst = 0
 
-  for (let i = 0; i < doublet.length; i++) for (let j = i + 1; j < doublet.length; j++) overlapWorst = Math.max(overlapWorst, Math.abs(Math.hypot(...overlap(doublet[i]!, doublet[j]!)) ** 2 - 1 / 3))
+  for (let i = 0; i < doublet.length; i++) {
+    for (let j = i + 1; j < doublet.length; j++) {
+      overlapWorst = Math.max(
+        overlapWorst,
+        Math.abs(
+          Math.hypot(...overlap(doublet[i]!, doublet[j]!)) ** 2 - 1 / 3,
+        ),
+      )
+    }
+  }
 
   let lockW = true
   let leakWorst = 0
+
   const states: ReturnType<typeof wignerOf>[] = []
 
   for (const grid of orderFourGrids()) {
@@ -363,7 +625,10 @@ function roleFacts(): { stabilizers: number; doublet: number; overlapWorst: numb
       const w = wignerOf(v)
       const neg = w.filter(x => x < -1e-12)
 
-      lockW = lockW && neg.length === 4 && neg.every(x => Math.abs(x - LOCK_W) < 1e-12)
+      lockW =
+        lockW &&
+        neg.length === 4 &&
+        neg.every(x => Math.abs(x - LOCK_W) < 1e-12)
       states.push(w)
     }
   }
@@ -378,12 +643,18 @@ function roleFacts(): { stabilizers: number; doublet: number; overlapWorst: numb
     [states[1]!, states[1]!],
     [states[0]!, states[2]!],
   ]
+
   let identityWorst = 0
+
   const violating: number[] = []
   const negative: number[] = []
 
   for (const [wa, wb] of pairs) {
-    const w2 = Array.from({ length: 81 }, (_, i) => (wa[Math.floor(i / 9)] as number) * (wb[i % 9] as number))
+    const w2 = Array.from(
+      { length: 81 },
+      (_, i) => wa[Math.floor(i / 9)]! * wb[i % 9]!,
+    )
+
     let v = 0
     let n = 0
 
@@ -393,19 +664,41 @@ function roleFacts(): { stabilizers: number; doublet: number; overlapWorst: numb
       for (const label of planes) {
         const own = label[u]
 
-        for (let x = 0; x < 81; x++) if (label[x] === own) su += w2[x] as number
+        for (let x = 0; x < 81; x++) {
+          if (label[x] === own) {
+            su += w2[x]!
+          }
+        }
       }
 
-      identityWorst = Math.max(identityWorst, Math.abs(su - (36 * (w2[u] as number) + 4)))
-      if (su < 4 - 1e-12) v++
-      if ((w2[u] as number) < -1e-12) n++
+      identityWorst = Math.max(
+        identityWorst,
+        Math.abs(su - (36 * w2[u]! + 4)),
+      )
+
+      if (su < 4 - 1e-12) {
+        v++
+      }
+
+      if (w2[u]! < -1e-12) {
+        n++
+      }
     }
 
     violating.push(v)
     negative.push(n)
   }
 
-  return { stabilizers: all.length, doublet: doublet.length, overlapWorst, lockW, leakWorst, identityWorst, violating, negative }
+  return {
+    stabilizers: all.length,
+    doublet: doublet.length,
+    overlapWorst,
+    lockW,
+    leakWorst,
+    identityWorst,
+    violating,
+    negative,
+  }
 }
 
 export default experiment({
@@ -419,7 +712,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const facts = roleFacts()
 
     log('role facts')
@@ -439,20 +735,55 @@ export default experiment({
     )
 
     const informative = perStart.some(p => p.unlike.old?.differsFromOff)
-    const gQ1 = perStart.every(p => !p.unlike.found || (p.unlike.splits === 0 && p.unlike.branchesMax === 1)) && perStart.some(p => p.unlike.found) && informative
-    const gQ2 = perStart.every(p => p.like.found && !!p.like.knot && p.like.knot.weights.length === 2 && Math.abs((p.like.knot.weights[0] ?? 0) - 0.75) < 1e-12 && Math.abs((p.like.knot.weights[1] ?? 0) - 0.25) < 1e-12 && Math.abs(p.like.knot.chsh - Math.sqrt(7)) < 1e-9)
-    const gQ3 = perStart.every(p => [p.like, p.unlike].every(s => !s.found || (s.normExact && s.reversed)))
+    const gQ1 =
+      perStart.every(
+        p =>
+          !p.unlike.found ||
+          (p.unlike.splits === 0 && p.unlike.branchesMax === 1),
+      ) &&
+      perStart.some(p => p.unlike.found) &&
+      informative
+    const gQ2 = perStart.every(
+      p =>
+        p.like.found &&
+        !!p.like.knot &&
+        p.like.knot.weights.length === 2 &&
+        Math.abs((p.like.knot.weights[0] ?? 0) - 0.75) < 1e-12 &&
+        Math.abs((p.like.knot.weights[1] ?? 0) - 0.25) < 1e-12 &&
+        Math.abs(p.like.knot.chsh - Math.sqrt(7)) < 1e-9,
+    )
+    const gQ3 = perStart.every(p =>
+      [p.like, p.unlike].every(
+        s => !s.found || (s.normExact && s.reversed),
+      ),
+    )
     const gQ4 = perStart.every(p => p.like.occupations > 1)
-    const gQ5 = facts.stabilizers === 12 && facts.doublet === 4 && facts.overlapWorst < 1e-12 && facts.lockW && facts.leakWorst < 1e-12 && facts.identityWorst < 1e-12 && facts.violating.every((v, k) => v === facts.negative[k] && v === 40)
+    const gQ5 =
+      facts.stabilizers === 12 &&
+      facts.doublet === 4 &&
+      facts.overlapWorst < 1e-12 &&
+      facts.lockW &&
+      facts.leakWorst < 1e-12 &&
+      facts.identityWorst < 1e-12 &&
+      facts.violating.every(
+        (v, k) => v === facts.negative[k] && v === 40,
+      )
     const gQ6 = perStart.every(p => p.like.gauge === 0)
     const gQ7 = perStart.every(p => p.like.interference.differs)
-    const status = gQ1 && gQ2 && gQ3 && gQ4 && gQ5 && gQ6 && gQ7 ? 'pass' : 'fail'
+    const status =
+      gQ1 && gQ2 && gQ3 && gQ4 && gQ5 && gQ6 && gQ7 ? 'pass' : 'fail'
 
     // the old column's 14 gates and the locked counterparts
-    const counterparts: Record<string, (p: (typeof perStart)[number]) => boolean | undefined> = {
+    const counterparts: Record<
+      string,
+      (p: (typeof perStart)[number]) => boolean | undefined
+    > = {
       tokenSignsKept: p => p.old.gates.tokenSignsKept, // the classical layer, identical in the bookkeeping reading (E-RLT-0098 K1)
       knotsPure: p => p.like.normExact && p.unlike.normExact,
-      fearShareUnderThird: () => FEAR_SHARE < 1 / 3 && (2 * FEAR_MASS * (1 + FEAR_MASS)) / (1 + 2 * FEAR_MASS) ** 2 < 1 / 3,
+      fearShareUnderThird: () =>
+        FEAR_SHARE < 1 / 3 &&
+        (2 * FEAR_MASS * (1 + FEAR_MASS)) / (1 + 2 * FEAR_MASS) ** 2 <
+          1 / 3,
       fearsMade: () => facts.lockW,
       reversesInFixedUnits: p => p.like.reversed && p.unlike.reversed,
       loveMinusFearKept: p => p.like.chargeKept && p.unlike.chargeKept,
@@ -465,36 +796,74 @@ export default experiment({
       interferenceBeyondStandIn: p => p.like.interference.differs,
       chshAbove2: p => (p.like.knot?.chsh ?? 0) > 2 + 1e-6,
     }
-    const added = perStart.map(p => Object.entries(counterparts).filter(([gate, f]) => p.old.gates[gate] === true && f(p) === false).map(([gate]) => gate))
-    const gained = perStart.map(p => Object.entries(counterparts).filter(([gate, f]) => p.old.gates[gate] === false && f(p) === true).map(([gate]) => gate))
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const added = perStart.map(p =>
+      Object.entries(counterparts)
+        .filter(
+          ([gate, f]) => p.old.gates[gate] === true && f(p) === false,
+        )
+        .map(([gate]) => gate),
+    )
+    const gained = perStart.map(p =>
+      Object.entries(counterparts)
+        .filter(
+          ([gate, f]) => p.old.gates[gate] === false && f(p) === true,
+        )
+        .map(([gate]) => gate),
+    )
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
     const oldLikeChsh = perStart.map(p => p.like.old?.chsh ?? 0)
     const metrics: Record<string, number> = {
       gateQ1: gQ1 ? 1 : 0,
-      gateQ2: perStart.filter(p => p.like.knot && Math.abs(p.like.knot.chsh - Math.sqrt(7)) < 1e-9).length,
+      gateQ2: perStart.filter(
+        p =>
+          p.like.knot &&
+          Math.abs(p.like.knot.chsh - Math.sqrt(7)) < 1e-9,
+      ).length,
       gateQ3: gQ3 ? 1 : 0,
       gateQ4: perStart.filter(p => p.like.occupations > 1).length,
       gateQ5: gQ5 ? 1 : 0,
       gateQ6: perStart.filter(p => p.like.gauge === 0).length,
       gateQ7: perStart.filter(p => p.like.interference.differs).length,
       starts: family.length,
-      lockedLikeChshMin: Math.min(...perStart.map(p => p.like.knot?.chsh ?? 0)),
+      lockedLikeChshMin: Math.min(
+        ...perStart.map(p => p.like.knot?.chsh ?? 0),
+      ),
       oldLikeChshMin: Math.min(...oldLikeChsh),
       oldLikeChshMax: Math.max(...oldLikeChsh),
-      oldLikeChshMiddleRung: oldLikeChsh.filter(c => Math.abs(c - 4 / SQRT3) < 1e-6).length,
-      oldLikeChshTwo: oldLikeChsh.filter(c => Math.abs(c - 2) < 1e-6).length,
+      oldLikeChshMiddleRung: oldLikeChsh.filter(
+        c => Math.abs(c - 4 / SQRT3) < 1e-6,
+      ).length,
+      oldLikeChshTwo: oldLikeChsh.filter(c => Math.abs(c - 2) < 1e-6)
+        .length,
       lockedFearShare: FEAR_SHARE,
       lockedMana: MANA,
       lockW: LOCK_W,
       unlikeFound: perStart.filter(p => p.unlike.found).length,
-      unlikeOldInformative: perStart.filter(p => p.unlike.old?.differsFromOff).length,
+      unlikeOldInformative: perStart.filter(
+        p => p.unlike.old?.differsFromOff,
+      ).length,
       likeSplitsMin: Math.min(...perStart.map(p => p.like.splits)),
-      likeBranchesMax: Math.max(...perStart.map(p => p.like.branchesMax)),
-      likeOccupationsMin: Math.min(...perStart.map(p => p.like.occupations)),
+      likeBranchesMax: Math.max(
+        ...perStart.map(p => p.like.branchesMax),
+      ),
+      likeOccupationsMin: Math.min(
+        ...perStart.map(p => p.like.occupations),
+      ),
       addedFailuresMax: Math.max(...added.map(a => a.length)),
       gainedMax: Math.max(...gained.map(a => a.length)),
-      oldGatesPassingMin: Math.min(...perStart.map(p => Object.values(p.old.gates).filter(Boolean).length)),
-      oldGatesPassingMax: Math.max(...perStart.map(p => Object.values(p.old.gates).filter(Boolean).length)),
+      oldGatesPassingMin: Math.min(
+        ...perStart.map(
+          p => Object.values(p.old.gates).filter(Boolean).length,
+        ),
+      ),
+      oldGatesPassingMax: Math.max(
+        ...perStart.map(
+          p => Object.values(p.old.gates).filter(Boolean).length,
+        ),
+      ),
       seconds: (Date.now() - started) / 1000,
     }
 
@@ -503,20 +872,34 @@ export default experiment({
       claim: `under the lock a love and a fear meet as the identity (the unlike study makes no term on every start where it exists, while the old whole moves at those meetings on ${perStart.filter(p => p.unlike.old?.differsFromOff).length}); a like meeting makes a two-term knot of weights 3/4 and 1/4 and CHSH sqrt 7 on ${metrics.gateQ2} of ${family.length} starts, where the old whole reads ${range(oldLikeChsh.map(c => Math.round(c * 1e4) / 1e4))}; positions carry amplitude (${range(perStart.map(p => p.like.occupations))} occupations); every moving vibe holds fear share ${FEAR_SHARE.toFixed(4)} (mana ${MANA.toFixed(4)}) with no meeting, and two moving vibes violate S_u >= 4 at 40 of 81 points; the exact laws, reversal and gauge covariance hold`,
       metrics,
       control: {
-        oldFearShareLikeMax: Math.max(...perStart.map(p => p.like.old?.share ?? 0)),
-        oldFearShareUnlikeMax: Math.max(...perStart.map(p => p.unlike.old?.share ?? 0)),
-        oldUnlikeMeetingsMax: Math.max(...perStart.map(p => p.unlike.old?.meetings ?? 0)),
-        oldLikeMeetingsMax: Math.max(...perStart.map(p => p.like.old?.meetings ?? 0)),
+        oldFearShareLikeMax: Math.max(
+          ...perStart.map(p => p.like.old?.share ?? 0),
+        ),
+        oldFearShareUnlikeMax: Math.max(
+          ...perStart.map(p => p.unlike.old?.share ?? 0),
+        ),
+        oldUnlikeMeetingsMax: Math.max(
+          ...perStart.map(p => p.unlike.old?.meetings ?? 0),
+        ),
+        oldLikeMeetingsMax: Math.max(
+          ...perStart.map(p => p.like.old?.meetings ?? 0),
+        ),
       },
       notes: `L2. Gates: Q1 ${gQ1} (informative ${informative}), Q2 ${metrics.gateQ2} of ${family.length}, Q3 ${gQ3}, Q4 ${metrics.gateQ4} of ${family.length}, Q5 ${gQ5} (${JSON.stringify(facts)}), Q6 ${metrics.gateQ6} of ${family.length}, Q7 ${metrics.gateQ7} of ${family.length}. Lock weight (1 - sqrt 3)/12 = ${LOCK_W.toFixed(6)}, fear share (sqrt 3 - 1)/(1 + 2 sqrt 3) = ${FEAR_SHARE.toFixed(6)}, mana ln((1 + 2 sqrt 3)/3) = ${MANA.toFixed(6)}. Per start (like: splits, branches max, occupations, knot weights, CHSH, interference readings, gauge mismatches, old CHSH and fear share; unlike: found, splits, old differs from fear off; old quantum() gates passing; added and gained against the old column): ${perStart
         .map(
           (p, k) =>
-            `${p.name} like ${p.like.splits}, ${p.like.branchesMax}, ${p.like.occupations}, ${JSON.stringify(p.like.knot?.weights.map(w => Math.round(w * 1e6) / 1e6))}, ${p.like.knot?.chsh.toFixed(4)}, [${p.like.interference.readings.join('; ')}], ${p.like.gauge}, old ${p.like.old?.chsh.toFixed(4)} ${p.like.old?.share.toFixed(4)}; unlike ${p.unlike.found}, ${p.unlike.splits}, ${p.unlike.old?.differsFromOff}; old gates ${Object.entries(p.old.gates)
+            `${p.name} like ${p.like.splits}, ${p.like.branchesMax}, ${p.like.occupations}, ${JSON.stringify(p.like.knot?.weights.map(w => Math.round(w * 1e6) / 1e6))}, ${p.like.knot?.chsh.toFixed(4)}, [${p.like.interference.readings.join('; ')}], ${p.like.gauge}, old ${p.like.old?.chsh.toFixed(4)} ${p.like.old?.share.toFixed(4)}; unlike ${p.unlike.found}, ${p.unlike.splits}, ${p.unlike.old?.differsFromOff}; old gates ${Object.entries(
+              p.old.gates,
+            )
               .filter(([, v]) => v)
               .map(([g]) => g)
-              .join(',')}; added [${added[k]!.join(',')}] gained [${gained[k]!.join(',')}]`,
+              .join(
+                ',',
+              )}; added [${added[k]!.join(',')}] gained [${gained[k]!.join(',')}]`,
         )
-        .join(' | ')}. Counterparts: tokenSignsKept carried (classical layer); knotsPure = exact norm; fearShareUnderThird = the static share per vibe and per pair; fearsMade = the static fear of motion; frameCommutesVacuum = Q6; frameCommutesMatter, storage x3 have no counterpart (the old whole's departure storage and matter pair are not built on the locked rule). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .join(
+          ' | ',
+        )}. Counterparts: tokenSignsKept carried (classical layer); knotsPure = exact norm; fearShareUnderThird = the static share per vibe and per pair; fearsMade = the static fear of motion; frameCommutesVacuum = Q6; frameCommutesMatter, storage x3 have no counterpart (the old whole's departure storage and matter pair are not built on the locked rule). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

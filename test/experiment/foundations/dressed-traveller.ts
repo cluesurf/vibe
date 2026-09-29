@@ -56,10 +56,8 @@ function candidateKnit(side: number): Collision {
   return (slots, base) => {
     for (let k = 0; k < couples.length; k++) {
       const [line, wire] = couples[k]!
-      const loneAway = (a: Tone, b: Tone): boolean =>
-        a === 0 && b !== 0
-      const empty = (a: Tone, b: Tone): boolean =>
-        a === 0 && b === 0
+      const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+      const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
 
       if (k === 0) {
         const swap = (): void => {
@@ -100,10 +98,7 @@ function candidateKnit(side: number): Collision {
   }
 }
 
-function dressingStudy(input: {
-  side: number
-  lattice: boolean
-}): {
+function dressingStudy(input: { side: number; lattice: boolean }): {
   frontHits: number
   frontChecks: number
   maxSupport: number
@@ -180,8 +175,7 @@ function dressingStudy(input: {
       seeded.data[seedCell * 24] = 1
     }
 
-    const active = (c: number): boolean =>
-      late.has(c) ? t >= 1 : true
+    const active = (c: number): boolean => (late.has(c) ? t >= 1 : true)
 
     vacuum = growingBeat(vacuum, rule, active)
     seeded = growingBeat(seeded, rule, active)
@@ -263,7 +257,7 @@ export default experiment({
         isolatedMaxSupport: isolated9.maxSupport,
       },
       notes:
-        "the plateau sizes (174 and 261 slots) scale close to side squared, the codimension-two signature of a dressing spread over wall sheets, recorded as measured rather than gated. The cosmological reading: growth at incommensurate speed necessarily tiles the vacuum with walls (E-FND-0098), so the dense lattice is the generic vacuum and the isolated wall the exceptional geometry, which applies the window rule to the growth claim of E-FND-0099: at side 9 and seventy-five beats the isolated wake saturates too, so the durable statements are the sub-additivity, the saturation, and the exact ballistic motion, each measured at two sizes.",
+        'the plateau sizes (174 and 261 slots) scale close to side squared, the codimension-two signature of a dressing spread over wall sheets, recorded as measured rather than gated. The cosmological reading: growth at incommensurate speed necessarily tiles the vacuum with walls (E-FND-0098), so the dense lattice is the generic vacuum and the isolated wall the exceptional geometry, which applies the window rule to the growth claim of E-FND-0099: at side 9 and seventy-five beats the isolated wake saturates too, so the durable statements are the sub-additivity, the saturation, and the exact ballistic motion, each measured at two sizes.',
     })
   },
 })

@@ -88,13 +88,40 @@ import { verdict } from '@/test/scaffold/verdict'
 import { linearFit } from '@/code/measure/regression'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { lapseLinks, layerDock, openMesh, warpClock, type OpenMesh } from '@/code/rule/open-husk'
+import {
+  lapseLinks,
+  layerDock,
+  openMesh,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
 import { horizonOf, horizonRule } from '@/code/rule/horizon-husk'
 import { clockHorizonRule } from '@/code/rule/clock-horizon'
 import { compressLump } from '@/code/measure/step-depth'
-import { greenSolve, huskDistance, layeredModes, stackModes, warpedLayering, type StackMode } from '@/code/measure/open-husk'
-import { axisMean, clockStatics, spreadSinks } from '@/code/measure/clock-horizon'
-import { derivedSlope, lightestRange, massiveWeight, pairSlope, predictedExcess, profileSlope, sideFor, unitWithBackground, yukawaRate } from '@/code/measure/horizon-slope'
+import {
+  greenSolve,
+  huskDistance,
+  layeredModes,
+  stackModes,
+  warpedLayering,
+  type StackMode,
+} from '@/code/measure/open-husk'
+import {
+  axisMean,
+  clockStatics,
+  spreadSinks,
+} from '@/code/measure/clock-horizon'
+import {
+  derivedSlope,
+  lightestRange,
+  massiveWeight,
+  pairSlope,
+  predictedExcess,
+  profileSlope,
+  sideFor,
+  unitWithBackground,
+  yukawaRate,
+} from '@/code/measure/horizon-slope'
 
 const CAP = 1.5
 const TOLERANCE = 0.03
@@ -110,13 +137,23 @@ const WARPS = [
 ] as const
 const FIELD_SIDES: readonly number[] = [24, 32]
 const FIELD_MASSES: readonly number[] = [600, 800, 1200, 1600]
-const TORN = { warp: 'clock', layers: 3, side: 48, radii: [4, 6, 8] } as const
+const TORN = {
+  warp: 'clock',
+  layers: 3,
+  side: 48,
+  radii: [4, 6, 8],
+} as const
 
-const volumeRadius = (docks: number): number => Math.cbrt((3 * docks) / (4 * Math.PI))
+const volumeRadius = (docks: number): number =>
+  Math.cbrt((3 * docks) / (4 * Math.PI))
 
 // the unit source and its far background (code/measure/horizon-slope unitWithBackground): +1 at `at` (any dock), -1/N
 // on each husk dock at distance >= side / 4 from the center, dock 0 (the reference) excluded
-const unitSource = (mesh: OpenMesh, center: readonly number[], at: number): Float64Array => unitWithBackground(mesh, center, at)
+const unitSource = (
+  mesh: OpenMesh,
+  center: readonly number[],
+  at: number,
+): Float64Array => unitWithBackground(mesh, center, at)
 
 type Point = {
   warp: string
@@ -130,7 +167,12 @@ type Point = {
   predicted: number
   boxOnly: number
   modesOnly: number
-  pairs: { r: number; measured: number; derived: number; predictedPair: number }[]
+  pairs: {
+    r: number
+    measured: number
+    derived: number
+    predictedPair: number
+  }[]
 }
 
 export default experiment({
@@ -144,40 +186,78 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const points: Point[] = []
-    const route: { warp: string; layers: number; range: number; scale: number }[] = []
+    const route: {
+      warp: string
+      layers: number
+      range: number
+      scale: number
+    }[] = []
     const lines: string[] = []
-    let torn = { free: NaN, torn: NaN, docksFree: [] as number[], docksTorn: [] as number[] }
+
+    let torn = {
+      free: NaN,
+      torn: NaN,
+      docksFree: [] as number[],
+      docksTorn: [] as number[],
+    }
 
     for (const warp of WARPS) {
       for (const layers of LAYERS) {
         for (const side of SIDES) {
           const mesh = warp.build(openMesh(side, layers, 'shrink'))
           const modes: StackMode[] = stackModes(mesh.sides, warp.theory)
-          const zeroOnly = [modes.reduce((a, m) => (m.mass < a.mass ? m : a), modes[0]!)]
+          const zeroOnly = [
+            modes.reduce(
+              (a, m) => (m.mass < a.mass ? m : a),
+              modes[0]!,
+            ),
+          ]
           const c = side / 2
           const center = [c, c, c]
           const at = c + side * c + side * side * c
           const reference = huskDistance(mesh, 0, center)
-          const x = greenSolve(mesh, unitSource(mesh, center, at), SOLVE).x
-          const radii = Array.from({ length: side / 4 - 2 - 3 }, (_, i) => i + 4)
-          const excess = (r: number): number => axisMean(mesh, x, center, r)
+          const x = greenSolve(
+            mesh,
+            unitSource(mesh, center, at),
+            SOLVE,
+          ).x
+          const radii = Array.from(
+            { length: side / 4 - 2 - 3 },
+            (_, i) => i + 4,
+          )
+          const excess = (r: number): number =>
+            axisMean(mesh, x, center, r)
           const measured = profileSlope(
             radii,
             radii.map(r => excess(r)),
           )
-          const fitOf = (m: readonly StackMode[], ref: number): number =>
+          const fitOf = (
+            m: readonly StackMode[],
+            ref: number,
+          ): number =>
             profileSlope(
               radii,
               radii.map(r => predictedExcess(m, r, ref)),
             )
           const pairs = [3, ...radii.slice(0, -1)].map(r => ({
             r,
-            measured: pairSlope(r - 1, excess(r - 1), r + 1, excess(r + 1)),
+            measured: pairSlope(
+              r - 1,
+              excess(r - 1),
+              r + 1,
+              excess(r + 1),
+            ),
             derived: derivedSlope(modes, r, reference),
-            predictedPair: pairSlope(r - 1, predictedExcess(modes, r - 1, reference), r + 1, predictedExcess(modes, r + 1, reference)),
+            predictedPair: pairSlope(
+              r - 1,
+              predictedExcess(modes, r - 1, reference),
+              r + 1,
+              predictedExcess(modes, r + 1, reference),
+            ),
           }))
 
           points.push({
@@ -197,16 +277,38 @@ export default experiment({
 
           // the route scale, on the largest box: the unit one layer down minus the unit on the husk
           if (side === SIDES[SIDES.length - 1]) {
-            const down = greenSolve(mesh, unitSource(mesh, center, layerDock(mesh, 1, c / 2, c / 2, c / 2)), SOLVE).x
-            const d = radii.map(r => excess(r) - axisMean(mesh, down, center, r))
+            const down = greenSolve(
+              mesh,
+              unitSource(
+                mesh,
+                center,
+                layerDock(mesh, 1, c / 2, c / 2, c / 2),
+              ),
+              SOLVE,
+            ).x
+            const d = radii.map(
+              r => excess(r) - axisMean(mesh, down, center, r),
+            )
             const rate = yukawaRate(radii, d)
 
-            route.push({ warp: warp.name, layers, range: lightestRange(modes), scale: 1 / rate })
+            route.push({
+              warp: warp.name,
+              layers,
+              range: lightestRange(modes),
+              scale: 1 / rate,
+            })
           }
 
           // the torn statics, one stack: the clock rule's rounds for the M that put the free horizon at r on the axes
-          if (warp.name === TORN.warp && layers === TORN.layers && side === TORN.side) {
-            const rule = clockHorizonRule(horizonRule(stepRule(16, 3), 81), CAP)
+          if (
+            warp.name === TORN.warp &&
+            layers === TORN.layers &&
+            side === TORN.side
+          ) {
+            const rule = clockHorizonRule(
+              horizonRule(stepRule(16, 3), 81),
+              CAP,
+            )
             const masses = TORN.radii.map(r => CAP / excess(r))
             const docksFree: number[] = []
             const docksTorn: number[] = []
@@ -214,20 +316,36 @@ export default experiment({
             for (const m of masses) {
               const rho = unitSource(mesh, center, at).map(v => v * m)
               const read = clockStatics(mesh, rule, rho, SOLVE)
+
               let free = 0
               let all = 0
 
               for (let y = 1; y < mesh.huskDocks; y++) {
-                if (read.free[y]! >= CAP) free++
-                if (read.horizon[y]) all++
+                if (read.free[y]! >= CAP) {
+                  free++
+                }
+
+                if (read.horizon[y]) {
+                  all++
+                }
               }
+
               docksFree.push(free)
               docksTorn.push(all)
             }
 
-            const slope = (docks: number[]): number => linearFit({ xs: masses.map(Math.log), ys: docks.map(n => Math.log(volumeRadius(n))) }).slope
+            const slope = (docks: number[]): number =>
+              linearFit({
+                xs: masses.map(Math.log),
+                ys: docks.map(n => Math.log(volumeRadius(n))),
+              }).slope
 
-            torn = { free: slope(docksFree), torn: slope(docksTorn), docksFree, docksTorn }
+            torn = {
+              free: slope(docksFree),
+              torn: slope(docksTorn),
+              docksFree,
+              docksTorn,
+            }
           }
 
           log(`${warp.name} layers ${layers} side ${side}`)
@@ -242,46 +360,91 @@ export default experiment({
       const mesh = warpClock(openMesh(side, 3, 'shrink'))
       const center = [side / 2, side / 2, side / 2]
       const radius = FIELD_MASSES.map(m => {
-        const lump = compressLump(radionMesh([side, side, side]), center, m, 1, spreadSinks(mesh, center, m, 9))
+        const lump = compressLump(
+          radionMesh([side, side, side]),
+          center,
+          m,
+          1,
+          spreadSinks(mesh, center, m, 9),
+        )
         const line = new Int8Array(mesh.links)
 
         line.set(lump.line)
 
-        return volumeRadius(horizonOf(mesh, line).reduce((t, v) => t + v, 0))
+        return volumeRadius(
+          horizonOf(mesh, line).reduce((t, v) => t + v, 0),
+        )
       })
 
-      fieldSlope.push(linearFit({ xs: FIELD_MASSES.map(Math.log), ys: radius.map(Math.log) }).slope)
+      fieldSlope.push(
+        linearFit({
+          xs: FIELD_MASSES.map(Math.log),
+          ys: radius.map(Math.log),
+        }).slope,
+      )
       log(`field side ${side}`)
     }
 
     // THE GATES
-    const s1 = points.every(p => Math.abs(p.measured - p.predicted) <= TOLERANCE)
+    const s1 = points.every(
+      p => Math.abs(p.measured - p.predicted) <= TOLERANCE,
+    )
     const biggest = SIDES[SIDES.length - 1]!
     const onBiggest = points.filter(p => p.side === biggest)
     const s2a = WARPS.every(w => {
-      const byRange = onBiggest.filter(p => p.warp === w.name).sort((p, q) => q.range - p.range)
+      const byRange = onBiggest
+        .filter(p => p.warp === w.name)
+        .sort((p, q) => q.range - p.range)
 
-      return byRange.every((p, i) => i === 0 || p.measured > byRange[i - 1]!.measured)
+      return byRange.every(
+        (p, i) => i === 0 || p.measured > byRange[i - 1]!.measured,
+      )
     })
+
     let far = { x: -Infinity, slope: NaN, warp: '', layers: 0, r: 0 }
 
-    for (const p of onBiggest) for (const pair of p.pairs) if (pair.r / p.range > far.x) far = { x: pair.r / p.range, slope: pair.measured, warp: p.warp, layers: p.layers, r: pair.r }
+    for (const p of onBiggest) {
+      for (const pair of p.pairs) {
+        if (pair.r / p.range > far.x) {
+          far = {
+            x: pair.r / p.range,
+            slope: pair.measured,
+            warp: p.warp,
+            layers: p.layers,
+            r: pair.r,
+          }
+        }
+      }
+    }
 
     const s2b = far.slope > TARGET
-    const k = fieldSlope.every(s => Math.abs(s - FIELD_CENTER) <= FIELD_BAND)
-    const boxRefuses = points.some(p => Math.abs(p.measured - p.boxOnly) > TOLERANCE)
-    const modesRefuse = points.some(p => Math.abs(p.measured - p.modesOnly) > TOLERANCE)
+    const k = fieldSlope.every(
+      s => Math.abs(s - FIELD_CENTER) <= FIELD_BAND,
+    )
+    const boxRefuses = points.some(
+      p => Math.abs(p.measured - p.boxOnly) > TOLERANCE,
+    )
+    const modesRefuse = points.some(
+      p => Math.abs(p.measured - p.modesOnly) > TOLERANCE,
+    )
     const k2 = boxRefuses && modesRefuse
-    const status = !s1 || !k ? 'fail' : s2a && s2b && k2 ? 'pass' : 'partial'
+    const status =
+      !s1 || !k ? 'fail' : s2a && s2b && k2 ? 'pass' : 'partial'
 
     // REPORTED: the infinite stack, the side needed, finer layering
     for (const warp of WARPS) {
       for (const layers of LAYERS) {
         const modes = stackModes(
-          Array.from({ length: layers + 1 }, (_, i) => biggest / 2 ** i),
+          Array.from(
+            { length: layers + 1 },
+            (_, i) => biggest / 2 ** i,
+          ),
           warp.theory,
         )
-        const radii = Array.from({ length: biggest / 4 - 2 - 3 }, (_, i) => i + 4)
+        const radii = Array.from(
+          { length: biggest / 4 - 2 - 3 },
+          (_, i) => i + 4,
+        )
         const need = sideFor(modes, TARGET)
         const key = `${warp.name}_L${layers}`
 
@@ -291,12 +454,18 @@ export default experiment({
         )
         metrics[`${key}_sideFor95`] = need.side
         metrics[`${key}_radiusFor95`] = need.radius
-        lines.push(`${key}: l ${lightestRange(modes).toFixed(2)}, beta ${massiveWeight(modes).toFixed(3)}, infinite stack slope over r 4 .. ${radii[radii.length - 1]} ${metrics[`${key}_infiniteSlope`]!.toFixed(3)}, 0.95 first reached on a side-${need.side} husk at r_h ${need.radius.toFixed(1)}`)
+        lines.push(
+          `${key}: l ${lightestRange(modes).toFixed(2)}, beta ${massiveWeight(modes).toFixed(3)}, infinite stack slope over r 4 .. ${radii[radii.length - 1]} ${metrics[`${key}_infiniteSlope`]!.toFixed(3)}, 0.95 first reached on a side-${need.side} husk at r_h ${need.radius.toFixed(1)}`,
+        )
       }
     }
 
     const finer = [1, 2, 4, 8].map(per => {
-      const { stiff, conduct } = warpedLayering(Math.LN2 / Math.sqrt(6), per, 1e-4)
+      const { stiff, conduct } = warpedLayering(
+        Math.LN2 / Math.sqrt(6),
+        per,
+        1e-4,
+      )
 
       return lightestRange(layeredModes(stiff, conduct))
     })
@@ -310,35 +479,61 @@ export default experiment({
       metrics[`${key}_boxOnly`] = p.boxOnly
       metrics[`${key}_modesOnly`] = p.modesOnly
       metrics[`${key}_off`] = p.measured - p.predicted
-      lines.push(`${key} (l ${p.range.toFixed(2)}, beta ${p.beta.toFixed(3)}, r_ref ${p.reference.toFixed(1)}, r_h ${p.radii[0]} .. ${p.radii[p.radii.length - 1]} = ${(p.radii[0]! / p.range).toFixed(2)} .. ${(p.radii[p.radii.length - 1]! / p.range).toFixed(2)} l): measured ${p.measured.toFixed(3)}, predicted ${p.predicted.toFixed(3)} (box only ${p.boxOnly.toFixed(3)}, modes only ${p.modesOnly.toFixed(3)}); pairs r: measured / derived / derived pair ${p.pairs.map(q => `${q.r}: ${q.measured.toFixed(3)}/${q.derived.toFixed(3)}/${q.predictedPair.toFixed(3)}`).join(', ')}`)
+      lines.push(
+        `${key} (l ${p.range.toFixed(2)}, beta ${p.beta.toFixed(3)}, r_ref ${p.reference.toFixed(1)}, r_h ${p.radii[0]} .. ${p.radii[p.radii.length - 1]} = ${(p.radii[0]! / p.range).toFixed(2)} .. ${(p.radii[p.radii.length - 1]! / p.range).toFixed(2)} l): measured ${p.measured.toFixed(3)}, predicted ${p.predicted.toFixed(3)} (box only ${p.boxOnly.toFixed(3)}, modes only ${p.modesOnly.toFixed(3)}); pairs r: measured / derived / derived pair ${p.pairs.map(q => `${q.r}: ${q.measured.toFixed(3)}/${q.derived.toFixed(3)}/${q.predictedPair.toFixed(3)}`).join(', ')}`,
+      )
     })
+
     route.forEach(q => {
       metrics[`route_${q.warp}_L${q.layers}_scale`] = q.scale
-      lines.push(`route hair ${q.warp} L${q.layers}: decay scale ${q.scale.toFixed(2)} against l ${q.range.toFixed(2)}`)
+      lines.push(
+        `route hair ${q.warp} L${q.layers}: decay scale ${q.scale.toFixed(2)} against l ${q.range.toFixed(2)}`,
+      )
     })
-    finer.forEach((l, i) => (metrics[`finer_per${[1, 2, 4, 8][i]}_range`] = l))
-    lines.push(`warpedLayering at RS's curvature ln 2 / sqrt 6: lightest range ${finer.map(l => l.toFixed(1)).join(', ')} at 1, 2, 4, 8 slabs a doubling`)
-    lines.push(`torn statics (${TORN.warp} L${TORN.layers} side ${TORN.side}, point source, M putting the free axis horizon at r = ${TORN.radii.join(', ')}): free first round docks ${torn.docksFree.join(', ')} (volume slope ${torn.free.toFixed(3)}), after the torn rounds ${torn.docksTorn.join(', ')} (${torn.torn.toFixed(3)})`)
-    lines.push(`field criterion volume slope ${fieldSlope.map(s => s.toFixed(3)).join(', ')} on sides ${FIELD_SIDES.join(', ')}`)
+
+    finer.forEach(
+      (l, i) => (metrics[`finer_per${[1, 2, 4, 8][i]}_range`] = l),
+    )
+
+    lines.push(
+      `warpedLayering at RS's curvature ln 2 / sqrt 6: lightest range ${finer.map(l => l.toFixed(1)).join(', ')} at 1, 2, 4, 8 slabs a doubling`,
+    )
+
+    lines.push(
+      `torn statics (${TORN.warp} L${TORN.layers} side ${TORN.side}, point source, M putting the free axis horizon at r = ${TORN.radii.join(', ')}): free first round docks ${torn.docksFree.join(', ')} (volume slope ${torn.free.toFixed(3)}), after the torn rounds ${torn.docksTorn.join(', ')} (${torn.torn.toFixed(3)})`,
+    )
+
+    lines.push(
+      `field criterion volume slope ${fieldSlope.map(s => s.toFixed(3)).join(', ')} on sides ${FIELD_SIDES.join(', ')}`,
+    )
 
     metrics.gate_S1 = s1 ? 1 : 0
     metrics.gate_S2a = s2a ? 1 : 0
     metrics.gate_S2b = s2b ? 1 : 0
     metrics.control_K = k ? 1 : 0
     metrics.control_K2 = k2 ? 1 : 0
-    metrics.worstOff = Math.max(...points.map(p => Math.abs(p.measured - p.predicted)))
+    metrics.worstOff = Math.max(
+      ...points.map(p => Math.abs(p.measured - p.predicted)),
+    )
     metrics.farthestX = far.x
     metrics.farthestSlope = far.slope
     metrics.tornFreeSlope = torn.free
     metrics.tornSlope = torn.torn
-    fieldSlope.forEach((s, i) => (metrics[`field_side${FIELD_SIDES[i]}_slope`] = s))
+    fieldSlope.forEach(
+      (s, i) => (metrics[`field_side${FIELD_SIDES[i]}_slope`] = s),
+    )
     metrics.seconds = (Date.now() - started) / 1000
 
     return verdict({
       status,
       claim: `the clock horizon's slope d ln r_h / d ln M on ${points.length} (stack, box) points, l = ${[...new Set(points.map(p => p.range.toFixed(2)))].join(', ')}, sides ${SIDES.join(', ')}: worst |measured - derived| ${metrics.worstOff.toFixed(3)} (gate ${TOLERANCE}); at the largest r_h / l reached (${far.x.toFixed(1)}, ${far.warp} L${far.layers}, r ${far.r}, side ${biggest}) the local slope is ${far.slope.toFixed(3)} (gate ${TARGET}); field criterion ${fieldSlope.map(s => s.toFixed(3)).join(', ')}`,
       metrics,
-      control: { k: k ? 1 : 0, k2: k2 ? 1 : 0, boxRefuses: boxRefuses ? 1 : 0, modesRefuse: modesRefuse ? 1 : 0 },
+      control: {
+        k: k ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        boxRefuses: boxRefuses ? 1 : 0,
+        modesRefuse: modesRefuse ? 1 : 0,
+      },
       notes: `L1. S1 ${s1}, S2a ${s2a}, S2b ${s2b}, K ${k}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

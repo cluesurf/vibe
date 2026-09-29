@@ -44,12 +44,18 @@ const SILVER = Math.SQRT2 - 1
 
 // a dock's position on the integer torus d4Mesh (dock = x + L y + L^2 z + L^3 w), the default
 export function torusPosition(dock: number, side: number): number[] {
-  return [0, 1, 2, 3].map(axis => Math.floor(dock / side ** axis) % side)
+  return [0, 1, 2, 3].map(
+    axis => Math.floor(dock / side ** axis) % side,
+  )
 }
 
 // k . x with k = 2 pi n / L; an integer n is a wave of the torus and of the D4 box alike, since every
 // period of either is L times an integer vector
-function phaseOf(position: readonly number[], side: number, mode: readonly number[]): number {
+function phaseOf(
+  position: readonly number[],
+  side: number,
+  mode: readonly number[],
+): number {
   let p = 0
 
   for (let axis = 0; axis < 4; axis++) {
@@ -72,15 +78,25 @@ export function chargeWaveResponse(input: {
   // a dock's position in R^4, the integer torus coordinates by default (pass the D4 box's for its mesh)
   positionOf?: (dock: number) => readonly number[]
 }): ModeRecord[] {
-  const { mesh, side, schedule, directions, modes, epsilon, warm, beats } =
-    input
+  const {
+    mesh,
+    side,
+    schedule,
+    directions,
+    modes,
+    epsilon,
+    warm,
+    beats,
+  } = input
   const degree = mesh.degree
   const cells = mesh.cellCount
   const table = streamSourceTable(mesh)
   const fill = input.fill ?? { love: 0.3, fear: 0.3 }
   const positionOf =
     input.positionOf ?? ((dock: number) => torusPosition(dock, side))
-  const positions = Array.from({ length: cells }, (_, dock) => positionOf(dock))
+  const positions = Array.from({ length: cells }, (_, dock) =>
+    positionOf(dock),
+  )
 
   // thermalize the shared background
   let src: Will = makeWill(mesh)
@@ -145,12 +161,16 @@ export function chargeWaveResponse(input: {
     return { now, next: makeWill(mesh) }
   })
 
-  const project = (m: number): { cosine: number; current: number[] } => {
+  const project = (
+    m: number,
+  ): { cosine: number; current: number[] } => {
     const cos = cosines[m] ?? new Float64Array(cells)
     const sin = sines[m] ?? new Float64Array(cells)
     const a = copies[m]?.now.data ?? new Int8Array(0)
     const b = baseline.now.data
+
     let cosine = 0
+
     const current = [0, 0, 0, 0]
 
     for (let i = 0; i < a.length; i++) {
@@ -218,7 +238,9 @@ export function chargeWaveResponse(input: {
 }
 
 // K(t)[i][j] = current_i of the wave along axis j, from the four axis records in axis order
-export function responseKernel(axisRecords: readonly ModeRecord[]): number[][][] {
+export function responseKernel(
+  axisRecords: readonly ModeRecord[],
+): number[][][] {
   const beats = axisRecords[0]?.current.length ?? 0
 
   return Array.from({ length: beats }, (_, t) =>
@@ -231,7 +253,9 @@ export function responseKernel(axisRecords: readonly ModeRecord[]): number[][][]
 // the rotational content of a sequence of 4 x 4 matrices, each part summed in square over time:
 // isotropic (trace / 4 times the identity), symmetric traceless, and the antisymmetric part's
 // self-dual and anti-self-dual halves (the su(2)_L and su(2)_R of so(4), epsilon_0123 = +1)
-export function kernelParts(kernel: readonly (readonly (readonly number[])[])[]): {
+export function kernelParts(
+  kernel: readonly (readonly (readonly number[])[])[],
+): {
   isotropic: number
   anisotropic: number
   selfDual: number
@@ -256,9 +280,18 @@ export function kernelParts(kernel: readonly (readonly (readonly number[])[])[])
       }
     }
 
-    const f = (i: number, j: number): number => (at(i, j) - at(j, i)) / 2
-    const plus = [f(0, 1) + f(2, 3), f(0, 2) - f(1, 3), f(0, 3) + f(1, 2)]
-    const minus = [f(0, 1) - f(2, 3), f(0, 2) + f(1, 3), f(0, 3) - f(1, 2)]
+    const f = (i: number, j: number): number =>
+      (at(i, j) - at(j, i)) / 2
+    const plus = [
+      f(0, 1) + f(2, 3),
+      f(0, 2) - f(1, 3),
+      f(0, 3) + f(1, 2),
+    ]
+    const minus = [
+      f(0, 1) - f(2, 3),
+      f(0, 2) + f(1, 3),
+      f(0, 3) - f(1, 2),
+    ]
 
     selfDual += plus.reduce((s, x) => s + x * x, 0)
     antiSelfDual += minus.reduce((s, x) => s + x * x, 0)
@@ -274,8 +307,11 @@ export function kernelParts(kernel: readonly (readonly (readonly number[])[])[])
 
 // how far a set of relaxation curves disagrees, relative to how far they relax: the rms spread across
 // the set, over all beats, divided by the rms of (1 - mean curve)
-export function curveSpread(curves: readonly (readonly number[])[]): number {
+export function curveSpread(
+  curves: readonly (readonly number[])[],
+): number {
   const beats = curves[0]?.length ?? 0
+
   let spread = 0
   let relaxed = 0
 
@@ -302,6 +338,7 @@ export function powerLawExponent(
   const ly = ys.map(Math.log)
   const mx = lx.reduce((a, b) => a + b, 0) / lx.length
   const my = ly.reduce((a, b) => a + b, 0) / ly.length
+
   let num = 0
   let den = 0
 

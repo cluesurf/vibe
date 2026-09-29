@@ -13,7 +13,12 @@
 // the isotropy cluster, so no off-assignment closes the matrix. CONTROL: the two perturbed columns are the
 // negative controls, each failing exactly the cluster its single changed lever governs.
 
-import { d4Mesh, cubicMesh, Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  d4Mesh,
+  cubicMesh,
+  Mesh,
+  meshOpposites,
+} from '@/code/tool/mesh'
 import { headOnRotate, Collision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import {

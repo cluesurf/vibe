@@ -213,7 +213,8 @@ function study(input: {
 
     const relative = relativeDegrees(defectA, defectB)
     const joint = pairAdd(jointA, jointB)
-    const cross = pairAbs2(joint) - pairAbs2(defectA) - pairAbs2(defectB)
+    const cross =
+      pairAbs2(joint) - pairAbs2(defectA) - pairAbs2(defectB)
     // the law is checked at the exact angle, the rounded degrees are only the reported classes
     const exactRelative =
       Math.atan2(defectA[1], defectA[0]) -
@@ -261,7 +262,14 @@ export default experiment({
     const control1 = study({ regions, rule: momentumRule, birth: 1 })
     const control2 = study({ regions, rule: momentumRule, birth: 2 })
 
-    const all = [offset1, offset2, inPhase0, inPhase3, control1, control2]
+    const all = [
+      offset1,
+      offset2,
+      inPhase0,
+      inPhase3,
+      control1,
+      control2,
+    ]
 
     // the offset holds at least one full cycle before any wall mixing reaches the deep region, and no
     // wall ever forms when the offset is zero mod 3 or the rule has no clock. Whether the mixing then
@@ -318,12 +326,24 @@ export default experiment({
         lawHolds: lawHolds ? 1 : 0,
         controlsFlat: controlsFlat ? 1 : 0,
         conserved: conserved ? 1 : 0,
-        offset1Additivity: Number(offset1.worstAdditivity.toExponential(1)),
-        offset2Additivity: Number(offset2.worstAdditivity.toExponential(1)),
-        inPhase0Additivity: Number(inPhase0.worstAdditivity.toExponential(1)),
-        inPhase3Additivity: Number(inPhase3.worstAdditivity.toExponential(1)),
-        control1Additivity: Number(control1.worstAdditivity.toExponential(1)),
-        control2Additivity: Number(control2.worstAdditivity.toExponential(1)),
+        offset1Additivity: Number(
+          offset1.worstAdditivity.toExponential(1),
+        ),
+        offset2Additivity: Number(
+          offset2.worstAdditivity.toExponential(1),
+        ),
+        inPhase0Additivity: Number(
+          inPhase0.worstAdditivity.toExponential(1),
+        ),
+        inPhase3Additivity: Number(
+          inPhase3.worstAdditivity.toExponential(1),
+        ),
+        control1Additivity: Number(
+          control1.worstAdditivity.toExponential(1),
+        ),
+        control2Additivity: Number(
+          control2.worstAdditivity.toExponential(1),
+        ),
         offset1DistinctRelativePhases: new Set(offset1.relativePhases)
           .size,
         offset1MinCross: Number(offset1.minCross.toFixed(6)),

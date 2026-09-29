@@ -95,13 +95,14 @@ import {
   type Run,
 } from '@/code/measure/varying-depth-light'
 
-const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
+const within = (x: number, want: number, tol: number): boolean =>
+  Math.abs(x / want - 1) <= tol
 
 export default experiment({
   id: 'gravity/varying-depth-light',
   code: 'E-GRV-0070',
   title:
-    "the husk light runs with a depth that varies by column and slows where columns are deeper, fail on V4 and V5 (a flawed ray-optics predictor): the per-column husk integer rule (a STAND-IN, since no variable-depth trit bulk exists) is exact on reversal with Gauss 0 on every run and 0 wraps at D 16 and 24; a plane packet moves at 1.00035 and 1.00022 of c(D) = 2 / sqrt(3 (2D + 1)), at 1.0014 of c(24) inside a D 24 slab and 0.9966 of c(16) after it, and is delayed 26.32 and 26.87 beats against the Shapiro 24 (1/c(24) - 1/c(16)) = 26.09; a D 24 disk of radius 16 delays the wavefront by a smooth converging profile (32.60 beats on axis against 34.79 from ray optics, 30.63 against 33.04 at b = 4, turned 0.244 rad toward it against 0.196), but the gated predictor took a grazing ray at b = 8 and 12, where this strong thick lens sends no refracted ray, and the beside readings (4.14 beats and 0.254 rad at b = 20) lie in its geometric shadow; at D 4 the packet cannot be carried (921,536 wraps)",
+    'the husk light runs with a depth that varies by column and slows where columns are deeper, fail on V4 and V5 (a flawed ray-optics predictor): the per-column husk integer rule (a STAND-IN, since no variable-depth trit bulk exists) is exact on reversal with Gauss 0 on every run and 0 wraps at D 16 and 24; a plane packet moves at 1.00035 and 1.00022 of c(D) = 2 / sqrt(3 (2D + 1)), at 1.0014 of c(24) inside a D 24 slab and 0.9966 of c(16) after it, and is delayed 26.32 and 26.87 beats against the Shapiro 24 (1/c(24) - 1/c(16)) = 26.09; a D 24 disk of radius 16 delays the wavefront by a smooth converging profile (32.60 beats on axis against 34.79 from ray optics, 30.63 against 33.04 at b = 4, turned 0.244 rad toward it against 0.196), but the gated predictor took a grazing ray at b = 8 and 12, where this strong thick lens sends no refracted ray, and the beside readings (4.14 beats and 0.254 rad at b = 20) lie in its geometric shadow; at D 4 the packet cannot be carried (921,536 wraps)',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -120,7 +121,12 @@ export default experiment({
       survey.uniformEqualsFast.every(Boolean) &&
       survey.uniformCurl === 0 &&
       all.every(r => r.gauss === 0 && r.minDepth >= 4 && r.reversed) &&
-      primary.every(r => r.wraps.angle === 0 && r.wraps.field === 0 && r.wraps.potential === 0)
+      primary.every(
+        r =>
+          r.wraps.angle === 0 &&
+          r.wraps.field === 0 &&
+          r.wraps.potential === 0,
+      )
 
     // V2
     const v0 = 40 / (lineArrival(u0, 100) - lineArrival(u0, 60))
@@ -131,27 +137,64 @@ export default experiment({
     const inside = 16 / (lineArrival(slab, 84) - lineArrival(slab, 68))
     const after = 20 / (lineArrival(slab, 120) - lineArrival(slab, 100))
     const shapiroWant = (SLAB[1] - SLAB[0]) * (1 / c1 - 1 / c0)
-    const shapiro = [100, 120].map(x => lineArrival(slab, x) - lineArrival(u0, x))
-    const g3 = within(inside, c1, 0.03) && within(after, c0, 0.03) && shapiro.every(d => within(d, shapiroWant, 0.03))
+    const shapiro = [100, 120].map(
+      x => lineArrival(slab, x) - lineArrival(u0, x),
+    )
+    const g3 =
+      within(inside, c1, 0.03) &&
+      within(after, c0, 0.03) &&
+      shapiro.every(d => within(d, shapiroWant, 0.03))
 
     // V4, V5: the exit plane
     const base = lineArrival(u0, EXIT_X)
     const yc = DISK_CENTER[1]
     const t = (y: number): number => disk.arrival[y] ?? Number.NaN
-    const delay = (b: number): number => (t(yc + b) + t(yc - b)) / 2 - base
-    const tilt = (y: number): number => Math.asin(Math.max(-1, Math.min(1, (v0 * (t(y + 2) - t(y - 2))) / 4)))
+    const delay = (b: number): number =>
+      (t(yc + b) + t(yc - b)) / 2 - base
+    const tilt = (y: number): number =>
+      Math.asin(
+        Math.max(-1, Math.min(1, (v0 * (t(y + 2) - t(y - 2))) / 4)),
+      )
     // toward the axis: positive when the ray above the axis turns down and the ray below turns up
-    const toward = (b: number): number => -(tilt(yc + b) - tilt(yc - b)) / 2
+    const toward = (b: number): number =>
+      -(tilt(yc + b) - tilt(yc - b)) / 2
     const plane = EXIT_X - DISK_CENTER[0]
-    const ray = (b: number): { delay: number; angle: number; impact: number } => diskEikonal(b, DISK_RADIUS, n, plane, c0)
-    const insideRows = INSIDE.map(b => ({ b, delay: delay(b), want: ray(b).delay, toward: toward(b), wantToward: -ray(b).angle, impact: ray(b).impact }))
-    const besideRows = BESIDE.map(b => ({ b, delay: delay(b), toward: toward(b) }))
-    const g4 = insideRows.every(r => within(r.delay, r.want, 0.15) && (r.b === 0 || (r.toward > 0 && within(r.toward, r.wantToward, 0.3))))
-    const g5 = besideRows.every(r => Math.abs(r.delay) <= 1.5 && Math.abs(r.toward) <= 0.02)
+    const ray = (
+      b: number,
+    ): { delay: number; angle: number; impact: number } =>
+      diskEikonal(b, DISK_RADIUS, n, plane, c0)
+    const insideRows = INSIDE.map(b => ({
+      b,
+      delay: delay(b),
+      want: ray(b).delay,
+      toward: toward(b),
+      wantToward: -ray(b).angle,
+      impact: ray(b).impact,
+    }))
+    const besideRows = BESIDE.map(b => ({
+      b,
+      delay: delay(b),
+      toward: toward(b),
+    }))
+    const g4 = insideRows.every(
+      r =>
+        within(r.delay, r.want, 0.15) &&
+        (r.b === 0 ||
+          (r.toward > 0 && within(r.toward, r.wantToward, 0.3))),
+    )
+    const g5 = besideRows.every(
+      r => Math.abs(r.delay) <= 1.5 && Math.abs(r.toward) <= 0.02,
+    )
 
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const edgeSpeed = (r: Run): number => 40 / (lineArrival(r, 100) - lineArrival(r, 60))
-    const wrapsOf = (r: Run): number => r.wraps.angle + r.wraps.field + r.wraps.potential
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const edgeSpeed = (r: Run): number =>
+      40 / (lineArrival(r, 100) - lineArrival(r, 60))
+    const wrapsOf = (r: Run): number =>
+      r.wraps.angle + r.wraps.field + r.wraps.potential
 
     const metrics: Record<string, number> = {
       gate_V1: g1 ? 1 : 0,
@@ -175,10 +218,12 @@ export default experiment({
       shapiro120: shapiro[1] ?? Number.NaN,
       diskBoundaryTriangles: survey.diskBoundary,
       slabBoundaryTriangles: survey.slabBoundary,
-      edgeUniformSpeedOverC: edgeSpeed(survey.edgeUniform) / lightSpeed(4),
+      edgeUniformSpeedOverC:
+        edgeSpeed(survey.edgeUniform) / lightSpeed(4),
       edgeUniformWraps: wrapsOf(survey.edgeUniform),
       edgeSlabWraps: wrapsOf(survey.edgeSlab),
-      edgeReversed: survey.edgeUniform.reversed && survey.edgeSlab.reversed ? 1 : 0,
+      edgeReversed:
+        survey.edgeUniform.reversed && survey.edgeSlab.reversed ? 1 : 0,
       worstGauss: Math.max(...all.map(r => r.gauss)),
       primaryWraps: primary.reduce((s, r) => s + wrapsOf(r), 0),
       seconds: survey.seconds,
@@ -205,7 +250,9 @@ export default experiment({
       claim: `a plane packet through columns of depth D1 = ${D1} in a D0 = ${D0} husk light (index ${n.toFixed(4)}): uniform speeds ${v0.toFixed(4)} and ${v1.toFixed(4)} against c = ${c0.toFixed(4)} and ${c1.toFixed(4)}; inside a 24-dock slab ${inside.toFixed(4)}, after it ${after.toFixed(4)}; Shapiro delay ${shapiro.map(d => d.toFixed(2)).join(' and ')} beats against ${shapiroWant.toFixed(2)}; through a disk of radius ${DISK_RADIUS} the exit-plane delay at b = ${INSIDE.join(', ')} is ${insideRows.map(r => r.delay.toFixed(2)).join(', ')} against ray optics ${insideRows.map(r => r.want.toFixed(2)).join(', ')}, bending toward the axis ${insideRows.map(r => r.toward.toFixed(4)).join(', ')} rad against ${insideRows.map(r => r.wantToward.toFixed(4)).join(', ')}; beside it at b = ${BESIDE.join(', ')} delay ${besideRows.map(r => r.delay.toFixed(2)).join(', ')} and bending ${besideRows.map(r => r.toward.toFixed(4)).join(', ')}; exact reversal and Gauss on every run`,
       metrics,
       control: {
-        uniformEqualsFast: survey.uniformEqualsFast.every(Boolean) ? 1 : 0,
+        uniformEqualsFast: survey.uniformEqualsFast.every(Boolean)
+          ? 1
+          : 0,
         uniformCurl: survey.uniformCurl,
       },
       notes: `L2. STAND-IN: the husk integer rule with per-column parameters (no variable-depth trit bulk exists). Gates V1 ${g1}, V2 ${g2}, V3 ${g3}, V4 ${g4}, V5 ${g5}. Line arrivals at x = 60, 68, 84, 96, 100, 120: U0 [${u0.arrival.map(x => x.toFixed(2)).join(' ')}], U1 [${u1.arrival.map(x => x.toFixed(2)).join(' ')}], SLAB [${slab.arrival.map(x => x.toFixed(2)).join(' ')}]. Exit-plane delay profile (b: beats) ${profile}. Ray impacts landing at b = ${INSIDE.join(', ')}: ${insideRows.map(r => r.impact.toFixed(2)).join(', ')}. Runs: gauss ${all.map(r => r.gauss).join(' ')}, reversed ${all.map(r => r.reversed).join(' ')}, min depth ${all.map(r => r.minDepth).join(' ')}, wraps ${all.map(r => JSON.stringify(r.wraps)).join(' ')}, seconds ${all.map(r => r.seconds.toFixed(1)).join(' ')}. Boundary triangles whose spatial term reads another depth's counter: slab ${survey.slabBoundary}, disk ${survey.diskBoundary}. EDGE (D 4, amplitude 3): uniform speed ${edgeSpeed(survey.edgeUniform).toFixed(4)} against c(4) = ${lightSpeed(4).toFixed(4)}, wraps ${wrapsOf(survey.edgeUniform)}; with a D 8 slab wraps ${wrapsOf(survey.edgeSlab)}; both exact on reversal: ${survey.edgeUniform.reversed && survey.edgeSlab.reversed}. Survey ${survey.seconds.toFixed(0)} s.`,

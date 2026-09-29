@@ -32,18 +32,34 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { correlationShells, pairVacuumPair, PAIR_VACUUM, type PairVacuum } from '@/code/measure/pair-string'
+import {
+  correlationShells,
+  pairVacuumPair,
+  PAIR_VACUUM,
+  type PairVacuum,
+} from '@/code/measure/pair-string'
 
 const CONTACT = 2.5
 const SIGMAS = 3
 const BARYONS_PER_READ = 0.5
 
-function window(run: PairVacuum, which: 'bulk' | 'husk'): { pooled: number; error: number; shells: { r: number; g: number; sigma: number }[] } {
-  const shells = correlationShells(run.baryonMeson, which).filter(s => s.r < CONTACT - 1e-9)
+function window(
+  run: PairVacuum,
+  which: 'bulk' | 'husk',
+): {
+  pooled: number
+  error: number
+  shells: { r: number; g: number; sigma: number }[]
+} {
+  const shells = correlationShells(run.baryonMeson, which).filter(
+    s => s.r < CONTACT - 1e-9,
+  )
   const weight = shells.reduce((a, s) => a + 1 / s.sigma ** 2, 0)
 
   return {
-    pooled: shells.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) / Math.max(1e-300, weight),
+    pooled:
+      shells.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) /
+      Math.max(1e-300, weight),
     error: 1 / Math.sqrt(Math.max(1e-300, weight)),
     shells,
   }
@@ -53,7 +69,7 @@ export default experiment({
   id: 'gauge/pair-string-four-one',
   code: 'E-FRC-0202',
   title:
-    'does the pair-making vacuum bind the (4, 1) cluster: a compact baryon and a compact meson (stand-ins for E-SPN-0060\'s four roles and one antirole) of the paid Z3 string on the D4 box, at contact against mixed events, with pair making on and off',
+    "does the pair-making vacuum bind the (4, 1) cluster: a compact baryon and a compact meson (stand-ins for E-SPN-0060's four roles and one antirole) of the paid Z3 string on the D4 box, at contact against mixed events, with pair making on and off",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -77,7 +93,8 @@ export default experiment({
       control.compactBaryonsPerRead >= BARYONS_PER_READ
     const g1 = bulk.pooled > SIGMAS * bulk.error
     const g2 = Math.abs(controlBulk.pooled) < SIGMAS * controlBulk.error
-    const status = g0 && g1 && g2 ? 'pass' : g0 && g1 ? 'partial' : 'fail'
+    const status =
+      g0 && g1 && g2 ? 'pass' : g0 && g1 ? 'partial' : 'fail'
     const metrics: Record<string, number> = {
       beta: paired.beta,
       x: paired.x,
@@ -101,16 +118,24 @@ export default experiment({
       gateControl: g2 ? 1 : 0,
     }
 
-    bulk.shells.forEach(s => (metrics[`pairedBaryonMesonGR${s.r.toFixed(3)}`] = s.g))
-    controlBulk.shells.forEach(s => (metrics[`controlBaryonMesonGR${s.r.toFixed(3)}`] = s.g))
+    bulk.shells.forEach(
+      s => (metrics[`pairedBaryonMesonGR${s.r.toFixed(3)}`] = s.g),
+    )
+
+    controlBulk.shells.forEach(
+      s => (metrics[`controlBaryonMesonGR${s.r.toFixed(3)}`] = s.g),
+    )
 
     return verdict({
       status,
       claim: `a compact baryon and a compact meson within R 2.5 (bulk) are ${(1 + bulk.pooled).toFixed(4)} +- ${bulk.error.toFixed(4)} times as frequent as mixed events with the vacuum making pairs and ${(1 + controlBulk.pooled).toFixed(4)} +- ${controlBulk.error.toFixed(4)} without (husk ${(1 + husk.pooled).toFixed(4)} and ${(1 + controlHusk.pooled).toFixed(4)}); joined (4, 1) pieces number ${paired.fourOnePerRead.toFixed(4)} per read with pairs and ${control.fourOnePerRead.toFixed(4)} without`,
       metrics,
-      control: { controlCapacity: PAIR_VACUUM.controlCapacity, seededCharges: seeded },
+      control: {
+        controlCapacity: PAIR_VACUUM.controlCapacity,
+        seededCharges: seeded,
+      },
       notes:
-        'L2, stand-ins: the compact baryon (three like charges on two paid links, read at its middle dock) and the compact meson stand for the (3, 0) and (1, 1) of E-SPN-0060\'s cluster, whose spin this rule does not carry. On the line the static baryon is inert exactly (E-FRC-0188), so this is the first place the question can be answered in the rule. Zero-temperature binding stays 0 (the least string of four loves and a fear is the sum of its parts, and a pair adds 2 mass); a contact excess is a free-energy attraction.',
+        "L2, stand-ins: the compact baryon (three like charges on two paid links, read at its middle dock) and the compact meson stand for the (3, 0) and (1, 1) of E-SPN-0060's cluster, whose spin this rule does not carry. On the line the static baryon is inert exactly (E-FRC-0188), so this is the first place the question can be answered in the rule. Zero-temperature binding stays 0 (the least string of four loves and a fear is the sum of its parts, and a pair adds 2 mass); a contact excess is a free-energy attraction.",
     })
   },
 })

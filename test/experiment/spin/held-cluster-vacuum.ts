@@ -98,7 +98,14 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { lineBasis, lineLightest, ringBeat, wholeBasis, type LineSector, type RingState } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLightest,
+  ringBeat,
+  wholeBasis,
+  type LineSector,
+  type RingState,
+} from '@/code/measure/coined-line-bloch'
 import {
   axisRing,
   blochPacket,
@@ -130,24 +137,64 @@ const WINDOWS: readonly { side: number; beats: number }[] = [
   { side: 12, beats: 2 },
 ]
 // E-SPN-0093's recorded level (box 12) and band speed
-const RECORDED = { energy: 0.33001851839229945, share: 0.9823600683345252, speed: 0.0303 }
+const RECORDED = {
+  energy: 0.33001851839229945,
+  share: 0.9823600683345252,
+  speed: 0.0303,
+}
 const EXACT = 1e-12
 const FIDELITY = 0.9
 const SHARE_TOL = 0.02
 const ENERGY_TOL = 0.01
 
-const sector = (statistics: 'fermion' | 'native', unit: number): LineSector => ({ flavors: [0, 0, 0], statistics, D: 3, box: BOX, unit })
+const sector = (
+  statistics: 'fermion' | 'native',
+  unit: number,
+): LineSector => ({
+  flavors: [0, 0, 0],
+  statistics,
+  D: 3,
+  box: BOX,
+  unit,
+})
 
-type Gates = { b1: boolean; b3: boolean; worstR: number; worstDrift: number; leastFidelity: number; worstShare: number; energyOff: number }
+type Gates = {
+  b1: boolean
+  b3: boolean
+  worstR: number
+  worstDrift: number
+  leastFidelity: number
+  worstShare: number
+  energyOff: number
+}
 
 function gatesOf(run: Track, reference: Track): Gates {
-  const worstR = Math.max(...run.r90.map((r, t) => r - (reference.r90[t] as number) - 1))
-  const worstDrift = Math.max(...run.drift.map((d, t) => d - 1 - RECORDED.speed * (t + 1)))
+  const worstR = Math.max(
+    ...run.r90.map((r, t) => r - reference.r90[t]! - 1),
+  )
+  const worstDrift = Math.max(
+    ...run.drift.map((d, t) => d - 1 - RECORDED.speed * (t + 1)),
+  )
   const leastFidelity = Math.min(...run.fidelity)
-  const worstShare = Math.max(...run.share.map(s => (Number.isNaN(s.share) ? 1 : Math.abs(s.share - RECORDED.share))))
+  const worstShare = Math.max(
+    ...run.share.map(s =>
+      Number.isNaN(s.share) ? 1 : Math.abs(s.share - RECORDED.share),
+    ),
+  )
   const energyOff = Math.abs(run.energy - RECORDED.energy)
 
-  return { b1: worstR <= 0 && worstDrift <= 0, b3: leastFidelity >= FIDELITY && worstShare <= SHARE_TOL && energyOff <= ENERGY_TOL, worstR, worstDrift, leastFidelity, worstShare, energyOff }
+  return {
+    b1: worstR <= 0 && worstDrift <= 0,
+    b3:
+      leastFidelity >= FIDELITY &&
+      worstShare <= SHARE_TOL &&
+      energyOff <= ENERGY_TOL,
+    worstR,
+    worstDrift,
+    leastFidelity,
+    worstShare,
+    energyOff,
+  }
 }
 
 export default experiment({
@@ -161,7 +208,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the level ----
     const basis = lineBasis(sector('fermion', 0))
@@ -169,7 +219,10 @@ export default experiment({
     const vre = level.cre
     const vim = level.cim
     const placed = levelPlacement(basis, vre, vim)
-    const levelOff = Math.max(Math.abs(level.unwrapped - RECORDED.energy), Math.abs(level.spinHalf - RECORDED.share))
+    const levelOff = Math.max(
+      Math.abs(level.unwrapped - RECORDED.energy),
+      Math.abs(level.spinHalf - RECORDED.share),
+    )
 
     log('level')
 
@@ -181,7 +234,18 @@ export default experiment({
 
       return r
     })
-    const b2 = windows.every(w => w.reversed && w.beats.every(b => b.normKept && b.leak === 0 && b.disturbed === 0 && b.pointGap <= EXACT && b.energyGap <= EXACT))
+    const b2 = windows.every(
+      w =>
+        w.reversed &&
+        w.beats.every(
+          b =>
+            b.normKept &&
+            b.leak === 0 &&
+            b.disturbed === 0 &&
+            b.pointGap <= EXACT &&
+            b.energyGap <= EXACT,
+        ),
+    )
 
     // ---- the long runs on the side-16 line ----
     const center = centerOf(SIDE)
@@ -192,8 +256,25 @@ export default experiment({
     const a = blochPacket(basis, L, vre, vim, true)
     const startDensity = a.density()
     const c0 = Math.round(ringCenter(startDensity)) % L
-    const track = (step: () => void, density: () => Float64Array, relative: () => Relative): Track =>
-      trackRun({ L, beats: BEATS, window: BEATS, center: c0, startDensity, step, density, relative, basis, vre, vim, shareEvery: SHARE_EVERY })
+    const track = (
+      step: () => void,
+      density: () => Float64Array,
+      relative: () => Relative,
+    ): Track =>
+      trackRun({
+        L,
+        beats: BEATS,
+        window: BEATS,
+        center: c0,
+        startDensity,
+        step,
+        density,
+        relative,
+        basis,
+        vre,
+        vim,
+        shareEvery: SHARE_EVERY,
+      })
 
     const runA = track(a.step, a.density, a.relative)
 
@@ -214,13 +295,20 @@ export default experiment({
         () => plainRelative(L, s),
       )
     }
+
     const runFb = ringRun(sector('fermion', 0))
-    const runNf = ringRun({ flavors: [0, 0, 0], statistics: 'native', D: 3, box: BOX })
+    const runNf = ringRun({
+      flavors: [0, 0, 0],
+      statistics: 'native',
+      D: 3,
+      box: BOX,
+    })
 
     log('Fb, Nf')
 
     let w: PointState = placePoints(L, fit.kept, 0, P)
     let wLargest = w.size
+
     const runW = track(
       () => {
         w = pointBeat(f.tables, ring, w)
@@ -238,10 +326,14 @@ export default experiment({
     const gFb = gatesOf(runFb, runA)
     const gNf = gatesOf(runNf, runA)
     const control = !(gN.b1 && gN.b3)
-    const status = !control ? 'partial' : gW.b1 && b2 && gW.b3 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : gW.b1 && b2 && gW.b3
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const row = (name: string, r: Track, g: Gates): string =>
-      `${name}: R90 ${r.r90Start} at the start, ${[16, 32, 64, 96, 128].map(t => r.r90[t - 1]).join(', ')} at beats 16, 32, 64, 96, 128; drift ${[16, 32, 64, 128].map(t => f4(r.drift[t - 1] as number)).join(', ')}; fidelity ${[1, 4, 16, 32, 64, 128].map(t => f4(r.fidelity[t - 1] as number)).join(', ')} at beats 1, 4, 16, 32, 64, 128 (least ${f4(g.leastFidelity)}); share ${r.share.map(s => f4(s.share)).join(', ')}; energy ${f4(r.energy)}; B1 ${g.b1} (worst R90 excess ${g.worstR}, drift excess ${f4(g.worstDrift)}), B3 ${g.b3}`
+      `${name}: R90 ${r.r90Start} at the start, ${[16, 32, 64, 96, 128].map(t => r.r90[t - 1]).join(', ')} at beats 16, 32, 64, 96, 128; drift ${[16, 32, 64, 128].map(t => f4(r.drift[t - 1]!)).join(', ')}; fidelity ${[1, 4, 16, 32, 64, 128].map(t => f4(r.fidelity[t - 1]!)).join(', ')} at beats 1, 4, 16, 32, 64, 128 (least ${f4(g.leastFidelity)}); share ${r.share.map(s => f4(s.share)).join(', ')}; energy ${f4(r.energy)}; B1 ${g.b1} (worst R90 excess ${g.worstR}, drift excess ${f4(g.worstDrift)}), B3 ${g.b3}`
     const windowRow = (x: ExactWindow): string =>
       `side ${x.side} (ring ${x.L}, placement dropped ${x.dropped.toExponential(2)}, start norm ${x.startNorm.toFixed(6)}, ${x.startBranches} branches): ${x.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches, norm ${b.normKept}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, unequal-point meetings ${b.splits}`).join('; ')}; reversed ${x.reversed} (${x.seconds.toFixed(0)} s)`
     const metrics: Record<string, number> = {
@@ -267,15 +359,28 @@ export default experiment({
       metrics[`${name}_leastFidelity`] = g.leastFidelity
       metrics[`${name}_worstShareOff`] = g.worstShare
       metrics[`${name}_energy`] = r.energy
-      metrics[`${name}_r90_128`] = r.r90[BEATS - 1] as number
+      metrics[`${name}_r90_128`] = r.r90[BEATS - 1]!
     }
 
     windows.forEach(x => {
       metrics[`window${x.side}_reversed`] = x.reversed ? 1 : 0
-      metrics[`window${x.side}_worstPointGap`] = Math.max(...x.beats.map(b => b.pointGap))
-      metrics[`window${x.side}_worstEnergyGap`] = Math.max(...x.beats.map(b => b.energyGap))
-      metrics[`window${x.side}_disturbed`] = x.beats.reduce((s, b) => s + b.disturbed, 0)
-      metrics[`window${x.side}_leak`] = x.beats.reduce((s, b) => s + b.leak, 0)
+      metrics[`window${x.side}_worstPointGap`] = Math.max(
+        ...x.beats.map(b => b.pointGap),
+      )
+
+      metrics[`window${x.side}_worstEnergyGap`] = Math.max(
+        ...x.beats.map(b => b.energyGap),
+      )
+
+      metrics[`window${x.side}_disturbed`] = x.beats.reduce(
+        (s, b) => s + b.disturbed,
+        0,
+      )
+
+      metrics[`window${x.side}_leak`] = x.beats.reduce(
+        (s, b) => s + b.leak,
+        0,
+      )
     })
 
     return verdict({

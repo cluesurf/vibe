@@ -37,7 +37,10 @@ export const TWO: Eisenstein = [2n, 0n]
 
 export function times(p: Eisenstein, q: Eisenstein): Eisenstein {
   // (p0 + p1 w)(q0 + q1 w) = p0 q0 - p1 q1 + (p0 q1 + p1 q0 - p1 q1) w, since w^2 = -1 - w
-  return [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0] - p[1] * q[1]]
+  return [
+    p[0] * q[0] - p[1] * q[1],
+    p[0] * q[1] + p[1] * q[0] - p[1] * q[1],
+  ]
 }
 
 export function plus(p: Eisenstein, q: Eisenstein): Eisenstein {
@@ -68,7 +71,10 @@ export const HOP_COIN: Coin = [ZERO, TWO]
 export const STAY_COIN: Coin = [TWO, ZERO]
 
 // one beat on a ring: the coin of each cell on its two slots, then stream
-export function walkBeat(state: WalkState, coinAt: (cell: number) => Coin): WalkState {
+export function walkBeat(
+  state: WalkState,
+  coinAt: (cell: number) => Coin,
+): WalkState {
   const n = state.right.length
   const right: Eisenstein[] = new Array<Eisenstein>(n).fill(ZERO)
   const left: Eisenstein[] = new Array<Eisenstein>(n).fill(ZERO)
@@ -87,7 +93,10 @@ export function walkBeat(state: WalkState, coinAt: (cell: number) => Coin): Walk
 
 // the exact inverse of walkBeat for the conjugate coin: unstream, then the coin's inverse (which is its
 // conjugate, the coin being unitary up to its factor 2); the weights come back multiplied by 4
-export function walkBeatBack(state: WalkState, coinAt: (cell: number) => Coin): WalkState {
+export function walkBeatBack(
+  state: WalkState,
+  coinAt: (cell: number) => Coin,
+): WalkState {
   const n = state.right.length
   const right: Eisenstein[] = new Array<Eisenstein>(n).fill(ZERO)
   const left: Eisenstein[] = new Array<Eisenstein>(n).fill(ZERO)
@@ -104,19 +113,29 @@ export function walkBeatBack(state: WalkState, coinAt: (cell: number) => Coin): 
   return { right, left, t: state.t + 1 }
 }
 
-export function walkStart(cells: number, cell: number, rightMoving: boolean): WalkState {
+export function walkStart(
+  cells: number,
+  cell: number,
+  rightMoving: boolean,
+): WalkState {
   const one: Eisenstein = [1n, 0n]
 
   return {
-    right: Array.from({ length: cells }, (_, x) => (x === cell && rightMoving ? one : ZERO)),
-    left: Array.from({ length: cells }, (_, x) => (x === cell && !rightMoving ? one : ZERO)),
+    right: Array.from({ length: cells }, (_, x) =>
+      x === cell && rightMoving ? one : ZERO,
+    ),
+    left: Array.from({ length: cells }, (_, x) =>
+      x === cell && !rightMoving ? one : ZERO,
+    ),
     t: 0,
   }
 }
 
 // the chance on each cell, as whole numbers over 4^t
 export function walkChances(state: WalkState): bigint[] {
-  return state.right.map((r, x) => norm(r) + norm(state.left[x] ?? ZERO))
+  return state.right.map(
+    (r, x) => norm(r) + norm(state.left[x] ?? ZERO),
+  )
 }
 
 // Role-phased counts (E-QTM-0107). A weight a + b omega + c omega^2 with a, b, c whole numbers of at least 0
@@ -137,7 +156,10 @@ export function valueOf(k: Counts): Eisenstein {
   return [k[0] - k[2], k[1] - k[2]]
 }
 
-export function removeKnots(k: Counts): { counts: Counts; knots: bigint } {
+export function removeKnots(k: Counts): {
+  counts: Counts
+  knots: bigint
+} {
   const knots = [k[0], k[1], k[2]].reduce((x, y) => (y < x ? y : x))
 
   return { counts: [k[0] - knots, k[1] - knots, k[2] - knots], knots }
@@ -169,23 +191,38 @@ export const COUNT_COINS = {
   reverseBack: (k: Counts): Counts => addCounts(k, k, rollRoles(k, 1)),
 }
 
-export type CountState = { readonly right: readonly Counts[]; readonly left: readonly Counts[] }
+export type CountState = {
+  readonly right: readonly Counts[]
+  readonly left: readonly Counts[]
+}
 
 // one beat on counts: every contribution is an addition, then each slot drops its knots. Returns the
 // knots dropped, which is where two contributions of opposite phase cancelled
-export function countBeat(state: CountState, forward: boolean, dropKnots: boolean): { state: CountState; knots: bigint } {
+export function countBeat(
+  state: CountState,
+  forward: boolean,
+  dropKnots: boolean,
+): { state: CountState; knots: bigint } {
   const n = state.right.length
   const zero: Counts = [0n, 0n, 0n]
   const right: Counts[] = new Array<Counts>(n).fill(zero)
   const left: Counts[] = new Array<Counts>(n).fill(zero)
   const keep = forward ? COUNT_COINS.keep : COUNT_COINS.keepBack
-  const reverse = forward ? COUNT_COINS.reverse : COUNT_COINS.reverseBack
+  const reverse = forward
+    ? COUNT_COINS.reverse
+    : COUNT_COINS.reverseBack
+
   let knots = 0n
 
   for (let x = 0; x < n; x++) {
     // forward: coin at x then stream; back: unstream then the conjugate coin
-    const r = forward ? (state.right[x] ?? zero) : (state.right[(x + 1) % n] ?? zero)
-    const l = forward ? (state.left[x] ?? zero) : (state.left[(x - 1 + n) % n] ?? zero)
+    const r = forward
+      ? (state.right[x] ?? zero)
+      : (state.right[(x + 1) % n] ?? zero)
+    const l = forward
+      ? (state.left[x] ?? zero)
+      : (state.left[(x - 1 + n) % n] ?? zero)
+
     let outR = addCounts(keep(r), reverse(l))
     let outL = addCounts(reverse(r), keep(l))
 
@@ -212,9 +249,16 @@ export function countBeat(state: CountState, forward: boolean, dropKnots: boolea
 
 // the classical stand-in: the swap phase's chances without its phases, keep 1/4 and reverse 3/4, as whole
 // numbers over 4^t
-export type ChanceState = { readonly right: readonly bigint[]; readonly left: readonly bigint[] }
+export type ChanceState = {
+  readonly right: readonly bigint[]
+  readonly left: readonly bigint[]
+}
 
-export function chanceBeat(state: ChanceState, keep: bigint, reverse: bigint): ChanceState {
+export function chanceBeat(
+  state: ChanceState,
+  keep: bigint,
+  reverse: bigint,
+): ChanceState {
   const n = state.right.length
   const right = new Array<bigint>(n).fill(0n)
   const left = new Array<bigint>(n).fill(0n)

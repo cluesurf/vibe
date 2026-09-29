@@ -26,15 +26,39 @@
 
 import { fitPowers } from '@/code/measure/husk-coulomb'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
-import { dockAt as mediumDock, lightSpeed, makeMedium, planarPacket, runPacket, type Run } from '@/code/measure/varying-depth-light'
-import { copyRadion, emptyRadion, radionBeat, radionBeatBack, radionMesh, radionRule, radionScratch, radionWeight, sameRadion, type RadionMesh, type RadionRule, type RadionState } from '@/code/rule/trit-radion'
+import {
+  dockAt as mediumDock,
+  lightSpeed,
+  makeMedium,
+  planarPacket,
+  runPacket,
+  type Run,
+} from '@/code/measure/varying-depth-light'
+import {
+  copyRadion,
+  emptyRadion,
+  radionBeat,
+  radionBeatBack,
+  radionMesh,
+  radionRule,
+  radionScratch,
+  radionWeight,
+  sameRadion,
+  type RadionMesh,
+  type RadionRule,
+  type RadionState,
+} from '@/code/rule/trit-radion'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 export const kappaOf = (rule: RadionRule): number => rule.a / rule.q
 
 // the shadow x at the state's newest beat (`now`) or the one before (`lag`)
-export function shadow(rule: RadionRule, s: RadionState, which: 'now' | 'lag'): Float64Array {
+export function shadow(
+  rule: RadionRule,
+  s: RadionState,
+  which: 'now' | 'lag',
+): Float64Array {
   const phi = which === 'now' ? s.phi : s.phiLag
   const counters = which === 'now' ? s.counter : s.counterLag
   const out = Float64Array.from(phi)
@@ -43,14 +67,20 @@ export function shadow(rule: RadionRule, s: RadionState, which: 'now' | 'lag'): 
     const scale = rule.q ** (i + 1)
     const c = counters[i]!
 
-    for (let y = 0; y < out.length; y++) out[y] = out[y]! + c[y]! / scale
+    for (let y = 0; y < out.length; y++) {
+      out[y] = out[y]! + c[y]! / scale
+    }
   }
 
   return out
 }
 
 // u . A v = sum over links of g (u_y - u_z)(v_y - v_z)
-export function bilinear(mesh: RadionMesh, u: Float64Array, v: Float64Array): number {
+export function bilinear(
+  mesh: RadionMesh,
+  u: Float64Array,
+  v: Float64Array,
+): number {
   let s = 0
 
   for (let y = 0; y < mesh.docks; y++) {
@@ -67,10 +97,16 @@ export function bilinear(mesh: RadionMesh, u: Float64Array, v: Float64Array): nu
 export type RadionEnergy = { energy: number; free: number }
 
 // E (and its rho = 0 part, `free`) on the state's last two beats
-export function radionEnergy(mesh: RadionMesh, rule: RadionRule, s: RadionState, rho: Int32Array): RadionEnergy {
+export function radionEnergy(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  s: RadionState,
+  rho: Int32Array,
+): RadionEnergy {
   const x1 = shadow(rule, s, 'now')
   const x0 = shadow(rule, s, 'lag')
   const kappa = kappaOf(rule)
+
   let kinetic = 0
   let source = 0
 
@@ -79,16 +115,25 @@ export function radionEnergy(mesh: RadionMesh, rule: RadionRule, s: RadionState,
     source += (rho[y]! * (x1[y]! + x0[y]!)) / 2
   }
 
-  const free = (Math.PI / rule.depth) * (kinetic / (2 * kappa) + bilinear(mesh, x1, x0) / 2)
+  const free =
+    (Math.PI / rule.depth) *
+    (kinetic / (2 * kappa) + bilinear(mesh, x1, x0) / 2)
 
   return { energy: free - (Math.PI / rule.depth) * source, free }
 }
 
 // the static energy functional at a field x
-export function staticFunctional(mesh: RadionMesh, rule: RadionRule, x: Float64Array, rho: Int32Array): number {
+export function staticFunctional(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  x: Float64Array,
+  rho: Int32Array,
+): number {
   let source = 0
 
-  for (let y = 0; y < mesh.docks; y++) source += rho[y]! * x[y]!
+  for (let y = 0; y < mesh.docks; y++) {
+    source += rho[y]! * x[y]!
+  }
 
   return (Math.PI / rule.depth) * (bilinear(mesh, x, x) / 2 - source)
 }
@@ -96,6 +141,7 @@ export function staticFunctional(mesh: RadionMesh, rule: RadionRule, x: Float64A
 // the top of the husk Laplacian's spectrum on a side^3 torus (its symbol at every mode), and Gershgorin's bound 48
 export function laplacianTop(side: number): number {
   let top = 0
+
   const vectors = [
     [1, 0, 0],
     [0, 1, 0],
@@ -114,7 +160,14 @@ export function laplacianTop(side: number): number {
         let l = 0
 
         vectors.forEach((u, h) => {
-          l += radionWeight(h) * 2 * (1 - Math.cos((2 * Math.PI * (a * u[0]! + b * u[1]! + c * u[2]!)) / side))
+          l +=
+            radionWeight(h) *
+            2 *
+            (1 -
+              Math.cos(
+                (2 * Math.PI * (a * u[0]! + b * u[1]! + c * u[2]!)) /
+                  side,
+              ))
         })
         top = Math.max(top, l)
       }
@@ -127,7 +180,11 @@ export function laplacianTop(side: number): number {
 // ---------------------------------------------------------------------------------------------------------
 // sources
 
-export type Source = { at: readonly number[]; to: readonly number[]; units: number }
+export type Source = {
+  at: readonly number[]
+  to: readonly number[]
+  units: number
+}
 
 const dockOf = (mesh: RadionMesh, v: readonly number[]): number => {
   const [sx, sy, sz] = mesh.sides
@@ -137,7 +194,10 @@ const dockOf = (mesh: RadionMesh, v: readonly number[]): number => {
 
 // each source puts `units` of content at `at` and its compensator -units at `to` (a closed husk cannot hold a
 // never-negative source alone: E-GRV-0074's far sink, a disclosed stand-in)
-export function rhoOf(mesh: RadionMesh, sources: readonly Source[]): Int32Array {
+export function rhoOf(
+  mesh: RadionMesh,
+  sources: readonly Source[],
+): Int32Array {
   const rho = new Int32Array(mesh.docks)
 
   for (const s of sources) {
@@ -149,8 +209,10 @@ export function rhoOf(mesh: RadionMesh, sources: readonly Source[]): Int32Array 
 }
 
 // the content of a lump of love and fear: the even source reads love plus fear (the light reads love minus fear)
-export const contentOf = (love: number, fear: number): number => love + fear
-export const chargeOf = (love: number, fear: number): number => love - fear
+export const contentOf = (love: number, fear: number): number =>
+  love + fear
+export const chargeOf = (love: number, fear: number): number =>
+  love - fear
 
 // ---------------------------------------------------------------------------------------------------------
 // runs
@@ -162,11 +224,18 @@ export const newTally = (): Tally => ({ runs: 0, reversed: true })
 export type StaticRun = { mean: Float64Array; energy: number }
 
 // from zero field, T beats forward (Hann average of x), then T back, compared bit for bit with the start
-export function staticRun(mesh: RadionMesh, rule: RadionRule, rho: Int32Array, beats: number, tally: Tally): StaticRun {
+export function staticRun(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  rho: Int32Array,
+  beats: number,
+  tally: Tally,
+): StaticRun {
   const s = emptyRadion(mesh, rule.levels)
   const start = copyRadion(s)
   const scratch = radionScratch(mesh, rule.levels)
   const mean = new Float64Array(mesh.docks)
+
   let weight = 0
 
   for (let t = 1; t <= beats; t++) {
@@ -174,17 +243,26 @@ export function staticRun(mesh: RadionMesh, rule: RadionRule, rho: Int32Array, b
 
     const w = Math.sin((Math.PI * t) / beats) ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     const x = shadow(rule, s, 'now')
 
-    for (let y = 0; y < mesh.docks; y++) mean[y] = mean[y]! + w * x[y]!
+    for (let y = 0; y < mesh.docks; y++) {
+      mean[y] = mean[y]! + w * x[y]!
+    }
+
     weight += w
   }
 
-  for (let t = 0; t < beats; t++) radionBeatBack(mesh, rule, s, rho, scratch)
+  for (let t = 0; t < beats; t++) {
+    radionBeatBack(mesh, rule, s, rho, scratch)
+  }
 
-  for (let y = 0; y < mesh.docks; y++) mean[y] = mean[y]! / weight
+  for (let y = 0; y < mesh.docks; y++) {
+    mean[y] = mean[y]! / weight
+  }
 
   tally.runs++
   tally.reversed = tally.reversed && sameRadion(s, start)
@@ -196,53 +274,116 @@ export function staticRun(mesh: RadionMesh, rule: RadionRule, rho: Int32Array, b
 // b = (r, 0, 0), compensated at Z1 = (0, h, h), Z2 = (r, h, h), h = side / 2:
 //   W = U4 - U(a,Z1) - U(b,Z2) + sa sb (U(Z1,Z2) - U(a,Z2) - U(b,Z1)),  predicted sa sb (pi / D) (G(0) - G(r))
 // (the scalar's energies are the light's longitudinal ones with the other sign). Every configuration is its own run
-export function pairEnergy(mesh: RadionMesh, rule: RadionRule, r: number, sa: number, sb: number, beats: number, tally: Tally): number {
+export function pairEnergy(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  r: number,
+  sa: number,
+  sb: number,
+  beats: number,
+  tally: Tally,
+): number {
   const h = mesh.sides[0] / 2
   const a = [0, 0, 0]
   const b = [r, 0, 0]
   const z1 = [0, h, h]
   const z2 = [r, h, h]
-  const u = (sources: Source[]): number => staticRun(mesh, rule, rhoOf(mesh, sources), beats, tally).energy
+  const u = (sources: Source[]): number =>
+    staticRun(mesh, rule, rhoOf(mesh, sources), beats, tally).energy
   const u4 = u([
     { at: a, to: z1, units: sa },
     { at: b, to: z2, units: sb },
   ])
 
-  return u4 - u([{ at: a, to: z1, units: sa }]) - u([{ at: b, to: z2, units: sb }]) + sa * sb * (u([{ at: z1, to: z2, units: 1 }]) - u([{ at: a, to: z2, units: 1 }]) - u([{ at: b, to: z1, units: 1 }]))
+  return (
+    u4 -
+    u([{ at: a, to: z1, units: sa }]) -
+    u([{ at: b, to: z2, units: sb }]) +
+    sa *
+      sb *
+      (u([{ at: z1, to: z2, units: 1 }]) -
+        u([{ at: a, to: z2, units: 1 }]) -
+        u([{ at: b, to: z1, units: 1 }]))
+  )
 }
 
-export const pairPredicted = (side: number, depth: number, r: number, sa: number, sb: number): number => sa * sb * (Math.PI / depth) * huskGreenDifference(side, [r, 0, 0])
+export const pairPredicted = (
+  side: number,
+  depth: number,
+  r: number,
+  sa: number,
+  sb: number,
+): number =>
+  sa * sb * (Math.PI / depth) * huskGreenDifference(side, [r, 0, 0])
 
 export type LongSample = { beat: number; energy: number; free: number }
 
-export type LongRadion = { samples: LongSample[]; reversed: boolean; seconds: number }
+export type LongRadion = {
+  samples: LongSample[]
+  reversed: boolean
+  seconds: number
+}
 
 // a long run from a placed start, E every `every` beats, then back to the start bit for bit
-export function longRadion(mesh: RadionMesh, rule: RadionRule, start: RadionState, rho: Int32Array, beats: number, every: number): LongRadion {
+export function longRadion(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  start: RadionState,
+  rho: Int32Array,
+  beats: number,
+  every: number,
+): LongRadion {
   const t0 = Date.now()
   const s = copyRadion(start)
   const scratch = radionScratch(mesh, rule.levels)
-  const samples: LongSample[] = [{ beat: 0, ...radionEnergy(mesh, rule, s, rho) }]
+  const samples: LongSample[] = [
+    { beat: 0, ...radionEnergy(mesh, rule, s, rho) },
+  ]
 
   for (let t = 1; t <= beats; t++) {
     radionBeat(mesh, rule, s, rho, scratch)
 
-    if (t % every === 0) samples.push({ beat: t, ...radionEnergy(mesh, rule, s, rho) })
+    if (t % every === 0) {
+      samples.push({ beat: t, ...radionEnergy(mesh, rule, s, rho) })
+    }
   }
 
-  for (let t = 0; t < beats; t++) radionBeatBack(mesh, rule, s, rho, scratch)
+  for (let t = 0; t < beats; t++) {
+    radionBeatBack(mesh, rule, s, rho, scratch)
+  }
 
-  return { samples, reversed: sameRadion(s, start), seconds: (Date.now() - t0) / 1000 }
+  return {
+    samples,
+    reversed: sameRadion(s, start),
+    seconds: (Date.now() - t0) / 1000,
+  }
 }
 
 // a free packet at rest: phi = floor(amp (w^2 - d^2)^2 / w^4) for d^2 < w^2 around `center`, the lag equal
-export function restingBump(mesh: RadionMesh, levels: number, center: readonly number[], amp: number, w: number): RadionState {
+export function restingBump(
+  mesh: RadionMesh,
+  levels: number,
+  center: readonly number[],
+  amp: number,
+  w: number,
+): RadionState {
   const s = emptyRadion(mesh, levels)
-  const [sx, sy, sz] = mesh.sides
+  const [sx, sy] = mesh.sides
 
   for (let y = 0; y < mesh.docks; y++) {
-    const c = [y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy))]
-    const d2 = [0, 1, 2].reduce((acc, i) => acc + (mod(c[i]! - center[i]! + mesh.sides[i]! / 2, mesh.sides[i]!) - mesh.sides[i]! / 2) ** 2, 0)
+    const c = [
+      y % sx,
+      Math.floor(y / sx) % sy,
+      Math.floor(y / (sx * sy)),
+    ]
+    const d2 = [0, 1, 2].reduce(
+      (acc, i) =>
+        acc +
+        (mod(c[i]! - center[i]! + mesh.sides[i]! / 2, mesh.sides[i]!) -
+          mesh.sides[i]! / 2) **
+          2,
+      0,
+    )
 
     if (d2 < w * w) {
       const v = amp * (w * w - d2) ** 2
@@ -300,26 +441,52 @@ export type StaticSurvey = {
 
 let staticCache: StaticSurvey | undefined
 
-export function radionStaticSurvey(log?: (what: string) => void): StaticSurvey {
-  if (staticCache) return staticCache
+export function radionStaticSurvey(
+  log?: (what: string) => void,
+): StaticSurvey {
+  if (staticCache) {
+    return staticCache
+  }
 
   const started = Date.now()
   const mesh = radionMesh([STATIC_SIDE, STATIC_SIDE, STATIC_SIDE])
   const rule = radionRule(RADION_DEPTH, RADION_LEVELS)
   const tally = newTally()
   const like = LIKE_R.map(r => {
-    const w = pairEnergy(mesh, rule, r, LIKE_CONTENT, LIKE_CONTENT, STATIC_BEATS, tally)
+    const w = pairEnergy(
+      mesh,
+      rule,
+      r,
+      LIKE_CONTENT,
+      LIKE_CONTENT,
+      STATIC_BEATS,
+      tally,
+    )
 
     log?.(`like r ${r} ${(Date.now() - started) / 1000}s`)
 
     return w
   })
-  const predicted = LIKE_R.map(r => pairPredicted(STATIC_SIDE, RADION_DEPTH, r, LIKE_CONTENT, LIKE_CONTENT))
-  const [c0, c1, c2] = fitPowers(FIT_R, FIT_R.map(r => like[LIKE_R.indexOf(r)]!), [1, -2]) as [number, number, number]
+  const predicted = LIKE_R.map(r =>
+    pairPredicted(
+      STATIC_SIDE,
+      RADION_DEPTH,
+      r,
+      LIKE_CONTENT,
+      LIKE_CONTENT,
+    ),
+  )
+  const [c0, c1, c2] = fitPowers(
+    FIT_R,
+    FIT_R.map(r => like[LIKE_R.indexOf(r)]!),
+    [1, -2],
+  ) as [number, number, number]
 
   // S2
   const small = radionMesh([LUMP_SIDE, LUMP_SIDE, LUMP_SIDE])
-  const sourceOf = (units: number): Int32Array => rhoOf(small, [{ at: LUMP_AT, to: SINK_AT, units }])
+  const sourceOf = (units: number): Int32Array =>
+    rhoOf(small, [{ at: LUMP_AT, to: SINK_AT, units }])
+
   const run = (rho: Int32Array): RadionState[] => {
     const s = emptyRadion(small, rule.levels)
     const scratch = radionScratch(small, rule.levels)
@@ -330,13 +497,17 @@ export function radionStaticSurvey(log?: (what: string) => void): StaticSurvey {
       trace.push(copyRadion(s))
     }
 
-    for (let t = 0; t < BLIND_BEATS; t++) radionBeatBack(small, rule, s, rho, scratch)
+    for (let t = 0; t < BLIND_BEATS; t++) {
+      radionBeatBack(small, rule, s, rho, scratch)
+    }
 
     tally.runs++
-    tally.reversed = tally.reversed && sameRadion(s, emptyRadion(small, rule.levels))
+    tally.reversed =
+      tally.reversed && sameRadion(s, emptyRadion(small, rule.levels))
 
     return trace
   }
+
   const lump = run(sourceOf(contentOf(3, 1)))
   const flip = run(sourceOf(contentOf(1, 3)))
   const lumpCharge = run(sourceOf(chargeOf(3, 1)))
@@ -348,15 +519,49 @@ export function radionStaticSurvey(log?: (what: string) => void): StaticSurvey {
   const one = radionRule(RADION_DEPTH, 1)
   const zero = new Int32Array(mesh.docks)
   const center = [STATIC_SIDE / 2, STATIC_SIDE / 2, STATIC_SIDE / 2]
-  const packet = longRadion(mesh, rule, restingBump(mesh, RADION_LEVELS, center, BUMP_AMP, BUMP_WIDTH), zero, LONG_BEATS, LONG_EVERY)
-  const packetOne = longRadion(mesh, one, restingBump(mesh, 1, center, BUMP_AMP, BUMP_WIDTH), zero, LONG_BEATS, LONG_EVERY)
+  const packet = longRadion(
+    mesh,
+    rule,
+    restingBump(mesh, RADION_LEVELS, center, BUMP_AMP, BUMP_WIDTH),
+    zero,
+    LONG_BEATS,
+    LONG_EVERY,
+  )
+  const packetOne = longRadion(
+    mesh,
+    one,
+    restingBump(mesh, 1, center, BUMP_AMP, BUMP_WIDTH),
+    zero,
+    LONG_BEATS,
+    LONG_EVERY,
+  )
 
   log?.(`packet ${(Date.now() - started) / 1000}s`)
 
   const lumpRho = sourceOf(LIKE_CONTENT)
-  const lumpRun = longRadion(small, rule, emptyRadion(small, RADION_LEVELS), lumpRho, LONG_BEATS, LONG_EVERY)
-  const lumpOne = longRadion(small, one, emptyRadion(small, 1), lumpRho, LONG_BEATS, LONG_EVERY)
-  const lumpStatic = staticRun(small, rule, lumpRho, STATIC_BEATS, tally).energy
+  const lumpRun = longRadion(
+    small,
+    rule,
+    emptyRadion(small, RADION_LEVELS),
+    lumpRho,
+    LONG_BEATS,
+    LONG_EVERY,
+  )
+  const lumpOne = longRadion(
+    small,
+    one,
+    emptyRadion(small, 1),
+    lumpRho,
+    LONG_BEATS,
+    LONG_EVERY,
+  )
+  const lumpStatic = staticRun(
+    small,
+    rule,
+    lumpRho,
+    STATIC_BEATS,
+    tally,
+  ).energy
 
   log?.(`lump ${(Date.now() - started) / 1000}s`)
 
@@ -368,8 +573,11 @@ export function radionStaticSurvey(log?: (what: string) => void): StaticSurvey {
     fitC0: c0,
     tally,
     blindBeats: BLIND_BEATS,
-    blindIdentical: lump.filter((s, t) => sameRadion(s, flip[t]!)).length,
-    chargeIdentical: lumpCharge.filter((s, t) => sameRadion(s, flipCharge[t]!)).length,
+    blindIdentical: lump.filter((s, t) => sameRadion(s, flip[t]!))
+      .length,
+    chargeIdentical: lumpCharge.filter((s, t) =>
+      sameRadion(s, flipCharge[t]!),
+    ).length,
     blindReversed: tally.reversed,
     laplacianTop: laplacianTop(STATIC_SIDE),
     packet,
@@ -434,25 +642,45 @@ export type LensSurvey = {
   fieldReversed: boolean
 }
 
-export type CausalSurvey = { hop: HopSurvey; fall: FallSurvey; lens: LensSurvey; seconds: number }
+export type CausalSurvey = {
+  hop: HopSurvey
+  fall: FallSurvey
+  lens: LensSurvey
+  seconds: number
+}
 
 let causalCache: CausalSurvey | undefined
 
 function hopSurvey(mesh: RadionMesh, rule: RadionRule): HopSurvey {
   const h = mesh.sides[0] / 2
   const sink = [h, h, h]
-  const rhoA = rhoOf(mesh, [{ at: [0, 0, 0], to: sink, units: FALL_SOURCE }])
-  const rhoB = rhoOf(mesh, [{ at: [1, 0, 0], to: sink, units: FALL_SOURCE }])
+  const rhoA = rhoOf(mesh, [
+    { at: [0, 0, 0], to: sink, units: FALL_SOURCE },
+  ])
+  const rhoB = rhoOf(mesh, [
+    { at: [1, 0, 0], to: sink, units: FALL_SOURCE },
+  ])
   const a = emptyRadion(mesh, rule.levels)
   const b = emptyRadion(mesh, rule.levels)
   const scratch = radionScratch(mesh, rule.levels)
   const docks = HOP_D.map(d => dockOf(mesh, [0, d, 0]))
   // the final change: G_T(y - (1,0,0)) - G_T(y) = (G0 - Delta(y - (1,0,0))) - (G0 - Delta(y)), times the content
-  const finalChange = HOP_D.map(d => FALL_SOURCE * (huskGreenDifference(mesh.sides[0], [0, d, 0]) - huskGreenDifference(mesh.sides[0], [-1, d, 0])))
+  const finalChange = HOP_D.map(
+    d =>
+      FALL_SOURCE *
+      (huskGreenDifference(mesh.sides[0], [0, d, 0]) -
+        huskGreenDifference(mesh.sides[0], [-1, d, 0])),
+  )
   const firstChange = HOP_D.map(() => HOP_BEATS + 1)
   const halfArrival = HOP_D.map(() => HOP_BEATS + 1)
   const instantChange = HOP_D.map(() => 0)
-  const registers = (s: RadionState, y: number): number[] => [s.phi[y]!, s.phiLag[y]!, ...s.counter.map(c => c[y]!), ...s.counterLag.map(c => c[y]!), s.rest[y]!]
+  const registers = (s: RadionState, y: number): number[] => [
+    s.phi[y]!,
+    s.phiLag[y]!,
+    ...s.counter.map(c => c[y]!),
+    ...s.counterLag.map(c => c[y]!),
+    s.rest[y]!,
+  ]
 
   for (let t = 1; t <= HOP_BEATS; t++) {
     radionBeat(mesh, rule, a, rhoA, scratch)
@@ -465,15 +693,37 @@ function hopSurvey(mesh: RadionMesh, rule: RadionRule): HopSurvey {
       const ra = registers(a, y)
       const rb = registers(b, y)
 
-      if (firstChange[i]! > HOP_BEATS && ra.some((v, j) => v !== rb[j])) firstChange[i] = t
-      if (halfArrival[i]! > HOP_BEATS && Math.abs(xb[y]! - xa[y]!) >= Math.abs(finalChange[i]!) / 2) halfArrival[i] = t
-      if (t === 1) instantChange[i] = Math.abs(xb[y]! - xa[y]!)
+      if (
+        firstChange[i]! > HOP_BEATS &&
+        ra.some((v, j) => v !== rb[j])
+      ) {
+        firstChange[i] = t
+      }
+
+      if (
+        halfArrival[i]! > HOP_BEATS &&
+        Math.abs(xb[y]! - xa[y]!) >= Math.abs(finalChange[i]!) / 2
+      ) {
+        halfArrival[i] = t
+      }
+
+      if (t === 1) {
+        instantChange[i] = Math.abs(xb[y]! - xa[y]!)
+      }
     })
   }
 
-  for (let t = 0; t < HOP_BEATS; t++) radionBeatBack(mesh, rule, b, rhoB, scratch)
+  for (let t = 0; t < HOP_BEATS; t++) {
+    radionBeatBack(mesh, rule, b, rhoB, scratch)
+  }
 
-  return { firstChange, halfArrival, finalChange, instantChange, reversed: sameRadion(b, emptyRadion(mesh, rule.levels)) }
+  return {
+    firstChange,
+    halfArrival,
+    finalChange,
+    instantChange,
+    reversed: sameRadion(b, emptyRadion(mesh, rule.levels)),
+  }
 }
 
 // the depth levels a field x sets: the count of half-level thresholds it crosses, +j for x >= j - 1/2 and -j for
@@ -482,27 +732,45 @@ export function halfLevelCount(v: number): number {
   let j = 0
 
   if (v >= 0) {
-    while (v >= j + 0.5) j++
+    while (v >= j + 0.5) {
+      j++
+    }
 
     return j
   }
 
-  while (v < -(j + 0.5)) j++
+  while (v < -(j + 0.5)) {
+    j++
+  }
 
   return -j
 }
 
-function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey {
+function lensSurvey(
+  rule: RadionRule,
+  log?: (what: string) => void,
+): LensSurvey {
   const mesh = radionMesh(LENS_LINE)
   const [sx, sy, sz] = LENS_LINE
   const sources: Source[] = []
 
-  for (let z = 0; z < sz; z++) for (let y = 0; y < sy; y++) sources.push({ at: [LENS_SHEET, y, z], to: [LENS_SHEET + sx / 2, y, z], units: 1 })
+  for (let z = 0; z < sz; z++) {
+    for (let y = 0; y < sy; y++) {
+      sources.push({
+        at: [LENS_SHEET, y, z],
+        to: [LENS_SHEET + sx / 2, y, z],
+        units: 1,
+      })
+    }
+  }
 
   const rho = rhoOf(mesh, sources)
   const tally = newTally()
   const run = staticRun(mesh, rule, rho, LENS_BEATS, tally)
-  const field = Array.from({ length: sx }, (_, x) => run.mean[dockOf(mesh, [x, 0, 0])]!)
+  const field = Array.from(
+    { length: sx },
+    (_, x) => run.mean[dockOf(mesh, [x, 0, 0])]!,
+  )
   // closed form: on states uniform in y and z, A is 6 (2 x - x(+1) - x(-1)) per dock, and a unit sheet at 0 with its
   // sink at sx / 2 gives the zero-mean tent x(u) = (sx / 48)(1 - 4 |u| / sx) for |u| <= sx / 2 (u the offset from
   // the sheet): slopes -+1 / 12, a slope jump of 1 / 6 at the sheet
@@ -517,13 +785,19 @@ function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey 
 
   const m0 = makeMedium(LENS_LINE, () => RADION_DEPTH)
   const mLens = makeMedium(LENS_LINE, x => depth[x]!)
-  const start = planarPacket(m0, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const start = planarPacket(
+    m0,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const detectors = LENS_DETECTORS.map(x => mediumDock(m0, x, 0, 0))
   const u0 = runPacket(m0, start, detectors, LENS_WINDOW)
   const lens = runPacket(mLens, start, detectors, LENS_WINDOW)
   const first = LENS_DETECTORS[0]!
   const last = LENS_DETECTORS[LENS_DETECTORS.length - 1]!
   const c0 = lightSpeed(RADION_DEPTH)
+
   let eikonalDelay = 0
   let linearDelay = 0
   let newtonDelay = 0
@@ -543,7 +817,10 @@ function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey 
     closedField,
     u0,
     lens,
-    measuredDelay: lens.arrival[LENS_DETECTORS.length - 1]! - lens.arrival[0]! - (u0.arrival[LENS_DETECTORS.length - 1]! - u0.arrival[0]!),
+    measuredDelay:
+      lens.arrival[LENS_DETECTORS.length - 1]! -
+      lens.arrival[0]! -
+      (u0.arrival[LENS_DETECTORS.length - 1]! - u0.arrival[0]!),
     eikonalDelay,
     linearDelay,
     newtonDelay,
@@ -551,8 +828,12 @@ function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey 
   }
 }
 
-export function radionCausalSurvey(log?: (what: string) => void): CausalSurvey {
-  if (causalCache) return causalCache
+export function radionCausalSurvey(
+  log?: (what: string) => void,
+): CausalSurvey {
+  if (causalCache) {
+    return causalCache
+  }
 
   const started = Date.now()
   const mesh = radionMesh([STATIC_SIDE, STATIC_SIDE, STATIC_SIDE])
@@ -562,9 +843,31 @@ export function radionCausalSurvey(log?: (what: string) => void): CausalSurvey {
   log?.(`hop ${(Date.now() - started) / 1000}s`)
 
   const tally = newTally()
-  const light = FALL_R.map(r => pairEnergy(mesh, rule, r, FALL_SOURCE, contentOf(1, 0), STATIC_BEATS, tally))
-  const heavy = FALL_R.map(r => pairEnergy(mesh, rule, r, FALL_SOURCE, contentOf(0, 3), STATIC_BEATS, tally))
-  const zero = FALL_R.map(r => pairEnergy(mesh, rule, r, 0, contentOf(1, 0), STATIC_BEATS, tally))
+  const light = FALL_R.map(r =>
+    pairEnergy(
+      mesh,
+      rule,
+      r,
+      FALL_SOURCE,
+      contentOf(1, 0),
+      STATIC_BEATS,
+      tally,
+    ),
+  )
+  const heavy = FALL_R.map(r =>
+    pairEnergy(
+      mesh,
+      rule,
+      r,
+      FALL_SOURCE,
+      contentOf(0, 3),
+      STATIC_BEATS,
+      tally,
+    ),
+  )
+  const zero = FALL_R.map(r =>
+    pairEnergy(mesh, rule, r, 0, contentOf(1, 0), STATIC_BEATS, tally),
+  )
 
   log?.(`fall ${(Date.now() - started) / 1000}s`)
 
@@ -572,7 +875,12 @@ export function radionCausalSurvey(log?: (what: string) => void): CausalSurvey {
 
   log?.(`lens ${(Date.now() - started) / 1000}s`)
 
-  causalCache = { hop, fall: { light, heavy, zero, tally }, lens, seconds: (Date.now() - started) / 1000 }
+  causalCache = {
+    hop,
+    fall: { light, heavy, zero, tally },
+    lens,
+    seconds: (Date.now() - started) / 1000,
+  }
 
   return causalCache
 }

@@ -75,11 +75,27 @@ import { verdict } from '@/test/scaffold/verdict'
 import { boxHusk } from '@/code/measure/causal-components'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { lockedFresh, vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
-import { toWords, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { classLabel, classOf, type ClassName } from '@/code/measure/quantum-shared-distance'
+import {
+  lockedFresh,
+  vacuumConfiguration,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  toWords,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  classLabel,
+  classOf,
+  type ClassName,
+} from '@/code/measure/quantum-shared-distance'
 import { jackknife } from '@/code/measure/shared-distance'
-import { historyRun, hopDistances, torus, type HistoryRun, type Torus } from '@/code/measure/shared-history'
+import {
+  historyRun,
+  hopDistances,
+  torus,
+  type HistoryRun,
+  type Torus,
+} from '@/code/measure/shared-history'
 
 const SIDE = 16
 const READS = [12, 24, 36, 48]
@@ -88,7 +104,12 @@ const PRIMARY = 3
 const MEMBERS = 4
 const CALIBRATION = 6
 
-type Classes = { labels: string[]; names: ClassName[]; deltas: number[][]; of: Int32Array }
+type Classes = {
+  labels: string[]
+  names: ClassName[]
+  deltas: number[][]
+  of: Int32Array
+}
 
 // the displacement classes of the three families (other displacements get -1)
 function familyClasses(t: Torus): Classes {
@@ -98,11 +119,14 @@ function familyClasses(t: Torus): Classes {
   const of = new Int32Array(t.columns).fill(-1)
 
   for (let i = 1; i < t.columns; i++) {
-    const c = classOf(Array.from(t.vector[i] as Int32Array))
+    const c = classOf(Array.from(t.vector[i]!))
 
-    if (c.family === 'other') continue
+    if (c.family === 'other') {
+      continue
+    }
 
     const l = classLabel(c)
+
     let k = labels.indexOf(l)
 
     if (k < 0) {
@@ -116,23 +140,45 @@ function familyClasses(t: Torus): Classes {
     of[i] = k
   }
 
-  const order = labels.map((_, k) => k).sort((a, b) => names[a]!.mesh - names[b]!.mesh || labels[a]!.localeCompare(labels[b]!))
+  const order = labels
+    .map((_, k) => k)
+    .sort(
+      (a, b) =>
+        names[a]!.mesh - names[b]!.mesh ||
+        labels[a]!.localeCompare(labels[b]!),
+    )
   const remap = new Int32Array(labels.length)
 
   order.forEach((k, n) => (remap[k] = n))
 
-  return { labels: order.map(k => labels[k]!), names: order.map(k => names[k]!), deltas: order.map(k => deltas[k]!), of: of.map(k => (k < 0 ? -1 : (remap[k] as number))) }
+  return {
+    labels: order.map(k => labels[k]!),
+    names: order.map(k => names[k]!),
+    deltas: order.map(k => deltas[k]!),
+    of: of.map(k => (k < 0 ? -1 : remap[k]!)),
+  }
 }
 
-type KnitRun = { run: HistoryRun; counts: Float64Array[]; perOrigin: Float64Array }
+type KnitRun = {
+  run: HistoryRun
+  counts: Float64Array[]
+  perOrigin: Float64Array
+}
 
-function readKnit(kind: VetoKind, t: Torus, classes: Classes): KnitRun[] {
+function readKnit(
+  kind: VetoKind,
+  t: Torus,
+  classes: Classes,
+): KnitRun[] {
   return startFamily(MEMBERS).map(member =>
     withStart(member, () => {
-      const f = kind === 'none' ? contactFresh(SIDE, 'pass') : lockedFresh(SIDE)
+      const f =
+        kind === 'none' ? contactFresh(SIDE, 'pass') : lockedFresh(SIDE)
       const column = boxHusk(f.weave.mesh, SIDE).column
       const counts = READS.map(() => new Float64Array(t.columns))
-      const perOrigin = new Float64Array(t.columns * classes.labels.length)
+      const perOrigin = new Float64Array(
+        t.columns * classes.labels.length,
+      )
       const width = classes.labels.length
       const run = historyRun({
         kind,
@@ -145,10 +191,13 @@ function readKnit(kind: VetoKind, t: Torus, classes: Classes): KnitRun[] {
           const d = t.delta(a, b)
 
           counts[k]![d]! += 1
-          if (k === PRIMARY) {
-            const c = classes.of[d] as number
 
-            if (c >= 0) perOrigin[a * width + c]! += 1
+          if (k === PRIMARY) {
+            const c = classes.of[d]!
+
+            if (c >= 0) {
+              perOrigin[a * width + c]! += 1
+            }
           }
         },
       })
@@ -172,35 +221,54 @@ type Reading = {
   spread: string
   byRead: string
   axis1: { value: number; error: number }
-  rms: { powerMesh: number; powerEuclid: number; logMesh: number; logEuclid: number }
+  rms: {
+    powerMesh: number
+    powerEuclid: number
+    logMesh: number
+    logEuclid: number
+  }
 }
 
 function read(runs: KnitRun[], t: Torus, classes: Classes): Reading {
   const m = runs.length
-  const classMean = (total: Float64Array, k: number): number => classes.deltas[k]!.reduce((a, d) => a + (total[d] as number), 0) / (classes.deltas[k]!.length * t.columns * m)
+  const classMean = (total: Float64Array, k: number): number =>
+    classes.deltas[k]!.reduce((a, d) => a + total[d]!, 0) /
+    (classes.deltas[k]!.length * t.columns * m)
   const sums = runs.map(r => r.counts[PRIMARY]!)
   const n = (k: number) => jackknife(sums, total => classMean(total, k))
-  const gap = (i: number, k: number) => jackknife(sums, total => classMean(total, i) - classMean(total, k))
+  const gap = (i: number, k: number) =>
+    jackknife(sums, total => classMean(total, i) - classMean(total, k))
   const axis1 = classes.labels.indexOf('axis1')
-  const calibration = classes.names.map((_, k) => k).filter(k => classes.names[k]!.mesh <= CALIBRATION)
-  const far = classes.names.map((_, k) => k).filter(k => classes.names[k]!.mesh >= 4)
-  const above = (x: { value: number; error: number }): boolean => x.value > 3 * x.error && x.value > 0
+  const calibration = classes.names
+    .map((_, k) => k)
+    .filter(k => classes.names[k]!.mesh <= CALIBRATION)
+  const far = classes.names
+    .map((_, k) => k)
+    .filter(k => classes.names[k]!.mesh >= 4)
+  const above = (x: { value: number; error: number }): boolean =>
+    x.value > 3 * x.error && x.value > 0
   const n1 = n(axis1)
 
-  const c1 = runs.every(r => r.run.matchesRule && r.run.sound && r.run.repeatable)
+  const c1 = runs.every(
+    r => r.run.matchesRule && r.run.sound && r.run.repeatable,
+  )
 
   // C2, pooled over members
   const width = classes.labels.length
   const pooled = new Float64Array(t.columns * width)
 
-  for (const r of runs) for (let i = 0; i < pooled.length; i++) pooled[i]! += r.perOrigin[i] as number
+  for (const r of runs) {
+    for (let i = 0; i < pooled.length; i++) {
+      pooled[i]! += r.perOrigin[i]!
+    }
+  }
 
   const spreadOf = (k: number): { min: number; max: number } => {
     let min = Infinity
     let max = -Infinity
 
     for (let a = 0; a < t.columns; a++) {
-      const v = (pooled[a * width + k] as number) / (classes.deltas[k]!.length * m)
+      const v = pooled[a * width + k]! / (classes.deltas[k]!.length * m)
 
       min = Math.min(min, v)
       max = Math.max(max, v)
@@ -208,6 +276,7 @@ function read(runs: KnitRun[], t: Torus, classes: Classes): Reading {
 
     return { min, max }
   }
+
   const c2 = calibration.every(k => {
     const s = spreadOf(k)
 
@@ -222,55 +291,131 @@ function read(runs: KnitRun[], t: Torus, classes: Classes): Reading {
 
     return v > 0 && n1.value > 0 ? Math.sqrt(n1.value / v) : Infinity
   }
+
   const logRatio = (k: number): number => {
     const v = n(k).value
 
     return v > 0 && n1.value > 0 ? Math.log(n1.value / v) : Infinity
   }
-  const fit = calibration.filter(k => classes.names[k]!.mesh > 1 && Number.isFinite(logRatio(k)))
-  const kappa = fit.length > 0 ? fit.reduce((a, k) => a + logRatio(k) * (classes.names[k]!.mesh - 1), 0) / fit.reduce((a, k) => a + (classes.names[k]!.mesh - 1) ** 2, 0) : 0
-  const logDistance = (k: number): number => (kappa > 0 ? 1 + logRatio(k) / kappa : Infinity)
+
+  const fit = calibration.filter(
+    k => classes.names[k]!.mesh > 1 && Number.isFinite(logRatio(k)),
+  )
+  const kappa =
+    fit.length > 0
+      ? fit.reduce(
+          (a, k) => a + logRatio(k) * (classes.names[k]!.mesh - 1),
+          0,
+        ) /
+        fit.reduce((a, k) => a + (classes.names[k]!.mesh - 1) ** 2, 0)
+      : 0
+  const logDistance = (k: number): number =>
+    kappa > 0 ? 1 + logRatio(k) / kappa : Infinity
   const total = new Float64Array(t.columns)
 
-  for (const s of sums) for (let i = 0; i < total.length; i++) total[i]! += s[i] as number
+  for (const s of sums) {
+    for (let i = 0; i < total.length; i++) {
+      total[i]! += s[i]!
+    }
+  }
 
   const steps: number[] = []
 
-  for (let d = 1; d < t.columns; d++) if ((total[d] as number) > 0) steps.push(d)
+  for (let d = 1; d < t.columns; d++) {
+    if (total[d]! > 0) {
+      steps.push(d)
+    }
+  }
 
   const hops = hopDistances(t, steps)
-  const hopOf = (k: number): number => {
-    const hs = classes.deltas[k]!.map(d => hops[d] as number)
 
-    return hs.some(h => h < 0) ? Infinity : hs.reduce((a, b) => a + b, 0) / hs.length
+  const hopOf = (k: number): number => {
+    const hs = classes.deltas[k]!.map(d => hops[d]!)
+
+    return hs.some(h => h < 0)
+      ? Infinity
+      : hs.reduce((a, b) => a + b, 0) / hs.length
   }
+
   const hopFit = calibration.filter(k => Number.isFinite(hopOf(k)))
-  const lambda = hopFit.length > 0 ? hopFit.reduce((a, k) => a + hopOf(k) * classes.names[k]!.mesh, 0) / hopFit.reduce((a, k) => a + hopOf(k) ** 2, 0) : 0
+  const lambda =
+    hopFit.length > 0
+      ? hopFit.reduce(
+          (a, k) => a + hopOf(k) * classes.names[k]!.mesh,
+          0,
+        ) / hopFit.reduce((a, k) => a + hopOf(k) ** 2, 0)
+      : 0
   const hopDistance = (k: number): number => lambda * hopOf(k)
-  const within = (d: number, mesh: number): boolean => Number.isFinite(d) && Math.abs(d / mesh - 1) <= 0.25
+  const within = (d: number, mesh: number): boolean =>
+    Number.isFinite(d) && Math.abs(d / mesh - 1) <= 0.25
   const forms = {
-    power: calibration.every(k => within(power(k), classes.names[k]!.mesh)),
-    log: calibration.every(k => within(logDistance(k), classes.names[k]!.mesh)),
-    hop: calibration.every(k => within(hopDistance(k), classes.names[k]!.mesh)),
+    power: calibration.every(k =>
+      within(power(k), classes.names[k]!.mesh),
+    ),
+    log: calibration.every(k =>
+      within(logDistance(k), classes.names[k]!.mesh),
+    ),
+    hop: calibration.every(k =>
+      within(hopDistance(k), classes.names[k]!.mesh),
+    ),
   }
-  const c4 = calibration.every(k => above(n(k))) && (forms.power || forms.log || forms.hop)
+  const c4 =
+    calibration.every(k => above(n(k))) &&
+    (forms.power || forms.log || forms.hop)
 
   const euclid = (k: number): number => {
-    const v = t.vector[classes.deltas[k]![0]!] as Int32Array
+    const v = t.vector[classes.deltas[k]![0]!]!
 
-    return Math.hypot(v[0] as number, v[1] as number, v[2] as number)
+    return Math.hypot(v[0]!, v[1]!, v[2]!)
   }
-  const rmsOf = (form: (k: number) => number, target: (k: number) => number): number => {
+
+  const rmsOf = (
+    form: (k: number) => number,
+    target: (k: number) => number,
+  ): number => {
     const finite = calibration.filter(k => Number.isFinite(form(k)))
 
-    return finite.length > 0 ? Math.sqrt(finite.reduce((a, k) => a + (form(k) / target(k) - 1) ** 2, 0) / finite.length) : -1
+    return finite.length > 0
+      ? Math.sqrt(
+          finite.reduce(
+            (a, k) => a + (form(k) / target(k) - 1) ** 2,
+            0,
+          ) / finite.length,
+        )
+      : -1
   }
-  const e = (v: number): string => (Number.isFinite(v) ? v.toPrecision(4) : 'inf')
+
+  const e = (v: number): string =>
+    Number.isFinite(v) ? v.toPrecision(4) : 'inf'
   const table = classes.names
-    .map((c, k) => `${classes.labels[k]} (mesh ${c.mesh}): N ${e(n(k).value)} +- ${e(n(k).error)}, d power ${e(power(k))}, d log ${e(logDistance(k))}, hops ${e(hopOf(k))}, d hop ${e(hopDistance(k))}`)
+    .map(
+      (c, k) =>
+        `${classes.labels[k]} (mesh ${c.mesh}): N ${e(n(k).value)} +- ${e(n(k).error)}, d power ${e(power(k))}, d log ${e(logDistance(k))}, hops ${e(hopOf(k))}, d hop ${e(hopDistance(k))}`,
+    )
     .join('; ')
-  const spread = calibration.map(k => `${classes.labels[k]} ${e(spreadOf(k).min)} to ${e(spreadOf(k).max)}`).join(', ')
-  const byRead = READS.map((T, r) => `T ${T}: ${classes.names.map((_, k) => `${classes.labels[k]} ${e(classMean(runs.reduce((acc, x) => acc.map((v, i) => v + (x.counts[r]![i] as number)), new Float64Array(t.columns)), k))}`).join(' ')}`).join('; ')
+  const spread = calibration
+    .map(
+      k =>
+        `${classes.labels[k]} ${e(spreadOf(k).min)} to ${e(spreadOf(k).max)}`,
+    )
+    .join(', ')
+  const byRead = READS.map(
+    (T, r) =>
+      `T ${T}: ${classes.names
+        .map(
+          (_, k) =>
+            `${classes.labels[k]} ${e(
+              classMean(
+                runs.reduce(
+                  (acc, x) => acc.map((v, i) => v + x.counts[r]![i]!),
+                  new Float64Array(t.columns),
+                ),
+                k,
+              ),
+            )}`,
+        )
+        .join(' ')}`,
+  ).join('; ')
 
   return {
     c1,
@@ -284,7 +429,12 @@ function read(runs: KnitRun[], t: Torus, classes: Classes): Reading {
     spread,
     byRead,
     axis1: n1,
-    rms: { powerMesh: rmsOf(power, k => classes.names[k]!.mesh), powerEuclid: rmsOf(power, euclid), logMesh: rmsOf(logDistance, k => classes.names[k]!.mesh), logEuclid: rmsOf(logDistance, euclid) },
+    rms: {
+      powerMesh: rmsOf(power, k => classes.names[k]!.mesh),
+      powerEuclid: rmsOf(power, euclid),
+      logMesh: rmsOf(logDistance, k => classes.names[k]!.mesh),
+      logEuclid: rmsOf(logDistance, euclid),
+    },
   }
 }
 
@@ -292,7 +442,7 @@ export default experiment({
   id: 'gravity/shared-history-distance',
   code: 'E-GRV-0072',
   title:
-    'no distance from shared history on the working vacuum, fail on C2, C3 and C4: labeling every vibe through the rule\'s own stream, coin permutation and pair move (the labeled beat equals the rule\'s on every beat of 10 runs, side 16) and counting meetings in a 12-beat window between the columns the met vibes now sit in, the relation reaches the whole side-16 torus in one window and does not fall with separation (axis 1 79, axis 2 70, axis 4 89, axis 8 80, body 8 at mesh 12 144, face 2 12, the same at T = 12, 24, 36, 48 and on all 5 starts), so the power, log and hop forms all miss the mesh distance (power rms 0.59) and it is not translation invariant (every calibration class 0 at some origin); the old knit control is the opposite, a relation that stops dead at mesh 3 (256, 128, then 0); the vacuum is a crystal in time, and a crystal\'s meeting pattern is not a metric',
+    "no distance from shared history on the working vacuum, fail on C2, C3 and C4: labeling every vibe through the rule's own stream, coin permutation and pair move (the labeled beat equals the rule's on every beat of 10 runs, side 16) and counting meetings in a 12-beat window between the columns the met vibes now sit in, the relation reaches the whole side-16 torus in one window and does not fall with separation (axis 1 79, axis 2 70, axis 4 89, axis 8 80, body 8 at mesh 12 144, face 2 12, the same at T = 12, 24, 36, 48 and on all 5 starts), so the power, log and hop forms all miss the mesh distance (power rms 0.59) and it is not translation invariant (every calibration class 0 at some origin); the old knit control is the opposite, a relation that stops dead at mesh 3 (256, 128, then 0); the vacuum is a crystal in time, and a crystal's meeting pattern is not a metric",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -303,13 +453,21 @@ export default experiment({
     const classes = familyClasses(t)
     const working = read(readKnit('none', t, classes), t, classes)
 
-    console.error(`working read ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `working read ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
     const old = read(readKnit('point', t, classes), t, classes)
 
-    console.error(`old read ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `old read ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
-    const status = !working.c1 ? 'partial' : working.c2 && working.c3 && working.c4 ? 'pass' : 'fail'
+    const status = !working.c1
+      ? 'partial'
+      : working.c2 && working.c3 && working.c4
+        ? 'pass'
+        : 'fail'
 
     return verdict({
       status,

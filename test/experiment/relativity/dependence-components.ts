@@ -99,16 +99,49 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4BoxMesh, linearMapOf } from '@/code/substrate/d4-box'
 import { passThrough, turningWeave } from '@/code/rule/collision'
-import { COMBINED_DEFAULT, combinedCollision } from '@/code/rule/combined-knit'
+import {
+  COMBINED_DEFAULT,
+  combinedCollision,
+} from '@/code/rule/combined-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { makeColdQuaternionKnit, makeColdQuaternionLattice, emptyColdState, quaternionScatter, type ColdQuaternionKnit } from '@/code/rule/cold-quaternion-knit'
-import { rotationMaps, scatterMoves, type ScatterSet } from '@/code/rule/cold-scatter'
+import {
+  makeColdQuaternionKnit,
+  makeColdQuaternionLattice,
+  emptyColdState,
+  quaternionScatter,
+  type ColdQuaternionKnit,
+} from '@/code/rule/cold-quaternion-knit'
+import {
+  rotationMaps,
+  scatterMoves,
+  type ScatterSet,
+} from '@/code/rule/cold-scatter'
 import { centerOf } from '@/code/measure/wall-reading'
-import { forcedForms, groupTable, leastRankGroups, rowBasis } from '@/code/measure/color-isotropy-bound'
-import { forcedIsotropySpread, unitSamples } from '@/code/measure/coarse-modes'
+import {
+  forcedForms,
+  groupTable,
+  leastRankGroups,
+  rowBasis,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  forcedIsotropySpread,
+  unitSamples,
+} from '@/code/measure/coarse-modes'
 import { type ScheduledRule } from '@/code/measure/weave-acceptance'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { boxHusk, causalRun, coldReplay, cutTarget, hubFresh, hubReplay, hubVacuum, rootOf, streamTarget, toneReplay, type BoxHusk } from '@/code/measure/causal-components'
+import {
+  boxHusk,
+  causalRun,
+  coldReplay,
+  cutTarget,
+  hubFresh,
+  hubReplay,
+  hubVacuum,
+  rootOf,
+  streamTarget,
+  toneReplay,
+  type BoxHusk,
+} from '@/code/measure/causal-components'
 import {
   bruteDifferences,
   coldRule,
@@ -133,22 +166,41 @@ const SIDE5_CENTER = 2 * (1 + 5 + 25 + 125)
 
 // ---- the knits, as dependence rules with their starting states ----
 
-type Setup = { readonly rule: DockRule; readonly start: State; readonly husk: BoxHusk; readonly center: number; readonly mesh: Mesh }
+type Setup = {
+  readonly rule: DockRule
+  readonly start: State
+  readonly husk: BoxHusk
+  readonly center: number
+  readonly mesh: Mesh
+}
 
-function hubSetupOf(kind: CollisionKind): Setup & { hub: ReturnType<typeof hubFresh> } {
+function hubSetupOf(
+  kind: CollisionKind,
+): Setup & { hub: ReturnType<typeof hubFresh> } {
   const h = hubFresh(8, kind)
   const rule = hubRule(h.kernel, `hub-${kind}`)
   const v = hubVacuum(h)
-  const start: State = { v: Int8Array.from(v.vibe), a: Int16Array.from(v.point), d: new Int16Array(h.cells * 24) }
+  const start: State = {
+    v: Int8Array.from(v.vibe),
+    a: Int16Array.from(v.point),
+    d: new Int16Array(h.cells * 24),
+  }
 
   for (let x = 0; x < h.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      start.d[x * 24 + l] = v.store[x * 12 + l] as number
-      start.d[x * 24 + 12 + l] = v.spoint[x * 12 + l] as number
+      start.d[x * 24 + l] = v.store[x * 12 + l]!
+      start.d[x * 24 + 12 + l] = v.spoint[x * 12 + l]!
     }
   }
 
-  return { rule, start, husk: boxHusk(h.mesh, 8), center: centerOf(8), mesh: h.mesh, hub: h }
+  return {
+    rule,
+    start,
+    husk: boxHusk(h.mesh, 8),
+    center: centerOf(8),
+    mesh: h.mesh,
+    hub: h,
+  }
 }
 
 const BOX5 = d4BoxMesh({ side: 5 })
@@ -158,13 +210,34 @@ const CUT5 = cutTarget(BOX5, HUSK5, TARGET5)
 const OPPOSITE5 = Array.from({ length: 24 }, (_, d) => BOX5.opposite(d))
 
 function coldSetup(name: string, knit: ColdQuaternionKnit): Setup {
-  return { rule: coldRule(name, BOX5, TARGET5, knit), start: { v: new Int8Array(BOX5.cellCount * 24), a: new Int16Array(BOX5.cellCount * 24), d: new Int16Array(BOX5.cellCount * 6) }, husk: HUSK5, center: SIDE5_CENTER, mesh: BOX5 }
+  return {
+    rule: coldRule(name, BOX5, TARGET5, knit),
+    start: {
+      v: new Int8Array(BOX5.cellCount * 24),
+      a: new Int16Array(BOX5.cellCount * 24),
+      d: new Int16Array(BOX5.cellCount * 6),
+    },
+    husk: HUSK5,
+    center: SIDE5_CENTER,
+    mesh: BOX5,
+  }
 }
 
-function toneSetup(name: string, forward: (t: number) => Collision, fill: number, target = TARGET5): Setup {
+function toneSetup(
+  name: string,
+  forward: (t: number) => Collision,
+  fill: number,
+  target = TARGET5,
+): Setup {
   const v = new Int8Array(BOX5.cellCount * 24).fill(fill)
 
-  return { rule: toneRule(name, BOX5, target, forward), start: { v, a: new Int16Array(v.length), d: new Int16Array(0) }, husk: HUSK5, center: SIDE5_CENTER, mesh: BOX5 }
+  return {
+    rule: toneRule(name, BOX5, target, forward),
+    start: { v, a: new Int16Array(v.length), d: new Int16Array(0) },
+    husk: HUSK5,
+    center: SIDE5_CENTER,
+    mesh: BOX5,
+  }
 }
 
 // E-RLT-0057's knit, rebuilt by that file's rule (as E-RLT-0089 rebuilds it)
@@ -172,62 +245,128 @@ function frozenFreeSet(): { set: ScatterSet; order: number } {
   const table = groupTable()
   const mats = table.permutations.map(p => linearMapOf(p) ?? [])
   const frozenOf = (forms: number[][]): number =>
-    Array.from({ length: 12 }, (_, l) => l).filter(l => rowBasis([...forms, Array.from({ length: 12 }, (__, j) => (j === l ? 1 : 0))]).length === forms.length).length
-  const free = leastRankGroups(table).groups.filter(g => frozenOf(forcedForms(table, g)) === 0)
+    Array.from({ length: 12 }, (_, l) => l).filter(
+      l =>
+        rowBasis([
+          ...forms,
+          Array.from({ length: 12 }, (__, j) => (j === l ? 1 : 0)),
+        ]).length === forms.length,
+    ).length
+  const free = leastRankGroups(table).groups.filter(
+    g => frozenOf(forcedForms(table, g)) === 0,
+  )
   const samples = unitSamples(64)
   const rows = free.map(g => {
     const perms = g.map(x => [...(table.permutations[x] ?? [])])
     const forms = forcedForms(table, g)
-    const rotations = rotationMaps({ permutations: table.permutations, group: perms })
-    const set = scatterMoves({ group: perms, forms, rotation: rotations[0] })
+    const rotations = rotationMaps({
+      permutations: table.permutations,
+      group: perms,
+    })
+    const set = scatterMoves({
+      group: perms,
+      forms,
+      rotation: rotations[0],
+    })
 
-    return { set, order: g.length, moves: set.moves.length, spread4: forcedIsotropySpread({ group: g.map(x => mats[x] ?? []), rank: 4, generic: [0.31, -0.74, 0.52, 0.29], samples }) }
+    return {
+      set,
+      order: g.length,
+      moves: set.moves.length,
+      spread4: forcedIsotropySpread({
+        group: g.map(x => mats[x] ?? []),
+        rank: 4,
+        generic: [0.31, -0.74, 0.52, 0.29],
+        samples,
+      }),
+    }
   })
-  const chosen = [...rows].sort((a, b) => b.moves - a.moves || b.order - a.order || a.spread4 - b.spread4)[0]
+  const chosen = [...rows].sort(
+    (a, b) =>
+      b.moves - a.moves || b.order - a.order || a.spread4 - b.spread4,
+  )[0]
 
-  if (!chosen) throw new Error('no frozen-free group')
+  if (!chosen) {
+    throw new Error('no frozen-free group')
+  }
 
   return { set: chosen.set, order: chosen.order }
 }
 
 // ---- C0 ----
 
-const sameArray = (a: ArrayLike<number>, b: ArrayLike<number>): boolean => {
-  if (a.length !== b.length) return false
-
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
-
-  return true
-}
-
-// a meaningful comparison of the hub rule's frame with the shared replay's state
-function hubSame(s: State, r: { vibe: Int8Array; point: Int8Array; store: Int8Array; spoint: Int8Array }): boolean {
-  for (let i = 0; i < r.vibe.length; i++) {
-    if (s.v[i] !== r.vibe[i]) return false
-    if (r.vibe[i] !== 0 && s.a[i] !== r.point[i]) return false
+const sameArray = (
+  a: ArrayLike<number>,
+  b: ArrayLike<number>,
+): boolean => {
+  if (a.length !== b.length) {
+    return false
   }
 
-  const cells = r.store.length / 12
-
-  for (let x = 0; x < cells; x++) {
-    for (let l = 0; l < 12; l++) {
-      const st = r.store[x * 12 + l] as number
-
-      if (s.d[x * 24 + l] !== st) return false
-      if (st !== 0 && s.d[x * 24 + 12 + l] !== r.spoint[x * 12 + l]) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false
     }
   }
 
   return true
 }
 
-function replayAgreement(richOf: () => ColdQuaternionKnit, committed: (t: number) => Collision, combined: (t: number) => Collision): { beats: number; mismatches: number } {
+// a meaningful comparison of the hub rule's frame with the shared replay's state
+function hubSame(
+  s: State,
+  r: {
+    vibe: Int8Array
+    point: Int8Array
+    store: Int8Array
+    spoint: Int8Array
+  },
+): boolean {
+  for (let i = 0; i < r.vibe.length; i++) {
+    if (s.v[i] !== r.vibe[i]) {
+      return false
+    }
+
+    if (r.vibe[i] !== 0 && s.a[i] !== r.point[i]) {
+      return false
+    }
+  }
+
+  const cells = r.store.length / 12
+
+  for (let x = 0; x < cells; x++) {
+    for (let l = 0; l < 12; l++) {
+      const st = r.store[x * 12 + l]!
+
+      if (s.d[x * 24 + l] !== st) {
+        return false
+      }
+
+      if (st !== 0 && s.d[x * 24 + 12 + l] !== r.spoint[x * 12 + l]) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
+function replayAgreement(
+  richOf: () => ColdQuaternionKnit,
+  committed: (t: number) => Collision,
+  combined: (t: number) => Collision,
+): { beats: number; mismatches: number } {
   let beats = 0
   let mismatches = 0
+
   const hub = hubSetupOf('lone')
 
   for (const seed of [undefined, 5]) {
-    const start: State = { v: Int8Array.from(hub.start.v), a: Int16Array.from(hub.start.a), d: Int16Array.from(hub.start.d) }
+    const start: State = {
+      v: Int8Array.from(hub.start.v),
+      a: Int16Array.from(hub.start.a),
+      d: Int16Array.from(hub.start.d),
+    }
     const v = hubVacuum(hub.hub)
 
     if (seed !== undefined) {
@@ -242,7 +381,7 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committed: (t: number
       replay.collide(t)
       replay.stream(hub.rule.target)
       beats++
-      mismatches += hubSame(frames[t + 1] as State, replay.state()) ? 0 : 1
+      mismatches += hubSame(frames[t + 1]!, replay.state()) ? 0 : 1
     }
   }
 
@@ -254,17 +393,25 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committed: (t: number
   rich.start.v[SIDE5_CENTER * 24 + 3] = 1
 
   const coldFrames = referenceFrames(rich.rule, rich.start, BEATS)
-  const coldRep = coldReplay(makeColdQuaternionLattice(BOX5, richOf()), cold)
+  const coldRep = coldReplay(
+    makeColdQuaternionLattice(BOX5, richOf()),
+    cold,
+  )
 
   for (let t = 0; t < BEATS; t++) {
     coldRep.collide(t)
     coldRep.stream(TARGET5)
     beats++
 
-    const f = coldFrames[t + 1] as State
+    const f = coldFrames[t + 1]!
     const s = coldRep.state()
 
-    mismatches += sameArray(f.v, s.vibe) && sameArray(f.a, s.store) && sameArray(f.d, s.counter) ? 0 : 1
+    mismatches +=
+      sameArray(f.v, s.vibe) &&
+      sameArray(f.a, s.store) &&
+      sameArray(f.d, s.counter)
+        ? 0
+        : 1
   }
 
   rich.start.v[SIDE5_CENTER * 24 + 3] = 0
@@ -282,7 +429,7 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committed: (t: number
       rep.collide(t)
       rep.stream(TARGET5)
       beats++
-      mismatches += sameArray((frames[t + 1] as State).v, rep.data()) ? 0 : 1
+      mismatches += sameArray(frames[t + 1]!.v, rep.data()) ? 0 : 1
     }
   }
 
@@ -290,24 +437,36 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committed: (t: number
 }
 
 // the sparse lockstep against the whole changed history, on a fixed sample of the center's changes
-function sparseAgreement(s: Setup, frames: readonly State[]): { checked: number; mismatches: number } {
+function sparseAgreement(
+  s: Setup,
+  frames: readonly State[],
+): { checked: number; mismatches: number } {
   const f = s.rule.dockFields
-  const list = s.rule.perturbations(s.start.v.slice(s.center * 24, s.center * 24 + 24), s.start.a.slice(s.center * 24, s.center * 24 + 24), s.start.d.slice(s.center * f, s.center * f + f))
+  const list = s.rule.perturbations(
+    s.start.v.slice(s.center * 24, s.center * 24 + 24),
+    s.start.a.slice(s.center * 24, s.center * 24 + 24),
+    s.start.d.slice(s.center * f, s.center * f + f),
+  )
   const step = Math.max(1, Math.floor(list.length / 8))
+
   let checked = 0
   let mismatches = 0
 
   for (let k = 0; k < list.length; k += step) {
     const p = list[k]
 
-    if (!p) continue
+    if (!p) {
+      continue
+    }
 
     const sparse = coneOf(s.rule, frames, s.center, p, true).sets ?? []
     const brute = bruteDifferences(s.rule, frames, s.center, p)
 
     checked++
 
-    for (let t = 0; t < brute.length; t++) mismatches += sameArray(sparse[t] ?? [], brute[t] ?? []) ? 0 : 1
+    for (let t = 0; t < brute.length; t++) {
+      mismatches += sameArray(sparse[t] ?? [], brute[t] ?? []) ? 0 : 1
+    }
   }
 
   return { checked, mismatches }
@@ -315,22 +474,48 @@ function sparseAgreement(s: Setup, frames: readonly State[]): { checked: number;
 
 // ---- C3: each new vibe's cone against its copy descent, on an empty vacuum ----
 
-function descentAgreement(s: Setup, frames: readonly State[], replayOf: (start: State) => ReturnType<typeof toneReplay> | ReturnType<typeof coldReplay>): { checked: number; mismatches: number } {
+function descentAgreement(
+  s: Setup,
+  frames: readonly State[],
+  replayOf: (
+    start: State,
+  ) => ReturnType<typeof toneReplay> | ReturnType<typeof coldReplay>,
+): { checked: number; mismatches: number } {
   let checked = 0
   let mismatches = 0
 
   for (let d = 0; d < 24; d++) {
     for (const w of [1, -1]) {
-      const cone = coneOf(s.rule, frames, s.center, { kind: 'slot', index: d, v: w, a: 0 })
-      const start: State = { v: Int8Array.from(s.start.v), a: Int16Array.from(s.start.a), d: Int16Array.from(s.start.d) }
+      const cone = coneOf(s.rule, frames, s.center, {
+        kind: 'slot',
+        index: d,
+        v: w,
+        a: 0,
+      })
+      const start: State = {
+        v: Int8Array.from(s.start.v),
+        a: Int16Array.from(s.start.a),
+        d: Int16Array.from(s.start.d),
+      }
 
       start.v[s.center * 24 + d] = w
 
-      const run = causalRun({ replay: replayOf(start), husk: s.husk, target: s.rule.target, beats: BEATS, seedDock: s.center })
+      const run = causalRun({
+        replay: replayOf(start),
+        husk: s.husk,
+        target: s.rule.target,
+        beats: BEATS,
+        seedDock: s.center,
+      })
 
       checked++
 
-      for (let x = 0; x < s.rule.cells; x++) mismatches += (cone.firstAt[x] !== -1) !== (run.log.reachedAt[x] !== -1) ? 1 : 0
+      for (let x = 0; x < s.rule.cells; x++) {
+        mismatches +=
+          (cone.firstAt[x] !== -1) !== (run.log.reachedAt[x] !== -1)
+            ? 1
+            : 0
+      }
     }
   }
 
@@ -339,27 +524,66 @@ function descentAgreement(s: Setup, frames: readonly State[], replayOf: (start: 
 
 // ---- one judged knit at one start ----
 
-type Reading = { husk: number; bulk: number; smallestHusk: number; smallestBulk: number; changes: number; emptyBeats: number; killed: number; emptyColumnsReached: number }
+type Reading = {
+  husk: number
+  bulk: number
+  smallestHusk: number
+  smallestBulk: number
+  changes: number
+  emptyBeats: number
+  killed: number
+  emptyColumnsReached: number
+}
 
-function readSeed(s: Setup, frames: readonly State[], emptyColumns?: Uint8Array): Reading {
+function readSeed(
+  s: Setup,
+  frames: readonly State[],
+  emptyColumns?: Uint8Array,
+): Reading {
   const c = seedCone(s.rule, s.husk, frames, s.center)
+
   let emptyColumnsReached = 0
 
-  if (emptyColumns) for (let k = 0; k < s.husk.columns; k++) emptyColumnsReached += emptyColumns[k] && c.husk[k] ? 1 : 0
+  if (emptyColumns) {
+    for (let k = 0; k < s.husk.columns; k++) {
+      emptyColumnsReached += emptyColumns[k] && c.husk[k] ? 1 : 0
+    }
+  }
 
-  return { husk: c.huskCount, bulk: c.bulkCount, smallestHusk: c.smallestHusk, smallestBulk: c.smallestBulk, changes: c.perturbations, emptyBeats: c.emptyBeats, killed: c.killed, emptyColumnsReached }
+  return {
+    husk: c.huskCount,
+    bulk: c.bulkCount,
+    smallestHusk: c.smallestHusk,
+    smallestBulk: c.smallestBulk,
+    changes: c.perturbations,
+    emptyBeats: c.emptyBeats,
+    killed: c.killed,
+    emptyColumnsReached,
+  }
 }
 
 // the hub vacuum's columns into which it never copies a vibe (E-RLT-0089's singleton husk components), 96 beats
-function emptyColumnsOf(hub: Setup & { hub: ReturnType<typeof hubFresh> }): Uint8Array {
-  const run = causalRun({ replay: hubReplay(hub.hub.kernel, hubVacuum(hub.hub)), husk: hub.husk, target: hub.rule.target, beats: 96 })
+function emptyColumnsOf(
+  hub: Setup & { hub: ReturnType<typeof hubFresh> },
+): Uint8Array {
+  const run = causalRun({
+    replay: hubReplay(hub.hub.kernel, hubVacuum(hub.hub)),
+    husk: hub.husk,
+    target: hub.rule.target,
+    beats: 96,
+  })
   const size = new Int32Array(hub.husk.columns)
 
-  for (let k = 0; k < hub.husk.columns; k++) size[rootOf(run.log.top, k)] = (size[rootOf(run.log.top, k)] ?? 0) + 1
+  for (let k = 0; k < hub.husk.columns; k++) {
+    size[rootOf(run.log.top, k)] =
+      (size[rootOf(run.log.top, k)] ?? 0) + 1
+  }
 
   const out = new Uint8Array(hub.husk.columns)
 
-  for (let k = 0; k < hub.husk.columns; k++) out[k] = size[rootOf(run.log.top, k)] === 1 ? 1 : 0
+  for (let k = 0; k < hub.husk.columns; k++) {
+    out[k] = size[rootOf(run.log.top, k)] === 1 ? 1 : 0
+  }
 
   return out
 }
@@ -375,13 +599,21 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
-    const combinedRule: ScheduledRule = (o, f) => combinedCollision({ spec: COMBINED_DEFAULT, opposite: o, forward: f })
+    const committedRule: ScheduledRule = (o, f) =>
+      turningWeave({ opposite: o, forward: f })
+    const combinedRule: ScheduledRule = (o, f) =>
+      combinedCollision({
+        spec: COMBINED_DEFAULT,
+        opposite: o,
+        forward: f,
+      })
     const committed = committedRule(OPPOSITE5, true)
     const combined = combinedRule(OPPOSITE5, true)
-    const richOf = (): ColdQuaternionKnit => makeColdQuaternionKnit({ scatter: quaternionScatter() })
+    const richOf = (): ColdQuaternionKnit =>
+      makeColdQuaternionKnit({ scatter: quaternionScatter() })
     const frozen = frozenFreeSet()
-    const frozenOf = (): ColdQuaternionKnit => makeColdQuaternionKnit({ mode: 'scatter', scatter: frozen.set })
+    const frozenOf = (): ColdQuaternionKnit =>
+      makeColdQuaternionKnit({ mode: 'scatter', scatter: frozen.set })
 
     // ---- C0 ----
     const agreement = replayAgreement(richOf, committed, combined)
@@ -395,15 +627,29 @@ export default experiment({
     const K2 = toneSetup('linear-cut', () => linearMixing, 0, CUT5)
     const K3 = toneSetup('constant', () => constantLove, 1)
     const K4 = toneSetup('pass', () => passThrough, 1)
-    const framesOf = (s: Setup): State[] => referenceFrames(s.rule, s.start, BEATS)
-    const frames5 = new Map<Setup, State[]>([R, V, committedSetup, combinedSetup, K1, K2, K3, K4].map(s => [s, framesOf(s)]))
-    const fr = (s: Setup): State[] => frames5.get(s) as State[]
+    const framesOf = (s: Setup): State[] =>
+      referenceFrames(s.rule, s.start, BEATS)
+    const frames5 = new Map<Setup, State[]>(
+      [R, V, committedSetup, combinedSetup, K1, K2, K3, K4].map(s => [
+        s,
+        framesOf(s),
+      ]),
+    )
+    const fr = (s: Setup): State[] => frames5.get(s)!
     const sparseChecks = [
       sparseAgreement(hub0, hubFrames0),
-      ...[R, V, committedSetup, combinedSetup, K1, K2, K3, K4].map(s => sparseAgreement(s, fr(s))),
+      ...[R, V, committedSetup, combinedSetup, K1, K2, K3, K4].map(s =>
+        sparseAgreement(s, fr(s)),
+      ),
     ]
-    const sparseChecked = sparseChecks.reduce((m, c) => m + c.checked, 0)
-    const sparseMismatches = sparseChecks.reduce((m, c) => m + c.mismatches, 0)
+    const sparseChecked = sparseChecks.reduce(
+      (m, c) => m + c.checked,
+      0,
+    )
+    const sparseMismatches = sparseChecks.reduce(
+      (m, c) => m + c.mismatches,
+      0,
+    )
     const c0 = agreement.mismatches === 0 && sparseMismatches === 0
 
     // ---- C1 ----
@@ -412,23 +658,36 @@ export default experiment({
     const k2 = seedCone(K2.rule, HUSK5, fr(K2), SIDE5_CENTER)
     const k3 = seedCone(K3.rule, HUSK5, fr(K3), SIDE5_CENTER)
     const k4 = seedCone(K4.rule, HUSK5, fr(K4), SIDE5_CENTER)
-    const half = (x: number): number => ((HUSK5.first[x] as number) < Math.floor(5 / 2) ? 0 : 1)
+    const half = (x: number): number =>
+      HUSK5.first[x]! < Math.floor(5 / 2) ? 0 : 1
     const seedHalf = half(SIDE5_CENTER)
     const halfColumns = new Uint8Array(HUSK5.columns)
 
-    for (let x = 0; x < BOX5.cellCount; x++) if (half(x) === seedHalf) halfColumns[HUSK5.column[x] as number] = 1
+    for (let x = 0; x < BOX5.cellCount; x++) {
+      if (half(x) === seedHalf) {
+        halfColumns[HUSK5.column[x]!] = 1
+      }
+    }
 
     let k2Outside = 0
     let k2MissingInside = 0
 
     for (let k = 0; k < HUSK5.columns; k++) {
-      if (k2.husk[k] && !halfColumns[k]) k2Outside++
-      if (!k2.husk[k] && halfColumns[k]) k2MissingInside++
+      if (k2.husk[k] && !halfColumns[k]) {
+        k2Outside++
+      }
+
+      if (!k2.husk[k] && halfColumns[k]) {
+        k2MissingInside++
+      }
     }
 
     let k4StarMismatch = 0
 
-    for (let x = 0; x < BOX5.cellCount; x++) k4StarMismatch += (k4.bulk[x] === 1) !== (star.bulk[x] === 1) ? 1 : 0
+    for (let x = 0; x < BOX5.cellCount; x++) {
+      k4StarMismatch +=
+        (k4.bulk[x] === 1) !== (star.bulk[x] === 1) ? 1 : 0
+    }
 
     const union = {
       K1: unionReading(K1.rule, HUSK5, fr(K1)),
@@ -441,47 +700,117 @@ export default experiment({
       K2: coverCount(K2.rule, HUSK5, fr(K2), SIDE5_CENTER, 200),
       K4: coverCount(K4.rule, HUSK5, fr(K4), SIDE5_CENTER, 200),
     }
-    const copyK3 = causalRun({ replay: toneReplay(BOX5, () => constantLove, K3.start.v), husk: HUSK5, target: TARGET5, beats: BEATS }).counts
-    const copyK4 = causalRun({ replay: toneReplay(BOX5, () => passThrough, K4.start.v), husk: HUSK5, target: TARGET5, beats: BEATS }).counts
-    const c1K1 = k1.huskCount === HUSK5.columns && cover.K1.seeds === 1 && cover.K1.complete && union.K1.husk === 1
-    const c1K2 = k2Outside === 0 && k2MissingInside === 0 && cover.K2.seeds === 2 && cover.K2.complete && union.K2.husk === 2
-    const c1K3 = copyK3.husk === 1 && k3.huskCount === 1 && k3.bulkCount === 1 && union.K3.husk === HUSK5.columns
-    const c1K4 = copyK4.husk === 1 && k4StarMismatch === 0 && k4.huskCount < HUSK5.columns
+    const copyK3 = causalRun({
+      replay: toneReplay(BOX5, () => constantLove, K3.start.v),
+      husk: HUSK5,
+      target: TARGET5,
+      beats: BEATS,
+    }).counts
+    const copyK4 = causalRun({
+      replay: toneReplay(BOX5, () => passThrough, K4.start.v),
+      husk: HUSK5,
+      target: TARGET5,
+      beats: BEATS,
+    }).counts
+    const c1K1 =
+      k1.huskCount === HUSK5.columns &&
+      cover.K1.seeds === 1 &&
+      cover.K1.complete &&
+      union.K1.husk === 1
+    const c1K2 =
+      k2Outside === 0 &&
+      k2MissingInside === 0 &&
+      cover.K2.seeds === 2 &&
+      cover.K2.complete &&
+      union.K2.husk === 2
+    const c1K3 =
+      copyK3.husk === 1 &&
+      k3.huskCount === 1 &&
+      k3.bulkCount === 1 &&
+      union.K3.husk === HUSK5.columns
+    const c1K4 =
+      copyK4.husk === 1 &&
+      k4StarMismatch === 0 &&
+      k4.huskCount < HUSK5.columns
     const c1 = c1K1 && c1K2 && c1K3 && c1K4
 
     // ---- C3 ----
     const descent = [
-      descentAgreement(R, fr(R), st => coldReplay(makeColdQuaternionLattice(BOX5, richOf()), { vibe: Int8Array.from(st.v), store: Int32Array.from(st.a), counter: Int32Array.from(st.d) })),
-      descentAgreement(V, fr(V), st => coldReplay(makeColdQuaternionLattice(BOX5, frozenOf()), { vibe: Int8Array.from(st.v), store: Int32Array.from(st.a), counter: Int32Array.from(st.d) })),
-      descentAgreement(committedSetup, fr(committedSetup), st => toneReplay(BOX5, committed, st.v)),
-      descentAgreement(combinedSetup, fr(combinedSetup), st => toneReplay(BOX5, combined, st.v)),
+      descentAgreement(R, fr(R), st =>
+        coldReplay(makeColdQuaternionLattice(BOX5, richOf()), {
+          vibe: Int8Array.from(st.v),
+          store: Int32Array.from(st.a),
+          counter: Int32Array.from(st.d),
+        }),
+      ),
+      descentAgreement(V, fr(V), st =>
+        coldReplay(makeColdQuaternionLattice(BOX5, frozenOf()), {
+          vibe: Int8Array.from(st.v),
+          store: Int32Array.from(st.a),
+          counter: Int32Array.from(st.d),
+        }),
+      ),
+      descentAgreement(committedSetup, fr(committedSetup), st =>
+        toneReplay(BOX5, committed, st.v),
+      ),
+      descentAgreement(combinedSetup, fr(combinedSetup), st =>
+        toneReplay(BOX5, combined, st.v),
+      ),
     ]
     const descentChecked = descent.reduce((m, c) => m + c.checked, 0)
-    const descentMismatches = descent.reduce((m, c) => m + c.mismatches, 0)
+    const descentMismatches = descent.reduce(
+      (m, c) => m + c.mismatches,
+      0,
+    )
     const c3 = descentMismatches === 0
 
     // ---- beside at integer+0 ----
     const empty0 = emptyColumnsOf(hub0)
     const emptyCount = empty0.reduce((m, n) => m + n, 0)
+
     let emptyOnStar = 0
+
     const hubStar = freeStar(hub0.mesh, hub0.husk, hub0.center, BEATS)
     const hubStarColumns = new Uint8Array(hub0.husk.columns)
 
-    for (let x = 0; x < hub0.rule.cells; x++) if (hubStar.bulk[x]) hubStarColumns[hub0.husk.column[x] as number] = 1
-    for (let k = 0; k < hub0.husk.columns; k++) emptyOnStar += empty0[k] && hubStarColumns[k] ? 1 : 0
+    for (let x = 0; x < hub0.rule.cells; x++) {
+      if (hubStar.bulk[x]) {
+        hubStarColumns[hub0.husk.column[x]!] = 1
+      }
+    }
 
-    const hub96 = readSeed(hub0, referenceFrames(hub0.rule, hub0.start, 96), empty0)
+    for (let k = 0; k < hub0.husk.columns; k++) {
+      emptyOnStar += empty0[k] && hubStarColumns[k] ? 1 : 0
+    }
+
+    const hub96 = readSeed(
+      hub0,
+      referenceFrames(hub0.rule, hub0.start, 96),
+      empty0,
+    )
     const hubOthers = (['bounce', 'isometric'] as const).map(kind => {
       const s = hubSetupOf(kind)
 
-      return readSeed(s, referenceFrames(s.rule, s.start, BEATS), empty0)
+      return readSeed(
+        s,
+        referenceFrames(s.rule, s.start, BEATS),
+        empty0,
+      )
     })
     const unionJudged = {
       H: unionReading(hub0.rule, hub0.husk, hubFrames0),
       R: unionReading(R.rule, HUSK5, fr(R)),
       V: unionReading(V.rule, HUSK5, fr(V)),
-      committed: unionReading(committedSetup.rule, HUSK5, fr(committedSetup)),
-      combined: unionReading(combinedSetup.rule, HUSK5, fr(combinedSetup)),
+      committed: unionReading(
+        committedSetup.rule,
+        HUSK5,
+        fr(committedSetup),
+      ),
+      combined: unionReading(
+        combinedSetup.rule,
+        HUSK5,
+        fr(combinedSetup),
+      ),
     }
     const coverJudged = {
       R: coverCount(R.rule, HUSK5, fr(R), SIDE5_CENTER, 200),
@@ -503,7 +832,11 @@ export default experiment({
         return {
           member: member.name,
           emptyColumns: emptyColumns.reduce((m, n) => m + n, 0),
-          H: readSeed(hub, referenceFrames(hub.rule, hub.start, BEATS), emptyColumns),
+          H: readSeed(
+            hub,
+            referenceFrames(hub.rule, hub.start, BEATS),
+            emptyColumns,
+          ),
           R: readSeed(r, framesOf(r)),
           V: readSeed(v, framesOf(v)),
           committed: readSeed(cm, framesOf(cm)),
@@ -513,18 +846,37 @@ export default experiment({
     )
 
     type Key = 'H' | 'R' | 'V' | 'committed' | 'combined'
+
     const keys: Key[] = ['H', 'R', 'V', 'committed', 'combined']
-    const columnsOf = (key: Key): number => (key === 'H' ? hub0.husk.columns : HUSK5.columns)
-    const passes = (key: Key): number => perStart.filter(p => p[key].husk === columnsOf(key)).length
+    const columnsOf = (key: Key): number =>
+      key === 'H' ? hub0.husk.columns : HUSK5.columns
+    const passes = (key: Key): number =>
+      perStart.filter(p => p[key].husk === columnsOf(key)).length
     const gH = passes('H') === family.length
     const gR = passes('R') === family.length
     const gV = passes('V') === family.length
-    const reversibleClean = perStart.every(p => keys.every(key => p[key].emptyBeats === 0 && p[key].killed === 0)) && [k1, k2, k4].every(c => c.emptyBeats === 0 && c.killed === 0)
+    const reversibleClean =
+      perStart.every(p =>
+        keys.every(
+          key => p[key].emptyBeats === 0 && p[key].killed === 0,
+        ),
+      ) && [k1, k2, k4].every(c => c.emptyBeats === 0 && c.killed === 0)
     const c2 = reversibleClean && k3.killed > 0
-    const status = c0 && c1 && c2 && c3 ? (gH && gR && gV ? 'pass' : gH || gR || gV ? 'partial' : 'fail') : 'fail'
+    const status =
+      c0 && c1 && c2 && c3
+        ? gH && gR && gV
+          ? 'pass'
+          : gH || gR || gV
+            ? 'partial'
+            : 'fail'
+        : 'fail'
 
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (key: Key, field: keyof Reading): string => range(perStart.map(p => p[key][field]))
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (key: Key, field: keyof Reading): string =>
+      range(perStart.map(p => p[key][field]))
     const metrics: Record<string, number> = {
       gateC0: c0 ? 1 : 0,
       gateC1: c1 ? 1 : 0,
@@ -547,7 +899,16 @@ export default experiment({
     for (const key of keys) {
       metrics[`${key}_startsPassing`] = passes(key)
 
-      for (const field of ['husk', 'bulk', 'smallestHusk', 'smallestBulk', 'changes', 'emptyBeats', 'killed', 'emptyColumnsReached'] as const) {
+      for (const field of [
+        'husk',
+        'bulk',
+        'smallestHusk',
+        'smallestBulk',
+        'changes',
+        'emptyBeats',
+        'killed',
+        'emptyColumnsReached',
+      ] as const) {
         const xs = perStart.map(p => p[key][field])
 
         metrics[`${key}_${field}_min`] = Math.min(...xs)
@@ -582,8 +943,12 @@ export default experiment({
       hubFreeStarHusk: hubStar.huskCount,
       hubEmptyColumns: emptyCount,
       hubEmptyColumnsOnStar: emptyOnStar,
-      hubEmptyColumnsPerStart_min: Math.min(...perStart.map(p => p.emptyColumns)),
-      hubEmptyColumnsPerStart_max: Math.max(...perStart.map(p => p.emptyColumns)),
+      hubEmptyColumnsPerStart_min: Math.min(
+        ...perStart.map(p => p.emptyColumns),
+      ),
+      hubEmptyColumnsPerStart_max: Math.max(
+        ...perStart.map(p => p.emptyColumns),
+      ),
       hub96Husk: hub96.husk,
       hub96Bulk: hub96.bulk,
       hub96EmptyColumnsReached: hub96.emptyColumnsReached,

@@ -38,7 +38,6 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
 import {
   applyToCluster,
   binaryTetrahedralCharacters,
@@ -56,15 +55,42 @@ const ROLES = 4
 const ANTIROLES = 1
 
 // the S4 characters by cycle type (sorted descending, joined)
-const S4: { name: string; dimension: number; values: Record<string, number> }[] = [
-  { name: 'symmetric', dimension: 1, values: { '1,1,1,1': 1, '2,1,1': 1, '2,2': 1, '3,1': 1, '4': 1 } },
-  { name: 'antisymmetric', dimension: 1, values: { '1,1,1,1': 1, '2,1,1': -1, '2,2': 1, '3,1': 1, '4': -1 } },
-  { name: 'two', dimension: 2, values: { '1,1,1,1': 2, '2,1,1': 0, '2,2': 2, '3,1': -1, '4': 0 } },
-  { name: 'standard', dimension: 3, values: { '1,1,1,1': 3, '2,1,1': 1, '2,2': -1, '3,1': 0, '4': -1 } },
-  { name: 'standardSign', dimension: 3, values: { '1,1,1,1': 3, '2,1,1': -1, '2,2': -1, '3,1': 0, '4': 1 } },
+const S4: {
+  name: string
+  dimension: number
+  values: Record<string, number>
+}[] = [
+  {
+    name: 'symmetric',
+    dimension: 1,
+    values: { '1,1,1,1': 1, '2,1,1': 1, '2,2': 1, '3,1': 1, '4': 1 },
+  },
+  {
+    name: 'antisymmetric',
+    dimension: 1,
+    values: { '1,1,1,1': 1, '2,1,1': -1, '2,2': 1, '3,1': 1, '4': -1 },
+  },
+  {
+    name: 'two',
+    dimension: 2,
+    values: { '1,1,1,1': 2, '2,1,1': 0, '2,2': 2, '3,1': -1, '4': 0 },
+  },
+  {
+    name: 'standard',
+    dimension: 3,
+    values: { '1,1,1,1': 3, '2,1,1': 1, '2,2': -1, '3,1': 0, '4': -1 },
+  },
+  {
+    name: 'standardSign',
+    dimension: 3,
+    values: { '1,1,1,1': 3, '2,1,1': -1, '2,2': -1, '3,1': 0, '4': 1 },
+  },
 ]
 
-const inner = (a: readonly Complex[], b: readonly Complex[]): Complex => {
+const inner = (
+  a: readonly Complex[],
+  b: readonly Complex[],
+): Complex => {
   let re = 0
   let im = 0
 
@@ -94,19 +120,30 @@ export default experiment({
     const perms = permutations(ROLES)
 
     // the character of every (turn, permutation) on the neutral space
-    const cycleKeys = [...new Set(perms.map(p => cycleType(p).join(',')))]
+    const cycleKeys = [
+      ...new Set(perms.map(p => cycleType(p).join(','))),
+    ]
     const table = new Map<string, Complex[]>()
 
     for (const key of cycleKeys) {
       table.set(
         key,
-        turns.map(t => neutralCharacter({ group, turn: t.unitary, cycles: key.split(',').map(Number), antiroles: ANTIROLES })),
+        turns.map(t =>
+          neutralCharacter({
+            group,
+            turn: t.unitary,
+            cycles: key.split(',').map(Number),
+            antiroles: ANTIROLES,
+          }),
+        ),
       )
     }
 
     const spinCharacter = table.get('1,1,1,1') ?? []
-    const rank = spinCharacter[turns.findIndex(t => t.order === 1)]?.[0] ?? NaN
-    const atMinusOne = spinCharacter[turns.findIndex(t => t.order === 2)]?.[0] ?? NaN
+    const rank =
+      spinCharacter[turns.findIndex(t => t.order === 1)]?.[0] ?? NaN
+    const atMinusOne =
+      spinCharacter[turns.findIndex(t => t.order === 2)]?.[0] ?? NaN
     const spinorial = (rank - atMinusOne) / 2
 
     // G1
@@ -116,15 +153,39 @@ export default experiment({
       characters.forEach((b, j) => {
         const ip = inner(a.values, b.values)
 
-        orthonormalGap = Math.max(orthonormalGap, Math.hypot(ip[0] - (i === j ? 1 : 0), ip[1]))
+        orthonormalGap = Math.max(
+          orthonormalGap,
+          Math.hypot(ip[0] - (i === j ? 1 : 0), ip[1]),
+        )
       })
     })
 
-    const multiplicity = characters.map(c => ({ name: c.name, dimension: c.dimension, m: inner(spinCharacter, c.values) }))
-    const wholeGap = Math.max(...multiplicity.map(x => Math.max(Math.abs(x.m[0] - Math.round(x.m[0])), Math.abs(x.m[1]))))
-    const dimensionSum = multiplicity.reduce((s, x) => s + Math.round(x.m[0]) * x.dimension, 0)
-    const naturalCount = multiplicity.find(x => x.name === 'natural')?.m[0] ?? NaN
-    const g1 = Math.abs(rank - 27) < LOOSE && Math.abs(spinorial - 14) < LOOSE && orthonormalGap < LOOSE && wholeGap < LOOSE && dimensionSum === 27 && Math.abs(naturalCount - 2) < LOOSE
+    const multiplicity = characters.map(c => ({
+      name: c.name,
+      dimension: c.dimension,
+      m: inner(spinCharacter, c.values),
+    }))
+    const wholeGap = Math.max(
+      ...multiplicity.map(x =>
+        Math.max(
+          Math.abs(x.m[0] - Math.round(x.m[0])),
+          Math.abs(x.m[1]),
+        ),
+      ),
+    )
+    const dimensionSum = multiplicity.reduce(
+      (s, x) => s + Math.round(x.m[0]) * x.dimension,
+      0,
+    )
+    const naturalCount =
+      multiplicity.find(x => x.name === 'natural')?.m[0] ?? NaN
+    const g1 =
+      Math.abs(rank - 27) < LOOSE &&
+      Math.abs(spinorial - 14) < LOOSE &&
+      orthonormalGap < LOOSE &&
+      wholeGap < LOOSE &&
+      dimensionSum === 27 &&
+      Math.abs(naturalCount - 2) < LOOSE
 
     // G2: the fall-apart span, as explicit vectors on (C^3)^5, roles first, the antirole last
     const size = 3 ** (ROLES + ANTIROLES)
@@ -179,31 +240,62 @@ export default experiment({
     }
 
     // <b| P_rho |b> summed over the basis, P_rho = (dim / 24) sum_e conj(chi_rho(e)) R(e) (the span is neutral)
-    const traceOnSpan = (rho: { dimension: number; values: readonly Complex[] }): number => {
+    const traceOnSpan = (rho: {
+      dimension: number
+      values: readonly Complex[]
+    }): number => {
       let total = 0
 
       for (const b of basis) {
         turns.forEach((t, i) => {
-          const moved = applyToCluster({ vector: { re: b, im: new Float64Array(size) }, unitary: t.unitary as ComplexMatrix, roles: ROLES, antiroles: ANTIROLES })
+          const moved = applyToCluster({
+            vector: { re: b, im: new Float64Array(size) },
+            unitary: t.unitary,
+            roles: ROLES,
+            antiroles: ANTIROLES,
+          })
           const chi = rho.values[i] ?? [0, 0]
           // Re(conj(chi) <b|R b>), b real
-          const overlapRe = moved.re.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
-          const overlapIm = moved.im.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+          const overlapRe = moved.re.reduce(
+            (s, x, k) => s + x * (b[k] ?? 0),
+            0,
+          )
+          const overlapIm = moved.im.reduce(
+            (s, x, k) => s + x * (b[k] ?? 0),
+            0,
+          )
 
-          total += (rho.dimension / turns.length) * (chi[0] * overlapRe + chi[1] * overlapIm)
+          total +=
+            (rho.dimension / turns.length) *
+            (chi[0] * overlapRe + chi[1] * overlapIm)
         })
       }
 
       return total
     }
-    const naturalChar = characters.find(c => c.name === 'natural') ?? characters[0]!
-    const twistedChars = characters.filter(c => c.name.startsWith('twisted'))
+
+    const naturalChar =
+      characters.find(c => c.name === 'natural') ?? characters[0]!
+    const twistedChars = characters.filter(c =>
+      c.name.startsWith('twisted'),
+    )
     const naturalOnSpan = traceOnSpan(naturalChar)
-    const twistedOnSpan = twistedChars.reduce((s, c) => s + traceOnSpan(c), 0)
-    const g2 = basis.length === 12 && Math.abs(naturalOnSpan) < LOOSE && twistedOnSpan > 0.5
+    const twistedOnSpan = twistedChars.reduce(
+      (s, c) => s + traceOnSpan(c),
+      0,
+    )
+    const g2 =
+      basis.length === 12 &&
+      Math.abs(naturalOnSpan) < LOOSE &&
+      twistedOnSpan > 0.5
 
     // G3: the Q = +-1 table, spin only
-    const qTable: { n: number; m: number; natural: number; rank: number }[] = []
+    const qTable: {
+      n: number
+      m: number
+      natural: number
+      rank: number
+    }[] = []
 
     for (let n = 0; n <= 9; n++) {
       for (let m = 0; m <= 9 - n; m++) {
@@ -211,19 +303,43 @@ export default experiment({
           continue
         }
 
-        const chi = turns.map(t => neutralCharacter({ group, turn: t.unitary, cycles: new Array<number>(n).fill(1), antiroles: m }))
+        const chi = turns.map(t =>
+          neutralCharacter({
+            group,
+            turn: t.unitary,
+            cycles: new Array<number>(n).fill(1),
+            antiroles: m,
+          }),
+        )
 
-        qTable.push({ n, m, natural: inner(chi, naturalChar.values)[0], rank: chi[turns.findIndex(t => t.order === 1)]?.[0] ?? NaN })
+        qTable.push({
+          n,
+          m,
+          natural: inner(chi, naturalChar.values)[0],
+          rank: chi[turns.findIndex(t => t.order === 1)]?.[0] ?? NaN,
+        })
       }
     }
 
-    const at = (n: number, m: number): number => qTable.find(r => r.n === n && r.m === m)?.natural ?? NaN
-    const qWhole = Math.max(...qTable.map(r => Math.abs(r.natural - Math.round(r.natural))))
-    const qMirror = Math.max(...qTable.map(r => Math.abs(r.natural - at(r.m, r.n))))
-    const g3 = qWhole < LOOSE && Math.abs(at(3, 0)) < LOOSE && Math.abs(at(4, 1) - 2) < LOOSE && qMirror < LOOSE
+    const at = (n: number, m: number): number =>
+      qTable.find(r => r.n === n && r.m === m)?.natural ?? NaN
+    const qWhole = Math.max(
+      ...qTable.map(r => Math.abs(r.natural - Math.round(r.natural))),
+    )
+    const qMirror = Math.max(
+      ...qTable.map(r => Math.abs(r.natural - at(r.m, r.n))),
+    )
+    const g3 =
+      qWhole < LOOSE &&
+      Math.abs(at(3, 0)) < LOOSE &&
+      Math.abs(at(4, 1) - 2) < LOOSE &&
+      qMirror < LOOSE
 
     // G4: the joint 2T x S4 content
-    const joint = (rho: (typeof characters)[number], lambdaS: (typeof S4)[number]): number => {
+    const joint = (
+      rho: (typeof characters)[number],
+      lambdaS: (typeof S4)[number],
+    ): number => {
       let sum = 0
 
       for (const p of perms) {
@@ -241,9 +357,20 @@ export default experiment({
 
       return sum / (perms.length * turns.length)
     }
-    const antisymmetricDimension = characters.reduce((s, c) => s + c.dimension * joint(c, S4[1]!), 0)
-    const naturalS4 = S4.map(l => ({ name: l.name, m: joint(naturalChar, l) }))
-    const fullJoint = characters.flatMap(c => S4.map(l => ({ spin: c.name, perm: l.name, m: joint(c, l) }))).filter(x => Math.abs(x.m) > LOOSE)
+
+    const antisymmetricDimension = characters.reduce(
+      (s, c) => s + c.dimension * joint(c, S4[1]!),
+      0,
+    )
+    const naturalS4 = S4.map(l => ({
+      name: l.name,
+      m: joint(naturalChar, l),
+    }))
+    const fullJoint = characters
+      .flatMap(c =>
+        S4.map(l => ({ spin: c.name, perm: l.name, m: joint(c, l) })),
+      )
+      .filter(x => Math.abs(x.m) > LOOSE)
     const g4 = Math.abs(antisymmetricDimension) < LOOSE
 
     const ok = g1 && g2 && g3 && g4
@@ -251,27 +378,44 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `the (4, 1) neutral space has rank ${rank.toFixed(6)}, ${spinorial.toFixed(6)} spinorial; its 2T content is ${multiplicity.map(x => `${x.name} x ${round(x.m[0])}`).join(', ')} (characters orthonormal to ${orthonormalGap.toExponential(1)}); the 4 ways to split it into a neutral triple and a meson span ${basis.length} dimensions, on which the natural doublets' projector has trace ${naturalOnSpan.toExponential(1)} and the twisted ones' ${twistedOnSpan.toFixed(6)}; natural doublets for |Q| = 1 and n + m <= 9: ${qTable.map(r => `(${r.n}, ${r.m}) ${round(r.natural)} of rank ${round(r.rank)}`).join(', ')}; the part antisymmetric in the four roles has dimension ${round(antisymmetricDimension)}, and the natural doublets sit in S4 as ${naturalS4.filter(x => Math.abs(x.m) > LOOSE).map(x => `${x.name} x ${round(x.m)}`).join(', ')}`,
+      claim: `the (4, 1) neutral space has rank ${rank.toFixed(6)}, ${spinorial.toFixed(6)} spinorial; its 2T content is ${multiplicity.map(x => `${x.name} x ${round(x.m[0])}`).join(', ')} (characters orthonormal to ${orthonormalGap.toExponential(1)}); the 4 ways to split it into a neutral triple and a meson span ${basis.length} dimensions, on which the natural doublets' projector has trace ${naturalOnSpan.toExponential(1)} and the twisted ones' ${twistedOnSpan.toFixed(6)}; natural doublets for |Q| = 1 and n + m <= 9: ${qTable.map(r => `(${r.n}, ${r.m}) ${round(r.natural)} of rank ${round(r.rank)}`).join(', ')}; the part antisymmetric in the four roles has dimension ${round(antisymmetricDimension)}, and the natural doublets sit in S4 as ${naturalS4
+        .filter(x => Math.abs(x.m) > LOOSE)
+        .map(x => `${x.name} x ${round(x.m)}`)
+        .join(', ')}`,
       metrics: {
         rank,
         spinorial,
         characterOrthonormalGap: orthonormalGap,
         multiplicityWholeGap: wholeGap,
         dimensionSum,
-        ...Object.fromEntries(multiplicity.map(x => [`multiplicity_${x.name}`, round(x.m[0])])),
+        ...Object.fromEntries(
+          multiplicity.map(x => [
+            `multiplicity_${x.name}`,
+            round(x.m[0]),
+          ]),
+        ),
         fallApartDimension: basis.length,
         naturalOnFallApartSpan: naturalOnSpan,
         twistedOnFallApartSpan: twistedOnSpan,
-        ...Object.fromEntries(qTable.map(r => [`natural_${r.n}_${r.m}`, round(r.natural)])),
+        ...Object.fromEntries(
+          qTable.map(r => [`natural_${r.n}_${r.m}`, round(r.natural)]),
+        ),
         qTableWholeGap: qWhole,
         qTableMirrorGap: qMirror,
         antisymmetricInRolesDimension: round(antisymmetricDimension),
-        ...Object.fromEntries(naturalS4.map(x => [`naturalInS4_${x.name}`, round(x.m)])),
-        ...Object.fromEntries(fullJoint.map(x => [`joint_${x.spin}_${x.perm}`, round(x.m)])),
+        ...Object.fromEntries(
+          naturalS4.map(x => [`naturalInS4_${x.name}`, round(x.m)]),
+        ),
+        ...Object.fromEntries(
+          fullJoint.map(x => [`joint_${x.spin}_${x.perm}`, round(x.m)]),
+        ),
       },
       control: {
         twistedOnFallApartSpan: twistedOnSpan,
-        cubedOrderSixCheck: cpow(lambda[turns.findIndex(t => t.order === 6)] ?? [1, 0], 3)[0],
+        cubedOrderSixCheck: cpow(
+          lambda[turns.findIndex(t => t.order === 6)] ?? [1, 0],
+          3,
+        )[0],
       },
       notes:
         'L1, exact. FIRST RUN, DISCLOSED: G1, G3 and G4 held as predicted and G2 failed on its dimension clause alone: the four triple-times-meson splittings span 11 dimensions, not 12 (one linear relation among the 12 products, a wrong count in P2, not wrong algebra). The part of G2 that carries the physics held: the natural doublets\' projector has trace -8e-16 on the span, while the twisted doublets fill 8 of its 11 dimensions and one-dimensional characters the other 3. Gates not moved; status fail on G2. Reported after the run: the two natural doublets carry the two-dimensional irrep of S4 (the [2, 2] mixed symmetry of the four roles), so four fermion loves need slot parts of that same mixed symmetry, which a dock of 24 slots allows. Spin is the 2T of the role grid acting on every role (a finite group), so "spin one half" means the natural doublet, the restriction of SU(2) spin 1/2; spin 5/2 would also contain it, and the minimal SU(2) reading is 1/2. The two natural doublets of (4, 1) are orthogonal to every triple-times-meson product, so a Q = 1 natural spin one half is a genuinely five-body state: it cannot be written as a neutral triple next to a meson, and it cannot split into them without an orbital unit. Its four roles cannot be antisymmetric in the role alone (a qutrit has no four-fold antisymmetric state), so if the loves are fermions their sign lives in the slots, as E-SPN-0047 found for every vibe. COMPARISON WITH THE RISHON MODEL (Harari 1979, Shupe 1979): the charge assignment is the same, a love a T rishon of charge +1/3 and a fear an anti-T, so three loves are the rishon positron TTT; and the spin problem is the same, since three identical rishons antisymmetric in hypercolor are symmetric in spin in an s-wave, which is spin 3/2, just as the neutral triple here is the uuu / Delta-like twisted doublet (E-SPN-0055). The rishon model gets its spin one half TTT from dynamics (relative motion or chiral binding) it does not derive. The model here resembles the rishon model in its charges and inherits its spin 3/2 problem for the triple, but its own first natural spin one half at Q = 1 is TTTT anti-T, a pentaquark-like five-body state, which the rishon model does not use. Nothing here binds the five: that is E-SPN-0061.',

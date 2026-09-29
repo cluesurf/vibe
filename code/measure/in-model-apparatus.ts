@@ -27,25 +27,49 @@
 // 1e-9 tolerance on an answer that is either 0 or at least 1/81 away.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { fearBeat, makeLattice, GRID_OF_PHASE } from '@/code/rule/fear-weave'
+import {
+  fearBeat,
+  makeLattice,
+  GRID_OF_PHASE,
+} from '@/code/rule/fear-weave'
 import { LINE_CLASSES } from '@/code/measure/sum-record'
-import { addPoints, applyStoredLinear, frameReflection, pointForm, scalePoint } from '@/code/measure/frame-covariant-meeting'
+import {
+  addPoints,
+  applyStoredLinear,
+  frameReflection,
+  pointForm,
+  scalePoint,
+} from '@/code/measure/frame-covariant-meeting'
 
-export const directionPoint = (c: number): number => 3 * (LINE_CLASSES[c]?.direction[0] ?? 0) + (LINE_CLASSES[c]?.direction[1] ?? 0)
+export const directionPoint = (c: number): number =>
+  3 * (LINE_CLASSES[c]?.direction[0] ?? 0) +
+  (LINE_CLASSES[c]?.direction[1] ?? 0)
 
 // LABEL[9 c + x] = [d_c, x]
-export const LABEL = Int8Array.from({ length: 36 }, (_, k) => pointForm(directionPoint(Math.floor(k / 9)), k % 9))
+export const LABEL = Int8Array.from({ length: 36 }, (_, k) =>
+  pointForm(directionPoint(Math.floor(k / 9)), k % 9),
+)
 
-export type ClassedLine = { readonly c: number; readonly points: readonly number[] }
+export type ClassedLine = {
+  readonly c: number
+  readonly points: readonly number[]
+}
 
 // the 12 lines as (class, sorted points), classes in LINE_CLASSES order (role, tilt, diagonal, antidiagonal)
-export const LINES: readonly ClassedLine[] = LINE_CLASSES.flatMap((c, ci) => c.lines.map(points => ({ c: ci, points: [...points] })))
+export const LINES: readonly ClassedLine[] = LINE_CLASSES.flatMap(
+  (c, ci) => c.lines.map(points => ({ c: ci, points: [...points] })),
+)
 
-export const lineLabel = (l: ClassedLine): number => LABEL[9 * l.c + (l.points[0] ?? 0)] ?? 0
+export const lineLabel = (l: ClassedLine): number =>
+  LABEL[9 * l.c + (l.points[0] ?? 0)] ?? 0
 
 // the line through two different points, sorted
 export const lineThrough = (p: number, q: number): number[] =>
-  [0, 1, 2].map(s => addPoints(p, scalePoint(s, addPoints(q, scalePoint(2, p))))).sort((a, b) => a - b)
+  [0, 1, 2]
+    .map(s =>
+      addPoints(p, scalePoint(s, addPoints(q, scalePoint(2, p)))),
+    )
+    .sort((a, b) => a - b)
 
 // the index into LINES of the line through p != q
 export function lineIndexThrough(p: number, q: number): number {
@@ -61,7 +85,11 @@ export function reflectionTable(): Int16Array {
   const table = new Int16Array(729)
 
   for (let j = 0; j < 729; j++) {
-    applyStoredLinear(r, [Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9], out)
+    applyStoredLinear(
+      r,
+      [Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9],
+      out,
+    )
     table[j] = 81 * (out[0] ?? 0) + 9 * (out[1] ?? 0) + (out[2] ?? 0)
   }
 
@@ -69,7 +97,11 @@ export function reflectionTable(): Int16Array {
 }
 
 // what one classical member (record at sr, reference stored at sf) writes for a system point x
-export function memberRecord(x: number, sr: number, sf: number): { system: number; record: number; reference: number } {
+export function memberRecord(
+  x: number,
+  sr: number,
+  sf: number,
+): { system: number; record: number; reference: number } {
   const neg = (p: number): number => scalePoint(2, p)
 
   return {
@@ -81,7 +113,10 @@ export function memberRecord(x: number, sr: number, sf: number): { system: numbe
 
 // the number of (column, column') pairs where K^T K differs from D^2 times the identity: 0 for the Wigner
 // kernel of a unitary, which keeps the sum of squared weights
-export function kernelNormBad(kernel: readonly (readonly number[])[], divisor: number): number {
+export function kernelNormBad(
+  kernel: readonly (readonly number[])[],
+  divisor: number,
+): number {
   let bad = 0
 
   for (let c = 0; c < 81; c++) {
@@ -101,7 +136,9 @@ export function kernelNormBad(kernel: readonly (readonly number[])[], divisor: n
 
 // nonzero entries of a two-token kernel that change the stored difference y - x (keepsDifference) or the
 // sum x + y (keepsSum)
-export function differenceBreaks(kernel: readonly (readonly number[])[]): number {
+export function differenceBreaks(
+  kernel: readonly (readonly number[])[],
+): number {
   let bad = 0
 
   for (let r = 0; r < 81; r++) {
@@ -118,13 +155,19 @@ export function differenceBreaks(kernel: readonly (readonly number[])[]): number
   return bad
 }
 
-export function sumBreaks(kernel: readonly (readonly number[])[]): number {
+export function sumBreaks(
+  kernel: readonly (readonly number[])[],
+): number {
   let bad = 0
 
   for (let r = 0; r < 81; r++) {
     for (let c = 0; c < 81; c++) {
       if ((kernel[r]?.[c] ?? 0) !== 0) {
-        bad += addPoints(r % 9, Math.floor(r / 9)) === addPoints(c % 9, Math.floor(c / 9)) ? 0 : 1
+        bad +=
+          addPoints(r % 9, Math.floor(r / 9)) ===
+          addPoints(c % 9, Math.floor(c / 9))
+            ? 0
+            : 1
       }
     }
   }
@@ -134,7 +177,10 @@ export function sumBreaks(kernel: readonly (readonly number[])[]): number {
 
 // entries where a kernel differs from itself with both coordinates translated by v, over all 9 v, or moved
 // by a linear map M (as a table on the phase index) on both
-export function diagonalCovarianceBad(kernel: readonly (readonly number[])[], maps: readonly (readonly number[])[]): number {
+export function diagonalCovarianceBad(
+  kernel: readonly (readonly number[])[],
+  maps: readonly (readonly number[])[],
+): number {
   let bad = 0
 
   for (const m of maps) {
@@ -153,7 +199,12 @@ export function diagonalCovarianceBad(kernel: readonly (readonly number[])[], ma
 }
 
 // a two-token kernel (as a flat Float64Array of K itself) applied to coordinates a, b of a three-token vector
-export function meetThree(w: Float64Array, a: number, b: number, kernel: Float64Array): Float64Array {
+export function meetThree(
+  w: Float64Array,
+  a: number,
+  b: number,
+  kernel: Float64Array,
+): Float64Array {
   const sa = 9 ** (2 - a)
   const sb = 9 ** (2 - b)
   const sc = 9 ** (2 - (3 - a - b))
@@ -167,7 +218,9 @@ export function meetThree(w: Float64Array, a: number, b: number, kernel: Float64
         const kv = kernel[r * 81 + c] ?? 0
 
         if (kv !== 0) {
-          m += kv * (w[Math.floor(c / 9) * sa + (c % 9) * sb + z * sc] ?? 0)
+          m +=
+            kv *
+            (w[Math.floor(c / 9) * sa + (c % 9) * sb + z * sc] ?? 0)
         }
       }
 
@@ -199,8 +252,15 @@ export function apparatusHistory(input: {
   open[love] = 1
   open[fear] = 1
 
-  let lattice = makeLattice({ vibe: input.vibe, point: input.points ?? new Int8Array(slots) })
-  const grid = [Int8Array.from({ length: 9 }, (_, i) => i), Int8Array.from({ length: 9 }, (_, i) => i)]
+  let lattice = makeLattice({
+    vibe: input.vibe,
+    point: input.points ?? new Int8Array(slots),
+  })
+
+  const grid = [
+    Int8Array.from({ length: 9 }, (_, i) => i),
+    Int8Array.from({ length: 9 }, (_, i) => i),
+  ]
   const moves = new Int8Array(beats * 18)
   const valid = new Uint8Array(beats)
   const where = new Int32Array(slots)
@@ -226,12 +286,18 @@ export function apparatusHistory(input: {
     lattice.token.forEach((tk, slot) => {
       where[tk] = slot
     })
-    valid[t] = lattice.vibe[where[love] ?? 0] === 1 && lattice.vibe[where[fear] ?? 0] === -1 ? 1 : 0
+
+    valid[t] =
+      lattice.vibe[where[love] ?? 0] === 1 &&
+      lattice.vibe[where[fear] ?? 0] === -1
+        ? 1
+        : 0
 
     for (let k = 0; k < 2; k++) {
       for (let q = 0; q < 9; q++) {
         // phase q -> grid -> moved -> phase
-        moves[t * 18 + 9 * k + q] = GRID_OF_PHASE[grid[k]![GRID_OF_PHASE[q] ?? 0] ?? 0] ?? 0
+        moves[t * 18 + 9 * k + q] =
+          GRID_OF_PHASE[grid[k]![GRID_OF_PHASE[q] ?? 0] ?? 0] ?? 0
       }
     }
   }

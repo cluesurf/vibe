@@ -20,12 +20,20 @@
 
 import { collide, streamSourceTable } from '@/code/rule/lattice-gas'
 import { type Collision, turningWeave } from '@/code/rule/collision'
-import { combinedCollision, COMBINED_DEFAULT } from '@/code/rule/combined-knit'
-import { d4BoxCell, d4BoxMesh, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  combinedCollision,
+  COMBINED_DEFAULT,
+} from '@/code/rule/combined-knit'
+import {
+  d4BoxCell,
+  d4BoxMesh,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 import { meshOpposites, type Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 export const KNIT_PERIOD = 24
+
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 export type KnitName = 'committed' | 'combined'
@@ -33,14 +41,24 @@ export type KnitName = 'committed' | 'combined'
 const OPPOSITE = meshOpposites(d4BoxMesh({ side: 3 }))
 
 export function knitForward(name: KnitName): (t: number) => Collision {
-  return name === 'committed' ? turningWeave({ opposite: OPPOSITE }) : combinedCollision({ spec: COMBINED_DEFAULT, opposite: OPPOSITE })
+  return name === 'committed'
+    ? turningWeave({ opposite: OPPOSITE })
+    : combinedCollision({ spec: COMBINED_DEFAULT, opposite: OPPOSITE })
 }
 
 // a seed: docks by basis coordinates (code/substrate/d4-box) with their full 24-slot states on the empty
 // vacuum of beat 0
-export type Seed = { readonly name: string; readonly docks: readonly { readonly coords: readonly number[]; readonly state: Int8Array }[] }
+export type Seed = {
+  readonly name: string
+  readonly docks: readonly {
+    readonly coords: readonly number[]
+    readonly state: Int8Array
+  }[]
+}
 
-const dockWith = (entries: readonly (readonly [number, number])[]): Int8Array => {
+const dockWith = (
+  entries: readonly (readonly [number, number])[],
+): Int8Array => {
   const state = new Int8Array(24)
 
   for (const [d, v] of entries) {
@@ -51,15 +69,44 @@ const dockWith = (entries: readonly (readonly [number, number])[]): Int8Array =>
 }
 
 export function loneSeed(direction: number, tone: number): Seed {
-  return { name: `${tone > 0 ? 'love' : 'fear'}${direction}`, docks: [{ coords: [0, 0, 0, 0], state: dockWith([[direction, tone]]) }] }
+  return {
+    name: `${tone > 0 ? 'love' : 'fear'}${direction}`,
+    docks: [
+      { coords: [0, 0, 0, 0], state: dockWith([[direction, tone]]) },
+    ],
+  }
 }
 
-export const MESON_SEED: Seed = { name: 'meson', docks: [{ coords: [0, 0, 0, 0], state: dockWith([[0, 1], [12, -1]]) }] }
-export const KNOT_SEED: Seed = { name: 'knot', docks: [{ coords: [0, 0, 0, 0], state: dockWith([[0, 1], [8, 1], [16, 1]]) }] }
+export const MESON_SEED: Seed = {
+  name: 'meson',
+  docks: [
+    {
+      coords: [0, 0, 0, 0],
+      state: dockWith([
+        [0, 1],
+        [12, -1],
+      ]),
+    },
+  ],
+}
+export const KNOT_SEED: Seed = {
+  name: 'knot',
+  docks: [
+    {
+      coords: [0, 0, 0, 0],
+      state: dockWith([
+        [0, 1],
+        [8, 1],
+        [16, 1],
+      ]),
+    },
+  ],
+}
 
 export function blobSeed(radius = 2): Seed {
   const roots = rootsD4()
   const seen = new Map<string, number[]>([['0,0,0,0', [0, 0, 0, 0]]])
+
   let frontier = [[0, 0, 0, 0]]
 
   for (let r = 0; r < radius; r++) {
@@ -104,7 +151,12 @@ export type BoxRun = {
   readonly beat: () => number
 }
 
-export function boxRun(input: { forward: (t: number) => Collision; side: number; seed: Seed; center: readonly number[] }): BoxRun {
+export function boxRun(input: {
+  forward: (t: number) => Collision
+  side: number
+  seed: Seed
+  center: readonly number[]
+}): BoxRun {
   const { forward, side, seed, center } = input
   const mesh = d4BoxMesh({ side })
   const table = streamSourceTable(mesh)
@@ -114,7 +166,10 @@ export function boxRun(input: { forward: (t: number) => Collision; side: number;
   let beat = 0
 
   for (const dock of seed.docks) {
-    const cell = d4BoxCell({ coordinates: dock.coords.map((x, k) => x + (center[k] ?? 0)), side })
+    const cell = d4BoxCell({
+      coordinates: dock.coords.map((x, k) => x + (center[k] ?? 0)),
+      side,
+    })
 
     a.set(dock.state, cell * 24)
   }

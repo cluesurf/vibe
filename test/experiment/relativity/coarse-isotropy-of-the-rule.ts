@@ -41,7 +41,11 @@ import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { linearMapOf } from '@/code/substrate/d4-box'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import {
   chargeWaveResponse,
   curveSpread,
@@ -67,7 +71,9 @@ type Reading = {
   faceSpread: number
 }
 
-const AXES = [0, 1, 2, 3].map(a => [0, 1, 2, 3].map(k => (k === a ? 1 : 0)))
+const AXES = [0, 1, 2, 3].map(a =>
+  [0, 1, 2, 3].map(k => (k === a ? 1 : 0)),
+)
 const FACES: number[][] = []
 
 for (let i = 0; i < 4; i++) {
@@ -113,7 +119,7 @@ export default experiment({
   id: 'relativity/coarse-isotropy-of-the-rule',
   code: 'E-RLT-0045',
   title:
-    'rotation symmetry does not come back at coarse scale under the committed rule: the rule keeps no rotation, so rank 2 is the lowest unforced rank (the torus group forces it, W(F4) forces rank 4 too, the rule\'s own {I, -I} forces nothing), and the rank-2 response of long charge waves stays anisotropic from side 9 to 17 (kernel 1.60, 1.34, 1.31, axis-shell spread 0.31, 0.33, 0.34), keeping over 0.8 of itself where a lattice correction would keep 0.53 or 0.28, against a streaming floor of a few hundredths',
+    "rotation symmetry does not come back at coarse scale under the committed rule: the rule keeps no rotation, so rank 2 is the lowest unforced rank (the torus group forces it, W(F4) forces rank 4 too, the rule's own {I, -I} forces nothing), and the rank-2 response of long charge waves stays anisotropic from side 9 to 17 (kernel 1.60, 1.34, 1.31, axis-shell spread 0.31, 0.33, 0.34), keeping over 0.8 of itself where a lattice correction would keep 0.53 or 0.28, against a streaming floor of a few hundredths",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -125,12 +131,17 @@ export default experiment({
       .map(p => linearMapOf(p))
       .filter((m): m is number[][] => !!m)
     const b4 = f4.filter(m =>
-      m.every(row => row.every(x => Math.abs(x - Math.round(x)) < 1e-9)),
+      m.every(row =>
+        row.every(x => Math.abs(x - Math.round(x)) < 1e-9),
+      ),
     )
     const identity = [0, 1, 2, 3].map(i =>
       [0, 1, 2, 3].map(j => (i === j ? 1 : 0)),
     )
-    const committedGroup = [identity, identity.map(row => row.map(x => -x))]
+    const committedGroup = [
+      identity,
+      identity.map(row => row.map(x => -x)),
+    ]
     const samples = unitSamples(200)
     const spread = (
       group: readonly (readonly (readonly number[])[])[],
@@ -196,18 +207,29 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the torus group forces rank 2 and not rank 4, W(F4) forces ranks 2 and 4 and not 6, and the committed rule\'s {I, -I} forces nothing; pure streaming reads under 0.1 at every side; and the committed rule\'s rank-2 kernel anisotropy and axis-shell spread sit more than ten times above that floor at sides 9, 13 and 17 and keep more than 0.7 and 0.8 of their side-9 values at side 17',
+        "the torus group forces rank 2 and not rank 4, W(F4) forces ranks 2 and 4 and not 6, and the committed rule's {I, -I} forces nothing; pure streaming reads under 0.1 at every side; and the committed rule's rank-2 kernel anisotropy and axis-shell spread sit more than ten times above that floor at sides 9, 13 and 17 and keep more than 0.7 and 0.8 of their side-9 values at side 17",
       metrics: {
         ...Object.fromEntries(
-          committed.flatMap(r => [
-            [`kernelAnisotropySide${r.side}`, Number(r.kernel.toFixed(4))],
+          committed.flatMap((r): [string, number][] => [
+            [
+              `kernelAnisotropySide${r.side}`,
+              Number(r.kernel.toFixed(4)),
+            ],
             [
               `kernelAnisotropyFirstHalfSide${r.side}`,
               Number(r.kernelFirstHalf.toFixed(4)),
             ],
-            [`axisSpreadSide${r.side}`, Number(r.axisSpread.toFixed(4))],
+            [
+              `axisSpreadSide${r.side}`,
+              Number(r.axisSpread.toFixed(4)),
+            ],
             ...(r.faceSpread >= 0
-              ? [[`faceSpreadSide${r.side}`, Number(r.faceSpread.toFixed(4))]]
+              ? [
+                  [
+                    `faceSpreadSide${r.side}`,
+                    Number(r.faceSpread.toFixed(4)),
+                  ] as [string, number],
+                ]
               : []),
           ]),
         ),
@@ -232,19 +254,32 @@ export default experiment({
         forcingF4Rank2: Number(forcing.f4Rank2.toExponential(3)),
         forcingF4Rank4: Number(forcing.f4Rank4.toExponential(3)),
         forcingF4Rank6: Number(forcing.f4Rank6.toExponential(3)),
-        forcingCommittedRank2: Number(forcing.committedRank2.toExponential(3)),
+        forcingCommittedRank2: Number(
+          forcing.committedRank2.toExponential(3),
+        ),
         ...Object.fromEntries(
           streaming.flatMap(r => [
-            [`streamingKernelSide${r.side}`, Number(r.kernel.toFixed(4))],
-            [`streamingAxisSpreadSide${r.side}`, Number(r.axisSpread.toFixed(4))],
-            [`streamingFaceSpreadSide${r.side}`, Number(r.faceSpread.toFixed(4))],
+            [
+              `streamingKernelSide${r.side}`,
+              Number(r.kernel.toFixed(4)),
+            ],
+            [
+              `streamingAxisSpreadSide${r.side}`,
+              Number(r.axisSpread.toFixed(4)),
+            ],
+            [
+              `streamingFaceSpreadSide${r.side}`,
+              Number(r.faceSpread.toFixed(4)),
+            ],
           ]),
         ),
         lossForOneOverL: Number((SIDES[0]! / SIDES[2]!).toFixed(4)),
-        lossForKSquared: Number(((SIDES[0]! / SIDES[2]!) ** 2).toFixed(4)),
+        lossForKSquared: Number(
+          ((SIDES[0]! / SIDES[2]!) ** 2).toFixed(4),
+        ),
       },
       notes:
-        'L2. The anisotropy is in the leading, rank-2 term of the response, the term a lattice with symmetry would force to be isotropic and this rule does not, so coarse-graining cannot remove it: shrinking k only removes higher-order terms, and the kernel anisotropy levels near 1.3 while the axis-shell spread does not fall at all. The axis waves show the direction ordering directly: a wave along axis 0 relaxes furthest and one along axis 3 hardly relaxes (E-FRC-0143\'s protected directions 0 and 1 stream in the plane of axes 0 and 1). Rank 2 anisotropy could still be a metric (a linear change of coordinates makes one positive rank-2 tensor isotropic), so what is ruled out is rotation symmetry in the lattice\'s own coordinates, not an emergent metric; that needs two independent rank-2 tensors to agree, not measured here. A lone tone on the vacuum does not spread (it is a dressed ballistic particle, E-FND-0120), so it has no coarse spreading tensor, and the long-wave relaxation stands in for the diffusion tensor. Deterministic fills and perturbations throughout; the streaming floor is the imbalance of which slots happened to be calm.',
+        "L2. The anisotropy is in the leading, rank-2 term of the response, the term a lattice with symmetry would force to be isotropic and this rule does not, so coarse-graining cannot remove it: shrinking k only removes higher-order terms, and the kernel anisotropy levels near 1.3 while the axis-shell spread does not fall at all. The axis waves show the direction ordering directly: a wave along axis 0 relaxes furthest and one along axis 3 hardly relaxes (E-FRC-0143's protected directions 0 and 1 stream in the plane of axes 0 and 1). Rank 2 anisotropy could still be a metric (a linear change of coordinates makes one positive rank-2 tensor isotropic), so what is ruled out is rotation symmetry in the lattice's own coordinates, not an emergent metric; that needs two independent rank-2 tensors to agree, not measured here. A lone tone on the vacuum does not spread (it is a dressed ballistic particle, E-FND-0120), so it has no coarse spreading tensor, and the long-wave relaxation stands in for the diffusion tensor. Deterministic fills and perturbations throughout; the streaming floor is the imbalance of which slots happened to be calm.",
     })
   },
 })

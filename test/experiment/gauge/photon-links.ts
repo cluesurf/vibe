@@ -73,9 +73,17 @@ const ANGLE_AMPLITUDE = 512
 const FLUX_AMPLITUDE = 181
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-type Extra = { mode?: 'leapfrog' | 'demon'; gauss?: boolean; kick?: 'curl' | 'link' | 'angle'; k?: number }
+type Extra = {
+  mode?: 'leapfrog' | 'demon'
+  gauss?: boolean
+  kick?: 'curl' | 'link' | 'angle'
+  k?: number
+}
 
-function makeRule(lattice: PhotonLattice, extra: Extra = {}): PhotonRule {
+function makeRule(
+  lattice: PhotonLattice,
+  extra: Extra = {},
+): PhotonRule {
   const mode = extra.mode ?? 'leapfrog'
 
   return makePhotonRule({
@@ -115,12 +123,21 @@ function start(rule: PhotonRule, scale: number): PhotonState {
   return s
 }
 
-const fields = (s: PhotonState): ArrayLike<number>[] => [s.vibe, s.angle, s.flux, s.demon]
+const fields = (s: PhotonState): ArrayLike<number>[] => [
+  s.vibe,
+  s.angle,
+  s.flux,
+  s.demon,
+]
 
 const mismatches = (a: PhotonState, b: PhotonState): number => {
   const right = fields(b)
 
-  return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
+  return fields(a).reduce(
+    (n, f, k) =>
+      n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length,
+    0,
+  )
 }
 
 type Run = {
@@ -137,7 +154,8 @@ type Run = {
 function run(rule: PhotonRule, scale: number): Run {
   const s0 = start(rule, scale)
   const s = copyPhotonState(s0)
-  const count = (x: PhotonState, v: number): number => x.vibe.filter(q => q === v).length
+  const count = (x: PhotonState, v: number): number =>
+    x.vibe.filter(q => q === v).length
   const level0 = photonLevelEnergy(rule, s0)
   const shadow0 = photonEnergy(rule, s0).shadow
   const moves = { links: 0, loops: 0, hops: 0 }
@@ -153,24 +171,34 @@ function run(rule: PhotonRule, scale: number): Run {
     moves.links += m.links
     moves.loops += m.loops
     moves.hops += m.hops
-    loveFearExact = loveFearExact && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    loveFearExact =
+      loveFearExact &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
     violations += photonGaussViolations(rule, s)
 
     if (rule.mode === 'demon') {
       levelExact = levelExact && photonLevelEnergy(rule, s) === level0
     } else {
-      shadowDrift = Math.max(shadowDrift, Math.abs(photonEnergy(rule, s).shadow - shadow0) / shadow0)
+      shadowDrift = Math.max(
+        shadowDrift,
+        Math.abs(photonEnergy(rule, s).shadow - shadow0) / shadow0,
+      )
     }
   }
 
-  const anglesChanged = Array.from(s.angle).filter((v, i) => v !== s0.angle[i]).length
+  const anglesChanged = Array.from(s.angle).filter(
+    (v, i) => v !== s0.angle[i],
+  ).length
 
   for (let t = BEATS - 1; t >= 0; t--) {
     photonBeatBackInPlace(rule, s, t)
   }
 
   const reverses = mismatches(s, s0) === 0
-  const chi = Array.from({ length: rule.lattice.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N))
+  const chi = Array.from({ length: rule.lattice.cells }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * N),
+  )
   const a = start(rule, scale * 1.7)
   const b = changePhotonFrame(rule, a, chi)
 
@@ -182,11 +210,23 @@ function run(rule: PhotonRule, scale: number): Run {
     frameMismatches += mismatches(changePhotonFrame(rule, a, chi), b)
   }
 
-  return { reverses, loveFearExact, gaussViolations: violations, frameMismatches, levelExact, shadowDrift, anglesChanged, moves }
+  return {
+    reverses,
+    loveFearExact,
+    gaussViolations: violations,
+    frameMismatches,
+    levelExact,
+    shadowDrift,
+    anglesChanged,
+    moves,
+  }
 }
 
 // the leapfrog's shadow energy over many beats: its largest relative move and its growth per beat
-function energyRun(rule: PhotonRule, beats: number): { drift: number; growth: number; final: number } {
+function energyRun(
+  rule: PhotonRule,
+  beats: number,
+): { drift: number; growth: number; final: number } {
   const s = start(rule, 1.37)
   const shadow0 = photonEnergy(rule, s).shadow
   const window = Math.max(1, Math.floor(beats / 10))
@@ -207,12 +247,17 @@ function energyRun(rule: PhotonRule, beats: number): { drift: number; growth: nu
     }
   }
 
-  const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+  const mean = (xs: number[]): number =>
+    xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
   const first = mean(series.slice(0, window))
   const last = mean(series.slice(-window))
   const growth = (last - first) / Math.max(1, series.length - window)
 
-  return { drift, growth, final: (series[series.length - 1] ?? shadow0) / shadow0 }
+  return {
+    drift,
+    growth,
+    final: (series[series.length - 1] ?? shadow0) / shadow0,
+  }
 }
 
 export default experiment({
@@ -228,22 +273,39 @@ export default experiment({
     const lattices = SIDES.map(side => photonLatticeD4({ side }))
     const first = lattices[0] ?? photonLatticeD4({ side: 4 })
     const leap = lattices.map(lattice => run(makeRule(lattice), 1.37))
-    const demon = lattices.map(lattice => run(makeRule(lattice, { mode: 'demon' }), 1.37))
+    const demon = lattices.map(lattice =>
+      run(makeRule(lattice, { mode: 'demon' }), 1.37),
+    )
     const energy = energyRun(makeRule(first), ENERGY_BEATS)
     const noFlux = run(makeRule(first, { gauss: false }), 1.37)
     const linkKick = run(makeRule(first, { kick: 'link' }), 1.37)
     const angleKick = run(makeRule(first, { kick: 'angle' }), 1.37)
-    const unstable = energyRun(makeRule(first, { k: UNSTABLE_K }), UNSTABLE_BEATS)
-    const perLink = (first.plaquetteSize * first.plaquetteCount) / first.links
+    const unstable = energyRun(
+      makeRule(first, { k: UNSTABLE_K }),
+      UNSTABLE_BEATS,
+    )
+    const perLink =
+      (first.plaquetteSize * first.plaquetteCount) / first.links
     const roundingGrowth = (first.links * perLink) / 24
     const growthRatio = energy.growth / roundingGrowth
 
     const exact = (r: Run): boolean =>
-      r.reverses && r.loveFearExact && r.gaussViolations === 0 && r.frameMismatches === 0 && r.anglesChanged > 0 && r.moves.hops > 0
+      r.reverses &&
+      r.loveFearExact &&
+      r.gaussViolations === 0 &&
+      r.frameMismatches === 0 &&
+      r.anglesChanged > 0 &&
+      r.moves.hops > 0
 
     const ok =
       leap.every(exact) &&
-      demon.every(r => exact(r) && r.levelExact && r.moves.loops > 0 && r.moves.links > 0) &&
+      demon.every(
+        r =>
+          exact(r) &&
+          r.levelExact &&
+          r.moves.loops > 0 &&
+          r.moves.links > 0,
+      ) &&
       energy.drift < 0.1 &&
       growthRatio > 0.5 &&
       growthRatio < 2 &&
@@ -266,12 +328,27 @@ export default experiment({
       claim:
         "on the side-4 and side-5 D4 boxes both forms reverse exactly over 48 beats, keep love and fear and Gauss's law at every dock and beat while vibes hop, and commute with a Z_8192 frame change in every dock, the demon form keeping its integer energy on every beat, while the leapfrog's shadow energy stays within 10 percent over 2,000 beats and grows at the rate the rounding of the force predicts, where a hop that leaves its flux behind or a kick that is not a curl breaks Gauss's law, a force read from the angle breaks the frame change, and a coupling past the stability limit blows up",
       metrics: Object.fromEntries([
-        ...leap.flatMap((r, k) => [...report(`leapfrogSide${SIDES[k]}`, r), [`leapfrogSide${SIDES[k]}ShadowDrift48`, r.shadowDrift] as [string, number]]),
+        ...leap.flatMap((r, k) => [
+          ...report(`leapfrogSide${SIDES[k]}`, r),
+          [`leapfrogSide${SIDES[k]}ShadowDrift48`, r.shadowDrift] as [
+            string,
+            number,
+          ],
+        ]),
         ...demon.flatMap((r, k) => [
           ...report(`demonSide${SIDES[k]}`, r),
-          [`demonSide${SIDES[k]}EnergyExact`, r.levelExact ? 1 : 0] as [string, number],
-          [`demonSide${SIDES[k]}LinkMoves`, r.moves.links] as [string, number],
-          [`demonSide${SIDES[k]}FluxLoops`, r.moves.loops] as [string, number],
+          [`demonSide${SIDES[k]}EnergyExact`, r.levelExact ? 1 : 0] as [
+            string,
+            number,
+          ],
+          [`demonSide${SIDES[k]}LinkMoves`, r.moves.links] as [
+            string,
+            number,
+          ],
+          [`demonSide${SIDES[k]}FluxLoops`, r.moves.loops] as [
+            string,
+            number,
+          ],
         ]),
         ['leapfrogShadowDrift2000', energy.drift],
         ['leapfrogShadowGrowthPerBeat', energy.growth],

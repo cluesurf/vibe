@@ -66,7 +66,14 @@ import {
   type Nucleus,
   type Point,
 } from '@/code/measure/standin-chemistry'
-import { contactChance, keptSpectrum, keptTwoBody, labeledHamiltonian, parabolaMinimum, productOverlaps, type Level } from '@/code/measure/doublet-chemistry'
+import {
+  contactChance,
+  keptSpectrum,
+  keptTwoBody,
+  labeledHamiltonian,
+  parabolaMinimum,
+  productOverlaps,
+} from '@/code/measure/doublet-chemistry'
 
 const SIDE = 64
 const CENTER = SIDE / 2
@@ -93,7 +100,19 @@ export default experiment({
     const poisson = makePoisson(SIDE)
     const units = standinUnits(A0)
     const center: Point = [CENTER, CENTER, CENTER]
-    const hydrogen = lowestStates({ grid, potential: externalPotential({ grid, units, nuclei: [{ at: center, charge: 1 }] }), count: 1, extra: 3, tolerance: 1e-7, maxIterations: 400 }).values[0] ?? Number.NaN
+    const hydrogen =
+      lowestStates({
+        grid,
+        potential: externalPotential({
+          grid,
+          units,
+          nuclei: [{ at: center, charge: 1 }],
+        }),
+        count: 1,
+        extra: 3,
+        tolerance: 1e-7,
+        maxIterations: 400,
+      }).values[0] ?? Number.NaN
     const metrics: Record<string, number> = {}
     const ground: number[] = []
     const triplet: number[] = []
@@ -115,7 +134,15 @@ export default experiment({
         { at: [CENTER - shift, CENTER, CENTER], charge: 1 },
         { at: [CENTER - shift + m, CENTER, CENTER], charge: 1 },
       ]
-      const states = lowestStates({ grid, potential: externalPotential({ grid, units, nuclei }), count: BASIS, extra: 6, start, tolerance: 1e-6, maxIterations: 400 })
+      const states = lowestStates({
+        grid,
+        potential: externalPotential({ grid, units, nuclei }),
+        count: BASIS,
+        extra: 6,
+        start,
+        tolerance: 1e-6,
+        maxIterations: 400,
+      })
 
       start = states.vectors
 
@@ -123,59 +150,133 @@ export default experiment({
       const integrals = pairIntegrals(poisson, orbitals, units.kappa)
       const overlaps = productOverlaps(orbitals)
       const kept = keptTwoBody({ k: BASIS, overlaps })
-      const levels = keptSpectrum({ k: BASIS, kept, hamiltonian: labeledHamiltonian({ k: BASIS, oneBody: states.values.slice(0, BASIS), integrals }) })
+      const levels = keptSpectrum({
+        k: BASIS,
+        kept,
+        hamiltonian: labeledHamiltonian({
+          k: BASIS,
+          oneBody: states.values.slice(0, BASIS),
+          integrals,
+        }),
+      })
       const repulsion = nuclearRepulsion(units, nuclei)
-      const first = levels[0] as Level
-      const second = levels[1] as Level
-      const lowestTriplet = levels.find(l => Math.abs(l.spin - 1) < 1e-3)
+      const first = levels[0]!
+      const second = levels[1]!
+      const lowestTriplet = levels.find(
+        l => Math.abs(l.spin - 1) < 1e-3,
+      )
       // the lowest level whose orbital pair is antisymmetric: exchange -1 with spin 1, or exchange +1 with spin 0
-      const orbitalOdd = levels.filter(l => (l.exchange < 0 && l.spin > 0.5) || (l.exchange > 0 && l.spin < 0.5))
+      const orbitalOdd = levels.filter(
+        l =>
+          (l.exchange < 0 && l.spin > 0.5) ||
+          (l.exchange > 0 && l.spin < 0.5),
+      )
       const oddFloor = orbitalOdd[0]?.energy ?? Number.NaN
-      const oddMultiplicity = orbitalOdd.filter(l => Math.abs(l.energy - oddFloor) < 1e-7 * Math.abs(oddFloor)).length
+      const oddMultiplicity = orbitalOdd.filter(
+        l => Math.abs(l.energy - oddFloor) < 1e-7 * Math.abs(oddFloor),
+      ).length
       const keptValues = kept.formValues.slice(0, kept.basis.length)
       const removedValues = kept.formValues.slice(kept.basis.length)
-      const formGap = Math.min(...removedValues) / Math.max(1e-300, Math.max(...keptValues.map(Math.abs)))
+      const formGap =
+        Math.min(...removedValues) /
+        Math.max(1e-300, Math.max(...keptValues.map(Math.abs)))
 
-      sectorOk = sectorOk && kept.antisymmetricKept === kept.antisymmetricDimension && kept.symmetricKept === (BASIS * (BASIS - 1)) / 2
+      sectorOk =
+        sectorOk &&
+        kept.antisymmetricKept === kept.antisymmetricDimension &&
+        kept.symmetricKept === (BASIS * (BASIS - 1)) / 2
       worstFormGap = Math.min(worstFormGap, formGap)
       ground.push(first.energy + repulsion)
       triplet.push((lowestTriplet?.energy ?? Number.NaN) + repulsion)
-      tripletAbove = tripletAbove && (lowestTriplet?.energy ?? Number.NEGATIVE_INFINITY) + repulsion > 2 * hydrogen
+      tripletAbove =
+        tripletAbove &&
+        (lowestTriplet?.energy ?? Number.NEGATIVE_INFINITY) +
+          repulsion >
+          2 * hydrogen
 
       const key = `r${(m / A0).toFixed(3)}`
 
-      metrics[`${key}GroundRydberg`] = (first.energy + repulsion - 2 * hydrogen) / units.rydberg
-      metrics[`${key}TripletRydberg`] = ((lowestTriplet?.energy ?? Number.NaN) + repulsion - 2 * hydrogen) / units.rydberg
+      metrics[`${key}GroundRydberg`] =
+        (first.energy + repulsion - 2 * hydrogen) / units.rydberg
+
+      metrics[`${key}TripletRydberg`] =
+        ((lowestTriplet?.energy ?? Number.NaN) +
+          repulsion -
+          2 * hydrogen) /
+        units.rydberg
       metrics[`${key}GroundExchange`] = first.exchange
       metrics[`${key}GroundSpin`] = first.spin
-      metrics[`${key}GapToNextRydberg`] = (second.energy - first.energy) / units.rydberg
+      metrics[`${key}GapToNextRydberg`] =
+        (second.energy - first.energy) / units.rydberg
       metrics[`${key}KeptDimension`] = kept.basis.length
       metrics[`${key}KeptAntisymmetric`] = kept.antisymmetricKept
       metrics[`${key}KeptSymmetric`] = kept.symmetricKept
       metrics[`${key}OrbitalOddMultiplicity`] = oddMultiplicity
       metrics[`${key}FormGap`] = formGap
-      metrics[`${key}WorstOrbitalResidual`] = Math.max(...states.residuals)
-      metrics[`${key}GroundContactChance`] = contactChance({ k: BASIS, vector: first.vector, overlaps })
+      metrics[`${key}WorstOrbitalResidual`] = Math.max(
+        ...states.residuals,
+      )
+
+      metrics[`${key}GroundContactChance`] = contactChance({
+        k: BASIS,
+        vector: first.vector,
+        overlaps,
+      })
       metrics[`${key}Seconds`] = (Date.now() - t0) / 1000
-      antisymmetricOrbitalMultiplicity = Math.max(antisymmetricOrbitalMultiplicity, oddMultiplicity)
+      antisymmetricOrbitalMultiplicity = Math.max(
+        antisymmetricOrbitalMultiplicity,
+        oddMultiplicity,
+      )
     }
 
     const r = SEPARATIONS.map(m => m / A0)
     const bond = parabolaMinimum(r, ground)
     const de = (2 * hydrogen - bond.energy) / units.rydberg
-    const nearest = r.reduce((best, x, i) => (Math.abs(x - bond.r) < Math.abs((r[best] ?? 0) - bond.r) ? i : best), 0)
+    const nearest = r.reduce(
+      (best, x, i) =>
+        Math.abs(x - bond.r) < Math.abs((r[best] ?? 0) - bond.r)
+          ? i
+          : best,
+      0,
+    )
 
     // the ground state at the sampled separation nearest the minimum
-    groundSingle = (metrics[`r${(r[nearest] ?? 0).toFixed(3)}GapToNextRydberg`] ?? 0) * units.rydberg > DEGENERATE * units.rydberg
-    groundAntisymmetric = (metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundExchange`] ?? 0) < -0.99
-    groundSinglet = Math.abs(metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundSpin`] ?? 1) < 1e-3
-    contact = metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundContactChance`] ?? Number.NaN
+    groundSingle =
+      (metrics[`r${(r[nearest] ?? 0).toFixed(3)}GapToNextRydberg`] ??
+        0) *
+        units.rydberg >
+      DEGENERATE * units.rydberg
+
+    groundAntisymmetric =
+      (metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundExchange`] ?? 0) <
+      -0.99
+
+    groundSinglet =
+      Math.abs(
+        metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundSpin`] ?? 1,
+      ) < 1e-3
+
+    contact =
+      metrics[`r${(r[nearest] ?? 0).toFixed(3)}GroundContactChance`] ??
+      Number.NaN
 
     const g1 = sectorOk
-    const g2 = bond.interior && de > 0 && groundSingle && groundAntisymmetric && groundSinglet
+    const g2 =
+      bond.interior &&
+      de > 0 &&
+      groundSingle &&
+      groundAntisymmetric &&
+      groundSinglet
     const g3 = tripletAbove
-    const g4 = Math.abs(bond.r / REFERENCE_RE - 1) < RE_TOLERANCE && Math.abs(de / REFERENCE_DE - 1) < DE_TOLERANCE
-    const status = g1 && g2 && g3 && g4 ? 'pass' : g1 && g2 && g3 ? 'partial' : 'fail'
+    const g4 =
+      Math.abs(bond.r / REFERENCE_RE - 1) < RE_TOLERANCE &&
+      Math.abs(de / REFERENCE_DE - 1) < DE_TOLERANCE
+    const status =
+      g1 && g2 && g3 && g4
+        ? 'pass'
+        : g1 && g2 && g3
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
@@ -201,7 +302,7 @@ export default experiment({
         e0008DepthA0Four: 0.406,
       },
       notes:
-        'L2, stand-ins throughout (the husk stand-in electron of code/measure/standin-chemistry, fixed husk charges for nuclei, alpha chosen through a0 = 8 husk spacings, a two-valued label from E-SPN-0066). The exchange sector is the null space of the exclusion form, not an antisymmetrizer. The exclusion is the component reading of E-MTR-0018 turned through the frames (the reading under which that experiment found Pauli\'s sign); the model\'s own slot reading also removes antisymmetric states at contact, which a K = 8 orbital basis cannot represent (any amplitude at contact is spread over every product of orbitals), so its size is reported as the ground state\'s chance of contact, and the energy it costs is not computed. The K = 8 basis underbinds.',
+        "L2, stand-ins throughout (the husk stand-in electron of code/measure/standin-chemistry, fixed husk charges for nuclei, alpha chosen through a0 = 8 husk spacings, a two-valued label from E-SPN-0066). The exchange sector is the null space of the exclusion form, not an antisymmetrizer. The exclusion is the component reading of E-MTR-0018 turned through the frames (the reading under which that experiment found Pauli's sign); the model's own slot reading also removes antisymmetric states at contact, which a K = 8 orbital basis cannot represent (any amplitude at contact is spread over every product of orbitals), so its size is reported as the ground state's chance of contact, and the energy it costs is not computed. The K = 8 basis underbinds.",
     })
   },
 })

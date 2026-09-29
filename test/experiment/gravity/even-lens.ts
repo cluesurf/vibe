@@ -84,7 +84,8 @@ import {
 } from '@/code/measure/even-field'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 
-const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
+const within = (x: number, want: number, tol: number): boolean =>
+  Math.abs(x / want - 1) <= tol
 
 export default experiment({
   id: 'gravity/even-lens',
@@ -101,33 +102,92 @@ export default experiment({
     const [, sy] = LENS
     const [, cy, cz] = LENS_CENTER
     // detector i < sy: (y = i, z = cz); detector sy + i: (y = cy, z = i)
-    const line = (arr: readonly number[], axis: 'y' | 'z', at: number): number => arr[axis === 'y' ? at : sy + at] ?? Number.NaN
+    const line = (
+      arr: readonly number[],
+      axis: 'y' | 'z',
+      at: number,
+    ): number => arr[axis === 'y' ? at : sy + at] ?? Number.NaN
     const center = (axis: 'y' | 'z'): number => (axis === 'y' ? cy : cz)
     const delayOn = (axis: 'y' | 'z', b: number): number =>
-      (line(s.lump.arrival, axis, center(axis) + b) - line(s.u0.arrival, axis, center(axis) + b) + line(s.lump.arrival, axis, center(axis) - b) - line(s.u0.arrival, axis, center(axis) - b)) / 2
-    const delay = (b: number): number => (delayOn('y', b) + delayOn('z', b)) / 2
-    const eik = (axis: 'y' | 'z', at: number): number => (axis === 'y' ? s.eikonalY[at] : s.eikonalZ[at]) ?? Number.NaN
-    const eikDelay = (b: number): number => (eik('y', cy + b) + eik('y', cy - b) + eik('z', cz + b) + eik('z', cz - b)) / 4
-    const tilt = (arr: (axis: 'y' | 'z', at: number) => number, axis: 'y' | 'z', at: number): number =>
-      Math.asin(Math.max(-1, Math.min(1, (c0 * (arr(axis, at + 2) - arr(axis, at - 2))) / 4)))
-    const lumpAt = (axis: 'y' | 'z', at: number): number => line(s.lump.arrival, axis, at)
+      (line(s.lump.arrival, axis, center(axis) + b) -
+        line(s.u0.arrival, axis, center(axis) + b) +
+        line(s.lump.arrival, axis, center(axis) - b) -
+        line(s.u0.arrival, axis, center(axis) - b)) /
+      2
+    const delay = (b: number): number =>
+      (delayOn('y', b) + delayOn('z', b)) / 2
+    const eik = (axis: 'y' | 'z', at: number): number =>
+      (axis === 'y' ? s.eikonalY[at] : s.eikonalZ[at]) ?? Number.NaN
+    const eikDelay = (b: number): number =>
+      (eik('y', cy + b) +
+        eik('y', cy - b) +
+        eik('z', cz + b) +
+        eik('z', cz - b)) /
+      4
+    const tilt = (
+      arr: (axis: 'y' | 'z', at: number) => number,
+      axis: 'y' | 'z',
+      at: number,
+    ): number =>
+      Math.asin(
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            (c0 * (arr(axis, at + 2) - arr(axis, at - 2))) / 4,
+          ),
+        ),
+      )
+    const lumpAt = (axis: 'y' | 'z', at: number): number =>
+      line(s.lump.arrival, axis, at)
     // toward the lump: positive when the ray above turns down and the ray below turns up
-    const toward = (arr: (axis: 'y' | 'z', at: number) => number, b: number): number =>
-      (['y', 'z'] as const).reduce((acc, axis) => acc - (tilt(arr, axis, center(axis) + b) - tilt(arr, axis, center(axis) - b)) / 2, 0) / 2
+    const toward = (
+      arr: (axis: 'y' | 'z', at: number) => number,
+      b: number,
+    ): number =>
+      (['y', 'z'] as const).reduce(
+        (acc, axis) =>
+          acc -
+          (tilt(arr, axis, center(axis) + b) -
+            tilt(arr, axis, center(axis) - b)) /
+            2,
+        0,
+      ) / 2
     const bend = (b: number): number => toward(lumpAt, b)
     const eikBend = (b: number): number => toward(eik, b)
 
     // L1
-    const wrapsOf = (w: { angle: number; field: number; potential: number }): number => w.angle + w.field + w.potential
-    const g1 = s.lump.reversed && s.lump.gauss === 0 && wrapsOf(s.lump.wraps) === 0 && wrapsOf(s.u0.wraps) === 0 && s.flipMediumIdentical && s.depthColumnsDeepened > 0
+    const wrapsOf = (w: {
+      angle: number
+      field: number
+      potential: number
+    }): number => w.angle + w.field + w.potential
+    const g1 =
+      s.lump.reversed &&
+      s.lump.gauss === 0 &&
+      wrapsOf(s.lump.wraps) === 0 &&
+      wrapsOf(s.u0.wraps) === 0 &&
+      s.flipMediumIdentical &&
+      s.depthColumnsDeepened > 0
 
     // L2
-    const delayRows = DELAY_B.map(b => ({ b, delay: delay(b), want: eikDelay(b) }))
+    const delayRows = DELAY_B.map(b => ({
+      b,
+      delay: delay(b),
+      want: eikDelay(b),
+    }))
     const g2 = delayRows.every(r => within(r.delay, r.want, 0.15))
 
     // L3, L4
-    const bendRows = BEND_B.map(b => ({ b, bend: bend(b), want: eikBend(b), truncated: truncatedDeflection(b) }))
-    const g3 = bendRows.every(r => r.bend > 0 && within(r.bend, r.want, 0.3))
+    const bendRows = BEND_B.map(b => ({
+      b,
+      bend: bend(b),
+      want: eikBend(b),
+      truncated: truncatedDeflection(b),
+    }))
+    const g3 = bendRows.every(
+      r => r.bend > 0 && within(r.bend, r.want, 0.3),
+    )
     const scaled = bendRows.map(r => r.b * r.bend)
     const mean = scaled.reduce((a, v) => a + v, 0) / scaled.length
     const g4 = scaled.every(v => within(v, mean, 0.2))
@@ -137,10 +197,21 @@ export default experiment({
     const steps = e.slice(1).map((v, i) => v - e[i]!)
     const g5 = steps.every(d => d >= 0) && e[e.length - 1]! > e[0]!
 
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const farRows = FAR_B.map(b => ({ b, delay: delay(b), want: eikDelay(b), bend: bend(b), wantBend: eikBend(b) }))
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const farRows = FAR_B.map(b => ({
+      b,
+      delay: delay(b),
+      want: eikDelay(b),
+      bend: bend(b),
+      wantBend: eikBend(b),
+    }))
     const selfDrop = e[e.length - 1]! - e[0]!
-    const evenDrop = s.evenEnergy[s.evenEnergy.length - 1]! - s.evenEnergy[0]!
+    const evenDrop =
+      s.evenEnergy[s.evenEnergy.length - 1]! - s.evenEnergy[0]!
     const f = (x: number): string => x.toFixed(4)
 
     const metrics: Record<string, number> = {
@@ -190,7 +261,9 @@ export default experiment({
       metrics[`selfEnergy_r${r}`] = e[i]!
       metrics[`evenEnergy_r${r}`] = s.evenEnergy[i]!
 
-      if (i > 0 && i < DRIFT_R.length - 1) metrics[`r2Pull_r${r}`] = (r * r * (e[i + 1]! - e[i - 1]!)) / 2
+      if (i > 0 && i < DRIFT_R.length - 1) {
+        metrics[`r2Pull_r${r}`] = (r * r * (e[i + 1]! - e[i - 1]!)) / 2
+      }
     })
 
     return verdict({

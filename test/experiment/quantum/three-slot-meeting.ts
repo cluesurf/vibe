@@ -43,9 +43,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeColorWeave, colorBeat, cellColor } from '@/code/rule/color-weave'
+import {
+  makeColorWeave,
+  colorBeat,
+  cellColor,
+} from '@/code/rule/color-weave'
 import { type VibeState } from '@/code/rule/vibe-weave'
-import { emptyStats, tripleBeat, tripleBeatBack, tripleStep, type TripleRule } from '@/code/rule/three-slot-meeting'
+import {
+  emptyStats,
+  tripleBeat,
+  tripleBeatBack,
+  tripleStep,
+  type TripleRule,
+} from '@/code/rule/three-slot-meeting'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
 const BEATS = 48
@@ -55,7 +65,7 @@ export default experiment({
   id: 'quantum/three-slot-meeting',
   code: 'E-QTM-0136',
   title:
-    'the three-slot meeting in the knit: the reflection through the frame direction, applied to three vibes of one dock that are not a knot, keeps every dock\'s weight and color content, leaves the vibes and the flow of the color weave untouched, reverses exactly and commutes with a frame change in every dock, where SUM breaks the color content and the frame',
+    "the three-slot meeting in the knit: the reflection through the frame direction, applied to three vibes of one dock that are not a knot, keeps every dock's weight and color content, leaves the vibes and the flow of the color weave untouched, reverses exactly and commutes with a frame change in every dock, where SUM breaks the color content and the frame",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',
@@ -65,37 +75,80 @@ export default experiment({
     const cells = weave.mesh.cellCount
     const slots = cells * 24
     const start: VibeState = {
-      vibe: Int8Array.from({ length: slots }, (_, i) => (frac((i + 1) * GOLDEN) < 0.25 ? (frac((i + 1) * SILVER) < 0.5 ? 1 : -1) : 0)),
-      role: Int8Array.from({ length: slots }, (_, i) => Math.floor(9 * frac((i + 3) * GOLDEN))),
+      vibe: Int8Array.from({ length: slots }, (_, i) =>
+        frac((i + 1) * GOLDEN) < 0.25
+          ? frac((i + 1) * SILVER) < 0.5
+            ? 1
+            : -1
+          : 0,
+      ),
+      role: Int8Array.from({ length: slots }, (_, i) =>
+        Math.floor(9 * frac((i + 3) * GOLDEN)),
+      ),
       flow: new Int32Array(slots),
     }
     const moves = weave.moves
-    const frameOf = (x: number, t: number): number => Math.floor(moves.act.length * frac((x + 1 + cells * t) * GOLDEN))
+    const frameOf = (x: number, t: number): number =>
+      Math.floor(moves.act.length * frac((x + 1 + cells * t) * GOLDEN))
     const framed = (s: VibeState, t: number): Int8Array =>
-      Int8Array.from(s.role, (p, i) => moves.act[frameOf(Math.floor(i / 24), t)]?.[p] ?? 0)
+      Int8Array.from(
+        s.role,
+        (p, i) => moves.act[frameOf(Math.floor(i / 24), t)]?.[p] ?? 0,
+      )
 
     const stats = emptyStats()
     const control = emptyStats()
-    const counts = { dockBeats: 0, ledgerChanged: 0, plainMismatches: 0, frameMismatches: 0, sumLedgerChanged: 0, sumFrameMismatches: 0 }
+    const counts = {
+      dockBeats: 0,
+      ledgerChanged: 0,
+      plainMismatches: 0,
+      frameMismatches: 0,
+      sumLedgerChanged: 0,
+      sumFrameMismatches: 0,
+    }
+
     let state = start
 
     for (let t = 0; t < BEATS; t++) {
-      const stepped = tripleStep({ weave, state, t, rule: 'reflection', stats })
+      const stepped = tripleStep({
+        weave,
+        state,
+        t,
+        rule: 'reflection',
+        stats,
+      })
 
       for (let x = 0; x < cells; x++) {
         const before = cellColor(weave, state.vibe, state.role, x)
         const after = cellColor(weave, stepped.vibe, stepped.role, x)
 
         counts.dockBeats++
-        counts.ledgerChanged += before.every((c, i) => c === after[i]) ? 0 : 1
+        counts.ledgerChanged += before.every((c, i) => c === after[i])
+          ? 0
+          : 1
       }
 
       // the frame change commutes with the step, for each rule
       for (const rule of ['reflection', 'sum'] as TripleRule[]) {
-        const direct = rule === 'reflection' ? stepped : tripleStep({ weave, state, t, rule, stats: control })
+        const direct =
+          rule === 'reflection'
+            ? stepped
+            : tripleStep({ weave, state, t, rule, stats: control })
         const moved = framed(direct, t)
-        const first = tripleStep({ weave, state: { vibe: state.vibe, role: framed(state, t), flow: state.flow }, t, rule })
-        const bad = moved.reduce((s, p, i) => s + (p === first.role[i] ? 0 : 1), 0)
+        const first = tripleStep({
+          weave,
+          state: {
+            vibe: state.vibe,
+            role: framed(state, t),
+            flow: state.flow,
+          },
+          t,
+          rule,
+        })
+        const bad = moved.reduce(
+          (s, p, i) => s + (p === first.role[i] ? 0 : 1),
+          0,
+        )
 
         if (rule === 'reflection') {
           counts.frameMismatches += bad
@@ -106,7 +159,11 @@ export default experiment({
             const before = cellColor(weave, state.vibe, state.role, x)
             const after = cellColor(weave, direct.vibe, direct.role, x)
 
-            counts.sumLedgerChanged += before.every((c, i) => c === after[i]) ? 0 : 1
+            counts.sumLedgerChanged += before.every(
+              (c, i) => c === after[i],
+            )
+              ? 0
+              : 1
           }
         }
       }
@@ -114,8 +171,15 @@ export default experiment({
       const next = tripleBeat(weave, state, t)
       const plain = colorBeat(weave, state, t)
 
-      counts.plainMismatches += next.vibe.reduce((s, v, i) => s + (v === plain.vibe[i] ? 0 : 1), 0)
-      counts.plainMismatches += next.flow.reduce((s, v, i) => s + (v === plain.flow[i] ? 0 : 1), 0)
+      counts.plainMismatches += next.vibe.reduce(
+        (s, v, i) => s + (v === plain.vibe[i] ? 0 : 1),
+        0,
+      )
+
+      counts.plainMismatches += next.flow.reduce(
+        (s, v, i) => s + (v === plain.flow[i] ? 0 : 1),
+        0,
+      )
       state = next
     }
 
@@ -157,7 +221,12 @@ export default experiment({
         firedShare: stats.fired / counts.dockBeats,
         axisShareOfFired: stats.axis / Math.max(1, stats.fired),
         sumFired: control.fired,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
         'L1, exact integer arithmetic, golden and silver Weyl fills, no random numbers. On the classical layer R is a deterministic permutation of role points and measures nothing; the measurement of E-QTM-0135 needs the apparatus opened on a line (a stand-in). The triple is chosen from the vibes only, so the step is its own inverse.',

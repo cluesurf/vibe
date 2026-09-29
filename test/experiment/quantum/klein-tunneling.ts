@@ -53,7 +53,7 @@ export default experiment({
   id: 'quantum/klein-tunneling',
   code: 'E-QTM-0073',
   title:
-    "Klein tunneling from the coined Dirac walk model: a scalar step in the Klein window transmits the relativistic walk across a range of incident momenta (penetration above 0.80 at every momentum, nearly energy-independent), while a mass step of the same height reflects it (penetration below 0.10)",
+    'Klein tunneling from the coined Dirac walk model: a scalar step in the Klein window transmits the relativistic walk across a range of incident momenta (penetration above 0.80 at every momentum, nearly energy-independent), while a mass step of the same height reflects it (penetration below 0.10)',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
@@ -101,7 +101,7 @@ export default experiment({
       },
       notes:
         'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Kurzynski 2008. ' +
-        "Klein tunneling measured on the coined Dirac walk model (code/dynamics/klein-barrier): a scalar step in the Klein window transmits across momenta 0.5..1.1 nearly energy-independently, a mass step of the same height reflects. L3, on the coined walk model, not the rule, a could-be-wrong prediction with a control that genuinely fails.",
+        'Klein tunneling measured on the coined Dirac walk model (code/dynamics/klein-barrier): a scalar step in the Klein window transmits across momenta 0.5..1.1 nearly energy-independently, a mass step of the same height reflects. L3, on the coined walk model, not the rule, a could-be-wrong prediction with a control that genuinely fails.',
     })
   },
 })

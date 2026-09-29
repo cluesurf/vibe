@@ -68,13 +68,21 @@ import {
   stringCount,
   type FluxStoreSpec,
 } from '@/code/rule/flux-store-line'
-import { antisymmetrized, type LockedStart } from '@/code/measure/locked-run'
+import {
+  antisymmetrized,
+  type LockedStart,
+} from '@/code/measure/locked-run'
 import { exactCheck } from '@/code/measure/flux-store-exact'
 import { type Vibe } from '@/code/rule/locked-token-line'
 
 type Case = { name: string; spec: FluxStoreSpec }
 
-const specOf = (ring: number, kinds: Vibe[], convention: 'C' | 'Cprime', depth: number): FluxStoreSpec => ({
+const specOf = (
+  ring: number,
+  kinds: Vibe[],
+  convention: 'C' | 'Cprime',
+  depth: number,
+): FluxStoreSpec => ({
   ring,
   kinds,
   convention,
@@ -85,9 +93,17 @@ const specOf = (ring: number, kinds: Vibe[], convention: 'C' | 'Cprime', depth: 
 })
 
 // P1, P2 on the whole register space
-function wholeSpace(s: FluxStoreSpec): { size: number; permutation: boolean; inverse: boolean; gaussStates: number; gaussBroken: number; storeBroken: number } {
+function wholeSpace(s: FluxStoreSpec): {
+  size: number
+  permutation: boolean
+  inverse: boolean
+  gaussStates: number
+  gaussBroken: number
+  storeBroken: number
+} {
   const size = registerSize(s)
   const hits = new Uint8Array(size)
+
   let inverse = true
   let gaussStates = 0
   let gaussBroken = 0
@@ -100,29 +116,57 @@ function wholeSpace(s: FluxStoreSpec): { size: number; permutation: boolean; inv
 
     hits[j] = hits[j]! + 1
 
-    if (streamIndexBack(s, j) !== i) inverse = false
+    if (streamIndexBack(s, j) !== i) {
+      inverse = false
+    }
 
-    if (out.sigma + stringCount(out.f) !== r.sigma + stringCount(r.f)) storeBroken++
+    if (out.sigma + stringCount(out.f) !== r.sigma + stringCount(r.f)) {
+      storeBroken++
+    }
 
     if (gaussHolds(s, r)) {
       gaussStates++
 
-      if (!gaussHolds(s, out)) gaussBroken++
+      if (!gaussHolds(s, out)) {
+        gaussBroken++
+      }
     }
   }
 
-  return { size, permutation: hits.every(h => h === 1), inverse, gaussStates, gaussBroken, storeBroken }
+  return {
+    size,
+    permutation: hits.every(h => h === 1),
+    inverse,
+    gaussStates,
+    gaussBroken,
+    storeBroken,
+  }
 }
 
 // P3: the configurations reachable from contact, under every label choice
-function reach(s: FluxStoreSpec): { configurations: number; maxString: number; storeBroken: number; gaussBroken: number } {
+function reach(s: FluxStoreSpec): {
+  configurations: number
+  maxString: number
+  storeBroken: number
+  gaussBroken: number
+} {
   const n = s.kinds.length
   const labelChoices = s.convention === 'C' ? 2 ** n : 3 ** n
   const x0 = Math.floor(s.ring / 2)
-  const start = placedRegisters(s, new Array<number>(n).fill(x0), new Array<number>(n).fill(0))
-  const key = (r: { x: number[]; f: number[]; sigma: number }): number => encodeRegisters(s, { ...r, j: new Array<number>(n).fill(0) })
+  const start = placedRegisters(
+    s,
+    new Array<number>(n).fill(x0),
+    new Array<number>(n).fill(0),
+  )
+  const key = (r: {
+    x: number[]
+    f: number[]
+    sigma: number
+  }): number =>
+    encodeRegisters(s, { ...r, j: new Array<number>(n).fill(0) })
   const seen = new Set<number>([key(start)])
   const queue = [key(start)]
+
   let maxString = 0
   let storeBroken = 0
   let gaussBroken = 0
@@ -133,11 +177,20 @@ function reach(s: FluxStoreSpec): { configurations: number; maxString: number; s
 
     maxString = Math.max(maxString, l)
 
-    if (r.sigma !== s.depth - l) storeBroken++
-    if (!gaussHolds(s, r)) gaussBroken++
+    if (r.sigma !== s.depth - l) {
+      storeBroken++
+    }
+
+    if (!gaussHolds(s, r)) {
+      gaussBroken++
+    }
 
     for (let c = 0; c < labelChoices; c++) {
-      const j = Array.from({ length: n }, (_, t) => (s.convention === 'C' ? (c >> t) & 1 : Math.floor(c / 3 ** t) % 3))
+      const j = Array.from({ length: n }, (_, t) =>
+        s.convention === 'C'
+          ? (c >> t) & 1
+          : Math.floor(c / 3 ** t) % 3,
+      )
       const out = streamRegisters(s, { ...r, j })
       const k = key(out)
 
@@ -148,69 +201,148 @@ function reach(s: FluxStoreSpec): { configurations: number; maxString: number; s
     }
   }
 
-  return { configurations: seen.size, maxString, storeBroken, gaussBroken }
+  return {
+    configurations: seen.size,
+    maxString,
+    storeBroken,
+    gaussBroken,
+  }
 }
 
 export default experiment({
   id: 'spin/string-store-on-flux',
   code: 'E-SPN-0075',
-  title: "the string's store put on the flux, a STAND-IN on locked tokens: every link's center flux a recorded trit and the store one column of D bulk trits holding D minus the string's length (the drift's own exponent); the rule is a permutation of the whole register space, keeps Gauss mod 3 on every state, runs exactly in Eisenstein integers, and the string reaches exactly 2D, so the depth sets the string's range",
+  title:
+    "the string's store put on the flux, a STAND-IN on locked tokens: every link's center flux a recorded trit and the store one column of D bulk trits holding D minus the string's length (the drift's own exponent); the rule is a permutation of the whole register space, keeps Gauss mod 3 on every state, runs exactly in Eisenstein integers, and the string reaches exactly 2D, so the depth sets the string's range",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- G1, G2 ----
     const gated: Case[] = [
-      { name: 'pair C ring 6 D 1', spec: specOf(6, ['love', 'fear'], 'C', 1) },
-      { name: 'pair C ring 7 D 2', spec: specOf(7, ['love', 'fear'], 'C', 2) },
-      { name: 'three loves ring 5 D 1', spec: specOf(5, ['love', 'love', 'love'], 'C', 1) },
+      {
+        name: 'pair C ring 6 D 1',
+        spec: specOf(6, ['love', 'fear'], 'C', 1),
+      },
+      {
+        name: 'pair C ring 7 D 2',
+        spec: specOf(7, ['love', 'fear'], 'C', 2),
+      },
+      {
+        name: 'three loves ring 5 D 1',
+        spec: specOf(5, ['love', 'love', 'love'], 'C', 1),
+      },
     ]
-    const reported: Case[] = [{ name: "pair C' ring 6 D 1", spec: specOf(6, ['love', 'fear'], 'Cprime', 1) }]
-    const whole = gated.map(c => ({ name: c.name, ...wholeSpace(c.spec) }))
-    const wholeVariant = reported.map(c => ({ name: c.name, ...wholeSpace(c.spec) }))
+    const reported: Case[] = [
+      {
+        name: "pair C' ring 6 D 1",
+        spec: specOf(6, ['love', 'fear'], 'Cprime', 1),
+      },
+    ]
+    const whole = gated.map(c => ({
+      name: c.name,
+      ...wholeSpace(c.spec),
+    }))
+    const wholeVariant = reported.map(c => ({
+      name: c.name,
+      ...wholeSpace(c.spec),
+    }))
     const g1 = whole.every(w => w.permutation && w.inverse)
-    const g2 = whole.every(w => w.gaussBroken === 0 && w.storeBroken === 0 && w.gaussStates > 0)
+    const g2 = whole.every(
+      w =>
+        w.gaussBroken === 0 && w.storeBroken === 0 && w.gaussStates > 0,
+    )
 
     log('g1 g2')
 
     // ---- G3 ----
     const reaches = [
-      ...[1, 2, 3, 4].map(D => ({ name: `pair C D ${D}`, D, ...reach(specOf(4 * D + 3, ['love', 'fear'], 'C', D)) })),
-      ...[1, 2, 3].map(D => ({ name: `three loves D ${D}`, D, ...reach(specOf(4 * D + 3, ['love', 'love', 'love'], 'C', D)) })),
+      ...[1, 2, 3, 4].map(D => ({
+        name: `pair C D ${D}`,
+        D,
+        ...reach(specOf(4 * D + 3, ['love', 'fear'], 'C', D)),
+      })),
+      ...[1, 2, 3].map(D => ({
+        name: `three loves D ${D}`,
+        D,
+        ...reach(specOf(4 * D + 3, ['love', 'love', 'love'], 'C', D)),
+      })),
     ]
-    const reachesVariant = [1, 2, 3].map(D => ({ name: `pair C' D ${D}`, D, ...reach(specOf(4 * D + 3, ['love', 'fear'], 'Cprime', D)) }))
+    const reachesVariant = [1, 2, 3].map(D => ({
+      name: `pair C' D ${D}`,
+      D,
+      ...reach(specOf(4 * D + 3, ['love', 'fear'], 'Cprime', D)),
+    }))
     const columns = [1, 2, 4, 8, 16].every(D => {
       for (let sigma = -D; sigma <= D; sigma++) {
         const col = storeColumn(sigma, D)
 
-        if (col.length !== D || col.reduce((a, b) => a + b, 0) !== sigma) return false
+        if (
+          col.length !== D ||
+          col.reduce((a, b) => a + b, 0) !== sigma
+        ) {
+          return false
+        }
       }
 
       return true
     })
-    const g3 = reaches.every(r => r.maxString === 2 * r.D && r.storeBroken === 0 && r.gaussBroken === 0) && columns
+    const g3 =
+      reaches.every(
+        r =>
+          r.maxString === 2 * r.D &&
+          r.storeBroken === 0 &&
+          r.gaussBroken === 0,
+      ) && columns
 
     log('g3')
 
     // ---- G4 ----
-    const pairStart: LockedStart[] = [{ x: [6, 6], j: [0, 1], amp: [1, 0] }]
+    const pairStart: LockedStart[] = [
+      { x: [6, 6], j: [0, 1], amp: [1, 0] },
+    ]
     const threeStart = antisymmetrized({ x: [3, 3, 4], j: [0, 1, 0] })
-    const exactPair = exactCheck(specOf(12, ['love', 'fear'], 'C', 2), pairStart, 12)
-    const exactThree = exactCheck(specOf(7, ['love', 'love', 'love'], 'C', 1), threeStart, 6)
-    const exactVariant = exactCheck(specOf(12, ['love', 'fear'], 'Cprime', 2), pairStart, 8)
+    const exactPair = exactCheck(
+      specOf(12, ['love', 'fear'], 'C', 2),
+      pairStart,
+      12,
+    )
+    const exactThree = exactCheck(
+      specOf(7, ['love', 'love', 'love'], 'C', 1),
+      threeStart,
+      6,
+    )
+    const exactVariant = exactCheck(
+      specOf(12, ['love', 'fear'], 'Cprime', 2),
+      pairStart,
+      8,
+    )
     // the first run's ring: the smallest-arc wall of the float runner parts from the flux string there
-    const exactShortRing = exactCheck(specOf(10, ['love', 'fear'], 'C', 2), [{ x: [5, 5], j: [0, 1], amp: [1, 0] }], 12)
-    const exactOk = (e: typeof exactPair): boolean => e.gap < 1e-12 && e.norm && e.reverses && e.registersOk && e.merged === 0
+    const exactShortRing = exactCheck(
+      specOf(10, ['love', 'fear'], 'C', 2),
+      [{ x: [5, 5], j: [0, 1], amp: [1, 0] }],
+      12,
+    )
+    const exactOk = (e: typeof exactPair): boolean =>
+      e.gap < 1e-12 &&
+      e.norm &&
+      e.reverses &&
+      e.registersOk &&
+      e.merged === 0
     const g4 = exactOk(exactPair) && exactOk(exactThree)
 
     log('g4')
 
     const ok = g1 && g2 && g3 && g4
-    const wholeText = (w: (typeof whole)[number]): string => `${w.name}: ${w.size.toLocaleString('en-US')} states, permutation ${w.permutation}, inverse ${w.inverse}, ${w.gaussStates.toLocaleString('en-US')} Gauss states with ${w.gaussBroken} broken, store broken ${w.storeBroken}`
+    const wholeText = (w: (typeof whole)[number]): string =>
+      `${w.name}: ${w.size.toLocaleString('en-US')} states, permutation ${w.permutation}, inverse ${w.inverse}, ${w.gaussStates.toLocaleString('en-US')} Gauss states with ${w.gaussBroken} broken, store broken ${w.storeBroken}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -220,18 +352,28 @@ export default experiment({
         gate_G2: g2 ? 1 : 0,
         gate_G3: g3 ? 1 : 0,
         gate_G4: g4 ? 1 : 0,
-        ...Object.fromEntries(whole.flatMap((w, i) => [
-          [`whole${i}_states`, w.size],
-          [`whole${i}_permutation`, w.permutation ? 1 : 0],
-          [`whole${i}_inverse`, w.inverse ? 1 : 0],
-          [`whole${i}_gaussStates`, w.gaussStates],
-          [`whole${i}_gaussBroken`, w.gaussBroken],
-          [`whole${i}_storeBroken`, w.storeBroken],
-        ])),
-        ...Object.fromEntries(reaches.flatMap(r => [
-          [`reach_${r.name.replace(/ /g, '_')}_maxString`, r.maxString],
-          [`reach_${r.name.replace(/ /g, '_')}_configurations`, r.configurations],
-        ])),
+        ...Object.fromEntries(
+          whole.flatMap((w, i) => [
+            [`whole${i}_states`, w.size],
+            [`whole${i}_permutation`, w.permutation ? 1 : 0],
+            [`whole${i}_inverse`, w.inverse ? 1 : 0],
+            [`whole${i}_gaussStates`, w.gaussStates],
+            [`whole${i}_gaussBroken`, w.gaussBroken],
+            [`whole${i}_storeBroken`, w.storeBroken],
+          ]),
+        ),
+        ...Object.fromEntries(
+          reaches.flatMap(r => [
+            [
+              `reach_${r.name.replace(/ /g, '_')}_maxString`,
+              r.maxString,
+            ],
+            [
+              `reach_${r.name.replace(/ /g, '_')}_configurations`,
+              r.configurations,
+            ],
+          ]),
+        ),
         storeColumnsSum: columns ? 1 : 0,
         exactPairGap: exactPair.gap,
         exactPairNorm: exactPair.norm ? 1 : 0,
@@ -249,7 +391,12 @@ export default experiment({
         variantInverse: wholeVariant[0]!.inverse ? 1 : 0,
         variantGaussBroken: wholeVariant[0]!.gaussBroken,
         variantStoreBroken: wholeVariant[0]!.storeBroken,
-        ...Object.fromEntries(reachesVariant.map(r => [`variantReach_D${r.D}_maxString`, r.maxString])),
+        ...Object.fromEntries(
+          reachesVariant.map(r => [
+            `variantReach_D${r.D}_maxString`,
+            r.maxString,
+          ]),
+        ),
         variantExactGap: exactVariant.gap,
         variantExactNorm: exactVariant.norm ? 1 : 0,
         variantExactReverses: exactVariant.reverses ? 1 : 0,

@@ -75,19 +75,31 @@ function start(rule: SigmaLinks, scale: number): SigmaState {
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1))
+      demon[x * 24 + a] = Math.floor(
+        (((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1),
+      )
     }
   }
 
   return { vibe, role, links: hashedSigmaLinks(rule), demon, flux }
 }
 
-const fields = (s: SigmaState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+const fields = (s: SigmaState): ArrayLike<number>[] => [
+  s.vibe,
+  s.role,
+  s.links,
+  s.demon,
+  s.flux,
+]
 
 const mismatches = (a: SigmaState, b: SigmaState): number => {
   const right = fields(b)
 
-  return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
+  return fields(a).reduce(
+    (n, f, k) =>
+      n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length,
+    0,
+  )
 }
 
 type Run = {
@@ -107,7 +119,8 @@ type Run = {
 function run(rule: SigmaLinks, scale: number): Run {
   const s0 = start(rule, scale)
   const e0 = sigmaEnergy(rule, s0)
-  const count = (s: SigmaState, v: number): number => s.vibe.filter(x => x === v).length
+  const count = (s: SigmaState, v: number): number =>
+    s.vibe.filter(x => x === v).length
   const moves = { links: 0, loops: 0, roles: 0, hops: 0 }
   const center = new Set(centerElements(rule))
 
@@ -130,7 +143,10 @@ function run(rule: SigmaLinks, scale: number): Run {
 
     energyExact = energyExact && e === e0
     drift = Math.max(drift, Math.abs(e - e0))
-    loveFearExact = loveFearExact && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    loveFearExact =
+      loveFearExact &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
     violations += sigmaGaussViolations(rule, s)
   }
 
@@ -151,7 +167,8 @@ function run(rule: SigmaLinks, scale: number): Run {
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      linksChanged += s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
+      linksChanged +=
+        s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
     }
   }
 
@@ -162,8 +179,15 @@ function run(rule: SigmaLinks, scale: number): Run {
   const reverses = mismatches(s, s0) === 0
   const centers = [...center]
   const frames = [
-    Array.from({ length: rule.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order)),
-    Array.from({ length: rule.cells }, (_, x) => centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ?? rule.identity),
+    Array.from({ length: rule.cells }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order),
+    ),
+    Array.from(
+      { length: rule.cells },
+      (_, x) =>
+        centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ??
+        rule.identity,
+    ),
   ]
   const frameCounts = frames.map(frame => {
     let a = start(rule, scale * 1.7)
@@ -204,8 +228,21 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const make = (side: number, extra: { gauss?: boolean; priceFlux?: boolean; transport?: boolean } = {}): SigmaLinks =>
-      makeSigmaLinks({ side, kappa: KAPPA, tension: TENSION, capacity: CAPACITY, ...extra })
+    const make = (
+      side: number,
+      extra: {
+        gauss?: boolean
+        priceFlux?: boolean
+        transport?: boolean
+      } = {},
+    ): SigmaLinks =>
+      makeSigmaLinks({
+        side,
+        kappa: KAPPA,
+        tension: TENSION,
+        capacity: CAPACITY,
+        ...extra,
+      })
     const base = make(SIDES[0] ?? 4)
     const { group, quotient } = base
 
@@ -215,16 +252,34 @@ export default experiment({
     for (let g = 0; g < group.order; g++) {
       for (let h = 0; h < group.order; h++) {
         const gh = group.product[g * group.order + h] ?? 0
-        const composed = base.act.slice((quotient[g] ?? 0) * 9, (quotient[g] ?? 0) * 9 + 9)
-        const inner = base.act.slice((quotient[h] ?? 0) * 9, (quotient[h] ?? 0) * 9 + 9)
-        const outer = base.act.slice((quotient[gh] ?? 0) * 9, (quotient[gh] ?? 0) * 9 + 9)
+        const composed = base.act.slice(
+          (quotient[g] ?? 0) * 9,
+          (quotient[g] ?? 0) * 9 + 9,
+        )
+        const inner = base.act.slice(
+          (quotient[h] ?? 0) * 9,
+          (quotient[h] ?? 0) * 9 + 9,
+        )
+        const outer = base.act.slice(
+          (quotient[gh] ?? 0) * 9,
+          (quotient[gh] ?? 0) * 9 + 9,
+        )
 
-        homomorphismFailures += inner.some((p, q) => composed[p] !== outer[q]) ? 1 : 0
+        homomorphismFailures += inner.some(
+          (p, q) => composed[p] !== outer[q],
+        )
+          ? 1
+          : 0
       }
     }
 
     const kernel = centerElements(base)
-    const kernelIsCenter = kernel.every(g => Math.abs(Math.hypot(group.trace[g] ?? 0, base.traceIm[g] ?? 0) - 3) < 1e-9)
+    const kernelIsCenter = kernel.every(
+      g =>
+        Math.abs(
+          Math.hypot(group.trace[g] ?? 0, base.traceIm[g] ?? 0) - 3,
+        ) < 1e-9,
+    )
     const omega = kernel.find(g => g !== base.identity) ?? base.identity
 
     const runs = SIDES.map(side => run(make(side), 1.37))
@@ -233,7 +288,9 @@ export default experiment({
     const bare = run(make(SIDES[0] ?? 4, { transport: false }), 1.37)
 
     // the literal identification: docks where a center frame change would break Gauss's law
-    const z = Array.from({ length: base.cells }, (_, x) => Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3))
+    const z = Array.from({ length: base.cells }, (_, x) =>
+      Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3),
+    )
 
     let brokenDocks = 0
 

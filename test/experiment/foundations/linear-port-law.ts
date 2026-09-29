@@ -77,8 +77,7 @@ export default experiment({
             const slot = cellAt(lanes[i]!) * 24 + 8
             const v = seeded.data[slot]!
 
-            seeded.data[slot] = (((v + tone + 4) % 3) -
-              1) as -1 | 0 | 1
+            seeded.data[slot] = (((v + tone + 4) % 3) - 1) as -1 | 0 | 1
           })
         }
 
@@ -116,14 +115,14 @@ export default experiment({
     ]
 
     let exactCompositions = 0
+
     const measured: number[] = []
 
     for (const tones of compositions) {
       const far = transmitted(tones)
       const nPlus = tones.filter(t => t === 1).length
       const nMinus = tones.filter(t => t === -1).length
-      const predicted =
-        nPlus * perParticle + nMinus * perAntiparticle
+      const predicted = nPlus * perParticle + nMinus * perAntiparticle
 
       measured.push(far)
 

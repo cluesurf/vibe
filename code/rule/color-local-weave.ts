@@ -23,9 +23,21 @@
 // the bind table and every default. Only a hop-free table makes the family color-local, and
 // colorLocalLeaks measures that on any spec rather than trusting it.
 
-import { type Collision, BIND_MOVE_FORWARD, G_TURN, PAIR_FORWARD, TURN_COUPLES_ZERO, TURN_POS_MIRROR, TURN_SWAP_ORDER } from '@/code/rule/collision'
+import {
+  type Collision,
+  BIND_MOVE_FORWARD,
+  G_TURN,
+  PAIR_FORWARD,
+  TURN_COUPLES_ZERO,
+  TURN_POS_MIRROR,
+  TURN_SWAP_ORDER,
+} from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
-import { type VibeState, type VibeWeave, makeVibeWeave } from '@/code/rule/vibe-weave'
+import {
+  type VibeState,
+  type VibeWeave,
+  makeVibeWeave,
+} from '@/code/rule/vibe-weave'
 
 export type WireTable = readonly (readonly [number, number])[]
 
@@ -54,9 +66,13 @@ export type ColorLocalSpec = {
 
 const TONES = [-1, 0, 1]
 
-export const stateKey = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
+export const stateKey = (a: number, b: number): number =>
+  (a + 1) * 3 + (b + 1)
 
-export const keyState = (k: number): [number, number] => [Math.floor(k / 3) - 1, (k % 3) - 1]
+export const keyState = (k: number): [number, number] => [
+  Math.floor(k / 3) - 1,
+  (k % 3) - 1,
+]
 
 export function invertTable(table: WireTable): WireTable {
   const inverse = new Array<[number, number]>(9)
@@ -110,7 +126,9 @@ export const HOP_FREE_TABLES: Readonly<Record<string, WireTable>> = {
   ]),
 }
 
-function fromCycle(moves: readonly (readonly [number, number])[]): WireTable {
+function fromCycle(
+  moves: readonly (readonly [number, number])[],
+): WireTable {
   const table = Array.from({ length: 9 }, (_, k) => keyState(k))
 
   for (const [from, to] of moves) {
@@ -157,21 +175,30 @@ export const TURNING_SCHEDULE = {
   },
 } as const
 
-export function colorLocalSpec(input: Partial<ColorLocalSpec> & { tables: readonly WireTable[] }): ColorLocalSpec {
+export function colorLocalSpec(
+  input: Partial<ColorLocalSpec> & { tables: readonly WireTable[] },
+): ColorLocalSpec {
   return { tableAt: [0], ...TURNING_SCHEDULE, ...input }
 }
 
 type Built = {
   readonly lines: readonly (readonly [number, number])[]
-  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positions: readonly (readonly (readonly [
+    number,
+    number,
+  ])[])[]
   readonly forwardTables: readonly WireTable[]
   readonly inverseTables: readonly WireTable[]
   readonly fires: Uint8Array
 }
 
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 
-function build(spec: ColorLocalSpec, opposite: readonly number[]): Built {
+function build(
+  spec: ColorLocalSpec,
+  opposite: readonly number[],
+): Built {
   const lines: [number, number][] = []
 
   for (let d = 0; d < opposite.length; d++) {
@@ -188,24 +215,34 @@ function build(spec: ColorLocalSpec, opposite: readonly number[]): Built {
 
   // the turn is applied to both members, keeping which one is the wire by the order the turn gives it:
   // the committed weave sorts each couple, so the wire is the larger line index after the turn
-  const norm = (a: number, b: number): readonly [number, number] => (a < b ? [a, b] : [b, a])
+  const norm = (a: number, b: number): readonly [number, number] =>
+    a < b ? [a, b] : [b, a]
 
   current = current.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 12; i++) {
     positions.push(current)
-    current = current.map(([a, b]) => norm(spec.turn[a] ?? a, spec.turn[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(spec.turn[a] ?? a, spec.turn[b] ?? b),
+    )
   }
 
   const fires = new Uint8Array(81)
 
   for (let l = 0; l < 9; l++) {
     for (let w = 0; w < 9; w++) {
-      fires[l * 9 + w] = spec.swapWhen(l, w) || spec.swapWhen(w, l) ? 1 : 0
+      fires[l * 9 + w] =
+        spec.swapWhen(l, w) || spec.swapWhen(w, l) ? 1 : 0
     }
   }
 
-  return { lines, positions, forwardTables: spec.tables, inverseTables: spec.tables.map(invertTable), fires }
+  return {
+    lines,
+    positions,
+    forwardTables: spec.tables,
+    inverseTables: spec.tables.map(invertTable),
+    fires,
+  }
 }
 
 // one cell's collision on vibes, and on role points when given, forward or its exact inverse
@@ -229,10 +266,21 @@ function collide(input: {
     const table =
       (k === swapIndex && spec.swapTable !== undefined
         ? tables[spec.swapTable]
-        : tables[(tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length]) ?? []
+        : tables[
+            (tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length
+          ]) ?? []
     const line = built.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
     const wire = built.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
-    const place = { vibe, role, base, line, wire, fires: built.fires, table, tally }
+    const place = {
+      vibe,
+      role,
+      base,
+      line,
+      wire,
+      fires: built.fires,
+      table,
+      tally,
+    }
 
     if (k !== swapIndex) {
       clockLine(place)
@@ -268,8 +316,14 @@ export type Tally = { swaps: number; made: number; unmade: number }
 // the couple's swap: the two lines trade contents slot for slot when the condition fires
 function swapLines(place: Place): void {
   const { vibe, role, base, line, wire, fires, tally } = place
-  const l = stateKey(vibe[base + line[0]] ?? 0, vibe[base + line[1]] ?? 0)
-  const w = stateKey(vibe[base + wire[0]] ?? 0, vibe[base + wire[1]] ?? 0)
+  const l = stateKey(
+    vibe[base + line[0]] ?? 0,
+    vibe[base + line[1]] ?? 0,
+  )
+  const w = stateKey(
+    vibe[base + wire[0]] ?? 0,
+    vibe[base + wire[1]] ?? 0,
+  )
 
   if (fires[l * 9 + w] !== 1) {
     return
@@ -310,8 +364,11 @@ function clockLine(place: Place): void {
   vibe[j] = image[1]
 
   if (tally) {
-    tally.made += a === 0 && b === 0 && (image[0] !== 0 || image[1] !== 0) ? 1 : 0
-    tally.unmade += image[0] === 0 && image[1] === 0 && (a !== 0 || b !== 0) ? 1 : 0
+    tally.made +=
+      a === 0 && b === 0 && (image[0] !== 0 || image[1] !== 0) ? 1 : 0
+
+    tally.unmade +=
+      image[0] === 0 && image[1] === 0 && (a !== 0 || b !== 0) ? 1 : 0
   }
 
   if (role && (a !== 0 ? a : 1) !== (image[0] !== 0 ? image[0] : 1)) {
@@ -334,7 +391,17 @@ export function colorLocalCollision(input: {
   const forward = input.forward ?? true
   const tally = input.tally
 
-  return t => (slots, base) => collide({ spec: input.spec, built, vibe: slots, role: undefined, base, t, forward, tally })
+  return t => (slots, base) =>
+    collide({
+      spec: input.spec,
+      built,
+      vibe: slots,
+      role: undefined,
+      base,
+      t,
+      forward,
+      tally,
+    })
 }
 
 export type ColorLocalWeave = VibeWeave & {
@@ -344,21 +411,43 @@ export type ColorLocalWeave = VibeWeave & {
   readonly side: readonly number[]
 }
 
-export function makeColorLocalWeave(input: { side: number; spec: ColorLocalSpec }): ColorLocalWeave {
+export function makeColorLocalWeave(input: {
+  side: number
+  spec: ColorLocalSpec
+}): ColorLocalWeave {
   const weave = makeVibeWeave({ side: input.side })
-  const side = Array.from({ length: 24 }, (_, d) => (d < (weave.opposite[d] ?? d) ? 1 : -1))
+  const side = Array.from({ length: 24 }, (_, d) =>
+    d < (weave.opposite[d] ?? d) ? 1 : -1,
+  )
 
-  return { ...weave, spec: input.spec, built: build(input.spec, weave.opposite), side }
+  return {
+    ...weave,
+    spec: input.spec,
+    built: build(input.spec, weave.opposite),
+    side,
+  }
 }
 
-export function colorLocalBeat(weave: ColorLocalWeave, state: VibeState, t: number): VibeState {
+export function colorLocalBeat(
+  weave: ColorLocalWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links } = weave
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
   const flow = Int32Array.from(state.flow)
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collide({ spec: weave.spec, built: weave.built, vibe, role, base: x * 24, t, forward: true })
+    collide({
+      spec: weave.spec,
+      built: weave.built,
+      vibe,
+      role,
+      base: x * 24,
+      t,
+      forward: true,
+    })
   }
 
   const moved = new Int8Array(role.length)
@@ -367,7 +456,8 @@ export function colorLocalBeat(weave: ColorLocalWeave, state: VibeState, t: numb
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
 
-      moved[mesh.neighbour(x, d) * 24 + d] = moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
+      moved[mesh.neighbour(x, d) * 24 + d] =
+        moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) + (vibe[slot] ?? 0)
     }
   }
@@ -375,9 +465,16 @@ export function colorLocalBeat(weave: ColorLocalWeave, state: VibeState, t: numb
   return { vibe: stream({ mesh, data: vibe }).data, role: moved, flow }
 }
 
-export function colorLocalBeatBack(weave: ColorLocalWeave, state: VibeState, t: number): VibeState {
+export function colorLocalBeatBack(
+  weave: ColorLocalWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links, opposite } = weave
-  const vibe = streamInverse({ mesh, data: Int8Array.from(state.vibe) }).data
+  const vibe = streamInverse({
+    mesh,
+    data: Int8Array.from(state.vibe),
+  }).data
   const role = new Int8Array(state.role.length)
   const flow = Int32Array.from(state.flow)
 
@@ -386,13 +483,24 @@ export function colorLocalBeatBack(weave: ColorLocalWeave, state: VibeState, t: 
       const x = mesh.neighbour(y, opposite[d] ?? d)
       const slot = x * 24 + d
 
-      role[slot] = moves.act[moves.inverse[links[slot] ?? moves.identity] ?? moves.identity]?.[state.role[y * 24 + d] ?? 0] ?? 0
+      role[slot] =
+        moves.act[
+          moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+        ]?.[state.role[y * 24 + d] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) - (vibe[slot] ?? 0)
     }
   }
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collide({ spec: weave.spec, built: weave.built, vibe, role, base: x * 24, t, forward: false })
+    collide({
+      spec: weave.spec,
+      built: weave.built,
+      vibe,
+      role,
+      base: x * 24,
+      t,
+      forward: false,
+    })
   }
 
   return { vibe, role, flow }
@@ -402,9 +510,14 @@ const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 // how many cells the collision alone changes the color content of at beat t: [weight, x, y] mod 3, the
 // weight of a slot its vibe or, on a calm slot, its side sign
-export function colorLocalLeaks(weave: ColorLocalWeave, state: VibeState, t: number): number {
+export function colorLocalLeaks(
+  weave: ColorLocalWeave,
+  state: VibeState,
+  t: number,
+): number {
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
+
   const content = (x: number): string => {
     let w = 0
     let qx = 0
@@ -428,7 +541,15 @@ export function colorLocalLeaks(weave: ColorLocalWeave, state: VibeState, t: num
   for (let x = 0; x < weave.mesh.cellCount; x++) {
     const before = content(x)
 
-    collide({ spec: weave.spec, built: weave.built, vibe, role, base: x * 24, t, forward: true })
+    collide({
+      spec: weave.spec,
+      built: weave.built,
+      vibe,
+      role,
+      base: x * 24,
+      t,
+      forward: true,
+    })
     leaks += content(x) === before ? 0 : 1
   }
 

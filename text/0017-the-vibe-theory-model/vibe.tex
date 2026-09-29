@@ -1,0 +1,34 @@
+% arXiv: force the PDF-producing engine (pdflatex) during AutoTeX processing.
+% Guarded so the same source also builds under lualatex, where \pdfoutput does not exist.
+\ifdefined\pdfoutput\pdfoutput=1\fi
+
+\documentclass{article}
+
+\input{text/package}
+
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+
+\input{text/abstract}
+
+\input{text/00-scope}
+
+\input{text/01-the-base}
+\input{text/02-the-rule}
+\input{text/03-light-and-the-quantum}
+\input{text/04-gravity}
+\input{text/05-motion}
+\input{text/06-binding}
+\input{text/07-open}
+\input{text/08-changelog}
+
+\appendix
+\input{text/A-index}
+
+\addcontentsline{toc}{section}{References}
+\nocite{*}
+\bibliographystyle{vibefirst}
+\bibliography{vibe}
+
+\end{document}

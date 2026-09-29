@@ -9,21 +9,34 @@
 // with A the love pair's antisymmetrizer (roles 0 and 1) or the singlet projector on (role 0, antirole n). Both
 // commute with the color group, so they keep the neutral space. Measurement code.
 
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
-import { applyToCluster, binaryTetrahedralCharacters, cycleType, heisenbergGroup, permutations, spinTurns } from '@/code/algebra/role-cluster'
+import {
+  applyToCluster,
+  binaryTetrahedralCharacters,
+  cycleType,
+  heisenbergGroup,
+  permutations,
+  spinTurns,
+} from '@/code/algebra/role-cluster'
 import { irrepsOf, partitionName } from '@/code/measure/pauli-cluster'
 
 type Vec = { re: Float64Array; im: Float64Array }
 
-export type ChannelShare = { readonly spin: string; readonly twoPiSign: number; readonly partition: string; readonly dimension: number; readonly antisymmetricShare: number; readonly singletShare: number }
+export type ChannelShare = {
+  readonly spin: string
+  readonly twoPiSign: number
+  readonly partition: string
+  readonly dimension: number
+  readonly antisymmetricShare: number
+  readonly singletShare: number
+}
 
 const inner = (a: Vec, b: Vec): [number, number] => {
   let re = 0
   let im = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    re += (a.re[i] as number) * (b.re[i] as number) + (a.im[i] as number) * (b.im[i] as number)
-    im += (a.re[i] as number) * (b.im[i] as number) - (a.im[i] as number) * (b.re[i] as number)
+    re += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
+    im += a.re[i]! * b.im[i]! - a.im[i]! * b.re[i]!
   }
 
   return [re, im]
@@ -31,8 +44,15 @@ const inner = (a: Vec, b: Vec): [number, number] => {
 
 // the vector with its role factors permuted: factor k of the output holds factor perm^-1(k) of the input, so that
 // (s v)(x_(s(0)), ...) = v(x_0, ...)
-function permuteRoles(v: Vec, perm: readonly number[], total: number): Vec {
-  const out = { re: new Float64Array(v.re.length), im: new Float64Array(v.re.length) }
+function permuteRoles(
+  v: Vec,
+  perm: readonly number[],
+  total: number,
+): Vec {
+  const out = {
+    re: new Float64Array(v.re.length),
+    im: new Float64Array(v.re.length),
+  }
   const digits = new Array<number>(total).fill(0)
   const moved = new Array<number>(total).fill(0)
 
@@ -44,20 +64,27 @@ function permuteRoles(v: Vec, perm: readonly number[], total: number): Vec {
       c = Math.floor(c / 3)
     }
 
-    for (let f = 0; f < total; f++) moved[f] = digits[f] as number
+    for (let f = 0; f < total; f++) {
+      moved[f] = digits[f]!
+    }
 
-    for (let f = 0; f < perm.length; f++) moved[perm[f] as number] = digits[f] as number
+    for (let f = 0; f < perm.length; f++) {
+      moved[perm[f]!] = digits[f]!
+    }
 
     const j = moved.reduce((s, d) => 3 * s + d, 0)
 
-    out.re[j] = v.re[i] as number
-    out.im[j] = v.im[i] as number
+    out.re[j] = v.re[i]!
+    out.im[j] = v.im[i]!
   }
 
   return out
 }
 
-export function channelShares(input: { roles: number; antiroles: number }): { shares: ChannelShare[]; rank: number } {
+export function channelShares(input: {
+  roles: number
+  antiroles: number
+}): { shares: ChannelShare[]; rank: number } {
   const { roles, antiroles } = input
   const total = roles + antiroles
   const size = 3 ** total
@@ -78,11 +105,16 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
     const p = { re: new Float64Array(size), im: new Float64Array(size) }
 
     for (const h of group) {
-      const hv = applyToCluster({ vector: e, unitary: h, roles, antiroles })
+      const hv = applyToCluster({
+        vector: e,
+        unitary: h,
+        roles,
+        antiroles,
+      })
 
       for (let k = 0; k < size; k++) {
-        p.re[k] = (p.re[k] as number) + (hv.re[k] as number) / group.length
-        p.im[k] = (p.im[k] as number) + (hv.im[k] as number) / group.length
+        p.re[k] = p.re[k]! + hv.re[k]! / group.length
+        p.im[k] = p.im[k]! + hv.im[k]! / group.length
       }
     }
 
@@ -90,29 +122,44 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
       const [cr, ci] = inner(b, p)
 
       for (let k = 0; k < size; k++) {
-        const br = b.re[k] as number
-        const bi = b.im[k] as number
+        const br = b.re[k]!
+        const bi = b.im[k]!
 
-        p.re[k] = (p.re[k] as number) - (cr * br - ci * bi)
-        p.im[k] = (p.im[k] as number) - (cr * bi + ci * br)
+        p.re[k] = p.re[k]! - (cr * br - ci * bi)
+        p.im[k] = p.im[k]! - (cr * bi + ci * br)
       }
     }
 
     const n = Math.sqrt(inner(p, p)[0])
 
-    if (n > 1e-9) basis.push({ re: p.re.map(x => x / n), im: p.im.map(x => x / n) })
+    if (n > 1e-9) {
+      basis.push({ re: p.re.map(x => x / n), im: p.im.map(x => x / n) })
+    }
   }
 
   // A: the antisymmetrizer on roles 0 and 1, and the singlet projector on role 0 and the first antirole
   const antisym = (v: Vec): Vec => {
-    const s = permuteRoles(v, [1, 0, ...Array.from({ length: roles - 2 }, (_, k) => k + 2)], total)
+    const s = permuteRoles(
+      v,
+      [1, 0, ...Array.from({ length: roles - 2 }, (_, k) => k + 2)],
+      total,
+    )
 
-    return { re: v.re.map((x, k) => (x - (s.re[k] as number)) / 2), im: v.im.map((x, k) => (x - (s.im[k] as number)) / 2) }
+    return {
+      re: v.re.map((x, k) => (x - s.re[k]!) / 2),
+      im: v.im.map((x, k) => (x - s.im[k]!) / 2),
+    }
   }
-  const singlet = (v: Vec): Vec => {
-    const out = { re: new Float64Array(size), im: new Float64Array(size) }
 
-    if (antiroles === 0) return out
+  const singlet = (v: Vec): Vec => {
+    const out = {
+      re: new Float64Array(size),
+      im: new Float64Array(size),
+    }
+
+    if (antiroles === 0) {
+      return out
+    }
 
     const s0 = 3 ** (total - 1)
     const sa = 3 ** (total - 1 - roles)
@@ -121,7 +168,9 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
       const d0 = Math.floor(i / s0) % 3
       const da = Math.floor(i / sa) % 3
 
-      if (d0 !== da) continue
+      if (d0 !== da) {
+        continue
+      }
 
       // (P v)_(jj) = (1/3) sum_k v_(kk) with the other factors fixed
       const base = i - d0 * s0 - da * sa
@@ -130,8 +179,8 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
       let si = 0
 
       for (let k = 0; k < 3; k++) {
-        sr += v.re[base + k * s0 + k * sa] as number
-        si += v.im[base + k * s0 + k * sa] as number
+        sr += v.re[base + k * s0 + k * sa]!
+        si += v.im[base + k * s0 + k * sa]!
       }
 
       out.re[i] = sr / 3
@@ -143,13 +192,20 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
 
   // M(e, s) = sum_j <b_j | s R(e) A b_j>, for A = identity, antisym, singlet
   const traces = (a: (v: Vec) => Vec): [number, number][][] => {
-    const out: [number, number][][] = turns.map(() => perms.map(() => [0, 0] as [number, number]))
+    const out: [number, number][][] = turns.map(() =>
+      perms.map(() => [0, 0] as [number, number]),
+    )
 
     for (const b of basis) {
       const w = a(b)
 
       turns.forEach((t, ei) => {
-        const rw = applyToCluster({ vector: w, unitary: t.unitary as ComplexMatrix, roles, antiroles })
+        const rw = applyToCluster({
+          vector: w,
+          unitary: t.unitary,
+          roles,
+          antiroles,
+        })
 
         perms.forEach((p, si) => {
           const srw = permuteRoles(rw, p, total)
@@ -164,6 +220,7 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
 
     return out
   }
+
   const tOne = traces(v => v)
   const tAnti = traces(antisym)
   const tSinglet = traces(singlet)
@@ -186,16 +243,30 @@ export function channelShares(input: { roles: number; antiroles: number }): { sh
           })
         })
 
-        return (s * c.dimension * mu.dimension) / (turns.length * perms.length)
+        return (
+          (s * c.dimension * mu.dimension) /
+          (turns.length * perms.length)
+        )
       }
+
       const dimension = project(tOne)
 
-      if (dimension < 0.5) continue
+      if (dimension < 0.5) {
+        continue
+      }
 
-      const at1 = c.values[turns.findIndex(t => t.order === 1)]?.[0] ?? 1
+      const at1 =
+        c.values[turns.findIndex(t => t.order === 1)]?.[0] ?? 1
       const at2 = c.values[central]?.[0] ?? 1
 
-      shares.push({ spin: c.name, twoPiSign: Math.sign(at2 / at1), partition: partitionName(mu.partition), dimension, antisymmetricShare: project(tAnti) / dimension, singletShare: project(tSinglet) / dimension })
+      shares.push({
+        spin: c.name,
+        twoPiSign: Math.sign(at2 / at1),
+        partition: partitionName(mu.partition),
+        dimension,
+        antisymmetricShare: project(tAnti) / dimension,
+        singletShare: project(tSinglet) / dimension,
+      })
     }
   }
 

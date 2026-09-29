@@ -26,9 +26,15 @@ export type SmallGraph = {
 
 // every Z3 chain on the graph: for each divergence pattern (as a key), the chain weight sum at x, the smallest
 // support, and how many chains have that smallest support
-export function chainSums(graph: SmallGraph, x: number): Map<string, { weight: number; least: number; atLeast: number }> {
+export function chainSums(
+  graph: SmallGraph,
+  x: number,
+): Map<string, { weight: number; least: number; atLeast: number }> {
   const { docks, links } = graph
-  const out = new Map<string, { weight: number; least: number; atLeast: number }>()
+  const out = new Map<
+    string,
+    { weight: number; least: number; atLeast: number }
+  >()
   const total = 3 ** links.length
   const value = new Int8Array(links.length)
   const divergence = new Int32Array(docks)
@@ -55,7 +61,11 @@ export function chainSums(graph: SmallGraph, x: number): Map<string, { weight: n
     }
 
     const key = Array.from(divergence, d => ((d % 3) + 3) % 3).join('')
-    const entry = out.get(key) ?? { weight: 0, least: Infinity, atLeast: 0 }
+    const entry = out.get(key) ?? {
+      weight: 0,
+      least: Infinity,
+      atLeast: 0,
+    }
 
     entry.weight += x ** support
 
@@ -74,7 +84,11 @@ export function chainSums(graph: SmallGraph, x: number): Map<string, { weight: n
 
 // the Potts side: 3^(-V) sum over theta of omega^(-theta . rho) prod f(theta_a - theta_b), real part and
 // imaginary part, for a charge pattern given mod 3 (1 a love, 2 a fear)
-export function pottsSum(graph: SmallGraph, x: number, rho: readonly number[]): { re: number; im: number } {
+export function pottsSum(
+  graph: SmallGraph,
+  x: number,
+  rho: readonly number[],
+): { re: number; im: number } {
   const { docks, links } = graph
   const total = 3 ** docks
   const theta = new Int8Array(docks)
@@ -116,9 +130,15 @@ function linkPolynomial(s: number, n: number): number[] {
   let poly = [1]
 
   const times = (factor: number[]): void => {
-    const out = new Array<number>(poly.length + factor.length - 1).fill(0)
+    const out = new Array<number>(poly.length + factor.length - 1).fill(
+      0,
+    )
 
-    poly.forEach((a, i) => factor.forEach((b, j) => (out[i + j] = (out[i + j] ?? 0) + a * b)))
+    poly.forEach((a, i) =>
+      factor.forEach(
+        (b, j) => (out[i + j] = (out[i + j] ?? 0) + a * b),
+      ),
+    )
     poly = out
   }
 
@@ -139,11 +159,17 @@ function linkPolynomial(s: number, n: number): number[] {
 // ends agree, P_k(x) = sum over them of (1 + 2x)^s (1 - x)^(L - s). Since cos(2 pi k / 3) is 1, -1/2, -1/2 and
 // sin is 0, +-sqrt(3)/2, the identity is exactly 2 3^V c(x) = 2 P_0 - P_1 - P_2 with P_1 = P_2 (the imaginary
 // part zero), coefficient by coefficient. Every coefficient stays below 2^53, so plain numbers are exact.
-export function exactDuality(graph: SmallGraph): { patterns: number; mismatches: number; imaginaryMismatches: number } {
+export function exactDuality(graph: SmallGraph): {
+  patterns: number
+  mismatches: number
+  imaginaryMismatches: number
+} {
   const { docks, links } = graph
   const L = links.length
   const sums = chainCounts(graph)
-  const polys = Array.from({ length: L + 1 }, (_, s) => linkPolynomial(s, L))
+  const polys = Array.from({ length: L + 1 }, (_, s) =>
+    linkPolynomial(s, L),
+  )
   const total = 3 ** docks
   const theta = new Int8Array(docks)
 
@@ -153,7 +179,11 @@ export function exactDuality(graph: SmallGraph): { patterns: number; mismatches:
 
   for (const [key, counts] of sums) {
     const rho = key.split('').map(Number)
-    const classes = [new Array<number>(L + 1).fill(0), new Array<number>(L + 1).fill(0), new Array<number>(L + 1).fill(0)]
+    const classes = [
+      new Array<number>(L + 1).fill(0),
+      new Array<number>(L + 1).fill(0),
+      new Array<number>(L + 1).fill(0),
+    ]
 
     for (let code = 0; code < total; code++) {
       let c = code
@@ -180,14 +210,22 @@ export function exactDuality(graph: SmallGraph): { patterns: number; mismatches:
     const potts = classes.map(row => {
       const out = new Array<number>(L + 1).fill(0)
 
-      row.forEach((count, s) => (polys[s] ?? []).forEach((coefficient, n) => (out[n] = (out[n] ?? 0) + count * coefficient)))
+      row.forEach((count, s) =>
+        (polys[s] ?? []).forEach(
+          (coefficient, n) =>
+            (out[n] = (out[n] ?? 0) + count * coefficient),
+        ),
+      )
 
       return out
     })
 
     for (let n = 0; n <= L; n++) {
       const left = 2 * total * (counts[n] ?? 0)
-      const right = 2 * (potts[0]?.[n] ?? 0) - (potts[1]?.[n] ?? 0) - (potts[2]?.[n] ?? 0)
+      const right =
+        2 * (potts[0]?.[n] ?? 0) -
+        (potts[1]?.[n] ?? 0) -
+        (potts[2]?.[n] ?? 0)
 
       mismatches += left === right ? 0 : 1
       imaginaryMismatches += potts[1]?.[n] === potts[2]?.[n] ? 0 : 1
@@ -212,12 +250,10 @@ function chainCounts(graph: SmallGraph): Map<string, number[]> {
 
     divergence.fill(0)
 
-    for (let l = 0; l < links.length; l++) {
+    for (const [a, b] of links) {
       const v = c % 3
 
       c = Math.floor(c / 3)
-
-      const [a, b] = links[l] ?? [0, 0]
 
       support += v !== 0 ? 1 : 0
       divergence[a] = (divergence[a] ?? 0) + v
@@ -225,7 +261,8 @@ function chainCounts(graph: SmallGraph): Map<string, number[]> {
     }
 
     const key = Array.from(divergence, d => ((d % 3) + 3) % 3).join('')
-    const row = out.get(key) ?? new Array<number>(links.length + 1).fill(0)
+    const row =
+      out.get(key) ?? new Array<number>(links.length + 1).fill(0)
 
     row[support] = (row[support] ?? 0) + 1
     out.set(key, row)

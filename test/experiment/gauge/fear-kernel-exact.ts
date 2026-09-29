@@ -44,7 +44,10 @@ import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
 
 const BASE = resolve(import.meta.dirname, '../../..')
 
-const tableDifferences = (a: readonly (readonly number[])[], b: readonly (readonly number[])[]): number => {
+const tableDifferences = (
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
+): number => {
   let n = a.length === b.length ? 0 : 1
 
   for (let r = 0; r < a.length; r++) {
@@ -67,7 +70,8 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
-    const angle = (k: number): number => (k === 0 ? 0 : k === 1 ? (2 * Math.PI) / 3 : (-2 * Math.PI) / 3)
+    const angle = (k: number): number =>
+      k === 0 ? 0 : k === 1 ? (2 * Math.PI) / 3 : (-2 * Math.PI) / 3
 
     let cases = 0
     let equal = 0
@@ -77,52 +81,81 @@ export default experiment({
     for (const exchanged of [true, false]) {
       for (let like = 0; like < 3; like++) {
         for (let unlike = 0; unlike < 3; unlike++) {
-          const floating = fearKernels({ like: angle(like), unlike: angle(unlike), likeExchanged: exchanged })
-          const exact = exactFearKernels({ like, unlike, likeExchanged: exchanged })
+          const floating = fearKernels({
+            like: angle(like),
+            unlike: angle(unlike),
+            likeExchanged: exchanged,
+          })
+          const exact = exactFearKernels({
+            like,
+            unlike,
+            likeExchanged: exchanged,
+          })
 
           cases += 1
 
           if (!floating) {
-            metrics[`g1Missing${exchanged ? 'X' : 'N'}${like}${unlike}`] = 1
+            metrics[
+              `g1Missing${exchanged ? 'X' : 'N'}${like}${unlike}`
+            ] = 1
 
             continue
           }
 
           const differences =
-            tableDifferences(exact.like, floating.like) + tableDifferences(exact.unlike, floating.unlike) + (exact.likeDivisor === floating.likeDivisor ? 0 : 1) + (exact.unlikeDivisor === floating.unlikeDivisor ? 0 : 1)
+            tableDifferences(exact.like, floating.like) +
+            tableDifferences(exact.unlike, floating.unlike) +
+            (exact.likeDivisor === floating.likeDivisor ? 0 : 1) +
+            (exact.unlikeDivisor === floating.unlikeDivisor ? 0 : 1)
 
           entries += 2 * 81 * 81
           equal += differences === 0 ? 1 : 0
-          metrics[`g1${exchanged ? 'Exchanged' : 'Plain'}Like${like}Unlike${unlike}Differences`] = differences
-          metrics[`g1${exchanged ? 'Exchanged' : 'Plain'}Like${like}Unlike${unlike}Divisors`] = exact.likeDivisor * 1000 + exact.unlikeDivisor
+          metrics[
+            `g1${exchanged ? 'Exchanged' : 'Plain'}Like${like}Unlike${unlike}Differences`
+          ] = differences
+
+          metrics[
+            `g1${exchanged ? 'Exchanged' : 'Plain'}Like${like}Unlike${unlike}Divisors`
+          ] = exact.likeDivisor * 1000 + exact.unlikeDivisor
 
           if (exchanged && like === 1 && unlike === 1) {
             const altered = exact.like.map(row => [...row])
 
             altered[40]![40] = (altered[40]![40] ?? 0) + 1
-            caught = tableDifferences(altered, floating.like) > 0 ? 1 : 0
+            caught =
+              tableDifferences(altered, floating.like) > 0 ? 1 : 0
           }
         }
       }
     }
 
-    const closure = importClosure(BASE, ['code/rule/fear-kernel-exact.ts'])
-    const findings = [...closure.keys()].flatMap(file => scanContinuity(file, readFileSync(resolve(BASE, file), 'utf8')))
-    const gates = { G1: equal === 18 && cases === 18 ? 1 : 0, G2: findings.length === 0 ? 1 : 0, G3: caught }
+    const closure = importClosure(BASE, [
+      'code/rule/fear-kernel-exact.ts',
+    ])
+    const findings = [...closure.keys()].flatMap(file =>
+      scanContinuity(file, readFileSync(resolve(BASE, file), 'utf8')),
+    )
+    const gates = {
+      G1: equal === 18 && cases === 18 ? 1 : 0,
+      G2: findings.length === 0 ? 1 : 0,
+      G3: caught,
+    }
 
-    metrics['g1Cases'] = cases
-    metrics['g1Equal'] = equal
-    metrics['g1EntriesCompared'] = entries
-    metrics['g2Files'] = closure.size
-    metrics['g2Findings'] = findings.length
-    metrics['g3AlteredCaught'] = caught
+    metrics.g1Cases = cases
+    metrics.g1Equal = equal
+    metrics.g1EntriesCompared = entries
+    metrics.g2Files = closure.size
+    metrics.g2Findings = findings.length
+    metrics.g3AlteredCaught = caught
 
     for (const [gate, ok] of Object.entries(gates)) {
       metrics[`gate${gate}`] = ok
     }
 
     return verdict({
-      status: Object.values(gates).every(x => x === 1) ? 'pass' : 'fail',
+      status: Object.values(gates).every(x => x === 1)
+        ? 'pass'
+        : 'fail',
       claim:
         "the fear beat's like and unlike kernels, built in Eisenstein integers with each phase a trit, equal fearKernels's floating-and-rounded tables in every divisor and every entry over all 18 phase and exchange cases, with no real number, trig or rounding in the exact file",
       metrics,

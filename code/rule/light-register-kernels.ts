@@ -7,7 +7,11 @@
 // Integers only: the unitaries have entries in Z[w]; the kernels are integers over their divisor; the emitter's
 // whole is integers over a grain, reduced by their gcd.
 
-import { doubledSwapPhase, exactWholeKernel, type Eisenstein } from '@/code/rule/fear-kernel-exact'
+import {
+  doubledSwapPhase,
+  exactWholeKernel,
+  type Eisenstein,
+} from '@/code/rule/fear-kernel-exact'
 
 export type Kernel = { divisor: number; kernel: number[][] }
 
@@ -19,13 +23,21 @@ const OMEGA_POWER: readonly [number, number][] = [
   [-1, -1],
 ]
 
-const empty = (): Eisenstein => ({ n: 9, a: new Int32Array(81), b: new Int32Array(81) })
+const empty = (): Eisenstein => ({
+  n: 9,
+  a: new Int32Array(81),
+  b: new Int32Array(81),
+})
 
 // |v, a> -> |v, a + sign v>, v read balanced (index 2 is -1), index 3 v + a
 export function sumMatrix(sign: number): Eisenstein {
   const u = empty()
 
-  for (let v = 0; v < 3; v++) for (let a = 0; a < 3; a++) u.a[(3 * v + ((a + sign * v + 9) % 3)) * 9 + 3 * v + a] = 1
+  for (let v = 0; v < 3; v++) {
+    for (let a = 0; a < 3; a++) {
+      u.a[(3 * v + ((a + sign * v + 9) % 3)) * 9 + 3 * v + a] = 1
+    }
+  }
 
   return u
 }
@@ -46,14 +58,21 @@ export function cubicPhaseMatrix(sign: number): Eisenstein {
   return u
 }
 
-export const sumKernel = (sign = 1): Kernel => exactWholeKernel(sumMatrix(sign), 1)
+export const sumKernel = (sign = 1): Kernel =>
+  exactWholeKernel(sumMatrix(sign), 1)
 
-export const cubicPhaseKernel = (sign = 1): Kernel => exactWholeKernel(cubicPhaseMatrix(sign), 1)
+export const cubicPhaseKernel = (sign = 1): Kernel =>
+  exactWholeKernel(cubicPhaseMatrix(sign), 1)
 
 // the swap phase P_sym + w^k P_anti (k = 1 the fear beat, k = 2 its inverse)
-export const swapPhaseKernel = (k = 1): Kernel => exactWholeKernel(doubledSwapPhase(k), 2)
+export const swapPhaseKernel = (k = 1): Kernel =>
+  exactWholeKernel(doubledSwapPhase(k), 2)
 
-export const applyKernel = (k: Kernel, w: readonly number[]): number[] => k.kernel.map(row => row.reduce((s, x, j) => s + x * w[j]!, 0))
+export const applyKernel = (
+  k: Kernel,
+  w: readonly number[],
+): number[] =>
+  k.kernel.map(row => row.reduce((s, x, j) => s + x * w[j]!, 0))
 
 // the 12 stabilizer states of a qutrit: the 12 lines of Z_3^2, weight 1 on each of its points (grain 3)
 export function stabilizerLines(): number[][] {
@@ -70,7 +89,9 @@ export function stabilizerLines(): number[][] {
       const a0 = da === 0 ? offset : 0
       const b0 = da === 0 ? 0 : offset
 
-      for (let t = 0; t < 3; t++) w[3 * ((a0 + t * da) % 3) + ((b0 + t * db) % 3)] = 1
+      for (let t = 0; t < 3; t++) {
+        w[3 * ((a0 + t * da) % 3) + ((b0 + t * db) % 3)] = 1
+      }
 
       lines.push(w)
     }
@@ -83,7 +104,9 @@ const gcd = (x: bigint, y: bigint): bigint => {
   let p = x < 0n ? -x : x
   let q = y < 0n ? -y : y
 
-  while (q !== 0n) [p, q] = [q, p % q]
+  while (q !== 0n) {
+    ;[p, q] = [q, p % q]
+  }
 
   return p
 }
@@ -103,7 +126,11 @@ export function qubitWhole(pn: number, cn: number, den: number): Whole {
     for (let b = 0; b < 3; b++) {
       let s = 0
 
-      for (let j = 0; j < 3; j++) s += rho[j]![(((2 * a - j) % 3) + 3) % 3]! * ((((2 * b * (a - j)) % 3) + 3) % 3 === 0 ? 2 : -1)
+      for (let j = 0; j < 3; j++) {
+        s +=
+          rho[j]![(((2 * a - j) % 3) + 3) % 3]! *
+          ((((2 * b * (a - j)) % 3) + 3) % 3 === 0 ? 2 : -1)
+      }
 
       w.push(BigInt(s))
     }
@@ -114,7 +141,12 @@ export function qubitWhole(pn: number, cn: number, den: number): Whole {
 
 // one meeting of the emitter (first register) with a fresh register in the whole `fresh` (9 integer weights over
 // grain `freshGrain`), the register then traced; reduced by the gcd
-export function meetFresh(k: Kernel, e: Whole, fresh: readonly number[] = [1, 1, 1, 0, 0, 0, 0, 0, 0], freshGrain = 3n): Whole {
+export function meetFresh(
+  k: Kernel,
+  e: Whole,
+  fresh: readonly number[] = [1, 1, 1, 0, 0, 0, 0, 0, 0],
+  freshGrain = 3n,
+): Whole {
   const out = new Array<bigint>(9).fill(0n)
 
   for (let x1 = 0; x1 < 9; x1++) {
@@ -122,12 +154,18 @@ export function meetFresh(k: Kernel, e: Whole, fresh: readonly number[] = [1, 1,
       let s = 0n
 
       for (let y1 = 0; y1 < 9; y1++) {
-        if (e.w[y1] === 0n) continue
+        if (e.w[y1] === 0n) {
+          continue
+        }
 
         for (let y2 = 0; y2 < 9; y2++) {
-          if (fresh[y2] === 0) continue
+          if (fresh[y2] === 0) {
+            continue
+          }
 
-          s += BigInt(k.kernel[9 * x1 + x2]![9 * y1 + y2]! * fresh[y2]!) * e.w[y1]!
+          s +=
+            BigInt(k.kernel[9 * x1 + x2]![9 * y1 + y2]! * fresh[y2]!) *
+            e.w[y1]!
         }
       }
 
@@ -136,6 +174,7 @@ export function meetFresh(k: Kernel, e: Whole, fresh: readonly number[] = [1, 1,
   }
 
   let grain = e.grain * freshGrain * BigInt(k.divisor)
+
   const common = out.reduce((g, x) => gcd(g, x), grain)
 
   grain /= common
@@ -144,4 +183,5 @@ export function meetFresh(k: Kernel, e: Whole, fresh: readonly number[] = [1, 1,
 }
 
 // the chance of level 1 (the line a = 1), as its numerator over the grain
-export const levelOne = (w: readonly bigint[]): bigint => w[3]! + w[4]! + w[5]!
+export const levelOne = (w: readonly bigint[]): bigint =>
+  w[3]! + w[4]! + w[5]!

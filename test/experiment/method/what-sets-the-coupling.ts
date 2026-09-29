@@ -36,7 +36,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
-import { linearWaveEigenvalues, waveVector } from '@/code/measure/photon-modes'
+import {
+  linearWaveEigenvalues,
+  waveVector,
+} from '@/code/measure/photon-modes'
 import { columnPairEnergy } from '@/code/measure/coupling-candidates'
 
 const N = 8192
@@ -52,23 +55,30 @@ export default experiment({
   id: 'method/what-sets-the-coupling',
   code: 'E-MTH-0020',
   title:
-    'what sets the U(1) coupling: on the husk the link sector gives alpha = 1 / (12 N D c) per vibe, the Coulomb coefficient 1 / (24 pi D) read off the D4 column Green\'s function (the husk coupling is the bulk one divided by the column depth D) and c = sqrt(2 kappa / 3) off the photon, so alpha^-1 = 12 D sqrt(4 pi K N / 3) / e^2 is a free function of the chosen K, N, charge e and box depth, 238,580 at the committed rule on the side-12 husk box, and nothing in the knit fixes it',
+    "what sets the U(1) coupling: on the husk the link sector gives alpha = 1 / (12 N D c) per vibe, the Coulomb coefficient 1 / (24 pi D) read off the D4 column Green's function (the husk coupling is the bulk one divided by the column depth D) and c = sqrt(2 kappa / 3) off the photon, so alpha^-1 = 12 D sqrt(4 pi K N / 3) / e^2 is a free function of the chosen K, N, charge e and box depth, 238,580 at the committed rule on the side-12 husk box, and nothing in the knit fixes it",
   category: 'method',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const coefficients = DEPTHS.map(depth => {
-      const [near, far] = columnPairEnergy({ p: P, depth, separations: [NEAR, FAR] })
+      const [near, far] = columnPairEnergy({
+        p: P,
+        depth,
+        separations: [NEAR, FAR],
+      })
 
       return ((far ?? 0) - (near ?? 0)) / (1 / NEAR - 1 / FAR)
     })
-    const normalized = coefficients.map((c, i) => 24 * Math.PI * DEPTHS[i]! * c)
+    const normalized = coefficients.map(
+      (c, i) => 24 * Math.PI * DEPTHS[i]! * c,
+    )
     const coulomb = normalized.every(x => Math.abs(x - 1) < 0.01)
     const dilution = coefficients[0]! / coefficients[2]!
     const diluted = Math.abs(dilution / 4 - 1) < 0.01
 
     const lattice = photonLatticeD4({ side: PHOTON_SIDE })
+
     // lambda / k^2 of the photon branches at wave numbers n and 2 n, extrapolated to k = 0 by Richardson
     // (the lattice correction is order k^2)
     const ratios = (n: readonly number[]): number[] => {
@@ -80,6 +90,7 @@ export default experiment({
         .slice(0, 3)
         .map(v => v / k2)
     }
+
     const photonRatios = [
       [1, 0, 0, 0],
       [0, 0, 1, 0],
@@ -89,17 +100,20 @@ export default experiment({
 
       return one.map((r, i) => (4 * r - (two[i] ?? 0)) / 3)
     })
-    const photon = photonRatios.length === 6 && photonRatios.every(r => Math.abs(r / (2 / 3) - 1) < 0.01)
+    const photon =
+      photonRatios.length === 6 &&
+      photonRatios.every(r => Math.abs(r / (2 / 3) - 1) < 0.01)
 
     const kappa = (2 * Math.PI * K) / N
     const c = Math.sqrt((2 * kappa) / 3)
-    const inverseAlpha = (depth: number, charge: number): number => (12 * N * depth * c) / (charge * charge)
+    const inverseAlpha = (depth: number, charge: number): number =>
+      (12 * N * depth * c) / (charge * charge)
     const ok = coulomb && diluted && photon
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the husk fine-structure constant of the link sector is alpha = 1 / (12 N D c) per vibe: the D4 column Green\'s function gives the husk Coulomb coefficient 1 / (24 pi D) in units of a = 2 pi / N, the husk coupling being the bulk coupling divided by the column depth D, and the photon gives c = sqrt(2 kappa / 3), so alpha^-1 = 12 D sqrt(4 pi K N / 3) / e^2, set by the chosen force scale K, angle resolution N, charge e and box depth, none of which the knit fixes',
+        "the husk fine-structure constant of the link sector is alpha = 1 / (12 N D c) per vibe: the D4 column Green's function gives the husk Coulomb coefficient 1 / (24 pi D) in units of a = 2 pi / N, the husk coupling being the bulk coupling divided by the column depth D, and the photon gives c = sqrt(2 kappa / 3), so alpha^-1 = 12 D sqrt(4 pi K N / 3) / e^2, set by the chosen force scale K, angle resolution N, charge e and box depth, none of which the knit fixes",
       metrics: {
         coulombDepthOne: normalized[0]!,
         coulombDepthTwo: normalized[1]!,
@@ -111,7 +125,8 @@ export default experiment({
         lightSpeed: c,
         inverseAlphaPerVibeDepthOne: inverseAlpha(1, 1),
         inverseAlphaPerVibeHuskBox: inverseAlpha(HUSK_BOX_DEPTH, 1),
-        inverseAlphaElectronThirdsHuskBox: inverseAlpha(HUSK_BOX_DEPTH, 1) / 9,
+        inverseAlphaElectronThirdsHuskBox:
+          inverseAlpha(HUSK_BOX_DEPTH, 1) / 9,
         // what the column depth would have to be for 1/137.036 per vibe at the committed K and N
         depthForObservedPerVibe: 137.035999177 / inverseAlpha(1, 1),
       },
@@ -120,7 +135,7 @@ export default experiment({
         dilutionOneOverFour: dilution,
       },
       notes:
-        'L2. The Green\'s function is summed exactly over the torus modes (deterministic, no sampling); the torus background r^2 / (36 D P^3) is subtracted analytically. First run, 2026-09-25, pass: 24 pi D C(D) = 0.99958, 0.99960 and 1.00695 for D = 1, 2, 4, the last carrying the column\'s own tail at r = 8 = 2 D (the lightest depth mode decays as exp(-2 pi r / 2 D)), so the dilution C(1) / C(4) = 3.971 clears its 1 percent gate by 0.3 percent, and the Richardson photon ratio is 0.666688 on both directions. hbar = 1 because the flux is an integer and the angle is periodic in 2 pi: the pair (2 pi A / N, E) is canonical, so the energy in beats is (2 pi / N) times the rule\'s H. The charge in the Coulomb law is the vibe (love +1, fear -1); if a vibe is a third of the electron\'s charge (E-FRC-0170), the electron\'s alpha^-1 is the per-vibe value over 9. The flat box has no bottom along the depth, so D is its size; in the hyperbolic cusp the columns shrink by the warp factor per layer and the sum would converge (E-FRC-0177 weighed the layers and broke the husk Gauss\'s law), which E-MTH-0021 judges as a candidate. The knobs: N sets the angle resolution, K the force scale (kappa = 2 pi K / N is held below the stability bound 4 / lambda_max = 1/4 by choice), e the flux per vibe, D the box. Even the depth needed for 1/137 at the committed K and N is a fraction of a dock (reported), so the committed sector is not near the observed coupling in any geometry.',
+        "L2. The Green's function is summed exactly over the torus modes (deterministic, no sampling); the torus background r^2 / (36 D P^3) is subtracted analytically. First run, 2026-09-25, pass: 24 pi D C(D) = 0.99958, 0.99960 and 1.00695 for D = 1, 2, 4, the last carrying the column's own tail at r = 8 = 2 D (the lightest depth mode decays as exp(-2 pi r / 2 D)), so the dilution C(1) / C(4) = 3.971 clears its 1 percent gate by 0.3 percent, and the Richardson photon ratio is 0.666688 on both directions. hbar = 1 because the flux is an integer and the angle is periodic in 2 pi: the pair (2 pi A / N, E) is canonical, so the energy in beats is (2 pi / N) times the rule's H. The charge in the Coulomb law is the vibe (love +1, fear -1); if a vibe is a third of the electron's charge (E-FRC-0170), the electron's alpha^-1 is the per-vibe value over 9. The flat box has no bottom along the depth, so D is its size; in the hyperbolic cusp the columns shrink by the warp factor per layer and the sum would converge (E-FRC-0177 weighed the layers and broke the husk Gauss's law), which E-MTH-0021 judges as a candidate. The knobs: N sets the angle resolution, K the force scale (kappa = 2 pi K / N is held below the stability bound 4 / lambda_max = 1/4 by choice), e the flux per vibe, D the box. Even the depth needed for 1/137 at the committed K and N is a fraction of a dock (reported), so the committed sector is not near the observed coupling in any geometry.",
     })
   },
 })

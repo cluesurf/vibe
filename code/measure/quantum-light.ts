@@ -29,9 +29,16 @@ export type Registers = {
   readonly strides: readonly number[]
 }
 
-export type Density = { readonly size: number; readonly re: Float64Array; readonly im: Float64Array }
+export type Density = {
+  readonly size: number
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
-export type State = { readonly re: Float64Array; readonly im: Float64Array }
+export type State = {
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -39,27 +46,48 @@ const mod = (x: number, m: number): number => ((x % m) + m) % m
 const halfOf = (d: number): number => (d + 1) / 2
 
 export function registers(dims: readonly number[]): Registers {
-  for (const d of dims) if (d % 2 === 0) throw new Error('quantum-light: every register must have odd dimension')
+  for (const d of dims) {
+    if (d % 2 === 0) {
+      throw new Error(
+        'quantum-light: every register must have odd dimension',
+      )
+    }
+  }
 
   const size = dims.reduce((p, d) => p * d, 1)
-  const strides = dims.map((_, q) => dims.slice(q + 1).reduce((p, d) => p * d, 1))
+  const strides = dims.map((_, q) =>
+    dims.slice(q + 1).reduce((p, d) => p * d, 1),
+  )
   const digits = new Int32Array(size * dims.length)
 
-  for (let i = 0; i < size; i++) for (let q = 0; q < dims.length; q++) digits[i * dims.length + q] = Math.floor(i / strides[q]!) % dims[q]!
+  for (let i = 0; i < size; i++) {
+    for (let q = 0; q < dims.length; q++) {
+      digits[i * dims.length + q] =
+        Math.floor(i / strides[q]!) % dims[q]!
+    }
+  }
 
   return { dims, size, digits, strides }
 }
 
-export const digitOf = (r: Registers, index: number, q: number): number => r.digits[index * r.dims.length + q]!
+export const digitOf = (
+  r: Registers,
+  index: number,
+  q: number,
+): number => r.digits[index * r.dims.length + q]!
 
 // the balanced reading of a digit: -(d - 1)/2 .. (d - 1)/2
-export const balanced = (digit: number, d: number): number => (digit > (d - 1) / 2 ? digit - d : digit)
+export const balanced = (digit: number, d: number): number =>
+  digit > (d - 1) / 2 ? digit - d : digit
 
 export function emptyState(r: Registers): State {
   return { re: new Float64Array(r.size), im: new Float64Array(r.size) }
 }
 
-export function basisState(r: Registers, digits: readonly number[]): State {
+export function basisState(
+  r: Registers,
+  digits: readonly number[],
+): State {
   const s = emptyState(r)
 
   s.re[digits.reduce((i, v, q) => i + v * r.strides[q]!, 0)] = 1
@@ -70,7 +98,9 @@ export function basisState(r: Registers, digits: readonly number[]): State {
 export function normalize(s: State): State {
   let n = 0
 
-  for (let i = 0; i < s.re.length; i++) n += s.re[i]! ** 2 + s.im[i]! ** 2
+  for (let i = 0; i < s.re.length; i++) {
+    n += s.re[i]! ** 2 + s.im[i]! ** 2
+  }
 
   const k = 1 / Math.sqrt(n)
 
@@ -83,12 +113,18 @@ export function normalize(s: State): State {
 }
 
 export function tensorStates(a: State, b: State): State {
-  const out = { re: new Float64Array(a.re.length * b.re.length), im: new Float64Array(a.re.length * b.re.length) }
+  const out = {
+    re: new Float64Array(a.re.length * b.re.length),
+    im: new Float64Array(a.re.length * b.re.length),
+  }
 
   for (let i = 0; i < a.re.length; i++) {
     for (let j = 0; j < b.re.length; j++) {
-      out.re[i * b.re.length + j] = a.re[i]! * b.re[j]! - a.im[i]! * b.im[j]!
-      out.im[i * b.re.length + j] = a.re[i]! * b.im[j]! + a.im[i]! * b.re[j]!
+      out.re[i * b.re.length + j] =
+        a.re[i]! * b.re[j]! - a.im[i]! * b.im[j]!
+
+      out.im[i * b.re.length + j] =
+        a.re[i]! * b.im[j]! + a.im[i]! * b.re[j]!
     }
   }
 
@@ -114,10 +150,16 @@ export function densityOf(s: State): Density {
 // Wigner functions
 
 // the point index of per-register (a, b)
-export function pointIndex(r: Registers, a: readonly number[], b: readonly number[]): number {
+export function pointIndex(
+  r: Registers,
+  a: readonly number[],
+  b: readonly number[],
+): number {
   let x = 0
 
-  for (let q = 0; q < r.dims.length; q++) x = x * r.dims[q]! * r.dims[q]! + a[q]! * r.dims[q]! + b[q]!
+  for (let q = 0; q < r.dims.length; q++) {
+    x = x * r.dims[q]! * r.dims[q]! + a[q]! * r.dims[q]! + b[q]!
+  }
 
   return x
 }
@@ -184,6 +226,7 @@ const LAYOUTS = new Map<string, Int32Array>()
 
 function layout(r: Registers): Int32Array {
   const key = r.dims.join(',')
+
   let found = LAYOUTS.get(key)
 
   if (!found) {
@@ -195,21 +238,35 @@ function layout(r: Registers): Int32Array {
 }
 
 // transform register q's (row, column) digit pair in place, forward (rho -> Tr rho A) or back (W -> rho)
-function transformRegister(r: Registers, re: Float64Array, im: Float64Array, q: number, forward: boolean): void {
+function transformRegister(
+  r: Registers,
+  re: Float64Array,
+  im: Float64Array,
+  q: number,
+  forward: boolean,
+): void {
   const d = r.dims[q]!
   const stride = r.strides[q]!
   const size = r.size
   const half = halfOf(d)
-  const cos = Float64Array.from({ length: d }, (_, k) => Math.cos((2 * Math.PI * k) / d))
-  const sin = Float64Array.from({ length: d }, (_, k) => Math.sin((2 * Math.PI * k) / d))
+  const cos = Float64Array.from({ length: d }, (_, k) =>
+    Math.cos((2 * Math.PI * k) / d),
+  )
+  const sin = Float64Array.from({ length: d }, (_, k) =>
+    Math.sin((2 * Math.PI * k) / d),
+  )
   const inRe = new Float64Array(d * d)
   const inIm = new Float64Array(d * d)
 
   for (let row0 = 0; row0 < size; row0++) {
-    if (Math.floor(row0 / stride) % d !== 0) continue
+    if (Math.floor(row0 / stride) % d !== 0) {
+      continue
+    }
 
     for (let col0 = 0; col0 < size; col0++) {
-      if (Math.floor(col0 / stride) % d !== 0) continue
+      if (Math.floor(col0 / stride) % d !== 0) {
+        continue
+      }
 
       for (let j = 0; j < d; j++) {
         for (let k = 0; k < d; k++) {
@@ -261,14 +318,20 @@ function transformRegister(r: Registers, re: Float64Array, im: Float64Array, q: 
 }
 
 // W(x) = Tr(rho A(x)) / N; returns W and the largest imaginary part met (a check, it must vanish)
-export function wigner(r: Registers, rho: Density): { w: Float64Array; imaginary: number } {
+export function wigner(
+  r: Registers,
+  rho: Density,
+): { w: Float64Array; imaginary: number } {
   const re = Float64Array.from(rho.re)
   const im = Float64Array.from(rho.im)
 
-  for (let q = 0; q < r.dims.length; q++) transformRegister(r, re, im, q, true)
+  for (let q = 0; q < r.dims.length; q++) {
+    transformRegister(r, re, im, q, true)
+  }
 
   const map = layout(r)
   const w = new Float64Array(r.size * r.size)
+
   let imaginary = 0
 
   for (let i = 0; i < w.length; i++) {
@@ -279,24 +342,37 @@ export function wigner(r: Registers, rho: Density): { w: Float64Array; imaginary
   return { w, imaginary }
 }
 
-export function densityFromWigner(r: Registers, w: Float64Array): Density {
+export function densityFromWigner(
+  r: Registers,
+  w: Float64Array,
+): Density {
   const map = layout(r)
   const re = new Float64Array(r.size * r.size)
   const im = new Float64Array(r.size * r.size)
 
-  for (let i = 0; i < re.length; i++) re[i] = w[map[i]!]!
+  for (let i = 0; i < re.length; i++) {
+    re[i] = w[map[i]!]!
+  }
 
-  for (let q = 0; q < r.dims.length; q++) transformRegister(r, re, im, q, false)
+  for (let q = 0; q < r.dims.length; q++) {
+    transformRegister(r, re, im, q, false)
+  }
 
   return { size: r.size, re, im }
 }
 
-export const mana = (w: Float64Array): number => Math.log(w.reduce((s, x) => s + Math.abs(x), 0))
+export const mana = (w: Float64Array): number =>
+  Math.log(w.reduce((s, x) => s + Math.abs(x), 0))
 
-export const negativeWeight = (w: Float64Array): number => w.reduce((s, x) => s + (x < 0 ? -x : 0), 0)
+export const negativeWeight = (w: Float64Array): number =>
+  w.reduce((s, x) => s + (x < 0 ? -x : 0), 0)
 
 // the marginal whole of the registers `keep` (a sum over the others' points, the partial trace)
-export function marginal(r: Registers, w: Float64Array, keep: readonly number[]): { registers: Registers; w: Float64Array } {
+export function marginal(
+  r: Registers,
+  w: Float64Array,
+  keep: readonly number[],
+): { registers: Registers; w: Float64Array } {
   const sub = registers(keep.map(q => r.dims[q]!))
   const out = new Float64Array(sub.size * sub.size)
   const positions = pointPositions(r)
@@ -304,7 +380,9 @@ export function marginal(r: Registers, w: Float64Array, keep: readonly number[])
   const count = r.dims.length
 
   for (let x = 0; x < w.length; x++) {
-    if (w[x] === 0) continue
+    if (w[x] === 0) {
+      continue
+    }
 
     const at = pointIndex(
       sub,
@@ -341,18 +419,28 @@ export function smallestEigenvalue(rho: Density): number {
   for (let sweep = 0; sweep < 60; sweep++) {
     let off = 0
 
-    for (let p = 0; p < m; p++) for (let q = p + 1; q < m; q++) off += a[p * m + q]! ** 2
+    for (let p = 0; p < m; p++) {
+      for (let q = p + 1; q < m; q++) {
+        off += a[p * m + q]! ** 2
+      }
+    }
 
-    if (off < 1e-26) break
+    if (off < 1e-26) {
+      break
+    }
 
     for (let p = 0; p < m; p++) {
       for (let q = p + 1; q < m; q++) {
         const apq = a[p * m + q]!
 
-        if (Math.abs(apq) < 1e-300) continue
+        if (Math.abs(apq) < 1e-300) {
+          continue
+        }
 
         const theta = (a[q * m + q]! - a[p * m + p]!) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -377,7 +465,9 @@ export function smallestEigenvalue(rho: Density): number {
 
   let least = Infinity
 
-  for (let i = 0; i < m; i++) least = Math.min(least, a[i * m + i]!)
+  for (let i = 0; i < m; i++) {
+    least = Math.min(least, a[i * m + i]!)
+  }
 
   return least
 }
@@ -386,7 +476,13 @@ export function smallestEigenvalue(rho: Density): number {
 // the gates on state vectors
 
 // the flow update SUM: register `target` += sign x (the balanced value of `control`), mod its dimension
-export function applySum(r: Registers, s: State, control: number, target: number, sign = 1): State {
+export function applySum(
+  r: Registers,
+  s: State,
+  control: number,
+  target: number,
+  sign = 1,
+): State {
   const out = emptyState(r)
   const dc = r.dims[control]!
   const dt = r.dims[target]!
@@ -404,7 +500,11 @@ export function applySum(r: Registers, s: State, control: number, target: number
 }
 
 // a diagonal phase: basis state i gets e^(2 pi i turns(i))
-export function applyPhase(r: Registers, s: State, turns: (i: number) => number): State {
+export function applyPhase(
+  r: Registers,
+  s: State,
+  turns: (i: number) => number,
+): State {
   const out = emptyState(r)
 
   for (let i = 0; i < r.size; i++) {
@@ -420,7 +520,12 @@ export function applyPhase(r: Registers, s: State, turns: (i: number) => number)
 }
 
 // exchange two registers of one dimension (a relabeling: the stream copies)
-export function applyExchange(r: Registers, s: State, p: number, q: number): State {
+export function applyExchange(
+  r: Registers,
+  s: State,
+  p: number,
+  q: number,
+): State {
   const out = emptyState(r)
 
   for (let i = 0; i < r.size; i++) {
@@ -436,7 +541,14 @@ export function applyExchange(r: Registers, s: State, p: number, q: number): Sta
 }
 
 // the swap phase P_sym + e^(2 pi i k / n) P_anti on registers p, q of one dimension: ((1 + z)/2) 1 + ((1 - z)/2) SWAP
-export function applySwapPhase(r: Registers, s: State, p: number, q: number, k: number, n = 3): State {
+export function applySwapPhase(
+  r: Registers,
+  s: State,
+  p: number,
+  q: number,
+  k: number,
+  n = 3,
+): State {
   const swapped = applyExchange(r, s, p, q)
   const zr = Math.cos((2 * Math.PI * k) / n)
   const zi = Math.sin((2 * Math.PI * k) / n)
@@ -447,18 +559,34 @@ export function applySwapPhase(r: Registers, s: State, p: number, q: number, k: 
   const out = emptyState(r)
 
   for (let i = 0; i < r.size; i++) {
-    out.re[i] = ar * s.re[i]! - ai * s.im[i]! + br * swapped.re[i]! - bi * swapped.im[i]!
-    out.im[i] = ar * s.im[i]! + ai * s.re[i]! + br * swapped.im[i]! + bi * swapped.re[i]!
+    out.re[i] =
+      ar * s.re[i]! -
+      ai * s.im[i]! +
+      br * swapped.re[i]! -
+      bi * swapped.im[i]!
+
+    out.im[i] =
+      ar * s.im[i]! +
+      ai * s.re[i]! +
+      br * swapped.im[i]! +
+      bi * swapped.re[i]!
   }
 
   return out
 }
 
 // the weight of a state outside a set of basis states (a leak out of a sector)
-export function weightOutside(s: State, inside: (i: number) => boolean): number {
+export function weightOutside(
+  s: State,
+  inside: (i: number) => boolean,
+): number {
   let w = 0
 
-  for (let i = 0; i < s.re.length; i++) if (!inside(i)) w += s.re[i]! ** 2 + s.im[i]! ** 2
+  for (let i = 0; i < s.re.length; i++) {
+    if (!inside(i)) {
+      w += s.re[i]! ** 2 + s.im[i]! ** 2
+    }
+  }
 
   return w
 }

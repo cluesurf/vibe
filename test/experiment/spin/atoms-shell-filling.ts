@@ -154,7 +154,8 @@ export default experiment({
     // a 2D square-grid tight-binding well clusters into shells with degeneracies 1, 2, 3 and the cumulative
     // capacities 2, 6, 12 under a spin factor of two that is itself an input (SPIN = 2). That is known 2D
     // harmonic-well physics on a square grid, not a consequence of the {3,4,3,4} rule.
-    const ok = ladderDiscrete && degeneraciesAscend && fermionsFillSuccessive
+    const ok =
+      ladderDiscrete && degeneraciesAscend && fermionsFillSuccessive
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -66,7 +66,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weyl } from '@/code/tool/weyl'
-import { basisState, densityOf, registers, wigner } from '@/code/measure/quantum-light'
+import {
+  basisState,
+  densityOf,
+  registers,
+  wigner,
+} from '@/code/measure/quantum-light'
 import {
   applyExact,
   applyFloat,
@@ -95,29 +100,47 @@ const BEATS = 12
 const R2_BEATS = 6
 const R2_SAMPLE = 4096
 
-const fearOn = (n: number): BeatSpec => ({ m: 6 * n, hop: 2 * n, electric: 1, magnetic: 1 })
+const fearOn = (n: number): BeatSpec => ({
+  m: 6 * n,
+  hop: 2 * n,
+  electric: 1,
+  magnetic: 1,
+})
 
 // ---------------------------------------------------------------------------------------------------------
 // R2
 
-function flowSpread(lattice: Lattice, n: number, magnetic: boolean): { flows: number[]; charges: number[] } {
+function flowSpread(
+  lattice: Lattice,
+  n: number,
+  magnetic: boolean,
+): { flows: number[]; charges: number[] } {
   const R = lattice.docks + lattice.links.length
   const a0 = new Array<number>(R).fill(0)
 
   // the electron at dock 1 with its string
   a0[1] = 1
-  lattice.strings[1]!.forEach((e, l) => (a0[lattice.docks + l] = mod(e, n)))
+  lattice.strings[1]!.forEach(
+    (e, l) => (a0[lattice.docks + l] = mod(e, n)),
+  )
 
   const total = n ** R
   const exhaustive = n <= 5
   const count = exhaustive ? total : R2_SAMPLE
-  const flows = Array.from({ length: R2_BEATS }, () => new Set<string>())
-  const charges = Array.from({ length: R2_BEATS }, () => new Set<string>())
+  const flows = Array.from(
+    { length: R2_BEATS },
+    () => new Set<string>(),
+  )
+  const charges = Array.from(
+    { length: R2_BEATS },
+    () => new Set<string>(),
+  )
 
   for (let s = 0; s < count; s++) {
     const index = exhaustive ? s : Math.floor(weyl(s + 1) * total)
     const a = [...a0]
     const b = new Array<number>(R).fill(0)
+
     let rest = index
 
     for (let q = R - 1; q >= 0; q--) {
@@ -132,13 +155,21 @@ function flowSpread(lattice: Lattice, n: number, magnetic: boolean): { flows: nu
     }
   }
 
-  return { flows: flows.map(f => f.size), charges: charges.map(c => c.size) }
+  return {
+    flows: flows.map(f => f.size),
+    charges: charges.map(c => c.size),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // R3: g_k = sum_B zeta^(exponents[B]) w^(-B k) in Z[zeta_M]
 
-function loopAmplitude(n: number, m: number, exponents: readonly number[], k: number): bigint[] {
+function loopAmplitude(
+  n: number,
+  m: number,
+  exponents: readonly number[],
+  k: number,
+): bigint[] {
   const g = new Array<bigint>(m).fill(0n)
 
   for (let B = 0; B < n; B++) {
@@ -154,9 +185,15 @@ function timesConjugate(g: readonly bigint[], m: number): bigint[] {
   const out = new Array<bigint>(m).fill(0n)
 
   for (let i = 0; i < m; i++) {
-    if (g[i] === 0n) continue
+    if (g[i] === 0n) {
+      continue
+    }
 
-    for (let j = 0; j < m; j++) if (g[j] !== 0n) out[mod(i - j, m)] = out[mod(i - j, m)]! + g[i]! * g[j]!
+    for (let j = 0; j < m; j++) {
+      if (g[j] !== 0n) {
+        out[mod(i - j, m)] = out[mod(i - j, m)]! + g[i]! * g[j]!
+      }
+    }
   }
 
   return canonical(out, m)
@@ -179,20 +216,33 @@ function modulusSquared(g: readonly bigint[], m: number): number {
 
 type Matrix = { re: Float64Array; im: Float64Array }
 
-function krausDefect(sector: Sector, steps: readonly Step[], m: number, register: readonly [number, number][]): number {
+function krausDefect(
+  sector: Sector,
+  steps: readonly Step[],
+  m: number,
+  register: readonly [number, number][],
+): number {
   const n = sector.n
   const d = sector.size / n
-  const kraus: Matrix[] = Array.from({ length: n }, () => ({ re: new Float64Array(d * d), im: new Float64Array(d * d) }))
+  const kraus: Matrix[] = Array.from({ length: n }, () => ({
+    re: new Float64Array(d * d),
+    im: new Float64Array(d * d),
+  }))
 
   for (let a = 0; a < d; a++) {
-    let w: Complex = { re: new Float64Array(sector.size), im: new Float64Array(sector.size) }
+    let w: Complex = {
+      re: new Float64Array(sector.size),
+      im: new Float64Array(sector.size),
+    }
 
     for (let f = 0; f < n; f++) {
       w.re[a * n + f] = register[f]![0]
       w.im[a * n + f] = register[f]![1]
     }
 
-    for (const s of steps) w = applyFloat(s, w, m)
+    for (const s of steps) {
+      w = applyFloat(s, w, m)
+    }
 
     for (let a2 = 0; a2 < d; a2++) {
       for (let f = 0; f < n; f++) {
@@ -213,8 +263,13 @@ function krausDefect(sector: Sector, steps: readonly Step[], m: number, register
       for (const K of kraus) {
         for (let k = 0; k < d; k++) {
           // K_ik conj(K_jk)
-          re += K.re[i * d + k]! * K.re[j * d + k]! + K.im[i * d + k]! * K.im[j * d + k]!
-          im += K.im[i * d + k]! * K.re[j * d + k]! - K.re[i * d + k]! * K.im[j * d + k]!
+          re +=
+            K.re[i * d + k]! * K.re[j * d + k]! +
+            K.im[i * d + k]! * K.im[j * d + k]!
+
+          im +=
+            K.im[i * d + k]! * K.re[j * d + k]! -
+            K.re[i * d + k]! * K.im[j * d + k]!
         }
       }
 
@@ -230,24 +285,35 @@ function registerVacuum(n: number): [number, number][] {
   // power iteration on (lambda_max - H) is avoided: the generator is small, so take the eigenvector of the
   // Hermitian matrix directly by Jacobi through the float unitary's Hermitian part is not needed; H is real
   // symmetric here (the magnetic part's g'_k is real for the even function bal(B)^2)
-  const h: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const h: number[][] = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
-  for (let f = 0; f < n; f++) h[f]![f] = h[f]![f]! + 6 * bal(f, n) ** 2
+  for (let f = 0; f < n; f++) {
+    h[f]![f] = h[f]![f]! + 6 * bal(f, n) ** 2
+  }
 
   for (let k = 0; k < n; k++) {
     let g = 0
 
-    for (let B = 0; B < n; B++) g += (bal(B, n) ** 2 * Math.cos((2 * Math.PI * B * k) / n)) / n
+    for (let B = 0; B < n; B++) {
+      g += (bal(B, n) ** 2 * Math.cos((2 * Math.PI * B * k) / n)) / n
+    }
 
-    for (let f = 0; f < n; f++) h[(f + k) % n]![f] = h[(f + k) % n]![f]! + g
+    for (let f = 0; f < n; f++) {
+      h[(f + k) % n]![f] = h[(f + k) % n]![f]! + g
+    }
   }
 
   // inverse-free: shifted power iteration on (c - H), deterministic start
   const c = n * n * 8
+
   let v = Array.from({ length: n }, (_, f) => 1 + weyl(f + 1))
 
   for (let it = 0; it < 20000; it++) {
-    const w = v.map((_, i) => c * v[i]! - h[i]!.reduce((s, x, j) => s + x * v[j]!, 0))
+    const w = v.map(
+      (_, i) => c * v[i]! - h[i]!.reduce((s, x, j) => s + x * v[j]!, 0),
+    )
     const norm = Math.hypot(...w)
 
     v = w.map(x => x / norm)
@@ -277,7 +343,12 @@ function slotTupleOf(sector: Sector, i: number): number[] {
 }
 
 // the slot-form factors, written on port registers only
-function slotHop(lattice: Lattice, n: number, l: number, t: readonly number[]): number[] {
+function slotHop(
+  lattice: Lattice,
+  n: number,
+  l: number,
+  t: readonly number[],
+): number[] {
   const { from: x, to: y } = lattice.links[l]!
   const out = [...t]
   const dd = t[x]! - t[y]!
@@ -285,33 +356,64 @@ function slotHop(lattice: Lattice, n: number, l: number, t: readonly number[]): 
   out[x] = t[y]!
   out[y] = t[x]!
   out[lattice.docks + 2 * l] = mod(t[lattice.docks + 2 * l]! + dd, n)
-  out[lattice.docks + 2 * l + 1] = mod(t[lattice.docks + 2 * l + 1]! - dd, n)
+  out[lattice.docks + 2 * l + 1] = mod(
+    t[lattice.docks + 2 * l + 1]! - dd,
+    n,
+  )
 
   return out
 }
 
-function slotLoop(lattice: Lattice, n: number, p: number, t: readonly number[]): number[] {
+function slotLoop(
+  lattice: Lattice,
+  n: number,
+  p: number,
+  t: readonly number[],
+): number[] {
   const out = [...t]
   const pl = lattice.plaquettes[p]!
 
   pl.links.forEach((l, j) => {
-    out[lattice.docks + 2 * l] = mod(out[lattice.docks + 2 * l]! + pl.signs[j]!, n)
-    out[lattice.docks + 2 * l + 1] = mod(out[lattice.docks + 2 * l + 1]! - pl.signs[j]!, n)
+    out[lattice.docks + 2 * l] = mod(
+      out[lattice.docks + 2 * l]! + pl.signs[j]!,
+      n,
+    )
+
+    out[lattice.docks + 2 * l + 1] = mod(
+      out[lattice.docks + 2 * l + 1]! - pl.signs[j]!,
+      n,
+    )
   })
 
   return out
 }
 
-function slotElectric(lattice: Lattice, n: number, t: readonly number[]): number {
+function slotElectric(
+  lattice: Lattice,
+  n: number,
+  t: readonly number[],
+): number {
   const half = (n + 1) / 2
+
   let s = 0
 
-  for (let l = 0; l < lattice.links.length; l++) s += bal((t[lattice.docks + 2 * l]! - t[lattice.docks + 2 * l + 1]!) * half, n) ** 2
+  for (let l = 0; l < lattice.links.length; l++) {
+    s +=
+      bal(
+        (t[lattice.docks + 2 * l]! - t[lattice.docks + 2 * l + 1]!) *
+          half,
+        n,
+      ) ** 2
+  }
 
   return s
 }
 
-function slotGauss(lattice: Lattice, n: number, t: readonly number[]): number[] {
+function slotGauss(
+  lattice: Lattice,
+  n: number,
+  t: readonly number[],
+): number[] {
   const g = Array.from({ length: lattice.docks }, (_, x) => t[x]!)
 
   lattice.links.forEach((l, k) => {
@@ -322,10 +424,16 @@ function slotGauss(lattice: Lattice, n: number, t: readonly number[]): number[] 
   return g.map(v => mod(v, n))
 }
 
-function slotSteps(sector: Sector, spec: BeatSpec): { steps: Step[]; exits: number; space: SlotSpace } {
+function slotSteps(
+  sector: Sector,
+  spec: BeatSpec,
+): { steps: Step[]; exits: number; space: SlotSpace } {
   const { lattice, n } = sector
-  const tuples = Array.from({ length: sector.size }, (_, i) => slotTupleOf(sector, i))
+  const tuples = Array.from({ length: sector.size }, (_, i) =>
+    slotTupleOf(sector, i),
+  )
   const index = new Map(tuples.map((t, i) => [t.join(','), i]))
+
   let exits = 0
 
   const move = (f: (t: readonly number[]) => number[]): Int32Array =>
@@ -349,14 +457,24 @@ function slotSteps(sector: Sector, spec: BeatSpec): { steps: Step[]; exits: numb
     steps.push({ kind: 'hop', move: i => mv[i]!, z: spec.hop })
   }
 
-  const electric = Int32Array.from(tuples, t => slotElectric(lattice, n, t))
-  const half: Step = { kind: 'phase', exponent: i => -spec.electric * electric[i]! }
+  const electric = Int32Array.from(tuples, t =>
+    slotElectric(lattice, n, t),
+  )
+  const half: Step = {
+    kind: 'phase',
+    exponent: i => -spec.electric * electric[i]!,
+  }
 
   steps.push(half)
   lattice.plaquettes.forEach((_, p) => {
     const sh = move(t => slotLoop(lattice, n, p, t))
 
-    steps.push({ kind: 'loop', shift: i => sh[i]!, exponents: magneticExponents(n, spec.magnetic), n })
+    steps.push({
+      kind: 'loop',
+      shift: i => sh[i]!,
+      exponents: magneticExponents(n, spec.magnetic),
+      n,
+    })
   })
   steps.push(half)
 
@@ -368,9 +486,18 @@ function slotSumChanges(lattice: Lattice, n: number): number {
   const R = lattice.docks + 2 * lattice.links.length
   const total = n ** R
   const t = new Array<number>(R).fill(0)
+
   let changes = 0
 
-  const sums = (x: readonly number[]): string => lattice.links.map((_, l) => mod(x[lattice.docks + 2 * l]! + x[lattice.docks + 2 * l + 1]!, n)).join(',')
+  const sums = (x: readonly number[]): string =>
+    lattice.links
+      .map((_, l) =>
+        mod(
+          x[lattice.docks + 2 * l]! + x[lattice.docks + 2 * l + 1]!,
+          n,
+        ),
+      )
+      .join(',')
 
   for (let i = 0; i < total; i++) {
     let rest = i
@@ -382,10 +509,16 @@ function slotSumChanges(lattice: Lattice, n: number): number {
 
     const before = sums(t)
 
-    for (const l of lattice.hops) if (sums(slotHop(lattice, n, l, t)) !== before) changes++
+    for (const l of lattice.hops) {
+      if (sums(slotHop(lattice, n, l, t)) !== before) {
+        changes++
+      }
+    }
 
     lattice.plaquettes.forEach((_, p) => {
-      if (sums(slotLoop(lattice, n, p, t)) !== before) changes++
+      if (sums(slotLoop(lattice, n, p, t)) !== before) {
+        changes++
+      }
     })
   }
 
@@ -398,10 +531,18 @@ function startsOf(sector: Sector, m: number): Exact[] {
   for (let k = 1; picks.length < 4; k++) {
     const i = Math.floor(weyl(k) * sector.size)
 
-    if (!picks.includes(i)) picks.push(i)
+    if (!picks.includes(i)) {
+      picks.push(i)
+    }
   }
 
-  return [...picks.map(i => exactBasis(m, i)), exactFrom(m, picks.map(i => [i, 1n]))]
+  return [
+    ...picks.map(i => exactBasis(m, i)),
+    exactFrom(
+      m,
+      picks.map(i => [i, 1n]),
+    ),
+  ]
 }
 
 export default experiment({
@@ -422,16 +563,28 @@ export default experiment({
     for (const n of MODULI) {
       let twoCycles = 0
 
-      for (let j = 1; j < n; j++) if (mod(-j, n) > j) twoCycles++
+      for (let j = 1; j < n; j++) {
+        if (mod(-j, n) > j) {
+          twoCycles++
+        }
+      }
 
       metrics[`parityNegativeN${n}`] = twoCycles
 
       const reg = registers([n])
       const a0 = 1
       const w = wigner(reg, densityOf(basisState(reg, [a0]))).w
+
       let dev = 0
 
-      for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) dev = Math.max(dev, Math.abs(w[a * n + b]! - (a === a0 ? 1 / n : 0)))
+      for (let a = 0; a < n; a++) {
+        for (let b = 0; b < n; b++) {
+          dev = Math.max(
+            dev,
+            Math.abs(w[a * n + b]! - (a === a0 ? 1 / n : 0)),
+          )
+        }
+      }
 
       metrics[`flowSharpAngleDeviationN${n}`] = dev
       r1 &&= twoCycles === (n - 1) / 2 && dev <= 1e-12
@@ -446,12 +599,22 @@ export default experiment({
       const off = flowSpread(lattice, n, false)
 
       // ADDED AFTER THE FIRST RUN (a reading, no gate changed): the count at each beat
-      on.flows.forEach((c, t) => (metrics[`flowsWithPlaquetteN${n}Beat${t + 1}`] = c))
+      on.flows.forEach(
+        (c, t) => (metrics[`flowsWithPlaquetteN${n}Beat${t + 1}`] = c),
+      )
       metrics[`flowsWithPlaquetteN${n}`] = Math.min(...on.flows)
       metrics[`flowsWithPlaquetteMaxN${n}`] = Math.max(...on.flows)
       metrics[`flowsRecordOnlyN${n}`] = Math.max(...off.flows)
-      metrics[`crossingHistoriesN${n}`] = Math.max(...on.charges, ...off.charges)
-      r2 &&= on.charges.every(c => c === 1) && off.charges.every(c => c === 1) && on.flows.every(f => f > 1) && off.flows.every(f => f === 1)
+      metrics[`crossingHistoriesN${n}`] = Math.max(
+        ...on.charges,
+        ...off.charges,
+      )
+
+      r2 &&=
+        on.charges.every(c => c === 1) &&
+        off.charges.every(c => c === 1) &&
+        on.flows.every(f => f > 1) &&
+        off.flows.every(f => f === 1)
     }
 
     // R3
@@ -465,23 +628,34 @@ export default experiment({
         ['Fractional', 1],
       ] as const) {
         const exponents = magneticExponents(n, r)
+
         let nonzero = 0
         let exactNorm = 0
         let purityHistory = 0
-        const g = Array.from({ length: n }, (_, k) => loopAmplitude(n, m, exponents, k))
+
+        const g = Array.from({ length: n }, (_, k) =>
+          loopAmplitude(n, m, exponents, k),
+        )
 
         for (let k = 0; k < n; k++) {
-          if (canonical(g[k]!, m).some(x => x !== 0n)) nonzero++
+          if (canonical(g[k]!, m).some(x => x !== 0n)) {
+            nonzero++
+          }
 
           const sq = timesConjugate(g[k]!, m)
 
-          if (sq[0] === BigInt(n) && sq.slice(1).every(x => x === 0n)) exactNorm++
+          if (sq[0] === BigInt(n) && sq.slice(1).every(x => x === 0n)) {
+            exactNorm++
+          }
 
           purityHistory += (modulusSquared(g[k]!, m) / (n * n)) ** 2
         }
 
         // the unitary's output from the flow-sharp start: sum_k (g_k / N) |k>, its purity is its norm squared
-        const unitaryNorm = g.reduce((s, gk) => s + modulusSquared(gk, m) / (n * n), 0)
+        const unitaryNorm = g.reduce(
+          (s, gk) => s + modulusSquared(gk, m) / (n * n),
+          0,
+        )
 
         metrics[`loopAmplitudesNonzero${name}N${n}`] = nonzero
         metrics[`loopAmplitudesExactN${name}N${n}`] = exactNorm
@@ -489,8 +663,12 @@ export default experiment({
         metrics[`unitaryPurity${name}N${n}`] = unitaryNorm ** 2
         r3 &&= nonzero === n && Math.abs(unitaryNorm ** 2 - 1) <= 1e-12
 
-        if (name === 'Clifford') r3 &&= exactNorm === n && Math.abs(purityHistory - 1 / n) <= 1e-12
-        else r3 &&= purityHistory < 1 - 1e-3
+        if (name === 'Clifford') {
+          r3 &&=
+            exactNorm === n && Math.abs(purityHistory - 1 / n) <= 1e-12
+        } else {
+          r3 &&= purityHistory < 1 - 1e-3
+        }
       }
     }
 
@@ -500,8 +678,12 @@ export default experiment({
     for (const n of MODULI) {
       const sector = buildSector(squareLattice(2), n)
       const spec = fearOn(n)
-      const record = sectorBeat(sector, { ...spec, skipPlaquettes: [1] })
+      const record = sectorBeat(sector, {
+        ...spec,
+        skipPlaquettes: [1],
+      })
       const quantum = sectorBeat(sector, spec)
+
       let offRecord = 0
       let offQuantum = 0
 
@@ -516,14 +698,20 @@ export default experiment({
 
           for (const j of out.entries.keys()) {
             if (sector.loops[j * 2 + 1] !== mB) {
-              if (which === 0) offRecord++
-              else offQuantum++
+              if (which === 0) {
+                offRecord++
+              } else {
+                offQuantum++
+              }
             }
           }
         }
       }
 
-      const zeroField: [number, number][] = Array.from({ length: n }, () => [1 / Math.sqrt(n), 0])
+      const zeroField: [number, number][] = Array.from(
+        { length: n },
+        () => [1 / Math.sqrt(n), 0],
+      )
       const vacuum = registerVacuum(n)
       const defects = [
         krausDefect(sector, record, spec.m, zeroField),
@@ -538,11 +726,18 @@ export default experiment({
       metrics[`recordUnitalDefectVacuumN${n}`] = defects[1]!
       metrics[`quantumUnitalDefectZeroFieldN${n}`] = defects[2]!
       metrics[`quantumUnitalDefectVacuumN${n}`] = defects[3]!
-      r4 &&= offRecord === 0 && offQuantum > 0 && defects[0]! <= 1e-12 && defects[1]! <= 1e-12 && defects[2]! > 1e-6 && defects[3]! > 1e-6
+      r4 &&=
+        offRecord === 0 &&
+        offQuantum > 0 &&
+        defects[0]! <= 1e-12 &&
+        defects[1]! <= 1e-12 &&
+        defects[2]! > 1e-6 &&
+        defects[3]! > 1e-6
     }
 
     // R5
     let r5 = true
+
     const slotChanges = slotSumChanges(squareLattice(1), 3)
 
     metrics.slotSumChangesN3 = slotChanges
@@ -553,6 +748,7 @@ export default experiment({
       const spec = fearOn(n)
       const link = sectorBeat(sector, spec)
       const slot = slotSteps(sector, spec)
+
       let mismatches = 0
       let gaussDifferences = 0
 
@@ -564,26 +760,37 @@ export default experiment({
           a = runExact(link, a)
           b = runExact(slot.steps, b)
 
-          if (!exactEqual(a, b)) mismatches++
+          if (!exactEqual(a, b)) {
+            mismatches++
+          }
         }
       }
 
       for (let i = 0; i < sector.size; i++) {
         const g = slotGauss(sector.lattice, n, slot.space.tuples[i]!)
 
-        if (g.some((v, x) => v !== (x === sector.lattice.nucleus ? 1 : 0))) gaussDifferences++
+        if (
+          g.some((v, x) => v !== (x === sector.lattice.nucleus ? 1 : 0))
+        ) {
+          gaussDifferences++
+        }
       }
 
       metrics[`slotExitsN${n}`] = slot.exits
       metrics[`slotMismatchesN${n}`] = mismatches
       metrics[`slotGaussDifferencesN${n}`] = gaussDifferences
-      metrics[`tritsPerLinkSlotFormN${n}`] = 2 * Math.ceil(Math.log(n) / Math.log(3) - 1e-12)
-      r5 &&= slot.exits === 0 && mismatches === 0 && gaussDifferences === 0
+      metrics[`tritsPerLinkSlotFormN${n}`] =
+        2 * Math.ceil(Math.log(n) / Math.log(3) - 1e-12)
+
+      r5 &&=
+        slot.exits === 0 && mismatches === 0 && gaussDifferences === 0
     }
 
     const gates = { R1: r1, R2: r2, R3: r3, R4: r4, R5: r5 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
     const status = Object.values(gates).every(v => v) ? 'pass' : 'fail'
 

@@ -155,10 +155,7 @@ function wakeStudy(input: {
     supports.push(support)
 
     if (cells.size > 0) {
-      maxSlotsPerCell = Math.max(
-        maxSlotsPerCell,
-        support / cells.size,
-      )
+      maxSlotsPerCell = Math.max(maxSlotsPerCell, support / cells.size)
     }
 
     if (t > SEED_BEAT) {
@@ -181,9 +178,7 @@ function wakeStudy(input: {
         clockAmplitude(vacuum),
       )
 
-      if (
-        Math.abs(Math.sqrt(pairAbs2(difference)) - ROOT3) < 1e-9
-      ) {
+      if (Math.abs(Math.sqrt(pairAbs2(difference)) - ROOT3) < 1e-9) {
         recoherenceBeats++
       }
     }
@@ -194,8 +189,7 @@ function wakeStudy(input: {
   // the relative growth over the last two 8-beat windows: an exponential keeps it constant, a
   // train that grows by adding length makes it fall
   const lateRatio = supports[n - 1]! / Math.max(supports[n - 9]!, 1)
-  const earlierRatio =
-    supports[n - 9]! / Math.max(supports[n - 17]!, 1)
+  const earlierRatio = supports[n - 9]! / Math.max(supports[n - 17]!, 1)
 
   return {
     frontHits,
@@ -243,8 +237,7 @@ export default experiment({
       at15.lateRatio <= at15.earlierRatio
     const detectorComparable =
       detector13.finalSupport > 100 && at13.finalSupport > 100
-    const thin =
-      at13.maxSlotsPerCell < 2 && at15.maxSlotsPerCell < 2
+    const thin = at13.maxSlotsPerCell < 2 && at15.maxSlotsPerCell < 2
     const partiallyCoherent =
       at13.recoherenceBeats >= 3 && at15.recoherenceBeats >= 3
     const freeClean =
@@ -270,13 +263,9 @@ export default experiment({
         eruptionSide15: at15.eruption,
         lateSlopeSide13: Number(at13.lateSlope.toFixed(1)),
         lateGrowthRatioSide13: Number(at13.lateRatio.toFixed(2)),
-        earlierGrowthRatioSide13: Number(
-          at13.earlierRatio.toFixed(2),
-        ),
+        earlierGrowthRatioSide13: Number(at13.earlierRatio.toFixed(2)),
         lateGrowthRatioSide15: Number(at15.lateRatio.toFixed(2)),
-        earlierGrowthRatioSide15: Number(
-          at15.earlierRatio.toFixed(2),
-        ),
+        earlierGrowthRatioSide15: Number(at15.earlierRatio.toFixed(2)),
         maxSlotsPerCell: Number(
           Math.max(at13.maxSlotsPerCell, at15.maxSlotsPerCell).toFixed(
             2,

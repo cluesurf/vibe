@@ -109,22 +109,35 @@ type FieldRun = {
   vacuumSeries: number[]
 }
 
-type PairRun = { exact: boolean; connected: number; paired: number; carry: number }
+type PairRun = {
+  exact: boolean
+  connected: number
+  paired: number
+  carry: number
+}
 
 type MesonRun = { exact: boolean; meanGap: number; travel: number }
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
 function slope(xs: number[], ys: number[]): number {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-  return xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  return (
+    xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  )
 }
 
 // the flux-carrying links in the connected pieces that touch one of `sources`
-function connectedString(rule: SigmaLinks, flux: Int32Array, sources: number[]): number {
+function connectedString(
+  rule: SigmaLinks,
+  flux: Int32Array,
+  sources: number[],
+): number {
   const seen = new Uint8Array(rule.cells)
   const counted = new Uint8Array(rule.cells * 24)
   const queue = [...sources]
@@ -173,10 +186,23 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-    const make = (input: { kappa: number; tension: number; hop: boolean; roles: boolean }): SigmaLinks =>
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
+    const make = (input: {
+      kappa: number
+      tension: number
+      hop: boolean
+      roles: boolean
+    }): SigmaLinks =>
       makeSigmaLinks({ side: SIDE, capacity: CAPACITY, ...input })
-    const plain = make({ kappa: KAPPA, tension: TENSION, hop: false, roles: true })
+    const plain = make({
+      kappa: KAPPA,
+      tension: TENSION,
+      hop: false,
+      roles: true,
+    })
     const { cells, group } = plain
     const triangles = (cells * 12 * 8) / 3
 
@@ -190,7 +216,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const rectangle = (r: number, h: number): number[] => [
       ...new Array<number>(r).fill(along),
@@ -224,12 +251,22 @@ export default experiment({
       drained.demon.fill(0)
     }
 
-    const branch = (input: { fill: number; settle: number }): Branch => {
-      let s: SigmaState = { ...drained, links: Int16Array.from(drained.links), flux: Int32Array.from(drained.flux), demon: new Int32Array(cells * 24) }
+    const branch = (input: {
+      fill: number
+      settle: number
+    }): Branch => {
+      let s: SigmaState = {
+        ...drained,
+        links: Int16Array.from(drained.links),
+        flux: Int32Array.from(drained.flux),
+        demon: new Int32Array(cells * 24),
+      }
 
       for (let x = 0; x < cells; x++) {
         for (const a of plain.firsts) {
-          s.demon[x * 24 + a] = Math.floor(2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5)
+          s.demon[x * 24 + a] = Math.floor(
+            2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5,
+          )
         }
       }
 
@@ -259,7 +296,9 @@ export default experiment({
       const correlator = new Array<number>(SIDE).fill(0)
       const vacuumSeries: number[] = []
       // tau = b1 steps the first box coordinate, so the docks with that coordinate 0 start every tau line once
-      const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+      const starts = Array.from({ length: cells }, (_, x) => x).filter(
+        x => x % SIDE === 0,
+      )
 
       let s = fresh(b)
       let level = 0
@@ -273,7 +312,15 @@ export default experiment({
         const sample: Loops = { w11: 0, w12: 0, w22: 0 }
 
         for (let x = 0; x < cells; x++) {
-          sizes.forEach(([key], k) => (sample[key] += (group.trace[pathTransport(plain, s.links, x, paths[k] ?? [])] ?? 0) / 3 / cells))
+          sizes.forEach(
+            ([key], k) =>
+              (sample[key] +=
+                (group.trace[
+                  pathTransport(plain, s.links, x, paths[k] ?? [])
+                ] ?? 0) /
+                3 /
+                cells),
+          )
         }
 
         samples.push(sample)
@@ -305,10 +352,13 @@ export default experiment({
             // walking along s leaves the slice, so the partner's loop is read where it starts
             const g = sigmaLine(plain, s.links, y, tau)
 
-            sum += (pr[x] ?? 0) * ((group.trace[g] ?? 0) / 3) + (pi[x] ?? 0) * ((plain.traceIm[g] ?? 0) / 3)
+            sum +=
+              (pr[x] ?? 0) * ((group.trace[g] ?? 0) / 3) +
+              (pi[x] ?? 0) * ((plain.traceIm[g] ?? 0) / 3)
           }
 
-          correlator[r] = (correlator[r] ?? 0) + sum / starts.length / BEATS
+          correlator[r] =
+            (correlator[r] ?? 0) + sum / starts.length / BEATS
         }
 
         level += sigmaFieldEnergy(plain, s.links) / triangles / BEATS
@@ -316,10 +366,15 @@ export default experiment({
         vacuumSeries.push(sigmaStringLinks(plain, s.flux))
       }
 
-      const mean = (xs: readonly Loops[], key: keyof Loops): number => xs.reduce((a, x) => a + x[key], 0) / xs.length
+      const mean = (xs: readonly Loops[], key: keyof Loops): number =>
+        xs.reduce((a, x) => a + x[key], 0) / xs.length
       const chi = jackknife({
         samples,
-        estimator: picked => -Math.log((mean(picked, 'w22') * mean(picked, 'w11')) / mean(picked, 'w12') ** 2),
+        estimator: picked =>
+          -Math.log(
+            (mean(picked, 'w22') * mean(picked, 'w11')) /
+              mean(picked, 'w12') ** 2,
+          ),
         binSize: BIN,
       })
 
@@ -329,13 +384,23 @@ export default experiment({
         polyakov: Math.hypot(re, im),
         correlator,
         chi,
-        loops: { w11: mean(samples, 'w11'), w12: mean(samples, 'w12'), w22: mean(samples, 'w22') },
-        vacuumStringLinks: vacuumSeries.reduce((a, v) => a + v, 0) / BEATS,
+        loops: {
+          w11: mean(samples, 'w11'),
+          w12: mean(samples, 'w12'),
+          w22: mean(samples, 'w22'),
+        },
+        vacuumStringLinks:
+          vacuumSeries.reduce((a, v) => a + v, 0) / BEATS,
         vacuumSeries,
       }
     }
 
-    const pair = (b: Branch, rule: SigmaLinks, r: number, reference: number[]): PairRun => {
+    const pair = (
+      b: Branch,
+      rule: SigmaLinks,
+      r: number,
+      reference: number[],
+    ): PairRun => {
       const s0 = fresh(b)
       const x0 = 0
       const y0 = walk(x0, along, r)
@@ -365,12 +430,23 @@ export default experiment({
 
       for (let t = 0; t < BEATS; t++) {
         s = sigmaBeat(rule, s, b.start + t).state
-        exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
-        connected += connectedString(rule, s.flux, sources) / SIDE / BEATS
-        paired += (sigmaStringLinks(rule, s.flux) - (reference[t] ?? 0)) / SIDE / BEATS
+        exact =
+          exact &&
+          sigmaEnergy(rule, s) === e0 &&
+          sigmaGaussViolations(rule, s) === 0
+
+        connected +=
+          connectedString(rule, s.flux, sources) / SIDE / BEATS
+
+        paired +=
+          (sigmaStringLinks(rule, s.flux) - (reference[t] ?? 0)) /
+          SIDE /
+          BEATS
 
         for (const c of sources) {
-          carry += sigmaCarries(rule, s, c, tau) ? 1 / (sources.length * BEATS) : 0
+          carry += sigmaCarries(rule, s, c, tau)
+            ? 1 / (sources.length * BEATS)
+            : 0
         }
       }
 
@@ -385,7 +461,10 @@ export default experiment({
       s0.vibe[x0] = 1
       s0.vibe[y0] = -1
       s0.role[x0] = 4
-      s0.role[y0] = plain.act[(plain.quotient[s0.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4] ?? 0
+      s0.role[y0] =
+        plain.act[
+          (plain.quotient[s0.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4
+        ] ?? 0
       addSigmaFlux(rule, s0.flux, x0, along, 1)
 
       const charges = [
@@ -411,7 +490,10 @@ export default experiment({
 
       for (let t = 0; t < MESON_BEATS; t++) {
         s = sigmaBeat(rule, s, b.start + t, onHop).state
-        exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, s) === e0 &&
+          sigmaGaussViolations(rule, s) === 0
 
         const [love, fear] = charges
 
@@ -422,48 +504,97 @@ export default experiment({
       return { exact, meanGap: gap, travel }
     }
 
-    const staticRule = make({ kappa: KAPPA, tension: TENSION, hop: false, roles: false })
-    const slack = make({ kappa: KAPPA, tension: 0, hop: false, roles: false })
-    const bound = make({ kappa: KAPPA, tension: TENSION, hop: true, roles: true })
+    const staticRule = make({
+      kappa: KAPPA,
+      tension: TENSION,
+      hop: false,
+      roles: false,
+    })
+    const slack = make({
+      kappa: KAPPA,
+      tension: 0,
+      hop: false,
+      roles: false,
+    })
+    const bound = make({
+      kappa: KAPPA,
+      tension: TENSION,
+      hop: true,
+      roles: true,
+    })
     const free = make({ kappa: 0, tension: 0, hop: true, roles: true })
 
     const measure = (b: Branch) => {
       const field = fieldAlone(b)
-      const pairs = SEPARATIONS.map(r => pair(b, staticRule, r, field.vacuumSeries))
-      const slackPair = pair(b, slack, SEPARATIONS[SEPARATIONS.length - 1] ?? 4, field.vacuumSeries)
+      const pairs = SEPARATIONS.map(r =>
+        pair(b, staticRule, r, field.vacuumSeries),
+      )
+      const slackPair = pair(
+        b,
+        slack,
+        SEPARATIONS[SEPARATIONS.length - 1] ?? 4,
+        field.vacuumSeries,
+      )
       const potential = pairs.map(p => TENSION * p.connected)
-      const excess = pairs.map((p, k) => p.connected - (SEPARATIONS[k] ?? 0))
+      const excess = pairs.map(
+        (p, k) => p.connected - (SEPARATIONS[k] ?? 0),
+      )
       const moving = { bound: meson(b, bound), free: meson(b, free) }
 
-      return { field, pairs, slackPair, potential, excess, sigma: slope(SEPARATIONS, potential), moving }
+      return {
+        field,
+        pairs,
+        slackPair,
+        potential,
+        excess,
+        sigma: slope(SEPARATIONS, potential),
+        moving,
+      }
     }
 
     const melted = measure(branch(MELTED))
     const cold = measure(branch(COLD))
     const both = [melted, cold]
 
-    const exact = both.every(m => [...m.pairs, m.slackPair].every(p => p.exact) && m.moving.bound.exact && m.moving.free.exact)
+    const exact = both.every(
+      m =>
+        [...m.pairs, m.slackPair].every(p => p.exact) &&
+        m.moving.bound.exact &&
+        m.moving.free.exact,
+    )
 
     const ok =
       exact &&
       both.every(
         m =>
-          m.potential.every((v, k) => k === 0 || v > (m.potential[k - 1] ?? 0)) &&
+          m.potential.every(
+            (v, k) => k === 0 || v > (m.potential[k - 1] ?? 0),
+          ) &&
           m.excess.every(e => e < 1) &&
-          m.slackPair.connected - (SEPARATIONS[SEPARATIONS.length - 1] ?? 4) > 1 &&
+          m.slackPair.connected -
+            (SEPARATIONS[SEPARATIONS.length - 1] ?? 4) >
+            1 &&
           m.moving.bound.meanGap < m.moving.free.meanGap / 10 &&
           m.moving.bound.travel > 5,
       ) &&
       melted.field.polyakov < 0.01 &&
       melted.field.chi.value > 3 * melted.field.chi.error
 
-    const report = (label: string, m: typeof melted): Record<string, number> => ({
+    const report = (
+      label: string,
+      m: typeof melted,
+    ): Record<string, number> => ({
       [`${label}Level`]: m.field.level,
       [`${label}DemonBeta`]: m.field.beta,
       [`${label}TensionTimesBeta`]: TENSION * m.field.beta,
       [`${label}VacuumStringLinks`]: m.field.vacuumStringLinks,
       [`${label}Polyakov`]: m.field.polyakov,
-      ...Object.fromEntries(SEPARATIONS.map(r => [`${label}PolyakovCorrelator${r}`, m.field.correlator[r] ?? 0])),
+      ...Object.fromEntries(
+        SEPARATIONS.map(r => [
+          `${label}PolyakovCorrelator${r}`,
+          m.field.correlator[r] ?? 0,
+        ]),
+      ),
       [`${label}WilsonLoop11`]: m.field.loops.w11,
       [`${label}WilsonLoop12`]: m.field.loops.w12,
       [`${label}WilsonLoop22`]: m.field.loops.w22,
@@ -492,7 +623,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         "with the energy exact and Gauss's law at every dock on every beat, on both branches the potential read from the flux connected to the sources rises strictly from R = 1 to 4 with the excess under 1 per slice, the string wanders past that with no tension, and a meson with kappa and tension keeps a mean gap under a tenth of the free meson's while it travels more than 5, and on the melted branch the full element's fundamental Polyakov loop is under 0.01 and chi(2,2) is above zero by 3 standard errors",
-      metrics: { energyAndGaussExact: exact ? 1 : 0, ...report('melted', melted), ...report('cold', cold) },
+      metrics: {
+        energyAndGaussExact: exact ? 1 : 0,
+        ...report('melted', melted),
+        ...report('cold', cold),
+      },
       control: {
         meltedTensionZeroExcessLengthR4: melted.slackPair.connected - 4,
         coldTensionZeroExcessLengthR4: cold.slackPair.connected - 4,

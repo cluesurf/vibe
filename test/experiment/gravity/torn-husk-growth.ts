@@ -59,11 +59,29 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, warpClock, type OpenMesh } from '@/code/rule/open-husk'
+import {
+  openMesh,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
 import { horizonRule, tornLink } from '@/code/rule/horizon-husk'
 import { compressLump } from '@/code/measure/step-depth'
-import { greenSolve, huskDistance, huskDock, stackModes } from '@/code/measure/open-husk'
-import { growthRun, horizonLeafEnergy, newHorizonRecord, realHorizonDepth, stackWindowRadius, tornMesh, verticalOf, type Addition } from '@/code/measure/horizon-husk'
+import {
+  greenSolve,
+  huskDistance,
+  huskDock,
+  stackModes,
+} from '@/code/measure/open-husk'
+import {
+  growthRun,
+  horizonLeafEnergy,
+  newHorizonRecord,
+  realHorizonDepth,
+  stackWindowRadius,
+  tornMesh,
+  verticalOf,
+  type Addition,
+} from '@/code/measure/horizon-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -93,8 +111,27 @@ const AXES: readonly (readonly number[])[] = [
   [0, 0, -1],
 ]
 
-const axisMean = (mesh: OpenMesh, x: ArrayLike<number>, r: number): number => AXES.reduce((t, a) => t + x[huskDock(mesh, a.map((v, i) => CENTER[i]! + v * r))]!, 0) / AXES.length
-const axisForce = (mesh: OpenMesh, x: ArrayLike<number>, r: number): number => axisMean(mesh, x, r + 1) - axisMean(mesh, x, r)
+const axisMean = (
+  mesh: OpenMesh,
+  x: ArrayLike<number>,
+  r: number,
+): number =>
+  AXES.reduce(
+    (t, a) =>
+      t +
+      x[
+        huskDock(
+          mesh,
+          a.map((v, i) => CENTER[i]! + v * r),
+        )
+      ]!,
+    0,
+  ) / AXES.length
+const axisForce = (
+  mesh: OpenMesh,
+  x: ArrayLike<number>,
+  r: number,
+): number => axisMean(mesh, x, r + 1) - axisMean(mesh, x, r)
 
 export default experiment({
   id: 'gravity/torn-husk-growth',
@@ -107,40 +144,98 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
     const rule = horizonRule(stepRule(DEPTH, LEVELS), BULK)
-    const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, M, 1)
-    const additions: Addition[] = lump.units.map((u, i) => ({ beat: EVERY * i, at: u.at, sink: u.sink, path: u.path }))
+    const lump = compressLump(
+      radionMesh([SIDE, SIDE, SIDE]),
+      CENTER,
+      M,
+      1,
+    )
+    const additions: Addition[] = lump.units.map((u, i) => ({
+      beat: EVERY * i,
+      at: u.at,
+      sink: u.sink,
+      path: u.path,
+    }))
     const growEnd = EVERY * (M - 1) + 1
     const beats = growEnd + SETTLE
     const vertical = verticalOf(mesh)
     const record = newHorizonRecord()
-    const checkpoints: { m: number; docks: number; radius: number }[] = []
+    const checkpoints: { m: number; docks: number; radius: number }[] =
+      []
+
     let firstHorizon = -1
     let firstSaturating = -1
+
     const mean = new Float64Array(mesh.links)
+
     let weight = 0
+
     const leaf: number[] = []
+
     let upSettle = 0
 
-    const run = growthRun(mesh, rule, additions, beats, record, CENTER, SAMPLE, (t, s, horizon) => {
-      const units = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
-      let docks = 0
-      let radius = 0
+    const run = growthRun(
+      mesh,
+      rule,
+      additions,
+      beats,
+      record,
+      CENTER,
+      SAMPLE,
+      (t, s, horizon) => {
+        const units = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
 
-      for (let y = 0; y < mesh.huskDocks; y++) if (horizon[y]) (docks++, (radius = Math.max(radius, huskDistance(mesh, y, CENTER))))
-      if (docks > 0 && firstHorizon < 0) firstHorizon = units
-      if (CHECKPOINTS.includes(units) && t === EVERY * (units - 1) + 1) checkpoints.push({ m: units, docks, radius })
-      if (t > growEnd) {
-        const w = Math.sin((Math.PI * (t - growEnd)) / SETTLE) ** 2
+        let docks = 0
+        let radius = 0
 
-        for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
-        weight += w
-        for (let y = 0; y < mesh.huskDocks; y++) if (horizon[y] && s.step[vertical[y]!]! < 0) upSettle = Math.max(upSettle, -s.step[vertical[y]!]! / rule.unit)
-        if (t === growEnd + 1 || t === beats) leaf.push(horizonLeafEnergy(mesh, rule, s, horizon, vertical))
-      }
-    })
+        for (let y = 0; y < mesh.huskDocks; y++) {
+          if (horizon[y]) {
+            docks++
+            radius = Math.max(radius, huskDistance(mesh, y, CENTER))
+          }
+        }
+
+        if (docks > 0 && firstHorizon < 0) {
+          firstHorizon = units
+        }
+
+        if (
+          CHECKPOINTS.includes(units) &&
+          t === EVERY * (units - 1) + 1
+        ) {
+          checkpoints.push({ m: units, docks, radius })
+        }
+
+        if (t > growEnd) {
+          const w = Math.sin((Math.PI * (t - growEnd)) / SETTLE) ** 2
+
+          for (let m = 0; m < mesh.links; m++) {
+            mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
+          }
+
+          weight += w
+
+          for (let y = 0; y < mesh.huskDocks; y++) {
+            if (horizon[y] && s.step[vertical[y]!]! < 0) {
+              upSettle = Math.max(
+                upSettle,
+                -s.step[vertical[y]!]! / rule.unit,
+              )
+            }
+          }
+
+          if (t === growEnd + 1 || t === beats) {
+            leaf.push(
+              horizonLeafEnergy(mesh, rule, s, horizon, vertical),
+            )
+          }
+        }
+      },
+    )
 
     log('growth')
 
@@ -149,11 +244,16 @@ export default experiment({
       const line = new Int8Array(mesh.links)
       const busy = new Int32Array(mesh.huskDocks)
 
-      for (let i = 0; i < additions.length && firstSaturating < 0; i++) {
+      for (
+        let i = 0;
+        i < additions.length && firstSaturating < 0;
+        i++
+      ) {
         for (const [l, sg] of additions[i]!.path) {
           const was = line[l] !== 0
 
           line[l] = line[l]! + sg
+
           if (was !== (line[l] !== 0)) {
             const d = line[l] !== 0 ? 1 : -1
 
@@ -161,16 +261,31 @@ export default experiment({
             busy[mesh.head[l]!]! += d
           }
         }
-        if (busy.some(v => v === 18)) firstSaturating = i + 1
+
+        if (busy.some(v => v === 18)) {
+          firstSaturating = i + 1
+        }
       }
     }
 
     const control = newHorizonRecord()
 
-    growthRun(mesh, rule, additions, growEnd, control, CENTER, SAMPLE * 8, undefined, false)
+    growthRun(
+      mesh,
+      rule,
+      additions,
+      growEnd,
+      control,
+      CENTER,
+      SAMPLE * 8,
+      undefined,
+      false,
+    )
     log('control')
 
-    for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! / weight
+    for (let m = 0; m < mesh.links; m++) {
+      mean[m] = mean[m]! / weight
+    }
 
     const horizon = run.horizon
     const rho = run.rho
@@ -178,7 +293,9 @@ export default experiment({
     const source = Float64Array.from(rho)
 
     for (let m = 0; m < mesh.links; m++) {
-      if (!tornLink(mesh, horizon, m)) continue
+      if (!tornLink(mesh, horizon, m)) {
+        continue
+      }
 
       const v = run.final.step[m]! / rule.unit
 
@@ -191,30 +308,69 @@ export default experiment({
     const placed = greenSolve(torn, rho, 1e-12)
     const free = greenSolve(mesh, rho, 1e-12)
     const depth = realHorizonDepth(mesh, mean, horizon)
+
     let rhoX = 0
 
-    for (let y = 0; y < mesh.docks; y++) if (rho[y] !== 0) rhoX += rho[y]! * placed.x[y]!
+    for (let y = 0; y < mesh.docks; y++) {
+      if (rho[y] !== 0) {
+        rhoX += rho[y]! * placed.x[y]!
+      }
+    }
 
-    const energyStatic = -(Math.PI / DEPTH) * rhoX / 2
+    const energyStatic = (-(Math.PI / DEPTH) * rhoX) / 2
 
     // G1
     const wraps = record.wraps.fWraps + record.wraps.vWraps
-    const g1 = record.gaussOff === 0 && wraps === 0 && record.curl === 0 && record.verticalChecked > 0 && record.restOff === 0 && record.energyDrift <= ENERGY_TOLERANCE * Math.abs(energyStatic) && run.reversed && record.reversed
+    const g1 =
+      record.gaussOff === 0 &&
+      wraps === 0 &&
+      record.curl === 0 &&
+      record.verticalChecked > 0 &&
+      record.restOff === 0 &&
+      record.energyDrift <= ENERGY_TOLERANCE * Math.abs(energyStatic) &&
+      run.reversed &&
+      record.reversed
     const controlWraps = control.wraps.fWraps + control.wraps.vWraps
     const c1 = controlWraps > 0
 
     // G2
     const modes = stackModes(mesh.sides, 'clock')
-    const predicted = CHECKPOINTS.map(m => stackWindowRadius(modes, m, WINDOW))
+    const predicted = CHECKPOINTS.map(m =>
+      stackWindowRadius(modes, m, WINDOW),
+    )
     const found = CHECKPOINTS.map(m => checkpoints.find(c => c.m === m))
-    const increasing = found.every((c, i) => c !== undefined && (i === 0 || c.docks > found[i - 1]!.docks))
-    const radiusOff = Math.max(...found.map((c, i) => (c ? Math.abs(c.radius - predicted[i]!) : Infinity)))
-    const g2 = firstHorizon === firstSaturating && firstHorizon > 0 && increasing && radiusOff <= RADIUS_TOLERANCE
+    const increasing = found.every(
+      (c, i) =>
+        c !== undefined && (i === 0 || c.docks > found[i - 1]!.docks),
+    )
+    const radiusOff = Math.max(
+      ...found.map((c, i) =>
+        c ? Math.abs(c.radius - predicted[i]!) : Infinity,
+      ),
+    )
+    const g2 =
+      firstHorizon === firstSaturating &&
+      firstHorizon > 0 &&
+      increasing &&
+      radiusOff <= RADIUS_TOLERANCE
 
     // G3
-    const ruleVsSolve = Math.max(...STATIC_R.map(r => Math.abs(axisForce(mesh, depth, r) / axisForce(mesh, held.x, r) - 1)))
-    const historyOff = Math.max(...HISTORY_R.map(r => Math.abs(axisForce(mesh, depth, r) / axisForce(mesh, placed.x, r) - 1)))
-    const g3 = ruleVsSolve <= STATIC_TOLERANCE && historyOff <= HISTORY_TOLERANCE
+    const ruleVsSolve = Math.max(
+      ...STATIC_R.map(r =>
+        Math.abs(
+          axisForce(mesh, depth, r) / axisForce(mesh, held.x, r) - 1,
+        ),
+      ),
+    )
+    const historyOff = Math.max(
+      ...HISTORY_R.map(r =>
+        Math.abs(
+          axisForce(mesh, depth, r) / axisForce(mesh, placed.x, r) - 1,
+        ),
+      ),
+    )
+    const g3 =
+      ruleVsSolve <= STATIC_TOLERANCE && historyOff <= HISTORY_TOLERANCE
 
     // reported: does anything come back out through the horizon
     let leafOff = 0
@@ -229,18 +385,38 @@ export default experiment({
 
       if (horizon[y]) {
         horizonDocks++
-        horizonRadius = Math.max(horizonRadius, huskDistance(mesh, y, CENTER))
+        horizonRadius = Math.max(
+          horizonRadius,
+          huskDistance(mesh, y, CENTER),
+        )
         leafOff = Math.max(leafOff, Math.abs(F - source[y]!))
-        if (F < -STATIC_TOLERANCE) leafUp++
-        if (F > 0) leafDown += F
-      } else if (F < 0) returnUp -= F
+
+        if (F < -STATIC_TOLERANCE) {
+          leafUp++
+        }
+
+        if (F > 0) {
+          leafDown += F
+        }
+      } else if (F < 0) {
+        returnUp -= F
+      }
     }
 
     let heldMax = 0
 
-    for (let m = 0; m < mesh.links; m++) if (tornLink(mesh, horizon, m)) heldMax = Math.max(heldMax, Math.abs(run.final.step[m]!) / rule.unit)
+    for (let m = 0; m < mesh.links; m++) {
+      if (tornLink(mesh, horizon, m)) {
+        heldMax = Math.max(
+          heldMax,
+          Math.abs(run.final.step[m]!) / rule.unit,
+        )
+      }
+    }
 
-    const sideRatio = STATIC_R.map(r => axisForce(mesh, depth, r) / axisForce(mesh, free.x, r))
+    const sideRatio = STATIC_R.map(
+      r => axisForce(mesh, depth, r) / axisForce(mesh, free.x, r),
+    )
     const status = !c1 ? 'partial' : g1 && g2 && g3 ? 'pass' : 'fail'
     const f = (v: number): string => v.toPrecision(4)
     const e = (v: number): string => v.toExponential(2)
@@ -287,15 +463,26 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
 
-    record.bulkStep.forEach((v, k) => (metrics[`bulkStep_layer${k}`] = v))
+    record.bulkStep.forEach(
+      (v, k) => (metrics[`bulkStep_layer${k}`] = v),
+    )
+
     found.forEach((c, i) => {
       metrics[`M${CHECKPOINTS[i]}_horizonDocks`] = c?.docks ?? -1
       metrics[`M${CHECKPOINTS[i]}_horizonRadius`] = c?.radius ?? -1
       metrics[`M${CHECKPOINTS[i]}_predictedRadius`] = predicted[i]!
     })
-    STATIC_R.forEach((r, j) => (metrics[`tornOverFree_r${r}`] = sideRatio[j]!))
+
+    STATIC_R.forEach(
+      (r, j) => (metrics[`tornOverFree_r${r}`] = sideRatio[j]!),
+    )
+
     run.samples.forEach(s => {
-      if (s.beat % 512 === 0) (metrics[`t${s.beat}_horizonDocks`] = s.horizonDocks), (metrics[`t${s.beat}_huskStep`] = s.huskStep), (metrics[`t${s.beat}_upFlux`] = s.upFlux)
+      if (s.beat % 512 === 0) {
+        metrics[`t${s.beat}_horizonDocks`] = s.horizonDocks
+        metrics[`t${s.beat}_huskStep`] = s.huskStep
+        metrics[`t${s.beat}_upFlux`] = s.upFlux
+      }
     })
 
     return verdict({
@@ -303,7 +490,15 @@ export default experiment({
       claim: `E-GRV-0090's M = ${M} lump grown one unit every ${EVERY} beats on the torn husk (side ${SIDE}, the warped shrinking stack of ${LAYERS} layers), then ${SETTLE} beats: Gauss off ${record.gaussOff} of ${record.gaussChecks}, ${wraps} wraps (the same growth untorn wraps ${controlWraps} times), curl ${record.curl} on ${record.liveChecked} live link checks (${record.verticalChecked} vertical), the energy between events kept to ${e(record.energyDrift / Math.abs(energyStatic))} of the statics on every beat, the run with every event reversed ${run.reversed && record.reversed}; the horizon forms at unit ${firstHorizon} (the first saturated dock: unit ${firstSaturating}) and holds ${found.map(c => c?.docks ?? -1).join(', ')} docks to radius ${found.map(c => f(c?.radius ?? NaN)).join(', ')} at M = ${CHECKPOINTS.join(', ')} against the step window's ${predicted.map(f).join(', ')} (off ${f(radiusOff)}); the husk's largest step ${f(record.huskStep)}, the vertical's ${f(record.verticalStep)}, the bulk's ${record.bulkStep.map(f).join('/')}, held steps up to ${f(heldMax)}; the settled force equals its statics to ${e(ruleVsSolve)} and the placed lump's to ${e(historyOff)} at r = 8 .. 11; torn over free ${sideRatio.map(f).join(', ')} at r = 5 .. 11; each horizon vertical carries its dock's source down to ${e(leafOff)}, ${leafUp} point up, ${f(leafDown)} units go down through the horizon and ${f(returnUp)} come back up through the vertical links outside it; the leaves hold ${e(leaf[0] ?? NaN)} and ${e(leaf[1] ?? NaN)} of energy at the start and end of the settle`,
       metrics,
       control: { c1: c1 ? 1 : 0, controlWraps },
-      notes: `L2. Gates G1 ${g1}, G2 ${g2} (first ${firstHorizon}/${firstSaturating}, increasing ${increasing}, radius off ${f(radiusOff)}), G3 ${g3} (statics ${e(ruleVsSolve)}, history ${e(historyOff)}); control C1 ${c1}. Samples (beat:units:docks:radius:husk:vertical:down:up): ${run.samples.filter(s => s.beat % 256 === 0 || s.beat === beats).map(s => `${s.beat}:${s.units}:${s.horizonDocks}:${f(s.horizonRadius)}:${f(s.huskStep)}:${f(s.verticalStep)}:${f(s.downFlux)}:${f(s.upFlux)}`).join(' ')}. Largest upward instantaneous flux on a horizon vertical in the settle ${f(upSettle)}. Energy jumps at events: largest ${e(Math.max(...run.eventEnergy.map(Math.abs)))}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+      notes: `L2. Gates G1 ${g1}, G2 ${g2} (first ${firstHorizon}/${firstSaturating}, increasing ${increasing}, radius off ${f(radiusOff)}), G3 ${g3} (statics ${e(ruleVsSolve)}, history ${e(historyOff)}); control C1 ${c1}. Samples (beat:units:docks:radius:husk:vertical:down:up): ${run.samples
+        .filter(s => s.beat % 256 === 0 || s.beat === beats)
+        .map(
+          s =>
+            `${s.beat}:${s.units}:${s.horizonDocks}:${f(s.horizonRadius)}:${f(s.huskStep)}:${f(s.verticalStep)}:${f(s.downFlux)}:${f(s.upFlux)}`,
+        )
+        .join(
+          ' ',
+        )}. Largest upward instantaneous flux on a horizon vertical in the settle ${f(upSettle)}. Energy jumps at events: largest ${e(Math.max(...run.eventEnergy.map(Math.abs)))}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

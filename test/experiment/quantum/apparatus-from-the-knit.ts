@@ -79,12 +79,24 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { fearKernels, phaseMove, type Whole } from '@/code/rule/fear-weave'
+import {
+  fearKernels,
+  phaseMove,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { advanceKnot, bellHistories, lineKnot } from '@/code/measure/knot-histories'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+} from '@/code/measure/knot-histories'
 import { physicalFrame } from '@/code/measure/sum-record'
 import { translatedKernel } from '@/code/measure/comoving-parity'
-import { addPoints, mod3, scalePoint } from '@/code/measure/frame-covariant-meeting'
+import {
+  addPoints,
+  mod3,
+  scalePoint,
+} from '@/code/measure/frame-covariant-meeting'
 import {
   LABEL,
   LINES,
@@ -107,13 +119,16 @@ export default experiment({
   id: 'quantum/apparatus-from-the-knit',
   code: 'E-QTM-0137',
   title:
-    'preparing the relational record\'s apparatus from the knit\'s own moves: no word of fear beats, comoving beats, links and helper meetings turns a love and a fear at two points into a line pair, since every one keeps the sum of squared weights and the pair\'s color content; the stand-in is the model\'s own role opening for a pair of equal roles, and each classical member of it already writes the record, while only the count over the members spreads the system',
+    "preparing the relational record's apparatus from the knit's own moves: no word of fear beats, comoving beats, links and helper meetings turns a love and a fear at two points into a line pair, since every one keeps the sum of squared weights and the pair's color content; the stand-in is the model's own role opening for a pair of equal roles, and each classical member of it already writes the record, while only the count over the members spreads the system",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const kernels = [true, false].map(ex => fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: ex })!)
+    const kernels = [true, false].map(
+      ex =>
+        fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: ex })!,
+    )
     const moves = gridMoves()
     const phaseMoves = moves.act.map(g => phaseMove(g))
 
@@ -136,7 +151,10 @@ export default experiment({
 
     for (let pa = 0; pa < 9; pa++) {
       for (let pb = 0; pb < 9; pb++) {
-        normBad += kernelNormBad(translatedKernel(unlike, pa, pb), unlikeDivisor)
+        normBad += kernelNormBad(
+          translatedKernel(unlike, pa, pb),
+          unlikeDivisor,
+        )
         normChecks++
       }
     }
@@ -156,15 +174,33 @@ export default experiment({
     let memberTableBad = 0
 
     for (let j = 0; j < 729; j++) {
-      const m = memberRecord(Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9)
+      const m = memberRecord(
+        Math.floor(j / 81),
+        Math.floor(j / 9) % 9,
+        j % 9,
+      )
 
-      memberTableBad += table[j] === 81 * m.system + 9 * m.record + m.reference ? 0 : 1
+      memberTableBad +=
+        table[j] === 81 * m.system + 9 * m.record + m.reference ? 0 : 1
     }
 
     // G2: what the kernels keep, their covariance, and the comoving beat on classical pairs
-    const differenceBad = kernels.reduce((s, k) => s + differenceBreaks(k.unlike), 0)
-    const likeSumBad = kernels.reduce((s, k) => s + sumBreaks(k.like), 0)
-    const covarianceBad = kernels.reduce((s, k) => s + diagonalCovarianceBad(k.unlike, phaseMoves) + diagonalCovarianceBad(k.like, phaseMoves), 0)
+    const differenceBad = kernels.reduce(
+      (s, k) => s + differenceBreaks(k.unlike),
+      0,
+    )
+    const likeSumBad = kernels.reduce(
+      (s, k) => s + sumBreaks(k.like),
+      0,
+    )
+    const covarianceBad = kernels.reduce(
+      (s, k) =>
+        s +
+        diagonalCovarianceBad(k.unlike, phaseMoves) +
+        diagonalCovarianceBad(k.like, phaseMoves),
+      0,
+    )
+
     let comovingMoved = 0
 
     for (const k of kernels) {
@@ -178,7 +214,8 @@ export default experiment({
             const col = 9 * pa + pb
 
             for (let r = 0; r < 81; r++) {
-              comovingMoved += (t[r]?.[col] ?? 0) === (r === col ? divisor : 0) ? 0 : 1
+              comovingMoved +=
+                (t[r]?.[col] ?? 0) === (r === col ? divisor : 0) ? 0 : 1
             }
           }
         }
@@ -200,8 +237,13 @@ export default experiment({
 
     // G3 and H: words of meetings with one helper, the helper left unread
     const started = Date.now()
-    const likeF = kernels.map(k => Float64Array.from(k.like.flat().map(x => x / k.likeDivisor)))
-    const unlikeF = Float64Array.from(unlike.flat().map(x => x / unlikeDivisor))
+    const likeF = kernels.map(k =>
+      Float64Array.from(k.like.flat().map(x => x / k.likeDivisor)),
+    )
+    const unlikeF = Float64Array.from(
+      unlike.flat().map(x => x / unlikeDivisor),
+    )
+
     let words = 0
     let lineProducts = 0
     let standInHits = 0
@@ -229,11 +271,13 @@ export default experiment({
             start[9 * q + r] = 1
 
             const target = q === 0 ? -1 : lineIndexThrough(0, q)
+
             const visit = (w: Float64Array, depth: number): void => {
               const pair = new Float64Array(81)
 
               for (let i = 0; i < 729; i++) {
-                pair[Math.floor(i / 9)] = (pair[Math.floor(i / 9)] ?? 0) + (w[i] ?? 0)
+                pair[Math.floor(i / 9)] =
+                  (pair[Math.floor(i / 9)] ?? 0) + (w[i] ?? 0)
               }
 
               words++
@@ -242,13 +286,18 @@ export default experiment({
                 for (let j = 0; j < 12; j++) {
                   const l1 = LINES[i]!.points
                   const l2 = LINES[j]!.points
+
                   let gap = 0
 
                   for (let x = 0; x < 9 && gap < 1e-9 + nearest; x++) {
                     for (let y = 0; y < 9; y++) {
-                      const want = l1.includes(x) && l2.includes(y) ? 1 / 9 : 0
+                      const want =
+                        l1.includes(x) && l2.includes(y) ? 1 / 9 : 0
 
-                      gap = Math.max(gap, Math.abs((pair[9 * x + y] ?? 0) - want))
+                      gap = Math.max(
+                        gap,
+                        Math.abs((pair[9 * x + y] ?? 0) - want),
+                      )
                     }
                   }
 
@@ -280,13 +329,20 @@ export default experiment({
     let roleEqualsStandIn = 0
     let roleOther = 0
     let carriedBad = 0
-    const roleLine = (p: number): number[] => [0, 1, 2].map(k => 3 * Math.floor(p / 3) + k)
+
+    const roleLine = (p: number): number[] =>
+      [0, 1, 2].map(k => 3 * Math.floor(p / 3) + k)
+
     const standIn = (p: number, q: number): bigint[] => {
       const l = LINES[lineIndexThrough(p, q)]!.points
 
       return lineKnot([0, 1], l, l).weight.map(x => x)
     }
-    const same = (a: readonly bigint[], b: readonly bigint[]): boolean => a.every((x, i) => x === b[i])
+
+    const same = (
+      a: readonly bigint[],
+      b: readonly bigint[],
+    ): boolean => a.every((x, i) => x === b[i])
 
     for (let p = 0; p < 9; p++) {
       for (let q = 0; q < 9; q++) {
@@ -303,10 +359,13 @@ export default experiment({
             const moved = new Array<bigint>(81).fill(0n)
 
             opened.forEach((w, i) => {
-              moved[9 * (g[Math.floor(i / 9)] ?? 0) + (g[i % 9] ?? 0)] = w
+              moved[9 * (g[Math.floor(i / 9)] ?? 0) + (g[i % 9] ?? 0)] =
+                w
             })
 
-            carriedBad += same(moved, standIn(g[p] ?? 0, g[q] ?? 0)) ? 0 : 1
+            carriedBad += same(moved, standIn(g[p] ?? 0, g[q] ?? 0))
+              ? 0
+              : 1
           }
         } else {
           roleOther++
@@ -331,7 +390,11 @@ export default experiment({
     }
 
     for (const h of bellHistories(BEATS)) {
-      let w: Whole = lineKnot(h.tokens, [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k), [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k))
+      let w: Whole = lineKnot(
+        h.tokens,
+        [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
+        [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k),
+      )
 
       for (const record of h.records) {
         w = advanceKnot(h, w, record)
@@ -349,7 +412,8 @@ export default experiment({
         const margB = new Array<bigint>(9).fill(0n)
 
         for (const i of nonzero) {
-          margA[Math.floor(i / 9)] = (margA[Math.floor(i / 9)] ?? 0n) + (state.weight[i] ?? 0n)
+          margA[Math.floor(i / 9)] =
+            (margA[Math.floor(i / 9)] ?? 0n) + (state.weight[i] ?? 0n)
           margB[i % 9] = (margB[i % 9] ?? 0n) + (state.weight[i] ?? 0n)
         }
 
@@ -366,6 +430,7 @@ export default experiment({
             for (const sf of line.points) {
               const aAfter = new Array<bigint>(9).fill(0n)
               const bAfter = new Array<bigint>(9).fill(0n)
+
               let copyOk = true
               let referenceOk = true
 
@@ -375,8 +440,13 @@ export default experiment({
                 const m = memberRecord(xa, sr, sf)
                 const k = LABEL[9 * c + xa] ?? 0
 
-                copyOk = copyOk && LABEL[9 * c + m.record] === mod3(2 * lam - k)
-                referenceOk = referenceOk && LABEL[9 * c + m.reference] === mod3(-k - lam)
+                copyOk =
+                  copyOk &&
+                  LABEL[9 * c + m.record] === mod3(2 * lam - k)
+
+                referenceOk =
+                  referenceOk &&
+                  LABEL[9 * c + m.reference] === mod3(-k - lam)
                 aAfter[m.system] = (aAfter[m.system] ?? 0n) + x
                 bAfter[i % 9] = (bAfter[i % 9] ?? 0n) + x
               }
@@ -386,19 +456,42 @@ export default experiment({
               const labelsAfter = [0n, 0n, 0n]
 
               margA.forEach((x, p) => {
-                labelsBefore[LABEL[9 * c + p] ?? 0] = (labelsBefore[LABEL[9 * c + p] ?? 0] ?? 0n) + x
+                labelsBefore[LABEL[9 * c + p] ?? 0] =
+                  (labelsBefore[LABEL[9 * c + p] ?? 0] ?? 0n) + x
               })
+
               aAfter.forEach((x, p) => {
-                labelsAfter[LABEL[9 * c + p] ?? 0] = (labelsAfter[LABEL[9 * c + p] ?? 0] ?? 0n) + x
+                labelsAfter[LABEL[9 * c + p] ?? 0] =
+                  (labelsAfter[LABEL[9 * c + p] ?? 0] ?? 0n) + x
               })
 
               counts.memberCases++
               counts.memberCopyBad += copyOk ? 0 : 1
               counts.memberReferenceBad += referenceOk ? 0 : 1
-              counts.memberLabelBad += labelsBefore.every((x, k) => x === labelsAfter[k]) ? 0 : 1
-              counts.memberPartnerBad += margB.every((x, p) => x === bAfter[p]) ? 0 : 1
-              counts.memberDisplacementBad += margA.every((x, p) => x === aAfter[addPoints(p, shift)]) ? 0 : 1
-              counts.memberFlat += aAfter.every((x, p) => 3n * x === (labelsAfter[LABEL[9 * c + p] ?? 0] ?? 0n)) ? 1 : 0
+              counts.memberLabelBad += labelsBefore.every(
+                (x, k) => x === labelsAfter[k],
+              )
+                ? 0
+                : 1
+
+              counts.memberPartnerBad += margB.every(
+                (x, p) => x === bAfter[p],
+              )
+                ? 0
+                : 1
+
+              counts.memberDisplacementBad += margA.every(
+                (x, p) => x === aAfter[addPoints(p, shift)],
+              )
+                ? 0
+                : 1
+
+              counts.memberFlat += aAfter.every(
+                (x, p) =>
+                  3n * x === (labelsAfter[LABEL[9 * c + p] ?? 0] ?? 0n),
+              )
+                ? 1
+                : 0
             }
           }
 
@@ -427,7 +520,11 @@ export default experiment({
 
             // the two labels fix the point: the joint record is the system's own weight, relabeled
             counts.sequentialCases++
-            counts.sequentialBad += new Set(at).size === 9 && margA.every((x, xa) => joint[at[xa] ?? 0] === x) ? 0 : 1
+            counts.sequentialBad +=
+              new Set(at).size === 9 &&
+              margA.every((x, xa) => joint[at[xa] ?? 0] === x)
+                ? 0
+                : 1
             negativeHere = negativeHere || joint.some(x => x < 0n)
           }
         }
@@ -438,9 +535,16 @@ export default experiment({
 
     const gates = {
       G1: normBad === 0 && normChecks === 85 && reflectionPermutation,
-      G2: differenceBad === 0 && likeSumBad === 0 && covarianceBad === 0 && comovingMoved === 0,
+      G2:
+        differenceBad === 0 &&
+        likeSumBad === 0 &&
+        covarianceBad === 0 &&
+        comovingMoved === 0,
       G3: lineProducts === 0 && words > 0,
-      G4: roleEqualsStandIn === 18 && roleOther === 54 && carriedBad === 0,
+      G4:
+        roleEqualsStandIn === 18 &&
+        roleOther === 54 &&
+        carriedBad === 0,
       G5:
         counts.memberCopyBad === 0 &&
         counts.memberReferenceBad === 0 &&
@@ -449,10 +553,22 @@ export default experiment({
         counts.memberDisplacementBad === 0 &&
         memberTableBad === 0 &&
         counts.states > 0,
-      G6: counts.sequentialBad === 0 && counts.sequentialNegativeStates > 0,
+      G6:
+        counts.sequentialBad === 0 &&
+        counts.sequentialNegativeStates > 0,
     }
     const hypothesis = standInHits > 0
-    const status = hypothesis && gates.G5 ? 'pass' : !hypothesis && gates.G1 && gates.G2 && gates.G4 && gates.G5 && gates.G6 ? 'partial' : 'fail'
+    const status =
+      hypothesis && gates.G5
+        ? 'pass'
+        : !hypothesis &&
+            gates.G1 &&
+            gates.G2 &&
+            gates.G4 &&
+            gates.G5 &&
+            gates.G6
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
@@ -478,10 +594,16 @@ export default experiment({
         carriedBad,
         ...counts,
         hypothesis: hypothesis ? 1 : 0,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; states with fear on A 1,208 -> 995 (sequentially negative states the same 995). " + ('L2. Exact integer kernels and BigInt wholes on the reached states; the helper search is Float64 with a 1e-9 tolerance. No random numbers: every start, word and member is enumerated. The role opening is a convention of the experiments\' starts (lineKnot), not a derived operation, and it picks the role axis at the opening. H, the roadmap\'s gate, is the hypothesis a word of the model\'s operations prepares the stand-in from points; P1 predicted it false.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; states with fear on A 1,208 -> 995 (sequentially negative states the same 995). ' +
+        "L2. Exact integer kernels and BigInt wholes on the reached states; the helper search is Float64 with a 1e-9 tolerance. No random numbers: every start, word and member is enumerated. The role opening is a convention of the experiments' starts (lineKnot), not a derived operation, and it picks the role axis at the opening. H, the roadmap's gate, is the hypothesis a word of the model's operations prepares the stand-in from points; P1 predicted it false.",
     })
   },
 })

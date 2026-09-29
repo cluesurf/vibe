@@ -47,8 +47,22 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { levelOne, meetFresh, qubitWhole, sumKernel, swapPhaseKernel, type Kernel, type Whole } from '@/code/rule/light-register-kernels'
-import { applySwapPhase, emptyState, negativeWeight, registers, type State } from '@/code/measure/quantum-light'
+import {
+  levelOne,
+  meetFresh,
+  qubitWhole,
+  sumKernel,
+  swapPhaseKernel,
+  type Kernel,
+  type Whole,
+} from '@/code/rule/light-register-kernels'
+import {
+  applySwapPhase,
+  emptyState,
+  negativeWeight,
+  registers,
+  type State,
+} from '@/code/measure/quantum-light'
 
 const MEETINGS = 60
 const RING = 4
@@ -60,10 +74,17 @@ const WEAK_FAMILY = [3, 5, 7, 9, 15, 31]
 const meet = (k: Kernel, e: Whole): Whole => meetFresh(k, e)
 
 // the whole of the emitter and RING registers in integer (Number) weights, exact while below 2^52
-function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: number; registerNegative: number } {
+function ringRun(k: Kernel): {
+  p: number[]
+  packet: number[]
+  lightNegative: number
+  registerNegative: number
+} {
   const count = RING + 1
   const size = 9 ** count
+
   let w = new Float64Array(size)
+
   const strideOf = (q: number): number => 9 ** (count - 1 - q)
 
   // the emitter |1> (weight 1 at points 3, 4, 5) and every register |0> (points 0, 1, 2), grain 3^count
@@ -76,12 +97,16 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
       ok = ok && (q === 0 ? x >= 3 && x <= 5 : x <= 2)
     }
 
-    if (ok) w[i] = 1
+    if (ok) {
+      w[i] = 1
+    }
   }
 
   let grain = 3 ** count
+
   const p: number[] = [1]
   const limit = 2 ** 52
+
   let packet: number[] = []
   let lightNegative = 0
   let registerNegative = 0
@@ -93,22 +118,34 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
     const next = new Float64Array(size)
 
     for (let base = 0; base < size; base++) {
-      if (Math.floor(base / se) % 9 !== 0 || Math.floor(base / sq) % 9 !== 0) continue
+      if (
+        Math.floor(base / se) % 9 !== 0 ||
+        Math.floor(base / sq) % 9 !== 0
+      ) {
+        continue
+      }
 
       for (let x1 = 0; x1 < 9; x1++) {
         for (let x2 = 0; x2 < 9; x2++) {
           const row = k.kernel[9 * x1 + x2]!
+
           let s = 0
 
           for (let y1 = 0; y1 < 9; y1++) {
             for (let y2 = 0; y2 < 9; y2++) {
               const c = row[9 * y1 + y2]!
 
-              if (c !== 0) s += c * w[base + y1 * se + y2 * sq]!
+              if (c !== 0) {
+                s += c * w[base + y1 * se + y2 * sq]!
+              }
             }
           }
 
-          if (Math.abs(s) >= limit) throw new Error('stream-spontaneous-emission: a weight left the exact range')
+          if (Math.abs(s) >= limit) {
+            throw new Error(
+              'stream-spontaneous-emission: a weight left the exact range',
+            )
+          }
 
           next[base + x1 * se + x2 * sq] = s
         }
@@ -123,7 +160,9 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
     for (let i = 0; i < size; i++) {
       const x = Math.floor(i / se) % 9
 
-      if (x >= 3 && x <= 5) one += w[i]!
+      if (x >= 3 && x <= 5) {
+        one += w[i]!
+      }
     }
 
     p.push(one / grain)
@@ -131,12 +170,15 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
     if (t === RING - 1) {
       packet = Array.from({ length: RING }, (_, r) => {
         const s = strideOf(r + 1)
+
         let m = 0
 
         for (let i = 0; i < size; i++) {
           const x = Math.floor(i / s) % 9
 
-          if (x >= 3 && x <= 5) m += w[i]!
+          if (x >= 3 && x <= 5) {
+            m += w[i]!
+          }
         }
 
         return m / grain
@@ -145,7 +187,9 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
       // the light's joint whole: sum out the emitter
       const light = new Float64Array(9 ** RING)
 
-      for (let i = 0; i < size; i++) light[i % 9 ** RING] = light[i % 9 ** RING]! + w[i]! / grain
+      for (let i = 0; i < size; i++) {
+        light[i % 9 ** RING] = light[i % 9 ** RING]! + w[i]! / grain
+      }
 
       lightNegative = negativeWeight(light)
 
@@ -153,9 +197,15 @@ function ringRun(k: Kernel): { p: number[]; packet: number[]; lightNegative: num
         const alone = new Float64Array(9)
         const s = 9 ** (RING - 1 - r)
 
-        for (let i = 0; i < light.length; i++) alone[Math.floor(i / s) % 9] = alone[Math.floor(i / s) % 9]! + light[i]!
+        for (let i = 0; i < light.length; i++) {
+          alone[Math.floor(i / s) % 9] =
+            alone[Math.floor(i / s) % 9]! + light[i]!
+        }
 
-        registerNegative = Math.max(registerNegative, negativeWeight(alone))
+        registerNegative = Math.max(
+          registerNegative,
+          negativeWeight(alone),
+        )
       }
     }
   }
@@ -176,8 +226,17 @@ function commutatorTimes(x: C3, y: C3, k: number): C3 {
       let ci = 0
 
       for (let m = 0; m < 3; m++) {
-        cr += x.re[3 * i + m]! * y.re[3 * m + j]! - x.im[3 * i + m]! * y.im[3 * m + j]! - (y.re[3 * i + m]! * x.re[3 * m + j]! - y.im[3 * i + m]! * x.im[3 * m + j]!)
-        ci += x.re[3 * i + m]! * y.im[3 * m + j]! + x.im[3 * i + m]! * y.re[3 * m + j]! - (y.re[3 * i + m]! * x.im[3 * m + j]! + y.im[3 * i + m]! * x.re[3 * m + j]!)
+        cr +=
+          x.re[3 * i + m]! * y.re[3 * m + j]! -
+          x.im[3 * i + m]! * y.im[3 * m + j]! -
+          (y.re[3 * i + m]! * x.re[3 * m + j]! -
+            y.im[3 * i + m]! * x.im[3 * m + j]!)
+
+        ci +=
+          x.re[3 * i + m]! * y.im[3 * m + j]! +
+          x.im[3 * i + m]! * y.re[3 * m + j]! -
+          (y.re[3 * i + m]! * x.im[3 * m + j]! +
+            y.im[3 * i + m]! * x.re[3 * m + j]!)
       }
 
       out.re[3 * i + j] = k * ci
@@ -188,7 +247,10 @@ function commutatorTimes(x: C3, y: C3, k: number): C3 {
   return out
 }
 
-const axpy = (x: C3, a: number, y: C3): C3 => ({ re: x.re.map((v, i) => v + a * y.re[i]!), im: x.im.map((v, i) => v + a * y.im[i]!) })
+const axpy = (x: C3, a: number, y: C3): C3 => ({
+  re: x.re.map((v, i) => v + a * y.re[i]!),
+  im: x.im.map((v, i) => v + a * y.im[i]!),
+})
 
 function meanFieldMeeting(rhoA: C3): C3 {
   let a = rhoA
@@ -198,7 +260,10 @@ function meanFieldMeeting(rhoA: C3): C3 {
 
   const h = 1 / MEAN_FIELD_STEPS
   const k = Math.PI / 3
-  const f = (x: C3, y: C3): [C3, C3] => [commutatorTimes(y, x, k), commutatorTimes(x, y, k)]
+  const f = (x: C3, y: C3): [C3, C3] => [
+    commutatorTimes(y, x, k),
+    commutatorTimes(x, y, k),
+  ]
 
   for (let s = 0; s < MEAN_FIELD_STEPS; s++) {
     const [a1, l1] = f(a, l)
@@ -206,8 +271,17 @@ function meanFieldMeeting(rhoA: C3): C3 {
     const [a3, l3] = f(axpy(a, h / 2, a2), axpy(l, h / 2, l2))
     const [a4, l4] = f(axpy(a, h, a3), axpy(l, h, l3))
 
-    a = axpy(axpy(axpy(axpy(a, h / 6, a1), h / 3, a2), h / 3, a3), h / 6, a4)
-    l = axpy(axpy(axpy(axpy(l, h / 6, l1), h / 3, l2), h / 3, l3), h / 6, l4)
+    a = axpy(
+      axpy(axpy(axpy(a, h / 6, a1), h / 3, a2), h / 3, a3),
+      h / 6,
+      a4,
+    )
+
+    l = axpy(
+      axpy(axpy(axpy(l, h / 6, l1), h / 3, l2), h / 3, l3),
+      h / 6,
+      l4,
+    )
   }
 
   return a
@@ -233,9 +307,14 @@ function weakSurvival(n: number): number {
   s.re[3] = 1
 
   const out = applySwapPhase(r, s, 0, 1, 1, n)
+
   let p = 0
 
-  for (let i = 0; i < 9; i++) if (Math.floor(i / 3) === 1) p += out.re[i]! ** 2 + out.im[i]! ** 2
+  for (let i = 0; i < 9; i++) {
+    if (Math.floor(i / 3) === 1) {
+      p += out.re[i]! ** 2 + out.im[i]! ** 2
+    }
+  }
 
   return p
 }
@@ -258,10 +337,18 @@ export default experiment({
 
     for (let x = 0; x < 81; x++) {
       for (let y = 0; y < 81; y++) {
-        if (kernel.kernel[x]![y] === 0) continue
+        if (kernel.kernel[x]![y] === 0) {
+          continue
+        }
 
-        const before = (Math.floor(Math.floor(y / 9) / 3) + Math.floor((y % 9) / 3)) % 3
-        const after = (Math.floor(Math.floor(x / 9) / 3) + Math.floor((x % 9) / 3)) % 3
+        const before =
+          (Math.floor(Math.floor(y / 9) / 3) +
+            Math.floor((y % 9) / 3)) %
+          3
+        const after =
+          (Math.floor(Math.floor(x / 9) / 3) +
+            Math.floor((x % 9) / 3)) %
+          3
 
         levelChanges += before === after ? 0 : 1
       }
@@ -273,20 +360,27 @@ export default experiment({
       [9, 3, 10],
       [1, 1, 2],
     ]
+
     let exponentialMismatch = 0
+
     const firstLoss: number[] = []
     const series: number[][] = []
 
     for (const [pn, cn, den] of starts) {
       let e = qubitWhole(pn, cn, den)
+
       const p0 = levelOne(e.w)
       const g0 = e.grain
       const values: number[] = [Number(p0) / Number(g0)]
 
       for (let n = 1; n <= MEETINGS; n++) {
         e = meet(kernel, e)
-        exponentialMismatch += levelOne(e.w) * 4n ** BigInt(n) * g0 === p0 * e.grain ? 0 : 1
-        values.push(Number((levelOne(e.w) * 10n ** 18n) / e.grain) / 1e18)
+        exponentialMismatch +=
+          levelOne(e.w) * 4n ** BigInt(n) * g0 === p0 * e.grain ? 0 : 1
+
+        values.push(
+          Number((levelOne(e.w) * 10n ** 18n) / e.grain) / 1e18,
+        )
       }
 
       series.push(values)
@@ -301,8 +395,14 @@ export default experiment({
       const pa0 = qubitWhole(9, 3, 10)
       const pb0 = qubitWhole(1, 1, 2)
       // loss_a = P_a0 - P_a1, as fractions; test loss_a * 5 = loss_b * 9
-      const la = { n: levelOne(pa0.w) * a.grain - levelOne(a.w) * pa0.grain, d: pa0.grain * a.grain }
-      const lb = { n: levelOne(pb0.w) * b.grain - levelOne(b.w) * pb0.grain, d: pb0.grain * b.grain }
+      const la = {
+        n: levelOne(pa0.w) * a.grain - levelOne(a.w) * pa0.grain,
+        d: pa0.grain * a.grain,
+      }
+      const lb = {
+        n: levelOne(pb0.w) * b.grain - levelOne(b.w) * pb0.grain,
+        d: pb0.grain * b.grain,
+      }
 
       return la.n * lb.d * 5n === lb.n * la.d * 9n
     })()
@@ -313,12 +413,17 @@ export default experiment({
 
     for (let n = 0; n < MEETINGS; n++) {
       rhoA = meanFieldMeeting(rhoA)
-      meanFieldDeparture = Math.max(meanFieldDeparture, Math.abs(1 - rhoA.re[4]!))
+      meanFieldDeparture = Math.max(
+        meanFieldDeparture,
+        Math.abs(1 - rhoA.re[4]!),
+      )
     }
 
     const meanFieldHalf = meanFieldMeeting(qubitDensity(0.5, 0.5))
     const meanFieldNinety = meanFieldMeeting(qubitDensity(0.9, 0.3))
-    const meanFieldRatio = (0.9 - meanFieldNinety.re[4]!) / (0.5 - meanFieldHalf.re[4]!)
+    const meanFieldRatio =
+      (0.9 - meanFieldNinety.re[4]!) / (0.5 - meanFieldHalf.re[4]!)
+
     let fearOff = qubitWhole(1, 0, 1)
     let fearOffMismatch = 0
 
@@ -330,15 +435,21 @@ export default experiment({
     // D4: the ring
     const ring = ringRun(kernel)
     const stream = series[0]!
+
     let ringAgree = 0
 
     // the ring's P is a ratio of exact integers, and 4^-t is a float exactly
-    for (let t = 1; t <= RING; t++) ringAgree += ring.p[t] === 4 ** -t ? 1 : 0
+    for (let t = 1; t <= RING; t++) {
+      ringAgree += ring.p[t] === 4 ** -t ? 1 : 0
+    }
 
     const ringDeparts = Math.abs(ring.p[RING + 1]! - 4 ** -(RING + 1))
+
     let packetMismatch = 0
 
-    ring.packet.forEach((m, k) => (packetMismatch += m === 0.75 * 4 ** -k ? 0 : 1))
+    ring.packet.forEach(
+      (m, k) => (packetMismatch += m === 0.75 * 4 ** -k ? 0 : 1),
+    )
 
     // D5: the golden rule
     const transfer = 1 - stream[1]!
@@ -348,7 +459,11 @@ export default experiment({
     const weak = WEAK_FAMILY.map(n => {
       const survival = weakSurvival(n)
 
-      return { n, ratio: -Math.log(survival) / (Math.PI / n) ** 2, survival }
+      return {
+        n,
+        ratio: -Math.log(survival) / (Math.PI / n) ** 2,
+        survival,
+      }
     })
 
     const metrics: Record<string, number> = {
@@ -387,13 +502,24 @@ export default experiment({
       D1: exponentialMismatch === 0 && levelChanges === 0,
       D2: meanFieldDeparture <= 1e-15 && fearOffMismatch === 0,
       D3: lossExact,
-      D4: ringAgree === RING && ringDeparts > 1e-12 && packetMismatch === 0 && ring.lightNegative > 1e-9 && ring.registerNegative <= 1e-12,
+      D4:
+        ringAgree === RING &&
+        ringDeparts > 1e-12 &&
+        packetMismatch === 0 &&
+        ring.lightNegative > 1e-9 &&
+        ring.registerNegative <= 1e-12,
       D5: goldenRatio >= 0.8 && goldenRatio <= 1.25,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.D1 && gates.D2 && gates.D3 && gates.D4 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.D1 && gates.D2 && gates.D3 && gates.D4
+        ? 'partial'
+        : 'fail'
     const e = (x: number): string => x.toExponential(3)
 
     return verdict({

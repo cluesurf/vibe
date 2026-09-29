@@ -32,10 +32,30 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { loopBeat, loopKernel, loopSplit, ringCurl, ringOmega, type LoopSpec } from '@/code/rule/loop-ring'
-import { atomBare, atomPopulation, atomTimes } from '@/code/measure/quantum-ladder'
+import {
+  loopBeat,
+  loopKernel,
+  loopSplit,
+  ringCurl,
+  ringOmega,
+  type LoopSpec,
+} from '@/code/rule/loop-ring'
+import {
+  atomBare,
+  atomPopulation,
+  atomTimes,
+} from '@/code/measure/quantum-ladder'
 import { ringVacuum } from '@/code/measure/loop-spectrum'
-import { fewQuanta, fewQuantaBeat, fewQuantaRead, fewQuantaRun, fewQuantaStart, ringAtomSpec, stripGoldenRule, stripModes } from '@/code/measure/few-quanta'
+import {
+  fewQuanta,
+  fewQuantaBeat,
+  fewQuantaRead,
+  fewQuantaRun,
+  fewQuantaStart,
+  ringAtomSpec,
+  stripGoldenRule,
+  stripModes,
+} from '@/code/measure/few-quanta'
 
 const NS = [9, 11]
 const L = 6
@@ -43,7 +63,14 @@ const BEATS = 40
 const AGREE = 0.03
 const SECTOR = 1e-4
 
-const ladderShape = (spec: LoopSpec) => ({ n: spec.n, plaquettes: spec.squares, root: spec.root, drift: spec.drift, force: spec.force, hop: spec.hop! })
+const ladderShape = (spec: LoopSpec) => ({
+  n: spec.n,
+  plaquettes: spec.squares,
+  root: spec.root,
+  drift: spec.drift,
+  force: spec.force,
+  hop: spec.hop!,
+})
 
 export default experiment({
   id: 'gauge/few-quanta-restriction',
@@ -56,6 +83,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let r1 = true
     let r2 = true
     let r3 = true
@@ -82,16 +110,34 @@ export default experiment({
         const v = atomTimes(bare.excited, vac.vacuum)
 
         for (let t = 0; t <= BEATS; t++) {
-          ;(forceOff ? off : exact).push(atomPopulation(bare.excited, v))
+          ;(forceOff ? off : exact).push(
+            atomPopulation(bare.excited, v),
+          )
 
-          if (t < BEATS) loopBeat(kernel, v.re, v.im)
+          if (t < BEATS) {
+            loopBeat(kernel, v.re, v.im)
+          }
         }
       }
 
-      const modes = stripModes({ n, squares: L, f, js: [1, 2, 3, 4, 5], omegaOf: k => ringOmega(kappa, k) })
-      const q = fewQuanta({ omega: modes.omega, u: modes.u, g, hop: spec.hop!, drift: spec.drift, root: spec.root })
+      const modes = stripModes({
+        n,
+        squares: L,
+        f,
+        js: [1, 2, 3, 4, 5],
+        omegaOf: k => ringOmega(kappa, k),
+      })
+      const q = fewQuanta({
+        omega: modes.omega,
+        u: modes.u,
+        g,
+        hop: spec.hop!,
+        drift: spec.drift,
+        root: spec.root,
+      })
       const run = fewQuantaRun(q)
       const restricted: number[] = []
+
       let normWorst = 0
       let twoMax = 0
 
@@ -104,12 +150,16 @@ export default experiment({
         normWorst = Math.max(normWorst, Math.abs(read.norm - 1))
         twoMax = Math.max(twoMax, read.two)
 
-        if (t < BEATS) fewQuantaBeat(q, run)
+        if (t < BEATS) {
+          fewQuantaBeat(q, run)
+        }
       }
 
       let worst = 0
 
-      for (let t = 0; t <= BEATS; t++) worst = Math.max(worst, Math.abs(exact[t]! - restricted[t]!))
+      for (let t = 0; t <= BEATS; t++) {
+        worst = Math.max(worst, Math.abs(exact[t]! - restricted[t]!))
+      }
 
       metrics[`ruleMinusRestrictionN${n}`] = worst
       metrics[`sectorNormDriftN${n}`] = normWorst
@@ -122,26 +172,43 @@ export default experiment({
       }
 
       metrics[`ruleLowestN${n}`] = Math.min(...exact)
-      metrics[`goldenRuleN${n}`] = stripGoldenRule({ n, f, kappa, g, dipole: bare.dipole, gap: bare.gap, curl: ringCurl, curlSlope: k => 2 * Math.sin(k) }).rate
+      metrics[`goldenRuleN${n}`] = stripGoldenRule({
+        n,
+        f,
+        kappa,
+        g,
+        dipole: bare.dipole,
+        gap: bare.gap,
+        curl: ringCurl,
+        curlSlope: k => 2 * Math.sin(k),
+      }).rate
 
       r1 &&= worst <= AGREE
       r2 &&= normWorst <= SECTOR
       r3 &&= Math.min(...off) >= 0.9
 
-      if (n === 11) r1at11 = worst <= AGREE
+      if (n === 11) {
+        r1at11 = worst <= AGREE
+      }
     }
 
     const gates = { R1: r1, R2: r2, R3: r3 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = r1 && r2 && r3 ? 'pass' : r2 && r3 && r1at11 ? 'partial' : 'fail'
+    const status =
+      r1 && r2 && r3 ? 'pass' : r2 && r3 && r1at11 ? 'partial' : 'fail'
 
     return verdict({
       status,
       claim: `on the six-square closed strip a pure excited STAND-IN atom (gap ${metrics.gapN9!.toFixed(4)} and ${metrics.gapN11!.toFixed(4)}, dipole ${metrics.dipoleN9!.toFixed(3)} and ${metrics.dipoleN11!.toFixed(3)} at N = 9, 11) loses its quantum under the exact register rule to P_e ${metrics.ruleLowestN9!.toFixed(3)} and ${metrics.ruleLowestN11!.toFixed(3)} within 40 beats, and the restriction to at most two quanta follows it within ${metrics.ruleMinusRestrictionN9!.toFixed(4)} and ${metrics.ruleMinusRestrictionN11!.toFixed(4)} at every beat, its norm within ${Math.max(metrics.sectorNormDriftN9!, metrics.sectorNormDriftN11!).toExponential(1)} of 1 (two-quanta weight at most ${Math.max(metrics.twoQuantaWeightMaxN9!, metrics.twoQuantaWeightMaxN11!).toExponential(1)}); with the force step off P_e stays at ${metrics.forceOffLowestN9!.toFixed(3)} and ${metrics.forceOffLowestN11!.toFixed(3)} or above`,
       metrics,
-      control: { forceOffLowestN9: metrics.forceOffLowestN9!, forceOffLowestN11: metrics.forceOffLowestN11! },
+      control: {
+        forceOffLowestN9: metrics.forceOffLowestN9!,
+        forceOffLowestN11: metrics.forceOffLowestN11!,
+      },
       notes:
         "L2. FIRST RUN 2026-09-26 (tmp/frc0236.log, 346 s), FAIL on all three gates. No gate moved. The exact register rule does show emission into the massless light: P_e falls to 0.376, 0.066 at beats 10, 20 (N = 9) and 0.455, 0.107 (N = 11), then the six-square box gives it back (0.892 and 0.553 at beat 40), the box's vacuum Rabi exchange. R1: the two-quantum restriction follows the rule at first (0.404 and 0.035 against 0.376 and 0.066 at N = 9, 0.473 and 0.112 against 0.455 and 0.107 at N = 11), but misses by 0.232 and 0.133 at worst, late in the run. R2: its norm drifts by 0.263 and 0.185 (the two-quanta weight reaches 0.121 and 0.110), so a quarter of the state leaves the sector: the restriction is NOT the rule here. DIAGNOSED AFTER THE RUN (arithmetic from the run's own numbers, disclosed): derivation (1) assumed a weak coupling (g |u| about 0.05), but with the column-balanced split at these shallow columns g = 4 pi c / M = 0.31 and 0.23, and the rung's summed mode amplitude sqrt(sum |u_k|^2) is about 1.0, so the per-beat displacement on the x = 1 branch is about 0.3: a STRONG coupling, whose counter-rotating and dressing terms fill two quanta within a few beats and three quanta after that. The balanced split raises the charge's coupling (g grows with c, E-FRC-0230's remark that the split bears on alpha), and at N = 9 and 11 that puts the atom outside the regime any few-quanta restriction can hold. R3: with the force step off P_e dips to 0.813 and 0.830, under the 0.9 gate. The gate's derivation (3), carried from E-FRC-0233 E2, was WRONG: a mixture of unitaries is unital, and a unital channel can lower P_e toward 1/2, just never below. It cannot give its quantum away, only dephase it, and 0.81 is that dephasing under g |u| about 0.3 (the ladder's 0.96 in E-FRC-0233 came from its weaker drift-carried coupling). So this file fails, and what it establishes is a limit: the two-quantum restriction is validated nowhere at the columns the exact rule can reach (N <= 11 on six squares). E-FRC-0237's long-ring runs at N = 25 and 49 therefore rest on the harmonic reading and the restriction without an exact-rule check at their own coupling.",
     })

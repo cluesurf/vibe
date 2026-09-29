@@ -55,8 +55,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { lockedBeat, lockedState, lockedTables, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { lockedFresh, pathRunner, vacuumConfiguration, THRESHOLD_EXCHANGE } from '@/code/measure/doublet-locked-readings'
+import {
+  lockedBeat,
+  lockedState,
+  lockedTables,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  lockedFresh,
+  pathRunner,
+  vacuumConfiguration,
+  THRESHOLD_EXCHANGE,
+} from '@/code/measure/doublet-locked-readings'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import {
   addExact,
@@ -84,14 +96,26 @@ import {
 
 const BOX = 4
 const BEATS = 48
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 
-type Reading = { hn: Exact; hq: Exact; label: Exact; axial: Exact; vibes: Exact; charge: Exact; unlike: Exact; fearMinus: Exact }
+type Reading = {
+  hn: Exact
+  hq: Exact
+  label: Exact
+  axial: Exact
+  vibes: Exact
+  charge: Exact
+  unlike: Exact
+  fearMinus: Exact
+}
 
 const zeroExact = (): Exact => ({ num: 0n, den: 1n })
 
 // the per-configuration integers of one beat
-function readConfiguration(frame: HuskFrame, c: Configuration): number[] {
+function readConfiguration(
+  frame: HuskFrame,
+  c: Configuration,
+): number[] {
   let label = 0
   let axial = 0
   let vibes = 0
@@ -100,9 +124,12 @@ function readConfiguration(frame: HuskFrame, c: Configuration): number[] {
   let fearMinus = 0
 
   for (let slot = 0; slot < c.vibe.length; slot++) {
-    const v = c.vibe[slot] as number
+    const v = c.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     label += labelAlongMotion(v, slot % 24)
     axial += axialAlongMotion(v, slot % 24)
     vibes++
@@ -112,12 +139,15 @@ function readConfiguration(frame: HuskFrame, c: Configuration): number[] {
   // the love-fear meetings this configuration holds (before its collision)
   for (let x = 0; x < c.vibe.length / 24; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (LINE_SECONDS[l] as number)
-      const a = c.vibe[i] as number
-      const b = c.vibe[j] as number
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + LINE_SECONDS[l]!
+      const a = c.vibe[i]!
+      const b = c.vibe[j]!
 
-      if (a === 0 || b !== -a) continue
+      if (a === 0 || b !== -a) {
+        continue
+      }
+
       unlike++
 
       const fear = a < 0 ? i : j
@@ -126,12 +156,35 @@ function readConfiguration(frame: HuskFrame, c: Configuration): number[] {
     }
   }
 
-  return [helicity(frame, huskCurrent(frame, c, false)), helicity(frame, huskCurrent(frame, c, true)), label, axial, vibes, charge, unlike, fearMinus]
+  return [
+    helicity(frame, huskCurrent(frame, c, false)),
+    helicity(frame, huskCurrent(frame, c, true)),
+    label,
+    axial,
+    vibes,
+    charge,
+    unlike,
+    fearMinus,
+  ]
 }
 
-function readState(frame: HuskFrame, s: LockedState, into: Reading): void {
-  const keys = ['hn', 'hq', 'label', 'axial', 'vibes', 'charge', 'unlike', 'fearMinus'] as const
+function readState(
+  frame: HuskFrame,
+  s: LockedState,
+  into: Reading,
+): void {
+  const keys = [
+    'hn',
+    'hq',
+    'label',
+    'axial',
+    'vibes',
+    'charge',
+    'unlike',
+    'fearMinus',
+  ] as const
   const cache = new Map<unknown, number[]>()
+
   const values = (c: Configuration): number[] => {
     let v = cache.get(c)
 
@@ -146,17 +199,32 @@ function readState(frame: HuskFrame, s: LockedState, into: Reading): void {
   keys.forEach((key, k) => {
     into[key] = addExact(
       into[key],
-      expectation(s, c => values(c)[k] as number),
+      expectation(s, c => values(c)[k]!),
     )
   })
 }
 
-const newReading = (): Reading => ({ hn: zeroExact(), hq: zeroExact(), label: zeroExact(), axial: zeroExact(), vibes: zeroExact(), charge: zeroExact(), unlike: zeroExact(), fearMinus: zeroExact() })
+const newReading = (): Reading => ({
+  hn: zeroExact(),
+  hq: zeroExact(),
+  label: zeroExact(),
+  axial: zeroExact(),
+  vibes: zeroExact(),
+  charge: zeroExact(),
+  unlike: zeroExact(),
+  fearMinus: zeroExact(),
+})
 
 // a run of the locked rule (or a toy) from a start, read at every beat: the meetings on the state before each beat,
 // the husk current on the state after each stream
-function lockedReading(frame: HuskFrame, tables: LockedTables, start: Configuration, turn?: DockTurn): Reading {
+function lockedReading(
+  frame: HuskFrame,
+  tables: LockedTables,
+  start: Configuration,
+  turn?: DockTurn,
+): Reading {
   const r = newReading()
+
   let s = lockedState(start)
 
   for (let t = 0; t < BEATS; t++) {
@@ -167,7 +235,11 @@ function lockedReading(frame: HuskFrame, tables: LockedTables, start: Configurat
   return r
 }
 
-function exchangeReading(frame: HuskFrame, tables: LockedTables, start: Configuration): Reading {
+function exchangeReading(
+  frame: HuskFrame,
+  tables: LockedTables,
+  start: Configuration,
+): Reading {
   const r = newReading()
   const run = pathRunner(tables, start, THRESHOLD_EXCHANGE)
 
@@ -181,34 +253,73 @@ function exchangeReading(frame: HuskFrame, tables: LockedTables, start: Configur
 
 type Triple = { psi: Reading; images: Reading[] }
 
-const sumZero = (x: Exact, y: Exact): boolean => addExact(x, y).num === 0n
-const equal = (x: Exact, y: Exact): boolean => x.num * y.den === y.num * x.den
+const sumZero = (x: Exact, y: Exact): boolean =>
+  addExact(x, y).num === 0n
+const equal = (x: Exact, y: Exact): boolean =>
+  x.num * y.den === y.num * x.den
 const f2 = (x: Exact): number => Number(exactFloat(x).toFixed(4))
 
-function perStart(name: string): { name: string; old: Triple; exch: Triple; sup: Triple; right: Triple; left: Triple; fixed: Triple } {
+function perStart(name: string): {
+  name: string
+  old: Triple
+  exch: Triple
+  sup: Triple
+  right: Triple
+  left: Triple
+  fixed: Triple
+} {
   const f = lockedFresh(BOX)
   const frame = huskFrame(BOX)
   const vac = vacuumConfiguration(f, 'none')
-  const lone: Configuration = { ...vac, vibe: Int8Array.from(vac.vibe), point: Int8Array.from(vac.point) }
+  const lone: Configuration = {
+    ...vac,
+    vibe: Int8Array.from(vac.vibe),
+    point: Int8Array.from(vac.point),
+  }
 
   lone.vibe[axisSlot()] = 1
 
   const sup = superposingStart(f.tables, f.weave, vac)
 
-  if (!sup) throw new Error(`no superposing start on ${name}`)
+  if (!sup) {
+    throw new Error(`no superposing start on ${name}`)
+  }
 
-  const mirrors: Mirror[] = [false, true].map(depth => mirrorOf(huskInversion(depth), BOX))
-  const tablesOf = (m?: Mirror): LockedTables => (m ? lockedTables(f.weave, 'lone', mirrorLinks(m, f.weave.links, f.weave.moves)) : f.tables)
-  const triple = (start: Configuration, read: (tables: LockedTables, s: Configuration) => Reading): Triple => ({ psi: read(tablesOf(), start), images: mirrors.map(m => read(tablesOf(m), mirrorConfiguration(m, start))) })
+  const mirrors: Mirror[] = [false, true].map(depth =>
+    mirrorOf(huskInversion(depth), BOX),
+  )
+  const tablesOf = (m?: Mirror): LockedTables =>
+    m
+      ? lockedTables(
+          f.weave,
+          'lone',
+          mirrorLinks(m, f.weave.links, f.weave.moves),
+        )
+      : f.tables
+  const triple = (
+    start: Configuration,
+    read: (tables: LockedTables, s: Configuration) => Reading,
+  ): Triple => ({
+    psi: read(tablesOf(), start),
+    images: mirrors.map(m =>
+      read(tablesOf(m), mirrorConfiguration(m, start)),
+    ),
+  })
 
   return {
     name,
     old: triple(lone, (t, s) => lockedReading(frame, t, s)),
     exch: triple(lone, (t, s) => exchangeReading(frame, t, s)),
     sup: triple(sup, (t, s) => lockedReading(frame, t, s)),
-    right: triple(lone, (t, s) => lockedReading(frame, t, s, chiralTwist(1))),
-    left: triple(lone, (t, s) => lockedReading(frame, t, s, chiralTwist(-1))),
-    fixed: triple(lone, (t, s) => lockedReading(frame, t, s, fixedTurn(1))),
+    right: triple(lone, (t, s) =>
+      lockedReading(frame, t, s, chiralTwist(1)),
+    ),
+    left: triple(lone, (t, s) =>
+      lockedReading(frame, t, s, chiralTwist(-1)),
+    ),
+    fixed: triple(lone, (t, s) =>
+      lockedReading(frame, t, s, fixedTurn(1)),
+    ),
   }
 }
 
@@ -228,25 +339,72 @@ export default experiment({
       withStart(member, () => {
         const r = perStart(member.name)
 
-        console.error(`start ${member.name} ${Math.round((Date.now() - started) / 1000)}s`)
+        console.error(
+          `start ${member.name} ${Math.round((Date.now() - started) / 1000)}s`,
+        )
 
         return r
       }),
     )
     const n = family.length
-    const oddZero = (t: Triple): boolean => t.images.every(im => sumZero(t.psi.hn, im.hn) && sumZero(t.psi.hq, im.hq))
-    const nG1 = runs.filter(r => oddZero(r.old) && oddZero(r.exch) && oddZero(r.sup)).length
-    const nG2 = runs.filter(r => [r.old, r.exch, r.sup].some(t => t.psi.hn.num !== 0n || t.psi.hq.num !== 0n)).length
-    const ensemble = (t: Triple, k: number): [Exact, Exact] => [addExact(t.psi.hn, t.images[k]!.hn), addExact(t.psi.hq, t.images[k]!.hq)]
-    const nG3right = runs.filter(r => [0, 1].every(k => ensemble(r.right, k).some(e => e.num !== 0n))).length
-    const nG3left = runs.filter(r => [0, 1].every(k => ensemble(r.right, k).every((e, i) => sumZero(e, ensemble(r.left, k)[i] as Exact)))).length
-    const nG3fixed = runs.filter(r => [0, 1].every(k => ensemble(r.fixed, k).every(e => e.num === 0n))).length
+    const oddZero = (t: Triple): boolean =>
+      t.images.every(
+        im => sumZero(t.psi.hn, im.hn) && sumZero(t.psi.hq, im.hq),
+      )
+    const nG1 = runs.filter(
+      r => oddZero(r.old) && oddZero(r.exch) && oddZero(r.sup),
+    ).length
+    const nG2 = runs.filter(r =>
+      [r.old, r.exch, r.sup].some(
+        t => t.psi.hn.num !== 0n || t.psi.hq.num !== 0n,
+      ),
+    ).length
+    const ensemble = (t: Triple, k: number): [Exact, Exact] => [
+      addExact(t.psi.hn, t.images[k]!.hn),
+      addExact(t.psi.hq, t.images[k]!.hq),
+    ]
+    const nG3right = runs.filter(r =>
+      [0, 1].every(k => ensemble(r.right, k).some(e => e.num !== 0n)),
+    ).length
+    const nG3left = runs.filter(r =>
+      [0, 1].every(k =>
+        ensemble(r.right, k).every((e, i) =>
+          sumZero(e, ensemble(r.left, k)[i]!),
+        ),
+      ),
+    ).length
+    const nG3fixed = runs.filter(r =>
+      [0, 1].every(k => ensemble(r.fixed, k).every(e => e.num === 0n)),
+    ).length
     const helicityEven = (t: Triple): boolean =>
-      t.images.every(im => equal(t.psi.label, im.label) && equal(t.psi.axial, im.axial) && equal(t.psi.unlike, im.unlike) && im.fearMinus.num === 0n) && equal(t.psi.label, t.psi.vibes) && equal(t.psi.axial, t.psi.charge) && t.psi.fearMinus.num === 0n
-    const nG4 = runs.filter(r => helicityEven(r.exch) && helicityEven(r.sup)).length
-    const status = nG1 === n && nG2 === n && nG3right === n && nG3left === n && nG3fixed === n && nG4 === n ? 'pass' : 'fail'
-    const show = (t: Triple): string => `${f2(t.psi.hn)}/${t.images.map(im => f2(im.hn)).join('/')} q ${f2(t.psi.hq)}/${t.images.map(im => f2(im.hq)).join('/')}`
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+      t.images.every(
+        im =>
+          equal(t.psi.label, im.label) &&
+          equal(t.psi.axial, im.axial) &&
+          equal(t.psi.unlike, im.unlike) &&
+          im.fearMinus.num === 0n,
+      ) &&
+      equal(t.psi.label, t.psi.vibes) &&
+      equal(t.psi.axial, t.psi.charge) &&
+      t.psi.fearMinus.num === 0n
+    const nG4 = runs.filter(
+      r => helicityEven(r.exch) && helicityEven(r.sup),
+    ).length
+    const status =
+      nG1 === n &&
+      nG2 === n &&
+      nG3right === n &&
+      nG3left === n &&
+      nG3fixed === n &&
+      nG4 === n
+        ? 'pass'
+        : 'fail'
+    const show = (t: Triple): string =>
+      `${f2(t.psi.hn)}/${t.images.map(im => f2(im.hn)).join('/')} q ${f2(t.psi.hq)}/${t.images.map(im => f2(im.hq)).join('/')}`
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
     const rightSums = runs.map(r => exactFloat(ensemble(r.right, 0)[0]))
 
     return verdict({
@@ -260,11 +418,21 @@ export default experiment({
         gateG3fixed: nG3fixed,
         gateG4: nG4,
         starts: n,
-        exchangeHnMaxAbs: Math.max(...runs.map(r => Math.abs(exactFloat(r.exch.psi.hn)))),
-        oldHqMaxAbs: Math.max(...runs.map(r => Math.abs(exactFloat(r.old.psi.hq)))),
-        superHnMaxAbs: Math.max(...runs.map(r => Math.abs(exactFloat(r.sup.psi.hn)))),
-        superHqMaxAbs: Math.max(...runs.map(r => Math.abs(exactFloat(r.sup.psi.hq)))),
-        exchangeLoveFearMeetings: Math.max(...runs.map(r => exactFloat(r.exch.psi.unlike))),
+        exchangeHnMaxAbs: Math.max(
+          ...runs.map(r => Math.abs(exactFloat(r.exch.psi.hn))),
+        ),
+        oldHqMaxAbs: Math.max(
+          ...runs.map(r => Math.abs(exactFloat(r.old.psi.hq))),
+        ),
+        superHnMaxAbs: Math.max(
+          ...runs.map(r => Math.abs(exactFloat(r.sup.psi.hn))),
+        ),
+        superHqMaxAbs: Math.max(
+          ...runs.map(r => Math.abs(exactFloat(r.sup.psi.hq))),
+        ),
+        exchangeLoveFearMeetings: Math.max(
+          ...runs.map(r => exactFloat(r.exch.psi.unlike)),
+        ),
         exchangeLabelCount: exactFloat(runs[0]!.exch.psi.label),
         exchangeAxialCount: exactFloat(runs[0]!.exch.psi.axial),
         seconds: (Date.now() - started) / 1000,
@@ -272,7 +440,9 @@ export default experiment({
       control: {
         rightTwistEnsembleHnMin: Math.min(...rightSums),
         rightTwistEnsembleHnMax: Math.max(...rightSums),
-        fixedTurnPsiHnMaxAbs: Math.max(...runs.map(r => Math.abs(exactFloat(r.fixed.psi.hn)))),
+        fixedTurnPsiHnMaxAbs: Math.max(
+          ...runs.map(r => Math.abs(exactFloat(r.fixed.psi.hn))),
+        ),
       },
       notes: `L2. Gates: G1 ${nG1}, G2 ${nG2}, G3 right ${nG3right} left ${nG3left} fixed ${nG3fixed}, G4 ${nG4} of ${n}. Per start, H_n psi/depth-kept image/depth-reversed image, then H_q (OLD; EXCH; SUPER; right twist; left twist; fixed turn), and EXCH label/axial/vibes/charge/love-fear meetings: ${runs.map(r => `${r.name}: ${show(r.old)}; ${show(r.exch)}; ${show(r.sup)}; ${show(r.right)}; ${show(r.left)}; ${show(r.fixed)}; ${f2(r.exch.psi.label)}/${f2(r.exch.psi.axial)}/${f2(r.exch.psi.vibes)}/${f2(r.exch.psi.charge)}/${f2(r.exch.psi.unlike)}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

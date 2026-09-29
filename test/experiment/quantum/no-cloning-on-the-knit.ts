@@ -65,9 +65,20 @@ import {
   weylBackground,
   type RoleState,
 } from '@/code/measure/knit-magic'
-import { marginalOf, permuteRole, phaseSpace, productWeights } from '@/code/measure/stabilizer-contexts'
-import { hermitianSpectrum, operatorFromWigner } from '@/code/measure/qutrit-clifford'
-import { operator, phasePointOperators } from '@/code/measure/grid-weights'
+import {
+  marginalOf,
+  permuteRole,
+  phaseSpace,
+  productWeights,
+} from '@/code/measure/stabilizer-contexts'
+import {
+  hermitianSpectrum,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
+import {
+  operator,
+  phasePointOperators,
+} from '@/code/measure/grid-weights'
 
 const OMEGA = (2 * Math.PI) / 3
 const BEATS = 480
@@ -80,7 +91,10 @@ const STARTS: readonly (readonly [RoleState, RoleState])[] = [
 ]
 
 // K^T K = D^2 1 on 81 points
-function orthogonalUpTo(kernel: readonly (readonly number[])[], divisor: number): boolean {
+function orthogonalUpTo(
+  kernel: readonly (readonly number[])[],
+  divisor: number,
+): boolean {
   for (let i = 0; i < 81; i++) {
     for (let j = 0; j < 81; j++) {
       let s = 0
@@ -98,11 +112,15 @@ function orthogonalUpTo(kernel: readonly (readonly number[])[], divisor: number)
   return true
 }
 
-function applyKernel(kernel: readonly (readonly number[])[], v: Float64Array): Float64Array {
+function applyKernel(
+  kernel: readonly (readonly number[])[],
+  v: Float64Array,
+): Float64Array {
   const out = new Float64Array(81)
 
   for (let r = 0; r < 81; r++) {
     const row = kernel[r] ?? []
+
     let s = 0
 
     for (let c = 0; c < 81; c++) {
@@ -120,7 +138,10 @@ function applyKernel(kernel: readonly (readonly number[])[], v: Float64Array): F
 }
 
 // out proportional to target, exactly (integer-valued doubles)
-function proportional(out: Float64Array, target: Float64Array): boolean {
+function proportional(
+  out: Float64Array,
+  target: Float64Array,
+): boolean {
   let no = 0
   let nt = 0
 
@@ -146,7 +167,7 @@ export default experiment({
   id: 'quantum/no-cloning-on-the-knit',
   code: 'E-QTM-0151',
   title:
-    'no beat copies an unknown signed state: every kernel the knit uses is orthogonal up to its divisor and every link a permutation, so the overlap of two wholes is kept exactly on every beat of every history, and a copier would square it; none of 23,328 two-meeting words copies two non-orthogonal inputs, while the stream\'s own copy, SUM, copies the role trit of the 3 basis states and leaves each copy of a Strange role with 0 fears',
+    "no beat copies an unknown signed state: every kernel the knit uses is orthogonal up to its divisor and every link a permutation, so the overlap of two wholes is kept exactly on every beat of every history, and a copier would square it; none of 23,328 two-meeting words copies two non-orthogonal inputs, while the stream's own copy, SUM, copies the role trit of the 3 basis states and leaves each copy of a Strange role with 0 fears",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -160,12 +181,19 @@ export default experiment({
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const kBack = meetingKernel(swapPhase(-OMEGA)) ?? []
     const color = fearKernels({ like: OMEGA, unlike: OMEGA })
-    const bases: { kernel: readonly (readonly number[])[]; divisor: number }[] = [
+    const bases: {
+      kernel: readonly (readonly number[])[]
+      divisor: number
+    }[] = [
       { kernel: kThird, divisor: 4 },
       { kernel: kBack, divisor: 4 },
       { kernel: color?.like ?? [], divisor: color?.likeDivisor ?? 1 },
-      { kernel: color?.unlike ?? [], divisor: color?.unlikeDivisor ?? 1 },
+      {
+        kernel: color?.unlike ?? [],
+        divisor: color?.unlikeDivisor ?? 1,
+      },
     ]
+
     let kernelsChecked = 0
     let kernelFailures = 0
 
@@ -173,7 +201,12 @@ export default experiment({
       for (let pa = 0; pa < 9; pa++) {
         for (let pb = 0; pb < 9; pb++) {
           kernelsChecked++
-          kernelFailures += orthogonalUpTo(translatedOf(base.kernel, pa, pb), base.divisor) ? 0 : 1
+          kernelFailures += orthogonalUpTo(
+            translatedOf(base.kernel, pa, pb),
+            base.divisor,
+          )
+            ? 0
+            : 1
         }
       }
     }
@@ -183,10 +216,14 @@ export default experiment({
     // G1 on the knit: overlaps of two differently started wholes through one record
     const weave = makeColorWeave({ side: 3, table: 'pair' })
     const slots = weave.mesh.cellCount * 24
+
     let beatsCompared = 0
     let overlapChanges = 0
 
-    const overlap = (a: Whole, b: Whole): { num: bigint; den: bigint } => {
+    const overlap = (
+      a: Whole,
+      b: Whole,
+    ): { num: bigint; den: bigint } => {
       let s = 0n
 
       a.weight.forEach((w, i) => {
@@ -196,17 +233,38 @@ export default experiment({
       return { num: s, den: wholeUnits(a) * wholeUnits(b) }
     }
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: MATTER_SCALE })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: Array.from({ length: 24 }, (_, d) => d), beats: BEATS })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: MATTER_SCALE }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
 
-        for (const law of [{ kernel4: kThird }, { kernel4: [] as number[][], color: color ?? undefined }]) {
+        for (const law of [
+          { kernel4: kThird },
+          { kernel4: [] as number[][], color: color ?? undefined },
+        ]) {
           const runs = STARTS.map(start => {
             const w = productWhole([a, b], start)
 
-            return [w, ...runWhole({ weave, start: w, records: mine, kernel4: law.kernel4, color: law.color }).map(s => s.whole)]
+            return [
+              w,
+              ...runWhole({
+                weave,
+                start: w,
+                records: mine,
+                kernel4: law.kernel4,
+                color: law.color,
+              }).map(s => s.whole),
+            ]
           })
 
           for (let i = 0; i < runs.length; i++) {
@@ -217,7 +275,8 @@ export default experiment({
                 const now = overlap(runs[i]![t]!, runs[j]![t]!)
 
                 beatsCompared++
-                overlapChanges += now.num * first.den === first.num * now.den ? 0 : 1
+                overlapChanges +=
+                  now.num * first.den === first.num * now.den ? 0 : 1
               }
             }
           }
@@ -241,9 +300,14 @@ export default experiment({
     }
 
     const inputs = [...stabilizer, roleWeights('strange')]
-    const units = (w: readonly bigint[]): bigint => w.reduce((a, b) => a + b, 0n)
+    const units = (w: readonly bigint[]): bigint =>
+      w.reduce((a, b) => a + b, 0n)
+
     // 3 sum w1 w2 / (N1 N2), as a reduced fraction key
-    const overlapOf = (x: readonly bigint[], y: readonly bigint[]): [bigint, bigint] => {
+    const overlapOf = (
+      x: readonly bigint[],
+      y: readonly bigint[],
+    ): [bigint, bigint] => {
       let s = 0n
 
       x.forEach((w, i) => {
@@ -252,9 +316,13 @@ export default experiment({
 
       return [3n * s, units(x) * units(y)]
     }
+
     let nonTrivialPairs = 0
+
     const values = new Set<string>()
-    const orthogonal: boolean[][] = inputs.map(() => inputs.map(() => false))
+    const orthogonal: boolean[][] = inputs.map(() =>
+      inputs.map(() => false),
+    )
 
     for (let i = 0; i < inputs.length; i++) {
       for (let j = i + 1; j < inputs.length; j++) {
@@ -271,23 +339,43 @@ export default experiment({
     let largestOrthogonalSet = 0
 
     for (let mask = 1; mask < 1 << inputs.length; mask++) {
-      const members = inputs.map((_, i) => i).filter(i => (mask >> i) & 1)
+      const members = inputs
+        .map((_, i) => i)
+        .filter(i => (mask >> i) & 1)
 
       if (members.length <= largestOrthogonalSet) {
         continue
       }
 
-      if (members.every((x, k) => members.slice(k + 1).every(y => orthogonal[x]![y]))) {
+      if (
+        members.every((x, k) =>
+          members.slice(k + 1).every(y => orthogonal[x]![y]),
+        )
+      ) {
         largestOrthogonalSet = members.length
       }
     }
 
     // G3 the model's words, in the love frame: the love-fear kernel read in the physical frame
-    const reflect = (i: number): number => Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
-    const unlikePhysical = color ? Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => color.unlike[reflect(r)]?.[reflect(c)] ?? 0)) : []
-    const kernels: (readonly (readonly number[])[] | null)[] = [null, kThird, unlikePhysical]
-    const asFloat = (w: readonly bigint[]): Float64Array => Float64Array.from(w, x => Number(x))
+    const reflect = (i: number): number =>
+      Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
+    const unlikePhysical = color
+      ? Array.from({ length: 81 }, (_, r) =>
+          Array.from(
+            { length: 81 },
+            (__, c) => color.unlike[reflect(r)]?.[reflect(c)] ?? 0,
+          ),
+        )
+      : []
+    const kernels: (readonly (readonly number[])[] | null)[] = [
+      null,
+      kThird,
+      unlikePhysical,
+    ]
+    const asFloat = (w: readonly bigint[]): Float64Array =>
+      Float64Array.from(w, x => Number(x))
     const targets = inputs.map(x => asFloat(productWeights(x, x)))
+
     let words = 0
     let wordsCopyingNonOrthogonal = 0
     let mostCopied = 0
@@ -328,7 +416,11 @@ export default experiment({
             mostCopied = Math.max(mostCopied, copied.length)
             wordsCopyingThree += copied.length >= 3 ? 1 : 0
 
-            if (copied.some((x, k) => copied.slice(k + 1).some(y => !orthogonal[x]![y]))) {
+            if (
+              copied.some((x, k) =>
+                copied.slice(k + 1).some(y => !orthogonal[x]![y]),
+              )
+            ) {
               wordsCopyingNonOrthogonal++
             }
           }
@@ -346,14 +438,21 @@ export default experiment({
     }
 
     const sumKernel = wholeKernel(sum, 1)
+
     let sumMismatches = 0
 
     for (let c = 0; c < 81; c++) {
       const [a1, b1, a2, b2] = Array.from(two.trits[c] ?? [])
-      const image = 9 * (3 * (a1 ?? 0) + (((b1 ?? 0) - (b2 ?? 0) + 3) % 3)) + 3 * (((a1 ?? 0) + (a2 ?? 0)) % 3) + (b2 ?? 0)
+      const image =
+        9 * (3 * (a1 ?? 0) + (((b1 ?? 0) - (b2 ?? 0) + 3) % 3)) +
+        3 * (((a1 ?? 0) + (a2 ?? 0)) % 3) +
+        (b2 ?? 0)
 
       for (let r = 0; r < 81; r++) {
-        sumMismatches += (sumKernel?.kernel[r]?.[c] ?? 0) !== (r === image ? 1 : 0) ? 1 : 0
+        sumMismatches +=
+          (sumKernel?.kernel[r]?.[c] ?? 0) !== (r === image ? 1 : 0)
+            ? 1
+            : 0
       }
     }
 
@@ -371,11 +470,21 @@ export default experiment({
       if (i === inputs.length - 1) {
         const joint = Array.from(out, w => BigInt(w))
 
-        strangeJointFears = joint.reduce((s, w) => s + (w < 0n ? -w : 0n), 0n)
-        strangeInputFears = productWeights(x, basis0).reduce((s, w) => s + (w < 0n ? -w : 0n), 0n)
+        strangeJointFears = joint.reduce(
+          (s, w) => s + (w < 0n ? -w : 0n),
+          0n,
+        )
+
+        strangeInputFears = productWeights(x, basis0).reduce(
+          (s, w) => s + (w < 0n ? -w : 0n),
+          0n,
+        )
 
         for (const keep of [0, 1]) {
-          strangeCopyFears += marginalOf(joint, 2, [keep]).reduce((s, w) => s + (w < 0n ? -w : 0n), 0n)
+          strangeCopyFears += marginalOf(joint, 2, [keep]).reduce(
+            (s, w) => s + (w < 0n ? -w : 0n),
+            0n,
+          )
         }
       }
     })
@@ -390,9 +499,16 @@ export default experiment({
 
       return out
     }
+
     const basis1 = roleWeights('basis1')
-    const plus = stabilizer.find(w => overlapOf(w, basis0)[0] !== 0n && overlapOf(w, basis0)[0] !== overlapOf(w, basis0)[1]) ?? basis1
+    const plus =
+      stabilizer.find(
+        w =>
+          overlapOf(w, basis0)[0] !== 0n &&
+          overlapOf(w, basis0)[0] !== overlapOf(w, basis0)[1],
+      ) ?? basis1
     const before = overlapOf(basis0, plus)
+
     let afterNum = 0n
 
     diagonal(basis0).forEach((w, i) => {
@@ -400,10 +516,19 @@ export default experiment({
     })
 
     // two-role overlap is 9 sum w1 w2 / (N1 N2)
-    const pointwiseChangesOverlap = 9n * afterNum * before[1] !== before[0] * units(basis0) * units(plus)
+    const pointwiseChangesOverlap =
+      9n * afterNum * before[1] !==
+      before[0] * units(basis0) * units(plus)
     const points2 = phasePointOperators(2)
     const copied0 = diagonal(basis0)
-    const pointwiseMinEigen = hermitianSpectrum(operatorFromWigner(copied0.map(x => Number(x) / Number(units(copied0))), points2))[0] ?? 0
+    const pointwiseMinEigen =
+      hermitianSpectrum(
+        operatorFromWigner(
+          copied0.map(x => Number(x) / Number(units(copied0))),
+          points2,
+        ),
+      )[0] ?? 0
+
     let formBroken = 0
 
     for (let u = 0; u < 9; u++) {
@@ -415,16 +540,32 @@ export default experiment({
       }
     }
 
-    const g1 = kernelFailures === 0 && kernelsChecked === 324 && movesPermute && overlapChanges === 0 && beatsCompared > 0
+    const g1 =
+      kernelFailures === 0 &&
+      kernelsChecked === 324 &&
+      movesPermute &&
+      overlapChanges === 0 &&
+      beatsCompared > 0
     const g2 = largestOrthogonalSet === 3 && nonTrivialPairs > 0
-    const g3 = wordsCopyingNonOrthogonal === 0 && mostCopied <= 3 && words === 23328
-    const g4 = sumMismatches === 0 && sumCopies === 3 && strangeJointFears === strangeInputFears && strangeInputFears > 0n && strangeCopyFears === 0n
-    const g5 = pointwiseChangesOverlap && pointwiseMinEigen < -1e-9 && formBroken > 0
+    const g3 =
+      wordsCopyingNonOrthogonal === 0 &&
+      mostCopied <= 3 &&
+      words === 23328
+    const g4 =
+      sumMismatches === 0 &&
+      sumCopies === 3 &&
+      strangeJointFears === strangeInputFears &&
+      strangeInputFears > 0n &&
+      strangeCopyFears === 0n
+    const g5 =
+      pointwiseChangesOverlap &&
+      pointwiseMinEigen < -1e-9 &&
+      formBroken > 0
 
     return verdict({
       status: g1 && g2 && g3 && g4 && g5 ? 'pass' : 'fail',
       claim:
-        'every kernel the knit uses is orthogonal up to its divisor and every link a permutation, so every beat keeps the overlap of two wholes exactly (0 changes on the knit\'s histories) and a copier, which squares it, cannot exist for two non-orthogonal inputs; no two-meeting word copies such a pair, while SUM, the stream\'s copy, copies the role trit of the 3 basis states only and leaves each copy of a Strange role with 0 fears; copying the phase point itself breaks the symplectic form and makes non-states',
+        "every kernel the knit uses is orthogonal up to its divisor and every link a permutation, so every beat keeps the overlap of two wholes exactly (0 changes on the knit's histories) and a copier, which squares it, cannot exist for two non-orthogonal inputs; no two-meeting word copies such a pair, while SUM, the stream's copy, copies the role trit of the 3 basis states only and leaves each copy of a Strange role with 0 fears; copying the phase point itself breaks the symplectic form and makes non-states",
       metrics: {
         gateInvariant: g1 ? 1 : 0,
         gateCloningCondition: g2 ? 1 : 0,
@@ -456,8 +597,8 @@ export default experiment({
         pointwiseChangesOverlap: pointwiseChangesOverlap ? 1 : 0,
       },
       notes:
-        'First run 2026-09-26: every gate passed as fixed. The 13 inputs\' pairwise overlaps take the three values 0, 1/3 and 1/2, and 62 of the 78 pairs are neither 0 nor 1. No two-meeting word copies even one orthogonal pair (the most any word copies is 1 input, its own blank); only SUM, the stream\'s flow update, copies 3. The first run\'s controls also printed that list as one encoded number, removed after it as unreadable; nothing else changed.' +
-        'L2. The theorem is the invariant; the words and histories check it on the model\'s own kernels, and the pointwise copy shows the check can fail. The love-fear kernel is read in the love frame (the stored kernel conjugated on its second coordinate), where it is the Wigner kernel of the singlet phase itself. A single history (one joint point) is classical and SUM copies its role coordinate, but the signed weight over histories is never copied: the Strange role\'s fears stay in the joint whole, in the correlation, and neither copy holds one.',
+        "First run 2026-09-26: every gate passed as fixed. The 13 inputs' pairwise overlaps take the three values 0, 1/3 and 1/2, and 62 of the 78 pairs are neither 0 nor 1. No two-meeting word copies even one orthogonal pair (the most any word copies is 1 input, its own blank); only SUM, the stream's flow update, copies 3. The first run's controls also printed that list as one encoded number, removed after it as unreadable; nothing else changed." +
+        "L2. The theorem is the invariant; the words and histories check it on the model's own kernels, and the pointwise copy shows the check can fail. The love-fear kernel is read in the love frame (the stored kernel conjugated on its second coordinate), where it is the Wigner kernel of the singlet phase itself. A single history (one joint point) is classical and SUM copies its role coordinate, but the signed weight over histories is never copied: the Strange role's fears stay in the joint whole, in the correlation, and neither copy holds one.",
     })
   },
 })

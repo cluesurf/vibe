@@ -78,15 +78,34 @@ export default experiment({
   run() {
     const s = lightSurvey(what => console.error(what))
     const { husk, clock, metric } = s
-    const wraps = s.huskU0.wraps.angle + s.huskU0.wraps.field + s.huskU0.wraps.potential + s.huskLens.wraps.angle + s.huskLens.wraps.field + s.huskLens.wraps.potential
+    const wraps =
+      s.huskU0.wraps.angle +
+      s.huskU0.wraps.field +
+      s.huskU0.wraps.potential +
+      s.huskLens.wraps.angle +
+      s.huskLens.wraps.field +
+      s.huskLens.wraps.potential
     const falls = [...husk.fall, ...metric.fall]
-    const instrument = s.field.reversed && husk.reversed && clock.reversed && metric.reversed && wraps === 0 && falls.every(f => f.reversed)
-    const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
+    const instrument =
+      s.field.reversed &&
+      husk.reversed &&
+      clock.reversed &&
+      metric.reversed &&
+      wraps === 0 &&
+      falls.every(f => f.reversed)
+    const within = (x: number, want: number, tol: number): boolean =>
+      Math.abs(x / want - 1) <= tol
 
-    const l2 = within(husk.measuredDelay, husk.eikonalDelay, 0.02) && within(clock.measuredDelay, clock.eikonalDelay, 0.05) && within(metric.measuredDelay, metric.eikonalDelay, 0.05)
-    const l3 = within(clock.factor, clock.closedFactor, 0.05) && within(metric.factor, metric.closedFactor, 0.05)
+    const l2 =
+      within(husk.measuredDelay, husk.eikonalDelay, 0.02) &&
+      within(clock.measuredDelay, clock.eikonalDelay, 0.05) &&
+      within(metric.measuredDelay, metric.eikonalDelay, 0.05)
+    const l3 =
+      within(clock.factor, clock.closedFactor, 0.05) &&
+      within(metric.factor, metric.closedFactor, 0.05)
     const l4 = within(husk.factor, metric.closedFactor, 0.1)
-    const status = !instrument || !l3 ? 'partial' : l2 && l4 ? 'pass' : 'fail'
+    const status =
+      !instrument || !l3 ? 'partial' : l2 && l4 ? 'pass' : 'fail'
     // the weak-field reading: the factor over the clock-only closed value is how far the light is from 1 in units of
     // this staircase's nonlinearity; times the clock form's weak value 1
     const weak = husk.factor / husk.closedFactor
@@ -132,7 +151,10 @@ export default experiment({
       status,
       claim: `through the radion's own slab (depth ${Math.min(...s.field.depth)} .. ${Math.max(...s.field.depth)}, count coupling b = a) the husk light is delayed ${f(husk.measuredDelay)} beats between x = ${LENS_DETECTORS[0]} and ${LENS_DETECTORS[LENS_DETECTORS.length - 1]} against its eikonal ${f(husk.eikonalDelay)}; a slow lump in the same field falls at ${f(husk.pullScale)} of its predicted clock pull, so the Newtonian count is ${f(husk.countDelay)} beats and the light's factor is ${f(husk.factor)}, against ${f(husk.closedFactor)} for a clock-only arena (1 in weak field) and ${f(metric.closedFactor)} for equal time and space parts (2 in weak field); the controls read ${f(clock.factor)} (clock form, closed ${f(clock.closedFactor)}) and ${f(metric.factor)} (metric form, closed ${f(metric.closedFactor)})`,
       metrics,
-      control: { clockFactor: clock.factor, metricFactor: metric.factor },
+      control: {
+        clockFactor: clock.factor,
+        metricFactor: metric.factor,
+      },
       notes: `L2. Gates L2 ${l2}, L3 ${l3}, L4 ${l4}; instrument ${instrument}. Husk arrivals uniform ${husk.uniformArrivals.map(x => x.toFixed(2)).join(' ')}, lens ${husk.arrivals.map(x => x.toFixed(2)).join(' ')}; clock wave uniform ${clock.uniformArrivals.map(x => x.toFixed(2)).join(' ')}, lens ${clock.arrivals.map(x => x.toFixed(2)).join(' ')}; metric wave uniform ${metric.uniformArrivals.map(x => x.toFixed(2)).join(' ')}, lens ${metric.arrivals.map(x => x.toFixed(2)).join(' ')} at x = ${LENS_DETECTORS.join(', ')}. Falls (measured, predicted): ${falls.map(x => `${x.form} m ${x.m} ${e(x.g)} ${e(x.gPredicted)}`).join('; ')}. Depth along x (every 8): ${s.field.depth.filter((_, i) => i % 8 === 0).join(' ')}. A point lump of M = ${LUMP_28} is deeper than half a level only inside r = ${f(LUMP_28 / (12 * Math.PI))}; the Fresnel scale is ${f(FRESNEL)}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

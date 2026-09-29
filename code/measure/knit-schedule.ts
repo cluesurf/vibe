@@ -17,38 +17,80 @@
 // Integers only in the census reading. The spin checks use code/rule/spinor-token's 4 x 4 matrices, whose entries
 // are 0, +-1 and +-i, so their products are exact in floating point.
 
-import { planeInvariants, epsilonOf, PLANES, type Axis, type PlaneInvariants } from '@/code/measure/g-two-census'
-import { bouncePermutation, BOUNCE_TABLE, type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
-import { pairMove, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  planeInvariants,
+  epsilonOf,
+  PLANES,
+  type Axis,
+  type PlaneInvariants,
+} from '@/code/measure/g-two-census'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+  type CollisionKind,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
+import {
+  pairMove,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
-import { multiply4, scheduleSymbol, stepGenerator, type Matrix4, type Step } from '@/code/rule/spinor-token'
+import {
+  multiply4,
+  scheduleSymbol,
+  stepGenerator,
+  type Matrix4,
+  type Step,
+} from '@/code/rule/spinor-token'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 function permutationsOf<T>(items: readonly T[]): T[][] {
-  if (items.length <= 1) return [[...items]]
+  if (items.length <= 1) {
+    return [[...items]]
+  }
 
   const out: T[][] = []
 
   items.forEach((item, i) => {
-    for (const rest of permutationsOf([...items.slice(0, i), ...items.slice(i + 1)])) out.push([item, ...rest])
+    for (const rest of permutationsOf([
+      ...items.slice(0, i),
+      ...items.slice(i + 1),
+    ])) {
+      out.push([item, ...rest])
+    }
   })
 
   return out
 }
 
-export type OrderedReading = { readonly order: string; readonly planes: readonly PlaneInvariants[] }
+export type OrderedReading = {
+  readonly order: string
+  readonly planes: readonly PlaneInvariants[]
+}
 
 // every order of the streams inside each beat, read by the census (beats: per beat the axes streamed in it; beat j
 // has n_j = j + 1; total = the period's beat count)
-export function orderedReadings(beats: readonly (readonly Axis[])[], total: number): OrderedReading[] {
+export function orderedReadings(
+  beats: readonly (readonly Axis[])[],
+  total: number,
+): OrderedReading[] {
   let orders: Axis[][][] = [[]]
 
   for (const axes of beats) {
     const next: Axis[][][] = []
 
-    for (const prefix of orders) for (const p of permutationsOf(axes)) next.push([...prefix, p])
+    for (const prefix of orders) {
+      for (const p of permutationsOf(axes)) {
+        next.push([...prefix, p])
+      }
+    }
 
     orders = next
   }
@@ -67,8 +109,12 @@ export function orderedReadings(beats: readonly (readonly Axis[])[], total: numb
     })
 
     return {
-      order: order.map(axes => axes.map(a => 'xyz'[a]).join('')).join('|'),
-      planes: PLANES.map(plane => planeInvariants({ axis, beat, count: axis.length, eps, plane })),
+      order: order
+        .map(axes => axes.map(a => 'xyz'[a]).join(''))
+        .join('|'),
+      planes: PLANES.map(plane =>
+        planeInvariants({ axis, beat, count: axis.length, eps, plane }),
+      ),
     }
   })
 }
@@ -83,13 +129,16 @@ export type SimultaneousReading = {
   readonly orderingFree: boolean
 }
 
-export function simultaneousReading(beats: readonly (readonly Axis[])[], total: number): SimultaneousReading {
+export function simultaneousReading(
+  beats: readonly (readonly Axis[])[],
+  total: number,
+): SimultaneousReading {
   const readings = orderedReadings(beats, total)
   const planes = PLANES.map((_, p) => {
     const sum = { a: 0, b: 0, c: 0, z: 0, aT: 0, bT: 0, cT: 0, zT: 0 }
 
     for (const r of readings) {
-      const v = r.planes[p] as PlaneInvariants
+      const v = r.planes[p]!
 
       sum.a += v.a
       sum.b += v.b
@@ -103,10 +152,13 @@ export function simultaneousReading(beats: readonly (readonly Axis[])[], total: 
 
     return sum
   })
-  const gcd = (x: number, y: number): number => (y === 0 ? Math.abs(x) : gcd(y, x % y))
+  const gcd = (x: number, y: number): number =>
+    y === 0 ? Math.abs(x) : gcd(y, x % y)
   const bowl = planes.map(v => 4 * v.a * v.b > 3 * v.c * v.c)
   const g2 = planes.map((v, i): [number, number] | undefined => {
-    if (!bowl[i]) return undefined
+    if (!bowl[i]) {
+      return undefined
+    }
 
     const num = 4 * v.z * v.z
     const den = 4 * v.a * v.b - 3 * v.c * v.c
@@ -115,7 +167,15 @@ export function simultaneousReading(beats: readonly (readonly Axis[])[], total: 
     return [num / d, den / d]
   })
 
-  return { orders: readings.length, planes, bowl, g2, orderingFree: planes.every(v => v.aT === 0 && v.bT === 0 && v.cT === 0 && v.zT === 0) }
+  return {
+    orders: readings.length,
+    planes,
+    bowl,
+    g2,
+    orderingFree: planes.every(
+      v => v.aT === 0 && v.bT === 0 && v.cT === 0 && v.zT === 0,
+    ),
+  }
 }
 
 // ---- a lone vibe keeps its slot ----
@@ -127,11 +187,21 @@ export function simultaneousReading(beats: readonly (readonly Axis[])[], total: 
 // vibe. So the knit's free token has no coin: it copies along its own root every beat. And on a dock with every held
 // line full, every collision carries each line onto itself (P = 0: w = -1, or -1 on the full lines).
 
-export type LoneCheck = { readonly docks: number; readonly moved: number; readonly fullDocks: number; readonly lineLeaks: number; readonly pairCases: number; readonly pairTouched: number }
+export type LoneCheck = {
+  readonly docks: number
+  readonly moved: number
+  readonly fullDocks: number
+  readonly lineLeaks: number
+  readonly pairCases: number
+  readonly pairTouched: number
+}
 
-export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'bounce', 'lone']): LoneCheck {
+export function loneKeepsSlot(
+  kinds: readonly CollisionKind[] = ['isometric', 'bounce', 'lone'],
+): LoneCheck {
   const vibe = new Int8Array(24)
   const out = new Int32Array(24)
+
   let docks = 0
   let moved = 0
   let fullDocks = 0
@@ -143,8 +213,8 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
 
       for (let l = 0; l < 12; l++) {
         if ((full >> l) & 1) {
-          vibe[LINE_FIRSTS[l] as number] = 1
-          vibe[LINE_SECONDS[l] as number] = -1
+          vibe[LINE_FIRSTS[l]!] = 1
+          vibe[LINE_SECONDS[l]!] = -1
         }
       }
 
@@ -152,19 +222,33 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
       fullDocks++
 
       if (bouncePermutation(BOUNCE_TABLE, kind, vibe, 0, out) !== 0) {
-        for (let d = 0; d < 24; d++) if (LINE_OF[out[d] as number] !== LINE_OF[d]) lineLeaks++
+        for (let d = 0; d < 24; d++) {
+          if (LINE_OF[out[d]!] !== LINE_OF[d]) {
+            lineLeaks++
+          }
+        }
       }
 
       for (let d = 0; d < 24; d++) {
-        if ((full >> (LINE_OF[d] as number)) & 1) continue
+        if ((full >> LINE_OF[d]!) & 1) {
+          continue
+        }
 
         for (const tone of [1, -1]) {
           vibe[d] = tone
           docks++
 
-          const kindOf = bouncePermutation(BOUNCE_TABLE, kind, vibe, 0, out)
+          const kindOf = bouncePermutation(
+            BOUNCE_TABLE,
+            kind,
+            vibe,
+            0,
+            out,
+          )
 
-          if (kindOf !== 0 && out[d] !== d) moved++
+          if (kindOf !== 0 && out[d] !== d) {
+            moved++
+          }
 
           vibe[d] = 0
         }
@@ -173,7 +257,16 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
   }
 
   // the pair move on a dock holding one vibe, every store trit, points equal or not
-  const kernel: BounceKernel = { cells: 1, table: BOUNCE_TABLE, schedule: 'alternate', veto: true, collision: 'lone', target: new Int32Array(24), move: [] }
+  const kernel: BounceKernel = {
+    cells: 1,
+    table: BOUNCE_TABLE,
+    schedule: 'alternate',
+    veto: true,
+    collision: 'lone',
+    target: new Int32Array(24),
+    move: [],
+  }
+
   let pairCases = 0
   let pairTouched = 0
 
@@ -181,18 +274,33 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
     for (const tone of [1, -1]) {
       for (const tau of [-1, 0, 1]) {
         for (const samePoint of [true, false]) {
-          const s: Reduced = { vibe: new Int8Array(24), point: new Int8Array(24), store: new Int8Array(12), spoint: new Int8Array(12) }
+          const s: Reduced = {
+            vibe: new Int8Array(24),
+            point: new Int8Array(24),
+            store: new Int8Array(12),
+            spoint: new Int8Array(12),
+          }
 
           s.vibe[d] = tone
           s.point[d] = 3
-          s.store[LINE_OF[d] as number] = tau
-          s.spoint[LINE_OF[d] as number] = samePoint ? 3 : 5
+          s.store[LINE_OF[d]!] = tau
+          s.spoint[LINE_OF[d]!] = samePoint ? 3 : 5
 
-          const before = [...s.vibe, ...s.point, ...s.store, ...s.spoint].join(',')
+          const before = [
+            ...s.vibe,
+            ...s.point,
+            ...s.store,
+            ...s.spoint,
+          ].join(',')
 
           pairMove(kernel, s, 0)
           pairCases++
-          pairTouched += [...s.vibe, ...s.point, ...s.store, ...s.spoint].join(',') === before ? 0 : 1
+          pairTouched +=
+            [...s.vibe, ...s.point, ...s.store, ...s.spoint].join(
+              ',',
+            ) === before
+              ? 0
+              : 1
         }
       }
     }
@@ -205,26 +313,61 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
 
 const SIGMA: Record<'x' | 'y' | 'z', Matrix4> = {
   // 1 (x) sigma on the index 2 slot + spin
-  x: spinOperator([[0, 0], [1, 0], [1, 0], [0, 0]]),
-  y: spinOperator([[0, 0], [0, -1], [0, 1], [0, 0]]),
-  z: spinOperator([[1, 0], [0, 0], [0, 0], [-1, 0]]),
+  x: spinOperator([
+    [0, 0],
+    [1, 0],
+    [1, 0],
+    [0, 0],
+  ]),
+  y: spinOperator([
+    [0, 0],
+    [0, -1],
+    [0, 1],
+    [0, 0],
+  ]),
+  z: spinOperator([
+    [1, 0],
+    [0, 0],
+    [0, 0],
+    [-1, 0],
+  ]),
 }
 
 function spinOperator(s: [number, number][]): Matrix4 {
-  const out: Matrix4 = Array.from({ length: 16 }, () => [0, 0] as [number, number])
+  const out: Matrix4 = Array.from(
+    { length: 16 },
+    () => [0, 0] as [number, number],
+  )
 
   for (let slot = 0; slot < 2; slot++) {
     for (let a = 0; a < 2; a++) {
-      for (let b = 0; b < 2; b++) out[(2 * slot + a) * 4 + (2 * slot + b)] = s[a * 2 + b] as [number, number]
+      for (let b = 0; b < 2; b++) {
+        out[(2 * slot + a) * 4 + (2 * slot + b)] = s[a * 2 + b]!
+      }
     }
   }
 
   return out
 }
 
-const norm = (m: Matrix4): number => Math.max(...m.map(v => Math.hypot(v[0], v[1])))
-const minus = (a: Matrix4, b: Matrix4): Matrix4 => a.map((v, i) => [v[0] - (b[i] as [number, number])[0], v[1] - (b[i] as [number, number])[1]] as [number, number])
-const plus = (a: Matrix4, b: Matrix4): Matrix4 => a.map((v, i) => [v[0] + (b[i] as [number, number])[0], v[1] + (b[i] as [number, number])[1]] as [number, number])
+const norm = (m: Matrix4): number =>
+  Math.max(...m.map(v => Math.hypot(v[0], v[1])))
+const minus = (a: Matrix4, b: Matrix4): Matrix4 =>
+  a.map(
+    (v, i) =>
+      [
+        v[0] - (b[i] as [number, number])[0],
+        v[1] - (b[i] as [number, number])[1],
+      ] as [number, number],
+  )
+const plus = (a: Matrix4, b: Matrix4): Matrix4 =>
+  a.map(
+    (v, i) =>
+      [
+        v[0] + (b[i] as [number, number])[0],
+        v[1] + (b[i] as [number, number])[1],
+      ] as [number, number],
+  )
 
 export type SteeringCheck = {
   // |Gamma_a Gamma_b + Gamma_b Gamma_a| for the locked generators of two different axes (0: they anticommute)
@@ -239,12 +382,16 @@ export type SteeringCheck = {
   readonly lockedSpinCommutator: number
 }
 
-export function steeringCheck(schedules: readonly (readonly Step[])[], ks: readonly (readonly number[])[]): SteeringCheck {
+export function steeringCheck(
+  schedules: readonly (readonly Step[])[],
+  ks: readonly (readonly number[])[],
+): SteeringCheck {
   const pairs: ['x' | 'y' | 'z', 'x' | 'y' | 'z'][] = [
     ['x', 'y'],
     ['y', 'z'],
     ['z', 'x'],
   ]
+
   let lockedAnticommutator = 0
   let lockedCommutator = Number.POSITIVE_INFINITY
   let spectatorCommutator = 0
@@ -255,9 +402,20 @@ export function steeringCheck(schedules: readonly (readonly Step[])[], ks: reado
     const sa = stepGenerator(a, 'spectator')
     const sb = stepGenerator(b, 'spectator')
 
-    lockedAnticommutator = Math.max(lockedAnticommutator, norm(plus(multiply4(la, lb), multiply4(lb, la))))
-    lockedCommutator = Math.min(lockedCommutator, norm(minus(multiply4(la, lb), multiply4(lb, la))))
-    spectatorCommutator = Math.max(spectatorCommutator, norm(minus(multiply4(sa, sb), multiply4(sb, sa))))
+    lockedAnticommutator = Math.max(
+      lockedAnticommutator,
+      norm(plus(multiply4(la, lb), multiply4(lb, la))),
+    )
+
+    lockedCommutator = Math.min(
+      lockedCommutator,
+      norm(minus(multiply4(la, lb), multiply4(lb, la))),
+    )
+
+    spectatorCommutator = Math.max(
+      spectatorCommutator,
+      norm(minus(multiply4(sa, sb), multiply4(sb, sa))),
+    )
   }
 
   let spectatorSpinCommutator = 0
@@ -269,11 +427,24 @@ export function steeringCheck(schedules: readonly (readonly Step[])[], ks: reado
       const ul = scheduleSymbol(schedule, 'locked', k)
 
       for (const s of Object.values(SIGMA)) {
-        spectatorSpinCommutator = Math.max(spectatorSpinCommutator, norm(minus(multiply4(us, s), multiply4(s, us))))
-        lockedSpinCommutator = Math.max(lockedSpinCommutator, norm(minus(multiply4(ul, s), multiply4(s, ul))))
+        spectatorSpinCommutator = Math.max(
+          spectatorSpinCommutator,
+          norm(minus(multiply4(us, s), multiply4(s, us))),
+        )
+
+        lockedSpinCommutator = Math.max(
+          lockedSpinCommutator,
+          norm(minus(multiply4(ul, s), multiply4(s, ul))),
+        )
       }
     }
   }
 
-  return { lockedAnticommutator, lockedCommutator, spectatorCommutator, spectatorSpinCommutator, lockedSpinCommutator }
+  return {
+    lockedAnticommutator,
+    lockedCommutator,
+    spectatorCommutator,
+    spectatorSpinCommutator,
+    lockedSpinCommutator,
+  }
 }

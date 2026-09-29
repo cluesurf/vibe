@@ -30,7 +30,7 @@ import {
   clockAmplitude,
   phaseDegrees,
 } from '@/code/measure/clock-amplitude'
-import { pairAbs2, pairSub } from '@/code/algebra/linear/complex-pair'
+import { pairSub } from '@/code/algebra/linear/complex-pair'
 
 const ROOT3 = Math.sqrt(3)
 const SIDE = 13
@@ -70,6 +70,7 @@ export default experiment({
     ): { re: number[]; im: number[] } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const re: number[] = []
       const im: number[] = []
 

@@ -68,9 +68,8 @@ const PERMS: [Tone, Tone, Tone][] = [
 // the named elements, located in the tables rather than typed as indices
 const permIndex = (want: [Tone, Tone, Tone]): number =>
   PERMS.findIndex(p => p.join(',') === want.join(','))
-const groupIndex = (
-  want: [number, number, number, number],
-): number => GROUP.findIndex(g => g.join(',') === want.join(','))
+const groupIndex = (want: [number, number, number, number]): number =>
+  GROUP.findIndex(g => g.join(',') === want.join(','))
 
 const IDENTITY_PERM = permIndex([-1, 0, 1])
 const NEGATION_PERM = permIndex([1, 0, -1])
@@ -109,9 +108,9 @@ function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
   const mod = (a: number): number => ((a % SIDE) + SIDE) % SIDE
 
   const patterns: ((i: number) => Tone)[] = [
-    i => ((((i * 5 + (i % 11)) % 3) - 1) as Tone),
-    i => ((((i * i + 2 * i) % 3) - 1) as Tone),
-    i => ((((i * 11 + (i % 7) * 2) % 3) - 1) as Tone),
+    i => (((i * 5 + (i % 11)) % 3) - 1) as Tone,
+    i => (((i * i + 2 * i) % 3) - 1) as Tone,
+    i => (((i * 11 + (i % 7) * 2) % 3) - 1) as Tone,
   ]
   const states = patterns.map(pattern => {
     const will = makeWill(mesh)
@@ -178,8 +177,7 @@ function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
 
             const tone = w.data[cell * mesh.degree + d]!
 
-            out.data[target * mesh.degree + d2] =
-              PERMS[pi]![tone + 1]!
+            out.data[target * mesh.degree + d2] = PERMS[pi]![tone + 1]!
           }
         }
 
@@ -195,8 +193,10 @@ function sweep(input: { rule: Collision; inverse: Collision }): Hit[] {
 
           if (
             symOk &&
-            hamming(lhs, transform(beat(fresh(s), input.rule), useT)) !==
-              0
+            hamming(
+              lhs,
+              transform(beat(fresh(s), input.rule), useT),
+            ) !== 0
           ) {
             symOk = false
           }
@@ -283,9 +283,7 @@ export default experiment({
       traveller.length === 2 &&
       has(traveller, IDENTITY_PERM, IDENTITY_G, false, 'sym') &&
       has(traveller, IDENTITY_PERM, X_MIRROR_G, true, 'rev')
-    const travellerNoC = traveller.every(
-      h => h.perm === IDENTITY_PERM,
-    )
+    const travellerNoC = traveller.every(h => h.perm === IDENTITY_PERM)
 
     const ok =
       momentumMaximal &&

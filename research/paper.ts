@@ -147,7 +147,7 @@ export const ERRATA: Erratum[] = [
   {
     paper: '0014',
     claim: 'a tone is a value held at a site',
-    code: 'neither paper says the vacuum of the pair table, the committed knit when they were written, is a global period-three flash, so a lone vibe is a defect on a flashing background (E-FND-0080). The committed turning weave\'s vacuum recurs at beat 24 (E-FND-0118)',
+    code: "neither paper says the vacuum of the pair table, the committed knit when they were written, is a global period-three flash, so a lone vibe is a defect on a flashing background (E-FND-0080). The committed turning weave's vacuum recurs at beat 24 (E-FND-0118)",
     label: 'an omission, now measured',
   },
 ]

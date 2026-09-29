@@ -58,10 +58,8 @@ function makeKnit(input: {
   return (slots, base) => {
     for (let k = 0; k < input.couples.length; k++) {
       const [line, wire] = input.couples[k]!
-      const loneAway = (a: Tone, b: Tone): boolean =>
-        a === 0 && b !== 0
-      const empty = (a: Tone, b: Tone): boolean =>
-        a === 0 && b === 0
+      const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+      const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
 
       const swap = (): void => {
         const a0 = slots[base + line[0]]! as Tone
@@ -181,11 +179,12 @@ export default experiment({
       const rule11 = makeKnit({ couples: couples11, swapSet: [0] })
       const coord11 = (c: number, a: number): number =>
         Math.floor(c / side ** a) % side
-      const birth = (c: number): number =>
-        coord11(c, 1) < 5 ? 0 : 1
+      const birth = (c: number): number => (coord11(c, 1) < 5 ? 0 : 1)
+
       let two: Will = makeWill(mesh11)
       let vacuumA: Will = makeWill(mesh11)
       let vacuumB: Will = makeWill(mesh11)
+
       const series: number[] = []
 
       for (let t = 0; t < 90; t++) {
@@ -213,7 +212,8 @@ export default experiment({
       return {
         levels: [...new Set(settled11)].sort((a, b) => a - b),
         period12: settled11.every(
-          (v, i) => i + 12 >= settled11.length || v === settled11[i + 12],
+          (v, i) =>
+            i + 12 >= settled11.length || v === settled11[i + 12],
         ),
       }
     })()
@@ -374,9 +374,7 @@ export default experiment({
       },
       // CONTROL: the all-swaps knit, whose late blend is what the one-swap periodicity avoids
       control: {
-        wallToBlendRatio: Number(
-          (oneSwapMax / allSwapsMax).toFixed(3),
-        ),
+        wallToBlendRatio: Number((oneSwapMax / allSwapsMax).toFixed(3)),
       },
       notes:
         'the linear cost law measured en route: at the matched beat the wall fraction stepped 0.083, 0.148, 0.148, 0.213, 0.278 as zero, one, one, two, three wall-axis-bearing swap wires were added (swaps avoiding the axis added nothing), and two swaps stayed bounded over ninety beats but lost the exact periodicity. The sampling-phase rule joins the window and group-sweep rules: an earlier constant-looking series was an artifact of sampling at one phase of a long oscillation. The overlap-balanced pairing is canonical by two criteria that future couples inherit: plane-balanced wires for isotropy and shared-axis couples for detectability.',

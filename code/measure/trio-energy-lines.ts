@@ -33,17 +33,50 @@
 // per-entry register is exact integers.
 
 import { LINE_FIRSTS, LINE_OF } from '@/code/rule/isometric-knit'
-import { lockedNorm, sameConfiguration, type Branch, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedNorm,
+  sameConfiguration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
-import { boundBeat, boundBeatBack, boundStart, type BoundOptions, type BoundState } from '@/code/rule/bound-line-pieces'
+import {
+  boundBeat,
+  boundBeatBack,
+  boundStart,
+  type BoundOptions,
+  type BoundState,
+} from '@/code/rule/bound-line-pieces'
 import { divergence, stepDepth } from '@/code/rule/step-depth'
 import { radionMesh } from '@/code/rule/trit-radion'
-import { bulkLinks, huskCast, shellMeans, staticDepth, type HuskCast } from '@/code/measure/energy-lines'
-import { pointBeatWith, readBound, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { fitRing, type AxisRing, type Placed, type PointLove } from '@/code/measure/held-cluster'
-import { placeCutFramed, placeExactFramed, windowContext, type LineGauge } from '@/code/measure/permutation-meeting'
+import {
+  bulkLinks,
+  huskCast,
+  shellMeans,
+  staticDepth,
+  type HuskCast,
+} from '@/code/measure/energy-lines'
+import {
+  pointBeatWith,
+  readBound,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  fitRing,
+  type AxisRing,
+  type Placed,
+  type PointLove,
+} from '@/code/measure/held-cluster'
+import {
+  placeCutFramed,
+  placeExactFramed,
+  windowContext,
+  type LineGauge,
+} from '@/code/measure/permutation-meeting'
 
 type C = [number, number]
+
 const weightOf = (a: C): number => a[0] ** 2 + a[1] ** 2
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
@@ -53,41 +86,82 @@ export type RingLinks = { L: number; line: number; bulk: Int32Array }
 
 // ring link k (position k to k + 1) is the bulk link of dock k along the ring's line; the drag of dragLines on a ring
 // love lands on these links only when every first slot's source is the dock behind it, which is checked
-export function ringLinks(tables: LockedTables, ring: AxisRing): RingLinks {
+export function ringLinks(
+  tables: LockedTables,
+  ring: AxisRing,
+): RingLinks {
   const L = ring.docks.length
-  const line = LINE_OF[ring.first] as number
+  const line = LINE_OF[ring.first]!
 
-  if (LINE_FIRSTS[line] !== ring.first) throw new Error('trio-energy-lines: the ring streams forward along its line first slot')
-
-  for (let x = 0; x < L; x++) {
-    const here = ring.docks[x] as number
-    const from = Math.floor((tables.source[here * 24 + ring.first] as number) / 24)
-
-    if (from !== ring.docks[mod(x - 1, L)]) throw new Error('trio-energy-lines: a first slot on the ring is not taken from the dock behind it')
+  if (LINE_FIRSTS[line] !== ring.first) {
+    throw new Error(
+      'trio-energy-lines: the ring streams forward along its line first slot',
+    )
   }
 
-  return { L, line, bulk: Int32Array.from(ring.docks, d => d * 12 + line) }
+  for (let x = 0; x < L; x++) {
+    const here = ring.docks[x]!
+    const from = Math.floor(tables.source[here * 24 + ring.first]! / 24)
+
+    if (from !== ring.docks[mod(x - 1, L)]) {
+      throw new Error(
+        'trio-energy-lines: a first slot on the ring is not taken from the dock behind it',
+      )
+    }
+  }
+
+  return {
+    L,
+    line,
+    bulk: Int32Array.from(ring.docks, d => d * 12 + line),
+  }
 }
 
 // the drag of one post-stream love, E-GRV-0106's rule (dragLines, sense -1) on the ring's links, weighted
-export function dragLove(L: number, t: { x: number; j: number }, out: Float64Array, w: number): void {
-  if (t.j === 0) out[mod(t.x - 1, L)]! -= w
-  else out[t.x]! += w
+export function dragLove(
+  L: number,
+  t: { x: number; j: number },
+  out: Float64Array,
+  w: number,
+): void {
+  if (t.j === 0) {
+    out[mod(t.x - 1, L)]! -= w
+  } else {
+    out[t.x]! += w
+  }
 }
 
 // the cut link's forward crossings in one post-stream entry
-export const cutForward = (L: number, ts: readonly { x: number; j: number }[]): number => ts.reduce((a, t) => a + (t.j === 0 && t.x === 0 ? 1 : 0) - (t.j === 1 && t.x === L - 1 ? 1 : 0), 0)
+export const cutForward = (
+  L: number,
+  ts: readonly { x: number; j: number }[],
+): number =>
+  ts.reduce(
+    (a, t) =>
+      a +
+      (t.j === 0 && t.x === 0 ? 1 : 0) -
+      (t.j === 1 && t.x === L - 1 ? 1 : 0),
+    0,
+  )
 
 // an entry's integer lines from its positions and N (see the header): L(k) = Q(k) - N - n [k >= s]
-export function gaussLines(L: number, s: number, ts: readonly { x: number }[], N: number, out: Int32Array): Int32Array {
+export function gaussLines(
+  L: number,
+  s: number,
+  ts: readonly { x: number }[],
+  N: number,
+  out: Int32Array,
+): Int32Array {
   const n = new Int32Array(L)
 
-  for (const t of ts) n[t.x]!++
+  for (const t of ts) {
+    n[t.x]!++
+  }
 
   let Q = 0
 
   for (let k = 0; k < L; k++) {
-    Q += n[k] as number
+    Q += n[k]!
     out[k] = Q - N - (k >= s ? ts.length : 0)
   }
 
@@ -97,38 +171,64 @@ export function gaussLines(L: number, s: number, ts: readonly { x: number }[], N
 // ---- the husk ----
 
 // ring lines (per ring link) cast to husk links
-export function ringHuskFlux(links: RingLinks, cast: HuskCast, lines: Float64Array, out: Float64Array, weight = 1): void {
+export function ringHuskFlux(
+  links: RingLinks,
+  cast: HuskCast,
+  lines: Float64Array,
+  out: Float64Array,
+  weight = 1,
+): void {
   for (let k = 0; k < links.L; k++) {
-    const b = links.bulk[k] as number
+    const b = links.bulk[k]!
 
-    out[cast.link[b] as number]! += weight * (cast.sign[b] as number) * (lines[k] as number)
+    out[cast.link[b]!]! += weight * cast.sign[b]! * lines[k]!
   }
 }
 
 // least squares of y = a + k / r
-export function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+export function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const xs = rs.map(r => 1 / r)
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const k = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const k =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - k * mx, k }
 }
 
-export type DepthReading = { profile: number[]; k: number; curl: number; helmProfile: number[]; helmK: number; freeShare: number }
+export type DepthReading = {
+  profile: number[]
+  k: number
+  curl: number
+  helmProfile: number[]
+  helmK: number
+  freeShare: number
+}
 
 // G2's reading: the depth found by SUMMING the flux itself (code/rule/step-depth stepDepth, x_head = x_tail - F / g
 // along its fixed path), its profile x(r) - x(ref) about `col` and its 1/r fit on `fitR`; beside it E-GRV-0107's
 // reading, the divergence-fixed part (a Poisson solve), and the share of the flux that part leaves out
-export function depthReading(side: number, col: number, flux: Float64Array, ref: number, fitR: readonly number[]): DepthReading {
+export function depthReading(
+  side: number,
+  col: number,
+  flux: Float64Array,
+  ref: number,
+  fitR: readonly number[],
+): DepthReading {
   const mesh = radionMesh([side, side, side])
   const raw = stepDepth(mesh, flux)
   const depth = Float64Array.from(raw.twice, v => v / 2)
+
   const prof = (d: Float64Array): number[] => {
     const m = shellMeans(side, col, d)
 
-    return m.map(v => v - (m[ref] as number))
+    return m.map(v => v - m[ref]!)
   }
+
   const profile = prof(depth)
   const div = new Float64Array(mesh.docks)
 
@@ -136,20 +236,27 @@ export function depthReading(side: number, col: number, flux: Float64Array, ref:
 
   const helm = staticDepth(side, div)
   const helmProfile = prof(helm.depth)
+
   let num = 0
   let den = 0
 
   for (let l = 0; l < flux.length; l++) {
-    num += ((flux[l] as number) - (helm.flux[l] as number)) ** 2
-    den += (flux[l] as number) ** 2
+    num += (flux[l]! - helm.flux[l]!) ** 2
+    den += flux[l]! ** 2
   }
 
   return {
     profile,
-    k: inverseFit(fitR, fitR.map(r => profile[r] as number)).k,
+    k: inverseFit(
+      fitR,
+      fitR.map(r => profile[r]!),
+    ).k,
     curl: raw.curl,
     helmProfile,
-    helmK: inverseFit(fitR, fitR.map(r => helmProfile[r] as number)).k,
+    helmK: inverseFit(
+      fitR,
+      fitR.map(r => helmProfile[r]!),
+    ).k,
     freeShare: den > 0 ? Math.sqrt(num / den) : 0,
   }
 }
@@ -158,21 +265,34 @@ export function depthReading(side: number, col: number, flux: Float64Array, ref:
 
 export type Sectors = Map<number, CutState>
 
-function addEntry(out: CutState, key: string, e: { ts: PointLove[]; c: number; amp: C }): void {
+function addEntry(
+  out: CutState,
+  key: string,
+  e: { ts: PointLove[]; c: number; amp: C },
+): void {
   const o = out.get(key)
 
-  if (o) o.amp = [o.amp[0] + e.amp[0], o.amp[1] + e.amp[1]]
-  else out.set(key, { ts: e.ts, c: e.c, amp: [e.amp[0], e.amp[1]] })
+  if (o) {
+    o.amp = [o.amp[0] + e.amp[0], o.amp[1] + e.amp[1]]
+  } else {
+    out.set(key, { ts: e.ts, c: e.c, amp: [e.amp[0], e.amp[1]] })
+  }
 }
 
 // one beat of the ring form per N sector, every output entry re-keyed to N + its cut crossing
-export function sectorBeat(options: PieceOptions, tables: LockedTables, ring: AxisRing, state: Sectors): Sectors {
+export function sectorBeat(
+  options: PieceOptions,
+  tables: LockedTables,
+  ring: AxisRing,
+  state: Sectors,
+): Sectors {
   const L = ring.docks.length
   const out: Sectors = new Map()
 
   for (const [N, st] of state) {
     for (const [key, e] of pointBeatWith(options, tables, ring, st)) {
       const M = N + cutForward(L, e.ts)
+
       let m = out.get(M)
 
       if (!m) {
@@ -190,20 +310,40 @@ export function sectorBeat(options: PieceOptions, tables: LockedTables, ring: Ax
 export function sectorDensity(L: number, state: Sectors): Float64Array {
   const out = new Float64Array(L)
 
-  for (const st of state.values()) for (const { ts, amp } of st.values()) for (const t of ts) out[t.x]! += weightOf(amp)
+  for (const st of state.values()) {
+    for (const { ts, amp } of st.values()) {
+      for (const t of ts) {
+        out[t.x]! += weightOf(amp)
+      }
+    }
+  }
 
   return out
 }
 
 // what one beat's entries give: the expected drag, the expected Gauss register, the register's circulation moments,
 // the weight off N = 0, the largest per-entry |L|, and the Z3 residues L(l) - c - Q(l) mod 3 seen
-export type SectorReading = { drag: Float64Array; gauss: Float64Array; circulation: number; circulation2: number; offSector: number; largest: number; z3: Set<number> }
+export type SectorReading = {
+  drag: Float64Array
+  gauss: Float64Array
+  circulation: number
+  circulation2: number
+  offSector: number
+  largest: number
+  z3: Set<number>
+}
 
-export function readSectors(L: number, s: number, state: Sectors, withDrag: boolean): SectorReading {
+export function readSectors(
+  L: number,
+  s: number,
+  state: Sectors,
+  withDrag: boolean,
+): SectorReading {
   const drag = new Float64Array(L)
   const gauss = new Float64Array(L)
   const g = new Int32Array(L)
   const z3 = new Set<number>()
+
   let circulation = 0
   let circulation2 = 0
   let offSector = 0
@@ -213,60 +353,110 @@ export function readSectors(L: number, s: number, state: Sectors, withDrag: bool
     for (const { ts, c, amp } of st.values()) {
       const w = weightOf(amp)
 
-      if (withDrag) for (const t of ts) dragLove(L, t, drag, w)
+      if (withDrag) {
+        for (const t of ts) {
+          dragLove(L, t, drag, w)
+        }
+      }
+
       gaussLines(L, s, ts, N, g)
 
       let sum = 0
       let Q = 0
 
       for (let k = 0; k < L; k++) {
-        const v = g[k] as number
+        const v = g[k]!
 
         Q += ts.filter(t => t.x === k).length
         gauss[k]! += w * v
         sum += v
-        if (w > 1e-15) largest = Math.max(largest, Math.abs(v))
+
+        if (w > 1e-15) {
+          largest = Math.max(largest, Math.abs(v))
+        }
+
         z3.add(mod(v - c - Q, 3))
       }
 
       circulation += (w * sum) / L
-      circulation2 += (w * (sum / L) ** 2)
-      if (N !== 0) offSector += w
+      circulation2 += w * (sum / L) ** 2
+
+      if (N !== 0) {
+        offSector += w
+      }
     }
   }
 
-  return { drag, gauss, circulation, circulation2, offSector, largest, z3 }
+  return {
+    drag,
+    gauss,
+    circulation,
+    circulation2,
+    offSector,
+    largest,
+    z3,
+  }
 }
 
 // ---- the exact window: the lines on the rule's own branches ----
 
-export type ExactLines = { side: number; beats: number; branches: number[]; continuityOff: number; offRing: number; disturbed: number; leak: number; dragGap: number; reversed: boolean }
+export type ExactLines = {
+  side: number
+  beats: number
+  branches: number[]
+  continuityOff: number
+  offRing: number
+  disturbed: number
+  leak: number
+  dragGap: number
+  reversed: boolean
+}
 
 // the side-`side` exact window of E-GRV-0119's E0, run `beats` beats: on every branch at every beat, the loves' drag
 // (each love's source dock read from the rule's own stream table) equals the change of the Gauss register from the
 // source positions to the branch's, on every ring link but the reference, where it equals minus the crossing (the
 // continuity of the register, integers); the expected drag of the coherent reading equals the ring form's; the window
 // runs back to its start bit for bit
-export function exactLines(options: BoundOptions, side: number, beats: number, placed: readonly Placed[], P: number): ExactLines {
+export function exactLines(
+  options: BoundOptions,
+  side: number,
+  beats: number,
+  placed: readonly Placed[],
+  P: number,
+): ExactLines {
   const ctx = windowContext(side)
   const { f, ring, husk, L } = ctx
   const gauge: LineGauge = ctx.gauge
   const fit = fitRing(placed, L)
-  const s0 = boundStart(placeExactFramed(ctx.vac, ring, gauge, fit.kept, P, 'parallel'))
+  const s0 = boundStart(
+    placeExactFramed(ctx.vac, ring, gauge, fit.kept, P, 'parallel'),
+  )
   const startCut = placeCutFramed(gauge, fit.kept, P, 'parallel')
-  const n0 = lockedNorm({ branches: [...s0.values()].flatMap(x => x.branches) })
+  const n0 = lockedNorm({
+    branches: [...s0.values()].flatMap(x => x.branches),
+  })
   const c0 = ringCenterOf(L, startCut)
   const sink = mod(Math.round(c0) + L / 2, L)
-  const pieceOptions: PieceOptions = { ...options, unit: 0, flat: false }
+  const pieceOptions: PieceOptions = {
+    ...options,
+    unit: 0,
+    flat: false,
+  }
+
   let st: BoundState = s0
   let ps = startCut
-  let v: LockedState = { branches: [{ ...ctx.vac, a: 1n, b: 0n, k: 0 }] }
+  let v: LockedState = {
+    branches: [{ ...ctx.vac, a: 1n, b: 0n, k: 0 }],
+  }
+
   const branches: number[] = []
+
   let continuityOff = 0
   let offRing = 0
   let disturbed = 0
   let leak = 0
   let dragGap = 0
+
   const gb = new Int32Array(L)
   const gu = new Int32Array(L)
 
@@ -285,13 +475,21 @@ export function exactLines(options: BoundOptions, side: number, beats: number, p
         const was: { x: number }[] = []
 
         for (let i = 0; i < b.vibe.length; i++) {
-          if (b.vibe[i] === 0 || b.open[i] !== 1) continue
+          if (b.vibe[i] === 0 || b.open[i] !== 1) {
+            continue
+          }
 
           const x = ring.position.get(Math.floor(i / 24))
-          const y = ring.position.get(Math.floor((f.tables.source[i] as number) / 24))
+          const y = ring.position.get(
+            Math.floor(f.tables.source[i]! / 24),
+          )
           const d = i % 24
 
-          if (x === undefined || y === undefined || (d !== ring.first && d !== ring.second)) {
+          if (
+            x === undefined ||
+            y === undefined ||
+            (d !== ring.first && d !== ring.second)
+          ) {
             offRing++
             continue
           }
@@ -302,20 +500,27 @@ export function exactLines(options: BoundOptions, side: number, beats: number, p
 
         const drag = new Float64Array(L)
 
-        for (const u of now) dragLove(L, u, drag, 1)
+        for (const u of now) {
+          dragLove(L, u, drag, 1)
+        }
+
         gaussLines(L, sink, now, 0, gb)
         gaussLines(L, sink, was, 0, gu)
 
         const cross = cutForward(L, now)
 
         // g(., N) is g(., 0) - N on every link, so L_b - L_u = g(b, 0) - g(u, 0) - cross must be the drag everywhere
-        for (let k = 0; k < L; k++) if ((gb[k] as number) - (gu[k] as number) - cross !== (drag[k] as number)) continuityOff++
+        for (let k = 0; k < L; k++) {
+          if (gb[k]! - gu[k]! - cross !== drag[k]!) {
+            continuityOff++
+          }
+        }
       }
     }
 
     branches.push(count)
 
-    const r = readBound(st, ring, v.branches[0] as Branch, husk, n0)
+    const r = readBound(st, ring, v.branches[0]!, husk, n0)
     const exact = new Float64Array(L)
     const form = new Float64Array(L)
 
@@ -323,30 +528,60 @@ export function exactLines(options: BoundOptions, side: number, beats: number, p
     leak += r.leak
 
     for (const [key, w] of r.pointProbability) {
-      for (const part of (key.split('#')[0] as string).split('|')) {
+      for (const part of key.split('#')[0]!.split('|')) {
         const [x, j] = part.split(',').map(Number) as [number, number]
 
         dragLove(L, { x, j }, exact, w)
       }
     }
 
-    for (const { ts, amp } of ps.values()) for (const u of ts) dragLove(L, u, form, weightOf(amp))
-    for (let k = 0; k < L; k++) dragGap = Math.max(dragGap, Math.abs((exact[k] as number) - (form[k] as number)))
+    for (const { ts, amp } of ps.values()) {
+      for (const u of ts) {
+        dragLove(L, u, form, weightOf(amp))
+      }
+    }
+
+    for (let k = 0; k < L; k++) {
+      dragGap = Math.max(dragGap, Math.abs(exact[k]! - form[k]!))
+    }
   }
 
   let back = st
 
-  for (let t = beats - 1; t >= 0; t--) back = boundBeatBack(options, f.tables, ring, back, t)
+  for (let t = beats - 1; t >= 0; t--) {
+    back = boundBeatBack(options, f.tables, ring, back, t)
+  }
 
   const reversed =
     back.size === s0.size &&
     [...s0].every(([k, slice]) => {
       const got = back.get(k)
 
-      return got !== undefined && got.branches.length === slice.branches.length && slice.branches.every(b => got.branches.some(c => c.a === b.a && c.b === b.b && c.k === b.k && sameConfiguration(c, b)))
+      return (
+        got?.branches.length === slice.branches.length &&
+        slice.branches.every(b =>
+          got.branches.some(
+            c =>
+              c.a === b.a &&
+              c.b === b.b &&
+              c.k === b.k &&
+              sameConfiguration(c, b),
+          ),
+        )
+      )
     })
 
-  return { side, beats, branches, continuityOff, offRing, disturbed, leak, dragGap, reversed }
+  return {
+    side,
+    beats,
+    branches,
+    continuityOff,
+    offRing,
+    disturbed,
+    leak,
+    dragGap,
+    reversed,
+  }
 }
 
 // the circular mean position of a ring form's density
@@ -367,6 +602,9 @@ export function ringCenterOf(L: number, s: CutState): number {
 }
 
 // every husk link's cast, for a side's tables (bulkLinks + huskCast)
-export function ringCast(tables: LockedTables, husk: Parameters<typeof huskCast>[1]): HuskCast {
+export function ringCast(
+  tables: LockedTables,
+  husk: Parameters<typeof huskCast>[1],
+): HuskCast {
   return huskCast(bulkLinks(tables), husk)
 }

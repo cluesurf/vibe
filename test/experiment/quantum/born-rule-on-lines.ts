@@ -86,10 +86,25 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { fearKernels, meetingKernel, phaseMove, swapPhase, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, type KnotHistory } from '@/code/measure/knot-histories'
+import {
+  fearKernels,
+  meetingKernel,
+  phaseMove,
+  swapPhase,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  type KnotHistory,
+} from '@/code/measure/knot-histories'
 import { operatorFromWigner } from '@/code/measure/qutrit-clifford'
-import { phasePointOperators, tensorOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  phasePointOperators,
+  tensorOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import {
   LINE_CLASSES,
   cosetsOf,
@@ -110,20 +125,37 @@ const ROLE_LINE_0 = [0, 1, 2]
 const IDENTITY_TOLERANCE = 1e-9
 
 const roleOf = (p: number): number => Math.floor(p / 3)
-const roleShares = (m: readonly bigint[]): bigint[] => [0, 1, 2].map(a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n))
-const unitsOf = (w: Whole): bigint => w.weight.reduce((s, x) => s + x, 0n)
+const roleShares = (m: readonly bigint[]): bigint[] =>
+  [0, 1, 2].map(
+    a => (m[3 * a] ?? 0n) + (m[3 * a + 1] ?? 0n) + (m[3 * a + 2] ?? 0n),
+  )
+const unitsOf = (w: Whole): bigint =>
+  w.weight.reduce((s, x) => s + x, 0n)
 
 // a history's knot with the fear beat off (E-QTM-0113's fearOff): the same record, identity kernels
 function fearOff(h: KnotHistory): KnotHistory {
   const OFF = Math.PI
 
   return h.kernels.mode === 'swap'
-    ? { ...h, kernels: { mode: 'swap', kernel4: meetingKernel(swapPhase(OFF)) ?? [] } }
+    ? {
+        ...h,
+        kernels: {
+          mode: 'swap',
+          kernel4: meetingKernel(swapPhase(OFF)) ?? [],
+        },
+      }
     : {
         ...h,
         kernels: {
           mode: 'color',
-          color: h.name === 'qtm0100-color' ? fearKernels({ like: OFF, unlike: 0 })! : fearKernels({ like: 0, unlike: 0, likeExchanged: false })!,
+          color:
+            h.name === 'qtm0100-color'
+              ? fearKernels({ like: OFF, unlike: 0 })!
+              : fearKernels({
+                  like: 0,
+                  unlike: 0,
+                  likeExchanged: false,
+                })!,
         },
       }
 }
@@ -132,7 +164,7 @@ export default experiment({
   id: 'quantum/born-rule-on-lines',
   code: 'E-QTM-0130',
   title:
-    'the Born rule on lines: on every state six Bell histories reach, every line sum and every two-role stabilizer coset sum is a probability, the chance of one outcome of one Pauli measurement, while non-lines go negative; a SUM record\'s weight holds no fear, so its love share is the chance, but the model\'s deterministic starts still count only the fear-off chance; each record outcome leaves token and record on one line, the one-token image of a knot of three loves',
+    "the Born rule on lines: on every state six Bell histories reach, every line sum and every two-role stabilizer coset sum is a probability, the chance of one outcome of one Pauli measurement, while non-lines go negative; a SUM record's weight holds no fear, so its love share is the chance, but the model's deterministic starts still count only the fear-off chance; each record outcome leaves token and record on one line, the one-token image of a knot of three loves",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -162,9 +194,16 @@ export default experiment({
     for (let a = 0; a < 9; a++) {
       for (let b = a; b < 9; b++) {
         for (let c = b; c < 9; c++) {
-          const [va, vb, vc] = [a, b, c].map(pointVector) as [[number, number], [number, number], [number, number]]
+          const [va, vb, vc] = [a, b, c].map(pointVector) as [
+            [number, number],
+            [number, number],
+            [number, number],
+          ]
 
-          if ((va[0] + vb[0] + vc[0]) % 3 !== 0 || (va[1] + vb[1] + vc[1]) % 3 !== 0) {
+          if (
+            (va[0] + vb[0] + vc[0]) % 3 !== 0 ||
+            (va[1] + vb[1] + vc[1]) % 3 !== 0
+          ) {
             continue
           }
 
@@ -195,7 +234,15 @@ export default experiment({
       const projectors = lineProjectors(c.direction)
 
       for (const line of c.lines) {
-        const match = projectors.find(p => Math.abs(line.reduce((s, q) => s + traceProduct(p, one[q]!) / 3, 0) - 1) < IDENTITY_TOLERANCE)
+        const match = projectors.find(
+          p =>
+            Math.abs(
+              line.reduce(
+                (s, q) => s + traceProduct(p, one[q]!) / 3,
+                0,
+              ) - 1,
+            ) < IDENTITY_TOLERANCE,
+        )
 
         if (match) {
           projectorOf.set(line.join(','), match)
@@ -203,13 +250,28 @@ export default experiment({
       }
     }
 
-    const productProjectors = allLines.flatMap(la => allLines.map(lb => ({ la, lb, p: tensorOperators(projectorOf.get(la.join(','))!, projectorOf.get(lb.join(','))!) })))
+    const productProjectors = allLines.flatMap(la =>
+      allLines.map(lb => ({
+        la,
+        lb,
+        p: tensorOperators(
+          projectorOf.get(la.join(','))!,
+          projectorOf.get(lb.join(','))!,
+        ),
+      })),
+    )
     const planes = jointPlanes()
-    const isotropicCosets = planes.isotropic.flatMap(p => cosetsOf(p.points))
+    const isotropicCosets = planes.isotropic.flatMap(p =>
+      cosetsOf(p.points),
+    )
     const otherCosets = planes.other.flatMap(p => cosetsOf(p))
-    const readers = LINE_CLASSES.map(c => ({ c, ...readerPermutation(c.direction) }))
+    const readers = LINE_CLASSES.map(c => ({
+      c,
+      ...readerPermutation(c.direction),
+    }))
 
     const per: Record<string, number> = {}
+
     let identityWorst = 0
     let states = 0
     let lineNegative = 0
@@ -228,15 +290,19 @@ export default experiment({
       const off = fearOff(h)
       const supportA = [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k)
       const supportB = [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k)
+
       let w: Whole = lineKnot(h.tokens, supportA, supportB)
       let wOff: Whole = w
       // A's hidden point for each of the 9 support starts (B's never enters A's role or the record)
       let hiddenA = supportA.flatMap(a => supportB.map(() => a))
+
       const coordinateA = h.tokens[0]
+
       let historyLineNegative = 0
       let historyLiouville = 0
       let historyCount = 0
       let firstLiouville = -1
+
       const startState = states
 
       for (const record of h.records) {
@@ -271,29 +337,48 @@ export default experiment({
           }
 
           for (const t of nonLines) {
-            nonLineNegative += t.reduce((u, p) => u + (m[p] ?? 0n), 0n) < 0n ? 1 : 0
+            nonLineNegative +=
+              t.reduce((u, p) => u + (m[p] ?? 0n), 0n) < 0n ? 1 : 0
           }
         }
 
         for (const coset of isotropicCosets) {
-          const s = coset.reduce((t, j) => t + (state.weight[j] ?? 0n), 0n)
+          const s = coset.reduce(
+            (t, j) => t + (state.weight[j] ?? 0n),
+            0n,
+          )
 
           cosetNegative += s < 0n || s > units ? 1 : 0
         }
 
         for (const coset of otherCosets) {
-          otherCosetNegative += coset.reduce((t, j) => t + (state.weight[j] ?? 0n), 0n) < 0n ? 1 : 0
+          otherCosetNegative +=
+            coset.reduce((t, j) => t + (state.weight[j] ?? 0n), 0n) < 0n
+              ? 1
+              : 0
         }
 
         // I1: the Born identity in floating point
         const u = Number(units)
-        const rhoA = operatorFromWigner(mA.map(x => Number(x) / u), one)
-        const rho = operatorFromWigner(state.weight.map(x => Number(x) / u), two)
+        const rhoA = operatorFromWigner(
+          mA.map(x => Number(x) / u),
+          one,
+        )
+        const rho = operatorFromWigner(
+          state.weight.map(x => Number(x) / u),
+          two,
+        )
 
         for (const line of allLines) {
-          const s = line.reduce((t, p) => t + Number(mA[p] ?? 0n), 0) / u
+          const s =
+            line.reduce((t, p) => t + Number(mA[p] ?? 0n), 0) / u
 
-          identityWorst = Math.max(identityWorst, Math.abs(s - traceProduct(rhoA, projectorOf.get(line.join(','))!)))
+          identityWorst = Math.max(
+            identityWorst,
+            Math.abs(
+              s - traceProduct(rhoA, projectorOf.get(line.join(','))!),
+            ),
+          )
         }
 
         for (const { la, lb, p } of productProjectors) {
@@ -305,18 +390,35 @@ export default experiment({
             }
           }
 
-          identityWorst = Math.max(identityWorst, Math.abs(s / u - traceProduct(rho, p)))
+          identityWorst = Math.max(
+            identityWorst,
+            Math.abs(s / u - traceProduct(rho, p)),
+          )
         }
 
         // H3: the record's weight after SUM
-        const measured = permuteTwo(openToken(state, -1, ROLE_LINE_0), 0, 2, sum)
+        const measured = permuteTwo(
+          openToken(state, -1, ROLE_LINE_0),
+          0,
+          2,
+          sum,
+        )
         const mR = marginalOne(measured, 2)
         const pA = roleShares(mA)
-        const recordLoves = mR.reduce((t, x) => (x > 0n ? t + x : t), 0n)
-        const recordRoleLoves = roleShares(mR.map(x => (x > 0n ? x : 0n)))
+        const recordLoves = mR.reduce(
+          (t, x) => (x > 0n ? t + x : t),
+          0n,
+        )
+        const recordRoleLoves = roleShares(
+          mR.map(x => (x > 0n ? x : 0n)),
+        )
 
         recordFears += mR.some(x => x < 0n) ? 1 : 0
-        recordShareBad += recordRoleLoves.every((x, a) => x * units === (pA[a] ?? 0n) * recordLoves) ? 0 : 1
+        recordShareBad += recordRoleLoves.every(
+          (x, a) => x * units === (pA[a] ?? 0n) * recordLoves,
+        )
+          ? 0
+          : 1
 
         // I2 and H4: the record's hidden count, 27 starts (each A start with 3 record points)
         const hiddenCount = [0n, 0n, 0n]
@@ -328,23 +430,40 @@ export default experiment({
             hiddenCount[r] = (hiddenCount[r] ?? 0n) + 1n
           }
         }
-        const offA = roleShares(marginalOne(physicalFrame(wOff, off.conjugated), 0))
+
+        const offA = roleShares(
+          marginalOne(physicalFrame(wOff, off.conjugated), 0),
+        )
         const unitsOff = offA.reduce((t, x) => t + x, 0n)
 
-        const liouvilleMiss = hiddenCount.every((x, r) => x * unitsOff === (offA[r] ?? 0n) * 27n) ? 0 : 1
-        const countMiss = hiddenCount.every((x, r) => x * units === (pA[r] ?? 0n) * 27n) ? 0 : 1
+        const liouvilleMiss = hiddenCount.every(
+          (x, r) => x * unitsOff === (offA[r] ?? 0n) * 27n,
+        )
+          ? 0
+          : 1
+        const countMiss = hiddenCount.every(
+          (x, r) => x * units === (pA[r] ?? 0n) * 27n,
+        )
+          ? 0
+          : 1
 
         liouvilleBad += liouvilleMiss
         countMisses += countMiss
         historyLiouville += liouvilleMiss
         historyCount += countMiss
-        firstLiouville = liouvilleMiss && firstLiouville < 0 ? states : firstLiouville
+        firstLiouville =
+          liouvilleMiss && firstLiouville < 0 ? states : firstLiouville
 
         // H5: conditioned on each reading of each class reader
         const alone: Whole = { tokens: [0], weight: mA }
 
         for (const r of readers) {
-          const read = permuteTwo(openToken(alone, -1, ROLE_LINE_0), 0, 1, r.perm)
+          const read = permuteTwo(
+            openToken(alone, -1, ROLE_LINE_0),
+            0,
+            1,
+            r.perm,
+          )
 
           for (let k = 0; k < 3; k++) {
             // the joint weight restricted to record role k
@@ -364,8 +483,12 @@ export default experiment({
               continue
             }
 
-            const aEven = a.every((x, p) => (r.label[p] === k ? 3n * x === total : x === 0n))
-            const recEven = rec.every((x, p) => (roleOf(p) === k ? 3n * x === total : x === 0n))
+            const aEven = a.every((x, p) =>
+              r.label[p] === k ? 3n * x === total : x === 0n,
+            )
+            const recEven = rec.every((x, p) =>
+              roleOf(p) === k ? 3n * x === total : x === 0n,
+            )
 
             knotBad += aEven && recEven ? 0 : 1
           }
@@ -374,15 +497,21 @@ export default experiment({
 
       per[`${h.name}_lineSumsBelowZero`] = historyLineNegative
       per[`${h.name}_liouvilleMismatchBeats`] = historyLiouville
-      per[`${h.name}_firstLiouvilleMismatchBeat`] = firstLiouville < 0 ? -1 : firstLiouville - startState
+      per[`${h.name}_firstLiouvilleMismatchBeat`] =
+        firstLiouville < 0 ? -1 : firstLiouville - startState
       per[`${h.name}_recordCountMissBeats`] = historyCount
-      swapLawLineNegative += h.kernels.mode === 'swap' ? historyLineNegative : 0
+      swapLawLineNegative +=
+        h.kernels.mode === 'swap' ? historyLineNegative : 0
     }
 
     const gates = {
       I1: identityWorst < IDENTITY_TOLERANCE && projectorOf.size === 12,
       I2: liouvilleBad === 0,
-      I3: knots === 21 && knotLines === 12 && knotPoints === 9 && knotStates === 12,
+      I3:
+        knots === 21 &&
+        knotLines === 12 &&
+        knotPoints === 9 &&
+        knotStates === 12,
       H1: lineNegative === 0 && lineAbove === 0 && cosetNegative === 0,
       H2: nonLineNegative > 0 && otherCosetNegative > 0,
       H3: recordFears === 0 && recordShareBad === 0,
@@ -390,13 +519,24 @@ export default experiment({
       H5: knotBad === 0,
     }
     const instruments = gates.I1 && gates.I2 && gates.I3
-    const hypotheses = [gates.H1, gates.H2, gates.H3, gates.H4, gates.H5]
-    const status = instruments && hypotheses.every(Boolean) ? 'pass' : instruments && hypotheses.some(Boolean) ? 'partial' : 'fail'
+    const hypotheses = [
+      gates.H1,
+      gates.H2,
+      gates.H3,
+      gates.H4,
+      gates.H5,
+    ]
+    const status =
+      instruments && hypotheses.every(Boolean)
+        ? 'pass'
+        : instruments && hypotheses.some(Boolean)
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
       claim:
-        'partial, as the gates read: on 2,880 states of six Bell histories every one-token line sum (69,120 checks) and every two-token isotropic coset sum (1,036,800) lies in [0, 1], and each equals Tr(rho P) for a displacement eigenprojector to 2.2e-15, while 6,287 non-collinear triple sums and 200,372 non-isotropic coset sums are negative: an outcome is a line. After a SUM record the record\'s weight holds no fear on any state and its love share is the role chance exactly, so a record makes the chance a non-negative weight; but the 27 deterministic starts count the fear-off chance exactly (Liouville through SUM) and miss the signed chance on 2,121 of 2,880 beats: no record turns the Born rule into a count of equal starts. The 21 three-love knots are the 12 lines and 9 triple points, only the lines are states, and every record outcome of every class leaves token and record evenly on one line: a record outcome is a knot, a record is two tokens sharing one',
+        "partial, as the gates read: on 2,880 states of six Bell histories every one-token line sum (69,120 checks) and every two-token isotropic coset sum (1,036,800) lies in [0, 1], and each equals Tr(rho P) for a displacement eigenprojector to 2.2e-15, while 6,287 non-collinear triple sums and 200,372 non-isotropic coset sums are negative: an outcome is a line. After a SUM record the record's weight holds no fear on any state and its love share is the role chance exactly, so a record makes the chance a non-negative weight; but the 27 deterministic starts count the fear-off chance exactly (Liouville through SUM) and miss the signed chance on 2,121 of 2,880 beats: no record turns the Born rule into a count of equal starts. The 21 three-love knots are the 12 lines and 9 triple points, only the lines are states, and every record outcome of every class leaves token and record evenly on one line: a record outcome is a knot, a record is two tokens sharing one",
       metrics: {
         states,
         isotropicPlanes: planes.isotropic.length,
@@ -419,10 +559,16 @@ export default experiment({
         recordCountMissBeats: countMisses,
         knotConditionalMismatch: knotBad,
         ...per,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; non-line triple checks below zero 6,287 -> 5,621, non-isotropic coset checks below zero 200,372 -> 202,685. " + ('L1/L2, exact BigInt wholes; the Born identity I1 in floating point to 1e-9. The hidden starts are E-QTM-0113\'s: A\'s classical point, moved by the links and never by a meeting kernel; the SUM moves the record\'s hidden point by the same permutation the weights ride. The fear-off histories are E-QTM-0113\'s fearOff, rebuilt here.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; non-line triple checks below zero 6,287 -> 5,621, non-isotropic coset checks below zero 200,372 -> 202,685. ' +
+        "L1/L2, exact BigInt wholes; the Born identity I1 in floating point to 1e-9. The hidden starts are E-QTM-0113's: A's classical point, moved by the links and never by a meeting kernel; the SUM moves the record's hidden point by the same permutation the weights ride. The fear-off histories are E-QTM-0113's fearOff, rebuilt here.",
     })
   },
 })

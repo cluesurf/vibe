@@ -53,7 +53,16 @@ import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { THRESHOLD_BORN } from '@/code/measure/doublet-locked-readings'
 import { linearFit } from '@/code/measure/regression'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
-import { columnSeries, lumpStart, READINGS, responseBox, ringsFrom, shellProfile, type ColumnSeries, type ResponseBox } from '@/code/measure/vacuum-response'
+import {
+  columnSeries,
+  lumpStart,
+  READINGS,
+  responseBox,
+  ringsFrom,
+  shellProfile,
+  type ColumnSeries,
+  type ResponseBox,
+} from '@/code/measure/vacuum-response'
 
 const SIDE = 12
 const BEATS = 144
@@ -63,22 +72,37 @@ const FIT_R = [2, 3, 4, 5, 6] as const
 const RADION_DEPTH = 16
 
 // the first beat (1-based) after which any column at each distance differs in any reading
-function firstArrival(box: ResponseBox, rOf: Int32Array, a: ColumnSeries, b: ColumnSeries): number[] {
+function firstArrival(
+  box: ResponseBox,
+  rOf: Int32Array,
+  a: ColumnSeries,
+  b: ColumnSeries,
+): number[] {
   const first = Array.from({ length: box.rMax + 1 }, () => Infinity)
 
   for (let t = 0; t < a.beats; t++) {
     for (let col = 0; col < a.columns; col++) {
-      const r = rOf[col] as number
+      const r = rOf[col]!
 
-      if (first[r]! <= t + 1) continue
-      if (READINGS.some(n => a[n][t * a.columns + col] !== b[n][t * a.columns + col])) first[r] = t + 1
+      if (first[r]! <= t + 1) {
+        continue
+      }
+
+      if (
+        READINGS.some(
+          n => a[n][t * a.columns + col] !== b[n][t * a.columns + col],
+        )
+      ) {
+        first[r] = t + 1
+      }
     }
   }
 
   return first
 }
 
-const rms = (residual: number, n: number): number => Math.sqrt(residual / n)
+const rms = (residual: number, n: number): number =>
+  Math.sqrt(residual / n)
 
 export default experiment({
   id: 'gravity/vacuum-response-front',
@@ -91,9 +115,13 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
     const born = { threshold: THRESHOLD_BORN, beats: BEATS, coin: true }
+
     let rMax = 0
     let off: { first: number[]; plateau: number[] } | undefined
 
@@ -101,49 +129,123 @@ export default experiment({
       withStart(member, () => {
         const box = responseBox(SIDE)
         const rOf = ringsFrom(box, box.center)
-        const control = columnSeries({ box, start: lumpStart(box, 0, 0).start, mix: true, ...born })
-        const lump = columnSeries({ box, start: lumpStart(box, 1, SIZE).start, mix: true, ...born })
-        const delta = Array.from({ length: BEATS }, (_, t) => shellProfile(box, rOf, lump.occupied, control.occupied, t, t + 1))
+        const control = columnSeries({
+          box,
+          start: lumpStart(box, 0, 0).start,
+          mix: true,
+          ...born,
+        })
+        const lump = columnSeries({
+          box,
+          start: lumpStart(box, 1, SIZE).start,
+          mix: true,
+          ...born,
+        })
+        const delta = Array.from({ length: BEATS }, (_, t) =>
+          shellProfile(
+            box,
+            rOf,
+            lump.occupied,
+            control.occupied,
+            t,
+            t + 1,
+          ),
+        )
 
         rMax = box.rMax
 
         if (m === 0) {
-          const c = columnSeries({ box, start: lumpStart(box, 0, 0).start, mix: false, ...born })
-          const l = columnSeries({ box, start: lumpStart(box, 1, SIZE).start, mix: false, ...born })
+          const c = columnSeries({
+            box,
+            start: lumpStart(box, 0, 0).start,
+            mix: false,
+            ...born,
+          })
+          const l = columnSeries({
+            box,
+            start: lumpStart(box, 1, SIZE).start,
+            mix: false,
+            ...born,
+          })
 
-          off = { first: firstArrival(box, rOf, l, c), plateau: shellProfile(box, rOf, l.occupied, c.occupied, PLATEAU_FROM, BEATS) }
+          off = {
+            first: firstArrival(box, rOf, l, c),
+            plateau: shellProfile(
+              box,
+              rOf,
+              l.occupied,
+              c.occupied,
+              PLATEAU_FROM,
+              BEATS,
+            ),
+          }
         }
 
         log(`start ${member.name}`)
 
-        return { name: member.name, first: firstArrival(box, rOf, lump, control), delta }
+        return {
+          name: member.name,
+          first: firstArrival(box, rOf, lump, control),
+          delta,
+        }
       }),
     )
 
     const rsAll = Array.from({ length: rMax }, (_, i) => i + 1)
-    const delta = Array.from({ length: BEATS }, (_, t) => Array.from({ length: rMax + 1 }, (_, r) => perStart.reduce((s, p) => s + p.delta[t]![r]!, 0) / perStart.length))
-    const plateau = Array.from({ length: rMax + 1 }, (_, r) => delta.slice(PLATEAU_FROM).reduce((s, d) => s + d[r]!, 0) / (BEATS - PLATEAU_FROM))
+    const delta = Array.from({ length: BEATS }, (_, t) =>
+      Array.from(
+        { length: rMax + 1 },
+        (_, r) =>
+          perStart.reduce((s, p) => s + p.delta[t]![r]!, 0) /
+          perStart.length,
+      ),
+    )
+    const plateau = Array.from(
+      { length: rMax + 1 },
+      (_, r) =>
+        delta.slice(PLATEAU_FROM).reduce((s, d) => s + d[r]!, 0) /
+        (BEATS - PLATEAU_FROM),
+    )
     const half = plateau.map((p, r) => {
-      const t = delta.findIndex(d => (p >= 0 ? d[r]! >= p / 2 : d[r]! <= p / 2))
+      const t = delta.findIndex(d =>
+        p >= 0 ? d[r]! >= p / 2 : d[r]! <= p / 2,
+      )
 
       return t < 0 ? Infinity : t + 1
     })
     const first = perStart[0]!.first
-    const f1 = perStart.every(p => rsAll.every(r => p.first[r]! >= r && (r === 1 || p.first[r]! >= p.first[r - 1]!)))
+    const f1 = perStart.every(p =>
+      rsAll.every(
+        r =>
+          p.first[r]! >= r &&
+          (r === 1 || p.first[r]! >= p.first[r - 1]!),
+      ),
+    )
     const ys = FIT_R.map(r => half[r]!)
     const linear = linearFit({ xs: [...FIT_R], ys })
     const diffusive = linearFit({ xs: FIT_R.map(r => r * r), ys })
     const v = linear.slope > 0 ? 1 / linear.slope : Infinity
     const rmsLinear = rms(linear.residual, FIT_R.length)
     const rmsDiffusive = rms(diffusive.residual, FIT_R.length)
-    const f2 = ys.every(Number.isFinite) && linear.slope > 0 && v <= 1.1 && rmsLinear <= 1.5 && rmsLinear <= rmsDiffusive
-    const firstFit = linearFit({ xs: [...FIT_R], ys: FIT_R.map(r => first[r]!) })
+    const f2 =
+      ys.every(Number.isFinite) &&
+      linear.slope > 0 &&
+      v <= 1.1 &&
+      rmsLinear <= 1.5 &&
+      rmsLinear <= rmsDiffusive
+    const firstFit = linearFit({
+      xs: [...FIT_R],
+      ys: FIT_R.map(r => first[r]!),
+    })
     const vFirst = firstFit.slope > 0 ? 1 / firstFit.slope : Infinity
     const cRadion = lightSpeed(RADION_DEPTH)
     const status = f1 && f2 ? 'pass' : 'fail'
-    const startsAgree = new Set(perStart.map(p => JSON.stringify([p.first, p.delta]))).size
+    const startsAgree = new Set(
+      perStart.map(p => JSON.stringify([p.first, p.delta])),
+    ).size
 
-    const g4 = (x: number): string => (Number.isFinite(x) ? x.toPrecision(4) : String(x))
+    const g4 = (x: number): string =>
+      Number.isFinite(x) ? x.toPrecision(4) : String(x)
     const metrics: Record<string, number> = {
       gate_F1: f1 ? 1 : 0,
       gate_F2: f2 ? 1 : 0,
@@ -173,12 +275,18 @@ export default experiment({
       metrics,
       control: {
         offFirstR2: off?.first[2] ?? -1,
-        offPlateauMax: off ? Math.max(...off.plateau.map(Math.abs)) : -1,
+        offPlateauMax: off
+          ? Math.max(...off.plateau.map(Math.abs))
+          : -1,
       },
       notes: `L2. Gates F1 ${f1}, F2 ${f2}. Distinct start readings ${startsAgree} of ${family.length}. First arrival per start range: ${rsAll.map(r => `r ${r} ${Math.min(...perStart.map(p => p.first[r]!))}..${Math.max(...perStart.map(p => p.first[r]!))}`).join(', ')}. Delta(t, r) of (a) by beat 1 .. 48 (r = 0 .. ${rMax}): ${delta
         .slice(0, 48)
-        .map((d, t) => `${t + 1}: ${d.map(x => x.toFixed(2)).join(' ')}`)
-        .join(' | ')}. G off (integer+0): first arrival ${off?.first.join(', ')}, plateau ${off?.plateau.map(x => x.toFixed(4)).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .map(
+          (d, t) => `${t + 1}: ${d.map(x => x.toFixed(2)).join(' ')}`,
+        )
+        .join(
+          ' | ',
+        )}. G off (integer+0): first arrival ${off?.first.join(', ')}, plateau ${off?.plateau.map(x => x.toFixed(4)).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

@@ -38,32 +38,61 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BAND_TOP, externalPotential, lowestStates, makeGrid, standinUnits } from '@/code/measure/standin-chemistry'
-import { atomSeries, centerOf, isLocalMaximum, type Atom, type AtomBox } from '@/code/measure/standin-atoms'
+import {
+  BAND_TOP,
+  externalPotential,
+  lowestStates,
+  makeGrid,
+  standinUnits,
+} from '@/code/measure/standin-chemistry'
+import {
+  atomSeries,
+  centerOf,
+  isLocalMaximum,
+  type Atom,
+  type AtomBox,
+} from '@/code/measure/standin-atoms'
 import { antisymmetricLabels } from '@/code/measure/moving-exclusion'
 
 const BOX: AtomBox = { side: 64, a0: 8 }
 const CONTROL_CHARGE = 4
 const CHARGES = [1, 2, 3, 9, 10, 11, 17, 18, 19]
 
-const shellsAt = (rows: readonly Atom[], z: number): string[] => rows.find(r => r.z === z)?.occupied ?? []
-const same = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && a.every(x => b.includes(x))
+const shellsAt = (rows: readonly Atom[], z: number): string[] =>
+  rows.find(r => r.z === z)?.occupied ?? []
+const same = (a: readonly string[], b: readonly string[]): boolean =>
+  a.length === b.length && a.every(x => b.includes(x))
 
 export default experiment({
   id: 'matter/doublet-shells',
   code: 'E-MTR-0020',
   title:
-    'shells with stand-in electrons that carry the doublet label, at a0 = 8: two per orbital from the doublet\'s count, filled in their own mean field in one husk Coulomb well, against the n^2 shells, the Madelung order and the closures at 2, 10 and 18',
+    "shells with stand-in electrons that carry the doublet label, at a0 = 8: two per orbital from the doublet's count, filled in their own mean field in one husk Coulomb well, against the n^2 shells, the Madelung order and the closures at 2, 10 and 18",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const capacity = [1, 2, 3].map(k => antisymmetricLabels(2, k)).filter(v => v > 0).length
+    const capacity = [1, 2, 3]
+      .map(k => antisymmetricLabels(2, k))
+      .filter(v => v > 0).length
     const grid = makeGrid(BOX.side)
     const units = standinUnits(BOX.a0)
-    const metrics: Record<string, number> = { capacityFromDoublet: capacity }
-    const control = lowestStates({ grid, potential: externalPotential({ grid, units, nuclei: [{ at: centerOf(BOX), charge: CONTROL_CHARGE }] }), count: 16, extra: 6, tolerance: 1e-6, maxIterations: 400 })
+    const metrics: Record<string, number> = {
+      capacityFromDoublet: capacity,
+    }
+    const control = lowestStates({
+      grid,
+      potential: externalPotential({
+        grid,
+        units,
+        nuclei: [{ at: centerOf(BOX), charge: CONTROL_CHARGE }],
+      }),
+      count: 16,
+      extra: 6,
+      tolerance: 1e-6,
+      maxIterations: 400,
+    })
     const levels = control.values.slice(0, 14)
     const largest = levels
       .slice(1)
@@ -74,14 +103,23 @@ export default experiment({
       .sort((a, b) => a - b)
     const g1 = largest[0] === 1 && largest[1] === 5
 
-    levels.forEach((e, i) => (metrics[`controlLevel${i + 1}OverZ2Rydberg`] = e / (CONTROL_CHARGE ** 2 * units.rydberg)))
+    levels.forEach(
+      (e, i) =>
+        (metrics[`controlLevel${i + 1}OverZ2Rydberg`] =
+          e / (CONTROL_CHARGE ** 2 * units.rydberg)),
+    )
 
     const rows = atomSeries({ box: BOX, charges: CHARGES, capacity })
     const at = (z: number): string[] => shellsAt(rows, z)
-    const g2 = same(at(10), ['1s', '2s', '2p']) && same(at(18), ['1s', '2s', '2p', '3s', '3p']) && at(19).includes('4s') && !at(19).includes('3d')
+    const g2 =
+      same(at(10), ['1s', '2s', '2p']) &&
+      same(at(18), ['1s', '2s', '2p', '3s', '3p']) &&
+      at(19).includes('4s') &&
+      !at(19).includes('3d')
     const maxima = [2, 10, 18].filter(z => isLocalMaximum(rows, z))
     const g3 = maxima.length === 3
-    const status = g1 && g2 && g3 ? 'pass' : g1 && (g2 || g3) ? 'partial' : 'fail'
+    const status =
+      g1 && g2 && g3 ? 'pass' : g1 && (g2 || g3) ? 'partial' : 'fail'
 
     rows.forEach(r => {
       metrics[`z${r.z}IonizationRydberg`] = r.ionization
@@ -103,7 +141,10 @@ export default experiment({
         gateMadelung: g2 ? 1 : 0,
         gateClosures: g3 ? 1 : 0,
       },
-      control: { splitAfterFirst: largest[0] ?? -1, splitAfterSecond: largest[1] ?? -1 },
+      control: {
+        splitAfterFirst: largest[0] ?? -1,
+        splitAfterSecond: largest[1] ?? -1,
+      },
       notes: `L2, stand-ins throughout (the husk stand-in electron, a fixed husk charge Z, alpha chosen through a0 = 8, the Fermi-Amaldi mean field, Koopmans levels), the capacity ${capacity} from the doublet's antisymmetric counts (E-MTR-0018). The contact term of the model's slot reading is not in a mean field. The 64^3 box is the largest this machine holds: the 2p of one stand-in hydrogen at a0 = 8 is squeezed by it (E-MTR-0007's probe read -0.041 Ry against -0.25), so the alkali atoms' diffuse outer shell is raised by the box, which lowers their ionization energy and favors the maxima; the rare gases' outer shells sit well inside it.`,
     })
   },

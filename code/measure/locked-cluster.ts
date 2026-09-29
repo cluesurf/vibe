@@ -23,9 +23,23 @@
 // one copy of this space, and the center requires n - m = 0 mod 3). Measurement code: characters and traces in
 // floats. It holds no rule of the model.
 
-import { type ComplexMatrix, complexMultiply } from '@/code/algebra/linear/complex-matrix'
-import { applyToCluster, binaryTetrahedralCharacters, cycleType, heisenbergGroup, permutations, spinTurns, type Complex } from '@/code/algebra/role-cluster'
-import { parityMatrix, traceOf } from '@/code/algebra/weil-representation'
+import {
+  type ComplexMatrix,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
+import {
+  applyToCluster,
+  binaryTetrahedralCharacters,
+  cycleType,
+  heisenbergGroup,
+  permutations,
+  spinTurns,
+  type Complex,
+} from '@/code/algebra/role-cluster'
+import {
+  parityMatrix,
+  traceOf,
+} from '@/code/algebra/weil-representation'
 import { irrepsOf, partitionName } from '@/code/measure/pauli-cluster'
 
 type Vec = { re: Float64Array; im: Float64Array }
@@ -46,12 +60,18 @@ function projector(which: 'doublet' | 'line'): ComplexMatrix {
   const p = parityMatrix(3)
   const re = new Float64Array(9)
 
-  for (let i = 0; i < 9; i++) re[i] = ((i % 4 === 0 ? 1 : 0) + (which === 'doublet' ? 1 : -1) * (p.re[i] as number)) / 2
+  for (let i = 0; i < 9; i++) {
+    re[i] =
+      ((i % 4 === 0 ? 1 : 0) +
+        (which === 'doublet' ? 1 : -1) * p.re[i]!) /
+      2
+  }
 
   return { re, im: new Float64Array(9), n: 3 }
 }
 
-export const doubletProjector = (): ComplexMatrix => projector('doublet')
+export const doubletProjector = (): ComplexMatrix =>
+  projector('doublet')
 export const lineProjector = (): ComplexMatrix => projector('line')
 
 // the order-2 turn of the Weil lift against -P: the largest entry gap
@@ -59,12 +79,23 @@ export function centralTurnGap(): { gap: number; trace: Complex } {
   const { turns } = spinTurns()
   const central = turns.find(t => t.order === 2)
 
-  if (!central) throw new Error('no order-2 turn')
+  if (!central) {
+    throw new Error('no order-2 turn')
+  }
 
   const p = parityMatrix(3)
+
   let gap = 0
 
-  for (let i = 0; i < 9; i++) gap = Math.max(gap, Math.hypot((central.unitary.re[i] as number) + (p.re[i] as number), central.unitary.im[i] as number))
+  for (let i = 0; i < 9; i++) {
+    gap = Math.max(
+      gap,
+      Math.hypot(
+        central.unitary.re[i]! + p.re[i]!,
+        central.unitary.im[i]!,
+      ),
+    )
+  }
 
   return { gap, trace: traceOf(central.unitary) as Complex }
 }
@@ -83,7 +114,7 @@ function productVector(labels: readonly number[]): Vec {
       const digit = c % 3
 
       c = Math.floor(c / 3)
-      amp *= DOUBLET_BASIS[labels[f] as number]![digit] as number
+      amp *= DOUBLET_BASIS[labels[f]!]![digit]!
     }
 
     re[i] = amp
@@ -93,16 +124,21 @@ function productVector(labels: readonly number[]): Vec {
 }
 
 // R_cluster v = (-1)^N v on every doublet-basis product vector of n roles and m antiroles: the largest gap
-export function twoPiIdentityGap(input: { roles: number; antiroles: number }): { gap: number; vectors: number } {
+export function twoPiIdentityGap(input: {
+  roles: number
+  antiroles: number
+}): { gap: number; vectors: number } {
   const { roles, antiroles } = input
   const total = roles + antiroles
   const { turns } = spinTurns()
   const central = turns.find(t => t.order === 2)!
+
   let gap = 0
   let vectors = 0
 
   for (let code = 0; code < 3 ** total; code++) {
     const labels: number[] = []
+
     let c = code
 
     for (let f = 0; f < total; f++) {
@@ -111,16 +147,29 @@ export function twoPiIdentityGap(input: { roles: number; antiroles: number }): {
     }
 
     const v = productVector(labels)
-    const rv = applyToCluster({ vector: v, unitary: central.unitary, roles, antiroles })
+    const rv = applyToCluster({
+      vector: v,
+      unitary: central.unitary,
+      roles,
+      antiroles,
+    })
+
     let n = 0
 
     labels.forEach((l, f) => {
-      if (IN_DOUBLET[l]) n += f < roles ? 1 : -1
+      if (IN_DOUBLET[l]) {
+        n += f < roles ? 1 : -1
+      }
     })
 
     const sign = n % 2 === 0 ? 1 : -1
 
-    for (let i = 0; i < v.re.length; i++) gap = Math.max(gap, Math.hypot((rv.re[i] as number) - sign * (v.re[i] as number), rv.im[i] as number))
+    for (let i = 0; i < v.re.length; i++) {
+      gap = Math.max(
+        gap,
+        Math.hypot(rv.re[i]! - sign * v.re[i]!, rv.im[i]!),
+      )
+    }
 
     vectors++
   }
@@ -133,15 +182,22 @@ const inner = (a: Vec, b: Vec): [number, number] => {
   let im = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    re += (a.re[i] as number) * (b.re[i] as number) + (a.im[i] as number) * (b.im[i] as number)
-    im += (a.re[i] as number) * (b.im[i] as number) - (a.im[i] as number) * (b.re[i] as number)
+    re += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
+    im += a.re[i]! * b.im[i]! - a.im[i]! * b.re[i]!
   }
 
   return [re, im]
 }
 
-function permuteRoles(v: Vec, perm: readonly number[], total: number): Vec {
-  const out = { re: new Float64Array(v.re.length), im: new Float64Array(v.re.length) }
+function permuteRoles(
+  v: Vec,
+  perm: readonly number[],
+  total: number,
+): Vec {
+  const out = {
+    re: new Float64Array(v.re.length),
+    im: new Float64Array(v.re.length),
+  }
   const digits = new Array<number>(total).fill(0)
   const moved = new Array<number>(total).fill(0)
 
@@ -153,14 +209,18 @@ function permuteRoles(v: Vec, perm: readonly number[], total: number): Vec {
       c = Math.floor(c / 3)
     }
 
-    for (let f = 0; f < total; f++) moved[f] = digits[f] as number
+    for (let f = 0; f < total; f++) {
+      moved[f] = digits[f]!
+    }
 
-    for (let f = 0; f < perm.length; f++) moved[perm[f] as number] = digits[f] as number
+    for (let f = 0; f < perm.length; f++) {
+      moved[perm[f]!] = digits[f]!
+    }
 
     const j = moved.reduce((s, d) => 3 * s + d, 0)
 
-    out.re[j] = v.re[i] as number
-    out.im[j] = v.im[i] as number
+    out.re[j] = v.re[i]!
+    out.im[j] = v.im[i]!
   }
 
   return out
@@ -168,12 +228,17 @@ function permuteRoles(v: Vec, perm: readonly number[], total: number): Vec {
 
 // the doublet count N of each computational-basis index is not defined (N is diagonal in the doublet basis), so
 // the distribution is read by expanding a vector in the doublet product basis
-function numberWeights(v: Vec, roles: number, antiroles: number): Map<number, number> {
+function numberWeights(
+  v: Vec,
+  roles: number,
+  antiroles: number,
+): Map<number, number> {
   const total = roles + antiroles
   const out = new Map<number, number>()
 
   for (let code = 0; code < 3 ** total; code++) {
     const labels: number[] = []
+
     let c = code
 
     for (let f = 0; f < total; f++) {
@@ -182,10 +247,13 @@ function numberWeights(v: Vec, roles: number, antiroles: number): Map<number, nu
     }
 
     const [re, im] = inner(productVector(labels), v)
+
     let n = 0
 
     labels.forEach((l, f) => {
-      if (IN_DOUBLET[l]) n += f < roles ? 1 : -1
+      if (IN_DOUBLET[l]) {
+        n += f < roles ? 1 : -1
+      }
     })
 
     out.set(n, (out.get(n) ?? 0) + re * re + im * im)
@@ -194,11 +262,20 @@ function numberWeights(v: Vec, roles: number, antiroles: number): Map<number, nu
   return out
 }
 
-export type NumberChannel = { readonly spin: string; readonly twoPiSign: number; readonly partition: string; readonly dimension: number; readonly weights: Map<number, number> }
+export type NumberChannel = {
+  readonly spin: string
+  readonly twoPiSign: number
+  readonly partition: string
+  readonly dimension: number
+  readonly weights: Map<number, number>
+}
 
 // for each joint (2T, S_n) channel of the UNLOCKED neutral space of n roles and m antiroles: its dimension and the
 // distribution of the doublet count N in the channel's maximally mixed state
-export function numberDistribution(input: { roles: number; antiroles: number }): NumberChannel[] {
+export function numberDistribution(input: {
+  roles: number
+  antiroles: number
+}): NumberChannel[] {
   const { roles, antiroles } = input
   const total = roles + antiroles
   const size = 3 ** total
@@ -218,11 +295,16 @@ export function numberDistribution(input: { roles: number; antiroles: number }):
     const p = { re: new Float64Array(size), im: new Float64Array(size) }
 
     for (const h of group) {
-      const hv = applyToCluster({ vector: e, unitary: h, roles, antiroles })
+      const hv = applyToCluster({
+        vector: e,
+        unitary: h,
+        roles,
+        antiroles,
+      })
 
       for (let k = 0; k < size; k++) {
-        p.re[k] = (p.re[k] as number) + (hv.re[k] as number) / group.length
-        p.im[k] = (p.im[k] as number) + (hv.im[k] as number) / group.length
+        p.re[k] = p.re[k]! + hv.re[k]! / group.length
+        p.im[k] = p.im[k]! + hv.im[k]! / group.length
       }
     }
 
@@ -236,44 +318,66 @@ export function numberDistribution(input: { roles: number; antiroles: number }):
       const channel: Vec[] = []
 
       for (const b of neutral) {
-        const p = { re: new Float64Array(size), im: new Float64Array(size) }
+        const p = {
+          re: new Float64Array(size),
+          im: new Float64Array(size),
+        }
 
         turns.forEach((t, ei) => {
           const chi = c.values[ei] ?? [0, 0]
-          const rb = applyToCluster({ vector: b, unitary: t.unitary as ComplexMatrix, roles, antiroles })
+          const rb = applyToCluster({
+            vector: b,
+            unitary: t.unitary,
+            roles,
+            antiroles,
+          })
 
           perms.forEach(perm => {
             const x = mu.values[cycleType(perm).join(',')] ?? 0
 
-            if (x === 0) return
+            if (x === 0) {
+              return
+            }
 
             const s = permuteRoles(rb, perm, total)
             // coefficient conj(chi) x d_rho d_mu / (|2T| |S_n|)
-            const f = (c.dimension * mu.dimension) / (turns.length * perms.length)
+            const f =
+              (c.dimension * mu.dimension) /
+              (turns.length * perms.length)
             const cr = f * x * chi[0]
             const ci = -f * x * chi[1]
 
             for (let k = 0; k < size; k++) {
-              p.re[k] = (p.re[k] as number) + cr * (s.re[k] as number) - ci * (s.im[k] as number)
-              p.im[k] = (p.im[k] as number) + cr * (s.im[k] as number) + ci * (s.re[k] as number)
+              p.re[k] = p.re[k]! + cr * s.re[k]! - ci * s.im[k]!
+              p.im[k] = p.im[k]! + cr * s.im[k]! + ci * s.re[k]!
             }
           })
         })
         orthonormalInto(channel, p)
       }
 
-      if (channel.length === 0) continue
+      if (channel.length === 0) {
+        continue
+      }
 
       const weights = new Map<number, number>()
 
       for (const v of channel) {
-        for (const [n, w] of numberWeights(v, roles, antiroles)) weights.set(n, (weights.get(n) ?? 0) + w / channel.length)
+        for (const [n, w] of numberWeights(v, roles, antiroles)) {
+          weights.set(n, (weights.get(n) ?? 0) + w / channel.length)
+        }
       }
 
       const at1 = c.values[identity]?.[0] ?? 1
       const at2 = c.values[central]?.[0] ?? 1
 
-      out.push({ spin: c.name, twoPiSign: Math.sign(at2 / at1), partition: partitionName(mu.partition), dimension: channel.length, weights })
+      out.push({
+        spin: c.name,
+        twoPiSign: Math.sign(at2 / at1),
+        partition: partitionName(mu.partition),
+        dimension: channel.length,
+        weights,
+      })
     }
   }
 
@@ -285,25 +389,42 @@ function orthonormalInto(basis: Vec[], p: Vec): void {
     const [cr, ci] = inner(b, p)
 
     for (let k = 0; k < p.re.length; k++) {
-      const br = b.re[k] as number
-      const bi = b.im[k] as number
+      const br = b.re[k]!
+      const bi = b.im[k]!
 
-      p.re[k] = (p.re[k] as number) - (cr * br - ci * bi)
-      p.im[k] = (p.im[k] as number) - (cr * bi + ci * br)
+      p.re[k] = p.re[k]! - (cr * br - ci * bi)
+      p.im[k] = p.im[k]! - (cr * bi + ci * br)
     }
   }
 
   const n = Math.sqrt(inner(p, p)[0])
 
-  if (n > 1e-9) basis.push({ re: p.re.map(x => x / n), im: p.im.map(x => x / n) })
+  if (n > 1e-9) {
+    basis.push({ re: p.re.map(x => x / n), im: p.im.map(x => x / n) })
+  }
 }
 
-export type LockedEntry = { readonly spin: string; readonly spinDimension: number; readonly twoPiSign: number; readonly partition: readonly number[]; readonly multiplicity: number }
+export type LockedEntry = {
+  readonly spin: string
+  readonly spinDimension: number
+  readonly twoPiSign: number
+  readonly partition: readonly number[]
+  readonly multiplicity: number
+}
 
 // the joint (2T, S_n) content of the locked cluster (every role and antirole in its doublet, at one own point):
 // chi(e, s) = prod over cycles c of s of tr(U_e^|c| Pi) x conj(tr(U_e Pi))^m, Pi the doublet (or, as a control,
 // the line) projector, decomposed against the 2T and S_n characters
-export function lockedJointContent(input: { roles: number; antiroles: number; subspace?: 'doublet' | 'line' }): { entries: LockedEntry[]; wholeGap: number; dimension: number; single: { spin: string; multiplicity: number }[] } {
+export function lockedJointContent(input: {
+  roles: number
+  antiroles: number
+  subspace?: 'doublet' | 'line'
+}): {
+  entries: LockedEntry[]
+  wholeGap: number
+  dimension: number
+  single: { spin: string; multiplicity: number }[]
+} {
   const { roles, antiroles } = input
   const pi = projector(input.subspace ?? 'doublet')
   const { turns, lambda } = spinTurns()
@@ -314,6 +435,7 @@ export function lockedJointContent(input: { roles: number; antiroles: number; su
   // tr(U^k Pi) for k = 1..roles
   const powerTraces = turns.map(t => {
     const out: Complex[] = []
+
     let u = t.unitary
 
     for (let k = 1; k <= Math.max(1, roles); k++) {
@@ -323,18 +445,29 @@ export function lockedJointContent(input: { roles: number; antiroles: number; su
 
     return out
   })
-  const cmul = (a: Complex, b: Complex): Complex => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+  const cmul = (a: Complex, b: Complex): Complex => [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0],
+  ]
+
   const chiOf = (ei: number, cycles: readonly number[]): Complex => {
     const tr = powerTraces[ei]!
+
     let v: Complex = [1, 0]
 
-    for (let k = 0; k < antiroles; k++) v = cmul(v, [tr[0]![0], -tr[0]![1]])
+    for (let k = 0; k < antiroles; k++) {
+      v = cmul(v, [tr[0]![0], -tr[0]![1]])
+    }
 
-    for (const c of cycles) v = cmul(v, tr[c - 1]!)
+    for (const c of cycles) {
+      v = cmul(v, tr[c - 1]!)
+    }
 
     return v
   }
+
   const entries: LockedEntry[] = []
+
   let wholeGap = 0
   let dimension = 0
 
@@ -358,7 +491,11 @@ export function lockedJointContent(input: { roles: number; antiroles: number; su
 
       re /= perms.length * turns.length
       im /= perms.length * turns.length
-      wholeGap = Math.max(wholeGap, Math.abs(re - Math.round(re)), Math.abs(im))
+      wholeGap = Math.max(
+        wholeGap,
+        Math.abs(re - Math.round(re)),
+        Math.abs(im),
+      )
 
       const m = Math.round(re)
 
@@ -366,7 +503,13 @@ export function lockedJointContent(input: { roles: number; antiroles: number; su
         const at1 = c.values[identity]?.[0] ?? 1
         const at2 = c.values[central]?.[0] ?? 1
 
-        entries.push({ spin: c.name, spinDimension: c.dimension, twoPiSign: Math.sign(at2 / at1), partition: s.partition, multiplicity: m })
+        entries.push({
+          spin: c.name,
+          spinDimension: c.dimension,
+          twoPiSign: Math.sign(at2 / at1),
+          partition: s.partition,
+          multiplicity: m,
+        })
         dimension += m * c.dimension * s.dimension
       }
     }
@@ -384,7 +527,10 @@ export function lockedJointContent(input: { roles: number; antiroles: number; su
         re += a[0] * b[0] + a[1] * b[1]
       })
 
-      return { spin: c.name, multiplicity: Math.round(re / turns.length) }
+      return {
+        spin: c.name,
+        multiplicity: Math.round(re / turns.length),
+      }
     })
     .filter(x => x.multiplicity !== 0)
 

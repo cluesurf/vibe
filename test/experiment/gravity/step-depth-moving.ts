@@ -68,8 +68,28 @@ import { verdict } from '@/test/scaffold/verdict'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 import { radionMesh } from '@/code/rule/trit-radion'
-import { emptyStep, placeLines, stepBeat, stepDepth, stepRule, stepScratch, type StepState } from '@/code/rule/step-depth'
-import { contentOf, dockAt, horizonRun, hopRun, newRecord, pairStep, radionEquivalence, sameUnder, staticStepRun, stepEnergy, type Hop } from '@/code/measure/step-depth'
+import {
+  emptyStep,
+  placeLines,
+  stepBeat,
+  stepDepth,
+  stepRule,
+  stepScratch,
+  type StepState,
+} from '@/code/rule/step-depth'
+import {
+  contentOf,
+  dockAt,
+  horizonRun,
+  hopRun,
+  newRecord,
+  pairStep,
+  radionEquivalence,
+  sameUnder,
+  staticStepRun,
+  stepEnergy,
+  type Hop,
+} from '@/code/measure/step-depth'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -88,9 +108,21 @@ const ENERGY_BEATS = 4096
 const ENERGY_EVERY = 64
 const STATIC_BEATS = 1024
 
-type Watch = { v: number; r: number; steps: number[]; lines: number[]; radial: number; depth: number }
+type Watch = {
+  v: number
+  r: number
+  steps: number[]
+  lines: number[]
+  radial: number
+  depth: number
+}
 
-function watch(s: StepState, found: { twice: Float64Array }, y: number, reference: number): Watch {
+function watch(
+  s: StepState,
+  found: { twice: Float64Array },
+  y: number,
+  reference: number,
+): Watch {
   return {
     v: s.rate[y]!,
     r: s.rest[y]!,
@@ -101,7 +133,11 @@ function watch(s: StepState, found: { twice: Float64Array }, y: number, referenc
   }
 }
 
-const differs = (a: Watch, b: Watch): boolean => a.v !== b.v || a.r !== b.r || a.steps.some((x, i) => x !== b.steps[i]) || a.lines.some((x, i) => x !== b.lines[i])
+const differs = (a: Watch, b: Watch): boolean =>
+  a.v !== b.v ||
+  a.r !== b.r ||
+  a.steps.some((x, i) => x !== b.steps[i]) ||
+  a.lines.some((x, i) => x !== b.lines[i])
 
 const halfPeak = (series: number[]): number => {
   const top = Math.max(...series.map(Math.abs))
@@ -122,18 +158,43 @@ export default experiment({
     const started = Date.now()
     const rule = stepRule(DEPTH, LEVELS)
     const c = lightSpeed(DEPTH)
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
 
     // D1 (a): the long hopping run
     const longMesh = radionMesh([LONG_SIDE, LONG_SIDE, LONG_SIDE])
     const longRecord = newRecord()
     const hops: Hop[] = []
 
-    for (let k = 1; k * LONG_EVERY < LONG_BEATS; k++) hops.push({ beat: k * LONG_EVERY, from: k % 2 === 1 ? [0, 0, 0] : [1, 0, 0], to: k % 2 === 1 ? [1, 0, 0] : [0, 0, 0], units: SOURCE })
+    for (let k = 1; k * LONG_EVERY < LONG_BEATS; k++) {
+      hops.push({
+        beat: k * LONG_EVERY,
+        from: k % 2 === 1 ? [0, 0, 0] : [1, 0, 0],
+        to: k % 2 === 1 ? [1, 0, 0] : [0, 0, 0],
+        units: SOURCE,
+      })
+    }
 
-    const longRun = hopRun(longMesh, rule, contentOf(longMesh, [{ at: [0, 0, 0], to: [LONG_SIDE / 2, LONG_SIDE / 2, LONG_SIDE / 2], units: SOURCE }]), hops, LONG_BEATS, longRecord)
+    const longRun = hopRun(
+      longMesh,
+      rule,
+      contentOf(longMesh, [
+        {
+          at: [0, 0, 0],
+          to: [LONG_SIDE / 2, LONG_SIDE / 2, LONG_SIDE / 2],
+          units: SOURCE,
+        },
+      ]),
+      hops,
+      LONG_BEATS,
+      longRecord,
+    )
     const longWraps = longRecord.wraps.fWraps + longRecord.wraps.vWraps
-    const d1a = longRun.reversed && longRecord.gaussOff === 0 && longRecord.curl === 0 && longWraps === 0
+    const d1a =
+      longRun.reversed &&
+      longRecord.gaussOff === 0 &&
+      longRecord.curl === 0 &&
+      longWraps === 0
 
     log('long')
 
@@ -158,7 +219,15 @@ export default experiment({
     ]
     const covRecord = newRecord()
     const at = [1, 2, 0]
-    const run64 = (p: readonly number[]): StepState => hopRun(mesh, rule, contentOf(mesh, [{ at: p, to: sink, units: SOURCE }]), [], 64, covRecord).final
+    const run64 = (p: readonly number[]): StepState =>
+      hopRun(
+        mesh,
+        rule,
+        contentOf(mesh, [{ at: p, to: sink, units: SOURCE }]),
+        [],
+        64,
+        covRecord,
+      ).final
     const base = run64(at)
     const swapped = sameUnder(mesh, swap, base, run64([2, 1, 0]))
     const reflected = sameUnder(mesh, reflect, base, run64([-1, 2, 0]))
@@ -166,15 +235,25 @@ export default experiment({
 
     // D1 (d): the radion beside it
     const eqMesh = radionMesh([ENERGY_SIDE, ENERGY_SIDE, ENERGY_SIDE])
-    const lumpRho = contentOf(eqMesh, [{ at: [2, 2, 2], to: [6, 6, 6], units: SOURCE }])
-    const equivalence = radionEquivalence(ENERGY_SIDE, DEPTH, LEVELS, lumpRho, 256)
+    const lumpRho = contentOf(eqMesh, [
+      { at: [2, 2, 2], to: [6, 6, 6], units: SOURCE },
+    ])
+    const equivalence = radionEquivalence(
+      ENERGY_SIDE,
+      DEPTH,
+      LEVELS,
+      lumpRho,
+      256,
+    )
     const d1d = equivalence.largestDifference <= 1e-12
 
     log('covariance and equivalence')
 
     // D2
     const hopRecord = newRecord()
-    const rho0 = contentOf(mesh, [{ at: [0, 0, 0], to: sink, units: SOURCE }])
+    const rho0 = contentOf(mesh, [
+      { at: [0, 0, 0], to: sink, units: SOURCE },
+    ])
     const docks = HOP_D.map(d => dockAt(mesh, [0, d, 0]))
     const reference = dockAt(mesh, sink)
     const traceA: Watch[][] = []
@@ -184,7 +263,9 @@ export default experiment({
     const keep =
       (trace: Watch[][]) =>
       (t: number, s: StepState): void => {
-        if (t <= HOP_AT) return
+        if (t <= HOP_AT) {
+          return
+        }
 
         const found = stepDepth(mesh, s.step)
 
@@ -192,50 +273,130 @@ export default experiment({
       }
 
     hopRun(mesh, rule, rho0, [], total, hopRecord, keep(traceA))
-    hopRun(mesh, rule, rho0, [{ beat: HOP_AT, from: [0, 0, 0], to: [1, 0, 0], units: SOURCE }], total, hopRecord, keep(traceB))
+    hopRun(
+      mesh,
+      rule,
+      rho0,
+      [{ beat: HOP_AT, from: [0, 0, 0], to: [1, 0, 0], units: SOURCE }],
+      total,
+      hopRecord,
+      keep(traceB),
+    )
 
-    const firstChange = HOP_D.map((_, i) => traceA.findIndex((w, k) => differs(w[i]!, traceB[k]![i]!)) + 1)
-    const instant = HOP_D.map((_, i) => differs(traceA[0]![i]!, traceB[0]![i]!))
-    const radialPulse = HOP_D.map((_, i) => traceA.map((w, k) => (traceB[k]![i]!.radial - w[i]!.radial) / rule.unit))
-    const depthPulse = HOP_D.map((_, i) => traceA.map((w, k) => (traceB[k]![i]!.depth - w[i]!.depth) / rule.unit))
+    const firstChange = HOP_D.map(
+      (_, i) =>
+        traceA.findIndex((w, k) => differs(w[i]!, traceB[k]![i]!)) + 1,
+    )
+    const instant = HOP_D.map((_, i) =>
+      differs(traceA[0]![i]!, traceB[0]![i]!),
+    )
+    const radialPulse = HOP_D.map((_, i) =>
+      traceA.map(
+        (w, k) => (traceB[k]![i]!.radial - w[i]!.radial) / rule.unit,
+      ),
+    )
+    const depthPulse = HOP_D.map((_, i) =>
+      traceA.map(
+        (w, k) => (traceB[k]![i]!.depth - w[i]!.depth) / rule.unit,
+      ),
+    )
     const radialHalf = radialPulse.map(halfPeak)
     const depthHalf = depthPulse.map(halfPeak)
     const rho = HOP_D.map(d => Math.sqrt(0.25 + (d + 0.5) ** 2))
     const fitFrom = HOP_D.indexOf(3)
+
     const slopeOf = (ys: number[], xs: number[]): number => {
       const mx = xs.reduce((a, v) => a + v, 0) / xs.length
       const my = ys.reduce((a, v) => a + v, 0) / ys.length
 
-      return xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) / xs.reduce((a, v) => a + (v - mx) ** 2, 0)
+      return (
+        xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) /
+        xs.reduce((a, v) => a + (v - mx) ** 2, 0)
+      )
     }
-    const frontSpeed = 1 / slopeOf(radialHalf.slice(fitFrom), rho.slice(fitFrom))
-    const depthSpeed = 1 / slopeOf(depthHalf.slice(fitFrom), HOP_D.slice(fitFrom).map(d => Math.sqrt(d * d + 0.25)))
-    const projected = HOP_D.map(d => SOURCE * Math.abs(huskGreenDifference(HOP_SIDE, [0, d, 0]) - huskGreenDifference(HOP_SIDE, [-1, d, 0])))
+
+    const frontSpeed =
+      1 / slopeOf(radialHalf.slice(fitFrom), rho.slice(fitFrom))
+    const depthSpeed =
+      1 /
+      slopeOf(
+        depthHalf.slice(fitFrom),
+        HOP_D.slice(fitFrom).map(d => Math.sqrt(d * d + 0.25)),
+      )
+    const projected = HOP_D.map(
+      d =>
+        SOURCE *
+        Math.abs(
+          huskGreenDifference(HOP_SIDE, [0, d, 0]) -
+            huskGreenDifference(HOP_SIDE, [-1, d, 0]),
+        ),
+    )
     const noInstant = instant.every(x => !x)
     const cone = firstChange.every((k, i) => k === 0 || k >= HOP_D[i]!)
-    const d2 = noInstant && cone && firstChange.every(k => k > 0) && Math.abs(frontSpeed / c - 1) <= 0.1 && hopRecord.reversed && hopRecord.gaussOff === 0
+    const d2 =
+      noInstant &&
+      cone &&
+      firstChange.every(k => k > 0) &&
+      Math.abs(frontSpeed / c - 1) <= 0.1 &&
+      hopRecord.reversed &&
+      hopRecord.gaussOff === 0
 
     log('hop')
 
     // D3
     const fallRecord = newRecord()
-    const light = FALL_R.map(r => pairStep(mesh, rule, r, SOURCE, 1, STATIC_BEATS, fallRecord).w)
-    const heavy = FALL_R.map(r => pairStep(mesh, rule, r, SOURCE, 3, STATIC_BEATS, fallRecord).w)
-    const zero = FALL_R.map(r => pairStep(mesh, rule, r, 0, 1, STATIC_BEATS, fallRecord).w)
-    const force = (w: number[]): number => -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!)
+    const light = FALL_R.map(
+      r =>
+        pairStep(mesh, rule, r, SOURCE, 1, STATIC_BEATS, fallRecord).w,
+    )
+    const heavy = FALL_R.map(
+      r =>
+        pairStep(mesh, rule, r, SOURCE, 3, STATIC_BEATS, fallRecord).w,
+    )
+    const zero = FALL_R.map(
+      r => pairStep(mesh, rule, r, 0, 1, STATIC_BEATS, fallRecord).w,
+    )
+    const force = (w: number[]): number =>
+      -(w[1]! - w[0]!) / (FALL_R[1]! - FALL_R[0]!)
     const aLight = force(light)
     const aHeavy = force(heavy) / 3
     const aZero = force(zero)
-    const aWant = (-SOURCE * (Math.PI / DEPTH) * (huskGreenDifference(HOP_SIDE, [FALL_R[1]!, 0, 0]) - huskGreenDifference(HOP_SIDE, [FALL_R[0]!, 0, 0]))) / (FALL_R[1]! - FALL_R[0]!)
+    const aWant =
+      (-SOURCE *
+        (Math.PI / DEPTH) *
+        (huskGreenDifference(HOP_SIDE, [FALL_R[1]!, 0, 0]) -
+          huskGreenDifference(HOP_SIDE, [FALL_R[0]!, 0, 0]))) /
+      (FALL_R[1]! - FALL_R[0]!)
     const alike = Math.abs(aLight / aHeavy - 1)
-    const d3 = aLight < 0 && aHeavy < 0 && alike <= 1e-6 && Math.abs(aLight / aWant - 1) <= 1e-3 && Math.abs(aHeavy / aWant - 1) <= 1e-3 && Math.abs(aZero) < 1e-12 && fallRecord.reversed
+    const d3 =
+      aLight < 0 &&
+      aHeavy < 0 &&
+      alike <= 1e-6 &&
+      Math.abs(aLight / aWant - 1) <= 1e-3 &&
+      Math.abs(aHeavy / aWant - 1) <= 1e-3 &&
+      Math.abs(aZero) < 1e-12 &&
+      fallRecord.reversed
     const control = Math.abs(aLight / RECORDED_0080 - 1) <= 1e-5
 
     log('fall')
 
     // D4
-    const staticEnergy = staticStepRun(eqMesh, rule, lumpRho, STATIC_BEATS, newRecord()).energy
-    const energyRun = (levels: number): { drift: number; leastFree: number; sourceGap: number; samples: number[] } => {
+    const staticEnergy = staticStepRun(
+      eqMesh,
+      rule,
+      lumpRho,
+      STATIC_BEATS,
+      newRecord(),
+    ).energy
+
+    const energyRun = (
+      levels: number,
+    ): {
+      drift: number
+      leastFree: number
+      sourceGap: number
+      samples: number[]
+    } => {
       const r = stepRule(DEPTH, levels)
       const s = emptyStep(eqMesh)
       const sc = stepScratch(eqMesh)
@@ -243,32 +404,59 @@ export default experiment({
       s.line.set(placeLines(eqMesh, lumpRho))
 
       const samples: number[] = []
+
       let leastFree = Infinity
       let sourceGap = 0
+
       const sample = (): void => {
         const e = stepEnergy(eqMesh, r, s, lumpRho)
 
         samples.push(e.energy)
         leastFree = Math.min(leastFree, e.free)
-        sourceGap = Math.max(sourceGap, Math.abs(e.sourceFound - e.sourceLocal) / Math.max(1e-300, Math.abs(e.sourceLocal)))
+        sourceGap = Math.max(
+          sourceGap,
+          Math.abs(e.sourceFound - e.sourceLocal) /
+            Math.max(1e-300, Math.abs(e.sourceLocal)),
+        )
       }
 
       sample()
+
       for (let t = 1; t <= ENERGY_BEATS; t++) {
         stepBeat(eqMesh, r, s, sc)
-        if (t % ENERGY_EVERY === 0) sample()
+
+        if (t % ENERGY_EVERY === 0) {
+          sample()
+        }
       }
 
-      return { drift: Math.max(...samples.map(x => Math.abs(x - samples[0]!))) / Math.abs(staticEnergy), leastFree, sourceGap, samples }
+      return {
+        drift:
+          Math.max(...samples.map(x => Math.abs(x - samples[0]!))) /
+          Math.abs(staticEnergy),
+        leastFree,
+        sourceGap,
+        samples,
+      }
     }
+
     const byLevel = [1, 2, 3, 4].map(energyRun)
     const three = byLevel[2]!
-    const d4 = three.drift <= 1e-4 && byLevel[0]!.drift > byLevel[1]!.drift && byLevel[1]!.drift > three.drift && three.leastFree >= 0 && three.sourceGap <= 1e-9
+    const d4 =
+      three.drift <= 1e-4 &&
+      byLevel[0]!.drift > byLevel[1]!.drift &&
+      byLevel[1]!.drift > three.drift &&
+      three.leastFree >= 0 &&
+      three.sourceGap <= 1e-9
 
     log('energy')
 
     const d1 = d1a && d1b && d1c && d1d
-    const status = !control ? 'partial' : d1 && d2 && d3 && d4 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : d1 && d2 && d3 && d4
+        ? 'pass'
+        : 'fail'
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(2)
     const metrics: Record<string, number> = {
@@ -312,6 +500,7 @@ export default experiment({
       metrics[`hopLightCone_d${d}`] = rho[i]! / c
       metrics[`hopProjectedInstant_d${d}`] = projected[i]!
     })
+
     byLevel.forEach((b, i) => {
       metrics[`energyDrift_L${i + 1}`] = b.drift
     })
@@ -320,8 +509,16 @@ export default experiment({
       status,
       claim: `the radion on bounded registers (no depth stored, D ${DEPTH}, ${LEVELS} digits): a source hopping 15 times over ${LONG_BEATS} beats keeps Gauss (${longRecord.gaussOff} off), curl ${longRecord.curl}, ${longWraps} wraps, and reverses: ${longRun.reversed}; the dense M = 400 lump reverses through ${horizon.fWraps} step and ${horizon.vWraps} rate wraps: ${horizon.reversed}; covariant under x <-> y ${swapped} and x -> -x ${reflected}; the found depth equals E-GRV-0079's radion to ${e(equivalence.largestDifference)} (depths to ${f(equivalence.largestDepth)}); when a source hops one dock nothing changes at d = ${HOP_D.join(', ')} on the next beat (${noInstant ? 'none' : 'SOME'}) and the first register changes ${firstChange.join(', ')} beats after, the radial step's pulse half-peak at ${radialHalf.join(', ')}, a front at ${f(frontSpeed)} (c = ${f(c)}, ratio ${f(frontSpeed / c)}), where the content-solved depth would change at once by ${projected.map(e).join(', ')}; a 1-love and a 3-fear lump fall at ${f(aLight)} and ${f(aHeavy)} per unit content (alike to ${e(alike)}, closed form ${f(aWant)}, E-GRV-0080 ${RECORDED_0080}; inertia a stand-in); the energy drifts ${byLevel.map(b => e(b.drift)).join(', ')} of the static ${f(staticEnergy)} at 1 .. 4 digits over ${ENERGY_BEATS} beats`,
       metrics,
-      control: { recorded0080: RECORDED_0080, controlHolds: control ? 1 : 0 },
-      notes: `L2. Gates D1 ${d1} (a ${d1a}, b ${d1b}, c ${d1c}, d ${d1d}), D2 ${d2} (instant ${noInstant}, cone ${cone}), D3 ${d3}, D4 ${d4}; control ${control}. Found-depth pulse half-peaks ${depthHalf.join(', ')} (speed ${f(depthSpeed)}); light-cone beats rho / c ${rho.map(r => (r / c).toFixed(1)).join(', ')}. Radial pulse peaks ${radialPulse.map(p => e(Math.max(...p.map(Math.abs)))).join(', ')}, final changes ${radialPulse.map(p => e(p[p.length - 1]!)).join(', ')}. W at r = ${FALL_R.join(', ')}: light ${light.map(x => x.toExponential(8)).join(' ')}, heavy ${heavy.map(x => x.toExponential(8)).join(' ')}, zero ${zero.join(' ')}. Energy at 3 digits (every 512): ${three.samples.filter((_, i) => i % 8 === 0).map(x => x.toExponential(3)).join(' ')}; least field part ${e(three.leastFree)}; found against local source ${e(three.sourceGap)}. Horizon run energy ${e(horizon.energyStart)} to ${e(horizon.energyEnd)}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
+      control: {
+        recorded0080: RECORDED_0080,
+        controlHolds: control ? 1 : 0,
+      },
+      notes: `L2. Gates D1 ${d1} (a ${d1a}, b ${d1b}, c ${d1c}, d ${d1d}), D2 ${d2} (instant ${noInstant}, cone ${cone}), D3 ${d3}, D4 ${d4}; control ${control}. Found-depth pulse half-peaks ${depthHalf.join(', ')} (speed ${f(depthSpeed)}); light-cone beats rho / c ${rho.map(r => (r / c).toFixed(1)).join(', ')}. Radial pulse peaks ${radialPulse.map(p => e(Math.max(...p.map(Math.abs)))).join(', ')}, final changes ${radialPulse.map(p => e(p[p.length - 1]!)).join(', ')}. W at r = ${FALL_R.join(', ')}: light ${light.map(x => x.toExponential(8)).join(' ')}, heavy ${heavy.map(x => x.toExponential(8)).join(' ')}, zero ${zero.join(' ')}. Energy at 3 digits (every 512): ${three.samples
+        .filter((_, i) => i % 8 === 0)
+        .map(x => x.toExponential(3))
+        .join(
+          ' ',
+        )}; least field part ${e(three.leastFree)}; found against local source ${e(three.sourceGap)}. Horizon run energy ${e(horizon.energyStart)} to ${e(horizon.energyEnd)}. Survey ${((Date.now() - started) / 1000).toFixed(1)} s.`,
     })
   },
 })

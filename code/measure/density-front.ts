@@ -152,10 +152,10 @@ export function excessProfileSeries(input: {
       collision,
     })
 
-    ;[referenceCurrent, referenceScratch] = [
-      referenceScratch,
-      referenceCurrent,
-    ]
+    const referenceNext = referenceScratch
+
+    referenceScratch = referenceCurrent
+    referenceCurrent = referenceNext
 
     beatInto({
       src: bumpedCurrent,

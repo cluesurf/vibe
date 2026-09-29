@@ -86,10 +86,20 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
-import { coldBeat, coldEnergy, makeColdWeave, type ColdState, type ColdWeave } from '@/code/rule/cold-weave'
+import {
+  coldBeat,
+  coldEnergy,
+  makeColdWeave,
+  type ColdState,
+  type ColdWeave,
+} from '@/code/rule/cold-weave'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 
 const SIDE = 7
 const DENSITY = 0.4
@@ -101,9 +111,20 @@ const BROKEN_SHARE = 1 / 8
 const ROOTS = rootsD4()
 
 function coldSpec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 // each root's husk direction (drop x4), and the number of roots that cast it (2 on an axis, 1 on a diagonal)
@@ -111,6 +132,7 @@ const HUSK_KEYS: string[] = []
 const HUSK_OF = Int32Array.from(
   ROOTS.map(r => {
     const key = `${r[0]},${r[1]},${r[2]}`
+
     let h = HUSK_KEYS.indexOf(key)
 
     if (h < 0) {
@@ -121,7 +143,9 @@ const HUSK_OF = Int32Array.from(
     return h
   }),
 )
-const HUSK_SLOTS = HUSK_KEYS.map((_, h) => HUSK_OF.filter(x => x === h).length)
+const HUSK_SLOTS = HUSK_KEYS.map(
+  (_, h) => HUSK_OF.filter(x => x === h).length,
+)
 
 type Reading = {
   // husk: histogram of N per class (0 axis, 1 diagonal), and Fano sums
@@ -137,7 +161,10 @@ type Reading = {
   chargeExact: boolean
 }
 
-function startState(weave: ColdWeave, kind: 'spread' | 'broken'): ColdState {
+function startState(
+  weave: ColdWeave,
+  kind: 'spread' | 'broken',
+): ColdState {
   const n = weave.mesh.cellCount * 24
   const vibe = new Int8Array(n)
   const store = new Int32Array(n)
@@ -148,17 +175,25 @@ function startState(weave: ColdWeave, kind: 'spread' | 'broken'): ColdState {
     const d = i % 24
     const key = kind === 'broken' ? (cell % columns) * 24 + d : i
 
-    if (weyl(key + 1, GOLDEN) < DENSITY && !(kind === 'broken' && weyl(i + 1, SILVER) < BROKEN_SHARE)) {
+    if (
+      weyl(key + 1, GOLDEN) < DENSITY &&
+      !(kind === 'broken' && weyl(i + 1, SILVER) < BROKEN_SHARE)
+    ) {
       vibe[i] = weyl(key + 1, SILVER) < 0.5 ? 1 : -1
       store[i] = Math.floor(weyl(key + 7, SILVER) * 3)
     }
   }
 
-  return { vibe, store, demon: new Int32Array(weave.mesh.cellCount * 12) }
+  return {
+    vibe,
+    store,
+    demon: new Int32Array(weave.mesh.cellCount * 12),
+  }
 }
 
 function run(weave: ColdWeave, kind: 'spread' | 'broken'): Reading {
   let s = startState(weave, kind)
+
   const e0 = coldEnergy(s)
   const q0 = s.vibe.reduce((a, b) => a + b, 0)
   const columns = SIDE ** 3
@@ -168,10 +203,15 @@ function run(weave: ColdWeave, kind: 'spread' | 'broken'): Reading {
   const counts = new Int32Array(modes)
   const sum = new Float64Array(modes)
   const square = new Float64Array(modes)
-  const histogram = [new Float64Array(2 * SIDE + 1), new Float64Array(SIDE + 1)]
+  const histogram = [
+    new Float64Array(2 * SIDE + 1),
+    new Float64Array(SIDE + 1),
+  ]
   const level = [new Float64Array(LEVELS), new Float64Array(LEVELS)]
+
   let empty = 0
   let samples = 0
+
   const slots = s.vibe.length
 
   for (let t = 0; t < BEATS; t++) {
@@ -194,7 +234,8 @@ function run(weave: ColdWeave, kind: 'spread' | 'broken'): Reading {
       }
 
       const cell = (i / 24) | 0
-      const mode = (cell % columns) * HUSK_KEYS.length + (HUSK_OF[i % 24] ?? 0)
+      const mode =
+        (cell % columns) * HUSK_KEYS.length + (HUSK_OF[i % 24] ?? 0)
 
       counts[mode] = (counts[mode] ?? 0) + 1
 
@@ -229,7 +270,9 @@ function run(weave: ColdWeave, kind: 'spread' | 'broken'): Reading {
       continue
     }
 
-    fanoSum[c] = (fanoSum[c] ?? 0) + ((square[m] ?? 0) / samples - mean * mean) / mean
+    fanoSum[c] =
+      (fanoSum[c] ?? 0) +
+      ((square[m] ?? 0) / samples - mean * mean) / mean
     fillSum[c] = (fillSum[c] ?? 0) + mean / (gOf[h] ?? 1)
     modeCount[c] = (modeCount[c] ?? 0) + 1
   }
@@ -274,8 +317,12 @@ function logFactorial(k: number): number {
   return x
 }
 
-function totalVariation(measured: Float64Array, model: (k: number) => number): number {
+function totalVariation(
+  measured: Float64Array,
+  model: (k: number) => number,
+): number {
   const total = measured.reduce((a, b) => a + b, 0)
+
   let tv = 0
   let modelMass = 0
 
@@ -290,7 +337,16 @@ function totalVariation(measured: Float64Array, model: (k: number) => number): n
   return (tv + Math.max(0, 1 - modelMass)) / 2
 }
 
-type ClassStats = { fano: number; fill: number; g: number; fermi: number; bose: number; tvBinomial: number; tvPoisson: number; tvNegativeBinomial: number }
+type ClassStats = {
+  fano: number
+  fill: number
+  g: number
+  fermi: number
+  bose: number
+  tvBinomial: number
+  tvPoisson: number
+  tvNegativeBinomial: number
+}
 
 function classStats(r: Reading, c: number): ClassStats {
   const g = c === 0 ? 2 * SIDE : SIDE
@@ -308,13 +364,28 @@ function classStats(r: Reading, c: number): ClassStats {
     g,
     fermi: 1 - fill,
     bose: 1 + fill,
-    tvBinomial: totalVariation(h, k => Math.exp(logChoose(g, k) + k * Math.log(p) + (g - k) * Math.log(1 - p))),
-    tvPoisson: totalVariation(h, k => Math.exp(-mean + k * Math.log(mean) - logFactorial(k))),
-    tvNegativeBinomial: totalVariation(h, k => Math.exp(logChoose(g + k - 1, k) + g * Math.log(1 - q) + k * Math.log(q))),
+    tvBinomial: totalVariation(h, k =>
+      Math.exp(
+        logChoose(g, k) + k * Math.log(p) + (g - k) * Math.log(1 - p),
+      ),
+    ),
+    tvPoisson: totalVariation(h, k =>
+      Math.exp(-mean + k * Math.log(mean) - logFactorial(k)),
+    ),
+    tvNegativeBinomial: totalVariation(h, k =>
+      Math.exp(
+        logChoose(g + k - 1, k) + g * Math.log(1 - q) + k * Math.log(q),
+      ),
+    ),
   }
 }
 
-type Ladder = { plain: number[]; fermi: number[]; bose: number[]; spread: { plain: number; fermi: number; bose: number } }
+type Ladder = {
+  plain: number[]
+  fermi: number[]
+  bose: number[]
+  spread: { plain: number; fermi: number; bose: number }
+}
 
 function ladder(level: Float64Array): Ladder {
   const plain: number[] = []
@@ -331,20 +402,41 @@ function ladder(level: Float64Array): Ladder {
     bose.push(x(b, -1) / x(a, -1))
   }
 
-  const spread = (v: number[]): number => Math.max(...v) - Math.min(...v)
+  const spread = (v: number[]): number =>
+    Math.max(...v) - Math.min(...v)
 
-  return { plain, fermi, bose, spread: { plain: spread(plain), fermi: spread(fermi), bose: spread(bose) } }
+  return {
+    plain,
+    fermi,
+    bose,
+    spread: {
+      plain: spread(plain),
+      fermi: spread(fermi),
+      bose: spread(bose),
+    },
+  }
 }
 
-function pairs(r: Reading): { beta: number; ratio: number; predicted: number; miss: number } {
+function pairs(r: Reading): {
+  beta: number
+  ratio: number
+  predicted: number
+  miss: number
+} {
   const love = ladder(r.level[0]!)
   const fear = ladder(r.level[1]!)
   const all = [...love.plain, ...fear.plain]
   const beta = -Math.log(all.reduce((a, b) => a + b, 0) / all.length)
-  const ratio = ((r.level[0]?.[0] ?? 0) * (r.level[1]?.[0] ?? 0)) / r.empty ** 2
+  const ratio =
+    ((r.level[0]?.[0] ?? 0) * (r.level[1]?.[0] ?? 0)) / r.empty ** 2
   const predicted = Math.exp(-2 * beta)
 
-  return { beta, ratio, predicted, miss: Math.abs(ratio / predicted - 1) }
+  return {
+    beta,
+    ratio,
+    predicted,
+    miss: Math.abs(ratio / predicted - 1),
+  }
 }
 
 export default experiment({
@@ -361,11 +453,15 @@ export default experiment({
     const spec = coldSpec()
     const weave = makeColdWeave({ mesh, spec })
     const frozen = makeColdWeave({ mesh, spec, threshold: false })
-    const runs = { spread: run(weave, 'spread'), broken: run(weave, 'broken') }
+    const runs = {
+      spread: run(weave, 'spread'),
+      broken: run(weave, 'broken'),
+    }
     const control = run(frozen, 'spread')
     const metrics: Record<string, number> = {}
     const round = (x: number): number => Number(x.toPrecision(6))
     const classes = ['axis', 'diagonal']
+
     let g1 = true
     let g2 = true
     let g3 = true
@@ -381,15 +477,29 @@ export default experiment({
         metrics[`${name}Husk${label}Fill`] = round(x.fill)
         metrics[`${name}Husk${label}TvBinomial`] = round(x.tvBinomial)
         metrics[`${name}Husk${label}TvPoisson`] = round(x.tvPoisson)
-        metrics[`${name}Husk${label}TvNegativeBinomial`] = round(x.tvNegativeBinomial)
-        g1 = g1 && Math.abs(x.fano - x.fermi) <= 0.05 && Math.abs(x.fano - 1) >= 0.2 && Math.abs(x.fano - x.bose) >= 0.2
+        metrics[`${name}Husk${label}TvNegativeBinomial`] = round(
+          x.tvNegativeBinomial,
+        )
+
+        g1 =
+          g1 &&
+          Math.abs(x.fano - x.fermi) <= 0.05 &&
+          Math.abs(x.fano - 1) >= 0.2 &&
+          Math.abs(x.fano - x.bose) >= 0.2
 
         if (name === 'spread') {
-          g2 = g2 && x.tvBinomial <= 0.02 && x.tvBinomial <= x.tvPoisson / 2 && x.tvBinomial <= x.tvNegativeBinomial / 2
+          g2 =
+            g2 &&
+            x.tvBinomial <= 0.02 &&
+            x.tvBinomial <= x.tvPoisson / 2 &&
+            x.tvBinomial <= x.tvNegativeBinomial / 2
         }
       })
 
-      const fill = r.level.reduce((a, b) => a + b.reduce((x, y) => x + y, 0), 0)
+      const fill = r.level.reduce(
+        (a, b) => a + b.reduce((x, y) => x + y, 0),
+        0,
+      )
 
       metrics[`${name}BulkFill`] = round(fill)
       metrics[`${name}BulkEmpty`] = round(r.empty)
@@ -400,13 +510,24 @@ export default experiment({
         r.level[k]!.forEach((x, s) => {
           metrics[`${name}${charge}Level${s}`] = round(x)
         })
+
         l.plain.forEach((x, s) => {
           metrics[`${name}${charge}Ratio${s}`] = round(x)
         })
         metrics[`${name}${charge}SpreadPlain`] = round(l.spread.plain)
-        metrics[`${name}${charge}SpreadFermiDirac`] = round(l.spread.fermi)
-        metrics[`${name}${charge}SpreadBoseEinstein`] = round(l.spread.bose)
-        g3 = g3 && l.spread.plain <= 0.01 && l.spread.plain <= l.spread.fermi / 2 && l.spread.plain <= l.spread.bose / 2
+        metrics[`${name}${charge}SpreadFermiDirac`] = round(
+          l.spread.fermi,
+        )
+
+        metrics[`${name}${charge}SpreadBoseEinstein`] = round(
+          l.spread.bose,
+        )
+
+        g3 =
+          g3 &&
+          l.spread.plain <= 0.01 &&
+          l.spread.plain <= l.spread.fermi / 2 &&
+          l.spread.plain <= l.spread.bose / 2
       })
 
       const p = pairs(r)
@@ -419,8 +540,19 @@ export default experiment({
     }
 
     classes.forEach((label, c) => {
-      g1 = g1 && Math.abs(classStats(runs.spread, c).fano - classStats(runs.broken, c).fano) <= 0.05
-      metrics[`fillsDiffer${label}Fano`] = round(Math.abs(classStats(runs.spread, c).fano - classStats(runs.broken, c).fano))
+      g1 =
+        g1 &&
+        Math.abs(
+          classStats(runs.spread, c).fano -
+            classStats(runs.broken, c).fano,
+        ) <= 0.05
+
+      metrics[`fillsDiffer${label}Fano`] = round(
+        Math.abs(
+          classStats(runs.spread, c).fano -
+            classStats(runs.broken, c).fano,
+        ),
+      )
     })
 
     const pc = pairs(control)
@@ -434,17 +566,25 @@ export default experiment({
         controlLevels[`thresholdOff${charge}Level${s}`] = round(x)
       })
     })
-    const g6 = [runs.spread, runs.broken, control].every(r => r.energyExact && r.chargeExact)
+
+    const g6 = [runs.spread, runs.broken, control].every(
+      r => r.energyExact && r.chargeExact,
+    )
     const gates = { G1: g1, G2: g2, G3: g3, G4: g4, G5: g5, G6: g6 }
     const ok = Object.values(gates).every(Boolean)
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'on the side-7 cold vacuum the husk modes are g independent exclusive slots (total variation 0.002 from the binomial, 0.16 from Maxwell-Boltzmann, 0.26 from Bose-Einstein, Fano at 1 - n/g from a spread fill and from a depth-broken coherent one), pair making sets mu_love + mu_fear = 0 (n(+,0) n(-,0) / n(empty)^2 = e^(-2 beta) to 0.3 and 1.2 percent), the broken fill\'s store ladder is the Gibbs measure of a slot holding one vibe of any level (ratio spread 0.004 to 0.007, against 0.03 for independent Fermi-Dirac and Bose-Einstein levels) while the spread fill\'s top rung is too noisy for the gate, and with the threshold off there is no temperature at all, because no other move changes a store',
+        "on the side-7 cold vacuum the husk modes are g independent exclusive slots (total variation 0.002 from the binomial, 0.16 from Maxwell-Boltzmann, 0.26 from Bose-Einstein, Fano at 1 - n/g from a spread fill and from a depth-broken coherent one), pair making sets mu_love + mu_fear = 0 (n(+,0) n(-,0) / n(empty)^2 = e^(-2 beta) to 0.3 and 1.2 percent), the broken fill's store ladder is the Gibbs measure of a slot holding one vibe of any level (ratio spread 0.004 to 0.007, against 0.03 for independent Fermi-Dirac and Bose-Einstein levels) while the spread fill's top rung is too noisy for the gate, and with the threshold off there is no temperature at all, because no other move changes a store",
       metrics: {
         ...metrics,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         thresholdOffBeta: round(pc.beta),
@@ -456,7 +596,7 @@ export default experiment({
         samplesPerRun: runs.spread.samples,
       },
       notes:
-        'L2, Weyl fills, no random numbers, side 7, 1,500 beats, 100 samples in beats 1,000 to 1,500. Status fail on G3 (the spread fill\'s third ladder ratio) and G5 (the threshold-off control has no temperature to compare, a harness error in the first run that passed it, corrected). The pair relation R = e^(-2 beta) had been checked on E-SPN-0048\'s printed shares before this file was written, so its pass on the spread fill is a replication, and on the broken fill a new case.',
+        "L2, Weyl fills, no random numbers, side 7, 1,500 beats, 100 samples in beats 1,000 to 1,500. Status fail on G3 (the spread fill's third ladder ratio) and G5 (the threshold-off control has no temperature to compare, a harness error in the first run that passed it, corrected). The pair relation R = e^(-2 beta) had been checked on E-SPN-0048's printed shares before this file was written, so its pass on the spread fill is a replication, and on the broken fill a new case.",
     })
   },
 })

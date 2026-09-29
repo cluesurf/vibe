@@ -106,7 +106,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import { lapseLinks, openMesh } from '@/code/rule/open-husk'
 import { stackModes } from '@/code/measure/open-husk'
 import { linearFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
 import {
   bandFloor,
   chainSpeed,
@@ -152,7 +155,13 @@ const FLAT_BLOCK = 8
 const FLAT_SINGLE = 0.1
 const K2_TOLERANCE = 0.2
 
-type Geometry = { inner: number; from: number; radii: number[]; start: number; length: number }
+type Geometry = {
+  inner: number
+  from: number
+  radii: number[]
+  start: number
+  length: number
+}
 
 type Horizon = {
   rh: number
@@ -172,8 +181,12 @@ type Horizon = {
   temperature: number
 }
 
-const exact = (c: Chain): boolean => c.run.reversed && c.run.gauss === 0 && c.run.wraps.angle + c.run.wraps.field + c.run.wraps.potential === 0
-const spreadOf = (xs: readonly number[]): number => Math.max(...xs) / Math.min(...xs) - 1
+const exact = (c: Chain): boolean =>
+  c.run.reversed &&
+  c.run.gauss === 0 &&
+  c.run.wraps.angle + c.run.wraps.field + c.run.wraps.potential === 0
+const spreadOf = (xs: readonly number[]): number =>
+  Math.max(...xs) / Math.min(...xs) - 1
 const even = (n: number): number => 2 * Math.ceil(n / 2)
 
 export default experiment({
@@ -187,7 +200,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
     const base = headroomLimit(D0)
@@ -196,7 +210,13 @@ export default experiment({
     let refused = false
 
     try {
-      roomSliceMedium({ from: 0, length: 4, resolution: D0, base: base + 2, room: r => (r < 2 ? 0 : base + 2) })
+      roomSliceMedium({
+        from: 0,
+        length: 4,
+        resolution: D0,
+        base: base + 2,
+        room: r => (r < 2 ? 0 : base + 2),
+      })
     } catch {
       refused = true
     }
@@ -211,25 +231,53 @@ export default experiment({
     const geometry = (rh: number): Geometry => {
       const inner = Math.ceil(rh)
       const from = inner - 2
-      const outer = Math.max(Math.ceil(REACH * rh) + 1, Math.floor(rh) + NEAR_OUT + 1)
+      const outer = Math.max(
+        Math.ceil(REACH * rh) + 1,
+        Math.floor(rh) + NEAR_OUT + 1,
+      )
       const start = outer + GAP + WIDTH / 2
 
-      return { inner, from, radii: Array.from({ length: outer - Math.floor(rh) + 1 }, (_, i) => Math.floor(rh) + i), start, length: even(start + WIDTH - from) }
+      return {
+        inner,
+        from,
+        radii: Array.from(
+          { length: outer - Math.floor(rh) + 1 },
+          (_, i) => Math.floor(rh) + i,
+        ),
+        start,
+        length: even(start + WIDTH - from),
+      }
     }
 
     // the flat slice: full room, the seam's wall WIDTH docks inside the first detector
     const gf = geometry(R_H[0]!)
     const flatFrom = gf.inner - 2 - WIDTH
-    const flatMedium = roomSliceMedium({ from: flatFrom, length: even(gf.start + WIDTH - flatFrom), resolution: D0, base, room: r => (r < flatFrom + 2 ? 0 : base) })
+    const flatMedium = roomSliceMedium({
+      from: flatFrom,
+      length: even(gf.start + WIDTH - flatFrom),
+      resolution: D0,
+      base,
+      room: r => (r < flatFrom + 2 ? 0 : base),
+    })
     const flatRadii = gf.radii.filter(r => r >= gf.inner)
-    const flat = roomChain(flatMedium, -flatFrom, smoothPacket(flatMedium, LEVELS, gf.start - flatFrom, AMP, WIDTH), flatRadii, Math.ceil((SLACK * (gf.start + WIDTH / 2 - gf.inner)) / c0))
+    const flat = roomChain(
+      flatMedium,
+      -flatFrom,
+      smoothPacket(flatMedium, LEVELS, gf.start - flatFrom, AMP, WIDTH),
+      flatRadii,
+      Math.ceil((SLACK * (gf.start + WIDTH / 2 - gf.inner)) / c0),
+    )
     const cFlat = chainSpeed(flat)
     const flatIvs = roomIntervals(flat, cFlat, SHARE)
     const flatWorst = Math.max(...flatIvs.map(iv => Math.abs(iv.lnz)))
     // the flat chain on FLAT_BLOCK-dock intervals: f = FLAT_BLOCK / (dt c_flat)
     const flatBlocks: number[] = []
 
-    for (let i = 0; i + FLAT_BLOCK < flat.radii.length; i += FLAT_BLOCK) {
+    for (
+      let i = 0;
+      i + FLAT_BLOCK < flat.radii.length;
+      i += FLAT_BLOCK
+    ) {
       const dt = flat.arrival[i]! - flat.arrival[i + FLAT_BLOCK]!
 
       flatBlocks.push(-0.5 * Math.log(FLAT_BLOCK / (dt * cFlat)))
@@ -243,9 +291,23 @@ export default experiment({
       const m = CAP / profile.at(rh)
       const room = roomOf(profile, m, CAP, base)
       const g = geometry(rh)
-      const window = Math.ceil(SLACK * stairTime(room, base, c0, g.inner, g.start + WIDTH / 2))
-      const med = roomSliceMedium({ from: g.from, length: g.length, resolution: D0, base, room })
-      const chain = roomChain(med, -g.from, smoothPacket(med, LEVELS, g.start - g.from, AMP, WIDTH), g.radii, window)
+      const window = Math.ceil(
+        SLACK * stairTime(room, base, c0, g.inner, g.start + WIDTH / 2),
+      )
+      const med = roomSliceMedium({
+        from: g.from,
+        length: g.length,
+        resolution: D0,
+        base,
+        room,
+      })
+      const chain = roomChain(
+        med,
+        -g.from,
+        smoothPacket(med, LEVELS, g.start - g.from, AMP, WIDTH),
+        g.radii,
+        window,
+      )
       const ivs = roomIntervals(chain, cFlat, SHARE)
       const pk = profileKappa(profile, rh, c0)
       const floor = bandFloor(pk.slope, RATE_BAND)
@@ -254,9 +316,17 @@ export default experiment({
         ivs.filter(iv => iv.r > g.inner),
         floor,
       )
-      const stairs = stairIntervals(room, base, c0, g.inner, g.radii[g.radii.length - 1]!)
+      const stairs = stairIntervals(
+        room,
+        base,
+        c0,
+        g.inner,
+        g.radii[g.radii.length - 1]!,
+      )
 
-      log(`r_h ${rh} window ${window} L ${g.length} seconds ${chain.run.seconds}`)
+      log(
+        `r_h ${rh} window ${window} L ${g.length} seconds ${chain.run.seconds}`,
+      )
 
       return {
         rh,
@@ -265,7 +335,10 @@ export default experiment({
         chain,
         ivs,
         firstRoom: room(g.inner),
-        frozenWeight: g.radii.reduce((a, r, i) => (r <= rh ? a + chain.run.weight[i]! : a), 0),
+        frozenWeight: g.radii.reduce(
+          (a, r, i) => (r <= rh ? a + chain.run.weight[i]! : a),
+          0,
+        ),
         band,
         cross,
         crossStair: exponential(
@@ -286,20 +359,41 @@ export default experiment({
     const all = [...olds, ...reported, ...horizons]
 
     // THE GATES
-    const l1Of = (h: Horizon): boolean => h.cross.count >= L1_COUNT && h.cross.span >= L1_SPAN && Math.abs(h.cross.rate / h.kappa - 1) <= L1_TOLERANCE
+    const l1Of = (h: Horizon): boolean =>
+      h.cross.count >= L1_COUNT &&
+      h.cross.span >= L1_SPAN &&
+      Math.abs(h.cross.rate / h.kappa - 1) <= L1_TOLERANCE
     const l1 = horizons.every(l1Of)
     const tm = horizons.map(h => h.temperature * h.m)
     const l2 = spreadOf(tm) <= L2_TOLERANCE
     const l3 = [flat, ...all.map(h => h.chain)].every(exact)
-    const k1 = flatIvs.length > 0 && flatBlocks.length > 0 && flatBlockWorst <= FLAT_LNZ && flatWorst <= FLAT_SINGLE * horizons[0]!.floor
-    const k2 = olds.every((h, i) => Math.abs(h.near.span - OLD_SPAN[i]!) <= K2_TOLERANCE && h.band.span < L1_SPAN)
-    const status = l1 && l2 && l3 && k1 && k2 && refused ? 'pass' : 'fail'
+    const k1 =
+      flatIvs.length > 0 &&
+      flatBlocks.length > 0 &&
+      flatBlockWorst <= FLAT_LNZ &&
+      flatWorst <= FLAT_SINGLE * horizons[0]!.floor
+    const k2 = olds.every(
+      (h, i) =>
+        Math.abs(h.near.span - OLD_SPAN[i]!) <= K2_TOLERANCE &&
+        h.band.span < L1_SPAN,
+    )
+    const status =
+      l1 && l2 && l3 && k1 && k2 && refused ? 'pass' : 'fail'
 
     // THE WINDOW AGAINST ln M: the light's top ln z and band span, fitted in ln M over the dock-limited sizes (k_1 >= 2)
     const docked = all.filter(h => h.firstRoom >= 2)
-    const topSlope = linearFit({ xs: docked.map(h => Math.log(h.m)), ys: docked.map(h => h.band.top) }).slope
-    const crossTopSlope = linearFit({ xs: all.map(h => Math.log(h.m)), ys: all.map(h => h.cross.top) }).slope
-    const spanSlope = linearFit({ xs: all.map(h => Math.log(h.m)), ys: all.map(h => h.band.span) }).slope
+    const topSlope = linearFit({
+      xs: docked.map(h => Math.log(h.m)),
+      ys: docked.map(h => h.band.top),
+    }).slope
+    const crossTopSlope = linearFit({
+      xs: all.map(h => Math.log(h.m)),
+      ys: all.map(h => h.cross.top),
+    }).slope
+    const spanSlope = linearFit({
+      xs: all.map(h => Math.log(h.m)),
+      ys: all.map(h => h.band.span),
+    }).slope
 
     all.forEach(h => {
       const key = `r${Math.floor(h.rh)}`
@@ -320,7 +414,8 @@ export default experiment({
       metrics[`${key}_crossSpan`] = h.cross.span
       metrics[`${key}_crossRateOverKappa`] = h.cross.rate / h.kappa
       metrics[`${key}_crossStairSpan`] = h.crossStair.span
-      metrics[`${key}_crossStairRateOverKappa`] = h.crossStair.rate / h.kappa
+      metrics[`${key}_crossStairRateOverKappa`] =
+        h.crossStair.rate / h.kappa
       metrics[`${key}_stairSpan`] = h.stair.span
       metrics[`${key}_stairRateOverKappa`] = h.stair.rate / h.kappa
       metrics[`${key}_nearSpan`] = h.near.span
@@ -333,7 +428,10 @@ export default experiment({
       lines.push(
         `r_h ${h.rh} (M ${h.m.toFixed(0)}, ln M ${Math.log(h.m).toFixed(3)}, window ${h.window}): first room ${h.firstRoom}/${base}; top ln z ${h.band.top.toFixed(3)} (staircase ${(0.5 * Math.log(base / h.firstRoom)).toFixed(3)}, dock law ${(0.5 * Math.log(2 * h.rh + 1)).toFixed(3)}); crossing band >= ${h.floor.toFixed(4)}: ${h.cross.count} intervals spanning ${h.cross.span.toFixed(3)} (top ${h.cross.top.toFixed(3)}), rate over kappa ${(h.cross.rate / h.kappa).toFixed(3)} (staircase ${h.crossStair.span.toFixed(3)}, ${(h.crossStair.rate / h.kappa).toFixed(3)}); with the wall face ${h.band.count} intervals spanning ${h.band.span.toFixed(3)}, rate over kappa ${(h.band.rate / h.kappa).toFixed(3)} (staircase ${h.stair.span.toFixed(3)}, ${(h.stair.rate / h.kappa).toFixed(3)}); near zone ${h.near.count} spanning ${h.near.span.toFixed(3)}; T M ${(h.temperature * h.m).toExponential(4)} (profile ${((h.kappa / (2 * Math.PI)) * h.m).toExponential(4)}); frozen weight ${h.frozenWeight}; intervals ${h.ivs
           .filter(iv => iv.lnz >= NEAR_ZONE)
-          .map(iv => `${iv.mid}:${iv.f.toExponential(3)}/${iv.lnz.toFixed(3)}/${iv.u.toFixed(0)}`)
+          .map(
+            iv =>
+              `${iv.mid}:${iv.f.toExponential(3)}/${iv.lnz.toFixed(3)}/${iv.u.toFixed(0)}`,
+          )
           .join(' ')}`,
       )
     })
@@ -357,13 +455,21 @@ export default experiment({
     metrics.registerCeiling = 0.5 * Math.log(base)
     metrics.seconds = (Date.now() - started) / 1000
 
-    lines.push(`flat intervals ln z ${flatIvs.map(iv => iv.lnz.toExponential(2)).join(' ')}`)
+    lines.push(
+      `flat intervals ln z ${flatIvs.map(iv => iv.lnz.toExponential(2)).join(' ')}`,
+    )
 
     return verdict({
       status,
       claim: `the room coupling at D0 ${D0}, C ${base} (the rule's exact limit) on the 1 / r profile at r_h ${R_H.join(', ')}: crossing bands span ${horizons.map(h => h.cross.span.toFixed(3)).join(', ')} (gate ${L1_SPAN}) at rate over kappa ${horizons.map(h => (h.cross.rate / h.kappa).toFixed(3)).join(', ')}, with the wall face ${horizons.map(h => h.band.span.toFixed(3)).join(', ')}; T M spread ${spreadOf(tm).toFixed(4)} (gate ${L2_TOLERANCE}); top ln z ${all.map(h => h.band.top.toFixed(3)).join(', ')} at r_h ${all.map(h => h.rh).join(', ')} against the register's ${(0.5 * Math.log(base)).toFixed(3)}; flat ${flatWorst.toExponential(2)}; E-GRV-0122's near zones ${olds.map(h => h.near.span.toFixed(3)).join(', ')}; exact ${l3}`,
       metrics,
-      control: { k1: k1 ? 1 : 0, k2: k2 ? 1 : 0, flatWorst, old12: olds[0]!.near.span, old48: olds[1]!.near.span },
+      control: {
+        k1: k1 ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        flatWorst,
+        old12: olds[0]!.near.span,
+        old48: olds[1]!.near.span,
+      },
       notes: `L2. L1 ${l1}, L2 ${l2}, L3 ${l3}, K1 ${k1}, K2 ${k2}, limit refused above ${refused}. ${lines.join('. ')}.`,
     })
   },

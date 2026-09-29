@@ -38,13 +38,37 @@
 // NOTHING MOVES: the coin copies a vibe to the other slot of its own line on its own dock, the stream copies each
 // slot's value one dock along; a link holds nothing. Exact in Z[w][1/2]; no float, no rounding, no random number.
 
-import { LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  SIDE,
+} from '@/code/rule/isometric-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { lockedBeat, lockedBeatBack, mergeBranches, times, type Branch, type Configuration, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
-import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  lockedBeat,
+  lockedBeatBack,
+  mergeBranches,
+  times,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+  type LockedTally,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  vetoBeat,
+  vetoBeatBack,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 
-export const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+export const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 export type CoinOptions = { readonly fermion: boolean }
 
@@ -77,10 +101,18 @@ const cloneBranch = (b: Branch): Branch => ({
 
 export type CoinTally = { splits: number; determinants: number }
 
-export const newCoinTally = (): CoinTally => ({ splits: 0, determinants: 0 })
+export const newCoinTally = (): CoinTally => ({
+  splits: 0,
+  determinants: 0,
+})
 
 // the coin on one branch: the list of branches it becomes
-export function coinBranch(cells: number, br: Branch, adjoint: boolean, tally?: CoinTally): Branch[] {
+export function coinBranch(
+  cells: number,
+  br: Branch,
+  adjoint: boolean,
+  tally?: CoinTally,
+): Branch[] {
   const side = adjoint ? 1 : 0
   const halves: { from: number; to: number }[] = []
 
@@ -88,33 +120,49 @@ export function coinBranch(cells: number, br: Branch, adjoint: boolean, tally?: 
     const base = x * 24
 
     for (let l = 0; l < 12; l++) {
-      const i = base + (LINE_FIRSTS[l] as number)
-      const j = base + (LINE_SECONDS[l] as number)
+      const i = base + LINE_FIRSTS[l]!
+      const j = base + LINE_SECONDS[l]!
       const hi = br.vibe[i] !== 0
       const hj = br.vibe[j] !== 0
 
       if (hi && hj) {
         if (br.open[i] && br.open[j]) {
-          const [u, v] = DET[side] as [bigint, bigint]
+          const [u, v] = DET[side]!
 
           times(br, u, v)
-          if (tally) tally.determinants++
+
+          if (tally) {
+            tally.determinants++
+          }
         }
 
         continue
       }
 
-      if (hi && br.open[i]) halves.push({ from: i, to: j })
-      else if (hj && br.open[j]) halves.push({ from: j, to: i })
+      if (hi && br.open[i]) {
+        halves.push({ from: i, to: j })
+      } else if (hj && br.open[j]) {
+        halves.push({ from: j, to: i })
+      }
     }
   }
 
-  if (halves.length === 0) return [br]
-  if (halves.length > 20) throw new Error(`coined-locked-knit: ${halves.length} half-full open lines in one branch, over the guard 20`)
-  if (tally) tally.splits += halves.length
+  if (halves.length === 0) {
+    return [br]
+  }
 
-  const [ku, kv] = KEEP[side] as [bigint, bigint]
-  const [cu, cv] = CROSS[side] as [bigint, bigint]
+  if (halves.length > 20) {
+    throw new Error(
+      `coined-locked-knit: ${halves.length} half-full open lines in one branch, over the guard 20`,
+    )
+  }
+
+  if (tally) {
+    tally.splits += halves.length
+  }
+
+  const [ku, kv] = KEEP[side]!
+  const [cu, cv] = CROSS[side]!
   const out: Branch[] = []
 
   for (let mask = 0; mask < 1 << halves.length; mask++) {
@@ -122,14 +170,16 @@ export function coinBranch(cells: number, br: Branch, adjoint: boolean, tally?: 
 
     halves.forEach((h, n) => {
       if ((mask >> n) & 1) {
-        b.vibe[h.to] = b.vibe[h.from] as number
-        b.point[h.to] = b.point[h.from] as number
-        b.open[h.to] = b.open[h.from] as number
+        b.vibe[h.to] = b.vibe[h.from]!
+        b.point[h.to] = b.point[h.from]!
+        b.open[h.to] = b.open[h.from]!
         b.vibe[h.from] = 0
         b.point[h.from] = 0
         b.open[h.from] = 0
         times(b, cu, cv)
-      } else times(b, ku, kv)
+      } else {
+        times(b, ku, kv)
+      }
     })
 
     b.k += halves.length
@@ -143,7 +193,7 @@ export function coinBranch(cells: number, br: Branch, adjoint: boolean, tally?: 
 export function modeIndex(slot: number): number {
   const d = slot % 24
 
-  return (slot - d) + 2 * (LINE_OF[d] as number) + (SIDE[d] === 1 ? 0 : 1)
+  return slot - d + 2 * LINE_OF[d]! + (SIDE[d] === 1 ? 0 : 1)
 }
 
 const PERM = new Int32Array(24)
@@ -152,47 +202,81 @@ const VIBE = new Int8Array(24)
 // the parity (+1 or -1) of the permutation the collision and stream of beat t give the occupied modes of a
 // configuration (its occupation, which the meeting keeps)
 export function fermionSign(t: LockedTables, br: Branch): number {
-  for (let s = 0; s < br.store.length; s++) if (br.store[s] !== 0) throw new Error('coined-locked-knit: the fermion sign is not written for a configuration holding a store')
+  for (let s = 0; s < br.store.length; s++) {
+    if (br.store[s] !== 0) {
+      throw new Error(
+        'coined-locked-knit: the fermion sign is not written for a configuration holding a store',
+      )
+    }
+  }
 
   const from: number[] = []
   const to: number[] = []
+
   let kindSeen = 0
 
   for (let x = 0; x < t.cells; x++) {
     const base = x * 24
+
     let held = 0
 
     for (let d = 0; d < 24; d++) {
-      const v = br.vibe[base + d] as number
+      const v = br.vibe[base + d]!
 
       VIBE[d] = v
+
       if (v !== 0) {
         held++
-        if (kindSeen === 0) kindSeen = v
-        else if (v !== kindSeen) throw new Error('coined-locked-knit: the fermion sign is not written for a configuration holding loves and fears')
+
+        if (kindSeen === 0) {
+          kindSeen = v
+        } else if (v !== kindSeen) {
+          throw new Error(
+            'coined-locked-knit: the fermion sign is not written for a configuration holding loves and fears',
+          )
+        }
       }
     }
 
-    if (held === 0) continue
+    if (held === 0) {
+      continue
+    }
 
-    const kind = bouncePermutation(BOUNCE_TABLE, t.collision, VIBE, 0, PERM)
+    const kind = bouncePermutation(
+      BOUNCE_TABLE,
+      t.collision,
+      VIBE,
+      0,
+      PERM,
+    )
 
     for (let d = 0; d < 24; d++) {
-      if (VIBE[d] === 0) continue
+      if (VIBE[d] === 0) {
+        continue
+      }
 
-      const after = kind === 0 ? d : (PERM[d] as number)
+      const after = kind === 0 ? d : PERM[d]!
 
       from.push(modeIndex(base + d))
-      to.push(modeIndex(t.target[base + after] as number))
+      to.push(modeIndex(t.target[base + after]!))
     }
   }
 
   // parity of the sequence `to` read in the order of `from`
-  const order = from.map((_, i) => i).sort((p, q) => (from[p] as number) - (from[q] as number))
-  const seq = order.map(i => to[i] as number)
+  const order = from
+    .map((_, i) => i)
+    .sort((p, q) => from[p]! - from[q]!)
+  const seq = order.map(i => to[i]!)
+
   let inversions = 0
 
-  for (let p = 0; p < seq.length; p++) for (let q = p + 1; q < seq.length; q++) if ((seq[p] as number) > (seq[q] as number)) inversions++
+  for (let p = 0; p < seq.length; p++) {
+    for (let q = p + 1; q < seq.length; q++) {
+      if (seq[p]! > seq[q]!) {
+        inversions++
+      }
+    }
+  }
 
   return inversions % 2 === 0 ? 1 : -1
 }
@@ -208,14 +292,27 @@ function signed(t: LockedTables, s: LockedState): LockedState {
   return s
 }
 
-export function coinedBeat(t: LockedTables, s: LockedState, beat: number, options: CoinOptions, tally?: LockedTally, coinTally?: CoinTally): LockedState {
+export function coinedBeat(
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  options: CoinOptions,
+  tally?: LockedTally,
+  coinTally?: CoinTally,
+): LockedState {
   const coined: Branch[] = []
 
-  for (const br of s.branches) coined.push(...coinBranch(t.cells, cloneBranch(br), false, coinTally))
+  for (const br of s.branches) {
+    coined.push(
+      ...coinBranch(t.cells, cloneBranch(br), false, coinTally),
+    )
+  }
 
   let mid: LockedState = { branches: mergeBranches(coined) }
 
-  if (options.fermion) mid = signed(t, mid)
+  if (options.fermion) {
+    mid = signed(t, mid)
+  }
 
   return lockedBeat(t, mid, beat, tally)
 }
@@ -224,18 +321,42 @@ export function coinedBeat(t: LockedTables, s: LockedState, beat: number, option
 // occupation-veto-knit (a chosen veto, 'none' for the working vacuum) in place of the locked knit's, so the coin, then
 // the meetings, the veto's collision and the stream. No fermion sign: it is not written for a configuration holding a
 // store (fermionSign refuses), so this is the configuration code plus the coin ('native' in E-SPN-0091).
-export function coinedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally): LockedState {
+export function coinedVetoBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+  coinTally?: CoinTally,
+): LockedState {
   const coined: Branch[] = []
 
-  for (const br of s.branches) coined.push(...coinBranch(t.cells, cloneBranch(br), false, coinTally))
+  for (const br of s.branches) {
+    coined.push(
+      ...coinBranch(t.cells, cloneBranch(br), false, coinTally),
+    )
+  }
 
-  return vetoBeat(kind, t, { branches: mergeBranches(coined) }, beat, tally)
+  return vetoBeat(
+    kind,
+    t,
+    { branches: mergeBranches(coined) },
+    beat,
+    tally,
+  )
 }
 
-export function coinedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number): LockedState {
+export function coinedVetoBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+): LockedState {
   const out: Branch[] = []
 
-  for (const br of vetoBeatBack(kind, t, s, beat).branches) out.push(...coinBranch(t.cells, cloneBranch(br), true))
+  for (const br of vetoBeatBack(kind, t, s, beat).branches) {
+    out.push(...coinBranch(t.cells, cloneBranch(br), true))
+  }
 
   return { branches: mergeBranches(out) }
 }
@@ -258,26 +379,48 @@ export function coinedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedSta
 // NOTHING MOVES: the vibe's value, point and open bit are taken by another slot of its own frame on its own dock.
 
 const ROOTS = rootsD4()
-const dotRoots = (d: number, e: number): number => (ROOTS[d] as number[]).reduce((s, x, k) => s + x * ((ROOTS[e] as number[])[k] as number), 0)
+const dotRoots = (d: number, e: number): number =>
+  ROOTS[d]!.reduce((s, x, k) => s + x * ROOTS[e]![k]!, 0)
 
-function frameTables(): { lines: number[][]; slots: number[][]; frameOfSlot: number[]; frameOfLine: number[] } {
+function frameTables(): {
+  lines: number[][]
+  slots: number[][]
+  frameOfSlot: number[]
+  frameOfLine: number[]
+} {
   const lines: number[][] = []
   const seen = new Set<number>()
 
   for (let l = 0; l < 12; l++) {
-    if (seen.has(l)) continue
+    if (seen.has(l)) {
+      continue
+    }
 
     const frame = [l]
 
-    for (let m = l + 1; m < 12; m++) if (frame.every(n => dotRoots(LINE_FIRSTS[n] as number, LINE_FIRSTS[m] as number) === 0)) frame.push(m)
+    for (let m = l + 1; m < 12; m++) {
+      if (
+        frame.every(
+          n => dotRoots(LINE_FIRSTS[n]!, LINE_FIRSTS[m]!) === 0,
+        )
+      ) {
+        frame.push(m)
+      }
+    }
 
     frame.forEach(m => seen.add(m))
     lines.push(frame)
   }
 
-  if (lines.length !== 3 || lines.some(f => f.length !== 4)) throw new Error('coined-locked-knit: the lines do not fall into three frames of four')
+  if (lines.length !== 3 || lines.some(f => f.length !== 4)) {
+    throw new Error(
+      'coined-locked-knit: the lines do not fall into three frames of four',
+    )
+  }
 
-  const slots = lines.map(f => f.flatMap(m => [LINE_FIRSTS[m] as number, LINE_SECONDS[m] as number]))
+  const slots = lines.map(f =>
+    f.flatMap(m => [LINE_FIRSTS[m]!, LINE_SECONDS[m]!]),
+  )
   const frameOfSlot = new Array<number>(24).fill(-1)
   const frameOfLine = new Array<number>(12).fill(-1)
 
@@ -300,25 +443,31 @@ export type MixTally = { mixes: number }
 export const newMixTally = (): MixTally => ({ mixes: 0 })
 
 // the lone frames of a configuration: every (dock, frame) holding exactly one vibe, open, with its frame slot
-export function loneFrames(cells: number, c: Configuration): { base: number; frame: number; q: number }[] {
+export function loneFrames(
+  cells: number,
+  c: Configuration,
+): { base: number; frame: number; q: number }[] {
   const out: { base: number; frame: number; q: number }[] = []
 
   for (let x = 0; x < cells; x++) {
     const base = x * 24
 
     for (let f = 0; f < 3; f++) {
-      const ss = FRAME_SLOTS[f] as readonly number[]
+      const ss = FRAME_SLOTS[f]!
+
       let held = 0
       let at = -1
 
       for (let q = 0; q < 8; q++) {
-        if (c.vibe[base + (ss[q] as number)] !== 0) {
+        if (c.vibe[base + ss[q]!] !== 0) {
           held++
           at = q
         }
       }
 
-      if (held === 1 && c.open[base + (ss[at] as number)]) out.push({ base, frame: f, q: at })
+      if (held === 1 && c.open[base + ss[at]!]) {
+        out.push({ base, frame: f, q: at })
+      }
     }
   }
 
@@ -326,22 +475,37 @@ export function loneFrames(cells: number, c: Configuration): { base: number; fra
 }
 
 // G on one branch: the list of branches it becomes (keep 3/4, each of the other seven frame slots -1/4)
-export function mixBranch(cells: number, br: Branch, tally?: MixTally): Branch[] {
+export function mixBranch(
+  cells: number,
+  br: Branch,
+  tally?: MixTally,
+): Branch[] {
   const lone = loneFrames(cells, br)
 
-  if (lone.length === 0) return [br]
-  if (lone.length > 4) throw new Error(`coined-locked-knit: ${lone.length} lone frames in one branch, over the guard 4`)
-  if (tally) tally.mixes += lone.length
+  if (lone.length === 0) {
+    return [br]
+  }
+
+  if (lone.length > 4) {
+    throw new Error(
+      `coined-locked-knit: ${lone.length} lone frames in one branch, over the guard 4`,
+    )
+  }
+
+  if (tally) {
+    tally.mixes += lone.length
+  }
 
   const out: Branch[] = []
 
   for (let code = 0; code < 8 ** lone.length; code++) {
     const b = cloneBranch(br)
+
     let rest = code
 
     for (const { base, frame, q } of lone) {
       const o = rest % 8
-      const ss = FRAME_SLOTS[frame] as readonly number[]
+      const ss = FRAME_SLOTS[frame]!
 
       rest = (rest - o) / 8
 
@@ -350,12 +514,12 @@ export function mixBranch(cells: number, br: Branch, tally?: MixTally): Branch[]
         continue
       }
 
-      const from = base + (ss[q] as number)
-      const to = base + (ss[q ^ o] as number)
+      const from = base + ss[q]!
+      const to = base + ss[q ^ o]!
 
-      b.vibe[to] = b.vibe[from] as number
-      b.point[to] = b.point[from] as number
-      b.open[to] = b.open[from] as number
+      b.vibe[to] = b.vibe[from]!
+      b.point[to] = b.point[from]!
+      b.open[to] = b.open[from]!
       b.vibe[from] = 0
       b.point[from] = 0
       b.open[from] = 0
@@ -371,21 +535,44 @@ export function mixBranch(cells: number, br: Branch, tally?: MixTally): Branch[]
 
 // THE WORKING VACUUM WITH THE FRAME MIXER: G, then the coin, then the no-veto beat (coinedVetoBeat). The inverse: the
 // coined inverse, then G (its own adjoint). With `coin` false the coin is left out (the mixer alone, a control).
-export function mixedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally, mixTally?: MixTally, coin = true): LockedState {
+export function mixedVetoBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+  coinTally?: CoinTally,
+  mixTally?: MixTally,
+  coin = true,
+): LockedState {
   const mixed: Branch[] = []
 
-  for (const br of s.branches) mixed.push(...mixBranch(t.cells, cloneBranch(br), mixTally))
+  for (const br of s.branches) {
+    mixed.push(...mixBranch(t.cells, cloneBranch(br), mixTally))
+  }
 
   const state: LockedState = { branches: mergeBranches(mixed) }
 
-  return coin ? coinedVetoBeat(kind, t, state, beat, tally, coinTally) : vetoBeat(kind, t, state, beat, tally)
+  return coin
+    ? coinedVetoBeat(kind, t, state, beat, tally, coinTally)
+    : vetoBeat(kind, t, state, beat, tally)
 }
 
-export function mixedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, coin = true): LockedState {
-  const back = coin ? coinedVetoBeatBack(kind, t, s, beat) : vetoBeatBack(kind, t, s, beat)
+export function mixedVetoBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  coin = true,
+): LockedState {
+  const back = coin
+    ? coinedVetoBeatBack(kind, t, s, beat)
+    : vetoBeatBack(kind, t, s, beat)
   const out: Branch[] = []
 
-  for (const br of back.branches) out.push(...mixBranch(t.cells, cloneBranch(br)))
+  for (const br of back.branches) {
+    out.push(...mixBranch(t.cells, cloneBranch(br)))
+  }
 
   return { branches: mergeBranches(out) }
 }
@@ -416,32 +603,44 @@ export const newLiftTally = (): LiftTally => ({ lifts: 0, hops: 0 })
 
 // the frames the lift acts on: every (dock, frame) holding at least one vibe, all open, all of one value and point,
 // with the frame slots q it holds
-export function liftFrames(cells: number, c: Configuration): LiftFrame[] {
+export function liftFrames(
+  cells: number,
+  c: Configuration,
+): LiftFrame[] {
   const out: LiftFrame[] = []
 
   for (let x = 0; x < cells; x++) {
     const base = x * 24
 
     for (let f = 0; f < 3; f++) {
-      const ss = FRAME_SLOTS[f] as readonly number[]
+      const ss = FRAME_SLOTS[f]!
       const held: number[] = []
+
       let acts = true
 
       for (let q = 0; q < 8 && acts; q++) {
-        const i = base + (ss[q] as number)
+        const i = base + ss[q]!
 
-        if (c.vibe[i] === 0) continue
-        if (!c.open[i]) acts = false
-        else if (held.length > 0) {
-          const j = base + (ss[held[0] as number] as number)
+        if (c.vibe[i] === 0) {
+          continue
+        }
 
-          if (c.vibe[i] !== c.vibe[j] || c.point[i] !== c.point[j]) acts = false
+        if (!c.open[i]) {
+          acts = false
+        } else if (held.length > 0) {
+          const j = base + ss[held[0]!]!
+
+          if (c.vibe[i] !== c.vibe[j] || c.point[i] !== c.point[j]) {
+            acts = false
+          }
         }
 
         held.push(q)
       }
 
-      if (acts && held.length > 0) out.push({ base, frame: f, held })
+      if (acts && held.length > 0) {
+        out.push({ base, frame: f, held })
+      }
     }
   }
 
@@ -449,35 +648,54 @@ export function liftFrames(cells: number, c: Configuration): LiftFrame[] {
 }
 
 // the fermion sign of taking the vibe on `from` to the empty `to` of one dock: (-1)^(occupied modes strictly between)
-export function hopSign(c: Configuration, base: number, from: number, to: number): number {
+export function hopSign(
+  c: Configuration,
+  base: number,
+  from: number,
+  to: number,
+): number {
   const a = modeIndex(from)
   const b = modeIndex(to)
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
+
   let between = 0
 
   for (let d = 0; d < 24; d++) {
-    if (c.vibe[base + d] === 0) continue
+    if (c.vibe[base + d] === 0) {
+      continue
+    }
 
     const m = modeIndex(base + d)
 
-    if (m > lo && m < hi) between++
+    if (m > lo && m < hi) {
+      between++
+    }
   }
 
   return between % 2 === 0 ? 1 : -1
 }
 
 // Gamma(G) on one branch: the list of branches it becomes
-export function liftBranch(cells: number, br: Branch, tally?: LiftTally): Branch[] {
+export function liftBranch(
+  cells: number,
+  br: Branch,
+  tally?: LiftTally,
+): Branch[] {
   const frames = liftFrames(cells, br)
 
-  if (frames.length === 0) return [br]
-  if (tally) tally.lifts += frames.length
+  if (frames.length === 0) {
+    return [br]
+  }
+
+  if (tally) {
+    tally.lifts += frames.length
+  }
 
   let branches: Branch[] = [br]
 
   for (const { base, frame, held } of frames) {
-    const ss = FRAME_SLOTS[frame] as readonly number[]
+    const ss = FRAME_SLOTS[frame]!
     const n = held.length
     const next: Branch[] = []
 
@@ -492,29 +710,39 @@ export function liftBranch(cells: number, br: Branch, tally?: LiftTally): Branch
 
       for (const q of held) {
         for (let r = 0; r < 8; r++) {
-          if (held.includes(r)) continue
+          if (held.includes(r)) {
+            continue
+          }
 
-          const from = base + (ss[q] as number)
-          const to = base + (ss[r] as number)
+          const from = base + ss[q]!
+          const to = base + ss[r]!
           const k = cloneBranch(b)
           const sign = hopSign(k, base, from, to)
 
-          k.vibe[to] = k.vibe[from] as number
-          k.point[to] = k.point[from] as number
-          k.open[to] = k.open[from] as number
+          k.vibe[to] = k.vibe[from]!
+          k.point[to] = k.point[from]!
+          k.open[to] = k.open[from]!
           k.vibe[from] = 0
           k.point[from] = 0
           k.open[from] = 0
           times(k, BigInt(-sign), 0n)
           k.k += 2
           next.push(k)
-          if (tally) tally.hops++
+
+          if (tally) {
+            tally.hops++
+          }
         }
       }
     }
 
     branches = next
-    if (branches.length > 1 << 18) throw new Error(`coined-locked-knit: the lift makes ${branches.length} branches of one, over the guard 2^18`)
+
+    if (branches.length > 1 << 18) {
+      throw new Error(
+        `coined-locked-knit: the lift makes ${branches.length} branches of one, over the guard 2^18`,
+      )
+    }
   }
 
   return branches
@@ -522,30 +750,63 @@ export function liftBranch(cells: number, br: Branch, tally?: LiftTally): Branch
 
 // THE WORKING VACUUM WITH THE LIFTED MIXER: Gamma(G), then the coin, then the no-veto beat. The inverse: the coined
 // inverse, then Gamma(G) (real, symmetric, an involution: its own adjoint).
-export function liftedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally, liftTally?: LiftTally): LockedState {
+export function liftedVetoBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+  coinTally?: CoinTally,
+  liftTally?: LiftTally,
+): LockedState {
   const lifted: Branch[] = []
 
-  for (const br of s.branches) lifted.push(...liftBranch(t.cells, cloneBranch(br), liftTally))
+  for (const br of s.branches) {
+    lifted.push(...liftBranch(t.cells, cloneBranch(br), liftTally))
+  }
 
-  return coinedVetoBeat(kind, t, { branches: mergeBranches(lifted) }, beat, tally, coinTally)
+  return coinedVetoBeat(
+    kind,
+    t,
+    { branches: mergeBranches(lifted) },
+    beat,
+    tally,
+    coinTally,
+  )
 }
 
-export function liftedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number): LockedState {
+export function liftedVetoBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+): LockedState {
   const out: Branch[] = []
 
-  for (const br of coinedVetoBeatBack(kind, t, s, beat).branches) out.push(...liftBranch(t.cells, cloneBranch(br)))
+  for (const br of coinedVetoBeatBack(kind, t, s, beat).branches) {
+    out.push(...liftBranch(t.cells, cloneBranch(br)))
+  }
 
   return { branches: mergeBranches(out) }
 }
 
-export function coinedBeatBack(t: LockedTables, s: LockedState, beat: number, options: CoinOptions): LockedState {
+export function coinedBeatBack(
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  options: CoinOptions,
+): LockedState {
   let back = lockedBeatBack(t, s, beat)
 
-  if (options.fermion) back = signed(t, back)
+  if (options.fermion) {
+    back = signed(t, back)
+  }
 
   const out: Branch[] = []
 
-  for (const br of back.branches) out.push(...coinBranch(t.cells, cloneBranch(br), true))
+  for (const br of back.branches) {
+    out.push(...coinBranch(t.cells, cloneBranch(br), true))
+  }
 
   return { branches: mergeBranches(out) }
 }

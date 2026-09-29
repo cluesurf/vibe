@@ -45,12 +45,29 @@
 
 import { type ColorWeave } from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
-import { applyCoinMap, dockCoinMap, type PairKnit } from '@/code/rule/pair-making-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  SIDE,
+} from '@/code/rule/isometric-knit'
+import {
+  applyCoinMap,
+  dockCoinMap,
+  type PairKnit,
+} from '@/code/rule/pair-making-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
-export type StoreVariant = 'plain' | 'neutral' | 'returned' | 'returned-neutral' | 'labeled' | 'labeled-neutral'
+export type StoreVariant =
+  | 'plain'
+  | 'neutral'
+  | 'returned'
+  | 'returned-neutral'
+  | 'labeled'
+  | 'labeled-neutral'
 
 export type TokenStoreKnit = {
   readonly weave: ColorWeave
@@ -69,9 +86,12 @@ export type TokenStoreState = {
   readonly label: Int8Array
 }
 
-export const returns = (v: StoreVariant): boolean => v === 'returned' || v === 'returned-neutral'
-export const isNeutral = (v: StoreVariant): boolean => v === 'neutral' || v === 'returned-neutral' || v === 'labeled-neutral'
-export const isLabeled = (v: StoreVariant): boolean => v === 'labeled' || v === 'labeled-neutral'
+export const returns = (v: StoreVariant): boolean =>
+  v === 'returned' || v === 'returned-neutral'
+export const isNeutral = (v: StoreVariant): boolean =>
+  v === 'neutral' || v === 'returned-neutral' || v === 'labeled-neutral'
+export const isLabeled = (v: StoreVariant): boolean =>
+  v === 'labeled' || v === 'labeled-neutral'
 
 export function cloneStoreState(s: TokenStoreState): TokenStoreState {
   return {
@@ -84,98 +104,163 @@ export function cloneStoreState(s: TokenStoreState): TokenStoreState {
   }
 }
 
-export function sameStoreState(a: TokenStoreState, b: TokenStoreState): boolean {
-  const same = (x: ArrayLike<number>, y: ArrayLike<number>): boolean => {
-    if (x.length !== y.length) return false
+export function sameStoreState(
+  a: TokenStoreState,
+  b: TokenStoreState,
+): boolean {
+  const same = (
+    x: ArrayLike<number>,
+    y: ArrayLike<number>,
+  ): boolean => {
+    if (x.length !== y.length) {
+      return false
+    }
 
-    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return false
+    for (let i = 0; i < x.length; i++) {
+      if (x[i] !== y[i]) {
+        return false
+      }
+    }
 
     return true
   }
 
-  return same(a.vibe, b.vibe) && same(a.store, b.store) && same(a.token, b.token) && same(a.place, b.place) && same(a.point, b.point) && same(a.label, b.label)
+  return (
+    same(a.vibe, b.vibe) &&
+    same(a.store, b.store) &&
+    same(a.token, b.token) &&
+    same(a.place, b.place) &&
+    same(a.point, b.point) &&
+    same(a.label, b.label)
+  )
 }
 
 // pairs made and unmade, and the tokens they moved
 export type StoreTally = { made: number; unmade: number }
 
 // the pair move on line l of dock x
-function pairLine(variant: StoreVariant, s: TokenStoreState, x: number, l: number, tally?: StoreTally): void {
-  const i = x * 24 + (LINE_FIRSTS[l] as number)
-  const j = x * 24 + (LINE_SECONDS[l] as number)
-  const a = s.vibe[i] as number
-  const b = s.vibe[j] as number
-  const tau = s.store[x * 12 + l] as number
+function pairLine(
+  variant: StoreVariant,
+  s: TokenStoreState,
+  x: number,
+  l: number,
+  tally?: StoreTally,
+): void {
+  const i = x * 24 + LINE_FIRSTS[l]!
+  const j = x * 24 + LINE_SECONDS[l]!
+  const a = s.vibe[i]!
+  const b = s.vibe[j]!
+  const tau = s.store[x * 12 + l]!
+
   let make: boolean
 
   if (tau === 0) {
-    if (a === 0 || b !== -a) return
+    if (a === 0 || b !== -a) {
+      return
+    }
+
     make = false
   } else {
-    if (a !== 0 || b !== 0) return
+    if (a !== 0 || b !== 0) {
+      return
+    }
+
     make = true
   }
 
   const p0 = x * 24 + 2 * l
   const p1 = p0 + 1
   const back = returns(variant)
-  const hi = back && make ? (s.place[p0] as number) : (s.token[i] as number)
-  const hj = back && make ? (s.place[p1] as number) : (s.token[j] as number)
+  const hi = back && make ? s.place[p0]! : s.token[i]!
+  const hj = back && make ? s.place[p1]! : s.token[j]!
   // the sign the first slot's vibe has (unmake) or will have (make)
   const first = make ? tau : a
 
-  if (isNeutral(variant) && s.point[hi] !== s.point[hj]) return
-  if (isLabeled(variant) && (s.label[hi] !== first || s.label[hj] !== -first)) return
+  if (isNeutral(variant) && s.point[hi] !== s.point[hj]) {
+    return
+  }
+
+  if (
+    isLabeled(variant) &&
+    (s.label[hi] !== first || s.label[hj] !== -first)
+  ) {
+    return
+  }
 
   if (make) {
     s.vibe[i] = tau
     s.vibe[j] = -tau
     s.store[x * 12 + l] = 0
-    if (tally) tally.made++
+
+    if (tally) {
+      tally.made++
+    }
   } else {
     s.vibe[i] = 0
     s.vibe[j] = 0
     s.store[x * 12 + l] = a
-    if (tally) tally.unmade++
+
+    if (tally) {
+      tally.unmade++
+    }
   }
 
   if (back) {
-    const ti = s.token[i] as number
-    const tj = s.token[j] as number
+    const ti = s.token[i]!
+    const tj = s.token[j]!
 
-    s.token[i] = s.place[p0] as number
-    s.token[j] = s.place[p1] as number
+    s.token[i] = s.place[p0]!
+    s.token[j] = s.place[p1]!
     s.place[p0] = ti
     s.place[p1] = tj
   }
 }
 
 // the dock collision P K P, its own inverse
-export function storeDockCollide(k: TokenStoreKnit, s: TokenStoreState, x: number, tally?: StoreTally): void {
+export function storeDockCollide(
+  k: TokenStoreKnit,
+  s: TokenStoreState,
+  x: number,
+  tally?: StoreTally,
+): void {
   const base = x * 24
 
-  for (let l = 0; l < 12; l++) pairLine(k.variant, s, x, l, tally)
+  for (let l = 0; l < 12; l++) {
+    pairLine(k.variant, s, x, l, tally)
+  }
 
   const w = dockCoinMap(k.knit.table, s.vibe, base)
 
-  if (w) applyCoinMap(w, s.vibe, base, s.token)
+  if (w) {
+    applyCoinMap(w, s.vibe, base, s.token)
+  }
 
-  for (let l = 0; l < 12; l++) pairLine(k.variant, s, x, l, tally)
+  for (let l = 0; l < 12; l++) {
+    pairLine(k.variant, s, x, l, tally)
+  }
 }
 
 // the meetings of two open tokens: both slots of one line of a dock held, before the collision
-function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meetings: [number, number][], signs: [number, number][]): void {
+function meetingsOf(
+  s: TokenStoreState,
+  open: Uint8Array,
+  cells: number,
+  meetings: [number, number][],
+  signs: [number, number][],
+): void {
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (LINE_SECONDS[l] as number)
-      const a = s.vibe[i] as number
-      const b = s.vibe[j] as number
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + LINE_SECONDS[l]!
+      const a = s.vibe[i]!
+      const b = s.vibe[j]!
 
-      if (a === 0 || b === 0) continue
+      if (a === 0 || b === 0) {
+        continue
+      }
 
-      const ti = s.token[i] as number
-      const tj = s.token[j] as number
+      const ti = s.token[i]!
+      const tj = s.token[j]!
 
       if (open[ti] === 1 && open[tj] === 1) {
         meetings.push([ti, tj])
@@ -186,7 +271,12 @@ function meetingsOf(s: TokenStoreState, open: Uint8Array, cells: number, meeting
 }
 
 // one beat forward: meetings, collision, stream (every token's own point moved by the link it crosses)
-export function storeBeat(k: TokenStoreKnit, state: TokenStoreState, open: Uint8Array, tally?: StoreTally): { state: TokenStoreState; record: BeatRecord } {
+export function storeBeat(
+  k: TokenStoreKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+  tally?: StoreTally,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const s = cloneStoreState(state)
   const meetings: [number, number][] = []
@@ -194,7 +284,9 @@ export function storeBeat(k: TokenStoreKnit, state: TokenStoreState, open: Uint8
 
   meetingsOf(s, open, cells, meetings, signs)
 
-  for (let x = 0; x < cells; x++) storeDockCollide(k, s, x, tally)
+  for (let x = 0; x < cells; x++) {
+    storeDockCollide(k, s, x, tally)
+  }
 
   const { moves, links } = k.weave
   const vibe = new Int8Array(s.vibe.length)
@@ -202,22 +294,31 @@ export function storeBeat(k: TokenStoreKnit, state: TokenStoreState, open: Uint8
   const crossings: [number, number][] = []
 
   for (let slot = 0; slot < s.vibe.length; slot++) {
-    const tk = s.token[slot] as number
+    const tk = s.token[slot]!
     const g = links[slot] ?? moves.identity
-    const to = k.knit.target[slot] as number
+    const to = k.knit.target[slot]!
 
-    vibe[to] = s.vibe[slot] as number
+    vibe[to] = s.vibe[slot]!
     token[to] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
-  return { state: { ...s, vibe, token }, record: { meetings, crossings, signs } }
+  return {
+    state: { ...s, vibe, token },
+    record: { meetings, crossings, signs },
+  }
 }
 
 // one beat backward, the exact inverse of storeBeat
-export function storeBeatBack(k: TokenStoreKnit, state: TokenStoreState, open: Uint8Array): { state: TokenStoreState; record: BeatRecord } {
+export function storeBeatBack(
+  k: TokenStoreKnit,
+  state: TokenStoreState,
+  open: Uint8Array,
+): { state: TokenStoreState; record: BeatRecord } {
   const cells = k.weave.mesh.cellCount
   const { moves, links } = k.weave
   const s = cloneStoreState(state)
@@ -226,20 +327,25 @@ export function storeBeatBack(k: TokenStoreKnit, state: TokenStoreState, open: U
   const crossings: [number, number][] = []
 
   for (let slot = 0; slot < vibe.length; slot++) {
-    const from = k.knit.target[slot] as number
-    const tk = s.token[from] as number
-    const g = moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+    const from = k.knit.target[slot]!
+    const tk = s.token[from]!
+    const g =
+      moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
 
-    vibe[slot] = s.vibe[from] as number
+    vibe[slot] = s.vibe[from]!
     token[slot] = tk
-    s.point[tk] = moves.act[g]?.[s.point[tk] as number] ?? 0
+    s.point[tk] = moves.act[g]?.[s.point[tk]!] ?? 0
 
-    if (open[tk] === 1) crossings.push([tk, g])
+    if (open[tk] === 1) {
+      crossings.push([tk, g])
+    }
   }
 
   const out: TokenStoreState = { ...s, vibe, token }
 
-  for (let x = 0; x < cells; x++) storeDockCollide(k, out, x)
+  for (let x = 0; x < cells; x++) {
+    storeDockCollide(k, out, x)
+  }
 
   const meetings: [number, number][] = []
   const signs: [number, number][] = []
@@ -254,41 +360,60 @@ export function storeBeatBack(k: TokenStoreKnit, state: TokenStoreState, open: U
 // a coin map g with a cell map on a whole state: slot (x, d) -> (cellMap x, g d), store line l -> line of g(first
 // l) with the side sign, its places with it (exchanged when the line is reversed); tokens keep their points; sign
 // -1 composes charge conjugation (vibes, store and labels negated)
-export function transformStoreState(s: TokenStoreState, cellMap: readonly number[], g: readonly number[], sign = 1): TokenStoreState {
+export function transformStoreState(
+  s: TokenStoreState,
+  cellMap: readonly number[],
+  g: readonly number[],
+  sign = 1,
+): TokenStoreState {
   const vibe = new Int8Array(s.vibe.length)
   const token = new Int32Array(s.token.length)
   const store = new Int8Array(s.store.length)
   const place = new Int32Array(s.place.length)
-  const lineImage = LINE_FIRSTS.map(f => LINE_OF[g[f] as number] as number)
-  const lineSign = LINE_FIRSTS.map(f => SIDE[g[f] as number] as number)
+  const lineImage = LINE_FIRSTS.map(f => LINE_OF[g[f]!]!)
+  const lineSign = LINE_FIRSTS.map(f => SIDE[g[f]!]!)
 
   for (let x = 0; x < cellMap.length; x++) {
-    const y = cellMap[x] as number
+    const y = cellMap[x]!
 
     for (let d = 0; d < 24; d++) {
-      vibe[y * 24 + (g[d] as number)] = sign * (s.vibe[x * 24 + d] as number)
-      token[y * 24 + (g[d] as number)] = s.token[x * 24 + d] as number
+      vibe[y * 24 + g[d]!] = sign * s.vibe[x * 24 + d]!
+      token[y * 24 + g[d]!] = s.token[x * 24 + d]!
     }
 
     for (let l = 0; l < 12; l++) {
-      const m = lineImage[l] as number
+      const m = lineImage[l]!
       const flip = lineSign[l] === -1
 
-      store[y * 12 + m] = sign * (lineSign[l] as number) * (s.store[x * 12 + l] as number)
-      place[y * 24 + 2 * m + (flip ? 1 : 0)] = s.place[x * 24 + 2 * l] as number
-      place[y * 24 + 2 * m + (flip ? 0 : 1)] = s.place[x * 24 + 2 * l + 1] as number
+      store[y * 12 + m] = sign * lineSign[l]! * s.store[x * 12 + l]!
+      place[y * 24 + 2 * m + (flip ? 1 : 0)] = s.place[x * 24 + 2 * l]!
+      place[y * 24 + 2 * m + (flip ? 0 : 1)] =
+        s.place[x * 24 + 2 * l + 1]!
     }
   }
 
-  return { vibe, store, token, place, point: Int8Array.from(s.point), label: Int8Array.from(s.label, v => sign * v) }
+  return {
+    vibe,
+    store,
+    token,
+    place,
+    point: Int8Array.from(s.point),
+    label: Int8Array.from(s.label, v => sign * v),
+  }
 }
 
 // the links a coin map g with a cell map carries: the link on (x, d) goes to (cellMap x, g d)
-export function transformLinks(links: Int16Array, cellMap: readonly number[], g: readonly number[]): Int16Array {
+export function transformLinks(
+  links: Int16Array,
+  cellMap: readonly number[],
+  g: readonly number[],
+): Int16Array {
   const out = new Int16Array(links.length)
 
   for (let x = 0; x < cellMap.length; x++) {
-    for (let d = 0; d < 24; d++) out[(cellMap[x] as number) * 24 + (g[d] as number)] = links[x * 24 + d] as number
+    for (let d = 0; d < 24; d++) {
+      out[cellMap[x]! * 24 + g[d]!] = links[x * 24 + d]!
+    }
   }
 
   return out
@@ -296,11 +421,19 @@ export function transformLinks(links: Int16Array, cellMap: readonly number[], g:
 
 // the motion reversal C R of the beat U = S C: R the -1 coin map on every dock, then the collision. With links
 // that obey link(y, -d) = link(x, d)^-1 (the color weave's), R S R = S^-1 on vibes, tokens and points
-export function storeMotionReversal(k: TokenStoreKnit, s: TokenStoreState): TokenStoreState {
-  const identityCells = Array.from({ length: k.weave.mesh.cellCount }, (_, x) => x)
+export function storeMotionReversal(
+  k: TokenStoreKnit,
+  s: TokenStoreState,
+): TokenStoreState {
+  const identityCells = Array.from(
+    { length: k.weave.mesh.cellCount },
+    (_, x) => x,
+  )
   const reversed = transformStoreState(s, identityCells, OPPOSITE)
 
-  for (let x = 0; x < k.weave.mesh.cellCount; x++) storeDockCollide(k, reversed, x)
+  for (let x = 0; x < k.weave.mesh.cellCount; x++) {
+    storeDockCollide(k, reversed, x)
+  }
 
   return reversed
 }
@@ -310,8 +443,13 @@ export function storeMotionReversal(k: TokenStoreKnit, s: TokenStoreState): Toke
 export function storeEnergy(s: TokenStoreState): number {
   let e = 0
 
-  for (let i = 0; i < s.vibe.length; i++) e += s.vibe[i] !== 0 ? 1 : 0
-  for (let i = 0; i < s.store.length; i++) e += 2 * Math.abs(s.store[i] as number)
+  for (let i = 0; i < s.vibe.length; i++) {
+    e += s.vibe[i] !== 0 ? 1 : 0
+  }
+
+  for (let i = 0; i < s.store.length; i++) {
+    e += 2 * Math.abs(s.store[i]!)
+  }
 
   return e
 }
@@ -319,7 +457,9 @@ export function storeEnergy(s: TokenStoreState): number {
 export function storeCharge(s: TokenStoreState): number {
   let q = 0
 
-  for (let i = 0; i < s.vibe.length; i++) q += s.vibe[i] as number
+  for (let i = 0; i < s.vibe.length; i++) {
+    q += s.vibe[i]!
+  }
 
   return q
 }

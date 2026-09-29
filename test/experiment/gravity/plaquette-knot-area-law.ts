@@ -68,15 +68,46 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { THRESHOLD_BORN, THRESHOLD_KEEP, vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
+import {
+  THRESHOLD_BORN,
+  THRESHOLD_KEEP,
+  vacuumConfiguration,
+} from '@/code/measure/doublet-locked-readings'
 import { boxHusk } from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { linearFit } from '@/code/measure/regression'
-import { fullPathKey, meshLines, pathOffset } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  meshLines,
+  pathOffset,
+} from '@/code/measure/full-key-paths'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { sameOccupationPlaquettes, withPlaquettes, type PlaquetteConfiguration } from '@/code/rule/plaquette-store-knit'
-import { componentsOf, huskRegionFamily, knotNetwork, networkBeat, networkBeatBack, networkNormExact, networkReturned, regionEntropy, tokenDocks, tokenSlots, type HuskRegion, type KnotNetwork, type NetworkRule } from '@/code/measure/knot-network'
-import { huskDistances, plaquetteNetworkRule, plaquetteRunner, unitHalfSlot } from '@/code/measure/plaquette-readings'
+import {
+  sameOccupationPlaquettes,
+  withPlaquettes,
+  type PlaquetteConfiguration,
+} from '@/code/rule/plaquette-store-knit'
+import {
+  componentsOf,
+  huskRegionFamily,
+  knotNetwork,
+  networkBeat,
+  networkBeatBack,
+  networkNormExact,
+  networkReturned,
+  regionEntropy,
+  tokenDocks,
+  tokenSlots,
+  type HuskRegion,
+  type KnotNetwork,
+  type NetworkRule,
+} from '@/code/measure/knot-network'
+import {
+  huskDistances,
+  plaquetteNetworkRule,
+  plaquetteRunner,
+  unitHalfSlot,
+} from '@/code/measure/plaquette-readings'
 
 const SIDE = 8
 const KNOT_SIDES = [8, 12, 16] as const
@@ -89,49 +120,88 @@ const LUMP_BEATS = 64
 const LUMP_FROM = 16
 const RANGES = [0.5, 1, 2, 4] as const
 
-type Built = { net: KnotNetwork; column: Int32Array; start: PlaquetteConfiguration; rule?: NetworkRule; lineOf: Int32Array }
+type Built = {
+  net: KnotNetwork
+  column: Int32Array
+  start: PlaquetteConfiguration
+  rule?: NetworkRule
+  lineOf: Int32Array
+}
 
 function build(side: number, rule?: NetworkRule): Built {
   const f = contactFresh(side, 'pass')
   const start = withPlaquettes(toWords(vacuumConfiguration(f, 'all')))
-  const net = rule ? knotNetwork('none', f.tables, start, rule) : knotNetwork('none', f.tables, toWords(vacuumConfiguration(f, 'all')))
+  const net = rule
+    ? knotNetwork('none', f.tables, start, rule)
+    : knotNetwork(
+        'none',
+        f.tables,
+        toWords(vacuumConfiguration(f, 'all')),
+      )
 
-  return { net, column: boxHusk(f.weave.mesh, side).column, start, rule, lineOf: meshLines(f.tables).lineOf }
+  return {
+    net,
+    column: boxHusk(f.weave.mesh, side).column,
+    start,
+    rule,
+    lineOf: meshLines(f.tables).lineOf,
+  }
 }
 
-function readRegions(net: KnotNetwork, column: Int32Array, regions: readonly HuskRegion[]): number[] {
+function readRegions(
+  net: KnotNetwork,
+  column: Int32Array,
+  regions: readonly HuskRegion[],
+): number[] {
   const docks = tokenDocks(net)
   const cache = new Map<number, { entropy: number; rows: number }>()
 
-  return regions.map(region => regionEntropy(net, t => region.inside[column[docks[t] as number] as number] === 1, cache).entropy)
+  return regions.map(
+    region =>
+      regionEntropy(
+        net,
+        t => region.inside[column[docks[t]!]!] === 1,
+        cache,
+      ).entropy,
+  )
 }
 
 // the components holding tokens on two or more mesh lines, and the most lines one component holds
 function lineSpread(b: Built): { multi: number; most: number } {
   const slots = tokenSlots(b.net, b.rule ? unitHalfSlot : undefined)
+
   let multi = 0
   let most = 0
 
   for (const c of componentsOf(b.net)) {
-    if (c.members.length < 2) continue
+    if (c.members.length < 2) {
+      continue
+    }
 
     const seen = new Set<number>()
 
     for (const t of c.members) {
-      const s = slots[t] as number
+      const s = slots[t]!
 
-      if (s < 0) throw new Error('plaquette-knot-area-law: a token with no slot')
-      seen.add(b.lineOf[s] as number)
+      if (s < 0) {
+        throw new Error('plaquette-knot-area-law: a token with no slot')
+      }
+
+      seen.add(b.lineOf[s]!)
     }
 
-    if (seen.size > 1) multi++
+    if (seen.size > 1) {
+      multi++
+    }
+
     most = Math.max(most, seen.size)
   }
 
   return { multi, most }
 }
 
-const rmsOf = (fit: { residual: number }, n: number): number => Math.sqrt(fit.residual / n)
+const rmsOf = (fit: { residual: number }, n: number): number =>
+  Math.sqrt(fit.residual / n)
 
 export default experiment({
   id: 'gravity/plaquette-knot-area-law',
@@ -144,7 +214,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const member = startFamily(16)[0]!
     const regions = huskRegionFamily(SIDE)
 
@@ -154,7 +227,11 @@ export default experiment({
       const through = build(SIDE, plaquetteNetworkRule(false))
       const plaq = build(SIDE, plaquetteNetworkRule(true))
       const f = contactFresh(SIDE, 'pass')
-      const path = plaquetteRunner(f.tables, plaq.start, { key: fullPathKey(0), threshold: THRESHOLD_KEEP })
+      const path = plaquetteRunner(f.tables, plaq.start, {
+        key: fullPathKey(0),
+        threshold: THRESHOLD_KEEP,
+      })
+
       let throughSame = true
       let occupationSame = 0
       let normExact = true
@@ -163,8 +240,10 @@ export default experiment({
       let mostLines = 0
       let lineMostLines = 0
       let worstDiff = 0
+
       const sumsPlaq = new Array<number>(regions.length).fill(0)
       const sumsLine = new Array<number>(regions.length).fill(0)
+
       let count = 0
 
       for (let t = 0; t < BEATS; t++) {
@@ -172,7 +251,12 @@ export default experiment({
         networkBeat(through.net)
         networkBeat(plaq.net)
         path.beat()
-        occupationSame += sameOccupationPlaquettes(plaq.net.config as PlaquetteConfiguration, path.state()) ? 1 : 0
+        occupationSame += sameOccupationPlaquettes(
+          plaq.net.config as PlaquetteConfiguration,
+          path.state(),
+        )
+          ? 1
+          : 0
 
         const spread = lineSpread(plaq)
         const control = lineSpread(line)
@@ -194,9 +278,9 @@ export default experiment({
           const l = readRegions(line.net, line.column, regions)
 
           p.forEach((s, i) => {
-            sumsPlaq[i] = (sumsPlaq[i] as number) + s
-            sumsLine[i] = (sumsLine[i] as number) + (l[i] as number)
-            worstDiff = Math.max(worstDiff, Math.abs(s - (l[i] as number)))
+            sumsPlaq[i] = sumsPlaq[i]! + s
+            sumsLine[i] = sumsLine[i]! + l[i]!
+            worstDiff = Math.max(worstDiff, Math.abs(s - l[i]!))
           })
           count++
           normExact = normExact && networkNormExact(plaq.net)
@@ -208,31 +292,70 @@ export default experiment({
       const meanLine = sumsLine.map(s => s / count)
       const halfOpen = plaq.net.tally.halfOpen
 
-      for (let t = 0; t < BEATS; t++) networkBeatBack(plaq.net)
+      for (let t = 0; t < BEATS; t++) {
+        networkBeatBack(plaq.net)
+      }
 
-      const returned = networkReturned(plaq.net, build(SIDE, plaquetteNetworkRule(true)).net)
+      const returned = networkReturned(
+        plaq.net,
+        build(SIDE, plaquetteNetworkRule(true)).net,
+      )
 
-      return { throughSame, occupationSame, normExact, halfOpen, returned, multiBeats, multiMost, mostLines, lineMostLines, largest, worstDiff, meanPlaq, meanLine }
+      return {
+        throughSame,
+        occupationSame,
+        normExact,
+        halfOpen,
+        returned,
+        multiBeats,
+        multiMost,
+        mostLines,
+        lineMostLines,
+        largest,
+        worstDiff,
+        meanPlaq,
+        meanLine,
+      }
     })
 
     log('side 8')
 
-    const area = linearFit({ xs: regions.map(r => r.area), ys: side8.meanPlaq })
-    const volume = linearFit({ xs: regions.map(r => r.volume), ys: side8.meanPlaq })
-    const areaLine = linearFit({ xs: regions.map(r => r.area), ys: side8.meanLine })
-    const volumeLine = linearFit({ xs: regions.map(r => r.volume), ys: side8.meanLine })
+    const area = linearFit({
+      xs: regions.map(r => r.area),
+      ys: side8.meanPlaq,
+    })
+    const volume = linearFit({
+      xs: regions.map(r => r.volume),
+      ys: side8.meanPlaq,
+    })
+    const areaLine = linearFit({
+      xs: regions.map(r => r.area),
+      ys: side8.meanLine,
+    })
+    const volumeLine = linearFit({
+      xs: regions.map(r => r.volume),
+      ys: side8.meanLine,
+    })
 
     // ---- K3: the knot phase on three sides ----
     const knots = withStart(member, () =>
       KNOT_SIDES.map(side => {
         const b = build(side, plaquetteNetworkRule(true))
 
-        for (let t = 0; t <= KNOT_BEAT; t++) networkBeat(b.net)
+        for (let t = 0; t <= KNOT_BEAT; t++) {
+          networkBeat(b.net)
+        }
 
-        const slab = huskRegionFamily(side).find(r => r.name === 'slab0-2') as HuskRegion
-        const S = readRegions(b.net, b.column, [slab])[0] as number
+        const slab = huskRegionFamily(side).find(
+          r => r.name === 'slab0-2',
+        )!
+        const S = readRegions(b.net, b.column, [slab])[0]!
 
-        return { side, eta1: S / slab.area, halfOpen: b.net.tally.halfOpen }
+        return {
+          side,
+          eta1: S / slab.area,
+          halfOpen: b.net.tally.halfOpen,
+        }
       }),
     )
 
@@ -243,7 +366,9 @@ export default experiment({
       const f = contactFresh(LUMP_SIDE, 'pass')
       const husk = boxHusk(f.weave.mesh, LUMP_SIDE)
       const center = centerOf(LUMP_SIDE)
-      const vacuum = withPlaquettes(toWords(vacuumConfiguration(f, 'all')))
+      const vacuum = withPlaquettes(
+        toWords(vacuumConfiguration(f, 'all')),
+      )
       const seeded = withPlaquettes(vacuum)
 
       seeded.vibe[center * 24 + 6] = 1
@@ -251,33 +376,63 @@ export default experiment({
       seeded.vibe[center * 24 + 8] = -1
       seeded.open[center * 24 + 8] = 1
 
-      const distance = huskDistances(LUMP_SIDE, husk.column[center] as number)
-      const profile = (plaquettes: boolean): { rows: { r: number; v: number }[]; totals: number[] } => {
+      const distance = huskDistances(LUMP_SIDE, husk.column[center]!)
+
+      const profile = (
+        plaquettes: boolean,
+      ): { rows: { r: number; v: number }[]; totals: number[] } => {
         const total = new Float64Array(husk.columns)
         const totals: number[] = []
 
         for (let k = 0; k < LUMP_PATHS; k++) {
           const key = fullPathKey(pathOffset(k))
-          const a = plaquetteRunner(f.tables, vacuum, { key, threshold: THRESHOLD_BORN, plaquettes })
-          const b = plaquetteRunner(f.tables, seeded, { key, threshold: THRESHOLD_BORN, plaquettes })
+          const a = plaquetteRunner(f.tables, vacuum, {
+            key,
+            threshold: THRESHOLD_BORN,
+            plaquettes,
+          })
+          const b = plaquetteRunner(f.tables, seeded, {
+            key,
+            threshold: THRESHOLD_BORN,
+            plaquettes,
+          })
+
           let sum = 0
 
           for (let t = 0; t < LUMP_BEATS; t++) {
             a.beat()
             b.beat()
 
-            if (t < LUMP_FROM) continue
+            if (t < LUMP_FROM) {
+              continue
+            }
 
             const p = a.state()
             const q = b.state()
+
             const add = (dock: number): void => {
-              total[husk.column[dock] as number] = (total[husk.column[dock] as number] as number) + 1 / LUMP_PATHS
+              total[husk.column[dock]!] =
+                total[husk.column[dock]!]! + 1 / LUMP_PATHS
               sum++
             }
 
-            for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== q.vibe[i]) add(Math.floor(i / 24))
-            for (let i = 0; i < p.store.length; i++) if (p.store[i] !== q.store[i]) add(Math.floor(i / 12))
-            for (let i = 0; i < p.punit.length; i++) if (p.punit[i] !== q.punit[i]) add(Math.floor(i / 3))
+            for (let i = 0; i < p.vibe.length; i++) {
+              if (p.vibe[i] !== q.vibe[i]) {
+                add(Math.floor(i / 24))
+              }
+            }
+
+            for (let i = 0; i < p.store.length; i++) {
+              if (p.store[i] !== q.store[i]) {
+                add(Math.floor(i / 12))
+              }
+            }
+
+            for (let i = 0; i < p.punit.length; i++) {
+              if (p.punit[i] !== q.punit[i]) {
+                add(Math.floor(i / 3))
+              }
+            }
           }
 
           totals.push(sum)
@@ -286,25 +441,49 @@ export default experiment({
         const shells = new Map<number, { sum: number; n: number }>()
 
         for (let c = 0; c < husk.columns; c++) {
-          const e = shells.get(distance[c] as number) ?? { sum: 0, n: 0 }
+          const e = shells.get(distance[c]!) ?? { sum: 0, n: 0 }
 
-          e.sum += total[c] as number
+          e.sum += total[c]!
           e.n++
-          shells.set(distance[c] as number, e)
+          shells.set(distance[c]!, e)
         }
 
-        return { rows: [...shells.entries()].sort((x, y) => x[0] - y[0]).map(([r, e]) => ({ r, v: e.sum / e.n })), totals }
+        return {
+          rows: [...shells.entries()]
+            .sort((x, y) => x[0] - y[0])
+            .map(([r, e]) => ({ r, v: e.sum / e.n })),
+          totals,
+        }
       }
-      const fits = (rows: { r: number; v: number }[]): { inverse: { k: number; rms: number }; exps: { l: number; k: number; rms: number }[] } => {
+
+      const fits = (
+        rows: { r: number; v: number }[],
+      ): {
+        inverse: { k: number; rms: number }
+        exps: { l: number; k: number; rms: number }[]
+      } => {
         const pts = rows.filter(p => p.r >= 1)
-        const fitOf = (g: (r: number) => number): { k: number; rms: number } => {
-          const fit = linearFit({ xs: pts.map(p => g(p.r)), ys: pts.map(p => p.v) })
+
+        const fitOf = (
+          g: (r: number) => number,
+        ): { k: number; rms: number } => {
+          const fit = linearFit({
+            xs: pts.map(p => g(p.r)),
+            ys: pts.map(p => p.v),
+          })
 
           return { k: fit.slope, rms: rmsOf(fit, pts.length) }
         }
 
-        return { inverse: fitOf(r => 1 / r), exps: RANGES.map(l => ({ l, ...fitOf(r => Math.exp(-r / l)) })) }
+        return {
+          inverse: fitOf(r => 1 / r),
+          exps: RANGES.map(l => ({
+            l,
+            ...fitOf(r => Math.exp(-r / l)),
+          })),
+        }
       }
+
       const on = profile(true)
 
       log('K4 plaquette rule')
@@ -317,17 +496,28 @@ export default experiment({
     })
 
     // ---- the gates ----
-    const k0 = side8.throughSame && side8.halfOpen === 0 && side8.normExact && side8.returned && side8.occupationSame === BEATS && knots.every(k => k.halfOpen === 0)
+    const k0 =
+      side8.throughSame &&
+      side8.halfOpen === 0 &&
+      side8.normExact &&
+      side8.returned &&
+      side8.occupationSame === BEATS &&
+      knots.every(k => k.halfOpen === 0)
     const k1 = side8.multiBeats > 0
-    const k2 = rmsOf(area, regions.length) < rmsOf(volume, regions.length)
-    const etaRatio = (knots[2]!.eta1 as number) / (knots[0]!.eta1 as number)
+    const k2 =
+      rmsOf(area, regions.length) < rmsOf(volume, regions.length)
+    const etaRatio = knots[2]!.eta1 / knots[0]!.eta1
     const k3 = etaRatio < 1.5
     const bestExp = Math.min(...lump.onFits.exps.map(e => e.rms))
-    const k4 = lump.onFits.inverse.k > 0 && lump.onFits.inverse.rms < bestExp
-    const status = !k0 || !k1 ? 'fail' : k2 && k3 && k4 ? 'pass' : 'partial'
+    const k4 =
+      lump.onFits.inverse.k > 0 && lump.onFits.inverse.rms < bestExp
+    const status =
+      !k0 || !k1 ? 'fail' : k2 && k3 && k4 ? 'pass' : 'partial'
     const f4 = (x: number): string => x.toPrecision(4)
-    const shell = (rows: { r: number; v: number }[]): string => rows.map(p => `${p.r}:${p.v.toFixed(3)}`).join(' ')
-    const bestL = (x: { exps: { l: number; rms: number }[] }): number => x.exps.reduce((a, e) => (e.rms < a.rms ? e : a)).l
+    const shell = (rows: { r: number; v: number }[]): string =>
+      rows.map(p => `${p.r}:${p.v.toFixed(3)}`).join(' ')
+    const bestL = (x: { exps: { l: number; rms: number }[] }): number =>
+      x.exps.reduce((a, e) => (e.rms < a.rms ? e : a)).l
     const metrics: Record<string, number> = {
       gate_K0: k0 ? 1 : 0,
       gate_K1: k1 ? 1 : 0,
@@ -359,23 +549,48 @@ export default experiment({
       lumpBestExpRms: bestExp,
       lumpBestRange: bestL(lump.onFits),
       lineLumpInverseRms: lump.offFits.inverse.rms,
-      lineLumpBestExpRms: Math.min(...lump.offFits.exps.map(e => e.rms)),
+      lineLumpBestExpRms: Math.min(
+        ...lump.offFits.exps.map(e => e.rms),
+      ),
       lineLumpBestRange: bestL(lump.offFits),
       seconds: (Date.now() - started) / 1000,
     }
 
-    for (const k of knots) metrics[`eta1_side${k.side}`] = k.eta1
-    for (const p of lump.on.rows) metrics[`lump_r${p.r}`] = p.v
-    for (const p of lump.off.rows) metrics[`lineLump_r${p.r}`] = p.v
+    for (const k of knots) {
+      metrics[`eta1_side${k.side}`] = k.eta1
+    }
 
-    const slabs = [0, 1, 2].map(axis => regions.map((r, i) => (r.name.startsWith(`slab${axis}-`) ? `${r.name} ${(side8.meanPlaq[i] as number).toFixed(1)}` : '')).filter(Boolean).join(', ')).join('; ')
+    for (const p of lump.on.rows) {
+      metrics[`lump_r${p.r}`] = p.v
+    }
+
+    for (const p of lump.off.rows) {
+      metrics[`lineLump_r${p.r}`] = p.v
+    }
+
+    const slabs = [0, 1, 2]
+      .map(axis =>
+        regions
+          .map((r, i) =>
+            r.name.startsWith(`slab${axis}-`)
+              ? `${r.name} ${side8.meanPlaq[i]!.toFixed(1)}`
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      )
+      .join('; ')
 
     return verdict({
       status,
       claim: `K0 instrument ${k0} (the line rule through the new code path equals E-GRV-0083's network on every region ${side8.throughSame}; the plaquette network: occupation equal to the rule's keep path on ${side8.occupationSame} of ${BEATS} beats, normed ${side8.normExact}, reversed ${side8.returned}, half-open lines ${side8.halfOpen}); K1 networks ${k1} (components on two or more mesh lines on ${side8.multiBeats} of ${BEATS} beats, most lines in one component ${side8.mostLines}, the line rule ${side8.lineMostLines}; largest component ${side8.largest} tokens; the equilibrium S differs from the line rule's by at most ${side8.worstDiff.toExponential(2)} nats on any region); K2 area ${k2} (area fit eta ${f4(area.slope)}, rms ${f4(rmsOf(area, regions.length))}, r2 ${f4(area.r2)} against volume rms ${f4(rmsOf(volume, regions.length))}, r2 ${f4(volume.r2)}; slabs ${slabs}); K3 depth ${k3} (eta_1 ${knots.map(k => `${f4(k.eta1)} on side ${k.side}`).join(', ')}, ratio 16/8 ${f4(etaRatio)}); K4 1/r ${k4} (lump shells ${shell(lump.on.rows.slice(0, 12))}; a + k/r k ${f4(lump.onFits.inverse.k)} rms ${f4(lump.onFits.inverse.rms)} against the best exponential rms ${f4(bestExp)} at range ${bestL(lump.onFits)}; the line rule's shells ${shell(lump.off.rows.slice(0, 12))}, best range ${bestL(lump.offFits)})`,
       metrics,
-      control: { lineMostLines: side8.lineMostLines, lineAreaRms: rmsOf(areaLine, regions.length), lineVolumeRms: rmsOf(volumeLine, regions.length) },
-      notes: `L2. Gates K0 ${k0}, K1 ${k1}, K2 ${k2}, K3 ${k3}, K4 ${k4}. Region means (plaquette, line): ${regions.map((r, i) => `${r.name} (A ${r.area}, V ${r.volume}) ${(side8.meanPlaq[i] as number).toFixed(2)}/${(side8.meanLine[i] as number).toFixed(2)}`).join(', ')}. Lump path totals (plaquette): ${lump.on.totals.join(' ')}; (line): ${lump.off.totals.join(' ')}. Lump fits (plaquette): 1/r ${JSON.stringify(lump.onFits.inverse)}, exps ${JSON.stringify(lump.onFits.exps)}; (line): 1/r ${JSON.stringify(lump.offFits.inverse)}, exps ${JSON.stringify(lump.offFits.exps)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        lineMostLines: side8.lineMostLines,
+        lineAreaRms: rmsOf(areaLine, regions.length),
+        lineVolumeRms: rmsOf(volumeLine, regions.length),
+      },
+      notes: `L2. Gates K0 ${k0}, K1 ${k1}, K2 ${k2}, K3 ${k3}, K4 ${k4}. Region means (plaquette, line): ${regions.map((r, i) => `${r.name} (A ${r.area}, V ${r.volume}) ${side8.meanPlaq[i]!.toFixed(2)}/${side8.meanLine[i]!.toFixed(2)}`).join(', ')}. Lump path totals (plaquette): ${lump.on.totals.join(' ')}; (line): ${lump.off.totals.join(' ')}. Lump fits (plaquette): 1/r ${JSON.stringify(lump.onFits.inverse)}, exps ${JSON.stringify(lump.onFits.exps)}; (line): 1/r ${JSON.stringify(lump.offFits.inverse)}, exps ${JSON.stringify(lump.offFits.exps)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

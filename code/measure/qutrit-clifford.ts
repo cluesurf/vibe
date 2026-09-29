@@ -51,7 +51,10 @@ export function operatorFrom3(m: Matrix3): Operator {
 
 // the displacement operators of n qutrits, index v1 9^(n-1) + ... + vn with v = 3 a + b
 export function displacementOperators(qutrits: number): Operator[] {
-  const single = [0, 1, 2].flatMap(a => [0, 1, 2].map(b => operatorFrom3(displacement(a, b))))
+  const single = [0, 1, 2].flatMap(a =>
+    [0, 1, 2].map(b => operatorFrom3(displacement(a, b))),
+  )
+
   let out: Operator[] = [identityOperator(1)]
 
   for (let q = 0; q < qutrits; q++) {
@@ -62,7 +65,10 @@ export function displacementOperators(qutrits: number): Operator[] {
 }
 
 // Tr(a^dagger b)
-export function innerProduct(a: Operator, b: Operator): [number, number] {
+export function innerProduct(
+  a: Operator,
+  b: Operator,
+): [number, number] {
   let re = 0
   let im = 0
 
@@ -85,7 +91,10 @@ export function conjugate(u: Operator, a: Operator): Operator {
 }
 
 // the displacement a matrix is a phase times, and that phase, or undefined
-export function asDisplacement(m: Operator, displacements: readonly Operator[]): { index: number; phase: [number, number] } | undefined {
+export function asDisplacement(
+  m: Operator,
+  displacements: readonly Operator[],
+): { index: number; phase: [number, number] } | undefined {
   const n = m.n
 
   for (let w = 0; w < displacements.length; w++) {
@@ -101,7 +110,10 @@ export function asDisplacement(m: Operator, displacements: readonly Operator[]):
 
 // The Clifford action of u: for each displacement D(v), the w and phase with u D(v) u^dagger = phase D(w),
 // or undefined when some image is not a displacement (u is not Clifford)
-export function cliffordAction(u: Operator, displacements: readonly Operator[]): { images: number[]; phases: [number, number][] } | undefined {
+export function cliffordAction(
+  u: Operator,
+  displacements: readonly Operator[],
+): { images: number[]; phases: [number, number][] } | undefined {
   const images: number[] = []
   const phases: [number, number][] = []
 
@@ -121,7 +133,11 @@ export function cliffordAction(u: Operator, displacements: readonly Operator[]):
 
 // The level of u in the Clifford hierarchy, up to maxLevel: 1 for a phase times a displacement, k when every
 // u D u^dagger is at level k - 1. Returns maxLevel + 1 when u is at no level up to maxLevel
-export function cliffordLevel(u: Operator, displacements: readonly Operator[], maxLevel: number): number {
+export function cliffordLevel(
+  u: Operator,
+  displacements: readonly Operator[],
+  maxLevel: number,
+): number {
   const within = (v: Operator, level: number): boolean => {
     if (asDisplacement(v, displacements)) {
       return true
@@ -196,7 +212,11 @@ export function eigenphases(u: Operator): number[] {
 }
 
 // whether two eigenphase lists (in turns) agree up to one global shift, to a tolerance
-export function sameSpectrumUpToPhase(a: readonly number[], b: readonly number[], tolerance = 1e-7): boolean {
+export function sameSpectrumUpToPhase(
+  a: readonly number[],
+  b: readonly number[],
+  tolerance = 1e-7,
+): boolean {
   if (a.length !== b.length) {
     return false
   }
@@ -209,7 +229,9 @@ export function sameSpectrumUpToPhase(a: readonly number[], b: readonly number[]
     const used = new Array<boolean>(b.length).fill(false)
 
     return a.every(x => {
-      const k = b.findIndex((y, i) => !used[i] && Math.abs(wrap(x + shift - y)) < tolerance)
+      const k = b.findIndex(
+        (y, i) => !used[i] && Math.abs(wrap(x + shift - y)) < tolerance,
+      )
 
       if (k < 0) {
         return false
@@ -228,14 +250,20 @@ export function mana(weights: readonly number[]): number {
 }
 
 // mana of whole loves and fears: sum |W| = (loves + fears) / (loves - fears), exactly from the counts
-export function manaOfCounts(input: { loves: bigint; fears: bigint }): number {
+export function manaOfCounts(input: {
+  loves: bigint
+  fears: bigint
+}): number {
   const { loves, fears } = input
 
   return Math.log(Number(loves + fears) / Number(loves - fears))
 }
 
 // the density matrix sum_p W(p) A(p) of a quasi-probability on the phase points
-export function operatorFromWigner(weights: readonly number[], points: readonly Operator[]): Operator {
+export function operatorFromWigner(
+  weights: readonly number[],
+  points: readonly Operator[],
+): Operator {
   const n = points[0]?.n ?? 1
   const out = operator(n)
 
@@ -262,14 +290,19 @@ export function hermitianSpectrum(a: Operator): number[] {
 }
 
 // the eigenvectors of a Hermitian operator as the columns of a unitary, in ascending order of eigenvalue
-export function hermitianEigenvectors(a: Operator): { values: number[]; vectors: Operator } {
+export function hermitianEigenvectors(a: Operator): {
+  values: number[]
+  vectors: Operator
+} {
   const h = makeComplexMatrix({ rows: a.n, cols: a.n })
 
   h.re.set(a.re)
   h.im.set(a.im)
 
   const eig = hermitianEigen(h)
-  const order = Array.from({ length: a.n }, (_, c) => c).sort((x, y) => (eig.values[x] ?? 0) - (eig.values[y] ?? 0))
+  const order = Array.from({ length: a.n }, (_, c) => c).sort(
+    (x, y) => (eig.values[x] ?? 0) - (eig.values[y] ?? 0),
+  )
   const vectors = operator(a.n)
 
   order.forEach((c, column) => {
@@ -283,13 +316,18 @@ export function hermitianEigenvectors(a: Operator): { values: number[]; vectors:
 }
 
 // the top eigenvector of a Hermitian operator
-export function topEigenvector(a: Operator): { value: number; re: number[]; im: number[] } {
+export function topEigenvector(a: Operator): {
+  value: number
+  re: number[]
+  im: number[]
+} {
   const h = makeComplexMatrix({ rows: a.n, cols: a.n })
 
   h.re.set(a.re)
   h.im.set(a.im)
 
   const eig = hermitianEigen(h)
+
   let best = 0
 
   for (let c = 1; c < a.n; c++) {
@@ -298,8 +336,14 @@ export function topEigenvector(a: Operator): { value: number; re: number[]; im: 
 
   return {
     value: eig.values[best] ?? 0,
-    re: Array.from({ length: a.n }, (_, i) => eig.vectorsRe[i * a.n + best] ?? 0),
-    im: Array.from({ length: a.n }, (_, i) => eig.vectorsIm[i * a.n + best] ?? 0),
+    re: Array.from(
+      { length: a.n },
+      (_, i) => eig.vectorsRe[i * a.n + best] ?? 0,
+    ),
+    im: Array.from(
+      { length: a.n },
+      (_, i) => eig.vectorsIm[i * a.n + best] ?? 0,
+    ),
   }
 }
 
@@ -307,7 +351,10 @@ export function topEigenvector(a: Operator): { value: number; re: number[]; im: 
 // frame, v_k = (cos t, sin t cos(4 pi k / 5), sin t sin(4 pi k / 5)) with cos^2 t = 1 / sqrt 5, so v_k is
 // orthogonal to v_(k+1), then carried into the frame (the three columns of `frame`). Returns the five
 // vectors and the sum of their projectors, whose eigenvalues are sqrt 5 on the axis and (5 - sqrt 5) / 2 twice
-export function kcbsVectors(frame: Operator): { vectors: { re: number[]; im: number[] }[]; sum: Operator } {
+export function kcbsVectors(frame: Operator): {
+  vectors: { re: number[]; im: number[] }[]
+  sum: Operator
+} {
   const cosT = Math.sqrt(1 / SQRT5)
   const sinT = Math.sqrt(1 - 1 / SQRT5)
   const vectors: { re: number[]; im: number[] }[] = []
@@ -316,16 +363,27 @@ export function kcbsVectors(frame: Operator): { vectors: { re: number[]; im: num
   for (let k = 0; k < 5; k++) {
     const angle = (4 * Math.PI * k) / 5
     const local = [cosT, sinT * Math.cos(angle), sinT * Math.sin(angle)]
-    const re = [0, 1, 2].map(i => local.reduce((s, x, j) => s + x * (frame.re[i * 3 + j] ?? 0), 0))
-    const im = [0, 1, 2].map(i => local.reduce((s, x, j) => s + x * (frame.im[i * 3 + j] ?? 0), 0))
+    const re = [0, 1, 2].map(i =>
+      local.reduce((s, x, j) => s + x * (frame.re[i * 3 + j] ?? 0), 0),
+    )
+    const im = [0, 1, 2].map(i =>
+      local.reduce((s, x, j) => s + x * (frame.im[i * 3 + j] ?? 0), 0),
+    )
 
     vectors.push({ re, im })
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         // v_i conj(v_j)
-        sum.re[i * 3 + j] = (sum.re[i * 3 + j] ?? 0) + (re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0)
-        sum.im[i * 3 + j] = (sum.im[i * 3 + j] ?? 0) + (im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0)
+        sum.re[i * 3 + j] =
+          (sum.re[i * 3 + j] ?? 0) +
+          (re[i] ?? 0) * (re[j] ?? 0) +
+          (im[i] ?? 0) * (im[j] ?? 0)
+
+        sum.im[i * 3 + j] =
+          (sum.im[i * 3 + j] ?? 0) +
+          (im[i] ?? 0) * (re[j] ?? 0) -
+          (re[i] ?? 0) * (im[j] ?? 0)
       }
     }
   }
@@ -337,14 +395,18 @@ export function kcbsVectors(frame: Operator): { vectors: { re: number[]; im: num
 // A(u), in closed form from the Wigner weight: the axis probability is (1 - 3 W(u)) / 2, so
 // K = (5 - sqrt 5) / 2 + (3 sqrt 5 - 5) / 2 x (1 - 3 W(u)) / 2, above 2 exactly when W(u) < -sqrt 5 / 15
 export function kcbsAligned(weight: number): number {
-  return (5 - SQRT5) / 2 + ((3 * SQRT5 - 5) / 2) * ((1 - 3 * weight) / 2)
+  return (
+    (5 - SQRT5) / 2 + ((3 * SQRT5 - 5) / 2) * ((1 - 3 * weight) / 2)
+  )
 }
 
 export const KCBS_NEGATIVITY_THRESHOLD = -SQRT5 / 15
 
 // the largest KCBS value of the regular pentagram over every orientation, for a state with eigenvalues r1 >=
 // r2 >= r3: r1 sqrt 5 + (r2 + r3)(5 - sqrt 5) / 2 (von Neumann's trace inequality, attained)
-export function kcbsBestOrientation(spectrum: readonly number[]): number {
+export function kcbsBestOrientation(
+  spectrum: readonly number[],
+): number {
   const top = Math.max(...spectrum)
 
   return top * SQRT5 + (1 - top) * ((5 - SQRT5) / 2)
@@ -365,13 +427,18 @@ export function closureLieRank(input: {
   const { generators, words, maxPower, conjugationDepth } = input
   const n = generators[0]?.n ?? 1
   const target = n * n - 1
+
   let logOf: Operator | undefined
   let chosenWord = -1
   let chosenPower = 0
   let finiteWords = 0
 
   for (let w = 0; w < words.length && !logOf; w++) {
-    const word = (words[w] ?? []).reduce((acc, g) => multiplyOperators(acc, generators[g] ?? acc), identityOperator(n))
+    const word = (words[w] ?? []).reduce(
+      (acc, g) => multiplyOperators(acc, generators[g] ?? acc),
+      identityOperator(n),
+    )
+
     let power = identityOperator(n)
     let finite = false
 
@@ -400,7 +467,11 @@ export function closureLieRank(input: {
 
         const x = complexLogNearIdentity(scaled)
 
-        logOf = { n, re: Float64Array.from(x.im), im: Float64Array.from(x.re, v => -v) }
+        logOf = {
+          n,
+          re: Float64Array.from(x.im),
+          im: Float64Array.from(x.re, v => -v),
+        }
         chosenWord = w
         chosenPower = k
         break
@@ -416,7 +487,9 @@ export function closureLieRank(input: {
 
   const span = new HermitianSpan()
   const algebra: Operator[] = []
+
   let frontier: Operator[] = [identityOperator(n)]
+
   const conjugators: Operator[] = [identityOperator(n)]
 
   for (let depth = 0; depth < conjugationDepth; depth++) {
@@ -454,7 +527,12 @@ export function closureLieRank(input: {
     }
   }
 
-  return { rank: span.rank, word: chosenWord, power: chosenPower, finiteWords }
+  return {
+    rank: span.rank,
+    word: chosenWord,
+    power: chosenPower,
+    finiteWords,
+  }
 }
 
 // i [a, b], Hermitian when a and b are
@@ -481,6 +559,7 @@ class HermitianSpan {
 
   add(a: Operator): boolean {
     const n = a.n
+
     let trace = 0
 
     for (let i = 0; i < n; i++) {

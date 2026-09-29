@@ -79,13 +79,27 @@ const SIDE = 4
 const SCALE = 12
 const RATIO = -1.67 / 12
 const CAPACITY = 48
-const COOL = { drain: 100, cycles: 30, fill: 0.003, beats: 30, empties: 10 }
-const FILLS = [0.008, 0.012, 0.016, 0.02, 0.025, 0.03, 0.04, 0.06, 0.08, 0.12, 0.16]
+const COOL = {
+  drain: 100,
+  cycles: 30,
+  fill: 0.003,
+  beats: 30,
+  empties: 10,
+}
+const FILLS = [
+  0.008, 0.012, 0.016, 0.02, 0.025, 0.03, 0.04, 0.06, 0.08, 0.12, 0.16,
+]
 const HASHES = [3.3, 4.7]
 const SETTLE = 300
 const MEASURE = 400
 
-type Point = { beta0: number; level: number; polyakov: number; susceptibility: number; exact: boolean }
+type Point = {
+  beta0: number
+  level: number
+  polyakov: number
+  susceptibility: number
+  exact: boolean
+}
 
 export default experiment({
   id: 'gauge/sigma-deconfinement-scan',
@@ -99,10 +113,23 @@ export default experiment({
   run() {
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
-    const rule = makeSigmaLinks({ side: SIDE, kappa: 12, tension: 0, capacity: CAPACITY, hop: false, roles: false, couple: 'center', scale: SCALE, ratio: RATIO, moves: 'wide' })
+    const rule = makeSigmaLinks({
+      side: SIDE,
+      kappa: 12,
+      tension: 0,
+      capacity: CAPACITY,
+      hop: false,
+      roles: false,
+      couple: 'center',
+      scale: SCALE,
+      ratio: RATIO,
+      moves: 'wide',
+    })
     const { cells, group } = rule
     const triangles = (cells * 12 * 8) / 3
-    const lines = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const lines = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
 
     const demonMean = (s: SigmaState): number => {
       let sum = 0
@@ -117,10 +144,18 @@ export default experiment({
     }
 
     const scan = HASHES.map(hash => {
-      const cooled = coolSigmaLinks(rule, defectSigmaLinks(rule, 0.1, hash), COOL)
+      const cooled = coolSigmaLinks(
+        rule,
+        defectSigmaLinks(rule, 0.1, hash),
+        COOL,
+      )
 
       return FILLS.map((fill): Point => {
-        let s: SigmaState = { ...cooled.state, links: Int16Array.from(cooled.state.links), demon: new Int32Array(cells * 24) }
+        let s: SigmaState = {
+          ...cooled.state,
+          links: Int16Array.from(cooled.state.links),
+          demon: new Int32Array(cells * 24),
+        }
 
         fillSigmaDemons(rule, s, fill)
 
@@ -163,29 +198,51 @@ export default experiment({
         }
 
         return {
-          beta0: SCALE * unitDemonBeta({ meanDemon: demon, capacity: CAPACITY }),
+          beta0:
+            SCALE *
+            unitDemonBeta({ meanDemon: demon, capacity: CAPACITY }),
           level,
           polyakov: Math.hypot(pre, pim),
-          susceptibility: lines.length * (squared - magnitude * magnitude),
+          susceptibility:
+            lines.length * (squared - magnitude * magnitude),
           exact,
         }
       })
     })
 
     const exact = scan.every(points => points.every(p => p.exact))
-    const mean = (k: number, key: keyof Omit<Point, 'exact'>): number => scan.reduce((a, points) => a + (points[k]?.[key] ?? 0), 0) / scan.length
-    const susceptibility = FILLS.map((_, k) => mean(k, 'susceptibility'))
+    const mean = (k: number, key: keyof Omit<Point, 'exact'>): number =>
+      scan.reduce((a, points) => a + (points[k]?.[key] ?? 0), 0) /
+      scan.length
+    const susceptibility = FILLS.map((_, k) =>
+      mean(k, 'susceptibility'),
+    )
     const peak = susceptibility.indexOf(Math.max(...susceptibility))
     const hottest = FILLS.length - 1
-    const confinedAtHottest = scan.every(points => (points[hottest]?.polyakov ?? 1) < 0.05)
-    const deconfinedAtColdest = scan.every(points => (points[0]?.polyakov ?? 0) > 0.1)
-    const confined = FILLS.map((_, k) => scan.every(points => (points[k]?.polyakov ?? 1) < 0.05))
+    const confinedAtHottest = scan.every(
+      points => (points[hottest]?.polyakov ?? 1) < 0.05,
+    )
+    const deconfinedAtColdest = scan.every(
+      points => (points[0]?.polyakov ?? 0) > 0.1,
+    )
+    const confined = FILLS.map((_, k) =>
+      scan.every(points => (points[k]?.polyakov ?? 1) < 0.05),
+    )
     const registered = confined
-      .map((isConfined, k) => ({ isConfined, k, beta0: mean(k, 'beta0') }))
+      .map((isConfined, k) => ({
+        isConfined,
+        k,
+        beta0: mean(k, 'beta0'),
+      }))
       .filter(p => p.isConfined)
       .sort((a, b) => b.beta0 - a.beta0)[0]
 
-    const ok = exact && confinedAtHottest && deconfinedAtColdest && peak > 0 && peak < hottest
+    const ok =
+      exact &&
+      confinedAtHottest &&
+      deconfinedAtColdest &&
+      peak > 0 &&
+      peak < hottest
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -195,7 +252,10 @@ export default experiment({
         ['energyExact', exact ? 1 : 0],
         ['peakFill', FILLS[peak] ?? -1],
         ['peakBeta0', mean(peak, 'beta0')],
-        ['registeredFill', registered ? (FILLS[registered.k] ?? -1) : -1],
+        [
+          'registeredFill',
+          registered ? (FILLS[registered.k] ?? -1) : -1,
+        ],
         ['registeredBeta0', registered?.beta0 ?? -1],
         ...FILLS.flatMap((fill, k): [string, number][] => {
           const key = String(fill).replace('.', '_')
@@ -204,7 +264,13 @@ export default experiment({
             [`beta0Fill${key}`, mean(k, 'beta0')],
             [`levelFill${key}`, mean(k, 'level')],
             [`polyakovFill${key}`, mean(k, 'polyakov')],
-            [`polyakovSpreadFill${key}`, Math.abs((scan[0]?.[k]?.polyakov ?? 0) - (scan[1]?.[k]?.polyakov ?? 0))],
+            [
+              `polyakovSpreadFill${key}`,
+              Math.abs(
+                (scan[0]?.[k]?.polyakov ?? 0) -
+                  (scan[1]?.[k]?.polyakov ?? 0),
+              ),
+            ],
             [`susceptibilityFill${key}`, susceptibility[k] ?? 0],
           ]
         }),

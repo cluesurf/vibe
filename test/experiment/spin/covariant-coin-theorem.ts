@@ -98,11 +98,24 @@ export default experiment({
     const lines = lineGroups(group)
 
     // ---- H1 ----
-    const h1 = group.length === 1152 && lines.length === 12 && lines.every(l => l.order === 96 && l.keep === 48 && l.reverse === 48)
+    const h1 =
+      group.length === 1152 &&
+      lines.length === 12 &&
+      lines.every(
+        l => l.order === 96 && l.keep === 48 && l.reverse === 48,
+      )
 
     // ---- H2, H3 ----
     const perLine = lines.map(lg => {
-      const mats = [...new Map(lg.elements.map(g => { const m = labelMatrix(g, lg); return [JSON.stringify(m), m] as const })).values()]
+      const mats = [
+        ...new Map(
+          lg.elements.map(g => {
+            const m = labelMatrix(g, lg)
+
+            return [JSON.stringify(m), m] as const
+          }),
+        ).values(),
+      ]
       // the frame and C act as the identity, C' and R as the swap
       const discrete = [...mats, IDENTITY3, SWAP]
       const without = commutant(discrete, 3)
@@ -130,8 +143,17 @@ export default experiment({
         mixesRestWith: withMomentum.basis.some(mixesRest),
       }
     })
-    const h2 = perLine.every(r => r.dimWithout === 5 && r.mixesDoubletWithout && r.mixesRestWithout && r.dimKeeping === 3 && r.keepingHasSwap)
-    const h3 = perLine.every(r => r.dimWith === 2 && !r.mixesDoubletWith && !r.mixesRestWith)
+    const h2 = perLine.every(
+      r =>
+        r.dimWithout === 5 &&
+        r.mixesDoubletWithout &&
+        r.mixesRestWithout &&
+        r.dimKeeping === 3 &&
+        r.keepingHasSwap,
+    )
+    const h3 = perLine.every(
+      r => r.dimWith === 2 && !r.mixesDoubletWith && !r.mixesRestWith,
+    )
 
     // ---- H4 ----
     const mom = collisionKeepsMomentum()
@@ -140,13 +162,20 @@ export default experiment({
     // ---- H5 ----
     const dock = dockOrbitals(group)
     const inners = dock.orbitals.map(o => o.inner)
-    const h5 = dock.burnside === 5 && dock.orbitals.length === 5 && [2, 1, 0, -1, -2].every(v => inners.includes(v)) && dock.orbitals.find(o => o.inner === 2)?.pairs === 24 && dock.orbitals.find(o => o.inner === -2)?.pairs === 24
+    const h5 =
+      dock.burnside === 5 &&
+      dock.orbitals.length === 5 &&
+      [2, 1, 0, -1, -2].every(v => inners.includes(v)) &&
+      dock.orbitals.find(o => o.inner === 2)?.pairs === 24 &&
+      dock.orbitals.find(o => o.inner === -2)?.pairs === 24
 
     // ---- H6 ----
     const classes = coinClasses()
     const h6 =
       classes.length === 6 &&
-      classes.every(c => c.unitary && c.timeSymmetric && c.commutesSwap) &&
+      classes.every(
+        c => c.unitary && c.timeSymmetric && c.commutesSwap,
+      ) &&
       classes.filter(c => c.commutesMomentum).length === 1 &&
       classes.find(c => c.commutesMomentum)?.theta === 0 &&
       classes.filter(c => c.mixes).length === 5 &&
@@ -155,21 +184,50 @@ export default experiment({
       classes.filter(c => c.mixes && !c.classical).length === 4
 
     // ---- H7 ----
-    const bands = classes.map(c => ({ theta: c.theta, ...bandReading(c.theta) }))
-    const want = (t: number): { gap: number; curvature: number; topSpeed: number } => {
+    const bands = classes.map(c => ({
+      theta: c.theta,
+      ...bandReading(c.theta),
+    }))
+
+    const want = (
+      t: number,
+    ): { gap: number; curvature: number; topSpeed: number } => {
       const a = Math.abs(t)
 
-      if (a === 0) return { gap: 0, curvature: 0, topSpeed: 1 }
-      if (a === 1) return { gap: Math.PI / 3, curvature: Math.sqrt(3), topSpeed: Math.sqrt(3) / 2 }
-      if (a === 2) return { gap: (2 * Math.PI) / 3, curvature: 1 / Math.sqrt(3), topSpeed: 0.5 }
+      if (a === 0) {
+        return { gap: 0, curvature: 0, topSpeed: 1 }
+      }
+
+      if (a === 1) {
+        return {
+          gap: Math.PI / 3,
+          curvature: Math.sqrt(3),
+          topSpeed: Math.sqrt(3) / 2,
+        }
+      }
+
+      if (a === 2) {
+        return {
+          gap: (2 * Math.PI) / 3,
+          curvature: 1 / Math.sqrt(3),
+          topSpeed: 0.5,
+        }
+      }
 
       return { gap: Math.PI, curvature: 0, topSpeed: 0 }
     }
+
     const bandMiss = bands.map(b => {
       const w = want(b.theta)
 
       // theta = 0 is the massless line: gap 0 and speed 1 read; its curvature is 0 away from the crossing
-      return Math.max(Math.abs(b.gap - w.gap), b.theta === 0 ? 0 : Math.abs(Math.abs(b.curvature) - w.curvature), Math.abs(b.topSpeed - w.topSpeed))
+      return Math.max(
+        Math.abs(b.gap - w.gap),
+        b.theta === 0
+          ? 0
+          : Math.abs(Math.abs(b.curvature) - w.curvature),
+        Math.abs(b.topSpeed - w.topSpeed),
+      )
     })
     const h7 = bandMiss.every(m => m < 1e-6)
 
@@ -195,7 +253,9 @@ export default experiment({
         groupOrder: group.length,
         lineStabilizer: lines[0]!.order,
         commutantWithout: Math.max(...perLine.map(r => r.dimWithout)),
-        commutantLockKeeping: Math.max(...perLine.map(r => r.dimKeeping)),
+        commutantLockKeeping: Math.max(
+          ...perLine.map(r => r.dimKeeping),
+        ),
         commutantWithMomentum: Math.max(...perLine.map(r => r.dimWith)),
         occupations: mom.occupations,
         occupationsActing: mom.acting,

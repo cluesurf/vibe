@@ -69,19 +69,42 @@ export const IMPACTS: readonly number[] = [0, 1, 2, 3, 4]
 export const CONTENTS: readonly number[] = [2, 4, 12]
 
 // the adopted knit's roots with no husk step (a root whose first three coordinates are all zero)
-export const KNIT_COLUMN_ROOTS = rootsD4().filter(r => r[0] === 0 && r[1] === 0 && r[2] === 0).length
+export const KNIT_COLUMN_ROOTS = rootsD4().filter(
+  r => r[0] === 0 && r[1] === 0 && r[2] === 0,
+).length
 
 export type Form = 'empty' | 'neutral' | 'split'
-export type LumpConfig = { readonly name: string; readonly form: Form; readonly n: number; readonly flip: boolean }
-type Entry = { column: [number, number, number]; level: number; sign: number }
+export type LumpConfig = {
+  readonly name: string
+  readonly form: Form
+  readonly n: number
+  readonly flip: boolean
+}
+
+type Entry = {
+  column: [number, number, number]
+  level: number
+  sign: number
+}
 
 export const CONFIGS: readonly LumpConfig[] = [
   { name: 'empty', form: 'empty', n: 0, flip: false },
-  ...(['neutral', 'split'] as const).flatMap(form => CONTENTS.flatMap(n => [false, true].map(flip => ({ name: `${form}${n}${flip ? '-flipped' : ''}`, form, n, flip })))),
+  ...(['neutral', 'split'] as const).flatMap(form =>
+    CONTENTS.flatMap(n =>
+      [false, true].map(flip => ({
+        name: `${form}${n}${flip ? '-flipped' : ''}`,
+        form,
+        n,
+        flip,
+      })),
+    ),
+  ),
 ]
 
 export function lumpEntries(c: LumpConfig): Entry[] {
-  if (c.form === 'empty') return []
+  if (c.form === 'empty') {
+    return []
+  }
 
   const columns: number[] = c.n === 12 ? [-1, 0, 1] : [0]
   const signs = c.n === 2 ? [1, -1] : [1, 1, -1, -1]
@@ -99,8 +122,20 @@ export function lumpEntries(c: LumpConfig): Entry[] {
   return out
 }
 
-export function placeLump(light: TritLight, s: TritState, c: LumpConfig): void {
-  for (const e of lumpEntries(c)) placeStrung(light, s, dockOfColumn(light, e.column, e.level), [0, 4, 4], e.sign)
+export function placeLump(
+  light: TritLight,
+  s: TritState,
+  c: LumpConfig,
+): void {
+  for (const e of lumpEntries(c)) {
+    placeStrung(
+      light,
+      s,
+      dockOfColumn(light, e.column, e.level),
+      [0, 4, 4],
+      e.sign,
+    )
+  }
 }
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -111,21 +146,43 @@ export const ring = (d: number): number => {
   return m > SIDE / 2 ? m - SIDE : m
 }
 
-export const huskDock = (x: number, y: number, z: number): number => mod(x, SIDE) + SIDE * mod(y, SIDE) + SIDE * SIDE * mod(z, SIDE)
+export const huskDock = (x: number, y: number, z: number): number =>
+  mod(x, SIDE) + SIDE * mod(y, SIDE) + SIDE * SIDE * mod(z, SIDE)
 
 // raise the angle column of husk link (dock, h) by v
-export function kick(light: TritLight, s: TritState, dock: number, h: number, v: number): void {
+export function kick(
+  light: TritLight,
+  s: TritState,
+  dock: number,
+  h: number,
+  v: number,
+): void {
   const b = light.bulk
   const l = dock * 9 + h
-  const start = b.linkColumnStart[l] as number
-  const length = (b.linkColumnStart[l + 1] as number) - start
+  const start = b.linkColumnStart[l]!
+  const length = b.linkColumnStart[l + 1]! - start
 
-  writeColumn(s.angle, b.linkColumn, undefined, start, length, columnValue(s.angle, b.linkColumn, undefined, start, length) + v)
+  writeColumn(
+    s.angle,
+    b.linkColumn,
+    undefined,
+    start,
+    length,
+    columnValue(s.angle, b.linkColumn, undefined, start, length) + v,
+  )
 }
 
-const FIELDS = ['angle', 'potential', 'counter', 'lag', 'spatial'] as const
+const FIELDS = [
+  'angle',
+  'potential',
+  'counter',
+  'lag',
+  'spatial',
+] as const
 
-const sameHusk = (a: HuskLightState, b: HuskLightState): boolean => FIELDS.every(f => a[f].every((v, i) => v === b[f][i])) && a.string.every((v, i) => v === b.string[i])
+const sameHusk = (a: HuskLightState, b: HuskLightState): boolean =>
+  FIELDS.every(f => a[f].every((v, i) => v === b[f][i])) &&
+  a.string.every((v, i) => v === b.string[i])
 
 export type ImpactReading = {
   arrival: number
@@ -144,18 +201,37 @@ export type LumpReading = {
   lumpKept: boolean
 }
 
-export type LumpSurvey = { readings: LumpReading[]; seconds: number; beatsRun: number }
+export type LumpSurvey = {
+  readings: LumpReading[]
+  seconds: number
+  beatsRun: number
+}
 
 let cached: LumpSurvey | undefined
 
 // the survey: every configuration and impact, the base and twin runs of all configurations in lockstep per impact
-export function depthLumpSurvey(log?: (what: string) => void): LumpSurvey {
-  if (cached) return cached
+export function depthLumpSurvey(
+  log?: (what: string) => void,
+): LumpSurvey {
+  if (cached) {
+    return cached
+  }
 
   const started = Date.now()
-  const light = makeTritLight({ side: SIDE, depth: DEPTH, form: 'wave' })
+  const light = makeTritLight({
+    side: SIDE,
+    depth: DEPTH,
+    form: 'wave',
+  })
   const b = light.bulk
-  const readings: LumpReading[] = CONFIGS.map(config => ({ config, impacts: [], gauss: 0, closure: true, lumpKept: true }))
+  const readings: LumpReading[] = CONFIGS.map(config => ({
+    config,
+    impacts: [],
+    gauss: 0,
+    closure: true,
+    lumpKept: true,
+  }))
+
   let beatsRun = 0
 
   for (const impact of IMPACTS) {
@@ -170,19 +246,44 @@ export function depthLumpSurvey(log?: (what: string) => void): LumpSurvey {
 
       kick(light, twin, source, 0, PULSE)
 
-      return { base, twin, vibe: Int8Array.from(base.vibe), huskBase: readHusk(light, base), huskTwin: readHusk(light, twin) }
+      return {
+        base,
+        twin,
+        vibe: Int8Array.from(base.vibe),
+        huskBase: readHusk(light, base),
+        huskTwin: readHusk(light, twin),
+      }
     })
-    const out: ImpactReading[] = CONFIGS.map(() => ({ arrival: BEATS + 1, far: [], mismatch: [], centroid: [] }))
-    const diff = (h: HuskLightState, g: HuskLightState): Record<(typeof FIELDS)[number], Int32Array> =>
-      Object.fromEntries(FIELDS.map(f => [f, Int32Array.from(g[f], (v, i) => v - (h[f][i] as number))])) as Record<(typeof FIELDS)[number], Int32Array>
+    const out: ImpactReading[] = CONFIGS.map(() => ({
+      arrival: BEATS + 1,
+      far: [],
+      mismatch: [],
+      centroid: [],
+    }))
+    const diff = (
+      h: HuskLightState,
+      g: HuskLightState,
+    ): Record<(typeof FIELDS)[number], Int32Array> =>
+      Object.fromEntries(
+        FIELDS.map(f => [
+          f,
+          Int32Array.from(g[f], (v, i) => v - h[f][i]!),
+        ]),
+      ) as Record<(typeof FIELDS)[number], Int32Array>
 
     for (let t = 1; t <= BEATS; t++) {
       const deltas = runs.map((r, k) => {
-        const reading = readings[k] as LumpReading
+        const reading = readings[k]!
 
         for (const s of [r.base, r.twin]) {
           tritLightBeat(light, s)
-          reading.gauss += bulkGaussViolations(light, s) + huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+          reading.gauss +=
+            bulkGaussViolations(light, s) +
+            huskGaussViolations(
+              light,
+              columnSumLinks(light, bulkFlux(light, s)),
+              s.vibe,
+            )
           beatsRun++
         }
 
@@ -192,21 +293,29 @@ export function depthLumpSurvey(log?: (what: string) => void): LumpSurvey {
         const hb = readHusk(light, r.base)
         const ht = readHusk(light, r.twin)
 
-        reading.closure = reading.closure && sameHusk(hb, r.huskBase) && sameHusk(ht, r.huskTwin)
+        reading.closure =
+          reading.closure &&
+          sameHusk(hb, r.huskBase) &&
+          sameHusk(ht, r.huskTwin)
 
         return diff(hb, ht)
       })
-      const empty = deltas[0] as Record<(typeof FIELDS)[number], Int32Array>
+      const empty = deltas[0]!
 
       deltas.forEach((d, k) => {
-        const o = out[k] as ImpactReading
+        const o = out[k]!
+
         let mismatch = 0
 
         for (const f of FIELDS) {
           const a = d[f]
           const e = empty[f]
 
-          for (let i = 0; i < a.length; i++) if (a[i] !== e[i]) mismatch++
+          for (let i = 0; i < a.length; i++) {
+            if (a[i] !== e[i]) {
+              mismatch++
+            }
+          }
         }
 
         o.mismatch.push(mismatch)
@@ -216,13 +325,17 @@ export function depthLumpSurvey(log?: (what: string) => void): LumpSurvey {
         let w = 0
 
         for (let i = 0; i < b.huskLinks; i++) {
-          const v = d.angle[i] as number
+          const v = d.angle[i]!
 
-          if (v === 0) continue
+          if (v === 0) {
+            continue
+          }
 
           const dock = Math.floor(i / 9)
 
-          if (dock === detector && o.arrival > BEATS) o.arrival = t
+          if (dock === detector && o.arrival > BEATS) {
+            o.arrival = t
+          }
 
           const x = ring(dock % SIDE)
 
@@ -240,34 +353,50 @@ export function depthLumpSurvey(log?: (what: string) => void): LumpSurvey {
     }
 
     runs.forEach((r, k) => {
-      const reading = readings[k] as LumpReading
+      const reading = readings[k]!
 
-      reading.lumpKept = reading.lumpKept && r.base.vibe.every((v, i) => v === r.vibe[i]) && r.twin.vibe.every((v, i) => v === r.vibe[i])
-      reading.impacts.push(out[k] as ImpactReading)
+      reading.lumpKept =
+        reading.lumpKept &&
+        r.base.vibe.every((v, i) => v === r.vibe[i]) &&
+        r.twin.vibe.every((v, i) => v === r.vibe[i])
+      reading.impacts.push(out[k]!)
     })
 
     log?.(`b ${impact} ${Math.round((Date.now() - started) / 1000)}s`)
   }
 
-  cached = { readings, seconds: (Date.now() - started) / 1000, beatsRun }
+  cached = {
+    readings,
+    seconds: (Date.now() - started) / 1000,
+    beatsRun,
+  }
 
   return cached
 }
 
 // the reading of one configuration by name
-export function readingOf(survey: LumpSurvey, name: string): LumpReading {
+export function readingOf(
+  survey: LumpSurvey,
+  name: string,
+): LumpReading {
   const r = survey.readings.find(x => x.config.name === name)
 
-  if (!r) throw new Error(`no configuration ${name}`)
+  if (!r) {
+    throw new Error(`no configuration ${name}`)
+  }
 
   return r
 }
 
 // the deflection of a configuration at impact index i: its centroid minus the empty's, at the empty's arrival beat
-export function deflection(survey: LumpSurvey, name: string, i: number): number {
-  const empty = readingOf(survey, 'empty').impacts[i] as ImpactReading
+export function deflection(
+  survey: LumpSurvey,
+  name: string,
+  i: number,
+): number {
+  const empty = readingOf(survey, 'empty').impacts[i]!
   const at = Math.min(empty.arrival, BEATS) - 1
-  const own = readingOf(survey, name).impacts[i] as ImpactReading
+  const own = readingOf(survey, name).impacts[i]!
 
-  return (own.centroid[at] as number) - (empty.centroid[at] as number)
+  return own.centroid[at]! - empty.centroid[at]!
 }

@@ -578,14 +578,15 @@ export const TURN_POS_MIRROR = [0, 1, 2, 3, 3, 2, 1, 0]
 export const TURN_SWAP_ORDER = [0, 2, 3, 1, 4, 5]
 
 // the turning weave's couples at beat zero, the static weave's overlap-balanced partition
-export const TURN_COUPLES_ZERO: readonly (readonly [number, number])[] = [
-  [0, 3],
-  [2, 5],
-  [4, 1],
-  [6, 9],
-  [8, 11],
-  [10, 7],
-]
+export const TURN_COUPLES_ZERO: readonly (readonly [number, number])[] =
+  [
+    [0, 3],
+    [2, 5],
+    [4, 1],
+    [6, 9],
+    [8, 11],
+    [10, 7],
+  ]
 
 export function turningWeave(input: {
   opposite: number[]
@@ -615,13 +616,12 @@ export function turningWeave(input: {
   const norm = (a: number, b: number): [number, number] =>
     a < b ? [a, b] : [b, a]
   const positions: [number, number][][] = []
+
   let current = M0.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 4; i++) {
     positions.push(current)
-    current = current.map(([a, b]) =>
-      norm(G_TURN[a]!, G_TURN[b]!),
-    )
+    current = current.map(([a, b]) => norm(G_TURN[a]!, G_TURN[b]!))
   }
 
   const swapMirror = [
@@ -646,8 +646,8 @@ export function turningWeave(input: {
 
     return (slots, base) => {
       for (let k = 0; k < 6; k++) {
-        const line = lines[couples[k]![0]!]!
-        const wire = lines[couples[k]![1]!]!
+        const line = lines[couples[k]![0]]!
+        const wire = lines[couples[k]![1]]!
 
         const swap = (): void => {
           const a0 = (slots[base + line[0]] ?? 0) as Tone
@@ -665,6 +665,7 @@ export function turningWeave(input: {
             slots[base + wire[1]] = a1
           }
         }
+
         const clock = (): void => {
           const a = (slots[base + wire[0]] ?? 0) as Tone
           const b = (slots[base + wire[1]] ?? 0) as Tone

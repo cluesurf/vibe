@@ -58,6 +58,7 @@ export default experiment({
     ): { settle: number; spread: number } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const samples: number[] = []
 
       for (let t = 0; t < BEATS; t++) {
@@ -103,6 +104,7 @@ export default experiment({
     }
 
     const POSITIONS = [0, 2, 4, 6, 8, 10, 12, 14, 16]
+
     let pinExact = 0
     let drifterBounded = 0
 

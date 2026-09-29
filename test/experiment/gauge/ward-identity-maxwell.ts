@@ -45,7 +45,9 @@ function maxAbs(values: Float64Array): number {
 }
 
 // a structured, deterministic scalar with weight in two directions, so its gradient has no zero components
-function scalar(side: number): (x: number, y: number, z: number) => number {
+function scalar(
+  side: number,
+): (x: number, y: number, z: number) => number {
   return (x, y, z) =>
     Math.cos((2 * Math.PI * x) / side) +
     2 * Math.cos((2 * Math.PI * y) / side) +
@@ -78,7 +80,10 @@ export default experiment({
       const scale = maxAbs(gradient)
 
       // the identity: H (d chi) = 0
-      const residual = applyMaxwell({ matrix: massless, field: gradient })
+      const residual = applyMaxwell({
+        matrix: massless,
+        field: gradient,
+      })
 
       worstRelativeResidual = Math.max(
         worstRelativeResidual,
@@ -99,7 +104,9 @@ export default experiment({
       }
 
       // the count: exactly sites - 1 + 3 exact zero modes
-      const census = zeroModeCensus(maxwellLatticeSpectrum({ side, mass: 0 }))
+      const census = zeroModeCensus(
+        maxwellLatticeSpectrum({ side, mass: 0 }),
+      )
 
       zeroModeCounts.push(census.zero)
 
@@ -109,7 +116,10 @@ export default experiment({
 
       // CONTROL 1: a Proca mass breaks the identity by exactly m^2 (d chi), and removes every zero mode
       const proca = maxwellLatticeMatrix({ side, mass: PROCA_MASS })
-      const procaResidual = applyMaxwell({ matrix: proca, field: gradient })
+      const procaResidual = applyMaxwell({
+        matrix: proca,
+        field: gradient,
+      })
 
       for (let i = 0; i < gradient.length; i++) {
         worstProcaError = Math.max(
@@ -122,7 +132,9 @@ export default experiment({
 
       procaZeroModes = Math.max(
         procaZeroModes,
-        zeroModeCensus(maxwellLatticeSpectrum({ side, mass: PROCA_MASS })).zero,
+        zeroModeCensus(
+          maxwellLatticeSpectrum({ side, mass: PROCA_MASS }),
+        ).zero,
       )
 
       // CONTROL 2: a transverse field (A_y varying along x) is physical, the massless operator does not kill it
@@ -141,7 +153,8 @@ export default experiment({
 
     const identityExact =
       worstRelativeResidual < EXACT && worstConstantResidual < EXACT
-    const procaBreaksExactly = worstProcaError < EXACT && procaZeroModes === 0
+    const procaBreaksExactly =
+      worstProcaError < EXACT && procaZeroModes === 0
     const transverseIsPhysical = transverseResponse > 0.1
 
     const ok =
@@ -155,12 +168,16 @@ export default experiment({
       claim:
         'the lattice Maxwell operator annihilates the gradient of a structured scalar to machine precision at sides 4 and 5 and has exactly sites plus two zero modes (66 and 127, the sites minus one gradients plus the three constant link fields, which are closed but not exact on the three-torus and are annihilated to machine precision as well), the operator form of the Ward identity, while a Proca mass of 0.5 returns exactly m squared times the gradient and leaves no zero mode, and a transverse field is not annihilated, so longitudinal decoupling is measured, specific to gradients, and broken by exactly the mass term that breaks gauge invariance',
       metrics: {
-        worstRelativeResidual: Number(worstRelativeResidual.toExponential(2)),
+        worstRelativeResidual: Number(
+          worstRelativeResidual.toExponential(2),
+        ),
         zeroModesAtSide4: zeroModeCounts[0]!,
         zeroModesAtSide5: zeroModeCounts[1]!,
         predictedAtSide4: 4 * 4 * 4 + 2,
         predictedAtSide5: 5 * 5 * 5 + 2,
-        worstConstantResidual: Number(worstConstantResidual.toExponential(2)),
+        worstConstantResidual: Number(
+          worstConstantResidual.toExponential(2),
+        ),
         transverseResponse: Number(transverseResponse.toFixed(4)),
       },
       control: {

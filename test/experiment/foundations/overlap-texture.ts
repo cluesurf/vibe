@@ -44,6 +44,7 @@ export default experiment({
     const fieldOf = (dir: number): Set<number> => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const cells = new Set<number>()
 
       for (let t = 0; t < BEATS; t++) {
@@ -80,6 +81,7 @@ export default experiment({
     const sharedOf = (a: number, b: number): number => {
       const A = fields.get(a)!
       const B = fields.get(b)!
+
       let shared = 0
 
       for (const c of A) {
@@ -110,6 +112,7 @@ export default experiment({
 
     // allowed pairs: among {4, 18, 23, 12, 9}, every pair shares one or two cells
     const allowed = [4, 18, 23, 12, 9]
+
     let allowedPairs = 0
     let allowedInRange = 0
 

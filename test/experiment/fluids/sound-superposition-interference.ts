@@ -47,7 +47,10 @@ function clearSlab(will: Will, center: number): void {
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const x = cell % SIDE
-    const dx = Math.min(Math.abs(x - center), SIDE - Math.abs(x - center))
+    const dx = Math.min(
+      Math.abs(x - center),
+      SIDE - Math.abs(x - center),
+    )
 
     if (dx <= HALF_WIDTH) {
       for (let direction = 0; direction < mesh.degree; direction++) {
@@ -78,7 +81,12 @@ function study(collision: Collision): {
   }
 
   const compress = (center: number) => (w: Will) =>
-    addDensitySlab({ will: w, side: SIDE, center, halfWidth: HALF_WIDTH })
+    addDensitySlab({
+      will: w,
+      side: SIDE,
+      center,
+      halfWidth: HALF_WIDTH,
+    })
   const rarefy = (center: number) => (w: Will) => clearSlab(w, center)
 
   const reference = state([])
@@ -170,7 +178,9 @@ export default experiment({
       // CONTROL: the pinning table propagates nothing, so the crossing and its cancellation never happen
       control: {
         pinnedMinCancelRatio: Number(pinned.minCancelRatio.toFixed(4)),
-        pinnedPreOverlapGap: Number(pinned.preOverlapGap.toExponential(2)),
+        pinnedPreOverlapGap: Number(
+          pinned.preOverlapGap.toExponential(2),
+        ),
       },
       notes:
         'The amplitude-program reading (roadmap base-model 0005): the density wave is the one coarse variable the momentum rule is known to carry, it superposes and interferes like a real field, and the measured overlap nonlinearity is the exact obstruction to a unitary induced dynamics on this variable. A real amplitude has no U(1) phase, so sound alone cannot make the quantum; the phase lives in the charge rule vacuum clock (E-FND-0084 to 0088), and no committed rule carries both at once, which is now the sharpest statement of what a sixth thing would need to supply.',

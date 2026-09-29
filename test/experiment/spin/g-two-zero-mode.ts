@@ -39,7 +39,13 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { PLANES, readWord, relabel, rotations, gSquared } from '@/code/measure/g-two-census'
+import {
+  PLANES,
+  readWord,
+  relabel,
+  rotations,
+  gSquared,
+} from '@/code/measure/g-two-census'
 import { bandSignOf, landauG } from '@/code/measure/token-g-landau'
 import { type Step } from '@/code/rule/spinor-token'
 
@@ -49,19 +55,32 @@ const EXACT = 1e-7
 const MISS = 1e-5
 
 const FORCED = 'z00x00y00y00x00z'
-const SQUARE_ROOT = ['00x0y0xz0z0xyx', '00x0y0y0z0zyyx', '00x0yzy0y0z0yx', '00xy0z0y0yzy0x', '00xyx0z0zx0y0x', '00xyyz0z0y0y0x']
+const SQUARE_ROOT = [
+  '00x0y0xz0z0xyx',
+  '00x0y0y0z0zyyx',
+  '00x0yzy0y0z0yx',
+  '00xy0z0y0yzy0x',
+  '00xyx0z0zx0y0x',
+  '00xyyz0z0y0y0x',
+]
 const ACCIDENTAL = ['00x00yy00x00zz', '0000x0x0yyxxzz']
 const CONTROL = 'xxxxyxz'
 
 // the word read in plane (a, b): a -> x, b -> y, the third axis -> z, a filler -> a depth beat
-function planeSteps(word: string, plane: readonly [number, number]): Step[] {
+function planeSteps(
+  word: string,
+  plane: readonly [number, number],
+): Step[] {
   const image: [string, string, string] = ['', '', '']
 
   image[plane[0]] = 'x'
   image[plane[1]] = 'y'
   image[3 - plane[0] - plane[1]] = 'z'
 
-  return Array.from(relabel(word, image), (ch): Step => (ch === '0' ? 'up' : (ch as Step)))
+  return Array.from(
+    relabel(word, image),
+    (ch): Step => (ch === '0' ? 'up' : (ch as Step)),
+  )
 }
 
 type Witness = { word: string; misses: number[][]; gLo: number[][] }
@@ -69,19 +88,44 @@ type Witness = { word: string; misses: number[][]; gLo: number[][] }
 function witness(word: string): Witness {
   const gLo = PLANES.map(plane => {
     const schedule = planeSteps(word, plane)
-    const sign = bandSignOf({ schedule, mode: 'locked', coinAngle: MODEL_COIN })
+    const sign = bandSignOf({
+      schedule,
+      mode: 'locked',
+      coinAngle: MODEL_COIN,
+    })
 
-    return SIDES.map(side => landauG({ schedule, mode: 'locked', coinAngle: MODEL_COIN, side, sign }).gLo)
+    return SIDES.map(
+      side =>
+        landauG({
+          schedule,
+          mode: 'locked',
+          coinAngle: MODEL_COIN,
+          side,
+          sign,
+        }).gLo,
+    )
   })
 
-  return { word, gLo, misses: gLo.map(row => row.map(g => Math.abs(g - 2))) }
+  return {
+    word,
+    gLo,
+    misses: gLo.map(row => row.map(g => Math.abs(g - 2))),
+  }
 }
 
-function describe(word: string): { isotropic: boolean; g2: string; orderingFree: boolean } {
+function describe(word: string): {
+  isotropic: boolean
+  g2: string
+  orderingFree: boolean
+} {
   const reading = readWord(word)
   const g2 = gSquared(reading.planes[0]!)
 
-  return { isotropic: reading.isotropicG, g2: g2 ? `${g2[0]}/${g2[1]}` : 'saddle', orderingFree: rotations(word).some(w => readWord(w).orderingFree) }
+  return {
+    isotropic: reading.isotropicG,
+    g2: g2 ? `${g2[0]}/${g2[1]}` : 'saddle',
+    orderingFree: rotations(word).some(w => readWord(w).orderingFree),
+  }
 }
 
 export default experiment({
@@ -94,23 +138,39 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const descriptions = [FORCED, ...SQUARE_ROOT, ...ACCIDENTAL, CONTROL].map(w => ({ word: w, ...describe(w) }))
+    const descriptions = [
+      FORCED,
+      ...SQUARE_ROOT,
+      ...ACCIDENTAL,
+      CONTROL,
+    ].map(w => ({ word: w, ...describe(w) }))
     const z0 =
       descriptions.every(d => d.isotropic) &&
-      descriptions.filter(d => d.word !== CONTROL).every(d => d.g2 === '4/1') &&
+      descriptions
+        .filter(d => d.word !== CONTROL)
+        .every(d => d.g2 === '4/1') &&
       descriptions.find(d => d.word === CONTROL)?.g2 === '16/1' &&
-      [FORCED, ...SQUARE_ROOT].every(w => descriptions.find(d => d.word === w)?.orderingFree) &&
-      ACCIDENTAL.every(w => !descriptions.find(d => d.word === w)?.orderingFree)
+      [FORCED, ...SQUARE_ROOT].every(
+        w => descriptions.find(d => d.word === w)?.orderingFree,
+      ) &&
+      ACCIDENTAL.every(
+        w => !descriptions.find(d => d.word === w)?.orderingFree,
+      )
     const forced = witness(FORCED)
     const roots = SQUARE_ROOT.map(witness)
     const accidental = ACCIDENTAL.map(witness)
     const control = witness(CONTROL)
     const worst = (w: Witness): number => Math.max(...w.misses.flat())
-    const worstAt = (w: Witness, i: number): number => Math.max(...w.misses.map(row => row[i] ?? Infinity))
+    const worstAt = (w: Witness, i: number): number =>
+      Math.max(...w.misses.map(row => row[i] ?? Infinity))
     const z1 = worst(forced) < EXACT
     const z2 = roots.every(w => worst(w) < EXACT)
-    const z3 = accidental.every(w => worstAt(w, 0) > MISS && worstAt(w, 2) < worstAt(w, 0))
-    const z4 = control.gLo.every(row => Math.abs((row[2] ?? 0) - 4) < 0.1)
+    const z3 = accidental.every(
+      w => worstAt(w, 0) > MISS && worstAt(w, 2) < worstAt(w, 0),
+    )
+    const z4 = control.gLo.every(
+      row => Math.abs((row[2] ?? 0) - 4) < 0.1,
+    )
     const ok = z0 && z1 && z2 && z3 && z4
     const metrics: Record<string, number> = {
       gateZ0: z0 ? 1 : 0,
@@ -123,21 +183,31 @@ export default experiment({
     }
 
     const record = (tag: string, w: Witness): void => {
-      w.gLo.forEach((row, p) => row.forEach((g, i) => (metrics[`${tag}_plane${p}_L${SIDES[i]}_gLo`] = g)))
+      w.gLo.forEach((row, p) =>
+        row.forEach(
+          (g, i) => (metrics[`${tag}_plane${p}_L${SIDES[i]}_gLo`] = g),
+        ),
+      )
     }
 
     record('forced', forced)
-    roots.forEach((w, i) => (metrics[`squareRoot${i}_worstMiss`] = worst(w)))
+    roots.forEach(
+      (w, i) => (metrics[`squareRoot${i}_worstMiss`] = worst(w)),
+    )
     accidental.forEach((w, i) => record(`accidental${i}`, w))
     record('control', control)
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `the forced nested palindrome reads g_lo = 2 within ${worst(forced).toExponential(1)} at L = ${SIDES.join(', ')} in all three planes; the six 14-beat ordering-free classes within ${metrics['squareRootWorstMiss']?.toExponential(1)}; the two 14-beat classes with second-order g = 2 and T != 0 miss by ${accidental.map(w => `${worstAt(w, 0).toExponential(2)} at 48 and ${worstAt(w, 2).toExponential(2)} at 192`).join('; ')}; the g = 4 control reads ${control.gLo.map(row => (row[2] ?? NaN).toFixed(4)).join(', ')} at 192`,
+      claim: `the forced nested palindrome reads g_lo = 2 within ${worst(forced).toExponential(1)} at L = ${SIDES.join(', ')} in all three planes; the six 14-beat ordering-free classes within ${metrics.squareRootWorstMiss?.toExponential(1)}; the two 14-beat classes with second-order g = 2 and T != 0 miss by ${accidental.map(w => `${worstAt(w, 0).toExponential(2)} at 48 and ${worstAt(w, 2).toExponential(2)} at 192`).join('; ')}; the g = 4 control reads ${control.gLo.map(row => (row[2] ?? NaN).toFixed(4)).join(', ')} at 192`,
       metrics,
-      control: { controlWorstFrom4At192: Math.max(...control.gLo.map(row => Math.abs((row[2] ?? 0) - 4))) },
+      control: {
+        controlWorstFrom4At192: Math.max(
+          ...control.gLo.map(row => Math.abs((row[2] ?? 0) - 4)),
+        ),
+      },
       notes:
-        'L2, STAND-IN, deterministic. Read with E-SPN-0079: that file finds the principle, this one measures g on the schedule it selects and asks whether the principle means more than a second-order coincidence. FIRST RUN 2026-09-26 (tmp/base-spn80.log, 38 s): FAIL on Z3 and Z4. Z1 passes: g on the forced schedule is 2 within 7.5e-9 at every side and plane. Z2 passes: all six 14-beat ordering-free classes within 2.5e-8. Z3 FAILS, a wrong prediction: the two T != 0 classes with second-order g = 2 ALSO sit at the rest energy, within 7.5e-8 at L = 48 and 2e-12 at 192, so an exact zero mode does not single out T = 0; the Dirac square root is sufficient for g = 2, not necessary, and nothing beyond second order separates the two kinds here. Z4 FAILS as an instrument failure: the g = 4 control reads 4.06 in one plane but 32.46 in the other two at L = 192, where the estimator (E-MTR-0015\'s, tuned on schedules with fillers) takes a level outside the Landau ladder for a 7-beat word with no fillers; the control is uninformative in those planes, not evidence of g = 32.',
+        "L2, STAND-IN, deterministic. Read with E-SPN-0079: that file finds the principle, this one measures g on the schedule it selects and asks whether the principle means more than a second-order coincidence. FIRST RUN 2026-09-26 (tmp/base-spn80.log, 38 s): FAIL on Z3 and Z4. Z1 passes: g on the forced schedule is 2 within 7.5e-9 at every side and plane. Z2 passes: all six 14-beat ordering-free classes within 2.5e-8. Z3 FAILS, a wrong prediction: the two T != 0 classes with second-order g = 2 ALSO sit at the rest energy, within 7.5e-8 at L = 48 and 2e-12 at 192, so an exact zero mode does not single out T = 0; the Dirac square root is sufficient for g = 2, not necessary, and nothing beyond second order separates the two kinds here. Z4 FAILS as an instrument failure: the g = 4 control reads 4.06 in one plane but 32.46 in the other two at L = 192, where the estimator (E-MTR-0015's, tuned on schedules with fillers) takes a level outside the Landau ladder for a 7-beat word with no fillers; the control is uninformative in those planes, not evidence of g = 32.",
     })
   },
 })

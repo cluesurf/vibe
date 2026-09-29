@@ -43,8 +43,19 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { arrowBox, vacuumState } from '@/code/measure/second-law-husk'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { ballDocks, crowdStart, dockEnergy, restState } from '@/code/measure/gated-take'
-import { gatedWake, huskBall, huskColumns, shellCounts, wakeWait } from '@/code/measure/gated-wake'
+import {
+  ballDocks,
+  crowdStart,
+  dockEnergy,
+  restState,
+} from '@/code/measure/gated-take'
+import {
+  gatedWake,
+  huskBall,
+  huskColumns,
+  shellCounts,
+  wakeWait,
+} from '@/code/measure/gated-wake'
 
 export const WAKE_DILATION = {
   side: 32,
@@ -61,7 +72,8 @@ export const WAKE_DILATION = {
   late: 1000,
 } as const
 
-const same = (a: Int32Array, b: Int32Array): boolean => a.length === b.length && a.every((v, i) => v === b[i])
+const same = (a: Int32Array, b: Int32Array): boolean =>
+  a.length === b.length && a.every((v, i) => v === b[i])
 
 export default experiment({
   id: 'gravity/gated-wake-dilation',
@@ -85,14 +97,25 @@ export default experiment({
       const cells = box.cells
       const vacuum = restState(vacuumState(box), cells)
       const ball = ballDocks(box, S.radius, S.checkCenter)
-      const stand = Int32Array.from(ball, v => (v ? wakeWait(S.full) : 0))
+      const stand = Int32Array.from(ball, v =>
+        v ? wakeWait(S.full) : 0,
+      )
       const expected = gatedWake(S.checkSide, stand, 0)
 
       for (const sign of [1, -1] as const) {
-        const crowd = crowdStart(box, vacuum, { docks: ball, phase: k, sign, counter: 0 })
-        const w = Int32Array.from({ length: cells }, (_, x) => wakeWait(dockEnergy(crowd.s, x)))
+        const crowd = crowdStart(box, vacuum, {
+          docks: ball,
+          phase: k,
+          sign,
+          counter: 0,
+        })
+        const w = Int32Array.from({ length: cells }, (_, x) =>
+          wakeWait(dockEnergy(crowd.s, x)),
+        )
 
-        if (!same(gatedWake(S.checkSide, w, 0), expected)) standIn = false
+        if (!same(gatedWake(S.checkSide, w, 0), expected)) {
+          standIn = false
+        }
       }
     })
 
@@ -101,11 +124,19 @@ export default experiment({
     const cells = side ** 4
     const columns = huskColumns(side)
     const ball = huskBall(columns, side, S.radius, S.center)
-    const crowdW = Int32Array.from(ball, v => (v ? wakeWait(S.full) : 0))
+    const crowdW = Int32Array.from(ball, v =>
+      v ? wakeWait(S.full) : 0,
+    )
     const plain = gatedWake(side, new Int32Array(cells), 0)
     const crowd = gatedWake(side, crowdW, 0)
-    const uniform = gatedWake(side, new Int32Array(cells).fill(wakeWait(S.full)), 0)
-    const uniformOk = plain.every((b, x) => uniform[x] === (wakeWait(S.full) + 1) * b)
+    const uniform = gatedWake(
+      side,
+      new Int32Array(cells).fill(wakeWait(S.full)),
+      0,
+    )
+    const uniformOk = plain.every(
+      (b, x) => uniform[x] === (wakeWait(S.full) + 1) * b,
+    )
     const h1 = standIn && uniformOk
 
     // column births
@@ -114,10 +145,10 @@ export default experiment({
     const colCrowd = new Int32Array(nCol).fill(0x7fffffff)
 
     for (let x = 0; x < cells; x++) {
-      const c = columns[x] as number
+      const c = columns[x]!
 
-      colPlain[c] = Math.min(colPlain[c] as number, plain[x] as number)
-      colCrowd[c] = Math.min(colCrowd[c] as number, crowd[x] as number)
+      colPlain[c] = Math.min(colPlain[c]!, plain[x]!)
+      colCrowd[c] = Math.min(colCrowd[c]!, crowd[x]!)
     }
 
     const ring = (d: number): number => {
@@ -125,47 +156,76 @@ export default experiment({
 
       return m > side / 2 ? m - side : m
     }
+
     const shellOf = (c: number): number => {
-      const p = [c % side, Math.floor(c / side) % side, Math.floor(c / (side * side))]
-      const d2 = p.reduce((acc, v, i) => acc + ring(v - (S.center[i] as number)) ** 2, 0)
+      const p = [
+        c % side,
+        Math.floor(c / side) % side,
+        Math.floor(c / (side * side)),
+      ]
+      const d2 = p.reduce(
+        (acc, v, i) => acc + ring(v - (S.center[i] as number)) ** 2,
+        0,
+      )
 
       return Math.round(Math.sqrt(d2))
     }
-    type Tally = { read: number; delayed: number; sum: number; max: number }
+
+    type Tally = {
+      read: number
+      delayed: number
+      sum: number
+      max: number
+    }
+
     const blank = (): Tally => ({ read: 0, delayed: 0, sum: 0, max: 0 })
     const byColumn = new Map<number, Tally>()
     const byDock = new Map<number, Tally>()
 
     for (let c = 0; c < nCol; c++) {
-      if ((colPlain[c] as number) > S.readBirth) continue
+      if (colPlain[c]! > S.readBirth) {
+        continue
+      }
 
       const r = shellOf(c)
       const t = byColumn.get(r) ?? blank()
-      const d = (colCrowd[c] as number) - (colPlain[c] as number)
+      const d = colCrowd[c]! - colPlain[c]!
 
       t.read++
       t.sum += d
       t.max = Math.max(t.max, d)
-      if (d >= 1) t.delayed++
+
+      if (d >= 1) {
+        t.delayed++
+      }
+
       byColumn.set(r, t)
     }
 
     let insideMax = 0
 
     for (let x = 0; x < cells; x++) {
-      if ((plain[x] as number) > S.readBirth) continue
+      if (plain[x]! > S.readBirth) {
+        continue
+      }
 
-      const d = (crowd[x] as number) - (plain[x] as number)
+      const d = crowd[x]! - plain[x]!
 
-      if (ball[x]) insideMax = Math.max(insideMax, d)
+      if (ball[x]) {
+        insideMax = Math.max(insideMax, d)
+      }
 
-      const r = shellOf(columns[x] as number)
+      const r = shellOf(columns[x]!)
       const t = byDock.get(r) ?? blank()
 
       t.read++
       t.sum += d
       t.max = Math.max(t.max, d)
-      if (d >= 1) t.delayed++
+
+      if (d >= 1) {
+        t.delayed++
+      }
+
       byDock.set(r, t)
     }
 
@@ -190,9 +250,11 @@ export default experiment({
     // H4: a / r least squares through the origin in 1/r, R^2 against the mean
     const ys = S.shells.map(r => meanAt(byColumn, r))
     const xs = S.shells.map(r => 1 / r)
-    const a = xs.reduce((u, x, i) => u + x * (ys[i] as number), 0) / xs.reduce((u, x) => u + x * x, 0)
+    const a =
+      xs.reduce((u, x, i) => u + x * ys[i]!, 0) /
+      xs.reduce((u, x) => u + x * x, 0)
     const yMean = ys.reduce((u, v) => u + v, 0) / ys.length
-    const ssRes = ys.reduce((u, y, i) => u + (y - a * (xs[i] as number)) ** 2, 0)
+    const ssRes = ys.reduce((u, y, i) => u + (y - a * xs[i]!) ** 2, 0)
     const ssTot = ys.reduce((u, y) => u + (y - yMean) ** 2, 0)
     const r2 = ssTot > 0 ? 1 - ssRes / ssTot : 0
     const h4 = ys.every(y => y > 0) && r2 >= 0.9
@@ -201,15 +263,21 @@ export default experiment({
     const axis = S.behind.map(k => {
       const c = (S.center[0] + k) % side
 
-      return (colCrowd[c] as number) - (colPlain[c] as number)
+      return colCrowd[c]! - colPlain[c]!
     })
-    const h5 = axis.every(d => d >= 1) && axis.every((d, i) => i === 0 || d <= (axis[i - 1] as number))
-    const status = !h1 ? 'partial' : h2 && h3 && h4 && h5 ? 'pass' : 'fail'
+    const h5 =
+      axis.every(d => d >= 1) &&
+      axis.every((d, i) => i === 0 || d <= axis[i - 1]!)
+    const status = !h1
+      ? 'partial'
+      : h2 && h3 && h4 && h5
+        ? 'pass'
+        : 'fail'
     const tallyNote = (m: Map<number, Tally>): string =>
       [...m.keys()]
         .sort((u, v) => u - v)
         .map(r => {
-          const t = m.get(r) as Tally
+          const t = m.get(r)!
 
           return `r${r} ${t.delayed}/${t.read} delayed, mean ${(t.sum / t.read).toFixed(3)}, max ${t.max}`
         })
@@ -232,14 +300,15 @@ export default experiment({
     }
 
     S.shells.forEach((r, i) => {
-      metrics[`columnMeanOffset_r${r}`] = ys[i] as number
+      metrics[`columnMeanOffset_r${r}`] = ys[i]!
       metrics[`columnDelayed_r${r}`] = byColumn.get(r)?.delayed ?? 0
       metrics[`columnRead_r${r}`] = byColumn.get(r)?.read ?? 0
       metrics[`dockMeanOffset_r${r}`] = meanAt(byDock, r)
       metrics[`dockDelayed_r${r}`] = byDock.get(r)?.delayed ?? 0
     })
+
     S.behind.forEach((k, i) => {
-      metrics[`axisOffset_k${k}`] = axis[i] as number
+      metrics[`axisOffset_k${k}`] = axis[i]!
     })
 
     return verdict({

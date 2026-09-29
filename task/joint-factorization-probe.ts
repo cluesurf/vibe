@@ -11,14 +11,23 @@ const BAND = KAC_MAX / KAC_MIN
 
 const yuk = (m: number): number => (Math.SQRT2 * m) / V
 const ys = [yuk(MASSES.e), yuk(MASSES.mu), yuk(MASSES.tau)]
+
 console.log('Yukawas:', ys.map(y => y.toExponential(3)).join(' '))
-console.log('exact depths (log_lambda^{1/2} of 1/y):', ys.map(y => (-2 * Math.log(y) / Math.log(LAMBDA)).toFixed(2)).join(' '))
+console.log(
+  'exact depths (log_lambda^{1/2} of 1/y):',
+  ys
+    .map(y => ((-2 * Math.log(y)) / Math.log(LAMBDA)).toFixed(2))
+    .join(' '),
+)
 console.log('Kac band ratio:', BAND.toFixed(2))
 
 const test = (d: number[]): void => {
   const pre = ys.map((y, i) => y * Math.pow(LAMBDA, d[i]! / 2))
   const ratio = Math.max(...pre) / Math.min(...pre)
-  console.log(`depths (${d.join(',')}): prefactors ${pre.map(p => p.toFixed(3)).join(' ')} spread=${ratio.toFixed(2)} ${ratio <= BAND ? 'FITS IN KAC BAND' : 'exceeds band'}`)
+
+  console.log(
+    `depths (${d.join(',')}): prefactors ${pre.map(p => p.toFixed(3)).join(' ')} spread=${ratio.toFixed(2)} ${ratio <= BAND ? 'FITS IN KAC BAND' : 'exceeds band'}`,
+  )
 }
 
 // nearest integers and neighbors

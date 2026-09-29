@@ -86,10 +86,37 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { runWindow, windowContext } from '@/code/measure/permutation-meeting'
-import { bandCurvature, bandSlope, blochEntries, boostedRun, cutStart, exactStart, followLevel, loneBand, loneEntries, pointOrbit, quarticMass, type BandPoint, type BoostedRun } from '@/code/measure/moving-level'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  runWindow,
+  windowContext,
+} from '@/code/measure/permutation-meeting'
+import {
+  bandCurvature,
+  bandSlope,
+  blochEntries,
+  boostedRun,
+  cutStart,
+  exactStart,
+  followLevel,
+  loneBand,
+  loneEntries,
+  pointOrbit,
+  quarticMass,
+  type BandPoint,
+  type BoostedRun,
+} from '@/code/measure/moving-level'
 
 const BOX = 12
 const P = 40
@@ -108,10 +135,32 @@ const EXACT = 1e-12
 const RECORDED = { mass: 24.564709334397314, ratio: 74.4343361519997 }
 const LONE_D = 1e-3
 const WINDOW = { side: 8, beats: 2, n: 8 }
-const OLD: PieceOptions = { cost: true, sign: true, unit: 0, flat: false }
-const SLANT: PieceOptions = { cost: true, sign: true, unit: 0, flat: false, slant: true }
-const UNBOUND: PieceOptions = { cost: true, sign: true, unit: 3, flat: false, slant: true }
-const BARE: PieceOptions = { cost: false, sign: false, unit: 0, flat: false }
+const OLD: PieceOptions = {
+  cost: true,
+  sign: true,
+  unit: 0,
+  flat: false,
+}
+const SLANT: PieceOptions = {
+  cost: true,
+  sign: true,
+  unit: 0,
+  flat: false,
+  slant: true,
+}
+const UNBOUND: PieceOptions = {
+  cost: true,
+  sign: true,
+  unit: 3,
+  flat: false,
+  slant: true,
+}
+const BARE: PieceOptions = {
+  cost: false,
+  sign: false,
+  unit: 0,
+  flat: false,
+}
 
 export default experiment({
   id: 'spin/slant-string',
@@ -124,11 +173,18 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const ks = NS.map(n => (2 * Math.PI * n) / 32)
 
     // ---- the lone love (item 1) ----
-    const loneCurvature = (loneBand(LONE_D).energy + loneBand(-LONE_D).energy - 2 * loneBand(0).energy) / LONE_D ** 2
+    const loneCurvature =
+      (loneBand(LONE_D).energy +
+        loneBand(-LONE_D).energy -
+        2 * loneBand(0).energy) /
+      LONE_D ** 2
     const loneMass = 1 / loneCurvature
     const loneRest = Math.PI / 3
     const loneRatio = Math.tan(loneRest) / loneRest
@@ -136,16 +192,33 @@ export default experiment({
 
     // ---- the stand-in under each cost ----
     const standIn = (extra: Partial<LineSector>) => {
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0, ...extra }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D: 3,
+        box: BOX,
+        unit: 0,
+        ...extra,
+      }
       const basis = lineBasis(sector)
       const sub = wholeBasis(basis)
       const light = lineLightest(basis, sub)
       const band = followLevel(basis, sub, light.lightest, ks, STEP)
       const slopes = band.map(b => bandSlope(basis, sub, b, SLOPE_D))
-      const curvature = bandCurvature(basis, sub, band[0] as BandPoint, CURVE_D)
+      const curvature = bandCurvature(basis, sub, band[0]!, CURVE_D)
 
-      return { basis, sub, light, band, slopes, curvature, mass: 1 / curvature, rest: light.lightest.unwrapped }
+      return {
+        basis,
+        sub,
+        light,
+        band,
+        slopes,
+        curvature,
+        mass: 1 / curvature,
+        rest: light.lightest.unwrapped,
+      }
     }
+
     const old = standIn({})
 
     log('stand-in old')
@@ -163,9 +236,18 @@ export default experiment({
     const { f, ring, gauge, L } = ctx
     const cover = pointOrbit(gauge).length * L
 
-    if (cover !== 32) throw new Error(`slant-string: the cover is ${cover}, the momenta were fixed for 32`)
+    if (cover !== 32) {
+      throw new Error(
+        `slant-string: the cover is ${cover}, the momenta were fixed for 32`,
+      )
+    }
 
-    const runOf = (options: PieceOptions, s0: CutState, K: number, beats = BEATS): BoostedRun =>
+    const runOf = (
+      options: PieceOptions,
+      s0: CutState,
+      K: number,
+      beats = BEATS,
+    ): BoostedRun =>
       boostedRun(
         s => pointBeatWith(options, f.tables, ring, s),
         s0,
@@ -173,10 +255,19 @@ export default experiment({
         beats,
         s => cutDensity(L, s),
       )
-    const startsOf = (band: readonly BandPoint[], basis: typeof old.basis): CutState[] => band.map(b => cutStart(blochEntries(gauge, basis, b.vector, b.K, P).entries, P))
+    const startsOf = (
+      band: readonly BandPoint[],
+      basis: typeof old.basis,
+    ): CutState[] =>
+      band.map(b =>
+        cutStart(
+          blochEntries(gauge, basis, b.vector, b.K, P).entries,
+          P,
+        ),
+      )
     const slantStarts = startsOf(slant.band, slant.basis)
     const slantRuns = slant.band.map((b, i) => {
-      const r = runOf(SLANT, slantStarts[i] as CutState, b.K)
+      const r = runOf(SLANT, slantStarts[i]!, b.K)
 
       log(`slant K ${b.K.toFixed(4)}`)
 
@@ -185,7 +276,7 @@ export default experiment({
     const oldStarts = startsOf(old.band, old.basis)
     const oldRuns = FIT_NS.map(n => {
       const i = NS.indexOf(n)
-      const r = runOf(OLD, oldStarts[i] as CutState, (old.band[i] as BandPoint).K)
+      const r = runOf(OLD, oldStarts[i]!, old.band[i]!.K)
 
       log(`old K ${r.K.toFixed(4)}`)
 
@@ -194,49 +285,103 @@ export default experiment({
 
     // ---- C1, C2, C3 ----
     const c1 = slantRuns.every(r => r.least >= HOLD)
-    const slantFit = quarticMass(FIT_NS.map(n => slantRuns[NS.indexOf(n)] as BoostedRun))
-    const slantE0 = (slantRuns[0] as BoostedRun).energy
+    const slantFit = quarticMass(
+      FIT_NS.map(n => slantRuns[NS.indexOf(n)]!),
+    )
+    const slantE0 = slantRuns[0]!.energy
     const slantRest = Math.PI + slantE0
     const slantRatio = slantFit.mass / slantRest
     const R = slantRatio / loneRatio
     const c2 = Math.abs(R - 1) <= RATIO_TOL
-    const topMeasured = Math.max(...slantRuns.map(r => Math.abs(r.velocity)))
-    const vHalf = (slantRuns[NS.indexOf(8)] as BoostedRun).velocity
+    const topMeasured = Math.max(
+      ...slantRuns.map(r => Math.abs(r.velocity)),
+    )
+    const vHalf = slantRuns[NS.indexOf(8)]!.velocity
     const c3 = topMeasured <= 1 && vHalf >= APPROACH * freeTrioSpeed
 
     // the same readings with the old cost
     const oldFit = quarticMass(oldRuns)
-    const oldE0 = (oldRuns[0] as BoostedRun).energy
+    const oldE0 = oldRuns[0]!.energy
     const oldRest = Math.PI + oldE0
     const oldR = oldFit.mass / oldRest / loneRatio
 
     log('gates')
 
     // ---- controls ----
-    const controlOld = Math.abs(oldFit.mass - RECORDED.mass) <= 1e-9 && Math.abs(oldFit.mass / oldE0 - RECORDED.ratio) <= 0.1
-    const unboundRuns = [0, NS.indexOf(8)].map(i => runOf(UNBOUND, slantStarts[i] as CutState, (slant.band[i] as BandPoint).K))
+    const controlOld =
+      Math.abs(oldFit.mass - RECORDED.mass) <= 1e-9 &&
+      Math.abs(oldFit.mass / oldE0 - RECORDED.ratio) <= 0.1
+    const unboundRuns = [0, NS.indexOf(8)].map(i =>
+      runOf(UNBOUND, slantStarts[i]!, slant.band[i]!.K),
+    )
     const controlUnbound = unboundRuns.every(r => r.least < HOLD)
 
     log('control b')
 
-    const controlArea = Math.abs(area.rest - old.rest) <= EXACT && Math.abs(area.mass - old.mass) <= 1e-6
-    const loneRun = runOf(BARE, cutStart(loneEntries(gauge, Math.PI / 8, P), P), Math.PI / 8, 32)
-    const loneEnergyOff = Math.abs(loneRun.energy - loneBand(Math.PI / 8).energy)
-    const controlLone = Math.abs(loneMass - Math.sqrt(3)) <= 1e-5 && loneEnergyOff <= 1e-9
+    const controlArea =
+      Math.abs(area.rest - old.rest) <= EXACT &&
+      Math.abs(area.mass - old.mass) <= 1e-6
+    const loneRun = runOf(
+      BARE,
+      cutStart(loneEntries(gauge, Math.PI / 8, P), P),
+      Math.PI / 8,
+      32,
+    )
+    const loneEnergyOff = Math.abs(
+      loneRun.energy - loneBand(Math.PI / 8).energy,
+    )
+    const controlLone =
+      Math.abs(loneMass - Math.sqrt(3)) <= 1e-5 && loneEnergyOff <= 1e-9
 
     log('control d')
 
     const wctx = windowContext(WINDOW.side)
-    const wBand = slant.band[NS.indexOf(WINDOW.n)] as BandPoint
-    const wAnchors = pointOrbit(wctx.gauge).map((_, s) => s * wctx.L + wctx.L - 1)
-    const wPlaced = blochEntries(wctx.gauge, slant.basis, wBand.vector, wBand.K, P, wAnchors)
-    const window = runWindow({ cost: true, sign: true, slant: true }, wctx, exactStart(wctx.vac, wctx.ring, wPlaced.entries, P), cutStart(wPlaced.entries, P), WINDOW.beats)
-    const controlWindow = window.reversed && window.beats.every(b => b.normKept && b.physicalNormOff <= EXACT && b.leak === 0 && b.disturbed === 0 && b.pointGap <= EXACT && b.energyGap <= EXACT && b.toneBroken === 0 && b.outsideCone === 0)
+    const wBand = slant.band[NS.indexOf(WINDOW.n)]!
+    const wAnchors = pointOrbit(wctx.gauge).map(
+      (_, s) => s * wctx.L + wctx.L - 1,
+    )
+    const wPlaced = blochEntries(
+      wctx.gauge,
+      slant.basis,
+      wBand.vector,
+      wBand.K,
+      P,
+      wAnchors,
+    )
+    const window = runWindow(
+      { cost: true, sign: true, slant: true },
+      wctx,
+      exactStart(wctx.vac, wctx.ring, wPlaced.entries, P),
+      cutStart(wPlaced.entries, P),
+      WINDOW.beats,
+    )
+    const controlWindow =
+      window.reversed &&
+      window.beats.every(
+        b =>
+          b.normKept &&
+          b.physicalNormOff <= EXACT &&
+          b.leak === 0 &&
+          b.disturbed === 0 &&
+          b.pointGap <= EXACT &&
+          b.energyGap <= EXACT &&
+          b.toneBroken === 0 &&
+          b.outsideCone === 0,
+      )
 
     log('control e')
 
-    const control = controlOld && controlUnbound && controlArea && controlLone && controlWindow
-    const status = !control ? 'partial' : c1 && c2 && c3 ? 'pass' : 'fail'
+    const control =
+      controlOld &&
+      controlUnbound &&
+      controlArea &&
+      controlLone &&
+      controlWindow
+    const status = !control
+      ? 'partial'
+      : c1 && c2 && c3
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const f6 = (x: number): string => x.toFixed(6)
     const e3 = (x: number): string => x.toExponential(3)
@@ -277,39 +422,54 @@ export default experiment({
       topMeasured,
       vHalf,
       windowReversed: window.reversed ? 1 : 0,
-      windowWorstPointGap: Math.max(...window.beats.map(b => b.pointGap)),
-      windowWorstEnergyGap: Math.max(...window.beats.map(b => b.energyGap)),
+      windowWorstPointGap: Math.max(
+        ...window.beats.map(b => b.pointGap),
+      ),
+      windowWorstEnergyGap: Math.max(
+        ...window.beats.map(b => b.energyGap),
+      ),
       windowStartBranches: window.startBranches,
       seconds: (Date.now() - started) / 1000,
     }
 
     slantRuns.forEach((r, i) => {
-      const n = NS[i] as number
+      const n = NS[i]!
 
       metrics[`slant${n}_K`] = r.K
       metrics[`slant${n}_leastFidelity`] = r.least
       metrics[`slant${n}_energy`] = r.energy
-      metrics[`slant${n}_energyPredicted`] = (slant.band[i] as BandPoint).energy
+      metrics[`slant${n}_energyPredicted`] = slant.band[i]!.energy
       metrics[`slant${n}_velocity`] = r.velocity
-      metrics[`slant${n}_velocityPredicted`] = slant.slopes[i] as number
-      metrics[`slant${n}_bandOverlap`] = (slant.band[i] as BandPoint).overlap
+      metrics[`slant${n}_velocityPredicted`] = slant.slopes[i]!
+      metrics[`slant${n}_bandOverlap`] = slant.band[i]!.overlap
     })
+
     oldRuns.forEach((r, i) => {
-      const n = FIT_NS[i] as number
+      const n = FIT_NS[i]!
 
       metrics[`old${n}_leastFidelity`] = r.least
       metrics[`old${n}_energy`] = r.energy
     })
-    unboundRuns.forEach((r, i) => (metrics[`unbound${i}_leastFidelity`] = r.least))
 
-    const runRow = (r: BoostedRun, i: number): string => `K ${f4(r.K)}: least fidelity ${f6(r.least)}, E ${f6(r.energy)} (band ${f6((slant.band[i] as BandPoint).energy)}), v ${e3(r.velocity)} (band ${e3(slant.slopes[i] as number)})`
+    unboundRuns.forEach(
+      (r, i) => (metrics[`unbound${i}_leastFidelity`] = r.least),
+    )
+
+    const runRow = (r: BoostedRun, i: number): string =>
+      `K ${f4(r.K)}: least fidelity ${f6(r.least)}, E ${f6(r.energy)} (band ${f6(slant.band[i]!.energy)}), v ${e3(r.velocity)} (band ${e3(slant.slopes[i]!)})`
 
     return verdict({
       status,
       claim: `the lone love (no pieces) has m* ${loneMass.toFixed(6)} = tan(pi/3) against its half-gap pi/3, ratio ${loneRatio.toFixed(4)}, top speed 1/2, so the walk itself is off by that ratio and C2 is read against it; the area (trapezoid) cost is the old cost's conjugate (stand-in E ${area.rest.toFixed(8)} against ${old.rest.toFixed(8)}, m* ${area.mass.toFixed(6)} against ${old.mass.toFixed(6)}); the slant cost (a gap whose two single end loves step alike is not charged), E-SPN-0105's setup, ${BEATS} beats: ${slantRuns.map(runRow).join('; ')}; C1 ${c1} (least ${f4(Math.min(...slantRuns.map(r => r.least)))}); m* ${slantFit.mass.toFixed(3)} measured (stand-in ${slant.mass.toFixed(3)}), E_rest pi + ${slantE0.toFixed(5)}, m*/E_rest ${slantRatio.toFixed(3)}, R ${R.toFixed(3)} against the lone love's ratio, C2 ${c2}; top speed ${e3(topMeasured)}, v(pi/2) ${e3(vHalf)} against 0.8 of the free trio's ${f4(freeTrioSpeed)}, C3 ${c3}; the old cost: m* ${oldFit.mass.toFixed(6)}, m*/E(0) ${(oldFit.mass / oldE0).toFixed(2)}, R ${oldR.toFixed(3)}; controls: old ${controlOld}, unbound ${unboundRuns.map(r => f4(r.least)).join(', ')} (${controlUnbound}), area ${controlArea}, lone ${controlLone}, exact window ${controlWindow}`,
       metrics,
-      control: { old: controlOld ? 1 : 0, unbound: controlUnbound ? 1 : 0, area: controlArea ? 1 : 0, lone: controlLone ? 1 : 0, window: controlWindow ? 1 : 0 },
-      notes: `L2. C1 ${c1}, C2 ${c2}, C3 ${c3}; controls old ${controlOld}, unbound ${controlUnbound}, area ${controlArea}, lone ${controlLone}, window ${controlWindow}. Stand-in levels: old E ${old.rest} next ${old.light.next} m* ${old.mass}; area E ${area.rest} m* ${area.mass}; slant E ${slant.rest} next ${slant.light.next} particle levels ${slant.light.particleLevels} mean string ${slant.light.lightest.mean} contact ${slant.light.lightest.contact} m* ${slant.mass} (old contact ${old.light.lightest.contact}, mean string ${old.light.lightest.mean}). Slant band (steps of pi/64): ${slant.band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} dE/dK ${e3(slant.slopes[i] as number)} residual ${b.residual.toExponential(1)} least overlap ${f4(b.overlap)}`).join('; ')}. Slant fit over K ${FIT_NS.map(n => f4((2 * Math.PI * n) / 32)).join(', ')}: m* ${slantFit.mass.toFixed(4)}, b ${slantFit.beta.toExponential(3)}. Fidelity at beats 1, 16, 64, 128: ${slantRuns.map(r => `K ${f4(r.K)} ${[1, 16, 64, 128].map(t => f6(r.fidelity[t - 1] as number)).join(' ')}`).join('; ')}. Old runs: ${oldRuns.map(r => `K ${f4(r.K)} least ${f6(r.least)} E ${f6(r.energy)}`).join('; ')}; m* ${oldFit.mass} (recorded ${RECORDED.mass}), m*/E(0) ${oldFit.mass / oldE0} (recorded ${RECORDED.ratio}), E_rest pi + E(0) ${oldRest}, m*/E_rest ${oldFit.mass / oldRest}. Unbound (slant): ${unboundRuns.map(r => `K ${f4(r.K)} fidelity at 1, 16, 128 ${[1, 16, 128].map(t => f4(r.fidelity[t - 1] as number)).join(' ')}`).join('; ')}. Lone love: E''(0) ${loneCurvature} m* ${loneMass}, ring run at pi/8 E ${loneRun.energy.toFixed(10)} (closed ${loneBand(Math.PI / 8).energy.toFixed(10)}) least fidelity ${loneRun.least}; free trio m* 3 sqrt 3 = ${(3 * Math.sqrt(3)).toFixed(4)}, v(pi/2) ${freeTrioSpeed}. Exact window (side ${window.side}, ${window.startBranches} branches): ${window.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${b.physicalNormOff.toExponential(1)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, tone ${b.toneBroken}, cone ${b.outsideCone}`).join('; ')}; reversed ${window.reversed} (${window.seconds.toFixed(0)} s). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        old: controlOld ? 1 : 0,
+        unbound: controlUnbound ? 1 : 0,
+        area: controlArea ? 1 : 0,
+        lone: controlLone ? 1 : 0,
+        window: controlWindow ? 1 : 0,
+      },
+      notes: `L2. C1 ${c1}, C2 ${c2}, C3 ${c3}; controls old ${controlOld}, unbound ${controlUnbound}, area ${controlArea}, lone ${controlLone}, window ${controlWindow}. Stand-in levels: old E ${old.rest} next ${old.light.next} m* ${old.mass}; area E ${area.rest} m* ${area.mass}; slant E ${slant.rest} next ${slant.light.next} particle levels ${slant.light.particleLevels} mean string ${slant.light.lightest.mean} contact ${slant.light.lightest.contact} m* ${slant.mass} (old contact ${old.light.lightest.contact}, mean string ${old.light.lightest.mean}). Slant band (steps of pi/64): ${slant.band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} dE/dK ${e3(slant.slopes[i]!)} residual ${b.residual.toExponential(1)} least overlap ${f4(b.overlap)}`).join('; ')}. Slant fit over K ${FIT_NS.map(n => f4((2 * Math.PI * n) / 32)).join(', ')}: m* ${slantFit.mass.toFixed(4)}, b ${slantFit.beta.toExponential(3)}. Fidelity at beats 1, 16, 64, 128: ${slantRuns.map(r => `K ${f4(r.K)} ${[1, 16, 64, 128].map(t => f6(r.fidelity[t - 1]!)).join(' ')}`).join('; ')}. Old runs: ${oldRuns.map(r => `K ${f4(r.K)} least ${f6(r.least)} E ${f6(r.energy)}`).join('; ')}; m* ${oldFit.mass} (recorded ${RECORDED.mass}), m*/E(0) ${oldFit.mass / oldE0} (recorded ${RECORDED.ratio}), E_rest pi + E(0) ${oldRest}, m*/E_rest ${oldFit.mass / oldRest}. Unbound (slant): ${unboundRuns.map(r => `K ${f4(r.K)} fidelity at 1, 16, 128 ${[1, 16, 128].map(t => f4(r.fidelity[t - 1]!)).join(' ')}`).join('; ')}. Lone love: E''(0) ${loneCurvature} m* ${loneMass}, ring run at pi/8 E ${loneRun.energy.toFixed(10)} (closed ${loneBand(Math.PI / 8).energy.toFixed(10)}) least fidelity ${loneRun.least}; free trio m* 3 sqrt 3 = ${(3 * Math.sqrt(3)).toFixed(4)}, v(pi/2) ${freeTrioSpeed}. Exact window (side ${window.side}, ${window.startBranches} branches): ${window.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${b.physicalNormOff.toExponential(1)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, tone ${b.toneBroken}, cone ${b.outsideCone}`).join('; ')}; reversed ${window.reversed} (${window.seconds.toFixed(0)} s). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

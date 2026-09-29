@@ -60,7 +60,8 @@ function swapPhase(phi: number): Operator {
 
       u.re[row * 9 + row] = (u.re[row * 9 + row] ?? 0) + (1 + c) / 2
       u.im[row * 9 + row] = (u.im[row * 9 + row] ?? 0) + s / 2
-      u.re[row * 9 + swapped] = (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
+      u.re[row * 9 + swapped] =
+        (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
       u.im[row * 9 + swapped] = (u.im[row * 9 + swapped] ?? 0) - s / 2
     }
   }
@@ -126,7 +127,9 @@ function traceProduct(a: Operator, b: Operator): [number, number] {
 // K(x, y) = Tr(A(x) U A(y) U^dagger) / 9, real for a unitary
 function kernel(u: Operator, points: readonly Operator[]): number[][] {
   const ud = adjointOperator(u)
-  const moved = points.map(a => multiplyOperators(multiplyOperators(u, a), ud))
+  const moved = points.map(a =>
+    multiplyOperators(multiplyOperators(u, a), ud),
+  )
 
   return points.map(ax => moved.map(m => traceProduct(ax, m)[0] / 9))
 }
@@ -136,7 +139,13 @@ function dyadicPower(k: number[][], limit: number): number {
   for (let p = 0; p <= limit; p++) {
     const scale = 2 ** p
 
-    if (k.every(row => row.every(x => Math.abs(scale * x - Math.round(scale * x)) < 1e-9))) {
+    if (
+      k.every(row =>
+        row.every(
+          x => Math.abs(scale * x - Math.round(scale * x)) < 1e-9,
+        ),
+      )
+    ) {
       return p
     }
   }
@@ -148,11 +157,11 @@ function dyadicPower(k: number[][], limit: number): number {
 function beat(k4: number[][], n: number[]): number[] | null {
   const out: number[] = []
 
-  for (let x = 0; x < k4.length; x++) {
+  for (const row of k4) {
     let m = 0
 
     for (let y = 0; y < n.length; y++) {
-      m += (k4[x]?.[y] ?? 0) * (n[y] ?? 0)
+      m += (row[y] ?? 0) * (n[y] ?? 0)
     }
 
     if (m % 4 !== 0) {
@@ -166,10 +175,15 @@ function beat(k4: number[][], n: number[]): number[] | null {
 }
 
 // real symmetric eigenvectors by cyclic Jacobi, columns of the returned matrix
-function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
+function jacobi(a: number[][]): {
+  values: number[]
+  vectors: number[][]
+} {
   const n = a.length
   const m = a.map(row => [...row])
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)),
+  )
 
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
@@ -193,7 +207,9 @@ function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
         }
 
         const theta = ((m[q]?.[q] ?? 0) - (m[p]?.[p] ?? 0)) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -243,7 +259,9 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
     y.im[i] = -((w.re[i] ?? 0) - (wd.re[i] ?? 0)) / 2
   }
 
-  const z = Array.from({ length: 2 * n }, () => new Array<number>(2 * n).fill(0))
+  const z = Array.from({ length: 2 * n }, () =>
+    new Array<number>(2 * n).fill(0),
+  )
   const MIX = 0.371
 
   for (let i = 0; i < n; i++) {
@@ -265,8 +283,14 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
 
   // each complex eigenvector appears twice in the doubled real form, as (a, b) and (-b, a): keep one of each
   for (let col = 0; col < 2 * n && used.length < n; col++) {
-    const re = Array.from({ length: n }, (_, i) => vectors[i]?.[col] ?? 0)
-    const im = Array.from({ length: n }, (_, i) => vectors[i + n]?.[col] ?? 0)
+    const re = Array.from(
+      { length: n },
+      (_, i) => vectors[i]?.[col] ?? 0,
+    )
+    const im = Array.from(
+      { length: n },
+      (_, i) => vectors[i + n]?.[col] ?? 0,
+    )
     const overlap = used.reduce((acc, u) => {
       let r = 0
       let m = 0
@@ -293,7 +317,9 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
           const ar = a.re[i * n + j] ?? 0
           const ai = a.im[i * n + j] ?? 0
           // conj(v_i) a_ij v_j, real part
-          const vr = (re[i] ?? 0) * (ar * (re[j] ?? 0) - ai * (im[j] ?? 0)) + (im[i] ?? 0) * (ar * (im[j] ?? 0) + ai * (re[j] ?? 0))
+          const vr =
+            (re[i] ?? 0) * (ar * (re[j] ?? 0) - ai * (im[j] ?? 0)) +
+            (im[i] ?? 0) * (ar * (im[j] ?? 0) + ai * (re[j] ?? 0))
 
           total += vr
         }
@@ -301,6 +327,7 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
 
       return total
     }
+
     const phase = Math.atan2(expect(y), expect(x))
 
     phases.push(phase)
@@ -308,8 +335,15 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         // phase v v^dagger
-        h.re[i * n + j] = (h.re[i * n + j] ?? 0) + phase * ((re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0))
-        h.im[i * n + j] = (h.im[i * n + j] ?? 0) + phase * ((im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0))
+        h.re[i * n + j] =
+          (h.re[i * n + j] ?? 0) +
+          phase *
+            ((re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0))
+
+        h.im[i * n + j] =
+          (h.im[i * n + j] ?? 0) +
+          phase *
+            ((im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0))
       }
     }
   }
@@ -327,6 +361,7 @@ class Span {
 
   add(a: Operator): boolean {
     const n = a.n
+
     let traceRe = 0
 
     for (let i = 0; i < n; i++) {
@@ -338,7 +373,10 @@ class Span {
     for (let i = 0; i < n * n; i++) {
       const diagonal = Math.floor(i / n) === i % n
 
-      v.push((a.re[i] ?? 0) - (diagonal ? traceRe / n : 0), a.im[i] ?? 0)
+      v.push(
+        (a.re[i] ?? 0) - (diagonal ? traceRe / n : 0),
+        a.im[i] ?? 0,
+      )
     }
 
     for (const b of this.basis) {
@@ -388,7 +426,11 @@ function scalar(w: Operator, tolerance: number): boolean {
       const r = w.re[i * w.n + j] ?? 0
       const m = w.im[i * w.n + j] ?? 0
 
-      if (i === j ? Math.hypot(r - r0, m - i0) > tolerance : Math.hypot(r, m) > tolerance) {
+      if (
+        i === j
+          ? Math.hypot(r - r0, m - i0) > tolerance
+          : Math.hypot(r, m) > tolerance
+      ) {
         return false
       }
     }
@@ -410,19 +452,29 @@ export default experiment({
     const points = phasePointOperators(2)
     const f = fourier()
     const identity3 = identityOperator(3)
-    const classical = multiplyOperators(tensorOperators(f, identity3), sumGate())
+    const classical = multiplyOperators(
+      tensorOperators(f, identity3),
+      sumGate(),
+    )
     const round = multiplyOperators(classical, swapPhase(OMEGA))
     const k = kernel(round, points)
     const kBack = kernel(adjointOperator(round), points)
     const roundPower = dyadicPower(k, 20)
     const k4 = k.map(row => row.map(x => Math.round(4 * x)))
     const k4Back = kBack.map(row => row.map(x => Math.round(4 * x)))
-    const start = gridWeights({ re: Array.from({ length: 9 }, (_, i) => (i === 0 ? 1 : 0)), im: new Array<number>(9).fill(0), points })
+    const start = gridWeights({
+      re: Array.from({ length: 9 }, (_, i) => (i === 0 ? 1 : 0)),
+      im: new Array<number>(9).fill(0),
+      points,
+    })
 
     // the exact run with N = 2,304 against the state vector
     const N = 2304
+
     let n = start.map(w => Math.round(N * w))
-    let re: number[] = Array.from({ length: 9 }, (_, i) => (i === 0 ? 1 : 0))
+    let re: number[] = Array.from({ length: 9 }, (_, i) =>
+      i === 0 ? 1 : 0,
+    )
     let im = new Array<number>(9).fill(0)
     let exact = true
     let chargeKept = true
@@ -430,6 +482,7 @@ export default experiment({
     let reverses = true
     let creations = 0
     let annihilations = 0
+
     const fears: number[] = []
 
     for (let r = 1; r <= 8; r++) {
@@ -442,10 +495,13 @@ export default experiment({
 
       const back = beat(k4Back, next)
 
-      reverses = reverses && back !== null && back.every((x, i) => x === n[i])
+      reverses =
+        reverses && (back?.every((x, i) => x === n[i]) ?? false)
 
       const fearBefore = n.filter(x => x < 0).reduce((a, b) => a - b, 0)
-      const fearAfter = next.filter(x => x < 0).reduce((a, b) => a - b, 0)
+      const fearAfter = next
+        .filter(x => x < 0)
+        .reduce((a, b) => a - b, 0)
 
       creations += Math.max(0, fearAfter - fearBefore)
       annihilations += Math.max(0, fearBefore - fearAfter)
@@ -460,7 +516,9 @@ export default experiment({
 
       const weights = gridWeights({ re, im, points })
 
-      matches = matches && weights.every((w, i) => Math.abs(w - (n[i] ?? 0) / N) < 1e-9)
+      matches =
+        matches &&
+        weights.every((w, i) => Math.abs(w - (n[i] ?? 0) / N) < 1e-9)
     }
 
     // the grain bound: the first round each whole refuses
@@ -479,15 +537,23 @@ export default experiment({
 
       return 0
     }
+
     const refused576 = firstRefused(576)
     const refused9 = firstRefused(9)
 
     // the control: the swap phase at pi / 2
-    const controlPower = dyadicPower(kernel(swapPhase(Math.PI / 2), points), 20)
+    const controlPower = dyadicPower(
+      kernel(swapPhase(Math.PI / 2), points),
+      20,
+    )
 
     // universality. Not Clifford: the swap phase's own kernel is not a permutation
     const swapKernel = kernel(swapPhase(OMEGA), points)
-    const isPermutation = swapKernel.every(row => row.filter(x => Math.abs(x) > 1e-9).length === 1 && row.some(x => Math.abs(x - 1) < 1e-9))
+    const isPermutation = swapKernel.every(
+      row =>
+        row.filter(x => Math.abs(x) > 1e-9).length === 1 &&
+        row.some(x => Math.abs(x - 1) < 1e-9),
+    )
     const clifford = [
       tensorOperators(f, identity3),
       tensorOperators(identity3, f),
@@ -496,7 +562,10 @@ export default experiment({
       sumGate(),
     ]
     // a product of the swap phase with Clifford gates, and its order
-    const word = multiplyOperators(multiplyOperators(swapPhase(OMEGA), clifford[0]!), multiplyOperators(clifford[2]!, clifford[4]!))
+    const word = multiplyOperators(
+      multiplyOperators(swapPhase(OMEGA), clifford[0]!),
+      multiplyOperators(clifford[2]!, clifford[4]!),
+    )
 
     let power = identityOperator(9)
     let finiteOrder = 0
@@ -538,7 +607,10 @@ export default experiment({
     }
 
     for (const c of conjugates) {
-      const moved = multiplyOperators(multiplyOperators(c, h), adjointOperator(c))
+      const moved = multiplyOperators(
+        multiplyOperators(c, h),
+        adjointOperator(c),
+      )
 
       if (span.add(moved)) {
         algebra.push(moved)
@@ -559,7 +631,11 @@ export default experiment({
       }
     }
 
-    const universal = !isPermutation && finiteOrder === 0 && !rationalPhases && span.rank === 80
+    const universal =
+      !isPermutation &&
+      finiteOrder === 0 &&
+      !rationalPhases &&
+      span.rank === 80
 
     const ok =
       roundPower === 2 &&

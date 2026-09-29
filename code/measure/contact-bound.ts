@@ -24,7 +24,10 @@
 //
 // Measurement code (floats, eigenvalues) except for the exact runner, which is the rule in integers.
 
-import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexEigenvector,
+} from '@/code/algebra/linear/complex-eigen'
 
 export type Complex = [number, number]
 
@@ -37,19 +40,28 @@ export const ONE: Complex = [1, 0]
 export const COIN_A: Complex = [0.25, SQRT3_2 / 2]
 export const COIN_B: Complex = [0.75, -SQRT3_2 / 2]
 
-const mul = (x: Complex, y: Complex): Complex => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const mul = (x: Complex, y: Complex): Complex => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 const cexp = (t: number): Complex => [Math.cos(t), Math.sin(t)]
 
 // the two stream steps: slot 0 forward, slot 1 back
 export const STEP = [1, -1] as const
+
 const stepOf = (c: number): number => (c === 0 ? 1 : -1)
 
 // index of (r, c1, c2) in the relative basis
-const rel = (r: number, c1: number, c2: number): number => r * 4 + c1 * 2 + c2
+const rel = (r: number, c1: number, c2: number): number =>
+  r * 4 + c1 * 2 + c2
 
 // the relative walk at total momentum K (psi(x1, x2) = e^(i K x1) phi(x2 - x1)), contact phase p on the states
 // r = 0 with c1 != c2, as a dense row-major complex matrix of size 4 L
-export function relativeWalk(input: { ring: number; momentum: number; phase: Complex }): { re: Float64Array; im: Float64Array; n: number } {
+export function relativeWalk(input: {
+  ring: number
+  momentum: number
+  phase: Complex
+}): { re: Float64Array; im: Float64Array; n: number } {
   const { ring: L, momentum: K, phase } = input
   const n = 4 * L
   const re = new Float64Array(n * n)
@@ -73,8 +85,8 @@ export function relativeWalk(input: { ring: number; momentum: number; phase: Com
             const v = mul(amp, phase1)
             const at = rel(r2, c1, c2) * n + rel(r, d1, d2)
 
-            re[at] = (re[at] as number) + v[0]
-            im[at] = (im[at] as number) + v[1]
+            re[at] = re[at]! + v[0]
+            im[at] = im[at]! + v[1]
           }
         }
       }
@@ -85,7 +97,8 @@ export function relativeWalk(input: { ring: number; momentum: number; phase: Com
 }
 
 // quasi-energy of an eigenvalue lambda = e^(-i E), E in (-pi, pi]
-export const quasiEnergy = (re: number, im: number): number => -Math.atan2(im, re)
+export const quasiEnergy = (re: number, im: number): number =>
+  -Math.atan2(im, re)
 
 // the wrapped distance between two quasi-energies
 export const arcDistance = (a: number, b: number): number => {
@@ -94,12 +107,24 @@ export const arcDistance = (a: number, b: number): number => {
   return Math.min(d, 2 * Math.PI - d)
 }
 
-export type RelativeState = { energy: number; nearWeight: number; symmetric: number; profile: Float64Array; vector: { re: Float64Array; im: Float64Array } }
+export type RelativeState = {
+  energy: number
+  nearWeight: number
+  symmetric: number
+  profile: Float64Array
+  vector: { re: Float64Array; im: Float64Array }
+}
 
 // the eigenstates of W(K) whose quasi-energy passes `keep` (all by default): quasi-energy, weight within
 // |r| <= near, exchange parity (<P> for P phi(r, c1, c2) = e^(i K r) phi(-r, c2, c1), +1 symmetric, -1
 // antisymmetric), the weight at each ring distance, and the vector
-export function relativeSpectrum(input: { ring: number; momentum: number; phase: Complex; near: number; keep?: (energy: number) => boolean }): RelativeState[] {
+export function relativeSpectrum(input: {
+  ring: number
+  momentum: number
+  phase: Complex
+  near: number
+  keep?: (energy: number) => boolean
+}): RelativeState[] {
   const w = relativeWalk(input)
   const values = complexEigenvalues(w)
   const L = input.ring
@@ -108,13 +133,15 @@ export function relativeSpectrum(input: { ring: number; momentum: number; phase:
   values.re.forEach((vr, i) => {
     const vi = values.im[i] ?? 0
 
-    if (input.keep && !input.keep(quasiEnergy(vr, vi))) return
+    if (input.keep && !input.keep(quasiEnergy(vr, vi))) {
+      return
+    }
 
     const v = complexEigenvector({ ...w, value: [vr, vi] })
     const profile = new Float64Array(Math.floor(L / 2) + 1)
+
     let near = 0
     let pr = 0
-    let pi = 0
 
     for (let r = 0; r < L; r++) {
       const dist = Math.min(r, L - r)
@@ -124,38 +151,62 @@ export function relativeSpectrum(input: { ring: number; momentum: number; phase:
           const k = rel(r, c1, c2)
           const a: Complex = [v.re[k] ?? 0, v.im[k] ?? 0]
 
-          if (dist <= input.near) near += a[0] * a[0] + a[1] * a[1]
-          profile[dist] = (profile[dist] as number) + a[0] * a[0] + a[1] * a[1]
+          if (dist <= input.near) {
+            near += a[0] * a[0] + a[1] * a[1]
+          }
+
+          profile[dist] = profile[dist]! + a[0] * a[0] + a[1] * a[1]
 
           // <phi | P phi>
           const kp = rel((L - r) % L, c2, c1)
-          const b = mul(cexp(input.momentum * r), [v.re[kp] ?? 0, v.im[kp] ?? 0])
+          const b = mul(cexp(input.momentum * r), [
+            v.re[kp] ?? 0,
+            v.im[kp] ?? 0,
+          ])
 
           pr += a[0] * b[0] + a[1] * b[1]
-          pi += a[0] * b[1] - a[1] * b[0]
         }
       }
     }
 
-    out.push({ energy: quasiEnergy(vr, vi), nearWeight: near, symmetric: pr, profile, vector: v })
+    out.push({
+      energy: quasiEnergy(vr, vi),
+      nearWeight: near,
+      symmetric: pr,
+      profile,
+      vector: v,
+    })
   })
 
   return out
 }
 
 // the smallest arc distance from a quasi-energy to the L -> infinity continuum at K
-export function continuumDistance(input: { momentum: number; energy: number; samples?: number }): number {
-  const cont = continuumEnergies({ momentum: input.momentum, samples: input.samples ?? 4000 })
+export function continuumDistance(input: {
+  momentum: number
+  energy: number
+  samples?: number
+}): number {
+  const cont = continuumEnergies({
+    momentum: input.momentum,
+    samples: input.samples ?? 4000,
+  })
+
   let best = Infinity
 
-  for (const c of cont) best = Math.min(best, arcDistance(c, input.energy))
+  for (const c of cont) {
+    best = Math.min(best, arcDistance(c, input.energy))
+  }
 
   return best
 }
 
 // the free continuum at K on a ring of L: every quasi-energy of W0(K), and the arcs it covers at L -> infinity
 // (from the single-token bands cos(e) = cos(k) / 2 around the global phase, sampled finely)
-export function continuumEnergies(input: { momentum: number; samples: number }): number[] {
+export function continuumEnergies(input: {
+  momentum: number
+  samples: number
+}): number[] {
   const out: number[] = []
 
   for (let s = 0; s < input.samples; s++) {
@@ -163,7 +214,11 @@ export function continuumEnergies(input: { momentum: number; samples: number }):
     const k1 = input.momentum / 2 - q
     const k2 = input.momentum / 2 + q
 
-    for (const e1 of singleEnergies(k1)) for (const e2 of singleEnergies(k2)) out.push(wrap(e1 + e2))
+    for (const e1 of singleEnergies(k1)) {
+      for (const e2 of singleEnergies(k2)) {
+        out.push(wrap(e1 + e2))
+      }
+    }
   }
 
   return out
@@ -172,8 +227,13 @@ export function continuumEnergies(input: { momentum: number; samples: number }):
 const wrap = (e: number): number => {
   let x = e % (2 * Math.PI)
 
-  if (x > Math.PI) x -= 2 * Math.PI
-  if (x <= -Math.PI) x += 2 * Math.PI
+  if (x > Math.PI) {
+    x -= 2 * Math.PI
+  }
+
+  if (x <= -Math.PI) {
+    x += 2 * Math.PI
+  }
 
   return x
 }
@@ -188,7 +248,12 @@ export function singleEnergies(k: number): [number, number] {
 // the closed-form bound-state condition: f(lambda) = det(1 - (p - 1) G(lambda)) on the contact block
 // {(r 0, slots 0 1), (r 0, slots 1 0)}, G = Pi W0 (lambda - W0)^(-1) Pi, W0 the free relative walk, as the exact
 // momentum sum over the ring's L relative momenta (each a 4 x 4 block)
-export function contactDeterminant(input: { ring: number; momentum: number; phase: Complex; energy: number }): Complex {
+export function contactDeterminant(input: {
+  ring: number
+  momentum: number
+  phase: Complex
+  energy: number
+}): Complex {
   const { ring: L, momentum: K, phase, energy } = input
   const lambda = cexp(-energy)
   // G restricted to contact: G_ab = (1/L) sum_q [W0(q) (lambda - W0(q))^(-1)]_(ab), a, b in {(0,1), (1,0)}
@@ -203,7 +268,9 @@ export function contactDeterminant(input: { ring: number; momentum: number; phas
   for (let s = 0; s < L; s++) {
     const q = (2 * Math.PI * s) / L
     // W0(q)[c, d] = e^(-i K s(c1)) e^(-i q (s(c2) - s(c1))) C_c1d1 C_c2d2, relative plane wave e^(i q r)
-    const w: Complex[][] = Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => [0, 0] as Complex))
+    const w: Complex[][] = Array.from({ length: 4 }, () =>
+      Array.from({ length: 4 }, () => [0, 0] as Complex),
+    )
     const coin = [
       [COIN_A, COIN_B],
       [COIN_B, COIN_A],
@@ -215,16 +282,34 @@ export function contactDeterminant(input: { ring: number; momentum: number; phas
 
         for (let d1 = 0; d1 < 2; d1++) {
           for (let d2 = 0; d2 < 2; d2++) {
-            w[c1 * 2 + c2]![d1 * 2 + d2] = mul(ph, mul(coin[c1]![d1]!, coin[c2]![d2]!))
+            w[c1 * 2 + c2]![d1 * 2 + d2] = mul(
+              ph,
+              mul(coin[c1]![d1]!, coin[c2]![d2]!),
+            )
           }
         }
       }
     }
 
     // (lambda - W0)^(-1) by Gauss-Jordan on 4 x 4 complex
-    const a: Complex[][] = w.map((row, i) => row.map((x, j) => [(i === j ? lambda[0] : 0) - x[0], (i === j ? lambda[1] : 0) - x[1]] as Complex))
+    const a: Complex[][] = w.map((row, i) =>
+      row.map(
+        (x, j) =>
+          [
+            (i === j ? lambda[0] : 0) - x[0],
+            (i === j ? lambda[1] : 0) - x[1],
+          ] as Complex,
+      ),
+    )
     const inv = invert4(a)
-    const prod: Complex[][] = w.map(row => inv[0]!.map((_, j) => row.reduce<Complex>((s2, x, k) => add(s2, mul(x, inv[k]![j]!)), [0, 0])))
+    const prod: Complex[][] = w.map(row =>
+      inv[0]!.map((_, j) =>
+        row.reduce<Complex>(
+          (s2, x, k) => add(s2, mul(x, inv[k]![j]!)),
+          [0, 0],
+        ),
+      ),
+    )
 
     idx.forEach((i, ai) => {
       idx.forEach((j, bj) => {
@@ -247,17 +332,29 @@ export function contactDeterminant(input: { ring: number; momentum: number; phas
   return [d1[0] - d2[0], d1[1] - d2[1]]
 }
 
-const add = (x: Complex, y: Complex): Complex => [x[0] + y[0], x[1] + y[1]]
+const add = (x: Complex, y: Complex): Complex => [
+  x[0] + y[0],
+  x[1] + y[1],
+]
 
 function invert4(a: Complex[][]): Complex[][] {
   const n = 4
   const m = a.map(row => row.map(x => [...x] as Complex))
-  const inv = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? [1, 0] : [0, 0]) as Complex))
+  const inv = Array.from({ length: n }, (_, i) =>
+    Array.from(
+      { length: n },
+      (_, j) => (i === j ? [1, 0] : [0, 0]) as Complex,
+    ),
+  )
 
   for (let c = 0; c < n; c++) {
     let pivot = c
 
-    for (let r = c + 1; r < n; r++) if (Math.hypot(...m[r]![c]!) > Math.hypot(...m[pivot]![c]!)) pivot = r
+    for (let r = c + 1; r < n; r++) {
+      if (Math.hypot(...m[r]![c]!) > Math.hypot(...m[pivot]![c]!)) {
+        pivot = r
+      }
+    }
 
     ;[m[c], m[pivot]] = [m[pivot]!, m[c]!]
     ;[inv[c], inv[pivot]] = [inv[pivot]!, inv[c]!]
@@ -272,7 +369,9 @@ function invert4(a: Complex[][]): Complex[][] {
     }
 
     for (let r = 0; r < n; r++) {
-      if (r === c) continue
+      if (r === c) {
+        continue
+      }
 
       const f = m[r]![c]!
 

@@ -119,7 +119,9 @@ suite('rule/asynchronous: the Weyl order is a function of the beat', [
   }),
   check('the identity local map is a no-op in any order', () => {
     equal(
-      JSON.stringify(stepAsync('weyl', [1, -1, 0, 1], 7, identityLocal)),
+      JSON.stringify(
+        stepAsync('weyl', [1, -1, 0, 1], 7, identityLocal),
+      ),
       JSON.stringify([1, -1, 0, 1]),
     )
   }),

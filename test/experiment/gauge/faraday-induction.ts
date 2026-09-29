@@ -51,8 +51,7 @@ function faradayRun(side: number): {
     y: number,
     z: number,
     d: number,
-  ): number =>
-    field[maxwellLinkIndex({ side, x, y, z, direction: d })]!
+  ): number => field[maxwellLinkIndex({ side, x, y, z, direction: d })]!
 
   const plaquette = (field: Float64Array): number =>
     plaquetteFlux({ side, field, x: 1, y: 2, z: 3, orientation: 2 })
@@ -120,12 +119,16 @@ function faradayRun(side: number): {
 
     worstPlaquette = Math.max(
       worstPlaquette,
-      Math.abs(circulation(E, false) + (plaquette(next) - plaquette(A)) / DT),
+      Math.abs(
+        circulation(E, false) + (plaquette(next) - plaquette(A)) / DT,
+      ),
     )
 
     worstLoop = Math.max(
       worstLoop,
-      Math.abs(circulation(E, true) + (loopFlux(next) - loopFlux(A)) / DT),
+      Math.abs(
+        circulation(E, true) + (loopFlux(next) - loopFlux(A)) / DT,
+      ),
     )
 
     fluxSwing = Math.max(
@@ -167,10 +170,18 @@ export default experiment({
         Math.cos((2 * Math.PI * (x * y + z + d)) / side),
     })
     const controlViolation = Math.abs(
-      badE[maxwellLinkIndex({ side, x: 1, y: 2, z: 3, direction: 0 })]! +
-        badE[maxwellLinkIndex({ side, x: 2, y: 2, z: 3, direction: 1 })]! -
-        badE[maxwellLinkIndex({ side, x: 1, y: 3, z: 3, direction: 0 })]! -
-        badE[maxwellLinkIndex({ side, x: 1, y: 2, z: 3, direction: 1 })]!,
+      badE[
+        maxwellLinkIndex({ side, x: 1, y: 2, z: 3, direction: 0 })
+      ]! +
+        badE[
+          maxwellLinkIndex({ side, x: 2, y: 2, z: 3, direction: 1 })
+        ]! -
+        badE[
+          maxwellLinkIndex({ side, x: 1, y: 3, z: 3, direction: 0 })
+        ]! -
+        badE[
+          maxwellLinkIndex({ side, x: 1, y: 2, z: 3, direction: 1 })
+        ]!,
     )
 
     const exact =

@@ -70,13 +70,33 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
-import { bellHistories, physicalKnot } from '@/code/measure/knot-histories'
+import {
+  bellHistories,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
 import { gridLines } from '@/code/measure/bell-gates'
 import { LINES, memberRecord } from '@/code/measure/in-model-apparatus'
-import { LINE_CLASSES, lineProjectors, traceProduct } from '@/code/measure/sum-record'
+import {
+  LINE_CLASSES,
+  lineProjectors,
+  traceProduct,
+} from '@/code/measure/sum-record'
 import { operatorFromWigner } from '@/code/measure/qutrit-clifford'
-import { phasePointOperators, tensorOperators, type Operator } from '@/code/measure/grid-weights'
-import { forEachBellState, inModelSettings, netTable, RECORD, recordLabel, recordedWhole, reflection, settingsAt } from '@/code/measure/net-records'
+import {
+  phasePointOperators,
+  tensorOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
+import {
+  forEachBellState,
+  inModelSettings,
+  netTable,
+  RECORD,
+  recordLabel,
+  recordedWhole,
+  reflection,
+  settingsAt,
+} from '@/code/measure/net-records'
 
 const BEATS = 480
 const TOLERANCE = 1e-9
@@ -85,7 +105,7 @@ export default experiment({
   id: 'quantum/net-records-on-lines',
   code: 'E-QTM-0142',
   title:
-    'net records on lines: with the model\'s own covariant record and in-model settings, the net count of each outcome line is a non-negative count equal to the Born rule on every state, but the record is a permutation of joint points, so every fear survives it intact in some outcome cell: the cancellation that makes the count non-negative happens in the sum over the cell, not in the dynamics',
+    "net records on lines: with the model's own covariant record and in-model settings, the net count of each outcome line is a non-negative count equal to the Born rule on every state, but the record is a permutation of joint points, so every fear survives it intact in some outcome cell: the cancellation that makes the count non-negative happens in the sum over the cell, not in the dynamics",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -94,11 +114,17 @@ export default experiment({
     // I1: R's table
     const r = reflection()
     const imageSeen = new Uint8Array(729)
+
     let formulaBad = 0
 
     for (let j = 0; j < 729; j++) {
       imageSeen[r[j] ?? 0] = 1
-      formulaBad += Math.floor((r[j] ?? 0) / 9) % 9 === memberRecord(Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9).record ? 0 : 1
+      formulaBad +=
+        Math.floor((r[j] ?? 0) / 9) % 9 ===
+        memberRecord(Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9)
+          .record
+          ? 0
+          : 1
     }
 
     const permutation = imageSeen.every(v => v === 1)
@@ -106,11 +132,19 @@ export default experiment({
     // I2: members agree, and each label's points are a line of the setting's class
     let memberBad = 0
     let labelLineBad = 0
+
     const lineOfLabel = LINES.map((l, li) =>
       [0, 1, 2].map(alpha => {
-        const points = Array.from({ length: 9 }, (_, x) => x).filter(x => RECORD[li]![x] === alpha)
+        const points = Array.from({ length: 9 }, (_, x) => x).filter(
+          x => RECORD[li]![x] === alpha,
+        )
 
-        return LINES.findIndex(m => m.c === l.c && m.points.length === points.length && m.points.every((p, i) => p === points[i]))
+        return LINES.findIndex(
+          m =>
+            m.c === l.c &&
+            m.points.length === points.length &&
+            m.points.every((p, i) => p === points[i]),
+        )
       }),
     )
 
@@ -118,7 +152,8 @@ export default experiment({
       for (const sr of l.points) {
         for (const sf of l.points) {
           for (let x = 0; x < 9; x++) {
-            memberBad += recordLabel(li, x, sr, sf) === RECORD[li]![x] ? 0 : 1
+            memberBad +=
+              recordLabel(li, x, sr, sf) === RECORD[li]![x] ? 0 : 1
           }
         }
       }
@@ -132,9 +167,19 @@ export default experiment({
     const projector: Operator[] = LINES.map(l => {
       const candidates = lineProjectors(LINE_CLASSES[l.c]!.direction)
 
-      return candidates.find(p => Math.abs(l.points.reduce((s, q) => s + traceProduct(p, one[q]!) / 3, 0) - 1) < TOLERANCE)!
+      return candidates.find(
+        p =>
+          Math.abs(
+            l.points.reduce(
+              (s, q) => s + traceProduct(p, one[q]!) / 3,
+              0,
+            ) - 1,
+          ) < TOLERANCE,
+      )!
     })
-    const product = projector.flatMap(pa => projector.map(pb => tensorOperators(pa, pb)))
+    const product = projector.flatMap(pa =>
+      projector.map(pb => tensorOperators(pa, pb)),
+    )
 
     const settings = inModelSettings(BEATS)
     const { lines } = gridLines()
@@ -163,10 +208,12 @@ export default experiment({
       meetingsCreate: 0,
       meetingsKeep: 0,
     }
+
     let unitsMin = -1n
     let unitsMax = 0n
 
-    const fearsOf = (w: readonly bigint[]): bigint => w.reduce((s, x) => (x < 0n ? s - x : s), 0n)
+    const fearsOf = (w: readonly bigint[]): bigint =>
+      w.reduce((s, x) => (x < 0n ? s - x : s), 0n)
 
     forEachBellState(bellHistories(BEATS), lines, BEATS, s => {
       const physical = physicalKnot(s.h, s.whole)
@@ -174,14 +221,19 @@ export default experiment({
       const units = weight.reduce((t, x) => t + x, 0n)
       const fears = fearsOf(weight)
       const S = settingsAt(settings, s.t)
-      const rho = operatorFromWigner(weight.map(x => Number(x) / Number(units)), two)
+      const rho = operatorFromWigner(
+        weight.map(x => Number(x) / Number(units)),
+        two,
+      )
       const born = product.map(p => traceProduct(rho, p))
+
       let stateFearInACell = false
 
       counts.states++
       counts.statesWithoutSettings += S.length === 0 ? 1 : 0
       counts.statesWithFear += fears > 0n ? 1 : 0
-      counts.statesWithFearAndSettings += fears > 0n && S.length > 0 ? 1 : 0
+      counts.statesWithFearAndSettings +=
+        fears > 0n && S.length > 0 ? 1 : 0
       unitsMin = unitsMin < 0n || units < unitsMin ? units : unitsMin
       unitsMax = units > unitsMax ? units : unitsMax
 
@@ -198,20 +250,37 @@ export default experiment({
 
             counts.cellsRead++
             counts.netNegative += cell < 0n ? 1 : 0
-            counts.bornWorst = Math.max(counts.bornWorst, Math.abs(Number(cell) / Number(units) - (born[12 * lineA + lineB] ?? 0)))
+            counts.bornWorst = Math.max(
+              counts.bornWorst,
+              Math.abs(
+                Number(cell) / Number(units) -
+                  (born[12 * lineA + lineB] ?? 0),
+              ),
+            )
           }
 
           for (let alpha = 0; alpha < 3; alpha++) {
-            const alice = (n[3 * alpha] ?? 0n) + (n[3 * alpha + 1] ?? 0n) + (n[3 * alpha + 2] ?? 0n)
-            const bob = (n[alpha] ?? 0n) + (n[3 + alpha] ?? 0n) + (n[6 + alpha] ?? 0n)
+            const alice =
+              (n[3 * alpha] ?? 0n) +
+              (n[3 * alpha + 1] ?? 0n) +
+              (n[3 * alpha + 2] ?? 0n)
+            const bob =
+              (n[alpha] ?? 0n) +
+              (n[3 + alpha] ?? 0n) +
+              (n[6 + alpha] ?? 0n)
 
-            counts.marginalNegative += (alice < 0n ? 1 : 0) + (bob < 0n ? 1 : 0)
+            counts.marginalNegative +=
+              (alice < 0n ? 1 : 0) + (bob < 0n ? 1 : 0)
           }
 
           // the model's record: R for each party, member at the line's first two points
           const la0 = LINES[la]!
           const lb0 = LINES[lb]!
-          const rec = recordedWhole(weight, { l: la, sr: la0.points[0] ?? 0, sf: la0.points[1] ?? 0 }, { l: lb, sr: lb0.points[0] ?? 0, sf: lb0.points[1] ?? 0 })
+          const rec = recordedWhole(
+            weight,
+            { l: la, sr: la0.points[0] ?? 0, sf: la0.points[1] ?? 0 },
+            { l: lb, sr: lb0.points[0] ?? 0, sf: lb0.points[1] ?? 0 },
+          )
           const cellFears = new Array<bigint>(9).fill(0n)
           const cellNet = new Array<bigint>(9).fill(0n)
 
@@ -228,9 +297,14 @@ export default experiment({
           const after = cellFears.reduce((t, x) => t + x, 0n)
           const withFear = cellFears.filter(x => x > 0n).length
 
-          counts.fearsCarriedBad += after === fears && cellNet.every((x, k) => x === n[k]) ? 0 : 1
+          counts.fearsCarriedBad +=
+            after === fears && cellNet.every((x, k) => x === n[k])
+              ? 0
+              : 1
           counts.cellsWithFear += withFear
-          counts.cellsWithNetPositiveAndFear += cellFears.filter((x, k) => x > 0n && (cellNet[k] ?? 0n) > 0n).length
+          counts.cellsWithNetPositiveAndFear += cellFears.filter(
+            (x, k) => x > 0n && (cellNet[k] ?? 0n) > 0n,
+          ).length
           counts.settingPairsWithFearInACell += withFear > 0 ? 1 : 0
           stateFearInACell = stateFearInACell || withFear > 0
 
@@ -238,13 +312,18 @@ export default experiment({
           if (s.own && s.t === s.reading) {
             const images = new Set<number>()
             const openFears = new Array<bigint>(9).fill(0n)
+
             let collisions = 0
 
             for (const asr of la0.points) {
               for (const asf of la0.points) {
                 for (const bsr of lb0.points) {
                   for (const bsf of lb0.points) {
-                    const o = recordedWhole(weight, { l: la, sr: asr, sf: asf }, { l: lb, sr: bsr, sf: bsf })
+                    const o = recordedWhole(
+                      weight,
+                      { l: la, sr: asr, sf: asf },
+                      { l: lb, sr: bsr, sf: bsf },
+                    )
 
                     for (let i = 0; i < 81; i++) {
                       const key = o.images[i] ?? 0
@@ -255,7 +334,9 @@ export default experiment({
                       }
 
                       images.add(key)
-                      openFears[o.cells[i] ?? 0] = (openFears[o.cells[i] ?? 0] ?? 0n) + (w < 0n ? -w : 0n)
+                      openFears[o.cells[i] ?? 0] =
+                        (openFears[o.cells[i] ?? 0] ?? 0n) +
+                        (w < 0n ? -w : 0n)
                     }
                   }
                 }
@@ -264,8 +345,14 @@ export default experiment({
 
             counts.openedChecks++
             counts.openedCollisions += collisions
-            counts.openedFearsBad += openFears.reduce((t, x) => t + x, 0n) === 81n * fears ? 0 : 1
-            counts.openedCellsWithFear += openFears.filter(x => x > 0n).length
+            counts.openedFearsBad +=
+              openFears.reduce((t, x) => t + x, 0n) === 81n * fears
+                ? 0
+                : 1
+
+            counts.openedCellsWithFear += openFears.filter(
+              x => x > 0n,
+            ).length
           }
         }
       }
@@ -279,6 +366,7 @@ export default experiment({
 
           return { size: loves + f, units: loves - f }
         }
+
         const b0 = lf(s.before)
         const b1 = lf(s.whole)
         const lhs = b1.size * b0.units
@@ -295,12 +383,28 @@ export default experiment({
       I1: permutation && formulaBad === 0,
       I2: memberBad === 0 && labelLineBad === 0,
       I3: counts.states === 1222 && counts.statesWithoutSettings === 0,
-      G1: counts.netNegative === 0 && counts.marginalNegative === 0 && counts.cellsRead > 0,
+      G1:
+        counts.netNegative === 0 &&
+        counts.marginalNegative === 0 &&
+        counts.cellsRead > 0,
       G2: counts.bornWorst < TOLERANCE,
-      G3: counts.statesWithFearInACell === 0 && counts.openedCellsWithFear === 0,
-      G4: counts.recordCollisions === 0 && counts.fearsCarriedBad === 0 && counts.openedCollisions === 0 && counts.openedFearsBad === 0 && counts.openedChecks > 0,
+      G3:
+        counts.statesWithFearInACell === 0 &&
+        counts.openedCellsWithFear === 0,
+      G4:
+        counts.recordCollisions === 0 &&
+        counts.fearsCarriedBad === 0 &&
+        counts.openedCollisions === 0 &&
+        counts.openedFearsBad === 0 &&
+        counts.openedChecks > 0,
     }
-    const base = gates.I1 && gates.I2 && gates.I3 && gates.G1 && gates.G2 && gates.G4
+    const base =
+      gates.I1 &&
+      gates.I2 &&
+      gates.I3 &&
+      gates.G1 &&
+      gates.G2 &&
+      gates.G4
     const status = base && gates.G3 ? 'pass' : base ? 'partial' : 'fail'
 
     return verdict({
@@ -315,7 +419,12 @@ export default experiment({
         ...counts,
         unitsMin: Number(unitsMin),
         unitsMax: Number(unitsMax),
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
         'L2, exact BigInt wholes and integer tables, no random numbers: apparatus starts, states and settings are enumerated. G2 in floating point. The one stand-in carried from E-QTM-0138: when the system meets its apparatus is the beat read, not scheduled by the knit. The model does annihilate loves with fears pointwise, inside the fear beat (the whole is stored as one net integer per joint point); a record is a Clifford move, a permutation of joint points, and cannot.',

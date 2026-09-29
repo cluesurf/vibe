@@ -42,8 +42,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { HUSK_ATOM, ROWS, kineticShift, lowestLevels, makeAtom } from '@/code/measure/stand-in-atom'
-import { group2T, groupOh3, groupWD4, groupWF4, multipletSizes } from '@/code/measure/fock-pattern'
+import {
+  HUSK_ATOM,
+  ROWS,
+  kineticShift,
+  lowestLevels,
+  makeAtom,
+} from '@/code/measure/stand-in-atom'
+import {
+  group2T,
+  groupOh3,
+  groupWD4,
+  groupWF4,
+  multipletSizes,
+} from '@/code/measure/fock-pattern'
 import { namedFormChance } from '@/code/measure/integer-relation'
 
 const SIDE = 64
@@ -68,24 +80,48 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
-    const groups = { Oh3: groupOh3(), '2T': group2T(), WD4: groupWD4(), WF4: groupWF4() }
+    const groups = {
+      Oh3: groupOh3(),
+      '2T': group2T(),
+      WD4: groupWD4(),
+      WF4: groupWF4(),
+    }
+
     let gate1 = true
 
     for (const [name, group] of Object.entries(groups)) {
       const one = multipletSizes(group, 1).join('+')
       const two = multipletSizes(group, 2).join('+')
-      const match = one === PREDICTED[name]![0] && two === PREDICTED[name]![1]
+      const match =
+        one === PREDICTED[name]![0] && two === PREDICTED[name]![1]
 
       metrics[`group_${name}_order`] = group.length
       metrics[`group_${name}_matchesPrediction`] = match ? 1 : 0
       gate1 = gate1 && match
     }
 
-    const atom = makeAtom({ kind: HUSK_ATOM, side: SIDE, a: A, wall: WALL })
-    const s = lowestLevels({ atom, row: ROWS.A1g!, count: 3 }).values.map(v => v / atom.rydberg)
-    const p = lowestLevels({ atom, row: ROWS.T1u!, count: 2 }).values.map(v => v / atom.rydberg)
-    const eg = lowestLevels({ atom, row: ROWS.Eg!, count: 1 }).values[0]! / atom.rydberg
-    const t2g = lowestLevels({ atom, row: ROWS.T2g!, count: 1 }).values[0]! / atom.rydberg
+    const atom = makeAtom({
+      kind: HUSK_ATOM,
+      side: SIDE,
+      a: A,
+      wall: WALL,
+    })
+    const s = lowestLevels({
+      atom,
+      row: ROWS.A1g!,
+      count: 3,
+    }).values.map(v => v / atom.rydberg)
+    const p = lowestLevels({
+      atom,
+      row: ROWS.T1u!,
+      count: 2,
+    }).values.map(v => v / atom.rydberg)
+    const eg =
+      lowestLevels({ atom, row: ROWS.Eg!, count: 1 }).values[0]! /
+      atom.rydberg
+    const t2g =
+      lowestLevels({ atom, row: ROWS.T2g!, count: 1 }).values[0]! /
+      atom.rydberg
     const shell2 = [s[1]!, p[0]!]
     const shell3 = [s[2]!, p[1]!, eg, t2g]
     const gaps: number[] = []
@@ -121,7 +157,12 @@ export default experiment({
 
     const gate2 = Math.min(...gaps) > 1e-4
     const gate3 = miss < 0.1 && chance < 0.1
-    const status = gate1 && gate2 && gate3 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

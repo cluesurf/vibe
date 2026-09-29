@@ -30,7 +30,12 @@ export function formTower(): {
   let beat = 0
 
   const step = (): void =>
-    perceptionMatchingSweep3d({ tone, matched: m, length: L, beat: beat++ })
+    perceptionMatchingSweep3d({
+      tone,
+      matched: m,
+      length: L,
+      beat: beat++,
+    })
 
   for (let f = 0; f < 60; f++) {
     step()

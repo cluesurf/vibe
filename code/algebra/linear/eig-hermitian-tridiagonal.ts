@@ -11,7 +11,11 @@
 //
 // Measurement only (floats). The matrix is given row-major as re and im, n x n, and is not modified.
 
-export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im: Float64Array): number[] {
+export function hermitianEigenvaluesTridiagonal(
+  n: number,
+  re: Float64Array,
+  im: Float64Array,
+): number[] {
   const ar = Float64Array.from(re)
   const ai = Float64Array.from(im)
   const vr = new Float64Array(n)
@@ -22,8 +26,13 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
   for (let k = 0; k < n - 2; k++) {
     let norm2 = 0
 
-    for (let i = k + 1; i < n; i++) norm2 += ar[i * n + k]! ** 2 + ai[i * n + k]! ** 2
-    if (norm2 === 0) continue
+    for (let i = k + 1; i < n; i++) {
+      norm2 += ar[i * n + k]! ** 2 + ai[i * n + k]! ** 2
+    }
+
+    if (norm2 === 0) {
+      continue
+    }
 
     const norm = Math.sqrt(norm2)
     const x0r = ar[(k + 1) * n + k]!
@@ -31,6 +40,7 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
     const x0 = Math.hypot(x0r, x0i)
     const phr = x0 === 0 ? 1 : x0r / x0
     const phi = x0 === 0 ? 0 : x0i / x0
+
     // v = x - alpha e1, alpha = -phase |x|
     let vnorm2 = 0
 
@@ -45,8 +55,13 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
     vr[k + 1] = vr[k + 1]! + phr * norm
     vi[k + 1] = vi[k + 1]! + phi * norm
 
-    for (let i = k + 1; i < n; i++) vnorm2 += vr[i]! ** 2 + vi[i]! ** 2
-    if (vnorm2 === 0) continue
+    for (let i = k + 1; i < n; i++) {
+      vnorm2 += vr[i]! ** 2 + vi[i]! ** 2
+    }
+
+    if (vnorm2 === 0) {
+      continue
+    }
 
     const vs = 1 / Math.sqrt(vnorm2)
 
@@ -75,7 +90,9 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
     }
 
     // K = v^dagger p (real)
-    for (let i = k + 1; i < n; i++) K += vr[i]! * pr[i]! + vi[i]! * pi[i]!
+    for (let i = k + 1; i < n; i++) {
+      K += vr[i]! * pr[i]! + vi[i]! * pi[i]!
+    }
 
     // w = p - K v, stored in p
     for (let i = k; i < n; i++) {
@@ -87,8 +104,14 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
     for (let i = k; i < n; i++) {
       for (let j = k; j < n; j++) {
         // v_i conj(w_j) + w_i conj(v_j)
-        const r = vr[i]! * pr[j]! + vi[i]! * pi[j]! + (pr[i]! * vr[j]! + pi[i]! * vi[j]!)
-        const s = vi[i]! * pr[j]! - vr[i]! * pi[j]! + (pi[i]! * vr[j]! - pr[i]! * vi[j]!)
+        const r =
+          vr[i]! * pr[j]! +
+          vi[i]! * pi[j]! +
+          (pr[i]! * vr[j]! + pi[i]! * vi[j]!)
+        const s =
+          vi[i]! * pr[j]! -
+          vr[i]! * pi[j]! +
+          (pi[i]! * vr[j]! - pr[i]! * vi[j]!)
 
         ar[i * n + j] = ar[i * n + j]! - 2 * r
         ai[i * n + j] = ai[i * n + j]! - 2 * s
@@ -99,14 +122,22 @@ export function hermitianEigenvaluesTridiagonal(n: number, re: Float64Array, im:
   const d = new Float64Array(n)
   const e = new Float64Array(n)
 
-  for (let i = 0; i < n; i++) d[i] = ar[i * n + i]!
-  for (let i = 1; i < n; i++) e[i - 1] = Math.hypot(ar[i * n + i - 1]!, ai[i * n + i - 1]!)
+  for (let i = 0; i < n; i++) {
+    d[i] = ar[i * n + i]!
+  }
+
+  for (let i = 1; i < n; i++) {
+    e[i - 1] = Math.hypot(ar[i * n + i - 1]!, ai[i * n + i - 1]!)
+  }
 
   return tridiagonalEigenvalues(d, e)
 }
 
 // the eigenvalues of the real symmetric tridiagonal (d, e), e[i] between i and i + 1, by implicit QL (tql1)
-export function tridiagonalEigenvalues(d0: Float64Array, e0: Float64Array): number[] {
+export function tridiagonalEigenvalues(
+  d0: Float64Array,
+  e0: Float64Array,
+): number[] {
   const n = d0.length
   const d = Float64Array.from(d0)
   const e = Float64Array.from(e0)
@@ -120,16 +151,28 @@ export function tridiagonalEigenvalues(d0: Float64Array, e0: Float64Array): numb
       for (; m < n - 1; m++) {
         const dd = Math.abs(d[m]!) + Math.abs(d[m + 1]!)
 
-        if (Math.abs(e[m]!) <= Number.EPSILON * dd) break
+        if (Math.abs(e[m]!) <= Number.EPSILON * dd) {
+          break
+        }
       }
 
-      if (m === l) break
-      if (++iter > 60) throw new Error('eig-hermitian-tridiagonal: the QL iteration did not converge')
+      if (m === l) {
+        break
+      }
+
+      if (++iter > 60) {
+        throw new Error(
+          'eig-hermitian-tridiagonal: the QL iteration did not converge',
+        )
+      }
 
       let g = (d[l + 1]! - d[l]!) / (2 * e[l]!)
       let r = Math.hypot(g, 1)
 
-      g = d[m]! - d[l]! + e[l]! / (g + (g >= 0 ? Math.abs(r) : -Math.abs(r)))
+      g =
+        d[m]! -
+        d[l]! +
+        e[l]! / (g + (g >= 0 ? Math.abs(r) : -Math.abs(r)))
 
       let s = 1
       let c = 1
@@ -138,6 +181,7 @@ export function tridiagonalEigenvalues(d0: Float64Array, e0: Float64Array): numb
 
       for (; i >= l; i--) {
         let f = s * e[i]!
+
         const b = c * e[i]!
 
         r = Math.hypot(f, g)
@@ -159,7 +203,9 @@ export function tridiagonalEigenvalues(d0: Float64Array, e0: Float64Array): numb
         f = 0
       }
 
-      if (r === 0 && i >= l) continue
+      if (r === 0 && i >= l) {
+        continue
+      }
 
       d[l] = d[l]! - p
       e[l] = g

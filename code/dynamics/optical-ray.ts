@@ -85,7 +85,8 @@ export function boundaryRefraction(input: {
   const ds = input.step ?? 0.005
 
   const index = (px: number): number =>
-    nearIndex + ((farIndex - nearIndex) * (1 + Math.tanh(px / width))) / 2
+    nearIndex +
+    ((farIndex - nearIndex) * (1 + Math.tanh(px / width))) / 2
 
   const slope = (px: number): number => {
     const c = Math.cosh(px / width)

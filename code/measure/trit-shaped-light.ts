@@ -15,14 +15,38 @@
 // <E~, E_lin> / <E_lin, E_lin> and an incoherent remainder |E~ - E_lin|^2 / |E_lin|^2 (metric 1 / g), and the
 // total energies.
 
-import { G_METRIC, dockAt, emptyLinear, energyMask, linearBeat, linearEnergy, linearFlux, type EnergyMask } from '@/code/measure/trit-hop-light'
-import { addCurrent, makeHuskEngine, type HuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
-import { emptyShaped, makeShapedScratch, shapedBeat, shapedFlux, type ShapedOptions, type ShapedState } from '@/code/rule/trit-husk-shaped'
+import {
+  G_METRIC,
+  dockAt,
+  emptyLinear,
+  energyMask,
+  linearBeat,
+  linearEnergy,
+  linearFlux,
+  type EnergyMask,
+} from '@/code/measure/trit-hop-light'
+import {
+  addCurrent,
+  makeHuskEngine,
+  type HuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
+import {
+  emptyShaped,
+  makeShapedScratch,
+  shapedBeat,
+  shapedFlux,
+  type ShapedOptions,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 // f_t and f_(t+1) per triangle
-export function carriedFractions(engine: HuskEngine, s: ShapedState): { now: Float64Array; next: Float64Array } {
+export function carriedFractions(
+  engine: HuskEngine,
+  s: ShapedState,
+): { now: Float64Array; next: Float64Array } {
   const q = engine.q
   const n = engine.geometry.triangles
   const now = new Float64Array(n)
@@ -47,13 +71,19 @@ export function carriedFractions(engine: HuskEngine, s: ShapedState): { now: Flo
 }
 
 // out = C^T x on real triangle values
-export function curlT(g: HuskGeometry, x: Float64Array, out: Float64Array): void {
+export function curlT(
+  g: HuskGeometry,
+  x: Float64Array,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let p = 0; p < g.triangles; p++) {
     const v = x[p] ?? 0
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     for (let j = 0; j < 3; j++) {
       const l = g.triLinks[p * 3 + j] ?? 0
@@ -63,7 +93,12 @@ export function curlT(g: HuskGeometry, x: Float64Array, out: Float64Array): void
   }
 }
 
-export type ShadowScratch = { flux: Int32Array; nowCurl: Float64Array; nextCurl: Float64Array; shadow: Float64Array }
+export type ShadowScratch = {
+  flux: Int32Array
+  nowCurl: Float64Array
+  nextCurl: Float64Array
+  shadow: Float64Array
+}
 
 export const makeShadowScratch = (g: HuskGeometry): ShadowScratch => ({
   flux: new Int32Array(g.huskLinks),
@@ -73,7 +108,13 @@ export const makeShadowScratch = (g: HuskGeometry): ShadowScratch => ({
 })
 
 // the shadow flux E~ into scratch.shadow, and the shadow invariant over the mask
-export function shadowReading(engine: HuskEngine, s: ShapedState, options: ShapedOptions, mask: EnergyMask, scratch: ShadowScratch): number {
+export function shadowReading(
+  engine: HuskEngine,
+  s: ShapedState,
+  options: ShapedOptions,
+  mask: EnergyMask,
+  scratch: ShadowScratch,
+): number {
   const g = engine.geometry
   const { now, next } = carriedFractions(engine, s)
   const kappa = (2 * engine.p) / engine.q
@@ -86,15 +127,22 @@ export function shadowReading(engine: HuskEngine, s: ShapedState, options: Shape
   let e = 0
 
   for (let l = 0; l < g.huskLinks; l++) {
-    const x = (scratch.flux[l] ?? 0) + (scratch.nextCurl[l] ?? 0) - (scratch.nowCurl[l] ?? 0)
+    const x =
+      (scratch.flux[l] ?? 0) +
+      (scratch.nextCurl[l] ?? 0) -
+      (scratch.nowCurl[l] ?? 0)
 
     scratch.shadow[l] = x
 
-    if (mask.links[l]) e += (x * x) / (2 * (G_METRIC[l % 9] ?? 1))
+    if (mask.links[l]) {
+      e += (x * x) / (2 * (G_METRIC[l % 9] ?? 1))
+    }
   }
 
   for (let p = 0; p < g.triangles; p++) {
-    if (!mask.triangles[p]) continue
+    if (!mask.triangles[p]) {
+      continue
+    }
 
     let bn = 0
     let bt = 0
@@ -131,7 +179,14 @@ export type HopRadiation = {
 
 // a charge hopping forth and back on the axis link at the origin, every `half` beats, for `beats` beats;
 // read beyond `radius`
-export function hopRadiation(input: { geometry: HuskGeometry; depth: number; options: ShapedOptions; beats: number; half: number; radius: number }): HopRadiation {
+export function hopRadiation(input: {
+  geometry: HuskGeometry
+  depth: number
+  options: ShapedOptions
+  beats: number
+  half: number
+  radius: number
+}): HopRadiation {
   const { geometry: g, depth, options, beats, half, radius } = input
   const engine = makeHuskEngine(g, depth)
   const center = dockAt(g.side, 0, 0, 0)
@@ -143,10 +198,12 @@ export function hopRadiation(input: { geometry: HuskGeometry; depth: number; opt
   const scratch = new Float64Array(g.huskLinks)
   const next = new Float64Array(g.huskLinks)
   const reading = makeShadowScratch(g)
+
   let hops = 0
 
   for (let t = 0; t < beats; t++) {
-    const j = t % (2 * half) === 0 ? 1 : t % (2 * half) === half ? -1 : 0
+    const j =
+      t % (2 * half) === 0 ? 1 : t % (2 * half) === half ? -1 : 0
 
     if (j !== 0) {
       addCurrent(s, center * 9, j)
@@ -171,7 +228,9 @@ export function hopRadiation(input: { geometry: HuskGeometry; depth: number; opt
   let rest = 0
 
   for (let l = 0; l < g.huskLinks; l++) {
-    if (!far.links[l]) continue
+    if (!far.links[l]) {
+      continue
+    }
 
     const w = 1 / (G_METRIC[l % 9] ?? 1)
     const x = reading.shadow[l] ?? 0
@@ -182,11 +241,24 @@ export function hopRadiation(input: { geometry: HuskGeometry; depth: number; opt
     rest += w * (x - y) ** 2
   }
 
-  return { gain: dot / norm, incoherentOverSignal: rest / norm, integerTotal, linearTotal, integerOverLinearTotal: integerTotal / linearTotal, hops }
+  return {
+    gain: dot / norm,
+    incoherentOverSignal: rest / norm,
+    integerTotal,
+    linearTotal,
+    integerOverLinearTotal: integerTotal / linearTotal,
+    hops,
+  }
 }
 
 // the shadow energy of a single unit impulse on the axis link at the origin, read every `every` beats
-export function impulseHeating(input: { geometry: HuskGeometry; depth: number; options: ShapedOptions; beats: number; every: number }): number[] {
+export function impulseHeating(input: {
+  geometry: HuskGeometry
+  depth: number
+  options: ShapedOptions
+  beats: number
+  every: number
+}): number[] {
   const { geometry: g, depth, options, beats, every } = input
   const engine = makeHuskEngine(g, depth)
   const all = energyMask(g, 0, -1)
@@ -200,7 +272,9 @@ export function impulseHeating(input: { geometry: HuskGeometry; depth: number; o
   for (let t = 0; t < beats; t++) {
     shapedBeat(engine, s, shapedScratch, options)
 
-    if (t % every === every - 1) out.push(shadowReading(engine, s, options, all, reading))
+    if (t % every === every - 1) {
+      out.push(shadowReading(engine, s, options, all, reading))
+    }
   }
 
   return out

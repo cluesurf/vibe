@@ -373,7 +373,10 @@ export function matterLinkSweep(input: {
   return moves
 }
 
-function siteParity(geometry: FiniteGaugeLattice['geometry'], site: number): number {
+function siteParity(
+  geometry: FiniteGaugeLattice['geometry'],
+  site: number,
+): number {
   let rest = site
   let sum = 0
 
@@ -386,7 +389,11 @@ function siteParity(geometry: FiniteGaugeLattice['geometry'], site: number): num
 }
 
 // the energy that depends on the state of site x: its mass and its bonds to every neighbour
-function siteEnergy(model: MatterModel, state: MatterState, x: number): number {
+function siteEnergy(
+  model: MatterModel,
+  state: MatterState,
+  x: number,
+): number {
   const { geometry, links } = state.lattice
   const { dim, down } = geometry
 
@@ -428,7 +435,8 @@ export function matterColorSweep(input: {
       }
 
       const current = state.color[x] ?? 0
-      const total = siteEnergy(model, state, x) + (state.siteDemons[x] ?? 0)
+      const total =
+        siteEnergy(model, state, x) + (state.siteDemons[x] ?? 0)
 
       for (let shift = 1; shift < n; shift++) {
         const candidate = reverse
@@ -453,7 +461,10 @@ export function matterColorSweep(input: {
   return moves
 }
 
-const VIBE_PAIRS: Record<number, readonly (readonly [number, number])[]> = {
+const VIBE_PAIRS: Record<
+  number,
+  readonly (readonly [number, number])[]
+> = {
   [-2]: [[-1, -1]],
   [-1]: [
     [-1, 0],
@@ -544,7 +555,8 @@ export function matterDimerSweep(input: {
 
     const demonIndex = x * dim + mu
     const total =
-      dimerEnergy(model, state, x, y, mu) + (state.linkDemons[demonIndex] ?? 0)
+      dimerEnergy(model, state, x, y, mu) +
+      (state.linkDemons[demonIndex] ?? 0)
 
     const place = (member: [number, number, number, number]): void => {
       state.vibe[x] = member[0]
@@ -567,7 +579,8 @@ export function matterDimerSweep(input: {
         state.linkDemons[demonIndex] = demon
 
         const before = (vx !== 0 ? 1 : 0) + (vy !== 0 ? 1 : 0)
-        const after = (member[0] !== 0 ? 1 : 0) + (member[2] !== 0 ? 1 : 0)
+        const after =
+          (member[0] !== 0 ? 1 : 0) + (member[2] !== 0 ? 1 : 0)
 
         if (after > before) {
           count.created += 1
@@ -606,7 +619,8 @@ export function exchangeSiteDemons(input: {
     const high = Math.min(capacity, sum)
     const span = high - low + 1
     const shift = input.reverse === true ? span - 1 : 1
-    const next = low + (((state.siteDemons[x] ?? 0) - low + shift) % span)
+    const next =
+      low + (((state.siteDemons[x] ?? 0) - low + shift) % span)
 
     state.siteDemons[x] = next
     state.linkDemons[b] = sum - next
@@ -678,7 +692,12 @@ export function matterBeatBack(input: {
     })
   }
 
-  streamFiniteDemons({ lattice, demons: state.linkDemons, step, reverse: true })
+  streamFiniteDemons({
+    lattice,
+    demons: state.linkDemons,
+    step,
+    reverse: true,
+  })
 
   if (withMatter) {
     matterDimerSweep({ model, state, reverse: true })
@@ -696,7 +715,10 @@ export function matterEnergy(input: {
   const { model, state } = input
   const { lattice } = state
   const { dim, sites } = lattice.geometry
-  const gauge = quantizedEnergy({ lattice, levels: model.plaquetteLevels })
+  const gauge = quantizedEnergy({
+    lattice,
+    levels: model.plaquetteLevels,
+  })
 
   let matter = 0
 
@@ -704,7 +726,13 @@ export function matterEnergy(input: {
     matter += state.vibe[x] !== 0 ? model.mass : 0
 
     for (let mu = 0; mu < dim; mu++) {
-      matter += bondOf(model, state, x, mu, lattice.links[x * dim + mu] ?? 0)
+      matter += bondOf(
+        model,
+        state,
+        x,
+        mu,
+        lattice.links[x * dim + mu] ?? 0,
+      )
     }
   }
 
@@ -843,7 +871,8 @@ export function centerRotateSlice(input: {
   for (let site = 0; site < spatial; site++) {
     const index = site * dim + time
 
-    links[index] = group.product[z * group.order + (links[index] ?? 0)] ?? 0
+    links[index] =
+      group.product[z * group.order + (links[index] ?? 0)] ?? 0
   }
 }
 
@@ -950,7 +979,10 @@ export function matterEnsemble(input: {
       continue
     }
 
-    const p = polyakovCorrelator({ lattice: state.lattice, max: correlatorMax })
+    const p = polyakovCorrelator({
+      lattice: state.lattice,
+      max: correlatorMax,
+    })
 
     let occupied = 0
 
@@ -975,7 +1007,14 @@ export function matterEnsemble(input: {
     })
   }
 
-  return { samples, energyDrift, chargeDrift, created, annihilated, hops }
+  return {
+    samples,
+    energyDrift,
+    chargeDrift,
+    created,
+    annihilated,
+    hops,
+  }
 }
 
 // A change of frame g_x in every cell, in place: links U -> g_x U g_y^-1, colors phi -> g_x phi.
@@ -1006,6 +1045,8 @@ export function changeFrame(input: {
   }
 
   for (let x = 0; x < sites; x++) {
-    state.color[x] = model.triplet.act[(frame[x] ?? 0) * n + (state.color[x] ?? 0)] ?? 0
+    state.color[x] =
+      model.triplet.act[(frame[x] ?? 0) * n + (state.color[x] ?? 0)] ??
+      0
   }
 }

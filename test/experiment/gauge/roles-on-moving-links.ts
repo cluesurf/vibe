@@ -19,7 +19,14 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { colorLeaks, makeColorWeave } from '@/code/rule/color-weave'
 import { gaussHolds } from '@/code/rule/vibe-weave'
-import { linkEnergy, makeMovingLinks, movingBeat, movingBeatBack, type LinkState, type MovingLinks } from '@/code/rule/moving-links'
+import {
+  linkEnergy,
+  makeMovingLinks,
+  movingBeat,
+  movingBeatBack,
+  type LinkState,
+  type MovingLinks,
+} from '@/code/rule/moving-links'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
@@ -32,6 +39,7 @@ function indexOrderStep(moving: MovingLinks, links: Int16Array): void {
 
     for (let x = 0; x < mesh.cellCount; x++) {
       const u = links[x * 24 + a] ?? moves.identity
+
       const energy = (g: number): number => {
         let total = 0
 
@@ -39,11 +47,18 @@ function indexOrderStep(moving: MovingLinks, links: Int16Array): void {
           const y = mesh.neighbour(x, a)
           const z = mesh.neighbour(y, b)
 
-          total += moving.level[moves.compose(links[z * 24 + c] ?? moves.identity, moves.compose(links[y * 24 + b] ?? moves.identity, g))] ?? 0
+          total +=
+            moving.level[
+              moves.compose(
+                links[z * 24 + c] ?? moves.identity,
+                moves.compose(links[y * 24 + b] ?? moves.identity, g),
+              )
+            ] ?? 0
         }
 
         return total
       }
+
       const target = energy(u)
 
       for (let k = 1; k < moves.act.length; k++) {
@@ -58,7 +73,8 @@ function indexOrderStep(moving: MovingLinks, links: Int16Array): void {
 
     for (const [x, g] of updates) {
       links[x * 24 + a] = g
-      links[mesh.neighbour(x, a) * 24 + (opposite[a] ?? a)] = moves.inverse[g] ?? moves.identity
+      links[mesh.neighbour(x, a) * 24 + (opposite[a] ?? a)] =
+        moves.inverse[g] ?? moves.identity
     }
   }
 }
@@ -77,6 +93,7 @@ export default experiment({
     const moving = makeMovingLinks(weave)
     const { mesh, moves } = weave
     const slots = mesh.cellCount * 24
+
     const dense = (scale: number): LinkState => {
       const vibe = new Int8Array(slots)
       const role = new Int8Array(slots)
@@ -88,8 +105,14 @@ export default experiment({
         role[i] = Math.floor(((i + 3) * GOLDEN * scale * 9) % 9)
       }
 
-      return { vibe, role, flow: new Int32Array(slots), links: Int16Array.from(weave.links) }
+      return {
+        vibe,
+        role,
+        flow: new Int32Array(slots),
+        links: Int16Array.from(weave.links),
+      }
     }
+
     const same = (a: LinkState, b: LinkState): boolean =>
       a.vibe.every((v, i) => v === b.vibe[i]) &&
       a.role.every((v, i) => v === b.role[i]) &&
@@ -98,7 +121,8 @@ export default experiment({
 
     const start = dense(1.37)
     const e0 = linkEnergy(moving, start.links)
-    const charge = (s: LinkState): number => s.vibe.reduce((a, b) => a + b, 0)
+    const charge = (s: LinkState): number =>
+      s.vibe.reduce((a, b) => a + b, 0)
 
     let s = start
     let reflections = 0
@@ -119,7 +143,9 @@ export default experiment({
       gauss = gauss && gaussHolds(weave, start, s)
     }
 
-    const linksChanged = s.links.filter((v, i) => v !== start.links[i]).length
+    const linksChanged = s.links.filter(
+      (v, i) => v !== start.links[i],
+    ).length
 
     for (let t = 23; t >= 0; t--) {
       s = movingBeatBack(moving, s, t)
@@ -128,14 +154,20 @@ export default experiment({
     const reverses = same(s, start)
 
     // a change of role frame in every cell
-    const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+    const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+    )
+
     const gaugeLinks = (links: Int16Array): Int16Array => {
       const out = new Int16Array(links.length)
 
       for (let x = 0; x < mesh.cellCount; x++) {
         for (let d = 0; d < 24; d++) {
           out[x * 24 + d] = moves.compose(
-            moves.compose(frame[mesh.neighbour(x, d)] ?? moves.identity, links[x * 24 + d] ?? moves.identity),
+            moves.compose(
+              frame[mesh.neighbour(x, d)] ?? moves.identity,
+              links[x * 24 + d] ?? moves.identity,
+            ),
             moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
           )
         }
@@ -143,10 +175,16 @@ export default experiment({
 
       return out
     }
+
     const gauge = (state: LinkState): LinkState => ({
       ...state,
       links: gaugeLinks(state.links),
-      role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+      role: Int8Array.from(
+        state.role,
+        (p, i) =>
+          moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+          0,
+      ),
     })
 
     let a = dense(2.11)
@@ -170,14 +208,25 @@ export default experiment({
     for (let t = 0; t < 6; t++) {
       indexOrderStep(moving, plain)
       indexOrderStep(moving, changed)
-      controlEnergyKept = controlEnergyKept && linkEnergy(moving, plain) === controlEnergy
+      controlEnergyKept =
+        controlEnergyKept && linkEnergy(moving, plain) === controlEnergy
 
       const expected = gaugeLinks(plain)
 
-      controlMismatch += expected.filter((v, i) => v !== changed[i]).length
+      controlMismatch += expected.filter(
+        (v, i) => v !== changed[i],
+      ).length
     }
 
-    const ok = reverses && energyKept && linksChanged > slots / 2 && frameFree && chargeKept && gauss && leaks === 0 && controlMismatch > 0
+    const ok =
+      reverses &&
+      energyKept &&
+      linksChanged > slots / 2 &&
+      frameFree &&
+      chargeKept &&
+      gauss &&
+      leaks === 0 &&
+      controlMismatch > 0
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -200,7 +249,7 @@ export default experiment({
         indexOrderFrameMismatches: controlMismatch,
       },
       notes:
-        'L2, exact, no random numbers. The links do not read the matter: the roles ride on moving links, but matter does not yet pull on them, so this is step 2 of the path and not binding. Binding of static color is measured on the Sigma(648) sampler in E-FRC-0126. A cold start (every link the identity) has zero energy and no reflection moves it, so the run starts from the color weave\'s own hashed links.',
+        "L2, exact, no random numbers. The links do not read the matter: the roles ride on moving links, but matter does not yet pull on them, so this is step 2 of the path and not binding. Binding of static color is measured on the Sigma(648) sampler in E-FRC-0126. A cold start (every link the identity) has zero energy and no reflection moves it, so the run starts from the color weave's own hashed links.",
     })
   },
 })

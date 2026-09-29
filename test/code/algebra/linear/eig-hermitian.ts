@@ -13,7 +13,14 @@
 // Newton sign equal to the eigenvector sign and to the closed form. The full witness, with random unitary
 // conjugations and multiplicities up to six, is E-MTH-0011 (test/experiment/method/hermitian-eigenspace-witness).
 
-import { suite, check, equal, closeArray, ok, throws } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  closeArray,
+  ok,
+  throws,
+} from '@/test/code/harness'
 import {
   eigHermitian,
   hermitianMatrixSign,
@@ -90,7 +97,10 @@ function maxDifference(a: ComplexMatrix, b: ComplexMatrix): number {
   let worst = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    worst = Math.max(worst, Math.hypot(a.re[i]! - b.re[i]!, a.im[i]! - b.im[i]!))
+    worst = Math.max(
+      worst,
+      Math.hypot(a.re[i]! - b.re[i]!, a.im[i]! - b.im[i]!),
+    )
   }
 
   return worst
@@ -132,8 +142,13 @@ function squareMinusIdentity(s: ComplexMatrix): number {
       let im = 0
 
       for (let k = 0; k < n; k++) {
-        re += s.re[i * n + k]! * s.re[k * n + j]! - s.im[i * n + k]! * s.im[k * n + j]!
-        im += s.re[i * n + k]! * s.im[k * n + j]! + s.im[i * n + k]! * s.re[k * n + j]!
+        re +=
+          s.re[i * n + k]! * s.re[k * n + j]! -
+          s.im[i * n + k]! * s.im[k * n + j]!
+
+        im +=
+          s.re[i * n + k]! * s.im[k * n + j]! +
+          s.im[i * n + k]! * s.re[k * n + j]!
       }
 
       worst = Math.max(worst, Math.hypot(re - (i === j ? 1 : 0), im))
@@ -275,11 +290,35 @@ suite('algebra/linear/eig-hermitian: matrix sign and zero modes', [
     ])
     const newton = hermitianMatrixSignNewton({ matrix: y })
 
-    closeArray(Array.from(newton.sign.im), [0, -1, 1, 0], 1e-14, 'Im Newton sign = Y.im')
-    ok(maxDifference(newton.sign, hermitianMatrixSignEigen({ matrix: y })) < 1e-14, 'Newton = eigen sign')
+    closeArray(
+      Array.from(newton.sign.im),
+      [0, -1, 1, 0],
+      1e-14,
+      'Im Newton sign = Y.im',
+    )
+
+    ok(
+      maxDifference(
+        newton.sign,
+        hermitianMatrixSignEigen({ matrix: y }),
+      ) < 1e-14,
+      'Newton = eigen sign',
+    )
   }),
   check('Newton sign refuses an exactly singular matrix', () => {
-    throws(() => hermitianMatrixSignNewton({ matrix: hermitianFrom([[1, 0], [0, 0]], ZERO2) }), 'sign(diag(1, 0)) must throw')
+    throws(
+      () =>
+        hermitianMatrixSignNewton({
+          matrix: hermitianFrom(
+            [
+              [1, 0],
+              [0, 0],
+            ],
+            ZERO2,
+          ),
+        }),
+      'sign(diag(1, 0)) must throw',
+    )
   }),
   check('a positive-definite matrix has no near-zero modes', () => {
     const m = hermitianFrom(
@@ -299,36 +338,84 @@ suite('algebra/linear/eig-hermitian: matrix sign and zero modes', [
 ])
 
 suite('algebra/linear/eig-hermitian: degenerate eigenspaces', [
-  check('E-FRC-0178 4 x 4 (1, 1, 1, 2): orthonormal eigenvectors that reconstruct H', () => {
-    const m = auditMatrix()
-    const eig = eigHermitian({ matrix: m })
-    const r = reconstruct(eig, 4)
+  check(
+    'E-FRC-0178 4 x 4 (1, 1, 1, 2): orthonormal eigenvectors that reconstruct H',
+    () => {
+      const m = auditMatrix()
+      const eig = eigHermitian({ matrix: m })
+      const r = reconstruct(eig, 4)
 
-    closeArray(eig.values, [1, 1, 1, 2], 1e-12, 'spectrum')
-    ok(orthonormalError(eig, 4) < 1e-12, `orthonormal to 1e-12, got ${orthonormalError(eig, 4)}`)
+      closeArray(eig.values, [1, 1, 1, 2], 1e-12, 'spectrum')
+      ok(
+        orthonormalError(eig, 4) < 1e-12,
+        `orthonormal to 1e-12, got ${orthonormalError(eig, 4)}`,
+      )
 
-    for (let a = 0; a < 4; a++) {
-      closeArray(r.re[a]!, Array.from(m.re.slice(a * 4, a * 4 + 4)), 1e-12, `Re row ${a}`)
-      closeArray(r.im[a]!, Array.from(m.im.slice(a * 4, a * 4 + 4)), 1e-12, `Im row ${a}`)
-    }
-  }),
-  check('E-FRC-0178 4 x 4: sign is the identity, by Newton and by eigenvectors', () => {
-    const m = auditMatrix()
-    const identity = phasedAllOnes(1, 0)
+      for (let a = 0; a < 4; a++) {
+        closeArray(
+          r.re[a]!,
+          Array.from(m.re.slice(a * 4, a * 4 + 4)),
+          1e-12,
+          `Re row ${a}`,
+        )
 
-    ok(maxDifference(hermitianMatrixSign({ matrix: m }), identity) < 1e-12, 'Newton sign = I')
-    ok(maxDifference(hermitianMatrixSignEigen({ matrix: m }), identity) < 1e-12, 'eigen sign = I')
-  }),
-  check('D (2 I - J) D^dagger (-2, 2, 2, 2): threefold complex eigenspace spanned, sign = D (I - J / 2) D^dagger', () => {
-    const m = phasedAllOnes(2, -1)
-    const eig = eigHermitian({ matrix: m })
-    const expected = phasedAllOnes(1, -0.5)
-    const newton = hermitianMatrixSign({ matrix: m })
+        closeArray(
+          r.im[a]!,
+          Array.from(m.im.slice(a * 4, a * 4 + 4)),
+          1e-12,
+          `Im row ${a}`,
+        )
+      }
+    },
+  ),
+  check(
+    'E-FRC-0178 4 x 4: sign is the identity, by Newton and by eigenvectors',
+    () => {
+      const m = auditMatrix()
+      const identity = phasedAllOnes(1, 0)
 
-    closeArray(eig.values, [-2, 2, 2, 2], 1e-12, 'spectrum')
-    ok(orthonormalError(eig, 4) < 1e-12, `orthonormal to 1e-12, got ${orthonormalError(eig, 4)}`)
-    ok(maxDifference(newton, expected) < 1e-12, 'Newton sign = closed form')
-    ok(maxDifference(hermitianMatrixSignEigen({ matrix: m }), expected) < 1e-12, 'eigen sign = closed form')
-    ok(squareMinusIdentity(newton) < 1e-12, 'sign squared = I')
-  }),
+      ok(
+        maxDifference(hermitianMatrixSign({ matrix: m }), identity) <
+          1e-12,
+        'Newton sign = I',
+      )
+
+      ok(
+        maxDifference(
+          hermitianMatrixSignEigen({ matrix: m }),
+          identity,
+        ) < 1e-12,
+        'eigen sign = I',
+      )
+    },
+  ),
+  check(
+    'D (2 I - J) D^dagger (-2, 2, 2, 2): threefold complex eigenspace spanned, sign = D (I - J / 2) D^dagger',
+    () => {
+      const m = phasedAllOnes(2, -1)
+      const eig = eigHermitian({ matrix: m })
+      const expected = phasedAllOnes(1, -0.5)
+      const newton = hermitianMatrixSign({ matrix: m })
+
+      closeArray(eig.values, [-2, 2, 2, 2], 1e-12, 'spectrum')
+      ok(
+        orthonormalError(eig, 4) < 1e-12,
+        `orthonormal to 1e-12, got ${orthonormalError(eig, 4)}`,
+      )
+
+      ok(
+        maxDifference(newton, expected) < 1e-12,
+        'Newton sign = closed form',
+      )
+
+      ok(
+        maxDifference(
+          hermitianMatrixSignEigen({ matrix: m }),
+          expected,
+        ) < 1e-12,
+        'eigen sign = closed form',
+      )
+      ok(squareMinusIdentity(newton) < 1e-12, 'sign squared = I')
+    },
+  ),
 ])

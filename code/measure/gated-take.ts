@@ -47,7 +47,11 @@
 
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import { coinMove, pairMove } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, sameReduced, type Reduced } from '@/code/measure/living-pair-kernel'
+import {
+  cloneReduced,
+  sameReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { type ArrowBox } from '@/code/measure/second-law-husk'
 import { columnPosition, ring } from '@/code/measure/held-knot'
@@ -67,7 +71,11 @@ export type GateLaw = {
 }
 
 export function occupancyLaw(threshold: number): GateLaw {
-  return { name: `occupancy>${threshold}`, top: 1 + DOCK_ENERGY_MAX - threshold, length: e => 1 + Math.max(0, e - threshold) }
+  return {
+    name: `occupancy>${threshold}`,
+    top: 1 + DOCK_ENERGY_MAX - threshold,
+    length: e => 1 + Math.max(0, e - threshold),
+  }
 }
 
 export function constantLaw(beats: number): GateLaw {
@@ -76,18 +84,30 @@ export function constantLaw(beats: number): GateLaw {
 
 // the counter permutation for a cycle length L on 0 .. top - 1, and its inverse
 export function counterStep(c: number, L: number, top: number): number {
-  if (c < L) return (c + 1) % L
+  if (c < L) {
+    return (c + 1) % L
+  }
 
   return c + 1 < top ? c + 1 : L
 }
 
-export function counterStepBack(c: number, L: number, top: number): number {
-  if (c < L) return (c - 1 + L) % L
+export function counterStepBack(
+  c: number,
+  L: number,
+  top: number,
+): number {
+  if (c < L) {
+    return (c - 1 + L) % L
+  }
 
   return c === L ? top - 1 : c - 1
 }
 
-export type GatedState = { s: Reduced; counter: Uint8Array; parity: Uint8Array }
+export type GatedState = {
+  s: Reduced
+  counter: Uint8Array
+  parity: Uint8Array
+}
 
 export type GatedTake = {
   readonly box: ArrowBox
@@ -103,9 +123,11 @@ export function gatedTake(box: ArrowBox, law: GateLaw): GatedTake {
   const source = new Int32Array(target.length).fill(-1)
 
   for (let slot = 0; slot < target.length; slot++) {
-    const to = target[slot] as number
+    const to = target[slot]!
 
-    if (source[to] !== -1) throw new Error('the stream is not a permutation')
+    if (source[to] !== -1) {
+      throw new Error('the stream is not a permutation')
+    }
 
     source[to] = slot
   }
@@ -116,74 +138,118 @@ export function gatedTake(box: ArrowBox, law: GateLaw): GatedTake {
 export function dockEnergy(s: Reduced, x: number): number {
   let e = 0
 
-  for (let d = 0; d < 24; d++) if (s.vibe[x * 24 + d] !== 0) e++
-  for (let l = 0; l < 12; l++) if (s.store[x * 12 + l] !== 0) e += 2
+  for (let d = 0; d < 24; d++) {
+    if (s.vibe[x * 24 + d] !== 0) {
+      e++
+    }
+  }
+
+  for (let l = 0; l < 12; l++) {
+    if (s.store[x * 12 + l] !== 0) {
+      e += 2
+    }
+  }
 
   return e
 }
 
 export function restState(s: Reduced, cells: number): GatedState {
-  return { s: cloneReduced(s), counter: new Uint8Array(cells), parity: new Uint8Array(cells) }
+  return {
+    s: cloneReduced(s),
+    counter: new Uint8Array(cells),
+    parity: new Uint8Array(cells),
+  }
 }
 
 export function cloneGated(g: GatedState): GatedState {
-  return { s: cloneReduced(g.s), counter: Uint8Array.from(g.counter), parity: Uint8Array.from(g.parity) }
+  return {
+    s: cloneReduced(g.s),
+    counter: Uint8Array.from(g.counter),
+    parity: Uint8Array.from(g.parity),
+  }
 }
 
 export function sameGated(a: GatedState, b: GatedState): boolean {
-  if (!sameReduced(a.s, b.s)) return false
+  if (!sameReduced(a.s, b.s)) {
+    return false
+  }
 
-  for (let x = 0; x < a.counter.length; x++) if (a.counter[x] !== b.counter[x] || a.parity[x] !== b.parity[x]) return false
+  for (let x = 0; x < a.counter.length; x++) {
+    if (a.counter[x] !== b.counter[x] || a.parity[x] !== b.parity[x]) {
+      return false
+    }
+  }
 
   return true
 }
 
-export type BeatTally = { active: number; turned: number; upper: number }
+export type BeatTally = {
+  active: number
+  turned: number
+  upper: number
+}
 
 // one beat forward: a (mutated by the collision) into b
-export function gatedBeat(g: GatedTake, a: GatedState, b: GatedState, tally?: BeatTally): void {
+export function gatedBeat(
+  g: GatedTake,
+  a: GatedState,
+  b: GatedState,
+  tally?: BeatTally,
+): void {
   const kernel = g.box.kernel
   const cells = g.box.cells
   const active = g.active
   const top = g.law.top
 
-  for (let x = 0; x < cells; x++) active[x] = a.counter[x] === 0 ? 1 : 0
+  for (let x = 0; x < cells; x++) {
+    active[x] = a.counter[x] === 0 ? 1 : 0
+  }
 
   for (let x = 0; x < cells; x++) {
-    if (!active[x]) continue
+    if (!active[x]) {
+      continue
+    }
 
-    for (const piece of collisionOrder(kernel.schedule, a.parity[x] as number)) {
-      if (piece === 'P') pairMove(kernel, a.s, x)
-      else coinMove(kernel, a.s, x)
+    for (const piece of collisionOrder(kernel.schedule, a.parity[x]!)) {
+      if (piece === 'P') {
+        pairMove(kernel, a.s, x)
+      } else {
+        coinMove(kernel, a.s, x)
+      }
     }
   }
 
   b.s.vibe.fill(0)
 
   for (let slot = 0; slot < a.s.vibe.length; slot++) {
-    const v = a.s.vibe[slot] as number
+    const v = a.s.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const x = (slot / 24) | 0
 
     if (!active[x]) {
       b.s.vibe[slot] = v
-      b.s.point[slot] = a.s.point[slot] as number
+      b.s.point[slot] = a.s.point[slot]!
       continue
     }
 
-    const to = kernel.target[slot] as number
+    const to = kernel.target[slot]!
 
     if (active[(to / 24) | 0]) {
       b.s.vibe[to] = v
-      b.s.point[to] = (kernel.move[slot] as Int8Array)[a.s.point[slot] as number] as number
+      b.s.point[to] = kernel.move[slot]![a.s.point[slot]!]!
     } else {
-      const back = x * 24 + (OPPOSITE[slot % 24] as number)
+      const back = x * 24 + OPPOSITE[slot % 24]!
 
       b.s.vibe[back] = v
-      b.s.point[back] = a.s.point[slot] as number
-      if (tally) tally.turned++
+      b.s.point[back] = a.s.point[slot]!
+
+      if (tally) {
+        tally.turned++
+      }
     }
   }
 
@@ -191,21 +257,31 @@ export function gatedBeat(g: GatedTake, a: GatedState, b: GatedState, tally?: Be
   b.s.spoint.set(a.s.spoint)
 
   for (let x = 0; x < cells; x++) {
-    b.parity[x] = (a.parity[x] as number) ^ (active[x] as number)
+    b.parity[x] = a.parity[x]! ^ active[x]!
 
     const L = g.law.length(dockEnergy(b.s, x))
-    const c = a.counter[x] as number
+    const c = a.counter[x]!
 
     b.counter[x] = counterStep(c, L, top)
+
     if (tally) {
-      if (active[x]) tally.active++
-      if ((b.counter[x] as number) >= L) tally.upper++
+      if (active[x]) {
+        tally.active++
+      }
+
+      if (b.counter[x]! >= L) {
+        tally.upper++
+      }
     }
   }
 }
 
 // the exact inverse: a (the state after the beat) into b (the state before it)
-export function gatedBeatBack(g: GatedTake, a: GatedState, b: GatedState): void {
+export function gatedBeatBack(
+  g: GatedTake,
+  a: GatedState,
+  b: GatedState,
+): void {
   const kernel = g.box.kernel
   const cells = g.box.cells
   const active = g.active
@@ -213,38 +289,40 @@ export function gatedBeatBack(g: GatedTake, a: GatedState, b: GatedState): void 
 
   for (let x = 0; x < cells; x++) {
     const L = g.law.length(dockEnergy(a.s, x))
-    const c = counterStepBack(a.counter[x] as number, L, top)
+    const c = counterStepBack(a.counter[x]!, L, top)
 
     b.counter[x] = c
     active[x] = c === 0 ? 1 : 0
-    b.parity[x] = (a.parity[x] as number) ^ (active[x] as number)
+    b.parity[x] = a.parity[x]! ^ active[x]!
   }
 
   b.s.vibe.fill(0)
 
   for (let z = 0; z < a.s.vibe.length; z++) {
-    const v = a.s.vibe[z] as number
+    const v = a.s.vibe[z]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const y = (z / 24) | 0
 
     if (!active[y]) {
       b.s.vibe[z] = v
-      b.s.point[z] = a.s.point[z] as number
+      b.s.point[z] = a.s.point[z]!
       continue
     }
 
-    const from = g.source[z] as number
+    const from = g.source[z]!
 
     if (active[(from / 24) | 0]) {
       b.s.vibe[from] = v
-      b.s.point[from] = (g.box.inverseMove[from] as Int8Array)[a.s.point[z] as number] as number
+      b.s.point[from] = g.box.inverseMove[from]![a.s.point[z]!]!
     } else {
-      const back = y * 24 + (OPPOSITE[z % 24] as number)
+      const back = y * 24 + OPPOSITE[z % 24]!
 
       b.s.vibe[back] = v
-      b.s.point[back] = a.s.point[z] as number
+      b.s.point[back] = a.s.point[z]!
     }
   }
 
@@ -252,23 +330,37 @@ export function gatedBeatBack(g: GatedTake, a: GatedState, b: GatedState): void 
   b.s.spoint.set(a.s.spoint)
 
   for (let x = 0; x < cells; x++) {
-    if (!active[x]) continue
+    if (!active[x]) {
+      continue
+    }
 
-    const order = collisionOrder(kernel.schedule, b.parity[x] as number)
+    const order = collisionOrder(kernel.schedule, b.parity[x]!)
 
     for (let i = order.length - 1; i >= 0; i--) {
-      if (order[i] === 'P') pairMove(kernel, b.s, x)
-      else coinMove(kernel, b.s, x)
+      if (order[i] === 'P') {
+        pairMove(kernel, b.s, x)
+      } else {
+        coinMove(kernel, b.s, x)
+      }
     }
   }
 }
 
-export type GatedRunner = { state: () => GatedState; time: () => number; forward: (tally?: BeatTally) => void; backward: () => void }
+export type GatedRunner = {
+  state: () => GatedState
+  time: () => number
+  forward: (tally?: BeatTally) => void
+  backward: () => void
+}
 
-export function gatedRunner(g: GatedTake, start: GatedState): GatedRunner {
+export function gatedRunner(
+  g: GatedTake,
+  start: GatedState,
+): GatedRunner {
   let a = cloneGated(start)
   let b = cloneGated(start)
   let t = 0
+
   const swap = (): void => {
     const c = a
 
@@ -295,37 +387,70 @@ export function gatedRunner(g: GatedTake, start: GatedState): GatedRunner {
 // ---- the crowd, fills and transforms (Weyl, no draw) ----
 
 // the husk ball of columns within `radius` of `center` (min image), at full depth: per dock 1 if in it
-export function ballDocks(box: ArrowBox, radius: number, center: readonly number[]): Uint8Array {
+export function ballDocks(
+  box: ArrowBox,
+  radius: number,
+  center: readonly number[],
+): Uint8Array {
   const side = box.side
 
   return Uint8Array.from(box.column, c => {
     const p = columnPosition(c, side)
 
-    return p.reduce((acc, v, i) => acc + ring(v - (center[i] as number), side) ** 2, 0) <= radius * radius ? 1 : 0
+    return p.reduce(
+      (acc, v, i) => acc + ring(v - center[i]!, side) ** 2,
+      0,
+    ) <=
+      radius * radius
+      ? 1
+      : 0
   })
 }
 
 // THE CROWD: every slot and every store line of the docks in `docks` filled, love or fear by a Weyl value (times
 // `sign`, so sign -1 is the same crowd with every charge flipped), role points by a second; the crowd's counters set to
 // `counter` (a value below L of a full dock: the crowd prepared `counter` beats after its last take)
-export function crowdStart(box: ArrowBox, base: GatedState, input: { docks: Uint8Array; phase: number; sign: 1 | -1; counter: number }): GatedState {
+export function crowdStart(
+  box: ArrowBox,
+  base: GatedState,
+  input: {
+    docks: Uint8Array
+    phase: number
+    sign: 1 | -1
+    counter: number
+  },
+): GatedState {
   const out = cloneGated(base)
 
   for (let x = 0; x < box.cells; x++) {
-    if (!input.docks[x]) continue
+    if (!input.docks[x]) {
+      continue
+    }
 
     for (let d = 0; d < 24; d++) {
       const n = x * 24 + d + 1
 
-      out.s.vibe[n - 1] = (frac(n * SILVER + input.phase * GOLDEN + 0.5 * GOLDEN) < 0.5 ? 1 : -1) * input.sign
-      out.s.point[n - 1] = Math.floor(9 * frac(n * (GOLDEN + SILVER) + input.phase * GOLDEN * GOLDEN))
+      out.s.vibe[n - 1] =
+        (frac(n * SILVER + input.phase * GOLDEN + 0.5 * GOLDEN) < 0.5
+          ? 1
+          : -1) * input.sign
+
+      out.s.point[n - 1] = Math.floor(
+        9 * frac(n * (GOLDEN + SILVER) + input.phase * GOLDEN * GOLDEN),
+      )
     }
 
     for (let l = 0; l < 12; l++) {
       const n = x * 12 + l + 1
 
-      out.s.store[n - 1] = (frac(n * GOLDEN + input.phase * SILVER + 0.25 * SILVER) < 0.5 ? 1 : -1) * input.sign
-      out.s.spoint[n - 1] = Math.floor(9 * frac(n * SILVER * SILVER + input.phase * GOLDEN))
+      out.s.store[n - 1] =
+        (frac(n * GOLDEN + input.phase * SILVER + 0.25 * SILVER) < 0.5
+          ? 1
+          : -1) * input.sign
+
+      out.s.spoint[n - 1] = Math.floor(
+        9 * frac(n * SILVER * SILVER + input.phase * GOLDEN),
+      )
     }
 
     out.counter[x] = input.counter
@@ -336,20 +461,46 @@ export function crowdStart(box: ArrowBox, base: GatedState, input: { docks: Uint
 
 // a Weyl gas on every dock: each calm slot held when its Weyl value falls below perDock / 24 (rate distinct from the
 // crowd's), love or fear and a role point by further Weyl values
-export function gasFill(box: ArrowBox, base: GatedState, input: { perDock: number; phase: number; only?: Uint8Array }): GatedState {
+export function gasFill(
+  box: ArrowBox,
+  base: GatedState,
+  input: { perDock: number; phase: number; only?: Uint8Array },
+): GatedState {
   const out = cloneGated(base)
   const cut = input.perDock / 24
 
   for (let slot = 0; slot < out.s.vibe.length; slot++) {
-    if (out.s.vibe[slot] !== 0) continue
-    if (input.only && !input.only[(slot / 24) | 0]) continue
+    if (out.s.vibe[slot] !== 0) {
+      continue
+    }
+
+    if (input.only && !input.only[(slot / 24) | 0]) {
+      continue
+    }
 
     const n = slot + 1
 
-    if (frac(n * GOLDEN + input.phase * SILVER + 3 * GOLDEN * SILVER) >= cut) continue
+    if (
+      frac(n * GOLDEN + input.phase * SILVER + 3 * GOLDEN * SILVER) >=
+      cut
+    ) {
+      continue
+    }
 
-    out.s.vibe[slot] = frac(n * SILVER + input.phase * GOLDEN + 3 * SILVER * SILVER) < 0.5 ? 1 : -1
-    out.s.point[slot] = Math.floor(9 * frac(n * (GOLDEN + SILVER) + input.phase * GOLDEN * GOLDEN + 3 * GOLDEN))
+    out.s.vibe[slot] =
+      frac(n * SILVER + input.phase * GOLDEN + 3 * SILVER * SILVER) <
+      0.5
+        ? 1
+        : -1
+
+    out.s.point[slot] = Math.floor(
+      9 *
+        frac(
+          n * (GOLDEN + SILVER) +
+            input.phase * GOLDEN * GOLDEN +
+            3 * GOLDEN,
+        ),
+    )
   }
 
   return out
@@ -359,8 +510,13 @@ export function gasFill(box: ArrowBox, base: GatedState, input: { perDock: numbe
 export function conjugate(g: GatedState): GatedState {
   const out = cloneGated(g)
 
-  for (let i = 0; i < out.s.vibe.length; i++) out.s.vibe[i] = -(out.s.vibe[i] as number)
-  for (let i = 0; i < out.s.store.length; i++) out.s.store[i] = -(out.s.store[i] as number)
+  for (let i = 0; i < out.s.vibe.length; i++) {
+    out.s.vibe[i] = -out.s.vibe[i]!
+  }
+
+  for (let i = 0; i < out.s.store.length; i++) {
+    out.s.store[i] = -out.s.store[i]!
+  }
 
   return out
 }
@@ -370,20 +526,20 @@ export function translate(box: ArrowBox, g: GatedState): GatedState {
   const out = cloneGated(g)
 
   for (let x = 0; x < box.cells; x++) {
-    const y = box.along[x] as number
+    const y = box.along[x]!
 
     for (let d = 0; d < 24; d++) {
-      out.s.vibe[y * 24 + d] = g.s.vibe[x * 24 + d] as number
-      out.s.point[y * 24 + d] = g.s.point[x * 24 + d] as number
+      out.s.vibe[y * 24 + d] = g.s.vibe[x * 24 + d]!
+      out.s.point[y * 24 + d] = g.s.point[x * 24 + d]!
     }
 
     for (let l = 0; l < 12; l++) {
-      out.s.store[y * 12 + l] = g.s.store[x * 12 + l] as number
-      out.s.spoint[y * 12 + l] = g.s.spoint[x * 12 + l] as number
+      out.s.store[y * 12 + l] = g.s.store[x * 12 + l]!
+      out.s.spoint[y * 12 + l] = g.s.spoint[x * 12 + l]!
     }
 
-    out.counter[y] = g.counter[x] as number
-    out.parity[y] = g.parity[x] as number
+    out.counter[y] = g.counter[x]!
+    out.parity[y] = g.parity[x]!
   }
 
   return out
@@ -393,7 +549,12 @@ export function translate(box: ArrowBox, g: GatedState): GatedState {
 
 // N1, the transport alone: a slot of a dock whose gate is open takes its stream source's value, and keeps its own
 // otherwise (no turning back)
-export function takeOrKeep(box: ArrowBox, source: Int32Array, s: Reduced, takes: Uint8Array): Reduced {
+export function takeOrKeep(
+  box: ArrowBox,
+  source: Int32Array,
+  s: Reduced,
+  takes: Uint8Array,
+): Reduced {
   const out = cloneReduced(s)
 
   out.vibe.fill(0)
@@ -402,13 +563,14 @@ export function takeOrKeep(box: ArrowBox, source: Int32Array, s: Reduced, takes:
     const y = (z / 24) | 0
 
     if (takes[y]) {
-      const from = source[z] as number
+      const from = source[z]!
 
-      out.vibe[z] = s.vibe[from] as number
-      out.point[z] = s.vibe[from] !== 0 ? ((box.kernel.move[from] as Int8Array)[s.point[from] as number] as number) : 0
+      out.vibe[z] = s.vibe[from]!
+      out.point[z] =
+        s.vibe[from] !== 0 ? box.kernel.move[from]![s.point[from]!]! : 0
     } else {
-      out.vibe[z] = s.vibe[z] as number
-      out.point[z] = s.point[z] as number
+      out.vibe[z] = s.vibe[z]!
+      out.point[z] = s.point[z]!
     }
   }
 
@@ -417,53 +579,65 @@ export function takeOrKeep(box: ArrowBox, source: Int32Array, s: Reduced, takes:
 
 // N2, the carry gate: the counter advances by A - E (E the dock's energy at the start of the beat) mod M, and the dock
 // takes (collides, and streams with the turning back of the rule above) on the beat it carries; global schedule t
-export function carryBeat(box: ArrowBox, input: { advance: number; top: number }, g: GatedState, t: number): GatedState {
+export function carryBeat(
+  box: ArrowBox,
+  input: { advance: number; top: number },
+  g: GatedState,
+  t: number,
+): GatedState {
   const kernel = box.kernel
   const a = cloneGated(g)
   const out = cloneGated(g)
   const active = new Uint8Array(box.cells)
 
   for (let x = 0; x < box.cells; x++) {
-    const sum = (a.counter[x] as number) + input.advance - dockEnergy(a.s, x)
+    const sum = a.counter[x]! + input.advance - dockEnergy(a.s, x)
 
     active[x] = sum >= input.top ? 1 : 0
-    out.counter[x] = sum - input.top * (active[x] as number)
+    out.counter[x] = sum - input.top * active[x]!
   }
 
   for (let x = 0; x < box.cells; x++) {
-    if (!active[x]) continue
+    if (!active[x]) {
+      continue
+    }
 
     for (const piece of collisionOrder(kernel.schedule, t)) {
-      if (piece === 'P') pairMove(kernel, a.s, x)
-      else coinMove(kernel, a.s, x)
+      if (piece === 'P') {
+        pairMove(kernel, a.s, x)
+      } else {
+        coinMove(kernel, a.s, x)
+      }
     }
   }
 
   out.s.vibe.fill(0)
 
   for (let slot = 0; slot < a.s.vibe.length; slot++) {
-    const v = a.s.vibe[slot] as number
+    const v = a.s.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const x = (slot / 24) | 0
 
     if (!active[x]) {
       out.s.vibe[slot] = v
-      out.s.point[slot] = a.s.point[slot] as number
+      out.s.point[slot] = a.s.point[slot]!
       continue
     }
 
-    const to = kernel.target[slot] as number
+    const to = kernel.target[slot]!
 
     if (active[(to / 24) | 0]) {
       out.s.vibe[to] = v
-      out.s.point[to] = (kernel.move[slot] as Int8Array)[a.s.point[slot] as number] as number
+      out.s.point[to] = kernel.move[slot]![a.s.point[slot]!]!
     } else {
-      const back = x * 24 + (OPPOSITE[slot % 24] as number)
+      const back = x * 24 + OPPOSITE[slot % 24]!
 
       out.s.vibe[back] = v
-      out.s.point[back] = a.s.point[slot] as number
+      out.s.point[back] = a.s.point[slot]!
     }
   }
 
@@ -474,42 +648,59 @@ export function carryBeat(box: ArrowBox, input: { advance: number; top: number }
 }
 
 // the undoing of beat t's collision on dock x (the pieces in the other order, each its own inverse)
-export function uncollide(box: ArrowBox, s: Reduced, x: number, t: number): void {
+export function uncollide(
+  box: ArrowBox,
+  s: Reduced,
+  x: number,
+  t: number,
+): void {
   const order = collisionOrder(box.kernel.schedule, t)
 
   for (let i = order.length - 1; i >= 0; i--) {
-    if (order[i] === 'P') pairMove(box.kernel, s, x)
-    else coinMove(box.kernel, s, x)
+    if (order[i] === 'P') {
+      pairMove(box.kernel, s, x)
+    } else {
+      coinMove(box.kernel, s, x)
+    }
   }
 }
 
 // ---- readers (measurement; reals allowed) ----
 
 // per husk column two independent 32-bit hashes of the column's slots and stores (content only), into a and b
-export function contentHashes(box: ArrowBox, s: Reduced, a: Int32Array, b: Int32Array): void {
+export function contentHashes(
+  box: ArrowBox,
+  s: Reduced,
+  a: Int32Array,
+  b: Int32Array,
+): void {
   a.fill(0)
   b.fill(0)
 
   for (let x = 0; x < box.cells; x++) {
-    const c = box.column[x] as number
-    const d4 = box.depth[x] as number
-    let ha = a[c] as number
-    let hb = b[c] as number
+    const c = box.column[x]!
+    const d4 = box.depth[x]!
+
+    let ha = a[c]!
+    let hb = b[c]!
 
     for (let d = 0; d < 24; d++) {
-      const v0 = s.vibe[x * 24 + d] as number
-      const v = v0 * 16 + (v0 !== 0 ? (s.point[x * 24 + d] as number) : 0) + 40
+      const v0 = s.vibe[x * 24 + d]!
+      const v = v0 * 16 + (v0 !== 0 ? s.point[x * 24 + d]! : 0) + 40
 
       ha = Math.imul(ha ^ (v + d4 * 131 + d * 7), 0x9e3779b1)
-      hb = Math.imul(hb + v * 31 + d4 * 17 + d, 0x85ebca6b) ^ (hb >>> 13)
+      hb =
+        Math.imul(hb + v * 31 + d4 * 17 + d, 0x85ebca6b) ^ (hb >>> 13)
     }
 
     for (let l = 0; l < 12; l++) {
-      const v0 = s.store[x * 12 + l] as number
-      const v = v0 * 16 + (v0 !== 0 ? (s.spoint[x * 12 + l] as number) : 0) + 40
+      const v0 = s.store[x * 12 + l]!
+      const v = v0 * 16 + (v0 !== 0 ? s.spoint[x * 12 + l]! : 0) + 40
 
       ha = Math.imul(ha ^ (v + d4 * 131 + l * 11 + 500), 0x9e3779b1)
-      hb = Math.imul(hb + v * 37 + d4 * 19 + l + 500, 0x85ebca6b) ^ (hb >>> 13)
+      hb =
+        Math.imul(hb + v * 37 + d4 * 19 + l + 500, 0x85ebca6b) ^
+        (hb >>> 13)
     }
 
     a[c] = ha

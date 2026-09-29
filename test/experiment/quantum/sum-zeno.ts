@@ -57,10 +57,23 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { swapPhase, wignerKernel, type Whole } from '@/code/rule/fear-weave'
+import {
+  swapPhase,
+  wignerKernel,
+  type Whole,
+} from '@/code/rule/fear-weave'
 import { makeColorWeave, colorBeat } from '@/code/rule/color-weave'
-import { advanceKnot, lineKnot, qtm0100Histories } from '@/code/measure/knot-histories'
-import { openToken, permuteTwo, sumPermutation, traceOut } from '@/code/measure/sum-record'
+import {
+  advanceKnot,
+  lineKnot,
+  qtm0100Histories,
+} from '@/code/measure/knot-histories'
+import {
+  openToken,
+  permuteTwo,
+  sumPermutation,
+  traceOut,
+} from '@/code/measure/sum-record'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
 const BEATS = 480
@@ -71,7 +84,9 @@ const ROLE_LINE_0 = [0, 1, 2]
 
 const frac = (x: number): number => x - Math.floor(x)
 // the reading of joint point i of two tokens: role of the first times 3 plus role of the second
-const readingOf = (i: number): number => Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)
+const readingOf = (i: number): number =>
+  Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3)
+
 const readings = (w: Whole): bigint[] => {
   const out = new Array<bigint>(9).fill(0n)
 
@@ -81,9 +96,17 @@ const readings = (w: Whole): bigint[] => {
 
   return out
 }
-const unitsOf = (w: Whole): bigint => w.weight.reduce((s, x) => s + x, 0n)
-const chanceOf = (w: Whole, reading: number): number => Number(((readings(w)[reading] ?? 0n) * 10n ** 15n) / unitsOf(w)) / 1e15
-const proportional = (a: readonly bigint[], b: readonly bigint[]): boolean => {
+
+const unitsOf = (w: Whole): bigint =>
+  w.weight.reduce((s, x) => s + x, 0n)
+const chanceOf = (w: Whole, reading: number): number =>
+  Number(((readings(w)[reading] ?? 0n) * 10n ** 15n) / unitsOf(w)) /
+  1e15
+
+const proportional = (
+  a: readonly bigint[],
+  b: readonly bigint[],
+): boolean => {
   const ua = a.reduce((s, x) => s + x, 0n)
   const ub = b.reduce((s, x) => s + x, 0n)
 
@@ -92,14 +115,20 @@ const proportional = (a: readonly bigint[], b: readonly bigint[]): boolean => {
 
 // a SUM record of coordinate c of a two-token whole, traced: open, copy, trace
 function recordToken(w: Whole, c: number): Whole {
-  return traceOut(permuteTwo(openToken(w, -1, ROLE_LINE_0), c, 2, sumPermutation()), 2)
+  return traceOut(
+    permuteTwo(openToken(w, -1, ROLE_LINE_0), c, 2, sumPermutation()),
+    2,
+  )
 }
 
 // E-QTM-0116's ideal record: the pair's weight replaced by its reading's total on every point
 function dephase(w: Whole): Whole {
   const r = readings(w)
 
-  return { tokens: w.tokens, weight: w.weight.map((_, i) => r[readingOf(i)] ?? 0n) }
+  return {
+    tokens: w.tokens,
+    weight: w.weight.map((_, i) => r[readingOf(i)] ?? 0n),
+  }
 }
 
 // the same SUM record in floating point, on 81 weights, for the split-step control
@@ -117,7 +146,10 @@ function recordFloat(w: Float64Array, c: number): Float64Array {
     for (const r of ROLE_LINE_0) {
       const own = c === 0 ? Math.floor(i / 9) : i % 9
       const image = sum[9 * own + r] ?? 0
-      const moved = c === 0 ? 9 * Math.floor(image / 9) + (i % 9) : 9 * Math.floor(i / 9) + Math.floor(image / 9)
+      const moved =
+        c === 0
+          ? 9 * Math.floor(image / 9) + (i % 9)
+          : 9 * Math.floor(i / 9) + Math.floor(image / 9)
 
       out[moved] = (out[moved] ?? 0) + x / 3
     }
@@ -130,24 +162,42 @@ export default experiment({
   id: 'quantum/sum-zeno',
   code: 'E-QTM-0129',
   title:
-    'no Zeno freeze from a true record: SUM records of the vacuum pair every beat give exactly the ideal record\'s 1/4, 3/8, 7/16, change no reading, and never push the third-meeting transfer below 7/16, because a fear-beat meeting is a finite step; a stand-in fear beat split into m steps does freeze, as pi^2 / (12 m), and the flow, a SUM record of the vibe, never acts back on the vibes',
+    "no Zeno freeze from a true record: SUM records of the vacuum pair every beat give exactly the ideal record's 1/4, 3/8, 7/16, change no reading, and never push the third-meeting transfer below 7/16, because a fear-beat meeting is a finite step; a stand-in fear beat split into m steps does freeze, as pi^2 / (12 m), and the flow, a SUM record of the vibe, never acts back on the vibes",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const [live] = qtm0100Histories(BEATS)
-    const h = { ...live!, records: live!.records.map(r => ({ ...r, crossings: r.crossings.map(([tk]) => [tk, live!.weave.moves.identity] as const) })) }
-    const start = lineKnot(h.tokens, [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k), [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k))
+    const h = {
+      ...live!,
+      records: live!.records.map(r => ({
+        ...r,
+        crossings: r.crossings.map(
+          ([tk]) => [tk, live!.weave.moves.identity] as const,
+        ),
+      })),
+    }
+    const start = lineKnot(
+      h.tokens,
+      [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
+      [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k),
+    )
     const startReading = 3 * (h.start[0] ?? 0) + (h.start[1] ?? 0)
 
     let resetSteps = 0
     let idealMismatch = 0
 
-    const runWith = (n: number, which: 'both' | 'first', compareIdeal = false): { firstThree: number[]; mean: number; startMean: number } => {
+    const runWith = (
+      n: number,
+      which: 'both' | 'first',
+      compareIdeal = false,
+    ): { firstThree: number[]; mean: number; startMean: number } => {
       let w = start
       let ideal = start
+
       const firstThree: number[] = []
+
       let sum = 0
       let startSum = 0
 
@@ -182,12 +232,17 @@ export default experiment({
         startSum += chanceOf(w, startReading)
       }
 
-      return { firstThree, mean: sum / BEATS, startMean: startSum / BEATS }
+      return {
+        firstThree,
+        mean: sum / BEATS,
+        startMean: startSum / BEATS,
+      }
     }
 
     const none = runWith(0, 'both')
     const everyBeat = runWith(1, 'both', true)
     const curves: Record<string, number> = {}
+
     let lowest = Number.POSITIVE_INFINITY
 
     for (const n of INTERVALS) {
@@ -210,6 +265,7 @@ export default experiment({
     // the split-step control: m steps of U(-pi / (3 m)) per meeting, SUM records of both tokens after each
     const split = SPLITS.map(m => {
       const kernel = wignerKernel(swapPhase(-Math.PI / (3 * m)))
+
       let w = new Float64Array(81)
 
       // |0>|1>: weight 1/9 on each point of role line 0 x role line 1
@@ -224,6 +280,7 @@ export default experiment({
 
         for (let r = 0; r < 81; r++) {
           let v = 0
+
           const row = kernel[r] ?? []
 
           for (let c = 0; c < 81; c++) {
@@ -242,7 +299,8 @@ export default experiment({
         transfer += readingOf(i) === 3 ? x : 0
       })
 
-      const closed = (1 - (1 - 2 * Math.sin(Math.PI / (6 * m)) ** 2) ** (3 * m)) / 2
+      const closed =
+        (1 - (1 - 2 * Math.sin(Math.PI / (6 * m)) ** 2) ** (3 * m)) / 2
 
       return { m, transfer, closed }
     })
@@ -251,30 +309,59 @@ export default experiment({
     const weave = makeColorWeave({ side: 3, table: 'bind' })
     const slots = weave.mesh.cellCount * 24
     const fill = {
-      vibe: Int8Array.from({ length: slots }, (_, i) => (frac((i + 1) * GOLDEN) < 0.25 ? (frac((i + 1) * SILVER) < 0.5 ? 1 : -1) : 0)),
-      role: Int8Array.from({ length: slots }, (_, i) => Math.floor(9 * frac((i + 3) * GOLDEN))),
+      vibe: Int8Array.from({ length: slots }, (_, i) =>
+        frac((i + 1) * GOLDEN) < 0.25
+          ? frac((i + 1) * SILVER) < 0.5
+            ? 1
+            : -1
+          : 0,
+      ),
+      role: Int8Array.from({ length: slots }, (_, i) =>
+        Math.floor(9 * frac((i + 3) * GOLDEN)),
+      ),
       flow: new Int32Array(slots),
     }
+
     let kept = fill
     let reset = fill
     let flowDiffer = 0
 
     for (let t = 0; t < FLOW_BEATS; t++) {
       kept = colorBeat(weave, kept, t)
-      reset = colorBeat(weave, { ...reset, flow: new Int32Array(slots) }, t)
-      flowDiffer += kept.vibe.every((v, i) => v === reset.vibe[i]) && kept.role.every((v, i) => v === reset.role[i]) ? 0 : 1
+      reset = colorBeat(
+        weave,
+        { ...reset, flow: new Int32Array(slots) },
+        t,
+      )
+
+      flowDiffer +=
+        kept.vibe.every((v, i) => v === reset.vibe[i]) &&
+        kept.role.every((v, i) => v === reset.role[i])
+          ? 0
+          : 1
     }
 
-    const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
+    const exact = (x: number, y: number): boolean =>
+      Math.abs(x - y) < 1e-12
     const gates = {
-      G1: exact(none.firstThree[0] ?? 0, 1 / 4) && exact(none.firstThree[1] ?? 0, 3 / 4) && exact(none.firstThree[2] ?? 0, 1),
-      G2: exact(everyBeat.firstThree[0] ?? 0, 1 / 4) && exact(everyBeat.firstThree[1] ?? 0, 3 / 8) && exact(everyBeat.firstThree[2] ?? 0, 7 / 16) && idealMismatch === 0,
+      G1:
+        exact(none.firstThree[0] ?? 0, 1 / 4) &&
+        exact(none.firstThree[1] ?? 0, 3 / 4) &&
+        exact(none.firstThree[2] ?? 0, 1),
+      G2:
+        exact(everyBeat.firstThree[0] ?? 0, 1 / 4) &&
+        exact(everyBeat.firstThree[1] ?? 0, 3 / 8) &&
+        exact(everyBeat.firstThree[2] ?? 0, 7 / 16) &&
+        idealMismatch === 0,
       G3: resetSteps === 0,
       G4: lowest >= 7 / 16 - 1e-12,
       G5:
         exact(split[0]?.transfer ?? 0, 7 / 16) &&
         split.every(s => Math.abs(s.transfer - s.closed) < 1e-9) &&
-        split.every((s, i) => i === 0 || s.transfer < (split[i - 1]?.transfer ?? 0)) &&
+        split.every(
+          (s, i) =>
+            i === 0 || s.transfer < (split[i - 1]?.transfer ?? 0),
+        ) &&
         (split[split.length - 1]?.transfer ?? 1) < 0.05,
       G6: flowDiffer === 0,
     }
@@ -283,18 +370,28 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'SUM records of the vacuum pair every 1 to 4 beats give exactly the ideal record\'s 1/4, 3/8, 7/16, equal its whole at all 480 beats and change no reading, so they measure without resetting (time-mean chance of the start 0.518 against the fear-beat record\'s 0.006), but they never freeze the transfer below 7/16, because a fear-beat meeting moves a finite quarter at once; a stand-in fear beat split into m steps with a record after each freezes as pi^2 / (12 m), 0.4375 to 0.0251 for m = 1 to 32, so the instrument sees a freeze where one exists; the flow, a SUM record of the vibe, never acts back on the vibes and can freeze nothing',
+        "SUM records of the vacuum pair every 1 to 4 beats give exactly the ideal record's 1/4, 3/8, 7/16, equal its whole at all 480 beats and change no reading, so they measure without resetting (time-mean chance of the start 0.518 against the fear-beat record's 0.006), but they never freeze the transfer below 7/16, because a fear-beat meeting moves a finite quarter at once; a stand-in fear beat split into m steps with a record after each freezes as pi^2 / (12 m), 0.4375 to 0.0251 for m = 1 to 32, so the instrument sees a freeze where one exists; the flow, a SUM record of the vibe, never acts back on the vibes and can freeze nothing",
       metrics: {
         lowestAfterThirdMeeting: lowest,
         resetSteps,
         idealMismatchBeats: idealMismatch,
         ...curves,
-        ...Object.fromEntries(split.flatMap(s => [[`split${s.m}_transfer`, s.transfer], [`split${s.m}_closedForm`, s.closed]])),
+        ...Object.fromEntries(
+          split.flatMap(s => [
+            [`split${s.m}_transfer`, s.transfer],
+            [`split${s.m}_closedForm`, s.closed],
+          ]),
+        ),
         flowBeatsWhereVibesDiffer: flowDiffer,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        'L2, exact BigInt wholes for the model; the split-step control is a stand-in (the fear beat divided into m equal rotations, not a rule of the model), in floating point, labeled as one. The SUM record is E-QTM-0127\'s, opened on role line 0 and traced at once.',
+        "L2, exact BigInt wholes for the model; the split-step control is a stand-in (the fear beat divided into m equal rotations, not a rule of the model), in floating point, labeled as one. The SUM record is E-QTM-0127's, opened on role line 0 and traced at once.",
     })
   },
 })

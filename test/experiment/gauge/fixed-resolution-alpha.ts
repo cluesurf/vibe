@@ -73,8 +73,18 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { logLogSlope } from '@/code/measure/regression'
-import { CONTROL_TOLERANCE, EXPONENT_TOLERANCE, FLAT_TOLERANCE, LOCAL_SEPARATIONS, type LocalAlpha } from '@/code/measure/local-alpha'
-import { FIXED_METRIC_DEPTHS, FIXED_RESOLUTION, fixedAlphaSurvey } from '@/code/measure/fixed-resolution'
+import {
+  CONTROL_TOLERANCE,
+  EXPONENT_TOLERANCE,
+  FLAT_TOLERANCE,
+  LOCAL_SEPARATIONS,
+  type LocalAlpha,
+} from '@/code/measure/local-alpha'
+import {
+  FIXED_METRIC_DEPTHS,
+  FIXED_RESOLUTION,
+  fixedAlphaSurvey,
+} from '@/code/measure/fixed-resolution'
 import { GAUGE_BEATS } from '@/code/measure/depth-span'
 
 const SAME_TOLERANCE = 1e-12
@@ -93,7 +103,8 @@ export default experiment({
     const d0 = FIXED_RESOLUTION
     const q = (d: number): number => 2 * d + 1
     const qs = FIXED_METRIC_DEPTHS.map(q)
-    const of = (list: LocalAlpha[], d: number, r: number): LocalAlpha => list.find(a => a.pair.depth === d && a.pair.r === r)!
+    const of = (list: LocalAlpha[], d: number, r: number): LocalAlpha =>
+      list.find(a => a.pair.depth === d && a.pair.r === r)!
     const restSlope = logLogSlope(
       qs,
       s.units.map(u => u.rest),
@@ -102,30 +113,73 @@ export default experiment({
       qs,
       s.units.map(u => u.compton),
     )
-    const m0 = Math.abs(restSlope + 0.5) <= EXPONENT_TOLERANCE && Math.abs(comptonSlope + 0.5) <= EXPONENT_TOLERANCE && s.units.every(u => u.reversed)
-    const flat = LOCAL_SEPARATIONS.flatMap(r => FIXED_METRIC_DEPTHS.map(d => of(s.fixed, d, r).alphaLocal / of(s.fixed, d0, r).alphaLocal - 1))
+    const m0 =
+      Math.abs(restSlope + 0.5) <= EXPONENT_TOLERANCE &&
+      Math.abs(comptonSlope + 0.5) <= EXPONENT_TOLERANCE &&
+      s.units.every(u => u.reversed)
+    const flat = LOCAL_SEPARATIONS.flatMap(r =>
+      FIXED_METRIC_DEPTHS.map(
+        d =>
+          of(s.fixed, d, r).alphaLocal / of(s.fixed, d0, r).alphaLocal -
+          1,
+      ),
+    )
     const m1 = flat.every(v => Math.abs(v) <= FLAT_TOLERANCE)
-    const same = LOCAL_SEPARATIONS.map(r => of(s.fixed, d0, r).alphaLocal / of(s.unfixed, d0, r).alphaLocal - 1)
+    const same = LOCAL_SEPARATIONS.map(
+      r =>
+        of(s.fixed, d0, r).alphaLocal /
+          of(s.unfixed, d0, r).alphaLocal -
+        1,
+    )
     const m2 = same.every(v => Math.abs(v) <= SAME_TOLERANCE)
     const runs = [...s.fixed, ...s.unfixed].map(a => a.pair)
     const gf = s.gaugeFixed
     const gu = s.gaugeUnfixed
-    const m3 = runs.every(p => p.reversed && p.gauss === 0 && p.wraps === 0) && gf.plaquette === 0 && gf.crossed > 0 && gf.covariantBeats === GAUGE_BEATS
-    const controlOff = LOCAL_SEPARATIONS.flatMap(r => FIXED_METRIC_DEPTHS.map(d => of(s.unfixed, d, r).alphaLocal / of(s.unfixed, d0, r).alphaLocal / (d0 / d) - 1))
-    const c = controlOff.every(v => Math.abs(v) <= CONTROL_TOLERANCE) && gu.covariantBeats < GAUGE_BEATS
-    const status = !m0 || !m3 ? 'partial' : m1 && m2 && c ? 'pass' : 'fail'
-    const mean = (list: LocalAlpha[], d: number): number => LOCAL_SEPARATIONS.reduce((acc, r) => acc + of(list, d, r).alphaLocal, 0) / LOCAL_SEPARATIONS.length
+    const m3 =
+      runs.every(p => p.reversed && p.gauss === 0 && p.wraps === 0) &&
+      gf.plaquette === 0 &&
+      gf.crossed > 0 &&
+      gf.covariantBeats === GAUGE_BEATS
+    const controlOff = LOCAL_SEPARATIONS.flatMap(r =>
+      FIXED_METRIC_DEPTHS.map(
+        d =>
+          of(s.unfixed, d, r).alphaLocal /
+            of(s.unfixed, d0, r).alphaLocal /
+            (d0 / d) -
+          1,
+      ),
+    )
+    const c =
+      controlOff.every(v => Math.abs(v) <= CONTROL_TOLERANCE) &&
+      gu.covariantBeats < GAUGE_BEATS
+    const status =
+      !m0 || !m3 ? 'partial' : m1 && m2 && c ? 'pass' : 'fail'
+    const mean = (list: LocalAlpha[], d: number): number =>
+      LOCAL_SEPARATIONS.reduce(
+        (acc, r) => acc + of(list, d, r).alphaLocal,
+        0,
+      ) / LOCAL_SEPARATIONS.length
     // d ln alpha / d (Phi / c^2) = -2 d ln alpha / d ln q (E-FRC-0256)
-    const kFixed = -2 * logLogSlope(
-      qs,
-      FIXED_METRIC_DEPTHS.map(d => mean(s.fixed, d)),
-    )
-    const kUnfixed = -2 * logLogSlope(
-      qs,
-      FIXED_METRIC_DEPTHS.map(d => mean(s.unfixed, d)),
-    )
-    const phiSame = FIXED_METRIC_DEPTHS.flatMap(d => LOCAL_SEPARATIONS.map(r => of(s.fixed, d, r).pair.phi === of(s.unfixed, d, r).pair.phi)).filter(Boolean).length
-    const worst = (list: number[]): number => Math.max(...list.map(v => Math.abs(v)))
+    const kFixed =
+      -2 *
+      logLogSlope(
+        qs,
+        FIXED_METRIC_DEPTHS.map(d => mean(s.fixed, d)),
+      )
+    const kUnfixed =
+      -2 *
+      logLogSlope(
+        qs,
+        FIXED_METRIC_DEPTHS.map(d => mean(s.unfixed, d)),
+      )
+    const phiSame = FIXED_METRIC_DEPTHS.flatMap(d =>
+      LOCAL_SEPARATIONS.map(
+        r =>
+          of(s.fixed, d, r).pair.phi === of(s.unfixed, d, r).pair.phi,
+      ),
+    ).filter(Boolean).length
+    const worst = (list: number[]): number =>
+      Math.max(...list.map(v => Math.abs(v)))
     const metrics: Record<string, number> = {
       gate_M0: m0 ? 1 : 0,
       gate_M1: m1 ? 1 : 0,
@@ -172,14 +226,21 @@ export default experiment({
     const f = (v: number, n = 4): string => v.toFixed(n)
     const e = (v: number): string => v.toExponential(2)
     const inv = (v: number): string => `1/${(1 / v).toFixed(1)}`
-    const row = (list: LocalAlpha[]): string => FIXED_METRIC_DEPTHS.map(d => `D_m ${d} ${inv(mean(list, d))}`).join(', ')
+    const row = (list: LocalAlpha[]): string =>
+      FIXED_METRIC_DEPTHS.map(
+        d => `D_m ${d} ${inv(mean(list, d))}`,
+      ).join(', ')
     const all = [...s.fixed, ...s.unfixed]
 
     return verdict({
       status,
       claim: `at a fixed resolution D0 = ${d0} (windows 4 D0, Peierls root zeta_${4 * d0}) and uniform metric depths ${FIXED_METRIC_DEPTHS.join(', ')} (q_m ${qs.join(', ')}) the spanned light's alpha in local units reads ${row(s.fixed)}, flat to ${e(worst(flat))} (k_alpha = ${f(kFixed, 5)}), each ${f(Math.min(...s.fixed.map(a => a.alphaLocal / a.alphaClosed)), 6)} to ${f(Math.max(...s.fixed.map(a => a.alphaLocal / a.alphaClosed)), 6)} of sqrt(3) / (48 D0), hbar in the light's units ${f(Math.min(...s.fixed.map(a => a.hbarInvariant)))} to ${f(Math.max(...s.fixed.map(a => a.hbarInvariant)))} (D0 / pi = ${f(d0 / Math.PI)}); at D_m = D0 it equals the unfixed light's to ${e(worst(same))}; the unfixed light (resolution tied to the metric) reads ${row(s.unfixed)}, within ${e(worst(controlOff))} of 1 / D_m (k_alpha = ${f(kUnfixed, 3)}); the Coulomb growth is the unfixed light's value for value in ${phiSame} of ${s.fixed.length} runs; every pair run reversed with Gauss exact and 0 wraps; on the radion's slab (depth ${s.slabDepths.min} .. ${s.slabDepths.max}) a wide gauge map crossing ${gf.crossed} windows at the start is covariant on ${gf.covariantBeats} of ${GAUGE_BEATS} beats on the fixed light and ${gu.covariantBeats} on the unfixed one (${gu.crossed} crossed); the local units: rest rate q_m^${f(restSlope)}, Compton length q_m^${f(comptonSlope)}`,
       metrics,
-      control: { controlWorst: worst(controlOff), kAlphaUnfixed: kUnfixed, gaugeUnfixedBeats: gu.covariantBeats },
+      control: {
+        controlWorst: worst(controlOff),
+        kAlphaUnfixed: kUnfixed,
+        gaugeUnfixedBeats: gu.covariantBeats,
+      },
       notes: `L2. Gates M0 ${m0}, M1 ${m1}, M2 ${m2}, M3 ${m3}, C ${c}. Per reading (light D_m r: alpha_local, over closed, growth off static, turns, wraps): ${all.map((a, i) => `${i < s.fixed.length ? 'fixed' : 'unfixed'} ${a.pair.depth} ${a.pair.r}: ${e(a.alphaLocal)}, ${f(a.alphaLocal / a.alphaClosed, 6)}, ${e(a.pair.phi / a.pair.phiStatic - 1)}, ${a.pair.turns}, ${a.pair.wraps}`).join('; ')}. Units (D_m: rest over closed, Compton, c_local): ${s.units.map(u => `${u.depth}: ${f(u.rest / u.restClosed, 7)}, ${f(u.compton)}, ${f(u.cLocal)}`).join('; ')}. Gauge (fixed, unfixed): plaquette ${gf.plaquette}, ${gu.plaquette}; links shifted ${gf.shifted}, ${gu.shifted}. Largest relax residual ${e(Math.max(...all.map(a => a.pair.residual)))}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

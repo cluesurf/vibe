@@ -10,13 +10,20 @@
 // with the owning module cannot pass silently.
 
 import { type Collision } from '@/code/rule/collision'
-import { combinedCollision, COMBINED_DEFAULT, type CombinedKnitSpec } from '@/code/rule/combined-knit'
+import {
+  combinedCollision,
+  COMBINED_DEFAULT,
+  type CombinedKnitSpec,
+} from '@/code/rule/combined-knit'
 import { scatterSchedule } from '@/code/rule/scatter-weave'
 
 const mod = (t: number, n: number): number => ((t % n) + n) % n
 
 // one scatter set as a collision, the lone condition of code/rule/combined-knit
-export function scatterSetCollision(input: { set: Int32Array; opposite: readonly number[] }): Collision {
+export function scatterSetCollision(input: {
+  set: Int32Array
+  opposite: readonly number[]
+}): Collision {
   const { set, opposite } = input
 
   return (vibe, base) => {
@@ -39,8 +46,10 @@ export function scatterSetCollision(input: { set: Int32Array; opposite: readonly
       const v = base + b
       const w = base + c
       const x = base + e
-      const here = vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
-      const there = vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
+      const here =
+        vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
+      const there =
+        vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
 
       if (here || there) {
         const vu = vibe[u] ?? 0
@@ -56,13 +65,28 @@ export function scatterSetCollision(input: { set: Int32Array; opposite: readonly
 }
 
 // the three factors of beat t, in the order they act: S_(c - t), B_t, S_t
-export function combinedFactors(input: { t: number; opposite: readonly number[]; spec?: CombinedKnitSpec }): Collision[] {
+export function combinedFactors(input: {
+  t: number
+  opposite: readonly number[]
+  spec?: CombinedKnitSpec
+}): Collision[] {
   const spec = input.spec ?? COMBINED_DEFAULT
-  const sets = scatterSchedule().map(set => Int32Array.from(set.flatMap(s => [...s])))
+  const sets = scatterSchedule().map(set =>
+    Int32Array.from(set.flatMap(s => [...s])),
+  )
   const n = sets.length
-  const base = combinedCollision({ spec: { ...spec, scatter: false }, opposite: input.opposite })(input.t)
-  const first = scatterSetCollision({ set: sets[mod(spec.mirror - input.t, n)] ?? new Int32Array(0), opposite: input.opposite })
-  const last = scatterSetCollision({ set: sets[mod(input.t, n)] ?? new Int32Array(0), opposite: input.opposite })
+  const base = combinedCollision({
+    spec: { ...spec, scatter: false },
+    opposite: input.opposite,
+  })(input.t)
+  const first = scatterSetCollision({
+    set: sets[mod(spec.mirror - input.t, n)] ?? new Int32Array(0),
+    opposite: input.opposite,
+  })
+  const last = scatterSetCollision({
+    set: sets[mod(input.t, n)] ?? new Int32Array(0),
+    opposite: input.opposite,
+  })
 
   return [first, base, last]
 }

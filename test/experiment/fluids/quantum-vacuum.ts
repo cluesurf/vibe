@@ -35,9 +35,24 @@ import { verdict } from '@/test/scaffold/verdict'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { coldBeat, makeColdWeave, type ColdState } from '@/code/rule/cold-weave'
-import { configOf, ringBeat, toneAt, totalNorm, type Amplitudes, type ClockMode } from '@/code/rule/fear-clock'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  coldBeat,
+  makeColdWeave,
+  type ColdState,
+} from '@/code/rule/cold-weave'
+import {
+  configOf,
+  ringBeat,
+  toneAt,
+  totalNorm,
+  type Amplitudes,
+  type ClockMode,
+} from '@/code/rule/fear-clock'
 import { norm } from '@/code/rule/fear-walk'
 
 const BEATS = 24
@@ -55,9 +70,23 @@ type RingRun = {
 }
 
 function ring(docks: number, mode: ClockMode): RingRun {
-  let s: Amplitudes = { weights: new Map([[configOf(new Array<number>(2 * docks).fill(0)), [1n, 0n]]]), halvings: 0 }
+  let s: Amplitudes = {
+    weights: new Map([
+      [configOf(new Array<number>(2 * docks).fill(0)), [1n, 0n]],
+    ]),
+    halvings: 0,
+  }
 
-  const out: RingRun = { normExact: true, chargeZero: true, density: [], variance: [], sameLine: [], neighbor: [], slotMean: [] }
+  const out: RingRun = {
+    normExact: true,
+    chargeZero: true,
+    density: [],
+    variance: [],
+    sameLine: [],
+    neighbor: [],
+    slotMean: [],
+  }
+
   let normExact = true
   let chargeZero = true
 
@@ -104,7 +133,8 @@ function ring(docks: number, mode: ClockMode): RingRun {
   return { ...out, normExact, chargeZero }
 }
 
-const average = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+const average = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / xs.length
 
 export default experiment({
   id: 'fluids/quantum-vacuum',
@@ -117,37 +147,75 @@ export default experiment({
   paper: false,
   run() {
     // 1. the classical layer
-    const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-    const spec: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+    const mirror = cptMirrorPhase((o, f) =>
+      colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite: o,
+        forward: f,
+      }),
+    )
+    const spec: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+      condition: 'matched',
+    }
     const mesh = d4BoxMesh({ side: 5 })
     const weave = makeColdWeave({ mesh, spec })
 
-    let v: ColdState = { vibe: new Int8Array(mesh.cellCount * 24), store: new Int32Array(mesh.cellCount * 24), demon: new Int32Array(mesh.cellCount * 12) }
+    let v: ColdState = {
+      vibe: new Int8Array(mesh.cellCount * 24),
+      store: new Int32Array(mesh.cellCount * 24),
+      demon: new Int32Array(mesh.cellCount * 12),
+    }
     let classicalStill = true
 
     for (let t = 0; t < 48; t++) {
       v = coldBeat(weave, v, t)
-      classicalStill = classicalStill && v.vibe.every(x => x === 0) && v.demon.every(x => x === 0)
+      classicalStill =
+        classicalStill &&
+        v.vibe.every(x => x === 0) &&
+        v.demon.every(x => x === 0)
     }
 
     // 2 and 3. the quantum layer
     const fear = RINGS.map(docks => ({ docks, ...ring(docks, 'fear') }))
-    const committed = RINGS.map(docks => ({ docks, ...ring(docks, 'committed') }))
+    const committed = RINGS.map(docks => ({
+      docks,
+      ...ring(docks, 'committed'),
+    }))
 
-    const exact = [...fear, ...committed].every(r => r.normExact && r.chargeZero)
-    const fluctuates = fear.every(r => r.variance.some(x => x > 1e-9)) && committed.every(r => r.variance.every(x => Math.abs(x) < 1e-12))
-    const matchesFlash = fear.every(r => Math.abs(average(r.density) - FLASH) < 0.05)
+    const exact = [...fear, ...committed].every(
+      r => r.normExact && r.chargeZero,
+    )
+    const fluctuates =
+      fear.every(r => r.variance.some(x => x > 1e-9)) &&
+      committed.every(r => r.variance.every(x => Math.abs(x) < 1e-12))
+    const matchesFlash = fear.every(
+      r => Math.abs(average(r.density) - FLASH) < 0.05,
+    )
     const pairCorrelated = fear.every(r => average(r.sameLine) < 0)
     const countNotKept = fear.every(r => (r.density[0] ?? 0) > 0)
 
-    const ok = classicalStill && exact && fluctuates && matchesFlash && pairCorrelated && countNotKept
+    const ok =
+      classicalStill &&
+      exact &&
+      fluctuates &&
+      matchesFlash &&
+      pairCorrelated &&
+      countNotKept
 
-    const metrics: Record<string, number> = { classicalStill: classicalStill ? 1 : 0, exact: exact ? 1 : 0, flash: FLASH }
+    const metrics: Record<string, number> = {
+      classicalStill: classicalStill ? 1 : 0,
+      exact: exact ? 1 : 0,
+      flash: FLASH,
+    }
 
     for (const r of fear) {
       metrics[`fearDensityL${r.docks}`] = average(r.density)
       metrics[`fearVarianceL${r.docks}`] = average(r.variance)
-      metrics[`fearVariancePerDockL${r.docks}`] = average(r.variance) / r.docks
+      metrics[`fearVariancePerDockL${r.docks}`] =
+        average(r.variance) / r.docks
       metrics[`fearSameLineL${r.docks}`] = average(r.sameLine)
       metrics[`fearNeighborL${r.docks}`] = average(r.neighbor)
       metrics[`fearSlotMeanL${r.docks}`] = average(r.slotMean)

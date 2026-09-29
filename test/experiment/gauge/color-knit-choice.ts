@@ -31,23 +31,31 @@ import {
   colorLocalBeatBack,
   colorLocalCollision,
   colorLocalLeaks,
-  colorLocalSpec,
   makeColorLocalWeave,
-  PAIR_TABLE,
   type ColorLocalSpec,
 } from '@/code/rule/color-local-weave'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
 import { turnScheduleSweep } from '@/code/rule/color-local-family'
 import { gaussHolds, type VibeState } from '@/code/rule/vibe-weave'
-import { acceptance, dressing, passesAgainst, type Acceptance, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  acceptance,
+  dressing,
+  passesAgainst,
+  type Acceptance,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const SIDES = [7, 9, 11]
 const TIE = 1e-12
 const CANDIDATE_B = 'turn-schedule:bind-reverse:103:130542'
 
-const rule = (spec: ColorLocalSpec): ScheduledRule => (opposite, forward) => colorLocalCollision({ spec, opposite, forward })
-const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
+const rule =
+  (spec: ColorLocalSpec): ScheduledRule =>
+  (opposite, forward) =>
+    colorLocalCollision({ spec, opposite, forward })
+const committedRule: ScheduledRule = (opposite, forward) =>
+  turningWeave({ opposite, forward, table: 'pair' })
 
 function denseRoles(slots: number, scale: number): VibeState {
   const vibe = new Int8Array(slots)
@@ -64,10 +72,15 @@ function denseRoles(slots: number, scale: number): VibeState {
 }
 
 const same = (a: VibeState, b: VibeState): boolean =>
-  a.vibe.every((v, i) => v === b.vibe[i]) && a.role.every((v, i) => v === b.role[i]) && a.flow.every((v, i) => v === b.flow[i])
+  a.vibe.every((v, i) => v === b.vibe[i]) &&
+  a.role.every((v, i) => v === b.role[i]) &&
+  a.flow.every((v, i) => v === b.flow[i])
 
 // color exact cell by cell: leaks, reversal with roles, Gauss, and a frame change in every cell
-function colorExact(spec: ColorLocalSpec): { leaks: number; ok: boolean } {
+function colorExact(spec: ColorLocalSpec): {
+  leaks: number
+  ok: boolean
+} {
   const weave = makeColorLocalWeave({ side: 3, spec })
   const { mesh, moves } = weave
   const slots = mesh.cellCount * 24
@@ -88,13 +101,18 @@ function colorExact(spec: ColorLocalSpec): { leaks: number; ok: boolean } {
   }
 
   const reverses = same(s, start)
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const gaugedLinks = new Int16Array(weave.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       gaugedLinks[x * 24 + d] = moves.compose(
-        moves.compose(frame[mesh.neighbour(x, d)] ?? moves.identity, weave.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[mesh.neighbour(x, d)] ?? moves.identity,
+          weave.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -103,7 +121,12 @@ function colorExact(spec: ColorLocalSpec): { leaks: number; ok: boolean } {
   const gauged = { ...weave, links: gaugedLinks }
   const gaugeRoles = (state: VibeState): VibeState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    ),
   })
 
   let a = denseRoles(slots, 2.11)
@@ -125,15 +148,30 @@ type Measured = {
   color: { leaks: number; ok: boolean }
 }
 
-function measure(scheduled: ScheduledRule, spec: ColorLocalSpec | undefined): Measured {
+function measure(
+  scheduled: ScheduledRule,
+  spec: ColorLocalSpec | undefined,
+): Measured {
   const battery = acceptance(scheduled)
   const bySide = SIDES.map(side =>
     side === 9
-      ? { side, love: battery.love.periodLargest, fear: battery.fear.periodLargest }
-      : { side, love: dressing(scheduled, { side, tone: 1 }).periodLargest, fear: dressing(scheduled, { side, tone: -1 }).periodLargest },
+      ? {
+          side,
+          love: battery.love.periodLargest,
+          fear: battery.fear.periodLargest,
+        }
+      : {
+          side,
+          love: dressing(scheduled, { side, tone: 1 }).periodLargest,
+          fear: dressing(scheduled, { side, tone: -1 }).periodLargest,
+        },
   )
 
-  return { battery, bySide, color: spec ? colorExact(spec) : { leaks: -1, ok: false } }
+  return {
+    battery,
+    bySide,
+    color: spec ? colorExact(spec) : { leaks: -1, ok: false },
+  }
 }
 
 export default experiment({
@@ -146,24 +184,45 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const specB = turnScheduleSweep([103]).find(m => m.id === CANDIDATE_B)?.spec
+    const specB = turnScheduleSweep([103]).find(
+      m => m.id === CANDIDATE_B,
+    )?.spec
     const committed = measure(committedRule, undefined)
     const candidates = [
-      { name: 'A', measured: measure(rule(COLOR_TURN_SPEC), COLOR_TURN_SPEC) },
-      { name: 'B', measured: specB ? measure(rule(specB), specB) : undefined },
+      {
+        name: 'A',
+        measured: measure(rule(COLOR_TURN_SPEC), COLOR_TURN_SPEC),
+      },
+      {
+        name: 'B',
+        measured: specB ? measure(rule(specB), specB) : undefined,
+      },
     ]
 
     const scored = candidates.map(({ name, measured }) => {
       if (!measured) {
-        return { name, eligible: false, ratio: Number.POSITIVE_INFINITY, measured }
+        return {
+          name,
+          eligible: false,
+          ratio: Number.POSITIVE_INFINITY,
+          measured,
+        }
       }
 
       const dressedNoMore = measured.bySide.every((s, i) => {
         const ref = committed.bySide[i]
 
-        return s.love.every((x, p) => x <= (ref?.love[p] ?? 0)) && s.fear.every((x, p) => x <= (ref?.fear[p] ?? 0))
+        return (
+          s.love.every((x, p) => x <= (ref?.love[p] ?? 0)) &&
+          s.fear.every((x, p) => x <= (ref?.fear[p] ?? 0))
+        )
       })
-      const eligible = passesAgainst(measured.battery, committed.battery, { bothSigns: true }) && dressedNoMore && measured.color.ok
+      const eligible =
+        passesAgainst(measured.battery, committed.battery, {
+          bothSigns: true,
+        }) &&
+        dressedNoMore &&
+        measured.color.ok
       const ratio = Math.max(
         ...measured.bySide.flatMap((s, i) => {
           const ref = committed.bySide[i]
@@ -204,19 +263,34 @@ export default experiment({
         ? 0
         : Math.abs(first.ratio - second.ratio) > TIE
           ? 1
-          : (first.measured?.battery.vacuumComponents ?? 0) !== (second.measured?.battery.vacuumComponents ?? 0)
+          : (first.measured?.battery.vacuumComponents ?? 0) !==
+              (second.measured?.battery.vacuumComponents ?? 0)
             ? 2
-            : (first.measured?.battery.travellers ?? 0) !== (second.measured?.battery.travellers ?? 0)
+            : (first.measured?.battery.travellers ?? 0) !==
+                (second.measured?.battery.travellers ?? 0)
               ? 3
               : 4
-    const perSide = (prefix: string, m: Measured | undefined): Record<string, number> =>
+    const perSide = (
+      prefix: string,
+      m: Measured | undefined,
+    ): Record<string, number> =>
       Object.fromEntries(
         (m?.bySide ?? []).flatMap(s => [
-          ...s.love.map((x, p) => [`${prefix}Side${s.side}LovePeriod${p + 1}`, x] as const),
-          ...s.fear.map((x, p) => [`${prefix}Side${s.side}FearPeriod${p + 1}`, x] as const),
+          ...s.love.map(
+            (x, p) =>
+              [`${prefix}Side${s.side}LovePeriod${p + 1}`, x] as const,
+          ),
+          ...s.fear.map(
+            (x, p) =>
+              [`${prefix}Side${s.side}FearPeriod${p + 1}`, x] as const,
+          ),
         ]),
       )
-    const battery = (prefix: string, m: Measured | undefined): Record<string, number> => {
+
+    const battery = (
+      prefix: string,
+      m: Measured | undefined,
+    ): Record<string, number> => {
       const b = m?.battery
 
       return {
@@ -235,6 +309,7 @@ export default experiment({
         [`${prefix}ColorLeaks`]: m?.color.leaks ?? -1,
       }
     }
+
     const a = scored[0]
     const b = scored[1]
 
@@ -259,7 +334,7 @@ export default experiment({
         ...perSide('committed', committed),
       },
       notes:
-        'L2, exact, no random numbers. The rule is in the header and was fixed before the second candidate was run at sides 7 and 11 or through the full battery. The side-9 dressing of both candidates was known from E-FRC-0137 before the rule was written, and it is stated there. The worst ratio is taken over both signs, all three sides and all four periods, so it is the gate margin at its tightest. What the run showed about the rule itself: the ratio is degenerate. A lone fear\'s first-period support is 27 under both candidates and under the committed rule, at every side, so both worst ratios are exactly 1 and the ratio cannot separate them. Both have 2 vacuum line components, so the choice fell to the third step, travellers, 16 against 15. The choice stands as registered. It is not the choice the later periods would make: B dresses far less from period 2 on (side 9 love 29, 71, 89, 86 against A\'s 31, 115, 265, 507, and at side 11 96 against 569 in period 4). A rule that compares the periods after the first would pick B, and that rule was not the one registered.',
+        "L2, exact, no random numbers. The rule is in the header and was fixed before the second candidate was run at sides 7 and 11 or through the full battery. The side-9 dressing of both candidates was known from E-FRC-0137 before the rule was written, and it is stated there. The worst ratio is taken over both signs, all three sides and all four periods, so it is the gate margin at its tightest. What the run showed about the rule itself: the ratio is degenerate. A lone fear's first-period support is 27 under both candidates and under the committed rule, at every side, so both worst ratios are exactly 1 and the ratio cannot separate them. Both have 2 vacuum line components, so the choice fell to the third step, travellers, 16 against 15. The choice stands as registered. It is not the choice the later periods would make: B dresses far less from period 2 on (side 9 love 29, 71, 89, 86 against A's 31, 115, 265, 507, and at side 11 96 against 569 in period 4). A rule that compares the periods after the first would pick B, and that rule was not the one registered.",
     })
   },
 })

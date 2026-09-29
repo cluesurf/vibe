@@ -71,17 +71,50 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { d4BoxMesh, linearMapOf } from '@/code/substrate/d4-box'
 import { beat as toneBeat } from '@/code/rule/lattice-gas'
 import { turningWeave } from '@/code/rule/collision'
-import { COMBINED_DEFAULT, combinedCollision } from '@/code/rule/combined-knit'
+import {
+  COMBINED_DEFAULT,
+  combinedCollision,
+} from '@/code/rule/combined-knit'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { coldQuaternionBeat, emptyColdState, makeColdQuaternionKnit, makeColdQuaternionLattice, quaternionScatter, type ColdQuaternionKnit } from '@/code/rule/cold-quaternion-knit'
-import { rotationMaps, scatterMoves, type ScatterSet } from '@/code/rule/cold-scatter'
+import {
+  coldQuaternionBeat,
+  emptyColdState,
+  makeColdQuaternionKnit,
+  makeColdQuaternionLattice,
+  quaternionScatter,
+  type ColdQuaternionKnit,
+} from '@/code/rule/cold-quaternion-knit'
+import {
+  rotationMaps,
+  scatterMoves,
+  type ScatterSet,
+} from '@/code/rule/cold-scatter'
 import { bounceRunner } from '@/code/measure/bounce-pair-kernel'
-import { centerOf, emptyOf, hubSetup, seedWake } from '@/code/measure/wall-reading'
-import { forcedForms, groupTable, leastRankGroups, rowBasis } from '@/code/measure/color-isotropy-bound'
-import { forcedIsotropySpread, unitSamples } from '@/code/measure/coarse-modes'
-import { lineSectors, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { coldLineSectors, huskComponents } from '@/code/measure/husk-hydro'
+import {
+  centerOf,
+  emptyOf,
+  hubSetup,
+  seedWake,
+} from '@/code/measure/wall-reading'
+import {
+  forcedForms,
+  groupTable,
+  leastRankGroups,
+  rowBasis,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  forcedIsotropySpread,
+  unitSamples,
+} from '@/code/measure/coarse-modes'
+import {
+  lineSectors,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  coldLineSectors,
+  huskComponents,
+} from '@/code/measure/husk-hydro'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import {
   boxHusk,
@@ -111,9 +144,16 @@ const BEATS = 24
 
 // ---- the old reading's geometry: a line per direction pair, a husk direction per line ----
 
-function lineGeometry(mesh: Mesh): { lineOf: number[]; huskOfLine: number[] } {
-  const firsts = Array.from({ length: 24 }, (_, d) => d).filter(d => d < mesh.opposite(d))
-  const lineOf = Array.from({ length: 24 }, (_, d) => firsts.indexOf(Math.min(d, mesh.opposite(d))))
+function lineGeometry(mesh: Mesh): {
+  lineOf: number[]
+  huskOfLine: number[]
+} {
+  const firsts = Array.from({ length: 24 }, (_, d) => d).filter(
+    d => d < mesh.opposite(d),
+  )
+  const lineOf = Array.from({ length: 24 }, (_, d) =>
+    firsts.indexOf(Math.min(d, mesh.opposite(d))),
+  )
   const keys: string[] = []
   const huskOfLine = firsts.map(d => {
     const r = ROOTS[d] ?? []
@@ -121,7 +161,9 @@ function lineGeometry(mesh: Mesh): { lineOf: number[]; huskOfLine: number[] } {
     const lead = s.find(x => x !== 0) ?? 1
     const k = s.map(x => x * lead).join(',')
 
-    if (!keys.includes(k)) keys.push(k)
+    if (!keys.includes(k)) {
+      keys.push(k)
+    }
 
     return keys.indexOf(k)
   })
@@ -131,7 +173,11 @@ function lineGeometry(mesh: Mesh): { lineOf: number[]; huskOfLine: number[] } {
 
 // ---- a knit, as the gate reads it ----
 
-type Post = { vibe: Int32Array; slotExtra?: Int32Array; lineExtra?: Int32Array }
+type Post = {
+  vibe: Int32Array
+  slotExtra?: Int32Array
+  lineExtra?: Int32Array
+}
 
 type Knit = {
   readonly name: string
@@ -140,16 +186,26 @@ type Knit = {
   readonly target: Int32Array
   readonly center: number
   // a run from the knit's vacuum (or `fill`), the center slot `seed` flipped when given
-  make(seed: number | readonly number[] | undefined, fill?: 'uniform' | 'dense'): { replay: Replay; post: () => Post }
+  make(
+    seed: number | readonly number[] | undefined,
+    fill?: 'uniform' | 'dense',
+  ): { replay: Replay; post: () => Post }
 }
 
 const flip = (v: number): number => (v === 1 ? -1 : 1)
 
 // flip the center dock's seed slots (one seed, or two for a matter meeting)
-function plant(vibe: Int8Array, center: number, seed: number | readonly number[] | undefined): void {
-  const slots = seed === undefined ? [] : typeof seed === 'number' ? [seed] : seed
+function plant(
+  vibe: Int8Array,
+  center: number,
+  seed: number | readonly number[] | undefined,
+): void {
+  const slots =
+    seed === undefined ? [] : typeof seed === 'number' ? [seed] : seed
 
-  for (const d of slots) vibe[center * 24 + d] = flip(vibe[center * 24 + d] as number)
+  for (const d of slots) {
+    vibe[center * 24 + d] = flip(vibe[center * 24 + d]!)
+  }
 }
 
 function weylTrit(i: number): number {
@@ -172,20 +228,29 @@ function hubKnit(side: number, kind: CollisionKind): Knit {
     make(seed, fill) {
       const start = hubVacuum(h)
 
-      if (fill === 'uniform') start.vibe.fill(1)
+      if (fill === 'uniform') {
+        start.vibe.fill(1)
+      }
+
       plant(start.vibe, center, seed)
 
       const replay = hubReplay(h.kernel, start)
 
       return {
         replay,
-        post: () => ({ vibe: Int32Array.from(replay.state().vibe), lineExtra: Int32Array.from(replay.state().store) }),
+        post: () => ({
+          vibe: Int32Array.from(replay.state().vibe),
+          lineExtra: Int32Array.from(replay.state().store),
+        }),
       }
     },
   }
 }
 
-function coldKnit(name: string, knitOf: () => ColdQuaternionKnit): Knit {
+function coldKnit(
+  name: string,
+  knitOf: () => ColdQuaternionKnit,
+): Knit {
   const mesh = d4BoxMesh({ side: 5 })
   const husk = boxHusk(mesh, 5)
   const center = 2 * (1 + 5 + 25 + 125)
@@ -200,13 +265,27 @@ function coldKnit(name: string, knitOf: () => ColdQuaternionKnit): Knit {
       const lattice = makeColdQuaternionLattice(mesh, knitOf())
       const start = emptyColdState(mesh)
 
-      if (fill === 'uniform') start.vibe.fill(1)
-      if (fill === 'dense') for (let i = 0; i < start.vibe.length; i++) start.vibe[i] = weylTrit(i)
+      if (fill === 'uniform') {
+        start.vibe.fill(1)
+      }
+
+      if (fill === 'dense') {
+        for (let i = 0; i < start.vibe.length; i++) {
+          start.vibe[i] = weylTrit(i)
+        }
+      }
+
       plant(start.vibe, center, seed)
 
       const replay = coldReplay(lattice, start)
 
-      return { replay, post: () => ({ vibe: Int32Array.from(replay.state().vibe), slotExtra: Int32Array.from(replay.state().store) }) }
+      return {
+        replay,
+        post: () => ({
+          vibe: Int32Array.from(replay.state().vibe),
+          slotExtra: Int32Array.from(replay.state().store),
+        }),
+      }
     },
   }
 }
@@ -215,7 +294,9 @@ function toneKnit(name: string, rule: ScheduledRule): Knit {
   const mesh = d4BoxMesh({ side: 5 })
   const husk = boxHusk(mesh, 5)
   const center = 2 * (1 + 5 + 25 + 125)
-  const opposite = Array.from({ length: 24 }, (_, d) => mesh.opposite(d))
+  const opposite = Array.from({ length: 24 }, (_, d) =>
+    mesh.opposite(d),
+  )
   const forward = rule(opposite, true)
 
   return {
@@ -227,13 +308,24 @@ function toneKnit(name: string, rule: ScheduledRule): Knit {
     make(seed, fill) {
       const start = new Int8Array(mesh.cellCount * 24)
 
-      if (fill === 'uniform') start.fill(1)
-      if (fill === 'dense') for (let i = 0; i < start.length; i++) start[i] = weylTrit(i)
+      if (fill === 'uniform') {
+        start.fill(1)
+      }
+
+      if (fill === 'dense') {
+        for (let i = 0; i < start.length; i++) {
+          start[i] = weylTrit(i)
+        }
+      }
+
       plant(start, center, seed)
 
       const replay = toneReplay(mesh, forward, start)
 
-      return { replay, post: () => ({ vibe: Int32Array.from(replay.data()) }) }
+      return {
+        replay,
+        post: () => ({ vibe: Int32Array.from(replay.data()) }),
+      }
     },
   }
 }
@@ -264,7 +356,14 @@ type Reading = {
 function readKnit(k: Knit): Reading {
   const vac = k.make(undefined)
   const refPost: Post[] = []
-  const vacuum = causalRun({ replay: vac.replay, husk: k.husk, target: k.target, beats: BEATS, keepFrames: true, onBeat: () => refPost.push(vac.post()) })
+  const vacuum = causalRun({
+    replay: vac.replay,
+    husk: k.husk,
+    target: k.target,
+    beats: BEATS,
+    keepFrames: true,
+    onBeat: () => refPost.push(vac.post()),
+  })
   const { lineOf, huskOfLine } = lineGeometry(k.mesh)
   const lines = forest(12)
   const reading: Reading = {
@@ -285,7 +384,7 @@ function readKnit(k: Knit): Reading {
 
   for (let d = 0; d < 24; d++) {
     const run = k.make(d)
-    const own = lineOf[d] as number
+    const own = lineOf[d]!
     const touched = new Set<number>([own])
     const result = causalRun({
       replay: run.replay,
@@ -296,15 +395,22 @@ function readKnit(k: Knit): Reading {
       reference: vacuum.frames,
       onBeat: t => {
         const a = run.post()
-        const b = refPost[t] as Post
+        const b = refPost[t]!
 
         for (let i = 0; i < a.vibe.length; i++) {
-          if (a.vibe[i] !== b.vibe[i] || (a.slotExtra && a.slotExtra[i] !== b.slotExtra?.[i])) touched.add(lineOf[i % 24] as number)
+          if (
+            a.vibe[i] !== b.vibe[i] ||
+            (a.slotExtra && a.slotExtra[i] !== b.slotExtra?.[i])
+          ) {
+            touched.add(lineOf[i % 24]!)
+          }
         }
 
         if (a.lineExtra) {
           for (let i = 0; i < a.lineExtra.length; i++) {
-            if (a.lineExtra[i] !== b.lineExtra?.[i]) touched.add(lineOf[LINE_FIRSTS[i % 12] as number] as number)
+            if (a.lineExtra[i] !== b.lineExtra?.[i]) {
+              touched.add(lineOf[LINE_FIRSTS[i % 12]!]!)
+            }
           }
         }
       },
@@ -317,15 +423,26 @@ function readKnit(k: Knit): Reading {
     reading.bulkMin = Math.min(reading.bulkMin, c.bulk)
     reading.reachMin = Math.min(reading.reachMin, c.reachedHusk)
     reading.reachMax = Math.max(reading.reachMax, c.reachedHusk)
-    reading.matterHuskMin = Math.min(reading.matterHuskMin, c.matterHusk)
-    reading.matterCopiesMax = Math.max(reading.matterCopiesMax, c.matterCopies)
+    reading.matterHuskMin = Math.min(
+      reading.matterHuskMin,
+      c.matterHusk,
+    )
 
-    for (const l of touched) join(lines, l, own)
+    reading.matterCopiesMax = Math.max(
+      reading.matterCopiesMax,
+      c.matterCopies,
+    )
+
+    for (const l of touched) {
+      join(lines, l, own)
+    }
   }
 
   const husk9 = forest(9)
 
-  for (let l = 0; l < 12; l++) join(husk9, huskOfLine[l] as number, huskOfLine[rootOf(lines, l)] as number)
+  for (let l = 0; l < 12; l++) {
+    join(husk9, huskOfLine[l]!, huskOfLine[rootOf(lines, l)]!)
+  }
 
   reading.oldBulk = componentCount(lines)
   reading.oldHusk = componentCount(husk9)
@@ -334,14 +451,34 @@ function readKnit(k: Knit): Reading {
 }
 
 // the controls on one knit: uniform fill, and the same with the planted cut
-function controls(k: Knit): { uniform: [number, number]; cut: [number, number]; every: [number, number]; everyCut: [number, number] } {
+function controls(k: Knit): {
+  uniform: [number, number]
+  cut: [number, number]
+  every: [number, number]
+  everyCut: [number, number]
+} {
   const cut = cutTarget(k.mesh, k.husk, k.target)
-  const u = causalRun({ replay: k.make(undefined, 'uniform').replay, husk: k.husk, target: k.target, beats: BEATS }).counts
-  const c = causalRun({ replay: k.make(undefined, 'uniform').replay, husk: k.husk, target: cut, beats: BEATS }).counts
+  const u = causalRun({
+    replay: k.make(undefined, 'uniform').replay,
+    husk: k.husk,
+    target: k.target,
+    beats: BEATS,
+  }).counts
+  const c = causalRun({
+    replay: k.make(undefined, 'uniform').replay,
+    husk: k.husk,
+    target: cut,
+    beats: BEATS,
+  }).counts
   const e = everyCopyCounts(k.husk, k.target)
   const ec = everyCopyCounts(k.husk, cut)
 
-  return { uniform: [u.husk, u.bulk], cut: [c.husk, c.bulk], every: [e.husk, e.bulk], everyCut: [ec.husk, ec.bulk] }
+  return {
+    uniform: [u.husk, u.bulk],
+    cut: [c.husk, c.bulk],
+    every: [e.husk, e.bulk],
+    everyCut: [ec.husk, ec.bulk],
+  }
 }
 
 // ---- E-RLT-0057's knit, rebuilt by that file's own rule ----
@@ -350,37 +487,80 @@ function frozenFreeSet(): { set: ScatterSet; order: number } {
   const table = groupTable()
   const mats = table.permutations.map(p => linearMapOf(p) ?? [])
   const frozenOf = (forms: number[][]): number =>
-    Array.from({ length: 12 }, (_, l) => l).filter(l => rowBasis([...forms, Array.from({ length: 12 }, (__, j) => (j === l ? 1 : 0))]).length === forms.length).length
-  const free = leastRankGroups(table).groups.filter(g => frozenOf(forcedForms(table, g)) === 0)
+    Array.from({ length: 12 }, (_, l) => l).filter(
+      l =>
+        rowBasis([
+          ...forms,
+          Array.from({ length: 12 }, (__, j) => (j === l ? 1 : 0)),
+        ]).length === forms.length,
+    ).length
+  const free = leastRankGroups(table).groups.filter(
+    g => frozenOf(forcedForms(table, g)) === 0,
+  )
   const samples = unitSamples(64)
   const rows = free.map(g => {
     const perms = g.map(x => [...(table.permutations[x] ?? [])])
     const forms = forcedForms(table, g)
-    const rotations = rotationMaps({ permutations: table.permutations, group: perms })
-    const set = scatterMoves({ group: perms, forms, rotation: rotations[0] })
+    const rotations = rotationMaps({
+      permutations: table.permutations,
+      group: perms,
+    })
+    const set = scatterMoves({
+      group: perms,
+      forms,
+      rotation: rotations[0],
+    })
 
-    return { set, order: g.length, moves: set.moves.length, spread4: forcedIsotropySpread({ group: g.map(x => mats[x] ?? []), rank: 4, generic: [0.31, -0.74, 0.52, 0.29], samples }) }
+    return {
+      set,
+      order: g.length,
+      moves: set.moves.length,
+      spread4: forcedIsotropySpread({
+        group: g.map(x => mats[x] ?? []),
+        rank: 4,
+        generic: [0.31, -0.74, 0.52, 0.29],
+        samples,
+      }),
+    }
   })
-  const chosen = [...rows].sort((a, b) => b.moves - a.moves || b.order - a.order || a.spread4 - b.spread4)[0]
+  const chosen = [...rows].sort(
+    (a, b) =>
+      b.moves - a.moves || b.order - a.order || a.spread4 - b.spread4,
+  )[0]
 
-  if (!chosen) throw new Error('no frozen-free group')
+  if (!chosen) {
+    throw new Error('no frozen-free group')
+  }
 
   return { set: chosen.set, order: chosen.order }
 }
 
 // ---- C0: the replay against the rule's own beat ----
 
-const sameArray = (a: ArrayLike<number>, b: ArrayLike<number>): boolean => {
-  if (a.length !== b.length) return false
+const sameArray = (
+  a: ArrayLike<number>,
+  b: ArrayLike<number>,
+): boolean => {
+  if (a.length !== b.length) {
+    return false
+  }
 
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false
+    }
+  }
 
   return true
 }
 
-function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: ScheduledRule): { beats: number; mismatches: number; hubSetupMismatches: number } {
+function replayAgreement(
+  richOf: () => ColdQuaternionKnit,
+  committedRule: ScheduledRule,
+): { beats: number; mismatches: number; hubSetupMismatches: number } {
   let beats = 0
   let mismatches = 0
+
   // the hub, vacuum and one seed, against bounceRunner on the same kernel
   const h = hubFresh(8, 'lone')
   const husk8 = boxHusk(h.mesh, 8)
@@ -390,7 +570,9 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
   for (const seed of [undefined, 5]) {
     const start = hubVacuum(h)
 
-    if (seed !== undefined) start.vibe[center8 * 24 + seed] = 1
+    if (seed !== undefined) {
+      start.vibe[center8 * 24 + seed] = 1
+    }
 
     const replay = hubReplay(h.kernel, start)
     const own = bounceRunner(h.kernel, start)
@@ -403,7 +585,11 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
       onBeat: () => {
         own.beat()
         beats++
-        mismatches += sameArray(own.state().vibe, replay.state().vibe) && sameArray(own.state().store, replay.state().store) ? 0 : 1
+        mismatches +=
+          sameArray(own.state().vibe, replay.state().vibe) &&
+          sameArray(own.state().store, replay.state().store)
+            ? 0
+            : 1
       },
     })
   }
@@ -412,6 +598,7 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
   const old = hubSetup(8, 'lone', 0)
   const oldRun = bounceRunner(old.kernel, emptyOf(old))
   const fresh = hubReplay(h.kernel, hubVacuum(h))
+
   let hubSetupMismatches = 0
 
   causalRun({
@@ -425,7 +612,12 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
       const a = oldRun.state()
       const b = fresh.state()
 
-      hubSetupMismatches += sameArray(a.vibe, b.vibe) && sameArray(a.store, b.store) && sameArray(a.spoint, b.spoint) ? 0 : 1
+      hubSetupMismatches +=
+        sameArray(a.vibe, b.vibe) &&
+        sameArray(a.store, b.store) &&
+        sameArray(a.spoint, b.spoint)
+          ? 0
+          : 1
     },
   })
 
@@ -438,7 +630,11 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
 
   cold.vibe[2 * (1 + 5 + 25 + 125) * 24 + 3] = 1
 
-  const coldRep = coldReplay(makeColdQuaternionLattice(box5, richOf()), cold)
+  const coldRep = coldReplay(
+    makeColdQuaternionLattice(box5, richOf()),
+    cold,
+  )
+
   let s = cold
 
   causalRun({
@@ -449,14 +645,26 @@ function replayAgreement(richOf: () => ColdQuaternionKnit, committedRule: Schedu
     onBeat: () => {
       s = coldQuaternionBeat(lattice, s)
       beats++
-      mismatches += sameArray(s.vibe, coldRep.state().vibe) && sameArray(s.store, coldRep.state().store) && sameArray(s.counter, coldRep.state().counter) ? 0 : 1
+      mismatches +=
+        sameArray(s.vibe, coldRep.state().vibe) &&
+        sameArray(s.store, coldRep.state().store) &&
+        sameArray(s.counter, coldRep.state().counter)
+          ? 0
+          : 1
     },
   })
 
   // the committed knit's vacuum, against code/rule/lattice-gas beat
-  const opposite = Array.from({ length: 24 }, (_, d) => box5.opposite(d))
+  const opposite = Array.from({ length: 24 }, (_, d) =>
+    box5.opposite(d),
+  )
   const forward = committedRule(opposite, true)
-  const toneRep = toneReplay(box5, forward, new Int8Array(box5.cellCount * 24))
+  const toneRep = toneReplay(
+    box5,
+    forward,
+    new Int8Array(box5.cellCount * 24),
+  )
+
   let will = { mesh: box5, data: new Int8Array(box5.cellCount * 24) }
 
   causalRun({
@@ -485,47 +693,79 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
-    const combinedRule: ScheduledRule = (o, f) => combinedCollision({ spec: COMBINED_DEFAULT, opposite: o, forward: f })
-    const richOf = (): ColdQuaternionKnit => makeColdQuaternionKnit({ scatter: quaternionScatter() })
+    const committedRule: ScheduledRule = (o, f) =>
+      turningWeave({ opposite: o, forward: f })
+    const combinedRule: ScheduledRule = (o, f) =>
+      combinedCollision({
+        spec: COMBINED_DEFAULT,
+        opposite: o,
+        forward: f,
+      })
+    const richOf = (): ColdQuaternionKnit =>
+      makeColdQuaternionKnit({ scatter: quaternionScatter() })
     const frozen = frozenFreeSet()
-    const frozenOf = (): ColdQuaternionKnit => makeColdQuaternionKnit({ mode: 'scatter', scatter: frozen.set })
+    const frozenOf = (): ColdQuaternionKnit =>
+      makeColdQuaternionKnit({ mode: 'scatter', scatter: frozen.set })
 
     // C0
     const box5 = d4BoxMesh({ side: 5 })
-    const stepErrors = boxHusk(box5, 5).stepErrors + boxHusk(hubFresh(8, 'lone').mesh, 8).stepErrors
+    const stepErrors =
+      boxHusk(box5, 5).stepErrors +
+      boxHusk(hubFresh(8, 'lone').mesh, 8).stepErrors
     const agreement = replayAgreement(richOf, committedRule)
-    const c0 = stepErrors === 0 && agreement.mismatches === 0 && agreement.hubSetupMismatches === 0
+    const c0 =
+      stepErrors === 0 &&
+      agreement.mismatches === 0 &&
+      agreement.hubSetupMismatches === 0
 
     // the old functions at the committed start, for the replica
     const oldFunctions = {
       richHusk: huskComponents(coldLineSectors(richOf(), false, box5)),
       richBulk: coldLineSectors(richOf(), false, box5).length,
-      frozenHusk: huskComponents(coldLineSectors(frozenOf(), false, box5)),
+      frozenHusk: huskComponents(
+        coldLineSectors(frozenOf(), false, box5),
+      ),
       frozenBulk: coldLineSectors(frozenOf(), false, box5).length,
       committedHusk: huskComponents(lineSectors(committedRule, false)),
       committedBulk: lineSectors(committedRule, false).length,
-      hubBulk: seedWake(hubSetup(8, 'lone', centerOf(8)), centerOf(8), BEATS).components,
+      hubBulk: seedWake(
+        hubSetup(8, 'lone', centerOf(8)),
+        centerOf(8),
+        BEATS,
+      ).components,
     }
 
     // the per-beat copy record, shown on the hub vacuum at the committed start
     const hub0 = hubKnit(8, 'lone')
-    const hubLog = causalRun({ replay: hub0.make(undefined).replay, husk: hub0.husk, target: hub0.target, beats: 96, keepMasks: true })
+    const hubLog = causalRun({
+      replay: hub0.make(undefined).replay,
+      husk: hub0.husk,
+      target: hub0.target,
+      beats: 96,
+      keepMasks: true,
+    })
     // over all 96 beats: the most docks fed at one beat, the beats with no content copy, the most distinct sources
     const hubInverse = inverseTarget(hub0.target)
+
     let sourcesMax = 0
     let docksFed = 0
     let silentBeats = 0
 
     for (let t = 0; t < 96; t++) {
       const masks = hubLog.log.masks?.[t] ?? new Int32Array(0)
+
       let fed = 0
 
       for (let y = 0; y < hub0.husk.cells; y++) {
-        if ((masks[y] ?? 0) === 0) continue
+        if ((masks[y] ?? 0) === 0) {
+          continue
+        }
 
         fed++
-        sourcesMax = Math.max(sourcesMax, copySources(hubLog.log, hubInverse, t, y).length)
+        sourcesMax = Math.max(
+          sourcesMax,
+          copySources(hubLog.log, hubInverse, t, y).length,
+        )
       }
 
       docksFed = Math.max(docksFed, fed)
@@ -536,7 +776,10 @@ export default experiment({
     const hubStart = hubFresh(8, 'lone')
     const rootSize = new Int32Array(hub0.husk.cells)
 
-    for (let x = 0; x < hub0.husk.cells; x++) rootSize[rootOf(hubLog.log.bulk, x)] = (rootSize[rootOf(hubLog.log.bulk, x)] ?? 0) + 1
+    for (let x = 0; x < hub0.husk.cells; x++) {
+      rootSize[rootOf(hubLog.log.bulk, x)] =
+        (rootSize[rootOf(hubLog.log.bulk, x)] ?? 0) + 1
+    }
 
     let singletons = 0
     let singletonsWithStore = 0
@@ -545,12 +788,16 @@ export default experiment({
     for (let x = 0; x < hub0.husk.cells; x++) {
       let stores = 0
 
-      for (let l = 0; l < 12; l++) stores += hubStart.store[x * 12 + l] !== 0 ? 1 : 0
+      for (let l = 0; l < 12; l++) {
+        stores += hubStart.store[x * 12 + l] !== 0 ? 1 : 0
+      }
 
       if (rootSize[rootOf(hubLog.log.bulk, x)] === 1) {
         singletons++
         singletonsWithStore += stores > 0 ? 1 : 0
-      } else othersWithStore += stores > 0 ? 1 : 0
+      } else {
+        othersWithStore += stores > 0 ? 1 : 0
+      }
     }
 
     const hubBulkSizes = componentSizes(hubLog.log.bulk)
@@ -560,18 +807,40 @@ export default experiment({
     const hubOthers = (['bounce', 'isometric'] as const).map(kind => {
       const k = hubKnit(8, kind)
 
-      return causalRun({ replay: k.make(undefined).replay, husk: k.husk, target: k.target, beats: BEATS }).counts
+      return causalRun({
+        replay: k.make(undefined).replay,
+        husk: k.husk,
+        target: k.target,
+        beats: BEATS,
+      }).counts
     })
-    const hubCut = causalRun({ replay: hub0.make(undefined).replay, husk: hub0.husk, target: cutTarget(hub0.mesh, hub0.husk, hub0.target), beats: BEATS }).counts
+    const hubCut = causalRun({
+      replay: hub0.make(undefined).replay,
+      husk: hub0.husk,
+      target: cutTarget(hub0.mesh, hub0.husk, hub0.target),
+      beats: BEATS,
+    }).counts
+
     let pairHuskMin = Number.POSITIVE_INFINITY
     let pairHuskMax = 0
     let pairs = 0
 
     for (let d1 = 0; d1 < 24; d1++) {
       for (let d2 = d1 + 1; d2 < 24; d2++) {
-        if (Math.min(d1, hub0.mesh.opposite(d1)) === Math.min(d2, hub0.mesh.opposite(d2))) continue
+        if (
+          Math.min(d1, hub0.mesh.opposite(d1)) ===
+          Math.min(d2, hub0.mesh.opposite(d2))
+        ) {
+          continue
+        }
 
-        const c = causalRun({ replay: hub0.make([d1, d2]).replay, husk: hub0.husk, target: hub0.target, beats: BEATS, seedDock: hub0.center }).counts
+        const c = causalRun({
+          replay: hub0.make([d1, d2]).replay,
+          husk: hub0.husk,
+          target: hub0.target,
+          beats: BEATS,
+          seedDock: hub0.center,
+        }).counts
 
         pairs++
         pairHuskMin = Math.min(pairHuskMin, c.husk)
@@ -588,7 +857,13 @@ export default experiment({
         const frozenKnit = coldKnit('frozen', frozenOf)
         const committed = toneKnit('committed', committedRule)
         const combined = toneKnit('combined', combinedRule)
-        const dense = (k: Knit) => causalRun({ replay: k.make(undefined, 'dense').replay, husk: k.husk, target: k.target, beats: BEATS }).counts
+        const dense = (k: Knit) =>
+          causalRun({
+            replay: k.make(undefined, 'dense').replay,
+            husk: k.husk,
+            target: k.target,
+            beats: BEATS,
+          }).counts
 
         return {
           member: member.name,
@@ -601,21 +876,47 @@ export default experiment({
           controlRich: controls(rich),
           richDense: dense(rich),
           frozenDense: dense(frozenKnit),
-          hubVacuum96: causalRun({ replay: hub.make(undefined).replay, husk: hub.husk, target: hub.target, beats: 96 }).counts,
+          hubVacuum96: causalRun({
+            replay: hub.make(undefined).replay,
+            husk: hub.husk,
+            target: hub.target,
+            beats: 96,
+          }).counts,
         }
       }),
     )
 
-    const controlOk = (c: ReturnType<typeof controls>): boolean => c.uniform[0] === 1 && c.uniform[1] === 1 && c.cut[0] === 2 && c.cut[1] === 2
-    const c1 = perStart.every(p => controlOk(p.controlCommitted) && controlOk(p.controlRich))
-    const passes = (key: 'H' | 'R' | 'V' | 'committed' | 'combined'): number => perStart.filter(p => p[key].huskMax === 1).length
+    const controlOk = (c: ReturnType<typeof controls>): boolean =>
+      c.uniform[0] === 1 &&
+      c.uniform[1] === 1 &&
+      c.cut[0] === 2 &&
+      c.cut[1] === 2
+    const c1 = perStart.every(
+      p => controlOk(p.controlCommitted) && controlOk(p.controlRich),
+    )
+    const passes = (
+      key: 'H' | 'R' | 'V' | 'committed' | 'combined',
+    ): number => perStart.filter(p => p[key].huskMax === 1).length
     const gH = passes('H') === family.length
     const gR = passes('R') === family.length
     const gV = passes('V') === family.length
-    const status = c0 && c1 ? (gH && gR && gV ? 'pass' : gH || gR || gV ? 'partial' : 'fail') : 'fail'
+    const status =
+      c0 && c1
+        ? gH && gR && gV
+          ? 'pass'
+          : gH || gR || gV
+            ? 'partial'
+            : 'fail'
+        : 'fail'
 
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (key: 'H' | 'R' | 'V' | 'committed' | 'combined', field: keyof Reading): string => range(perStart.map(p => p[key][field]))
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      key: 'H' | 'R' | 'V' | 'committed' | 'combined',
+      field: keyof Reading,
+    ): string => range(perStart.map(p => p[key][field]))
     const metrics: Record<string, number> = {
       gateC0: c0 ? 1 : 0,
       gateC1: c1 ? 1 : 0,
@@ -631,10 +932,30 @@ export default experiment({
       frozenMoves: frozen.set.moves.length,
     }
 
-    for (const key of ['H', 'R', 'V', 'committed', 'combined'] as const) {
+    for (const key of [
+      'H',
+      'R',
+      'V',
+      'committed',
+      'combined',
+    ] as const) {
       metrics[`${key}_startsPassing`] = passes(key)
 
-      for (const field of ['huskMax', 'huskMin', 'bulkMax', 'bulkMin', 'vacuumHusk', 'vacuumBulk', 'vacuumCopies', 'reachMin', 'reachMax', 'matterHuskMin', 'matterCopiesMax', 'oldBulk', 'oldHusk'] as const) {
+      for (const field of [
+        'huskMax',
+        'huskMin',
+        'bulkMax',
+        'bulkMin',
+        'vacuumHusk',
+        'vacuumBulk',
+        'vacuumCopies',
+        'reachMin',
+        'reachMax',
+        'matterHuskMin',
+        'matterCopiesMax',
+        'oldBulk',
+        'oldHusk',
+      ] as const) {
         const xs = perStart.map(p => p[key][field])
 
         metrics[`${key}_${field}_min`] = Math.min(...xs)
@@ -643,9 +964,18 @@ export default experiment({
     }
 
     const control: Record<string, number> = {
-      ...Object.fromEntries(Object.entries(oldFunctions).map(([k, v]) => [`oldFunction_${k}`, v])),
-      hubVacuum96Husk_max: Math.max(...perStart.map(p => p.hubVacuum96.husk)),
-      hubVacuum96Husk_min: Math.min(...perStart.map(p => p.hubVacuum96.husk)),
+      ...Object.fromEntries(
+        Object.entries(oldFunctions).map(([k, v]) => [
+          `oldFunction_${k}`,
+          v,
+        ]),
+      ),
+      hubVacuum96Husk_max: Math.max(
+        ...perStart.map(p => p.hubVacuum96.husk),
+      ),
+      hubVacuum96Husk_min: Math.min(
+        ...perStart.map(p => p.hubVacuum96.husk),
+      ),
       hubBounceHusk: hubOthers[0]?.husk ?? -1,
       hubBounceBulk: hubOthers[0]?.bulk ?? -1,
       hubIsometricHusk: hubOthers[1]?.husk ?? -1,
@@ -661,11 +991,30 @@ export default experiment({
       hubSingletonDocks: singletons,
       hubSingletonDocksHoldingAStore: singletonsWithStore,
       hubConnectedDocksHoldingAStore: othersWithStore,
-      richDenseHusk_max: Math.max(...perStart.map(p => p.richDense.husk)),
-      frozenDenseHusk_max: Math.max(...perStart.map(p => p.frozenDense.husk)),
-      uniformHusk_max: Math.max(...perStart.flatMap(p => [p.controlCommitted.uniform[0], p.controlRich.uniform[0]])),
-      cutHusk_min: Math.min(...perStart.flatMap(p => [p.controlCommitted.cut[0], p.controlRich.cut[0]])),
-      cutHusk_max: Math.max(...perStart.flatMap(p => [p.controlCommitted.cut[0], p.controlRich.cut[0]])),
+      richDenseHusk_max: Math.max(
+        ...perStart.map(p => p.richDense.husk),
+      ),
+      frozenDenseHusk_max: Math.max(
+        ...perStart.map(p => p.frozenDense.husk),
+      ),
+      uniformHusk_max: Math.max(
+        ...perStart.flatMap(p => [
+          p.controlCommitted.uniform[0],
+          p.controlRich.uniform[0],
+        ]),
+      ),
+      cutHusk_min: Math.min(
+        ...perStart.flatMap(p => [
+          p.controlCommitted.cut[0],
+          p.controlRich.cut[0],
+        ]),
+      ),
+      cutHusk_max: Math.max(
+        ...perStart.flatMap(p => [
+          p.controlCommitted.cut[0],
+          p.controlRich.cut[0],
+        ]),
+      ),
       everyCopyHusk: perStart[0]?.controlRich.every[0] ?? -1,
       everyCopyBulk: perStart[0]?.controlRich.every[1] ?? -1,
       everyCopyCutHusk: perStart[0]?.controlRich.everyCut[0] ?? -1,
@@ -673,7 +1022,9 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
 
-    const knitLine = (key: 'H' | 'R' | 'V' | 'committed' | 'combined'): string =>
+    const knitLine = (
+      key: 'H' | 'R' | 'V' | 'committed' | 'combined',
+    ): string =>
       `${key}: gate reading (largest husk count over 24 seeds) ${over(key, 'huskMax')} over 17 starts, passing on ${passes(key)} of 17; smallest ${over(key, 'huskMin')}; bulk ${over(key, 'bulkMin')} to ${over(key, 'bulkMax')}; vacuum alone ${over(key, 'vacuumHusk')} husk, ${over(key, 'vacuumBulk')} bulk, ${over(key, 'vacuumCopies')} content copies; descent reaches ${over(key, 'reachMin')} to ${over(key, 'reachMax')} husk docks; matter-only husk count at least ${over(key, 'matterHuskMin')}; OLD state-match ${over(key, 'oldBulk')} bulk lines, ${over(key, 'oldHusk')} husk directions`
 
     return verdict({

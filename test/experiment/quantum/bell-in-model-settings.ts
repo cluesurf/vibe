@@ -71,19 +71,50 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { CONJUGATE_POINT, fearKernels, meetingKernel, movePhaseCoordinate, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot, type KnotHistory } from '@/code/measure/knot-histories'
+import {
+  CONJUGATE_POINT,
+  fearKernels,
+  meetingKernel,
+  movePhaseCoordinate,
+  swapPhase,
+  wholeLovesAndFears,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+  type KnotHistory,
+} from '@/code/measure/knot-histories'
 import { enumeratedChsh, gridLines } from '@/code/measure/bell-gates'
 import { addPoints } from '@/code/measure/frame-covariant-meeting'
-import { apparatusHistory, LABEL, LINES, lineIndexThrough, memberRecord } from '@/code/measure/in-model-apparatus'
+import {
+  apparatusHistory,
+  LABEL,
+  LINES,
+  lineIndexThrough,
+  memberRecord,
+} from '@/code/measure/in-model-apparatus'
 
 const BEATS = 480
 const SITU_BEATS = 60
-const GROUPINGS = Array.from({ length: 8 }, (_, g) => [0, 1, 2].map(r => ((g >> r) & 1 ? -1 : 1)))
+const GROUPINGS = Array.from({ length: 8 }, (_, g) =>
+  [0, 1, 2].map(r => ((g >> r) & 1 ? -1 : 1)),
+)
 
 // the record's label for each system point, for each of the 12 settings (member at the line's first two
 // points; E-QTM-0137 shows every member writes the same label)
-const RECORD = LINES.map(l => Int8Array.from({ length: 9 }, (_, x) => LABEL[9 * l.c + memberRecord(x, l.points[0] ?? 0, l.points[1] ?? 0).record] ?? 0))
+const RECORD = LINES.map(l =>
+  Int8Array.from(
+    { length: 9 },
+    (_, x) =>
+      LABEL[
+        9 * l.c +
+          memberRecord(x, l.points[0] ?? 0, l.points[1] ?? 0).record
+      ] ?? 0,
+  ),
+)
 
 // the distinct +-1 observables on the system's point the records of the lines in `lines` give
 function recordObservables(lines: readonly number[]): Int8Array[] {
@@ -91,7 +122,10 @@ function recordObservables(lines: readonly number[]): Int8Array[] {
 
   for (const l of lines) {
     for (const g of GROUPINGS) {
-      const o = Int8Array.from({ length: 9 }, (_, x) => g[RECORD[l]![x] ?? 0] ?? 1)
+      const o = Int8Array.from(
+        { length: 9 },
+        (_, x) => g[RECORD[l]![x] ?? 0] ?? 1,
+      )
 
       seen.set(o.join(','), o)
     }
@@ -101,7 +135,10 @@ function recordObservables(lines: readonly number[]): Int8Array[] {
 }
 
 // the largest CHSH over the given observables, exact, as enumeratedChsh does it
-function chshOver(weight: readonly bigint[], observables: readonly Int8Array[]): { numerator: bigint; units: bigint } {
+function chshOver(
+  weight: readonly bigint[],
+  observables: readonly Int8Array[],
+): { numerator: bigint; units: bigint } {
   const table = observables.map(a =>
     observables.map(b => {
       let s = 0n
@@ -118,6 +155,7 @@ function chshOver(weight: readonly bigint[], observables: readonly Int8Array[]):
     }),
   )
   const n = table.length
+
   let best = -1n << 400n
 
   for (let a0 = 0; a0 < n; a0++) {
@@ -143,12 +181,28 @@ function chshOver(weight: readonly bigint[], observables: readonly Int8Array[]):
 // the same history with the fear beat off: every meeting the identity on the tokens' coordinates
 function fearOff(h: KnotHistory): KnotHistory {
   if (h.kernels.mode === 'swap') {
-    return { ...h, kernels: { mode: 'swap', kernel4: meetingKernel(swapPhase(Math.PI)) ?? [] } }
+    return {
+      ...h,
+      kernels: {
+        mode: 'swap',
+        kernel4: meetingKernel(swapPhase(Math.PI)) ?? [],
+      },
+    }
   }
 
   const exchanged = h.name === 'qtm0100-color'
 
-  return { ...h, kernels: { mode: 'color', color: fearKernels({ like: exchanged ? Math.PI : 0, unlike: 0, likeExchanged: exchanged })! } }
+  return {
+    ...h,
+    kernels: {
+      mode: 'color',
+      color: fearKernels({
+        like: exchanged ? Math.PI : 0,
+        unlike: 0,
+        likeExchanged: exchanged,
+      })!,
+    },
+  }
 }
 
 const nextMeeting = (h: KnotHistory, from: number): number => {
@@ -184,7 +238,7 @@ export default experiment({
   id: 'quantum/bell-in-model-settings',
   code: 'E-QTM-0138',
   title:
-    'Bell with settings made inside the model: each party measures with the reflection through the frame direction and a love-fear apparatus whose line comes from its own history in the knit; the whole passes CHSH 2 up to 62/27, the model\'s deterministic runs never do, every setting is independent of the system\'s hidden points and no influence crosses the gap, so the violation is carried only by the signed count',
+    "Bell with settings made inside the model: each party measures with the reflection through the frame direction and a love-fear apparatus whose line comes from its own history in the knit; the whole passes CHSH 2 up to 62/27, the model's deterministic runs never do, every setting is independent of the system's hidden points and no influence crosses the gap, so the violation is carried only by the signed count",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -197,6 +251,7 @@ export default experiment({
     const usable = new Int32Array(BEATS)
     const coincident = new Int32Array(BEATS)
     const classUse = new Array<number>(4 * BEATS).fill(0)
+
     let apparatusStarts = 0
 
     for (let x = 0; x < weave.mesh.cellCount; x++) {
@@ -212,7 +267,13 @@ export default experiment({
         vibe[x * 24 + d] = 1
         vibe[x * 24 + o] = -1
 
-        const run = apparatusHistory({ weave, vibe, love: x * 24 + d, fear: x * 24 + o, beats: BEATS })
+        const run = apparatusHistory({
+          weave,
+          vibe,
+          love: x * 24 + d,
+          fear: x * 24 + o,
+          beats: BEATS,
+        })
 
         apparatusStarts += 81
 
@@ -229,7 +290,8 @@ export default experiment({
 
                 usable[t] = (usable[t] ?? 0) + 1
                 lineMask[t] = (lineMask[t] ?? 0) | (1 << l)
-                classUse[4 * t + LINES[l]!.c] = (classUse[4 * t + LINES[l]!.c] ?? 0) + 1
+                classUse[4 * t + LINES[l]!.c] =
+                  (classUse[4 * t + LINES[l]!.c] ?? 0) + 1
               }
             }
           }
@@ -237,8 +299,10 @@ export default experiment({
       }
     }
 
-    const settingsAt = (t: number): number[] => LINES.map((_, l) => l).filter(l => ((lineMask[t] ?? 0) >> l) & 1)
-    const classesAt = (t: number): number => new Set(settingsAt(t).map(l => LINES[l]!.c)).size
+    const settingsAt = (t: number): number[] =>
+      LINES.map((_, l) => l).filter(l => ((lineMask[t] ?? 0) >> l) & 1)
+    const classesAt = (t: number): number =>
+      new Set(settingsAt(t).map(l => LINES[l]!.c)).size
 
     // P5 in situ: E-QTM-0100's system tokens 4 and 7 in the same lattice as an apparatus, 81 system points
     let situRuns = 0
@@ -265,7 +329,14 @@ export default experiment({
         points[4] = Math.floor(s / 9)
         points[7] = s % 9
 
-        const run = apparatusHistory({ weave, vibe, love: x * 24 + d, fear: x * 24 + o, beats: SITU_BEATS, points })
+        const run = apparatusHistory({
+          weave,
+          vibe,
+          love: x * 24 + d,
+          fear: x * 24 + o,
+          beats: SITU_BEATS,
+          points,
+        })
         const signature = Int8Array.from([...run.moves, ...run.valid])
 
         situRuns++
@@ -273,7 +344,11 @@ export default experiment({
         if (!reference) {
           reference = signature
         } else {
-          situDifferences += signature.every((v, i) => v === reference![i]) ? 0 : 1
+          situDifferences += signature.every(
+            (v, i) => v === reference![i],
+          )
+            ? 0
+            : 1
         }
       }
     }
@@ -294,12 +369,26 @@ export default experiment({
       dynamicBad: 0,
       contactChanges: 0,
     }
-    let wholeBest = { numerator: 0n, units: 1n, history: '', beat: -1, fears: 0n }
+
+    let wholeBest = {
+      numerator: 0n,
+      units: 1n,
+      history: '',
+      beat: -1,
+      fears: 0n,
+    }
     let runsBest = { numerator: 0n, units: 1n }
     let readingOwnMax = 0
+
     const perHistory: Record<string, number> = {}
 
-    const examine = (h: KnotHistory, w: Whole, off: Whole, t: number, own: boolean): void => {
+    const examine = (
+      h: KnotHistory,
+      w: Whole,
+      off: Whole,
+      t: number,
+      own: boolean,
+    ): void => {
       const physical = physicalKnot(h, w)
       const settings = settingsAt(t)
       const observables = recordObservables(settings)
@@ -308,32 +397,65 @@ export default experiment({
 
       counts.states++
       counts.statesAllClasses += classesAt(t) === 4 ? 1 : 0
+
       if (classesAt(t) === 4) {
-        counts.recordVsPlainBad += inModel.numerator === plain.numerator && inModel.units === plain.units ? 0 : 1
+        counts.recordVsPlainBad +=
+          inModel.numerator === plain.numerator &&
+          inModel.units === plain.units
+            ? 0
+            : 1
       } else {
-        counts.recordAbovePlain += inModel.numerator * plain.units > plain.numerator * inModel.units ? 1 : 0
-        counts.statesBelowPlain += inModel.numerator * plain.units < plain.numerator * inModel.units ? 1 : 0
+        counts.recordAbovePlain +=
+          inModel.numerator * plain.units >
+          plain.numerator * inModel.units
+            ? 1
+            : 0
+
+        counts.statesBelowPlain +=
+          inModel.numerator * plain.units <
+          plain.numerator * inModel.units
+            ? 1
+            : 0
       }
 
       const value = Number(inModel.numerator) / Number(inModel.units)
 
-      if (value > Number(wholeBest.numerator) / Number(wholeBest.units)) {
-        wholeBest = { ...inModel, history: h.name, beat: t, fears: wholeLovesAndFears(physical).fears }
+      if (
+        value >
+        Number(wholeBest.numerator) / Number(wholeBest.units)
+      ) {
+        wholeBest = {
+          ...inModel,
+          history: h.name,
+          beat: t,
+          fears: wholeLovesAndFears(physical).fears,
+        }
       }
 
-      perHistory[`${h.name}_chshInModelMax`] = Math.max(perHistory[`${h.name}_chshInModelMax`] ?? 0, value)
+      perHistory[`${h.name}_chshInModelMax`] = Math.max(
+        perHistory[`${h.name}_chshInModelMax`] ?? 0,
+        value,
+      )
 
       const offPhysical = physicalKnot(h, off)
       const runs = chshOver(offPhysical.weight, observables)
 
-      counts.runsNegative += offPhysical.weight.some(x => x < 0n) ? 1 : 0
+      counts.runsNegative += offPhysical.weight.some(x => x < 0n)
+        ? 1
+        : 0
       counts.runsAbove2 += runs.numerator > 2n * runs.units ? 1 : 0
 
-      if (Number(runs.numerator) / Number(runs.units) > Number(runsBest.numerator) / Number(runsBest.units)) {
+      if (
+        Number(runs.numerator) / Number(runs.units) >
+        Number(runsBest.numerator) / Number(runsBest.units)
+      ) {
         runsBest = runs
       }
 
-      perHistory[`${h.name}_chshRunsMax`] = Math.max(perHistory[`${h.name}_chshRunsMax`] ?? 0, Number(runs.numerator) / Number(runs.units))
+      perHistory[`${h.name}_chshRunsMax`] = Math.max(
+        perHistory[`${h.name}_chshRunsMax`] ?? 0,
+        Number(runs.numerator) / Number(runs.units),
+      )
 
       // static no signaling: Alice's counts per setting, whatever Bob's setting (Bob's record relabels his
       // own coordinate, so the sum over his outcomes is the marginal for every one of his settings)
@@ -341,16 +463,27 @@ export default experiment({
         const bobRelabeled = new Array<bigint>(81).fill(0n)
 
         physical.weight.forEach((x, i) => {
-          const k = 9 * Math.floor(i / 9) + 3 * (RECORD[lb]![i % 9] ?? 0)
+          const k =
+            9 * Math.floor(i / 9) + 3 * (RECORD[lb]![i % 9] ?? 0)
 
           bobRelabeled[k] = (bobRelabeled[k] ?? 0n) + x
         })
 
-        const fromBob = aliceCounts(bobRelabeled.map((_, i) => (i % 3 === 0 ? (bobRelabeled[i] ?? 0n) + (bobRelabeled[i + 1] ?? 0n) + (bobRelabeled[i + 2] ?? 0n) : 0n)))
+        const fromBob = aliceCounts(
+          bobRelabeled.map((_, i) =>
+            i % 3 === 0
+              ? (bobRelabeled[i] ?? 0n) +
+                (bobRelabeled[i + 1] ?? 0n) +
+                (bobRelabeled[i + 2] ?? 0n)
+              : 0n,
+          ),
+        )
         const direct = aliceCounts(physical.weight)
 
         counts.staticChecks++
-        counts.staticBad += fromBob.every((x, k) => x === direct[k]) ? 0 : 1
+        counts.staticBad += fromBob.every((x, k) => x === direct[k])
+          ? 0
+          : 1
       }
 
       if (own && t === nextMeeting(h, 0) + 1) {
@@ -363,13 +496,20 @@ export default experiment({
       const first = nextMeeting(h, 0)
       const reading = first + 1
       const after = nextMeeting(h, reading + 1)
-      const startOf = (a: readonly number[], b: readonly number[]): Whole => lineKnot(h.tokens, a, b)
+      const startOf = (
+        a: readonly number[],
+        b: readonly number[],
+      ): Whole => lineKnot(h.tokens, a, b)
 
       for (const a of lines) {
         for (const b of lines) {
-          const own = a.every(p => Math.floor(p / 3) === h.start[0]) && b.every(p => Math.floor(p / 3) === h.start[1])
+          const own =
+            a.every(p => Math.floor(p / 3) === h.start[0]) &&
+            b.every(p => Math.floor(p / 3) === h.start[1])
+
           let w = startOf(a, b)
           let o = startOf(a, b)
+
           const trail: Whole[] = []
 
           for (let t = 0; t < (own ? BEATS : reading + 1); t++) {
@@ -377,7 +517,10 @@ export default experiment({
             o = advanceKnot(off, o, h.records[t]!)
             trail.push(w)
 
-            if (t === reading || (own && (h.records[t]?.meetings.length ?? 0) > 0)) {
+            if (
+              t === reading ||
+              (own && (h.records[t]?.meetings.length ?? 0) > 0)
+            ) {
               examine(h, w, o, t, own)
             }
           }
@@ -391,9 +534,14 @@ export default experiment({
 
           const baseline: bigint[][] = []
           const units: bigint[] = []
+
           let run = atReading
 
-          for (let t = reading + 1; t < Math.min(BEATS, after + 2); t++) {
+          for (
+            let t = reading + 1;
+            t < Math.min(BEATS, after + 2);
+            t++
+          ) {
             run = advanceKnot(h, run, h.records[t]!)
             baseline[t] = aliceCounts(physicalKnot(h, run).weight)
             units[t] = run.weight.reduce((s, x) => s + x, 0n)
@@ -401,16 +549,31 @@ export default experiment({
 
           for (let v = 1; v < 9; v++) {
             const frame = atReading.frame?.[1] ?? 0
-            const stored = frame === -1 || (frame === 0 && h.conjugated) ? (CONJUGATE_POINT[v] ?? 0) : v
-            let moved = movePhaseCoordinate(atReading, 1, Array.from({ length: 9 }, (_, s) => addPoints(s, stored)))
+            const stored =
+              frame === -1 || (frame === 0 && h.conjugated)
+                ? (CONJUGATE_POINT[v] ?? 0)
+                : v
+
+            let moved = movePhaseCoordinate(
+              atReading,
+              1,
+              Array.from({ length: 9 }, (_, s) => addPoints(s, stored)),
+            )
             let changed = false
 
-            for (let t = reading + 1; t < Math.min(BEATS, after + 2); t++) {
+            for (
+              let t = reading + 1;
+              t < Math.min(BEATS, after + 2);
+              t++
+            ) {
               moved = advanceKnot(h, moved, h.records[t]!)
 
               const mine = aliceCounts(physicalKnot(h, moved).weight)
               const u = moved.weight.reduce((s, x) => s + x, 0n)
-              const same = mine.every((x, k) => x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u)
+              const same = mine.every(
+                (x, k) =>
+                  x * (units[t] ?? 1n) === (baseline[t]?.[k] ?? 0n) * u,
+              )
 
               if (t < after) {
                 counts.dynamicChecks++
@@ -426,16 +589,25 @@ export default experiment({
       }
     }
 
-    const wholeValue = Number(wholeBest.numerator) / Number(wholeBest.units)
-    const runsValue = Number(runsBest.numerator) / Number(runsBest.units)
+    const wholeValue =
+      Number(wholeBest.numerator) / Number(wholeBest.units)
+    const runsValue =
+      Number(runsBest.numerator) / Number(runsBest.units)
     const beatsRead = Array.from({ length: BEATS }, (_, t) => t)
     const gates = {
       G1: beatsRead.every(t => classesAt(t) >= 2),
-      G2: counts.recordVsPlainBad === 0 && counts.recordAbovePlain === 0 && counts.states > 0,
+      G2:
+        counts.recordVsPlainBad === 0 &&
+        counts.recordAbovePlain === 0 &&
+        counts.states > 0,
       G3: wholeValue > 2,
       G4: counts.runsNegative === 0 && counts.runsAbove2 === 0,
       G5: situDifferences === 0 && situRuns > 0,
-      G6: counts.staticBad === 0 && counts.dynamicBad === 0 && counts.dynamicChecks > 0 && counts.contactChanges > 0,
+      G6:
+        counts.staticBad === 0 &&
+        counts.dynamicBad === 0 &&
+        counts.dynamicChecks > 0 &&
+        counts.contactChanges > 0,
     }
     const ok = Object.values(gates).every(Boolean)
 
@@ -444,11 +616,17 @@ export default experiment({
       claim: `with settings made in the knit (the line of a love-fear apparatus after its own history, all 4 classes usable at ${beatsRead.filter(t => classesAt(t) === 4).length} of ${BEATS} beats, ${apparatusStarts.toLocaleString()} apparatus starts) and R as the measurement, the in-model CHSH equals E-QTM-0111's plain value on all ${counts.states.toLocaleString()} states, and the whole passes 2, up to ${wholeBest.numerator}/${wholeBest.units} = ${wholeValue.toFixed(4)} (${wholeBest.history}, beat ${wholeBest.beat}), carried by fear, while the model's deterministic runs (the fear-off count, non-negative on every state) never pass 2 (largest ${runsValue.toFixed(4)}); no setting depends on the system's hidden points (${situRuns} in-situ runs, ${situDifferences} differences) and no influence crosses the gap (${counts.staticChecks.toLocaleString()} static and ${counts.dynamicChecks.toLocaleString()} dynamic checks, ${counts.staticBad + counts.dynamicBad} mismatches), so the model is neither superdeterministic nor nonlocal and its Bell violation lives only in the signed count, which is not a count of its runs`,
       metrics: {
         apparatusStarts,
-        beatsAllClasses: beatsRead.filter(t => classesAt(t) === 4).length,
+        beatsAllClasses: beatsRead.filter(t => classesAt(t) === 4)
+          .length,
         usableAtBeat1: usable[1] ?? 0,
         usableAtBeat479: usable[479] ?? 0,
         coincidentAtBeat479: coincident[479] ?? 0,
-        ...Object.fromEntries([0, 1, 2, 3].map(c => [`classUseAtBeat479_${c}`, classUse[4 * 479 + c] ?? 0])),
+        ...Object.fromEntries(
+          [0, 1, 2, 3].map(c => [
+            `classUseAtBeat479_${c}`,
+            classUse[4 * 479 + c] ?? 0,
+          ]),
+        ),
         fewestClassesAtABeat: Math.min(...beatsRead.map(classesAt)),
         situRuns,
         situDifferences,
@@ -461,10 +639,16 @@ export default experiment({
         chshReadingOwnMax: readingOwnMax,
         chshRunsMax: runsValue,
         ...perHistory,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat (Bob's translation kept as an operation on the role, his own point unmoved): status fail as before, on G1 only; the whole's largest in-model CHSH 2.2963 -> 2.5298 (rlt0055), every no-signaling and contact count unchanged. " + ('L2, exact BigInt knots, no random numbers: apparatus starts, system starts and translations are enumerated. The one stand-in left: WHEN the system meets its apparatus is chosen by hand (the beat read), not scheduled by the knit. Mutual information between setting and system member is 0 by construction once the in-situ check holds (the setting is a function of the apparatus start alone). The whole is the signed count over the runs; a CHSH value above 2 at these settings needs negative weight (the bound 2 (L + F) / (L - F) of code/measure/bell-gates).'),
+        "RERUN 2026-09-26 under the adopted comoving fear beat (Bob's translation kept as an operation on the role, his own point unmoved): status fail as before, on G1 only; the whole's largest in-model CHSH 2.2963 -> 2.5298 (rlt0055), every no-signaling and contact count unchanged. " +
+        'L2, exact BigInt knots, no random numbers: apparatus starts, system starts and translations are enumerated. The one stand-in left: WHEN the system meets its apparatus is chosen by hand (the beat read), not scheduled by the knit. Mutual information between setting and system member is 0 by construction once the in-situ check holds (the setting is a function of the apparatus start alone). The whole is the signed count over the runs; a CHSH value above 2 at these settings needs negative weight (the bound 2 (L + F) / (L - F) of code/measure/bell-gates).',
     })
   },
 })

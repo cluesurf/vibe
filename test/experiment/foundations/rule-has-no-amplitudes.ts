@@ -186,7 +186,12 @@ export default experiment({
     const walkA = makeCoinedWalk({ size: WALK_SIZE })
     const walkB = makeCoinedWalk({ size: WALK_SIZE })
 
-    addPointSeed({ walk: walkA, site: WALK_SIZE / 2, chirality: 'right' })
+    addPointSeed({
+      walk: walkA,
+      site: WALK_SIZE / 2,
+      chirality: 'right',
+    })
+
     addPointSeed({
       walk: walkB,
       site: WALK_SIZE / 2 + WALK_SEED_GAP,
@@ -223,7 +228,10 @@ export default experiment({
     const defectStaysLocal = maxDefect <= 2 && maxDefectRadius <= BEATS
     const defectsAddAsSets = unionExactEveryBeat && overlapSlots === 0
     const ruleIsClassical =
-      vacuumFlashes && defectStaysLocal && defectsAddAsSets && chargeConserved
+      vacuumFlashes &&
+      defectStaysLocal &&
+      defectsAddAsSets &&
+      chargeConserved
 
     const walkIsQuantum = walkSupport > BEATS && walkCrossTerm > 0.01
 

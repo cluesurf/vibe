@@ -89,11 +89,37 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { dockShells, ornsteinZernikeRate, type LengthHistogram } from '@/code/measure/nucleon-gas'
+import {
+  dockShells,
+  ornsteinZernikeRate,
+  type LengthHistogram,
+} from '@/code/measure/nucleon-gas'
 import { leadingProfile } from '@/code/measure/pair-string'
-import { seededStart, switchChecks, yukawaBox, yukawaRun, yukawaShells, type YukawaBox, type YukawaRun, type YukawaSetup, type YukawaShell } from '@/code/measure/matched-yukawa'
+import {
+  seededStart,
+  switchChecks,
+  yukawaBox,
+  yukawaRun,
+  yukawaShells,
+  type YukawaBox,
+  type YukawaRun,
+  type YukawaSetup,
+  type YukawaShell,
+} from '@/code/measure/matched-yukawa'
 
-const SETUP: YukawaSetup = { side: 9, mass: 2, tension: 3, capacity: 14, q: 0.35, mesons: 24, baryons: 4, settle: 4000, beats: 160000, every: 4, batches: 20 }
+const SETUP: YukawaSetup = {
+  side: 9,
+  mass: 2,
+  tension: 3,
+  capacity: 14,
+  q: 0.35,
+  mesons: 24,
+  baryons: 4,
+  settle: 4000,
+  beats: 160000,
+  every: 4,
+  batches: 20,
+}
 const R_LOW = 2
 const R_HIGH = 4.5
 const CONTACT = 2
@@ -104,36 +130,72 @@ const PROFILE_MIN_COUNT = 50
 const REACH = 7
 const CHECK_BEATS = 40
 
-type Pooled = { pooled: number; error: number; shells: number; rate: number }
+type Pooled = {
+  pooled: number
+  error: number
+  shells: number
+  rate: number
+}
 
-function pooled(shells: readonly YukawaShell[], low: number, high: number, power: number): Pooled {
-  const window = shells.filter(s => s.r >= low - 1e-9 && s.r < high + 1e-9 && s.sigma > 0)
+function pooled(
+  shells: readonly YukawaShell[],
+  low: number,
+  high: number,
+  power: number,
+): Pooled {
+  const window = shells.filter(
+    s => s.r >= low - 1e-9 && s.r < high + 1e-9 && s.sigma > 0,
+  )
   const weight = window.reduce((a, s) => a + 1 / s.sigma ** 2, 0)
-  const above = window.filter(s => s.g - 1 > SIGMAS * s.sigma).map(s => ({ r: s.r, value: s.g - 1, count: ((s.g - 1) / s.sigma) ** 2 }))
+  const above = window
+    .filter(s => s.g - 1 > SIGMAS * s.sigma)
+    .map(s => ({
+      r: s.r,
+      value: s.g - 1,
+      count: ((s.g - 1) / s.sigma) ** 2,
+    }))
 
   return {
-    pooled: window.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) / Math.max(1e-300, weight),
+    pooled:
+      window.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) /
+      Math.max(1e-300, weight),
     error: 1 / Math.sqrt(Math.max(1e-300, weight)),
     shells: above.length,
     rate: ornsteinZernikeRate({ points: above, power }),
   }
 }
 
-function mesonRate(run: YukawaRun, box: YukawaBox, which: 'bulk' | 'husk'): number {
+function mesonRate(
+  run: YukawaRun,
+  box: YukawaBox,
+  which: 'bulk' | 'husk',
+): number {
   const shells = dockShells(box.geometry)[which]
   const histogram: LengthHistogram = run.profile[which]
   const points = [...histogram.entries()]
-    .map(([key, count]) => ({ r: Math.sqrt(key / 4), count, value: count / (shells.get(key) ?? 1) }))
-    .filter(p => p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 && p.r <= R_HIGH + 1e-9 && p.count >= PROFILE_MIN_COUNT)
+    .map(([key, count]) => ({
+      r: Math.sqrt(key / 4),
+      count,
+      value: count / (shells.get(key) ?? 1),
+    }))
+    .filter(
+      p =>
+        p.r >= (which === 'bulk' ? Math.SQRT2 : 1) - 1e-9 &&
+        p.r <= R_HIGH + 1e-9 &&
+        p.count >= PROFILE_MIN_COUNT,
+    )
 
-  return ornsteinZernikeRate({ points, power: which === 'bulk' ? 1.5 : 1 })
+  return ornsteinZernikeRate({
+    points,
+    power: which === 'bulk' ? 1.5 : 1,
+  })
 }
 
 export default experiment({
   id: 'gauge/pair-yukawa-matched',
   code: 'E-FRC-0217',
   title:
-    'the matched Yukawa test: the residual between two static color singlets (stand-ins for nucleons) of the paid Z3 string on the D4 box, read on the husk, with the vacuum\'s pair move on and a control identical except that the move is off, against e^(-m r) / r at the separately measured meson mass, and the deuteron contact',
+    "the matched Yukawa test: the residual between two static color singlets (stand-ins for nucleons) of the paid Z3 string on the D4 box, read on the husk, with the vacuum's pair move on and a control identical except that the move is off, against e^(-m r) / r at the separately measured meson mass, and the deuteron contact",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -144,8 +206,16 @@ export default experiment({
     const checks = switchChecks(box.graph, start, CHECK_BEATS)
     const p = yukawaRun({ box, setup: SETUP, start, pairs: true })
     const c = yukawaRun({ box, setup: SETUP, start, pairs: false })
-    const d = yukawaRun({ box, setup: SETUP, start: p.final, pairs: false })
-    const shells = (run: YukawaRun, which: 'bulk' | 'husk'): YukawaShell[] => yukawaShells({ run, box, which })
+    const d = yukawaRun({
+      box,
+      setup: SETUP,
+      start: p.final,
+      pairs: false,
+    })
+    const shells = (
+      run: YukawaRun,
+      which: 'bulk' | 'husk',
+    ): YukawaShell[] => yukawaShells({ run, box, which })
     const pHusk = shells(p, 'husk')
     const pBulk = shells(p, 'bulk')
     const cHusk = shells(c, 'husk')
@@ -166,10 +236,20 @@ export default experiment({
     const m1Husk = mesonRate(p, box, 'husk')
     const m1Bulk = mesonRate(p, box, 'bulk')
     const profile = leadingProfile({ x: p.x, reach: REACH })
-    const inWindow = (s: { r: number }): boolean => s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9
-    const mPredBulk = ornsteinZernikeRate({ points: profile.bulk.filter(inWindow), power: 1.5 })
-    const mPredHusk = ornsteinZernikeRate({ points: profile.husk.filter(inWindow), power: 1 })
-    const within = (a: number, b: number): boolean => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a / b - 1) < TOLERANCE
+    const inWindow = (s: { r: number }): boolean =>
+      s.r >= R_LOW - 1e-9 && s.r <= R_HIGH + 1e-9
+    const mPredBulk = ornsteinZernikeRate({
+      points: profile.bulk.filter(inWindow),
+      power: 1.5,
+    })
+    const mPredHusk = ornsteinZernikeRate({
+      points: profile.husk.filter(inWindow),
+      power: 1,
+    })
+    const within = (a: number, b: number): boolean =>
+      Number.isFinite(a) &&
+      Number.isFinite(b) &&
+      Math.abs(a / b - 1) < TOLERANCE
     const g0 =
       checks.agrees &&
       checks.reverses &&
@@ -180,13 +260,30 @@ export default experiment({
       p.fewestCharges !== p.mostCharges &&
       c.fewestCharges === c.mostCharges &&
       d.fewestCharges === d.mostCharges
-    const yukawa = (r: Pooled, m1: number): boolean => r.pooled > POOLED_SIGMAS * r.error && r.shells >= 3 && within(r.rate, m1)
+    const yukawa = (r: Pooled, m1: number): boolean =>
+      r.pooled > POOLED_SIGMAS * r.error &&
+      r.shells >= 3 &&
+      within(r.rate, m1)
     const g1 = yukawa(yukawaHusk, m1Husk)
     const g2 = yukawa(yukawaBulk, m1Bulk)
-    const g3 = Math.abs(controlHusk.pooled) < POOLED_SIGMAS * controlHusk.error && yukawaHusk.pooled - controlHusk.pooled > POOLED_SIGMAS * Math.hypot(yukawaHusk.error, controlHusk.error)
-    const g4 = contact.pooled > POOLED_SIGMAS * contact.error && contact.pooled - controlContact.pooled > POOLED_SIGMAS * Math.hypot(contact.error, controlContact.error)
-    const matchedHolds = Math.abs(matchedHusk.pooled - yukawaHusk.pooled) < POOLED_SIGMAS * Math.hypot(matchedHusk.error, yukawaHusk.error)
-    const status = g0 && g1 && g2 && g3 && g4 ? 'pass' : g0 && g1 && g3 ? 'partial' : 'fail'
+    const g3 =
+      Math.abs(controlHusk.pooled) <
+        POOLED_SIGMAS * controlHusk.error &&
+      yukawaHusk.pooled - controlHusk.pooled >
+        POOLED_SIGMAS * Math.hypot(yukawaHusk.error, controlHusk.error)
+    const g4 =
+      contact.pooled > POOLED_SIGMAS * contact.error &&
+      contact.pooled - controlContact.pooled >
+        POOLED_SIGMAS * Math.hypot(contact.error, controlContact.error)
+    const matchedHolds =
+      Math.abs(matchedHusk.pooled - yukawaHusk.pooled) <
+      POOLED_SIGMAS * Math.hypot(matchedHusk.error, yukawaHusk.error)
+    const status =
+      g0 && g1 && g2 && g3 && g4
+        ? 'pass'
+        : g0 && g1 && g3
+          ? 'partial'
+          : 'fail'
     const metrics: Record<string, number> = {
       beta: p.beta,
       x: p.x,

@@ -77,7 +77,10 @@ import {
   type RoleState,
 } from '@/code/measure/knit-magic'
 import { phasePointOperators } from '@/code/measure/grid-weights'
-import { hermitianSpectrum, operatorFromWigner } from '@/code/measure/qutrit-clifford'
+import {
+  hermitianSpectrum,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
 
 const OMEGA = (2 * Math.PI) / 3
 const BEATS = 480
@@ -95,12 +98,18 @@ const floatOf = (w: Whole): number[] => {
 }
 
 // the whole read with the listed coordinates reflected
-function reflected(w: Whole, reflectA: boolean, reflectB: boolean): number[] {
+function reflected(
+  w: Whole,
+  reflectA: boolean,
+  reflectB: boolean,
+): number[] {
   const f = floatOf(w)
   const out = new Array<number>(81).fill(0)
 
   f.forEach((x, i) => {
-    const a = reflectA ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0) : Math.floor(i / 9)
+    const a = reflectA
+      ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0)
+      : Math.floor(i / 9)
     const b = reflectB ? (CONJUGATE_POINT[i % 9] ?? 0) : i % 9
 
     out[a * 9 + b] = x
@@ -128,7 +137,9 @@ function deepestMarginal(w: readonly number[]): number {
 }
 
 // every permutation of 0..8 in lexicographic order, visited without storing them
-function forEachPermutation(visit: (p: readonly number[]) => void): void {
+function forEachPermutation(
+  visit: (p: readonly number[]) => void,
+): void {
   const p = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
   for (;;) {
@@ -136,13 +147,20 @@ function forEachPermutation(visit: (p: readonly number[]) => void): void {
 
     let i = 7
 
-    while (i >= 0 && (p[i] ?? 0) > (p[i + 1] ?? 0)) i--
+    while (i >= 0 && (p[i] ?? 0) > (p[i + 1] ?? 0)) {
+      i--
+    }
 
-    if (i < 0) return
+    if (i < 0) {
+      return
+    }
 
     let j = 8
 
-    while ((p[j] ?? 0) < (p[i] ?? 0)) j--
+    while ((p[j] ?? 0) < (p[i] ?? 0)) {
+      j--
+    }
+
     ;[p[i], p[j]] = [p[j] ?? 0, p[i] ?? 0]
 
     for (let l = i + 1, r = 8; l < r; l++, r--) {
@@ -155,7 +173,7 @@ export default experiment({
   id: 'quantum/color-law-keeps-states',
   code: 'E-QTM-0123',
   title:
-    'the color law keeps quantum states once each coordinate carries its frame: a token\'s vibe can change sign between meetings, and leaving its stored point in place was a partial conjugation, which made 299 of 2,016 wholes non-states; no law can be at once covariant under the links, local to the flipped token and state-keeping, since the only covariant flip is the antiunitary reflection, so the fix keeps states and locality and gives up covariance at a flip',
+    "the color law keeps quantum states once each coordinate carries its frame: a token's vibe can change sign between meetings, and leaving its stored point in place was a partial conjugation, which made 299 of 2,016 wholes non-states; no law can be at once covariant under the links, local to the flipped token and state-keeping, since the only covariant flip is the antiunitary reflection, so the fix keeps states and locality and gives up covariance at a flip",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -164,6 +182,7 @@ export default experiment({
     // G1: the centralizer of the grid moves
     const grid = gridMoves()
     const moves = grid.act.map(t => phaseMove(t))
+
     let centralizer = 0
 
     forEachPermutation(p => {
@@ -180,29 +199,44 @@ export default experiment({
 
     // G2: R is not a move, its determinant, and what it does to the maximally entangled pair
     const key = (t: readonly number[]): string => t.join(',')
-    const rIsMove = moves.filter(m => key(m) === key([...CONJUGATE_POINT])).length
+    const rIsMove = moves.filter(
+      m => key(m) === key([...CONJUGATE_POINT]),
+    ).length
     // R fixes (1, 0) and sends (0, 1) to (0, -1): the matrix diag(1, -1), determinant -1
     const rDeterminant = (((1 * -1 - 0 * 0) % 3) + 3) % 3
-    const commutingWithR = moves.filter(m => m.every((x, q) => CONJUGATE_POINT[x] === m[CONJUGATE_POINT[q] ?? 0])).length
+    const commutingWithR = moves.filter(m =>
+      m.every(
+        (x, q) => CONJUGATE_POINT[x] === m[CONJUGATE_POINT[q] ?? 0],
+      ),
+    ).length
     const points2 = phasePointOperators(2)
     // the maximally entangled pair sum_j |j j> / sqrt 3, its Wigner function from the operators
-    const phiRe = Array.from({ length: 9 }, (_, i) => (Math.floor(i / 3) === i % 3 ? 1 / Math.sqrt(3) : 0))
+    const phiRe = Array.from({ length: 9 }, (_, i) =>
+      Math.floor(i / 3) === i % 3 ? 1 / Math.sqrt(3) : 0,
+    )
     const phiWeights = points2.map(a => {
       let v = 0
 
       for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
-          v += (phiRe[i] ?? 0) * (a.re[i * 9 + j] ?? 0) * (phiRe[j] ?? 0)
+          v +=
+            (phiRe[i] ?? 0) * (a.re[i * 9 + j] ?? 0) * (phiRe[j] ?? 0)
         }
       }
 
       return v / 9
     })
-    const phiWhole = (reflectA: boolean, reflectB: boolean): number[] => {
+
+    const phiWhole = (
+      reflectA: boolean,
+      reflectB: boolean,
+    ): number[] => {
       const out = new Array<number>(81).fill(0)
 
       phiWeights.forEach((x, i) => {
-        const a = reflectA ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0) : Math.floor(i / 9)
+        const a = reflectA
+          ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0)
+          : Math.floor(i / 9)
         const b = reflectB ? (CONJUGATE_POINT[i % 9] ?? 0) : i % 9
 
         out[a * 9 + b] = x
@@ -210,7 +244,9 @@ export default experiment({
 
       return out
     }
-    const leastOf = (w: readonly number[]): number => hermitianSpectrum(operatorFromWigner([...w], points2))[0] ?? 0
+
+    const leastOf = (w: readonly number[]): number =>
+      hermitianSpectrum(operatorFromWigner([...w], points2))[0] ?? 0
     const phiLeast = leastOf(phiWhole(false, false))
     const phiPartialLeast = leastOf(phiWhole(false, true))
     const phiFullLeast = leastOf(phiWhole(true, true))
@@ -221,11 +257,28 @@ export default experiment({
     const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA })!
     const tally = {
       on: { wholes: 0, nonStates: 0, deepest: 0, least: 0 },
-      off: { wholes: 0, nonStates: 0, deepest: 0, least: 0, nonStatesWithoutFlip: 0, runsWithFlip: 0, runs: 0 },
+      off: {
+        wholes: 0,
+        nonStates: 0,
+        deepest: 0,
+        least: 0,
+        nonStatesWithoutFlip: 0,
+        runsWithFlip: 0,
+        runs: 0,
+      },
     }
 
-    for (const background of [vacuumBackground(slots), weylBackground({ slots, scale: 2.11 })]) {
-      const records = classicalRecords({ weave, links: weave.links, background, open: Array.from({ length: 24 }, (_, d) => d), beats: BEATS })
+    for (const background of [
+      vacuumBackground(slots),
+      weylBackground({ slots, scale: 2.11 }),
+    ]) {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
         const mine = pairRecords(records, a, b)
@@ -233,7 +286,9 @@ export default experiment({
         for (const start of STARTS) {
           for (const frames of [true, false]) {
             let whole: Whole = productWhole([a, b], start)
+
             const last = new Map<number, number>()
+
             let flipped = false
 
             mine.forEach(record => {
@@ -244,14 +299,30 @@ export default experiment({
                   [ta, sa],
                   [tb, sb],
                 ] as const) {
-                  flipped = flipped || (last.has(tk) && last.get(tk) !== s)
+                  flipped =
+                    flipped || (last.has(tk) && last.get(tk) !== s)
                   last.set(tk, s)
                 }
               })
 
-              whole = advanceWhole({ weave, whole, record, kernel4: [], color: colorOn, fixed: false, forward: true, frames })!
+              whole = advanceWhole({
+                weave,
+                whole,
+                record,
+                kernel4: [],
+                color: colorOn,
+                fixed: false,
+                forward: true,
+                frames,
+              })!
 
-              const w = frames ? floatOf(physicalWhole(whole)) : reflected(whole, last.get(a) === -1, last.get(b) === -1)
+              const w = frames
+                ? floatOf(physicalWhole(whole))
+                : reflected(
+                    whole,
+                    last.get(a) === -1,
+                    last.get(b) === -1,
+                  )
               const least = leastOf(w)
               const t = frames ? tally.on : tally.off
 
@@ -276,9 +347,25 @@ export default experiment({
 
     // G5: reversal with frames, grain mode, on a vacuum pair and a matter pair
     const colorBack = fearKernels({ like: -OMEGA, unlike: -OMEGA })!
-    const reversal = (background: Background): { restored: boolean; framesUnset: boolean; flips: number; meetings: number } => {
-      const records = classicalRecords({ weave, links: weave.links, background, open: Array.from({ length: 24 }, (_, d) => d), beats: REVERSAL_BEATS })
-      const pairs = meetingPairs(records).sort((x, y) => y.meetings - x.meetings)
+
+    const reversal = (
+      background: Background,
+    ): {
+      restored: boolean
+      framesUnset: boolean
+      flips: number
+      meetings: number
+    } => {
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background,
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: REVERSAL_BEATS,
+      })
+      const pairs = meetingPairs(records).sort(
+        (x, y) => y.meetings - x.meetings,
+      )
       const { a, b } = pairs[0] ?? { a: 0, b: 1 }
       const open = new Uint8Array(slots)
 
@@ -286,11 +373,15 @@ export default experiment({
       open[b] = 1
 
       let lattice = makeLattice(background)
+
       const whole0 = productWhole([a, b], ['strange', 'basis0'])
+
       let whole: Whole = whole0
       let meetings = 0
       let flips = 0
+
       const last = new Map<number, number>()
+
       const note = (record: BeatRecord): void => {
         record.meetings.forEach(([ta, tb], k) => {
           const [sa, sb] = record.signs?.[k] ?? [1, 1]
@@ -308,35 +399,79 @@ export default experiment({
       }
 
       for (let t = 0; t < REVERSAL_BEATS; t++) {
-        const r = fearBeat({ weave, links: weave.links, lattice, open, t })
+        const r = fearBeat({
+          weave,
+          links: weave.links,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
         note(r.record)
-        whole = advanceWhole({ weave, whole, record: r.record, kernel4: [], color: colorOn, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record: r.record,
+          kernel4: [],
+          color: colorOn,
+          fixed: false,
+          forward: true,
+        })!
       }
 
       for (let t = REVERSAL_BEATS - 1; t >= 0; t--) {
-        const r = fearBeatBack({ weave, links: weave.links, lattice, open, t })
+        const r = fearBeatBack({
+          weave,
+          links: weave.links,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        whole = advanceWhole({ weave, whole, record: r.record, kernel4: [], color: colorBack, fixed: false, forward: false })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record: r.record,
+          kernel4: [],
+          color: colorBack,
+          fixed: false,
+          forward: false,
+        })!
       }
 
       const u0 = wholeUnits(whole0)
       const u1 = wholeUnits(whole)
-      const restored = whole.weight.every((w, i) => w * u0 === (whole0.weight[i] ?? 0n) * u1)
-      const framesUnset = (whole.frame ?? []).every(f => f === 0) && (whole.trail ?? []).every(t => t.length === 0)
+      const restored = whole.weight.every(
+        (w, i) => w * u0 === (whole0.weight[i] ?? 0n) * u1,
+      )
+      const framesUnset =
+        (whole.frame ?? []).every(f => f === 0) &&
+        (whole.trail ?? []).every(t => t.length === 0)
 
       return { restored, framesUnset, flips, meetings }
     }
+
     const vacuumReversal = reversal(vacuumBackground(slots))
-    const matterReversal = reversal(weylBackground({ slots, scale: 2.11 }))
+    const matterReversal = reversal(
+      weylBackground({ slots, scale: 2.11 }),
+    )
 
     const g1 = centralizer === 1
-    const g2 = rIsMove === 0 && rDeterminant === 2 && Math.abs(phiPartialLeast + 1 / 3) < 1e-9 && phiFullLeast > -1e-9 && phiLeast > -1e-9
-    const g3 = tally.on.nonStates === 0 && tally.on.deepest >= -1 / 3 - 1e-9
-    const g4 = tally.off.nonStates > 0 && tally.off.nonStatesWithoutFlip === 0
-    const g5 = [vacuumReversal, matterReversal].every(r => r.restored && r.framesUnset)
+    const g2 =
+      rIsMove === 0 &&
+      rDeterminant === 2 &&
+      Math.abs(phiPartialLeast + 1 / 3) < 1e-9 &&
+      phiFullLeast > -1e-9 &&
+      phiLeast > -1e-9
+    const g3 =
+      tally.on.nonStates === 0 && tally.on.deepest >= -1 / 3 - 1e-9
+    const g4 =
+      tally.off.nonStates > 0 && tally.off.nonStatesWithoutFlip === 0
+    const g5 = [vacuumReversal, matterReversal].every(
+      r => r.restored && r.framesUnset,
+    )
     const ok = g1 && g2 && g3 && g4 && g5
 
     return verdict({
@@ -373,7 +508,7 @@ export default experiment({
         oldLawRunsWithFlip: tally.off.runsWithFlip,
       },
       notes:
-        'L2. The theorem is exact and finite (9! permutations against the 216 moves, one 9 x 9 spectrum); the knit numbers are every beat of every run, not a sample. The 299 of 2,016 of E-QTM-0120 were every twentieth beat under the transposed grid convention; this file runs after E-QTM-0124 fixed it, so the old law\'s count here differs in the detail, not in kind. Why the fix and not another: a law that keeps states must act on a flipped token by a unitary, and the only freedom is WHICH frame the old role is rewritten in; keeping the role itself (the identity on the role, R on the stored point) is the one choice that needs no further structure, and it is not covariant because nothing can be. What it costs: a gauge (frame) mismatch test on a history with a flip now fails where one did before (E-QTM-0099\'s color-mode frame gate reads this; see its rerun). First run, 2026-09-26 (18 s): pass, gates unchanged. With frames 0 of 40,320 wholes are non-states (least eigenvalue -6e-16); the old law leaves 6,237 of 40,320, least eigenvalue -0.494, all 6,237 in the 36 of 84 runs where a token flipped. Read in each token\'s last-sign frame the old law\'s one-role marginals stay at -1/3 here; the -0.41 of E-QTM-0120 was read in the stored frame. The matter reversal crossed 4 flips and restored the start exactly.',
+        "L2. The theorem is exact and finite (9! permutations against the 216 moves, one 9 x 9 spectrum); the knit numbers are every beat of every run, not a sample. The 299 of 2,016 of E-QTM-0120 were every twentieth beat under the transposed grid convention; this file runs after E-QTM-0124 fixed it, so the old law's count here differs in the detail, not in kind. Why the fix and not another: a law that keeps states must act on a flipped token by a unitary, and the only freedom is WHICH frame the old role is rewritten in; keeping the role itself (the identity on the role, R on the stored point) is the one choice that needs no further structure, and it is not covariant because nothing can be. What it costs: a gauge (frame) mismatch test on a history with a flip now fails where one did before (E-QTM-0099's color-mode frame gate reads this; see its rerun). First run, 2026-09-26 (18 s): pass, gates unchanged. With frames 0 of 40,320 wholes are non-states (least eigenvalue -6e-16); the old law leaves 6,237 of 40,320, least eigenvalue -0.494, all 6,237 in the 36 of 84 runs where a token flipped. Read in each token's last-sign frame the old law's one-role marginals stay at -1/3 here; the -0.41 of E-QTM-0120 was read in the stored frame. The matter reversal crossed 4 flips and restored the start exactly.",
     })
   },
 })

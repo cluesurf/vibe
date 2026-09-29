@@ -58,12 +58,15 @@ function countStart(docks: number, dock: number): CountState {
   const zero: Counts = [0n, 0n, 0n]
 
   return {
-    right: Array.from({ length: docks }, (_, x) => (x === dock ? ([1n, 0n, 0n] as Counts) : zero)),
+    right: Array.from({ length: docks }, (_, x) =>
+      x === dock ? ([1n, 0n, 0n] as Counts) : zero,
+    ),
     left: new Array<Counts>(docks).fill(zero),
   }
 }
 
-const same = (a: Counts, b: Counts): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
+const same = (a: Counts, b: Counts): boolean =>
+  a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 
 function gcd(a: bigint, b: bigint): bigint {
   let x = a < 0n ? -a : a
@@ -106,16 +109,28 @@ export default experiment({
     for (const members of groups.values()) {
       const first = members[0] ?? [0n, 0n, 0n]
       const canonical = members.filter(k => removeKnots(k).knots === 0n)
-      const fewest = members.reduce((m, k) => (k[0] + k[1] + k[2] < m[0] + m[1] + m[2] ? k : m), first)
+      const fewest = members.reduce(
+        (m, k) => (k[0] + k[1] + k[2] < m[0] + m[1] + m[2] ? k : m),
+        first,
+      )
 
       representationViolations += canonical.length === 1 ? 0 : 1
-      representationViolations += same(fewest, canonical[0] ?? first) ? 0 : 1
-      representationViolations += same(countsOf(valueOf(first)), canonical[0] ?? first) ? 0 : 1
+      representationViolations += same(fewest, canonical[0] ?? first)
+        ? 0
+        : 1
+
+      representationViolations += same(
+        countsOf(valueOf(first)),
+        canonical[0] ?? first,
+      )
+        ? 0
+        : 1
 
       for (const k of members) {
         const d = [k[0] - first[0], k[1] - first[1], k[2] - first[2]]
 
-        representationViolations += d[0] === d[1] && d[1] === d[2] ? 0 : 1
+        representationViolations +=
+          d[0] === d[1] && d[1] === d[2] ? 0 : 1
       }
     }
 
@@ -127,7 +142,9 @@ export default experiment({
     let valueMismatches = 0
     let canonicalMismatches = 0
     let chargeExact = true
+
     const knotsAt: Record<number, bigint> = {}
+
     let knotsTotal = 0n
     let negativeRealSlots = 0
 
@@ -141,10 +158,14 @@ export default experiment({
       knotsAt[t] = step.knots
 
       const total = removeKnots(
-        [...counts.right, ...counts.left].reduce((s, k) => [s[0] + k[0], s[1] + k[1], s[2] + k[2]] as Counts, [0n, 0n, 0n] as Counts),
+        [...counts.right, ...counts.left].reduce(
+          (s, k) => [s[0] + k[0], s[1] + k[1], s[2] + k[2]] as Counts,
+          [0n, 0n, 0n] as Counts,
+        ),
       ).counts
 
-      chargeExact = chargeExact && same(total, [2n ** BigInt(t), 0n, 0n])
+      chargeExact =
+        chargeExact && same(total, [2n ** BigInt(t), 0n, 0n])
 
       for (let x = 0; x < DOCKS; x++) {
         for (const [k, z] of [
@@ -165,8 +186,14 @@ export default experiment({
     }
 
     const finalCounts = [...counts.right, ...counts.left]
-    const countGcd = finalCounts.reduce((g, k) => gcd(gcd(gcd(g, k[0]), k[1]), k[2]), 0n)
-    const vibesFinal = finalCounts.reduce((s, k) => s + k[0] + k[1] + k[2], 0n)
+    const countGcd = finalCounts.reduce(
+      (g, k) => gcd(gcd(gcd(g, k[0]), k[1]), k[2]),
+      0n,
+    )
+    const vibesFinal = finalCounts.reduce(
+      (s, k) => s + k[0] + k[1] + k[2],
+      0n,
+    )
 
     // knots never dropped: values still equal
     let raw = countStart(DOCKS, BEATS)
@@ -183,16 +210,28 @@ export default experiment({
         const z1 = rawWalk.right[x] ?? ZERO
         const z2 = rawWalk.left[x] ?? ZERO
 
-        rawMismatches += v1[0] === z1[0] && v1[1] === z1[1] && v2[0] === z2[0] && v2[1] === z2[1] ? 0 : 1
+        rawMismatches +=
+          v1[0] === z1[0] &&
+          v1[1] === z1[1] &&
+          v2[0] === z2[0] &&
+          v2[1] === z2[1]
+            ? 0
+            : 1
       }
     }
 
-    const rawVibes = [...raw.right, ...raw.left].reduce((s, k) => s + k[0] + k[1] + k[2], 0n)
-    const rawCanonicalVibes = [...raw.right, ...raw.left].reduce((s, k) => {
-      const c = removeKnots(k).counts
+    const rawVibes = [...raw.right, ...raw.left].reduce(
+      (s, k) => s + k[0] + k[1] + k[2],
+      0n,
+    )
+    const rawCanonicalVibes = [...raw.right, ...raw.left].reduce(
+      (s, k) => {
+        const c = removeKnots(k).counts
 
-      return s + c[0] + c[1] + c[2]
-    }, 0n)
+        return s + c[0] + c[1] + c[2]
+      },
+      0n,
+    )
 
     // controls: coins with no turn of roles make no knot
     const noTurnKnots = (keepBy: bigint, reverseBy: bigint): bigint => {
@@ -204,14 +243,26 @@ export default experiment({
         const zero: Counts = [0n, 0n, 0n]
         const right: Counts[] = new Array<Counts>(n).fill(zero)
         const left: Counts[] = new Array<Counts>(n).fill(zero)
-        const scale = (k: Counts, by: bigint): Counts => [k[0] * by, k[1] * by, k[2] * by]
-        const add = (p: Counts, q: Counts): Counts => [p[0] + q[0], p[1] + q[1], p[2] + q[2]]
+        const scale = (k: Counts, by: bigint): Counts => [
+          k[0] * by,
+          k[1] * by,
+          k[2] * by,
+        ]
+        const add = (p: Counts, q: Counts): Counts => [
+          p[0] + q[0],
+          p[1] + q[1],
+          p[2] + q[2],
+        ]
 
         for (let x = 0; x < n; x++) {
           const r = s.right[x] ?? zero
           const l = s.left[x] ?? zero
-          const a = removeKnots(add(scale(r, keepBy), scale(l, reverseBy)))
-          const b = removeKnots(add(scale(r, reverseBy), scale(l, keepBy)))
+          const a = removeKnots(
+            add(scale(r, keepBy), scale(l, reverseBy)),
+          )
+          const b = removeKnots(
+            add(scale(r, reverseBy), scale(l, keepBy)),
+          )
 
           right[(x + 1) % n] = a.counts
           left[(x - 1 + n) % n] = b.counts
@@ -223,6 +274,7 @@ export default experiment({
 
       return knots
     }
+
     const hopKnots = noTurnKnots(0n, 2n)
     const streamKnots = noTurnKnots(2n, 0n)
 
@@ -230,8 +282,12 @@ export default experiment({
     let ring: CountState = countStart(RING, 0)
 
     ring = {
-      right: ring.right.map((k, x) => (x === 7 ? ([3n, 0n, 1n] as Counts) : k)),
-      left: ring.left.map((k, x) => (x === 20 ? ([0n, 5n, 2n] as Counts) : k)),
+      right: ring.right.map((k, x) =>
+        x === 7 ? ([3n, 0n, 1n] as Counts) : k,
+      ),
+      left: ring.left.map((k, x) =>
+        x === 20 ? ([0n, 5n, 2n] as Counts) : k,
+      ),
     }
 
     const ring0 = ring
@@ -245,8 +301,15 @@ export default experiment({
     }
 
     const factor = 4n ** BigInt(REVERSAL_BEATS)
-    const scaled = (k: Counts): Counts => removeKnots([k[0] * factor, k[1] * factor, k[2] * factor]).counts
-    const reverses = ring.right.every((k, x) => same(k, scaled(ring0.right[x] ?? [0n, 0n, 0n]))) && ring.left.every((k, x) => same(k, scaled(ring0.left[x] ?? [0n, 0n, 0n])))
+    const scaled = (k: Counts): Counts =>
+      removeKnots([k[0] * factor, k[1] * factor, k[2] * factor]).counts
+    const reverses =
+      ring.right.every((k, x) =>
+        same(k, scaled(ring0.right[x] ?? [0n, 0n, 0n])),
+      ) &&
+      ring.left.every((k, x) =>
+        same(k, scaled(ring0.left[x] ?? [0n, 0n, 0n])),
+      )
 
     const ok =
       representationViolations === 0 &&
@@ -260,7 +323,8 @@ export default experiment({
       reverses &&
       chargeExact
 
-    const log2 = (x: bigint): number => (x > 0n ? x.toString(2).length - 1 : -1)
+    const log2 = (x: bigint): number =>
+      x > 0n ? x.toString(2).length - 1 : -1
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -286,7 +350,8 @@ export default experiment({
         grainPerBeat: 2,
         countGcdAtBeat200: Number(countGcd),
         vibesAtBeat200Log2: log2(vibesFinal),
-        vibesPerGrainUnitAtBeat200: Number((vibesFinal * 1000n) / 2n ** BigInt(BEATS)) / 1000,
+        vibesPerGrainUnitAtBeat200:
+          Number((vibesFinal * 1000n) / 2n ** BigInt(BEATS)) / 1000,
         slotsWithNegativeRealPartAtBeat200: negativeRealSlots,
         rawVibesAtBeat40Log2: log2(rawVibes),
         canonicalVibesAtBeat40Log2: log2(rawCanonicalVibes),

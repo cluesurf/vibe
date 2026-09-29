@@ -11,10 +11,17 @@
 // into forward, back and line parts, and each combination is copied or bounced as the rule decides for those labels.
 
 import { type Vibe } from '@/code/rule/locked-token-line'
-import { spanOf, toLockedBasis, type Complex } from '@/code/measure/locked-run'
+import {
+  spanOf,
+  toLockedBasis,
+  type Complex,
+} from '@/code/measure/locked-run'
 import { type M3 } from '@/code/measure/token-pair-run'
 import { arcFlux } from '@/code/measure/reel-run'
-import { streamRegisters, type EndSpec } from '@/code/rule/end-store-line'
+import {
+  streamRegisters,
+  type EndSpec,
+} from '@/code/rule/end-store-line'
 
 type C3 = { re: Float64Array; im: Float64Array }
 
@@ -24,7 +31,10 @@ const A: Complex = [0.25, SQ / 2]
 const B: Complex = [0.75, -SQ / 2]
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-const zero3 = (): C3 => ({ re: new Float64Array(9), im: new Float64Array(9) })
+const zero3 = (): C3 => ({
+  re: new Float64Array(9),
+  im: new Float64Array(9),
+})
 
 function mul(p: C3, q: C3): C3 {
   const out = zero3()
@@ -35,8 +45,13 @@ function mul(p: C3, q: C3): C3 {
       let si = 0
 
       for (let k = 0; k < 3; k++) {
-        sr += p.re[3 * i + k]! * q.re[3 * k + j]! - p.im[3 * i + k]! * q.im[3 * k + j]!
-        si += p.re[3 * i + k]! * q.im[3 * k + j]! + p.im[3 * i + k]! * q.re[3 * k + j]!
+        sr +=
+          p.re[3 * i + k]! * q.re[3 * k + j]! -
+          p.im[3 * i + k]! * q.im[3 * k + j]!
+
+        si +=
+          p.re[3 * i + k]! * q.im[3 * k + j]! +
+          p.im[3 * i + k]! * q.re[3 * k + j]!
       }
 
       out.re[3 * i + j] = sr
@@ -87,7 +102,14 @@ export type EndRun = {
   positionsOf(c: number): number[]
   portsOf(c: number): number[]
   stringOf(c: number): number
-  place(entries: readonly { x: readonly number[]; ports: readonly number[]; j: readonly number[]; amp: Complex }[]): void
+  place(
+    entries: readonly {
+      x: readonly number[]
+      ports: readonly number[]
+      j: readonly number[]
+      amp: Complex
+    }[],
+  ): void
   beat(): void
   positions(): Float64Array
 }
@@ -99,9 +121,18 @@ export function endRun(options: EndRunOptions): EndRun {
   const V = 2 * D + 1
   const S = 2 * D
   const R = 3 ** n
-  const spec: EndSpec = { ring: L, kinds: options.kinds, convention: 'C', depth: D, cost: options.cost, root: options.root }
+  const spec: EndSpec = {
+    ring: L,
+    kinds: options.kinds,
+    convention: 'C',
+    depth: D,
+    cost: options.cost,
+    root: options.root,
+  }
 
-  if (L <= 2 * S + 1) throw new Error('end-run: the ring must be longer than 4D + 1')
+  if (L <= 2 * S + 1) {
+    throw new Error('end-run: the ring must be longer than 4D + 1')
+  }
 
   const P = L ** n
   const index = new Map<number, number>()
@@ -110,8 +141,10 @@ export function endRun(options: EndRunOptions): EndRun {
   const confString: number[] = []
   const confFlux: number[][] = []
   const xs = new Array<number>(n).fill(0)
-  const posCode = (x: readonly number[]): number => x.reduce((a, v) => a * L + v, 0)
-  const key = (x: readonly number[], rL: number, rR: number): number => (posCode(x) * V + (rL + D)) * V + (rR + D)
+  const posCode = (x: readonly number[]): number =>
+    x.reduce((a, v) => a * L + v, 0)
+  const key = (x: readonly number[], rL: number, rR: number): number =>
+    (posCode(x) * V + (rL + D)) * V + (rR + D)
 
   for (let p = 0; p < P; p++) {
     let c = p
@@ -121,17 +154,23 @@ export function endRun(options: EndRunOptions): EndRun {
       c = Math.floor(c / L)
     }
 
-    if (spanOf(L, xs) > S) continue
+    if (spanOf(L, xs) > S) {
+      continue
+    }
 
     const f = arcFlux(L, options.kinds, xs)
     const l = f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
-    if (l > S) continue
+    if (l > S) {
+      continue
+    }
 
     for (let rL = -D; rL <= D; rL++) {
       const rR = -l - rL
 
-      if (rR < -D || rR > D) continue
+      if (rR < -D || rR > D) {
+        continue
+      }
 
       index.set(key(xs, rL, rR), confPos.length)
       confPos.push(xs.slice())
@@ -157,14 +196,24 @@ export function endRun(options: EndRunOptions): EndRun {
         cc = Math.floor(cc / 3)
       }
 
-      const out = streamRegisters(spec, { x: confPos[c]!, j: dirs.slice(), f: confFlux[c]!, rL: confPorts[c]![0]!, rR: confPorts[c]![1]! })
+      const out = streamRegisters(spec, {
+        x: confPos[c]!,
+        j: dirs.slice(),
+        f: confFlux[c]!,
+        rL: confPorts[c]![0]!,
+        rR: confPorts[c]![1]!,
+      })
       const at = index.get(key(out.x, out.rL, out.rR))
 
       target[c * combos + combo] = at ?? -1
 
       let mask = 0
 
-      for (let t = 0; t < n; t++) if (dirs[t] === 2 || out.j[t] === dirs[t]) mask |= 1 << t
+      for (let t = 0; t < n; t++) {
+        if (dirs[t] === 2 || out.j[t] === dirs[t]) {
+          mask |= 1 << t
+        }
+      }
 
       movedMask[c * combos + combo] = mask
     }
@@ -174,11 +223,24 @@ export function endRun(options: EndRunOptions): EndRun {
   const frames: C3[][] = options.kinds.map(kind => {
     const out: C3[] = [identity3()]
 
-    for (let x = 1; x < L; x++) out.push(links ? mul(toLockedBasis(links[x - 1]!, kind === 'fear'), out[x - 1]!) : identity3())
+    for (let x = 1; x < L; x++) {
+      out.push(
+        links
+          ? mul(
+              toLockedBasis(links[x - 1]!, kind === 'fear'),
+              out[x - 1]!,
+            )
+          : identity3(),
+      )
+    }
 
     return out
   })
-  const linkOf = (t: number, x: number): C3 => (links ? toLockedBasis(links[x]!, options.kinds[t] === 'fear') : identity3())
+  const linkOf = (t: number, x: number): C3 =>
+    links
+      ? toLockedBasis(links[x]!, options.kinds[t] === 'fear')
+      : identity3()
+
   const projector = (label: number): C3 => {
     const m = zero3()
 
@@ -186,6 +248,7 @@ export function endRun(options: EndRunOptions): EndRun {
 
     return m
   }
+
   const coin = ((): C3 => {
     const m = zero3()
 
@@ -208,7 +271,9 @@ export function endRun(options: EndRunOptions): EndRun {
 
     return m
   })()
+
   type Moves = { coin: C3; move: [C3, C3, C3]; bounce: [C3, C3, C3] }
+
   const tables: Moves[][] = options.kinds.map((_, t) =>
     Array.from({ length: L }, (_, x) => {
       const G = frames[t]![x]!
@@ -217,26 +282,42 @@ export function endRun(options: EndRunOptions): EndRun {
       const fwd = inFrame(projector(0))
       const back = inFrame(projector(1))
       const rest = inFrame(projector(2))
-      const back1 = links ? dagger(linkOf(t, mod(x - 1, L))) : identity3()
+      const back1 = links
+        ? dagger(linkOf(t, mod(x - 1, L)))
+        : identity3()
       const flip = inFrame(swap)
 
-      return { coin: inFrame(coin), move: [mul(linkOf(t, x), fwd), mul(back1, back), rest], bounce: [mul(flip, fwd), mul(flip, back), rest] }
+      return {
+        coin: inFrame(coin),
+        move: [mul(linkOf(t, x), fwd), mul(back1, back), rest],
+        bounce: [mul(flip, fwd), mul(flip, back), rest],
+      }
     }),
   )
   const SWAP_KEEP: Complex = [(1 + OMEGA[0]) / 2, OMEGA[1] / 2]
   const SWAP_MOVE: Complex = [(1 - OMEGA[0]) / 2, -OMEGA[1] / 2]
   const strides = Array.from({ length: n }, (_, t) => 3 ** (n - 1 - t))
+
   let re = new Float64Array(count * R)
   let im = new Float64Array(count * R)
   let nre = new Float64Array(count * R)
   let nim = new Float64Array(count * R)
+
   const tr = new Float64Array(R)
   const ti = new Float64Array(R)
   const ur = new Float64Array(R)
   const ui = new Float64Array(R)
   const cr = new Float64Array(R)
   const ci = new Float64Array(R)
-  const applyOne = (m: C3, t: number, inR: Float64Array, inI: Float64Array, outR: Float64Array, outI: Float64Array): void => {
+
+  const applyOne = (
+    m: C3,
+    t: number,
+    inR: Float64Array,
+    inI: Float64Array,
+    outR: Float64Array,
+    outI: Float64Array,
+  ): void => {
     const st = strides[t]!
 
     outR.fill(0)
@@ -246,7 +327,9 @@ export function endRun(options: EndRunOptions): EndRun {
       const vr = inR[r]!
       const vi = inI[r]!
 
-      if (vr === 0 && vi === 0) continue
+      if (vr === 0 && vi === 0) {
+        continue
+      }
 
       const digit = Math.floor(r / st) % 3
       const base = r - digit * st
@@ -255,7 +338,9 @@ export function endRun(options: EndRunOptions): EndRun {
         const mr = m.re[3 * row + digit]!
         const mi = m.im[3 * row + digit]!
 
-        if (mr === 0 && mi === 0) continue
+        if (mr === 0 && mi === 0) {
+          continue
+        }
 
         const k = base + row * st
 
@@ -269,7 +354,11 @@ export function endRun(options: EndRunOptions): EndRun {
     if (options.cost !== 0) {
       for (let c = 0; c < count; c++) {
         const o = c * R
-        const th = (-2 * Math.PI * ((options.cost * confString[c]!) % options.root)) / options.root
+        const th =
+          (-2 *
+            Math.PI *
+            ((options.cost * confString[c]!) % options.root)) /
+          options.root
         const cs = Math.cos(th)
         const sn = Math.sin(th)
 
@@ -286,7 +375,9 @@ export function endRun(options: EndRunOptions): EndRun {
     // the like meetings: 2U's swap exchanges the two vibes' roles (the ports are the string's ends', not the vibes')
     for (let a = 0; a < n; a++) {
       for (let b = a + 1; b < n; b++) {
-        if (options.kinds[a] !== options.kinds[b]) continue
+        if (options.kinds[a] !== options.kinds[b]) {
+          continue
+        }
 
         nre.set(re)
         nim.set(im)
@@ -294,19 +385,31 @@ export function endRun(options: EndRunOptions): EndRun {
         for (let c = 0; c < count; c++) {
           const x = confPos[c]!
 
-          if (x[a] !== x[b]) continue
+          if (x[a] !== x[b]) {
+            continue
+          }
 
           for (let r = 0; r < R; r++) {
             const ja = Math.floor(r / strides[a]!) % 3
             const jb = Math.floor(r / strides[b]!) % 3
-            const r2 = r + (jb - ja) * strides[a]! + (ja - jb) * strides[b]!
+            const r2 =
+              r + (jb - ja) * strides[a]! + (ja - jb) * strides[b]!
             const pr = nre[c * R + r]!
             const pi = nim[c * R + r]!
             const qr = nre[c * R + r2]!
             const qi = nim[c * R + r2]!
 
-            re[c * R + r] = SWAP_KEEP[0] * pr - SWAP_KEEP[1] * pi + SWAP_MOVE[0] * qr - SWAP_MOVE[1] * qi
-            im[c * R + r] = SWAP_KEEP[0] * pi + SWAP_KEEP[1] * pr + SWAP_MOVE[0] * qi + SWAP_MOVE[1] * qr
+            re[c * R + r] =
+              SWAP_KEEP[0] * pr -
+              SWAP_KEEP[1] * pi +
+              SWAP_MOVE[0] * qr -
+              SWAP_MOVE[1] * qi
+
+            im[c * R + r] =
+              SWAP_KEEP[0] * pi +
+              SWAP_KEEP[1] * pr +
+              SWAP_MOVE[0] * qi +
+              SWAP_MOVE[1] * qr
           }
         }
       }
@@ -368,13 +471,23 @@ export function endRun(options: EndRunOptions): EndRun {
 
         let any = false
 
-        for (let r = 0; r < R; r++) if (cr[r] !== 0 || ci[r] !== 0) any = true
+        for (let r = 0; r < R; r++) {
+          if (cr[r] !== 0 || ci[r] !== 0) {
+            any = true
+          }
+        }
 
-        if (!any) continue
+        if (!any) {
+          continue
+        }
 
         const to = target[c * combos + combo]!
 
-        if (to < 0) throw new Error('end-run: an image left the configuration list')
+        if (to < 0) {
+          throw new Error(
+            'end-run: an image left the configuration list',
+          )
+        }
 
         for (let r = 0; r < R; r++) {
           nre[to * R + r] = nre[to * R + r]! + cr[r]!
@@ -399,7 +512,8 @@ export function endRun(options: EndRunOptions): EndRun {
     R,
     re,
     im,
-    indexOf: (x, ports) => index.get(key(x, ports[0]!, ports[1]!)) ?? -1,
+    indexOf: (x, ports) =>
+      index.get(key(x, ports[0]!, ports[1]!)) ?? -1,
     positionsOf: c => confPos[c]!.slice(),
     portsOf: c => confPorts[c]!.slice(),
     stringOf: c => confString[c]!,
@@ -407,7 +521,9 @@ export function endRun(options: EndRunOptions): EndRun {
       for (const e of entries) {
         const c = index.get(key(e.x, e.ports[0]!, e.ports[1]!))
 
-        if (c === undefined) throw new Error('end-run: the start is not a configuration')
+        if (c === undefined) {
+          throw new Error('end-run: the start is not a configuration')
+        }
 
         tr.fill(0)
         ti.fill(0)
@@ -435,7 +551,9 @@ export function endRun(options: EndRunOptions): EndRun {
       for (let c = 0; c < count; c++) {
         let s = 0
 
-        for (let r = 0; r < R; r++) s += run.re[c * R + r]! ** 2 + run.im[c * R + r]! ** 2
+        for (let r = 0; r < R; r++) {
+          s += run.re[c * R + r]! ** 2 + run.im[c * R + r]! ** 2
+        }
 
         const p = posCode(confPos[c]!)
 

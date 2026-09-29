@@ -58,7 +58,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { covarianceCensus, gSquared, isBowl, PLANES, readWord, scheduleCensus, turnClass, wordCensus } from '@/code/measure/g-two-census'
+import {
+  covarianceCensus,
+  gSquared,
+  isBowl,
+  PLANES,
+  readWord,
+  scheduleCensus,
+  turnClass,
+  wordCensus,
+} from '@/code/measure/g-two-census'
 import { tokenG, type TokenStep } from '@/code/measure/token-g-analytic'
 import { GOLDEN } from '@/code/tool/weyl'
 
@@ -66,19 +75,35 @@ const NESTED = 'z00x00y00y00x00z'
 const LETTERS = ['x', 'y', 'z', '0']
 const CALIBRATION_WORDS = 3000
 
-function planeSchedule(word: string, plane: readonly [number, number]): TokenStep[] {
-  return Array.from(word, ch => ({ axis: ch === 'xyz'[plane[0]] ? 'x' : ch === 'xyz'[plane[1]] ? 'y' : 'none' }))
+function planeSchedule(
+  word: string,
+  plane: readonly [number, number],
+): TokenStep[] {
+  return Array.from(word, ch => ({
+    axis:
+      ch === 'xyz'[plane[0]]
+        ? 'x'
+        : ch === 'xyz'[plane[1]]
+          ? 'y'
+          : 'none',
+  }))
 }
 
-function calibrate(): { planes: number; bowlMismatches: number; worstG: number } {
+function calibrate(): {
+  planes: number
+  bowlMismatches: number
+  worstG: number
+} {
   const words = ['xyz00', 'xyyx', NESTED]
 
   for (let i = 1; i <= CALIBRATION_WORDS; i++) {
     const length = 4 + Math.floor(((i * GOLDEN) % 1) * 13)
+
     let w = ''
 
     for (let k = 0; k < length; k++) {
-      w += LETTERS[Math.floor((((i * 131 + k * 17 + 1) * GOLDEN) % 1) * 4)]
+      w +=
+        LETTERS[Math.floor((((i * 131 + k * 17 + 1) * GOLDEN) % 1) * 4)]
     }
 
     words.push(w)
@@ -97,7 +122,10 @@ function calibrate(): { planes: number; bowlMismatches: number; worstG: number }
 
     PLANES.forEach((plane, i) => {
       const v = reading.planes[i]!
-      const float = tokenG({ schedule: planeSchedule(word, plane), mu: Math.PI / 3 })
+      const float = tokenG({
+        schedule: planeSchedule(word, plane),
+        mu: Math.PI / 3,
+      })
       const exact = gSquared(v)
 
       planes++
@@ -105,7 +133,10 @@ function calibrate(): { planes: number; bowlMismatches: number; worstG: number }
       if (float.bowl !== isBowl(v)) {
         bowlMismatches++
       } else if (exact) {
-        worstG = Math.max(worstG, Math.abs(Math.sqrt(exact[0] / exact[1]) - float.g))
+        worstG = Math.max(
+          worstG,
+          Math.abs(Math.sqrt(exact[0] / exact[1]) - float.g),
+        )
       }
     })
   }
@@ -125,16 +156,25 @@ export default experiment({
   run() {
     // G1
     const cal = calibrate()
-    const g1 = cal.planes > 0 && cal.bowlMismatches === 0 && cal.worstG < 1e-9
+    const g1 =
+      cal.planes > 0 && cal.bowlMismatches === 0 && cal.worstG < 1e-9
 
     // G2
     const covariance = covarianceCensus(9)
-    const covariantAt = (n: number): number => covariance.find(c => c.length === n)?.covariantThreeFold ?? 0
-    const g2 = covariance.every(c => c.covariantMassive === 0) && covariantAt(3) > 0 && covariantAt(6) > 0 && covariantAt(9) > 0
+    const covariantAt = (n: number): number =>
+      covariance.find(c => c.length === n)?.covariantThreeFold ?? 0
+    const g2 =
+      covariance.every(c => c.covariantMassive === 0) &&
+      covariantAt(3) > 0 &&
+      covariantAt(6) > 0 &&
+      covariantAt(9) > 0
 
     // G3
     const streams = scheduleCensus(7)
-    const g3 = streams.labeledPalindromes > 0 && streams.palindromeOrderingViolations === 0 && streams.palindromeNonDiracBowls === 0
+    const g3 =
+      streams.labeledPalindromes > 0 &&
+      streams.palindromeOrderingViolations === 0 &&
+      streams.palindromeNonDiracBowls === 0
 
     // G4
     const words = wordCensus(16)
@@ -142,26 +182,45 @@ export default experiment({
     const distinctG = new Set(classes.map(k => k.g2))
     const symmetric = classes.filter(k => k.timeSymmetric)
     const shortestSymmetric = Math.min(...symmetric.map(k => k.length))
-    const symmetricAtShortest = symmetric.filter(k => k.length === shortestSymmetric)
+    const symmetricAtShortest = symmetric.filter(
+      k => k.length === shortestSymmetric,
+    )
     const a = distinctG.size >= 2
-    const b = symmetricAtShortest.some(k => k.g2 === '4/1') && symmetricAtShortest.some(k => k.g2 !== '4/1')
+    const b =
+      symmetricAtShortest.some(k => k.g2 === '4/1') &&
+      symmetricAtShortest.some(k => k.g2 !== '4/1')
     const orderingFree = classes.filter(k => k.orderingFree)
-    const c = orderingFree.length > 0 && orderingFree.every(k => k.g2 === '4/1')
-    const forced = classes.filter(k => k.orderingFree && k.timeSymmetric)
+    const c =
+      orderingFree.length > 0 && orderingFree.every(k => k.g2 === '4/1')
+    const forced = classes.filter(
+      k => k.orderingFree && k.timeSymmetric,
+    )
     const shortestForced = Math.min(...forced.map(k => k.length))
-    const forcedAtShortest = forced.filter(k => k.length === shortestForced)
+    const forcedAtShortest = forced.filter(
+      k => k.length === shortestForced,
+    )
     const nestedClass = turnClass(NESTED)
-    const d = forcedAtShortest.length === 1 && forcedAtShortest[0]?.word === nestedClass
+    const d =
+      forcedAtShortest.length === 1 &&
+      forcedAtShortest[0]?.word === nestedClass
     const g4 = a && b && c && d
     const ok = g1 && g2 && g3 && g4
 
-    const byLength = (predicate: (k: (typeof classes)[number]) => boolean): string =>
+    const byLength = (
+      predicate: (k: (typeof classes)[number]) => boolean,
+    ): string =>
       [...new Set(classes.filter(predicate).map(k => k.length))]
         .sort((x, y) => x - y)
-        .map(n => `${n}: ${classes.filter(k => predicate(k) && k.length === n).length}`)
+        .map(
+          n =>
+            `${n}: ${classes.filter(k => predicate(k) && k.length === n).length}`,
+        )
         .join(', ')
     const shortestIsotropic = Math.min(...classes.map(k => k.length))
-    const gAt = (n: number): string => [...new Set(classes.filter(k => k.length === n).map(k => k.g2))].join(' ')
+    const gAt = (n: number): string =>
+      [
+        ...new Set(classes.filter(k => k.length === n).map(k => k.g2)),
+      ].join(' ')
     const nested = readWord(NESTED)
     const metrics: Record<string, number> = {
       gateG1: g1 ? 1 : 0,
@@ -178,10 +237,14 @@ export default experiment({
       covariantWordsN3: covariantAt(3),
       covariantWordsN6: covariantAt(6),
       covariantWordsN9: covariantAt(9),
-      covariantMassiveWords: covariance.reduce((t, x) => t + x.covariantMassive, 0),
+      covariantMassiveWords: covariance.reduce(
+        (t, x) => t + x.covariantMassive,
+        0,
+      ),
       streamSequences: streams.sequences,
       labeledPalindromes: streams.labeledPalindromes,
-      palindromeOrderingViolations: streams.palindromeOrderingViolations,
+      palindromeOrderingViolations:
+        streams.palindromeOrderingViolations,
       palindromeBowlPlanes: streams.palindromeBowlPlanes,
       palindromeNonDiracBowls: streams.palindromeNonDiracBowls,
       wordsExamined: words.examined,
@@ -192,11 +255,19 @@ export default experiment({
       shortestIsotropicLength: shortestIsotropic,
       shortestTimeSymmetricLength: shortestSymmetric,
       timeSymmetricClassesAtShortest: symmetricAtShortest.length,
-      timeSymmetricDiracAtShortest: symmetricAtShortest.filter(k => k.g2 === '4/1').length,
-      timeSymmetricNonDiracAtShortest: symmetricAtShortest.filter(k => k.g2 !== '4/1').length,
+      timeSymmetricDiracAtShortest: symmetricAtShortest.filter(
+        k => k.g2 === '4/1',
+      ).length,
+      timeSymmetricNonDiracAtShortest: symmetricAtShortest.filter(
+        k => k.g2 !== '4/1',
+      ).length,
       orderingFreeClasses: orderingFree.length,
-      shortestOrderingFreeLength: Math.min(...orderingFree.map(k => k.length)),
-      orderingFreeClassesAtShortest: orderingFree.filter(k => k.length === Math.min(...orderingFree.map(x => x.length))).length,
+      shortestOrderingFreeLength: Math.min(
+        ...orderingFree.map(k => k.length),
+      ),
+      orderingFreeClassesAtShortest: orderingFree.filter(
+        k => k.length === Math.min(...orderingFree.map(x => x.length)),
+      ).length,
       forcedShortestLength: shortestForced,
       forcedClassesAtShortest: forcedAtShortest.length,
       nestedA: nested.planes[0]?.a ?? NaN,
@@ -208,14 +279,22 @@ export default experiment({
       const set = classes.filter(k => k.g2 === g)
 
       metrics[`isotropicG2_${key}_classes`] = set.length
-      metrics[`isotropicG2_${key}_shortest`] = Math.min(...set.map(k => k.length))
-      metrics[`isotropicG2_${key}_timeSymmetric`] = set.filter(k => k.timeSymmetric).length
-      metrics[`isotropicG2_${key}_orderingFree`] = set.filter(k => k.orderingFree).length
+      metrics[`isotropicG2_${key}_shortest`] = Math.min(
+        ...set.map(k => k.length),
+      )
+
+      metrics[`isotropicG2_${key}_timeSymmetric`] = set.filter(
+        k => k.timeSymmetric,
+      ).length
+
+      metrics[`isotropicG2_${key}_orderingFree`] = set.filter(
+        k => k.orderingFree,
+      ).length
     }
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `the integer reading equals the float perturbation theory on ${cal.planes} planes (worst ${cal.worstG.toExponential(1)}, ${cal.bowlMismatches} bowl mismatches); covariance forbids mass: ${metrics['covariantMassiveWords']} of ${covariantAt(3) + covariantAt(6) + covariantAt(9)} turn-covariant words up to 9 beats are massive; every one of ${streams.labeledPalindromes} labeled palindromes has T = 0 and all ${streams.palindromeBowlPlanes} of their bowl planes g = 2; over ${words.examined} words to 16 beats the isotropic classes (by length ${byLength(() => true)}) read g^2 in {${[...distinctG].join(', ')}}, the shortest at ${shortestIsotropic} beats with g^2 ${gAt(shortestIsotropic)}; CPT (time symmetry) first holds at ${shortestSymmetric} beats, where ${symmetricAtShortest.filter(k => k.g2 === '4/1').length} classes read g = 2 and ${symmetricAtShortest.filter(k => k.g2 !== '4/1').length} do not; all ${orderingFree.length} ordering-free isotropic classes read g = 2 (${byLength(k => k.orderingFree)}), and the ordering-free time-symmetric ones first appear at ${shortestForced} beats as ${forcedAtShortest.length} class: ${forcedAtShortest.map(k => k.word).join(', ')} (the nested palindrome ${nestedClass})`,
+      claim: `the integer reading equals the float perturbation theory on ${cal.planes} planes (worst ${cal.worstG.toExponential(1)}, ${cal.bowlMismatches} bowl mismatches); covariance forbids mass: ${metrics.covariantMassiveWords} of ${covariantAt(3) + covariantAt(6) + covariantAt(9)} turn-covariant words up to 9 beats are massive; every one of ${streams.labeledPalindromes} labeled palindromes has T = 0 and all ${streams.palindromeBowlPlanes} of their bowl planes g = 2; over ${words.examined} words to 16 beats the isotropic classes (by length ${byLength(() => true)}) read g^2 in {${[...distinctG].join(', ')}}, the shortest at ${shortestIsotropic} beats with g^2 ${gAt(shortestIsotropic)}; CPT (time symmetry) first holds at ${shortestSymmetric} beats, where ${symmetricAtShortest.filter(k => k.g2 === '4/1').length} classes read g = 2 and ${symmetricAtShortest.filter(k => k.g2 !== '4/1').length} do not; all ${orderingFree.length} ordering-free isotropic classes read g = 2 (${byLength(k => k.orderingFree)}), and the ordering-free time-symmetric ones first appear at ${shortestForced} beats as ${forcedAtShortest.length} class: ${forcedAtShortest.map(k => k.word).join(', ')} (the nested palindrome ${nestedClass})`,
       metrics,
       control: {
         tokenA: readWord('xyz00').planes[0]?.a ?? NaN,

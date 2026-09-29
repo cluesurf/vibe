@@ -38,7 +38,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { atomBeat, atomLevels, makeQuantumAtom, overlap, polarization, setWalk } from '@/code/measure/trit-quantum-atom'
+import {
+  atomBeat,
+  atomLevels,
+  makeQuantumAtom,
+  overlap,
+  polarization,
+  setWalk,
+} from '@/code/measure/trit-quantum-atom'
 
 const SIDE = 32
 const DEPTH = 16
@@ -46,15 +53,27 @@ const LEVELS = 5
 const CHARGE = 74
 const WINDOW: [number, number] = [10, 155]
 
-function series(start: number, coupled: boolean, beats: number): { p2: number[]; p1: number[]; omega: number } {
-  const atom = makeQuantumAtom({ side: SIDE, depth: DEPTH, levels: LEVELS, charge: CHARGE, coupled })
+function series(
+  start: number,
+  coupled: boolean,
+  beats: number,
+): { p2: number[]; p1: number[]; omega: number } {
+  const atom = makeQuantumAtom({
+    side: SIDE,
+    depth: DEPTH,
+    levels: LEVELS,
+    charge: CHARGE,
+    coupled,
+  })
   const lv = atomLevels(atom)
   const re = new Float64Array(SIDE ** 3)
   const im = new Float64Array(SIDE ** 3)
   const a = Math.sqrt(1 - start)
   const b = Math.sqrt(start)
 
-  for (let i = 0; i < re.length; i++) re[i] = a * lv.s[i]! + b * lv.p[i]!
+  for (let i = 0; i < re.length; i++) {
+    re[i] = a * lv.s[i]! + b * lv.p[i]!
+  }
 
   setWalk(atom, re, im)
 
@@ -71,7 +90,12 @@ function series(start: number, coupled: boolean, beats: number): { p2: number[];
 }
 
 // least squares of y = c0 + c1 t + A cos(2 w t) + B sin(2 w t) over [from, to]
-function fitSlope(y: number[], omega: number, from: number, to: number): number {
+function fitSlope(
+  y: number[],
+  omega: number,
+  from: number,
+  to: number,
+): number {
   const rows: number[][] = []
   const rhs: number[] = []
 
@@ -81,11 +105,16 @@ function fitSlope(y: number[], omega: number, from: number, to: number): number 
   }
 
   const n = 4
-  const m = Array.from({ length: n }, () => new Array<number>(n + 1).fill(0))
+  const m = Array.from({ length: n }, () =>
+    new Array<number>(n + 1).fill(0),
+  )
 
   rows.forEach((r, k) => {
     for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) m[i]![j] = m[i]![j]! + r[i]! * r[j]!
+      for (let j = 0; j < n; j++) {
+        m[i]![j] = m[i]![j]! + r[i]! * r[j]!
+      }
+
       m[i]![n] = m[i]![n]! + r[i]! * rhs[k]!
     }
   })
@@ -93,7 +122,11 @@ function fitSlope(y: number[], omega: number, from: number, to: number): number 
   for (let i = 0; i < n; i++) {
     let p = i
 
-    for (let r = i + 1; r < n; r++) if (Math.abs(m[r]![i]!) > Math.abs(m[p]![i]!)) p = r
+    for (let r = i + 1; r < n; r++) {
+      if (Math.abs(m[r]![i]!) > Math.abs(m[p]![i]!)) {
+        p = r
+      }
+    }
 
     const tmp = m[i]!
 
@@ -101,11 +134,15 @@ function fitSlope(y: number[], omega: number, from: number, to: number): number 
     m[p] = tmp
 
     for (let r = 0; r < n; r++) {
-      if (r === i) continue
+      if (r === i) {
+        continue
+      }
 
       const f = m[r]![i]! / m[i]![i]!
 
-      for (let c = i; c <= n; c++) m[r]![c] = m[r]![c]! - f * m[i]![c]!
+      for (let c = i; c <= n; c++) {
+        m[r]![c] = m[r]![c]! - f * m[i]![c]!
+      }
     }
   }
 
@@ -115,7 +152,12 @@ function fitSlope(y: number[], omega: number, from: number, to: number): number 
 // R: the transverse part of the transition polarization's Fourier transform at k = omega / c, direction
 // averaged (golden-angle directions), over its value at k = 0
 function retardation(k: number): { ratio: number; dipole: number } {
-  const atom = makeQuantumAtom({ side: SIDE, depth: DEPTH, levels: LEVELS, charge: CHARGE })
+  const atom = makeQuantumAtom({
+    side: SIDE,
+    depth: DEPTH,
+    levels: LEVELS,
+    charge: CHARGE,
+  })
   const lv = atomLevels(atom)
   const rho = Float64Array.from(lv.s, (v, i) => v * lv.p[i]!)
   const pol = new Float64Array(SIDE ** 3 * 9)
@@ -125,6 +167,7 @@ function retardation(k: number): { ratio: number; dipole: number } {
 
   const directions = 400
   const golden = Math.PI * (3 - Math.sqrt(5))
+
   const transverse = (kk: number): number => {
     let sum = 0
 
@@ -136,18 +179,25 @@ function retardation(k: number): { ratio: number; dipole: number } {
       const fi = [0, 0, 0]
 
       for (let y = 0; y < SIDE ** 3; y++) {
-        const c = [(y % SIDE) - h, (Math.floor(y / SIDE) % SIDE) - h, Math.floor(y / (SIDE * SIDE)) - h]
+        const c = [
+          (y % SIDE) - h,
+          (Math.floor(y / SIDE) % SIDE) - h,
+          Math.floor(y / (SIDE * SIDE)) - h,
+        ]
 
         for (let i = 0; i < 3; i++) {
           const v = pol[y * 9 + i]!
 
-          if (v === 0) continue
+          if (v === 0) {
+            continue
+          }
 
           const pos = [c[0]!, c[1]!, c[2]!]
 
           pos[i] = pos[i]! + 0.5
 
-          const phase = kk * (n[0]! * pos[0]! + n[1]! * pos[1]! + n[2]! * pos[2]!)
+          const phase =
+            kk * (n[0]! * pos[0]! + n[1]! * pos[1]! + n[2]! * pos[2]!)
 
           fr[i] = fr[i]! + v * Math.cos(phase)
           fi[i] = fi[i]! + v * Math.sin(phase)
@@ -157,13 +207,24 @@ function retardation(k: number): { ratio: number; dipole: number } {
       const dr = n[0]! * fr[0]! + n[1]! * fr[1]! + n[2]! * fr[2]!
       const di = n[0]! * fi[0]! + n[1]! * fi[1]! + n[2]! * fi[2]!
 
-      sum += fr[0]! ** 2 + fr[1]! ** 2 + fr[2]! ** 2 + fi[0]! ** 2 + fi[1]! ** 2 + fi[2]! ** 2 - dr * dr - di * di
+      sum +=
+        fr[0]! ** 2 +
+        fr[1]! ** 2 +
+        fr[2]! ** 2 +
+        fi[0]! ** 2 +
+        fi[1]! ** 2 +
+        fi[2]! ** 2 -
+        dr * dr -
+        di * di
     }
 
     return sum / directions
   }
 
-  return { ratio: transverse(k) / transverse(0), dipole: Math.abs(lv.dipole) }
+  return {
+    ratio: transverse(k) / transverse(0),
+    dipole: Math.abs(lv.dipole),
+  }
 }
 
 export default experiment({
@@ -227,9 +288,15 @@ export default experiment({
       D3: pureMax <= 1e-10,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.D2 && gates.D3 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.D2 && gates.D3
+        ? 'partial'
+        : 'fail'
     const e = (x: number): string => x.toExponential(3)
 
     return verdict({
@@ -238,7 +305,7 @@ export default experiment({
       metrics,
       control: { oneWaySlope: slopeOneWay },
       notes:
-        'L2, STAND-IN electron and nucleus, semiclassical coupling. FIRST RUN 2026-09-26 (tmp/frc0222.log, 220 s), PARTIAL, no gate moved. D1 FAILS by 0.7 percent of its window: from half and half, P_2p falls at a fitted -4 c1 = 3.94e-5 per beat over beats 10 to 155, 0.793 of Gamma R = 4.97e-5 (the gate asked 0.8 to 1.25), 0.574 of the bare dipole rate Gamma = 6.86e-5; R = 0.724 is the transverse retardation of this lattice atom\'s own transition polarization at k a = 0.66. The window is two thirds of one transition period (period 142 beats, the torus returns the light at 159), which the fit spans with a 2 omega oscillation; the whole 600-beat run falls 0.5 -> 0.4910, 1.5e-5 per beat of P averaged, box return included. D2 PASSES: from 90 percent 2p the slope is 0.361 of the half-and-half slope, the semiclassical P (1 - P) law\'s 0.36 (a quantum exponential would give 1.8). D3 PASSES: a pure 2p never starts to decay, P_1s at most 1.5e-16 over 160 beats (P_2p 1 - 3.4e-8, the split beat\'s own breathing). The one-way control (no back-action) holds P_2p (slope -3e-11): the decay is the light acting back. An exponential 2p decay at this rate needs a box of about c / Gamma = 4,048 docks (lifetime 20,137 beats), far beyond side 32. SEMICLASSICAL, PLAINLY: the pure-2p result is the textbook failure of semiclassical radiation (no expectation dipole, no emission, no spontaneous decay); spontaneous emission needs the light sourced per history of the signed whole (each history a whole-unit string, its own light), with the outcome the net line count over histories.',
+        "L2, STAND-IN electron and nucleus, semiclassical coupling. FIRST RUN 2026-09-26 (tmp/frc0222.log, 220 s), PARTIAL, no gate moved. D1 FAILS by 0.7 percent of its window: from half and half, P_2p falls at a fitted -4 c1 = 3.94e-5 per beat over beats 10 to 155, 0.793 of Gamma R = 4.97e-5 (the gate asked 0.8 to 1.25), 0.574 of the bare dipole rate Gamma = 6.86e-5; R = 0.724 is the transverse retardation of this lattice atom's own transition polarization at k a = 0.66. The window is two thirds of one transition period (period 142 beats, the torus returns the light at 159), which the fit spans with a 2 omega oscillation; the whole 600-beat run falls 0.5 -> 0.4910, 1.5e-5 per beat of P averaged, box return included. D2 PASSES: from 90 percent 2p the slope is 0.361 of the half-and-half slope, the semiclassical P (1 - P) law's 0.36 (a quantum exponential would give 1.8). D3 PASSES: a pure 2p never starts to decay, P_1s at most 1.5e-16 over 160 beats (P_2p 1 - 3.4e-8, the split beat's own breathing). The one-way control (no back-action) holds P_2p (slope -3e-11): the decay is the light acting back. An exponential 2p decay at this rate needs a box of about c / Gamma = 4,048 docks (lifetime 20,137 beats), far beyond side 32. SEMICLASSICAL, PLAINLY: the pure-2p result is the textbook failure of semiclassical radiation (no expectation dipole, no emission, no spontaneous decay); spontaneous emission needs the light sourced per history of the signed whole (each history a whole-unit string, its own light), with the outcome the net line count over histories.",
     })
   },
 })

@@ -50,26 +50,45 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
 import { gridLines, hermitianValues } from '@/code/measure/bell-gates'
-import { phasePointOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { roleDensity } from '@/code/measure/role-bell'
 
 const BEATS = 120
 const LOG3 = Math.log(3)
 
-const shannon = (p: readonly number[]): number => -p.reduce((s, x) => (x > 1e-300 ? s + x * Math.log(x) : s), 0)
-const vonNeumann = (values: readonly number[]): number => shannon(values.map(v => Math.max(0, v)))
+const shannon = (p: readonly number[]): number =>
+  -p.reduce((s, x) => (x > 1e-300 ? s + x * Math.log(x) : s), 0)
+const vonNeumann = (values: readonly number[]): number =>
+  shannon(values.map(v => Math.max(0, v)))
 
 // a family's outcome distribution from a token's 9-point marginal
-function familyDistribution(marginal: readonly number[], family: readonly (readonly number[])[]): number[] {
-  return family.map(line => line.reduce((s, p) => s + (marginal[p] ?? 0), 0))
+function familyDistribution(
+  marginal: readonly number[],
+  family: readonly (readonly number[])[],
+): number[] {
+  return family.map(line =>
+    line.reduce((s, p) => s + (marginal[p] ?? 0), 0),
+  )
 }
 
 // the 3 x 3 density of one token from its 9-point marginal
 function tokenDensity(marginal: readonly number[]): Operator {
   const points = phasePointOperators(1)
-  const rho: Operator = { n: 3, re: new Float64Array(9), im: new Float64Array(9) }
+  const rho: Operator = {
+    n: 3,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   marginal.forEach((w, x) => {
     const a = points[x]!
@@ -85,8 +104,12 @@ function tokenDensity(marginal: readonly number[]): Operator {
 
 // H(X | B) for the first token measured in a family, the second kept quantum:
 // S(sum_x |x><x| (x) rho_B|x) - S(rho_B), with rho_B|x the partner's sub-normalized state on outcome x
-function conditionalEntropy(weight: readonly number[], family: readonly (readonly number[])[]): number {
+function conditionalEntropy(
+  weight: readonly number[],
+  family: readonly (readonly number[])[],
+): number {
   const points = phasePointOperators(1)
+
   const partner = (restrict: (x: number) => boolean): number[] => {
     const m = new Array<number>(9).fill(0)
 
@@ -102,8 +125,13 @@ function conditionalEntropy(weight: readonly number[], family: readonly (readonl
 
     return m
   }
+
   const densityOf = (m: readonly number[]): Operator => {
-    const rho: Operator = { n: 3, re: new Float64Array(9), im: new Float64Array(9) }
+    const rho: Operator = {
+      n: 3,
+      re: new Float64Array(9),
+      im: new Float64Array(9),
+    }
 
     m.forEach((w, y) => {
       const a = points[y]!
@@ -116,7 +144,10 @@ function conditionalEntropy(weight: readonly number[], family: readonly (readonl
 
     return rho
   }
-  const joint = family.flatMap(line => hermitianValues(densityOf(partner(x => line.includes(x)))))
+
+  const joint = family.flatMap(line =>
+    hermitianValues(densityOf(partner(x => line.includes(x)))),
+  )
   const b = hermitianValues(densityOf(partner(() => true)))
 
   return vonNeumann(joint) - vonNeumann(b)
@@ -134,10 +165,17 @@ export default experiment({
   run() {
     const histories = bellHistories(BEATS)
     const { lines, families } = gridLines()
-    const roleFamily = families.findIndex(f => f.every(l => l.every(p => Math.floor(p / 3) === Math.floor((l[0] ?? 0) / 3))))
-    const tiltFamily = families.findIndex(f => f.every(l => l.every(p => p % 3 === (l[0] ?? 0) % 3)))
+    const roleFamily = families.findIndex(f =>
+      f.every(l =>
+        l.every(p => Math.floor(p / 3) === Math.floor((l[0] ?? 0) / 3)),
+      ),
+    )
+    const tiltFamily = families.findIndex(f =>
+      f.every(l => l.every(p => p % 3 === (l[0] ?? 0) % 3)),
+    )
     const role = families[roleFamily] ?? []
     const tilt = families[tiltFamily] ?? []
+
     let tokens = 0
     let g1 = 0
     let g2 = 0
@@ -156,7 +194,10 @@ export default experiment({
 
       for (const a of lines) {
         for (const b of lines) {
-          const own = a.every(p => Math.floor(p / 3) === h.start[0]) && b.every(p => Math.floor(p / 3) === h.start[1])
+          const own =
+            a.every(p => Math.floor(p / 3) === h.start[0]) &&
+            b.every(p => Math.floor(p / 3) === h.start[1])
+
           let w: Whole = lineKnot(h.tokens, a, b)
 
           for (let t = -1; t < BEATS; t++) {
@@ -177,7 +218,9 @@ export default experiment({
                 m[q] = (m[q] ?? 0) + x
               })
 
-              const sum = shannon(familyDistribution(m, role)) + shannon(familyDistribution(m, tilt))
+              const sum =
+                shannon(familyDistribution(m, role)) +
+                shannon(familyDistribution(m, tilt))
               const s = vonNeumann(hermitianValues(tokenDensity(m)))
 
               tokens++
@@ -191,16 +234,24 @@ export default experiment({
               }
 
               if (t > first) {
-                minExcessAfterMeeting = Math.min(minExcessAfterMeeting, sum - LOG3)
+                minExcessAfterMeeting = Math.min(
+                  minExcessAfterMeeting,
+                  sum - LOG3,
+                )
               }
 
               for (let i = 0; i < families.length; i++) {
                 for (let j = i + 1; j < families.length; j++) {
-                  if ((i === roleFamily && j === tiltFamily) || (j === roleFamily && i === tiltFamily)) {
+                  if (
+                    (i === roleFamily && j === tiltFamily) ||
+                    (j === roleFamily && i === tiltFamily)
+                  ) {
                     continue
                   }
 
-                  const other = shannon(familyDistribution(m, families[i] ?? [])) + shannon(familyDistribution(m, families[j] ?? []))
+                  const other =
+                    shannon(familyDistribution(m, families[i] ?? [])) +
+                    shannon(familyDistribution(m, families[j] ?? []))
 
                   g4 += other >= LOG3 - 1e-12 ? 0 : 1
                 }
@@ -214,11 +265,16 @@ export default experiment({
               const partnerMarginal = new Array<number>(9).fill(0)
 
               weight.forEach((x, i) => {
-                partnerMarginal[i % 9] = (partnerMarginal[i % 9] ?? 0) + x
+                partnerMarginal[i % 9] =
+                  (partnerMarginal[i % 9] ?? 0) + x
               })
 
-              const sB = vonNeumann(hermitianValues(tokenDensity(partnerMarginal)))
-              const left = conditionalEntropy(weight, role) + conditionalEntropy(weight, tilt)
+              const sB = vonNeumann(
+                hermitianValues(tokenDensity(partnerMarginal)),
+              )
+              const left =
+                conditionalEntropy(weight, role) +
+                conditionalEntropy(weight, tilt)
               const right = LOG3 + joint - sB
 
               memoryChecks++
@@ -236,7 +292,9 @@ export default experiment({
 
     point[4] = 1
 
-    const controlSum = shannon(familyDistribution(point, role)) + shannon(familyDistribution(point, tilt))
+    const controlSum =
+      shannon(familyDistribution(point, role)) +
+      shannon(familyDistribution(point, tilt))
     const gates = {
       G1: tokens > 0 && g1 === 0,
       G2: g2 === 0,
@@ -264,11 +322,16 @@ export default experiment({
         memoryMinExcess,
         memoryMinLeftSide: memoryMinLeft,
         log3: LOG3,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: { classicalPointRoleTilt: controlSum },
       notes:
-        'Shannon entropies of exact knot shares in nats; von Neumann entropies from floating-point eigenvalues. The bound is a theorem for positive states (E-QTM-0112 measures positivity on these histories), so G1 to G4 are L1 checks that the knit\'s states are states; the saturation counts are what the knit does. The control shows the bound is not a property of a weight array.',
+        "Shannon entropies of exact knot shares in nats; von Neumann entropies from floating-point eigenvalues. The bound is a theorem for positive states (E-QTM-0112 measures positivity on these histories), so G1 to G4 are L1 checks that the knit's states are states; the saturation counts are what the knit does. The control shows the bound is not a property of a weight array.",
     })
   },
 })

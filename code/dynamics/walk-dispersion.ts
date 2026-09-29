@@ -6,7 +6,11 @@
 // two eigenphases plus and minus omega. This gives the dispersion from the dynamics itself at
 // machine precision, feeding the nonrelativistic (Schrodinger) limit and the flux-period results.
 
-import { ComplexPair as Complex, pairAdd as add, pairMul as mul } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as Complex,
+  pairAdd as add,
+  pairMul as mul,
+} from '@/code/algebra/linear/complex-pair'
 
 type Spinor = readonly [Complex, Complex]
 

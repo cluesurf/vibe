@@ -57,21 +57,25 @@ export default experiment({
     for (let d = 0; d < 24; d++) {
       const to = mesh.neighbour(center, d)
 
-      roots.push(
-        [0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)),
-      )
+      roots.push([0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)))
     }
 
     const telegraph = (
       dir: number,
-    ): { signs: number[]; flips: number[]; backwardFraction: number } => {
+    ): {
+      signs: number[]
+      flips: number[]
+      backwardFraction: number
+    } => {
       const axis = roots[dir]!.map(v => v / Math.SQRT2)
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
       seeded.data[center * 24 + dir] = 1
 
       let prevPos: number[] | null = null
+
       const signs: number[] = []
       const flips: number[] = []
 
@@ -146,6 +150,7 @@ export default experiment({
     // (each contributing an entry flip and an exit flip), with the dips spaced in whole
     // lattice laps
     const dips: number[] = []
+
     let masslessArtifactsOnly = true
 
     for (let i = 0; i < massless.signs.length; i++) {

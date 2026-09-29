@@ -33,7 +33,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { turningWeave, type Collision } from '@/code/rule/collision'
-import { COLOR_TURN_SPEC, colorTurnWeave } from '@/code/rule/color-turn-weave'
+import {
+  COLOR_TURN_SPEC,
+  colorTurnWeave,
+} from '@/code/rule/color-turn-weave'
 import {
   colorLocalBeat,
   colorLocalBeatBack,
@@ -44,8 +47,19 @@ import {
   type ColorLocalSpec,
 } from '@/code/rule/color-local-weave'
 import { gaussHolds, type VibeState } from '@/code/rule/vibe-weave'
-import { acceptance, dressing, lineComponents, passesAgainst, type Dressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { loneDressing, neighbourTable, vacuumCells } from '@/code/measure/lone-dressing'
+import {
+  acceptance,
+  dressing,
+  lineComponents,
+  passesAgainst,
+  type Dressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  loneDressing,
+  neighbourTable,
+  vacuumCells,
+} from '@/code/measure/lone-dressing'
 import { collide, streamSourceTable } from '@/code/rule/lattice-gas'
 import { makeWill, type Will } from '@/code/tone/will'
 import { d4BoxCell, d4BoxMesh } from '@/code/substrate/d4-box'
@@ -59,9 +73,12 @@ const ROBUST_SIDES = [7, 11]
 const BEATS = 96
 const HOP_FREE_DRESSING = [51, 331, 1319, 2587]
 
-const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-const colorWeaveRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'bind' })
-const turnRule: ScheduledRule = (opposite, forward) => colorTurnWeave({ opposite, forward })
+const committedRule: ScheduledRule = (opposite, forward) =>
+  turningWeave({ opposite, forward, table: 'pair' })
+const colorWeaveRule: ScheduledRule = (opposite, forward) =>
+  turningWeave({ opposite, forward, table: 'bind' })
+const turnRule: ScheduledRule = (opposite, forward) =>
+  colorTurnWeave({ opposite, forward })
 
 function denseRoles(slots: number, scale: number): VibeState {
   const vibe = new Int8Array(slots)
@@ -78,10 +95,17 @@ function denseRoles(slots: number, scale: number): VibeState {
 }
 
 const same = (a: VibeState, b: VibeState): boolean =>
-  a.vibe.every((v, i) => v === b.vibe[i]) && a.role.every((v, i) => v === b.role[i]) && a.flow.every((v, i) => v === b.flow[i])
+  a.vibe.every((v, i) => v === b.vibe[i]) &&
+  a.role.every((v, i) => v === b.role[i]) &&
+  a.flow.every((v, i) => v === b.flow[i])
 
 // item 4: color leaks, reversal, Gauss and the frame change on a side-3 box with role points
-function colorExact(spec: ColorLocalSpec): { leaks: number; reverses: boolean; gauss: boolean; frameFree: boolean } {
+function colorExact(spec: ColorLocalSpec): {
+  leaks: number
+  reverses: boolean
+  gauss: boolean
+  frameFree: boolean
+} {
   const weave = makeColorLocalWeave({ side: 3, spec })
   const { mesh, moves } = weave
   const slots = mesh.cellCount * 24
@@ -104,13 +128,18 @@ function colorExact(spec: ColorLocalSpec): { leaks: number; reverses: boolean; g
   const reverses = same(s, start)
 
   // a change of role frame in every cell, links changed to match (as E-FRC-0124)
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const gaugedLinks = new Int16Array(weave.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       gaugedLinks[x * 24 + d] = moves.compose(
-        moves.compose(frame[mesh.neighbour(x, d)] ?? moves.identity, weave.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[mesh.neighbour(x, d)] ?? moves.identity,
+          weave.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -119,7 +148,12 @@ function colorExact(spec: ColorLocalSpec): { leaks: number; reverses: boolean; g
   const gauged = { ...weave, links: gaugedLinks }
   const gaugeRoles = (state: VibeState): VibeState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    ),
   })
 
   let a = denseRoles(slots, 2.11)
@@ -136,12 +170,19 @@ function colorExact(spec: ColorLocalSpec): { leaks: number; reverses: boolean; g
 }
 
 // item 5: the dense difference of E-FRC-0125 against the sparse count, beat by beat, one direction
-function denseMatchesSparse(rule: ScheduledRule, direction: number): boolean {
+function denseMatchesSparse(
+  rule: ScheduledRule,
+  direction: number,
+): boolean {
   const mesh = d4BoxMesh({ side: DRESSING_SIDE })
   const opposite = meshOpposites(mesh)
   const forward = rule(opposite, true)
   const table = streamSourceTable(mesh)
-  const center = d4BoxCell({ coordinates: [4, 4, 4, 4], side: DRESSING_SIDE })
+  const center = d4BoxCell({
+    coordinates: [4, 4, 4, 4],
+    side: DRESSING_SIDE,
+  })
+
   const step = (will: Will, collision: Collision): Will => {
     const out = new Int8Array(will.data.length)
 
@@ -186,7 +227,8 @@ function denseMatchesSparse(rule: ScheduledRule, direction: number): boolean {
   return dense.every((x, t) => x === sparse[t])
 }
 
-const noMore = (a: Dressing, b: Dressing): boolean => a.periodLargest.every((x, p) => x <= (b.periodLargest[p] ?? 0))
+const noMore = (a: Dressing, b: Dressing): boolean =>
+  a.periodLargest.every((x, p) => x <= (b.periodLargest[p] ?? 0))
 
 export default experiment({
   id: 'gauge/color-turn-weave-acceptance',
@@ -203,8 +245,14 @@ export default experiment({
     const colorWeave = acceptance(colorWeaveRule)
 
     const passes = passesAgainst(turn, committed, { bothSigns: true })
-    const committedPassesItself = passesAgainst(committed, committed, { bothSigns: true })
-    const colorWeaveFails = !passesAgainst(colorWeave, committed) && colorWeave.love.periodLargest.every((x, p) => x === HOP_FREE_DRESSING[p])
+    const committedPassesItself = passesAgainst(committed, committed, {
+      bothSigns: true,
+    })
+    const colorWeaveFails =
+      !passesAgainst(colorWeave, committed) &&
+      colorWeave.love.periodLargest.every(
+        (x, p) => x === HOP_FREE_DRESSING[p],
+      )
 
     const robust = ROBUST_SIDES.map(side => {
       const turnLove = dressing(turnRule, { side, tone: 1 })
@@ -212,27 +260,60 @@ export default experiment({
       const committedLove = dressing(committedRule, { side, tone: 1 })
       const committedFear = dressing(committedRule, { side, tone: -1 })
 
-      return { side, turnLove, turnFear, committedLove, committedFear, ok: noMore(turnLove, committedLove) && noMore(turnFear, committedFear) }
+      return {
+        side,
+        turnLove,
+        turnFear,
+        committedLove,
+        committedFear,
+        ok:
+          noMore(turnLove, committedLove) &&
+          noMore(turnFear, committedFear),
+      }
     })
 
     const turnColor = colorExact(COLOR_TURN_SPEC)
-    const committedColor = colorExact(colorLocalSpec({ tables: [PAIR_TABLE] }))
-    const colorOk = turnColor.leaks === 0 && turnColor.reverses && turnColor.gauss && turnColor.frameFree && committedColor.leaks > 0
+    const committedColor = colorExact(
+      colorLocalSpec({ tables: [PAIR_TABLE] }),
+    )
+    const colorOk =
+      turnColor.leaks === 0 &&
+      turnColor.reverses &&
+      turnColor.gauss &&
+      turnColor.frameFree &&
+      committedColor.leaks > 0
 
-    const worst = turn.love.perDirection.indexOf(Math.max(...turn.love.perDirection))
+    const worst = turn.love.perDirection.indexOf(
+      Math.max(...turn.love.perDirection),
+    )
     const instrumentsExact =
       denseMatchesSparse(turnRule, worst) &&
-      [false, true].every(withDense => lineComponents(turnRule, withDense) === lineComponents(turnRule, withDense, { dense: true }))
+      [false, true].every(
+        withDense =>
+          lineComponents(turnRule, withDense) ===
+          lineComponents(turnRule, withDense, { dense: true }),
+      )
 
-    const ok = passes && committedPassesItself && colorWeaveFails && robust.every(r => r.ok) && colorOk && instrumentsExact
+    const ok =
+      passes &&
+      committedPassesItself &&
+      colorWeaveFails &&
+      robust.every(r => r.ok) &&
+      colorOk &&
+      instrumentsExact
 
-    const perPeriod = (prefix: string, xs: readonly number[]): Record<string, number> =>
-      Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
+    const perPeriod = (
+      prefix: string,
+      xs: readonly number[],
+    ): Record<string, number> =>
+      Object.fromEntries(
+        xs.map((x, p) => [`${prefix}Period${p + 1}`, x]),
+      )
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        "the color turn weave, color-local and hop-free, does at least as well as the committed rule on every acceptance item it passes, and a lone love and a lone fear dress no more than under the committed rule in each of four periods on boxes of side 7, 9 and 11, where the color weave on the committed schedule fails the same gate as E-FRC-0125 found",
+        'the color turn weave, color-local and hop-free, does at least as well as the committed rule on every acceptance item it passes, and a lone love and a lone fear dress no more than under the committed rule in each of four periods on boxes of side 7, 9 and 11, where the color weave on the committed schedule fails the same gate as E-FRC-0125 found',
       metrics: {
         reverses: turn.reverses ? 1 : 0,
         chargeConserved: turn.chargeKept ? 1 : 0,
@@ -245,10 +326,16 @@ export default experiment({
         wallSettledMax: turn.wallMax,
         ...perPeriod('loveLargestSupport', turn.love.periodLargest),
         ...perPeriod('fearLargestSupport', turn.fear.periodLargest),
-        ...Object.fromEntries(robust.flatMap(r => [
-          ...Object.entries(perPeriod(`side${r.side}Love`, r.turnLove.periodLargest)),
-          ...Object.entries(perPeriod(`side${r.side}Fear`, r.turnFear.periodLargest)),
-        ])),
+        ...Object.fromEntries(
+          robust.flatMap(r => [
+            ...Object.entries(
+              perPeriod(`side${r.side}Love`, r.turnLove.periodLargest),
+            ),
+            ...Object.entries(
+              perPeriod(`side${r.side}Fear`, r.turnFear.periodLargest),
+            ),
+          ]),
+        ),
         worstSupportGrowth: turn.love.worstGrowth,
         protectedSpecies: turn.love.protectedSpecies,
         travellers: turn.travellers,
@@ -268,10 +355,22 @@ export default experiment({
         committedWallSettledMax: committed.wallMax,
         ...perPeriod('committedLove', committed.love.periodLargest),
         ...perPeriod('committedFear', committed.fear.periodLargest),
-        ...Object.fromEntries(robust.flatMap(r => [
-          ...Object.entries(perPeriod(`committedSide${r.side}Love`, r.committedLove.periodLargest)),
-          ...Object.entries(perPeriod(`committedSide${r.side}Fear`, r.committedFear.periodLargest)),
-        ])),
+        ...Object.fromEntries(
+          robust.flatMap(r => [
+            ...Object.entries(
+              perPeriod(
+                `committedSide${r.side}Love`,
+                r.committedLove.periodLargest,
+              ),
+            ),
+            ...Object.entries(
+              perPeriod(
+                `committedSide${r.side}Fear`,
+                r.committedFear.periodLargest,
+              ),
+            ),
+          ]),
+        ),
         committedProtectedSpecies: committed.love.protectedSpecies,
         committedTravellers: committed.travellers,
         committedMeanReach: committed.meanReach,
@@ -282,7 +381,7 @@ export default experiment({
         freeReach: Math.SQRT2 * 6,
       },
       notes:
-        'L2, exact, no random numbers. The rule was found by the search of E-FRC-0137, which also found other members that pass (a different table sequence on the committed turn with another swap order, among them), so this is one color-local rule that passes, not the only one. The gates are the comparative gates of E-FRC-0125, with the fear\'s dressing and the side-7 and side-11 boxes added. The dressing numbers at all three sides were seen in a probe (tmp/robust-probe) before these gates were fixed, so the robustness item records a measurement rather than testing a prediction. Travel and protected species are reported, not gated. What it does not show: that the rule keeps the committed rule\'s other results (the kick law, the Sakharov mechanism, the counting weights), none of which this battery asks.',
+        "L2, exact, no random numbers. The rule was found by the search of E-FRC-0137, which also found other members that pass (a different table sequence on the committed turn with another swap order, among them), so this is one color-local rule that passes, not the only one. The gates are the comparative gates of E-FRC-0125, with the fear's dressing and the side-7 and side-11 boxes added. The dressing numbers at all three sides were seen in a probe (tmp/robust-probe) before these gates were fixed, so the robustness item records a measurement rather than testing a prediction. Travel and protected species are reported, not gated. What it does not show: that the rule keeps the committed rule's other results (the kick law, the Sakharov mechanism, the counting weights), none of which this battery asks.",
     })
   },
 })

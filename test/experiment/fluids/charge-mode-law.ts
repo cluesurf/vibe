@@ -87,7 +87,9 @@ function committedRule(side: number): (beatIndex: number) => Collision {
     return known
   }
 
-  const rule = turningWeave({ opposite: meshOpposites(d4Mesh({ side })) })
+  const rule = turningWeave({
+    opposite: meshOpposites(d4Mesh({ side })),
+  })
 
   rules.set(side, rule)
 
@@ -151,7 +153,8 @@ function relativeSpread(xs: readonly number[]): number {
 
   return (
     Math.sqrt(
-      xs.reduce((s, v) => s + (v - m) ** 2, 0) / Math.max(1, xs.length - 1),
+      xs.reduce((s, v) => s + (v - m) ** 2, 0) /
+        Math.max(1, xs.length - 1),
     ) / m
   )
 }
@@ -160,9 +163,19 @@ function relativeSpread(xs: readonly number[]): number {
 function densityLaw(zeroFraction: number) {
   const committed = [
     ...[1, 2, 3, 4].map(mode =>
-      measure({ side: 9, mode, schedule: committedRule(9), zeroFraction }),
+      measure({
+        side: 9,
+        mode,
+        schedule: committedRule(9),
+        zeroFraction,
+      }),
     ),
-    measure({ side: 11, mode: 1, schedule: committedRule(11), zeroFraction }),
+    measure({
+      side: 11,
+      mode: 1,
+      schedule: committedRule(11),
+      zeroFraction,
+    }),
   ]
   const xs = committed.map(m => Math.log(m.k))
   const ys = committed.map(m => Math.log(m.law.slowRate))
@@ -259,7 +272,6 @@ export default experiment({
 
     const fit = { slope: main.exponent }
     const exponentError = main.exponentError
-    const rates = main.rates
     const rateMean = main.rateMean
     const rateSpread = main.rateRelativeSpread * rateMean
     const speedError = main.speedError
@@ -304,7 +316,12 @@ export default experiment({
       [1, 2, 3, 4].map(mode =>
         salt === SALT
           ? committed[mode - 1]!
-          : measure({ side: 9, mode, schedule: committedRule(9), salt }),
+          : measure({
+              side: 9,
+              mode,
+              schedule: committedRule(9),
+              salt,
+            }),
       ),
     )
     const saltRates = bySalt.map(row => row.map(m => m.law.slowRate))
@@ -312,8 +329,8 @@ export default experiment({
     // scatter between salts at a fixed k, pooled over the four k
     const betweenSalts = Math.sqrt(
       average(
-        [0, 1, 2, 3].map(i =>
-          relativeSpread(saltRates.map(row => row[i]!)) ** 2,
+        [0, 1, 2, 3].map(
+          i => relativeSpread(saltRates.map(row => row[i]!)) ** 2,
         ),
       ),
     )
@@ -333,7 +350,9 @@ export default experiment({
       acrossKSaltMean < (2 * betweenSalts) / Math.sqrt(salts.length)
 
     // (2) the fitting window: the same five series read with a 3L running mean, and in halves
-    const windowShift = committed.map(m => m.wideRate / m.law.slowRate - 1)
+    const windowShift = committed.map(
+      m => m.wideRate / m.law.slowRate - 1,
+    )
     const windowPattern = relativeSpread(committed.map(m => m.wideRate))
     const halves = committed.map(m => m.earlyRate / m.lateRate)
     // the window explains the spread only if changing it changes the spread: the 3L reading leaves an
@@ -357,7 +376,9 @@ export default experiment({
       ...sized.filter(m => 24 % m.side !== 0),
       ...committed,
     ]
-    const commensurateMean = average(commensurate.map(m => m.law.slowRate))
+    const commensurateMean = average(
+      commensurate.map(m => m.law.slowRate),
+    )
     const incommensurateMean = average(
       incommensurate.map(m => m.law.slowRate),
     )
@@ -384,8 +405,18 @@ export default experiment({
       ...[1, 2, 3, 4].map(mode =>
         measure({ side: 9, mode, schedule: committedRule(9), axis: 1 }),
       ),
-      measure({ side: 9, mode: 1, schedule: committedRule(9), axis: 2 }),
-      measure({ side: 9, mode: 1, schedule: committedRule(9), axis: 3 }),
+      measure({
+        side: 9,
+        mode: 1,
+        schedule: committedRule(9),
+        axis: 2,
+      }),
+      measure({
+        side: 9,
+        mode: 1,
+        schedule: committedRule(9),
+        axis: 3,
+      }),
     ]
     const axisOneRates = turned.slice(0, 4).map(m => m.law.slowRate)
     const axisRatio = average(axisOneRates) / average(saltRates[0]!)
@@ -449,8 +480,10 @@ export default experiment({
       axisOneExponent: axisOneFit.slope,
       rateAxis2N1: turned[4]?.law.slowRate ?? 0,
       rateAxis3N1: turned[5]?.law.slowRate ?? 0,
-      fastOverKAxis2N1: (turned[4]?.law.fastFrequency ?? 0) / (turned[4]?.k ?? 1),
-      fastOverKAxis3N1: (turned[5]?.law.fastFrequency ?? 0) / (turned[5]?.k ?? 1),
+      fastOverKAxis2N1:
+        (turned[4]?.law.fastFrequency ?? 0) / (turned[4]?.k ?? 1),
+      fastOverKAxis3N1:
+        (turned[5]?.law.fastFrequency ?? 0) / (turned[5]?.k ?? 1),
       samplingExplains: samplingExplains ? 1 : 0,
       windowExplains: windowExplains ? 1 : 0,
       finiteSizeExplains: finiteSizeExplains ? 1 : 0,
@@ -462,9 +495,11 @@ export default experiment({
         spreadMetrics[`rateSalt${salt}N${i + 1}`] = rate
       }),
     )
+
     sized.forEach(m => {
       spreadMetrics[`rateSide${m.side}N${m.mode}`] = m.law.slowRate
     })
+
     axisOneRates.forEach((rate, i) => {
       spreadMetrics[`rateAxis1N${i + 1}`] = rate
     })

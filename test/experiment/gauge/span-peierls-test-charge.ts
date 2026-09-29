@@ -55,7 +55,13 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { PEIERLS_RS, PEIERLS_SCALED, PEIERLS_SOURCE, spanPeierlsLight, walkReadings } from '@/code/measure/span-coulomb'
+import {
+  PEIERLS_RS,
+  PEIERLS_SCALED,
+  PEIERLS_SOURCE,
+  spanPeierlsLight,
+  walkReadings,
+} from '@/code/measure/span-coulomb'
 
 // E-FRC-0252's recorded electric moves at r = 4 .. 8 (tmp/frc0252-run1.log), for comparison only
 const OLD_ELECTRIC = [0.568, 0.435, 0.317, 0.205, 0.121]
@@ -71,19 +77,45 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const scaled = spanPeierlsLight(PEIERLS_SCALED, what => console.error(what))
-    const main = walkReadings(scaled, PEIERLS_RS, [1, -1, 0], (r, q) => (q === 1 && r === 4) || (q === -1 && r === 6))
+    const scaled = spanPeierlsLight(PEIERLS_SCALED, what =>
+      console.error(what),
+    )
+    const main = walkReadings(
+      scaled,
+      PEIERLS_RS,
+      [1, -1, 0],
+      (r, q) => (q === 1 && r === 4) || (q === -1 && r === 6),
+    )
 
     console.error(`scaled walks ${(Date.now() - started) / 1000}s`)
 
-    const plain = spanPeierlsLight(PEIERLS_SOURCE, what => console.error(what))
-    const control = walkReadings(plain, PEIERLS_RS, [1, -1], () => false)
-    const p1 = [scaled, plain].every(l => l.gauss === 0 && l.reversed) && main.normOk && main.backOk && control.normOk
-    const p3 = main.readings.every(w => w.love > 0 && w.fear < 0 && w.ratio >= 0.8 && w.ratio <= 1.25)
+    const plain = spanPeierlsLight(PEIERLS_SOURCE, what =>
+      console.error(what),
+    )
+    const control = walkReadings(
+      plain,
+      PEIERLS_RS,
+      [1, -1],
+      () => false,
+    )
+    const p1 =
+      [scaled, plain].every(l => l.gauss === 0 && l.reversed) &&
+      main.normOk &&
+      main.backOk &&
+      control.normOk
+    const p3 = main.readings.every(
+      w =>
+        w.love > 0 && w.fear < 0 && w.ratio >= 0.8 && w.ratio <= 1.25,
+    )
     const c = control.readings.every(w => Math.abs(w.ratio) < 0.2)
     const status = !p1 ? 'partial' : p3 && c ? 'pass' : 'fail'
-    const list = (f: (w: (typeof main.readings)[number]) => number, rs = main.readings, d = 3): string => rs.map(w => f(w).toExponential(d)).join(', ')
-    const endAngles = (l: typeof scaled): string => PEIERLS_RS.map(r => l.line[l.line.length - 1]![r]).join(', ')
+    const list = (
+      f: (w: (typeof main.readings)[number]) => number,
+      rs = main.readings,
+      d = 3,
+    ): string => rs.map(w => f(w).toExponential(d)).join(', ')
+    const endAngles = (l: typeof scaled): string =>
+      PEIERLS_RS.map(r => l.line[l.line.length - 1]![r]).join(', ')
     const metrics: Record<string, number> = {
       gate_P1: p1 ? 1 : 0,
       gate_P3: p3 ? 1 : 0,
@@ -110,6 +142,7 @@ export default experiment({
       metrics[`overOld_r${w.r}`] = w.electric / OLD_ELECTRIC[i]!
       metrics[`E_static_r${w.r}`] = scaled.staticLine[w.r]!
     })
+
     control.readings.forEach(w => {
       metrics[`control_electric_r${w.r}`] = w.electric
       metrics[`control_staticRef_r${w.r}`] = w.staticRef
@@ -121,8 +154,13 @@ export default experiment({
       status,
       claim: `a test vibe hopping with the Peierls phase of the spanned light's integer angle (D 32, side 24, 512 beats): with a +${PEIERLS_SCALED} source (q times E-FRC-0252's) the electric move is ${list(w => w.electric)} docks at r = 4 .. 8 against the spanned static reference t E / Q ${list(w => w.staticRef)} (ratio ${main.readings.map(w => w.ratio.toFixed(3)).join(', ')}), and ${main.readings.map((w, i) => (w.electric / OLD_ELECTRIC[i]!).toFixed(3)).join(', ')} of E-FRC-0252's moves with +${PEIERLS_SOURCE} on the unspanned light; with +${PEIERLS_SOURCE} on the spanned light the move is ${list(w => w.electric, control.readings)} against its reference ${list(w => w.staticRef, control.readings)}; Gauss ${scaled.gauss + plain.gauss} failures, ${scaled.wraps + plain.wraps} wraps, lights reversed ${scaled.reversed && plain.reversed}, norms ${main.normOk && control.normOk}`,
       metrics,
-      control: { plainElectric: control.readings.reduce((a, w) => a + Math.abs(w.electric), 0) },
-      notes: `L2. Gates P1 ${p1}, P3 ${p3}, C ${c}. Scaled run: love ${list(w => w.love)}; fear ${list(w => w.fear)}; shadow reference ${list(w => w.shadowRef)}; integer angle at beat 512 on r = 4 .. 8: ${endAngles(scaled)} (plain: ${endAngles(plain)}). Relax residual ${scaled.residual.toExponential(2)}, harmonic ${metrics.harmonic!.toExponential(2)}. Lights ${scaled.seconds.toFixed(0)} s and ${plain.seconds.toFixed(0)} s, total ${metrics.seconds!.toFixed(0)} s.`,
+      control: {
+        plainElectric: control.readings.reduce(
+          (a, w) => a + Math.abs(w.electric),
+          0,
+        ),
+      },
+      notes: `L2. Gates P1 ${p1}, P3 ${p3}, C ${c}. Scaled run: love ${list(w => w.love)}; fear ${list(w => w.fear)}; shadow reference ${list(w => w.shadowRef)}; integer angle at beat 512 on r = 4 .. 8: ${endAngles(scaled)} (plain: ${endAngles(plain)}). Relax residual ${scaled.residual.toExponential(2)}, harmonic ${metrics.harmonic!.toExponential(2)}. Lights ${scaled.seconds.toFixed(0)} s and ${plain.seconds.toFixed(0)} s, total ${metrics.seconds.toFixed(0)} s.`,
     })
   },
 })

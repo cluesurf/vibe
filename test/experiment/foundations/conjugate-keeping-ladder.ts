@@ -56,6 +56,7 @@ export default experiment({
     const classify = (dir: number, seedBeat: number): 'K' | 'l' => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const acc = new Set<number>()
       const readStart = seedBeat + 8
 
@@ -96,10 +97,11 @@ export default experiment({
     // the mirror rung, spot-checked at four birth beats and their mirrors about beat 9
     // (pattern index i = b - 20, mirror index = ((9 - i) % 24 + 24) % 24 -> beat 20 + that)
     let mirrorHolds = 0
+
     const spots = [0, 3, 7, 12]
 
     for (const i of spots) {
-      const j = ((9 - i) % 24 + 24) % 24
+      const j = (((9 - i) % 24) + 24) % 24
       const left = classify(19, 20 + i)
       const right = classify(16, 20 + j)
 

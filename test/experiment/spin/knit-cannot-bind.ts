@@ -42,14 +42,31 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
-import { bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { tritDifference, type Reduced } from '@/code/measure/living-pair-kernel'
-import { coinData, orientedHubStore } from '@/code/measure/varying-vacuum'
+import {
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  tritDifference,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  coinData,
+  orientedHubStore,
+} from '@/code/measure/varying-vacuum'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 
 const SIDE = 16
 const BEATS = 48
@@ -57,7 +74,12 @@ const GAP = 4
 const ROOTS = rootsD4()
 
 // per beat, along the line: the disturbance charge, and the disturbed slots (the absolute vibe difference)
-type LineRun = { rho: Int32Array[]; moved: Int32Array[]; trits: number[]; energy: number[] }
+type LineRun = {
+  rho: Int32Array[]
+  moved: Int32Array[]
+  trits: number[]
+  energy: number[]
+}
 
 export default experiment({
   id: 'spin/knit-cannot-bind',
@@ -70,59 +92,106 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinData(groupTable())
-    const f0 = LINE_FIRSTS[0] as number
-    const r0 = d4Coordinates(ROOTS[f0] as number[])
+    const f0 = LINE_FIRSTS[0]!
+    const r0 = d4Coordinates(ROOTS[f0]!)
     const mid = SIDE / 2
-    const anchor = d4BoxCell({ coordinates: [mid, mid, mid, mid], side: SIDE })
-    const hub = orientedHubStore(coins, SIDE, d4BoxCoordinates({ cell: anchor, side: SIDE }).map((v, k) => v - (r0[k] as number)))
+    const anchor = d4BoxCell({
+      coordinates: [mid, mid, mid, mid],
+      side: SIDE,
+    })
+    const hub = orientedHubStore(
+      coins,
+      SIDE,
+      d4BoxCoordinates({ cell: anchor, side: SIDE }).map(
+        (v, k) => v - r0[k]!,
+      ),
+    )
     const cells = SIDE ** 4
     const empty = new Int8Array(cells * 12)
+
     const energyOf = (s: Reduced): number => {
       let e = 0
 
-      for (let i = 0; i < s.vibe.length; i++) if (s.vibe[i] !== 0) e++
-      for (let i = 0; i < s.store.length; i++) e += 2 * Math.abs(s.store[i] as number)
+      for (const v of s.vibe) {
+        if (v !== 0) {
+          e++
+        }
+      }
+
+      for (const x of s.store) {
+        e += 2 * Math.abs(x)
+      }
 
       return e
     }
 
     const members = startFamily(16)
     const perMember = members.map(member => {
-      const weave = withStart(member, () => makeColorWeave({ side: SIDE, table: 'bind' }))
+      const weave = withStart(member, () =>
+        makeColorWeave({ side: SIDE, table: 'bind' }),
+      )
       const kernel = makeBounceKernel(weave, 'lone')
       const layout = separatedLayout(weave)
+
       const lineOf = (d: number): number[] => {
         const out = [anchor]
 
         for (let i = 1; i < 4 * SIDE; i++) {
-          const next = weave.mesh.neighbour(out[i - 1] as number, d)
+          const next = weave.mesh.neighbour(out[i - 1]!, d)
 
-          if (next === anchor) break
+          if (next === anchor) {
+            break
+          }
 
           out.push(next)
         }
 
         return out
       }
+
       // a bare direction: its line holds no stored unit on its line index anywhere along it
       let bare = -1
 
       for (let d = 0; d < 24 && bare < 0; d++) {
-        if (LINE_OF[d] === 0) continue
-        if (lineOf(d).every(y => hub[y * 12 + (LINE_OF[d] as number)] === 0)) bare = d
+        if (LINE_OF[d] === 0) {
+          continue
+        }
+
+        if (lineOf(d).every(y => hub[y * 12 + LINE_OF[d]!] === 0)) {
+          bare = d
+        }
       }
 
-      const run = (store: Int8Array, seeds: readonly [number, number, number][], line: readonly number[]): LineRun => {
-        const base = (): Reduced => ({ vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: Int8Array.from(store), spoint: Int8Array.from(layout) })
+      const run = (
+        store: Int8Array,
+        seeds: readonly [number, number, number][],
+        line: readonly number[],
+      ): LineRun => {
+        const base = (): Reduced => ({
+          vibe: new Int8Array(cells * 24),
+          point: new Int8Array(cells * 24),
+          store: Int8Array.from(store),
+          spoint: Int8Array.from(layout),
+        })
         const seeded = base()
 
-        for (const [dock, slot, v] of seeds) seeded.vibe[dock * 24 + slot] = v
+        for (const [dock, slot, v] of seeds) {
+          seeded.vibe[dock * 24 + slot] = v
+        }
 
         const a = bounceRunner(kernel, base())
         const b = bounceRunner(kernel, seeded)
-        const out: LineRun = { rho: [], moved: [], trits: [], energy: [] }
+        const out: LineRun = {
+          rho: [],
+          moved: [],
+          trits: [],
+          energy: [],
+        }
 
         for (let t = 0; t < BEATS; t++) {
           a.beat()
@@ -138,8 +207,8 @@ export default experiment({
             let m = 0
 
             for (let d = 0; d < 24; d++) {
-              q += (sb.vibe[y * 24 + d] as number) - (sa.vibe[y * 24 + d] as number)
-              m += Math.abs((sb.vibe[y * 24 + d] as number) - (sa.vibe[y * 24 + d] as number))
+              q += sb.vibe[y * 24 + d]! - sa.vibe[y * 24 + d]!
+              m += Math.abs(sb.vibe[y * 24 + d]! - sa.vibe[y * 24 + d]!)
             }
 
             rho[i] = q
@@ -156,48 +225,98 @@ export default experiment({
 
       // P1: energy against separation, on the stored line
       const stored = lineOf(f0)
-      const s0 = OPPOSITE[f0] as number
-      const energyRuns = [2, 4, 6, 8].map(g => run(hub, [[anchor, f0, 1], [stored[g] as number, s0, -1]], stored))
-      const energyExact = energyRuns.every(r => r.energy.every(e => e === 2))
+      const s0 = OPPOSITE[f0]!
+      const energyRuns = [2, 4, 6, 8].map(g =>
+        run(
+          hub,
+          [
+            [anchor, f0, 1],
+            [stored[g]!, s0, -1],
+          ],
+          stored,
+        ),
+      )
+      const energyExact = energyRuns.every(r =>
+        r.energy.every(e => e === 2),
+      )
 
       // P2: the bare line, head on, against the ballistic separation
       const bareLine = bare >= 0 ? lineOf(bare) : []
-      const bareBack = bare >= 0 ? (OPPOSITE[bare] as number) : 0
+      const bareBack = bare >= 0 ? OPPOSITE[bare]! : 0
       const L = bareLine.length
+
       // the separation of the two disturbed docks (one dock when they meet), from the disturbed slots
       const separationOf = (moved: Int32Array): number => {
         const at = [...moved].flatMap((q, i) => (q !== 0 ? [i] : []))
 
-        if (at.length === 1) return 0
-        if (at.length !== 2) return -1
+        if (at.length === 1) {
+          return 0
+        }
 
-        const d = Math.abs((at[1] as number) - (at[0] as number))
+        if (at.length !== 2) {
+          return -1
+        }
+
+        const d = Math.abs(at[1]! - at[0]!)
 
         return Math.min(d, L - d)
       }
+
       const ballistic = (t: number): number => {
         // after beat t + 1 the separation is |gap - 2 (t + 1)| folded on the line
         const d = (((GAP - 2 * (t + 1)) % L) + L) % L
 
         return Math.min(d, L - d)
       }
-      const bareRun = bare >= 0 ? run(hub, [[anchor, bare, 1], [bareLine[GAP] as number, bareBack, -1]], bareLine) : undefined
-      const coldRun = bare >= 0 ? run(empty, [[anchor, bare, 1], [bareLine[GAP] as number, bareBack, -1]], bareLine) : undefined
-      const bareSeparations = bareRun ? bareRun.moved.map(separationOf) : []
-      const coldSeparations = coldRun ? coldRun.moved.map(separationOf) : []
-      const bareBallistic = bare >= 0 && bareRun!.trits.every(x => x === 2) && bareSeparations.every((s, t) => s === ballistic(t)) && coldSeparations.every((s, t) => s === bareSeparations[t])
+
+      const bareRun =
+        bare >= 0
+          ? run(
+              hub,
+              [
+                [anchor, bare, 1],
+                [bareLine[GAP]!, bareBack, -1],
+              ],
+              bareLine,
+            )
+          : undefined
+      const coldRun =
+        bare >= 0
+          ? run(
+              empty,
+              [
+                [anchor, bare, 1],
+                [bareLine[GAP]!, bareBack, -1],
+              ],
+              bareLine,
+            )
+          : undefined
+      const bareSeparations = bareRun
+        ? bareRun.moved.map(separationOf)
+        : []
+      const coldSeparations = coldRun
+        ? coldRun.moved.map(separationOf)
+        : []
+      const bareBallistic =
+        bare >= 0 &&
+        bareRun!.trits.every(x => x === 2) &&
+        bareSeparations.every((s, t) => s === ballistic(t)) &&
+        coldSeparations.every((s, t) => s === bareSeparations[t])
 
       // P3: one love on the stored line
       const single = run(hub, [[anchor, f0, 1]], stored)
       const singleCold = run(empty, [[anchor, f0, 1]], stored)
-      const absolute = (rho: Int32Array): number => rho.reduce((s, q) => s + Math.abs(q), 0)
+      const absolute = (rho: Int32Array): number =>
+        rho.reduce((s, q) => s + Math.abs(q), 0)
       const singleMax = Math.max(...single.rho.map(absolute))
       const coldAbsolute = singleCold.rho.map(absolute)
 
       // P4: the binding hypothesis
       const lateBare = bareSeparations.slice(BEATS / 2)
-      const bareBound = lateBare.length > 0 && lateBare.every(s => s >= 0 && s <= 2)
+      const bareBound =
+        lateBare.length > 0 && lateBare.every(s => s >= 0 && s <= 2)
       const Ls = stored.length
+
       const dipole = (rho: Int32Array): number => {
         let re = 0
         let im = 0
@@ -209,10 +328,23 @@ export default experiment({
 
         return re * re + im * im
       }
+
       const pairRun = energyRuns[1]!
-      const fearAlone = run(hub, [[stored[GAP] as number, s0, -1]], stored)
-      const pairDipole = pairRun.rho.reduce((s, r) => s + dipole(r), 0) / BEATS
-      const addedDipole = pairRun.rho.reduce((s, _, t) => s + dipole(Int32Array.from(single.rho[t]!, (q, i) => q + (fearAlone.rho[t]![i] as number))), 0) / BEATS
+      const fearAlone = run(hub, [[stored[GAP]!, s0, -1]], stored)
+      const pairDipole =
+        pairRun.rho.reduce((s, r) => s + dipole(r), 0) / BEATS
+      const addedDipole =
+        pairRun.rho.reduce(
+          (s, _, t) =>
+            s +
+            dipole(
+              Int32Array.from(
+                single.rho[t]!,
+                (q, i) => q + fearAlone.rho[t]![i]!,
+              ),
+            ),
+          0,
+        ) / BEATS
       const storedBound = pairDipole < 0.5 * addedDipole
 
       return {
@@ -252,10 +384,18 @@ export default experiment({
         gate_GB: gb ? 1 : 0,
         membersEnergyExact: perMember.filter(m => m.energyExact).length,
         membersBallistic: perMember.filter(m => m.bareBallistic).length,
-        membersStoredDelocalized: perMember.filter(m => m.singleMax >= 3).length,
-        membersBound: perMember.filter(m => m.bareBound || m.storedBound).length,
-        singleAbsoluteMaxMin: Math.min(...perMember.map(m => m.singleMax)),
-        singleAbsoluteMaxMax: Math.max(...perMember.map(m => m.singleMax)),
+        membersStoredDelocalized: perMember.filter(
+          m => m.singleMax >= 3,
+        ).length,
+        membersBound: perMember.filter(
+          m => m.bareBound || m.storedBound,
+        ).length,
+        singleAbsoluteMaxMin: Math.min(
+          ...perMember.map(m => m.singleMax),
+        ),
+        singleAbsoluteMaxMax: Math.max(
+          ...perMember.map(m => m.singleMax),
+        ),
         pairDipoleMin: Math.min(...perMember.map(m => m.pairDipole)),
         pairDipoleMax: Math.max(...perMember.map(m => m.pairDipole)),
         addedDipoleMin: Math.min(...perMember.map(m => m.addedDipole)),
@@ -266,7 +406,9 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        coldSingleStaysOne: perMember.every(m => m.coldSingleOne) ? 1 : 0,
+        coldSingleStaysOne: perMember.every(m => m.coldSingleOne)
+          ? 1
+          : 0,
       },
       notes: `L2. Gates G1 ${g1}, G2 ${g2}, G3 ${g3}, GB ${gb}. FIRST RUN (198 s), recorded as is: partial (G2 false on 4 of 17 starts). Gates not moved; the title and this paragraph were written after the run, and the second run reproduces it. WHY G2 FAILED (probe tmp/mb-probe-bare.ts after the run): on integer+0 and integer+2 (the two failing starts among the five inspected; the other two failing starts were not inspected) the love and the fear meet head on at dock 2 with equal role points, so the pair move unmakes them into that dock's store (0 vibes, 1 store trit, energy still exactly 2) and remakes them one beat later, the love leaving forward instead of bouncing back; on the other starts the veto refuses and they bounce. Either way they then separate at relative speed 2 and wrap the 16-dock line (separations 2 0 . 2 4 6 8 6 4 2 0 ...): the failing beats are an annihilation and re-creation through the vacuum store, not an attraction, and the gate's separation reader could not see a pair held in a store. WHY GB READ TRUE: the stored-line clause compared the pair's charge dipole with that of the two single disturbances added, and the pair's (4.1 to 13.5) is below half of the sum's (8.1 to 23.7) on 10 starts; but a dipole above 4 is impossible for two point charges on a ring, so the pair's disturbance is itself line-wide: the clause measured that two line-wide disturbances do not add, not a bound pair. The bare-line clause (within 2 docks for the last 24 beats) held on no start. Registered reading: nothing in this knit binds two vibes. The pair move does make and unmake a love-fear pair at a meeting, which is the exchange of a created pair the Potts Yukawa needs, but with classical positions its only effect is to swap which way the charges leave. Per start (name: bare direction, stored single's largest absolute disturbance, pair dipole / added dipole): ${perMember.map(m => `${m.member}: ${m.bare}, ${m.singleMax}, ${m.pairDipole.toFixed(2)} / ${m.addedDipole.toFixed(2)}`).join('; ')}. Committed start, bare-line separations by beat: ${first.separations.join(' ')}; stored single's absolute disturbance by beat: ${first.singleAbsolute.join(' ')}. DISCLOSED: probes tmp/mb-probe-knit.ts and tmp/mb-probe-knit2.ts (side 8 and 16, committed start) saw the stored line's line-wide disturbance before this file was written.`,
     })

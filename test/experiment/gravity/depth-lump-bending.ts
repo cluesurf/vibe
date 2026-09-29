@@ -40,7 +40,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BEATS, CONFIGS, CONTENTS, IMPACTS, deflection, depthLumpSurvey, readingOf, type ImpactReading } from '@/code/measure/depth-lump'
+import {
+  BEATS,
+  CONFIGS,
+  CONTENTS,
+  IMPACTS,
+  deflection,
+  depthLumpSurvey,
+  readingOf,
+} from '@/code/measure/depth-lump'
 import { slope as fitSlope } from '@/code/measure/held-knot'
 
 export default experiment({
@@ -55,22 +63,51 @@ export default experiment({
   run() {
     const started = Date.now()
     const survey = depthLumpSurvey(what => console.error(what))
-    const beside = IMPACTS.map((b, i) => ({ b, i })).filter(x => x.b > 0)
-    const bend = (name: string, i: number): number => deflection(survey, name, i)
-    const big = (x: number): boolean => Number.isFinite(x) && Math.abs(x) > 1e-9
+    const beside = IMPACTS.map((b, i) => ({ b, i })).filter(
+      x => x.b > 0,
+    )
+    const bend = (name: string, i: number): number =>
+      deflection(survey, name, i)
+    const big = (x: number): boolean =>
+      Number.isFinite(x) && Math.abs(x) > 1e-9
 
     // E1
-    const instrument = survey.readings.every(r => r.gauss === 0 && r.closure && r.lumpKept) && readingOf(survey, 'empty').impacts.every(i => i.arrival <= BEATS)
-    const splitBent = CONTENTS.filter(n => beside.some(x => big(bend(`split${n}`, x.i))))
+    const instrument =
+      survey.readings.every(
+        r => r.gauss === 0 && r.closure && r.lumpKept,
+      ) &&
+      readingOf(survey, 'empty').impacts.every(i => i.arrival <= BEATS)
+    const splitBent = CONTENTS.filter(n =>
+      beside.some(x => big(bend(`split${n}`, x.i))),
+    )
     const g1 = instrument && splitBent.length > 0
 
     // E2
-    const bendsToward = CONTENTS.filter(n => beside.every(x => big(bend(`neutral${n}`, x.i)) && bend(`neutral${n}`, x.i) < 0))
+    const bendsToward = CONTENTS.filter(n =>
+      beside.every(
+        x =>
+          big(bend(`neutral${n}`, x.i)) && bend(`neutral${n}`, x.i) < 0,
+      ),
+    )
     const g2 = bendsToward.length > 0
 
     // E3
-    const growsWithContent = beside.every(x => CONTENTS.every((n, k) => k === 0 || Math.abs(bend(`neutral${n}`, x.i)) > Math.abs(bend(`neutral${CONTENTS[k - 1]}`, x.i))))
-    const fallsWithRange = beside.every((x, k) => k === 0 || Math.abs(bend('neutral12', x.i)) < Math.abs(bend('neutral12', (beside[k - 1] as { i: number }).i)))
+    const growsWithContent = beside.every(x =>
+      CONTENTS.every(
+        (n, k) =>
+          k === 0 ||
+          Math.abs(bend(`neutral${n}`, x.i)) >
+            Math.abs(bend(`neutral${CONTENTS[k - 1]}`, x.i)),
+      ),
+    )
+    const fallsWithRange = beside.every(
+      (x, k) =>
+        k === 0 ||
+        Math.abs(bend('neutral12', x.i)) <
+          Math.abs(
+            bend('neutral12', (beside[k - 1] as { i: number }).i),
+          ),
+    )
     const g3 = growsWithContent && fallsWithRange
     const status = !g1 ? 'partial' : g2 && g3 ? 'pass' : 'fail'
 
@@ -83,22 +120,31 @@ export default experiment({
       fallsWithRange: fallsWithRange ? 1 : 0,
     }
     const notes: string[] = []
-    const f = (x: number): string => (Number.isFinite(x) ? x.toExponential(3) : 'none')
+    const f = (x: number): string =>
+      Number.isFinite(x) ? x.toExponential(3) : 'none'
 
     for (const c of CONFIGS) {
-      if (c.form === 'empty') continue
+      if (c.form === 'empty') {
+        continue
+      }
 
       const row: string[] = []
 
       for (const x of beside) {
         const d = bend(c.name, x.i)
-        const own = readingOf(survey, c.name).impacts[x.i] as ImpactReading
-        const empty = readingOf(survey, 'empty').impacts[x.i] as ImpactReading
+        const own = readingOf(survey, c.name).impacts[x.i]!
+        const empty = readingOf(survey, 'empty').impacts[x.i]!
 
         metrics[`bend_${c.name}_b${x.b}`] = d
         metrics[`delay_${c.name}_b${x.b}`] = own.arrival - empty.arrival
-        metrics[`mismatch_${c.name}_b${x.b}`] = own.mismatch.reduce((a, v) => a + v, 0)
-        row.push(`b${x.b} bend ${f(d)} delay ${own.arrival - empty.arrival} mismatch ${metrics[`mismatch_${c.name}_b${x.b}`]}`)
+        metrics[`mismatch_${c.name}_b${x.b}`] = own.mismatch.reduce(
+          (a, v) => a + v,
+          0,
+        )
+
+        row.push(
+          `b${x.b} bend ${f(d)} delay ${own.arrival - empty.arrival} mismatch ${metrics[`mismatch_${c.name}_b${x.b}`]}`,
+        )
       }
 
       notes.push(`${c.name}: ${row.join(', ')}`)
@@ -107,11 +153,21 @@ export default experiment({
     const range: string[] = []
 
     for (const n of CONTENTS) {
-      const pts = beside.map(x => ({ b: x.b, d: bend(`split${n}`, x.i) })).filter(p => big(p.d))
-      const slope = pts.length >= 2 ? fitSlope(pts.map(p => Math.log(p.b)), pts.map(p => Math.log(Math.abs(p.d)))) : Number.NaN
+      const pts = beside
+        .map(x => ({ b: x.b, d: bend(`split${n}`, x.i) }))
+        .filter(p => big(p.d))
+      const slope =
+        pts.length >= 2
+          ? fitSlope(
+              pts.map(p => Math.log(p.b)),
+              pts.map(p => Math.log(Math.abs(p.d))),
+            )
+          : Number.NaN
 
       metrics[`splitSlope_N${n}`] = slope
-      range.push(`split${n}: b x bend ${beside.map(x => f(x.b * bend(`split${n}`, x.i))).join(', ')}, log-log slope ${Number.isFinite(slope) ? slope.toFixed(2) : 'not evaluable'} over ${pts.length} b`)
+      range.push(
+        `split${n}: b x bend ${beside.map(x => f(x.b * bend(`split${n}`, x.i))).join(', ')}, log-log slope ${Number.isFinite(slope) ? slope.toFixed(2) : 'not evaluable'} over ${pts.length} b`,
+      )
     }
 
     metrics.seconds = (Date.now() - started) / 1000

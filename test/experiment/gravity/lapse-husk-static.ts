@@ -76,8 +76,28 @@ import { fitPowers } from '@/code/measure/husk-coulomb'
 import { linearFit } from '@/code/measure/regression'
 import { lightSpeed } from '@/code/measure/varying-depth-light'
 import { stepRule } from '@/code/rule/step-depth'
-import { HUSK_LATERAL, huskOnly, lapseLinks, openMesh, placeOpenLines, type OpenMesh } from '@/code/rule/open-husk'
-import { greenSolve, huskDock, layeredModes, newOpenRecord, openContent, openStaticRun, rodFront, stackGreen, stackModes, stackSpeeds, warpedLayering, type OpenRecord } from '@/code/measure/open-husk'
+import {
+  HUSK_LATERAL,
+  huskOnly,
+  lapseLinks,
+  openMesh,
+  placeOpenLines,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  greenSolve,
+  huskDock,
+  layeredModes,
+  newOpenRecord,
+  openContent,
+  openStaticRun,
+  rodFront,
+  stackGreen,
+  stackModes,
+  stackSpeeds,
+  warpedLayering,
+  type OpenRecord,
+} from '@/code/measure/open-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -86,7 +106,9 @@ const LAYERS = 4
 const BEATS = 2048
 const CONTENT = 4
 const R_MAX = 24
-const FIT_R: readonly number[] = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+const FIT_R: readonly number[] = [
+  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+]
 const SHORT_FROM = 4
 const SHORT_TO = 11
 const POSITIVE_TO = 12
@@ -97,7 +119,14 @@ const SHORT_TOLERANCE = 0.25
 const ZERO_MODE_SHARE = 256 / 341
 const FRONT_TOLERANCE = 0.02
 const NEVER_FASTER = 1.02
-const FRONT = { rod: 8, units: 1, hopAt: 32, window: 160, distances: Array.from({ length: 23 }, (_, i) => i + 2), fit: Array.from({ length: 17 }, (_, i) => i + 4) }
+const FRONT = {
+  rod: 8,
+  units: 1,
+  hopAt: 32,
+  window: 160,
+  distances: Array.from({ length: 23 }, (_, i) => i + 2),
+  fit: Array.from({ length: 17 }, (_, i) => i + 4),
+}
 const FINE: readonly number[] = [1, 2, 4, 8, 16, 32]
 
 const AXES: readonly (readonly number[])[] = [
@@ -111,27 +140,63 @@ const AXES: readonly (readonly number[])[] = [
 
 type Reading = { W: number[]; linear: number[]; offHusk: number }
 
-function read(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRecord): Reading {
+function read(
+  mesh: OpenMesh,
+  rule: ReturnType<typeof stepRule>,
+  record: OpenRecord,
+): Reading {
   const h = SIDE / 2
-  const rho = openContent(mesh, [{ at: [0, 0, 0], units: CONTENT, to: [h, h, h] }])
+  const rho = openContent(mesh, [
+    { at: [0, 0, 0], units: CONTENT, to: [h, h, h] },
+  ])
   const allow = huskOnly(mesh)
   const lines = placeOpenLines(mesh, rho, 1, allow)
+
   let offHusk = 0
 
-  for (let m = 0; m < mesh.links; m++) if (lines[m] !== 0 && mesh.kind[m] !== HUSK_LATERAL) offHusk++
+  for (let m = 0; m < mesh.links; m++) {
+    if (lines[m] !== 0 && mesh.kind[m] !== HUSK_LATERAL) {
+      offHusk++
+    }
+  }
 
   const run = openStaticRun(mesh, rule, rho, BEATS, record, allow)
   const green = greenSolve(mesh, rho)
   const scale = -(Math.PI / DEPTH) * CONTENT
   const rs = Array.from({ length: R_MAX }, (_, i) => i + 1)
-  const mean = (x: ArrayLike<number>, r: number): number => AXES.reduce((t, a) => t + x[huskDock(mesh, a.map(v => v * r))]!, 0) / AXES.length
+  const mean = (x: ArrayLike<number>, r: number): number =>
+    AXES.reduce(
+      (t, a) =>
+        t +
+        x[
+          huskDock(
+            mesh,
+            a.map(v => v * r),
+          )
+        ]!,
+      0,
+    ) / AXES.length
 
-  return { W: rs.map(r => scale * mean(run.depth, r)), linear: rs.map(r => scale * mean(green.x, r)), offHusk }
+  return {
+    W: rs.map(r => scale * mean(run.depth, r)),
+    linear: rs.map(r => scale * mean(green.x, r)),
+    offHusk,
+  }
 }
 
-const forces = (W: readonly number[]): number[] => W.slice(0, -1).map((w, i) => W[i + 1]! - w)
-const logSlope = (d: readonly number[]): number => -linearFit({ xs: SLOPE_R.map(Math.log), ys: SLOPE_R.map(r => Math.log(d[r - 1]!)) }).slope
-const worst = (a: readonly number[], b: readonly number[], rs: readonly number[]): number => Math.max(...rs.map(r => Math.abs(a[r - 1]! / b[r - 1]! - 1)))
+const forces = (W: readonly number[]): number[] =>
+  W.slice(0, -1).map((w, i) => W[i + 1]! - w)
+const logSlope = (d: readonly number[]): number =>
+  -linearFit({
+    xs: SLOPE_R.map(Math.log),
+    ys: SLOPE_R.map(r => Math.log(d[r - 1]!)),
+  }).slope
+const worst = (
+  a: readonly number[],
+  b: readonly number[],
+  rs: readonly number[],
+): number =>
+  Math.max(...rs.map(r => Math.abs(a[r - 1]! / b[r - 1]! - 1)))
 
 export default experiment({
   id: 'gravity/lapse-husk-static',
@@ -144,7 +209,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const rule = stepRule(DEPTH, LEVELS)
     const c = lightSpeed(DEPTH)
     const record = newOpenRecord()
@@ -170,19 +236,39 @@ export default experiment({
     const speeds = stackSpeeds(mesh.sides, 'lapse_upper')
     const gAlone = (r: number): number => 1 / (24 * Math.PI * r)
     const rs = Array.from({ length: R_MAX - 1 }, (_, i) => i + 1)
-    const ratioOf = (g: (r: number) => number): number[] => rs.map(r => (g(r) - g(r + 1)) / (gAlone(r) - gAlone(r + 1)))
-    const deltaOf = (m: typeof modes): number[] => ratioOf(r => stackGreen(m, r)).map(v => v / (m[0]!.weight * 6) - 1)
+    const ratioOf = (g: (r: number) => number): number[] =>
+      rs.map(r => (g(r) - g(r + 1)) / (gAlone(r) - gAlone(r + 1)))
+    const deltaOf = (m: typeof modes): number[] =>
+      ratioOf(r => stackGreen(m, r)).map(
+        v => v / (m[0]!.weight * 6) - 1,
+      )
     const deltaPred = deltaOf(modes)
     const deltaMid = deltaOf(midModes)
     const kRS = Math.LN2 / Math.sqrt(6)
-    const deltaRS = rs.map(r => (2 / (3 * kRS * kRS)) * ((3 * r * r + 3 * r + 1) / (r * r * (r + 1) ** 2)))
+    const deltaRS = rs.map(
+      r =>
+        (2 / (3 * kRS * kRS)) *
+        ((3 * r * r + 3 * r + 1) / (r * r * (r + 1) ** 2)),
+    )
     const fine = FINE.map(n => {
       const L = warpedLayering(kRS, n, 1e-6)
 
       return deltaOf(layeredModes(L.stiff, L.conduct))
     })
-    const fitOf = (W: readonly number[]): [number, number, number] => fitPowers(FIT_R, FIT_R.map(r => W[r - 1]!), [1, 3]) as [number, number, number]
-    const fitRatioPred = fitOf(Array.from({ length: R_MAX }, (_, i) => -stackGreen(modes, i + 1)))[1] / fitOf(Array.from({ length: R_MAX }, (_, i) => -gAlone(i + 1)))[1]
+    const fitOf = (W: readonly number[]): [number, number, number] =>
+      fitPowers(
+        FIT_R,
+        FIT_R.map(r => W[r - 1]!),
+        [1, 3],
+      ) as [number, number, number]
+    const fitRatioPred =
+      fitOf(
+        Array.from(
+          { length: R_MAX },
+          (_, i) => -stackGreen(modes, i + 1),
+        ),
+      )[1] /
+      fitOf(Array.from({ length: R_MAX }, (_, i) => -gAlone(i + 1)))[1]
 
     // the readings
     const kAlone = -fitOf(alone.W)[1]
@@ -195,22 +281,44 @@ export default experiment({
     // gates
     const wraps = record.wraps.fWraps + record.wraps.vWraps
     const offHusk = alone.offHusk + lapsed.offHusk
-    const l0 = record.gaussOff === 0 && offHusk === 0 && record.curl === 0 && wraps === 0 && record.restOff === 0 && record.maxStep < 1.5 && record.maxRate < 1.5 && record.reversed
+    const l0 =
+      record.gaussOff === 0 &&
+      offHusk === 0 &&
+      record.curl === 0 &&
+      wraps === 0 &&
+      record.restOff === 0 &&
+      record.maxStep < 1.5 &&
+      record.maxRate < 1.5 &&
+      record.reversed
     const lapsedVsLinear = worst(fLapsed, forces(lapsed.linear), rs)
     const aloneVsLinear = worst(fAlone, forces(alone.linear), rs)
     const l1 = lapsedVsLinear <= SAME_TOLERANCE
-    const rising = lapsed.W.every((w, i) => i === 0 || w > lapsed.W[i - 1]!)
+    const rising = lapsed.W.every(
+      (w, i) => i === 0 || w > lapsed.W[i - 1]!,
+    )
     const fitRatio = kLapsed / kAlone
     const fitOff = Math.abs(fitRatio / ZERO_MODE_SHARE - 1)
     const l2 = rising && fitOff <= FIT_TOLERANCE
-    const positive = rs.filter(r => r <= POSITIVE_TO).every(r => delta[r - 1]! > 0)
+    const positive = rs
+      .filter(r => r <= POSITIVE_TO)
+      .every(r => delta[r - 1]! > 0)
     const shortR = rs.filter(r => r >= SHORT_FROM && r <= SHORT_TO)
     const shortOff = worst(delta, deltaPred, shortR)
     const l3 = positive && shortOff <= SHORT_TOLERANCE
     const frontRatio = front.speedThird / c
-    const frontWraps = frontRecord.wraps.fWraps + frontRecord.wraps.vWraps
-    const l4 = Math.abs(frontRatio - 1) <= FRONT_TOLERANCE && frontRatio <= NEVER_FASTER && frontRecord.gaussOff === 0 && frontWraps === 0 && frontRecord.restOff === 0 && frontRecord.reversed && front.reversed
-    const slopeMeasured = SLOPE_R.every(r => delta[r - 1]! > 0) ? logSlope(delta) : -1
+    const frontWraps =
+      frontRecord.wraps.fWraps + frontRecord.wraps.vWraps
+    const l4 =
+      Math.abs(frontRatio - 1) <= FRONT_TOLERANCE &&
+      frontRatio <= NEVER_FASTER &&
+      frontRecord.gaussOff === 0 &&
+      frontWraps === 0 &&
+      frontRecord.restOff === 0 &&
+      frontRecord.reversed &&
+      front.reversed
+    const slopeMeasured = SLOPE_R.every(r => delta[r - 1]! > 0)
+      ? logSlope(delta)
+      : -1
     const slopePred = logSlope(deltaPred)
     const slopeMid = logSlope(deltaMid)
     const slopeRS = logSlope(deltaRS)
@@ -275,6 +383,7 @@ export default experiment({
       metrics[`mode${n}_mass`] = m.mass
       metrics[`mode${n}_weightOverZero`] = m.weight / modes[0]!.weight
     })
+
     rs.forEach(r => {
       metrics[`forceRatio_r${r}`] = ratio[r - 1]!
       metrics[`delta_r${r}`] = delta[r - 1]!
@@ -282,13 +391,16 @@ export default experiment({
       metrics[`deltaMidpoint_r${r}`] = deltaMid[r - 1]!
       metrics[`deltaRS_r${r}`] = deltaRS[r - 1]!
     })
+
     FINE.forEach((n, i) => {
       metrics[`deltaFine${n}_r4`] = fine[i]![3]!
       metrics[`deltaFine${n}_r8`] = fine[i]![7]!
       metrics[`deltaFine${n}_r12`] = fine[i]![11]!
     })
     lapsed.W.forEach((w, i) => (metrics[`Wlapsed_r${i + 1}`] = w))
-    front.third.forEach((t, i) => (metrics[`frontThird_d${FRONT.distances[i]}`] = t))
+    front.third.forEach(
+      (t, i) => (metrics[`frontThird_d${FRONT.distances[i]}`] = t),
+    )
 
     return verdict({
       status,

@@ -84,10 +84,33 @@ import { radionMesh } from '@/code/rule/trit-radion'
 import { lapseLinks, openMesh, warpClock } from '@/code/rule/open-husk'
 import { horizonOf } from '@/code/rule/horizon-husk'
 import { compressLump } from '@/code/measure/step-depth'
-import { greenSolve, huskCoord, huskDistance, stackModes, type StackMode } from '@/code/measure/open-husk'
+import {
+  greenSolve,
+  huskCoord,
+  huskDistance,
+  stackModes,
+  type StackMode,
+} from '@/code/measure/open-husk'
 import { axisMean, spreadSinks } from '@/code/measure/clock-horizon'
-import { backgroundDocks, derivedSlope, lightestRange, massiveWeight, pairSlope, predictedExcess, profileSlope, unitWithBackground } from '@/code/measure/horizon-slope'
-import { backgroundResponse, coulombImages, greenAt, imageShift, periodicExcess, periodicGreen, splitModes } from '@/code/measure/husk-box'
+import {
+  backgroundDocks,
+  derivedSlope,
+  lightestRange,
+  massiveWeight,
+  pairSlope,
+  predictedExcess,
+  profileSlope,
+  unitWithBackground,
+} from '@/code/measure/horizon-slope'
+import {
+  backgroundResponse,
+  coulombImages,
+  greenAt,
+  imageShift,
+  periodicExcess,
+  periodicGreen,
+  splitModes,
+} from '@/code/measure/husk-box'
 
 const B1_TOLERANCE = 0.01
 const B3_TOLERANCE = 0.01
@@ -107,16 +130,32 @@ const FIELD_SIDES: readonly number[] = [24, 32]
 const FIELD_MASSES: readonly number[] = [600, 800, 1200, 1600]
 const MACHINE_SIDE = 32
 
-const volumeRadius = (docks: number): number => Math.cbrt((3 * docks) / (4 * Math.PI))
+const volumeRadius = (docks: number): number =>
+  Math.cbrt((3 * docks) / (4 * Math.PI))
 
 // the formula's first order, 1 - sum_n beta_n x_n e^(-x_n)
 function firstOrder(modes: readonly StackMode[], r: number): number {
   const { w0, massive } = splitModes(modes)
 
-  return 1 - massive.reduce((t, m) => t + (m.weight / w0) * m.mass * r * Math.exp(-m.mass * r), 0)
+  return (
+    1 -
+    massive.reduce(
+      (t, m) =>
+        t + (m.weight / w0) * m.mass * r * Math.exp(-m.mass * r),
+      0,
+    )
+  )
 }
 
-type Pair = { r: number; measured: number; free: number; formula: number; local: number; first: number; lattice: number }
+type Pair = {
+  r: number
+  measured: number
+  free: number
+  formula: number
+  local: number
+  first: number
+  lattice: number
+}
 
 type Point = {
   warp: string
@@ -148,32 +187,55 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const points: Point[] = []
     const lines: string[] = []
     const coulomb = new Map<string, number>()
+
     const coulombAt = (side: number, r: number): number => {
       const key = `${side}:${r}`
 
-      if (!coulomb.has(key)) coulomb.set(key, coulombImages(side, [r, 0, 0]))
+      if (!coulomb.has(key)) {
+        coulomb.set(key, coulombImages(side, [r, 0, 0]))
+      }
 
       return coulomb.get(key)!
     }
 
     // C0: the husk alone, where the periodic kernel is the mesh's exactly
     let machine = 0
+
     {
       const side = MACHINE_SIDE
       const mesh = openMesh(side, 0, 'shrink')
       const c = side / 2
       const center = [c, c, c]
       const far = backgroundDocks(mesh, center)
-      const x = greenSolve(mesh, unitWithBackground(mesh, center, c + side * c + side * side * c, far), SOLVE).x
+      const x = greenSolve(
+        mesh,
+        unitWithBackground(
+          mesh,
+          center,
+          c + side * c + side * side * c,
+          far,
+        ),
+        SOLVE,
+      ).x
       const g = periodicGreen(stackModes(mesh.sides, 'none'), side)
       const farAt = far.map(y => huskCoord(mesh, y))
 
-      for (let r = 1; r <= side / 4 - 1; r++) machine = Math.max(machine, Math.abs(axisMean(mesh, x, center, r) - periodicExcess(g, center, farAt, r)))
+      for (let r = 1; r <= side / 4 - 1; r++) {
+        machine = Math.max(
+          machine,
+          Math.abs(
+            axisMean(mesh, x, center, r) -
+              periodicExcess(g, center, farAt, r),
+          ),
+        )
+      }
+
       log('machinery')
     }
 
@@ -188,21 +250,35 @@ export default experiment({
           const reference = huskDistance(mesh, 0, center)
           const far = backgroundDocks(mesh, center)
           const farAt = far.map(y => huskCoord(mesh, y))
-          const x = greenSolve(mesh, unitWithBackground(mesh, center, at, far), SOLVE).x
+          const x = greenSolve(
+            mesh,
+            unitWithBackground(mesh, center, at, far),
+            SOLVE,
+          ).x
           const g = periodicGreen(modes, side)
-          const reads = Array.from({ length: side / 4 - 3 }, (_, i) => i + 2)
+          const reads = Array.from(
+            { length: side / 4 - 3 },
+            (_, i) => i + 2,
+          )
           const measured = new Map<number, number>()
           const periodic = new Map<number, number>()
           const uniform = new Map<number, number>()
           const infinite = new Map<number, number>()
           const free = new Map<number, number>()
           // the source's periodic response at dock 0, the reference
-          const refResponse = backgroundResponse(g, center, farAt, [0, 0, 0])
+          const refResponse = backgroundResponse(
+            g,
+            center,
+            farAt,
+            [0, 0, 0],
+          )
 
           for (const r of reads) {
             const e = axisMean(mesh, x, center, r)
             const eN = periodicExcess(g, center, farAt, r, refResponse)
-            const gInf = greenAt(g, r, 0, 0) - imageShift(modes, side, [r, 0, 0], coulombAt(side, r))
+            const gInf =
+              greenAt(g, r, 0, 0) -
+              imageShift(modes, side, [r, 0, 0], coulombAt(side, r))
 
             measured.set(r, e)
             periodic.set(r, eN)
@@ -217,20 +293,27 @@ export default experiment({
               radii,
               radii.map(r => m.get(r)!),
             )
-          const formula = (r: number): number => predictedExcess(modes, r, Infinity)
+          const formula = (r: number): number =>
+            predictedExcess(modes, r, Infinity)
           const formulaFit = profileSlope(radii, radii.map(formula))
           const rhoFormula = profileSlope(
             radii,
             radii.map(r => predictedExcess(modes, r, reference)),
           )
-          const pairAt = (m: Map<number, number>, r: number): number => pairSlope(r - 1, m.get(r - 1)!, r + 1, m.get(r + 1)!)
+          const pairAt = (m: Map<number, number>, r: number): number =>
+            pairSlope(r - 1, m.get(r - 1)!, r + 1, m.get(r + 1)!)
           const pairs: Pair[] = reads
             .filter(r => r >= 3 && r + 1 <= reads[reads.length - 1]!)
             .map(r => ({
               r,
               measured: pairAt(measured, r),
               free: pairAt(free, r),
-              formula: pairSlope(r - 1, formula(r - 1), r + 1, formula(r + 1)),
+              formula: pairSlope(
+                r - 1,
+                formula(r - 1),
+                r + 1,
+                formula(r + 1),
+              ),
               local: derivedSlope(modes, r, Infinity),
               first: firstOrder(modes, r),
               lattice: pairAt(infinite, r),
@@ -268,53 +351,111 @@ export default experiment({
       const mesh = warpClock(openMesh(side, 3, 'shrink'))
       const center = [side / 2, side / 2, side / 2]
       const radius = FIELD_MASSES.map(m => {
-        const lump = compressLump(radionMesh([side, side, side]), center, m, 1, spreadSinks(mesh, center, m, 9))
+        const lump = compressLump(
+          radionMesh([side, side, side]),
+          center,
+          m,
+          1,
+          spreadSinks(mesh, center, m, 9),
+        )
         const line = new Int8Array(mesh.links)
 
         line.set(lump.line)
 
-        return volumeRadius(horizonOf(mesh, line).reduce((t, v) => t + v, 0))
+        return volumeRadius(
+          horizonOf(mesh, line).reduce((t, v) => t + v, 0),
+        )
       })
 
-      fieldSlope.push(linearFit({ xs: FIELD_MASSES.map(Math.log), ys: radius.map(Math.log) }).slope)
+      fieldSlope.push(
+        linearFit({
+          xs: FIELD_MASSES.map(Math.log),
+          ys: radius.map(Math.log),
+        }).slope,
+      )
       log(`field side ${side}`)
     }
 
     // THE GATES
     const c0 = machine <= MACHINE
-    const b1 = points.every(p => Math.abs(p.measured - p.predicted) <= B1_TOLERANCE)
-    const shortest = points.filter(p => p.warp === 'lapse' && p.layers === 1)
-    const farPairs = shortest.flatMap(p => p.pairs.filter(q => q.r >= FAR_X * p.range).map(q => ({ side: p.side, ...q })))
-    const b2 = farPairs.length > 0 && farPairs.every(q => q.free > TARGET)
-    const b3a = points.every(p => p.pairs.filter(q => q.r >= 4).every(q => Math.abs(q.free - q.formula) <= B3_TOLERANCE))
+    const b1 = points.every(
+      p => Math.abs(p.measured - p.predicted) <= B1_TOLERANCE,
+    )
+    const shortest = points.filter(
+      p => p.warp === 'lapse' && p.layers === 1,
+    )
+    const farPairs = shortest.flatMap(p =>
+      p.pairs
+        .filter(q => q.r >= FAR_X * p.range)
+        .map(q => ({ side: p.side, ...q })),
+    )
+    const b2 =
+      farPairs.length > 0 && farPairs.every(q => q.free > TARGET)
+    const b3a = points.every(p =>
+      p.pairs
+        .filter(q => q.r >= 4)
+        .every(q => Math.abs(q.free - q.formula) <= B3_TOLERANCE),
+    )
     const b3b = points.every(p => {
       const rising = p.pairs.filter(q => q.r >= Math.max(4, p.range))
 
-      return rising.every((q, i) => i === 0 || q.free >= rising[i - 1]!.free)
+      return rising.every(
+        (q, i) => i === 0 || q.free >= rising[i - 1]!.free,
+      )
     })
     const b3 = b3a && b3b
-    const k = fieldSlope.every(s => Math.abs(s - FIELD_CENTER) <= FIELD_BAND)
-    const rhoRefuses = points.some(p => Math.abs(p.measured - p.rhoFormula) > B1_TOLERANCE)
-    const uniformRefuses = points.some(p => Math.abs(p.measured - p.uniform) > B1_TOLERANCE)
+    const k = fieldSlope.every(
+      s => Math.abs(s - FIELD_CENTER) <= FIELD_BAND,
+    )
+    const rhoRefuses = points.some(
+      p => Math.abs(p.measured - p.rhoFormula) > B1_TOLERANCE,
+    )
+    const uniformRefuses = points.some(
+      p => Math.abs(p.measured - p.uniform) > B1_TOLERANCE,
+    )
     const k2 = rhoRefuses && uniformRefuses
-    const status = !c0 || !b1 || !k ? 'fail' : b2 && b3 && k2 ? 'pass' : 'partial'
+    const status =
+      !c0 || !b1 || !k ? 'fail' : b2 && b3 && k2 ? 'pass' : 'partial'
 
     // REPORTED: the box-free excess's side independence, per stack, at r <= 6
     for (const warp of WARPS) {
       for (const layers of LAYERS) {
-        const small = points.find(p => p.warp === warp.name && p.layers === layers && p.side === SIDES[0])!
-        const big = points.find(p => p.warp === warp.name && p.layers === layers && p.side === SIDES[SIDES.length - 1])!
+        const small = points.find(
+          p =>
+            p.warp === warp.name &&
+            p.layers === layers &&
+            p.side === SIDES[0],
+        )!
+        const big = points.find(
+          p =>
+            p.warp === warp.name &&
+            p.layers === layers &&
+            p.side === SIDES[SIDES.length - 1],
+        )!
+
         let drift = 0
 
-        for (const [r, e] of small.free) if (r <= 6) drift = Math.max(drift, Math.abs(e / big.free.get(r)! - 1))
+        for (const [r, e] of small.free) {
+          if (r <= 6) {
+            drift = Math.max(drift, Math.abs(e / big.free.get(r)! - 1))
+          }
+        }
+
         metrics[`${warp.name}_L${layers}_freeDrift`] = drift
-        lines.push(`${warp.name} L${layers}: the box-free excess at r 2 .. 6 moves at most ${(100 * drift).toFixed(3)} percent between side ${SIDES[0]} and side ${SIDES[SIDES.length - 1]}`)
+        lines.push(
+          `${warp.name} L${layers}: the box-free excess at r 2 .. 6 moves at most ${(100 * drift).toFixed(3)} percent between side ${SIDES[0]} and side ${SIDES[SIDES.length - 1]}`,
+        )
       }
     }
 
     points.forEach(p => {
       const key = `${p.warp}_L${p.layers}_side${p.side}`
-      const worst = Math.max(0, ...p.pairs.filter(q => q.r >= 4).map(q => Math.abs(q.free - q.formula)))
+      const worst = Math.max(
+        0,
+        ...p.pairs
+          .filter(q => q.r >= 4)
+          .map(q => Math.abs(q.free - q.formula)),
+      )
 
       metrics[`${key}_range`] = p.range
       metrics[`${key}_measured`] = p.measured
@@ -330,8 +471,14 @@ export default experiment({
         `${key} (l ${p.range.toFixed(2)}, beta ${p.beta.toFixed(3)}, r_ref ${p.reference.toFixed(1)}): measured ${p.measured.toFixed(4)}, periodic ${p.predicted.toFixed(4)} (off ${(p.measured - p.predicted).toFixed(4)}), rho formula ${p.rhoFormula.toFixed(4)}, uniform background ${p.uniform.toFixed(4)}; box cost ${p.boxCost.toFixed(4)} = ${(p.boxCost / p.rhoCost).toFixed(3)} rho's; box-free fit ${p.freeFit.toFixed(4)} against the formula's ${p.formulaFit.toFixed(4)}; pairs r (r / l): measured / box-free / formula / local / first order / lattice kernel ${p.pairs.map(q => `${q.r} (${(q.r / p.range).toFixed(2)}): ${q.measured.toFixed(3)}/${q.free.toFixed(4)}/${q.formula.toFixed(4)}/${q.local.toFixed(4)}/${q.first.toFixed(4)}/${q.lattice.toFixed(4)}`).join(', ')}`,
       )
     })
-    farPairs.forEach(q => (metrics[`B2_side${q.side}_r${q.r}`] = q.free))
-    lines.push(`field criterion volume slope ${fieldSlope.map(s => s.toFixed(3)).join(', ')} on sides ${FIELD_SIDES.join(', ')}`)
+
+    farPairs.forEach(
+      q => (metrics[`B2_side${q.side}_r${q.r}`] = q.free),
+    )
+
+    lines.push(
+      `field criterion volume slope ${fieldSlope.map(s => s.toFixed(3)).join(', ')} on sides ${FIELD_SIDES.join(', ')}`,
+    )
 
     metrics.gate_C0 = c0 ? 1 : 0
     metrics.gate_B1 = b1 ? 1 : 0
@@ -342,17 +489,33 @@ export default experiment({
     metrics.control_K = k ? 1 : 0
     metrics.control_K2 = k2 ? 1 : 0
     metrics.machine = machine
-    metrics.worstB1 = Math.max(...points.map(p => Math.abs(p.measured - p.predicted)))
-    metrics.worstB3 = Math.max(...points.flatMap(p => p.pairs.filter(q => q.r >= 4).map(q => Math.abs(q.free - q.formula))))
+    metrics.worstB1 = Math.max(
+      ...points.map(p => Math.abs(p.measured - p.predicted)),
+    )
+
+    metrics.worstB3 = Math.max(
+      ...points.flatMap(p =>
+        p.pairs
+          .filter(q => q.r >= 4)
+          .map(q => Math.abs(q.free - q.formula)),
+      ),
+    )
     metrics.lowestB2 = Math.min(...farPairs.map(q => q.free))
-    fieldSlope.forEach((s, i) => (metrics[`field_side${FIELD_SIDES[i]}_slope`] = s))
+    fieldSlope.forEach(
+      (s, i) => (metrics[`field_side${FIELD_SIDES[i]}_slope`] = s),
+    )
     metrics.seconds = (Date.now() - started) / 1000
 
     return verdict({
       status,
       claim: `the clock horizon's slope with the box taken out, on ${points.length} (stack, side) points: machinery ${machine.toExponential(1)} (gate ${MACHINE}); worst |measured - periodic| ${metrics.worstB1.toFixed(4)} (gate ${B1_TOLERANCE}); lapse L1 box-free pair slopes at r >= ${FAR_X} l lowest ${metrics.lowestB2.toFixed(4)} (gate ${TARGET}); worst |box-free - formula| ${metrics.worstB3.toFixed(4)} (gate ${B3_TOLERANCE}), rising ${b3b}; field criterion ${fieldSlope.map(s => s.toFixed(3)).join(', ')}`,
       metrics,
-      control: { k: k ? 1 : 0, k2: k2 ? 1 : 0, rhoRefuses: rhoRefuses ? 1 : 0, uniformRefuses: uniformRefuses ? 1 : 0 },
+      control: {
+        k: k ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        rhoRefuses: rhoRefuses ? 1 : 0,
+        uniformRefuses: uniformRefuses ? 1 : 0,
+      },
       notes: `L1. C0 ${c0}, B1 ${b1}, B2 ${b2}, B3 ${b3} (a ${b3a}, b ${b3b}), K ${k}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

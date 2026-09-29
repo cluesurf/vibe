@@ -67,19 +67,31 @@ function start(rule: CenterLinks, scale: number): CenterState {
 
   for (let x = 0; x < matter.cells; x++) {
     for (const a of matter.firsts) {
-      demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1))
+      demon[x * 24 + a] = Math.floor(
+        (((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1),
+      )
     }
   }
 
   return { vibe, role, links: hashedLinks(matter), demon, flux }
 }
 
-const fields = (s: CenterState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+const fields = (s: CenterState): ArrayLike<number>[] => [
+  s.vibe,
+  s.role,
+  s.links,
+  s.demon,
+  s.flux,
+]
 
 const mismatches = (a: CenterState, b: CenterState): number => {
   const right = fields(b)
 
-  return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
+  return fields(a).reduce(
+    (n, f, k) =>
+      n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length,
+    0,
+  )
 }
 
 type Run = {
@@ -99,7 +111,8 @@ function run(rule: CenterLinks, scale: number): Run {
   const { matter } = rule
   const s0 = start(rule, scale)
   const e0 = centerEnergy(rule, s0)
-  const count = (s: CenterState, v: number): number => s.vibe.filter(x => x === v).length
+  const count = (s: CenterState, v: number): number =>
+    s.vibe.filter(x => x === v).length
   const moves = { links: 0, loops: 0, roles: 0, hops: 0 }
 
   let s = s0
@@ -121,7 +134,10 @@ function run(rule: CenterLinks, scale: number): Run {
 
     energyExact = energyExact && e === e0
     drift = Math.max(drift, Math.abs(e - e0))
-    loveFearExact = loveFearExact && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    loveFearExact =
+      loveFearExact &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
     violations += gaussViolations(rule, s)
   }
 
@@ -129,18 +145,24 @@ function run(rule: CenterLinks, scale: number): Run {
 
   for (let x = 0; x < matter.cells; x++) {
     for (const a of matter.firsts) {
-      linksChanged += s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
+      linksChanged +=
+        s.links[x * 24 + a] !== s0.links[x * 24 + a] ? 1 : 0
     }
   }
 
-  const strings: [number, number] = [stringLinks(rule, s0.flux), stringLinks(rule, s.flux)]
+  const strings: [number, number] = [
+    stringLinks(rule, s0.flux),
+    stringLinks(rule, s.flux),
+  ]
 
   for (let t = BEATS - 1; t >= 0; t--) {
     s = centerBeatBack(rule, s, t)
   }
 
   const reverses = mismatches(s, s0) === 0
-  const frame = Array.from({ length: matter.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * matter.order))
+  const frame = Array.from({ length: matter.cells }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * matter.order),
+  )
 
   let a = start(rule, scale * 1.7)
   let b = changeCenterFrame(rule, a, frame)
@@ -176,8 +198,21 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const make = (side: number, extra: { gauss?: boolean; priceFlux?: boolean; transport?: boolean } = {}): CenterLinks =>
-      makeCenterLinks({ side, kappa: KAPPA, tension: TENSION, capacity: CAPACITY, ...extra })
+    const make = (
+      side: number,
+      extra: {
+        gauss?: boolean
+        priceFlux?: boolean
+        transport?: boolean
+      } = {},
+    ): CenterLinks =>
+      makeCenterLinks({
+        side,
+        kappa: KAPPA,
+        tension: TENSION,
+        capacity: CAPACITY,
+        ...extra,
+      })
 
     const runs = SIDES.map(side => run(make(side), 1.37))
     const leftBehind = run(make(SIDES[0] ?? 4, { gauss: false }), 1.37)

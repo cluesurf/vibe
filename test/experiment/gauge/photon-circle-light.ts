@@ -38,7 +38,13 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { curlCurlMax, photonFamily, readMember, reverseMember, type MemberReading } from '@/code/measure/photon-circle'
+import {
+  curlCurlMax,
+  photonFamily,
+  readMember,
+  reverseMember,
+  type MemberReading,
+} from '@/code/measure/photon-circle'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 
 const BEATS = 2000
@@ -56,16 +62,34 @@ export default experiment({
   run() {
     const family = photonFamily()
     const lambdaMax = curlCurlMax(photonLatticeD4({ side: 4 }))
-    const reversal = [family[0]!, family[16]!].map(member => ({ member: member.name, ...reverseMember({ member, kind: 'circle', beats: BEATS }) }))
-    const circle: MemberReading[] = family.map(member => readMember({ member, kind: 'circle', beats: BEATS, lambdaMax }))
-    const wave: MemberReading[] = family.map(member => readMember({ member, kind: 'wave', beats: BEATS, lambdaMax }))
-    const a = reversal.every(r => r.mismatches === 0 && r.gauss === 0 && r.anglesMoved > 0)
-    const l = circle.every(r => r.lawResidual <= r.lawRoundingBound && r.branchOffLight === 0)
+    const reversal = [family[0]!, family[16]!].map(member => ({
+      member: member.name,
+      ...reverseMember({ member, kind: 'circle', beats: BEATS }),
+    }))
+    const circle: MemberReading[] = family.map(member =>
+      readMember({ member, kind: 'circle', beats: BEATS, lambdaMax }),
+    )
+    const wave: MemberReading[] = family.map(member =>
+      readMember({ member, kind: 'wave', beats: BEATS, lambdaMax }),
+    )
+    const a = reversal.every(
+      r => r.mismatches === 0 && r.gauss === 0 && r.anglesMoved > 0,
+    )
+    const l = circle.every(
+      r =>
+        r.lawResidual <= r.lawRoundingBound && r.branchOffLight === 0,
+    )
     const s = circle.every(r => r.shadowFromVillain <= TRACK)
     const withStrings = circle.filter(r => r.referenceStringMoves > 0)
     const informative = withStrings.length > 0
-    const waveDeparts = wave.filter((r, i) => (circle[i]?.referenceStringMoves ?? 0) > 0 && r.shadowFromVillain > TRACK).length
-    const linearDeparts = circle.filter(r => r.referenceStringMoves > 0 && r.shadowFromLinear > TRACK).length
+    const waveDeparts = wave.filter(
+      (r, i) =>
+        (circle[i]?.referenceStringMoves ?? 0) > 0 &&
+        r.shadowFromVillain > TRACK,
+    ).length
+    const linearDeparts = circle.filter(
+      r => r.referenceStringMoves > 0 && r.shadowFromLinear > TRACK,
+    ).length
     const ok = a && l && s && informative
     const metrics: Record<string, number> = {
       members: family.length,
@@ -75,20 +99,34 @@ export default experiment({
       gateS: s ? 1 : 0,
       gateI: informative ? 1 : 0,
       membersWithStringMoves: withStrings.length,
-      referenceStringMovesTotal: circle.reduce((t, r) => t + r.referenceStringMoves, 0),
-      worstShadowFromVillain: Math.max(...circle.map(r => r.shadowFromVillain)),
+      referenceStringMovesTotal: circle.reduce(
+        (t, r) => t + r.referenceStringMoves,
+        0,
+      ),
+      worstShadowFromVillain: Math.max(
+        ...circle.map(r => r.shadowFromVillain),
+      ),
       worstLawResidual: Math.max(...circle.map(r => r.lawResidual)),
       lawRoundingBound: circle[0]?.lawRoundingBound ?? NaN,
-      branchOffLightTotal: circle.reduce((t, r) => t + r.branchOffLight, 0),
-      worstStartOverSeamEnergy: Math.max(...circle.map(r => r.startEnergy / r.seamEnergy)),
-      leastStartOverSeamEnergy: Math.min(...circle.map(r => r.startEnergy / r.seamEnergy)),
+      branchOffLightTotal: circle.reduce(
+        (t, r) => t + r.branchOffLight,
+        0,
+      ),
+      worstStartOverSeamEnergy: Math.max(
+        ...circle.map(r => r.startEnergy / r.seamEnergy),
+      ),
+      leastStartOverSeamEnergy: Math.min(
+        ...circle.map(r => r.startEnergy / r.seamEnergy),
+      ),
       lambdaMaxSide4: lambdaMax,
     }
 
     for (const r of reversal) {
-      metrics[`reverse_${r.member.replace('+', '')}_mismatches`] = r.mismatches
+      metrics[`reverse_${r.member.replace('+', '')}_mismatches`] =
+        r.mismatches
       metrics[`reverse_${r.member.replace('+', '')}_gauss`] = r.gauss
-      metrics[`reverse_${r.member.replace('+', '')}_anglesMoved`] = r.anglesMoved
+      metrics[`reverse_${r.member.replace('+', '')}_anglesMoved`] =
+        r.anglesMoved
     }
 
     circle.forEach((r, i) => {
@@ -106,15 +144,17 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `with the branch read on the light, the rule is an exact bijection (${reversal.map(r => `${r.member} ${r.mismatches} mismatches back, ${r.gauss} Gauss violations`).join(', ')}), its shadow obeys the Villain leapfrog to ${metrics['worstLawResidual']?.toExponential(2)} (bound ${metrics['lawRoundingBound']?.toExponential(2)}) with ${metrics['branchOffLightTotal']} plaquette-beats off the light, and tracks the float Villain reference within ${metrics['worstShadowFromVillain']?.toExponential(2)} flux units on ${circle.filter(r => r.shadowFromVillain <= TRACK).length} of ${family.length} members over ${BEATS} beats; ${withStrings.length} members move a string (${metrics['referenceStringMovesTotal']} moves); control: E-FRC-0185's rule departs from the same reference on ${waveDeparts} of them, the noncompact leapfrog on ${linearDeparts}`,
+      claim: `with the branch read on the light, the rule is an exact bijection (${reversal.map(r => `${r.member} ${r.mismatches} mismatches back, ${r.gauss} Gauss violations`).join(', ')}), its shadow obeys the Villain leapfrog to ${metrics.worstLawResidual?.toExponential(2)} (bound ${metrics.lawRoundingBound?.toExponential(2)}) with ${metrics.branchOffLightTotal} plaquette-beats off the light, and tracks the float Villain reference within ${metrics.worstShadowFromVillain?.toExponential(2)} flux units on ${circle.filter(r => r.shadowFromVillain <= TRACK).length} of ${family.length} members over ${BEATS} beats; ${withStrings.length} members move a string (${metrics.referenceStringMovesTotal} moves); control: E-FRC-0185's rule departs from the same reference on ${waveDeparts} of them, the noncompact leapfrog on ${linearDeparts}`,
       metrics,
       control: {
         waveDepartsOnStringMembers: waveDeparts,
         linearDepartsOnStringMembers: linearDeparts,
-        worstWaveFromVillain: Math.max(...wave.map(r => r.shadowFromVillain)),
+        worstWaveFromVillain: Math.max(
+          ...wave.map(r => r.shadowFromVillain),
+        ),
       },
       notes:
-        'L2, exact integers in the rule, deterministic (hashed and Weyl-scaled starts, zero carried start, no seeds). The fix adds no register and no knob: the same sawtooth, its branch read on the flux the physics runs on. The rule is then compact U(1) (Villain) light exactly, to the rounding of one term: linear light below the seam, a Dirac string at it. The circle is forced (a bounded reversible column is Z_(2D+1)), so the seam is not removable, only placeable, and this places it on the light. What it does NOT settle: whether the model wants the strings (compact U(1) in 3+1 dimensions has a Coulomb phase at weak coupling and monopoles as heavy objects), and the raw flux still carries E-FRC-0185\'s dither (its B to E gates read raw flux and are not rerun here). FIRST RUN 2026-09-26 (tmp/base-frc245.log, 181 s): PASS. A (0 mismatches after 2,000 beats back on hashed+0 and hot, 3,068 and 49,074 angles moved, 0 Gauss violations), L (residual 5.66e-5 against 6.10e-5, 0 plaquette-beats off the light), S (within 2.23e-3 of the float Villain leapfrog on 17 of 17), I (hashed+0 and hashed+13 move 29 strings between them, where the noncompact leapfrog is off by 1,096 and 1,552). The control prediction FAILED: E-FRC-0185\'s rule also tracks the Villain reference on both string members (worst 2.23e-3), because its branch never left the light on this family (E-FRC-0244 L4). So on these 17 starts the fix changes no trajectory: what resolves E-FRC-0185\'s S is the reading (compact U(1), the circle), and the change of branch makes that reading exact by construction rather than by the luck of fast crossings.',
+        "L2, exact integers in the rule, deterministic (hashed and Weyl-scaled starts, zero carried start, no seeds). The fix adds no register and no knob: the same sawtooth, its branch read on the flux the physics runs on. The rule is then compact U(1) (Villain) light exactly, to the rounding of one term: linear light below the seam, a Dirac string at it. The circle is forced (a bounded reversible column is Z_(2D+1)), so the seam is not removable, only placeable, and this places it on the light. What it does NOT settle: whether the model wants the strings (compact U(1) in 3+1 dimensions has a Coulomb phase at weak coupling and monopoles as heavy objects), and the raw flux still carries E-FRC-0185's dither (its B to E gates read raw flux and are not rerun here). FIRST RUN 2026-09-26 (tmp/base-frc245.log, 181 s): PASS. A (0 mismatches after 2,000 beats back on hashed+0 and hot, 3,068 and 49,074 angles moved, 0 Gauss violations), L (residual 5.66e-5 against 6.10e-5, 0 plaquette-beats off the light), S (within 2.23e-3 of the float Villain leapfrog on 17 of 17), I (hashed+0 and hashed+13 move 29 strings between them, where the noncompact leapfrog is off by 1,096 and 1,552). The control prediction FAILED: E-FRC-0185's rule also tracks the Villain reference on both string members (worst 2.23e-3), because its branch never left the light on this family (E-FRC-0244 L4). So on these 17 starts the fix changes no trajectory: what resolves E-FRC-0185's S is the reading (compact U(1), the circle), and the change of branch makes that reading exact by construction rather than by the luck of fast crossings.",
     })
   },
 })

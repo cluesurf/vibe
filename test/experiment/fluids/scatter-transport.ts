@@ -47,12 +47,26 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { type Collision, turningWeave } from '@/code/rule/collision'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
-import { cptMirrorPhase, dressing } from '@/code/measure/weave-acceptance'
+import {
+  cptMirrorPhase,
+  dressing,
+} from '@/code/measure/weave-acceptance'
 import { modeLaw, slopeError } from '@/code/measure/charge-mode'
 import { linearFit } from '@/code/measure/regression'
 import { momentumOf } from '@/code/rule/momentum-weave'
-import { HEAD_TURN_SPEC, scatterCollision, scatterSchedule, type ScatterTally, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { momentumWaveSeries, momentumWaveStart, perpendicularSlabs, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  HEAD_TURN_SPEC,
+  scatterCollision,
+  scatterSchedule,
+  type ScatterTally,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  momentumWaveSeries,
+  momentumWaveStart,
+  perpendicularSlabs,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 
 const BIAS = 0.4
 const SALT = 7
@@ -65,8 +79,14 @@ const SIZES: readonly (readonly [number, number])[] = [
   [16, 1],
 ]
 
-const SHEAR: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }
-const LONGITUDINAL: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }
+const SHEAR: WaveGeometry = {
+  momentum: [1, 0, 0, 0],
+  wave: [0, 1, 0, 0],
+}
+const LONGITUDINAL: WaveGeometry = {
+  momentum: [1, 0, 0, 0],
+  wave: [1, 0, 0, 0],
+}
 const ORIENTATIONS: readonly (readonly [string, WaveGeometry])[] = [
   ['axes01', SHEAR],
   ['axes23', { momentum: [0, 0, 1, 0], wave: [0, 0, 0, 1] }],
@@ -77,27 +97,63 @@ const ORIENTATIONS: readonly (readonly [string, WaveGeometry])[] = [
 
 type Which = 'scatter' | 'base'
 
-function rule(side: number, which: Which, weave: ScatterWeaveSpec, tally: ScatterTally): { mesh: ReturnType<typeof d4Mesh>; collision: (t: number) => Collision } {
+function rule(
+  side: number,
+  which: Which,
+  weave: ScatterWeaveSpec,
+  tally: ScatterTally,
+): {
+  mesh: ReturnType<typeof d4Mesh>
+  collision: (t: number) => Collision
+} {
   const mesh = d4Mesh({ side })
   const opposite = meshOpposites(mesh)
 
   return {
     mesh,
-    collision: which === 'scatter' ? scatterCollision({ spec: weave, opposite, tally }) : colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite }),
+    collision:
+      which === 'scatter'
+        ? scatterCollision({ spec: weave, opposite, tally })
+        : colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite }),
   }
 }
 
-function wave(input: { side: number; mode: number; geometry: WaveGeometry; which: Which; fill: number; weave: ScatterWeaveSpec }) {
+function wave(input: {
+  side: number
+  mode: number
+  geometry: WaveGeometry
+  which: Which
+  fill: number
+  weave: ScatterWeaveSpec
+}) {
   const { side, mode, geometry, which, fill, weave } = input
   const tally: ScatterTally = { fired: 0 }
   const { mesh, collision } = rule(side, which, weave, tally)
-  const will = momentumWaveStart({ mesh, side, geometry, mode, fill, bias: BIAS, salt: SALT })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry,
+    mode,
+    fill,
+    bias: BIAS,
+    salt: SALT,
+  })
   const before = perpendicularSlabs({ will, side, geometry })
   const p0 = momentumOf(will.data).p
-  const { series, final } = momentumWaveSeries({ will, collision, beats: BEATS, side, geometry, mode })
+  const { series, final } = momentumWaveSeries({
+    will,
+    collision,
+    beats: BEATS,
+    side,
+    geometry,
+    mode,
+  })
   const after = perpendicularSlabs({ will: final, side, geometry })
   const start = series[0] ?? 1
-  const law = modeLaw({ series: series.map(x => x / start), window: side })
+  const law = modeLaw({
+    series: series.map(x => x / start),
+    window: side,
+  })
   const k = (2 * Math.PI * mode * Math.hypot(...geometry.wave)) / side
 
   return {
@@ -106,18 +162,29 @@ function wave(input: { side: number; mode: number; geometry: WaveGeometry; which
     k,
     law,
     speed: law.fastFrequency / k,
-    invariantDelta: Math.max(...after.map((x, i) => Math.abs(x - (before[i] ?? 0)))),
-    momentumDrift: Math.max(...momentumOf(final.data).p.map((x, i) => Math.abs(x - (p0[i] ?? 0)))),
+    invariantDelta: Math.max(
+      ...after.map((x, i) => Math.abs(x - (before[i] ?? 0))),
+    ),
+    momentumDrift: Math.max(
+      ...momentumOf(final.data).p.map((x, i) =>
+        Math.abs(x - (p0[i] ?? 0)),
+      ),
+    ),
     firedPerDockBeat: tally.fired / (mesh.cellCount * BEATS),
   }
 }
 
-function exponent(runs: readonly { k: number; law: { slowRate: number } }[]): { p: number; error: number } {
+function exponent(
+  runs: readonly { k: number; law: { slowRate: number } }[],
+): { p: number; error: number } {
   const xs = runs.map(r => Math.log(r.k))
   const ys = runs.map(r => Math.log(Math.max(1e-12, r.law.slowRate)))
   const fit = linearFit({ xs, ys })
 
-  return { p: fit.slope, error: slopeError(xs, ys, fit.slope, fit.intercept) }
+  return {
+    p: fit.slope,
+    error: slopeError(xs, ys, fit.slope, fit.intercept),
+  }
 }
 
 export default experiment({
@@ -130,44 +197,121 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-    const weave: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule() }
+    const mirror = cptMirrorPhase((o, f) =>
+      colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite: o,
+        forward: f,
+      }),
+    )
+    const weave: ScatterWeaveSpec = {
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule(),
+    }
 
     // 1. shear, both fills, block and base
     const shear = FILLS.map(fill => ({
       fill,
-      scatter: SIZES.map(([side, mode]) => wave({ side, mode, geometry: SHEAR, which: 'scatter', fill, weave })),
-      base: SIZES.map(([side, mode]) => wave({ side, mode, geometry: SHEAR, which: 'base', fill, weave })),
+      scatter: SIZES.map(([side, mode]) =>
+        wave({
+          side,
+          mode,
+          geometry: SHEAR,
+          which: 'scatter',
+          fill,
+          weave,
+        }),
+      ),
+      base: SIZES.map(([side, mode]) =>
+        wave({
+          side,
+          mode,
+          geometry: SHEAR,
+          which: 'base',
+          fill,
+          weave,
+        }),
+      ),
     }))
-    const laws = shear.map(s => ({ fill: s.fill, block: exponent(s.scatter) }))
+    const laws = shear.map(s => ({
+      fill: s.fill,
+      block: exponent(s.scatter),
+    }))
 
     // 2. sound
     const sound = (['scatter', 'base'] as const).map(which =>
-      [12, 16].map(side => wave({ side, mode: 1, geometry: LONGITUDINAL, which, fill: FILLS[0] ?? 0.2, weave })),
+      [12, 16].map(side =>
+        wave({
+          side,
+          mode: 1,
+          geometry: LONGITUDINAL,
+          which,
+          fill: FILLS[0] ?? 0.2,
+          weave,
+        }),
+      ),
     )
 
     // 3. isotropy
-    const oriented = ORIENTATIONS.map(([name, geometry]) => ({ name, ...wave({ side: 12, mode: 1, geometry, which: 'scatter', fill: FILLS[0] ?? 0.2, weave }) }))
+    const oriented = ORIENTATIONS.map(([name, geometry]) => ({
+      name,
+      ...wave({
+        side: 12,
+        mode: 1,
+        geometry,
+        which: 'scatter',
+        fill: FILLS[0] ?? 0.2,
+        weave,
+      }),
+    }))
     const rates = oriented.map(o => o.law.slowRate)
     const spread = Math.max(...rates) / Math.min(...rates)
 
     // 4. dressing
-    const scatterRule = (o: number[], f: boolean) => scatterCollision({ spec: weave, opposite: o, forward: f })
-    const committedRule = (o: number[], f: boolean) => turningWeave({ opposite: o, forward: f })
+    const scatterRule = (o: number[], f: boolean) =>
+      scatterCollision({ spec: weave, opposite: o, forward: f })
+    const committedRule = (o: number[], f: boolean) =>
+      turningWeave({ opposite: o, forward: f })
     const love = dressing(scatterRule, { tone: 1 }).periodLargest
     const fear = dressing(scatterRule, { tone: -1 }).periodLargest
-    const committedLove = dressing(committedRule, { tone: 1 }).periodLargest
-    const committedFear = dressing(committedRule, { tone: -1 }).periodLargest
+    const committedLove = dressing(committedRule, {
+      tone: 1,
+    }).periodLargest
+    const committedFear = dressing(committedRule, {
+      tone: -1,
+    }).periodLargest
 
-    const everyRun = [...shear.flatMap(s => [...s.scatter, ...s.base]), ...sound.flat(), ...oriented]
+    const everyRun = [
+      ...shear.flatMap(s => [...s.scatter, ...s.base]),
+      ...sound.flat(),
+      ...oriented,
+    ]
     const momentumExact = everyRun.every(r => r.momentumDrift === 0)
-    const blockRelaxes = shear.every(s => s.scatter.every(r => r.law.slowRate > 0.001 && r.law.slowR2 > 0.9 && r.invariantDelta > 0))
-    const baseFrozen = shear.every(s => s.base.every(r => Math.abs(r.law.slowRate) < 0.0002 && r.invariantDelta === 0))
+    const blockRelaxes = shear.every(s =>
+      s.scatter.every(
+        r =>
+          r.law.slowRate > 0.001 &&
+          r.law.slowR2 > 0.9 &&
+          r.invariantDelta > 0,
+      ),
+    )
+    const baseFrozen = shear.every(s =>
+      s.base.every(
+        r =>
+          Math.abs(r.law.slowRate) < 0.0002 && r.invariantDelta === 0,
+      ),
+    )
     // nearer the streaming speed (1) than the D4 gas sound speed (1 / sqrt 2); see the notes for why this
     // is not the first run's one-percent gate
-    const streamingSpeed = shear.every(s => [...s.scatter, ...s.base].every(r => Math.abs(r.speed - 1) < Math.abs(r.speed - Math.SQRT1_2)))
+    const streamingSpeed = shear.every(s =>
+      [...s.scatter, ...s.base].every(
+        r => Math.abs(r.speed - 1) < Math.abs(r.speed - Math.SQRT1_2),
+      ),
+    )
 
-    const ok = momentumExact && blockRelaxes && baseFrozen && streamingSpeed
+    const ok =
+      momentumExact && blockRelaxes && baseFrozen && streamingSpeed
 
     const metrics: Record<string, number> = {}
 
@@ -178,29 +322,49 @@ export default experiment({
         metrics[`rate${tag}L${r.side}M${r.mode}`] = r.law.slowRate
         metrics[`r2${tag}L${r.side}M${r.mode}`] = r.law.slowR2
         metrics[`level${tag}L${r.side}M${r.mode}`] = r.law.slowLevel
-        metrics[`nuApparent${tag}L${r.side}M${r.mode}`] = r.law.slowRate / (r.k * r.k)
-        metrics[`scatteringsPerDockBeat${tag}L${r.side}M${r.mode}`] = r.firedPerDockBeat
-        metrics[`invariantDelta${tag}L${r.side}M${r.mode}`] = r.invariantDelta
+        metrics[`nuApparent${tag}L${r.side}M${r.mode}`] =
+          r.law.slowRate / (r.k * r.k)
+
+        metrics[`scatteringsPerDockBeat${tag}L${r.side}M${r.mode}`] =
+          r.firedPerDockBeat
+
+        metrics[`invariantDelta${tag}L${r.side}M${r.mode}`] =
+          r.invariantDelta
       })
     })
+
     laws.forEach(l => {
       const tag = `F${Math.round(l.fill * 100)}`
 
       metrics[`exponent${tag}`] = l.block.p
       metrics[`exponentError${tag}`] = l.block.error
     })
+
     sound[0]?.forEach(r => {
       metrics[`soundSpeedL${r.side}`] = r.speed
       metrics[`soundSlowRateL${r.side}`] = r.law.slowRate
     })
+
     oriented.forEach(o => {
       metrics[`rate_${o.name}`] = o.law.slowRate
       metrics[`r2_${o.name}`] = o.law.slowR2
     })
     metrics.isotropySpread = spread
-    metrics.largestMomentumDrift = Math.max(...everyRun.map(r => r.momentumDrift))
-    metrics.shearSpeedSmallest = Math.min(...shear.flatMap(s => [...s.scatter, ...s.base].map(r => r.speed)))
-    metrics.shearSpeedLargest = Math.max(...shear.flatMap(s => [...s.scatter, ...s.base].map(r => r.speed)))
+    metrics.largestMomentumDrift = Math.max(
+      ...everyRun.map(r => r.momentumDrift),
+    )
+
+    metrics.shearSpeedSmallest = Math.min(
+      ...shear.flatMap(s =>
+        [...s.scatter, ...s.base].map(r => r.speed),
+      ),
+    )
+
+    metrics.shearSpeedLargest = Math.max(
+      ...shear.flatMap(s =>
+        [...s.scatter, ...s.base].map(r => r.speed),
+      ),
+    )
     love.forEach((x, p) => (metrics[`loveSupportPeriod${p + 1}`] = x))
     fear.forEach((x, p) => (metrics[`fearSupportPeriod${p + 1}`] = x))
 
@@ -212,15 +376,23 @@ export default experiment({
       s.base.forEach(r => {
         control[`baseRate${tag}L${r.side}M${r.mode}`] = r.law.slowRate
         control[`baseLevel${tag}L${r.side}M${r.mode}`] = r.law.slowLevel
-        control[`baseInvariantDelta${tag}L${r.side}M${r.mode}`] = r.invariantDelta
+        control[`baseInvariantDelta${tag}L${r.side}M${r.mode}`] =
+          r.invariantDelta
       })
     })
+
     sound[1]?.forEach(r => {
       control[`baseSoundSpeedL${r.side}`] = r.speed
       control[`baseSoundSlowRateL${r.side}`] = r.law.slowRate
     })
-    committedLove.forEach((x, p) => (control[`committedLoveSupportPeriod${p + 1}`] = x))
-    committedFear.forEach((x, p) => (control[`committedFearSupportPeriod${p + 1}`] = x))
+
+    committedLove.forEach(
+      (x, p) => (control[`committedLoveSupportPeriod${p + 1}`] = x),
+    )
+
+    committedFear.forEach(
+      (x, p) => (control[`committedFearSupportPeriod${p + 1}`] = x),
+    )
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -50,8 +50,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { SU3_SUBGROUPS, QUTRIT_T, FOURIER } from '@/code/algebra/group/su3-subgroups'
-import { exchangeOperator, singletPhase, swapPhase } from '@/code/rule/fear-weave'
+import {
+  SU3_SUBGROUPS,
+  QUTRIT_T,
+  FOURIER,
+} from '@/code/algebra/group/su3-subgroups'
+import {
+  exchangeOperator,
+  singletPhase,
+  swapPhase,
+} from '@/code/rule/fear-weave'
 import {
   adjointOperator,
   identityOperator,
@@ -102,7 +110,9 @@ function projector(vectors: readonly (readonly number[])[]): Operator {
 
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
-        out.re[i * 9 + j] = (out.re[i * 9 + j] ?? 0) + ((v[i] ?? 0) * (v[j] ?? 0)) / (norm * norm)
+        out.re[i * 9 + j] =
+          (out.re[i * 9 + j] ?? 0) +
+          ((v[i] ?? 0) * (v[j] ?? 0)) / (norm * norm)
       }
     }
   }
@@ -112,22 +122,31 @@ function projector(vectors: readonly (readonly number[])[]): Operator {
 
 // the polynomial degree over F3 of f: Z3^2 -> Z3, the unique interpolant with exponents at most 2
 function degreeOverF3(f: (x: number, y: number) => number): number {
-  const monomials: [number, number][] = [0, 1, 2].flatMap(i => [0, 1, 2].map(j => [i, j] as [number, number]))
+  const monomials: [number, number][] = [0, 1, 2].flatMap(i =>
+    [0, 1, 2].map(j => [i, j] as [number, number]),
+  )
 
   for (let code = 0; code < 3 ** 9; code++) {
     const c = monomials.map((_, k) => Math.floor(code / 3 ** k) % 3)
+
     let match = true
 
     for (let x = 0; x < 3 && match; x++) {
       for (let y = 0; y < 3 && match; y++) {
-        const value = monomials.reduce((s, [i, j], k) => s + (c[k] ?? 0) * x ** i * y ** j, 0)
+        const value = monomials.reduce(
+          (s, [i, j], k) => s + (c[k] ?? 0) * x ** i * y ** j,
+          0,
+        )
 
         match = value % 3 === ((f(x, y) % 3) + 3) % 3
       }
     }
 
     if (match) {
-      return monomials.reduce((d, [i, j], k) => ((c[k] ?? 0) !== 0 ? Math.max(d, i + j) : d), 0)
+      return monomials.reduce(
+        (d, [i, j], k) => ((c[k] ?? 0) !== 0 ? Math.max(d, i + j) : d),
+        0,
+      )
     }
   }
 
@@ -147,7 +166,10 @@ function diagonalLevel(f: (x: number, y: number) => number): number {
 
   for (let a = 0; a < 3; a++) {
     for (let b = 0; b < 3; b++) {
-      worst = Math.max(worst, diagonalLevel((x, y) => f((x + a) % 3, (y + b) % 3) - f(x, y)))
+      worst = Math.max(
+        worst,
+        diagonalLevel((x, y) => f((x + a) % 3, (y + b) % 3) - f(x, y)),
+      )
     }
   }
 
@@ -173,10 +195,14 @@ export default experiment({
     const v = singletPhase(OMEGA)
     const sum = sumGate()
     const locals = SU3_SUBGROUPS.sigma648.generators.map(operatorFrom3)
-    const localPair = tensorOperators(locals[2] ?? one, locals[3] ?? one)
+    const localPair = tensorOperators(
+      locals[2] ?? one,
+      locals[3] ?? one,
+    )
 
     // 1. Clifford or not
-    const isClifford = (g: Operator): boolean => cliffordAction(g, d2) !== undefined
+    const isClifford = (g: Operator): boolean =>
+      cliffordAction(g, d2) !== undefined
     const fearClifford = [u, uToken, v].map(isClifford)
     const controlClifford = [swap, sum, localPair].map(isClifford)
 
@@ -184,11 +210,15 @@ export default experiment({
     const levelU = cliffordLevel(u, d2, 3)
     const levelUToken = cliffordLevel(uToken, d2, 3)
     const levelV = cliffordLevel(v, d2, 3)
-    const f = (x: number, y: number): number => (x === 0 && y === 0 ? 1 : 0)
+    const f = (x: number, y: number): number =>
+      x === 0 && y === 0 ? 1 : 0
     const fDegree = degreeOverF3(f)
     const fLevel = diagonalLevel(f)
     const fourierDagger = adjointOperator(operatorFrom3(FOURIER))
-    const c = multiplyOperators(tensorOperators(fourierDagger, one), adjointOperator(sum))
+    const c = multiplyOperators(
+      tensorOperators(fourierDagger, one),
+      adjointOperator(sum),
+    )
     const moved = conjugate(c, v)
     const diagonal = operator(9)
 
@@ -200,7 +230,13 @@ export default experiment({
     let vDistance = 0
 
     for (let i = 0; i < 81; i++) {
-      vDistance = Math.max(vDistance, Math.hypot((moved.re[i] ?? 0) - (diagonal.re[i] ?? 0), (moved.im[i] ?? 0) - (diagonal.im[i] ?? 0)))
+      vDistance = Math.max(
+        vDistance,
+        Math.hypot(
+          (moved.re[i] ?? 0) - (diagonal.re[i] ?? 0),
+          (moved.im[i] ?? 0) - (diagonal.im[i] ?? 0),
+        ),
+      )
     }
 
     // the level-2 part of the degree argument checked numerically: a degree-2 diagonal gate is Clifford
@@ -238,14 +274,25 @@ export default experiment({
 
     const pAnti = projector(antisymmetric)
     const phi = projector([[1, 0, 0, 0, 1, 0, 0, 0, 1]])
-    const wAnti = wigner2({ n: 9, re: pAnti.re.map(x => x / 3), im: pAnti.im.map(x => x / 3) }, points2)
+    const wAnti = wigner2(
+      {
+        n: 9,
+        re: pAnti.re.map(x => x / 3),
+        im: pAnti.im.map(x => x / 3),
+      },
+      points2,
+    )
     const wPhi = wigner2(phi, points2)
+
     let closedFormError = 0
 
     wAnti.forEach((w, index) => {
       const same = Math.floor(index / 9) === index % 9
 
-      closedFormError = Math.max(closedFormError, Math.abs(w - (same ? -1 / 27 : 1 / 54)))
+      closedFormError = Math.max(
+        closedFormError,
+        Math.abs(w - (same ? -1 / 27 : 1 / 54)),
+      )
     })
 
     const antiNegative = wAnti.filter(w => w < -1e-12).length
@@ -253,7 +300,10 @@ export default experiment({
     const phiNegative = wPhi.filter(w => w < -1e-12).length
 
     // 4. universality
-    const localTwo = [...locals.map(g => tensorOperators(g, one)), ...locals.map(g => tensorOperators(one, g))]
+    const localTwo = [
+      ...locals.map(g => tensorOperators(g, one)),
+      ...locals.map(g => tensorOperators(one, g)),
+    ]
     const words = (e: number): number[][] => [
       [e, 2],
       [e, 2, 7],
@@ -265,7 +315,12 @@ export default experiment({
       [e, 2, 6, 3, 7, 1],
     ]
     const rankOf = (extra: readonly Operator[], e: number) =>
-      closureLieRank({ generators: [...localTwo, ...extra], words: words(e), maxPower: MAX_POWER, conjugationDepth: CONJUGATION_DEPTH })
+      closureLieRank({
+        generators: [...localTwo, ...extra],
+        words: words(e),
+        maxPower: MAX_POWER,
+        conjugationDepth: CONJUGATION_DEPTH,
+      })
     const model = rankOf([u], 8)
     const withSum = rankOf([u, sum], 8)
     const color = rankOf([v], 8)
@@ -277,8 +332,18 @@ export default experiment({
       [4, 1, 2],
       [4, 0, 2, 3],
     ]
-    const su3 = closureLieRank({ generators: [...locals, operatorFrom3(QUTRIT_T)], words: oneRoleWords, maxPower: MAX_POWER, conjugationDepth: 3 })
-    const su3Control = closureLieRank({ generators: [...locals], words: oneRoleWords.map(w => w.slice(1)), maxPower: MAX_POWER, conjugationDepth: 3 })
+    const su3 = closureLieRank({
+      generators: [...locals, operatorFrom3(QUTRIT_T)],
+      words: oneRoleWords,
+      maxPower: MAX_POWER,
+      conjugationDepth: 3,
+    })
+    const su3Control = closureLieRank({
+      generators: [...locals],
+      words: oneRoleWords.map(w => w.slice(1)),
+      maxPower: MAX_POWER,
+      conjugationDepth: 3,
+    })
 
     const ok =
       fearClifford.every(x => !x) &&
@@ -320,8 +385,12 @@ export default experiment({
         quadraticDiagonalLevel: quadraticLevel,
         swapPhaseSpectrumIsT: uLikeT ? 1 : 0,
         singletPhaseSpectrumIsT: vLikeT ? 1 : 0,
-        swapPhaseOmegaMultiplicity: spectrumU.filter(x => Math.abs(x - 1 / 3) < 1e-7).length,
-        singletPhaseOmegaMultiplicity: spectrumV.filter(x => Math.abs(x - 1 / 3) < 1e-7).length,
+        swapPhaseOmegaMultiplicity: spectrumU.filter(
+          x => Math.abs(x - 1 / 3) < 1e-7,
+        ).length,
+        singletPhaseOmegaMultiplicity: spectrumV.filter(
+          x => Math.abs(x - 1 / 3) < 1e-7,
+        ).length,
         antisymmetricWignerClosedFormError: closedFormError,
         antisymmetricNegativePoints: antiNegative,
         antisymmetricWignerNorm: antiNorm,
@@ -346,7 +415,7 @@ export default experiment({
         sigma648AloneLieRank: su3Control.rank,
       },
       notes:
-        'L1. Clifford tests are exact up to 1e-8 on 9 x 9 matrices; the hierarchy level is numeric up to 3 and, for the singlet phase, exact by the degree of its diagonal form. The swap phase P_sym + omega P_anti is SWAP^(2/3), exp(i (pi/3)(1 - SWAP)): a fractional power of a Clifford, not a diagonal magic gate. The Lie ranks rest on a near-identity power w^k of an infinite-order word, which lies in the identity component of the closure of <w>, so its logarithm is in the closure\'s algebra; a word is called finite when some power up to 20,000 is a scalar to 1e-7.',
+        "L1. Clifford tests are exact up to 1e-8 on 9 x 9 matrices; the hierarchy level is numeric up to 3 and, for the singlet phase, exact by the degree of its diagonal form. The swap phase P_sym + omega P_anti is SWAP^(2/3), exp(i (pi/3)(1 - SWAP)): a fractional power of a Clifford, not a diagonal magic gate. The Lie ranks rest on a near-identity power w^k of an infinite-order word, which lies in the identity component of the closure of <w>, so its logarithm is in the closure's algebra; a word is called finite when some power up to 20,000 is a scalar to 1e-7.",
     })
   },
 })

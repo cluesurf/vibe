@@ -184,9 +184,9 @@ export default experiment({
   paper: true,
   run() {
     const patterns: ((i: number) => Tone)[] = [
-      i => ((((i * 5 + (i % 11)) % 3) - 1) as Tone),
-      i => ((((i * i + 2 * i) % 3) - 1) as Tone),
-      i => ((((i * 11 + (i % 7) * 2) % 3) - 1) as Tone),
+      i => (((i * 5 + (i % 11)) % 3) - 1) as Tone,
+      i => (((i * i + 2 * i) % 3) - 1) as Tone,
+      i => (((i * 11 + (i % 7) * 2) % 3) - 1) as Tone,
     ]
 
     const mesh = squareMesh({ side: SIDE })

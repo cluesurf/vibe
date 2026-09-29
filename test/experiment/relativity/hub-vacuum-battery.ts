@@ -77,11 +77,28 @@ import { livingKernelAgreement } from '@/code/measure/living-pair-kernel'
 import { goldenFill } from '@/code/measure/candidate-kernel'
 import { storeStart } from '@/code/measure/token-store-gates'
 import { sparseLivingState } from '@/code/measure/sparse-living-vacuum'
-import { coinMapLedger, cptAtCollision } from '@/code/measure/living-pair-battery'
-import { type Dressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { coinData, orientedHubStore, uniformStore } from '@/code/measure/varying-vacuum'
-import { averagedMatrices, equivarianceDefect, readTransport } from '@/code/measure/varying-transport'
+import {
+  coinMapLedger,
+  cptAtCollision,
+} from '@/code/measure/living-pair-battery'
+import {
+  type Dressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  coinData,
+  orientedHubStore,
+  uniformStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  averagedMatrices,
+  equivarianceDefect,
+  readTransport,
+} from '@/code/measure/varying-transport'
 import {
   additivityWorst,
   boxGates,
@@ -143,9 +160,23 @@ const QUANTUM_GATES = [
   'chshAbove2',
 ]
 // H's box and quantum gates on E-FRC-0159's side-3 box (all pass)
-const BOX_GATES = ['boxReverses', 'boxChargeKept', 'noColorLeak', 'frameCommutes', 'momentumKept', 'lineMomentaExchanged']
+const BOX_GATES = [
+  'boxReverses',
+  'boxChargeKept',
+  'noColorLeak',
+  'frameCommutes',
+  'momentumKept',
+  'lineMomentaExchanged',
+]
 // E-RLT-0079's one-line vacuum at the old sides: the gates it newly failed against H
-const ONE_LINE_NEWLY_FAILING = ['vacuumComponentsNoMore', 'wallsQuantized', 'loveDressingSide9', 'loveDressingSide7', 'fearDressingSide7', 'loveDressingSide11']
+const ONE_LINE_NEWLY_FAILING = [
+  'vacuumComponentsNoMore',
+  'wallsQuantized',
+  'loveDressingSide9',
+  'loveDressingSide7',
+  'fearDressingSide7',
+  'loveDressingSide11',
+]
 // the old gate each new one replaces, for the trade table
 const OLD_NAME: Record<string, string> = {
   [`loveDressingSide${D1}`]: 'loveDressingSide7',
@@ -155,9 +186,18 @@ const OLD_NAME: Record<string, string> = {
   [`loveDressingSide${D3}`]: 'loveDressingSide11',
   [`fearDressingSide${D3}`]: 'fearDressingSide11',
 }
-const H_SPEC = { base: HEAD_TURN_SPEC, fold: false, scatter: true, mirror: 23, steer: false } as const
+const H_SPEC = {
+  base: HEAD_TURN_SPEC,
+  fold: false,
+  scatter: true,
+  mirror: 23,
+  steer: false,
+} as const
 
-const noMore = (xs: readonly number[], ref: readonly number[]): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
+const noMore = (
+  xs: readonly number[],
+  ref: readonly number[],
+): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
 
 export default experiment({
   id: 'relativity/hub-vacuum-battery',
@@ -170,31 +210,59 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
-    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0] as number] as number[])
-    const hubFor = (side: number, anchor: number): number[] => d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number))
-    const HUB: VaryingVacuum = { key: 'hub', store: (side, anchor) => orientedHubStore(coins, side, hubFor(side, anchor)) }
+    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0]!]!)
+    const hubFor = (side: number, anchor: number): number[] =>
+      d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - r0[k]!)
+    const HUB: VaryingVacuum = {
+      key: 'hub',
+      store: (side, anchor) =>
+        orientedHubStore(coins, side, hubFor(side, anchor)),
+    }
 
     // X0
     const q = SIDES.q
     const wq = weaveOf(q)
     const cellsQ = wq.mesh.cellCount
     const knitQ = makeLivingKnit(wq)
-    const agreements = [HUB.store(q, 0), uniformStore(cellsQ, [0]), new Int8Array(cellsQ * 12)].map(store =>
-      livingKernelAgreement({ knit: knitQ, start: sparseLivingState({ ...goldenFill(cellsQ * 24, 1.37), store, layout: layoutOf(q) }), beats: 48 }),
+    const agreements = [
+      HUB.store(q, 0),
+      uniformStore(cellsQ, [0]),
+      new Int8Array(cellsQ * 12),
+    ].map(store =>
+      livingKernelAgreement({
+        knit: knitQ,
+        start: sparseLivingState({
+          ...goldenFill(cellsQ * 24, 1.37),
+          store,
+          layout: layoutOf(q),
+        }),
+        beats: 48,
+      }),
     )
 
-    agreements.push(livingKernelAgreement({ knit: knitQ, start: storeStart(cellsQ, 11), beats: 48 }))
+    agreements.push(
+      livingKernelAgreement({
+        knit: knitQ,
+        start: storeStart(cellsQ, 11),
+        beats: 48,
+      }),
+    )
 
     const x0 = agreements.every(a => a.mismatches === 0 && a.vetoed > 0)
 
     log('x0')
 
     // the references at the new sides
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-    const hRule: ScheduledRule = (opposite, forward) => combinedCollision({ spec: H_SPEC, opposite, forward })
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
+    const hRule: ScheduledRule = (opposite, forward) =>
+      combinedCollision({ spec: H_SPEC, opposite, forward })
     const committed = referenceAcceptance(committedRule, SIDES)
 
     log('committed')
@@ -203,11 +271,26 @@ export default experiment({
 
     log('H')
 
-    const dressingGates = (love: readonly { periodLargest: number[] }[], fear: readonly { periodLargest: number[] }[]): Record<string, boolean> =>
+    const dressingGates = (
+      love: readonly { periodLargest: number[] }[],
+      fear: readonly { periodLargest: number[] }[],
+    ): Record<string, boolean> =>
       Object.fromEntries(
         SIDES.dressing.flatMap((side, i) => [
-          [`loveDressingSide${side}`, noMore(love[i]?.periodLargest ?? [], committed.love[i]?.periodLargest ?? [])],
-          [`fearDressingSide${side}`, noMore(fear[i]?.periodLargest ?? [], committed.fear[i]?.periodLargest ?? [])],
+          [
+            `loveDressingSide${side}`,
+            noMore(
+              love[i]?.periodLargest ?? [],
+              committed.love[i]?.periodLargest ?? [],
+            ),
+          ],
+          [
+            `fearDressingSide${side}`,
+            noMore(
+              fear[i]?.periodLargest ?? [],
+              committed.fear[i]?.periodLargest ?? [],
+            ),
+          ],
         ]),
       )
     const hGates: Record<string, boolean> = {
@@ -215,10 +298,15 @@ export default experiment({
       chargeKept: h.chargeKept || !committed.chargeKept,
       cptAtMirrorPhase: h.cptPhase >= 0 || committed.cptPhase < 0,
       vacuumPeriodic: h.vacuumPeriod > 0 || committed.vacuumPeriod <= 0,
-      vacuumComponentsNoMore: h.vacuumComponents <= committed.vacuumComponents,
-      denseComponentsNoMore: h.denseComponents <= committed.denseComponents,
-      superposition: h.additivityWorst < 1e-9 || committed.additivityWorst >= 1e-9,
-      wallsQuantized: (h.wallQuantized && h.wallMax > 0) || !(committed.wallQuantized && committed.wallMax > 0),
+      vacuumComponentsNoMore:
+        h.vacuumComponents <= committed.vacuumComponents,
+      denseComponentsNoMore:
+        h.denseComponents <= committed.denseComponents,
+      superposition:
+        h.additivityWorst < 1e-9 || committed.additivityWorst >= 1e-9,
+      wallsQuantized:
+        (h.wallQuantized && h.wallMax > 0) ||
+        !(committed.wallQuantized && committed.wallMax > 0),
       ...dressingGates(h.love, h.fear),
       ...Object.fromEntries(BOX_GATES.map(g => [g, true])),
       ...Object.fromEntries(QUANTUM_GATES.map(g => [g, true])),
@@ -271,41 +359,98 @@ export default experiment({
     }
 
     // the candidate, quantum
-    const runs: Record<string, QuantumRun> = { on: quantum(HUB, 'on', SIDES.q), off: quantum(HUB, 'off', SIDES.q) }
+    const runs: Record<string, QuantumRun> = {
+      on: quantum(HUB, 'on', SIDES.q),
+      off: quantum(HUB, 'off', SIDES.q),
+    }
 
     log('quantum')
 
     const ledger = coinMapLedger()
 
     // the transport
-    const averaged = averagedMatrices({ table: isometricTable(), store: HUB.store(4, 0), cells: 256, permutations: table.permutations })
-    const defect = Math.max(equivarianceDefect(averaged.even, table.permutations), equivarianceDefect(averaged.odd, table.permutations))
+    const averaged = averagedMatrices({
+      table: isometricTable(),
+      store: HUB.store(4, 0),
+      cells: 256,
+      permutations: table.permutations,
+    })
+    const defect = Math.max(
+      equivarianceDefect(averaged.even, table.permutations),
+      equivarianceDefect(averaged.odd, table.permutations),
+    )
     const transport = readTransport([averaged.even, averaged.odd])
     const t3 = transport.three
-    const xt = defect < 1e-10 && averaged.carriers === 24 && transport.invariants === 6
-    const ht = (t3.charge ?? 0) >= 3.5 && (t3.trace ?? 0) >= 3.5 && (t3.sound ?? 0) >= 3.5 && Math.abs((t3.shear ?? 0) - 2) <= 0.5
+    const xt =
+      defect < 1e-10 &&
+      averaged.carriers === 24 &&
+      transport.invariants === 6
+    const ht =
+      (t3.charge ?? 0) >= 3.5 &&
+      (t3.trace ?? 0) >= 3.5 &&
+      (t3.sound ?? 0) >= 3.5 &&
+      Math.abs((t3.shear ?? 0) - 2) <= 0.5
 
     log('transport')
 
-    const x1 = (runs.on?.metrics.controlsHold ?? 0) === 1 && (runs.off?.metrics.controlsHold ?? 0) === 1
-    const gatesHere: Record<string, boolean> = { ...gatesClassical, ...(runs.on?.gates ?? {}) }
-    const newlyFailing = Object.keys(hGates).filter(g => hGates[g] && !gatesHere[g])
-    const newlyPassing = Object.keys(hGates).filter(g => !hGates[g] && gatesHere[g])
-    const quantumFailing = QUANTUM_GATES.filter(g => !(runs.on?.gates[g] ?? false))
-    const failsOnlyOn = QUANTUM_GATES.filter(g => (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false))
+    const x1 =
+      (runs.on?.metrics.controlsHold ?? 0) === 1 &&
+      (runs.off?.metrics.controlsHold ?? 0) === 1
+    const gatesHere: Record<string, boolean> = {
+      ...gatesClassical,
+      ...(runs.on?.gates ?? {}),
+    }
+    const newlyFailing = Object.keys(hGates).filter(
+      g => hGates[g] && !gatesHere[g],
+    )
+    const newlyPassing = Object.keys(hGates).filter(
+      g => !hGates[g] && gatesHere[g],
+    )
+    const quantumFailing = QUANTUM_GATES.filter(
+      g => !(runs.on?.gates[g] ?? false),
+    )
+    const failsOnlyOn = QUANTUM_GATES.filter(
+      g =>
+        (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false),
+    )
     const unevaluable = runs.on?.unevaluable ?? []
-    const condition = newlyFailing.length === 0 && quantumFailing.length === 0
+    const condition =
+      newlyFailing.length === 0 && quantumFailing.length === 0
     const instruments = x0 && x1 && xt
-    const status = instruments ? (condition && ht ? 'pass' : 'fail') : 'partial'
-    const list = (xs: readonly string[]): string => (xs.length > 0 ? xs.join(', ') : 'none')
-    const per = (xs: readonly number[] | undefined): string => (xs ?? []).join(', ')
-    const flatten = (prefix: string, record: Record<string, number | boolean>): Record<string, number> =>
-      Object.fromEntries(Object.entries(record).map(([k, v]) => [`${prefix}_${k}`, typeof v === 'boolean' ? (v ? 1 : 0) : v]))
-    const dressingNumbers = (prefix: string, love: readonly (Dressing | LivingDressing)[], fear: readonly (Dressing | LivingDressing)[]): Record<string, number> =>
+    const status = instruments
+      ? condition && ht
+        ? 'pass'
+        : 'fail'
+      : 'partial'
+    const list = (xs: readonly string[]): string =>
+      xs.length > 0 ? xs.join(', ') : 'none'
+    const per = (xs: readonly number[] | undefined): string =>
+      (xs ?? []).join(', ')
+    const flatten = (
+      prefix: string,
+      record: Record<string, number | boolean>,
+    ): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(record).map(([k, v]) => [
+          `${prefix}_${k}`,
+          typeof v === 'boolean' ? (v ? 1 : 0) : v,
+        ]),
+      )
+    const dressingNumbers = (
+      prefix: string,
+      love: readonly (Dressing | LivingDressing)[],
+      fear: readonly (Dressing | LivingDressing)[],
+    ): Record<string, number> =>
       Object.fromEntries(
         SIDES.dressing.flatMap((side, i) => [
-          ...(love[i]?.periodLargest ?? []).map((x, p) => [`${prefix}Side${side}LovePeriod${p + 1}`, x] as const),
-          ...(fear[i]?.periodLargest ?? []).map((x, p) => [`${prefix}Side${side}FearPeriod${p + 1}`, x] as const),
+          ...(love[i]?.periodLargest ?? []).map(
+            (x, p) =>
+              [`${prefix}Side${side}LovePeriod${p + 1}`, x] as const,
+          ),
+          ...(fear[i]?.periodLargest ?? []).map(
+            (x, p) =>
+              [`${prefix}Side${side}FearPeriod${p + 1}`, x] as const,
+          ),
         ]),
       )
     const trade = CLASSICAL_GATES.concat(QUANTUM_GATES)
@@ -318,7 +463,7 @@ export default experiment({
     const m = runs.on?.metrics ?? {}
 
     return verdict({
-      status: status as 'pass' | 'fail' | 'partial',
+      status: status,
       claim: `the living-pair knit on the oriented hub vacuum ${condition ? 'works' : 'does not work'} with everything by E-FRC-0159's rule at sides ${SIDES.q}, ${SIDES.reversal}, ${SIDES.dressing.join(', ')}: against H at the same sides ${newlyFailing.length} gates newly fail (${list(newlyFailing)}) and ${newlyPassing.length} newly pass; ${quantumFailing.length} of 14 quantum gates fail with the fear beat on (CHSH ${(m.chsh ?? 0).toFixed(3)}); the lone-love wake per period is ${per(loves[1]?.periodLargest)} trits on side ${D2} (committed ${per(committed.love[1]?.periodLargest)}); the first-order husk transport is charge ${t3.charge?.toFixed(2)}, trace ${t3.trace?.toFixed(2)}, sound ${t3.sound?.toFixed(2)}, shear ${t3.shear?.toFixed(2)}`,
       metrics: {
         worksWithEverything: condition ? 1 : 0,
@@ -327,7 +472,10 @@ export default experiment({
         quantumGatesFailingOn: quantumFailing.length,
         quantumUnevaluable: unevaluable.length,
         failsOnlyWithFearOn: failsOnlyOn.length,
-        kernelMismatchBeats: agreements.reduce((s, a) => s + a.mismatches, 0),
+        kernelMismatchBeats: agreements.reduce(
+          (s, a) => s + a.mismatches,
+          0,
+        ),
         kernelVetoes: agreements.reduce((s, a) => s + a.vetoed, 0),
         ...flatten('here_gate', gatesClassical),
         ...flatten('H_gate', hGates),
@@ -369,11 +517,20 @@ export default experiment({
         transportDefect: defect,
         transportCarriers: averaged.carriers,
         transportInvariants: transport.invariants,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].map(qq => [`transport_${qq}_exponent3`, t3[qq] ?? Number.NaN])),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].map(qq => [
+            `transport_${qq}_exponent3`,
+            t3[qq] ?? Number.NaN,
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        ...dressingNumbers('committedControl', committed.love.slice(0, 1), committed.fear.slice(0, 1)),
+        ...dressingNumbers(
+          'committedControl',
+          committed.love.slice(0, 1),
+          committed.fear.slice(0, 1),
+        ),
       },
       notes: `L2. Gates: X0 ${x0}, X1 ${x1}, XT ${xt}, C ${condition}, HT ${ht}. Sides: quantum and box ${SIDES.q}, reversal ${SIDES.reversal}, components ${SIDES.components}, reference vacuum period ${SIDES.vacuum}, superposition ${SIDES.additivity}, walls ${SIDES.walls}, dressing ${SIDES.dressing.join(', ')}, travel ${SIDES.travel}. Newly failing against H: ${list(newlyFailing)}. Newly passing: ${list(newlyPassing)}. Quantum gates failing with the fear beat on: ${list(quantumFailing)}; not evaluable: ${list(unevaluable)}; failing only with the fear beat on: ${list(failsOnlyOn)}. Hub vacuum: period ${period}, line components ${vac.trits} (${vac.vibes}) and ${dense.trits}, superposition ${additivity.toExponential(2)}, wall ${wall.settledMax} trits (quantized ${wall.quantized}), dressing per period (love; fear) ${SIDES.dressing.map((s, i) => `side ${s}: ${per(loves[i]?.periodLargest)}; ${per(fears[i]?.periodLargest)}`).join(' | ')}, travel ${moving.fullSpeed} of 24 at full speed (${moving.travellers} at half), protected species ${loves[1]?.protectedSpecies}. Committed at these sides: components ${committed.vacuumComponents} and ${committed.denseComponents}, wall ${committed.wallMax} (quantized ${committed.wallQuantized}), dressing ${SIDES.dressing.map((s, i) => `side ${s}: ${per(committed.love[i]?.periodLargest)}; ${per(committed.fear[i]?.periodLargest)}`).join(' | ')}. H at these sides: components ${h.vacuumComponents} and ${h.denseComponents}, wall ${h.wallMax} (quantized ${h.wallQuantized}), dressing ${SIDES.dressing.map((s, i) => `side ${s}: ${per(h.love[i]?.periodLargest)}; ${per(h.fear[i]?.periodLargest)}`).join(' | ')}. Quantum (side ${SIDES.q}): vacuum pair kind ${m.vacuumPairKind}, ${m.vacuumMeetings} meetings in 480 beats, fears at most ${m.vacuumFearsMax}, chances ${m.chanceAfterMeeting1?.toFixed(4)}, ${m.chanceAfterMeeting2?.toFixed(4)}, ${m.chanceAfterMeeting3?.toFixed(4)} against the stand-in's ${m.standIn1?.toFixed(4)}, ${m.standIn2?.toFixed(4)}, ${m.standIn3?.toFixed(4)}, CHSH ${m.chsh?.toFixed(3)} (stand-in ${m.chshStandIn?.toFixed(3)}), matter CHSH ${m.matterChsh?.toFixed(3)}. Coin maps kept by the rule ${ledger.kept}. Transport (first order): defect ${defect.toExponential(2)}, ${averaged.carriers} oriented roots, ${transport.invariants} invariants, charge ${t3.charge?.toFixed(2)}, trace ${t3.trace?.toFixed(2)}, sound ${t3.sound?.toFixed(2)}, shear ${t3.shear?.toFixed(2)}. TRADE TABLE (gate: H at these sides / E-RLT-0079's one-line vacuum at the old sides / here): ${trade}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

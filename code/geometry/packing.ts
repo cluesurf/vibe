@@ -205,7 +205,9 @@ export function sameCosineSpectrum(
   const a = cosineSpectrum(left)
   const b = cosineSpectrum(right)
 
-  return a.every((value, index) => Math.abs(value - b[index]!) <= tolerance)
+  return a.every(
+    (value, index) => Math.abs(value - b[index]!) <= tolerance,
+  )
 }
 
 // A deterministic straight-line blend of two equal-sized configurations, paired by index and renormalized to the

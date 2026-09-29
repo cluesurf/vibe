@@ -61,9 +61,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { storeKnit, storeStart, storeWeave } from '@/code/measure/token-store-gates'
+import {
+  storeKnit,
+  storeStart,
+  storeWeave,
+} from '@/code/measure/token-store-gates'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { fluxRun, gasRun, knitRun, type FluxRun, type GasRun, type KnitRun } from '@/code/measure/charge-count'
+import {
+  fluxRun,
+  gasRun,
+  knitRun,
+  type FluxRun,
+  type GasRun,
+  type KnitRun,
+} from '@/code/measure/charge-count'
 import { type FluxStoreSpec } from '@/code/rule/flux-store-line'
 import { type Vibe } from '@/code/rule/locked-token-line'
 
@@ -72,13 +83,25 @@ const GAS_BEATS = 96
 const DEFECT_BEATS = 16
 const KNIT_BEATS = 48
 
-const fluxSpec = (ring: number, kinds: Vibe[], depth: number): FluxStoreSpec => ({ ring, kinds, convention: 'C', unlike: 'knit', depth, cost: 0, root: 3 })
+const fluxSpec = (
+  ring: number,
+  kinds: Vibe[],
+  depth: number,
+): FluxStoreSpec => ({
+  ring,
+  kinds,
+  convention: 'C',
+  unlike: 'knit',
+  depth,
+  cost: 0,
+  root: 3,
+})
 
 export default experiment({
   id: 'gauge/charge-count-every-beat',
   code: 'E-FRC-0243',
   title:
-    'charge is counted in whole vibes on every beat, locally, on the husk: the trit light with the hop gas keeps Gauss and the husk continuity dQ + div J = 0 on every beat of 17 starts, the adopted pair creation (the returned-neutral store) keeps every dock\'s charge through every collision and moves charge only across husk links on all 17 link starts, and the flux-store string keeps Gauss mod 3 on every register state, so the rishon charge (love - fear) / 3 is whole exactly on regions whose boundary carries no center flux, while the center flux cannot see three loves; every planted defect is caught',
+    "charge is counted in whole vibes on every beat, locally, on the husk: the trit light with the hop gas keeps Gauss and the husk continuity dQ + div J = 0 on every beat of 17 starts, the adopted pair creation (the returned-neutral store) keeps every dock's charge through every collision and moves charge only across husk links on all 17 link starts, and the flux-store string keeps Gauss mod 3 on every register state, so the rishon charge (love - fear) / 3 is whole exactly on regions whose boundary carries no center flux, while the center flux cannot see three loves; every planted defect is caught",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -90,7 +113,18 @@ export default experiment({
     // A: the trit light with the hop gas
     let a1 = true
     let a2 = true
-    const sumGas: GasRun = { bulkGauss: 0, huskGauss: 0, continuity: 0, chargeChange: 0, columnBound: 0, crossings: 0, charged: 0, fingerprint: 0 }
+
+    const sumGas: GasRun = {
+      bulkGauss: 0,
+      huskGauss: 0,
+      continuity: 0,
+      chargeChange: 0,
+      columnBound: 0,
+      crossings: 0,
+      charged: 0,
+      fingerprint: 0,
+    }
+
     let minCrossings = Infinity
 
     for (let member = 0; member < GAS_STARTS; member++) {
@@ -98,58 +132,122 @@ export default experiment({
       const unpaid = gasRun(member, DEFECT_BEATS, 'unpaid')
       const creating = gasRun(member, DEFECT_BEATS, 'creating')
 
-      for (const key of ['bulkGauss', 'huskGauss', 'continuity', 'chargeChange', 'columnBound', 'crossings', 'charged'] as const) sumGas[key] += r[key]
+      for (const key of [
+        'bulkGauss',
+        'huskGauss',
+        'continuity',
+        'chargeChange',
+        'columnBound',
+        'crossings',
+        'charged',
+      ] as const) {
+        sumGas[key] += r[key]
+      }
+
       minCrossings = Math.min(minCrossings, r.crossings)
-      a1 = a1 && r.bulkGauss === 0 && r.huskGauss === 0 && r.continuity === 0 && r.chargeChange === 0 && r.columnBound === 0 && r.crossings > 0
-      a2 = a2 && unpaid.bulkGauss + unpaid.huskGauss > 0 && creating.chargeChange > 0
+      a1 =
+        a1 &&
+        r.bulkGauss === 0 &&
+        r.huskGauss === 0 &&
+        r.continuity === 0 &&
+        r.chargeChange === 0 &&
+        r.columnBound === 0 &&
+        r.crossings > 0
+
+      a2 =
+        a2 &&
+        unpaid.bulkGauss + unpaid.huskGauss > 0 &&
+        creating.chargeChange > 0
       metrics[`gas_start${member}_crossings`] = r.crossings
-      metrics[`gas_start${member}_unpaidGauss`] = unpaid.bulkGauss + unpaid.huskGauss
+      metrics[`gas_start${member}_unpaidGauss`] =
+        unpaid.bulkGauss + unpaid.huskGauss
       metrics[`gas_start${member}_unpaidHuskGauss`] = unpaid.huskGauss
-      metrics[`gas_start${member}_creatingChargeChanges`] = creating.chargeChange
+      metrics[`gas_start${member}_creatingChargeChanges`] =
+        creating.chargeChange
     }
 
-    for (const [k, v] of Object.entries(sumGas)) if (k !== 'fingerprint') metrics[`gas_${k}`] = v
+    for (const [k, v] of Object.entries(sumGas)) {
+      if (k !== 'fingerprint') {
+        metrics[`gas_${k}`] = v
+      }
+    }
 
     metrics.gas_minCrossings = minCrossings
 
     // B: the adopted knit over the link start family
     let b1 = true
     let b2 = true
+
     const family = startFamily(GAS_STARTS - 1)
     const sumKnit: Record<string, number> = {}
+
     let committedFingerprint = 0
 
     family.forEach((member, i) => {
-      const [run, loveLove, lossy] = withStart(member, (): KnitRun[] => {
-        const weave = storeWeave()
-        const knit = storeKnit(weave, 'returned-neutral')
-        const start = storeStart(weave.mesh.cellCount, 1)
+      const [run, loveLove, lossy] = withStart(
+        member,
+        (): KnitRun[] => {
+          const weave = storeWeave()
+          const knit = storeKnit(weave, 'returned-neutral')
+          const start = storeStart(weave.mesh.cellCount, 1)
 
-        return [knitRun(knit, start, KNIT_BEATS, 'none'), knitRun(knit, start, KNIT_BEATS, 'loveLove'), knitRun(knit, start, KNIT_BEATS, 'lossy')]
-      })
+          return [
+            knitRun(knit, start, KNIT_BEATS, 'none'),
+            knitRun(knit, start, KNIT_BEATS, 'loveLove'),
+            knitRun(knit, start, KNIT_BEATS, 'lossy'),
+          ]
+        },
+      )
 
-      if (i === 0) committedFingerprint = run!.fingerprint
+      if (i === 0) {
+        committedFingerprint = run!.fingerprint
+      }
 
-      for (const [k, v] of Object.entries(run!)) if (k !== 'fingerprint') sumKnit[k] = (sumKnit[k] ?? 0) + v
+      for (const [k, v] of Object.entries(run!)) {
+        if (k !== 'fingerprint') {
+          sumKnit[k] = (sumKnit[k] ?? 0) + v
+        }
+      }
 
-      b1 = b1 && run!.dockChargeFailures === 0 && run!.continuity === 0 && run!.chargeChange === 0 && run!.beatMismatch === 0 && run!.made > 0 && run!.unmade > 0
-      b2 = b2 && loveLove!.dockChargeFailures > 0 && loveLove!.chargeChange > 0 && lossy!.continuity > 0
+      b1 =
+        b1 &&
+        run!.dockChargeFailures === 0 &&
+        run!.continuity === 0 &&
+        run!.chargeChange === 0 &&
+        run!.beatMismatch === 0 &&
+        run!.made > 0 &&
+        run!.unmade > 0
+
+      b2 =
+        b2 &&
+        loveLove!.dockChargeFailures > 0 &&
+        loveLove!.chargeChange > 0 &&
+        lossy!.continuity > 0
       metrics[`knit_${member.name}_made`] = run!.made
       metrics[`knit_${member.name}_unmade`] = run!.unmade
-      metrics[`knit_${member.name}_loveLoveDockFailures`] = loveLove!.dockChargeFailures
+      metrics[`knit_${member.name}_loveLoveDockFailures`] =
+        loveLove!.dockChargeFailures
       metrics[`knit_${member.name}_lossyContinuity`] = lossy!.continuity
     })
 
-    for (const [k, v] of Object.entries(sumKnit)) metrics[`knit_${k}`] = v
+    for (const [k, v] of Object.entries(sumKnit)) {
+      metrics[`knit_${k}`] = v
+    }
 
-    metrics.knit_rishonFractionalShare = (sumKnit.rishonFractional ?? 0) / Math.max(1, sumKnit.columnBeats ?? 1)
+    metrics.knit_rishonFractionalShare =
+      (sumKnit.rishonFractional ?? 0) /
+      Math.max(1, sumKnit.columnBeats ?? 1)
 
     // C: the flux-store string, exhaustive
     const cases: { name: string; spec: FluxStoreSpec }[] = [
       { name: 'pairRing6D1', spec: fluxSpec(6, ['love', 'fear'], 1) },
       { name: 'pairRing7D2', spec: fluxSpec(7, ['love', 'fear'], 2) },
-      { name: 'threeLovesRing5D1', spec: fluxSpec(5, ['love', 'love', 'love'], 1) },
+      {
+        name: 'threeLovesRing5D1',
+        spec: fluxSpec(5, ['love', 'love', 'love'], 1),
+      },
     ]
+
     let c1 = true
     let c3 = true
     let threeLoves: FluxRun | undefined
@@ -157,11 +255,20 @@ export default experiment({
     for (const c of cases) {
       const r = fluxRun(c.spec)
 
-      for (const [k, v] of Object.entries(r)) metrics[`flux_${c.name}_${k}`] = v
+      for (const [k, v] of Object.entries(r)) {
+        metrics[`flux_${c.name}_${k}`] = v
+      }
 
-      c1 = c1 && r.gaussBroken === 0 && r.arcFailures === 0 && r.gaussStates > 0
+      c1 =
+        c1 &&
+        r.gaussBroken === 0 &&
+        r.arcFailures === 0 &&
+        r.gaussStates > 0
       c3 = c3 && r.unrecordedBroken > 0
-      if (c.name === 'threeLovesRing5D1') threeLoves = r
+
+      if (c.name === 'threeLovesRing5D1') {
+        threeLoves = r
+      }
     }
 
     const c2 = (threeLoves?.invisibleCharge ?? 0) > 0
@@ -172,13 +279,31 @@ export default experiment({
     const againKnit = withStart(family[0]!, () => {
       const weave = storeWeave()
 
-      return knitRun(storeKnit(weave, 'returned-neutral'), storeStart(weave.mesh.cellCount, 1), KNIT_BEATS, 'none')
+      return knitRun(
+        storeKnit(weave, 'returned-neutral'),
+        storeStart(weave.mesh.cellCount, 1),
+        KNIT_BEATS,
+        'none',
+      )
     })
-    const e = againGas.fingerprint === firstGas.fingerprint && againKnit.fingerprint === committedFingerprint
+    const e =
+      againGas.fingerprint === firstGas.fingerprint &&
+      againKnit.fingerprint === committedFingerprint
 
-    const gates = { A1: a1, A2: a2, B1: b1, B2: b2, C1: c1, C2: c2, C3: c3, E: e }
+    const gates = {
+      A1: a1,
+      A2: a2,
+      B1: b1,
+      B2: b2,
+      C1: c1,
+      C2: c2,
+      C3: c3,
+      E: e,
+    }
 
-    for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(gates)) {
+      metrics[`gate${k}`] = v ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -188,7 +313,8 @@ export default experiment({
       metrics,
       control: {
         unpaidGaussStart0: metrics.gas_start0_unpaidGauss ?? 0,
-        loveLoveDockFailuresCommitted: metrics['knit_integer+0_loveLoveDockFailures'] ?? 0,
+        loveLoveDockFailuresCommitted:
+          metrics['knit_integer+0_loveLoveDockFailures'] ?? 0,
         unrecordedBrokenThreeLoves: threeLoves?.unrecordedBroken ?? 0,
       },
       notes: `L2, deterministic (Weyl and Kronecker starts, E-MTH-0028's link family, exhaustive register spaces; no draw). Gates: ${JSON.stringify(gates)}. FIRST RUN 2026-09-26 (tmp/frc0243.log, 4.4 s), PASS on every gate, no gate moved. Reported: 67 percent of the knit's husk column-beats (14,785 of 22,032) hold a love minus fear that is not a multiple of 3, so under the rishon reading most columns carry a fractional Q at any beat; wholeness of Q is a property of flux-free regions (C1), not of columns. FLAG: the U(1) light couples to the vibe count, not to Q, so a three-love charge-one state (E-SPN-0077) carries light charge 3 and would couple with 9 times the one-vibe alpha of E-FRC-0212 and 0242, unless the light is made to couple to Q.`,

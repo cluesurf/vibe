@@ -31,7 +31,12 @@ import { makeWill, Will } from '@/code/tone/will'
 import { Collision, headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { sortingCollision } from '@/code/control/conserving-irreversible-collision'
-import { ComplexPair, pairAbs2, pairAdd, pairFromPhase } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair,
+  pairAbs2,
+  pairAdd,
+  pairFromPhase,
+} from '@/code/algebra/linear/complex-pair'
 
 const SIDE = 5
 const BEATS = 4
@@ -51,12 +56,18 @@ function pushForward(input: {
   normBefore: number
   normAfter: number
 } {
-  const images = new Map<string, { amplitude: ComplexPair; sourceWeight: number }>()
+  const images = new Map<
+    string,
+    { amplitude: ComplexPair; sourceWeight: number }
+  >()
 
   let normBefore = 0
 
   for (const seed of input.seeds) {
-    let will = { mesh: seed.will.mesh, data: Int8Array.from(seed.will.data) }
+    let will = {
+      mesh: seed.will.mesh,
+      data: Int8Array.from(seed.will.data),
+    }
 
     for (let t = 0; t < BEATS; t++) {
       will = beat(will, input.collision)
@@ -75,7 +86,10 @@ function pushForward(input: {
         sourceWeight: existing.sourceWeight + weight,
       })
     } else {
-      images.set(key, { amplitude: seed.amplitude, sourceWeight: weight })
+      images.set(key, {
+        amplitude: seed.amplitude,
+        sourceWeight: weight,
+      })
     }
   }
 
@@ -179,7 +193,9 @@ export default experiment({
         irreversibleWorstCrossTerm: Number(
           irreversible.worstCrossTerm.toFixed(6),
         ),
-        irreversibleNormAfter: Number(irreversible.normAfter.toFixed(6)),
+        irreversibleNormAfter: Number(
+          irreversible.normAfter.toFixed(6),
+        ),
       },
       notes:
         'The exact form of "the rule has no amplitudes": a reversible classical rule is a permutation matrix on its configurations, which relabels weights and never adds two branches. It follows that the middle layer the quantum program needs cannot be a phase assigned to configurations, it has to be a coarser variable whose evolution is not a permutation of its own values, such as a count or a density over many configurations. L1, a theorem measured on the committed rule with an irreversible control.',

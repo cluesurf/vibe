@@ -12,7 +12,10 @@
 //
 // Exact integer arithmetic, no random numbers.
 
-import { closure, type GroupOps } from '@/code/algebra/group/finite-group'
+import {
+  closure,
+  type GroupOps,
+} from '@/code/algebra/group/finite-group'
 
 export type TableGroup = {
   readonly order: number
@@ -22,15 +25,21 @@ export type TableGroup = {
 }
 
 // the multiplication table of the listed elements, which must be closed
-export function tableGroup<T>(elements: readonly T[], ops: GroupOps<T>): TableGroup {
+export function tableGroup<T>(
+  elements: readonly T[],
+  ops: GroupOps<T>,
+): TableGroup {
   const order = elements.length
   const index = new Map(elements.map((e, i) => [ops.key(e), i]))
   const product = new Int32Array(order * order)
+
   let identity = -1
 
   for (let a = 0; a < order; a++) {
     for (let b = 0; b < order; b++) {
-      const found = index.get(ops.key(ops.multiply(elements[a] as T, elements[b] as T)))
+      const found = index.get(
+        ops.key(ops.multiply(elements[a] as T, elements[b] as T)),
+      )
 
       if (found === undefined) {
         throw new Error('the elements are not closed under the product')
@@ -71,16 +80,18 @@ export function elementOrders(group: TableGroup): Int32Array {
 }
 
 // the size of the subgroup the listed elements generate
-export function generatedOrder(group: TableGroup, generators: readonly number[]): number {
+export function generatedOrder(
+  group: TableGroup,
+  generators: readonly number[],
+): number {
   const { order, product, identity } = group
   const seen = new Uint8Array(order)
   const queue = [identity]
 
   seen[identity] = 1
 
-  for (let i = 0; i < queue.length; i++) {
-    const x = queue[i] ?? identity
-
+  // the queue grows while it is walked, and for-of reads the live length
+  for (const x of queue) {
     for (const g of generators) {
       const y = product[x * order + g] ?? identity
 
@@ -95,9 +106,13 @@ export function generatedOrder(group: TableGroup, generators: readonly number[])
 }
 
 // the first generating pair (a, b) in index order, preferring elements of large order, or undefined
-export function generatingPair(group: TableGroup): [number, number] | undefined {
+export function generatingPair(
+  group: TableGroup,
+): [number, number] | undefined {
   const orders = elementOrders(group)
-  const byOrder = Array.from({ length: group.order }, (_, i) => i).sort((x, y) => (orders[y] ?? 0) - (orders[x] ?? 0) || x - y)
+  const byOrder = Array.from({ length: group.order }, (_, i) => i).sort(
+    (x, y) => (orders[y] ?? 0) - (orders[x] ?? 0) || x - y,
+  )
 
   for (const a of byOrder) {
     for (const b of byOrder) {
@@ -123,13 +138,17 @@ export function extendIsomorphism(input: {
 
   map[source.identity] = target.identity
 
-  for (let i = 0; i < queue.length; i++) {
-    const x = queue[i] ?? source.identity
+  // the queue grows while it is walked, and for-of reads the live length
+  for (const x of queue) {
     const fx = map[x] ?? target.identity
 
     for (let k = 0; k < generators.length; k++) {
-      const y = source.product[x * source.order + (generators[k] ?? 0)] ?? source.identity
-      const fy = target.product[fx * target.order + (images[k] ?? 0)] ?? target.identity
+      const y =
+        source.product[x * source.order + (generators[k] ?? 0)] ??
+        source.identity
+      const fy =
+        target.product[fx * target.order + (images[k] ?? 0)] ??
+        target.identity
 
       if (map[y] === -1) {
         map[y] = fy
@@ -158,7 +177,10 @@ export function extendIsomorphism(input: {
 }
 
 // every isomorphism source -> target, through a generating pair of the source
-export function isomorphisms(source: TableGroup, target: TableGroup): Int32Array[] {
+export function isomorphisms(
+  source: TableGroup,
+  target: TableGroup,
+): Int32Array[] {
   const pair = generatingPair(source)
 
   if (!pair || source.order !== target.order) {
@@ -179,7 +201,12 @@ export function isomorphisms(source: TableGroup, target: TableGroup): Int32Array
         continue
       }
 
-      const map = extendIsomorphism({ source, target, generators: pair, images: [a, b] })
+      const map = extendIsomorphism({
+        source,
+        target,
+        generators: pair,
+        images: [a, b],
+      })
 
       if (map) {
         out.push(map)
@@ -204,7 +231,9 @@ export const PERMUTATION_OPS: GroupOps<readonly number[]> = {
 }
 
 // the permutation group the listed permutations generate
-export function permutationGroup(generators: readonly (readonly number[])[]): (readonly number[])[] {
+export function permutationGroup(
+  generators: readonly (readonly number[])[],
+): (readonly number[])[] {
   return closure([...generators], PERMUTATION_OPS)
 }
 
@@ -218,6 +247,7 @@ export function intertwiningRelabelings(input: {
   const { source, sourceGenerators, target } = input
   const n = source[0]?.length ?? 0
   const inTarget = new Set(target.map(t => t.join(',')))
+
   let count = 0
 
   if (source.length !== target.length) {

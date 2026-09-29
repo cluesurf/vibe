@@ -100,16 +100,51 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, openRestLow, warpClock, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
+import {
+  openMesh,
+  openRestLow,
+  warpClock,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
 import { horizonDepth, horizonRule } from '@/code/rule/horizon-husk'
 import { clockHorizonRule, clockJoin } from '@/code/rule/clock-horizon'
-import { innerLink, pathTwice, waveHorizonRule } from '@/code/rule/wave-horizon'
+import {
+  innerLink,
+  pathTwice,
+  waveHorizonRule,
+} from '@/code/rule/wave-horizon'
 import { compressLump } from '@/code/measure/step-depth'
-import { greenSolve, huskCoord, huskDistance } from '@/code/measure/open-husk'
-import { growthRun, newHorizonRecord, realHorizonDepth, tornEngine, tornMesh, type Addition, type HorizonEngine, type HorizonRecord } from '@/code/measure/horizon-husk'
-import { accretionOrder, axisForce, clockStatics, routeUnits, spreadSinks } from '@/code/measure/clock-horizon'
+import {
+  greenSolve,
+  huskCoord,
+  huskDistance,
+} from '@/code/measure/open-husk'
+import {
+  growthRun,
+  newHorizonRecord,
+  realHorizonDepth,
+  tornEngine,
+  tornMesh,
+  type Addition,
+  type HorizonEngine,
+  type HorizonRecord,
+} from '@/code/measure/horizon-husk'
+import {
+  accretionOrder,
+  axisForce,
+  clockStatics,
+  routeUnits,
+  spreadSinks,
+} from '@/code/measure/clock-horizon'
 import { countEngine, countStatics } from '@/code/measure/count-horizon'
-import { outsideInOrder, waveEnergy, waveEngine, waveStatics, type WaveEngine } from '@/code/measure/wave-horizon'
+import {
+  outsideInOrder,
+  waveEnergy,
+  waveEngine,
+  waveStatics,
+  type WaveEngine,
+} from '@/code/measure/wave-horizon'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -132,11 +167,20 @@ const CENTER = [12, 12, 12]
 const QUARTERS = 4
 
 // the husk offset of dock y from the center, each axis taken the short way round
-const offsetOf = (mesh: OpenMesh, y: number, center: readonly number[]): number[] => huskCoord(mesh, y).map((v, i) => {
-  const d = v - center[i]!
+const offsetOf = (
+  mesh: OpenMesh,
+  y: number,
+  center: readonly number[],
+): number[] =>
+  huskCoord(mesh, y).map((v, i) => {
+    const d = v - center[i]!
 
-  return d > mesh.side / 2 ? d - mesh.side : d < -mesh.side / 2 ? d + mesh.side : d
-})
+    return d > mesh.side / 2
+      ? d - mesh.side
+      : d < -mesh.side / 2
+        ? d + mesh.side
+        : d
+  })
 
 type WaveTrace = {
   gaussOff: number
@@ -152,7 +196,16 @@ type WaveTrace = {
   dipole: number[][]
 }
 
-type Settled = { record: HorizonRecord; reversed: boolean; horizon: Uint8Array; rho: Int32Array; depth: Float64Array; firstJoin: number; eventEnergy: number; trace?: WaveTrace }
+type Settled = {
+  record: HorizonRecord
+  reversed: boolean
+  horizon: Uint8Array
+  rho: Int32Array
+  depth: Float64Array
+  firstJoin: number
+  eventEnergy: number
+  trace?: WaveTrace
+}
 
 export default experiment({
   id: 'gravity/wave-horizon-growth',
@@ -165,25 +218,63 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
-    const clock = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+    const clock = clockHorizonRule(
+      horizonRule(stepRule(DEPTH, LEVELS), BULK),
+      CAP,
+    )
     const rule = waveHorizonRule(clock)
     const sinks = spreadSinks(mesh, CENTER, M, SINKS_FROM)
-    const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, M, 1, sinks)
-    const scheduleOf = (order: readonly number[]): Addition[] => routeUnits(mesh, order, sinks).map((u, i) => ({ beat: EVERY * i, at: u.at, sink: u.sink, path: u.path }))
-    const orderA = scheduleOf(accretionOrder(mesh, lump.content, CENTER))
-    const orderB = scheduleOf(outsideInOrder(mesh, lump.content, CENTER))
+    const lump = compressLump(
+      radionMesh([SIDE, SIDE, SIDE]),
+      CENTER,
+      M,
+      1,
+      sinks,
+    )
+    const scheduleOf = (order: readonly number[]): Addition[] =>
+      routeUnits(mesh, order, sinks).map((u, i) => ({
+        beat: EVERY * i,
+        at: u.at,
+        sink: u.sink,
+        path: u.path,
+      }))
+    const orderA = scheduleOf(
+      accretionOrder(mesh, lump.content, CENTER),
+    )
+    const orderB = scheduleOf(
+      outsideInOrder(mesh, lump.content, CENTER),
+    )
     const growEnd = EVERY * (M - 1) + 1
     const beats = growEnd + SETTLE
     const quarter = SETTLE / QUARTERS
 
     // a settled run: the Hann average of the last SETTLE beats, its depth found over the final horizon's live links
-    const grow = (engine: HorizonEngine, additions: Addition[], join: (s: OpenState, h: Uint8Array) => number[], we?: WaveEngine): Settled => {
+    const grow = (
+      engine: HorizonEngine,
+      additions: Addition[],
+      join: (s: OpenState, h: Uint8Array) => number[],
+      we?: WaveEngine,
+    ): Settled => {
       const wave = we !== undefined
       const record = newHorizonRecord()
       const mean = new Float64Array(mesh.links)
-      const trace: WaveTrace = { gaussOff: 0, curl: 0, pathOff: 0, liveChecked: 0, sigmaMax: 0, flowMax: 0, zeroAfter: false, waveWraps: 0, flowKinetic: [], flowMean: Array(QUARTERS).fill(0), dipole: Array.from({ length: QUARTERS }, () => [0, 0, 0]) }
+      const trace: WaveTrace = {
+        gaussOff: 0,
+        curl: 0,
+        pathOff: 0,
+        liveChecked: 0,
+        sigmaMax: 0,
+        flowMax: 0,
+        zeroAfter: false,
+        waveWraps: 0,
+        flowKinetic: [],
+        flowMean: new Array<number>(QUARTERS).fill(0),
+        dipole: Array.from({ length: QUARTERS }, () => [0, 0, 0]),
+      }
+
       let weight = 0
       let firstJoin = -1
 
@@ -196,46 +287,95 @@ export default experiment({
         CENTER,
         SAMPLE,
         (t, s, horizon) => {
-          if (firstJoin < 0 && horizon.some(v => v === 1)) firstJoin = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
+          if (firstJoin < 0 && horizon.some(v => v === 1)) {
+            firstJoin = Math.min(M, Math.floor((t - 1) / EVERY) + 1)
+          }
+
           if (we) {
             const w = we.last()!
+
             let sum = 0
 
             for (let y = 0; y < mesh.huskDocks; y++) {
-              if (horizon[y]) sum += w.sigma[y]!
-              else if (w.sigma[y] !== 0) trace.gaussOff++
-              trace.sigmaMax = Math.max(trace.sigmaMax, Math.abs(w.sigma[y]!) / rule.unit)
+              if (horizon[y]) {
+                sum += w.sigma[y]!
+              } else if (w.sigma[y] !== 0) {
+                trace.gaussOff++
+              }
+
+              trace.sigmaMax = Math.max(
+                trace.sigmaMax,
+                Math.abs(w.sigma[y]!) / rule.unit,
+              )
             }
-            if (sum !== 0) trace.gaussOff++
-            for (let m = 0; m < mesh.huskDocks * 9; m++) trace.flowMax = Math.max(trace.flowMax, Math.abs(w.flow[m]!) / rule.unit)
+
+            if (sum !== 0) {
+              trace.gaussOff++
+            }
+
+            for (let m = 0; m < mesh.huskDocks * 9; m++) {
+              trace.flowMax = Math.max(
+                trace.flowMax,
+                Math.abs(w.flow[m]!) / rule.unit,
+              )
+            }
+
             if (t % SAMPLE === 0 || t === beats) {
               const d = horizonDepth(mesh, s.step, horizon, innerLink)
 
               trace.curl += d.curl
               trace.liveChecked += d.checked
-              for (let m = 0; m < mesh.huskDocks * 9; m++) if (pathTwice(mesh, w.paths, s.step, m) !== d.twice[mesh.tail[m]!]! - d.twice[mesh.head[m]!]!) trace.pathOff++
+
+              for (let m = 0; m < mesh.huskDocks * 9; m++) {
+                if (
+                  pathTwice(mesh, w.paths, s.step, m) !==
+                  d.twice[mesh.tail[m]!]! - d.twice[mesh.head[m]!]!
+                ) {
+                  trace.pathOff++
+                }
+              }
             }
+
             if (t > growEnd) {
               const e = waveEnergy(mesh, rule, s, horizon, w)
-              const k = Math.min(QUARTERS - 1, Math.floor((t - growEnd - 1) / quarter))
+              const k = Math.min(
+                QUARTERS - 1,
+                Math.floor((t - growEnd - 1) / quarter),
+              )
 
-              if ((t - growEnd) % 16 === 0) trace.flowKinetic.push(e.flowKinetic)
-              trace.flowMean[k] = trace.flowMean[k]! + e.flowKinetic / quarter
+              if ((t - growEnd) % 16 === 0) {
+                trace.flowKinetic.push(e.flowKinetic)
+              }
+
+              trace.flowMean[k] =
+                trace.flowMean[k]! + e.flowKinetic / quarter
+
               for (let y = 0; y < mesh.huskDocks; y++) {
-                if (!horizon[y]) continue
+                if (!horizon[y]) {
+                  continue
+                }
 
                 const S = w.source[y]! / rule.unit
                 const o = offsetOf(mesh, y, CENTER)
 
-                for (let i = 0; i < 3; i++) trace.dipole[k]![i] = trace.dipole[k]![i]! + (S * o[i]!) / quarter
+                for (let i = 0; i < 3; i++) {
+                  trace.dipole[k]![i] =
+                    trace.dipole[k]![i]! + (S * o[i]!) / quarter
+                }
               }
             }
           }
-          if (t <= growEnd) return
+
+          if (t <= growEnd) {
+            return
+          }
 
           const w = Math.sin((Math.PI * (t - growEnd)) / SETTLE) ** 2
 
-          for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
+          for (let m = 0; m < mesh.links; m++) {
+            mean[m] = mean[m]! + (w * s.step[m]!) / rule.unit
+          }
+
           weight += w
         },
         false,
@@ -243,22 +383,43 @@ export default experiment({
         engine,
       )
 
-      for (let m = 0; m < mesh.links; m++) mean[m] = mean[m]! / weight
+      for (let m = 0; m < mesh.links; m++) {
+        mean[m] = mean[m]! / weight
+      }
 
       if (we) {
         const w = we.last()!
 
-        trace.zeroAfter = w.sigma.every(v => v === 0) && w.flow.every(v => v === 0) && w.carry.every(v => v === 0) && w.known.every(v => v === 0)
+        trace.zeroAfter =
+          w.sigma.every(v => v === 0) &&
+          w.flow.every(v => v === 0) &&
+          w.carry.every(v => v === 0) &&
+          w.known.every(v => v === 0)
         trace.waveWraps = w.waveWraps
       }
 
-      const depth = wave ? horizonDepth(mesh, mean, run.horizon, innerLink).twice.map(v => v / 2) : realHorizonDepth(mesh, mean, run.horizon)
+      const depth = wave
+        ? horizonDepth(mesh, mean, run.horizon, innerLink).twice.map(
+            v => v / 2,
+          )
+        : realHorizonDepth(mesh, mean, run.horizon)
 
-      return { record, reversed: run.reversed && record.reversed, horizon: run.horizon, rho: run.rho, depth, firstJoin, eventEnergy: Math.max(0, ...run.eventEnergy.map(Math.abs)), trace: wave ? trace : undefined }
+      return {
+        record,
+        reversed: run.reversed && record.reversed,
+        horizon: run.horizon,
+        rho: run.rho,
+        depth,
+        firstJoin,
+        eventEnergy: Math.max(0, ...run.eventEnergy.map(Math.abs)),
+        trace: wave ? trace : undefined,
+      }
     }
 
-    const waveJoin = (s: OpenState, h: Uint8Array): number[] => clockJoin(mesh, rule, s, h, innerLink)
-    const heldJoin = (s: OpenState, h: Uint8Array): number[] => clockJoin(mesh, rule, s, h)
+    const waveJoin = (s: OpenState, h: Uint8Array): number[] =>
+      clockJoin(mesh, rule, s, h, innerLink)
+    const heldJoin = (s: OpenState, h: Uint8Array): number[] =>
+      clockJoin(mesh, rule, s, h)
 
     // C1 first: the held rule on both orders
     const c1a = grow(tornEngine(mesh, rule), orderA, heldJoin)
@@ -287,43 +448,84 @@ export default experiment({
     const placed = waveStatics(mesh, rule, rho)
     const placedCount = countStatics(mesh, rule, rho)
     const placedHeld = clockStatics(mesh, clock, rho)
-    const heldPlacedX = greenSolve(tornMesh(mesh, placedHeld.horizon), rho, 1e-12).x
+    const heldPlacedX = greenSolve(
+      tornMesh(mesh, placedHeld.horizon),
+      rho,
+      1e-12,
+    ).x
 
     log('statics')
 
-    const forceAt = (x: ArrayLike<number>): number[] => RADII.map(r => axisForce(mesh, x, CENTER, r))
-    const off = (x: ArrayLike<number>, ref: ArrayLike<number>): number => {
+    const forceAt = (x: ArrayLike<number>): number[] =>
+      RADII.map(r => axisForce(mesh, x, CENTER, r))
+
+    const off = (
+      x: ArrayLike<number>,
+      ref: ArrayLike<number>,
+    ): number => {
       const p = forceAt(x)
       const q = forceAt(ref)
 
       return Math.max(...p.map((v, i) => Math.abs(v / q[i]! - 1)))
     }
-    const docksOf = (h: Uint8Array): number => h.reduce((n, v) => n + v, 0)
+
+    const docksOf = (h: Uint8Array): number =>
+      h.reduce((n, v) => n + v, 0)
+
     const radiusOf = (h: Uint8Array): number => {
       let r = 0
 
-      for (let y = 0; y < mesh.huskDocks; y++) if (h[y]) r = Math.max(r, huskDistance(mesh, y, CENTER))
+      for (let y = 0; y < mesh.huskDocks; y++) {
+        if (h[y]) {
+          r = Math.max(r, huskDistance(mesh, y, CENTER))
+        }
+      }
 
       return r
     }
-    const wrapsOf = (r: HorizonRecord): number => r.wraps.fWraps + r.wraps.vWraps
-    const sameContent = [b, c1a, c1b, c2].every(run => run.rho.every((v, y) => v === rho[y]))
+
+    const wrapsOf = (r: HorizonRecord): number =>
+      r.wraps.fWraps + r.wraps.vWraps
+    const sameContent = [b, c1a, c1b, c2].every(run =>
+      run.rho.every((v, y) => v === rho[y]),
+    )
     const reference = docksOf(placedCount.horizon)
+
     let rhoX = 0
 
-    for (let y = 0; y < mesh.docks; y++) rhoX += placed.source[y]! * placed.x[y]!
+    for (let y = 0; y < mesh.docks; y++) {
+      rhoX += placed.source[y]! * placed.x[y]!
+    }
 
     const energyStatic = ((Math.PI / DEPTH) * Math.abs(rhoX)) / 2
+
     const exact = (s: Settled): boolean => {
       const t = s.trace!
 
-      return s.reversed && t.zeroAfter && s.record.gaussOff === 0 && t.gaussOff === 0 && s.record.curl === 0 && t.curl === 0 && t.pathOff === 0 && t.liveChecked > 0 && s.record.restOff === 0 && s.record.energyDrift <= ENERGY_TOLERANCE * energyStatic
+      return (
+        s.reversed &&
+        t.zeroAfter &&
+        s.record.gaussOff === 0 &&
+        t.gaussOff === 0 &&
+        s.record.curl === 0 &&
+        t.curl === 0 &&
+        t.pathOff === 0 &&
+        t.liveChecked > 0 &&
+        s.record.restOff === 0 &&
+        s.record.energyDrift <= ENERGY_TOLERANCE * energyStatic
+      )
     }
 
-    const g1 = wrapsOf(a.record) === 0 && wrapsOf(b.record) === 0 && a.trace!.waveWraps === 0 && b.trace!.waveWraps === 0
+    const g1 =
+      wrapsOf(a.record) === 0 &&
+      wrapsOf(b.record) === 0 &&
+      a.trace!.waveWraps === 0 &&
+      b.trace!.waveWraps === 0
     const horizonOffA = Math.abs(docksOf(a.horizon) / reference - 1)
     const horizonOffB = Math.abs(docksOf(b.horizon) / reference - 1)
-    const g2 = horizonOffA <= HORIZON_TOLERANCE && horizonOffB <= HORIZON_TOLERANCE
+    const g2 =
+      horizonOffA <= HORIZON_TOLERANCE &&
+      horizonOffB <= HORIZON_TOLERANCE
     const placedOff = off(a.depth, placed.x)
     const g3 = placedOff <= PLACED_TOLERANCE
     const orderOff = off(a.depth, b.depth)
@@ -333,23 +535,33 @@ export default experiment({
     const c1Refuses = heldApart >= HELD_APART
     const countOff = Math.abs(docksOf(c2.horizon) / reference - 1)
     const c2Refuses = countOff > HORIZON_TOLERANCE
-    const status = !c1Refuses || !c2Refuses ? 'partial' : g1 && g2 && g3 && g4 && g5 ? 'pass' : 'fail'
+    const status =
+      !c1Refuses || !c2Refuses
+        ? 'partial'
+        : g1 && g2 && g3 && g4 && g5
+          ? 'pass'
+          : 'fail'
 
     // the placed statics' dipole of S about the center
     const placedDipole = [0, 0, 0]
 
     for (let y = 0; y < mesh.huskDocks; y++) {
-      if (!placed.horizon[y]) continue
+      if (!placed.horizon[y]) {
+        continue
+      }
 
       const o = offsetOf(mesh, y, CENTER)
 
-      for (let i = 0; i < 3; i++) placedDipole[i] = placedDipole[i]! + placed.source[y]! * o[i]!
+      for (let i = 0; i < 3; i++) {
+        placedDipole[i] = placedDipole[i]! + placed.source[y]! * o[i]!
+      }
     }
 
     const norm = (v: readonly number[]): number => Math.hypot(...v)
     const f = (v: number): string => v.toPrecision(4)
     const e = (v: number): string => v.toExponential(2)
-    const forces = (x: ArrayLike<number>): string => forceAt(x).map(f).join(', ')
+    const forces = (x: ArrayLike<number>): string =>
+      forceAt(x).map(f).join(', ')
     const metrics: Record<string, number> = {
       gate_G1: g1 ? 1 : 0,
       gate_G2: g2 ? 1 : 0,
@@ -429,12 +641,21 @@ export default experiment({
     RADII.forEach(r => {
       metrics[`A_force_r${r}`] = axisForce(mesh, a.depth, CENTER, r)
       metrics[`B_force_r${r}`] = axisForce(mesh, b.depth, CENTER, r)
-      metrics[`placed_force_r${r}`] = axisForce(mesh, placed.x, CENTER, r)
+      metrics[`placed_force_r${r}`] = axisForce(
+        mesh,
+        placed.x,
+        CENTER,
+        r,
+      )
       metrics[`C1A_force_r${r}`] = axisForce(mesh, c1a.depth, CENTER, r)
       metrics[`C1B_force_r${r}`] = axisForce(mesh, c1b.depth, CENTER, r)
       metrics[`C2_force_r${r}`] = axisForce(mesh, c2.depth, CENTER, r)
     })
-    for (const [name, run] of [['A', a], ['B', b]] as const) {
+
+    for (const [name, run] of [
+      ['A', a],
+      ['B', b],
+    ] as const) {
       const t = run.trace!
 
       for (let k = 0; k < QUARTERS; k++) {
@@ -443,16 +664,28 @@ export default experiment({
       }
     }
 
-    const series = (t: WaveTrace): string => t.flowKinetic.filter((_, i) => i % 8 === 0).map(e).join(' ')
+    const series = (t: WaveTrace): string =>
+      t.flowKinetic
+        .filter((_, i) => i % 8 === 0)
+        .map(e)
+        .join(' ')
 
     return verdict({
       status,
       claim: `E-GRV-0112's M = ${M} lump grown one unit every ${EVERY} beats under the clock criterion (cap ${CAP}) with a tear that hands each inner link's flux to the horizon's shares and a reversible wave (lambda ${rule.stiffTwice / 2}, mu a / Q) trading them over the horizon, then ${SETTLE} beats: wraps ${wrapsOf(a.record) + a.trace!.waveWraps} (accretion) and ${wrapsOf(b.record) + b.trace!.waveWraps} (outside-in); horizons ${docksOf(a.horizon)} and ${docksOf(b.horizon)} docks (count placed ${reference}, wave placed ${docksOf(placed.horizon)}); the settled force at r = 8 .. 11 ${forces(a.depth)} against the placed lump's ${forces(placed.x)} (off ${f(placedOff)}), the outside-in's ${forces(b.depth)} (off ${f(orderOff)}); reversed ${a.reversed && a.trace!.zeroAfter} and ${b.reversed && b.trace!.zeroAfter}, Gauss off ${metrics.A_gaussOff} and ${metrics.B_gaussOff}, curl ${a.trace!.curl} and ${b.trace!.curl}, energy between events ${e(a.record.energyDrift / energyStatic)} and ${e(b.record.energyDrift / energyStatic)} of the statics; controls: the held rule's two orders apart by ${f(heldApart)}, the count rule's horizon ${docksOf(c2.horizon)} docks (off ${f(countOff)})`,
       metrics,
-      control: { c1: c1Refuses ? 1 : 0, heldApart, c2: c2Refuses ? 1 : 0, countOff },
+      control: {
+        c1: c1Refuses ? 1 : 0,
+        heldApart,
+        c2: c2Refuses ? 1 : 0,
+        countOff,
+      },
       notes: `L2. Gates G1 ${g1}, G2 ${g2} (${f(horizonOffA)}, ${f(horizonOffB)}), G3 ${g3} (${f(placedOff)}), G4 ${g4} (${f(orderOff)}, same content ${sameContent}), G5 ${g5}; controls C1 ${c1Refuses} (${f(heldApart)}), C2 ${c2Refuses} (${f(countOff)}). Held forces r = 8 .. 11: accretion ${forces(c1a.depth)}, outside-in ${forces(c1b.depth)}, held placed ${forces(heldPlacedX)}; count rule ${forces(c2.depth)}. First join A ${a.firstJoin}, B ${b.firstJoin}. Placed statics: ${placed.rounds} rounds, fixed point ${placed.iterations} iterations at ratio ${f(placed.ratio)}. Wave: sigma up to ${f(a.trace!.sigmaMax)} and ${f(b.trace!.sigmaMax)} units, flow up to ${f(a.trace!.flowMax)} and ${f(b.trace!.flowMax)}; the flow's kinetic energy by quarter of the settle A ${t4(metrics, 'A_flowKinetic')}, B ${t4(metrics, 'B_flowKinetic')}; the dipole of S by quarter A ${t4(metrics, 'A_dipole')}, B ${t4(metrics, 'B_dipole')}, placed ${f(norm(placedDipole))}. Flow kinetic every 128 beats of the settle A: ${series(a.trace!)}; B: ${series(b.trace!)}. Wraps C1 ${wrapsOf(c1a.record)}, ${wrapsOf(c1b.record)}, C2 ${wrapsOf(c2.record)}. Rest window low ${openRestLow(rule.waveDivisor)}.`,
     })
   },
 })
 
-const t4 = (metrics: Record<string, number>, key: string): string => Array.from({ length: QUARTERS }, (_, k) => (metrics[`${key}_q${k + 1}`] ?? NaN).toExponential(2)).join(', ')
+const t4 = (metrics: Record<string, number>, key: string): string =>
+  Array.from({ length: QUARTERS }, (_, k) =>
+    (metrics[`${key}_q${k + 1}`] ?? NaN).toExponential(2),
+  ).join(', ')

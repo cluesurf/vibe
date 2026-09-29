@@ -282,7 +282,9 @@ export default experiment({
         walkSlopeMass07: Number(walkB.slope.toFixed(4)),
         walkExpectedMass07: Number(walkB.expected.toFixed(4)),
         walkR2Mass07: Number(walkB.r2.toFixed(4)),
-        ruleDensityDrift: Number(chargeGas.densityDrift.toExponential(2)),
+        ruleDensityDrift: Number(
+          chargeGas.densityDrift.toExponential(2),
+        ),
         ruleRelativePhase: chargeGas.relativePhase,
         rulePhaseDrive: Number(chargeGas.phaseDrive.toFixed(4)),
       },

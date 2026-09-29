@@ -56,6 +56,7 @@ export default experiment({
       m: number,
     ): { vPhase: number; share: number } => {
       const spacing = SIDE / m
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
@@ -121,7 +122,7 @@ export default experiment({
       }
 
       return {
-        vPhase: (bestW / BEATS) / (m / SIDE),
+        vPhase: bestW / BEATS / (m / SIDE),
         share: bestP / (total || 1),
       }
     }
@@ -129,15 +130,13 @@ export default experiment({
     let masslessExact = 0
     let dressedOnCone = 0
     let heavyCleanBands = 0
+
     const dressedSpeeds: number[] = []
 
     for (const m of [1, 2, 3, 4]) {
       const control = bandOf(0, m)
 
-      if (
-        control.share > 0.99 &&
-        Math.abs(control.vPhase + 1) < 1e-9
-      ) {
+      if (control.share > 0.99 && Math.abs(control.vPhase + 1) < 1e-9) {
         masslessExact++
       }
 
@@ -161,7 +160,9 @@ export default experiment({
     }
 
     const ok =
-      masslessExact === 4 && dressedOnCone === 4 && heavyCleanBands === 0
+      masslessExact === 4 &&
+      dressedOnCone === 4 &&
+      heavyCleanBands === 0
 
     return verdict({
       status: ok ? 'pass' : 'fail',

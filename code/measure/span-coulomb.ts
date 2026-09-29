@@ -22,26 +22,70 @@
 // DETERMINISM: every start is placed; nothing is drawn.
 
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { makeHuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack, type ShapedState } from '@/code/rule/trit-husk-shaped'
-import { fieldNumerators, makeFieldScratch, makeMatter } from '@/code/rule/trit-kinetic'
-import { coulombFlux, huskGreenDifference } from '@/code/measure/trit-hop-light'
-import { addStringPath, huskGaussFailures, relaxStart, solvePotential } from '@/code/measure/trit-kinetic-light'
+import {
+  makeHuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedBeat,
+  shapedBeatBack,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
+import {
+  fieldNumerators,
+  makeFieldScratch,
+  makeMatter,
+} from '@/code/rule/trit-kinetic'
+import {
+  coulombFlux,
+  huskGreenDifference,
+} from '@/code/measure/trit-hop-light'
+import {
+  addStringPath,
+  huskGaussFailures,
+  relaxStart,
+  solvePotential,
+} from '@/code/measure/trit-kinetic-light'
 import { noWraps } from '@/code/measure/varying-depth-light'
-import { exactWalkRun, floatWalkRun, type PeierlsSetting } from '@/code/measure/peierls-reading'
-import { copySpan, emptySpan, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack, spanFlux, type SpanMedium, type SpanState } from '@/code/rule/depth-span-light'
+import {
+  exactWalkRun,
+  floatWalkRun,
+  type PeierlsSetting,
+} from '@/code/measure/peierls-reading'
+import {
+  copySpan,
+  emptySpan,
+  makeSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+  spanFlux,
+  type SpanMedium,
+  type SpanState,
+} from '@/code/rule/depth-span-light'
 
 const G = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 
 // the charge on each dock: the divergence of the strings
-export function stringCharge(m: SpanMedium, s: SpanState): Float64Array {
+export function stringCharge(
+  m: SpanMedium,
+  s: SpanState,
+): Float64Array {
   const g = m.geometry
   const rho = new Float64Array(g.huskDocks)
 
   for (let l = 0; l < g.huskLinks; l++) {
     const v = s.string[l]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     rho[Math.floor(l / 9)] = rho[Math.floor(l / 9)]! + v
     rho[g.huskNeighbour[l]!] = rho[g.huskNeighbour[l]!]! - v
   }
@@ -50,7 +94,12 @@ export function stringCharge(m: SpanMedium, s: SpanState): Float64Array {
 }
 
 // the docks where the divergence of the flux S - C^T U differs from the given charge
-export function spanGaussFailures(m: SpanMedium, s: SpanState, rho: Float64Array, flux: Int32Array): number {
+export function spanGaussFailures(
+  m: SpanMedium,
+  s: SpanState,
+  rho: Float64Array,
+  flux: Int32Array,
+): number {
   const g = m.geometry
   const div = new Float64Array(g.huskDocks)
 
@@ -63,13 +112,20 @@ export function spanGaussFailures(m: SpanMedium, s: SpanState, rho: Float64Array
 
   let failures = 0
 
-  for (let y = 0; y < g.huskDocks; y++) if (div[y] !== rho[y]) failures++
+  for (let y = 0; y < g.huskDocks; y++) {
+    if (div[y] !== rho[y]) {
+      failures++
+    }
+  }
 
   return failures
 }
 
 // the uniform (harmonic) part of a flux on the torus, axis by axis
-export function harmonicPart(g: HuskGeometry, flux: ArrayLike<number>): Float64Array {
+export function harmonicPart(
+  g: HuskGeometry,
+  flux: ArrayLike<number>,
+): Float64Array {
   const out = new Float64Array(g.huskLinks)
 
   for (let axis = 0; axis < 3; axis++) {
@@ -79,14 +135,20 @@ export function harmonicPart(g: HuskGeometry, flux: ArrayLike<number>): Float64A
     for (let l = 0; l < g.huskLinks; l++) {
       const u = TRIT_HUSK_VECTORS[l % 9]![axis]!
 
-      if (u === 0) continue
+      if (u === 0) {
+        continue
+      }
+
       num += flux[l]! * u
       den += G[l % 9]! * u * u
     }
 
     const e0 = num / den
 
-    for (let l = 0; l < g.huskLinks; l++) out[l] = out[l]! + e0 * G[l % 9]! * TRIT_HUSK_VECTORS[l % 9]![axis]!
+    for (let l = 0; l < g.huskLinks; l++) {
+      out[l] =
+        out[l]! + e0 * G[l % 9]! * TRIT_HUSK_VECTORS[l % 9]![axis]!
+    }
   }
 
   return out
@@ -101,25 +163,40 @@ export type SpanRelaxed = {
   residual: number
 }
 
-export function spanRelaxStart(m: SpanMedium, s: SpanState): SpanRelaxed {
+export function spanRelaxStart(
+  m: SpanMedium,
+  s: SpanState,
+): SpanRelaxed {
   const g = m.geometry
   const q0 = m.count[0]!
 
-  if (m.count.some(q => q !== q0)) throw new Error('the relaxed start is built for a uniform depth only')
+  if (m.count.some(q => q !== q0)) {
+    throw new Error(
+      'the relaxed start is built for a uniform depth only',
+    )
+  }
 
   const levels = 1 + s.upper.length
   const long = coulombFlux(g, stringCharge(m, s))
   const harmonic = harmonicPart(g, s.string)
   const t = new Float64Array(g.huskLinks)
 
-  for (let l = 0; l < g.huskLinks; l++) t[l] = s.string[l]! - long[l]! - harmonic[l]!
+  for (let l = 0; l < g.huskLinks; l++) {
+    t[l] = s.string[l]! - long[l]! - harmonic[l]!
+  }
 
   const u = solvePotential(g, t)
   const curl = new Float64Array(g.huskLinks)
 
-  for (let p = 0; p < g.triangles; p++) for (let j = p * 3; j < p * 3 + 3; j++) curl[g.triLinks[j]!] = curl[g.triLinks[j]!]! + g.triSigns[j]! * u[p]!
+  for (let p = 0; p < g.triangles; p++) {
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      curl[g.triLinks[j]!] =
+        curl[g.triLinks[j]!]! + g.triSigns[j]! * u[p]!
+    }
+  }
 
   const field = new Float64Array(g.huskLinks)
+
   let residual = 0
 
   for (let l = 0; l < g.huskLinks; l++) {
@@ -131,6 +208,7 @@ export function spanRelaxStart(m: SpanMedium, s: SpanState): SpanRelaxed {
     const big = m.square[p]!
     const h = (big - 1) / 2
     const whole = Math.round(u[p]!)
+
     let rest = (whole - u[p]!) * big
 
     s.potential[p] = whole
@@ -155,20 +233,31 @@ export function spanRelaxStart(m: SpanMedium, s: SpanState): SpanRelaxed {
   return { long, harmonic, field, residual }
 }
 
-export type SpanShadowScratch = { now: Float64Array; next: Float64Array; flux: Int32Array }
+export type SpanShadowScratch = {
+  now: Float64Array
+  next: Float64Array
+  flux: Int32Array
+}
 
-export const makeSpanShadowScratch = (m: SpanMedium): SpanShadowScratch => ({
+export const makeSpanShadowScratch = (
+  m: SpanMedium,
+): SpanShadowScratch => ({
   now: new Float64Array(m.geometry.triangles),
   next: new Float64Array(m.geometry.triangles),
   flux: new Int32Array(m.geometry.huskLinks),
 })
 
 // the carried fractions f_t (the lags) and f_(t+1) (the counters) of every triangle, in the triangle's radix
-function carried(m: SpanMedium, s: SpanState, w: SpanShadowScratch): void {
+function carried(
+  m: SpanMedium,
+  s: SpanState,
+  w: SpanShadowScratch,
+): void {
   const g = m.geometry
 
   for (let p = 0; p < g.triangles; p++) {
     const big = m.square[p]!
+
     let a = s.lag[p]! / big
     let b = s.counter[p]! / big
     let scale = big
@@ -185,7 +274,13 @@ function carried(m: SpanMedium, s: SpanState, w: SpanShadowScratch): void {
 }
 
 // the shadow angle A~ = (Q A + r + C^T f_t) / Q and the shadow flux E~ = (S - C^T U) + C^T (f_(t+1) - f_t), per link
-export function spanShadow(m: SpanMedium, s: SpanState, w: SpanShadowScratch, angle: Float64Array, flux: Float64Array): void {
+export function spanShadow(
+  m: SpanMedium,
+  s: SpanState,
+  w: SpanShadowScratch,
+  angle: Float64Array,
+  flux: Float64Array,
+): void {
   const g = m.geometry
 
   carried(m, s, w)
@@ -200,21 +295,31 @@ export function spanShadow(m: SpanMedium, s: SpanState, w: SpanShadowScratch, an
     const a = w.now[p]!
     const d = w.next[p]! - a
 
-    if (a === 0 && d === 0) continue
+    if (a === 0 && d === 0) {
+      continue
+    }
 
     for (let j = p * 3; j < p * 3 + 3; j++) {
-      angle[g.triLinks[j]!] = angle[g.triLinks[j]!]! + g.triSigns[j]! * a
+      angle[g.triLinks[j]!] =
+        angle[g.triLinks[j]!]! + g.triSigns[j]! * a
       flux[g.triLinks[j]!] = flux[g.triLinks[j]!]! + g.triSigns[j]! * d
     }
   }
 
-  for (let l = 0; l < g.huskLinks; l++) angle[l] = angle[l]! / m.span[l]!
+  for (let l = 0; l < g.huskLinks; l++) {
+    angle[l] = angle[l]! / m.span[l]!
+  }
 }
 
 // the shadow invariant of code/measure/depth-span with the electric term's weight w_l / (4 Q_l) replaced by
 // w_l / (4 Q_l^power): power 1 is the invariant the rule keeps, power 0 the unspanned light's normalization (a
 // control: on a light holding transverse waves it is not constant). The magnetic term is the rule's own either way
-export function spanEnergyWeighted(m: SpanMedium, s: SpanState, w: SpanShadowScratch, power: number): number {
+export function spanEnergyWeighted(
+  m: SpanMedium,
+  s: SpanState,
+  w: SpanShadowScratch,
+  power: number,
+): number {
   const g = m.geometry
   const angle = new Float64Array(g.huskLinks)
   const flux = new Float64Array(g.huskLinks)
@@ -223,11 +328,16 @@ export function spanEnergyWeighted(m: SpanMedium, s: SpanState, w: SpanShadowScr
 
   let e = 0
 
-  for (let l = 0; l < g.huskLinks; l++) e += ((g.weight[l % 9]! / 4) * flux[l]! * flux[l]!) / m.span[l]! ** power
+  for (let l = 0; l < g.huskLinks; l++) {
+    e +=
+      ((g.weight[l % 9]! / 4) * flux[l]! * flux[l]!) /
+      m.span[l]! ** power
+  }
 
   // the magnetic term: B' = C W A~ now and C W (A~ + E~ / Q) next, the angle read centered as the rule reads it
   for (let p = 0; p < g.triangles; p++) {
     const nb = 4 * m.triDepth[p]!
+
     let raw = 0
     let shadow = 0
     let step = 0
@@ -243,7 +353,10 @@ export function spanEnergyWeighted(m: SpanMedium, s: SpanState, w: SpanShadowScr
 
     const b0 = ((((raw + nb / 2) % nb) + nb) % nb) - nb / 2 + shadow
 
-    e += ((m.p * g.multiplicity[p]!) / (4 * m.count[p]!)) * b0 * (b0 + step)
+    e +=
+      ((m.p * g.multiplicity[p]!) / (4 * m.count[p]!)) *
+      b0 *
+      (b0 + step)
   }
 
   return e
@@ -289,14 +402,18 @@ export type CoulombReading = {
   residual: number
 }
 
-export function coulombReading(depth: number, r: number): CoulombReading {
+export function coulombReading(
+  depth: number,
+  r: number,
+): CoulombReading {
   const side = COULOMB_SIDE
   const levels = COULOMB_LEVELS
   const beats = COULOMB_BEATS
   const m = makeSpanMedium([side, side, side], () => depth)
   const g = m.geometry
   const q = 2 * depth + 1
-  const place = (s: ShapedState): void => addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
+  const place = (s: ShapedState): void =>
+    addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
 
   // the spanned light, relaxed
   const s = emptySpan(m, levels)
@@ -311,7 +428,11 @@ export function coulombReading(depth: number, r: number): CoulombReading {
   const angle = new Float64Array(g.huskLinks)
   const flux = new Float64Array(g.huskLinks)
   const wraps = noWraps()
-  const top = relaxed.field.reduce((a, v) => Math.max(a, Math.abs(v)), 0)
+  const top = relaxed.field.reduce(
+    (a, v) => Math.max(a, Math.abs(v)),
+    0,
+  )
+
   let gauss = spanGaussFailures(m, s, rho, w.flux)
   let fluxOff = 0
 
@@ -320,12 +441,19 @@ export function coulombReading(depth: number, r: number): CoulombReading {
     gauss += spanGaussFailures(m, s, rho, w.flux)
     spanShadow(m, s, w, angle, flux)
 
-    for (let l = 0; l < g.huskLinks; l++) fluxOff = Math.max(fluxOff, Math.abs(flux[l]! - relaxed.field[l]!) / top)
+    for (let l = 0; l < g.huskLinks; l++) {
+      fluxOff = Math.max(
+        fluxOff,
+        Math.abs(flux[l]! - relaxed.field[l]!) / top,
+      )
+    }
   }
 
   const growth = Float64Array.from(angle, v => v / beats)
 
-  for (let t = 0; t < beats; t++) spanBeatBack(m, s, scratch, levels)
+  for (let t = 0; t < beats; t++) {
+    spanBeatBack(m, s, scratch, levels)
+  }
 
   const reversed = sameSpan(s, start)
 
@@ -350,6 +478,7 @@ export function coulombReading(depth: number, r: number): CoulombReading {
   const oldScratch = makeShapedScratch(g, levels)
   const f = makeFieldScratch(e)
   const oldFlux = new Int32Array(g.huskLinks)
+
   let oldGauss = huskGaussFailures(e, o, matter, false, oldFlux)
 
   for (let t = 1; t <= beats; t++) {
@@ -359,31 +488,56 @@ export function coulombReading(depth: number, r: number): CoulombReading {
 
   fieldNumerators(e, o, options, f)
 
-  const oldGrowth = Float64Array.from(o.angle, (v, l) => (v + f.aShift[l]! / q ** levels) / beats)
+  const oldGrowth = Float64Array.from(
+    o.angle,
+    (v, l) => (v + f.aShift[l]! / q ** levels) / beats,
+  )
 
-  for (let t = 0; t < beats; t++) shapedBeatBack(e, o, oldScratch, options)
+  for (let t = 0; t < beats; t++) {
+    shapedBeatBack(e, o, oldScratch, options)
+  }
 
   const oldEnd = shapedArrays(o)
-  const oldReversed = oldEnd.every((x, k) => x.every((v, i) => v === oldStart[k]![i]))
+  const oldReversed = oldEnd.every((x, k) =>
+    x.every((v, i) => v === oldStart[k]![i]),
+  )
 
   let growthOff = 0
   let oldGrowthOff = 0
+
   const ratios: number[] = []
 
   for (let l = 0; l < g.huskLinks; l++) {
     const field = relaxed.field[l]!
 
-    if (Math.abs(field) < top / 20) continue
-    growthOff = Math.max(growthOff, Math.abs((growth[l]! * m.span[l]!) / field - 1))
-    oldGrowthOff = Math.max(oldGrowthOff, Math.abs(oldGrowth[l]! / field - 1))
+    if (Math.abs(field) < top / 20) {
+      continue
+    }
+
+    growthOff = Math.max(
+      growthOff,
+      Math.abs((growth[l]! * m.span[l]!) / field - 1),
+    )
+
+    oldGrowthOff = Math.max(
+      oldGrowthOff,
+      Math.abs(oldGrowth[l]! / field - 1),
+    )
     ratios.push(oldGrowth[l]! / growth[l]!)
   }
 
   const ratioMean = ratios.reduce((a, v) => a + v, 0) / ratios.length
-  const ratioSpread = ratios.reduce((a, v) => Math.max(a, Math.abs(v - ratioMean)), 0)
+  const ratioSpread = ratios.reduce(
+    (a, v) => Math.max(a, Math.abs(v - ratioMean)),
+    0,
+  )
+
   let longEnergy = 0
 
-  for (let l = 0; l < g.huskLinks; l++) longEnergy += ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
+  for (let l = 0; l < g.huskLinks; l++) {
+    longEnergy +=
+      ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
+  }
 
   // the strung start
   const u = emptySpan(m, levels)
@@ -393,6 +547,7 @@ export function coulombReading(depth: number, r: number): CoulombReading {
   const uStart = copySpan(u)
   const e0 = spanEnergyWeighted(m, u, w, 1)
   const w0 = spanEnergyWeighted(m, u, w, 0)
+
   let strungDrift = 0
   let strungWrongDrift = 0
 
@@ -400,12 +555,21 @@ export function coulombReading(depth: number, r: number): CoulombReading {
     spanBeat(m, u, scratch, levels)
 
     if (t % COULOMB_EVERY === 0) {
-      strungDrift = Math.max(strungDrift, Math.abs(spanEnergyWeighted(m, u, w, 1) / e0 - 1))
-      strungWrongDrift = Math.max(strungWrongDrift, Math.abs(spanEnergyWeighted(m, u, w, 0) / w0 - 1))
+      strungDrift = Math.max(
+        strungDrift,
+        Math.abs(spanEnergyWeighted(m, u, w, 1) / e0 - 1),
+      )
+
+      strungWrongDrift = Math.max(
+        strungWrongDrift,
+        Math.abs(spanEnergyWeighted(m, u, w, 0) / w0 - 1),
+      )
     }
   }
 
-  for (let t = 0; t < beats; t++) spanBeatBack(m, u, scratch, levels)
+  for (let t = 0; t < beats; t++) {
+    spanBeatBack(m, u, scratch, levels)
+  }
 
   return {
     depth,
@@ -420,7 +584,8 @@ export function coulombReading(depth: number, r: number): CoulombReading {
     ratioSpread,
     oldGauss,
     oldReversed,
-    energyOverGreen: longEnergy / (huskGreenDifference(side, [r, 0, 0]) / q),
+    energyOverGreen:
+      longEnergy / (huskGreenDifference(side, [r, 0, 0]) / q),
     strungDrift,
     strungWrongDrift,
     strungReversed: sameSpan(u, uStart),
@@ -446,7 +611,12 @@ export const alphaSpanned = (depth: number): number => {
 // ---------------------------------------------------------------------------------------------------------
 // E-FRC-0255: E-FRC-0252's test charge on the spanned light. Fixed before the gated run
 
-export const PEIERLS: PeierlsSetting = { side: 24, depth: 32, order: 1024, pack: 16 }
+export const PEIERLS: PeierlsSetting = {
+  side: 24,
+  depth: 32,
+  order: 1024,
+  pack: 16,
+}
 export const PEIERLS_BEATS = 512
 export const PEIERLS_RS: readonly number[] = [4, 5, 6, 7, 8]
 export const PEIERLS_LEVELS = 3
@@ -455,17 +625,27 @@ export const PEIERLS_SOURCE = 4
 export const PEIERLS_SCALED = PEIERLS_SOURCE * (2 * PEIERLS.depth + 1)
 
 // strings of `units` from the origin to (side / 2, side / 2, side / 2) along x, then y, then z, stepping `dir`
-export function addStringWay(s: ShapedState, g: HuskGeometry, units: number, dir: number): void {
+export function addStringWay(
+  s: ShapedState,
+  g: HuskGeometry,
+  units: number,
+  dir: number,
+): void {
   const side = g.side
   const at = [0, 0, 0]
   const mod = (x: number, n: number): number => ((x % n) + n) % n
 
   for (let axis = 0; axis < 3; axis++) {
     for (let i = 0; i < side / 2; i++) {
-      const tail = dir > 0 ? [...at] : at.map((v, k) => (k === axis ? v - 1 : v))
-      const dock = mod(tail[0]!, side) + side * mod(tail[1]!, side) + side * side * mod(tail[2]!, side)
+      const tail =
+        dir > 0 ? [...at] : at.map((v, k) => (k === axis ? v - 1 : v))
+      const dock =
+        mod(tail[0]!, side) +
+        side * mod(tail[1]!, side) +
+        side * side * mod(tail[2]!, side)
 
-      s.string[dock * 9 + axis] = s.string[dock * 9 + axis]! + dir * units
+      s.string[dock * 9 + axis] =
+        s.string[dock * 9 + axis]! + dir * units
       at[axis] = mod(at[axis]! + dir, side)
     }
   }
@@ -486,7 +666,10 @@ export type SpanLightRecord = {
   seconds: number
 }
 
-export function spanPeierlsLight(source: number, log?: (what: string) => void): SpanLightRecord {
+export function spanPeierlsLight(
+  source: number,
+  log?: (what: string) => void,
+): SpanLightRecord {
   const started = Date.now()
   const { side, depth } = PEIERLS
   const levels = PEIERLS_LEVELS
@@ -508,6 +691,7 @@ export function spanPeierlsLight(source: number, log?: (what: string) => void): 
   const lineLinks = Array.from({ length: side }, (_, x) => x * 9)
   const line: Int32Array[] = []
   const shadow: Float64Array[] = []
+
   let gauss = spanGaussFailures(m, s, rho, w.flux)
 
   for (let t = 1; t <= PEIERLS_BEATS; t++) {
@@ -517,10 +701,16 @@ export function spanPeierlsLight(source: number, log?: (what: string) => void): 
     line.push(Int32Array.from(lineLinks, l => s.angle[l]!))
     shadow.push(Float64Array.from(lineLinks, l => angle[l]!))
 
-    if (t % 64 === 0) log?.(`light ${source} beat ${t} ${(Date.now() - started) / 1000}s`)
+    if (t % 64 === 0) {
+      log?.(
+        `light ${source} beat ${t} ${(Date.now() - started) / 1000}s`,
+      )
+    }
   }
 
-  for (let t = 0; t < PEIERLS_BEATS; t++) spanBeatBack(m, s, scratch, levels)
+  for (let t = 0; t < PEIERLS_BEATS; t++) {
+    spanBeatBack(m, s, scratch, levels)
+  }
 
   return {
     source,
@@ -530,19 +720,38 @@ export function spanPeierlsLight(source: number, log?: (what: string) => void): 
     gauss,
     wraps: wraps.angle + wraps.field + wraps.potential,
     reversed: sameSpan(s, start),
-    harmonic: relaxed.harmonic.reduce((a, v) => Math.max(a, Math.abs(v)), 0),
+    harmonic: relaxed.harmonic.reduce(
+      (a, v) => Math.max(a, Math.abs(v)),
+      0,
+    ),
     residual: relaxed.residual,
     seconds: (Date.now() - started) / 1000,
   }
 }
 
-export type WalkReading = { r: number; love: number; fear: number; neutral: number; electric: number; staticRef: number; shadowRef: number; ratio: number }
+export type WalkReading = {
+  r: number
+  love: number
+  fear: number
+  neutral: number
+  electric: number
+  staticRef: number
+  shadowRef: number
+  ratio: number
+}
 
 // the walkers of charge +1, -1 and 0 at every r over a recorded light; the static reference reads A(t) = t E / Q
-export function walkReadings(light: SpanLightRecord, rs: readonly number[], charges: readonly number[], back: (r: number, q: number) => boolean): { readings: WalkReading[]; normOk: boolean; backOk: boolean } {
+export function walkReadings(
+  light: SpanLightRecord,
+  rs: readonly number[],
+  charges: readonly number[],
+  back: (r: number, q: number) => boolean,
+): { readings: WalkReading[]; normOk: boolean; backOk: boolean } {
   const q = 2 * PEIERLS.depth + 1
+
   let normOk = true
   let backOk = true
+
   const readings = rs.map(r => {
     const move = new Map<number, number>()
 
@@ -554,24 +763,54 @@ export function walkReadings(light: SpanLightRecord, rs: readonly number[], char
       backOk &&= x.backOk
     }
 
-    const st = (c: number): number => floatWalkRun(PEIERLS, r, c, PEIERLS_BEATS, (t, x) => ((t + 1) * light.staticLine[x]!) / q)
-    const sh = (c: number): number => floatWalkRun(PEIERLS, r, c, PEIERLS_BEATS, (t, x) => light.shadow[t]![x]!)
+    const st = (c: number): number =>
+      floatWalkRun(
+        PEIERLS,
+        r,
+        c,
+        PEIERLS_BEATS,
+        (t, x) => ((t + 1) * light.staticLine[x]!) / q,
+      )
+    const sh = (c: number): number =>
+      floatWalkRun(
+        PEIERLS,
+        r,
+        c,
+        PEIERLS_BEATS,
+        (t, x) => light.shadow[t]![x]!,
+      )
     const neutral = move.get(0) ?? 0
     const electric = (move.get(1)! - move.get(-1)!) / 2
     const staticRef = (st(1) - st(-1)) / 2
 
-    return { r, love: move.get(1)! - neutral, fear: move.get(-1)! - neutral, neutral, electric, staticRef, shadowRef: (sh(1) - sh(-1)) / 2, ratio: electric / staticRef }
+    return {
+      r,
+      love: move.get(1)! - neutral,
+      fear: move.get(-1)! - neutral,
+      neutral,
+      electric,
+      staticRef,
+      shadowRef: (sh(1) - sh(-1)) / 2,
+      ratio: electric / staticRef,
+    }
   })
 
   return { readings, normOk, backOk }
 }
 
-export type CoulombSurvey = { readings: CoulombReading[]; seconds: number }
+export type CoulombSurvey = {
+  readings: CoulombReading[]
+  seconds: number
+}
 
 let coulombCache: CoulombSurvey | undefined
 
-export function spanCoulombSurvey(log?: (what: string) => void): CoulombSurvey {
-  if (coulombCache) return coulombCache
+export function spanCoulombSurvey(
+  log?: (what: string) => void,
+): CoulombSurvey {
+  if (coulombCache) {
+    return coulombCache
+  }
 
   const started = Date.now()
   const readings = COULOMB_DEPTHS.flatMap(depth =>

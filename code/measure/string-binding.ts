@@ -23,8 +23,18 @@
 // NOTHING MOVES: the coin and the cost write amplitudes on a dock's own line; the stream copies. The box is
 // measurement (flux-store-bloch's wall), not rule.
 
-import { blochSpace, branchReader, quartetShare, type Bloch, type Reduced } from '@/code/measure/flux-store-bloch'
-import { boxSpec, lightN, inverseIterate } from '@/code/measure/drift-cost-bloch'
+import {
+  blochSpace,
+  branchReader,
+  quartetShare,
+  type Bloch,
+  type Reduced,
+} from '@/code/measure/flux-store-bloch'
+import {
+  boxSpec,
+  lightN,
+  inverseIterate,
+} from '@/code/measure/drift-cost-bloch'
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 import {
   contactEnergy,
@@ -43,13 +53,21 @@ import {
 
 type C = [number, number]
 
-const cmul = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cmul = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 
 const wrapE = (phase: number): number => {
   let e = -phase
 
-  while (e <= -Math.PI) e += 2 * Math.PI
-  while (e > Math.PI) e -= 2 * Math.PI
+  while (e <= -Math.PI) {
+    e += 2 * Math.PI
+  }
+
+  while (e > Math.PI) {
+    e -= 2 * Math.PI
+  }
 
   return e
 }
@@ -60,16 +78,25 @@ const wrapE = (phase: number): number => {
 export const FREE_UNIT = 4
 
 // the weight of a configuration vector on spans of at least `from` (the three loves' string is their span)
-export function spanTail(basis: LineBasis, re: Float64Array, im: Float64Array, from: number): number {
+export function spanTail(
+  basis: LineBasis,
+  re: Float64Array,
+  im: Float64Array,
+  from: number,
+): number {
   let w = 0
   let t = 0
 
   basis.configs.forEach((ts, i) => {
     const p = re[i]! ** 2 + im[i]! ** 2
-    const span = Math.max(...ts.map(x => x.x)) - Math.min(...ts.map(x => x.x))
+    const span =
+      Math.max(...ts.map(x => x.x)) - Math.min(...ts.map(x => x.x))
 
     t += p
-    if (span >= from) w += p
+
+    if (span >= from) {
+      w += p
+    }
   })
 
   return w / t
@@ -80,7 +107,15 @@ export function spanTail(basis: LineBasis, re: Float64Array, im: Float64Array, f
 // a level far past the cut is never a family's candidate; its mean span, tail and contact are read from the
 // configuration vector directly (the same numbers: for three loves of one flavor every assignment of a configuration
 // carries the same string, which is its span). Returns the read levels and the count of every level.
-export function lineLevelsNear(basis: LineBasis, maxTail: number): { levels: LineLevel[]; all: number; skipped: number; residual: number } {
+export function lineLevelsNear(
+  basis: LineBasis,
+  maxTail: number,
+): {
+  levels: LineLevel[]
+  all: number
+  skipped: number
+  residual: number
+} {
   const sub = wholeBasis(basis)
   const red = lineReduced(basis, sub, 0)
   const eig = unitaryEigen(red.dim, red.re, red.im)
@@ -89,20 +124,30 @@ export function lineLevelsNear(basis: LineBasis, maxTail: number): { levels: Lin
   const N = lightN(basis.sector.D)
   const sigma = Math.PI / N
   const ec = contactEnergy(basis.sector)
-  const spans = basis.configs.map(ts => Math.max(...ts.map(t => t.x)) - Math.min(...ts.map(t => t.x)))
+  const spans = basis.configs.map(
+    ts => Math.max(...ts.map(t => t.x)) - Math.min(...ts.map(t => t.x)),
+  )
   const docks = basis.configs.map(ts => {
     let n = 0
 
-    for (let p = 0; p < ts.length; p++) for (let q = p + 1; q < ts.length; q++) if (ts[p]!.f === ts[q]!.f && ts[p]!.x === ts[q]!.x) n++
+    for (let p = 0; p < ts.length; p++) {
+      for (let q = p + 1; q < ts.length; q++) {
+        if (ts[p]!.f === ts[q]!.f && ts[p]!.x === ts[q]!.x) {
+          n++
+        }
+      }
+    }
 
     return n
   })
   const levels: LineLevel[] = []
+
   let skipped = 0
 
   eig.phases.forEach((ph, k) => {
     const cre = Float64Array.from(eig.vectors[k]!.re)
     const cim = Float64Array.from(eig.vectors[k]!.im)
+
     let t = 0
     let tail = 0
     let mean = 0
@@ -114,31 +159,61 @@ export function lineLevelsNear(basis: LineBasis, maxTail: number): { levels: Lin
       t += p
       mean += p * spans[i]!
       contact += p * docks[i]!
-      if (spans[i]! >= N) tail += p
+
+      if (spans[i]! >= N) {
+        tail += p
+      }
     }
 
     if (tail / t > maxTail) {
       skipped++
+
       return
     }
 
     const v = firstQuantized(basis, b, cre, cim)
     const r = read(v)
 
-    if (r.even < 0.5) return
+    if (r.even < 0.5) {
+      return
+    }
 
     const energy = wrapE(ph)
-    const reference = r.kinetic + (sigma * mean) / t + (ec * contact) / t
-    const unwrapped = energy + 2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
+    const reference =
+      r.kinetic + (sigma * mean) / t + (ec * contact) / t
+    const unwrapped =
+      energy +
+      2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
 
-    levels.push({ unwrapped, energy, reference, even: r.even, spinHalf: 1 - quartetShare(b, v), mean: mean / t, tailN: tail / t, contact: contact / t, cre, cim })
+    levels.push({
+      unwrapped,
+      energy,
+      reference,
+      even: r.even,
+      spinHalf: 1 - quartetShare(b, v),
+      mean: mean / t,
+      tailN: tail / t,
+      contact: contact / t,
+      cre,
+      cim,
+    })
   })
 
-  return { levels, all: eig.phases.length, skipped, residual: eig.residual }
+  return {
+    levels,
+    all: eig.phases.length,
+    skipped,
+    residual: eig.residual,
+  }
 }
 
 // one beat of one love alone on a ring of L docks (fine coin, then the stream): amplitudes indexed 2 x + j
-export function loneRingBeat(fine: number, L: number, re: Float64Array, im: Float64Array): { re: Float64Array; im: Float64Array } {
+export function loneRingBeat(
+  fine: number,
+  L: number,
+  re: Float64Array,
+  im: Float64Array,
+): { re: Float64Array; im: Float64Array } {
   const { keep, cross } = fineCoin(fine)
   const or = new Float64Array(2 * L)
   const oi = new Float64Array(2 * L)
@@ -160,22 +235,34 @@ export function loneRingBeat(fine: number, L: number, re: Float64Array, im: Floa
 }
 
 // three orbitals as a Slater determinant on the ring, in the sector's canonical mode order
-function slater(L: number, orbitals: readonly { re: Float64Array; im: Float64Array }[]): Map<string, C> {
+function slater(
+  L: number,
+  orbitals: readonly { re: Float64Array; im: Float64Array }[],
+): Map<string, C> {
   const out = new Map<string, C>()
   const modes: { x: number; j: number }[] = []
 
-  for (let x = 0; x < L; x++) for (let j = 0; j < 2; j++) modes.push({ x, j })
+  for (let x = 0; x < L; x++) {
+    for (let j = 0; j < 2; j++) {
+      modes.push({ x, j })
+    }
+  }
 
-  const key = (m: { x: number; j: number }): number => 2 * m.x + (m.j === 0 ? 1 : 0)
+  const key = (m: { x: number; j: number }): number =>
+    2 * m.x + (m.j === 0 ? 1 : 0)
 
   modes.sort((a, b) => key(a) - key(b))
 
-  const at = (a: number, m: { x: number; j: number }): C => [orbitals[a]!.re[2 * m.x + m.j]!, orbitals[a]!.im[2 * m.x + m.j]!]
+  const at = (a: number, m: { x: number; j: number }): C => [
+    orbitals[a]!.re[2 * m.x + m.j]!,
+    orbitals[a]!.im[2 * m.x + m.j]!,
+  ]
 
   for (let p = 0; p < modes.length; p++) {
     for (let q = p + 1; q < modes.length; q++) {
       for (let r = q + 1; r < modes.length; r++) {
         const ms = [modes[p]!, modes[q]!, modes[r]!]
+
         let det: C = [0, 0]
 
         for (const [perm, s] of [
@@ -186,7 +273,10 @@ function slater(L: number, orbitals: readonly { re: Float64Array; im: Float64Arr
           [[0, 2, 1], -1],
           [[2, 1, 0], -1],
         ] as const) {
-          const v = cmul(cmul(at(0, ms[perm[0]]!), at(1, ms[perm[1]]!)), at(2, ms[perm[2]]!))
+          const v = cmul(
+            cmul(at(0, ms[perm[0]]!), at(1, ms[perm[1]]!)),
+            at(2, ms[perm[2]]!),
+          )
 
           det = [det[0] + s * v[0], det[1] + s * v[1]]
         }
@@ -203,9 +293,16 @@ function slater(L: number, orbitals: readonly { re: Float64Array; im: Float64Arr
 // their Slater determinant against the determinant of the three orbitals each run one beat alone. Returns the
 // largest amplitude difference over every configuration, and the norm of the determinant (so a gap can be read
 // against it). Zero exactly when the sector's full dock is the free fermions' det C.
-export function slaterGap(sector: LineSector, L: number): { gap: number; norm: number } {
+export function slaterGap(
+  sector: LineSector,
+  L: number,
+): { gap: number; norm: number } {
   const fine = sector.fine ?? 1
-  const weyl = [Math.SQRT2 - 1, Math.sqrt(3) - 1, (Math.sqrt(5) - 1) / 2]
+  const weyl = [
+    Math.SQRT2 - 1,
+    Math.sqrt(3) - 1,
+    (Math.sqrt(5) - 1) / 2,
+  ]
   const orbitals = weyl.map((a, o) => {
     const re = new Float64Array(2 * L)
     const im = new Float64Array(2 * L)
@@ -234,7 +331,11 @@ export function slaterGap(sector: LineSector, L: number): { gap: number; norm: n
   }
 
   const run = ringBeat(sector, L, state)
-  const after = slater(L, orbitals.map(o => loneRingBeat(fine, L, o.re, o.im)))
+  const after = slater(
+    L,
+    orbitals.map(o => loneRingBeat(fine, L, o.re, o.im)),
+  )
+
   let gap = 0
   let norm = 0
 
@@ -245,7 +346,11 @@ export function slaterGap(sector: LineSector, L: number): { gap: number; norm: n
     gap = Math.max(gap, Math.hypot(amp[0] - got[0], amp[1] - got[1]))
   }
 
-  for (const [k, v] of run) if (!after.has(k)) gap = Math.max(gap, Math.hypot(v.amp[0], v.amp[1]))
+  for (const [k, v] of run) {
+    if (!after.has(k)) {
+      gap = Math.max(gap, Math.hypot(v.amp[0], v.amp[1]))
+    }
+  }
 
   return { gap, norm: Math.sqrt(norm) }
 }
@@ -255,11 +360,21 @@ export function slaterGap(sector: LineSector, L: number): { gap: number; norm: n
 export type Meson = { D: number; box: number; fine: number; b: Bloch }
 
 export function meson(D: number, box: number, fine: number): Meson {
-  return { D, box, fine, b: blochSpace(boxSpec(['love', 'fear'], D, box)) }
+  return {
+    D,
+    box,
+    fine,
+    b: blochSpace(boxSpec(['love', 'fear'], D, box)),
+  }
 }
 
 // one beat of the pair (C, knit: no meeting) with the fine coin, on basis vector `col` at total momentum K
-export function pairColumn(m: Meson, K: number, col: number, withCost = true): { idx: number[]; re: number[]; im: number[] } {
+export function pairColumn(
+  m: Meson,
+  K: number,
+  col: number,
+  withCost = true,
+): { idx: number[]; re: number[]; im: number[] } {
   const { b } = m
   const N = lightN(m.D)
   const c = Math.floor(col / b.labelCount)
@@ -269,13 +384,20 @@ export function pairColumn(m: Meson, K: number, col: number, withCost = true): {
   const th = withCost ? (-Math.PI * b.strings[c]!) / N : 0
   const cost: C = [Math.cos(th), Math.sin(th)]
   const j0 = [Math.floor(r0 / 2), r0 % 2]
-  const out = { idx: [] as number[], re: [] as number[], im: [] as number[] }
+  const out = {
+    idx: [] as number[],
+    re: [] as number[],
+    im: [] as number[],
+  }
 
   for (let mask = 0; mask < 4; mask++) {
     const j = j0.map((v, t) => ((mask >> t) & 1 ? 1 - v : v))
+
     let a = cost
 
-    for (let t = 0; t < 2; t++) a = cmul(a, (mask >> t) & 1 ? cross : keep)
+    for (let t = 0; t < 2; t++) {
+      a = cmul(a, (mask >> t) & 1 ? cross : keep)
+    }
 
     const steps = j.map(v => (v === 0 ? 1 : -1))
     const y = d.map((x, t) => x + steps[t]!)
@@ -288,7 +410,10 @@ export function pairColumn(m: Meson, K: number, col: number, withCost = true): {
     }
 
     const nc = b.configOf([0, y[1]! - y[0]!])
-    const ph = cmul(a, [Math.cos(-K * steps[0]!), Math.sin(-K * steps[0]!)])
+    const ph = cmul(a, [
+      Math.cos(-K * steps[0]!),
+      Math.sin(-K * steps[0]!),
+    ])
 
     out.idx.push(b.index(nc, j[0]! * 2 + j[1]!))
     out.re.push(ph[0])
@@ -306,23 +431,37 @@ export type Parity = 0 | 1
 export function parityIndices(m: Meson, parity: Parity): number[] {
   const out: number[] = []
 
-  for (let i = 0; i < m.b.size; i++) if (Math.abs(m.b.configs[Math.floor(i / m.b.labelCount)]![1]!) % 2 === parity) out.push(i)
+  for (let i = 0; i < m.b.size; i++) {
+    if (
+      Math.abs(m.b.configs[Math.floor(i / m.b.labelCount)]![1]!) % 2 ===
+      parity
+    ) {
+      out.push(i)
+    }
+  }
 
   return out
 }
 
 // the beat on one parity block (`leak` is the largest weight a column sends to the other block: 0 exactly)
-export function pairReduced(m: Meson, K: number, parity: Parity, withCost = true): Reduced {
+export function pairReduced(
+  m: Meson,
+  K: number,
+  parity: Parity,
+  withCost = true,
+): Reduced {
   const idx = parityIndices(m, parity)
   const at = new Map(idx.map((i, a) => [i, a]))
   const dim = idx.length
   const re = new Float64Array(dim * dim)
   const im = new Float64Array(dim * dim)
+
   let unitarity = 0
   let leak = 0
 
   idx.forEach((i0, col) => {
     const c = pairColumn(m, K, i0, withCost)
+
     let t = 0
     let out = 0
 
@@ -331,6 +470,7 @@ export function pairReduced(m: Meson, K: number, parity: Parity, withCost = true
 
       if (a === undefined) {
         out += c.re[k]! ** 2 + c.im[k]! ** 2
+
         return
       }
 
@@ -338,7 +478,9 @@ export function pairReduced(m: Meson, K: number, parity: Parity, withCost = true
       im[a * dim + col] = im[a * dim + col]! + c.im[k]!
     })
 
-    for (let a = 0; a < dim; a++) t += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    for (let a = 0; a < dim; a++) {
+      t += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    }
 
     unitarity = Math.max(unitarity, Math.abs(t - 1))
     leak = Math.max(leak, out)
@@ -349,7 +491,10 @@ export function pairReduced(m: Meson, K: number, parity: Parity, withCost = true
 
 // a block vector in the full pair basis
 export function pairEmbed(m: Meson, parity: Parity, v: Vec): Vec {
-  const full = { re: new Float64Array(m.b.size), im: new Float64Array(m.b.size) }
+  const full = {
+    re: new Float64Array(m.b.size),
+    im: new Float64Array(m.b.size),
+  }
 
   parityIndices(m, parity).forEach((i, a) => {
     full.re[i] = v.re[a]!
@@ -361,7 +506,10 @@ export function pairEmbed(m: Meson, parity: Parity, v: Vec): Vec {
 
 // the lone walk's branches at the fine coin and momentum k: B (the particle branch, E in [0, pi - 2 pi/(3 fine)])
 // and A (orthogonal), with E_B(k)
-export function fineBranch(fine: number, k: number): { B: [C, C]; A: [C, C]; energy: number } {
+export function fineBranch(
+  fine: number,
+  k: number,
+): { B: [C, C]; A: [C, C]; energy: number } {
   const { keep, cross } = fineCoin(fine)
   const s0: C = [Math.cos(-k), Math.sin(-k)]
   const s1: C = [s0[0], -s0[1]]
@@ -377,14 +525,19 @@ export function fineBranch(fine: number, k: number): { B: [C, C]; A: [C, C]; ene
   const disc: C = [t2[0] - 4 * det[0], t2[1] - 4 * det[1]]
   const md = Math.hypot(disc[0], disc[1])
   const ag = Math.atan2(disc[1], disc[0])
-  const root: C = [Math.sqrt(md) * Math.cos(ag / 2), Math.sqrt(md) * Math.sin(ag / 2)]
+  const root: C = [
+    Math.sqrt(md) * Math.cos(ag / 2),
+    Math.sqrt(md) * Math.sin(ag / 2),
+  ]
   const top = Math.PI - (2 * Math.PI) / (3 * fine)
   const lams: C[] = [
     [(tr[0] + root[0]) / 2, (tr[1] + root[1]) / 2],
     [(tr[0] - root[0]) / 2, (tr[1] - root[1]) / 2],
   ]
   const eOf = (l: C): number => -Math.atan2(l[1], l[0])
-  const lam = lams.find(l => eOf(l) > -1e-9 && eOf(l) < top + 1e-9) ?? lams[0]!
+  const lam =
+    lams.find(l => eOf(l) > -1e-9 && eOf(l) < top + 1e-9) ?? lams[0]!
+
   let e0: C = m01
   let e1: C = [lam[0] - m00[0], lam[1] - m00[1]]
 
@@ -408,9 +561,14 @@ export function fineBranch(fine: number, k: number): { B: [C, C]; A: [C, C]; ene
 
 export type PairReading = { even: number; kinetic: number }
 
-export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
+export function pairReader(
+  m: Meson,
+  L: number,
+): (v: Vec) => PairReading {
   const { b } = m
-  const rows = Array.from({ length: L }, (_, k) => fineBranch(m.fine, (2 * Math.PI * k) / L))
+  const rows = Array.from({ length: L }, (_, k) =>
+    fineBranch(m.fine, (2 * Math.PI * k) / L),
+  )
 
   return (v: Vec): PairReading => {
     let total = 0
@@ -428,10 +586,16 @@ export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
       ]
 
       b.configs.forEach((cfg, c) => {
-        const ph: C = [Math.cos(-p * cfg[1]!) / Math.sqrt(L), Math.sin(-p * cfg[1]!) / Math.sqrt(L)]
+        const ph: C = [
+          Math.cos(-p * cfg[1]!) / Math.sqrt(L),
+          Math.sin(-p * cfg[1]!) / Math.sqrt(L),
+        ]
 
         for (let r = 0; r < 4; r++) {
-          const w = cmul(ph, [v.re[b.index(c, r)]!, v.im[b.index(c, r)]!])
+          const w = cmul(ph, [
+            v.re[b.index(c, r)]!,
+            v.im[b.index(c, r)]!,
+          ])
 
           hat[r] = [hat[r]![0] + w[0], hat[r]![1] + w[1]]
         }
@@ -447,10 +611,17 @@ export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
         const a1 = a & 1
         const v0 = a0 === 0 ? t0.B : t0.A
         const v1 = a1 === 0 ? t1.B : t1.A
+
         let s: C = [0, 0]
 
         for (let r = 0; r < 4; r++) {
-          const w = cmul(cmul([v0[r >> 1]![0], -v0[r >> 1]![1]], [v1[r & 1]![0], -v1[r & 1]![1]]), hat[r]!)
+          const w = cmul(
+            cmul(
+              [v0[r >> 1]![0], -v0[r >> 1]![1]],
+              [v1[r & 1]![0], -v1[r & 1]![1]],
+            ),
+            hat[r]!,
+          )
 
           s = [s[0] + w[0], s[1] + w[1]]
         }
@@ -458,7 +629,11 @@ export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
         const wgt = s[0] ** 2 + s[1] ** 2
 
         total += wgt
-        if (a0 === a1) even += wgt
+
+        if (a0 === a1) {
+          even += wgt
+        }
+
         kinetic += wgt * (e0[a0]! + e1[a1]!)
       }
     }
@@ -467,12 +642,119 @@ export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
   }
 }
 
+// THE POTENTIAL MODEL'S INERTIA on a level's own momentum content (E-SPN-0149). The level is read in relative momentum
+// p as pairReader reads it (token 0 at -p, token 1 at p, each on the lone walk's branches; a token in A at k is the
+// particle at k + pi). A boost P gives each token P/2, so E(P) = E_B(-p + P/2) + E_B(p + P/2) + (the string, which a
+// boost does not touch in this model): the first order cancels between -p and p, and E''(P) = (E_B''(-p) + E_B''(p)) /
+// 4. The model's inertia is 1 / <E''(P)> over the particle sector (the even count, renormalized), E_B'' by a symmetric
+// second difference of fineBranch's energy. It is the inertia a pair of free walkers with this momentum content would
+// carry under an instantaneous string: a READING to set beside the level's measured inertia, never a gate's input.
+export function pairModelInertia(
+  m: Meson,
+  L: number,
+  v: Vec,
+  h = 1e-3,
+): { inertia: number; even: number } {
+  const { b } = m
+  const eB = (k: number): number => fineBranch(m.fine, k).energy
+  const curvature = (k: number): number =>
+    (eB(k + h) + eB(k - h) - 2 * eB(k)) / (h * h)
+  const rows = Array.from({ length: L }, (_, k) =>
+    fineBranch(m.fine, (2 * Math.PI * k) / L),
+  )
+
+  let total = 0
+  let even = 0
+  let second = 0
+
+  for (let k = 0; k < L; k++) {
+    const p = (2 * Math.PI * k) / L
+    const hat: C[] = [
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]
+
+    b.configs.forEach((cfg, c) => {
+      const ph: C = [
+        Math.cos(-p * cfg[1]!) / Math.sqrt(L),
+        Math.sin(-p * cfg[1]!) / Math.sqrt(L),
+      ]
+
+      for (let r = 0; r < 4; r++) {
+        const w = cmul(ph, [v.re[b.index(c, r)]!, v.im[b.index(c, r)]!])
+
+        hat[r] = [hat[r]![0] + w[0], hat[r]![1] + w[1]]
+      }
+    })
+
+    const t0 = rows[(L - k) % L]!
+    const t1 = rows[k]!
+
+    for (let a = 0; a < 4; a++) {
+      const a0 = a >> 1
+      const a1 = a & 1
+      const v0 = a0 === 0 ? t0.B : t0.A
+      const v1 = a1 === 0 ? t1.B : t1.A
+
+      let s: C = [0, 0]
+
+      for (let r = 0; r < 4; r++) {
+        const w = cmul(
+          cmul(
+            [v0[r >> 1]![0], -v0[r >> 1]![1]],
+            [v1[r & 1]![0], -v1[r & 1]![1]],
+          ),
+          hat[r]!,
+        )
+
+        s = [s[0] + w[0], s[1] + w[1]]
+      }
+
+      const wgt = s[0] ** 2 + s[1] ** 2
+
+      total += wgt
+
+      if (a0 !== a1) {
+        continue
+      }
+
+      even += wgt
+
+      // the particle momenta: -p and p on B, -p + pi and p + pi on A
+      const shift = a0 === 0 ? 0 : Math.PI
+
+      second +=
+        (wgt * (curvature(-p + shift) + curvature(p + shift))) / 4
+    }
+  }
+
+  return { inertia: even / second, even: even / total }
+}
+
 // `vector` in the full pair basis, `block` the same on its parity block
-export type PairLevel = { parity: Parity; energy: number; unwrapped: number; reference: number; even: number; kinetic: number; mean: number; tailN: number; contact: number; vector: Vec; block: Vec }
+export type PairLevel = {
+  parity: Parity
+  energy: number
+  unwrapped: number
+  reference: number
+  even: number
+  kinetic: number
+  mean: number
+  tailN: number
+  contact: number
+  vector: Vec
+  block: Vec
+}
 
 // the relative observables of a pair vector: mean |d|, weight at |d| >= N, weight at d = 0
-export function pairMoments(m: Meson, v: Vec): { mean: number; tailN: number; contact: number } {
+export function pairMoments(
+  m: Meson,
+  v: Vec,
+): { mean: number; tailN: number; contact: number } {
   const N = lightN(m.D)
+
   let t = 0
   let mean = 0
   let tail = 0
@@ -484,8 +766,14 @@ export function pairMoments(m: Meson, v: Vec): { mean: number; tailN: number; co
 
     t += p
     mean += p * l
-    if (l >= N) tail += p
-    if (l === 0) contact += p
+
+    if (l >= N) {
+      tail += p
+    }
+
+    if (l === 0) {
+      contact += p
+    }
   }
 
   return { mean: mean / t, tailN: tail / t, contact: contact / t }
@@ -495,10 +783,20 @@ export function pairMoments(m: Meson, v: Vec): { mean: number; tailN: number; co
 // reference energy (kinetic + sigma <|d|>, no contact term: the pair has no meeting)
 // every particle-sector level at K = 0 of both parity blocks (even reading at least 1/2), unwrapped to the
 // representative nearest its reference energy (kinetic + sigma <|d|>, no contact term: the pair has no meeting)
-export function pairLevels(m: Meson, withCost = true): { levels: PairLevel[]; dim: number; residual: number; unitarity: number; leak: number } {
+export function pairLevels(
+  m: Meson,
+  withCost = true,
+): {
+  levels: PairLevel[]
+  dim: number
+  residual: number
+  unitarity: number
+  leak: number
+} {
   const read = pairReader(m, 2 * m.box + 6)
   const sigma = withCost ? Math.PI / lightN(m.D) : 0
   const levels: PairLevel[] = []
+
   let residual = 0
   let unitarity = 0
   let leak = 0
@@ -518,68 +816,127 @@ export function pairLevels(m: Meson, withCost = true): { levels: PairLevel[]; di
       const vector = pairEmbed(m, parity, block)
       const r = read(vector)
 
-      if (r.even < 0.5) return
+      if (r.even < 0.5) {
+        return
+      }
 
       const mo = pairMoments(m, vector)
       const energy = wrapE(ph)
       const reference = r.kinetic + sigma * mo.mean
-      const unwrapped = energy + 2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
+      const unwrapped =
+        energy +
+        2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
 
-      levels.push({ parity, energy, unwrapped, reference, even: r.even, kinetic: r.kinetic, ...mo, vector, block })
+      levels.push({
+        parity,
+        energy,
+        unwrapped,
+        reference,
+        even: r.even,
+        kinetic: r.kinetic,
+        ...mo,
+        vector,
+        block,
+      })
     })
   }
 
   return { levels, dim, residual, unitarity, leak }
 }
 
-export type PairBandPoint = { K: number; energy: number; vector: Vec; overlap: number; residual: number }
+export type PairBandPoint = {
+  K: number
+  energy: number
+  vector: Vec
+  overlap: number
+  residual: number
+}
 
 // the level followed from K = 0 by inverse iteration on its parity block in steps of at most `step` to each K of `ks`
 // (moving-level's followLevel, on the pair's operator); vectors on the block
-export function followPair(m: Meson, start: PairLevel, ks: readonly number[], step: number): PairBandPoint[] {
+export function followPair(
+  m: Meson,
+  start: PairLevel,
+  ks: readonly number[],
+  step: number,
+): PairBandPoint[] {
   const dim = start.block.re.length
-  let prev: Vec = { re: Float64Array.from(start.block.re), im: Float64Array.from(start.block.im) }
+
+  let prev: Vec = {
+    re: Float64Array.from(start.block.re),
+    im: Float64Array.from(start.block.im),
+  }
   let K = 0
   let energy = start.unwrapped
   let least = 1
   let residual = 0
+
   const out: PairBandPoint[] = []
 
   for (const target of ks) {
     while (K < target - 1e-15) {
       const next = Math.min(target, K + step)
-      const it = inverseIterate(pairReduced(m, next, start.parity), prev, 6)
+      const it = inverseIterate(
+        pairReduced(m, next, start.parity),
+        prev,
+        6,
+      )
+
       let r = 0
       let i = 0
       let n1 = 0
       let n2 = 0
 
       for (let a = 0; a < dim; a++) {
-        r += prev.re[a]! * it.vector.re[a]! + prev.im[a]! * it.vector.im[a]!
-        i += prev.re[a]! * it.vector.im[a]! - prev.im[a]! * it.vector.re[a]!
+        r +=
+          prev.re[a]! * it.vector.re[a]! +
+          prev.im[a]! * it.vector.im[a]!
+
+        i +=
+          prev.re[a]! * it.vector.im[a]! -
+          prev.im[a]! * it.vector.re[a]!
         n1 += prev.re[a]! ** 2 + prev.im[a]! ** 2
         n2 += it.vector.re[a]! ** 2 + it.vector.im[a]! ** 2
       }
 
       least = Math.min(least, Math.hypot(r, i) / Math.sqrt(n1 * n2))
       residual = Math.max(residual, it.residual)
-      energy = it.energy + 2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
+      energy =
+        it.energy +
+        2 * Math.PI * Math.round((energy - it.energy) / (2 * Math.PI))
       prev = it.vector
       K = next
     }
 
-    out.push({ K, energy, vector: { re: Float64Array.from(prev.re), im: Float64Array.from(prev.im) }, overlap: least, residual })
+    out.push({
+      K,
+      energy,
+      vector: {
+        re: Float64Array.from(prev.re),
+        im: Float64Array.from(prev.im),
+      },
+      overlap: least,
+      residual,
+    })
   }
 
   return out
 }
 
 // E''(K) at a band point, a second difference of eigenvalues (moving-level's bandCurvature on the pair)
-export function pairCurvature(m: Meson, parity: Parity, at: PairBandPoint, d: number): number {
+export function pairCurvature(
+  m: Meson,
+  parity: Parity,
+  at: PairBandPoint,
+  d: number,
+): number {
   const near = (K: number): number => {
     const it = inverseIterate(pairReduced(m, K, parity), at.vector, 6)
 
-    return it.energy + 2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+    return (
+      it.energy +
+      2 * Math.PI * Math.round((at.energy - it.energy) / (2 * Math.PI))
+    )
   }
 
   return (near(at.K + d) + near(at.K - d) - 2 * at.energy) / (d * d)

@@ -69,16 +69,24 @@ const SEPARATIONS = [1, 2, 3]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
 function slope(xs: number[], ys: number[]): number {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-  return xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  return (
+    xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  )
 }
 
-function connectedString(rule: SigmaLinks, flux: Int32Array, sources: number[]): number {
+function connectedString(
+  rule: SigmaLinks,
+  flux: Int32Array,
+  sources: number[],
+): number {
   const seen = new Uint8Array(rule.cells)
   const counted = new Uint8Array(rule.cells * 24)
   const queue = [...sources]
@@ -127,11 +135,35 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-    const probe = makeSigmaLinks({ side: SIDE, kappa: 0, tension: 0, capacity: 1, couple: 'center', scale: SCALE, ratio: RATIO })
-    const capacity = 3 * Math.max(...Array.from(probe.level).map(Math.abs))
-    const make = (input: { hop: boolean; roles: boolean; kappa: number }): SigmaLinks =>
-      makeSigmaLinks({ side: SIDE, tension: 0, capacity, couple: 'center', scale: SCALE, ratio: RATIO, ...input })
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
+    const probe = makeSigmaLinks({
+      side: SIDE,
+      kappa: 0,
+      tension: 0,
+      capacity: 1,
+      couple: 'center',
+      scale: SCALE,
+      ratio: RATIO,
+    })
+    const capacity =
+      3 * Math.max(...Array.from(probe.level).map(Math.abs))
+    const make = (input: {
+      hop: boolean
+      roles: boolean
+      kappa: number
+    }): SigmaLinks =>
+      makeSigmaLinks({
+        side: SIDE,
+        tension: 0,
+        capacity,
+        couple: 'center',
+        scale: SCALE,
+        ratio: RATIO,
+        ...input,
+      })
     const staticRule = make({ hop: false, roles: false, kappa: KAPPA })
     const { cells, group } = staticRule
 
@@ -145,9 +177,14 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
-    const prepared = drainFillSettle(staticRule, defectSigmaLinks(staticRule, 0.1, POINT.hash), POINT)
+    const prepared = drainFillSettle(
+      staticRule,
+      defectSigmaLinks(staticRule, 0.1, POINT.hash),
+      POINT,
+    )
     const point = prepared.state
     const start = POINT.drain + POINT.settle
 
@@ -159,11 +196,21 @@ export default experiment({
       flux: Int32Array.from(s.flux),
     })
 
-    const twist = (rule: SigmaLinks, st: SigmaState, x: number, d: number): void => {
-      const g = group.product[rule.omega * group.order + (st.links[x * 24 + d] ?? 0)] ?? 0
+    const twist = (
+      rule: SigmaLinks,
+      st: SigmaState,
+      x: number,
+      d: number,
+    ): void => {
+      const g =
+        group.product[
+          rule.omega * group.order + (st.links[x * 24 + d] ?? 0)
+        ] ?? 0
 
       st.links[x * 24 + d] = g
-      st.links[(rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)] = group.inverse[g] ?? 0
+      st.links[
+        (rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)
+      ] = group.inverse[g] ?? 0
       addSigmaFlux(rule, st.flux, x, d, 1)
     }
 
@@ -173,7 +220,11 @@ export default experiment({
       ...new Array<number>(r).fill(back(along)),
       ...new Array<number>(h).fill(back(tau)),
     ]
-    const loopPaths = [rectangle(1, 1), rectangle(1, 2), rectangle(2, 2)]
+    const loopPaths = [
+      rectangle(1, 1),
+      rectangle(1, 2),
+      rectangle(2, 2),
+    ]
 
     // one static run: sources at separation r, or none (r = 0), with the loops read when there are none
     const staticRun = (r: number) => {
@@ -209,9 +260,17 @@ export default experiment({
 
       for (let t = 0; t < BEATS; t++) {
         s = sigmaBeat(staticRule, s, start + t).state
-        exact = exact && sigmaEnergy(staticRule, s) === e0 && sigmaGaussViolations(staticRule, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(staticRule, s) === e0 &&
+          sigmaGaussViolations(staticRule, s) === 0
         field += sigmaFieldEnergy(staticRule, s.links) / BEATS
-        length += r > 0 ? connectedString(staticRule, s.flux, sources) / SIDE / BEATS : 0
+        length +=
+          r > 0
+            ? connectedString(staticRule, s.flux, sources) /
+              SIDE /
+              BEATS
+            : 0
 
         let d = 0
 
@@ -225,12 +284,28 @@ export default experiment({
 
         if (r === 0) {
           for (let x = 0; x < cells; x++) {
-            loopPaths.forEach((path, k) => (loops[k] = (loops[k] ?? 0) + (group.trace[pathTransport(staticRule, s.links, x, path)] ?? 0) / 3 / cells / BEATS))
+            loopPaths.forEach(
+              (path, k) =>
+                (loops[k] =
+                  (loops[k] ?? 0) +
+                  (group.trace[
+                    pathTransport(staticRule, s.links, x, path)
+                  ] ?? 0) /
+                    3 /
+                    cells /
+                    BEATS),
+            )
           }
         }
       }
 
-      return { exact, field, length, beta: unitDemonBeta({ meanDemon: demon, capacity }), loops }
+      return {
+        exact,
+        field,
+        length,
+        beta: unitDemonBeta({ meanDemon: demon, capacity }),
+        loops,
+      }
     }
 
     const reference = staticRun(0)
@@ -249,7 +324,10 @@ export default experiment({
       st.vibe[x0] = 1
       st.vibe[y0] = -1
       st.role[x0] = 4
-      st.role[y0] = rule.act[(rule.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4] ?? 0
+      st.role[y0] =
+        rule.act[
+          (rule.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4
+        ] ?? 0
       twist(rule, st, x0, along)
 
       const charges = [
@@ -275,7 +353,10 @@ export default experiment({
 
       for (let t = 0; t < MESON_BEATS; t++) {
         s = sigmaBeat(rule, s, start + t, onHop).state
-        exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, s) === e0 &&
+          sigmaGaussViolations(rule, s) === 0
 
         const [love, fear] = charges
 
@@ -289,12 +370,19 @@ export default experiment({
     const bound = meson(make({ hop: true, roles: true, kappa: KAPPA }))
     const free = meson(make({ hop: true, roles: true, kappa: 0 }))
 
-    const exact = prepared.exact && reference.exact && pairs.every(p => p.exact) && bound.exact && free.exact
+    const exact =
+      prepared.exact &&
+      reference.exact &&
+      pairs.every(p => p.exact) &&
+      bound.exact &&
+      free.exact
     const tension = sigma * beta
 
     const ok =
       exact &&
-      potential.every((v, k) => k === 0 || v > (potential[k - 1] ?? 0)) &&
+      potential.every(
+        (v, k) => k === 0 || v > (potential[k - 1] ?? 0),
+      ) &&
       chi22 > 0 &&
       Math.abs(tension - chi22) < 0.3 * chi22 &&
       bound.meanGap < free.meanGap / 10 &&

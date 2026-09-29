@@ -76,15 +76,28 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { makeWill } from '@/code/tone/will'
-import { colorLocalCollision, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  colorLocalCollision,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { decayRateFit } from '@/code/measure/shear-mode'
 import { linearFit } from '@/code/measure/regression'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
 import { FLIP_TABLE } from '@/code/rule/momentum-weave'
-import { HEAD_TURN_SPEC, scatterCollision, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { dampedCosineFit, momentumWaveSeries, momentumWaveStart, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  HEAD_TURN_SPEC,
+  scatterCollision,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  dampedCosineFit,
+  momentumWaveSeries,
+  momentumWaveStart,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 import {
   CHARGE_VECTOR,
   COUNT_VECTOR,
@@ -106,10 +119,21 @@ const SIDES = [12, 16, 20, 24]
 const SHEAR_BEATS = 60
 const SOUND_BEATS = 144
 const SMALL_K = 0.02
-const SHEAR: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }
-const LONGITUDINAL: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }
-const FLIP_BASE: ColorLocalSpec = { ...HEAD_TURN_SPEC, tables: [FLIP_TABLE] }
-const OPPOSITE = rootsD4().map((r, _, all) => all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const SHEAR: WaveGeometry = {
+  momentum: [1, 0, 0, 0],
+  wave: [0, 1, 0, 0],
+}
+const LONGITUDINAL: WaveGeometry = {
+  momentum: [1, 0, 0, 0],
+  wave: [1, 0, 0, 0],
+}
+const FLIP_BASE: ColorLocalSpec = {
+  ...HEAD_TURN_SPEC,
+  tables: [FLIP_TABLE],
+}
+const OPPOSITE = rootsD4().map((r, _, all) =>
+  all.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 
 const DENSITIES: Record<string, Float64Array> = {
   charge: CHARGE_VECTOR,
@@ -122,45 +146,74 @@ const DENSITIES: Record<string, Float64Array> = {
 }
 
 function specOf(base: ColorLocalSpec): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: base, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({ spec: base, opposite: o, forward: f }),
+  )
 
-  return { base, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
-const mean = (xs: readonly number[]): number => xs.reduce((s, x) => s + x, 0) / xs.length
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((s, x) => s + x, 0) / xs.length
 
-function averaged(a: readonly Float64Array[], b: readonly Float64Array[]): Float64Array[] {
+function averaged(
+  a: readonly Float64Array[],
+  b: readonly Float64Array[],
+): Float64Array[] {
   return a.map((m, t) => m.map((v, i) => (v + (b[t]?.[i] ?? 0)) / 2))
 }
 
 function occupation(data: Int8Array): number {
   let n = 0
 
-  for (let i = 0; i < data.length; i++) {
-    n += data[i] !== 0 ? 1 : 0
+  for (const v of data) {
+    n += v !== 0 ? 1 : 0
   }
 
   return n / data.length
 }
 
 // the number of period eigenvalues within 1e-9 of the unit circle
-function exactSlowCount(matrices: readonly Float64Array[], wave: readonly number[]): number {
+function exactSlowCount(
+  matrices: readonly Float64Array[],
+  wave: readonly number[],
+): number {
   const map = periodMap({ matrices, wave })
   const ev = complexEigenvalues({ re: map.re, im: map.im, n: 48 })
 
-  return ev.re.filter((re, i) => Math.abs(Math.hypot(re, ev.im[i] ?? 0) - 1) < 1e-9).length
+  return ev.re.filter(
+    (re, i) => Math.abs(Math.hypot(re, ev.im[i] ?? 0) - 1) < 1e-9,
+  ).length
 }
 
 // the shear viscosity of the P0 mode with k along axis 1
-function shearNu(matrices: readonly Float64Array[], k: number): { nu: number; content: number } {
-  const modes = slowModes({ map: periodMap({ matrices, wave: [0, k, 0, 0] }), period: 24, floor: 0.02, densities: DENSITIES })
-  const best = modes.reduce((a, m) => ((m.content.p0 ?? 0) > (a.content.p0 ?? 0) ? m : a))
+function shearNu(
+  matrices: readonly Float64Array[],
+  k: number,
+): { nu: number; content: number } {
+  const modes = slowModes({
+    map: periodMap({ matrices, wave: [0, k, 0, 0] }),
+    period: 24,
+    floor: 0.02,
+    densities: DENSITIES,
+  })
+  const best = modes.reduce((a, m) =>
+    (m.content.p0 ?? 0) > (a.content.p0 ?? 0) ? m : a,
+  )
 
   return { nu: best.gamma / (k * k), content: best.content.p0 ?? 0 }
 }
 
 // the sound mode along axis 0 followed to each target k
-function soundAt(matrices: readonly Float64Array[], targets: readonly number[]) {
+function soundAt(
+  matrices: readonly Float64Array[],
+  targets: readonly number[],
+) {
   const top = Math.max(SMALL_K, ...targets)
   const ks: number[] = []
 
@@ -176,19 +229,25 @@ function soundAt(matrices: readonly Float64Array[], targets: readonly number[]) 
     direction: [1, 0, 0, 0],
     ks,
     densities: DENSITIES,
-    score: m => (m.omega > 0 ? (m.content.count ?? 0) + (m.content.p0 ?? 0) : 0),
+    score: m =>
+      m.omega > 0 ? (m.content.count ?? 0) + (m.content.p0 ?? 0) : 0,
   })
-  const at = (k: number) => track.find(x => Math.abs(x.k - k) < 1e-12) ?? track[0]
+  const at = (k: number) =>
+    track.find(x => Math.abs(x.k - k) < 1e-12) ?? track[0]
 
   return { small: at(SMALL_K), targets: targets.map(k => at(k)) }
 }
 
 // the knit's equilibrium dock statistics: the share of lines holding a pair, and the largest connected
 // correlation of two slot occupations in one dock
-function dockCorrelations(data: Int8Array): { pairShare: number; maxCorrelation: number } {
+function dockCorrelations(data: Int8Array): {
+  pairShare: number
+  maxCorrelation: number
+} {
   const docks = data.length / 24
   const single = new Float64Array(24)
   const joint = new Float64Array(24 * 24)
+
   let pairs = 0
 
   for (let x = 0; x < docks; x++) {
@@ -207,7 +266,10 @@ function dockCorrelations(data: Int8Array): { pairShare: number; maxCorrelation:
         }
       }
 
-      if (d < (OPPOSITE[d] ?? d) && data[x * 24 + (OPPOSITE[d] ?? d)] !== 0) {
+      if (
+        d < (OPPOSITE[d] ?? d) &&
+        data[x * 24 + (OPPOSITE[d] ?? d)] !== 0
+      ) {
         pairs++
       }
     }
@@ -219,7 +281,9 @@ function dockCorrelations(data: Int8Array): { pairShare: number; maxCorrelation:
     for (let e = d + 1; e < 24; e++) {
       const pd = (single[d] ?? 0) / docks
       const pe = (single[e] ?? 0) / docks
-      const c = ((joint[d * 24 + e] ?? 0) / docks - pd * pe) / Math.sqrt(pd * (1 - pd) * pe * (1 - pe))
+      const c =
+        ((joint[d * 24 + e] ?? 0) / docks - pd * pe) /
+        Math.sqrt(pd * (1 - pd) * pe * (1 - pe))
 
       worst = Math.max(worst, Math.abs(c))
     }
@@ -231,8 +295,19 @@ function dockCorrelations(data: Int8Array): { pairShare: number; maxCorrelation:
 // per-slab sums of the slab invariants on a knit run, their largest drift over 48 beats
 function slabDrifts(spec: ScatterWeaveSpec, side: number) {
   const mesh = d4Mesh({ side })
-  const collision = scatterCollision({ spec, opposite: meshOpposites(mesh) })
-  const will = momentumWaveStart({ mesh, side, geometry: SHEAR, mode: 1, fill: 0.2, bias: 0.4, salt: 7 })
+  const collision = scatterCollision({
+    spec,
+    opposite: meshOpposites(mesh),
+  })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry: SHEAR,
+    mode: 1,
+    fill: 0.2,
+    bias: 0.4,
+    salt: 7,
+  })
   const table = streamSourceTable(mesh)
   const axis0 = slabInvariantVector(0) ?? new Float64Array(48)
   const axis3 = slabInvariantVector(3) ?? new Float64Array(48)
@@ -248,13 +323,21 @@ function slabDrifts(spec: ScatterWeaveSpec, side: number) {
   let scratch = makeWill(mesh)
 
   for (let t = 0; t < 48; t++) {
-    beatInto({ src: current, dst: scratch, table, collision: collision(t) })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table,
+      collision: collision(t),
+    })
     ;[current, scratch] = [scratch, current]
 
     const now = read(current.data)
 
     for (const key of ['a0', 'a3', 'control'] as const) {
-      drift[key] = Math.max(drift[key], ...now[key].map((v, s) => Math.abs(v - (start[key][s] ?? 0))))
+      drift[key] = Math.max(
+        drift[key],
+        ...now[key].map((v, s) => Math.abs(v - (start[key][s] ?? 0))),
+      )
     }
   }
 
@@ -273,84 +356,228 @@ export default experiment({
   run() {
     const clock = specOf(HEAD_TURN_SPEC)
     const flip = specOf(FLIP_BASE)
-    const clockRule = scatterCollision({ spec: clock, opposite: OPPOSITE })
-    const flipRule = scatterCollision({ spec: flip, opposite: OPPOSITE })
+    const clockRule = scatterCollision({
+      spec: clock,
+      opposite: OPPOSITE,
+    })
+    const flipRule = scatterCollision({
+      spec: flip,
+      opposite: OPPOSITE,
+    })
 
     // the knit: shear on the pair clock, sound on the flip rule
     const shearRuns = SIDES.map(side => {
       const mesh = d4Mesh({ side })
-      const will = momentumWaveStart({ mesh, side, geometry: SHEAR, mode: 1, fill: 0.2, bias: 0.4, salt: 7 })
-      const { series, final } = momentumWaveSeries({ will, collision: scatterCollision({ spec: clock, opposite: meshOpposites(mesh) }), beats: SHEAR_BEATS, side, geometry: SHEAR, mode: 1 })
+      const will = momentumWaveStart({
+        mesh,
+        side,
+        geometry: SHEAR,
+        mode: 1,
+        fill: 0.2,
+        bias: 0.4,
+        salt: 7,
+      })
+      const { series, final } = momentumWaveSeries({
+        will,
+        collision: scatterCollision({
+          spec: clock,
+          opposite: meshOpposites(mesh),
+        }),
+        beats: SHEAR_BEATS,
+        side,
+        geometry: SHEAR,
+        mode: 1,
+      })
       const fit = decayRateFit({ series })
       const k = (2 * Math.PI) / side
 
-      return { side, k, nu: fit.gamma / (k * k), r2: fit.r2, occupation: occupation(final.data), final: side === 16 ? final.data : undefined }
+      return {
+        side,
+        k,
+        nu: fit.gamma / (k * k),
+        r2: fit.r2,
+        occupation: occupation(final.data),
+        final: side === 16 ? final.data : undefined,
+      }
     })
     const nuKnit = mean(shearRuns.map(r => r.nu))
 
     const soundRuns = SIDES.map(side => {
       const mesh = d4Mesh({ side })
-      const will = momentumWaveStart({ mesh, side, geometry: LONGITUDINAL, mode: 1, fill: 0.2, bias: 0.4, salt: 7 })
-      const { series } = momentumWaveSeries({ will, collision: scatterCollision({ spec: flip, opposite: meshOpposites(mesh) }), beats: SOUND_BEATS, side, geometry: LONGITUDINAL, mode: 1 })
+      const will = momentumWaveStart({
+        mesh,
+        side,
+        geometry: LONGITUDINAL,
+        mode: 1,
+        fill: 0.2,
+        bias: 0.4,
+        salt: 7,
+      })
+      const { series } = momentumWaveSeries({
+        will,
+        collision: scatterCollision({
+          spec: flip,
+          opposite: meshOpposites(mesh),
+        }),
+        beats: SOUND_BEATS,
+        side,
+        geometry: LONGITUDINAL,
+        mode: 1,
+      })
       const s0 = series[0] ?? 1
       const fit = dampedCosineFit({ series: series.map(x => x / s0) })
       const k = (2 * Math.PI) / side
 
-      return { side, k, speed: fit.omega / k, r2: fit.r2, occupation: occupation(will.data) }
+      return {
+        side,
+        k,
+        speed: fit.omega / k,
+        r2: fit.r2,
+        occupation: occupation(will.data),
+      }
     })
-    const knitExtrapolation = linearFit({ xs: soundRuns.map(r => r.k * r.k), ys: soundRuns.map(r => r.speed) })
+    const knitExtrapolation = linearFit({
+      xs: soundRuns.map(r => r.k * r.k),
+      ys: soundRuns.map(r => r.speed),
+    })
     const flipOccupation = mean(soundRuns.map(r => r.occupation))
-    const flipOccupationSpread = Math.max(...soundRuns.map(r => r.occupation)) - Math.min(...soundRuns.map(r => r.occupation))
+    const flipOccupationSpread =
+      Math.max(...soundRuns.map(r => r.occupation)) -
+      Math.min(...soundRuns.map(r => r.occupation))
 
     // the equation
-    const clockSalted = SALTS.map(salt => linearizedSchedule({ rule: clockRule, period: 24, background: uniformBackground(2 / 3), samples: SAMPLES, salt }))
-    const flipSalted = SALTS.map(salt => linearizedSchedule({ rule: flipRule, period: 24, background: uniformBackground(flipOccupation), samples: SAMPLES, salt }))
-    const clockMatrices = averaged(clockSalted[0] ?? [], clockSalted[1] ?? [])
-    const flipMatrices = averaged(flipSalted[0] ?? [], flipSalted[1] ?? [])
+    const clockSalted = SALTS.map(salt =>
+      linearizedSchedule({
+        rule: clockRule,
+        period: 24,
+        background: uniformBackground(2 / 3),
+        samples: SAMPLES,
+        salt,
+      }),
+    )
+    const flipSalted = SALTS.map(salt =>
+      linearizedSchedule({
+        rule: flipRule,
+        period: 24,
+        background: uniformBackground(flipOccupation),
+        samples: SAMPLES,
+        salt,
+      }),
+    )
+    const clockMatrices = averaged(
+      clockSalted[0] ?? [],
+      clockSalted[1] ?? [],
+    )
+    const flipMatrices = averaged(
+      flipSalted[0] ?? [],
+      flipSalted[1] ?? [],
+    )
 
     const defects = {
       clockCharge: conservationDefect(clockMatrices, CHARGE_VECTOR),
       clockLine: conservationDefect(clockMatrices, LINE_SUM_VECTOR),
-      clockMomentum: Math.max(...[0, 1, 2, 3].map(a => conservationDefect(clockMatrices, DENSITIES[`p${a}`] ?? CHARGE_VECTOR))),
+      clockMomentum: Math.max(
+        ...[0, 1, 2, 3].map(a =>
+          conservationDefect(
+            clockMatrices,
+            DENSITIES[`p${a}`] ?? CHARGE_VECTOR,
+          ),
+        ),
+      ),
       clockCount: conservationDefect(clockMatrices, COUNT_VECTOR),
       flipCharge: conservationDefect(flipMatrices, CHARGE_VECTOR),
       flipLine: conservationDefect(flipMatrices, LINE_SUM_VECTOR),
-      flipMomentum: Math.max(...[0, 1, 2, 3].map(a => conservationDefect(flipMatrices, DENSITIES[`p${a}`] ?? CHARGE_VECTOR))),
+      flipMomentum: Math.max(
+        ...[0, 1, 2, 3].map(a =>
+          conservationDefect(
+            flipMatrices,
+            DENSITIES[`p${a}`] ?? CHARGE_VECTOR,
+          ),
+        ),
+      ),
       flipCount: conservationDefect(flipMatrices, COUNT_VECTOR),
     }
     const census = {
       clockK0: exactSlowCount(clockMatrices, [0, 0, 0, 0]),
       flipK0: exactSlowCount(flipMatrices, [0, 0, 0, 0]),
-      clockAxes: [0, 1, 2, 3].map(a => exactSlowCount(clockMatrices, [0, 1, 2, 3].map(i => (i === a ? 0.1 : 0)))),
-      flipAxes: [0, 1, 2, 3].map(a => exactSlowCount(flipMatrices, [0, 1, 2, 3].map(i => (i === a ? 0.1 : 0)))),
+      clockAxes: [0, 1, 2, 3].map(a =>
+        exactSlowCount(
+          clockMatrices,
+          [0, 1, 2, 3].map(i => (i === a ? 0.1 : 0)),
+        ),
+      ),
+      flipAxes: [0, 1, 2, 3].map(a =>
+        exactSlowCount(
+          flipMatrices,
+          [0, 1, 2, 3].map(i => (i === a ? 0.1 : 0)),
+        ),
+      ),
     }
 
     const nuPredicted = shearNu(clockMatrices, SMALL_K)
     const nuSalted = clockSalted.map(m => shearNu(m, SMALL_K).nu)
     const nuAtKnit = shearRuns.map(r => shearNu(clockMatrices, r.k).nu)
-    const sound = soundAt(flipMatrices, soundRuns.map(r => r.k))
+    const sound = soundAt(
+      flipMatrices,
+      soundRuns.map(r => r.k),
+    )
     const soundSalted = flipSalted.map(m => soundAt(m, []).small)
     const cPredicted = (sound.small?.omega ?? 0) / SMALL_K
     const cSalted = soundSalted.map(s => (s?.omega ?? 0) / SMALL_K)
-    const predictedSpeeds = sound.targets.map(t => (t?.omega ?? 0) / (t?.k ?? 1))
-    const predictedExtrapolation = linearFit({ xs: soundRuns.map(r => r.k * r.k), ys: predictedSpeeds })
-    const soundAttenuation = (sound.small?.gamma ?? 0) / (SMALL_K * SMALL_K)
+    const predictedSpeeds = sound.targets.map(
+      t => (t?.omega ?? 0) / (t?.k ?? 1),
+    )
+    const predictedExtrapolation = linearFit({
+      xs: soundRuns.map(r => r.k * r.k),
+      ys: predictedSpeeds,
+    })
+    const soundAttenuation =
+      (sound.small?.gamma ?? 0) / (SMALL_K * SMALL_K)
 
     const slabs = slabDrifts(clock, 12)
-    const correlations = dockCorrelations(shearRuns.find(r => r.final)?.final ?? new Int8Array(24))
+    const correlations = dockCorrelations(
+      shearRuns.find(r => r.final)?.final ?? new Int8Array(24),
+    )
 
     const g1 =
-      Math.max(defects.clockCharge, defects.clockLine, defects.clockMomentum, defects.flipCharge, defects.flipLine, defects.flipMomentum, defects.flipCount) <= 1e-12 &&
+      Math.max(
+        defects.clockCharge,
+        defects.clockLine,
+        defects.clockMomentum,
+        defects.flipCharge,
+        defects.flipLine,
+        defects.flipMomentum,
+        defects.flipCount,
+      ) <= 1e-12 &&
       defects.clockCount > 0.1 &&
       census.clockK0 === 6 &&
       census.flipK0 === 7
-    const g2 = shearRuns.every(r => Math.abs(r.occupation - 2 / 3) <= 0.01)
+    const g2 = shearRuns.every(
+      r => Math.abs(r.occupation - 2 / 3) <= 0.01,
+    )
     const g3 = Math.abs(nuPredicted.nu - nuKnit) / nuKnit <= 0.1
-    const g4 = Math.abs(cPredicted - knitExtrapolation.intercept) <= 0.02
-    const g5 = soundRuns.every((r, i) => Math.abs((predictedSpeeds[i] ?? 0) - r.speed) <= 0.03) && shearRuns.every((r, i) => Math.abs((nuAtKnit[i] ?? 0) - r.nu) / r.nu <= 0.1)
-    const g6 = Math.abs((nuSalted[0] ?? 0) - (nuSalted[1] ?? 0)) / nuPredicted.nu <= 0.02 && Math.abs((cSalted[0] ?? 0) - (cSalted[1] ?? 0)) / cPredicted <= 0.02
+    const g4 =
+      Math.abs(cPredicted - knitExtrapolation.intercept) <= 0.02
+    const g5 =
+      soundRuns.every(
+        (r, i) => Math.abs((predictedSpeeds[i] ?? 0) - r.speed) <= 0.03,
+      ) &&
+      shearRuns.every(
+        (r, i) => Math.abs((nuAtKnit[i] ?? 0) - r.nu) / r.nu <= 0.1,
+      )
+    const g6 =
+      Math.abs((nuSalted[0] ?? 0) - (nuSalted[1] ?? 0)) /
+        nuPredicted.nu <=
+        0.02 &&
+      Math.abs((cSalted[0] ?? 0) - (cSalted[1] ?? 0)) / cPredicted <=
+        0.02
     const g7 =
-      [census.clockAxes, census.flipAxes].every(a => a.join(',') === '1,0,0,1') && slabs.a0 === 0 && slabs.a3 === 0 && slabs.control > 0
+      [census.clockAxes, census.flipAxes].every(
+        a => a.join(',') === '1,0,0,1',
+      ) &&
+      slabs.a0 === 0 &&
+      slabs.a3 === 0 &&
+      slabs.control > 0
 
     const metrics: Record<string, number> = {
       g1Exactness: g1 ? 1 : 0,
@@ -383,17 +610,26 @@ export default experiment({
       knitPairShare: correlations.pairShare,
       productPairShare: 4 / 9,
       knitMaxSlotCorrelation: correlations.maxCorrelation,
-      ...Object.fromEntries(Object.entries(defects).map(([k, v]) => [`defect_${k}`, v])),
+      ...Object.fromEntries(
+        Object.entries(defects).map(([k, v]) => [`defect_${k}`, v]),
+      ),
     }
 
-    census.clockAxes.forEach((v, a) => (metrics[`census_clockAxis${a}`] = v))
-    census.flipAxes.forEach((v, a) => (metrics[`census_flipAxis${a}`] = v))
+    census.clockAxes.forEach(
+      (v, a) => (metrics[`census_clockAxis${a}`] = v),
+    )
+
+    census.flipAxes.forEach(
+      (v, a) => (metrics[`census_flipAxis${a}`] = v),
+    )
+
     shearRuns.forEach((r, i) => {
       metrics[`nuKnitL${r.side}`] = r.nu
       metrics[`nuPredictedL${r.side}`] = nuAtKnit[i] ?? 0
       metrics[`r2KnitL${r.side}`] = r.r2
       metrics[`occupationKnitL${r.side}`] = r.occupation
     })
+
     soundRuns.forEach((r, i) => {
       metrics[`cKnitL${r.side}`] = r.speed
       metrics[`cPredictedL${r.side}`] = predictedSpeeds[i] ?? 0

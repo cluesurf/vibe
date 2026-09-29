@@ -19,14 +19,25 @@
 // For a shared small integer (a 7 appearing in two constants), the matching count is the integers 1 to
 // RELATION_A_MAX: the rate is 1 / RELATION_A_MAX.
 
-import { NULL_WINDOW, RELATION_A_MAX, RELATION_BASIS, RELATION_C_MAX } from '@/code/measure/integer-relation'
+import {
+  NULL_WINDOW,
+  RELATION_A_MAX,
+  RELATION_BASIS,
+  RELATION_C_MAX,
+} from '@/code/measure/integer-relation'
 
-export function budgetValuesInWindow(x0: number, maxComplexity: number): number[] {
+export function budgetValuesInWindow(
+  x0: number,
+  maxComplexity: number,
+): number[] {
   const low = x0 * (1 - NULL_WINDOW)
   const high = x0 * (1 + NULL_WINDOW)
   const seen = new Set<string>()
   const out: number[] = []
-  const bases: [number, number][] = [[0, 0], ...RELATION_BASIS.map(([, v]) => [1, v] as [number, number])]
+  const bases: [number, number][] = [
+    [0, 0],
+    ...RELATION_BASIS.map(([, v]) => [1, v] as [number, number]),
+  ]
 
   const keep = (x: number): void => {
     if (x >= low && x <= high) {
@@ -42,18 +53,29 @@ export function budgetValuesInWindow(x0: number, maxComplexity: number): number[
   for (let a = 1; a <= RELATION_A_MAX; a++) {
     for (const [present, value] of bases) {
       for (let c = -RELATION_C_MAX; c <= RELATION_C_MAX; c++) {
-        if ((present === 0) !== (c === 0) || a + Math.abs(c) > maxComplexity) {
+        if (
+          (present === 0) !== (c === 0) ||
+          a + Math.abs(c) > maxComplexity
+        ) {
           continue
         }
 
         const shift = c * value
 
         // T = x: x = (b + c B) / a, T = x^2: x = sqrt((b + c B) / a), b over the integers that reach the window
-        for (let b = Math.floor(a * low - shift) - 1; b <= Math.ceil(a * high - shift) + 1; b++) {
+        for (
+          let b = Math.floor(a * low - shift) - 1;
+          b <= Math.ceil(a * high - shift) + 1;
+          b++
+        ) {
           keep((b + shift) / a)
         }
 
-        for (let b = Math.floor(a * low * low - shift) - 1; b <= Math.ceil(a * high * high - shift) + 1; b++) {
+        for (
+          let b = Math.floor(a * low * low - shift) - 1;
+          b <= Math.ceil(a * high * high - shift) + 1;
+          b++
+        ) {
           const square = (b + shift) / a
 
           if (square > 0) {
@@ -68,7 +90,10 @@ export function budgetValuesInWindow(x0: number, maxComplexity: number): number[
 }
 
 // 1 / |F_k|, the chance two constants of complexity k share a value by accident
-export function exactCoincidenceRate(x0: number, complexity: number): { values: number; rate: number } {
+export function exactCoincidenceRate(
+  x0: number,
+  complexity: number,
+): { values: number; rate: number } {
   const values = budgetValuesInWindow(x0, complexity).length
 
   return { values, rate: values > 0 ? 1 / values : 1 }

@@ -139,7 +139,7 @@ export default experiment({
         controlBreaks: controlBreaks ? 1 : 0,
       },
       notes:
-        'AUDIT 2026-08-31: this experiment is Zurek\'s envariance argument restated on 2x2 and 3x3 diagonal amplitude matrices, where the fine-graining step inserts |amplitude|^2 by construction, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
+        "AUDIT 2026-08-31: this experiment is Zurek's envariance argument restated on 2x2 and 3x3 diagonal amplitude matrices, where the fine-graining step inserts |amplitude|^2 by construction, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. " +
         'L3 derivation, not a put-in-by-hand measure. Envariance (Zurek) reduces the Born weights to the SYMMETRY of the deterministic entangled state: equal-amplitude branches are swap-interchangeable (equiprobable), unequal ones reduce to equal by fine-graining. The framework supplies the deterministic entanglement (quantum/entanglement-bell, CHSH = 2sqrt2). HONEST residual: the derivation assumes the weak principle that envariant (physically interchangeable) branches are equiprobable; no fully assumption-free Born derivation exists (this is the measurement problem). The advance over gauge/born-rule (the structural uniqueness of |amp|^2) is that the WEIGHTS are now forced by a concrete symmetry of the deterministic state, with a control that fails.',
     })
   },

@@ -15,11 +15,28 @@
 
 import { divergence } from '@/code/rule/step-depth'
 import { radionWeight, type RadionMesh } from '@/code/rule/trit-radion'
-import { duplicatePlaquette, emptyPlaquette, faceCurl, plaquetteBeat, plaquetteBeatBack, plaquetteScratch, samePlaquette, type HuskFaces, type PlaquetteRule, type PlaquetteScratch, type PlaquetteState, type PlaquetteTally } from '@/code/rule/line-plaquette'
+import {
+  duplicatePlaquette,
+  emptyPlaquette,
+  faceCurl,
+  plaquetteBeat,
+  plaquetteBeatBack,
+  plaquetteScratch,
+  samePlaquette,
+  type HuskFaces,
+  type PlaquetteRule,
+  type PlaquetteScratch,
+  type PlaquetteState,
+  type PlaquetteTally,
+} from '@/code/rule/line-plaquette'
 import { staticDepth } from '@/code/measure/energy-lines'
-import { gaussLines, type Sectors } from '@/code/measure/trio-energy-lines'
+import {
+  gaussLines,
+  type Sectors,
+} from '@/code/measure/trio-energy-lines'
 
 type C = [number, number]
+
 const weightOf = (a: C): number => a[0] ** 2 + a[1] ** 2
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
@@ -27,7 +44,11 @@ const mod = (a: number, m: number): number => ((a % m) + m) % m
 export const balanced3 = (v: number): number => mod(v + 1, 3) - 1
 
 // the expected balanced mod-3 register on the ring's links (E-GRV-0127's gauge: L(k) = Q(k) - N - n [k >= s])
-export function expectedString(L: number, s: number, state: Sectors): Float64Array {
+export function expectedString(
+  L: number,
+  s: number,
+  state: Sectors,
+): Float64Array {
   const out = new Float64Array(L)
   const g = new Int32Array(L)
 
@@ -36,7 +57,10 @@ export function expectedString(L: number, s: number, state: Sectors): Float64Arr
       const w = weightOf(amp)
 
       gaussLines(L, s, ts, N, g)
-      for (let k = 0; k < L; k++) out[k]! += w * balanced3(g[k] as number)
+
+      for (let k = 0; k < L; k++) {
+        out[k]! += w * balanced3(g[k]!)
+      }
     }
   }
 
@@ -65,70 +89,147 @@ export type PlaquetteArm = {
 }
 
 // an arm whose beat-0 register is round(U start), in whole register units
-export function plaquetteArm(mesh: RadionMesh, faces: HuskFaces, rule: PlaquetteRule, start: Float64Array, moving: boolean): PlaquetteArm {
+export function plaquetteArm(
+  mesh: RadionMesh,
+  faces: HuskFaces,
+  rule: PlaquetteRule,
+  start: Float64Array,
+  moving: boolean,
+): PlaquetteArm {
   const state = emptyPlaquette(mesh, faces)
 
-  for (let l = 0; l < start.length; l++) state.line[l] = Math.round(rule.unit * (start[l] as number))
+  for (let l = 0; l < start.length; l++) {
+    state.line[l] = Math.round(rule.unit * start[l]!)
+  }
 
-  return { rule, moving, state, start: duplicatePlaquette(state), bare: Float64Array.from(state.line), drags: [], tally: { lineWraps: 0, faceWraps: 0 }, gaussOff: 0, gaussOffWindow: 0, beats: 0 }
+  return {
+    rule,
+    moving,
+    state,
+    start: duplicatePlaquette(state),
+    bare: Float64Array.from(state.line),
+    drags: [],
+    tally: { lineWraps: 0, faceWraps: 0 },
+    gaussOff: 0,
+    gaussOffWindow: 0,
+    beats: 0,
+  }
 }
 
-export type ArmScratch = { plaquette: PlaquetteScratch; divA: Float64Array; divB: Float64Array }
+export type ArmScratch = {
+  plaquette: PlaquetteScratch
+  divA: Float64Array
+  divB: Float64Array
+}
 
-export const armScratch = (mesh: RadionMesh, faces: HuskFaces): ArmScratch => ({ plaquette: plaquetteScratch(mesh, faces), divA: new Float64Array(mesh.docks), divB: new Float64Array(mesh.docks) })
+export const armScratch = (
+  mesh: RadionMesh,
+  faces: HuskFaces,
+): ArmScratch => ({
+  plaquette: plaquetteScratch(mesh, faces),
+  divA: new Float64Array(mesh.docks),
+  divB: new Float64Array(mesh.docks),
+})
 
 // one beat toward the target field (whole lines per husk link)
-export function feedArm(mesh: RadionMesh, faces: HuskFaces, arm: PlaquetteArm, target: Float64Array, scratch: ArmScratch): void {
+export function feedArm(
+  mesh: RadionMesh,
+  faces: HuskFaces,
+  arm: PlaquetteArm,
+  target: Float64Array,
+  scratch: ArmScratch,
+): void {
   const drag = new Float64Array(target.length)
 
   for (let l = 0; l < target.length; l++) {
-    const next = Math.round(arm.rule.unit * (target[l] as number))
+    const next = Math.round(arm.rule.unit * target[l]!)
 
-    drag[l] = next - (arm.bare[l] as number)
+    drag[l] = next - arm.bare[l]!
     arm.bare[l] = next
   }
 
   const at: number[] = []
 
-  for (let l = 0; l < drag.length; l++) if (drag[l] !== 0) at.push(l)
-  arm.drags.push({ at: Int32Array.from(at), value: Float64Array.from(at, l => drag[l] as number) })
-  plaquetteBeat(faces, arm.rule, arm.state, drag, scratch.plaquette, arm.tally, arm.moving)
+  for (let l = 0; l < drag.length; l++) {
+    if (drag[l] !== 0) {
+      at.push(l)
+    }
+  }
+
+  arm.drags.push({
+    at: Int32Array.from(at),
+    value: Float64Array.from(at, l => drag[l]!),
+  })
+
+  plaquetteBeat(
+    faces,
+    arm.rule,
+    arm.state,
+    drag,
+    scratch.plaquette,
+    arm.tally,
+    arm.moving,
+  )
   arm.beats++
 
   divergence(mesh, arm.state.line, scratch.divA)
   divergence(mesh, arm.bare, scratch.divB)
-  for (let y = 0; y < mesh.docks; y++) {
-    const gap = (scratch.divA[y] as number) - (scratch.divB[y] as number)
 
-    if (gap !== 0) arm.gaussOff++
-    if (mod(gap, arm.rule.span) !== 0) arm.gaussOffWindow++
+  for (let y = 0; y < mesh.docks; y++) {
+    const gap = scratch.divA[y]! - scratch.divB[y]!
+
+    if (gap !== 0) {
+      arm.gaussOff++
+    }
+
+    if (mod(gap, arm.rule.span) !== 0) {
+      arm.gaussOffWindow++
+    }
   }
 }
 
 // every beat back through the recorded drags; true if the register returns to its start bit for bit
-export function reverseArm(faces: HuskFaces, arm: PlaquetteArm, scratch: ArmScratch): boolean {
+export function reverseArm(
+  faces: HuskFaces,
+  arm: PlaquetteArm,
+  scratch: ArmScratch,
+): boolean {
   const s = duplicatePlaquette(arm.state)
   const drag = new Float64Array(s.line.length)
 
   for (let t = arm.drags.length - 1; t >= 0; t--) {
-    const d = arm.drags[t] as SparseDrag
+    const d = arm.drags[t]!
 
     drag.fill(0)
-    d.at.forEach((l, i) => (drag[l] = d.value[i] as number))
-    plaquetteBeatBack(faces, arm.rule, s, drag, scratch.plaquette, arm.moving)
+    d.at.forEach((l, i) => (drag[l] = d.value[i]!))
+    plaquetteBeatBack(
+      faces,
+      arm.rule,
+      s,
+      drag,
+      scratch.plaquette,
+      arm.moving,
+    )
   }
 
   return samePlaquette(s, arm.start)
 }
 
 // the register in whole lines
-export const wholeLines = (arm: PlaquetteArm): Float64Array => Float64Array.from(arm.state.line, v => v / arm.rule.unit)
+export const wholeLines = (arm: PlaquetteArm): Float64Array =>
+  Float64Array.from(arm.state.line, v => v / arm.rule.unit)
 
 // ---- readings ----
 
 // the sum of (C M E)^2 over faces whose first corner is within `radius` of the source column, and over all faces, in
 // whole lines
-export function curlEnergy(faces: HuskFaces, line: Float64Array, dist: Int32Array, radius: number, out: Float64Array): { inside: number; total: number; meanRadius: number } {
+export function curlEnergy(
+  faces: HuskFaces,
+  line: Float64Array,
+  dist: Int32Array,
+  radius: number,
+  out: Float64Array,
+): { inside: number; total: number; meanRadius: number } {
   faceCurl(faces, line, out)
 
   let inside = 0
@@ -136,12 +237,15 @@ export function curlEnergy(faces: HuskFaces, line: Float64Array, dist: Int32Arra
   let moment = 0
 
   for (let f = 0; f < faces.count; f++) {
-    const c2 = (out[f] as number) ** 2
-    const r = dist[faces.dock[f] as number] as number
+    const c2 = out[f]! ** 2
+    const r = dist[faces.dock[f]!]!
 
     total += c2
     moment += r * c2
-    if (r <= radius) inside += c2
+
+    if (r <= radius) {
+      inside += c2
+    }
   }
 
   return { inside, total, meanRadius: total > 0 ? moment / total : 0 }
@@ -149,24 +253,39 @@ export function curlEnergy(faces: HuskFaces, line: Float64Array, dist: Int32Arra
 
 // the field's energy 1/2 sum E^2 / g, its gradient part's (the Poisson solve of its own divergence) and the rest
 // (the curl and the winding): the two are orthogonal in this metric, so they add
-export function fieldSplit(mesh: RadionMesh, side: number, line: Float64Array, dist: Int32Array, radius: number): { energy: number; gradient: number; rest: number; restInside: number } {
+export function fieldSplit(
+  mesh: RadionMesh,
+  side: number,
+  line: Float64Array,
+  dist: Int32Array,
+  radius: number,
+): {
+  energy: number
+  gradient: number
+  rest: number
+  restInside: number
+} {
   const div = new Float64Array(mesh.docks)
 
   divergence(mesh, line, div)
 
   const grad = staticDepth(side, div).flux
+
   let energy = 0
   let gradient = 0
   let restInside = 0
 
   for (let l = 0; l < line.length; l++) {
     const g = radionWeight(l % 9)
-    const e = line[l] as number
-    const d = grad[l] as number
+    const e = line[l]!
+    const d = grad[l]!
 
     energy += (e * e) / (2 * g)
     gradient += (d * d) / (2 * g)
-    if ((dist[Math.floor(l / 9)] as number) <= radius) restInside += ((e - d) * (e - d)) / (2 * g)
+
+    if (dist[Math.floor(l / 9)]! <= radius) {
+      restInside += ((e - d) * (e - d)) / (2 * g)
+    }
   }
 
   return { energy, gradient, rest: energy - gradient, restInside }
@@ -174,21 +293,27 @@ export function fieldSplit(mesh: RadionMesh, side: number, line: Float64Array, d
 
 // idea 3c: how much of the field sits on the source's own husk line (`on`, the ring's husk links), and the largest line
 // off it (a string bent off the line keeps whole lines along its new path; a field spread by the move does not)
-export function lineShare(line: Float64Array, on: Set<number>): { onShare: number; onMax: number; offMax: number } {
+export function lineShare(
+  line: Float64Array,
+  on: Set<number>,
+): { onShare: number; onMax: number; offMax: number } {
   let onE = 0
   let all = 0
   let onMax = 0
   let offMax = 0
 
   for (let l = 0; l < line.length; l++) {
-    const e = line[l] as number
+    const e = line[l]!
     const w = (e * e) / radionWeight(l % 9)
 
     all += w
+
     if (on.has(l)) {
       onE += w
       onMax = Math.max(onMax, Math.abs(e))
-    } else offMax = Math.max(offMax, Math.abs(e))
+    } else {
+      offMax = Math.max(offMax, Math.abs(e))
+    }
   }
 
   return { onShare: all > 0 ? onE / all : 0, onMax, offMax }
@@ -196,7 +321,16 @@ export function lineShare(line: Float64Array, on: Set<number>): { onShare: numbe
 
 // Gauss through husk balls about `col` (0127's G1): the largest |outflow - content inside| over radii 0 .. `top`, the
 // balls holding the sink skipped, and the balls off by more than `relativeTolerance` of their content or `floor`
-export function ballGauss(mesh: RadionMesh, line: Float64Array, content: Float64Array, dist: Int32Array, sinkCol: number, top: number, relativeTolerance: number, floor: number): { gap: number; relative: number; off: number } {
+export function ballGauss(
+  mesh: RadionMesh,
+  line: Float64Array,
+  content: Float64Array,
+  dist: Int32Array,
+  sinkCol: number,
+  top: number,
+  relativeTolerance: number,
+  floor: number,
+): { gap: number; relative: number; off: number } {
   const div = new Float64Array(mesh.docks)
 
   divergence(mesh, line, div)
@@ -206,20 +340,37 @@ export function ballGauss(mesh: RadionMesh, line: Float64Array, content: Float64
   let off = 0
 
   for (let rad = 0; rad <= top; rad++) {
-    if ((dist[sinkCol] as number) <= rad) continue
+    if (dist[sinkCol]! <= rad) {
+      continue
+    }
 
     let out = 0
     let inside = 0
 
     for (let c = 0; c < mesh.docks; c++) {
-      if ((dist[c] as number) > rad) continue
-      out += div[c] as number
-      inside += content[c] as number
+      if (dist[c]! > rad) {
+        continue
+      }
+
+      out += div[c]!
+      inside += content[c]!
     }
 
     gap = Math.max(gap, Math.abs(out - inside))
-    if (Math.abs(inside) > 1e-9) relative = Math.max(relative, Math.abs(out - inside) / Math.abs(inside))
-    if (Math.abs(out - inside) > Math.max(relativeTolerance * Math.abs(inside), floor)) off++
+
+    if (Math.abs(inside) > 1e-9) {
+      relative = Math.max(
+        relative,
+        Math.abs(out - inside) / Math.abs(inside),
+      )
+    }
+
+    if (
+      Math.abs(out - inside) >
+      Math.max(relativeTolerance * Math.abs(inside), floor)
+    ) {
+      off++
+    }
   }
 
   return { gap, relative, off }

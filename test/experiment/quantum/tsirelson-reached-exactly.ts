@@ -52,8 +52,15 @@ import {
 import { densitySeeSaw, pureChshExact } from '@/code/measure/pure-chsh'
 import { fearKernels, twoRolePoints } from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { gridWeights, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
-import { hermitianValues, reducedFirst } from '@/code/measure/bell-gates'
+import {
+  gridWeights,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
+import {
+  hermitianValues,
+  reducedFirst,
+} from '@/code/measure/bell-gates'
 
 const OMEGA = (2 * Math.PI) / 3
 const TSIRELSON = 2 * Math.SQRT2
@@ -81,7 +88,11 @@ function vectorOf(s: State9): { re: number[]; im: number[] } {
 }
 
 function floatOf(m: Mat3): Operator {
-  const o: Operator = { n: 3, re: new Float64Array(9), im: new Float64Array(9) }
+  const o: Operator = {
+    n: 3,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   m.num.forEach((x, i) => {
     const [re, im] = eisValue(x, 3 ** m.den3)
@@ -95,8 +106,16 @@ function floatOf(m: Mat3): Operator {
 
 function conjugateBy(u: Operator, a: Operator): Operator {
   const n = 3
-  const t: Operator = { n, re: new Float64Array(9), im: new Float64Array(9) }
-  const o: Operator = { n, re: new Float64Array(9), im: new Float64Array(9) }
+  const t: Operator = {
+    n,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
+  const o: Operator = {
+    n,
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -104,8 +123,13 @@ function conjugateBy(u: Operator, a: Operator): Operator {
       let im = 0
 
       for (let k = 0; k < n; k++) {
-        re += (u.re[i * n + k] ?? 0) * (a.re[k * n + j] ?? 0) - (u.im[i * n + k] ?? 0) * (a.im[k * n + j] ?? 0)
-        im += (u.re[i * n + k] ?? 0) * (a.im[k * n + j] ?? 0) + (u.im[i * n + k] ?? 0) * (a.re[k * n + j] ?? 0)
+        re +=
+          (u.re[i * n + k] ?? 0) * (a.re[k * n + j] ?? 0) -
+          (u.im[i * n + k] ?? 0) * (a.im[k * n + j] ?? 0)
+
+        im +=
+          (u.re[i * n + k] ?? 0) * (a.im[k * n + j] ?? 0) +
+          (u.im[i * n + k] ?? 0) * (a.re[k * n + j] ?? 0)
       }
 
       t.re[i * n + j] = re
@@ -142,7 +166,13 @@ function pointPermutation(u: Operator): number[] {
 
   for (let x = 0; x < 9; x++) {
     const moved = conjugateBy(u, points[x]!)
-    const y = points.findIndex(p => p.re.every((v, i) => Math.abs(v - (moved.re[i] ?? 0)) < 1e-9 && Math.abs((p.im[i] ?? 0) - (moved.im[i] ?? 0)) < 1e-9))
+    const y = points.findIndex(p =>
+      p.re.every(
+        (v, i) =>
+          Math.abs(v - (moved.re[i] ?? 0)) < 1e-9 &&
+          Math.abs((p.im[i] ?? 0) - (moved.im[i] ?? 0)) < 1e-9,
+      ),
+    )
 
     perm.push(y)
   }
@@ -153,8 +183,14 @@ function pointPermutation(u: Operator): number[] {
 // exact rational weights: numerators over one bigint denominator
 type Weights = { num: bigint[]; den: bigint }
 
-function applyKernel(w: Weights, kernel: readonly (readonly number[])[], divisor: number): Weights {
-  const num = kernel.map(row => row.reduce((s, k, c) => s + BigInt(k) * (w.num[c] ?? 0n), 0n))
+function applyKernel(
+  w: Weights,
+  kernel: readonly (readonly number[])[],
+  divisor: number,
+): Weights {
+  const num = kernel.map(row =>
+    row.reduce((s, k, c) => s + BigInt(k) * (w.num[c] ?? 0n), 0n),
+  )
 
   return { num, den: w.den * BigInt(divisor) }
 }
@@ -171,16 +207,24 @@ function moveFirst(w: Weights, perm: readonly number[]): Weights {
 
 function weightGap(w: Weights, s: State9): number {
   const v = vectorOf(s)
-  const exact = gridWeights({ re: v.re, im: v.im, points: twoRolePoints() })
+  const exact = gridWeights({
+    re: v.re,
+    im: v.im,
+    points: twoRolePoints(),
+  })
 
-  return Math.max(...exact.map((x, i) => Math.abs(x - Number(w.num[i] ?? 0n) / Number(w.den))))
+  return Math.max(
+    ...exact.map((x, i) =>
+      Math.abs(x - Number(w.num[i] ?? 0n) / Number(w.den)),
+    ),
+  )
 }
 
 export default experiment({
   id: 'quantum/tsirelson-reached-exactly',
   code: 'E-QTM-0133',
   title:
-    'Tsirelson\'s bound reached exactly by a finite history: from |0>|+>, three like meetings with one link move before the third take the knot to Schmidt weights (1/2, 1/2, 0) and CHSH = 2 sqrt 2, in exact Eisenstein arithmetic and in the model\'s own grid weights and kernels; no word with one or two meetings does, and the love-fear singlet phase never does',
+    "Tsirelson's bound reached exactly by a finite history: from |0>|+>, three like meetings with one link move before the third take the knot to Schmidt weights (1/2, 1/2, 0) and CHSH = 2 sqrt 2, in exact Eisenstein arithmetic and in the model's own grid weights and kernels; no word with one or two meetings does, and the love-fear singlet phase never does",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',
@@ -189,7 +233,15 @@ export default experiment({
     const group = cliffordGroup()
     const stab = stabilizerStates(group)
     const zero = stab[0]!
-    const identityIndex = group.findIndex(g => g.den3 === 0 && g.num.every((x, i) => (i % 4 === 0 ? x[0] === 1 && x[1] === 0 : x[0] === 0 && x[1] === 0)))
+    const identityIndex = group.findIndex(
+      g =>
+        g.den3 === 0 &&
+        g.num.every((x, i) =>
+          i % 4 === 0
+            ? x[0] === 1 && x[1] === 0
+            : x[0] === 0 && x[1] === 0,
+        ),
+    )
 
     // G1, the census
     let hits1 = 0
@@ -214,13 +266,16 @@ export default experiment({
           if (isHalfHalf(applySwapPhase(applyFirst(group[j]!, s2)))) {
             hits3++
             // the witness: the first hit with no link move between the first two meetings
-            witness = witness ?? (i === identityIndex ? { t, d1: i, d2: j } : undefined)
+            witness =
+              witness ??
+              (i === identityIndex ? { t, d1: i, d2: j } : undefined)
           }
         }
       }
     }
 
-    const g1 = hits1 === 0 && hits2 === 0 && hits3 > 0 && witness !== undefined
+    const g1 =
+      hits1 === 0 && hits2 === 0 && hits3 > 0 && witness !== undefined
 
     // the witness, exactly and in the model's weights
     const w = witness ?? { t: 0, d1: 0, d2: 0 }
@@ -229,28 +284,53 @@ export default experiment({
     const e1 = applySwapPhase(e0)
     const e2 = applySwapPhase(applyFirst(group[w.d1]!, e1))
     const e3 = applySwapPhase(applyFirst(d2, e2))
-    const kernels = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
+    const kernels = fearKernels({
+      like: OMEGA,
+      unlike: OMEGA,
+      likeExchanged: false,
+    })!
     const perm = pointPermutation(floatOf(d2))
     const permD1 = pointPermutation(floatOf(group[w.d1]!))
-    const startWeights = gridWeights({ ...vectorOf(e0), points: twoRolePoints() })
-    let m: Weights = { num: startWeights.map(x => BigInt(Math.round(9 * x))), den: 9n }
+    const startWeights = gridWeights({
+      ...vectorOf(e0),
+      points: twoRolePoints(),
+    })
+
+    let m: Weights = {
+      num: startWeights.map(x => BigInt(Math.round(9 * x))),
+      den: 9n,
+    }
+
     const gaps: number[] = [weightGap(m, e0)]
 
     m = applyKernel(m, kernels.like, kernels.likeDivisor)
     gaps.push(weightGap(m, e1))
-    m = applyKernel(moveFirst(m, permD1), kernels.like, kernels.likeDivisor)
+    m = applyKernel(
+      moveFirst(m, permD1),
+      kernels.like,
+      kernels.likeDivisor,
+    )
     gaps.push(weightGap(m, e2))
-    m = applyKernel(moveFirst(m, perm), kernels.like, kernels.likeDivisor)
+    m = applyKernel(
+      moveFirst(m, perm),
+      kernels.like,
+      kernels.likeDivisor,
+    )
     gaps.push(weightGap(m, e3))
 
     const sum = m.num.reduce((a, b) => a + b, 0n)
     const square = m.num.reduce((a, b) => a + b * b, 0n)
     const pureCount = sum === m.den && 9n * square === sum * sum
-    const g2 = perm.length === 9 && Math.max(...gaps) <= 1e-12 && pureCount
+    const g2 =
+      perm.length === 9 && Math.max(...gaps) <= 1e-12 && pureCount
 
     // the model's density from its weights
     const points = twoRolePoints()
-    const rho: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+    const rho: Operator = {
+      n: 9,
+      re: new Float64Array(81),
+      im: new Float64Array(81),
+    }
 
     m.num.forEach((x, i) => {
       const weight = Number(x) / Number(m.den)
@@ -263,17 +343,32 @@ export default experiment({
     })
 
     const schmidt = hermitianValues(reducedFirst(rho)).reverse()
-    const g3 = isHalfHalf(e3) && Math.abs((schmidt[0] ?? 0) - 0.5) <= 1e-12 && Math.abs((schmidt[1] ?? 0) - 0.5) <= 1e-12 && Math.abs(schmidt[2] ?? 1) <= 1e-12
+    const g3 =
+      isHalfHalf(e3) &&
+      Math.abs((schmidt[0] ?? 0) - 0.5) <= 1e-12 &&
+      Math.abs((schmidt[1] ?? 0) - 0.5) <= 1e-12 &&
+      Math.abs(schmidt[2] ?? 1) <= 1e-12
     const seesaw = densitySeeSaw(rho, 8)
     const exactForm = pureChshExact(schmidt)
-    const g4 = Math.abs(seesaw - TSIRELSON) <= 1e-9 && Math.abs(exactForm - TSIRELSON) <= 1e-12
+    const g4 =
+      Math.abs(seesaw - TSIRELSON) <= 1e-9 &&
+      Math.abs(exactForm - TSIRELSON) <= 1e-12
 
     // G5: the move is a model grid move, in E-QTM-0131's convention A (grid index = phase-point index)
-    const tables = new Set(gridMoves().act.map(t => Array.from(t).join('')))
+    const tables = new Set(
+      gridMoves().act.map(t => Array.from(t).join('')),
+    )
     const g5 = tables.has(perm.join(''))
 
     // G6, controls
-    const singletWord = applySingletPhase(applyFirst(d2, applySingletPhase(applyFirst(group[w.d1]!, applySingletPhase(e0)))))
+    const singletWord = applySingletPhase(
+      applyFirst(
+        d2,
+        applySingletPhase(
+          applyFirst(group[w.d1]!, applySingletPhase(e0)),
+        ),
+      ),
+    )
     const noMove = applySwapPhase(applySwapPhase(applySwapPhase(e0)))
     const g6 = !isHalfHalf(singletWord) && !isHalfHalf(noMove)
 
@@ -283,7 +378,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'three like meetings with one link move before the third take |0>|+> to Schmidt weights (1/2, 1/2, 0) exactly, so CHSH = 2 sqrt 2 is reached by a finite history, in exact Eisenstein arithmetic and in the model\'s own grid weights, like kernel and grid move; no word of one or two meetings reaches it, and the love-fear singlet phase never does',
+        "three like meetings with one link move before the third take |0>|+> to Schmidt weights (1/2, 1/2, 0) exactly, so CHSH = 2 sqrt 2 is reached by a finite history, in exact Eisenstein arithmetic and in the model's own grid weights, like kernel and grid move; no word of one or two meetings reaches it, and the love-fear singlet phase never does",
       metrics: {
         wordsOneMeeting: stab.length,
         wordsTwoMeetings: stab.length * group.length,
@@ -305,14 +400,19 @@ export default experiment({
         chshExactForm: exactForm,
         tsirelson: TSIRELSON,
         linkMoveIsModelGridMove: g5 ? 1 : 0,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         singletWordHalfHalf: isHalfHalf(singletWord) ? 1 : 0,
         noMoveWordHalfHalf: isHalfHalf(noMove) ? 1 : 0,
       },
       notes:
-        'L2. FIRST RUN (2026-09-26, 3 s): every gate passes. 108 of the 559,872 three-meeting words from |0>|t> end at Schmidt (1/2, 1/2, 0) exactly (27 distinct states up to phase, E-QTM-0131), none of the 12 one-meeting or 2,592 two-meeting words does. The witness needs no link move between the first two meetings: U^2 |0>|+>, one link move on the first token, U again. In the model\'s own representation the knot\'s weights are whole numbers over 576 = 9 x 4^3 at the end, match the exact state to 3e-17 at every step, and pass the purity count exactly; the reduced density is diag(1/2, 1/2, 0) in its eigenbasis and the see-saw reads 2 sqrt 2 to 3e-15. So the Tsirelson bound is a value a like pair can hold, not only a limit. Which knit history gives a like pair three meetings with that link move between them is not asked. The love-fear word of the same shape does not reach it, as E-QTM-0131 proves it cannot.',
+        "L2. FIRST RUN (2026-09-26, 3 s): every gate passes. 108 of the 559,872 three-meeting words from |0>|t> end at Schmidt (1/2, 1/2, 0) exactly (27 distinct states up to phase, E-QTM-0131), none of the 12 one-meeting or 2,592 two-meeting words does. The witness needs no link move between the first two meetings: U^2 |0>|+>, one link move on the first token, U again. In the model's own representation the knot's weights are whole numbers over 576 = 9 x 4^3 at the end, match the exact state to 3e-17 at every step, and pass the purity count exactly; the reduced density is diag(1/2, 1/2, 0) in its eigenbasis and the see-saw reads 2 sqrt 2 to 3e-15. So the Tsirelson bound is a value a like pair can hold, not only a limit. Which knit history gives a like pair three meetings with that link move between them is not asked. The love-fear word of the same shape does not reach it, as E-QTM-0131 proves it cannot.",
     })
   },
 })

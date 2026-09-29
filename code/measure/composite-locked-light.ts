@@ -27,10 +27,22 @@
 // eigenvector psi of W_K has d(omega)/dK = <s(j1)>_psi exactly (omega = -arg lambda): the group velocity is the mean
 // copy direction of the love in the eigenvector. No finite difference.
 
-import { complexEigenvalues, complexShiftedSolve } from '@/code/algebra/linear/complex-eigen'
+import {
+  complexEigenvalues,
+  complexShiftedSolve,
+} from '@/code/algebra/linear/complex-eigen'
 import { eigen2, walkSymbol } from '@/code/measure/composite-light'
 import { canonical } from '@/code/rule/lattice-qed'
-import { decodeDrift, driftBeat, driftBeatBack, driftStart, fluxLinks, gaussHoldsDrift, type DriftCostSpec, type DriftRegisters } from '@/code/rule/drift-cost-line'
+import {
+  decodeDrift,
+  driftBeat,
+  driftBeatBack,
+  driftStart,
+  fluxLinks,
+  gaussHoldsDrift,
+  type DriftCostSpec,
+  type DriftRegisters,
+} from '@/code/rule/drift-cost-line'
 
 type Complex = [number, number]
 
@@ -49,32 +61,40 @@ export const V_MAX = 0.5
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const wrap = (t: number): number => t - 2 * Math.PI * Math.round(t / (2 * Math.PI))
+export const wrap = (t: number): number =>
+  t - 2 * Math.PI * Math.round(t / (2 * Math.PI))
 
 export const lightN = (D: number): number => 2 * D + 1
 
-export const photonC = (D: number): number => Math.sqrt(4 / (3 * (2 * D + 1)))
+export const photonC = (D: number): number =>
+  Math.sqrt(4 / (3 * (2 * D + 1)))
 
 // the token's band E(k), cos E = cos(k) / 2, and its group velocity
-export const tokenBand = (k: number): number => Math.acos(Math.cos(k) / 2)
+export const tokenBand = (k: number): number =>
+  Math.acos(Math.cos(k) / 2)
 
-export const tokenVelocity = (k: number): number => Math.sin(k) / Math.sqrt(4 - Math.cos(k) ** 2)
+export const tokenVelocity = (k: number): number =>
+  Math.sin(k) / Math.sqrt(4 - Math.cos(k) ** 2)
 
 // the opposite-branch pair's edge at total momentum K, max_q [E(q + K/2) - E(q - K/2)], in closed form
-export const pairEdge = (K: number): number => 2 * Math.asin(Math.sin(K / 2) / 2)
+export const pairEdge = (K: number): number =>
+  2 * Math.asin(Math.sin(K / 2) / 2)
 
 // the particle-hole continuum of a sea filled to k_F = pi / 2: top (at the inflection point) minus bottom (the ends)
-export const seaWidth = (K: number): number => pairEdge(K) - Math.asin(Math.sin(K) / 2)
+export const seaWidth = (K: number): number =>
+  pairEdge(K) - Math.asin(Math.sin(K) / 2)
 
 // the line token's eigenphases (theta in (-pi, pi], sorted), read from the E-FRC-0186 symbol with one x substep
-export const linePhases = (k: number): [number, number] => eigen2(walkSymbol([k, 0, 0], [0])).theta
+export const linePhases = (k: number): [number, number] =>
+  eigen2(walkSymbol([k, 0, 0], [0])).theta
 
 // ---------------------------------------------------------------------------------------------------------
 // the pair's Bloch operator
 
 export type Dense = { n: number; re: Float64Array; im: Float64Array }
 
-export const pairIndex = (r: number, j1: number, j2: number): number => r * 4 + j1 * 2 + j2
+export const pairIndex = (r: number, j1: number, j2: number): number =>
+  r * 4 + j1 * 2 + j2
 
 export const ringDistance = (M: number, r: number): number => {
   const d = mod(r, M)
@@ -107,7 +127,11 @@ export function pairMatrix(M: number, K: number, N: number): Dense {
             const ph = -K * STEP[k1]!
             const pr = Math.cos(ph)
             const pi = Math.sin(ph)
-            const row = pairIndex(mod(r + STEP[k2]! - STEP[k1]!, M), k1, k2)
+            const row = pairIndex(
+              mod(r + STEP[k2]! - STEP[k1]!, M),
+              k1,
+              k2,
+            )
 
             re[row * n + col] = re[row * n + col]! + br * pr - bi * pi
             im[row * n + col] = im[row * n + col]! + br * pi + bi * pr
@@ -135,7 +159,9 @@ export function apply(W: Dense, x: Vec): Vec {
       const wr = W.re[r * n + c]!
       const wi = W.im[r * n + c]!
 
-      if (wr === 0 && wi === 0) continue
+      if (wr === 0 && wi === 0) {
+        continue
+      }
 
       sr += wr * x.re[c]! - wi * x.im[c]!
       si += wr * x.im[c]! + wi * x.re[c]!
@@ -150,6 +176,7 @@ export function apply(W: Dense, x: Vec): Vec {
 
 export function unitarityDefect(W: Dense): number {
   const { n } = W
+
   let worst = 0
 
   for (let a = 0; a < n; a++) {
@@ -177,7 +204,9 @@ export function unitarityDefect(W: Dense): number {
 const normalize = (x: Vec): Vec => {
   let s = 0
 
-  for (let i = 0; i < x.re.length; i++) s += x.re[i]! ** 2 + x.im[i]! ** 2
+  for (let i = 0; i < x.re.length; i++) {
+    s += x.re[i]! ** 2 + x.im[i]! ** 2
+  }
 
   s = Math.sqrt(s)
 
@@ -221,26 +250,50 @@ export type BranchPoint = {
 }
 
 // Rayleigh quotient iteration from x on W; returns the eigenpair it settles on
-export function settle(W: Dense, start: Vec, rounds = 5): { vector: Vec; lambda: Complex; residual: number } {
+export function settle(
+  W: Dense,
+  start: Vec,
+  rounds = 5,
+): { vector: Vec; lambda: Complex; residual: number } {
   let x = normalize(start)
   let lambda = dot(x, apply(W, x))
 
   for (let t = 0; t < rounds; t++) {
-    const y = complexShiftedSolve({ re: W.re, im: W.im, n: W.n, shift: [lambda[0] + 1e-13, lambda[1]], b: x })
+    const y = complexShiftedSolve({
+      re: W.re,
+      im: W.im,
+      n: W.n,
+      shift: [lambda[0] + 1e-13, lambda[1]],
+      b: x,
+    })
 
-    x = normalize({ re: Float64Array.from(y.re), im: Float64Array.from(y.im) })
+    x = normalize({
+      re: Float64Array.from(y.re),
+      im: Float64Array.from(y.im),
+    })
     lambda = dot(x, apply(W, x))
   }
 
   const wx = apply(W, x)
+
   let res = 0
 
-  for (let i = 0; i < W.n; i++) res += (wx.re[i]! - (lambda[0] * x.re[i]! - lambda[1] * x.im[i]!)) ** 2 + (wx.im[i]! - (lambda[0] * x.im[i]! + lambda[1] * x.re[i]!)) ** 2
+  for (let i = 0; i < W.n; i++) {
+    res +=
+      (wx.re[i]! - (lambda[0] * x.re[i]! - lambda[1] * x.im[i]!)) ** 2 +
+      (wx.im[i]! - (lambda[0] * x.im[i]! + lambda[1] * x.re[i]!)) ** 2
+  }
 
   return { vector: x, lambda, residual: Math.sqrt(res) }
 }
 
-export function readPoint(M: number, K: number, vector: Vec, lambda: Complex, residual: number): BranchPoint {
+export function readPoint(
+  M: number,
+  K: number,
+  vector: Vec,
+  lambda: Complex,
+  residual: number,
+): BranchPoint {
   let velocity = 0
   let meanString = 0
   let chiShare = 0
@@ -266,13 +319,28 @@ export function readPoint(M: number, K: number, vector: Vec, lambda: Complex, re
 
   const theta = Math.atan2(lambda[1], lambda[0])
 
-  return { K, theta, offset: wrap(OMEGA_PHASE - theta), velocity, residual, meanString, chiShare, vector }
+  return {
+    K,
+    theta,
+    offset: wrap(OMEGA_PHASE - theta),
+    velocity,
+    residual,
+    meanString,
+    chiShare,
+    vector,
+  }
 }
 
 // the branch through chi_0 (the lightest neutral pair: no string, rest phase exactly arg omega) at each K, each
 // settled from chi_0 itself when `fromRest`, else followed along the list from the previous K
-export function lightestBranch(M: number, N: number, Ks: readonly number[], fromRest: boolean): BranchPoint[] {
+export function lightestBranch(
+  M: number,
+  N: number,
+  Ks: readonly number[],
+  fromRest: boolean,
+): BranchPoint[] {
   const out: BranchPoint[] = []
+
   let x = comoving(M, 0)
 
   for (const K of Ks) {
@@ -287,16 +355,25 @@ export function lightestBranch(M: number, N: number, Ks: readonly number[], from
 }
 
 // eigenphases of W within `tol` of arg omega, and the nearest other one (circular distance)
-export function restCount(W: Dense, tol: number): { count: number; nearestOther: number } {
+export function restCount(
+  W: Dense,
+  tol: number,
+): { count: number; nearestOther: number } {
   const ev = complexEigenvalues({ re: W.re, im: W.im, n: W.n })
+
   let count = 0
   let nearestOther = Infinity
 
   for (let i = 0; i < ev.re.length; i++) {
-    const d = Math.abs(wrap(Math.atan2(ev.im[i]!, ev.re[i]!) - OMEGA_PHASE))
+    const d = Math.abs(
+      wrap(Math.atan2(ev.im[i]!, ev.re[i]!) - OMEGA_PHASE),
+    )
 
-    if (d < tol) count++
-    else nearestOther = Math.min(nearestOther, d)
+    if (d < tol) {
+      count++
+    } else {
+      nearestOther = Math.min(nearestOther, d)
+    }
   }
 
   return { count, nearestOther }
@@ -305,7 +382,16 @@ export function restCount(W: Dense, tol: number): { count: number; nearestOther:
 // ---------------------------------------------------------------------------------------------------------
 // the free pair on a ring of L docks at K = 2 pi m / L: its spectrum against the sum set of two token bands
 
-export function freeSumSet(L: number, m: number): { gap: number; restMultiplicity: number; oppositeCount: number; edge: number; edgeClosed: number } {
+export function freeSumSet(
+  L: number,
+  m: number,
+): {
+  gap: number
+  restMultiplicity: number
+  oppositeCount: number
+  edge: number
+  edgeClosed: number
+} {
   const K = (2 * Math.PI * m) / L
   const W = pairMatrix(L, K, 0)
   const ev = complexEigenvalues({ re: W.re, im: W.im, n: W.n })
@@ -317,10 +403,15 @@ export function freeSumSet(L: number, m: number): { gap: number; restMultiplicit
     const t1 = linePhases(K - q)
     const t2 = linePhases(q)
 
-    for (const a of t1) for (const b of t2) analytic.push(a + b)
+    for (const a of t1) {
+      for (const b of t2) {
+        analytic.push(a + b)
+      }
+    }
   }
 
   const used = new Uint8Array(numeric.length)
+
   let gap = 0
 
   for (const a of analytic) {
@@ -328,7 +419,9 @@ export function freeSumSet(L: number, m: number): { gap: number; restMultiplicit
     let d = Infinity
 
     numeric.forEach((x, i) => {
-      if (used[i]) return
+      if (used[i]) {
+        return
+      }
 
       const e = Math.abs(wrap(x - a))
 
@@ -344,6 +437,7 @@ export function freeSumSet(L: number, m: number): { gap: number; restMultiplicit
 
   const W0 = pairMatrix(L, 0, 0)
   const rest = restCount(W0, 1e-9)
+
   let oppositeCount = 0
   let edge = 0
 
@@ -356,27 +450,43 @@ export function freeSumSet(L: number, m: number): { gap: number; restMultiplicit
     }
   }
 
-  return { gap, restMultiplicity: rest.count, oppositeCount, edge, edgeClosed: pairEdge(K) }
+  return {
+    gap,
+    restMultiplicity: rest.count,
+    oppositeCount,
+    edge,
+    edgeClosed: pairEdge(K),
+  }
 }
 
 // the edge on the continuum: max over q of E(q + K/2) - E(q - K/2), a grid then a golden-section refinement
 export function edgeByMaximum(K: number): number {
-  const f = (q: number): number => tokenBand(q + K / 2) - tokenBand(q - K / 2)
+  const f = (q: number): number =>
+    tokenBand(q + K / 2) - tokenBand(q - K / 2)
   const G = 20000
+
   let best = 0
 
-  for (let i = 1; i < G; i++) if (f((Math.PI * i) / G) > f((Math.PI * best) / G)) best = i
+  for (let i = 1; i < G; i++) {
+    if (f((Math.PI * i) / G) > f((Math.PI * best) / G)) {
+      best = i
+    }
+  }
 
   let lo = (Math.PI * (best - 1)) / G
   let hi = (Math.PI * (best + 1)) / G
+
   const g = (Math.sqrt(5) - 1) / 2
 
   for (let t = 0; t < 200; t++) {
     const a = hi - g * (hi - lo)
     const b = lo + g * (hi - lo)
 
-    if (f(a) > f(b)) hi = b
-    else lo = a
+    if (f(a) > f(b)) {
+      hi = b
+    } else {
+      lo = a
+    }
   }
 
   return f((lo + hi) / 2)
@@ -388,21 +498,48 @@ export function edgeByMaximum(K: number): number {
 // a K = 0 combination sum_r w_r chi_r on a ring (every dock x, the love at x, the fear at x + r, the flux +1 on the
 // r links between them); one exact beat must return 4 omega zeta_(2N)^(-r) times each component, and the inverse
 // beat the start times 16
-export function comovingExact(D: number, ring: number, weights: readonly bigint[]): { exact: boolean; back: boolean; gauss: boolean; registers: number } {
+export function comovingExact(
+  D: number,
+  ring: number,
+  weights: readonly bigint[],
+): {
+  exact: boolean
+  back: boolean
+  gauss: boolean
+  registers: number
+} {
   const N = lightN(D)
-  const spec: DriftCostSpec = { ring, kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', cost: N, root: 2 * N * N }
+  const spec: DriftCostSpec = {
+    ring,
+    kinds: ['love', 'fear'],
+    convention: 'C',
+    unlike: 'knit',
+    cost: N,
+    root: 2 * N * N,
+  }
   const entries: { registers: DriftRegisters; weight: bigint }[] = []
 
   weights.forEach((w, r) => {
-    if (w === 0n) return
+    if (w === 0n) {
+      return
+    }
 
     for (let x = 0; x < ring; x++) {
       const f = new Array<number>(ring).fill(0)
 
-      for (let t = 0; t < r; t++) f[(x + t) % ring] = 1
+      for (let t = 0; t < r; t++) {
+        f[(x + t) % ring] = 1
+      }
 
-      entries.push({ registers: { x: [x, (x + r) % ring], j: [0, 0], f }, weight: w })
-      entries.push({ registers: { x: [x, (x + r) % ring], j: [1, 1], f: f.slice() }, weight: -w })
+      entries.push({
+        registers: { x: [x, (x + r) % ring], j: [0, 0], f },
+        weight: w,
+      })
+
+      entries.push({
+        registers: { x: [x, (x + r) % ring], j: [1, 1], f: f.slice() },
+        weight: -w,
+      })
     }
   })
 
@@ -410,7 +547,9 @@ export function comovingExact(D: number, ring: number, weights: readonly bigint[
   const start = new Map([...st.amp].map(([i, v]) => [i, v.slice()]))
   const k = st.k
   const unit = k / spec.root
-  const gauss = [...start.keys()].every(i => gaussHoldsDrift(spec, decodeDrift(spec, i)))
+  const gauss = [...start.keys()].every(i =>
+    gaussHoldsDrift(spec, decodeDrift(spec, i)),
+  )
 
   driftBeat(st)
 
@@ -420,19 +559,26 @@ export function comovingExact(D: number, ring: number, weights: readonly bigint[
 
   for (const i of keys) {
     const s = start.get(i)
-    const got = canonical(st.amp.get(i) ?? new Array<bigint>(k).fill(0n), k)
+    const got = canonical(
+      st.amp.get(i) ?? new Array<bigint>(k).fill(0n),
+      k,
+    )
     const want = new Array<bigint>(k).fill(0n)
 
     if (s) {
       const l = fluxLinks(decodeDrift(spec, i).f)
       const e = mod(k / 3 - N * l * unit, k)
 
-      for (let a = 0; a < k; a++) want[(a + e) % k] = want[(a + e) % k]! + 4n * s[a]!
+      for (let a = 0; a < k; a++) {
+        want[(a + e) % k] = want[(a + e) % k]! + 4n * s[a]!
+      }
     }
 
     const wc = canonical(want, k)
 
-    if (!got.every((x, a) => x === wc[a])) exact = false
+    if (!got.every((x, a) => x === wc[a])) {
+      exact = false
+    }
   }
 
   driftBeatBack(st)
@@ -441,10 +587,18 @@ export function comovingExact(D: number, ring: number, weights: readonly bigint[
 
   for (const i of keys) {
     const s = start.get(i)
-    const got = canonical(st.amp.get(i) ?? new Array<bigint>(k).fill(0n), k)
-    const want = canonical(s ? s.map(x => 16n * x) : new Array<bigint>(k).fill(0n), k)
+    const got = canonical(
+      st.amp.get(i) ?? new Array<bigint>(k).fill(0n),
+      k,
+    )
+    const want = canonical(
+      s ? s.map(x => 16n * x) : new Array<bigint>(k).fill(0n),
+      k,
+    )
 
-    if (!got.every((x, a) => x === want[a])) back = false
+    if (!got.every((x, a) => x === want[a])) {
+      back = false
+    }
   }
 
   return { exact, back, gauss, registers: start.size }
@@ -455,7 +609,10 @@ export function comovingExact(D: number, ring: number, weights: readonly bigint[
 
 type M2 = ReturnType<typeof walkSymbol>
 
-const cmul = (x: Complex, y: Complex): Complex => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cmul = (x: Complex, y: Complex): Complex => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 
 // theta_hi in [0, pi]: det U = omega^6 = 1, so the eigenphases are +- theta
 export function huskTheta(p: readonly number[]): number {
@@ -465,24 +622,48 @@ export function huskTheta(p: readonly number[]): number {
 }
 
 // the det identity, the parity conjugation and the comoving eigenvector at every point of a side-`side` torus
-export function huskIdentities(side: number): { detGap: number; parityGap: number; comovingGap: number } {
+export function huskIdentities(side: number): {
+  detGap: number
+  parityGap: number
+  comovingGap: number
+} {
   let detGap = 0
   let parityGap = 0
   let comovingGap = 0
 
   for (let i = 0; i < side ** 3; i++) {
-    const p = [i % side, Math.floor(i / side) % side, Math.floor(i / (side * side))].map(a => (2 * Math.PI * a) / side)
+    const p = [
+      i % side,
+      Math.floor(i / side) % side,
+      Math.floor(i / (side * side)),
+    ].map(a => (2 * Math.PI * a) / side)
     const u = walkSymbol(p)
     const v = walkSymbol(p.map(a => -a))
     const t = eigen2(u).theta
-    const det: Complex = [u[0][0] * u[3][0] - u[0][1] * u[3][1] - (u[1][0] * u[2][0] - u[1][1] * u[2][1]), u[0][0] * u[3][1] + u[0][1] * u[3][0] - (u[1][0] * u[2][1] + u[1][1] * u[2][0])]
+    const det: Complex = [
+      u[0][0] * u[3][0] -
+        u[0][1] * u[3][1] -
+        (u[1][0] * u[2][0] - u[1][1] * u[2][1]),
+      u[0][0] * u[3][1] +
+        u[0][1] * u[3][0] -
+        (u[1][0] * u[2][1] + u[1][1] * u[2][0]),
+    ]
 
-    detGap = Math.max(detGap, Math.abs(wrap(t[0] + t[1])), Math.hypot(det[0] - 1, det[1]))
+    detGap = Math.max(
+      detGap,
+      Math.abs(wrap(t[0] + t[1])),
+      Math.hypot(det[0] - 1, det[1]),
+    )
 
     // sigma_x u sigma_x = [u11, u10, u01, u00] against v
     const sx: M2 = [u[3], u[2], u[1], u[0]]
 
-    for (let e = 0; e < 4; e++) parityGap = Math.max(parityGap, Math.hypot(sx[e]![0] - v[e]![0], sx[e]![1] - v[e]![1]))
+    for (let e = 0; e < 4; e++) {
+      parityGap = Math.max(
+        parityGap,
+        Math.hypot(sx[e]![0] - v[e]![0], sx[e]![1] - v[e]![1]),
+      )
+    }
 
     // (u (x) v) chi, chi = |00> - |11>, against chi
     const out: Complex[] = []
@@ -503,7 +684,12 @@ export function huskIdentities(side: number): { detGap: number; parityGap: numbe
       [-1, 0],
     ]
 
-    for (let e = 0; e < 4; e++) comovingGap = Math.max(comovingGap, Math.hypot(out[e]![0] - want[e]![0], out[e]![1] - want[e]![1]))
+    for (let e = 0; e < 4; e++) {
+      comovingGap = Math.max(
+        comovingGap,
+        Math.hypot(out[e]![0] - want[e]![0], out[e]![1] - want[e]![1]),
+      )
+    }
   }
 
   return { detGap, parityGap, comovingGap }
@@ -511,13 +697,21 @@ export function huskIdentities(side: number): { detGap: number; parityGap: numbe
 
 // the label states the pair keeps at K = 0 for EVERY relative momentum: the null space of sum_p X_p^dagger X_p,
 // X_p = U(p) (x) U(-p) - det U(p); returns the four eigenvalues of that sum, ascending, divided by the sample count
-export function commonRestSpectrum(ps: readonly (readonly number[])[], order?: readonly number[]): number[] {
+export function commonRestSpectrum(
+  ps: readonly (readonly number[])[],
+  order?: readonly number[],
+): number[] {
   const re = new Float64Array(16)
   const im = new Float64Array(16)
 
   for (const p of ps) {
     const u = order ? walkSymbol(p, order) : walkSymbol(p)
-    const v = order ? walkSymbol(p.map(a => -a), order) : walkSymbol(p.map(a => -a))
+    const v = order
+      ? walkSymbol(
+          p.map(a => -a),
+          order,
+        )
+      : walkSymbol(p.map(a => -a))
     const det = cmul(u[0], u[3])
     const off = cmul(u[1], u[2])
     const d: Complex = [det[0] - off[0], det[1] - off[1]]
@@ -525,7 +719,10 @@ export function commonRestSpectrum(ps: readonly (readonly number[])[], order?: r
 
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
-        const e = cmul(u[(row >> 1) * 2 + (col >> 1)]!, v[(row & 1) * 2 + (col & 1)]!)
+        const e = cmul(
+          u[(row >> 1) * 2 + (col >> 1)]!,
+          v[(row & 1) * 2 + (col & 1)]!,
+        )
 
         X.push(row === col ? [e[0] - d[0], e[1] - d[1]] : e)
       }
@@ -558,12 +755,19 @@ export function commonRestSpectrum(ps: readonly (readonly number[])[], order?: r
 // the largest directional group velocity of the token along `dir` (a central difference of theta_hi, h = 1e-6),
 // and the pair's opposite-branch edge at |K| = kappa along `dir` over kappa; each a grid of side G then a
 // deterministic pattern search
-function maximize(f: (p: readonly number[]) => number, G: number): number {
+function maximize(
+  f: (p: readonly number[]) => number,
+  G: number,
+): number {
   let best = [0, 0, 0]
   let value = -Infinity
 
   for (let i = 0; i < G ** 3; i++) {
-    const p = [i % G, Math.floor(i / G) % G, Math.floor(i / (G * G))].map(a => -Math.PI + (2 * Math.PI * (a + 0.5)) / G)
+    const p = [
+      i % G,
+      Math.floor(i / G) % G,
+      Math.floor(i / (G * G)),
+    ].map(a => -Math.PI + (2 * Math.PI * (a + 0.5)) / G)
     const v = f(p)
 
     if (v > value) {
@@ -599,46 +803,81 @@ function maximize(f: (p: readonly number[]) => number, G: number): number {
   return value
 }
 
-export function directionalVmax(dir: readonly number[], G: number): number {
+export function directionalVmax(
+  dir: readonly number[],
+  G: number,
+): number {
   const n = Math.hypot(...dir)
   const u = dir.map(x => x / n)
   const h = 1e-6
 
-  return maximize(p => (huskTheta(p.map((a, i) => a + h * u[i]!)) - huskTheta(p.map((a, i) => a - h * u[i]!))) / (2 * h), G)
+  return maximize(
+    p =>
+      (huskTheta(p.map((a, i) => a + h * u[i]!)) -
+        huskTheta(p.map((a, i) => a - h * u[i]!))) /
+      (2 * h),
+    G,
+  )
 }
 
-export function directionalEdge(dir: readonly number[], kappa: number, G: number): number {
+export function directionalEdge(
+  dir: readonly number[],
+  kappa: number,
+  G: number,
+): number {
   const n = Math.hypot(...dir)
   const u = dir.map(x => x / n)
 
-  return maximize(p => huskTheta(p.map((a, i) => a + (kappa / 2) * u[i]!)) - huskTheta(p.map((a, i) => a - (kappa / 2) * u[i]!)), G) / kappa
+  return (
+    maximize(
+      p =>
+        huskTheta(p.map((a, i) => a + (kappa / 2) * u[i]!)) -
+        huskTheta(p.map((a, i) => a - (kappa / 2) * u[i]!)),
+      G,
+    ) / kappa
+  )
 }
 
 // the particle-hole continuum of a husk sea: branch theta_hi filled below its median on a side-`side` torus, the
 // excitations at K = (2 pi / side) e_x: every hole p in the sea with p + K outside; returns (top - bottom) / top
-export function huskSeaSpread(side: number): { top: number; bottom: number; ratio: number; pairs: number; K: number } {
+export function huskSeaSpread(side: number): {
+  top: number
+  bottom: number
+  ratio: number
+  pairs: number
+  K: number
+} {
   const count = side ** 3
   const theta = new Float64Array(count)
 
   for (let i = 0; i < count; i++) {
-    const p = [i % side, Math.floor(i / side) % side, Math.floor(i / (side * side))].map(a => (2 * Math.PI * a) / side)
+    const p = [
+      i % side,
+      Math.floor(i / side) % side,
+      Math.floor(i / (side * side)),
+    ].map(a => (2 * Math.PI * a) / side)
 
     theta[i] = huskTheta(p)
   }
 
   const sorted = Float64Array.from(theta).sort()
   const mu = (sorted[count / 2 - 1]! + sorted[count / 2]!) / 2
+
   let top = -Infinity
   let bottom = Infinity
   let pairs = 0
 
   for (let i = 0; i < count; i++) {
-    if (!(theta[i]! < mu)) continue
+    if (!(theta[i]! < mu)) {
+      continue
+    }
 
     const x = i % side
     const j = i - x + ((x + 1) % side)
 
-    if (theta[j]! < mu) continue
+    if (theta[j]! < mu) {
+      continue
+    }
 
     const e = theta[j]! - theta[i]!
 
@@ -647,11 +886,20 @@ export function huskSeaSpread(side: number): { top: number; bottom: number; rati
     pairs++
   }
 
-  return { top, bottom, ratio: (top - bottom) / top, pairs, K: (2 * Math.PI) / side }
+  return {
+    top,
+    bottom,
+    ratio: (top - bottom) / top,
+    pairs,
+    K: (2 * Math.PI) / side,
+  }
 }
 
 // the same continuum for the line sea filled to k_F = pi / 2, sampled densely (the closed form is seaWidth)
-export function lineSeaSpread(K: number, samples: number): { top: number; bottom: number } {
+export function lineSeaSpread(
+  K: number,
+  samples: number,
+): { top: number; bottom: number } {
   let top = -Infinity
   let bottom = Infinity
 

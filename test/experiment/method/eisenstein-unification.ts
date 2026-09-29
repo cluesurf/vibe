@@ -70,16 +70,34 @@ import {
 
 // a + b omega
 type Eisenstein = readonly [number, number]
-const times = (p: Eisenstein, q: Eisenstein): Eisenstein => [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0] - p[1] * q[1]]
-const plus = (p: Eisenstein, q: Eisenstein): Eisenstein => [p[0] + q[0], p[1] + q[1]]
-const norm = (p: Eisenstein): number => p[0] * p[0] - p[0] * p[1] + p[1] * p[1]
-const power = (p: Eisenstein, n: number): Eisenstein => (n === 0 ? [1, 0] : times(p, power(p, n - 1)))
+
+const times = (p: Eisenstein, q: Eisenstein): Eisenstein => [
+  p[0] * q[0] - p[1] * q[1],
+  p[0] * q[1] + p[1] * q[0] - p[1] * q[1],
+]
+const plus = (p: Eisenstein, q: Eisenstein): Eisenstein => [
+  p[0] + q[0],
+  p[1] + q[1],
+]
+const norm = (p: Eisenstein): number =>
+  p[0] * p[0] - p[0] * p[1] + p[1] * p[1]
+const power = (p: Eisenstein, n: number): Eisenstein =>
+  n === 0 ? [1, 0] : times(p, power(p, n - 1))
 const OMEGA: Eisenstein = [0, 1]
 const ONE: Eisenstein = [1, 0]
-const complex = (p: Eisenstein): [number, number] => [p[0] - p[1] / 2, (p[1] * Math.sqrt(3)) / 2]
+const complex = (p: Eisenstein): [number, number] => [
+  p[0] - p[1] / 2,
+  (p[1] * Math.sqrt(3)) / 2,
+]
 
-function column(u: Operator, c: number): { re: number[]; im: number[] } {
-  return { re: Array.from({ length: 9 }, (_, r) => u.re[r * 9 + c] ?? 0), im: Array.from({ length: 9 }, (_, r) => u.im[r * 9 + c] ?? 0) }
+function column(
+  u: Operator,
+  c: number,
+): { re: number[]; im: number[] } {
+  return {
+    re: Array.from({ length: 9 }, (_, r) => u.re[r * 9 + c] ?? 0),
+    im: Array.from({ length: 9 }, (_, r) => u.im[r * 9 + c] ?? 0),
+  }
 }
 
 function density(v: { re: number[]; im: number[] }): Operator {
@@ -99,7 +117,7 @@ export default experiment({
   id: 'method/eisenstein-unification',
   code: 'E-MTH-0009',
   title:
-    'the model\'s threes are one ring and its twenty-fours one group: charge, color center, knot, fear walk, both meeting phases and every exact chance live in Z[omega] (rest eigenvalues 1 and omega, rest mass |1 - omega| = sqrt 3, CHSH sqrt 7 and (2 + 4 sqrt 2)/3 proven), the role grid\'s SL(2,3) is the Hurwitz units\' 2T (24 isomorphisms), whose omega acts on the D4 bulk as triality; the 24-beat period is a design choice (the round robin\'s own period is 11)',
+    "the model's threes are one ring and its twenty-fours one group: charge, color center, knot, fear walk, both meeting phases and every exact chance live in Z[omega] (rest eigenvalues 1 and omega, rest mass |1 - omega| = sqrt 3, CHSH sqrt 7 and (2 + 4 sqrt 2)/3 proven), the role grid's SL(2,3) is the Hurwitz units' 2T (24 isomorphisms), whose omega acts on the D4 bulk as triality; the 24-beat period is a design choice (the round robin's own period is 11)",
   category: 'method',
   substrates: ['3434'],
   depth: 'L2',
@@ -108,6 +126,7 @@ export default experiment({
     // the ring
     const knot = plus(plus(ONE, OMEGA), power(OMEGA, 2))
     const knotHolds = knot[0] === 0 && knot[1] === 0
+
     let lockGap = 0
 
     for (let loves = 0; loves <= 6; loves++) {
@@ -115,19 +134,32 @@ export default experiment({
         const q = loves - fears
         const center = complex(power(OMEGA, ((q % 3) + 3) % 3))
 
-        lockGap = Math.max(lockGap, Math.hypot(Math.cos((2 * Math.PI * q) / 3) - center[0], Math.sin((2 * Math.PI * q) / 3) - center[1]))
+        lockGap = Math.max(
+          lockGap,
+          Math.hypot(
+            Math.cos((2 * Math.PI * q) / 3) - center[0],
+            Math.sin((2 * Math.PI * q) / 3) - center[1],
+          ),
+        )
       }
     }
 
     // the coin, in halves: diagonal 1 + omega, off-diagonal 1 - omega; determinant ((1+w)^2 - (1-w)^2)/4 = w
     const diagonal: Eisenstein = plus(ONE, OMEGA)
     const off: Eisenstein = [1, -1]
-    const determinantTimesFour = plus(times(diagonal, diagonal), times(off, off).map(x => -x) as unknown as Eisenstein)
-    const determinantIsOmega = determinantTimesFour[0] === 0 && determinantTimesFour[1] === 4
+    const determinantTimesFour = plus(
+      times(diagonal, diagonal),
+      times(off, off).map(x => -x) as unknown as Eisenstein,
+    )
+    const determinantIsOmega =
+      determinantTimesFour[0] === 0 && determinantTimesFour[1] === 4
     const traceIsUnit = norm(diagonal) === 1
     const restMass = Math.tan(Math.PI / 3)
-    const massIsNorm = Math.abs(restMass * restMass - norm([1, -1])) < 1e-12
+    const massIsNorm =
+      Math.abs(restMass * restMass - norm([1, -1])) < 1e-12
+
     let spreadSum = 0
+
     const n = 100000
 
     for (let i = 0; i < n; i++) {
@@ -144,11 +176,22 @@ export default experiment({
     const first: Eisenstein = [2, 1]
     const rest: Eisenstein = [-1, 1]
     const amplitudeGap = Math.max(
-      Math.hypot(singlet.re[0]! - complex(first)[0] / 3, singlet.im[0]! - complex(first)[1] / 3),
-      Math.hypot(singlet.re[4]! - complex(rest)[0] / 3, singlet.im[4]! - complex(rest)[1] / 3),
-      Math.hypot(singlet.re[8]! - complex(rest)[0] / 3, singlet.im[8]! - complex(rest)[1] / 3),
+      Math.hypot(
+        singlet.re[0]! - complex(first)[0] / 3,
+        singlet.im[0]! - complex(first)[1] / 3,
+      ),
+      Math.hypot(
+        singlet.re[4]! - complex(rest)[0] / 3,
+        singlet.im[4]! - complex(rest)[1] / 3,
+      ),
+      Math.hypot(
+        singlet.re[8]! - complex(rest)[0] / 3,
+        singlet.im[8]! - complex(rest)[1] / 3,
+      ),
     )
-    const chances = [1, 2, 3].map(m => norm(plus([2, 0], power(OMEGA, m))) / 9)
+    const chances = [1, 2, 3].map(
+      m => norm(plus([2, 0], power(OMEGA, m))) / 9,
+    )
     const colorChsh = roleChsh(density(singlet))
     const jordanBound = (4 * Math.SQRT2 + 2) / 3
     // the bound is met: one 2 x 2 block in the optimal angle, one 1 x 1 block
@@ -156,12 +199,28 @@ export default experiment({
 
     // the swap phase on |0 1>
     const swapped = column(swapPhase((2 * Math.PI) / 3), 1)
-    const weights = [swapped.re[1]! ** 2 + swapped.im[1]! ** 2, swapped.re[3]! ** 2 + swapped.im[3]! ** 2]
-    const weightsExact = Math.abs(weights[0]! - norm(plus(ONE, OMEGA)) / 4) < 1e-12 && Math.abs(weights[1]! - norm([1, -1]) / 4) < 1e-12
+    const weights = [
+      swapped.re[1]! ** 2 + swapped.im[1]! ** 2,
+      swapped.re[3]! ** 2 + swapped.im[3]! ** 2,
+    ]
+    const weightsExact =
+      Math.abs(weights[0]! - norm(plus(ONE, OMEGA)) / 4) < 1e-12 &&
+      Math.abs(weights[1]! - norm([1, -1]) / 4) < 1e-12
     const swapChsh = roleChsh(density(swapped))
-    const swapExact = Math.abs(swapChsh - 2 * Math.sqrt(1 + 4 * weights[0]! * weights[1]!)) < 1e-9 && Math.abs(swapChsh - Math.sqrt(7)) < 1e-9
+    const swapExact =
+      Math.abs(
+        swapChsh - 2 * Math.sqrt(1 + 4 * weights[0]! * weights[1]!),
+      ) < 1e-9 && Math.abs(swapChsh - Math.sqrt(7)) < 1e-9
     const minusOmega: Eisenstein = [0, -1]
-    const meetingChances = [1, 2, 3].map(m => norm(plus(ONE, power(minusOmega, m).map(x => -x) as unknown as Eisenstein)) / 4)
+    const meetingChances = [1, 2, 3].map(
+      m =>
+        norm(
+          plus(
+            ONE,
+            power(minusOmega, m).map(x => -x) as unknown as Eisenstein,
+          ),
+        ) / 4,
+    )
     const ring = norm([1, -3]) / 16
 
     // the group
@@ -169,17 +228,40 @@ export default experiment({
     const unitCensus = orderCensus(units.map(quaternionOrder))
     const sl = specialLinearMod3()
     const slCensus = orderCensus(sl.map(mod3Order))
-    const sameCensus = JSON.stringify(unitCensus) === JSON.stringify(slCensus)
+    const sameCensus =
+      JSON.stringify(unitCensus) === JSON.stringify(slCensus)
     const isomorphisms = binaryTetrahedralIsomorphisms()
     const moves = gridMoves()
-    const quaternionGroup = units.filter(u => [1, 2, 4].includes(quaternionOrder(u)))
+    const quaternionGroup = units.filter(u =>
+      [1, 2, 4].includes(quaternionOrder(u)),
+    )
     const q8Keys = new Set(quaternionGroup.map(quaternionKey))
-    const inverse = (u: readonly [number, number, number, number]): readonly [number, number, number, number] => [u[0], -u[1], -u[2], -u[3]]
-    const q8Normal = units.every(g => quaternionGroup.every(h => q8Keys.has(quaternionKey(multiplyQuaternions(multiplyQuaternions(g, h), inverse(g))))))
-    const omegaOutsideQ8 = !q8Keys.has(quaternionKey(OMEGA_QUATERNION)) && quaternionOrder(OMEGA_QUATERNION) === 3
+    const inverse = (
+      u: readonly [number, number, number, number],
+    ): readonly [number, number, number, number] => [
+      u[0],
+      -u[1],
+      -u[2],
+      -u[3],
+    ]
+    const q8Normal = units.every(g =>
+      quaternionGroup.every(h =>
+        q8Keys.has(
+          quaternionKey(
+            multiplyQuaternions(multiplyQuaternions(g, h), inverse(g)),
+          ),
+        ),
+      ),
+    )
+    const omegaOutsideQ8 =
+      !q8Keys.has(quaternionKey(OMEGA_QUATERNION)) &&
+      quaternionOrder(OMEGA_QUATERNION) === 3
     const f4 = doubledClosure(f4Roots().map(doubledReflection))
-    const d4 = doubledClosure(f4Roots().filter(isLongRoot).map(doubledReflection))
+    const d4 = doubledClosure(
+      f4Roots().filter(isLongRoot).map(doubledReflection),
+    )
     const left = leftMultiplication(OMEGA_QUATERNION)
+
     let outerOrder = 1
     let p = left
 
@@ -188,11 +270,21 @@ export default experiment({
       outerOrder++
     }
 
-    const triality = f4.has(matrixKey(left)) && !d4.has(matrixKey(left)) && outerOrder === 3
+    const triality =
+      f4.has(matrixKey(left)) &&
+      !d4.has(matrixKey(left)) &&
+      outerOrder === 3
 
     // the twenty-fours
-    const forced = [rootsD4().length, units.length, sl.length, f4Roots().length / 2, 1 + 5 + 7 + 11]
-    const forcedAll24 = forced.every(x => x === 24) && f4.size === 2 * 24 * 24
+    const forced = [
+      rootsD4().length,
+      units.length,
+      sl.length,
+      f4Roots().length / 2,
+      1 + 5 + 7 + 11,
+    ]
+    const forcedAll24 =
+      forced.every(x => x === 24) && f4.size === 2 * 24 * 24
     const turnOrder = (() => {
       let perm = [...ROUND_ROBIN_TURN]
       let k = 1
@@ -204,7 +296,11 @@ export default experiment({
 
       return k
     })()
-    const matchingZeroBeats = FOLDED_WALK.map((power, t) => [power % turnOrder, t] as const).filter(([m]) => m === 0).map(([, t]) => t)
+    const matchingZeroBeats = FOLDED_WALK.map(
+      (power, t) => [power % turnOrder, t] as const,
+    )
+      .filter(([m]) => m === 0)
+      .map(([, t]) => t)
 
     const solved =
       knotHolds &&
@@ -234,7 +330,7 @@ export default experiment({
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'one ring and one group: in Z[omega] the knot is 1 + omega + omega^2 = 0, the center phase of Q = (L - F)/3 is omega^(L - F), the fear walk coin is SWAP^(2/3) with determinant omega, rest eigenvalues 1 and omega, rest mass tan(pi/3) = |1 - omega| = sqrt 3, top speed 1/2 and spread 1 - sqrt 3 / 2, the singlet phase makes the maximally entangled two-role state (chances 1/3, 1/3, 1, CHSH (2 + 4 sqrt 2)/3 at the Jordan bound) and the swap phase Schmidt weights 1/4, 3/4 (CHSH sqrt 7, chances sin^2(n pi / 6)); the role grid\'s SL(2,3) and the Hurwitz units are one group 2T (same order census, 24 isomorphisms), whose Q8 is normal with quotient generated by omega, and left multiplication by omega is a triality of the D4 bulk (in W(F4), outside W(D4), order 3 modulo it); every forced 24 is |2T|, while the 24-beat period is chosen: the round robin turn has order 11 and its matching 0 recurs 4 times in the folded 24',
+        "one ring and one group: in Z[omega] the knot is 1 + omega + omega^2 = 0, the center phase of Q = (L - F)/3 is omega^(L - F), the fear walk coin is SWAP^(2/3) with determinant omega, rest eigenvalues 1 and omega, rest mass tan(pi/3) = |1 - omega| = sqrt 3, top speed 1/2 and spread 1 - sqrt 3 / 2, the singlet phase makes the maximally entangled two-role state (chances 1/3, 1/3, 1, CHSH (2 + 4 sqrt 2)/3 at the Jordan bound) and the swap phase Schmidt weights 1/4, 3/4 (CHSH sqrt 7, chances sin^2(n pi / 6)); the role grid's SL(2,3) and the Hurwitz units are one group 2T (same order census, 24 isomorphisms), whose Q8 is normal with quotient generated by omega, and left multiplication by omega is a triality of the D4 bulk (in W(F4), outside W(D4), order 3 modulo it); every forced 24 is |2T|, while the 24-beat period is chosen: the round robin turn has order 11 and its matching 0 recurs 4 times in the folded 24",
       metrics: {
         colorChsh: Number(colorChsh.toFixed(12)),
         colorChshClosedForm: Number(jordanBound.toFixed(12)),
@@ -255,7 +351,7 @@ export default experiment({
         d4Order: d4.size,
       },
       notes:
-        'L2. Forced by the mathematics: the 24 D4 root directions (the long F4 roots, 2T times 1 + i), the 24 Hurwitz units (the short roots, 2T itself), SL(2,3) (2T by the exceptional isomorphism), the 24 reflections of W(F4) (one per pair of the 48 roots, and the sum of degrees minus one) and the 24 facets of the 24-cell (shell 1, E-MTH-0007, the dual 24-cell) all count 2T or its coset among the F4 roots. The 3 of 2T / Q8 and the triality of D4 are proven one Z3 (left multiplication by the Hurwitz omega); color\'s center and the charge unit 1/3 are the same abstract Z3 but no rule links them to it. Chosen: the coin and singlet angles 2 pi / 3 (every Eisenstein fact of the quantum layer follows from this one choice), Q = (L - F)/3, and the 24-beat period. No rule in the code identifies the bulk triality L_omega with the color center omega^q: that identification is open, a possible constraint on the knit rather than a fact of it. The CHSH closed forms rest on the states read off the repo\'s own operators; the see-saw of code/measure/role-bell meets both to 1e-9 and Jordan\'s lemma bounds the color value from above, so (2 + 4 sqrt 2)/3 is the maximum, not only a lower bound.',
+        "L2. Forced by the mathematics: the 24 D4 root directions (the long F4 roots, 2T times 1 + i), the 24 Hurwitz units (the short roots, 2T itself), SL(2,3) (2T by the exceptional isomorphism), the 24 reflections of W(F4) (one per pair of the 48 roots, and the sum of degrees minus one) and the 24 facets of the 24-cell (shell 1, E-MTH-0007, the dual 24-cell) all count 2T or its coset among the F4 roots. The 3 of 2T / Q8 and the triality of D4 are proven one Z3 (left multiplication by the Hurwitz omega); color's center and the charge unit 1/3 are the same abstract Z3 but no rule links them to it. Chosen: the coin and singlet angles 2 pi / 3 (every Eisenstein fact of the quantum layer follows from this one choice), Q = (L - F)/3, and the 24-beat period. No rule in the code identifies the bulk triality L_omega with the color center omega^q: that identification is open, a possible constraint on the knit rather than a fact of it. The CHSH closed forms rest on the states read off the repo's own operators; the see-saw of code/measure/role-bell meets both to 1e-9 and Jordan's lemma bounds the color value from above, so (2 + 4 sqrt 2)/3 is the maximum, not only a lower bound.",
     })
   },
 })

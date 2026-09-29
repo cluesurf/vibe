@@ -67,24 +67,27 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const complexes: { name: string; mesh: Mesh; directions: number[][] }[] =
-      [
-        {
-          name: 'square',
-          mesh: squareMesh({ side: 8 }),
-          directions: SQUARE_DIRECTIONS,
-        },
-        {
-          name: 'cubic',
-          mesh: cubicMesh({ side: 6 }),
-          directions: CUBIC_DIRECTIONS,
-        },
-        {
-          name: 'd4',
-          mesh: d4Mesh({ side: 6 }),
-          directions: rootsD4(),
-        },
-      ]
+    const complexes: {
+      name: string
+      mesh: Mesh
+      directions: number[][]
+    }[] = [
+      {
+        name: 'square',
+        mesh: squareMesh({ side: 8 }),
+        directions: SQUARE_DIRECTIONS,
+      },
+      {
+        name: 'cubic',
+        mesh: cubicMesh({ side: 6 }),
+        directions: CUBIC_DIRECTIONS,
+      },
+      {
+        name: 'd4',
+        mesh: d4Mesh({ side: 6 }),
+        directions: rootsD4(),
+      },
+    ]
 
     let lawExactEverywhere = true
     let allPartitionsCarryFlux = true
@@ -207,7 +210,8 @@ export default experiment({
       rotateMomentum.every(v => v === 1) &&
       pairMomentum.every(v => v === 0)
 
-    const ok = lawUniversal && momentumDiscriminates && lossyBreaksEverywhere
+    const ok =
+      lawUniversal && momentumDiscriminates && lossyBreaksEverywhere
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -227,7 +231,9 @@ export default experiment({
         rotateKeepsMomentumOnAll: rotateMomentum.every(v => v === 1)
           ? 1
           : 0,
-        pairKeepsMomentumOnNone: pairMomentum.every(v => v === 0) ? 1 : 0,
+        pairKeepsMomentumOnNone: pairMomentum.every(v => v === 0)
+          ? 1
+          : 0,
       },
       control: {
         lossyBreaksEverywhere: lossyBreaksEverywhere ? 1 : 0,

@@ -68,17 +68,37 @@ import { makeColorWeave } from '@/code/rule/color-weave'
 import { isometricTable } from '@/code/rule/isometric-knit'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { makeLivingKernel } from '@/code/measure/living-pair-kernel'
-import { sparseConditions, vacuumCycle, wakeSeries } from '@/code/measure/sparse-living-vacuum'
+import {
+  sparseConditions,
+  vacuumCycle,
+  wakeSeries,
+} from '@/code/measure/sparse-living-vacuum'
 import { d4BoxCell } from '@/code/substrate/d4-box'
-import { characterForcing, coinData, huskForcing, integerDeterminant, uniformStore } from '@/code/measure/varying-vacuum'
-import { conjugated, equivarianceDefect, lawMatrices, lawsOf, readTransport } from '@/code/measure/varying-transport'
+import {
+  characterForcing,
+  coinData,
+  huskForcing,
+  integerDeterminant,
+  uniformStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  conjugated,
+  equivarianceDefect,
+  lawMatrices,
+  lawsOf,
+  readTransport,
+} from '@/code/measure/varying-transport'
 
 const FRAME = [0, 1, 10, 11]
 const COMMITTED_LOVE = [33, 160, 565, 1508]
 const COMMITTED_FEAR = [27, 163, 581, 1501]
 const WAKE_SIDE = 9
 
-function wakeOf(side: number, store: Int8Array, tone: number): { perPeriod: number[]; byDirection: number[] } {
+function wakeOf(
+  side: number,
+  store: Int8Array,
+  tone: number,
+): { perPeriod: number[]; byDirection: number[] } {
   const weave = makeColorWeave({ side, table: 'bind' })
   const kernel = makeLivingKernel(weave)
   const layout = separatedLayout(weave)
@@ -88,10 +108,20 @@ function wakeOf(side: number, store: Int8Array, tone: number): { perPeriod: numb
   const byDirection: number[] = []
 
   for (let d = 0; d < 24; d++) {
-    const series = wakeSeries(kernel, store, layout, center * 24 + d, tone, 96)
+    const series = wakeSeries(
+      kernel,
+      store,
+      layout,
+      center * 24 + d,
+      tone,
+      96,
+    )
 
     series.forEach((v, t) => {
-      perPeriod[Math.floor(t / 24)] = Math.max(perPeriod[Math.floor(t / 24)] as number, v)
+      perPeriod[Math.floor(t / 24)] = Math.max(
+        perPeriod[Math.floor(t / 24)]!,
+        v,
+      )
     })
     byDirection.push(Math.max(...series))
   }
@@ -110,25 +140,38 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
     const n = table.permutations.length
     const everything = Array.from({ length: n }, (_, i) => i)
-    const stabilizerOf = (lines: readonly number[]): number[] => everything.filter(g => lines.every(l => lines.includes((coins.lineImage[g] as Int8Array)[l] as number)))
+    const stabilizerOf = (lines: readonly number[]): number[] =>
+      everything.filter(g =>
+        lines.every(l => lines.includes(coins.lineImage[g]![l]!)),
+      )
 
     // S1
     let leastIrreducible = 13
+
     const irreducibleOfLeast: number[][] = []
 
     for (let mask = 1; mask < 4096; mask++) {
-      const lines = Array.from({ length: 12 }, (_, l) => l).filter(l => (mask >> l) & 1)
+      const lines = Array.from({ length: 12 }, (_, l) => l).filter(
+        l => (mask >> l) & 1,
+      )
 
-      if (lines.length > leastIrreducible) continue
+      if (lines.length > leastIrreducible) {
+        continue
+      }
 
       const f = characterForcing(coins, stabilizerOf(lines))
 
-      if (f.quadratics !== 1) continue
+      if (f.quadratics !== 1) {
+        continue
+      }
 
       if (lines.length < leastIrreducible) {
         leastIrreducible = lines.length
@@ -139,7 +182,10 @@ export default experiment({
     }
 
     const frameStabilizer = stabilizerOf(FRAME)
-    const frameForcing = { ...characterForcing(coins, frameStabilizer), ...huskForcing(coins, frameStabilizer) }
+    const frameForcing = {
+      ...characterForcing(coins, frameStabilizer),
+      ...huskForcing(coins, frameStabilizer),
+    }
     const s1 =
       leastIrreducible === 4 &&
       irreducibleOfLeast.length === 3 &&
@@ -157,40 +203,73 @@ export default experiment({
       const store = uniformStore(side ** 4, FRAME)
       const layout = separatedLayout(weave)
       const cond = sparseConditions(weave, store, layout)
-      const cycle = vacuumCycle(makeLivingKernel(weave), store, layout, cond.bothLines)
+      const cycle = vacuumCycle(
+        makeLivingKernel(weave),
+        store,
+        layout,
+        cond.bothLines,
+      )
 
       return { side, cond, cycle }
     })
-    const s2 = cycles.every(c => c.cond.momentumDocks === 0 && c.cond.vetoFailures === 0 && c.cycle.exact)
+    const s2 = cycles.every(
+      c =>
+        c.cond.momentumDocks === 0 &&
+        c.cond.vetoFailures === 0 &&
+        c.cycle.exact,
+    )
 
     log('s2')
 
     // S3: the uniformly oriented frame's C-even symmetry (every stored root to a stored root, or every one to the
     // reverse of one, with charge conjugation) and the sign-averaged frame's (every frame line to a frame line)
     const orientedGroup = everything.filter(g => {
-      const signs = FRAME.map(l => (FRAME.includes((coins.lineImage[g] as Int8Array)[l] as number) ? ((coins.lineSign[g] as Int8Array)[l] as number) : 0))
+      const signs = FRAME.map(l =>
+        FRAME.includes(coins.lineImage[g]![l]!)
+          ? coins.lineSign[g]![l]!
+          : 0,
+      )
 
       return signs.every(s => s === 1) || signs.every(s => s === -1)
     })
-    const withC = orientedGroup.filter(g => (coins.lineSign[g] as Int8Array)[FRAME[0] as number] === -1).length
-    const orientedForcing = { ...characterForcing(coins, orientedGroup), ...huskForcing(coins, orientedGroup) }
-    const s3 = orientedGroup.length === 48 && withC === 24 && orientedForcing.quadratics === 2 && frameStabilizer.length === 384 && frameForcing.quadratics === 1
+    const withC = orientedGroup.filter(
+      g => coins.lineSign[g]![FRAME[0]!] === -1,
+    ).length
+    const orientedForcing = {
+      ...characterForcing(coins, orientedGroup),
+      ...huskForcing(coins, orientedGroup),
+    }
+    const s3 =
+      orientedGroup.length === 48 &&
+      withC === 24 &&
+      orientedForcing.quadratics === 2 &&
+      frameStabilizer.length === 384 &&
+      frameForcing.quadratics === 1
 
     log('s3')
 
     // XT, HA, HB: the transport
     const table4 = isometricTable()
-    const oriented = lawMatrices(table4, lawsOf(Array.from({ length: 12 }, (_, l) => (FRAME.includes(l) ? 1 : 0))))
+    const oriented = lawMatrices(
+      table4,
+      lawsOf(
+        Array.from({ length: 12 }, (_, l) =>
+          FRAME.includes(l) ? 1 : 0,
+        ),
+      ),
+    )
     // the 16 products of the four frame reflections: the W(F4) element that negates exactly the chosen frame roots and
     // keeps the others (the frame spans R^4, so the images of its four roots determine the element)
     const products: number[] = []
 
     for (let mask = 0; mask < 16; mask++) {
       const g = everything.find(x => {
-        const li = coins.lineImage[x] as Int8Array
-        const ls = coins.lineSign[x] as Int8Array
+        const li = coins.lineImage[x]!
+        const ls = coins.lineSign[x]!
 
-        return FRAME.every((l, k) => li[l] === l && ls[l] === ((mask >> k) & 1 ? -1 : 1))
+        return FRAME.every(
+          (l, k) => li[l] === l && ls[l] === ((mask >> k) & 1 ? -1 : 1),
+        )
       })
 
       products.push(g ?? -1)
@@ -203,11 +282,19 @@ export default experiment({
       return (
         g >= 0 &&
         coins.order[g] === (k === 0 ? 1 : 2) &&
-        integerDeterminant(coins.doubled[g] as number[][]) === 16 * (-1) ** k &&
-        (coins.doubled[g] as number[][]).reduce((s, row, i) => s + (row[i] as number), 0) === 2 * (4 - 2 * k)
+        integerDeterminant(coins.doubled[g] as number[][]) ===
+          16 * (-1) ** k &&
+        (coins.doubled[g] as number[][]).reduce(
+          (s, row, i) => s + row[i]!,
+          0,
+        ) ===
+          2 * (4 - 2 * k)
       )
     })
-    const averaged: [Float64Array, Float64Array] = [new Float64Array(72 * 72), new Float64Array(72 * 72)]
+    const averaged: [Float64Array, Float64Array] = [
+      new Float64Array(72 * 72),
+      new Float64Array(72 * 72),
+    ]
 
     for (const g of products) {
       const p = table.permutations[g] as number[]
@@ -215,25 +302,44 @@ export default experiment({
       for (const phase of [0, 1] as const) {
         const m = conjugated(oriented[phase], p)
 
-        for (let i = 0; i < m.length; i++) averaged[phase][i] = (averaged[phase][i] as number) + (m[i] as number) / 16
+        for (let i = 0; i < m.length; i++) {
+          averaged[phase][i] = averaged[phase][i]! + m[i]! / 16
+        }
       }
     }
 
-    const perms = (group: readonly number[]): (readonly number[])[] => group.map(g => table.permutations[g] as number[])
-    const orientedDefect = Math.max(equivarianceDefect(oriented[0], perms(orientedGroup)), equivarianceDefect(oriented[1], perms(orientedGroup)))
+    const perms = (group: readonly number[]): (readonly number[])[] =>
+      group.map(g => table.permutations[g] as number[])
+    const orientedDefect = Math.max(
+      equivarianceDefect(oriented[0], perms(orientedGroup)),
+      equivarianceDefect(oriented[1], perms(orientedGroup)),
+    )
     // added after the first run (a reading, not a gate): the 24 that keep every stored root, alone, and the 24 that
     // reverse them, each followed by charge conjugation, which is what S3 derived
-    const keeping = orientedGroup.filter(g => (coins.lineSign[g] as Int8Array)[FRAME[0] as number] === 1)
-    const reversing = orientedGroup.filter(g => (coins.lineSign[g] as Int8Array)[FRAME[0] as number] === -1)
+    const keeping = orientedGroup.filter(
+      g => coins.lineSign[g]![FRAME[0]!] === 1,
+    )
+    const reversing = orientedGroup.filter(
+      g => coins.lineSign[g]![FRAME[0]!] === -1,
+    )
     const correctedDefect = Math.max(
       equivarianceDefect(oriented[0], perms(keeping)),
       equivarianceDefect(oriented[1], perms(keeping)),
       equivarianceDefect(oriented[0], perms(reversing), true),
       equivarianceDefect(oriented[1], perms(reversing), true),
     )
-    const orientedFull = Math.max(equivarianceDefect(oriented[0], table.permutations), equivarianceDefect(oriented[1], table.permutations))
-    const averagedDefect = Math.max(equivarianceDefect(averaged[0], perms(frameStabilizer)), equivarianceDefect(averaged[1], perms(frameStabilizer)))
-    const averagedFull = Math.max(equivarianceDefect(averaged[0], table.permutations), equivarianceDefect(averaged[1], table.permutations))
+    const orientedFull = Math.max(
+      equivarianceDefect(oriented[0], table.permutations),
+      equivarianceDefect(oriented[1], table.permutations),
+    )
+    const averagedDefect = Math.max(
+      equivarianceDefect(averaged[0], perms(frameStabilizer)),
+      equivarianceDefect(averaged[1], perms(frameStabilizer)),
+    )
+    const averagedFull = Math.max(
+      equivarianceDefect(averaged[0], table.permutations),
+      equivarianceDefect(averaged[1], table.permutations),
+    )
     const readOriented = readTransport(oriented)
     const readAveraged = readTransport(averaged)
     const xt =
@@ -260,19 +366,33 @@ export default experiment({
     const frameStore = uniformStore(WAKE_SIDE ** 4, FRAME)
     const love = wakeOf(WAKE_SIDE, frameStore, 1)
     const fear = wakeOf(WAKE_SIDE, frameStore, -1)
-    const noMore = (a: number[], b: number[]): boolean => a.every((x, p) => x <= (b[p] ?? 0))
-    const w = noMore(love.perPeriod, COMMITTED_LOVE) && noMore(fear.perPeriod, COMMITTED_FEAR)
+    const noMore = (a: number[], b: number[]): boolean =>
+      a.every((x, p) => x <= (b[p] ?? 0))
+    const w =
+      noMore(love.perPeriod, COMMITTED_LOVE) &&
+      noMore(fear.perPeriod, COMMITTED_FEAR)
 
     log('w')
 
     // reported: the wake against the number of stored orthogonal lines
-    const ladder = [[0], [0, 1], [0, 1, 10]].map(lines => ({ lines, wake: wakeOf(WAKE_SIDE, uniformStore(WAKE_SIDE ** 4, lines), 1) }))
+    const ladder = [[0], [0, 1], [0, 1, 10]].map(lines => ({
+      lines,
+      wake: wakeOf(WAKE_SIDE, uniformStore(WAKE_SIDE ** 4, lines), 1),
+    }))
 
     log('ladder')
 
-    const status = s1 && s2 && s3 && xt ? (ha && hb && w ? 'pass' : 'fail') : 'partial'
+    const status =
+      s1 && s2 && s3 && xt
+        ? ha && hb && w
+          ? 'pass'
+          : 'fail'
+        : 'partial'
     const list = (xs: readonly number[]): string => xs.join(', ')
-    const fmt = (r: Record<string, number>): string => ['charge', 'trace', 'sound', 'shear'].map(q => `${q} ${(r[q] ?? Number.NaN).toFixed(2)}`).join(', ')
+    const fmt = (r: Record<string, number>): string =>
+      ['charge', 'trace', 'sound', 'shear']
+        .map(q => `${q} ${(r[q] ?? Number.NaN).toFixed(2)}`)
+        .join(', ')
 
     return verdict({
       status,
@@ -285,13 +405,15 @@ export default experiment({
         frameBulk4: frameForcing.bulk4 ? 1 : 0,
         frameHusk4: frameForcing.husk4 ? 1 : 0,
         frameHuskShear: frameForcing.huskShear2 ? 1 : 0,
-        ...Object.fromEntries(cycles.flatMap(c => [
-          [`side${c.side}Units`, c.cond.units],
-          [`side${c.side}ZDocks`, c.cond.momentumDocks],
-          [`side${c.side}VetoFailures`, c.cond.vetoFailures],
-          [`side${c.side}CycleExact`, c.cycle.exact ? 1 : 0],
-          [`side${c.side}Period`, c.cycle.period],
-        ])),
+        ...Object.fromEntries(
+          cycles.flatMap(c => [
+            [`side${c.side}Units`, c.cond.units],
+            [`side${c.side}ZDocks`, c.cond.momentumDocks],
+            [`side${c.side}VetoFailures`, c.cond.vetoFailures],
+            [`side${c.side}CycleExact`, c.cycle.exact ? 1 : 0],
+            [`side${c.side}Period`, c.cycle.period],
+          ]),
+        ),
         orientedGroup: orientedGroup.length,
         orientedWithC: withC,
         orientedQuadratics: orientedForcing.quadratics,
@@ -306,22 +428,53 @@ export default experiment({
         averagedFullDefect: averagedFull,
         orientedInvariants: readOriented.invariants,
         averagedInvariants: readAveraged.invariants,
-        ...Object.fromEntries(['charge', 'trace', 'sound', 'shear'].flatMap(q => [
-          [`oriented_${q}_exponent3`, o3[q] ?? Number.NaN],
-          [`oriented_${q}_exponent5`, readOriented.five[q] ?? Number.NaN],
-          [`oriented_${q}_anisotropyLongest`, readOriented.anisotropy[q]?.at(-1) ?? Number.NaN],
-          [`averaged_${q}_exponent3`, a3[q] ?? Number.NaN],
-          [`averaged_${q}_exponent5`, readAveraged.five[q] ?? Number.NaN],
-          [`averaged_${q}_anisotropyLongest`, readAveraged.anisotropy[q]?.at(-1) ?? Number.NaN],
-        ])),
-        ...Object.fromEntries(love.perPeriod.map((x, p) => [`loveSide9Period${p + 1}`, x])),
-        ...Object.fromEntries(fear.perPeriod.map((x, p) => [`fearSide9Period${p + 1}`, x])),
+        ...Object.fromEntries(
+          ['charge', 'trace', 'sound', 'shear'].flatMap(q => [
+            [`oriented_${q}_exponent3`, o3[q] ?? Number.NaN],
+            [
+              `oriented_${q}_exponent5`,
+              readOriented.five[q] ?? Number.NaN,
+            ],
+            [
+              `oriented_${q}_anisotropyLongest`,
+              readOriented.anisotropy[q]?.at(-1) ?? Number.NaN,
+            ],
+            [`averaged_${q}_exponent3`, a3[q] ?? Number.NaN],
+            [
+              `averaged_${q}_exponent5`,
+              readAveraged.five[q] ?? Number.NaN,
+            ],
+            [
+              `averaged_${q}_anisotropyLongest`,
+              readAveraged.anisotropy[q]?.at(-1) ?? Number.NaN,
+            ],
+          ]),
+        ),
+        ...Object.fromEntries(
+          love.perPeriod.map((x, p) => [`loveSide9Period${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          fear.perPeriod.map((x, p) => [`fearSide9Period${p + 1}`, x]),
+        ),
         bareDirections: love.byDirection.filter(x => x === 1).length,
-        ...Object.fromEntries(ladder.map(l => [`ladder${l.lines.length}LinesPeriod1`, l.wake.perPeriod[0] ?? -1])),
-        ...Object.fromEntries(ladder.map(l => [`ladder${l.lines.length}LinesPeriod4`, l.wake.perPeriod[3] ?? -1])),
+        ...Object.fromEntries(
+          ladder.map(l => [
+            `ladder${l.lines.length}LinesPeriod1`,
+            l.wake.perPeriod[0] ?? -1,
+          ]),
+        ),
+        ...Object.fromEntries(
+          ladder.map(l => [
+            `ladder${l.lines.length}LinesPeriod4`,
+            l.wake.perPeriod[3] ?? -1,
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
-      control: { committedLovePeriod1: COMMITTED_LOVE[0] ?? 0, oneLinePeriod1: ladder[0]?.wake.perPeriod[0] ?? -1 },
+      control: {
+        committedLovePeriod1: COMMITTED_LOVE[0] ?? 0,
+        oneLinePeriod1: ladder[0]?.wake.perPeriod[0] ?? -1,
+      },
       notes: `L2. Gates: S1 ${s1}, S2 ${s2}, S3 ${s3}, XT ${xt}, HA ${ha}, HB ${hb}, W ${w}. Least irreducible line sets: size ${leastIrreducible}, ${JSON.stringify(irreducibleOfLeast)}; frame stabilizer ${frameStabilizer.length}, forcing bulk2 ${frameForcing.bulk2} bulk4 ${frameForcing.bulk4} husk4 ${frameForcing.husk4} husk shear ${frameForcing.huskShear2}. Cycles: ${cycles.map(c => `side ${c.side} units ${c.cond.units} (Z) ${c.cond.momentumDocks} veto failures ${c.cond.vetoFailures} exact ${c.cycle.exact} tallies ${c.cycle.tallies}`).join('; ')}. Oriented group ${orientedGroup.length} (${withC} with C), quadratics ${orientedForcing.quadratics}, quartics ${orientedForcing.quartics}; averaged (W(B4)) quadratics ${frameForcing.quadratics}, quartics ${frameForcing.quartics}. Instruments: reflection products exact ${exactProducts}, defects ${orientedDefect.toExponential(1)} (48, XT as registered, coin maps alone) and ${correctedDefect.toExponential(1)} (the 24 reversing ones followed by charge conjugation, the reading added after the first run) and ${averagedDefect.toExponential(1)} (384), against all 1,152 ${orientedFull.toExponential(2)} and ${averagedFull.toExponential(2)}, invariants ${readOriented.invariants} and ${readAveraged.invariants}. Oriented exponents (three rungs) ${fmt(o3)}; charge anisotropy per rung ${readOriented.anisotropy.charge?.map(x => x.toExponential(2)).join(', ')}. Sign-averaged ${fmt(a3)}; charge anisotropy per rung ${readAveraged.anisotropy.charge?.map(x => x.toExponential(2)).join(', ')}; shear per rung ${readAveraged.anisotropy.shear?.map(x => x.toExponential(2)).join(', ')}. Wake on side 9: love ${list(love.perPeriod)}, fear ${list(fear.perPeriod)}, bare directions ${love.byDirection.filter(x => x === 1).length}. Wake by stored orthogonal lines (love, first and fourth period): ${ladder.map(l => `${l.lines.length}: ${l.wake.perPeriod[0]}, ${l.wake.perPeriod[3]}`).join('; ')}; 4: ${love.perPeriod[0]}, ${love.perPeriod[3]}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

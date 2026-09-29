@@ -3,7 +3,9 @@
 // Used for the zitterbewegung trembling frequency and the Bloch oscillation frequency, which until
 // 2026-08-31 each carried their own copy of this transform.
 
-export function dominantAngularFrequency(input: { trace: number[] }): number {
+export function dominantAngularFrequency(input: {
+  trace: number[]
+}): number {
   const { trace } = input
   const n = trace.length
   const mean = trace.reduce((a, b) => a + b, 0) / n

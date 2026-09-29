@@ -26,7 +26,12 @@ const PAIRS: readonly (readonly [number, number])[] = [
   [1, 2],
 ]
 
-export type TripleStart = { x: readonly [number, number, number]; c: readonly [number, number, number]; j?: readonly [number, number, number]; amp: Complex }
+export type TripleStart = {
+  x: readonly [number, number, number]
+  c: readonly [number, number, number]
+  j?: readonly [number, number, number]
+  amp: Complex
+}
 
 export type TripleRun = {
   readonly ring: number
@@ -41,22 +46,33 @@ export type TripleRun = {
 }
 
 // a run with roles (roles = 27) or scalar (roles = 1, every meeting multiplies by `phase`)
-export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex; links?: readonly M3[]; start: readonly TripleStart[] }): TripleRun {
+export function tripleRun(input: {
+  ring: number
+  roles: 1 | 27
+  phase?: Complex
+  links?: readonly M3[]
+  start: readonly TripleStart[]
+}): TripleRun {
   const L = input.ring
   const R = input.roles
   const size = L * L * L * 8 * R
+
   let re = new Float64Array(size)
   let im = new Float64Array(size)
   let nre = new Float64Array(size)
   let nim = new Float64Array(size)
-  const at = (x1: number, x2: number, x3: number, c: number): number => (((x1 * L + x2) * L + x3) * 8 + c) * R
+
+  const at = (x1: number, x2: number, x3: number, c: number): number =>
+    (((x1 * L + x2) * L + x3) * 8 + c) * R
 
   for (const s of input.start) {
     const j = s.j ?? [0, 0, 0]
-    const i = at(s.x[0], s.x[1], s.x[2], 4 * s.c[0] + 2 * s.c[1] + s.c[2]) + (R === 27 ? 9 * j[0] + 3 * j[1] + j[2] : 0)
+    const i =
+      at(s.x[0], s.x[1], s.x[2], 4 * s.c[0] + 2 * s.c[1] + s.c[2]) +
+      (R === 27 ? 9 * j[0] + 3 * j[1] + j[2] : 0)
 
-    re[i] = (re[i] as number) + s.amp[0]
-    im[i] = (im[i] as number) + s.amp[1]
+    re[i] = re[i]! + s.amp[0]
+    im[i] = im[i]! + s.amp[1]
   }
 
   const u = meetingMatrix('like')
@@ -67,8 +83,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
 
     for (let a = 0; a < 3; a++) {
       for (let b = 0; b < 3; b++) {
-        out.re[3 * a + b] = g.re[3 * b + a] as number
-        out.im[3 * a + b] = -(g.im[3 * b + a] as number)
+        out.re[3 * a + b] = g.re[3 * b + a]!
+        out.im[3 * a + b] = -g.im[3 * b + a]!
       }
     }
 
@@ -77,13 +93,14 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
   const buf = new Float64Array(54)
   const tr = new Float64Array(27)
   const ti = new Float64Array(27)
+
   // apply U to the pair (p, q) of the 27 role amplitudes at offset o
   const meetPair = (o: number, p: number, q: number): void => {
     const stride = [9, 3, 1]
-    const sp = stride[p] as number
-    const sq = stride[q] as number
+    const sp = stride[p]!
+    const sq = stride[q]!
     const other = 3 - p - q
-    const so = stride[other] as number
+    const so = stride[other]!
 
     for (let k = 0; k < 3; k++) {
       for (let a = 0; a < 3; a++) {
@@ -93,11 +110,11 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
 
           for (let a2 = 0; a2 < 3; a2++) {
             for (let b2 = 0; b2 < 3; b2++) {
-              const mr = u.re[(3 * a + b) * 9 + 3 * a2 + b2] as number
-              const mi = u.im[(3 * a + b) * 9 + 3 * a2 + b2] as number
+              const mr = u.re[(3 * a + b) * 9 + 3 * a2 + b2]!
+              const mi = u.im[(3 * a + b) * 9 + 3 * a2 + b2]!
               const idx = o + a2 * sp + b2 * sq + k * so
-              const vr = re[idx] as number
-              const vi = im[idx] as number
+              const vr = re[idx]!
+              const vi = im[idx]!
 
               sr += mr * vr - mi * vi
               si += mr * vi + mi * vr
@@ -113,8 +130,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
     }
 
     for (let k = 0; k < 27; k++) {
-      re[o + k] = tr[k] as number
-      im[o + k] = ti[k] as number
+      re[o + k] = tr[k]!
+      im[o + k] = ti[k]!
     }
   }
 
@@ -130,15 +147,19 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
             const o = at(x1, x2, x3, c)
 
             for (const [p, q] of PAIRS) {
-              if (xs[p] !== xs[q] || cs[p] === cs[q]) continue
+              if (xs[p] !== xs[q] || cs[p] === cs[q]) {
+                continue
+              }
 
               if (R === 1) {
-                const vr = re[o] as number
-                const vi = im[o] as number
+                const vr = re[o]!
+                const vi = im[o]!
 
                 re[o] = phase[0] * vr - phase[1] * vi
                 im[o] = phase[0] * vi + phase[1] * vr
-              } else meetPair(o, p, q)
+              } else {
+                meetPair(o, p, q)
+              }
             }
           }
         }
@@ -149,8 +170,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
     for (let cell = 0; cell < L * L * L; cell++) {
       for (let r = 0; r < R; r++) {
         for (let k = 0; k < 8; k++) {
-          buf[k] = re[(cell * 8 + k) * R + r] as number
-          buf[8 + k] = im[(cell * 8 + k) * R + r] as number
+          buf[k] = re[(cell * 8 + k) * R + r]!
+          buf[8 + k] = im[(cell * 8 + k) * R + r]!
         }
 
         for (let c = 0; c < 8; c++) {
@@ -171,8 +192,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
               er = nr
             }
 
-            sr += er * (buf[d] as number) - ei * (buf[8 + d] as number)
-            si += er * (buf[8 + d] as number) + ei * (buf[d] as number)
+            sr += er * buf[d]! - ei * buf[8 + d]!
+            si += er * buf[8 + d]! + ei * buf[d]!
           }
 
           buf[16 + c] = sr
@@ -180,8 +201,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
         }
 
         for (let c = 0; c < 8; c++) {
-          re[(cell * 8 + c) * R + r] = buf[16 + c] as number
-          im[(cell * 8 + c) * R + r] = buf[24 + c] as number
+          re[(cell * 8 + c) * R + r] = buf[16 + c]!
+          im[(cell * 8 + c) * R + r] = buf[24 + c]!
         }
       }
     }
@@ -196,14 +217,16 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
           for (let c = 0; c < 8; c++) {
             const cs = [(c >> 2) & 1, (c >> 1) & 1, c & 1]
             const xs = [x1, x2, x3]
-            const ys = xs.map((x, t) => (x + STEP[cs[t] as 0 | 1] + L) % L)
+            const ys = xs.map(
+              (x, t) => (x + STEP[cs[t] as 0 | 1] + L) % L,
+            )
             const from = at(x1, x2, x3, c)
-            const to = at(ys[0] as number, ys[1] as number, ys[2] as number, c)
+            const to = at(ys[0]!, ys[1]!, ys[2]!, c)
 
             if (!links || R === 1) {
               for (let r = 0; r < R; r++) {
-                nre[to + r] = re[from + r] as number
-                nim[to + r] = im[from + r] as number
+                nre[to + r] = re[from + r]!
+                nim[to + r] = im[from + r]!
               }
 
               continue
@@ -211,14 +234,17 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
 
             // multiply each token's role factor by its crossing matrix
             for (let r = 0; r < 27; r++) {
-              tr[r] = re[from + r] as number
-              ti[r] = im[from + r] as number
+              tr[r] = re[from + r]!
+              ti[r] = im[from + r]!
             }
 
             for (let t = 0; t < 3; t++) {
-              const x = xs[t] as number
-              const g = cs[t] === 0 ? (links[x] as M3) : (inverses?.[(x - 1 + L) % L] as M3)
-              const stride = [9, 3, 1][t] as number
+              const x = xs[t]!
+              const g =
+                cs[t] === 0
+                  ? links[x]!
+                  : (inverses?.[(x - 1 + L) % L] as M3)
+              const stride = [9, 3, 1][t]!
               const cr = new Float64Array(27)
               const ci = new Float64Array(27)
 
@@ -227,12 +253,12 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
                 const base = r - digit * stride
 
                 for (let row = 0; row < 3; row++) {
-                  const gr = g.re[3 * row + digit] as number
-                  const gi = g.im[3 * row + digit] as number
+                  const gr = g.re[3 * row + digit]!
+                  const gi = g.im[3 * row + digit]!
                   const k = base + row * stride
 
-                  cr[k] = (cr[k] as number) + gr * (tr[r] as number) - gi * (ti[r] as number)
-                  ci[k] = (ci[k] as number) + gr * (ti[r] as number) + gi * (tr[r] as number)
+                  cr[k] = cr[k]! + gr * tr[r]! - gi * ti[r]!
+                  ci[k] = ci[k]! + gr * ti[r]! + gi * tr[r]!
                 }
               }
 
@@ -241,8 +267,8 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
             }
 
             for (let r = 0; r < 27; r++) {
-              nre[to + r] = tr[r] as number
-              nim[to + r] = ti[r] as number
+              nre[to + r] = tr[r]!
+              nim[to + r] = ti[r]!
             }
           }
         }
@@ -265,25 +291,36 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
 
     return Math.min(d, L - d)
   }
+
   const compactWeight = (near: number): number => {
     let total = 0
 
     for (let x1 = 0; x1 < L; x1++) {
       for (let x2 = 0; x2 < L; x2++) {
-        if (ringDistance(x1, x2) > near) continue
+        if (ringDistance(x1, x2) > near) {
+          continue
+        }
 
         for (let x3 = 0; x3 < L; x3++) {
-          if (ringDistance(x1, x3) > near || ringDistance(x2, x3) > near) continue
+          if (
+            ringDistance(x1, x3) > near ||
+            ringDistance(x2, x3) > near
+          ) {
+            continue
+          }
 
           const o = at(x1, x2, x3, 0)
 
-          for (let k = 0; k < 8 * R; k++) total += (re[o + k] as number) ** 2 + (im[o + k] as number) ** 2
+          for (let k = 0; k < 8 * R; k++) {
+            total += re[o + k]! ** 2 + im[o + k]! ** 2
+          }
         }
       }
     }
 
     return total
   }
+
   const positionWeights = (): Float64Array => {
     const out = new Float64Array(L * L)
 
@@ -291,27 +328,47 @@ export function tripleRun(input: { ring: number; roles: 1 | 27; phase?: Complex;
       for (let x2 = 0; x2 < L; x2++) {
         for (let x3 = 0; x3 < L; x3++) {
           const o = at(x1, x2, x3, 0)
+
           let p = 0
 
-          for (let k = 0; k < 8 * R; k++) p += (re[o + k] as number) ** 2 + (im[o + k] as number) ** 2
+          for (let k = 0; k < 8 * R; k++) {
+            p += re[o + k]! ** 2 + im[o + k]! ** 2
+          }
 
           const key = ((x2 - x1 + L) % L) * L + ((x3 - x1 + L) % L)
 
-          out[key] = (out[key] as number) + p
+          out[key] = out[key]! + p
         }
       }
     }
 
     return out
   }
-  const run: TripleRun = { ring: L, roles: R, re, im, beat, compactWeight, positionWeights }
+
+  const run: TripleRun = {
+    ring: L,
+    roles: R,
+    re,
+    im,
+    beat,
+    compactWeight,
+    positionWeights,
+  }
 
   return run
 }
 
 // the (slots, docks) symmetrizer or antisymmetrizer of one configuration, with a role vector on (C^3)^3 that the
 // caller has made symmetric or antisymmetric to match (Pauli: total antisymmetry for fermion loves)
-export function symmetrizedStart(input: { x: readonly [number, number, number]; c: readonly [number, number, number]; sign: 1 | -1; role?: readonly { j: readonly [number, number, number]; amp: number }[] }): TripleStart[] {
+export function symmetrizedStart(input: {
+  x: readonly [number, number, number]
+  c: readonly [number, number, number]
+  sign: 1 | -1
+  role?: readonly {
+    j: readonly [number, number, number]
+    amp: number
+  }[]
+}): TripleStart[] {
   const perms: [number, number, number][] = [
     [0, 1, 2],
     [1, 0, 2],
@@ -325,11 +382,21 @@ export function symmetrizedStart(input: { x: readonly [number, number, number]; 
   const role = input.role ?? [{ j: [0, 0, 0] as const, amp: 1 }]
 
   perms.forEach((p, k) => {
-    const x: [number, number, number] = [input.x[p[0]] as number, input.x[p[1]] as number, input.x[p[2]] as number]
-    const c: [number, number, number] = [input.c[p[0]] as number, input.c[p[1]] as number, input.c[p[2]] as number]
-    const s = input.sign === 1 ? 1 : (parity[k] as number)
+    const x: [number, number, number] = [
+      input.x[p[0]]!,
+      input.x[p[1]]!,
+      input.x[p[2]]!,
+    ]
+    const c: [number, number, number] = [
+      input.c[p[0]]!,
+      input.c[p[1]]!,
+      input.c[p[2]]!,
+    ]
+    const s = input.sign === 1 ? 1 : parity[k]!
 
-    for (const r of role) out.push({ x, c, j: r.j, amp: [s * r.amp, 0] })
+    for (const r of role) {
+      out.push({ x, c, j: r.j, amp: [s * r.amp, 0] })
+    }
   })
 
   // normalize
@@ -339,10 +406,15 @@ export function symmetrizedStart(input: { x: readonly [number, number, number]; 
     const key = `${s.x.join(',')}|${s.c.join(',')}|${(s.j ?? [0, 0, 0]).join(',')}`
     const known = merged.get(key)
 
-    merged.set(key, known ? { ...known, amp: [known.amp[0] + s.amp[0], 0] } : s)
+    merged.set(
+      key,
+      known ? { ...known, amp: [known.amp[0] + s.amp[0], 0] } : s,
+    )
   }
 
-  const list = [...merged.values()].filter(s => Math.abs(s.amp[0]) > 1e-12)
+  const list = [...merged.values()].filter(
+    s => Math.abs(s.amp[0]) > 1e-12,
+  )
   const norm = Math.sqrt(list.reduce((t, s) => t + s.amp[0] ** 2, 0))
 
   return list.map(s => ({ ...s, amp: [s.amp[0] / norm, 0] as Complex }))

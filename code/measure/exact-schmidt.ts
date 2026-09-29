@@ -25,7 +25,10 @@ export type EisBig = [bigint, bigint]
 const SQRT3 = Math.sqrt(3)
 
 function eisMul(a: EisBig, b: EisBig): EisBig {
-  return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0] - a[1] * b[1]]
+  return [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0] - a[1] * b[1],
+  ]
 }
 
 function eisAdd(a: EisBig, b: EisBig): EisBig {
@@ -41,7 +44,10 @@ export function eisensteinInteger(re: number, im: number): EisBig {
   const y = Math.round((2 * im) / SQRT3)
   const x = Math.round(re + y / 2)
 
-  if (Math.abs(x - y / 2 - re) > 1e-9 || Math.abs((y * SQRT3) / 2 - im) > 1e-9) {
+  if (
+    Math.abs(x - y / 2 - re) > 1e-9 ||
+    Math.abs((y * SQRT3) / 2 - im) > 1e-9
+  ) {
     throw new Error(`not an Eisenstein integer: ${re} + ${im} i`)
   }
 
@@ -54,7 +60,11 @@ let SINGLE: EisBig[][] | undefined
 export function exactPhasePoints(): EisBig[][] {
   SINGLE =
     SINGLE ??
-    phasePointOperators(1).map(a => Array.from({ length: 9 }, (_, k) => eisensteinInteger(a.re[k] ?? 0, a.im[k] ?? 0)))
+    phasePointOperators(1).map(a =>
+      Array.from({ length: 9 }, (_, k) =>
+        eisensteinInteger(a.re[k] ?? 0, a.im[k] ?? 0),
+      ),
+    )
 
   return SINGLE
 }
@@ -73,10 +83,15 @@ export type ExactReduced = {
 }
 
 // the exact reduced data of one coordinate of a whole of k coordinates
-export function exactReduced(input: { weight: readonly bigint[]; coordinate: number; coordinates: number }): ExactReduced {
+export function exactReduced(input: {
+  weight: readonly bigint[]
+  coordinate: number
+  coordinates: number
+}): ExactReduced {
   const { weight, coordinate, coordinates } = input
   const stride = 9 ** (coordinates - 1 - coordinate)
   const marginal = new Array<bigint>(9).fill(0n)
+
   let units = 0n
   let square = 0n
 
@@ -89,7 +104,10 @@ export function exactReduced(input: { weight: readonly bigint[]; coordinate: num
   })
 
   const points = exactPhasePoints()
-  const m: EisBig[] = Array.from({ length: 9 }, () => [0n, 0n] as EisBig)
+  const m: EisBig[] = Array.from(
+    { length: 9 },
+    () => [0n, 0n] as EisBig,
+  )
 
   marginal.forEach((n, p) => {
     for (let k = 0; k < 9; k++) {
@@ -100,6 +118,7 @@ export function exactReduced(input: { weight: readonly bigint[]; coordinate: num
   })
 
   const at = (i: number, j: number): EisBig => m[3 * i + j]!
+
   const real = (x: EisBig, what: string): bigint => {
     if (x[1] !== 0n) {
       throw new Error(`${what} has an omega part`)
@@ -107,7 +126,12 @@ export function exactReduced(input: { weight: readonly bigint[]; coordinate: num
 
     return x[0]
   }
-  const trace = real(eisAdd(eisAdd(at(0, 0), at(1, 1)), at(2, 2)), 'trace')
+
+  const trace = real(
+    eisAdd(eisAdd(at(0, 0), at(1, 1)), at(2, 2)),
+    'trace',
+  )
+
   let e2: EisBig = [0n, 0n]
 
   for (const [i, j] of [
@@ -115,15 +139,22 @@ export function exactReduced(input: { weight: readonly bigint[]; coordinate: num
     [0, 2],
     [1, 2],
   ] as const) {
-    e2 = eisAdd(e2, eisSub(eisMul(at(i, i), at(j, j)), eisMul(at(i, j), at(j, i))))
+    e2 = eisAdd(
+      e2,
+      eisSub(eisMul(at(i, i), at(j, j)), eisMul(at(i, j), at(j, i))),
+    )
   }
 
   const minor = (r: number, c: number): EisBig => {
     const rows = [0, 1, 2].filter(x => x !== r)
     const cols = [0, 1, 2].filter(x => x !== c)
 
-    return eisSub(eisMul(at(rows[0]!, cols[0]!), at(rows[1]!, cols[1]!)), eisMul(at(rows[0]!, cols[1]!), at(rows[1]!, cols[0]!)))
+    return eisSub(
+      eisMul(at(rows[0]!, cols[0]!), at(rows[1]!, cols[1]!)),
+      eisMul(at(rows[0]!, cols[1]!), at(rows[1]!, cols[0]!)),
+    )
   }
+
   let det: EisBig = [0n, 0n]
 
   for (let c = 0; c < 3; c++) {
@@ -221,7 +252,8 @@ export type ChshNumber = {
 
 export function chshNumber(r: ExactReduced): ChshNumber {
   const U = r.units
-  const poly = (y: bigint): bigint => y * y * y - U * y * y + r.e2 * y - r.e3
+  const poly = (y: bigint): bigint =>
+    y * y * y - U * y * y + r.e2 * y - r.e3
   // the three weights numerically, by the trigonometric cubic
   const u = Number(U)
   const e2 = Number(r.e2) / (u * u)
@@ -236,7 +268,8 @@ export function chshNumber(r: ExactReduced): ChshNumber {
     roots.push(c + 1 / 3, c + 1 / 3, c + 1 / 3)
   } else {
     const mm = 2 * Math.sqrt(Math.max(0, -p / 3))
-    const theta = Math.acos(Math.max(-1, Math.min(1, (3 * q) / (p * mm)))) / 3
+    const theta =
+      Math.acos(Math.max(-1, Math.min(1, (3 * q) / (p * mm)))) / 3
 
     for (let k = 0; k < 3; k++) {
       roots.push(mm * Math.cos(theta - (2 * Math.PI * k) / 3) + 1 / 3)
@@ -257,8 +290,19 @@ export function chshNumber(r: ExactReduced): ChshNumber {
   }
 
   const smallest = BigInt(Math.round((schmidt[2] ?? 0) * u))
-  const y3 = [smallest - 1n, smallest, smallest + 1n].find(y => poly(y) === 0n && Math.abs(Number(y) / u - (schmidt[2] ?? 0)) < 1e-9) ?? null
-  const value = 2 * Math.sqrt(((schmidt[0] ?? 0) + (schmidt[1] ?? 0)) ** 2 + 4 * (schmidt[0] ?? 0) * (schmidt[1] ?? 0)) + 2 * (schmidt[2] ?? 0)
+  const y3 =
+    [smallest - 1n, smallest, smallest + 1n].find(
+      y =>
+        poly(y) === 0n &&
+        Math.abs(Number(y) / u - (schmidt[2] ?? 0)) < 1e-9,
+    ) ?? null
+  const value =
+    2 *
+      Math.sqrt(
+        ((schmidt[0] ?? 0) + (schmidt[1] ?? 0)) ** 2 +
+          4 * (schmidt[0] ?? 0) * (schmidt[1] ?? 0),
+      ) +
+    2 * (schmidt[2] ?? 0)
 
   if (y3 === null) {
     return {
@@ -276,6 +320,7 @@ export function chshNumber(r: ExactReduced): ChshNumber {
   // S = U^2 R = (U - y3)^2 + 4 (E2 - y3 (U - y3))
   const S = (U - y3) ** 2n + 4n * (r.e2 - y3 * (U - y3))
   const { f, s } = squarefreeSplit(S)
+
   let coefficients = [U * U, -4n * U * y3, 4n * (y3 * y3 - S)]
 
   if (s === 1n) {
@@ -296,8 +341,23 @@ export function chshNumber(r: ExactReduced): ChshNumber {
 
     return d / h === 1n ? `${n / h}` : `${n / h}/${d / h}`
   }
-  const surd = `${reduce(2n * f, U)} sqrt ${s}`
-  const form = s === 1n ? reduce(2n * y3 + 2n * f, U) : y3 === 0n ? surd : `${reduce(2n * y3, U)} + ${surd}`
 
-  return { schmidt, integerRoots, p3Numerator: y3, radicandSquareFactor: f, radicandSquarefree: s, minimalPolynomial: coefficients, value, form }
+  const surd = `${reduce(2n * f, U)} sqrt ${s}`
+  const form =
+    s === 1n
+      ? reduce(2n * y3 + 2n * f, U)
+      : y3 === 0n
+        ? surd
+        : `${reduce(2n * y3, U)} + ${surd}`
+
+  return {
+    schmidt,
+    integerRoots,
+    p3Numerator: y3,
+    radicandSquareFactor: f,
+    radicandSquarefree: s,
+    minimalPolynomial: coefficients,
+    value,
+    form,
+  }
 }

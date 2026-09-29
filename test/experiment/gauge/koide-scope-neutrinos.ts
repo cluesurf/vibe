@@ -75,7 +75,9 @@ export default experiment({
     })
 
     // the charged leptons DO reach 2/3 (the control that 2/3 is attainable for a lepton triple)
-    const qChargedLeptons = koideRatio([0.51099895, 105.6583755, 1776.86])
+    const qChargedLeptons = koideRatio([
+      0.51099895, 105.6583755, 1776.86,
+    ])
 
     // 1. normal-ordering neutrino Q cannot reach 2/3.
     const normalExcluded = maxNormal < 2 / 3 - 0.05

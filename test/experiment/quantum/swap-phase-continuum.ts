@@ -47,8 +47,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { generateGroup, type Matrix3 } from '@/code/dynamics/finite-gauge'
-import { QUTRIT_T, SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
+import {
+  generateGroup,
+  type Matrix3,
+} from '@/code/dynamics/finite-gauge'
+import {
+  QUTRIT_T,
+  SU3_SUBGROUPS,
+} from '@/code/algebra/group/su3-subgroups'
 import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
 import {
   adjointOperator,
@@ -58,7 +64,11 @@ import {
   tensorOperators,
   type Operator,
 } from '@/code/measure/grid-weights'
-import { quarterKernel, swapPhase, wignerKernel } from '@/code/rule/fear-weave'
+import {
+  quarterKernel,
+  swapPhase,
+  wignerKernel,
+} from '@/code/rule/fear-weave'
 
 const OMEGA = (2 * Math.PI) / 3
 const CONTROL_ORDER = 93312
@@ -136,9 +146,17 @@ function phaseKey(a: Operator): string {
 }
 
 // breadth-first ball sizes of the group the generators make, up to phase, stopping past a cap
-function ballSizes(generators: readonly Operator[], radius: number, cap: number): number[] {
-  const seen = new Set<string>([phaseKey(identityOperator(generators[0]?.n ?? 9))])
+function ballSizes(
+  generators: readonly Operator[],
+  radius: number,
+  cap: number,
+): number[] {
+  const seen = new Set<string>([
+    phaseKey(identityOperator(generators[0]?.n ?? 9)),
+  ])
+
   let frontier: Operator[] = [identityOperator(generators[0]?.n ?? 9)]
+
   const sizes: number[] = [1]
 
   for (let r = 1; r <= radius && seen.size <= cap; r++) {
@@ -175,7 +193,9 @@ function ballSizes(generators: readonly Operator[], radius: number, cap: number)
 function jacobi(a: number[][]): number[][] {
   const n = a.length
   const m = a.map(row => [...row])
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => (i === j ? 1 : 0)),
+  )
 
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
@@ -199,7 +219,9 @@ function jacobi(a: number[][]): number[][] {
         }
 
         const theta = ((m[q]?.[q] ?? 0) - (m[p]?.[p] ?? 0)) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -247,7 +269,9 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
     y.im[i] = -((w.re[i] ?? 0) - (wd.re[i] ?? 0)) / 2
   }
 
-  const z = Array.from({ length: 2 * n }, () => new Array<number>(2 * n).fill(0))
+  const z = Array.from({ length: 2 * n }, () =>
+    new Array<number>(2 * n).fill(0),
+  )
   const MIX = 0.371
 
   for (let i = 0; i < n; i++) {
@@ -268,8 +292,14 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
   const used: number[][] = []
 
   for (let col = 0; col < 2 * n && used.length < n; col++) {
-    const re = Array.from({ length: n }, (_, i) => vectors[i]?.[col] ?? 0)
-    const im = Array.from({ length: n }, (_, i) => vectors[i + n]?.[col] ?? 0)
+    const re = Array.from(
+      { length: n },
+      (_, i) => vectors[i]?.[col] ?? 0,
+    )
+    const im = Array.from(
+      { length: n },
+      (_, i) => vectors[i + n]?.[col] ?? 0,
+    )
     const overlap = used.reduce((acc, u) => {
       let r = 0
       let m = 0
@@ -304,14 +334,22 @@ function generator(w: Operator): { phases: number[]; h: Operator } {
 
       return total
     }
+
     const phase = Math.atan2(expect(y), expect(x))
 
     phases.push(phase)
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        h.re[i * n + j] = (h.re[i * n + j] ?? 0) + phase * ((re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0))
-        h.im[i * n + j] = (h.im[i * n + j] ?? 0) + phase * ((im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0))
+        h.re[i * n + j] =
+          (h.re[i * n + j] ?? 0) +
+          phase *
+            ((re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0))
+
+        h.im[i * n + j] =
+          (h.im[i * n + j] ?? 0) +
+          phase *
+            ((im[i] ?? 0) * (re[j] ?? 0) - (re[i] ?? 0) * (im[j] ?? 0))
       }
     }
   }
@@ -329,6 +367,7 @@ class Span {
 
   add(a: Operator): boolean {
     const n = a.n
+
     let traceRe = 0
 
     for (let i = 0; i < n; i++) {
@@ -340,7 +379,10 @@ class Span {
     for (let i = 0; i < n * n; i++) {
       const diagonal = Math.floor(i / n) === i % n
 
-      v.push((a.re[i] ?? 0) - (diagonal ? traceRe / n : 0), a.im[i] ?? 0)
+      v.push(
+        (a.re[i] ?? 0) - (diagonal ? traceRe / n : 0),
+        a.im[i] ?? 0,
+      )
     }
 
     for (const b of this.basis) {
@@ -386,7 +428,11 @@ function scalar(w: Operator, tolerance: number): boolean {
       const r = w.re[i * w.n + j] ?? 0
       const m = w.im[i * w.n + j] ?? 0
 
-      if (i === j ? Math.hypot(r - r0, m - i0) > tolerance : Math.hypot(r, m) > tolerance) {
+      if (
+        i === j
+          ? Math.hypot(r - r0, m - i0) > tolerance
+          : Math.hypot(r, m) > tolerance
+      ) {
         return false
       }
     }
@@ -396,7 +442,11 @@ function scalar(w: Operator, tolerance: number): boolean {
 }
 
 // order up to a limit (0 when none), and whether the eigenphases are rational with a small denominator
-function orderAndPhases(w: Operator): { order: number; rational: boolean; h: Operator } {
+function orderAndPhases(w: Operator): {
+  order: number
+  rational: boolean
+  h: Operator
+} {
   let power = identityOperator(w.n)
   let order = 0
 
@@ -432,8 +482,13 @@ export default experiment({
   paper: false,
   run() {
     // 1. Sigma(648), classical on the grid through 216 grid moves
-    const group = generateGroup({ generators: SU3_SUBGROUPS.sigma648.generators, limit: 4000 })
-    const actions = group.matrices.map(m => phaseSpaceAction({ unitary: m }))
+    const group = generateGroup({
+      generators: SU3_SUBGROUPS.sigma648.generators,
+      limit: 4000,
+    })
+    const actions = group.matrices.map(m =>
+      phaseSpaceAction({ unitary: m }),
+    )
     const classical = actions.filter(a => a !== undefined).length
     const representatives = new Map<string, Operator>()
 
@@ -441,7 +496,10 @@ export default experiment({
       const key = (a ?? []).join(',')
 
       if (a && !representatives.has(key)) {
-        representatives.set(key, fromMatrix3(group.matrices[i] ?? new Float64Array(18)))
+        representatives.set(
+          key,
+          fromMatrix3(group.matrices[i] ?? new Float64Array(18)),
+        )
       }
     })
 
@@ -450,13 +508,22 @@ export default experiment({
     const u = swapPhase(OMEGA)
     const exchange = swapPhase(Math.PI)
     const local = SU3_SUBGROUPS.sigma648.generators.map(fromMatrix3)
-    const localTwo = [...local.map(g => tensorOperators(g, one)), ...local.map(g => tensorOperators(one, g))]
+    const localTwo = [
+      ...local.map(g => tensorOperators(g, one)),
+      ...local.map(g => tensorOperators(one, g)),
+    ]
 
     // 2. an infinite-order word, and the algebra it spans
     const candidates = [
       multiplyOperators(u, localTwo[2] ?? u),
-      multiplyOperators(multiplyOperators(u, localTwo[2] ?? u), localTwo[3] ?? u),
-      multiplyOperators(multiplyOperators(u, localTwo[2] ?? u), multiplyOperators(localTwo[3] ?? u, localTwo[7] ?? u)),
+      multiplyOperators(
+        multiplyOperators(u, localTwo[2] ?? u),
+        localTwo[3] ?? u,
+      ),
+      multiplyOperators(
+        multiplyOperators(u, localTwo[2] ?? u),
+        multiplyOperators(localTwo[3] ?? u, localTwo[7] ?? u),
+      ),
     ]
     const studied = candidates.map(orderAndPhases)
     const chosen = studied.findIndex(s => s.order === 0 && !s.rational)
@@ -478,7 +545,10 @@ export default experiment({
     }
 
     for (const c of conjugates) {
-      const moved = multiplyOperators(multiplyOperators(c, h), adjointOperator(c))
+      const moved = multiplyOperators(
+        multiplyOperators(c, h),
+        adjointOperator(c),
+      )
 
       if (span.add(moved)) {
         algebra.push(moved)
@@ -500,20 +570,33 @@ export default experiment({
     }
 
     // the exchange control closes, the swap phase ball passes it
-    const controlBall = ballSizes([...localTwo, exchange], 40, CONTROL_ORDER + 10)
+    const controlBall = ballSizes(
+      [...localTwo, exchange],
+      40,
+      CONTROL_ORDER + 10,
+    )
     const swapBall = ballSizes([...localTwo, u], 40, CONTROL_ORDER + 10)
 
     // 3. one swap phase between classical words: exhaustively over P, Q, C in Sigma(648) mod center,
     // Tr(X^dagger (C x 1) U (C^-1 P x Q)) = a Tr(X^dagger P) Tr(Q) + b Tr(X^dagger C Q C^-1 P) for X = x x 1
-    const a: [number, number] = [(1 + Math.cos(OMEGA)) / 2, Math.sin(OMEGA) / 2]
-    const b: [number, number] = [(1 - Math.cos(OMEGA)) / 2, -Math.sin(OMEGA) / 2]
+    const a: [number, number] = [
+      (1 + Math.cos(OMEGA)) / 2,
+      Math.sin(OMEGA) / 2,
+    ]
+    const b: [number, number] = [
+      (1 - Math.cos(OMEGA)) / 2,
+      -Math.sin(OMEGA) / 2,
+    ]
     const t = fromMatrix3(QUTRIT_T)
     const conjugated: { s: Operator; q: number }[] = []
     const seenConjugates = new Set<string>()
 
     clifford.forEach((q, qi) => {
       for (const c of clifford) {
-        const s = multiplyOperators(multiplyOperators(c, q), adjointOperator(c))
+        const s = multiplyOperators(
+          multiplyOperators(c, q),
+          adjointOperator(c),
+        )
         const key = `${qi}:${phaseKey(s)}`
 
         if (!seenConjugates.has(key)) {
@@ -523,8 +606,13 @@ export default experiment({
       }
     })
 
-    const bestOver = (x: Operator, gain: [number, number], swapGain: [number, number]) => {
+    const bestOver = (
+      x: Operator,
+      gain: [number, number],
+      swapGain: [number, number],
+    ) => {
       const xd = adjointOperator(x)
+
       let best = 0
       let bestWord: [number, number, number] = [0, 0, 0]
 
@@ -538,8 +626,16 @@ export default experiment({
           // gain Tr(x^dagger P) Tr(Q) + swapGain Tr(x^dagger S P)
           const pr = tr * qr - ti * qi
           const pm = tr * qi + ti * qr
-          const re = gain[0] * pr - gain[1] * pm + swapGain[0] * sr - swapGain[1] * sm
-          const im = gain[0] * pm + gain[1] * pr + swapGain[0] * sm + swapGain[1] * sr
+          const re =
+            gain[0] * pr -
+            gain[1] * pm +
+            swapGain[0] * sr -
+            swapGain[1] * sm
+          const im =
+            gain[0] * pm +
+            gain[1] * pr +
+            swapGain[0] * sm +
+            swapGain[1] * sr
           const value = Math.hypot(re, im)
 
           if (value > best + 1e-12) {
@@ -549,7 +645,10 @@ export default experiment({
         })
       })
 
-      return { distance: Math.sqrt(Math.max(0, 1 - best / 9)), word: bestWord }
+      return {
+        distance: Math.sqrt(Math.max(0, 1 - best / 9)),
+        word: bestWord,
+      }
     }
 
     // the classical floor: the smallest step of Sigma(648) x Sigma(648), and its closest approach to T x 1
@@ -563,10 +662,16 @@ export default experiment({
 
       // (P x Q) against 1: |Tr P| |Tr Q| / 9, the best Q being 1 unless P is 1
       if (magnitude < 3 - 1e-9) {
-        smallestClassical = Math.min(smallestClassical, Math.sqrt(1 - (magnitude * 3) / 9))
+        smallestClassical = Math.min(
+          smallestClassical,
+          Math.sqrt(1 - (magnitude * 3) / 9),
+        )
       }
 
-      closestClassical = Math.min(closestClassical, Math.sqrt(Math.max(0, 1 - (Math.hypot(tr, tm) * 3) / 9)))
+      closestClassical = Math.min(
+        closestClassical,
+        Math.sqrt(Math.max(0, 1 - (Math.hypot(tr, tm) * 3) / 9)),
+      )
     }
 
     const toIdentity = bestOver(one, a, b)
@@ -579,17 +684,33 @@ export default experiment({
     const q = clifford[qi] ?? one
     const s = conjugated[si]?.s ?? one
     // rebuild a C with S = C Q C^-1
-    const c = clifford.find(candidate => phaseKey(multiplyOperators(multiplyOperators(candidate, q), adjointOperator(candidate))) === phaseKey(s)) ?? one
+    const c =
+      clifford.find(
+        candidate =>
+          phaseKey(
+            multiplyOperators(
+              multiplyOperators(candidate, q),
+              adjointOperator(candidate),
+            ),
+          ) === phaseKey(s),
+      ) ?? one
     const word = multiplyOperators(
       multiplyOperators(tensorOperators(c, one), u),
       tensorOperators(multiplyOperators(adjointOperator(c), p), q),
     )
-    const [wr, wm] = traceOf(adjointOperator(tensorOperators(t, one)), word)
-    const wordDistance = Math.sqrt(Math.max(0, 1 - Math.hypot(wr, wm) / 9))
+    const [wr, wm] = traceOf(
+      adjointOperator(tensorOperators(t, one)),
+      word,
+    )
+    const wordDistance = Math.sqrt(
+      Math.max(0, 1 - Math.hypot(wr, wm) / 9),
+    )
     const k4 = quarterKernel(word)
     const kernel = wignerKernel(word)
     const kernelFears = kernel.flat().filter(x => x < -1e-9).length
-    const permutationKernel = kernel.every(row => row.filter(x => Math.abs(x) > 1e-9).length === 1)
+    const permutationKernel = kernel.every(
+      row => row.filter(x => Math.abs(x) > 1e-9).length === 1,
+    )
 
     // 5. two swap phases, added after the first run: W = U (G x H) V (E x F) with V = U or U^dagger. With
     // X = G E, Y = H F, Z = G F (free, since G = 1, E = X, F = Z, H = Y Z^-1 realizes any triple),
@@ -606,7 +727,11 @@ export default experiment({
 
       return out
     }
-    const product = (x: Float64Array, y: Float64Array): Float64Array => {
+
+    const product = (
+      x: Float64Array,
+      y: Float64Array,
+    ): Float64Array => {
       const out = new Float64Array(18)
 
       for (let i = 0; i < 3; i++) {
@@ -631,8 +756,14 @@ export default experiment({
 
       return out
     }
+
     // Tr(x y) into out[0], out[1]
-    const traceProduct = (x: Float64Array, y: Float64Array, out: Float64Array, at: number): void => {
+    const traceProduct = (
+      x: Float64Array,
+      y: Float64Array,
+      out: Float64Array,
+      at: number,
+    ): void => {
       let re = 0
       let im = 0
 
@@ -651,27 +782,56 @@ export default experiment({
       out[at] = re
       out[at + 1] = im
     }
+
     const cl = clifford.map(flat)
     const clInverse = clifford.map(m => flat(adjointOperator(m)))
-    const traceFlat = (m: Float64Array): [number, number] => [(m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0), (m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)]
-    const pairs: { a: Float64Array; b: Float64Array; y: number; z: number; ty: [number, number]; tz: [number, number] }[] = []
+    const traceFlat = (m: Float64Array): [number, number] => [
+      (m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0),
+      (m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0),
+    ]
+    const pairs: {
+      a: Float64Array
+      b: Float64Array
+      y: number
+      z: number
+      ty: [number, number]
+      tz: [number, number]
+    }[] = []
 
     cl.forEach((y, yi) => {
       cl.forEach((z, zi) => {
         const yz = product(y, clInverse[zi] ?? y)
 
-        pairs.push({ a: product(z, yz), b: yz, y: yi, z: zi, ty: traceFlat(y), tz: traceFlat(z) })
+        pairs.push({
+          a: product(z, yz),
+          b: yz,
+          y: yi,
+          z: zi,
+          ty: traceFlat(y),
+          tz: traceFlat(z),
+        })
       })
     })
 
     const tDagger = flat(adjointOperator(t))
-    const cplx = (x: [number, number], y: [number, number]): [number, number] => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
-    const conj = (x: [number, number]): [number, number] => [x[0], -x[1]]
+    const cplx = (
+      x: [number, number],
+      y: [number, number],
+    ): [number, number] => [
+      x[0] * y[0] - x[1] * y[1],
+      x[0] * y[1] + x[1] * y[0],
+    ]
+    const conj = (x: [number, number]): [number, number] => [
+      x[0],
+      -x[1],
+    ]
+
     const twoSwap = (xs: readonly Float64Array[]) => {
       let smallest = Number.POSITIVE_INFINITY
       let closest = Number.POSITIVE_INFINITY
       let closestWord: [number, number, number, number] = [0, 0, 0, 1]
       let smallestWord: [number, number, number, number] = [0, 0, 0, 1]
+
       const traces = new Float64Array(6)
 
       xs.forEach((x, xi) => {
@@ -690,11 +850,19 @@ export default experiment({
           for (const sign of [1, -1]) {
             const c = sign === 1 ? a : conj(a)
             const d = sign === 1 ? b : conj(b)
-            const sum = [cplx(cplx(a, c), t1), cplx(cplx(a, d), t2), cplx(cplx(b, c), t3), cplx(cplx(b, d), t4)].reduce(
-              (acc, v) => [acc[0] + v[0], acc[1] + v[1]] as [number, number],
+            const sum = [
+              cplx(cplx(a, c), t1),
+              cplx(cplx(a, d), t2),
+              cplx(cplx(b, c), t3),
+              cplx(cplx(b, d), t4),
+            ].reduce(
+              (acc, v) =>
+                [acc[0] + v[0], acc[1] + v[1]] as [number, number],
               [0, 0] as [number, number],
             )
-            const distance = Math.sqrt(Math.max(0, 1 - Math.hypot(sum[0], sum[1]) / 9))
+            const distance = Math.sqrt(
+              Math.max(0, 1 - Math.hypot(sum[0], sum[1]) / 9),
+            )
 
             if (distance > 1e-6 && distance < smallest - 1e-12) {
               smallest = distance
@@ -713,31 +881,64 @@ export default experiment({
     }
 
     // a two-swap-phase word W = U (1 x Y Z^-1) V (X' x Z) from its indices, X' = the Clifford in X
-    const rebuild = ([xi, yi, zi, sign]: readonly [number, number, number, number]): Operator => {
+    const rebuild = ([xi, yi, zi, sign]: readonly [
+      number,
+      number,
+      number,
+      number,
+    ]): Operator => {
       const zOp = clifford[zi] ?? one
-      const hOp = multiplyOperators(clifford[yi] ?? one, adjointOperator(zOp))
+      const hOp = multiplyOperators(
+        clifford[yi] ?? one,
+        adjointOperator(zOp),
+      )
       const second = sign === 1 ? u : adjointOperator(u)
 
-      return multiplyOperators(multiplyOperators(u, tensorOperators(one, hOp)), multiplyOperators(second, tensorOperators(clifford[xi] ?? one, zOp)))
+      return multiplyOperators(
+        multiplyOperators(u, tensorOperators(one, hOp)),
+        multiplyOperators(
+          second,
+          tensorOperators(clifford[xi] ?? one, zOp),
+        ),
+      )
     }
 
     const twoToIdentity = twoSwap(cl)
     const twoToT = twoSwap(cl.map(c => product(c, tDagger)))
     // rebuild the best two-swap-phase word toward T x 1 and measure it again: G = 1, E = C, F = Z, H = Y Z^-1
     const twoWord = rebuild(twoToT.closestWord)
-    const [tr2, ti2] = traceOf(adjointOperator(tensorOperators(t, one)), twoWord)
+    const [tr2, ti2] = traceOf(
+      adjointOperator(tensorOperators(t, one)),
+      twoWord,
+    )
     const stepWord = rebuild(twoToIdentity.smallestWord)
     const [trs, tis] = trace(stepWord)
-    const stepWordDistance = Math.sqrt(Math.max(0, 1 - Math.hypot(trs, tis) / 9))
+    const stepWordDistance = Math.sqrt(
+      Math.max(0, 1 - Math.hypot(trs, tis) / 9),
+    )
     const stepKernel = wignerKernel(stepWord)
-    const stepKernelFears = stepKernel.flat().filter(x => x < -1e-9).length
-    const stepKernelSixteenths = stepKernel.every(row => row.every(x => Math.abs(16 * x - Math.round(16 * x)) < 1e-9))
-    const stepKernelQuarters = stepKernel.every(row => row.every(x => Math.abs(4 * x - Math.round(4 * x)) < 1e-9))
-    const twoWordDistance = Math.sqrt(Math.max(0, 1 - Math.hypot(tr2, ti2) / 9))
+    const stepKernelFears = stepKernel
+      .flat()
+      .filter(x => x < -1e-9).length
+    const stepKernelSixteenths = stepKernel.every(row =>
+      row.every(x => Math.abs(16 * x - Math.round(16 * x)) < 1e-9),
+    )
+    const stepKernelQuarters = stepKernel.every(row =>
+      row.every(x => Math.abs(4 * x - Math.round(4 * x)) < 1e-9),
+    )
+    const twoWordDistance = Math.sqrt(
+      Math.max(0, 1 - Math.hypot(tr2, ti2) / 9),
+    )
     const twoKernel = wignerKernel(twoWord)
-    const twoKernelSixteenths = twoKernel.every(row => row.every(x => Math.abs(16 * x - Math.round(16 * x)) < 1e-9))
-    const twoKernelQuarters = twoKernel.every(row => row.every(x => Math.abs(4 * x - Math.round(4 * x)) < 1e-9))
-    const twoKernelFears = twoKernel.flat().filter(x => x < -1e-9).length
+    const twoKernelSixteenths = twoKernel.every(row =>
+      row.every(x => Math.abs(16 * x - Math.round(16 * x)) < 1e-9),
+    )
+    const twoKernelQuarters = twoKernel.every(row =>
+      row.every(x => Math.abs(4 * x - Math.round(4 * x)) < 1e-9),
+    )
+    const twoKernelFears = twoKernel
+      .flat()
+      .filter(x => x < -1e-9).length
 
     const universal = chosen >= 0 && span.rank === 80
     const ok =

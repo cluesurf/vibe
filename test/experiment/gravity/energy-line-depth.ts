@@ -67,7 +67,17 @@ import { d4BoxCell } from '@/code/substrate/d4-box-integer'
 import { divergence } from '@/code/rule/step-depth'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { huskDistances } from '@/code/measure/plaquette-readings'
-import { addColumns, addHuskFlux, bulkLinks, dockEnergies, huskCast, lineRunner, routeUnits, shellMeans, staticDepth } from '@/code/measure/energy-lines'
+import {
+  addColumns,
+  addHuskFlux,
+  bulkLinks,
+  dockEnergies,
+  huskCast,
+  lineRunner,
+  routeUnits,
+  shellMeans,
+  staticDepth,
+} from '@/code/measure/energy-lines'
 
 const SIDE = 16
 const BEATS = 512
@@ -80,11 +90,16 @@ const FIELD_FROM = 2
 const MOVE = 4
 
 // least squares of y = a + k / r
-function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const xs = rs.map(r => 1 / r)
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const k = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const k =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - k * mx, k }
 }
@@ -141,8 +156,8 @@ export default experiment({
     }
 
     const n = PATHS * BEATS
-    const cc = husk.column[center] as number
-    const ca = husk.column[anti] as number
+    const cc = husk.column[center]!
+    const ca = husk.column[anti]!
 
     // D1
     const hd = new Float64Array(husk.columns)
@@ -151,10 +166,18 @@ export default experiment({
 
     let gaussOff = 0
 
-    for (let c = 0; c < husk.columns; c++) if (hd[c] !== (sumDe[c] as number) - (c === ca ? LUMP_ENERGY * n : 0)) gaussOff++
+    for (let c = 0; c < husk.columns; c++) {
+      if (hd[c] !== sumDe[c]! - (c === ca ? LUMP_ENERGY * n : 0)) {
+        gaussOff++
+      }
+    }
 
     // D2, D3
-    const drag = staticDepth(SIDE, Float64Array.from(hd, v => v / n))
+    const drag = staticDepth(
+      SIDE,
+      Float64Array.from(hd, v => v / n),
+    )
+
     const rhoAt = (col: number): Float64Array => {
       const rho = new Float64Array(husk.columns)
 
@@ -163,50 +186,88 @@ export default experiment({
 
       return rho
     }
+
     const stat = staticDepth(SIDE, rhoAt(cc))
-    const moved = staticDepth(SIDE, rhoAt((cc - (cc % SIDE)) + ((cc % SIDE) + MOVE) % SIDE))
+    const moved = staticDepth(
+      SIDE,
+      rhoAt(cc - (cc % SIDE) + (((cc % SIDE) + MOVE) % SIDE)),
+    )
+
     const profile = (depth: Float64Array): number[] => {
       const m = shellMeans(SIDE, cc, depth)
 
-      return m.map(v => v - (m[REF] as number))
+      return m.map(v => v - m[REF]!)
     }
+
     const pd = profile(drag.depth)
     const ps = profile(stat.depth)
     const pm = profile(moved.depth)
-    const ratio = PROFILE_R.map(r => (pd[r] as number) / (ps[r] as number))
-    const movedRatio = PROFILE_R.map(r => (pm[r] as number) / (ps[r] as number))
-    const gD2 = ratio.every(q => Math.abs(q - 1) <= TOLERANCE) && Math.sign(pd[0] as number) === Math.sign(ps[0] as number) && Math.sign(pd[1] as number) === Math.sign(ps[1] as number)
+    const ratio = PROFILE_R.map(r => pd[r]! / ps[r]!)
+    const movedRatio = PROFILE_R.map(r => pm[r]! / ps[r]!)
+    const gD2 =
+      ratio.every(q => Math.abs(q - 1) <= TOLERANCE) &&
+      Math.sign(pd[0]!) === Math.sign(ps[0]!) &&
+      Math.sign(pd[1]!) === Math.sign(ps[1]!)
     const control = movedRatio.some(q => Math.abs(q - 1) > TOLERANCE)
     const dist = huskDistances(SIDE, cc)
+
     let num = 0
     let den = 0
     let curl = 0
     let total = 0
 
     for (let l = 0; l < huskLinks; l++) {
-      const avg = (sumFlux[l] as number) / n
+      const avg = sumFlux[l]! / n
 
-      curl += (avg - (drag.flux[l] as number)) ** 2
+      curl += (avg - drag.flux[l]!) ** 2
       total += avg ** 2
-      if ((dist[Math.floor(l / 9)] as number) < FIELD_FROM) continue
-      num += ((drag.flux[l] as number) - (stat.flux[l] as number)) ** 2
-      den += (stat.flux[l] as number) ** 2
+
+      if (dist[Math.floor(l / 9)]! < FIELD_FROM) {
+        continue
+      }
+
+      num += (drag.flux[l]! - stat.flux[l]!) ** 2
+      den += stat.flux[l]! ** 2
     }
 
     const fieldMiss = Math.sqrt(num / den)
     const curlShare = Math.sqrt(curl / total)
     const gD1 = gaussOff === 0
     const gD3 = fieldMiss <= TOLERANCE
-    const status = !control ? 'partial' : gD1 && gD2 && gD3 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : gD1 && gD2 && gD3
+        ? 'pass'
+        : 'fail'
 
     // reported: the time-averaged Delta e by shell, and what it encloses
-    const deShell = shellMeans(SIDE, cc, Float64Array.from(sumDe, v => v / n))
-    const counts = shellMeans(SIDE, cc, new Float64Array(husk.columns).fill(1)).map((_, r) => [...dist].filter(d => d === r).length)
+    const deShell = shellMeans(
+      SIDE,
+      cc,
+      Float64Array.from(sumDe, v => v / n),
+    )
+    const counts = shellMeans(
+      SIDE,
+      cc,
+      new Float64Array(husk.columns).fill(1),
+    ).map((_, r) => [...dist].filter(d => d === r).length)
+
     let enclosed = 0
-    const encl = deShell.slice(0, 12).map((v, r) => (enclosed += (Number.isNaN(v) ? 0 : v) * (counts[r] as number)))
+
+    const encl = deShell
+      .slice(0, 12)
+      .map(
+        (v, r) => (enclosed += (Number.isNaN(v) ? 0 : v) * counts[r]!),
+      )
     const fitR = [1, 2, 3, 4, 5, 6]
-    const dragFit = inverseFit(fitR, fitR.map(r => pd[r] as number))
-    const statFit = inverseFit(fitR, fitR.map(r => ps[r] as number))
+    const dragFit = inverseFit(
+      fitR,
+      fitR.map(r => pd[r]!),
+    )
+    const statFit = inverseFit(
+      fitR,
+      fitR.map(r => ps[r]!),
+    )
     const f4 = (x: number): string => x.toFixed(4)
     const metrics: Record<string, number> = {
       gate_D1: gD1 ? 1 : 0,
@@ -218,24 +279,29 @@ export default experiment({
       curlShare,
       dragFitK: dragFit.k,
       staticFitK: statFit.k,
-      lumpColumnDeltaE: deShell[0] as number,
+      lumpColumnDeltaE: deShell[0]!,
       seconds: (Date.now() - t0) / 1000,
     }
 
     PROFILE_R.forEach((r, i) => {
-      metrics[`ratio_r${r}`] = ratio[i] as number
-      metrics[`movedRatio_r${r}`] = movedRatio[i] as number
+      metrics[`ratio_r${r}`] = ratio[i]!
+      metrics[`movedRatio_r${r}`] = movedRatio[i]!
     })
+
     for (let r = 0; r <= REF; r++) {
-      metrics[`dragProfile_r${r}`] = pd[r] as number
-      metrics[`staticProfile_r${r}`] = ps[r] as number
+      metrics[`dragProfile_r${r}`] = pd[r]!
+      metrics[`staticProfile_r${r}`] = ps[r]!
     }
 
     return verdict({
       status,
-      claim: `the dragged energy lines of a seeded love+fear pair (energy 2, side 16, ${PATHS} full-key paths of ${BEATS} beats, lines placed only at beat 0): husk Gauss off ${gaussOff}; the depth x(r) - x(8) of their divergence-fixed part is ${pd.slice(0, REF).map(f4).join(', ')} at r = 0 .. 7 against the placed lump's ${ps.slice(0, REF).map(f4).join(', ')}, ratio ${ratio.map(q => q.toFixed(3)).join(', ')} at r = ${PROFILE_R.join(', ')}; that part misses the placed field at r >= ${FIELD_FROM} by ${fieldMiss.toFixed(3)} of its size; ${(100 * curlShare).toFixed(1)} percent of the averaged flux is divergence free; the time-averaged column Delta e is ${f4(deShell[0] as number)} on the lump's column and encloses ${encl.map(v => v.toFixed(2)).join(', ')} within r = 0 .. 11; a placed lump moved ${MOVE} columns reads ratio ${movedRatio.map(q => q.toFixed(3)).join(', ')}`,
+      claim: `the dragged energy lines of a seeded love+fear pair (energy 2, side 16, ${PATHS} full-key paths of ${BEATS} beats, lines placed only at beat 0): husk Gauss off ${gaussOff}; the depth x(r) - x(8) of their divergence-fixed part is ${pd.slice(0, REF).map(f4).join(', ')} at r = 0 .. 7 against the placed lump's ${ps.slice(0, REF).map(f4).join(', ')}, ratio ${ratio.map(q => q.toFixed(3)).join(', ')} at r = ${PROFILE_R.join(', ')}; that part misses the placed field at r >= ${FIELD_FROM} by ${fieldMiss.toFixed(3)} of its size; ${(100 * curlShare).toFixed(1)} percent of the averaged flux is divergence free; the time-averaged column Delta e is ${f4(deShell[0]!)} on the lump's column and encloses ${encl.map(v => v.toFixed(2)).join(', ')} within r = 0 .. 11; a placed lump moved ${MOVE} columns reads ratio ${movedRatio.map(q => q.toFixed(3)).join(', ')}`,
       metrics,
-      control: { movedWorstMiss: Math.max(...movedRatio.map(q => Math.abs(q - 1))) },
+      control: {
+        movedWorstMiss: Math.max(
+          ...movedRatio.map(q => Math.abs(q - 1)),
+        ),
+      },
       notes: `L2. Gates D1 ${gD1}, D2 ${gD2}, D3 ${gD3}; control ${control}. 1/r fits on r = 1 .. 6: dragged k ${dragFit.k.toExponential(3)} a ${dragFit.a.toExponential(3)}, placed k ${statFit.k.toExponential(3)} a ${statFit.a.toExponential(3)}. Delta e by shell (per column): ${deShell.slice(0, 12).map(f4).join(' ')}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

@@ -80,8 +80,25 @@ import { verdict } from '@/test/scaffold/verdict'
 import { fitPowers } from '@/code/measure/husk-coulomb'
 import { linearFit } from '@/code/measure/regression'
 import { stepRule } from '@/code/rule/step-depth'
-import { HUSK_LATERAL, huskOnly, openMesh, placeOpenLines, warpClock, type OpenMesh } from '@/code/rule/open-husk'
-import { greenSolve, huskDock, newOpenRecord, openContent, openStaticRun, stackGreen, stackModes, stackSpeeds, type OpenRecord } from '@/code/measure/open-husk'
+import {
+  HUSK_LATERAL,
+  huskOnly,
+  openMesh,
+  placeOpenLines,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  greenSolve,
+  huskDock,
+  newOpenRecord,
+  openContent,
+  openStaticRun,
+  stackGreen,
+  stackModes,
+  stackSpeeds,
+  type OpenRecord,
+} from '@/code/measure/open-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -90,7 +107,9 @@ const LAYERS = 4
 const BEATS = 2048
 const CONTENT = 4
 const R_MAX = 24
-const FIT_R: readonly number[] = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+const FIT_R: readonly number[] = [
+  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+]
 const SHORT_FROM = 4
 const SHORT_TO = 11
 const SLOPE_R: readonly number[] = [4, 5, 6, 7, 8]
@@ -111,27 +130,63 @@ const AXES: readonly (readonly number[])[] = [
 
 type Reading = { W: number[]; linear: number[]; offHusk: number }
 
-function read(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRecord): Reading {
+function read(
+  mesh: OpenMesh,
+  rule: ReturnType<typeof stepRule>,
+  record: OpenRecord,
+): Reading {
   const h = SIDE / 2
-  const rho = openContent(mesh, [{ at: [0, 0, 0], units: CONTENT, to: [h, h, h] }])
+  const rho = openContent(mesh, [
+    { at: [0, 0, 0], units: CONTENT, to: [h, h, h] },
+  ])
   const allow = huskOnly(mesh)
   const lines = placeOpenLines(mesh, rho, 1, allow)
+
   let offHusk = 0
 
-  for (let m = 0; m < mesh.links; m++) if (lines[m] !== 0 && mesh.kind[m] !== HUSK_LATERAL) offHusk++
+  for (let m = 0; m < mesh.links; m++) {
+    if (lines[m] !== 0 && mesh.kind[m] !== HUSK_LATERAL) {
+      offHusk++
+    }
+  }
 
   const run = openStaticRun(mesh, rule, rho, BEATS, record, allow)
   const green = greenSolve(mesh, rho)
   const scale = -(Math.PI / DEPTH) * CONTENT
   const rs = Array.from({ length: R_MAX }, (_, i) => i + 1)
-  const mean = (x: ArrayLike<number>, r: number): number => AXES.reduce((t, a) => t + x[huskDock(mesh, a.map(v => v * r))]!, 0) / AXES.length
+  const mean = (x: ArrayLike<number>, r: number): number =>
+    AXES.reduce(
+      (t, a) =>
+        t +
+        x[
+          huskDock(
+            mesh,
+            a.map(v => v * r),
+          )
+        ]!,
+      0,
+    ) / AXES.length
 
-  return { W: rs.map(r => scale * mean(run.depth, r)), linear: rs.map(r => scale * mean(green.x, r)), offHusk }
+  return {
+    W: rs.map(r => scale * mean(run.depth, r)),
+    linear: rs.map(r => scale * mean(green.x, r)),
+    offHusk,
+  }
 }
 
-const forces = (W: readonly number[]): number[] => W.slice(0, -1).map((w, i) => W[i + 1]! - w)
-const logSlope = (d: readonly number[]): number => -linearFit({ xs: SLOPE_R.map(Math.log), ys: SLOPE_R.map(r => Math.log(d[r - 1]!)) }).slope
-const worst = (a: readonly number[], b: readonly number[], rs: readonly number[]): number => Math.max(...rs.map(r => Math.abs(a[r - 1]! / b[r - 1]! - 1)))
+const forces = (W: readonly number[]): number[] =>
+  W.slice(0, -1).map((w, i) => W[i + 1]! - w)
+const logSlope = (d: readonly number[]): number =>
+  -linearFit({
+    xs: SLOPE_R.map(Math.log),
+    ys: SLOPE_R.map(r => Math.log(d[r - 1]!)),
+  }).slope
+const worst = (
+  a: readonly number[],
+  b: readonly number[],
+  rs: readonly number[],
+): number =>
+  Math.max(...rs.map(r => Math.abs(a[r - 1]! / b[r - 1]! - 1)))
 
 export default experiment({
   id: 'gravity/warp-husk-static',
@@ -144,7 +199,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const rule = stepRule(DEPTH, LEVELS)
     const record = newOpenRecord()
 
@@ -170,14 +226,35 @@ export default experiment({
     const speedsOne = stackSpeeds(mesh.sides, 'none')
     const gAlone = (r: number): number => 1 / (24 * Math.PI * r)
     const rs = Array.from({ length: R_MAX - 1 }, (_, i) => i + 1)
-    const ratioOf = (g: (r: number) => number): number[] => rs.map(r => (g(r) - g(r + 1)) / (gAlone(r) - gAlone(r + 1)))
-    const deltaPred = ratioOf(r => stackGreen(modes, r)).map(v => v / share - 1)
+    const ratioOf = (g: (r: number) => number): number[] =>
+      rs.map(r => (g(r) - g(r + 1)) / (gAlone(r) - gAlone(r + 1)))
+    const deltaPred = ratioOf(r => stackGreen(modes, r)).map(
+      v => v / share - 1,
+    )
     const lapseShare = lapseModes[0]!.weight * 6
-    const deltaLapse = ratioOf(r => stackGreen(lapseModes, r)).map(v => v / lapseShare - 1)
+    const deltaLapse = ratioOf(r => stackGreen(lapseModes, r)).map(
+      v => v / lapseShare - 1,
+    )
     const kRS = Math.LN2 / Math.sqrt(6)
-    const deltaRS = rs.map(r => (2 / (3 * kRS * kRS)) * ((3 * r * r + 3 * r + 1) / (r * r * (r + 1) ** 2)))
-    const fitOf = (W: readonly number[]): [number, number, number] => fitPowers(FIT_R, FIT_R.map(r => W[r - 1]!), [1, 3]) as [number, number, number]
-    const fitRatioPred = fitOf(Array.from({ length: R_MAX }, (_, i) => -stackGreen(modes, i + 1)))[1] / fitOf(Array.from({ length: R_MAX }, (_, i) => -gAlone(i + 1)))[1]
+    const deltaRS = rs.map(
+      r =>
+        (2 / (3 * kRS * kRS)) *
+        ((3 * r * r + 3 * r + 1) / (r * r * (r + 1) ** 2)),
+    )
+    const fitOf = (W: readonly number[]): [number, number, number] =>
+      fitPowers(
+        FIT_R,
+        FIT_R.map(r => W[r - 1]!),
+        [1, 3],
+      ) as [number, number, number]
+    const fitRatioPred =
+      fitOf(
+        Array.from(
+          { length: R_MAX },
+          (_, i) => -stackGreen(modes, i + 1),
+        ),
+      )[1] /
+      fitOf(Array.from({ length: R_MAX }, (_, i) => -gAlone(i + 1)))[1]
 
     // the readings
     const kAlone = -fitOf(alone.W)[1]
@@ -195,11 +272,24 @@ export default experiment({
     const warpedVsLinear = worst(fWarped, forces(warped.linear), rs)
     const oneVsLinear = worst(fOne, forces(oneClock.linear), rs)
     const aloneVsLinear = worst(fAlone, forces(alone.linear), rs)
-    const w0 = warpedVsOne <= SAME_TOLERANCE && warpedVsLinear <= SAME_TOLERANCE && oneVsLinear <= SAME_TOLERANCE
+    const w0 =
+      warpedVsOne <= SAME_TOLERANCE &&
+      warpedVsLinear <= SAME_TOLERANCE &&
+      oneVsLinear <= SAME_TOLERANCE
     const wraps = record.wraps.fWraps + record.wraps.vWraps
     const offHusk = alone.offHusk + oneClock.offHusk + warped.offHusk
-    const w1 = record.gaussOff === 0 && offHusk === 0 && record.curl === 0 && wraps === 0 && record.restOff === 0 && record.maxStep < 1.5 && record.maxRate < 1.5 && record.reversed
-    const rising = warped.W.every((w, i) => i === 0 || w > warped.W[i - 1]!)
+    const w1 =
+      record.gaussOff === 0 &&
+      offHusk === 0 &&
+      record.curl === 0 &&
+      wraps === 0 &&
+      record.restOff === 0 &&
+      record.maxStep < 1.5 &&
+      record.maxRate < 1.5 &&
+      record.reversed
+    const rising = warped.W.every(
+      (w, i) => i === 0 || w > warped.W[i - 1]!,
+    )
     const fitRatio = kWarped / kAlone
     const fitOff = Math.abs(fitRatio / fitRatioPred - 1)
     const w2 = rising && fitOff <= FIT_TOLERANCE
@@ -207,13 +297,20 @@ export default experiment({
     const shortR = rs.filter(r => r >= SHORT_FROM && r <= SHORT_TO)
     const shortOff = worst(delta, deltaPred, shortR)
     const w3 = positive && shortOff <= SHORT_TOLERANCE
-    const slopeMeasured = SLOPE_R.every(r => delta[r - 1]! > 0) ? logSlope(delta) : -1
-    const slopeOne = SLOPE_R.every(r => deltaOne[r - 1]! > 0) ? logSlope(deltaOne) : -1
+    const slopeMeasured = SLOPE_R.every(r => delta[r - 1]! > 0)
+      ? logSlope(delta)
+      : -1
+    const slopeOne = SLOPE_R.every(r => deltaOne[r - 1]! > 0)
+      ? logSlope(deltaOne)
+      : -1
     const slopePred = logSlope(deltaPred)
     const slopeRS = logSlope(deltaRS)
     const slopeLapse = logSlope(deltaLapse)
     const rsOff = worst(delta, deltaRS, shortR)
-    const w3rs = positive && Math.abs(slopeMeasured - slopeRS) <= SLOPE_TOLERANCE && rsOff <= RS_TOLERANCE
+    const w3rs =
+      positive &&
+      Math.abs(slopeMeasured - slopeRS) <= SLOPE_TOLERANCE &&
+      rsOff <= RS_TOLERANCE
     const status = w0 && w1 && w2 && w3 && w3rs ? 'pass' : 'fail'
     const f = (v: number): string => v.toPrecision(4)
     const e = (v: number): string => v.toExponential(3)
@@ -274,6 +371,7 @@ export default experiment({
       metrics[`mode${n}_mass`] = m.mass
       metrics[`mode${n}_weightOverZero`] = m.weight / modes[0]!.weight
     })
+
     rs.forEach(r => {
       metrics[`forceRatio_r${r}`] = ratio[r - 1]!
       metrics[`delta_r${r}`] = delta[r - 1]!

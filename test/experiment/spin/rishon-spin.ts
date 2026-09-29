@@ -32,14 +32,33 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { a2Planes, coldSpec, cyclingElements, OPPOSITE, ROOTS, TRIPLES, tripleDock } from '@/code/measure/rishon-triples'
-import { binaryTetrahedralGroup, quaternionMultiply, quaternionsClose, type Quaternion } from '@/code/algebra/binary-tetrahedral'
-import { isoclinicFactors, quaternionOrder } from '@/code/measure/chiral-response'
+import {
+  a2Planes,
+  coldSpec,
+  cyclingElements,
+  OPPOSITE,
+  ROOTS,
+  TRIPLES,
+  tripleDock,
+} from '@/code/measure/rishon-triples'
+import {
+  binaryTetrahedralGroup,
+  quaternionMultiply,
+  quaternionsClose,
+  type Quaternion,
+} from '@/code/algebra/binary-tetrahedral'
+import {
+  isoclinicFactors,
+  quaternionOrder,
+} from '@/code/measure/chiral-response'
 import { linearMapOf } from '@/code/substrate/d4-box'
 import { determinant } from '@/code/algebra/linear/dense'
 import { symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
 import { turningWeave, type Collision } from '@/code/rule/collision'
-import { combinedCollision, COMBINED_DEFAULT } from '@/code/rule/combined-knit'
+import {
+  combinedCollision,
+  COMBINED_DEFAULT,
+} from '@/code/rule/combined-knit'
 import { coldDockCollide, makeColdWeave } from '@/code/rule/cold-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
@@ -48,7 +67,12 @@ function power(q: readonly number[], n: number): Quaternion {
   let out: Quaternion = [1, 0, 0, 0]
 
   for (let k = 0; k < n; k++) {
-    out = quaternionMultiply(out, [q[0] ?? 0, q[1] ?? 0, q[2] ?? 0, q[3] ?? 0])
+    out = quaternionMultiply(out, [
+      q[0] ?? 0,
+      q[1] ?? 0,
+      q[2] ?? 0,
+      q[3] ?? 0,
+    ])
   }
 
   return out
@@ -56,17 +80,30 @@ function power(q: readonly number[], n: number): Quaternion {
 
 // +1 or -1 when q is that scalar, 0 otherwise
 function scalarSign(q: Quaternion): number {
-  if (quaternionsClose(q, [1, 0, 0, 0])) return 1
-  if (quaternionsClose(q, [-1, 0, 0, 0])) return -1
+  if (quaternionsClose(q, [1, 0, 0, 0])) {
+    return 1
+  }
+
+  if (quaternionsClose(q, [-1, 0, 0, 0])) {
+    return -1
+  }
 
   return 0
 }
 
 function coldVibeCollision(forward: boolean): (t: number) => Collision {
-  const weave = makeColdWeave({ mesh: d4BoxMesh({ side: 3 }), spec: coldSpec() })
+  const weave = makeColdWeave({
+    mesh: d4BoxMesh({ side: 3 }),
+    spec: coldSpec(),
+  })
 
   return t => (slots, base) => {
-    const a = { vibe: Int8Array.from(slots.subarray(base, base + 24)), store: new Int32Array(24), demon: new Int32Array(12), role: undefined }
+    const a = {
+      vibe: Int8Array.from(slots.subarray(base, base + 24)),
+      store: new Int32Array(24),
+      demon: new Int32Array(12),
+      role: undefined,
+    }
 
     coldDockCollide(weave, a, 0, t, forward)
     slots.set(a.vibe, base)
@@ -85,17 +122,32 @@ export default experiment({
   run() {
     const planes = a2Planes()
     const triangles = planes.flatMap(p => [p.triangle, p.anti])
-    const antiOf = triangles.map((t, i) => triangles[i % 2 === 0 ? i + 1 : i - 1] ?? t)
+    const antiOf = triangles.map(
+      (t, i) => triangles[i % 2 === 0 ? i + 1 : i - 1] ?? t,
+    )
 
     // 1. the torsor lift
     const group = binaryTetrahedralGroup()
-    const unit = (d: number): Quaternion => (ROOTS[d] ?? []).map(x => x * Math.SQRT1_2) as Quaternion
-    const indexOf = (q: Quaternion): number => ROOTS.findIndex((_, d) => quaternionsClose(unit(d), q))
-    const left = group.map(g => ROOTS.map((_, d) => indexOf(quaternionMultiply(g, unit(d)))))
-    const setOf = (t: readonly number[]): string => [...t].sort((a, b) => a - b).join(',')
+    const unit = (d: number): Quaternion =>
+      (ROOTS[d] ?? []).map(x => x * Math.SQRT1_2) as Quaternion
+    const indexOf = (q: Quaternion): number =>
+      ROOTS.findIndex((_, d) => quaternionsClose(unit(d), q))
+    const left = group.map(g =>
+      ROOTS.map((_, d) => indexOf(quaternionMultiply(g, unit(d)))),
+    )
+    const setOf = (t: readonly number[]): string =>
+      [...t].sort((a, b) => a - b).join(',')
     const torsor = triangles.map((t, ti) => {
-      const cyclers = group.filter((_, gi) => setOf(t.map(d => left[gi]?.[d] ?? -1)) === setOf(t) && t.every(d => left[gi]?.[d] !== d))
-      const toAnti = group.filter((_, gi) => setOf(t.map(d => left[gi]?.[d] ?? -1)) === setOf(antiOf[ti] ?? []))
+      const cyclers = group.filter(
+        (_, gi) =>
+          setOf(t.map(d => left[gi]?.[d] ?? -1)) === setOf(t) &&
+          t.every(d => left[gi]?.[d] !== d),
+      )
+      const toAnti = group.filter(
+        (_, gi) =>
+          setOf(t.map(d => left[gi]?.[d] ?? -1)) ===
+          setOf(antiOf[ti] ?? []),
+      )
       // a lift of e1 -> e2 is unique: g = unit(e2) unit(e1)^-1
       const e1 = unit(t[0] ?? 0)
       const e2 = unit(t[1] ?? 0)
@@ -121,17 +173,32 @@ export default experiment({
       const det = Math.round(determinant(matrix))
 
       if (det !== 1) {
-        return { triangle, rotation: false, beta: NaN, left: 0, right: 0, order: 0 }
+        return {
+          triangle,
+          rotation: false,
+          beta: NaN,
+          left: 0,
+          right: 0,
+          order: 0,
+        }
       }
 
       const factors = isoclinicFactors(matrix)
 
       if (!factors) {
-        return { triangle, rotation: false, beta: NaN, left: 0, right: 0, order: 0 }
+        return {
+          triangle,
+          rotation: false,
+          beta: NaN,
+          left: 0,
+          right: 0,
+          order: 0,
+        }
       }
 
       let l = factors.left
       let r = factors.right
+
       const a = Math.acos(Math.max(-1, Math.min(1, l[0])))
       const b = Math.acos(Math.max(-1, Math.min(1, r[0])))
 
@@ -142,7 +209,10 @@ export default experiment({
 
       const trace = matrix.reduce((s, row, i) => s + (row[i] ?? 0), 0)
       // tr = 2 cos(120) + 2 cos(beta)
-      const beta = Math.round((Math.acos(Math.max(-1, Math.min(1, trace / 2 + 0.5))) * 180) / Math.PI)
+      const beta = Math.round(
+        (Math.acos(Math.max(-1, Math.min(1, trace / 2 + 0.5))) * 180) /
+          Math.PI,
+      )
       const ambiguous = Math.abs(a + b - Math.PI) < 1e-9
 
       return {
@@ -166,30 +236,73 @@ export default experiment({
 
     // 3. the role grid: SL(2, 3) as the linear grid moves fixing the origin, orders and cubes
     const moves = gridMoves()
-    const linear = moves.act.map((table, g) => ({ table, g })).filter(({ table }) => table[0] === 0)
+    const linear = moves.act
+      .map((table, g) => ({ table, g }))
+      .filter(({ table }) => table[0] === 0)
+
     const orderOf = (g: number): number => {
       let h = g
 
       for (let n = 1; n <= 12; n++) {
-        if (h === moves.identity) return n
+        if (h === moves.identity) {
+          return n
+        }
 
         h = moves.compose(h, g)
       }
 
       return 0
     }
+
     const orders = linear.map(({ g }) => orderOf(g))
-    const minusOne = linear.find(({ table }) => table.every((p, i) => p === ((3 - (i % 3)) % 3) + 3 * ((3 - Math.floor(i / 3)) % 3)))
-    const minusOneMoved = minusOne ? Array.from(minusOne.table).filter((p, i) => p !== i).length : -1
+    const minusOne = linear.find(({ table }) =>
+      table.every(
+        (p, i) =>
+          p === ((3 - (i % 3)) % 3) + 3 * ((3 - Math.floor(i / 3)) % 3),
+      ),
+    )
+    const minusOneMoved = minusOne
+      ? Array.from(minusOne.table).filter((p, i) => p !== i).length
+      : -1
 
     // 4. the dynamics
-    const unique = [...new Map(cycling.map(c => [c.permutation.join(','), c.permutation])).values()]
+    const unique = [
+      ...new Map(
+        cycling.map(c => [c.permutation.join(','), c.permutation]),
+      ).values(),
+    ]
     const opposite = [...OPPOSITE]
-    const ledger = (forward: (t: number) => Collision, inverse: (t: number) => Collision, forwardOnly: boolean): number =>
-      symmetryLedger({ forward, inverse, period: 24, permutations: unique, degree: 24 }).filter(e => !forwardOnly || e.kind === 'forward').length
-    const committed = ledger(turningWeave({ opposite }), turningWeave({ opposite, forward: false }), false)
-    const combined = ledger(combinedCollision({ spec: COMBINED_DEFAULT, opposite }), combinedCollision({ spec: COMBINED_DEFAULT, opposite, forward: false }), false)
-    const cold = ledger(coldVibeCollision(true), coldVibeCollision(false), true)
+    const ledger = (
+      forward: (t: number) => Collision,
+      inverse: (t: number) => Collision,
+      forwardOnly: boolean,
+    ): number =>
+      symmetryLedger({
+        forward,
+        inverse,
+        period: 24,
+        permutations: unique,
+        degree: 24,
+      }).filter(e => !forwardOnly || e.kind === 'forward').length
+    const committed = ledger(
+      turningWeave({ opposite }),
+      turningWeave({ opposite, forward: false }),
+      false,
+    )
+    const combined = ledger(
+      combinedCollision({ spec: COMBINED_DEFAULT, opposite }),
+      combinedCollision({
+        spec: COMBINED_DEFAULT,
+        opposite,
+        forward: false,
+      }),
+      false,
+    )
+    const cold = ledger(
+      coldVibeCollision(true),
+      coldVibeCollision(false),
+      true,
+    )
     const s2 = committed + combined + cold > 0
 
     // the classical state under the 1/3 turn: a triple of three alike returns slot for slot, one with two
@@ -229,26 +342,58 @@ export default experiment({
       claim: `the torsor lift of a triple's whole turn is ${torsor.every(t => t.liftCube === 1) ? '+1 on all' : 'not +1 on all'} ${triangles.length} triangles (each lift of order ${[...new Set(torsor.map(t => t.liftOrder))].join('/')}), the -1 appears only among the ${torsor[0]?.toAnti} left turns that carry a triangle to its antitriangle (orders ${[...new Set(torsor.flatMap(t => t.toAntiOrders))].join('/')}); of ${lifts.length} W(F4) elements cycling a triangle ${rotations.length} are rotations and ${reflections} reflections, whose continuous lifts cube to ${[...byBeta.entries()].map(([k, n]) => `${k} (${n})`).join(', ')}; and no knit keeps a triangle turn (committed ${committed}, combined ${combined}, cold ${cold}), so S1 ${s1 ? 'holds' : 'fails'} and S2 ${s2 ? 'holds' : 'fails'}`,
       metrics: {
         triangles: triangles.length,
-        torsorCyclersPerTriangleMin: Math.min(...torsor.map(t => t.cyclers)),
-        torsorCyclersPerTriangleMax: Math.max(...torsor.map(t => t.cyclers)),
+        torsorCyclersPerTriangleMin: Math.min(
+          ...torsor.map(t => t.cyclers),
+        ),
+        torsorCyclersPerTriangleMax: Math.max(
+          ...torsor.map(t => t.cyclers),
+        ),
         torsorLiftOrderMax: Math.max(...torsor.map(t => t.liftOrder)),
-        torsorWholeTurnPlusOne: torsor.filter(t => t.liftCube === 1).length,
-        torsorWholeTurnMinusOne: torsor.filter(t => t.liftCube === -1).length,
-        torsorCyclerCubesPlusOne: torsor.reduce((s, t) => s + t.cyclerCubes.filter(c => c === 1).length, 0),
-        torsorCyclerCubesMinusOne: torsor.reduce((s, t) => s + t.cyclerCubes.filter(c => c === -1).length, 0),
+        torsorWholeTurnPlusOne: torsor.filter(t => t.liftCube === 1)
+          .length,
+        torsorWholeTurnMinusOne: torsor.filter(t => t.liftCube === -1)
+          .length,
+        torsorCyclerCubesPlusOne: torsor.reduce(
+          (s, t) => s + t.cyclerCubes.filter(c => c === 1).length,
+          0,
+        ),
+        torsorCyclerCubesMinusOne: torsor.reduce(
+          (s, t) => s + t.cyclerCubes.filter(c => c === -1).length,
+          0,
+        ),
         leftTurnsToAntiPerTriangle: torsor[0]?.toAnti ?? 0,
-        leftTurnsToAntiCubeMinusOne: torsor.reduce((s, t) => s + t.toAntiCubes.filter(c => c === -1).length, 0),
-        leftTurnsToAntiCubePlusOne: torsor.reduce((s, t) => s + t.toAntiCubes.filter(c => c === 1).length, 0),
-        leftTurnsToAntiOrderMax: Math.max(...torsor.flatMap(t => t.toAntiOrders)),
-        leftTurnsToAntiOrderMin: Math.min(...torsor.flatMap(t => t.toAntiOrders)),
+        leftTurnsToAntiCubeMinusOne: torsor.reduce(
+          (s, t) => s + t.toAntiCubes.filter(c => c === -1).length,
+          0,
+        ),
+        leftTurnsToAntiCubePlusOne: torsor.reduce(
+          (s, t) => s + t.toAntiCubes.filter(c => c === 1).length,
+          0,
+        ),
+        leftTurnsToAntiOrderMax: Math.max(
+          ...torsor.flatMap(t => t.toAntiOrders),
+        ),
+        leftTurnsToAntiOrderMin: Math.min(
+          ...torsor.flatMap(t => t.toAntiOrders),
+        ),
         cyclingElements: lifts.length,
         cyclingRotations: rotations.length,
         cyclingReflections: reflections,
-        rotationsLiftMinusOneBoth: rotations.filter(x => x.left === -1 && x.right === -1).length,
-        rotationsLiftMinusOneLeftOnly: rotations.filter(x => x.left === -1 && x.right === 1).length,
-        rotationsLiftMinusOneRightOnly: rotations.filter(x => x.left === 1 && x.right === -1).length,
-        rotationsLiftPlusOneBoth: rotations.filter(x => x.left === 1 && x.right === 1).length,
-        rotationsLiftAmbiguous: rotations.filter(x => x.left === 0 || x.right === 0).length,
+        rotationsLiftMinusOneBoth: rotations.filter(
+          x => x.left === -1 && x.right === -1,
+        ).length,
+        rotationsLiftMinusOneLeftOnly: rotations.filter(
+          x => x.left === -1 && x.right === 1,
+        ).length,
+        rotationsLiftMinusOneRightOnly: rotations.filter(
+          x => x.left === 1 && x.right === -1,
+        ).length,
+        rotationsLiftPlusOneBoth: rotations.filter(
+          x => x.left === 1 && x.right === 1,
+        ).length,
+        rotationsLiftAmbiguous: rotations.filter(
+          x => x.left === 0 || x.right === 0,
+        ).length,
         gridSl23Elements: linear.length,
         gridOrderThree: orders.filter(o => o === 3).length,
         gridOrderSix: orders.filter(o => o === 6).length,

@@ -65,10 +65,26 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
-import { gridLines, hermitianValues, reducedFirst } from '@/code/measure/bell-gates'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+  physicalKnot,
+} from '@/code/measure/knot-histories'
+import {
+  gridLines,
+  hermitianValues,
+  reducedFirst,
+} from '@/code/measure/bell-gates'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
-import { alignedChsh, densitySeeSaw, pureChshExact, pureSeeSaw, sign3, type Complex3 } from '@/code/measure/pure-chsh'
+import {
+  alignedChsh,
+  densitySeeSaw,
+  pureChshExact,
+  pureSeeSaw,
+  sign3,
+  type Complex3,
+} from '@/code/measure/pure-chsh'
 import { topEigenvector } from '@/code/measure/qutrit-clifford'
 import type { Operator } from '@/code/measure/grid-weights'
 import type { Whole } from '@/code/rule/fear-weave'
@@ -89,21 +105,38 @@ function involutionDefect(a: Complex3): number {
       let im = 0
 
       for (let k = 0; k < 3; k++) {
-        re += (a.re[3 * i + k] ?? 0) * (a.re[3 * k + j] ?? 0) - (a.im[3 * i + k] ?? 0) * (a.im[3 * k + j] ?? 0)
-        im += (a.re[3 * i + k] ?? 0) * (a.im[3 * k + j] ?? 0) + (a.im[3 * i + k] ?? 0) * (a.re[3 * k + j] ?? 0)
+        re +=
+          (a.re[3 * i + k] ?? 0) * (a.re[3 * k + j] ?? 0) -
+          (a.im[3 * i + k] ?? 0) * (a.im[3 * k + j] ?? 0)
+
+        im +=
+          (a.re[3 * i + k] ?? 0) * (a.im[3 * k + j] ?? 0) +
+          (a.im[3 * i + k] ?? 0) * (a.re[3 * k + j] ?? 0)
       }
 
-      worst = Math.max(worst, Math.abs(re - (i === j ? 1 : 0)), Math.abs(im))
+      worst = Math.max(
+        worst,
+        Math.abs(re - (i === j ? 1 : 0)),
+        Math.abs(im),
+      )
     }
   }
 
   return worst
 }
 
-type Reading = { purity: number; exact: number; seesaw: number; role: number; aligned: number; schmidt: number[] }
+type Reading = {
+  purity: number
+  exact: number
+  seesaw: number
+  role: number
+  aligned: number
+  schmidt: number[]
+}
 
 function read(w: Whole): Reading {
   const rho = roleDensity(w)
+
   let purity = 0
 
   for (let i = 0; i < 81; i++) {
@@ -123,9 +156,18 @@ function read(w: Whole): Reading {
 }
 
 // the pure Schmidt state sum sqrt(p_i) |i i> as a density and a vector
-function schmidtState(p: readonly number[]): { rho: Operator; top: { re: number[]; im: number[] } } {
-  const re = [0, 1, 2].flatMap(i => [0, 1, 2].map(j => (i === j ? Math.sqrt(p[i] ?? 0) : 0)))
-  const rho: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+function schmidtState(p: readonly number[]): {
+  rho: Operator
+  top: { re: number[]; im: number[] }
+} {
+  const re = [0, 1, 2].flatMap(i =>
+    [0, 1, 2].map(j => (i === j ? Math.sqrt(p[i] ?? 0) : 0)),
+  )
+  const rho: Operator = {
+    n: 9,
+    re: new Float64Array(81),
+    im: new Float64Array(81),
+  }
 
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
@@ -140,7 +182,7 @@ export default experiment({
   id: 'quantum/tsirelson-closed-form',
   code: 'E-QTM-0132',
   title:
-    'the exact largest CHSH of a pure two-qutrit knot is 2 sqrt((p1 + p2)^2 + 4 p1 p2) + 2 p3 in its Schmidt weights, proven by the Jordan split of each side into a plane and a line, and equal to a sound see-saw on all 1,222 knots of the Bell histories; E-QTM-0112\'s excess over it was the see-saw\'s sign of a degenerate complex operator, not physics',
+    "the exact largest CHSH of a pure two-qutrit knot is 2 sqrt((p1 + p2)^2 + 4 p1 p2) + 2 p3 in its Schmidt weights, proven by the Jordan split of each side into a plane and a line, and equal to a sound see-saw on all 1,222 knots of the Bell histories; E-QTM-0112's excess over it was the see-saw's sign of a degenerate complex operator, not physics",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -154,6 +196,7 @@ export default experiment({
     for (const h of histories) {
       const first = h.records.findIndex(r => r.meetings.length > 0)
       const reading = first + 1
+
       let w = lineKnot(
         h.tokens,
         [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
@@ -189,9 +232,13 @@ export default experiment({
       }
     }
 
-    const purityWorst = Math.max(...readings.map(r => Math.abs(r.purity - 1)))
+    const purityWorst = Math.max(
+      ...readings.map(r => Math.abs(r.purity - 1)),
+    )
     const above = Math.max(...readings.map(r => r.seesaw - r.exact))
-    const agreement = Math.max(...readings.map(r => Math.abs(r.seesaw - r.exact)))
+    const agreement = Math.max(
+      ...readings.map(r => Math.abs(r.seesaw - r.exact)),
+    )
     const roleExcess = readings.map(r => r.role - r.exact)
     const roleAbove = roleExcess.filter(x => x > 1e-6).length
     const roleWorst = Math.max(...roleExcess)
@@ -218,11 +265,19 @@ export default experiment({
         const exact = pureChshExact(p)
         const st = schmidtState(p)
 
-        simplexAligned = Math.max(simplexAligned, Math.abs(alignedChsh(st.rho, st.top) - exact))
+        simplexAligned = Math.max(
+          simplexAligned,
+          Math.abs(alignedChsh(st.rho, st.top) - exact),
+        )
         points++
         simplexWorst = Math.max(simplexWorst, Math.abs(s.value - exact))
         simplexAbove = Math.max(simplexAbove, s.value - exact)
-        involution = Math.max(involution, involutionDefect(s.a0), involutionDefect(s.a1), involutionDefect(sign3(s.a0)))
+        involution = Math.max(
+          involution,
+          involutionDefect(s.a0),
+          involutionDefect(s.a1),
+          involutionDefect(sign3(s.a0)),
+        )
 
         if (Math.abs(exact - TSIRELSON) <= 1e-12) {
           atTsirelson = [...atTsirelson, [i, j, k]]
@@ -231,7 +286,11 @@ export default experiment({
     }
 
     // G5, the control
-    const mixed: Operator = { n: 9, re: new Float64Array(81), im: new Float64Array(81) }
+    const mixed: Operator = {
+      n: 9,
+      re: new Float64Array(81),
+      im: new Float64Array(81),
+    }
 
     mixed.re[0] = 0.5
     mixed.re[4 * 9 + 4] = 0.5
@@ -239,14 +298,22 @@ export default experiment({
     const mixedSchmidt = hermitianValues(reducedFirst(mixed)).reverse()
     const mixedForm = pureChshExact(mixedSchmidt)
     const mixedSeeSaw = densitySeeSaw(mixed, STARTS, STEPS)
-    const alignedWorst = Math.max(...readings.map(r => Math.abs(r.aligned - r.exact)))
+    const alignedWorst = Math.max(
+      ...readings.map(r => Math.abs(r.aligned - r.exact)),
+    )
 
     const gates = {
       G1: readings.length === 1222 && purityWorst <= 1e-9,
       G2: above <= 1e-9 && involution <= 1e-9,
       G3: agreement <= 1e-6,
-      G4: simplexWorst <= 1e-6 && simplexAbove <= 1e-9 && atTsirelson.length === 1 && atTsirelson[0]?.join(',') === '15,15,0',
-      G5: Math.abs(mixedForm - TSIRELSON) <= 1e-9 && Math.abs(mixedSeeSaw - 2) <= 1e-9,
+      G4:
+        simplexWorst <= 1e-6 &&
+        simplexAbove <= 1e-9 &&
+        atTsirelson.length === 1 &&
+        atTsirelson[0]?.join(',') === '15,15,0',
+      G5:
+        Math.abs(mixedForm - TSIRELSON) <= 1e-9 &&
+        Math.abs(mixedSeeSaw - 2) <= 1e-9,
       G6: alignedWorst <= 1e-9 && simplexAligned <= 1e-9,
     }
     const ok = Object.values(gates).every(Boolean)
@@ -272,7 +339,12 @@ export default experiment({
         roleChshAboveMaximumStates: roleAbove,
         roleChshWorstExcess: roleWorst,
         ...named,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         mixedSchmidt1: mixedSchmidt[0] ?? -1,
@@ -281,7 +353,8 @@ export default experiment({
         mixedSeeSaw,
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status fail -> PASS, G3 now holds; the largest exact CHSH 2.7487 -> 2.8271, the gap to Tsirelson 0.0797 -> 0.0014, the see-saw against the closed form 1.7e-6 -> 1.4e-7. No gate was moved. " + ('L2. Status fail on G3 alone, in the second run: the see-saw (16 starts, 3,000 steps) stops up to 1.7e-6 below the form on the knots, never above it, while the explicit Schmidt-aligned observables attain the form on every knot\'s own density to 6.2e-12 (G6, added after the first run, disclosed in the header with the first run\'s numbers). The theorem is the upper bound, G6 the attainment, so the form is the exact maximum on all 1,222 knots; the largest is 2.7487, 0.080 below 2 sqrt 2. REPORTED FOR THE OWNERS OF code/measure/role-bell (not fixed here): signOf builds the sign of a complex Hermitian 3 x 3 from its real 6 x 6 form and, where an eigenvalue is 0 (twice in the embedding), can give the two real copies opposite signs, returning a matrix that is neither Hermitian nor an involution (|S^2 - 1| = 0.94 on a rank-one complex projector, tmp/hidden-sign-probe.ts); roleChsh then reads above the true maximum on 542 of the 1,222 knots, by up to 0.064. The E-QTM-0100 readings sqrt 7 and 2.5523 are exact at their states and stand. E-QTM-0112\'s 2.789 on later knots and E-FRC-0159 HF\'s 2.369 (Schmidt 0.875, 1/9, 1/72, whose exact maximum is 2.3613) are the instrument, and E-QTM-0112\'s G3 (pairing form = see-saw) fails because of it, not because the form is only a lower bound.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status fail -> PASS, G3 now holds; the largest exact CHSH 2.7487 -> 2.8271, the gap to Tsirelson 0.0797 -> 0.0014, the see-saw against the closed form 1.7e-6 -> 1.4e-7. No gate was moved. ' +
+        "L2. Status fail on G3 alone, in the second run: the see-saw (16 starts, 3,000 steps) stops up to 1.7e-6 below the form on the knots, never above it, while the explicit Schmidt-aligned observables attain the form on every knot's own density to 6.2e-12 (G6, added after the first run, disclosed in the header with the first run's numbers). The theorem is the upper bound, G6 the attainment, so the form is the exact maximum on all 1,222 knots; the largest is 2.7487, 0.080 below 2 sqrt 2. REPORTED FOR THE OWNERS OF code/measure/role-bell (not fixed here): signOf builds the sign of a complex Hermitian 3 x 3 from its real 6 x 6 form and, where an eigenvalue is 0 (twice in the embedding), can give the two real copies opposite signs, returning a matrix that is neither Hermitian nor an involution (|S^2 - 1| = 0.94 on a rank-one complex projector, tmp/hidden-sign-probe.ts); roleChsh then reads above the true maximum on 542 of the 1,222 knots, by up to 0.064. The E-QTM-0100 readings sqrt 7 and 2.5523 are exact at their states and stand. E-QTM-0112's 2.789 on later knots and E-FRC-0159 HF's 2.369 (Schmidt 0.875, 1/9, 1/72, whose exact maximum is 2.3613) are the instrument, and E-QTM-0112's G3 (pairing form = see-saw) fails because of it, not because the form is only a lower bound.",
     })
   },
 })

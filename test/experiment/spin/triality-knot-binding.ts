@@ -44,10 +44,29 @@ import { verdict } from '@/test/scaffold/verdict'
 import { makeDifferenceEngine } from '@/code/compute/difference-engine'
 import { boxRun } from '@/code/compute/knit-reference'
 import { turningWeave, type Collision } from '@/code/rule/collision'
-import { colorTriality, trialityWeave, trialityWeaveLayout, TRIALITY_WEAVE_PERIOD } from '@/code/rule/triality-weave'
-import { alignedLayout, copyLayout } from '@/code/measure/generation-copies'
-import { a2Planes, KIND_ORDER, OPPOSITE, ROOTS, TRIPLES, tripleDock } from '@/code/measure/rishon-triples'
-import { followSeed, vacuumPeriod, type Fate } from '@/code/measure/triple-fate'
+import {
+  colorTriality,
+  trialityWeave,
+  trialityWeaveLayout,
+  TRIALITY_WEAVE_PERIOD,
+} from '@/code/rule/triality-weave'
+import {
+  alignedLayout,
+  copyLayout,
+} from '@/code/measure/generation-copies'
+import {
+  a2Planes,
+  KIND_ORDER,
+  OPPOSITE,
+  ROOTS,
+  TRIPLES,
+  tripleDock,
+} from '@/code/measure/rishon-triples'
+import {
+  followSeed,
+  vacuumPeriod,
+  type Fate,
+} from '@/code/measure/triple-fate'
 import { d4BoxCell } from '@/code/substrate/d4-box'
 
 const PERIODS = 8
@@ -58,15 +77,31 @@ const VACUUM_LIMIT = 2400
 const COMMITTED_SCHEDULE = 24
 const KNOTS = ['love-love-love', 'fear-fear-fear']
 
-type Knit = { name: string; forward: (t: number) => Collision; schedule: number }
+type Knit = {
+  name: string
+  forward: (t: number) => Collision
+  schedule: number
+}
 
-const fateKey = (f: Fate): string => `${f.cls}|${f.bulkSpeed}|${f.docks.join(',')}`
+const fateKey = (f: Fate): string =>
+  `${f.cls}|${f.bulkSpeed}|${f.docks.join(',')}`
 
-function boxExactness(forward: (t: number) => Collision, seeds: readonly Int8Array[]): number {
+function boxExactness(
+  forward: (t: number) => Collision,
+  seeds: readonly Int8Array[],
+): number {
   let mismatches = 0
 
   for (const seed of seeds) {
-    const dense = boxRun({ forward, side: BOX_SIDE, seed: { name: 'triple', docks: [{ coords: [0, 0, 0, 0], state: seed }] }, center: [0, 0, 0, 0] })
+    const dense = boxRun({
+      forward,
+      side: BOX_SIDE,
+      seed: {
+        name: 'triple',
+        docks: [{ coords: [0, 0, 0, 0], state: seed }],
+      },
+      center: [0, 0, 0, 0],
+    })
     const engine = makeDifferenceEngine({ forward, side: BOX_SIDE })
 
     engine.set([0, 0, 0, 0], seed)
@@ -82,7 +117,9 @@ function boxExactness(forward: (t: number) => Collision, seeds: readonly Int8Arr
         out[i] = vacuum[i % 24] ?? 0
       }
 
-      engine.forEach((c, s) => out.set(s, d4BoxCell({ coordinates: c, side: BOX_SIDE }) * 24))
+      engine.forEach((c, s) =>
+        out.set(s, d4BoxCell({ coordinates: c, side: BOX_SIDE }) * 24),
+      )
 
       const data = dense.data()
 
@@ -95,13 +132,14 @@ function boxExactness(forward: (t: number) => Collision, seeds: readonly Int8Arr
   return mismatches
 }
 
-const camel = (kind: string): string => kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())
+const camel = (kind: string): string =>
+  kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())
 
 export default experiment({
   id: 'spin/triality-knot-binding',
   code: 'E-SPN-0052',
   title:
-    'does a knot bind when triality is kept: every triple on every zero-sum triangle, and the unmixed triples on the color plane\'s copies, followed exactly on the unbounded bulk lattice under the triality weave, its aligned form and the committed knit, asking whether three loves (love minus fear 3, one whole charge) travel as one object, read in the bulk and on the husk',
+    "does a knot bind when triality is kept: every triple on every zero-sum triangle, and the unmixed triples on the color plane's copies, followed exactly on the unbounded bulk lattice under the triality weave, its aligned form and the committed knit, asking whether three loves (love minus fear 3, one whole charge) travel as one object, read in the bulk and on the husk",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -110,16 +148,43 @@ export default experiment({
     const opposite = [...OPPOSITE]
     const triality = colorTriality({ opposite })
     const layout = trialityWeaveLayout({ opposite, triality })
-    const aligned = alignedLayout({ layout, copies: copyLayout({ roots: ROOTS, opposite, triality }) })
+    const aligned = alignedLayout({
+      layout,
+      copies: copyLayout({ roots: ROOTS, opposite, triality }),
+    })
     const knits: Knit[] = [
-      { name: 'triality', forward: trialityWeave({ layout }), schedule: TRIALITY_WEAVE_PERIOD },
-      { name: 'aligned', forward: trialityWeave({ layout: aligned }), schedule: TRIALITY_WEAVE_PERIOD },
-      { name: 'committed', forward: turningWeave({ opposite }), schedule: COMMITTED_SCHEDULE },
+      {
+        name: 'triality',
+        forward: trialityWeave({ layout }),
+        schedule: TRIALITY_WEAVE_PERIOD,
+      },
+      {
+        name: 'aligned',
+        forward: trialityWeave({ layout: aligned }),
+        schedule: TRIALITY_WEAVE_PERIOD,
+      },
+      {
+        name: 'committed',
+        forward: turningWeave({ opposite }),
+        schedule: COMMITTED_SCHEDULE,
+      },
     ]
-    const periods = knits.map(k => vacuumPeriod({ forward: k.forward, schedule: k.schedule, limit: VACUUM_LIMIT }))
+    const periods = knits.map(k =>
+      vacuumPeriod({
+        forward: k.forward,
+        schedule: k.schedule,
+        limit: VACUUM_LIMIT,
+      }),
+    )
     const planes = a2Planes()
-    const fixed = new Set(triality.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0))
-    const colorPlane = planes.findIndex(p => p.triangle.every(d => fixed.has(d)))
+    const fixed = new Set(
+      triality
+        .map((image, d) => (image === d ? d : -1))
+        .filter(d => d >= 0),
+    )
+    const colorPlane = planes.findIndex(p =>
+      p.triangle.every(d => fixed.has(d)),
+    )
     const triangles = planes.flatMap((p, pi) => [
       { plane: pi, directions: p.triangle },
       { plane: pi, directions: p.anti },
@@ -127,9 +192,25 @@ export default experiment({
     const color = planes[colorPlane]
 
     // instruments
-    const i1 = knits.slice(0, 2).map(k => boxExactness(k.forward, color ? TRIPLES.map(t => tripleDock(color.triangle, t.vibes)) : []))
+    const i1 = knits
+      .slice(0, 2)
+      .map(k =>
+        boxExactness(
+          k.forward,
+          color
+            ? TRIPLES.map(t => tripleDock(color.triangle, t.vibes))
+            : [],
+        ),
+      )
 
-    type Row = { knit: string; triangle: number; plane: number; triple: number; fate: Fate }
+    type Row = {
+      knit: string
+      triangle: number
+      plane: number
+      triple: number
+      fate: Fate
+    }
+
     const rows: Row[] = []
 
     knits.forEach((k, ki) => {
@@ -143,14 +224,36 @@ export default experiment({
         }
 
         TRIPLES.forEach((x, xi) => {
-          rows.push({ knit: k.name, triangle: ti, plane: t.plane, triple: xi, fate: followSeed({ forward: k.forward, state: tripleDock(t.directions, x.vibes), period, periods: PERIODS, cap: CAP }) })
+          rows.push({
+            knit: k.name,
+            triangle: ti,
+            plane: t.plane,
+            triple: xi,
+            fate: followSeed({
+              forward: k.forward,
+              state: tripleDock(t.directions, x.vibes),
+              period,
+              periods: PERIODS,
+              cap: CAP,
+            }),
+          })
         })
       })
     })
 
-    type CopyRow = { knit: string; triplet: boolean; copy: number; triple: number; fate: Fate }
+    type CopyRow = {
+      knit: string
+      triplet: boolean
+      copy: number
+      triple: number
+      fate: Fate
+    }
+
     const copyRows: CopyRow[] = []
-    const unmixed = TRIPLES.map((x, i) => ({ x, i })).filter(({ x }) => (x.loves === 0 || x.fears === 0) && x.kind !== 'calm-calm-calm')
+    const unmixed = TRIPLES.map((x, i) => ({ x, i })).filter(
+      ({ x }) =>
+        (x.loves === 0 || x.fears === 0) && x.kind !== 'calm-calm-calm',
+    )
 
     knits.forEach((k, ki) => {
       const period = periods[ki] ?? k.schedule
@@ -159,9 +262,24 @@ export default experiment({
         return
       }
 
-      ;[...color.triplets.map(c => ({ c, triplet: true })), ...color.antitriplets.map(c => ({ c, triplet: false }))].forEach(({ c, triplet }, ci) => {
+      ;[
+        ...color.triplets.map(c => ({ c, triplet: true })),
+        ...color.antitriplets.map(c => ({ c, triplet: false })),
+      ].forEach(({ c, triplet }, ci) => {
         for (const { x, i } of unmixed) {
-          copyRows.push({ knit: k.name, triplet, copy: ci % 3, triple: i, fate: followSeed({ forward: k.forward, state: tripleDock(c, x.vibes), period, periods: PERIODS, cap: CAP }) })
+          copyRows.push({
+            knit: k.name,
+            triplet,
+            copy: ci % 3,
+            triple: i,
+            fate: followSeed({
+              forward: k.forward,
+              state: tripleDock(c, x.vibes),
+              period,
+              periods: PERIODS,
+              cap: CAP,
+            }),
+          })
         }
       })
     })
@@ -170,50 +288,93 @@ export default experiment({
       colorPlane,
       i1TrialityBoxMismatches: i1[0] ?? -1,
       i1AlignedBoxMismatches: i1[1] ?? -1,
-      ...Object.fromEntries(knits.map((k, ki) => [`${k.name}RecurrencePeriod`, periods[ki] ?? -1])),
+      ...Object.fromEntries(
+        knits.map((k, ki) => [
+          `${k.name}RecurrencePeriod`,
+          periods[ki] ?? -1,
+        ]),
+      ),
     }
     const control: Record<string, number> = {}
     const table: string[] = []
+
     let i2 = true
-    const generation: Record<string, { alike: number; cases: number }> = {}
+
+    const generation: Record<string, { alike: number; cases: number }> =
+      {}
 
     for (const k of knits) {
       const mine = rows.filter(r => r.knit === k.name)
 
       for (const kind of KIND_ORDER) {
         const list = mine.filter(r => TRIPLES[r.triple]?.kind === kind)
-        const count = (cls: string): number => list.filter(r => r.fate.cls === cls).length
+        const count = (cls: string): number =>
+          list.filter(r => r.fate.cls === cls).length
         const particles = list.filter(r => r.fate.cls === 'particle')
         const name = `${k.name}_${camel(kind)}`
 
-        for (const cls of ['particle', 'bound', 'split', 'dressing', 'gone', 'vacuum']) {
+        for (const cls of [
+          'particle',
+          'bound',
+          'split',
+          'dressing',
+          'gone',
+          'vacuum',
+        ]) {
           metrics[`${name}_${cls}`] = count(cls)
         }
 
         if (particles.length > 0) {
-          metrics[`${name}_particleSlotsMax`] = Math.max(...particles.map(r => r.fate.slots))
-          metrics[`${name}_huskSpeedMax`] = Math.max(...particles.map(r => r.fate.huskSpeed))
-          metrics[`${name}_huskSpeedMin`] = Math.min(...particles.map(r => r.fate.huskSpeed))
-          metrics[`${name}_bulkSpeedMax`] = Math.max(...particles.map(r => r.fate.bulkSpeed))
-          metrics[`${name}_twoSlotParticles`] = particles.filter(r => r.fate.slots >= 2).length
-          metrics[`${name}_twoSlotBulkSpeedMax`] = Math.max(0, ...particles.filter(r => r.fate.slots >= 2).map(r => r.fate.bulkSpeed))
+          metrics[`${name}_particleSlotsMax`] = Math.max(
+            ...particles.map(r => r.fate.slots),
+          )
+
+          metrics[`${name}_huskSpeedMax`] = Math.max(
+            ...particles.map(r => r.fate.huskSpeed),
+          )
+
+          metrics[`${name}_huskSpeedMin`] = Math.min(
+            ...particles.map(r => r.fate.huskSpeed),
+          )
+
+          metrics[`${name}_bulkSpeedMax`] = Math.max(
+            ...particles.map(r => r.fate.bulkSpeed),
+          )
+
+          metrics[`${name}_twoSlotParticles`] = particles.filter(
+            r => r.fate.slots >= 2,
+          ).length
+
+          metrics[`${name}_twoSlotBulkSpeedMax`] = Math.max(
+            0,
+            ...particles
+              .filter(r => r.fate.slots >= 2)
+              .map(r => r.fate.bulkSpeed),
+          )
         }
 
         if (kind === 'calm-calm-calm') {
           i2 = i2 && count('vacuum') === list.length
         }
 
-        table.push(`${k.name} ${kind}: particle ${count('particle')}, bound ${count('bound')}, split ${count('split')}, dressing ${count('dressing')}, gone ${count('gone')}, vacuum ${count('vacuum')} of ${list.length}`)
+        table.push(
+          `${k.name} ${kind}: particle ${count('particle')}, bound ${count('bound')}, split ${count('split')}, dressing ${count('dressing')}, gone ${count('gone')}, vacuum ${count('vacuum')} of ${list.length}`,
+        )
       }
 
       // generation degeneracy on the color plane's copies
       const copies = copyRows.filter(r => r.knit === k.name)
+
       let alike = 0
       let cases = 0
 
       for (const { i } of unmixed) {
         for (const triplet of [true, false]) {
-          const keys = new Set(copies.filter(r => r.triple === i && r.triplet === triplet).map(r => fateKey(r.fate)))
+          const keys = new Set(
+            copies
+              .filter(r => r.triple === i && r.triplet === triplet)
+              .map(r => fateKey(r.fate)),
+          )
 
           cases += 1
           alike += keys.size === 1 ? 1 : 0
@@ -226,35 +387,61 @@ export default experiment({
     }
 
     const i3 =
-      (generation.triality?.alike ?? -1) === (generation.triality?.cases ?? 0) &&
-      (generation.aligned?.alike ?? -1) === (generation.aligned?.cases ?? 0) &&
-      (generation.committed?.alike ?? 0) < (generation.committed?.cases ?? 0)
+      (generation.triality?.alike ?? -1) ===
+        (generation.triality?.cases ?? 0) &&
+      (generation.aligned?.alike ?? -1) ===
+        (generation.aligned?.cases ?? 0) &&
+      (generation.committed?.alike ?? 0) <
+        (generation.committed?.cases ?? 0)
 
     // the hypothesis, weave by weave
     const hypothesis = knits.slice(0, 2).map(k => {
-      const knots = rows.filter(r => r.knit === k.name && KNOTS.includes(TRIPLES[r.triple]?.kind ?? ''))
-      const carriers = knots.filter(r => r.fate.cls === 'particle' && r.fate.slots >= 2)
+      const knots = rows.filter(
+        r =>
+          r.knit === k.name &&
+          KNOTS.includes(TRIPLES[r.triple]?.kind ?? ''),
+      )
+      const carriers = knots.filter(
+        r => r.fate.cls === 'particle' && r.fate.slots >= 2,
+      )
       const onColor = knots.filter(r => r.plane === colorPlane)
       const h1 = carriers.length > 0
-      const h2 = h1 && KNOTS.some(kind => onColor.filter(r => TRIPLES[r.triple]?.kind === kind).every(r => r.fate.cls === 'particle' && r.fate.slots >= 2))
-      const h3 = h1 && carriers.some(r => r.fate.huskSpeed > 0 && r.fate.huskSpeed < 1)
+      const h2 =
+        h1 &&
+        KNOTS.some(kind =>
+          onColor
+            .filter(r => TRIPLES[r.triple]?.kind === kind)
+            .every(r => r.fate.cls === 'particle' && r.fate.slots >= 2),
+        )
+      const h3 =
+        h1 &&
+        carriers.some(r => r.fate.huskSpeed > 0 && r.fate.huskSpeed < 1)
 
       metrics[`${k.name}_H1_knotCarriers`] = carriers.length
       metrics[`${k.name}_H2_knotOnColorPlane`] = h2 ? 1 : 0
       metrics[`${k.name}_H3_movesBelowHuskAxisSpeed`] = h3 ? 1 : 0
-      metrics[`${k.name}_colorPlaneKnotParticles`] = onColor.filter(r => r.fate.cls === 'particle').length
+      metrics[`${k.name}_colorPlaneKnotParticles`] = onColor.filter(
+        r => r.fate.cls === 'particle',
+      ).length
       metrics[`${k.name}_colorPlaneKnotRuns`] = onColor.length
 
       return { h1, h2, h3 }
     })
 
-    const committedKnots = rows.filter(r => r.knit === 'committed' && KNOTS.includes(TRIPLES[r.triple]?.kind ?? ''))
+    const committedKnots = rows.filter(
+      r =>
+        r.knit === 'committed' &&
+        KNOTS.includes(TRIPLES[r.triple]?.kind ?? ''),
+    )
 
-    control.committedKnotCarriers = committedKnots.filter(r => r.fate.cls === 'particle' && r.fate.slots >= 2).length
+    control.committedKnotCarriers = committedKnots.filter(
+      r => r.fate.cls === 'particle' && r.fate.slots >= 2,
+    ).length
     control.committedCopiesAlike = generation.committed?.alike ?? -1
     control.committedCopyCases = generation.committed?.cases ?? -1
 
-    const instruments = (i1[0] ?? 1) === 0 && (i1[1] ?? 1) === 0 && i2 && i3
+    const instruments =
+      (i1[0] ?? 1) === 0 && (i1[1] ?? 1) === 0 && i2 && i3
     const physics = hypothesis.some(h => h.h1 && h.h2 && h.h3)
     const ok = instruments && physics
 
@@ -263,7 +450,13 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `instruments ${instruments ? 'exact' : 'NOT exact'} (box ${i1.join(' and ')} mismatches, calm-calm-calm the vacuum ${i2 ? 'everywhere' : 'not everywhere'}, copies alike ${generation.triality?.alike}/${generation.triality?.cases} and ${generation.aligned?.alike}/${generation.aligned?.cases} under the triality weaves against ${generation.committed?.alike}/${generation.committed?.cases} committed); knots of three that travel as one object: ${knits.slice(0, 2).map((k, i) => `${k.name} ${metrics[`${k.name}_H1_knotCarriers`]} of ${rows.filter(r => r.knit === k.name && KNOTS.includes(TRIPLES[r.triple]?.kind ?? '')).length}${hypothesis[i]?.h2 ? ', every color-plane knot' : ''}`).join(', ')}, committed ${control.committedKnotCarriers}`,
+      claim: `instruments ${instruments ? 'exact' : 'NOT exact'} (box ${i1.join(' and ')} mismatches, calm-calm-calm the vacuum ${i2 ? 'everywhere' : 'not everywhere'}, copies alike ${generation.triality?.alike}/${generation.triality?.cases} and ${generation.aligned?.alike}/${generation.aligned?.cases} under the triality weaves against ${generation.committed?.alike}/${generation.committed?.cases} committed); knots of three that travel as one object: ${knits
+        .slice(0, 2)
+        .map(
+          (k, i) =>
+            `${k.name} ${metrics[`${k.name}_H1_knotCarriers`]} of ${rows.filter(r => r.knit === k.name && KNOTS.includes(TRIPLES[r.triple]?.kind ?? '')).length}${hypothesis[i]?.h2 ? ', every color-plane knot' : ''}`,
+        )
+        .join(', ')}, committed ${control.committedKnotCarriers}`,
       metrics,
       control,
       notes: `L2, exact, bulk substrate with the husk read by column. Recurrence periods measured as the least multiple of the schedule at which the vacuum returns: ${knits.map((k, i) => `${k.name} ${periods[i]}`).join(', ')}. A particle with 1 slot is a lone vibe. Per knit and kind over the 32 triangles: ${table.join('. ')}. First run: every gate as fixed and the same status and counts; the bulk speed and the two-slot particle metrics were added after it as reported numbers and rerun. They show that every recurring object of two slots sits still (bulk and husk speed 0), so the only movers are lone vibes.`,

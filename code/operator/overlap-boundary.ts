@@ -18,8 +18,14 @@
 // H_W = gamma_5 (D_W - m0), H_ov = gamma_5 + sign(H_W). The sign is the Newton iteration of
 // code/algebra/linear/eig-hermitian.
 
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
-import { eigHermitian, hermitianMatrixSign } from '@/code/algebra/linear/eig-hermitian'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
+import {
+  eigHermitian,
+  hermitianMatrixSign,
+} from '@/code/algebra/linear/eig-hermitian'
 import { type Weyl } from '@/code/tool/weyl'
 
 export type TimeBoundary = 'periodic' | 'antiperiodic'
@@ -51,7 +57,10 @@ function dagger(u: Link, nc: number): Link {
 }
 
 function scale(u: Link, factor: number): Link {
-  return { re: u.re.map(x => x * factor), im: u.im.map(x => x * factor) }
+  return {
+    re: u.re.map(x => x * factor),
+    im: u.im.map(x => x * factor),
+  }
 }
 
 // the SU(2) matrix of a unit quaternion, U = q0 + i q . sigma, as code/operator/overlap-su2 builds it
@@ -61,7 +70,12 @@ function su2(q: readonly number[]): Link {
   return { re: [q0, q2, -q2, q0], im: [q3, q1, q1, -q3] }
 }
 
-function drawLinks(input: { group: OverlapGroup; length: number; disorder: number; rng: Weyl }): { links: [Link, Link][]; angles: [number, number][] } {
+function drawLinks(input: {
+  group: OverlapGroup
+  length: number
+  disorder: number
+  rng: Weyl
+}): { links: [Link, Link][]; angles: [number, number][] } {
   const sites = input.length * input.length
   const links: [Link, Link][] = []
   const angles: [number, number][] = []
@@ -85,6 +99,7 @@ function drawLinks(input: { group: OverlapGroup; length: number; disorder: numbe
 
         return [1 / norm, q1 / norm, q2 / norm, q3 / norm]
       }
+
       const first = quaternion()
       const second = quaternion()
 
@@ -96,14 +111,24 @@ function drawLinks(input: { group: OverlapGroup; length: number; disorder: numbe
 }
 
 // the U(1) topological charge, sum over plaquettes of the principal plaquette angle over 2 pi
-export function topologicalChargeU1(angles: readonly [number, number][], length: number): number {
-  const site = (a: number, b: number): number => ((a + length) % length) + ((b + length) % length) * length
+export function topologicalChargeU1(
+  angles: readonly [number, number][],
+  length: number,
+): number {
+  const site = (a: number, b: number): number =>
+    ((a + length) % length) + ((b + length) % length) * length
+
   let total = 0
 
   for (let n1 = 0; n1 < length; n1++) {
     for (let n2 = 0; n2 < length; n2++) {
-      const theta = angles[site(n1, n2)]![0] + angles[site(n1 + 1, n2)]![1] - angles[site(n1, n2 + 1)]![0] - angles[site(n1, n2)]![1]
-      const principal = theta - 2 * Math.PI * Math.round(theta / (2 * Math.PI))
+      const theta =
+        angles[site(n1, n2)]![0] +
+        angles[site(n1 + 1, n2)]![1] -
+        angles[site(n1, n2 + 1)]![0] -
+        angles[site(n1, n2)]![1]
+      const principal =
+        theta - 2 * Math.PI * Math.round(theta / (2 * Math.PI))
 
       total += principal
     }
@@ -112,7 +137,15 @@ export function topologicalChargeU1(angles: readonly [number, number][], length:
   return Math.round(total / (2 * Math.PI))
 }
 
-function addHop(m: ComplexMatrix, nc: number, row: number, col: number, spin: Link, color: Link, coefficient: number): void {
+function addHop(
+  m: ComplexMatrix,
+  nc: number,
+  row: number,
+  col: number,
+  spin: Link,
+  color: Link,
+  coefficient: number,
+): void {
   const n = m.rows
   const width = 2 * nc
 
@@ -128,8 +161,13 @@ function addHop(m: ComplexMatrix, nc: number, row: number, col: number, spin: Li
           const r = row * width + si * nc + ci
           const c = col * width + sj * nc + cj
 
-          m.re[r * n + c] = (m.re[r * n + c] ?? 0) + coefficient * (spRe * coRe - spIm * coIm)
-          m.im[r * n + c] = (m.im[r * n + c] ?? 0) + coefficient * (spRe * coIm + spIm * coRe)
+          m.re[r * n + c] =
+            (m.re[r * n + c] ?? 0) +
+            coefficient * (spRe * coRe - spIm * coIm)
+
+          m.im[r * n + c] =
+            (m.im[r * n + c] ?? 0) +
+            coefficient * (spRe * coIm + spIm * coRe)
         }
       }
     }
@@ -137,25 +175,82 @@ function addHop(m: ComplexMatrix, nc: number, row: number, col: number, spin: Li
 }
 
 // H_W = gamma_5 (D_W - m0) for one background and one time boundary
-export function wilsonHermitian(input: { group: OverlapGroup; length: number; links: readonly [Link, Link][]; m0: number; time: TimeBoundary }): ComplexMatrix {
+export function wilsonHermitian(input: {
+  group: OverlapGroup
+  length: number
+  links: readonly [Link, Link][]
+  m0: number
+  time: TimeBoundary
+}): ComplexMatrix {
   const L = input.length
   const nc = input.group === 'u1' ? 1 : 2
   const n = 2 * nc * L * L
   const d = makeComplexMatrix({ rows: n, cols: n })
-  const site = (a: number, b: number): number => ((a + L) % L) + ((b + L) % L) * L
-  const identity: Link = nc === 1 ? { re: [1], im: [0] } : { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
+  const site = (a: number, b: number): number =>
+    ((a + L) % L) + ((b + L) % L) * L
+  const identity: Link =
+    nc === 1
+      ? { re: [1], im: [0] }
+      : { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
   const sign = input.time === 'antiperiodic' ? -1 : 1
 
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2)
 
-      addHop(d, nc, x, x, { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }, identity, 2 - input.m0)
-      addHop(d, nc, x, site(n1 + 1, n2), SPIN_MINUS_X, input.links[x]![0], -0.5)
-      addHop(d, nc, x, site(n1 - 1, n2), SPIN_PLUS_X, dagger(input.links[site(n1 - 1, n2)]![0], nc), -0.5)
+      addHop(
+        d,
+        nc,
+        x,
+        x,
+        { re: [1, 0, 0, 1], im: [0, 0, 0, 0] },
+        identity,
+        2 - input.m0,
+      )
+
+      addHop(
+        d,
+        nc,
+        x,
+        site(n1 + 1, n2),
+        SPIN_MINUS_X,
+        input.links[x]![0],
+        -0.5,
+      )
+
+      addHop(
+        d,
+        nc,
+        x,
+        site(n1 - 1, n2),
+        SPIN_PLUS_X,
+        dagger(input.links[site(n1 - 1, n2)]![0], nc),
+        -0.5,
+      )
+
       // a hop across the last time slice carries the fermion's boundary sign
-      addHop(d, nc, x, site(n1, n2 + 1), SPIN_MINUS_Y, scale(input.links[x]![1], n2 === L - 1 ? sign : 1), -0.5)
-      addHop(d, nc, x, site(n1, n2 - 1), SPIN_PLUS_Y, scale(dagger(input.links[site(n1, n2 - 1)]![1], nc), n2 === 0 ? sign : 1), -0.5)
+      addHop(
+        d,
+        nc,
+        x,
+        site(n1, n2 + 1),
+        SPIN_MINUS_Y,
+        scale(input.links[x]![1], n2 === L - 1 ? sign : 1),
+        -0.5,
+      )
+
+      addHop(
+        d,
+        nc,
+        x,
+        site(n1, n2 - 1),
+        SPIN_PLUS_Y,
+        scale(
+          dagger(input.links[site(n1, n2 - 1)]![1], nc),
+          n2 === 0 ? sign : 1,
+        ),
+        -0.5,
+      )
     }
   }
 
@@ -196,6 +291,7 @@ export function overlapCondensateWithBoundary(input: {
 }): BoundaryCondensate {
   const nc = input.group === 'u1' ? 1 : 2
   const n = 2 * nc * input.length * input.length
+
   let near = 0
   let total = 0
   let exact = 0
@@ -204,11 +300,18 @@ export function overlapCondensateWithBoundary(input: {
 
   for (let c = 0; c < input.configs; c++) {
     const { links, angles } = drawLinks(input)
-    const hw = wilsonHermitian({ group: input.group, length: input.length, links, m0: input.m0, time: input.time })
+    const hw = wilsonHermitian({
+      group: input.group,
+      length: input.length,
+      links,
+      m0: input.m0,
+      time: input.time,
+    })
     const overlap = hermitianMatrixSign({ matrix: hw })
 
     for (let i = 0; i < n; i++) {
-      overlap.re[i * n + i] = (overlap.re[i * n + i] ?? 0) + (i % (2 * nc) < nc ? 1 : -1)
+      overlap.re[i * n + i] =
+        (overlap.re[i * n + i] ?? 0) + (i % (2 * nc) < nc ? 1 : -1)
     }
 
     for (const value of eigHermitian({ matrix: overlap }).values) {
@@ -225,23 +328,40 @@ export function overlapCondensateWithBoundary(input: {
     }
   }
 
-  return { nearZeroDensity: near / total, exactZeroModes: exact, absoluteCharge: charge, lowestEigenvalue: lowest }
+  return {
+    nearZeroDensity: near / total,
+    exactZeroModes: exact,
+    absoluteCharge: charge,
+    lowestEigenvalue: lowest,
+  }
 }
 
 // the free overlap's eigenvalues +/- sqrt(2 (1 + a / w)) per momentum, a = sum (1 - cos p) - m0,
 // w = sqrt(sum sin^2 p + a^2), with time momenta 2 pi n / L (periodic) or (2 n + 1) pi / L (antiperiodic);
 // returns the near-zero density at the tolerance and the smallest |lambda|
-export function freeOverlapSpectrum(input: { length: number; m0: number; tolerance: number; time: TimeBoundary }): { density: number; lowest: number } {
+export function freeOverlapSpectrum(input: {
+  length: number
+  m0: number
+  tolerance: number
+  time: TimeBoundary
+}): { density: number; lowest: number } {
   const L = input.length
+
   let near = 0
   let total = 0
   let lowest = Number.POSITIVE_INFINITY
 
   for (let k1 = 0; k1 < L; k1++) {
     for (let k2 = 0; k2 < L; k2++) {
-      const p = [(2 * Math.PI * k1) / L, ((2 * k2 + (input.time === 'antiperiodic' ? 1 : 0)) * Math.PI) / L]
+      const p = [
+        (2 * Math.PI * k1) / L,
+        ((2 * k2 + (input.time === 'antiperiodic' ? 1 : 0)) * Math.PI) /
+          L,
+      ]
       const a = p.reduce((s, x) => s + 1 - Math.cos(x), 0) - input.m0
-      const w = Math.sqrt(p.reduce((s, x) => s + Math.sin(x) ** 2, 0) + a * a)
+      const w = Math.sqrt(
+        p.reduce((s, x) => s + Math.sin(x) ** 2, 0) + a * a,
+      )
       const lambda = Math.sqrt(Math.max(0, 2 * (1 + a / w)))
 
       near += lambda < input.tolerance ? 2 : 0

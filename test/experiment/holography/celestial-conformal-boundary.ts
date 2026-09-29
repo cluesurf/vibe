@@ -53,8 +53,9 @@ export default experiment({
 
     // grounding: the four directions and the boost axis are real coin directions
     const grounded =
-      FOUR_DIRECTIONS.every(v => containsVector({ vectors: roots, vector: v })) &&
-      containsVector({ vectors: roots, vector: BOOST_AXIS })
+      FOUR_DIRECTIONS.every(v =>
+        containsVector({ vectors: roots, vector: v }),
+      ) && containsVector({ vectors: roots, vector: BOOST_AXIS })
 
     const points = FOUR_DIRECTIONS.map(normalize)
     const boost = ballIsometry(

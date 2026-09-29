@@ -12,7 +12,11 @@
 // copied by the per-link groups (the same decision as the rule, read from the parts' directions) or bounced.
 
 import { type Vibe } from '@/code/rule/locked-token-line'
-import { spanOf, toLockedBasis, type Complex } from '@/code/measure/locked-run'
+import {
+  spanOf,
+  toLockedBasis,
+  type Complex,
+} from '@/code/measure/locked-run'
 import { type M3 } from '@/code/measure/token-pair-run'
 
 type C3 = { re: Float64Array; im: Float64Array }
@@ -24,7 +28,10 @@ const B: Complex = [0.75, -SQ / 2]
 const chargeOf = (kind: Vibe): number => (kind === 'love' ? 1 : -1)
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-const zero3 = (): C3 => ({ re: new Float64Array(9), im: new Float64Array(9) })
+const zero3 = (): C3 => ({
+  re: new Float64Array(9),
+  im: new Float64Array(9),
+})
 
 function mul(p: C3, q: C3): C3 {
   const out = zero3()
@@ -35,8 +42,13 @@ function mul(p: C3, q: C3): C3 {
       let si = 0
 
       for (let k = 0; k < 3; k++) {
-        sr += p.re[3 * i + k]! * q.re[3 * k + j]! - p.im[3 * i + k]! * q.im[3 * k + j]!
-        si += p.re[3 * i + k]! * q.im[3 * k + j]! + p.im[3 * i + k]! * q.re[3 * k + j]!
+        sr +=
+          p.re[3 * i + k]! * q.re[3 * k + j]! -
+          p.im[3 * i + k]! * q.im[3 * k + j]!
+
+        si +=
+          p.re[3 * i + k]! * q.im[3 * k + j]! +
+          p.im[3 * i + k]! * q.re[3 * k + j]!
       }
 
       out.re[3 * i + j] = sr
@@ -91,15 +103,27 @@ export type ReelRun = {
   // the string count of a configuration
   stringOf(c: number): number
   // write a start given in the frame (the runner applies each token's frame)
-  place(entries: readonly { x: readonly number[]; r: readonly number[]; j: readonly number[]; amp: Complex }[]): void
+  place(
+    entries: readonly {
+      x: readonly number[]
+      r: readonly number[]
+      j: readonly number[]
+      amp: Complex
+    }[],
+  ): void
   beat(): void
   // probability of each ring position tuple, summed over reels and roles
   positions(): Float64Array
 }
 
 // the flux on every link, along the arc that holds every token (none outside it)
-export function arcFlux(L: number, kinds: readonly Vibe[], xs: readonly number[]): number[] {
+export function arcFlux(
+  L: number,
+  kinds: readonly Vibe[],
+  xs: readonly number[],
+): number[] {
   const sorted = [...xs].sort((a, b) => a - b)
+
   let gapAt = sorted.length - 1
   let largest = -1
 
@@ -141,7 +165,11 @@ export function reelRun(options: ReelRunOptions): ReelRun {
   const S = Math.floor((n * D) / 2)
   const R = 3 ** n
 
-  if (L <= 2 * S + 1) throw new Error('reel-run: the ring must be longer than twice the reels span')
+  if (L <= 2 * S + 1) {
+    throw new Error(
+      'reel-run: the ring must be longer than twice the reels span',
+    )
+  }
 
   const P = L ** n
   const VN = V ** n
@@ -152,6 +180,7 @@ export function reelRun(options: ReelRunOptions): ReelRun {
   const confFlux: number[][] = []
   const xs = new Array<number>(n).fill(0)
   const rs = new Array<number>(n).fill(0)
+
   const decodeP = (p: number, out: number[]): void => {
     let c = p
 
@@ -160,22 +189,31 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       c = Math.floor(c / L)
     }
   }
-  const reelCode = (r: readonly number[]): number => r.reduce((a, v) => a * V + (v + D), 0)
-  const posCode = (x: readonly number[]): number => x.reduce((a, v) => a * L + v, 0)
+
+  const reelCode = (r: readonly number[]): number =>
+    r.reduce((a, v) => a * V + (v + D), 0)
+  const posCode = (x: readonly number[]): number =>
+    x.reduce((a, v) => a * L + v, 0)
 
   for (let p = 0; p < P; p++) {
     decodeP(p, xs)
 
-    if (spanOf(L, xs) > S) continue
+    if (spanOf(L, xs) > S) {
+      continue
+    }
 
     const f = arcFlux(L, options.kinds, xs)
     const l = f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
-    if (2 * l > n * D) continue
+    if (2 * l > n * D) {
+      continue
+    }
 
     const walk = (t: number, need: number): void => {
       if (t === n) {
-        if (need !== 0) return
+        if (need !== 0) {
+          return
+        }
 
         index.set(p * VN + reelCode(rs), confPos.length)
         confPos.push(xs.slice())
@@ -200,11 +238,24 @@ export function reelRun(options: ReelRunOptions): ReelRun {
   const frames: C3[][] = options.kinds.map(kind => {
     const out: C3[] = [identity3()]
 
-    for (let x = 1; x < L; x++) out.push(links ? mul(toLockedBasis(links[x - 1]!, kind === 'fear'), out[x - 1]!) : identity3())
+    for (let x = 1; x < L; x++) {
+      out.push(
+        links
+          ? mul(
+              toLockedBasis(links[x - 1]!, kind === 'fear'),
+              out[x - 1]!,
+            )
+          : identity3(),
+      )
+    }
 
     return out
   })
-  const linkOf = (t: number, x: number): C3 => (links ? toLockedBasis(links[x]!, options.kinds[t] === 'fear') : identity3())
+  const linkOf = (t: number, x: number): C3 =>
+    links
+      ? toLockedBasis(links[x]!, options.kinds[t] === 'fear')
+      : identity3()
+
   const projector = (label: number): C3 => {
     const m = zero3()
 
@@ -212,6 +263,7 @@ export function reelRun(options: ReelRunOptions): ReelRun {
 
     return m
   }
+
   const coin = ((): C3 => {
     const m = zero3()
 
@@ -234,7 +286,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
 
     return m
   })()
+
   type Moves = { coin: C3; move: [C3, C3, C3]; bounce: [C3, C3, C3] }
+
   // convention C: label 0 forward, 1 back, for loves and fears alike
   const tables: Moves[][] = options.kinds.map((_, t) =>
     Array.from({ length: L }, (_, x) => {
@@ -244,27 +298,43 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       const fwd = inFrame(projector(0))
       const back = inFrame(projector(1))
       const rest = inFrame(projector(2))
-      const back1 = links ? dagger(linkOf(t, mod(x - 1, L))) : identity3()
+      const back1 = links
+        ? dagger(linkOf(t, mod(x - 1, L)))
+        : identity3()
       const flip = inFrame(swap)
 
-      return { coin: inFrame(coin), move: [mul(linkOf(t, x), fwd), mul(back1, back), rest], bounce: [mul(flip, fwd), mul(flip, back), rest] }
+      return {
+        coin: inFrame(coin),
+        move: [mul(linkOf(t, x), fwd), mul(back1, back), rest],
+        bounce: [mul(flip, fwd), mul(flip, back), rest],
+      }
     }),
   )
   // U = (1 + omega) / 2 + (1 - omega) / 2 SWAP
   const SWAP_KEEP: Complex = [(1 + OMEGA[0]) / 2, OMEGA[1] / 2]
   const SWAP_MOVE: Complex = [(1 - OMEGA[0]) / 2, -OMEGA[1] / 2]
   const strides = Array.from({ length: n }, (_, t) => 3 ** (n - 1 - t))
+
   let re = new Float64Array(count * R)
   let im = new Float64Array(count * R)
   let nre = new Float64Array(count * R)
   let nim = new Float64Array(count * R)
+
   const tr = new Float64Array(R)
   const ti = new Float64Array(R)
   const ur = new Float64Array(R)
   const ui = new Float64Array(R)
   const cr = new Float64Array(R)
   const ci = new Float64Array(R)
-  const applyOne = (m: C3, t: number, inR: Float64Array, inI: Float64Array, outR: Float64Array, outI: Float64Array): void => {
+
+  const applyOne = (
+    m: C3,
+    t: number,
+    inR: Float64Array,
+    inI: Float64Array,
+    outR: Float64Array,
+    outI: Float64Array,
+  ): void => {
     const st = strides[t]!
 
     outR.fill(0)
@@ -274,7 +344,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       const vr = inR[r]!
       const vi = inI[r]!
 
-      if (vr === 0 && vi === 0) continue
+      if (vr === 0 && vi === 0) {
+        continue
+      }
 
       const digit = Math.floor(r / st) % 3
       const base = r - digit * st
@@ -283,7 +355,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
         const mr = m.re[3 * row + digit]!
         const mi = m.im[3 * row + digit]!
 
-        if (mr === 0 && mi === 0) continue
+        if (mr === 0 && mi === 0) {
+          continue
+        }
 
         const k = base + row * st
 
@@ -292,6 +366,7 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       }
     }
   }
+
   const STEPS = [1, -1, 0] as const
   const combos = 3 ** n
   const dirs = new Array<number>(n).fill(0)
@@ -304,7 +379,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
     const x = confPos[c]!
     const r = confReel[c]!
     const f = confFlux[c]!
-    const crossing = dirs.map((dd, t) => (dd === 0 ? x[t]! : dd === 1 ? mod(x[t]! - 1, L) : -1))
+    const crossing = dirs.map((dd, t) =>
+      dd === 0 ? x[t]! : dd === 1 ? mod(x[t]! - 1, L) : -1,
+    )
     const done = new Array<boolean>(n).fill(false)
 
     for (let t = 0; t < n; t++) {
@@ -314,12 +391,18 @@ export function reelRun(options: ReelRunOptions): ReelRun {
     }
 
     for (let t = 0; t < n; t++) {
-      if (done[t] || crossing[t]! < 0) continue
+      if (done[t] || crossing[t]! < 0) {
+        continue
+      }
 
       const link = crossing[t]!
       const group: number[] = []
 
-      for (let u = 0; u < n; u++) if (crossing[u] === link) group.push(u)
+      for (let u = 0; u < n; u++) {
+        if (crossing[u] === link) {
+          group.push(u)
+        }
+      }
 
       group.forEach(u => {
         done[u] = true
@@ -327,15 +410,25 @@ export function reelRun(options: ReelRunOptions): ReelRun {
 
       let fNew = f[link]!
 
-      for (const u of group) fNew = mod(fNew - STEPS[dirs[u] as 0 | 1 | 2] * chargeOf(options.kinds[u]!), 3)
+      for (const u of group) {
+        fNew = mod(
+          fNew -
+            STEPS[dirs[u] as 0 | 1 | 2] * chargeOf(options.kinds[u]!),
+          3,
+        )
+      }
 
       const delta = (fNew === 0 ? 0 : 1) - (f[link] === 0 ? 0 : 1)
       const k = group.length
       const whole = (2 * delta) % k === 0
       const share = whole ? (2 * delta) / k : 0
-      const fits = whole && group.every(u => r[u]! - share >= -D && r[u]! - share <= D)
+      const fits =
+        whole &&
+        group.every(u => r[u]! - share >= -D && r[u]! - share <= D)
 
-      if (!fits) continue
+      if (!fits) {
+        continue
+      }
 
       for (const u of group) {
         ys[u] = mod(x[u]! + STEPS[dirs[u] as 0 | 1 | 2], L)
@@ -351,7 +444,11 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       const o = c * R
 
       if (options.cost !== 0) {
-        const th = (-2 * Math.PI * ((options.cost * confString[c]!) % options.root)) / options.root
+        const th =
+          (-2 *
+            Math.PI *
+            ((options.cost * confString[c]!) % options.root)) /
+          options.root
         const cs = Math.cos(th)
         const sn = Math.sin(th)
 
@@ -369,7 +466,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
     // it needs no frame), pairs in index order as the rule applies them
     for (let a = 0; a < n; a++) {
       for (let b = a + 1; b < n; b++) {
-        if (options.kinds[a] !== options.kinds[b]) continue
+        if (options.kinds[a] !== options.kinds[b]) {
+          continue
+        }
 
         nre.set(re)
         nim.set(im)
@@ -377,7 +476,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
         for (let c = 0; c < count; c++) {
           const x = confPos[c]!
 
-          if (x[a] !== x[b]) continue
+          if (x[a] !== x[b]) {
+            continue
+          }
 
           const sr = confReel[c]!.slice()
 
@@ -389,14 +490,24 @@ export function reelRun(options: ReelRunOptions): ReelRun {
           for (let r = 0; r < R; r++) {
             const ja = Math.floor(r / strides[a]!) % 3
             const jb = Math.floor(r / strides[b]!) % 3
-            const r2 = r + (jb - ja) * strides[a]! + (ja - jb) * strides[b]!
+            const r2 =
+              r + (jb - ja) * strides[a]! + (ja - jb) * strides[b]!
             const pr = nre[c * R + r]!
             const pi = nim[c * R + r]!
             const qr = nre[c2 * R + r2]!
             const qi = nim[c2 * R + r2]!
 
-            re[c * R + r] = SWAP_KEEP[0] * pr - SWAP_KEEP[1] * pi + SWAP_MOVE[0] * qr - SWAP_MOVE[1] * qi
-            im[c * R + r] = SWAP_KEEP[0] * pi + SWAP_KEEP[1] * pr + SWAP_MOVE[0] * qi + SWAP_MOVE[1] * qr
+            re[c * R + r] =
+              SWAP_KEEP[0] * pr -
+              SWAP_KEEP[1] * pi +
+              SWAP_MOVE[0] * qr -
+              SWAP_MOVE[1] * qi
+
+            im[c * R + r] =
+              SWAP_KEEP[0] * pi +
+              SWAP_KEEP[1] * pr +
+              SWAP_MOVE[0] * qi +
+              SWAP_MOVE[1] * qr
           }
         }
       }
@@ -453,7 +564,8 @@ export function reelRun(options: ReelRunOptions): ReelRun {
         for (let t = 0; t < n; t++) {
           const table = tables[t]![x[t]!]!
           const d = dirs[t] as 0 | 1 | 2
-          const m = d === 2 || moved[t] ? table.move[d] : table.bounce[d]
+          const m =
+            d === 2 || moved[t] ? table.move[d] : table.bounce[d]
 
           applyOne(m, t, cr, ci, ur, ui)
           cr.set(ur)
@@ -462,11 +574,21 @@ export function reelRun(options: ReelRunOptions): ReelRun {
 
         let any = false
 
-        for (let r = 0; r < R; r++) if (cr[r] !== 0 || ci[r] !== 0) any = true
+        for (let r = 0; r < R; r++) {
+          if (cr[r] !== 0 || ci[r] !== 0) {
+            any = true
+          }
+        }
 
-        if (!any) continue
+        if (!any) {
+          continue
+        }
 
-        if (target === undefined) throw new Error('reel-run: an image left the configuration list')
+        if (target === undefined) {
+          throw new Error(
+            'reel-run: an image left the configuration list',
+          )
+        }
 
         for (let r = 0; r < R; r++) {
           nre[target * R + r] = nre[target * R + r]! + cr[r]!
@@ -499,7 +621,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       for (const e of entries) {
         const c = index.get(posCode(e.x) * VN + reelCode(e.r))
 
-        if (c === undefined) throw new Error('reel-run: the start is not a configuration')
+        if (c === undefined) {
+          throw new Error('reel-run: the start is not a configuration')
+        }
 
         tr.fill(0)
         ti.fill(0)
@@ -527,7 +651,9 @@ export function reelRun(options: ReelRunOptions): ReelRun {
       for (let c = 0; c < count; c++) {
         let s = 0
 
-        for (let r = 0; r < R; r++) s += run.re[c * R + r]! ** 2 + run.im[c * R + r]! ** 2
+        for (let r = 0; r < R; r++) {
+          s += run.re[c * R + r]! ** 2 + run.im[c * R + r]! ** 2
+        }
 
         const p = posCode(confPos[c]!)
 

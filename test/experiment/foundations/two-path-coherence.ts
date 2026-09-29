@@ -64,6 +64,7 @@ export default experiment({
     ): { re: number[]; im: number[] } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const re: number[] = []
       const im: number[] = []
 
@@ -83,7 +84,10 @@ export default experiment({
         vacuum = growingBeat(vacuum, rule(t), active)
         seeded = growingBeat(seeded, rule(t), active)
 
-        const d = pairSub(clockAmplitude(seeded), clockAmplitude(vacuum))
+        const d = pairSub(
+          clockAmplitude(seeded),
+          clockAmplitude(vacuum),
+        )
 
         re.push(d[0])
         im.push(d[1])

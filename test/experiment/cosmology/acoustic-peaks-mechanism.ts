@@ -140,8 +140,7 @@ export default experiment({
       return Math.PI / 2 / r.nullBeat / kPhys
     })
 
-    const meanSpeed =
-      speeds.reduce((a, b) => a + b, 0) / speeds.length
+    const meanSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
     const speedNearSound =
       Math.abs(meanSpeed - SOUND) / SOUND < 0.1 &&
       speeds.every(s => Math.abs(s - SOUND) / SOUND < 0.2)
@@ -153,9 +152,7 @@ export default experiment({
     )
 
     // the control: free streaming, the fitted speed is the geometric one half, not the sound speed
-    const freeRings = [1, 2].map(k =>
-      ringing({ rule: passThrough, k }),
-    )
+    const freeRings = [1, 2].map(k => ringing({ rule: passThrough, k }))
     const freeSpeeds = freeRings.map((r, i) => {
       const kPhys = (2 * Math.PI * [1, 2][i]!) / SIDE
 

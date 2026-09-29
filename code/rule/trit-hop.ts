@@ -52,7 +52,9 @@ export type HopTable = {
 }
 
 export function buildHopTable(bulk: TritBulk): HopTable {
-  const rootOf = Int32Array.from({ length: 12 }, (_, k) => rootIndex(bulk.roots[k] ?? []))
+  const rootOf = Int32Array.from({ length: 12 }, (_, k) =>
+    rootIndex(bulk.roots[k] ?? []),
+  )
   const lists: number[][] = Array.from({ length: 24 }, () => [])
   const seen = new Uint8Array(bulk.docks)
 
@@ -62,7 +64,9 @@ export function buildHopTable(bulk: TritBulk): HopTable {
     seen.fill(0)
 
     for (let x0 = 0; x0 < bulk.docks; x0++) {
-      if (seen[x0]) continue
+      if (seen[x0]) {
+        continue
+      }
 
       const orbit: number[] = []
 
@@ -72,7 +76,9 @@ export function buildHopTable(bulk: TritBulk): HopTable {
       }
 
       if (orbit.length % 2 !== 0) {
-        throw new Error(`the orbit of root ${k} through dock ${x0} has odd length ${orbit.length}`)
+        throw new Error(
+          `the orbit of root ${k} through dock ${x0} has odd length ${orbit.length}`,
+        )
       }
 
       orbit.forEach((x, i) => lists[k * 2 + (i % 2)]!.push(x))
@@ -88,26 +94,44 @@ export function buildHopTable(bulk: TritBulk): HopTable {
   return { bulk, rootOf, start, tails: Int32Array.from(lists.flat()) }
 }
 
-export type HopTally = { crossings: number; refused: number; carried: number }
+export type HopTally = {
+  crossings: number
+  refused: number
+  carried: number
+}
 
-export const emptyHopTally = (): HopTally => ({ crossings: 0, refused: 0, carried: 0 })
+export const emptyHopTally = (): HopTally => ({
+  crossings: 0,
+  refused: 0,
+  carried: 0,
+})
 
 // one crossing on the link from tail x along first root k: returns J (0 when nothing crosses or the crossing
 // is refused), and counts
-export function cross(table: HopTable, state: TritState, x: number, k: number, tally?: HopTally): number {
+export function cross(
+  table: HopTable,
+  state: TritState,
+  x: number,
+  k: number,
+  tally?: HopTally,
+): number {
   const bulk = table.bulk
   const y = bulk.neighbour[x * 24 + (table.rootOf[k] ?? 0)] ?? 0
   const vx = state.vibe[x] ?? 0
   const vy = state.vibe[y] ?? 0
   const j = vx - vy
 
-  if (j === 0) return 0
+  if (j === 0) {
+    return 0
+  }
 
   const l = x * 12 + k
   const s = (state.string[l] ?? 0) - j
 
   if (s < -1 || s > 1) {
-    if (tally) tally.refused++
+    if (tally) {
+      tally.refused++
+    }
 
     return 0
   }
@@ -125,19 +149,36 @@ export function cross(table: HopTable, state: TritState, x: number, k: number, t
 }
 
 // one step of the gas: every link of the matching (k, phase) tries its crossing. Its own inverse
-export function hopStep(table: HopTable, state: TritState, k: number, phase: number, tally?: HopTally): void {
+export function hopStep(
+  table: HopTable,
+  state: TritState,
+  k: number,
+  phase: number,
+  tally?: HopTally,
+): void {
   const i = k * 2 + phase
 
-  for (let at = table.start[i] ?? 0; at < (table.start[i + 1] ?? 0); at++) {
+  for (
+    let at = table.start[i] ?? 0;
+    at < (table.start[i + 1] ?? 0);
+    at++
+  ) {
     cross(table, state, table.tails[at] ?? 0, k, tally)
   }
 }
 
 // the gas schedule: beat t runs root t mod 12 at phase floor(t / 12) mod 2
-export const gasStep = (t: number): [number, number] => [t % 12, Math.floor(t / 12) % 2]
+export const gasStep = (t: number): [number, number] => [
+  t % 12,
+  Math.floor(t / 12) % 2,
+]
 
 // the husk current of one bulk crossing: the husk link it lies over, and its column sum is the sum of these.
 // With the columns of code/rule/trit-column, bulk link x * 12 + k lies over husk link column[x] * 9 + h(k)
-export function huskLinkOf(bulk: TritBulk, x: number, k: number): number {
+export function huskLinkOf(
+  bulk: TritBulk,
+  x: number,
+  k: number,
+): number {
   return (bulk.column[x] ?? 0) * 9 + (bulk.firstHusk[k] ?? 0)
 }

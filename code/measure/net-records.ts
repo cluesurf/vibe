@@ -19,25 +19,67 @@
 // Deterministic and exact: integer tables and BigInt wholes. Nothing here decides a gate.
 
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { fearKernels, meetingKernel, swapPhase, type Whole } from '@/code/rule/fear-weave'
-import { advanceKnot, lineKnot, type KnotHistory } from '@/code/measure/knot-histories'
-import { apparatusHistory, LABEL, LINES, lineIndexThrough, memberRecord, reflectionTable } from '@/code/measure/in-model-apparatus'
+import {
+  fearKernels,
+  meetingKernel,
+  swapPhase,
+  type Whole,
+} from '@/code/rule/fear-weave'
+import {
+  advanceKnot,
+  lineKnot,
+  type KnotHistory,
+} from '@/code/measure/knot-histories'
+import {
+  apparatusHistory,
+  LABEL,
+  LINES,
+  lineIndexThrough,
+  memberRecord,
+  reflectionTable,
+} from '@/code/measure/in-model-apparatus'
 
 // the record's label of system point x for setting l, written by the member at (sr, sf) of the apparatus
-export const recordLabel = (l: number, x: number, sr: number, sf: number): number => LABEL[9 * (LINES[l]?.c ?? 0) + memberRecord(x, sr, sf).record] ?? 0
+export const recordLabel = (
+  l: number,
+  x: number,
+  sr: number,
+  sf: number,
+): number =>
+  LABEL[9 * (LINES[l]?.c ?? 0) + memberRecord(x, sr, sf).record] ?? 0
 
 // the label per system point for each of the 12 settings, member at the line's first two points (E-QTM-0138)
-export const RECORD: readonly Int8Array[] = LINES.map((l, li) => Int8Array.from({ length: 9 }, (_, x) => recordLabel(li, x, l.points[0] ?? 0, l.points[1] ?? 0)))
+export const RECORD: readonly Int8Array[] = LINES.map((l, li) =>
+  Int8Array.from({ length: 9 }, (_, x) =>
+    recordLabel(li, x, l.points[0] ?? 0, l.points[1] ?? 0),
+  ),
+)
 
 // the same history with the fear beat off: every meeting the identity on the tokens' coordinates (E-QTM-0138)
 export function fearOff(h: KnotHistory): KnotHistory {
   if (h.kernels.mode === 'swap') {
-    return { ...h, kernels: { mode: 'swap', kernel4: meetingKernel(swapPhase(Math.PI)) ?? [] } }
+    return {
+      ...h,
+      kernels: {
+        mode: 'swap',
+        kernel4: meetingKernel(swapPhase(Math.PI)) ?? [],
+      },
+    }
   }
 
   const exchanged = h.name === 'qtm0100-color'
 
-  return { ...h, kernels: { mode: 'color', color: fearKernels({ like: exchanged ? Math.PI : 0, unlike: 0, likeExchanged: exchanged })! } }
+  return {
+    ...h,
+    kernels: {
+      mode: 'color',
+      color: fearKernels({
+        like: exchanged ? Math.PI : 0,
+        unlike: 0,
+        likeExchanged: exchanged,
+      })!,
+    },
+  }
 }
 
 export const nextMeeting = (h: KnotHistory, from: number): number => {
@@ -74,6 +116,7 @@ export function inModelSettings(beats: number): InModelSettings {
   const slots = weave.mesh.cellCount * 24
   const lineMask = new Uint16Array(beats)
   const through = new Int8Array(81)
+
   let apparatusStarts = 0
 
   for (let p = 0; p < 9; p++) {
@@ -95,7 +138,13 @@ export function inModelSettings(beats: number): InModelSettings {
       vibe[x * 24 + d] = 1
       vibe[x * 24 + o] = -1
 
-      const run = apparatusHistory({ weave, vibe, love: x * 24 + d, fear: x * 24 + o, beats })
+      const run = apparatusHistory({
+        weave,
+        vibe,
+        love: x * 24 + d,
+        fear: x * 24 + o,
+        beats,
+      })
 
       apparatusStarts += 81
 
@@ -106,7 +155,11 @@ export function inModelSettings(beats: number): InModelSettings {
 
         for (let p0 = 0; p0 < 9; p0++) {
           for (let q0 = 0; q0 < 9; q0++) {
-            const l = through[9 * (run.moves[t * 18 + p0] ?? 0) + (run.moves[t * 18 + 9 + q0] ?? 0)] ?? -1
+            const l =
+              through[
+                9 * (run.moves[t * 18 + p0] ?? 0) +
+                  (run.moves[t * 18 + 9 + q0] ?? 0)
+              ] ?? -1
 
             if (l >= 0) {
               lineMask[t] = (lineMask[t] ?? 0) | (1 << l)
@@ -124,13 +177,18 @@ export function inModelSettings(beats: number): InModelSettings {
   return made
 }
 
-export const settingsAt = (s: InModelSettings, t: number): number[] => LINES.map((_, l) => l).filter(l => ((s.lineMask[t] ?? 0) >> l) & 1)
+export const settingsAt = (s: InModelSettings, t: number): number[] =>
+  LINES.map((_, l) => l).filter(l => ((s.lineMask[t] ?? 0) >> l) & 1)
 
 // E-QTM-0138's P5: an apparatus run in the same lattice as E-QTM-0100's system tokens (4 and 7) reaches the
 // same points, vibes and tokens for all 81 start points of the system
-export function situIndependence(beats: number): { runs: number; differences: number } {
+export function situIndependence(beats: number): {
+  runs: number
+  differences: number
+} {
   const weave = makeColorWeave({ side: 3, table: 'pair' })
   const slots = weave.mesh.cellCount * 24
+
   let runs = 0
   let differences = 0
 
@@ -155,7 +213,14 @@ export function situIndependence(beats: number): { runs: number; differences: nu
       points[4] = Math.floor(s / 9)
       points[7] = s % 9
 
-      const run = apparatusHistory({ weave, vibe, love: x * 24 + d, fear: x * 24 + o, beats, points })
+      const run = apparatusHistory({
+        weave,
+        vibe,
+        love: x * 24 + d,
+        fear: x * 24 + o,
+        beats,
+        points,
+      })
       const signature = Int8Array.from([...run.moves, ...run.valid])
 
       runs++
@@ -163,7 +228,9 @@ export function situIndependence(beats: number): { runs: number; differences: nu
       if (!reference) {
         reference = signature
       } else {
-        differences += signature.every((v, i) => v === reference![i]) ? 0 : 1
+        differences += signature.every((v, i) => v === reference![i])
+          ? 0
+          : 1
       }
     }
   }
@@ -173,7 +240,11 @@ export function situIndependence(beats: number): { runs: number; differences: nu
 
 // the 9 net record counts n(alpha, beta), index 3 alpha + beta, of a two-token weight (physical frame, index
 // 9 x + y) at Alice's setting la and Bob's lb
-export function netTable(weight: readonly bigint[], la: number, lb: number): bigint[] {
+export function netTable(
+  weight: readonly bigint[],
+  la: number,
+  lb: number,
+): bigint[] {
   const out = new Array<bigint>(9).fill(0n)
   const ra = RECORD[la]!
   const rb = RECORD[lb]!
@@ -192,7 +263,11 @@ export function netTable(weight: readonly bigint[], la: number, lb: number): big
 }
 
 // the fears (negative joint points) and loves that land in each of the 9 outcome cells
-export function cellLovesAndFears(weight: readonly bigint[], la: number, lb: number): { loves: bigint[]; fears: bigint[] } {
+export function cellLovesAndFears(
+  weight: readonly bigint[],
+  la: number,
+  lb: number,
+): { loves: bigint[]; fears: bigint[] } {
   const loves = new Array<bigint>(9).fill(0n)
   const fears = new Array<bigint>(9).fill(0n)
   const ra = RECORD[la]!
@@ -212,18 +287,26 @@ export function cellLovesAndFears(weight: readonly bigint[], la: number, lb: num
   return { loves, fears }
 }
 
-const GROUPINGS = Array.from({ length: 8 }, (_, g) => [0, 1, 2].map(r => ((g >> r) & 1 ? -1 : 1)))
+const GROUPINGS = Array.from({ length: 8 }, (_, g) =>
+  [0, 1, 2].map(r => ((g >> r) & 1 ? -1 : 1)),
+)
 
 // The largest CHSH at the given settings, computed from the NET tables alone: each observable is a setting l
 // and a +-1 grouping g of its 3 labels (duplicates, the same function of the point, kept once), and each
 // correlator is sum over the 9 cells of g_a(alpha) g_b(beta) n_(la, lb)(alpha, beta). Exact, in the whole's units
-export function netChsh(weight: readonly bigint[], settings: readonly number[]): { numerator: bigint; units: bigint } {
+export function netChsh(
+  weight: readonly bigint[],
+  settings: readonly number[],
+): { numerator: bigint; units: bigint } {
   const reps: { l: number; g: number[] }[] = []
   const seen = new Set<string>()
 
   for (const l of settings) {
     for (const g of GROUPINGS) {
-      const key = Array.from({ length: 9 }, (_, x) => g[RECORD[l]![x] ?? 0]).join(',')
+      const key = Array.from(
+        { length: 9 },
+        (_, x) => g[RECORD[l]![x] ?? 0],
+      ).join(',')
 
       if (!seen.has(key)) {
         seen.add(key)
@@ -233,8 +316,10 @@ export function netChsh(weight: readonly bigint[], settings: readonly number[]):
   }
 
   const tables = new Map<number, bigint[]>()
+
   const tableOf = (la: number, lb: number): bigint[] => {
     const key = 12 * la + lb
+
     let t = tables.get(key)
 
     if (!t) {
@@ -244,18 +329,23 @@ export function netChsh(weight: readonly bigint[], settings: readonly number[]):
 
     return t
   }
+
   const corr = reps.map(a =>
     reps.map(b => {
       const n = tableOf(a.l, b.l)
+
       let s = 0n
 
       for (let k = 0; k < 9; k++) {
-        s += BigInt((a.g[Math.floor(k / 3)] ?? 0) * (b.g[k % 3] ?? 0)) * (n[k] ?? 0n)
+        s +=
+          BigInt((a.g[Math.floor(k / 3)] ?? 0) * (b.g[k % 3] ?? 0)) *
+          (n[k] ?? 0n)
       }
 
       return s
     }),
   )
+
   let best = -1n << 400n
 
   for (let a0 = 0; a0 < reps.length; a0++) {
@@ -280,7 +370,8 @@ export function netChsh(weight: readonly bigint[], settings: readonly number[]):
 
 let REFLECTION: Int16Array | undefined
 
-export const reflection = (): Int16Array => (REFLECTION ??= reflectionTable())
+export const reflection = (): Int16Array =>
+  (REFLECTION ??= reflectionTable())
 
 // The joint whole after each party's R, as the model applies it: system (a love, physical frame), record (a
 // love at sr) and reference (a fear stored at sf) for Alice and for Bob, one classical member each. Returns the
@@ -296,14 +387,18 @@ export function recordedWhole(
   const images = new Int32Array(81)
   const cells = new Int8Array(81)
   const seen = new Set<number>()
+
   let collisions = 0
 
   for (let i = 0; i < 81; i++) {
     const ia = r[81 * Math.floor(i / 9) + 9 * alice.sr + alice.sf] ?? 0
     const ib = r[81 * (i % 9) + 9 * bob.sr + bob.sf] ?? 0
     const image = 729 * ia + ib
-    const la = LABEL[9 * (LINES[alice.l]?.c ?? 0) + (Math.floor(ia / 9) % 9)] ?? 0
-    const lb = LABEL[9 * (LINES[bob.l]?.c ?? 0) + (Math.floor(ib / 9) % 9)] ?? 0
+    const la =
+      LABEL[9 * (LINES[alice.l]?.c ?? 0) + (Math.floor(ia / 9) % 9)] ??
+      0
+    const lb =
+      LABEL[9 * (LINES[bob.l]?.c ?? 0) + (Math.floor(ib / 9) % 9)] ?? 0
 
     collisions += seen.has(image) && (weight[i] ?? 0n) !== 0n ? 1 : 0
     seen.add(image)
@@ -319,7 +414,11 @@ export function recordedWhole(
 // each beat's members after the beat, raw (the caller reads them through physicalKnot). Each member keeps its
 // own grain (reduceWhole), so a member's weights are its propagator column times a positive scale, the scale
 // being the member's own units (the kernels keep the sum)
-export function propagateMembers(h: KnotHistory, beats: number, visit: (t: number, members: readonly Whole[]) => void): void {
+export function propagateMembers(
+  h: KnotHistory,
+  beats: number,
+  visit: (t: number, members: readonly Whole[]) => void,
+): void {
   let members: Whole[] = Array.from({ length: 81 }, (_, i) => {
     const weight = new Array<bigint>(81).fill(0n)
 
@@ -354,14 +453,22 @@ export type BellState = {
 
 // E-QTM-0138's states: every Bell history, every product of two grid lines as start, read at the reading beat
 // (one beat after the first meeting), and the history's own start also after every meeting beat
-export function forEachBellState(histories: readonly KnotHistory[], lines: readonly (readonly number[])[], beats: number, visit: (s: BellState) => void): void {
+export function forEachBellState(
+  histories: readonly KnotHistory[],
+  lines: readonly (readonly number[])[],
+  beats: number,
+  visit: (s: BellState) => void,
+): void {
   for (const h of histories) {
     const off = fearOff(h)
     const reading = nextMeeting(h, 0) + 1
 
     for (const a of lines) {
       for (const b of lines) {
-        const own = a.every(p => Math.floor(p / 3) === h.start[0]) && b.every(p => Math.floor(p / 3) === h.start[1])
+        const own =
+          a.every(p => Math.floor(p / 3) === h.start[0]) &&
+          b.every(p => Math.floor(p / 3) === h.start[1])
+
         let w = lineKnot(h.tokens, a, b)
         let o = w
 
@@ -371,8 +478,22 @@ export function forEachBellState(histories: readonly KnotHistory[], lines: reado
           w = advanceKnot(h, w, h.records[t]!)
           o = advanceKnot(off, o, h.records[t]!)
 
-          if (t === reading || (own && (h.records[t]?.meetings.length ?? 0) > 0)) {
-            visit({ h, off, a, b, own, t, reading, whole: w, before, offWhole: o })
+          if (
+            t === reading ||
+            (own && (h.records[t]?.meetings.length ?? 0) > 0)
+          ) {
+            visit({
+              h,
+              off,
+              a,
+              b,
+              own,
+              t,
+              reading,
+              whole: w,
+              before,
+              offWhole: o,
+            })
           }
         }
       }
@@ -380,7 +501,7 @@ export function forEachBellState(histories: readonly KnotHistory[], lines: reado
   }
 }
 
-export type NetClass ='clean' | 'netted' | 'spread' | 'negative'
+export type NetClass = 'clean' | 'netted' | 'spread' | 'negative'
 
 // One member's net records at a setting pair (or one party's, given a 3-cell table):
 //   clean     a definite outcome with no cancellation: exactly one cell nonzero, positive, and no fear
@@ -389,7 +510,10 @@ export type NetClass ='clean' | 'netted' | 'spread' | 'negative'
 //             the member holds a fear
 //   spread    every cell non-negative, two or more positive: not one outcome
 //   negative  some cell net negative: the member alone would write a negative number of records
-export function classifyNet(cells: readonly bigint[], hasFear: boolean): NetClass {
+export function classifyNet(
+  cells: readonly bigint[],
+  hasFear: boolean,
+): NetClass {
   if (cells.some(c => c < 0n)) {
     return 'negative'
   }

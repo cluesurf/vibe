@@ -61,19 +61,50 @@ import { type Step } from '@/code/rule/spinor-token'
 const MODEL_COIN = Math.PI / 3
 const TOKEN: readonly Step[] = ['x', 'y', 'z', 'up', 'down']
 const STRANG: readonly Step[] = ['x', 'y', 'z', 'x']
-const NESTED: readonly Step[] = ['z', 'up', 'down', 'x', 'up', 'down', 'y', 'up', 'down', 'y', 'up', 'down', 'x', 'up', 'down', 'z']
+const NESTED: readonly Step[] = [
+  'z',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'z',
+]
 const SAMPLES = 4096
 const SIDES = [48, 96, 192]
 const EXACT = 1e-12
 const ZERO_MODE = 1e-6
 const THIRD = Math.sqrt(3) - 1
 
-const asToken = (schedule: readonly Step[]): TokenStep[] => schedule.map(s => ({ axis: s === 'x' ? 'x' : s === 'y' ? 'y' : 'none' }))
+const asToken = (schedule: readonly Step[]): TokenStep[] =>
+  schedule.map(s => ({
+    axis: s === 'x' ? 'x' : s === 'y' ? 'y' : 'none',
+  }))
 
 // relabel the husk axes so that the plane (a, b) becomes the chain's (x, y), the field along the third
-function relabel(schedule: readonly Step[], a: 'x' | 'y' | 'z', b: 'x' | 'y' | 'z'): Step[] {
-  const c = (['x', 'y', 'z'] as const).find(k => k !== a && k !== b) ?? 'z'
-  const map: Record<string, Step> = { [a]: 'x', [b]: 'y', [c]: 'z', up: 'up', down: 'down' }
+function relabel(
+  schedule: readonly Step[],
+  a: 'x' | 'y' | 'z',
+  b: 'x' | 'y' | 'z',
+): Step[] {
+  const c =
+    (['x', 'y', 'z'] as const).find(k => k !== a && k !== b) ?? 'z'
+  const map: Record<string, Step> = {
+    [a]: 'x',
+    [b]: 'y',
+    [c]: 'z',
+    up: 'up',
+    down: 'down',
+  }
 
   return schedule.map(s => map[s] ?? s)
 }
@@ -121,12 +152,22 @@ export default experiment({
     const g1 = bowls > 0 && boundViolations === 0 && belowOrAtTwo === 0
 
     // G2: the light-coin limit
-    const lightG = [60, 100, 200, 400].map(k => ({ k, g: tokenG({ schedule: asToken(TOKEN), mu: Math.PI / k }).g }))
-    const fitPoints = lightG.filter(p => p.k >= 100).map(p => [Math.log(Math.PI / p.k), Math.log(p.g - 2)] as const)
-    const meanX = fitPoints.reduce((s, p) => s + p[0], 0) / fitPoints.length
-    const meanY = fitPoints.reduce((s, p) => s + p[1], 0) / fitPoints.length
+    const lightG = [60, 100, 200, 400].map(k => ({
+      k,
+      g: tokenG({ schedule: asToken(TOKEN), mu: Math.PI / k }).g,
+    }))
+    const fitPoints = lightG
+      .filter(p => p.k >= 100)
+      .map(p => [Math.log(Math.PI / p.k), Math.log(p.g - 2)] as const)
+    const meanX =
+      fitPoints.reduce((s, p) => s + p[0], 0) / fitPoints.length
+    const meanY =
+      fitPoints.reduce((s, p) => s + p[1], 0) / fitPoints.length
     const slope =
-      fitPoints.reduce((s, p) => s + (p[0] - meanX) * (p[1] - meanY), 0) / fitPoints.reduce((s, p) => s + (p[0] - meanX) ** 2, 0)
+      fitPoints.reduce(
+        (s, p) => s + (p[0] - meanX) * (p[1] - meanY),
+        0,
+      ) / fitPoints.reduce((s, p) => s + (p[0] - meanX) ** 2, 0)
     const g2 = lightG.every(p => p.g > 2) && Math.abs(slope - 2) < 0.05
 
     // G3: the model coin's exactly Dirac schedules
@@ -136,24 +177,60 @@ export default experiment({
       ['nestedYZ', relabel(NESTED, 'y', 'z')],
       ['nestedZX', relabel(NESTED, 'z', 'x')],
     ]
-    const analytic = planes.map(([name, schedule]) => ({ name, schedule, r: tokenG({ schedule: asToken(schedule), mu: MODEL_COIN }) }))
+    const analytic = planes.map(([name, schedule]) => ({
+      name,
+      schedule,
+      r: tokenG({ schedule: asToken(schedule), mu: MODEL_COIN }),
+    }))
     const nested = analytic.filter(a => a.name.startsWith('nested'))
     const cyclotrons = nested.flatMap(a => a.r.cyclotron)
-    const cyclotronSpread = Math.max(...cyclotrons) - Math.min(...cyclotrons)
-    const anisotropy = Math.max(...nested.flatMap(a => a.r.sectors.map(s => Math.abs(s.c))))
+    const cyclotronSpread =
+      Math.max(...cyclotrons) - Math.min(...cyclotrons)
+    const anisotropy = Math.max(
+      ...nested.flatMap(a => a.r.sectors.map(s => Math.abs(s.c))),
+    )
     const g3 =
-      analytic.every(a => a.r.bowl && Math.abs(a.r.restGap) > 1e-9 && Math.abs(a.r.g - 2) < EXACT) && cyclotronSpread < EXACT && anisotropy < EXACT
+      analytic.every(
+        a =>
+          a.r.bowl &&
+          Math.abs(a.r.restGap) > 1e-9 &&
+          Math.abs(a.r.g - 2) < EXACT,
+      ) &&
+      cyclotronSpread < EXACT &&
+      anisotropy < EXACT
 
     // G4: the Landau witness, with the token as the control
-    const landau = [...planes, ['tokenControl', [...TOKEN]] as [string, Step[]]].map(([name, schedule]) => {
-      const sign = bandSignOf({ schedule, mode: 'locked', coinAngle: MODEL_COIN })
+    const landau = [
+      ...planes,
+      ['tokenControl', [...TOKEN]] as [string, Step[]],
+    ].map(([name, schedule]) => {
+      const sign = bandSignOf({
+        schedule,
+        mode: 'locked',
+        coinAngle: MODEL_COIN,
+      })
 
-      return { name, readings: SIDES.map(side => landauG({ schedule, mode: 'locked', coinAngle: MODEL_COIN, side, sign })) }
+      return {
+        name,
+        readings: SIDES.map(side =>
+          landauG({
+            schedule,
+            mode: 'locked',
+            coinAngle: MODEL_COIN,
+            side,
+            sign,
+          }),
+        ),
+      }
     })
     const dirac = landau.filter(l => l.name !== 'tokenControl')
     const control = landau.find(l => l.name === 'tokenControl')
-    const zeroModeMiss = Math.max(...dirac.flatMap(l => l.readings.map(r => Math.abs(r.gLo - 2))))
-    const g4 = zeroModeMiss < ZERO_MODE && (control?.readings ?? []).every(r => Math.abs(r.gLo - 2) > 1)
+    const zeroModeMiss = Math.max(
+      ...dirac.flatMap(l => l.readings.map(r => Math.abs(r.gLo - 2))),
+    )
+    const g4 =
+      zeroModeMiss < ZERO_MODE &&
+      (control?.readings ?? []).every(r => Math.abs(r.gLo - 2) > 1)
 
     // G5: the shortest exactly Dirac schedules at the model coin
     const exactByLength: number[] = []
@@ -164,13 +241,21 @@ export default experiment({
       let massiveBowls = 0
 
       for (let code = 0; code < 3 ** length; code++) {
-        const letters = Array.from({ length }, (_, k) => 'xy-'[Math.floor(code / 3 ** k) % 3] ?? '-')
+        const letters = Array.from(
+          { length },
+          (_, k) => 'xy-'[Math.floor(code / 3 ** k) % 3] ?? '-',
+        )
 
         if (!letters.includes('x') || !letters.includes('y')) {
           continue
         }
 
-        const r = tokenG({ schedule: letters.map(c => ({ axis: c === '-' ? 'none' : (c as 'x' | 'y') })), mu: MODEL_COIN })
+        const r = tokenG({
+          schedule: letters.map(c => ({
+            axis: c === '-' ? 'none' : (c as 'x' | 'y'),
+          })),
+          mu: MODEL_COIN,
+        })
 
         if (!r.bowl || Math.abs(r.restGap) < 1e-9) {
           continue
@@ -184,7 +269,10 @@ export default experiment({
       bowlsByLength.push(massiveBowls)
     }
 
-    const g5 = exactByLength[0] === 0 && exactByLength[1] === 0 && (exactByLength[2] ?? 0) > 0
+    const g5 =
+      exactByLength[0] === 0 &&
+      exactByLength[1] === 0 &&
+      (exactByLength[2] ?? 0) > 0
 
     const ok = g1 && g2 && g3 && g4 && g5
 
@@ -197,21 +285,48 @@ export default experiment({
         twoStreamBoundViolations: boundViolations,
         twoStreamAtOrBelowTwo: belowOrAtTwo,
         twoStreamTightestRatio: tightest,
-        ...Object.fromEntries(lightG.map(p => [`tokenG_muPiOver${p.k}`, Number(p.g.toFixed(9))])),
+        ...Object.fromEntries(
+          lightG.map(p => [
+            `tokenG_muPiOver${p.k}`,
+            Number(p.g.toFixed(9)),
+          ]),
+        ),
         lightCoinSlope: slope,
-        ...Object.fromEntries(analytic.flatMap(a => [[`${a.name}_g`, a.r.g], [`${a.name}_restGap`, a.r.restGap], [`${a.name}_cyclotron`, a.r.cyclotron[0] ?? NaN]])),
+        ...Object.fromEntries(
+          analytic.flatMap(a => [
+            [`${a.name}_g`, a.r.g],
+            [`${a.name}_restGap`, a.r.restGap],
+            [`${a.name}_cyclotron`, a.r.cyclotron[0] ?? NaN],
+          ]),
+        ),
         nestedCyclotronSpread: cyclotronSpread,
         nestedAnisotropy: anisotropy,
         zeroModeMiss,
-        ...Object.fromEntries(dirac.flatMap(l => l.readings.map(r => [`${l.name}_L${r.side}_gLo`, r.gLo]))),
-        ...Object.fromEntries(exactByLength.map((n, i) => [`exactDiracLength${i + 2}`, n])),
-        ...Object.fromEntries(bowlsByLength.map((n, i) => [`massiveBowlsLength${i + 2}`, n])),
+        ...Object.fromEntries(
+          dirac.flatMap(l =>
+            l.readings.map(r => [`${l.name}_L${r.side}_gLo`, r.gLo]),
+          ),
+        ),
+        ...Object.fromEntries(
+          exactByLength.map((n, i) => [`exactDiracLength${i + 2}`, n]),
+        ),
+        ...Object.fromEntries(
+          bowlsByLength.map((n, i) => [
+            `massiveBowlsLength${i + 2}`,
+            n,
+          ]),
+        ),
       },
       control: {
-        ...Object.fromEntries((control?.readings ?? []).map(r => [`token_L${r.side}_gLo`, Number(r.gLo.toFixed(6))])),
+        ...Object.fromEntries(
+          (control?.readings ?? []).map(r => [
+            `token_L${r.side}_gLo`,
+            Number(r.gLo.toFixed(6)),
+          ]),
+        ),
       },
       notes:
-        'L2, STAND-IN. The answer to "light coin or different spin locking": neither. With one x and one y stream per period no coin and no lock angle gets below 2 sec(phi/2): the lock angle only moves delta, and the best delta (the isotropic one, delta = phi/2) gives exactly the bound, which at the model coin is the token\'s own 4. A light coin approaches 2 only as mu^2. What makes g = 2 is the ORDER of the copies: the Zeeman excess is the ordering commutator of an x copy then a y copy, and a Strang-symmetric period cancels it when each mirrored pair of copies is seen in one coin frame. The model\'s coin is the reason that is free: C^3 = 1, so copies three beats apart share a frame, and the locked mode needs no change. x, y, z, x is the shortest such period in the plane (not husk-symmetric: x twice, y once). The 16-beat nested palindrome z..x..y..y..x..z with depth pairs between the copies is the husk-isotropic one, g = 2 for a field along any axis. The Landau zero mode sits exactly at the rest energy at every field tried, which a second-order argument alone does not promise; it is reported as measured, not explained. What this does NOT show: the 16-beat token has not been run through E-SPN-0053\'s other gates (beat-by-beat covariance, Gauss\'s law, the group-velocity bound, the 2 pi sign), its band beyond second order is not measured, and it is still a stand-in whose spin and charge are put in.',
+        "L2, STAND-IN. The answer to \"light coin or different spin locking\": neither. With one x and one y stream per period no coin and no lock angle gets below 2 sec(phi/2): the lock angle only moves delta, and the best delta (the isotropic one, delta = phi/2) gives exactly the bound, which at the model coin is the token's own 4. A light coin approaches 2 only as mu^2. What makes g = 2 is the ORDER of the copies: the Zeeman excess is the ordering commutator of an x copy then a y copy, and a Strang-symmetric period cancels it when each mirrored pair of copies is seen in one coin frame. The model's coin is the reason that is free: C^3 = 1, so copies three beats apart share a frame, and the locked mode needs no change. x, y, z, x is the shortest such period in the plane (not husk-symmetric: x twice, y once). The 16-beat nested palindrome z..x..y..y..x..z with depth pairs between the copies is the husk-isotropic one, g = 2 for a field along any axis. The Landau zero mode sits exactly at the rest energy at every field tried, which a second-order argument alone does not promise; it is reported as measured, not explained. What this does NOT show: the 16-beat token has not been run through E-SPN-0053's other gates (beat-by-beat covariance, Gauss's law, the group-velocity bound, the 2 pi sign), its band beyond second order is not measured, and it is still a stand-in whose spin and charge are put in.",
     })
   },
 })

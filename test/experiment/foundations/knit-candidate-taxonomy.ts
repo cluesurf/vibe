@@ -108,7 +108,10 @@ function jewelKnit(
 
       const tables = (): void => {
         for (const pair of [wire, line]) {
-          const image = table[pairKey(slots[base + pair[0]]!, slots[base + pair[1]]!)]!
+          const image =
+            table[
+              pairKey(slots[base + pair[0]]!, slots[base + pair[1]]!)
+            ]!
 
           slots[base + pair[0]] = image[0]
           slots[base + pair[1]] = image[1]
@@ -129,7 +132,8 @@ function jewelKnit(
 // the park rule: lone against marked line swap, charge clock on wires only
 function parkKnit(mesh: ReturnType<typeof d4Mesh>): Collision {
   const couples = couplesOf(mesh)
-  const lone = (a: number, b: number): boolean => (a === 0) !== (b === 0)
+  const lone = (a: number, b: number): boolean =>
+    (a === 0) !== (b === 0)
   const marked = (a: number, b: number): boolean => a === 1 && b === -1
 
   return (slots, base) => {
@@ -149,7 +153,10 @@ function parkKnit(mesh: ReturnType<typeof d4Mesh>): Collision {
         slots[base + wire[1]] = a1
       }
 
-      const image = PAIR_FORWARD[pairKey(slots[base + wire[0]]!, slots[base + wire[1]]!)]!
+      const image =
+        PAIR_FORWARD[
+          pairKey(slots[base + wire[0]]!, slots[base + wire[1]]!)
+        ]!
 
       slots[base + wire[0]] = image[0]
       slots[base + wire[1]] = image[1]
@@ -363,9 +370,7 @@ export default experiment({
       unionGap = Math.max(
         unionGap,
         Math.sqrt(
-          pairAbs2(
-            pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d)),
-          ),
+          pairAbs2(pairSub(both[t]!.d, pairAdd(one[t]!.d, two[t]!.d))),
         ),
       )
     }
@@ -394,7 +399,9 @@ export default experiment({
     // 4. the park rule transmits with a rotated phase, in the measured configuration: side 11, a slab
     // on the first axis born one beat late, the traveller seeded at coordinate one. Against the no-slab
     // control (birth 0), the crossing adds a recoherent phase the control never shows
-    const parkPhases = (birth: number): { entered: boolean; phases: Set<number> } => {
+    const parkPhases = (
+      birth: number,
+    ): { entered: boolean; phases: Set<number> } => {
       const side = 11
       const mesh = d4Mesh({ side })
       const rule = parkKnit(mesh)

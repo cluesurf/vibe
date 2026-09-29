@@ -78,8 +78,18 @@ export function pairLedger(input: {
         const p = Math.floor(t / period)
 
         net +=
-          tally.made - last.made - collided * (vacuumMade[t] ?? 0) - (tally.unmade - last.unmade - collided * (vacuumUnmade[t] ?? 0))
-        swaps[p] = (swaps[p] ?? 0) + tally.swaps - last.swaps - collided * (vacuumSwaps[t] ?? 0)
+          tally.made -
+          last.made -
+          collided * (vacuumMade[t] ?? 0) -
+          (tally.unmade -
+            last.unmade -
+            collided * (vacuumUnmade[t] ?? 0))
+
+        swaps[p] =
+          (swaps[p] ?? 0) +
+          tally.swaps -
+          last.swaps -
+          collided * (vacuumSwaps[t] ?? 0)
         last = { ...tally }
         collided = live.size
 
@@ -111,7 +121,18 @@ export function pairLedger(input: {
     })
   }
 
-  const vacuumEmpty = Array.from({ length: periods }, (_, p) => vacuum[(p + 1) * period - 1]?.every(x => x === 0) ?? false).every(Boolean)
+  const vacuumEmpty = Array.from(
+    { length: periods },
+    (_, p) =>
+      vacuum[(p + 1) * period - 1]?.every(x => x === 0) ?? false,
+  ).every(Boolean)
 
-  return { largest, netPairs, swaps, identity, vacuumEmpty, firstPeriodCells }
+  return {
+    largest,
+    netPairs,
+    swaps,
+    identity,
+    vacuumEmpty,
+    firstPeriodCells,
+  }
 }
