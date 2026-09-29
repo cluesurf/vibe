@@ -104,7 +104,23 @@
 //  construction's R negative (-1.61): the Wilson mass reopens a pair channel that E-SPN-0160 had closed. Neither gates
 //  anything; both are reported. No gate changed after the smoke run.
 //
-// FIRST RUN: pending.
+// FIRST RUN (tmp/wil-exp-run1.log, 1,237 s): FAIL on W4's isotropy clause only, everything else as derived. W1 units
+//  exact, unitary 1.1e-15, covariant under 1,152 6.9e-18, chiral variant under the 576 rotations 6.9e-18 and off a
+//  reflection 4.2e-2. W2 72 zeros, the singlet's offset -m0 at K = 0 and positive at all 71 doublers in both
+//  constructions and halves (light: -0.0936 at K = 0; 0.1931, 0.1607, 0.1850, 0.1886 at W = 24, 32, 28, 27), pi gaps
+//  0.190 and 0.542, the uniform mass positive at all 72. W3 C2 -1 per copy in all four, uniform 0. W4 the walls (L = 12):
+//  8 in-gap states per half at k = 0, split 4 and 4 (depth weights 0.9967 and 0.0033), net chirality A +2.0000 B -2.0000
+//  in half 0, A -2.0000 B +2.0000 in half 1, the chiral variant +2 / -2 in the Wilson half with 0 in-gap states in the
+//  other; but the cone's three speeds per cycle read 0.62248 / 0.62247 / 0.62248, equal to 1.6e-5, against the
+//  pre-registered 1e-6. The symmetric difference at K_STEP 0.01 carries an O(k^2) error near 1e-4, so the tolerance was
+//  below the instrument's resolution; it was fixed before the run and is kept as a fail. Weyl speed 0.880 of c/4. W5 rest
+//  8 + 8 + 176, isotropy 7.7e-12, fastest band 0.858 of c/4, the massless pieces 1.0e-17 from E-SPN-0160's, the rest
+//  asymmetry with the masses conjugated +3047158125 / 10851569165584 exactly. W6 the q = 3 field's Wilson bulk gap 0.0051
+//  against 0.4955 free, the trivial 0.7606 and 0.7609. G false. I1 leak 5.6e-15, I2 1.8e-15, I3 2.6e-14. C1 bit for bit,
+//  C2 8.0e-15, C3 Wilson windings 1.4e-16 and the chiral stream -96.0000 at 480 and 481, C4 exact. Read: R 1.0424 against
+//  tan m/m 1.0007 for the light construction (m0 0.0936, M 0.1931), 1.7714 for u = (-1, 4), -1.61 for the heavy
+//  symmetric one; the light census OPEN, 10,492 crossings; the L = 12 field slab's lowest pair at k2 0.3 leans 0.71 to
+//  wall A above pi and 0.30 below in half 0, the reverse in half 1, and splits evenly (0.53) at p = 0.
 //
 // DETERMINISM: no random numbers (grids and Weyl sequences). EXACT: the projectors (integers and dyadics), the ring units,
 // E-SPN-0164's rest asymmetry (Eisenstein rationals). Floats elsewhere, as measurement. NOTHING MOVES: a slot takes its

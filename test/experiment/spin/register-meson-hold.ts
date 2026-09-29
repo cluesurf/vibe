@@ -59,6 +59,7 @@
 //
 // PREDICTED: H0 holds (the reduction is the rule), H1 holds (margin 0.33, the D F band), H2 holds (the level holds 128
 // beats), H3 holds (isotropic), H4 FAILS (R 0.69). Verdict fail on H4, with the hold the first for a light member.
+// (The verdict came as predicted and the hold did; R came at 34.65, on the other side of 1: see FIRST RUN.)
 //
 // GATES, fixed before the gate run.
 //  H0 THE WITNESS (the full rule): the full 192 x 192 pair rule on a radius-4 ball (the pieces with the string, the swap
@@ -113,6 +114,41 @@
 //  inside the core (above the level at V 4, where it is the forbidden side of the well) as a channel; and the leak read
 //  "lost <= 1e-3", where the edge's drops in the Gram metric read -6.8e-6 (a gain) at radius 5's 3% edge shell, so the
 //  gate reads the change's size.
+//
+// FIRST RUN (tmp/rmh-hold-run1.log, 8,140 s): FAIL on H4 alone, as predicted, but with R far on the OTHER side of 1
+//  (34.65 against the predicted 0.69). H0 to H3, the instrument and both controls hold. No gate moved and none was rerun.
+//  - H0: the full 192 x 192 rule and the lifted coordinate cycle agree to 4.6e-17 (S S, whole ball) and 9.7e-17
+//    (generic, within 2) at both momenta; weights equal to 12 digits; the coordinate norm kept to 4e-14.
+//  - H1: least margin 0.325, the D F band at V 0 (E_L 1.979 against pi - Smax = 2.304); Smax 0.8378; the uncapped D D
+//    crossing would sit at V* 9.37, past the cap, so the cap is what closes it (point 2).
+//  - H2: E_L 1.978945 (NR 2.0054, 1.3% low), |lambda| 1 + 6e-12, residual 8.1e-7; over 64 cycles (128 beats) the norm
+//    changed by -8.0e-10 and the fidelity never fell below 1 - 4.0e-10; the edge shell (V 9) 2.0e-7. THE FIRST LIGHT
+//    COMPOSITE THAT HOLDS ON THIS PROGRAM'S RULES: members at m 0.190126, where every slot-rule binding leaked. Shares:
+//    S S 0.917, S D and D S 0.041 each, D D 0.001; profile by V 0 .. 9: 1.2e-4 3.0e-3 1.7e-2 8.6e-2 8.4e-1 5.0e-2 3.0e-3
+//    1.2e-4 5.4e-6 2.0e-7 (the shells grow as V^3, so the peak at V 4 is the shell count times a smooth s-wave).
+//  - H3: a 0.0036456469 (axis) and 0.0036456488 (generic), isotropic to 5.0e-7.
+//  - H4 FAILS: R = c*^2 / (2 a E_L) = 34.65. The free pair's edge has a = a_member / 2 = 0.329 a cycle (R 1.012), so the
+//    bound pair's centre moves 90 times less readily than two free members. A READING AFTER THE RUN, not a derivation:
+//    the NR model (point 3) takes the centre's inertia to be the members' sum, which holds in the continuum; here the
+//    string's step per unit of V (0.281 a cycle) is comparable to the member's band width (Smax - M0 = 0.458), the
+//    strong-coupling lattice regime, where a bound pair's centre moves only in higher order (each member's hop to its
+//    partner D leaves the S S well for the S D sector near eps 0, 2 away, with no string there), as a tightly bound
+//    pair on a lattice does (hopping t^2 / U). The binding and the spatial profile follow the NR model (E_L within 1.3%);
+//    the inertia does not. So the same obstruction holds from the other side: potential energy does not become inertia,
+//    and here the string's lattice form adds inertia the continuum would not have. A string weak against the band
+//    width (tau << 0.46 a unit, mean V ~ 1 / tau) is where the NR R (below 1) should appear, on boxes far larger than
+//    radius 9.
+//  - I1 1.8e-15; I2 member R 1.012226137 against tan m / m 1.012226057.
+//  - C1: with no string the same filters give a state whose fidelity falls to 0.596 in 64 cycles (norm kept to 1.2e-7:
+//    in 64 cycles the free pair has not reached the edge), so the witness sees an unbound pair. C2: E-SPN-0147's member
+//    mass string moves the lifted cycle off the coordinates by 7.7e-4 in one cycle: it does not keep W (x) W, as point 1
+//    derived, and its flats would couple.
+// NEXT. (1) A string weak against the band width on a larger box (radius 20 or more: the engine is linear in sites,
+//  2.9 s a cycle at radius 9), to see R cross from 35 toward the continuum's value. (2) Neither R = 35 nor the NR 0.69
+//  is 1: a binding with inertia equal to energy needs a field that carries its own momentum (E-SPN-0155's transverse
+//  exchange), which on the register rule is the next piece to build. (3) Confinement: a string that keeps rising meets
+//  the D D ladder at V* (9.4 here), E-SPN-0161's point, so a confined light register meson is long-lived, not exact,
+//  unless something lifts the D D sector's slope.
 //
 // Depth L2 (a two-body quantum walk of register members on the D4 mesh, in the exact coordinates of its invariant block,
 // witnessed against the full rule). DETERMINISM: no random numbers; the start is placed, every level filtered, Weyl
@@ -193,7 +229,9 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'spin/register-meson-hold',
   code: 'E-SPN-0162',
-  title: 'a light register meson bound by the singlet-pair string: not yet run',
+  title:
+    'a light register meson holds exactly but is 35 times too heavy, fail (H4): two members at m 0.190126 carrying the Cl+(4) register, bound by a string on the pair\'s singlet sector alone (u^2 rho^min(V, 8) on S S, its conjugate on D D), evolve exactly inside the 16 x 16 moving block (witnessed against the full 192 x 192 rule to 1e-16, where E-SPN-0147\'s member mass string is off by 7.7e-4 and couples the flats); every channel is closed at every separation, the cap closing the D D ladder that an uncapped string would meet at V 9.4, so the pair is bound in a finite well and not confined; the level at eps 1.978945 (NR 2.005) holds 128 beats with the norm kept to 8e-10 and fidelity 1 - 4e-10, isotropic to 5e-7, but R = 34.65 (NR 0.69): in this strong-coupling lattice regime the bound pair\'s centre moves 90 times less readily than two free members',
+
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
